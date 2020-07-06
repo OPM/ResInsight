@@ -52,7 +52,7 @@ RigFemPartResultCalculatorPorosityPermeability::~RigFemPartResultCalculatorPoros
 //--------------------------------------------------------------------------------------------------
 bool RigFemPartResultCalculatorPorosityPermeability::isMatching( const RigFemResultAddress& resVarAddr ) const
 {
-    return ( resVarAddr.fieldName == "POROSITY-PERMEABILITY" &&
+    return ( resVarAddr.fieldName == "PORO-PERM" &&
              ( resVarAddr.componentName == "PHI" || resVarAddr.componentName == "DPHI" ||
                resVarAddr.componentName == "PERM" ) );
 }

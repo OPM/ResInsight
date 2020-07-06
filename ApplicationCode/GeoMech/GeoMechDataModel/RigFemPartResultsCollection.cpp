@@ -693,9 +693,9 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["COMPRESSIBILITY"].push_back( "VERTICAL" );
             fieldCompNames["COMPRESSIBILITY"].push_back( "VERTICAL-RATIO" );
 
-            fieldCompNames["POROSITY-PERMEABILITY"].push_back( "PHI" );
-            fieldCompNames["POROSITY-PERMEABILITY"].push_back( "DPHI" );
-            fieldCompNames["POROSITY-PERMEABILITY"].push_back( "PERM" );
+            fieldCompNames["PORO-PERM"].push_back( "PHI" );
+            fieldCompNames["PORO-PERM"].push_back( "DPHI" );
+            fieldCompNames["PORO-PERM"].push_back( "PERM" );
         }
         else if ( resPos == RIG_INTEGRATION_POINT )
         {
@@ -776,9 +776,9 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["COMPRESSIBILITY"].push_back( "VERTICAL" );
             fieldCompNames["COMPRESSIBILITY"].push_back( "VERTICAL-RATIO" );
 
-            fieldCompNames["POROSITY-PERMEABILITY"].push_back( "PHI" );
-            fieldCompNames["POROSITY-PERMEABILITY"].push_back( "DPHI" );
-            fieldCompNames["POROSITY-PERMEABILITY"].push_back( "PERM" );
+            fieldCompNames["PORO-PERM"].push_back( "PHI" );
+            fieldCompNames["PORO-PERM"].push_back( "DPHI" );
+            fieldCompNames["PORO-PERM"].push_back( "PERM" );
         }
         else if ( resPos == RIG_ELEMENT_NODAL_FACE )
         {
@@ -1306,12 +1306,9 @@ std::set<RigFemResultAddress> RigFemPartResultsCollection::referenceCaseDependen
                                              "COMPRESSIBILITY",
                                              "VERTICAL-RATIO",
                                              RigFemResultAddress::allTimeLapsesValue() ) );
-        results.insert(
-            RigFemResultAddress( elementType, "POROSITY-PERMEABILITY", "PHI", RigFemResultAddress::allTimeLapsesValue() ) );
-        results.insert(
-            RigFemResultAddress( elementType, "POROSITY-PERMEABILITY", "DPHI", RigFemResultAddress::allTimeLapsesValue() ) );
-        results.insert(
-            RigFemResultAddress( elementType, "POROSITY-PERMEABILITY", "PERM", RigFemResultAddress::allTimeLapsesValue() ) );
+        results.insert( RigFemResultAddress( elementType, "PORO-PERM", "PHI", RigFemResultAddress::allTimeLapsesValue() ) );
+        results.insert( RigFemResultAddress( elementType, "PORO-PERM", "DPHI", RigFemResultAddress::allTimeLapsesValue() ) );
+        results.insert( RigFemResultAddress( elementType, "PORO-PERM", "PERM", RigFemResultAddress::allTimeLapsesValue() ) );
     }
 
     return results;
@@ -1325,12 +1322,9 @@ std::set<RigFemResultAddress> RigFemPartResultsCollection::initialPermeabilityDe
     std::set<RigFemResultAddress> results;
     for ( auto elementType : {RIG_ELEMENT_NODAL, RIG_INTEGRATION_POINT} )
     {
-        results.insert(
-            RigFemResultAddress( elementType, "POROSITY-PERMEABILITY", "PHI", RigFemResultAddress::allTimeLapsesValue() ) );
-        results.insert(
-            RigFemResultAddress( elementType, "POROSITY-PERMEABILITY", "DPHI", RigFemResultAddress::allTimeLapsesValue() ) );
-        results.insert(
-            RigFemResultAddress( elementType, "POROSITY-PERMEABILITY", "PERM", RigFemResultAddress::allTimeLapsesValue() ) );
+        results.insert( RigFemResultAddress( elementType, "PORO-PERM", "PHI", RigFemResultAddress::allTimeLapsesValue() ) );
+        results.insert( RigFemResultAddress( elementType, "PORO-PERM", "DPHI", RigFemResultAddress::allTimeLapsesValue() ) );
+        results.insert( RigFemResultAddress( elementType, "PORO-PERM", "PERM", RigFemResultAddress::allTimeLapsesValue() ) );
     }
     return results;
 }
