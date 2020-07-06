@@ -121,13 +121,15 @@ void RimFractureModelStressCurve::performDataExtraction( bool* isUsingPseudoLeng
         tvDepthValues.push_back( RiaEclipseUnitTools::feetToMeter( f ) );
     }
 
+    std::vector<double> stressGradients = fractureModelPlot->calculateStressGradient();
     if ( m_curveProperty() == RiaDefines::CurveProperty::STRESS )
     {
         values = fractureModelPlot->calculateStress();
+        addDatapointsForBottomOfLayers( tvDepthValues, values, stressGradients );
     }
     else
     {
-        values = fractureModelPlot->calculateStressGradient();
+        values = stressGradients;
     }
 
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case.value() );
@@ -187,4 +189,34 @@ void RimFractureModelStressCurve::performDataExtraction( bool* isUsingPseudoLeng
 QString RimFractureModelStressCurve::createCurveAutoName()
 {
     return caf::AppEnum<RiaDefines::CurveProperty>::uiText( m_curveProperty() );
+}
+
+void RimFractureModelStressCurve::addDatapointsForBottomOfLayers( std::vector<double>&       tvDepthValues,
+                                                                  std::vector<double>&       stress,
+                                                                  const std::vector<double>& stressGradients )
+{
+    std::vector<double> tvdWithBottomLayers;
+    std::vector<double> valuesWithBottomLayers;
+    for ( size_t i = 0; i < stress.size(); i++ )
+    {
+        // Add the data point at top of the layer
+        double topLayerDepth = tvDepthValues[i];
+        double stressValue   = stress[i];
+        tvdWithBottomLayers.push_back( topLayerDepth );
+        valuesWithBottomLayers.push_back( stressValue );
+
+        // Add extra data points for bottom part of the layer
+        if ( i < stress.size() - 1 )
+        {
+            double bottomLayerDepth = tvDepthValues[i + 1];
+            double diffDepthFeet    = RiaEclipseUnitTools::meterToFeet( bottomLayerDepth - topLayerDepth );
+            double bottomStress     = stressValue + diffDepthFeet * stressGradients[i];
+
+            tvdWithBottomLayers.push_back( bottomLayerDepth );
+            valuesWithBottomLayers.push_back( bottomStress );
+        }
+    }
+
+    stress        = valuesWithBottomLayers;
+    tvDepthValues = tvdWithBottomLayers;
 }

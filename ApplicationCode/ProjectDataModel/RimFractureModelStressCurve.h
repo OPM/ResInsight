@@ -60,6 +60,10 @@ protected:
 
     void performDataExtraction( bool* isUsingPseudoLength ) override;
 
+    static void addDatapointsForBottomOfLayers( std::vector<double>&       tvDepthValues,
+                                                std::vector<double>&       stress,
+                                                const std::vector<double>& stressGradients );
+
     caf::PdmPtrField<RimFractureModel*>                    m_fractureModel;
     caf::PdmField<caf::AppEnum<RiaDefines::CurveProperty>> m_curveProperty;
 };
