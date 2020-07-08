@@ -478,6 +478,10 @@ void RicNewFractureModelPlotFeature::createStressTrack( RimFractureModelPlot*   
     curve->setLineThickness( 2 );
     curve->setUiName( trackName );
     curve->setAutoNameComponents( false, false, false, false, false );
+    if ( propertyType == RiaDefines::CurveProperty::STRESS_GRADIENT )
+    {
+        curve->setInterpolation( RiuQwtPlotCurve::INTERPOLATION_STEP_LEFT );
+    }
 
     plotTrack->addCurve( curve );
     plotTrack->setAutoScaleXEnabled( true );
