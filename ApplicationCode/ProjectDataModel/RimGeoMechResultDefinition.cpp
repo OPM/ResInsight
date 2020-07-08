@@ -656,6 +656,11 @@ RigFemResultAddress RimGeoMechResultDefinition::resultAddress() const
             address.normalizedByHydrostaticPressure = false;
         }
 
+        if ( RigFemPartResultsCollection::isReferenceCaseDependentResult( address ) )
+        {
+            address.timeLapseBaseFrameIdx = RigFemResultAddress::noTimeLapseValue();
+        }
+
         return address;
     }
 }
