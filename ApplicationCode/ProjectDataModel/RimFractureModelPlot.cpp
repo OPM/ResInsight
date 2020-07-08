@@ -156,7 +156,7 @@ double RimFractureModelPlot::findValueAtTopOfLayer( const std::vector<double>&  
                                                     const std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes,
                                                     size_t                                        layerNo )
 {
-    int index = layerBoundaryIndexes[layerNo].first;
+    size_t index = layerBoundaryIndexes[layerNo].first;
     return values.at( index );
 }
 
@@ -167,7 +167,7 @@ double RimFractureModelPlot::findValueAtBottomOfLayer( const std::vector<double>
                                                        const std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes,
                                                        size_t                                        layerNo )
 {
-    int index = layerBoundaryIndexes[layerNo].second;
+    size_t index = layerBoundaryIndexes[layerNo].second;
     return values.at( index );
 }
 
