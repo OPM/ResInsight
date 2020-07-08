@@ -194,6 +194,19 @@ void RimFractureModelPlot::computeAverageByLayer( const std::vector<std::pair<si
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimFractureModelPlot::extractTopOfLayerValues( const std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes,
+                                                    const std::vector<double>&                    inputVector,
+                                                    std::vector<double>&                          result )
+{
+    for ( size_t i = 0; i < layerBoundaryIndexes.size(); i++ )
+    {
+        result.push_back( findValueAtTopOfLayer( inputVector, layerBoundaryIndexes, i ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWellLogExtractionCurve* RimFractureModelPlot::findCurveByProperty( RiaDefines::CurveProperty curveProperty ) const
 {
     std::vector<RimFractureModelPropertyCurve*> curves;
@@ -257,6 +270,30 @@ std::vector<double> RimFractureModelPlot::findCurveAndComputeLayeredAverage( Ria
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<double> RimFractureModelPlot::findCurveAndComputeTopOfLayer( RiaDefines::CurveProperty curveProperty ) const
+{
+    RimWellLogExtractionCurve* curve = findCurveByProperty( curveProperty );
+    if ( !curve )
+    {
+        QString curveName = caf::AppEnum<RiaDefines::CurveProperty>::uiText( curveProperty );
+        RiaLogging::error( QString( "No curve for '%1' found" ).arg( curveName ) );
+        return std::vector<double>();
+    }
+
+    std::vector<std::pair<double, double>> layerBoundaryDepths;
+    std::vector<std::pair<size_t, size_t>> layerBoundaryIndexes;
+    calculateLayers( layerBoundaryDepths, layerBoundaryIndexes );
+
+    const RigWellLogCurveData* curveData = curve->curveData();
+    std::vector<double>        values    = curveData->xValues();
+    std::vector<double>        result;
+    extractTopOfLayerValues( layerBoundaryIndexes, values, result );
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<double> RimFractureModelPlot::calculatePorosity() const
 {
     return findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty::POROSITY );
@@ -267,7 +304,7 @@ std::vector<double> RimFractureModelPlot::calculatePorosity() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimFractureModelPlot::calculateReservoirPressure() const
 {
-    return findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty::PRESSURE );
+    return findCurveAndComputeTopOfLayer( RiaDefines::CurveProperty::PRESSURE );
 }
 
 //--------------------------------------------------------------------------------------------------
