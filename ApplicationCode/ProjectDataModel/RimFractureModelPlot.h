@@ -78,6 +78,7 @@ public:
 protected:
     std::vector<double> findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty curveProperty ) const;
     std::vector<double> findCurveXValuesByProperty( RiaDefines::CurveProperty curveProperty ) const;
+    std::vector<double> findCurveAndComputeTopOfLayer( RiaDefines::CurveProperty curveProperty ) const;
 
     void                       calculateLayers( std::vector<std::pair<double, double>>& layerBoundaryDepths,
                                                 std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes ) const;
@@ -93,6 +94,9 @@ protected:
     static void   computeAverageByLayer( const std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes,
                                          const std::vector<double>&                    inputVector,
                                          std::vector<double>&                          result );
+    static void   extractTopOfLayerValues( const std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes,
+                                           const std::vector<double>&                    inputVector,
+                                           std::vector<double>&                          result );
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 

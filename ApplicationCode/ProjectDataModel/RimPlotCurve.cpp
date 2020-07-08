@@ -893,6 +893,14 @@ void RimPlotCurve::setSymbol( RiuQwtSymbol::PointSymbolEnum symbolStyle )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setInterpolation( RiuQwtPlotCurve::CurveInterpolationEnum curveInterpolation )
+{
+    m_curveInterpolation = curveInterpolation;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiuQwtSymbol::PointSymbolEnum RimPlotCurve::symbol()
 {
     return m_pointSymbol();

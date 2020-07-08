@@ -196,6 +196,11 @@ void RimElasticPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength
 
         std::vector<double> poroValues;
         fractureModelPlot->getPorosityValues( poroValues );
+        if ( poroValues.empty() )
+        {
+            RiaLogging::error( QString( "Empty porosity data found when extracting elastic properties." ) );
+            return;
+        }
 
         // TODO: make this settable??
         QString         colorLegendName = RiaDefines::faciesColorLegendName();

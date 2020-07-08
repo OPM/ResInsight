@@ -160,6 +160,11 @@ void RimLayerCurve::performDataExtraction( bool* isUsingPseudoLength )
 
         std::vector<double> faciesValues;
         fractureModelPlot->getFaciesValues( faciesValues );
+        if ( faciesValues.empty() )
+        {
+            RiaLogging::error( QString( "Empty facies data found for layer curve." ) );
+            return;
+        }
 
         assert( faciesValues.size() == curveData.data.size() );
 

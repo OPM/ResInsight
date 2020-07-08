@@ -103,6 +103,7 @@ public:
     double getDefaultForMissingOverburdenValue( const QString& keyword ) const;
     double getDefaultForMissingUnderburdenValue( const QString& keyword ) const;
     double getDefaultForMissingValue( const QString& keyword ) const;
+    void   updateReferringPlots();
 
 protected:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

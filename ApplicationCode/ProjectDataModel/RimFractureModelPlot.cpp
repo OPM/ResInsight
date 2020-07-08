@@ -156,7 +156,7 @@ double RimFractureModelPlot::findValueAtTopOfLayer( const std::vector<double>&  
                                                     const std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes,
                                                     size_t                                        layerNo )
 {
-    int index = layerBoundaryIndexes[layerNo].first;
+    size_t index = layerBoundaryIndexes[layerNo].first;
     return values.at( index );
 }
 
@@ -167,7 +167,7 @@ double RimFractureModelPlot::findValueAtBottomOfLayer( const std::vector<double>
                                                        const std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes,
                                                        size_t                                        layerNo )
 {
-    int index = layerBoundaryIndexes[layerNo].second;
+    size_t index = layerBoundaryIndexes[layerNo].second;
     return values.at( index );
 }
 
@@ -188,6 +188,19 @@ void RimFractureModelPlot::computeAverageByLayer( const std::vector<std::pair<si
             nValues++;
         }
         result.push_back( sum / nValues );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModelPlot::extractTopOfLayerValues( const std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes,
+                                                    const std::vector<double>&                    inputVector,
+                                                    std::vector<double>&                          result )
+{
+    for ( size_t i = 0; i < layerBoundaryIndexes.size(); i++ )
+    {
+        result.push_back( findValueAtTopOfLayer( inputVector, layerBoundaryIndexes, i ) );
     }
 }
 
@@ -257,6 +270,30 @@ std::vector<double> RimFractureModelPlot::findCurveAndComputeLayeredAverage( Ria
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<double> RimFractureModelPlot::findCurveAndComputeTopOfLayer( RiaDefines::CurveProperty curveProperty ) const
+{
+    RimWellLogExtractionCurve* curve = findCurveByProperty( curveProperty );
+    if ( !curve )
+    {
+        QString curveName = caf::AppEnum<RiaDefines::CurveProperty>::uiText( curveProperty );
+        RiaLogging::error( QString( "No curve for '%1' found" ).arg( curveName ) );
+        return std::vector<double>();
+    }
+
+    std::vector<std::pair<double, double>> layerBoundaryDepths;
+    std::vector<std::pair<size_t, size_t>> layerBoundaryIndexes;
+    calculateLayers( layerBoundaryDepths, layerBoundaryIndexes );
+
+    const RigWellLogCurveData* curveData = curve->curveData();
+    std::vector<double>        values    = curveData->xValues();
+    std::vector<double>        result;
+    extractTopOfLayerValues( layerBoundaryIndexes, values, result );
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<double> RimFractureModelPlot::calculatePorosity() const
 {
     return findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty::POROSITY );
@@ -267,7 +304,7 @@ std::vector<double> RimFractureModelPlot::calculatePorosity() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimFractureModelPlot::calculateReservoirPressure() const
 {
-    return findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty::PRESSURE );
+    return findCurveAndComputeTopOfLayer( RiaDefines::CurveProperty::PRESSURE );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -438,7 +475,7 @@ std::vector<double> RimFractureModelPlot::calculateYoungsModulus() const
     std::vector<double> valuesMMpsi;
     for ( auto value : valuesGPa )
     {
-        valuesMMpsi.push_back( value * 0.000145037737 );
+        valuesMMpsi.push_back( value * 0.14503773773 );
     }
 
     return valuesMMpsi;
