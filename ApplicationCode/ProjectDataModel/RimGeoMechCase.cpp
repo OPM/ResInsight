@@ -609,6 +609,7 @@ void RimGeoMechCase::addElementPropertyFiles( const std::vector<caf::FilePath>& 
     if ( m_geoMechCaseData.notNull() )
     {
         geoMechData()->femPartResults()->addElementPropertyFiles( newFileNames );
+        geoMechData()->femPartResults()->deleteAllScalarResults();
     }
 }
 
@@ -747,9 +748,9 @@ void RimGeoMechCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         updateFormationNamesData();
     }
 
+    RigGeoMechCaseData* rigCaseData = geoMechData();
     if ( changedField == &m_cohesion || changedField == &m_frictionAngleDeg )
     {
-        RigGeoMechCaseData* rigCaseData = geoMechData();
         if ( rigCaseData && rigCaseData->femPartResults() )
         {
             rigCaseData->femPartResults()->setCalculationParameters( m_cohesion(),
@@ -761,7 +762,6 @@ void RimGeoMechCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     else if ( changedField == &m_biotFixedCoefficient || changedField == &m_biotCoefficientType ||
               changedField == &m_biotResultAddress )
     {
-        RigGeoMechCaseData* rigCaseData = geoMechData();
         if ( rigCaseData && rigCaseData->femPartResults() )
         {
             if ( m_biotCoefficientType() == RimGeoMechCase::BiotCoefficientType::BIOT_NONE )
@@ -810,7 +810,6 @@ void RimGeoMechCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     else if ( changedField == &m_initialPermeabilityFixed || changedField == &m_initialPermeabilityType ||
               changedField == &m_initialPermeabilityResultAddress || changedField == &m_permeabilityExponent )
     {
-        RigGeoMechCaseData* rigCaseData = geoMechData();
         if ( rigCaseData && rigCaseData->femPartResults() )
         {
             if ( m_initialPermeabilityType() == RimGeoMechCase::InitialPermeabilityType::INITIAL_PERMEABILITY_FIXED )
@@ -861,19 +860,34 @@ void RimGeoMechCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     {
         m_reloadElementPropertyFileCommand = false;
         reloadSelectedElementPropertyFiles();
+        if ( rigCaseData && rigCaseData->femPartResults() )
+        {
+            rigCaseData->femPartResults()->deleteAllScalarResults();
+        }
         updateConnectedEditors();
+        updateConnectedViews();
     }
     else if ( changedField == &m_closeElementPropertyFileCommand )
     {
         m_closeElementPropertyFileCommand = false;
         closeSelectedElementPropertyFiles();
+        if ( rigCaseData && rigCaseData->femPartResults() )
+        {
+            rigCaseData->femPartResults()->deleteAllScalarResults();
+        }
         updateConnectedEditors();
+        updateConnectedViews();
     }
     else if ( changedField == &m_importElementPropertyFileCommand )
     {
         m_importElementPropertyFileCommand = false;
         importElementPropertyFile();
+        if ( rigCaseData && rigCaseData->femPartResults() )
+        {
+            rigCaseData->femPartResults()->deleteAllScalarResults();
+        }
         updateConnectedEditors();
+        updateConnectedViews();
     }
 }
 
@@ -1002,6 +1016,7 @@ void RimGeoMechCase::closeSelectedElementPropertyFiles()
     if ( m_geoMechCaseData.notNull() )
     {
         addressesToDelete = geoMechData()->femPartResults()->removeElementPropertyFiles( filesToClose );
+        geoMechData()->femPartResults()->deleteAllScalarResults();
     }
 
     for ( RimGeoMechView* view : geoMechViews() )

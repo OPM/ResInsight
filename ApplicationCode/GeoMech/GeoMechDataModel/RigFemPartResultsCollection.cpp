@@ -602,6 +602,17 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::createScalarResult( int  
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::deleteAllScalarResults()
+{
+    for ( cvf::ref<RigFemPartResults> results : m_femPartResults )
+    {
+        results->deleteAllScalarResults();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::map<std::string, std::vector<std::string>>
     RigFemPartResultsCollection::scalarFieldAndComponentNames( RigFemResultPosEnum resPos )
 {
