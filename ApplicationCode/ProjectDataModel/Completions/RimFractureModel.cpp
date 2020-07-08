@@ -39,6 +39,7 @@
 #include "RimEclipseView.h"
 #include "RimElasticProperties.h"
 #include "RimEllipseFractureTemplate.h"
+#include "RimFractureModelPlot.h"
 #include "RimModeledWellPath.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -189,6 +190,8 @@ void RimFractureModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         }
 
         RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
+
+        updateReferringPlots();
     }
 }
 
@@ -730,4 +733,19 @@ QString RimFractureModel::underburdenFormation() const
 QString RimFractureModel::underburdenFacies() const
 {
     return m_underburdenFacies;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModel::updateReferringPlots()
+{
+    // Update plots referring to this fracture model
+    std::vector<RimFractureModelPlot*> referringObjects;
+    objectsWithReferringPtrFieldsOfType( referringObjects );
+
+    for ( auto modelPlot : referringObjects )
+    {
+        if ( modelPlot ) modelPlot->loadDataAndUpdate();
+    }
 }

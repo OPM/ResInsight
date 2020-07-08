@@ -131,6 +131,23 @@ RiaDefines::CurveProperty RimFractureModelCurve::curveProperty() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimFractureModelCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                              const QVariant&            oldValue,
+                                              const QVariant&            newValue )
+{
+    RimWellLogExtractionCurve::fieldChangedByUi( changedField, oldValue, newValue );
+    RimFractureModelPlot* fractureModelPlot;
+    firstAncestorOrThisOfTypeAsserted( fractureModelPlot );
+
+    if ( fractureModelPlot )
+    {
+        fractureModelPlot->loadDataAndUpdate();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFractureModelCurve::performDataExtraction( bool* isUsingPseudoLength )
 {
     std::vector<double> values;

@@ -62,6 +62,8 @@ public:
     RiaDefines::CurveProperty curveProperty() const override;
 
 protected:
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
+
     void performDataExtraction( bool* isUsingPseudoLength ) override;
 
     static bool hasMissingValues( const std::vector<double>& values );
