@@ -656,6 +656,11 @@ RigFemResultAddress RimGeoMechResultDefinition::resultAddress() const
             address.normalizedByHydrostaticPressure = false;
         }
 
+        if ( RigFemPartResultsCollection::isReferenceCaseDependentResult( address ) )
+        {
+            address.timeLapseBaseFrameIdx = RigFemResultAddress::noTimeLapseValue();
+        }
+
         return address;
     }
 }
@@ -828,7 +833,7 @@ QString RimGeoMechResultDefinition::currentResultUnits() const
     {
         return "1/GPa";
     }
-    else if ( this->resultFieldName() == "POROSITY-PERMEABILITY" && this->resultComponentName() == "PERM" )
+    else if ( this->resultFieldName() == "PORO-PERM" && this->resultComponentName() == "PERM" )
     {
         return "mD";
     }

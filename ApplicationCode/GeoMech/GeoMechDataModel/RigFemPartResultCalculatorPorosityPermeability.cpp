@@ -52,7 +52,7 @@ RigFemPartResultCalculatorPorosityPermeability::~RigFemPartResultCalculatorPoros
 //--------------------------------------------------------------------------------------------------
 bool RigFemPartResultCalculatorPorosityPermeability::isMatching( const RigFemResultAddress& resVarAddr ) const
 {
-    return ( resVarAddr.fieldName == "POROSITY-PERMEABILITY" &&
+    return ( resVarAddr.fieldName == "PORO-PERM" &&
              ( resVarAddr.componentName == "PHI" || resVarAddr.componentName == "DPHI" ||
                resVarAddr.componentName == "PERM" ) );
 }
@@ -190,21 +190,27 @@ RigFemScalarResultFrames*
                         double voidr           = voidRatioData[elmNodResIdx];
                         double initialPorosity = voidr / ( 1.0 + voidr );
 
-                        // Calculate difference in pore pressure between reference state and this state,
-                        // and convert unit from Bar to Pascal.
-                        double referencePorePressure = referencePorFrameData[nodeIdx];
-                        double framePorePressure     = porFrameData[nodeIdx];
-                        double deltaPorePressure =
-                            RiaEclipseUnitTools::barToPascal( framePorePressure - referencePorePressure );
+                        // Calculate porosity change.
+                        // No change for geostatic timestep
+                        double deltaPorosity = 0.0;
+                        if ( fIdx != 0 )
+                        {
+                            // Calculate difference in pore pressure between reference state and this state,
+                            // and convert unit from Bar to Pascal.
+                            double referencePorePressure = referencePorFrameData[nodeIdx];
+                            double framePorePressure     = porFrameData[nodeIdx];
+                            double deltaPorePressure =
+                                RiaEclipseUnitTools::barToPascal( framePorePressure - referencePorePressure );
 
-                        // Pore compressibility. Convert from 1/GPa to 1/Pa.
-                        double poreCompressibility = poreCompressibilityFrameData[elmNodResIdx] / 1.0e9;
+                            // Pore compressibility. Convert from 1/GPa to 1/Pa.
+                            double poreCompressibility = poreCompressibilityFrameData[elmNodResIdx] / 1.0e9;
 
-                        // Volumetric strain
-                        double deltaEv = evData[elmNodResIdx] - referenceEvData[elmNodResIdx];
+                            // Volumetric strain
+                            double deltaEv = evData[elmNodResIdx] - referenceEvData[elmNodResIdx];
 
-                        // Porosity change between reference state and initial state (geostatic)
-                        double deltaPorosity = initialPorosity * ( poreCompressibility * deltaPorePressure + deltaEv );
+                            // Porosity change between reference state and initial state (geostatic).
+                            deltaPorosity = initialPorosity * ( poreCompressibility * deltaPorePressure + deltaEv );
+                        }
 
                         // Current porosity
                         double currentPorosity = initialPorosity + deltaPorosity;

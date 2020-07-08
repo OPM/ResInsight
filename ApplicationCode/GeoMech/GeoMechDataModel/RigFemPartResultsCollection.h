@@ -147,6 +147,7 @@ public:
 
     RigFemScalarResultFrames* findOrLoadScalarResult( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* createScalarResult( int partIndex, const RigFemResultAddress& resVarAddr );
+    void                      deleteAllScalarResults();
 
     bool                            isValidBiotData( const std::vector<float>& biotData, size_t elementCount ) const;
     static std::vector<std::string> getStressComponentNames( bool includeShear = true );

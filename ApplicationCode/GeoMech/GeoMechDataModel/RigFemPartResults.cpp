@@ -101,3 +101,11 @@ std::vector<RigFemResultAddress> RigFemPartResults::loadedResults() const
     }
     return currentResults;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFemPartResults::deleteAllScalarResults()
+{
+    resultSets.clear();
+}
