@@ -438,7 +438,7 @@ std::vector<double> RimFractureModelPlot::calculateYoungsModulus() const
     std::vector<double> valuesMMpsi;
     for ( auto value : valuesGPa )
     {
-        valuesMMpsi.push_back( value * 0.000145037737 );
+        valuesMMpsi.push_back( value * 0.14503773773 );
     }
 
     return valuesMMpsi;
