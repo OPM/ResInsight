@@ -18,6 +18,7 @@
 
 #include "RimFractureModelCurve.h"
 
+#include "RiaFractureModelDefines.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseWellLogExtractor.h"
 #include "RigResultAccessorFactory.h"
@@ -61,6 +62,9 @@ void caf::AppEnum<RimFractureModelCurve::MissingValueStrategy>::setUp()
     addItem( RimFractureModelCurve::MissingValueStrategy::LINEAR_INTERPOLATION,
              "LINEAR_INTERPOLATION",
              "Linear interpolation" );
+    addItem( RimFractureModelCurve::MissingValueStrategy::OTHER_CURVE_PROPERTY,
+             "OTHER_CURVE_PROPERTY",
+             "Other Curve Property" );
 
     setDefault( RimFractureModelCurve::MissingValueStrategy::DEFAULT_VALUE );
 }
@@ -279,11 +283,35 @@ void RimFractureModelCurve::performDataExtraction( bool* isUsingPseudoLength )
                     replaceMissingValues( values, defaultValue );
                 }
             }
-            else
+            else if ( m_missingValueStrategy() == RimFractureModelCurve::MissingValueStrategy::LINEAR_INTERPOLATION )
             {
                 RiaLogging::info(
                     QString( "Interpolating missing values for %1" ).arg( m_eclipseResultDefinition()->resultVariable() ) );
                 RiaInterpolationTools::interpolateMissingValues( measuredDepthValues, values );
+            }
+            else
+            {
+                // Get the missing data from other curve
+                RimFractureModelPlot* fractureModelPlot;
+                firstAncestorOrThisOfType( fractureModelPlot );
+                if ( !fractureModelPlot )
+                {
+                    RiaLogging::error( QString( "No replacement data found for fracture model curve." ) );
+                    return;
+                }
+
+                RiaDefines::CurveProperty replacementProperty = m_fractureModel->getDefaultPropertyForMissingValues(
+                    m_eclipseResultDefinition.value()->resultVariable() );
+
+                std::vector<double> initialValues;
+                fractureModelPlot->getCurvePropertyValues( replacementProperty, initialValues );
+                if ( initialValues.empty() )
+                {
+                    RiaLogging::error( QString( "Empty replacement data found for fracture model curve." ) );
+                    return;
+                }
+
+                replaceMissingValues( values, initialValues );
             }
         }
 

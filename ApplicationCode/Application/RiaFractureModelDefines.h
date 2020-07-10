@@ -26,6 +26,7 @@ namespace RiaDefines
 {
 enum class CurveProperty
 {
+    UNDEFINED,
     FACIES,
     LAYERS,
     POROSITY,

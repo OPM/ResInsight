@@ -93,9 +93,9 @@ void RimFractureModelPlot::applyDataSource()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureModelPlot::getPorosityValues( std::vector<double>& values ) const
+void RimFractureModelPlot::getCurvePropertyValues( RiaDefines::CurveProperty curveProperty, std::vector<double>& values ) const
 {
-    RimWellLogExtractionCurve* curve = findCurveByProperty( RiaDefines::CurveProperty::POROSITY );
+    RimWellLogExtractionCurve* curve = findCurveByProperty( curveProperty );
     if ( curve )
     {
         values = curve->curveData()->xValues();
@@ -105,13 +105,17 @@ void RimFractureModelPlot::getPorosityValues( std::vector<double>& values ) cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimFractureModelPlot::getPorosityValues( std::vector<double>& values ) const
+{
+    getCurvePropertyValues( RiaDefines::CurveProperty::POROSITY, values );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFractureModelPlot::getFaciesValues( std::vector<double>& values ) const
 {
-    RimWellLogExtractionCurve* curve = findCurveByProperty( RiaDefines::CurveProperty::FACIES );
-    if ( curve )
-    {
-        values = curve->curveData()->xValues();
-    }
+    getCurvePropertyValues( RiaDefines::CurveProperty::FACIES, values );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -46,7 +46,8 @@ public:
     enum class MissingValueStrategy
     {
         DEFAULT_VALUE,
-        LINEAR_INTERPOLATION
+        LINEAR_INTERPOLATION,
+        OTHER_CURVE_PROPERTY
     };
 
     RimFractureModelCurve();

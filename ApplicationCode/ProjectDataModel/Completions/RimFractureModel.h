@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RiaEclipseUnitTools.h"
+#include "RiaFractureModelDefines.h"
 
 #include "RimCheckableNamedObject.h"
 #include "RimWellPathComponentInterface.h"
@@ -100,10 +101,11 @@ public:
     void                  setElasticProperties( RimElasticProperties* elasticProperties );
     RimElasticProperties* elasticProperties() const;
 
-    double getDefaultForMissingOverburdenValue( const QString& keyword ) const;
-    double getDefaultForMissingUnderburdenValue( const QString& keyword ) const;
-    double getDefaultForMissingValue( const QString& keyword ) const;
-    void   updateReferringPlots();
+    RiaDefines::CurveProperty getDefaultPropertyForMissingValues( const QString& keyword ) const;
+    double                    getDefaultForMissingOverburdenValue( const QString& keyword ) const;
+    double                    getDefaultForMissingUnderburdenValue( const QString& keyword ) const;
+    double                    getDefaultForMissingValue( const QString& keyword ) const;
+    void                      updateReferringPlots();
 
 protected:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

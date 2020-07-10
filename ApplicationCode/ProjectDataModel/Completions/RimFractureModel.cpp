@@ -22,6 +22,7 @@
 #include "RiaCompletionTypeCalculationScheduler.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaFractureDefines.h"
+#include "RiaFractureModelDefines.h"
 #include "RiaLogging.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -589,6 +590,19 @@ double RimFractureModel::getDefaultForMissingValue( const QString& keyword ) con
         RiaLogging::error( QString( "Missing default value for %1." ).arg( keyword ) );
         return std::numeric_limits<double>::infinity();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::CurveProperty RimFractureModel::getDefaultPropertyForMissingValues( const QString& keyword ) const
+{
+    if ( keyword == QString( "PRESSURE" ) )
+    {
+        return RiaDefines::CurveProperty::INITIAL_PRESSURE;
+    }
+
+    return RiaDefines::CurveProperty::UNDEFINED;
 }
 
 //--------------------------------------------------------------------------------------------------
