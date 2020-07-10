@@ -68,6 +68,15 @@ void caf::AppEnum<RimFractureModelCurve::MissingValueStrategy>::setUp()
 
     setDefault( RimFractureModelCurve::MissingValueStrategy::DEFAULT_VALUE );
 }
+
+template <>
+void caf::AppEnum<RimFractureModelCurve::BurdenStrategy>::setUp()
+{
+    addItem( RimFractureModelCurve::BurdenStrategy::DEFAULT_VALUE, "DEFAULT_VALUE", "Default value" );
+    addItem( RimFractureModelCurve::BurdenStrategy::GRADIENT, "GRADIENT", "Gradient" );
+
+    setDefault( RimFractureModelCurve::BurdenStrategy::DEFAULT_VALUE );
+}
 }; // namespace caf
 
 //--------------------------------------------------------------------------------------------------
@@ -85,6 +94,11 @@ RimFractureModelCurve::RimFractureModelCurve()
         RimFractureModelCurve::MissingValueStrategy::DEFAULT_VALUE;
     CAF_PDM_InitField( &m_missingValueStrategy, "MissingValueStrategy", defaultValue, "Missing Value Strategy", "", "", "" );
     m_missingValueStrategy.uiCapability()->setUiHidden( true );
+
+    caf::AppEnum<RimFractureModelCurve::BurdenStrategy> defaultBurdenValue =
+        RimFractureModelCurve::BurdenStrategy::DEFAULT_VALUE;
+    CAF_PDM_InitField( &m_burdenStrategy, "BurdenStrategy", defaultBurdenValue, "Burden Strategy", "", "", "" );
+    m_burdenStrategy.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_curveProperty, "CurveProperty", "Curve Property", "", "", "" );
     m_curveProperty.uiCapability()->setUiHidden( true );
@@ -197,27 +211,13 @@ void RimFractureModelCurve::performDataExtraction( bool* isUsingPseudoLength )
         double overburdenHeight = m_fractureModel->overburdenHeight();
         if ( overburdenHeight > 0.0 )
         {
-            double defaultOverburdenValue = std::numeric_limits<double>::infinity();
-            if ( m_missingValueStrategy() == RimFractureModelCurve::MissingValueStrategy::DEFAULT_VALUE )
-            {
-                defaultOverburdenValue =
-                    m_fractureModel->getDefaultForMissingOverburdenValue( m_eclipseResultDefinition()->resultVariable() );
-            }
-
-            addOverburden( tvDepthValues, measuredDepthValues, values, overburdenHeight, defaultOverburdenValue );
+            addOverburden( tvDepthValues, measuredDepthValues, values );
         }
 
         double underburdenHeight = m_fractureModel->underburdenHeight();
         if ( underburdenHeight > 0.0 )
         {
-            double defaultUnderburdenValue = std::numeric_limits<double>::infinity();
-            if ( m_missingValueStrategy() == RimFractureModelCurve::MissingValueStrategy::DEFAULT_VALUE )
-            {
-                defaultUnderburdenValue =
-                    m_fractureModel->getDefaultForMissingUnderburdenValue( m_eclipseResultDefinition()->resultVariable() );
-            }
-
-            addUnderburden( tvDepthValues, measuredDepthValues, values, underburdenHeight, defaultUnderburdenValue );
+            addUnderburden( tvDepthValues, measuredDepthValues, values );
         }
 
         if ( hasMissingValues( values ) )
@@ -243,7 +243,7 @@ void RimFractureModelCurve::performDataExtraction( bool* isUsingPseudoLength )
                     if ( overburdenHeight > 0.0 )
                     {
                         double defaultOverburdenValue = std::numeric_limits<double>::infinity();
-                        if ( m_missingValueStrategy() == RimFractureModelCurve::MissingValueStrategy::DEFAULT_VALUE )
+                        if ( m_burdenStrategy() == RimFractureModelCurve::BurdenStrategy::DEFAULT_VALUE )
                         {
                             defaultOverburdenValue = m_fractureModel->getDefaultForMissingOverburdenValue(
                                 m_eclipseResultDefinition()->resultVariable() );
@@ -257,7 +257,7 @@ void RimFractureModelCurve::performDataExtraction( bool* isUsingPseudoLength )
                     if ( underburdenHeight > 0.0 )
                     {
                         double defaultUnderburdenValue = std::numeric_limits<double>::infinity();
-                        if ( m_missingValueStrategy() == RimFractureModelCurve::MissingValueStrategy::DEFAULT_VALUE )
+                        if ( m_burdenStrategy() == RimFractureModelCurve::BurdenStrategy::DEFAULT_VALUE )
                         {
                             defaultUnderburdenValue = m_fractureModel->getDefaultForMissingUnderburdenValue(
                                 m_eclipseResultDefinition()->resultVariable() );
@@ -348,6 +348,14 @@ void RimFractureModelCurve::performDataExtraction( bool* isUsingPseudoLength )
                                          xUnits );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModelCurve::setBurdenStrategy( BurdenStrategy strategy )
+{
+    m_burdenStrategy = strategy;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -444,24 +452,40 @@ cvf::ref<RigResultAccessor>
 //--------------------------------------------------------------------------------------------------
 void RimFractureModelCurve::addOverburden( std::vector<double>& tvDepthValues,
                                            std::vector<double>& measuredDepthValues,
-                                           std::vector<double>& values,
-                                           double               overburdenHeight,
-                                           double               defaultOverburdenValue )
+                                           std::vector<double>& values ) const
 {
     if ( !values.empty() )
     {
+        double overburdenHeight    = m_fractureModel->overburdenHeight();
+        double tvdOverburdenBottom = tvDepthValues[0];
+        double tvdOverburdenTop    = tvdOverburdenBottom - overburdenHeight;
+
+        double overburdenTopValue    = std::numeric_limits<double>::infinity();
+        double overburdenBottomValue = std::numeric_limits<double>::infinity();
+        if ( m_burdenStrategy() == RimFractureModelCurve::BurdenStrategy::DEFAULT_VALUE )
+        {
+            overburdenTopValue =
+                m_fractureModel->getDefaultForMissingOverburdenValue( m_eclipseResultDefinition()->resultVariable() );
+            overburdenBottomValue = overburdenTopValue;
+        }
+        else
+        {
+            double gradient = m_fractureModel->getOverburdenGradient( m_eclipseResultDefinition()->resultVariable() );
+            overburdenBottomValue = values[0];
+            overburdenTopValue    = overburdenBottomValue + gradient * -overburdenHeight;
+        }
+
         // Prepend the new "fake" depth for start of overburden
-        double tvdTop = tvDepthValues[0];
-        tvDepthValues.insert( tvDepthValues.begin(), tvdTop );
-        tvDepthValues.insert( tvDepthValues.begin(), tvdTop - overburdenHeight );
+        tvDepthValues.insert( tvDepthValues.begin(), tvdOverburdenBottom );
+        tvDepthValues.insert( tvDepthValues.begin(), tvdOverburdenTop );
 
         // TODO: this is not always correct
         double mdTop = measuredDepthValues[0];
         measuredDepthValues.insert( measuredDepthValues.begin(), mdTop );
         measuredDepthValues.insert( measuredDepthValues.begin(), mdTop - overburdenHeight );
 
-        values.insert( values.begin(), defaultOverburdenValue );
-        values.insert( values.begin(), defaultOverburdenValue );
+        values.insert( values.begin(), overburdenBottomValue );
+        values.insert( values.begin(), overburdenTopValue );
     }
 }
 
@@ -470,18 +494,34 @@ void RimFractureModelCurve::addOverburden( std::vector<double>& tvDepthValues,
 //--------------------------------------------------------------------------------------------------
 void RimFractureModelCurve::addUnderburden( std::vector<double>& tvDepthValues,
                                             std::vector<double>& measuredDepthValues,
-                                            std::vector<double>& values,
-                                            double               underburdenHeight,
-                                            double               defaultUnderburdenValue )
+                                            std::vector<double>& values ) const
 {
     if ( !values.empty() )
     {
         size_t lastIndex = tvDepthValues.size() - 1;
 
+        double underburdenHeight    = m_fractureModel->underburdenHeight();
+        double tvdUnderburdenTop    = tvDepthValues[lastIndex];
+        double tvdUnderburdenBottom = tvdUnderburdenTop + underburdenHeight;
+
+        double underburdenTopValue    = std::numeric_limits<double>::infinity();
+        double underburdenBottomValue = std::numeric_limits<double>::infinity();
+        if ( m_burdenStrategy() == RimFractureModelCurve::BurdenStrategy::DEFAULT_VALUE )
+        {
+            underburdenTopValue =
+                m_fractureModel->getDefaultForMissingUnderburdenValue( m_eclipseResultDefinition()->resultVariable() );
+            underburdenBottomValue = underburdenTopValue;
+        }
+        else
+        {
+            double gradient = m_fractureModel->getUnderburdenGradient( m_eclipseResultDefinition()->resultVariable() );
+            underburdenTopValue    = values[lastIndex];
+            underburdenBottomValue = underburdenTopValue + gradient * underburdenHeight;
+        }
+
         // Append the new "fake" depth for start of underburden
-        double tvdBottom = tvDepthValues[lastIndex];
-        tvDepthValues.push_back( tvdBottom );
-        tvDepthValues.push_back( tvdBottom + underburdenHeight );
+        tvDepthValues.push_back( tvdUnderburdenTop );
+        tvDepthValues.push_back( tvdUnderburdenBottom );
 
         // Append the new "fake" md
         // TODO: check if this is correct???
@@ -489,7 +529,7 @@ void RimFractureModelCurve::addUnderburden( std::vector<double>& tvDepthValues,
         measuredDepthValues.push_back( mdBottom );
         measuredDepthValues.push_back( mdBottom + underburdenHeight );
 
-        values.push_back( defaultUnderburdenValue );
-        values.push_back( defaultUnderburdenValue );
+        values.push_back( underburdenTopValue );
+        values.push_back( underburdenBottomValue );
     }
 }

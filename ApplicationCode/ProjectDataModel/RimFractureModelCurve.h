@@ -50,6 +50,12 @@ public:
         OTHER_CURVE_PROPERTY
     };
 
+    enum class BurdenStrategy
+    {
+        DEFAULT_VALUE,
+        GRADIENT
+    };
+
     RimFractureModelCurve();
     ~RimFractureModelCurve() override;
 
@@ -58,6 +64,8 @@ public:
     void setEclipseResultCategory( RiaDefines::ResultCatType catType );
 
     void setMissingValueStrategy( MissingValueStrategy strategy );
+
+    void setBurdenStrategy( BurdenStrategy strategy );
 
     void                      setCurveProperty( RiaDefines::CurveProperty ) override;
     RiaDefines::CurveProperty curveProperty() const override;
@@ -76,19 +84,16 @@ protected:
                                                            int                                timeStepIndex,
                                                            RimEclipseResultDefinition*        eclipseResultDefinition );
 
-    static void addOverburden( std::vector<double>& tvDepthValues,
-                               std::vector<double>& measuredDepthValues,
-                               std::vector<double>& values,
-                               double               overburdenHeight,
-                               double               defaultOverburdenValue );
+    void addOverburden( std::vector<double>& tvDepthValues,
+                        std::vector<double>& measuredDepthValues,
+                        std::vector<double>& values ) const;
 
-    static void addUnderburden( std::vector<double>& tvDepthValues,
-                                std::vector<double>& measuredDepthValues,
-                                std::vector<double>& values,
-                                double               underburdenHeight,
-                                double               defaultUnderburdenValue );
+    void addUnderburden( std::vector<double>& tvDepthValues,
+                         std::vector<double>& measuredDepthValues,
+                         std::vector<double>& values ) const;
 
     caf::PdmPtrField<RimFractureModel*>                    m_fractureModel;
     caf::PdmField<caf::AppEnum<MissingValueStrategy>>      m_missingValueStrategy;
+    caf::PdmField<caf::AppEnum<BurdenStrategy>>            m_burdenStrategy;
     caf::PdmField<caf::AppEnum<RiaDefines::CurveProperty>> m_curveProperty;
 };
