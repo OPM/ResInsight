@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "RimFractureModelPropertyCurve.h"
 #include "RimWellLogExtractionCurve.h"
 
 #include "RiuQwtSymbol.h"
@@ -37,7 +38,7 @@ class RigResultAccessor;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimFractureModelCurve : public RimWellLogExtractionCurve
+class RimFractureModelCurve : public RimWellLogExtractionCurve, public RimFractureModelPropertyCurve
 {
     CAF_PDM_HEADER_INIT;
 
@@ -45,7 +46,14 @@ public:
     enum class MissingValueStrategy
     {
         DEFAULT_VALUE,
-        LINEAR_INTERPOLATION
+        LINEAR_INTERPOLATION,
+        OTHER_CURVE_PROPERTY
+    };
+
+    enum class BurdenStrategy
+    {
+        DEFAULT_VALUE,
+        GRADIENT
     };
 
     RimFractureModelCurve();
@@ -57,7 +65,14 @@ public:
 
     void setMissingValueStrategy( MissingValueStrategy strategy );
 
+    void setBurdenStrategy( BurdenStrategy strategy );
+
+    void                      setCurveProperty( RiaDefines::CurveProperty ) override;
+    RiaDefines::CurveProperty curveProperty() const override;
+
 protected:
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
+
     void performDataExtraction( bool* isUsingPseudoLength ) override;
 
     static bool hasMissingValues( const std::vector<double>& values );
@@ -69,6 +84,16 @@ protected:
                                                            int                                timeStepIndex,
                                                            RimEclipseResultDefinition*        eclipseResultDefinition );
 
-    caf::PdmPtrField<RimFractureModel*>               m_fractureModel;
-    caf::PdmField<caf::AppEnum<MissingValueStrategy>> m_missingValueStrategy;
+    void addOverburden( std::vector<double>& tvDepthValues,
+                        std::vector<double>& measuredDepthValues,
+                        std::vector<double>& values ) const;
+
+    void addUnderburden( std::vector<double>& tvDepthValues,
+                         std::vector<double>& measuredDepthValues,
+                         std::vector<double>& values ) const;
+
+    caf::PdmPtrField<RimFractureModel*>                    m_fractureModel;
+    caf::PdmField<caf::AppEnum<MissingValueStrategy>>      m_missingValueStrategy;
+    caf::PdmField<caf::AppEnum<BurdenStrategy>>            m_burdenStrategy;
+    caf::PdmField<caf::AppEnum<RiaDefines::CurveProperty>> m_curveProperty;
 };

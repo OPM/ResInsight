@@ -40,7 +40,7 @@ RimColorLegendItem::RimColorLegendItem()
     CAF_PDM_InitField( &m_categoryName, "CategoryName", QString( "" ), "Category Name", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name Proxy", "", "", "" );
-    m_nameProxy.registerGetMethod( this, &RimColorLegendItem::extractColorItemName );
+    m_nameProxy.registerGetMethod( this, &RimColorLegendItem::itemName );
     m_nameProxy.uiCapability()->setUiHidden( true );
     m_nameProxy.xmlCapability()->disableIO();
 
@@ -133,7 +133,7 @@ caf::PdmFieldHandle* RimColorLegendItem::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 /// "stringify" category value and name; category value with leading zeros presupposing max 2 digits
 //--------------------------------------------------------------------------------------------------
-QString RimColorLegendItem::extractColorItemName() const
+QString RimColorLegendItem::itemName() const
 {
     return QString( "%1" ).arg( m_categoryValue, 2, 10, QChar( '0' ) ) + " " + m_categoryName;
 }

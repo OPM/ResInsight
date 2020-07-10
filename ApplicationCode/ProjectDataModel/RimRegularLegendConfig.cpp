@@ -269,6 +269,12 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
         updateFieldVisibility();
     }
 
+    if ( ( changedField == &m_colorLegend || changedField == &m_mappingMode ) &&
+         m_mappingMode() == MappingType::CATEGORY_INTEGER )
+    {
+        updateCategoryItems();
+    }
+
     updateLegend();
 
     RimGridView* view = nullptr;
@@ -568,6 +574,11 @@ void RimRegularLegendConfig::initAfterRead()
         m_colorLegend = RimRegularLegendConfig::mapToColorLegend( m_colorRangeMode_OBSOLETE() );
     }
 
+    if ( m_mappingMode() == MappingType::CATEGORY_INTEGER )
+    {
+        updateCategoryItems();
+    }
+
     updateFieldVisibility();
 
     this->updateUiIconFromToggleField();
@@ -672,6 +683,27 @@ double RimRegularLegendConfig::roundToNumSignificantDigits( double domainValue, 
     double newDomainValue = integerPart / factor;
 
     return newDomainValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRegularLegendConfig::updateCategoryItems()
+{
+    std::vector<std::tuple<QString, int, cvf::Color3ub>> categories;
+    if ( m_colorLegend() )
+    {
+        for ( auto item : m_colorLegend->colorLegendItems() )
+        {
+            cvf::Color3ub ubColor( item->color() );
+            categories.push_back( std::make_tuple( item->itemName(), item->categoryValue(), ubColor ) );
+        }
+    }
+
+    // Reverse the categories to make the ordering identical to items in project tree
+    std::reverse( categories.begin(), categories.end() );
+
+    setCategoryItems( categories );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1025,28 +1057,10 @@ QList<caf::PdmOptionItemInfo>
     this->firstAncestorOrThisOfType( rftCurveSet );
     if ( rftCurveSet ) hasRftPlotParent = true;
 
-    bool isCategoryResult = false;
-    bool isAllanDiagram   = false;
+    bool isAllanDiagram = false;
     {
         RimEclipseCellColors* eclCellColors = nullptr;
         this->firstAncestorOrThisOfType( eclCellColors );
-        RimGeoMechResultDefinition* gmCellColors = nullptr;
-        this->firstAncestorOrThisOfType( gmCellColors );
-        RimCellEdgeColors* eclCellEdgColors = nullptr;
-        this->firstAncestorOrThisOfType( eclCellEdgColors );
-        RimWellMeasurementInView* wellMeasurementInView = nullptr;
-        this->firstAncestorOrThisOfType( wellMeasurementInView );
-
-        if ( ( eclCellColors && eclCellColors->hasCategoryResult() ) ||
-             ( gmCellColors && gmCellColors->hasCategoryResult() ) ||
-             ( eclCellEdgColors && eclCellEdgColors->hasCategoryResult() ) ||
-             ( ensembleCurveSet && ensembleCurveSet->currentEnsembleParameterType() == EnsembleParameter::TYPE_TEXT ) ||
-             ( rftCurveSet && rftCurveSet->currentEnsembleParameterType() == EnsembleParameter::TYPE_TEXT ) ||
-             ( crossPlotCurveSet && crossPlotCurveSet->groupingByCategoryResult() ) ||
-             ( wellMeasurementInView && wellMeasurementInView->hasCategoryResult() ) )
-        {
-            isCategoryResult = true;
-        }
 
         if ( eclCellColors && eclCellColors->resultType() == RiaDefines::ResultCatType::ALLAN_DIAGRAMS )
         {
@@ -1073,10 +1087,7 @@ QList<caf::PdmOptionItemInfo>
             mappingTypes.push_back( LOG10_DISCRETE );
         }
 
-        if ( isCategoryResult )
-        {
-            mappingTypes.push_back( CATEGORY_INTEGER );
-        }
+        mappingTypes.push_back( CATEGORY_INTEGER );
 
         for ( MappingType mapType : mappingTypes )
         {

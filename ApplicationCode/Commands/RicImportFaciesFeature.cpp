@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaFractureDefines.h"
 #include "RiaLogging.h"
 #include "RiaStdStringTools.h"
 
@@ -79,10 +80,10 @@ void RicImportFaciesFeature::onActionTriggered( bool isChecked )
 
     const caf::ColorTable&    colorTable            = RiaColorTables::contrastCategoryPaletteColors();
     RimColorLegendCollection* colorLegendCollection = RimProject::current()->colorLegendCollection;
-    RimColorLegend*           rockTypeColorLegend   = colorLegendCollection->findByName( "Rock Types" );
+    RimColorLegend* rockTypeColorLegend = colorLegendCollection->findByName( RiaDefines::rockTypeColorLegendName() );
 
     RimColorLegend* colorLegend = new RimColorLegend;
-    colorLegend->setColorLegendName( "Facies colors" );
+    colorLegend->setColorLegendName( RiaDefines::faciesColorLegendName() );
 
     for ( auto it : codeNames )
     {

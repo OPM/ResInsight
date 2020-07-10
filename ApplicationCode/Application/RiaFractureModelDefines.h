@@ -24,11 +24,25 @@
 
 namespace RiaDefines
 {
-QString conductivityResultName();
-QString unitStringConductivity( RiaEclipseUnitTools::UnitSystem unitSystem );
-
-double nonDarcyFlowAlpha( RiaEclipseUnitTools::UnitSystem unitSystem );
-
-QString faciesColorLegendName();
-QString rockTypeColorLegendName();
+enum class CurveProperty
+{
+    UNDEFINED,
+    FACIES,
+    LAYERS,
+    POROSITY,
+    PERMEABILITY_X,
+    PERMEABILITY_Z,
+    INITIAL_PRESSURE,
+    PRESSURE,
+    STRESS,
+    STRESS_GRADIENT,
+    YOUNGS_MODULUS,
+    POISSONS_RATIO,
+    K_IC,
+    PROPPANT_EMBEDMENT,
+    BIOT_COEFFICIENT,
+    K0,
+    FLUID_LOSS_COEFFICIENT,
+    SPURT_LOSS
+};
 }; // namespace RiaDefines

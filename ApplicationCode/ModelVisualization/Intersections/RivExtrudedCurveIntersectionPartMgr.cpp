@@ -40,10 +40,8 @@
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechView.h"
-#include "RimRegularLegendConfig.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
-#include "RimTernaryLegendConfig.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 

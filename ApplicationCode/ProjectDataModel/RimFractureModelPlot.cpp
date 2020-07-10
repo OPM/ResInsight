@@ -25,6 +25,7 @@
 #include "RimEclipseCase.h"
 #include "RimFractureModel.h"
 #include "RimFractureModelCurve.h"
+#include "RimFractureModelPropertyCurve.h"
 #include "RimLayerCurve.h"
 
 #include "RigWellLogCurveData.h"
@@ -46,6 +47,8 @@ RimFractureModelPlot::RimFractureModelPlot()
     CAF_PDM_InitFieldNoDefault( &m_fractureModel, "FractureModel", "Fracture Model", "", "", "" );
     m_fractureModel.uiCapability()->setUiTreeChildrenHidden( true );
     m_fractureModel.uiCapability()->setUiHidden( true );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -92,18 +95,29 @@ void RimFractureModelPlot::applyDataSource()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimFractureModelPlot::getCurvePropertyValues( RiaDefines::CurveProperty curveProperty, std::vector<double>& values ) const
+{
+    RimWellLogExtractionCurve* curve = findCurveByProperty( curveProperty );
+    if ( curve )
+    {
+        values = curve->curveData()->xValues();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFractureModelPlot::getPorosityValues( std::vector<double>& values ) const
 {
-    std::vector<RimFractureModelCurve*> curves;
-    descendantsIncludingThisOfType( curves );
+    getCurvePropertyValues( RiaDefines::CurveProperty::POROSITY, values );
+}
 
-    for ( RimFractureModelCurve* curve : curves )
-    {
-        if ( curve->eclipseResultVariable() == "PORO" )
-        {
-            values = curve->curveData()->xValues();
-        }
-    }
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModelPlot::getFaciesValues( std::vector<double>& values ) const
+{
+    getCurvePropertyValues( RiaDefines::CurveProperty::FACIES, values );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -144,20 +158,23 @@ void RimFractureModelPlot::calculateLayers( std::vector<std::pair<double, double
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFractureModelPlot::computeValueAtDepth( const std::vector<double>&              values,
-                                                  std::vector<std::pair<double, double>>& layerBoundaryDepths,
-                                                  double                                  depth )
+double RimFractureModelPlot::findValueAtTopOfLayer( const std::vector<double>&                    values,
+                                                    const std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes,
+                                                    size_t                                        layerNo )
 {
-    for ( size_t i = 0; i < layerBoundaryDepths.size(); i++ )
-    {
-        if ( layerBoundaryDepths[i].first <= depth && layerBoundaryDepths[i].second >= depth )
-        {
-            return values[i];
-        }
-    }
+    size_t index = layerBoundaryIndexes[layerNo].first;
+    return values.at( index );
+}
 
-    RiaLogging::error( QString( "Failed to compute value at depth: %1" ).arg( depth ) );
-    return std::numeric_limits<double>::infinity();
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModelPlot::findValueAtBottomOfLayer( const std::vector<double>&                    values,
+                                                       const std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes,
+                                                       size_t                                        layerNo )
+{
+    size_t index = layerBoundaryIndexes[layerNo].second;
+    return values.at( index );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -183,17 +200,29 @@ void RimFractureModelPlot::computeAverageByLayer( const std::vector<std::pair<si
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogExtractionCurve* RimFractureModelPlot::findCurveByName( const QString& curveName ) const
+void RimFractureModelPlot::extractTopOfLayerValues( const std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes,
+                                                    const std::vector<double>&                    inputVector,
+                                                    std::vector<double>&                          result )
 {
-    std::vector<RimWellLogExtractionCurve*> curves;
+    for ( size_t i = 0; i < layerBoundaryIndexes.size(); i++ )
+    {
+        result.push_back( findValueAtTopOfLayer( inputVector, layerBoundaryIndexes, i ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellLogExtractionCurve* RimFractureModelPlot::findCurveByProperty( RiaDefines::CurveProperty curveProperty ) const
+{
+    std::vector<RimFractureModelPropertyCurve*> curves;
     descendantsIncludingThisOfType( curves );
 
-    for ( auto curve : curves )
+    for ( RimFractureModelPropertyCurve* curve : curves )
     {
-        // TODO: This will not work if the user has changed the name of the curve: do something smarter.
-        if ( curve->curveName() == curveName )
+        if ( curve->curveProperty() == curveProperty )
         {
-            return curve;
+            return dynamic_cast<RimWellLogExtractionCurve*>( curve );
         }
     }
 
@@ -223,12 +252,13 @@ std::vector<double> RimFractureModelPlot::calculateTrueVerticalDepth() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimFractureModelPlot::findCurveAndComputeLayeredAverage( const QString& curveName ) const
+std::vector<double> RimFractureModelPlot::findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty curveProperty ) const
 {
-    RimWellLogExtractionCurve* curve = findCurveByName( curveName );
+    RimWellLogExtractionCurve* curve = findCurveByProperty( curveProperty );
     if ( !curve )
     {
-        RiaLogging::error( QString( "No curve named '%1' found" ).arg( curveName ) );
+        QString curveName = caf::AppEnum<RiaDefines::CurveProperty>::uiText( curveProperty );
+        RiaLogging::error( QString( "No curve for '%1' found" ).arg( curveName ) );
         return std::vector<double>();
     }
 
@@ -246,9 +276,33 @@ std::vector<double> RimFractureModelPlot::findCurveAndComputeLayeredAverage( con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<double> RimFractureModelPlot::findCurveAndComputeTopOfLayer( RiaDefines::CurveProperty curveProperty ) const
+{
+    RimWellLogExtractionCurve* curve = findCurveByProperty( curveProperty );
+    if ( !curve )
+    {
+        QString curveName = caf::AppEnum<RiaDefines::CurveProperty>::uiText( curveProperty );
+        RiaLogging::error( QString( "No curve for '%1' found" ).arg( curveName ) );
+        return std::vector<double>();
+    }
+
+    std::vector<std::pair<double, double>> layerBoundaryDepths;
+    std::vector<std::pair<size_t, size_t>> layerBoundaryIndexes;
+    calculateLayers( layerBoundaryDepths, layerBoundaryIndexes );
+
+    const RigWellLogCurveData* curveData = curve->curveData();
+    std::vector<double>        values    = curveData->xValues();
+    std::vector<double>        result;
+    extractTopOfLayerValues( layerBoundaryIndexes, values, result );
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<double> RimFractureModelPlot::calculatePorosity() const
 {
-    return findCurveAndComputeLayeredAverage( "PORO" );
+    return findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty::POROSITY );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -256,7 +310,7 @@ std::vector<double> RimFractureModelPlot::calculatePorosity() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimFractureModelPlot::calculateReservoirPressure() const
 {
-    return findCurveAndComputeLayeredAverage( "PRESSURE" );
+    return findCurveAndComputeTopOfLayer( RiaDefines::CurveProperty::PRESSURE );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -264,7 +318,7 @@ std::vector<double> RimFractureModelPlot::calculateReservoirPressure() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimFractureModelPlot::calculateHorizontalPermeability() const
 {
-    return findCurveAndComputeLayeredAverage( "PERMX" );
+    return findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty::PERMEABILITY_X );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -272,7 +326,7 @@ std::vector<double> RimFractureModelPlot::calculateHorizontalPermeability() cons
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimFractureModelPlot::calculateVerticalPermeability() const
 {
-    return findCurveAndComputeLayeredAverage( "PERMZ" );
+    return findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty::PERMEABILITY_Z );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -284,6 +338,21 @@ std::vector<double> RimFractureModelPlot::calculateStress() const
     std::vector<double> stressGradients;
     calculateStressWithGradients( stress, stressGradients );
     return stress;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimFractureModelPlot::findCurveXValuesByProperty( RiaDefines::CurveProperty curveProperty ) const
+{
+    RimWellLogExtractionCurve* curve = findCurveByProperty( curveProperty );
+    if ( !curve )
+    {
+        QString curveName = caf::AppEnum<RiaDefines::CurveProperty>::uiText( curveProperty );
+        RiaLogging::error( QString( "%1 data not found." ).arg( curveName ) );
+        return std::vector<double>();
+    }
+    return curve->curveData()->xValues();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -302,49 +371,26 @@ bool RimFractureModelPlot::calculateStressWithGradients( std::vector<double>& st
     calculateLayers( layerBoundaryDepths, layerBoundaryIndexes );
 
     // Biot coefficient
-    RimWellLogExtractionCurve* biotCurve = findCurveByName( "Biot Coefficient" );
-    if ( !biotCurve )
-    {
-        RiaLogging::error( "Biot coefficient data not found." );
-        return false;
-    }
-    std::vector<double> biotData = biotCurve->curveData()->xValues();
+    std::vector<double> biotData = findCurveXValuesByProperty( RiaDefines::CurveProperty::BIOT_COEFFICIENT );
 
-    // Biot coefficient
-    RimWellLogExtractionCurve* k0Curve = findCurveByName( "k0" );
-    if ( !k0Curve )
-    {
-        RiaLogging::error( "k0 data not found." );
-        return false;
-    }
-    std::vector<double> k0Data = k0Curve->curveData()->xValues();
+    // K0
+    std::vector<double> k0Data = findCurveXValuesByProperty( RiaDefines::CurveProperty::K0 );
 
     // Pressure at the give time step
-    RimWellLogExtractionCurve* timeStepPressureCurve = findCurveByName( "PRESSURE" );
-    if ( !timeStepPressureCurve )
-    {
-        RiaLogging::error( "Pressure data for time step not found." );
-        return false;
-    }
-    std::vector<double> timeStepPressureData = timeStepPressureCurve->curveData()->xValues();
+    std::vector<double> timeStepPressureData = findCurveXValuesByProperty( RiaDefines::CurveProperty::PRESSURE );
 
     // Initial pressure
-    RimWellLogExtractionCurve* initialPressureCurve = findCurveByName( "INITIAL PRESSURE" );
-    if ( !initialPressureCurve )
-    {
-        RiaLogging::error( "Initial pressure data not found." );
-        return false;
-    }
-    std::vector<double> initialPressureData = initialPressureCurve->curveData()->xValues();
+    std::vector<double> initialPressureData = findCurveXValuesByProperty( RiaDefines::CurveProperty::INITIAL_PRESSURE );
 
     // Poissons ratio
-    RimWellLogExtractionCurve* poissonsRatioCurve = findCurveByName( "Poisson's Ratio" );
-    if ( !poissonsRatioCurve )
+    std::vector<double> poissonsRatioData = findCurveXValuesByProperty( RiaDefines::CurveProperty::POISSONS_RATIO );
+
+    // Check that we have data from all curves
+    if ( biotData.empty() || k0Data.empty() || timeStepPressureData.empty() || initialPressureData.empty() ||
+         poissonsRatioData.empty() )
     {
-        RiaLogging::error( "Poisson's ratio data not found." );
         return false;
     }
-    std::vector<double> poissonsRatioData = poissonsRatioCurve->curveData()->xValues();
 
     std::vector<double> stressForGradients;
     std::vector<double> pressureForGradients;
@@ -357,11 +403,11 @@ bool RimFractureModelPlot::calculateStressWithGradients( std::vector<double>& st
         double depthBottomOfZone = layerBoundaryDepths[i].second;
 
         // Data from curves at the top zone depth
-        double k0               = computeValueAtDepth( k0Data, layerBoundaryDepths, depthTopOfZone );
-        double biot             = computeValueAtDepth( biotData, layerBoundaryDepths, depthTopOfZone );
-        double poissonsRatio    = computeValueAtDepth( poissonsRatioData, layerBoundaryDepths, depthTopOfZone );
-        double initialPressure  = computeValueAtDepth( initialPressureData, layerBoundaryDepths, depthTopOfZone );
-        double timeStepPressure = computeValueAtDepth( timeStepPressureData, layerBoundaryDepths, depthTopOfZone );
+        double k0               = findValueAtTopOfLayer( k0Data, layerBoundaryIndexes, i );
+        double biot             = findValueAtTopOfLayer( biotData, layerBoundaryIndexes, i );
+        double poissonsRatio    = findValueAtTopOfLayer( poissonsRatioData, layerBoundaryIndexes, i );
+        double initialPressure  = findValueAtTopOfLayer( initialPressureData, layerBoundaryIndexes, i );
+        double timeStepPressure = findValueAtTopOfLayer( timeStepPressureData, layerBoundaryIndexes, i );
 
         // Vertical stress
         // Use difference between reference depth and depth of top of zone
@@ -387,8 +433,8 @@ bool RimFractureModelPlot::calculateStressWithGradients( std::vector<double>& st
         if ( i == layerBoundaryDepths.size() - 1 )
         {
             // Use the bottom of the last layer to compute gradient for last layer
-            double bottomInitialPressure =
-                computeValueAtDepth( initialPressureData, layerBoundaryDepths, depthBottomOfZone );
+            double bottomInitialPressure = findValueAtBottomOfLayer( initialPressureData, layerBoundaryIndexes, i );
+
             double bottomDepthDiff = depthBottomOfZone - stressDepthRef;
             double bottomSv        = verticalStressRef + verticalStressGradientRef * bottomDepthDiff;
             stressForGradients.push_back( bottomSv );
@@ -407,7 +453,7 @@ bool RimFractureModelPlot::calculateStressWithGradients( std::vector<double>& st
         double diffStress   = stressForGradients[i + 1] - stressForGradients[i];
         double diffPressure = pressureForGradients[i + 1] - pressureForGradients[i];
         double diffDepth    = depthForGradients[i + 1] - depthForGradients[i];
-        double k0           = computeValueAtDepth( k0Data, layerBoundaryDepths, depthForGradients[i] );
+        double k0           = findValueAtTopOfLayer( k0Data, layerBoundaryIndexes, i );
         double gradient     = ( diffStress * k0 + diffPressure * ( 1.0 - k0 ) ) / diffDepth;
         stressGradients.push_back( RiaEclipseUnitTools::barPerMeterToPsiPerFeet( gradient ) );
     }
@@ -431,11 +477,11 @@ std::vector<double> RimFractureModelPlot::calculateStressGradient() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimFractureModelPlot::calculateYoungsModulus() const
 {
-    std::vector<double> valuesGPa = findCurveAndComputeLayeredAverage( "Young's Modulus" );
+    std::vector<double> valuesGPa = findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty::YOUNGS_MODULUS );
     std::vector<double> valuesMMpsi;
     for ( auto value : valuesGPa )
     {
-        valuesMMpsi.push_back( value * 0.000145037737 );
+        valuesMMpsi.push_back( value * 0.14503773773 );
     }
 
     return valuesMMpsi;
@@ -446,7 +492,7 @@ std::vector<double> RimFractureModelPlot::calculateYoungsModulus() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimFractureModelPlot::calculatePoissonsRatio() const
 {
-    return findCurveAndComputeLayeredAverage( "Poisson's Ratio" );
+    return findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty::POISSONS_RATIO );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -454,7 +500,7 @@ std::vector<double> RimFractureModelPlot::calculatePoissonsRatio() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimFractureModelPlot::calculateKIc() const
 {
-    return findCurveAndComputeLayeredAverage( "K-Ic" );
+    return findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty::K_IC );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -462,7 +508,7 @@ std::vector<double> RimFractureModelPlot::calculateKIc() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimFractureModelPlot::calculateFluidLossCoefficient() const
 {
-    return findCurveAndComputeLayeredAverage( "Fluid Loss Coefficient" );
+    return findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty::FLUID_LOSS_COEFFICIENT );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -470,7 +516,7 @@ std::vector<double> RimFractureModelPlot::calculateFluidLossCoefficient() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimFractureModelPlot::calculateSpurtLoss() const
 {
-    return findCurveAndComputeLayeredAverage( "Spurt Loss" );
+    return findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty::SPURT_LOSS );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -478,5 +524,5 @@ std::vector<double> RimFractureModelPlot::calculateSpurtLoss() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimFractureModelPlot::calculateProppandEmbedment() const
 {
-    return findCurveAndComputeLayeredAverage( "Proppant Embedment" );
+    return findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty::PROPPANT_EMBEDMENT );
 }

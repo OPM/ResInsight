@@ -73,11 +73,23 @@ template <>
 void caf::AppEnum<RimGeoMechCase::BiotCoefficientType>::setUp()
 {
     addItem( RimGeoMechCase::BiotCoefficientType::BIOT_NONE, "BIOT_NONE", "None" );
-    addItem( RimGeoMechCase::BiotCoefficientType::BIOT_FIXED, "BIOT_FIXED", "Fixed biot coefficient" );
+    addItem( RimGeoMechCase::BiotCoefficientType::BIOT_FIXED, "BIOT_FIXED", "Fixed Biot Coefficient" );
     addItem( RimGeoMechCase::BiotCoefficientType::BIOT_PER_ELEMENT,
              "BIOT_PER_ELEMENT",
              "Biot coefficient from element properties" );
     setDefault( RimGeoMechCase::BiotCoefficientType::BIOT_NONE );
+}
+
+template <>
+void caf::AppEnum<RimGeoMechCase::InitialPermeabilityType>::setUp()
+{
+    addItem( RimGeoMechCase::InitialPermeabilityType::INITIAL_PERMEABILITY_FIXED,
+             "INITIAL_PERMEABILITY_FIXED",
+             "Fixed Initial Permeability" );
+    addItem( RimGeoMechCase::InitialPermeabilityType::INITIAL_PERMEABILITY_PER_ELEMENT,
+             "INITIAL_PERMEABILITY_PER_ELEMENT",
+             "Initial permeability from element properties" );
+    setDefault( RimGeoMechCase::InitialPermeabilityType::INITIAL_PERMEABILITY_FIXED );
 }
 
 } // End namespace caf
@@ -134,11 +146,35 @@ RimGeoMechCase::RimGeoMechCase( void )
 
     caf::AppEnum<BiotCoefficientType> defaultBiotCoefficientType = RimGeoMechCase::BiotCoefficientType::BIOT_NONE;
     CAF_PDM_InitField( &m_biotCoefficientType, "BiotCoefficientType", defaultBiotCoefficientType, "Biot Coefficient", "", "", "" );
-    CAF_PDM_InitField( &m_biotFixedCoefficient, "BiotFixedCoefficient", 1.0, "Fixed coefficient", "", "", "" );
+    CAF_PDM_InitField( &m_biotFixedCoefficient, "BiotFixedCoefficient", 1.0, "Fixed Coefficient", "", "", "" );
     m_biotFixedCoefficient.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_biotResultAddress, "BiotResultAddress", QString( "" ), "Value", "", "", "" );
     m_biotResultAddress.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+
+    caf::AppEnum<InitialPermeabilityType> defaultInitialPermeabilityType =
+        RimGeoMechCase::InitialPermeabilityType::INITIAL_PERMEABILITY_FIXED;
+    CAF_PDM_InitField( &m_initialPermeabilityType,
+                       "InitialPermeabilityType",
+                       defaultInitialPermeabilityType,
+                       "Initial Permeability",
+                       "",
+                       "",
+                       "" );
+    CAF_PDM_InitField( &m_initialPermeabilityFixed,
+                       "InitialPermeabilityFixed",
+                       1.0,
+                       "Fixed Initial Permeability [mD]",
+                       "",
+                       "",
+                       "" );
+    m_initialPermeabilityFixed.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_initialPermeabilityResultAddress, "InitialPermeabilityAddress", QString( "" ), "Value", "", "", "" );
+    m_initialPermeabilityResultAddress.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_permeabilityExponent, "PermeabilityExponent", 1.0, "Permeability Exponent", "", "", "" );
+    m_permeabilityExponent.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_contourMapCollection, "ContourMaps", "2d Contour Maps", "", "", "" );
     m_contourMapCollection = new RimGeoMechContourMapViewCollection;
@@ -573,6 +609,7 @@ void RimGeoMechCase::addElementPropertyFiles( const std::vector<caf::FilePath>& 
     if ( m_geoMechCaseData.notNull() )
     {
         geoMechData()->femPartResults()->addElementPropertyFiles( newFileNames );
+        geoMechData()->femPartResults()->deleteAllScalarResults();
     }
 }
 
@@ -614,6 +651,38 @@ double RimGeoMechCase::biotFixedCoefficient() const
 QString RimGeoMechCase::biotResultAddress() const
 {
     return m_biotResultAddress;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimGeoMechCase::InitialPermeabilityType RimGeoMechCase::initialPermeabilityType() const
+{
+    return m_initialPermeabilityType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimGeoMechCase::initialPermeabilityFixed() const
+{
+    return m_initialPermeabilityFixed;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGeoMechCase::initialPermeabilityAddress() const
+{
+    return m_initialPermeabilityResultAddress;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimGeoMechCase::permeabilityExponent() const
+{
+    return m_permeabilityExponent;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -679,9 +748,9 @@ void RimGeoMechCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         updateFormationNamesData();
     }
 
+    RigGeoMechCaseData* rigCaseData = geoMechData();
     if ( changedField == &m_cohesion || changedField == &m_frictionAngleDeg )
     {
-        RigGeoMechCaseData* rigCaseData = geoMechData();
         if ( rigCaseData && rigCaseData->femPartResults() )
         {
             rigCaseData->femPartResults()->setCalculationParameters( m_cohesion(),
@@ -693,7 +762,6 @@ void RimGeoMechCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     else if ( changedField == &m_biotFixedCoefficient || changedField == &m_biotCoefficientType ||
               changedField == &m_biotResultAddress )
     {
-        RigGeoMechCaseData* rigCaseData = geoMechData();
         if ( rigCaseData && rigCaseData->femPartResults() )
         {
             if ( m_biotCoefficientType() == RimGeoMechCase::BiotCoefficientType::BIOT_NONE )
@@ -739,23 +807,87 @@ void RimGeoMechCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
         updateConnectedViews();
     }
+    else if ( changedField == &m_initialPermeabilityFixed || changedField == &m_initialPermeabilityType ||
+              changedField == &m_initialPermeabilityResultAddress || changedField == &m_permeabilityExponent )
+    {
+        if ( rigCaseData && rigCaseData->femPartResults() )
+        {
+            if ( m_initialPermeabilityType() == RimGeoMechCase::InitialPermeabilityType::INITIAL_PERMEABILITY_FIXED )
+            {
+                rigCaseData->femPartResults()->setPermeabilityParameters( initialPermeabilityFixed(),
+                                                                          "",
+                                                                          permeabilityExponent() );
+            }
+            else if ( m_initialPermeabilityType() ==
+                      RimGeoMechCase::InitialPermeabilityType::INITIAL_PERMEABILITY_PER_ELEMENT )
+            {
+                if ( changedField == &m_initialPermeabilityType )
+                {
+                    // Show info message to user when selecting "from file" option before
+                    // an element property has been imported
+                    std::vector<std::string> elementProperties = possibleElementPropertyFieldNames();
+                    if ( elementProperties.empty() )
+                    {
+                        QString importMessage =
+                            QString( "Please import initial permeability from file (typically called perm.inp) by "
+                                     "selecting 'Import Element Property Table' on the Geomechanical Model." );
+                        RiaLogging::info( importMessage );
+                        // Set back to default value
+                        m_initialPermeabilityType = RimGeoMechCase::InitialPermeabilityType::INITIAL_PERMEABILITY_FIXED;
+                        return;
+                    }
+                }
+
+                if ( initialPermeabilityAddress().isEmpty() )
+                {
+                    // Automatically select the first available property element if empty
+                    std::vector<std::string> elementProperties = possibleElementPropertyFieldNames();
+                    if ( !elementProperties.empty() )
+                    {
+                        m_initialPermeabilityResultAddress = QString::fromStdString( elementProperties[0] );
+                    }
+                }
+
+                rigCaseData->femPartResults()->setPermeabilityParameters( initialPermeabilityFixed(),
+                                                                          initialPermeabilityAddress(),
+                                                                          permeabilityExponent() );
+            }
+        }
+
+        updateConnectedViews();
+    }
     else if ( changedField == &m_reloadElementPropertyFileCommand )
     {
         m_reloadElementPropertyFileCommand = false;
         reloadSelectedElementPropertyFiles();
+        if ( rigCaseData && rigCaseData->femPartResults() )
+        {
+            rigCaseData->femPartResults()->deleteAllScalarResults();
+        }
         updateConnectedEditors();
+        updateConnectedViews();
     }
     else if ( changedField == &m_closeElementPropertyFileCommand )
     {
         m_closeElementPropertyFileCommand = false;
         closeSelectedElementPropertyFiles();
+        if ( rigCaseData && rigCaseData->femPartResults() )
+        {
+            rigCaseData->femPartResults()->deleteAllScalarResults();
+        }
         updateConnectedEditors();
+        updateConnectedViews();
     }
     else if ( changedField == &m_importElementPropertyFileCommand )
     {
         m_importElementPropertyFileCommand = false;
         importElementPropertyFile();
+        if ( rigCaseData && rigCaseData->femPartResults() )
+        {
+            rigCaseData->femPartResults()->deleteAllScalarResults();
+        }
         updateConnectedEditors();
+        updateConnectedViews();
     }
 }
 
@@ -884,6 +1016,7 @@ void RimGeoMechCase::closeSelectedElementPropertyFiles()
     if ( m_geoMechCaseData.notNull() )
     {
         addressesToDelete = geoMechData()->femPartResults()->removeElementPropertyFiles( filesToClose );
+        geoMechData()->femPartResults()->deleteAllScalarResults();
     }
 
     for ( RimGeoMechView* view : geoMechViews() )
@@ -977,6 +1110,16 @@ void RimGeoMechCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     m_biotResultAddress.uiCapability()->setUiHidden( m_biotCoefficientType !=
                                                      RimGeoMechCase::BiotCoefficientType::BIOT_PER_ELEMENT );
 
+    caf::PdmUiGroup* permeabilityGroup = uiOrdering.addNewGroup( "Permeability" );
+    permeabilityGroup->add( &m_initialPermeabilityType );
+    permeabilityGroup->add( &m_initialPermeabilityFixed );
+    permeabilityGroup->add( &m_initialPermeabilityResultAddress );
+    m_initialPermeabilityFixed.uiCapability()->setUiHidden(
+        m_initialPermeabilityType != RimGeoMechCase::InitialPermeabilityType::INITIAL_PERMEABILITY_FIXED );
+    m_initialPermeabilityResultAddress.uiCapability()->setUiHidden(
+        m_initialPermeabilityType != RimGeoMechCase::InitialPermeabilityType::INITIAL_PERMEABILITY_PER_ELEMENT );
+    permeabilityGroup->add( &m_permeabilityExponent );
+
     caf::PdmUiGroup* timeStepFilterGroup = uiOrdering.addNewGroup( "Time Step Filter" );
     timeStepFilterGroup->setCollapsedByDefault( true );
     m_timeStepFilter->uiOrdering( uiConfigName, *timeStepFilterGroup );
@@ -1030,7 +1173,7 @@ QList<caf::PdmOptionItemInfo> RimGeoMechCase::calculateValueOptions( const caf::
             options.push_back( caf::PdmOptionItemInfo( m_elementPropertyFileNames.v().at( i ).path(), (int)i, true ) );
         }
     }
-    else if ( fieldNeedingOptions == &m_biotResultAddress )
+    else if ( fieldNeedingOptions == &m_biotResultAddress || fieldNeedingOptions == &m_initialPermeabilityResultAddress )
     {
         std::vector<std::string> elementProperties = possibleElementPropertyFieldNames();
 

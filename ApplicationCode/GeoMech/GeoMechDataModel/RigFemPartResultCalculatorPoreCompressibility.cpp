@@ -152,7 +152,7 @@ RigFemScalarResultFrames*
         const std::vector<float>& referenceVerticalStrainData = verticalStrainDataFrames->frameData( referenceFrameIdx );
         const std::vector<float>& youngsModuliData            = youngsModuliFrames->frameData( fIdx );
         const std::vector<float>& poissonRatioData            = poissonRatioFrames->frameData( fIdx );
-        const std::vector<float>& voidRatioData               = voidRatioFrames->frameData( referenceFrameIdx );
+        const std::vector<float>& voidRatioData               = voidRatioFrames->frameData( 0 );
         const std::vector<float>& referencePorFrameData       = srcPORDataFrames->frameData( referenceFrameIdx );
         const std::vector<float>& porFrameData                = srcPORDataFrames->frameData( fIdx );
 
@@ -222,7 +222,7 @@ RigFemScalarResultFrames*
                             double bulkModulusFrame = youngsModuli / ( 3.0 * ( 1.0 - 2.0 * poissonRatio ) );
                             double bulkModulus      = bulkModulusFrame / ( 1.0 - biotCoefficient );
 
-                            // Calculate porosity
+                            // Calculate initial porosity (always from geostatic timestep)
                             double voidr    = voidRatioData[elmNodResIdx];
                             double porosity = voidr / ( 1.0 + voidr );
 

@@ -410,7 +410,7 @@ void RimPlotDataFilterItem::defineEditorAttribute( const caf::PdmFieldHandle* fi
 
         QFontMetrics fm = QFontMetrics( QFont() );
 
-        myAttr->maximumWidth = fm.width( "XXXX" );
+        myAttr->maximumWidth = fm.boundingRect( "XXXX" ).width();
     }
 }
 

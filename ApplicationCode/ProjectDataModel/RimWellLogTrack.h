@@ -182,6 +182,9 @@ public:
     void setShowBothSidesOfWell( bool on );
     void setWellPathAttributesSource( RimWellPath* wellPath );
 
+    void setOverburdenHeight( double overburdenHeight );
+    void setUnderburdenHeight( double underburdenHeight );
+
     RimWellPath* wellPathAttributeSource() const;
 
     caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const override;
@@ -221,6 +224,9 @@ public:
                                        std::vector<std::pair<double, double>>* yValues );
 
     static std::vector<QString> formationNamesVector( RimCase* rimCase );
+
+    static void addOverburden( std::vector<QString>& namesVector, CurveSamplingPointData& curveData, double height );
+    static void addUnderburden( std::vector<QString>& namesVector, CurveSamplingPointData& curveData, double height );
 
 protected:
     // RimViewWindow overrides
@@ -331,6 +337,8 @@ private:
     caf::PdmPtrField<RimWellPath*>                                     m_wellPathComponentSource;
     caf::PdmPtrField<RimWellPathAttributeCollection*>                  m_wellPathAttributeCollection;
     caf::PdmChildField<RimEclipseResultDefinition*>                    m_resultDefinition;
+    caf::PdmField<double>                                              m_overburdenHeight;
+    caf::PdmField<double>                                              m_underburdenHeight;
 
     caf::PdmField<bool>                                   m_showFormations_OBSOLETE;
     caf::PdmField<bool>                                   m_show_OBSOLETE;

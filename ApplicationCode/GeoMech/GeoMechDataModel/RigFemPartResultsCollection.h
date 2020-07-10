@@ -73,6 +73,13 @@ public:
     double  biotFixedFactor() const { return m_biotFixedFactor; }
     QString biotResultAddress() const { return m_biotResultAddress; }
 
+    void    setPermeabilityParameters( double         fixedInitalPermeability,
+                                       const QString& initialPermeabilityAddress,
+                                       double         permeabilityExponent );
+    double  initialPermeabilityFixed() const;
+    QString initialPermeabilityAddress() const;
+    double  permeabilityExponent() const;
+
     std::map<std::string, std::vector<std::string>> scalarFieldAndComponentNames( RigFemResultPosEnum resPos );
     std::vector<std::string>                        filteredStepNames() const;
     bool                                            assertResultsLoaded( const RigFemResultAddress& resVarAddr );
@@ -136,8 +143,11 @@ public:
     static std::set<RigFemResultAddress> referenceCaseDependentResults();
     static bool                          isReferenceCaseDependentResult( const RigFemResultAddress& result );
 
+    static std::set<RigFemResultAddress> initialPermeabilityDependentResults();
+
     RigFemScalarResultFrames* findOrLoadScalarResult( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* createScalarResult( int partIndex, const RigFemResultAddress& resVarAddr );
+    void                      deleteAllScalarResults();
 
     bool                            isValidBiotData( const std::vector<float>& biotData, size_t elementCount ) const;
     static std::vector<std::string> getStressComponentNames( bool includeShear = true );
@@ -161,6 +171,10 @@ private:
 
     double  m_biotFixedFactor;
     QString m_biotResultAddress;
+
+    double  m_initialPermeabilityFixed;
+    QString m_initialPermeabilityResultAddress;
+    double  m_permeabilityExponent;
 
     int m_referenceTimeStep;
 

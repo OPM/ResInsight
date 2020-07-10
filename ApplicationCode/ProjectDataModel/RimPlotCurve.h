@@ -69,6 +69,7 @@ public:
     cvf::Color3f                  color() const { return m_curveColor; }
     void                          setLineStyle( RiuQwtPlotCurve::LineStyleEnum lineStyle );
     void                          setSymbol( RiuQwtSymbol::PointSymbolEnum symbolStyle );
+    void                          setInterpolation( RiuQwtPlotCurve::CurveInterpolationEnum );
     RiuQwtSymbol::PointSymbolEnum symbol();
     int                           symbolSize() const;
     cvf::Color3f                  symbolEdgeColor() const;

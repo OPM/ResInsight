@@ -49,14 +49,13 @@ public:
     const QString&      categoryName() const;
     int                 categoryValue() const;
 
+    QString itemName() const;
+
 public:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ ) override;
 
     caf::PdmFieldHandle* userDescriptionField() override;
-
-private:
-    QString extractColorItemName() const;
 
 private:
     caf::PdmField<cvf::Color3f> m_color;

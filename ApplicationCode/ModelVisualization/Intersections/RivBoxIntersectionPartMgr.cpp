@@ -33,8 +33,6 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechView.h"
 #include "RimIntersectionResultDefinition.h"
-#include "RimRegularLegendConfig.h"
-#include "RimTernaryLegendConfig.h"
 
 #include "RivBoxIntersectionSourceInfo.h"
 #include "RivExtrudedCurveIntersectionPartMgr.h"

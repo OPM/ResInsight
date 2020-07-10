@@ -60,6 +60,12 @@ public:
         BIOT_PER_ELEMENT
     };
 
+    enum class InitialPermeabilityType
+    {
+        INITIAL_PERMEABILITY_FIXED = 0,
+        INITIAL_PERMEABILITY_PER_ELEMENT
+    };
+
     RimGeoMechCase( void );
     ~RimGeoMechCase( void ) override;
 
@@ -99,6 +105,11 @@ public:
     BiotCoefficientType biotCoefficientType() const;
     double              biotFixedCoefficient() const;
     QString             biotResultAddress() const;
+
+    InitialPermeabilityType initialPermeabilityType() const;
+    double                  initialPermeabilityFixed() const;
+    QString                 initialPermeabilityAddress() const;
+    double                  permeabilityExponent() const;
 
 private:
     cvf::Vec3d                    displayModelOffset() const override;
@@ -142,6 +153,11 @@ private:
     caf::PdmField<caf::AppEnum<BiotCoefficientType>> m_biotCoefficientType;
     caf::PdmField<double>                            m_biotFixedCoefficient;
     caf::PdmField<QString>                           m_biotResultAddress;
+
+    caf::PdmField<caf::AppEnum<InitialPermeabilityType>> m_initialPermeabilityType;
+    caf::PdmField<double>                                m_initialPermeabilityFixed;
+    caf::PdmField<QString>                               m_initialPermeabilityResultAddress;
+    caf::PdmField<double>                                m_permeabilityExponent;
 
     caf::PdmChildField<RimGeoMechContourMapViewCollection*> m_contourMapCollection;
 

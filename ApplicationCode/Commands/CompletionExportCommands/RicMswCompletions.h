@@ -170,6 +170,8 @@ public:
     void   setIsOpen( bool deviceOpen );
     double length() const;
     void   setLength( double length );
+    double flowScalingFactor() const;
+    void   setflowScalingFactor( double scalingFactor );
 
     const std::array<double, AICD_NUM_PARAMS>& values() const;
     std::array<double, AICD_NUM_PARAMS>&       values();
@@ -179,4 +181,5 @@ private:
     bool                                m_deviceOpen;
     std::array<double, AICD_NUM_PARAMS> m_parameters;
     double                              m_length;
+    double                              m_flowScalingFactor;
 };

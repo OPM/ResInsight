@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Equinor ASA
+//  Copyright (C) 2020-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,17 +18,18 @@
 
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaFractureModelDefines.h"
 
-#include <QString>
+#include "RimWellLogExtractionCurve.h"
 
-namespace RiaDefines
+#include "cafPdmObject.h"
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimFractureModelPropertyCurve
 {
-QString conductivityResultName();
-QString unitStringConductivity( RiaEclipseUnitTools::UnitSystem unitSystem );
-
-double nonDarcyFlowAlpha( RiaEclipseUnitTools::UnitSystem unitSystem );
-
-QString faciesColorLegendName();
-QString rockTypeColorLegendName();
-}; // namespace RiaDefines
+public:
+    virtual void                      setCurveProperty( RiaDefines::CurveProperty ) = 0;
+    virtual RiaDefines::CurveProperty curveProperty() const                         = 0;
+};

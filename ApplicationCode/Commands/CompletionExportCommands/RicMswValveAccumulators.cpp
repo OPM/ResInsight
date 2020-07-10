@@ -38,17 +38,32 @@ RicMswICDAccumulator::RicMswICDAccumulator( RiaEclipseUnitTools::UnitSystem unit
 //--------------------------------------------------------------------------------------------------
 bool RicMswICDAccumulator::accumulateValveParameters( const RimWellPathValve* wellPathValve,
                                                       size_t                  subValve,
-                                                      double                  contributionFraction )
+                                                      double                  contributionFraction,
+                                                      double                  totalValveLengthOpenForFlow )
 {
     CVF_ASSERT( wellPathValve );
     if ( wellPathValve->componentType() == RiaDefines::WellPathComponentType::ICV ||
          wellPathValve->componentType() == RiaDefines::WellPathComponentType::ICD )
     {
+        double lengthFraction = 1.0;
+
+        if ( wellPathValve->componentType() == RiaDefines::WellPathComponentType::ICD )
+        {
+            std::pair<double, double> valveSegment       = wellPathValve->valveSegments()[subValve];
+            double                    valveSegmentLength = std::fabs( valveSegment.second - valveSegment.first );
+            if ( totalValveLengthOpenForFlow > 1.0e-8 )
+            {
+                lengthFraction = valveSegmentLength / totalValveLengthOpenForFlow;
+            }
+        }
+
+        double combinedFraction = contributionFraction * lengthFraction;
+
         double icdOrificeRadius = wellPathValve->orificeDiameter( m_unitSystem ) / 2;
         double icdArea          = icdOrificeRadius * icdOrificeRadius * cvf::PI_D;
 
-        m_areaSum += icdArea * contributionFraction;
-        m_coefficientCalculator.addValueAndWeight( wellPathValve->flowCoefficient(), icdArea * contributionFraction );
+        m_areaSum += icdArea * combinedFraction;
+        m_coefficientCalculator.addValueAndWeight( wellPathValve->flowCoefficient(), icdArea * combinedFraction );
         return true;
     }
     return false;
@@ -76,6 +91,7 @@ RicMswAICDAccumulator::RicMswAICDAccumulator( RiaEclipseUnitTools::UnitSystem un
     , m_valid( false )
     , m_deviceOpen( false )
     , m_accumulatedLength( 0.0 )
+    , m_accumulatedFlowScalingFactorDivisor( 0.0 )
 {
 }
 
@@ -84,7 +100,8 @@ RicMswAICDAccumulator::RicMswAICDAccumulator( RiaEclipseUnitTools::UnitSystem un
 //--------------------------------------------------------------------------------------------------
 bool RicMswAICDAccumulator::accumulateValveParameters( const RimWellPathValve* wellPathValve,
                                                        size_t                  subValve,
-                                                       double                  contributionFraction )
+                                                       double                  contributionFraction,
+                                                       double                  totalValveLengthOpenForFlow )
 {
     CVF_ASSERT( wellPathValve );
     if ( wellPathValve->componentType() == RiaDefines::WellPathComponentType::AICD )
@@ -96,25 +113,37 @@ bool RicMswAICDAccumulator::accumulateValveParameters( const RimWellPathValve* w
             m_deviceOpen = m_deviceOpen || params->isOpen();
             if ( params->isOpen() )
             {
+                std::pair<double, double> valveSegment       = wellPathValve->valveSegments()[subValve];
+                double                    valveSegmentLength = std::fabs( valveSegment.second - valveSegment.first );
+                double                    lengthFraction     = 1.0;
+                if ( totalValveLengthOpenForFlow > 1.0e-8 )
+                {
+                    lengthFraction = valveSegmentLength / totalValveLengthOpenForFlow;
+                }
+
+                double combinedFraction = contributionFraction * lengthFraction;
+
                 std::array<double, AICD_NUM_PARAMS> values = params->doubleValues();
                 for ( size_t i = 0; i < (size_t)AICD_NUM_PARAMS; ++i )
                 {
                     if ( RiaStatisticsTools::isValidNumber( values[i] ) )
                     {
-                        m_meanCalculators[i].addValueAndWeight( values[i], contributionFraction );
+                        m_meanCalculators[i].addValueAndWeight( values[i], combinedFraction );
                     }
                 }
-                std::pair<double, double> valveSegment       = wellPathValve->valveSegments()[subValve];
-                double                    valveSegmentLength = std::fabs( valveSegment.second - valveSegment.first );
-                const RimPerforationInterval* perfInterval   = nullptr;
-                wellPathValve->firstAncestorOrThisOfTypeAsserted( perfInterval );
-                double perfIntervalLength = std::fabs( perfInterval->endMD() - perfInterval->startMD() );
-                double lengthFraction     = 1.0;
-                if ( perfIntervalLength > 1.0e-8 )
-                {
-                    lengthFraction = valveSegmentLength / perfIntervalLength;
-                }
-                m_accumulatedLength += lengthFraction * contributionFraction;
+
+                // https://github.com/OPM/ResInsight/issues/6126
+                //
+                // flowScalingFactor =  1 / (length_fraction * N_AICDs)
+                // where:
+                // length_fraction = length_COMPSEGS / Sum_length_COMPSEGS_for_valve
+                // N_AICDs = number of AICDs in perforation interval
+
+                double divisor = wellPathValve->valveLocations().size() * combinedFraction;
+
+                m_accumulatedFlowScalingFactorDivisor += divisor;
+
+                m_accumulatedLength += combinedFraction;
             }
         }
         return true;
@@ -147,6 +176,15 @@ void RicMswAICDAccumulator::applyToSuperValve( std::shared_ptr<RicMswValve> valv
         aicd->setIsValid( m_valid );
         aicd->setIsOpen( m_deviceOpen );
         aicd->setLength( m_accumulatedLength );
+
+        // See https://github.com/OPM/ResInsight/issues/6126
+        double flowScalingFactor = 0.0;
+        if ( m_accumulatedFlowScalingFactorDivisor > 1.0e-8 )
+        {
+            flowScalingFactor = 1.0 / m_accumulatedFlowScalingFactorDivisor;
+        }
+
+        aicd->setflowScalingFactor( flowScalingFactor );
 
         aicd->values() = values;
     }

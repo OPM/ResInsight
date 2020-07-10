@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RiaEclipseUnitTools.h"
+#include "RiaFractureModelDefines.h"
 
 #include "RimCheckableNamedObject.h"
 #include "RimWellPathComponentInterface.h"
@@ -67,6 +68,21 @@ public:
     double verticalStressGradient() const;
     double stressDepth() const;
 
+    double overburdenHeight() const;
+    double underburdenHeight() const;
+
+    double defaultOverburdenPorosity() const;
+    double defaultUnderburdenPorosity() const;
+
+    double defaultOverburdenPermeability() const;
+    double defaultUnderburdenPermeability() const;
+
+    QString overburdenFormation() const;
+    QString overburdenFacies() const;
+
+    QString underburdenFormation() const;
+    QString underburdenFacies() const;
+
     // RimWellPathCompletionsInterface overrides.
     RiaDefines::WellPathComponentType componentType() const override;
     QString                           componentLabel() const override;
@@ -85,10 +101,19 @@ public:
     void                  setElasticProperties( RimElasticProperties* elasticProperties );
     RimElasticProperties* elasticProperties() const;
 
-    double getDefaultForMissingValue( const QString& keyword ) const;
+    RiaDefines::CurveProperty getDefaultPropertyForMissingValues( const QString& keyword ) const;
+    double                    getDefaultForMissingOverburdenValue( const QString& keyword ) const;
+    double                    getDefaultForMissingUnderburdenValue( const QString& keyword ) const;
+    double                    getDefaultForMissingValue( const QString& keyword ) const;
+    double                    getOverburdenGradient( const QString& keyword ) const;
+    double                    getUnderburdenGradient( const QString& keyword ) const;
+
+    void updateReferringPlots();
 
 protected:
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
 
 private:
     void           updatePositionFromMeasuredDepth();
@@ -112,4 +137,16 @@ protected:
     caf::PdmField<double>                       m_verticalStress;
     caf::PdmField<double>                       m_verticalStressGradient;
     caf::PdmField<double>                       m_stressDepth;
+    caf::PdmField<double>                       m_overburdenHeight;
+    caf::PdmField<double>                       m_overburdenPorosity;
+    caf::PdmField<double>                       m_overburdenPermeability;
+    caf::PdmField<QString>                      m_overburdenFormation;
+    caf::PdmField<QString>                      m_overburdenFacies;
+    caf::PdmField<double>                       m_overburdenFluidDensity;
+    caf::PdmField<double>                       m_underburdenHeight;
+    caf::PdmField<double>                       m_underburdenPorosity;
+    caf::PdmField<double>                       m_underburdenPermeability;
+    caf::PdmField<QString>                      m_underburdenFormation;
+    caf::PdmField<QString>                      m_underburdenFacies;
+    caf::PdmField<double>                       m_underburdenFluidDensity;
 };

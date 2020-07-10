@@ -656,6 +656,11 @@ RigFemResultAddress RimGeoMechResultDefinition::resultAddress() const
             address.normalizedByHydrostaticPressure = false;
         }
 
+        if ( RigFemPartResultsCollection::isReferenceCaseDependentResult( address ) )
+        {
+            address.timeLapseBaseFrameIdx = RigFemResultAddress::noTimeLapseValue();
+        }
+
         return address;
     }
 }
@@ -827,6 +832,10 @@ QString RimGeoMechResultDefinition::currentResultUnits() const
               ( this->resultComponentName() == "PORE" || this->resultComponentName() == "VERTICAL" ) )
     {
         return "1/GPa";
+    }
+    else if ( this->resultFieldName() == "PORO-PERM" && this->resultComponentName() == "PERM" )
+    {
+        return "mD";
     }
     else
     {

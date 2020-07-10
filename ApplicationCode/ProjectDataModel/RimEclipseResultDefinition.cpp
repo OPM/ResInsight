@@ -1983,7 +1983,7 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                             int frmIdx2   = it->first.second;
                             int combIndex = it->second;
 
-                            int fnVectorSize = fnVector.size();
+                            int fnVectorSize = static_cast<int>( fnVector.size() );
                             if ( frmIdx1 >= fnVectorSize || frmIdx2 >= fnVectorSize ) continue;
 
                             QString frmName1 = fnVector[frmIdx1];

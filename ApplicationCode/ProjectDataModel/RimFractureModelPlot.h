@@ -19,6 +19,8 @@
 
 #include "RimDepthTrackPlot.h"
 
+#include "RiaFractureModelDefines.h"
+
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"
 
@@ -32,11 +34,33 @@ class RimFractureModelPlot : public RimDepthTrackPlot
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class PropertyType
+    {
+        FACIES,
+        LAYERS,
+        POROSITY,
+        PERMEABILITY_X,
+        PERMEABILITY_Z,
+        INITIAL_PRESSURE,
+        PRESSURE,
+        STRESS,
+        STRESS_GRADIENT,
+        YOUNGS_MODULUS,
+        POISSONS_RATIO,
+        K_IC,
+        PROPPANT_EMBEDMENT,
+        BIOT_COEFFICIENT,
+        K0,
+        FLUID_LOSS_COEFFICIENT,
+    };
+
     RimFractureModelPlot();
 
     void setFractureModel( RimFractureModel* fractureModel );
 
     void getPorosityValues( std::vector<double>& values ) const;
+    void getFaciesValues( std::vector<double>& values ) const;
+    void getCurvePropertyValues( RiaDefines::CurveProperty curveProperty, std::vector<double>& values ) const;
 
     std::vector<double> calculateTrueVerticalDepth() const;
     std::vector<double> calculatePorosity() const;
@@ -53,18 +77,27 @@ public:
     std::vector<double> calculateProppandEmbedment() const;
 
 protected:
-    std::vector<double>        findCurveAndComputeLayeredAverage( const QString& curveName ) const;
+    std::vector<double> findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty curveProperty ) const;
+    std::vector<double> findCurveXValuesByProperty( RiaDefines::CurveProperty curveProperty ) const;
+    std::vector<double> findCurveAndComputeTopOfLayer( RiaDefines::CurveProperty curveProperty ) const;
+
     void                       calculateLayers( std::vector<std::pair<double, double>>& layerBoundaryDepths,
                                                 std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes ) const;
-    RimWellLogExtractionCurve* findCurveByName( const QString& curveName ) const;
+    RimWellLogExtractionCurve* findCurveByProperty( RiaDefines::CurveProperty curveProperty ) const;
     bool calculateStressWithGradients( std::vector<double>& stress, std::vector<double>& stressGradients ) const;
 
-    static double computeValueAtDepth( const std::vector<double>&              values,
-                                       std::vector<std::pair<double, double>>& layerBoundaryDepths,
-                                       double                                  depth );
+    static double findValueAtTopOfLayer( const std::vector<double>&                    values,
+                                         const std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes,
+                                         size_t                                        layerNo );
+    static double findValueAtBottomOfLayer( const std::vector<double>&                    values,
+                                            const std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes,
+                                            size_t                                        layerNo );
     static void   computeAverageByLayer( const std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes,
                                          const std::vector<double>&                    inputVector,
                                          std::vector<double>&                          result );
+    static void   extractTopOfLayerValues( const std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes,
+                                           const std::vector<double>&                    inputVector,
+                                           std::vector<double>&                          result );
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 

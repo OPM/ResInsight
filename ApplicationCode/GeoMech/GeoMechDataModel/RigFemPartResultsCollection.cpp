@@ -23,7 +23,6 @@
 
 #include "RifElementPropertyReader.h"
 #include "RifGeoMechReaderInterface.h"
-#include "RigFemPartResultCalculatorPoreCompressibility.h"
 
 #ifdef USE_ODB_API
 #include "RifOdbReader.h"
@@ -45,6 +44,8 @@
 #include "RigFemPartResultCalculatorNormalSE.h"
 #include "RigFemPartResultCalculatorNormalST.h"
 #include "RigFemPartResultCalculatorNormalized.h"
+#include "RigFemPartResultCalculatorPoreCompressibility.h"
+#include "RigFemPartResultCalculatorPorosityPermeability.h"
 #include "RigFemPartResultCalculatorPrincipalStrain.h"
 #include "RigFemPartResultCalculatorPrincipalStress.h"
 #include "RigFemPartResultCalculatorQ.h"
@@ -113,6 +114,10 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
 
     m_referenceTimeStep = 0;
 
+    m_initialPermeabilityFixed         = 1.0;
+    m_initialPermeabilityResultAddress = "";
+    m_permeabilityExponent             = 1.0;
+
     m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorTimeLapse( *this ) ) );
     m_resultCalculators.push_back(
@@ -166,6 +171,8 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorStressAnisotropy( *this ) ) );
     m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPoreCompressibility( *this ) ) );
+    m_resultCalculators.push_back(
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPorosityPermeability( *this ) ) );
     m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorFormationIndices( *this ) ) );
 }
@@ -374,6 +381,13 @@ void RigFemPartResultsCollection::setBiotCoefficientParameters( double biotFixed
         deleteResult( RigFemResultAddress( elementType, "ST", "Q", RigFemResultAddress::allTimeLapsesValue() ) );
     }
 
+    // Depends on COMRESSIBILITY.PORE which depends on biot coefficient
+    std::set<RigFemResultAddress> initPermResults = initialPermeabilityDependentResults();
+    for ( auto result : initPermResults )
+    {
+        deleteResult( result );
+    }
+
     for ( auto fieldName : {"SE", "ST"} )
     {
         // Surface aligned stress
@@ -417,6 +431,48 @@ void RigFemPartResultsCollection::setReferenceTimeStep( int referenceTimeStep )
 int RigFemPartResultsCollection::referenceTimeStep() const
 {
     return m_referenceTimeStep;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::setPermeabilityParameters( double         fixedInitalPermeability,
+                                                             const QString& initialPermeabilityAddress,
+                                                             double         permeabilityExponent )
+{
+    m_initialPermeabilityFixed         = fixedInitalPermeability;
+    m_initialPermeabilityResultAddress = initialPermeabilityAddress;
+    m_permeabilityExponent             = permeabilityExponent;
+
+    std::set<RigFemResultAddress> results = initialPermeabilityDependentResults();
+    for ( auto result : results )
+    {
+        deleteResult( result );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigFemPartResultsCollection::initialPermeabilityFixed() const
+{
+    return m_initialPermeabilityFixed;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RigFemPartResultsCollection::initialPermeabilityAddress() const
+{
+    return m_initialPermeabilityResultAddress;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigFemPartResultsCollection::permeabilityExponent() const
+{
+    return m_permeabilityExponent;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -546,6 +602,17 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::createScalarResult( int  
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::deleteAllScalarResults()
+{
+    for ( cvf::ref<RigFemPartResults> results : m_femPartResults )
+    {
+        results->deleteAllScalarResults();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::map<std::string, std::vector<std::string>>
     RigFemPartResultsCollection::scalarFieldAndComponentNames( RigFemResultPosEnum resPos )
 {
@@ -636,6 +703,10 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["COMPRESSIBILITY"].push_back( "PORE" );
             fieldCompNames["COMPRESSIBILITY"].push_back( "VERTICAL" );
             fieldCompNames["COMPRESSIBILITY"].push_back( "VERTICAL-RATIO" );
+
+            fieldCompNames["PORO-PERM"].push_back( "PHI" );
+            fieldCompNames["PORO-PERM"].push_back( "DPHI" );
+            fieldCompNames["PORO-PERM"].push_back( "PERM" );
         }
         else if ( resPos == RIG_INTEGRATION_POINT )
         {
@@ -715,6 +786,10 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["COMPRESSIBILITY"].push_back( "PORE" );
             fieldCompNames["COMPRESSIBILITY"].push_back( "VERTICAL" );
             fieldCompNames["COMPRESSIBILITY"].push_back( "VERTICAL-RATIO" );
+
+            fieldCompNames["PORO-PERM"].push_back( "PHI" );
+            fieldCompNames["PORO-PERM"].push_back( "DPHI" );
+            fieldCompNames["PORO-PERM"].push_back( "PERM" );
         }
         else if ( resPos == RIG_ELEMENT_NODAL_FACE )
         {
@@ -1242,8 +1317,26 @@ std::set<RigFemResultAddress> RigFemPartResultsCollection::referenceCaseDependen
                                              "COMPRESSIBILITY",
                                              "VERTICAL-RATIO",
                                              RigFemResultAddress::allTimeLapsesValue() ) );
+        results.insert( RigFemResultAddress( elementType, "PORO-PERM", "PHI", RigFemResultAddress::allTimeLapsesValue() ) );
+        results.insert( RigFemResultAddress( elementType, "PORO-PERM", "DPHI", RigFemResultAddress::allTimeLapsesValue() ) );
+        results.insert( RigFemResultAddress( elementType, "PORO-PERM", "PERM", RigFemResultAddress::allTimeLapsesValue() ) );
     }
 
+    return results;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RigFemResultAddress> RigFemPartResultsCollection::initialPermeabilityDependentResults()
+{
+    std::set<RigFemResultAddress> results;
+    for ( auto elementType : {RIG_ELEMENT_NODAL, RIG_INTEGRATION_POINT} )
+    {
+        results.insert( RigFemResultAddress( elementType, "PORO-PERM", "PHI", RigFemResultAddress::allTimeLapsesValue() ) );
+        results.insert( RigFemResultAddress( elementType, "PORO-PERM", "DPHI", RigFemResultAddress::allTimeLapsesValue() ) );
+        results.insert( RigFemResultAddress( elementType, "PORO-PERM", "PERM", RigFemResultAddress::allTimeLapsesValue() ) );
+    }
     return results;
 }
 
