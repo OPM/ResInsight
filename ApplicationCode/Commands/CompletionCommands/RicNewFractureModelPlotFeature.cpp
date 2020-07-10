@@ -101,13 +101,13 @@ RimFractureModelPlot*
         plots["Pressure"] = {std::make_tuple( "PRESSURE",
                                               RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                               RimFractureModelCurve::MissingValueStrategy::LINEAR_INTERPOLATION,
-                                              false,
-                                              RiaDefines::CurveProperty::PRESSURE ),
+                                              true,
+                                              RiaDefines::CurveProperty::INITIAL_PRESSURE ),
                              std::make_tuple( "PRESSURE",
                                               RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                              RimFractureModelCurve::MissingValueStrategy::LINEAR_INTERPOLATION,
-                                              true,
-                                              RiaDefines::CurveProperty::INITIAL_PRESSURE )};
+                                              RimFractureModelCurve::MissingValueStrategy::OTHER_CURVE_PROPERTY,
+                                              false,
+                                              RiaDefines::CurveProperty::PRESSURE )};
 
         plots["Permeability"] = {std::make_tuple( "PERMX",
                                                   RiaDefines::ResultCatType::STATIC_NATIVE,
@@ -381,6 +381,11 @@ void RicNewFractureModelPlotFeature::createParametersTrack( RimFractureModelPlot
         {
             curve->setAutoNameComponents( false, true, false, false, false );
             curve->setCurrentTimeStep( timeStep );
+        }
+
+        if ( curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
+        {
+            curve->setBurdenStrategy( RimFractureModelCurve::BurdenStrategy::GRADIENT );
         }
 
         plotTrack->addCurve( curve );

@@ -60,6 +60,7 @@ public:
 
     void getPorosityValues( std::vector<double>& values ) const;
     void getFaciesValues( std::vector<double>& values ) const;
+    void getCurvePropertyValues( RiaDefines::CurveProperty curveProperty, std::vector<double>& values ) const;
 
     std::vector<double> calculateTrueVerticalDepth() const;
     std::vector<double> calculatePorosity() const;

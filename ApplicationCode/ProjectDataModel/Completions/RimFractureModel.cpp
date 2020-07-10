@@ -22,6 +22,7 @@
 #include "RiaCompletionTypeCalculationScheduler.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaFractureDefines.h"
+#include "RiaFractureModelDefines.h"
 #include "RiaLogging.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -125,12 +126,20 @@ RimFractureModel::RimFractureModel()
     CAF_PDM_InitFieldNoDefault( &m_overburdenFacies, "OverburdenFacies", "Overburden Facies", "", "", "" );
     CAF_PDM_InitField( &m_overburdenPorosity, "OverburdenPorosity", 0.0, "Overburden Porosity", "", "", "" );
     CAF_PDM_InitField( &m_overburdenPermeability, "OverburdenPermeability", 10.0e-6, "Overburden Permeability", "", "", "" );
+    CAF_PDM_InitField( &m_overburdenFluidDensity, "OverburdenFluidDensity", 1.03, "Overburden Fluid Density [g/cm^3]", "", "", "" );
 
     CAF_PDM_InitField( &m_underburdenHeight, "UnderburdenHeight", 50.0, "Underburden Height", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_underburdenFormation, "UnderburdenFormation", "Underburden Formation", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_underburdenFacies, "UnderburdenFacies", "Underburden Facies", "", "", "" );
     CAF_PDM_InitField( &m_underburdenPorosity, "UnderburdenPorosity", 0.0, "Underburden Porosity", "", "", "" );
     CAF_PDM_InitField( &m_underburdenPermeability, "UnderburdenPermeability", 10.0e-6, "Underburden Permeability", "", "", "" );
+    CAF_PDM_InitField( &m_underburdenFluidDensity,
+                       "UnderburdenFluidDensity",
+                       1.03,
+                       "Underburden Fluid Density [g/cm^3]",
+                       "",
+                       "",
+                       "" );
 
     CAF_PDM_InitFieldNoDefault( &m_elasticProperties, "ElasticProperties", "Elastic Properties", "", "", "" );
     m_elasticProperties.uiCapability()->setUiHidden( true );
@@ -594,6 +603,19 @@ double RimFractureModel::getDefaultForMissingValue( const QString& keyword ) con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaDefines::CurveProperty RimFractureModel::getDefaultPropertyForMissingValues( const QString& keyword ) const
+{
+    if ( keyword == QString( "PRESSURE" ) )
+    {
+        return RiaDefines::CurveProperty::INITIAL_PRESSURE;
+    }
+
+    return RiaDefines::CurveProperty::UNDEFINED;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RimFractureModel::getDefaultForMissingOverburdenValue( const QString& keyword ) const
 {
     if ( keyword == QString( "PORO" ) )
@@ -627,6 +649,38 @@ double RimFractureModel::getDefaultForMissingUnderburdenValue( const QString& ke
     else
     {
         RiaLogging::error( QString( "Missing default underburden value for %1." ).arg( keyword ) );
+        return std::numeric_limits<double>::infinity();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModel::getOverburdenGradient( const QString& keyword ) const
+{
+    if ( keyword == QString( "PRESSURE" ) )
+    {
+        return m_overburdenFluidDensity * 9.81 * 1000.0 / 1.0e6;
+    }
+    else
+    {
+        RiaLogging::error( QString( "Missing overburden gradient for %1." ).arg( keyword ) );
+        return std::numeric_limits<double>::infinity();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModel::getUnderburdenGradient( const QString& keyword ) const
+{
+    if ( keyword == QString( "PRESSURE" ) )
+    {
+        return m_underburdenFluidDensity * 9.81 * 1000.0 / 1.0e6;
+    }
+    else
+    {
+        RiaLogging::error( QString( "Missing underburden gradient for %1." ).arg( keyword ) );
         return std::numeric_limits<double>::infinity();
     }
 }

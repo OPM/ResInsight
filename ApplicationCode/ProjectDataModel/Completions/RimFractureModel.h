@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RiaEclipseUnitTools.h"
+#include "RiaFractureModelDefines.h"
 
 #include "RimCheckableNamedObject.h"
 #include "RimWellPathComponentInterface.h"
@@ -100,10 +101,14 @@ public:
     void                  setElasticProperties( RimElasticProperties* elasticProperties );
     RimElasticProperties* elasticProperties() const;
 
-    double getDefaultForMissingOverburdenValue( const QString& keyword ) const;
-    double getDefaultForMissingUnderburdenValue( const QString& keyword ) const;
-    double getDefaultForMissingValue( const QString& keyword ) const;
-    void   updateReferringPlots();
+    RiaDefines::CurveProperty getDefaultPropertyForMissingValues( const QString& keyword ) const;
+    double                    getDefaultForMissingOverburdenValue( const QString& keyword ) const;
+    double                    getDefaultForMissingUnderburdenValue( const QString& keyword ) const;
+    double                    getDefaultForMissingValue( const QString& keyword ) const;
+    double                    getOverburdenGradient( const QString& keyword ) const;
+    double                    getUnderburdenGradient( const QString& keyword ) const;
+
+    void updateReferringPlots();
 
 protected:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -137,9 +142,11 @@ protected:
     caf::PdmField<double>                       m_overburdenPermeability;
     caf::PdmField<QString>                      m_overburdenFormation;
     caf::PdmField<QString>                      m_overburdenFacies;
+    caf::PdmField<double>                       m_overburdenFluidDensity;
     caf::PdmField<double>                       m_underburdenHeight;
     caf::PdmField<double>                       m_underburdenPorosity;
     caf::PdmField<double>                       m_underburdenPermeability;
     caf::PdmField<QString>                      m_underburdenFormation;
     caf::PdmField<QString>                      m_underburdenFacies;
+    caf::PdmField<double>                       m_underburdenFluidDensity;
 };

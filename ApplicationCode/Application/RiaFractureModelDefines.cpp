@@ -23,6 +23,7 @@ namespace caf
 template <>
 void AppEnum<RiaDefines::CurveProperty>::setUp()
 {
+    addItem( RiaDefines::CurveProperty::UNDEFINED, "UNDEFINED", "Undefined" );
     addItem( RiaDefines::CurveProperty::FACIES, "FACIES", "Facies" );
     addItem( RiaDefines::CurveProperty::LAYERS, "LAYERS", "Layers" );
     addItem( RiaDefines::CurveProperty::POROSITY, "POROSITY", "Porosity" );
@@ -40,6 +41,6 @@ void AppEnum<RiaDefines::CurveProperty>::setUp()
     addItem( RiaDefines::CurveProperty::K0, "K0", "k0" );
     addItem( RiaDefines::CurveProperty::FLUID_LOSS_COEFFICIENT, "FLUID_LOSS_COEFFICIENT", "Fluid Loss Coefficient" );
     addItem( RiaDefines::CurveProperty::SPURT_LOSS, "SPURT_LOSS", "Spurt Loss" );
-    setDefault( RiaDefines::CurveProperty::FACIES );
+    setDefault( RiaDefines::CurveProperty::UNDEFINED );
 }
 }; // namespace caf
