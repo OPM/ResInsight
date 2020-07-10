@@ -47,6 +47,8 @@ RimFractureModelPlot::RimFractureModelPlot()
     CAF_PDM_InitFieldNoDefault( &m_fractureModel, "FractureModel", "Fracture Model", "", "", "" );
     m_fractureModel.uiCapability()->setUiTreeChildrenHidden( true );
     m_fractureModel.uiCapability()->setUiHidden( true );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
