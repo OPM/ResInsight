@@ -34,6 +34,7 @@
 #include "RigWellPathGeometryTools.h"
 #include "RigWellPathIntersectionTools.h"
 
+#include "RimDepthTrackPlot.h"
 #include "RimEclipseResultCase.h"
 #include "RimMainPlotCollection.h"
 #include "RimObservedFmuRftData.h"
@@ -379,7 +380,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
     if ( isCurveVisible() )
     {
-        RimWellLogPlot* wellLogPlot;
+        RimDepthTrackPlot* wellLogPlot;
         firstAncestorOrThisOfType( wellLogPlot );
         CVF_ASSERT( wellLogPlot );
 

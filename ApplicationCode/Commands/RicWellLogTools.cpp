@@ -23,6 +23,7 @@
 
 #include "Rim3dView.h"
 #include "RimCase.h"
+#include "RimDepthTrackPlot.h"
 #include "RimEclipseResultCase.h"
 #include "RimProject.h"
 #include "RimSimWellInView.h"
@@ -185,7 +186,7 @@ ExtractionCurveType* RicWellLogTools::addExtractionCurve( RimWellLogTrack*      
     cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( plotTrack->curveCount() );
     curve->setColor( curveColor );
 
-    RimWellLogPlot* plot = nullptr;
+    RimDepthTrackPlot* plot = nullptr;
     plotTrack->firstAncestorOrThisOfTypeAsserted( plot );
     RimWellLogCurveCommonDataSource* commonDataSource = plot->commonDataSource();
 

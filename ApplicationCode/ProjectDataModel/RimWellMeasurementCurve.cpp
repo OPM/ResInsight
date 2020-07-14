@@ -21,10 +21,10 @@
 #include "RigWellLogCurveData.h"
 #include "RigWellPath.h"
 
+#include "RimDepthTrackPlot.h"
 #include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellLogFile.h"
-#include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 #include "RimWellMeasurement.h"
 #include "RimWellMeasurementCollection.h"
@@ -74,7 +74,7 @@ RimWellMeasurementCurve::~RimWellMeasurementCurve()
 //--------------------------------------------------------------------------------------------------
 void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
-    RimWellLogPlot* wellLogPlot;
+    RimDepthTrackPlot* wellLogPlot;
     firstAncestorOrThisOfType( wellLogPlot );
     CVF_ASSERT( wellLogPlot );
 
