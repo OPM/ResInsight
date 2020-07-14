@@ -346,6 +346,7 @@ void RicNewFractureModelPlotFeature::createParametersTrack( RimFractureModelPlot
                                                             bool                  isPlotLogarithmic )
 {
     RimWellLogTrack* plotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, trackTitle, plot );
+    plotTrack->setFormationCase( eclipseCase );
     plotTrack->setFormationWellPath( fractureModel->thicknessDirectionWellPath() );
     plotTrack->setColSpan( RimPlot::TWO );
 
