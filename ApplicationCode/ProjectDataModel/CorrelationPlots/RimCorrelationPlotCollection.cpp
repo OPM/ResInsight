@@ -71,6 +71,7 @@ RimCorrelationMatrixPlot* RimCorrelationPlotCollection::createCorrelationMatrixP
     RimCorrelationMatrixPlot* plot = new RimCorrelationMatrixPlot();
     plot->setAsPlotMdiWindow();
     if ( defaultToFirstEnsembleField ) applyFirstEnsembleFieldAddressesToPlot( plot );
+    plot->selectAllParameters();
 
     m_correlationPlots.push_back( plot );
 
@@ -99,7 +100,7 @@ RimCorrelationReportPlot*
     RimCorrelationReportPlot* report = new RimCorrelationReportPlot;
     report->setAsPlotMdiWindow();
     if ( defaultToFirstEnsembleFopt ) applyFirstEnsembleFieldAddressesToReport( report, "FOPT" );
-
+    report->matrixPlot()->selectAllParameters();
     m_correlationReports.push_back( report );
     return report;
 }

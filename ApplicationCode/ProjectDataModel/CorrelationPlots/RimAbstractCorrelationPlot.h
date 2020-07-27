@@ -73,6 +73,7 @@ protected:
 
     std::set<RifEclipseSummaryAddress> addresses();
     std::set<EnsembleParameter>        ensembleParameters();
+    std::set<EnsembleParameter>        variationSortedEnsembleParameters();
     EnsembleParameter                  ensembleParameter( const QString& ensembleParameterName );
 
     // RimViewWindow overrides

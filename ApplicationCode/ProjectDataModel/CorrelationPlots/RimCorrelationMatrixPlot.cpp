@@ -41,6 +41,7 @@
 
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 #include "cvfScalarMapper.h"
 
@@ -164,6 +165,10 @@ RimCorrelationMatrixPlot::RimCorrelationMatrixPlot()
     CAF_PDM_InitField( &m_showOnlyTopNCorrelations, "ShowOnlyTopNCorrelations", false, "Show Only Top Correlations", "", "", "" );
     CAF_PDM_InitField( &m_topNFilterCount, "TopNFilterCount", (size_t)15, "Number rows/columns", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendConfig", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedParametersList, "SelectedParameters", "Select Parameters", "", "", "" );
+    m_selectedParametersList.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_selectedParametersList.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+
     m_legendConfig = new RimRegularLegendConfig();
     m_legendConfig->setAutomaticRanges( -1.0, 1.0, -1.0, 1.0 );
     m_legendConfig->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::CORRELATION ) );
@@ -217,6 +222,22 @@ RimRegularLegendConfig* RimCorrelationMatrixPlot::legendConfig()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimCorrelationMatrixPlot::selectAllParameters()
+{
+    m_selectedParametersList.v().clear();
+    std::set<EnsembleParameter> params = variationSortedEnsembleParameters();
+    for ( auto param : params )
+    {
+        if ( !m_excludeParametersWithoutVariation() || param.variationBin > EnsembleParameter::NO_VARIATION )
+        {
+            m_selectedParametersList.v().push_back( param.name );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimCorrelationMatrixPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                                  const QVariant&            oldValue,
                                                  const QVariant&            newValue )
@@ -224,11 +245,16 @@ void RimCorrelationMatrixPlot::fieldChangedByUi( const caf::PdmFieldHandle* chan
     RimAbstractCorrelationPlot::fieldChangedByUi( changedField, oldValue, newValue );
     if ( changedField == &m_correlationFactor || changedField == &m_showAbsoluteValues ||
          changedField == &m_sortByValues || changedField == &m_sortByAbsoluteValues ||
-         changedField == &m_showOnlyTopNCorrelations || changedField == &m_topNFilterCount )
+         changedField == &m_showOnlyTopNCorrelations || changedField == &m_topNFilterCount ||
+         changedField == &m_excludeParametersWithoutVariation || changedField == &m_selectedParametersList )
     {
-        this->updateLegend();
-        this->loadDataAndUpdate();
-        this->updateConnectedEditors();
+        if ( changedField == &m_excludeParametersWithoutVariation )
+        {
+            selectAllParameters();
+        }
+        updateLegend();
+        loadDataAndUpdate();
+        updateConnectedEditors();
     }
 }
 
@@ -240,6 +266,7 @@ void RimCorrelationMatrixPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
     caf::PdmUiGroup* correlationGroup = uiOrdering.addNewGroup( "Correlation Factor Settings" );
     correlationGroup->add( &m_correlationFactor );
     correlationGroup->add( &m_excludeParametersWithoutVariation );
+    correlationGroup->add( &m_selectedParametersList );
     correlationGroup->add( &m_showAbsoluteValues );
     correlationGroup->add( &m_sortByValues );
     if ( !m_showAbsoluteValues() && m_sortByValues() != Sorting::NO_SORTING )
@@ -290,6 +317,17 @@ QList<caf::PdmOptionItemInfo>
     QList<caf::PdmOptionItemInfo> options =
         RimAbstractCorrelationPlot::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
 
+    if ( fieldNeedingOptions == &m_selectedParametersList )
+    {
+        std::set<EnsembleParameter> params = variationSortedEnsembleParameters();
+        for ( auto param : params )
+        {
+            if ( !m_excludeParametersWithoutVariation() || param.variationBin > EnsembleParameter::NO_VARIATION )
+            {
+                options.push_back( caf::PdmOptionItemInfo( param.uiName(), param.name ) );
+            }
+        }
+    }
     return options;
 }
 
@@ -439,26 +477,32 @@ void RimCorrelationMatrixPlot::createMatrix()
 
     std::vector<CorrelationMatrixColumn> correlationMatrixColumns;
 
-    for ( EnsembleParameter parameter : ensembleParameters() )
+    for ( QString paramName : m_selectedParametersList() )
     {
-        if ( parameter.isNumeric() && parameter.isValid() &&
-             ( !m_excludeParametersWithoutVariation || parameter.normalizedStdDeviation() > 1.0e-5 ) )
+        EnsembleParameter parameter;
+
+        bool                                   anyValidResults = false;
+        std::vector<double>                    correlations;
+        std::vector<RiaSummaryCurveDefinition> selectedCurveDefs;
+
+        for ( auto curveDef : curveDefs )
         {
-            bool                                   anyValidResults = false;
-            std::vector<double>                    correlations;
-            std::vector<RiaSummaryCurveDefinition> selectedCurveDefs;
+            auto ensemble = curveDef.ensemble();
+            auto address  = curveDef.summaryAddress();
 
-            for ( auto curveDef : curveDefs )
+            if ( ensemble )
             {
-                double correlation = std::numeric_limits<double>::infinity();
+                std::vector<double> caseValuesAtTimestep;
+                std::vector<double> parameterValues;
 
-                auto ensemble = curveDef.ensemble();
-                auto address  = curveDef.summaryAddress();
-
-                if ( ensemble )
+                if ( !parameter.isValid() )
                 {
-                    std::vector<double> caseValuesAtTimestep;
-                    std::vector<double> parameterValues;
+                    parameter = ensemble->ensembleParameter( paramName );
+                }
+
+                if ( parameter.isValid() )
+                {
+                    double correlation = std::numeric_limits<double>::infinity();
 
                     for ( size_t caseIdx = 0u; caseIdx < ensemble->allSummaryCases().size(); ++caseIdx )
                     {
@@ -508,14 +552,14 @@ void RimCorrelationMatrixPlot::createMatrix()
                         if ( m_showAbsoluteValues() ) correlation = std::abs( correlation );
                         anyValidResults = true;
                     }
+                    correlations.push_back( correlation );
+                    selectedCurveDefs.push_back( curveDef );
                 }
-                correlations.push_back( correlation );
-                selectedCurveDefs.push_back( curveDef );
             }
-            if ( anyValidResults )
-            {
-                correlationMatrixColumns.push_back( CorrelationMatrixColumn( parameter, correlations, selectedCurveDefs ) );
-            }
+        }
+        if ( anyValidResults )
+        {
+            correlationMatrixColumns.push_back( CorrelationMatrixColumn( parameter, correlations, selectedCurveDefs ) );
         }
     }
 
