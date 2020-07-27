@@ -44,6 +44,7 @@
 
 #include "qwt_legend.h"
 #include "qwt_plot_curve.h"
+#include "qwt_scale_engine.h"
 
 #include <QStringList>
 
@@ -67,6 +68,9 @@ RimParameterResultCrossPlot::RimParameterResultCrossPlot()
     m_selectMultipleVectors = true;
 
     m_legendFontSize = caf::FontTools::RelativeSize::XSmall;
+
+    m_xRange = std::make_pair( std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity() );
+    m_yRange = std::make_pair( std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -183,13 +187,17 @@ void RimParameterResultCrossPlot::updateAxes()
 
     m_plotWidget->setAxisTitleText( QwtPlot::yLeft, m_selectedVarsUiField );
     m_plotWidget->setAxisTitleEnabled( QwtPlot::yLeft, true );
-    m_plotWidget->setAxisAutoScale( QwtPlot::yLeft, true );
     m_plotWidget->setAxisFontsAndAlignment( QwtPlot::yLeft, axisTitleFontSize(), axisValueFontSize(), false, Qt::AlignCenter );
+
+    double yRangeWidth = m_yRange.second - m_yRange.first;
+    m_plotWidget->setAxisRange( QwtPlot::yLeft, m_yRange.first - yRangeWidth * 0.1, m_yRange.second + yRangeWidth * 0.1 );
 
     m_plotWidget->setAxisTitleText( QwtPlot::xBottom, m_ensembleParameter );
     m_plotWidget->setAxisTitleEnabled( QwtPlot::xBottom, true );
-    m_plotWidget->setAxisAutoScale( QwtPlot::xBottom, true );
     m_plotWidget->setAxisFontsAndAlignment( QwtPlot::xBottom, axisTitleFontSize(), axisValueFontSize(), false, Qt::AlignCenter );
+
+    double xRangeWidth = m_xRange.second - m_xRange.first;
+    m_plotWidget->setAxisRange( QwtPlot::xBottom, m_xRange.first - xRangeWidth * 0.1, m_xRange.second + xRangeWidth * 0.1 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -209,6 +217,9 @@ void RimParameterResultCrossPlot::createPoints()
     bool showEnsembleName = ensembles().size() > 1u;
     bool showAddressName  = addresses().size() > 1u;
 
+    m_xRange = std::make_pair( std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity() );
+    m_yRange = std::make_pair( std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity() );
+
     int ensembleIdx = 0;
     for ( auto ensemble : ensembles() )
     {
@@ -220,9 +231,6 @@ void RimParameterResultCrossPlot::createPoints()
 
             for ( size_t caseIdx = 0u; caseIdx < ensemble->allSummaryCases().size(); ++caseIdx )
             {
-                std::vector<double> caseValuesAtTimestep;
-                std::vector<double> parameterValues;
-
                 auto summaryCase = ensemble->allSummaryCases()[caseIdx];
 
                 RifSummaryReaderInterface* reader = summaryCase->summaryReader();
@@ -248,9 +256,18 @@ void RimParameterResultCrossPlot::createPoints()
                 }
                 if ( closestValue != std::numeric_limits<double>::infinity() )
                 {
+                    std::vector<double> caseValuesAtTimestep;
+                    std::vector<double> parameterValues;
+
                     caseValuesAtTimestep.push_back( closestValue );
                     double paramValue = parameter.values[caseIdx].toDouble();
                     parameterValues.push_back( paramValue );
+
+                    m_xRange.first  = std::min( m_xRange.first, paramValue );
+                    m_xRange.second = std::max( m_xRange.second, paramValue );
+
+                    m_yRange.first  = std::min( m_yRange.first, closestValue );
+                    m_yRange.second = std::max( m_yRange.second, closestValue );
 
                     RiuQwtPlotCurve* plotCurve = new RiuQwtPlotCurve;
                     plotCurve->setSamples( parameterValues.data(), caseValuesAtTimestep.data(), (int)parameterValues.size() );

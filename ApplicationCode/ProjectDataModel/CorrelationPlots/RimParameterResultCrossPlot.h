@@ -52,4 +52,7 @@ private:
 
 private:
     caf::PdmField<QString> m_ensembleParameter;
+
+    std::pair<double, double> m_xRange;
+    std::pair<double, double> m_yRange;
 };
