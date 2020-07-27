@@ -84,4 +84,5 @@ private:
     caf::PdmField<CorrelationFactorEnum> m_correlationFactor;
     caf::PdmField<bool>                  m_showAbsoluteValues;
     caf::PdmField<bool>                  m_sortByAbsoluteValues;
+    caf::PdmField<bool>                  m_excludeParametersWithoutVariation;
 };
