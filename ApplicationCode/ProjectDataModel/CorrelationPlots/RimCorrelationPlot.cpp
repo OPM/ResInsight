@@ -38,6 +38,7 @@
 
 #include "cafFontTools.h"
 #include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 #include "qwt_plot_barchart.h"
 
@@ -80,6 +81,10 @@ RimCorrelationPlot::RimCorrelationPlot()
                        "",
                        "" );
 
+    CAF_PDM_InitFieldNoDefault( &m_selectedParametersList, "SelectedParameters", "Select Parameters", "", "", "" );
+    m_selectedParametersList.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_selectedParametersList.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+
     setDeletable( true );
 }
 
@@ -102,10 +107,15 @@ void RimCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 {
     RimAbstractCorrelationPlot::fieldChangedByUi( changedField, oldValue, newValue );
     if ( changedField == &m_correlationFactor || changedField == &m_showAbsoluteValues ||
-         changedField == &m_sortByAbsoluteValues )
+         changedField == &m_sortByAbsoluteValues || changedField == &m_excludeParametersWithoutVariation ||
+         changedField == &m_selectedParametersList )
     {
-        this->loadDataAndUpdate();
-        this->updateConnectedEditors();
+        if ( changedField == &m_excludeParametersWithoutVariation )
+        {
+            selectAllParameters();
+        }
+        loadDataAndUpdate();
+        updateConnectedEditors();
     }
 }
 
@@ -116,12 +126,14 @@ void RimCorrelationPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 {
     caf::PdmUiGroup* correlationGroup = uiOrdering.addNewGroup( "Correlation Factor Settings" );
     correlationGroup->add( &m_correlationFactor );
+    correlationGroup->add( &m_excludeParametersWithoutVariation );
+    correlationGroup->add( &m_selectedParametersList );
+
     correlationGroup->add( &m_showAbsoluteValues );
     if ( !m_showAbsoluteValues() )
     {
         correlationGroup->add( &m_sortByAbsoluteValues );
     }
-    correlationGroup->add( &m_excludeParametersWithoutVariation );
 
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector" );
 
@@ -150,6 +162,18 @@ QList<caf::PdmOptionItemInfo> RimCorrelationPlot::calculateValueOptions( const c
 {
     QList<caf::PdmOptionItemInfo> options =
         RimAbstractCorrelationPlot::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+
+    if ( fieldNeedingOptions == &m_selectedParametersList )
+    {
+        std::set<EnsembleParameter> params = variationSortedEnsembleParameters();
+        for ( auto param : params )
+        {
+            if ( !m_excludeParametersWithoutVariation() || param.variationBin > EnsembleParameter::NO_VARIATION )
+            {
+                options.push_back( caf::PdmOptionItemInfo( param.uiName(), param.name ) );
+            }
+        }
+    }
 
     return options;
 }
@@ -259,10 +283,10 @@ void RimCorrelationPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chart
         {
             caseValuesAtTimestep.push_back( closestValue );
 
-            for ( auto parameter : ensembleParameters() )
+            for ( auto parameterName : m_selectedParametersList() )
             {
-                if ( parameter.isNumeric() && parameter.isValid() &&
-                     ( !m_excludeParametersWithoutVariation || parameter.normalizedStdDeviation() > 1.0e-5 ) )
+                auto parameter = ensemble->ensembleParameter( parameterName );
+                if ( parameter.isNumeric() && parameter.isValid() )
                 {
                     double paramValue = parameter.values[caseIdx].toDouble();
                     parameterValues[parameter.name].push_back( paramValue );
@@ -382,4 +406,20 @@ bool RimCorrelationPlot::sortByAbsoluteValues() const
 void RimCorrelationPlot::setSortByAbsoluteValues( bool sortByAbsoluteValues )
 {
     m_sortByAbsoluteValues = sortByAbsoluteValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationPlot::selectAllParameters()
+{
+    m_selectedParametersList.v().clear();
+    std::set<EnsembleParameter> params = variationSortedEnsembleParameters();
+    for ( auto param : params )
+    {
+        if ( !m_excludeParametersWithoutVariation() || param.variationBin > EnsembleParameter::NO_VARIATION )
+        {
+            m_selectedParametersList.v().push_back( param.name );
+        }
+    }
 }

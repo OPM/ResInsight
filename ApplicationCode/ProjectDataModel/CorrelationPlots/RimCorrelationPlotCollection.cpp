@@ -57,6 +57,7 @@ RimCorrelationPlot* RimCorrelationPlotCollection::createCorrelationPlot( bool de
     plot->setAsPlotMdiWindow();
 
     if ( defaultToFirstEnsembleFopt ) applyFirstEnsembleFieldAddressesToPlot( plot, "FOPT" );
+    plot->selectAllParameters();
 
     m_correlationPlots.push_back( plot );
 
