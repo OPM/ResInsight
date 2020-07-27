@@ -141,6 +141,13 @@ RimCorrelationMatrixPlot::RimCorrelationMatrixPlot()
     CAF_PDM_InitField( &m_showAbsoluteValues, "CorrelationAbsValues", false, "Show Absolute Values", "", "", "" );
     CAF_PDM_InitField( &m_sortByValues, "CorrelationSorting", true, "Sort Matrix by Values", "", "", "" );
     CAF_PDM_InitField( &m_sortByAbsoluteValues, "CorrelationAbsSorting", true, "Sort by Absolute Values", "", "", "" );
+    CAF_PDM_InitField( &m_excludeParametersWithoutVariation,
+                       "ExcludeParamsWithoutVariation",
+                       true,
+                       "Exclude Parameters Without Variation",
+                       "",
+                       "",
+                       "" );
     CAF_PDM_InitField( &m_showOnlyTopNCorrelations, "ShowOnlyTopNCorrelations", false, "Show Only Top Correlations", "", "", "" );
     CAF_PDM_InitField( &m_topNFilterCount, "TopNFilterCount", (size_t)15, "Number rows/columns", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendConfig", "", "", "", "" );
@@ -219,16 +226,20 @@ void RimCorrelationMatrixPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
 {
     caf::PdmUiGroup* correlationGroup = uiOrdering.addNewGroup( "Correlation Factor Settings" );
     correlationGroup->add( &m_correlationFactor );
+    correlationGroup->add( &m_excludeParametersWithoutVariation );
     correlationGroup->add( &m_showAbsoluteValues );
     correlationGroup->add( &m_sortByValues );
-    if ( !m_showAbsoluteValues() )
+    if ( !m_showAbsoluteValues() && m_sortByValues() )
     {
         correlationGroup->add( &m_sortByAbsoluteValues );
     }
-    correlationGroup->add( &m_showOnlyTopNCorrelations );
-    if ( m_showOnlyTopNCorrelations() )
+    if ( m_sortByValues() )
     {
-        correlationGroup->add( &m_topNFilterCount );
+        correlationGroup->add( &m_showOnlyTopNCorrelations );
+        if ( m_showOnlyTopNCorrelations() )
+        {
+            correlationGroup->add( &m_topNFilterCount );
+        }
     }
 
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector" );
@@ -417,7 +428,8 @@ void RimCorrelationMatrixPlot::createMatrix()
 
     for ( EnsembleParameter parameter : ensembleParameters() )
     {
-        if ( parameter.isNumeric() && parameter.isValid() )
+        if ( parameter.isNumeric() && parameter.isValid() &&
+             ( !m_excludeParametersWithoutVariation || parameter.normalizedStdDeviation() > 1.0e-5 ) )
         {
             bool                                   anyValidResults = false;
             std::vector<double>                    correlations;
@@ -497,7 +509,7 @@ void RimCorrelationMatrixPlot::createMatrix()
     eraseInvalidEntries( correlationMatrixColumns );
     if ( m_sortByValues() ) sortEntries( correlationMatrixColumns, m_sortByAbsoluteValues() || m_showAbsoluteValues() );
 
-    if ( m_showOnlyTopNCorrelations && m_topNFilterCount < correlationMatrixColumns.size() )
+    if ( m_sortByValues() && m_showOnlyTopNCorrelations && m_topNFilterCount < correlationMatrixColumns.size() )
     {
         correlationMatrixColumns.erase( correlationMatrixColumns.begin() + m_topNFilterCount(),
                                         correlationMatrixColumns.end() );

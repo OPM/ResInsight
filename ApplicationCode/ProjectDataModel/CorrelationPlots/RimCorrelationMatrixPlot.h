@@ -78,6 +78,7 @@ private:
     caf::PdmField<bool>                  m_showAbsoluteValues;
     caf::PdmField<bool>                  m_sortByValues;
     caf::PdmField<bool>                  m_sortByAbsoluteValues;
+    caf::PdmField<bool>                  m_excludeParametersWithoutVariation;
     caf::PdmField<bool>                  m_showOnlyTopNCorrelations;
     caf::PdmField<size_t>                m_topNFilterCount;
 

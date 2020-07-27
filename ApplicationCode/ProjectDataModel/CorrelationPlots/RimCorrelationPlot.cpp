@@ -72,6 +72,13 @@ RimCorrelationPlot::RimCorrelationPlot()
     m_correlationFactor.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_showAbsoluteValues, "CorrelationAbsValues", false, "Show Absolute Values", "", "", "" );
     CAF_PDM_InitField( &m_sortByAbsoluteValues, "CorrelationAbsSorting", true, "Sort by Absolute Values", "", "", "" );
+    CAF_PDM_InitField( &m_excludeParametersWithoutVariation,
+                       "ExcludeParamsWithoutVariation",
+                       true,
+                       "Exclude Parameters Without Variation",
+                       "",
+                       "",
+                       "" );
 
     setDeletable( true );
 }
@@ -114,6 +121,7 @@ void RimCorrelationPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     {
         correlationGroup->add( &m_sortByAbsoluteValues );
     }
+    correlationGroup->add( &m_excludeParametersWithoutVariation );
 
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector" );
 
@@ -253,7 +261,8 @@ void RimCorrelationPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chart
 
             for ( auto parameter : ensembleParameters() )
             {
-                if ( parameter.isNumeric() && parameter.isValid() )
+                if ( parameter.isNumeric() && parameter.isValid() &&
+                     ( !m_excludeParametersWithoutVariation || parameter.normalizedStdDeviation() > 1.0e-5 ) )
                 {
                     double paramValue = parameter.values[caseIdx].toDouble();
                     parameterValues[parameter.name].push_back( paramValue );
