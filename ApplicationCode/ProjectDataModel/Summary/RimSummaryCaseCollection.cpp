@@ -104,14 +104,19 @@ bool EnsembleParameter::operator<( const EnsembleParameter& other ) const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::sortByBinnedVariation( std::vector<EnsembleParameter>& parameterVector )
 {
-    double minStdDev = std::numeric_limits<double>::infinity();
-    double maxStdDev = 0.0;
+    const double eps       = 1.0e-8;
+    double       minStdDev = std::numeric_limits<double>::infinity();
+    double       maxStdDev = 0.0;
     for ( const auto& paramPair : parameterVector )
     {
-        minStdDev = std::min( minStdDev, paramPair.normalizedStdDeviation() );
-        maxStdDev = std::max( maxStdDev, paramPair.normalizedStdDeviation() );
+        double stdDev = paramPair.normalizedStdDeviation();
+        if ( stdDev > eps )
+        {
+            minStdDev = std::min( minStdDev, stdDev );
+            maxStdDev = std::max( maxStdDev, stdDev );
+        }
     }
-    if ( ( maxStdDev - minStdDev ) < 1.0e-8 )
+    if ( ( maxStdDev - minStdDev ) <= eps )
     {
         return;
     }
@@ -119,6 +124,7 @@ void RimSummaryCaseCollection::sortByBinnedVariation( std::vector<EnsembleParame
     double delta = ( maxStdDev - minStdDev ) / EnsembleParameter::NR_OF_VARIATION_BINS;
 
     std::vector<double> bins;
+    bins.push_back( eps );
     for ( int i = 0; i < EnsembleParameter::NR_OF_VARIATION_BINS - 1; ++i )
     {
         bins.push_back( minStdDev + ( i + 1 ) * delta );
@@ -126,7 +132,7 @@ void RimSummaryCaseCollection::sortByBinnedVariation( std::vector<EnsembleParame
 
     for ( EnsembleParameter& nameParamPair : parameterVector )
     {
-        int binNumber = 0;
+        int binNumber = -1;
         for ( double bin : bins )
         {
             if ( nameParamPair.normalizedStdDeviation() >= bin )
@@ -157,9 +163,14 @@ QString EnsembleParameter::uiName() const
     {
         switch ( variationBin )
         {
+            case NO_VARIATION:
+                variationString = QString( " (No variation)" );
+                break;
             case LOW_VARIATION:
                 variationString = QString( " (Low variation)" );
+                break;
             case MEDIUM_VARIATION:
+                variationString = QString( " (Medium variation)" );
                 break;
             case HIGH_VARIATION:
                 variationString = QString( " (High variation)" );
@@ -421,8 +432,11 @@ RifReaderRftInterface* RimSummaryCaseCollection::rftStatisticsReader()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<EnsembleParameter>& RimSummaryCaseCollection::variationSortedEnsembleParameters() const
+const std::vector<EnsembleParameter>&
+    RimSummaryCaseCollection::variationSortedEnsembleParameters( bool excludeNoVariation ) const
 {
+    const double eps = 1.0e-8;
+
     if ( m_cachedSortedEnsembleParameters.size() ) return m_cachedSortedEnsembleParameters;
 
     std::set<QString> paramSet;
@@ -441,7 +455,11 @@ const std::vector<EnsembleParameter>& RimSummaryCaseCollection::variationSortedE
     m_cachedSortedEnsembleParameters.reserve( paramSet.size() );
     for ( const QString& parameterName : paramSet )
     {
-        m_cachedSortedEnsembleParameters.push_back( this->createEnsembleParameter( parameterName ) );
+        auto ensembleParameter = this->createEnsembleParameter( parameterName );
+        if ( !excludeNoVariation || ensembleParameter.normalizedStdDeviation() > eps )
+        {
+            m_cachedSortedEnsembleParameters.push_back( ensembleParameter );
+        }
     }
     RimSummaryCaseCollection::sortByBinnedVariation( m_cachedSortedEnsembleParameters );
 

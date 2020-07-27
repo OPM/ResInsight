@@ -51,7 +51,8 @@ public:
     };
     enum Bins
     {
-        LOW_VARIATION,
+        NO_VARIATION  = -1,
+        LOW_VARIATION = 0,
         MEDIUM_VARIATION,
         HIGH_VARIATION,
         NR_OF_VARIATION_BINS
@@ -109,7 +110,7 @@ public:
     void                                       setEnsembleId( int ensembleId );
     int                                        ensembleId() const;
 
-    const std::vector<EnsembleParameter>& variationSortedEnsembleParameters() const;
+    const std::vector<EnsembleParameter>& variationSortedEnsembleParameters( bool excludeNoVariation = false ) const;
     std::vector<EnsembleParameter>        alphabeticEnsembleParameters() const;
 
     EnsembleParameter ensembleParameter( const QString& paramName ) const;

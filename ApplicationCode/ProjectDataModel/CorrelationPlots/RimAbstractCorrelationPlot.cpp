@@ -288,6 +288,23 @@ std::set<EnsembleParameter> RimAbstractCorrelationPlot::ensembleParameters()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::set<EnsembleParameter> RimAbstractCorrelationPlot::variationSortedEnsembleParameters()
+{
+    std::set<EnsembleParameter> ensembleParms;
+
+    RiaSummaryCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = getOrCreateSelectedCurveDefAnalyser();
+
+    for ( RimSummaryCaseCollection* ensemble : analyserOfSelectedCurveDefs->m_ensembles )
+    {
+        std::vector<EnsembleParameter> parameters = ensemble->variationSortedEnsembleParameters();
+        ensembleParms.insert( parameters.begin(), parameters.end() );
+    }
+    return ensembleParms;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 EnsembleParameter RimAbstractCorrelationPlot::ensembleParameter( const QString& ensembleParameterName )
 {
     std::set<EnsembleParameter> ensembleParms = ensembleParameters();
