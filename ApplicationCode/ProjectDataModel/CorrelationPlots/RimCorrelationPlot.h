@@ -58,6 +58,7 @@ public:
 
     bool sortByAbsoluteValues() const;
     void setSortByAbsoluteValues( bool sortByAbsoluteValues );
+    void selectAllParameters();
 
 signals:
     void tornadoItemSelected( const EnsembleParameter&, const RiaSummaryCurveDefinition& curveDef );
@@ -85,4 +86,5 @@ private:
     caf::PdmField<bool>                  m_showAbsoluteValues;
     caf::PdmField<bool>                  m_sortByAbsoluteValues;
     caf::PdmField<bool>                  m_excludeParametersWithoutVariation;
+    caf::PdmField<std::vector<QString>>  m_selectedParametersList;
 };
