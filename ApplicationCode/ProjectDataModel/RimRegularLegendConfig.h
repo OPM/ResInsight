@@ -79,6 +79,7 @@ public:
         RED_WHITE_BLUE,
         CATEGORY,
         ANGULAR,
+        RAINBOW,
         STIMPLAN,
 
         GREEN_RED,

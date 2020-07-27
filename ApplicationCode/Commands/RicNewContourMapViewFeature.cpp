@@ -30,6 +30,7 @@
 #include "RimGeoMechContourMapView.h"
 #include "RimGeoMechContourMapViewCollection.h"
 #include "RimGeoMechView.h"
+#include "RimRegularLegendConfig.h"
 
 #include "RimFaultInViewCollection.h"
 #include "RimSimWellInViewCollection.h"
@@ -240,6 +241,13 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMap( 
         if ( RiaApplication::instance()->preferences()->loadAndShowSoil )
         {
             contourMap->cellResult()->setResultVariable( "SOIL" );
+        }
+
+        RimRegularLegendConfig* legendConfig = contourMap->cellResult()->legendConfig();
+        if ( legendConfig )
+        {
+            RimColorLegend* legend = legendConfig->mapToColorLegend( RimRegularLegendConfig::RAINBOW );
+            legendConfig->setColorLegend( legend );
         }
     }
 
