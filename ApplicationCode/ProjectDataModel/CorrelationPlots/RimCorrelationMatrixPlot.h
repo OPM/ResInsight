@@ -40,6 +40,15 @@ public:
     using CorrelationFactor     = RimCorrelationPlot::CorrelationFactor;
     using CorrelationFactorEnum = RimCorrelationPlot::CorrelationFactorEnum;
 
+    enum class Sorting
+    {
+        NO_SORTING,
+        ROWS,
+        COLUMNS,
+        BOTH,
+    };
+    using SortingEnum = caf::AppEnum<Sorting>;
+
 public:
     RimCorrelationMatrixPlot();
     ~RimCorrelationMatrixPlot() override;
@@ -76,7 +85,7 @@ private:
 private:
     caf::PdmField<CorrelationFactorEnum> m_correlationFactor;
     caf::PdmField<bool>                  m_showAbsoluteValues;
-    caf::PdmField<bool>                  m_sortByValues;
+    caf::PdmField<SortingEnum>           m_sortByValues;
     caf::PdmField<bool>                  m_sortByAbsoluteValues;
     caf::PdmField<bool>                  m_excludeParametersWithoutVariation;
     caf::PdmField<bool>                  m_showOnlyTopNCorrelations;

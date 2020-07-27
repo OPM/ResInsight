@@ -54,6 +54,19 @@
 #include <map>
 #include <set>
 
+namespace caf
+{
+template <>
+void caf::AppEnum<RimCorrelationMatrixPlot::Sorting>::setUp()
+{
+    addItem( RimCorrelationMatrixPlot::Sorting::NO_SORTING, "NO_SORTING", "No Sorting" );
+    addItem( RimCorrelationMatrixPlot::Sorting::ROWS, "SORT_ROWS", "Sort Rows" );
+    addItem( RimCorrelationMatrixPlot::Sorting::COLUMNS, "SORT_COLUMNS", "Sort Columns" );
+    addItem( RimCorrelationMatrixPlot::Sorting::BOTH, "SORT_BOTH", "Sort Both Rows/Columns" );
+    setDefault( RimCorrelationMatrixPlot::Sorting::BOTH );
+}
+} // namespace caf
+
 CAF_PDM_SOURCE_INIT( RimCorrelationMatrixPlot, "CorrelationMatrixPlot" );
 
 class CorrelationMatrixShapeItem : public QwtPlotShapeItem
@@ -139,7 +152,7 @@ RimCorrelationMatrixPlot::RimCorrelationMatrixPlot()
     CAF_PDM_InitFieldNoDefault( &m_correlationFactor, "CorrelationFactor", "Correlation Factor", "", "", "" );
     m_correlationFactor.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_showAbsoluteValues, "CorrelationAbsValues", false, "Show Absolute Values", "", "", "" );
-    CAF_PDM_InitField( &m_sortByValues, "CorrelationSorting", true, "Sort Matrix by Values", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_sortByValues, "CorrelationSorting", "Sort Matrix by Values", "", "", "" );
     CAF_PDM_InitField( &m_sortByAbsoluteValues, "CorrelationAbsSorting", true, "Sort by Absolute Values", "", "", "" );
     CAF_PDM_InitField( &m_excludeParametersWithoutVariation,
                        "ExcludeParamsWithoutVariation",
@@ -229,11 +242,11 @@ void RimCorrelationMatrixPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
     correlationGroup->add( &m_excludeParametersWithoutVariation );
     correlationGroup->add( &m_showAbsoluteValues );
     correlationGroup->add( &m_sortByValues );
-    if ( !m_showAbsoluteValues() && m_sortByValues() )
+    if ( !m_showAbsoluteValues() && m_sortByValues() != Sorting::NO_SORTING )
     {
         correlationGroup->add( &m_sortByAbsoluteValues );
     }
-    if ( m_sortByValues() )
+    if ( m_sortByValues() != Sorting::NO_SORTING )
     {
         correlationGroup->add( &m_showOnlyTopNCorrelations );
         if ( m_showOnlyTopNCorrelations() )
@@ -507,22 +520,28 @@ void RimCorrelationMatrixPlot::createMatrix()
     }
 
     eraseInvalidEntries( correlationMatrixColumns );
-    if ( m_sortByValues() ) sortEntries( correlationMatrixColumns, m_sortByAbsoluteValues() || m_showAbsoluteValues() );
-
-    if ( m_sortByValues() && m_showOnlyTopNCorrelations && m_topNFilterCount < correlationMatrixColumns.size() )
+    if ( m_sortByValues() == Sorting::COLUMNS || m_sortByValues() == Sorting::BOTH )
     {
-        correlationMatrixColumns.erase( correlationMatrixColumns.begin() + m_topNFilterCount(),
-                                        correlationMatrixColumns.end() );
+        sortEntries( correlationMatrixColumns, m_sortByAbsoluteValues() || m_showAbsoluteValues() );
+
+        if ( m_showOnlyTopNCorrelations && m_topNFilterCount < correlationMatrixColumns.size() )
+        {
+            correlationMatrixColumns.erase( correlationMatrixColumns.begin() + m_topNFilterCount(),
+                                            correlationMatrixColumns.end() );
+        }
     }
 
     auto correlationMatrixRows = transpose( correlationMatrixColumns );
 
     eraseInvalidEntries( correlationMatrixRows );
-    if ( m_sortByValues() ) sortEntries( correlationMatrixRows, m_sortByAbsoluteValues() || m_showAbsoluteValues() );
-
-    if ( m_showOnlyTopNCorrelations && m_topNFilterCount < correlationMatrixRows.size() )
+    if ( m_sortByValues() == Sorting::ROWS || m_sortByValues() == Sorting::BOTH )
     {
-        correlationMatrixRows.erase( correlationMatrixRows.begin() + m_topNFilterCount(), correlationMatrixRows.end() );
+        sortEntries( correlationMatrixRows, m_sortByAbsoluteValues() || m_showAbsoluteValues() );
+
+        if ( m_showOnlyTopNCorrelations && m_topNFilterCount < correlationMatrixRows.size() )
+        {
+            correlationMatrixRows.erase( correlationMatrixRows.begin() + m_topNFilterCount(), correlationMatrixRows.end() );
+        }
     }
 
     for ( size_t rowIdx = 0u; rowIdx < correlationMatrixRows.size(); ++rowIdx )
