@@ -88,6 +88,7 @@ void RimRegularLegendConfig::ColorRangeEnum::setUp()
     addItem( RimRegularLegendConfig::BLACK_WHITE, "BLACK_WHITE", "Black to white" );
     addItem( RimRegularLegendConfig::CATEGORY, "CATEGORY", "Category colors" );
     addItem( RimRegularLegendConfig::ANGULAR, "ANGULAR", "Full color cyclic" );
+    addItem( RimRegularLegendConfig::RAINBOW, "RAINBOW", "Rainbow Palette" );
     addItem( RimRegularLegendConfig::STIMPLAN, "STIMPLAN", "StimPlan colors" );
     addItem( RimRegularLegendConfig::RED_LIGHT_DARK, "RED_DARK_LIGHT", "Red Light to Dark" );
     addItem( RimRegularLegendConfig::GREEN_LIGHT_DARK, "GREEN_DARK_LIGHT", "Green Light to Dark" );
@@ -957,6 +958,9 @@ cvf::Color3ubArray RimRegularLegendConfig::colorArrayFromColorType( ColorRangesT
             break;
         case RimRegularLegendConfig::ANGULAR:
             return RiaColorTables::angularPaletteColors().color3ubArray();
+            break;
+        case RimRegularLegendConfig::RAINBOW:
+            return RiaColorTables::rainbowPaletteColors().color3ubArray();
             break;
         case RimRegularLegendConfig::STIMPLAN:
             return RiaColorTables::stimPlanPaletteColors().color3ubArray();

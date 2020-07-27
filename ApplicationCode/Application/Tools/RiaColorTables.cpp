@@ -219,6 +219,24 @@ const caf::ColorTable& RiaColorTables::angularPaletteColors()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const caf::ColorTable& RiaColorTables::rainbowPaletteColors()
+{
+    static std::vector<cvf::Color3ub> colors{cvf::Color3ub::BLACK,
+                                             cvf::Color3ub::MAGENTA,
+                                             cvf::Color3ub::BLUE,
+                                             cvf::Color3ub::CYAN,
+                                             cvf::Color3ub::GREEN,
+                                             cvf::Color3ub::RED,
+                                             cvf::Color3ub::YELLOW,
+                                             cvf::Color3ub::WHITE};
+
+    static caf::ColorTable colorTable = caf::ColorTable( colors );
+    return colorTable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const caf::ColorTable& RiaColorTables::stimPlanPaletteColors()
 {
     static std::vector<cvf::Color3ub> colors{
