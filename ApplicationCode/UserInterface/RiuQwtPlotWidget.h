@@ -162,6 +162,11 @@ protected:
     virtual void endZoomOperations();
 
 private:
+    void findClosestPlotItem( const QPoint& pos,
+                              QwtPlotItem** closestItem,
+                              int*          closestCurvePoint,
+                              double*       distanceFromClick ) const;
+
     void       selectClosestPlotItem( const QPoint& pos, bool toggleItemInSelection = false );
     static int defaultMinimumWidth();
     void       replot() override;
