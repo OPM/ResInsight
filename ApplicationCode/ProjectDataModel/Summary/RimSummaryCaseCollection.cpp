@@ -104,19 +104,18 @@ bool EnsembleParameter::operator<( const EnsembleParameter& other ) const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::sortByBinnedVariation( std::vector<EnsembleParameter>& parameterVector )
 {
-    const double eps       = 1.0e-8;
-    double       minStdDev = std::numeric_limits<double>::infinity();
-    double       maxStdDev = 0.0;
+    double minStdDev = std::numeric_limits<double>::infinity();
+    double maxStdDev = 0.0;
     for ( const auto& paramPair : parameterVector )
     {
         double stdDev = paramPair.normalizedStdDeviation();
-        if ( stdDev > eps )
+        if ( stdDev != 0.0 )
         {
             minStdDev = std::min( minStdDev, stdDev );
             maxStdDev = std::max( maxStdDev, stdDev );
         }
     }
-    if ( ( maxStdDev - minStdDev ) <= eps )
+    if ( ( maxStdDev - minStdDev ) <= 0.0 )
     {
         return;
     }
@@ -124,7 +123,7 @@ void RimSummaryCaseCollection::sortByBinnedVariation( std::vector<EnsembleParame
     double delta = ( maxStdDev - minStdDev ) / EnsembleParameter::NR_OF_VARIATION_BINS;
 
     std::vector<double> bins;
-    bins.push_back( eps );
+    bins.push_back( 0.0 );
     for ( int i = 0; i < EnsembleParameter::NR_OF_VARIATION_BINS - 1; ++i )
     {
         bins.push_back( minStdDev + ( i + 1 ) * delta );
@@ -135,7 +134,7 @@ void RimSummaryCaseCollection::sortByBinnedVariation( std::vector<EnsembleParame
         int binNumber = -1;
         for ( double bin : bins )
         {
-            if ( nameParamPair.normalizedStdDeviation() >= bin )
+            if ( nameParamPair.normalizedStdDeviation() > bin )
             {
                 binNumber++;
             }
@@ -435,8 +434,6 @@ RifReaderRftInterface* RimSummaryCaseCollection::rftStatisticsReader()
 const std::vector<EnsembleParameter>&
     RimSummaryCaseCollection::variationSortedEnsembleParameters( bool excludeNoVariation ) const
 {
-    const double eps = 1.0e-8;
-
     if ( m_cachedSortedEnsembleParameters.size() ) return m_cachedSortedEnsembleParameters;
 
     std::set<QString> paramSet;
@@ -456,7 +453,7 @@ const std::vector<EnsembleParameter>&
     for ( const QString& parameterName : paramSet )
     {
         auto ensembleParameter = this->createEnsembleParameter( parameterName );
-        if ( !excludeNoVariation || ensembleParameter.normalizedStdDeviation() > eps )
+        if ( !excludeNoVariation || ensembleParameter.normalizedStdDeviation() != 0.0 )
         {
             m_cachedSortedEnsembleParameters.push_back( ensembleParameter );
         }
