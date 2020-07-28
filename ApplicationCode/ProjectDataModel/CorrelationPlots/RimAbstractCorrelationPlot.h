@@ -27,6 +27,8 @@
 
 #include <QString>
 
+#include <ctime>
+
 class RiaSummaryCurveDefinition;
 class RiaSummaryCurveDefinitionAnalyser;
 class RimAnalysisPlotDataEntry;
@@ -43,6 +45,7 @@ public:
 public:
     std::vector<RiaSummaryCurveDefinition> curveDefinitions() const;
     void setCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions );
+    void setTimeStep( std::time_t timeStep );
     std::set<RimSummaryCaseCollection*> ensembles();
     RiuQwtPlotWidget*                   viewer() override;
     void                                detachAllCurves() override;

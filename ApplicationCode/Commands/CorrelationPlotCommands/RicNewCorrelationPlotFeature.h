@@ -20,6 +20,27 @@
 
 #include "cafCmdFeature.h"
 
+#include <ctime>
+
+class RimSummaryCaseCollection;
+
+class CorrelationPlotParams
+{
+public:
+    RimSummaryCaseCollection* ensemble;
+    QString                   quantityName;
+    QString                   ensembleParameter;
+    std::time_t               timeStep;
+
+    CorrelationPlotParams();
+    CorrelationPlotParams( const CorrelationPlotParams& rhs ) = default;
+
+    CorrelationPlotParams( RimSummaryCaseCollection* ensemble, const QString& quantityName, const std::time_t& timeStep );
+    ~CorrelationPlotParams() = default;
+};
+
+Q_DECLARE_METATYPE( CorrelationPlotParams );
+
 //==================================================================================================
 ///
 //==================================================================================================

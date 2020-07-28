@@ -80,10 +80,18 @@ void RimAbstractCorrelationPlot::setCurveDefinitions( const std::vector<RiaSumma
         m_analysisPlotDataSelection.push_back( dataEntry );
     }
     auto timeSteps = allAvailableTimeSteps();
-    if ( !timeSteps.empty() )
+    if ( m_timeStep().isNull() && !timeSteps.empty() )
     {
         m_timeStep = QDateTime::fromTime_t( *timeSteps.rbegin() );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAbstractCorrelationPlot::setTimeStep( std::time_t timeStep )
+{
+    m_timeStep = QDateTime::fromTime_t( timeStep );
 }
 
 //--------------------------------------------------------------------------------------------------

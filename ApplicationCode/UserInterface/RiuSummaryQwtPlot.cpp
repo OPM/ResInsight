@@ -20,12 +20,16 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 
+#include "Commands/CorrelationPlotCommands/RicNewCorrelationPlotFeature.h"
+
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
+#include "RimEnsembleStatisticsCase.h"
 #include "RimMainPlotCollection.h"
 #include "RimPlot.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryPlot.h"
@@ -46,6 +50,7 @@
 #include "RimProject.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
+#include "cafIconProvider.h"
 #include "cafSelectionManager.h"
 #include "cafTitledOverlayFrame.h"
 
@@ -65,6 +70,8 @@
 #include <QMenu>
 #include <QMouseEvent>
 #include <QWheelEvent>
+
+#include <limits>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -175,6 +182,73 @@ void RiuSummaryQwtPlot::contextMenuEvent( QContextMenuEvent* event )
 
     menuBuilder << "RicShowPlotDataFeature";
     menuBuilder << "RicSavePlotTemplateFeature";
+
+    QwtPlotItem* closestItem       = nullptr;
+    double       distanceFromClick = std::numeric_limits<double>::infinity();
+    int          closestCurvePoint = -1;
+    QPoint       globalPos         = event->globalPos();
+    QPoint       localPos          = this->canvas()->mapFromGlobal( globalPos );
+
+    findClosestPlotItem( localPos, &closestItem, &closestCurvePoint, &distanceFromClick );
+    if ( closestItem && closestCurvePoint >= 0 )
+    {
+        RiuRimQwtPlotCurve* plotCurve = dynamic_cast<RiuRimQwtPlotCurve*>( closestItem );
+        if ( plotCurve )
+        {
+            RimSummaryCurve* summaryCurve = dynamic_cast<RimSummaryCurve*>( plotCurve->ownerRimCurve() );
+            if ( summaryCurve && closestCurvePoint < (int)summaryCurve->timeStepsY().size() )
+            {
+                std::time_t timeStep = summaryCurve->timeStepsY()[closestCurvePoint];
+
+                RimEnsembleCurveSet* ensembleCurveSet = nullptr;
+                summaryCurve->firstAncestorOrThisOfType( ensembleCurveSet );
+
+                if ( ensembleCurveSet )
+                {
+                    RimSummaryCaseCollection* ensemble = ensembleCurveSet->summaryCaseCollection();
+                    if ( ensemble && ensemble->isEnsemble() )
+                    {
+                        CorrelationPlotParams params( ensemble,
+                                                      QString::fromStdString(
+                                                          ensembleCurveSet->summaryAddress().quantityName() ),
+                                                      timeStep );
+                        QVariant              variant = QVariant::fromValue( params );
+                        menuBuilder.subMenuStart( "Create Correlation Plot From Curve Point",
+                                                  *caf::IconProvider( ":/CorrelationPlots16x16.png" ).icon() );
+                        {
+                            menuBuilder.addCmdFeatureWithUserData( "RicNewCorrelationPlotFeature",
+                                                                   "New Tornado Plot",
+                                                                   variant );
+                            menuBuilder.addCmdFeatureWithUserData( "RicNewCorrelationMatrixPlotFeature",
+                                                                   "New Matrix Plot",
+                                                                   variant );
+                            menuBuilder.addCmdFeatureWithUserData( "RicNewCorrelationReportPlotFeature",
+                                                                   "New Report Plot",
+                                                                   variant );
+                            menuBuilder.subMenuStart( "Cross Plots",
+                                                      *caf::IconProvider( ":/CorrelationCrossPlot16x16.png" ).icon() );
+                            std::vector<EnsembleParameter> ensembleParameters =
+                                ensemble->variationSortedEnsembleParameters();
+                            for ( const EnsembleParameter& param : ensembleParameters )
+                            {
+                                if ( param.variationBin >= (int)EnsembleParameter::LOW_VARIATION )
+                                {
+                                    params.ensembleParameter = param.name;
+                                    variant                  = QVariant::fromValue( params );
+                                    menuBuilder.addCmdFeatureWithUserData( "RicNewParameterResultCrossPlotFeature",
+                                                                           QString( "New Cross Plot Against %1" )
+                                                                               .arg( param.uiName() ),
+                                                                           variant );
+                                }
+                            }
+                            menuBuilder.subMenuEnd();
+                        }
+                        menuBuilder.subMenuEnd();
+                    }
+                }
+            }
+        }
+    }
 
     menuBuilder.appendToMenu( &menu );
 

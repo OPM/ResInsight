@@ -63,7 +63,7 @@
 #include <QWheelEvent>
 
 #include <algorithm>
-#include <cfloat>
+#include <limits>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -968,7 +968,7 @@ void RiuQwtPlotWidget::findClosestPlotItem( const QPoint& pos,
     // Force empty defaults
     *closestItem       = nullptr;
     *closestCurvePoint = -1;
-    *distanceFromClick = DBL_MAX;
+    *distanceFromClick = std::numeric_limits<double>::infinity();
 
     const QwtPlotItemList& itmList = itemList();
     for ( QwtPlotItemIterator it = itmList.begin(); it != itmList.end(); it++ )
@@ -976,7 +976,7 @@ void RiuQwtPlotWidget::findClosestPlotItem( const QPoint& pos,
         if ( ( *it )->rtti() == QwtPlotItem::Rtti_PlotCurve )
         {
             QwtPlotCurve* candidateCurve = static_cast<QwtPlotCurve*>( *it );
-            double        dist           = DBL_MAX;
+            double        dist           = std::numeric_limits<double>::infinity();
             int           curvePoint     = candidateCurve->closestPoint( pos, &dist );
             if ( dist < *distanceFromClick )
             {
@@ -1023,7 +1023,7 @@ void RiuQwtPlotWidget::findClosestPlotItem( const QPoint& pos,
 void RiuQwtPlotWidget::selectClosestPlotItem( const QPoint& pos, bool toggleItemInSelection /*= false*/ )
 {
     QwtPlotItem* closestItem       = nullptr;
-    double       distanceFromClick = DBL_MAX;
+    double       distanceFromClick = std::numeric_limits<double>::infinity();
     int          closestCurvePoint = -1;
 
     findClosestPlotItem( pos, &closestItem, &closestCurvePoint, &distanceFromClick );
