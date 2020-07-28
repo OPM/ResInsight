@@ -18,8 +18,12 @@
 
 #include "RicNewParameterResultCrossPlotFeature.h"
 
+#include "RicNewCorrelationPlotFeature.h"
+
 #include "RimCorrelationPlotCollection.h"
 #include "RimParameterResultCrossPlot.h"
+#include "RimProject.h"
+#include "RimSummaryPlot.h"
 
 #include "RiuPlotMainWindowTools.h"
 
@@ -44,6 +48,10 @@ bool RicNewParameterResultCrossPlotFeature::isCommandEnabled()
 
     if ( correlationPlotColl ) return true;
 
+    RimSummaryPlot* summaryPlot = nullptr;
+    selObj->firstAncestorOrThisOfType( summaryPlot );
+    if ( summaryPlot ) return true;
+
     return false;
 }
 
@@ -60,9 +68,38 @@ void RicNewParameterResultCrossPlotFeature::onActionTriggered( bool isChecked )
         selObj->firstAncestorOrThisOfType( correlationPlotColl );
     }
 
-    if ( !correlationPlotColl ) return;
+    RimSummaryCaseCollection* ensemble = nullptr;
+    QString                   quantityName;
+    QString                   ensembleParameter;
+    std::time_t               timeStep = 0;
 
-    auto newPlot = correlationPlotColl->createParameterResultCrossPlot();
+    RimParameterResultCrossPlot* newPlot = nullptr;
+    if ( !correlationPlotColl )
+    {
+        QVariant userData = this->userData();
+        if ( !userData.isNull() && userData.canConvert<CorrelationPlotParams>() )
+        {
+            std::vector<RimCorrelationPlotCollection*> correlationPlotCollections;
+            RimProject::current()->descendantsOfType( correlationPlotCollections );
+            CAF_ASSERT( !correlationPlotCollections.empty() );
+            correlationPlotColl = correlationPlotCollections.front();
+
+            CorrelationPlotParams params = userData.value<CorrelationPlotParams>();
+            ensemble                     = params.ensemble;
+            quantityName                 = params.quantityName;
+            ensembleParameter            = params.ensembleParameter;
+
+            timeStep = params.timeStep;
+
+            newPlot =
+                correlationPlotColl->createParameterResultCrossPlot( ensemble, ensembleParameter, quantityName, timeStep );
+        }
+    }
+    else
+    {
+        newPlot = correlationPlotColl->createParameterResultCrossPlot();
+    }
+
     newPlot->loadDataAndUpdate();
 
     correlationPlotColl->updateConnectedEditors();

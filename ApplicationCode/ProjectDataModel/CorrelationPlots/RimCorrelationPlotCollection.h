@@ -21,11 +21,14 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 
+#include <ctime>
+
 class RimAbstractCorrelationPlot;
 class RimCorrelationPlot;
 class RimCorrelationMatrixPlot;
 class RimCorrelationReportPlot;
 class RimParameterResultCrossPlot;
+class RimSummaryCaseCollection;
 
 //==================================================================================================
 ///
@@ -39,12 +42,26 @@ public:
     RimCorrelationPlotCollection();
     ~RimCorrelationPlotCollection() override;
 
-    RimCorrelationPlot*          createCorrelationPlot( bool defaultToFirstEnsembleFopt = true );
-    RimCorrelationMatrixPlot*    createCorrelationMatrixPlot( bool defaultToFirstEnsembleField = true );
+    RimCorrelationPlot* createCorrelationPlot( bool defaultToFirstEnsembleFopt = true );
+    RimCorrelationPlot*
+        createCorrelationPlot( RimSummaryCaseCollection* ensemble, const QString& quantityName, std::time_t timeStep );
+
+    RimCorrelationMatrixPlot* createCorrelationMatrixPlot( bool defaultToFirstEnsembleField = true );
+    RimCorrelationMatrixPlot* createCorrelationMatrixPlot( RimSummaryCaseCollection* ensemble, std::time_t timeStep );
+
     RimParameterResultCrossPlot* createParameterResultCrossPlot( bool defaultToFirstEnsembleFopt = true );
-    RimCorrelationReportPlot*    createCorrelationReportPlot( bool defaultToFirstEnsembleFopt = true );
-    void                         removePlot( RimAbstractCorrelationPlot* correlationPlot );
-    void                         removeReport( RimCorrelationReportPlot* correlationReport );
+    RimParameterResultCrossPlot* createParameterResultCrossPlot( RimSummaryCaseCollection* ensemble,
+                                                                 const QString&            paramName,
+                                                                 const QString&            quantityName,
+                                                                 std::time_t               timeStep );
+
+    RimCorrelationReportPlot* createCorrelationReportPlot( bool defaultToFirstEnsembleFopt = true );
+    RimCorrelationReportPlot* createCorrelationReportPlot( RimSummaryCaseCollection* ensemble,
+                                                           const QString&            quantityName,
+                                                           std::time_t               timeStep );
+
+    void removePlot( RimAbstractCorrelationPlot* correlationPlot );
+    void removeReport( RimCorrelationReportPlot* correlationReport );
 
     std::vector<RimAbstractCorrelationPlot*> plots();
     std::vector<RimCorrelationReportPlot*>   reports();
@@ -53,7 +70,15 @@ public:
 
 private:
     void applyFirstEnsembleFieldAddressesToPlot( RimAbstractCorrelationPlot* plot, const std::string& quantityName = "" );
+    void applyEnsembleFieldAndTimeStepToPlot( RimAbstractCorrelationPlot* plot,
+                                              RimSummaryCaseCollection*   ensemble,
+                                              const std::string&          quantityName,
+                                              std::time_t                 timeStep );
     void applyFirstEnsembleFieldAddressesToReport( RimCorrelationReportPlot* plot, const std::string& quantityName = "" );
+    void applyEnsembleFieldAndTimeStepToReport( RimCorrelationReportPlot* plot,
+                                                RimSummaryCaseCollection* ensemble,
+                                                const std::string&        quantityName,
+                                                std::time_t               timeStep );
 
 private:
     caf::PdmChildArrayField<RimAbstractCorrelationPlot*> m_correlationPlots;
