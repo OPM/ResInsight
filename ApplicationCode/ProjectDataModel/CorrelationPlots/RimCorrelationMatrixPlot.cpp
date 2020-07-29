@@ -164,7 +164,7 @@ RimCorrelationMatrixPlot::RimCorrelationMatrixPlot()
                        "",
                        "" );
     CAF_PDM_InitField( &m_showOnlyTopNCorrelations, "ShowOnlyTopNCorrelations", false, "Show Only Top Correlations", "", "", "" );
-    CAF_PDM_InitField( &m_topNFilterCount, "TopNFilterCount", (size_t)15, "Number rows/columns", "", "", "" );
+    CAF_PDM_InitField( &m_topNFilterCount, "TopNFilterCount", 15, "Number rows/columns", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendConfig", "", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_selectedParametersList, "SelectedParameters", "Select Parameters", "", "", "" );
     m_selectedParametersList.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
@@ -234,6 +234,22 @@ void RimCorrelationMatrixPlot::selectAllParameters()
             m_selectedParametersList.v().push_back( param.name );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimCorrelationMatrixPlot::showTopNCorrelations() const
+{
+    return m_showOnlyTopNCorrelations();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimCorrelationMatrixPlot::topNFilterCount() const
+{
+    return m_topNFilterCount();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -570,7 +586,7 @@ void RimCorrelationMatrixPlot::createMatrix()
     {
         sortEntries( correlationMatrixColumns, m_sortByAbsoluteValues() || m_showAbsoluteValues() );
 
-        if ( m_showOnlyTopNCorrelations && m_topNFilterCount < correlationMatrixColumns.size() )
+        if ( m_showOnlyTopNCorrelations && (size_t)m_topNFilterCount < correlationMatrixColumns.size() )
         {
             correlationMatrixColumns.erase( correlationMatrixColumns.begin() + m_topNFilterCount(),
                                             correlationMatrixColumns.end() );
@@ -584,7 +600,7 @@ void RimCorrelationMatrixPlot::createMatrix()
     {
         sortEntries( correlationMatrixRows, m_sortByAbsoluteValues() || m_showAbsoluteValues() );
 
-        if ( m_showOnlyTopNCorrelations && m_topNFilterCount < correlationMatrixRows.size() )
+        if ( m_showOnlyTopNCorrelations && (size_t)m_topNFilterCount < correlationMatrixRows.size() )
         {
             correlationMatrixRows.erase( correlationMatrixRows.begin() + m_topNFilterCount(), correlationMatrixRows.end() );
         }

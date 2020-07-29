@@ -86,7 +86,7 @@ void RimAbstractCorrelationPlot::setCurveDefinitions( const std::vector<RiaSumma
     auto timeSteps = allAvailableTimeSteps();
     if ( m_timeStep().isNull() && !timeSteps.empty() )
     {
-        m_timeStep = QDateTime::fromTime_t( *timeSteps.rbegin() );
+        m_timeStep = RiaQDateTimeTools::fromTime_t( *timeSteps.rbegin() );
     }
 }
 
@@ -95,7 +95,7 @@ void RimAbstractCorrelationPlot::setCurveDefinitions( const std::vector<RiaSumma
 //--------------------------------------------------------------------------------------------------
 void RimAbstractCorrelationPlot::setTimeStep( std::time_t timeStep )
 {
-    m_timeStep = QDateTime::fromTime_t( timeStep );
+    m_timeStep = RiaQDateTimeTools::fromTime_t( timeStep );
 }
 
 //--------------------------------------------------------------------------------------------------

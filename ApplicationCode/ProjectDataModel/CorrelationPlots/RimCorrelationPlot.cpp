@@ -81,6 +81,8 @@ RimCorrelationPlot::RimCorrelationPlot()
                        "",
                        "",
                        "" );
+    CAF_PDM_InitField( &m_showOnlyTopNCorrelations, "ShowOnlyTopNCorrelations", false, "Show Only Top Correlations", "", "", "" );
+    CAF_PDM_InitField( &m_topNFilterCount, "TopNFilterCount", 15, "Number rows/columns", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedParametersList, "SelectedParameters", "Select Parameters", "", "", "" );
     m_selectedParametersList.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
@@ -109,7 +111,8 @@ void RimCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
     RimAbstractCorrelationPlot::fieldChangedByUi( changedField, oldValue, newValue );
     if ( changedField == &m_correlationFactor || changedField == &m_showAbsoluteValues ||
          changedField == &m_sortByAbsoluteValues || changedField == &m_excludeParametersWithoutVariation ||
-         changedField == &m_selectedParametersList )
+         changedField == &m_selectedParametersList || changedField == &m_showOnlyTopNCorrelations ||
+         changedField == &m_topNFilterCount )
     {
         if ( changedField == &m_excludeParametersWithoutVariation )
         {
@@ -134,6 +137,12 @@ void RimCorrelationPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     if ( !m_showAbsoluteValues() )
     {
         correlationGroup->add( &m_sortByAbsoluteValues );
+    }
+
+    correlationGroup->add( &m_showOnlyTopNCorrelations );
+    if ( m_showOnlyTopNCorrelations() )
+    {
+        correlationGroup->add( &m_topNFilterCount );
     }
 
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector" );
@@ -202,7 +211,9 @@ void RimCorrelationPlot::onLoadDataAndUpdate()
         // buildTestPlot( chartBuilder );
         addDataToChartBuilder( chartBuilder );
 
-        chartBuilder.addBarChartToPlot( m_plotWidget, Qt::Horizontal );
+        chartBuilder.addBarChartToPlot( m_plotWidget,
+                                        Qt::Horizontal,
+                                        m_showOnlyTopNCorrelations() ? m_topNFilterCount() : -1 );
         chartBuilder.setLabelFontSize( labelFontSize() );
 
         m_plotWidget->insertLegend( nullptr );
@@ -425,4 +436,20 @@ void RimCorrelationPlot::selectAllParameters()
             m_selectedParametersList.v().push_back( param.name );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationPlot::setShowOnlyTopNCorrelations( bool showOnlyTopNCorrelations )
+{
+    m_showOnlyTopNCorrelations = showOnlyTopNCorrelations;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationPlot::setTopNFilterCount( int filterCount )
+{
+    m_topNFilterCount = filterCount;
 }

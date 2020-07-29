@@ -303,8 +303,13 @@ void RimCorrelationReportPlot::onLoadDataAndUpdate()
     updateMdiWindowVisibility();
     if ( m_showWindow )
     {
-        auto timeStep = m_correlationMatrixPlot->timeStep().toTime_t();
+        auto timeStep                 = m_correlationMatrixPlot->timeStep().toTime_t();
+        bool showOnlyTopNCorrelations = m_correlationMatrixPlot->showTopNCorrelations();
+        int  topNFilterCount          = m_correlationMatrixPlot->topNFilterCount();
+
         m_correlationPlot->setTimeStep( timeStep );
+        m_correlationPlot->setShowOnlyTopNCorrelations( showOnlyTopNCorrelations );
+        m_correlationPlot->setTopNFilterCount( topNFilterCount );
         m_parameterResultCrossPlot->setTimeStep( timeStep );
 
         m_correlationMatrixPlot->setLabelFontSize( m_labelFontSize() );
