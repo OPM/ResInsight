@@ -92,8 +92,24 @@ public:
 class RiuBarChartScaleDraw : public QwtScaleDraw
 {
 public:
-    RiuBarChartScaleDraw( const std::map<double, std::pair<QwtScaleDiv::TickType, QString>>& posTickTypeAndTexts,
-                          int                                                                labelFontPointSize )
+    struct RiuBarChartTick
+    {
+        RiuBarChartTick()                             = default;
+        RiuBarChartTick( const RiuBarChartTick& rhs ) = default;
+        RiuBarChartTick( QwtScaleDiv::TickType tickType, const QString& label, bool oppositeSide = false )
+            : tickType( tickType )
+            , label( label )
+            , oppositeSide( oppositeSide )
+        {
+        }
+
+        QwtScaleDiv::TickType tickType;
+        QString               label;
+        bool                  oppositeSide;
+    };
+
+public:
+    RiuBarChartScaleDraw( const std::map<double, RiuBarChartTick>& posTickTypeAndTexts, int labelFontPointSize )
         : m_posTickTypeAndTexts( posTickTypeAndTexts )
         , m_labelFontPointSize( labelFontPointSize )
     {
@@ -108,15 +124,15 @@ public:
 
         for ( const auto& posTickTypeText : m_posTickTypeAndTexts )
         {
-            if ( posTickTypeText.second.first == QwtScaleDiv::MediumTick )
+            if ( posTickTypeText.second.tickType == QwtScaleDiv::MediumTick )
             {
                 hasMediumTickText  = true;
-                medTickMaxTextSize = std::max( posTickTypeText.second.second.size(), medTickMaxTextSize );
+                medTickMaxTextSize = std::max( posTickTypeText.second.label.size(), medTickMaxTextSize );
             }
-            if ( posTickTypeText.second.first == QwtScaleDiv::MinorTick )
+            if ( posTickTypeText.second.tickType == QwtScaleDiv::MinorTick )
             {
                 hasMinorTickText   = true;
-                minTickMaxTextSize = std::max( posTickTypeText.second.second.size(), minTickMaxTextSize );
+                minTickMaxTextSize = std::max( posTickTypeText.second.label.size(), minTickMaxTextSize );
             }
         }
 
@@ -139,43 +155,43 @@ public:
 
     QwtText label( double v ) const override
     {
-        auto posTypeTextPairIt = m_posTickTypeAndTexts.find( v );
-        if ( posTypeTextPairIt != m_posTickTypeAndTexts.end() )
+        auto posTickIt = m_posTickTypeAndTexts.find( v );
+        if ( posTickIt != m_posTickTypeAndTexts.end() )
         {
             if ( this->alignment() == BottomScale )
             {
-                if ( posTypeTextPairIt->second.first == QwtScaleDiv::MediumTick )
+                if ( posTickIt->second.tickType == QwtScaleDiv::MediumTick )
                 {
-                    return createLabelFromString( m_medLineBreak + posTypeTextPairIt->second.second );
+                    return createLabelFromString( m_medLineBreak + posTickIt->second.label );
                 }
-                else if ( posTypeTextPairIt->second.first == QwtScaleDiv::MajorTick )
+                else if ( posTickIt->second.tickType == QwtScaleDiv::MajorTick )
                 {
-                    return createLabelFromString( m_majLineBreak + posTypeTextPairIt->second.second );
+                    return createLabelFromString( m_majLineBreak + posTickIt->second.label );
                 }
                 else
                 {
-                    return createLabelFromString( posTypeTextPairIt->second.second );
+                    return createLabelFromString( posTickIt->second.label );
                 }
             }
             else if ( this->alignment() == LeftScale )
             {
-                if ( posTypeTextPairIt->second.first == QwtScaleDiv::MediumTick )
+                if ( posTickIt->second.tickType == QwtScaleDiv::MediumTick )
                 {
-                    return createLabelFromString( posTypeTextPairIt->second.second + m_medSpacing );
+                    return createLabelFromString( posTickIt->second.label + m_medSpacing );
                 }
-                else if ( posTypeTextPairIt->second.first == QwtScaleDiv::MajorTick )
+                else if ( posTickIt->second.tickType == QwtScaleDiv::MajorTick )
                 {
-                    return createLabelFromString( posTypeTextPairIt->second.second + m_majSpacing );
+                    return createLabelFromString( posTickIt->second.label + m_majSpacing );
                 }
 
                 else
                 {
-                    return createLabelFromString( posTypeTextPairIt->second.second );
+                    return createLabelFromString( posTickIt->second.label );
                 }
             }
             else
             {
-                return createLabelFromString( posTypeTextPairIt->second.second );
+                return createLabelFromString( posTickIt->second.label );
             }
         }
         else
@@ -184,8 +200,25 @@ public:
         }
     }
 
-    // Override to draw text labels at medium and minor ticks also
+    QPoint translateToOppositeSide( QPainter* painter, double value ) const
+    {
+        QwtText lbl           = tickLabel( painter->font(), value );
+        QSizeF  labelSize     = lbl.textSize( painter->font() );
+        QPointF localLabelPos = labelPosition( value ) - pos();
 
+        // Only support shifting labels for horizontal bars.
+        if ( alignment() == RightScale )
+        {
+            return QPoint( -2 * localLabelPos.x() - labelSize.width(), 0 );
+        }
+        else if ( alignment() == LeftScale )
+        {
+            return QPoint( 2 * localLabelPos.x() + labelSize.width(), 0 );
+        }
+        return QPoint( 0, 0 );
+    }
+
+    // Override to draw text labels at medium and minor ticks also
     void draw( QPainter* painter, const QPalette& palette ) const override
     {
         QwtScaleDraw::draw( painter, palette );
@@ -200,7 +233,21 @@ public:
             for ( int i = 0; i < mediumTicks.count(); i++ )
             {
                 const double v = mediumTicks[i];
-                if ( scaleDiv().contains( v ) ) drawLabel( painter, mediumTicks[i] );
+                if ( scaleDiv().contains( v ) )
+                {
+                    auto it           = m_posTickTypeAndTexts.find( v );
+                    bool oppositeSide = it != m_posTickTypeAndTexts.end() ? it->second.oppositeSide : false;
+                    if ( oppositeSide )
+                    {
+                        painter->save();
+                        painter->translate( translateToOppositeSide( painter, v ) );
+                    }
+                    drawLabel( painter, mediumTicks[i] );
+                    if ( oppositeSide )
+                    {
+                        painter->restore();
+                    }
+                }
             }
 
             const QList<double>& minorTicks = scaleDiv().ticks( QwtScaleDiv::MinorTick );
@@ -208,7 +255,22 @@ public:
             for ( int i = 0; i < minorTicks.count(); i++ )
             {
                 const double v = minorTicks[i];
-                if ( scaleDiv().contains( v ) ) drawLabel( painter, minorTicks[i] );
+                if ( scaleDiv().contains( v ) )
+                {
+                    auto it           = m_posTickTypeAndTexts.find( v );
+                    bool oppositeSide = it != m_posTickTypeAndTexts.end() ? it->second.oppositeSide : false;
+                    if ( oppositeSide )
+                    {
+                        painter->save();
+                        painter->translate( translateToOppositeSide( painter, v ) );
+                    }
+
+                    drawLabel( painter, minorTicks[i] );
+                    if ( oppositeSide )
+                    {
+                        painter->restore();
+                    }
+                }
             }
 
             painter->restore();
@@ -219,7 +281,7 @@ protected:
     virtual void drawBackbone( QPainter* ) const override {}
 
 private:
-    std::map<double, std::pair<QwtScaleDiv::TickType, QString>> m_posTickTypeAndTexts;
+    std::map<double, RiuBarChartTick> m_posTickTypeAndTexts;
 
     QString m_medLineBreak;
     QString m_majLineBreak;
@@ -285,8 +347,8 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
 
     std::map<QString, QVector<QPointF>> legendToBarPointsMap;
 
-    std::map<double, std::pair<QwtScaleDiv::TickType, QString>> groupPositionedAxisTexts;
-    std::map<double, std::pair<QwtScaleDiv::TickType, QString>> positionedBarLabels;
+    std::map<double, RiuBarChartScaleDraw::RiuBarChartTick> groupPositionedAxisTexts;
+    std::map<double, RiuBarChartScaleDraw::RiuBarChartTick> positionedBarLabels;
 
     QList<double> majTickPositions;
     QList<double> midTickPositions;
@@ -407,7 +469,7 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
         if( ttyp == QwtScaleDiv::MinorTick ) tickPos += 2e-4;
         if( ttyp == QwtScaleDiv::MediumTick ) tickPos += 1e-4;
 
-        groupPositionedAxisTexts[tickPos] = { ttyp, tickText };
+        groupPositionedAxisTexts[tickPos] = RiuBarChartScaleDraw::RiuBarChartTick(ttyp, tickText, true);
 
         groupTickPosList.push_back( tickPos );
     };
@@ -527,7 +589,8 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
         barPoints->push_back( {currentBarPosition, barDef.m_value} );
         if ( !barDef.m_barText.isEmpty() )
         {
-            positionedBarLabels[currentBarPosition] = {QwtScaleDiv::MinorTick, barDef.m_barText};
+            positionedBarLabels[currentBarPosition] =
+                RiuBarChartScaleDraw::RiuBarChartTick( QwtScaleDiv::MinorTick, barDef.m_barText, barDef.m_value < 0.0 );
         }
 
         // Increment the bar position for the next bar
