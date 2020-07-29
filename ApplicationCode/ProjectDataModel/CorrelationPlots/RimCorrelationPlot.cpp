@@ -140,6 +140,7 @@ void RimCorrelationPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 
     curveDataGroup->add( &m_selectedVarsUiField );
     curveDataGroup->add( &m_pushButtonSelectSummaryAddress, {false, 1, 0} );
+    curveDataGroup->add( &m_timeStepFilter );
     curveDataGroup->add( &m_timeStep );
 
     caf::PdmUiGroup* plotGroup = uiOrdering.addNewGroup( "Plot Settings" );

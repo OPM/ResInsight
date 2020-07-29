@@ -22,6 +22,7 @@
 
 #include "RimPlot.h"
 #include "RimSummaryCaseCollection.h"
+#include "RimTimeStepFilter.h"
 
 #include "cafPdmPtrField.h"
 
@@ -37,6 +38,9 @@ class RimSummaryAddress;
 class RimAbstractCorrelationPlot : public RimPlot
 {
     CAF_PDM_HEADER_INIT;
+
+public:
+    using TimeStepFilterEnum = caf::AppEnum<RimTimeStepFilter::TimeStepFilterTypeEnum>;
 
 public:
     RimAbstractCorrelationPlot();
@@ -120,9 +124,10 @@ protected:
     // Fields
     caf::PdmChildArrayField<RimAnalysisPlotDataEntry*> m_analysisPlotDataSelection;
 
-    caf::PdmField<QString>   m_selectedVarsUiField;
-    caf::PdmField<bool>      m_pushButtonSelectSummaryAddress;
-    caf::PdmField<QDateTime> m_timeStep;
+    caf::PdmField<QString>            m_selectedVarsUiField;
+    caf::PdmField<bool>               m_pushButtonSelectSummaryAddress;
+    caf::PdmField<TimeStepFilterEnum> m_timeStepFilter;
+    caf::PdmField<QDateTime>          m_timeStep;
 
     caf::PdmField<bool>    m_showPlotTitle;
     caf::PdmField<bool>    m_useAutoPlotTitle;

@@ -45,6 +45,8 @@ RimAbstractCorrelationPlot::RimAbstractCorrelationPlot()
     m_pushButtonSelectSummaryAddress.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_pushButtonSelectSummaryAddress = false;
 
+    CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Time Step Filter", "", "", "" );
+
     CAF_PDM_InitFieldNoDefault( &m_timeStep, "TimeStep", "Time Step", "", "", "" );
     m_timeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
@@ -150,6 +152,32 @@ void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
     {
         this->loadDataAndUpdate();
     }
+    else if ( changedField == &m_timeStepFilter )
+    {
+        std::vector<QDateTime> allDateTimes;
+        for ( time_t timeStep : allAvailableTimeSteps() )
+        {
+            QDateTime dateTime = RiaQDateTimeTools::fromTime_t( timeStep );
+            allDateTimes.push_back( dateTime );
+        }
+
+        std::vector<int> filteredTimeStepIndices =
+            RimTimeStepFilter::filteredTimeStepIndices( allDateTimes, 0, (int)allDateTimes.size() - 1, m_timeStepFilter(), 1 );
+
+        QDateTime closestTimeStep;
+        for ( int timeStepIndex : filteredTimeStepIndices )
+        {
+            qint64 currentDiff = std::abs( allDateTimes[timeStepIndex].secsTo( m_timeStep() ) );
+            qint64 closestDiff = std::abs( closestTimeStep.secsTo( m_timeStep() ) );
+            if ( closestTimeStep.isNull() || currentDiff < closestDiff )
+            {
+                closestTimeStep = allDateTimes[timeStepIndex];
+                if ( currentDiff == 0 ) break;
+            }
+        }
+        m_timeStep = closestTimeStep;
+        this->updateConnectedEditors();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -185,13 +213,21 @@ QList<caf::PdmOptionItemInfo>
     if ( fieldNeedingOptions == &m_timeStep )
     {
         std::set<time_t> allTimeSteps = allAvailableTimeSteps();
+        if ( allTimeSteps.empty() )
+        {
+            CAF_ASSERT( false && "No time steps found" );
+            return options;
+        }
 
-        std::map<QDate, std::vector<QTime>> timeStepsDateMap;
+        std::vector<QDateTime> allDateTimes;
         for ( time_t timeStep : allTimeSteps )
         {
-            QDateTime dateTime = QDateTime::fromTime_t( timeStep );
-            timeStepsDateMap[dateTime.date()].push_back( dateTime.time() );
+            QDateTime dateTime = RiaQDateTimeTools::fromTime_t( timeStep );
+            allDateTimes.push_back( dateTime );
         }
+
+        std::vector<int> filteredTimeStepIndices =
+            RimTimeStepFilter::filteredTimeStepIndices( allDateTimes, 0, (int)allDateTimes.size() - 1, m_timeStepFilter(), 1 );
 
         QString dateFormatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
                                                                         RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
@@ -199,19 +235,14 @@ QList<caf::PdmOptionItemInfo>
             RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
                                                  RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
 
-        for ( auto dateTimePair : timeStepsDateMap )
+        for ( auto timeStepIndex : filteredTimeStepIndices )
         {
-            QDate date          = dateTimePair.first;
-            bool  multipleTimes = dateTimePair.second.size() > 1u;
-            for ( auto time : dateTimePair.second )
-            {
-                QString timestepString = date.toString( dateFormatString );
-                if ( multipleTimes )
-                {
-                    timestepString += QString( " %1" ).arg( time.toString( timeFormatString ) );
-                }
-                options.push_back( caf::PdmOptionItemInfo( timestepString, QDateTime( date, time ) ) );
-            }
+            QDateTime dateTime       = allDateTimes[timeStepIndex];
+            QString   dateTimeFormat = QString( "%1 %2" ).arg( dateFormatString ).arg( timeFormatString );
+
+            options.push_back(
+                caf::PdmOptionItemInfo( RiaQDateTimeTools::toStringUsingApplicationLocale( dateTime, dateTimeFormat ),
+                                        dateTime ) );
         }
     }
     else if ( fieldNeedingOptions == &m_labelFontSize || fieldNeedingOptions == &m_axisTitleFontSize ||
