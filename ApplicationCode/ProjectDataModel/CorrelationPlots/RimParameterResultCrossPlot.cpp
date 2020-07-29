@@ -300,10 +300,14 @@ void RimParameterResultCrossPlot::createPoints()
 //--------------------------------------------------------------------------------------------------
 void RimParameterResultCrossPlot::updatePlotTitle()
 {
-    if ( m_useAutoPlotTitle )
+    if ( m_useAutoPlotTitle && !ensembles().empty() )
     {
-        m_description =
-            QString( "Cross Plot %1 x %2 at %3" ).arg( m_ensembleParameter ).arg( m_selectedVarsUiField ).arg( timeStepString() );
+        auto ensemble = *ensembles().begin();
+        m_description = QString( "Cross Plot %1, %2 x %3 at %4" )
+                            .arg( ensemble->name() )
+                            .arg( m_ensembleParameter )
+                            .arg( m_selectedVarsUiField )
+                            .arg( timeStepString() );
     }
     m_plotWidget->setPlotTitle( m_description );
     m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && isMdiWindow() );

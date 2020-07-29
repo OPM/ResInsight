@@ -64,7 +64,7 @@ public:
     void setTopNFilterCount( int filterCount );
 
 signals:
-    void tornadoItemSelected( const EnsembleParameter&, const RiaSummaryCurveDefinition& curveDef );
+    void tornadoItemSelected( const QString&, const RiaSummaryCurveDefinition& curveDef );
 
 private:
     // Overridden PDM methods
