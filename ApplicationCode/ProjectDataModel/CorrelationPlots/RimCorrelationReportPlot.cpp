@@ -89,12 +89,12 @@ RimCorrelationReportPlot::RimCorrelationReportPlot()
     this->uiCapability()->setUiTreeChildrenHidden( true );
 
     this->connect( m_correlationMatrixPlot(),
-                   SIGNAL( matrixCellSelected( const EnsembleParameter&, const RiaSummaryCurveDefinition& ) ),
-                   SLOT( onDataSelection( const EnsembleParameter&, const RiaSummaryCurveDefinition& ) ) );
+                   SIGNAL( matrixCellSelected( const QString&, const RiaSummaryCurveDefinition& ) ),
+                   SLOT( onDataSelection( const QString&, const RiaSummaryCurveDefinition& ) ) );
 
     this->connect( m_correlationPlot(),
-                   SIGNAL( tornadoItemSelected( const EnsembleParameter&, const RiaSummaryCurveDefinition& ) ),
-                   SLOT( onDataSelection( const EnsembleParameter&, const RiaSummaryCurveDefinition& ) ) );
+                   SIGNAL( tornadoItemSelected( const QString&, const RiaSummaryCurveDefinition& ) ),
+                   SLOT( onDataSelection( const QString&, const RiaSummaryCurveDefinition& ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -405,12 +405,12 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCorrelationReportPlot::onDataSelection( const EnsembleParameter& param, const RiaSummaryCurveDefinition& curveDef )
+void RimCorrelationReportPlot::onDataSelection( const QString& paramName, const RiaSummaryCurveDefinition& curveDef )
 {
     m_correlationPlot->setCurveDefinitions( {curveDef} );
     m_correlationPlot->loadDataAndUpdate();
     m_parameterResultCrossPlot->setCurveDefinitions( {curveDef} );
-    m_parameterResultCrossPlot->setEnsembleParameter( param.name );
+    m_parameterResultCrossPlot->setEnsembleParameter( paramName );
     m_parameterResultCrossPlot->loadDataAndUpdate();
     if ( m_viewer )
     {

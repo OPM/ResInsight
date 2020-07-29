@@ -79,7 +79,7 @@ private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
 private slots:
-    void onDataSelection( const EnsembleParameter& param, const RiaSummaryCurveDefinition& curveDef );
+    void onDataSelection( const QString& paramName, const RiaSummaryCurveDefinition& curveDef );
 
 private:
     caf::PdmProxyValueField<QString> m_plotWindowTitle;

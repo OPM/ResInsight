@@ -80,7 +80,7 @@ public:
     }
 
 public:
-    EnsembleParameter         parameter;
+    QString                   parameter;
     RiaSummaryCurveDefinition curveDef;
 };
 
@@ -140,8 +140,8 @@ public:
     double                 m_correlationAbsSum;
 };
 
-using CorrelationMatrixColumn = CorrelationMatrixRowOrColumn<EnsembleParameter, RiaSummaryCurveDefinition>;
-using CorrelationMatrixRow    = CorrelationMatrixRowOrColumn<RiaSummaryCurveDefinition, EnsembleParameter>;
+using CorrelationMatrixColumn = CorrelationMatrixRowOrColumn<QString, RiaSummaryCurveDefinition>;
+using CorrelationMatrixRow    = CorrelationMatrixRowOrColumn<RiaSummaryCurveDefinition, QString>;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -493,12 +493,12 @@ void RimCorrelationMatrixPlot::createMatrix()
     auto curveDefs = curveDefinitions();
     if ( curveDefs.empty() ) return;
 
+    QStringList ensembleNames;
+
     std::vector<CorrelationMatrixColumn> correlationMatrixColumns;
 
     for ( QString paramName : m_selectedParametersList() )
     {
-        EnsembleParameter parameter;
-
         bool                                   anyValidResults = false;
         std::vector<double>                    correlations;
         std::vector<RiaSummaryCurveDefinition> selectedCurveDefs;
@@ -513,10 +513,7 @@ void RimCorrelationMatrixPlot::createMatrix()
                 std::vector<double> caseValuesAtTimestep;
                 std::vector<double> parameterValues;
 
-                if ( !parameter.isValid() )
-                {
-                    parameter = ensemble->ensembleParameter( paramName );
-                }
+                EnsembleParameter parameter = ensemble->ensembleParameter( paramName );
 
                 if ( parameter.isValid() )
                 {
@@ -572,12 +569,13 @@ void RimCorrelationMatrixPlot::createMatrix()
                     }
                     correlations.push_back( correlation );
                     selectedCurveDefs.push_back( curveDef );
+                    ensembleNames.push_back( ensemble->name() );
                 }
             }
         }
         if ( anyValidResults )
         {
-            correlationMatrixColumns.push_back( CorrelationMatrixColumn( parameter, correlations, selectedCurveDefs ) );
+            correlationMatrixColumns.push_back( CorrelationMatrixColumn( paramName, correlations, selectedCurveDefs ) );
         }
     }
 
@@ -606,13 +604,16 @@ void RimCorrelationMatrixPlot::createMatrix()
         }
     }
 
+    ensembleNames.removeDuplicates();
+    QString combinedEnsembleNames = ensembleNames.join( ";; " );
     for ( size_t rowIdx = 0u; rowIdx < correlationMatrixRows.size(); ++rowIdx )
     {
         for ( size_t colIdx = 0u; colIdx < correlationMatrixRows[rowIdx].m_correlations.size(); ++colIdx )
         {
-            double        correlation = correlationMatrixRows[rowIdx].m_correlations[colIdx];
-            auto          label       = QString( "%1" ).arg( correlation, 0, 'f', 2 );
-            cvf::Color3ub color       = m_legendConfig->scalarMapper()->mapToColor( correlation );
+            double correlation = correlationMatrixRows[rowIdx].m_correlations[colIdx];
+            auto   label       = QString( "%1" ).arg( correlation, 0, 'f', 2 );
+
+            cvf::Color3ub color = m_legendConfig->scalarMapper()->mapToColor( correlation );
             QColor        qColor( color.r(), color.g(), color.b() );
             auto          rectangle = RiuQwtPlotTools::createBoxShapeT<CorrelationMatrixShapeItem>( label,
                                                                                            (double)colIdx,
@@ -634,9 +635,15 @@ void RimCorrelationMatrixPlot::createMatrix()
             marker->setYValue( rowIdx + 0.5 );
             rectangle->attach( m_plotWidget );
             marker->attach( m_plotWidget );
-            m_paramLabels[colIdx] = correlationMatrixRows[rowIdx].m_values[colIdx].name;
+
+            m_paramLabels[colIdx] = correlationMatrixRows[rowIdx].m_values[colIdx];
         }
-        m_resultLabels[rowIdx] = correlationMatrixRows[rowIdx].m_key.curveDefinitionText();
+        // Remove ensemble name from label if we only have one ensemble
+        // If we have multiple ensembles, no labels contain the combined ensemble names.
+        QString resultLabel = correlationMatrixRows[rowIdx].m_key.curveDefinitionText();
+        resultLabel.remove( combinedEnsembleNames + ", " );
+
+        m_resultLabels[rowIdx] = resultLabel;
     }
 }
 

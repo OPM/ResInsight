@@ -62,7 +62,7 @@ public:
     int                     topNFilterCount() const;
 
 signals:
-    void matrixCellSelected( const EnsembleParameter&, const RiaSummaryCurveDefinition& );
+    void matrixCellSelected( const QString&, const RiaSummaryCurveDefinition& );
 
 private:
     // Overridden PDM methods
