@@ -301,10 +301,8 @@ void RimParameterResultCrossPlot::updatePlotTitle()
 {
     if ( m_useAutoPlotTitle )
     {
-        m_description = QString( "Cross Plot %1 x %2 at %3" )
-                            .arg( m_ensembleParameter )
-                            .arg( m_selectedVarsUiField )
-                            .arg( timeStepString() );
+        m_description =
+            QString( "Cross Plot %1 x %2 at %3" ).arg( m_ensembleParameter ).arg( m_selectedVarsUiField ).arg( timeStepString() );
     }
     m_plotWidget->setPlotTitle( m_description );
     m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && isMdiWindow() );
