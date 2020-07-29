@@ -58,6 +58,8 @@ public:
     bool                    sortByAbsoluteValues() const;
     RimRegularLegendConfig* legendConfig();
     void                    selectAllParameters();
+    bool                    showTopNCorrelations() const;
+    int                     topNFilterCount() const;
 
 signals:
     void matrixCellSelected( const EnsembleParameter&, const RiaSummaryCurveDefinition& );
@@ -90,7 +92,7 @@ private:
     caf::PdmField<bool>                  m_sortByAbsoluteValues;
     caf::PdmField<bool>                  m_excludeParametersWithoutVariation;
     caf::PdmField<bool>                  m_showOnlyTopNCorrelations;
-    caf::PdmField<size_t>                m_topNFilterCount;
+    caf::PdmField<int>                   m_topNFilterCount;
     caf::PdmField<std::vector<QString>>  m_selectedParametersList;
 
     caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
