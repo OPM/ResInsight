@@ -67,6 +67,7 @@ CAF_PDM_SOURCE_INIT( RimCorrelationPlot, "CorrelationPlot" );
 //--------------------------------------------------------------------------------------------------
 RimCorrelationPlot::RimCorrelationPlot()
     : RimAbstractCorrelationPlot()
+    , tornadoItemSelected( this )
 {
     CAF_PDM_InitObject( "Correlation Tornado Plot", ":/CorrelationTornadoPlot16x16.png", "", "" );
 
@@ -372,7 +373,7 @@ void RimCorrelationPlot::onPlotItemSelected( QwtPlotItem* plotItem, bool toggle,
         {
             if ( barTitle.text() == param.name )
             {
-                emit tornadoItemSelected( param.name, curveDef );
+                tornadoItemSelected.send( std::make_pair( param.name, curveDef ) );
             }
         }
     }

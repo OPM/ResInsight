@@ -35,8 +35,10 @@ class RiuGroupedBarChartBuilder;
 //==================================================================================================
 class RimCorrelationPlot : public RimAbstractCorrelationPlot
 {
-    Q_OBJECT;
     CAF_PDM_HEADER_INIT;
+
+public:
+    caf::Signal<std::pair<QString, RiaSummaryCurveDefinition>> tornadoItemSelected;
 
 public:
     enum class CorrelationFactor
@@ -62,9 +64,6 @@ public:
 
     void setShowOnlyTopNCorrelations( bool showOnlyTopNCorrelations );
     void setTopNFilterCount( int filterCount );
-
-signals:
-    void tornadoItemSelected( const QString&, const RiaSummaryCurveDefinition& curveDef );
 
 private:
     // Overridden PDM methods
