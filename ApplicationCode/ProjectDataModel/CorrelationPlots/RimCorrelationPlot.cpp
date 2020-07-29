@@ -19,6 +19,7 @@
 #include "RimCorrelationPlot.h"
 
 #include "RiaPreferences.h"
+#include "RiaQDateTimeTools.h"
 #include "RiaStatisticsTools.h"
 #include "RiuGroupedBarChartBuilder.h"
 #include "RiuPlotMainWindowTools.h"
@@ -329,7 +330,8 @@ void RimCorrelationPlot::updatePlotTitle()
 {
     if ( m_useAutoPlotTitle )
     {
-        m_description = QString( "%1 for %2" ).arg( m_correlationFactor().uiText() ).arg( m_selectedVarsUiField );
+        m_description =
+            QString( "%1 for %2 at %3" ).arg( m_correlationFactor().uiText() ).arg( m_selectedVarsUiField ).arg( timeStepString() );
     }
     m_plotWidget->setPlotTitle( m_description );
     m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && isMdiWindow() );

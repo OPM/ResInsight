@@ -20,6 +20,7 @@
 
 #include "RiaColorTools.h"
 #include "RiaPreferences.h"
+#include "RiaQDateTimeTools.h"
 #include "RiaStatisticsTools.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtLinearScaleEngine.h"
@@ -629,7 +630,9 @@ void RimCorrelationMatrixPlot::updatePlotTitle()
 {
     if ( m_useAutoPlotTitle )
     {
-        m_description = QString( "%1 Matrix for Parameters vs Result Vectors" ).arg( m_correlationFactor().uiText() );
+        m_description = QString( "%1 Matrix for Parameters vs Result Vectors at %2" )
+                            .arg( m_correlationFactor().uiText() )
+                            .arg( timeStepString() );
     }
 
     if ( m_plotWidget )

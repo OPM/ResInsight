@@ -1,6 +1,7 @@
 #include "RimAbstractCorrelationPlot.h"
 
 #include "RiaPreferences.h"
+#include "RiaQDateTimeTools.h"
 #include "RiaSummaryCurveDefinition.h"
 
 #include "RifSummaryReaderInterface.h"
@@ -184,11 +185,33 @@ QList<caf::PdmOptionItemInfo>
     if ( fieldNeedingOptions == &m_timeStep )
     {
         std::set<time_t> allTimeSteps = allAvailableTimeSteps();
+
+        std::map<QDate, std::vector<QTime>> timeStepsDateMap;
         for ( time_t timeStep : allTimeSteps )
         {
-            QDateTime dateTime       = QDateTime::fromTime_t( timeStep );
-            QString   timestepString = dateTime.toString( Qt::ISODate );
-            options.push_back( caf::PdmOptionItemInfo( timestepString, dateTime ) );
+            QDateTime dateTime = QDateTime::fromTime_t( timeStep );
+            timeStepsDateMap[dateTime.date()].push_back( dateTime.time() );
+        }
+
+        QString dateFormatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
+                                                                        RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
+        QString timeFormatString =
+            RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
+                                                 RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
+
+        for ( auto dateTimePair : timeStepsDateMap )
+        {
+            QDate date          = dateTimePair.first;
+            bool  multipleTimes = dateTimePair.second.size() > 1u;
+            for ( auto time : dateTimePair.second )
+            {
+                QString timestepString = date.toString( dateFormatString );
+                if ( multipleTimes )
+                {
+                    timestepString += QString( " %1" ).arg( time.toString( timeFormatString ) );
+                }
+                options.push_back( caf::PdmOptionItemInfo( timestepString, QDateTime( date, time ) ) );
+            }
         }
     }
     else if ( fieldNeedingOptions == &m_labelFontSize || fieldNeedingOptions == &m_axisTitleFontSize ||
@@ -401,6 +424,20 @@ void RimAbstractCorrelationPlot::detachAllCurves()
 QDateTime RimAbstractCorrelationPlot::timeStep() const
 {
     return m_timeStep();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimAbstractCorrelationPlot::timeStepString() const
+{
+    QString dateFormatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
+                                                                    RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
+    QString timeFormatString =
+        RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
+                                             RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
+
+    return timeStep().toString( dateFormatString ) + " " + timeStep().toString( timeFormatString );
 }
 
 //--------------------------------------------------------------------------------------------------

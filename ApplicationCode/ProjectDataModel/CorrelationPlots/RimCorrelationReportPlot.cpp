@@ -18,6 +18,7 @@
 #include "RimCorrelationReportPlot.h"
 
 #include "RiaPreferences.h"
+#include "RiaQDateTimeTools.h"
 #include "RiaSummaryCurveDefinition.h"
 
 #include "RimCorrelationMatrixPlot.h"
@@ -219,12 +220,12 @@ QString RimCorrelationReportPlot::createPlotWindowTitle() const
     {
         if ( entry.ensemble() )
         {
-            ensembles.push_back( entry.ensemble()->uiName() );
+            ensembles.push_back( entry.ensemble()->name() );
         }
     }
     ensembles.removeDuplicates();
     QString ensembleNames = ensembles.join( ", " );
-    QString timeStep      = m_correlationMatrixPlot->timeStep().toString( Qt::ISODate );
+    QString timeStep      = m_correlationMatrixPlot->timeStepString();
 
     return QString( "Correlation Report for %1 at %2" ).arg( ensembleNames ).arg( timeStep );
 }

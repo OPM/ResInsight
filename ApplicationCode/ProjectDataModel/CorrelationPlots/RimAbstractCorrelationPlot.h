@@ -50,6 +50,7 @@ public:
     RiuQwtPlotWidget*                   viewer() override;
     void                                detachAllCurves() override;
     QDateTime                           timeStep() const;
+    QString                             timeStepString() const;
 
     int labelFontSize() const;
     int axisTitleFontSize() const;

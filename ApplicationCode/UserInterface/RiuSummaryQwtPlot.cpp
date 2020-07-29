@@ -65,7 +65,6 @@
 #include "qwt_scale_div.h"
 #include "qwt_scale_draw.h"
 #include "qwt_scale_engine.h"
-
 #include <QEvent>
 #include <QMenu>
 #include <QMouseEvent>
