@@ -88,13 +88,8 @@ RimCorrelationReportPlot::RimCorrelationReportPlot()
 
     this->uiCapability()->setUiTreeChildrenHidden( true );
 
-    this->connect( m_correlationMatrixPlot(),
-                   SIGNAL( matrixCellSelected( const QString&, const RiaSummaryCurveDefinition& ) ),
-                   SLOT( onDataSelection( const QString&, const RiaSummaryCurveDefinition& ) ) );
-
-    this->connect( m_correlationPlot(),
-                   SIGNAL( tornadoItemSelected( const QString&, const RiaSummaryCurveDefinition& ) ),
-                   SLOT( onDataSelection( const QString&, const RiaSummaryCurveDefinition& ) ) );
+    m_correlationMatrixPlot->matrixCellSelected.connect( this, &RimCorrelationReportPlot::onDataSelection );
+    m_correlationPlot->tornadoItemSelected.connect( this, &RimCorrelationReportPlot::onDataSelection );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -402,11 +397,12 @@ QList<caf::PdmOptionItemInfo>
     return options;
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimCorrelationReportPlot::onDataSelection( const QString& paramName, const RiaSummaryCurveDefinition& curveDef )
+void RimCorrelationReportPlot::onDataSelection( const caf::SignalEmitter*                     emitter,
+                                                std::pair<QString, RiaSummaryCurveDefinition> parameterAndCurveDef )
 {
+    auto paramName = parameterAndCurveDef.first;
+    auto curveDef  = parameterAndCurveDef.second;
+
     m_correlationPlot->setCurveDefinitions( {curveDef} );
     m_correlationPlot->loadDataAndUpdate();
     m_parameterResultCrossPlot->setCurveDefinitions( {curveDef} );

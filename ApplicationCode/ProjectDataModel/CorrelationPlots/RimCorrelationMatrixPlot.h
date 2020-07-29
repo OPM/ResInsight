@@ -33,8 +33,10 @@ class RiuGroupedBarChartBuilder;
 //==================================================================================================
 class RimCorrelationMatrixPlot : public RimAbstractCorrelationPlot
 {
-    Q_OBJECT;
     CAF_PDM_HEADER_INIT;
+
+public:
+    caf::Signal<std::pair<QString, RiaSummaryCurveDefinition>> matrixCellSelected;
 
 public:
     using CorrelationFactor     = RimCorrelationPlot::CorrelationFactor;
@@ -60,9 +62,6 @@ public:
     void                    selectAllParameters();
     bool                    showTopNCorrelations() const;
     int                     topNFilterCount() const;
-
-signals:
-    void matrixCellSelected( const QString&, const RiaSummaryCurveDefinition& );
 
 private:
     // Overridden PDM methods

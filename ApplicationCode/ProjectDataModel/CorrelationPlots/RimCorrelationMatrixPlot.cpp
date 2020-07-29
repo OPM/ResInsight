@@ -148,6 +148,7 @@ using CorrelationMatrixRow    = CorrelationMatrixRowOrColumn<RiaSummaryCurveDefi
 //--------------------------------------------------------------------------------------------------
 RimCorrelationMatrixPlot::RimCorrelationMatrixPlot()
     : RimAbstractCorrelationPlot()
+    , matrixCellSelected( this )
 {
     CAF_PDM_InitObject( "Correlation Plot", ":/CorrelationMatrixPlot16x16.png", "", "" );
 
@@ -686,6 +687,6 @@ void RimCorrelationMatrixPlot::onPlotItemSelected( QwtPlotItem* plotItem, bool t
     CorrelationMatrixShapeItem* matrixItem = dynamic_cast<CorrelationMatrixShapeItem*>( plotItem );
     if ( matrixItem )
     {
-        emit matrixCellSelected( matrixItem->parameter, matrixItem->curveDef );
+        matrixCellSelected.send( std::make_pair( matrixItem->parameter, matrixItem->curveDef ) );
     }
 }
