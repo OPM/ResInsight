@@ -116,6 +116,7 @@ void RimParameterResultCrossPlot::defineUiOrdering( QString uiConfigName, caf::P
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector" );
     curveDataGroup->add( &m_selectedVarsUiField );
     curveDataGroup->add( &m_pushButtonSelectSummaryAddress, {false, 1, 0} );
+    curveDataGroup->add( &m_timeStepFilter );
     curveDataGroup->add( &m_timeStep );
 
     caf::PdmUiGroup* crossPlotGroup = uiOrdering.addNewGroup( "Cross Plot Parameters" );
@@ -301,10 +302,8 @@ void RimParameterResultCrossPlot::updatePlotTitle()
 {
     if ( m_useAutoPlotTitle )
     {
-        m_description = QString( "Cross Plot %1 x %2 at %3" )
-                            .arg( m_ensembleParameter )
-                            .arg( m_selectedVarsUiField )
-                            .arg( timeStepString() );
+        m_description =
+            QString( "Cross Plot %1 x %2 at %3" ).arg( m_ensembleParameter ).arg( m_selectedVarsUiField ).arg( timeStepString() );
     }
     m_plotWidget->setPlotTitle( m_description );
     m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && isMdiWindow() );

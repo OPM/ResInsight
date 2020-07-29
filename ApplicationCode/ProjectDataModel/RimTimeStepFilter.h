@@ -50,12 +50,19 @@ public:
 
     void clearFilteredTimeSteps();
 
-    void                setTimeStepsFromFile( const std::vector<QDateTime>& timeSteps );
-    void                setTimeStepsFromFile( const std::vector<std::pair<QString, QDateTime>>& timeSteps );
-    std::vector<size_t> filteredTimeSteps() const;
-    bool                updateFilteredTimeStepsFromUi();
+    void                    setTimeStepsFromFile( const std::vector<QDateTime>& timeSteps );
+    void                    setTimeStepsFromFile( const std::vector<std::pair<QString, QDateTime>>& timeSteps );
+    std::vector<size_t>     filteredTimeSteps() const;
+    bool                    updateFilteredTimeStepsFromUi();
+    static std::vector<int> filteredTimeStepIndices( const std::vector<QDateTime>& timeSteps,
+                                                     int                           firstTimeStep,
+                                                     int                           lastTimeStep,
+                                                     TimeStepFilterTypeEnum        filterType,
+                                                     int                           interval );
 
 private:
+    static QDateTime incrementDateTime( const QDateTime& dateTime, TimeStepFilterTypeEnum filterType, int interval );
+
     std::vector<std::pair<QString, QDateTime>> allTimeSteps() const;
     std::vector<int>                           filteredTimeStepIndicesFromUi() const;
 

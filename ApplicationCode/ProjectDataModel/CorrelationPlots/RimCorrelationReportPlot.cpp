@@ -303,9 +303,9 @@ void RimCorrelationReportPlot::onLoadDataAndUpdate()
     updateMdiWindowVisibility();
     if ( m_showWindow )
     {
-        // auto curveDefs = m_correlationMatrixPlot->curveDefinitions();
-        // m_correlationPlot->setCurveDefinitions( curveDefs );
-        // m_parameterResultCrossPlot->setCurveDefinitions( curveDefs );
+        auto timeStep = m_correlationMatrixPlot->timeStep().toTime_t();
+        m_correlationPlot->setTimeStep( timeStep );
+        m_parameterResultCrossPlot->setTimeStep( timeStep );
 
         m_correlationMatrixPlot->setLabelFontSize( m_labelFontSize() );
         m_correlationMatrixPlot->setAxisTitleFontSize( m_axisTitleFontSize() );
@@ -327,6 +327,7 @@ void RimCorrelationReportPlot::onLoadDataAndUpdate()
         m_correlationMatrixPlot->loadDataAndUpdate();
         m_correlationPlot->loadDataAndUpdate();
         m_parameterResultCrossPlot->loadDataAndUpdate();
+        m_viewer->setPlotTitle( m_plotWindowTitle() );
     }
     updateLayout();
 }
