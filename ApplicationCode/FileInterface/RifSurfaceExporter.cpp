@@ -105,7 +105,7 @@ bool RifSurfaceExporter::writePetrellPtlFile( const QString&                    
     out << "#Units: meters \n";
     out << "#End:  \n";
     out << "#Information from grid \n";
-    out << "#Grid_size: Not_avaiable \n";
+    out << "#Grid_size: Not_available \n";
     out << "#Grid_space: Not_available \n";
     out << "#Z_field: z \n";
     out << "#Vertical_faults: Not_available \n";
