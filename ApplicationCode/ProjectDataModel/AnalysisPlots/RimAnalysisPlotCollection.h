@@ -44,5 +44,8 @@ public:
     void deleteAllChildObjects();
 
 private:
+    void applyFirstEnsembleFieldAddressesToPlot( RimAnalysisPlot* plot, const std::string& quantityName = "" );
+
+private:
     caf::PdmChildArrayField<RimAnalysisPlot*> m_analysisPlots;
 };

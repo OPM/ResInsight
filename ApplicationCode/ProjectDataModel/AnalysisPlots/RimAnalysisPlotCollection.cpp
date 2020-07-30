@@ -19,6 +19,7 @@
 #include "RimAnalysisPlotCollection.h"
 
 #include "RimAnalysisPlot.h"
+#include "RimProject.h"
 
 CAF_PDM_SOURCE_INIT( RimAnalysisPlotCollection, "AnalysisPlotCollection" );
 
@@ -48,8 +49,13 @@ RimAnalysisPlot* RimAnalysisPlotCollection::createAnalysisPlot()
     RimAnalysisPlot* plot = new RimAnalysisPlot();
     plot->setAsPlotMdiWindow();
 
+    applyFirstEnsembleFieldAddressesToPlot( plot, "FOPT" );
+
     // plot->enableAutoPlotTitle( true );
     m_analysisPlots.push_back( plot );
+
+    plot->loadDataAndUpdate();
+    plot->updateConnectedEditors();
 
     return plot;
 }
@@ -87,4 +93,33 @@ std::vector<RimAnalysisPlot*> RimAnalysisPlotCollection::plots()
 void RimAnalysisPlotCollection::deleteAllChildObjects()
 {
     m_analysisPlots.deleteAllChildObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnalysisPlotCollection::applyFirstEnsembleFieldAddressesToPlot( RimAnalysisPlot*   plot,
+                                                                        const std::string& quantityName )
+{
+    std::vector<RimSummaryCaseCollection*> ensembles;
+    RimProject::current()->descendantsIncludingThisOfType( ensembles );
+    if ( !ensembles.empty() )
+    {
+        std::set<RifEclipseSummaryAddress>     allAddresses = ensembles.front()->ensembleSummaryAddresses();
+        std::vector<RiaSummaryCurveDefinition> curveDefs;
+        for ( auto address : allAddresses )
+        {
+            if ( address.category() == RifEclipseSummaryAddress::SUMMARY_FIELD )
+            {
+                if ( quantityName.empty() || quantityName == address.quantityName() )
+                {
+                    for ( auto summaryCase : ensembles.front()->allSummaryCases() )
+                    {
+                        curveDefs.push_back( RiaSummaryCurveDefinition( summaryCase, address, nullptr ) );
+                    }
+                }
+            }
+        }
+        plot->setCurveDefinitions( curveDefs );
+    }
 }

@@ -560,20 +560,17 @@ time_t RimAbstractCorrelationPlot::timeDiff( time_t lhs, time_t rhs )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimAbstractCorrelationPlot::selectedVarsText() const
+QString RimAbstractCorrelationPlot::selectedVarsText()
 {
     QString vectorNames;
-    if ( m_analyserOfSelectedCurveDefs )
+    for ( const std::string& quantityName : getOrCreateSelectedCurveDefAnalyser()->m_quantityNames )
     {
-        for ( const std::string& quantityName : m_analyserOfSelectedCurveDefs->m_quantityNames )
-        {
-            vectorNames += QString::fromStdString( quantityName ) + ", ";
-        }
+        vectorNames += QString::fromStdString( quantityName ) + ", ";
+    }
 
-        if ( !vectorNames.isEmpty() )
-        {
-            vectorNames.chop( 2 );
-        }
+    if ( !vectorNames.isEmpty() )
+    {
+        vectorNames.chop( 2 );
     }
 
     return vectorNames;
