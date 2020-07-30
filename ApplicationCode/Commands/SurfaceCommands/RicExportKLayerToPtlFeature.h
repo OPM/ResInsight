@@ -27,7 +27,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RicExportSurfaceFeature : public caf::CmdFeature
+class RicExportKLayerToPtlFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
@@ -36,10 +36,4 @@ protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-
-private:
-    static bool writePolygonsToFile( const QString&                 fileName,
-                                     const QString&                 headerText,
-                                     const std::vector<cvf::Vec3d>& vertices,
-                                     const std::vector<unsigned>&   triangleIndices );
 };
