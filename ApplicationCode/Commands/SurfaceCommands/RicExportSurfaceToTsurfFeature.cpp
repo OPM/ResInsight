@@ -16,10 +16,11 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicExportSurfaceFeature.h"
+#include "RicExportSurfaceToTsurfFeature.h"
 
 #include "RiaApplication.h"
 
+#include "RifSurfaceExporter.h"
 #include "RigSurface.h"
 #include "RimSurface.h"
 #include "Riu3DMainWindowTools.h"
@@ -30,12 +31,12 @@
 #include <QAction>
 #include <QFileDialog>
 
-CAF_CMD_SOURCE_INIT( RicExportSurfaceFeature, "RicExportSurfaceFeature" );
+CAF_CMD_SOURCE_INIT( RicExportSurfaceToTsurfFeature, "RicExportSurfaceToTsurfFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicExportSurfaceFeature::isCommandEnabled()
+bool RicExportSurfaceToTsurfFeature::isCommandEnabled()
 {
     std::vector<RimSurface*> surfaces = caf::selectedObjectsByTypeStrict<RimSurface*>();
 
@@ -45,7 +46,7 @@ bool RicExportSurfaceFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportSurfaceFeature::onActionTriggered( bool isChecked )
+void RicExportSurfaceToTsurfFeature::onActionTriggered( bool isChecked )
 {
     RiaApplication* app = RiaApplication::instance();
 
@@ -77,75 +78,18 @@ void RicExportSurfaceFeature::onActionTriggered( bool isChecked )
 
         RigSurface* surface = surf->surfaceData();
 
-        writePolygonsToFile( fileName, surf->userDescription(), surface->vertices(), surface->triangleIndices() );
+        RifSurfaceExporter::writeGocadTSurfFile( fileName,
+                                                 surf->userDescription(),
+                                                 surface->vertices(),
+                                                 surface->triangleIndices() );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportSurfaceFeature::setupActionLook( QAction* actionToSetup )
+void RicExportSurfaceToTsurfFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/ReservoirSurfaces16x16.png" ) );
-    actionToSetup->setText( "Export Surface" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicExportSurfaceFeature::writePolygonsToFile( const QString&                 fileName,
-                                                   const QString&                 headerText,
-                                                   const std::vector<cvf::Vec3d>& vertices,
-                                                   const std::vector<unsigned>&   triangleIndices )
-{
-    QFile exportFile( fileName );
-    if ( exportFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
-    {
-        QTextStream out( &exportFile );
-
-        QString headerForExport = headerText;
-        if ( headerText.isEmpty() ) headerForExport = "surface";
-
-        out << "GOCAD TSurf 1 \n";
-        out << "HEADER { \n";
-        out << "name:" + headerText + " \n";
-        out << "} \n";
-        out << "GOCAD_ORIGINAL_COORDINATE_SYSTEM \n";
-        out << "NAME Default  \n";
-        out << "AXIS_NAME \"X\" \"Y\" \"Z\" \n";
-        out << "AXIS_UNIT \"m\" \"m\" \"m\" \n";
-        out << "ZPOSITIVE Depth \n";
-        out << "END_ORIGINAL_COORDINATE_SYSTEM \n";
-
-        out << "TFACE \n";
-
-        size_t i = 1;
-        for ( auto v : vertices )
-        {
-            out << "VRTX " << i << " ";
-            out << v.x() << " ";
-            out << v.y() << " ";
-            out << -v.z() << " ";
-            out << "CNXYZ\n";
-
-            i++;
-        }
-
-        for ( size_t triIndex = 0; triIndex < triangleIndices.size(); triIndex += 3 )
-        {
-            out << "TRGL ";
-            out << " " << 1 + triangleIndices[triIndex + 0];
-            out << " " << 1 + triangleIndices[triIndex + 1];
-            out << " " << 1 + triangleIndices[triIndex + 2];
-            out << " \n";
-        }
-
-        out << "END\n";
-
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    actionToSetup->setText( "Export Surface to GOCAD TSurf file" );
 }

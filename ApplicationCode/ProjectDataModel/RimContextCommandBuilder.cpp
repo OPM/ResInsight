@@ -81,6 +81,7 @@
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechView.h"
+#include "RimGridCaseSurface.h"
 #include "RimGridCollection.h"
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCollection.h"
@@ -899,7 +900,13 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
             if ( dynamic_cast<RimSurface*>( firstUiItem ) )
             {
-                menuBuilder << "RicExportSurfaceFeature";
+                menuBuilder << "RicExportSurfaceToTsurfFeature";
+                //                menuBuilder << "RicExportKLayerToPtlFeature";
+            }
+
+            if ( dynamic_cast<RimGridCaseSurface*>( firstUiItem ) )
+            {
+                menuBuilder << "RicExportKLayerToPtlFeature";
             }
         }
         else if ( dynamic_cast<RimAnnotationCollection*>( firstUiItem ) ||
