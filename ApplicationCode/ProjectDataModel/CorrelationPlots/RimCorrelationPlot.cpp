@@ -197,9 +197,6 @@ void RimCorrelationPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
 
-    m_analyserOfSelectedCurveDefs = std::unique_ptr<RiaSummaryCurveDefinitionAnalyser>(
-        new RiaSummaryCurveDefinitionAnalyser( this->curveDefinitions() ) );
-
     m_selectedVarsUiField = selectedVarsText();
 
     if ( m_plotWidget && m_analyserOfSelectedCurveDefs )

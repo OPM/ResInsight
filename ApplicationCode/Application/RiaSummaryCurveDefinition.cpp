@@ -200,8 +200,13 @@ bool RiaSummaryCurveDefinition::operator<( const RiaSummaryCurveDefinition& othe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaSummaryCurveDefinitionAnalyser::RiaSummaryCurveDefinitionAnalyser( std::vector<RiaSummaryCurveDefinition> curveDefs )
+void RiaSummaryCurveDefinitionAnalyser::setCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefs )
 {
+    m_singleSummaryCases.clear();
+    m_ensembles.clear();
+    m_quantityNames.clear();
+    m_summaryItems.clear();
+
     for ( const auto& curveDef : curveDefs )
     {
         bool valid = false;
