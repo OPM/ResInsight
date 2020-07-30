@@ -415,7 +415,6 @@ void RimAnalysisPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
         dlg.enableMultiSelect( true );
         dlg.enableIndividualEnsembleCaseSelection( true );
-
         dlg.setCurveSelection( this->curveDefinitionsWithoutEnsembleReference() );
 
         if ( dlg.exec() == QDialog::Accepted )
