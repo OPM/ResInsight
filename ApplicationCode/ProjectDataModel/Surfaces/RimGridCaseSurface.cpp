@@ -201,8 +201,9 @@ void RimGridCaseSurface::extractDataFromGrid()
                 }
             }
 
-            std::vector<unsigned>   tringleIndices;
-            std::vector<cvf::Vec3d> vertices;
+            std::vector<unsigned>                      tringleIndices;
+            std::vector<cvf::Vec3d>                    vertices;
+            std::vector<std::pair<unsigned, unsigned>> structGridVertexIndices;
 
             for ( size_t i = minI; i < maxI; i++ )
             {
@@ -210,6 +211,21 @@ void RimGridCaseSurface::extractDataFromGrid()
                 {
                     for ( size_t k = minK; k < maxK; k++ )
                     {
+                        std::pair<unsigned, unsigned> quadIJIndices;
+
+                        switch ( faceType )
+                        {
+                            case cvf::StructGridInterface::NEG_I:
+                                quadIJIndices = std::make_pair( j, k );
+                                break;
+                            case cvf::StructGridInterface::NEG_J:
+                                quadIJIndices = std::make_pair( i, k );
+                                break;
+                            case cvf::StructGridInterface::NEG_K:
+                                quadIJIndices = std::make_pair( i, j );
+                                break;
+                        }
+
                         size_t cellIndex = grid->cellIndexFromIJK( i, j, k );
 
                         if ( grid->cell( cellIndex ).isInvalid() ) continue;
@@ -224,6 +240,12 @@ void RimGridCaseSurface::extractDataFromGrid()
 
                         for ( int n = 0; n < 4; n++ )
                         {
+                            auto localIndexPair = getStructGridIndex( faceType, faceConn[n] );
+
+                            structGridVertexIndices.push_back(
+                                std::make_pair( quadIJIndices.first + localIndexPair.first,
+                                                quadIJIndices.second + localIndexPair.second ) );
+
                             vertices.push_back( cornerVerts[faceConn[n]] );
                         }
 
@@ -238,8 +260,9 @@ void RimGridCaseSurface::extractDataFromGrid()
                 }
             }
 
-            m_vertices       = vertices;
-            m_tringleIndices = tringleIndices;
+            m_vertices          = vertices;
+            m_tringleIndices    = tringleIndices;
+            m_structGridIndices = structGridVertexIndices;
         }
     }
 }
@@ -251,6 +274,36 @@ void RimGridCaseSurface::clearNativeGridData()
 {
     m_vertices.clear();
     m_tringleIndices.clear();
+    m_structGridIndices.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Return local column and row number for structured grid based on a given cell face.
+/// Argument faceType may be superfluous depending on winding and particular NEG_I face may
+/// need particular handling, see StructGridInterface::cellFaceVertexIndices().
+//
+//     7---------6
+//    /|        /|     |k
+//   / |       / |     | /j
+//  4---------5  |     |/
+//  |  3------|--2     *---i
+//  | /       | /
+//  |/        |/
+//  0---------1
+//--------------------------------------------------------------------------------------------------
+std::pair<cvf::uint, cvf::uint> RimGridCaseSurface::getStructGridIndex( cvf::StructGridInterface::FaceType faceType,
+                                                                        cvf::ubyte localVertexIndex )
+{
+    std::pair<unsigned, unsigned> localIndexPair;
+
+    CVF_TIGHT_ASSERT( localVertexIndex <= 3 );
+
+    if ( localVertexIndex == 0 ) localIndexPair = std::make_pair( 0, 0 );
+    if ( localVertexIndex == 1 ) localIndexPair = std::make_pair( 1, 0 );
+    if ( localVertexIndex == 2 ) localIndexPair = std::make_pair( 1, 1 );
+    if ( localVertexIndex == 3 ) localIndexPair = std::make_pair( 0, 1 );
+
+    return localIndexPair;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -294,7 +347,7 @@ void RimGridCaseSurface::updateUserDescription()
 //--------------------------------------------------------------------------------------------------
 bool RimGridCaseSurface::updateSurfaceDataFromGridCase()
 {
-    if ( m_vertices.empty() || m_tringleIndices.empty() )
+    if ( m_vertices.empty() || m_tringleIndices.empty() || m_structGridIndices.empty() )
     {
         extractDataFromGrid();
     }
@@ -338,6 +391,52 @@ bool RimGridCaseSurface::updateSurfaceDataFromGridCase()
     }
 
     setSurfaceData( surfaceData );
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGridCaseSurface::exportStructSurfaceFromGridCase( std::vector<cvf::Vec3d>*            vertices,
+                                                          std::vector<std::pair<uint, uint>>* structGridVertexIndices )
+{
+    if ( m_vertices.empty() || m_tringleIndices.empty() || m_structGridIndices.empty() )
+    {
+        extractDataFromGrid();
+    }
+
+    if ( m_vertices.empty() ) return false;
+
+    *vertices                = m_vertices;
+    *structGridVertexIndices = m_structGridIndices;
+
+    if ( !vertices->empty() )
+    {
+        // Permute z-value to avoid numerical issues when surface intersects exactly at cell face
+
+        double delta = 1.0e-5;
+
+        cvf::Vec3d offset = cvf::Vec3d::ZERO;
+
+        if ( m_sliceDirection == RiaDefines::GridCaseAxis::AXIS_I )
+        {
+            offset.x() += delta;
+        }
+        else if ( m_sliceDirection == RiaDefines::GridCaseAxis::AXIS_J )
+        {
+            offset.y() += delta;
+        }
+        else if ( m_sliceDirection == RiaDefines::GridCaseAxis::AXIS_K )
+        {
+            offset.z() += delta;
+        }
+
+        // Include the potential depth offset in the base class
+        offset.z() += depthOffset();
+
+        RimSurface::applyDepthOffset( offset, vertices );
+    }
 
     return true;
 }
