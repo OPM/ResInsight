@@ -291,10 +291,11 @@ RiaSummaryCurveDefinitionAnalyser* RimAbstractCorrelationPlot::getOrCreateSelect
 {
     if ( !m_analyserOfSelectedCurveDefs )
     {
-        m_analyserOfSelectedCurveDefs = std::unique_ptr<RiaSummaryCurveDefinitionAnalyser>(
-            new RiaSummaryCurveDefinitionAnalyser( this->curveDefinitions() ) );
+        m_analyserOfSelectedCurveDefs =
+            std::unique_ptr<RiaSummaryCurveDefinitionAnalyser>( new RiaSummaryCurveDefinitionAnalyser );
     }
 
+    m_analyserOfSelectedCurveDefs->setCurveDefinitions( this->curveDefinitions() );
     return m_analyserOfSelectedCurveDefs.get();
 }
 

@@ -359,9 +359,6 @@ void RimCorrelationMatrixPlot::onLoadDataAndUpdate()
 
     m_selectedVarsUiField = selectedVarsText();
 
-    m_analyserOfSelectedCurveDefs = std::unique_ptr<RiaSummaryCurveDefinitionAnalyser>(
-        new RiaSummaryCurveDefinitionAnalyser( this->curveDefinitions() ) );
-
     if ( m_plotWidget )
     {
         m_plotWidget->detachItems( QwtPlotItem::Rtti_PlotBarChart );

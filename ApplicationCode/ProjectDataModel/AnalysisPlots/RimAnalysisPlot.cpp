@@ -488,7 +488,14 @@ void RimAnalysisPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
         }
     }
 
-    m_selectedVarsUiField = vectorNames;
+    if ( !vectorNames.isEmpty() )
+    {
+        m_selectedVarsUiField = vectorNames;
+    }
+    else
+    {
+        m_selectedVarsUiField = "Select Data Sources -->";
+    }
 
     caf::PdmUiGroup* timeStepGrp = uiOrdering.addNewGroup( "Time Steps" );
     timeStepGrp->add( &m_addTimestepUiField );
@@ -1569,10 +1576,10 @@ RiaSummaryCurveDefinitionAnalyser* RimAnalysisPlot::getOrCreateSelectedCurveDefA
 {
     if ( !m_analyserOfSelectedCurveDefs )
     {
-        m_analyserOfSelectedCurveDefs = std::unique_ptr<RiaSummaryCurveDefinitionAnalyser>(
-            new RiaSummaryCurveDefinitionAnalyser( this->curveDefinitionsWithoutEnsembleReference() ) );
+        m_analyserOfSelectedCurveDefs =
+            std::unique_ptr<RiaSummaryCurveDefinitionAnalyser>( new RiaSummaryCurveDefinitionAnalyser );
     }
-
+    m_analyserOfSelectedCurveDefs->setCurveDefinitions( this->curveDefinitionsWithoutEnsembleReference() );
     return m_analyserOfSelectedCurveDefs.get();
 }
 
