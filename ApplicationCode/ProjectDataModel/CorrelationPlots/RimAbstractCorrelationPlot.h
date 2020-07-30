@@ -113,7 +113,7 @@ protected:
 
     static time_t timeDiff( time_t lhs, time_t rhs );
 
-    QString selectedVarsText() const;
+    QString selectedVarsText();
 
 protected:
     std::unique_ptr<RiaSummaryCurveDefinitionAnalyser> m_analyserOfSelectedCurveDefs;
