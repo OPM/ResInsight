@@ -24,7 +24,7 @@
 
 class RimSummaryCaseCollection;
 
-class CorrelationPlotParams
+class EnsemblePlotParams
 {
 public:
     RimSummaryCaseCollection* ensemble;
@@ -32,14 +32,14 @@ public:
     QString                   ensembleParameter;
     std::time_t               timeStep;
 
-    CorrelationPlotParams();
-    CorrelationPlotParams( const CorrelationPlotParams& rhs ) = default;
+    EnsemblePlotParams();
+    EnsemblePlotParams( const EnsemblePlotParams& rhs ) = default;
 
-    CorrelationPlotParams( RimSummaryCaseCollection* ensemble, const QString& quantityName, const std::time_t& timeStep );
-    ~CorrelationPlotParams() = default;
+    EnsemblePlotParams( RimSummaryCaseCollection* ensemble, const QString& quantityName, const std::time_t& timeStep );
+    ~EnsemblePlotParams() = default;
 };
 
-Q_DECLARE_METATYPE( CorrelationPlotParams );
+Q_DECLARE_METATYPE( EnsemblePlotParams );
 
 //==================================================================================================
 ///

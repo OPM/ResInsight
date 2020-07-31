@@ -76,16 +76,16 @@ void RicNewCorrelationMatrixPlotFeature::onActionTriggered( bool isChecked )
     if ( !correlationPlotColl )
     {
         QVariant userData = this->userData();
-        if ( !userData.isNull() && userData.canConvert<CorrelationPlotParams>() )
+        if ( !userData.isNull() && userData.canConvert<EnsemblePlotParams>() )
         {
             std::vector<RimCorrelationPlotCollection*> correlationPlotCollections;
             RimProject::current()->descendantsOfType( correlationPlotCollections );
             CAF_ASSERT( !correlationPlotCollections.empty() );
             correlationPlotColl = correlationPlotCollections.front();
 
-            CorrelationPlotParams params = userData.value<CorrelationPlotParams>();
-            ensemble                     = params.ensemble;
-            timeStep                     = params.timeStep;
+            EnsemblePlotParams params = userData.value<EnsemblePlotParams>();
+            ensemble                  = params.ensemble;
+            timeStep                  = params.timeStep;
 
             newPlot = correlationPlotColl->createCorrelationMatrixPlot( ensemble, timeStep );
         }

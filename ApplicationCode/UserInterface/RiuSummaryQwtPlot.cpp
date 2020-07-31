@@ -207,11 +207,14 @@ void RiuSummaryQwtPlot::contextMenuEvent( QContextMenuEvent* event )
                     RimSummaryCaseCollection* ensemble = ensembleCurveSet->summaryCaseCollection();
                     if ( ensemble && ensemble->isEnsemble() )
                     {
-                        CorrelationPlotParams params( ensemble,
-                                                      QString::fromStdString(
-                                                          ensembleCurveSet->summaryAddress().quantityName() ),
-                                                      timeStep );
-                        QVariant              variant = QVariant::fromValue( params );
+                        EnsemblePlotParams params( ensemble,
+                                                   QString::fromStdString(
+                                                       ensembleCurveSet->summaryAddress().quantityName() ),
+                                                   timeStep );
+                        QVariant           variant = QVariant::fromValue( params );
+
+                        menuBuilder.addCmdFeatureWithUserData( "RicNewAnalysisPlotFeature", "New Analysis Plot", variant );
+
                         menuBuilder.subMenuStart( "Create Correlation Plot From Curve Point",
                                                   *caf::IconProvider( ":/CorrelationPlots16x16.png" ).icon() );
                         {

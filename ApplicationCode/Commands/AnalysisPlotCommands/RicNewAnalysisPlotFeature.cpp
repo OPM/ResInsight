@@ -18,8 +18,12 @@
 
 #include "RicNewAnalysisPlotFeature.h"
 
+#include "CorrelationPlotCommands/RicNewCorrelationPlotFeature.h"
+
 #include "RimAnalysisPlot.h"
 #include "RimAnalysisPlotCollection.h"
+#include "RimProject.h"
+#include "RimSummaryPlot.h"
 
 #include "RiuPlotMainWindowTools.h"
 
@@ -44,6 +48,10 @@ bool RicNewAnalysisPlotFeature::isCommandEnabled()
 
     if ( analysisPlotColl ) return true;
 
+    RimSummaryPlot* summaryPlot = nullptr;
+    selObj->firstAncestorOrThisOfType( summaryPlot );
+    if ( summaryPlot ) return true;
+
     return false;
 }
 
@@ -60,9 +68,33 @@ void RicNewAnalysisPlotFeature::onActionTriggered( bool isChecked )
         selObj->firstAncestorOrThisOfType( analysisPlotColl );
     }
 
-    if ( !analysisPlotColl ) return;
+    RimSummaryCaseCollection* ensemble = nullptr;
+    QString                   quantityName;
+    std::time_t               timeStep = 0;
 
-    auto newPlot = analysisPlotColl->createAnalysisPlot();
+    RimAnalysisPlot* newPlot = nullptr;
+    if ( !analysisPlotColl )
+    {
+        QVariant userData = this->userData();
+        if ( !userData.isNull() && userData.canConvert<EnsemblePlotParams>() )
+        {
+            std::vector<RimAnalysisPlotCollection*> correlationPlotCollections;
+            RimProject::current()->descendantsOfType( correlationPlotCollections );
+            CAF_ASSERT( !correlationPlotCollections.empty() );
+            analysisPlotColl = correlationPlotCollections.front();
+
+            EnsemblePlotParams params = userData.value<EnsemblePlotParams>();
+            ensemble                  = params.ensemble;
+            quantityName              = params.quantityName;
+            timeStep                  = params.timeStep;
+
+            newPlot = analysisPlotColl->createAnalysisPlot( ensemble, quantityName, timeStep );
+        }
+    }
+    else
+    {
+        newPlot = analysisPlotColl->createAnalysisPlot();
+    }
     newPlot->loadDataAndUpdate();
 
     analysisPlotColl->updateConnectedEditors();

@@ -217,6 +217,18 @@ void RimAnalysisPlot::setCurveDefinitions( const std::vector<RiaSummaryCurveDefi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimAnalysisPlot::setTimeSteps( const std::vector<time_t>& timeSteps )
+{
+    m_selectedTimeSteps.v().clear();
+    for ( auto time : timeSteps )
+    {
+        m_selectedTimeSteps.v().push_back( RiaQDateTimeTools::fromTime_t( time ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::set<RifEclipseSummaryAddress> RimAnalysisPlot::unfilteredAddresses()
 {
     std::set<RifEclipseSummaryAddress> addresses;
