@@ -75,17 +75,17 @@ void RicNewCorrelationReportPlotFeature::onActionTriggered( bool isChecked )
     if ( !correlationPlotColl )
     {
         QVariant userData = this->userData();
-        if ( !userData.isNull() && userData.canConvert<CorrelationPlotParams>() )
+        if ( !userData.isNull() && userData.canConvert<EnsemblePlotParams>() )
         {
             std::vector<RimCorrelationPlotCollection*> correlationPlotCollections;
             RimProject::current()->descendantsOfType( correlationPlotCollections );
             CAF_ASSERT( !correlationPlotCollections.empty() );
             correlationPlotColl = correlationPlotCollections.front();
 
-            CorrelationPlotParams params = userData.value<CorrelationPlotParams>();
-            ensemble                     = params.ensemble;
-            quantityName                 = params.quantityName;
-            timeStep                     = params.timeStep;
+            EnsemblePlotParams params = userData.value<EnsemblePlotParams>();
+            ensemble                  = params.ensemble;
+            quantityName              = params.quantityName;
+            timeStep                  = params.timeStep;
 
             newPlot = correlationPlotColl->createCorrelationReportPlot( ensemble, quantityName, timeStep );
         }

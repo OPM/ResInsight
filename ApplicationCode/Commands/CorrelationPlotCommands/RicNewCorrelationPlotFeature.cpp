@@ -74,17 +74,17 @@ void RicNewCorrelationPlotFeature::onActionTriggered( bool isChecked )
     if ( !correlationPlotColl )
     {
         QVariant userData = this->userData();
-        if ( !userData.isNull() && userData.canConvert<CorrelationPlotParams>() )
+        if ( !userData.isNull() && userData.canConvert<EnsemblePlotParams>() )
         {
             std::vector<RimCorrelationPlotCollection*> correlationPlotCollections;
             RimProject::current()->descendantsOfType( correlationPlotCollections );
             CAF_ASSERT( !correlationPlotCollections.empty() );
             correlationPlotColl = correlationPlotCollections.front();
 
-            CorrelationPlotParams params = userData.value<CorrelationPlotParams>();
-            ensemble                     = params.ensemble;
-            quantityName                 = params.quantityName;
-            timeStep                     = params.timeStep;
+            EnsemblePlotParams params = userData.value<EnsemblePlotParams>();
+            ensemble                  = params.ensemble;
+            quantityName              = params.quantityName;
+            timeStep                  = params.timeStep;
 
             newPlot = correlationPlotColl->createCorrelationPlot( ensemble, quantityName, timeStep );
         }
@@ -114,7 +114,7 @@ void RicNewCorrelationPlotFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-CorrelationPlotParams::CorrelationPlotParams()
+EnsemblePlotParams::EnsemblePlotParams()
     : ensemble( nullptr )
     , quantityName( "" )
     , ensembleParameter( "" )
@@ -125,9 +125,9 @@ CorrelationPlotParams::CorrelationPlotParams()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-CorrelationPlotParams::CorrelationPlotParams( RimSummaryCaseCollection* ensemble,
-                                              const QString&            quantityName,
-                                              const std::time_t&        timeStep )
+EnsemblePlotParams::EnsemblePlotParams( RimSummaryCaseCollection* ensemble,
+                                        const QString&            quantityName,
+                                        const std::time_t&        timeStep )
     : ensemble( ensemble )
     , quantityName( quantityName )
     , ensembleParameter( "" )

@@ -79,6 +79,7 @@ public:
     RimPlotDataFilterCollection* plotDataFilterCollection() const;
 
     void setCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions );
+    void setTimeSteps( const std::vector<time_t>& timeSteps );
 
     std::set<RifEclipseSummaryAddress> unfilteredAddresses();
     std::set<EnsembleParameter>        ensembleParameters();
