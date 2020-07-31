@@ -40,7 +40,7 @@ void caf::AppEnum<RimPlotDataFilterItem::FilterTarget>::setUp()
     addItem( RimPlotDataFilterItem::SUMMARY_CASE, "SUMMARY_CASE", "summary cases" );
     addItem( RimPlotDataFilterItem::ENSEMBLE_CASE, "ENSEMBLE_CASE", "ensemble cases" );
 
-    setDefault( RimPlotDataFilterItem::SUMMARY_CASE );
+    setDefault( RimPlotDataFilterItem::ENSEMBLE_CASE );
 }
 
 template <>
