@@ -302,9 +302,6 @@ QList<caf::PdmOptionItemInfo>
             {
                 options.push_back( caf::PdmOptionItemInfo( ensParam.uiName(), ensParam.name ) );
             }
-
-            options.push_front( caf::PdmOptionItemInfo( RiaDefines::undefinedResultName(),
-                                                        QVariant::fromValue( RifEclipseSummaryAddress() ) ) );
         }
     }
     else if ( fieldNeedingOptions == &m_ensembleParameterValueCategories )
