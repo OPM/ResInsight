@@ -23,6 +23,7 @@
 #include "RimPlot.h"
 #include "RimPlotDataFilterItem.h"
 #include "RimSummaryCaseCollection.h"
+#include "RimTimeStepFilter.h"
 
 #include "cafPdmPtrField.h"
 
@@ -66,6 +67,8 @@ public:
         TIME_STEP,
     };
     typedef caf::AppEnum<SortGroupType> SortGroupAppEnum;
+
+    using TimeStepFilterEnum = caf::AppEnum<RimTimeStepFilter::TimeStepFilterTypeEnum>;
 
 public:
     RimAnalysisPlot();
@@ -182,7 +185,7 @@ private:
 
     caf::PdmChildArrayField<RimAnalysisPlotDataEntry*> m_analysisPlotDataSelection;
 
-    caf::PdmField<QDateTime>              m_addTimestepUiField;
+    caf::PdmField<TimeStepFilterEnum>     m_timeStepFilter;
     caf::PdmField<std::vector<QDateTime>> m_selectedTimeSteps;
 
     caf::PdmPtrField<RimSummaryCase*> m_referenceCase;
