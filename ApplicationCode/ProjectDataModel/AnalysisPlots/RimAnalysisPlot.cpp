@@ -1102,7 +1102,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
 
                     if ( filter->useAbsoluteValues() ) value = fabs( value );
 
-                    if ( minMax.first < value && value < minMax.second )
+                    if ( minMax.first <= value && value <= minMax.second )
                     {
                         casesToKeep.insert( sumCase );
                     }
