@@ -234,11 +234,11 @@ QList<caf::PdmOptionItemInfo>
         QString timeFormatString =
             RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
                                                  RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
+        QString dateTimeFormat = QString( "%1 %2" ).arg( dateFormatString ).arg( timeFormatString );
 
         for ( auto timeStepIndex : filteredTimeStepIndices )
         {
-            QDateTime dateTime       = allDateTimes[timeStepIndex];
-            QString   dateTimeFormat = QString( "%1 %2" ).arg( dateFormatString ).arg( timeFormatString );
+            QDateTime dateTime = allDateTimes[timeStepIndex];
 
             options.push_back(
                 caf::PdmOptionItemInfo( RiaQDateTimeTools::toStringUsingApplicationLocale( dateTime, dateTimeFormat ),

@@ -48,6 +48,7 @@
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiGroup.h"
 #include "cafPdmUiListEditor.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 #include <limits>
 #include <map>
@@ -104,14 +105,10 @@ RimAnalysisPlot::RimAnalysisPlot()
     m_analysisPlotDataSelection.uiCapability()->setUiTreeHidden( true );
 
     // Time Step Selection
-
-    CAF_PDM_InitFieldNoDefault( &m_addTimestepUiField, "AddTimeStepsUiField", "Add Timestep:", "", "", "" );
-    m_addTimestepUiField.xmlCapability()->disableIO();
-    m_addTimestepUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
-
-    CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "", "", "", "" );
-    m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
-    m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Time Step Filter", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "Select Time Steps", "", "", "" );
+    m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
     // Options
 
@@ -456,10 +453,9 @@ void RimAnalysisPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
         m_selectVariablesButtonField = false;
     }
-    else if ( changedField == &m_addTimestepUiField )
+    else if ( changedField == &m_timeStepFilter )
     {
-        m_selectedTimeSteps.v().push_back( m_addTimestepUiField() );
-        m_addTimestepUiField = QDateTime();
+        this->updateConnectedEditors();
     }
 
     this->loadDataAndUpdate();
@@ -498,7 +494,7 @@ void RimAnalysisPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     }
 
     caf::PdmUiGroup* timeStepGrp = uiOrdering.addNewGroup( "Time Steps" );
-    timeStepGrp->add( &m_addTimestepUiField );
+    timeStepGrp->add( &m_timeStepFilter );
     timeStepGrp->add( &m_selectedTimeSteps );
 
     uiOrdering.add( &m_referenceCase, {true, 3, 2} );
@@ -579,18 +575,54 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
 
     if ( !options.isEmpty() ) return options;
 
-    if ( fieldNeedingOptions == &m_addTimestepUiField )
+    if ( fieldNeedingOptions == &m_selectedTimeSteps )
     {
-        options.push_back( {"None", QDateTime()} );
+        std::set<time_t>    allTimeSteps = allAvailableTimeSteps();
+        std::set<QDateTime> currentlySelectedTimeSteps( m_selectedTimeSteps().begin(), m_selectedTimeSteps().end() );
 
-        std::set<time_t> timeStepUnion = allAvailableTimeSteps();
-
-        for ( time_t timeT : timeStepUnion )
+        if ( allTimeSteps.empty() )
         {
-            QDateTime dateTime     = RiaQDateTimeTools::fromTime_t( timeT );
-            QString   formatString = RiaQDateTimeTools::createTimeFormatStringFromDates( {dateTime} );
+            CAF_ASSERT( false && "No time steps found" );
+            return options;
+        }
 
-            options.push_back( {dateTime.toString( formatString ), dateTime} );
+        std::set<int>          currentlySelectedTimeStepIndices;
+        std::vector<QDateTime> allDateTimes;
+        for ( time_t timeStep : allTimeSteps )
+        {
+            QDateTime dateTime = RiaQDateTimeTools::fromTime_t( timeStep );
+            if ( currentlySelectedTimeSteps.count( dateTime ) )
+            {
+                currentlySelectedTimeStepIndices.insert( (int)allDateTimes.size() );
+            }
+            allDateTimes.push_back( dateTime );
+        }
+
+        std::vector<int> filteredTimeStepIndices =
+            RimTimeStepFilter::filteredTimeStepIndices( allDateTimes, 0, (int)allDateTimes.size() - 1, m_timeStepFilter(), 1 );
+
+        // Add existing time steps to list of options to avoid removing them when changing filter.
+        filteredTimeStepIndices.insert( filteredTimeStepIndices.end(),
+                                        currentlySelectedTimeStepIndices.begin(),
+                                        currentlySelectedTimeStepIndices.end() );
+        std::sort( filteredTimeStepIndices.begin(), filteredTimeStepIndices.end() );
+        filteredTimeStepIndices.erase( std::unique( filteredTimeStepIndices.begin(), filteredTimeStepIndices.end() ),
+                                       filteredTimeStepIndices.end() );
+
+        QString dateFormatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
+                                                                        RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
+        QString timeFormatString =
+            RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
+                                                 RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
+        QString dateTimeFormat = QString( "%1 %2" ).arg( dateFormatString ).arg( timeFormatString );
+
+        for ( auto timeStepIndex : filteredTimeStepIndices )
+        {
+            QDateTime dateTime = allDateTimes[timeStepIndex];
+
+            options.push_back(
+                caf::PdmOptionItemInfo( RiaQDateTimeTools::toStringUsingApplicationLocale( dateTime, dateTimeFormat ),
+                                        dateTime ) );
         }
     }
     else if ( fieldNeedingOptions == &m_valueSortOperation )
