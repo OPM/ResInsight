@@ -102,6 +102,7 @@ public:
     TimeStepSourceType        consideredTimeStepsType() const;
     std::pair<time_t, time_t> timeRangeMinMax() const;
     std::vector<time_t>       explicitlySelectedTimeSteps() const;
+    void                      updateMaxMinAndDefaultValues( bool forceDefault );
 
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -114,7 +115,6 @@ private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
 
-    void              updateMaxMinAndDefaultValues( bool forceDefault );
     EnsembleParameter selectedEnsembleParameter() const;
 
     caf::PdmField<bool> m_isActive;

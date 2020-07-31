@@ -19,6 +19,7 @@
 #include "RimAnalysisPlotCollection.h"
 
 #include "RimAnalysisPlot.h"
+#include "RimPlotDataFilterCollection.h"
 #include "RimProject.h"
 
 CAF_PDM_SOURCE_INIT( RimAnalysisPlotCollection, "AnalysisPlotCollection" );
@@ -71,10 +72,13 @@ RimAnalysisPlot* RimAnalysisPlotCollection::createAnalysisPlot( RimSummaryCaseCo
     plot->setAsPlotMdiWindow();
 
     applyEnsembleFieldAndTimeStepToPlot( plot, ensemble, quantityName.toStdString(), timeStep );
+    auto filter = plot->plotDataFilterCollection()->addFilter();
 
     // plot->enableAutoPlotTitle( true );
     m_analysisPlots.push_back( plot );
 
+    plot->loadDataAndUpdate();
+    filter->updateMaxMinAndDefaultValues( true );
     plot->loadDataAndUpdate();
     plot->updateConnectedEditors();
 
