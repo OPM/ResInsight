@@ -255,6 +255,14 @@ void RimPlotDataFilterItem::fieldChangedByUi( const caf::PdmFieldHandle* changed
         this->updateMaxMinAndDefaultValues( false );
         parentPlot->onFiltersChanged();
     }
+    else if ( changedField == &m_isActive )
+    {
+        parentPlot->onFiltersChanged();
+    }
+    else if ( changedField == &m_min || changedField == &m_max )
+    {
+        parentPlot->onFiltersChanged();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -399,8 +407,9 @@ void RimPlotDataFilterItem::defineEditorAttribute( const caf::PdmFieldHandle* fi
             return;
         }
 
-        myAttr->m_minimum = m_lowerLimit;
-        myAttr->m_maximum = m_upperLimit;
+        myAttr->m_minimum                       = m_lowerLimit;
+        myAttr->m_maximum                       = m_upperLimit;
+        myAttr->m_delaySliderUpdateUntilRelease = true;
     }
     else if ( field == &m_topBottomN )
     {
