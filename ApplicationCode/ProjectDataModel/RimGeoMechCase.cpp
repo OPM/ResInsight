@@ -44,6 +44,7 @@
 #include "RimGeoMechView.h"
 #include "RimIntersectionCollection.h"
 #include "RimMainPlotCollection.h"
+#include "RimMudWeightWindowParameters.h"
 #include "RimProject.h"
 #include "RimTimeStepFilter.h"
 #include "RimTools.h"
@@ -179,6 +180,15 @@ RimGeoMechCase::RimGeoMechCase( void )
     CAF_PDM_InitFieldNoDefault( &m_contourMapCollection, "ContourMaps", "2d Contour Maps", "", "", "" );
     m_contourMapCollection = new RimGeoMechContourMapViewCollection;
     m_contourMapCollection.uiCapability()->setUiTreeHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_mudWeightWindowParameters,
+                                "MudWeightWindowParameters",
+                                "Mud Weight Window Parameters",
+                                "",
+                                "",
+                                "" );
+    m_mudWeightWindowParameters = new RimMudWeightWindowParameters;
+    m_mudWeightWindowParameters.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -406,6 +416,8 @@ std::vector<Rim3dView*> RimGeoMechCase::allSpecialViews() const
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
+    uiTreeOrdering.add( &m_mudWeightWindowParameters );
+
     std::vector<PdmObjectHandle*> children;
     geoMechViews.childObjects( &children );
 
@@ -1249,4 +1261,12 @@ std::vector<std::string> RimGeoMechCase::possibleElementPropertyFieldNames()
         }
     }
     return fieldNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::FilePath> RimGeoMechCase::elementPropertyFileNames() const
+{
+    return m_elementPropertyFileNames();
 }

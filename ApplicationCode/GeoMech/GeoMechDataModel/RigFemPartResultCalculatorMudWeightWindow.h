@@ -20,11 +20,15 @@
 
 #include "RigFemPartResultCalculator.h"
 
+#include "RimMudWeightWindowParameters.h"
+
+#include "cvfVector3.h"
+
+#include <map>
+
 class RigFemPartResultsCollection;
 class RigFemScalarResultFrames;
 class RigFemResultAddress;
-
-#include "cvfVector3.h"
 
 //==================================================================================================
 ///
@@ -32,22 +36,27 @@ class RigFemResultAddress;
 class RigFemPartResultCalculatorMudWeightWindow : public RigFemPartResultCalculator
 {
 public:
-    enum class UpperLimitParameter
-    {
-        FG,
-        SH_MIN
-    };
-
-    enum class LowerLimitParameter
-    {
-        PORE_PRESSURE,
-        MAX_OF_PORE_PRESSURE_AND_SFG
-    };
-
     explicit RigFemPartResultCalculatorMudWeightWindow( RigFemPartResultsCollection& collection );
     virtual ~RigFemPartResultCalculatorMudWeightWindow();
     bool                      isMatching( const RigFemResultAddress& resVarAddr ) const override;
     RigFemScalarResultFrames* calculate( int partIndex, const RigFemResultAddress& resVarAddr ) override;
 
     cvf::Vec3d calculateWellPathTangent( double azimuth, double inclination );
+
+private:
+    void loadParameterFramesOrValue( RimMudWeightWindowParameters::ParameterType parameterType,
+                                     size_t                                      partIndex,
+                                     std::map<RimMudWeightWindowParameters::ParameterType, RigFemScalarResultFrames*>& parameterFrames,
+                                     std::map<RimMudWeightWindowParameters::ParameterType, float>& parameterValues );
+
+    static std::vector<float>
+        loadDataForFrame( RimMudWeightWindowParameters::ParameterType parameterType,
+                          std::map<RimMudWeightWindowParameters::ParameterType, RigFemScalarResultFrames*>& parameterFrames,
+                          int frameIndex );
+
+    static float
+        getValueForElement( RimMudWeightWindowParameters::ParameterType parameterType,
+                            const std::map<RimMudWeightWindowParameters::ParameterType, std::vector<float>>& parameterFrameData,
+                            const std::map<RimMudWeightWindowParameters::ParameterType, float> parameterValues,
+                            int                                                                elmIdx );
 };

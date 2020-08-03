@@ -21,6 +21,8 @@
 
 #include "RigFemResultAddress.h"
 
+#include "RimMudWeightWindowParameters.h"
+
 #include "cafTensor3.h"
 
 #include "cvfCollection.h"
@@ -79,6 +81,21 @@ public:
     double  initialPermeabilityFixed() const;
     QString initialPermeabilityAddress() const;
     double  permeabilityExponent() const;
+
+    void    setCalculationParameters( RimMudWeightWindowParameters::ParameterType parameterType,
+                                      const QString&                              address,
+                                      double                                      value );
+    double  getCalculationParameterValue( RimMudWeightWindowParameters::ParameterType ) const;
+    QString getCalculationParameterAddress( RimMudWeightWindowParameters::ParameterType ) const;
+
+    void                                         setMudWeightWindowParameters( double                                       airGap,
+                                                                               RimMudWeightWindowParameters::UpperLimitType upperLimit,
+                                                                               RimMudWeightWindowParameters::LowerLimitType lowerLimit,
+                                                                               int                                          referenceLayer );
+    double                                       airGapMudWeightWindow() const;
+    RimMudWeightWindowParameters::UpperLimitType upperLimitParameterMudWeightWindow() const;
+    RimMudWeightWindowParameters::LowerLimitType lowerLimitParameterMudWeightWindow() const;
+    size_t                                       referenceLayerMudWeightWindow() const;
 
     std::map<std::string, std::vector<std::string>> scalarFieldAndComponentNames( RigFemResultPosEnum resPos );
     std::vector<std::string>                        filteredStepNames() const;
@@ -144,6 +161,7 @@ public:
     static bool                          isReferenceCaseDependentResult( const RigFemResultAddress& result );
 
     static std::set<RigFemResultAddress> initialPermeabilityDependentResults();
+    static std::set<RigFemResultAddress> mudWeightWindowResults();
 
     RigFemScalarResultFrames* findOrLoadScalarResult( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* createScalarResult( int partIndex, const RigFemResultAddress& resVarAddr );
@@ -177,6 +195,14 @@ private:
     double  m_permeabilityExponent;
 
     int m_referenceTimeStep;
+
+    double                                       m_airGapMudWeightWindow;
+    int                                          m_referenceLayerMudWeightWindow;
+    RimMudWeightWindowParameters::UpperLimitType m_upperLimitParameterMudWeightWindow;
+    RimMudWeightWindowParameters::LowerLimitType m_lowerLimitParameterMudWeightWindow;
+
+    std::map<RimMudWeightWindowParameters::ParameterType, QString> parameterAddresses;
+    std::map<RimMudWeightWindowParameters::ParameterType, double>  parameterValues;
 
     std::vector<std::unique_ptr<RigFemPartResultCalculator>> m_resultCalculators;
 

@@ -68,18 +68,31 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
 {
     CVF_ASSERT( isMatching( resVarAddr ) );
 
-    caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * 4, "" );
+    const std::vector<RimMudWeightWindowParameters::ParameterType> parameterTypes =
+        {RimMudWeightWindowParameters::ParameterType::WELL_DEVIATION,
+         RimMudWeightWindowParameters::ParameterType::WELL_AZIMUTH,
+         RimMudWeightWindowParameters::ParameterType::UCS,
+         RimMudWeightWindowParameters::ParameterType::POISSONS_RATIO,
+         RimMudWeightWindowParameters::ParameterType::K0_FG};
+
+    caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * ( 4 + parameterTypes.size() ), "" );
     frameCountProgress.setProgressDescription( "Calculating Mud Weight Window" );
 
-    double wellPathDeviation = 12.3;
-    double wellPathAzimuth   = 32.4;
-    double ucsBar            = 3.4;
-    double poissonsRatio     = 0.45;
-    double K0_FG             = 0.445;
-    double airGap            = 123.0;
+    std::map<RimMudWeightWindowParameters::ParameterType, RigFemScalarResultFrames*> parameterFrames;
+    std::map<RimMudWeightWindowParameters::ParameterType, float>                     parameterValues;
 
-    UpperLimitParameter upperLimitParameter = UpperLimitParameter::FG;
-    LowerLimitParameter lowerLimitParameter = LowerLimitParameter::MAX_OF_PORE_PRESSURE_AND_SFG;
+    for ( auto parameterType : parameterTypes )
+    {
+        frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+        loadParameterFramesOrValue( parameterType, partIndex, parameterFrames, parameterValues );
+        frameCountProgress.incrementProgress();
+    }
+
+    double                                       airGap = m_resultCollection->airGapMudWeightWindow();
+    RimMudWeightWindowParameters::UpperLimitType upperLimitParameter =
+        m_resultCollection->upperLimitParameterMudWeightWindow();
+    RimMudWeightWindowParameters::LowerLimitType lowerLimitParameter =
+        m_resultCollection->lowerLimitParameterMudWeightWindow();
 
     // Pore pressure
     frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
@@ -135,6 +148,12 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
 
         int elementCount = femPart->elementCount();
 
+        std::map<RimMudWeightWindowParameters::ParameterType, std::vector<float>> parameterFrameData;
+        for ( auto parameterType : parameterTypes )
+        {
+            parameterFrameData[parameterType] = loadDataForFrame( parameterType, parameterFrames, fIdx );
+        }
+
         // Load stress
         RigFemResultAddress     stressResAddr( RIG_ELEMENT_NODAL, "ST", "" );
         std::vector<caf::Ten3f> vertexStressesFloat = m_resultCollection->tensors( stressResAddr, partIndex, fIdx );
@@ -150,6 +169,31 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
         for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
         {
             RigElementType elmType = femPart->elementType( elmIdx );
+
+            double wellPathDeviation = getValueForElement( RimMudWeightWindowParameters::ParameterType::WELL_DEVIATION,
+                                                           parameterFrameData,
+                                                           parameterValues,
+                                                           elmIdx );
+
+            double wellPathAzimuth = getValueForElement( RimMudWeightWindowParameters::ParameterType::WELL_AZIMUTH,
+                                                         parameterFrameData,
+                                                         parameterValues,
+                                                         elmIdx );
+
+            double ucsBar = getValueForElement( RimMudWeightWindowParameters::ParameterType::UCS,
+                                                parameterFrameData,
+                                                parameterValues,
+                                                elmIdx );
+
+            double poissonsRatio = getValueForElement( RimMudWeightWindowParameters::ParameterType::POISSONS_RATIO,
+                                                       parameterFrameData,
+                                                       parameterValues,
+                                                       elmIdx );
+
+            double K0_FG = getValueForElement( RimMudWeightWindowParameters::ParameterType::K0_FG,
+                                               parameterFrameData,
+                                               parameterValues,
+                                               elmIdx );
 
             int elmNodeCount = RigFemTypes::elementNodeCount( femPart->elementType( elmIdx ) );
 
@@ -191,22 +235,23 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
 
                         // Calculate upper limit
                         float upperLimit = inf;
-                        if ( upperLimitParameter == UpperLimitParameter::FG )
+                        if ( upperLimitParameter == RimMudWeightWindowParameters::UpperLimitType::FG )
                         {
                             upperLimit = sigmaCalculator.solveFractureGradient();
                         }
-                        else if ( upperLimitParameter == UpperLimitParameter::SH_MIN )
+                        else if ( upperLimitParameter == RimMudWeightWindowParameters::UpperLimitType::SH_MIN )
                         {
                             upperLimit = stressFrameData[elmNodResIdx];
                         }
 
                         // Calculate lower limit
                         float lowerLimit = inf;
-                        if ( lowerLimitParameter == LowerLimitParameter::PORE_PRESSURE )
+                        if ( lowerLimitParameter == RimMudWeightWindowParameters::LowerLimitType::PORE_PRESSURE )
                         {
                             lowerLimit = porePressureBar;
                         }
-                        else if ( lowerLimitParameter == LowerLimitParameter::MAX_OF_PORE_PRESSURE_AND_SFG )
+                        else if ( lowerLimitParameter ==
+                                  RimMudWeightWindowParameters::LowerLimitType::MAX_OF_PORE_PRESSURE_AND_SFG )
                         {
                             if ( isSand )
                             {
@@ -241,7 +286,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
             }
         }
 
-        size_t kRefLayer = 28; // resVarAddr.refKLayerIndex;
+        size_t kRefLayer = m_resultCollection->referenceLayerMudWeightWindow();
 
 #pragma omp parallel for
         for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
@@ -320,4 +365,80 @@ cvf::Vec3d RigFemPartResultCalculatorMudWeightWindow::calculateWellPathTangent( 
     double aziRad = cvf::Math::toRadians( azimuth );
     double incRad = cvf::Math::toRadians( inclination );
     return RiaOffshoreSphericalCoords::unitVectorFromAziInc( aziRad, incRad );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFemPartResultCalculatorMudWeightWindow::loadParameterFramesOrValue(
+    RimMudWeightWindowParameters::ParameterType                                       parameterType,
+    size_t                                                                            partIndex,
+    std::map<RimMudWeightWindowParameters::ParameterType, RigFemScalarResultFrames*>& parameterFrames,
+    std::map<RimMudWeightWindowParameters::ParameterType, float>&                     parameterValues )
+{
+    RigFemScalarResultFrames* resultFrames = nullptr;
+
+    QString resultAddress = m_resultCollection->getCalculationParameterAddress( parameterType );
+    if ( !resultAddress.isEmpty() )
+    {
+        resultFrames =
+            m_resultCollection->findOrLoadScalarResult( partIndex,
+                                                        RigFemResultAddress( RIG_ELEMENT, resultAddress.toStdString(), "" ) );
+        parameterFrames[parameterType] = resultFrames;
+    }
+
+    parameterValues[parameterType] = m_resultCollection->getCalculationParameterValue( parameterType );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<float> RigFemPartResultCalculatorMudWeightWindow::loadDataForFrame(
+    RimMudWeightWindowParameters::ParameterType                                       parameterType,
+    std::map<RimMudWeightWindowParameters::ParameterType, RigFemScalarResultFrames*>& parameterFrames,
+    int                                                                               frameIndex )
+{
+    auto it = parameterFrames.find( parameterType );
+    if ( it != parameterFrames.end() )
+    {
+        RigFemScalarResultFrames* frame        = it->second;
+        std::vector<float>        dataForFrame = frame->frameData( frameIndex );
+        return dataForFrame;
+    }
+    else
+    {
+        return std::vector<float>();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+float RigFemPartResultCalculatorMudWeightWindow::getValueForElement(
+    RimMudWeightWindowParameters::ParameterType                                      parameterType,
+    const std::map<RimMudWeightWindowParameters::ParameterType, std::vector<float>>& parameterFrameData,
+    const std::map<RimMudWeightWindowParameters::ParameterType, float>               parameterValues,
+    int                                                                              elmIdx )
+{
+    // Use data per element if available
+    auto it = parameterFrameData.find( parameterType );
+    if ( it != parameterFrameData.end() )
+    {
+        if ( !it->second.empty() && static_cast<size_t>( elmIdx ) < it->second.size() )
+        {
+            return it->second[elmIdx];
+        }
+    }
+
+    // Use fixed value
+    auto value = parameterValues.find( parameterType );
+    if ( value != parameterValues.end() )
+    {
+        return value->second;
+    }
+    else
+    {
+        // No value found (should not happen)
+        return std::numeric_limits<float>::infinity();
+    }
 }

@@ -138,6 +138,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapViewCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapProjection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapView.h
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapViewCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimMudWeightWindowParameters.h
 ${CMAKE_CURRENT_LIST_DIR}/RimViewNameConfig.h
 ${CMAKE_CURRENT_LIST_DIR}/RimReloadCaseTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisPropertiesInterface.h
@@ -231,6 +232,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechPropertyFilter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechPropertyFilterCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechResultDefinition.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechCellColors.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimMudWeightWindowParameters.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimViewWindow.cpp
 ${CMAKE_CURRENT_LIST_DIR}/Rim3dView.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimGridView.cpp

@@ -36,6 +36,7 @@ class RigGeoMechCaseData;
 class RifGeoMechReaderInterface;
 class RimGeoMechContourMapView;
 class RimGeoMechContourMapViewCollection;
+class RimMudWeightWindowParameters;
 
 //==================================================================================================
 ///
@@ -111,6 +112,14 @@ public:
     QString                 initialPermeabilityAddress() const;
     double                  permeabilityExponent() const;
 
+    std::vector<std::string>   possibleElementPropertyFieldNames();
+    std::vector<caf::FilePath> elementPropertyFileNames() const;
+
+    QString findFileNameForElementProperty( const std::string&                   elementProperty,
+                                            const std::map<std::string, QString> addressesInFiles ) const;
+
+    void updateConnectedViews();
+
 private:
     cvf::Vec3d                    displayModelOffset() const override;
     static std::vector<QDateTime> vectorOfValidDateTimesFromTimeStepStrings( const QStringList& timeStepStrings );
@@ -125,20 +134,15 @@ private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
 
-    QString findFileNameForElementProperty( const std::string&                   elementProperty,
-                                            const std::map<std::string, QString> addressesInFiles ) const;
-
     void updateFormationNamesData() override;
 
     void           initAfterRead() override;
     static QString subStringOfDigits( const QString& timeStepString, int numberOfDigitsToFind );
 
-    void                     importElementPropertyFile();
-    void                     closeSelectedElementPropertyFiles();
-    void                     reloadSelectedElementPropertyFiles();
-    std::vector<Rim3dView*>  allSpecialViews() const override;
-    void                     updateConnectedViews();
-    std::vector<std::string> possibleElementPropertyFieldNames();
+    void                    importElementPropertyFile();
+    void                    closeSelectedElementPropertyFiles();
+    void                    reloadSelectedElementPropertyFiles();
+    std::vector<Rim3dView*> allSpecialViews() const override;
 
 private:
     cvf::ref<RigGeoMechCaseData>              m_geoMechCaseData;
@@ -160,6 +164,7 @@ private:
     caf::PdmField<double>                                m_permeabilityExponent;
 
     caf::PdmChildField<RimGeoMechContourMapViewCollection*> m_contourMapCollection;
+    caf::PdmChildField<RimMudWeightWindowParameters*>       m_mudWeightWindowParameters;
 
     bool m_applyTimeFilter;
 };
