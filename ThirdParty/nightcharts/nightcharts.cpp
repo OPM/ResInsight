@@ -21,6 +21,8 @@
 #define _USE_MATH_DEFINES
 #include "nightcharts.h"
 
+#include <QPainterPath>
+
 Nightcharts::Nightcharts()//QPainter *painter)
 
 {
