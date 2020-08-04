@@ -724,7 +724,7 @@ if (RESINSIGHT_PRIVATE_INSTALL)
 		          COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}> $<TARGET_FILE_DIR:${_unityTargetName}>
 		       )
 		      endforeach(qtlib)
-	      endif(_unityTargetName)<CONFIG>_OUTPUT_NAME
+	      endif(_unityTargetName)
 
           # copy deployment directory during installation
           install(
