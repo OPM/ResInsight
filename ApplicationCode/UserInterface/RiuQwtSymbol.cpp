@@ -24,6 +24,7 @@
 #include "cvfAssert.h"
 
 #include <QPainter>
+#include <QPainterPath>
 
 //--------------------------------------------------------------------------------------------------
 /// Internal class to support labels on symbols
