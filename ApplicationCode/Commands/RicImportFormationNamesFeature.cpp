@@ -66,7 +66,22 @@ RimFormationNames* RicImportFormationNamesFeature::importFormationFiles( const Q
 
     for ( int i = 0; i < fileNames.size(); i++ )
     {
-        RicImportFormationNamesFeature::addCustomColorLegend( QFileInfo( fileNames[i] ).baseName(), formationNames[i] );
+        auto colors = formationNames[i]->formationNamesData()->formationColors();
+
+        bool anyValidColor = false;
+        for ( const auto& color : colors )
+        {
+            if ( color.isValid() )
+            {
+                anyValidColor = true;
+                break;
+            }
+        }
+
+        if ( anyValidColor )
+        {
+            RicImportFormationNamesFeature::addCustomColorLegend( QFileInfo( fileNames[i] ).baseName(), formationNames[i] );
+        }
     }
 
     return formationNames.back();
@@ -82,7 +97,7 @@ bool RicImportFormationNamesFeature::isCommandEnabled()
 
 //--------------------------------------------------------------------------------------------------
 /// If only one formation file is imported, the formation will automatically be set in the active
-/// view’s case. Import of LYR files with colors create custom color legends according to color
+/// viewï¿½s case. Import of LYR files with colors create custom color legends according to color
 /// definition on each file. However, color legend must be set by the user.
 //--------------------------------------------------------------------------------------------------
 void RicImportFormationNamesFeature::onActionTriggered( bool isChecked )
