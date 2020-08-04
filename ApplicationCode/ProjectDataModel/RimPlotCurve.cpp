@@ -126,6 +126,8 @@ RimPlotCurve::RimPlotCurve()
     , visibilityChanged( this )
     , dataChanged( this )
     , nameChanged( this )
+    , stackingChanged( this )
+    , stackingColorsChanged( this )
 {
     CAF_PDM_InitObject( "Curve", ":/WellLogCurve16x16.png", "", "" );
 
@@ -169,6 +171,9 @@ RimPlotCurve::RimPlotCurve()
     CAF_PDM_InitField( &m_showErrorBars, "ShowErrorBars", true, "Show Error Bars", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_symbolLabelPosition, "SymbolLabelPosition", "Symbol Label Position", "", "", "" );
+
+    CAF_PDM_InitField( &m_stackCurve, "StackCurve", false, "Stack Curve", "", "", "" );
+    CAF_PDM_InitField( &m_stackWithPhaseColors, "StackPhaseColors", false, "  with Phase Colors", "", "", "" );
 
     m_qwtPlotCurve      = new RiuRimQwtPlotCurve( this );
     m_qwtCurveErrorBars = new QwtPlotIntervalCurve();
@@ -259,6 +264,20 @@ void RimPlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, co
     {
         updateCurveAppearance();
     }
+    else if ( changedField == &m_stackCurve )
+    {
+        if ( !m_stackCurve() && m_fillStyle() != Qt::NoBrush )
+        {
+            // Switch off area fill when turning off stacking.
+            m_fillStyle = Qt::NoBrush;
+        }
+        stackingChanged.send( m_stackCurve() );
+    }
+    else if ( changedField == &m_stackWithPhaseColors )
+    {
+        stackingColorsChanged.send( m_stackWithPhaseColors() );
+    }
+
     RiuPlotMainWindowTools::refreshToolbars();
     if ( m_parentQwtPlot ) m_parentQwtPlot->replot();
 }
@@ -633,6 +652,9 @@ void RimPlotCurve::setSamplesFromTimeTAndYValues( const std::vector<time_t>& dat
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::appearanceUiOrdering( caf::PdmUiOrdering& uiOrdering )
 {
+    uiOrdering.add( &m_stackCurve );
+    if ( m_stackCurve() ) uiOrdering.add( &m_stackWithPhaseColors );
+
     uiOrdering.add( &m_curveColor );
     uiOrdering.add( &m_pointSymbol );
     if ( RiuQwtSymbol::isFilledSymbol( m_pointSymbol() ) )
@@ -700,6 +722,22 @@ void RimPlotCurve::assignStackColor( size_t index, size_t count )
         this->setColor( color );
         this->setFillColor( color );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPlotCurve::stacked() const
+{
+    return m_stackCurve();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPlotCurve::stackWithPhaseColors() const
+{
+    return m_stackWithPhaseColors;
 }
 
 //--------------------------------------------------------------------------------------------------

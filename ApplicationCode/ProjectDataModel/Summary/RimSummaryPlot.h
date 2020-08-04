@@ -215,6 +215,7 @@ private:
     std::vector<RimGridTimeHistoryCurve*> visibleTimeHistoryCurvesForAxis( RiaDefines::PlotAxis plotAxis ) const;
     std::vector<RimAsciiDataCurve*>       visibleAsciiDataCurvesForAxis( RiaDefines::PlotAxis plotAxis ) const;
     bool                                  hasVisibleCurvesForAxis( RiaDefines::PlotAxis plotAxis ) const;
+    std::vector<RimSummaryCurve*>         visibleStackedSummaryCurvesForAxis( RiaDefines::PlotAxis plotAxis );
 
     RimPlotAxisProperties* yAxisPropertiesLeftOrRight( RiaDefines::PlotAxis leftOrRightPlotAxis ) const;
     void                   updateYAxis( RiaDefines::PlotAxis plotAxis );
@@ -234,12 +235,12 @@ private:
     void curveDataChanged( const caf::SignalEmitter* emitter );
     void curveVisibilityChanged( const caf::SignalEmitter* emitter, bool visible );
     void curveAppearanceChanged( const caf::SignalEmitter* emitter );
+    void curveStackingChanged( const caf::SignalEmitter* emitter, bool stacked );
+    void curveStackingColorsChanged( const caf::SignalEmitter* emitter, bool stackWithPhaseColors );
 
     void connectAxisSignals( RimPlotAxisProperties* axis );
     void axisSettingsChanged( const caf::SignalEmitter* emitter );
     void axisLogarithmicChanged( const caf::SignalEmitter* emitter, bool isLogarithmic );
-    void axisStackingChanged( const caf::SignalEmitter* emitter, bool stackCurves );
-    void axisStackingColorsChanged( const caf::SignalEmitter* emitter, bool stackWithPhaseColors );
 
 private:
     caf::PdmField<bool> m_normalizeCurveYValues;
