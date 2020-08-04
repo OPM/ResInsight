@@ -97,7 +97,7 @@ bool RicImportFormationNamesFeature::isCommandEnabled()
 
 //--------------------------------------------------------------------------------------------------
 /// If only one formation file is imported, the formation will automatically be set in the active
-/// viewï¿½s case. Import of LYR files with colors create custom color legends according to color
+/// view’s case. Import of LYR files with colors create custom color legends according to color
 /// definition on each file. However, color legend must be set by the user.
 //--------------------------------------------------------------------------------------------------
 void RicImportFormationNamesFeature::onActionTriggered( bool isChecked )
@@ -226,13 +226,17 @@ void RicImportFormationNamesFeature::setFormationCellResultAndLegend( Rim3dView*
     RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>( activeView );
     if ( geoMechView )
     {
-        legendConfig = geoMechView->cellResult().p()->legendConfig;
-        // geoMechView->cellResult().p()->setResultType( RiaDefines::ResultCatType::FORMATION_NAMES );
-        // geoMechView->cellResult().p()->setResultVariable( RiaDefines::activeFormationNamesResultName() );
+        legendConfig = geoMechView->cellResult()->legendConfig();
     }
 
-    RimColorLegendCollection* colorLegendCollection = RimProject::current()->colorLegendCollection;
-    RimColorLegend*           legend                = colorLegendCollection->findByName( legendName );
+    if ( legendConfig )
+    {
+        RimColorLegendCollection* colorLegendCollection = RimProject::current()->colorLegendCollection;
 
-    legendConfig->setColorLegend( legend );
+        RimColorLegend* legend = colorLegendCollection->findByName( legendName );
+        if ( legend )
+        {
+            legendConfig->setColorLegend( legend );
+        }
+    }
 }
