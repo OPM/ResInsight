@@ -187,8 +187,6 @@ RimWellLogTrack::RimWellLogTrack()
     m_visibleDepthRangeMax.uiCapability()->setUiHidden( true );
     m_visibleDepthRangeMax.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_stackCurves, "StackCurves", false, "Stack Curves", "", "", "" );
-    CAF_PDM_InitField( &m_stackWithPhaseColors, "StackWithPhaseColors", false, "  with phase colors", "", "", "" );
     CAF_PDM_InitField( &m_isAutoScaleXEnabled, "AutoScaleX", true, "Auto Scale", "", "", "" );
     m_isAutoScaleXEnabled.uiCapability()->setUiHidden( true );
 
@@ -476,7 +474,7 @@ void RimWellLogTrack::updateXZoom()
         m_visibleXRangeMax = m_availableXRangeMax;
 
         // Set min limit to 0.0 for stacked curves
-        if ( m_stackCurves && !m_isLogarithmicScaleEnabled )
+        if ( !visibleStackedCurves().empty() && !m_isLogarithmicScaleEnabled )
         {
             m_visibleXRangeMin = 0.0;
         }
@@ -720,14 +718,6 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         updateParentLayout();
         RiuPlotMainWindowTools::refreshToolbars();
     }
-    else if ( changedField == &m_stackCurves || changedField == &m_stackWithPhaseColors )
-    {
-        updateStackedCurveData();
-
-        m_isAutoScaleXEnabled = true;
-        updateXZoom();
-        m_plotWidget->scheduleReplot();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -735,7 +725,8 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::curveDataChanged( const caf::SignalEmitter* emitter )
 {
-    if ( m_stackCurves )
+    const RimWellLogCurve* curve = dynamic_cast<const RimWellLogCurve*>( emitter );
+    if ( curve->stacked() )
     {
         updateStackedCurveData();
     }
@@ -746,7 +737,8 @@ void RimWellLogTrack::curveDataChanged( const caf::SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::curveVisibilityChanged( const caf::SignalEmitter* emitter, bool visible )
 {
-    if ( m_stackCurves )
+    const RimWellLogCurve* curve = dynamic_cast<const RimWellLogCurve*>( emitter );
+    if ( curve->stacked() )
     {
         updateStackedCurveData();
     }
@@ -761,6 +753,30 @@ void RimWellLogTrack::curveAppearanceChanged( const caf::SignalEmitter* emitter 
     {
         m_plotWidget->scheduleReplot();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::curveStackingChanged( const caf::SignalEmitter* emitter, bool stacked )
+{
+    updateStackedCurveData();
+
+    m_isAutoScaleXEnabled = true;
+    updateXZoom();
+    m_plotWidget->scheduleReplot();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::curveStackingColorsChanged( const caf::SignalEmitter* emitter, bool stackWithPhaseColors )
+{
+    updateStackedCurveData();
+
+    m_isAutoScaleXEnabled = true;
+    updateXZoom();
+    m_plotWidget->scheduleReplot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1078,6 +1094,7 @@ void RimWellLogTrack::addCurve( RimWellLogCurve* curve )
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::insertCurve( RimWellLogCurve* curve, size_t index )
 {
+    qDebug() << "Drag index: " << index;
     if ( index >= m_curves.size() )
     {
         addCurve( curve );
@@ -2035,6 +2052,8 @@ void RimWellLogTrack::connectCurveSignals( RimWellLogCurve* curve )
     curve->dataChanged.connect( this, &RimWellLogTrack::curveDataChanged );
     curve->visibilityChanged.connect( this, &RimWellLogTrack::curveVisibilityChanged );
     curve->appearanceChanged.connect( this, &RimWellLogTrack::curveAppearanceChanged );
+    curve->stackingChanged.connect( this, &RimWellLogTrack::curveStackingChanged );
+    curve->stackingColorsChanged.connect( this, &RimWellLogTrack::curveStackingColorsChanged );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2045,6 +2064,8 @@ void RimWellLogTrack::disconnectCurveSignals( RimWellLogCurve* curve )
     curve->dataChanged.disconnect( this );
     curve->visibilityChanged.disconnect( this );
     curve->appearanceChanged.disconnect( this );
+    curve->stackingChanged.disconnect( this );
+    curve->stackingColorsChanged.disconnect( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2098,7 +2119,7 @@ std::map<int, std::vector<RimWellLogCurve*>> RimWellLogTrack::visibleStackedCurv
             {
                 stackedCurves[wfrCurve->groupId()].push_back( wfrCurve );
             }
-            else if ( m_stackCurves() )
+            else if ( curve->stacked() )
             {
                 stackedCurves[-1].push_back( curve );
             }
@@ -2168,11 +2189,6 @@ void RimWellLogTrack::uiOrderingForXAxisSettings( caf::PdmUiOrdering& uiOrdering
     gridGroup->add( &m_visibleXRangeMin );
     gridGroup->add( &m_visibleXRangeMax );
     gridGroup->add( &m_xAxisGridVisibility );
-    gridGroup->add( &m_stackCurves );
-    if ( m_stackCurves )
-    {
-        gridGroup->add( &m_stackWithPhaseColors );
-    }
 
     // TODO Revisit if these settings are required
     // See issue https://github.com/OPM/ResInsight/issues/4367
@@ -2454,7 +2470,7 @@ void RimWellLogTrack::updateStackedCurveData()
 
             curve->setOverrideCurveData( allStackedValues, plotDepthValues, polyLineStartStopIndices );
             curve->setZOrder( zPos );
-            if ( m_stackWithPhaseColors() )
+            if ( curve->stackWithPhaseColors() )
             {
                 curve->assignStackColor( stackIndex, curvePhaseCount[curve->phaseType()] );
             }

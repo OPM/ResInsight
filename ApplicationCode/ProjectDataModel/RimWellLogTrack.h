@@ -253,6 +253,8 @@ private:
     void curveDataChanged( const caf::SignalEmitter* emitter );
     void curveVisibilityChanged( const caf::SignalEmitter* emitter, bool visible );
     void curveAppearanceChanged( const caf::SignalEmitter* emitter );
+    void curveStackingChanged( const caf::SignalEmitter* emitter, bool stacked );
+    void curveStackingColorsChanged( const caf::SignalEmitter* emitter, bool stackWithPhaseColors );
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
@@ -311,8 +313,6 @@ private:
     caf::PdmField<double>                     m_visibleDepthRangeMin;
     caf::PdmField<double>                     m_visibleDepthRangeMax;
 
-    caf::PdmField<bool>                         m_stackCurves;
-    caf::PdmField<bool>                         m_stackWithPhaseColors;
     caf::PdmField<bool>                         m_isAutoScaleXEnabled;
     caf::PdmField<bool>                         m_isLogarithmicScaleEnabled;
     caf::PdmField<RimWellLogPlot::AxisGridEnum> m_xAxisGridVisibility;

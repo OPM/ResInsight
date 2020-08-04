@@ -58,8 +58,6 @@ CAF_PDM_SOURCE_INIT(RimPlotAxisProperties, "SummaryYAxisProperties");
 RimPlotAxisProperties::RimPlotAxisProperties()
     : settingsChanged(this)
     , logarithmicChanged(this)
-    , stackingChanged(this)
-    , stackingColorsChanged(this)
     , m_enableTitleTextSettings(true)
     , m_isRangeSettingsEnabled(true)
 {
@@ -91,8 +89,6 @@ RimPlotAxisProperties::RimPlotAxisProperties()
     CAF_PDM_InitField(&m_isAutoZoom, "AutoZoom", true, "Set Range Automatically", "", "", "");
     CAF_PDM_InitField(&isLogarithmicScaleEnabled, "LogarithmicScale", false, "Logarithmic Scale", "", "", "");
     CAF_PDM_InitField(&m_isAxisInverted, "AxisInverted", false, "Invert Axis", "", "", "");
-    CAF_PDM_InitField(&m_stackCurves, "StackCurves", false, "Stack Curves", "", "", "");
-    CAF_PDM_InitField(&m_stackWithPhaseColors, "StackPhaseColors", false, "  with Phase Colors", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_titlePositionEnum, "TitlePosition", "Title Position", "", "", "");
 
@@ -196,11 +192,6 @@ void RimPlotAxisProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     {
         scaleGroup.add( &isLogarithmicScaleEnabled );
         scaleGroup.add( &m_isAxisInverted );
-    }
-    scaleGroup.add( &m_stackCurves );
-    if ( m_stackCurves )
-    {
-        scaleGroup.add( &m_stackWithPhaseColors );
     }
     scaleGroup.add( &numberFormat );
 
@@ -365,22 +356,6 @@ void RimPlotAxisProperties::setAxisInverted( bool inverted )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimPlotAxisProperties::stackCurves() const
-{
-    return m_stackCurves();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimPlotAxisProperties::stackWithPhaseColors() const
-{
-    return m_stackWithPhaseColors;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RimPlotAxisProperties::isActive() const
 {
     return m_isActive;
@@ -429,14 +404,6 @@ void RimPlotAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* changed
     if ( changedField == &isLogarithmicScaleEnabled )
     {
         logarithmicChanged.send( isLogarithmicScaleEnabled() );
-    }
-    else if ( changedField == &m_stackCurves )
-    {
-        stackingChanged.send( m_stackCurves() );
-    }
-    else if ( changedField == &m_stackWithPhaseColors )
-    {
-        stackingColorsChanged.send( m_stackWithPhaseColors() );
     }
     else
     {
