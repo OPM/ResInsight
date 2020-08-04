@@ -540,23 +540,6 @@ endif()
 #############################################################################
 if (MSVC)
 
-    # Qt DLLs
-    message(STATUS "Creating post build step for copying Qt DLLs")
-		
-	foreach (qtlib ${QT_LIBRARIES})
-		add_custom_command(TARGET ResInsight POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}> $<TARGET_FILE_DIR:ResInsight>
-		)
-	endforeach(qtlib)
-			
-	if (_unityTargetName)
-		foreach (qtlib ${QT_LIBRARIES})
-			add_custom_command(TARGET ${_unityTargetName} POST_BUILD
-				COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}> $<TARGET_FILE_DIR:${_unityTargetName}>
-			)
-		endforeach(qtlib)
-	endif(_unityTargetName)
-
     # Odb Dlls
     if (RESINSIGHT_USE_ODB_API)
         # Find all the dlls
@@ -726,6 +709,22 @@ if (RESINSIGHT_PRIVATE_INSTALL)
             --dir "${CMAKE_CURRENT_BINARY_DIR}/windeployqt"
             "$<TARGET_FILE_DIR:ResInsight>/$<TARGET_FILE_NAME:ResInsight>"
           )
+
+          # Qt DLLs
+          message(STATUS "Creating post build step for copying Qt DLLs")
+	
+          # copy all files in the windeployqt directory to the installation directory
+          add_custom_command(TARGET ResInsight POST_BUILD
+              COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_BINARY_DIR}/windeployqt/" $<TARGET_FILE_DIR:ResInsight>
+          )
+		
+	      if (_unityTargetName)
+		      foreach (qtlib ${QT_LIBRARIES})
+		        add_custom_command(TARGET ${_unityTargetName} POST_BUILD
+		          COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}> $<TARGET_FILE_DIR:${_unityTargetName}>
+		       )
+		      endforeach(qtlib)
+	      endif(_unityTargetName)<CONFIG>_OUTPUT_NAME
 
           # copy deployment directory during installation
           install(
