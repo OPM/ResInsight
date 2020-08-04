@@ -72,6 +72,7 @@
 #include <QRectF>
 #include <QString>
 
+#include <algorithm>
 #include <limits>
 #include <set>
 
@@ -526,6 +527,23 @@ void RimSummaryPlot::deleteAllSummaryCurves()
 RimSummaryCurveCollection* RimSummaryPlot::summaryCurveCollection() const
 {
     return m_summaryCurveCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCurve*> RimSummaryPlot::visibleStackedSummaryCurvesForAxis( RiaDefines::PlotAxis plotAxis )
+{
+    auto visibleCurves = visibleSummaryCurvesForAxis( plotAxis );
+
+    std::vector<RimSummaryCurve*> visibleStackedCurves;
+
+    std::copy_if( visibleCurves.begin(),
+                  visibleCurves.end(),
+                  std::back_inserter( visibleStackedCurves ),
+                  []( RimSummaryCurve* curve ) { return curve->stacked(); } );
+
+    return visibleStackedCurves;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1352,8 +1370,8 @@ void RimSummaryPlot::childFieldChangedByUi( const caf::PdmFieldHandle* changedCh
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateStackedCurveData()
 {
-    if ( m_leftYAxisProperties->stackCurves() ) updateStackedCurveDataForAxis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
-    if ( m_rightYAxisProperties->stackCurves() ) updateStackedCurveDataForAxis( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
+    updateStackedCurveDataForAxis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
+    updateStackedCurveDataForAxis( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1361,12 +1379,14 @@ void RimSummaryPlot::updateStackedCurveData()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateStackedCurveDataForAxis( RiaDefines::PlotAxis plotAxis )
 {
-    RimPlotAxisProperties* axisProperties = yAxisPropertiesLeftOrRight( plotAxis );
-
     std::map<RiaDefines::PhaseType, size_t> curvePhaseCount;
 
+    auto stackedCurves = visibleStackedSummaryCurvesForAxis( plotAxis );
+
+    if ( stackedCurves.size() <= 1u ) return; // No point in stacking if there's less than two curves
+
     // Reset all curves
-    for ( RimSummaryCurve* curve : visibleSummaryCurvesForAxis( plotAxis ) )
+    for ( RimSummaryCurve* curve : stackedCurves )
     {
         // Apply a area filled style if it isn't already set
         if ( curve->fillStyle() == Qt::NoBrush )
@@ -1379,13 +1399,12 @@ void RimSummaryPlot::updateStackedCurveDataForAxis( RiaDefines::PlotAxis plotAxi
         curvePhaseCount[curve->phaseType()]++;
     }
 
-    if ( axisProperties->stackCurves() )
     {
         // Z-position of curve, to draw them in correct order
         double zPos = -10000.0;
 
         std::vector<time_t> allTimeSteps;
-        for ( RimSummaryCurve* curve : visibleSummaryCurvesForAxis( plotAxis ) )
+        for ( RimSummaryCurve* curve : stackedCurves )
         {
             allTimeSteps.insert( allTimeSteps.end(), curve->timeStepsY().begin(), curve->timeStepsY().end() );
         }
@@ -1395,7 +1414,7 @@ void RimSummaryPlot::updateStackedCurveDataForAxis( RiaDefines::PlotAxis plotAxi
         std::vector<double> allStackedValues( allTimeSteps.size(), 0.0 );
 
         size_t stackIndex = 0u;
-        for ( RimSummaryCurve* curve : visibleSummaryCurvesForAxis( plotAxis ) )
+        for ( RimSummaryCurve* curve : stackedCurves )
         {
             for ( size_t i = 0; i < allTimeSteps.size(); ++i )
             {
@@ -1408,7 +1427,7 @@ void RimSummaryPlot::updateStackedCurveDataForAxis( RiaDefines::PlotAxis plotAxi
 
             curve->setOverrideCurveDataY( allTimeSteps, allStackedValues );
             curve->setZOrder( zPos );
-            if ( axisProperties->stackWithPhaseColors() )
+            if ( curve->stackWithPhaseColors() )
             {
                 curve->assignStackColor( stackIndex, curvePhaseCount[curve->phaseType()] );
             }
@@ -1597,6 +1616,8 @@ void RimSummaryPlot::connectCurveSignals( RimSummaryCurve* curve )
     curve->dataChanged.connect( this, &RimSummaryPlot::curveDataChanged );
     curve->visibilityChanged.connect( this, &RimSummaryPlot::curveVisibilityChanged );
     curve->appearanceChanged.connect( this, &RimSummaryPlot::curveAppearanceChanged );
+    curve->stackingChanged.connect( this, &RimSummaryPlot::curveStackingChanged );
+    curve->stackingColorsChanged.connect( this, &RimSummaryPlot::curveStackingColorsChanged );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1607,6 +1628,8 @@ void RimSummaryPlot::disconnectCurveSignals( RimSummaryCurve* curve )
     curve->dataChanged.disconnect( this );
     curve->visibilityChanged.disconnect( this );
     curve->appearanceChanged.disconnect( this );
+    curve->stackingChanged.disconnect( this );
+    curve->stackingColorsChanged.disconnect( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1639,12 +1662,26 @@ void RimSummaryPlot::curveAppearanceChanged( const caf::SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::curveStackingChanged( const caf::SignalEmitter* emitter, bool stacked )
+{
+    updateStackedCurveData();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::curveStackingColorsChanged( const caf::SignalEmitter* emitter, bool stackWithPhaseColors )
+{
+    updateStackedCurveData();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::connectAxisSignals( RimPlotAxisProperties* axis )
 {
     axis->settingsChanged.connect( this, &RimSummaryPlot::axisSettingsChanged );
     axis->logarithmicChanged.connect( this, &RimSummaryPlot::axisLogarithmicChanged );
-    axis->stackingChanged.connect( this, &RimSummaryPlot::axisStackingChanged );
-    axis->stackingColorsChanged.connect( this, &RimSummaryPlot::axisStackingColorsChanged );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1661,30 +1698,6 @@ void RimSummaryPlot::axisSettingsChanged( const caf::SignalEmitter* emitter )
 void RimSummaryPlot::axisLogarithmicChanged( const caf::SignalEmitter* emitter, bool isLogarithmic )
 {
     loadDataAndUpdate();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::axisStackingChanged( const caf::SignalEmitter* emitter, bool stackCurves )
-{
-    auto axisProps = dynamic_cast<const RimPlotAxisProperties*>( emitter );
-    if ( axisProps )
-    {
-        updateStackedCurveDataForAxis( axisProps->plotAxisType() );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::axisStackingColorsChanged( const caf::SignalEmitter* emitter, bool stackWithPhaseColors )
-{
-    auto axisProps = dynamic_cast<const RimPlotAxisProperties*>( emitter );
-    if ( axisProps )
-    {
-        updateStackedCurveDataForAxis( axisProps->plotAxisType() );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

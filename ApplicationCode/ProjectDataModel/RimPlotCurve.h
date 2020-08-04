@@ -49,6 +49,8 @@ public:
     caf::Signal<bool>    visibilityChanged;
     caf::Signal<>        dataChanged;
     caf::Signal<QString> nameChanged;
+    caf::Signal<bool>    stackingChanged;
+    caf::Signal<bool>    stackingColorsChanged;
 
 public:
     typedef caf::AppEnum<RiuQwtPlotCurve::CurveInterpolationEnum> CurveInterpolation;
@@ -121,6 +123,8 @@ public:
 
     virtual RiaDefines::PhaseType phaseType() const;
     void                          assignStackColor( size_t index, size_t count );
+    bool                          stacked() const;
+    bool                          stackWithPhaseColors() const;
 
 protected:
     virtual QString createCurveAutoName()                        = 0;
@@ -191,4 +195,7 @@ protected:
     caf::PdmField<CurveInterpolation> m_curveInterpolation;
     caf::PdmField<LabelPosition>      m_symbolLabelPosition;
     caf::PdmField<cvf::Color3f>       m_symbolEdgeColor;
+
+    caf::PdmField<bool> m_stackCurve;
+    caf::PdmField<bool> m_stackWithPhaseColors;
 };
