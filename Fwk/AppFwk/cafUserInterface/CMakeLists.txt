@@ -171,10 +171,9 @@ set( PROJECT_FILES
 )
 
 add_library( ${PROJECT_NAME}
-    
- ${PROJECT_FILES}
-
+    ${PROJECT_FILES}
     ${MOC_SOURCE_FILES}
+    ${QRC_FILES_CPP}
 )
 
 if (MSVC) 

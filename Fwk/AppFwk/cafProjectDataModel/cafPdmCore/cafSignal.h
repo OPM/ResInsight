@@ -133,6 +133,26 @@ public:
         : m_emitter( emitter )
     {
     }
+
+    Signal( const Signal& rhs )
+        : m_emitter( rhs.m_emitter )
+    {
+        for ( auto observerCallbackPair : rhs.m_observerCallbacks )
+        {
+            connect( observerCallbackPair.first, observerCallbackPair.second.first );
+        }
+    }
+
+    Signal& operator=( const Signal& rhs )
+    {
+        m_emitter = rhs.m_emitter;
+        for ( auto observerCallbackPair : rhs.m_observerCallbacks )
+        {
+            connect( observerCallbackPair.first, observerCallbackPair.second.first );
+        }
+        return *this;
+    }
+
     virtual ~Signal()
     {
         for ( auto observerCallbackPair : m_observerCallbacks )
@@ -144,13 +164,18 @@ public:
     template <typename ClassType>
     void connect( ClassType* observer, void ( ClassType::*method )( const SignalEmitter*, Args... args ) )
     {
-        static_assert( std::is_convertible<ClassType*, SignalObserver*>::value,
-                       "Only classes that inherit SignalObserver can connect as an observer of a Signal." );
         MemberCallback lambda = [=]( const SignalEmitter* emitter, Args... args ) {
             // Call method
             ( observer->*method )( emitter, args... );
         };
-        m_observerCallbacks[observer] = std::make_pair( lambda, true );
+        connect( observer, lambda );
+    }
+    template <typename ClassType>
+    void connect( ClassType* observer, const MemberCallback& callback )
+    {
+        static_assert( std::is_convertible<ClassType*, SignalObserver*>::value,
+                       "Only classes that inherit SignalObserver can connect as an observer of a Signal." );
+        m_observerCallbacks[observer] = std::make_pair( callback, true );
         observer->beingDeleted.connect( this );
     }
 
@@ -184,9 +209,6 @@ public:
     size_t observerCount() const { return m_observerCallbacks.size(); }
 
 private:
-    Signal( const Signal& rhs ) = default;
-    Signal& operator=( const Signal& rhs ) = default;
-
     std::map<SignalObserver*, MemberCallbackAndActiveFlag> m_observerCallbacks;
     const SignalEmitter*                                   m_emitter;
 };
