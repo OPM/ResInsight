@@ -80,7 +80,8 @@ RimFormationNames* RicImportFormationNamesFeature::importFormationFiles( const Q
 
         if ( anyValidColor )
         {
-            RicImportFormationNamesFeature::addCustomColorLegend( QFileInfo( fileNames[i] ).baseName(), formationNames[i] );
+            QString baseName = QFileInfo( fileNames[i] ).baseName();
+            RicImportFormationNamesFeature::addCustomColorLegend( baseName, formationNames[i] );
         }
     }
 
