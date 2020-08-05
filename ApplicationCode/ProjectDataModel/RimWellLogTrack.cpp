@@ -2352,7 +2352,7 @@ void RimWellLogTrack::updateStackedCurveData()
 {
     const double eps = 1.0e-8;
 
-    RimWellLogPlot* wellLogPlot;
+    RimDepthTrackPlot* wellLogPlot;
     firstAncestorOrThisOfTypeAsserted( wellLogPlot );
 
     RimWellLogPlot::DepthTypeEnum depthType    = wellLogPlot->depthType();
