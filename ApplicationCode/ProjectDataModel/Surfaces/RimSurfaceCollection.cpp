@@ -133,6 +133,16 @@ RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSurfaceCollection::reloadSurfaces( std::vector<RimSurface*> surfaces )
+{
+    // todo: use logic from import surfaces to refresh surfaces with updated file contents
+
+    //
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimSurface* RimSurfaceCollection::addGridCaseSurface( RimCase* sourceCase )
 {
     auto s = new RimGridCaseSurface;
