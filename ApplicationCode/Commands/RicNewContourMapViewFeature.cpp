@@ -33,6 +33,7 @@
 
 #include "RimFaultInViewCollection.h"
 #include "RimSimWellInViewCollection.h"
+#include "RimSurfaceInViewCollection.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -298,6 +299,9 @@ RimGeoMechContourMapView* RicNewContourMapViewFeature::createGeoMechContourMapFr
     contourMap->setGeoMechCase( geoMechCase );
     contourMap->setBackgroundColor( cvf::Color3f( 1.0f, 1.0f, 0.98f ) ); // Ignore original view background
     contourMap->setDefaultCustomName();
+
+    // make sure no surfaces are shown in the view when the contourmap is generated
+    if ( contourMap->surfaceInViewCollection() ) contourMap->surfaceInViewCollection()->setCheckState( Qt::Unchecked );
 
     caf::PdmDocument::updateUiIconStateRecursively( contourMap );
 
