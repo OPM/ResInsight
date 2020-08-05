@@ -699,12 +699,12 @@ void RimRegularLegendConfig::updateCategoryItems()
             cvf::Color3ub ubColor( item->color() );
             categories.push_back( std::make_tuple( item->itemName(), item->categoryValue(), ubColor ) );
         }
+
+        // Reverse the categories to make the ordering identical to items in project tree
+        std::reverse( categories.begin(), categories.end() );
+
+        setCategoryItems( categories );
     }
-
-    // Reverse the categories to make the ordering identical to items in project tree
-    std::reverse( categories.begin(), categories.end() );
-
-    setCategoryItems( categories );
 }
 
 //--------------------------------------------------------------------------------------------------
