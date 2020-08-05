@@ -208,6 +208,13 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMapFr
     contourMap->faultCollection()->showFaultCollection = false;
     contourMap->wellCollection()->isActive             = false;
 
+    // Set default values
+    RimRegularLegendConfig* legendConfig = contourMap->cellResult()->legendConfig();
+    if ( legendConfig && legendConfig->mappingMode() == RimRegularLegendConfig::CATEGORY_INTEGER )
+    {
+        RicNewContourMapViewFeature::assignDefaultResultAndLegend( contourMap );
+    }
+
     caf::PdmDocument::updateUiIconStateRecursively( contourMap );
 
     eclipseCase->contourMapCollection()->push_back( contourMap );
@@ -235,22 +242,7 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMap( 
     RimEclipseContourMapView* contourMap = new RimEclipseContourMapView();
     contourMap->setEclipseCase( eclipseCase );
 
-    // Set default values
-    {
-        contourMap->cellResult()->setResultType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
-
-        if ( RiaApplication::instance()->preferences()->loadAndShowSoil )
-        {
-            contourMap->cellResult()->setResultVariable( "SOIL" );
-        }
-
-        RimRegularLegendConfig* legendConfig = contourMap->cellResult()->legendConfig();
-        if ( legendConfig )
-        {
-            RimColorLegend* legend = legendConfig->mapToColorLegend( RimRegularLegendConfig::RAINBOW );
-            legendConfig->setColorLegend( legend );
-        }
-    }
+    assignDefaultResultAndLegend( contourMap );
 
     caf::PdmDocument::updateUiIconStateRecursively( contourMap );
 
@@ -342,4 +334,27 @@ RimGeoMechContourMapView* RicNewContourMapViewFeature::createGeoMechContourMap( 
     contourMap->initAfterReadRecursively();
 
     return contourMap;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicNewContourMapViewFeature::assignDefaultResultAndLegend( RimEclipseContourMapView* contourMap )
+{
+    if ( contourMap->cellResult() )
+    {
+        contourMap->cellResult()->setResultType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
+
+        if ( RiaApplication::instance()->preferences()->loadAndShowSoil )
+        {
+            contourMap->cellResult()->setResultVariable( "SOIL" );
+        }
+
+        RimRegularLegendConfig* legendConfig = contourMap->cellResult()->legendConfig();
+        if ( legendConfig )
+        {
+            RimColorLegend* legend = legendConfig->mapToColorLegend( RimRegularLegendConfig::RAINBOW );
+            legendConfig->setColorLegend( legend );
+        }
+    }
 }

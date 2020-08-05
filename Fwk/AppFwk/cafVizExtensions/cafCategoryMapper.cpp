@@ -159,8 +159,6 @@ Color3ub CategoryMapper::mapToColor( double categoryValue ) const
 //--------------------------------------------------------------------------------------------------
 void CategoryMapper::majorTickValues( std::vector<double>* domainValues ) const
 {
-    // Not intended to be supported
-    CVF_ASSERT( false );
 }
 
 //--------------------------------------------------------------------------------------------------
