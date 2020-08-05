@@ -82,6 +82,7 @@
 #include "RiuWellLogTrack.h"
 #include "RiuWellPathComponentPlotItem.h"
 
+#include "cafPdmFieldReorderCapability.h"
 #include "cafPdmUiSliderEditor.h"
 #include "cafSelectionManager.h"
 #include "cvfAssert.h"
@@ -177,6 +178,8 @@ RimWellLogTrack::RimWellLogTrack()
 
     CAF_PDM_InitFieldNoDefault( &m_curves, "Curves", "", "", "", "" );
     m_curves.uiCapability()->setUiHidden( true );
+    auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_curves );
+    reorderability->orderChanged.connect( this, &RimWellLogTrack::curveDataChanged );
 
     CAF_PDM_InitField( &m_visibleXRangeMin, "VisibleXRangeMin", RI_LOGPLOTTRACK_MINX_DEFAULT, "Min", "", "", "" );
     CAF_PDM_InitField( &m_visibleXRangeMax, "VisibleXRangeMax", RI_LOGPLOTTRACK_MAXX_DEFAULT, "Max", "", "", "" );
@@ -725,11 +728,15 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::curveDataChanged( const caf::SignalEmitter* emitter )
 {
-    const RimWellLogCurve* curve = dynamic_cast<const RimWellLogCurve*>( emitter );
-    if ( curve->stacked() )
+    for ( auto curve : m_curves )
     {
-        updateStackedCurveData();
+        if ( curve->stacked() )
+        {
+            updateStackedCurveData();
+            break;
+        }
     }
+    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
