@@ -155,6 +155,7 @@ private:
     void onPlotAdditionOrRemoval();
     void doRenderWindowContent( QPaintDevice* paintDevice ) override;
     void doUpdateLayout() override;
+    void onPlotsReordered( const SignalEmitter* emitter );
 
 protected:
     caf::PdmChildField<RimWellLogCurveCommonDataSource*> m_commonDataSource;
