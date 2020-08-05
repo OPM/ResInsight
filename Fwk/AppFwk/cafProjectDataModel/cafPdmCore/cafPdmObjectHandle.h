@@ -50,6 +50,12 @@ public:
     template <typename T>
     void firstAncestorOrThisOfTypeAsserted( T*& ancestor ) const;
 
+    template <typename T>
+    void allAncestorsOfType( std::vector<T*>& ancestors ) const;
+
+    template <typename T>
+    void allAncestorsOrThisOfType( std::vector<T*>& ancestors ) const;
+
     /// Traverses all children recursively to find objects of the requested type. This object is also
     /// included if it is of the requested type.
     template <typename T>
@@ -194,6 +200,36 @@ void PdmObjectHandle::firstAncestorOrThisOfTypeAsserted( T*& ancestor ) const
     firstAncestorOrThisOfType( ancestor );
 
     CAF_ASSERT( ancestor );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename T>
+void PdmObjectHandle::allAncestorsOfType( std::vector<T*>& ancestors ) const
+{
+    T* firstAncestor = nullptr;
+    this->firstAncestorOfType( firstAncestor );
+    if ( firstAncestor )
+    {
+        ancestors.push_back( firstAncestor );
+        firstAncestor->allAncestorsOfType( ancestors );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename T>
+void PdmObjectHandle::allAncestorsOrThisOfType( std::vector<T*>& ancestors ) const
+{
+    T* firstAncestorOrThis = nullptr;
+    this->firstAncestorOrThisOfType( firstAncestorOrThis );
+    if ( firstAncestorOrThis )
+    {
+        ancestors.push_back( firstAncestorOrThis );
+        firstAncestorOrThis->allAncestorsOfType( ancestors );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
