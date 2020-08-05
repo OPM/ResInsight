@@ -112,7 +112,7 @@ bool RifSurfaceExporter::writePetrellPtlFile( const QString&                    
     out << "#History: No history \n";
     out << "#Z_units: meters \n";
 
-    for ( int i = 0; i < vertices.size(); i++ )
+    for ( size_t i = 0; i < vertices.size(); i++ )
     {
         out << vertices[i].x() << " ";
         out << vertices[i].y() << " ";

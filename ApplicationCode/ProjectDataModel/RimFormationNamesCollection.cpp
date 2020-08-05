@@ -64,7 +64,6 @@ std::vector<RimFormationNames*> RimFormationNamesCollection::importFiles( const 
 {
     QStringList                     newFileNames;
     std::vector<RimFormationNames*> formNamesObjsToReload;
-    size_t                          formationListBeforeImportCount = m_formationNamesList.size();
 
     for ( const QString& newFileName : fileNames )
     {
