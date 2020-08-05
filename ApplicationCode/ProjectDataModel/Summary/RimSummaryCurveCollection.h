@@ -97,6 +97,8 @@ private:
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
 
+    void onCurvesReordered( const SignalEmitter* emitter );
+
 private:
     caf::PdmField<bool>                       m_showCurves;
     caf::PdmChildArrayField<RimSummaryCurve*> m_curves;

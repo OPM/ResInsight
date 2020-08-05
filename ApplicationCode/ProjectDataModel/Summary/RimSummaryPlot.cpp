@@ -2117,6 +2117,7 @@ void RimSummaryPlot::onCurvesAddedOrRemoved( const SignalEmitter* emitter )
 {
     loadDataAndUpdate();
     updateStackedCurveData();
+    reattachAllCurves();
 }
 
 //--------------------------------------------------------------------------------------------------

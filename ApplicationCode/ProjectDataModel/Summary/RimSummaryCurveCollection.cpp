@@ -34,6 +34,7 @@
 #include "RiuQwtPlotCurve.h"
 #include "RiuSummaryQwtPlot.h"
 
+#include "cafPdmFieldReorderCapability.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeViewEditor.h"
 
@@ -54,6 +55,8 @@ RimSummaryCurveCollection::RimSummaryCurveCollection()
     CAF_PDM_InitFieldNoDefault( &m_curves, "CollectionCurves", "Collection Curves", "", "", "" );
     m_curves.uiCapability()->setUiHidden( true );
     m_curves.uiCapability()->setUiTreeChildrenHidden( false );
+    auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_curves );
+    reorderability->orderChanged.connect( this, &RimSummaryCurveCollection::onCurvesReordered );
 
     CAF_PDM_InitField( &m_showCurves, "IsActive", true, "Show Curves", "", "", "" );
     m_showCurves.uiCapability()->setUiHidden( true );
@@ -516,6 +519,14 @@ void RimSummaryCurveCollection::defineEditorAttribute( const caf::PdmFieldHandle
             attrib->m_buttonText = "Edit Plot";
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::onCurvesReordered( const SignalEmitter* emitter )
+{
+    curvesAddedOrRemoved.send();
 }
 
 //--------------------------------------------------------------------------------------------------
