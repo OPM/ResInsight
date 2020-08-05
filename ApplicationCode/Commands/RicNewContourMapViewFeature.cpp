@@ -301,7 +301,8 @@ RimGeoMechContourMapView* RicNewContourMapViewFeature::createGeoMechContourMapFr
     contourMap->setDefaultCustomName();
     
     // make sure no surfaces are shown in the view when the contourmap is generated
-    contourMap->surfaceInViewCollection()->setCheckState( Qt::Unchecked );
+    if ( contourMap->surfaceInViewCollection() )
+        contourMap->surfaceInViewCollection()->setCheckState( Qt::Unchecked );
 
     caf::PdmDocument::updateUiIconStateRecursively( contourMap );
 
