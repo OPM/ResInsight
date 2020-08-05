@@ -3,12 +3,14 @@ set (SOURCE_GROUP_HEADER_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RicImportSurfacesFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewGridCaseSurfaceFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportSurfaceFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicReloadSurfaceFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RicImportSurfacesFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewGridCaseSurfaceFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportSurfaceFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicReloadSurfaceFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

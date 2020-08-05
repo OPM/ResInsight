@@ -900,6 +900,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             if ( dynamic_cast<RimSurface*>( firstUiItem ) )
             {
                 menuBuilder << "RicExportSurfaceFeature";
+                menuBuilder << "RicReloadSurfaceFeature";
             }
         }
         else if ( dynamic_cast<RimAnnotationCollection*>( firstUiItem ) ||
