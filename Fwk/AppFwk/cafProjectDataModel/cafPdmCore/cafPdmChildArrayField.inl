@@ -151,8 +151,6 @@ void PdmChildArrayField<DataType*>::deleteAllChildObjectsAsync()
 
 //--------------------------------------------------------------------------------------------------
 /// Removes the pointer at index from the container. Does not delete the object pointed to.
-/// Todo: This implementation can't be necessary in the new regime. Should be to just remove
-/// the item at index (shrinking the array)
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
 void PdmChildArrayField<DataType*>::erase( size_t index )
