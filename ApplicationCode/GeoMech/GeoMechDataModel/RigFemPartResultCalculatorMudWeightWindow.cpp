@@ -306,33 +306,26 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
                 {
                     size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
 
-                    float maxLowerMudWeightLimit = 0.0;
-                    float minUpperMudWeightLimit = 0.0;
-                    if ( kMin == kMax )
+                    float maxLowerMudWeightLimit = lowerMudWeightLimitFrameData[elmNodResIdx];
+                    float minUpperMudWeightLimit = upperMudWeightLimitFrameData[elmNodResIdx];
+
+                    for ( size_t currentK = kMin; currentK < kMax; currentK++ )
                     {
-                        maxLowerMudWeightLimit = lowerMudWeightLimitFrameData[elmNodResIdx];
-                        minUpperMudWeightLimit = upperMudWeightLimitFrameData[elmNodResIdx];
-                    }
-                    else
-                    {
-                        for ( size_t currentK = kMin; currentK < kMax; currentK++ )
+                        size_t kElmIdx = femPartGrid->cellIndexFromIJK( i, j, currentK );
+                        if ( kElmIdx != cvf::UNDEFINED_SIZE_T && femPart->elementType( kElmIdx ) == HEX8P )
                         {
-                            size_t kElmIdx = femPartGrid->cellIndexFromIJK( i, j, currentK );
-                            if ( kElmIdx != cvf::UNDEFINED_SIZE_T && femPart->elementType( kElmIdx ) == HEX8P )
+                            size_t kElmNodResIdx = femPart->elementNodeResultIdx( kElmIdx, elmNodIdx );
+
+                            float currentLowerMudWeightLimit = lowerMudWeightLimitFrameData[kElmNodResIdx];
+                            if ( currentLowerMudWeightLimit > maxLowerMudWeightLimit )
                             {
-                                size_t kElmNodResIdx = femPart->elementNodeResultIdx( kElmIdx, elmNodIdx );
+                                maxLowerMudWeightLimit = currentLowerMudWeightLimit;
+                            }
 
-                                float currentLowerMudWeightLimit = lowerMudWeightLimitFrameData[kElmNodResIdx];
-                                if ( currentLowerMudWeightLimit > maxLowerMudWeightLimit )
-                                {
-                                    maxLowerMudWeightLimit = currentLowerMudWeightLimit;
-                                }
-
-                                float currentUpperMudWeightLimit = upperMudWeightLimitFrameData[kElmNodResIdx];
-                                if ( currentUpperMudWeightLimit > minUpperMudWeightLimit )
-                                {
-                                    minUpperMudWeightLimit = currentUpperMudWeightLimit;
-                                }
+                            float currentUpperMudWeightLimit = upperMudWeightLimitFrameData[kElmNodResIdx];
+                            if ( currentUpperMudWeightLimit < minUpperMudWeightLimit )
+                            {
+                                minUpperMudWeightLimit = currentUpperMudWeightLimit;
                             }
                         }
                     }
