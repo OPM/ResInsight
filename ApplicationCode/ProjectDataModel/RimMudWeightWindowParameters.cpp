@@ -20,6 +20,8 @@
 
 #include "RiaLogging.h"
 
+#include "RigFemPartCollection.h"
+#include "RigFemPartGrid.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigGeoMechCaseData.h"
 
@@ -133,7 +135,7 @@ RimMudWeightWindowParameters::RimMudWeightWindowParameters( void )
         RimMudWeightWindowParameters::LowerLimitType::MAX_OF_PORE_PRESSURE_AND_SFG;
     CAF_PDM_InitField( &m_lowerLimitType, "LowerLimitType", defaultLowerLimitType, "Lower Limit Type", "", "", "" );
 
-    CAF_PDM_InitField( &m_referenceLayer, "ReferenceLayer", 0, "Reference Layer", "", "", "" );
+    CAF_PDM_InitField( &m_referenceLayer, "ReferenceLayer", -1, "Reference Layer", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -405,6 +407,21 @@ void RimMudWeightWindowParameters::defineUiOrdering( QString uiConfigName, caf::
     defineGroup( uiOrdering, "UCS", &m_UCSType, &m_UCSFixed, &m_UCSAddress );
     defineGroup( uiOrdering, "Poisson's Ratio", &m_poissonsRatioType, &m_poissonsRatioFixed, &m_poissonsRatioAddress );
     defineGroup( uiOrdering, "K0 for Fracture Gradient Factor for Shale", &m_K0_FGType, &m_K0_FGFixed, &m_K0_FGAddress );
+
+    RimGeoMechCase* geoMechCase = nullptr;
+    firstAncestorOrThisOfType( geoMechCase );
+    if ( !geoMechCase )
+    {
+        return;
+    }
+
+    RigGeoMechCaseData* rigCaseData = geoMechCase->geoMechData();
+
+    if ( rigCaseData && m_referenceLayer == -1 )
+    {
+        m_referenceLayer =
+            (int)rigCaseData->femParts()->part( 0 )->getOrCreateStructGrid()->reservoirIJKBoundingBox().first.z();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -454,28 +471,42 @@ QList<caf::PdmOptionItemInfo>
     RimGeoMechCase* geoMechCase = nullptr;
     firstAncestorOrThisOfType( geoMechCase );
 
-    if ( geoMechCase != nullptr &&
-         ( fieldNeedingOptions == &m_wellDeviationAddress || fieldNeedingOptions == &m_wellAzimuthAddress ||
-           fieldNeedingOptions == &m_UCSAddress || fieldNeedingOptions == &m_poissonsRatioAddress ||
-           fieldNeedingOptions == &m_K0_FGAddress ) )
+    if ( geoMechCase != nullptr )
     {
-        std::vector<std::string> elementProperties = geoMechCase->possibleElementPropertyFieldNames();
-
-        std::vector<caf::FilePath> elementPropertyFileNames = geoMechCase->elementPropertyFileNames();
-        std::vector<QString>       paths;
-        for ( auto path : elementPropertyFileNames )
+        if ( fieldNeedingOptions == &m_wellDeviationAddress || fieldNeedingOptions == &m_wellAzimuthAddress ||
+             fieldNeedingOptions == &m_UCSAddress || fieldNeedingOptions == &m_poissonsRatioAddress ||
+             fieldNeedingOptions == &m_K0_FGAddress )
         {
-            paths.push_back( path.path() );
+            std::vector<std::string> elementProperties = geoMechCase->possibleElementPropertyFieldNames();
+
+            std::vector<caf::FilePath> elementPropertyFileNames = geoMechCase->elementPropertyFileNames();
+            std::vector<QString>       paths;
+            for ( auto path : elementPropertyFileNames )
+            {
+                paths.push_back( path.path() );
+            }
+
+            std::map<std::string, QString> addressesInFile =
+                geoMechCase->geoMechData()->femPartResults()->addressesInElementPropertyFiles( paths );
+
+            for ( const std::string elementProperty : elementProperties )
+            {
+                QString result   = QString::fromStdString( elementProperty );
+                QString filename = geoMechCase->findFileNameForElementProperty( elementProperty, addressesInFile );
+                options.push_back( caf::PdmOptionItemInfo( result + " (" + filename + ")", result ) );
+            }
         }
-
-        std::map<std::string, QString> addressesInFile =
-            geoMechCase->geoMechData()->femPartResults()->addressesInElementPropertyFiles( paths );
-
-        for ( const std::string elementProperty : elementProperties )
+        else if ( fieldNeedingOptions == &m_referenceLayer )
         {
-            QString result   = QString::fromStdString( elementProperty );
-            QString filename = geoMechCase->findFileNameForElementProperty( elementProperty, addressesInFile );
-            options.push_back( caf::PdmOptionItemInfo( result + " (" + filename + ")", result ) );
+            if ( geoMechCase->geoMechData() )
+            {
+                size_t kCount =
+                    geoMechCase->geoMechData()->femParts()->part( 0 )->getOrCreateStructGrid()->gridPointCountK() - 1;
+                for ( size_t layerIdx = 0; layerIdx < kCount; ++layerIdx )
+                {
+                    options.push_back( caf::PdmOptionItemInfo( QString::number( layerIdx + 1 ), (int)layerIdx ) );
+                }
+            }
         }
     }
 
