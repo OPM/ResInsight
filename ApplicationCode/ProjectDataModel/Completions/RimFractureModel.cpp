@@ -829,3 +829,13 @@ void RimFractureModel::updateReferringPlots()
         if ( modelPlot ) modelPlot->loadDataAndUpdate();
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModel::setMD( double md )
+{
+    m_MD = md;
+    updatePositionFromMeasuredDepth();
+    updateThicknessDirection();
+}

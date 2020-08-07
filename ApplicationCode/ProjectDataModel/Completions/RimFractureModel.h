@@ -55,6 +55,8 @@ public:
     RimFractureModel( void );
     ~RimFractureModel( void ) override;
 
+    void setMD( double md );
+
     cvf::Vec3d anchorPosition() const;
     cvf::Vec3d thicknessDirection() const;
 
