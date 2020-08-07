@@ -93,7 +93,7 @@ void RimFileSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
         RimSurfaceCollection* surfColl;
         this->firstAncestorOrThisOfTypeAsserted( surfColl );
-        surfColl->updateViews( { this } );
+        surfColl->updateViews( {this} );
     }
 }
 
@@ -110,8 +110,8 @@ bool RimFileSurface::updateSurfaceData()
         result = loadDataFromFile();
     }
 
-    std::vector<cvf::Vec3d> vertices{ m_vertices };
-    std::vector<unsigned>   tringleIndices{ m_tringleIndices };
+    std::vector<cvf::Vec3d> vertices{m_vertices};
+    std::vector<unsigned>   tringleIndices{m_tringleIndices};
 
     auto surface = new RigSurface;
     if ( !vertices.empty() && !tringleIndices.empty() )

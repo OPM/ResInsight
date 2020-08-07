@@ -149,7 +149,7 @@ void RimGridCaseSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 
         RimSurfaceCollection* surfColl;
         this->firstAncestorOrThisOfTypeAsserted( surfColl );
-        surfColl->updateViews( { this } );
+        surfColl->updateViews( {this} );
     }
 }
 
@@ -301,8 +301,8 @@ bool RimGridCaseSurface::updateSurfaceData()
 
     RigSurface* surfaceData = nullptr;
 
-    std::vector<unsigned>   tringleIndices{ m_tringleIndices };
-    std::vector<cvf::Vec3d> vertices{ m_vertices };
+    std::vector<unsigned>   tringleIndices{m_tringleIndices};
+    std::vector<cvf::Vec3d> vertices{m_vertices};
 
     if ( !tringleIndices.empty() )
     {
