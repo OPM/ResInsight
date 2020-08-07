@@ -20,6 +20,9 @@
 
 #include "RimFractureModelPlot.h"
 
+#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmObjectScriptability.h"
+
 CAF_PDM_SOURCE_INIT( RimFractureModelPlotCollection, "FractureModelPlotCollection" );
 
 //--------------------------------------------------------------------------------------------------
@@ -27,9 +30,9 @@ CAF_PDM_SOURCE_INIT( RimFractureModelPlotCollection, "FractureModelPlotCollectio
 //--------------------------------------------------------------------------------------------------
 RimFractureModelPlotCollection::RimFractureModelPlotCollection()
 {
-    CAF_PDM_InitObject( "FractureModelPlots", ":/WellLogPlots16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "FractureModelPlots", ":/WellLogPlots16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_fractureModelPlots, "FractureModelPlots", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_fractureModelPlots, "FractureModelPlots", "", "", "", "" );
     m_fractureModelPlots.uiCapability()->setUiHidden( true );
 }
 
