@@ -83,7 +83,7 @@ void RimGridCaseSurface::setSliceTypeAndOneBasedIndex( RiaDefines::GridCaseAxis 
 //--------------------------------------------------------------------------------------------------
 bool RimGridCaseSurface::onLoadData()
 {
-    return updateSurfaceDataFromGridCase();
+    return updateSurfaceData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -143,13 +143,13 @@ void RimGridCaseSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 
     if ( changedField == &m_case || changedField == &m_sliceDirection || changedField == &m_oneBasedSliceIndex )
     {
-        clearNativeGridData();
-        updateSurfaceDataFromGridCase();
+        clearCachedNativeData();
+        updateSurfaceData();
         updateUserDescription();
 
         RimSurfaceCollection* surfColl;
         this->firstAncestorOrThisOfTypeAsserted( surfColl );
-        surfColl->updateViews( {this} );
+        surfColl->updateViews( { this } );
     }
 }
 
@@ -158,7 +158,7 @@ void RimGridCaseSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 void RimGridCaseSurface::extractDataFromGrid()
 {
-    clearNativeGridData();
+    clearCachedNativeData();
 
     if ( m_sliceDirection() == RiaDefines::GridCaseAxis::UNDEFINED_AXIS ) return;
 
@@ -270,7 +270,7 @@ void RimGridCaseSurface::extractDataFromGrid()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCaseSurface::clearNativeGridData()
+void RimGridCaseSurface::clearCachedNativeData()
 {
     m_vertices.clear();
     m_tringleIndices.clear();
@@ -345,7 +345,7 @@ void RimGridCaseSurface::updateUserDescription()
 //--------------------------------------------------------------------------------------------------
 /// Returns false for fatal failure
 //--------------------------------------------------------------------------------------------------
-bool RimGridCaseSurface::updateSurfaceDataFromGridCase()
+bool RimGridCaseSurface::updateSurfaceData()
 {
     if ( m_vertices.empty() || m_tringleIndices.empty() || m_structGridIndices.empty() )
     {
@@ -354,8 +354,8 @@ bool RimGridCaseSurface::updateSurfaceDataFromGridCase()
 
     RigSurface* surfaceData = nullptr;
 
-    std::vector<unsigned>   tringleIndices{m_tringleIndices};
-    std::vector<cvf::Vec3d> vertices{m_vertices};
+    std::vector<unsigned>   tringleIndices{ m_tringleIndices };
+    std::vector<cvf::Vec3d> vertices{ m_vertices };
 
     if ( !tringleIndices.empty() )
     {

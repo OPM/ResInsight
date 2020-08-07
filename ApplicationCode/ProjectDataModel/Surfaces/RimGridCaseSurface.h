@@ -53,8 +53,10 @@ protected:
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
 
+    bool updateSurfaceData() override;
+    void clearCachedNativeData() override;
+
 private:
-    bool updateSurfaceDataFromGridCase();
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 

@@ -58,7 +58,7 @@ void RimFileSurface::setSurfaceFilePath( const QString& filePath )
         setUserDescription( QFileInfo( filePath ).fileName() );
     }
 
-    clearCachedNativeFileData();
+    clearCachedNativeData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -74,7 +74,7 @@ QString RimFileSurface::surfaceFilePath()
 //--------------------------------------------------------------------------------------------------
 bool RimFileSurface::onLoadData()
 {
-    return updateSurfaceDataFromFile();
+    return updateSurfaceData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,19 +88,21 @@ void RimFileSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
     if ( changedField == &m_surfaceDefinitionFilePath )
     {
-        clearCachedNativeFileData();
-        updateSurfaceDataFromFile();
+        clearCachedNativeData();
+        updateSurfaceData();
 
         RimSurfaceCollection* surfColl;
         this->firstAncestorOrThisOfTypeAsserted( surfColl );
-        surfColl->updateViews( {this} );
+        surfColl->updateViews( { this } );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Regenerate the surface geometry, using the offset specified.
+/// If the surface data hasn't been loaded from file yet, load it.
 /// Returns false for fatal failure
 //--------------------------------------------------------------------------------------------------
-bool RimFileSurface::updateSurfaceDataFromFile()
+bool RimFileSurface::updateSurfaceData()
 {
     bool result = true;
     if ( m_vertices.empty() )
@@ -108,8 +110,8 @@ bool RimFileSurface::updateSurfaceDataFromFile()
         result = loadDataFromFile();
     }
 
-    std::vector<cvf::Vec3d> vertices{m_vertices};
-    std::vector<unsigned>   tringleIndices{m_tringleIndices};
+    std::vector<cvf::Vec3d> vertices{ m_vertices };
+    std::vector<unsigned>   tringleIndices{ m_tringleIndices };
 
     auto surface = new RigSurface;
     if ( !vertices.empty() && !tringleIndices.empty() )
@@ -137,7 +139,7 @@ bool RimFileSurface::updateSurfaceDataFromFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFileSurface::clearCachedNativeFileData()
+void RimFileSurface::clearCachedNativeData()
 {
     m_vertices.clear();
     m_tringleIndices.clear();

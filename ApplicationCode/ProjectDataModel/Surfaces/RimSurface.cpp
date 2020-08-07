@@ -184,6 +184,15 @@ void RimSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField, cons
     {
         RimSurfaceCollection* surfColl;
         this->firstAncestorOrThisOfTypeAsserted( surfColl );
-        surfColl->updateViews( {this} );
+        surfColl->updateViews( { this } );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Make the surface clear its internal data and reload them from the source data (i.e. file or grid)
+//--------------------------------------------------------------------------------------------------
+void RimSurface::reloadData()
+{
+    clearCachedNativeData();
+    updateSurfaceData();
 }

@@ -46,6 +46,8 @@ public:
 
     void loadDataIfRequired();
 
+    void reloadData();
+
 protected:
     void setUserDescription( const QString& description );
     void setSurfaceData( RigSurface* surface );
@@ -57,7 +59,9 @@ protected:
 
     static void applyDepthOffset( const cvf::Vec3d& offset, std::vector<cvf::Vec3d>* vertices );
 
-    virtual bool onLoadData() = 0;
+    virtual bool onLoadData()            = 0;
+    virtual bool updateSurfaceData()     = 0;
+    virtual void clearCachedNativeData() = 0;
 
 private:
     caf::PdmFieldHandle* userDescriptionField() override;
