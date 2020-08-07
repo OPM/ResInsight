@@ -155,6 +155,7 @@ void RivSurfacePartMgr::updateNativeSurfaceColors()
 
         auto mapper = m_surfaceInView->surfaceResultDefinition()->legendConfig()->scalarMapper();
 
+        if ( m_usedSurfaceData.notNull() )
         {
             QString propertyName = m_surfaceInView->surfaceResultDefinition()->propertyName();
             auto    values       = m_usedSurfaceData->propertyValues( propertyName );
