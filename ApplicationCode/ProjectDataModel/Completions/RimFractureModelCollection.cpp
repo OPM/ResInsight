@@ -21,7 +21,9 @@
 #include "RimFractureModel.h"
 #include "RimProject.h"
 
+#include "cafPdmFieldIOScriptability.h"
 #include "cafPdmObject.h"
+#include "cafPdmObjectScriptability.h"
 
 CAF_PDM_SOURCE_INIT( RimFractureModelCollection, "FractureModelCollection" );
 
@@ -30,9 +32,9 @@ CAF_PDM_SOURCE_INIT( RimFractureModelCollection, "FractureModelCollection" );
 //--------------------------------------------------------------------------------------------------
 RimFractureModelCollection::RimFractureModelCollection( void )
 {
-    CAF_PDM_InitObject( "Fracture Models", "", "", "" );
+    CAF_PDM_InitScriptableObject( "Fracture Models", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_fractureModels, "FractureModels", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_fractureModels, "FractureModels", "", "", "", "" );
     m_fractureModels.uiCapability()->setUiHidden( true );
 
     setName( "Fracture Models" );

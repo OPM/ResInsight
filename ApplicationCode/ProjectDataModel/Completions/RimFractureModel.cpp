@@ -51,6 +51,8 @@
 #include "RimWellPathGeometryDef.h"
 #include "RimWellPathTarget.h"
 
+#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmObjectScriptability.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
@@ -83,65 +85,89 @@ void caf::AppEnum<RimFractureModel::ExtractionType>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimFractureModel::RimFractureModel()
 {
-    CAF_PDM_InitObject( "FractureModel", "", "", "" );
+    CAF_PDM_InitScriptableObject( "FractureModel", "", "", "" );
 
-    CAF_PDM_InitField( &m_MD, "MD", 0.0, "MD", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_MD, "MD", 0.0, "MD", "", "", "" );
 
-    CAF_PDM_InitField( &m_extractionType,
-                       "ExtractionType",
-                       caf::AppEnum<ExtractionType>( ExtractionType::TRUE_STRATIGRAPHIC_THICKNESS ),
-                       "Extraction Type",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitScriptableField( &m_extractionType,
+                                 "ExtractionType",
+                                 caf::AppEnum<ExtractionType>( ExtractionType::TRUE_STRATIGRAPHIC_THICKNESS ),
+                                 "Extraction Type",
+                                 "",
+                                 "",
+                                 "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_anchorPosition, "AnchorPosition", "Anchor Position", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_anchorPosition, "AnchorPosition", "Anchor Position", "", "", "" );
     m_anchorPosition.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_thicknessDirection, "ThicknessDirection", "Thickness Direction", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_thicknessDirection, "ThicknessDirection", "Thickness Direction", "", "", "" );
     m_thicknessDirection.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_thicknessDirectionWellPath,
-                                "ThicknessDirectionWellPath",
-                                "Thickness Direction Well Path",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_thicknessDirectionWellPath,
+                                          "ThicknessDirectionWellPath",
+                                          "Thickness Direction Well Path",
+                                          "",
+                                          "",
+                                          "" );
 
-    CAF_PDM_InitField( &m_boundingBoxHorizontal, "BoundingBoxHorizontal", 50.0, "Bounding Box Horizontal", "", "", "" );
-    CAF_PDM_InitField( &m_boundingBoxVertical, "BoundingBoxVertical", 100.0, "Bounding Box Vertical", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_boundingBoxHorizontal, "BoundingBoxHorizontal", 50.0, "Bounding Box Horizontal", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_boundingBoxVertical, "BoundingBoxVertical", 100.0, "Bounding Box Vertical", "", "", "" );
 
-    CAF_PDM_InitField( &m_defaultPorosity, "DefaultPorosity", 0.0, "Default Porosity", "", "", "" );
-    CAF_PDM_InitField( &m_defaultPermeability, "DefaultPermeability", 10.0e-6, "Default Permeability", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_defaultPorosity, "DefaultPorosity", 0.0, "Default Porosity", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_defaultPermeability, "DefaultPermeability", 10.0e-6, "Default Permeability", "", "", "" );
 
     // Stress unit: bar
     // Stress gradient unit: bar/m
     // Depth is meter
-    CAF_PDM_InitField( &m_verticalStress, "VerticalStress", 879.0, "Vertical Stress", "", "", "" );
-    CAF_PDM_InitField( &m_verticalStressGradient, "VerticalStressGradient", 0.238, "Vertical Stress Gradient", "", "", "" );
-    CAF_PDM_InitField( &m_stressDepth, "StressDepth", 1000.0, "Stress Depth", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_verticalStress, "VerticalStress", 879.0, "Vertical Stress", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_verticalStressGradient,
+                                 "VerticalStressGradient",
+                                 0.238,
+                                 "Vertical Stress Gradient",
+                                 "",
+                                 "",
+                                 "" );
+    CAF_PDM_InitScriptableField( &m_stressDepth, "StressDepth", 1000.0, "Stress Depth", "", "", "" );
 
-    CAF_PDM_InitField( &m_overburdenHeight, "OverburdenHeight", 50.0, "Overburden Height", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_overburdenFormation, "OverburdenFormation", "Overburden Formation", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_overburdenFacies, "OverburdenFacies", "Overburden Facies", "", "", "" );
-    CAF_PDM_InitField( &m_overburdenPorosity, "OverburdenPorosity", 0.0, "Overburden Porosity", "", "", "" );
-    CAF_PDM_InitField( &m_overburdenPermeability, "OverburdenPermeability", 10.0e-6, "Overburden Permeability", "", "", "" );
-    CAF_PDM_InitField( &m_overburdenFluidDensity, "OverburdenFluidDensity", 1.03, "Overburden Fluid Density [g/cm^3]", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_overburdenHeight, "OverburdenHeight", 50.0, "Overburden Height", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_overburdenFormation, "OverburdenFormation", "Overburden Formation", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_overburdenFacies, "OverburdenFacies", "Overburden Facies", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_overburdenPorosity, "OverburdenPorosity", 0.0, "Overburden Porosity", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_overburdenPermeability,
+                                 "OverburdenPermeability",
+                                 10.0e-6,
+                                 "Overburden Permeability",
+                                 "",
+                                 "",
+                                 "" );
+    CAF_PDM_InitScriptableField( &m_overburdenFluidDensity,
+                                 "OverburdenFluidDensity",
+                                 1.03,
+                                 "Overburden Fluid Density [g/cm^3]",
+                                 "",
+                                 "",
+                                 "" );
 
-    CAF_PDM_InitField( &m_underburdenHeight, "UnderburdenHeight", 50.0, "Underburden Height", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_underburdenFormation, "UnderburdenFormation", "Underburden Formation", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_underburdenFacies, "UnderburdenFacies", "Underburden Facies", "", "", "" );
-    CAF_PDM_InitField( &m_underburdenPorosity, "UnderburdenPorosity", 0.0, "Underburden Porosity", "", "", "" );
-    CAF_PDM_InitField( &m_underburdenPermeability, "UnderburdenPermeability", 10.0e-6, "Underburden Permeability", "", "", "" );
-    CAF_PDM_InitField( &m_underburdenFluidDensity,
-                       "UnderburdenFluidDensity",
-                       1.03,
-                       "Underburden Fluid Density [g/cm^3]",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitScriptableField( &m_underburdenHeight, "UnderburdenHeight", 50.0, "Underburden Height", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_underburdenFormation, "UnderburdenFormation", "Underburden Formation", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_underburdenFacies, "UnderburdenFacies", "Underburden Facies", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_underburdenPorosity, "UnderburdenPorosity", 0.0, "Underburden Porosity", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_underburdenPermeability,
+                                 "UnderburdenPermeability",
+                                 10.0e-6,
+                                 "Underburden Permeability",
+                                 "",
+                                 "",
+                                 "" );
+    CAF_PDM_InitScriptableField( &m_underburdenFluidDensity,
+                                 "UnderburdenFluidDensity",
+                                 1.03,
+                                 "Underburden Fluid Density [g/cm^3]",
+                                 "",
+                                 "",
+                                 "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_elasticProperties, "ElasticProperties", "Elastic Properties", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_elasticProperties, "ElasticProperties", "Elastic Properties", "", "", "" );
     m_elasticProperties.uiCapability()->setUiHidden( true );
     m_elasticProperties.uiCapability()->setUiTreeHidden( true );
 }
