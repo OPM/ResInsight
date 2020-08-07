@@ -83,6 +83,7 @@ public:
     static void moveCurvesToCollection( RimSummaryCurveCollection*          collection,
                                         const std::vector<RimSummaryCurve*> curves,
                                         RimSummaryCurve*                    curveToInsertBeforeOrAfter,
+                                        int                                 insertAtPosition,
                                         bool                                isSwapOperation );
 
 private:

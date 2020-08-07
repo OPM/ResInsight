@@ -437,6 +437,7 @@ RimSummaryPlotSourceStepping*
 void RimSummaryCurveCollection::moveCurvesToCollection( RimSummaryCurveCollection*          collection,
                                                         const std::vector<RimSummaryCurve*> curves,
                                                         RimSummaryCurve*                    curveToInsertBeforeOrAfter,
+                                                        int                                 insertAtPosition,
                                                         bool                                isSwapOperation )
 {
     CAF_ASSERT( collection );
@@ -461,19 +462,21 @@ void RimSummaryCurveCollection::moveCurvesToCollection( RimSummaryCurveCollectio
         collection->curvesAddedOrRemoved.send();
     }
 
-    size_t insertionStartIndex = std::numeric_limits<size_t>::infinity();
-    if ( curveToInsertBeforeOrAfter )
+    if ( insertAtPosition == -1 )
     {
-        insertionStartIndex = collection->m_curves.index( curveToInsertBeforeOrAfter );
-    }
-
-    if ( insertionStartIndex < collection->m_curves.size() && !isSwapOperation )
-    {
-        insertionStartIndex += 1;
+        if ( curveToInsertBeforeOrAfter )
+        {
+            insertAtPosition = (int)collection->m_curves.index( curveToInsertBeforeOrAfter );
+            if ( !isSwapOperation ) insertAtPosition += 1;
+        }
+        else
+        {
+            insertAtPosition = (int)collection->m_curves.size();
+        }
     }
     for ( size_t cIdx = 0; cIdx < curves.size(); ++cIdx )
     {
-        collection->insertCurve( curves[cIdx], insertionStartIndex + cIdx );
+        collection->insertCurve( curves[cIdx], (size_t)insertAtPosition + cIdx );
     }
 
     collection->updateConnectedEditors();

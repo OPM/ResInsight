@@ -67,6 +67,7 @@ private:
     bool handleWellLogPlotCurveDrop( Qt::DropAction       action,
                                      caf::PdmObjectGroup& objectGroup,
                                      RimWellLogCurve*     wellLogPlotCurve,
+                                     int                  insertAtPosition,
                                      bool                 isSwapOperation = false );
 
     bool handleWellLogPlotTrackDrop( Qt::DropAction       action,
@@ -84,9 +85,13 @@ private:
     bool handleSummaryCurveDrop( Qt::DropAction       action,
                                  caf::PdmObjectGroup& objectGroup,
                                  RimSummaryCurve*     summaryCurveTarget,
+                                 int                  insertAtPosition,
                                  bool                 isSwapOperation = false );
 
-    bool handleSummaryPlotDrop( Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimSummaryPlot* summaryPlot );
+    bool handleSummaryPlotDrop( Qt::DropAction       action,
+                                caf::PdmObjectGroup& objectGroup,
+                                RimSummaryPlot*      summaryPlot,
+                                int                  insertAtPosition );
 
     bool handleMultiPlotDrop( Qt::DropAction       action,
                               caf::PdmObjectGroup& objectGroup,
@@ -101,7 +106,7 @@ private:
 
     static void objectGroupFromModelIndexes( caf::PdmObjectGroup* objectGroup, const QModelIndexList& indexes );
     static std::vector<caf::PdmPointer<caf::PdmObjectHandle>> objectHandlesFromSelection();
-    static bool isSwapOperation( const QModelIndexList& dragIndices, const QModelIndex& dropTargetIndex );
+    static bool isSwapOperation( int targetRow, const QModelIndexList& dragIndices, const QModelIndex& dropTargetIndex );
 
 private:
     mutable std::vector<caf::PdmPointer<caf::PdmObjectHandle>> m_dragItems;
