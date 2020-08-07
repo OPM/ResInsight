@@ -85,7 +85,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ env.BUILDCACHE_DIR }}
-          key: ${{ matrix.config.name }}-cache-v01-${{ steps.cache_timestamp_string.outputs.timestamp }}
+          key: ${{ matrix.config.name }}-cache-v02-${{ steps.cache_timestamp_string.outputs.timestamp }}
       - name: Create Folder for buildcache
         run: New-Item ${{ env.BUILDCACHE_DIR }} -ItemType "directory" -Force 
         shell: pwsh
@@ -97,7 +97,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ../Qt
-          key: ${{ matrix.config.os }}-QtCache-v2
+          key: ${{ matrix.config.os }}-QtCache-v02
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
         with:
@@ -117,7 +117,7 @@ jobs:
         with:
           path: ${{ github.workspace }}/vcpkg/
           # Ensure the cache is invalidated any time vcpkg version changes, or a different set of packages is being used.
-          key: ${{ hashFiles( format('{0}/{1}', github.workspace, matrix.config.vcpkg-response-file )) }}-${{ hashFiles('.git/modules/vcpkg/HEAD') }}-${{ runner.os }}
+          key: ${{ hashFiles( format('{0}/{1}', github.workspace, matrix.config.vcpkg-response-file )) }}-${{ hashFiles('.git/modules/vcpkg/HEAD') }}-${{ runner.os }}-v02
       - name: Run vcpkg
         uses: lukka/run-vcpkg@v1
         id: runvcpkg
