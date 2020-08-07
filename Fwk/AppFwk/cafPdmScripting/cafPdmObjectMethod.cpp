@@ -38,6 +38,16 @@
 
 using namespace caf;
 
+CAF_PDM_XML_ABSTRACT_SOURCE_INIT( PdmObjectMethod, "PdmObjectMethod" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmObjectMethod::PdmObjectMethod( PdmObjectHandle* self )
+    : m_self( self )
+{
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -85,14 +95,4 @@ std::vector<QString> caf::PdmObjectMethodFactory::registeredMethodNames( const Q
     }
 
     return methods;
-}
-
-CAF_PDM_XML_ABSTRACT_SOURCE_INIT( PdmObjectMethod, "PdmObjectMethod" );
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-PdmObjectMethod::PdmObjectMethod( PdmObjectHandle* self )
-    : m_self( self )
-{
 }
