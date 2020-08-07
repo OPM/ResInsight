@@ -39,6 +39,7 @@
 #include "RigFemPartResultCalculatorFOS.h"
 #include "RigFemPartResultCalculatorFormationIndices.h"
 #include "RigFemPartResultCalculatorGamma.h"
+#include "RigFemPartResultCalculatorMudWeightWindow.h"
 #include "RigFemPartResultCalculatorNE.h"
 #include "RigFemPartResultCalculatorNodalGradients.h"
 #include "RigFemPartResultCalculatorNormalSE.h"
@@ -118,6 +119,9 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
     m_initialPermeabilityResultAddress = "";
     m_permeabilityExponent             = 1.0;
 
+    m_airGapMudWeightWindow         = 0.0;
+    m_referenceLayerMudWeightWindow = 0;
+
     m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorTimeLapse( *this ) ) );
     m_resultCalculators.push_back(
@@ -173,6 +177,8 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPoreCompressibility( *this ) ) );
     m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPorosityPermeability( *this ) ) );
+    m_resultCalculators.push_back(
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorMudWeightWindow( *this ) ) );
     m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorFormationIndices( *this ) ) );
 }
@@ -707,6 +713,11 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["PORO-PERM"].push_back( "PHI" );
             fieldCompNames["PORO-PERM"].push_back( "DPHI" );
             fieldCompNames["PORO-PERM"].push_back( "PERM" );
+
+            fieldCompNames["MUD-WEIGHT"].push_back( "MWW" );
+            fieldCompNames["MUD-WEIGHT"].push_back( "MWM" );
+            fieldCompNames["MUD-WEIGHT"].push_back( "UMWL" );
+            fieldCompNames["MUD-WEIGHT"].push_back( "LMWL" );
         }
         else if ( resPos == RIG_INTEGRATION_POINT )
         {
@@ -790,6 +801,11 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["PORO-PERM"].push_back( "PHI" );
             fieldCompNames["PORO-PERM"].push_back( "DPHI" );
             fieldCompNames["PORO-PERM"].push_back( "PERM" );
+
+            fieldCompNames["MUD-WEIGHT"].push_back( "MWW" );
+            fieldCompNames["MUD-WEIGHT"].push_back( "MWM" );
+            fieldCompNames["MUD-WEIGHT"].push_back( "UMWL" );
+            fieldCompNames["MUD-WEIGHT"].push_back( "LMWL" );
         }
         else if ( resPos == RIG_ELEMENT_NODAL_FACE )
         {
@@ -1328,6 +1344,23 @@ std::set<RigFemResultAddress> RigFemPartResultsCollection::referenceCaseDependen
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::set<RigFemResultAddress> RigFemPartResultsCollection::mudWeightWindowResults()
+{
+    std::set<RigFemResultAddress> results;
+    for ( auto elmType : {RIG_ELEMENT_NODAL, RIG_INTEGRATION_POINT} )
+    {
+        results.insert( RigFemResultAddress( elmType, "MUD-WEIGHT", "MWW", RigFemResultAddress::allTimeLapsesValue() ) );
+        results.insert( RigFemResultAddress( elmType, "MUD-WEIGHT", "MWM", RigFemResultAddress::allTimeLapsesValue() ) );
+        results.insert( RigFemResultAddress( elmType, "MUD-WEIGHT", "UMWL", RigFemResultAddress::allTimeLapsesValue() ) );
+        results.insert( RigFemResultAddress( elmType, "MUD-WEIGHT", "LMWL", RigFemResultAddress::allTimeLapsesValue() ) );
+    }
+
+    return results;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::set<RigFemResultAddress> RigFemPartResultsCollection::initialPermeabilityDependentResults()
 {
     std::set<RigFemResultAddress> results;
@@ -1605,4 +1638,103 @@ bool RigFemPartResultsCollection::isValidBiotData( const std::vector<float>& bio
     }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::setCalculationParameters( RimMudWeightWindowParameters::ParameterType parameterType,
+                                                            const QString&                              address,
+                                                            double                                      value )
+{
+    parameterAddresses[parameterType] = address;
+    parameterValues[parameterType]    = value;
+
+    // Invalidate dependent results
+    for ( auto result : mudWeightWindowResults() )
+    {
+        this->deleteResult( result );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigFemPartResultsCollection::getCalculationParameterValue( RimMudWeightWindowParameters::ParameterType parameterType ) const
+{
+    auto it = parameterValues.find( parameterType );
+    if ( it != parameterValues.end() )
+        return it->second;
+    else
+    {
+        // TODO: log error maybe?
+        return 1.0;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RigFemPartResultsCollection::getCalculationParameterAddress( RimMudWeightWindowParameters::ParameterType parameterType ) const
+{
+    auto it = parameterAddresses.find( parameterType );
+    if ( it != parameterAddresses.end() )
+        return it->second;
+    else
+    {
+        // TODO: log error maybe?
+        return QString();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigFemPartResultsCollection::airGapMudWeightWindow() const
+{
+    return m_airGapMudWeightWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimMudWeightWindowParameters::UpperLimitType RigFemPartResultsCollection::upperLimitParameterMudWeightWindow() const
+{
+    return m_upperLimitParameterMudWeightWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimMudWeightWindowParameters::LowerLimitType RigFemPartResultsCollection::lowerLimitParameterMudWeightWindow() const
+{
+    return m_lowerLimitParameterMudWeightWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigFemPartResultsCollection::referenceLayerMudWeightWindow() const
+{
+    return m_referenceLayerMudWeightWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::setMudWeightWindowParameters( double                                       airGap,
+                                                                RimMudWeightWindowParameters::UpperLimitType upperLimit,
+                                                                RimMudWeightWindowParameters::LowerLimitType lowerLimit,
+                                                                int referenceLayer )
+{
+    m_airGapMudWeightWindow              = airGap;
+    m_upperLimitParameterMudWeightWindow = upperLimit;
+    m_lowerLimitParameterMudWeightWindow = lowerLimit;
+    m_referenceLayerMudWeightWindow      = referenceLayer;
+
+    // Invalidate dependent results
+    for ( auto result : mudWeightWindowResults() )
+    {
+        this->deleteResult( result );
+    }
 }
