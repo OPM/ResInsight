@@ -203,6 +203,18 @@ QModelIndex PdmUiTreeView::findModelIndex( const PdmUiItem* object ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void PdmUiTreeView::updateSubTree( const QModelIndex& index )
+{
+    auto uiItem = uiItemFromModelIndex( index );
+    if ( uiItem )
+    {
+        m_treeViewEditor->updateSubTree( uiItem );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void PdmUiTreeView::setDragDropInterface( PdmUiDragDropInterface* dragDropInterface )
 {
     m_treeViewEditor->setDragDropInterface( dragDropInterface );

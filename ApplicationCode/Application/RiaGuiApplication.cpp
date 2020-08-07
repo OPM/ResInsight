@@ -1084,6 +1084,17 @@ RimViewWindow* RiaGuiApplication::activeViewWindow()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiuMainWindowBase* RiaGuiApplication::activeMainWindow()
+{
+    QWidget*           mainWindowWidget = RiaGuiApplication::activeWindow();
+    RiuMainWindowBase* mainWindow       = dynamic_cast<RiuMainWindowBase*>( mainWindowWidget );
+
+    return mainWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RiaGuiApplication::isMain3dWindowVisible() const
 {
     return m_mainWindow && m_mainWindow->isVisible();

@@ -36,8 +36,9 @@
 void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack( RimWellLogTrack*                     destTrack,
                                                                    const std::vector<RimWellLogCurve*>& curves,
                                                                    RimWellLogCurve* curveToInsertBeforeOrAfter,
-                                                                   bool             isSwapOperation )
+                                                                   int              insertAtPosition )
 {
+    CVF_ASSERT( insertAtPosition >= 0 );
     CVF_ASSERT( destTrack );
 
     std::set<RimWellLogTrack*> srcTracks;
@@ -46,8 +47,6 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack( RimWellLogTra
     for ( size_t cIdx = 0; cIdx < curves.size(); cIdx++ )
     {
         RimWellLogCurve* curve = curves[cIdx];
-
-        if ( curve == curveToInsertBeforeOrAfter ) continue;
 
         RimWellLogTrack* wellLogPlotTrack;
         curve->firstAncestorOrThisOfType( wellLogPlotTrack );
@@ -61,24 +60,18 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack( RimWellLogTra
         }
     }
 
-    size_t insertionStartIndex = 0;
-    if ( curveToInsertBeforeOrAfter )
-    {
-        insertionStartIndex = destTrack->curveIndex( curveToInsertBeforeOrAfter );
-        if ( !isSwapOperation ) insertionStartIndex += 1;
-    }
-
     for ( size_t cIdx = 0; cIdx < curves.size(); cIdx++ )
     {
-        destTrack->insertCurve( curves[cIdx], insertionStartIndex + cIdx );
+        size_t position = (size_t)insertAtPosition + cIdx;
+        destTrack->insertCurve( curves[cIdx], position );
     }
 
     for ( auto track : srcTracks )
     {
         track->setAutoScaleXEnabled( true );
         track->updateParentPlotZoom();
-        track->updateConnectedEditors();
         track->updateStackedCurveData();
+        track->updateConnectedEditors();
     }
 
     for ( auto plot : srcPlots )

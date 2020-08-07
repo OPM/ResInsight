@@ -19,6 +19,8 @@
 
 #include "RiuDragDrop.h"
 
+#include "RiaGuiApplication.h"
+
 #include "OperationsUsingObjReferences/RicPasteEclipseCasesFeature.h"
 #include "RicCloseCaseFeature.h"
 #include "WellLogCommands/RicNewWellLogFileCurveFeature.h"
@@ -52,6 +54,33 @@
 
 #include <QAbstractItemModel>
 #include <QModelIndex>
+
+//--------------------------------------------------------------------------------------------------
+/// Utility class to enforce updates of the tree view after drop is complete.
+/// Does the update on destruction of the object.
+//--------------------------------------------------------------------------------------------------
+class RiuDragAndDropTreeViewUpdater
+{
+public:
+    RiuDragAndDropTreeViewUpdater( caf::PdmUiTreeView*                      treeView,
+                                   const QModelIndex&                       indexToUpdate,
+                                   const std::vector<const caf::PdmUiItem*> draggedUiItems )
+        : m_treeView( treeView )
+        , m_indexToUpdate( indexToUpdate )
+        , m_draggedUiItems( draggedUiItems )
+    {
+    }
+    ~RiuDragAndDropTreeViewUpdater()
+    {
+        m_treeView->updateSubTree( m_indexToUpdate );
+        m_treeView->selectItems( m_draggedUiItems );
+    }
+
+private:
+    caf::PdmUiTreeView*                m_treeView;
+    QModelIndex                        m_indexToUpdate;
+    std::vector<const caf::PdmUiItem*> m_draggedUiItems;
+};
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -151,9 +180,9 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
 {
     Qt::ItemFlags itemflags = nullptr;
 
-    if ( index.isValid() )
+    if ( index.isValid() && RiaGuiApplication::activeMainWindow() )
     {
-        caf::PdmUiTreeView* uiTreeView = RiuMainWindow::instance()->projectTreeView();
+        caf::PdmUiTreeView* uiTreeView = RiaGuiApplication::activeMainWindow()->projectTreeView();
         caf::PdmUiItem*     uiItem     = uiTreeView->uiItemFromModelIndex( index );
 
         caf::PdmObject* pdmObj = dynamic_cast<caf::PdmObject*>( uiItem );
@@ -216,7 +245,8 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
                     itemflags |= Qt::ItemIsDropEnabled;
                 }
             }
-            else if ( dynamic_cast<RimSummaryCurve*>( uiItem ) || dynamic_cast<RimSummaryPlot*>( uiItem ) )
+            else if ( dynamic_cast<RimSummaryCurve*>( uiItem ) || dynamic_cast<RimSummaryPlot*>( uiItem ) ||
+                      dynamic_cast<RimSummaryCurveCollection*>( uiItem ) )
             {
                 if ( RiuTypedPdmObjects<RimSummaryCurve>::containsTypedObjects( m_dragItems ) )
                 {
@@ -277,15 +307,15 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuDragDrop::isSwapOperation( const QModelIndexList& dragIndices, const QModelIndex& dropTargetIndex )
+bool RiuDragDrop::isSwapOperation( int targetRow, const QModelIndexList& dragIndices, const QModelIndex& dropTargetIndex )
 {
-    if ( dragIndices.size() == 1u )
+    if ( dragIndices.size() == 1u && targetRow == -1 ) // targetRow >= 0 means a drop between two other rows.
     {
-        QModelIndex dragIndex         = dragIndices.front();
-        bool        sharesParent      = dropTargetIndex.parent() == dragIndex.parent();
-        bool        targetIsJustAbove = dropTargetIndex.row() >= 0 && dragIndex.row() >= 0 &&
-                                 ( dragIndex.row() - dropTargetIndex.row() ) == 1;
-        return sharesParent && targetIsJustAbove;
+        QModelIndex dragIndex                = dragIndices.front();
+        bool        sharesParent             = dropTargetIndex.parent() == dragIndex.parent();
+        bool        targetIsJustAboveOrBelow = dropTargetIndex.row() >= 0 && dragIndex.row() >= 0 &&
+                                        std::abs( dragIndex.row() - dropTargetIndex.row() ) == 1;
+        return sharesParent && targetIsJustAboveOrBelow;
     }
     return false;
 }
@@ -293,17 +323,18 @@ bool RiuDragDrop::isSwapOperation( const QModelIndexList& dragIndices, const QMo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuDragDrop::dropMimeData( const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent )
+bool RiuDragDrop::dropMimeData( const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& dropTargetIndex )
 {
-    caf::PdmUiTreeView*   uiTreeView       = RiuMainWindow::instance()->projectTreeView();
-    caf::PdmUiItem*       dropTargetUiItem = uiTreeView->uiItemFromModelIndex( parent );
+    CVF_ASSERT( RiaGuiApplication::activeMainWindow() );
+    caf::PdmUiTreeView*   uiTreeView       = RiaGuiApplication::activeMainWindow()->projectTreeView();
+    caf::PdmUiItem*       dropTargetUiItem = uiTreeView->uiItemFromModelIndex( dropTargetIndex );
     caf::PdmObjectHandle* dropTarget       = dynamic_cast<caf::PdmObjectHandle*>( dropTargetUiItem );
+
     if ( dropTarget )
     {
         caf::PdmObjectGroup        draggedObjects;
         const MimeDataWithIndexes* myMimeData = qobject_cast<const MimeDataWithIndexes*>( data );
-
-        if ( myMimeData && parent.isValid() )
+        if ( myMimeData && dropTargetIndex.isValid() )
         {
             QModelIndexList indices = myMimeData->indexes();
             objectGroupFromModelIndexes( &draggedObjects, indices );
@@ -312,6 +343,11 @@ bool RiuDragDrop::dropMimeData( const QMimeData* data, Qt::DropAction action, in
         {
             return false;
         }
+
+        RiuDragAndDropTreeViewUpdater updater( uiTreeView,
+                                               dropTargetIndex.parent(),
+                                               RiuTypedPdmObjects<const caf::PdmUiItem>::typedObjectsFromGroup(
+                                                   draggedObjects ) );
 
         RimIdenticalGridCaseGroup* gridCaseGroup;
         dropTarget->firstAncestorOrThisOfType( gridCaseGroup );
@@ -327,7 +363,8 @@ bool RiuDragDrop::dropMimeData( const QMimeData* data, Qt::DropAction action, in
             return handleWellLogPlotCurveDrop( action,
                                                draggedObjects,
                                                wellLogPlotCurve,
-                                               isSwapOperation( myMimeData->indexes(), parent ) );
+                                               row,
+                                               isSwapOperation( row, myMimeData->indexes(), dropTargetIndex ) );
         }
 
         RimWellLogTrack* wellLogPlotTrack;
@@ -338,7 +375,7 @@ bool RiuDragDrop::dropMimeData( const QMimeData* data, Qt::DropAction action, in
                                                draggedObjects,
                                                wellLogPlotTrack,
                                                row,
-                                               isSwapOperation( myMimeData->indexes(), parent ) );
+                                               isSwapOperation( row, myMimeData->indexes(), dropTargetIndex ) );
         }
 
         RimWellLogPlot* wellLogPlot;
@@ -349,7 +386,7 @@ bool RiuDragDrop::dropMimeData( const QMimeData* data, Qt::DropAction action, in
                                           draggedObjects,
                                           wellLogPlot,
                                           row,
-                                          isSwapOperation( myMimeData->indexes(), parent ) );
+                                          isSwapOperation( row, myMimeData->indexes(), dropTargetIndex ) );
         }
 
         RimSummaryCurve* summaryCurve;
@@ -359,14 +396,15 @@ bool RiuDragDrop::dropMimeData( const QMimeData* data, Qt::DropAction action, in
             return handleSummaryCurveDrop( action,
                                            draggedObjects,
                                            summaryCurve,
-                                           isSwapOperation( myMimeData->indexes(), parent ) );
+                                           row,
+                                           isSwapOperation( row, myMimeData->indexes(), dropTargetIndex ) );
         }
 
         RimSummaryPlot* summaryPlot;
         dropTarget->firstAncestorOrThisOfType( summaryPlot );
         if ( summaryPlot )
         {
-            return handleSummaryPlotDrop( action, draggedObjects, summaryPlot );
+            return handleSummaryPlotDrop( action, draggedObjects, summaryPlot, row );
         }
 
         RimMultiPlot* multiPlot;
@@ -498,6 +536,7 @@ bool RiuDragDrop::handleMultiPlotDrop( Qt::DropAction       action,
 bool RiuDragDrop::handleWellLogPlotCurveDrop( Qt::DropAction       action,
                                               caf::PdmObjectGroup& draggedObjects,
                                               RimWellLogCurve*     curveDropTarget,
+                                              int                  insertAtPosition,
                                               bool                 isSwapOperation )
 {
     std::vector<RimWellLogCurve*> wellLogPlotCurves =
@@ -507,12 +546,18 @@ bool RiuDragDrop::handleWellLogPlotCurveDrop( Qt::DropAction       action,
         if ( action == Qt::MoveAction )
         {
             RimWellLogTrack* wellLogPlotTrack;
-            curveDropTarget->firstAncestorOrThisOfType( wellLogPlotTrack );
+            curveDropTarget->firstAncestorOrThisOfTypeAsserted( wellLogPlotTrack );
+
+            if ( insertAtPosition == -1 )
+            {
+                insertAtPosition = (int)wellLogPlotTrack->curveIndex( curveDropTarget );
+                if ( !isSwapOperation ) insertAtPosition += 1;
+            }
 
             RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack( wellLogPlotTrack,
                                                                           wellLogPlotCurves,
                                                                           curveDropTarget,
-                                                                          isSwapOperation );
+                                                                          insertAtPosition );
             return true;
         }
     }
@@ -546,42 +591,22 @@ bool RiuDragDrop::handleWellLogPlotTrackDrop( Qt::DropAction       action,
     {
         if ( action == Qt::MoveAction )
         {
-            RimWellLogCurve* insertAfter   = nullptr;
-            auto             visibleCurves = trackTarget->visibleCurves();
-            if ( !visibleCurves.empty() )
+            RimWellLogCurve* insertBeforeOrAfter = nullptr;
+            auto             visibleCurves       = trackTarget->visibleCurves();
+            if ( insertAtPosition == -1 )
             {
-                if ( insertAtPosition == -1 )
-                {
-                    // If we are moving any curves to a new track, the curves should be appended
-                    // but insertAtPosition will be -1.
-                    std::set<RimWellLogTrack*> currentParentTracks;
-                    for ( auto curve : wellLogPlotCurves )
-                    {
-                        RimWellLogTrack* track;
-                        curve->firstAncestorOrThisOfTypeAsserted( track );
-                        currentParentTracks.insert( track );
-                    }
-                    bool allMovedWithinSameTrack = currentParentTracks.size() > 1 ||
-                                                   !currentParentTracks.count( trackTarget );
-                    if ( !allMovedWithinSameTrack )
-                    {
-                        insertAtPosition = (int)visibleCurves.size() - 1;
-                    }
-                }
-                if ( insertAtPosition > 0 )
-                {
-                    auto visibleCurves = trackTarget->visibleCurves();
-                    if ( !visibleCurves.empty() )
-                    {
-                        int insertAfterPosition = std::min( insertAtPosition - 1, (int)visibleCurves.size() - 1 );
-                        insertAfter             = visibleCurves[insertAfterPosition];
-                    }
-                }
+                insertAtPosition = (int)visibleCurves.size();
+                if ( !visibleCurves.empty() ) insertBeforeOrAfter = visibleCurves.back();
             }
+            else if ( insertAtPosition < (int)visibleCurves.size() )
+            {
+                insertBeforeOrAfter = visibleCurves[insertAtPosition];
+            }
+
             RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack( trackTarget,
                                                                           wellLogPlotCurves,
-                                                                          insertAfter,
-                                                                          isSwapOperation );
+                                                                          insertBeforeOrAfter,
+                                                                          insertAtPosition );
             return true;
         }
     }
@@ -643,6 +668,7 @@ bool RiuDragDrop::handleWellLogPlotDrop( Qt::DropAction       action,
 bool RiuDragDrop::handleSummaryCurveDrop( Qt::DropAction       action,
                                           caf::PdmObjectGroup& objectGroup,
                                           RimSummaryCurve*     summaryCurveTarget,
+                                          int                  insertAtPosition,
                                           bool                 isSwapOperation )
 {
     std::vector<RimSummaryCurve*> summaryCurves = RiuTypedPdmObjects<RimSummaryCurve>::typedObjectsFromGroup( objectGroup );
@@ -656,6 +682,7 @@ bool RiuDragDrop::handleSummaryCurveDrop( Qt::DropAction       action,
             RimSummaryCurveCollection::moveCurvesToCollection( summaryCurveCollection,
                                                                summaryCurves,
                                                                summaryCurveTarget,
+                                                               insertAtPosition,
                                                                isSwapOperation );
             return true;
         }
@@ -666,7 +693,10 @@ bool RiuDragDrop::handleSummaryCurveDrop( Qt::DropAction       action,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuDragDrop::handleSummaryPlotDrop( Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimSummaryPlot* summaryPlot )
+bool RiuDragDrop::handleSummaryPlotDrop( Qt::DropAction       action,
+                                         caf::PdmObjectGroup& objectGroup,
+                                         RimSummaryPlot*      summaryPlot,
+                                         int                  insertAtPosition )
 {
     std::vector<RimSummaryCurve*> summaryCurves = RiuTypedPdmObjects<RimSummaryCurve>::typedObjectsFromGroup( objectGroup );
     if ( summaryCurves.size() > 0 )
@@ -676,6 +706,7 @@ bool RiuDragDrop::handleSummaryPlotDrop( Qt::DropAction action, caf::PdmObjectGr
             RimSummaryCurveCollection::moveCurvesToCollection( summaryPlot->summaryCurveCollection(),
                                                                summaryCurves,
                                                                nullptr,
+                                                               insertAtPosition,
                                                                false );
             return true;
         }

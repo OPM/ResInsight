@@ -117,7 +117,8 @@ public:
     RiuPlotMainWindow* mainPlotWindow();
     RiuMainWindowBase* mainWindowByID( int mainWindowID );
 
-    static RimViewWindow* activeViewWindow();
+    static RimViewWindow*     activeViewWindow();
+    static RiuMainWindowBase* activeMainWindow();
 
     bool isMain3dWindowVisible() const;
     bool isMainPlotWindowVisible() const;

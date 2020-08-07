@@ -56,6 +56,7 @@
 #include <QMenu>
 #include <QModelIndexList>
 #include <QPainter>
+#include <QProxyStyle>
 #include <QSortFilterProxyModel>
 #include <QStyleOptionViewItem>
 #include <QTreeView>
@@ -63,6 +64,49 @@
 
 namespace caf
 {
+class PdmUiTreeViewStyle : public QProxyStyle
+{
+public:
+    void drawPrimitive( PrimitiveElement element, const QStyleOption* option, QPainter* painter, const QWidget* widget ) const override
+    {
+        if ( element == QStyle::PE_IndicatorItemViewItemDrop )
+        {
+            painter->setRenderHint( QPainter::Antialiasing, true );
+
+            if ( option->rect.height() == 0 )
+            {
+                QPalette palette;
+                QColor   c = QApplication::palette().color( QPalette::Highlight ).darker( 150 );
+                QPen     pen( c );
+                pen.setWidth( 2 );
+                QBrush brush( c );
+
+                painter->setPen( pen );
+                painter->setBrush( brush );
+
+                painter->drawEllipse( option->rect.topLeft(), 3, 3 );
+                painter->drawLine( QPoint( option->rect.topLeft().x() + 3, option->rect.topLeft().y() ),
+                                   option->rect.topRight() );
+            }
+            else
+            {
+                QPalette palette;
+                QColor   c = QApplication::palette().color( QPalette::Highlight ).darker( 150 );
+                QPen     pen( c );
+                pen.setWidth( 2 );
+
+                painter->setPen( pen );
+
+                painter->drawRoundedRect( option->rect, 4, 4 );
+            }
+        }
+        else
+        {
+            QProxyStyle::drawPrimitive( element, option, painter, widget );
+        }
+    }
+};
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -70,7 +114,10 @@ class PdmUiTreeViewWidget : public QTreeView
 {
 public:
     explicit PdmUiTreeViewWidget( QWidget* parent = nullptr )
-        : QTreeView( parent ){};
+        : QTreeView( parent )
+    {
+        setStyle( new PdmUiTreeViewStyle );
+    };
     ~PdmUiTreeViewWidget() override{};
 
     bool isTreeItemEditWidgetActive() const { return state() == QAbstractItemView::EditingState; }

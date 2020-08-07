@@ -34,7 +34,7 @@ public:
     static void moveCurvesToWellLogPlotTrack( RimWellLogTrack*                     dstTrack,
                                               const std::vector<RimWellLogCurve*>& curves,
                                               RimWellLogCurve*                     curveToInsertBeforeOrAfter,
-                                              bool                                 isSwapOperation );
+                                              int                                  insertAtPosition );
     static void moveTracksToWellLogPlot( RimWellLogPlot*                      wellLogPlot,
                                          const std::vector<RimWellLogTrack*>& tracks,
                                          RimWellLogTrack*                     trackToInsertBeforeOrAfter,

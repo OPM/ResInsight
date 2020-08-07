@@ -82,8 +82,8 @@ public:
     // the Pdm model directly.
     PdmUiItem*  uiItemFromModelIndex( const QModelIndex& index ) const;
     QModelIndex findModelIndex( const PdmUiItem* object ) const;
-
-    void setDragDropInterface( PdmUiDragDropInterface* dragDropInterface );
+    void        updateSubTree( const QModelIndex& index );
+    void        setDragDropInterface( PdmUiDragDropInterface* dragDropInterface );
 
 signals:
     void selectionChanged();
