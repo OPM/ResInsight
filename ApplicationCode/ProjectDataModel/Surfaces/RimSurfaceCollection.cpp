@@ -135,9 +135,15 @@ RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fi
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceCollection::reloadSurfaces( std::vector<RimSurface*> surfaces )
 {
-    // todo: use logic from import surfaces to refresh surfaces with updated file contents
+    // ask the surfaces given to reload its data
+    for ( RimSurface* surface : surfaces )
+    {
+        surface->reloadData();
+    }
 
-    //
+    this->updateConnectedEditors();
+
+    updateViews( surfaces );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -154,9 +160,19 @@ RimSurface* RimSurfaceCollection::addGridCaseSurface( RimCase* sourceCase )
     s->setSliceTypeAndOneBasedIndex( sliceType, oneBasedSliceIndex );
     s->updateUserDescription();
 
+    if ( !s->onLoadData() )
+    {
+        RiaLogging::warning( "Add Grid Case Surface : Could not create the grid case surface. Don't know why." );
+        return nullptr;
+    }
+
     m_surfaces.push_back( s );
 
     this->updateConnectedEditors();
+
+    std::vector<RimSurface*> surfacesToRefresh;
+    surfacesToRefresh.push_back( s );
+    updateViews( surfacesToRefresh );
 
     return s;
 }
