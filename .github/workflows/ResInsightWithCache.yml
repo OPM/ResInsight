@@ -92,8 +92,7 @@ jobs:
       - name: Add buildcache to system path
         run: echo "::add-path::${{ github.workspace }}/bin"
 
-      - name: Cache 
-        
+      - name: Cache Qt        
         id: cache-qt
         uses: actions/cache@v2
         with:
