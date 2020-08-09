@@ -92,17 +92,18 @@ jobs:
       - name: Add buildcache to system path
         run: echo "::add-path::${{ github.workspace }}/bin"
 
-      - name: Cache Qt
+      - name: Cache Qt        
         id: cache-qt
         uses: actions/cache@v2
         with:
-          path: ../Qt
+          path: ${{ github.workspace }}/Qt/
           key: ${{ matrix.config.os }}-QtCache-v02
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
         with:
           version: 5.9.9
           modules: qtscript 
+          dir: '${{ github.workspace }}/Qt/'
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
       - name: Install Python dependencies
         run: |

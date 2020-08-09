@@ -15,13 +15,14 @@ jobs:
         id: cache-qt
         uses: actions/cache@v2
         with:
-          path: ../Qt
+          path: ${{ github.workspace }}/Qt/
           key: ${{ runner.os }}-QtCache
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
         with:
           version: 5.9.9
           modules: qtscript 
+          dir: '${{ github.workspace }}/Qt/'
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
       - name: Install Linux dependencies
         if: "contains( matrix.os, 'ubuntu')"
