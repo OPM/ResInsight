@@ -145,7 +145,7 @@ void RimGridCaseSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
     {
         clearCachedNativeData();
         updateSurfaceData();
-        updateUserDescription();
+        // updateUserDescription();
 
         RimSurfaceCollection* surfColl;
         this->firstAncestorOrThisOfTypeAsserted( surfColl );
@@ -254,42 +254,6 @@ void RimGridCaseSurface::clearCachedNativeData()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGridCaseSurface::updateUserDescription()
-{
-    QString name;
-
-    auto dirValue = m_sliceDirection().value();
-    switch ( dirValue )
-    {
-        case RiaDefines::GridCaseAxis::AXIS_I:
-            name = "Surface I : ";
-            break;
-        case RiaDefines::GridCaseAxis::AXIS_J:
-            name = "Surface J : ";
-            break;
-        case RiaDefines::GridCaseAxis::AXIS_K:
-            name = "Surface K : ";
-            break;
-        case RiaDefines::GridCaseAxis::UNDEFINED_AXIS:
-        default:
-            name = "Surface  ";
-            break;
-    }
-
-    name += QString::number( m_oneBasedSliceIndex );
-
-    const double epsilon = 1.0e-3;
-    if ( std::fabs( depthOffset() ) > epsilon )
-    {
-        name += ", Offset : " + QString::number( depthOffset() );
-    }
-
-    setUserDescription( name );
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Returns false for fatal failure
 //--------------------------------------------------------------------------------------------------
 bool RimGridCaseSurface::updateSurfaceData()
@@ -340,4 +304,32 @@ bool RimGridCaseSurface::updateSurfaceData()
     setSurfaceData( surfaceData );
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Return the name to show in the tree selector, including the slice index
+//--------------------------------------------------------------------------------------------------
+QString RimGridCaseSurface::fullName() const
+{
+    QString retval = RimSurface::fullName();
+
+    auto dirValue = m_sliceDirection().value();
+    switch ( dirValue )
+    {
+        case RiaDefines::GridCaseAxis::AXIS_I:
+            retval += " - I:";
+            break;
+        case RiaDefines::GridCaseAxis::AXIS_J:
+            retval += " - J:";
+            break;
+        case RiaDefines::GridCaseAxis::AXIS_K:
+            retval += " - K:";
+            break;
+        case RiaDefines::GridCaseAxis::UNDEFINED_AXIS:
+        default:
+            break;
+    }
+
+    retval += QString::number( m_oneBasedSliceIndex );
+    return retval;
 }

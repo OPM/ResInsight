@@ -77,7 +77,7 @@ void RicExportSurfaceFeature::onActionTriggered( bool isChecked )
 
         RigSurface* surface = surf->surfaceData();
 
-        writePolygonsToFile( fileName, surf->userDescription(), surface->vertices(), surface->triangleIndices() );
+        writePolygonsToFile( fileName, surf->fullName(), surface->vertices(), surface->triangleIndices() );
     }
 }
 

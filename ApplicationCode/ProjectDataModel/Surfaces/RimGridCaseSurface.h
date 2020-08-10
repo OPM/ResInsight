@@ -38,7 +38,6 @@ public:
     void setSliceTypeAndOneBasedIndex( RiaDefines::GridCaseAxis sliceType, int oneBasedSliceIndex );
 
     bool onLoadData() override;
-    void updateUserDescription();
 
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
@@ -48,8 +47,9 @@ protected:
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
 
-    bool updateSurfaceData() override;
-    void clearCachedNativeData() override;
+    bool    updateSurfaceData() override;
+    void    clearCachedNativeData() override;
+    QString fullName() const override;
 
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
