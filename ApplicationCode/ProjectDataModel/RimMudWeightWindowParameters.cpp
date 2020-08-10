@@ -43,6 +43,7 @@ void caf::AppEnum<RimMudWeightWindowParameters::SourceType>::setUp()
 {
     addItem( RimMudWeightWindowParameters::SourceType::FIXED, "FIXED", "Fixed" );
     addItem( RimMudWeightWindowParameters::SourceType::PER_ELEMENT, "PER_ELEMENT", "From element properties" );
+    addItem( RimMudWeightWindowParameters::SourceType::GRID, "GRID", "Grid" );
     setDefault( RimMudWeightWindowParameters::SourceType::FIXED );
 }
 
@@ -139,7 +140,8 @@ RimMudWeightWindowParameters::RimMudWeightWindowParameters( void )
     CAF_PDM_InitField( &m_K0_FGAddress, "K0_FGAddress", QString( "" ), "Value", "", "", "" );
     m_K0_FGAddress.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_obg0Type, "obg0SourceType", defaultSourceType, "Initial Overburden Gradient", "", "", "" );
+    caf::AppEnum<SourceType> defaultOBG0SourceType = RimMudWeightWindowParameters::SourceType::GRID;
+    CAF_PDM_InitField( &m_obg0Type, "obg0SourceType", defaultOBG0SourceType, "Initial Overburden Gradient", "", "", "" );
     CAF_PDM_InitField( &m_obg0Fixed, "obg0Fixed", 0.75, "Fixed Initial Overburden Gradient", "", "", "" );
     m_obg0Fixed.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
@@ -389,7 +391,8 @@ void RimMudWeightWindowParameters::handleFieldChanged( RimGeoMechCase*          
 
     if ( rigCaseData && rigCaseData->femPartResults() )
     {
-        if ( typeField->value() == RimMudWeightWindowParameters::SourceType::FIXED )
+        if ( typeField->value() == RimMudWeightWindowParameters::SourceType::FIXED ||
+             typeField->value() == RimMudWeightWindowParameters::SourceType::GRID )
         {
             rigCaseData->femPartResults()->setCalculationParameters( parameterType, "", fixedField->value() );
         }
@@ -409,7 +412,7 @@ void RimMudWeightWindowParameters::handleFieldChanged( RimGeoMechCase*          
                             .arg( title );
                     RiaLogging::info( importMessage );
                     // Set back to default value
-                    *typeField = RimMudWeightWindowParameters::SourceType::FIXED;
+                    *typeField = typeField->defaultValue();
                     return;
                 }
             }
@@ -442,7 +445,6 @@ void RimMudWeightWindowParameters::defineUiOrdering( QString uiConfigName, caf::
     defineGroup( uiOrdering, "Well Azimuth", &m_wellAzimuthType, &m_wellAzimuthFixed, &m_wellAzimuthAddress );
     defineGroup( uiOrdering, "UCS", &m_UCSType, &m_UCSFixed, &m_UCSAddress );
     defineGroup( uiOrdering, "Poisson's Ratio", &m_poissonsRatioType, &m_poissonsRatioFixed, &m_poissonsRatioAddress );
-    defineGroup( uiOrdering, "Initial Overburden Gradient", &m_obg0Type, &m_obg0Fixed, &m_obg0Address );
 
     RimGeoMechCase* geoMechCase = nullptr;
     firstAncestorOrThisOfType( geoMechCase );
@@ -466,14 +468,18 @@ void RimMudWeightWindowParameters::defineUiOrdering( QString uiConfigName, caf::
     m_shMultiplier.uiCapability()->setUiHidden( m_fractureGradientCalculationType !=
                                                 FractureGradientCalculationType::PROPORTIONAL_TO_SH );
 
-    m_K0_FGType.uiCapability()->setUiHidden( m_fractureGradientCalculationType !=
-                                             FractureGradientCalculationType::DERIVED_FROM_K0FG );
+    bool isDerivedFromK0_FG = m_fractureGradientCalculationType == FractureGradientCalculationType::DERIVED_FROM_K0FG;
+    m_K0_FGType.uiCapability()->setUiHidden( !isDerivedFromK0_FG );
     m_K0_FGFixed.uiCapability()->setUiHidden(
-        !( m_fractureGradientCalculationType == FractureGradientCalculationType::DERIVED_FROM_K0FG &&
-           m_K0_FGType == RimMudWeightWindowParameters::SourceType::FIXED ) );
+        !( isDerivedFromK0_FG && m_K0_FGType == RimMudWeightWindowParameters::SourceType::FIXED ) );
     m_K0_FGAddress.uiCapability()->setUiHidden(
-        !( m_fractureGradientCalculationType == FractureGradientCalculationType::DERIVED_FROM_K0FG &&
-           m_K0_FGType == RimMudWeightWindowParameters::SourceType::PER_ELEMENT ) );
+        !( isDerivedFromK0_FG && m_K0_FGType == RimMudWeightWindowParameters::SourceType::PER_ELEMENT ) );
+
+    defineGroup( uiOrdering, "Initial Overburden Gradient", &m_obg0Type, &m_obg0Fixed, &m_obg0Address );
+    m_obg0Type.uiCapability()->setUiHidden( !isDerivedFromK0_FG );
+    m_obg0Fixed.uiCapability()->setUiHidden( true );
+    m_obg0Address.uiCapability()->setUiHidden(
+        !( isDerivedFromK0_FG && m_obg0Type == RimMudWeightWindowParameters::SourceType::PER_ELEMENT ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -524,9 +530,27 @@ QList<caf::PdmOptionItemInfo>
 
     if ( geoMechCase != nullptr )
     {
-        if ( fieldNeedingOptions == &m_wellDeviationAddress || fieldNeedingOptions == &m_wellAzimuthAddress ||
-             fieldNeedingOptions == &m_UCSAddress || fieldNeedingOptions == &m_poissonsRatioAddress ||
-             fieldNeedingOptions == &m_K0_FGAddress || fieldNeedingOptions == &m_obg0Address )
+        if ( fieldNeedingOptions == &m_obg0Type )
+        {
+            std::vector<SourceType> sourceTypes = {SourceType::GRID, SourceType::PER_ELEMENT};
+            for ( auto sourceType : sourceTypes )
+            {
+                options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<SourceType>::uiText( sourceType ), sourceType ) );
+            }
+        }
+        else if ( fieldNeedingOptions == &m_wellDeviationType || fieldNeedingOptions == &m_wellAzimuthType ||
+                  fieldNeedingOptions == &m_UCSType || fieldNeedingOptions == &m_poissonsRatioType ||
+                  fieldNeedingOptions == &m_K0_FGType )
+        {
+            std::vector<SourceType> sourceTypes = {SourceType::FIXED, SourceType::PER_ELEMENT};
+            for ( auto sourceType : sourceTypes )
+            {
+                options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<SourceType>::uiText( sourceType ), sourceType ) );
+            }
+        }
+        else if ( fieldNeedingOptions == &m_wellDeviationAddress || fieldNeedingOptions == &m_wellAzimuthAddress ||
+                  fieldNeedingOptions == &m_UCSAddress || fieldNeedingOptions == &m_poissonsRatioAddress ||
+                  fieldNeedingOptions == &m_K0_FGAddress || fieldNeedingOptions == &m_obg0Address )
         {
             std::vector<std::string> elementProperties = geoMechCase->possibleElementPropertyFieldNames();
 

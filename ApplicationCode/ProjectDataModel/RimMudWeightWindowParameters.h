@@ -35,7 +35,8 @@ public:
     enum class SourceType
     {
         FIXED = 0,
-        PER_ELEMENT
+        PER_ELEMENT,
+        GRID
     };
 
     enum class ParameterType

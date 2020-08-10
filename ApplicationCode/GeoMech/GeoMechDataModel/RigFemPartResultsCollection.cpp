@@ -121,6 +121,7 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
 
     m_airGapMudWeightWindow         = 0.0;
     m_referenceLayerMudWeightWindow = 0;
+    m_shMultiplierMudWeightWindow   = 1.05;
 
     m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorTimeLapse( *this ) ) );

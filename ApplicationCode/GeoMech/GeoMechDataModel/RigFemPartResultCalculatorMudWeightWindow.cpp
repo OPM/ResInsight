@@ -77,7 +77,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
          RimMudWeightWindowParameters::ParameterType::K0_FG,
          RimMudWeightWindowParameters::ParameterType::OBG0};
 
-    caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * ( 4 + parameterTypes.size() ), "" );
+    caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * ( 5 + parameterTypes.size() ), "" );
     frameCountProgress.setProgressDescription( "Calculating Mud Weight Window" );
 
     std::map<RimMudWeightWindowParameters::ParameterType, RigFemScalarResultFrames*> parameterFrames;
@@ -112,6 +112,13 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
         m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "ST", "S3" ) );
     frameCountProgress.incrementProgress();
 
+    // Initial overburden gradient (ST.S33)
+    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    RigFemScalarResultFrames* obg0DataFrames =
+        m_resultCollection->findOrLoadScalarResult( partIndex,
+                                                    RigFemResultAddress( resVarAddr.resultPosType, "ST", "S33" ) );
+    frameCountProgress.incrementProgress();
+
     frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
 
     RigFemScalarResultFrames* mudWeightWindowFrames =
@@ -131,6 +138,9 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
     const RigFemPart*     femPart     = m_resultCollection->parts()->part( partIndex );
     const RigFemPartGrid* femPartGrid = femPart->getOrCreateStructGrid();
 
+    const bool OBG0FromGrid =
+        m_resultCollection->getCalculationParameterAddress( RimMudWeightWindowParameters::ParameterType::OBG0 ).isEmpty();
+
     float inf = std::numeric_limits<float>::infinity();
 
     frameCountProgress.setNextProgressIncrement( 1u );
@@ -142,6 +152,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
         const std::vector<float>& initialPorFrameData = porePressureDataFrames->frameData( 0 );
 
         const std::vector<float>& stressFrameData = stressDataFrames->frameData( fIdx );
+        const std::vector<float>& obg0FrameData   = obg0DataFrames->frameData( 0 );
 
         std::vector<float>& mudWeightWindowFrameData     = mudWeightWindowFrames->frameData( fIdx );
         std::vector<float>& mudWeightMiddleFrameData     = mudWeightMiddleFrames->frameData( fIdx );
@@ -203,10 +214,14 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
                                                parameterValues,
                                                elmIdx );
 
-            double OBG0 = getValueForElement( RimMudWeightWindowParameters::ParameterType::OBG0,
-                                              parameterFrameData,
-                                              parameterValues,
-                                              elmIdx );
+            double OBG0 = 0.0;
+            if ( !OBG0FromGrid )
+            {
+                OBG0 = getValueForElement( RimMudWeightWindowParameters::ParameterType::OBG0,
+                                           parameterFrameData,
+                                           parameterValues,
+                                           elmIdx );
+            }
 
             int elmNodeCount = RigFemTypes::elementNodeCount( femPart->elementType( elmIdx ) );
 
@@ -229,6 +244,12 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
                         // Pore pressure (unit: Bar)
                         double porePressureBar        = porFrameData[nodeIdx];
                         double initialPorePressureBar = initialPorFrameData[nodeIdx];
+
+                        // Initial overburden gradient
+                        if ( OBG0FromGrid )
+                        {
+                            OBG0 = obg0FrameData[nodeIdx];
+                        }
 
                         // FG is for sands, SFG for shale. Sands has valid PP, shale does not.
                         bool isSand = ( porePressureBar != inf );
