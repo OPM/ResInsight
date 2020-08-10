@@ -743,6 +743,22 @@ bool RimPlotCurve::isStackedWithPhaseColors() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setIsStacked( bool stacked )
+{
+    m_isStacked = stacked;
+
+    if ( !m_isStacked() && m_fillStyle() != Qt::NoBrush )
+    {
+        // Switch off area fill when turning off stacking.
+        m_fillStyle = Qt::NoBrush;
+    }
+
+    stackingChanged.send( m_isStacked() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimPlotCurve::canCurveBeAttached() const
 {
     if ( !m_parentQwtPlot )
