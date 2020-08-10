@@ -87,7 +87,6 @@
 #include "cafSelectionManager.h"
 #include "cvfAssert.h"
 
-#include <QDebug>
 #include <QWheelEvent>
 
 #include <algorithm>
@@ -730,7 +729,7 @@ void RimWellLogTrack::curveDataChanged( const caf::SignalEmitter* emitter )
 {
     for ( auto curve : m_curves )
     {
-        if ( curve->stacked() )
+        if ( curve->isStacked() )
         {
             updateStackedCurveData();
             break;
@@ -745,7 +744,7 @@ void RimWellLogTrack::curveDataChanged( const caf::SignalEmitter* emitter )
 void RimWellLogTrack::curveVisibilityChanged( const caf::SignalEmitter* emitter, bool visible )
 {
     const RimWellLogCurve* curve = dynamic_cast<const RimWellLogCurve*>( emitter );
-    if ( curve->stacked() )
+    if ( curve->isStacked() )
     {
         updateStackedCurveData();
     }
@@ -1101,7 +1100,6 @@ void RimWellLogTrack::addCurve( RimWellLogCurve* curve )
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::insertCurve( RimWellLogCurve* curve, size_t index )
 {
-    qDebug() << "Drag index: " << index;
     if ( index >= m_curves.size() )
     {
         addCurve( curve );
@@ -2126,7 +2124,7 @@ std::map<int, std::vector<RimWellLogCurve*>> RimWellLogTrack::visibleStackedCurv
             {
                 stackedCurves[wfrCurve->groupId()].push_back( wfrCurve );
             }
-            else if ( curve->stacked() )
+            else if ( curve->isStacked() )
             {
                 stackedCurves[-1].push_back( curve );
             }
@@ -2477,7 +2475,7 @@ void RimWellLogTrack::updateStackedCurveData()
 
             curve->setOverrideCurveData( allStackedValues, plotDepthValues, polyLineStartStopIndices );
             curve->setZOrder( zPos );
-            if ( curve->stackWithPhaseColors() )
+            if ( curve->isStackedWithPhaseColors() )
             {
                 curve->assignStackColor( stackIndex, curvePhaseCount[curve->phaseType()] );
             }

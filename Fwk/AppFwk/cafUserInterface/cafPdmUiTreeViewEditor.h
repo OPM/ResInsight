@@ -50,8 +50,6 @@
 #include <QTreeView>
 #include <QWidget>
 
-#include <functional>
-
 class MySortFilterProxyModel;
 
 class QGridLayout;

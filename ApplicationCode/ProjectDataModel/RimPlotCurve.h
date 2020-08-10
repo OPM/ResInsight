@@ -123,8 +123,8 @@ public:
 
     virtual RiaDefines::PhaseType phaseType() const;
     void                          assignStackColor( size_t index, size_t count );
-    bool                          stacked() const;
-    bool                          stackWithPhaseColors() const;
+    bool                          isStacked() const;
+    bool                          isStackedWithPhaseColors() const;
 
 protected:
     virtual QString createCurveAutoName()                        = 0;
@@ -196,6 +196,6 @@ protected:
     caf::PdmField<LabelPosition>      m_symbolLabelPosition;
     caf::PdmField<cvf::Color3f>       m_symbolEdgeColor;
 
-    caf::PdmField<bool> m_stackCurve;
-    caf::PdmField<bool> m_stackWithPhaseColors;
+    caf::PdmField<bool> m_isStacked;
+    caf::PdmField<bool> m_isStackedWithPhaseColors;
 };

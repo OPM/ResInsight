@@ -478,7 +478,7 @@ void PdmUiTreeViewEditor::updateItemDelegateForSubTree( const QModelIndex& model
                             caf::PdmUiTreeViewItemAttribute::Tag tag;
                             tag.icon         = caf::IconProvider( ":/caf/Up16x16.png" );
                             tag.selectedOnly = true;
-                            if ( reorderability->itemCanBeMovedUp( indexInParent ) )
+                            if ( reorderability->canItemBeMovedUp( indexInParent ) )
                             {
                                 tag.clicked.connect( reorderability, &PdmFieldReorderCapability::onMoveItemUp );
                             }
@@ -493,7 +493,7 @@ void PdmUiTreeViewEditor::updateItemDelegateForSubTree( const QModelIndex& model
                             caf::PdmUiTreeViewItemAttribute::Tag tag;
                             tag.icon         = caf::IconProvider( ":/caf/Down16x16.png" );
                             tag.selectedOnly = true;
-                            if ( reorderability->itemCanBeMovedDown( indexInParent ) )
+                            if ( reorderability->canItemBeMovedDown( indexInParent ) )
                             {
                                 tag.clicked.connect( reorderability, &PdmFieldReorderCapability::onMoveItemDown );
                             }

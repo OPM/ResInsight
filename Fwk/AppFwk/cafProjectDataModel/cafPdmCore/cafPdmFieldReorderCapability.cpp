@@ -53,7 +53,7 @@ PdmFieldReorderCapability::PdmFieldReorderCapability( PdmPtrArrayFieldHandle* fi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmFieldReorderCapability::itemCanBeMovedUp( size_t index ) const
+bool PdmFieldReorderCapability::canItemBeMovedUp( size_t index ) const
 {
     return index != 0u;
 }
@@ -61,7 +61,7 @@ bool PdmFieldReorderCapability::itemCanBeMovedUp( size_t index ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmFieldReorderCapability::itemCanBeMovedDown( size_t index ) const
+bool PdmFieldReorderCapability::canItemBeMovedDown( size_t index ) const
 {
     return m_field->size() > 1u && index < m_field->size() - 1u;
 }
@@ -71,7 +71,7 @@ bool PdmFieldReorderCapability::itemCanBeMovedDown( size_t index ) const
 //--------------------------------------------------------------------------------------------------
 bool PdmFieldReorderCapability::moveItemUp( size_t index )
 {
-    if ( itemCanBeMovedUp( index ) )
+    if ( canItemBeMovedUp( index ) )
     {
         PdmObjectHandle* itemToShift = m_field->at( index );
         if ( itemToShift )
@@ -91,7 +91,7 @@ bool PdmFieldReorderCapability::moveItemUp( size_t index )
 //--------------------------------------------------------------------------------------------------
 bool PdmFieldReorderCapability::moveItemDown( size_t index )
 {
-    if ( itemCanBeMovedDown( index ) )
+    if ( canItemBeMovedDown( index ) )
     {
         PdmObjectHandle* itemToShift = m_field->at( index );
         if ( itemToShift )
