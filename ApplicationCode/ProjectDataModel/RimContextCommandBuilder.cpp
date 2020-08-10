@@ -665,6 +665,9 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicSetSourceSteppingSummaryCurveFeature";
             menuBuilder << "RicClearSourceSteppingSummaryCurveFeature";
             menuBuilder << "Separator";
+            menuBuilder << "RicStackSelectedCurvesFeature";
+            menuBuilder << "RicUnstackSelectedCurvesFeature";
+            menuBuilder << "Separator";
             menuBuilder << "RicCopyReferencesToClipboardFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicEditSummaryCurveCalculationFeature";
@@ -968,6 +971,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicNewDerivedSummaryFeature";
         menuBuilder.addSeparator();
         menuBuilder << "RicConvertGroupToEnsembleFeature";
+        menuBuilder.addSeparator();
+        menuBuilder.addSeparator();
+        menuBuilder << "RicStackSelectedCurvesFeature";
+        menuBuilder << "RicUnstackSelectedCurvesFeature";
         menuBuilder.addSeparator();
 
         menuBuilder << "RicFlyToObjectFeature";

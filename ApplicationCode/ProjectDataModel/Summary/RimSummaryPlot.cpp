@@ -1370,10 +1370,10 @@ void RimSummaryPlot::childFieldChangedByUi( const caf::PdmFieldHandle* changedCh
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateStackedCurveData()
 {
+    loadDataAndUpdate();
+
     updateStackedCurveDataForAxis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
     updateStackedCurveDataForAxis( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
-
-    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------

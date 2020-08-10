@@ -125,6 +125,7 @@ public:
     void                          assignStackColor( size_t index, size_t count );
     bool                          isStacked() const;
     bool                          isStackedWithPhaseColors() const;
+    void                          setIsStacked( bool stacked );
 
 protected:
     virtual QString createCurveAutoName()                        = 0;
