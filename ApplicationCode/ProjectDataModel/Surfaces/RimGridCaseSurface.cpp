@@ -109,6 +109,8 @@ void RimGridCaseSurface::defineEditorAttribute( const caf::PdmFieldHandle* field
                                                 QString                    uiConfigName,
                                                 caf::PdmUiEditorAttribute* attribute )
 {
+    RimSurface::defineEditorAttribute( field, uiConfigName, attribute );
+
     caf::PdmUiSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
     if ( myAttr && m_case )
     {
