@@ -541,7 +541,7 @@ std::vector<RimSummaryCurve*> RimSummaryPlot::visibleStackedSummaryCurvesForAxis
     std::copy_if( visibleCurves.begin(),
                   visibleCurves.end(),
                   std::back_inserter( visibleStackedCurves ),
-                  []( RimSummaryCurve* curve ) { return curve->stacked(); } );
+                  []( RimSummaryCurve* curve ) { return curve->isStacked(); } );
 
     return visibleStackedCurves;
 }
@@ -1427,7 +1427,7 @@ void RimSummaryPlot::updateStackedCurveDataForAxis( RiaDefines::PlotAxis plotAxi
 
             curve->setOverrideCurveDataY( allTimeSteps, allStackedValues );
             curve->setZOrder( zPos );
-            if ( curve->stackWithPhaseColors() )
+            if ( curve->isStackedWithPhaseColors() )
             {
                 curve->assignStackColor( stackIndex, curvePhaseCount[curve->phaseType()] );
             }

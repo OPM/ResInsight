@@ -67,10 +67,10 @@ public:
         static_assert( std::is_convertible<ClassType*, SignalObserver*>::value,
                        "Only classes that inherit SignalObserver can connect as an observer of a Signal." );
 
-        DisconnectCallback lambda       = [=]( SignalObserver* observer ) { ( signal->disconnect )( observer ); };
-        auto               signalCasted = dynamic_cast<SignalObserver*>( signal );
+        DisconnectCallback disconnectCallback = [=]( SignalObserver* observer ) { ( signal->disconnect )( observer ); };
+        auto               signalCasted       = dynamic_cast<SignalObserver*>( signal );
 
-        if ( signalCasted ) m_disconnectCallbacks[signalCasted] = lambda;
+        if ( signalCasted ) m_disconnectCallbacks[signalCasted] = disconnectCallback;
     }
     void disconnect( SignalObserver* observer ) { m_disconnectCallbacks.erase( observer ); }
     void send()

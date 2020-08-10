@@ -172,8 +172,8 @@ RimPlotCurve::RimPlotCurve()
 
     CAF_PDM_InitFieldNoDefault( &m_symbolLabelPosition, "SymbolLabelPosition", "Symbol Label Position", "", "", "" );
 
-    CAF_PDM_InitField( &m_stackCurve, "StackCurve", false, "Stack Curve", "", "", "" );
-    CAF_PDM_InitField( &m_stackWithPhaseColors, "StackPhaseColors", false, "  with Phase Colors", "", "", "" );
+    CAF_PDM_InitField( &m_isStacked, "StackCurve", false, "Stack Curve", "", "", "" );
+    CAF_PDM_InitField( &m_isStackedWithPhaseColors, "StackPhaseColors", false, "  with Phase Colors", "", "", "" );
 
     m_qwtPlotCurve      = new RiuRimQwtPlotCurve( this );
     m_qwtCurveErrorBars = new QwtPlotIntervalCurve();
@@ -264,18 +264,18 @@ void RimPlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, co
     {
         updateCurveAppearance();
     }
-    else if ( changedField == &m_stackCurve )
+    else if ( changedField == &m_isStacked )
     {
-        if ( !m_stackCurve() && m_fillStyle() != Qt::NoBrush )
+        if ( !m_isStacked() && m_fillStyle() != Qt::NoBrush )
         {
             // Switch off area fill when turning off stacking.
             m_fillStyle = Qt::NoBrush;
         }
-        stackingChanged.send( m_stackCurve() );
+        stackingChanged.send( m_isStacked() );
     }
-    else if ( changedField == &m_stackWithPhaseColors )
+    else if ( changedField == &m_isStackedWithPhaseColors )
     {
-        stackingColorsChanged.send( m_stackWithPhaseColors() );
+        stackingColorsChanged.send( m_isStackedWithPhaseColors() );
     }
 
     RiuPlotMainWindowTools::refreshToolbars();
@@ -652,8 +652,8 @@ void RimPlotCurve::setSamplesFromTimeTAndYValues( const std::vector<time_t>& dat
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::appearanceUiOrdering( caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_stackCurve );
-    if ( m_stackCurve() ) uiOrdering.add( &m_stackWithPhaseColors );
+    uiOrdering.add( &m_isStacked );
+    if ( m_isStacked() ) uiOrdering.add( &m_isStackedWithPhaseColors );
 
     uiOrdering.add( &m_curveColor );
     uiOrdering.add( &m_pointSymbol );
@@ -727,17 +727,17 @@ void RimPlotCurve::assignStackColor( size_t index, size_t count )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimPlotCurve::stacked() const
+bool RimPlotCurve::isStacked() const
 {
-    return m_stackCurve();
+    return m_isStacked();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimPlotCurve::stackWithPhaseColors() const
+bool RimPlotCurve::isStackedWithPhaseColors() const
 {
-    return m_stackWithPhaseColors;
+    return m_isStackedWithPhaseColors;
 }
 
 //--------------------------------------------------------------------------------------------------

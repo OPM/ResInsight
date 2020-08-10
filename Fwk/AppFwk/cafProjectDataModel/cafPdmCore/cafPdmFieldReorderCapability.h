@@ -49,14 +49,24 @@ public:
 public:
     PdmFieldReorderCapability( PdmPtrArrayFieldHandle* field, bool giveOwnership );
 
-    bool itemCanBeMovedUp( size_t index ) const;
-    bool itemCanBeMovedDown( size_t index ) const;
+    bool canItemBeMovedUp( size_t index ) const;
+    bool canItemBeMovedDown( size_t index ) const;
 
     bool moveItemUp( size_t index );
     bool moveItemDown( size_t index );
 
     static PdmFieldReorderCapability* addToField( PdmPtrArrayFieldHandle* field );
-    static bool                       fieldIsReorderable( PdmPtrArrayFieldHandle* field );
+    template <typename ObserverClassType, typename... Args>
+    static PdmFieldReorderCapability*
+        addToFieldWithCallback( PdmPtrArrayFieldHandle* field,
+                                ObserverClassType*      observer,
+                                void ( ObserverClassType::*method )( const SignalEmitter*, Args... args ) )
+    {
+        PdmFieldReorderCapability* reorderCapability = addToField( field );
+        reorderCapability->orderChanged.connect( observer, method );
+        return reorderCapability;
+    }
+    static bool fieldIsReorderable( PdmPtrArrayFieldHandle* field );
 
     void onMoveItemUp( const SignalEmitter* emitter, size_t index );
     void onMoveItemDown( const SignalEmitter* emitter, size_t index );
