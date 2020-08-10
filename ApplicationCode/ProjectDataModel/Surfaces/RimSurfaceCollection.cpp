@@ -61,34 +61,13 @@ void RimSurfaceCollection::addSurface( RimSurface* surface )
 //--------------------------------------------------------------------------------------------------
 RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fileNames )
 {
-    QStringList              newFileNames;
-    std::vector<RimSurface*> surfacesToReload;
-
-    for ( const QString& newFileName : fileNames )
-    {
-        bool isFound = false;
-        for ( RimSurface* surface : m_surfaces() )
-        {
-            RimFileSurface* fileSurface = dynamic_cast<RimFileSurface*>( surface );
-            if ( fileSurface && fileSurface->surfaceFilePath() == newFileName )
-            {
-                surfacesToReload.push_back( surface );
-                isFound = true;
-                break;
-            }
-        }
-
-        if ( !isFound )
-        {
-            newFileNames.push_back( newFileName );
-        }
-    }
-
     size_t  newSurfCount      = 0;
     size_t  existingSurfCount = m_surfaces().size();
     QString errorMessages;
 
-    for ( const QString& newFileName : newFileNames )
+    std::vector<RimSurface*> surfacesToLoad;
+
+    for ( const QString& newFileName : fileNames )
     {
         RimFileSurface* newSurface = new RimFileSurface;
 
@@ -105,8 +84,7 @@ RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fi
         else
         {
             this->addSurface( newSurface );
-            surfacesToReload.push_back( newSurface );
-
+            surfacesToLoad.push_back( newSurface );
             ++newSurfCount;
         }
     }
@@ -118,7 +96,7 @@ RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fi
 
     this->updateConnectedEditors();
 
-    updateViews( surfacesToReload );
+    updateViews( surfacesToLoad );
 
     if ( newSurfCount > 0 && !m_surfaces.empty() )
     {
