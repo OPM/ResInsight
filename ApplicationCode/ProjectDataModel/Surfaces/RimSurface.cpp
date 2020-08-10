@@ -40,7 +40,10 @@ RimSurface::RimSurface()
     CAF_PDM_InitFieldNoDefault( &m_userDescription, "SurfaceUserDecription", "Name", "", "", "" );
     CAF_PDM_InitField( &m_color, "SurfaceColor", cvf::Color3f( 0.5f, 0.3f, 0.2f ), "Color", "", "", "" );
 
+    //    CAF_PDM_InitField( &m_depthOffset, "DepthOffset", 0.0, "Depth Offset", "", "", "" );
+
     CAF_PDM_InitField( &m_depthOffset, "DepthOffset", 0.0, "Depth Offset", "", "", "" );
+    m_depthOffset.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name Proxy", "", "", "" );
     m_nameProxy.registerGetMethod( this, &RimSurface::fullName );
@@ -214,4 +217,22 @@ QString RimSurface::fullName() const
     }
 
     return QString( "%1" ).arg( m_userDescription );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurface::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                        QString                    uiConfigName,
+                                        caf::PdmUiEditorAttribute* attribute )
+{
+    auto doubleSliderAttrib = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
+    if ( doubleSliderAttrib )
+    {
+        if ( field == &m_depthOffset )
+        {
+            doubleSliderAttrib->m_minimum = -2000;
+            doubleSliderAttrib->m_maximum = 2000;
+        }
+    }
 }

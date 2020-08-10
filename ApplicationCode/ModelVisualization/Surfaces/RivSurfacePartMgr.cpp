@@ -327,9 +327,6 @@ void RivSurfacePartMgr::generateNativePartGeometry()
     m_usedSurfaceData = m_surfaceInView->surface()->surfaceData();
     if ( m_usedSurfaceData.isNull() ) return;
 
-    double depthOffset    = m_surfaceInView->depthOffset();
-    displayModOffsett.z() = displayModOffsett.z() + depthOffset;
-
     const std::vector<cvf::Vec3d>& vertices    = m_usedSurfaceData->vertices();
     cvf::ref<cvf::Vec3fArray>      cvfVertices = new cvf::Vec3fArray( vertices.size() );
     for ( size_t i = 0; i < vertices.size(); ++i )
