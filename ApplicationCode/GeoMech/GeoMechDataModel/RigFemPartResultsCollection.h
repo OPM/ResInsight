@@ -88,14 +88,20 @@ public:
     double  getCalculationParameterValue( RimMudWeightWindowParameters::ParameterType ) const;
     QString getCalculationParameterAddress( RimMudWeightWindowParameters::ParameterType ) const;
 
-    void                                         setMudWeightWindowParameters( double                                       airGap,
-                                                                               RimMudWeightWindowParameters::UpperLimitType upperLimit,
-                                                                               RimMudWeightWindowParameters::LowerLimitType lowerLimit,
-                                                                               int                                          referenceLayer );
-    double                                       airGapMudWeightWindow() const;
+    void   setMudWeightWindowParameters( double                                                        airGap,
+                                         RimMudWeightWindowParameters::UpperLimitType                  upperLimit,
+                                         RimMudWeightWindowParameters::LowerLimitType                  lowerLimit,
+                                         int                                                           referenceLayer,
+                                         RimMudWeightWindowParameters::FractureGradientCalculationType fgCalculationType,
+                                         double                                                        shMultiplier );
+    double airGapMudWeightWindow() const;
+    double shMultiplierMudWeightWindow() const;
+
     RimMudWeightWindowParameters::UpperLimitType upperLimitParameterMudWeightWindow() const;
     RimMudWeightWindowParameters::LowerLimitType lowerLimitParameterMudWeightWindow() const;
     size_t                                       referenceLayerMudWeightWindow() const;
+
+    RimMudWeightWindowParameters::FractureGradientCalculationType fractureGradientCalculationTypeMudWeightWindow() const;
 
     std::map<std::string, std::vector<std::string>> scalarFieldAndComponentNames( RigFemResultPosEnum resPos );
     std::vector<std::string>                        filteredStepNames() const;
@@ -196,10 +202,12 @@ private:
 
     int m_referenceTimeStep;
 
-    double                                       m_airGapMudWeightWindow;
-    int                                          m_referenceLayerMudWeightWindow;
-    RimMudWeightWindowParameters::UpperLimitType m_upperLimitParameterMudWeightWindow;
-    RimMudWeightWindowParameters::LowerLimitType m_lowerLimitParameterMudWeightWindow;
+    double                                                        m_airGapMudWeightWindow;
+    double                                                        m_shMultiplierMudWeightWindow;
+    int                                                           m_referenceLayerMudWeightWindow;
+    RimMudWeightWindowParameters::UpperLimitType                  m_upperLimitParameterMudWeightWindow;
+    RimMudWeightWindowParameters::LowerLimitType                  m_lowerLimitParameterMudWeightWindow;
+    RimMudWeightWindowParameters::FractureGradientCalculationType m_fractureGradientCalculationTypeMudWeightWindow;
 
     std::map<RimMudWeightWindowParameters::ParameterType, QString> parameterAddresses;
     std::map<RimMudWeightWindowParameters::ParameterType, double>  parameterValues;

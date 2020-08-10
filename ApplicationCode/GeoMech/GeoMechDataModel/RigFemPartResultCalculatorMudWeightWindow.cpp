@@ -29,6 +29,7 @@
 
 #include "RiaOffshoreSphericalCoords.h"
 
+#include "RimMudWeightWindowParameters.h"
 #include "cafProgressInfo.h"
 
 #include "cvfBoundingBox.h"
@@ -73,7 +74,8 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
          RimMudWeightWindowParameters::ParameterType::WELL_AZIMUTH,
          RimMudWeightWindowParameters::ParameterType::UCS,
          RimMudWeightWindowParameters::ParameterType::POISSONS_RATIO,
-         RimMudWeightWindowParameters::ParameterType::K0_FG};
+         RimMudWeightWindowParameters::ParameterType::K0_FG,
+         RimMudWeightWindowParameters::ParameterType::OBG0};
 
     caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * ( 4 + parameterTypes.size() ), "" );
     frameCountProgress.setProgressDescription( "Calculating Mud Weight Window" );
@@ -88,7 +90,11 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
         frameCountProgress.incrementProgress();
     }
 
-    double                                       airGap = m_resultCollection->airGapMudWeightWindow();
+    double airGap       = m_resultCollection->airGapMudWeightWindow();
+    double shMultiplier = m_resultCollection->shMultiplierMudWeightWindow();
+
+    RimMudWeightWindowParameters::FractureGradientCalculationType fractureGradientCalculationType =
+        m_resultCollection->fractureGradientCalculationTypeMudWeightWindow();
     RimMudWeightWindowParameters::UpperLimitType upperLimitParameter =
         m_resultCollection->upperLimitParameterMudWeightWindow();
     RimMudWeightWindowParameters::LowerLimitType lowerLimitParameter =
@@ -132,7 +138,9 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
     int frameCount = stressDataFrames->frameCount();
     for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
     {
-        const std::vector<float>& porFrameData    = porePressureDataFrames->frameData( fIdx );
+        const std::vector<float>& porFrameData        = porePressureDataFrames->frameData( fIdx );
+        const std::vector<float>& initialPorFrameData = porePressureDataFrames->frameData( 0 );
+
         const std::vector<float>& stressFrameData = stressDataFrames->frameData( fIdx );
 
         std::vector<float>& mudWeightWindowFrameData     = mudWeightWindowFrames->frameData( fIdx );
@@ -195,6 +203,11 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
                                                parameterValues,
                                                elmIdx );
 
+            double OBG0 = getValueForElement( RimMudWeightWindowParameters::ParameterType::OBG0,
+                                              parameterFrameData,
+                                              parameterValues,
+                                              elmIdx );
+
             int elmNodeCount = RigFemTypes::elementNodeCount( femPart->elementType( elmIdx ) );
 
             if ( elmType == HEX8P )
@@ -214,7 +227,8 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
                         int nodeIdx = femPart->nodeIdxFromElementNodeResultIdx( elmNodResIdx );
 
                         // Pore pressure (unit: Bar)
-                        double porePressureBar = porFrameData[nodeIdx];
+                        double porePressureBar        = porFrameData[nodeIdx];
+                        double initialPorePressureBar = initialPorFrameData[nodeIdx];
 
                         // FG is for sands, SFG for shale. Sands has valid PP, shale does not.
                         bool isSand = ( porePressureBar != inf );
@@ -242,6 +256,20 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
                         else if ( upperLimitParameter == RimMudWeightWindowParameters::UpperLimitType::SH_MIN )
                         {
                             upperLimit = stressFrameData[elmNodResIdx];
+                        }
+
+                        //
+                        if ( upperLimit == inf )
+                        {
+                            if ( fractureGradientCalculationType ==
+                                 RimMudWeightWindowParameters::FractureGradientCalculationType::DERIVED_FROM_K0FG )
+                            {
+                                upperLimit = K0_FG * ( OBG0 - initialPorePressureBar ) + initialPorePressureBar;
+                            }
+                            else
+                            {
+                                upperLimit = stressFrameData[elmNodResIdx] * shMultiplier;
+                            }
                         }
 
                         // Calculate lower limit

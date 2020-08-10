@@ -44,7 +44,8 @@ public:
         WELL_AZIMUTH,
         UCS,
         POISSONS_RATIO,
-        K0_FG
+        K0_FG,
+        OBG0
     };
 
     enum class UpperLimitType
@@ -57,6 +58,12 @@ public:
     {
         PORE_PRESSURE,
         MAX_OF_PORE_PRESSURE_AND_SFG
+    };
+
+    enum class FractureGradientCalculationType
+    {
+        DERIVED_FROM_K0FG,
+        PROPORTIONAL_TO_SH
     };
 
     RimMudWeightWindowParameters( void );
@@ -127,10 +134,16 @@ private:
     caf::PdmField<double>                   m_K0_FGFixed;
     caf::PdmField<QString>                  m_K0_FGAddress;
 
-    caf::PdmField<double> m_airGap;
+    caf::PdmField<caf::AppEnum<SourceType>> m_obg0Type;
+    caf::PdmField<double>                   m_obg0Fixed;
+    caf::PdmField<QString>                  m_obg0Address;
 
-    caf::PdmField<caf::AppEnum<UpperLimitType>> m_upperLimitType;
-    caf::PdmField<caf::AppEnum<LowerLimitType>> m_lowerLimitType;
+    caf::PdmField<double> m_airGap;
+    caf::PdmField<double> m_shMultiplier;
+
+    caf::PdmField<caf::AppEnum<UpperLimitType>>                  m_upperLimitType;
+    caf::PdmField<caf::AppEnum<LowerLimitType>>                  m_lowerLimitType;
+    caf::PdmField<caf::AppEnum<FractureGradientCalculationType>> m_fractureGradientCalculationType;
 
     caf::PdmField<int> m_referenceLayer;
 };

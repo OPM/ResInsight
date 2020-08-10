@@ -1698,6 +1698,14 @@ double RigFemPartResultsCollection::airGapMudWeightWindow() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RigFemPartResultsCollection::shMultiplierMudWeightWindow() const
+{
+    return m_shMultiplierMudWeightWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimMudWeightWindowParameters::UpperLimitType RigFemPartResultsCollection::upperLimitParameterMudWeightWindow() const
 {
     return m_upperLimitParameterMudWeightWindow;
@@ -1722,19 +1730,33 @@ size_t RigFemPartResultsCollection::referenceLayerMudWeightWindow() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFemPartResultsCollection::setMudWeightWindowParameters( double                                       airGap,
-                                                                RimMudWeightWindowParameters::UpperLimitType upperLimit,
-                                                                RimMudWeightWindowParameters::LowerLimitType lowerLimit,
-                                                                int referenceLayer )
+void RigFemPartResultsCollection::setMudWeightWindowParameters(
+    double                                                        airGap,
+    RimMudWeightWindowParameters::UpperLimitType                  upperLimit,
+    RimMudWeightWindowParameters::LowerLimitType                  lowerLimit,
+    int                                                           referenceLayer,
+    RimMudWeightWindowParameters::FractureGradientCalculationType fgCalculationType,
+    double                                                        shMultiplier )
 {
-    m_airGapMudWeightWindow              = airGap;
-    m_upperLimitParameterMudWeightWindow = upperLimit;
-    m_lowerLimitParameterMudWeightWindow = lowerLimit;
-    m_referenceLayerMudWeightWindow      = referenceLayer;
+    m_airGapMudWeightWindow                          = airGap;
+    m_upperLimitParameterMudWeightWindow             = upperLimit;
+    m_lowerLimitParameterMudWeightWindow             = lowerLimit;
+    m_referenceLayerMudWeightWindow                  = referenceLayer;
+    m_fractureGradientCalculationTypeMudWeightWindow = fgCalculationType;
+    m_shMultiplierMudWeightWindow                    = shMultiplier;
 
     // Invalidate dependent results
     for ( auto result : mudWeightWindowResults() )
     {
         this->deleteResult( result );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimMudWeightWindowParameters::FractureGradientCalculationType
+    RigFemPartResultsCollection::fractureGradientCalculationTypeMudWeightWindow() const
+{
+    return m_fractureGradientCalculationTypeMudWeightWindow;
 }
