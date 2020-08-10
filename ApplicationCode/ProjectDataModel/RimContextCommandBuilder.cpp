@@ -892,16 +892,15 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicConvertFractureTemplateUnitFeature";
         }
-        else if ( dynamic_cast<RimSurfaceCollection*>( firstUiItem ) || dynamic_cast<RimSurface*>( firstUiItem ) )
+        else if ( dynamic_cast<RimSurfaceCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicImportSurfacesFeature";
             menuBuilder << "RicNewGridSurfaceFeature";
-
-            if ( dynamic_cast<RimSurface*>( firstUiItem ) )
-            {
-                menuBuilder << "RicExportSurfaceFeature";
-                menuBuilder << "RicReloadSurfaceFeature";
-            }
+        }
+        else if ( dynamic_cast<RimSurface*>( firstUiItem ) )
+        {
+            menuBuilder << "RicExportSurfaceFeature";
+            menuBuilder << "RicReloadSurfaceFeature";
         }
         else if ( dynamic_cast<RimAnnotationCollection*>( firstUiItem ) ||
                   dynamic_cast<RimAnnotationGroupCollection*>( firstUiItem ) )
