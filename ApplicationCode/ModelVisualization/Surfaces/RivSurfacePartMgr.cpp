@@ -174,14 +174,7 @@ void RivSurfacePartMgr::updateNativeSurfaceColors()
             }
 
             float effectiveOpacityLevel = 1.0;
-            bool  disableLighting       = false;
-
-            Rim3dView* view = nullptr;
-            m_surfaceInView->firstAncestorOfType( view );
-            if ( view )
-            {
-                disableLighting = view->isLightingDisabled();
-            }
+            bool  disableLighting       = true; // always disable lighting for now, as it doesn't look good
 
             RivScalarMapperUtils::applyTextureResultsToPart( m_nativeTrianglesPart.p(),
                                                              m_nativeTrianglesTextureCoords.p(),
