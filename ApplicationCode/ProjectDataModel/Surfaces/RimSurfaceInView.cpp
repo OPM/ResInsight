@@ -74,7 +74,7 @@ RimSurfaceInView::~RimSurfaceInView()
 //--------------------------------------------------------------------------------------------------
 QString RimSurfaceInView::name() const
 {
-    if ( m_surface ) return m_surface->userDescription();
+    if ( m_surface ) return m_surface->fullName();
 
     return "";
 }

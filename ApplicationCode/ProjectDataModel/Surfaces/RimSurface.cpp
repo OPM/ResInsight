@@ -42,6 +42,12 @@ RimSurface::RimSurface()
 
     CAF_PDM_InitField( &m_depthOffset, "DepthOffset", 0.0, "Depth Offset", "", "", "" );
 
+    CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name Proxy", "", "", "" );
+    m_nameProxy.registerGetMethod( this, &RimSurface::fullName );
+    m_nameProxy.uiCapability()->setUiReadOnly( true );
+    m_nameProxy.uiCapability()->setUiHidden( true );
+    m_nameProxy.xmlCapability()->disableIO();
+
     setDeletable( true );
 }
 
@@ -74,6 +80,14 @@ cvf::Color3f RimSurface::color() const
 QString RimSurface::userDescription()
 {
     return m_userDescription();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimSurface::userDescriptionField()
+{
+    return &m_nameProxy;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -153,14 +167,6 @@ RigSurface* RimSurface::surfaceData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimSurface::userDescriptionField()
-{
-    return &m_userDescription;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     bool updateViews = false;
@@ -195,4 +201,17 @@ void RimSurface::reloadData()
 {
     clearCachedNativeData();
     updateSurfaceData();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Return the name to show in the tree selector, including the depth offset if not 0
+//--------------------------------------------------------------------------------------------------
+QString RimSurface::fullName() const
+{
+    if ( depthOffset() != 0.0 )
+    {
+        return QString( "%1 - Offset:%2" ).arg( m_userDescription, QString::number( depthOffset() ) );
+    }
+
+    return QString( "%1" ).arg( m_userDescription );
 }
