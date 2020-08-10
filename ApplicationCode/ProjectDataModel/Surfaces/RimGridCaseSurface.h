@@ -61,7 +61,6 @@ private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     void extractDataFromGrid();
-    void clearNativeGridData();
 
     std::pair<uint, uint> getStructGridIndex( cvf::StructGridInterface::FaceType cellface, cvf::ubyte localVertexIndex );
 
