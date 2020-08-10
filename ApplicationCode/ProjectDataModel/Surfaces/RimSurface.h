@@ -46,6 +46,7 @@ public:
     void        setUserDescription( const QString& description );
 
     virtual QString fullName() const;
+    virtual bool    onLoadData() = 0;
 
     void loadDataIfRequired();
     void reloadData();
@@ -65,7 +66,6 @@ protected:
 
     caf::PdmFieldHandle* userDescriptionField() override;
 
-    virtual bool onLoadData()            = 0;
     virtual bool updateSurfaceData()     = 0;
     virtual void clearCachedNativeData() = 0;
 
