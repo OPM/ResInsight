@@ -88,14 +88,20 @@ public:
     double  getCalculationParameterValue( RimMudWeightWindowParameters::ParameterType ) const;
     QString getCalculationParameterAddress( RimMudWeightWindowParameters::ParameterType ) const;
 
-    void   setMudWeightWindowParameters( double                                                        airGap,
-                                         RimMudWeightWindowParameters::UpperLimitType                  upperLimit,
-                                         RimMudWeightWindowParameters::LowerLimitType                  lowerLimit,
-                                         int                                                           referenceLayer,
-                                         RimMudWeightWindowParameters::FractureGradientCalculationType fgCalculationType,
-                                         double                                                        shMultiplier );
+    void setMudWeightWindowParameters( double                                                        airGap,
+                                       RimMudWeightWindowParameters::UpperLimitType                  upperLimit,
+                                       RimMudWeightWindowParameters::LowerLimitType                  lowerLimit,
+                                       int                                                           referenceLayer,
+                                       RimMudWeightWindowParameters::FractureGradientCalculationType fgCalculationType,
+                                       double                                                        shMultiplier,
+                                       RimMudWeightWindowParameters::NonReservoirPorePressureType nonReservoirPorePressureType,
+                                       double hydroStaticMultiplierPPNonRes );
+
     double airGapMudWeightWindow() const;
     double shMultiplierMudWeightWindow() const;
+
+    double                                                     hydrostaticMultiplierPPNonRes() const;
+    RimMudWeightWindowParameters::NonReservoirPorePressureType nonReservoirPorePressureTypeMudWeightWindow() const;
 
     RimMudWeightWindowParameters::UpperLimitType upperLimitParameterMudWeightWindow() const;
     RimMudWeightWindowParameters::LowerLimitType lowerLimitParameterMudWeightWindow() const;
@@ -208,6 +214,9 @@ private:
     RimMudWeightWindowParameters::UpperLimitType                  m_upperLimitParameterMudWeightWindow;
     RimMudWeightWindowParameters::LowerLimitType                  m_lowerLimitParameterMudWeightWindow;
     RimMudWeightWindowParameters::FractureGradientCalculationType m_fractureGradientCalculationTypeMudWeightWindow;
+
+    RimMudWeightWindowParameters::NonReservoirPorePressureType m_nonReservoirPorePressureTypeMudWeightWindow;
+    double                                                     m_hydrostaticMultiplierPPNonResMudWeightWindow;
 
     std::map<RimMudWeightWindowParameters::ParameterType, QString> parameterAddresses;
     std::map<RimMudWeightWindowParameters::ParameterType, double>  parameterValues;

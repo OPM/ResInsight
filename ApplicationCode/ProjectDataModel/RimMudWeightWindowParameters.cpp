@@ -89,6 +89,16 @@ void caf::AppEnum<RimMudWeightWindowParameters::FractureGradientCalculationType>
     setDefault( RimMudWeightWindowParameters::FractureGradientCalculationType::DERIVED_FROM_K0FG );
 }
 
+template <>
+void caf::AppEnum<RimMudWeightWindowParameters::NonReservoirPorePressureType>::setUp()
+{
+    addItem( RimMudWeightWindowParameters::NonReservoirPorePressureType::HYDROSTATIC, "PORE_PRESSURE", "Pore Pressure" );
+    addItem( RimMudWeightWindowParameters::NonReservoirPorePressureType::PER_ELEMENT,
+             "PER_ELEMENT",
+             "From element properties" );
+    setDefault( RimMudWeightWindowParameters::NonReservoirPorePressureType::HYDROSTATIC );
+}
+
 } // End namespace caf
 
 //--------------------------------------------------------------------------------------------------
@@ -168,6 +178,17 @@ RimMudWeightWindowParameters::RimMudWeightWindowParameters( void )
                        "",
                        "",
                        "" );
+
+    caf::AppEnum<NonReservoirPorePressureType> defaultNonReservoirPorePressureType =
+        RimMudWeightWindowParameters::NonReservoirPorePressureType::HYDROSTATIC;
+    CAF_PDM_InitField( &m_porePressureNonReservoirSource,
+                       "PorePressureNonReservoirSource",
+                       defaultNonReservoirPorePressureType,
+                       "Non-Reservoir Pore Pressure",
+                       "",
+                       "Data source for Non-Reservoir Pore Pressure",
+                       "" );
+    CAF_PDM_InitField( &m_userDefinedPPNonReservoir, "UserPPNonReservoir", 1.0, "  Multiplier of hydrostatic PP", "", "", "" );
 
     CAF_PDM_InitField( &m_referenceLayer, "ReferenceLayer", -1, "Reference Layer", "", "", "" );
 }
@@ -363,7 +384,8 @@ void RimMudWeightWindowParameters::fieldChangedByUi( const caf::PdmFieldHandle* 
     }
     else if ( changedField == &m_airGap || changedField == &m_upperLimitType || changedField == &m_lowerLimitType ||
               changedField == &m_referenceLayer || changedField == &m_fractureGradientCalculationType ||
-              changedField == &m_shMultiplier )
+              changedField == &m_shMultiplier || changedField == &m_porePressureNonReservoirSource ||
+              changedField == &m_userDefinedPPNonReservoir )
     {
         RigGeoMechCaseData* rigCaseData = geoMechCase->geoMechData();
         if ( rigCaseData && rigCaseData->femPartResults() )
@@ -373,7 +395,9 @@ void RimMudWeightWindowParameters::fieldChangedByUi( const caf::PdmFieldHandle* 
                                                                          m_lowerLimitType.value(),
                                                                          m_referenceLayer,
                                                                          m_fractureGradientCalculationType.value(),
-                                                                         m_shMultiplier );
+                                                                         m_shMultiplier,
+                                                                         m_porePressureNonReservoirSource.value(),
+                                                                         m_userDefinedPPNonReservoir );
             geoMechCase->updateConnectedViews();
         }
     }

@@ -67,6 +67,12 @@ public:
         PROPORTIONAL_TO_SH
     };
 
+    enum class NonReservoirPorePressureType
+    {
+        HYDROSTATIC,
+        PER_ELEMENT
+    };
+
     RimMudWeightWindowParameters( void );
 
     SourceType wellDeviationType() const;
@@ -141,10 +147,12 @@ private:
 
     caf::PdmField<double> m_airGap;
     caf::PdmField<double> m_shMultiplier;
+    caf::PdmField<double> m_userDefinedPPNonReservoir;
 
     caf::PdmField<caf::AppEnum<UpperLimitType>>                  m_upperLimitType;
     caf::PdmField<caf::AppEnum<LowerLimitType>>                  m_lowerLimitType;
     caf::PdmField<caf::AppEnum<FractureGradientCalculationType>> m_fractureGradientCalculationType;
+    caf::PdmField<caf::AppEnum<NonReservoirPorePressureType>>    m_porePressureNonReservoirSource;
 
     caf::PdmField<int> m_referenceLayer;
 };

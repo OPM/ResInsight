@@ -23,6 +23,7 @@
 
 #include "RifElementPropertyReader.h"
 #include "RifGeoMechReaderInterface.h"
+#include "RimMudWeightWindowParameters.h"
 
 #ifdef USE_ODB_API
 #include "RifOdbReader.h"
@@ -1707,9 +1708,18 @@ double RigFemPartResultsCollection::shMultiplierMudWeightWindow() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMudWeightWindowParameters::UpperLimitType RigFemPartResultsCollection::upperLimitParameterMudWeightWindow() const
+double RigFemPartResultsCollection::hydrostaticMultiplierPPNonRes() const
 {
-    return m_upperLimitParameterMudWeightWindow;
+    return m_hydrostaticMultiplierPPNonResMudWeightWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimMudWeightWindowParameters::NonReservoirPorePressureType
+    RigFemPartResultsCollection::nonReservoirPorePressureTypeMudWeightWindow() const
+{
+    return m_nonReservoirPorePressureTypeMudWeightWindow;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1718,6 +1728,14 @@ RimMudWeightWindowParameters::UpperLimitType RigFemPartResultsCollection::upperL
 RimMudWeightWindowParameters::LowerLimitType RigFemPartResultsCollection::lowerLimitParameterMudWeightWindow() const
 {
     return m_lowerLimitParameterMudWeightWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimMudWeightWindowParameters::UpperLimitType RigFemPartResultsCollection::upperLimitParameterMudWeightWindow() const
+{
+    return m_upperLimitParameterMudWeightWindow;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1737,7 +1755,9 @@ void RigFemPartResultsCollection::setMudWeightWindowParameters(
     RimMudWeightWindowParameters::LowerLimitType                  lowerLimit,
     int                                                           referenceLayer,
     RimMudWeightWindowParameters::FractureGradientCalculationType fgCalculationType,
-    double                                                        shMultiplier )
+    double                                                        shMultiplier,
+    RimMudWeightWindowParameters::NonReservoirPorePressureType    nonReservoirPorePressureType,
+    double                                                        hydrostaticMultiplierPPNonRes )
 {
     m_airGapMudWeightWindow                          = airGap;
     m_upperLimitParameterMudWeightWindow             = upperLimit;
@@ -1745,6 +1765,8 @@ void RigFemPartResultsCollection::setMudWeightWindowParameters(
     m_referenceLayerMudWeightWindow                  = referenceLayer;
     m_fractureGradientCalculationTypeMudWeightWindow = fgCalculationType;
     m_shMultiplierMudWeightWindow                    = shMultiplier;
+    m_nonReservoirPorePressureTypeMudWeightWindow    = nonReservoirPorePressureType;
+    m_hydrostaticMultiplierPPNonResMudWeightWindow   = hydrostaticMultiplierPPNonRes;
 
     // Invalidate dependent results
     for ( auto result : mudWeightWindowResults() )
