@@ -900,7 +900,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimSurface*>( firstUiItem ) )
         {
-            if (dynamic_cast<RimGridCaseSurface*>(firstUiItem))
+            if ( dynamic_cast<RimGridCaseSurface*>( firstUiItem ) )
             {
                 menuBuilder << "RicExportKLayerToPtlFeature";
             }

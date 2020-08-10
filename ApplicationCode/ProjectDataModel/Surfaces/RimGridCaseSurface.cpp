@@ -308,7 +308,6 @@ std::pair<cvf::uint, cvf::uint> RimGridCaseSurface::getStructGridIndex( cvf::Str
     return localIndexPair;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// Returns false for fatal failure
 //--------------------------------------------------------------------------------------------------
