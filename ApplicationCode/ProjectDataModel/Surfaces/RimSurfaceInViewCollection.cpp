@@ -144,12 +144,22 @@ void RimSurfaceInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
                                                    const QVariant&            oldValue,
                                                    const QVariant&            newValue )
 {
+    this->updateUiIconFromToggleField();
+
     if ( changedField == &m_isChecked )
     {
         RimGridView* ownerView;
         this->firstAncestorOrThisOfTypeAsserted( ownerView );
         ownerView->scheduleCreateDisplayModelAndRedraw();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceInViewCollection::initAfterRead()
+{
+    this->updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------

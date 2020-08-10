@@ -58,6 +58,9 @@ public:
 
     void updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer );
 
+protected:
+    virtual void initAfterRead() override;
+
 private:
     virtual RimIntersectionResultsDefinitionCollection* findSeparateResultsCollection() override;
 
