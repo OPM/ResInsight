@@ -1372,6 +1372,8 @@ void RimSummaryPlot::updateStackedCurveData()
 {
     updateStackedCurveDataForAxis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
     updateStackedCurveDataForAxis( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
+
+    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1382,8 +1384,6 @@ void RimSummaryPlot::updateStackedCurveDataForAxis( RiaDefines::PlotAxis plotAxi
     std::map<RiaDefines::PhaseType, size_t> curvePhaseCount;
 
     auto stackedCurves = visibleStackedSummaryCurvesForAxis( plotAxis );
-
-    if ( stackedCurves.size() <= 1u ) return; // No point in stacking if there's less than two curves
 
     // Reset all curves
     for ( RimSummaryCurve* curve : stackedCurves )
