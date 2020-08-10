@@ -51,9 +51,6 @@ RimSurfaceInView::RimSurfaceInView()
     CAF_PDM_InitFieldNoDefault( &m_surface, "SurfaceRef", "Surface", "", "", "" );
     m_surface.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_depthOffset, "DepthOffset", 0.0, "Depth Offset", "", "", "" );
-    m_depthOffset.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
-
     CAF_PDM_InitFieldNoDefault( &m_resultDefinition, "ResultDefinition", "Result Definition", "", "", "" );
     m_resultDefinition.uiCapability()->setUiHidden( true );
     m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
@@ -124,14 +121,6 @@ bool RimSurfaceInView::isNativeSurfaceResultsActive() const
 RimSurfaceResultDefinition* RimSurfaceInView::surfaceResultDefinition()
 {
     return m_resultDefinition();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimSurfaceInView::depthOffset() const
-{
-    return m_depthOffset;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -214,11 +203,6 @@ void RimSurfaceInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         clearGeometry();
         scheduleRedraw = true;
     }
-    else if ( changedField == &m_depthOffset )
-    {
-        clearGeometry();
-        scheduleRedraw = true;
-    }
 
     if ( scheduleRedraw )
     {
@@ -235,27 +219,8 @@ void RimSurfaceInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 {
     uiOrdering.add( &m_name );
     uiOrdering.add( &m_showInactiveCells );
-    uiOrdering.add( &m_depthOffset );
 
     this->defineSeparateDataSourceUi( uiConfigName, uiOrdering );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSurfaceInView::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                              QString                    uiConfigName,
-                                              caf::PdmUiEditorAttribute* attribute )
-{
-    auto doubleSliderAttrib = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-    if ( doubleSliderAttrib )
-    {
-        if ( field == &m_depthOffset )
-        {
-            doubleSliderAttrib->m_minimum = -2000;
-            doubleSliderAttrib->m_maximum = 2000;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

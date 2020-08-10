@@ -51,19 +51,12 @@ public:
     bool                        isNativeSurfaceResultsActive() const;
     RimSurfaceResultDefinition* surfaceResultDefinition();
 
-    double depthOffset() const;
-
     void               clearGeometry();
     RivSurfacePartMgr* surfacePartMgr();
 
     void loadDataAndUpdate();
 
     void updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer );
-
-protected:
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
     virtual RimIntersectionResultsDefinitionCollection* findSeparateResultsCollection() override;
@@ -75,7 +68,6 @@ private:
     caf::PdmProxyValueField<QString> m_name;
     caf::PdmPtrField<RimSurface*>    m_surface;
 
-    caf::PdmField<double>                           m_depthOffset;
     caf::PdmChildField<RimSurfaceResultDefinition*> m_resultDefinition;
 
     cvf::ref<RivSurfacePartMgr> m_surfacePartMgr;
