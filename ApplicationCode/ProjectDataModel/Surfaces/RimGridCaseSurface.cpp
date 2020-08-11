@@ -83,7 +83,7 @@ void RimGridCaseSurface::setSliceTypeAndOneBasedIndex( RiaDefines::GridCaseAxis 
 //--------------------------------------------------------------------------------------------------
 bool RimGridCaseSurface::onLoadData()
 {
-    return updateSurfaceDataFromGridCase();
+    return updateSurfaceData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -109,6 +109,8 @@ void RimGridCaseSurface::defineEditorAttribute( const caf::PdmFieldHandle* field
                                                 QString                    uiConfigName,
                                                 caf::PdmUiEditorAttribute* attribute )
 {
+    RimSurface::defineEditorAttribute( field, uiConfigName, attribute );
+
     caf::PdmUiSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
     if ( myAttr && m_case )
     {
@@ -143,9 +145,9 @@ void RimGridCaseSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 
     if ( changedField == &m_case || changedField == &m_sliceDirection || changedField == &m_oneBasedSliceIndex )
     {
-        clearNativeGridData();
-        updateSurfaceDataFromGridCase();
-        updateUserDescription();
+        clearCachedNativeData();
+        updateSurfaceData();
+        // updateUserDescription();
 
         RimSurfaceCollection* surfColl;
         this->firstAncestorOrThisOfTypeAsserted( surfColl );
@@ -158,7 +160,7 @@ void RimGridCaseSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 void RimGridCaseSurface::extractDataFromGrid()
 {
-    clearNativeGridData();
+    clearCachedNativeData();
 
     if ( m_sliceDirection() == RiaDefines::GridCaseAxis::UNDEFINED_AXIS ) return;
 
@@ -270,7 +272,7 @@ void RimGridCaseSurface::extractDataFromGrid()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCaseSurface::clearNativeGridData()
+void RimGridCaseSurface::clearCachedNativeData()
 {
     m_vertices.clear();
     m_tringleIndices.clear();
@@ -307,45 +309,9 @@ std::pair<cvf::uint, cvf::uint> RimGridCaseSurface::getStructGridIndex( cvf::Str
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGridCaseSurface::updateUserDescription()
-{
-    QString name;
-
-    auto dirValue = m_sliceDirection().value();
-    switch ( dirValue )
-    {
-        case RiaDefines::GridCaseAxis::AXIS_I:
-            name = "Surface I : ";
-            break;
-        case RiaDefines::GridCaseAxis::AXIS_J:
-            name = "Surface J : ";
-            break;
-        case RiaDefines::GridCaseAxis::AXIS_K:
-            name = "Surface K : ";
-            break;
-        case RiaDefines::GridCaseAxis::UNDEFINED_AXIS:
-        default:
-            name = "Surface  ";
-            break;
-    }
-
-    name += QString::number( m_oneBasedSliceIndex );
-
-    const double epsilon = 1.0e-3;
-    if ( std::fabs( depthOffset() ) > epsilon )
-    {
-        name += ", Offset : " + QString::number( depthOffset() );
-    }
-
-    setUserDescription( name );
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Returns false for fatal failure
 //--------------------------------------------------------------------------------------------------
-bool RimGridCaseSurface::updateSurfaceDataFromGridCase()
+bool RimGridCaseSurface::updateSurfaceData()
 {
     if ( m_vertices.empty() || m_tringleIndices.empty() || m_structGridIndices.empty() )
     {
@@ -439,4 +405,32 @@ bool RimGridCaseSurface::exportStructSurfaceFromGridCase( std::vector<cvf::Vec3d
     }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Return the name to show in the tree selector, including the slice index
+//--------------------------------------------------------------------------------------------------
+QString RimGridCaseSurface::fullName() const
+{
+    QString retval = RimSurface::fullName();
+
+    auto dirValue = m_sliceDirection().value();
+    switch ( dirValue )
+    {
+        case RiaDefines::GridCaseAxis::AXIS_I:
+            retval += " - I:";
+            break;
+        case RiaDefines::GridCaseAxis::AXIS_J:
+            retval += " - J:";
+            break;
+        case RiaDefines::GridCaseAxis::AXIS_K:
+            retval += " - K:";
+            break;
+        case RiaDefines::GridCaseAxis::UNDEFINED_AXIS:
+        default:
+            break;
+    }
+
+    retval += QString::number( m_oneBasedSliceIndex );
+    return retval;
 }

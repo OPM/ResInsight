@@ -18,39 +18,18 @@
 
 #pragma once
 
-#include "RimSurface.h"
+#include "cafCmdFeature.h"
 
-#include <memory>
-
-class RigGocadData;
-
-class RimFileSurface : public RimSurface
+//==================================================================================================
+///
+//==================================================================================================
+class RicReloadSurfaceFeature : public caf::CmdFeature
 {
-    CAF_PDM_HEADER_INIT;
-
-public:
-    RimFileSurface();
-    ~RimFileSurface() override;
-
-    void    setSurfaceFilePath( const QString& filePath );
-    QString surfaceFilePath();
-
-    bool onLoadData() override;
+    CAF_CMD_HEADER_INIT;
 
 protected:
-    bool updateSurfaceData() override;
-    void clearCachedNativeData() override;
-
-private:
-    bool loadDataFromFile();
-
-private:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-
-    caf::PdmField<caf::FilePath> m_surfaceDefinitionFilePath;
-
-    std::vector<unsigned>   m_tringleIndices;
-    std::vector<cvf::Vec3d> m_vertices;
-
-    std::unique_ptr<RigGocadData> m_gocadData;
+    // Overrides
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };

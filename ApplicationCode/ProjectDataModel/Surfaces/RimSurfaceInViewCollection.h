@@ -56,6 +56,9 @@ public:
 
     std::vector<RimRegularLegendConfig*> legendConfigs();
 
+protected:
+    virtual void initAfterRead() override;
+
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 

@@ -36,6 +36,8 @@ public:
     RimSurface* importSurfacesFromFiles( const QStringList& fileNames );
     RimSurface* addGridCaseSurface( RimCase* sourceCase );
 
+    void reloadSurfaces( std::vector<RimSurface*> surfaces );
+
     std::vector<RimSurface*> surfaces() const;
 
     void loadData();

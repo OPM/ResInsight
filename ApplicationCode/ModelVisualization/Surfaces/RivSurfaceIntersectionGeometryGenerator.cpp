@@ -152,7 +152,6 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
     const std::vector<cvf::Vec3d>& nativeVertices        = m_usedSurfaceData->vertices();
     const std::vector<unsigned>&   nativeTriangleIndices = m_usedSurfaceData->triangleIndices();
     cvf::Vec3d                     displayModelOffset    = m_hexGrid->displayOffset();
-    double                         depthOffset           = m_surfaceInView->depthOffset();
 
     m_triVxToCellCornerWeights.reserve( nativeTriangleIndices.size() * 24 );
     outputTriangleVertices.reserve( nativeTriangleIndices.size() * 24 );
@@ -190,10 +189,6 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
             cvf::Vec3d p0 = nativeVertices[nativeTriangleIndices[ntVxIdx + 0]];
             cvf::Vec3d p1 = nativeVertices[nativeTriangleIndices[ntVxIdx + 1]];
             cvf::Vec3d p2 = nativeVertices[nativeTriangleIndices[ntVxIdx + 2]];
-
-            p0.z() = p0.z() - depthOffset;
-            p1.z() = p1.z() - depthOffset;
-            p2.z() = p2.z() - depthOffset;
 
             cvf::BoundingBox triangleBBox;
             triangleBBox.add( p0 );

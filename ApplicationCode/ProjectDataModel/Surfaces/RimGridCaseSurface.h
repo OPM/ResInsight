@@ -40,7 +40,6 @@ public:
     void setSliceTypeAndOneBasedIndex( RiaDefines::GridCaseAxis sliceType, int oneBasedSliceIndex );
 
     bool onLoadData() override;
-    void updateUserDescription();
 
     bool exportStructSurfaceFromGridCase( std::vector<cvf::Vec3d>*            vertices,
                                           std::vector<std::pair<uint, uint>>* structGridVertexIndices );
@@ -53,13 +52,15 @@ protected:
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
 
+    bool    updateSurfaceData() override;
+    void    clearCachedNativeData() override;
+    QString fullName() const override;
+
 private:
-    bool updateSurfaceDataFromGridCase();
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     void extractDataFromGrid();
-    void clearNativeGridData();
 
     std::pair<uint, uint> getStructGridIndex( cvf::StructGridInterface::FaceType cellface, cvf::ubyte localVertexIndex );
 

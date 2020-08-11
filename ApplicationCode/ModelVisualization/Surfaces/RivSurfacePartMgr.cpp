@@ -155,6 +155,7 @@ void RivSurfacePartMgr::updateNativeSurfaceColors()
 
         auto mapper = m_surfaceInView->surfaceResultDefinition()->legendConfig()->scalarMapper();
 
+        if ( m_usedSurfaceData.notNull() )
         {
             QString propertyName = m_surfaceInView->surfaceResultDefinition()->propertyName();
             auto    values       = m_usedSurfaceData->propertyValues( propertyName );
@@ -173,14 +174,7 @@ void RivSurfacePartMgr::updateNativeSurfaceColors()
             }
 
             float effectiveOpacityLevel = 1.0;
-            bool  disableLighting       = false;
-
-            Rim3dView* view = nullptr;
-            m_surfaceInView->firstAncestorOfType( view );
-            if ( view )
-            {
-                disableLighting = view->isLightingDisabled();
-            }
+            bool  disableLighting       = true; // always disable lighting for now, as it doesn't look good
 
             RivScalarMapperUtils::applyTextureResultsToPart( m_nativeTrianglesPart.p(),
                                                              m_nativeTrianglesTextureCoords.p(),
@@ -332,9 +326,6 @@ void RivSurfacePartMgr::generateNativePartGeometry()
 
     m_usedSurfaceData = m_surfaceInView->surface()->surfaceData();
     if ( m_usedSurfaceData.isNull() ) return;
-
-    double depthOffset    = m_surfaceInView->depthOffset();
-    displayModOffsett.z() = displayModOffsett.z() + depthOffset;
 
     const std::vector<cvf::Vec3d>& vertices    = m_usedSurfaceData->vertices();
     cvf::ref<cvf::Vec3fArray>      cvfVertices = new cvf::Vec3fArray( vertices.size() );
