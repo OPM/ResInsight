@@ -1406,6 +1406,16 @@ double RigGeoMechWellLogExtractor::hydroStaticPorePressureForSegment( size_t int
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RigGeoMechWellLogExtractor::hydroStaticPorePressureAtDepth( double effectiveDepthMeters, double waterDensityGCM3 )
+{
+    double hydroStaticPorePressurePascal = effectiveDepthMeters * GRAVITY_ACCEL * waterDensityGCM3 * 1000;
+    double hydroStaticPorePressureBar    = pascalToBar( hydroStaticPorePressurePascal );
+    return hydroStaticPorePressureBar;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RigGeoMechWellLogExtractor::wbsCurveValuesAtMsl() const
 {
     double waterDensityGCM3 = m_userDefinedValues.at( RigWbsParameter::waterDensity() );

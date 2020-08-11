@@ -254,9 +254,9 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
                     // Use hydrostatic pressure from cell centroid.
                     // Use centroid to avoid intra-element differences
                     cvf::Vec3d cellCentroid       = femPartGrid->cellCentroid( elmIdx );
-                    double     cellCentroidTvdRKB = std::abs( cellCentroid.z() ) + airGap;
+                    double     cellCentroidTvdRKB = -cellCentroid.z() + airGap;
                     double     cellCenterHydroStaticPressure =
-                        RiaWellLogUnitTools<double>::hydrostaticPorePressureBar( cellCentroidTvdRKB );
+                        RigGeoMechWellLogExtractor::hydroStaticPorePressureAtDepth( cellCentroidTvdRKB );
 
                     size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
                     if ( elmNodResIdx < stressFrameData.size() )

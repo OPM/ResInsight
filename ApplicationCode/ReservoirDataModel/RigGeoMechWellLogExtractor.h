@@ -84,6 +84,9 @@ public:
     static caf::Ten3d transformTensorToWellPathOrientation( const cvf::Vec3d& wellPathTangent,
                                                             const caf::Ten3d& wellPathTensor );
 
+    static double hydroStaticPorePressureAtDepth( double effectiveDepthMeters,
+                                                  double waterDensityGCM3 = PURE_WATER_DENSITY_GCM3 );
+
 private:
     enum WellPathTangentCalculation
     {
