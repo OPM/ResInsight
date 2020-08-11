@@ -43,14 +43,14 @@ RicStackSelectedCurvesFeature::RicStackSelectedCurvesFeature()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimPlotCurve*>
+std::vector<RimStackablePlotCurve*>
     RicStackSelectedCurvesFeature::plotCurvesFromSelection( const std::vector<caf::PdmUiItem*>& selectedItems )
 {
-    std::vector<RimPlotCurve*> selectedPlotCurves;
+    std::vector<RimStackablePlotCurve*> selectedPlotCurves;
 
     for ( caf::PdmUiItem* uiItem : selectedItems )
     {
-        auto plotCurve = dynamic_cast<RimPlotCurve*>( uiItem );
+        auto plotCurve = dynamic_cast<RimStackablePlotCurve*>( uiItem );
         if ( plotCurve )
         {
             selectedPlotCurves.push_back( plotCurve );
@@ -63,13 +63,13 @@ std::vector<RimPlotCurve*>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimPlotCurve*>
-    RicStackSelectedCurvesFeature::subsetOfPlotCurvesFromStacking( const std::vector<RimPlotCurve*>& plotCurves,
-                                                                   bool                              isStacked )
+std::vector<RimStackablePlotCurve*>
+    RicStackSelectedCurvesFeature::subsetOfPlotCurvesFromStacking( const std::vector<RimStackablePlotCurve*>& plotCurves,
+                                                                   bool isStacked )
 {
-    std::vector<RimPlotCurve*> matchingPlotCurves;
+    std::vector<RimStackablePlotCurve*> matchingPlotCurves;
 
-    for ( RimPlotCurve* plotCurve : plotCurves )
+    for ( RimStackablePlotCurve* plotCurve : plotCurves )
     {
         if ( plotCurve->isStacked() == isStacked )
         {

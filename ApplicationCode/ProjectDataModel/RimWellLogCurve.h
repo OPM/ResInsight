@@ -21,7 +21,7 @@
 
 #include "RiaDefines.h"
 #include "RiaWellLogUnitTools.h"
-#include "RimPlotCurve.h"
+#include "RimStackablePlotCurve.h"
 
 #include "cafSignal.h"
 #include "cvfObject.h"
@@ -32,7 +32,7 @@ class RigWellLogCurveData;
 ///
 ///
 //==================================================================================================
-class RimWellLogCurve : public RimPlotCurve
+class RimWellLogCurve : public RimStackablePlotCurve
 {
     CAF_PDM_HEADER_INIT;
 

@@ -26,7 +26,7 @@
 
 #include "RiaDefines.h"
 #include "RifEclipseSummaryAddressQMetaType.h"
-#include "RimPlotCurve.h"
+#include "RimStackablePlotCurve.h"
 
 #include "cafAppEnum.h"
 
@@ -41,7 +41,7 @@ class RimSummaryAddress;
 ///
 ///
 //==================================================================================================
-class RimSummaryCurve : public RimPlotCurve
+class RimSummaryCurve : public RimStackablePlotCurve
 {
     CAF_PDM_HEADER_INIT;
 

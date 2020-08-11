@@ -19,7 +19,7 @@
 #pragma once
 
 #include "RicfCommandObject.h"
-#include "RimPlotCurve.h"
+#include "RimStackablePlotCurve.h"
 
 #include "cafCmdFeature.h"
 #include "cafPdmPtrArrayField.h"
@@ -36,9 +36,9 @@ public:
     RicStackSelectedCurvesFeature();
     caf::PdmScriptResponse execute() override;
 
-    static std::vector<RimPlotCurve*> plotCurvesFromSelection( const std::vector<caf::PdmUiItem*>& selectedItems );
-    static std::vector<RimPlotCurve*> subsetOfPlotCurvesFromStacking( const std::vector<RimPlotCurve*>& plotCurves,
-                                                                      bool                              isStacked );
+    static std::vector<RimStackablePlotCurve*> plotCurvesFromSelection( const std::vector<caf::PdmUiItem*>& selectedItems );
+    static std::vector<RimStackablePlotCurve*>
+        subsetOfPlotCurvesFromStacking( const std::vector<RimStackablePlotCurve*>& plotCurves, bool isStacked );
 
 protected:
     // Overrides
@@ -47,5 +47,5 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    caf::PdmPtrArrayField<RimPlotCurve*> m_curves;
+    caf::PdmPtrArrayField<RimStackablePlotCurve*> m_curves;
 };

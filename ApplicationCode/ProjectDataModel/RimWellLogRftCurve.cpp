@@ -565,6 +565,9 @@ void RimWellLogRftCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     curveDataGroup->add( &m_wellLogChannelName );
     curveDataGroup->add( &m_timeStep );
 
+    caf::PdmUiGroup* stackingGroup = uiOrdering.addNewGroup( "Stacking" );
+    RimStackablePlotCurve::stackingUiOrdering( *stackingGroup );
+
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup( "Appearance" );
     RimPlotCurve::appearanceUiOrdering( *appearanceGroup );
 
