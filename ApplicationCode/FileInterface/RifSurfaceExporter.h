@@ -34,7 +34,7 @@ public:
                                      const std::vector<cvf::Vec3d>& vertices,
                                      const std::vector<unsigned>&   triangleIndices );
 
-    static bool writePetrellPtlFile( const QString&                                            fileName,
-                                     const std::vector<cvf::Vec3d>&                            vertices,
-                                     const std::vector<std::pair<unsigned int, unsigned int>>& columnRowIndices );
+    static bool writePetrelPtlFile( const QString&                                            fileName,
+                                    const std::vector<cvf::Vec3d>&                            vertices,
+                                    const std::vector<std::pair<unsigned int, unsigned int>>& columnRowIndices );
 };
