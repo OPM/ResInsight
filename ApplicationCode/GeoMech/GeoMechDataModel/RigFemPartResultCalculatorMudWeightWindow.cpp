@@ -141,6 +141,22 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
     const bool OBG0FromGrid =
         m_resultCollection->getCalculationParameterAddress( RimMudWeightWindowParameters::ParameterType::OBG0 ).isEmpty();
 
+    RimMudWeightWindowParameters::NonReservoirPorePressureType PP_NonReservoirType =
+        m_resultCollection->nonReservoirPorePressureTypeMudWeightWindow();
+    double         hydrostaticMultiplier = m_resultCollection->hydrostaticMultiplierPPNonRes();
+    const QString& nonReservoirAddress   = m_resultCollection->nonReservoirPorePressureAddressMudWeightWindow();
+    RigFemScalarResultFrames* nonReservoirResultFrames = nullptr;
+
+    if ( PP_NonReservoirType != RimMudWeightWindowParameters::NonReservoirPorePressureType::HYDROSTATIC &&
+         !nonReservoirAddress.isEmpty() )
+    {
+        nonReservoirResultFrames =
+            m_resultCollection->findOrLoadScalarResult( partIndex,
+                                                        RigFemResultAddress( RIG_ELEMENT,
+                                                                             nonReservoirAddress.toStdString(),
+                                                                             "" ) );
+    }
+
     float inf = std::numeric_limits<float>::infinity();
 
     frameCountProgress.setNextProgressIncrement( 1u );
@@ -171,6 +187,12 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
         for ( auto parameterType : parameterTypes )
         {
             parameterFrameData[parameterType] = loadDataForFrame( parameterType, parameterFrames, fIdx );
+        }
+
+        std::vector<float> nonReservoirPP;
+        if ( nonReservoirResultFrames )
+        {
+            nonReservoirPP = nonReservoirResultFrames->frameData( 0 );
         }
 
         // Load stress
@@ -225,7 +247,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
 
             int elmNodeCount = RigFemTypes::elementNodeCount( femPart->elementType( elmIdx ) );
 
-            if ( elmType == HEX8P )
+            if ( elmType == HEX8P || elmType == HEX8 )
             {
                 for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
                 {
@@ -242,8 +264,8 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
                         int nodeIdx = femPart->nodeIdxFromElementNodeResultIdx( elmNodResIdx );
 
                         // Pore pressure (unit: Bar)
-                        double porePressureBar        = porFrameData[nodeIdx];
-                        double initialPorePressureBar = initialPorFrameData[nodeIdx];
+                        float porePressureBar        = porFrameData[nodeIdx];
+                        float initialPorePressureBar = initialPorFrameData[nodeIdx];
 
                         // Initial overburden gradient
                         if ( OBG0FromGrid )
@@ -253,6 +275,24 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
 
                         // FG is for sands, SFG for shale. Sands has valid PP, shale does not.
                         bool isSand = ( porePressureBar != inf );
+
+                        //
+                        if ( porePressureBar == inf )
+                        {
+                            //
+                            if ( PP_NonReservoirType ==
+                                 RimMudWeightWindowParameters::NonReservoirPorePressureType::HYDROSTATIC )
+                            {
+                                porePressureBar        = cellCenterHydroStaticPressure * hydrostaticMultiplier;
+                                initialPorePressureBar = cellCenterHydroStaticPressure * hydrostaticMultiplier;
+                            }
+                            else if ( !nonReservoirPP.empty() )
+                            {
+                                // Get from element table
+                                porePressureBar        = nonReservoirPP[elmIdx];
+                                initialPorePressureBar = nonReservoirPP[elmIdx];
+                            }
+                        }
 
                         caf::Ten3d segmentStress = caf::Ten3d( vertexStressesFloat[nodeIdx] );
 
@@ -309,7 +349,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
                             else
                             {
                                 double SFG = sigmaCalculator.solveStassiDalia();
-                                lowerLimit = std::max( porePressureBar, SFG );
+                                lowerLimit = std::max( porePressureBar, static_cast<float>( SFG ) );
                             }
                         }
 

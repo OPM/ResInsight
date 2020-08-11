@@ -120,9 +120,11 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
     m_initialPermeabilityResultAddress = "";
     m_permeabilityExponent             = 1.0;
 
-    m_airGapMudWeightWindow         = 0.0;
-    m_referenceLayerMudWeightWindow = 0;
-    m_shMultiplierMudWeightWindow   = 1.05;
+    m_airGapMudWeightWindow                          = 0.0;
+    m_referenceLayerMudWeightWindow                  = 0;
+    m_shMultiplierMudWeightWindow                    = 1.05;
+    m_nonReservoirPorePressureAddressMudWeightWindow = "";
+    m_hydrostaticMultiplierPPNonResMudWeightWindow   = 1.0;
 
     m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorTimeLapse( *this ) ) );
@@ -1725,6 +1727,14 @@ RimMudWeightWindowParameters::NonReservoirPorePressureType
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const QString& RigFemPartResultsCollection::nonReservoirPorePressureAddressMudWeightWindow() const
+{
+    return m_nonReservoirPorePressureAddressMudWeightWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimMudWeightWindowParameters::LowerLimitType RigFemPartResultsCollection::lowerLimitParameterMudWeightWindow() const
 {
     return m_lowerLimitParameterMudWeightWindow;
@@ -1757,7 +1767,8 @@ void RigFemPartResultsCollection::setMudWeightWindowParameters(
     RimMudWeightWindowParameters::FractureGradientCalculationType fgCalculationType,
     double                                                        shMultiplier,
     RimMudWeightWindowParameters::NonReservoirPorePressureType    nonReservoirPorePressureType,
-    double                                                        hydrostaticMultiplierPPNonRes )
+    double                                                        hydrostaticMultiplierPPNonRes,
+    const QString&                                                nonReservoirPorePressureAddress )
 {
     m_airGapMudWeightWindow                          = airGap;
     m_upperLimitParameterMudWeightWindow             = upperLimit;
@@ -1767,6 +1778,7 @@ void RigFemPartResultsCollection::setMudWeightWindowParameters(
     m_shMultiplierMudWeightWindow                    = shMultiplier;
     m_nonReservoirPorePressureTypeMudWeightWindow    = nonReservoirPorePressureType;
     m_hydrostaticMultiplierPPNonResMudWeightWindow   = hydrostaticMultiplierPPNonRes;
+    m_nonReservoirPorePressureAddressMudWeightWindow = nonReservoirPorePressureAddress;
 
     // Invalidate dependent results
     for ( auto result : mudWeightWindowResults() )

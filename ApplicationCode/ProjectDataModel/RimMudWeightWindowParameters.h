@@ -154,5 +154,7 @@ private:
     caf::PdmField<caf::AppEnum<FractureGradientCalculationType>> m_fractureGradientCalculationType;
     caf::PdmField<caf::AppEnum<NonReservoirPorePressureType>>    m_porePressureNonReservoirSource;
 
+    caf::PdmField<QString> m_porePressureNonReservoirAddress;
+
     caf::PdmField<int> m_referenceLayer;
 };

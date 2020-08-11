@@ -92,7 +92,7 @@ void caf::AppEnum<RimMudWeightWindowParameters::FractureGradientCalculationType>
 template <>
 void caf::AppEnum<RimMudWeightWindowParameters::NonReservoirPorePressureType>::setUp()
 {
-    addItem( RimMudWeightWindowParameters::NonReservoirPorePressureType::HYDROSTATIC, "PORE_PRESSURE", "Pore Pressure" );
+    addItem( RimMudWeightWindowParameters::NonReservoirPorePressureType::HYDROSTATIC, "HYDROSTATIC", "Hydrostatic" );
     addItem( RimMudWeightWindowParameters::NonReservoirPorePressureType::PER_ELEMENT,
              "PER_ELEMENT",
              "From element properties" );
@@ -189,6 +189,8 @@ RimMudWeightWindowParameters::RimMudWeightWindowParameters( void )
                        "Data source for Non-Reservoir Pore Pressure",
                        "" );
     CAF_PDM_InitField( &m_userDefinedPPNonReservoir, "UserPPNonReservoir", 1.0, "  Multiplier of hydrostatic PP", "", "", "" );
+    CAF_PDM_InitField( &m_porePressureNonReservoirAddress, "PPNonReservoirAddress", QString( "" ), "Value", "", "", "" );
+    m_porePressureNonReservoirAddress.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_referenceLayer, "ReferenceLayer", -1, "Reference Layer", "", "", "" );
 }
@@ -385,7 +387,7 @@ void RimMudWeightWindowParameters::fieldChangedByUi( const caf::PdmFieldHandle* 
     else if ( changedField == &m_airGap || changedField == &m_upperLimitType || changedField == &m_lowerLimitType ||
               changedField == &m_referenceLayer || changedField == &m_fractureGradientCalculationType ||
               changedField == &m_shMultiplier || changedField == &m_porePressureNonReservoirSource ||
-              changedField == &m_userDefinedPPNonReservoir )
+              changedField == &m_userDefinedPPNonReservoir || changedField == &m_porePressureNonReservoirAddress )
     {
         RigGeoMechCaseData* rigCaseData = geoMechCase->geoMechData();
         if ( rigCaseData && rigCaseData->femPartResults() )
@@ -397,7 +399,8 @@ void RimMudWeightWindowParameters::fieldChangedByUi( const caf::PdmFieldHandle* 
                                                                          m_fractureGradientCalculationType.value(),
                                                                          m_shMultiplier,
                                                                          m_porePressureNonReservoirSource.value(),
-                                                                         m_userDefinedPPNonReservoir );
+                                                                         m_userDefinedPPNonReservoir,
+                                                                         m_porePressureNonReservoirAddress );
             geoMechCase->updateConnectedViews();
         }
     }
@@ -504,6 +507,11 @@ void RimMudWeightWindowParameters::defineUiOrdering( QString uiConfigName, caf::
     m_obg0Fixed.uiCapability()->setUiHidden( true );
     m_obg0Address.uiCapability()->setUiHidden(
         !( isDerivedFromK0_FG && m_obg0Type == RimMudWeightWindowParameters::SourceType::PER_ELEMENT ) );
+
+    bool ppNonResPerElement =
+        ( m_porePressureNonReservoirSource == RimMudWeightWindowParameters::NonReservoirPorePressureType::PER_ELEMENT );
+    m_userDefinedPPNonReservoir.uiCapability()->setUiHidden( ppNonResPerElement );
+    m_porePressureNonReservoirAddress.uiCapability()->setUiHidden( !ppNonResPerElement );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -574,7 +582,8 @@ QList<caf::PdmOptionItemInfo>
         }
         else if ( fieldNeedingOptions == &m_wellDeviationAddress || fieldNeedingOptions == &m_wellAzimuthAddress ||
                   fieldNeedingOptions == &m_UCSAddress || fieldNeedingOptions == &m_poissonsRatioAddress ||
-                  fieldNeedingOptions == &m_K0_FGAddress || fieldNeedingOptions == &m_obg0Address )
+                  fieldNeedingOptions == &m_K0_FGAddress || fieldNeedingOptions == &m_obg0Address ||
+                  fieldNeedingOptions == &m_porePressureNonReservoirAddress )
         {
             std::vector<std::string> elementProperties = geoMechCase->possibleElementPropertyFieldNames();
 
