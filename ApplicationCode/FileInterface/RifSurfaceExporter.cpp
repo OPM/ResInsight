@@ -80,9 +80,9 @@ bool RifSurfaceExporter::writeGocadTSurfFile( const QString&                 fil
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifSurfaceExporter::writePetrellPtlFile( const QString&                                            fileName,
-                                              const std::vector<cvf::Vec3d>&                            vertices,
-                                              const std::vector<std::pair<unsigned int, unsigned int>>& columnRowIndices )
+bool RifSurfaceExporter::writePetrelPtlFile( const QString&                                            fileName,
+                                             const std::vector<cvf::Vec3d>&                            vertices,
+                                             const std::vector<std::pair<unsigned int, unsigned int>>& columnRowIndices )
 {
     if ( vertices.size() != columnRowIndices.size() ) return false;
 

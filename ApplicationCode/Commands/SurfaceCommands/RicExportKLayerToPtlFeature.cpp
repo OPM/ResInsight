@@ -84,7 +84,7 @@ void RicExportKLayerToPtlFeature::onActionTriggered( bool isChecked )
 
         if ( surf->exportStructSurfaceFromGridCase( &vertices, &structGridVertexIndices ) )
         {
-            RifSurfaceExporter::writePetrellPtlFile( fileName, vertices, structGridVertexIndices );
+            RifSurfaceExporter::writePetrelPtlFile( fileName, vertices, structGridVertexIndices );
         }
     }
 }
@@ -95,5 +95,5 @@ void RicExportKLayerToPtlFeature::onActionTriggered( bool isChecked )
 void RicExportKLayerToPtlFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/ReservoirSurfaces16x16.png" ) );
-    actionToSetup->setText( "Export Grid Case Surface to Petrell ptl-file" );
+    actionToSetup->setText( "Export Grid Case Surface to Petrel ptl-file" );
 }
