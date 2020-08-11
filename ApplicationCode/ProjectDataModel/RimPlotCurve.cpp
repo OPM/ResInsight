@@ -126,8 +126,6 @@ RimPlotCurve::RimPlotCurve()
     , visibilityChanged( this )
     , dataChanged( this )
     , nameChanged( this )
-    , stackingChanged( this )
-    , stackingColorsChanged( this )
 {
     CAF_PDM_InitObject( "Curve", ":/WellLogCurve16x16.png", "", "" );
 
@@ -171,9 +169,6 @@ RimPlotCurve::RimPlotCurve()
     CAF_PDM_InitField( &m_showErrorBars, "ShowErrorBars", true, "Show Error Bars", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_symbolLabelPosition, "SymbolLabelPosition", "Symbol Label Position", "", "", "" );
-
-    CAF_PDM_InitField( &m_isStacked, "StackCurve", false, "Stack Curve", "", "", "" );
-    CAF_PDM_InitField( &m_isStackedWithPhaseColors, "StackPhaseColors", false, "  with Phase Colors", "", "", "" );
 
     m_qwtPlotCurve      = new RiuRimQwtPlotCurve( this );
     m_qwtCurveErrorBars = new QwtPlotIntervalCurve();
@@ -263,19 +258,6 @@ void RimPlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, co
     else if ( changedField == &m_showErrorBars )
     {
         updateCurveAppearance();
-    }
-    else if ( changedField == &m_isStacked )
-    {
-        if ( !m_isStacked() && m_fillStyle() != Qt::NoBrush )
-        {
-            // Switch off area fill when turning off stacking.
-            m_fillStyle = Qt::NoBrush;
-        }
-        stackingChanged.send( m_isStacked() );
-    }
-    else if ( changedField == &m_isStackedWithPhaseColors )
-    {
-        stackingColorsChanged.send( m_isStackedWithPhaseColors() );
     }
 
     RiuPlotMainWindowTools::refreshToolbars();
@@ -652,9 +634,6 @@ void RimPlotCurve::setSamplesFromTimeTAndYValues( const std::vector<time_t>& dat
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::appearanceUiOrdering( caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_isStacked );
-    if ( m_isStacked() ) uiOrdering.add( &m_isStackedWithPhaseColors );
-
     uiOrdering.add( &m_curveColor );
     uiOrdering.add( &m_pointSymbol );
     if ( RiuQwtSymbol::isFilledSymbol( m_pointSymbol() ) )
@@ -697,63 +676,6 @@ void RimPlotCurve::updateUiIconFromPlotSymbol()
         QPixmap    pixmap  = graphic.toPixmap();
         setUiIcon( caf::IconProvider( pixmap ) );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiaDefines::PhaseType RimPlotCurve::phaseType() const
-{
-    return RiaDefines::PhaseType::PHASE_NOT_APPLICABLE;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPlotCurve::assignStackColor( size_t index, size_t count )
-{
-    auto allPhaseColors = RiaColorTables::phaseColors();
-    auto it             = allPhaseColors.find( phaseType() );
-    if ( it != allPhaseColors.end() )
-    {
-        caf::ColorTable interpolatedPhaseColors = it->second.interpolated( count );
-
-        auto color = interpolatedPhaseColors.cycledColor3f( index );
-        this->setColor( color );
-        this->setFillColor( color );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimPlotCurve::isStacked() const
-{
-    return m_isStacked();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimPlotCurve::isStackedWithPhaseColors() const
-{
-    return m_isStackedWithPhaseColors;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPlotCurve::setIsStacked( bool stacked )
-{
-    m_isStacked = stacked;
-
-    if ( !m_isStacked() && m_fillStyle() != Qt::NoBrush )
-    {
-        // Switch off area fill when turning off stacking.
-        m_fillStyle = Qt::NoBrush;
-    }
-
-    stackingChanged.send( m_isStacked() );
 }
 
 //--------------------------------------------------------------------------------------------------

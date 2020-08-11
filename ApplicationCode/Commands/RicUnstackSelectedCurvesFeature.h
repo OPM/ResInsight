@@ -21,7 +21,7 @@
 #include "RicStackSelectedCurvesFeature.h"
 
 #include "RicfCommandObject.h"
-#include "RimPlotCurve.h"
+#include "RimStackablePlotCurve.h"
 
 #include "cafCmdFeature.h"
 #include "cafPdmPtrArrayField.h"
@@ -44,5 +44,5 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    caf::PdmPtrArrayField<RimPlotCurve*> m_curves;
+    caf::PdmPtrArrayField<RimStackablePlotCurve*> m_curves;
 };

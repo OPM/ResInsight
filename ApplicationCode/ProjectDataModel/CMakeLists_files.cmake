@@ -101,6 +101,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionResultsDefinitionCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimContextCommandBuilder.h
 ${CMAKE_CURRENT_LIST_DIR}/RimGridCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotCurve.h
+${CMAKE_CURRENT_LIST_DIR}/RimStackablePlotCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimBoxIntersection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimAdvancedSnapshotExportDefinition.h
 ${CMAKE_CURRENT_LIST_DIR}/RimMdiWindowController.h
@@ -270,6 +271,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionResultsDefinitionCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimContextCommandBuilder.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimGridCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotCurve.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimStackablePlotCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimBoxIntersection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimAdvancedSnapshotExportDefinition.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimMdiWindowController.cpp
