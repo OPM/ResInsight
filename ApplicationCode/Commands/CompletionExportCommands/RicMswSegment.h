@@ -41,6 +41,8 @@ public:
 
     double startMD() const;
     double endMD() const;
+    double length() const;
+
     double deltaMD() const;
     double startTVD() const;
     double endTVD() const;

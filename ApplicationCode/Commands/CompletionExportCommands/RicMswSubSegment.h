@@ -60,11 +60,8 @@ public:
     double endTVD() const;
     double deltaTVD() const;
 
-    int segmentNumber() const;
-    int attachedSegmentNumber() const;
-
+    int  segmentNumber() const;
     void setSegmentNumber( int segmentNumber );
-    void setAttachedSegmentNumber( int attachedSegmentNumber );
     void addIntersection( std::shared_ptr<RicMswSubSegmentCellIntersection> intersection );
 
     const std::vector<std::shared_ptr<RicMswSubSegmentCellIntersection>>& intersections() const;
@@ -76,7 +73,6 @@ private:
     double m_startTVD;
     double m_endTVD;
     int    m_segmentNumber;
-    int    m_attachedSegmentNumber;
 
     std::vector<std::shared_ptr<RicMswSubSegmentCellIntersection>> m_intersections;
 };

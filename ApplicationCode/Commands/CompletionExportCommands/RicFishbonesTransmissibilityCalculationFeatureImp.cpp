@@ -208,7 +208,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
     RiaEclipseUnitTools::UnitSystem unitSystem = caseData->unitsType();
     bool                            isMainBore = false;
 
-    for ( std::shared_ptr<RicMswSegment> location : exportInfo.wellSegmentLocations() )
+    for ( std::shared_ptr<RicMswSegment> location : exportInfo.segments() )
     {
         for ( std::shared_ptr<RicMswCompletion> completion : location->completions() )
         {

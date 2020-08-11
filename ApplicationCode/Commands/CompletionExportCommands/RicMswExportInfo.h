@@ -45,8 +45,8 @@ public:
     void setRoughnessFactor( double roughnessFactor );
     void setHasSubGridIntersections( bool subGridIntersections );
 
-    void addWellSegment( std::shared_ptr<RicMswSegment> location );
-    void sortLocations();
+    void addSegment( std::shared_ptr<RicMswSegment> location );
+    void sortSegments();
 
     const RimWellPath*              wellPath() const;
     RiaEclipseUnitTools::UnitSystem unitSystem() const;
@@ -60,8 +60,8 @@ public:
     bool                            hasSubGridIntersections() const;
     static double                   defaultDoubleValue();
 
-    const std::vector<std::shared_ptr<RicMswSegment>>& wellSegmentLocations() const;
-    std::vector<std::shared_ptr<RicMswSegment>>&       wellSegmentLocations();
+    const std::vector<std::shared_ptr<RicMswSegment>>& segments() const;
+    std::vector<std::shared_ptr<RicMswSegment>>&       segments();
 
 private:
     const RimWellPath*              m_wellPath;
@@ -74,5 +74,5 @@ private:
     QString                         m_pressureDropText;
     bool                            m_hasSubGridIntersections;
 
-    std::vector<std::shared_ptr<RicMswSegment>> m_wellSegmentLocations;
+    std::vector<std::shared_ptr<RicMswSegment>> m_segments;
 };
