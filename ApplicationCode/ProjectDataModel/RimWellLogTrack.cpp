@@ -82,6 +82,7 @@
 #include "RiuWellLogTrack.h"
 #include "RiuWellPathComponentPlotItem.h"
 
+#include "cafPdmFieldReorderCapability.h"
 #include "cafPdmUiSliderEditor.h"
 #include "cafSelectionManager.h"
 #include "cvfAssert.h"
@@ -89,6 +90,7 @@
 #include <QWheelEvent>
 
 #include <algorithm>
+#include <set>
 
 #define RI_LOGPLOTTRACK_MINX_DEFAULT -10.0
 #define RI_LOGPLOTTRACK_MAXX_DEFAULT 100.0
@@ -175,6 +177,8 @@ RimWellLogTrack::RimWellLogTrack()
 
     CAF_PDM_InitFieldNoDefault( &m_curves, "Curves", "", "", "", "" );
     m_curves.uiCapability()->setUiHidden( true );
+    auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_curves );
+    reorderability->orderChanged.connect( this, &RimWellLogTrack::curveDataChanged );
 
     CAF_PDM_InitField( &m_visibleXRangeMin, "VisibleXRangeMin", RI_LOGPLOTTRACK_MINX_DEFAULT, "Min", "", "", "" );
     CAF_PDM_InitField( &m_visibleXRangeMax, "VisibleXRangeMax", RI_LOGPLOTTRACK_MAXX_DEFAULT, "Max", "", "", "" );
@@ -281,6 +285,10 @@ RimWellLogTrack::RimWellLogTrack()
 //--------------------------------------------------------------------------------------------------
 RimWellLogTrack::~RimWellLogTrack()
 {
+    for ( auto curve : m_curves )
+    {
+        disconnectCurveSignals( curve );
+    }
     m_curves.deleteAllChildObjects();
 }
 
@@ -357,12 +365,7 @@ void RimWellLogTrack::detachAllPlotItems()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::calculateXZoomRange()
 {
-    std::map<int, std::vector<RimWellFlowRateCurve*>> stackCurveGroups = visibleStackedCurves();
-    for ( const std::pair<int, std::vector<RimWellFlowRateCurve*>>& curveGroup : stackCurveGroups )
-    {
-        for ( RimWellFlowRateCurve* stCurve : curveGroup.second )
-            stCurve->updateStackedPlotData();
-    }
+    updateStackedCurveData();
 
     double minValue = HUGE_VAL;
     double maxValue = -HUGE_VAL;
@@ -472,6 +475,11 @@ void RimWellLogTrack::updateXZoom()
         m_visibleXRangeMin = m_availableXRangeMin;
         m_visibleXRangeMax = m_availableXRangeMax;
 
+        // Set min limit to 0.0 for stacked curves
+        if ( !visibleStackedCurves().empty() && !m_isLogarithmicScaleEnabled )
+        {
+            m_visibleXRangeMin = 0.0;
+        }
         computeAndSetXRangeMinForLogarithmicScale();
         updateEditors();
     }
@@ -712,6 +720,69 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         updateParentLayout();
         RiuPlotMainWindowTools::refreshToolbars();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::curveDataChanged( const caf::SignalEmitter* emitter )
+{
+    for ( auto curve : m_curves )
+    {
+        if ( curve->isStacked() )
+        {
+            updateStackedCurveData();
+            break;
+        }
+    }
+    loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::curveVisibilityChanged( const caf::SignalEmitter* emitter, bool visible )
+{
+    const RimWellLogCurve* curve = dynamic_cast<const RimWellLogCurve*>( emitter );
+    if ( curve->isStacked() )
+    {
+        updateStackedCurveData();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::curveAppearanceChanged( const caf::SignalEmitter* emitter )
+{
+    if ( m_plotWidget )
+    {
+        m_plotWidget->scheduleReplot();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::curveStackingChanged( const caf::SignalEmitter* emitter, bool stacked )
+{
+    updateStackedCurveData();
+
+    m_isAutoScaleXEnabled = true;
+    updateXZoom();
+    m_plotWidget->scheduleReplot();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::curveStackingColorsChanged( const caf::SignalEmitter* emitter, bool stackWithPhaseColors )
+{
+    updateStackedCurveData();
+
+    m_isAutoScaleXEnabled = true;
+    updateXZoom();
+    m_plotWidget->scheduleReplot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1016,6 +1087,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogTrack::calculateValueOptions( const caf:
 void RimWellLogTrack::addCurve( RimWellLogCurve* curve )
 {
     m_curves.push_back( curve );
+    connectCurveSignals( curve );
 
     if ( m_plotWidget )
     {
@@ -1028,12 +1100,20 @@ void RimWellLogTrack::addCurve( RimWellLogCurve* curve )
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::insertCurve( RimWellLogCurve* curve, size_t index )
 {
-    m_curves.insert( index, curve );
-    // Todo: Mark curve data to use either TVD or MD
-
-    if ( m_plotWidget )
+    if ( index >= m_curves.size() )
     {
-        curve->setParentQwtPlotAndReplot( m_plotWidget );
+        addCurve( curve );
+    }
+    else
+    {
+        m_curves.insert( index, curve );
+        connectCurveSignals( curve );
+        // Todo: Mark curve data to use either TVD or MD
+
+        if ( m_plotWidget )
+        {
+            curve->setParentQwtPlotAndReplot( m_plotWidget );
+        }
     }
 }
 
@@ -1047,6 +1127,7 @@ void RimWellLogTrack::removeCurve( RimWellLogCurve* curve )
     {
         m_curves[index]->detachQwtCurve();
         m_curves.removeChildObject( curve );
+        disconnectCurveSignals( curve );
     }
 }
 
@@ -1799,6 +1880,11 @@ void RimWellLogTrack::initAfterRead()
     {
         m_colorShadingLegend = RimRegularLegendConfig::mapToColorLegend( m_colorShadingPalette_OBSOLETE() );
     }
+
+    for ( auto curve : m_curves )
+    {
+        connectCurveSignals( curve );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1966,6 +2052,30 @@ std::vector<std::pair<double, double>> RimWellLogTrack::waterAndRockRegions( Ria
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::connectCurveSignals( RimWellLogCurve* curve )
+{
+    curve->dataChanged.connect( this, &RimWellLogTrack::curveDataChanged );
+    curve->visibilityChanged.connect( this, &RimWellLogTrack::curveVisibilityChanged );
+    curve->appearanceChanged.connect( this, &RimWellLogTrack::curveAppearanceChanged );
+    curve->stackingChanged.connect( this, &RimWellLogTrack::curveStackingChanged );
+    curve->stackingColorsChanged.connect( this, &RimWellLogTrack::curveStackingColorsChanged );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::disconnectCurveSignals( RimWellLogCurve* curve )
+{
+    curve->dataChanged.disconnect( this );
+    curve->visibilityChanged.disconnect( this );
+    curve->appearanceChanged.disconnect( this );
+    curve->stackingChanged.disconnect( this );
+    curve->stackingColorsChanged.disconnect( this );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::computeAndSetXRangeMinForLogarithmicScale()
 {
     if ( m_isAutoScaleXEnabled && m_isLogarithmicScaleEnabled )
@@ -2002,17 +2112,21 @@ void RimWellLogTrack::setLogarithmicScale( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<int, std::vector<RimWellFlowRateCurve*>> RimWellLogTrack::visibleStackedCurves()
+std::map<int, std::vector<RimWellLogCurve*>> RimWellLogTrack::visibleStackedCurves()
 {
-    std::map<int, std::vector<RimWellFlowRateCurve*>> stackedCurves;
+    std::map<int, std::vector<RimWellLogCurve*>> stackedCurves;
     for ( RimWellLogCurve* curve : m_curves )
     {
         if ( curve && curve->isCurveVisible() )
         {
             RimWellFlowRateCurve* wfrCurve = dynamic_cast<RimWellFlowRateCurve*>( curve );
-            if ( wfrCurve != nullptr )
+            if ( wfrCurve != nullptr ) // Flow rate curves are always stacked
             {
                 stackedCurves[wfrCurve->groupId()].push_back( wfrCurve );
+            }
+            else if ( curve->isStacked() )
+            {
+                stackedCurves[-1].push_back( curve );
             }
         }
     }
@@ -2250,6 +2364,124 @@ std::vector<QString> RimWellLogTrack::formationNamesVector( RimCase* rimCase )
     }
 
     return std::vector<QString>();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::updateStackedCurveData()
+{
+    const double eps = 1.0e-8;
+
+    RimDepthTrackPlot* wellLogPlot;
+    firstAncestorOrThisOfTypeAsserted( wellLogPlot );
+
+    RimWellLogPlot::DepthTypeEnum depthType    = wellLogPlot->depthType();
+    RiaDefines::DepthUnitType     displayUnit  = wellLogPlot->depthUnit();
+    bool                          reverseOrder = false;
+    if ( depthType == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER )
+    {
+        displayUnit  = RiaDefines::DepthUnitType::UNIT_NONE;
+        reverseOrder = true;
+    }
+
+    std::map<RiaDefines::PhaseType, size_t> curvePhaseCount;
+
+    // Reset all curves
+    for ( auto curve : visibleCurves() )
+    {
+        curve->loadDataAndUpdate( false );
+        curvePhaseCount[curve->phaseType()]++;
+    }
+
+    // Stack the curves that are meant to be stacked
+    std::map<int, std::vector<RimWellLogCurve*>> stackedCurves = visibleStackedCurves();
+
+    for ( auto groupCurvePair : stackedCurves )
+    {
+        int                                  groupId              = groupCurvePair.first;
+        const std::vector<RimWellLogCurve*>& stackedCurvesInGroup = groupCurvePair.second;
+        if ( stackedCurvesInGroup.empty() ) continue;
+
+        // Z-position of curve, to draw them in correct order
+        double zPos = -10000.0 + 100.0 * static_cast<double>( groupId );
+
+        // Find common depths. We retain all depths from the first curve and insert ones that aren't already added.
+        std::vector<double> allDepthValues;
+
+        for ( auto curve : stackedCurvesInGroup )
+        {
+            auto depths = curve->curveData()->depths( depthType );
+            if ( allDepthValues.empty() )
+            {
+                allDepthValues.insert( allDepthValues.end(), depths.begin(), depths.end() );
+            }
+            else
+            {
+                for ( double depth : depths )
+                {
+                    // Finds the first larger or equal depth.
+                    auto it = std::lower_bound( allDepthValues.begin(),
+                                                allDepthValues.end(),
+                                                depth,
+                                                [eps, reverseOrder]( double lhs, double rhs ) {
+                                                    return reverseOrder ? lhs - rhs > eps : rhs - lhs > eps;
+                                                } );
+
+                    // Insert if there is no larger or equal depths or if the first equal or if it actually larger.
+                    if ( it == allDepthValues.end() || std::fabs( depth - *it ) > 1.0e-8 )
+                    {
+                        allDepthValues.insert( it, depth );
+                    }
+                }
+            }
+        }
+        // The above doesn't sort nearly identical depths. The resampling below requires that.
+        if ( depthType == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER )
+        {
+            std::sort( allDepthValues.begin(), allDepthValues.end(), std::greater<double>() );
+        }
+        else
+        {
+            std::sort( allDepthValues.begin(), allDepthValues.end() );
+        }
+
+        if ( allDepthValues.empty() ) continue;
+
+        size_t              stackIndex = 0u;
+        std::vector<double> allStackedValues( allDepthValues.size(), 0.0 );
+        for ( auto curve : stackedCurvesInGroup )
+        {
+            auto interpolatedCurveValues = curve->curveData()->calculateResampledCurveData( depthType, allDepthValues );
+            auto xValues                 = interpolatedCurveValues->xValues();
+            for ( size_t i = 0; i < xValues.size(); ++i )
+            {
+                if ( xValues[i] != HUGE_VAL )
+                {
+                    allStackedValues[i] += xValues[i];
+                }
+            }
+
+            RigWellLogCurveData tempCurveData;
+            tempCurveData.setValuesAndDepths( allStackedValues, allDepthValues, depthType, 0.0, displayUnit, false );
+            auto plotDepthValues          = tempCurveData.depthPlotValues( depthType, displayUnit );
+            auto polyLineStartStopIndices = tempCurveData.polylineStartStopIndices();
+
+            // Apply a area filled style if it isn't already set
+            if ( curve->fillStyle() == Qt::NoBrush )
+            {
+                curve->setFillStyle( Qt::SolidPattern );
+            }
+
+            curve->setOverrideCurveData( allStackedValues, plotDepthValues, polyLineStartStopIndices );
+            curve->setZOrder( zPos );
+            if ( curve->isStackedWithPhaseColors() )
+            {
+                curve->assignStackColor( stackIndex, curvePhaseCount[curve->phaseType()] );
+            }
+            zPos -= 1.0;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

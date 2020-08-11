@@ -37,7 +37,6 @@ class RiuMultiPlotPage;
 
 class RimCorrelationReportPlot : public QObject, public RimPlotWindow
 {
-    Q_OBJECT;
     CAF_PDM_HEADER_INIT;
     using CorrelationFactor     = RimCorrelationPlot::CorrelationFactor;
     using CorrelationFactorEnum = RimCorrelationPlot::CorrelationFactorEnum;
@@ -78,8 +77,8 @@ private:
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
-private slots:
-    void onDataSelection( const EnsembleParameter& param, const RiaSummaryCurveDefinition& curveDef );
+    void                          onDataSelection( const caf::SignalEmitter*                     emitter,
+                                                   std::pair<QString, RiaSummaryCurveDefinition> parameterAndCurveDef );
 
 private:
     caf::PdmProxyValueField<QString> m_plotWindowTitle;

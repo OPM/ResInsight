@@ -26,7 +26,7 @@
 
 #include "RiaDefines.h"
 #include "RifEclipseSummaryAddressQMetaType.h"
-#include "RimPlotCurve.h"
+#include "RimStackablePlotCurve.h"
 
 #include "cafAppEnum.h"
 
@@ -41,7 +41,7 @@ class RimSummaryAddress;
 ///
 ///
 //==================================================================================================
-class RimSummaryCurve : public RimPlotCurve
+class RimSummaryCurve : public RimStackablePlotCurve
 {
     CAF_PDM_HEADER_INIT;
 
@@ -63,6 +63,8 @@ public:
     void                       setLeftOrRightAxisY( RiaDefines::PlotAxis plotAxis );
     RiaDefines::PlotAxis       axisY() const;
     const std::vector<time_t>& timeStepsY() const;
+    double                     yValueAtTimeT( time_t time ) const;
+    void setOverrideCurveDataY( const std::vector<time_t>& xValues, const std::vector<double>& yValues );
 
     // X Axis functions
     void                     setSummaryCaseX( RimSummaryCase* sumCase );
@@ -83,6 +85,8 @@ public:
 
     void setAsTopZWithinCategory( bool enable );
     void setZIndexFromCurveInfo();
+
+    RiaDefines::PhaseType phaseType() const override;
 
 protected:
     // RimPlotCurve overrides
@@ -111,8 +115,6 @@ private:
                                                          caf::PdmUiEditorAttribute* attribute ) override;
 
     static void appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options, RimSummaryCase* summaryCase );
-    bool        isDefaultColor( const cvf::Color3f& color ) const;
-    void        checkAndApplyDefaultFillColor() override;
 
 private:
     // Y values

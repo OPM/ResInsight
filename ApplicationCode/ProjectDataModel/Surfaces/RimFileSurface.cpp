@@ -58,7 +58,7 @@ void RimFileSurface::setSurfaceFilePath( const QString& filePath )
         setUserDescription( QFileInfo( filePath ).fileName() );
     }
 
-    clearCachedNativeFileData();
+    clearCachedNativeData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -74,7 +74,7 @@ QString RimFileSurface::surfaceFilePath()
 //--------------------------------------------------------------------------------------------------
 bool RimFileSurface::onLoadData()
 {
-    return updateSurfaceDataFromFile();
+    return updateSurfaceData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,8 +88,8 @@ void RimFileSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
     if ( changedField == &m_surfaceDefinitionFilePath )
     {
-        clearCachedNativeFileData();
-        updateSurfaceDataFromFile();
+        clearCachedNativeData();
+        updateSurfaceData();
 
         RimSurfaceCollection* surfColl;
         this->firstAncestorOrThisOfTypeAsserted( surfColl );
@@ -98,9 +98,11 @@ void RimFileSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Regenerate the surface geometry, using the offset specified.
+/// If the surface data hasn't been loaded from file yet, load it.
 /// Returns false for fatal failure
 //--------------------------------------------------------------------------------------------------
-bool RimFileSurface::updateSurfaceDataFromFile()
+bool RimFileSurface::updateSurfaceData()
 {
     bool result = true;
     if ( m_vertices.empty() )
@@ -137,7 +139,7 @@ bool RimFileSurface::updateSurfaceDataFromFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFileSurface::clearCachedNativeFileData()
+void RimFileSurface::clearCachedNativeData()
 {
     m_vertices.clear();
     m_tringleIndices.clear();

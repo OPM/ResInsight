@@ -34,6 +34,7 @@
 #include "RiuQwtPlotCurve.h"
 #include "RiuSummaryQwtPlot.h"
 
+#include "cafPdmFieldReorderCapability.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeViewEditor.h"
 
@@ -47,12 +48,14 @@ CAF_PDM_SOURCE_INIT( RimSummaryCurveCollection, "RimSummaryCurveCollection" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurveCollection::RimSummaryCurveCollection()
+    : curvesAddedOrRemoved( this )
 {
     CAF_PDM_InitObject( "Summary Curves", ":/SummaryCurveFilter16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_curves, "CollectionCurves", "Collection Curves", "", "", "" );
     m_curves.uiCapability()->setUiHidden( true );
     m_curves.uiCapability()->setUiTreeChildrenHidden( false );
+    caf::PdmFieldReorderCapability::addToFieldWithCallback( &m_curves, this, &RimSummaryCurveCollection::onCurvesReordered );
 
     CAF_PDM_InitField( &m_showCurves, "IsActive", true, "Show Curves", "", "", "" );
     m_showCurves.uiCapability()->setUiHidden( true );
@@ -183,13 +186,39 @@ void RimSummaryCurveCollection::addCurve( RimSummaryCurve* curve )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::insertCurve( RimSummaryCurve* curve, size_t index )
+{
+    if ( index >= m_curves.size() )
+    {
+        m_curves.push_back( curve );
+    }
+    else
+    {
+        m_curves.insert( index, curve );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::deleteCurve( RimSummaryCurve* curve )
+{
+    removeCurve( curve );
+    if ( curve )
+    {
+        curve->markCachedDataForPurge();
+        delete curve;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::removeCurve( RimSummaryCurve* curve )
 {
     if ( curve )
     {
         m_curves.removeChildObject( curve );
-        curve->markCachedDataForPurge();
-        delete curve;
     }
 }
 
@@ -405,6 +434,58 @@ RimSummaryPlotSourceStepping*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::moveCurvesToCollection( RimSummaryCurveCollection*          collection,
+                                                        const std::vector<RimSummaryCurve*> curves,
+                                                        RimSummaryCurve*                    curveToInsertBeforeOrAfter,
+                                                        int                                 insertAtPosition,
+                                                        bool                                isSwapOperation )
+{
+    CAF_ASSERT( collection );
+
+    std::set<RimSummaryCurveCollection*> srcCollections;
+
+    for ( auto curve : curves )
+    {
+        RimSummaryCurveCollection* srcCollection = nullptr;
+
+        if ( curve == curveToInsertBeforeOrAfter ) continue;
+
+        curve->firstAncestorOrThisOfTypeAsserted( srcCollection );
+
+        srcCollection->removeCurve( curve );
+        srcCollections.insert( srcCollection );
+    }
+
+    for ( auto collection : srcCollections )
+    {
+        collection->updateConnectedEditors();
+        collection->curvesAddedOrRemoved.send();
+    }
+
+    if ( insertAtPosition == -1 )
+    {
+        if ( curveToInsertBeforeOrAfter )
+        {
+            insertAtPosition = (int)collection->m_curves.index( curveToInsertBeforeOrAfter );
+            if ( !isSwapOperation ) insertAtPosition += 1;
+        }
+        else
+        {
+            insertAtPosition = (int)collection->m_curves.size();
+        }
+    }
+    for ( size_t cIdx = 0; cIdx < curves.size(); ++cIdx )
+    {
+        collection->insertCurve( curves[cIdx], (size_t)insertAtPosition + cIdx );
+    }
+
+    collection->updateConnectedEditors();
+    collection->curvesAddedOrRemoved.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                                   const QVariant&            oldValue,
                                                   const QVariant&            newValue )
@@ -440,6 +521,14 @@ void RimSummaryCurveCollection::defineEditorAttribute( const caf::PdmFieldHandle
             attrib->m_buttonText = "Edit Plot";
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::onCurvesReordered( const SignalEmitter* emitter )
+{
+    curvesAddedOrRemoved.send();
 }
 
 //--------------------------------------------------------------------------------------------------

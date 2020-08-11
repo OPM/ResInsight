@@ -30,9 +30,11 @@
 #include "RimGeoMechContourMapView.h"
 #include "RimGeoMechContourMapViewCollection.h"
 #include "RimGeoMechView.h"
+#include "RimRegularLegendConfig.h"
 
 #include "RimFaultInViewCollection.h"
 #include "RimSimWellInViewCollection.h"
+#include "RimSurfaceInViewCollection.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -206,6 +208,13 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMapFr
     contourMap->faultCollection()->showFaultCollection = false;
     contourMap->wellCollection()->isActive             = false;
 
+    // Set default values
+    RimRegularLegendConfig* legendConfig = contourMap->cellResult()->legendConfig();
+    if ( legendConfig && legendConfig->mappingMode() == RimRegularLegendConfig::CATEGORY_INTEGER )
+    {
+        RicNewContourMapViewFeature::assignDefaultResultAndLegend( contourMap );
+    }
+
     caf::PdmDocument::updateUiIconStateRecursively( contourMap );
 
     eclipseCase->contourMapCollection()->push_back( contourMap );
@@ -233,15 +242,7 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMap( 
     RimEclipseContourMapView* contourMap = new RimEclipseContourMapView();
     contourMap->setEclipseCase( eclipseCase );
 
-    // Set default values
-    {
-        contourMap->cellResult()->setResultType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
-
-        if ( RiaApplication::instance()->preferences()->loadAndShowSoil )
-        {
-            contourMap->cellResult()->setResultVariable( "SOIL" );
-        }
-    }
+    assignDefaultResultAndLegend( contourMap );
 
     caf::PdmDocument::updateUiIconStateRecursively( contourMap );
 
@@ -299,6 +300,9 @@ RimGeoMechContourMapView* RicNewContourMapViewFeature::createGeoMechContourMapFr
     contourMap->setBackgroundColor( cvf::Color3f( 1.0f, 1.0f, 0.98f ) ); // Ignore original view background
     contourMap->setDefaultCustomName();
 
+    // make sure no surfaces are shown in the view when the contourmap is generated
+    if ( contourMap->surfaceInViewCollection() ) contourMap->surfaceInViewCollection()->setCheckState( Qt::Unchecked );
+
     caf::PdmDocument::updateUiIconStateRecursively( contourMap );
 
     geoMechCase->contourMapCollection()->push_back( contourMap );
@@ -330,4 +334,27 @@ RimGeoMechContourMapView* RicNewContourMapViewFeature::createGeoMechContourMap( 
     contourMap->initAfterReadRecursively();
 
     return contourMap;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicNewContourMapViewFeature::assignDefaultResultAndLegend( RimEclipseContourMapView* contourMap )
+{
+    if ( contourMap->cellResult() )
+    {
+        contourMap->cellResult()->setResultType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
+
+        if ( RiaApplication::instance()->preferences()->loadAndShowSoil )
+        {
+            contourMap->cellResult()->setResultVariable( "SOIL" );
+        }
+
+        RimRegularLegendConfig* legendConfig = contourMap->cellResult()->legendConfig();
+        if ( legendConfig )
+        {
+            RimColorLegend* legend = legendConfig->mapToColorLegend( RimRegularLegendConfig::RAINBOW );
+            legendConfig->setColorLegend( legend );
+        }
+    }
 }

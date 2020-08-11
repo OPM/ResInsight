@@ -341,6 +341,54 @@ const std::vector<time_t>& RimSummaryCurve::timeStepsY() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RimSummaryCurve::yValueAtTimeT( time_t time ) const
+{
+    const std::vector<time_t>& timeSteps = timeStepsY();
+    const std::vector<double>  values    = valuesY();
+
+    if ( timeSteps.empty() || time < timeSteps.front() || time > timeSteps.back() )
+        return std::numeric_limits<double>::infinity();
+
+    for ( size_t i = 0; i < timeSteps.size(); ++i )
+    {
+        if ( timeSteps[i] == time )
+        {
+            return values[i];
+        }
+        else if ( i < timeSteps.size() - 1u && timeSteps[i] < time && time < timeSteps[i + 1] )
+        {
+            if ( m_curveInterpolation == RiuQwtPlotCurve::INTERPOLATION_STEP_LEFT )
+            {
+                return values[i + 1];
+            }
+            else
+            {
+                double slope = 0.0;
+                if ( timeSteps[i + 1] != timeSteps[i] )
+                {
+                    slope = ( values[i + 1] - values[i] ) / (double)( timeSteps[i + 1] - timeSteps[i] );
+                }
+                return slope * ( time - timeSteps[i] ) + values[i];
+            }
+        }
+    }
+    return std::numeric_limits<double>::infinity();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::setOverrideCurveDataY( const std::vector<time_t>& dateTimes, const std::vector<double>& yValues )
+{
+    if ( m_qwtPlotCurve )
+    {
+        m_qwtPlotCurve->setSamplesFromTimeTAndYValues( dateTimes, yValues, true );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setSummaryCaseX( RimSummaryCase* sumCase )
 {
     m_xValuesSummaryCase = sumCase;
@@ -463,7 +511,6 @@ void RimSummaryCurve::updateZoomInParentPlot()
 void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
     this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
-    checkAndApplyDefaultFillColor();
 
     m_yValuesSummaryAddressUiField = m_yValuesSummaryAddress->address();
     m_xValuesSummaryAddressUiField = m_xValuesSummaryAddress->address();
@@ -664,6 +711,9 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
         curveDataGroup->add( &m_xPushButtonSelectSummaryAddress, {false, 1, 0} );
     }
 
+    caf::PdmUiGroup* stackingGroup = uiOrdering.addNewGroup( "Stacking" );
+    RimStackablePlotCurve::stackingUiOrdering( *stackingGroup );
+
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup( "Appearance" );
     RimPlotCurve::appearanceUiOrdering( *appearanceGroup );
 
@@ -711,46 +761,6 @@ void RimSummaryCurve::appendOptionItemsForSummaryAddresses( QList<caf::PdmOption
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryCurve::isDefaultColor( const cvf::Color3f& color ) const
-{
-    if ( RiaColorTables::summaryCurveDefaultPaletteColors().contains( color ) ) return true;
-
-    auto phaseColors = RiaColorTables::phaseColors();
-    for ( auto phaseColorPair : phaseColors )
-    {
-        if ( phaseColorPair.second == color ) return true;
-    }
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCurve::checkAndApplyDefaultFillColor()
-{
-    if ( !m_fillColor().isValid() )
-    {
-        m_fillColor = m_curveColor;
-    }
-
-    if ( m_yValuesSummaryAddress && m_fillStyle != Qt::BrushStyle::NoBrush )
-    {
-        auto         phaseColors = RiaColorTables::phaseColors();
-        auto         it          = phaseColors.find( m_yValuesSummaryAddress->addressPhaseType() );
-        cvf::Color3f phaseColor;
-        if ( it != phaseColors.end() )
-        {
-            phaseColor = it->second;
-        }
-
-        if ( isDefaultColor( m_curveColor() ) ) m_curveColor = phaseColor;
-        if ( isDefaultColor( m_fillColor() ) ) m_fillColor = phaseColor;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setZIndexFromCurveInfo()
 {
     auto sumAddr = summaryAddressY();
@@ -784,6 +794,14 @@ void RimSummaryCurve::setZIndexFromCurveInfo()
     }
 
     setZOrder( zOrder );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::PhaseType RimSummaryCurve::phaseType() const
+{
+    return m_yValuesSummaryAddress->addressPhaseType();
 }
 
 //--------------------------------------------------------------------------------------------------

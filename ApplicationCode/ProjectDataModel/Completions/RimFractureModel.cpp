@@ -660,7 +660,7 @@ double RimFractureModel::getOverburdenGradient( const QString& keyword ) const
 {
     if ( keyword == QString( "PRESSURE" ) )
     {
-        return m_overburdenFluidDensity * 9.81 * 1000.0 / 1.0e6;
+        return m_overburdenFluidDensity * 9.81 * 1000.0 / 1.0e5;
     }
     else
     {
@@ -676,7 +676,7 @@ double RimFractureModel::getUnderburdenGradient( const QString& keyword ) const
 {
     if ( keyword == QString( "PRESSURE" ) )
     {
-        return m_underburdenFluidDensity * 9.81 * 1000.0 / 1.0e6;
+        return m_underburdenFluidDensity * 9.81 * 1000.0 / 1.0e5;
     }
     else
     {

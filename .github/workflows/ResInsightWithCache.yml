@@ -85,24 +85,25 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ env.BUILDCACHE_DIR }}
-          key: ${{ matrix.config.name }}-cache-v01-${{ steps.cache_timestamp_string.outputs.timestamp }}
+          key: ${{ matrix.config.name }}-cache-v02-${{ steps.cache_timestamp_string.outputs.timestamp }}
       - name: Create Folder for buildcache
         run: New-Item ${{ env.BUILDCACHE_DIR }} -ItemType "directory" -Force 
         shell: pwsh
       - name: Add buildcache to system path
         run: echo "::add-path::${{ github.workspace }}/bin"
 
-      - name: Cache Qt
+      - name: Cache Qt        
         id: cache-qt
         uses: actions/cache@v2
         with:
-          path: ../Qt
-          key: ${{ matrix.config.os }}-QtCache-v2
+          path: ${{ github.workspace }}/Qt/
+          key: ${{ matrix.config.os }}-QtCache-v02
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
         with:
           version: 5.9.9
           modules: qtscript 
+          dir: '${{ github.workspace }}/Qt/'
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
       - name: Install Python dependencies
         run: |
@@ -117,7 +118,7 @@ jobs:
         with:
           path: ${{ github.workspace }}/vcpkg/
           # Ensure the cache is invalidated any time vcpkg version changes, or a different set of packages is being used.
-          key: ${{ hashFiles( format('{0}/{1}', github.workspace, matrix.config.vcpkg-response-file )) }}-${{ hashFiles('.git/modules/vcpkg/HEAD') }}-${{ runner.os }}
+          key: ${{ hashFiles( format('{0}/{1}', github.workspace, matrix.config.vcpkg-response-file )) }}-${{ hashFiles('.git/modules/vcpkg/HEAD') }}-${{ runner.os }}-v02
       - name: Run vcpkg
         uses: lukka/run-vcpkg@v1
         id: runvcpkg
@@ -153,6 +154,7 @@ jobs:
               -D CMAKE_BUILD_TYPE=$ENV{BUILD_TYPE}
               -D CMAKE_INSTALL_PREFIX=cmakebuild/install
               -D GSL_ENABLE=true
+              -D RESINSIGHT_ENABLE_UNITY_BUILD=true
               -D RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
               -D RESINSIGHT_TREAT_WARNINGS_AS_ERRORS=true
               -D RESINSIGHT_ENABLE_GRPC=true

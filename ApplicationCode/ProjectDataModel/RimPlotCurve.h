@@ -20,6 +20,7 @@
 #include "RifEclipseSummaryAddress.h"
 
 #include "RiaCurveDataTools.h"
+#include "RiaDefines.h"
 
 #include "RiuQwtPlotCurve.h"
 #include "RiuQwtSymbol.h"
@@ -42,6 +43,12 @@ class QwtPlotIntervalCurve;
 class RimPlotCurve : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
+
+public:
+    caf::Signal<>        appearanceChanged;
+    caf::Signal<bool>    visibilityChanged;
+    caf::Signal<>        dataChanged;
+    caf::Signal<QString> nameChanged;
 
 public:
     typedef caf::AppEnum<RiuQwtPlotCurve::CurveInterpolationEnum> CurveInterpolation;
@@ -80,6 +87,9 @@ public:
     void                          setSymbolSize( int sizeInPixels );
     void                          setLineThickness( int thickness );
     void                          resetAppearance();
+    Qt::BrushStyle                fillStyle() const;
+    void                          setFillStyle( Qt::BrushStyle brushStyle );
+    void                          setFillColor( const cvf::Color3f& fillColor );
 
     bool isCurveVisible() const;
     void setCurveVisibility( bool visible );
@@ -147,9 +157,9 @@ protected:
     void                          curveNameUiOrdering( caf::PdmUiOrdering& uiOrdering );
 
 private:
-    bool         canCurveBeAttached() const;
-    void         attachCurveAndErrorBars();
-    virtual void checkAndApplyDefaultFillColor();
+    bool canCurveBeAttached() const;
+    void attachCurveAndErrorBars();
+    void checkAndApplyDefaultFillColor();
 
 protected:
     QPointer<QwtPlot> m_parentQwtPlot;

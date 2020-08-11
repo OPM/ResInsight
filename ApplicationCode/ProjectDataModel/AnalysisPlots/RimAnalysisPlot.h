@@ -23,6 +23,7 @@
 #include "RimPlot.h"
 #include "RimPlotDataFilterItem.h"
 #include "RimSummaryCaseCollection.h"
+#include "RimTimeStepFilter.h"
 
 #include "cafPdmPtrField.h"
 
@@ -46,29 +47,6 @@ class RimAnalysisPlot : public RimPlot
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimAnalysisPlot();
-    ~RimAnalysisPlot() override;
-
-    void updateCaseNameHasChanged();
-
-    RimPlotDataFilterCollection* plotDataFilterCollection() const;
-
-    std::set<RifEclipseSummaryAddress> unfilteredAddresses();
-    std::set<EnsembleParameter>        ensembleParameters();
-    EnsembleParameter                  ensembleParameter( const QString& ensembleParameterName );
-
-    void maxMinValueFromAddress( const RifEclipseSummaryAddress&           address,
-                                 RimPlotDataFilterItem::TimeStepSourceType timeStepSourceType,
-                                 const std::vector<QDateTime>&             timeRangeOrSelection,
-                                 bool                                      useAbsValue,
-                                 double*                                   min,
-                                 double*                                   max );
-
-    void onFiltersChanged();
-
-    std::vector<time_t> selectedTimeSteps();
-
-public: // Internal. Public needed for AppEnum setup
     enum BarOrientation
     {
         BARS_HORIZONTAL,
@@ -89,6 +67,34 @@ public: // Internal. Public needed for AppEnum setup
         TIME_STEP,
     };
     typedef caf::AppEnum<SortGroupType> SortGroupAppEnum;
+
+    using TimeStepFilterEnum = caf::AppEnum<RimTimeStepFilter::TimeStepFilterTypeEnum>;
+
+public:
+    RimAnalysisPlot();
+    ~RimAnalysisPlot() override;
+
+    void updateCaseNameHasChanged();
+
+    RimPlotDataFilterCollection* plotDataFilterCollection() const;
+
+    void setCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions );
+    void setTimeSteps( const std::vector<time_t>& timeSteps );
+
+    std::set<RifEclipseSummaryAddress> unfilteredAddresses();
+    std::set<EnsembleParameter>        ensembleParameters();
+    EnsembleParameter                  ensembleParameter( const QString& ensembleParameterName );
+
+    void maxMinValueFromAddress( const RifEclipseSummaryAddress&           address,
+                                 RimPlotDataFilterItem::TimeStepSourceType timeStepSourceType,
+                                 const std::vector<QDateTime>&             timeRangeOrSelection,
+                                 bool                                      useAbsValue,
+                                 double*                                   min,
+                                 double*                                   max );
+
+    void onFiltersChanged();
+
+    std::vector<time_t> selectedTimeSteps();
 
 private:
     // Overridden PDM methods
@@ -160,7 +166,13 @@ private:
 
     std::set<RimPlotAxisPropertiesInterface*> allPlotAxes() const;
 
+    void connectAxisSignals( RimPlotAxisProperties* axis );
+    void axisSettingsChanged( const caf::SignalEmitter* emitter );
+    void axisLogarithmicChanged( const caf::SignalEmitter* emitter, bool isLogarithmic );
+
     void buildTestPlot( RiuGroupedBarChartBuilder& chartBuilder );
+
+    int barTextFontSize() const;
 
 private:
     std::unique_ptr<RiaSummaryCurveDefinitionAnalyser> m_analyserOfSelectedCurveDefs;
@@ -174,7 +186,7 @@ private:
 
     caf::PdmChildArrayField<RimAnalysisPlotDataEntry*> m_analysisPlotDataSelection;
 
-    caf::PdmField<QDateTime>              m_addTimestepUiField;
+    caf::PdmField<TimeStepFilterEnum>     m_timeStepFilter;
     caf::PdmField<std::vector<QDateTime>> m_selectedTimeSteps;
 
     caf::PdmPtrField<RimSummaryCase*> m_referenceCase;
@@ -193,14 +205,15 @@ private:
     caf::PdmField<bool> m_useTopBarsFilter;
     caf::PdmField<int>  m_maxBarCount;
 
-    caf::PdmField<SortGroupAppEnum> m_sortGroupForLegend;
+    caf::PdmField<SortGroupAppEnum> m_sortGroupForColors;
 
-    caf::PdmField<bool> m_useBarText;
-    caf::PdmField<bool> m_useCaseInBarText;
-    caf::PdmField<bool> m_useEnsembleInBarText;
-    caf::PdmField<bool> m_useSummaryItemInBarText;
-    caf::PdmField<bool> m_useTimeStepInBarText;
-    caf::PdmField<bool> m_useQuantityInBarText;
+    caf::PdmField<bool>                             m_useBarText;
+    caf::PdmField<bool>                             m_useCaseInBarText;
+    caf::PdmField<bool>                             m_useEnsembleInBarText;
+    caf::PdmField<bool>                             m_useSummaryItemInBarText;
+    caf::PdmField<bool>                             m_useTimeStepInBarText;
+    caf::PdmField<bool>                             m_useQuantityInBarText;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_barTextFontSize;
 
     caf::PdmChildField<RimPlotAxisProperties*>       m_valueAxisProperties;
     caf::PdmChildField<RimPlotDataFilterCollection*> m_plotDataFilterCollection;

@@ -45,6 +45,7 @@ public:
     static const caf::ColorTable& tensorOrangeBlueWhitePaletteColors();
     static const caf::ColorTable& tensorsMagentaBrownGrayPaletteColors();
     static const caf::ColorTable& angularPaletteColors();
+    static const caf::ColorTable& rainbowPaletteColors();
     static const caf::ColorTable& stimPlanPaletteColors();
     static const caf::ColorTable& faultsPaletteColors();
     static const caf::ColorTable& wellsPaletteColors();
@@ -74,7 +75,7 @@ public:
 
     static caf::ColorTable createBrightnessBasedColorTable( cvf::Color3ub baseColor, int brightnessLevelCount );
 
-    static std::map<RiaDefines::PhaseType, cvf::Color3f> phaseColors();
+    static std::map<RiaDefines::PhaseType, caf::ColorTable> phaseColors();
 
 private:
     static std::vector<cvf::Color3ub> categoryColors();

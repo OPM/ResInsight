@@ -101,6 +101,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionResultsDefinitionCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimContextCommandBuilder.h
 ${CMAKE_CURRENT_LIST_DIR}/RimGridCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotCurve.h
+${CMAKE_CURRENT_LIST_DIR}/RimStackablePlotCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimBoxIntersection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimAdvancedSnapshotExportDefinition.h
 ${CMAKE_CURRENT_LIST_DIR}/RimMdiWindowController.h
@@ -138,6 +139,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapViewCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapProjection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapView.h
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapViewCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimMudWeightWindowParameters.h
 ${CMAKE_CURRENT_LIST_DIR}/RimViewNameConfig.h
 ${CMAKE_CURRENT_LIST_DIR}/RimReloadCaseTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisPropertiesInterface.h
@@ -231,6 +233,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechPropertyFilter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechPropertyFilterCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechResultDefinition.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechCellColors.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimMudWeightWindowParameters.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimViewWindow.cpp
 ${CMAKE_CURRENT_LIST_DIR}/Rim3dView.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimGridView.cpp
@@ -268,6 +271,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionResultsDefinitionCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimContextCommandBuilder.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimGridCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotCurve.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimStackablePlotCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimBoxIntersection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimAdvancedSnapshotExportDefinition.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimMdiWindowController.cpp

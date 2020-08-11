@@ -24,6 +24,8 @@
 
 #include "cafPdmPtrField.h"
 
+#include "cvfStructGrid.h"
+
 class RimCase;
 
 class RimGridCaseSurface : public RimSurface
@@ -38,7 +40,9 @@ public:
     void setSliceTypeAndOneBasedIndex( RiaDefines::GridCaseAxis sliceType, int oneBasedSliceIndex );
 
     bool onLoadData() override;
-    void updateUserDescription();
+
+    bool exportStructSurfaceFromGridCase( std::vector<cvf::Vec3d>*            vertices,
+                                          std::vector<std::pair<uint, uint>>* structGridVertexIndices );
 
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
@@ -48,18 +52,24 @@ protected:
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
 
+    bool    updateSurfaceData() override;
+    void    clearCachedNativeData() override;
+    QString fullName() const override;
+
 private:
-    bool updateSurfaceDataFromGridCase();
+
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     void extractDataFromGrid();
-    void clearNativeGridData();
+
+    std::pair<uint, uint> getStructGridIndex( cvf::StructGridInterface::FaceType cellface, cvf::ubyte localVertexIndex );
 
 private:
     caf::PdmPtrField<RimCase*>                            m_case;
     caf::PdmField<caf::AppEnum<RiaDefines::GridCaseAxis>> m_sliceDirection;
     caf::PdmField<int>                                    m_oneBasedSliceIndex;
 
-    std::vector<unsigned>   m_tringleIndices;
-    std::vector<cvf::Vec3d> m_vertices;
+    std::vector<unsigned>                      m_tringleIndices;
+    std::vector<cvf::Vec3d>                    m_vertices;
+    std::vector<std::pair<unsigned, unsigned>> m_structGridIndices;
 };

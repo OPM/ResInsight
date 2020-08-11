@@ -17,9 +17,12 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicNewCorrelationReportPlotFeature.h"
+#include "RicNewCorrelationPlotFeature.h"
 
 #include "RimCorrelationPlotCollection.h"
 #include "RimCorrelationReportPlot.h"
+#include "RimProject.h"
+#include "RimSummaryPlot.h"
 
 #include "RiuPlotMainWindowTools.h"
 
@@ -44,6 +47,10 @@ bool RicNewCorrelationReportPlotFeature::isCommandEnabled()
 
     if ( correlationPlotColl ) return true;
 
+    RimSummaryPlot* summaryPlot = nullptr;
+    selObj->firstAncestorOrThisOfType( summaryPlot );
+    if ( summaryPlot ) return true;
+
     return false;
 }
 
@@ -60,9 +67,33 @@ void RicNewCorrelationReportPlotFeature::onActionTriggered( bool isChecked )
         selObj->firstAncestorOrThisOfType( correlationPlotColl );
     }
 
-    if ( !correlationPlotColl ) return;
+    RimSummaryCaseCollection* ensemble = nullptr;
+    QString                   quantityName;
+    std::time_t               timeStep = 0;
 
-    auto newPlot = correlationPlotColl->createCorrelationReportPlot();
+    RimCorrelationReportPlot* newPlot = nullptr;
+    if ( !correlationPlotColl )
+    {
+        QVariant userData = this->userData();
+        if ( !userData.isNull() && userData.canConvert<EnsemblePlotParams>() )
+        {
+            std::vector<RimCorrelationPlotCollection*> correlationPlotCollections;
+            RimProject::current()->descendantsOfType( correlationPlotCollections );
+            CAF_ASSERT( !correlationPlotCollections.empty() );
+            correlationPlotColl = correlationPlotCollections.front();
+
+            EnsemblePlotParams params = userData.value<EnsemblePlotParams>();
+            ensemble                  = params.ensemble;
+            quantityName              = params.quantityName;
+            timeStep                  = params.timeStep;
+
+            newPlot = correlationPlotColl->createCorrelationReportPlot( ensemble, quantityName, timeStep );
+        }
+    }
+    else
+    {
+        newPlot = correlationPlotColl->createCorrelationReportPlot();
+    }
     newPlot->loadDataAndUpdate();
 
     correlationPlotColl->updateConnectedEditors();

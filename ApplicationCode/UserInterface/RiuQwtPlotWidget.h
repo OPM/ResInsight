@@ -143,6 +143,7 @@ signals:
     void plotItemSelected( QwtPlotItem* plotItem, bool toggleSelection, int sampleIndex );
     void onKeyPressEvent( QKeyEvent* event );
     void onWheelEvent( QWheelEvent* event );
+    void plotZoomed();
 
 protected:
     bool eventFilter( QObject* watched, QEvent* event ) override;
@@ -159,6 +160,11 @@ protected:
 
     virtual bool isZoomerActive() const;
     virtual void endZoomOperations();
+
+    void findClosestPlotItem( const QPoint& pos,
+                              QwtPlotItem** closestItem,
+                              int*          closestCurvePoint,
+                              double*       distanceFromClick ) const;
 
 private:
     void       selectClosestPlotItem( const QPoint& pos, bool toggleItemInSelection = false );

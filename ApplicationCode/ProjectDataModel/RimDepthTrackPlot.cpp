@@ -40,6 +40,7 @@
 #include "RiuWellLogPlot.h"
 
 #include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldReorderCapability.h"
 #include "cafPdmObjectScriptability.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiDoubleValueEditor.h"
@@ -116,6 +117,8 @@ RimDepthTrackPlot::RimDepthTrackPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_plots, "Tracks", "", "", "", "" );
     m_plots.uiCapability()->setUiHidden( true );
+    auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_plots );
+    reorderability->orderChanged.connect( this, &RimDepthTrackPlot::onPlotsReordered );
 
     m_availableDepthUnits = {RiaDefines::DepthUnitType::UNIT_METER, RiaDefines::DepthUnitType::UNIT_FEET};
     m_availableDepthTypes = {RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
@@ -571,6 +574,8 @@ void RimDepthTrackPlot::recreatePlotWidgets()
 
     auto plotVector = plots();
 
+    m_viewer->removeAllPlots();
+
     for ( size_t tIdx = 0; tIdx < plotVector.size(); ++tIdx )
     {
         plotVector[tIdx]->createPlotWidget();
@@ -686,6 +691,8 @@ void RimDepthTrackPlot::onPlotAdditionOrRemoval()
 {
     calculateAvailableDepthRange();
     updateZoom();
+    updateSubPlotNames();
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -711,6 +718,16 @@ void RimDepthTrackPlot::doUpdateLayout()
         m_viewer->setAxisFontSizes( axisTitleFontSize(), axisValueFontSize() );
         m_viewer->scheduleUpdate();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimDepthTrackPlot::onPlotsReordered( const SignalEmitter* emitter )
+{
+    updateSubPlotNames();
+    recreatePlotWidgets();
+    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------

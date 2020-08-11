@@ -21,8 +21,9 @@
 
 #include "RiaDefines.h"
 #include "RiaWellLogUnitTools.h"
-#include "RimPlotCurve.h"
+#include "RimStackablePlotCurve.h"
 
+#include "cafSignal.h"
 #include "cvfObject.h"
 
 class RigWellLogCurveData;
@@ -31,7 +32,7 @@ class RigWellLogCurveData;
 ///
 ///
 //==================================================================================================
-class RimWellLogCurve : public RimPlotCurve
+class RimWellLogCurve : public RimStackablePlotCurve
 {
     CAF_PDM_HEADER_INIT;
 
@@ -74,6 +75,12 @@ public:
     virtual QString wellDate() const { return ""; };
 
     static QString wellLogCurveIconName();
+
+    void setOverrideCurveData( const std::vector<double>&               xValues,
+                               const std::vector<double>&               depthValues,
+                               const RiaCurveDataTools::CurveIntervals& curveIntervals );
+
+    virtual RiaDefines::PhaseType resultPhase() const;
 
 protected:
     void updateZoomInParentPlot() override;

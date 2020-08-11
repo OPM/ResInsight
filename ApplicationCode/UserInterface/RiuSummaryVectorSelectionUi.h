@@ -111,8 +111,12 @@ private:
     void appendOptionItemsForSubCategoriesAndVectors( QList<caf::PdmOptionItemInfo>& options,
                                                       SummaryIdentifierAndField*     identifierAndField ) const;
 
+    void handleAddedSource( SummarySource* sourceAdded );
+    void handleRemovedSource( SummarySource* sourceRemoved );
+
 private:
     caf::PdmPtrArrayField<SummarySource*> m_selectedSources;
+    std::vector<SummarySource*>           m_previouslySelectedSources;
 
     caf::PdmField<std::vector<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>>> m_selectedSummaryCategories;
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>>              m_currentSummaryCategory;

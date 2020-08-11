@@ -37,9 +37,11 @@ public:
 
     bool onLoadData() override;
 
+protected:
+    bool updateSurfaceData() override;
+    void clearCachedNativeData() override;
+
 private:
-    bool updateSurfaceDataFromFile();
-    void clearCachedNativeFileData();
     bool loadDataFromFile();
 
 private:

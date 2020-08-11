@@ -19,6 +19,8 @@
 #include "RimAnalysisPlotCollection.h"
 
 #include "RimAnalysisPlot.h"
+#include "RimPlotDataFilterCollection.h"
+#include "RimProject.h"
 
 CAF_PDM_SOURCE_INIT( RimAnalysisPlotCollection, "AnalysisPlotCollection" );
 
@@ -48,8 +50,37 @@ RimAnalysisPlot* RimAnalysisPlotCollection::createAnalysisPlot()
     RimAnalysisPlot* plot = new RimAnalysisPlot();
     plot->setAsPlotMdiWindow();
 
+    applyFirstEnsembleFieldAddressesToPlot( plot, "FOPT" );
+
     // plot->enableAutoPlotTitle( true );
     m_analysisPlots.push_back( plot );
+
+    plot->loadDataAndUpdate();
+    plot->updateConnectedEditors();
+
+    return plot;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimAnalysisPlot* RimAnalysisPlotCollection::createAnalysisPlot( RimSummaryCaseCollection* ensemble,
+                                                                const QString&            quantityName,
+                                                                std::time_t               timeStep )
+{
+    RimAnalysisPlot* plot = new RimAnalysisPlot();
+    plot->setAsPlotMdiWindow();
+
+    applyEnsembleFieldAndTimeStepToPlot( plot, ensemble, quantityName.toStdString(), timeStep );
+    auto filter = plot->plotDataFilterCollection()->addFilter();
+
+    // plot->enableAutoPlotTitle( true );
+    m_analysisPlots.push_back( plot );
+
+    plot->loadDataAndUpdate();
+    filter->updateMaxMinAndDefaultValues( true );
+    plot->loadDataAndUpdate();
+    plot->updateConnectedEditors();
 
     return plot;
 }
@@ -87,4 +118,60 @@ std::vector<RimAnalysisPlot*> RimAnalysisPlotCollection::plots()
 void RimAnalysisPlotCollection::deleteAllChildObjects()
 {
     m_analysisPlots.deleteAllChildObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnalysisPlotCollection::applyFirstEnsembleFieldAddressesToPlot( RimAnalysisPlot*   plot,
+                                                                        const std::string& quantityName )
+{
+    std::vector<RimSummaryCaseCollection*> ensembles;
+    RimProject::current()->descendantsIncludingThisOfType( ensembles );
+    if ( !ensembles.empty() )
+    {
+        std::set<RifEclipseSummaryAddress>     allAddresses = ensembles.front()->ensembleSummaryAddresses();
+        std::vector<RiaSummaryCurveDefinition> curveDefs;
+        for ( auto address : allAddresses )
+        {
+            if ( address.category() == RifEclipseSummaryAddress::SUMMARY_FIELD )
+            {
+                if ( quantityName.empty() || quantityName == address.quantityName() )
+                {
+                    for ( auto summaryCase : ensembles.front()->allSummaryCases() )
+                    {
+                        curveDefs.push_back( RiaSummaryCurveDefinition( summaryCase, address, nullptr ) );
+                    }
+                }
+            }
+        }
+        plot->setCurveDefinitions( curveDefs );
+    }
+}
+
+void RimAnalysisPlotCollection::applyEnsembleFieldAndTimeStepToPlot( RimAnalysisPlot*          plot,
+                                                                     RimSummaryCaseCollection* ensemble,
+                                                                     const std::string&        quantityName,
+                                                                     std::time_t               timeStep )
+{
+    if ( ensemble )
+    {
+        std::set<RifEclipseSummaryAddress>     allAddresses = ensemble->ensembleSummaryAddresses();
+        std::vector<RiaSummaryCurveDefinition> curveDefs;
+        for ( auto address : allAddresses )
+        {
+            if ( address.category() == RifEclipseSummaryAddress::SUMMARY_FIELD )
+            {
+                if ( quantityName.empty() || quantityName == address.quantityName() )
+                {
+                    for ( auto summaryCase : ensemble->allSummaryCases() )
+                    {
+                        curveDefs.push_back( RiaSummaryCurveDefinition( summaryCase, address, nullptr ) );
+                    }
+                }
+            }
+        }
+        plot->setCurveDefinitions( curveDefs );
+        plot->setTimeSteps( {timeStep} );
+    }
 }

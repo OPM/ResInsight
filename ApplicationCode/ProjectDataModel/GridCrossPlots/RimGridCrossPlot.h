@@ -144,6 +144,10 @@ private:
     void    doRemoveFromCollection() override;
     QString generateInfoBoxText() const;
 
+    void connectAxisSignals( RimPlotAxisProperties* axis );
+    void axisSettingsChanged( const caf::SignalEmitter* emitter );
+    void axisLogarithmicChanged( const caf::SignalEmitter* emitter, bool isLogarithmic );
+
 private slots:
     void onPlotZoomed();
 

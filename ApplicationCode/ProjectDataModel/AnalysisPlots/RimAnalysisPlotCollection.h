@@ -21,7 +21,10 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 
+#include <ctime>
+
 class RimAnalysisPlot;
+class RimSummaryCaseCollection;
 
 //==================================================================================================
 ///
@@ -36,12 +39,22 @@ public:
     ~RimAnalysisPlotCollection() override;
 
     RimAnalysisPlot* createAnalysisPlot();
-    void             updateSummaryNameHasChanged();
-    void             removeSummaryPlot( RimAnalysisPlot* analysisPlot );
+    RimAnalysisPlot*
+        createAnalysisPlot( RimSummaryCaseCollection* ensemble, const QString& quantityName, std::time_t timeStep );
+
+    void updateSummaryNameHasChanged();
+    void removeSummaryPlot( RimAnalysisPlot* analysisPlot );
 
     std::vector<RimAnalysisPlot*> plots();
 
     void deleteAllChildObjects();
+
+private:
+    void applyFirstEnsembleFieldAddressesToPlot( RimAnalysisPlot* plot, const std::string& quantityName = "" );
+    void applyEnsembleFieldAndTimeStepToPlot( RimAnalysisPlot*          plot,
+                                              RimSummaryCaseCollection* ensemble,
+                                              const std::string&        quantityName,
+                                              std::time_t               timeStep );
 
 private:
     caf::PdmChildArrayField<RimAnalysisPlot*> m_analysisPlots;

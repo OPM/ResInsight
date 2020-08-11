@@ -81,6 +81,7 @@
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechView.h"
+#include "RimGridCaseSurface.h"
 #include "RimGridCollection.h"
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCollection.h"
@@ -664,6 +665,9 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicSetSourceSteppingSummaryCurveFeature";
             menuBuilder << "RicClearSourceSteppingSummaryCurveFeature";
             menuBuilder << "Separator";
+            menuBuilder << "RicStackSelectedCurvesFeature";
+            menuBuilder << "RicUnstackSelectedCurvesFeature";
+            menuBuilder << "Separator";
             menuBuilder << "RicCopyReferencesToClipboardFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicEditSummaryCurveCalculationFeature";
@@ -892,15 +896,21 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicConvertFractureTemplateUnitFeature";
         }
-        else if ( dynamic_cast<RimSurfaceCollection*>( firstUiItem ) || dynamic_cast<RimSurface*>( firstUiItem ) )
+        else if ( dynamic_cast<RimSurfaceCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicImportSurfacesFeature";
             menuBuilder << "RicNewGridSurfaceFeature";
-
-            if ( dynamic_cast<RimSurface*>( firstUiItem ) )
+        }
+        else if ( dynamic_cast<RimSurface*>( firstUiItem ) )
+        {
+            if ( dynamic_cast<RimGridCaseSurface*>( firstUiItem ) )
             {
-                menuBuilder << "RicExportSurfaceFeature";
+                menuBuilder << "RicExportKLayerToPtlFeature";
             }
+
+            menuBuilder << "RicExportSurfaceToTsurfFeature";
+            menuBuilder << "Separator";
+            menuBuilder << "RicReloadSurfaceFeature";
         }
         else if ( dynamic_cast<RimAnnotationCollection*>( firstUiItem ) ||
                   dynamic_cast<RimAnnotationGroupCollection*>( firstUiItem ) )
@@ -961,6 +971,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicNewDerivedSummaryFeature";
         menuBuilder.addSeparator();
         menuBuilder << "RicConvertGroupToEnsembleFeature";
+        menuBuilder.addSeparator();
+        menuBuilder.addSeparator();
+        menuBuilder << "RicStackSelectedCurvesFeature";
+        menuBuilder << "RicUnstackSelectedCurvesFeature";
         menuBuilder.addSeparator();
 
         menuBuilder << "RicFlyToObjectFeature";

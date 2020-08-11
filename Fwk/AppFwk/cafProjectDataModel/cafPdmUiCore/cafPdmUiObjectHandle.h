@@ -88,6 +88,13 @@ protected:
     {
     }
 
+    /// Override to provide tree editor specific attributes for the field and uiConfigName
+    virtual void defineTreeEditorAttribute( const caf::PdmFieldHandle* field,
+                                            QString                    uiConfigName,
+                                            caf::PdmUiEditorAttribute* attribute )
+    {
+    }
+
     /// Override to provide editor specific data for the uiConfigName for the object
     virtual void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) {}
 

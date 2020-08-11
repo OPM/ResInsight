@@ -189,10 +189,16 @@ private:
     void doRemoveFromCollection() override;
     void handleKeyPressEvent( QKeyEvent* keyEvent ) override;
 
+    void onCurvesAddedOrRemoved( const SignalEmitter* emitter );
+
 protected:
     // Overridden PDM methods
     caf::PdmFieldHandle* userDescriptionField() override;
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void                 childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
+    void                 updateStackedCurveData();
+    void                 updateStackedCurveDataForAxis( RiaDefines::PlotAxis plotAxis );
+
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void onLoadDataAndUpdate() override;
@@ -209,6 +215,7 @@ private:
     std::vector<RimGridTimeHistoryCurve*> visibleTimeHistoryCurvesForAxis( RiaDefines::PlotAxis plotAxis ) const;
     std::vector<RimAsciiDataCurve*>       visibleAsciiDataCurvesForAxis( RiaDefines::PlotAxis plotAxis ) const;
     bool                                  hasVisibleCurvesForAxis( RiaDefines::PlotAxis plotAxis ) const;
+    std::vector<RimSummaryCurve*>         visibleStackedSummaryCurvesForAxis( RiaDefines::PlotAxis plotAxis );
 
     RimPlotAxisProperties* yAxisPropertiesLeftOrRight( RiaDefines::PlotAxis leftOrRightPlotAxis ) const;
     void                   updateYAxis( RiaDefines::PlotAxis plotAxis );
@@ -221,6 +228,19 @@ private:
     std::set<RimPlotAxisPropertiesInterface*> allPlotAxes() const;
 
     void cleanupBeforeClose();
+
+    void connectCurveSignals( RimSummaryCurve* curve );
+    void disconnectCurveSignals( RimSummaryCurve* curve );
+
+    void curveDataChanged( const caf::SignalEmitter* emitter );
+    void curveVisibilityChanged( const caf::SignalEmitter* emitter, bool visible );
+    void curveAppearanceChanged( const caf::SignalEmitter* emitter );
+    void curveStackingChanged( const caf::SignalEmitter* emitter, bool stacked );
+    void curveStackingColorsChanged( const caf::SignalEmitter* emitter, bool stackWithPhaseColors );
+
+    void connectAxisSignals( RimPlotAxisProperties* axis );
+    void axisSettingsChanged( const caf::SignalEmitter* emitter );
+    void axisLogarithmicChanged( const caf::SignalEmitter* emitter, bool isLogarithmic );
 
 private:
     caf::PdmField<bool> m_normalizeCurveYValues;

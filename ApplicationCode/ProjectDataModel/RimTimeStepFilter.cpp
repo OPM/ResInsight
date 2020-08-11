@@ -188,6 +188,79 @@ bool RimTimeStepFilter::updateFilteredTimeStepsFromUi()
     return true;
 }
 
+QDateTime RimTimeStepFilter::incrementDateTime( const QDateTime& dateTime, TimeStepFilterTypeEnum filterType, int interval )
+{
+    switch ( filterType )
+    {
+        case TS_INTERVAL_DAYS:
+            return dateTime.addDays( interval );
+        case TS_INTERVAL_WEEKS:
+            return dateTime.addDays( 7 * interval );
+        case TS_INTERVAL_MONTHS:
+            return dateTime.addMonths( interval );
+        case TS_INTERVAL_QUARTERS:
+            return dateTime.addMonths( interval * 3 );
+        case TS_INTERVAL_YEARS:
+            return dateTime.addYears( interval );
+        default:
+            break;
+    }
+    return dateTime;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<int> RimTimeStepFilter::filteredTimeStepIndices( const std::vector<QDateTime>& timeSteps,
+                                                             int                           firstTimeStep,
+                                                             int                           lastTimeStep,
+                                                             TimeStepFilterTypeEnum        filterType,
+                                                             int                           interval )
+{
+    std::vector<int> indices;
+
+    if ( filterType == TS_ALL )
+    {
+        for ( int i = firstTimeStep; i <= lastTimeStep; i++ )
+        {
+            indices.push_back( i );
+        }
+    }
+    else
+    {
+        QDateTime nextDateTime;
+        for ( int i = firstTimeStep; i <= lastTimeStep; i++ )
+        {
+            if ( !timeSteps[i].isValid() )
+            {
+                indices.push_back( i );
+            }
+            else
+            {
+                if ( nextDateTime.isValid() )
+                {
+                    if ( timeSteps[i] >= nextDateTime )
+                    {
+                        do
+                        {
+                            nextDateTime = incrementDateTime( nextDateTime, filterType, interval );
+                        } while ( nextDateTime <= timeSteps[i] );
+
+                        indices.push_back( i );
+                    }
+                }
+                else
+                {
+                    nextDateTime = incrementDateTime( timeSteps[i], filterType, interval );
+                    indices.push_back( i );
+                }
+            }
+        }
+    }
+
+    return indices;
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -305,67 +378,13 @@ std::vector<std::pair<QString, QDateTime>> RimTimeStepFilter::allTimeSteps() con
 //--------------------------------------------------------------------------------------------------
 std::vector<int> RimTimeStepFilter::filteredTimeStepIndicesFromUi() const
 {
-    std::vector<int> indices;
-
-    if ( m_filterType == TS_ALL )
+    std::vector<std::pair<QString, QDateTime>> timeStepStringsAndDate = allTimeSteps();
+    std::vector<QDateTime>                     timeSteps;
+    for ( auto stringDatePair : timeStepStringsAndDate )
     {
-        for ( int i = m_firstTimeStep; i <= m_lastTimeStep; i++ )
-        {
-            indices.push_back( i );
-        }
+        timeSteps.push_back( stringDatePair.second );
     }
-    else
-    {
-        int intervalFactor = 1;
-
-        if ( m_filterType == TS_INTERVAL_WEEKS )
-        {
-            intervalFactor = 7;
-        }
-        else if ( m_filterType == TS_INTERVAL_MONTHS )
-        {
-            intervalFactor = 30;
-        }
-        else if ( m_filterType == TS_INTERVAL_QUARTERS )
-        {
-            intervalFactor = 90;
-        }
-        else if ( m_filterType == TS_INTERVAL_YEARS )
-        {
-            intervalFactor = 365;
-        }
-
-        int daysToSkip = m_interval * intervalFactor;
-
-        std::vector<std::pair<QString, QDateTime>> timeSteps = allTimeSteps();
-
-        QDateTime d;
-        for ( int i = m_firstTimeStep; i <= m_lastTimeStep; i++ )
-        {
-            if ( !timeSteps[i].second.isValid() )
-            {
-                indices.push_back( i );
-            }
-            else
-            {
-                if ( d.isValid() )
-                {
-                    if ( timeSteps[i].second > d )
-                    {
-                        d = d.addDays( daysToSkip );
-                        indices.push_back( i );
-                    }
-                }
-                else
-                {
-                    d = timeSteps[i].second.addDays( daysToSkip );
-                    indices.push_back( i );
-                }
-            }
-        }
-    }
-
-    return indices;
+    return filteredTimeStepIndices( timeSteps, m_firstTimeStep(), m_lastTimeStep(), m_filterType(), m_interval );
 }
 
 //--------------------------------------------------------------------------------------------------

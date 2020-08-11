@@ -17,7 +17,7 @@ Octave : [http://www.gnu.org/software/octave/](http://www.gnu.org/software/octav
 Equinor/libecl : [https://github.com/Equinor/libecl](https://github.com/Equinor/libecl)
 
 ### Supported Platforms
-ResInsight is designed cross-platform from the start. Efforts have been made to ensure that code will compile and run on Linux and Windows platforms. Tested platforms are currently 64 bit RHEL6 and Windows 7/8/10, and we have also received reports on successful builds on Ubuntu based systems.  
+ResInsight is designed to be cross-platform. Efforts have been made to ensure that code will compile and run on most Linux and Windows platforms. Currently, automated tests are run regularly on Red Hat Enterprise Linux (RHEL) 6, Centos 6, Ubuntu 16.04, 18.04 and 20.04 as well as Windows 10 and Windows Server 2019. However, Centos 7 is also used by developers and so RHEL 7 compatibility is expected.
 
 ### Documentation
 

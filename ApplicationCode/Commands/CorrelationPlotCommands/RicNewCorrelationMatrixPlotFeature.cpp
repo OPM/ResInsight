@@ -18,9 +18,13 @@
 
 #include "RicNewCorrelationMatrixPlotFeature.h"
 
+#include "RicNewCorrelationPlotFeature.h"
+
 #include "RimCorrelationMatrixPlot.h"
 #include "RimCorrelationPlot.h"
 #include "RimCorrelationPlotCollection.h"
+#include "RimProject.h"
+#include "RimSummaryPlot.h"
 
 #include "RiuPlotMainWindowTools.h"
 
@@ -45,6 +49,10 @@ bool RicNewCorrelationMatrixPlotFeature::isCommandEnabled()
 
     if ( correlationPlotColl ) return true;
 
+    RimSummaryPlot* summaryPlot = nullptr;
+    selObj->firstAncestorOrThisOfType( summaryPlot );
+    if ( summaryPlot ) return true;
+
     return false;
 }
 
@@ -61,9 +69,32 @@ void RicNewCorrelationMatrixPlotFeature::onActionTriggered( bool isChecked )
         selObj->firstAncestorOrThisOfType( correlationPlotColl );
     }
 
-    if ( !correlationPlotColl ) return;
+    RimSummaryCaseCollection* ensemble = nullptr;
+    std::time_t               timeStep = 0;
 
-    auto newPlot = correlationPlotColl->createCorrelationMatrixPlot();
+    RimCorrelationMatrixPlot* newPlot = nullptr;
+    if ( !correlationPlotColl )
+    {
+        QVariant userData = this->userData();
+        if ( !userData.isNull() && userData.canConvert<EnsemblePlotParams>() )
+        {
+            std::vector<RimCorrelationPlotCollection*> correlationPlotCollections;
+            RimProject::current()->descendantsOfType( correlationPlotCollections );
+            CAF_ASSERT( !correlationPlotCollections.empty() );
+            correlationPlotColl = correlationPlotCollections.front();
+
+            EnsemblePlotParams params = userData.value<EnsemblePlotParams>();
+            ensemble                  = params.ensemble;
+            timeStep                  = params.timeStep;
+
+            newPlot = correlationPlotColl->createCorrelationMatrixPlot( ensemble, timeStep );
+        }
+    }
+    else
+    {
+        newPlot = correlationPlotColl->createCorrelationMatrixPlot();
+    }
+
     newPlot->loadDataAndUpdate();
 
     correlationPlotColl->updateConnectedEditors();

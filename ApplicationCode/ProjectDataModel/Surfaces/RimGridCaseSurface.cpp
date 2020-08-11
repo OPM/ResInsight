@@ -83,7 +83,7 @@ void RimGridCaseSurface::setSliceTypeAndOneBasedIndex( RiaDefines::GridCaseAxis 
 //--------------------------------------------------------------------------------------------------
 bool RimGridCaseSurface::onLoadData()
 {
-    return updateSurfaceDataFromGridCase();
+    return updateSurfaceData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -109,6 +109,8 @@ void RimGridCaseSurface::defineEditorAttribute( const caf::PdmFieldHandle* field
                                                 QString                    uiConfigName,
                                                 caf::PdmUiEditorAttribute* attribute )
 {
+    RimSurface::defineEditorAttribute( field, uiConfigName, attribute );
+
     caf::PdmUiSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
     if ( myAttr && m_case )
     {
@@ -143,9 +145,9 @@ void RimGridCaseSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 
     if ( changedField == &m_case || changedField == &m_sliceDirection || changedField == &m_oneBasedSliceIndex )
     {
-        clearNativeGridData();
-        updateSurfaceDataFromGridCase();
-        updateUserDescription();
+        clearCachedNativeData();
+        updateSurfaceData();
+        // updateUserDescription();
 
         RimSurfaceCollection* surfColl;
         this->firstAncestorOrThisOfTypeAsserted( surfColl );
@@ -158,7 +160,7 @@ void RimGridCaseSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 void RimGridCaseSurface::extractDataFromGrid()
 {
-    clearNativeGridData();
+    clearCachedNativeData();
 
     if ( m_sliceDirection() == RiaDefines::GridCaseAxis::UNDEFINED_AXIS ) return;
 
@@ -201,8 +203,9 @@ void RimGridCaseSurface::extractDataFromGrid()
                 }
             }
 
-            std::vector<unsigned>   tringleIndices;
-            std::vector<cvf::Vec3d> vertices;
+            std::vector<unsigned>                      tringleIndices;
+            std::vector<cvf::Vec3d>                    vertices;
+            std::vector<std::pair<unsigned, unsigned>> structGridVertexIndices;
 
             for ( size_t i = minI; i < maxI; i++ )
             {
@@ -210,6 +213,21 @@ void RimGridCaseSurface::extractDataFromGrid()
                 {
                     for ( size_t k = minK; k < maxK; k++ )
                     {
+                        std::pair<unsigned, unsigned> quadIJIndices;
+
+                        switch ( faceType )
+                        {
+                            case cvf::StructGridInterface::NEG_I:
+                                quadIJIndices = std::make_pair( j, k );
+                                break;
+                            case cvf::StructGridInterface::NEG_J:
+                                quadIJIndices = std::make_pair( i, k );
+                                break;
+                            case cvf::StructGridInterface::NEG_K:
+                                quadIJIndices = std::make_pair( i, j );
+                                break;
+                        }
+
                         size_t cellIndex = grid->cellIndexFromIJK( i, j, k );
 
                         if ( grid->cell( cellIndex ).isInvalid() ) continue;
@@ -224,6 +242,12 @@ void RimGridCaseSurface::extractDataFromGrid()
 
                         for ( int n = 0; n < 4; n++ )
                         {
+                            auto localIndexPair = getStructGridIndex( faceType, faceConn[n] );
+
+                            structGridVertexIndices.push_back(
+                                std::make_pair( quadIJIndices.first + localIndexPair.first,
+                                                quadIJIndices.second + localIndexPair.second ) );
+
                             vertices.push_back( cornerVerts[faceConn[n]] );
                         }
 
@@ -238,8 +262,9 @@ void RimGridCaseSurface::extractDataFromGrid()
                 }
             }
 
-            m_vertices       = vertices;
-            m_tringleIndices = tringleIndices;
+            m_vertices          = vertices;
+            m_tringleIndices    = tringleIndices;
+            m_structGridIndices = structGridVertexIndices;
         }
     }
 }
@@ -247,54 +272,48 @@ void RimGridCaseSurface::extractDataFromGrid()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCaseSurface::clearNativeGridData()
+void RimGridCaseSurface::clearCachedNativeData()
 {
     m_vertices.clear();
     m_tringleIndices.clear();
+    m_structGridIndices.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Return local column and row number for structured grid based on a given cell face.
+/// Argument faceType may be superfluous depending on winding and particular NEG_I face may
+/// need particular handling, see StructGridInterface::cellFaceVertexIndices().
+//
+//     7---------6
+//    /|        /|     |k
+//   / |       / |     | /j
+//  4---------5  |     |/
+//  |  3------|--2     *---i
+//  | /       | /
+//  |/        |/
+//  0---------1
 //--------------------------------------------------------------------------------------------------
-void RimGridCaseSurface::updateUserDescription()
+std::pair<cvf::uint, cvf::uint> RimGridCaseSurface::getStructGridIndex( cvf::StructGridInterface::FaceType faceType,
+                                                                        cvf::ubyte localVertexIndex )
 {
-    QString name;
+    std::pair<unsigned, unsigned> localIndexPair;
 
-    auto dirValue = m_sliceDirection().value();
-    switch ( dirValue )
-    {
-        case RiaDefines::GridCaseAxis::AXIS_I:
-            name = "Surface I : ";
-            break;
-        case RiaDefines::GridCaseAxis::AXIS_J:
-            name = "Surface J : ";
-            break;
-        case RiaDefines::GridCaseAxis::AXIS_K:
-            name = "Surface K : ";
-            break;
-        case RiaDefines::GridCaseAxis::UNDEFINED_AXIS:
-        default:
-            name = "Surface  ";
-            break;
-    }
+    CVF_TIGHT_ASSERT( localVertexIndex <= 3 );
 
-    name += QString::number( m_oneBasedSliceIndex );
+    if ( localVertexIndex == 0 ) localIndexPair = std::make_pair( 0, 0 );
+    if ( localVertexIndex == 1 ) localIndexPair = std::make_pair( 1, 0 );
+    if ( localVertexIndex == 2 ) localIndexPair = std::make_pair( 1, 1 );
+    if ( localVertexIndex == 3 ) localIndexPair = std::make_pair( 0, 1 );
 
-    const double epsilon = 1.0e-3;
-    if ( std::fabs( depthOffset() ) > epsilon )
-    {
-        name += ", Offset : " + QString::number( depthOffset() );
-    }
-
-    setUserDescription( name );
+    return localIndexPair;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Returns false for fatal failure
 //--------------------------------------------------------------------------------------------------
-bool RimGridCaseSurface::updateSurfaceDataFromGridCase()
+bool RimGridCaseSurface::updateSurfaceData()
 {
-    if ( m_vertices.empty() || m_tringleIndices.empty() )
+    if ( m_vertices.empty() || m_tringleIndices.empty() || m_structGridIndices.empty() )
     {
         extractDataFromGrid();
     }
@@ -340,4 +359,78 @@ bool RimGridCaseSurface::updateSurfaceDataFromGridCase()
     setSurfaceData( surfaceData );
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGridCaseSurface::exportStructSurfaceFromGridCase( std::vector<cvf::Vec3d>*            vertices,
+                                                          std::vector<std::pair<uint, uint>>* structGridVertexIndices )
+{
+    if ( m_vertices.empty() || m_tringleIndices.empty() || m_structGridIndices.empty() )
+    {
+        extractDataFromGrid();
+    }
+
+    if ( m_vertices.empty() ) return false;
+
+    *vertices                = m_vertices;
+    *structGridVertexIndices = m_structGridIndices;
+
+    if ( !vertices->empty() )
+    {
+        // Permute z-value to avoid numerical issues when surface intersects exactly at cell face
+
+        double delta = 1.0e-5;
+
+        cvf::Vec3d offset = cvf::Vec3d::ZERO;
+
+        if ( m_sliceDirection == RiaDefines::GridCaseAxis::AXIS_I )
+        {
+            offset.x() += delta;
+        }
+        else if ( m_sliceDirection == RiaDefines::GridCaseAxis::AXIS_J )
+        {
+            offset.y() += delta;
+        }
+        else if ( m_sliceDirection == RiaDefines::GridCaseAxis::AXIS_K )
+        {
+            offset.z() += delta;
+        }
+
+        // Include the potential depth offset in the base class
+        offset.z() += depthOffset();
+
+        RimSurface::applyDepthOffset( offset, vertices );
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Return the name to show in the tree selector, including the slice index
+//--------------------------------------------------------------------------------------------------
+QString RimGridCaseSurface::fullName() const
+{
+    QString retval = RimSurface::fullName();
+
+    auto dirValue = m_sliceDirection().value();
+    switch ( dirValue )
+    {
+        case RiaDefines::GridCaseAxis::AXIS_I:
+            retval += " - I:";
+            break;
+        case RiaDefines::GridCaseAxis::AXIS_J:
+            retval += " - J:";
+            break;
+        case RiaDefines::GridCaseAxis::AXIS_K:
+            retval += " - K:";
+            break;
+        case RiaDefines::GridCaseAxis::UNDEFINED_AXIS:
+        default:
+            break;
+    }
+
+    retval += QString::number( m_oneBasedSliceIndex );
+    return retval;
 }

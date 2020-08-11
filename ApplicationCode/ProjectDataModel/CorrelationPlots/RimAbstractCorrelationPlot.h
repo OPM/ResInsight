@@ -22,10 +22,13 @@
 
 #include "RimPlot.h"
 #include "RimSummaryCaseCollection.h"
+#include "RimTimeStepFilter.h"
 
 #include "cafPdmPtrField.h"
 
 #include <QString>
+
+#include <ctime>
 
 class RiaSummaryCurveDefinition;
 class RiaSummaryCurveDefinitionAnalyser;
@@ -37,16 +40,21 @@ class RimAbstractCorrelationPlot : public RimPlot
     CAF_PDM_HEADER_INIT;
 
 public:
+    using TimeStepFilterEnum = caf::AppEnum<RimTimeStepFilter::TimeStepFilterTypeEnum>;
+
+public:
     RimAbstractCorrelationPlot();
     ~RimAbstractCorrelationPlot() override;
 
 public:
     std::vector<RiaSummaryCurveDefinition> curveDefinitions() const;
     void setCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions );
+    void setTimeStep( std::time_t timeStep );
     std::set<RimSummaryCaseCollection*> ensembles();
     RiuQwtPlotWidget*                   viewer() override;
     void                                detachAllCurves() override;
     QDateTime                           timeStep() const;
+    QString                             timeStepString() const;
 
     int labelFontSize() const;
     int axisTitleFontSize() const;
@@ -73,6 +81,7 @@ protected:
 
     std::set<RifEclipseSummaryAddress> addresses();
     std::set<EnsembleParameter>        ensembleParameters();
+    std::set<EnsembleParameter>        variationSortedEnsembleParameters();
     EnsembleParameter                  ensembleParameter( const QString& ensembleParameterName );
 
     // RimViewWindow overrides
@@ -104,7 +113,7 @@ protected:
 
     static time_t timeDiff( time_t lhs, time_t rhs );
 
-    QString selectedVarsText() const;
+    QString selectedVarsText();
 
 protected:
     std::unique_ptr<RiaSummaryCurveDefinitionAnalyser> m_analyserOfSelectedCurveDefs;
@@ -115,9 +124,10 @@ protected:
     // Fields
     caf::PdmChildArrayField<RimAnalysisPlotDataEntry*> m_analysisPlotDataSelection;
 
-    caf::PdmField<QString>   m_selectedVarsUiField;
-    caf::PdmField<bool>      m_pushButtonSelectSummaryAddress;
-    caf::PdmField<QDateTime> m_timeStep;
+    caf::PdmField<QString>            m_selectedVarsUiField;
+    caf::PdmField<bool>               m_pushButtonSelectSummaryAddress;
+    caf::PdmField<TimeStepFilterEnum> m_timeStepFilter;
+    caf::PdmField<QDateTime>          m_timeStep;
 
     caf::PdmField<bool>    m_showPlotTitle;
     caf::PdmField<bool>    m_useAutoPlotTitle;

@@ -160,7 +160,11 @@ cvf::Color3ub ColorTable::fromQColor( const QColor& color )
 cvf::Color3ubArray ColorTable::interpolateColorArray( const cvf::Color3ubArray& colorArray, size_t targetColorCount )
 {
     size_t inputColorCount = colorArray.size();
+
     CVF_ASSERT( inputColorCount > 1 );
+
+    if ( targetColorCount <= inputColorCount ) return colorArray;
+
     CVF_ASSERT( targetColorCount > 1 );
 
     cvf::Color3ubArray colors;
@@ -197,6 +201,15 @@ cvf::Color3ubArray ColorTable::interpolateColorArray( const cvf::Color3ubArray& 
     colors.add( colorArray[colorArray.size() - 1] );
 
     return colors;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+ColorTable ColorTable::interpolated( size_t targetColorCount )
+{
+    auto colorArray = interpolateColorArray( color3ubArray(), targetColorCount );
+    return ColorTable( colorArray );
 }
 
 } // namespace caf

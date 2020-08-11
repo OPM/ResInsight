@@ -36,9 +36,11 @@
 
 #pragma once
 
+#include "cafIconProvider.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiTreeEditorHandle.h"
 #include "cafPdmUiTreeViewQModel.h"
+#include "cafSignal.h"
 
 #include <QAbstractItemModel>
 #include <QColor>
@@ -67,35 +69,60 @@ class PdmUiTreeViewWidget;
 class PdmUiTreeViewItemAttribute : public PdmUiEditorAttribute
 {
 public:
-    enum Position
+    struct Tag : public SignalEmitter
     {
-        IN_FRONT,
-        AT_END
+        enum Position
+        {
+            IN_FRONT,
+            AT_END
+        };
+        Tag()
+            : text()
+            , position( AT_END )
+            , bgColor( Qt::red )
+            , fgColor( Qt::white )
+            , selectedOnly( false )
+            , clicked( this )
+        {
+        }
+        QString      text;
+        IconProvider icon;
+        Position     position;
+        QColor       bgColor;
+        QColor       fgColor;
+        bool         selectedOnly;
+
+        caf::Signal<size_t> clicked;
     };
-    PdmUiTreeViewItemAttribute()
-        : tag()
-        , position( AT_END )
-        , bgColor( Qt::red )
-        , fgColor( Qt::white )
-    {
-    }
-    QString  tag;
-    Position position;
-    QColor   bgColor;
-    QColor   fgColor;
+
+    std::vector<Tag> tags;
 };
 
 class PdmUiTreeViewItemDelegate : public QStyledItemDelegate
 {
 public:
-    PdmUiTreeViewItemDelegate( QObject* parent, PdmUiTreeViewQModel* model );
-    void clearAttributes();
-    void addAttribute( QModelIndex index, const PdmUiTreeViewItemAttribute& attribute );
+    PdmUiTreeViewItemDelegate( PdmUiTreeViewEditor* parent, PdmUiTreeViewQModel* model );
+    void clearTags( QModelIndex index );
+    void clearAllTags();
+    void addTag( QModelIndex index, const PdmUiTreeViewItemAttribute::Tag& tag );
     void paint( QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index ) const override;
+    std::vector<PdmUiTreeViewItemAttribute::Tag> tags( QModelIndex index ) const;
+
+protected:
+    bool  editorEvent( QEvent*                     event,
+                       QAbstractItemModel*         model,
+                       const QStyleOptionViewItem& option,
+                       const QModelIndex&          itemIndex ) override;
+    bool  tagClicked( const QPoint&                    clickPos,
+                      const QRect&                     itemRect,
+                      const QModelIndex&               itemIndex,
+                      PdmUiTreeViewItemAttribute::Tag* tag ) const;
+    QRect tagRect( const QRect& itemRect, QModelIndex itemIndex, size_t tagIndex ) const;
 
 private:
-    PdmUiTreeViewQModel*                              m_model;
-    std::map<QModelIndex, PdmUiTreeViewItemAttribute> m_attributes;
+    PdmUiTreeViewEditor*                                                m_treeView;
+    PdmUiTreeViewQModel*                                                m_model;
+    std::map<QModelIndex, std::vector<PdmUiTreeViewItemAttribute::Tag>> m_tags;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -129,8 +156,9 @@ public:
     void enableAppendOfClassNameToUiItemText( bool enable );
     bool isAppendOfClassNameToUiItemTextEnabled();
 
-    QTreeView* treeView();
-    bool       isTreeItemEditWidgetActive() const;
+    QTreeView*       treeView();
+    const QTreeView* treeView() const;
+    bool             isTreeItemEditWidgetActive() const;
 
     void selectAsCurrentItem( const PdmUiItem* uiItem );
     void selectItems( std::vector<const PdmUiItem*> uiItems );
@@ -151,7 +179,6 @@ protected:
     void configureAndUpdateUi( const QString& uiConfigName ) override;
 
     void updateMySubTree( PdmUiItem* uiItem ) override;
-
     void updateContextMenuSignals();
 
 private slots:

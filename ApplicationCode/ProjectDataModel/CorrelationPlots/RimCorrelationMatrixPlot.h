@@ -33,12 +33,23 @@ class RiuGroupedBarChartBuilder;
 //==================================================================================================
 class RimCorrelationMatrixPlot : public RimAbstractCorrelationPlot
 {
-    Q_OBJECT;
     CAF_PDM_HEADER_INIT;
+
+public:
+    caf::Signal<std::pair<QString, RiaSummaryCurveDefinition>> matrixCellSelected;
 
 public:
     using CorrelationFactor     = RimCorrelationPlot::CorrelationFactor;
     using CorrelationFactorEnum = RimCorrelationPlot::CorrelationFactorEnum;
+
+    enum class Sorting
+    {
+        NO_SORTING,
+        ROWS,
+        COLUMNS,
+        BOTH,
+    };
+    using SortingEnum = caf::AppEnum<Sorting>;
 
 public:
     RimCorrelationMatrixPlot();
@@ -48,9 +59,9 @@ public:
     bool                    showAbsoluteValues() const;
     bool                    sortByAbsoluteValues() const;
     RimRegularLegendConfig* legendConfig();
-
-signals:
-    void matrixCellSelected( const EnsembleParameter&, const RiaSummaryCurveDefinition& );
+    void                    selectAllParameters();
+    bool                    showTopNCorrelations() const;
+    int                     topNFilterCount() const;
 
 private:
     // Overridden PDM methods
@@ -76,10 +87,12 @@ private:
 private:
     caf::PdmField<CorrelationFactorEnum> m_correlationFactor;
     caf::PdmField<bool>                  m_showAbsoluteValues;
-    caf::PdmField<bool>                  m_sortByValues;
+    caf::PdmField<SortingEnum>           m_sortByValues;
     caf::PdmField<bool>                  m_sortByAbsoluteValues;
+    caf::PdmField<bool>                  m_excludeParametersWithoutVariation;
     caf::PdmField<bool>                  m_showOnlyTopNCorrelations;
-    caf::PdmField<size_t>                m_topNFilterCount;
+    caf::PdmField<int>                   m_topNFilterCount;
+    caf::PdmField<std::vector<QString>>  m_selectedParametersList;
 
     caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
 

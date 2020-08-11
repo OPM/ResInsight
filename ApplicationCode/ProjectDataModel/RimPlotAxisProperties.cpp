@@ -56,7 +56,9 @@ CAF_PDM_SOURCE_INIT(RimPlotAxisProperties, "SummaryYAxisProperties");
 ///
 //--------------------------------------------------------------------------------------------------
 RimPlotAxisProperties::RimPlotAxisProperties()
-    : m_enableTitleTextSettings(true)
+    : settingsChanged(this)
+    , logarithmicChanged(this)
+    , m_enableTitleTextSettings(true)
     , m_isRangeSettingsEnabled(true)
 {
     CAF_PDM_InitObject("Axis Properties", ":/LeftAxis16x16.png", "", "");
@@ -144,6 +146,10 @@ QList<caf::PdmOptionItemInfo>
 
             options.push_back( caf::PdmOptionItemInfo( uiText, value ) );
         }
+    }
+    else if ( fieldNeedingOptions == &m_titleFontSize || fieldNeedingOptions == &m_valuesFontSize )
+    {
+        options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultPlotFontSize() );
     }
 
     return options;
@@ -395,18 +401,13 @@ void RimPlotAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* changed
         m_isAutoZoom = false;
     }
 
-    RimPlot* parentPlot = nullptr;
-    this->firstAncestorOrThisOfType( parentPlot );
-    if ( parentPlot )
+    if ( changedField == &isLogarithmicScaleEnabled )
     {
-        if ( changedField == &isLogarithmicScaleEnabled )
-        {
-            parentPlot->loadDataAndUpdate();
-        }
-        else
-        {
-            parentPlot->updateAxes();
-        }
+        logarithmicChanged.send( isLogarithmicScaleEnabled() );
+    }
+    else
+    {
+        settingsChanged.send();
     }
 }
 

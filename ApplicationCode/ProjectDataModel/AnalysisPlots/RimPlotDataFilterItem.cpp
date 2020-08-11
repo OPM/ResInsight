@@ -31,6 +31,8 @@
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 
+#include <limits>
+
 namespace caf
 {
 template <>
@@ -40,7 +42,7 @@ void caf::AppEnum<RimPlotDataFilterItem::FilterTarget>::setUp()
     addItem( RimPlotDataFilterItem::SUMMARY_CASE, "SUMMARY_CASE", "summary cases" );
     addItem( RimPlotDataFilterItem::ENSEMBLE_CASE, "ENSEMBLE_CASE", "ensemble cases" );
 
-    setDefault( RimPlotDataFilterItem::SUMMARY_CASE );
+    setDefault( RimPlotDataFilterItem::ENSEMBLE_CASE );
 }
 
 template <>
@@ -104,9 +106,9 @@ RimPlotDataFilterItem::RimPlotDataFilterItem()
     CAF_PDM_InitField( &m_topBottomN, "MinTopN", 20, "N", "", "", "" );
     m_topBottomN.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitField( &m_max, "Max", 0.0, "Max", "", "", "" );
+    CAF_PDM_InitField( &m_max, "Max", m_upperLimit, "Max", "", "", "" );
     m_max.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
-    CAF_PDM_InitField( &m_min, "Min", 0.0, "Min", "", "", "" );
+    CAF_PDM_InitField( &m_min, "Min", m_lowerLimit, "Min", "", "", "" );
     m_min.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleParameterValueCategories, "EnsembleParameterValueCategories", "one of", "", "", "" );
@@ -255,6 +257,14 @@ void RimPlotDataFilterItem::fieldChangedByUi( const caf::PdmFieldHandle* changed
         this->updateMaxMinAndDefaultValues( false );
         parentPlot->onFiltersChanged();
     }
+    else if ( changedField == &m_isActive )
+    {
+        parentPlot->onFiltersChanged();
+    }
+    else if ( changedField == &m_min || changedField == &m_max )
+    {
+        parentPlot->onFiltersChanged();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -294,9 +304,6 @@ QList<caf::PdmOptionItemInfo>
             {
                 options.push_back( caf::PdmOptionItemInfo( ensParam.uiName(), ensParam.name ) );
             }
-
-            options.push_front( caf::PdmOptionItemInfo( RiaDefines::undefinedResultName(),
-                                                        QVariant::fromValue( RifEclipseSummaryAddress() ) ) );
         }
     }
     else if ( fieldNeedingOptions == &m_ensembleParameterValueCategories )
@@ -399,8 +406,9 @@ void RimPlotDataFilterItem::defineEditorAttribute( const caf::PdmFieldHandle* fi
             return;
         }
 
-        myAttr->m_minimum = m_lowerLimit;
-        myAttr->m_maximum = m_upperLimit;
+        myAttr->m_minimum                       = m_lowerLimit;
+        myAttr->m_maximum                       = m_upperLimit;
+        myAttr->m_delaySliderUpdateUntilRelease = true;
     }
     else if ( field == &m_topBottomN )
     {

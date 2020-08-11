@@ -18,6 +18,8 @@
 
 #include "RimPlotCurve.h"
 
+#include "RiaColorTables.h"
+#include "RiaColorTools.h"
 #include "RiaCurveDataTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
@@ -120,6 +122,10 @@ void RimPlotCurve::FillStyle::setUp()
 ///
 //--------------------------------------------------------------------------------------------------
 RimPlotCurve::RimPlotCurve()
+    : appearanceChanged( this )
+    , visibilityChanged( this )
+    , dataChanged( this )
+    , nameChanged( this )
 {
     CAF_PDM_InitObject( "Curve", ":/WellLogCurve16x16.png", "", "" );
 
@@ -203,6 +209,7 @@ void RimPlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, co
     {
         this->updateCurveVisibility();
         if ( m_showCurve() ) loadDataAndUpdate( false );
+        visibilityChanged.send( m_showCurve() );
     }
     else if ( changedField == &m_curveName )
     {
@@ -231,6 +238,8 @@ void RimPlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, co
             m_curveThickness.uiCapability()->setUiReadOnly( m_lineStyle() == RiuQwtPlotCurve::STYLE_NONE );
             m_curveInterpolation.uiCapability()->setUiReadOnly( m_lineStyle() == RiuQwtPlotCurve::STYLE_NONE );
         }
+
+        appearanceChanged.send();
     }
     else if ( changedField == &m_isUsingAutoName )
     {
@@ -240,6 +249,7 @@ void RimPlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, co
         }
 
         updateCurveNameAndUpdatePlotLegendAndTitle();
+        nameChanged.send( curveName() );
     }
     else if ( changedField == &m_showLegend )
     {
@@ -249,6 +259,7 @@ void RimPlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, co
     {
         updateCurveAppearance();
     }
+
     RiuPlotMainWindowTools::refreshToolbars();
     if ( m_parentQwtPlot ) m_parentQwtPlot->replot();
 }
@@ -503,6 +514,7 @@ void RimPlotCurve::updatePlotTitle()
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateLegendsInPlot()
 {
+    nameChanged.send( curveName() );
     if ( m_parentQwtPlot != nullptr )
     {
         m_parentQwtPlot->updateLegend();
@@ -770,7 +782,7 @@ void RimPlotCurve::updateCurveAppearance()
     if ( m_qwtPlotCurve )
     {
         QColor fillColor( m_fillColor.value().rByte(), m_fillColor.value().gByte(), m_fillColor.value().bByte() );
-        fillColor.setAlpha( 130 );
+        fillColor = RiaColorTools::blendQColors( fillColor, QColor( Qt::white ), 3, 1 );
         QBrush fillBrush( fillColor, m_fillStyle() );
         m_qwtPlotCurve->setAppearance( m_lineStyle(), m_curveInterpolation(), m_curveThickness(), curveColor, fillBrush );
         m_qwtPlotCurve->setSymbol( symbol );
@@ -834,6 +846,10 @@ QList<caf::PdmOptionItemInfo> RimPlotCurve::calculateValueOptions( const caf::Pd
 void RimPlotCurve::loadDataAndUpdate( bool updateParentPlot )
 {
     this->onLoadDataAndUpdate( updateParentPlot );
+    if ( updateParentPlot )
+    {
+        dataChanged.send();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -981,6 +997,30 @@ void RimPlotCurve::resetAppearance()
     setLineStyle( RiuQwtPlotCurve::STYLE_SOLID );
     setSymbol( RiuQwtSymbol::SYMBOL_NONE );
     setSymbolSkipDistance( 10 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Qt::BrushStyle RimPlotCurve::fillStyle() const
+{
+    return m_fillStyle();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setFillStyle( Qt::BrushStyle brushStyle )
+{
+    m_fillStyle = brushStyle;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setFillColor( const cvf::Color3f& fillColor )
+{
+    m_fillColor = fillColor;
 }
 
 //--------------------------------------------------------------------------------------------------

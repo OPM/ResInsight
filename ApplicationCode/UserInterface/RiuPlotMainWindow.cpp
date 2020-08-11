@@ -759,11 +759,14 @@ void RiuPlotMainWindow::slotSubWindowActivated( QMdiSubWindow* subWindow )
             caf::PdmObject* pdmObject = dynamic_cast<caf::PdmObject*>( uiItem );
             if ( pdmObject )
             {
-                RimViewWindow* owningView = nullptr;
-                pdmObject->firstAncestorOrThisOfType( owningView );
-                if ( owningView && owningView == activatedView )
+                std::vector<RimViewWindow*> ancestralViews;
+                pdmObject->allAncestorsOrThisOfType( ancestralViews );
+                for ( auto ancestralView : ancestralViews )
                 {
-                    childSelected = true;
+                    if ( ancestralView == activatedView )
+                    {
+                        childSelected = true;
+                    }
                 }
             }
         }

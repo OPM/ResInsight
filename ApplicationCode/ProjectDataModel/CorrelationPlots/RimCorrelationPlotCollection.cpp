@@ -57,6 +57,25 @@ RimCorrelationPlot* RimCorrelationPlotCollection::createCorrelationPlot( bool de
     plot->setAsPlotMdiWindow();
 
     if ( defaultToFirstEnsembleFopt ) applyFirstEnsembleFieldAddressesToPlot( plot, "FOPT" );
+    plot->selectAllParameters();
+
+    m_correlationPlots.push_back( plot );
+
+    return plot;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimCorrelationPlot* RimCorrelationPlotCollection::createCorrelationPlot( RimSummaryCaseCollection* ensemble,
+                                                                         const QString&            quantityName,
+                                                                         std::time_t               timeStep )
+{
+    RimCorrelationPlot* plot = new RimCorrelationPlot();
+    plot->setAsPlotMdiWindow();
+
+    applyEnsembleFieldAndTimeStepToPlot( plot, ensemble, quantityName.toStdString(), timeStep );
+    plot->selectAllParameters();
 
     m_correlationPlots.push_back( plot );
 
@@ -71,6 +90,23 @@ RimCorrelationMatrixPlot* RimCorrelationPlotCollection::createCorrelationMatrixP
     RimCorrelationMatrixPlot* plot = new RimCorrelationMatrixPlot();
     plot->setAsPlotMdiWindow();
     if ( defaultToFirstEnsembleField ) applyFirstEnsembleFieldAddressesToPlot( plot );
+    plot->selectAllParameters();
+
+    m_correlationPlots.push_back( plot );
+
+    return plot;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimCorrelationMatrixPlot* RimCorrelationPlotCollection::createCorrelationMatrixPlot( RimSummaryCaseCollection* ensemble,
+                                                                                     std::time_t timeStep )
+{
+    RimCorrelationMatrixPlot* plot = new RimCorrelationMatrixPlot();
+    plot->setAsPlotMdiWindow();
+    applyEnsembleFieldAndTimeStepToPlot( plot, ensemble, "", timeStep );
+    plot->selectAllParameters();
 
     m_correlationPlots.push_back( plot );
 
@@ -93,13 +129,47 @@ RimParameterResultCrossPlot* RimCorrelationPlotCollection::createParameterResult
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimParameterResultCrossPlot* RimCorrelationPlotCollection::createParameterResultCrossPlot( RimSummaryCaseCollection* ensemble,
+                                                                                           const QString& paramName,
+                                                                                           const QString& quantityName,
+                                                                                           std::time_t    timeStep )
+{
+    RimParameterResultCrossPlot* plot = new RimParameterResultCrossPlot;
+    plot->setAsPlotMdiWindow();
+    applyEnsembleFieldAndTimeStepToPlot( plot, ensemble, quantityName.toStdString(), timeStep );
+    plot->setEnsembleParameter( paramName );
+
+    m_correlationPlots.push_back( plot );
+    return plot;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimCorrelationReportPlot*
     RimCorrelationPlotCollection::createCorrelationReportPlot( bool defaultToFirstEnsembleFopt /*= true */ )
 {
     RimCorrelationReportPlot* report = new RimCorrelationReportPlot;
     report->setAsPlotMdiWindow();
     if ( defaultToFirstEnsembleFopt ) applyFirstEnsembleFieldAddressesToReport( report, "FOPT" );
+    report->matrixPlot()->selectAllParameters();
+    report->correlationPlot()->selectAllParameters();
+    m_correlationReports.push_back( report );
+    return report;
+}
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimCorrelationReportPlot* RimCorrelationPlotCollection::createCorrelationReportPlot( RimSummaryCaseCollection* ensemble,
+                                                                                     const QString& quantityName,
+                                                                                     std::time_t    timeStep )
+{
+    RimCorrelationReportPlot* report = new RimCorrelationReportPlot;
+    report->setAsPlotMdiWindow();
+    applyEnsembleFieldAndTimeStepToReport( report, ensemble, quantityName.toStdString(), timeStep );
+    report->matrixPlot()->selectAllParameters();
+    report->correlationPlot()->selectAllParameters();
     m_correlationReports.push_back( report );
     return report;
 }
@@ -172,6 +242,33 @@ void RimCorrelationPlotCollection::applyFirstEnsembleFieldAddressesToPlot( RimAb
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimCorrelationPlotCollection::applyEnsembleFieldAndTimeStepToPlot( RimAbstractCorrelationPlot* plot,
+                                                                        RimSummaryCaseCollection*   ensemble,
+                                                                        const std::string&          quantityName,
+                                                                        std::time_t                 timeStep )
+{
+    if ( ensemble )
+    {
+        std::set<RifEclipseSummaryAddress>     allAddresses = ensemble->ensembleSummaryAddresses();
+        std::vector<RiaSummaryCurveDefinition> curveDefs;
+        for ( auto address : allAddresses )
+        {
+            if ( address.category() == RifEclipseSummaryAddress::SUMMARY_FIELD )
+            {
+                if ( quantityName.empty() || quantityName == address.quantityName() )
+                {
+                    curveDefs.push_back( RiaSummaryCurveDefinition( nullptr, address, ensemble ) );
+                }
+            }
+        }
+        plot->setCurveDefinitions( curveDefs );
+        plot->setTimeStep( timeStep );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimCorrelationPlotCollection::applyFirstEnsembleFieldAddressesToReport( RimCorrelationReportPlot* plot,
                                                                              const std::string& quantityName /*= "" */ )
 {
@@ -197,6 +294,40 @@ void RimCorrelationPlotCollection::applyFirstEnsembleFieldAddressesToReport( Rim
         plot->matrixPlot()->setCurveDefinitions( curveDefsMatrix );
         plot->correlationPlot()->setCurveDefinitions( curveDefsTornadoAndCrossPlot );
         plot->crossPlot()->setCurveDefinitions( curveDefsTornadoAndCrossPlot );
-        plot->crossPlot()->setEnsembleParameter( ensembles.front()->alphabeticEnsembleParameters().front().name );
+        plot->crossPlot()->setEnsembleParameter( ensembles.front()->variationSortedEnsembleParameters().front().name );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationPlotCollection::applyEnsembleFieldAndTimeStepToReport( RimCorrelationReportPlot* plot,
+                                                                          RimSummaryCaseCollection* ensemble,
+                                                                          const std::string&        quantityName,
+                                                                          std::time_t               timeStep )
+{
+    if ( ensemble )
+    {
+        std::set<RifEclipseSummaryAddress>     allAddresses = ensemble->ensembleSummaryAddresses();
+        std::vector<RiaSummaryCurveDefinition> curveDefsMatrix;
+        std::vector<RiaSummaryCurveDefinition> curveDefsTornadoAndCrossPlot;
+        for ( auto address : allAddresses )
+        {
+            if ( address.category() == RifEclipseSummaryAddress::SUMMARY_FIELD )
+            {
+                curveDefsMatrix.push_back( RiaSummaryCurveDefinition( nullptr, address, ensemble ) );
+                if ( quantityName.empty() || quantityName == address.quantityName() )
+                {
+                    curveDefsTornadoAndCrossPlot.push_back( RiaSummaryCurveDefinition( nullptr, address, ensemble ) );
+                }
+            }
+        }
+        plot->matrixPlot()->setCurveDefinitions( curveDefsMatrix );
+        plot->matrixPlot()->setTimeStep( timeStep );
+        plot->correlationPlot()->setCurveDefinitions( curveDefsTornadoAndCrossPlot );
+        plot->correlationPlot()->setTimeStep( timeStep );
+        plot->crossPlot()->setCurveDefinitions( curveDefsTornadoAndCrossPlot );
+        plot->crossPlot()->setTimeStep( timeStep );
+        plot->crossPlot()->setEnsembleParameter( ensemble->variationSortedEnsembleParameters().front().name );
     }
 }

@@ -18,6 +18,7 @@
 #include "RimCorrelationReportPlot.h"
 
 #include "RiaPreferences.h"
+#include "RiaQDateTimeTools.h"
 #include "RiaSummaryCurveDefinition.h"
 
 #include "RimCorrelationMatrixPlot.h"
@@ -87,13 +88,8 @@ RimCorrelationReportPlot::RimCorrelationReportPlot()
 
     this->uiCapability()->setUiTreeChildrenHidden( true );
 
-    this->connect( m_correlationMatrixPlot(),
-                   SIGNAL( matrixCellSelected( const EnsembleParameter&, const RiaSummaryCurveDefinition& ) ),
-                   SLOT( onDataSelection( const EnsembleParameter&, const RiaSummaryCurveDefinition& ) ) );
-
-    this->connect( m_correlationPlot(),
-                   SIGNAL( tornadoItemSelected( const EnsembleParameter&, const RiaSummaryCurveDefinition& ) ),
-                   SLOT( onDataSelection( const EnsembleParameter&, const RiaSummaryCurveDefinition& ) ) );
+    m_correlationMatrixPlot->matrixCellSelected.connect( this, &RimCorrelationReportPlot::onDataSelection );
+    m_correlationPlot->tornadoItemSelected.connect( this, &RimCorrelationReportPlot::onDataSelection );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -219,12 +215,12 @@ QString RimCorrelationReportPlot::createPlotWindowTitle() const
     {
         if ( entry.ensemble() )
         {
-            ensembles.push_back( entry.ensemble()->uiName() );
+            ensembles.push_back( entry.ensemble()->name() );
         }
     }
     ensembles.removeDuplicates();
     QString ensembleNames = ensembles.join( ", " );
-    QString timeStep      = m_correlationMatrixPlot->timeStep().toString( Qt::ISODate );
+    QString timeStep      = m_correlationMatrixPlot->timeStepString();
 
     return QString( "Correlation Report for %1 at %2" ).arg( ensembleNames ).arg( timeStep );
 }
@@ -302,9 +298,14 @@ void RimCorrelationReportPlot::onLoadDataAndUpdate()
     updateMdiWindowVisibility();
     if ( m_showWindow )
     {
-        // auto curveDefs = m_correlationMatrixPlot->curveDefinitions();
-        // m_correlationPlot->setCurveDefinitions( curveDefs );
-        // m_parameterResultCrossPlot->setCurveDefinitions( curveDefs );
+        auto timeStep                 = m_correlationMatrixPlot->timeStep().toTime_t();
+        bool showOnlyTopNCorrelations = m_correlationMatrixPlot->showTopNCorrelations();
+        int  topNFilterCount          = m_correlationMatrixPlot->topNFilterCount();
+
+        m_correlationPlot->setTimeStep( timeStep );
+        m_correlationPlot->setShowOnlyTopNCorrelations( showOnlyTopNCorrelations );
+        m_correlationPlot->setTopNFilterCount( topNFilterCount );
+        m_parameterResultCrossPlot->setTimeStep( timeStep );
 
         m_correlationMatrixPlot->setLabelFontSize( m_labelFontSize() );
         m_correlationMatrixPlot->setAxisTitleFontSize( m_axisTitleFontSize() );
@@ -326,6 +327,7 @@ void RimCorrelationReportPlot::onLoadDataAndUpdate()
         m_correlationMatrixPlot->loadDataAndUpdate();
         m_correlationPlot->loadDataAndUpdate();
         m_parameterResultCrossPlot->loadDataAndUpdate();
+        m_viewer->setPlotTitle( m_plotWindowTitle() );
     }
     updateLayout();
 }
@@ -395,15 +397,16 @@ QList<caf::PdmOptionItemInfo>
     return options;
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimCorrelationReportPlot::onDataSelection( const EnsembleParameter& param, const RiaSummaryCurveDefinition& curveDef )
+void RimCorrelationReportPlot::onDataSelection( const caf::SignalEmitter*                     emitter,
+                                                std::pair<QString, RiaSummaryCurveDefinition> parameterAndCurveDef )
 {
+    auto paramName = parameterAndCurveDef.first;
+    auto curveDef  = parameterAndCurveDef.second;
+
     m_correlationPlot->setCurveDefinitions( {curveDef} );
     m_correlationPlot->loadDataAndUpdate();
     m_parameterResultCrossPlot->setCurveDefinitions( {curveDef} );
-    m_parameterResultCrossPlot->setEnsembleParameter( param.name );
+    m_parameterResultCrossPlot->setEnsembleParameter( paramName );
     m_parameterResultCrossPlot->loadDataAndUpdate();
     if ( m_viewer )
     {

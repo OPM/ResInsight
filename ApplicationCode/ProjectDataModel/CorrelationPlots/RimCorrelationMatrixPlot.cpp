@@ -20,6 +20,7 @@
 
 #include "RiaColorTools.h"
 #include "RiaPreferences.h"
+#include "RiaQDateTimeTools.h"
 #include "RiaStatisticsTools.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtLinearScaleEngine.h"
@@ -41,6 +42,7 @@
 
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 #include "cvfScalarMapper.h"
 
@@ -54,6 +56,19 @@
 #include <map>
 #include <set>
 
+namespace caf
+{
+template <>
+void caf::AppEnum<RimCorrelationMatrixPlot::Sorting>::setUp()
+{
+    addItem( RimCorrelationMatrixPlot::Sorting::NO_SORTING, "NO_SORTING", "No Sorting" );
+    addItem( RimCorrelationMatrixPlot::Sorting::ROWS, "SORT_ROWS", "Sort Rows" );
+    addItem( RimCorrelationMatrixPlot::Sorting::COLUMNS, "SORT_COLUMNS", "Sort Columns" );
+    addItem( RimCorrelationMatrixPlot::Sorting::BOTH, "SORT_BOTH", "Sort Both Rows/Columns" );
+    setDefault( RimCorrelationMatrixPlot::Sorting::BOTH );
+}
+} // namespace caf
+
 CAF_PDM_SOURCE_INIT( RimCorrelationMatrixPlot, "CorrelationMatrixPlot" );
 
 class CorrelationMatrixShapeItem : public QwtPlotShapeItem
@@ -65,7 +80,7 @@ public:
     }
 
 public:
-    EnsembleParameter         parameter;
+    QString                   parameter;
     RiaSummaryCurveDefinition curveDef;
 };
 
@@ -125,25 +140,37 @@ public:
     double                 m_correlationAbsSum;
 };
 
-using CorrelationMatrixColumn = CorrelationMatrixRowOrColumn<EnsembleParameter, RiaSummaryCurveDefinition>;
-using CorrelationMatrixRow    = CorrelationMatrixRowOrColumn<RiaSummaryCurveDefinition, EnsembleParameter>;
+using CorrelationMatrixColumn = CorrelationMatrixRowOrColumn<QString, RiaSummaryCurveDefinition>;
+using CorrelationMatrixRow    = CorrelationMatrixRowOrColumn<RiaSummaryCurveDefinition, QString>;
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimCorrelationMatrixPlot::RimCorrelationMatrixPlot()
     : RimAbstractCorrelationPlot()
+    , matrixCellSelected( this )
 {
     CAF_PDM_InitObject( "Correlation Plot", ":/CorrelationMatrixPlot16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_correlationFactor, "CorrelationFactor", "Correlation Factor", "", "", "" );
     m_correlationFactor.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_showAbsoluteValues, "CorrelationAbsValues", false, "Show Absolute Values", "", "", "" );
-    CAF_PDM_InitField( &m_sortByValues, "CorrelationSorting", true, "Sort Matrix by Values", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_sortByValues, "CorrelationSorting", "Sort Matrix by Values", "", "", "" );
     CAF_PDM_InitField( &m_sortByAbsoluteValues, "CorrelationAbsSorting", true, "Sort by Absolute Values", "", "", "" );
+    CAF_PDM_InitField( &m_excludeParametersWithoutVariation,
+                       "ExcludeParamsWithoutVariation",
+                       true,
+                       "Exclude Parameters Without Variation",
+                       "",
+                       "",
+                       "" );
     CAF_PDM_InitField( &m_showOnlyTopNCorrelations, "ShowOnlyTopNCorrelations", false, "Show Only Top Correlations", "", "", "" );
-    CAF_PDM_InitField( &m_topNFilterCount, "TopNFilterCount", (size_t)15, "Number rows/columns", "", "", "" );
+    CAF_PDM_InitField( &m_topNFilterCount, "TopNFilterCount", 15, "Number rows/columns", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendConfig", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedParametersList, "SelectedParameters", "Select Parameters", "", "", "" );
+    m_selectedParametersList.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_selectedParametersList.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+
     m_legendConfig = new RimRegularLegendConfig();
     m_legendConfig->setAutomaticRanges( -1.0, 1.0, -1.0, 1.0 );
     m_legendConfig->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::CORRELATION ) );
@@ -197,6 +224,38 @@ RimRegularLegendConfig* RimCorrelationMatrixPlot::legendConfig()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimCorrelationMatrixPlot::selectAllParameters()
+{
+    m_selectedParametersList.v().clear();
+    std::set<EnsembleParameter> params = variationSortedEnsembleParameters();
+    for ( auto param : params )
+    {
+        if ( !m_excludeParametersWithoutVariation() || param.variationBin > EnsembleParameter::NO_VARIATION )
+        {
+            m_selectedParametersList.v().push_back( param.name );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimCorrelationMatrixPlot::showTopNCorrelations() const
+{
+    return m_showOnlyTopNCorrelations();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimCorrelationMatrixPlot::topNFilterCount() const
+{
+    return m_topNFilterCount();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimCorrelationMatrixPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                                  const QVariant&            oldValue,
                                                  const QVariant&            newValue )
@@ -204,11 +263,16 @@ void RimCorrelationMatrixPlot::fieldChangedByUi( const caf::PdmFieldHandle* chan
     RimAbstractCorrelationPlot::fieldChangedByUi( changedField, oldValue, newValue );
     if ( changedField == &m_correlationFactor || changedField == &m_showAbsoluteValues ||
          changedField == &m_sortByValues || changedField == &m_sortByAbsoluteValues ||
-         changedField == &m_showOnlyTopNCorrelations || changedField == &m_topNFilterCount )
+         changedField == &m_showOnlyTopNCorrelations || changedField == &m_topNFilterCount ||
+         changedField == &m_excludeParametersWithoutVariation || changedField == &m_selectedParametersList )
     {
-        this->updateLegend();
-        this->loadDataAndUpdate();
-        this->updateConnectedEditors();
+        if ( changedField == &m_excludeParametersWithoutVariation )
+        {
+            selectAllParameters();
+        }
+        updateLegend();
+        loadDataAndUpdate();
+        updateConnectedEditors();
     }
 }
 
@@ -219,16 +283,21 @@ void RimCorrelationMatrixPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
 {
     caf::PdmUiGroup* correlationGroup = uiOrdering.addNewGroup( "Correlation Factor Settings" );
     correlationGroup->add( &m_correlationFactor );
+    correlationGroup->add( &m_excludeParametersWithoutVariation );
+    correlationGroup->add( &m_selectedParametersList );
     correlationGroup->add( &m_showAbsoluteValues );
     correlationGroup->add( &m_sortByValues );
-    if ( !m_showAbsoluteValues() )
+    if ( !m_showAbsoluteValues() && m_sortByValues() != Sorting::NO_SORTING )
     {
         correlationGroup->add( &m_sortByAbsoluteValues );
     }
-    correlationGroup->add( &m_showOnlyTopNCorrelations );
-    if ( m_showOnlyTopNCorrelations() )
+    if ( m_sortByValues() != Sorting::NO_SORTING )
     {
-        correlationGroup->add( &m_topNFilterCount );
+        correlationGroup->add( &m_showOnlyTopNCorrelations );
+        if ( m_showOnlyTopNCorrelations() )
+        {
+            correlationGroup->add( &m_topNFilterCount );
+        }
     }
 
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector" );
@@ -236,6 +305,7 @@ void RimCorrelationMatrixPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
 
     curveDataGroup->add( &m_selectedVarsUiField );
     curveDataGroup->add( &m_pushButtonSelectSummaryAddress, {false, 1, 0} );
+    curveDataGroup->add( &m_timeStepFilter );
     curveDataGroup->add( &m_timeStep );
 
     if ( uiConfigName != "report" )
@@ -266,6 +336,17 @@ QList<caf::PdmOptionItemInfo>
     QList<caf::PdmOptionItemInfo> options =
         RimAbstractCorrelationPlot::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
 
+    if ( fieldNeedingOptions == &m_selectedParametersList )
+    {
+        std::set<EnsembleParameter> params = variationSortedEnsembleParameters();
+        for ( auto param : params )
+        {
+            if ( !m_excludeParametersWithoutVariation() || param.variationBin > EnsembleParameter::NO_VARIATION )
+            {
+                options.push_back( caf::PdmOptionItemInfo( param.uiName(), param.name ) );
+            }
+        }
+    }
     return options;
 }
 
@@ -277,9 +358,6 @@ void RimCorrelationMatrixPlot::onLoadDataAndUpdate()
     updateMdiWindowVisibility();
 
     m_selectedVarsUiField = selectedVarsText();
-
-    m_analyserOfSelectedCurveDefs = std::unique_ptr<RiaSummaryCurveDefinitionAnalyser>(
-        new RiaSummaryCurveDefinitionAnalyser( this->curveDefinitions() ) );
 
     if ( m_plotWidget )
     {
@@ -413,27 +491,31 @@ void RimCorrelationMatrixPlot::createMatrix()
     auto curveDefs = curveDefinitions();
     if ( curveDefs.empty() ) return;
 
+    QStringList ensembleNames;
+
     std::vector<CorrelationMatrixColumn> correlationMatrixColumns;
 
-    for ( EnsembleParameter parameter : ensembleParameters() )
+    for ( QString paramName : m_selectedParametersList() )
     {
-        if ( parameter.isNumeric() && parameter.isValid() )
+        bool                                   anyValidResults = false;
+        std::vector<double>                    correlations;
+        std::vector<RiaSummaryCurveDefinition> selectedCurveDefs;
+
+        for ( auto curveDef : curveDefs )
         {
-            bool                                   anyValidResults = false;
-            std::vector<double>                    correlations;
-            std::vector<RiaSummaryCurveDefinition> selectedCurveDefs;
+            auto ensemble = curveDef.ensemble();
+            auto address  = curveDef.summaryAddress();
 
-            for ( auto curveDef : curveDefs )
+            if ( ensemble )
             {
-                double correlation = std::numeric_limits<double>::infinity();
+                std::vector<double> caseValuesAtTimestep;
+                std::vector<double> parameterValues;
 
-                auto ensemble = curveDef.ensemble();
-                auto address  = curveDef.summaryAddress();
+                EnsembleParameter parameter = ensemble->ensembleParameter( paramName );
 
-                if ( ensemble )
+                if ( parameter.isValid() )
                 {
-                    std::vector<double> caseValuesAtTimestep;
-                    std::vector<double> parameterValues;
+                    double correlation = std::numeric_limits<double>::infinity();
 
                     for ( size_t caseIdx = 0u; caseIdx < ensemble->allSummaryCases().size(); ++caseIdx )
                     {
@@ -483,43 +565,53 @@ void RimCorrelationMatrixPlot::createMatrix()
                         if ( m_showAbsoluteValues() ) correlation = std::abs( correlation );
                         anyValidResults = true;
                     }
+                    correlations.push_back( correlation );
+                    selectedCurveDefs.push_back( curveDef );
+                    ensembleNames.push_back( ensemble->name() );
                 }
-                correlations.push_back( correlation );
-                selectedCurveDefs.push_back( curveDef );
             }
-            if ( anyValidResults )
-            {
-                correlationMatrixColumns.push_back( CorrelationMatrixColumn( parameter, correlations, selectedCurveDefs ) );
-            }
+        }
+        if ( anyValidResults )
+        {
+            correlationMatrixColumns.push_back( CorrelationMatrixColumn( paramName, correlations, selectedCurveDefs ) );
         }
     }
 
     eraseInvalidEntries( correlationMatrixColumns );
-    if ( m_sortByValues() ) sortEntries( correlationMatrixColumns, m_sortByAbsoluteValues() || m_showAbsoluteValues() );
-
-    if ( m_showOnlyTopNCorrelations && m_topNFilterCount < correlationMatrixColumns.size() )
+    if ( m_sortByValues() == Sorting::COLUMNS || m_sortByValues() == Sorting::BOTH )
     {
-        correlationMatrixColumns.erase( correlationMatrixColumns.begin() + m_topNFilterCount(),
-                                        correlationMatrixColumns.end() );
+        sortEntries( correlationMatrixColumns, m_sortByAbsoluteValues() || m_showAbsoluteValues() );
+
+        if ( m_showOnlyTopNCorrelations && (size_t)m_topNFilterCount < correlationMatrixColumns.size() )
+        {
+            correlationMatrixColumns.erase( correlationMatrixColumns.begin() + m_topNFilterCount(),
+                                            correlationMatrixColumns.end() );
+        }
     }
 
     auto correlationMatrixRows = transpose( correlationMatrixColumns );
 
     eraseInvalidEntries( correlationMatrixRows );
-    if ( m_sortByValues() ) sortEntries( correlationMatrixRows, m_sortByAbsoluteValues() || m_showAbsoluteValues() );
-
-    if ( m_showOnlyTopNCorrelations && m_topNFilterCount < correlationMatrixRows.size() )
+    if ( m_sortByValues() == Sorting::ROWS || m_sortByValues() == Sorting::BOTH )
     {
-        correlationMatrixRows.erase( correlationMatrixRows.begin() + m_topNFilterCount(), correlationMatrixRows.end() );
+        sortEntries( correlationMatrixRows, m_sortByAbsoluteValues() || m_showAbsoluteValues() );
+
+        if ( m_showOnlyTopNCorrelations && (size_t)m_topNFilterCount < correlationMatrixRows.size() )
+        {
+            correlationMatrixRows.erase( correlationMatrixRows.begin() + m_topNFilterCount(), correlationMatrixRows.end() );
+        }
     }
 
+    ensembleNames.removeDuplicates();
+    QString combinedEnsembleNames = ensembleNames.join( ";; " );
     for ( size_t rowIdx = 0u; rowIdx < correlationMatrixRows.size(); ++rowIdx )
     {
         for ( size_t colIdx = 0u; colIdx < correlationMatrixRows[rowIdx].m_correlations.size(); ++colIdx )
         {
-            double        correlation = correlationMatrixRows[rowIdx].m_correlations[colIdx];
-            auto          label       = QString( "%1" ).arg( correlation, 0, 'f', 2 );
-            cvf::Color3ub color       = m_legendConfig->scalarMapper()->mapToColor( correlation );
+            double correlation = correlationMatrixRows[rowIdx].m_correlations[colIdx];
+            auto   label       = QString( "%1" ).arg( correlation, 0, 'f', 2 );
+
+            cvf::Color3ub color = m_legendConfig->scalarMapper()->mapToColor( correlation );
             QColor        qColor( color.r(), color.g(), color.b() );
             auto          rectangle = RiuQwtPlotTools::createBoxShapeT<CorrelationMatrixShapeItem>( label,
                                                                                            (double)colIdx,
@@ -541,9 +633,15 @@ void RimCorrelationMatrixPlot::createMatrix()
             marker->setYValue( rowIdx + 0.5 );
             rectangle->attach( m_plotWidget );
             marker->attach( m_plotWidget );
-            m_paramLabels[colIdx] = correlationMatrixRows[rowIdx].m_values[colIdx].name;
+
+            m_paramLabels[colIdx] = correlationMatrixRows[rowIdx].m_values[colIdx];
         }
-        m_resultLabels[rowIdx] = correlationMatrixRows[rowIdx].m_key.curveDefinitionText();
+        // Remove ensemble name from label if we only have one ensemble
+        // If we have multiple ensembles, no labels contain the combined ensemble names.
+        QString resultLabel = correlationMatrixRows[rowIdx].m_key.curveDefinitionText();
+        resultLabel.remove( combinedEnsembleNames + ", " );
+
+        m_resultLabels[rowIdx] = resultLabel;
     }
 }
 
@@ -554,7 +652,9 @@ void RimCorrelationMatrixPlot::updatePlotTitle()
 {
     if ( m_useAutoPlotTitle )
     {
-        m_description = QString( "%1 Matrix for Parameters vs Result Vectors" ).arg( m_correlationFactor().uiText() );
+        m_description = QString( "%1 Matrix for Parameters vs Result Vectors at %2" )
+                            .arg( m_correlationFactor().uiText() )
+                            .arg( timeStepString() );
     }
 
     if ( m_plotWidget )
@@ -584,6 +684,6 @@ void RimCorrelationMatrixPlot::onPlotItemSelected( QwtPlotItem* plotItem, bool t
     CorrelationMatrixShapeItem* matrixItem = dynamic_cast<CorrelationMatrixShapeItem*>( plotItem );
     if ( matrixItem )
     {
-        emit matrixCellSelected( matrixItem->parameter, matrixItem->curveDef );
+        matrixCellSelected.send( std::make_pair( matrixItem->parameter, matrixItem->curveDef ) );
     }
 }

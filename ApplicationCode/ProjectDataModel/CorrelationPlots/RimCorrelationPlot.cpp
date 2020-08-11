@@ -19,6 +19,7 @@
 #include "RimCorrelationPlot.h"
 
 #include "RiaPreferences.h"
+#include "RiaQDateTimeTools.h"
 #include "RiaStatisticsTools.h"
 #include "RiuGroupedBarChartBuilder.h"
 #include "RiuPlotMainWindowTools.h"
@@ -38,6 +39,7 @@
 
 #include "cafFontTools.h"
 #include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 #include "qwt_plot_barchart.h"
 
@@ -65,6 +67,7 @@ CAF_PDM_SOURCE_INIT( RimCorrelationPlot, "CorrelationPlot" );
 //--------------------------------------------------------------------------------------------------
 RimCorrelationPlot::RimCorrelationPlot()
     : RimAbstractCorrelationPlot()
+    , tornadoItemSelected( this )
 {
     CAF_PDM_InitObject( "Correlation Tornado Plot", ":/CorrelationTornadoPlot16x16.png", "", "" );
 
@@ -72,6 +75,19 @@ RimCorrelationPlot::RimCorrelationPlot()
     m_correlationFactor.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_showAbsoluteValues, "CorrelationAbsValues", false, "Show Absolute Values", "", "", "" );
     CAF_PDM_InitField( &m_sortByAbsoluteValues, "CorrelationAbsSorting", true, "Sort by Absolute Values", "", "", "" );
+    CAF_PDM_InitField( &m_excludeParametersWithoutVariation,
+                       "ExcludeParamsWithoutVariation",
+                       true,
+                       "Exclude Parameters Without Variation",
+                       "",
+                       "",
+                       "" );
+    CAF_PDM_InitField( &m_showOnlyTopNCorrelations, "ShowOnlyTopNCorrelations", false, "Show Only Top Correlations", "", "", "" );
+    CAF_PDM_InitField( &m_topNFilterCount, "TopNFilterCount", 15, "Number rows/columns", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_selectedParametersList, "SelectedParameters", "Select Parameters", "", "", "" );
+    m_selectedParametersList.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_selectedParametersList.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     setDeletable( true );
 }
@@ -95,10 +111,16 @@ void RimCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 {
     RimAbstractCorrelationPlot::fieldChangedByUi( changedField, oldValue, newValue );
     if ( changedField == &m_correlationFactor || changedField == &m_showAbsoluteValues ||
-         changedField == &m_sortByAbsoluteValues )
+         changedField == &m_sortByAbsoluteValues || changedField == &m_excludeParametersWithoutVariation ||
+         changedField == &m_selectedParametersList || changedField == &m_showOnlyTopNCorrelations ||
+         changedField == &m_topNFilterCount )
     {
-        this->loadDataAndUpdate();
-        this->updateConnectedEditors();
+        if ( changedField == &m_excludeParametersWithoutVariation )
+        {
+            selectAllParameters();
+        }
+        loadDataAndUpdate();
+        updateConnectedEditors();
     }
 }
 
@@ -109,16 +131,26 @@ void RimCorrelationPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 {
     caf::PdmUiGroup* correlationGroup = uiOrdering.addNewGroup( "Correlation Factor Settings" );
     correlationGroup->add( &m_correlationFactor );
+    correlationGroup->add( &m_excludeParametersWithoutVariation );
+    correlationGroup->add( &m_selectedParametersList );
+
     correlationGroup->add( &m_showAbsoluteValues );
     if ( !m_showAbsoluteValues() )
     {
         correlationGroup->add( &m_sortByAbsoluteValues );
     }
 
+    correlationGroup->add( &m_showOnlyTopNCorrelations );
+    if ( m_showOnlyTopNCorrelations() )
+    {
+        correlationGroup->add( &m_topNFilterCount );
+    }
+
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector" );
 
     curveDataGroup->add( &m_selectedVarsUiField );
     curveDataGroup->add( &m_pushButtonSelectSummaryAddress, {false, 1, 0} );
+    curveDataGroup->add( &m_timeStepFilter );
     curveDataGroup->add( &m_timeStep );
 
     caf::PdmUiGroup* plotGroup = uiOrdering.addNewGroup( "Plot Settings" );
@@ -143,6 +175,18 @@ QList<caf::PdmOptionItemInfo> RimCorrelationPlot::calculateValueOptions( const c
     QList<caf::PdmOptionItemInfo> options =
         RimAbstractCorrelationPlot::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
 
+    if ( fieldNeedingOptions == &m_selectedParametersList )
+    {
+        std::set<EnsembleParameter> params = variationSortedEnsembleParameters();
+        for ( auto param : params )
+        {
+            if ( !m_excludeParametersWithoutVariation() || param.variationBin > EnsembleParameter::NO_VARIATION )
+            {
+                options.push_back( caf::PdmOptionItemInfo( param.uiName(), param.name ) );
+            }
+        }
+    }
+
     return options;
 }
 
@@ -152,9 +196,6 @@ QList<caf::PdmOptionItemInfo> RimCorrelationPlot::calculateValueOptions( const c
 void RimCorrelationPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
-
-    m_analyserOfSelectedCurveDefs = std::unique_ptr<RiaSummaryCurveDefinitionAnalyser>(
-        new RiaSummaryCurveDefinitionAnalyser( this->curveDefinitions() ) );
 
     m_selectedVarsUiField = selectedVarsText();
 
@@ -168,7 +209,9 @@ void RimCorrelationPlot::onLoadDataAndUpdate()
         // buildTestPlot( chartBuilder );
         addDataToChartBuilder( chartBuilder );
 
-        chartBuilder.addBarChartToPlot( m_plotWidget, Qt::Horizontal );
+        chartBuilder.addBarChartToPlot( m_plotWidget,
+                                        Qt::Horizontal,
+                                        m_showOnlyTopNCorrelations() ? m_topNFilterCount() : -1 );
         chartBuilder.setLabelFontSize( labelFontSize() );
 
         m_plotWidget->insertLegend( nullptr );
@@ -251,8 +294,9 @@ void RimCorrelationPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chart
         {
             caseValuesAtTimestep.push_back( closestValue );
 
-            for ( auto parameter : ensembleParameters() )
+            for ( auto parameterName : m_selectedParametersList() )
             {
+                auto parameter = ensemble->ensembleParameter( parameterName );
                 if ( parameter.isNumeric() && parameter.isValid() )
                 {
                     double paramValue = parameter.values[caseIdx].toDouble();
@@ -294,9 +338,14 @@ void RimCorrelationPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chart
 //--------------------------------------------------------------------------------------------------
 void RimCorrelationPlot::updatePlotTitle()
 {
-    if ( m_useAutoPlotTitle )
+    if ( m_useAutoPlotTitle && !ensembles().empty() )
     {
-        m_description = QString( "%1 for %2" ).arg( m_correlationFactor().uiText() ).arg( m_selectedVarsUiField );
+        auto ensemble = *ensembles().begin();
+        m_description = QString( "%1 for %2, %3 at %4" )
+                            .arg( m_correlationFactor().uiText() )
+                            .arg( ensemble->name() )
+                            .arg( m_selectedVarsUiField )
+                            .arg( timeStepString() );
     }
     m_plotWidget->setPlotTitle( m_description );
     m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && isMdiWindow() );
@@ -321,7 +370,7 @@ void RimCorrelationPlot::onPlotItemSelected( QwtPlotItem* plotItem, bool toggle,
         {
             if ( barTitle.text() == param.name )
             {
-                emit tornadoItemSelected( param, curveDef );
+                tornadoItemSelected.send( std::make_pair( param.name, curveDef ) );
             }
         }
     }
@@ -373,4 +422,36 @@ bool RimCorrelationPlot::sortByAbsoluteValues() const
 void RimCorrelationPlot::setSortByAbsoluteValues( bool sortByAbsoluteValues )
 {
     m_sortByAbsoluteValues = sortByAbsoluteValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationPlot::selectAllParameters()
+{
+    m_selectedParametersList.v().clear();
+    std::set<EnsembleParameter> params = variationSortedEnsembleParameters();
+    for ( auto param : params )
+    {
+        if ( !m_excludeParametersWithoutVariation() || param.variationBin > EnsembleParameter::NO_VARIATION )
+        {
+            m_selectedParametersList.v().push_back( param.name );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationPlot::setShowOnlyTopNCorrelations( bool showOnlyTopNCorrelations )
+{
+    m_showOnlyTopNCorrelations = showOnlyTopNCorrelations;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationPlot::setTopNFilterCount( int filterCount )
+{
+    m_topNFilterCount = filterCount;
 }

@@ -20,6 +20,8 @@
 
 #include "RimCorrelationPlot.h"
 #include "RimCorrelationPlotCollection.h"
+#include "RimProject.h"
+#include "RimSummaryPlot.h"
 
 #include "RiuPlotMainWindowTools.h"
 
@@ -44,6 +46,10 @@ bool RicNewCorrelationPlotFeature::isCommandEnabled()
 
     if ( correlationPlotColl ) return true;
 
+    RimSummaryPlot* summaryPlot = nullptr;
+    selObj->firstAncestorOrThisOfType( summaryPlot );
+    if ( summaryPlot ) return true;
+
     return false;
 }
 
@@ -60,9 +66,34 @@ void RicNewCorrelationPlotFeature::onActionTriggered( bool isChecked )
         selObj->firstAncestorOrThisOfType( correlationPlotColl );
     }
 
-    if ( !correlationPlotColl ) return;
+    RimSummaryCaseCollection* ensemble = nullptr;
+    QString                   quantityName;
+    std::time_t               timeStep = 0;
 
-    auto newPlot = correlationPlotColl->createCorrelationPlot();
+    RimCorrelationPlot* newPlot = nullptr;
+    if ( !correlationPlotColl )
+    {
+        QVariant userData = this->userData();
+        if ( !userData.isNull() && userData.canConvert<EnsemblePlotParams>() )
+        {
+            std::vector<RimCorrelationPlotCollection*> correlationPlotCollections;
+            RimProject::current()->descendantsOfType( correlationPlotCollections );
+            CAF_ASSERT( !correlationPlotCollections.empty() );
+            correlationPlotColl = correlationPlotCollections.front();
+
+            EnsemblePlotParams params = userData.value<EnsemblePlotParams>();
+            ensemble                  = params.ensemble;
+            quantityName              = params.quantityName;
+            timeStep                  = params.timeStep;
+
+            newPlot = correlationPlotColl->createCorrelationPlot( ensemble, quantityName, timeStep );
+        }
+    }
+    else
+    {
+        newPlot = correlationPlotColl->createCorrelationPlot();
+    }
+
     newPlot->loadDataAndUpdate();
 
     correlationPlotColl->updateConnectedEditors();
@@ -78,4 +109,28 @@ void RicNewCorrelationPlotFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "New Correlation Tornado Plot" );
     actionToSetup->setIcon( QIcon( ":/CorrelationTornadoPlot16x16.png" ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+EnsemblePlotParams::EnsemblePlotParams()
+    : ensemble( nullptr )
+    , quantityName( "" )
+    , ensembleParameter( "" )
+    , timeStep( 0 )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+EnsemblePlotParams::EnsemblePlotParams( RimSummaryCaseCollection* ensemble,
+                                        const QString&            quantityName,
+                                        const std::time_t&        timeStep )
+    : ensemble( ensemble )
+    , quantityName( quantityName )
+    , ensembleParameter( "" )
+    , timeStep( timeStep )
+{
 }

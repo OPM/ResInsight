@@ -61,9 +61,6 @@ public:
     void setLegendFontSize( int fontSize );
     void setInternalQwtLegendVisible( bool visible );
 
-signals:
-    void plotZoomed();
-
 protected:
     void contextMenuEvent( QContextMenuEvent* ) override;
 

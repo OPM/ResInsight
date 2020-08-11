@@ -51,6 +51,10 @@ public:
     };
 
 public:
+    caf::Signal<>     settingsChanged;
+    caf::Signal<bool> logarithmicChanged;
+
+public:
     RimPlotAxisProperties();
 
     void                  setEnableTitleTextSettings( bool enable );

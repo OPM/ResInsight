@@ -198,6 +198,30 @@ QString RimWellLogCurve::wellLogCurveIconName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogCurve::setOverrideCurveData( const std::vector<double>&               xValues,
+                                            const std::vector<double>&               depthValues,
+                                            const RiaCurveDataTools::CurveIntervals& curveIntervals )
+{
+    auto minmax_it = std::minmax_element( xValues.begin(), xValues.end() );
+    this->setOverrideCurveDataXRange( *( minmax_it.first ), *( minmax_it.second ) );
+    if ( m_qwtPlotCurve )
+    {
+        m_qwtPlotCurve->setSamples( xValues.data(), depthValues.data(), static_cast<int>( depthValues.size() ) );
+        m_qwtPlotCurve->setLineSegmentStartStopIndices( curveIntervals );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::PhaseType RimWellLogCurve::resultPhase() const
+{
+    return RiaDefines::PhaseType::PHASE_NOT_APPLICABLE;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogCurve::updateZoomInParentPlot()
 {
     const double eps = 1.0e-8;

@@ -63,7 +63,8 @@ private:
 class RiaSummaryCurveDefinitionAnalyser
 {
 public:
-    RiaSummaryCurveDefinitionAnalyser( std::vector<RiaSummaryCurveDefinition> curveDefs );
+    RiaSummaryCurveDefinitionAnalyser() = default;
+    void setCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefs );
 
     std::set<RimSummaryCase*>           m_singleSummaryCases; // All summary cases used
     std::set<RimSummaryCaseCollection*> m_ensembles; // All the ensembles referenced by the summary cases

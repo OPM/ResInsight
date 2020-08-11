@@ -51,9 +51,6 @@ RimSurfaceInView::RimSurfaceInView()
     CAF_PDM_InitFieldNoDefault( &m_surface, "SurfaceRef", "Surface", "", "", "" );
     m_surface.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_depthOffset, "DepthOffset", 0.0, "Depth Offset", "", "", "" );
-    m_depthOffset.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
-
     CAF_PDM_InitFieldNoDefault( &m_resultDefinition, "ResultDefinition", "Result Definition", "", "", "" );
     m_resultDefinition.uiCapability()->setUiHidden( true );
     m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
@@ -74,7 +71,7 @@ RimSurfaceInView::~RimSurfaceInView()
 //--------------------------------------------------------------------------------------------------
 QString RimSurfaceInView::name() const
 {
-    if ( m_surface ) return m_surface->userDescription();
+    if ( m_surface ) return m_surface->fullName();
 
     return "";
 }
@@ -124,14 +121,6 @@ bool RimSurfaceInView::isNativeSurfaceResultsActive() const
 RimSurfaceResultDefinition* RimSurfaceInView::surfaceResultDefinition()
 {
     return m_resultDefinition();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimSurfaceInView::depthOffset() const
-{
-    return m_depthOffset;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -203,6 +192,8 @@ void RimSurfaceInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField
                                          const QVariant&            oldValue,
                                          const QVariant&            newValue )
 {
+    this->updateUiIconFromToggleField();
+
     bool scheduleRedraw = false;
 
     if ( changedField == &m_isActive || changedField == &m_useSeparateDataSource || changedField == &m_separateDataSource )
@@ -210,11 +201,6 @@ void RimSurfaceInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         scheduleRedraw = true;
     }
     else if ( changedField == &m_showInactiveCells )
-    {
-        clearGeometry();
-        scheduleRedraw = true;
-    }
-    else if ( changedField == &m_depthOffset )
     {
         clearGeometry();
         scheduleRedraw = true;
@@ -235,27 +221,8 @@ void RimSurfaceInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 {
     uiOrdering.add( &m_name );
     uiOrdering.add( &m_showInactiveCells );
-    uiOrdering.add( &m_depthOffset );
 
     this->defineSeparateDataSourceUi( uiConfigName, uiOrdering );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSurfaceInView::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                              QString                    uiConfigName,
-                                              caf::PdmUiEditorAttribute* attribute )
-{
-    auto doubleSliderAttrib = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-    if ( doubleSliderAttrib )
-    {
-        if ( field == &m_depthOffset )
-        {
-            doubleSliderAttrib->m_minimum = -2000;
-            doubleSliderAttrib->m_maximum = 2000;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -274,4 +241,12 @@ RimIntersectionResultsDefinitionCollection* RimSurfaceInView::findSeparateResult
 caf::PdmFieldHandle* RimSurfaceInView::userDescriptionField()
 {
     return &m_name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceInView::initAfterRead()
+{
+    this->updateUiIconFromToggleField();
 }

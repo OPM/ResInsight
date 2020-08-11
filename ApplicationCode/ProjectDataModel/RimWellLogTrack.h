@@ -191,7 +191,7 @@ public:
 
     void setLogarithmicScale( bool enable );
 
-    std::map<int, std::vector<RimWellFlowRateCurve*>> visibleStackedCurves();
+    std::map<int, std::vector<RimWellLogCurve*>> visibleStackedCurves();
 
     std::vector<RimWellLogCurve*> curves() const;
     std::vector<RimWellLogCurve*> visibleCurves() const;
@@ -224,6 +224,7 @@ public:
                                        std::vector<std::pair<double, double>>* yValues );
 
     static std::vector<QString> formationNamesVector( RimCase* rimCase );
+    void                        updateStackedCurveData();
 
     static void addOverburden( std::vector<QString>& namesVector, CurveSamplingPointData& curveData, double height );
     static void addUnderburden( std::vector<QString>& namesVector, CurveSamplingPointData& curveData, double height );
@@ -249,6 +250,11 @@ private:
     void doRemoveFromCollection() override;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void curveDataChanged( const caf::SignalEmitter* emitter );
+    void curveVisibilityChanged( const caf::SignalEmitter* emitter, bool visible );
+    void curveAppearanceChanged( const caf::SignalEmitter* emitter );
+    void curveStackingChanged( const caf::SignalEmitter* emitter, bool stacked );
+    void curveStackingColorsChanged( const caf::SignalEmitter* emitter, bool stackWithPhaseColors );
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
@@ -292,6 +298,9 @@ private:
 
     std::vector<std::pair<double, double>> waterAndRockRegions( RiaDefines::DepthTypeEnum  depthType,
                                                                 const RigWellLogExtractor* extractor ) const;
+
+    void connectCurveSignals( RimWellLogCurve* curve );
+    void disconnectCurveSignals( RimWellLogCurve* curve );
 
 private:
     QString m_xAxisTitle;

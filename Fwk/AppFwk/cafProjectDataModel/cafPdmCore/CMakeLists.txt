@@ -28,6 +28,8 @@ set( PROJECT_FILES
     cafPdmFieldHandle.cpp
     cafPdmFieldHandle.h
     cafPdmObjectCapability.h
+    cafPdmFieldReorderCapability.cpp
+    cafPdmFieldReorderCapability.h
     cafPdmObjectHandle.cpp
     cafPdmObjectHandle.h
     cafPdmPointer.cpp
@@ -46,6 +48,8 @@ set( PROJECT_FILES
 
     cafNotificationCenter.cpp
     cafNotificationCenter.h
+
+    cafSignal.h
 
     cafTristate.cpp
     cafTristate.h
