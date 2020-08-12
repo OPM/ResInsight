@@ -409,47 +409,50 @@ void RimRegularLegendConfig::updateLegend()
     m_logDiscreteScalarMapper->setRange( adjustedMin, adjustedMax );
     m_logSmoothScalarMapper->setRange( adjustedMin, adjustedMax );
 
-    cvf::Color3ubArray legendColors = m_colorLegend()->colorArray();
-
-    m_linDiscreteScalarMapper->setColors( legendColors );
-    m_logDiscreteScalarMapper->setColors( legendColors );
-    m_logSmoothScalarMapper->setColors( legendColors );
-    m_linSmoothScalarMapper->setColors( legendColors );
-
-    m_linDiscreteScalarMapper->setLevelCount( m_numLevels, true );
-    m_logDiscreteScalarMapper->setLevelCount( m_numLevels, true );
-    m_logSmoothScalarMapper->setLevelCount( m_numLevels, true );
-    m_linSmoothScalarMapper->setLevelCount( m_numLevels, true );
-
-    switch ( m_mappingMode() )
+    if ( m_colorLegend() )
     {
-        case LINEAR_DISCRETE:
-            m_currentScalarMapper = m_linDiscreteScalarMapper.p();
-            break;
-        case LINEAR_CONTINUOUS:
-            m_currentScalarMapper = m_linSmoothScalarMapper.p();
-            break;
-        case LOG10_CONTINUOUS:
-            m_currentScalarMapper = m_logSmoothScalarMapper.p();
-            break;
-        case LOG10_DISCRETE:
-            m_currentScalarMapper = m_logDiscreteScalarMapper.p();
-            break;
-        case CATEGORY_INTEGER:
-            m_categoryMapper->setCategoriesWithNames( m_categories, m_categoryNames );
+        cvf::Color3ubArray legendColors = m_colorLegend()->colorArray();
 
-            if ( m_categoryColors.size() > 0 )
-            {
-                m_categoryMapper->setCycleColors( m_categoryColors );
-            }
-            else
-            {
-                m_categoryMapper->setInterpolateColors( legendColors );
-            }
-            m_currentScalarMapper = m_categoryMapper.p();
-            break;
-        default:
-            break;
+        m_linDiscreteScalarMapper->setColors( legendColors );
+        m_logDiscreteScalarMapper->setColors( legendColors );
+        m_logSmoothScalarMapper->setColors( legendColors );
+        m_linSmoothScalarMapper->setColors( legendColors );
+
+        m_linDiscreteScalarMapper->setLevelCount( m_numLevels, true );
+        m_logDiscreteScalarMapper->setLevelCount( m_numLevels, true );
+        m_logSmoothScalarMapper->setLevelCount( m_numLevels, true );
+        m_linSmoothScalarMapper->setLevelCount( m_numLevels, true );
+
+        switch ( m_mappingMode() )
+        {
+            case LINEAR_DISCRETE:
+                m_currentScalarMapper = m_linDiscreteScalarMapper.p();
+                break;
+            case LINEAR_CONTINUOUS:
+                m_currentScalarMapper = m_linSmoothScalarMapper.p();
+                break;
+            case LOG10_CONTINUOUS:
+                m_currentScalarMapper = m_logSmoothScalarMapper.p();
+                break;
+            case LOG10_DISCRETE:
+                m_currentScalarMapper = m_logDiscreteScalarMapper.p();
+                break;
+            case CATEGORY_INTEGER:
+                m_categoryMapper->setCategoriesWithNames( m_categories, m_categoryNames );
+
+                if ( m_categoryColors.size() > 0 )
+                {
+                    m_categoryMapper->setCycleColors( m_categoryColors );
+                }
+                else
+                {
+                    m_categoryMapper->setInterpolateColors( legendColors );
+                }
+                m_currentScalarMapper = m_categoryMapper.p();
+                break;
+            default:
+                break;
+        }
     }
 
     if ( m_currentScalarMapper != m_categoryMapper.p() )
