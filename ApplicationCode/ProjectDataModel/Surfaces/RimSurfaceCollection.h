@@ -48,5 +48,7 @@ public:
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
 private:
+    void orderChanged( const caf::SignalEmitter* emitter );
+
     caf::PdmChildArrayField<RimSurface*> m_surfaces;
 };

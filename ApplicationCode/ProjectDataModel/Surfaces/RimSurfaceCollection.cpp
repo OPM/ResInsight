@@ -28,6 +28,8 @@
 #include "RimSurface.h"
 #include "RimSurfaceInView.h"
 
+#include "cafPdmFieldReorderCapability.h"
+
 CAF_PDM_SOURCE_INIT( RimSurfaceCollection, "SurfaceCollection" );
 
 //--------------------------------------------------------------------------------------------------
@@ -39,6 +41,8 @@ RimSurfaceCollection::RimSurfaceCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_surfaces, "SurfacesField", "Surfaces", "", "", "" );
     m_surfaces.uiCapability()->setUiTreeHidden( true );
+    auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_surfaces );
+    reorderability->orderChanged.connect( this, &RimSurfaceCollection::orderChanged );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -243,6 +247,14 @@ void RimSurfaceCollection::updateViews()
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                                            std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    updateViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceCollection::orderChanged( const caf::SignalEmitter* emitter )
 {
     updateViews();
 }

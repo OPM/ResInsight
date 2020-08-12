@@ -62,7 +62,8 @@ protected:
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    bool hasSurfaceInViewForSurface( const RimSurface* surf ) const;
+    bool              hasSurfaceInViewForSurface( const RimSurface* surf ) const;
+    RimSurfaceInView* getSurfaceInViewForSurface( const RimSurface* surf ) const;
 
     caf::PdmChildArrayField<RimSurfaceInView*> m_surfacesInView;
 };

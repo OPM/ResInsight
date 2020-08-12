@@ -71,23 +71,38 @@ void RimSurfaceInViewCollection::updateFromSurfaceCollection()
         }
     }
 
-    // Create new entries
+    // Create new entries and reorder
 
     RimProject*           proj     = RimProject::current();
     RimSurfaceCollection* surfColl = proj->activeOilField()->surfaceCollection();
 
+    std::vector<RimSurfaceInView*> orderedSurfs;
+
     if ( surfColl )
     {
+        // pick up the surfaces and the order from the surface collection
         std::vector<RimSurface*> surfs = surfColl->surfaces();
-
         for ( auto surf : surfs )
         {
-            if ( !this->hasSurfaceInViewForSurface( surf ) )
+            // check if this is a surface we need to create
+            RimSurfaceInView* viewSurf = this->getSurfaceInViewForSurface( surf );
+            if ( viewSurf == nullptr )
             {
                 RimSurfaceInView* newSurfInView = new RimSurfaceInView();
                 newSurfInView->setSurface( surf );
-                m_surfacesInView.push_back( newSurfInView );
+                orderedSurfs.push_back( newSurfInView );
             }
+            else
+            {
+                orderedSurfs.push_back( viewSurf );
+            }
+        }
+
+        // make sure our view surfaces have the same order as the source surface collection
+        m_surfacesInView.clear();
+        for ( auto viewSurf : orderedSurfs )
+        {
+            m_surfacesInView.push_back( viewSurf );
         }
     }
 
@@ -167,15 +182,23 @@ void RimSurfaceInViewCollection::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 bool RimSurfaceInViewCollection::hasSurfaceInViewForSurface( const RimSurface* surf ) const
 {
+    return this->getSurfaceInViewForSurface( surf ) == nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSurfaceInView* RimSurfaceInViewCollection::getSurfaceInViewForSurface( const RimSurface* surf ) const
+{
     for ( auto surfInView : m_surfacesInView )
     {
         if ( surfInView->surface() == surf )
         {
-            return true;
+            return surfInView;
         }
     }
 
-    return false;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
