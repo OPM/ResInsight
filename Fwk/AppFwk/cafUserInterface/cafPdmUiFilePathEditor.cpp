@@ -41,6 +41,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
+#include "cafPdmUiLineEditor.h"
 #include "cafPdmUiOrdering.h"
 #include "cafQShortenedLabel.h"
 
@@ -65,7 +66,8 @@ void PdmUiFilePathEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
 
-    m_lineEdit->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
+    PdmUiLineEditor::updateLineEditFromReadOnlyState( m_lineEdit, uiField()->isUiReadOnly( uiConfigName ) );
+
     m_lineEdit->setToolTip( uiField()->uiToolTip( uiConfigName ) );
     m_button->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
 
