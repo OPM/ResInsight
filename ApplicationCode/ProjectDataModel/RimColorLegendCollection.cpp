@@ -92,12 +92,24 @@ void RimColorLegendCollection::createStandardColorLegends()
 
     for ( size_t typeIdx = 0; typeIdx < ColorRangeEnum::size(); typeIdx++ )
     {
-        if ( ColorRangeEnum::fromIndex( typeIdx ) != RimRegularLegendConfig::ColorRangesType::UNDEFINED )
+        RimRegularLegendConfig::ColorRangesType legendType = ColorRangeEnum::fromIndex( typeIdx );
+        if ( legendType != RimRegularLegendConfig::ColorRangesType::UNDEFINED )
         {
             QString            legendName = ColorRangeEnum::uiTextFromIndex( typeIdx );
-            cvf::Color3ubArray colorArray =
-                RimRegularLegendConfig::colorArrayFromColorType( ColorRangeEnum::fromIndex( typeIdx ) );
+            cvf::Color3ubArray colorArray = RimRegularLegendConfig::colorArrayFromColorType( legendType );
 
+            if ( legendType == RimRegularLegendConfig::CATEGORY )
+            {
+                // Invert the ordering of colors to make them match with category color ordering in previous releases of
+                // ResInsight. Related to reordering in CategoryMapper::recomputeMaxTexCoord()
+                {
+                    auto other = colorArray;
+                    for ( size_t i = 0; i < colorArray.size(); i++ )
+                    {
+                        colorArray[i] = other[colorArray.size() - 1 - i];
+                    }
+                }
+            }
             RimColorLegend* colorLegend = new RimColorLegend;
             colorLegend->setColorLegendName( legendName );
 

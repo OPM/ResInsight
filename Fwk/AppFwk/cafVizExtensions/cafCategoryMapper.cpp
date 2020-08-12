@@ -233,6 +233,17 @@ void CategoryMapper::recomputeMaxTexCoord()
         return;
     }
 
+    // Invert the ordering of colors to make them match with category names
+    // This is related to the inverted ordering of the texture map
+    {
+        auto other = m_colors;
+
+        for ( size_t i = 0; i < m_colors.size(); i++ )
+        {
+            m_colors[i] = other[m_colors.size() - 1 - i];
+        }
+    }
+
     const uint numPixelsPerColor = m_textureSize / numColors;
     if ( numPixelsPerColor == 0 )
     {
