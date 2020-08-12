@@ -310,7 +310,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
 
                         // Calculate upper limit
                         float upperLimit = inf;
-                        if ( upperLimitParameter == RimMudWeightWindowParameters::UpperLimitType::FG )
+                        if ( upperLimitParameter == RimMudWeightWindowParameters::UpperLimitType::FG && isSand )
                         {
                             upperLimit = sigmaCalculator.solveFractureGradient();
                         }
