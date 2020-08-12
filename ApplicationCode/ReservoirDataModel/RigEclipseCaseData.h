@@ -87,7 +87,6 @@ public:
     bool hasFractureResults() const;
 
     void                       setActiveFormationNames( RigFormationNames* activeFormationNames );
-    const RigFormationNames*   activeFormationNames() const;
     const std::vector<QString> formationNames() const;
     RigAllanDiagramData*       allanDiagramData();
 
@@ -129,6 +128,8 @@ private:
     void computeActiveCellIJKBBox();
     void computeWellCellsPrGrid();
     void computeActiveCellsGeometryBoundingBox();
+
+    const RigFormationNames* activeFormationNames() const;
 
 private:
     cvf::ref<RigMainGrid> m_mainGrid;

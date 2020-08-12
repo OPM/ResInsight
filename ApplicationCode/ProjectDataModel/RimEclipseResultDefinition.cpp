@@ -1454,7 +1454,7 @@ bool RimEclipseResultDefinition::isCompletionTypeSelected() const
 bool RimEclipseResultDefinition::hasCategoryResult() const
 {
     if ( this->m_resultType() == RiaDefines::ResultCatType::FORMATION_NAMES && m_eclipseCase &&
-         m_eclipseCase->eclipseCaseData() && m_eclipseCase->eclipseCaseData()->activeFormationNames() )
+         m_eclipseCase->eclipseCaseData() && !m_eclipseCase->eclipseCaseData()->formationNames().empty() )
         return true;
 
     if ( this->m_resultType() == RiaDefines::ResultCatType::DYNAMIC_NATIVE &&
