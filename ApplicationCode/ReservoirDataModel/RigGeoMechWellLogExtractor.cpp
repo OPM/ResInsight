@@ -1383,11 +1383,9 @@ std::vector<unsigned char>
 double RigGeoMechWellLogExtractor::hydroStaticPorePressureForIntersection( size_t intersectionIdx,
                                                                            double waterDensityGCM3 ) const
 {
-    double trueVerticalDepth             = m_intersectionTVDs[intersectionIdx];
-    double effectiveDepthMeters          = trueVerticalDepth + wellPathData()->rkbDiff();
-    double hydroStaticPorePressurePascal = effectiveDepthMeters * GRAVITY_ACCEL * waterDensityGCM3 * 1000;
-    double hydroStaticPorePressureBar    = pascalToBar( hydroStaticPorePressurePascal );
-    return hydroStaticPorePressureBar;
+    double trueVerticalDepth    = m_intersectionTVDs[intersectionIdx];
+    double effectiveDepthMeters = trueVerticalDepth + wellPathData()->rkbDiff();
+    return hydroStaticPorePressureAtDepth( effectiveDepthMeters, waterDensityGCM3 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1395,11 +1393,19 @@ double RigGeoMechWellLogExtractor::hydroStaticPorePressureForIntersection( size_
 //--------------------------------------------------------------------------------------------------
 double RigGeoMechWellLogExtractor::hydroStaticPorePressureForSegment( size_t intersectionIdx, double waterDensityGCM3 ) const
 {
-    cvf::Vec3f centroid                      = cellCentroid( intersectionIdx );
-    double     trueVerticalDepth             = -centroid.z();
-    double     effectiveDepthMeters          = trueVerticalDepth + wellPathData()->rkbDiff();
-    double     hydroStaticPorePressurePascal = effectiveDepthMeters * GRAVITY_ACCEL * waterDensityGCM3 * 1000;
-    double     hydroStaticPorePressureBar    = pascalToBar( hydroStaticPorePressurePascal );
+    cvf::Vec3f centroid             = cellCentroid( intersectionIdx );
+    double     trueVerticalDepth    = -centroid.z();
+    double     effectiveDepthMeters = trueVerticalDepth + wellPathData()->rkbDiff();
+    return hydroStaticPorePressureAtDepth( effectiveDepthMeters, waterDensityGCM3 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigGeoMechWellLogExtractor::hydroStaticPorePressureAtDepth( double effectiveDepthMeters, double waterDensityGCM3 )
+{
+    double hydroStaticPorePressurePascal = effectiveDepthMeters * GRAVITY_ACCEL * waterDensityGCM3 * 1000;
+    double hydroStaticPorePressureBar    = pascalToBar( hydroStaticPorePressurePascal );
     return hydroStaticPorePressureBar;
 }
 
