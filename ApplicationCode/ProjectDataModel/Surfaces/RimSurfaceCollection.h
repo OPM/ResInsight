@@ -37,8 +37,8 @@ public:
     RimSurface* addGridCaseSurface( RimCase* sourceCase );
 
     void reloadSurfaces( std::vector<RimSurface*> surfaces );
-
-    std::vector<RimSurface*> surfaces() const;
+    void removeSurface( RimSurface* surface );
+    void addSurfacesAtPosition( int position, std::vector<RimSurface*> surfaces );
 
     void loadData();
     void updateViews();

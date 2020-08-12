@@ -258,3 +258,19 @@ void RimSurfaceCollection::orderChanged( const caf::SignalEmitter* emitter )
 {
     updateViews();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceCollection::removeSurface( RimSurface* surface )
+{
+    // todo: implement this
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceCollection::addSurfacesAtPosition( int position, std::vector<RimSurface*> surfaces )
+{
+    // todo: implement this
+}
