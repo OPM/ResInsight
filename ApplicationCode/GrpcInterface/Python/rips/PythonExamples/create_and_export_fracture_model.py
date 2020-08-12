@@ -10,14 +10,12 @@ well_path = project.well_path_by_name("Well-1")
 print("well path:", well_path)
 fracture_model_collection = project.descendants(rips.FractureModelCollection)[0]
 
+# Create fracture model at a give measured depth
 measured_depth = 4100.0
-fracture_model = fracture_model_collection.new_fracture_model(well_path=well_path, measured_depth=measured_depth)
+elastic_properties_file_path = "/home/resinsight/stimplan/complete_dataset_2020-06-22/Elastic_Template_CSV_file-with-biot.csv"
+fracture_model = fracture_model_collection.new_fracture_model(well_path=well_path, measured_depth=measured_depth, elastic_properties_file_path=elastic_properties_file_path)
 
-elastic_properties = rips.ElasticProperties()
-elastic_properties.file_path = "/home/resinsight/stimplan/complete_dataset_2020-06-22/Elastic_Template_CSV_file-with-biot.csv"
-elastic_properties.update()
 
-fracture_model.elastic_properties = elastic_properties
 
 
 

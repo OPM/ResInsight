@@ -26,6 +26,8 @@
 #include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
 
+#include <QString>
+
 class RimFractureModelCollection;
 class RimWellPath;
 
@@ -46,4 +48,5 @@ public:
 private:
     caf::PdmPtrField<RimWellPath*> m_wellPath;
     caf::PdmField<double>          m_md;
+    caf::PdmField<QString>         m_elasticPropertiesFilePath;
 };
