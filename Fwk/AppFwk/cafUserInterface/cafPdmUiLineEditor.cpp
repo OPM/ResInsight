@@ -66,6 +66,27 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void PdmUiLineEditor::updateLineEditFromReadOnlyState( QLineEdit* lineEdit, bool isReadOnly )
+{
+    if ( !lineEdit ) return;
+
+    if ( isReadOnly )
+    {
+        lineEdit->setReadOnly( true );
+        lineEdit->setStyleSheet( "QLineEdit {"
+                                 "color: #808080;"
+                                 "background-color: #F0F0F0;}" );
+    }
+    else
+    {
+        lineEdit->setReadOnly( false );
+        lineEdit->setStyleSheet( "" );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QWidget* PdmUiLineEditor::createEditorWidget( QWidget* parent )
 {
     m_lineEdit = new PdmUiLineEdit( parent );
@@ -96,20 +117,7 @@ void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     if ( !m_lineEdit.isNull() )
     {
-        bool isReadOnly = uiField()->isUiReadOnly( uiConfigName );
-        if ( isReadOnly )
-        {
-            m_lineEdit->setReadOnly( true );
-
-            m_lineEdit->setStyleSheet( "QLineEdit {"
-                                       "color: #808080;"
-                                       "background-color: #F0F0F0;}" );
-        }
-        else
-        {
-            m_lineEdit->setReadOnly( false );
-            m_lineEdit->setStyleSheet( "" );
-        }
+        updateLineEditFromReadOnlyState( m_lineEdit, uiField()->isUiReadOnly( uiConfigName ) );
 
         m_lineEdit->setToolTip( uiField()->uiToolTip( uiConfigName ) );
 

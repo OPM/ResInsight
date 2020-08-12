@@ -123,6 +123,8 @@ public:
     }
     ~PdmUiLineEditor() override {}
 
+    static void updateLineEditFromReadOnlyState( QLineEdit* lineEdit, bool isReadOnly );
+
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
     QWidget* createLabelWidget( QWidget* parent ) override;
