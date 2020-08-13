@@ -72,7 +72,7 @@ public:
     void addPlot( RimPlot* plot );
     void insertPlot( RimPlot* plot, size_t index );
     void removePlot( RimPlot* plot );
-    void movePlotsToThis( const std::vector<RimPlot*>& plots, RimPlot* plotToInsertAfter );
+    void movePlotsToThis( const std::vector<RimPlot*>& plots, int insertAtPosition );
 
     size_t   plotCount() const;
     size_t   plotIndex( const RimPlot* plot ) const;
