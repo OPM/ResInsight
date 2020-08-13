@@ -35,10 +35,8 @@
 //--------------------------------------------------------------------------------------------------
 void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack( RimWellLogTrack*                     destTrack,
                                                                    const std::vector<RimWellLogCurve*>& curves,
-                                                                   RimWellLogCurve* curveToInsertBeforeOrAfter,
-                                                                   int              insertAtPosition )
+                                                                   int insertAtPosition )
 {
-    CVF_ASSERT( insertAtPosition >= 0 );
     CVF_ASSERT( destTrack );
 
     std::set<RimWellLogTrack*> srcTracks;
@@ -62,8 +60,15 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack( RimWellLogTra
 
     for ( size_t cIdx = 0; cIdx < curves.size(); cIdx++ )
     {
-        size_t position = (size_t)insertAtPosition + cIdx;
-        destTrack->insertCurve( curves[cIdx], position );
+        if ( insertAtPosition >= 0 )
+        {
+            size_t position = (size_t)insertAtPosition + cIdx;
+            destTrack->insertCurve( curves[cIdx], position );
+        }
+        else
+        {
+            destTrack->addCurve( curves[cIdx] );
+        }
     }
 
     for ( auto track : srcTracks )
@@ -91,8 +96,7 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack( RimWellLogTra
 //--------------------------------------------------------------------------------------------------
 void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot( RimWellLogPlot*                      wellLogPlot,
                                                               const std::vector<RimWellLogTrack*>& tracksToMove,
-                                                              RimWellLogTrack* trackToInsertBeforeOrAfter,
-                                                              bool             isSwapOperation )
+                                                              int                                  insertAtPosition )
 {
     CVF_ASSERT( wellLogPlot );
 
@@ -108,15 +112,15 @@ void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot( RimWellLogPlot*   
         }
     }
 
-    size_t insertionStartIndex = 0;
-    if ( trackToInsertBeforeOrAfter )
-    {
-        insertionStartIndex = wellLogPlot->plotIndex( trackToInsertBeforeOrAfter );
-        if ( !isSwapOperation ) insertionStartIndex += 1;
-    }
-
     for ( size_t tIdx = 0; tIdx < tracksToMove.size(); tIdx++ )
     {
-        wellLogPlot->insertPlot( tracksToMove[tIdx], insertionStartIndex + tIdx );
+        if ( insertAtPosition >= 0 )
+        {
+            wellLogPlot->insertPlot( tracksToMove[tIdx], (size_t)insertAtPosition + tIdx );
+        }
+        else
+        {
+            wellLogPlot->addPlot( tracksToMove[tIdx] );
+        }
     }
 }
