@@ -995,7 +995,7 @@ void RimGridCrossPlotDataSet::updateLegendRange()
                     const std::vector<QString> categoryNames = eclipseCase->eclipseCaseData()->formationNames();
                     if ( !categoryNames.empty() )
                     {
-                        legendConfig()->setNamedCategoriesInverse( categoryNames );
+                        legendConfig()->setNamedCategories( categoryNames );
                         legendConfig()->setAutomaticRanges( 0, categoryNames.size() - 1, 0, categoryNames.size() - 1 );
                     }
                 }
