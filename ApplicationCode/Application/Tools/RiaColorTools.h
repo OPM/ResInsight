@@ -22,6 +22,7 @@
 #include "cvfArray.h"
 
 #include <QColor>
+#include <QPalette>
 
 //==================================================================================================
 ///
@@ -37,7 +38,8 @@ public:
     static cvf::Color3f brightContrastColor();
     static cvf::Color3f darkContrastColorSofter();
     static cvf::Color3f brightContrastColorSofter();
-    static cvf::Color3f contrastColor( cvf::Color3f backgroundColor, bool softerContrast = false );
+    static cvf::Color3f contrastColor( cvf::Color3f color, bool softerContrast = false );
+    static QColor       contrastColor( QColor color, bool softerContrast = false );
     static QColor       toQColor( cvf::Color3f color, float alpha = 1.0f );
     static QColor       toQColor( cvf::Color4f color );
     static cvf::Color3f fromQColorTo3f( QColor );
@@ -45,6 +47,8 @@ public:
     static cvf::Color3f
                   blendCvfColors( const cvf::Color3f& color1, const cvf::Color3f& color2, int weight1 = 1, int weight2 = 1 );
     static QColor blendQColors( const QColor& color1, const QColor& color2, int weight1 = 1, int weight2 = 1 );
+
+    static QPalette createPaletteWithContrastColor( const QPalette& palette );
 
 private:
     static float relativeLuminance( cvf::Color3f backgroundColor );

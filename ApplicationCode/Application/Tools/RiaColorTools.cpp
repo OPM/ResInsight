@@ -104,15 +104,26 @@ cvf::Color3f RiaColorTools::brightContrastColorSofter()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Color3f RiaColorTools::contrastColor( cvf::Color3f backgroundColor, bool softerContrast )
+cvf::Color3f RiaColorTools::contrastColor( cvf::Color3f color, bool softerContrast )
 {
-    if ( isBrightnessAboveThreshold( backgroundColor ) )
+    if ( isBrightnessAboveThreshold( color ) )
     {
         if ( softerContrast ) return darkContrastColorSofter();
         return darkContrastColor();
     }
     if ( softerContrast ) return brightContrastColorSofter();
     return brightContrastColor();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QColor RiaColorTools::contrastColor( QColor color, bool softerContrast /*= false */ )
+{
+    auto cvfColor         = fromQColorTo3f( color );
+    auto cvfContrastColor = contrastColor( cvfColor, softerContrast );
+
+    return toQColor( cvfContrastColor );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -166,6 +177,20 @@ QColor RiaColorTools::blendQColors( const QColor& color1, const QColor& color2, 
     return QColor( ( color1.red() * weight1 + color2.red() * weight2 ) / weightsum,
                    ( color1.green() * weight1 + color2.green() * weight2 ) / weightsum,
                    ( color1.blue() * weight1 + color2.blue() * weight2 ) / weightsum );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QPalette RiaColorTools::createPaletteWithContrastColor( const QPalette& palette )
+{
+    QPalette modifiedPalette( palette );
+
+    auto textColor         = palette.color( QPalette::Text );
+    auto textContrastColor = contrastColor( textColor );
+    modifiedPalette.setColor( QPalette::Window, textContrastColor );
+
+    return modifiedPalette;
 }
 
 //--------------------------------------------------------------------------------------------------
