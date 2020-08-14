@@ -18,6 +18,7 @@
 
 #include "RiuMessagePanel.h"
 
+#include "RiaColorTools.h"
 #include "RiaRegressionTestRunner.h"
 
 #include <QDockWidget>
@@ -55,20 +56,18 @@ RiuMessagePanel::RiuMessagePanel( QDockWidget* parent )
 //--------------------------------------------------------------------------------------------------
 void RiuMessagePanel::addMessage( RILogLevel messageLevel, const QString& msg )
 {
-    QColor clr( Qt::black );
+    auto textColor = palette().color( QPalette::Text );
     if ( messageLevel == RILogLevel::RI_LL_ERROR )
-        clr = Qt::red;
+        textColor = Qt::red;
     else if ( messageLevel == RILogLevel::RI_LL_WARNING )
-        clr = QColor( 220, 100, 10 );
+        textColor = QColor( 220, 100, 10 );
     else if ( messageLevel == RILogLevel::RI_LL_DEBUG )
-        clr = QColor( 100, 100, 200 );
+        textColor = QColor( 100, 100, 200 );
 
-    QTextCharFormat form = m_textEdit->currentCharFormat();
-    form.setForeground( clr );
-    form.setFontWeight( messageLevel == RILogLevel::RI_LL_ERROR ? QFont::DemiBold : QFont::Normal );
-    form.setFontItalic( messageLevel == RILogLevel::RI_LL_DEBUG ? true : false );
-    m_textEdit->setCurrentCharFormat( form );
-    m_textEdit->appendPlainText( msg );
+    QString hexColor = textColor.name();
+    QString htmlMsg  = QString( "<p style=\"color:%1;\">%2</p>" ).arg( hexColor ).arg( msg );
+
+    m_textEdit->appendHtml( htmlMsg );
 
     m_textEdit->moveCursor( QTextCursor::End );
     m_textEdit->ensureCursorVisible();
