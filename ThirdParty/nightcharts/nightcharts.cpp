@@ -22,6 +22,7 @@
 #include "nightcharts.h"
 
 #include <QPainterPath>
+#include <QPalette>
 
 Nightcharts::Nightcharts()//QPainter *painter)
 
@@ -350,36 +351,16 @@ void Nightcharts::drawLegend(QPainter *painter)
     double angle = palpha;
     painter->setPen(Qt::SolidLine);
 
+    QPalette palette;
+    QColor textColor = palette.color(QPalette::Text);
+    painter->setPen(textColor);
+
     switch(cltype)
     {
-    /*case Nightcharts::Horizontal:
-    {
-        int dist = 5;
-        painter->setBrush(Qt::white);
-        float x = cX;
-        float y = cY+cH+20+dist;
-        //painter->drawRoundRect(cX+cW+20,cY,dist*2+200,pieces.size()*(fontmetr.height()+2*dist)+dist,15,15);
-        for (int i=0;i<pieces.size();i++)
-        {
-            painter->setBrush(pieces[i].rgbColor);
-            x += fontmetr.height()+2*dist;
-            if (i%3 == 0)
-            {
-                x = cX;
-                y += dist+fontmetr.height();
-            }
-            painter->drawRect(x,y,fontmetr.height(),fontmetr.height());
-            QString label = pieces[i].pname + " - " + QString::number(pieces[i].pPerc)+"%";
-            painter->drawText(x+fontmetr.height()+dist,y+fontmetr.height()/2+dist,label);
-            x += fontmetr.width(label);
-        }
-        break;
-    }*/
     case Nightcharts::Vertical:
     {
         int dist = 5;
-        painter->setBrush(Qt::white);
-        //painter->drawRoundRect(cX+cW+20,cY,dist*2+200,pieces.size()*(painter->fontMetrics().height()+2*dist)+dist,15,15);
+        auto font = painter->font();
         for (int i=pieces.size()-1;i>=0;i--)
         {
             painter->setBrush(pieces[i].rgbColor);
@@ -410,7 +391,8 @@ void Nightcharts::drawLegend(QPainter *painter)
             float recH = painter->fontMetrics().height()+10;
             p_.setX(p_.x()-recW/2 + recW/2*cos(angle*M_PI/180));
             p_.setY(p_.y()+recH/2 + recH/2*sin(angle*M_PI/180));
-            painter->setBrush(Qt::white);
+
+            painter->setBrush(textColor);
             painter->drawRoundRect(p_.x() ,p_.y(), recW, -recH);
             painter->drawText(p_.x()+5, p_.y()-recH/2+5, label);
             angle -= pdegree/2;
