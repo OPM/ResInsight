@@ -36,12 +36,33 @@ TEST( RicElementPropertyTableReaderTest, BasicUsage )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RicElementPropertyTableReaderTest, ParseFailed )
+TEST( RicElementPropertyTableReaderTest, ParseFailedForTooManyColumns )
 {
     try
     {
         RifElementPropertyMetadata metadata =
-            RifElementPropertyTableReader::readMetadata( ELEM_PROP_TEST_DATA_DIRECTORY + "ELASTIC_TABLE_error.inp" );
+            RifElementPropertyTableReader::readMetadata( ELEM_PROP_TEST_DATA_DIRECTORY + "ELASTIC_TABLE_error_too_many_columns.inp" );
+
+        RifElementPropertyTable table;
+        RifElementPropertyTableReader::readData( &metadata, &table );
+
+        EXPECT_TRUE( false );
+    }
+    catch ( FileParseException e )
+    {
+        EXPECT_TRUE( e.message.startsWith( "Number of columns mismatch" ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RicElementPropertyTableReaderTest, ParseFailedForTooFewColumns )
+{
+    try
+    {
+        RifElementPropertyMetadata metadata = RifElementPropertyTableReader::readMetadata(
+            ELEM_PROP_TEST_DATA_DIRECTORY + "ELASTIC_TABLE_error_too_few_columns.inp" );
 
         RifElementPropertyTable table;
         RifElementPropertyTableReader::readData( &metadata, &table );

@@ -111,8 +111,9 @@ void RifElementPropertyTableReader::readData( const RifElementPropertyMetadata* 
         if ( file && expectedColumnCount > 0 )
         {
             QTextStream stream( file );
-            bool        dataBlockFound = false;
-            int         lineNo         = 0;
+            bool        dataBlockFound         = false;
+            bool        completeDataLineFound  = false;
+            int         lineNo                 = 0;
             QStringList collectedCols;
 
             // Init data vectors
@@ -126,6 +127,11 @@ void RifElementPropertyTableReader::readData( const RifElementPropertyMetadata* 
                 {
                     if ( collectedCols.size() > 0 && collectedCols.size() != 8 )
                     {
+                        if ( dataBlockFound )
+                        {
+                            throw FileParseException(
+                                QString( "Number of columns mismatch at %1:%2" ).arg( metadata->fileName ).arg( lineNo ) );
+                        }
                         collectedCols.clear();
                     }
 
@@ -137,10 +143,11 @@ void RifElementPropertyTableReader::readData( const RifElementPropertyMetadata* 
                 }
                 lineNo++;
 
-                if ( !dataBlockFound )
+                if ( !completeDataLineFound )
                 {
                     if ( !line.startsWith( "*" ) && !line.startsWith( "," ) && collectedCols.size() == expectedColumnCount )
                     {
+                        completeDataLineFound  = true;
                         dataBlockFound = true;
                     }
                     else if ( collectedCols.size() > expectedColumnCount )
@@ -185,7 +192,7 @@ void RifElementPropertyTableReader::readData( const RifElementPropertyMetadata* 
                     }
                 }
                 collectedCols.clear();
-                dataBlockFound = false;
+                completeDataLineFound = false;
             }
 
             table->hasData = true;
