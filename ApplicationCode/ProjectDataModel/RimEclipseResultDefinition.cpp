@@ -39,6 +39,7 @@
 #include "Rim3dView.h"
 #include "Rim3dWellLogCurve.h"
 #include "RimCellEdgeColors.h"
+#include "RimColorLegend.h"
 #include "RimContourMapProjection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
@@ -1963,7 +1964,7 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                             fnameIdxes.push_back( i );
                         }
 
-                        cvf::Color3ubArray legendBaseColors = RiaColorTables::categoryPaletteColors().color3ubArray();
+                        cvf::Color3ubArray legendBaseColors = legendConfigToUpdate->colorLegend()->colorArray();
 
                         cvf::ref<caf::CategoryMapper> formationColorMapper = new caf::CategoryMapper;
                         formationColorMapper->setCategories( fnameIdxes );
