@@ -60,6 +60,7 @@ ipch/
 Ankh.NoLoad
 .vs
 out
+build
 CMakeSettings.json
 enc_temp_folder
 
