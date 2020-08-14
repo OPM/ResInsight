@@ -1887,13 +1887,13 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                         ++tracerIndex;
                     }
 
-                    std::vector<std::tuple<QString, int, cvf::Color3ub>> reverseCategories;
-                    for ( auto tupIt = categories.rbegin(); tupIt != categories.rend(); ++tupIt )
+                    std::vector<std::tuple<QString, int, cvf::Color3ub>> categoryVector;
+                    for ( auto tupIt : categories )
                     {
-                        reverseCategories.push_back( *tupIt );
+                        categoryVector.push_back( tupIt );
                     }
 
-                    legendConfigToUpdate->setCategoryItems( reverseCategories );
+                    legendConfigToUpdate->setCategoryItems( categoryVector );
                 }
             }
         }
@@ -1950,7 +1950,7 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                 if ( this->resultType() == RiaDefines::ResultCatType::FORMATION_NAMES )
                 {
                     std::vector<QString> fnVector = eclipseCaseData->formationNames();
-                    legendConfigToUpdate->setNamedCategoriesInverse( fnVector );
+                    legendConfigToUpdate->setNamedCategories( fnVector );
                 }
                 else if ( this->resultType() == RiaDefines::ResultCatType::ALLAN_DIAGRAMS )
                 {
@@ -1958,8 +1958,10 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                     {
                         const std::vector<QString> fnVector = eclipseCaseData->formationNames();
                         std::vector<int>           fnameIdxes;
-                        for ( int i = static_cast<int>( fnVector.size() ); i > 0; --i )
-                            fnameIdxes.push_back( i - 1 );
+                        for ( int i = 0; i < static_cast<int>( fnVector.size() ); i++ )
+                        {
+                            fnameIdxes.push_back( i );
+                        }
 
                         cvf::Color3ubArray legendBaseColors = RiaColorTables::categoryPaletteColors().color3ubArray();
 
@@ -1967,7 +1969,7 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                         formationColorMapper->setCategories( fnameIdxes );
                         formationColorMapper->setInterpolateColors( legendBaseColors );
 
-                        const std::map<std::pair<int, int>, int>& formationCombToCathegory =
+                        const std::map<std::pair<int, int>, int>& formationCombToCategory =
                             eclipseCaseData->allanDiagramData()->formationCombinationToCategory();
 
                         std::vector<std::tuple<QString, int, cvf::Color3ub>> categories;
@@ -1977,11 +1979,11 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                             categories.emplace_back( std::make_tuple( fnVector[frmNameIdx], frmNameIdx, formationColor ) );
                         }
 
-                        for ( auto it = formationCombToCathegory.rbegin(); it != formationCombToCathegory.rend(); ++it )
+                        for ( auto it : formationCombToCategory )
                         {
-                            int frmIdx1   = it->first.first;
-                            int frmIdx2   = it->first.second;
-                            int combIndex = it->second;
+                            int frmIdx1   = it.first.first;
+                            int frmIdx2   = it.first.second;
+                            int combIndex = it.second;
 
                             int fnVectorSize = static_cast<int>( fnVector.size() );
                             if ( frmIdx1 >= fnVectorSize || frmIdx2 >= fnVectorSize ) continue;

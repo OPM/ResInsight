@@ -971,7 +971,7 @@ void RimGeoMechResultDefinition::updateLegendTextAndRanges( RimRegularLegendConf
     if ( this->hasCategoryResult() )
     {
         std::vector<QString> fnVector = gmCase->femPartResults()->formationNames();
-        legendConfigToUpdate->setNamedCategoriesInverse( fnVector );
+        legendConfigToUpdate->setNamedCategories( fnVector );
     }
 
     QString legendTitle = legendHeading + caf::AppEnum<RigFemResultPosEnum>( this->resultPositionType() ).uiText() +

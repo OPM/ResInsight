@@ -217,7 +217,8 @@ void CategoryLegend::setupTextDrawer( TextDrawer* textDrawer, const OverlayColor
             }
         }
 
-        String displayText = m_categoryMapper->textForCategoryIndex( it );
+        size_t inverseIndex = numLabels - 1 - it;
+        String displayText  = m_categoryMapper->textForCategoryIndex( inverseIndex );
 
         Vec2f pos( textX, textY );
         textDrawer->addText( displayText, pos );
@@ -292,10 +293,11 @@ void CategoryLegend::renderLegendUsingShaders( OpenGLContext*                ogl
         int iPx;
         for ( iPx = 0; iPx < legendHeightPixelCount; iPx++ )
         {
-            const Color3ub& clr =
-                m_categoryMapper->mapToColor( m_categoryMapper->domainValue( ( iPx + 0.5 ) / legendHeightPixelCount ) );
-            float y0 = static_cast<float>( layout->colorBarRect.min().y() + iPx );
-            float y1 = static_cast<float>( layout->colorBarRect.min().y() + iPx + 1 );
+            double          normalizedValue         = ( iPx + 0.5 ) / legendHeightPixelCount;
+            double          invertedNormalizedValue = 1.0 - normalizedValue;
+            const Color3ub& clr = m_categoryMapper->mapToColor( m_categoryMapper->domainValue( invertedNormalizedValue ) );
+            float           y0 = static_cast<float>( layout->colorBarRect.min().y() + iPx );
+            float           y1 = static_cast<float>( layout->colorBarRect.min().y() + iPx + 1 );
 
             // Dynamic coordinates for rectangle
             v0[1] = v1[1] = y0;
@@ -409,8 +411,9 @@ void CategoryLegend::renderLegendImmediateMode( OpenGLContext* oglContext, Overl
         int iPx;
         for ( iPx = 0; iPx < legendHeightPixelCount; iPx++ )
         {
-            const Color3ub& clr =
-                m_categoryMapper->mapToColor( m_categoryMapper->domainValue( ( iPx + 0.5 ) / legendHeightPixelCount ) );
+            double normalizedValue = ( iPx + 0.5 ) / legendHeightPixelCount;
+            double invertedNormalizedValue = 1.0 - normalizedValue;
+            const Color3ub& clr = m_categoryMapper->mapToColor( m_categoryMapper->domainValue( invertedNormalizedValue ) );
             float y0 = static_cast<float>( layout->colorBarRect.min().y() + iPx );
             float y1 = static_cast<float>( layout->colorBarRect.min().y() + iPx + 1 );
 

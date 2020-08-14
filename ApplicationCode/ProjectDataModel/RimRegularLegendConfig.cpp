@@ -214,7 +214,7 @@ RimRegularLegendConfig::~RimRegularLegendConfig()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRegularLegendConfig::setNamedCategories( const std::vector<QString>& categoryNames, bool inverse )
+void RimRegularLegendConfig::setNamedCategories( const std::vector<QString>& categoryNames )
 {
     std::list<int>         nameIndices;
     std::list<cvf::String> names;
@@ -222,16 +222,8 @@ void RimRegularLegendConfig::setNamedCategories( const std::vector<QString>& cat
     int categoriesCount = static_cast<int>( categoryNames.size() );
     for ( int i = 0; i < categoriesCount; i++ )
     {
-        if ( !inverse )
-        {
-            nameIndices.push_back( i );
-            names.push_back( cvfqt::Utils::toString( categoryNames[i] ) );
-        }
-        else
-        {
-            nameIndices.push_front( i );
-            names.push_front( cvfqt::Utils::toString( categoryNames[i] ) );
-        }
+        nameIndices.push_back( i );
+        names.push_back( cvfqt::Utils::toString( categoryNames[i] ) );
     }
 
     m_categories    = std::vector<int>( nameIndices.begin(), nameIndices.end() );
@@ -764,22 +756,6 @@ void RimRegularLegendConfig::setIntegerCategories( const std::vector<int>& categ
     m_categoryColors.clear();
 
     updateLegend();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimRegularLegendConfig::setNamedCategories( const std::vector<QString>& categoryNames )
-{
-    setNamedCategories( categoryNames, false );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimRegularLegendConfig::setNamedCategoriesInverse( const std::vector<QString>& categoryNames )
-{
-    setNamedCategories( categoryNames, true );
 }
 
 //--------------------------------------------------------------------------------------------------
