@@ -112,7 +112,7 @@ RimGridCrossPlotDataSet::RimGridCrossPlotDataSet()
     m_groupingProperty = new RimEclipseCellColors;
     m_groupingProperty.uiCapability()->setUiHidden( true );
     CVF_ASSERT( m_groupingProperty->legendConfig() );
-    m_groupingProperty->legendConfig()->setMappingMode( RimRegularLegendConfig::CATEGORY_INTEGER );
+    m_groupingProperty->legendConfig()->setMappingMode( RimRegularLegendConfig::MappingType::CATEGORY_INTEGER );
     m_groupingProperty->setTernaryEnabled( false );
 
     CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "Name", "", "", "" );
@@ -172,7 +172,7 @@ void RimGridCrossPlotDataSet::setCellFilterView( RimGridView* cellFilterView )
             {
                 m_grouping = GROUP_BY_FORMATION;
                 m_groupingProperty->legendConfig()->setColorLegend(
-                    RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::CATEGORY ) );
+                    RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) );
             }
 
             RimGridCrossPlot* parentPlot = nullptr;
@@ -868,18 +868,21 @@ void RimGridCrossPlotDataSet::fieldChangedByUi( const caf::PdmFieldHandle* chang
     {
         if ( m_grouping == GROUP_BY_TIME )
         {
-            legendConfig()->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::NORMAL ) );
-            legendConfig()->setMappingMode( RimRegularLegendConfig::CATEGORY_INTEGER );
+            legendConfig()->setColorLegend(
+                RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL ) );
+            legendConfig()->setMappingMode( RimRegularLegendConfig::MappingType::CATEGORY_INTEGER );
         }
         else if ( groupingByCategoryResult() )
         {
-            legendConfig()->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::CATEGORY ) );
-            legendConfig()->setMappingMode( RimRegularLegendConfig::CATEGORY_INTEGER );
+            legendConfig()->setColorLegend(
+                RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) );
+            legendConfig()->setMappingMode( RimRegularLegendConfig::MappingType::CATEGORY_INTEGER );
         }
         else
         {
-            legendConfig()->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::NORMAL ) );
-            legendConfig()->setMappingMode( RimRegularLegendConfig::LINEAR_DISCRETE );
+            legendConfig()->setColorLegend(
+                RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL ) );
+            legendConfig()->setMappingMode( RimRegularLegendConfig::MappingType::LINEAR_DISCRETE );
         }
 
         destroyCurves();
@@ -1310,7 +1313,7 @@ void RimGridCrossPlotDataSet::setDefaults()
             {
                 m_grouping = GROUP_BY_FORMATION;
                 m_groupingProperty->legendConfig()->setColorLegend(
-                    RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::CATEGORY ) );
+                    RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) );
             }
         }
     }

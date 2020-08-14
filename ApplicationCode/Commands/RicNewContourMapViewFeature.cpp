@@ -210,7 +210,7 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMapFr
 
     // Set default values
     RimRegularLegendConfig* legendConfig = contourMap->cellResult()->legendConfig();
-    if ( legendConfig && legendConfig->mappingMode() == RimRegularLegendConfig::CATEGORY_INTEGER )
+    if ( legendConfig && legendConfig->mappingMode() == RimRegularLegendConfig::MappingType::CATEGORY_INTEGER )
     {
         RicNewContourMapViewFeature::assignDefaultResultAndLegend( contourMap );
     }
@@ -353,7 +353,7 @@ void RicNewContourMapViewFeature::assignDefaultResultAndLegend( RimEclipseContou
         RimRegularLegendConfig* legendConfig = contourMap->cellResult()->legendConfig();
         if ( legendConfig )
         {
-            RimColorLegend* legend = legendConfig->mapToColorLegend( RimRegularLegendConfig::RAINBOW );
+            RimColorLegend* legend = legendConfig->mapToColorLegend( RimRegularLegendConfig::ColorRangesType::RAINBOW );
             legendConfig->setColorLegend( legend );
         }
     }

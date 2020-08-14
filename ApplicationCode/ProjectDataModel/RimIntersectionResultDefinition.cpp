@@ -239,22 +239,22 @@ void RimIntersectionResultDefinition::updateLegendRangesTextAndVisibility( const
     if ( ( this->isEclipseResultDefinition() && m_eclipseResultDefinition()->hasCategoryResult() ) ||
          ( !this->isEclipseResultDefinition() && m_geomResultDefinition()->hasCategoryResult() ) )
     {
-        regularLegendConfig()->setMappingMode( RimRegularLegendConfig::CATEGORY_INTEGER );
+        regularLegendConfig()->setMappingMode( RimRegularLegendConfig::MappingType::CATEGORY_INTEGER );
         regularLegendConfig()->setColorLegend(
-            RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::CATEGORY ) );
+            RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) );
     }
     else
     {
-        if ( regularLegendConfig()->mappingMode() == RimRegularLegendConfig::CATEGORY_INTEGER )
+        if ( regularLegendConfig()->mappingMode() == RimRegularLegendConfig::MappingType::CATEGORY_INTEGER )
         {
-            regularLegendConfig()->setMappingMode( RimRegularLegendConfig::LINEAR_CONTINUOUS );
+            regularLegendConfig()->setMappingMode( RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS );
         }
 
         if ( regularLegendConfig()->colorLegend() ==
-             RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::CATEGORY ) )
+             RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) )
         {
             regularLegendConfig()->setColorLegend(
-                RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::NORMAL ) );
+                RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL ) );
         }
     }
 

@@ -209,11 +209,11 @@ RimWellLogTrack::RimWellLogTrack()
 
     CAF_PDM_InitFieldNoDefault( &m_colorShadingPalette_OBSOLETE, "ColorShadingPalette", "Colors", "", "", "" );
     m_colorShadingPalette_OBSOLETE.xmlCapability()->setIOWritable( false );
-    m_colorShadingPalette_OBSOLETE = RimRegularLegendConfig::UNDEFINED;
+    m_colorShadingPalette_OBSOLETE = RimRegularLegendConfig::ColorRangesType::UNDEFINED;
     m_colorShadingPalette_OBSOLETE.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_colorShadingLegend, "ColorShadingLegend", "Colors", "", "", "" );
-    m_colorShadingLegend = RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::NORMAL );
+    m_colorShadingLegend = RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL );
 
     CAF_PDM_InitField( &m_colorShadingTransparency, "ColorShadingTransparency", 50, "Color Transparency", "", "", "" );
     m_colorShadingTransparency.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
@@ -1876,7 +1876,7 @@ void RimWellLogTrack::initAfterRead()
         m_showWindow = true;
     }
 
-    if ( m_colorShadingPalette_OBSOLETE() != RimRegularLegendConfig::UNDEFINED )
+    if ( m_colorShadingPalette_OBSOLETE() != RimRegularLegendConfig::ColorRangesType::UNDEFINED )
     {
         m_colorShadingLegend = RimRegularLegendConfig::mapToColorLegend( m_colorShadingPalette_OBSOLETE() );
     }

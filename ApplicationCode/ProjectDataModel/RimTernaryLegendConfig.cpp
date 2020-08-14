@@ -56,7 +56,7 @@ RimTernaryLegendConfig::RimTernaryLegendConfig()
                        "" );
     CAF_PDM_InitField( &rangeMode,
                        "RangeType",
-                       RangeModeEnum( USER_DEFINED ),
+                       RangeModeEnum( RangeModeType::USER_DEFINED ),
                        "Range type",
                        "",
                        "Switches between automatic and user defined range on the legend",
@@ -299,7 +299,7 @@ void RimTernaryLegendConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     formatGr->add( &precision );
     formatGr->add( &rangeMode );
 
-    if ( rangeMode == USER_DEFINED )
+    if ( rangeMode == RangeModeType::USER_DEFINED )
     {
         caf::PdmUiOrdering* ternaryGroupContainer = uiOrdering.addNewGroup( "Ternary " );
         {
@@ -392,7 +392,7 @@ void RimTernaryLegendConfig::ternaryRanges( double& soilLower,
                                             double& swatLower,
                                             double& swatUpper ) const
 {
-    if ( rangeMode() == AUTOMATIC_CURRENT_TIMESTEP )
+    if ( rangeMode() == RangeModeType::AUTOMATIC_CURRENT_TIMESTEP )
     {
         soilLower = m_localAutoMin[TERNARY_SOIL_IDX];
         soilUpper = m_localAutoMax[TERNARY_SOIL_IDX];
@@ -401,7 +401,7 @@ void RimTernaryLegendConfig::ternaryRanges( double& soilLower,
         swatLower = m_localAutoMin[TERNARY_SWAT_IDX];
         swatUpper = m_localAutoMax[TERNARY_SWAT_IDX];
     }
-    else if ( rangeMode() == AUTOMATIC_ALLTIMESTEPS )
+    else if ( rangeMode() == RangeModeType::AUTOMATIC_ALLTIMESTEPS )
     {
         soilLower = m_globalAutoMin[TERNARY_SOIL_IDX];
         soilUpper = m_globalAutoMax[TERNARY_SOIL_IDX];
@@ -477,7 +477,7 @@ void RimTernaryLegendConfig::updateLabelText()
         }
     }
 
-    if ( rangeMode == AUTOMATIC_ALLTIMESTEPS )
+    if ( rangeMode == RangeModeType::AUTOMATIC_ALLTIMESTEPS )
     {
         QString tmpString;
         tmpString = QString( "SOIL : " ) + QString::number( m_globalAutoMin[TERNARY_SOIL_IDX], 'g', precision ) +
@@ -489,7 +489,7 @@ void RimTernaryLegendConfig::updateLabelText()
 
         ternaryRangeSummary = tmpString;
     }
-    else if ( rangeMode == AUTOMATIC_CURRENT_TIMESTEP )
+    else if ( rangeMode == RangeModeType::AUTOMATIC_CURRENT_TIMESTEP )
     {
         QString tmpString;
         tmpString = QString( "SOIL : " ) + QString::number( m_localAutoMin[TERNARY_SOIL_IDX], 'g', precision ) + " - " +

@@ -832,11 +832,11 @@ void RimContourMapProjection::generateTrianglesWithVertexValues()
 
     bool                discrete = false;
     std::vector<double> contourLevels;
-    if ( legendConfig()->mappingMode() != RimRegularLegendConfig::CATEGORY_INTEGER )
+    if ( legendConfig()->mappingMode() != RimRegularLegendConfig::MappingType::CATEGORY_INTEGER )
     {
         legendConfig()->scalarMapper()->majorTickValues( &contourLevels );
-        if ( legendConfig()->mappingMode() == RimRegularLegendConfig::LINEAR_DISCRETE ||
-             legendConfig()->mappingMode() == RimRegularLegendConfig::LOG10_DISCRETE )
+        if ( legendConfig()->mappingMode() == RimRegularLegendConfig::MappingType::LINEAR_DISCRETE ||
+             legendConfig()->mappingMode() == RimRegularLegendConfig::MappingType::LOG10_DISCRETE )
         {
             discrete = true;
         }
@@ -1082,7 +1082,7 @@ void RimContourMapProjection::generateContourPolygons()
     std::vector<ContourPolygons> contourPolygons;
 
     std::vector<double> contourLevels;
-    if ( resultRangeIsValid() && legendConfig()->mappingMode() != RimRegularLegendConfig::CATEGORY_INTEGER )
+    if ( resultRangeIsValid() && legendConfig()->mappingMode() != RimRegularLegendConfig::MappingType::CATEGORY_INTEGER )
     {
         legendConfig()->scalarMapper()->majorTickValues( &contourLevels );
         int nContourLevels = static_cast<int>( contourLevels.size() );
@@ -1092,8 +1092,8 @@ void RimContourMapProjection::generateContourPolygons()
         {
             if ( nContourLevels > 2 )
             {
-                if ( legendConfig()->mappingMode() == RimRegularLegendConfig::LINEAR_DISCRETE ||
-                     legendConfig()->mappingMode() == RimRegularLegendConfig::LINEAR_CONTINUOUS )
+                if ( legendConfig()->mappingMode() == RimRegularLegendConfig::MappingType::LINEAR_DISCRETE ||
+                     legendConfig()->mappingMode() == RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS )
                 {
                     contourLevels.front() -= 0.01 * ( contourLevels.back() - contourLevels.front() );
                 }

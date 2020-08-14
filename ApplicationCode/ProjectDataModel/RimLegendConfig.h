@@ -39,7 +39,7 @@ public:
     RimLegendConfig();
     ~RimLegendConfig() override;
 
-    enum RangeModeType
+    enum class RangeModeType
     {
         AUTOMATIC_ALLTIMESTEPS,
         AUTOMATIC_CURRENT_TIMESTEP,

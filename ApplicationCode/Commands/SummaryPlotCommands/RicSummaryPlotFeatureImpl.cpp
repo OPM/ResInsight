@@ -619,7 +619,7 @@ RimSummaryPlot*
 
                 if ( ensembleColoringStyle == EnsembleColoringType::LOG_PARAMETER )
                 {
-                    curveSet->legendConfig()->setMappingMode( RimRegularLegendConfig::LOG10_CONTINUOUS );
+                    curveSet->legendConfig()->setMappingMode( RimRegularLegendConfig::MappingType::LOG10_CONTINUOUS );
                 }
             }
 
@@ -684,7 +684,7 @@ std::vector<RimSummaryPlot*> RicSummaryPlotFeatureImpl::createMultipleSummaryPlo
                 curveSet->setEnsembleParameter( ensembleColoringParameter );
                 if ( ensembleColoringStyle == EnsembleColoringType::LOG_PARAMETER )
                 {
-                    curveSet->legendConfig()->setMappingMode( RimRegularLegendConfig::LOG10_CONTINUOUS );
+                    curveSet->legendConfig()->setMappingMode( RimRegularLegendConfig::MappingType::LOG10_CONTINUOUS );
                 }
             }
             createdEnsembleCurveSets.push_back( curveSet );

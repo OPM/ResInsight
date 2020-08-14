@@ -67,7 +67,7 @@ public:
 
     caf::PdmField<QString> resultVariableName; // Used internally to describe the variable this legend setup is used for
 
-    enum ColorRangesType
+    enum class ColorRangesType
     {
         NORMAL,
         OPPOSITE_NORMAL,
@@ -95,7 +95,7 @@ public:
 
     typedef caf::AppEnum<ColorRangesType> ColorRangeEnum;
 
-    enum MappingType
+    enum class MappingType
     {
         LINEAR_DISCRETE,
         LINEAR_CONTINUOUS,
@@ -103,7 +103,7 @@ public:
         LOG10_DISCRETE,
         CATEGORY_INTEGER
     };
-    enum NumberFormatType
+    enum class NumberFormatType
     {
         AUTO,
         SCIENTIFIC,
