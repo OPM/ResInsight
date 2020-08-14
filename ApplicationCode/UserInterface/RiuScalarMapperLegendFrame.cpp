@@ -31,7 +31,7 @@ RiuScalarMapperLegendFrame::RiuScalarMapperLegendFrame( QWidget* parent, const Q
     : RiuAbstractLegendFrame( parent, title )
     , m_scalarMapper( scalarMapper )
     , m_tickNumberPrecision( 4 )
-    , m_numberFormat( RimRegularLegendConfig::AUTO )
+    , m_numberFormat( RimRegularLegendConfig::NumberFormatType::AUTO )
 {
     if ( m_scalarMapper.notNull() )
     {
@@ -125,10 +125,10 @@ QString RiuScalarMapperLegendFrame::label( int index ) const
     QString valueString;
     switch ( m_numberFormat )
     {
-        case RimRegularLegendConfig::FIXED:
+        case RimRegularLegendConfig::NumberFormatType::FIXED:
             valueString = QString::number( tickValue, 'f', m_tickNumberPrecision );
             break;
-        case RimRegularLegendConfig::SCIENTIFIC:
+        case RimRegularLegendConfig::NumberFormatType::SCIENTIFIC:
             valueString = QString::number( tickValue, 'e', m_tickNumberPrecision );
             break;
         default:

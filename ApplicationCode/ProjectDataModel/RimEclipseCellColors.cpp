@@ -169,8 +169,8 @@ void RimEclipseCellColors::changeLegendConfig( QString resultVarNameOfNewLegend 
 
                 if ( useLog )
                 {
-                    newLegend->setMappingMode( RimRegularLegendConfig::LOG10_CONTINUOUS );
-                    newLegend->setTickNumberFormat( RimRegularLegendConfig::AUTO );
+                    newLegend->setMappingMode( RimRegularLegendConfig::MappingType::LOG10_CONTINUOUS );
+                    newLegend->setTickNumberFormat( RimRegularLegendConfig::NumberFormatType::AUTO );
                 }
 
                 m_legendConfigData.push_back( newLegend );
@@ -249,19 +249,22 @@ void RimEclipseCellColors::updateLegendCategorySettings()
 
     if ( this->hasCategoryResult() )
     {
-        legendConfig()->setMappingMode( RimRegularLegendConfig::CATEGORY_INTEGER );
-        legendConfig()->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::CATEGORY ) );
+        legendConfig()->setMappingMode( RimRegularLegendConfig::MappingType::CATEGORY_INTEGER );
+        legendConfig()->setColorLegend(
+            RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) );
     }
     else
     {
-        if ( legendConfig()->mappingMode() == RimRegularLegendConfig::CATEGORY_INTEGER )
+        if ( legendConfig()->mappingMode() == RimRegularLegendConfig::MappingType::CATEGORY_INTEGER )
         {
-            legendConfig()->setMappingMode( RimRegularLegendConfig::LINEAR_CONTINUOUS );
+            legendConfig()->setMappingMode( RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS );
         }
 
-        if ( legendConfig()->colorLegend() == RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::CATEGORY ) )
+        if ( legendConfig()->colorLegend() ==
+             RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) )
         {
-            legendConfig()->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::NORMAL ) );
+            legendConfig()->setColorLegend(
+                RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL ) );
         }
     }
 }

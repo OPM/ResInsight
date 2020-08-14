@@ -99,7 +99,7 @@ void RimColorLegendCollection::createStandardColorLegends()
             QString            legendName = ColorRangeEnum::uiTextFromIndex( typeIdx );
             cvf::Color3ubArray colorArray = RimRegularLegendConfig::colorArrayFromColorType( colorType );
 
-            if ( colorType == RimRegularLegendConfig::CATEGORY )
+            if ( colorType == RimRegularLegendConfig::ColorRangesType::CATEGORY )
             {
                 // Reverse the ordering of the category items in the category legend to match the changes
                 // for fixing issue https://github.com/OPM/ResInsight/issues/6252

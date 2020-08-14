@@ -232,7 +232,7 @@ bool RimWellMeasurementInView::updateLegendData()
         categories.push_back( std::make_tuple( measurementKind(), 0, color ) );
         m_legendConfig->setCategoryItems( categories );
         m_legendConfig->setTitle( QString( "Well Measurement: \n" ) + measurementKind() );
-        m_legendConfig->setMappingMode( RimRegularLegendConfig::CATEGORY_INTEGER );
+        m_legendConfig->setMappingMode( RimRegularLegendConfig::MappingType::CATEGORY_INTEGER );
         return true;
     }
     else

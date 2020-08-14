@@ -198,11 +198,11 @@ void RimElementVectorResult::mappingRange( double& min, double& max ) const
 
     resultsData->ensureKnownResultLoaded( resVarAddr );
 
-    if ( m_legendConfig->rangeMode() == RimRegularLegendConfig::AUTOMATIC_ALLTIMESTEPS )
+    if ( m_legendConfig->rangeMode() == RimRegularLegendConfig::RangeModeType::AUTOMATIC_ALLTIMESTEPS )
     {
         resultsData->minMaxCellScalarValues( resVarAddr, min, max );
     }
-    else if ( m_legendConfig->rangeMode() == RimRegularLegendConfig::AUTOMATIC_CURRENT_TIMESTEP )
+    else if ( m_legendConfig->rangeMode() == RimRegularLegendConfig::RangeModeType::AUTOMATIC_CURRENT_TIMESTEP )
     {
         resultsData->minMaxCellScalarValues( resVarAddr, currentTimeStep, min, max );
     }

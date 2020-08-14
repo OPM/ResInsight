@@ -195,7 +195,7 @@ RimEclipseView::RimEclipseView()
     this->cellResult()->setReservoirView( this );
     this->cellEdgeResult()->setReservoirView( this );
     this->cellEdgeResult()->legendConfig()->setColorLegend(
-        RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::PINK_WHITE ) );
+        RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::PINK_WHITE ) );
 
     this->faultResultSettings()->setReservoirView( this );
 
