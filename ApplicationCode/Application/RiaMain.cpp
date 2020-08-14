@@ -20,6 +20,8 @@
 #include "RiaConsoleApplication.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiaPreferences.h"
+#include "RiuTools.h"
 
 #include "cvfProgramOptions.h"
 #include "cvfqtUtils.h"
@@ -63,6 +65,11 @@ int main( int argc, char* argv[] )
     const cvf::String usageText = progOpt.usageText( 110, 30 );
     app->initialize();
     app->setCommandLineHelpText( cvfqt::Utils::toQString( usageText ) );
+
+    if ( app->preferences()->enableDarkTheme() )
+    {
+        RiuTools::applyDarkTheme();
+    }
 
     if ( !result )
     {

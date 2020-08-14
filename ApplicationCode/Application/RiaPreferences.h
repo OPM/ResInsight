@@ -106,6 +106,7 @@ public:
     bool        useMultipleThreadsWhenReadingSummaryData() const;
     bool        showProgressBar() const;
     bool        openExportedPdfInViewer() const;
+    bool        enableDarkTheme() const;
 
     std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> defaultFontSizes() const;
 
@@ -200,6 +201,7 @@ private:
     caf::PdmField<bool>    m_showSummaryTimeAsLongString;
     caf::PdmField<bool>    m_useMultipleThreadsWhenLoadingSummaryData;
     caf::PdmField<bool>    m_showProgressBar;
+    caf::PdmField<bool>    m_enableDarkTheme;
     caf::PdmField<QString> m_gtestFilter;
 
     caf::PdmField<PageSizeEnum>        m_pageSize;

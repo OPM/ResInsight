@@ -371,6 +371,9 @@ RiaPreferences::RiaPreferences( void )
     m_openExportedPdfInViewer.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitField( &m_gtestFilter, "gtestFilter", QString(), "Unit Test Filter (gtest)", "", "", "" );
+
+    CAF_PDM_InitField( &m_enableDarkTheme, "enableDarkTheme", false, "Enable Dark Theme", "", "", "" );
+    m_enableDarkTheme.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -412,13 +415,13 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
 
     if ( field == &octaveShowHeaderInfoWhenExecutingScripts || field == &autocomputeDepthRelatedProperties ||
          field == &loadAndShowSoil || field == &m_useShaders || field == &m_showHud ||
-         field == &m_appendClassNameToUiText || field == &m_appendFieldKeywordToToolTipText ||
-         field == &m_showTestToolbar || field == &m_includeFractureDebugInfoFile ||
-         field == &showLasCurveWithoutTvdWarning || field == &holoLensDisableCertificateVerification ||
-         field == &m_showProjectChangedDialog || field == &m_searchPlotTemplateFoldersRecursively ||
-         field == &m_showLegendBackground || field == &m_showSummaryTimeAsLongString ||
-         field == &m_showViewIdInProjectTree || field == &m_useMultipleThreadsWhenLoadingSummaryData ||
-         field == &m_enableFaultsByDefault || field == &m_showProgressBar || field == &m_openExportedPdfInViewer )
+         field == &m_appendClassNameToUiText || field == &m_appendFieldKeywordToToolTipText || field == &m_showTestToolbar ||
+         field == &m_includeFractureDebugInfoFile || field == &showLasCurveWithoutTvdWarning ||
+         field == &holoLensDisableCertificateVerification || field == &m_showProjectChangedDialog ||
+         field == &m_searchPlotTemplateFoldersRecursively || field == &m_showLegendBackground ||
+         field == &m_showSummaryTimeAsLongString || field == &m_showViewIdInProjectTree ||
+         field == &m_useMultipleThreadsWhenLoadingSummaryData || field == &m_enableFaultsByDefault ||
+         field == &m_showProgressBar || field == &m_openExportedPdfInViewer || field == &m_enableDarkTheme )
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
         if ( myAttr )
@@ -574,6 +577,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         uiOrdering.add( &m_showTestToolbar );
         uiOrdering.add( &m_includeFractureDebugInfoFile );
         uiOrdering.add( &m_holoLensExportFolder );
+        uiOrdering.add( &m_enableDarkTheme );
     }
 
     uiOrdering.skipRemainingFields( true );
@@ -957,6 +961,14 @@ bool RiaPreferences::showProgressBar() const
 bool RiaPreferences::openExportedPdfInViewer() const
 {
     return m_openExportedPdfInViewer;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::enableDarkTheme() const
+{
+    return m_enableDarkTheme();
 }
 
 //--------------------------------------------------------------------------------------------------
