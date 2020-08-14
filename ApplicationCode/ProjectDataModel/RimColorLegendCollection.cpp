@@ -92,11 +92,24 @@ void RimColorLegendCollection::createStandardColorLegends()
 
     for ( size_t typeIdx = 0; typeIdx < ColorRangeEnum::size(); typeIdx++ )
     {
-        if ( ColorRangeEnum::fromIndex( typeIdx ) != RimRegularLegendConfig::ColorRangesType::UNDEFINED )
+        auto colorType = ColorRangeEnum::fromIndex( typeIdx );
+
+        if ( colorType != RimRegularLegendConfig::ColorRangesType::UNDEFINED )
         {
             QString            legendName = ColorRangeEnum::uiTextFromIndex( typeIdx );
-            cvf::Color3ubArray colorArray =
-                RimRegularLegendConfig::colorArrayFromColorType( ColorRangeEnum::fromIndex( typeIdx ) );
+            cvf::Color3ubArray colorArray = RimRegularLegendConfig::colorArrayFromColorType( colorType );
+
+            if ( colorType == RimRegularLegendConfig::CATEGORY )
+            {
+                // Reverse the ordering of the category items in the category legend to match the changes
+                // for fixing issue https://github.com/OPM/ResInsight/issues/6252
+
+                auto other = colorArray;
+                for ( size_t i = 0; i < colorArray.size(); i++ )
+                {
+                    colorArray[i] = other[colorArray.size() - 1 - i];
+                }
+            }
 
             RimColorLegend* colorLegend = new RimColorLegend;
             colorLegend->setColorLegendName( legendName );
