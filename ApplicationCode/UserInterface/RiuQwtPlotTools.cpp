@@ -18,7 +18,6 @@
 #include "RiuQwtPlotTools.h"
 
 #include "RiaApplication.h"
-#include "RiaColorTools.h"
 #include "RiaPreferences.h"
 
 #include "qwt_date_scale_draw.h"

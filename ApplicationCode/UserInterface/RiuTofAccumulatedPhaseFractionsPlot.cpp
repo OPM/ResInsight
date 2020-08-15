@@ -19,8 +19,6 @@
 
 #include "RiuTofAccumulatedPhaseFractionsPlot.h"
 
-#include "RiaColorTools.h"
-
 #include "RimContextCommandBuilder.h"
 #include "RimTofAccumulatedPhaseFractionsPlot.h"
 

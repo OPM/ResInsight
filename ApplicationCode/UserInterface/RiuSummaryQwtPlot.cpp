@@ -103,9 +103,11 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent /*= 
 {
     // LeftButton for the zooming
     m_zoomerLeft = new RiuQwtPlotZoomer( canvas() );
-    m_zoomerLeft->setRubberBandPen( QColor( Qt::black ) );
+
+    QPalette systemPalette;
+    m_zoomerLeft->setRubberBandPen( systemPalette.color( QPalette::Text ) );
     m_zoomerLeft->setTrackerMode( QwtPicker::AlwaysOff );
-    m_zoomerLeft->setTrackerPen( QColor( Qt::black ) );
+    m_zoomerLeft->setTrackerPen( systemPalette.color( QPalette::Text ) );
     m_zoomerLeft->initMousePattern( 1 );
 
     // Attach a zoomer for the right axis

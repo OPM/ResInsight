@@ -18,7 +18,6 @@
 
 #include "RiuMessagePanel.h"
 
-#include "RiaColorTools.h"
 #include "RiaRegressionTestRunner.h"
 
 #include <QDockWidget>

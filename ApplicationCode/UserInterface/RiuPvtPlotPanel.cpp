@@ -18,8 +18,6 @@
 
 #include "RiuPvtPlotPanel.h"
 
-#include "RiaColorTools.h"
-
 #include "RiuDockedQwtPlot.h"
 #include "RiuPvtPlotUpdater.h"
 

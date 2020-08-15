@@ -63,9 +63,12 @@ RiuGridCrossQwtPlot::RiuGridCrossQwtPlot( RimGridCrossPlot* plot, QWidget* paren
 {
     // LeftButton for the zooming
     m_zoomerLeft = new RiuQwtPlotZoomer( canvas() );
-    m_zoomerLeft->setRubberBandPen( QColor( Qt::black ) );
+
+    QPalette systemPalette;
+    QColor   textColor = systemPalette.color( QPalette::Text );
+    m_zoomerLeft->setRubberBandPen( textColor );
     m_zoomerLeft->setTrackerMode( QwtPicker::AlwaysOff );
-    m_zoomerLeft->setTrackerPen( QColor( Qt::black ) );
+    m_zoomerLeft->setTrackerPen( textColor );
     m_zoomerLeft->initMousePattern( 1 );
 
     // Attach a zoomer for the right axis
@@ -93,7 +96,7 @@ RiuGridCrossQwtPlot::RiuGridCrossQwtPlot( RimGridCrossPlot* plot, QWidget* paren
 
     // QwtPlotMarker takes ownership of the symbol, it is deleted in destructor of QwtPlotMarker
     QwtSymbol* mySymbol =
-        new QwtSymbol( QwtSymbol::Ellipse, QBrush( QColor( 255, 255, 255, 50 ) ), QPen( Qt::black, 2.0 ), QSize( 10, 10 ) );
+        new QwtSymbol( QwtSymbol::Ellipse, QBrush( QColor( 255, 255, 255, 50 ) ), QPen( textColor, 2.0 ), QSize( 10, 10 ) );
     m_selectedPointMarker->setSymbol( mySymbol );
     m_selectedPointMarker->setLabelAlignment( Qt::AlignRight | Qt::AlignVCenter );
     m_selectedPointMarker->setSpacing( 3 );
@@ -214,7 +217,10 @@ void RiuGridCrossQwtPlot::onPlotItemSelected( QwtPlotItem* plotItem, bool toggle
                 QwtText curveLabel( labelString, QwtText::RichText );
                 curveLabel.setBackgroundBrush( QBrush( QColor( 250, 250, 250, 220 ) ) );
                 curveLabel.setPaintAttribute( QwtText::PaintBackground );
-                curveLabel.setBorderPen( QPen( Qt::black, 1.0 ) );
+
+                QPalette systemPalette;
+                curveLabel.setBorderPen( QPen( systemPalette.color( QPalette::Text ), 1.0 ) );
+
                 curveLabel.setBorderRadius( 2.0 );
                 m_selectedPointMarker->setLabel( curveLabel );
             }

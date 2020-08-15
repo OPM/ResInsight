@@ -19,7 +19,6 @@
 #include "RiuWellAllocationPlot.h"
 
 #include "RiaApplication.h"
-#include "RiaColorTools.h"
 
 #include "RimContextCommandBuilder.h"
 #include "RimTofAccumulatedPhaseFractionsPlot.h"
