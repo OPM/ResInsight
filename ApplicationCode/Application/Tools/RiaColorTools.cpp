@@ -104,15 +104,26 @@ cvf::Color3f RiaColorTools::brightContrastColorSofter()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Color3f RiaColorTools::contrastColor( cvf::Color3f backgroundColor, bool softerContrast )
+cvf::Color3f RiaColorTools::contrastColor( cvf::Color3f color, bool softerContrast )
 {
-    if ( isBrightnessAboveThreshold( backgroundColor ) )
+    if ( isBrightnessAboveThreshold( color ) )
     {
         if ( softerContrast ) return darkContrastColorSofter();
         return darkContrastColor();
     }
     if ( softerContrast ) return brightContrastColorSofter();
     return brightContrastColor();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QColor RiaColorTools::contrastColor( QColor color, bool softerContrast /*= false */ )
+{
+    auto cvfColor         = fromQColorTo3f( color );
+    auto cvfContrastColor = contrastColor( cvfColor, softerContrast );
+
+    return toQColor( cvfContrastColor );
 }
 
 //--------------------------------------------------------------------------------------------------

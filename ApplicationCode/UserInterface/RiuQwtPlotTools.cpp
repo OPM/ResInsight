@@ -18,6 +18,7 @@
 #include "RiuQwtPlotTools.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTools.h"
 #include "RiaPreferences.h"
 
 #include "qwt_date_scale_draw.h"
@@ -38,12 +39,19 @@ void RiuQwtPlotTools::setCommonPlotBehaviour( QwtPlot* plot )
 {
     // Plot background and frame look
 
-    QPalette newPalette( plot->palette() );
-    newPalette.setColor( QPalette::Window, Qt::white );
-    plot->setPalette( newPalette );
+    QPalette systemPalette;
+    {
+        QPalette newPalette = plot->palette();
+        newPalette.setColor( QPalette::Window, systemPalette.color( QPalette::Window ) );
+        plot->setPalette( newPalette );
+    }
+    {
+        QPalette newPalette = plot->canvas()->palette();
+        newPalette.setColor( QPalette::Window, systemPalette.color( QPalette::Window ) );
+        plot->canvas()->setPalette( newPalette );
+    }
 
     plot->setAutoFillBackground( true );
-    plot->setCanvasBackground( Qt::white );
     plot->plotLayout()->setCanvasMargin( 0, -1 );
 
     QFrame* canvasFrame = dynamic_cast<QFrame*>( plot->canvas() );

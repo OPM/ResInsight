@@ -19,6 +19,7 @@
 #include "RiuFlowCharacteristicsPlot.h"
 
 #include "RiaColorTables.h"
+#include "RiaColorTools.h"
 #include "RiaFeatureCommandContext.h"
 #include "RiaFontCache.h"
 #include "RiaPreferences.h"
@@ -62,11 +63,12 @@ RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot( RimFlowCharacteristicsPl
     this->layout()->setMargin( 3 );
     this->layout()->setSpacing( 3 );
 
-    // White background
-    QPalette pal = this->palette();
-    pal.setColor( QPalette::Window, Qt::white );
+    QPalette systemPalette;
+    QPalette newPalette = palette();
+    newPalette.setColor( QPalette::Window, systemPalette.color( QPalette::Window ) );
+    setPalette( newPalette );
+
     this->setAutoFillBackground( true );
-    this->setPalette( pal );
 
     m_lorenzPlot              = new QwtPlot( this );
     m_flowCapVsStorageCapPlot = new QwtPlot( this );
