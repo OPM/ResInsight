@@ -19,6 +19,7 @@
 #include "RiuWellAllocationPlot.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTools.h"
 
 #include "RimContextCommandBuilder.h"
 #include "RimTofAccumulatedPhaseFractionsPlot.h"
@@ -60,9 +61,8 @@ RiuWellAllocationPlot::RiuWellAllocationPlot( RimWellAllocationPlot* plotDefinit
     font.setBold( true );
     m_titleLabel->setFont( font );
 
-    QPalette systemPalette;
     QPalette newPalette = palette();
-    newPalette.setColor( QPalette::Window, systemPalette.color( QPalette::Window ) );
+    newPalette.setColor( QPalette::Window, RiaColorTools::systemPaletteWindowColor() );
     setPalette( newPalette );
 
     this->setAutoFillBackground( true );

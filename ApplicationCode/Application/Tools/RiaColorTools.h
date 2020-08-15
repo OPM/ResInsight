@@ -46,6 +46,7 @@ public:
 
     static QColor       systemPaletteTextColor();
     static cvf::Color3f systemPaletteTextColor3f();
+    static QColor       systemPaletteWindowColor();
 
     static cvf::Color3f
                   blendCvfColors( const cvf::Color3f& color1, const cvf::Color3f& color2, int weight1 = 1, int weight2 = 1 );

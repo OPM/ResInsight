@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RiuGridCrossQwtPlot.h"
 
+#include "RiaColorTools.h"
 #include "RiaFontCache.h"
 
 #include "RiuCvfOverlayItemWidget.h"
@@ -64,8 +65,7 @@ RiuGridCrossQwtPlot::RiuGridCrossQwtPlot( RimGridCrossPlot* plot, QWidget* paren
     // LeftButton for the zooming
     m_zoomerLeft = new RiuQwtPlotZoomer( canvas() );
 
-    QPalette systemPalette;
-    QColor   textColor = systemPalette.color( QPalette::Text );
+    QColor textColor = RiaColorTools::systemPaletteTextColor();
     m_zoomerLeft->setRubberBandPen( textColor );
     m_zoomerLeft->setTrackerMode( QwtPicker::AlwaysOff );
     m_zoomerLeft->setTrackerPen( textColor );
@@ -217,9 +217,7 @@ void RiuGridCrossQwtPlot::onPlotItemSelected( QwtPlotItem* plotItem, bool toggle
                 QwtText curveLabel( labelString, QwtText::RichText );
                 curveLabel.setBackgroundBrush( QBrush( QColor( 250, 250, 250, 220 ) ) );
                 curveLabel.setPaintAttribute( QwtText::PaintBackground );
-
-                QPalette systemPalette;
-                curveLabel.setBorderPen( QPen( systemPalette.color( QPalette::Text ), 1.0 ) );
+                curveLabel.setBorderPen( QPen( RiaColorTools::systemPaletteTextColor(), 1.0 ) );
 
                 curveLabel.setBorderRadius( 2.0 );
                 m_selectedPointMarker->setLabel( curveLabel );

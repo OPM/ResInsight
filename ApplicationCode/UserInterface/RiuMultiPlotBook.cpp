@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RiuMultiPlotBook.h"
 
+#include "RiaColorTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaPreferences.h"
@@ -571,10 +572,8 @@ void RiuMultiPlotBook::applyLook()
     }
     else
     {
-        QPalette systemPalette;
         QPalette newPalette( palette() );
-
-        newPalette.setColor( QPalette::Window, systemPalette.color( QPalette::Window ) );
+        newPalette.setColor( QPalette::Window, RiaColorTools::systemPaletteWindowColor() );
         setPalette( newPalette );
 
         this->setBackgroundRole( QPalette::Window );

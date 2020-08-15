@@ -18,6 +18,7 @@
 #include "RiuSummaryQwtPlot.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTools.h"
 #include "RiaPreferences.h"
 
 #include "Commands/CorrelationPlotCommands/RicNewCorrelationPlotFeature.h"
@@ -104,10 +105,9 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent /*= 
     // LeftButton for the zooming
     m_zoomerLeft = new RiuQwtPlotZoomer( canvas() );
 
-    QPalette systemPalette;
-    m_zoomerLeft->setRubberBandPen( systemPalette.color( QPalette::Text ) );
+    m_zoomerLeft->setRubberBandPen( RiaColorTools::systemPaletteTextColor() );
     m_zoomerLeft->setTrackerMode( QwtPicker::AlwaysOff );
-    m_zoomerLeft->setTrackerPen( systemPalette.color( QPalette::Text ) );
+    m_zoomerLeft->setTrackerPen( RiaColorTools::systemPaletteTextColor() );
     m_zoomerLeft->initMousePattern( 1 );
 
     // Attach a zoomer for the right axis

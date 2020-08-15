@@ -19,6 +19,8 @@
 
 #include "RiuTofAccumulatedPhaseFractionsPlot.h"
 
+#include "RiaColorTools.h"
+
 #include "RimContextCommandBuilder.h"
 #include "RimTofAccumulatedPhaseFractionsPlot.h"
 
@@ -53,9 +55,8 @@ RiuTofAccumulatedPhaseFractionsPlot::RiuTofAccumulatedPhaseFractionsPlot( RimTof
     Q_ASSERT( plotDefinition );
     m_plotDefinition = plotDefinition;
 
-    QPalette systemPalette;
     QPalette newPalette = palette();
-    newPalette.setColor( QPalette::Window, systemPalette.color( QPalette::Window ) );
+    newPalette.setColor( QPalette::Window, RiaColorTools::systemPaletteWindowColor() );
     setPalette( newPalette );
 
     setAutoFillBackground( true );
@@ -229,15 +230,14 @@ void RiuTofAccumulatedPhaseFractionsPlot::setDefaults()
 void RiuTofAccumulatedPhaseFractionsPlot::setCommonPlotBehaviour( QwtPlot* plot )
 {
     // Plot background and frame look
-    QPalette systemPalette;
     {
         QPalette newPalette = plot->palette();
-        newPalette.setColor( QPalette::Window, systemPalette.color( QPalette::Window ) );
+        newPalette.setColor( QPalette::Window, RiaColorTools::systemPaletteWindowColor() );
         plot->setPalette( newPalette );
     }
     {
         QPalette newPalette = plot->canvas()->palette();
-        newPalette.setColor( QPalette::Window, systemPalette.color( QPalette::Window ) );
+        newPalette.setColor( QPalette::Window, RiaColorTools::systemPaletteWindowColor() );
         plot->canvas()->setPalette( newPalette );
     }
 

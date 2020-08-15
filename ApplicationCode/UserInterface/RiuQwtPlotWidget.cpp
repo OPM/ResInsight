@@ -1166,8 +1166,7 @@ void RiuQwtPlotWidget::resetPlotItemHighlighting()
         {
             QPen pen = plotShapeItem->pen();
 
-            QPalette systemPalette;
-            pen.setColor( systemPalette.color( QPalette::Text ) );
+            pen.setColor( RiaColorTools::systemPaletteTextColor() );
             pen.setWidth( 1 );
             plotShapeItem->setPen( pen );
             plotShapeItem->setZ( plotShapeItem->z() - 100.0 );

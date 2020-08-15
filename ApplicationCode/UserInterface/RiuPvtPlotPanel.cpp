@@ -18,10 +18,11 @@
 
 #include "RiuPvtPlotPanel.h"
 
+#include "RiaColorTools.h"
+#include "RigFlowDiagSolverInterface.h"
+
 #include "RiuDockedQwtPlot.h"
 #include "RiuPvtPlotUpdater.h"
-
-#include "RigFlowDiagSolverInterface.h"
 
 #include "cvfAssert.h"
 #include "cvfMath.h"
@@ -122,15 +123,14 @@ void RiuPvtPlotWidget::setPlotDefaults( QwtPlot* plot )
 {
     // Plot background and frame look
 
-    QPalette systemPalette;
     {
         QPalette newPalette = plot->palette();
-        newPalette.setColor( QPalette::Window, systemPalette.color( QPalette::Window ) );
+        newPalette.setColor( QPalette::Window, RiaColorTools::systemPaletteWindowColor() );
         plot->setPalette( newPalette );
     }
     {
         QPalette newPalette = plot->canvas()->palette();
-        newPalette.setColor( QPalette::Window, systemPalette.color( QPalette::Window ) );
+        newPalette.setColor( QPalette::Window, RiaColorTools::systemPaletteWindowColor() );
         plot->canvas()->setPalette( newPalette );
     }
 

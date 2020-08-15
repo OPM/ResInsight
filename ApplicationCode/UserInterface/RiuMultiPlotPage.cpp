@@ -25,6 +25,7 @@
 
 #include "WellLogCommands/RicWellLogPlotTrackFeatureImpl.h"
 
+#include "RiaColorTools.h"
 #include "RiaGuiApplication.h"
 
 #include "RimContextCommandBuilder.h"
@@ -354,8 +355,7 @@ void RiuMultiPlotPage::renderTo( QPainter* painter, double scalingFactor )
 {
     stashWidgetStates();
 
-    QPalette systemPalette;
-    painter->fillRect( painter->viewport(), systemPalette.color( QPalette::Window ) );
+    painter->fillRect( painter->viewport(), RiaColorTools::systemPaletteWindowColor() );
 
     m_plotTitle->render( painter );
 
@@ -849,10 +849,8 @@ void RiuMultiPlotPage::restoreWidgetStates()
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::applyLook()
 {
-    QPalette systemPalette;
     QPalette newPalette( palette() );
-
-    newPalette.setColor( QPalette::Window, systemPalette.color( QPalette::Window ) );
+    newPalette.setColor( QPalette::Window, RiaColorTools::systemPaletteWindowColor() );
     setPalette( newPalette );
 
     setAutoFillBackground( true );

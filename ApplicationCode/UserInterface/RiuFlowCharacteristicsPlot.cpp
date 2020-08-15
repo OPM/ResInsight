@@ -19,6 +19,7 @@
 #include "RiuFlowCharacteristicsPlot.h"
 
 #include "RiaColorTables.h"
+#include "RiaColorTools.h"
 #include "RiaFeatureCommandContext.h"
 #include "RiaFontCache.h"
 #include "RiaPreferences.h"
@@ -62,9 +63,8 @@ RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot( RimFlowCharacteristicsPl
     this->layout()->setMargin( 3 );
     this->layout()->setSpacing( 3 );
 
-    QPalette systemPalette;
     QPalette newPalette = palette();
-    newPalette.setColor( QPalette::Window, systemPalette.color( QPalette::Window ) );
+    newPalette.setColor( QPalette::Window, RiaColorTools::systemPaletteWindowColor() );
     setPalette( newPalette );
 
     this->setAutoFillBackground( true );
@@ -142,10 +142,9 @@ void RiuFlowCharacteristicsPlot::addWindowZoom( QwtPlot* plot )
 {
     auto zoomer = new RiuQwtPlotZoomer( plot->canvas() );
 
-    QPalette systemPalette;
-    zoomer->setRubberBandPen( systemPalette.color( QPalette::Text ) );
+    zoomer->setRubberBandPen( RiaColorTools::systemPaletteTextColor() );
     zoomer->setTrackerMode( QwtPicker::AlwaysOff );
-    zoomer->setTrackerPen( systemPalette.color( QPalette::Text ) );
+    zoomer->setTrackerPen( RiaColorTools::systemPaletteTextColor() );
     zoomer->initMousePattern( 1 );
 }
 //--------------------------------------------------------------------------------------------------
