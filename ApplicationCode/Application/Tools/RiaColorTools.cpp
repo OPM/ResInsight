@@ -155,6 +155,24 @@ cvf::Color3f RiaColorTools::fromQColorTo3f( QColor color )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QColor RiaColorTools::systemPaletteTextColor()
+{
+    QPalette systemPalette;
+
+    return systemPalette.color( QPalette::Text );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RiaColorTools::systemPaletteTextColor3f()
+{
+    return fromQColorTo3f( systemPaletteTextColor() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::Color3f RiaColorTools::blendCvfColors( const cvf::Color3f& color1,
                                             const cvf::Color3f& color2,
                                             int                 weight1 /*= 1*/,
