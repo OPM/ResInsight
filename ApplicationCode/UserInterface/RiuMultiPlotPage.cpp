@@ -353,7 +353,10 @@ void RiuMultiPlotPage::renderTo( QPaintDevice* paintDevice )
 void RiuMultiPlotPage::renderTo( QPainter* painter, double scalingFactor )
 {
     stashWidgetStates();
-    painter->fillRect( painter->viewport(), Qt::white );
+
+    QPalette systemPalette;
+    painter->fillRect( painter->viewport(), systemPalette.color( QPalette::Window ) );
+
     m_plotTitle->render( painter );
 
     // Subtract margins because we are rendering into part inside the margins
@@ -846,8 +849,10 @@ void RiuMultiPlotPage::restoreWidgetStates()
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::applyLook()
 {
+    QPalette systemPalette;
     QPalette newPalette( palette() );
-    newPalette.setColor( QPalette::Window, Qt::white );
+
+    newPalette.setColor( QPalette::Window, systemPalette.color( QPalette::Window ) );
     setPalette( newPalette );
 
     setAutoFillBackground( true );

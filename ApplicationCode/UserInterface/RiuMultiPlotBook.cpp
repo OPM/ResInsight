@@ -571,8 +571,10 @@ void RiuMultiPlotBook::applyLook()
     }
     else
     {
+        QPalette systemPalette;
         QPalette newPalette( palette() );
-        newPalette.setColor( QPalette::Window, Qt::white );
+
+        newPalette.setColor( QPalette::Window, systemPalette.color( QPalette::Window ) );
         setPalette( newPalette );
 
         this->setBackgroundRole( QPalette::Window );
