@@ -44,9 +44,15 @@ RiuQwtCurvePointTracker::RiuQwtCurvePointTracker( QwtPlot*                    pl
     this->setTrackerMode( QwtPicker::AlwaysOn );
     m_plotMarker = new QwtPlotMarker;
 
+    auto textColor = plot->palette().color( QPalette::Text );
+
     // QwtPlotMarker takes ownership of the symbol, it is deleted in destructor of QwtPlotMarker
-    QwtSymbol* mySymbol = new QwtSymbol( QwtSymbol::Ellipse, Qt::NoBrush, QPen( Qt::black, 2.0 ), QSize( 12, 12 ) );
+    QwtSymbol* mySymbol = new QwtSymbol( QwtSymbol::Ellipse, Qt::NoBrush, QPen( textColor, 2.0 ), QSize( 12, 12 ) );
     m_plotMarker->setSymbol( mySymbol );
+
+    QPen pen = this->trackerPen();
+    pen.setColor( textColor );
+    setTrackerPen( pen );
 }
 
 //--------------------------------------------------------------------------------------------------
