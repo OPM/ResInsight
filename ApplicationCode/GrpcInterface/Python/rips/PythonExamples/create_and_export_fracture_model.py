@@ -15,8 +15,14 @@ measured_depth = 4100.0
 elastic_properties_file_path = "/home/resinsight/stimplan/complete_dataset_2020-06-22/Elastic_Template_CSV_file-with-biot.csv"
 fracture_model = fracture_model_collection.new_fracture_model(well_path=well_path, measured_depth=measured_depth, elastic_properties_file_path=elastic_properties_file_path)
 
+fracture_model.overburden_formation = "Garn"
+fracture_model.overburden_facies = "Shale"
+fracture_model.underburden_formation = "Garn"
+fracture_model.underburden_facies = "Shale"
+fracture_model.overburden_height = 68
+fracture_model.update()
 
-
+print("Overburden: ", fracture_model.overburden_formation)
 
 
 cases = resinsight.project.cases()
@@ -30,3 +36,5 @@ time_step = time_steps[len(time_steps) - 1]
 fracture_model_plot_collection = project.descendants(rips.FractureModelPlotCollection)[0]
 fracture_model_plot = fracture_model_plot_collection.new_fracture_model_plot(eclipse_case=case, fracture_model=fracture_model, time_step=time_step)
 
+file_path = "/tmp/Geological.frk"
+fracture_model_plot.export_to_file(file_path=file_path)
