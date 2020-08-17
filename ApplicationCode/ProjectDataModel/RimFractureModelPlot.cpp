@@ -44,7 +44,7 @@ RimFractureModelPlot::RimFractureModelPlot()
 {
     CAF_PDM_InitScriptableObject( "Fracture Model Plot", "", "", "A fracture model plot" );
 
-    CAF_PDM_InitFieldNoDefault( &m_fractureModel, "FractureModel", "Fracture Model", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_fractureModel, "FractureModel", "Fracture Model", "", "", "" );
     m_fractureModel.uiCapability()->setUiTreeChildrenHidden( true );
     m_fractureModel.uiCapability()->setUiHidden( true );
 
