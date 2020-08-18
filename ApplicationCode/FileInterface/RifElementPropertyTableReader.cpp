@@ -111,9 +111,9 @@ void RifElementPropertyTableReader::readData( const RifElementPropertyMetadata* 
         if ( file && expectedColumnCount > 0 )
         {
             QTextStream stream( file );
-            bool        dataBlockFound         = false;
-            bool        completeDataLineFound  = false;
-            int         lineNo                 = 0;
+            bool        dataBlockFound        = false;
+            bool        completeDataLineFound = false;
+            int         lineNo                = 0;
             QStringList collectedCols;
 
             // Init data vectors
@@ -122,7 +122,7 @@ void RifElementPropertyTableReader::readData( const RifElementPropertyMetadata* 
 
             while ( !stream.atEnd() )
             {
-                QString     line = stream.readLine();
+                QString line = stream.readLine();
                 if ( !line.startsWith( "*" ) )
                 {
                     if ( collectedCols.size() > 0 && collectedCols.size() != 8 )
@@ -147,8 +147,8 @@ void RifElementPropertyTableReader::readData( const RifElementPropertyMetadata* 
                 {
                     if ( !line.startsWith( "*" ) && !line.startsWith( "," ) && collectedCols.size() == expectedColumnCount )
                     {
-                        completeDataLineFound  = true;
-                        dataBlockFound = true;
+                        completeDataLineFound = true;
+                        dataBlockFound        = true;
                     }
                     else if ( collectedCols.size() > expectedColumnCount )
                     {
