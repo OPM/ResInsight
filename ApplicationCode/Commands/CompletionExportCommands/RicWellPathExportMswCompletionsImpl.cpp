@@ -798,6 +798,29 @@ std::vector<std::pair<double, double>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RicWellPathExportMswCompletionsImpl::calculateLengthThroughActiveCells(
+    double                                           startMD,
+    double                                           endMD,
+    const std::vector<WellPathCellIntersectionInfo>& wellPathIntersections,
+    const RigActiveCellInfo*                         activeCellInfo )
+{
+    double totalOverlap = 0.0;
+    for ( const WellPathCellIntersectionInfo& intersection : wellPathIntersections )
+    {
+        if ( activeCellInfo->isActive( intersection.globCellIndex ) )
+        {
+            double overlapStart = std::max( startMD, intersection.startMD );
+            double overlapEnd   = std::min( endMD, intersection.endMD );
+            double overlap      = std::max( 0.0, overlapEnd - overlapStart );
+            totalOverlap += overlap;
+        }
+    }
+    return totalOverlap;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RicMswExportInfo RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo( const RimEclipseCase* caseToApply,
                                                                                       const RimWellPath*    wellPath,
                                                                                       bool enableSegmentSplitting )
@@ -1023,7 +1046,10 @@ RicMswExportInfo RicWellPathExportMswCompletionsImpl::generatePerforationsMswExp
 {
     RiaEclipseUnitTools::UnitSystem unitSystem = eclipseCase->eclipseCaseData()->unitsType();
 
-    double initialMD = 0.0; // Start measured depth segment to export MSW data for. Either based on first intersection
+    const RigActiveCellInfo* activeCellInfo =
+        eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+
+    double initialMD = 0.0; // Start measured depth location to export MSW data for. Either based on first intersection
                             // with active grid, or user defined value.
 
     std::vector<WellPathCellIntersectionInfo> intersections = generateCellSegments( eclipseCase, wellPath, initialMD );
@@ -1050,7 +1076,11 @@ RicMswExportInfo RicWellPathExportMswCompletionsImpl::generatePerforationsMswExp
                                                                                &foundSubGridIntersections );
 
     createValveCompletions( mainBoreSegments, perforationIntervals, wellPath, unitSystem );
-    assignValveContributionsToSuperICDsOrAICDs( mainBoreSegments, perforationIntervals, unitSystem );
+    assignValveContributionsToSuperICDsOrAICDs( mainBoreSegments,
+                                                perforationIntervals,
+                                                filteredIntersections,
+                                                activeCellInfo,
+                                                unitSystem );
     moveIntersectionsToICVs( mainBoreSegments, perforationIntervals, unitSystem );
     moveIntersectionsToSuperICDsOrAICDs( mainBoreSegments );
 
@@ -1431,6 +1461,8 @@ void RicWellPathExportMswCompletionsImpl::createValveCompletions(
 void RicWellPathExportMswCompletionsImpl::assignValveContributionsToSuperICDsOrAICDs(
     const std::vector<std::shared_ptr<RicMswSegment>>& mainBoreSegments,
     const std::vector<const RimPerforationInterval*>&  perforationIntervals,
+    const std::vector<WellPathCellIntersectionInfo>&   wellPathIntersections,
+    const RigActiveCellInfo*                           activeCellInfo,
     RiaEclipseUnitTools::UnitSystem                    unitSystem )
 {
     ValveContributionMap assignedRegularValves;
@@ -1469,21 +1501,32 @@ void RicWellPathExportMswCompletionsImpl::assignValveContributionsToSuperICDsOrA
             {
                 if ( !valve->isChecked() ) continue;
 
+                double totalValveLength = calculateLengthThroughActiveCells( valve->startMD(),
+                                                                             valve->endMD(),
+                                                                             wellPathIntersections,
+                                                                             activeCellInfo );
+
                 for ( size_t nSubValve = 0u; nSubValve < valve->valveSegments().size(); ++nSubValve )
                 {
-                    std::pair<double, double> valveSegment       = valve->valveSegments()[nSubValve];
-                    double                    valveSegmentLength = valveSegment.second - valveSegment.first;
-                    double                    overlapStart       = std::max( valveSegment.first, segment->startMD() );
-                    double                    overlapEnd         = std::min( valveSegment.second, segment->endMD() );
-                    double                    overlap            = std::max( 0.0, overlapEnd - overlapStart );
+                    std::pair<double, double> valveSegment = valve->valveSegments()[nSubValve];
 
-                    if ( overlap > 0.0 && accumulator )
+                    double valveSegmentLength = calculateLengthThroughActiveCells( valveSegment.first,
+                                                                                   valveSegment.second,
+                                                                                   wellPathIntersections,
+                                                                                   activeCellInfo );
+
+                    double overlapStart = std::max( valveSegment.first, segment->startMD() );
+                    double overlapEnd   = std::min( valveSegment.second, segment->endMD() );
+
+                    double overlapLength =
+                        calculateLengthThroughActiveCells( overlapStart, overlapEnd, wellPathIntersections, activeCellInfo );
+
+                    if ( overlapLength > 0.0 && valveSegmentLength > 0.0 && accumulator )
                     {
-                        double lengthOpenForFlow = std::fabs( valve->endMD() - valve->startMD() );
                         if ( accumulator->accumulateValveParameters( valve,
                                                                      nSubValve,
-                                                                     overlap / valveSegmentLength,
-                                                                     lengthOpenForFlow ) )
+                                                                     overlapLength / valveSegmentLength,
+                                                                     totalValveLength ) )
                         {
                             assignedRegularValves[superValve].insert( std::make_pair( valve, nSubValve ) );
                         }
