@@ -105,7 +105,8 @@ public:
                                  std::vector<caf::PdmObjectHandle*>& referringObjects );
 
 protected:
-    void addField( PdmFieldHandle* field, const QString& keyword );
+    void         addField( PdmFieldHandle* field, const QString& keyword );
+    virtual void onParentChanged(){};
 
 private:
     PDM_DISABLE_COPY_AND_ASSIGN( PdmObjectHandle );
