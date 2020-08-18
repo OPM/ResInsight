@@ -57,6 +57,7 @@ void PdmObjectHandle::setAsParentField( PdmFieldHandle* parentField )
     CAF_ASSERT( m_parentField == nullptr );
 
     m_parentField = parentField;
+    onParentChanged();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,6 +68,7 @@ void PdmObjectHandle::removeAsParentField( PdmFieldHandle* parentField )
     CAF_ASSERT( m_parentField == parentField );
 
     m_parentField = nullptr;
+    onParentChanged();
 }
 
 //--------------------------------------------------------------------------------------------------

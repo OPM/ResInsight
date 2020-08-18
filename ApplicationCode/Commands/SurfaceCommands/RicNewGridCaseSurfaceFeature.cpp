@@ -25,6 +25,9 @@
 
 #include "Riu3DMainWindowTools.h"
 
+#include "cafSelectionManagerTools.h"
+#include "cafUtils.h"
+
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicNewGridSurfaceFeature, "RicNewGridSurfaceFeature" );
@@ -42,22 +45,18 @@ bool RicNewGridSurfaceFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewGridSurfaceFeature::onActionTriggered( bool isChecked )
 {
-    RimProject*           proj     = RimProject::current();
-    RimSurfaceCollection* surfColl = proj->activeOilField()->surfaceCollection();
-
-    if ( !surfColl )
-    {
-        surfColl                                  = new RimSurfaceCollection();
-        proj->activeOilField()->surfaceCollection = surfColl;
-        proj->updateConnectedEditors();
-    }
+    RimProject* proj = RimProject::current();
 
     RimCase* sourceCase = nullptr;
     auto     allCases   = proj->allGridCases();
     if ( !allCases.empty() ) sourceCase = allCases.front();
 
-    RimSurface* lastCreatedOrUpdated = surfColl->addGridCaseSurface( sourceCase );
+    // Find the selected SurfaceCollection
+    std::vector<RimSurfaceCollection*> colls = caf::selectedObjectsByTypeStrict<RimSurfaceCollection*>();
+    if ( colls.empty() ) return;
+    RimSurfaceCollection* surfColl = colls[0];
 
+    RimSurface* lastCreatedOrUpdated = surfColl->addGridCaseSurface( sourceCase );
     if ( lastCreatedOrUpdated )
     {
         Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
