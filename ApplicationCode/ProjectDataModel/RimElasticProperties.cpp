@@ -22,6 +22,8 @@
 
 #include "RicElasticPropertiesImportTools.h"
 
+#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmObjectScriptability.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTextEditor.h"
 
@@ -32,13 +34,13 @@ CAF_PDM_SOURCE_INIT( RimElasticProperties, "ElasticProperties" );
 //--------------------------------------------------------------------------------------------------
 RimElasticProperties::RimElasticProperties()
 {
-    CAF_PDM_InitObject( "RimElasticProperties", "", "", "" );
+    CAF_PDM_InitScriptableObject( "RimElasticProperties", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_filePath, "FilePath", "File Path", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_filePath, "FilePath", "File Path", "", "", "" );
     m_filePath.uiCapability()->setUiReadOnly( true );
     m_filePath.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_propertiesTable, "PropertiesTable", "Properties Table", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_propertiesTable, "PropertiesTable", "Properties Table", "", "", "" );
     m_propertiesTable.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     m_propertiesTable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_propertiesTable.uiCapability()->setUiReadOnly( true );

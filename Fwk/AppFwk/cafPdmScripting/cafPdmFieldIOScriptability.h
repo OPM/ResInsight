@@ -330,7 +330,11 @@ struct PdmFieldScriptabilityIOHandler<DataType*>
         fieldValue = nullptr; // Default initialized to nullptr
 
         QString fieldString;
-        PdmFieldScriptabilityIOHandler<QString>::writeToField( fieldString, inputStream, errorMessageContainer, true );
+        bool    stringsAreQuoted = false;
+        PdmFieldScriptabilityIOHandler<QString>::writeToField( fieldString,
+                                                               inputStream,
+                                                               errorMessageContainer,
+                                                               stringsAreQuoted );
 
         if ( inputStream.status() == QTextStream::ReadCorruptData )
         {

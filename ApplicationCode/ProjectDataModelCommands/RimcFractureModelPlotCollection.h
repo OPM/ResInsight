@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020-     Equinor ASA
+//  Copyright (C) 2020- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,28 +18,35 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include "RimFractureModelPlotCollection.h"
 
-class RimFractureModel;
-class RimFractureModelCollection;
+#include "cafPdmField.h"
+#include "cafPdmObjectHandle.h"
+#include "cafPdmObjectMethod.h"
+#include "cafPdmPtrArrayField.h"
+#include "cafPdmPtrField.h"
+
+class RimFractureModelPlotCollection;
 class RimWellPath;
-class RimWellPathCollection;
+class RimFractureModel;
+class RimEclipseCase;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewFractureModelFeature : public caf::CmdFeature
+class RimcFractureModelPlotCollection_newFractureModelPlot : public caf::PdmObjectMethod
 {
-    CAF_CMD_HEADER_INIT;
+    CAF_PDM_HEADER_INIT;
 
 public:
-    static RimFractureModel* addFractureModel( RimWellPath* wellPath, RimWellPathCollection* wellPathCollection );
+    RimcFractureModelPlotCollection_newFractureModelPlot( caf::PdmObjectHandle* self );
 
-protected:
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
-    bool isCommandEnabled() override;
+    caf::PdmObjectHandle*            execute();
+    bool                             resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
 
 private:
-    static RimFractureModelCollection* selectedFractureModelCollection();
+    caf::PdmPtrField<RimEclipseCase*>   m_eclipseCase;
+    caf::PdmPtrField<RimFractureModel*> m_fractureModel;
+    caf::PdmField<int>                  m_timeStep;
 };
