@@ -1648,9 +1648,6 @@ void RicWellPathExportMswCompletionsImpl::writeMainBoreWelsegsSegment( std::shar
     double startMD = segment->startMD();
     double endMD   = segment->endMD();
 
-    double startTVD = segment->startTVD();
-    double endTVD   = segment->endTVD();
-
     std::vector<std::pair<double, double>> subSegments = createSubSegmentMDPairs( startMD, endMD, maxSegmentLength );
 
     for ( auto mdPair : subSegments )
@@ -1714,9 +1711,6 @@ void RicWellPathExportMswCompletionsImpl::writeValveWelsegsSegment( std::shared_
 
     double startMD = subSegment->startMD();
     double endMD   = subSegment->endMD();
-
-    double startTVD = subSegment->startTVD();
-    double endTVD   = subSegment->endTVD();
 
     std::vector<std::pair<double, double>> splitSegments = createSubSegmentMDPairs( startMD, endMD, maxSegmentLength );
 
@@ -1784,9 +1778,6 @@ void RicWellPathExportMswCompletionsImpl::writeCompletionWelsegsSegment( std::sh
     {
         double startMD = subSegment->startMD();
         double endMD   = subSegment->endMD();
-
-        double startTVD = subSegment->startTVD();
-        double endTVD   = subSegment->endTVD();
 
         std::vector<std::pair<double, double>> splitSegments = createSubSegmentMDPairs( startMD, endMD, maxSegmentLength );
 
