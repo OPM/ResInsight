@@ -264,13 +264,54 @@ void RimSurfaceCollection::orderChanged( const caf::SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceCollection::removeSurface( RimSurface* surface )
 {
-    // todo: implement this
+    m_surfaces.removeChildObject( surface );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurfaceCollection::addSurfacesAtPosition( int position, std::vector<RimSurface*> surfaces )
+void RimSurfaceCollection::addSurfacesAtIndex( int position, std::vector<RimSurface*> surfaces )
 {
-    // todo: implement this
+    // insert position at end?
+    if ( position >= static_cast<int>( m_surfaces.size() ) )
+    {
+        for ( auto surf : surfaces )
+        {
+            m_surfaces.push_back( surf );
+        }
+    }
+    else
+    {
+        // build the new surface order
+        std::vector<RimSurface*> orderedSurfs;
+
+        size_t i = 0;
+
+        while ( i < position )
+        {
+            orderedSurfs.push_back( m_surfaces[i++] );
+        }
+
+        for ( auto surf : surfaces )
+        {
+            orderedSurfs.push_back( surf );
+        }
+
+        while ( i < m_surfaces.size() )
+        {
+            orderedSurfs.push_back( m_surfaces[i++] );
+        }
+
+        // reset the surface collection and use the new order
+        m_surfaces.clear();
+        for ( auto surf : orderedSurfs )
+        {
+            m_surfaces.push_back( surf );
+        }
+    }
+
+    // make sure the views are in sync with the collection order
+    updateViews();
+
+    return;
 }

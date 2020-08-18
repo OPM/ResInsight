@@ -868,7 +868,7 @@ bool RiuDragDrop::handleSurfaceCollectionDrop( Qt::DropAction        action,
         }
     }
 
-    targetCollection->addSurfacesAtPosition( row, surfaces );
+    targetCollection->addSurfacesAtIndex( row, surfaces );
     targetCollection->updateConnectedEditors();
 
     return true;

@@ -38,7 +38,7 @@ public:
 
     void reloadSurfaces( std::vector<RimSurface*> surfaces );
     void removeSurface( RimSurface* surface );
-    void addSurfacesAtPosition( int position, std::vector<RimSurface*> surfaces );
+    void addSurfacesAtIndex( int index, std::vector<RimSurface*> surfaces );
 
     void loadData();
     void updateViews();
