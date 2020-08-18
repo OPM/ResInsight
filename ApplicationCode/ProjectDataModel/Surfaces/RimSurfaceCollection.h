@@ -47,6 +47,8 @@ public:
     void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
+    std::vector<RimSurface*> surfaces() const;
+
 private:
     void orderChanged( const caf::SignalEmitter* emitter );
 

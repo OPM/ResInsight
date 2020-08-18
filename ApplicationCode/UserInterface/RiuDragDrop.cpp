@@ -442,7 +442,7 @@ bool RiuDragDrop::dropMimeData( const QMimeData* data, Qt::DropAction action, in
         dropTarget->firstAncestorOrThisOfType( surfaceCollection );
         if ( surfaceCollection )
         {
-            return handleSurfaceCollectionDrop( action, int row, draggedObjects, surfaceCollection );
+            return handleSurfaceCollectionDrop( action, row, draggedObjects, surfaceCollection );
         }
     }
 
