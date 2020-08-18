@@ -40,6 +40,8 @@ public:
     void removeSurface( RimSurface* surface );
     void addSurfacesAtIndex( int index, std::vector<RimSurface*> surfaces );
 
+    void addSubCollection( RimSurfaceCollection* collection );
+
     void loadData();
     void updateViews();
     void updateViews( const std::vector<RimSurface*>& surfsToReload );
@@ -52,5 +54,6 @@ public:
 private:
     void orderChanged( const caf::SignalEmitter* emitter );
 
-    caf::PdmChildArrayField<RimSurface*> m_surfaces;
+    caf::PdmChildArrayField<RimSurface*>           m_surfaces;
+    caf::PdmChildArrayField<RimSurfaceCollection*> m_subcollections;
 };

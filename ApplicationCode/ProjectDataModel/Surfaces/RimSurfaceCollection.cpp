@@ -39,9 +39,14 @@ RimSurfaceCollection::RimSurfaceCollection()
 {
     CAF_PDM_InitObject( "Surfaces", ":/ReservoirSurfaces16x16.png", "", "" );
 
+    CAF_PDM_InitFieldNoDefault( &m_subcollections, "SubCollections", "Surfaces", "", "", "" );
+    m_subcollections.uiCapability()->setUiTreeHidden( true );
+    auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_subcollections );
+    reorderability->orderChanged.connect( this, &RimSurfaceCollection::orderChanged );
+
     CAF_PDM_InitFieldNoDefault( &m_surfaces, "SurfacesField", "Surfaces", "", "", "" );
     m_surfaces.uiCapability()->setUiTreeHidden( true );
-    auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_surfaces );
+    reorderability = caf::PdmFieldReorderCapability::addToField( &m_surfaces );
     reorderability->orderChanged.connect( this, &RimSurfaceCollection::orderChanged );
 }
 
@@ -273,7 +278,7 @@ void RimSurfaceCollection::removeSurface( RimSurface* surface )
 void RimSurfaceCollection::addSurfacesAtIndex( int position, std::vector<RimSurface*> surfaces )
 {
     // insert position at end?
-    if ( position >= static_cast<int>( m_surfaces.size() ) )
+    if ( ( position >= static_cast<int>( m_surfaces.size() ) ) || ( position < 0 ) )
     {
         for ( auto surf : surfaces )
         {
@@ -314,4 +319,15 @@ void RimSurfaceCollection::addSurfacesAtIndex( int position, std::vector<RimSurf
     updateViews();
 
     return;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceCollection::addSubCollection( RimSurfaceCollection* subcoll )
+{
+    m_subcollections.push_back( subcoll );
+    this->updateConnectedEditors();
+
+    updateViews();
 }

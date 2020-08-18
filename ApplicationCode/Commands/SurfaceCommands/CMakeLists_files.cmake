@@ -5,15 +5,16 @@ ${CMAKE_CURRENT_LIST_DIR}/RicReloadSurfaceFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewGridCaseSurfaceFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportKLayerToPtlFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportSurfaceToTsurfFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicNewSurfaceCollectionFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RicImportSurfacesFeature.cpp
-
 ${CMAKE_CURRENT_LIST_DIR}/RicReloadSurfaceFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewGridCaseSurfaceFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportKLayerToPtlFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportSurfaceToTsurfFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicNewSurfaceCollectionFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
