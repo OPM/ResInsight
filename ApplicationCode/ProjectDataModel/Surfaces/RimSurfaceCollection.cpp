@@ -39,9 +39,6 @@ RimSurfaceCollection::RimSurfaceCollection()
 {
     CAF_PDM_InitObject( "Surfaces", ":/ReservoirSurfaces16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_collectionname, "SurfaceUserDecription", "Name", "", "", "" );
-    m_collectionname = "Surfaces";
-
     CAF_PDM_InitFieldNoDefault( &m_subcollections, "SubCollections", "Surfaces", "", "", "" );
     m_subcollections.uiCapability()->setUiTreeHidden( true );
     auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_subcollections );
@@ -49,6 +46,8 @@ RimSurfaceCollection::RimSurfaceCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_surfaces, "SurfacesField", "Surfaces", "", "", "" );
     m_surfaces.uiCapability()->setUiTreeHidden( true );
+    reorderability = caf::PdmFieldReorderCapability::addToField( &m_surfaces );
+    reorderability->orderChanged.connect( this, &RimSurfaceCollection::orderChanged );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,23 +55,6 @@ RimSurfaceCollection::RimSurfaceCollection()
 //--------------------------------------------------------------------------------------------------
 RimSurfaceCollection::~RimSurfaceCollection()
 {
-}
-
-// void RimSurfaceCollection::onParentChanged()
-//{
-//    // only allow name changes if we are a child of a surface collection
-//    if ( parentField() )
-//    {
-//        m_collectionname.uiCapability()->setUiHidden( parentField()->keyword() != "SubCollections" );
-//    }
-//}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimSurfaceCollection::userDescriptionField()
-{
-    return &m_collectionname;
 }
 
 //--------------------------------------------------------------------------------------------------

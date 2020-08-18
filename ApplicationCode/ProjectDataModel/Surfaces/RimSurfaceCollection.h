@@ -17,8 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "cafPdmField.h"
-
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 
@@ -53,14 +51,9 @@ public:
 
     std::vector<RimSurface*> surfaces() const;
 
-protected:
-    caf::PdmFieldHandle* userDescriptionField() override;
-    //    void                 onParentChanged() override;
-
 private:
     void orderChanged( const caf::SignalEmitter* emitter );
 
-    caf::PdmField<QString>                         m_collectionname;
     caf::PdmChildArrayField<RimSurface*>           m_surfaces;
     caf::PdmChildArrayField<RimSurfaceCollection*> m_subcollections;
 };

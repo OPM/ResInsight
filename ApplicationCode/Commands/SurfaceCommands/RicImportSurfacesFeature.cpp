@@ -27,9 +27,6 @@
 
 #include "Riu3DMainWindowTools.h"
 
-#include "cafSelectionManagerTools.h"
-#include "cafUtils.h"
-
 #include <QAction>
 #include <QFileDialog>
 
@@ -60,10 +57,17 @@ void RicImportSurfacesFeature::onActionTriggered( bool isChecked )
     // Remember the path to next time
     app->setLastUsedDialogDirectory( "BINARY_GRID", QFileInfo( fileNames.last() ).absolutePath() );
 
-    // Find the selected SurfaceCollection
-    std::vector<RimSurfaceCollection*> colls = caf::selectedObjectsByTypeStrict<RimSurfaceCollection*>();
-    if ( colls.empty() ) return;
-    RimSurfaceCollection* surfColl = colls[0];
+    // Find or create the SurfaceCollection
+
+    RimProject*           proj     = RimProject::current();
+    RimSurfaceCollection* surfColl = proj->activeOilField()->surfaceCollection();
+
+    if ( !surfColl )
+    {
+        surfColl                                  = new RimSurfaceCollection();
+        proj->activeOilField()->surfaceCollection = surfColl;
+        proj->updateConnectedEditors();
+    }
 
     // For each file,
 
