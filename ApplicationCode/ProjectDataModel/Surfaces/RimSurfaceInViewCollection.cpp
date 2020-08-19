@@ -225,6 +225,11 @@ void RimSurfaceInViewCollection::updateFromSurfaceCollection()
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceInViewCollection::loadData()
 {
+    for ( RimSurfaceInViewCollection* coll : m_collectionsInView )
+    {
+        coll->loadData();
+    }
+
     for ( RimSurfaceInView* surf : m_surfacesInView )
     {
         if ( surf->isActive() )
@@ -239,6 +244,11 @@ void RimSurfaceInViewCollection::loadData()
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceInViewCollection::clearGeometry()
 {
+    for ( RimSurfaceInViewCollection* coll : m_collectionsInView )
+    {
+        coll->clearGeometry();
+    }
+
     for ( RimSurfaceInView* surf : m_surfacesInView )
     {
         surf->clearGeometry();
@@ -251,6 +261,14 @@ void RimSurfaceInViewCollection::clearGeometry()
 void RimSurfaceInViewCollection::appendPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform )
 {
     if ( !isChecked() ) return;
+
+    for ( RimSurfaceInViewCollection* coll : m_collectionsInView )
+    {
+        if ( coll->isChecked() )
+        {
+            coll->appendPartsToModel( model, scaleTransform );
+        }
+    }
 
     for ( RimSurfaceInView* surf : m_surfacesInView )
     {
@@ -328,6 +346,14 @@ void RimSurfaceInViewCollection::updateCellResultColor( bool hasGeneralCellResul
 {
     if ( !this->isChecked() ) return;
 
+    for ( RimSurfaceInViewCollection* coll : m_collectionsInView )
+    {
+        if ( coll->isChecked() )
+        {
+            coll->updateCellResultColor( hasGeneralCellResult, timeStepIndex );
+        }
+    }
+
     for ( RimSurfaceInView* surf : m_surfacesInView )
     {
         if ( surf->isActive() )
@@ -367,6 +393,14 @@ void RimSurfaceInViewCollection::applySingleColorEffect()
 {
     if ( !this->isChecked() ) return;
 
+    for ( RimSurfaceInViewCollection* coll : m_collectionsInView )
+    {
+        if ( coll->isChecked() )
+        {
+            coll->applySingleColorEffect();
+        }
+    }
+
     for ( RimSurfaceInView* surf : m_surfacesInView )
     {
         if ( surf->isActive() )
@@ -382,6 +416,15 @@ void RimSurfaceInViewCollection::applySingleColorEffect()
 bool RimSurfaceInViewCollection::hasAnyActiveSeparateResults()
 {
     if ( !this->isChecked() ) return false;
+
+    for ( RimSurfaceInViewCollection* coll : m_collectionsInView )
+    {
+        if ( coll->isChecked() )
+        {
+            bool found = coll->hasAnyActiveSeparateResults();
+            if ( found ) return true;
+        }
+    }
 
     for ( RimSurfaceInView* surf : m_surfacesInView )
     {
@@ -401,6 +444,11 @@ bool RimSurfaceInViewCollection::hasAnyActiveSeparateResults()
 void RimSurfaceInViewCollection::updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer,
                                                                       bool       isUsingOverrideViewer )
 {
+    for ( RimSurfaceInViewCollection* coll : m_collectionsInView )
+    {
+        coll->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer, isUsingOverrideViewer );
+    }
+
     for ( RimSurfaceInView* surf : m_surfacesInView )
     {
         surf->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer, isUsingOverrideViewer );
@@ -414,9 +462,18 @@ std::vector<RimRegularLegendConfig*> RimSurfaceInViewCollection::legendConfigs()
 {
     std::vector<RimRegularLegendConfig*> configs;
 
+    for ( RimSurfaceInViewCollection* coll : m_collectionsInView )
+    {
+        if ( coll->isChecked() )
+        {
+            std::vector<RimRegularLegendConfig*> collconfigs = coll->legendConfigs();
+            configs.insert( configs.end(), collconfigs.begin(), collconfigs.end() );
+        }
+    }
+
     for ( RimSurfaceInView* surf : m_surfacesInView )
     {
-        if ( surf->surfaceResultDefinition() )
+        if ( surf->isActive() && surf->surfaceResultDefinition() )
         {
             configs.push_back( surf->surfaceResultDefinition()->legendConfig() );
         }
