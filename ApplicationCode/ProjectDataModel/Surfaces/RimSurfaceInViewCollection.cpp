@@ -42,7 +42,7 @@ RimSurfaceInViewCollection::RimSurfaceInViewCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_collectionname, "CollectionName", "Name", "", "", "" );
     m_collectionname.registerGetMethod( this, &RimSurfaceInViewCollection::name );
-    m_collectionname.uiCapability()->setUiTreeHidden( true );
+    m_collectionname.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_collectionsInView,
                                 "SurfacesInViewFieldCollections",
@@ -57,6 +57,8 @@ RimSurfaceInViewCollection::RimSurfaceInViewCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_surfacecollection, "SurfaceCollectionRef", "SurfaceCollection", "", "", "" );
     m_surfacecollection.uiCapability()->setUiHidden( true );
+
+    nameField()->uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
