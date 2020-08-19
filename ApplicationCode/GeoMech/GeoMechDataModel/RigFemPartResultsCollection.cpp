@@ -342,35 +342,8 @@ void RigFemPartResultsCollection::setBiotCoefficientParameters( double biotFixed
     m_biotResultAddress = biotResultAddress;
 
     // Invalidate all results which depends on biot coefficient (directly or indirectly)
-    // Shear results are independent of pore pressure and biot coefficient.
-    bool                     includeShear   = false;
-    std::vector<std::string> componentNames = getStressComponentNames( includeShear );
-    componentNames.push_back( "S1inc" );
-    componentNames.push_back( "S1azi" );
-    componentNames.push_back( "S2inc" );
-    componentNames.push_back( "S2azi" );
-    componentNames.push_back( "S3inc" );
-    componentNames.push_back( "S3azi" );
-    componentNames.push_back( "SM" );
-
     for ( auto elementType : {RIG_ELEMENT_NODAL, RIG_INTEGRATION_POINT} )
     {
-        for ( auto fieldName : {"SE", "ST"} )
-        {
-            for ( auto componentName : componentNames )
-            {
-                deleteResult(
-                    RigFemResultAddress( elementType, fieldName, componentName, RigFemResultAddress::allTimeLapsesValue() ) );
-            }
-
-            const std::vector<std::string> stressAnisotropyComponentNames = getStressAnisotropyComponentNames();
-            for ( auto componentName : stressAnisotropyComponentNames )
-            {
-                deleteResult(
-                    RigFemResultAddress( elementType, fieldName, componentName, RigFemResultAddress::allTimeLapsesValue() ) );
-            }
-        }
-
         deleteResult(
             RigFemResultAddress( elementType, "COMPRESSIBILITY", "PORE", RigFemResultAddress::allTimeLapsesValue() ) );
         deleteResult(
@@ -379,16 +352,6 @@ void RigFemPartResultsCollection::setBiotCoefficientParameters( double biotFixed
                                            "COMPRESSIBILITY",
                                            "VERTICAL-RATIO",
                                            RigFemResultAddress::allTimeLapsesValue() ) );
-
-        // SE only: depends on SE.S1 and SE.S3
-        deleteResult( RigFemResultAddress( elementType, "SE", "SFI", RigFemResultAddress::allTimeLapsesValue() ) );
-        deleteResult( RigFemResultAddress( elementType, "SE", "DSM", RigFemResultAddress::allTimeLapsesValue() ) );
-
-        // SE only: depends on SE.DSM
-        deleteResult( RigFemResultAddress( elementType, "SE", "FOS", RigFemResultAddress::allTimeLapsesValue() ) );
-
-        // ST only: depends on ST.S1 and ST.S3
-        deleteResult( RigFemResultAddress( elementType, "ST", "Q", RigFemResultAddress::allTimeLapsesValue() ) );
     }
 
     // Depends on COMRESSIBILITY.PORE which depends on biot coefficient
@@ -396,28 +359,6 @@ void RigFemPartResultsCollection::setBiotCoefficientParameters( double biotFixed
     for ( auto result : initPermResults )
     {
         deleteResult( result );
-    }
-
-    for ( auto fieldName : {"SE", "ST"} )
-    {
-        // Surface aligned stress
-        for ( auto componentName : {"SN", "TP", "TPinc", "TPH", "TPQV", "FAULTMOB", "PCRIT"} )
-        {
-            deleteResult( RigFemResultAddress( RIG_ELEMENT_NODAL_FACE,
-                                               fieldName,
-                                               componentName,
-                                               RigFemResultAddress::allTimeLapsesValue() ) );
-        }
-
-        // Stress gradient components
-        const std::vector<std::string> stressGradientComponentNames = getStressGradientComponentNames( includeShear );
-        for ( auto componentName : stressGradientComponentNames )
-        {
-            deleteResult( RigFemResultAddress( RIG_DIFFERENTIALS,
-                                               fieldName,
-                                               componentName,
-                                               RigFemResultAddress::allTimeLapsesValue() ) );
-        }
     }
 }
 
