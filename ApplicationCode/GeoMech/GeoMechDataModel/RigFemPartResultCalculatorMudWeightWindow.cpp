@@ -270,7 +270,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
                         // Initial overburden gradient
                         if ( OBG0FromGrid )
                         {
-                            OBG0 = obg0FrameData[nodeIdx];
+                            OBG0 = obg0FrameData[elmNodResIdx];
                         }
 
                         // FG is for sands, SFG for shale. Sands has valid PP, shale does not.
