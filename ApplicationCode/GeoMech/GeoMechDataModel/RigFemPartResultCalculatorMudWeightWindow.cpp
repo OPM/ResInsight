@@ -389,7 +389,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
             size_t kMin       = std::min( k, kRefLayer );
             size_t kMax       = std::max( k, kRefLayer );
 
-            if ( elmType == HEX8P && validIndex )
+            if ( ( elmType == HEX8P || elmType == HEX8 ) && validIndex )
             {
                 for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
                 {
