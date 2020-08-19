@@ -566,6 +566,7 @@ void RimGridView::updateSurfacesInViewTreeItems()
             m_surfaceCollection = new RimSurfaceInViewCollection();
         }
 
+        m_surfaceCollection->setSurfaceCollection( surfColl );
         m_surfaceCollection->updateFromSurfaceCollection();
     }
     else

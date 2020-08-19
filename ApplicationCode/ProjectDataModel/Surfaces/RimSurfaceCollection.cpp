@@ -35,12 +35,13 @@ CAF_PDM_SOURCE_INIT( RimSurfaceCollection, "SurfaceCollection" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSurfaceCollection::RimSurfaceCollection()
+RimSurfaceCollection::RimSurfaceCollection( bool topmost )
 {
     CAF_PDM_InitObject( "Surfaces", ":/ReservoirSurfaces16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_collectionname, "SurfaceUserDecription", "Name", "", "", "" );
     m_collectionname = "Surfaces";
+    m_collectionname.uiCapability()->setUiHidden( topmost );
 
     CAF_PDM_InitFieldNoDefault( &m_subcollections, "SubCollections", "Surfaces", "", "", "" );
     m_subcollections.uiCapability()->setUiTreeHidden( true );
@@ -58,14 +59,13 @@ RimSurfaceCollection::~RimSurfaceCollection()
 {
 }
 
-// void RimSurfaceCollection::onParentChanged()
-//{
-//    // only allow name changes if we are a child of a surface collection
-//    if ( parentField() )
-//    {
-//        m_collectionname.uiCapability()->setUiHidden( parentField()->keyword() != "SubCollections" );
-//    }
-//}
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSurfaceCollection::collectionname() const
+{
+    return m_collectionname.value();
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -188,6 +188,14 @@ RimSurface* RimSurfaceCollection::addGridCaseSurface( RimCase* sourceCase )
 std::vector<RimSurface*> RimSurfaceCollection::surfaces() const
 {
     return m_surfaces.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSurfaceCollection*> RimSurfaceCollection::subcollections() const
+{
+    return m_subcollections.childObjects();
 }
 
 //--------------------------------------------------------------------------------------------------

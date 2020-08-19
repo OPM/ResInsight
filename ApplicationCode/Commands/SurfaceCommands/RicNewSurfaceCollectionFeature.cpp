@@ -51,9 +51,10 @@ void RicNewSurfaceCollectionFeature::onActionTriggered( bool isChecked )
 
     if ( surfColl )
     {
+        // add a new surface collection and select it in the tree
         RimSurfaceCollection* newcoll = new RimSurfaceCollection();
-        // add a new surface collection
         surfColl->addSubCollection( newcoll );
+        Riu3DMainWindowTools::selectAsCurrentItem( newcoll );
     }
 }
 

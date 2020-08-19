@@ -30,8 +30,10 @@ class RimSurfaceCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimSurfaceCollection();
+    RimSurfaceCollection( bool topmost = false );
     ~RimSurfaceCollection() override;
+
+    QString collectionname() const;
 
     void addSurface( RimSurface* surface );
 
@@ -51,11 +53,11 @@ public:
     void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
-    std::vector<RimSurface*> surfaces() const;
+    std::vector<RimSurface*>           surfaces() const;
+    std::vector<RimSurfaceCollection*> subcollections() const;
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;
-    //    void                 onParentChanged() override;
 
 private:
     void orderChanged( const caf::SignalEmitter* emitter );

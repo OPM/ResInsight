@@ -22,6 +22,8 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmProxyValueField.h"
+#include "cafPdmPtrField.h"
 
 namespace cvf
 {
@@ -32,6 +34,7 @@ class ScalarMapper;
 
 class RimSurfaceInView;
 class RimSurface;
+class RimSurfaceCollection;
 class RimRegularLegendConfig;
 class RiuViewer;
 
@@ -42,6 +45,11 @@ class RimSurfaceInViewCollection : public RimCheckableNamedObject
 public:
     RimSurfaceInViewCollection();
     ~RimSurfaceInViewCollection() override;
+
+    RimSurfaceCollection* surfaceCollection() const;
+    void                  setSurfaceCollection( RimSurfaceCollection* surfcoll );
+
+    QString collectionname() const;
 
     void updateFromSurfaceCollection();
     void loadData();
@@ -57,13 +65,21 @@ public:
     std::vector<RimRegularLegendConfig*> legendConfigs();
 
 protected:
-    virtual void initAfterRead() override;
+    virtual void         initAfterRead() override;
+    caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    bool              hasSurfaceInViewForSurface( const RimSurface* surf ) const;
-    RimSurfaceInView* getSurfaceInViewForSurface( const RimSurface* surf ) const;
+    RimSurfaceInView*           getSurfaceInViewForSurface( const RimSurface* surf ) const;
+    RimSurfaceInViewCollection* getCollectionInViewForCollection( const RimSurfaceCollection* coll ) const;
 
-    caf::PdmChildArrayField<RimSurfaceInView*> m_surfacesInView;
+    void updateAllViewItems();
+    void syncCollectionsWithView();
+    void syncSurfacesWithView();
+
+    caf::PdmProxyValueField<QString>                     m_collectionname;
+    caf::PdmChildArrayField<RimSurfaceInViewCollection*> m_collectionsInView;
+    caf::PdmChildArrayField<RimSurfaceInView*>           m_surfacesInView;
+    caf::PdmPtrField<RimSurfaceCollection*>              m_surfacecollection;
 };

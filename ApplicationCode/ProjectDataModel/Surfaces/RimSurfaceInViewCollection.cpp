@@ -40,10 +40,23 @@ RimSurfaceInViewCollection::RimSurfaceInViewCollection()
 {
     CAF_PDM_InitObject( "Surfaces", ":/ReservoirSurfaces16x16.png", "", "" );
 
+    CAF_PDM_InitFieldNoDefault( &m_collectionname, "CollectionName", "Name", "", "", "" );
+    m_collectionname.registerGetMethod( this, &RimSurfaceInViewCollection::collectionname );
+    m_collectionname.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_collectionsInView,
+                                "SurfacesInViewFieldCollections",
+                                "SurfacesInViewFieldCollections",
+                                "",
+                                "",
+                                "" );
+    m_collectionsInView.uiCapability()->setUiTreeHidden( true );
+
     CAF_PDM_InitFieldNoDefault( &m_surfacesInView, "SurfacesInViewField", "SurfacesInViewField", "", "", "" );
     m_surfacesInView.uiCapability()->setUiTreeHidden( true );
 
-    setName( "Surfaces" );
+    CAF_PDM_InitFieldNoDefault( &m_surfacecollection, "SurfaceCollectionRef", "SurfaceCollection", "", "", "" );
+    m_surfacecollection.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,7 +69,101 @@ RimSurfaceInViewCollection::~RimSurfaceInViewCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurfaceInViewCollection::updateFromSurfaceCollection()
+caf::PdmFieldHandle* RimSurfaceInViewCollection::userDescriptionField()
+{
+    return &m_collectionname;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSurfaceInViewCollection::collectionname() const
+{
+    if ( m_surfacecollection ) return m_surfacecollection->collectionname();
+
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSurfaceCollection* RimSurfaceInViewCollection::surfaceCollection() const
+{
+    return m_surfacecollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceInViewCollection::setSurfaceCollection( RimSurfaceCollection* surfcoll )
+{
+    m_surfacecollection = surfcoll;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceInViewCollection::updateAllViewItems()
+{
+    syncCollectionsWithView();
+    syncSurfacesWithView();
+    updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceInViewCollection::syncCollectionsWithView()
+{
+    // check that we have surface in view collections for all sub-collections
+    std::vector<RimSurfaceInViewCollection*> colls = m_collectionsInView.childObjects();
+
+    for ( auto surfcoll : colls )
+    {
+        if ( !surfcoll->surfaceCollection() )
+        {
+            m_collectionsInView.removeChildObject( surfcoll );
+            delete surfcoll;
+        }
+    }
+
+    // Create new collection entries and reorder
+    std::vector<RimSurfaceInViewCollection*> orderedColls;
+    if ( m_surfacecollection )
+    {
+        // pick up the collections and the order from the surface collection
+        std::vector<RimSurfaceCollection*> surfcolls = m_surfacecollection->subcollections();
+        for ( auto surfcoll : surfcolls )
+        {
+            // check if this is a collection we need to create
+
+            RimSurfaceInViewCollection* viewSurfColl = this->getCollectionInViewForCollection( surfcoll );
+            if ( viewSurfColl == nullptr )
+            {
+                RimSurfaceInViewCollection* newColl = new RimSurfaceInViewCollection();
+                newColl->setSurfaceCollection( surfcoll );
+                orderedColls.push_back( newColl );
+            }
+            else
+            {
+                orderedColls.push_back( viewSurfColl );
+            }
+        }
+
+        // make sure our view surfaces have the same order as the source surface collection
+        m_collectionsInView.clear();
+        for ( auto viewColl : orderedColls )
+        {
+            m_collectionsInView.push_back( viewColl );
+            viewColl->updateAllViewItems();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceInViewCollection::syncSurfacesWithView()
 {
     // Delete surfaceInView without any real Surface connection
 
@@ -71,17 +178,13 @@ void RimSurfaceInViewCollection::updateFromSurfaceCollection()
         }
     }
 
-    // Create new entries and reorder
-
-    RimProject*           proj     = RimProject::current();
-    RimSurfaceCollection* surfColl = proj->activeOilField()->surfaceCollection();
-
+    // Create new surfade entries and reorder
     std::vector<RimSurfaceInView*> orderedSurfs;
 
-    if ( surfColl )
+    if ( m_surfacecollection )
     {
         // pick up the surfaces and the order from the surface collection
-        std::vector<RimSurface*> surfs = surfColl->surfaces();
+        std::vector<RimSurface*> surfs = m_surfacecollection->surfaces();
         for ( auto surf : surfs )
         {
             // check if this is a surface we need to create
@@ -105,8 +208,14 @@ void RimSurfaceInViewCollection::updateFromSurfaceCollection()
             m_surfacesInView.push_back( viewSurf );
         }
     }
+}
 
-    this->updateConnectedEditors();
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceInViewCollection::updateFromSurfaceCollection()
+{
+    updateAllViewItems();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -180,14 +289,6 @@ void RimSurfaceInViewCollection::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSurfaceInViewCollection::hasSurfaceInViewForSurface( const RimSurface* surf ) const
-{
-    return this->getSurfaceInViewForSurface( surf ) == nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimSurfaceInView* RimSurfaceInViewCollection::getSurfaceInViewForSurface( const RimSurface* surf ) const
 {
     for ( auto surfInView : m_surfacesInView )
@@ -195,6 +296,23 @@ RimSurfaceInView* RimSurfaceInViewCollection::getSurfaceInViewForSurface( const 
         if ( surfInView->surface() == surf )
         {
             return surfInView;
+        }
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSurfaceInViewCollection*
+    RimSurfaceInViewCollection::getCollectionInViewForCollection( const RimSurfaceCollection* coll ) const
+{
+    for ( auto collInView : m_collectionsInView )
+    {
+        if ( collInView->surfaceCollection() == coll )
+        {
+            return collInView;
         }
     }
 
