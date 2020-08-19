@@ -35,13 +35,12 @@ CAF_PDM_SOURCE_INIT( RimSurfaceCollection, "SurfaceCollection" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSurfaceCollection::RimSurfaceCollection( bool topmost )
+RimSurfaceCollection::RimSurfaceCollection()
 {
     CAF_PDM_InitObject( "Surfaces", ":/ReservoirSurfaces16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_collectionname, "SurfaceUserDecription", "Name", "", "", "" );
     m_collectionname = "Surfaces";
-    m_collectionname.uiCapability()->setUiHidden( topmost );
 
     CAF_PDM_InitFieldNoDefault( &m_subcollections, "SubCollections", "Surfaces", "", "", "" );
     m_subcollections.uiCapability()->setUiTreeHidden( true );
@@ -51,7 +50,7 @@ RimSurfaceCollection::RimSurfaceCollection( bool topmost )
     CAF_PDM_InitFieldNoDefault( &m_surfaces, "SurfacesField", "Surfaces", "", "", "" );
     m_surfaces.uiCapability()->setUiTreeHidden( true );
 
-    setDeletable( !topmost );
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -59,6 +58,15 @@ RimSurfaceCollection::RimSurfaceCollection( bool topmost )
 //--------------------------------------------------------------------------------------------------
 RimSurfaceCollection::~RimSurfaceCollection()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceCollection::setAsTopmostFolder()
+{
+    m_collectionname.uiCapability()->setUiHidden( true );
+    setDeletable( false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -306,7 +314,7 @@ void RimSurfaceCollection::removeSurface( RimSurface* surface )
 void RimSurfaceCollection::addSurfacesAtIndex( int position, std::vector<RimSurface*> surfaces )
 {
     // adjust index for number of folders we have
-    position = position - m_subcollections.size();
+    position = position - static_cast<int>( m_subcollections.size() );
 
     // insert position at end?
     if ( ( position >= static_cast<int>( m_surfaces.size() ) ) || ( position < 0 ) )

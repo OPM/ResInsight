@@ -64,7 +64,8 @@ RimOilField::RimOilField( void )
     measurement.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &surfaceCollection, "SurfaceCollection", "Surfaces", "", "", "" );
-    surfaceCollection = new RimSurfaceCollection( true ); // flag as topmost level surface folder
+    surfaceCollection = new RimSurfaceCollection();
+    surfaceCollection->setAsTopmostFolder();
 
     completionTemplateCollection = new RimCompletionTemplateCollection;
     analysisModels               = new RimEclipseCaseCollection();

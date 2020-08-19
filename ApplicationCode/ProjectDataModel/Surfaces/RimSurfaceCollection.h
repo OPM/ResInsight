@@ -30,12 +30,13 @@ class RimSurfaceCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimSurfaceCollection( bool topmost = false );
+    RimSurfaceCollection();
     ~RimSurfaceCollection() override;
 
     QString collectionname() const;
 
     void addSurface( RimSurface* surface );
+    void setAsTopmostFolder();
 
     RimSurface* importSurfacesFromFiles( const QStringList& fileNames );
     RimSurface* addGridCaseSurface( RimCase* sourceCase );
