@@ -49,24 +49,24 @@ Attributes:
 import builtins
 import grpc
 
-import rips.generated.Case_pb2 as Case_pb2
-import rips.generated.Case_pb2_grpc as Case_pb2_grpc
-import rips.generated.Commands_pb2 as Cmd
-import rips.generated.PdmObject_pb2 as PdmObject_pb2
+import Case_pb2
+import Case_pb2_grpc
+import Commands_pb2 as Cmd
+import PdmObject_pb2 as PdmObject_pb2
 
-import rips.generated.Properties_pb2 as Properties_pb2
-import rips.generated.Properties_pb2_grpc as Properties_pb2_grpc
-import rips.generated.NNCProperties_pb2 as NNCProperties_pb2
-import rips.generated.NNCProperties_pb2_grpc as NNCProperties_pb2_grpc
-from rips.generated.pdm_objects import Case, EclipseCase, GeoMechCase
+import Properties_pb2
+import Properties_pb2_grpc
+import NNCProperties_pb2
+import NNCProperties_pb2_grpc
+from pdm_objects import Case, EclipseCase, GeoMechCase, WellBoreStabilityPlot, WbsParameters
 
+#import rips.project
+
+from .grid import Grid
+from .pdmobject import add_method
+from .view import View
+from .simulation_well import SimulationWell
 import rips.project
-
-from rips.grid import Grid
-from rips.pdmobject import add_method, PdmObject
-from rips.view import View
-from rips.generated.pdm_objects import WellBoreStabilityPlot, WbsParameters
-from rips.simulation_well import SimulationWell
 
 @add_method(Case)
 def __custom_init__(self, pb2_object, channel):

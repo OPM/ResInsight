@@ -2,12 +2,12 @@
 Grid Case Group statistics module
 """
 
-from rips.pdmobject import PdmObject, add_method
-from rips.view import View
-from rips.case import Case
+from .pdmobject import add_method
+#from rips.view import View
+#from rips.case import Case
 
-import rips.generated.Commands_pb2 as Cmd
-from rips.generated.pdm_objects import GridCaseGroup
+import Commands_pb2
+from pdm_objects import GridCaseGroup
 
 
 @add_method(GridCaseGroup)
@@ -18,7 +18,7 @@ def create_statistics_case(self):
         :class:`rips.generated.pdm_objects.EclipseCase`
     """
     command_reply = self._execute_command(
-        createStatisticsCase=Cmd.CreateStatisticsCaseRequest(
+        createStatisticsCase=Commands_pb2.CreateStatisticsCaseRequest(
             caseGroupId=self.group_id))
     return Case(self.channel,
                 command_reply.createStatisticsCaseResult.caseId)
@@ -79,5 +79,5 @@ def compute_statistics(self, case_ids=None):
     if case_ids is None:
         case_ids = []
     return self._execute_command(
-        computeCaseGroupStatistics=Cmd.ComputeCaseGroupStatRequest(
+        computeCaseGroupStatistics=Commands_pb2.ComputeCaseGroupStatRequest(
             caseIds=case_ids, caseGroupId=self.group_id))

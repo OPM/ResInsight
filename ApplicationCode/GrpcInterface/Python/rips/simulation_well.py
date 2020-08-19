@@ -3,18 +3,17 @@ ResInsight SimulationWell
 """
 import grpc
 
-import rips.generated.SimulationWell_pb2 as SimulationWell_pb2
-import rips.generated.SimulationWell_pb2_grpc as SimulationWell_pb2_grpc
+import SimulationWell_pb2
+import SimulationWell_pb2_grpc
 
-import rips.generated.Properties_pb2 as Properties_pb2
-import rips.generated.Properties_pb2_grpc as Properties_pb2_grpc
+import Properties_pb2
+import Properties_pb2_grpc
 
-import rips.generated.Commands_pb2 as Cmd
-from rips.generated.pdm_objects import SimulationWell
+from pdm_objects import SimulationWell
 
-from rips.pdmobject import PdmObject, add_method
+from .pdmobject import PdmObjectBase, add_method
+
 import rips.case
-
 
 @add_method(SimulationWell)
 def __custom_init__(self, pb2_object, channel):

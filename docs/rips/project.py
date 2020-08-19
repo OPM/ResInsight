@@ -6,18 +6,18 @@ The ResInsight project module
 import builtins
 import grpc
 
-from rips.case import Case
-from rips.gridcasegroup import GridCaseGroup
-from rips.pdmobject import PdmObject, add_method, add_static_method
-from rips.plot import Plot
-from rips.view import View
+#from rips.case import Case
+#from rips.gridcasegroup import GridCaseGroup
+from rips.pdmobject import add_method, add_static_method
+#from rips.plot import Plot
+#from rips.view import View
 
 import rips.generated.Commands_pb2 as Cmd
 from rips.generated.Definitions_pb2 import Empty
 import rips.generated.Project_pb2_grpc as Project_pb2_grpc
 import rips.generated.Project_pb2 as Project_pb2
 import rips.generated.PdmObject_pb2 as PdmObject_pb2
-from rips.generated.pdm_objects import Project, PlotWindow, WellPath
+#from rips.generated.pdm_objects import Project, PlotWindow, WellPath
 
 
 @add_method(Project)
