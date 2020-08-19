@@ -74,18 +74,6 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNormalST::calculate( int    
     RigFemScalarResultFrames* srcPORDataFrames =
         m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_NODAL, "POR-Bar", "" ) );
 
-    // Biot porelastic coeffisient (alpha)
-    RigFemScalarResultFrames* biotCoefficient = nullptr;
-    if ( !m_resultCollection->biotResultAddress().isEmpty() )
-    {
-        biotCoefficient =
-            m_resultCollection
-                ->findOrLoadScalarResult( partIndex,
-                                          RigFemResultAddress( RIG_ELEMENT,
-                                                               m_resultCollection->biotResultAddress().toStdString(),
-                                                               "" ) );
-    }
-
     RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
     const RigFemPart*         femPart       = m_resultCollection->parts()->part( partIndex );
     int                       frameCount    = srcSDataFrames->frameCount();
@@ -100,17 +88,6 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNormalST::calculate( int    
         const std::vector<float>& srcPORFrameData = srcPORDataFrames->frameData( fIdx );
 
         int elementCount = femPart->elementCount();
-
-        std::vector<float> biotData;
-        if ( biotCoefficient )
-        {
-            biotData = biotCoefficient->frameData( fIdx );
-            if ( !m_resultCollection->isValidBiotData( biotData, elementCount ) )
-            {
-                m_resultCollection->deleteResult( resVarAddr );
-                return nullptr;
-            }
-        }
 
         std::vector<float>& dstFrameData = dstDataFrames->frameData( fIdx );
 
@@ -136,31 +113,10 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNormalST::calculate( int    
                         float por = srcPORFrameData[nodeIdx];
                         if ( por == inf ) por = 0.0f;
 
-                        // ST = SE_abacus + alpha * porePressure
-                        // where alpha is biot coefficient, and porePressure is POR-Bar.
-
-                        double SE_abacus = -srcSFrameData[elmNodResIdx];
-                        if ( fIdx == 0 )
-                        {
-                            // Geostatic step: biot coefficient == 1.0
-                            dstFrameData[elmNodResIdx] = SE_abacus + por;
-                        }
-                        else
-                        {
-                            // Use biot coefficient for all other (not Geostatic) timesteps
-                            double biotCoefficient = 1.0;
-                            if ( biotData.empty() )
-                            {
-                                biotCoefficient = m_resultCollection->biotFixedFactor();
-                            }
-                            else
-                            {
-                                // Use coefficient from element property table
-                                biotCoefficient = biotData[elmIdx];
-                            }
-
-                            dstFrameData[elmNodResIdx] = SE_abacus + biotCoefficient * por;
-                        }
+                        // ST = SE_abacus + porePressure
+                        // porePressure is POR-Bar.
+                        double SE_abacus           = -srcSFrameData[elmNodResIdx];
+                        dstFrameData[elmNodResIdx] = SE_abacus + por;
                     }
                 }
             }
