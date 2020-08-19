@@ -12,15 +12,15 @@ import time
 
 import grpc
 
-import rips.generated.App_pb2 as App_pb2
-import rips.generated.App_pb2_grpc as App_pb2_grpc
-import rips.generated.Commands_pb2 as Cmd
-import rips.generated.Commands_pb2_grpc as CmdRpc
-from rips.generated.Definitions_pb2 import Empty
+import App_pb2
+import App_pb2_grpc
+import Commands_pb2
+import Commands_pb2_grpc
+from Definitions_pb2 import Empty
 
-import rips.generated.RiaVersionInfo as RiaVersionInfo
+import RiaVersionInfo
 
-from rips.project import Project
+from .project import Project
 
 
 class Instance:
@@ -148,7 +148,7 @@ class Instance:
         return None
 
     def __execute_command(self, **command_params):
-        return self.commands.Execute(Cmd.CommandParams(**command_params))
+        return self.commands.Execute(Commands_pb2.CommandParams(**command_params))
 
     def __check_version(self):
         try:
@@ -175,7 +175,7 @@ class Instance:
                                                   False)
                                              ])
         self.launched = launched
-        self.commands = CmdRpc.CommandsStub(self.channel)
+        self.commands = Commands_pb2_grpc.CommandsStub(self.channel)
 
         # Main version check package
         self.app = App_pb2_grpc.AppStub(self.channel)
@@ -219,7 +219,7 @@ class Instance:
             path (str): path to directory
 
         """
-        return self.__execute_command(setStartDir=Cmd.FilePathRequest(path=path))
+        return self.__execute_command(setStartDir=Commands_pb2.FilePathRequest(path=path))
 
     def set_export_folder(self, export_type, path, create_folder=False):
         """
@@ -243,7 +243,7 @@ class Instance:
             "STATISTICS"    | 
 
         """
-        return self.__execute_command(setExportFolder=Cmd.SetExportFolderRequest(
+        return self.__execute_command(setExportFolder=Commands_pb2.SetExportFolderRequest(
             type=export_type, path=path, createFolder=create_folder))
 
     def set_main_window_size(self, width, height):
@@ -258,7 +258,7 @@ class Instance:
             height    | Height in pixels | Integer
 
         """
-        return self.__execute_command(setMainWindowSize=Cmd.SetWindowSizeParams(
+        return self.__execute_command(setMainWindowSize=Commands_pb2.SetWindowSizeParams(
             width=width, height=height))
 
     def set_plot_window_size(self, width, height):
@@ -272,7 +272,7 @@ class Instance:
             width     | Width in pixels  | Integer
             height    | Height in pixels | Integer
         """
-        return self.__execute_command(setPlotWindowSize=Cmd.SetWindowSizeParams(
+        return self.__execute_command(setPlotWindowSize=Commands_pb2.SetWindowSizeParams(
             width=width, height=height))
 
     def major_version(self):

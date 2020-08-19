@@ -2,7 +2,7 @@
 
 using namespace caf;
 
-CAF_PDM_ABSTRACT_SOURCE_INIT( PdmObject, "PdmObject" );
+CAF_PDM_ABSTRACT_SOURCE_INIT( PdmObject, "PdmObjectBase" );
 
 //--------------------------------------------------------------------------------------------------
 ///

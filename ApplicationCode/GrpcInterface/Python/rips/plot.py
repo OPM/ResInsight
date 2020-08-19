@@ -1,11 +1,10 @@
 """
 ResInsight 2d plot module
 """
-import rips.generated.Commands_pb2 as Cmd
+import Commands_pb2
 
-from rips.pdmobject import PdmObject
-from rips.generated.pdm_objects import PlotWindow, Plot
-from rips.pdmobject import add_method
+from .pdmobject import PdmObjectBase, add_method
+from pdm_objects import PlotWindow, Plot
 
 
 @add_method(PlotWindow)
@@ -19,7 +18,7 @@ def export_snapshot(self, export_folder='', file_prefix='', output_format='PNG')
 
     """
     return self._execute_command(
-        exportSnapshots=Cmd.ExportSnapshotsRequest(type='PLOTS',
+        exportSnapshots=Commands_pb2.ExportSnapshotsRequest(type='PLOTS',
                                                    prefix=file_prefix,
                                                    viewId=self.id,
                                                    exportFolder=export_folder,
