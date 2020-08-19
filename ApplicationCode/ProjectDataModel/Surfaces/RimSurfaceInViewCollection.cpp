@@ -43,6 +43,7 @@ RimSurfaceInViewCollection::RimSurfaceInViewCollection()
     CAF_PDM_InitFieldNoDefault( &m_collectionname, "CollectionName", "Name", "", "", "" );
     m_collectionname.registerGetMethod( this, &RimSurfaceInViewCollection::name );
     m_collectionname.uiCapability()->setUiReadOnly( true );
+    m_collectionname.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_collectionsInView,
                                 "SurfacesInViewFieldCollections",
@@ -446,7 +447,8 @@ void RimSurfaceInViewCollection::updateLegendRangesTextAndVisibility( RiuViewer*
 {
     for ( RimSurfaceInViewCollection* coll : m_collectionsInView )
     {
-        coll->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer, isUsingOverrideViewer );
+        if ( coll->isChecked() )
+            coll->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer, isUsingOverrideViewer );
     }
 
     for ( RimSurfaceInView* surf : m_surfacesInView )
