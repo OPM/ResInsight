@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicReloadSurfaceFeature.h"
+#include "RicCopySurfaceFeature.h"
 
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -31,12 +31,12 @@
 #include <QAction>
 #include <QFileDialog>
 
-CAF_CMD_SOURCE_INIT( RicReloadSurfaceFeature, "RicReloadSurfaceFeature" );
+CAF_CMD_SOURCE_INIT( RicCopySurfaceFeature, "RicCopySurfaceFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicReloadSurfaceFeature::isCommandEnabled()
+bool RicCopySurfaceFeature::isCommandEnabled()
 {
     return true;
 }
@@ -44,7 +44,7 @@ bool RicReloadSurfaceFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicReloadSurfaceFeature::onActionTriggered( bool isChecked )
+void RicCopySurfaceFeature::onActionTriggered( bool isChecked )
 {
     RimSurfaceCollection* surfColl = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimSurfaceCollection>();
     if ( surfColl )
@@ -52,16 +52,16 @@ void RicReloadSurfaceFeature::onActionTriggered( bool isChecked )
         // get the Surfaces
         std::vector<RimSurface*> surfaces = caf::selectedObjectsByTypeStrict<RimSurface*>();
 
-        // ask the collection to reload them
-        surfColl->reloadSurfaces( surfaces );
+        // ask the collection to copy them
+        surfColl->copySurfaces( surfaces );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicReloadSurfaceFeature::setupActionLook( QAction* actionToSetup )
+void RicCopySurfaceFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/Refresh-32.png" ) );
-    actionToSetup->setText( "Reload" );
+    actionToSetup->setIcon( QIcon( ":/Copy.png" ) );
+    actionToSetup->setText( "Create Copy" );
 }

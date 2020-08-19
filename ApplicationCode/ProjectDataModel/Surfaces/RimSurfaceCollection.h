@@ -33,8 +33,6 @@ public:
     RimSurfaceCollection();
     ~RimSurfaceCollection() override;
 
-    QString collectionname() const;
-
     void addSurface( RimSurface* surface );
     void setAsTopmostFolder();
 
@@ -42,17 +40,20 @@ public:
     RimSurface* addGridCaseSurface( RimCase* sourceCase );
 
     void reloadSurfaces( std::vector<RimSurface*> surfaces );
+    void copySurfaces( std::vector<RimSurface*> surfaces );
     void removeSurface( RimSurface* surface );
     void addSurfacesAtIndex( int index, std::vector<RimSurface*> surfaces );
-
     void addSubCollection( RimSurfaceCollection* collection );
 
     void loadData();
+
     void updateViews();
     void updateViews( const std::vector<RimSurface*>& surfsToReload );
 
     void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+
+    QString collectionname() const;
 
     std::vector<RimSurface*>           surfaces() const;
     std::vector<RimSurfaceCollection*> subcollections() const;

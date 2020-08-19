@@ -164,6 +164,29 @@ void RimSurfaceCollection::reloadSurfaces( std::vector<RimSurface*> surfaces )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSurfaceCollection::copySurfaces( std::vector<RimSurface*> surfaces )
+{
+    std::vector<RimSurface*> newsurfaces;
+
+    // create a copy of each surface given
+    for ( RimSurface* surface : surfaces )
+    {
+        newsurfaces.push_back( surface->createCopy() );
+    }
+
+    for ( RimSurface* surface : newsurfaces )
+    {
+        m_surfaces.push_back( surface );
+    }
+
+    this->updateConnectedEditors();
+
+    updateViews( newsurfaces );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimSurface* RimSurfaceCollection::addGridCaseSurface( RimCase* sourceCase )
 {
     auto s = new RimGridCaseSurface;
