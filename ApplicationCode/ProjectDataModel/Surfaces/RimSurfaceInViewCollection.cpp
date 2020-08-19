@@ -41,8 +41,8 @@ RimSurfaceInViewCollection::RimSurfaceInViewCollection()
     CAF_PDM_InitObject( "Surfaces", ":/ReservoirSurfaces16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_collectionname, "CollectionName", "Name", "", "", "" );
-    m_collectionname.registerGetMethod( this, &RimSurfaceInViewCollection::collectionname );
-    m_collectionname.uiCapability()->setUiReadOnly( true );
+    m_collectionname.registerGetMethod( this, &RimSurfaceInViewCollection::name );
+    m_collectionname.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_collectionsInView,
                                 "SurfacesInViewFieldCollections",
@@ -77,7 +77,7 @@ caf::PdmFieldHandle* RimSurfaceInViewCollection::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSurfaceInViewCollection::collectionname() const
+QString RimSurfaceInViewCollection::name() const
 {
     if ( m_surfacecollection ) return m_surfacecollection->collectionname();
 

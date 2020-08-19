@@ -33,8 +33,8 @@ public:
     RimNamedObject( void );
     ~RimNamedObject( void ) override;
 
-    QString name() const;
-    void    setName( const QString& name );
+    virtual QString name() const;
+    void            setName( const QString& name );
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;

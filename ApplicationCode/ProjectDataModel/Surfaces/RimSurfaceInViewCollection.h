@@ -46,10 +46,10 @@ public:
     RimSurfaceInViewCollection();
     ~RimSurfaceInViewCollection() override;
 
+    QString name() const override;
+
     RimSurfaceCollection* surfaceCollection() const;
     void                  setSurfaceCollection( RimSurfaceCollection* surfcoll );
-
-    QString collectionname() const;
 
     void updateFromSurfaceCollection();
     void loadData();
