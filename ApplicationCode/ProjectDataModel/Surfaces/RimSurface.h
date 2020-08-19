@@ -45,8 +45,9 @@ public:
     QString     userDescription();
     void        setUserDescription( const QString& description );
 
-    virtual QString fullName() const;
-    virtual bool    onLoadData() = 0;
+    virtual QString     fullName() const;
+    virtual bool        onLoadData() = 0;
+    virtual RimSurface* createCopy() = 0;
 
     void loadDataIfRequired();
     void reloadData();

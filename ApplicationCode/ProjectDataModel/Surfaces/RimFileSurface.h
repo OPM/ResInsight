@@ -35,7 +35,8 @@ public:
     void    setSurfaceFilePath( const QString& filePath );
     QString surfaceFilePath();
 
-    bool onLoadData() override;
+    bool        onLoadData() override;
+    RimSurface* createCopy() override;
 
 protected:
     bool updateSurfaceData() override;

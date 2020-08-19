@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "cafPdmField.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 
@@ -32,21 +34,37 @@ public:
     ~RimSurfaceCollection() override;
 
     void addSurface( RimSurface* surface );
+    void setAsTopmostFolder();
 
     RimSurface* importSurfacesFromFiles( const QStringList& fileNames );
     RimSurface* addGridCaseSurface( RimCase* sourceCase );
 
     void reloadSurfaces( std::vector<RimSurface*> surfaces );
-
-    std::vector<RimSurface*> surfaces() const;
+    void copySurfaces( std::vector<RimSurface*> surfaces );
+    void removeSurface( RimSurface* surface );
+    void addSurfacesAtIndex( int index, std::vector<RimSurface*> surfaces );
+    void addSubCollection( RimSurfaceCollection* collection );
 
     void loadData();
+
     void updateViews();
     void updateViews( const std::vector<RimSurface*>& surfsToReload );
 
     void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
+    QString collectionname() const;
+
+    std::vector<RimSurface*>           surfaces() const;
+    std::vector<RimSurfaceCollection*> subcollections() const;
+
+protected:
+    caf::PdmFieldHandle* userDescriptionField() override;
+
 private:
-    caf::PdmChildArrayField<RimSurface*> m_surfaces;
+    void orderChanged( const caf::SignalEmitter* emitter );
+
+    caf::PdmField<QString>                         m_collectionname;
+    caf::PdmChildArrayField<RimSurface*>           m_surfaces;
+    caf::PdmChildArrayField<RimSurfaceCollection*> m_subcollections;
 };

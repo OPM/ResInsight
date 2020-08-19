@@ -39,6 +39,8 @@
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryPlot.h"
+#include "RimSurface.h"
+#include "RimSurfaceCollection.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogFileChannel.h"
@@ -195,7 +197,8 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
 
         if ( dynamic_cast<RimEclipseCase*>( uiItem ) || dynamic_cast<RimWellLogCurve*>( uiItem ) ||
              dynamic_cast<RimWellLogFileChannel*>( uiItem ) || dynamic_cast<RimPlot*>( uiItem ) ||
-             dynamic_cast<RimSummaryCase*>( uiItem ) || dynamic_cast<RimSummaryCurve*>( uiItem ) )
+             dynamic_cast<RimSummaryCase*>( uiItem ) || dynamic_cast<RimSummaryCurve*>( uiItem ) ||
+             dynamic_cast<RimSurface*>( uiItem ) )
         {
             // TODO: Remember to handle reservoir holding the main grid
             itemflags |= Qt::ItemIsDragEnabled;
@@ -277,6 +280,13 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
             else if ( dynamic_cast<RimSummaryCaseMainCollection*>( uiItem ) )
             {
                 if ( RiuTypedPdmObjects<RimSummaryCase>::containsTypedObjects( m_dragItems ) )
+                {
+                    itemflags |= Qt::ItemIsDropEnabled;
+                }
+            }
+            else if ( dynamic_cast<RimSurfaceCollection*>( uiItem ) )
+            {
+                if ( RiuTypedPdmObjects<RimSurface>::containsTypedObjects( m_dragItems ) )
                 {
                     itemflags |= Qt::ItemIsDropEnabled;
                 }
@@ -426,6 +436,13 @@ bool RiuDragDrop::dropMimeData( const QMimeData* data, Qt::DropAction action, in
         if ( summaryCaseMainCollection )
         {
             return handleSummaryCaseMainCollectionDrop( action, draggedObjects, summaryCaseMainCollection );
+        }
+
+        RimSurfaceCollection* surfaceCollection;
+        dropTarget->firstAncestorOrThisOfType( surfaceCollection );
+        if ( surfaceCollection )
+        {
+            return handleSurfaceCollectionDrop( action, row, draggedObjects, surfaceCollection );
         }
     }
 
@@ -825,4 +842,34 @@ std::vector<caf::PdmPointer<caf::PdmObjectHandle>> RiuDragDrop::objectHandlesFro
 void RiuDragDrop::onProposedDropActionUpdated( Qt::DropAction action )
 {
     m_proposedDropAction = action;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuDragDrop::handleSurfaceCollectionDrop( Qt::DropAction        action,
+                                               int                   row,
+                                               caf::PdmObjectGroup&  objectGroup,
+                                               RimSurfaceCollection* targetCollection )
+{
+    std::vector<RimSurface*> surfaces = RiuTypedPdmObjects<RimSurface>::typedObjectsFromGroup( objectGroup );
+
+    if ( action != Qt::MoveAction || surfaces.size() == 0 ) return false;
+
+    for ( RimSurface* surface : surfaces )
+    {
+        RimSurfaceCollection* sourceCollection;
+        surface->firstAncestorOrThisOfType( sourceCollection );
+
+        if ( sourceCollection )
+        {
+            sourceCollection->removeSurface( surface );
+            sourceCollection->updateConnectedEditors();
+        }
+    }
+
+    targetCollection->addSurfacesAtIndex( row, surfaces );
+    targetCollection->updateConnectedEditors();
+
+    return true;
 }

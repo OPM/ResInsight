@@ -65,6 +65,7 @@ RimOilField::RimOilField( void )
 
     CAF_PDM_InitFieldNoDefault( &surfaceCollection, "SurfaceCollection", "Surfaces", "", "", "" );
     surfaceCollection = new RimSurfaceCollection();
+    surfaceCollection->setAsTopmostFolder();
 
     completionTemplateCollection = new RimCompletionTemplateCollection;
     analysisModels               = new RimEclipseCaseCollection();
