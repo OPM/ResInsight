@@ -372,13 +372,14 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
 
             if ( source == RigWbsParameter::ELEMENT_PROPERTY_TABLE || source == RigWbsParameter::GRID )
             {
-                ( *outputValues )[intersectionIdx] =
-                    unscaledValues[intersectionIdx] / hydroStaticPorePressureForSegment( intersectionIdx );
+                ( *outputValues )[intersectionIdx] = unscaledValues[intersectionIdx] /
+                                                     hydroStaticPorePressureForSegment( intersectionIdx, waterDensityGCM3 );
             }
             else
             {
                 ( *outputValues )[intersectionIdx] =
-                    unscaledValues[intersectionIdx] / hydroStaticPorePressureForIntersection( intersectionIdx );
+                    unscaledValues[intersectionIdx] /
+                    hydroStaticPorePressureForIntersection( intersectionIdx, waterDensityGCM3 );
             }
         }
     }
@@ -616,13 +617,15 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData( const RigFemResultAddres
     std::vector<double> ucsAllSegments( m_intersections.size(), std::numeric_limits<double>::infinity() );
     calculateWbsParameterForAllSegments( RigWbsParameter::UCS(), frameIndex, &ucsAllSegments, false );
 
+    double waterDensityGCM3 = m_userDefinedValues[RigWbsParameter::waterDensity()];
+
 #pragma omp parallel for
     for ( int64_t intersectionIdx = 0; intersectionIdx < (int64_t)m_intersections.size(); ++intersectionIdx )
     {
         // FG is for sands, SFG for shale. Sands has valid PP, shale does not.
         bool isFGregion = ppSources[intersectionIdx] == RigWbsParameter::GRID;
 
-        double hydroStaticPorePressureBar = hydroStaticPorePressureForSegment( intersectionIdx );
+        double hydroStaticPorePressureBar = hydroStaticPorePressureForSegment( intersectionIdx, waterDensityGCM3 );
 
         double porePressureBar = ppSandAllSegments[intersectionIdx];
         if ( porePressureBar == std::numeric_limits<double>::infinity() )
