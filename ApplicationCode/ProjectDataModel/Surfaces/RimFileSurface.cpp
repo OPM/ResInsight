@@ -82,7 +82,20 @@ bool RimFileSurface::onLoadData()
 //--------------------------------------------------------------------------------------------------
 RimSurface* RimFileSurface::createCopy()
 {
-    return nullptr;
+    RimFileSurface* newSurface = new RimFileSurface();
+
+    newSurface->setSurfaceFilePath( surfaceFilePath() );
+    newSurface->setColor( color() );
+    newSurface->setUserDescription( userDescription() );
+    newSurface->setDepthOffset( depthOffset() );
+
+    if ( !newSurface->onLoadData() )
+    {
+        delete newSurface;
+        return nullptr;
+    }
+
+    return newSurface;
 }
 
 //--------------------------------------------------------------------------------------------------

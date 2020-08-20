@@ -36,7 +36,9 @@ public:
     RimGridCaseSurface();
     ~RimGridCaseSurface() override;
 
-    void setCase( RimCase* sourceCase );
+    void     setCase( RimCase* sourceCase );
+    RimCase* case_() const;
+
     void setSliceTypeAndOneBasedIndex( RiaDefines::GridCaseAxis sliceType, int oneBasedSliceIndex );
 
     bool        onLoadData() override;

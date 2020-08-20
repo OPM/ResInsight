@@ -53,7 +53,11 @@ void RicCopySurfaceFeature::onActionTriggered( bool isChecked )
         std::vector<RimSurface*> surfaces = caf::selectedObjectsByTypeStrict<RimSurface*>();
 
         // ask the collection to copy them
-        surfColl->copySurfaces( surfaces );
+        RimSurface* surftoselect = surfColl->copySurfaces( surfaces );
+        if ( surftoselect )
+        {
+            Riu3DMainWindowTools::selectAsCurrentItem( surftoselect );
+        }
     }
 }
 

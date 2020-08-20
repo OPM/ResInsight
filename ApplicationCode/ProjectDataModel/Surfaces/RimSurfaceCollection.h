@@ -38,12 +38,13 @@ public:
 
     RimSurface* importSurfacesFromFiles( const QStringList& fileNames );
     RimSurface* addGridCaseSurface( RimCase* sourceCase );
+    RimSurface* copySurfaces( std::vector<RimSurface*> surfaces );
+    RimSurface* addSurfacesAtIndex( int index, std::vector<RimSurface*> surfaces );
+
+    void addSubCollection( RimSurfaceCollection* collection );
 
     void reloadSurfaces( std::vector<RimSurface*> surfaces );
-    void copySurfaces( std::vector<RimSurface*> surfaces );
     void removeSurface( RimSurface* surface );
-    void addSurfacesAtIndex( int index, std::vector<RimSurface*> surfaces );
-    void addSubCollection( RimSurfaceCollection* collection );
 
     void loadData();
 

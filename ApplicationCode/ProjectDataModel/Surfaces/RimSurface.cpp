@@ -143,6 +143,11 @@ double RimSurface::depthOffset() const
     return m_depthOffset;
 }
 
+void RimSurface::setDepthOffset( double depthoffset )
+{
+    m_depthOffset.setValue( depthoffset );
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------

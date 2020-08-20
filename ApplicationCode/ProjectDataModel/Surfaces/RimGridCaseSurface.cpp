@@ -69,6 +69,11 @@ void RimGridCaseSurface::setCase( RimCase* sourceCase )
     m_case = sourceCase;
 }
 
+RimCase* RimGridCaseSurface::case_() const
+{
+    return m_case.value();
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -91,7 +96,19 @@ bool RimGridCaseSurface::onLoadData()
 //--------------------------------------------------------------------------------------------------
 RimSurface* RimGridCaseSurface::createCopy()
 {
-    return nullptr;
+    RimGridCaseSurface* newSurf = new RimGridCaseSurface();
+    newSurf->setCase( case_() );
+    newSurf->setSliceTypeAndOneBasedIndex( m_sliceDirection.value(), m_oneBasedSliceIndex.value() );
+    newSurf->setUserDescription( userDescription() );
+    newSurf->setColor( color() );
+    newSurf->setDepthOffset( depthOffset() );
+
+    if ( !newSurf->onLoadData() )
+    {
+        return nullptr;
+    }
+
+    return newSurf;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -434,6 +451,7 @@ QString RimGridCaseSurface::fullName() const
             retval += " - K:";
             break;
         case RiaDefines::GridCaseAxis::UNDEFINED_AXIS:
+            retval += " - ";
         default:
             break;
     }

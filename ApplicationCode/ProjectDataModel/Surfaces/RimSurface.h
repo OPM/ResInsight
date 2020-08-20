@@ -57,6 +57,7 @@ protected:
 
     void   applyDepthOffsetIfNeeded( std::vector<cvf::Vec3d>* vertices ) const;
     double depthOffset() const;
+    void   setDepthOffset( double depthoffset );
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field,

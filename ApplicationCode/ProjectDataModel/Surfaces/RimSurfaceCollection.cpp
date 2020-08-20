@@ -164,24 +164,34 @@ void RimSurfaceCollection::reloadSurfaces( std::vector<RimSurface*> surfaces )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurfaceCollection::copySurfaces( std::vector<RimSurface*> surfaces )
+RimSurface* RimSurfaceCollection::copySurfaces( std::vector<RimSurface*> surfaces )
 {
     std::vector<RimSurface*> newsurfaces;
 
     // create a copy of each surface given
     for ( RimSurface* surface : surfaces )
     {
-        newsurfaces.push_back( surface->createCopy() );
+        RimSurface* copy = surface->createCopy();
+        if ( copy )
+        {
+            newsurfaces.push_back( copy );
+        }
+        else
+        {
+            RiaLogging::warning( "Create Surface Copy: Could not create a copy of the surface " + surface->fullName() );
+        }
     }
 
+    RimSurface* retsurf = nullptr;
     for ( RimSurface* surface : newsurfaces )
     {
         m_surfaces.push_back( surface );
+        retsurf = surface;
     }
 
     this->updateConnectedEditors();
 
-    updateViews( newsurfaces );
+    return retsurf;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -200,7 +210,7 @@ RimSurface* RimSurfaceCollection::addGridCaseSurface( RimCase* sourceCase )
 
     if ( !s->onLoadData() )
     {
-        RiaLogging::warning( "Add Grid Case Surface : Could not create the grid case surface. Don't know why." );
+        RiaLogging::warning( "Add Grid Case Surface : Could not create the grid case surface." );
         return nullptr;
     }
 
@@ -334,7 +344,7 @@ void RimSurfaceCollection::removeSurface( RimSurface* surface )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurfaceCollection::addSurfacesAtIndex( int position, std::vector<RimSurface*> surfaces )
+RimSurface* RimSurfaceCollection::addSurfacesAtIndex( int position, std::vector<RimSurface*> surfaces )
 {
     // adjust index for number of folders we have
     position = position - static_cast<int>( m_subcollections.size() );
@@ -380,7 +390,9 @@ void RimSurfaceCollection::addSurfacesAtIndex( int position, std::vector<RimSurf
     // make sure the views are in sync with the collection order
     updateViews();
 
-    return;
+    if ( !surfaces.empty() ) return surfaces[0];
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -392,4 +404,6 @@ void RimSurfaceCollection::addSubCollection( RimSurfaceCollection* subcoll )
     this->updateConnectedEditors();
 
     updateViews();
+
+    return;
 }
