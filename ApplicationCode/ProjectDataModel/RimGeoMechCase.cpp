@@ -381,6 +381,8 @@ RimGeoMechCase::CaseOpenStatus RimGeoMechCase::openGeoMechCase( std::string* err
 
     m_geoMechCaseData = geoMechCaseData;
 
+    m_mudWeightWindowParameters->updateFemPartResults();
+
     return CASE_OPEN_OK;
 }
 
