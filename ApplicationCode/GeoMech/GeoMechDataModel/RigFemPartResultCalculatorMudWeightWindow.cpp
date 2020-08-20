@@ -210,55 +210,54 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
         for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
         {
             bool isHexahedron = femPart->isHexahedron( elmIdx );
+            int  elmNodeCount = RigFemTypes::elementNodeCount( femPart->elementType( elmIdx ) );
 
-            double wellPathDeviation = getValueForElement( RimMudWeightWindowParameters::ParameterType::WELL_DEVIATION,
+            // Use hydrostatic pressure from cell centroid.
+            // Use centroid to avoid intra-element differences
+            cvf::Vec3d cellCentroid       = femPartGrid->cellCentroid( elmIdx );
+            double     cellCentroidTvdRKB = -cellCentroid.z() + airGap;
+            double     waterDensityGCM3   = 1.03;
+            double     cellCenterHydroStaticPressure =
+                RigGeoMechWellLogExtractor::hydroStaticPorePressureAtDepth( cellCentroidTvdRKB, waterDensityGCM3 );
+
+            if ( isHexahedron && cellCenterHydroStaticPressure != 0.0 )
+            {
+                double wellPathDeviation = getValueForElement( RimMudWeightWindowParameters::ParameterType::WELL_DEVIATION,
+                                                               parameterFrameData,
+                                                               parameterValues,
+                                                               elmIdx );
+
+                double wellPathAzimuth = getValueForElement( RimMudWeightWindowParameters::ParameterType::WELL_AZIMUTH,
+                                                             parameterFrameData,
+                                                             parameterValues,
+                                                             elmIdx );
+
+                double ucsBar = getValueForElement( RimMudWeightWindowParameters::ParameterType::UCS,
+                                                    parameterFrameData,
+                                                    parameterValues,
+                                                    elmIdx );
+
+                double poissonsRatio = getValueForElement( RimMudWeightWindowParameters::ParameterType::POISSONS_RATIO,
                                                            parameterFrameData,
                                                            parameterValues,
                                                            elmIdx );
 
-            double wellPathAzimuth = getValueForElement( RimMudWeightWindowParameters::ParameterType::WELL_AZIMUTH,
-                                                         parameterFrameData,
-                                                         parameterValues,
-                                                         elmIdx );
+                double K0_FG = getValueForElement( RimMudWeightWindowParameters::ParameterType::K0_FG,
+                                                   parameterFrameData,
+                                                   parameterValues,
+                                                   elmIdx );
 
-            double ucsBar = getValueForElement( RimMudWeightWindowParameters::ParameterType::UCS,
-                                                parameterFrameData,
-                                                parameterValues,
-                                                elmIdx );
-
-            double poissonsRatio = getValueForElement( RimMudWeightWindowParameters::ParameterType::POISSONS_RATIO,
-                                                       parameterFrameData,
-                                                       parameterValues,
-                                                       elmIdx );
-
-            double K0_FG = getValueForElement( RimMudWeightWindowParameters::ParameterType::K0_FG,
+                double OBG0 = 0.0;
+                if ( !OBG0FromGrid )
+                {
+                    OBG0 = getValueForElement( RimMudWeightWindowParameters::ParameterType::OBG0,
                                                parameterFrameData,
                                                parameterValues,
                                                elmIdx );
+                }
 
-            double OBG0 = 0.0;
-            if ( !OBG0FromGrid )
-            {
-                OBG0 = getValueForElement( RimMudWeightWindowParameters::ParameterType::OBG0,
-                                           parameterFrameData,
-                                           parameterValues,
-                                           elmIdx );
-            }
-
-            int elmNodeCount = RigFemTypes::elementNodeCount( femPart->elementType( elmIdx ) );
-
-            if ( isHexahedron )
-            {
                 for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
                 {
-                    // Use hydrostatic pressure from cell centroid.
-                    // Use centroid to avoid intra-element differences
-                    cvf::Vec3d cellCentroid       = femPartGrid->cellCentroid( elmIdx );
-                    double     cellCentroidTvdRKB = -cellCentroid.z() + airGap;
-                    double     waterDensityGCM3   = 1.03;
-                    double     cellCenterHydroStaticPressure =
-                        RigGeoMechWellLogExtractor::hydroStaticPorePressureAtDepth( cellCentroidTvdRKB, waterDensityGCM3 );
-
                     size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
                     if ( elmNodResIdx < stressFrameData.size() )
                     {
