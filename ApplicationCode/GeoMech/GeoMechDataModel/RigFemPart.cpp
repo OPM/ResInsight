@@ -441,3 +441,12 @@ size_t RigFemPart::resultValueIdxFromResultPosType( RigFemResultPosEnum resultPo
     CVF_ASSERT( false );
     return 0u;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigFemPart::isHexahedron( size_t elementIdx ) const
+{
+    RigElementType elType = elementType( elementIdx );
+    return elType == HEX8 || elType == HEX8P;
+}
