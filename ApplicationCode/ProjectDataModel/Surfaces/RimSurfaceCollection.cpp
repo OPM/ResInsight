@@ -202,10 +202,9 @@ RimSurface* RimSurfaceCollection::addGridCaseSurface( RimCase* sourceCase )
     auto s = new RimGridCaseSurface;
     s->setCase( sourceCase );
 
-    int  oneBasedSliceIndex = 1;
-    auto sliceType          = RiaDefines::GridCaseAxis::AXIS_K;
+    int oneBasedSliceIndex = 1;
 
-    s->setSliceTypeAndOneBasedIndex( sliceType, oneBasedSliceIndex );
+    s->setOneBasedIndex( oneBasedSliceIndex );
     s->setUserDescription( "Surface" );
 
     if ( !s->onLoadData() )

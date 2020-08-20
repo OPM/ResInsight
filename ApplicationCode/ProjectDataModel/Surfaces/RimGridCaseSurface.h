@@ -39,7 +39,7 @@ public:
     void     setCase( RimCase* sourceCase );
     RimCase* case_() const;
 
-    void setSliceTypeAndOneBasedIndex( RiaDefines::GridCaseAxis sliceType, int oneBasedSliceIndex );
+    void setOneBasedIndex( int oneBasedSliceIndex );
 
     bool        onLoadData() override;
     RimSurface* createCopy() override;
@@ -67,9 +67,8 @@ private:
     std::pair<uint, uint> getStructGridIndex( cvf::StructGridInterface::FaceType cellface, cvf::ubyte localVertexIndex );
 
 private:
-    caf::PdmPtrField<RimCase*>                            m_case;
-    caf::PdmField<caf::AppEnum<RiaDefines::GridCaseAxis>> m_sliceDirection;
-    caf::PdmField<int>                                    m_oneBasedSliceIndex;
+    caf::PdmPtrField<RimCase*> m_case;
+    caf::PdmField<int>         m_oneBasedSliceIndex;
 
     std::vector<unsigned>                      m_tringleIndices;
     std::vector<cvf::Vec3d>                    m_vertices;
