@@ -70,23 +70,9 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNormalSE::calculate( int    
                                                                          resVarAddr.componentName ) );
     frameCountProgress.incrementProgress();
     frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
-    RigFemScalarResultFrames* srcPORDataFrames =
-        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_NODAL, "POR-Bar", "" ) );
     RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
 
     frameCountProgress.incrementProgress();
-
-    // Biot porelastic coeffisient (alpha)
-    RigFemScalarResultFrames* biotCoefficient = nullptr;
-    if ( !m_resultCollection->biotResultAddress().isEmpty() )
-    {
-        biotCoefficient =
-            m_resultCollection
-                ->findOrLoadScalarResult( partIndex,
-                                          RigFemResultAddress( RIG_ELEMENT,
-                                                               m_resultCollection->biotResultAddress().toStdString(),
-                                                               "" ) );
-    }
 
     const RigFemPart* femPart = m_resultCollection->parts()->part( partIndex );
     float             inf     = std::numeric_limits<float>::infinity();
@@ -100,20 +86,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNormalSE::calculate( int    
         size_t                    valCount      = srcSFrameData.size();
         dstFrameData.resize( valCount );
 
-        const std::vector<float>& initialPORFrameData = srcPORDataFrames->frameData( 0 );
-
         int elementCount = femPart->elementCount();
-
-        std::vector<float> biotData;
-        if ( biotCoefficient )
-        {
-            biotData = biotCoefficient->frameData( fIdx );
-            if ( !m_resultCollection->isValidBiotData( biotData, elementCount ) )
-            {
-                m_resultCollection->deleteResult( resVarAddr );
-                return nullptr;
-            }
-        }
 
 #pragma omp parallel for
         for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
@@ -129,37 +102,8 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNormalSE::calculate( int    
                     size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
                     if ( elmNodResIdx < srcSFrameData.size() )
                     {
-                        double SE_abacus = -srcSFrameData[elmNodResIdx];
-                        if ( fIdx == 0 )
-                        {
-                            // Geostatic step: biot coefficient == 1.0
-                            dstFrameData[elmNodResIdx] = SE_abacus;
-                        }
-                        else
-                        {
-                            // Use biot coefficient for all other (not Geostatic) timesteps
-                            double biotCoefficient = 1.0;
-                            if ( biotData.empty() )
-                            {
-                                biotCoefficient = m_resultCollection->biotFixedFactor();
-                            }
-                            else
-                            {
-                                // Use coefficient from element property table
-                                biotCoefficient = biotData[elmIdx];
-                            }
-
-                            // SE = St - alpha * porePressure - (1 - alpha) * initialPorePressure
-                            // ST = SE_abaqus + alpha * porePressure
-                            // Can be simplified:
-                            // SE = SE_abaqus - (1-alpha) * initialPorePressure
-                            // SE_abaqus is called S-Bar
-                            int    nodeIdx             = femPart->nodeIdxFromElementNodeResultIdx( elmNodResIdx );
-                            double initialPorePressure = initialPORFrameData[nodeIdx];
-                            if ( initialPorePressure == inf ) initialPorePressure = 0.0f;
-
-                            dstFrameData[elmNodResIdx] = SE_abacus - ( 1.0 - biotCoefficient ) * initialPorePressure;
-                        }
+                        // SE from abacus in opposite direction
+                        dstFrameData[elmNodResIdx] = -srcSFrameData[elmNodResIdx];
                     }
                 }
             }

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020-     Equinor ASA
+//  Copyright (C) 2020- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,66 +15,60 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+#include "RimcFractureModelPlot.h"
 
-#include "RimFractureModelPlotCollection.h"
+#include "RifFractureModelPlotExporter.h"
 
+#include "RimFractureModel.h"
 #include "RimFractureModelPlot.h"
 
 #include "cafPdmFieldIOScriptability.h"
-#include "cafPdmObjectScriptability.h"
+#include "cafPdmFieldScriptability.h"
 
-CAF_PDM_SOURCE_INIT( RimFractureModelPlotCollection, "FractureModelPlotCollection" );
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimFractureModelPlot, RimcFractureModelPlot_exportToFile, "ExportToFile" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFractureModelPlotCollection::RimFractureModelPlotCollection()
+RimcFractureModelPlot_exportToFile::RimcFractureModelPlot_exportToFile( caf::PdmObjectHandle* self )
+    : caf::PdmObjectMethod( self )
 {
-    CAF_PDM_InitScriptableObject( "FractureModelPlots", ":/WellLogPlots16x16.png", "", "" );
-
-    CAF_PDM_InitScriptableFieldNoDefault( &m_fractureModelPlots, "FractureModelPlots", "", "", "", "" );
-    m_fractureModelPlots.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitObject( "Export Fracture Model Plot", "", "", "Export Fracture Model Plot to File" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_filePath, "FilePath", "", "", "", "File Path" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFractureModelPlotCollection::~RimFractureModelPlotCollection()
+caf::PdmObjectHandle* RimcFractureModelPlot_exportToFile::execute()
 {
-    m_fractureModelPlots.deleteAllChildObjects();
+    RimFractureModelPlot* fractureModelPlot = self<RimFractureModelPlot>();
+
+    RifFractureModelPlotExporter::writeToFile( fractureModelPlot, m_filePath() );
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureModelPlotCollection::reloadAllPlots()
+bool RimcFractureModelPlot_exportToFile::resultIsPersistent() const
 {
-    for ( const auto& w : m_fractureModelPlots() )
-    {
-        w->loadDataAndUpdate();
-    }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureModelPlotCollection::addFractureModelPlot( RimFractureModelPlot* newPlot )
+std::unique_ptr<caf::PdmObjectHandle> RimcFractureModelPlot_exportToFile::defaultResult() const
 {
-    m_fractureModelPlots.push_back( newPlot );
+    return std::unique_ptr<caf::PdmObjectHandle>( new RimFractureModelPlot );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimFractureModelPlot*> RimFractureModelPlotCollection::fractureModelPlots() const
+bool RimcFractureModelPlot_exportToFile::isNullptrValidResult() const
 {
-    return m_fractureModelPlots.childObjects();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimFractureModelPlotCollection::deleteAllPlots()
-{
-    m_fractureModelPlots.deleteAllChildObjects();
+    return true;
 }

@@ -1001,5 +1001,5 @@ void RimGeoMechResultDefinition::updateLegendTextAndRanges( RimRegularLegendConf
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechResultDefinition::isBiotCoefficientDependent() const
 {
-    return ( this->resultFieldName() == "SE" || this->resultFieldName() == "ST" );
+    return ( this->resultFieldName() == "COMPRESSIBILITY" || this->resultFieldName() == "PORO-PERM" );
 }

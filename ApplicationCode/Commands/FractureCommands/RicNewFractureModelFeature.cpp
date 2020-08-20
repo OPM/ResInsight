@@ -46,21 +46,22 @@ CAF_CMD_SOURCE_INIT( RicNewFractureModelFeature, "RicNewFractureModelFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewFractureModelFeature::addFractureModel( RimWellPath* wellPath, RimWellPathCollection* wellPathCollection )
+RimFractureModel* RicNewFractureModelFeature::addFractureModel( RimWellPath*           wellPath,
+                                                                RimWellPathCollection* wellPathCollection )
 {
     CVF_ASSERT( wellPath );
 
-    if ( !RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem( wellPath ) ) return;
+    if ( !RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem( wellPath ) ) return nullptr;
 
     RimFractureModelCollection* fractureModelCollection = wellPath->fractureModelCollection();
     CVF_ASSERT( fractureModelCollection );
 
-    RimFractureModel* fractureModel = new RimFractureModel();
-    fractureModelCollection->addFractureModel( fractureModel );
-
     RimOilField* oilfield = nullptr;
     fractureModelCollection->firstAncestorOrThisOfType( oilfield );
-    if ( !oilfield ) return;
+    if ( !oilfield ) return nullptr;
+
+    RimFractureModel* fractureModel = new RimFractureModel();
+    fractureModelCollection->addFractureModel( fractureModel );
 
     QString fractureModelName = RicFractureNameGenerator::nameForNewFractureModel();
     fractureModel->setName( fractureModelName );
@@ -82,6 +83,7 @@ void RicNewFractureModelFeature::addFractureModel( RimWellPath* wellPath, RimWel
     }
 
     Riu3DMainWindowTools::selectAsCurrentItem( fractureModel );
+    return fractureModel;
 }
 
 //--------------------------------------------------------------------------------------------------

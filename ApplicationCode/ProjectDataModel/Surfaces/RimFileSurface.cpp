@@ -18,7 +18,7 @@
 
 #include "RimFileSurface.h"
 
-#include "RifSurfaceReader.h"
+#include "RifSurfaceImporter.h"
 #include "RigGocadData.h"
 #include "RigSurface.h"
 #include "RimSurfaceCollection.h"
@@ -155,13 +155,13 @@ bool RimFileSurface::loadDataFromFile()
     QString filePath = this->surfaceFilePath();
     if ( filePath.endsWith( "ptl", Qt::CaseInsensitive ) )
     {
-        surface = RifSurfaceReader::readPetrelFile( filePath );
+        surface = RifSurfaceImporter::readPetrelFile( filePath );
     }
     else if ( filePath.endsWith( "ts", Qt::CaseInsensitive ) )
     {
         m_gocadData.reset( new RigGocadData );
 
-        RifSurfaceReader::readGocadFile( filePath, m_gocadData.get() );
+        RifSurfaceImporter::readGocadFile( filePath, m_gocadData.get() );
 
         surface = m_gocadData->gocadGeometry();
     }

@@ -229,7 +229,7 @@ void RimMultiPlot::removePlot( RimPlot* plot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiPlot::movePlotsToThis( const std::vector<RimPlot*>& plotsToMove, RimPlot* plotToInsertAfter )
+void RimMultiPlot::movePlotsToThis( const std::vector<RimPlot*>& plotsToMove, int insertAtPosition )
 {
     for ( size_t tIdx = 0; tIdx < plotsToMove.size(); tIdx++ )
     {
@@ -245,12 +245,16 @@ void RimMultiPlot::movePlotsToThis( const std::vector<RimPlot*>& plotsToMove, Ri
         }
     }
 
-    size_t insertionStartIndex = 0;
-    if ( plotToInsertAfter ) insertionStartIndex = this->plotIndex( plotToInsertAfter ) + 1;
-
     for ( size_t tIdx = 0; tIdx < plotsToMove.size(); tIdx++ )
     {
-        this->insertPlot( plotsToMove[tIdx], insertionStartIndex + tIdx );
+        if ( insertAtPosition >= 0 )
+        {
+            this->insertPlot( plotsToMove[tIdx], (size_t)insertAtPosition + tIdx );
+        }
+        else
+        {
+            this->addPlot( plotsToMove[tIdx] );
+        }
     }
 
     this->updateLayout();

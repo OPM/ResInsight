@@ -22,6 +22,7 @@
 
 class RicExportCompletionDataSettingsUi;
 class RifTextDataTableFormatter;
+class RigActiveCellInfo;
 class RimEclipseCase;
 class RimFishbonesMultipleSubs;
 class RimPerforationInterval;
@@ -41,21 +42,18 @@ public:
     static void exportWellSegmentsForAllCompletions( const RicExportCompletionDataSettingsUi& exportSettings,
                                                      const std::vector<RimWellPath*>&         wellPaths );
 
-    static void exportWellSegmentsForFractures( RimEclipseCase*                          eclipseCase,
-                                                std::shared_ptr<QFile>                   exportFile,
-                                                const RimWellPath*                       wellPath,
-                                                const std::vector<RimWellPathFracture*>& fractures );
+    static void exportWellSegmentsForFractures( RimEclipseCase*        eclipseCase,
+                                                std::shared_ptr<QFile> exportFile,
+                                                const RimWellPath*     wellPath );
 
-    static void exportWellSegmentsForFishbones( RimEclipseCase*                               eclipseCase,
-                                                std::shared_ptr<QFile>                        exportFile,
-                                                const RimWellPath*                            wellPath,
-                                                const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs );
+    static void exportWellSegmentsForFishbones( RimEclipseCase*        eclipseCase,
+                                                std::shared_ptr<QFile> exportFile,
+                                                const RimWellPath*     wellPath );
 
-    static void exportWellSegmentsForPerforations( RimEclipseCase*                                   eclipseCase,
-                                                   std::shared_ptr<QFile>                            exportFile,
-                                                   const RimWellPath*                                wellPath,
-                                                   int                                               timeStep,
-                                                   const std::vector<const RimPerforationInterval*>& perforationIntervals );
+    static void exportWellSegmentsForPerforations( RimEclipseCase*        eclipseCase,
+                                                   std::shared_ptr<QFile> exportFile,
+                                                   const RimWellPath*     wellPath,
+                                                   int                    timeStep );
 
     static RicMswExportInfo generateFishbonesMswExportInfo( const RimEclipseCase* caseToApply,
                                                             const RimWellPath*    wellPath,
@@ -79,8 +77,8 @@ private:
                                            int                                               timeStep,
                                            const std::vector<const RimPerforationInterval*>& perforationIntervals );
 
-    static std::vector<SubSegmentIntersectionInfo>
-        generateSubSegments( const RimEclipseCase* eclipseCase, const RimWellPath* wellPath, double& initialMD );
+    static std::vector<WellPathCellIntersectionInfo>
+        generateCellSegments( const RimEclipseCase* eclipseCase, const RimWellPath* wellPath, double& initialMD );
 
     static std::vector<WellPathCellIntersectionInfo>
         filterIntersections( const std::vector<WellPathCellIntersectionInfo>& intersections,
@@ -88,11 +86,36 @@ private:
                              const RigWellPath*                               wellPathGeometry,
                              const RimEclipseCase*                            eclipseCase );
 
-    static void generateWelsegsTable( RifTextDataTableFormatter& formatter, const RicMswExportInfo& exportInfo );
+    static void generateWelsegsTable( RifTextDataTableFormatter& formatter,
+                                      const RicMswExportInfo&    exportInfo,
+                                      double                     maxSegmentLength );
+
+    static void writeMainBoreWelsegsSegment( std::shared_ptr<RicMswSegment> segment,
+                                             RifTextDataTableFormatter&     formatter,
+                                             const RicMswExportInfo&        exportInfo,
+                                             double                         maxSegmentLength,
+                                             int*                           segmentNumber,
+                                             double*                        prevMD,
+                                             double*                        prevTVD );
+    static void writeValveWelsegsSegment( std::shared_ptr<RicMswValve> valve,
+                                          RifTextDataTableFormatter&   formatter,
+                                          const RicMswExportInfo&      exportInfo,
+                                          double                       maxSegmentLength,
+                                          int                          mainSegmentNumber,
+                                          int*                         segmentNumber );
+    static void writeCompletionWelsegsSegment( std::shared_ptr<RicMswSegment>    segment,
+                                               std::shared_ptr<RicMswCompletion> completion,
+                                               RifTextDataTableFormatter&        formatter,
+                                               const RicMswExportInfo&           exportInfo,
+                                               double                            maxSegmentLength,
+                                               int                               mainSegmentNumber,
+                                               int*                              segmentNumber );
 
     static void generateWelsegsSegments( RifTextDataTableFormatter&                         formatter,
                                          const RicMswExportInfo&                            exportInfo,
-                                         const std::set<RigCompletionData::CompletionType>& exportCompletionTypes );
+                                         const std::set<RigCompletionData::CompletionType>& exportCompletionTypes,
+                                         double                                             maxSegmentLength,
+                                         int*                                               segmentNumber );
     static void generateWelsegsCompletionCommentHeader( RifTextDataTableFormatter&        formatter,
                                                         RigCompletionData::CompletionType completionType );
     static void generateCompsegTables( RifTextDataTableFormatter& formatter, const RicMswExportInfo& exportInfo );
@@ -107,12 +130,20 @@ private:
     static void generateWsegvalvTable( RifTextDataTableFormatter& formatter, const RicMswExportInfo& exportInfo );
     static void generateWsegAicdTable( RifTextDataTableFormatter& formatter, const RicMswExportInfo& exportInfo );
 
+    static double calculateLengthThroughActiveCells( double                                           startMD,
+                                                     double                                           endMD,
+                                                     const std::vector<WellPathCellIntersectionInfo>& wellPathIntersections,
+                                                     const RigActiveCellInfo*                         activeCellInfo );
+
 private:
     typedef std::vector<std::shared_ptr<RicMswSegment>> MainBoreSegments;
     typedef std::map<std::shared_ptr<RicMswCompletion>, std::set<std::pair<const RimWellPathValve*, size_t>>> ValveContributionMap;
 
+    static std::vector<std::pair<double, double>>
+        createSubSegmentMDPairs( double startMD, double endMD, double maxSegmentLength );
+
     static MainBoreSegments
-        createMainBoreSegmentsForPerforations( const std::vector<SubSegmentIntersectionInfo>&    subSegIntersections,
+        createMainBoreSegmentsForPerforations( const std::vector<WellPathCellIntersectionInfo>& cellSegmentIntersections,
                                                const std::vector<const RimPerforationInterval*>& perforationIntervals,
                                                const RimWellPath*                                wellPath,
                                                int                                               timeStep,
@@ -127,7 +158,9 @@ private:
     static void
         assignValveContributionsToSuperICDsOrAICDs( const std::vector<std::shared_ptr<RicMswSegment>>& mainBoreSegments,
                                                     const std::vector<const RimPerforationInterval*>& perforationIntervals,
-                                                    RiaEclipseUnitTools::UnitSystem                   unitSystem );
+                                                    const std::vector<WellPathCellIntersectionInfo>& wellPathIntersections,
+                                                    const RigActiveCellInfo*                         activeCellInfo,
+                                                    RiaEclipseUnitTools::UnitSystem                  unitSystem );
 
     static void moveIntersectionsToICVs( const std::vector<std::shared_ptr<RicMswSegment>>& mainBoreSegments,
                                          const std::vector<const RimPerforationInterval*>&  perforationIntervals,
@@ -137,15 +170,15 @@ private:
 
     static void assignFishbonesLateralIntersections( const RimEclipseCase*           caseToApply,
                                                      const RimFishbonesMultipleSubs* fishbonesSubs,
-                                                     std::shared_ptr<RicMswSegment>  location,
+                                                     std::shared_ptr<RicMswSegment>  segment,
                                                      bool*                           foundSubGridIntersections,
                                                      double                          maxSegmentLength );
 
-    static void assignFractureIntersections( const RimEclipseCase*                 caseToApply,
-                                             const RimWellPathFracture*            fracture,
-                                             const std::vector<RigCompletionData>& completionData,
-                                             std::shared_ptr<RicMswSegment>        location,
-                                             bool*                                 foundSubGridIntersections );
+    static void assignFractureCompletionsToCellSegment( const RimEclipseCase*                 caseToApply,
+                                                        const RimWellPathFracture*            fracture,
+                                                        const std::vector<RigCompletionData>& completionData,
+                                                        std::shared_ptr<RicMswSegment>        segment,
+                                                        bool* foundSubGridIntersections );
 
     static std::vector<RigCompletionData> generatePerforationIntersections( const RimWellPath*            wellPath,
                                                                             const RimPerforationInterval* perforationInterval,
@@ -154,16 +187,14 @@ private:
 
     static void assignPerforationIntersections( const std::vector<RigCompletionData>& completionData,
                                                 std::shared_ptr<RicMswCompletion>     perforationCompletion,
-                                                const SubSegmentIntersectionInfo&     cellIntInfo,
+                                                const WellPathCellIntersectionInfo&   cellIntInfo,
                                                 double                                overlapStart,
                                                 double                                overlapEnd,
                                                 bool*                                 foundSubGridIntersections );
 
-    static void assignBranchAndSegmentNumbers( const RimEclipseCase*          caseToApply,
-                                               std::shared_ptr<RicMswSegment> location,
-                                               int*                           branchNum,
-                                               int*                           segmentNum );
-    static void assignBranchAndSegmentNumbers( const RimEclipseCase* caseToApply, RicMswExportInfo* exportInfo );
+    static void
+                assignBranchNumbers( const RimEclipseCase* caseToApply, std::shared_ptr<RicMswSegment> segment, int* branchNum );
+    static void assignBranchNumbers( const RimEclipseCase* caseToApply, RicMswExportInfo* exportInfo );
 
     static double tvdFromMeasuredDepth( const RimWellPath* wellPath, double measuredDepth );
 };

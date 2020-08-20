@@ -75,18 +75,18 @@ void RicMswExportInfo::setHasSubGridIntersections( bool subGridIntersections )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswExportInfo::addWellSegment( std::shared_ptr<RicMswSegment> location )
+void RicMswExportInfo::addSegment( std::shared_ptr<RicMswSegment> location )
 {
-    m_wellSegmentLocations.push_back( location );
+    m_segments.push_back( location );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswExportInfo::sortLocations()
+void RicMswExportInfo::sortSegments()
 {
-    std::sort( m_wellSegmentLocations.begin(),
-               m_wellSegmentLocations.end(),
+    std::sort( m_segments.begin(),
+               m_segments.end(),
                []( std::shared_ptr<RicMswSegment> lhs, std::shared_ptr<RicMswSegment> rhs ) { return *lhs < *rhs; } );
 }
 
@@ -181,15 +181,15 @@ double RicMswExportInfo::defaultDoubleValue()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<std::shared_ptr<RicMswSegment>>& RicMswExportInfo::wellSegmentLocations() const
+const std::vector<std::shared_ptr<RicMswSegment>>& RicMswExportInfo::segments() const
 {
-    return m_wellSegmentLocations;
+    return m_segments;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::shared_ptr<RicMswSegment>>& RicMswExportInfo::wellSegmentLocations()
+std::vector<std::shared_ptr<RicMswSegment>>& RicMswExportInfo::segments()
 {
-    return m_wellSegmentLocations;
+    return m_segments;
 }

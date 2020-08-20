@@ -26,6 +26,7 @@
 
 #include "cvfStructGrid.h"
 
+class RigMainGrid;
 class RimCase;
 
 class RimGridCaseSurface : public RimSurface
@@ -57,19 +58,24 @@ protected:
     QString fullName() const override;
 
 private:
-
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     void extractDataFromGrid();
 
-    std::pair<uint, uint> getStructGridIndex( cvf::StructGridInterface::FaceType cellface, cvf::ubyte localVertexIndex );
+    bool findValidCellIndex( const RigMainGrid*                       grid,
+                             const cvf::StructGridInterface::FaceType faceType,
+                             size_t&                                  cellIndex,
+                             const size_t                             row,
+                             const size_t                             column,
+                             const size_t                             layer,
+                             size_t&                                  cellFaceIndex );
 
 private:
     caf::PdmPtrField<RimCase*>                            m_case;
     caf::PdmField<caf::AppEnum<RiaDefines::GridCaseAxis>> m_sliceDirection;
     caf::PdmField<int>                                    m_oneBasedSliceIndex;
 
-    std::vector<unsigned>                      m_tringleIndices;
+    std::vector<unsigned>                      m_triangleIndices;
     std::vector<cvf::Vec3d>                    m_vertices;
     std::vector<std::pair<unsigned, unsigned>> m_structGridIndices;
 };

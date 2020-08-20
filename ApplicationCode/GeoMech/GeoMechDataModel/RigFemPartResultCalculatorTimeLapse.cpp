@@ -68,13 +68,26 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorTimeLapse::calculate( int   
             "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
         frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
 
-        RigFemResultAddress       resVarNative( resVarAddr.resultPosType,
+        RigFemResultAddress resVarNative( resVarAddr.resultPosType,
                                           resVarAddr.fieldName,
                                           resVarAddr.componentName,
                                           RigFemResultAddress::noTimeLapseValue(),
                                           resVarAddr.refKLayerIndex );
-        RigFemScalarResultFrames* srcDataFrames = m_resultCollection->findOrLoadScalarResult( partIndex, resVarNative );
+        resVarNative.normalizedByHydrostaticPressure = resVarAddr.normalizedByHydrostaticPressure;
+
+        RigFemScalarResultFrames* srcDataFrames = nullptr;
         RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
+
+        // Normalizable result: needs to be normalized before the diff is calculated
+        if ( resVarAddr.normalizeByHydrostaticPressure() && RigFemPartResultsCollection::isNormalizableResult( resVarAddr ) )
+        {
+            RigFemPartResultCalculatorNormalized normalizedCalculator( *m_resultCollection );
+            srcDataFrames = normalizedCalculator.calculate( partIndex, resVarNative );
+        }
+        else
+        {
+            srcDataFrames = m_resultCollection->findOrLoadScalarResult( partIndex, resVarNative );
+        }
 
         frameCountProgress.incrementProgress();
 

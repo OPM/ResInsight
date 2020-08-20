@@ -45,6 +45,9 @@ struct WellPathCellIntersectionInfo
 
     cvf::StructGridInterface::FaceType intersectedCellFaceIn;
     cvf::StructGridInterface::FaceType intersectedCellFaceOut;
+
+    double startTVD() const { return -startPoint.z(); }
+    double endTVD() const { return -endPoint.z(); }
 };
 
 class RigWellPath;

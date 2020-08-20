@@ -43,8 +43,8 @@ TEST( RicElementPropertyTableReaderTest, ParseFailedForTooManyColumns )
 {
     try
     {
-        RifElementPropertyMetadata metadata =
-            RifElementPropertyTableReader::readMetadata( ELEM_PROP_TEST_DATA_DIRECTORY + "ELASTIC_TABLE_error_too_many_columns.inp" );
+        RifElementPropertyMetadata metadata = RifElementPropertyTableReader::readMetadata(
+            ELEM_PROP_TEST_DATA_DIRECTORY + "ELASTIC_TABLE_error_too_many_columns.inp" );
 
         RifElementPropertyTable table;
         RifElementPropertyTableReader::readData( &metadata, &table );
@@ -101,7 +101,6 @@ TEST( RicElementPropertyTableReaderTest, MoreThanEightColumns )
     EXPECT_STREQ( "MODULUS", metadata.dataColumns[6].toStdString().c_str() );
     EXPECT_STREQ( "MODULUS", metadata.dataColumns[7].toStdString().c_str() );
     EXPECT_STREQ( "MODULUS", metadata.dataColumns[8].toStdString().c_str() );
-
 
     EXPECT_EQ( 9u, table.data.size() );
     EXPECT_EQ( 8u, table.elementIds.size() );
