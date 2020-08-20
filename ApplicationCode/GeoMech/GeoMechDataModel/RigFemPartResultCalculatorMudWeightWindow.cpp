@@ -329,7 +329,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
                             }
                             else
                             {
-                                upperLimit = stressFrameData[elmNodResIdx] * shMultiplier;
+                                upperLimit = stressFrameData[elmNodResIdx] * shMultiplier / cellCenterHydroStaticPressure;
                             }
                         }
 
