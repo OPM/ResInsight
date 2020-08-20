@@ -46,8 +46,9 @@ bool RicNewSurfaceCollectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewSurfaceCollectionFeature::onActionTriggered( bool isChecked )
 {
-    RimProject*           proj     = RimProject::current();
-    RimSurfaceCollection* surfColl = proj->activeOilField()->surfaceCollection();
+    std::vector<RimSurfaceCollection*> colls = caf::selectedObjectsByTypeStrict<RimSurfaceCollection*>();
+    if ( colls.empty() ) return;
+    RimSurfaceCollection* surfColl = colls[0];
 
     if ( surfColl )
     {
