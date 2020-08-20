@@ -209,7 +209,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
 #pragma omp parallel for
         for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
         {
-            RigElementType elmType = femPart->elementType( elmIdx );
+            bool isHexahedron = femPart->isHexahedron( elmIdx );
 
             double wellPathDeviation = getValueForElement( RimMudWeightWindowParameters::ParameterType::WELL_DEVIATION,
                                                            parameterFrameData,
@@ -247,7 +247,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
 
             int elmNodeCount = RigFemTypes::elementNodeCount( femPart->elementType( elmIdx ) );
 
-            if ( elmType == HEX8P || elmType == HEX8 )
+            if ( isHexahedron )
             {
                 for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
                 {
@@ -385,7 +385,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
 #pragma omp parallel for
         for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
         {
-            RigElementType elmType = femPart->elementType( elmIdx );
+            bool isHexahedron = femPart->isHexahedron( elmIdx );
 
             int elmNodeCount = RigFemTypes::elementNodeCount( femPart->elementType( elmIdx ) );
 
@@ -394,7 +394,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
             size_t kMin       = std::min( k, kRefLayer );
             size_t kMax       = std::max( k, kRefLayer );
 
-            if ( ( elmType == HEX8P || elmType == HEX8 ) && validIndex )
+            if ( isHexahedron && validIndex )
             {
                 for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
                 {
@@ -406,7 +406,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
                     for ( size_t currentK = kMin; currentK < kMax; currentK++ )
                     {
                         size_t kElmIdx = femPartGrid->cellIndexFromIJK( i, j, currentK );
-                        if ( kElmIdx != cvf::UNDEFINED_SIZE_T && femPart->elementType( kElmIdx ) == HEX8P )
+                        if ( kElmIdx != cvf::UNDEFINED_SIZE_T && femPart->isHexahedron( kElmIdx ) )
                         {
                             size_t kElmNodResIdx = femPart->elementNodeResultIdx( kElmIdx, elmNodIdx );
 

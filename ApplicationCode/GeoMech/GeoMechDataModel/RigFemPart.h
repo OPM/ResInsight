@@ -59,6 +59,7 @@ public:
 
     int            elmId( size_t elementIdx ) const { return m_elementId[elementIdx]; }
     RigElementType elementType( size_t elementIdx ) const { return m_elementTypes[elementIdx]; }
+    bool           isHexahedron( size_t elementIdx ) const;
     const int*     connectivities( size_t elementIdx ) const
     {
         return &m_allElementConnectivities[m_elementConnectivityStartIndices[elementIdx]];
