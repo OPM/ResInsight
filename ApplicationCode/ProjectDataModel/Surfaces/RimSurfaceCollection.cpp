@@ -348,6 +348,9 @@ RimSurface* RimSurfaceCollection::addSurfacesAtIndex( int position, std::vector<
     // adjust index for number of folders we have
     position = position - static_cast<int>( m_subcollections.size() );
 
+    RimSurface* returnSurface = nullptr;
+    if ( !surfaces.empty() ) returnSurface = surfaces[0];
+
     // insert position at end?
     if ( ( position >= static_cast<int>( m_surfaces.size() ) ) || ( position < 0 ) )
     {
@@ -361,7 +364,7 @@ RimSurface* RimSurfaceCollection::addSurfacesAtIndex( int position, std::vector<
         // build the new surface order
         std::vector<RimSurface*> orderedSurfs;
 
-        size_t i = 0;
+        int i = 0;
 
         while ( i < position )
         {
@@ -389,9 +392,7 @@ RimSurface* RimSurfaceCollection::addSurfacesAtIndex( int position, std::vector<
     // make sure the views are in sync with the collection order
     updateViews();
 
-    if ( !surfaces.empty() ) return surfaces[0];
-
-    return nullptr;
+    return returnSurface;
 }
 
 //--------------------------------------------------------------------------------------------------
