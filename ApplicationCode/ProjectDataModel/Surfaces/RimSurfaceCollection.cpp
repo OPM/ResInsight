@@ -376,7 +376,8 @@ RimSurface* RimSurfaceCollection::addSurfacesAtIndex( int position, std::vector<
             orderedSurfs.push_back( surf );
         }
 
-        while ( i < m_surfaces.size() )
+        int surfcount = static_cast<int>( m_surfaces.size() );
+        while ( i < surfcount )
         {
             orderedSurfs.push_back( m_surfaces[i++] );
         }
