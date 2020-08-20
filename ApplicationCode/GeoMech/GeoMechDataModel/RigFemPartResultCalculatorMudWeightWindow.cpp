@@ -103,7 +103,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
     // Pore pressure
     frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
     RigFemScalarResultFrames* porePressureDataFrames =
-        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_NODAL, "POR-Bar", "" ) );
+        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_ELEMENT_NODAL, "POR-Bar", "" ) );
     frameCountProgress.incrementProgress();
 
     // Stress (ST.S3)
@@ -261,11 +261,9 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
                     size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
                     if ( elmNodResIdx < stressFrameData.size() )
                     {
-                        int nodeIdx = femPart->nodeIdxFromElementNodeResultIdx( elmNodResIdx );
-
                         // Pore pressure (unit: Bar)
-                        float porePressureBar        = porFrameData[nodeIdx];
-                        float initialPorePressureBar = initialPorFrameData[nodeIdx];
+                        float porePressureBar        = porFrameData[elmNodResIdx];
+                        float initialPorePressureBar = initialPorFrameData[elmNodResIdx];
 
                         // Initial overburden gradient
                         if ( OBG0FromGrid )
