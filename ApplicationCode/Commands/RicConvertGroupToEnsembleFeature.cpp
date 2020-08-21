@@ -43,7 +43,6 @@
 #include "cafSelectionManagerTools.h"
 
 #include <QAction>
-#include <QFileDialog>
 #include <QInputDialog>
 #include <QMessageBox>
 
