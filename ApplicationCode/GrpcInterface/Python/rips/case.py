@@ -60,13 +60,11 @@ import NNCProperties_pb2
 import NNCProperties_pb2_grpc
 from resinsight_classes import Case, EclipseCase, GeoMechCase, WellBoreStabilityPlot, WbsParameters
 
-#import rips.project
-
 from .grid import Grid
 from .pdmobject import add_method
 from .view import View
 from .simulation_well import SimulationWell
-import rips.project
+import rips.project  # full name import due to circular dependency
 
 
 @add_method(Case)
