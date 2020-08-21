@@ -55,6 +55,7 @@
 #include "RigFemPartResultCalculatorSM.h"
 #include "RigFemPartResultCalculatorShearSE.h"
 #include "RigFemPartResultCalculatorShearST.h"
+#include "RigFemPartResultCalculatorShearSlipIndicator.h"
 #include "RigFemPartResultCalculatorStressAnisotropy.h"
 #include "RigFemPartResultCalculatorStressGradients.h"
 #include "RigFemPartResultCalculatorSurfaceAlignedStress.h"
@@ -183,6 +184,8 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPorosityPermeability( *this ) ) );
     m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorMudWeightWindow( *this ) ) );
+    m_resultCalculators.push_back(
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorShearSlipIndicator( *this ) ) );
     m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorFormationIndices( *this ) ) );
 }
@@ -663,6 +666,8 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["MUD-WEIGHT"].push_back( "MWM" );
             fieldCompNames["MUD-WEIGHT"].push_back( "UMWL" );
             fieldCompNames["MUD-WEIGHT"].push_back( "LMWL" );
+
+            fieldCompNames["DPN"];
         }
         else if ( resPos == RIG_INTEGRATION_POINT )
         {
@@ -751,6 +756,8 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["MUD-WEIGHT"].push_back( "MWM" );
             fieldCompNames["MUD-WEIGHT"].push_back( "UMWL" );
             fieldCompNames["MUD-WEIGHT"].push_back( "LMWL" );
+
+            fieldCompNames["DPN"];
         }
         else if ( resPos == RIG_ELEMENT_NODAL_FACE )
         {
