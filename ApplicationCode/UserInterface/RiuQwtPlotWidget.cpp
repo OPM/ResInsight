@@ -72,6 +72,8 @@ RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlot* plotDefinition, QWidget* parent )
     : QwtPlot( parent )
     , m_plotDefinition( plotDefinition )
     , m_overlayMargins( 5 )
+    , m_plotTitle( "" )
+    , m_plotTitleEnabled( true )
 {
     CAF_ASSERT( m_plotDefinition );
     RiuQwtPlotTools::setCommonPlotBehaviour( this );
