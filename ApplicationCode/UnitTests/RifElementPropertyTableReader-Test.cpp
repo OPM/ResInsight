@@ -32,8 +32,8 @@ TEST( RicElementPropertyTableReaderTest, BasicUsage )
     EXPECT_EQ( 4320u, table.data[0].size() );
     EXPECT_EQ( 4320u, table.data[1].size() );
 
-    EXPECT_FLOAT_EQ( 11198814808.2538, table.data[0].front() );
-    EXPECT_FLOAT_EQ( 13250853676.3636, table.data[0].back() );
+    EXPECT_FLOAT_EQ( 11198814808.2538f, table.data[0].front() );
+    EXPECT_FLOAT_EQ( 13250853676.3636f, table.data[0].back() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,6 +114,6 @@ TEST( RicElementPropertyTableReaderTest, MoreThanEightColumns )
     EXPECT_EQ( 8u, table.data[7].size() );
     EXPECT_EQ( 8u, table.data[8].size() );
 
-    EXPECT_FLOAT_EQ( 4998669605.36, table.data[0].front() );
-    EXPECT_FLOAT_EQ( 4998444377.89, table.data[0].back() );
+    EXPECT_FLOAT_EQ( 4998669605.36f, table.data[0].front() );
+    EXPECT_FLOAT_EQ( 4998444377.89f, table.data[0].back() );
 }
