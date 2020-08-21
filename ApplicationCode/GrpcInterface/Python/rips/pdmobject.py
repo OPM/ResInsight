@@ -15,7 +15,7 @@ import PdmObject_pb2
 import PdmObject_pb2_grpc
 import Commands_pb2
 import Commands_pb2_grpc
-import pdm_objects as ClassList
+import resinsight_classes as ClassList
 
 
 def camel_to_snake(name):
@@ -44,13 +44,16 @@ def add_static_method(cls):
         return func  # returning func means func can still be used normally
     return decorator
 
+
 class PdmObjectBase:
     """
     The ResInsight base class for the Project Data Model
     """
+
     def _execute_command(self, **command_params):
         self.__warnings = []
-        response, call = self._commands.Execute.with_call(Commands_pb2.CommandParams(**command_params))
+        response, call = self._commands.Execute.with_call(
+            Commands_pb2.CommandParams(**command_params))
         for key, value in call.trailing_metadata():
             value = value.replace(';;', '\n')
             if key == 'warning':
@@ -143,7 +146,7 @@ class PdmObjectBase:
             if not snake_kw.startswith("_") and not callable(getattr(self, snake_kw)):
                 camel_kw = snake_to_camel(snake_kw)
                 print("   " + snake_kw + " [" + type(getattr(self, snake_kw)).__name__ +
-                    "]: " + str(getattr(self, snake_kw)))
+                      "]: " + str(getattr(self, snake_kw)))
         print("Object Methods:")
         for snake_kw in dir(self):
             if not snake_kw.startswith("_") and callable(getattr(self, snake_kw)):
@@ -211,7 +214,7 @@ class PdmObjectBase:
             values.append(self.__convert_from_grpc_value(string))
         return values
 
-    def __from_pb2_to_pdm_objects(self, pb2_object_list, super_class_definition):
+    def __from_pb2_to_resinsight_classes(self, pb2_object_list, super_class_definition):
         pdm_object_list = []
         for pb2_object in pb2_object_list:
             child_class_definition = ClassList.class_from_keyword(pb2_object.class_keyword)
@@ -238,7 +241,7 @@ class PdmObjectBase:
                 object=self._pb2_object, child_keyword=class_keyword)
             object_list = self._pdm_object_stub.GetDescendantPdmObjects(
                 request).objects
-            return self.__from_pb2_to_pdm_objects(object_list, class_definition)
+            return self.__from_pb2_to_resinsight_classes(object_list, class_definition)
         except grpc.RpcError as e:
             if e.code() == grpc.StatusCode.NOT_FOUND:
                 return []  # Valid empty result
@@ -252,10 +255,10 @@ class PdmObjectBase:
             A list of PdmObjects inside the child_field
         """
         request = PdmObject_pb2.PdmChildObjectRequest(object=self._pb2_object,
-                                                    child_field=child_field)
+                                                      child_field=child_field)
         try:
             object_list = self._pdm_object_stub.GetChildPdmObjects(request).objects
-            return self.__from_pb2_to_pdm_objects(object_list, class_definition)
+            return self.__from_pb2_to_resinsight_classes(object_list, class_definition)
         except grpc.RpcError as e:
             if e.code() == grpc.StatusCode.NOT_FOUND:
                 return []
@@ -318,7 +321,7 @@ class PdmObjectBase:
                 elif isinstance(array[0], int):
                     chunk.CopyFrom(
                         PdmObject_pb2.PdmObjectSetterChunk(ints=PdmObject_pb2.IntArray(data=array[index:index +
-                                                                                                actual_chunk_size])))
+                                                                                                  actual_chunk_size])))
                 elif isinstance(array[0], str):
                     chunk.CopyFrom(
                         PdmObject_pb2.PdmObjectSetterChunk(strings=PdmObject_pb2.StringArray(data=array[index:index +
