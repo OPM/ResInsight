@@ -26,7 +26,7 @@
 #include "RimWellLogFile.h"
 #include "RimWellPath.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
 CAF_PDM_SOURCE_INIT( RimWbsParameters, "WbsParameters" );
 
@@ -37,109 +37,97 @@ RimWbsParameters::RimWbsParameters()
 {
     CAF_PDM_InitScriptableObject( "Well Bore Stability Parameters", ":/WellLogPlot16x16.png", "", "" );
 
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_porePressureSource,
-                                                "PorePressureReservoirSource",
-                                                "Reservoir Pore Pressure",
-                                                "",
-                                                "Data source for Pore Pressure in reservoir",
-                                                "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_porePressureSource,
+                                          "PorePressureReservoirSource",
+                                          "Reservoir Pore Pressure",
+                                          "",
+                                          "Data source for Pore Pressure in reservoir",
+                                          "" );
 
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_porePressureNonReservoirSource,
-                                                "PorePressureNonReservoirSource",
-                                                "Non-Reservoir Pore Pressure",
-                                                "",
-                                                "Data source for Non-Reservoir Pore Pressure",
-                                                "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_userDefinedPPShale,
-                                       "UserPPNonReservoir",
-                                       1.0,
-                                       "  Multiplier of hydrostatic PP",
-                                       "",
-                                       "",
-                                       "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_porePressureNonReservoirSource,
+                                          "PorePressureNonReservoirSource",
+                                          "Non-Reservoir Pore Pressure",
+                                          "",
+                                          "Data source for Non-Reservoir Pore Pressure",
+                                          "" );
+    CAF_PDM_InitScriptableField( &m_userDefinedPPShale, "UserPPNonReservoir", 1.0, "  Multiplier of hydrostatic PP", "", "", "" );
 
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_poissonRatioSource,
-                                                "PoissionRatioSource",
-                                                "Poisson Ratio",
-                                                "",
-                                                "Data source for Poisson Ratio",
-                                                "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_poissonRatioSource,
+                                          "PoissionRatioSource",
+                                          "Poisson Ratio",
+                                          "",
+                                          "Data source for Poisson Ratio",
+                                          "" );
 
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_ucsSource,
-                                                "UcsSource",
-                                                "Uniaxial Compressive Strength",
-                                                "",
-                                                "Data source for UCS",
-                                                "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_ucsSource,
+                                          "UcsSource",
+                                          "Uniaxial Compressive Strength",
+                                          "",
+                                          "Data source for UCS",
+                                          "" );
 
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_OBG0Source,
-                                                "OBG0Source",
-                                                "Initial Overburden Gradient",
-                                                "",
-                                                "Data source for OBG0",
-                                                "" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_DFSource,
-                                                "DFSource",
-                                                "Depletion Factor (DF)",
-                                                "",
-                                                "Data source for Depletion Factor",
-                                                "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_OBG0Source,
+                                          "OBG0Source",
+                                          "Initial Overburden Gradient",
+                                          "",
+                                          "Data source for OBG0",
+                                          "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_DFSource,
+                                          "DFSource",
+                                          "Depletion Factor (DF)",
+                                          "",
+                                          "Data source for Depletion Factor",
+                                          "" );
 
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_K0SHSource,
-                                                "K0SHSource",
-                                                "K0_SH",
-                                                "",
-                                                "SH from Matthews & Kelly = K0_SH * (OBG0-PP0) + PP0 + DF * "
-                                                "(PP-PP0)\nK0_SH = "
-                                                "(SH - PP)/(OBG-PP)",
-                                                "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_K0SHSource,
+                                          "K0SHSource",
+                                          "K0_SH",
+                                          "",
+                                          "SH from Matthews & Kelly = K0_SH * (OBG0-PP0) + PP0 + DF * "
+                                          "(PP-PP0)\nK0_SH = "
+                                          "(SH - PP)/(OBG-PP)",
+                                          "" );
 
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_FGShaleSource, "FGShaleSource", "FG in Shale Calculation", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_K0FGSource,
-                                                "K0FGSource",
-                                                "K0_FG",
-                                                "",
-                                                "FG in shale = K0_FG * (OBG0-PP0)\nK0_FG = (FG-PP)/(OBG-PP)",
-                                                "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_FGShaleSource, "FGShaleSource", "FG in Shale Calculation", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_K0FGSource,
+                                          "K0FGSource",
+                                          "K0_FG",
+                                          "",
+                                          "FG in shale = K0_FG * (OBG0-PP0)\nK0_FG = (FG-PP)/(OBG-PP)",
+                                          "" );
 
     CAF_PDM_InitFieldNoDefault( &m_waterDensitySource, "WaterDensitySource", "Water Density", "", "", "" );
     m_waterDensitySource.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitScriptableFieldWithIO( &m_userDefinedPoissionRatio,
-                                       "UserPoissonRatio",
-                                       0.35,
-                                       "User Defined Poisson Ratio",
-                                       "",
-                                       "User Defined Poisson Ratio",
-                                       "" );
+    CAF_PDM_InitScriptableField( &m_userDefinedPoissionRatio,
+                                 "UserPoissonRatio",
+                                 0.35,
+                                 "User Defined Poisson Ratio",
+                                 "",
+                                 "User Defined Poisson Ratio",
+                                 "" );
     // Typical UCS: http://ceae.colorado.edu/~amadei/CVEN5768/PDF/NOTES8.pdf
     // Typical UCS for Shale is 5 - 100 MPa -> 50 - 1000 bar.
-    CAF_PDM_InitScriptableFieldWithIO( &m_userDefinedUcs,
-                                       "UserUcs",
-                                       100.0,
-                                       "User Defined UCS [bar]",
-                                       "",
-                                       "User Defined UCS [bar]",
-                                       "" );
+    CAF_PDM_InitScriptableField( &m_userDefinedUcs, "UserUcs", 100.0, "User Defined UCS [bar]", "", "User Defined UCS [bar]", "" );
 
-    CAF_PDM_InitScriptableFieldWithIO( &m_userDefinedDF, "UserDF", 0.7, "User Defined DF", "", "User Defined Depletion Factor", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_userDefinedK0FG, "UserK0FG", 0.75, "User Defined K0_FG", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_userDefinedK0SH, "UserK0SH", 0.65, "User Defined K0_SH", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_FGShaleMultiplier,
-                                       "FGMultiplier",
-                                       1.05,
-                                       "SH Multiplier for FG in Shale",
-                                       "",
-                                       "FG in Shale = Multiplier * SH",
-                                       "" );
+    CAF_PDM_InitScriptableField( &m_userDefinedDF, "UserDF", 0.7, "User Defined DF", "", "User Defined Depletion Factor", "" );
+    CAF_PDM_InitScriptableField( &m_userDefinedK0FG, "UserK0FG", 0.75, "User Defined K0_FG", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_userDefinedK0SH, "UserK0SH", 0.65, "User Defined K0_SH", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_FGShaleMultiplier,
+                                 "FGMultiplier",
+                                 1.05,
+                                 "SH Multiplier for FG in Shale",
+                                 "",
+                                 "FG in Shale = Multiplier * SH",
+                                 "" );
 
-    CAF_PDM_InitScriptableFieldWithIO( &m_userDefinedDensity,
-                                       "WaterDensity",
-                                       1.03,
-                                       "Density of Sea Water [g/cm^3]",
-                                       "",
-                                       "Units: g/cm^3",
-                                       "" );
+    CAF_PDM_InitScriptableField( &m_userDefinedDensity,
+                                 "WaterDensity",
+                                 1.03,
+                                 "Density of Sea Water [g/cm^3]",
+                                 "",
+                                 "Units: g/cm^3",
+                                 "" );
 
     CAF_PDM_InitFieldNoDefault( &m_geoMechCase, "GeoMechCase", "GeoMechCase", "", "", "" );
     m_geoMechCase.uiCapability()->setUiHidden( true );

@@ -4,20 +4,20 @@ project (cafPdmScripting)
 
 set( PROJECT_FILES
      cafPdmCodeGenerator.h
-     cafPdmFieldScriptability.h
-     cafPdmFieldScriptability.cpp
-     cafPdmFieldIOScriptability.h
-     cafPdmFieldIOScriptability.cpp
-	 cafPdmObjectMethod.h
-	 cafPdmObjectMethod.cpp
-     cafPdmObjectScriptabilityRegister.h
-     cafPdmObjectScriptabilityRegister.cpp
+     cafPdmAbstractFieldScriptingCapability.h
+     cafPdmAbstractFieldScriptingCapability.cpp
+     cafPdmFieldScriptingCapability.h
+     cafPdmFieldScriptingCapability.cpp
+	   cafPdmObjectMethod.h
+	   cafPdmObjectMethod.cpp
+     cafPdmObjectScriptingCapabilityRegister.h
+     cafPdmObjectScriptingCapabilityRegister.cpp
      cafPdmPythonGenerator.h
      cafPdmPythonGenerator.cpp
      cafPdmScriptIOMessages.h
      cafPdmScriptIOMessages.cpp
-     cafPdmObjectScriptability.h
-     cafPdmObjectScriptability.cpp
+     cafPdmObjectScriptingCapability.h
+     cafPdmObjectScriptingCapability.cpp
      cafPdmScriptResponse.h
      cafPdmScriptResponse.cpp
      cafPdmMarkdownGenerator.h

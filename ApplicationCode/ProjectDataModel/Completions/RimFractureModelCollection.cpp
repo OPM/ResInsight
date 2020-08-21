@@ -21,9 +21,9 @@
 #include "RimFractureModel.h"
 #include "RimProject.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObject.h"
-#include "cafPdmObjectScriptability.h"
+#include "cafPdmObjectScriptingCapability.h"
 
 CAF_PDM_SOURCE_INIT( RimFractureModelCollection, "FractureModelCollection" );
 

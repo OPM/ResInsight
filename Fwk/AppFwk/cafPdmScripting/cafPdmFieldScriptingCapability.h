@@ -36,7 +36,9 @@
 #pragma once
 
 #include "cafAppEnum.h"
-#include "cafPdmFieldScriptability.h"
+#include "cafPdmAbstractFieldScriptingCapability.h"
+#include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
 #include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
 #include "cafPdmScriptIOMessages.h"
@@ -45,61 +47,61 @@
 #include <QStringList>
 #include <QTextStream>
 
-#define CAF_PDM_InitScriptableFieldWithIO( field, keyword, default, uiName, iconResourceName, toolTip, whatsThis ) \
-    CAF_PDM_InitField( field,                                                                                      \
-                       keyword,                                                                                    \
-                       default,                                                                                    \
-                       uiName,                                                                                     \
-                       iconResourceName,                                                                           \
-                       caf::PdmFieldScriptability::helpString( toolTip, keyword ),                                 \
-                       whatsThis );                                                                                \
-    caf::AddFieldIOScriptabilityToField( field, keyword )
+#define CAF_PDM_InitScriptableField( field, keyword, default, uiName, iconResourceName, toolTip, whatsThis ) \
+    CAF_PDM_InitField( field,                                                                                \
+                       keyword,                                                                              \
+                       default,                                                                              \
+                       uiName,                                                                               \
+                       iconResourceName,                                                                     \
+                       caf::PdmAbstractFieldScriptingCapability::helpString( toolTip, keyword ),             \
+                       whatsThis );                                                                          \
+    caf::AddScriptingCapabilityToField( field, keyword )
 
-#define CAF_PDM_InitScriptableFieldWithIONoDefault( field, keyword, uiName, iconResourceName, toolTip, whatsThis ) \
-    CAF_PDM_InitFieldNoDefault( field,                                                                             \
-                                keyword,                                                                           \
-                                uiName,                                                                            \
-                                iconResourceName,                                                                  \
-                                caf::PdmFieldScriptability::helpString( toolTip, keyword ),                        \
-                                whatsThis );                                                                       \
-    caf::AddFieldIOScriptabilityToField( field, keyword )
+#define CAF_PDM_InitScriptableFieldNoDefault( field, keyword, uiName, iconResourceName, toolTip, whatsThis ) \
+    CAF_PDM_InitFieldNoDefault( field,                                                                       \
+                                keyword,                                                                     \
+                                uiName,                                                                      \
+                                iconResourceName,                                                            \
+                                caf::PdmAbstractFieldScriptingCapability::helpString( toolTip, keyword ),    \
+                                whatsThis );                                                                 \
+    caf::AddScriptingCapabilityToField( field, keyword )
 
-#define CAF_PDM_InitScriptableFieldWithIOAndScriptName( field,                           \
-                                                        keyword,                         \
-                                                        scriptKeyword,                   \
-                                                        default,                         \
-                                                        uiName,                          \
-                                                        iconResourceName,                \
-                                                        toolTip,                         \
-                                                        whatsThis )                      \
-    CAF_PDM_InitField( field,                                                            \
-                       keyword,                                                          \
-                       default,                                                          \
-                       uiName,                                                           \
-                       iconResourceName,                                                 \
-                       caf::PdmFieldScriptability::helpString( toolTip, scriptKeyword ), \
-                       whatsThis );                                                      \
-    caf::AddFieldIOScriptabilityToField( field, scriptKeyword )
+#define CAF_PDM_InitScriptableFieldWithScriptKeyword( field,                                           \
+                                                      keyword,                                         \
+                                                      scriptKeyword,                                   \
+                                                      default,                                         \
+                                                      uiName,                                          \
+                                                      iconResourceName,                                \
+                                                      toolTip,                                         \
+                                                      whatsThis )                                      \
+    CAF_PDM_InitField( field,                                                                          \
+                       keyword,                                                                        \
+                       default,                                                                        \
+                       uiName,                                                                         \
+                       iconResourceName,                                                               \
+                       caf::PdmAbstractFieldScriptingCapability::helpString( toolTip, scriptKeyword ), \
+                       whatsThis );                                                                    \
+    caf::AddScriptingCapabilityToField( field, scriptKeyword )
 
-#define CAF_PDM_InitScriptableFieldWithIOAndScriptNameNoDefault( field,                           \
-                                                                 keyword,                         \
-                                                                 scriptKeyword,                   \
-                                                                 uiName,                          \
-                                                                 iconResourceName,                \
-                                                                 toolTip,                         \
-                                                                 whatsThis )                      \
-    CAF_PDM_InitFieldNoDefault( field,                                                            \
-                                keyword,                                                          \
-                                uiName,                                                           \
-                                iconResourceName,                                                 \
-                                caf::PdmFieldScriptability::helpString( toolTip, scriptKeyword ), \
-                                whatsThis );                                                      \
-    caf::AddFieldIOScriptabilityToField( field, scriptKeyword )
+#define CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( field,                                           \
+                                                               keyword,                                         \
+                                                               scriptKeyword,                                   \
+                                                               uiName,                                          \
+                                                               iconResourceName,                                \
+                                                               toolTip,                                         \
+                                                               whatsThis )                                      \
+    CAF_PDM_InitFieldNoDefault( field,                                                                          \
+                                keyword,                                                                        \
+                                uiName,                                                                         \
+                                iconResourceName,                                                               \
+                                caf::PdmAbstractFieldScriptingCapability::helpString( toolTip, scriptKeyword ), \
+                                whatsThis );                                                                    \
+    caf::AddScriptingCapabilityToField( field, scriptKeyword )
 
 namespace caf
 {
 template <typename DataType>
-struct PdmFieldScriptabilityIOHandler
+struct PdmFieldScriptingCapabilityIOHandler
 {
     static void writeToField( DataType&            fieldValue,
                               QTextStream&         inputStream,
@@ -127,7 +129,7 @@ struct PdmFieldScriptabilityIOHandler
 };
 
 template <>
-struct PdmFieldScriptabilityIOHandler<QString>
+struct PdmFieldScriptingCapabilityIOHandler<QString>
 {
     static void writeToField( QString&             fieldValue,
                               QTextStream&         inputStream,
@@ -140,7 +142,7 @@ struct PdmFieldScriptabilityIOHandler<QString>
 };
 
 template <>
-struct PdmFieldScriptabilityIOHandler<bool>
+struct PdmFieldScriptingCapabilityIOHandler<bool>
 {
     static void writeToField( bool&                fieldValue,
                               QTextStream&         inputStream,
@@ -153,7 +155,7 @@ struct PdmFieldScriptabilityIOHandler<bool>
 };
 
 template <typename T>
-struct PdmFieldScriptabilityIOHandler<AppEnum<T>>
+struct PdmFieldScriptingCapabilityIOHandler<AppEnum<T>>
 {
     static void writeToField( AppEnum<T>&          fieldValue,
                               QTextStream&         inputStream,
@@ -204,7 +206,7 @@ struct PdmFieldScriptabilityIOHandler<AppEnum<T>>
 };
 
 template <typename T>
-struct PdmFieldScriptabilityIOHandler<std::vector<T>>
+struct PdmFieldScriptingCapabilityIOHandler<std::vector<T>>
 {
     static void writeToField( std::vector<T>&      fieldValue,
                               QTextStream&         inputStream,
@@ -231,7 +233,7 @@ struct PdmFieldScriptabilityIOHandler<std::vector<T>>
                 }
 
                 T value;
-                PdmFieldScriptabilityIOHandler<T>::writeToField( value, inputStream, errorMessageContainer, true );
+                PdmFieldScriptingCapabilityIOHandler<T>::writeToField( value, inputStream, errorMessageContainer, true );
                 fieldValue.push_back( value );
             }
         }
@@ -251,7 +253,7 @@ struct PdmFieldScriptabilityIOHandler<std::vector<T>>
         outputStream << "[";
         for ( size_t i = 0; i < fieldValue.size(); ++i )
         {
-            PdmFieldScriptabilityIOHandler<T>::readFromField( fieldValue[i], outputStream, quoteNonBuiltins );
+            PdmFieldScriptingCapabilityIOHandler<T>::readFromField( fieldValue[i], outputStream, quoteNonBuiltins );
             if ( i < fieldValue.size() - 1 )
             {
                 outputStream << ", ";
@@ -262,7 +264,7 @@ struct PdmFieldScriptabilityIOHandler<std::vector<T>>
 };
 
 template <typename T>
-struct PdmFieldScriptabilityIOHandler<std::vector<T*>>
+struct PdmFieldScriptingCapabilityIOHandler<std::vector<T*>>
 {
     static void writeToField( std::vector<T*>&       fieldValue,
                               const std::vector<T*>& allObjectsOfType,
@@ -289,7 +291,10 @@ struct PdmFieldScriptabilityIOHandler<std::vector<T*>>
                 }
 
                 T* value;
-                PdmFieldScriptabilityIOHandler<T*>::writeToField( value, allObjectsOfType, inputStream, errorMessageContainer );
+                PdmFieldScriptingCapabilityIOHandler<T*>::writeToField( value,
+                                                                        allObjectsOfType,
+                                                                        inputStream,
+                                                                        errorMessageContainer );
                 fieldValue.push_back( value );
             }
         }
@@ -309,7 +314,7 @@ struct PdmFieldScriptabilityIOHandler<std::vector<T*>>
         outputStream << "[";
         for ( size_t i = 0; i < fieldValue.size(); ++i )
         {
-            PdmFieldScriptabilityIOHandler<T*>::readFromField( fieldValue[i], outputStream, quoteNonBuiltins );
+            PdmFieldScriptingCapabilityIOHandler<T*>::readFromField( fieldValue[i], outputStream, quoteNonBuiltins );
             if ( i < fieldValue.size() - 1 )
             {
                 outputStream << ", ";
@@ -320,7 +325,7 @@ struct PdmFieldScriptabilityIOHandler<std::vector<T*>>
 };
 
 template <typename DataType>
-struct PdmFieldScriptabilityIOHandler<DataType*>
+struct PdmFieldScriptingCapabilityIOHandler<DataType*>
 {
     static void writeToField( DataType*&                    fieldValue,
                               const std::vector<DataType*>& allObjectsOfType,
@@ -331,10 +336,10 @@ struct PdmFieldScriptabilityIOHandler<DataType*>
 
         QString fieldString;
         bool    stringsAreQuoted = false;
-        PdmFieldScriptabilityIOHandler<QString>::writeToField( fieldString,
-                                                               inputStream,
-                                                               errorMessageContainer,
-                                                               stringsAreQuoted );
+        PdmFieldScriptingCapabilityIOHandler<QString>::writeToField( fieldString,
+                                                                     inputStream,
+                                                                     errorMessageContainer,
+                                                                     stringsAreQuoted );
 
         if ( inputStream.status() == QTextStream::ReadCorruptData )
         {
@@ -367,8 +372,19 @@ struct PdmFieldScriptabilityIOHandler<DataType*>
                                bool            quoteStrings     = true,
                                bool            quoteNonBuiltins = false )
     {
-        outputStream
-            << QString( "%1:%2" ).arg( DataType::classKeywordStatic() ).arg( reinterpret_cast<uint64_t>( fieldValue ) );
+        if ( fieldValue )
+        {
+            QString textOutput =
+                QString( "%1:%2" ).arg( DataType::classKeywordStatic() ).arg( reinterpret_cast<uint64_t>( fieldValue ) );
+            if ( quoteNonBuiltins )
+            {
+                outputStream << QString( "\"%1\"" ).arg( textOutput );
+            }
+            else
+            {
+                outputStream << textOutput;
+            }
+        }
     }
 };
 
@@ -378,11 +394,11 @@ struct PdmFieldScriptabilityIOHandler<DataType*>
 //
 //==================================================================================================
 template <typename FieldType>
-class PdmFieldIOScriptability : public PdmFieldScriptability
+class PdmFieldScriptingCapability : public PdmAbstractFieldScriptingCapability
 {
 public:
-    PdmFieldIOScriptability( FieldType* field, const QString& fieldName, bool giveOwnership )
-        : PdmFieldScriptability( field, fieldName, giveOwnership )
+    PdmFieldScriptingCapability( FieldType* field, const QString& fieldName, bool giveOwnership )
+        : PdmAbstractFieldScriptingCapability( field, fieldName, giveOwnership )
     {
         m_field = field;
     }
@@ -396,10 +412,10 @@ public:
                        caf::PdmObjectHandle* existingObjectsRoot = nullptr ) override
     {
         typename FieldType::FieldDataType value;
-        PdmFieldScriptabilityIOHandler<typename FieldType::FieldDataType>::writeToField( value,
-                                                                                         inputStream,
-                                                                                         errorMessageContainer,
-                                                                                         stringsAreQuoted );
+        PdmFieldScriptingCapabilityIOHandler<typename FieldType::FieldDataType>::writeToField( value,
+                                                                                               inputStream,
+                                                                                               errorMessageContainer,
+                                                                                               stringsAreQuoted );
 
         if ( this->isIOWriteable() )
         {
@@ -409,10 +425,10 @@ public:
 
     void readFromField( QTextStream& outputStream, bool quoteStrings = true, bool quoteNonBuiltins = false ) const override
     {
-        PdmFieldScriptabilityIOHandler<typename FieldType::FieldDataType>::readFromField( m_field->value(),
-                                                                                          outputStream,
-                                                                                          quoteStrings,
-                                                                                          quoteNonBuiltins );
+        PdmFieldScriptingCapabilityIOHandler<typename FieldType::FieldDataType>::readFromField( m_field->value(),
+                                                                                                outputStream,
+                                                                                                quoteStrings,
+                                                                                                quoteNonBuiltins );
     }
 
 private:
@@ -420,11 +436,11 @@ private:
 };
 
 template <typename DataType>
-class PdmFieldIOScriptability<PdmPtrField<DataType*>> : public PdmFieldScriptability
+class PdmFieldScriptingCapability<PdmPtrField<DataType*>> : public PdmAbstractFieldScriptingCapability
 {
 public:
-    PdmFieldIOScriptability( PdmPtrField<DataType*>* field, const QString& fieldName, bool giveOwnership )
-        : PdmFieldScriptability( field, fieldName, giveOwnership )
+    PdmFieldScriptingCapability( PdmPtrField<DataType*>* field, const QString& fieldName, bool giveOwnership )
+        : PdmAbstractFieldScriptingCapability( field, fieldName, giveOwnership )
     {
         m_field = field;
     }
@@ -441,7 +457,10 @@ public:
         existingObjectsRoot->descendantsIncludingThisOfType( allObjectsOfType );
 
         DataType* object = nullptr;
-        PdmFieldScriptabilityIOHandler<DataType*>::writeToField( object, allObjectsOfType, inputStream, errorMessageContainer );
+        PdmFieldScriptingCapabilityIOHandler<DataType*>::writeToField( object,
+                                                                       allObjectsOfType,
+                                                                       inputStream,
+                                                                       errorMessageContainer );
 
         if ( object && this->isIOWriteable() )
         {
@@ -451,10 +470,10 @@ public:
 
     void readFromField( QTextStream& outputStream, bool quoteStrings = true, bool quoteNonBuiltins = false ) const override
     {
-        PdmFieldScriptabilityIOHandler<DataType*>::readFromField( m_field->value(),
-                                                                  outputStream,
-                                                                  quoteStrings,
-                                                                  quoteNonBuiltins );
+        PdmFieldScriptingCapabilityIOHandler<DataType*>::readFromField( m_field->value(),
+                                                                        outputStream,
+                                                                        quoteStrings,
+                                                                        quoteNonBuiltins );
     }
 
 private:
@@ -462,11 +481,56 @@ private:
 };
 
 template <typename DataType>
-class PdmFieldIOScriptability<PdmPtrArrayField<DataType*>> : public PdmFieldScriptability
+class PdmFieldScriptingCapability<PdmChildField<DataType*>> : public PdmAbstractFieldScriptingCapability
 {
 public:
-    PdmFieldIOScriptability( PdmPtrArrayField<DataType*>* field, const QString& fieldName, bool giveOwnership )
-        : PdmFieldScriptability( field, fieldName, giveOwnership )
+    PdmFieldScriptingCapability( PdmChildField<DataType*>* field, const QString& fieldName, bool giveOwnership )
+        : PdmAbstractFieldScriptingCapability( field, fieldName, giveOwnership )
+    {
+        m_field = field;
+    }
+
+    // Xml Serializing
+public:
+    void writeToField( QTextStream&          inputStream,
+                       PdmObjectFactory*     objectFactory,
+                       PdmScriptIOMessages*  errorMessageContainer,
+                       bool                  stringsAreQuoted    = true,
+                       caf::PdmObjectHandle* existingObjectsRoot = nullptr ) override
+    {
+        std::vector<DataType*> allObjectsOfType;
+        existingObjectsRoot->descendantsIncludingThisOfType( allObjectsOfType );
+
+        DataType* object = nullptr;
+        PdmFieldScriptingCapabilityIOHandler<DataType*>::writeToField( object,
+                                                                       allObjectsOfType,
+                                                                       inputStream,
+                                                                       errorMessageContainer );
+
+        if ( object && this->isIOWriteable() )
+        {
+            m_field->setValue( object );
+        }
+    }
+
+    void readFromField( QTextStream& outputStream, bool quoteStrings = true, bool quoteNonBuiltins = false ) const override
+    {
+        PdmFieldScriptingCapabilityIOHandler<DataType*>::readFromField( m_field->value(),
+                                                                        outputStream,
+                                                                        quoteStrings,
+                                                                        quoteNonBuiltins );
+    }
+
+private:
+    PdmChildField<DataType*>* m_field;
+};
+
+template <typename DataType>
+class PdmFieldScriptingCapability<PdmPtrArrayField<DataType*>> : public PdmAbstractFieldScriptingCapability
+{
+public:
+    PdmFieldScriptingCapability( PdmPtrArrayField<DataType*>* field, const QString& fieldName, bool giveOwnership )
+        : PdmAbstractFieldScriptingCapability( field, fieldName, giveOwnership )
     {
         m_field = field;
     }
@@ -483,10 +547,10 @@ public:
         existingObjectsRoot->descendantsIncludingThisOfType( allObjectsOfType );
 
         std::vector<DataType*> objects;
-        PdmFieldScriptabilityIOHandler<std::vector<DataType*>>::writeToField( objects,
-                                                                              allObjectsOfType,
-                                                                              inputStream,
-                                                                              errorMessageContainer );
+        PdmFieldScriptingCapabilityIOHandler<std::vector<DataType*>>::writeToField( objects,
+                                                                                    allObjectsOfType,
+                                                                                    inputStream,
+                                                                                    errorMessageContainer );
 
         if ( this->isIOWriteable() )
         {
@@ -496,22 +560,67 @@ public:
 
     void readFromField( QTextStream& outputStream, bool quoteStrings = true, bool quoteNonBuiltins = false ) const override
     {
-        PdmFieldScriptabilityIOHandler<std::vector<DataType*>>::readFromField( m_field->ptrReferencedObjects(),
-                                                                               outputStream,
-                                                                               quoteStrings,
-                                                                               quoteNonBuiltins );
+        PdmFieldScriptingCapabilityIOHandler<std::vector<DataType*>>::readFromField( m_field->ptrReferencedObjects(),
+                                                                                     outputStream,
+                                                                                     quoteStrings,
+                                                                                     quoteNonBuiltins );
     }
 
 private:
     PdmPtrArrayField<DataType*>* m_field;
 };
 
-template <typename FieldType>
-void AddFieldIOScriptabilityToField( FieldType* field, const QString& fieldName )
+template <typename DataType>
+class PdmFieldScriptingCapability<PdmChildArrayField<DataType*>> : public PdmAbstractFieldScriptingCapability
 {
-    if ( field->template capability<PdmFieldIOScriptability<FieldType>>() == nullptr )
+public:
+    PdmFieldScriptingCapability( PdmChildArrayField<DataType*>* field, const QString& fieldName, bool giveOwnership )
+        : PdmAbstractFieldScriptingCapability( field, fieldName, giveOwnership )
     {
-        new PdmFieldIOScriptability<FieldType>( field, fieldName, true );
+        m_field = field;
+    }
+
+    // Xml Serializing
+public:
+    void writeToField( QTextStream&          inputStream,
+                       PdmObjectFactory*     objectFactory,
+                       PdmScriptIOMessages*  errorMessageContainer,
+                       bool                  stringsAreQuoted    = true,
+                       caf::PdmObjectHandle* existingObjectsRoot = nullptr ) override
+    {
+        std::vector<DataType*> allObjectsOfType;
+        existingObjectsRoot->descendantsIncludingThisOfType( allObjectsOfType );
+
+        std::vector<DataType*> objects;
+        PdmFieldScriptingCapabilityIOHandler<std::vector<DataType*>>::writeToField( objects,
+                                                                                    allObjectsOfType,
+                                                                                    inputStream,
+                                                                                    errorMessageContainer );
+
+        if ( this->isIOWriteable() )
+        {
+            m_field->setValue( objects );
+        }
+    }
+
+    void readFromField( QTextStream& outputStream, bool quoteStrings = true, bool quoteNonBuiltins = false ) const override
+    {
+        PdmFieldScriptingCapabilityIOHandler<std::vector<DataType*>>::readFromField( m_field->childObjects(),
+                                                                                     outputStream,
+                                                                                     quoteStrings,
+                                                                                     quoteNonBuiltins );
+    }
+
+private:
+    PdmChildArrayField<DataType*>* m_field;
+};
+
+template <typename FieldType>
+void AddScriptingCapabilityToField( FieldType* field, const QString& fieldName )
+{
+    if ( field->template capability<PdmFieldScriptingCapability<FieldType>>() == nullptr )
+    {
+        new PdmFieldScriptingCapability<FieldType>( field, fieldName, true );
     }
 }
 

@@ -25,8 +25,8 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
-#include "cafPdmFieldIOScriptability.h"
-#include "cafPdmFieldScriptability.h"
+#include "cafPdmAbstractFieldScriptingCapability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
 #include <QStringList>
 
@@ -39,14 +39,14 @@ RimcSummaryPlotCollection_newSummaryPlot::RimcSummaryPlotCollection_newSummaryPl
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Create Summary Plot", "", "", "Create a new Summary Plot" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_summaryCases, "SummaryCases", "", "", "", "Summary Cases" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_ensemble, "Ensemble", "", "", "", "Ensemble" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_addressString,
-                                                "Address",
-                                                "",
-                                                "",
-                                                "",
-                                                "Formatted address string specifying the plot options" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_summaryCases, "SummaryCases", "", "", "", "Summary Cases" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_ensemble, "Ensemble", "", "", "", "Ensemble" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_addressString,
+                                          "Address",
+                                          "",
+                                          "",
+                                          "",
+                                          "Formatted address string specifying the plot options" );
 }
 
 //--------------------------------------------------------------------------------------------------

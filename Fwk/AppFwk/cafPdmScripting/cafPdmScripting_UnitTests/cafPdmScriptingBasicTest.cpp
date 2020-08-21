@@ -42,7 +42,7 @@
 #include "cafPdmCodeGenerator.h"
 #include "cafPdmDocument.h"
 #include "cafPdmField.h"
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObject.h"
 #include "cafPdmObjectGroup.h"
 #include "cafPdmPointer.h"
@@ -51,7 +51,7 @@
 
 #include <QFile>
 
-#include "cafPdmObjectScriptability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include <memory>
 
 /// Demo objects to show the usage of the Pdm system
@@ -190,8 +190,8 @@ public:
                                                         "ScriptClassName_InheritedDemoObj",
                                                         "Script comment test" );
 
-        CAF_PDM_InitScriptableFieldWithIONoDefault( &m_texts, "Texts", "Some words", "", "", "" );
-        CAF_PDM_InitScriptableFieldWithIONoDefault( &m_numbers, "Numbers", "Some words", "", "", "" );
+        CAF_PDM_InitScriptableFieldNoDefault( &m_texts, "Texts", "Some words", "", "", "" );
+        CAF_PDM_InitScriptableFieldNoDefault( &m_numbers, "Numbers", "Some words", "", "", "" );
         CAF_PDM_InitFieldNoDefault( &m_testEnumField, "TestEnumValue", "An Enum", "", "", "" );
         CAF_PDM_InitFieldNoDefault( &m_simpleObjectsField,
                                     "SimpleObjects",

@@ -37,7 +37,7 @@
 #include "RiaWellNameComparer.h"
 
 #include "cafCmdFeatureManager.h"
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
 CAF_PDM_SOURCE_INIT( RicfCreateMultipleFractures, "createMultipleFractures" );
 
@@ -58,21 +58,21 @@ void AppEnum<MultipleFractures::Action>::setUp()
 //--------------------------------------------------------------------------------------------------
 RicfCreateMultipleFractures::RicfCreateMultipleFractures()
 {
-    CAF_PDM_InitScriptableFieldWithIO( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_wellPathNames, "wellPathNames", std::vector<QString>(), "Well Path Names", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_minDistFromWellTd, "minDistFromWellTd", 100.0, "Min Distance From Well TD", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_maxFracturesPerWell, "maxFracturesPerWell", 100, "Max Fractures per Well", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_templateId, "templateId", -1, "Template ID", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_topLayer, "topLayer", -1, "Top Layer", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_baseLayer, "baseLayer", -1, "Base Layer", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_spacing, "spacing", 300.0, "Spacing", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_action,
-                                       "action",
-                                       caf::AppEnum<MultipleFractures::Action>( MultipleFractures::Action::APPEND_FRACTURES ),
-                                       "Action",
-                                       "",
-                                       "",
-                                       "" );
+    CAF_PDM_InitScriptableField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_wellPathNames, "wellPathNames", std::vector<QString>(), "Well Path Names", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_minDistFromWellTd, "minDistFromWellTd", 100.0, "Min Distance From Well TD", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_maxFracturesPerWell, "maxFracturesPerWell", 100, "Max Fractures per Well", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_templateId, "templateId", -1, "Template ID", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_topLayer, "topLayer", -1, "Top Layer", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_baseLayer, "baseLayer", -1, "Base Layer", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_spacing, "spacing", 300.0, "Spacing", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_action,
+                                 "action",
+                                 caf::AppEnum<MultipleFractures::Action>( MultipleFractures::Action::APPEND_FRACTURES ),
+                                 "Action",
+                                 "",
+                                 "",
+                                 "" );
 }
 
 //--------------------------------------------------------------------------------------------------

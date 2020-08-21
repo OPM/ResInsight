@@ -22,7 +22,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RicfCommandObject::RicfCommandObject()
-    : PdmObjectScriptability( this, false )
+    : PdmObjectScriptingCapability( this, false )
 {
 }
 

@@ -23,7 +23,7 @@
 #include "RicSaveProjectFeature.h"
 #include "Riu3DMainWindowTools.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
 #include <QAction>
 #include <QMessageBox>
@@ -35,7 +35,7 @@ RICF_SOURCE_INIT( RicSaveProjectAsFeature, "RicSaveProjectAsFeature", "saveProje
 //--------------------------------------------------------------------------------------------------
 RicSaveProjectAsFeature::RicSaveProjectAsFeature()
 {
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_filePath, "filePath", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_filePath, "filePath", "", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

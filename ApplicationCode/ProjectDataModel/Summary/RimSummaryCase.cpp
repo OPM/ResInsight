@@ -32,7 +32,7 @@
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryPlotCollection.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
 #include "cvfAssert.h"
 
@@ -49,21 +49,16 @@ RimSummaryCase::RimSummaryCase()
 {
     CAF_PDM_InitScriptableObject( "Summary Case", ":/SummaryCase16x16.png", "", "The Base Class for all Summary Cases" );
 
-    CAF_PDM_InitScriptableFieldWithIO( &m_shortName, "ShortName", QString( "Display Name" ), DEFAULT_DISPLAY_NAME, "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_useAutoShortName, "AutoShortyName", false, "Use Auto Display Name", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_shortName, "ShortName", QString( "Display Name" ), DEFAULT_DISPLAY_NAME, "", "", "" );
+    CAF_PDM_InitScriptableField( &m_useAutoShortName, "AutoShortyName", false, "Use Auto Display Name", "", "", "" );
 
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_summaryHeaderFilename,
-                                                "SummaryHeaderFilename",
-                                                "Summary Header File",
-                                                "",
-                                                "",
-                                                "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_summaryHeaderFilename, "SummaryHeaderFilename", "Summary Header File", "", "", "" );
     m_summaryHeaderFilename.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitScriptableFieldWithIO( &m_caseId, "Id", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_caseId, "Id", -1, "Case ID", "", "", "" );
     m_caseId.registerKeywordAlias( "CaseId" );
     m_caseId.uiCapability()->setUiReadOnly( true );
-    m_caseId.capability<caf::PdmFieldScriptability>()->setIOWriteable( false );
+    m_caseId.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
 
     m_isObservedData = false;
 }

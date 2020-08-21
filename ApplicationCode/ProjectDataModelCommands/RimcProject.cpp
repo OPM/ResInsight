@@ -25,7 +25,7 @@
 #include "RimSummaryCase.h"
 #include "RiuPlotMainWindow.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
 #include <memory>
 
@@ -38,7 +38,7 @@ RimProject_importSummaryCase::RimProject_importSummaryCase( caf::PdmObjectHandle
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Import Summary Case", "", "", "Import Summary Case" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_fileName, "FileName", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_fileName, "FileName", "", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,7 +96,7 @@ RimProject_summaryCase::RimProject_summaryCase( caf::PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Find Summary Case", "", "", "Find Summary Case" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_caseId, "CaseId", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_caseId, "CaseId", "", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

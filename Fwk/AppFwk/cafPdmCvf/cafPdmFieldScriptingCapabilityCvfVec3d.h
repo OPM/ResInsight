@@ -33,39 +33,22 @@
 //   for more details.
 //
 //##################################################################################################
+#include "cafPdmFieldScriptingCapability.h"
 
-#include "cafPdmMarkdownGenerator.h"
+#include "cvfVector3.h"
 
-#include "cafPdmMarkdownBuilder.h"
-#include "cafPdmObjectScriptingCapabilityRegister.h"
-
-using namespace caf;
-
-CAF_PDM_CODE_GENERATOR_SOURCE_INIT( PdmMarkdownGenerator, "md" );
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString caf::PdmMarkdownGenerator::generate( PdmObjectFactory* factory ) const
+namespace caf
 {
-    QString     generatedCode;
-    QTextStream out( &generatedCode );
-
-    std::vector<QString> classKeywords = factory->classKeywords();
-
-    std::vector<std::shared_ptr<const PdmObject>> scriptableObjects;
-
-    {
-        std::vector<std::shared_ptr<const PdmObject>> allObjects = caf::PdmMarkdownBuilder::createAllObjects( factory );
-        for ( auto obj : allObjects )
-        {
-            if ( PdmObjectScriptingCapabilityRegister::isScriptable( obj.get() ) )
-            {
-                scriptableObjects.push_back( obj );
-            }
-        }
-    }
-    out << caf::PdmMarkdownBuilder::generateDocDataModelObjects( scriptableObjects );
-
-    return generatedCode;
-}
+template <>
+struct PdmFieldScriptingCapabilityIOHandler<cvf::Vec3d>
+{
+    static void writeToField( cvf::Vec3d&          fieldValue,
+                              QTextStream&         inputStream,
+                              PdmScriptIOMessages* errorMessageContainer,
+                              bool                 stringsAreQuoted = true );
+    static void readFromField( const cvf::Vec3d& fieldValue,
+                               QTextStream&      outputStream,
+                               bool              quoteStrings     = true,
+                               bool              quoteNonBuiltins = false );
+};
+} // namespace caf

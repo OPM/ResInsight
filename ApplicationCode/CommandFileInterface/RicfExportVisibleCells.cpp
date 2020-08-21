@@ -38,7 +38,7 @@
 
 #include "RifEclipseInputFileTools.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 #include <cafUtils.h>
 
 #include <QDir>
@@ -62,31 +62,25 @@ void AppEnum<RicfExportVisibleCells::ExportKeyword>::setUp()
 //--------------------------------------------------------------------------------------------------
 RicfExportVisibleCells::RicfExportVisibleCells()
 {
-    CAF_PDM_InitScriptableFieldWithIO( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_viewId, "viewId", -1, "View ID", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_viewName, "viewName", QString(), "View Name", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_exportKeyword,
-                                       "exportKeyword",
-                                       caf::AppEnum<RicfExportVisibleCells::ExportKeyword>(),
-                                       "Export Keyword",
-                                       "",
-                                       "",
-                                       "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_visibleActiveCellsValue,
-                                       "visibleActiveCellsValue",
-                                       1,
-                                       "Visible Active Cells Value",
-                                       "",
-                                       "",
-                                       "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_hiddenActiveCellsValue,
-                                       "hiddenActiveCellsValue",
-                                       0,
-                                       "Hidden Active Cells Value",
-                                       "",
-                                       "",
-                                       "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_inactiveCellsValue, "inactiveCellsValue", 0, "Inactive Cells Value", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_viewId, "viewId", -1, "View ID", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_viewName, "viewName", QString(), "View Name", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_exportKeyword,
+                                 "exportKeyword",
+                                 caf::AppEnum<RicfExportVisibleCells::ExportKeyword>(),
+                                 "Export Keyword",
+                                 "",
+                                 "",
+                                 "" );
+    CAF_PDM_InitScriptableField( &m_visibleActiveCellsValue,
+                                 "visibleActiveCellsValue",
+                                 1,
+                                 "Visible Active Cells Value",
+                                 "",
+                                 "",
+                                 "" );
+    CAF_PDM_InitScriptableField( &m_hiddenActiveCellsValue, "hiddenActiveCellsValue", 0, "Hidden Active Cells Value", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_inactiveCellsValue, "inactiveCellsValue", 0, "Inactive Cells Value", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

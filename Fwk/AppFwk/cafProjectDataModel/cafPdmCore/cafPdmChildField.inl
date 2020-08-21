@@ -25,7 +25,7 @@ void caf::PdmChildField<DataType*>::childObjects( std::vector<PdmObjectHandle*>*
 template <typename DataType>
 void caf::PdmChildField<DataType*>::setChildObject( PdmObjectHandle* object )
 {
-    if ( m_fieldValue.rawPtr() != NULL )
+    if ( m_fieldValue.rawPtr() != nullptr )
     {
         PdmObjectHandle* oldObject = m_fieldValue.rawPtr();
         this->removeChildObject( oldObject );
@@ -41,10 +41,10 @@ void caf::PdmChildField<DataType*>::setChildObject( PdmObjectHandle* object )
 template <typename DataType>
 void caf::PdmChildField<DataType*>::removeChildObject( PdmObjectHandle* object )
 {
-    if ( m_fieldValue.rawPtr() != NULL && m_fieldValue.rawPtr() == object )
+    if ( m_fieldValue.rawPtr() != nullptr && m_fieldValue.rawPtr() == object )
     {
         m_fieldValue.rawPtr()->removeAsParentField( this );
-        m_fieldValue.setRawPtr( NULL );
+        m_fieldValue.setRawPtr( nullptr );
     }
 }
 
@@ -56,7 +56,7 @@ caf::PdmChildField<DataType*>::PdmChildField( const DataTypePtr& fieldValue )
 {
     if ( m_fieldValue ) m_fieldValue->removeAsParentField( this );
     m_fieldValue = fieldValue;
-    if ( m_fieldValue != NULL ) m_fieldValue->setAsParentField( this );
+    if ( m_fieldValue != nullptr ) m_fieldValue->setAsParentField( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,8 +78,19 @@ caf::PdmChildField<DataType*>& PdmChildField<DataType*>::operator=( const DataTy
 
     if ( m_fieldValue ) m_fieldValue->removeAsParentField( this );
     m_fieldValue = fieldValue;
-    if ( m_fieldValue != NULL ) m_fieldValue->setAsParentField( this );
+    if ( m_fieldValue != nullptr ) m_fieldValue->setAsParentField( this );
     return *this;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+void caf::PdmChildField<DataType*>::setValue( const DataTypePtr& fieldValue )
+{
+    if ( m_fieldValue ) m_fieldValue->removeAsParentField( this );
+    m_fieldValue = fieldValue;
+    if ( m_fieldValue != nullptr ) m_fieldValue->setAsParentField( this );
 }
 
 } // End of namespace caf

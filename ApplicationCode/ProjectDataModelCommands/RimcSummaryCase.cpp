@@ -30,7 +30,7 @@
 #include "RimcDataContainerTime.h"
 #include "RimcSummaryResampleData.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryCase, RimSummaryCase_summaryVectorValues, "summaryVectorValues" );
 
@@ -41,12 +41,7 @@ RimSummaryCase_summaryVectorValues::RimSummaryCase_summaryVectorValues( caf::Pdm
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Create Summary Plot", "", "", "Create a new Summary Plot" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_addressString,
-                                                "Address",
-                                                "",
-                                                "",
-                                                "",
-                                                "Formatted address specifying the summary vector" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_addressString, "Address", "", "", "", "Formatted address specifying the summary vector" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -193,14 +188,9 @@ RimSummaryCase_resampleValues::RimSummaryCase_resampleValues( caf::PdmObjectHand
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Resample Values", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_addressString,
-                                                "Address",
-                                                "",
-                                                "",
-                                                "",
-                                                "Formatted address specifying the summary vector" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_addressString, "Address", "", "", "", "Formatted address specifying the summary vector" );
 
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_resamplingPeriod, "ResamplingPeriod", "", "", "", "Resampling Period" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_resamplingPeriod, "ResamplingPeriod", "", "", "", "Resampling Period" );
 }
 
 //--------------------------------------------------------------------------------------------------

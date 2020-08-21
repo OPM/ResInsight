@@ -20,8 +20,8 @@
 
 #include "RimFractureModelPlot.h"
 
-#include "cafPdmFieldIOScriptability.h"
-#include "cafPdmObjectScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 
 CAF_PDM_SOURCE_INIT( RimFractureModelPlotCollection, "FractureModelPlotCollection" );
 

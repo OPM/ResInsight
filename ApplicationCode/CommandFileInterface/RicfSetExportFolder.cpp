@@ -20,7 +20,7 @@
 
 #include "RiaLogging.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
 #include <QDir>
 
@@ -32,9 +32,9 @@ CAF_PDM_SOURCE_INIT( RicfSetExportFolder, "setExportFolder" );
 RicfSetExportFolder::RicfSetExportFolder()
 {
     // clang-format off
-    CAF_PDM_InitScriptableFieldWithIO(&m_type,  "type",  RicfCommandFileExecutor::ExportTypeEnum(RicfCommandFileExecutor::ExportType::COMPLETIONS), "Type",  "", "", "");
-    CAF_PDM_InitScriptableFieldWithIO(&m_path,  "path",  QString(),                                                                     "Path",  "", "", "");
-    CAF_PDM_InitScriptableFieldWithIO(&m_createFolder, "createFolder", false, "Create Folder", "", "", "");
+    CAF_PDM_InitScriptableField(&m_type,  "type",  RicfCommandFileExecutor::ExportTypeEnum(RicfCommandFileExecutor::ExportType::COMPLETIONS), "Type",  "", "", "");
+    CAF_PDM_InitScriptableField(&m_path,  "path",  QString(),                                                                     "Path",  "", "", "");
+    CAF_PDM_InitScriptableField(&m_createFolder, "createFolder", false, "Create Folder", "", "", "");
     // clang-format on
 }
 

@@ -31,7 +31,7 @@
 #include "RigWellLogCurveData.h"
 
 #include "cafPdmBase.h"
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiGroup.h"
 

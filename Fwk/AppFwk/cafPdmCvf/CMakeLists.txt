@@ -22,8 +22,10 @@ add_library( ${PROJECT_NAME}
     cafPdmXmlColor3f.cpp
     cafPdmXmlColor3f.h
     cafPdmFieldCvfColor.h
-	cafPdmFieldIOScriptabilityCvfColor3.h
-	cafPdmFieldIOScriptabilityCvfColor3.cpp
+	cafPdmFieldScriptingCapabilityCvfColor3.h
+	cafPdmFieldScriptingCapabilityCvfColor3.cpp
+	cafPdmFieldScriptingCapabilityCvfVec3d.h
+	cafPdmFieldScriptingCapabilityCvfVec3d.cpp
 
     cafPdmCoreVec3d.h
     cafPdmUiCoreVec3d.cpp

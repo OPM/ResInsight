@@ -27,8 +27,8 @@
 
 #include "RimGeoMechCase.h"
 
-#include "cafPdmFieldIOScriptability.h"
-#include "cafPdmObjectScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPropertyViewDialog.h"

@@ -93,7 +93,7 @@ protected:
     }
 
 private:
-    friend class PdmObjectScriptability;
+    friend class PdmObjectScriptingCapability;
     PdmPointer<PdmObjectHandle> m_self;
 };
 

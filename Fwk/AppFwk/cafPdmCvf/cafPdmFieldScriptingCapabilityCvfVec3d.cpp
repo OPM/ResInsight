@@ -33,42 +33,50 @@
 //   for more details.
 //
 //##################################################################################################
-#include "cafPdmFieldIOScriptabilityCvfColor3.h"
-
-#include <QColor>
+#include "cafPdmFieldScriptingCapabilityCvfVec3d.h"
 
 using namespace caf;
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmFieldScriptabilityIOHandler<cvf::Color3f>::writeToField( cvf::Color3f&             fieldValue,
-                                                                 QTextStream&              inputStream,
-                                                                 caf::PdmScriptIOMessages* errorMessageContainer,
-                                                                 bool                      stringsAreQuoted )
+void PdmFieldScriptingCapabilityIOHandler<cvf::Vec3d>::writeToField( cvf::Vec3d&               fieldValue,
+                                                                     QTextStream&              inputStream,
+                                                                     caf::PdmScriptIOMessages* errorMessageContainer,
+                                                                     bool                      stringsAreQuoted )
 {
-    QString fieldStringValue;
-    PdmFieldScriptabilityIOHandler<QString>::writeToField( fieldStringValue,
-                                                           inputStream,
-                                                           errorMessageContainer,
-                                                           stringsAreQuoted );
-
-    QColor qColor( fieldStringValue );
-    if ( qColor.isValid() )
+    std::vector<double> fieldVectorValue;
+    PdmFieldScriptingCapabilityIOHandler<std::vector<double>>::writeToField( fieldVectorValue,
+                                                                             inputStream,
+                                                                             errorMessageContainer,
+                                                                             stringsAreQuoted );
+    if ( fieldVectorValue.size() == 3u )
     {
-        fieldValue = cvf::Color3f( qColor.redF(), qColor.greenF(), qColor.blueF() );
+        for ( int i = 0; i < 3; ++i )
+        {
+            fieldValue[i] = fieldVectorValue[i];
+        }
+    }
+    else
+    {
+        QString errMsg = QString( "Expected three dimensions in the vector, got %1" ).arg( fieldVectorValue.size() );
+        errorMessageContainer->addError( errMsg );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmFieldScriptabilityIOHandler<cvf::Color3f>::readFromField( const cvf::Color3f& fieldValue,
-                                                                  QTextStream&        outputStream,
-                                                                  bool                quoteStrings,
-                                                                  bool                quoteNonBuiltin )
+void PdmFieldScriptingCapabilityIOHandler<cvf::Vec3d>::readFromField( const cvf::Vec3d& fieldValue,
+                                                                      QTextStream&      outputStream,
+                                                                      bool              quoteStrings,
+                                                                      bool              quoteNonBuiltin )
 {
-    QColor  qColor( fieldValue.rByte(), fieldValue.gByte(), fieldValue.bByte() );
-    QString fieldStringValue = qColor.name();
-    PdmFieldScriptabilityIOHandler<QString>::readFromField( fieldStringValue, outputStream, quoteStrings );
+    std::vector<double> fieldVectorValue( 3u );
+    for ( int i = 0; i < 3; ++i )
+    {
+        fieldVectorValue[i] = fieldValue[i];
+    }
+
+    PdmFieldScriptingCapabilityIOHandler<std::vector<double>>::readFromField( fieldVectorValue, outputStream, quoteStrings );
 }

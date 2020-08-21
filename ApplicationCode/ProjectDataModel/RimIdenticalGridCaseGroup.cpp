@@ -41,8 +41,8 @@
 
 #include "Riu3DMainWindowTools.h"
 
-#include "cafPdmFieldIOScriptability.h"
-#include "cafPdmObjectScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafProgressInfo.h"
 
 #include <QDir>
@@ -62,11 +62,11 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
                                                     "GridCaseGroup",
                                                     "A statistics case group" );
 
-    CAF_PDM_InitScriptableFieldWithIO( &name, "UserDescription", QString( "Grid Case Group" ), "Name", "", "", "" );
+    CAF_PDM_InitScriptableField( &name, "UserDescription", QString( "Grid Case Group" ), "Name", "", "", "" );
 
-    CAF_PDM_InitScriptableFieldWithIO( &groupId, "GroupId", -1, "Case Group ID", "", "", "" );
+    CAF_PDM_InitScriptableField( &groupId, "GroupId", -1, "Case Group ID", "", "", "" );
     groupId.uiCapability()->setUiReadOnly( true );
-    groupId.capability<caf::PdmFieldScriptability>()->setIOWriteable( false );
+    groupId.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
 
     CAF_PDM_InitFieldNoDefault( &statisticsCaseCollection,
                                 "StatisticsCaseCollection",

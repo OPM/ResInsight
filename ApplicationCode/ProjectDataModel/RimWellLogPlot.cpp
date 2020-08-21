@@ -36,8 +36,8 @@
 #include "RiuQwtPlotWidget.h"
 #include "RiuWellLogPlot.h"
 
-#include "cafPdmFieldIOScriptability.h"
-#include "cafPdmObjectScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiDoubleValueEditor.h"
 #include "cvfAssert.h"

@@ -32,9 +32,9 @@
 #include "RimExtrudedCurveIntersection.h"
 #include "RimGridView.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectFactory.h"
-#include "cafPdmObjectScriptability.h"
+#include "cafPdmObjectScriptingCapability.h"
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimCase, "Case", "RimCase" );
 
@@ -46,15 +46,15 @@ RimCase::RimCase()
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Case", ":/Case48x48.png", "", "", "Case", "The ResInsight base class for Cases" );
 
-    CAF_PDM_InitScriptableFieldWithIO( &caseUserDescription, "Name", QString(), "Case Name", "", "", "" );
+    CAF_PDM_InitScriptableField( &caseUserDescription, "Name", QString(), "Case Name", "", "", "" );
     caseUserDescription.registerKeywordAlias( "CaseUserDescription" );
 
-    CAF_PDM_InitScriptableFieldWithIO( &caseId, "Id", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableField( &caseId, "Id", -1, "Case ID", "", "", "" );
     caseId.registerKeywordAlias( "CaseId" );
     caseId.uiCapability()->setUiReadOnly( true );
-    caseId.capability<caf::PdmFieldScriptability>()->setIOWriteable( false );
+    caseId.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
 
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_caseFileName, "FilePath", "Case File Name", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_caseFileName, "FilePath", "Case File Name", "", "", "" );
     m_caseFileName.registerKeywordAlias( "CaseFileName" );
     m_caseFileName.registerKeywordAlias( "GridFileName" );
 

@@ -51,8 +51,8 @@
 #include "RimWellLogPlotCollection.h"
 
 #include "cafCmdFeatureManager.h"
-#include "cafPdmFieldIOScriptability.h"
-#include "cafPdmObjectScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPropertyViewDialog.h"
@@ -108,13 +108,13 @@ RimGeoMechCase::RimGeoMechCase( void )
                                                     "GeoMechCase",
                                                     "The Abaqus Based GeoMech Case" );
 
-    CAF_PDM_InitScriptableFieldWithKeywordNoDefault( &geoMechViews,
-                                                     "GeoMechViews",
-                                                     "Views",
-                                                     "",
-                                                     "",
-                                                     "",
-                                                     "All GeoMech Views in the Case" );
+    CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &geoMechViews,
+                                                           "GeoMechViews",
+                                                           "Views",
+                                                           "",
+                                                           "",
+                                                           "",
+                                                           "All GeoMech Views in the Case" );
     geoMechViews.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitField( &m_cohesion, "CaseCohesion", 10.0, "Cohesion", "", "Used to calculate the SE:SFI result", "" );

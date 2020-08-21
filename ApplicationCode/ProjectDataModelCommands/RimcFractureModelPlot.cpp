@@ -22,8 +22,8 @@
 #include "RimFractureModel.h"
 #include "RimFractureModelPlot.h"
 
-#include "cafPdmFieldIOScriptability.h"
-#include "cafPdmFieldScriptability.h"
+#include "cafPdmAbstractFieldScriptingCapability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimFractureModelPlot, RimcFractureModelPlot_exportToFile, "ExportToFile" );
 
@@ -34,7 +34,7 @@ RimcFractureModelPlot_exportToFile::RimcFractureModelPlot_exportToFile( caf::Pdm
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Export Fracture Model Plot", "", "", "Export Fracture Model Plot to File" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_filePath, "FilePath", "", "", "", "File Path" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_filePath, "FilePath", "", "", "", "File Path" );
 }
 
 //--------------------------------------------------------------------------------------------------

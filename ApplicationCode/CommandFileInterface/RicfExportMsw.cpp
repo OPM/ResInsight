@@ -36,7 +36,7 @@
 #include "CompletionExportCommands/RicExportCompletionDataSettingsUi.h"
 #include "CompletionExportCommands/RicWellPathExportMswCompletionsImpl.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
 CAF_PDM_SOURCE_INIT( RicfExportMsw, "exportMsw" );
 
@@ -45,18 +45,18 @@ CAF_PDM_SOURCE_INIT( RicfExportMsw, "exportMsw" );
 //--------------------------------------------------------------------------------------------------
 RicfExportMsw::RicfExportMsw()
 {
-    CAF_PDM_InitScriptableFieldWithIO( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_wellPathName, "wellPath", QString(), "Well Path Name", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_includePerforations, "includePerforations", true, "Include Perforations", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_includeFishbones, "includeFishbones", true, "Include Fishbones", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_includeFractures, "includeFractures", true, "Include Fractures", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_fileSplit,
-                                       "fileSplit",
-                                       RicExportCompletionDataSettingsUi::ExportSplitType(),
-                                       "File Split",
-                                       "",
-                                       "",
-                                       "" );
+    CAF_PDM_InitScriptableField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_wellPathName, "wellPath", QString(), "Well Path Name", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_includePerforations, "includePerforations", true, "Include Perforations", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_includeFishbones, "includeFishbones", true, "Include Fishbones", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_includeFractures, "includeFractures", true, "Include Fractures", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_fileSplit,
+                                 "fileSplit",
+                                 RicExportCompletionDataSettingsUi::ExportSplitType(),
+                                 "File Split",
+                                 "",
+                                 "",
+                                 "" );
 }
 
 //--------------------------------------------------------------------------------------------------

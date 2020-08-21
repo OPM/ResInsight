@@ -29,7 +29,7 @@
 
 #include "RiuMainWindow.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
 #include <QFileInfo>
 
@@ -60,12 +60,12 @@ void RicfExportSnapshots::SnapshotsTypeEnum::setUp()
 //--------------------------------------------------------------------------------------------------
 RicfExportSnapshots::RicfExportSnapshots()
 {
-    CAF_PDM_InitScriptableFieldWithIO( &m_type, "type", RicfExportSnapshots::SnapshotsTypeEnum(), "Type", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_prefix, "prefix", QString(), "Prefix", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_caseId, "caseId", -1, "Case Id", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_viewId, "viewId", -1, "View Id", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_exportFolder, "exportFolder", QString(), "Export Folder", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_plotOutputFormat, "plotOutputFormat", "Output Format", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_type, "type", RicfExportSnapshots::SnapshotsTypeEnum(), "Type", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_prefix, "prefix", QString(), "Prefix", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_caseId, "caseId", -1, "Case Id", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_viewId, "viewId", -1, "View Id", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_exportFolder, "exportFolder", QString(), "Export Folder", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_plotOutputFormat, "plotOutputFormat", "Output Format", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

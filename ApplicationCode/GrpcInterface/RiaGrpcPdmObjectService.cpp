@@ -22,11 +22,11 @@
 #include "RimEclipseResultDefinition.h"
 #include "RimProject.h"
 
-#include "cafPdmFieldScriptability.h"
+#include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmObject.h"
 #include "cafPdmObjectMethod.h"
-#include "cafPdmObjectScriptability.h"
-#include "cafPdmObjectScriptabilityRegister.h"
+#include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmObjectScriptingCapabilityRegister.h"
 
 using namespace rips;
 
@@ -172,7 +172,7 @@ Status RiaPdmObjectMethodStateHandler::init( const rips::PdmObjectGetterRequest*
     m_fieldOwner->fields( fields );
     for ( auto field : fields )
     {
-        auto scriptability = field->capability<caf::PdmFieldScriptability>();
+        auto scriptability = field->capability<caf::PdmAbstractFieldScriptingCapability>();
         if ( scriptability && scriptability->scriptFieldName() == fieldName )
         {
             caf::PdmProxyFieldHandle* proxyField = dynamic_cast<caf::PdmProxyFieldHandle*>( field );
@@ -226,7 +226,7 @@ Status RiaPdmObjectMethodStateHandler::init( const rips::PdmObjectSetterChunk* c
     m_fieldOwner->fields( fields );
     for ( auto field : fields )
     {
-        auto scriptability = field->capability<caf::PdmFieldScriptability>();
+        auto scriptability = field->capability<caf::PdmAbstractFieldScriptingCapability>();
         if ( scriptability && scriptability->scriptFieldName() == fieldName )
         {
             caf::PdmProxyFieldHandle* proxyField = dynamic_cast<caf::PdmProxyFieldHandle*>( field );
@@ -340,7 +340,7 @@ grpc::Status RiaGrpcPdmObjectService::GetAncestorPdmObject( grpc::ServerContext*
     std::vector<caf::PdmObject*> objectsOfCurrentClass;
 
     QString scriptClassName = QString::fromStdString( request->object().class_keyword() );
-    QString classKeyword    = caf::PdmObjectScriptabilityRegister::classKeywordFromScriptClassName( scriptClassName );
+    QString classKeyword = caf::PdmObjectScriptingCapabilityRegister::classKeywordFromScriptClassName( scriptClassName );
 
     project->descendantsIncludingThisFromClassKeyword( classKeyword, objectsOfCurrentClass );
 
@@ -358,7 +358,7 @@ grpc::Status RiaGrpcPdmObjectService::GetAncestorPdmObject( grpc::ServerContext*
         caf::PdmObject* parentObject       = nullptr;
         QString         ancestorScriptName = QString::fromStdString( request->parent_keyword() );
         QString         ancestorClassKeyword =
-            caf::PdmObjectScriptabilityRegister::classKeywordFromScriptClassName( ancestorScriptName );
+            caf::PdmObjectScriptingCapabilityRegister::classKeywordFromScriptClassName( ancestorScriptName );
         matchingObject->firstAncestorOrThisFromClassKeyword( ancestorClassKeyword, parentObject );
         if ( parentObject )
         {
@@ -381,7 +381,7 @@ grpc::Status RiaGrpcPdmObjectService::GetDescendantPdmObjects( grpc::ServerConte
     if ( matchingObject )
     {
         std::vector<caf::PdmObject*> childObjects;
-        QString childClassKeyword = caf::PdmObjectScriptabilityRegister::classKeywordFromScriptClassName(
+        QString childClassKeyword = caf::PdmObjectScriptingCapabilityRegister::classKeywordFromScriptClassName(
             QString::fromStdString( request->child_keyword() ) );
         matchingObject->descendantsIncludingThisFromClassKeyword( childClassKeyword, childObjects );
         for ( auto pdmChild : childObjects )
@@ -409,7 +409,7 @@ grpc::Status RiaGrpcPdmObjectService::GetChildPdmObjects( grpc::ServerContext*  
         matchingObject->fields( fields );
         for ( auto field : fields )
         {
-            auto scriptability = field->capability<caf::PdmFieldScriptability>();
+            auto scriptability = field->capability<caf::PdmAbstractFieldScriptingCapability>();
             if ( scriptability && scriptability->scriptFieldName() == fieldName )
             {
                 std::vector<caf::PdmObjectHandle*> childObjects;
@@ -612,7 +612,7 @@ caf::PdmObject* RiaGrpcPdmObjectService::findCafObjectFromScriptNameAndAddress( 
     RimProject*                  project = RimProject::current();
     std::vector<caf::PdmObject*> objectsOfCurrentClass;
 
-    QString classKeyword = caf::PdmObjectScriptabilityRegister::classKeywordFromScriptClassName( scriptClassName );
+    QString classKeyword = caf::PdmObjectScriptingCapabilityRegister::classKeywordFromScriptClassName( scriptClassName );
 
     project->descendantsIncludingThisFromClassKeyword( classKeyword, objectsOfCurrentClass );
 

@@ -25,7 +25,7 @@
 #include "RimFractureTemplateCollection.h"
 #include "RimProject.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
 CAF_PDM_SOURCE_INIT( RicfSetFractureContainment, "setFractureContainment" );
 
@@ -34,9 +34,9 @@ CAF_PDM_SOURCE_INIT( RicfSetFractureContainment, "setFractureContainment" );
 //--------------------------------------------------------------------------------------------------
 RicfSetFractureContainment::RicfSetFractureContainment()
 {
-    CAF_PDM_InitScriptableFieldWithIO( &m_id, "id", -1, "Id", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_topLayer, "topLayer", -1, "TopLayer", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_baseLayer, "baseLayer", -1, "BaseLayer", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_id, "id", -1, "Id", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_topLayer, "topLayer", -1, "TopLayer", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_baseLayer, "baseLayer", -1, "BaseLayer", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

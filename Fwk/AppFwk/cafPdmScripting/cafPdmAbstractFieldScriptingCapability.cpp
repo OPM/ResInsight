@@ -33,7 +33,7 @@
 //   for more details.
 //
 //##################################################################################################
-#include "cafPdmFieldScriptability.h"
+#include "cafPdmAbstractFieldScriptingCapability.h"
 
 #include "cafPdmFieldHandle.h"
 #include "cafPdmPythonGenerator.h"
@@ -43,7 +43,9 @@ using namespace caf;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmFieldScriptability::PdmFieldScriptability( caf::PdmFieldHandle* owner, const QString& scriptFieldName, bool giveOwnership )
+PdmAbstractFieldScriptingCapability::PdmAbstractFieldScriptingCapability( caf::PdmFieldHandle* owner,
+                                                                          const QString&       scriptFieldName,
+                                                                          bool                 giveOwnership )
 {
     m_IOWriteable     = true;
     m_owner           = owner;
@@ -54,14 +56,14 @@ PdmFieldScriptability::PdmFieldScriptability( caf::PdmFieldHandle* owner, const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmFieldScriptability::~PdmFieldScriptability()
+PdmAbstractFieldScriptingCapability::~PdmAbstractFieldScriptingCapability()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QString PdmFieldScriptability::scriptFieldName() const
+const QString PdmAbstractFieldScriptingCapability::scriptFieldName() const
 {
     return m_scriptFieldName;
 }
@@ -69,7 +71,7 @@ const QString PdmFieldScriptability::scriptFieldName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmFieldScriptability::isIOWriteable() const
+bool PdmAbstractFieldScriptingCapability::isIOWriteable() const
 {
     return m_IOWriteable;
 }
@@ -77,46 +79,15 @@ bool PdmFieldScriptability::isIOWriteable() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmFieldScriptability::setIOWriteable( bool writeable )
+void PdmAbstractFieldScriptingCapability::setIOWriteable( bool writeable )
 {
     m_IOWriteable = writeable;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Empty default implementation that doesn't offer any script IO for the field
-//--------------------------------------------------------------------------------------------------
-void PdmFieldScriptability::readFromField( QTextStream& outputStream,
-                                           bool         quoteStrings /*= true*/,
-                                           bool         quoteNonBuiltins /*= false*/ ) const
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Empty default implementation that doesn't offer any script IO for the field
-//--------------------------------------------------------------------------------------------------
-void PdmFieldScriptability::writeToField( QTextStream&              inputStream,
-                                          caf::PdmObjectFactory*    objectFactory,
-                                          caf::PdmScriptIOMessages* errorMessageContainer,
-                                          bool                      stringsAreQuoted /*= true*/,
-                                          caf::PdmObjectHandle*     existingObjectsRoot /*= nullptr*/ )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmFieldScriptability::addToField( caf::PdmFieldHandle* field, const QString& fieldName )
-{
-    if ( field->template capability<PdmFieldScriptability>() == nullptr )
-    {
-        new PdmFieldScriptability( field, fieldName, true );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString PdmFieldScriptability::helpString( const QString& existingTooltip, const QString& keyword )
+QString PdmAbstractFieldScriptingCapability::helpString( const QString& existingTooltip, const QString& keyword )
 {
     QString snake_case = caf::PdmPythonGenerator::camelToSnakeCase( keyword );
 

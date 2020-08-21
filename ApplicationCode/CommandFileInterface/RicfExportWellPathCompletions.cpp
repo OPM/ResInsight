@@ -34,7 +34,7 @@
 
 #include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
 CAF_PDM_SOURCE_INIT( RicfExportWellPathCompletions, "exportWellPathCompletions" );
 
@@ -43,73 +43,73 @@ CAF_PDM_SOURCE_INIT( RicfExportWellPathCompletions, "exportWellPathCompletions" 
 //--------------------------------------------------------------------------------------------------
 RicfExportWellPathCompletions::RicfExportWellPathCompletions()
 {
-    CAF_PDM_InitScriptableFieldWithIO( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_timeStep, "timeStep", -1, "Time Step Index", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_wellPathNames, "wellPathNames", std::vector<QString>(), "Well Path Names", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_timeStep, "timeStep", -1, "Time Step Index", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_wellPathNames, "wellPathNames", std::vector<QString>(), "Well Path Names", "", "", "" );
 
-    CAF_PDM_InitScriptableFieldWithIO( &m_fileSplit,
-                                       "fileSplit",
-                                       RicExportCompletionDataSettingsUi::ExportSplitType(),
-                                       "File Split",
-                                       "",
-                                       "",
-                                       "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_compdatExport,
-                                       "compdatExport",
-                                       RicExportCompletionDataSettingsUi::CompdatExportType(),
-                                       "Compdat Export",
-                                       "",
-                                       "",
-                                       "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_combinationMode,
-                                       "combinationMode",
-                                       RicExportCompletionDataSettingsUi::CombinationModeType(),
-                                       "Combination Mode",
-                                       "",
-                                       "",
-                                       "" );
+    CAF_PDM_InitScriptableField( &m_fileSplit,
+                                 "fileSplit",
+                                 RicExportCompletionDataSettingsUi::ExportSplitType(),
+                                 "File Split",
+                                 "",
+                                 "",
+                                 "" );
+    CAF_PDM_InitScriptableField( &m_compdatExport,
+                                 "compdatExport",
+                                 RicExportCompletionDataSettingsUi::CompdatExportType(),
+                                 "Compdat Export",
+                                 "",
+                                 "",
+                                 "" );
+    CAF_PDM_InitScriptableField( &m_combinationMode,
+                                 "combinationMode",
+                                 RicExportCompletionDataSettingsUi::CombinationModeType(),
+                                 "Combination Mode",
+                                 "",
+                                 "",
+                                 "" );
 
-    CAF_PDM_InitScriptableFieldWithIO( &m_useLateralNTG, "useNtgHorizontally", false, "Use NTG Horizontally", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_includePerforations, "includePerforations", true, "Include Perforations", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_includeFishbones, "includeFishbones", true, "Include Fishbones", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_includeFractures, "includeFractures", true, "Include Fractures", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_useLateralNTG, "useNtgHorizontally", false, "Use NTG Horizontally", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_includePerforations, "includePerforations", true, "Include Perforations", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_includeFishbones, "includeFishbones", true, "Include Fishbones", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_includeFractures, "includeFractures", true, "Include Fractures", "", "", "" );
 
-    CAF_PDM_InitScriptableFieldWithIO( &m_excludeMainBoreForFishbones,
-                                       "excludeMainBoreForFishbones",
-                                       false,
-                                       "Exclude Main Bore for Fishbones",
-                                       "",
-                                       "",
-                                       "" );
+    CAF_PDM_InitScriptableField( &m_excludeMainBoreForFishbones,
+                                 "excludeMainBoreForFishbones",
+                                 false,
+                                 "Exclude Main Bore for Fishbones",
+                                 "",
+                                 "",
+                                 "" );
 
-    CAF_PDM_InitScriptableFieldWithIO( &m_performTransScaling,
-                                       "performTransScaling",
-                                       false,
-                                       "Perform Transmissibility Scaling",
-                                       "",
-                                       "",
-                                       "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_transScalingTimeStep,
-                                       "transScalingTimeStep",
-                                       0,
-                                       "Transmissibility Scaling Pressure Time Step",
-                                       "",
-                                       "",
-                                       "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_transScalingInitialWBHP,
-                                       "transScalingWBHPFromSummary",
-                                       RicExportCompletionDataSettingsUi::TransScalingWBHPSource(),
-                                       "Transmissibility Scaling WBHP from summary",
-                                       "",
-                                       "",
-                                       "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_transScalingWBHP,
-                                       "transScalingWBHP",
-                                       200.0,
-                                       "Transmissibility Scaling Constant WBHP Value",
-                                       "",
-                                       "",
-                                       "" );
+    CAF_PDM_InitScriptableField( &m_performTransScaling,
+                                 "performTransScaling",
+                                 false,
+                                 "Perform Transmissibility Scaling",
+                                 "",
+                                 "",
+                                 "" );
+    CAF_PDM_InitScriptableField( &m_transScalingTimeStep,
+                                 "transScalingTimeStep",
+                                 0,
+                                 "Transmissibility Scaling Pressure Time Step",
+                                 "",
+                                 "",
+                                 "" );
+    CAF_PDM_InitScriptableField( &m_transScalingInitialWBHP,
+                                 "transScalingWBHPFromSummary",
+                                 RicExportCompletionDataSettingsUi::TransScalingWBHPSource(),
+                                 "Transmissibility Scaling WBHP from summary",
+                                 "",
+                                 "",
+                                 "" );
+    CAF_PDM_InitScriptableField( &m_transScalingWBHP,
+                                 "transScalingWBHP",
+                                 200.0,
+                                 "Transmissibility Scaling Constant WBHP Value",
+                                 "",
+                                 "",
+                                 "" );
 }
 
 //--------------------------------------------------------------------------------------------------

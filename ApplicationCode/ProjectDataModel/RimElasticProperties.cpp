@@ -22,8 +22,8 @@
 
 #include "RicElasticPropertiesImportTools.h"
 
-#include "cafPdmFieldIOScriptability.h"
-#include "cafPdmObjectScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTextEditor.h"
 

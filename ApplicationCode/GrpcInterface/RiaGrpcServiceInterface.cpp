@@ -20,16 +20,17 @@
 #include "RimCase.h"
 #include "RimProject.h"
 
+#include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmDataValueField.h"
-#include "cafPdmFieldScriptability.h"
 #include "cafPdmObject.h"
-#include "cafPdmObjectScriptability.h"
-#include "cafPdmObjectScriptabilityRegister.h"
+#include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmObjectScriptingCapabilityRegister.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmScriptIOMessages.h"
 #include "cafPdmXmlFieldHandle.h"
+
 
 #include <grpcpp/grpcpp.h>
 
@@ -71,7 +72,7 @@ void RiaGrpcServiceInterface::copyPdmObjectFromCafToRips( const caf::PdmObjectHa
     CAF_ASSERT( source && destination && source->xmlCapability() );
 
     QString classKeyword = source->xmlCapability()->classKeyword();
-    QString scriptName   = caf::PdmObjectScriptabilityRegister::scriptClassNameFromClassKeyword( classKeyword );
+    QString scriptName   = caf::PdmObjectScriptingCapabilityRegister::scriptClassNameFromClassKeyword( classKeyword );
     destination->set_class_keyword( scriptName.toStdString() );
     destination->set_address( reinterpret_cast<uint64_t>( source ) );
 
@@ -97,7 +98,7 @@ void RiaGrpcServiceInterface::copyPdmObjectFromCafToRips( const caf::PdmObjectHa
         if ( pdmValueField )
         {
             QString keyword    = pdmValueField->keyword();
-            auto    ricfHandle = field->template capability<caf::PdmFieldScriptability>();
+            auto    ricfHandle = field->template capability<caf::PdmAbstractFieldScriptingCapability>();
             if ( ricfHandle != nullptr )
             {
                 auto pdmProxyField = dynamic_cast<const caf::PdmProxyFieldHandle*>( field );
@@ -139,7 +140,7 @@ void RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf( const rips::PdmObject*
     auto parametersMap = source->parameters();
     for ( auto field : fields )
     {
-        auto scriptability = field->template capability<caf::PdmFieldScriptability>();
+        auto scriptability = field->template capability<caf::PdmAbstractFieldScriptingCapability>();
         if ( scriptability )
         {
             QString keyword = scriptability->scriptFieldName();
@@ -164,7 +165,7 @@ bool RiaGrpcServiceInterface::assignFieldValue( const QString&       stringValue
 {
     CAF_ASSERT( oldValue && newValue );
 
-    auto scriptability = field->template capability<caf::PdmFieldScriptability>();
+    auto scriptability = field->template capability<caf::PdmAbstractFieldScriptingCapability>();
     if ( field && scriptability != nullptr )
     {
         caf::PdmValueField*      valueField = dynamic_cast<caf::PdmValueField*>( field );
