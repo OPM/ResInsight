@@ -20,8 +20,10 @@
 
 #include "RiaApplication.h"
 
+#include "RiuFileDialogTools.h"
+
 #include <QAction>
-#include <QFileDialog>
+#include <QFileInfo>
 
 CAF_CMD_SOURCE_INIT( RicImportGeoMechCaseFeature, "RicImportGeoMechCaseFeature" );
 
@@ -42,7 +44,7 @@ void RicImportGeoMechCaseFeature::onActionTriggered( bool isChecked )
 
     QString     defaultDir = app->lastUsedDialogDirectory( "GEOMECH_MODEL" );
     QStringList fileNames =
-        QFileDialog::getOpenFileNames( nullptr, "Import Geo-Mechanical Model", defaultDir, "Abaqus results (*.odb)" );
+        RiuFileDialogTools::getOpenFileNames( nullptr, "Import Geo-Mechanical Model", defaultDir, "Abaqus results (*.odb)" );
     if ( fileNames.size() ) defaultDir = QFileInfo( fileNames.last() ).absolutePath();
     app->setLastUsedDialogDirectory( "GEOMECH_MODEL", defaultDir );
 

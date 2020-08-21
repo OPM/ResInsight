@@ -31,11 +31,12 @@
 #include "RimEclipseCase.h"
 #include "RimFaultInView.h"
 
+#include "RiuFileDialogTools.h"
+
 #include "cafSelectionManager.h"
 #include "cafUtils.h"
 
 #include <QAction>
-#include <QFileDialog>
 
 CAF_CMD_SOURCE_INIT( RicExportFaultsFeature, "RicExportFaultsFeature" );
 
@@ -66,7 +67,7 @@ void RicExportFaultsFeature::onActionTriggered( bool isChecked )
 
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( "FAULTS" );
 
-    QString selectedDir = QFileDialog::getExistingDirectory( nullptr, tr( "Select Directory" ), defaultDir );
+    QString selectedDir = RiuFileDialogTools::getExistingDirectory( nullptr, tr( "Select Directory" ), defaultDir );
 
     if ( selectedDir.isNull() )
     {

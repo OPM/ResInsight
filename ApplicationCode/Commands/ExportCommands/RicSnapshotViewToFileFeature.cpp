@@ -27,6 +27,8 @@
 #include "RimPlotWindow.h"
 #include "RimProject.h"
 #include "RimViewWindow.h"
+
+#include "RiuFileDialogTools.h"
 #include "RiuPlotMainWindow.h"
 
 #include "RicSnapshotFilenameGenerator.h"
@@ -37,7 +39,6 @@
 #include <QClipboard>
 #include <QDebug>
 #include <QDesktopWidget>
-#include <QFileDialog>
 #include <QFileInfo>
 #include <QMdiSubWindow>
 #include <QPageLayout>
@@ -210,11 +211,11 @@ QString RicSnapshotViewToFileFeature::generateSaveFileName( const QString& defau
     {
         selectedExtension = pdfFilter;
     }
-    QString fileName = QFileDialog::getSaveFileName( nullptr,
-                                                     tr( "Export to File" ),
-                                                     defaultAbsFileName,
-                                                     fileExtensionFilter,
-                                                     &selectedExtension );
+    QString fileName = RiuFileDialogTools::getSaveFileName( nullptr,
+                                                            tr( "Export to File" ),
+                                                            defaultAbsFileName,
+                                                            fileExtensionFilter,
+                                                            &selectedExtension );
     if ( !fileName.isEmpty() )
     {
         // Remember the directory to next time

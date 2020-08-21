@@ -23,6 +23,7 @@
 
 #include "RimWellLogPlot.h"
 
+#include "RiuFileDialogTools.h"
 #include "RiuMainWindow.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
@@ -33,7 +34,7 @@
 
 #include <QAction>
 #include <QDebug>
-#include <QFileDialog>
+#include <QDir>
 #include <QFileInfo>
 
 CAF_CMD_SOURCE_INIT( RicAsciiExportWellLogPlotFeature, "RicAsciiExportWellLogPlotFeature" );
@@ -66,10 +67,10 @@ void RicAsciiExportWellLogPlotFeature::onActionTriggered( bool isChecked )
         RimWellLogPlot* wellLogPlot     = selectedWellLogPlots.at( 0 );
         QString         defaultFileName = defaultDir + "/" +
                                   caf::Utils::makeValidFileBasename( ( wellLogPlot->description() ) ) + ".ascii";
-        QString fileName = QFileDialog::getSaveFileName( nullptr,
-                                                         "Select File for Plot Data Export",
-                                                         defaultFileName,
-                                                         "Text File(*.ascii);;All files(*.*)" );
+        QString fileName = RiuFileDialogTools::getSaveFileName( nullptr,
+                                                                "Select File for Plot Data Export",
+                                                                defaultFileName,
+                                                                "Text File(*.ascii);;All files(*.*)" );
         if ( fileName.isEmpty() ) return;
         RicAsciiExportWellLogPlotFeature::exportAsciiForWellLogPlot( fileName, wellLogPlot );
 

@@ -36,6 +36,7 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "Riu3DMainWindowTools.h"
+#include "RiuFileDialogTools.h"
 
 #include "RimColorLegend.h"
 #include "RimColorLegendCollection.h"
@@ -43,7 +44,7 @@
 #include "RimRegularLegendConfig.h"
 
 #include <QAction>
-#include <QFileDialog>
+#include <QFileInfo>
 
 CAF_CMD_SOURCE_INIT( RicImportFormationNamesFeature, "RicImportFormationNamesFeature" );
 
@@ -110,10 +111,10 @@ void RicImportFormationNamesFeature::onActionTriggered( bool isChecked )
         QString( "Formation Names description File (*.lyr);;FMU Layer Zone Table(%1);;All Files (*.*)" )
             .arg( RimFormationNames::layerZoneTableFileName() );
 
-    QStringList fileNames = QFileDialog::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
-                                                           "Import Formation Names",
-                                                           defaultDir,
-                                                           filterText );
+    QStringList fileNames = RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
+                                                                  "Import Formation Names",
+                                                                  defaultDir,
+                                                                  filterText );
 
     if ( fileNames.isEmpty() ) return;
 

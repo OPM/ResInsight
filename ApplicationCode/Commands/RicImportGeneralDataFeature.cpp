@@ -28,9 +28,10 @@
 #include "RimSummaryCase.h"
 
 #include "Riu3DMainWindowTools.h"
+#include "RiuFileDialogTools.h"
 
 #include <QAction>
-#include <QFileDialog>
+#include <QFileInfo>
 #include <QString>
 #include <QStringList>
 
@@ -197,8 +198,10 @@ QStringList RicImportGeneralDataFeature::getEclipseFileNamesWithDialog( RiaDefin
 
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectory( defaultDirectoryLabel( fileType ) );
 
-    QStringList fileNames =
-        QFileDialog::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(), "Import Data File", defaultDir, fullPattern );
+    QStringList fileNames = RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
+                                                                  "Import Data File",
+                                                                  defaultDir,
+                                                                  fullPattern );
     return fileNames;
 }
 

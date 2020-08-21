@@ -25,11 +25,12 @@
 
 #include "RimProject.h"
 #include "Riu3DMainWindowTools.h"
+#include "RiuFileDialogTools.h"
 
 #include "cafPdmUiObjectEditorHandle.h"
 
 #include <QAction>
-#include <QFileDialog>
+#include <QFileInfo>
 #include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT( RicWellLogsImportFileFeature, "RicWellLogsImportFileFeature" );
@@ -80,10 +81,10 @@ void RicWellLogsImportFileFeature::onActionTriggered( bool isChecked )
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( "WELL_LOGS_DIR" );
     QString nameFilterString = QString( "Well Logs (%1);;All Files (*.*)" ).arg( wellLogFileNameFilters().join( " " ) );
-    QStringList wellLogFilePaths = QFileDialog::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
-                                                                  "Import Well Logs",
-                                                                  defaultDir,
-                                                                  nameFilterString );
+    QStringList wellLogFilePaths = RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
+                                                                         "Import Well Logs",
+                                                                         defaultDir,
+                                                                         nameFilterString );
 
     if ( wellLogFilePaths.size() >= 1 )
     {

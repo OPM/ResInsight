@@ -32,12 +32,15 @@
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
 
+#include "RiuFileDialogTools.h"
+
 #include "cafPdmObject.h"
 #include "cafSelectionManager.h"
 #include "cafUtils.h"
 
 #include <QAction>
-#include <QFileDialog>
+#include <QFile>
+#include <QFileInfo>
 #include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT( RicSavePlotTemplateFeature, "RicSavePlotTemplateFeature" );
@@ -75,10 +78,10 @@ void RicSavePlotTemplateFeature::onActionTriggered( bool isChecked )
 
     startPath = startPath + "/" + templateCandidateName + ".rpt";
 
-    QString fileName = QFileDialog::getSaveFileName( nullptr,
-                                                     tr( "Save Plot Template To File" ),
-                                                     startPath,
-                                                     tr( "Plot Template Files (*.rpt);;All files(*.*)" ) );
+    QString fileName = RiuFileDialogTools::getSaveFileName( nullptr,
+                                                            tr( "Save Plot Template To File" ),
+                                                            startPath,
+                                                            tr( "Plot Template Files (*.rpt);;All files(*.*)" ) );
     if ( !fileName.isEmpty() )
     {
         QFile exportFile( fileName );
