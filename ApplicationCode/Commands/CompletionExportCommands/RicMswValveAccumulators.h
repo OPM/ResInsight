@@ -57,7 +57,7 @@ public:
     bool accumulateValveParameters( const RimWellPathValve* wellPathValve,
                                     size_t                  subValve,
                                     double                  contributionFraction,
-                                    double                  totalValveLengthOpenForFlow ) override;
+                                    double                  totalValveCompsegsLength ) override;
     void applyToSuperValve( std::shared_ptr<RicMswValve> valve ) override;
 
 private:
@@ -75,7 +75,7 @@ public:
     bool accumulateValveParameters( const RimWellPathValve* wellPathValve,
                                     size_t                  subValve,
                                     double                  contributionFraction,
-                                    double                  totalValveLengthOpenForFlow ) override;
+                                    double                  totalValveCompsegsLength ) override;
     void applyToSuperValve( std::shared_ptr<RicMswValve> valve ) override;
 
 private:

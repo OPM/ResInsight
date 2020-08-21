@@ -22,6 +22,7 @@
 
 class RicExportCompletionDataSettingsUi;
 class RifTextDataTableFormatter;
+class RigActiveCellInfo;
 class RimEclipseCase;
 class RimFishbonesMultipleSubs;
 class RimPerforationInterval;
@@ -129,6 +130,11 @@ private:
     static void generateWsegvalvTable( RifTextDataTableFormatter& formatter, const RicMswExportInfo& exportInfo );
     static void generateWsegAicdTable( RifTextDataTableFormatter& formatter, const RicMswExportInfo& exportInfo );
 
+    static double calculateLengthThroughActiveCells( double                                           startMD,
+                                                     double                                           endMD,
+                                                     const std::vector<WellPathCellIntersectionInfo>& wellPathIntersections,
+                                                     const RigActiveCellInfo*                         activeCellInfo );
+
 private:
     typedef std::vector<std::shared_ptr<RicMswSegment>> MainBoreSegments;
     typedef std::map<std::shared_ptr<RicMswCompletion>, std::set<std::pair<const RimWellPathValve*, size_t>>> ValveContributionMap;
@@ -152,7 +158,9 @@ private:
     static void
         assignValveContributionsToSuperICDsOrAICDs( const std::vector<std::shared_ptr<RicMswSegment>>& mainBoreSegments,
                                                     const std::vector<const RimPerforationInterval*>& perforationIntervals,
-                                                    RiaEclipseUnitTools::UnitSystem                   unitSystem );
+                                                    const std::vector<WellPathCellIntersectionInfo>& wellPathIntersections,
+                                                    const RigActiveCellInfo*                         activeCellInfo,
+                                                    RiaEclipseUnitTools::UnitSystem                  unitSystem );
 
     static void moveIntersectionsToICVs( const std::vector<std::shared_ptr<RicMswSegment>>& mainBoreSegments,
                                          const std::vector<const RimPerforationInterval*>&  perforationIntervals,

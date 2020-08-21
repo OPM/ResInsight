@@ -100,7 +100,7 @@ RicMswAICDAccumulator::RicMswAICDAccumulator( RiaEclipseUnitTools::UnitSystem un
 bool RicMswAICDAccumulator::accumulateValveParameters( const RimWellPathValve* wellPathValve,
                                                        size_t                  subValve,
                                                        double                  contributionFraction,
-                                                       double                  totalValveLengthOpenForFlow )
+                                                       double                  totalValveCompsegsLength )
 {
     CVF_ASSERT( wellPathValve );
     if ( wellPathValve->componentType() == RiaDefines::AICD )
@@ -115,9 +115,9 @@ bool RicMswAICDAccumulator::accumulateValveParameters( const RimWellPathValve* w
                 std::pair<double, double> valveSegment       = wellPathValve->valveSegments()[subValve];
                 double                    valveSegmentLength = std::fabs( valveSegment.second - valveSegment.first );
                 double                    lengthFraction     = 1.0;
-                if ( totalValveLengthOpenForFlow > 1.0e-8 )
+                if ( totalValveCompsegsLength > 1.0e-8 )
                 {
-                    lengthFraction = valveSegmentLength / totalValveLengthOpenForFlow;
+                    lengthFraction = valveSegmentLength / totalValveCompsegsLength;
                 }
 
                 double combinedFraction = contributionFraction * lengthFraction;
@@ -133,12 +133,12 @@ bool RicMswAICDAccumulator::accumulateValveParameters( const RimWellPathValve* w
 
                 // https://github.com/OPM/ResInsight/issues/6126
                 //
-                // flowScalingFactor =  1 / (length_fraction * N_AICDs)
+                // flowScalingFactor =  1 / (lengthFraction * aicdCount)
                 // where:
-                // length_fraction = length_COMPSEGS / Sum_lenght_COMPSEGS_for_valve
+                // lengthFraction = length_COMPSEGS / Sum_length_COMPSEGS_for_valve
                 // N_AICDs = number of AICDs in perforation interval
-
-                double divisor = wellPathValve->valveLocations().size() * combinedFraction;
+                size_t aicdCount = wellPathValve->valveLocations().size();
+                double divisor   = aicdCount * combinedFraction;
 
                 m_accumulatedFlowScalingFactorDivisor += divisor;
 
