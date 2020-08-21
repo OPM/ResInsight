@@ -87,19 +87,16 @@ bool RimGridCaseSurface::onLoadData()
 //--------------------------------------------------------------------------------------------------
 RimSurface* RimGridCaseSurface::createCopy()
 {
-    RimGridCaseSurface* newSurf = new RimGridCaseSurface();
-    newSurf->setCase( case_() );
-    newSurf->setOneBasedIndex( m_oneBasedSliceIndex.value() );
-    newSurf->setUserDescription( userDescription() );
-    newSurf->setColor( color() );
-    newSurf->setDepthOffset( depthOffset() );
+    RimGridCaseSurface* newSurface = dynamic_cast<RimGridCaseSurface*>(
+        xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+    newSurface->setCase( case_() ); // TODO: case seems to get lost in the xml copy, investigate later
 
-    if ( !newSurf->onLoadData() )
+    if ( !newSurface->onLoadData() )
     {
         return nullptr;
     }
 
-    return newSurf;
+    return newSurface;
 }
 
 //--------------------------------------------------------------------------------------------------

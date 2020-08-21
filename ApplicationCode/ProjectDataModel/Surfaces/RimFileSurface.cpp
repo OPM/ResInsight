@@ -82,12 +82,8 @@ bool RimFileSurface::onLoadData()
 //--------------------------------------------------------------------------------------------------
 RimSurface* RimFileSurface::createCopy()
 {
-    RimFileSurface* newSurface = new RimFileSurface();
-
-    newSurface->setSurfaceFilePath( surfaceFilePath() );
-    newSurface->setColor( color() );
-    newSurface->setUserDescription( userDescription() );
-    newSurface->setDepthOffset( depthOffset() );
+    RimFileSurface* newSurface = dynamic_cast<RimFileSurface*>(
+        xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
 
     if ( !newSurface->onLoadData() )
     {
