@@ -9,11 +9,12 @@ import SimulationWell_pb2_grpc
 import Properties_pb2
 import Properties_pb2_grpc
 
-from pdm_objects import SimulationWell
+from resinsight_classes import SimulationWell
 
 from .pdmobject import PdmObjectBase, add_method
 
 import rips.case
+
 
 @add_method(SimulationWell)
 def __custom_init__(self, pb2_object, channel):
