@@ -26,7 +26,6 @@
 #include "RimSummaryObservedDataFile.h"
 
 #include <QAction>
-#include <QFileDialog>
 
 CAF_CMD_SOURCE_INIT( RicImportObservedDataInMenuFeature, "RicImportObservedDataInMenuFeature" );
 

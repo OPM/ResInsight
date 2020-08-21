@@ -42,7 +42,7 @@
 #include "cafUtils.h"
 
 #include <QAction>
-#include <QFileDialog>
+#include <QFileInfo>
 
 #include <cmath>
 
