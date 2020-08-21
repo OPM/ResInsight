@@ -24,8 +24,8 @@
 #include "RimProject.h"
 #include "RimSummaryPlot.h"
 
-#include "cafPdmFieldScriptability.h"
-#include "cafPdmObjectScriptability.h"
+#include "cafPdmAbstractFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 
 CAF_PDM_SOURCE_INIT( RimSummaryPlotCollection, "SummaryPlotCollection" );
 

@@ -25,7 +25,7 @@
 #include "RimFileSummaryCase.h"
 #include "RimProject.h"
 
-#include "cafPdmObjectScriptability.h"
+#include "cafPdmObjectScriptingCapability.h"
 
 #include <QFileInfo>
 

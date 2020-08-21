@@ -20,7 +20,7 @@
 
 #include "cafCmdFeature.h"
 #include "cafPdmObject.h"
-#include "cafPdmObjectScriptability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmScriptResponse.h"
 
 #define RICF_HEADER_INIT \
@@ -42,7 +42,7 @@
 //
 //
 //==================================================================================================
-class RicfCommandObject : public caf::PdmObject, public caf::PdmObjectScriptability
+class RicfCommandObject : public caf::PdmObject, public caf::PdmObjectScriptingCapability
 {
 public:
     RicfCommandObject();

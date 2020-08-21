@@ -18,9 +18,9 @@
 
 #include "RimcDataContainerDouble.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
-#include "cafPdmObjectScriptability.h"
+#include "cafPdmObjectScriptingCapability.h"
 
 CAF_PDM_SOURCE_INIT( RimcDataContainerDouble, "DataContainerFloat" );
 
@@ -30,5 +30,5 @@ CAF_PDM_SOURCE_INIT( RimcDataContainerDouble, "DataContainerFloat" );
 RimcDataContainerDouble::RimcDataContainerDouble()
 {
     CAF_PDM_InitScriptableObject( "Data Container Float", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_doubleValues, "values", "Float Values", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_doubleValues, "values", "Float Values", "", "", "" );
 }

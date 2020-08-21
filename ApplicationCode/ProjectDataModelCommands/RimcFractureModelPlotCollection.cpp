@@ -24,8 +24,8 @@
 #include "RimFractureModelPlot.h"
 #include "RimFractureModelPlotCollection.h"
 
-#include "cafPdmFieldIOScriptability.h"
-#include "cafPdmFieldScriptability.h"
+#include "cafPdmAbstractFieldScriptingCapability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimFractureModelPlotCollection,
                                    RimcFractureModelPlotCollection_newFractureModelPlot,
@@ -39,9 +39,9 @@ RimcFractureModelPlotCollection_newFractureModelPlot::RimcFractureModelPlotColle
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Create Fracture Model", "", "", "Create a new Fracture Model" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_eclipseCase, "EclipseCase", "", "", "", "Eclipse Case" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_fractureModel, "FractureModel", "", "", "", "Fracture Model" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_timeStep, "TimeStep", "", "", "", "Time Step" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "EclipseCase", "", "", "", "Eclipse Case" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_fractureModel, "FractureModel", "", "", "", "Fracture Model" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_timeStep, "TimeStep", "", "", "", "Time Step" );
 }
 
 //--------------------------------------------------------------------------------------------------

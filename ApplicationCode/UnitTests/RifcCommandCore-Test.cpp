@@ -5,7 +5,7 @@
 #include "RifcCommandFileReader.h"
 
 #include "cafPdmField.h"
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmScriptIOMessages.h"
 
 class TestCommand1 : public RicfCommandObject
@@ -15,10 +15,10 @@ class TestCommand1 : public RicfCommandObject
 public:
     TestCommand1()
     {
-        CAF_PDM_InitScriptableFieldWithIO( &m_textArgument, "TextArgument", QString(), "TextArgument", "", "", "" );
-        CAF_PDM_InitScriptableFieldWithIO( &m_doubleArgument, "DoubleArgument", 0.0, "DoubleArgument", "", "", "" );
-        CAF_PDM_InitScriptableFieldWithIO( &m_intArgument, "IntArgument", 0, "IntArgument", "", "", "" );
-        CAF_PDM_InitScriptableFieldWithIO( &m_boolArgument, "BoolArgument", false, "BoolArgument", "", "", "" );
+        CAF_PDM_InitScriptableField( &m_textArgument, "TextArgument", QString(), "TextArgument", "", "", "" );
+        CAF_PDM_InitScriptableField( &m_doubleArgument, "DoubleArgument", 0.0, "DoubleArgument", "", "", "" );
+        CAF_PDM_InitScriptableField( &m_intArgument, "IntArgument", 0, "IntArgument", "", "", "" );
+        CAF_PDM_InitScriptableField( &m_boolArgument, "BoolArgument", false, "BoolArgument", "", "", "" );
     }
 
     caf::PdmScriptResponse execute() override
@@ -44,10 +44,10 @@ class TC2 : public RicfCommandObject
 public:
     TC2()
     {
-        CAF_PDM_InitScriptableFieldWithIO( &m_textArgument, "ta", QString(), "TextArgument", "", "", "" );
-        CAF_PDM_InitScriptableFieldWithIO( &m_doubleArgument, "da", 0.0, "DoubleArgument", "", "", "" );
-        CAF_PDM_InitScriptableFieldWithIO( &m_intArgument, "ia", 0, "IntArgument", "", "", "" );
-        CAF_PDM_InitScriptableFieldWithIO( &m_boolArgument, "ba", false, "BoolArgument", "", "", "" );
+        CAF_PDM_InitScriptableField( &m_textArgument, "ta", QString(), "TextArgument", "", "", "" );
+        CAF_PDM_InitScriptableField( &m_doubleArgument, "da", 0.0, "DoubleArgument", "", "", "" );
+        CAF_PDM_InitScriptableField( &m_intArgument, "ia", 0, "IntArgument", "", "", "" );
+        CAF_PDM_InitScriptableField( &m_boolArgument, "ba", false, "BoolArgument", "", "", "" );
     }
 
     caf::PdmScriptResponse execute() override

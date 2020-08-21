@@ -67,8 +67,8 @@
 #include "RimWellPathCollection.h"
 
 #include "cafPdmDocument.h"
-#include "cafPdmFieldIOScriptability.h"
-#include "cafPdmObjectScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
 
@@ -89,13 +89,13 @@ RimEclipseCase::RimEclipseCase()
                                                     "Reservoir",
                                                     "Abtract base class for Eclipse Cases" );
 
-    CAF_PDM_InitScriptableFieldWithKeywordNoDefault( &reservoirViews,
-                                                     "ReservoirViews",
-                                                     "Views",
-                                                     "",
-                                                     "",
-                                                     "",
-                                                     "All Eclipse Views in the case" );
+    CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &reservoirViews,
+                                                           "ReservoirViews",
+                                                           "Views",
+                                                           "",
+                                                           "",
+                                                           "",
+                                                           "All Eclipse Views in the case" );
     reservoirViews.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_matrixModelResults, "MatrixModelResults", "", "", "", "" );

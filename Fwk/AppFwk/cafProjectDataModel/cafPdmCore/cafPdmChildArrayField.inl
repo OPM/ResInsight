@@ -183,6 +183,19 @@ size_t PdmChildArrayField<DataType*>::index( const DataType* pointer ) const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Assign objects to the field, replacing the current child objects
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+void PdmChildArrayField<DataType*>::setValue( const std::vector<DataType*>& objects )
+{
+    clear();
+    for ( auto object : objects )
+    {
+        push_back( object );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Removes all instances of object pointer from the container without deleting the object.
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>

@@ -26,7 +26,7 @@
 
 #include "Riu3DMainWindowTools.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 #include "cafSelectionManager.h"
 
 #include <QAction>
@@ -49,7 +49,7 @@ CAF_PDM_SOURCE_INIT( RicfCreateStatisticsCase, "createStatisticsCase" );
 //--------------------------------------------------------------------------------------------------
 RicfCreateStatisticsCase::RicfCreateStatisticsCase()
 {
-    CAF_PDM_InitScriptableFieldWithIO( &m_caseGroupId, "caseGroupId", -1, "Case Group Id", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_caseGroupId, "caseGroupId", -1, "Case Group Id", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

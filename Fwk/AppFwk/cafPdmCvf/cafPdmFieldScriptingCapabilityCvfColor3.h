@@ -33,52 +33,22 @@
 //   for more details.
 //
 //##################################################################################################
-#pragma once
+#include "cafPdmFieldScriptingCapability.h"
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmObjectCapability.h"
-#include "cafPdmObjectMethod.h"
-#include "cafPdmObjectScriptabilityRegister.h"
-
-#include <QString>
-
-#include <map>
-#include <memory>
-#include <vector>
-
-class QTextStream;
-
-#define CAF_PDM_InitScriptableObject( uiName, iconResourceName, toolTip, whatsThis ) \
-    CAF_PDM_InitObject( uiName, iconResourceName, toolTip, whatsThis );              \
-    caf::PdmObjectScriptabilityRegister::registerScriptClassNameAndComment( classKeyword(), classKeyword(), whatsThis );
-
-#define CAF_PDM_InitScriptableObjectWithNameAndComment( uiName, iconResourceName, toolTip, whatsThis, scriptClassName, scriptComment ) \
-    CAF_PDM_InitObject( uiName, iconResourceName, toolTip, whatsThis );                                                                \
-    caf::PdmObjectScriptabilityRegister::registerScriptClassNameAndComment( classKeyword(), scriptClassName, scriptComment );
+#include "cvfColor3.h"
 
 namespace caf
 {
-class PdmObject;
-class PdmObjectHandle;
-class PdmObjectFactory;
-class PdmScriptIOMessages;
-
-//==================================================================================================
-//
-//
-//
-//==================================================================================================
-class PdmObjectScriptability : public PdmObjectCapability
+template <>
+struct PdmFieldScriptingCapabilityIOHandler<cvf::Color3f>
 {
-public:
-    PdmObjectScriptability( PdmObjectHandle* owner, bool giveOwnership );
-
-    ~PdmObjectScriptability() override;
-
-    void readFields( QTextStream& inputStream, PdmObjectFactory* objectFactory, PdmScriptIOMessages* errorMessageContainer );
-    void writeFields( QTextStream& outputStream ) const;
-
-private:
-    PdmObjectHandle* m_owner;
+    static void writeToField( cvf::Color3f&        fieldValue,
+                              QTextStream&         inputStream,
+                              PdmScriptIOMessages* errorMessageContainer,
+                              bool                 stringsAreQuoted = true );
+    static void readFromField( const cvf::Color3f& fieldValue,
+                               QTextStream&        outputStream,
+                               bool                quoteStrings     = true,
+                               bool                quoteNonBuiltins = false );
 };
 } // namespace caf

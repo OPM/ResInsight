@@ -33,39 +33,42 @@
 //   for more details.
 //
 //##################################################################################################
+#include "cafPdmFieldScriptingCapabilityCvfColor3.h"
 
-#include "cafPdmMarkdownGenerator.h"
-
-#include "cafPdmMarkdownBuilder.h"
-#include "cafPdmObjectScriptingCapabilityRegister.h"
+#include <QColor>
 
 using namespace caf;
-
-CAF_PDM_CODE_GENERATOR_SOURCE_INIT( PdmMarkdownGenerator, "md" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString caf::PdmMarkdownGenerator::generate( PdmObjectFactory* factory ) const
+void PdmFieldScriptingCapabilityIOHandler<cvf::Color3f>::writeToField( cvf::Color3f&             fieldValue,
+                                                                       QTextStream&              inputStream,
+                                                                       caf::PdmScriptIOMessages* errorMessageContainer,
+                                                                       bool                      stringsAreQuoted )
 {
-    QString     generatedCode;
-    QTextStream out( &generatedCode );
+    QString fieldStringValue;
+    PdmFieldScriptingCapabilityIOHandler<QString>::writeToField( fieldStringValue,
+                                                                 inputStream,
+                                                                 errorMessageContainer,
+                                                                 stringsAreQuoted );
 
-    std::vector<QString> classKeywords = factory->classKeywords();
-
-    std::vector<std::shared_ptr<const PdmObject>> scriptableObjects;
-
+    QColor qColor( fieldStringValue );
+    if ( qColor.isValid() )
     {
-        std::vector<std::shared_ptr<const PdmObject>> allObjects = caf::PdmMarkdownBuilder::createAllObjects( factory );
-        for ( auto obj : allObjects )
-        {
-            if ( PdmObjectScriptingCapabilityRegister::isScriptable( obj.get() ) )
-            {
-                scriptableObjects.push_back( obj );
-            }
-        }
+        fieldValue = cvf::Color3f( qColor.redF(), qColor.greenF(), qColor.blueF() );
     }
-    out << caf::PdmMarkdownBuilder::generateDocDataModelObjects( scriptableObjects );
+}
 
-    return generatedCode;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmFieldScriptingCapabilityIOHandler<cvf::Color3f>::readFromField( const cvf::Color3f& fieldValue,
+                                                                        QTextStream&        outputStream,
+                                                                        bool                quoteStrings,
+                                                                        bool                quoteNonBuiltin )
+{
+    QColor  qColor( fieldValue.rByte(), fieldValue.gByte(), fieldValue.bByte() );
+    QString fieldStringValue = qColor.name();
+    PdmFieldScriptingCapabilityIOHandler<QString>::readFromField( fieldStringValue, outputStream, quoteStrings );
 }

@@ -26,8 +26,8 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
-#include "cafPdmFieldIOScriptability.h"
-#include "cafPdmFieldScriptability.h"
+#include "cafPdmAbstractFieldScriptingCapability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimFractureModelCollection,
                                    RimcFractureModelCollection_newFractureModel,
@@ -40,14 +40,14 @@ RimcFractureModelCollection_newFractureModel::RimcFractureModelCollection_newFra
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Create Fracture Model", "", "", "Create a new Fracture Model" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_wellPath, "WellPath", "", "", "", "Well Path" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_md, "MeasuredDepth", "", "", "", "Measured Depth" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_elasticPropertiesFilePath,
-                                                "ElasticPropertiesFilePath",
-                                                "",
-                                                "",
-                                                "",
-                                                "Elastic Properties File Path" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "", "", "", "Well Path" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_md, "MeasuredDepth", "", "", "", "Measured Depth" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_elasticPropertiesFilePath,
+                                          "ElasticPropertiesFilePath",
+                                          "",
+                                          "",
+                                          "",
+                                          "Elastic Properties File Path" );
 }
 
 //--------------------------------------------------------------------------------------------------

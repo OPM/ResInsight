@@ -64,6 +64,7 @@ public:
     void             deleteAllChildObjects() override;
     void             insertAt( int indexAfter, PdmObjectHandle* obj ) override;
     PdmObjectHandle* at( size_t index ) override;
+    void             setValue( const std::vector<DataType*>& objects );
 
     virtual void deleteAllChildObjectsAsync();
 

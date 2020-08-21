@@ -26,7 +26,7 @@
 #include "RimProject.h"
 #include "RiuMultiPlotPage.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmUiComboBoxEditor.h"
 
 #include <QPainter>
@@ -45,11 +45,11 @@ RimPlotWindow::RimPlotWindow()
                                                     "PlotWindow",
                                                     "The Abstract base class for all MDI Windows in the Plot Window" );
 
-    CAF_PDM_InitScriptableFieldWithIO( &m_id, "Id", -1, "View ID", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_id, "Id", -1, "View ID", "", "", "" );
     m_id.registerKeywordAlias( "ViewId" );
     m_id.uiCapability()->setUiReadOnly( true );
     m_id.uiCapability()->setUiHidden( true );
-    m_id.capability<caf::PdmFieldScriptability>()->setIOWriteable( false );
+    m_id.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
     m_id.xmlCapability()->setCopyable( false );
 
     CAF_PDM_InitField( &m_showPlotLegends, "ShowTrackLegends", true, "Show Legends", "", "", "" );

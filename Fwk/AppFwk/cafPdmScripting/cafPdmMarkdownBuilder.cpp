@@ -36,15 +36,16 @@
 
 #include "cafPdmMarkdownBuilder.h"
 
+#include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
-#include "cafPdmFieldScriptability.h"
 #include "cafPdmObject.h"
 #include "cafPdmObjectFactory.h"
-#include "cafPdmObjectScriptabilityRegister.h"
+#include "cafPdmObjectScriptingCapabilityRegister.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPythonGenerator.h"
 #include "cafPdmXmlFieldHandle.h"
+
 
 #include <QRegularExpression>
 #include <QTextStream>
@@ -99,8 +100,8 @@ QString caf::PdmMarkdownBuilder::generateDocDataModelObjects( std::vector<std::s
 
         for ( auto it = classInheritanceStack.begin(); it != classInheritanceStack.end(); ++it )
         {
-            const QString& classKeyword       = *it;
-            QString        scriptClassComment = PdmObjectScriptabilityRegister::scriptClassComment( classKeyword );
+            const QString& classKeyword = *it;
+            QString scriptClassComment  = PdmObjectScriptingCapabilityRegister::scriptClassComment( classKeyword );
 
             std::map<QString, QString> attributesGenerated;
 
@@ -112,7 +113,7 @@ QString caf::PdmMarkdownBuilder::generateDocDataModelObjects( std::vector<std::s
                 object->fields( fields );
                 for ( auto field : fields )
                 {
-                    auto scriptability = field->template capability<PdmFieldScriptability>();
+                    auto scriptability = field->template capability<PdmAbstractFieldScriptingCapability>();
                     if ( scriptability != nullptr )
                     {
                         QString snake_field_name = PdmPythonGenerator::camelToSnakeCase( scriptability->scriptFieldName() );
@@ -200,7 +201,7 @@ QString caf::PdmMarkdownBuilder::generateDocDataModelObjects( std::vector<std::s
                         {
                             QString dataType = PdmPythonGenerator::dataTypeString( field, false );
                             QString scriptDataType =
-                                PdmObjectScriptabilityRegister::scriptClassNameFromClassKeyword( dataType );
+                                PdmObjectScriptingCapabilityRegister::scriptClassNameFromClassKeyword( dataType );
 
                             QString commentDataType = field->xmlCapability()->isVectorField()
                                                           ? QString( "List of %1" ).arg( scriptDataType )
@@ -250,7 +251,7 @@ QString caf::PdmMarkdownBuilder::generateDocDataModelObjects( std::vector<std::s
         for ( auto it = classInheritanceStack.begin(); it != classInheritanceStack.end(); ++it )
         {
             const QString& classKeyword = *it;
-            QString scriptClassName = PdmObjectScriptabilityRegister::scriptClassNameFromClassKeyword( classKeyword );
+            QString scriptClassName = PdmObjectScriptingCapabilityRegister::scriptClassNameFromClassKeyword( classKeyword );
             if ( scriptClassName.isEmpty() ) scriptClassName = classKeyword;
 
             if ( !classesWritten.count( scriptClassName ) )
@@ -386,7 +387,7 @@ QString caf::PdmMarkdownBuilder::generateDocCommandObjects( std::vector<std::sha
             attributes.push_back( {snake_field_name, comment, pythonDataType} );
         }
 
-        QString comment = caf::PdmObjectScriptabilityRegister::scriptClassComment( object->classKeyword() );
+        QString comment = caf::PdmObjectScriptingCapabilityRegister::scriptClassComment( object->classKeyword() );
         objs.push_back( {snakeCommandName, comment, attributes} );
         //        objectsAndAttributes[snakeCommandName] = attributes;
     }

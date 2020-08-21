@@ -21,7 +21,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObject.h"
 #include "cafPdmScriptResponse.h"
 #include "cafPdmUiItem.h"
@@ -37,7 +37,7 @@ RICF_SOURCE_INIT( RicUnstackSelectedCurvesFeature, "RicUnstackSelectedCurvesFeat
 //--------------------------------------------------------------------------------------------------
 RicUnstackSelectedCurvesFeature::RicUnstackSelectedCurvesFeature()
 {
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_curves, "curves", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_curves, "curves", "", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

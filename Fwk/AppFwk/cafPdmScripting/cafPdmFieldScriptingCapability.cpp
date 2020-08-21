@@ -33,17 +33,17 @@
 //   for more details.
 //
 //##################################################################################################
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
 using namespace caf;
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmFieldScriptabilityIOHandler<QString>::writeToField( QString&                  fieldValue,
-                                                            QTextStream&              inputStream,
-                                                            caf::PdmScriptIOMessages* errorMessageContainer,
-                                                            bool                      stringsAreQuoted )
+void PdmFieldScriptingCapabilityIOHandler<QString>::writeToField( QString&                  fieldValue,
+                                                                  QTextStream&              inputStream,
+                                                                  caf::PdmScriptIOMessages* errorMessageContainer,
+                                                                  bool                      stringsAreQuoted )
 {
     fieldValue = "";
 
@@ -116,10 +116,10 @@ void PdmFieldScriptabilityIOHandler<QString>::writeToField( QString&            
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmFieldScriptabilityIOHandler<QString>::readFromField( const QString& fieldValue,
-                                                             QTextStream&   outputStream,
-                                                             bool           quoteStrings,
-                                                             bool           quoteNonBuiltin )
+void PdmFieldScriptingCapabilityIOHandler<QString>::readFromField( const QString& fieldValue,
+                                                                   QTextStream&   outputStream,
+                                                                   bool           quoteStrings,
+                                                                   bool           quoteNonBuiltin )
 {
     outputStream << "\"";
     for ( int i = 0; i < fieldValue.size(); ++i )
@@ -136,10 +136,10 @@ void PdmFieldScriptabilityIOHandler<QString>::readFromField( const QString& fiel
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmFieldScriptabilityIOHandler<bool>::writeToField( bool&                     fieldValue,
-                                                         QTextStream&              inputStream,
-                                                         caf::PdmScriptIOMessages* errorMessageContainer,
-                                                         bool                      stringsAreQuoted )
+void PdmFieldScriptingCapabilityIOHandler<bool>::writeToField( bool&                     fieldValue,
+                                                               QTextStream&              inputStream,
+                                                               caf::PdmScriptIOMessages* errorMessageContainer,
+                                                               bool                      stringsAreQuoted )
 {
     errorMessageContainer->skipWhiteSpaceWithLineNumberCount( inputStream );
     QString accumulatedFieldValue;
@@ -175,10 +175,10 @@ void PdmFieldScriptabilityIOHandler<bool>::writeToField( bool&                  
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmFieldScriptabilityIOHandler<bool>::readFromField( const bool&  fieldValue,
-                                                          QTextStream& outputStream,
-                                                          bool         quoteStrings,
-                                                          bool         quoteNonBuiltin )
+void PdmFieldScriptingCapabilityIOHandler<bool>::readFromField( const bool&  fieldValue,
+                                                                QTextStream& outputStream,
+                                                                bool         quoteStrings,
+                                                                bool         quoteNonBuiltin )
 {
     // Lower-case true/false is used in the documentation.
     outputStream << ( fieldValue ? "true" : "false" );

@@ -50,7 +50,7 @@
 
 #include "RiuMainWindow.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafUtils.h"
 
@@ -76,7 +76,7 @@ RimWellPath::RimWellPath()
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "WellPath", ":/Well.png", "", "", "WellPath", "The Base class for Well Paths" );
 
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_name, "Name", "Name", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_name, "Name", "Name", "", "", "" );
     m_name.registerKeywordAlias( "WellPathName" );
     m_name.uiCapability()->setUiReadOnly( true );
     m_name.uiCapability()->setUiHidden( true );

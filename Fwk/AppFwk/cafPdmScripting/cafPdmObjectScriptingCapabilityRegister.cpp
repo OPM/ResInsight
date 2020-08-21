@@ -33,22 +33,22 @@
 //   for more details.
 //
 //##################################################################################################
-#include "cafPdmObjectScriptabilityRegister.h"
+#include "cafPdmObjectScriptingCapabilityRegister.h"
 
 #include "cafPdmObject.h"
 
 using namespace caf;
 
-std::map<QString, QString> PdmObjectScriptabilityRegister::s_classKeywordToScriptClassName;
-std::map<QString, QString> PdmObjectScriptabilityRegister::s_scriptClassNameToClassKeyword;
-std::map<QString, QString> PdmObjectScriptabilityRegister::s_scriptClassComments;
+std::map<QString, QString> PdmObjectScriptingCapabilityRegister::s_classKeywordToScriptClassName;
+std::map<QString, QString> PdmObjectScriptingCapabilityRegister::s_scriptClassNameToClassKeyword;
+std::map<QString, QString> PdmObjectScriptingCapabilityRegister::s_scriptClassComments;
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmObjectScriptabilityRegister::registerScriptClassNameAndComment( const QString& classKeyword,
-                                                                        const QString& scriptClassName,
-                                                                        const QString& scriptClassComment )
+void PdmObjectScriptingCapabilityRegister::registerScriptClassNameAndComment( const QString& classKeyword,
+                                                                              const QString& scriptClassName,
+                                                                              const QString& scriptClassComment )
 {
     s_classKeywordToScriptClassName[classKeyword]    = scriptClassName;
     s_scriptClassNameToClassKeyword[scriptClassName] = classKeyword;
@@ -58,7 +58,7 @@ void PdmObjectScriptabilityRegister::registerScriptClassNameAndComment( const QS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString PdmObjectScriptabilityRegister::scriptClassNameFromClassKeyword( const QString& classKeyword )
+QString PdmObjectScriptingCapabilityRegister::scriptClassNameFromClassKeyword( const QString& classKeyword )
 {
     auto it = s_classKeywordToScriptClassName.find( classKeyword );
     if ( it != s_classKeywordToScriptClassName.end() )
@@ -71,7 +71,7 @@ QString PdmObjectScriptabilityRegister::scriptClassNameFromClassKeyword( const Q
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString PdmObjectScriptabilityRegister::classKeywordFromScriptClassName( const QString& scriptClassName )
+QString PdmObjectScriptingCapabilityRegister::classKeywordFromScriptClassName( const QString& scriptClassName )
 {
     auto it = s_scriptClassNameToClassKeyword.find( scriptClassName );
     if ( it != s_scriptClassNameToClassKeyword.end() )
@@ -84,7 +84,7 @@ QString PdmObjectScriptabilityRegister::classKeywordFromScriptClassName( const Q
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString PdmObjectScriptabilityRegister::scriptClassComment( const QString& classKeyword )
+QString PdmObjectScriptingCapabilityRegister::scriptClassComment( const QString& classKeyword )
 {
     auto it = s_scriptClassComments.find( classKeyword );
     if ( it != s_scriptClassComments.end() )
@@ -97,7 +97,7 @@ QString PdmObjectScriptabilityRegister::scriptClassComment( const QString& class
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmObjectScriptabilityRegister::isScriptable( const caf::PdmObject* object )
+bool PdmObjectScriptingCapabilityRegister::isScriptable( const caf::PdmObject* object )
 {
     return s_classKeywordToScriptClassName.find( object->classKeyword() ) != s_classKeywordToScriptClassName.end();
 }

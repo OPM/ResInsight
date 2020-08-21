@@ -46,7 +46,7 @@ class PdmObject;
 //==================================================================================================
 /// Static register for object scriptability.
 //==================================================================================================
-class PdmObjectScriptabilityRegister
+class PdmObjectScriptingCapabilityRegister
 {
 public:
     static void    registerScriptClassNameAndComment( const QString& classKeyword,

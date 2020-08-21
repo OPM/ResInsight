@@ -99,8 +99,8 @@
 #include "cafDisplayCoordTransform.h"
 #include "cafFrameAnimationControl.h"
 #include "cafOverlayScalarMapperLegend.h"
-#include "cafPdmFieldIOScriptability.h"
-#include "cafPdmObjectScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include "cvfDrawable.h"
@@ -128,13 +128,13 @@ RimEclipseView::RimEclipseView()
                                                     "EclipseView",
                                                     "The Eclipse 3d Reservoir View" );
 
-    CAF_PDM_InitScriptableFieldWithKeywordNoDefault( &m_cellResult,
-                                                     "GridCellResult",
-                                                     "CellResult",
-                                                     "Cell Result",
-                                                     ":/CellResult.png",
-                                                     "",
-                                                     "" );
+    CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_cellResult,
+                                                           "GridCellResult",
+                                                           "CellResult",
+                                                           "Cell Result",
+                                                           ":/CellResult.png",
+                                                           "",
+                                                           "" );
     m_cellResult = new RimEclipseCellColors();
     m_cellResult.uiCapability()->setUiHidden( true );
     m_cellResult->setDiffResultOptionsEnabled( true );

@@ -51,8 +51,8 @@
 
 #include "cafDisplayCoordTransform.h"
 #include "cafFrameAnimationControl.h"
-#include "cafPdmFieldIOScriptability.h"
-#include "cafPdmFieldIOScriptabilityCvfColor3.h"
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmFieldScriptingCapabilityCvfColor3.h"
 
 #include "cvfCamera.h"
 #include "cvfModelBasicList.h"
@@ -90,11 +90,11 @@ Rim3dView::Rim3dView( void )
 
     CAF_PDM_InitObject( "3d View", "", "", "" );
 
-    CAF_PDM_InitScriptableFieldWithIO( &m_id, "Id", -1, "View ID", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_id, "Id", -1, "View ID", "", "", "" );
     m_id.registerKeywordAlias( "ViewId" );
     m_id.uiCapability()->setUiReadOnly( true );
     m_id.uiCapability()->setUiHidden( true );
-    m_id.capability<caf::PdmFieldScriptability>()->setIOWriteable( false );
+    m_id.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
     m_id.xmlCapability()->setCopyable( false );
 
     CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "", "", "", "" );
@@ -109,19 +109,19 @@ Rim3dView::Rim3dView( void )
     CAF_PDM_InitField( &m_cameraPointOfInterest, "CameraPointOfInterest", cvf::Vec3d::ZERO, "", "", "", "" );
     m_cameraPointOfInterest.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitScriptableFieldWithIO( &isPerspectiveView, "PerspectiveProjection", true, "Perspective Projection", "", "", "" );
+    CAF_PDM_InitScriptableField( &isPerspectiveView, "PerspectiveProjection", true, "Perspective Projection", "", "", "" );
 
     double defaultScaleFactor = preferences->defaultScaleFactorZ();
-    CAF_PDM_InitScriptableFieldWithIO( &scaleZ,
-                                       "GridZScale",
-                                       defaultScaleFactor,
-                                       "Z Scale",
-                                       "",
-                                       "Scales the scene in the Z direction",
-                                       "" );
+    CAF_PDM_InitScriptableField( &scaleZ,
+                                 "GridZScale",
+                                 defaultScaleFactor,
+                                 "Z Scale",
+                                 "",
+                                 "Scales the scene in the Z direction",
+                                 "" );
 
     cvf::Color3f defBackgColor = preferences->defaultViewerBackgroundColor();
-    CAF_PDM_InitScriptableFieldWithIO( &m_backgroundColor, "BackgroundColor", defBackgColor, "Background", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_backgroundColor, "BackgroundColor", defBackgColor, "Background", "", "", "" );
     m_backgroundColor.registerKeywordAlias( "ViewBackgroundColor" );
 
     CAF_PDM_InitField( &maximumFrameRate, "MaximumFrameRate", 10, "Maximum Frame Rate", "", "", "" );
@@ -129,24 +129,24 @@ Rim3dView::Rim3dView( void )
     CAF_PDM_InitField( &hasUserRequestedAnimation, "AnimationMode", false, "Animation Mode", "", "", "" );
     hasUserRequestedAnimation.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitScriptableFieldWithIO( &m_currentTimeStep, "CurrentTimeStep", 0, "Current Time Step", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_currentTimeStep, "CurrentTimeStep", 0, "Current Time Step", "", "", "" );
     m_currentTimeStep.uiCapability()->setUiHidden( true );
 
     caf::AppEnum<RiaDefines::MeshModeType> defaultMeshType = preferences->defaultMeshModeType();
     CAF_PDM_InitField( &meshMode, "MeshMode", defaultMeshType, "Grid Lines", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &surfaceMode, "SurfaceMode", "Grid Surface", "", "", "" );
 
-    CAF_PDM_InitScriptableFieldWithIO( &m_showGridBox, "ShowGridBox", true, "Show Grid Box", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_showGridBox, "ShowGridBox", true, "Show Grid Box", "", "", "" );
 
-    CAF_PDM_InitScriptableFieldWithIO( &m_disableLighting,
-                                       "DisableLighting",
-                                       false,
-                                       "Disable Results Lighting",
-                                       "",
-                                       "Disable light model for scalar result colors",
-                                       "" );
+    CAF_PDM_InitScriptableField( &m_disableLighting,
+                                 "DisableLighting",
+                                 false,
+                                 "Disable Results Lighting",
+                                 "",
+                                 "Disable light model for scalar result colors",
+                                 "" );
 
-    CAF_PDM_InitScriptableFieldWithIO( &m_showZScaleLabel, "ShowZScale", true, "Show Z Scale Label", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_showZScaleLabel, "ShowZScale", true, "Show Z Scale Label", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_comparisonView, "ComparisonView", "Comparison View", "", "", "" );
 

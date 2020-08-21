@@ -25,7 +25,7 @@
 #include "RimProject.h"
 #include "RimWellLogPlot.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
 #include <QDir>
 #include <QFileInfo>
@@ -60,14 +60,14 @@ CAF_PDM_SOURCE_INIT( RicfExportWellLogPlotData, "exportWellLogPlotData" );
 //--------------------------------------------------------------------------------------------------
 RicfExportWellLogPlotData::RicfExportWellLogPlotData()
 {
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_format, "exportFormat", "", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_viewId, "viewId", -1, "", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_folder, "exportFolder", QString(), "", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_filePrefix, "filePrefix", QString(), "", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_exportTvdRkb, "exportTvdRkb", false, "", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_capitalizeFileNames, "capitalizeFileNames", false, "", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_resampleInterval, "resampleInterval", 0.0, "", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_convertCurveUnits, "convertCurveUnits", false, "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_format, "exportFormat", "", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_viewId, "viewId", -1, "", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_folder, "exportFolder", QString(), "", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_filePrefix, "filePrefix", QString(), "", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_exportTvdRkb, "exportTvdRkb", false, "", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_capitalizeFileNames, "capitalizeFileNames", false, "", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_resampleInterval, "resampleInterval", 0.0, "", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_convertCurveUnits, "convertCurveUnits", false, "", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

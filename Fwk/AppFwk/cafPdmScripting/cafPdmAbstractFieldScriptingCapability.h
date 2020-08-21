@@ -33,22 +33,45 @@
 //   for more details.
 //
 //##################################################################################################
-#include "cafPdmFieldIOScriptability.h"
+#pragma once
 
-#include "cvfColor3.h"
+#include "cafPdmFieldCapability.h"
+#include <QString>
+
+class QTextStream;
 
 namespace caf
 {
-template <>
-struct PdmFieldScriptabilityIOHandler<cvf::Color3f>
+class PdmFieldHandle;
+class PdmObjectFactory;
+class PdmObjectHandle;
+class PdmScriptIOMessages;
+
+class PdmAbstractFieldScriptingCapability : public PdmFieldCapability
 {
-    static void writeToField( cvf::Color3f&        fieldValue,
-                              QTextStream&         inputStream,
-                              PdmScriptIOMessages* errorMessageContainer,
-                              bool                 stringsAreQuoted = true );
-    static void readFromField( const cvf::Color3f& fieldValue,
-                               QTextStream&        outputStream,
-                               bool                quoteStrings     = true,
-                               bool                quoteNonBuiltins = false );
+public:
+    PdmAbstractFieldScriptingCapability( caf::PdmFieldHandle* owner, const QString& scriptFieldName, bool giveOwnership );
+    virtual ~PdmAbstractFieldScriptingCapability();
+
+    const QString scriptFieldName() const;
+
+    bool isIOWriteable() const;
+    void setIOWriteable( bool writeable );
+
+    virtual void
+                 readFromField( QTextStream& outputStream, bool quoteStrings = true, bool quoteNonBuiltins = false ) const = 0;
+    virtual void writeToField( QTextStream&              inputStream,
+                               caf::PdmObjectFactory*    objectFactory,
+                               caf::PdmScriptIOMessages* errorMessageContainer,
+                               bool                      stringsAreQuoted    = true,
+                               caf::PdmObjectHandle*     existingObjectsRoot = nullptr ) = 0;
+
+    static QString helpString( const QString& existingTooltip, const QString& keyword );
+
+protected:
+    PdmFieldHandle* m_owner;
+    QString         m_scriptFieldName;
+    bool            m_IOWriteable;
 };
+
 } // namespace caf
