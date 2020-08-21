@@ -26,8 +26,10 @@
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
 
+#include "RiuFileDialogTools.h"
+
 #include <QAction>
-#include <QFileDialog>
+#include <QFileInfo>
 
 CAF_CMD_SOURCE_INIT( RicImportElementPropertyFeature, "RicImportElementPropertyFeature" );
 
@@ -48,7 +50,7 @@ void RicImportElementPropertyFeature::onActionTriggered( bool isChecked )
 
     QString     defaultDir = app->lastUsedDialogDirectory( "ELM_PROPS" );
     QStringList fileNames =
-        QFileDialog::getOpenFileNames( nullptr, "Import Element Property Table", defaultDir, "Property Table (*.inp)" );
+        RiuFileDialogTools::getOpenFileNames( nullptr, "Import Element Property Table", defaultDir, "Property Table (*.inp)" );
 
     if ( !fileNames.empty() )
     {

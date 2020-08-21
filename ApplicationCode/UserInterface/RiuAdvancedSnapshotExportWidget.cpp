@@ -29,6 +29,7 @@
 #include "RimEclipseView.h"
 #include "RimProject.h"
 
+#include "RiuFileDialogTools.h"
 #include "RiuTools.h"
 
 #include "cafCmdFeatureManager.h"
@@ -38,7 +39,6 @@
 #include <QAbstractItemView>
 #include <QBoxLayout>
 #include <QDialogButtonBox>
-#include <QFileDialog>
 #include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
@@ -251,10 +251,7 @@ void RiuAdvancedSnapshotExportWidget::folderSelectionClicked()
     QString defaultPath = m_exportFolderLineEdit->text();
 
     QString directoryPath =
-        QFileDialog::getExistingDirectory( m_exportFolderLineEdit,
-                                           tr( "Get existing directory" ),
-                                           defaultPath,
-                                           QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks );
+        RiuFileDialogTools::getExistingDirectory( m_exportFolderLineEdit, tr( "Get existing directory" ), defaultPath );
 
     if ( !directoryPath.isEmpty() )
     {

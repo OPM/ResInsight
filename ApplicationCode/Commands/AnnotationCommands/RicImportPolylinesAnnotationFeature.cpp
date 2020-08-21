@@ -27,11 +27,12 @@
 #include "RimProject.h"
 
 #include "Riu3DMainWindowTools.h"
+#include "RiuFileDialogTools.h"
 
 #include <QAction>
-#include <QFileDialog>
+#include <QFileInfo>
 
-#include <cafSelectionManagerTools.h>
+#include "cafSelectionManagerTools.h"
 
 CAF_CMD_SOURCE_INIT( RicImportPolylinesAnnotationFeature, "RicImportPolylinesAnnotationFeature" );
 
@@ -55,10 +56,11 @@ void RicImportPolylinesAnnotationFeature::onActionTriggered( bool isChecked )
 {
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( "BINARY_GRID" );
-    QStringList     fileNames  = QFileDialog::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
-                                                           "Import Poly Lines Annotation",
-                                                           defaultDir,
-                                                           "Text Files (*.txt);;Polylines (*.dat);;All Files (*.*)" );
+    QStringList     fileNames =
+        RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
+                                              "Import Poly Lines Annotation",
+                                              defaultDir,
+                                              "Text Files (*.txt);;Polylines (*.dat);;All Files (*.*)" );
 
     if ( fileNames.isEmpty() ) return;
 

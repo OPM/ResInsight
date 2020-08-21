@@ -29,13 +29,14 @@
 #include "RimWellPathFracture.h"
 
 #include "Riu3DMainWindowTools.h"
+#include "RiuFileDialogTools.h"
 
 #include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
 
 #include <QAction>
-#include <QFileDialog>
+#include <QFileInfo>
 
 CAF_CMD_SOURCE_INIT( RicNewStimPlanFractureTemplateFeature, "RicNewStimPlanFractureTemplateFeature" );
 
@@ -78,10 +79,10 @@ std::vector<RimStimPlanFractureTemplate*> RicNewStimPlanFractureTemplateFeature:
 {
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( "BINARY_GRID" );
-    QStringList     fileNames  = QFileDialog::getOpenFileNames( nullptr,
-                                                           "Open StimPlan XML File",
-                                                           defaultDir,
-                                                           "StimPlan XML File (*.xml);;All files(*.*)" );
+    QStringList     fileNames  = RiuFileDialogTools::getOpenFileNames( nullptr,
+                                                                  "Open StimPlan XML File",
+                                                                  defaultDir,
+                                                                  "StimPlan XML File (*.xml);;All files(*.*)" );
 
     if ( fileNames.isEmpty() ) return std::vector<RimStimPlanFractureTemplate*>();
 
