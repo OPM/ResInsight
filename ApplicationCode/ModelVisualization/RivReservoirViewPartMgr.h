@@ -21,7 +21,7 @@
 #pragma once
 
 #include "RivCellSetEnum.h"
-#include "RivReservoirPartMgr.h" // Must include here because of caf::FixedArray<RivReservoirPartMgr, PROPERTY_FILTERED>
+#include "RivReservoirPartMgr.h"
 
 #include "cvfArray.h"
 
