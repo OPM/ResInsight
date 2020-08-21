@@ -177,6 +177,9 @@ RimGeoMechCase::RimGeoMechCase( void )
     CAF_PDM_InitField( &m_permeabilityExponent, "PermeabilityExponent", 1.0, "Permeability Exponent", "", "", "" );
     m_permeabilityExponent.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
+    CAF_PDM_InitField( &m_waterDensityShearSlipIndicator, "WaterDensityShearSlipIndicator", 1.03, "Water Density", "", "", "" );
+    m_waterDensityShearSlipIndicator.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+
     CAF_PDM_InitFieldNoDefault( &m_contourMapCollection, "ContourMaps", "2d Contour Maps", "", "", "" );
     m_contourMapCollection = new RimGeoMechContourMapViewCollection;
     m_contourMapCollection.uiCapability()->setUiTreeHidden( true );
@@ -870,6 +873,11 @@ void RimGeoMechCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
         updateConnectedViews();
     }
+    else if ( changedField == &m_waterDensityShearSlipIndicator )
+    {
+        rigCaseData->femPartResults()->setWaterDensityShearSlipIndicator( m_waterDensityShearSlipIndicator );
+        updateConnectedViews();
+    }
     else if ( changedField == &m_reloadElementPropertyFileCommand )
     {
         m_reloadElementPropertyFileCommand = false;
@@ -1133,6 +1141,9 @@ void RimGeoMechCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     m_initialPermeabilityResultAddress.uiCapability()->setUiHidden(
         m_initialPermeabilityType != RimGeoMechCase::InitialPermeabilityType::INITIAL_PERMEABILITY_PER_ELEMENT );
     permeabilityGroup->add( &m_permeabilityExponent );
+
+    caf::PdmUiGroup* shearSlipIndicatorGroup = uiOrdering.addNewGroup( "Shear Slip Indicator" );
+    shearSlipIndicatorGroup->add( &m_waterDensityShearSlipIndicator );
 
     caf::PdmUiGroup* timeStepFilterGroup = uiOrdering.addNewGroup( "Time Step Filter" );
     timeStepFilterGroup->setCollapsedByDefault( true );

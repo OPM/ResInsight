@@ -111,6 +111,9 @@ public:
 
     RimMudWeightWindowParameters::FractureGradientCalculationType fractureGradientCalculationTypeMudWeightWindow() const;
 
+    double waterDensityShearSlipIndicator() const;
+    void   setWaterDensityShearSlipIndicator( double waterDensity );
+
     std::map<std::string, std::vector<std::string>> scalarFieldAndComponentNames( RigFemResultPosEnum resPos );
     std::vector<std::string>                        filteredStepNames() const;
     bool                                            assertResultsLoaded( const RigFemResultAddress& resVarAddr );
@@ -223,6 +226,8 @@ private:
 
     std::map<RimMudWeightWindowParameters::ParameterType, QString> parameterAddresses;
     std::map<RimMudWeightWindowParameters::ParameterType, double>  parameterValues;
+
+    double m_waterDensityShearSlipIndicator;
 
     std::vector<std::unique_ptr<RigFemPartResultCalculator>> m_resultCalculators;
 
