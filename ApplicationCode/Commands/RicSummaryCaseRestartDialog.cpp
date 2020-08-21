@@ -41,7 +41,8 @@
 #include <QClipboard>
 #include <QDateTime>
 #include <QDialogButtonBox>
-#include <QFileDialog>
+#include <QDir>
+#include <QFileInfo>
 #include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>

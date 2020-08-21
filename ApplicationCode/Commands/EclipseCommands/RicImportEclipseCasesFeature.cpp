@@ -32,7 +32,7 @@
 #include "cafSelectionManager.h"
 
 #include <QAction>
-#include <QFileDialog>
+#include <QFileInfo>
 
 CAF_CMD_SOURCE_INIT( RicImportEclipseCasesFeature, "RicImportEclipseCasesFeature" );
 

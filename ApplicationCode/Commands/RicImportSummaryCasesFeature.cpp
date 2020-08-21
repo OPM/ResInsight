@@ -51,7 +51,7 @@
 #include "cafSelectionManagerTools.h"
 
 #include <QAction>
-#include <QFileDialog>
+#include <QFileInfo>
 #include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT( RicImportSummaryCasesFeature, "RicImportSummaryCasesFeature" );

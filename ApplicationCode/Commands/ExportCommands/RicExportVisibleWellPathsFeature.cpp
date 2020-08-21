@@ -35,7 +35,6 @@
 #include "cafSelectionManagerTools.h"
 
 #include <QAction>
-#include <QFileDialog>
 #include <QFileInfo>
 #include <QMessageBox>
 

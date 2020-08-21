@@ -26,7 +26,6 @@
 #include <QAction>
 #include <QComboBox>
 #include <QDialogButtonBox>
-#include <QFileDialog>
 #include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>
