@@ -92,6 +92,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuAbstractOverlayContentFrame.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuAbstractLegendFrame.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuCategoryLegendFrame.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuScalarMapperLegendFrame.h
+${CMAKE_CURRENT_LIST_DIR}/RiuFileDialogTools.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -183,6 +184,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuAbstractOverlayContentFrame.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuAbstractLegendFrame.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuCategoryLegendFrame.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuScalarMapperLegendFrame.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuFileDialogTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
