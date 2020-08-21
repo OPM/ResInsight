@@ -79,9 +79,9 @@ QString RiuFileDialogTools::getOpenFileName( QWidget*       parent /*= nullptr*/
                                              QString*       selectedFilter /*= nullptr */ )
 {
 #ifdef WIN32
-    return getOpenFileName( parent, caption, dir, filter, selectedFilter );
+    return QFileDialog::getOpenFileName( parent, caption, dir, filter, selectedFilter );
 #else
     auto options = QFileDialog::DontUseNativeDialog;
-    return getOpenFileName( parent, caption, dir, filter, selectedFilter, options );
+    return QFileDialog::getOpenFileName( parent, caption, dir, filter, selectedFilter, options );
 #endif
 }
