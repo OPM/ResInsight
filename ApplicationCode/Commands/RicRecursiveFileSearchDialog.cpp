@@ -21,13 +21,14 @@
 #include "RiaFilePathTools.h"
 #include "RiaGuiApplication.h"
 
+#include "RiuFileDialogTools.h"
 #include "RiuTools.h"
 
 #include <QAbstractItemView>
 #include <QAction>
 #include <QClipboard>
 #include <QDialogButtonBox>
-#include <QFileDialog>
+#include <QDir>
 #include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>
@@ -711,7 +712,7 @@ void RicRecursiveFileSearchDialog::slotDialogCancelClicked()
 //--------------------------------------------------------------------------------------------------
 void RicRecursiveFileSearchDialog::slotBrowseButtonClicked()
 {
-    QString folder = QFileDialog::getExistingDirectory( this, "Select folder", rootDirWithEndSeparator() );
+    QString folder = RiuFileDialogTools::getExistingDirectory( this, "Select folder", rootDirWithEndSeparator() );
     RiaFilePathTools::appendSeparatorIfNo( folder );
     folder += "*";
     if ( !folder.isEmpty() ) m_pathFilterField->setText( QDir::toNativeSeparators( folder ) );

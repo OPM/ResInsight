@@ -26,12 +26,13 @@
 #include "RimProject.h"
 #include "RimSummaryObservedDataFile.h"
 
+#include "RiuFileDialogTools.h"
 #include "RiuPlotMainWindowTools.h"
 
 #include "cafSelectionManager.h"
 
 #include <QAction>
-#include <QFileDialog>
+#include <QFileInfo>
 #include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT( RicImportObservedDataFeature, "RicImportObservedDataFeature" );
@@ -43,10 +44,11 @@ void RicImportObservedDataFeature::selectObservedDataFileInDialog()
 {
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( "INPUT_FILES" );
-    QStringList     fileNames  = QFileDialog::getOpenFileNames( nullptr,
-                                                           "Import Observed Data",
-                                                           defaultDir,
-                                                           "Observed Data (*.RSM *.txt *.csv);;All Files (*.*)" );
+    QStringList     fileNames =
+        RiuFileDialogTools::getOpenFileNames( nullptr,
+                                              "Import Observed Data",
+                                              defaultDir,
+                                              "Observed Data (*.RSM *.txt *.csv);;All Files (*.*)" );
 
     if ( fileNames.isEmpty() ) return;
 

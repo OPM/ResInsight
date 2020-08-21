@@ -26,9 +26,10 @@
 #include "RimSurfaceCollection.h"
 
 #include "Riu3DMainWindowTools.h"
+#include "RiuFileDialogTools.h"
 
 #include <QAction>
-#include <QFileDialog>
+#include <QFileInfo>
 
 CAF_CMD_SOURCE_INIT( RicImportSurfacesFeature, "RicImportSurfacesFeature" );
 
@@ -47,10 +48,10 @@ void RicImportSurfacesFeature::onActionTriggered( bool isChecked )
 {
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( "BINARY_GRID" );
-    QStringList     fileNames  = QFileDialog::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
-                                                           "Import Surfaces",
-                                                           defaultDir,
-                                                           "Surface files (*.ptl *.ts);;All Files (*.*)" );
+    QStringList     fileNames  = RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
+                                                                  "Import Surfaces",
+                                                                  defaultDir,
+                                                                  "Surface files (*.ptl *.ts);;All Files (*.*)" );
 
     if ( fileNames.isEmpty() ) return;
 

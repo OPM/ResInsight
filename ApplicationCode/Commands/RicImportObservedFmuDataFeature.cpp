@@ -33,6 +33,7 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 
+#include "RiuFileDialogTools.h"
 #include "RiuPlotMainWindowTools.h"
 
 #include "cafPdmObject.h"
@@ -40,7 +41,6 @@
 
 #include <QAction>
 #include <QDir>
-#include <QFileDialog>
 #include <QFileInfo>
 #include <QMessageBox>
 
@@ -53,10 +53,9 @@ void RicImportObservedFmuDataFeature::selectObservedDataPathInDialog()
 {
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( "SUMMARY_CASE_DIR" );
-    QString         directory  = QFileDialog::getExistingDirectory( nullptr,
-                                                           "Import Observed FMU Data Recursively from Directory",
-                                                           defaultDir,
-                                                           QFileDialog::ShowDirsOnly );
+    QString         directory  = RiuFileDialogTools::getExistingDirectory( nullptr,
+                                                                  "Import Observed FMU Data Recursively from Directory",
+                                                                  defaultDir );
 
     QStringList subDirsWithFmuData = RifReaderFmuRft::findSubDirectoriesWithFmuRftData( directory );
     if ( subDirsWithFmuData.empty() )

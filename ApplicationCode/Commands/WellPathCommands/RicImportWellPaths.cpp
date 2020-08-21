@@ -30,11 +30,12 @@
 #include "RimWellPathCollection.h"
 
 #include "Riu3DMainWindowTools.h"
+#include "RiuFileDialogTools.h"
 
 #include "cafPdmFieldIOScriptability.h"
 
 #include <QAction>
-#include <QFileDialog>
+#include <QDir>
 #include <QMessageBox>
 
 //==================================================================================================
@@ -216,8 +217,10 @@ void RicImportWellPaths::onActionTriggered( bool isChecked )
 
     QString nameList = QString( "Well Paths (%1);;All Files (*.*)" ).arg( wellPathNameFilters().join( " " ) );
 
-    QStringList wellPathFilePaths =
-        QFileDialog::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(), "Import Well Paths", defaultDir, nameList );
+    QStringList wellPathFilePaths = RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
+                                                                          "Import Well Paths",
+                                                                          defaultDir,
+                                                                          nameList );
 
     if ( wellPathFilePaths.size() >= 1 )
     {
