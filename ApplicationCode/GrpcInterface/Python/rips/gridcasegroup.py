@@ -3,8 +3,8 @@ Grid Case Group statistics module
 """
 
 from .pdmobject import add_method
-#from rips.view import View
-#from rips.case import Case
+from .view import View
+from .case import Case
 
 import Commands_pb2
 from resinsight_classes import GridCaseGroup
