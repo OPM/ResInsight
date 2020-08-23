@@ -1,4 +1,4 @@
-name: Check Code Format
+name: centOS 7 (without geomech)
 
 on: [push]
 
