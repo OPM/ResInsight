@@ -60,6 +60,7 @@ jobs:
         cmake3 \
         -DRESINSIGHT_QT5_BUNDLE_LIBRARIES=ON \
         -DRESINSIGHT_ENABLE_GRPC=true \
+        -DRESINSIGHT_ENABLE_UNITY_BUILD=true
         -DVCPKG_TARGET_TRIPLET=x64-linux \
         -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake \
         -DRESINSIGHT_GRPC_PYTHON_EXECUTABLE=python \
@@ -70,7 +71,7 @@ jobs:
         rm -rf packages/_CPack_Packages
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       with:
         name: ResInsight
         path: ./ResInsight/cmakebuild/packages
