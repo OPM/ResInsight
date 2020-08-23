@@ -37,10 +37,6 @@ jobs:
     - name: Build ResInsight
       run: | 
         
-        # Show where we are
-        pwd
-        ls
-        
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/rh-python36/enable
         
@@ -74,4 +70,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: ResInsight
-        path: ./ResInsight/cmakebuild/packages
+        path: ./cmakebuild/packages
