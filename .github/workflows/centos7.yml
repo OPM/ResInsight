@@ -29,8 +29,17 @@ jobs:
         
         yum install -y rh-python36
      
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        submodules: true
+          
     - name: Build ResInsight
       run: | 
+        
+        # Show where we are
+        pwd
+        ls
         
         source /opt/rh/devtoolset-7/enable
         source /opt/rh/rh-python36/enable
@@ -43,10 +52,6 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install grpcio-tools
 
-        git clone git://github.com/OPM/ResInsight.git ResInsight
-        cd ResInsight
-        git submodule update --init
-        
         vcpkg/bootstrap-vcpkg.sh 
         vcpkg/vcpkg install grpc
         
