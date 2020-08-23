@@ -1,3 +1,5 @@
+name: Check Code Format
+
 on: [push]
 
 jobs:
@@ -65,6 +67,10 @@ jobs:
         make -j8
         make package
         rm -rf packages/_CPack_Packages
+        
+        # Show file structure
+        pwd
+        ls
 
     - name: Upload artifact
       uses: actions/upload-artifact@v2
