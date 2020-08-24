@@ -841,7 +841,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES Windows)
 endif()
 
 # Append el5 when compiled on RHEL5 and el6 if compiled on RHEL6
-string(REGEX MATCH "el[5,6]?" RESINSIGHT_RHEL_SYSTEM_NAME ${CMAKE_SYSTEM})
+string(REGEX MATCH "el[6,7,8]?" RESINSIGHT_RHEL_SYSTEM_NAME ${CMAKE_SYSTEM})
 
 
 set(RESINSIGHT_PACKAGE_NAME "ResInsight")
