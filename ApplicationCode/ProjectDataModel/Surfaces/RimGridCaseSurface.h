@@ -76,7 +76,7 @@ private:
     caf::PdmPtrField<RimCase*> m_case;
     caf::PdmField<int>         m_oneBasedSliceIndex;
 
-    std::vector<unsigned>                      m_tringleIndices;
+    std::vector<unsigned>                      m_triangleIndices;
     std::vector<cvf::Vec3d>                    m_vertices;
     std::vector<std::pair<unsigned, unsigned>> m_structGridIndices;
 };
