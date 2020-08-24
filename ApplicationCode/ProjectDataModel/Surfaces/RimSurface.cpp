@@ -22,7 +22,7 @@
 
 #include "RigSurface.h"
 
-#include "RifSurfaceReader.h"
+#include "RifSurfaceImporter.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
 

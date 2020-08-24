@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RifSurfaceReader.h"
+#include "RifSurfaceImporter.h"
 #include "RigGocadData.h"
 
 #include "cvfAssert.h"
@@ -37,7 +37,7 @@
 /// Returns vertices with z-value as depth, z is increasing downwards
 ///
 //--------------------------------------------------------------------------------------------------
-void RifSurfaceReader::readGocadFile( const QString& filename, RigGocadData* gocadData )
+void RifSurfaceImporter::readGocadFile( const QString& filename, RigGocadData* gocadData )
 {
     CVF_ASSERT( gocadData );
 
@@ -200,7 +200,7 @@ void RifSurfaceReader::readGocadFile( const QString& filename, RigGocadData* goc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceReader::readPetrelFile( const QString& filename )
+std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceImporter::readPetrelFile( const QString& filename )
 {
     std::ifstream stream( filename.toLatin1().data() );
 

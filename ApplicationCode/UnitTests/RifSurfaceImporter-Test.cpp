@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "RifSurfaceReader.h"
+#include "RifSurfaceImporter.h"
 
 #include "RiaTestDataDirectory.h"
 #include "RigGocadData.h"
@@ -9,7 +9,7 @@
 #include <QString>
 #include <QStringList>
 
-TEST( RifSurfaceReader, GocadReadValidFile )
+TEST( RifSurfaceImporter, GocadReadValidFile )
 {
     QDir baseFolder( TEST_DATA_DIR );
 
@@ -18,7 +18,7 @@ TEST( RifSurfaceReader, GocadReadValidFile )
     EXPECT_TRUE( QFile::exists( filePath ) );
 
     RigGocadData gocadData;
-    RifSurfaceReader::readGocadFile( filePath, &gocadData );
+    RifSurfaceImporter::readGocadFile( filePath, &gocadData );
 
     auto surface  = gocadData.gocadGeometry();
     auto vertices = surface.first;
@@ -31,7 +31,7 @@ TEST( RifSurfaceReader, GocadReadValidFile )
     EXPECT_EQ( (size_t)64, indices.back() );
 }
 
-TEST( RifSurfaceReader, GocadReadWrongIndices )
+TEST( RifSurfaceImporter, GocadReadWrongIndices )
 {
     QDir baseFolder( TEST_DATA_DIR );
 
@@ -40,7 +40,7 @@ TEST( RifSurfaceReader, GocadReadWrongIndices )
     EXPECT_TRUE( QFile::exists( filePath ) );
 
     RigGocadData gocadData;
-    RifSurfaceReader::readGocadFile( filePath, &gocadData );
+    RifSurfaceImporter::readGocadFile( filePath, &gocadData );
 
     auto surface  = gocadData.gocadGeometry();
     auto vertices = surface.first;
@@ -50,7 +50,7 @@ TEST( RifSurfaceReader, GocadReadWrongIndices )
     EXPECT_EQ( (size_t)15, indices.size() );
 }
 
-TEST( RifSurfaceReader, GocadReadProperties )
+TEST( RifSurfaceImporter, GocadReadProperties )
 {
     QDir baseFolder( TEST_DATA_DIR );
 
@@ -59,7 +59,7 @@ TEST( RifSurfaceReader, GocadReadProperties )
     EXPECT_TRUE( QFile::exists( filePath ) );
 
     RigGocadData gocadData;
-    RifSurfaceReader::readGocadFile( filePath, &gocadData );
+    RifSurfaceImporter::readGocadFile( filePath, &gocadData );
 
     auto surface  = gocadData.gocadGeometry();
     auto vertices = surface.first;
@@ -91,7 +91,7 @@ TEST( RifSurfaceReader, GocadReadProperties )
     EXPECT_NEAR( 0.010476, SY_last, 1e-4 );
 }
 
-TEST( RifSurfaceReader, GocadReadNoProperty )
+TEST( RifSurfaceImporter, GocadReadNoProperty )
 {
     QDir baseFolder( TEST_DATA_DIR );
 
@@ -100,7 +100,7 @@ TEST( RifSurfaceReader, GocadReadNoProperty )
     EXPECT_TRUE( QFile::exists( filePath ) );
 
     RigGocadData gocadData;
-    RifSurfaceReader::readGocadFile( filePath, &gocadData );
+    RifSurfaceImporter::readGocadFile( filePath, &gocadData );
 
     std::vector<QString> propNames  = gocadData.propertyNames();
     std::vector<float>   propValues = gocadData.propertyValues( "" );
@@ -109,7 +109,7 @@ TEST( RifSurfaceReader, GocadReadNoProperty )
     EXPECT_TRUE( propValues.size() == 0 );
 }
 
-TEST( RifSurfaceReader, GocadReadNonExistingProperty )
+TEST( RifSurfaceImporter, GocadReadNonExistingProperty )
 {
     QDir baseFolder( TEST_DATA_DIR );
 
@@ -118,14 +118,14 @@ TEST( RifSurfaceReader, GocadReadNonExistingProperty )
     EXPECT_TRUE( QFile::exists( filePath ) );
 
     RigGocadData gocadData;
-    RifSurfaceReader::readGocadFile( filePath, &gocadData );
+    RifSurfaceImporter::readGocadFile( filePath, &gocadData );
 
     std::vector<float> propValues = gocadData.propertyValues( "NonExistingProperty" );
 
     EXPECT_TRUE( propValues.size() == 0 );
 }
 
-TEST( RifSurfaceReader, ReadWrongFileType )
+TEST( RifSurfaceImporter, ReadWrongFileType )
 {
     QDir baseFolder( TEST_DATA_DIR );
 
@@ -135,7 +135,7 @@ TEST( RifSurfaceReader, ReadWrongFileType )
         EXPECT_TRUE( QFile::exists( filePath ) );
 
         RigGocadData gocadData;
-        RifSurfaceReader::readGocadFile( filePath, &gocadData );
+        RifSurfaceImporter::readGocadFile( filePath, &gocadData );
 
         auto surface  = gocadData.gocadGeometry();
         auto vertices = surface.first;
@@ -150,7 +150,7 @@ TEST( RifSurfaceReader, ReadWrongFileType )
         QString filePath = baseFolder.absoluteFilePath( filename );
         EXPECT_TRUE( QFile::exists( filePath ) );
 
-        auto surface = RifSurfaceReader::readPetrelFile( filePath );
+        auto surface = RifSurfaceImporter::readPetrelFile( filePath );
 
         auto vertices = surface.first;
         auto indices  = surface.second;
@@ -160,7 +160,7 @@ TEST( RifSurfaceReader, ReadWrongFileType )
     }
 }
 
-TEST( RifSurfaceReader, ReadPetrelData )
+TEST( RifSurfaceImporter, ReadPetrelData )
 {
     QDir baseFolder( TEST_DATA_DIR );
 
@@ -168,7 +168,7 @@ TEST( RifSurfaceReader, ReadPetrelData )
     QString filePath = baseFolder.absoluteFilePath( filename );
     EXPECT_TRUE( QFile::exists( filePath ) );
 
-    auto surface = RifSurfaceReader::readPetrelFile( filePath );
+    auto surface = RifSurfaceImporter::readPetrelFile( filePath );
 
     auto vertices = surface.first;
     auto indices  = surface.second;

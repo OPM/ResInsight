@@ -50,7 +50,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RifDerivedEnsembleReader.h
 ${CMAKE_CURRENT_LIST_DIR}/RifActiveCellsReader.h
 ${CMAKE_CURRENT_LIST_DIR}/RifCsvDataTableFormatter.h
 ${CMAKE_CURRENT_LIST_DIR}/RifEclipseInputPropertyLoader.h
-${CMAKE_CURRENT_LIST_DIR}/RifSurfaceReader.h
+${CMAKE_CURRENT_LIST_DIR}/RifSurfaceImporter.h
 ${CMAKE_CURRENT_LIST_DIR}/RifRoffReader.h
 ${CMAKE_CURRENT_LIST_DIR}/RifColorLegendData.h
 ${CMAKE_CURRENT_LIST_DIR}/RifElasticPropertiesReader.h
@@ -111,7 +111,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RifActiveCellsReader.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifCsvDataTableFormatter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifReaderEnsembleStatisticsRft.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifEclipseInputPropertyLoader.cpp
-${CMAKE_CURRENT_LIST_DIR}/RifSurfaceReader.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifSurfaceImporter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifRoffReader.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifColorLegendData.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifElasticPropertiesReader.cpp
