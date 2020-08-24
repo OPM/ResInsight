@@ -96,6 +96,7 @@ void RimStimPlanColors::setShowStimPlanMesh( bool showStimPlanMesh )
 void RimStimPlanColors::loadDataAndUpdate()
 {
     RimFractureTemplateCollection* fractureTemplates = fractureTemplateCollection();
+    if ( !fractureTemplates ) return;
 
     std::vector<std::pair<QString, QString>> resultNameAndUnits = fractureTemplates->resultNamesAndUnits();
 
@@ -351,6 +352,8 @@ RimFractureTemplateCollection* RimStimPlanColors::fractureTemplateCollection() c
 {
     RimProject* proj = nullptr;
     this->firstAncestorOrThisOfType( proj );
+
+    if ( !proj ) return nullptr;
 
     return proj->activeOilField()->fractureDefinitionCollection();
 }
