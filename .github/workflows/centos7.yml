@@ -1,7 +1,9 @@
 name: centOS 7 (without geomech)
 
-on: [push]
-
+on:
+  schedule:
+    # Once every night
+    - cron: '0 1 * * * '
 jobs:
   build_on_centos7:
     runs-on: ubuntu-latest
