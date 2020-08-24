@@ -55,6 +55,7 @@
 #include "RigFemPartResultCalculatorSM.h"
 #include "RigFemPartResultCalculatorShearSE.h"
 #include "RigFemPartResultCalculatorShearST.h"
+#include "RigFemPartResultCalculatorShearSlipIndicator.h"
 #include "RigFemPartResultCalculatorStressAnisotropy.h"
 #include "RigFemPartResultCalculatorStressGradients.h"
 #include "RigFemPartResultCalculatorSurfaceAlignedStress.h"
@@ -126,6 +127,8 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
     m_nonReservoirPorePressureAddressMudWeightWindow = "";
     m_hydrostaticMultiplierPPNonResMudWeightWindow   = 1.0;
 
+    m_waterDensityShearSlipIndicator = 1.03;
+
     m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorTimeLapse( *this ) ) );
     m_resultCalculators.push_back(
@@ -183,6 +186,8 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPorosityPermeability( *this ) ) );
     m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorMudWeightWindow( *this ) ) );
+    m_resultCalculators.push_back(
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorShearSlipIndicator( *this ) ) );
     m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorFormationIndices( *this ) ) );
 }
@@ -614,6 +619,7 @@ std::map<std::string, std::vector<std::string>>
 
             fieldCompNames["ST"].push_back( "SM" );
             fieldCompNames["ST"].push_back( "Q" );
+            fieldCompNames["ST"].push_back( "DPN" );
 
             for ( auto& s : stressComponentNames )
             {
@@ -697,6 +703,7 @@ std::map<std::string, std::vector<std::string>>
 
             fieldCompNames["ST"].push_back( "SM" );
             fieldCompNames["ST"].push_back( "Q" );
+            fieldCompNames["ST"].push_back( "DPN" );
 
             fieldCompNames["ST"].push_back( "S11" );
             fieldCompNames["ST"].push_back( "S22" );
@@ -1735,4 +1742,25 @@ RimMudWeightWindowParameters::FractureGradientCalculationType
     RigFemPartResultsCollection::fractureGradientCalculationTypeMudWeightWindow() const
 {
     return m_fractureGradientCalculationTypeMudWeightWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigFemPartResultsCollection::waterDensityShearSlipIndicator() const
+{
+    return m_waterDensityShearSlipIndicator;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::setWaterDensityShearSlipIndicator( double waterDensity )
+{
+    m_waterDensityShearSlipIndicator = waterDensity;
+
+    for ( auto elementType : {RIG_ELEMENT_NODAL, RIG_INTEGRATION_POINT} )
+    {
+        deleteResult( RigFemResultAddress( elementType, "ST", "DPN", RigFemResultAddress::allTimeLapsesValue() ) );
+    }
 }
