@@ -161,21 +161,18 @@ void RimWellFlowRateCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
     this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
 
-    if ( isCurveVisible() )
+    m_qwtPlotCurve->setTitle( createCurveAutoName() );
+
+    if ( updateParentPlot )
     {
-        m_qwtPlotCurve->setTitle( createCurveAutoName() );
+        RimWellLogTrack* track = nullptr;
+        this->firstAncestorOrThisOfTypeAsserted( track );
+        track->updateStackedCurveData();
 
-        if ( updateParentPlot )
-        {
-            RimWellLogTrack* track = nullptr;
-            this->firstAncestorOrThisOfTypeAsserted( track );
-            track->updateStackedCurveData();
-
-            updateZoomInParentPlot();
-        }
-
-        if ( m_parentQwtPlot ) m_parentQwtPlot->replot();
+        updateZoomInParentPlot();
     }
+
+    if ( m_parentQwtPlot ) m_parentQwtPlot->replot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -191,7 +188,11 @@ void RimWellFlowRateCurve::updateCurveAppearance()
         firstAncestorOrThisOfTypeAsserted( wellLogTrack );
         std::map<int, std::vector<RimWellLogCurve*>> stackedCurveGroups = wellLogTrack->visibleStackedCurves();
         const std::vector<RimWellLogCurve*>&         curveGroup         = stackedCurveGroups[this->m_groupId];
-        isLastCurveInGroup                                              = ( curveGroup.back() == this );
+
+        if ( !curveGroup.empty() )
+        {
+            isLastCurveInGroup = ( curveGroup.back() == this );
+        }
     }
 
     if ( isUsingConnectionNumberDepthType() )
@@ -244,6 +245,21 @@ void RimWellFlowRateCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     m_curveColor.uiCapability()->setUiReadOnly( true );
 
     uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellFlowRateCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                             const QVariant&            oldValue,
+                                             const QVariant&            newValue )
+{
+    if ( changedField == &m_showCurve )
+    {
+        loadDataAndUpdate( true );
+    }
+
+    RimWellLogCurve::fieldChangedByUi( changedField, oldValue, newValue );
 }
 
 //--------------------------------------------------------------------------------------------------

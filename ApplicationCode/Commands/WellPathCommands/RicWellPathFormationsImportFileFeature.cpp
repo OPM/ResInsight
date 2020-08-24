@@ -27,9 +27,10 @@
 #include "RimWellPathCollection.h"
 
 #include "Riu3DMainWindowTools.h"
+#include "RiuFileDialogTools.h"
 
 #include <QAction>
-#include <QFileDialog>
+#include <QFileInfo>
 
 CAF_CMD_SOURCE_INIT( RicWellPathFormationsImportFileFeature, "RicWellPathFormationsImportFileFeature" );
 
@@ -47,12 +48,13 @@ bool RicWellPathFormationsImportFileFeature::isCommandEnabled()
 void RicWellPathFormationsImportFileFeature::onActionTriggered( bool isChecked )
 {
     // Open dialog box to select well path formations files
-    RiaApplication* app                     = RiaApplication::instance();
-    QString         defaultDir              = app->lastUsedDialogDirectory( "WELLPATHFORMATIONS_DIR" );
-    QStringList wellPathFormationsFilePaths = QFileDialog::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
-                                                                             "Import Well Picks",
-                                                                             defaultDir,
-                                                                             "Well Picks (*.csv);;All Files (*.*)" );
+    RiaApplication* app        = RiaApplication::instance();
+    QString         defaultDir = app->lastUsedDialogDirectory( "WELLPATHFORMATIONS_DIR" );
+    QStringList     wellPathFormationsFilePaths =
+        RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
+                                              "Import Well Picks",
+                                              defaultDir,
+                                              "Well Picks (*.csv);;All Files (*.*)" );
 
     if ( wellPathFormationsFilePaths.size() < 1 ) return;
 

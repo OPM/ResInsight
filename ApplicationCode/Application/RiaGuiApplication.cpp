@@ -92,6 +92,7 @@
 
 #include "Riu3dSelectionManager.h"
 #include "RiuDockWidgetTools.h"
+#include "RiuFileDialogTools.h"
 #include "RiuMainWindow.h"
 #include "RiuMainWindowTools.h"
 #include "RiuMdiMaximizeWindowGuard.h"
@@ -119,7 +120,6 @@
 #include <QDesktopWidget>
 #include <QDir>
 #include <QErrorMessage>
-#include <QFileDialog>
 #include <QGridLayout>
 #include <QMdiSubWindow>
 #include <QMessageBox>
@@ -241,8 +241,10 @@ QString RiaGuiApplication::promptForProjectSaveAsFileName() const
         startPath += "/ResInsightProject.rsp";
     }
 
-    QString fileName =
-        QFileDialog::getSaveFileName( nullptr, tr( "Save File" ), startPath, tr( "Project Files (*.rsp);;All files(*.*)" ) );
+    QString fileName = RiuFileDialogTools::getSaveFileName( nullptr,
+                                                            tr( "Save File" ),
+                                                            startPath,
+                                                            tr( "Project Files (*.rsp);;All files(*.*)" ) );
     return fileName;
 }
 

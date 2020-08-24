@@ -28,11 +28,12 @@
 #include "RimWellPathCompletions.h"
 
 #include "Riu3DMainWindowTools.h"
+#include "RiuFileDialogTools.h"
 
 #include "cafSelectionManager.h"
 
 #include <QAction>
-#include <QFileDialog>
+#include <QFileInfo>
 
 CAF_CMD_SOURCE_INIT( RicWellPathImportCompletionsFileFeature, "RicWellPathImportCompletionsFileFeature" );
 
@@ -59,13 +60,13 @@ void RicWellPathImportCompletionsFileFeature::onActionTriggered( bool isChecked 
     CVF_ASSERT( fishbonesWellPathCollection );
 
     // Open dialog box to select well path files
-    RiaApplication* app        = RiaApplication::instance();
-    QString         defaultDir = app->lastUsedDialogDirectory( "WELLPATH_DIR" );
-    QStringList     wellPathFilePaths =
-        QFileDialog::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
-                                       "Import Fishbone Laterals",
-                                       defaultDir,
-                                       "Well Path Laterals (*.json *.asc *.asci *.ascii *.dev);;All Files (*.*)" );
+    RiaApplication* app               = RiaApplication::instance();
+    QString         defaultDir        = app->lastUsedDialogDirectory( "WELLPATH_DIR" );
+    QStringList     wellPathFilePaths = RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
+                                                                          "Import Fishbone Laterals",
+                                                                          defaultDir,
+                                                                          "Well Path Laterals (*.json *.asc *.asci "
+                                                                          "*.ascii *.dev);;All Files (*.*)" );
 
     if ( wellPathFilePaths.size() < 1 ) return;
 

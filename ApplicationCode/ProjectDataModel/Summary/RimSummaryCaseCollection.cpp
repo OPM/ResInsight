@@ -34,7 +34,7 @@
 
 #include "cafPdmFieldIOScriptability.h"
 
-#include <QFileDialog>
+#include <QFileInfo>
 #include <QMessageBox>
 
 #include <algorithm>

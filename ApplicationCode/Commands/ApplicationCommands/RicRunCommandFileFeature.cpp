@@ -20,10 +20,11 @@
 
 #include "RiaApplication.h"
 #include "RicfCommandFileExecutor.h"
+#include "RiuFileDialogTools.h"
 
 #include <QAction>
 #include <QDir>
-#include <QFileDialog>
+#include <QFileInfo>
 
 CAF_CMD_SOURCE_INIT( RicRunCommandFileFeature, "RicRunCommandFileFeature" );
 
@@ -43,10 +44,10 @@ void RicRunCommandFileFeature::onActionTriggered( bool isChecked )
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectoryWithFallbackToProjectFolder( "COMMAND_FILE" );
 
-    QString fileName = QFileDialog::getOpenFileName( nullptr,
-                                                     "Open ResInsight Command File",
-                                                     defaultDir,
-                                                     "ResInsight Command File (*.txt);;All files(*.*)" );
+    QString fileName = RiuFileDialogTools::getOpenFileName( nullptr,
+                                                            "Open ResInsight Command File",
+                                                            defaultDir,
+                                                            "ResInsight Command File (*.txt);;All files(*.*)" );
 
     if ( !fileName.isEmpty() )
     {

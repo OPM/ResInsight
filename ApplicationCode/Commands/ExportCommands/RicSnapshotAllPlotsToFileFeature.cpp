@@ -35,7 +35,7 @@
 #include <QAction>
 #include <QClipboard>
 #include <QDebug>
-#include <QFileDialog>
+#include <QDir>
 #include <QFileInfo>
 #include <QMdiSubWindow>
 

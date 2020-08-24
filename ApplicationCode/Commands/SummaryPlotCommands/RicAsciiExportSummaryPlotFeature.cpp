@@ -26,6 +26,7 @@
 
 #include "RimSummaryPlot.h"
 
+#include "RiuFileDialogTools.h"
 #include "RiuMainWindow.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
@@ -37,7 +38,6 @@
 
 #include <QAction>
 #include <QDebug>
-#include <QFileDialog>
 #include <QFileInfo>
 
 CAF_CMD_SOURCE_INIT( RicAsciiExportSummaryPlotFeature, "RicAsciiExportSummaryPlotFeature" );
@@ -138,10 +138,10 @@ QString RicAsciiExportSummaryPlotFeature::getFileNameFromUserDialog( const QStri
                                                                      const QString& defaultDir )
 {
     QString defaultFileName = defaultDir + "/" + caf::Utils::makeValidFileBasename( fileNameCandidate ) + ".ascii";
-    QString fileName        = QFileDialog::getSaveFileName( nullptr,
-                                                     "Select File for Summary Plot Export",
-                                                     defaultFileName,
-                                                     "Text File(*.ascii);;All files(*.*)" );
+    QString fileName        = RiuFileDialogTools::getSaveFileName( nullptr,
+                                                            "Select File for Summary Plot Export",
+                                                            defaultFileName,
+                                                            "Text File(*.ascii);;All files(*.*)" );
     return fileName;
 }
 

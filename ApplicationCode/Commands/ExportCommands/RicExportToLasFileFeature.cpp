@@ -36,7 +36,6 @@
 #include "cafSelectionManager.h"
 
 #include <QAction>
-#include <QFileDialog>
 
 CAF_CMD_SOURCE_INIT( RicExportToLasFileFeature, "RicExportToLasFileFeature" );
 
