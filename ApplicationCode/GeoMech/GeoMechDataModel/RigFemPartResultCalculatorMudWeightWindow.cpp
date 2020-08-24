@@ -413,7 +413,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
                         size_t kElmIdx = femPartGrid->cellIndexFromIJK( i, j, currentK );
                         if ( kElmIdx != cvf::UNDEFINED_SIZE_T && femPart->isHexahedron( kElmIdx ) )
                         {
-                            size_t kElmNodResIdx = femPart->elementNodeResultIdx( kElmIdx, elmNodIdx );
+                            size_t kElmNodResIdx = femPart->elementNodeResultIdx( static_cast<int>( kElmIdx ), elmNodIdx );
 
                             float currentLowerMudWeightLimit = lowerMudWeightLimitFrameData[kElmNodResIdx];
                             if ( currentLowerMudWeightLimit > maxLowerMudWeightLimit )
@@ -464,7 +464,7 @@ cvf::Vec3d RigFemPartResultCalculatorMudWeightWindow::calculateWellPathTangent( 
 //--------------------------------------------------------------------------------------------------
 void RigFemPartResultCalculatorMudWeightWindow::loadParameterFramesOrValue(
     RimMudWeightWindowParameters::ParameterType                                       parameterType,
-    size_t                                                                            partIndex,
+    int                                                                               partIndex,
     std::map<RimMudWeightWindowParameters::ParameterType, RigFemScalarResultFrames*>& parameterFrames,
     std::map<RimMudWeightWindowParameters::ParameterType, float>&                     parameterValues )
 {
