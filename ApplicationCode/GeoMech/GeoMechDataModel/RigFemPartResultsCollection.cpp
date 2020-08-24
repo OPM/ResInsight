@@ -40,6 +40,7 @@
 #include "RigFemPartResultCalculatorFOS.h"
 #include "RigFemPartResultCalculatorFormationIndices.h"
 #include "RigFemPartResultCalculatorGamma.h"
+#include "RigFemPartResultCalculatorInitialPorosity.h"
 #include "RigFemPartResultCalculatorMudWeightWindow.h"
 #include "RigFemPartResultCalculatorNE.h"
 #include "RigFemPartResultCalculatorNodalGradients.h"
@@ -184,6 +185,8 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPoreCompressibility( *this ) ) );
     m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPorosityPermeability( *this ) ) );
+    m_resultCalculators.push_back(
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorInitialPorosity( *this ) ) );
     m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorMudWeightWindow( *this ) ) );
     m_resultCalculators.push_back(
@@ -661,6 +664,7 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["COMPRESSIBILITY"].push_back( "VERTICAL" );
             fieldCompNames["COMPRESSIBILITY"].push_back( "VERTICAL-RATIO" );
 
+            fieldCompNames["PORO-PERM"].push_back( "PHI0" );
             fieldCompNames["PORO-PERM"].push_back( "PHI" );
             fieldCompNames["PORO-PERM"].push_back( "DPHI" );
             fieldCompNames["PORO-PERM"].push_back( "PERM" );
@@ -750,6 +754,7 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["COMPRESSIBILITY"].push_back( "VERTICAL" );
             fieldCompNames["COMPRESSIBILITY"].push_back( "VERTICAL-RATIO" );
 
+            fieldCompNames["PORO-PERM"].push_back( "PHI0" );
             fieldCompNames["PORO-PERM"].push_back( "PHI" );
             fieldCompNames["PORO-PERM"].push_back( "DPHI" );
             fieldCompNames["PORO-PERM"].push_back( "PERM" );
