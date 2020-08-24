@@ -933,7 +933,7 @@ void RiuMainWindow::refreshAnimationActions()
     int currentTimeStepIndex = 0;
 
     bool enableAnimControls = false;
-    if ( activeView && activeView->viewer() && activeView->viewer()->frameCount() )
+    if ( activeView && activeView->ownerCase() && activeView->viewer() && activeView->viewer()->frameCount() )
     {
         enableAnimControls = true;
 
