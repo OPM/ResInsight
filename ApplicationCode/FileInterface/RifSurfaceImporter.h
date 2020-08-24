@@ -27,7 +27,7 @@
 
 class RigGocadData;
 
-class RifSurfaceReader
+class RifSurfaceImporter
 {
 public:
     static void readGocadFile( const QString& filename, RigGocadData* gocadData );
