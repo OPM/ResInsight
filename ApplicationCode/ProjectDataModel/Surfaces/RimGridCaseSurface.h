@@ -36,8 +36,7 @@ public:
     RimGridCaseSurface();
     ~RimGridCaseSurface() override;
 
-    void     setCase( RimCase* sourceCase );
-    RimCase* case_() const;
+    void setCase( RimCase* sourceCase );
 
     void setOneBasedIndex( int oneBasedSliceIndex );
 

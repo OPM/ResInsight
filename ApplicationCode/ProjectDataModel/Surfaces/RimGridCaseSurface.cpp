@@ -61,11 +61,6 @@ void RimGridCaseSurface::setCase( RimCase* sourceCase )
     m_case = sourceCase;
 }
 
-RimCase* RimGridCaseSurface::case_() const
-{
-    return m_case.value();
-}
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -89,7 +84,7 @@ RimSurface* RimGridCaseSurface::createCopy()
 {
     RimGridCaseSurface* newSurface = dynamic_cast<RimGridCaseSurface*>(
         xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
-    newSurface->setCase( case_() ); // TODO: case seems to get lost in the xml copy, investigate later
+    newSurface->setCase( m_case.value() ); // TODO: case seems to get lost in the xml copy, investigate later
 
     if ( !newSurface->onLoadData() )
     {
