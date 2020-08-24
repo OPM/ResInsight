@@ -269,7 +269,7 @@ void RimGridCaseSurface::extractDataFromGrid()
             }
 
             m_vertices          = vertices;
-            m_tringleIndices    = triangleIndices;
+            m_triangleIndices   = triangleIndices;
             m_structGridIndices = structGridVertexIndices;
         }
     }
@@ -344,7 +344,7 @@ bool RimGridCaseSurface::findValidCellIndex( const RigMainGrid*                 
 void RimGridCaseSurface::clearCachedNativeData()
 {
     m_vertices.clear();
-    m_tringleIndices.clear();
+    m_triangleIndices.clear();
     m_structGridIndices.clear();
 }
 
@@ -353,14 +353,14 @@ void RimGridCaseSurface::clearCachedNativeData()
 //--------------------------------------------------------------------------------------------------
 bool RimGridCaseSurface::updateSurfaceData()
 {
-    if ( m_vertices.empty() || m_tringleIndices.empty() || m_structGridIndices.empty() )
+    if ( m_vertices.empty() || m_triangleIndices.empty() || m_structGridIndices.empty() )
     {
         extractDataFromGrid();
     }
 
     RigSurface* surfaceData = nullptr;
 
-    std::vector<unsigned>   tringleIndices{m_tringleIndices};
+    std::vector<unsigned>   tringleIndices{m_triangleIndices};
     std::vector<cvf::Vec3d> vertices{m_vertices};
 
     RiaDefines::GridCaseAxis sliceDirection = RiaDefines::GridCaseAxis::AXIS_K;
@@ -409,7 +409,7 @@ bool RimGridCaseSurface::updateSurfaceData()
 bool RimGridCaseSurface::exportStructSurfaceFromGridCase( std::vector<cvf::Vec3d>*            vertices,
                                                           std::vector<std::pair<uint, uint>>* structGridVertexIndices )
 {
-    if ( m_vertices.empty() || m_tringleIndices.empty() || m_structGridIndices.empty() )
+    if ( m_vertices.empty() || m_triangleIndices.empty() || m_structGridIndices.empty() )
     {
         extractDataFromGrid();
     }
