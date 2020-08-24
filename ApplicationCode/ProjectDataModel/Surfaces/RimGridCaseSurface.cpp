@@ -42,15 +42,7 @@ RimGridCaseSurface::RimGridCaseSurface()
 
     CAF_PDM_InitFieldNoDefault( &m_case, "SourceCase", "Source Case", "", "", "" );
 
-    CAF_PDM_InitField( &m_sliceDirection,
-                       "SnapShotDirection",
-                       caf::AppEnum<RiaDefines::GridCaseAxis>( RiaDefines::GridCaseAxis::UNDEFINED_AXIS ),
-                       "Range Filter Slice",
-                       "",
-                       "",
-                       "" );
-
-    CAF_PDM_InitField( &m_oneBasedSliceIndex, "SliceIndex", 1, "Slice Index", "", "", "" );
+    CAF_PDM_InitField( &m_oneBasedSliceIndex, "SliceIndex", 1, "Slice Index (K)", "", "", "" );
     m_oneBasedSliceIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 }
 
@@ -72,9 +64,8 @@ void RimGridCaseSurface::setCase( RimCase* sourceCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCaseSurface::setSliceTypeAndOneBasedIndex( RiaDefines::GridCaseAxis sliceType, int oneBasedSliceIndex )
+void RimGridCaseSurface::setOneBasedIndex( int oneBasedSliceIndex )
 {
-    m_sliceDirection     = sliceType;
     m_oneBasedSliceIndex = oneBasedSliceIndex;
 }
 
@@ -84,6 +75,24 @@ void RimGridCaseSurface::setSliceTypeAndOneBasedIndex( RiaDefines::GridCaseAxis 
 bool RimGridCaseSurface::onLoadData()
 {
     return updateSurfaceData();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSurface* RimGridCaseSurface::createCopy()
+{
+    RimGridCaseSurface* newSurface = dynamic_cast<RimGridCaseSurface*>(
+        xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+    newSurface->setCase( m_case.value() ); // TODO: case seems to get lost in the xml copy, investigate later
+
+    if ( !newSurface->onLoadData() )
+    {
+        delete newSurface;
+        return nullptr;
+    }
+
+    return newSurface;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -118,19 +127,7 @@ void RimGridCaseSurface::defineEditorAttribute( const caf::PdmFieldHandle* field
         if ( !grid ) return;
 
         myAttr->m_minimum = 1;
-
-        if ( m_sliceDirection() == RiaDefines::GridCaseAxis::AXIS_I )
-        {
-            myAttr->m_maximum = static_cast<int>( grid->cellCountI() );
-        }
-        else if ( m_sliceDirection() == RiaDefines::GridCaseAxis::AXIS_J )
-        {
-            myAttr->m_maximum = static_cast<int>( grid->cellCountJ() );
-        }
-        else if ( m_sliceDirection() == RiaDefines::GridCaseAxis::AXIS_K )
-        {
-            myAttr->m_maximum = static_cast<int>( grid->cellCountK() );
-        }
+        myAttr->m_maximum = static_cast<int>( grid->cellCountK() );
     }
 }
 
@@ -143,11 +140,10 @@ void RimGridCaseSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 {
     RimSurface::fieldChangedByUi( changedField, oldValue, newValue );
 
-    if ( changedField == &m_case || changedField == &m_sliceDirection || changedField == &m_oneBasedSliceIndex )
+    if ( changedField == &m_case || changedField == &m_oneBasedSliceIndex )
     {
         clearCachedNativeData();
         updateSurfaceData();
-        // updateUserDescription();
 
         RimSurfaceCollection* surfColl;
         this->firstAncestorOrThisOfTypeAsserted( surfColl );
@@ -162,7 +158,7 @@ void RimGridCaseSurface::extractDataFromGrid()
 {
     clearCachedNativeData();
 
-    if ( m_sliceDirection() == RiaDefines::GridCaseAxis::UNDEFINED_AXIS ) return;
+    RiaDefines::GridCaseAxis sliceDirection = RiaDefines::GridCaseAxis::AXIS_K;
 
     if ( m_case )
     {
@@ -182,20 +178,20 @@ void RimGridCaseSurface::extractDataFromGrid()
 
             cvf::StructGridInterface::FaceType faceType = cvf::StructGridInterface::NO_FACE;
             {
-                if ( m_sliceDirection() == RiaDefines::GridCaseAxis::AXIS_K )
+                if ( sliceDirection == RiaDefines::GridCaseAxis::AXIS_K )
                 {
                     faceType = cvf::StructGridInterface::NEG_K;
 
                     minK = zeroBasedLayerIndex;
                     maxK = zeroBasedLayerIndex + 1;
                 }
-                else if ( m_sliceDirection() == RiaDefines::GridCaseAxis::AXIS_J )
+                else if ( sliceDirection == RiaDefines::GridCaseAxis::AXIS_J )
                 {
                     faceType = cvf::StructGridInterface::NEG_J;
                     minJ     = zeroBasedLayerIndex;
                     maxJ     = zeroBasedLayerIndex + 1;
                 }
-                else if ( m_sliceDirection() == RiaDefines::GridCaseAxis::AXIS_I )
+                else if ( sliceDirection == RiaDefines::GridCaseAxis::AXIS_I )
                 {
                     faceType = cvf::StructGridInterface::NEG_I;
                     minI     = zeroBasedLayerIndex;
@@ -323,6 +319,8 @@ bool RimGridCaseSurface::updateSurfaceData()
     std::vector<unsigned>   tringleIndices{m_tringleIndices};
     std::vector<cvf::Vec3d> vertices{m_vertices};
 
+    RiaDefines::GridCaseAxis sliceDirection = RiaDefines::GridCaseAxis::AXIS_K;
+
     if ( !tringleIndices.empty() )
     {
         {
@@ -333,15 +331,15 @@ bool RimGridCaseSurface::updateSurfaceData()
 
             cvf::Vec3d offset = cvf::Vec3d::ZERO;
 
-            if ( m_sliceDirection == RiaDefines::GridCaseAxis::AXIS_I )
+            if ( sliceDirection == RiaDefines::GridCaseAxis::AXIS_I )
             {
                 offset.x() += delta;
             }
-            else if ( m_sliceDirection == RiaDefines::GridCaseAxis::AXIS_J )
+            else if ( sliceDirection == RiaDefines::GridCaseAxis::AXIS_J )
             {
                 offset.y() += delta;
             }
-            if ( m_sliceDirection == RiaDefines::GridCaseAxis::AXIS_K )
+            if ( sliceDirection == RiaDefines::GridCaseAxis::AXIS_K )
             {
                 offset.z() += delta;
             }
@@ -377,6 +375,8 @@ bool RimGridCaseSurface::exportStructSurfaceFromGridCase( std::vector<cvf::Vec3d
     *vertices                = m_vertices;
     *structGridVertexIndices = m_structGridIndices;
 
+    RiaDefines::GridCaseAxis sliceDirection = RiaDefines::GridCaseAxis::AXIS_K;
+
     if ( !vertices->empty() )
     {
         // Permute z-value to avoid numerical issues when surface intersects exactly at cell face
@@ -385,15 +385,15 @@ bool RimGridCaseSurface::exportStructSurfaceFromGridCase( std::vector<cvf::Vec3d
 
         cvf::Vec3d offset = cvf::Vec3d::ZERO;
 
-        if ( m_sliceDirection == RiaDefines::GridCaseAxis::AXIS_I )
+        if ( sliceDirection == RiaDefines::GridCaseAxis::AXIS_I )
         {
             offset.x() += delta;
         }
-        else if ( m_sliceDirection == RiaDefines::GridCaseAxis::AXIS_J )
+        else if ( sliceDirection == RiaDefines::GridCaseAxis::AXIS_J )
         {
             offset.y() += delta;
         }
-        else if ( m_sliceDirection == RiaDefines::GridCaseAxis::AXIS_K )
+        else if ( sliceDirection == RiaDefines::GridCaseAxis::AXIS_K )
         {
             offset.z() += delta;
         }
@@ -413,24 +413,7 @@ bool RimGridCaseSurface::exportStructSurfaceFromGridCase( std::vector<cvf::Vec3d
 QString RimGridCaseSurface::fullName() const
 {
     QString retval = RimSurface::fullName();
-
-    auto dirValue = m_sliceDirection().value();
-    switch ( dirValue )
-    {
-        case RiaDefines::GridCaseAxis::AXIS_I:
-            retval += " - I:";
-            break;
-        case RiaDefines::GridCaseAxis::AXIS_J:
-            retval += " - J:";
-            break;
-        case RiaDefines::GridCaseAxis::AXIS_K:
-            retval += " - K:";
-            break;
-        case RiaDefines::GridCaseAxis::UNDEFINED_AXIS:
-        default:
-            break;
-    }
-
+    retval += " - K:";
     retval += QString::number( m_oneBasedSliceIndex );
     return retval;
 }

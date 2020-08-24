@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017 Statoil ASA
+//  Copyright (C) 2020-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,30 +18,18 @@
 
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafCmdFeature.h"
 
 //==================================================================================================
 ///
-///
 //==================================================================================================
-class RimNamedObject : public caf::PdmObject
+class RicCopySurfaceFeature : public caf::CmdFeature
 {
-    CAF_PDM_HEADER_INIT;
-
-public:
-    RimNamedObject( void );
-    ~RimNamedObject( void ) override;
-
-    virtual QString name() const;
-    void            setName( const QString& name );
+    CAF_CMD_HEADER_INIT;
 
 protected:
-    caf::PdmFieldHandle* userDescriptionField() override;
-
-    // To be used from derived objects when manipulating visibility and ui ordering
-    caf::PdmFieldHandle* nameField();
-
-private:
-    caf::PdmField<QString> m_name;
+    // Overrides
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };

@@ -37,9 +37,11 @@ public:
     ~RimGridCaseSurface() override;
 
     void setCase( RimCase* sourceCase );
-    void setSliceTypeAndOneBasedIndex( RiaDefines::GridCaseAxis sliceType, int oneBasedSliceIndex );
 
-    bool onLoadData() override;
+    void setOneBasedIndex( int oneBasedSliceIndex );
+
+    bool        onLoadData() override;
+    RimSurface* createCopy() override;
 
     bool exportStructSurfaceFromGridCase( std::vector<cvf::Vec3d>*            vertices,
                                           std::vector<std::pair<uint, uint>>* structGridVertexIndices );
@@ -57,7 +59,6 @@ protected:
     QString fullName() const override;
 
 private:
-
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     void extractDataFromGrid();
@@ -65,9 +66,8 @@ private:
     std::pair<uint, uint> getStructGridIndex( cvf::StructGridInterface::FaceType cellface, cvf::ubyte localVertexIndex );
 
 private:
-    caf::PdmPtrField<RimCase*>                            m_case;
-    caf::PdmField<caf::AppEnum<RiaDefines::GridCaseAxis>> m_sliceDirection;
-    caf::PdmField<int>                                    m_oneBasedSliceIndex;
+    caf::PdmPtrField<RimCase*> m_case;
+    caf::PdmField<int>         m_oneBasedSliceIndex;
 
     std::vector<unsigned>                      m_tringleIndices;
     std::vector<cvf::Vec3d>                    m_vertices;

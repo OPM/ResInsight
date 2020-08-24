@@ -46,9 +46,7 @@ bool RicReloadSurfaceFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicReloadSurfaceFeature::onActionTriggered( bool isChecked )
 {
-    RimProject*           proj     = RimProject::current();
-    RimSurfaceCollection* surfColl = proj->activeOilField()->surfaceCollection();
-
+    RimSurfaceCollection* surfColl = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimSurfaceCollection>();
     if ( surfColl )
     {
         // get the Surfaces

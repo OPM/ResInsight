@@ -40,8 +40,6 @@ RimSurface::RimSurface()
     CAF_PDM_InitFieldNoDefault( &m_userDescription, "SurfaceUserDecription", "Name", "", "", "" );
     CAF_PDM_InitField( &m_color, "SurfaceColor", cvf::Color3f( 0.5f, 0.3f, 0.2f ), "Color", "", "", "" );
 
-    //    CAF_PDM_InitField( &m_depthOffset, "DepthOffset", 0.0, "Depth Offset", "", "", "" );
-
     CAF_PDM_InitField( &m_depthOffset, "DepthOffset", 0.0, "Depth Offset", "", "", "" );
     m_depthOffset.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
@@ -143,6 +141,11 @@ void RimSurface::applyDepthOffsetIfNeeded( std::vector<cvf::Vec3d>* vertices ) c
 double RimSurface::depthOffset() const
 {
     return m_depthOffset;
+}
+
+void RimSurface::setDepthOffset( double depthoffset )
+{
+    m_depthOffset.setValue( depthoffset );
 }
 
 //--------------------------------------------------------------------------------------------------

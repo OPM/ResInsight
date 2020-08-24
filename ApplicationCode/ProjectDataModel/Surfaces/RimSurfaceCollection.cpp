@@ -28,6 +28,8 @@
 #include "RimSurface.h"
 #include "RimSurfaceInView.h"
 
+#include "cafPdmFieldReorderCapability.h"
+
 CAF_PDM_SOURCE_INIT( RimSurfaceCollection, "SurfaceCollection" );
 
 //--------------------------------------------------------------------------------------------------
@@ -37,8 +39,18 @@ RimSurfaceCollection::RimSurfaceCollection()
 {
     CAF_PDM_InitObject( "Surfaces", ":/ReservoirSurfaces16x16.png", "", "" );
 
+    CAF_PDM_InitFieldNoDefault( &m_collectionname, "SurfaceUserDecription", "Name", "", "", "" );
+    m_collectionname = "Surfaces";
+
+    CAF_PDM_InitFieldNoDefault( &m_subcollections, "SubCollections", "Surfaces", "", "", "" );
+    m_subcollections.uiCapability()->setUiTreeHidden( true );
+    auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_subcollections );
+    reorderability->orderChanged.connect( this, &RimSurfaceCollection::orderChanged );
+
     CAF_PDM_InitFieldNoDefault( &m_surfaces, "SurfacesField", "Surfaces", "", "", "" );
     m_surfaces.uiCapability()->setUiTreeHidden( true );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -46,6 +58,31 @@ RimSurfaceCollection::RimSurfaceCollection()
 //--------------------------------------------------------------------------------------------------
 RimSurfaceCollection::~RimSurfaceCollection()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceCollection::setAsTopmostFolder()
+{
+    m_collectionname.uiCapability()->setUiHidden( true );
+    setDeletable( false );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSurfaceCollection::collectionname() const
+{
+    return m_collectionname.value();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimSurfaceCollection::userDescriptionField()
+{
+    return &m_collectionname;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,20 +164,52 @@ void RimSurfaceCollection::reloadSurfaces( std::vector<RimSurface*> surfaces )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimSurface* RimSurfaceCollection::copySurfaces( std::vector<RimSurface*> surfaces )
+{
+    std::vector<RimSurface*> newsurfaces;
+
+    // create a copy of each surface given
+    for ( RimSurface* surface : surfaces )
+    {
+        RimSurface* copy = surface->createCopy();
+        if ( copy )
+        {
+            newsurfaces.push_back( copy );
+        }
+        else
+        {
+            RiaLogging::warning( "Create Surface Copy: Could not create a copy of the surface " + surface->fullName() );
+        }
+    }
+
+    RimSurface* retsurf = nullptr;
+    for ( RimSurface* surface : newsurfaces )
+    {
+        m_surfaces.push_back( surface );
+        retsurf = surface;
+    }
+
+    this->updateConnectedEditors();
+
+    return retsurf;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimSurface* RimSurfaceCollection::addGridCaseSurface( RimCase* sourceCase )
 {
     auto s = new RimGridCaseSurface;
     s->setCase( sourceCase );
 
-    int  oneBasedSliceIndex = 1;
-    auto sliceType          = RiaDefines::GridCaseAxis::AXIS_K;
+    int oneBasedSliceIndex = 1;
 
-    s->setSliceTypeAndOneBasedIndex( sliceType, oneBasedSliceIndex );
+    s->setOneBasedIndex( oneBasedSliceIndex );
     s->setUserDescription( "Surface" );
 
     if ( !s->onLoadData() )
     {
-        RiaLogging::warning( "Add Grid Case Surface : Could not create the grid case surface. Don't know why." );
+        RiaLogging::warning( "Add Grid Case Surface : Could not create the grid case surface." );
         return nullptr;
     }
 
@@ -161,6 +230,14 @@ RimSurface* RimSurfaceCollection::addGridCaseSurface( RimCase* sourceCase )
 std::vector<RimSurface*> RimSurfaceCollection::surfaces() const
 {
     return m_surfaces.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSurfaceCollection*> RimSurfaceCollection::subcollections() const
+{
+    return m_subcollections.childObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -245,4 +322,89 @@ void RimSurfaceCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      c
                                            std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     updateViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceCollection::orderChanged( const caf::SignalEmitter* emitter )
+{
+    updateViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceCollection::removeSurface( RimSurface* surface )
+{
+    m_surfaces.removeChildObject( surface );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSurface* RimSurfaceCollection::addSurfacesAtIndex( int position, std::vector<RimSurface*> surfaces )
+{
+    // adjust index for number of folders we have
+    position = position - static_cast<int>( m_subcollections.size() );
+
+    RimSurface* returnSurface = nullptr;
+    if ( !surfaces.empty() ) returnSurface = surfaces[0];
+
+    // insert position at end?
+    if ( ( position >= static_cast<int>( m_surfaces.size() ) ) || ( position < 0 ) )
+    {
+        for ( auto surf : surfaces )
+        {
+            m_surfaces.push_back( surf );
+        }
+    }
+    else
+    {
+        // build the new surface order
+        std::vector<RimSurface*> orderedSurfs;
+
+        int i = 0;
+
+        while ( i < position )
+        {
+            orderedSurfs.push_back( m_surfaces[i++] );
+        }
+
+        for ( auto surf : surfaces )
+        {
+            orderedSurfs.push_back( surf );
+        }
+
+        int surfcount = static_cast<int>( m_surfaces.size() );
+        while ( i < surfcount )
+        {
+            orderedSurfs.push_back( m_surfaces[i++] );
+        }
+
+        // reset the surface collection and use the new order
+        m_surfaces.clear();
+        for ( auto surf : orderedSurfs )
+        {
+            m_surfaces.push_back( surf );
+        }
+    }
+
+    // make sure the views are in sync with the collection order
+    updateViews();
+
+    return returnSurface;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceCollection::addSubCollection( RimSurfaceCollection* subcoll )
+{
+    m_subcollections.push_back( subcoll );
+    this->updateConnectedEditors();
+
+    updateViews();
+
+    return;
 }

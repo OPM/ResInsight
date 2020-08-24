@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewGridCaseSurfaceFeature.h"
+#include "RicNewSurfaceCollectionFeature.h"
 
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -29,13 +29,14 @@
 #include "cafUtils.h"
 
 #include <QAction>
+#include <QFileDialog>
 
-CAF_CMD_SOURCE_INIT( RicNewGridSurfaceFeature, "RicNewGridSurfaceFeature" );
+CAF_CMD_SOURCE_INIT( RicNewSurfaceCollectionFeature, "RicNewSurfaceCollectionFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewGridSurfaceFeature::isCommandEnabled()
+bool RicNewSurfaceCollectionFeature::isCommandEnabled()
 {
     return true;
 }
@@ -43,31 +44,26 @@ bool RicNewGridSurfaceFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewGridSurfaceFeature::onActionTriggered( bool isChecked )
+void RicNewSurfaceCollectionFeature::onActionTriggered( bool isChecked )
 {
-    RimProject* proj = RimProject::current();
-
-    RimCase* sourceCase = nullptr;
-    auto     allCases   = proj->allGridCases();
-    if ( !allCases.empty() ) sourceCase = allCases.front();
-
-    // Find the selected SurfaceCollection
     std::vector<RimSurfaceCollection*> colls = caf::selectedObjectsByTypeStrict<RimSurfaceCollection*>();
     if ( colls.empty() ) return;
     RimSurfaceCollection* surfColl = colls[0];
 
-    RimSurface* lastCreatedOrUpdated = surfColl->addGridCaseSurface( sourceCase );
-    if ( lastCreatedOrUpdated )
+    if ( surfColl )
     {
-        Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
+        // add a new surface collection and select it in the tree
+        RimSurfaceCollection* newcoll = new RimSurfaceCollection();
+        surfColl->addSubCollection( newcoll );
+        Riu3DMainWindowTools::selectAsCurrentItem( newcoll );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewGridSurfaceFeature::setupActionLook( QAction* actionToSetup )
+void RicNewSurfaceCollectionFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/ReservoirSurfaces16x16.png" ) );
-    actionToSetup->setText( "Create Grid Case Surfaces" );
+    actionToSetup->setText( "Add Folder" );
 }

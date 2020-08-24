@@ -900,6 +900,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicImportSurfacesFeature";
             menuBuilder << "RicNewGridSurfaceFeature";
+            menuBuilder.addSeparator();
+            menuBuilder << "RicNewSurfaceCollectionFeature";
         }
         else if ( dynamic_cast<RimSurface*>( firstUiItem ) )
         {
@@ -910,6 +912,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
             menuBuilder << "RicExportSurfaceToTsurfFeature";
             menuBuilder << "Separator";
+            menuBuilder << "RicCopySurfaceFeature";
             menuBuilder << "RicReloadSurfaceFeature";
         }
         else if ( dynamic_cast<RimAnnotationCollection*>( firstUiItem ) ||

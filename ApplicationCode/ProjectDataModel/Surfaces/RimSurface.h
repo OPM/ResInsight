@@ -45,8 +45,9 @@ public:
     QString     userDescription();
     void        setUserDescription( const QString& description );
 
-    virtual QString fullName() const;
-    virtual bool    onLoadData() = 0;
+    virtual QString     fullName() const;
+    virtual bool        onLoadData() = 0;
+    virtual RimSurface* createCopy() = 0;
 
     void loadDataIfRequired();
     void reloadData();
@@ -56,6 +57,7 @@ protected:
 
     void   applyDepthOffsetIfNeeded( std::vector<cvf::Vec3d>* vertices ) const;
     double depthOffset() const;
+    void   setDepthOffset( double depthoffset );
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field,

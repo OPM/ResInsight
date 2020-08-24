@@ -35,6 +35,7 @@ class RimSummaryCaseCollection;
 class RimSummaryCaseMainCollection;
 class RimSummaryCurve;
 class RimSummaryPlot;
+class RimSurfaceCollection;
 class RimWellLogPlot;
 class RimWellLogTrack;
 class RimWellLogCurve;
@@ -89,6 +90,11 @@ private:
     bool handleSummaryCaseMainCollectionDrop( Qt::DropAction                action,
                                               caf::PdmObjectGroup&          objectGroup,
                                               RimSummaryCaseMainCollection* summaryCaseMainCollection );
+
+    bool handleSurfaceCollectionDrop( Qt::DropAction        action,
+                                      int                   row,
+                                      caf::PdmObjectGroup&  objectGroup,
+                                      RimSurfaceCollection* surfaceCollection );
 
     static void objectGroupFromModelIndexes( caf::PdmObjectGroup* objectGroup, const QModelIndexList& indexes );
     static std::vector<caf::PdmPointer<caf::PdmObjectHandle>> objectHandlesFromSelection();

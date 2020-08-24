@@ -80,6 +80,23 @@ bool RimFileSurface::onLoadData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimSurface* RimFileSurface::createCopy()
+{
+    RimFileSurface* newSurface = dynamic_cast<RimFileSurface*>(
+        xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+
+    if ( !newSurface->onLoadData() )
+    {
+        delete newSurface;
+        return nullptr;
+    }
+
+    return newSurface;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFileSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                        const QVariant&            oldValue,
                                        const QVariant&            newValue )
