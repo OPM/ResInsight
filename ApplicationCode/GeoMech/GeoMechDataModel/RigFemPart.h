@@ -49,51 +49,38 @@ public:
     RigFemPart();
     ~RigFemPart() override;
 
-    int  elementPartId() const { return m_elementPartId; }
-    void setElementPartId( int partId ) { m_elementPartId = partId; }
+    int  elementPartId() const;
+    void setElementPartId( int partId );
 
     void preAllocateElementStorage( int elementCount );
     void appendElement( RigElementType elmType, int elementId, const int* connectivities );
 
-    int elementCount() const { return static_cast<int>( m_elementId.size() ); }
+    int elementCount() const;
 
-    int            elmId( size_t elementIdx ) const { return m_elementId[elementIdx]; }
-    RigElementType elementType( size_t elementIdx ) const { return m_elementTypes[elementIdx]; }
-    const int*     connectivities( size_t elementIdx ) const
-    {
-        return &m_allElementConnectivities[m_elementConnectivityStartIndices[elementIdx]];
-    }
+    int            elmId( size_t elementIdx ) const;
+    RigElementType elementType( size_t elementIdx ) const;
+    bool           isHexahedron( size_t elementIdx ) const;
+    const int*     connectivities( size_t elementIdx ) const;
 
-    size_t elementNodeResultIdx( int elementIdx, int elmLocalNodeIdx ) const
-    {
-        return m_elementConnectivityStartIndices[elementIdx] + elmLocalNodeIdx;
-    }
+    size_t elementNodeResultIdx( int elementIdx, int elmLocalNodeIdx ) const;
     size_t elementNodeResultCount() const;
-    int    nodeIdxFromElementNodeResultIdx( size_t elmNodeResultIdx ) const
-    {
-        return m_allElementConnectivities[elmNodeResultIdx];
-    }
+    int    nodeIdxFromElementNodeResultIdx( size_t elmNodeResultIdx ) const;
+
     size_t resultValueIdxFromResultPosType( RigFemResultPosEnum resultPosType, int elementIdx, int elmLocalNodeIdx ) const;
-    RigFemPartNodes&       nodes() { return m_nodes; }
-    const RigFemPartNodes& nodes() const { return m_nodes; }
+    RigFemPartNodes&       nodes();
+    const RigFemPartNodes& nodes() const;
 
     void                              assertNodeToElmIndicesIsCalculated();
     const std::vector<int>&           elementsUsingNode( int nodeIndex ) const;
     const std::vector<unsigned char>& elementLocalIndicesForNode( int nodeIndex ) const;
 
     void assertElmNeighborsIsCalculated();
-    int  elementNeighbor( int elementIndex, int faceIndex ) const
-    {
-        return m_elmNeighbors[elementIndex].indicesToNeighborElms[faceIndex];
-    }
-    int neighborFace( int elementIndex, int faceIndex ) const
-    {
-        return m_elmNeighbors[elementIndex].faceInNeighborElm[faceIndex];
-    }
+    int  elementNeighbor( int elementIndex, int faceIndex ) const;
+    int  neighborFace( int elementIndex, int faceIndex ) const;
 
     cvf::BoundingBox        boundingBox() const;
     float                   characteristicElementSize() const;
-    const std::vector<int>& possibleGridCornerElements() const { return m_possibleGridCornerElements; }
+    const std::vector<int>& possibleGridCornerElements() const;
     void findIntersectingCells( const cvf::BoundingBox& inputBB, std::vector<size_t>* elementIndices ) const;
     void findIntersectingCellsWithExistingSearchTree( const cvf::BoundingBox& inputBB,
                                                       std::vector<size_t>*    elementIndices ) const;
@@ -103,7 +90,7 @@ public:
     cvf::Vec3f faceNormal( int elementIndex, int faceIndex ) const;
 
     const RigFemPartGrid*   getOrCreateStructGrid() const;
-    const std::vector<int>& elementIdxToId() const { return m_elementId; }
+    const std::vector<int>& elementIdxToId() const;
 
 private:
     int m_elementPartId;

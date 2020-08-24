@@ -45,7 +45,7 @@ public:
 
 private:
     void loadParameterFramesOrValue( RimMudWeightWindowParameters::ParameterType parameterType,
-                                     size_t                                      partIndex,
+                                     int                                         partIndex,
                                      std::map<RimMudWeightWindowParameters::ParameterType, RigFemScalarResultFrames*>& parameterFrames,
                                      std::map<RimMudWeightWindowParameters::ParameterType, float>& parameterValues );
 

@@ -158,6 +158,19 @@ RimMudWeightWindowParameters::RimMudWeightWindowParameters( void )
     CAF_PDM_InitField( &m_obg0Address, "obg0Address", QString( "" ), "Value", "", "", "" );
     m_obg0Address.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
+    m_parameterFields[RimMudWeightWindowParameters::ParameterType::WELL_DEVIATION] =
+        std::make_tuple( &m_wellDeviationType, &m_wellDeviationFixed, &m_wellDeviationAddress );
+    m_parameterFields[RimMudWeightWindowParameters::ParameterType::WELL_AZIMUTH] =
+        std::make_tuple( &m_wellAzimuthType, &m_wellAzimuthFixed, &m_wellAzimuthAddress );
+    m_parameterFields[RimMudWeightWindowParameters::ParameterType::UCS] =
+        std::make_tuple( &m_UCSType, &m_UCSFixed, &m_UCSAddress );
+    m_parameterFields[RimMudWeightWindowParameters::ParameterType::POISSONS_RATIO] =
+        std::make_tuple( &m_poissonsRatioType, &m_poissonsRatioFixed, &m_poissonsRatioAddress );
+    m_parameterFields[RimMudWeightWindowParameters::ParameterType::K0_FG] =
+        std::make_tuple( &m_K0_FGType, &m_K0_FGFixed, &m_K0_FGAddress );
+    m_parameterFields[RimMudWeightWindowParameters::ParameterType::OBG0] =
+        std::make_tuple( &m_obg0Type, &m_obg0Fixed, &m_obg0Address );
+
     CAF_PDM_InitField( &m_airGap, "AirGap", 0.0, "Air Gap", "", "", "" );
 
     CAF_PDM_InitField( &m_shMultiplier, "SHMultiplier", 1.05, "SH Multplier for FG in Shale", "", "", "" );
@@ -619,4 +632,75 @@ QList<caf::PdmOptionItemInfo>
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMudWeightWindowParameters::updateFemPartResults() const
+{
+    RimGeoMechCase* geoMechCase = nullptr;
+    firstAncestorOrThisOfType( geoMechCase );
+    if ( !geoMechCase )
+    {
+        return;
+    }
+
+    RigGeoMechCaseData* rigCaseData = geoMechCase->geoMechData();
+    if ( !rigCaseData )
+    {
+        return;
+    }
+
+    for ( size_t i = 0; i < caf::AppEnum<ParameterType>::size(); ++i )
+    {
+        updateFemPartsForParameter( caf::AppEnum<ParameterType>::fromIndex( i ), rigCaseData );
+    }
+
+    // Make sure the reference layer is valid
+    int referenceLayer = m_referenceLayer();
+    if ( referenceLayer == -1 )
+    {
+        referenceLayer =
+            (int)rigCaseData->femParts()->part( 0 )->getOrCreateStructGrid()->reservoirIJKBoundingBox().first.z();
+    }
+
+    rigCaseData->femPartResults()->setMudWeightWindowParameters( m_airGap,
+                                                                 m_upperLimitType.value(),
+                                                                 m_lowerLimitType.value(),
+                                                                 referenceLayer,
+                                                                 m_fractureGradientCalculationType.value(),
+                                                                 m_shMultiplier,
+                                                                 m_porePressureNonReservoirSource.value(),
+                                                                 m_userDefinedPPNonReservoir,
+                                                                 m_porePressureNonReservoirAddress );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMudWeightWindowParameters::updateFemPartsForParameter( ParameterType       parameterType,
+                                                               RigGeoMechCaseData* rigCaseData ) const
+{
+    auto it = m_parameterFields.find( parameterType );
+    if ( it == m_parameterFields.end() ) return;
+
+    caf::PdmField<caf::AppEnum<SourceType>>* typeField    = std::get<0>( it->second );
+    caf::PdmField<double>*                   fixedField   = std::get<1>( it->second );
+    caf::PdmField<QString>*                  addressField = std::get<2>( it->second );
+
+    if ( rigCaseData->femPartResults() )
+    {
+        if ( typeField->value() == RimMudWeightWindowParameters::SourceType::FIXED ||
+             typeField->value() == RimMudWeightWindowParameters::SourceType::GRID )
+        {
+            rigCaseData->femPartResults()->setCalculationParameters( parameterType, "", fixedField->value() );
+        }
+        else if ( typeField->value() == RimMudWeightWindowParameters::SourceType::PER_ELEMENT )
+        {
+            rigCaseData->femPartResults()->setCalculationParameters( parameterType,
+                                                                     addressField->value(),
+                                                                     fixedField->value() );
+        }
+    }
 }
