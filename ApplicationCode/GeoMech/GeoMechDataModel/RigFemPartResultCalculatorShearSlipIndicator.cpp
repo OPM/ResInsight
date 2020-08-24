@@ -50,7 +50,7 @@ RigFemPartResultCalculatorShearSlipIndicator::~RigFemPartResultCalculatorShearSl
 //--------------------------------------------------------------------------------------------------
 bool RigFemPartResultCalculatorShearSlipIndicator::isMatching( const RigFemResultAddress& resVarAddr ) const
 {
-    return ( resVarAddr.fieldName == "DPN" );
+    return ( resVarAddr.fieldName == "ST" || resVarAddr.componentName == "DPN" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -81,7 +81,7 @@ RigFemScalarResultFrames*
     frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
 
     RigFemScalarResultFrames* shearSlipIndicatorFrames =
-        m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "DPN", "" ) );
+        m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "ST", "DPN" ) );
 
     const RigFemPart*     femPart     = m_resultCollection->parts()->part( partIndex );
     const RigFemPartGrid* femPartGrid = femPart->getOrCreateStructGrid();

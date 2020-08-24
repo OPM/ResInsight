@@ -619,6 +619,7 @@ std::map<std::string, std::vector<std::string>>
 
             fieldCompNames["ST"].push_back( "SM" );
             fieldCompNames["ST"].push_back( "Q" );
+            fieldCompNames["ST"].push_back( "DPN" );
 
             for ( auto& s : stressComponentNames )
             {
@@ -668,8 +669,6 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["MUD-WEIGHT"].push_back( "MWM" );
             fieldCompNames["MUD-WEIGHT"].push_back( "UMWL" );
             fieldCompNames["MUD-WEIGHT"].push_back( "LMWL" );
-
-            fieldCompNames["DPN"];
         }
         else if ( resPos == RIG_INTEGRATION_POINT )
         {
@@ -704,6 +703,7 @@ std::map<std::string, std::vector<std::string>>
 
             fieldCompNames["ST"].push_back( "SM" );
             fieldCompNames["ST"].push_back( "Q" );
+            fieldCompNames["ST"].push_back( "DPN" );
 
             fieldCompNames["ST"].push_back( "S11" );
             fieldCompNames["ST"].push_back( "S22" );
@@ -758,8 +758,6 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["MUD-WEIGHT"].push_back( "MWM" );
             fieldCompNames["MUD-WEIGHT"].push_back( "UMWL" );
             fieldCompNames["MUD-WEIGHT"].push_back( "LMWL" );
-
-            fieldCompNames["DPN"];
         }
         else if ( resPos == RIG_ELEMENT_NODAL_FACE )
         {
@@ -1763,6 +1761,6 @@ void RigFemPartResultsCollection::setWaterDensityShearSlipIndicator( double wate
 
     for ( auto elementType : {RIG_ELEMENT_NODAL, RIG_INTEGRATION_POINT} )
     {
-        deleteResult( RigFemResultAddress( elementType, "DPN", "", RigFemResultAddress::allTimeLapsesValue() ) );
+        deleteResult( RigFemResultAddress( elementType, "ST", "DPN", RigFemResultAddress::allTimeLapsesValue() ) );
     }
 }
