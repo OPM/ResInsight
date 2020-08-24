@@ -369,8 +369,13 @@ bool isLeftOf( double x1, double x2, bool reverseOrder, double eps )
     return x2 - x1 > eps;
 }
 
+bool isRightOf( double x1, double x2, bool reverseOrder, double eps )
+{
+    return isLeftOf( x2, x1, reverseOrder, eps );
+}
+
 //--------------------------------------------------------------------------------------------------
-/// Assumes the data is well ordered
+///
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( RiaDefines::DepthTypeEnum resamplingDepthType,
                                                                                 const std::vector<double>& depths ) const
@@ -380,6 +385,7 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( 
     std::vector<double> xValues;
 
     std::map<RiaDefines::DepthTypeEnum, std::vector<double>> resampledDepths;
+    resampledDepths.insert( std::make_pair( resamplingDepthType, depths ) );
 
     auto depthIt = m_depths.find( resamplingDepthType );
 
@@ -393,60 +399,57 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( 
     for ( auto depth : depths )
     {
         bool foundPoint = false;
-        if ( isLeftOf( depth, depthIt->second.front(), reverseOrder, eps ) )
+        for ( size_t segmentStartIdx = segmentSearchStartIdx; segmentStartIdx < depthIt->second.size(); ++segmentStartIdx )
         {
-            // Extrapolate from front two
-            interpolateSegment( resamplingDepthType, depth, 0, xValues, resampledDepths, eps );
-            foundPoint = true;
-        }
-        else if ( isLeftOf( depthIt->second.back(), depth, reverseOrder, eps ) )
-        {
-            // Extrapolate from end two
-            const size_t N = depthIt->second.size() - 1;
-            interpolateSegment( resamplingDepthType, depth, N - 1, xValues, resampledDepths, eps );
-            foundPoint = true;
-        }
-        else
-        {
-            for ( size_t segmentStartIdx = segmentSearchStartIdx; segmentStartIdx < depthIt->second.size();
-                  ++segmentStartIdx )
+            if ( std::fabs( depthIt->second[segmentStartIdx] - depth ) < eps ) // already have this depth point,
+                                                                               // reuse it
             {
-                if ( std::fabs( depthIt->second[segmentStartIdx] - depth ) < eps ) // already have this depth point,
-                                                                                   // reuse it
+                xValues.push_back( m_xValues[segmentStartIdx] );
+                // Copy all depth types for this segment
+                for ( auto depthTypeValuesPair : m_depths )
                 {
-                    xValues.push_back( m_xValues[segmentStartIdx] );
-                    for ( auto depthTypeValuesPair : m_depths )
+                    if ( depthTypeValuesPair.first != resamplingDepthType )
                     {
-                        if ( depthTypeValuesPair.first != resamplingDepthType )
-                        {
-                            resampledDepths[depthTypeValuesPair.first].push_back(
-                                depthTypeValuesPair.second[segmentStartIdx] );
-                        }
+                        resampledDepths[depthTypeValuesPair.first].push_back( depthTypeValuesPair.second[segmentStartIdx] );
                     }
-                    segmentSearchStartIdx = segmentStartIdx + 1;
+                }
+                segmentSearchStartIdx = segmentStartIdx + 1;
+                foundPoint            = true;
+                break;
+            }
+            else if ( segmentStartIdx < depthIt->second.size() - 1 )
+            {
+                double minDepthSegment = std::min( depthIt->second[segmentStartIdx], depthIt->second[segmentStartIdx + 1] );
+                double maxDepthSegment = std::max( depthIt->second[segmentStartIdx], depthIt->second[segmentStartIdx + 1] );
+                if ( cvf::Math::valueInRange( depth, minDepthSegment, maxDepthSegment ) )
+                {
+                    interpolateSegment( resamplingDepthType, depth, segmentStartIdx, xValues, resampledDepths, eps );
+                    segmentSearchStartIdx = segmentStartIdx;
                     foundPoint            = true;
                     break;
                 }
-                else if ( segmentStartIdx < depthIt->second.size() - 1 )
-                {
-                    double minDepthSegment =
-                        std::min( depthIt->second[segmentStartIdx], depthIt->second[segmentStartIdx + 1] );
-                    double maxDepthSegment =
-                        std::max( depthIt->second[segmentStartIdx], depthIt->second[segmentStartIdx + 1] );
-                    if ( cvf::Math::valueInRange( depth, minDepthSegment, maxDepthSegment ) )
-                    {
-                        interpolateSegment( resamplingDepthType, depth, segmentStartIdx, xValues, resampledDepths, eps );
-                        segmentSearchStartIdx = segmentStartIdx;
-                        foundPoint            = true;
-                        break;
-                    }
-                }
             }
         }
+        if ( !foundPoint )
+        {
+            if ( isLeftOf( depth, depthIt->second.front(), reverseOrder, eps ) )
+            {
+                // Extrapolate from front two
+                interpolateSegment( resamplingDepthType, depth, 0, xValues, resampledDepths, eps );
+                foundPoint = true;
+            }
+            else if ( isRightOf( depth, depthIt->second.back(), reverseOrder, eps ) )
+            {
+                // Extrapolate from end two
+                const size_t N = depthIt->second.size() - 1;
+                interpolateSegment( resamplingDepthType, depth, N - 1, xValues, resampledDepths, eps );
+                foundPoint = true;
+            }
+        }
+
         CAF_ASSERT( foundPoint );
     }
 
-    resampledDepths.insert( std::make_pair( resamplingDepthType, depths ) );
     reSampledData->setValuesAndDepths( xValues, resampledDepths, m_rkbDiff, m_depthUnit, true );
     return reSampledData;
 }

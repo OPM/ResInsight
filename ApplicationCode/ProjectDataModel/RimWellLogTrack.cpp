@@ -475,10 +475,11 @@ void RimWellLogTrack::updateXZoom()
         m_visibleXRangeMin = m_availableXRangeMin;
         m_visibleXRangeMax = m_availableXRangeMax;
 
-        // Set min limit to 0.0 for stacked curves
         if ( !visibleStackedCurves().empty() && !m_isLogarithmicScaleEnabled )
         {
-            m_visibleXRangeMin = 0.0;
+            // Try to ensure we include the base line whether the values are negative or positive.
+            m_visibleXRangeMin = std::min( m_visibleXRangeMin(), 0.0 );
+            m_visibleXRangeMax = std::max( m_visibleXRangeMax(), 0.0 );
         }
         computeAndSetXRangeMinForLogarithmicScale();
         updateEditors();
@@ -2371,31 +2372,31 @@ std::vector<QString> RimWellLogTrack::formationNamesVector( RimCase* rimCase )
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::updateStackedCurveData()
 {
-    const double eps = 1.0e-8;
-
     RimDepthTrackPlot* wellLogPlot;
     firstAncestorOrThisOfTypeAsserted( wellLogPlot );
 
-    RimWellLogPlot::DepthTypeEnum depthType    = wellLogPlot->depthType();
-    RiaDefines::DepthUnitType     displayUnit  = wellLogPlot->depthUnit();
-    bool                          reverseOrder = false;
+    RimWellLogPlot::DepthTypeEnum depthType   = wellLogPlot->depthType();
+    RiaDefines::DepthUnitType     displayUnit = wellLogPlot->depthUnit();
     if ( depthType == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER )
     {
-        displayUnit  = RiaDefines::DepthUnitType::UNIT_NONE;
-        reverseOrder = true;
+        displayUnit = RiaDefines::DepthUnitType::UNIT_NONE;
     }
 
     std::map<RiaDefines::PhaseType, size_t> curvePhaseCount;
 
-    // Reset all curves
-    for ( auto curve : visibleCurves() )
-    {
-        curve->loadDataAndUpdate( false );
-        curvePhaseCount[curve->phaseType()]++;
-    }
-
     // Stack the curves that are meant to be stacked
     std::map<int, std::vector<RimWellLogCurve*>> stackedCurves = visibleStackedCurves();
+
+    // Reset all stacked curves
+    for ( auto groupCurvePair : stackedCurves )
+    {
+        const std::vector<RimWellLogCurve*>& stackedCurvesInGroup = groupCurvePair.second;
+        for ( auto curve : stackedCurvesInGroup )
+        {
+            curve->loadDataAndUpdate( false );
+            curvePhaseCount[curve->phaseType()]++;
+        }
+    }
 
     for ( auto groupCurvePair : stackedCurves )
     {
@@ -2406,44 +2407,31 @@ void RimWellLogTrack::updateStackedCurveData()
         // Z-position of curve, to draw them in correct order
         double zPos = -10000.0 + 100.0 * static_cast<double>( groupId );
 
-        // Find common depths. We retain all depths from the first curve and insert ones that aren't already added.
-        std::vector<double> allDepthValues;
+        // We use the depths from the curve with the largest depth range.
+        // Trying to merge them is difficult since they may not be in order.
+        std::pair<double, double> maxDepthRange;
+        std::vector<double>       allDepthValues;
 
         for ( auto curve : stackedCurvesInGroup )
         {
             auto depths = curve->curveData()->depths( depthType );
             if ( allDepthValues.empty() )
             {
+                auto minmaxit = std::minmax_element( depths.begin(), depths.end() );
+                maxDepthRange = std::make_pair( *minmaxit.first, *minmaxit.second );
                 allDepthValues.insert( allDepthValues.end(), depths.begin(), depths.end() );
             }
             else
             {
-                for ( double depth : depths )
+                auto                      minmaxit   = std::minmax_element( depths.begin(), depths.end() );
+                std::pair<double, double> depthRange = std::make_pair( *minmaxit.first, *minmaxit.second );
+                if ( std::fabs( depthRange.second - depthRange.first ) >
+                     std::fabs( maxDepthRange.second - maxDepthRange.first ) )
                 {
-                    // Finds the first larger or equal depth.
-                    auto it = std::lower_bound( allDepthValues.begin(),
-                                                allDepthValues.end(),
-                                                depth,
-                                                [eps, reverseOrder]( double lhs, double rhs ) {
-                                                    return reverseOrder ? lhs - rhs > eps : rhs - lhs > eps;
-                                                } );
-
-                    // Insert if there is no larger or equal depths or if the first equal or if it actually larger.
-                    if ( it == allDepthValues.end() || std::fabs( depth - *it ) > 1.0e-8 )
-                    {
-                        allDepthValues.insert( it, depth );
-                    }
+                    maxDepthRange  = depthRange;
+                    allDepthValues = depths;
                 }
             }
-        }
-        // The above doesn't sort nearly identical depths. The resampling below requires that.
-        if ( depthType == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER )
-        {
-            std::sort( allDepthValues.begin(), allDepthValues.end(), std::greater<double>() );
-        }
-        else
-        {
-            std::sort( allDepthValues.begin(), allDepthValues.end() );
         }
 
         if ( allDepthValues.empty() ) continue;
@@ -2467,17 +2455,21 @@ void RimWellLogTrack::updateStackedCurveData()
             auto plotDepthValues          = tempCurveData.depthPlotValues( depthType, displayUnit );
             auto polyLineStartStopIndices = tempCurveData.polylineStartStopIndices();
 
-            // Apply a area filled style if it isn't already set
-            if ( curve->fillStyle() == Qt::NoBrush )
-            {
-                curve->setFillStyle( Qt::SolidPattern );
-            }
-
             curve->setOverrideCurveData( allStackedValues, plotDepthValues, polyLineStartStopIndices );
             curve->setZOrder( zPos );
-            if ( curve->isStackedWithPhaseColors() )
+
+            if ( !dynamic_cast<RimWellFlowRateCurve*>( curve ) )
             {
-                curve->assignStackColor( stackIndex, curvePhaseCount[curve->phaseType()] );
+                // Apply a area filled style if it isn't already set
+                if ( curve->fillStyle() == Qt::NoBrush )
+                {
+                    curve->setFillStyle( Qt::SolidPattern );
+                }
+
+                if ( curve->isStackedWithPhaseColors() )
+                {
+                    curve->assignStackColor( stackIndex, curvePhaseCount[curve->phaseType()] );
+                }
             }
             zPos -= 1.0;
         }
