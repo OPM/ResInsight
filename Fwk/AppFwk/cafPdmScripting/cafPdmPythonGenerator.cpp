@@ -291,6 +291,10 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
 
     // Write out classes
     std::set<QString> classesWritten;
+    classesWritten.insert( "PdmObjectBase" );
+
+    out << "from rips.pdmobject import PdmObjectBase\n";
+
     for ( std::shared_ptr<PdmObject> object : dummyObjects )
     {
         const std::list<QString>& classInheritanceStack = object->classInheritanceStack();

@@ -584,12 +584,12 @@ endforeach()
 if (RESINSIGHT_ENABLE_GRPC)	
     set(RESINSIGHT_GRPC_PYTHON_EXECUTABLE "" CACHE FILEPATH "gRPC : Path to Python 3 executable, required to build the Python client library")
     if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
-        add_custom_command(OUTPUT ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/pdm_objects.py
-				    COMMAND ResInsight ARGS --console --generate ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/pdm_objects.py
+        add_custom_command(OUTPUT ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/resinsight_classes.py
+				    COMMAND ResInsight ARGS --console --generate ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/resinsight_classes.py
                     DEPENDS ResInsight
-                    COMMENT "Generating ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/pdm_objects.py"
+                    COMMENT "Generating ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/resinsight_classes.py"
 	    )   
-        list(APPEND GRPC_GENERATED_PYTHON_SOURCES ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/pdm_objects.py)
+        list(APPEND GRPC_GENERATED_PYTHON_SOURCES ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/resinsight_classes.py)
 		add_custom_target(GeneratedPythonSources ALL DEPENDS ${GRPC_GENERATED_PYTHON_SOURCES})
 		add_dependencies(GeneratedPythonSources ResInsight)
 	else()
@@ -781,7 +781,7 @@ if (RESINSIGHT_PRIVATE_INSTALL)
 				)
 			endif()
 			install(DIRECTORY ${GRPC_PYTHON_SOURCE_PATH}/ DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python)
-            install(FILES ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/pdm_objects.py DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python/rips/generated)
+            install(FILES ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/resinsight_classes.py DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python/rips/generated)
 		endif()
 	endif()
 

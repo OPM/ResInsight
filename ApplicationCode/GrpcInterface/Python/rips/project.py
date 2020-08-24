@@ -6,18 +6,18 @@ The ResInsight project module
 import builtins
 import grpc
 
-from rips.case import Case
-from rips.gridcasegroup import GridCaseGroup
-from rips.pdmobject import PdmObject, add_method, add_static_method
-from rips.plot import Plot
-from rips.view import View
+from .case import Case
+from .gridcasegroup import GridCaseGroup
+from .pdmobject import PdmObjectBase, add_method, add_static_method
+from .plot import Plot
+from .view import View
 
-import rips.generated.Commands_pb2 as Cmd
-from rips.generated.Definitions_pb2 import Empty
-import rips.generated.Project_pb2_grpc as Project_pb2_grpc
-import rips.generated.Project_pb2 as Project_pb2
-import rips.generated.PdmObject_pb2 as PdmObject_pb2
-from rips.generated.pdm_objects import Project, PlotWindow, WellPath
+import Commands_pb2
+from Definitions_pb2 import Empty
+import Project_pb2_grpc
+import Project_pb2
+import PdmObject_pb2
+from resinsight_classes import Project, PlotWindow, WellPath
 
 
 @add_method(Project)
@@ -40,7 +40,7 @@ def open(self, path):
         path(str): path to project file
 
     """
-    self._execute_command(openProject=Cmd.FilePathRequest(path=path))
+    self._execute_command(openProject=Commands_pb2.FilePathRequest(path=path))
     return self
 
 
@@ -51,7 +51,7 @@ def save(self, path=""):
     Arguments:
         path(str): File path to the file to save the project to. If empty, saves to the active project file
     """
-    self._execute_command(saveProject=Cmd.SaveProjectRequest(filePath=path))
+    self._execute_command(saveProject=Commands_pb2.SaveProjectRequest(filePath=path))
     return self
 
 
@@ -68,9 +68,9 @@ def load_case(self, path):
     Arguments:
         path(str): file path to case
     Returns:
-        :class:`rips.generated.pdm_objects.Case`
+        :class:`rips.generated.resinsight_classes.Case`
     """
-    command_reply = self._execute_command(loadCase=Cmd.FilePathRequest(
+    command_reply = self._execute_command(loadCase=Commands_pb2.FilePathRequest(
         path=path))
     return self.case(command_reply.loadCaseResult.id)
 
@@ -80,7 +80,7 @@ def selected_cases(self):
     """Get a list of all cases selected in the project tree
 
     Returns:
-        A list of :class:`rips.generated.pdm_objects.Case`
+        A list of :class:`rips.generated.resinsight_classes.Case`
     """
     case_infos = self._project_stub.GetSelectedCases(Empty())
     cases = []
@@ -94,7 +94,7 @@ def cases(self):
     """Get a list of all cases in the project
 
     Returns:
-        A list of :class:`rips.generated.pdm_objects.Case`
+        A list of :class:`rips.generated.resinsight_classes.Case`
     """
     return self.descendants(Case)
 
@@ -106,7 +106,7 @@ def case(self, case_id):
     Arguments:
         id(int): case id
     Returns:
-        :class:`rips.generated.pdm_objects.Case`
+        :class:`rips.generated.resinsight_classes.Case`
     """
     allCases = self.cases()
     for case in allCases:
@@ -124,7 +124,7 @@ def replace_source_cases(self, grid_list_file, case_group_id=0):
         case_group_id (int): id of the case group to replace
     """
     return self._execute_command(
-        replaceSourceCases=Cmd.ReplaceSourceCasesRequest(
+        replaceSourceCases=Commands_pb2.ReplaceSourceCasesRequest(
             gridListFile=grid_list_file, caseGroupId=case_group_id))
 
 
@@ -135,10 +135,10 @@ def create_grid_case_group(self, case_paths):
     Arguments:
         case_paths (list): list of file path strings
     Returns:
-        :class:`rips.generated.pdm_objects.GridCaseGroup`
+        :class:`rips.generated.resinsight_classes.GridCaseGroup`
     """
     command_reply = self._execute_command(
-        createGridCaseGroup=Cmd.CreateGridCaseGroupRequest(
+        createGridCaseGroup=Commands_pb2.CreateGridCaseGroupRequest(
             casePaths=case_paths))
     return self.grid_case_group(
         command_reply.createGridCaseGroupResult.groupId)
@@ -157,7 +157,7 @@ def view(self, view_id):
     Arguments:
         view_id(int): view id
     Returns:
-        :class:`rips.generated.pdm_objects.View`
+        :class:`rips.generated.resinsight_classes.View`
     """
     views = self.views()
     for view_object in views:
@@ -171,11 +171,11 @@ def plots(self):
     """Get a list of all plots belonging to a project
 
     Returns:
-        List of :class:`rips.generated.pdm_objects.Plot`
+        List of :class:`rips.generated.resinsight_classes.Plot`
     """
-    pdm_objects = self.descendants(PlotWindow)
+    resinsight_classes = self.descendants(PlotWindow)
     plot_list = []
-    for pdm_object in pdm_objects:
+    for pdm_object in resinsight_classes:
         if pdm_object.id != -1:
             plot_list.append(pdm_object)
     return plot_list
@@ -189,7 +189,7 @@ def plot(self, view_id):
         view_id(int): view id
 
     Returns:
-        :class:`rips.generated.pdm_objects.Plot`
+        :class:`rips.generated.resinsight_classes.Plot`
     """
     plots = self.plots()
     for plot_object in plots:
@@ -203,7 +203,7 @@ def grid_case_groups(self):
     """Get a list of all grid case groups in the project
 
     Returns:
-        List of :class:`rips.generated.pdm_objects.GridCaseGroup`
+        List of :class:`rips.generated.resinsight_classes.GridCaseGroup`
 
     """
     case_groups = self.descendants(GridCaseGroup)
@@ -218,7 +218,7 @@ def grid_case_group(self, group_id):
         groupId(int): group id
 
     Returns:
-        :class:`rips.generated.pdm_objects.GridCaseGroup`
+        :class:`rips.generated.resinsight_classes.GridCaseGroup`
     """
     case_groups = self.grid_case_groups()
     for case_group in case_groups:
@@ -235,7 +235,7 @@ def export_multi_case_snapshots(self, grid_list_file):
         grid_list_file (str): Path to a file containing a list of grids to export snapshot for
     """
     return self._execute_command(
-        exportMultiCaseSnapshot=Cmd.ExportMultiCaseRequest(
+        exportMultiCaseSnapshot=Commands_pb2.ExportMultiCaseRequest(
             gridListFile=grid_list_file))
 
 
@@ -249,7 +249,7 @@ def export_snapshots(self, snapshot_type='ALL', prefix='', plot_format='PNG'):
         plot_format(str): Enum string, 'PNG' or 'PDF'
     """
     return self._execute_command(
-        exportSnapshots=Cmd.ExportSnapshotsRequest(
+        exportSnapshots=Commands_pb2.ExportSnapshotsRequest(
             type=snapshot_type, prefix=prefix, caseId=-1, viewId=-1, plotOutputFormat=plot_format))
 
 
@@ -265,7 +265,7 @@ def export_well_paths(self, well_paths=None, md_step_size=5.0):
         well_paths = []
     elif isinstance(well_paths, str):
         well_paths = [well_paths]
-    return self._execute_command(exportWellPaths=Cmd.ExportWellPathRequest(
+    return self._execute_command(exportWellPaths=Commands_pb2.ExportWellPathRequest(
         wellPathNames=well_paths, mdStepSize=md_step_size))
 
 
@@ -282,7 +282,7 @@ def scale_fracture_template(self, template_id, half_length, height,
         conductivity (double): Conductivity scale factor
     """
     return self._execute_command(
-        scaleFractureTemplate=Cmd.ScaleFractureTemplateRequest(
+        scaleFractureTemplate=Commands_pb2.ScaleFractureTemplateRequest(
             id=template_id,
             halfLength=half_length,
             height=height,
@@ -300,7 +300,7 @@ def set_fracture_containment(self, template_id, top_layer, base_layer):
         base_layer (int): Base layer containment
     """
     return self._execute_command(
-        setFractureContainment=Cmd.SetFracContainmentRequest(
+        setFractureContainment=Commands_pb2.SetFracContainmentRequest(
             id=template_id, topLayer=top_layer, baseLayer=base_layer))
 
 
@@ -313,13 +313,13 @@ def import_well_paths(self, well_path_files=None, well_path_folder=''):
         well_path_folder(str): A folder path containing files to import
 
     Returns:
-        List of :class:`rips.generated.pdm_objects.WellPath`
+        List of :class:`rips.generated.resinsight_classes.WellPath`
     """
     if well_path_files is None:
         well_path_files = []
 
-    res = self._execute_command(importWellPaths=Cmd.ImportWellPathsRequest(wellPathFolder=well_path_folder,
-                                                                           wellPathFiles=well_path_files))
+    res = self._execute_command(importWellPaths=Commands_pb2.ImportWellPathsRequest(wellPathFolder=well_path_folder,
+                                                                                    wellPathFiles=well_path_files))
     well_paths = []
     for well_path_name in res.importWellPathsResult.wellPathNames:
         well_paths.append(self.well_path_by_name(well_path_name))
@@ -331,7 +331,7 @@ def well_paths(self):
     """Get a list of all well paths in the project
 
     Returns:
-        List of :class:`rips.generated.pdm_objects.WellPath`
+        List of :class:`rips.generated.resinsight_classes.WellPath`
     """
     return self.descendants(WellPath)
 
@@ -341,7 +341,7 @@ def well_path_by_name(self, well_path_name):
     """Get a specific well path by name from the project
 
     Returns:
-        :class:`rips.generated.pdm_objects.WellPath`
+        :class:`rips.generated.resinsight_classes.WellPath`
     """
     all_well_paths = self.well_paths()
     for well_path in all_well_paths:
@@ -364,8 +364,8 @@ def import_well_log_files(self, well_log_files=None, well_log_folder=''):
 
     if well_log_files is None:
         well_log_files = []
-    res = self._execute_command(importWellLogFiles=Cmd.ImportWellLogFilesRequest(wellLogFolder=well_log_folder,
-                                                                                 wellLogFiles=well_log_files))
+    res = self._execute_command(importWellLogFiles=Commands_pb2.ImportWellLogFilesRequest(wellLogFolder=well_log_folder,
+                                                                                          wellLogFiles=well_log_files))
     return res.importWellLogFilesResult.wellPathNames
 
 
@@ -382,6 +382,5 @@ def import_formation_names(self, formation_files=None):
     elif isinstance(formation_files, str):
         formation_files = [formation_files]
 
-    self._execute_command(importFormationNames=Cmd.ImportFormationNamesRequest(formationFiles=formation_files,
-                                                                               applyToCaseId=-1))
-
+    self._execute_command(importFormationNames=Commands_pb2.ImportFormationNamesRequest(formationFiles=formation_files,
+                                                                                        applyToCaseId=-1))

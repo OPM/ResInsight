@@ -2,12 +2,11 @@
 ResInsight Well Log Plot plot module
 """
 
-import rips.generated.Commands_pb2 as Cmd
+import Commands_pb2
 
-from rips.plot import Plot
-from rips.pdmobject import PdmObject
-from rips.generated.pdm_objects import WellLogPlot
-from rips.pdmobject import add_method
+from .plot import Plot
+from .pdmobject import PdmObjectBase, add_method
+from resinsight_classes import WellLogPlot
 
 
 @add_method(WellLogPlot)
@@ -24,14 +23,14 @@ def export_data_as_las(self, export_folder, file_prefix='', export_tvdrkb=False,
     Returns:
         A list of files exported
     """
-    res = self._execute_command(exportWellLogPlotData=Cmd.ExportWellLogPlotDataRequest(exportFormat='LAS',
-                                                                                       viewId=self.id,
-                                                                                       exportFolder=export_folder,
-                                                                                       filePrefix=file_prefix,
-                                                                                       exportTvdRkb=export_tvdrkb,
-                                                                                       capitalizeFileNames=capitalize_file_names,
-                                                                                       resampleInterval=resample_interval,
-                                                                                       convertCurveUnits=convert_to_standard_units))
+    res = self._execute_command(exportWellLogPlotData=Commands_pb2.ExportWellLogPlotDataRequest(exportFormat='LAS',
+                                                                                                viewId=self.id,
+                                                                                                exportFolder=export_folder,
+                                                                                                filePrefix=file_prefix,
+                                                                                                exportTvdRkb=export_tvdrkb,
+                                                                                                capitalizeFileNames=capitalize_file_names,
+                                                                                                resampleInterval=resample_interval,
+                                                                                                convertCurveUnits=convert_to_standard_units))
     return res.exportWellLogPlotDataResult.exportedFiles
 
 
@@ -47,11 +46,11 @@ def export_data_as_ascii(self, export_folder, file_prefix='', capitalize_file_na
     Returns:
         A list of files exported
     """
-    res = self._execute_command(exportWellLogPlotData=Cmd.ExportWellLogPlotDataRequest(exportFormat='ASCII',
-                                                                                       viewId=self.id,
-                                                                                       exportFolder=export_folder,
-                                                                                       filePrefix=file_prefix,
-                                                                                       exportTvdRkb=False,
-                                                                                       capitalizeFileNames=capitalize_file_names,
-                                                                                       resampleInterval=0.0))
+    res = self._execute_command(exportWellLogPlotData=Commands_pb2.ExportWellLogPlotDataRequest(exportFormat='ASCII',
+                                                                                                viewId=self.id,
+                                                                                                exportFolder=export_folder,
+                                                                                                filePrefix=file_prefix,
+                                                                                                exportTvdRkb=False,
+                                                                                                capitalizeFileNames=capitalize_file_names,
+                                                                                                resampleInterval=0.0))
     return res.exportWellLogPlotDataResult.exportedFiles
