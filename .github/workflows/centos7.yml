@@ -7,7 +7,6 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: centos:7
-      options: -v /__w/test-centos7-ri-build/test-centos7-ri-build/cmakebuild/packages:/packages:rw
     steps:
     - name: Intall Dependencies
       run: | 
