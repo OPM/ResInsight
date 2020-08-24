@@ -96,6 +96,7 @@ RimSurface* RimGridCaseSurface::createCopy()
 
     if ( !newSurf->onLoadData() )
     {
+        delete newSurf;
         return nullptr;
     }
 
