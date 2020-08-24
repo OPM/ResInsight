@@ -30,7 +30,7 @@ QString RiuFileDialogTools::getSaveFileName( QWidget*       parent /*= nullptr*/
                                              QString*       selectedFilter /*= nullptr */ )
 {
 #ifdef WIN32
-    return QFileDialog::getSaveFileName( parent, caption, dir, filter, selectedFilter, QFileDialog::DontUseNativeDialog );
+    return QFileDialog::getSaveFileName( parent, caption, dir, filter, selectedFilter );
 #else
     auto options = QFileDialog::DontUseNativeDialog;
     return QFileDialog::getSaveFileName( parent, caption, dir, filter, selectedFilter, options );

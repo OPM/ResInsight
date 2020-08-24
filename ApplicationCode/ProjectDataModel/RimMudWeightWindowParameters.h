@@ -21,7 +21,10 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include <map>
+
 class RimGeoMechCase;
+class RigGeoMechCaseData;
 
 //==================================================================================================
 ///
@@ -97,6 +100,8 @@ public:
 
     double airGap() const;
 
+    void updateFemPartResults() const;
+
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -119,6 +124,8 @@ private:
                              caf::PdmField<double>*                   fixedField,
                              caf::PdmField<QString>*                  addressField,
                              bool                                     typeFieldChanged );
+
+    void updateFemPartsForParameter( ParameterType parameterType, RigGeoMechCaseData* rigCaseData ) const;
 
 private:
     caf::PdmField<caf::AppEnum<SourceType>> m_wellDeviationType;
@@ -144,6 +151,9 @@ private:
     caf::PdmField<caf::AppEnum<SourceType>> m_obg0Type;
     caf::PdmField<double>                   m_obg0Fixed;
     caf::PdmField<QString>                  m_obg0Address;
+
+    typedef std::tuple<caf::PdmField<caf::AppEnum<SourceType>>*, caf::PdmField<double>*, caf::PdmField<QString>*> ParameterPdmFields;
+    std::map<ParameterType, ParameterPdmFields> m_parameterFields;
 
     caf::PdmField<double> m_airGap;
     caf::PdmField<double> m_shMultiplier;

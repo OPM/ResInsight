@@ -163,6 +163,8 @@ private:
     caf::PdmField<QString>                               m_initialPermeabilityResultAddress;
     caf::PdmField<double>                                m_permeabilityExponent;
 
+    caf::PdmField<double> m_waterDensityShearSlipIndicator;
+
     caf::PdmChildField<RimGeoMechContourMapViewCollection*> m_contourMapCollection;
     caf::PdmChildField<RimMudWeightWindowParameters*>       m_mudWeightWindowParameters;
 

@@ -98,6 +98,8 @@ add_library( ${PROJECT_NAME}
 	RigFemPartResultCalculatorPorosityPermeability.cpp
 	RigFemPartResultCalculatorMudWeightWindow.h
 	RigFemPartResultCalculatorMudWeightWindow.cpp
+	RigFemPartResultCalculatorShearSlipIndicator.h
+	RigFemPartResultCalculatorShearSlipIndicator.cpp
 	RimGeoMechGeometrySelectionItem.h
 	RimGeoMechGeometrySelectionItem.cpp
 )

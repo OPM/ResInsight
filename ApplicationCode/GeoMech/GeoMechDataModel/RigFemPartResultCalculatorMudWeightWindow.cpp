@@ -103,7 +103,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
     // Pore pressure
     frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
     RigFemScalarResultFrames* porePressureDataFrames =
-        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_NODAL, "POR-Bar", "" ) );
+        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_ELEMENT_NODAL, "POR-Bar", "" ) );
     frameCountProgress.incrementProgress();
 
     // Stress (ST.S3)
@@ -209,68 +209,68 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
 #pragma omp parallel for
         for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
         {
-            RigElementType elmType = femPart->elementType( elmIdx );
+            bool isHexahedron = femPart->isHexahedron( elmIdx );
+            int  elmNodeCount = RigFemTypes::elementNodeCount( femPart->elementType( elmIdx ) );
 
-            double wellPathDeviation = getValueForElement( RimMudWeightWindowParameters::ParameterType::WELL_DEVIATION,
+            // Use hydrostatic pressure from cell centroid.
+            // Use centroid to avoid intra-element differences
+            cvf::Vec3d cellCentroid       = femPartGrid->cellCentroid( elmIdx );
+            double     cellCentroidTvdRKB = -cellCentroid.z() + airGap;
+            double     waterDensityGCM3   = 1.03;
+            double     hydroStaticPressure =
+                RigGeoMechWellLogExtractor::hydroStaticPorePressureAtDepth( cellCentroidTvdRKB, waterDensityGCM3 );
+            double hydroStaticPressureForNormalization =
+                RigGeoMechWellLogExtractor::hydroStaticPorePressureAtDepth( cellCentroidTvdRKB, 1.0 );
+
+            if ( isHexahedron && hydroStaticPressureForNormalization != 0.0 )
+            {
+                double wellPathDeviation = getValueForElement( RimMudWeightWindowParameters::ParameterType::WELL_DEVIATION,
+                                                               parameterFrameData,
+                                                               parameterValues,
+                                                               elmIdx );
+
+                double wellPathAzimuth = getValueForElement( RimMudWeightWindowParameters::ParameterType::WELL_AZIMUTH,
+                                                             parameterFrameData,
+                                                             parameterValues,
+                                                             elmIdx );
+
+                double ucsBar = getValueForElement( RimMudWeightWindowParameters::ParameterType::UCS,
+                                                    parameterFrameData,
+                                                    parameterValues,
+                                                    elmIdx );
+
+                double poissonsRatio = getValueForElement( RimMudWeightWindowParameters::ParameterType::POISSONS_RATIO,
                                                            parameterFrameData,
                                                            parameterValues,
                                                            elmIdx );
 
-            double wellPathAzimuth = getValueForElement( RimMudWeightWindowParameters::ParameterType::WELL_AZIMUTH,
-                                                         parameterFrameData,
-                                                         parameterValues,
-                                                         elmIdx );
+                double K0_FG = getValueForElement( RimMudWeightWindowParameters::ParameterType::K0_FG,
+                                                   parameterFrameData,
+                                                   parameterValues,
+                                                   elmIdx );
 
-            double ucsBar = getValueForElement( RimMudWeightWindowParameters::ParameterType::UCS,
-                                                parameterFrameData,
-                                                parameterValues,
-                                                elmIdx );
-
-            double poissonsRatio = getValueForElement( RimMudWeightWindowParameters::ParameterType::POISSONS_RATIO,
-                                                       parameterFrameData,
-                                                       parameterValues,
-                                                       elmIdx );
-
-            double K0_FG = getValueForElement( RimMudWeightWindowParameters::ParameterType::K0_FG,
+                double OBG0 = 0.0;
+                if ( !OBG0FromGrid )
+                {
+                    OBG0 = getValueForElement( RimMudWeightWindowParameters::ParameterType::OBG0,
                                                parameterFrameData,
                                                parameterValues,
                                                elmIdx );
+                }
 
-            double OBG0 = 0.0;
-            if ( !OBG0FromGrid )
-            {
-                OBG0 = getValueForElement( RimMudWeightWindowParameters::ParameterType::OBG0,
-                                           parameterFrameData,
-                                           parameterValues,
-                                           elmIdx );
-            }
-
-            int elmNodeCount = RigFemTypes::elementNodeCount( femPart->elementType( elmIdx ) );
-
-            if ( elmType == HEX8P || elmType == HEX8 )
-            {
                 for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
                 {
-                    // Use hydrostatic pressure from cell centroid.
-                    // Use centroid to avoid intra-element differences
-                    cvf::Vec3d cellCentroid       = femPartGrid->cellCentroid( elmIdx );
-                    double     cellCentroidTvdRKB = -cellCentroid.z() + airGap;
-                    double     cellCenterHydroStaticPressure =
-                        RigGeoMechWellLogExtractor::hydroStaticPorePressureAtDepth( cellCentroidTvdRKB );
-
                     size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
                     if ( elmNodResIdx < stressFrameData.size() )
                     {
-                        int nodeIdx = femPart->nodeIdxFromElementNodeResultIdx( elmNodResIdx );
-
                         // Pore pressure (unit: Bar)
-                        float porePressureBar        = porFrameData[nodeIdx];
-                        float initialPorePressureBar = initialPorFrameData[nodeIdx];
+                        float porePressureBar        = porFrameData[elmNodResIdx];
+                        float initialPorePressureBar = initialPorFrameData[elmNodResIdx];
 
                         // Initial overburden gradient
                         if ( OBG0FromGrid )
                         {
-                            OBG0 = obg0FrameData[nodeIdx];
+                            OBG0 = obg0FrameData[elmNodResIdx];
                         }
 
                         // FG is for sands, SFG for shale. Sands has valid PP, shale does not.
@@ -283,8 +283,8 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
                             if ( PP_NonReservoirType ==
                                  RimMudWeightWindowParameters::NonReservoirPorePressureType::HYDROSTATIC )
                             {
-                                porePressureBar        = cellCenterHydroStaticPressure * hydrostaticMultiplier;
-                                initialPorePressureBar = cellCenterHydroStaticPressure * hydrostaticMultiplier;
+                                porePressureBar        = hydroStaticPressure * hydrostaticMultiplier;
+                                initialPorePressureBar = hydroStaticPressure * hydrostaticMultiplier;
                             }
                             else if ( !nonReservoirPP.empty() )
                             {
@@ -294,7 +294,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
                             }
                         }
 
-                        caf::Ten3d segmentStress = caf::Ten3d( vertexStressesFloat[nodeIdx] );
+                        caf::Ten3d segmentStress = caf::Ten3d( vertexStressesFloat[elmNodResIdx] );
 
                         cvf::Vec3d wellPathTangent = calculateWellPathTangent( wellPathAzimuth, wellPathDeviation );
                         caf::Ten3d wellPathStressFloat =
@@ -302,21 +302,20 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
                                                                                               segmentStress );
                         caf::Ten3d wellPathStressDouble( wellPathStressFloat );
 
-                        RigGeoMechBoreHoleStressCalculator sigmaCalculator( wellPathStressDouble,
-                                                                            porePressureBar,
-                                                                            poissonsRatio,
-                                                                            ucsBar,
-                                                                            32 );
-
                         // Calculate upper limit
                         float upperLimit = inf;
                         if ( upperLimitParameter == RimMudWeightWindowParameters::UpperLimitType::FG && isSand )
                         {
-                            upperLimit = sigmaCalculator.solveFractureGradient();
+                            RigGeoMechBoreHoleStressCalculator sigmaCalculator( wellPathStressDouble,
+                                                                                porePressureBar,
+                                                                                poissonsRatio,
+                                                                                ucsBar,
+                                                                                32 );
+                            upperLimit = sigmaCalculator.solveFractureGradient() / hydroStaticPressureForNormalization;
                         }
                         else if ( upperLimitParameter == RimMudWeightWindowParameters::UpperLimitType::SH_MIN )
                         {
-                            upperLimit = stressFrameData[elmNodResIdx];
+                            upperLimit = stressFrameData[elmNodResIdx] / hydroStaticPressureForNormalization;
                         }
 
                         //
@@ -325,11 +324,14 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
                             if ( fractureGradientCalculationType ==
                                  RimMudWeightWindowParameters::FractureGradientCalculationType::DERIVED_FROM_K0FG )
                             {
-                                upperLimit = K0_FG * ( OBG0 - initialPorePressureBar ) + initialPorePressureBar;
+                                float PP0            = initialPorePressureBar / hydroStaticPressureForNormalization;
+                                float normalizedOBG0 = OBG0 / hydroStaticPressureForNormalization;
+                                upperLimit           = K0_FG * ( normalizedOBG0 - PP0 ) + PP0;
                             }
                             else
                             {
-                                upperLimit = stressFrameData[elmNodResIdx] * shMultiplier;
+                                upperLimit =
+                                    stressFrameData[elmNodResIdx] * shMultiplier / hydroStaticPressureForNormalization;
                             }
                         }
 
@@ -348,14 +350,22 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
                             }
                             else
                             {
+                                RigGeoMechBoreHoleStressCalculator sigmaCalculator( wellPathStressDouble,
+                                                                                    hydroStaticPressureForNormalization,
+                                                                                    poissonsRatio,
+                                                                                    ucsBar,
+                                                                                    32 );
+
                                 double SFG = sigmaCalculator.solveStassiDalia();
                                 lowerLimit = std::max( porePressureBar, static_cast<float>( SFG ) );
                             }
                         }
 
+                        // Upper limit values have already been normalized where appropriate
+                        upperMudWeightLimitFrameData[elmNodResIdx] = upperLimit;
+
                         // Normalize by hydrostatic pore pressure
-                        upperMudWeightLimitFrameData[elmNodResIdx] = upperLimit / cellCenterHydroStaticPressure;
-                        lowerMudWeightLimitFrameData[elmNodResIdx] = lowerLimit / cellCenterHydroStaticPressure;
+                        lowerMudWeightLimitFrameData[elmNodResIdx] = lowerLimit / hydroStaticPressureForNormalization;
                     }
                 }
             }
@@ -380,7 +390,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
 #pragma omp parallel for
         for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
         {
-            RigElementType elmType = femPart->elementType( elmIdx );
+            bool isHexahedron = femPart->isHexahedron( elmIdx );
 
             int elmNodeCount = RigFemTypes::elementNodeCount( femPart->elementType( elmIdx ) );
 
@@ -389,7 +399,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
             size_t kMin       = std::min( k, kRefLayer );
             size_t kMax       = std::max( k, kRefLayer );
 
-            if ( elmType == HEX8P && validIndex )
+            if ( isHexahedron && validIndex )
             {
                 for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
                 {
@@ -401,9 +411,9 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
                     for ( size_t currentK = kMin; currentK < kMax; currentK++ )
                     {
                         size_t kElmIdx = femPartGrid->cellIndexFromIJK( i, j, currentK );
-                        if ( kElmIdx != cvf::UNDEFINED_SIZE_T && femPart->elementType( kElmIdx ) == HEX8P )
+                        if ( kElmIdx != cvf::UNDEFINED_SIZE_T && femPart->isHexahedron( kElmIdx ) )
                         {
-                            size_t kElmNodResIdx = femPart->elementNodeResultIdx( kElmIdx, elmNodIdx );
+                            size_t kElmNodResIdx = femPart->elementNodeResultIdx( static_cast<int>( kElmIdx ), elmNodIdx );
 
                             float currentLowerMudWeightLimit = lowerMudWeightLimitFrameData[kElmNodResIdx];
                             if ( currentLowerMudWeightLimit > maxLowerMudWeightLimit )
@@ -454,7 +464,7 @@ cvf::Vec3d RigFemPartResultCalculatorMudWeightWindow::calculateWellPathTangent( 
 //--------------------------------------------------------------------------------------------------
 void RigFemPartResultCalculatorMudWeightWindow::loadParameterFramesOrValue(
     RimMudWeightWindowParameters::ParameterType                                       parameterType,
-    size_t                                                                            partIndex,
+    int                                                                               partIndex,
     std::map<RimMudWeightWindowParameters::ParameterType, RigFemScalarResultFrames*>& parameterFrames,
     std::map<RimMudWeightWindowParameters::ParameterType, float>&                     parameterValues )
 {
