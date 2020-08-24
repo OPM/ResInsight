@@ -217,10 +217,12 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
             cvf::Vec3d cellCentroid       = femPartGrid->cellCentroid( elmIdx );
             double     cellCentroidTvdRKB = -cellCentroid.z() + airGap;
             double     waterDensityGCM3   = 1.03;
-            double     cellCenterHydroStaticPressure =
+            double     hydroStaticPressure =
                 RigGeoMechWellLogExtractor::hydroStaticPorePressureAtDepth( cellCentroidTvdRKB, waterDensityGCM3 );
+            double hydroStaticPressureForNormalization =
+                RigGeoMechWellLogExtractor::hydroStaticPorePressureAtDepth( cellCentroidTvdRKB, 1.0 );
 
-            if ( isHexahedron && cellCenterHydroStaticPressure != 0.0 )
+            if ( isHexahedron && hydroStaticPressureForNormalization != 0.0 )
             {
                 double wellPathDeviation = getValueForElement( RimMudWeightWindowParameters::ParameterType::WELL_DEVIATION,
                                                                parameterFrameData,
@@ -281,8 +283,8 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
                             if ( PP_NonReservoirType ==
                                  RimMudWeightWindowParameters::NonReservoirPorePressureType::HYDROSTATIC )
                             {
-                                porePressureBar        = cellCenterHydroStaticPressure * hydrostaticMultiplier;
-                                initialPorePressureBar = cellCenterHydroStaticPressure * hydrostaticMultiplier;
+                                porePressureBar        = hydroStaticPressure * hydrostaticMultiplier;
+                                initialPorePressureBar = hydroStaticPressure * hydrostaticMultiplier;
                             }
                             else if ( !nonReservoirPP.empty() )
                             {
@@ -310,11 +312,11 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
                         float upperLimit = inf;
                         if ( upperLimitParameter == RimMudWeightWindowParameters::UpperLimitType::FG && isSand )
                         {
-                            upperLimit = sigmaCalculator.solveFractureGradient() / cellCenterHydroStaticPressure;
+                            upperLimit = sigmaCalculator.solveFractureGradient() / hydroStaticPressureForNormalization;
                         }
                         else if ( upperLimitParameter == RimMudWeightWindowParameters::UpperLimitType::SH_MIN )
                         {
-                            upperLimit = stressFrameData[elmNodResIdx] / cellCenterHydroStaticPressure;
+                            upperLimit = stressFrameData[elmNodResIdx] / hydroStaticPressureForNormalization;
                         }
 
                         //
@@ -323,13 +325,14 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
                             if ( fractureGradientCalculationType ==
                                  RimMudWeightWindowParameters::FractureGradientCalculationType::DERIVED_FROM_K0FG )
                             {
-                                float PP0            = initialPorePressureBar / cellCenterHydroStaticPressure;
-                                float normalizedOBG0 = OBG0 / cellCenterHydroStaticPressure;
+                                float PP0            = initialPorePressureBar / hydroStaticPressureForNormalization;
+                                float normalizedOBG0 = OBG0 / hydroStaticPressureForNormalization;
                                 upperLimit           = K0_FG * ( normalizedOBG0 - PP0 ) + PP0;
                             }
                             else
                             {
-                                upperLimit = stressFrameData[elmNodResIdx] * shMultiplier / cellCenterHydroStaticPressure;
+                                upperLimit = stressFrameData[elmNodResIdx] * shMultiplier /
+                                             hydroStaticPressureForNormalization;
                             }
                         }
 
@@ -357,7 +360,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
                         upperMudWeightLimitFrameData[elmNodResIdx] = upperLimit;
 
                         // Normalize by hydrostatic pore pressure
-                        lowerMudWeightLimitFrameData[elmNodResIdx] = lowerLimit / cellCenterHydroStaticPressure;
+                        lowerMudWeightLimitFrameData[elmNodResIdx] = lowerLimit / hydroStaticPressureForNormalization;
                     }
                 }
             }
