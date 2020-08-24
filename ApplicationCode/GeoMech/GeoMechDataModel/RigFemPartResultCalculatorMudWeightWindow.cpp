@@ -302,16 +302,15 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
                                                                                               segmentStress );
                         caf::Ten3d wellPathStressDouble( wellPathStressFloat );
 
-                        RigGeoMechBoreHoleStressCalculator sigmaCalculator( wellPathStressDouble,
-                                                                            porePressureBar,
-                                                                            poissonsRatio,
-                                                                            ucsBar,
-                                                                            32 );
-
                         // Calculate upper limit
                         float upperLimit = inf;
                         if ( upperLimitParameter == RimMudWeightWindowParameters::UpperLimitType::FG && isSand )
                         {
+                            RigGeoMechBoreHoleStressCalculator sigmaCalculator( wellPathStressDouble,
+                                                                                porePressureBar,
+                                                                                poissonsRatio,
+                                                                                ucsBar,
+                                                                                32 );
                             upperLimit = sigmaCalculator.solveFractureGradient() / hydroStaticPressureForNormalization;
                         }
                         else if ( upperLimitParameter == RimMudWeightWindowParameters::UpperLimitType::SH_MIN )
@@ -351,6 +350,12 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
                             }
                             else
                             {
+                                RigGeoMechBoreHoleStressCalculator sigmaCalculator( wellPathStressDouble,
+                                                                                    hydroStaticPressureForNormalization,
+                                                                                    poissonsRatio,
+                                                                                    ucsBar,
+                                                                                    32 );
+
                                 double SFG = sigmaCalculator.solveStassiDalia();
                                 lowerLimit = std::max( porePressureBar, static_cast<float>( SFG ) );
                             }
