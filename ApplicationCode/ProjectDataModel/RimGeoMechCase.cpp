@@ -381,6 +381,7 @@ RimGeoMechCase::CaseOpenStatus RimGeoMechCase::openGeoMechCase( std::string* err
     }
     geoMechCaseData->femPartResults()->addElementPropertyFiles( fileNames );
     geoMechCaseData->femPartResults()->setCalculationParameters( m_cohesion, cvf::Math::toRadians( m_frictionAngleDeg() ) );
+    geoMechCaseData->femPartResults()->setWaterDensityShearSlipIndicator( m_waterDensityShearSlipIndicator );
 
     m_geoMechCaseData = geoMechCaseData;
 
