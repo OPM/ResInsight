@@ -176,7 +176,7 @@ class PdmObjectBase:
             if value:
                 return "true"
             return "false"
-        if isinstance(value, PdmObject_pb2.PdmObject):
+        if isinstance(value, PdmObjectBase):
             return value.__class__.__name__ + ":" + str(value.address())
         if isinstance(value, list):
             list_of_strings = []
