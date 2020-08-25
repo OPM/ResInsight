@@ -22,7 +22,7 @@ for surffile in filenames:
         print("Could not import the surface " + surffile)
 
 # add a subfolder
-subfolder = project.add_folder("ExampleFolder")
+subfolder = surfacefolder.add_folder("ExampleFolder")
 
 # load the same surface multiple times using increasing depth offsets
 # store them in the new subfolder we just created
