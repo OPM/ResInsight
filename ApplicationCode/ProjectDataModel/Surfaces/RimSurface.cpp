@@ -24,6 +24,9 @@
 
 #include "RifSurfaceImporter.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
+
 #include "cafPdmUiDoubleSliderEditor.h"
 
 #include <cmath>
@@ -35,13 +38,14 @@ CAF_PDM_ABSTRACT_SOURCE_INIT( RimSurface, "SurfaceInterface" );
 //--------------------------------------------------------------------------------------------------
 RimSurface::RimSurface()
 {
-    CAF_PDM_InitObject( "Surface", ":/ReservoirSurface16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Surface", ":/ReservoirSurface16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_userDescription, "SurfaceUserDecription", "Name", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_userDescription, "SurfaceUserDecription", "Name", "", "", "" );
     CAF_PDM_InitField( &m_color, "SurfaceColor", cvf::Color3f( 0.5f, 0.3f, 0.2f ), "Color", "", "", "" );
 
-    CAF_PDM_InitField( &m_depthOffset, "DepthOffset", 0.0, "Depth Offset", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_depthOffset, "DepthOffset", 0.0, "Depth Offset", "", "", "" );
     m_depthOffset.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    m_depthOffset.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( true );
 
     CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name Proxy", "", "", "" );
     m_nameProxy.registerGetMethod( this, &RimSurface::fullName );

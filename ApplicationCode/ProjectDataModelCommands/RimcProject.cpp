@@ -21,8 +21,10 @@
 #include "RicImportSummaryCasesFeature.h"
 
 #include "RimFileSummaryCase.h"
+#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
+#include "RimSurfaceCollection.h"
 #include "RiuPlotMainWindow.h"
 
 #include "cafPdmFieldScriptingCapability.h"
@@ -135,6 +137,60 @@ std::unique_ptr<caf::PdmObjectHandle> RimProject_summaryCase::defaultResult() co
 ///
 //--------------------------------------------------------------------------------------------------
 bool RimProject_summaryCase::isNullptrValidResult() const
+{
+    return true;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_surfaceFolder, "surfaceFolder" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimProject_surfaceFolder::RimProject_surfaceFolder( caf::PdmObjectHandle* self )
+    : caf::PdmObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Get Surface Folder", "", "", "Get Surface Folder" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_foldername, "FolderName", "", "", "", "" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmObjectHandle* RimProject_surfaceFolder::execute()
+{
+    auto                  proj     = RimProject::current();
+    RimSurfaceCollection* surfcoll = proj->activeOilField()->surfaceCollection();
+
+    if ( m_foldername().isEmpty() ) return surfcoll;
+
+    for ( auto s : surfcoll->subcollections() )
+    {
+        if ( s->collectionname() == m_foldername() ) return s;
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimProject_surfaceFolder::resultIsPersistent() const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<caf::PdmObjectHandle> RimProject_surfaceFolder::defaultResult() const
+{
+    return std::unique_ptr<caf::PdmObjectHandle>( new RimSurfaceCollection );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimProject_surfaceFolder::isNullptrValidResult() const
 {
     return true;
 }

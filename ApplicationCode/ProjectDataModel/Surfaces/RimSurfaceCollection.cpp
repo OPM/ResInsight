@@ -30,6 +30,9 @@
 
 #include "cafPdmFieldReorderCapability.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
+
 CAF_PDM_SOURCE_INIT( RimSurfaceCollection, "SurfaceCollection" );
 
 //--------------------------------------------------------------------------------------------------
@@ -37,17 +40,17 @@ CAF_PDM_SOURCE_INIT( RimSurfaceCollection, "SurfaceCollection" );
 //--------------------------------------------------------------------------------------------------
 RimSurfaceCollection::RimSurfaceCollection()
 {
-    CAF_PDM_InitObject( "Surfaces", ":/ReservoirSurfaces16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Surfaces", ":/ReservoirSurfaces16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_collectionname, "SurfaceUserDecription", "Name", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_collectionname, "SurfaceUserDecription", "Name", "", "", "" );
     m_collectionname = "Surfaces";
 
-    CAF_PDM_InitFieldNoDefault( &m_subcollections, "SubCollections", "Surfaces", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_subcollections, "SubCollections", "Surfaces", "", "", "" );
     m_subcollections.uiCapability()->setUiTreeHidden( true );
     auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_subcollections );
     reorderability->orderChanged.connect( this, &RimSurfaceCollection::orderChanged );
 
-    CAF_PDM_InitFieldNoDefault( &m_surfaces, "SurfacesField", "Surfaces", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_surfaces, "SurfacesField", "Surfaces", "", "", "" );
     m_surfaces.uiCapability()->setUiTreeHidden( true );
 
     setDeletable( true );
@@ -75,6 +78,14 @@ void RimSurfaceCollection::setAsTopmostFolder()
 QString RimSurfaceCollection::collectionname() const
 {
     return m_collectionname.value();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceCollection::setCollectionname( const QString name )
+{
+    return m_collectionname.setValue( name );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -407,4 +418,17 @@ void RimSurfaceCollection::addSubCollection( RimSurfaceCollection* subcoll )
     updateViews();
 
     return;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSurfaceCollection* RimSurfaceCollection::getSubCollection( const QString name )
+{
+    for ( auto coll : m_subcollections )
+    {
+        if ( coll->collectionname() == name ) return coll;
+    }
+
+    return nullptr;
 }

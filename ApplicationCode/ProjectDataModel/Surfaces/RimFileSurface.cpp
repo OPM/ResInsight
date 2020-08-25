@@ -23,6 +23,9 @@
 #include "RigSurface.h"
 #include "RimSurfaceCollection.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
+
 #include <QFileInfo>
 
 // TODO: Use the alias concept prototyped below when the alias concept for class is ready
@@ -35,7 +38,7 @@ CAF_PDM_SOURCE_INIT( RimFileSurface, "Surface" );
 //--------------------------------------------------------------------------------------------------
 RimFileSurface::RimFileSurface()
 {
-    CAF_PDM_InitObject( "Surface", ":/ReservoirSurface16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Surface", ":/ReservoirSurface16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_surfaceDefinitionFilePath, "SurfaceFilePath", "File", "", "", "" );
 }

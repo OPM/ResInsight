@@ -41,7 +41,8 @@ public:
     RimSurface* copySurfaces( std::vector<RimSurface*> surfaces );
     RimSurface* addSurfacesAtIndex( int index, std::vector<RimSurface*> surfaces );
 
-    void addSubCollection( RimSurfaceCollection* collection );
+    void                  addSubCollection( RimSurfaceCollection* collection );
+    RimSurfaceCollection* getSubCollection( const QString name );
 
     void reloadSurfaces( std::vector<RimSurface*> surfaces );
     void removeSurface( RimSurface* surface );
@@ -55,6 +56,7 @@ public:
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
     QString collectionname() const;
+    void    setCollectionname( const QString name );
 
     std::vector<RimSurface*>           surfaces() const;
     std::vector<RimSurfaceCollection*> subcollections() const;
