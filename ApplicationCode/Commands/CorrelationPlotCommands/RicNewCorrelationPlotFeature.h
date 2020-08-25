@@ -28,14 +28,18 @@ class EnsemblePlotParams
 {
 public:
     RimSummaryCaseCollection* ensemble;
-    QString                   quantityName;
+    QStringList               includedQuantityNames;
+    QString                   mainQuantityName;
     QString                   ensembleParameter;
     std::time_t               timeStep;
 
     EnsemblePlotParams();
     EnsemblePlotParams( const EnsemblePlotParams& rhs ) = default;
 
-    EnsemblePlotParams( RimSummaryCaseCollection* ensemble, const QString& quantityName, const std::time_t& timeStep );
+    EnsemblePlotParams( RimSummaryCaseCollection* ensemble,
+                        const QStringList&        includedQuantityNames,
+                        const QString&            mainQuantityName,
+                        const std::time_t&        timeStep );
     ~EnsemblePlotParams() = default;
 };
 

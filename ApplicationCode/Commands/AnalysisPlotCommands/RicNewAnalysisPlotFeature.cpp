@@ -85,7 +85,7 @@ void RicNewAnalysisPlotFeature::onActionTriggered( bool isChecked )
 
             EnsemblePlotParams params = userData.value<EnsemblePlotParams>();
             ensemble                  = params.ensemble;
-            quantityName              = params.quantityName;
+            quantityName              = params.mainQuantityName;
             timeStep                  = params.timeStep;
 
             newPlot = analysisPlotColl->createAnalysisPlot( ensemble, quantityName, timeStep );

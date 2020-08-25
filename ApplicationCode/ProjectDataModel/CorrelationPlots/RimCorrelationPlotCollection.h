@@ -22,6 +22,7 @@
 #include "cafPdmObject.h"
 
 #include <ctime>
+#include <vector>
 
 class RimAbstractCorrelationPlot;
 class RimCorrelationPlot;
@@ -47,7 +48,9 @@ public:
         createCorrelationPlot( RimSummaryCaseCollection* ensemble, const QString& quantityName, std::time_t timeStep );
 
     RimCorrelationMatrixPlot* createCorrelationMatrixPlot( bool defaultToFirstEnsembleField = true );
-    RimCorrelationMatrixPlot* createCorrelationMatrixPlot( RimSummaryCaseCollection* ensemble, std::time_t timeStep );
+    RimCorrelationMatrixPlot* createCorrelationMatrixPlot( RimSummaryCaseCollection*   ensemble,
+                                                           const std::vector<QString>& quantityNames,
+                                                           std::time_t                 timeStep );
 
     RimParameterResultCrossPlot* createParameterResultCrossPlot( bool defaultToFirstEnsembleFopt = true );
     RimParameterResultCrossPlot* createParameterResultCrossPlot( RimSummaryCaseCollection* ensemble,
@@ -56,9 +59,10 @@ public:
                                                                  std::time_t               timeStep );
 
     RimCorrelationReportPlot* createCorrelationReportPlot( bool defaultToFirstEnsembleFopt = true );
-    RimCorrelationReportPlot* createCorrelationReportPlot( RimSummaryCaseCollection* ensemble,
-                                                           const QString&            quantityName,
-                                                           std::time_t               timeStep );
+    RimCorrelationReportPlot* createCorrelationReportPlot( RimSummaryCaseCollection*   ensemble,
+                                                           const std::vector<QString>& matrixQuantityNames,
+                                                           const QString&              tornadoAndCrossPlotQuantityName,
+                                                           std::time_t                 timeStep );
 
     void removePlot( RimAbstractCorrelationPlot* correlationPlot );
     void removeReport( RimCorrelationReportPlot* correlationReport );
@@ -69,16 +73,20 @@ public:
     void deleteAllChildObjects();
 
 private:
-    void applyFirstEnsembleFieldAddressesToPlot( RimAbstractCorrelationPlot* plot, const std::string& quantityName = "" );
+    void applyFirstEnsembleFieldAddressesToPlot( RimAbstractCorrelationPlot* plot,
+                                                 const std::vector<QString>& quantityNames = {} );
     void applyEnsembleFieldAndTimeStepToPlot( RimAbstractCorrelationPlot* plot,
                                               RimSummaryCaseCollection*   ensemble,
-                                              const std::string&          quantityName,
+                                              const std::vector<QString>& quantityNames,
                                               std::time_t                 timeStep );
-    void applyFirstEnsembleFieldAddressesToReport( RimCorrelationReportPlot* plot, const std::string& quantityName = "" );
-    void applyEnsembleFieldAndTimeStepToReport( RimCorrelationReportPlot* plot,
-                                                RimSummaryCaseCollection* ensemble,
-                                                const std::string&        quantityName,
-                                                std::time_t               timeStep );
+    void applyFirstEnsembleFieldAddressesToReport( RimCorrelationReportPlot*   plot,
+                                                   const std::vector<QString>& matrixQuantityNames,
+                                                   const QString&              tornadoAndCrossPlotQuantityName );
+    void applyEnsembleFieldAndTimeStepToReport( RimCorrelationReportPlot*   plot,
+                                                RimSummaryCaseCollection*   ensemble,
+                                                const std::vector<QString>& matrixQuantityNames,
+                                                const QString&              tornadoAndCrossPlotQuantityName,
+                                                std::time_t                 timeStep );
 
 private:
     caf::PdmChildArrayField<RimAbstractCorrelationPlot*> m_correlationPlots;

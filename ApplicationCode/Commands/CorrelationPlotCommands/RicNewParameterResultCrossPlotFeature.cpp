@@ -86,7 +86,7 @@ void RicNewParameterResultCrossPlotFeature::onActionTriggered( bool isChecked )
 
             EnsemblePlotParams params = userData.value<EnsemblePlotParams>();
             ensemble                  = params.ensemble;
-            quantityName              = params.quantityName;
+            quantityName              = params.mainQuantityName;
             ensembleParameter         = params.ensembleParameter;
 
             timeStep = params.timeStep;
