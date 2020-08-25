@@ -83,7 +83,7 @@ void RicNewCorrelationPlotFeature::onActionTriggered( bool isChecked )
 
             EnsemblePlotParams params = userData.value<EnsemblePlotParams>();
             ensemble                  = params.ensemble;
-            quantityName              = params.quantityName;
+            quantityName              = params.mainQuantityName;
             timeStep                  = params.timeStep;
 
             newPlot = correlationPlotColl->createCorrelationPlot( ensemble, quantityName, timeStep );
@@ -116,7 +116,7 @@ void RicNewCorrelationPlotFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 EnsemblePlotParams::EnsemblePlotParams()
     : ensemble( nullptr )
-    , quantityName( "" )
+    , mainQuantityName( "" )
     , ensembleParameter( "" )
     , timeStep( 0 )
 {
@@ -126,10 +126,12 @@ EnsemblePlotParams::EnsemblePlotParams()
 ///
 //--------------------------------------------------------------------------------------------------
 EnsemblePlotParams::EnsemblePlotParams( RimSummaryCaseCollection* ensemble,
-                                        const QString&            quantityName,
+                                        const QStringList&        includedQuantityNames,
+                                        const QString&            mainQuantityName,
                                         const std::time_t&        timeStep )
     : ensemble( ensemble )
-    , quantityName( quantityName )
+    , includedQuantityNames( includedQuantityNames )
+    , mainQuantityName( mainQuantityName )
     , ensembleParameter( "" )
     , timeStep( timeStep )
 {

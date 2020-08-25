@@ -68,7 +68,8 @@ void RicNewCorrelationReportPlotFeature::onActionTriggered( bool isChecked )
     }
 
     RimSummaryCaseCollection* ensemble = nullptr;
-    QString                   quantityName;
+    std::vector<QString>      includedQuantityNames;
+    QString                   mainQuantityName;
     std::time_t               timeStep = 0;
 
     RimCorrelationReportPlot* newPlot = nullptr;
@@ -84,10 +85,16 @@ void RicNewCorrelationReportPlotFeature::onActionTriggered( bool isChecked )
 
             EnsemblePlotParams params = userData.value<EnsemblePlotParams>();
             ensemble                  = params.ensemble;
-            quantityName              = params.quantityName;
-            timeStep                  = params.timeStep;
+            includedQuantityNames =
+                std::vector<QString>( params.includedQuantityNames.begin(), params.includedQuantityNames.end() );
 
-            newPlot = correlationPlotColl->createCorrelationReportPlot( ensemble, quantityName, timeStep );
+            mainQuantityName = params.mainQuantityName;
+            timeStep         = params.timeStep;
+
+            newPlot = correlationPlotColl->createCorrelationReportPlot( ensemble,
+                                                                        includedQuantityNames,
+                                                                        mainQuantityName,
+                                                                        timeStep );
         }
     }
     else

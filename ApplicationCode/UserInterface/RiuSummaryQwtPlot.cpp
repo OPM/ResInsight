@@ -199,18 +199,42 @@ void RiuSummaryQwtPlot::contextMenuEvent( QContextMenuEvent* event )
             {
                 std::time_t timeStep = summaryCurve->timeStepsY()[closestCurvePoint];
 
-                RimEnsembleCurveSet* ensembleCurveSet = nullptr;
-                summaryCurve->firstAncestorOrThisOfType( ensembleCurveSet );
+                RimSummaryCaseCollection* ensemble = nullptr;
+                QString                   clickedQuantityName;
+                QStringList               allQuantityNamesInPlot;
 
-                if ( ensembleCurveSet )
+                RimEnsembleCurveSet* clickedEnsembleCurveSet = nullptr;
+                summaryCurve->firstAncestorOrThisOfType( clickedEnsembleCurveSet );
+
+                if ( clickedEnsembleCurveSet )
                 {
-                    RimSummaryCaseCollection* ensemble = ensembleCurveSet->summaryCaseCollection();
+                    ensemble = clickedEnsembleCurveSet->summaryCaseCollection();
                     if ( ensemble && ensemble->isEnsemble() )
                     {
-                        EnsemblePlotParams params( ensemble,
-                                                   QString::fromStdString(
-                                                       ensembleCurveSet->summaryAddress().quantityName() ),
-                                                   timeStep );
+                        clickedQuantityName = QString::fromStdString( clickedEnsembleCurveSet->summaryAddress().uiText() );
+                    }
+                }
+
+                if ( distanceFromClick > 20 )
+                {
+                    RimSummaryPlot*                   summaryPlot = static_cast<RimSummaryPlot*>( plotDefinition() );
+                    std::vector<RimEnsembleCurveSet*> allCurveSetsInPlot;
+                    summaryPlot->descendantsOfType( allCurveSetsInPlot );
+                    for ( auto curveSet : allCurveSetsInPlot )
+                    {
+                        allQuantityNamesInPlot.push_back( QString::fromStdString( curveSet->summaryAddress().uiText() ) );
+                    }
+                }
+                else
+                {
+                    allQuantityNamesInPlot.push_back( clickedQuantityName );
+                }
+
+                if ( !clickedQuantityName.isEmpty() || !allQuantityNamesInPlot.isEmpty() )
+                {
+                    if ( ensemble && ensemble->isEnsemble() )
+                    {
+                        EnsemblePlotParams params( ensemble, allQuantityNamesInPlot, clickedQuantityName, timeStep );
                         QVariant           variant = QVariant::fromValue( params );
 
                         menuBuilder.addCmdFeatureWithUserData( "RicNewAnalysisPlotFeature", "New Analysis Plot", variant );
@@ -218,32 +242,38 @@ void RiuSummaryQwtPlot::contextMenuEvent( QContextMenuEvent* event )
                         menuBuilder.subMenuStart( "Create Correlation Plot From Curve Point",
                                                   *caf::IconProvider( ":/CorrelationPlots16x16.png" ).icon() );
                         {
-                            menuBuilder.addCmdFeatureWithUserData( "RicNewCorrelationPlotFeature",
-                                                                   "New Tornado Plot",
-                                                                   variant );
+                            if ( !clickedQuantityName.isEmpty() )
+                            {
+                                menuBuilder.addCmdFeatureWithUserData( "RicNewCorrelationPlotFeature",
+                                                                       "New Tornado Plot",
+                                                                       variant );
+                            }
                             menuBuilder.addCmdFeatureWithUserData( "RicNewCorrelationMatrixPlotFeature",
                                                                    "New Matrix Plot",
                                                                    variant );
                             menuBuilder.addCmdFeatureWithUserData( "RicNewCorrelationReportPlotFeature",
                                                                    "New Report Plot",
                                                                    variant );
-                            menuBuilder.subMenuStart( "Cross Plots",
-                                                      *caf::IconProvider( ":/CorrelationCrossPlot16x16.png" ).icon() );
-                            std::vector<EnsembleParameter> ensembleParameters =
-                                ensemble->variationSortedEnsembleParameters();
-                            for ( const EnsembleParameter& param : ensembleParameters )
+                            if ( !clickedQuantityName.isEmpty() )
                             {
-                                if ( param.variationBin >= (int)EnsembleParameter::LOW_VARIATION )
+                                menuBuilder.subMenuStart( "Cross Plots",
+                                                          *caf::IconProvider( ":/CorrelationCrossPlot16x16.png" ).icon() );
+                                std::vector<EnsembleParameter> ensembleParameters =
+                                    ensemble->variationSortedEnsembleParameters();
+                                for ( const EnsembleParameter& param : ensembleParameters )
                                 {
-                                    params.ensembleParameter = param.name;
-                                    variant                  = QVariant::fromValue( params );
-                                    menuBuilder.addCmdFeatureWithUserData( "RicNewParameterResultCrossPlotFeature",
-                                                                           QString( "New Cross Plot Against %1" )
-                                                                               .arg( param.uiName() ),
-                                                                           variant );
+                                    if ( param.variationBin >= (int)EnsembleParameter::LOW_VARIATION )
+                                    {
+                                        params.ensembleParameter = param.name;
+                                        variant                  = QVariant::fromValue( params );
+                                        menuBuilder.addCmdFeatureWithUserData( "RicNewParameterResultCrossPlotFeature",
+                                                                               QString( "New Cross Plot Against %1" )
+                                                                                   .arg( param.uiName() ),
+                                                                               variant );
+                                    }
                                 }
+                                menuBuilder.subMenuEnd();
                             }
-                            menuBuilder.subMenuEnd();
                         }
                         menuBuilder.subMenuEnd();
                     }

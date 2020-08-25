@@ -70,6 +70,7 @@ void RicNewCorrelationMatrixPlotFeature::onActionTriggered( bool isChecked )
     }
 
     RimSummaryCaseCollection* ensemble = nullptr;
+    std::vector<QString>      includedQuantityNames;
     std::time_t               timeStep = 0;
 
     RimCorrelationMatrixPlot* newPlot = nullptr;
@@ -84,10 +85,13 @@ void RicNewCorrelationMatrixPlotFeature::onActionTriggered( bool isChecked )
             correlationPlotColl = correlationPlotCollections.front();
 
             EnsemblePlotParams params = userData.value<EnsemblePlotParams>();
-            ensemble                  = params.ensemble;
-            timeStep                  = params.timeStep;
 
-            newPlot = correlationPlotColl->createCorrelationMatrixPlot( ensemble, timeStep );
+            includedQuantityNames =
+                std::vector<QString>( params.includedQuantityNames.begin(), params.includedQuantityNames.end() );
+            ensemble = params.ensemble;
+            timeStep = params.timeStep;
+
+            newPlot = correlationPlotColl->createCorrelationMatrixPlot( ensemble, includedQuantityNames, timeStep );
         }
     }
     else
