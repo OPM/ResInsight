@@ -161,6 +161,7 @@ caf::PdmObjectHandle* RimProject_surfaceFolder::execute()
     auto                  proj     = RimProject::current();
     RimSurfaceCollection* surfcoll = proj->activeOilField()->surfaceCollection();
 
+    // Blank foldername parameter should return the topmost folder
     if ( m_foldername().isEmpty() ) return surfcoll;
 
     for ( auto s : surfcoll->subcollections() )
