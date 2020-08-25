@@ -109,6 +109,9 @@ public:
     void                  setElasticProperties( RimElasticProperties* elasticProperties );
     RimElasticProperties* elasticProperties() const;
 
+    double getDefaultValueForProperty( RiaDefines::CurveProperty ) const;
+    bool   hasDefaultValueForProperty( RiaDefines::CurveProperty ) const;
+
     RiaDefines::CurveProperty getDefaultPropertyForMissingValues( const QString& keyword ) const;
     double                    getDefaultForMissingOverburdenValue( const QString& keyword ) const;
     double                    getDefaultForMissingUnderburdenValue( const QString& keyword ) const;
@@ -160,5 +163,8 @@ protected:
     caf::PdmField<double>                       m_referenceTemperature;
     caf::PdmField<double>                       m_referenceTemperatureGradient;
     caf::PdmField<double>                       m_referenceTemperatureDepth;
+    caf::PdmField<double>                       m_relativePermeabilityFactorDefault;
+    caf::PdmField<double>                       m_poroElasticConstantDefault;
+    caf::PdmField<double>                       m_thermalExpansionCoeffientDefault;
     caf::PdmField<bool>                         m_useDetailedFluidLoss;
 };

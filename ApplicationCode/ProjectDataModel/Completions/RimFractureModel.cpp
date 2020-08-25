@@ -186,6 +186,22 @@ RimFractureModel::RimFractureModel()
 
     CAF_PDM_InitScriptableField( &m_useDetailedFluidLoss, "UseDetailedFluidLoss", true, "Use Detailed Fluid Loss", "", "", "" );
 
+    CAF_PDM_InitScriptableField( &m_relativePermeabilityFactorDefault,
+                                 "RelativePermeabilityFactor",
+                                 0.5,
+                                 "Relative Permeability Factor",
+                                 "",
+                                 "",
+                                 "" );
+    CAF_PDM_InitScriptableField( &m_poroElasticConstantDefault, "PoroElasticConstant", 0.0, "Poro-Elastic Constant", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_thermalExpansionCoeffientDefault,
+                                 "ThermalExpansionCoeffisient",
+                                 0.0,
+                                 "Thermal Expansion Coeffisient",
+                                 "",
+                                 "",
+                                 "" );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_elasticProperties, "ElasticProperties", "Elastic Properties", "", "", "" );
     m_elasticProperties.uiCapability()->setUiHidden( true );
     m_elasticProperties.uiCapability()->setUiTreeHidden( true );
@@ -736,6 +752,42 @@ double RimFractureModel::getUnderburdenGradient( const QString& keyword ) const
         RiaLogging::error( QString( "Missing underburden gradient for %1." ).arg( keyword ) );
         return std::numeric_limits<double>::infinity();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModel::getDefaultValueForProperty( RiaDefines::CurveProperty curveProperty ) const
+{
+    if ( curveProperty == RiaDefines::CurveProperty::RELATIVE_PERMEABILITY_FACTOR )
+    {
+        return m_relativePermeabilityFactorDefault;
+    }
+    else if ( curveProperty == RiaDefines::CurveProperty::PORO_ELASTIC_CONSTANT )
+    {
+        return m_poroElasticConstantDefault;
+    }
+    else if ( curveProperty == RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFISIENT )
+    {
+        return m_thermalExpansionCoeffientDefault;
+    }
+    else
+    {
+        RiaLogging::error(
+            QString( "Missing default for %1." ).arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
+        return std::numeric_limits<double>::infinity();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFractureModel::hasDefaultValueForProperty( RiaDefines::CurveProperty curveProperty ) const
+{
+    auto withDefaults = {RiaDefines::CurveProperty::RELATIVE_PERMEABILITY_FACTOR,
+                         RiaDefines::CurveProperty::PORO_ELASTIC_CONSTANT,
+                         RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFISIENT};
+    return std::find( withDefaults.begin(), withDefaults.end(), curveProperty ) != withDefaults.end();
 }
 
 //--------------------------------------------------------------------------------------------------

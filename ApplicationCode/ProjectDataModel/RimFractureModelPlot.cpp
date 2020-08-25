@@ -599,7 +599,7 @@ std::vector<double> RimFractureModelPlot::calculateTemperature() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimFractureModelPlot::calculateRelativePermeabilityFactor() const
 {
-    return std::vector<double>();
+    return findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty::RELATIVE_PERMEABILITY_FACTOR );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -607,7 +607,7 @@ std::vector<double> RimFractureModelPlot::calculateRelativePermeabilityFactor() 
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimFractureModelPlot::calculatePoroElasticConstant() const
 {
-    return std::vector<double>();
+    return findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty::PORO_ELASTIC_CONSTANT );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -615,5 +615,5 @@ std::vector<double> RimFractureModelPlot::calculatePoroElasticConstant() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimFractureModelPlot::calculateThermalExpansionCoefficient() const
 {
-    return std::vector<double>();
+    return findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFISIENT );
 }

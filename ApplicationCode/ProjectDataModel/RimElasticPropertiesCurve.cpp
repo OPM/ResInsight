@@ -309,6 +309,11 @@ void RimElasticPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength
                     double val = rigElasticProperties.getSpurtLoss( porosity );
                     values.push_back( val );
                 }
+                else if ( m_fractureModel->hasDefaultValueForProperty( curveProperty() ) )
+                {
+                    double val = m_fractureModel->getDefaultValueForProperty( curveProperty() );
+                    values.push_back( val );
+                }
             }
             else
             {
