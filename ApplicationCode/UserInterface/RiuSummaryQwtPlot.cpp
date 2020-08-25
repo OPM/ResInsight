@@ -206,6 +206,8 @@ void RiuSummaryQwtPlot::contextMenuEvent( QContextMenuEvent* event )
                 RimEnsembleCurveSet* clickedEnsembleCurveSet = nullptr;
                 summaryCurve->firstAncestorOrThisOfType( clickedEnsembleCurveSet );
 
+                bool curveClicked = distanceFromClick < 50;
+
                 if ( clickedEnsembleCurveSet )
                 {
                     ensemble = clickedEnsembleCurveSet->summaryCaseCollection();
@@ -215,7 +217,7 @@ void RiuSummaryQwtPlot::contextMenuEvent( QContextMenuEvent* event )
                     }
                 }
 
-                if ( distanceFromClick > 20 )
+                if ( !curveClicked )
                 {
                     RimSummaryPlot*                   summaryPlot = static_cast<RimSummaryPlot*>( plotDefinition() );
                     std::vector<RimEnsembleCurveSet*> allCurveSetsInPlot;
@@ -239,10 +241,15 @@ void RiuSummaryQwtPlot::contextMenuEvent( QContextMenuEvent* event )
 
                         menuBuilder.addCmdFeatureWithUserData( "RicNewAnalysisPlotFeature", "New Analysis Plot", variant );
 
-                        menuBuilder.subMenuStart( "Create Correlation Plot From Curve Point",
-                                                  *caf::IconProvider( ":/CorrelationPlots16x16.png" ).icon() );
+                        QString subMenuName = "Create Correlation Plot";
+                        if ( curveClicked )
                         {
-                            if ( !clickedQuantityName.isEmpty() )
+                            subMenuName = "Create Correlation Plot From Curve Point";
+                        }
+                        menuBuilder.subMenuStart( subMenuName, *caf::IconProvider( ":/CorrelationPlots16x16.png" ).icon() );
+
+                        {
+                            if ( curveClicked )
                             {
                                 menuBuilder.addCmdFeatureWithUserData( "RicNewCorrelationPlotFeature",
                                                                        "New Tornado Plot",
@@ -254,7 +261,7 @@ void RiuSummaryQwtPlot::contextMenuEvent( QContextMenuEvent* event )
                             menuBuilder.addCmdFeatureWithUserData( "RicNewCorrelationReportPlotFeature",
                                                                    "New Report Plot",
                                                                    variant );
-                            if ( !clickedQuantityName.isEmpty() )
+                            if ( curveClicked )
                             {
                                 menuBuilder.subMenuStart( "Cross Plots",
                                                           *caf::IconProvider( ":/CorrelationCrossPlot16x16.png" ).icon() );
