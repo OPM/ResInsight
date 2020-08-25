@@ -41,6 +41,7 @@ void AppEnum<RiaDefines::CurveProperty>::setUp()
     addItem( RiaDefines::CurveProperty::K0, "K0", "k0" );
     addItem( RiaDefines::CurveProperty::FLUID_LOSS_COEFFICIENT, "FLUID_LOSS_COEFFICIENT", "Fluid Loss Coefficient" );
     addItem( RiaDefines::CurveProperty::SPURT_LOSS, "SPURT_LOSS", "Spurt Loss" );
+    addItem( RiaDefines::CurveProperty::TEMPERATURE, "TEMPERATURE", "Temperature" );
     setDefault( RiaDefines::CurveProperty::UNDEFINED );
 }
 }; // namespace caf

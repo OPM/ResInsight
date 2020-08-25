@@ -152,6 +152,7 @@ RimFractureModelPlot*
         auto task = progInfo.task( "Creating stress track", 2 );
         createStressTrack( plot, fractureModel, eclipseCase, timeStep, RiaDefines::CurveProperty::STRESS );
         createStressTrack( plot, fractureModel, eclipseCase, timeStep, RiaDefines::CurveProperty::STRESS_GRADIENT );
+        createStressTrack( plot, fractureModel, eclipseCase, timeStep, RiaDefines::CurveProperty::TEMPERATURE );
     }
 
     {

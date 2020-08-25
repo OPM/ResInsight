@@ -43,6 +43,7 @@ enum class CurveProperty
     BIOT_COEFFICIENT,
     K0,
     FLUID_LOSS_COEFFICIENT,
-    SPURT_LOSS
+    SPURT_LOSS,
+    TEMPERATURE,
 };
 }; // namespace RiaDefines

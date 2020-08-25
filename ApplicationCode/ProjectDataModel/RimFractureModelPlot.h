@@ -93,6 +93,8 @@ protected:
     RimWellLogExtractionCurve* findCurveByProperty( RiaDefines::CurveProperty curveProperty ) const;
     bool calculateStressWithGradients( std::vector<double>& stress, std::vector<double>& stressGradients ) const;
 
+    bool calculateTemperature( std::vector<double>& temperatures ) const;
+
     static double findValueAtTopOfLayer( const std::vector<double>&                    values,
                                          const std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes,
                                          size_t                                        layerNo );

@@ -483,6 +483,39 @@ std::vector<double> RimFractureModelPlot::calculateStressGradient() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimFractureModelPlot::calculateTemperature( std::vector<double>& temperatures ) const
+{
+    // Reference temperature. Unit: degrees celsius
+    const double referenceTemperature = m_fractureModel->referenceTemperature();
+
+    // Reference temperature gradient. Unit: degrees Celsius per meter
+    const double referenceTemperatureGradient = m_fractureModel->referenceTemperatureGradient();
+
+    // Reference depth for temperature. Unit: meter.
+    const double referenceTemperatureDepth = m_fractureModel->referenceTemperatureDepth();
+
+    std::vector<std::pair<double, double>> layerBoundaryDepths;
+    std::vector<std::pair<size_t, size_t>> layerBoundaryIndexes;
+    calculateLayers( layerBoundaryDepths, layerBoundaryIndexes );
+
+    // Calculate the temperatures
+    for ( size_t i = 0; i < layerBoundaryDepths.size(); i++ )
+    {
+        double depthTopOfZone = layerBoundaryDepths[i].first;
+
+        // Use difference between reference depth and depth of top of zone
+        double depthDiff   = depthTopOfZone - referenceTemperatureDepth;
+        double temperature = referenceTemperature + referenceTemperatureGradient * depthDiff;
+
+        temperatures.push_back( temperature );
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<double> RimFractureModelPlot::calculateYoungsModulus() const
 {
     std::vector<double> valuesGPa = findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty::YOUNGS_MODULUS );
@@ -548,7 +581,17 @@ std::vector<double> RimFractureModelPlot::calculateImmobileFluidSaturation() con
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimFractureModelPlot::calculateTemperature() const
 {
-    return std::vector<double>();
+    std::vector<double> temperaturesCelsius;
+    calculateTemperature( temperaturesCelsius );
+
+    // Convert to Fahrenheit
+    std::vector<double> temperaturesFahrenheit;
+    for ( double t : temperaturesCelsius )
+    {
+        temperaturesFahrenheit.push_back( t * 1.8 + 32.0 );
+    }
+
+    return temperaturesFahrenheit;
 }
 
 //--------------------------------------------------------------------------------------------------

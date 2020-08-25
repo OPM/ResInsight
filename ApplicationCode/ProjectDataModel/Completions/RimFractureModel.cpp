@@ -168,6 +168,22 @@ RimFractureModel::RimFractureModel()
                                  "",
                                  "" );
 
+    CAF_PDM_InitScriptableField( &m_referenceTemperature, "ReferenceTemperature", 20.0, "Temperature [C]", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_referenceTemperatureGradient,
+                                 "ReferenceTemperatureGradient",
+                                 0.025,
+                                 "Temperature Gradient [C/m]",
+                                 "",
+                                 "",
+                                 "" );
+    CAF_PDM_InitScriptableField( &m_referenceTemperatureDepth,
+                                 "ReferenceTemperatureDepth",
+                                 1000.0,
+                                 "Temperature Depth [m]",
+                                 "",
+                                 "",
+                                 "" );
+
     CAF_PDM_InitScriptableField( &m_useDetailedFluidLoss, "UseDetailedFluidLoss", true, "Use Detailed Fluid Loss", "", "", "" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_elasticProperties, "ElasticProperties", "Elastic Properties", "", "", "" );
@@ -849,4 +865,28 @@ void RimFractureModel::setMD( double md )
     m_MD = md;
     updatePositionFromMeasuredDepth();
     updateThicknessDirection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModel::referenceTemperature() const
+{
+    return m_referenceTemperature;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModel::referenceTemperatureGradient() const
+{
+    return m_referenceTemperatureGradient;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModel::referenceTemperatureDepth() const
+{
+    return m_referenceTemperatureDepth;
 }

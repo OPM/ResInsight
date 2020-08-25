@@ -85,6 +85,10 @@ public:
     QString underburdenFormation() const;
     QString underburdenFacies() const;
 
+    double referenceTemperature() const;
+    double referenceTemperatureGradient() const;
+    double referenceTemperatureDepth() const;
+
     bool useDetailedFluidLoss() const;
 
     // RimWellPathCompletionsInterface overrides.
@@ -153,5 +157,8 @@ protected:
     caf::PdmField<QString>                      m_underburdenFormation;
     caf::PdmField<QString>                      m_underburdenFacies;
     caf::PdmField<double>                       m_underburdenFluidDensity;
+    caf::PdmField<double>                       m_referenceTemperature;
+    caf::PdmField<double>                       m_referenceTemperatureGradient;
+    caf::PdmField<double>                       m_referenceTemperatureDepth;
     caf::PdmField<bool>                         m_useDetailedFluidLoss;
 };
