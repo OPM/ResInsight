@@ -50,7 +50,7 @@ RigFemPartResultCalculatorShearSlipIndicator::~RigFemPartResultCalculatorShearSl
 //--------------------------------------------------------------------------------------------------
 bool RigFemPartResultCalculatorShearSlipIndicator::isMatching( const RigFemResultAddress& resVarAddr ) const
 {
-    return ( resVarAddr.fieldName == "ST" || resVarAddr.componentName == "DPN" );
+    return ( resVarAddr.fieldName == "ST" && resVarAddr.componentName == "DPN" );
 }
 
 //--------------------------------------------------------------------------------------------------
