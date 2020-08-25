@@ -85,6 +85,8 @@ public:
     QString underburdenFormation() const;
     QString underburdenFacies() const;
 
+    bool useDetailedFluidLoss() const;
+
     // RimWellPathCompletionsInterface overrides.
     RiaDefines::WellPathComponentType componentType() const override;
     QString                           componentLabel() const override;
@@ -151,4 +153,5 @@ protected:
     caf::PdmField<QString>                      m_underburdenFormation;
     caf::PdmField<QString>                      m_underburdenFacies;
     caf::PdmField<double>                       m_underburdenFluidDensity;
+    caf::PdmField<bool>                         m_useDetailedFluidLoss;
 };

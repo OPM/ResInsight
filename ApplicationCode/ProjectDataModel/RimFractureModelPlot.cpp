@@ -62,6 +62,14 @@ void RimFractureModelPlot::setFractureModel( RimFractureModel* fractureModel )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimFractureModel* RimFractureModelPlot::fractureModel()
+{
+    return m_fractureModel;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFractureModelPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     caf::PdmUiGroup* depthGroup = uiOrdering.addNewGroup( "Depth Axis" );
@@ -525,4 +533,44 @@ std::vector<double> RimFractureModelPlot::calculateSpurtLoss() const
 std::vector<double> RimFractureModelPlot::calculateProppandEmbedment() const
 {
     return findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty::PROPPANT_EMBEDMENT );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimFractureModelPlot::calculateImmobileFluidSaturation() const
+{
+    return std::vector<double>();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimFractureModelPlot::calculateTemperature() const
+{
+    return std::vector<double>();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimFractureModelPlot::calculateRelativePermeabilityFactor() const
+{
+    return std::vector<double>();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimFractureModelPlot::calculatePoroElasticConstant() const
+{
+    return std::vector<double>();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimFractureModelPlot::calculateThermalExpansionCoefficient() const
+{
+    return std::vector<double>();
 }

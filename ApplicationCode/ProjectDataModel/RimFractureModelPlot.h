@@ -56,7 +56,8 @@ public:
 
     RimFractureModelPlot();
 
-    void setFractureModel( RimFractureModel* fractureModel );
+    void              setFractureModel( RimFractureModel* fractureModel );
+    RimFractureModel* fractureModel();
 
     void getPorosityValues( std::vector<double>& values ) const;
     void getFaciesValues( std::vector<double>& values ) const;
@@ -75,6 +76,12 @@ public:
     std::vector<double> calculateFluidLossCoefficient() const;
     std::vector<double> calculateSpurtLoss() const;
     std::vector<double> calculateProppandEmbedment() const;
+
+    std::vector<double> calculateImmobileFluidSaturation() const;
+    std::vector<double> calculateTemperature() const;
+    std::vector<double> calculateRelativePermeabilityFactor() const;
+    std::vector<double> calculatePoroElasticConstant() const;
+    std::vector<double> calculateThermalExpansionCoefficient() const;
 
 protected:
     std::vector<double> findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty curveProperty ) const;

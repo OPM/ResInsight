@@ -168,6 +168,8 @@ RimFractureModel::RimFractureModel()
                                  "",
                                  "" );
 
+    CAF_PDM_InitScriptableField( &m_useDetailedFluidLoss, "UseDetailedFluidLoss", true, "Use Detailed Fluid Loss", "", "", "" );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_elasticProperties, "ElasticProperties", "Elastic Properties", "", "", "" );
     m_elasticProperties.uiCapability()->setUiHidden( true );
     m_elasticProperties.uiCapability()->setUiTreeHidden( true );
@@ -186,6 +188,14 @@ RimFractureModel::~RimFractureModel()
 bool RimFractureModel::isEnabled() const
 {
     return isChecked();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFractureModel::useDetailedFluidLoss() const
+{
+    return m_useDetailedFluidLoss();
 }
 
 //--------------------------------------------------------------------------------------------------
