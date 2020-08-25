@@ -46,7 +46,6 @@
 #include "cafPdmUiDoubleValueEditor.h"
 #include "cvfAssert.h"
 
-
 #include <QKeyEvent>
 
 #include <cmath>

@@ -46,7 +46,6 @@
 #include "cafPdmPythonGenerator.h"
 #include "cafPdmXmlFieldHandle.h"
 
-
 #include <QRegularExpression>
 #include <QTextStream>
 
