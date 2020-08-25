@@ -38,7 +38,7 @@ RimcSurfaceCollection_importSurface::RimcSurfaceCollection_importSurface( caf::P
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Import Surface", "", "", "Import a new surface from file" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_filename, "FileName", "", "", "", "Filename to import surface from" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_fileName, "FileName", "", "", "", "Filename to import surface from" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,7 +50,7 @@ caf::PdmObjectHandle* RimcSurfaceCollection_importSurface::execute()
     if ( coll )
     {
         QStringList filelist;
-        filelist << m_filename();
+        filelist << m_fileName();
         return coll->importSurfacesFromFiles( filelist );
     }
     return nullptr;
@@ -87,7 +87,7 @@ RimcSurfaceCollection_addFolder::RimcSurfaceCollection_addFolder( caf::PdmObject
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Add Folder", "", "", "Add a new surface folder" );
-    CAF_PDM_InitScriptableField( &m_foldername, "FolderName", QString( "Surfaces" ), "", "", "", "New surface folder name" );
+    CAF_PDM_InitScriptableField( &m_folderName, "FolderName", QString( "Surfaces" ), "", "", "", "New surface folder name" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -99,7 +99,7 @@ caf::PdmObjectHandle* RimcSurfaceCollection_addFolder::execute()
     if ( coll )
     {
         RimSurfaceCollection* newcoll = new RimSurfaceCollection();
-        newcoll->setCollectionname( m_foldername() );
+        newcoll->setCollectionName( m_folderName() );
 
         coll->addSubCollection( newcoll );
         return newcoll;

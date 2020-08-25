@@ -55,11 +55,11 @@ public:
     void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
-    QString collectionname() const;
-    void    setCollectionname( const QString name );
+    QString collectionName() const;
+    void    setCollectionName( const QString name );
 
     std::vector<RimSurface*>           surfaces() const;
-    std::vector<RimSurfaceCollection*> subcollections() const;
+    std::vector<RimSurfaceCollection*> subCollections() const;
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;
@@ -67,7 +67,7 @@ protected:
 private:
     void orderChanged( const caf::SignalEmitter* emitter );
 
-    caf::PdmField<QString>                         m_collectionname;
+    caf::PdmField<QString>                         m_collectionName;
     caf::PdmChildArrayField<RimSurface*>           m_surfaces;
-    caf::PdmChildArrayField<RimSurfaceCollection*> m_subcollections;
+    caf::PdmChildArrayField<RimSurfaceCollection*> m_subCollections;
 };

@@ -150,7 +150,7 @@ RimProject_surfaceFolder::RimProject_surfaceFolder( caf::PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Get Surface Folder", "", "", "Get Surface Folder" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_foldername, "FolderName", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_folderName, "FolderName", "", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -162,11 +162,11 @@ caf::PdmObjectHandle* RimProject_surfaceFolder::execute()
     RimSurfaceCollection* surfcoll = proj->activeOilField()->surfaceCollection();
 
     // Blank foldername parameter should return the topmost folder
-    if ( m_foldername().isEmpty() ) return surfcoll;
+    if ( m_folderName().isEmpty() ) return surfcoll;
 
-    for ( auto s : surfcoll->subcollections() )
+    for ( auto s : surfcoll->subCollections() )
     {
-        if ( s->collectionname() == m_foldername() ) return s;
+        if ( s->collectionName() == m_folderName() ) return s;
     }
 
     return nullptr;

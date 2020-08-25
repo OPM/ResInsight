@@ -79,5 +79,5 @@ public:
     bool                             isNullptrValidResult() const override;
 
 private:
-    caf::PdmField<QString> m_foldername;
+    caf::PdmField<QString> m_folderName;
 };
