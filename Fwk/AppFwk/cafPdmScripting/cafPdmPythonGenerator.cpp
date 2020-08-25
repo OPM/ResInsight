@@ -45,7 +45,6 @@
 #include "cafPdmProxyValueField.h"
 #include "cafPdmXmlFieldHandle.h"
 
-
 #include <QRegularExpression>
 #include <QTextStream>
 

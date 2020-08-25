@@ -31,7 +31,6 @@
 #include "cafPdmScriptIOMessages.h"
 #include "cafPdmXmlFieldHandle.h"
 
-
 #include <grpcpp/grpcpp.h>
 
 #include <PdmObject.pb.h>
