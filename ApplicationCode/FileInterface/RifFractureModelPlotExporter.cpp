@@ -114,33 +114,45 @@ bool RifFractureModelPlotExporter::writeToFile( RimFractureModelPlot* plot, bool
     }
 
     QTextStream stream( &data );
+    appendHeaderToStream( stream );
 
     for ( QString label : labels )
     {
         appendToStream( stream, label, values[label] );
     }
 
+    appendFooterToStream( stream );
+
     return true;
+}
+
+void RifFractureModelPlotExporter::appendHeaderToStream( QTextStream& stream )
+{
+    stream << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl << "<geologic>" << endl;
 }
 
 void RifFractureModelPlotExporter::appendToStream( QTextStream& stream, const QString& label, const std::vector<double>& values )
 {
-    stream << "<cNamedSet>"
-           << "\n"
-           << label << "\n"
-           << "<dimCount>"
-           << "\n"
-           << 1 << "\n"
-           << "<sizes>"
-           << "\n"
-           << values.size() << "\n"
-           << "<data>"
-           << "\n";
+    stream << "<cNamedSet>" << endl
+           << "<name>" << endl
+           << label << endl
+           << "</name>" << endl
+           << "<dimCount>" << endl
+           << 1 << endl
+           << "</dimCount>" << endl
+           << "<sizes>" << endl
+           << values.size() << endl
+           << "</sizes>" << endl
+           << "<data>" << endl;
     for ( auto val : values )
     {
-        stream << val << "\n";
+        stream << val << endl;
     }
 
-    stream << "</cNamedSet>"
-           << "\n";
+    stream << "</data>" << endl << "</cNamedSet>" << endl;
+}
+
+void RifFractureModelPlotExporter::appendFooterToStream( QTextStream& stream )
+{
+    stream << "</geologic>" << endl;
 }
