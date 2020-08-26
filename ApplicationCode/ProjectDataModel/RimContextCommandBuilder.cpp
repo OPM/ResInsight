@@ -71,6 +71,7 @@
 #include "RimFormationNames.h"
 #include "RimFormationNamesCollection.h"
 #include "RimFractureModel.h"
+#include "RimFractureModelCollection.h"
 #include "RimFractureModelPlot.h"
 #include "RimFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
@@ -397,6 +398,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewPerforationIntervalFeature";
             menuBuilder << "RicNewFishbonesSubsFeature";
             menuBuilder << "RicNewWellPathFractureFeature";
+            menuBuilder << "RicNewFractureModelFeature";
             menuBuilder.subMenuEnd();
             menuBuilder << "RicCreateTemporaryLgrFeature";
             menuBuilder.addSeparator();
@@ -431,9 +433,14 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimFractureModel*>( firstUiItem ) )
         {
+            menuBuilder << "RicNewFractureModelFeature";
             menuBuilder << "RicNewFractureModelPlotFeature";
             menuBuilder << "RicImportFaciesFeature";
             menuBuilder << "RicImportElasticPropertiesFeature";
+        }
+        else if ( dynamic_cast<RimFractureModelCollection*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewFractureModelFeature";
         }
         else if ( dynamic_cast<RimFractureModelPlot*>( firstUiItem ) )
         {
