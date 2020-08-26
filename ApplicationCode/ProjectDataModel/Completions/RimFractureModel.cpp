@@ -197,7 +197,7 @@ RimFractureModel::RimFractureModel()
     CAF_PDM_InitScriptableField( &m_thermalExpansionCoeffientDefault,
                                  "ThermalExpansionCoeffisient",
                                  0.0,
-                                 "Thermal Expansion Coeffisient",
+                                 "Thermal Expansion Coeffisient [1/C]",
                                  "",
                                  "",
                                  "" );
