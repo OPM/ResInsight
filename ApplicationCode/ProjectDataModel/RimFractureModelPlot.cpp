@@ -18,6 +18,7 @@
 #include "RimFractureModelPlot.h"
 
 #include "RiaDefines.h"
+#include "RiaFractureModelDefines.h"
 #include "RiaLogging.h"
 
 #include "RicfCommandObject.h"
@@ -573,7 +574,7 @@ std::vector<double> RimFractureModelPlot::calculateProppandEmbedment() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimFractureModelPlot::calculateImmobileFluidSaturation() const
 {
-    return std::vector<double>();
+    return findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty::IMMOBILE_FLUID_SATURATION );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -143,7 +143,8 @@ RimFractureModelPlot*
                                                           RiaDefines::CurveProperty::SPURT_LOSS,
                                                           RiaDefines::CurveProperty::RELATIVE_PERMEABILITY_FACTOR,
                                                           RiaDefines::CurveProperty::PORO_ELASTIC_CONSTANT,
-                                                          RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFISIENT};
+                                                          RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFISIENT,
+                                                          RiaDefines::CurveProperty::IMMOBILE_FLUID_SATURATION};
 
         for ( auto result : results )
         {

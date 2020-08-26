@@ -129,6 +129,14 @@ const std::vector<double>& RigElasticProperties::spurtLoss() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const std::vector<double>& RigElasticProperties::immobileFluidSaturation() const
+{
+    return m_immobileFluidSaturation;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigElasticProperties::appendValues( double porosity,
                                          double youngsModulus,
                                          double poissonsRatio,
@@ -137,7 +145,8 @@ void RigElasticProperties::appendValues( double porosity,
                                          double biotCoefficient,
                                          double k0,
                                          double fluidLossCoefficient,
-                                         double spurtLoss )
+                                         double spurtLoss,
+                                         double immobileFluidSaturation )
 {
     m_porosity.push_back( porosity );
     m_youngsModulus.push_back( youngsModulus );
@@ -148,6 +157,7 @@ void RigElasticProperties::appendValues( double porosity,
     m_k0.push_back( k0 );
     m_fluidLossCoefficient.push_back( fluidLossCoefficient );
     m_spurtLoss.push_back( spurtLoss );
+    m_immobileFluidSaturation.push_back( immobileFluidSaturation );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -212,4 +222,12 @@ double RigElasticProperties::getFluidLossCoefficient( double porosity ) const
 double RigElasticProperties::getSpurtLoss( double porosity ) const
 {
     return RiaInterpolationTools::linear( m_porosity, m_spurtLoss, porosity );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigElasticProperties::getImmobileFluidSaturation( double porosity ) const
+{
+    return RiaInterpolationTools::linear( m_porosity, m_immobileFluidSaturation, porosity );
 }
