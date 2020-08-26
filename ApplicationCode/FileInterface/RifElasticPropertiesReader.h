@@ -36,6 +36,7 @@ struct RifElasticProperties
     double  k0;
     double  fluidLossCoefficient;
     double  spurtLoss;
+    double  immobileFluidSaturation;
 };
 
 //==================================================================================================

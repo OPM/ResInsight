@@ -79,7 +79,7 @@ RifElasticProperties
 {
     QStringList tokens = tokenize( line, "," );
 
-    if ( tokens.size() != 12 )
+    if ( tokens.size() != 13 )
     {
         throw FileParseException( QString( "Incomplete data on line %1: %2" ).arg( lineNumber ).arg( filePath ) );
     }
@@ -97,7 +97,8 @@ RifElasticProperties
                          << "Biot Coefficient"
                          << "k0"
                          << "Fluid Loss Coefficient"
-                         << "Spurt Loss";
+                         << "Spurt Loss"
+                         << "Immobile Fluid Saturation";
     verifyNonEmptyTokens( tokens, nameOfNonEmptyTokens, lineNumber, filePath );
 
     RifElasticProperties elasticProperties;
@@ -113,6 +114,8 @@ RifElasticProperties
     elasticProperties.k0                   = parseDouble( tokens[9], "k0", lineNumber, filePath );
     elasticProperties.fluidLossCoefficient = parseDouble( tokens[10], "Fluid Loss Coefficient", lineNumber, filePath );
     elasticProperties.spurtLoss            = parseDouble( tokens[11], "Spurt Loss", lineNumber, filePath );
+    elasticProperties.immobileFluidSaturation =
+        parseDouble( tokens[12], "Immobile Fluid Saturation", lineNumber, filePath );
 
     return elasticProperties;
 }
