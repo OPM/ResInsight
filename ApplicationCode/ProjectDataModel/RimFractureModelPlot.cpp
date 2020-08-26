@@ -319,7 +319,15 @@ std::vector<double> RimFractureModelPlot::calculatePorosity() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimFractureModelPlot::calculateReservoirPressure() const
 {
-    return findCurveAndComputeTopOfLayer( RiaDefines::CurveProperty::PRESSURE );
+    std::vector<double> pressureBar = findCurveAndComputeTopOfLayer( RiaDefines::CurveProperty::PRESSURE );
+
+    std::vector<double> pressurePsi;
+    for ( double p : pressureBar )
+    {
+        pressurePsi.push_back( RiaEclipseUnitTools::barToPsi( p ) );
+    }
+
+    return pressurePsi;
 }
 
 //--------------------------------------------------------------------------------------------------
