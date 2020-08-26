@@ -173,6 +173,13 @@ void RimEclipseCellColors::changeLegendConfig( QString resultVarNameOfNewLegend 
                     newLegend->setTickNumberFormat( RimRegularLegendConfig::NumberFormatType::AUTO );
                 }
 
+                if ( this->hasCategoryResult() )
+                {
+                    newLegend->setMappingMode( RimRegularLegendConfig::MappingType::CATEGORY_INTEGER );
+                    newLegend->setColorLegend(
+                        RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) );
+                }
+
                 m_legendConfigData.push_back( newLegend );
 
                 this->m_legendConfigPtrField = newLegend;
@@ -246,27 +253,6 @@ void RimEclipseCellColors::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeO
 void RimEclipseCellColors::updateLegendCategorySettings()
 {
     changeLegendConfig( this->resultVariable() );
-
-    if ( this->hasCategoryResult() )
-    {
-        legendConfig()->setMappingMode( RimRegularLegendConfig::MappingType::CATEGORY_INTEGER );
-        legendConfig()->setColorLegend(
-            RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) );
-    }
-    else
-    {
-        if ( legendConfig()->mappingMode() == RimRegularLegendConfig::MappingType::CATEGORY_INTEGER )
-        {
-            legendConfig()->setMappingMode( RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS );
-        }
-
-        if ( legendConfig()->colorLegend() ==
-             RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) )
-        {
-            legendConfig()->setColorLegend(
-                RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL ) );
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
