@@ -134,7 +134,7 @@ void RimFractureModelStressCurve::performDataExtraction( bool* isUsingPseudoLeng
     }
     else if ( m_curveProperty() == RiaDefines::CurveProperty::TEMPERATURE )
     {
-        values = fractureModelPlot->calculateTemperature();
+        fractureModelPlot->calculateTemperature( values );
     }
 
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case.value() );

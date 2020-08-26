@@ -492,7 +492,7 @@ std::vector<double> RimFractureModelPlot::calculateStressGradient() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimFractureModelPlot::calculateTemperature( std::vector<double>& temperatures ) const
+void RimFractureModelPlot::calculateTemperature( std::vector<double>& temperatures ) const
 {
     // Reference temperature. Unit: degrees celsius
     const double referenceTemperature = m_fractureModel->referenceTemperature();
@@ -518,8 +518,6 @@ bool RimFractureModelPlot::calculateTemperature( std::vector<double>& temperatur
 
         temperatures.push_back( temperature );
     }
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

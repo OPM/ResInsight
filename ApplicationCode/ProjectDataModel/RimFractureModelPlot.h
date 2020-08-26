@@ -83,6 +83,8 @@ public:
     std::vector<double> calculatePoroElasticConstant() const;
     std::vector<double> calculateThermalExpansionCoefficient() const;
 
+    void calculateTemperature( std::vector<double>& temperatures ) const;
+
 protected:
     std::vector<double> findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty curveProperty ) const;
     std::vector<double> findCurveXValuesByProperty( RiaDefines::CurveProperty curveProperty ) const;
@@ -92,8 +94,6 @@ protected:
                                                 std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes ) const;
     RimWellLogExtractionCurve* findCurveByProperty( RiaDefines::CurveProperty curveProperty ) const;
     bool calculateStressWithGradients( std::vector<double>& stress, std::vector<double>& stressGradients ) const;
-
-    bool calculateTemperature( std::vector<double>& temperatures ) const;
 
     static double findValueAtTopOfLayer( const std::vector<double>&                    values,
                                          const std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes,
