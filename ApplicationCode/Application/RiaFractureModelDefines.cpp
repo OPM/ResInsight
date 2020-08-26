@@ -49,7 +49,7 @@ void AppEnum<RiaDefines::CurveProperty>::setUp()
     addItem( RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFICIENT,
              "THERMAL_EXPANSION_COEFFICIENT",
              "Thermal Expansion Coefficient" );
-    addItem( RiaDefines::CurveProperty::IMMOBILE_FLUID_SATURATION, "IMMOBILE_FLUID_SATURATION", "Immobile FLuid Saturation" );
+    addItem( RiaDefines::CurveProperty::IMMOBILE_FLUID_SATURATION, "IMMOBILE_FLUID_SATURATION", "Immobile Fluid Saturation" );
 
     setDefault( RiaDefines::CurveProperty::UNDEFINED );
 }
