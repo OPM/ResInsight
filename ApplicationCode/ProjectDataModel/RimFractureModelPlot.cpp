@@ -623,15 +623,15 @@ std::vector<double> RimFractureModelPlot::calculatePoroElasticConstant() const
 std::vector<double> RimFractureModelPlot::calculateThermalExpansionCoefficient() const
 {
     // SI unit is 1/Celsius
-    std::vector<double> coeffisientCelsius =
-        findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFISIENT );
+    std::vector<double> coefficientCelsius =
+        findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFICIENT );
 
     // Field unit is 1/Fahrenheit
-    std::vector<double> coeffisientFahrenheit;
-    for ( double c : coeffisientCelsius )
+    std::vector<double> coefficientFahrenheit;
+    for ( double c : coefficientCelsius )
     {
-        coeffisientFahrenheit.push_back( c / 1.8 );
+        coefficientFahrenheit.push_back( c / 1.8 );
     }
 
-    return coeffisientFahrenheit;
+    return coefficientFahrenheit;
 }

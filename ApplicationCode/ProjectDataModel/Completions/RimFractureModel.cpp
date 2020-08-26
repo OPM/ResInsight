@@ -195,9 +195,9 @@ RimFractureModel::RimFractureModel()
                                  "" );
     CAF_PDM_InitScriptableField( &m_poroElasticConstantDefault, "PoroElasticConstant", 0.0, "Poro-Elastic Constant", "", "", "" );
     CAF_PDM_InitScriptableField( &m_thermalExpansionCoeffientDefault,
-                                 "ThermalExpansionCoeffisient",
+                                 "ThermalExpansionCoefficient",
                                  0.0,
-                                 "Thermal Expansion Coeffisient [1/C]",
+                                 "Thermal Expansion Coefficient [1/C]",
                                  "",
                                  "",
                                  "" );
@@ -767,7 +767,7 @@ double RimFractureModel::getDefaultValueForProperty( RiaDefines::CurveProperty c
     {
         return m_poroElasticConstantDefault;
     }
-    else if ( curveProperty == RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFISIENT )
+    else if ( curveProperty == RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFICIENT )
     {
         return m_thermalExpansionCoeffientDefault;
     }
@@ -786,7 +786,7 @@ bool RimFractureModel::hasDefaultValueForProperty( RiaDefines::CurveProperty cur
 {
     auto withDefaults = {RiaDefines::CurveProperty::RELATIVE_PERMEABILITY_FACTOR,
                          RiaDefines::CurveProperty::PORO_ELASTIC_CONSTANT,
-                         RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFISIENT};
+                         RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFICIENT};
     return std::find( withDefaults.begin(), withDefaults.end(), curveProperty ) != withDefaults.end();
 }
 
