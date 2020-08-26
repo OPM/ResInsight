@@ -18,6 +18,7 @@
 #include "RimFractureModelPlot.h"
 
 #include "RiaDefines.h"
+#include "RiaFractureModelDefines.h"
 #include "RiaLogging.h"
 
 #include "RicfCommandObject.h"
@@ -57,6 +58,14 @@ RimFractureModelPlot::RimFractureModelPlot()
 void RimFractureModelPlot::setFractureModel( RimFractureModel* fractureModel )
 {
     m_fractureModel = fractureModel;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimFractureModel* RimFractureModelPlot::fractureModel()
+{
+    return m_fractureModel;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -310,7 +319,15 @@ std::vector<double> RimFractureModelPlot::calculatePorosity() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimFractureModelPlot::calculateReservoirPressure() const
 {
-    return findCurveAndComputeTopOfLayer( RiaDefines::CurveProperty::PRESSURE );
+    std::vector<double> pressureBar = findCurveAndComputeTopOfLayer( RiaDefines::CurveProperty::PRESSURE );
+
+    std::vector<double> pressurePsi;
+    for ( double p : pressureBar )
+    {
+        pressurePsi.push_back( RiaEclipseUnitTools::barToPsi( p ) );
+    }
+
+    return pressurePsi;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -475,6 +492,37 @@ std::vector<double> RimFractureModelPlot::calculateStressGradient() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimFractureModelPlot::calculateTemperature( std::vector<double>& temperatures ) const
+{
+    // Reference temperature. Unit: degrees celsius
+    const double referenceTemperature = m_fractureModel->referenceTemperature();
+
+    // Reference temperature gradient. Unit: degrees Celsius per meter
+    const double referenceTemperatureGradient = m_fractureModel->referenceTemperatureGradient();
+
+    // Reference depth for temperature. Unit: meter.
+    const double referenceTemperatureDepth = m_fractureModel->referenceTemperatureDepth();
+
+    std::vector<std::pair<double, double>> layerBoundaryDepths;
+    std::vector<std::pair<size_t, size_t>> layerBoundaryIndexes;
+    calculateLayers( layerBoundaryDepths, layerBoundaryIndexes );
+
+    // Calculate the temperatures
+    for ( size_t i = 0; i < layerBoundaryDepths.size(); i++ )
+    {
+        double depthTopOfZone = layerBoundaryDepths[i].first;
+
+        // Use difference between reference depth and depth of top of zone
+        double depthDiff   = depthTopOfZone - referenceTemperatureDepth;
+        double temperature = referenceTemperature + referenceTemperatureGradient * depthDiff;
+
+        temperatures.push_back( temperature );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<double> RimFractureModelPlot::calculateYoungsModulus() const
 {
     std::vector<double> valuesGPa = findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty::YOUNGS_MODULUS );
@@ -525,4 +573,65 @@ std::vector<double> RimFractureModelPlot::calculateSpurtLoss() const
 std::vector<double> RimFractureModelPlot::calculateProppandEmbedment() const
 {
     return findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty::PROPPANT_EMBEDMENT );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimFractureModelPlot::calculateImmobileFluidSaturation() const
+{
+    return findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty::IMMOBILE_FLUID_SATURATION );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimFractureModelPlot::calculateTemperature() const
+{
+    std::vector<double> temperaturesCelsius;
+    calculateTemperature( temperaturesCelsius );
+
+    // Convert to Fahrenheit
+    std::vector<double> temperaturesFahrenheit;
+    for ( double t : temperaturesCelsius )
+    {
+        temperaturesFahrenheit.push_back( t * 1.8 + 32.0 );
+    }
+
+    return temperaturesFahrenheit;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimFractureModelPlot::calculateRelativePermeabilityFactor() const
+{
+    return findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty::RELATIVE_PERMEABILITY_FACTOR );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimFractureModelPlot::calculatePoroElasticConstant() const
+{
+    return findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty::PORO_ELASTIC_CONSTANT );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimFractureModelPlot::calculateThermalExpansionCoefficient() const
+{
+    // SI unit is 1/Celsius
+    std::vector<double> coefficientCelsius =
+        findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFICIENT );
+
+    // Field unit is 1/Fahrenheit
+    std::vector<double> coefficientFahrenheit;
+    for ( double c : coefficientCelsius )
+    {
+        coefficientFahrenheit.push_back( c / 1.8 );
+    }
+
+    return coefficientFahrenheit;
 }

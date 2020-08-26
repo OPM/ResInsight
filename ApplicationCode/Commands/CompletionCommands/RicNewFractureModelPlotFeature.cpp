@@ -140,7 +140,11 @@ RimFractureModelPlot*
                                                           RiaDefines::CurveProperty::BIOT_COEFFICIENT,
                                                           RiaDefines::CurveProperty::K0,
                                                           RiaDefines::CurveProperty::FLUID_LOSS_COEFFICIENT,
-                                                          RiaDefines::CurveProperty::SPURT_LOSS};
+                                                          RiaDefines::CurveProperty::SPURT_LOSS,
+                                                          RiaDefines::CurveProperty::RELATIVE_PERMEABILITY_FACTOR,
+                                                          RiaDefines::CurveProperty::PORO_ELASTIC_CONSTANT,
+                                                          RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFICIENT,
+                                                          RiaDefines::CurveProperty::IMMOBILE_FLUID_SATURATION};
 
         for ( auto result : results )
         {
@@ -152,6 +156,7 @@ RimFractureModelPlot*
         auto task = progInfo.task( "Creating stress track", 2 );
         createStressTrack( plot, fractureModel, eclipseCase, timeStep, RiaDefines::CurveProperty::STRESS );
         createStressTrack( plot, fractureModel, eclipseCase, timeStep, RiaDefines::CurveProperty::STRESS_GRADIENT );
+        createStressTrack( plot, fractureModel, eclipseCase, timeStep, RiaDefines::CurveProperty::TEMPERATURE );
     }
 
     {

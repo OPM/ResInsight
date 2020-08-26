@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 
+#include "RimFractureModel.h"
 #include "RimFractureModelPlot.h"
 
 #include "RifFractureModelPlotExporter.h"
@@ -61,7 +62,9 @@ void RicExportFractureModelPlotToFileFeature::onActionTriggered( bool isChecked 
 
     if ( fileName.isEmpty() ) return;
 
-    RifFractureModelPlotExporter::writeToFile( fractureModelPlot, fileName );
+    RifFractureModelPlotExporter::writeToFile( fractureModelPlot,
+                                               fractureModelPlot->fractureModel()->useDetailedFluidLoss(),
+                                               fileName );
 
     // Remember the path to next time
     app->setLastUsedDialogDirectory( "FRACTURE_MODEL_PLOT", QFileInfo( fileName ).absolutePath() );

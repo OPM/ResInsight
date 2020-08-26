@@ -85,7 +85,7 @@ RigFemScalarResultFrames*
 
     frameCountProgress.incrementProgress();
 
-    // Biot porelastic coeffisient (alpha)
+    // Biot porelastic coefficient (alpha)
     frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
     RigFemScalarResultFrames* biotCoefficient = nullptr;
     if ( !m_resultCollection->biotResultAddress().isEmpty() )

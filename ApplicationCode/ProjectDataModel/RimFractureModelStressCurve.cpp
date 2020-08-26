@@ -19,6 +19,7 @@
 #include "RimFractureModelStressCurve.h"
 
 #include "RiaDefines.h"
+#include "RiaFractureModelDefines.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseWellLogExtractor.h"
 #include "RigResultAccessorFactory.h"
@@ -121,15 +122,19 @@ void RimFractureModelStressCurve::performDataExtraction( bool* isUsingPseudoLeng
         tvDepthValues.push_back( RiaEclipseUnitTools::feetToMeter( f ) );
     }
 
-    std::vector<double> stressGradients = fractureModelPlot->calculateStressGradient();
     if ( m_curveProperty() == RiaDefines::CurveProperty::STRESS )
     {
-        values = fractureModelPlot->calculateStress();
+        values                              = fractureModelPlot->calculateStress();
+        std::vector<double> stressGradients = fractureModelPlot->calculateStressGradient();
         addDatapointsForBottomOfLayers( tvDepthValues, values, stressGradients );
     }
-    else
+    else if ( m_curveProperty() == RiaDefines::CurveProperty::STRESS_GRADIENT )
     {
-        values = stressGradients;
+        values = fractureModelPlot->calculateStressGradient();
+    }
+    else if ( m_curveProperty() == RiaDefines::CurveProperty::TEMPERATURE )
+    {
+        fractureModelPlot->calculateTemperature( values );
     }
 
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case.value() );

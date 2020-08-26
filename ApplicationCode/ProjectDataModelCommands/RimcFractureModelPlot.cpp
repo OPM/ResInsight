@@ -44,7 +44,9 @@ caf::PdmObjectHandle* RimcFractureModelPlot_exportToFile::execute()
 {
     RimFractureModelPlot* fractureModelPlot = self<RimFractureModelPlot>();
 
-    RifFractureModelPlotExporter::writeToFile( fractureModelPlot, m_filePath() );
+    RifFractureModelPlotExporter::writeToFile( fractureModelPlot,
+                                               fractureModelPlot->fractureModel()->useDetailedFluidLoss(),
+                                               m_filePath() );
 
     return nullptr;
 }

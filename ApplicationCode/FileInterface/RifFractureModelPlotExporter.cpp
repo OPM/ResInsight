@@ -26,7 +26,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifFractureModelPlotExporter::writeToFile( RimFractureModelPlot* plot, const QString& filepath )
+bool RifFractureModelPlotExporter::writeToFile( RimFractureModelPlot* plot, bool useDetailedLoss, const QString& filepath )
 {
     std::vector<QString> labels;
     // TVD depth of top of zone (ft)
@@ -56,12 +56,14 @@ bool RifFractureModelPlotExporter::writeToFile( RimFractureModelPlot* plot, cons
     // Proppand Embedmeent (lb/ft^2)
     labels.push_back( "pembed" );
 
-    bool useDetailedLoss = false;
     if ( useDetailedLoss )
     {
         // B2 Detailed Loss
         // Reservoir Pressure (psi)
         labels.push_back( "zoneResPres" );
+
+        // Immobile Fluid Saturation (fraction)
+        labels.push_back( "zoneWaterSat" );
 
         // Porosity (fraction)
         labels.push_back( "zonePorosity" );
@@ -71,22 +73,39 @@ bool RifFractureModelPlotExporter::writeToFile( RimFractureModelPlot* plot, cons
 
         // Vertical Perm (md)
         labels.push_back( "zoneVertPerm" );
+
+        // Temperature (F)
+        labels.push_back( "zoneTemp" );
+
+        // Relative permeability
+        labels.push_back( "zoneRelPerm" );
+
+        // Poro-Elastic constant
+        labels.push_back( "zonePoroElas" );
+
+        // Thermal Epansion Coefficient (1/F)
+        labels.push_back( "zoneThermalExp" );
     }
 
     std::map<QString, std::vector<double>> values;
-    values["dpthlyr"]       = plot->calculateTrueVerticalDepth();
-    values["strs"]          = plot->calculateStress();
-    values["strsg"]         = plot->calculateStressGradient();
-    values["elyr"]          = plot->calculateYoungsModulus();
-    values["poissonr"]      = plot->calculatePoissonsRatio();
-    values["tuflyr"]        = plot->calculateKIc();
-    values["clyrc"]         = plot->calculateFluidLossCoefficient();
-    values["clyrs"]         = plot->calculateSpurtLoss();
-    values["pembed"]        = plot->calculateProppandEmbedment();
-    values["zoneResPres"]   = plot->calculateReservoirPressure();
-    values["zonePorosity"]  = plot->calculatePorosity();
-    values["zoneHorizPerm"] = plot->calculateHorizontalPermeability();
-    values["zoneVertPerm"]  = plot->calculateVerticalPermeability();
+    values["dpthlyr"]        = plot->calculateTrueVerticalDepth();
+    values["strs"]           = plot->calculateStress();
+    values["strsg"]          = plot->calculateStressGradient();
+    values["elyr"]           = plot->calculateYoungsModulus();
+    values["poissonr"]       = plot->calculatePoissonsRatio();
+    values["tuflyr"]         = plot->calculateKIc();
+    values["clyrc"]          = plot->calculateFluidLossCoefficient();
+    values["clyrs"]          = plot->calculateSpurtLoss();
+    values["pembed"]         = plot->calculateProppandEmbedment();
+    values["zoneResPres"]    = plot->calculateReservoirPressure();
+    values["zoneWaterSat"]   = plot->calculateImmobileFluidSaturation();
+    values["zonePorosity"]   = plot->calculatePorosity();
+    values["zoneHorizPerm"]  = plot->calculateHorizontalPermeability();
+    values["zoneVertPerm"]   = plot->calculateVerticalPermeability();
+    values["zoneTemp"]       = plot->calculateTemperature();
+    values["zoneRelPerm"]    = plot->calculateRelativePermeabilityFactor();
+    values["zonePoroElas"]   = plot->calculatePoroElasticConstant();
+    values["zoneThermalExp"] = plot->calculateThermalExpansionCoefficient();
 
     QFile data( filepath );
     if ( !data.open( QFile::WriteOnly | QFile::Truncate ) )

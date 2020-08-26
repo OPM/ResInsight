@@ -41,6 +41,16 @@ void AppEnum<RiaDefines::CurveProperty>::setUp()
     addItem( RiaDefines::CurveProperty::K0, "K0", "k0" );
     addItem( RiaDefines::CurveProperty::FLUID_LOSS_COEFFICIENT, "FLUID_LOSS_COEFFICIENT", "Fluid Loss Coefficient" );
     addItem( RiaDefines::CurveProperty::SPURT_LOSS, "SPURT_LOSS", "Spurt Loss" );
+    addItem( RiaDefines::CurveProperty::TEMPERATURE, "TEMPERATURE", "Temperature" );
+    addItem( RiaDefines::CurveProperty::RELATIVE_PERMEABILITY_FACTOR,
+             "RELATIVE_PERMEABILITY_FACTOR",
+             "Relative Permeability Factor" );
+    addItem( RiaDefines::CurveProperty::PORO_ELASTIC_CONSTANT, "PORO_ELASTIC_CONSTANT", "Poro-Elastic Constant" );
+    addItem( RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFICIENT,
+             "THERMAL_EXPANSION_COEFFICIENT",
+             "Thermal Expansion Coefficient" );
+    addItem( RiaDefines::CurveProperty::IMMOBILE_FLUID_SATURATION, "IMMOBILE_FLUID_SATURATION", "Immobile Fluid Saturation" );
+
     setDefault( RiaDefines::CurveProperty::UNDEFINED );
 }
 }; // namespace caf

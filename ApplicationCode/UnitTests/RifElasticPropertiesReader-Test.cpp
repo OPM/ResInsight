@@ -37,8 +37,8 @@ TEST( RifElasticPropertiesReaderTest, ReadCorrectInputFile )
 
     {
         QTextStream out( &file );
-        out << "Norne,Not,Sand,0.00,25,0.25,2000,0.2,0.3,0.4,0.5,0.6\n"
-            << "Norne,Not,Sand,0.10,19,0.27,2099,0.3,0.4,0.5,0.2,0.5\n";
+        out << "Norne,Not,Sand,0.00,25,0.25,2000,0.2,0.3,0.4,0.5,0.6,0.4\n"
+            << "Norne,Not,Sand,0.10,19,0.27,2099,0.3,0.4,0.5,0.2,0.5,0.55\n";
     }
 
     QStringList filePaths;
@@ -72,6 +72,9 @@ TEST( RifElasticPropertiesReaderTest, ReadCorrectInputFile )
 
     ASSERT_DOUBLE_EQ( 0.2, elasticProperties[0].proppantEmbedment );
     ASSERT_DOUBLE_EQ( 0.3, elasticProperties[1].proppantEmbedment );
+
+    ASSERT_DOUBLE_EQ( 0.4, elasticProperties[0].immobileFluidSaturation );
+    ASSERT_DOUBLE_EQ( 0.55, elasticProperties[1].immobileFluidSaturation );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -119,7 +122,7 @@ TEST( RifElasticPropertiesReaderTest, ReadShortLinesFileThrows )
 
     {
         QTextStream out( &file );
-        out << "Norne,Not,Sand,0.00,25,0.25,2000,0.2,0.3,0.4,0.5,0.6\n"
+        out << "Norne,Not,Sand,0.00,25,0.25,2000,0.2,0.3,0.4,0.5,0.6,0.7\n"
             << "Norne,Not,Sand,0.10,19,0.27\n";
     }
 
@@ -140,8 +143,8 @@ TEST( RifElasticPropertiesReaderTest, ReadEmptyFieldNameThrows )
 
     {
         QTextStream out( &file );
-        out << "Norne,Not,Sand,0.00,25,0.25,2000,0.2,0.3,0.4,0.5,0.6\n"
-            << ",Not,Sand,0.10,19,0.27,2099,0.3,0.3,0.4,0.5,0.6\n";
+        out << "Norne,Not,Sand,0.00,25,0.25,2000,0.2,0.3,0.4,0.5,0.6,0.89\n"
+            << ",Not,Sand,0.10,19,0.27,2099,0.3,0.3,0.4,0.5,0.6,0.89\n";
     }
 
     QStringList filePaths;
@@ -161,8 +164,8 @@ TEST( RifElasticPropertiesReaderTest, ReadInvalidMeasureDepthThrows )
 
     {
         QTextStream out( &file );
-        out << "Norne,Not,Sand,0.00,25,0.25,2000,0.2,0.3,0.4,0.5,0.6\n"
-            << "Norne,Not,Sand, not a number,23.4,0.27,2099,0.3,0.3,0.4,0.5,0.6\n";
+        out << "Norne,Not,Sand,0.00,25,0.25,2000,0.2,0.3,0.4,0.5,0.6,0.9\n"
+            << "Norne,Not,Sand, not a number,23.4,0.27,2099,0.3,0.3,0.4,0.5,0.6,0.77\n";
     }
 
     QStringList filePaths;
@@ -191,14 +194,14 @@ TEST( RifElasticPropertiesReaderTest, CommentsAndEmptyLinesAreIgnored )
         out << "\t\n";
         out << "        \n";
         // Then some data
-        out << "Norne,Not,Sand,0.00,25,0.25,2000,0.2,0.3,0.4,0.5,0.6\n";
+        out << "Norne,Not,Sand,0.00,25,0.25,2000,0.2,0.3,0.4,0.5,0.6,0.7\n";
         // Comment in-between data should be ignored
         out << "# One more comment in-between the data\n";
-        out << "Norne,Not,Silt,0.00,25,0.25,2000,0.2,0.3,0.4,0.5,0.6\n";
+        out << "Norne,Not,Silt,0.00,25,0.25,2000,0.2,0.3,0.4,0.5,0.6,0.7\n";
         // Empty line in-between data should be ignored
         out << "\n";
         // Data with comment sign inside it is not ignored
-        out << "Norne,Not,Shale,0.00,25,0.25,2000,0.2,0.3,0.4,0.5,0.6\n";
+        out << "Norne,Not,Shale,0.00,25,0.25,2000,0.2,0.3,0.4,0.5,0.6,0.8\n";
         // Trailing empty lines should be ignored
         out << "\n\n\n";
     }

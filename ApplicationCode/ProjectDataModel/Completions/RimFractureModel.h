@@ -85,6 +85,12 @@ public:
     QString underburdenFormation() const;
     QString underburdenFacies() const;
 
+    double referenceTemperature() const;
+    double referenceTemperatureGradient() const;
+    double referenceTemperatureDepth() const;
+
+    bool useDetailedFluidLoss() const;
+
     // RimWellPathCompletionsInterface overrides.
     RiaDefines::WellPathComponentType componentType() const override;
     QString                           componentLabel() const override;
@@ -102,6 +108,9 @@ public:
     void                  setThicknessDirectionWellPath( RimModeledWellPath* thicknessDirectionWellPath );
     void                  setElasticProperties( RimElasticProperties* elasticProperties );
     RimElasticProperties* elasticProperties() const;
+
+    double getDefaultValueForProperty( RiaDefines::CurveProperty ) const;
+    bool   hasDefaultValueForProperty( RiaDefines::CurveProperty ) const;
 
     RiaDefines::CurveProperty getDefaultPropertyForMissingValues( const QString& keyword ) const;
     double                    getDefaultForMissingOverburdenValue( const QString& keyword ) const;
@@ -151,4 +160,11 @@ protected:
     caf::PdmField<QString>                      m_underburdenFormation;
     caf::PdmField<QString>                      m_underburdenFacies;
     caf::PdmField<double>                       m_underburdenFluidDensity;
+    caf::PdmField<double>                       m_referenceTemperature;
+    caf::PdmField<double>                       m_referenceTemperatureGradient;
+    caf::PdmField<double>                       m_referenceTemperatureDepth;
+    caf::PdmField<double>                       m_relativePermeabilityFactorDefault;
+    caf::PdmField<double>                       m_poroElasticConstantDefault;
+    caf::PdmField<double>                       m_thermalExpansionCoeffientDefault;
+    caf::PdmField<bool>                         m_useDetailedFluidLoss;
 };
