@@ -18,27 +18,35 @@
 
 #pragma once
 
+#include "RimSurfaceCollection.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmObjectMethod.h"
+#include "cafPdmPtrArrayField.h"
+#include "cafPdmPtrField.h"
 
 #include <QString>
 
 #include <memory>
 
+class RimSurface;
+class RimSurfaceCollection;
+
 //==================================================================================================
 ///
 //==================================================================================================
-class RimProject_importSummaryCase : public caf::PdmObjectMethod
+class RimcSurfaceCollection_importSurface : public caf::PdmObjectMethod
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimProject_importSummaryCase( caf::PdmObjectHandle* self );
+    RimcSurfaceCollection_importSurface( caf::PdmObjectHandle* self );
 
     caf::PdmObjectHandle*            execute();
     bool                             resultIsPersistent() const override;
     std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+    bool                             isNullptrValidResult() const override;
 
 private:
     caf::PdmField<QString> m_fileName;
@@ -47,31 +55,12 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
-class RimProject_summaryCase : public caf::PdmObjectMethod
+class RimcSurfaceCollection_addFolder : public caf::PdmObjectMethod
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimProject_summaryCase( caf::PdmObjectHandle* self );
-
-    caf::PdmObjectHandle*            execute();
-    bool                             resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
-    bool                             isNullptrValidResult() const override;
-
-private:
-    caf::PdmField<int> m_caseId;
-};
-
-//==================================================================================================
-///
-//==================================================================================================
-class RimProject_surfaceFolder : public caf::PdmObjectMethod
-{
-    CAF_PDM_HEADER_INIT;
-
-public:
-    RimProject_surfaceFolder( caf::PdmObjectHandle* self );
+    RimcSurfaceCollection_addFolder( caf::PdmObjectHandle* self );
 
     caf::PdmObjectHandle*            execute();
     bool                             resultIsPersistent() const override;

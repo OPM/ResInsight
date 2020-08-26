@@ -78,8 +78,8 @@ private:
     void syncCollectionsWithView();
     void syncSurfacesWithView();
 
-    caf::PdmProxyValueField<QString>                     m_collectionname;
+    caf::PdmProxyValueField<QString>                     m_collectionName;
     caf::PdmChildArrayField<RimSurfaceInViewCollection*> m_collectionsInView;
     caf::PdmChildArrayField<RimSurfaceInView*>           m_surfacesInView;
-    caf::PdmPtrField<RimSurfaceCollection*>              m_surfacecollection;
+    caf::PdmPtrField<RimSurfaceCollection*>              m_surfaceCollection;
 };

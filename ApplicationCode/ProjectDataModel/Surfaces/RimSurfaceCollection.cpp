@@ -30,6 +30,9 @@
 
 #include "cafPdmFieldReorderCapability.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
+
 CAF_PDM_SOURCE_INIT( RimSurfaceCollection, "SurfaceCollection" );
 
 //--------------------------------------------------------------------------------------------------
@@ -37,17 +40,17 @@ CAF_PDM_SOURCE_INIT( RimSurfaceCollection, "SurfaceCollection" );
 //--------------------------------------------------------------------------------------------------
 RimSurfaceCollection::RimSurfaceCollection()
 {
-    CAF_PDM_InitObject( "Surfaces", ":/ReservoirSurfaces16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Surfaces", ":/ReservoirSurfaces16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_collectionname, "SurfaceUserDecription", "Name", "", "", "" );
-    m_collectionname = "Surfaces";
+    CAF_PDM_InitScriptableFieldNoDefault( &m_collectionName, "SurfaceUserDecription", "Name", "", "", "" );
+    m_collectionName = "Surfaces";
 
-    CAF_PDM_InitFieldNoDefault( &m_subcollections, "SubCollections", "Surfaces", "", "", "" );
-    m_subcollections.uiCapability()->setUiTreeHidden( true );
-    auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_subcollections );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_subCollections, "SubCollections", "Surfaces", "", "", "" );
+    m_subCollections.uiCapability()->setUiTreeHidden( true );
+    auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_subCollections );
     reorderability->orderChanged.connect( this, &RimSurfaceCollection::orderChanged );
 
-    CAF_PDM_InitFieldNoDefault( &m_surfaces, "SurfacesField", "Surfaces", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_surfaces, "SurfacesField", "Surfaces", "", "", "" );
     m_surfaces.uiCapability()->setUiTreeHidden( true );
 
     setDeletable( true );
@@ -65,16 +68,24 @@ RimSurfaceCollection::~RimSurfaceCollection()
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceCollection::setAsTopmostFolder()
 {
-    m_collectionname.uiCapability()->setUiHidden( true );
+    m_collectionName.uiCapability()->setUiHidden( true );
     setDeletable( false );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSurfaceCollection::collectionname() const
+QString RimSurfaceCollection::collectionName() const
 {
-    return m_collectionname.value();
+    return m_collectionName.value();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceCollection::setCollectionName( const QString name )
+{
+    return m_collectionName.setValue( name );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,7 +93,7 @@ QString RimSurfaceCollection::collectionname() const
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimSurfaceCollection::userDescriptionField()
 {
-    return &m_collectionname;
+    return &m_collectionName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -235,9 +246,9 @@ std::vector<RimSurface*> RimSurfaceCollection::surfaces() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSurfaceCollection*> RimSurfaceCollection::subcollections() const
+std::vector<RimSurfaceCollection*> RimSurfaceCollection::subCollections() const
 {
-    return m_subcollections.childObjects();
+    return m_subCollections.childObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -346,7 +357,7 @@ void RimSurfaceCollection::removeSurface( RimSurface* surface )
 RimSurface* RimSurfaceCollection::addSurfacesAtIndex( int position, std::vector<RimSurface*> surfaces )
 {
     // adjust index for number of folders we have
-    position = position - static_cast<int>( m_subcollections.size() );
+    position = position - static_cast<int>( m_subCollections.size() );
 
     RimSurface* returnSurface = nullptr;
     if ( !surfaces.empty() ) returnSurface = surfaces[0];
@@ -401,10 +412,23 @@ RimSurface* RimSurfaceCollection::addSurfacesAtIndex( int position, std::vector<
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceCollection::addSubCollection( RimSurfaceCollection* subcoll )
 {
-    m_subcollections.push_back( subcoll );
+    m_subCollections.push_back( subcoll );
     this->updateConnectedEditors();
 
     updateViews();
 
     return;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSurfaceCollection* RimSurfaceCollection::getSubCollection( const QString name )
+{
+    for ( auto coll : m_subCollections )
+    {
+        if ( coll->collectionName() == name ) return coll;
+    }
+
+    return nullptr;
 }

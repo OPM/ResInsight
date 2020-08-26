@@ -40,10 +40,10 @@ RimSurfaceInViewCollection::RimSurfaceInViewCollection()
 {
     CAF_PDM_InitObject( "Surfaces", ":/ReservoirSurfaces16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_collectionname, "CollectionName", "Name", "", "", "" );
-    m_collectionname.registerGetMethod( this, &RimSurfaceInViewCollection::name );
-    m_collectionname.uiCapability()->setUiReadOnly( true );
-    m_collectionname.xmlCapability()->disableIO();
+    CAF_PDM_InitFieldNoDefault( &m_collectionName, "CollectionName", "Name", "", "", "" );
+    m_collectionName.registerGetMethod( this, &RimSurfaceInViewCollection::name );
+    m_collectionName.uiCapability()->setUiReadOnly( true );
+    m_collectionName.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_collectionsInView,
                                 "SurfacesInViewFieldCollections",
@@ -56,8 +56,8 @@ RimSurfaceInViewCollection::RimSurfaceInViewCollection()
     CAF_PDM_InitFieldNoDefault( &m_surfacesInView, "SurfacesInViewField", "SurfacesInViewField", "", "", "" );
     m_surfacesInView.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_surfacecollection, "SurfaceCollectionRef", "SurfaceCollection", "", "", "" );
-    m_surfacecollection.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_surfaceCollection, "SurfaceCollectionRef", "SurfaceCollection", "", "", "" );
+    m_surfaceCollection.uiCapability()->setUiHidden( true );
 
     nameField()->uiCapability()->setUiHidden( true );
 }
@@ -74,7 +74,7 @@ RimSurfaceInViewCollection::~RimSurfaceInViewCollection()
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimSurfaceInViewCollection::userDescriptionField()
 {
-    return &m_collectionname;
+    return &m_collectionName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,7 +82,7 @@ caf::PdmFieldHandle* RimSurfaceInViewCollection::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 QString RimSurfaceInViewCollection::name() const
 {
-    if ( m_surfacecollection ) return m_surfacecollection->collectionname();
+    if ( m_surfaceCollection ) return m_surfaceCollection->collectionName();
 
     return "";
 }
@@ -92,7 +92,7 @@ QString RimSurfaceInViewCollection::name() const
 //--------------------------------------------------------------------------------------------------
 RimSurfaceCollection* RimSurfaceInViewCollection::surfaceCollection() const
 {
-    return m_surfacecollection;
+    return m_surfaceCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,7 +100,7 @@ RimSurfaceCollection* RimSurfaceInViewCollection::surfaceCollection() const
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceInViewCollection::setSurfaceCollection( RimSurfaceCollection* surfcoll )
 {
-    m_surfacecollection = surfcoll;
+    m_surfaceCollection = surfcoll;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -132,10 +132,10 @@ void RimSurfaceInViewCollection::syncCollectionsWithView()
 
     // Create new collection entries and reorder
     std::vector<RimSurfaceInViewCollection*> orderedColls;
-    if ( m_surfacecollection )
+    if ( m_surfaceCollection )
     {
         // pick up the collections and the order from the surface collection
-        std::vector<RimSurfaceCollection*> surfcolls = m_surfacecollection->subcollections();
+        std::vector<RimSurfaceCollection*> surfcolls = m_surfaceCollection->subCollections();
         for ( auto surfcoll : surfcolls )
         {
             // check if this is a collection we need to create
@@ -184,10 +184,10 @@ void RimSurfaceInViewCollection::syncSurfacesWithView()
     // Create new surfade entries and reorder
     std::vector<RimSurfaceInView*> orderedSurfs;
 
-    if ( m_surfacecollection )
+    if ( m_surfaceCollection )
     {
         // pick up the surfaces and the order from the surface collection
-        std::vector<RimSurface*> surfs = m_surfacecollection->surfaces();
+        std::vector<RimSurface*> surfs = m_surfaceCollection->surfaces();
         for ( auto surf : surfs )
         {
             // check if this is a surface we need to create
