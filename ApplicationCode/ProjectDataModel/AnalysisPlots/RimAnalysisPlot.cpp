@@ -167,6 +167,8 @@ RimAnalysisPlot::RimAnalysisPlot()
     m_plotDataFilterCollection.uiCapability()->setUiTreeHidden( true );
     m_plotDataFilterCollection = new RimPlotDataFilterCollection;
 
+    connectAxisSignals( m_valueAxisProperties() );
+
     setDeletable( true );
 }
 
@@ -1023,12 +1025,15 @@ std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::filteredCurveDefs()
 
     for ( const auto& curveDef : dataDefinitions )
     {
-        filteredSumCases.insert( curveDef.summaryCase() );
+        if ( curveDef.summaryCase() )
+        {
+            filteredSumCases.insert( curveDef.summaryCase() );
 
-        RifEclipseSummaryAddress address = curveDef.summaryAddress();
+            RifEclipseSummaryAddress address = curveDef.summaryAddress();
 
-        address.setQuantityName( "" ); // Quantity name set to "" in order to store only unique summary items
-        filteredSummaryItems.insert( address );
+            address.setQuantityName( "" ); // Quantity name set to "" in order to store only unique summary items
+            filteredSummaryItems.insert( address );
+        }
     }
 
     std::vector<RimPlotDataFilterItem*> filters = m_plotDataFilterCollection->filters();
