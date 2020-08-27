@@ -265,17 +265,28 @@ void RiuSummaryQwtPlot::contextMenuEvent( QContextMenuEvent* event )
                             {
                                 menuBuilder.subMenuStart( "Cross Plots",
                                                           *caf::IconProvider( ":/CorrelationCrossPlot16x16.png" ).icon() );
-                                std::vector<EnsembleParameter> ensembleParameters =
-                                    ensemble->variationSortedEnsembleParameters();
-                                for ( const EnsembleParameter& param : ensembleParameters )
+                                std::vector<std::pair<EnsembleParameter, double>> ensembleParameters =
+                                    ensemble->parameterCorrelations( clickedEnsembleCurveSet->summaryAddress(),
+                                                                     timeStep,
+                                                                     false );
+                                std::sort( ensembleParameters.begin(),
+                                           ensembleParameters.end(),
+                                           []( const std::pair<EnsembleParameter, double>& lhs,
+                                               const std::pair<EnsembleParameter, double>& rhs ) {
+                                               return std::fabs( lhs.second ) > std::fabs( rhs.second );
+                                           } );
+
+                                for ( const auto& param : ensembleParameters )
                                 {
-                                    if ( param.variationBin >= (int)EnsembleParameter::LOW_VARIATION )
+                                    if ( std::fabs( param.second ) >= 1.0e-6 )
                                     {
-                                        params.ensembleParameter = param.name;
+                                        params.ensembleParameter = param.first.name;
                                         variant                  = QVariant::fromValue( params );
                                         menuBuilder.addCmdFeatureWithUserData( "RicNewParameterResultCrossPlotFeature",
-                                                                               QString( "New Cross Plot Against %1" )
-                                                                                   .arg( param.uiName() ),
+                                                                               QString( "New Cross Plot Against %1 "
+                                                                                        "(Correlation: %2)" )
+                                                                                   .arg( param.first.name )
+                                                                                   .arg( param.second ),
                                                                                variant );
                                     }
                                 }

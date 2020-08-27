@@ -120,6 +120,8 @@ public:
     void                           updateAllTextInPlot();
     std::vector<EnsembleParameter> variationSortedEnsembleParameters() const;
 
+    std::vector<std::pair<EnsembleParameter, double>> correlationSortedEnsembleParameters() const;
+
     std::vector<RimSummaryCase*> filterEnsembleCases( const std::vector<RimSummaryCase*>& sumCases );
     void                         disableStatisticCurves();
     bool                         isFiltered() const;

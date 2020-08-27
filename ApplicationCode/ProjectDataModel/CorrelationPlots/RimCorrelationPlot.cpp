@@ -259,75 +259,22 @@ void RimCorrelationPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chart
     if ( ensembles().empty() ) return;
     if ( addresses().empty() ) return;
 
-    std::vector<double>                    caseValuesAtTimestep;
-    std::map<QString, std::vector<double>> parameterValues;
-
     auto ensemble = *ensembles().begin();
     auto address  = *addresses().begin();
 
-    for ( size_t caseIdx = 0u; caseIdx < ensemble->allSummaryCases().size(); ++caseIdx )
-    {
-        auto summaryCase = ensemble->allSummaryCases()[caseIdx];
-
-        RifSummaryReaderInterface* reader = summaryCase->summaryReader();
-        if ( !reader ) continue;
-
-        if ( !summaryCase->caseRealizationParameters() ) continue;
-
-        std::vector<double> values;
-
-        double closestValue    = std::numeric_limits<double>::infinity();
-        time_t closestTimeStep = 0;
-        if ( reader->values( address, &values ) )
-        {
-            const std::vector<time_t>& timeSteps = reader->timeSteps( address );
-            for ( size_t i = 0; i < timeSteps.size(); ++i )
-            {
-                if ( timeDiff( timeSteps[i], selectedTimestep ) < timeDiff( selectedTimestep, closestTimeStep ) )
-                {
-                    closestValue    = values[i];
-                    closestTimeStep = timeSteps[i];
-                }
-            }
-        }
-        if ( closestValue != std::numeric_limits<double>::infinity() )
-        {
-            caseValuesAtTimestep.push_back( closestValue );
-
-            for ( auto parameterName : m_selectedParametersList() )
-            {
-                auto parameter = ensemble->ensembleParameter( parameterName );
-                if ( parameter.isNumeric() && parameter.isValid() )
-                {
-                    double paramValue = parameter.values[caseIdx].toDouble();
-                    parameterValues[parameter.name].push_back( paramValue );
-                }
-            }
-        }
-    }
-
-    std::vector<std::pair<QString, double>> correlationResults;
-    for ( auto parameterValuesPair : parameterValues )
-    {
-        double correlation = 0.0;
-        if ( m_correlationFactor == CorrelationFactor::PEARSON )
-        {
-            correlation = RiaStatisticsTools::pearsonCorrelation( parameterValuesPair.second, caseValuesAtTimestep );
-        }
-        else
-        {
-            correlation = RiaStatisticsTools::spearmanCorrelation( parameterValuesPair.second, caseValuesAtTimestep );
-        }
-        correlationResults.push_back( std::make_pair( parameterValuesPair.first, correlation ) );
-    }
+    std::vector<std::pair<EnsembleParameter, double>> correlations =
+        ensemble->parameterCorrelations( address,
+                                         selectedTimestep,
+                                         m_correlationFactor == CorrelationFactor::PEARSON,
+                                         m_selectedParametersList() );
 
     QString timestepString = m_timeStep().toString( RiaPreferences::current()->dateTimeFormat() );
 
-    for ( auto parameterCorrPair : correlationResults )
+    for ( auto parameterCorrPair : correlations )
     {
         double  value     = m_showAbsoluteValues() ? std::abs( parameterCorrPair.second ) : parameterCorrPair.second;
         double  sortValue = m_sortByAbsoluteValues() ? std::abs( value ) : value;
-        QString barText   = parameterCorrPair.first;
+        QString barText   = QString( "%1 (%2)" ).arg( parameterCorrPair.first.name ).arg( parameterCorrPair.second );
         QString majorText = "", medText = "", minText = "", legendText = barText;
         chartBuilder.addBarEntry( majorText, medText, minText, sortValue, legendText, barText, value );
     }
