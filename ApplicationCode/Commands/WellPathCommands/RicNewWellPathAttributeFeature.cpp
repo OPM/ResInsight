@@ -45,11 +45,13 @@ bool RicNewWellPathAttributeFeature::isCommandEnabled()
     }
 
     {
-        if ( caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPath>() )
+        if ( caf::SelectionManager::instance()->selectedItemOfType<RimWellPath>() ||
+             caf::SelectionManager::instance()->selectedItemOfType<RimWellPathAttributeCollection>() )
         {
             return true;
         }
     }
+
     return false;
 }
 

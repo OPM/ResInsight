@@ -117,12 +117,7 @@ void RicNewFractureModelFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 bool RicNewFractureModelFeature::isCommandEnabled()
 {
-    if ( selectedFractureModelCollection() )
-    {
-        return true;
-    }
-
-    return false;
+    return selectedFractureModelCollection() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -130,35 +125,26 @@ bool RicNewFractureModelFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 RimFractureModelCollection* RicNewFractureModelFeature::selectedFractureModelCollection()
 {
-    std::vector<caf::PdmUiItem*> allSelectedItems;
-    caf::SelectionManager::instance()->selectedItems( allSelectedItems );
-    if ( allSelectedItems.size() != 1u ) return nullptr;
+    std::vector<caf::PdmUiItem*> selectedItems;
+    caf::SelectionManager::instance()->selectedItems( selectedItems );
+    if ( selectedItems.size() != 1u ) return nullptr;
 
-    caf::PdmUiItem* pdmUiItem = allSelectedItems.front();
+    caf::PdmUiItem* pdmUiItem = selectedItems.front();
 
-    RimFractureModelCollection* objToFind = nullptr;
-
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( pdmUiItem );
+    RimFractureModelCollection* fractureModelCollection = nullptr;
+    caf::PdmObjectHandle*       objHandle               = dynamic_cast<caf::PdmObjectHandle*>( pdmUiItem );
     if ( objHandle )
     {
-        objHandle->firstAncestorOrThisOfType( objToFind );
-    }
+        objHandle->firstAncestorOrThisOfType( fractureModelCollection );
 
-    if ( objToFind == nullptr )
-    {
-        std::vector<RimWellPath*> wellPaths;
-        caf::SelectionManager::instance()->objectsByType( &wellPaths );
-        if ( !wellPaths.empty() )
-        {
-            return wellPaths[0]->fractureModelCollection();
-        }
+        if ( fractureModelCollection ) return fractureModelCollection;
+
+        RimWellPath* wellPath = dynamic_cast<RimWellPath*>( objHandle );
+        if ( wellPath ) return wellPath->fractureModelCollection();
+
         RimWellPathCompletions* completions =
             caf::SelectionManager::instance()->selectedItemOfType<RimWellPathCompletions>();
-        if ( completions )
-        {
-            return completions->fractureModelCollection();
-        }
+        if ( completions ) return completions->fractureModelCollection();
     }
-
-    return objToFind;
+    return nullptr;
 }
