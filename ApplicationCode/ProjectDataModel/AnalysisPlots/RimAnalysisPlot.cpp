@@ -168,7 +168,7 @@ RimAnalysisPlot::RimAnalysisPlot()
     m_plotDataFilterCollection = new RimPlotDataFilterCollection;
 
     connectAxisSignals( m_valueAxisProperties() );
-
+    m_plotDataFilterCollection->filtersChanged.connect( this, &RimAnalysisPlot::onFiltersChanged );
     setDeletable( true );
 }
 
@@ -416,7 +416,7 @@ void RimAnalysisPlot::maxMinValueFromAddress( const RifEclipseSummaryAddress&   
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnalysisPlot::onFiltersChanged()
+void RimAnalysisPlot::onFiltersChanged( const caf::SignalEmitter* emitter )
 {
     this->loadDataAndUpdate();
 }
@@ -1082,7 +1082,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
     std::map<RimSummaryCase*, double>          casesToKeepWithValue;
     std::map<RifEclipseSummaryAddress, double> sumItemsToKeepWithValue;
 
-    if ( filter->filterTarget() == RimPlotDataFilterItem::ENSEMBLE_CASE )
+    if ( filter->filterTarget() == RimPlotDataFilterItem::ENSEMBLE_CASE && !filter->ensembleParameterName().isEmpty() )
     {
         sumItemsToKeep = ( *filteredSummaryItems ); // Not filtering items
 

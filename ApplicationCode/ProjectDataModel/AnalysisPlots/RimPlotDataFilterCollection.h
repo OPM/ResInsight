@@ -31,6 +31,9 @@ class RimPlotDataFilterCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    caf::Signal<> filtersChanged;
+
+public:
     RimPlotDataFilterCollection();
 
     RimPlotDataFilterItem*              addFilter();
@@ -40,6 +43,8 @@ public:
 
 private:
     caf::PdmFieldHandle* objectToggleField() override;
+
+    void onFilterChanged( const caf::SignalEmitter* emitter );
 
 private:
     caf::PdmField<bool>                             m_isActive;
