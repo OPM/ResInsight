@@ -21,6 +21,9 @@
 #include "RiaStatisticsTools.h"
 
 #include "RifEclipseSummaryAddress.h"
+#include "RigStatisticsMath.h"
+
+#include "cafAssert.h"
 
 #ifdef USE_GSL
 #include "gsl/statistics/gsl_statistics_double.h"
@@ -59,6 +62,12 @@ const QString RiaStatisticsTools::replacePercentileByPValueText( const QString& 
 //--------------------------------------------------------------------------------------------------
 double RiaStatisticsTools::pearsonCorrelation( const std::vector<double>& xValues, const std::vector<double>& yValues )
 {
+    const double eps    = 1.0e-8;
+    double       rangeX = 0.0, rangeY = 0.0;
+    RigStatisticsMath::calculateBasicStatistics( xValues, nullptr, nullptr, nullptr, &rangeX, nullptr, nullptr );
+    RigStatisticsMath::calculateBasicStatistics( yValues, nullptr, nullptr, nullptr, &rangeY, nullptr, nullptr );
+    if ( rangeX < eps || rangeY < eps ) return 0.0;
+
 #ifdef USE_GSL
     return pearsonCorrelationGSL( xValues, yValues );
 #else
@@ -74,6 +83,7 @@ double RiaStatisticsTools::pearsonCorrelationGSL( const std::vector<double>& xVa
 #ifdef USE_GSL
     return gsl_stats_correlation( xValues.data(), 1, yValues.data(), 1, xValues.size() );
 #else
+    CAF_ASSERT( false );
     return std::numeric_limits<double>::infinity();
 #endif
 }
@@ -120,6 +130,12 @@ double RiaStatisticsTools::pearsonCorrelationOwn( const std::vector<double>& xVa
 //--------------------------------------------------------------------------------------------------
 double RiaStatisticsTools::spearmanCorrelation( const std::vector<double>& xValues, const std::vector<double>& yValues )
 {
+    const double eps    = 1.0e-8;
+    double       rangeX = 0.0, rangeY = 0.0;
+    RigStatisticsMath::calculateBasicStatistics( xValues, nullptr, nullptr, nullptr, &rangeX, nullptr, nullptr );
+    RigStatisticsMath::calculateBasicStatistics( yValues, nullptr, nullptr, nullptr, &rangeY, nullptr, nullptr );
+    if ( rangeX < eps || rangeY < eps ) return 0.0;
+
 #ifdef USE_GSL
     std::vector<double> work( 2 * xValues.size() );
     return gsl_stats_spearman( xValues.data(), 1, yValues.data(), 1, xValues.size(), work.data() );
