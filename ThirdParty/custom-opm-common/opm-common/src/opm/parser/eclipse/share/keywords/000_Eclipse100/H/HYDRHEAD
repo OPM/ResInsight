@@ -1,0 +1,24 @@
+{
+  "name": "HYDRHEAD",
+  "sections": [
+    "PROPS"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "REF_DEPTH",
+      "value_type": "DOUBLE",
+      "dimension": "Length"
+    },
+    {
+      "name": "FRESHWATER_DENSITY",
+      "value_type": "DOUBLE",
+      "dimension": "Density"
+    },
+    {
+      "name": "REMOVE_DEPTH_TERMS",
+      "value_type": "STRING",
+      "default": "NO"
+    }
+  ]
+}

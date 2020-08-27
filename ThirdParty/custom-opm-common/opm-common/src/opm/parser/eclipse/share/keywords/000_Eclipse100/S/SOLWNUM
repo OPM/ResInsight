@@ -1,0 +1,9 @@
+{
+  "name": "SOLWNUM",
+  "sctions": [
+    "GRID"
+  ],
+  "data": {
+    "value_type": "INT"
+  }
+}

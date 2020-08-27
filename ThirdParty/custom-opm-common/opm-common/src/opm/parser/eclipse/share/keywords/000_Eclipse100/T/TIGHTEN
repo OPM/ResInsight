@@ -1,0 +1,13 @@
+{
+  "name": "TIGHTEN",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "FACTOR",
+      "value_type": "DOUBLE",
+      "default_value": 1
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "name": "TBLK",
+  "deck_name_regex": "TBLK(F|S).{1,3}",
+  "sections": [
+    "SOLUTION"
+  ],
+  "data": {
+    "value_type": "DOUBLE"
+  }
+}

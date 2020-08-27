@@ -1,0 +1,234 @@
+-- This reservoir simulation deck is made available under the Open Database
+-- License: http://opendatacommons.org/licenses/odbl/1.0/. Any rights in
+-- individual contents of the database are licensed under the Database Contents
+-- License: http://opendatacommons.org/licenses/dbcl/1.0/
+
+-- Copyright (C) 2015 Statoil
+
+-- Summary file for the base case, short version --
+DATE
+PERFORMA
+--
+-- Field Data
+-- Production Rates
+FVPR
+FWPR
+FWPRH
+FOPR
+FOPRH
+FGPR
+FGPRH
+FLPR
+FLPRH
+FGSR
+FGCR
+--FTPRSEA
+-- Injection Rates
+FVIR
+FWIR
+FWIRH
+FGIR
+FGIRH
+-- Production Cummulatives
+FVPT
+FWPT
+FOPT
+FLPT
+FLPTH
+FGPT
+FOPTH
+FGPTH
+FWPTH
+FGST
+FGCT
+-- Injection Cummulatives
+FVIT
+FWIT
+FWITH
+FGIT
+FGITH
+-- In place
+FWIP
+FOIP
+FGIP
+-- Ratios
+FWCT
+FWCTH
+FGOR
+FGORH
+-- Pressures
+FPR
+--BPR
+--18 63 25 /
+--18 63 26 /
+--/
+--  Region data
+RPR
+/
+ROPT
+/
+RGPT
+/
+RWPT
+/
+RGFT
+/
+RWFT
+/
+ROIP
+/
+ROP
+/
+--  Group data --
+GPR
+/
+GOPT
+/
+GGPT
+/
+GWPT
+/
+GOPR
+/
+GLPR
+/
+GGPR
+/
+GWPR
+/
+GGIR
+/
+GGIT
+/
+GWCT
+/
+GGOR
+/
+GWIR
+/
+-- Well Data
+-- Production Rates
+WWPR
+/
+WWPRH
+/
+WOPR
+/
+WOPRH
+/
+WGPR
+/
+WGPRH
+/
+WLPR
+/
+WLPRH
+/
+
+WLPT
+/
+
+WLPTH
+/
+
+-- Injection Rates
+WWIR
+  C-1H C-2H C-3H C-4H C-4AH F-1H F-2H F-3H F-4H
+/
+WWIRH
+  C-1H C-2H C-3H C-4H C-4AH F-1H F-2H F-3H F-4H
+/
+WGIR
+  C-1H C-2H C-3H C-4H C-4AH F-1H F-2H F-3H F-4H
+/
+
+WGIRH
+  C-1H C-2H C-3H C-4H C-4AH F-1H F-2H F-3H F-4H
+/
+
+WGIT
+  C-1H C-2H C-3H C-4H C-4AH F-1H F-2H F-3H F-4H
+/
+
+WGIRH
+  C-1H C-2H C-3H C-4H C-4AH F-1H F-2H F-3H F-4H
+/
+-- Production Cummulatives
+WWPT
+/
+WWPTH
+/
+WOPT
+/
+WOPTH
+/
+WGPT
+/
+WGPTH
+/
+-- Tracers
+--WTPRSEA
+--/
+--WTPTSEA
+--/
+-- Injection Cummulatives
+WWIT
+  C-1H C-2H C-3H C-4H C-4AH F-1H F-2H F-3H F-4H
+/
+-- Ratios
+WWCT
+/
+WWCTH
+/
+WGOR
+/
+WGORH
+/
+WGORH
+/
+-- Performance
+WBHP
+/
+WBHPH
+/
+WTHP
+/
+WTHPH
+/
+WPI
+/
+WBP
+/
+WBP4
+/
+-- Water injection per connection
+CWIR
+'F-1H' /
+'F-2H' /
+'F-3H' /
+'F-4H' /
+'C-1H' /
+'C-2H' /
+'C-3H' /
+'C-4H' /
+/
+CWIT
+'F-1H' /
+'F-2H' /
+'F-3H' /
+'F-4H' /
+'C-1H' /
+'C-2H' /
+'C-3H' /
+'C-4H' /
+/
+-- Connection production rates
+CGPT
+'E-4AH' /
+/
+CGFR
+'E-4AH' /
+/
+CWFR
+'E-2H' /
+/

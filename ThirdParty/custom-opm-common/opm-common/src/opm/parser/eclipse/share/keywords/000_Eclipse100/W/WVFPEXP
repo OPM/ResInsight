@@ -1,0 +1,32 @@
+{
+  "name": "WVFPEXP",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "EXPLICIT_IMPLICIT",
+      "value_type": "STRING",
+      "default": "IMP"
+    },
+    {
+      "name": "CLOSE",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "name": "PREVENT_THP",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "name": "EXTRAPOLATION_CONTROL",
+      "value_type": "STRING",
+      "default": "WG"
+    }
+  ]
+}

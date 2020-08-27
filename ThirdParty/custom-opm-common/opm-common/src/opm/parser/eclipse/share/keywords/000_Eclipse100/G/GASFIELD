@@ -1,0 +1,19 @@
+{
+  "name": "GASFIELD",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "FLAG_COMP",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "name": "FLAG_IT",
+      "value_type": "STRING",
+      "default": "NO"
+    }
+  ]
+}

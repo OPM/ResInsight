@@ -1,0 +1,14 @@
+{
+  "name": "DCQDEFN",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "QUANTITY",
+      "value_type": "STRING",
+      "default": "GAS"
+    }
+  ]
+}

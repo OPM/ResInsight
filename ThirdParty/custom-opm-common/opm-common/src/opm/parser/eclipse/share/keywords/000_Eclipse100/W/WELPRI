@@ -1,0 +1,32 @@
+{
+  "name": "WELPRI",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL_NAME",
+      "value_type": "STRING"
+    },
+    {
+      "name": "PRI1",
+      "value_type": "INT",
+      "default": -1
+    },
+    {
+      "name": "SCALING1",
+      "value_type": "DOUBLE",
+      "default": 1
+    },
+    {
+      "name": "PRI2",
+      "value_type": "INT",
+      "default": -1
+    },
+    {
+      "name": "SCALING2",
+      "value_type": "DOUBLE",
+      "default": 1
+    }
+  ]
+}

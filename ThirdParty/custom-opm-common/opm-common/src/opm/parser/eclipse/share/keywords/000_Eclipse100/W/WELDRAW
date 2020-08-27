@@ -1,0 +1,31 @@
+{
+  "name": "WELDRAW",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "MAX_DRAW",
+      "value_type": "UDA",
+      "dimension": "Pressure"
+    },
+    {
+      "name": "PHASE",
+      "value_type": "STRING"
+    },
+    {
+      "name": "USE_LIMIT",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "name": "GRID_BLOCKS",
+      "value_type": "STRING",
+      "default": "AVG"
+    }
+  ]
+}

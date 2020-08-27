@@ -1,0 +1,72 @@
+{
+  "name": "AQUNNC",
+  "sections": [
+    "GRID"
+  ],
+  "items": [
+    {
+      "name": "AQUIFER_ID",
+      "value_type": "INT"
+    },
+    {
+      "name": "IX",
+      "value_type": "INT"
+    },
+    {
+      "name": "IY",
+      "value_type": "INT"
+    },
+    {
+      "name": "IZ",
+      "value_type": "INT"
+    },
+    {
+      "name": "JX",
+      "value_type": "INT"
+    },
+    {
+      "name": "JY",
+      "value_type": "INT"
+    },
+    {
+      "name": "JZ",
+      "value_type": "INT"
+    },
+    {
+      "name": "TRAN",
+      "value_type": "DOUBLE",
+      "dimension": "Transmissibility",
+      "default": 0
+    },
+    {
+      "name": "IST1",
+      "value_type": "INT"
+    },
+    {
+      "name": "IST2",
+      "value_type": "INT"
+    },
+    {
+      "name": "IPT1",
+      "value_type": "INT"
+    },
+    {
+      "name": "IPT2",
+      "value_type": "INT"
+    },
+    {
+      "name": "ZF1",
+      "value_type": "STRING"
+    },
+    {
+      "name": "ZF2",
+      "value_type": "STRING"
+    },
+    {
+      "name": "DIFF",
+      "value_type": "DOUBLE",
+      "dimension": "Length",
+      "defualt": 0
+    }
+  ]
+}

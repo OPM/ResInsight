@@ -1,0 +1,14 @@
+{
+  "name": "RPTINIT",
+  "sections": [
+    "GRID"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "MNEMONICS_LIST",
+      "size_type": "ALL",
+      "value_type": "STRING"
+    }
+  ]
+}

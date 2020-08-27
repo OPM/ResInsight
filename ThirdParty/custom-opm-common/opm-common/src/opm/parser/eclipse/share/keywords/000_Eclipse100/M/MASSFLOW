@@ -1,0 +1,13 @@
+{
+  "name": "MASSFLOW",
+  "sections": [
+    "PROPS"
+  ],
+  "items": [
+    {
+      "name": "WORD",
+      "value_type": "STRING",
+      "size_type": "ALL"
+    }
+  ]
+}

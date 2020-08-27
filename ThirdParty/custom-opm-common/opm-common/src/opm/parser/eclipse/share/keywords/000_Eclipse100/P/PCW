@@ -1,0 +1,10 @@
+{
+  "name": "PCW",
+  "sections": [
+    "PROPS"
+  ],
+  "data": {
+    "value_type": "DOUBLE",
+    "dimension": "Pressure"
+  }
+}

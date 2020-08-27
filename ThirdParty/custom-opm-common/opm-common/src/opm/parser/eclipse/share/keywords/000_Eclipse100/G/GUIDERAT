@@ -1,0 +1,70 @@
+{
+  "name": "GUIDERAT",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "MIN_CALC_TIME",
+      "value_type": "DOUBLE",
+      "dimension": "Time",
+      "default": 0
+    },
+    {
+      "name": "NOMINATED_PHASE",
+      "value_type": "STRING",
+      "default": "NONE"
+    },
+    {
+      "name": "A",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "B",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "C",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "D",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "E",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "F",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "ALLOW_INCREASE",
+      "value_type": "STRING",
+      "default": "YES"
+    },
+    {
+      "name": "DAMPING_FACTOR",
+      "value_type": "DOUBLE",
+      "default": 1
+    },
+    {
+      "name": "USE_FREE_GAS",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "name": "MIN_GUIDE_RATE",
+      "value_type": "DOUBLE",
+      "default": 1e-06
+    }
+  ]
+}

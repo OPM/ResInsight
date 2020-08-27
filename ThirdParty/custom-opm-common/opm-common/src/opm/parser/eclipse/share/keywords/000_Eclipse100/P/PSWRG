@@ -1,0 +1,9 @@
+{
+  "name": "PSWRG",
+  "sections": [
+    "PROPS"
+  ],
+  "data": {
+    "value_type": "DOUBLE"
+  }
+}

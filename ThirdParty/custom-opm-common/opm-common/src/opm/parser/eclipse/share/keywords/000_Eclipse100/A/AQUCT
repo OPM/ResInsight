@@ -1,0 +1,78 @@
+{
+  "name": "AQUCT",
+  "sections": [
+    "GRID",
+    "PROPS",
+    "SOLUTION",
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "AQUIFER_ID",
+      "value_type": "INT"
+    },
+    {
+      "name": "DAT_DEPTH",
+      "value_type": "DOUBLE",
+      "dimension": "Length"
+    },
+    {
+      "name": "P_INI",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    },
+    {
+      "name": "PERM_AQ",
+      "value_type": "DOUBLE",
+      "dimension": "Permeability"
+    },
+    {
+      "name": "PORO_AQ",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 1
+    },
+    {
+      "name": "C_T",
+      "value_type": "DOUBLE",
+      "dimension": "1/Pressure"
+    },
+    {
+      "name": "RAD",
+      "value_type": "DOUBLE",
+      "dimension": "Length"
+    },
+    {
+      "name": "THICKNESS_AQ",
+      "value_type": "DOUBLE",
+      "dimension": "Length"
+    },
+    {
+      "name": "INFLUENCE_ANGLE",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 360
+    },
+    {
+      "name": "TABLE_NUM_WATER_PRESS",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "name": "TABLE_NUM_INFLUENCE_FN",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "name": "INI_SALT",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "Salinity"
+    },
+    {
+      "name": "TEMP_AQUIFER",
+      "value_type": "DOUBLE",
+      "dimension": "Temperature"
+    }
+  ]
+}

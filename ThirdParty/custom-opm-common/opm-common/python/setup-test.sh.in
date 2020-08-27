@@ -1,0 +1,17 @@
+#!/bin/bash
+# This cmake template file can be used to create a small shell script which can
+# be used to simplify the Python development process. The cmake step will create
+# script setup-test.sh from this templated file - that script can be used to run
+# the tests through the setup.py macinery without going through cmake/ctest.
+#
+# The script in question is purely a convenience for Python development, it is
+# fully optional to use it, and it is not used by the main cmake based build
+# system.
+
+cp -r @PROJECT_SOURCE_DIR@/python @PROJECT_BINARY_DIR@
+cd @PROJECT_BINARY_DIR@/python
+export PYTHONPATH=@PROJECT_BINARY_DIR@/python:$PYTHONPATH
+export LD_LIBRARY_PATH=@PROJECT_BINARY_DIR@/lib:@_setup_lib_dirs@:$LD_LIBRARY_PATH
+
+
+@PYTHON_EXECUTABLE@ setup.py build_ext --dry-run

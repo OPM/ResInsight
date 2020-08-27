@@ -1,0 +1,17 @@
+{
+  "name": "WSEGTABL",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "SURFACT",
+      "value_type": "UDA",
+      "dimension": "Mass/Length*Length*Length"
+    }
+  ]
+}

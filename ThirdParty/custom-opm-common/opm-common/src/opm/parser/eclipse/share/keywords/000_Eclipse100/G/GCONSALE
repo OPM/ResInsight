@@ -1,0 +1,34 @@
+{
+  "name": "GCONSALE",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "name": "SALES_TARGET",
+      "value_type": "UDA",
+      "dimension": "GasSurfaceVolume/Time"
+    },
+    {
+      "name": "MAX_SALES_RATE",
+      "value_type": "UDA",
+      "dimension": "GasSurfaceVolume/Time",
+      "default": 1e+20
+    },
+    {
+      "name": "MIN_SALES_RATE",
+      "value_type": "UDA",
+      "dimension": "GasSurfaceVolume/Time",
+      "default": -1e+20
+    },
+    {
+      "name": "MAX_PROC",
+      "value_type": "STRING",
+      "default": "NONE"
+    }
+  ]
+}

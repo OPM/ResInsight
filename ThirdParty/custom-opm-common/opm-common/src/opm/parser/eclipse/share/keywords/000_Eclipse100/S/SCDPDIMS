@@ -1,0 +1,44 @@
+{
+  "name": "SCPDIMS",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "NTSCDP",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "NPSCDP",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "NTSCDA",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "PSCDA",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "UNUSED1",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "UNUSED2",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "NTSCDE",
+      "value_type": "INT",
+      "default": 0
+    }
+  ]
+}

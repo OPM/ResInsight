@@ -1,0 +1,9 @@
+{
+  "name": "VEFRACPV",
+  "sections": [
+    "PROPS"
+  ],
+  "data": {
+    "value_type": "DOUBLE"
+  }
+}

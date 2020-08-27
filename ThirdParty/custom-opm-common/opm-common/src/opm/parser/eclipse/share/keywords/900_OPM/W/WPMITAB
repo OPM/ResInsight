@@ -1,0 +1,16 @@
+{
+  "name": "WPMITAB",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "TABLE_NUMBER",
+      "value_type": "INT"
+    }
+  ]
+}

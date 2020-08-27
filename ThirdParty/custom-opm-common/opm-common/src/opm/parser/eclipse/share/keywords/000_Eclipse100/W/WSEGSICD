@@ -1,0 +1,76 @@
+{
+  "name": "WSEGSICD",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "SEG1",
+      "value_type": "INT"
+    },
+    {
+      "name": "SEG2",
+      "value_type": "INT"
+    },
+    {
+      "name": "STRENGTH",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure*Time*Time/GeometricVolume*GeometricVolume"
+    },
+    {
+      "name": "LENGTH",
+      "value_type": "DOUBLE",
+      "dimension": "Length",
+      "default": 12
+    },
+    {
+      "name": "DENSITY_CALI",
+      "value_type": "DOUBLE",
+      "dimension": "Density",
+      "default": 1000.25
+    },
+    {
+      "name": "VISCOSITY_CALI",
+      "value_type": "DOUBLE",
+      "dimension": "Viscosity",
+      "default": 1.45
+    },
+    {
+      "name": "CRITICAL_VALUE",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 0.5
+    },
+    {
+      "name": "WIDTH_TRANS",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 0.05
+    },
+    {
+      "name": "MAX_VISC_RATIO",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 5
+    },
+    {
+      "name": "METHOD_SCALING_FACTOR",
+      "value_type": "INT",
+      "default": -1
+    },
+    {
+      "name": "MAX_ABS_RATE",
+      "value_type": "DOUBLE",
+      "dimension": "GeometricVolume/Time"
+    },
+    {
+      "name": "STATUS",
+      "value_type": "STRING",
+      "default": "OPEN"
+    }
+  ]
+}

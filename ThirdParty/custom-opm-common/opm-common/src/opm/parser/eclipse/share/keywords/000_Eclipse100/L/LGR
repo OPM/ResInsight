@@ -1,0 +1,49 @@
+{
+  "name": "LGR",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "MAXLGR",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "MAXCLS",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "MCOARS",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "MAMALG",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "MXLALG",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "LSTACK",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "INTERP",
+      "value_type": "STRING",
+      "default": "INTERP"
+    },
+    {
+      "name": "NCHCOR",
+      "value_type": "INT",
+      "default": 0
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "name": "AQANTRC",
+  "sections": [
+    "SOLUTION"
+  ],
+  "items": [
+    {
+      "name": "AQUIFER_ID",
+      "value_type": "INT"
+    },
+    {
+      "name": "TRACER",
+      "value_type": "STRING"
+    },
+    {
+      "name": "VALUE",
+      "value_type": "DOUBLE"
+    }
+  ]
+}

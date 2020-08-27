@@ -1,0 +1,26 @@
+{
+  "name": "CPR",
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "I",
+      "value_type": "INT"
+    },
+    {
+      "name": "J",
+      "value_type": "INT"
+    },
+    {
+      "name": "K",
+      "value_type": "INT"
+    }
+  ],
+  "sections": [
+    "RUNSPEC",
+    "SUMMARY"
+  ],
+  "comment": "in the SimulationConfig() constructor"
+}

@@ -1,0 +1,52 @@
+{
+  "name": "EPSDBGS",
+  "sections": [
+    "PROPS",
+    "SCHEDULE"
+  ],
+  "records": [
+    [
+      {
+        "name": "TABLE_OUTPUT",
+        "value_type": "INT",
+        "default": 0
+      },
+      {
+        "name": "CHECK_DRAIN_HYST",
+        "value_type": "INT",
+        "default": 0
+      }
+    ],
+    [
+      {
+        "name": "IX1",
+        "value_type": "INT"
+      },
+      {
+        "name": "IX2",
+        "value_type": "INT"
+      },
+      {
+        "name": "JY1",
+        "value_type": "INT"
+      },
+      {
+        "name": "JY2",
+        "value_type": "INT"
+      },
+      {
+        "name": "KZ1",
+        "value_type": "INT"
+      },
+      {
+        "name": "KZ2",
+        "value_type": "INT"
+      },
+      {
+        "name": "GRID_NAME",
+        "value_type": "STRING",
+        "default": ""
+      }
+    ]
+  ]
+}

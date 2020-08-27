@@ -1,0 +1,13 @@
+{
+  "name": "COLLAPSE",
+  "sections": [
+    "GRID"
+  ],
+  "items": [
+    {
+      "name": "VALUE",
+      "value_type": "INT",
+      "default": 1
+    }
+  ]
+}

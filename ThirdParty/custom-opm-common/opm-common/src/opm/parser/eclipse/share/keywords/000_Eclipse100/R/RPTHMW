@@ -1,0 +1,22 @@
+{
+  "name": "RPTHMW",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "name": "INCLUDE",
+      "value_type": "STRING",
+      "default": "ON"
+    },
+    {
+      "name": "INCLUDE_RFT",
+      "value_type": "STRING",
+      "default": "OFF"
+    }
+  ]
+}

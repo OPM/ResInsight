@@ -1,0 +1,70 @@
+{
+  "name": "WCUTBACK",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "WCT_LIMIT",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "GOR_LIMIT",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "WGR_LIMIT",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "RATE_CUTBACK",
+      "value_type": "DOUBLE",
+      "default": 1
+    },
+    {
+      "name": "PHASE",
+      "value_type": "STRING"
+    },
+    {
+      "name": "PRESSURE_LIMIT",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "Pressure"
+    },
+    {
+      "name": "PRESSURE_LIMIT_REVERSE",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "Pressure"
+    },
+    {
+      "name": "WCT_LIMIT_REVERSE",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "GOR_LIMIT_REVERSE",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "GLR_LIMIT_REVERSE",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "WGR_LIMIT_REVERSE",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "WORKOVER_REMOVE",
+      "value_type": "STRING",
+      "default": "NO"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "name": "WSEGITER",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "MAX_WELL_ITERATIONS",
+      "value_type": "INT",
+      "default": 20
+    },
+    {
+      "name": "MAX_TIMES_REDUCED",
+      "value_type": "INT",
+      "default": 5
+    },
+    {
+      "name": "REDUCTION_FACTOR",
+      "value_type": "DOUBLE",
+      "default": 0.3
+    },
+    {
+      "name": "INCREASING_FACTOR",
+      "value_type": "DOUBLE",
+      "default": 2
+    }
+  ]
+}

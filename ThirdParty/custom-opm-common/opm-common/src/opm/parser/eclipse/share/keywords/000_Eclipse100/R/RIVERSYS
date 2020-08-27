@@ -1,0 +1,34 @@
+{
+  "name": "RIVERSYS",
+  "sections": [
+    "SOLUTION",
+    "SCHEDULE"
+  ],
+  "records": [
+    [
+      {
+        "name": "RIVER",
+        "value_type": "STRING"
+      },
+      {
+        "name": "EQUATION",
+        "value_type": "STRING"
+      }
+    ],
+    [
+      {
+        "name": "BRANCH_NR",
+        "value_type": "INT"
+      },
+      {
+        "name": "BRANCH_NAME",
+        "value_type": "STRING"
+      },
+      {
+        "name": "DOWNSTREAM_BC",
+        "value_type": "STRING",
+        "size_type": "ALL"
+      }
+    ]
+  ]
+}

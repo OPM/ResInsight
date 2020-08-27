@@ -1,0 +1,31 @@
+{
+  "name": "PEKTABX",
+  "sections": [
+    "PROPS"
+  ],
+  "deck_names": [
+    "PEKTAB0",
+    "PEKTAB1",
+    "PEKTAB2",
+    "PEKTAB3",
+    "PEKTAB4",
+    "PEKTAB5",
+    "PEKTAB6",
+    "PEKTAB7"
+  ],
+  "size": {
+    "keyword": "PEDIMS",
+    "item": "NUM_REGIONS"
+  },
+  "items": [
+    {
+      "name": "DATA",
+      "value_type": "DOUBLE",
+      "size_type": "ALL",
+      "dimension": [
+        "Pressure",
+        "Pressure"
+      ]
+    }
+  ]
+}

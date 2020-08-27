@@ -1,0 +1,10 @@
+{
+  "name": "MULSGGD",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "data": {
+    "value_type": "DOUBLE",
+    "dimension": "1"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "PVTG",
+  "sections": [
+    "PROPS"
+  ],
+  "num_tables": {
+    "keyword": "TABDIMS",
+    "item": "NTPVT"
+  },
+  "items": [
+    {
+      "name": "GAS_PRESSURE",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    },
+    {
+      "name": "DATA",
+      "size_type": "ALL",
+      "value_type": "DOUBLE",
+      "dimension": [
+        "OilDissolutionFactor",
+        "OilDissolutionFactor",
+        "Viscosity"
+      ]
+    }
+  ]
+}

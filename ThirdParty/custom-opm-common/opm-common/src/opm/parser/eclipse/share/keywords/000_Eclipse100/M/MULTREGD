@@ -1,0 +1,37 @@
+{
+  "name": "MULTREGD",
+  "sections": [
+    "GRID",
+    "EDIT"
+  ],
+  "items": [
+    {
+      "name": "FROM_REGION",
+      "value_type": "INT"
+    },
+    {
+      "name": "TO_REGION",
+      "value_type": "INT"
+    },
+    {
+      "name": "MULTIPLIER",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "DIRECTION",
+      "value_type": "STRING",
+      "default": "XYZ"
+    },
+    {
+      "name": "FLAG",
+      "value_type": "STRING",
+      "default": "ALL"
+    },
+    {
+      "name": "CHOICE",
+      "value_type": "STRING",
+      "default": "M"
+    }
+  ]
+}

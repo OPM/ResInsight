@@ -1,0 +1,10 @@
+{
+  "name": "OPERNUM",
+  "sections": [
+    "GRID",
+    "REGIONS"
+  ],
+  "data": {
+    "value_type": "INT"
+  }
+}

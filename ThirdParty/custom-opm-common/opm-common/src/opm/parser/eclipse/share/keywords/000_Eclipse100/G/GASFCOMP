@@ -1,0 +1,38 @@
+{
+  "name": "GASFCOMP",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "name": "VFP_TABLE_NUM",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "ARTFICIAL_LIFT_QNTY",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "GAS_CONSUMPTION_RATE",
+      "value_type": "DOUBLE",
+      "dimension": "GasSurfaceVolume/Time",
+      "default": 0
+    },
+    {
+      "name": "COMPRESSION_LVL",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "name": "ACTION_SEQ_NUM",
+      "value_type": "INT",
+      "default": 1
+    }
+  ]
+}

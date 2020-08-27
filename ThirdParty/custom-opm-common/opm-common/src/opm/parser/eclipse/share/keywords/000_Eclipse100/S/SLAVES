@@ -1,0 +1,29 @@
+{
+  "name": "SLAVES",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "SLAVE_RESERVOIR",
+      "value_type": "STRING"
+    },
+    {
+      "name": "SLAVE_ECLBASE",
+      "value_type": "STRING"
+    },
+    {
+      "name": "HOST_NAME",
+      "value_type": "STRING"
+    },
+    {
+      "name": "DIRECTORY",
+      "value_type": "STRING"
+    },
+    {
+      "name": "NUM_PE",
+      "value_type": "INT",
+      "default": 1
+    }
+  ]
+}

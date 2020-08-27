@@ -1,0 +1,20 @@
+{
+  "name": "WSKPTAB",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "TABLE_NUMBER_WATER",
+      "value_type": "INT"
+    },
+    {
+      "name": "TABLE_NUMBER_POLYMER",
+      "value_type": "INT"
+    }
+  ]
+}

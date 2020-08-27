@@ -1,0 +1,30 @@
+{
+  "name": "GASDENT",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "TABDIMS",
+    "item": "NTPVT"
+  },
+  "items": [
+    {
+      "name": "REFERENCE_TEMPERATURE",
+      "value_type": "DOUBLE",
+      "dimension": "AbsoluteTemperature",
+      "default": 293.15
+    },
+    {
+      "name": "EXPANSION_COEFF_LINEAR",
+      "value_type": "DOUBLE",
+      "dimension": "1/AbsoluteTemperature",
+      "default": 0
+    },
+    {
+      "name": "EXPANSION_COEFF_QUADRATIC",
+      "value_type": "DOUBLE",
+      "dimension": "1/AbsoluteTemperature*AbsoluteTemperature",
+      "default": 0
+    }
+  ]
+}

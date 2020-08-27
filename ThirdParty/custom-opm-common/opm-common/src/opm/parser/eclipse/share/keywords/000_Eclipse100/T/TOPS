@@ -1,0 +1,10 @@
+{
+  "name": "TOPS",
+  "sections": [
+    "GRID"
+  ],
+  "data": {
+    "value_type": "DOUBLE",
+    "dimension": "Length"
+  }
+}

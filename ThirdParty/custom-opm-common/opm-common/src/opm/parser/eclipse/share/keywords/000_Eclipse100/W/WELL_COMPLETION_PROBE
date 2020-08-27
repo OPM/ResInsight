@@ -1,0 +1,41 @@
+{
+  "name": "WELL_COMPLETION_PROBE",
+  "sections": [
+    "SUMMARY"
+  ],
+  "deck_names": [
+    "WOFRL",
+    "WOPRL",
+    "WOPTL",
+    "WOITL",
+    "WWFRL",
+    "WWPRL",
+    "WWPTL",
+    "WWIRL",
+    "WWITL",
+    "WGFRL",
+    "WGPRL",
+    "WGPTL",
+    "WLFRL",
+    "WLPTL",
+    "WVFRL",
+    "WVIRL",
+    "WVPTL",
+    "WVITL",
+    "WWCTL",
+    "WGORL",
+    "WOGRL",
+    "WWGRL",
+    "WGLRL"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "COMPLETION",
+      "value_type": "INT"
+    }
+  ]
+}

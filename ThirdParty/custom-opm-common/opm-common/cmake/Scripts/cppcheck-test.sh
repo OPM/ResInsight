@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# This script performs a single analysis using cppcheck
+# It is used by the 'make test' target in the buildsystems
+# Usually you should use 'ctest -C cppcheck' rather than calling this script directly
+#
+# Parameters: $1 = Application binary
+#             $2 = Source file to process
+#             $3..$N = include path parameters (-I dir1 -I dir2 ...)
+
+cppcheck_cmd=$1
+source_file=$2
+shift 2
+
+tmpfil=`mktemp`
+$cppcheck_cmd $@ --enable=all --suppress=unusedFunction $source_file &> $tmpfil
+nmatch=`cat $tmpfil | grep "\[.*\]" | wc -l`
+nsys=`cat $tmpfil | grep "\[/usr.*\]" | wc -l`
+nnone=`cat $tmpfil | grep "\[\\*]" | wc -l`
+ndef=`cat $tmpfil | grep "\[.*Too many #ifdef" | wc -l`
+let "nval=$nmatch-$nsys-$nnone-$ndef"
+if test $nval -gt 0
+then
+  cat $tmpfil
+  rm $tmpfil
+  exit 1
+fi
+
+rm $tmpfil
+exit 0

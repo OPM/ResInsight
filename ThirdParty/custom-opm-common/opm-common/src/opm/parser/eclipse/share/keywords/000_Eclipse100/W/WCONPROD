@@ -1,0 +1,105 @@
+{
+  "name": "WCONPROD",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "STATUS",
+      "value_type": "STRING",
+      "default": "OPEN"
+    },
+    {
+      "name": "CMODE",
+      "value_type": "STRING"
+    },
+    {
+      "name": "ORAT",
+      "value_type": "UDA",
+      "default": 0,
+      "dimension": "LiquidSurfaceVolume/Time"
+    },
+    {
+      "name": "WRAT",
+      "value_type": "UDA",
+      "default": 0,
+      "dimension": "LiquidSurfaceVolume/Time"
+    },
+    {
+      "name": "GRAT",
+      "value_type": "UDA",
+      "default": 0,
+      "dimension": "GasSurfaceVolume/Time"
+    },
+    {
+      "name": "LRAT",
+      "value_type": "UDA",
+      "default": 0,
+      "dimension": "LiquidSurfaceVolume/Time"
+    },
+    {
+      "name": "RESV",
+      "value_type": "UDA",
+      "default": 0,
+      "dimension": "LiquidSurfaceVolume/Time"
+    },
+    {
+      "name": "BHP",
+      "value_type": "UDA",
+      "default": 1.01325,
+      "dimension": "Pressure"
+    },
+    {
+      "name": "THP",
+      "value_type": "UDA",
+      "default": 0,
+      "dimension": "Pressure"
+    },
+    {
+      "name": "VFP_TABLE",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "ALQ",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "E300_ITEM13",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "E300_ITEM14",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "E300_ITEM15",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "E300_ITEM16",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "E300_ITEM17",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "E300_ITEM18",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "E300_ITEM19",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "E300_ITEM20",
+      "value_type": "DOUBLE"
+    }
+  ]
+}

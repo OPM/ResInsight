@@ -1,0 +1,10 @@
+{
+  "name": "FIP_PROBE",
+  "sections": [
+    "REGIONS"
+  ],
+  "data": {
+    "value_type": "INT"
+  },
+  "deck_name_regex": "FIP.+"
+}

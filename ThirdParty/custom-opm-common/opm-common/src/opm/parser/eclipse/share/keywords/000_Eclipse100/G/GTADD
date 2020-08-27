@@ -1,0 +1,25 @@
+{
+  "name": "GTADD",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "name": "TARGET",
+      "value_type": "STRING"
+    },
+    {
+      "name": "QUANTITY",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "NUM_ADDITIONS",
+      "value_type": "INT",
+      "default": 1
+    }
+  ]
+}

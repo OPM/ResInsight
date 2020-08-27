@@ -1,0 +1,14 @@
+{
+  "name": "QDRILL",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "WELL_NAME",
+      "value_type": "STRING",
+      "size_type": "ALL"
+    }
+  ]
+}

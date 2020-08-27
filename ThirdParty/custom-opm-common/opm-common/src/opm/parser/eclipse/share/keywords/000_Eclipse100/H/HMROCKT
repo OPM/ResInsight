@@ -1,0 +1,20 @@
+{
+  "name": "HMROCKT",
+  "sections": [
+    "PROPS"
+  ],
+  "items": [
+    {
+      "name": "TABLE_NUMBER",
+      "value_type": "INT"
+    },
+    {
+      "name": "CALCULATE_GRADIENTS_1",
+      "value_type": "INT"
+    },
+    {
+      "name": "CALCULATE_GRADIENTS_2",
+      "value_type": "INT"
+    }
+  ]
+}

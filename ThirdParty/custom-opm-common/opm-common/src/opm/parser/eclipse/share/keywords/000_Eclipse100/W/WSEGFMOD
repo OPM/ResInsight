@@ -1,0 +1,49 @@
+{
+  "name": "WSEGFMOD",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "SEGMENT1",
+      "value_type": "INT"
+    },
+    {
+      "name": "SEGMENT2",
+      "value_type": "INT"
+    },
+    {
+      "name": "FLOW_MODEL",
+      "value_type": "STRING",
+      "default": "HO"
+    },
+    {
+      "name": "GAS_LIQUID_VD_FACTOR",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "A",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "B",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "FV",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "B1",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "B2",
+      "value_type": "DOUBLE"
+    }
+  ]
+}

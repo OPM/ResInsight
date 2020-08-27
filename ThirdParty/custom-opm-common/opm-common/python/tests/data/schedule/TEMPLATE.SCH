@@ -1,0 +1,22 @@
+RPTSCHED
+RESTART=2 /
+
+WRFTPLT
+'*' YES /
+/
+
+DATES
+1 'JAN' 2000 /
+/
+
+RPTSCHED
+RESTART=0 /
+
+DATES
+1 'FEB' 2000 /
+/
+
+
+DATES
+1 'MAR' 2000 /
+/

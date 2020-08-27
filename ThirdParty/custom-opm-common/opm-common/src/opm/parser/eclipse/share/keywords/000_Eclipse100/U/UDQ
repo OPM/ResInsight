@@ -1,0 +1,21 @@
+{
+  "name": "UDQ",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "ACTION",
+      "value_type": "RAW_STRING"
+    },
+    {
+      "name": "QUANTITY",
+      "value_type": "STRING"
+    },
+    {
+      "name": "DATA",
+      "value_type": "RAW_STRING",
+      "size_type": "ALL"
+    }
+  ]
+}

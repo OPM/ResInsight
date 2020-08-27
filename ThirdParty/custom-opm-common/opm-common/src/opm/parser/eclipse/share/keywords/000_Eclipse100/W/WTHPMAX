@@ -1,0 +1,31 @@
+{
+  "name": "WTHPMAX",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "MAX_THP_DESIGN_LIMIT",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    },
+    {
+      "name": "CONTROL",
+      "value_type": "STRING",
+      "default": "ORAT"
+    },
+    {
+      "name": "CONTROL_LIMIT",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "THP_OPEN_LIMIT",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    }
+  ]
+}

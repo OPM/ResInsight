@@ -1,0 +1,17 @@
+{
+  "name": "WORKTHP",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL_NAME",
+      "value_type": "STRING"
+    },
+    {
+      "name": "WORK_OVER_PROCEDURE",
+      "value_type": "STRING",
+      "default": "NONE"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "name": "HMAQUNUM",
+  "sections": [
+    "GRID"
+  ],
+  "items": [
+    {
+      "name": "AQUIFER_ID",
+      "value_type": "INT"
+    },
+    {
+      "name": "DERIVATIES_RESP_PORE_VOL_MULT",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "name": "DERIVATIES_RESP_AQUIFER_PERM_MULT",
+      "value_type": "STRING"
+    },
+    {
+      "name": "DERIVATIES_RESP_AQUIFER_GRID_CON_TRANS",
+      "value_type": "STRING",
+      "default": "NO"
+    }
+  ]
+}

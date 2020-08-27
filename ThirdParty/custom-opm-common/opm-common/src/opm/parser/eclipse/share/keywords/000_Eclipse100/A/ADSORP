@@ -1,0 +1,54 @@
+{
+  "name": "ADSORP",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "TABDIMS",
+    "item": "NTSFUN",
+    "shift": 1
+  },
+  "records": [
+    [
+      {
+        "name": "ADSORBING_COMP",
+        "value_type": "STRING"
+      }
+    ],
+    [
+      {
+        "name": "ADORPTION_ISOTHERM",
+        "value_type": "STRING",
+        "default": "LANGMUIR"
+      },
+      {
+        "name": "A1",
+        "value_type": "DOUBLE"
+      },
+      {
+        "name": "A2",
+        "value_type": "DOUBLE"
+      },
+      {
+        "name": "B",
+        "value_type": "DOUBLE"
+      },
+      {
+        "name": "M",
+        "value_type": "DOUBLE",
+        "dimension": "1",
+        "default": 0.5
+      },
+      {
+        "name": "N",
+        "value_type": "DOUBLE",
+        "dimension": "1",
+        "default": 0.5
+      },
+      {
+        "name": "K_REF",
+        "value_type": "DOUBLE"
+      }
+    ]
+  ]
+}

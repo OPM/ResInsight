@@ -1,0 +1,17 @@
+{
+  "name": "PCW32D",
+  "sections": [
+    "PROPS"
+  ],
+  "num_tables": {
+    "keyword": "TABDIMS",
+    "item": "NTSFUN"
+  },
+  "items": [
+    {
+      "name": "SOME_DATA",
+      "value_type": "DOUBLE",
+      "size_type": "ALL"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "name": "PINCHXY",
+  "sections": [
+    "GRID"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "THRESHOLD_XR",
+      "value_type": "DOUBLE",
+      "dimension": "Length",
+      "default": 0.001
+    },
+    {
+      "name": "THRESHOLD_YTHETA",
+      "value_type": "DOUBLE",
+      "dimension": "Length",
+      "default": 0.001
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "name": "HMMULTFT",
+  "sections": [
+    "GRID"
+  ],
+  "items": [
+    {
+      "name": "FAULT",
+      "value_type": "STRING"
+    },
+    {
+      "name": "TRANS_MULT",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 1
+    },
+    {
+      "name": "DIFF_MULT",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 1
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "name": "WDRILPRI",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "PRIORITY",
+      "value_type": "DOUBLE",
+      "default": -1
+    },
+    {
+      "name": "DRILLING_UNIT",
+      "value_type": "INT",
+      "default": 0
+    }
+  ]
+}

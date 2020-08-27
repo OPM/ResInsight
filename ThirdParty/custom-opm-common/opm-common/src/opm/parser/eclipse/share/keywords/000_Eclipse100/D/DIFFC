@@ -1,0 +1,50 @@
+{
+  "name": "DIFFC",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "TABDIMS",
+    "item": "NTPVT"
+  },
+  "items": [
+    {
+      "name": "OIL_MOL_WEIGHT",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "GAS_MOL_WEIGHT",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "GAS_GAS_DIFF_COEFF",
+      "value_type": "DOUBLE",
+      "dimension": "Length*Length/Time"
+    },
+    {
+      "name": "OIL_GAS_DIFF_COEFF",
+      "value_type": "DOUBLE",
+      "dimension": "Length*Length/Time"
+    },
+    {
+      "name": "GAS_OIL_DIFF_COEFF",
+      "value_type": "DOUBLE",
+      "dimension": "Length*Length/Time"
+    },
+    {
+      "name": "OIL_OIL_DIFF_COEFF",
+      "value_type": "DOUBLE",
+      "dimension": "Length*Length/Time"
+    },
+    {
+      "name": "GAS_OIL_CROSS_DIFF_COEFF",
+      "value_type": "DOUBLE",
+      "dimension": "Length*Length/Time"
+    },
+    {
+      "name": "OIL_OIL_CROSS_DIFF_COEFF",
+      "value_type": "DOUBLE",
+      "dimension": "Length*Length/Time"
+    }
+  ]
+}

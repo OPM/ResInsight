@@ -1,0 +1,24 @@
+{
+  "name": "RIVRPROP",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "RIVER",
+      "value_type": "STRING"
+    },
+    {
+      "name": "REACH1",
+      "value_type": "INT"
+    },
+    {
+      "name": "REACH2",
+      "value_type": "INT"
+    },
+    {
+      "name": "ROUGHNESS",
+      "value_type": "DOUBLE"
+    }
+  ]
+}

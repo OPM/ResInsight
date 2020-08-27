@@ -1,0 +1,14 @@
+{
+  "name": "SCALECRS",
+  "sections": [
+    "PROPS"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "VALUE",
+      "value_type": "STRING",
+      "default": "NO"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "name": "PENUM",
+  "sections": [
+    "REGIONS"
+  ],
+  "data": {
+    "value_type": "INT"
+  }
+}

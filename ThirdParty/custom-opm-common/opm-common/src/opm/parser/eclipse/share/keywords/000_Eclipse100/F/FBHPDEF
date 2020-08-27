@@ -1,0 +1,19 @@
+{
+  "name": "FBHPDEF",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "TARGET_BHP",
+      "value_type": "DOUBLE",
+      "dimension": "Length"
+    },
+    {
+      "name": "LIMIT_BHP",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "name": "COORDSYS",
+  "sections": [
+    "GRID"
+  ],
+  "size": {
+    "keyword": "NUMRES",
+    "item": "num"
+  },
+  "items": [
+    {
+      "name": "K1",
+      "value_type": "INT"
+    },
+    {
+      "name": "K2",
+      "value_type": "INT"
+    },
+    {
+      "name": "CIRCLE_COMPLETION",
+      "value_type": "STRING",
+      "default": "INCOMP"
+    },
+    {
+      "name": "CONNECTION",
+      "value_type": "STRING",
+      "default": "SEPARATE"
+    },
+    {
+      "name": "R1",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "R2",
+      "value_type": "INT",
+      "default": 0
+    }
+  ]
+}

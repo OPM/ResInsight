@@ -1,0 +1,33 @@
+{
+  "name": "WTEST",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "INTERVAL",
+      "value_type": "DOUBLE",
+      "dimension": "Time"
+    },
+    {
+      "name": "REASON",
+      "value_type": "STRING",
+      "default": ""
+    },
+    {
+      "name": "TEST_NUM",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "START_TIME",
+      "value_type": "DOUBLE",
+      "dimension": "Time",
+      "default": 0
+    }
+  ]
+}

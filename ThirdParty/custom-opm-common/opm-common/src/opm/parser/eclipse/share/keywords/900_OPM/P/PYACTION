@@ -1,0 +1,26 @@
+{
+  "name": "PYACTION",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 2,
+  "records": [
+    [
+      {
+        "name": "NAME",
+        "value_type": "STRING"
+      },
+      {
+        "name": "RUN_COUNT",
+        "value_type": "STRING",
+        "default": "SINGLE"
+      }
+    ],
+    [
+      {
+        "name": "FILENAME",
+        "value_type": "STRING"
+      }
+    ]
+  ]
+}

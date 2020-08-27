@@ -1,0 +1,11 @@
+{
+  "name": "MULTPV",
+  "sections": [
+    "GRID",
+    "EDIT"
+  ],
+  "data": {
+    "value_type": "DOUBLE",
+    "dimension": "1"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "HAxxxxxx",
+  "sections": [
+    "PROPS",
+    "REGIONS"
+  ],
+  "deck_name": [
+    "HASOWCR",
+    "HASOGCR",
+    "HASWL",
+    "HASWLPC",
+    "HASGLPC"
+  ],
+  "data": {
+    "value_type": "DOUBLE",
+    "dimension": "1"
+  }
+}

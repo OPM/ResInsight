@@ -1,0 +1,26 @@
+{
+  "name": "WTADD",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "CONTROL",
+      "value_type": "STRING",
+      "comment": "The control mode seems to be a UDA??"
+    },
+    {
+      "name": "SHIFT",
+      "value_type": "UDA"
+    },
+    {
+      "name": "NUM",
+      "value_type": "INT",
+      "default": 1
+    }
+  ]
+}

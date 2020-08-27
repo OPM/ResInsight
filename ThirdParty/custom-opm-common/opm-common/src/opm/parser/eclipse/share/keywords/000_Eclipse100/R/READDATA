@@ -1,0 +1,14 @@
+{
+  "name": "READDATA",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "INPUT_METHOD",
+      "value_type": "STRING",
+      "default": "FILE"
+    }
+  ]
+}

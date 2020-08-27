@@ -1,0 +1,14 @@
+{
+  "name": "VEFRACP",
+  "sections": [
+    "PROPS"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "FRAC",
+      "value_type": "DOUBLE",
+      "default": 1
+    }
+  ]
+}

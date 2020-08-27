@@ -1,0 +1,13 @@
+{
+  "name": "AMALGAM",
+  "sections": [
+    "GRID"
+  ],
+  "items": [
+    {
+      "name": "LGR_GROUPS",
+      "value_type": "STRING",
+      "size_type": "ALL"
+    }
+  ]
+}

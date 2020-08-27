@@ -1,0 +1,14 @@
+{
+  "name": "ZIPPY2",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "SETTINGS",
+      "value_type": "STRING",
+      "size_type": "ALL"
+    }
+  ]
+}

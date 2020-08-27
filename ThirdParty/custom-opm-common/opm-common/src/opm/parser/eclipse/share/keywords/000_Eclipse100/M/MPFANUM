@@ -1,0 +1,9 @@
+{
+  "name": "MPFANUM",
+  "sections": [
+    "GRID"
+  ],
+  "data": {
+    "value_type": "INT"
+  }
+}

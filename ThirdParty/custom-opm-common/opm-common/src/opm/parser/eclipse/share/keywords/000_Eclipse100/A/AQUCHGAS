@@ -1,0 +1,38 @@
+{
+  "name": "AQUCHGAS",
+  "sections": [
+    "SOLUTION",
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "AQUIFER_ID",
+      "value_type": "INT"
+    },
+    {
+      "name": "DATUM_DEPTH",
+      "value_type": "DOUBLE",
+      "dimension": "Length"
+    },
+    {
+      "name": "GAS_PRESSURE",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    },
+    {
+      "name": "AQUIFER_PROD_INDEX",
+      "value_type": "DOUBLE",
+      "dimension": "GasSurfaceVolume/Time*Pressure"
+    },
+    {
+      "name": "TABLE_NUM",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "name": "TEMPERATURE",
+      "value_type": "DOUBLE",
+      "dimension": "Temperature"
+    }
+  ]
+}

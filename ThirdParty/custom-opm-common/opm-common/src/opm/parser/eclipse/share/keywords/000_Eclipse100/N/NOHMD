@@ -1,0 +1,15 @@
+{
+  "name": "NOHMD",
+  "sections": [
+    "SOLUTION",
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "GRAD_PARAMS",
+      "value_type": "STRING",
+      "size_type": "ALL"
+    }
+  ]
+}

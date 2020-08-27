@@ -1,0 +1,43 @@
+{
+  "name": "OPERATER",
+  "sections": [
+    "GRID",
+    "EDIT",
+    "PROPS",
+    "REGIONS",
+    "SOLUTION"
+  ],
+  "items": [
+    {
+      "name": "TARGET_ARRAY",
+      "value_type": "STRING"
+    },
+    {
+      "name": "REGION_NUMBER",
+      "value_type": "INT"
+    },
+    {
+      "name": "OPERATION",
+      "value_type": "STRING"
+    },
+    {
+      "name": "ARRAY_PARAMETER",
+      "value_type": "STRING"
+    },
+    {
+      "name": "PARAM1",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "PARAM2",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "REGION_NAME",
+      "value_type": "STRING",
+      "default": "OPERNUM"
+    }
+  ]
+}

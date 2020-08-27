@@ -1,0 +1,21 @@
+{
+  "name": "RBEDCONT",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "RIVRDIMS",
+    "item": "MXTBGR"
+  },
+  "items": [
+    {
+      "name": "DATA",
+      "value_type": "DOUBLE",
+      "size_type": "ALL",
+      "dimension": [
+        "Length",
+        "Length*Length"
+      ]
+    }
+  ]
+}

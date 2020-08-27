@@ -1,0 +1,18 @@
+{
+  "name": "REFINE",
+  "sections": [
+    "GRID",
+    "EDIT",
+    "PROPS",
+    "REGIONS",
+    "SOLUTION",
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "LGR",
+      "value_type": "STRING"
+    }
+  ]
+}

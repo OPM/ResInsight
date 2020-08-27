@@ -1,0 +1,76 @@
+{
+  "name": "AQUFET",
+  "sections": [
+    "SOLUTION"
+  ],
+  "size": {
+    "keyword": "AQUDIMS",
+    "item": "NANAQU"
+  },
+  "items": [
+    {
+      "name": "DAT_DEPTH",
+      "value_type": "DOUBLE",
+      "dimension": "Length"
+    },
+    {
+      "name": "P0",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    },
+    {
+      "name": "V0",
+      "value_type": "DOUBLE",
+      "dimension": "LiquidSurfaceVolume"
+    },
+    {
+      "name": "C_T",
+      "value_type": "DOUBLE",
+      "dimension": "1/Pressure"
+    },
+    {
+      "name": "PI",
+      "value_type": "DOUBLE",
+      "dimension": "LiquidSurfaceVolume/Pressure*Time"
+    },
+    {
+      "name": "TABLE_NUM_WATER_PRESS",
+      "value_type": "INT",
+      "default_value": 1
+    },
+    {
+      "name": "LOWER_I",
+      "value_type": "INT"
+    },
+    {
+      "name": "UPPER_I",
+      "value_type": "INT"
+    },
+    {
+      "name": "LOWER_J",
+      "value_type": "INT"
+    },
+    {
+      "name": "UPPER_J",
+      "value_type": "INT"
+    },
+    {
+      "name": "LOWER_K",
+      "value_type": "INT"
+    },
+    {
+      "name": "UPPER_K",
+      "value_type": "INT"
+    },
+    {
+      "name": "FACE_INDX",
+      "value_type": "STRING"
+    },
+    {
+      "name": "SC_0",
+      "value_type": "DOUBLE",
+      "dimension": "Salinity",
+      "default": 0
+    }
+  ]
+}

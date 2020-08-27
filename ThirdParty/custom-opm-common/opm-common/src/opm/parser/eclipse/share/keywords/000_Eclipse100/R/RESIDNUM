@@ -1,0 +1,9 @@
+{
+  "name": "RESIDNUM",
+  "sections": [
+    "REGIONS"
+  ],
+  "data": {
+    "value_type": "INT"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "HMROCK",
+  "sections": [
+    "PROPS"
+  ],
+  "items": [
+    {
+      "name": "TABLE_NUMBER",
+      "value_type": "INT"
+    },
+    {
+      "name": "CALCULATE_GRADIENTS",
+      "value_type": "INT",
+      "default": 0
+    }
+  ]
+}

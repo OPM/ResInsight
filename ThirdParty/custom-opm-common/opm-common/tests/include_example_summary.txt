@@ -1,0 +1,152 @@
+-- This reservoir simulation deck is made available under the Open Database
+-- License: http://opendatacommons.org/licenses/odbl/1.0/. Any rights in
+-- individual contents of the database are licensed under the Database Contents
+-- License: http://opendatacommons.org/licenses/dbcl/1.0/
+
+-- Copyright (C) 2018 Equinor
+
+-- This file is one of the include files for UDQ_ACTIONX.DATA and UDQ_WCONPROD.DATA.
+
+
+--
+-- Field Data
+-----------------------------
+-- Production Rates
+-----------------------------
+
+FOPR
+FOPRH
+FGPR
+FGPRH
+FWPR
+FWPRH
+FWIR
+
+-----------------------------
+-- In place
+-----------------------------
+FWIP
+FOIP
+FGIP
+-- Ratios
+FWCT
+FWCTH
+FGOR
+FGORH
+FPR
+--  Region data
+RPR
+/
+ROIP
+/
+ROIPL
+/
+ROIPG
+/
+RGIP
+/
+RGIPL
+/
+RGIPG
+/
+RGPR
+/
+RGPT
+/
+
+GWIR
+/
+GVIR
+/
+
+GOPR
+/
+GWPR
+/
+GLPR
+/
+GLPR
+/
+GVPR
+/
+
+
+-----------------------------
+--  Control Mode           --
+-----------------------------
+-- Well Data
+-- Production Rates
+WOPR
+/
+WOPRH
+/
+WGPR
+/
+WGPRH
+/
+WWPR
+/
+WWPRH
+/
+-- Production Cummulatives
+WOPT
+/
+WWPT
+/
+WGPT
+/
+WOPTH
+/
+WWPTH
+/
+WGPTH
+/
+-- Ratios
+WWCT
+/
+WWCTH
+/
+WGOR
+/
+WGORH
+/
+WWIR
+/
+WWIRH
+/
+WGIR
+/
+WGIRH
+/
+WWIT
+/
+WWITH
+/
+WGIT
+/
+WGITH
+/
+-- Performance
+WBHP
+/
+WTHP
+/
+WPI
+/
+WVPR
+/
+WBP
+/
+WBP4
+/
+WBP9
+/
+WMCTL
+/
+WLPR
+/
+--
+-- Simulatior performance
+TCPU
+TCPUDAY
+

@@ -1,0 +1,27 @@
+{
+  "name": "WDFACCOR",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELLNAME",
+      "value_type": "STRING"
+    },
+    {
+      "name": "A",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "B",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "C",
+      "value_type": "DOUBLE",
+      "default": 0
+    }
+  ]
+}

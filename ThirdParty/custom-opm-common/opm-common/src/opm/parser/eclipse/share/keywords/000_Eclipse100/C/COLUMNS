@@ -1,0 +1,26 @@
+{
+  "name": "COLUMNS",
+  "sections": [
+    "RUNSPEC",
+    "GRID",
+    "EDIT",
+    "PROPS",
+    "REGIONS",
+    "SOLUTION",
+    "SUMMARY",
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "LEFT_MARGIN",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "name": "RIGHT_MARGIN",
+      "value_type": "INT",
+      "default": 132
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "name": "DIFF",
+  "sections": [
+    "GRID"
+  ],
+  "deck_name": [
+    "DIFFMR-",
+    "DIFFMTH-",
+    "DIFFMX-",
+    "DIFFMY-",
+    "DIFFMZ-"
+  ],
+  "data": {
+    "value_type": "DOUBLE",
+    "default": 1,
+    "dimension": "1"
+  }
+}

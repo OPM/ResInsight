@@ -1,0 +1,10 @@
+{
+  "name": "HEATCR",
+  "sections": [
+    "GRID"
+  ],
+  "data": {
+    "value_type": "DOUBLE",
+    "dimension": "Energy/Length*Length*Length*AbsoluteTemperature"
+  }
+}

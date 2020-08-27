@@ -1,0 +1,15 @@
+{
+  "name": "MINPORV",
+  "sections": [
+    "GRID"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "MIN_PORE_VOL",
+      "value_type": "DOUBLE",
+      "dimension": "ReservoirVolume",
+      "default": 1e-06
+    }
+  ]
+}

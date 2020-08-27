@@ -1,0 +1,38 @@
+{
+  "name": "COMPINJK",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "I",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "J",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "K_UPPER",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "K_LOWER",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "REL_PERM",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 0
+    }
+  ]
+}
