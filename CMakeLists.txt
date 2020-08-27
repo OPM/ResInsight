@@ -282,10 +282,13 @@ endif()
 
 add_subdirectory(ThirdParty/custom-opm-flowdiagnostics)
 add_subdirectory(ThirdParty/custom-opm-flowdiag-app)
+add_subdirectory(ThirdParty/custom-opm-common)
+add_subdirectory(ThirdParty/custom-opm-common/custom-opm-parser-tests)
 
 list(APPEND OPM_LIBRARIES
     custom-opm-flowdiagnostics
     custom-opm-flowdiag-app
+    custom-opm-common
 )
 
 set_property(TARGET  
