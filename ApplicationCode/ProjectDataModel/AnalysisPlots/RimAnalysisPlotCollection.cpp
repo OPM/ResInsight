@@ -51,6 +51,7 @@ RimAnalysisPlot* RimAnalysisPlotCollection::createAnalysisPlot()
     plot->setAsPlotMdiWindow();
 
     applyFirstEnsembleFieldAddressesToPlot( plot, "FOPT" );
+    auto filter = plot->plotDataFilterCollection()->addFilter();
 
     // plot->enableAutoPlotTitle( true );
     m_analysisPlots.push_back( plot );
