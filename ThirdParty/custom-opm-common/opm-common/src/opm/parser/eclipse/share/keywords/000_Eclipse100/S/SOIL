@@ -1,0 +1,10 @@
+{
+  "name": "SOIL",
+  "sections": [
+    "SOLUTION"
+  ],
+  "data": {
+    "value_type": "DOUBLE",
+    "dimension": "1"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "SPOLY",
+  "sections": [
+    "SOLUTION",
+    "SPECIAL"
+  ],
+  "data": {
+    "value_type": "DOUBLE",
+    "dimension": "Density"
+  }
+}

@@ -1,0 +1,11 @@
+{"name" : "CPIFACT",
+ "sections" : ["SCHEDULE"],
+ "items": [
+ {"name" : "WELL", "value_type" : "STRING" },
+ {"name" : "MULT", "value_type" : "UDA", "default_value" : 1.0},
+ {"name" : "I", "value_type" : "INT"},
+ {"name" : "J", "value_type" : "INT"},
+ {"name" : "K", "value_type" : "INT"},
+ {"name" : "C1", "value_type" : "INT"},
+ {"name" : "C2", "value_type" : "INT"}]}
+

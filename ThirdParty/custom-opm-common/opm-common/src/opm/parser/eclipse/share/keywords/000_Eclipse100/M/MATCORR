@@ -1,0 +1,26 @@
+{
+  "name": "MATCORR",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "NEWTON_IT_NUM",
+      "value_type": "INT",
+      "default": 12
+    },
+    {
+      "name": "NON_LIN_CONV_ERR",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 0.01
+    },
+    {
+      "name": "MATERIAL_BALANCE_ERR",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 1e-06
+    }
+  ]
+}

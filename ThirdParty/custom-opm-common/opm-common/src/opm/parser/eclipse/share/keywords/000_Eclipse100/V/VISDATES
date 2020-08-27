@@ -1,0 +1,25 @@
+{
+  "name": "VISDATES",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "DAY",
+      "value_type": "INT"
+    },
+    {
+      "name": "MONTH",
+      "value_type": "STRING"
+    },
+    {
+      "name": "YEAR",
+      "value_type": "INT"
+    },
+    {
+      "name": "TIMESTAMP",
+      "value_type": "STRING",
+      "default": "00:00:00"
+    }
+  ]
+}

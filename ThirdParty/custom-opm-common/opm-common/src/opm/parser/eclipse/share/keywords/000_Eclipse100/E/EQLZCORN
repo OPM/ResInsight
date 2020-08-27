@@ -1,0 +1,58 @@
+{
+  "name": "EQLZCORN",
+  "sections": [
+    "GRID"
+  ],
+  "items": [
+    {
+      "name": "VALUE_ZCORN_ARRAY",
+      "value_type": "DOUBLE",
+      "dimension": "Length"
+    },
+    {
+      "name": "IX1",
+      "value_type": "INT"
+    },
+    {
+      "name": "IX2",
+      "value_type": "INT"
+    },
+    {
+      "name": "JY1",
+      "value_type": "INT"
+    },
+    {
+      "name": "JY2",
+      "value_type": "INT"
+    },
+    {
+      "name": "KZ1",
+      "value_type": "INT"
+    },
+    {
+      "name": "KZ2",
+      "value_type": "INT"
+    },
+    {
+      "name": "IX1A",
+      "value_type": "INT"
+    },
+    {
+      "name": "IX2A",
+      "value_type": "INT"
+    },
+    {
+      "name": "JY1A",
+      "value_type": "INT"
+    },
+    {
+      "name": "JY2A",
+      "value_type": "INT"
+    },
+    {
+      "name": "ACTION_REQ",
+      "value_type": "STRING",
+      "default": "TOP"
+    }
+  ]
+}

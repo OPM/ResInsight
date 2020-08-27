@@ -1,0 +1,21 @@
+{
+  "name": "MESSAGE",
+  "sections": [
+    "RUNSPEC",
+    "GRID",
+    "EDIT",
+    "PROPS",
+    "REGIONS",
+    "SOLUTION",
+    "SUMMARY",
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "MessageText",
+      "value_type": "STRING",
+      "size_type": "ALL"
+    }
+  ]
+}

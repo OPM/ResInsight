@@ -1,0 +1,23 @@
+{
+  "name": "ENSPCVD",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "ENDSCALE",
+    "item": "NUM_TABLES"
+  },
+  "items": [
+    {
+      "name": "DATA",
+      "value_type": "DOUBLE",
+      "size_type": "ALL",
+      "default": -1,
+      "dimension": [
+        "Length",
+        "1",
+        "1"
+      ]
+    }
+  ]
+}

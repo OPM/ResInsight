@@ -1,0 +1,9 @@
+{
+  "name": "EXTREPGL",
+  "sections": [
+    "GRID"
+  ],
+  "data": {
+    "value_type": "INT"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "LINKPERM",
+  "sections": [
+    "GRID"
+  ],
+  "data": {
+    "value_type": "STRING"
+  }
+}

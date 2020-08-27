@@ -1,0 +1,10 @@
+{
+  "name": "HYFIN",
+  "sections": [
+    "GRID"
+  ],
+  "data": {
+    "value_type": "DOUBLE",
+    "dimension": "1"
+  }
+}

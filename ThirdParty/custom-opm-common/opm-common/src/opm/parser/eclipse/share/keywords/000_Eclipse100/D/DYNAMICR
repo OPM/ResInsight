@@ -1,0 +1,11 @@
+{
+  "name": "DYNAMICR",
+  "sections": [
+    "SOLUTION",
+    "SCHEDULE"
+  ],
+  "comment": "Note: this only makes it possible to parse files with DYNAMICR keywords. Apart from that, this keyword is not supported.",
+  "code": {
+    "end": "ENDDYN"
+  }
+}

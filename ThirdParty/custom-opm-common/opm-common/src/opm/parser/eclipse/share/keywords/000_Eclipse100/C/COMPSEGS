@@ -1,0 +1,65 @@
+{
+  "name": "COMPSEGS",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "records": [
+    [
+      {
+        "name": "WELL",
+        "value_type": "STRING"
+      }
+    ],
+    [
+      {
+        "name": "I",
+        "value_type": "INT"
+      },
+      {
+        "name": "J",
+        "value_type": "INT"
+      },
+      {
+        "name": "K",
+        "value_type": "INT"
+      },
+      {
+        "name": "BRANCH",
+        "value_type": "INT"
+      },
+      {
+        "name": "DISTANCE_START",
+        "value_type": "DOUBLE",
+        "dimension": "Length"
+      },
+      {
+        "name": "DISTANCE_END",
+        "value_type": "DOUBLE",
+        "dimension": "Length"
+      },
+      {
+        "name": "DIRECTION",
+        "value_type": "STRING"
+      },
+      {
+        "name": "END_IJK",
+        "value_type": "INT"
+      },
+      {
+        "name": "CENTER_DEPTH",
+        "value_type": "DOUBLE",
+        "dimension": "Length",
+        "default": 0
+      },
+      {
+        "name": "THERMAL_LENGTH",
+        "value_type": "DOUBLE",
+        "dimension": "Length"
+      },
+      {
+        "name": "SEGMENT_NUMBER",
+        "value_type": "INT"
+      }
+    ]
+  ]
+}

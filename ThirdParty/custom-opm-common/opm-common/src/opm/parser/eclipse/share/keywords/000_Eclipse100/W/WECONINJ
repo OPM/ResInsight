@@ -1,0 +1,22 @@
+{
+  "name": "WECONINJ",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "MIN_RATE",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "QUANTITY",
+      "value_type": "STRING",
+      "default": "RATE"
+    }
+  ]
+}

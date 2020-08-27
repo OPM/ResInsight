@@ -1,0 +1,35 @@
+{
+  "name": "WINJTEMP",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "STEAM_QUALITY",
+      "value_type": "DOUBLE",
+      "default": 1
+    },
+    {
+      "name": "TEMPERATURE",
+      "value_type": "DOUBLE",
+      "dimension": "Temperature",
+      "default": 15.56
+    },
+    {
+      "name": "PRESSURE",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure",
+      "default": 0
+    },
+    {
+      "name": "ENTHALPY",
+      "value_type": "DOUBLE",
+      "dimension": "Energy/Mass",
+      "default": 0
+    }
+  ]
+}

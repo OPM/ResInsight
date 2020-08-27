@@ -1,0 +1,13 @@
+{
+  "name": "PLYTRRFA",
+  "sections": [
+    "PROPS"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "NBTRRF",
+      "value_type": "INT"
+    }
+  ]
+}

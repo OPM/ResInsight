@@ -1,0 +1,19 @@
+{
+  "name": "VEFIN",
+  "sections": [
+    "GRID"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "VE",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "name": "NVEPT",
+      "value_type": "INT",
+      "default": 0
+    }
+  ]
+}

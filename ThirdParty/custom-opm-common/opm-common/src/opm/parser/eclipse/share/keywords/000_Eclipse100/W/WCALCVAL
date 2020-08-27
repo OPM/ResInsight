@@ -1,0 +1,17 @@
+{
+  "name": "WCALCVAL",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "CALORIFIC_GAS_VALUE",
+      "value_type": "DOUBLE",
+      "dimension": "Energy/GasSurfaceVolume"
+    }
+  ]
+}

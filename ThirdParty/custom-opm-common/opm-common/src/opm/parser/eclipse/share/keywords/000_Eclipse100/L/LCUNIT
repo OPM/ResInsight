@@ -1,0 +1,14 @@
+{
+  "name": "LCUNIT",
+  "sections": [
+    "PROPS"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "UNIT",
+      "value_type": "STRING",
+      "default": "UNIT"
+    }
+  ]
+}

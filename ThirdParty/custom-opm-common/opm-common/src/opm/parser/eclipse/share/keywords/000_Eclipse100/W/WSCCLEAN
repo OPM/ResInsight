@@ -1,0 +1,42 @@
+{
+  "name": "WSCCLEAN",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "SCALE_MULTIPLIER",
+      "value_type": "DOUBLE",
+      "default": 1
+    },
+    {
+      "name": "I",
+      "value_type": "INT",
+      "default": -1
+    },
+    {
+      "name": "J",
+      "value_type": "INT",
+      "default": -1
+    },
+    {
+      "name": "K",
+      "value_type": "INT",
+      "default": -1
+    },
+    {
+      "name": "C1",
+      "value_type": "INT",
+      "default": -1
+    },
+    {
+      "name": "C2",
+      "value_type": "INT",
+      "default": -1
+    }
+  ]
+}

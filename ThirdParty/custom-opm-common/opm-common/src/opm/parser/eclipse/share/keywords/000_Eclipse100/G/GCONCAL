@@ -1,0 +1,28 @@
+{
+  "name": "GCONCAL",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "name": "MEAN_CALORIFIC_VAL",
+      "value_type": "DOUBLE",
+      "dimension": "Energy/GasSurfaceVolume"
+    },
+    {
+      "name": "ACTION",
+      "value_type": "STRING",
+      "default": "NONE"
+    },
+    {
+      "name": "RATE_RED_FACTOR",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 0.9
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "name": "PLYRMDEN",
+  "sections": [
+    "GRID"
+  ],
+  "data": {
+    "value_type": "DOUBLE",
+    "dimension": "Mass/ReservoirVolume"
+  }
+}

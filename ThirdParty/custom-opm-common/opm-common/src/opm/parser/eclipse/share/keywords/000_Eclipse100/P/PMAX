@@ -1,0 +1,31 @@
+{
+  "name": "PMAX",
+  "sections": [
+    "PROPS"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "MAX_PRESSURE",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    },
+    {
+      "name": "MAX_PRESSURE_CHECK",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure",
+      "default": 0
+    },
+    {
+      "name": "MIN_PRESSURE_CHECK",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure",
+      "default": 1e+20
+    },
+    {
+      "name": "NUM_NODES",
+      "value_type": "INT",
+      "default": 30
+    }
+  ]
+}

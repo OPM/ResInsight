@@ -1,0 +1,9 @@
+{
+  "name": "COALNUM",
+  "sections": [
+    "GRID"
+  ],
+  "data": {
+    "value_type": "INT"
+  }
+}

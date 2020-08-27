@@ -1,0 +1,53 @@
+{
+  "name": "PARAOPTS",
+  "sections": [
+    "GRID"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "METHOD",
+      "value_type": "STRING",
+      "default": "TREE"
+    },
+    {
+      "name": "SET_PRINT",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "SIZE",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "NUM_BUFFERS",
+      "value_type": "INT",
+      "default": 2
+    },
+    {
+      "name": "VALUE_MEM",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "VALUE_COARSE",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "VALUE_NNC",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "VALUE_PRT_FILE",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "name": "RESERVED",
+      "value_type": "STRING"
+    }
+  ]
+}

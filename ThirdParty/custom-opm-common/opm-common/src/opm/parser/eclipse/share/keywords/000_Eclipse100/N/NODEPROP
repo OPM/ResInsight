@@ -1,0 +1,40 @@
+{
+  "name": "NODEPROP",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "NAME",
+      "value_type": "STRING"
+    },
+    {
+      "name": "PRESSURE",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    },
+    {
+      "name": "AS_CHOKE",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "name": "ADD_GAS_LIFT_GAS",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "name": "CHOKE_GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "name": "SOURCE_SINK_GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "name": "NETWORK_VALUE_TYPE",
+      "value_type": "STRING",
+      "default": "PROD"
+    }
+  ]
+}

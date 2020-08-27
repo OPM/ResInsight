@@ -1,0 +1,54 @@
+{
+  "name": "HMDIMS",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "MAX_GRAD_REGIONS",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "MAX_SUB_REGIONS",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "MAX_GRADS",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "MAX_FAULTS",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "MAX_AQUIFER_PARAMS",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "MAX_WELL_PARAMS",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "UNUSED",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "MAX_ROCK_GRAD_PARAMS",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "MAX_WELL_CONN_PARAMS",
+      "value_type": "INT",
+      "default": 0
+    }
+  ]
+}

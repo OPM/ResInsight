@@ -1,0 +1,26 @@
+{
+  "name": "WCUTBACT",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "RATE_CUTBACK",
+      "value_type": "DOUBLE",
+      "default": 1
+    },
+    {
+      "name": "PHASE",
+      "value_type": "STRING"
+    },
+    {
+      "name": "WORKOVER_REMOVE",
+      "value_type": "STRING",
+      "default": "NO"
+    }
+  ]
+}

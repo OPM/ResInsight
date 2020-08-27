@@ -1,0 +1,19 @@
+{
+  "name": "BPIDIMS",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "MXNBIP",
+      "value_type": "INT",
+      "default": 10
+    },
+    {
+      "name": "MXNLBI",
+      "value_type": "INT",
+      "default": 1
+    }
+  ]
+}

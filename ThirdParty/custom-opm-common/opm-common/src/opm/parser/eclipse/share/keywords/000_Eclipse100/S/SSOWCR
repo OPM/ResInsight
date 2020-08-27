@@ -1,0 +1,9 @@
+{
+  "name": "SSOWCR",
+  "sections": [
+    "PROPS"
+  ],
+  "data": {
+    "value_type": "DOUBLE"
+  }
+}

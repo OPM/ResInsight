@@ -1,0 +1,19 @@
+{
+  "name": "TRDIF",
+  "sections": [
+    "PROPS"
+  ],
+  "deck_name_regex": "TRDIF.+",
+  "size": {
+    "keyword": "TABDIMS",
+    "item": "NTPVT"
+  },
+  "items": [
+    {
+      "name": "HALF_TIME",
+      "value_type": "DOUBLE",
+      "dimension": "Time",
+      "default": 1e+20
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "GRAVDRM",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "ALLOW_RE_INFL",
+      "value_type": "STRING",
+      "default": "YES"
+    }
+  ]
+}

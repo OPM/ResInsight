@@ -1,0 +1,117 @@
+{
+  "name": "WELSEGS",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "records": [
+    [
+      {
+        "name": "WELL",
+        "value_type": "STRING"
+      },
+      {
+        "name": "DEPTH",
+        "value_type": "DOUBLE",
+        "dimension": "Length"
+      },
+      {
+        "name": "LENGTH",
+        "value_type": "DOUBLE",
+        "dimension": "Length",
+        "default": 0
+      },
+      {
+        "name": "WELLBORE_VOLUME",
+        "value_type": "DOUBLE",
+        "dimension": "Length*Length*Length",
+        "default": 1e-05
+      },
+      {
+        "name": "INFO_TYPE",
+        "value_type": "STRING"
+      },
+      {
+        "name": "PRESSURE_COMPONENTS",
+        "value_type": "STRING",
+        "default": "HFA"
+      },
+      {
+        "name": "FLOW_MODEL",
+        "value_type": "STRING",
+        "default": "HO"
+      },
+      {
+        "name": "TOP_X",
+        "value_type": "DOUBLE",
+        "dimension": "Length",
+        "default": 0
+      },
+      {
+        "name": "TOP_Y",
+        "value_type": "DOUBLE",
+        "dimension": "Length",
+        "default": 0
+      }
+    ],
+    [
+      {
+        "name": "SEGMENT1",
+        "value_type": "INT"
+      },
+      {
+        "name": "SEGMENT2",
+        "value_type": "INT"
+      },
+      {
+        "name": "BRANCH",
+        "value_type": "INT"
+      },
+      {
+        "name": "JOIN_SEGMENT",
+        "value_type": "INT"
+      },
+      {
+        "name": "SEGMENT_LENGTH",
+        "value_type": "DOUBLE",
+        "dimension": "Length"
+      },
+      {
+        "name": "DEPTH_CHANGE",
+        "value_type": "DOUBLE",
+        "dimension": "Length"
+      },
+      {
+        "name": "DIAMETER",
+        "value_type": "DOUBLE",
+        "dimension": "Length"
+      },
+      {
+        "name": "ROUGHNESS",
+        "value_type": "DOUBLE",
+        "dimension": "Length"
+      },
+      {
+        "name": "AREA",
+        "value_type": "DOUBLE",
+        "dimension": "Length*Length"
+      },
+      {
+        "name": "VOLUME",
+        "value_type": "DOUBLE",
+        "dimension": "Length*Length*Length"
+      },
+      {
+        "name": "LENGTH_X",
+        "value_type": "DOUBLE",
+        "dimension": "Length",
+        "default": 0
+      },
+      {
+        "name": "LENGTH_Y",
+        "value_type": "DOUBLE",
+        "dimension": "Length",
+        "default": 0
+      }
+    ]
+  ]
+}

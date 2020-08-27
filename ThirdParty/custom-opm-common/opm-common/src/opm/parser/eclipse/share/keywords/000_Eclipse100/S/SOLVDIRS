@@ -1,0 +1,13 @@
+{
+  "name": "SOLVDIRS",
+  "sections": [
+    "GRID"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "DIRECTION",
+      "value_type": "STRING"
+    }
+  ]
+}

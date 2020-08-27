@@ -1,0 +1,27 @@
+{
+  "name": "HMAQUCT",
+  "sections": [
+    "SOLUTION"
+  ],
+  "items": [
+    {
+      "name": "AQUIFER_ID",
+      "value_type": "INT"
+    },
+    {
+      "name": "DERIVATIES_RESP_PERM_MULT",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "name": "DERIVATIES_RESP_OPEN_ANGLE_MULT",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "name": "DERIVATIES_RESP_AQUIFER_DEPTH",
+      "value_type": "STRING",
+      "default": "NO"
+    }
+  ]
+}

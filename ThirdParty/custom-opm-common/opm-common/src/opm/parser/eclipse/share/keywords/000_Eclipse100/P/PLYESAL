@@ -1,0 +1,6 @@
+{"name" : "PLYESAL",
+ "sections" : ["PROPS"],
+ "size" : {"keyword" : "TABDIMS",
+           "item" : "NTSFUN"},
+ "items" : [
+ {"name" : "ALPHAP", "value_type" : "DOUBLE", "default_value" : 0.0}]}

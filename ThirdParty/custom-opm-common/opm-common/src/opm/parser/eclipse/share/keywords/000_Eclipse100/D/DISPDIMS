@@ -1,0 +1,24 @@
+{
+  "name": "DISPDIMS",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "NUM_DISP_TABLES",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "name": "MAX_VELOCITY_NODES",
+      "value_type": "INT",
+      "default": 2
+    },
+    {
+      "name": "MAX_CONCENTRATION_NODES",
+      "value_type": "INT",
+      "default": 1
+    }
+  ]
+}

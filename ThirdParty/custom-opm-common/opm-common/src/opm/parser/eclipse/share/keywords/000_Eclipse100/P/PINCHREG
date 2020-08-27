@@ -1,0 +1,35 @@
+{
+  "name": "PINCHREG",
+  "sections": [
+    "GRID"
+  ],
+  "items": [
+    {
+      "name": "THRESHOLD_THICKNESS",
+      "value_type": "DOUBLE",
+      "dimension": "Length",
+      "default": 0.001
+    },
+    {
+      "name": "OPTION1",
+      "value_type": "STRING",
+      "default": "GAP"
+    },
+    {
+      "name": "MAX_GAP",
+      "value_type": "DOUBLE",
+      "dimension": "Length",
+      "default": 1e+20
+    },
+    {
+      "name": "OPTION2",
+      "value_type": "STRING",
+      "default": "TOPBOT"
+    },
+    {
+      "name": "OPTION3",
+      "value_type": "STRING",
+      "default": "TOP"
+    }
+  ]
+}

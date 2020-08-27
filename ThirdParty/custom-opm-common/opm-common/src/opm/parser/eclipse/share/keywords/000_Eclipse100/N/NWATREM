@@ -1,0 +1,24 @@
+{
+  "name": "NWATREM",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "NODE",
+      "value_type": "STRING"
+    },
+    {
+      "name": "WAX_RATE",
+      "value_type": "DOUBLE",
+      "dimension": "LiquidSurfaceVolume/Time",
+      "default": 1e+100
+    },
+    {
+      "name": "MAX_FRAC_REMOVAL",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 1
+    }
+  ]
+}

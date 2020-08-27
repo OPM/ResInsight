@@ -1,0 +1,6 @@
+{"name" : "SAMG",
+"sections" : ["RUNSPEC"],
+"size" : 1,
+"items" : [
+{"name" : "EPS", "value_type" : "DOUBLE", "default_value" : 0.0001},
+{"name" : "REUSE", "value_type" : "INT", "default_value" : 1}]}

@@ -1,0 +1,51 @@
+{
+  "name": "GRUPSLAV",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "SLAVE_GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "name": "MASTER_GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "name": "OIL_PROD_CONSTRAINTS",
+      "value_type": "STRING",
+      "default": "MAST"
+    },
+    {
+      "name": "WAT_PROD_CONSTRAINTS",
+      "value_type": "STRING",
+      "default": "MAST"
+    },
+    {
+      "name": "GAS_PROD_CONSTRAINTS",
+      "value_type": "STRING",
+      "default": "MAST"
+    },
+    {
+      "name": "FLUID_VOL_PROD_CONSTRAINTS",
+      "value_type": "STRING",
+      "default": "MAST"
+    },
+    {
+      "name": "OIL_INJ_PROD_CONSTRAINTS",
+      "value_type": "STRING",
+      "default": "MAST"
+    },
+    {
+      "name": "WAT_INJ_PROD_CONSTRAINTS",
+      "value_type": "STRING",
+      "default": "MAST"
+    },
+    {
+      "name": "GAS_INJ_PROD_CONSTRAINTS",
+      "value_type": "STRING",
+      "default": "MAST"
+    }
+  ]
+}

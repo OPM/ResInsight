@@ -1,0 +1,32 @@
+{
+  "name": "APILIM",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "LIMITER",
+      "value_type": "STRING",
+      "default": "NONE"
+    },
+    {
+      "name": "SCOPE",
+      "value_type": "STRING",
+      "default": "BOTH"
+    },
+    {
+      "name": "LOWER_API_LIMIT",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "UPPER_API_LIMIT",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "NUM_ROWS",
+      "value_type": "INT",
+      "default": 10
+    }
+  ]
+}

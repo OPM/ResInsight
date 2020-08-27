@@ -1,0 +1,62 @@
+RUNSPEC
+OIL
+GAS
+WATER
+DIMENS
+ 10 10 10 /
+GRID
+DXV
+10*0.25 /
+DYV
+10*0.25 /
+DZV
+10*0.25 /
+TOPS
+100*0.25 /
+
+PORO
+1000*0.2 /
+
+START             -- 0
+1 NOV 1979 / 
+SCHEDULE
+DATES             -- 1
+ 1 DES 1979/ 
+/
+WELSPECS
+    'OP_1'       'OP'   9   9 1*     'OIL' 1*      1*  1*   1*  1*   1*  1*  / 
+    'OP_2'       'OP'   4   4 1*     'OIL' 1*      1*  1*   1*  1*   1*  1*  / 
+/
+COMPDAT
+ 'OP_1'  9  9   1   1 'OPEN' 1*   32.948   0.311  3047.839 1*  1*  'X'  22.100 / 
+ 'OP_1'  9  9   2   2 'OPEN' 1*   46.825   0.311  4332.346 1*  1*  'X'  22.123 / 
+ 'OP_1'  9  9   3  9 'OPEN' 1*   32.948   0.311  3047.839 1*  1*  'X'  22.100 / 
+ 'OP_2'  4  4   4  9 'OPEN' 1*   32.948   0.311  3047.839 1*  1*  'X'  22.100 / 
+/
+DATES             -- 2
+ 10  OKT 2008 / 
+/
+WRFTPLT
+   'OP_1'  'YES' /
+   'OP_2'  'REPT' /
+/ 
+WELOPEN
+ 'OP_1' OPEN / 
+ 'OP_2' OPEN / 
+/
+DATES             -- 3
+ 10  NOV 2008 / 
+/
+
+
+DATES             -- 4
+ 20  NOV 2008 / 
+/
+
+WRFTPLT
+   'OP_2'  'NO' /
+/ 
+
+DATES             -- 5
+ 30  NOV 2008 / 
+/

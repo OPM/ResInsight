@@ -1,0 +1,19 @@
+{
+  "name": "FRICTION",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "NWFRIC",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "NWFRIB",
+      "value_type": "INT",
+      "default": 1
+    }
+  ]
+}

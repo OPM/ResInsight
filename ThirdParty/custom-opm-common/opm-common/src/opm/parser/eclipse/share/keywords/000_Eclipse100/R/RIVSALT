@@ -1,0 +1,25 @@
+{
+  "name": "RIVSALT",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "RIVER",
+      "value_type": "STRING"
+    },
+    {
+      "name": "SALINITY",
+      "value_type": "DOUBLE",
+      "dimension": "Mass/LiquidSurfaceVolume"
+    },
+    {
+      "name": "BRANCH",
+      "value_type": "STRING"
+    },
+    {
+      "name": "REACH",
+      "value_type": "INT"
+    }
+  ]
+}

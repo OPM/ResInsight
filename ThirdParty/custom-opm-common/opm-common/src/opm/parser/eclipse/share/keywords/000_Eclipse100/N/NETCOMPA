@@ -1,0 +1,63 @@
+{
+  "name": "NETCOMPA",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "INLET",
+      "value_type": "STRING"
+    },
+    {
+      "name": "OUTLET",
+      "value_type": "STRING"
+    },
+    {
+      "name": "GROUP",
+      "value_type": "STRING",
+      "default": ""
+    },
+    {
+      "name": "PHASE",
+      "value_type": "STRING",
+      "default": "GAS"
+    },
+    {
+      "name": "VFT_TABLE_NUM",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "ALQ",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "GAS_CONSUMPTION_RATE",
+      "value_type": "DOUBLE",
+      "dimension": "GasSurfaceVolume/Time",
+      "default": 0
+    },
+    {
+      "name": "EXTRACTION_GROUP",
+      "value_type": "STRING",
+      "default": ""
+    },
+    {
+      "name": "COMPRESSOR_TYPE",
+      "value_type": "STRING"
+    },
+    {
+      "name": "NUM_COMPRESSION_LEVELS",
+      "value_type": "INT"
+    },
+    {
+      "name": "ALQ_LEVEL1",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "COMP_SWITCH_SEQ_NUM",
+      "value_type": "INT"
+    }
+  ]
+}

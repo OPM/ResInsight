@@ -1,0 +1,29 @@
+{
+  "name": "FOAMFSC",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "TABDIMS",
+    "item": "NTSFUN"
+  },
+  "items": [
+    {
+      "name": "REF_SURF_CONC",
+      "value_type": "DOUBLE",
+      "dimension": "FoamSurfactantConcentration"
+    },
+    {
+      "name": "EXPONENT",
+      "value_type": "DOUBLE",
+      "default": 1,
+      "dimension": "1"
+    },
+    {
+      "name": "MIN_SURF_CONC",
+      "value_type": "DOUBLE",
+      "default": 1e-20,
+      "dimension": "FoamSurfactantConcentration"
+    }
+  ]
+}

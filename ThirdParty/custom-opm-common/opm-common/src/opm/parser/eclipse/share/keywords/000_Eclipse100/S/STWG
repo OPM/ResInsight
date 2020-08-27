@@ -1,0 +1,30 @@
+{
+  "name": "STWG",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "TABDIMS",
+    "item": "NTPVT"
+  },
+  "alternating_records": [
+    [
+      {
+        "name": "REF_OIL_PRESSURE",
+        "value_type": "DOUBLE",
+        "dimension": "Pressure"
+      }
+    ],
+    [
+      {
+        "name": "table",
+        "value_type": "DOUBLE",
+        "size_type": "ALL",
+        "dimension": [
+          "Pressure",
+          "SurfaceTension"
+        ]
+      }
+    ]
+  ]
+}

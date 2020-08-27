@@ -1,0 +1,13 @@
+{
+  "name": "SCDPTRAC",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "TRACER",
+      "value_type": "STRING"
+    }
+  ]
+}

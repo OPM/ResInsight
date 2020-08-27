@@ -1,0 +1,166 @@
+RUNSPEC
+
+EQLOPTS
+  'THPRES' /
+
+OIL
+GAS
+WATER
+DISGAS
+VAPOIL
+UNIFOUT
+UNIFIN
+DIMENS
+ 10 10 10 /
+
+WELLDIMS
+-- Item 1: NWMAX  (Maximum number of wells in model)
+-- Item 2: NCWMAX (Maximum number of connections per well)
+-- Item 3: NGMAX  (Maximum number of groups in model--excluding FIELD)
+-- Item 4: NWGMAX (Maximum number of wells or child groups per group)
+-- NWMAX  NCWMAX  NGMAX  NWGMAX
+   6      3       1      6
+/
+
+EQLDIMS
+   10 /
+
+GRID
+DXV
+10*0.25 /
+DYV
+10*0.25 /
+DZV
+10*0.25 /
+TOPS
+100*0.25 /
+
+PORO
+1000*0.2 /
+
+PROPS
+
+REGIONS
+
+EQLNUM
+   100*1
+   100*2
+   100*3
+   100*4
+   100*5
+   100*6
+   100*7
+   100*8
+   100*9
+   100*10
+/
+
+SOLUTION
+THPRES
+1 1  0.1 /
+1 2  0.2 /
+1 3  0.3 /
+1 4  0.4 /
+1 5  0.5 /
+1 6  0.6 /
+1 7  0.7 /
+1 8  0.8 /
+1 9  0.9 /
+1 10 1.0 /
+-- Default pressures
+2 2  /
+/
+
+START             -- 0 
+1 NOV 1979 / 
+
+SCHEDULE
+SKIPREST
+RPTRST
+BASIC=1
+/
+WELSPECS
+      'OP_1'       'OP'   9   9 1*     'OIL' 1*      1*  1*   1*  1*   1*  1*  /
+      'OP_2'       'OP'   9   9 1*     'OIL' 1*      1*  1*   1*  1*   1*  1*  /
+/
+COMPDAT
+      'OP_1'  9  9   1   1 'OPEN' 1*   32.948   0.311  3047.839 1*  1*  'X'  22.100 /
+      'OP_2'  9  9   2   2 'OPEN' 1*   46.825   0.311  4332.346 1*  1*  'X'  22.123 /
+      'OP_1'  9  9   3   3 'OPEN' 1*   32.948   0.311  3047.839 1*  1*  'X'  22.100 /
+/
+WCONPROD
+      'OP_1' 'OPEN' 'ORAT' 20000  4* 1000 /
+/
+WCONINJE
+      'OP_2' 'GAS' 'OPEN' 'RATE' 100 200 400 /
+/
+
+DATES             -- 1
+ 20  JAN 2011 / 
+/
+WELSPECS
+      'OP_3'       'OP'   9   9 1*     'OIL' 1*      1*  1*   1*  1*   1*  1*  /
+/
+COMPDAT
+      'OP_3'  9  9   1   1 'OPEN' 1*   32.948   0.311  3047.839 1*  1*  'X'  22.100 /
+/
+WCONPROD
+      'OP_3' 'OPEN' 'ORAT' 20000  4* 1000 /
+/
+
+DATES             -- 2
+ 15  JUN 2013 / 
+/
+COMPDAT
+      'OP_2'  9  9   3  9 'OPEN' 1*   32.948   0.311  3047.839 1*  1*  'X'  22.100 /
+      'OP_1'  9  9   7  7 'SHUT' 1*   32.948   0.311  3047.839 1*  1*  'X'  22.100 /
+/
+
+DATES             -- 3
+ 22  APR 2014 / 
+/
+WELSPECS
+      'OP_4'       'OP'   9   9 1*     'OIL' 1*      1*  1*   1*  1*   1*  1*  /
+/
+COMPDAT
+      'OP_4'  9  9   3  9 'OPEN' 1*   32.948   0.311  3047.839 1*  1*  'X'  22.100 /
+      'OP_3'  9  9   3  9 'OPEN' 1*   32.948   0.311  3047.839 1*  1*  'X'  22.100 /
+/
+WCONPROD
+      'OP_4' 'OPEN' 'ORAT' 20000  4* 1000 /
+/
+
+DATES             -- 4
+ 30  AUG 2014 / 
+/
+WELSPECS
+      'OP_5'       'OP'   9   9 1*     'OIL' 1*      1*  1*   1*  1*   1*  1*  /
+/
+COMPDAT
+      'OP_5'  9  9   3  9 'OPEN' 1*   32.948   0.311  3047.839 1*  1*  'X'  22.100 /
+/
+WCONPROD
+      'OP_5' 'OPEN' 'ORAT' 20000  4* 1000 /
+/
+
+DATES             -- 5
+ 15  SEP 2014 / 
+/
+WCONPROD
+      'OP_3' 'SHUT' 'ORAT' 20000  4* 1000 /
+/
+
+DATES             -- 6
+ 9  OCT 2014 / 
+/
+WELSPECS
+      'OP_6'       'OP'   9   9 1*     'OIL' 1*      1*  1*   1*  1*   1*  1*  /
+/
+COMPDAT
+      'OP_6'  9  9   3  9 'OPEN' 1*   32.948   0.311  3047.839 1*  1*  'X'  22.100 /
+/
+WCONPROD
+      'OP_6' 'OPEN' 'ORAT' 20000  4* 1000 /
+/
+TSTEP            -- 7
+10 /

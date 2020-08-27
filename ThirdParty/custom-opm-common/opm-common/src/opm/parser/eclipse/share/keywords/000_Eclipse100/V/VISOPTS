@@ -1,0 +1,47 @@
+{
+  "name": "VISOPTS",
+  "sections": [
+    "SOLUTION"
+  ],
+  "items": [
+    {
+      "name": "INIT_RUN",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "name": "EXIT",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "name": "ACTIVE",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "name": "REL_TOL",
+      "value_type": "DOUBLE",
+      "default": 0.05
+    },
+    {
+      "name": "UNUSED",
+      "value_type": "STRING"
+    },
+    {
+      "name": "RETAIN_RESTART_FREQUENCY",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "name": "RETAIN_RESTART_CONTENT",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "name": "ERROR",
+      "value_type": "STRING",
+      "default": "ERROR"
+    }
+  ]
+}

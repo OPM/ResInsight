@@ -1,0 +1,40 @@
+START
+10 MAI 2007 /
+
+
+RUNSPEC
+
+DIMENS
+  10 10 3  /
+
+GRID
+
+PERMX
+  300*0.25 /
+
+COPY
+  PERMX PERMY /
+  PERMX PERMZ /
+/
+
+
+SCHEDULE
+
+WELSPECS 
+    'W_1'        'GROUP_BIRGER'   30   37  1*       'OIL'  7* /
+    'W_3'        'GROUP_ODD'   31   18  1*       'OIL'  7* /
+    'W_2'        'GROUP_NILS'   20   51  1*       'OIL'  7* /
+
+/
+
+TSTEP
+ 10 /
+
+
+GRUPTREE
+ 'GROUP_BIRGER' 'GROUP_BJARNE' /
+-- the spaces around the name are intentional!
+ ' GROUP_NILS ' ' GROUP_NEW ' /  -- NILS UNDER NEW, NEW should be under FIELD
+/
+
+END

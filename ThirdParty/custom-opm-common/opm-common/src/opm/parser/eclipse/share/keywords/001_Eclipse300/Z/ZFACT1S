@@ -1,0 +1,21 @@
+{
+  "name": "ZFACT1S",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "TABDIMS",
+    "item": "NUM_STATE_EQ"
+  },
+  "comment": "support default values for items of unknown size",
+  "items": [
+    {
+      "name": "Z0",
+      "value_type": "DOUBLE",
+      "size_type": "ALL",
+      "dimension": [
+        "1"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "WSEGDFIN",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "DATA",
+      "value_type": "DOUBLE",
+      "size_type": "ALL"
+    }
+  ]
+}

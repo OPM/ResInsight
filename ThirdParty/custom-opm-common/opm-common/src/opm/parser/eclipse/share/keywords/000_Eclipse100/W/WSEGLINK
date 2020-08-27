@@ -1,0 +1,20 @@
+{
+  "name": "WSEGLINK",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "SEGMENT1",
+      "value_type": "INT"
+    },
+    {
+      "name": "SEGMENT2",
+      "value_type": "INT"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "name": "WECONT",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "WORKOVER",
+      "value_type": "STRING",
+      "default": "NONE"
+    },
+    {
+      "name": "END_RUN_FLAG",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "name": "FOLLOW_ON_WELL",
+      "value_type": "STRING"
+    }
+  ]
+}

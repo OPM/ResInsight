@@ -1,0 +1,6 @@
+topitem=somestring
+/slashtopitem=anotherstring
+/group/item=1
+/group/anotheritem=2
+/group/subgroup/item=3
+/group/subgroup/anotheritem=4

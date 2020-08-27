@@ -1,0 +1,24 @@
+{
+  "name": "DYNRDIMS",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "MNUMDR",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "MXDYNF",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "MXDYNR",
+      "value_type": "INT",
+      "default": 0
+    }
+  ]
+}

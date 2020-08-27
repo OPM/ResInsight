@@ -1,0 +1,20 @@
+#!/bin/bash
+# This cmake template file can be used to create a small shell script which can
+# be used to generate a 
+# script setup-build.sh from this templated file - that script can be used to
+# run the python setup.py process without going through cmake.
+#
+# The script in question is purely a convenience for Python development, it is
+# fully optional to use it, and it is not used by the main cmake based build
+# system.
+
+cp -r @PROJECT_SOURCE_DIR@/python @PROJECT_BINARY_DIR@
+cd @PROJECT_BINARY_DIR@/python
+rm -rf opm/libopmcommon_python*
+
+export CC=@CMAKE_CXX_COMPILER@
+
+@PYTHON_EXECUTABLE@ setup.py sdist bdist_wheel build_ext \
+--library-dirs=@_setup_lib_dirs@ \
+@_rpath_arg@ \
+--include-dirs=@_setup_include_dirs@

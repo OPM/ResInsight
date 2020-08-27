@@ -1,0 +1,22 @@
+{
+  "name": "AQUTAB",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "AQUDIMS",
+    "item": "NIFTBL",
+    "shift": -1
+  },
+  "items": [
+    {
+      "name": "DATA",
+      "value_type": "DOUBLE",
+      "size_type": "ALL",
+      "dimension": [
+        "1",
+        "1"
+      ]
+    }
+  ]
+}

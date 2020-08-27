@@ -1,0 +1,14 @@
+{
+  "name": "DPNUM",
+  "sections": [
+    "GRID"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "VALUE",
+      "value_type": "INT",
+      "size_type": "ALL"
+    }
+  ]
+}

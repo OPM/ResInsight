@@ -1,0 +1,22 @@
+{
+  "name": "PPCWMAX",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "TABDIMS",
+    "item": "NTSFUN"
+  },
+  "items": [
+    {
+      "name": "MAXIMUM_CAPILLARY_PRESSURE",
+      "value_type": "DOUBLE",
+      "default": 1e+20
+    },
+    {
+      "name": "MODIFY_CONNATE_SATURATION",
+      "value_type": "STRING",
+      "default": "NO"
+    }
+  ]
+}

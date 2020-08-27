@@ -1,0 +1,49 @@
+{
+  "name": "EPSDEBUG",
+  "sections": [
+    "PROPS",
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "IX1",
+      "value_type": "INT"
+    },
+    {
+      "name": "IX2",
+      "value_type": "INT"
+    },
+    {
+      "name": "JY1",
+      "value_type": "INT"
+    },
+    {
+      "name": "JY2",
+      "value_type": "INT"
+    },
+    {
+      "name": "KZ1",
+      "value_type": "INT"
+    },
+    {
+      "name": "KZ2",
+      "value_type": "INT"
+    },
+    {
+      "name": "TABLE_OUTPUT",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "GRID_NAME",
+      "value_type": "STRING",
+      "default": ""
+    },
+    {
+      "name": "CHECK_DRAIN_HYST",
+      "value_type": "INT",
+      "default": 0
+    }
+  ]
+}

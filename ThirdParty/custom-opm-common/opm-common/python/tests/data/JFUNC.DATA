@@ -1,0 +1,38 @@
+RUNSPEC
+
+TITLE
+ JFUNC TEST
+
+DIMENS
+ 10 10 10 /
+GRID
+DX
+1000*0.25 /
+DY
+1000*0.25 /
+DZ
+1000*0.25 /
+TOPS
+100*0.25 /
+
+PORO
+  1000*0.15 /
+
+FAULTS
+  'F1'  1  1  1  4   1  4  'X' /
+  'F2'  5  5  1  4   1  4  'X-' /
+/
+MULTFLT
+  'F1' 0.50 /
+  'F2' 0.50 /
+/
+
+JFUNC
+ WATER 21.0 /
+
+PROPS
+REGIONS
+SWAT
+1000*1 /
+SATNUM
+1000*2 /

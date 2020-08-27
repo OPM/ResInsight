@@ -1,0 +1,3 @@
+PATHS
+ 'FOOPATH' 'include\foopath' /
+/

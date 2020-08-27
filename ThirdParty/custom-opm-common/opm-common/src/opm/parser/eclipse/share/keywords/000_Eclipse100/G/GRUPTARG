@@ -1,0 +1,21 @@
+{
+  "name": "GRUPTARG",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "name": "TARGET",
+      "value_type": "STRING"
+    },
+    {
+      "name": "NEW_VALUE",
+      "value_type": "DOUBLE",
+      "default": 1e+60
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "name": "PLYATEMP",
+  "sections": [
+    "PROPS"
+  ],
+  "data": {
+    "value_type": "DOUBLE",
+    "dimension": "Length"
+  }
+}

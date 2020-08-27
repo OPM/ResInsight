@@ -1,0 +1,27 @@
+{
+  "name": "RIVRXSEC",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "RIVRDIMS",
+    "item": "MXDPTB"
+  },
+  "items": [
+    {
+      "name": "DEPTH",
+      "value_type": "DOUBLE",
+      "dimension": "Length"
+    },
+    {
+      "name": "WET_PERIMTER",
+      "value_type": "DOUBLE",
+      "dimension": "Length"
+    },
+    {
+      "name": "AREA",
+      "value_type": "DOUBLE",
+      "dimension": "Length*Length"
+    }
+  ]
+}

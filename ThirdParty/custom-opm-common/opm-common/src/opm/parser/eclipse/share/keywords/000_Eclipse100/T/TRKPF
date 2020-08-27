@@ -1,0 +1,10 @@
+{
+  "name": "TRKPF",
+  "sections": [
+    "REGIONS"
+  ],
+  "deck_name_regex": "TRKPF.+",
+  "data": {
+    "value_type": "INT"
+  }
+}

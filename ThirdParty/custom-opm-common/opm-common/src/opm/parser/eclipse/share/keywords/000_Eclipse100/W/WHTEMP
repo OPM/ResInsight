@@ -1,0 +1,21 @@
+{
+  "name": "WHTEMP",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "VFP_TABLE",
+      "value_type": "INT"
+    },
+    {
+      "name": "THP_TEMP",
+      "value_type": "DOUBLE",
+      "dimension": "Temperature"
+    }
+  ]
+}

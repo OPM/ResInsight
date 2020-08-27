@@ -1,0 +1,20 @@
+#  How to build pypi-packages:
+
+* For initial python package version. Run in the opm-common root folder:
+
+sudo docker build -t manylinux2014_opm:built . -f python/Dockerfile
+
+* This will create a docker image with a version looking like '2020.10' with package 
+  wheels ready for upload in /tmp/opm-common/build/wheelhouse
+* For subsequent python package versions, add a version_tag build argument including a dot '.':
+
+sudo docker build -t manylinux2014_opm:built --build-arg version_tag=".1" . -f python/Dockerfile
+
+* This will create a python package version looking like '2020.10.1'.
+* Once the image is finished, run it:
+
+sudo docker run -it manylinux2014_opm:built
+
+* The package wheels can then be uploaded to test-pypi with:
+
+/opt/python/cp38-cp38/bin/python -m twine upload -u __token__ -p TOKEN_VALUE --repository testpypi /tmp/opm-common/build/wheelhouse/*.whl

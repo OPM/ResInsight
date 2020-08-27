@@ -1,0 +1,38 @@
+{
+  "name": "LTOSIGMA",
+  "sections": [
+    "GRID"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "FX",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 4
+    },
+    {
+      "name": "FY",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 4
+    },
+    {
+      "name": "FZ",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 4
+    },
+    {
+      "name": "FGD",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 0
+    },
+    {
+      "name": "OPTION",
+      "value_type": "STRING",
+      "default": "XONLY"
+    }
+  ]
+}

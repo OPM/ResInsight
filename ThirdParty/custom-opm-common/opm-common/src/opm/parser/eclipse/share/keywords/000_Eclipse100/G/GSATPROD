@@ -1,0 +1,42 @@
+{
+  "name": "GSATPROD",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "SATELLITE_GROUP_NAME_OR_GROUP_NAME_ROOT",
+      "value_type": "STRING"
+    },
+    {
+      "name": "OIL_PRODUCTION_RATE",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "WATER_PRODUCTION_RATE",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "GAS_PRODUCTION_RATE",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "RES_FLUID_VOL_PRODUCTION_RATE",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "LIFT_GAS_SUPPLY_RATE",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "MEAN_CALORIFIC_VALUE",
+      "value_type": "DOUBLE",
+      "default": 0
+    }
+  ]
+}

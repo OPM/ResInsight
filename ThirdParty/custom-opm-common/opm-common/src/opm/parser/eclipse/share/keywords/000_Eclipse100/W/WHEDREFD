@@ -1,0 +1,17 @@
+{
+  "name": "WHEDREFD",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "DEPTH",
+      "value_type": "DOUBLE",
+      "dimension": "Length"
+    }
+  ]
+}

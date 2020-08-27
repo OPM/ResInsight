@@ -1,0 +1,18 @@
+{
+  "name": "ROCKWNOD",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "ROCKCOMP",
+    "item": "NTROCC"
+  },
+  "items": [
+    {
+      "name": "DATA",
+      "value_type": "DOUBLE",
+      "size_type": "ALL",
+      "dimension": "1"
+    }
+  ]
+}

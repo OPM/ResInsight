@@ -1,0 +1,16 @@
+{
+  "name": "AQUIFER_PROBE_NUMERIC",
+  "sections": [
+    "SUMMARY"
+  ],
+  "deck_names": [
+    "ANQP",
+    "ANQR",
+    "ANQT"
+  ],
+  "comment": "Numerical aquifiers",
+  "data": {
+    "value_type": "INT"
+  },
+  "deck_name_regex": "ANQ."
+}

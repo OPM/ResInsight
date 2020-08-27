@@ -1,0 +1,17 @@
+{
+  "name": "WSOLVENT",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "SOLVENT_FRACTION",
+      "value_type": "UDA",
+      "dimension": "1"
+    }
+  ]
+}

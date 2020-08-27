@@ -1,0 +1,72 @@
+{
+  "name": "CECON",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELLNAME",
+      "value_type": "STRING"
+    },
+    {
+      "name": "I",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "J",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "K1",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "K2",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "MAX_WCUT",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "MAX_GOR",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "MAX_WGR",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "WORKOVER_PROCEDURE",
+      "value_type": "STRING",
+      "default": "CON"
+    },
+    {
+      "name": "CHECK_STOPPED",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "name": "MIN_OIL",
+      "value_type": "DOUBLE",
+      "default": -1e+20
+    },
+    {
+      "name": "MIN_GAS",
+      "value_type": "DOUBLE",
+      "default": -1e+20
+    },
+    {
+      "name": "FOLLOW_ON_WELL",
+      "value_type": "STRING",
+      "default": ""
+    }
+  ]
+}

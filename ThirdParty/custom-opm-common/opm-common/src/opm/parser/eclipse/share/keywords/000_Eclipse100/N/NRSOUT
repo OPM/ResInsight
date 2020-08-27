@@ -1,0 +1,14 @@
+{
+  "name": "NRSOUT",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "MAX_NUM",
+      "value_type": "INT",
+      "default": 3600
+    }
+  ]
+}

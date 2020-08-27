@@ -1,0 +1,50 @@
+{
+  "name": "WSEGMULT",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "SEGMENT1",
+      "value_type": "INT"
+    },
+    {
+      "name": "SEGMENT2",
+      "value_type": "INT"
+    },
+    {
+      "name": "A",
+      "value_type": "DOUBLE",
+      "default": 1
+    },
+    {
+      "name": "B",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "C",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "D",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "E",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "GOR",
+      "value_type": "DOUBLE",
+      "default": 0
+    }
+  ]
+}

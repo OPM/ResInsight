@@ -1,0 +1,54 @@
+{
+  "name": "CBMOPTS",
+  "sections": [
+    "SRUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "ADSORPTION_MODEL",
+      "value_type": "STRING",
+      "default": "TIMEDEP"
+    },
+    {
+      "name": "ALLOW_WATER_FLOW",
+      "value_type": "STRING",
+      "default": "YES"
+    },
+    {
+      "name": "ALLOW_PERMEAB",
+      "value_type": "STRING",
+      "default": "NOKRMIX"
+    },
+    {
+      "name": "COUNT_PASSES",
+      "value_type": "STRING",
+      "default": "NOPMREB"
+    },
+    {
+      "name": "METHOD",
+      "value_type": "STRING",
+      "default": "PMSTD"
+    },
+    {
+      "name": "SCALING_VALUE",
+      "value_type": "STRING",
+      "default": "PMSCAL"
+    },
+    {
+      "name": "APPLICATION",
+      "value_type": "STRING",
+      "default": "PMPVK"
+    },
+    {
+      "name": "PRESSURE_CHOP",
+      "value_type": "STRING",
+      "default": "NOPMPCHP"
+    },
+    {
+      "name": "MIN_PORE_VOLUME",
+      "value_type": "DOUBLE",
+      "default": 5e-06
+    }
+  ]
+}

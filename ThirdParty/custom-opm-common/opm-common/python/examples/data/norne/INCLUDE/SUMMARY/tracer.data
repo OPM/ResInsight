@@ -1,0 +1,141 @@
+-- This reservoir simulation deck is made available under the Open Database
+-- License: http://opendatacommons.org/licenses/odbl/1.0/. Any rights in
+-- individual contents of the database are licensed under the Database Contents
+-- License: http://opendatacommons.org/licenses/dbcl/1.0/
+
+-- Copyright (C) 2015 Statoil
+
+-- Summary file for the base case, short version --
+--
+-- Field Data
+-- Production Rates
+FTPRSEA
+FTPRHTO
+FTPRS36
+FTPR2FB
+FTPR4FB
+FTPRDFB
+FTPRTFB
+-- Production Conc.
+FTPCSEA
+FTPCHTO
+FTPCS36
+FTPC2FB
+FTPC4FB
+FTPCDFB
+FTPCTFB
+-- Injection Rates
+FTIRSEA
+FTIRHTO
+FTIRS36
+FTIR2FB
+FTIR4FB
+FTIRDFB
+FTIRTFB
+-- Production Cummulatives
+FTPTSEA
+FTPTHTO
+FTPTS36
+FTPT2FB
+FTPT4FB
+FTPTDFB
+FTPTTFB
+-- Injection Cummulatives
+FTITSEA
+FTITHTO
+FTITS36
+FTIT2FB
+FTIT4FB
+FTITDFB
+FTITTFB
+-- Well Data
+-- Production Rates
+WTPRSEA
+/
+WTPRHTO
+/
+WTPRS36
+/
+WTPR2FB
+/
+WTPR4FB
+/
+WTPRDFB
+/
+WTPRTFB
+/
+-- Production Concentrations
+WTPCSEA
+/
+WTPCHTO
+/
+WTPCS36
+/
+WTPC2FB
+/
+WTPC4FB
+/
+WTPCDFB
+/
+WTPCTFB
+/
+
+-- Injection Rates
+WTIRSEA
+  C-1H C-2H C-3H C-4H C-4AH F-1H F-2H F-3H F-4H
+/
+WTIRHTO
+  C-1H C-2H C-3H C-4H C-4AH F-1H F-2H F-3H F-4H
+/
+WTIRS36
+  C-1H C-2H C-3H C-4H C-4AH F-1H F-2H F-3H F-4H
+/
+WTIR2FB
+  C-1H C-2H C-3H C-4H C-4AH F-1H F-2H F-3H F-4H
+/
+WTIR4FB
+  C-1H C-2H C-3H C-4H C-4AH F-1H F-2H F-3H F-4H
+/
+WTIRDFB
+  C-1H C-2H C-3H C-4H C-4AH F-1H F-2H F-3H F-4H
+/
+WTIRTFB
+  C-1H C-2H C-3H C-4H C-4AH F-1H F-2H F-3H F-4H
+/
+-- Production Cumulatives
+WTPTSEA
+/
+WTPTHTO
+/
+WTPTS36
+/
+WTPT2FB
+/
+WTPT4FB
+/
+WTPTDFB
+/
+WTPTTFB
+/
+-- Injection Cumulatives
+WTITSEA
+  C-1H C-2H C-3H C-4H C-4AH F-1H F-2H F-3H F-4H
+/
+WTITHTO
+  C-1H C-2H C-3H C-4H C-4AH F-1H F-2H F-3H F-4H
+/
+WTITS36
+  C-1H C-2H C-3H C-4H C-4AH F-1H F-2H F-3H F-4H
+/
+WTIT2FB
+  C-1H C-2H C-3H C-4H C-4AH F-1H F-2H F-3H F-4H
+/
+WTIT4FB
+  C-1H C-2H C-3H C-4H C-4AH F-1H F-2H F-3H F-4H
+/
+WTITDFB
+  C-1H C-2H C-3H C-4H C-4AH F-1H F-2H F-3H F-4H
+/
+WTITTFB
+  C-1H C-2H C-3H C-4H C-4AH F-1H F-2H F-3H F-4H
+/

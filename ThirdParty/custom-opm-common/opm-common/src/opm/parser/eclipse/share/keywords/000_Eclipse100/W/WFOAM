@@ -1,0 +1,17 @@
+{
+  "name": "WFOAM",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "FOAM_CONCENTRATION",
+      "value_type": "UDA",
+      "dimension": "FoamDensity"
+    }
+  ]
+}

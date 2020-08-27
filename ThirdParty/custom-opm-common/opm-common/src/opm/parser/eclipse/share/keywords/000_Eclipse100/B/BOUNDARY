@@ -1,0 +1,47 @@
+{
+  "name": "BOUNDARY",
+  "sections": [
+    "GRID",
+    "EDIT",
+    "REGIONS",
+    "SOLUTION",
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "IX1",
+      "value_type": "INT"
+    },
+    {
+      "name": "IX2",
+      "value_type": "INT"
+    },
+    {
+      "name": "JY1",
+      "value_type": "INT"
+    },
+    {
+      "name": "JY2",
+      "value_type": "INT"
+    },
+    {
+      "name": "KZ1",
+      "value_type": "INT"
+    },
+    {
+      "name": "KZ2",
+      "value_type": "INT"
+    },
+    {
+      "name": "ORIENTATION_INDEX",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "name": "DUAL_PORO_FLAG",
+      "value_type": "STRING",
+      "default": "BOTH"
+    }
+  ]
+}

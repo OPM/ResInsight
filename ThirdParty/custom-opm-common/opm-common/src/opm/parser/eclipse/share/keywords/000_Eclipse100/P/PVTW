@@ -1,0 +1,42 @@
+{
+  "name": "PVTW",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "TABDIMS",
+    "item": "NTPVT"
+  },
+  "items": [
+    {
+      "name": "P_REF",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    },
+    {
+      "name": "WATER_VOL_FACTOR",
+      "value_type": "DOUBLE",
+      "default": 1,
+      "dimension": "1"
+    },
+    {
+      "name": "WATER_COMPRESSIBILITY",
+      "value_type": "DOUBLE",
+      "default": 4e-05,
+      "dimension": "1/Pressure"
+    },
+    {
+      "name": "WATER_VISCOSITY",
+      "value_type": "DOUBLE",
+      "default": 0.5,
+      "dimension": "Viscosity",
+      "comment": "Default is 0.3 in Eclipse300"
+    },
+    {
+      "name": "WATER_VISCOSIBILITY",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "1/Pressure"
+    }
+  ]
+}

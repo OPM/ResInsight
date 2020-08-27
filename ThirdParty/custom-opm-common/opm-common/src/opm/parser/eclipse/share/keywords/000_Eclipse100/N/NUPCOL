@@ -1,0 +1,16 @@
+{
+  "name": "NUPCOL",
+  "sections": [
+    "RUNSPEC",
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "NUM_ITER",
+      "value_type": "INT",
+      "default": 12,
+      "comment": "The default is 3 in Eclipse100 and 2 in Eclipse300"
+    }
+  ]
+}

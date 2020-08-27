@@ -1,0 +1,53 @@
+{
+  "name": "GCUTBACT",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "records_set": [
+    [
+      {
+        "name": "GROUP",
+        "value_type": "STRING"
+      },
+      {
+        "name": "RATE_CUTBACK",
+        "value_type": "DOUBLE",
+        "dimension": "1"
+      },
+      {
+        "name": "CONTROL_PHASE",
+        "value_type": "STRING"
+      }
+    ],
+    [
+      {
+        "name": "TRACER",
+        "value_type": "STRING"
+      },
+      {
+        "name": "UPPER_RATE_LIM",
+        "value_type": "DOUBLE",
+        "dimension": "1",
+        "default": 1e+200
+      },
+      {
+        "name": "LOWER_RATE_LIM",
+        "value_type": "DOUBLE",
+        "dimension": "1",
+        "default": 1e+200
+      },
+      {
+        "name": "UPPER_CONC_LIM",
+        "value_type": "DOUBLE",
+        "dimension": "1",
+        "default": 1e+200
+      },
+      {
+        "name": "LOWER_CONC_LIM",
+        "value_type": "DOUBLE",
+        "dimension": "1",
+        "default": 1e+200
+      }
+    ]
+  ]
+}

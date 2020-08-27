@@ -1,0 +1,13 @@
+{
+  "name": "GWRTWCV",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELLS",
+      "value_type": "STRING",
+      "size_type": "ALL"
+    }
+  ]
+}

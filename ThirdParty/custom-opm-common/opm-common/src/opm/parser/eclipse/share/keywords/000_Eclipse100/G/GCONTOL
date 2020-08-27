@@ -1,0 +1,27 @@
+{
+  "name": "GCONTOL",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "TOLERANCE_FRACTION",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "NUPCOL_VALUE",
+      "value_type": "INT"
+    },
+    {
+      "name": "TOLERANCE_FRACTION_INJ",
+      "value_type": "DOUBLE",
+      "default": 0.001
+    },
+    {
+      "name": "MAX_IT_INJ",
+      "value_type": "INT",
+      "default": 5
+    }
+  ]
+}

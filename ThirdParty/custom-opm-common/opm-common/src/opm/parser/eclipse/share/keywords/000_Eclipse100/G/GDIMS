@@ -1,0 +1,14 @@
+{
+  "name": "GDIMS",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "MAX_NUM_GRAD_PARAMS",
+      "value_type": "INT",
+      "default": 0
+    }
+  ]
+}

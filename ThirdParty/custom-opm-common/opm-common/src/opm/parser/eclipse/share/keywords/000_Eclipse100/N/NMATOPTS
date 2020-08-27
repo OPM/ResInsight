@@ -1,0 +1,25 @@
+{
+  "name": "NMATOPTS",
+  "sections": [
+    "GRID"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "GEOMETRY",
+      "value_type": "STRING",
+      "default": "LINEAR"
+    },
+    {
+      "name": "FRACTION_PORE_VOL",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 0.1
+    },
+    {
+      "name": "METHOD",
+      "value_type": "STRING",
+      "default": "FPORV"
+    }
+  ]
+}

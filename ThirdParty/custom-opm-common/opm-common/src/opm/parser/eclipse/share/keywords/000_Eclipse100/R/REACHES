@@ -1,0 +1,101 @@
+{
+  "name": "REACHES",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "records": [
+    [
+      {
+        "name": "RIVER",
+        "value_type": "STRING"
+      },
+      {
+        "name": "XPOS",
+        "value_type": "DOUBLE",
+        "dimension": "Length"
+      },
+      {
+        "name": "YPOS",
+        "value_type": "DOUBLE",
+        "dimension": "Length"
+      },
+      {
+        "name": "ZPOS",
+        "value_type": "DOUBLE",
+        "dimension": "Length"
+      },
+      {
+        "name": "LENGTH1",
+        "value_type": "DOUBLE",
+        "dimension": "Length"
+      },
+      {
+        "name": "INPUT_TYPE",
+        "value_type": "STRING"
+      }
+    ],
+    [
+      {
+        "name": "START_REACH",
+        "value_type": "INT"
+      },
+      {
+        "name": "END_REACH",
+        "value_type": "INT"
+      },
+      {
+        "name": "OUTLET_REACH",
+        "value_type": "INT"
+      },
+      {
+        "name": "BRANCH",
+        "value_type": "STRING"
+      },
+      {
+        "name": "LENGTH2",
+        "value_type": "DOUBLE",
+        "dimension": "Length"
+      },
+      {
+        "name": "DEPTH",
+        "value_type": "DOUBLE",
+        "dimension": "Length"
+      },
+      {
+        "name": "PROFILE",
+        "value_type": "INT",
+        "default": 1
+      },
+      {
+        "name": "ROUGHNESS",
+        "value_type": "DOUBLE"
+      },
+      {
+        "name": "XLENGTH",
+        "value_type": "DOUBLE",
+        "dimension": "Length"
+      },
+      {
+        "name": "YLENGTH",
+        "value_type": "DOUBLE",
+        "dimension": "Length"
+      },
+      {
+        "name": "REACH_LENGTH",
+        "value_type": "DOUBLE",
+        "dimension": "Length",
+        "default": 0
+      },
+      {
+        "name": "NUM_REACHES",
+        "value_type": "INT",
+        "default": 1
+      },
+      {
+        "name": "DEPTH_SOMETHING",
+        "value_type": "INT",
+        "default": 1
+      }
+    ]
+  ]
+}

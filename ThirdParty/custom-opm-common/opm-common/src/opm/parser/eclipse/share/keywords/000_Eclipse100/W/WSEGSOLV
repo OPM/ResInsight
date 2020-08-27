@@ -1,0 +1,49 @@
+{
+  "name": "WSEGSOLV",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "USE_ITERATIVE_SOLVER",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "name": "MAX_LINEAR_ITER",
+      "value_type": "INT",
+      "default": 30
+    },
+    {
+      "name": "CONVERGENCE_TARGET",
+      "value_type": "DOUBLE",
+      "default": 1e-10
+    },
+    {
+      "name": "PC_FILL",
+      "value_type": "INT",
+      "default": 2
+    },
+    {
+      "name": "DROP_TOL",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "P_LIMIT",
+      "value_type": "DOUBLE",
+      "default": 1e-08
+    },
+    {
+      "name": "LOOP_THRESHOLD",
+      "value_type": "DOUBLE",
+      "dimension": "Length*Length*Length/Time",
+      "default": -1
+    },
+    {
+      "name": "LOOP_MULTIPLIER",
+      "value_type": "DOUBLE",
+      "default": -1
+    }
+  ]
+}

@@ -1,0 +1,132 @@
+{
+  "name": "GSWINGF",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "name": "SWING_JAN",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "SWING_FEB",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "SWING_MAR",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "SWING_APR",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "SWING_MAY",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "SWING_JUN",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "SWING_JUL",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "SWING_AUG",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "SWING_SEP",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "SWING_OCT",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "SWING_NOV",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "SWING_DEC",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "PROFILE_JAN",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "PROFILE_FEB",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "PROFILE_MAR",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "PROFILE_APR",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "PROFILE_MAY",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "PROFILE_JUN",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "PROFILE_JUL",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "PROFILE_AUG",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "PROFILE_SEP",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "PROFILE_OCT",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "PROFILE_NOV",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "PROFILE_DEC",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    }
+  ]
+}

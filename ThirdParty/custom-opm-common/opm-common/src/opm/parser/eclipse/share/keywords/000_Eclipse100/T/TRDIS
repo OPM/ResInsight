@@ -1,0 +1,49 @@
+{
+  "name": "TRDIS",
+  "sections": [
+    "PROPS"
+  ],
+  "deck_name_regex": "TRDIS.+",
+  "size": {
+    "keyword": "TABDIMS",
+    "item": "NTPVT"
+  },
+  "items": [
+    {
+      "name": "D1TABLE",
+      "value_type": "INT"
+    },
+    {
+      "name": "D2TABLE",
+      "value_type": "INT"
+    },
+    {
+      "name": "D3TABLE",
+      "value_type": "INT"
+    },
+    {
+      "name": "D4TABLE",
+      "value_type": "INT"
+    },
+    {
+      "name": "D5TABLE",
+      "value_type": "INT"
+    },
+    {
+      "name": "D6TABLE",
+      "value_type": "INT"
+    },
+    {
+      "name": "D7TABLE",
+      "value_type": "INT"
+    },
+    {
+      "name": "D8TABLE",
+      "value_type": "INT"
+    },
+    {
+      "name": "D9TABLE",
+      "value_type": "INT"
+    }
+  ]
+}

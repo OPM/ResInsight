@@ -1,0 +1,14 @@
+{
+  "name": "APIGROUP",
+  "sections": [
+    "PROPS"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "MAX_OIL_PVT_GROUP_COUNT",
+      "value_type": "INT",
+      "default": 1
+    }
+  ]
+}

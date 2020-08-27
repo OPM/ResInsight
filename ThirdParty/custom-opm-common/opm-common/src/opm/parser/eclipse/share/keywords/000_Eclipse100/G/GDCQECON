@@ -1,0 +1,16 @@
+{
+  "name": "GDCQECON",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "GROUP_NAME",
+      "value_type": "STRING"
+    },
+    {
+      "name": "MIN_DCQ",
+      "value_type": "DOUBLE"
+    }
+  ]
+}

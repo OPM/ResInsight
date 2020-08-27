@@ -1,0 +1,21 @@
+{
+  "name": "FORMFEED",
+  "sections": [
+    "RUNSPEC",
+    "GRID",
+    "EDIT",
+    "PROPS",
+    "REGIONS",
+    "SOLUTION",
+    "SUMMARY",
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "VALUE",
+      "value_type": "INT",
+      "default": 1
+    }
+  ]
+}

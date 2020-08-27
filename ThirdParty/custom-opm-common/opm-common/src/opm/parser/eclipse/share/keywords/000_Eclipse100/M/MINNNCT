@@ -1,0 +1,27 @@
+{
+  "name": "MINNNCT",
+  "sections": [
+    "GRID"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "CUTOFF_TRANSMISSIBILITY",
+      "value_type": "DOUBLE",
+      "dimension": "Transmissibility",
+      "default": 0
+    },
+    {
+      "name": "DIFFUSIVITY",
+      "value_type": "DOUBLE",
+      "dimension": "Length",
+      "default": 0
+    },
+    {
+      "name": "CUTOFF_THERMAL_TRANSMISSIBILITY",
+      "value_type": "DOUBLE",
+      "dimension": "Energy/AbsoluteTemperature*Time",
+      "default": 0
+    }
+  ]
+}

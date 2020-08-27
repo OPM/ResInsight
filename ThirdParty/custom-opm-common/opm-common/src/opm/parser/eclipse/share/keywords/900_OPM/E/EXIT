@@ -1,0 +1,7 @@
+{"name" : "EXIT",
+"size"  : 1,
+ "sections" : ["SCHEDULE"],
+ "items" : [
+ {"name" : "STATUS_CODE",
+  "value_type" : "INT",
+  "default" : 0 }]}

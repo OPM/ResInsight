@@ -1,0 +1,13 @@
+{
+  "name": "QMOBIL",
+  "sections": [
+    "GRID"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "MOBILE_END_POINT_CORRECTION",
+      "value_type": "STRING"
+    }
+  ]
+}

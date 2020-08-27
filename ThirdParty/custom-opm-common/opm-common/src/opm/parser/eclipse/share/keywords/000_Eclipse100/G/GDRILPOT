@@ -1,0 +1,21 @@
+{
+  "name": "GDRILPOT",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "GROUP_NAME",
+      "value_type": "STRING"
+    },
+    {
+      "name": "QNTY_TYPE",
+      "value_type": "STRING"
+    },
+    {
+      "name": "MIN_POTENTIAL_RATE",
+      "value_type": "DOUBLE",
+      "default": 0
+    }
+  ]
+}

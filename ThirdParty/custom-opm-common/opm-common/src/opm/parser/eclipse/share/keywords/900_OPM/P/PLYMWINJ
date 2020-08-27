@@ -1,0 +1,38 @@
+{
+  "name": "PLYMWINJ",
+  "sections": [
+    "PROPS"
+  ],
+  "records": [
+    [
+      {
+        "name": "TABLE_NUMBER",
+        "value_type": "INT"
+      }
+    ],
+    [
+      {
+        "name": "THROUGHPUT",
+        "value_type": "DOUBLE",
+        "dimension": "Length",
+        "size_type": "ALL"
+      }
+    ],
+    [
+      {
+        "name": "VELOCITY",
+        "value_type": "DOUBLE",
+        "dimension": "Length/Time",
+        "size_type": "ALL"
+      }
+    ],
+    [
+      {
+        "name": "MOLECULARWEIGHT",
+        "value_type": "DOUBLE",
+        "dimension": "1",
+        "size_type": "ALL"
+      }
+    ]
+  ]
+}

@@ -1,0 +1,8 @@
+{"name" : "GETDATA",
+"sections" : ["GRID", "EDIT", "PROPS", "REGIONS", "SOLUTION"],
+"size" : 1,
+"items" : [
+{"name" : "FILENAME", "value_type" : "STRING"},
+{"name" : "FORMATTED", "value_type" : "STRING", "default" : "UNFORMATTED"},
+{"name" : "ZNAME", "value_type" : "STRING"},
+{"name" : "ZALT", "value_type" : "STRING"}]}

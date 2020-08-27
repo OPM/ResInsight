@@ -1,0 +1,9 @@
+{
+  "name": "ENDNUM",
+  "sections": [
+    "REGIONS"
+  ],
+  "data": {
+    "value_type": "INT"
+  }
+}

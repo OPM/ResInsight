@@ -1,0 +1,18 @@
+{
+  "name": "GASMONTH",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "MONTH",
+      "value_type": "STRING"
+    },
+    {
+      "name": "WRITE_REPORT",
+      "value_type": "STRING",
+      "default": "NO"
+    }
+  ]
+}
