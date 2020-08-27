@@ -25,6 +25,7 @@ CAF_PDM_SOURCE_INIT( RimPlotDataFilterCollection, "PlotDataFilterCollection" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimPlotDataFilterCollection::RimPlotDataFilterCollection()
+    : filtersChanged( this )
 {
     CAF_PDM_InitObject( "Plot Data Filters", ":/AnalysisPlotFilter16x16.png", "", "" );
 
@@ -41,6 +42,12 @@ RimPlotDataFilterItem* RimPlotDataFilterCollection::addFilter()
 {
     auto newFilter = new RimPlotDataFilterItem();
     m_filters.push_back( newFilter );
+
+    newFilter->updateMaxMinAndDefaultValues( false );
+    newFilter->filterChanged.connect( this, &RimPlotDataFilterCollection::onFilterChanged );
+
+    filtersChanged.send();
+
     return newFilter;
 }
 
@@ -49,8 +56,12 @@ RimPlotDataFilterItem* RimPlotDataFilterCollection::addFilter()
 //--------------------------------------------------------------------------------------------------
 void RimPlotDataFilterCollection::removeFilter( RimPlotDataFilterItem* filter )
 {
+    filter->filterChanged.disconnect( this );
+
     m_filters.removeChildObject( filter );
     delete filter;
+
+    filtersChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -75,4 +86,9 @@ bool RimPlotDataFilterCollection::isActive() const
 caf::PdmFieldHandle* RimPlotDataFilterCollection::objectToggleField()
 {
     return &m_isActive;
+}
+
+void RimPlotDataFilterCollection::onFilterChanged( const caf::SignalEmitter* emitter )
+{
+    filtersChanged.send();
 }
