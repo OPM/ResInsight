@@ -113,16 +113,22 @@ caf::PdmScriptResponse RicfExportSnapshots::execute()
     }
     if ( m_type == RicfExportSnapshots::SnapshotsType::PLOTS || m_type == RicfExportSnapshots::SnapshotsType::ALL )
     {
+        bool activateWidget = false;
         if ( RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
         {
             RiaRegressionTestRunner::setDefaultSnapshotSizeForPlotWindows();
 
             QApplication::processEvents();
         }
+        else
+        {
+            activateWidget = true;
+        }
 
         QString fileSuffix = ".png";
         if ( m_plotOutputFormat == PlotOutputFormat::PDF ) fileSuffix = ".pdf";
         RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( absolutePathToSnapshotDir,
+                                                                           activateWidget,
                                                                            m_prefix,
                                                                            m_viewId(),
                                                                            fileSuffix );
