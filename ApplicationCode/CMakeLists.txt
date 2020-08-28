@@ -475,7 +475,7 @@ target_link_libraries( ResInsight ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
 
 
 #############################################################################
-# cotire and unity builds
+# Unity builds
 #############################################################################
 
 set( UNITY_EXCLUDE_FILES
@@ -506,28 +506,6 @@ set( UNITY_EXCLUDE_FILES
     ProjectDataModel/RimContourMapView.cpp
     Commands/CompletionExportCommands/RicExportFractureCompletionsImpl.cpp
 )
-
-if(RESINSIGHT_ENABLE_COTIRE)
-
-    foreach (fileToExclude ${UNITY_EXCLUDE_FILES})
-        set_source_files_properties (${fileToExclude} PROPERTIES COTIRE_EXCLUDED TRUE)
-    endforeach(fileToExclude)
-
-    foreach (cppFile ${CAF_COTIRE_START_NEW_UNITY_SOURCES})
-        set_source_files_properties (${cppFile} PROPERTIES COTIRE_START_NEW_UNITY_SOURCE TRUE)
-    endforeach(cppFile ${CAF_COTIRE_START_NEW_UNITY_SOURCES})
-
-    # disable precompiled headers
-    set_target_properties(ResInsight PROPERTIES COTIRE_ENABLE_PRECOMPILED_HEADER FALSE)
-   
-    cotire(ResInsight)
-    
-    # make sure the unity target is included in the active builds to trigger rebuild before debug
-    get_target_property(_unityTargetName ResInsight COTIRE_UNITY_TARGET_NAME)
-    set_target_properties(${_unityTargetName} PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD FALSE)
-    set_target_properties(ResInsight PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
-
-endif()
 
 if(RESINSIGHT_ENABLE_UNITY_BUILD)
     foreach (fileToExclude ${UNITY_EXCLUDE_FILES})
