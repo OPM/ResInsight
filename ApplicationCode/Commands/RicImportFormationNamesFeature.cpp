@@ -225,7 +225,6 @@ void RicImportFormationNamesFeature::setFormationCellResultAndLegend( Rim3dView*
         eclView->cellResult()->updateUiFieldsFromActiveResult();
         eclView->cellResult()->loadDataAndUpdate();
         eclView->updateAllRequiredEditors();
-        eclView->updateDisplayModelForCurrentTimeStepAndRedraw();
     }
 
     RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>( activeView );
@@ -244,4 +243,5 @@ void RicImportFormationNamesFeature::setFormationCellResultAndLegend( Rim3dView*
             legendConfig->setColorLegend( legend );
         }
     }
+    if ( eclView ) eclView->updateDisplayModelForCurrentTimeStepAndRedraw();
 }

@@ -215,7 +215,6 @@ QList<caf::PdmOptionItemInfo>
         std::set<time_t> allTimeSteps = allAvailableTimeSteps();
         if ( allTimeSteps.empty() )
         {
-            CAF_ASSERT( false && "No time steps found" );
             return options;
         }
 
