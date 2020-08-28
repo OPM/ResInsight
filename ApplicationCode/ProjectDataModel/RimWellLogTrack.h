@@ -254,7 +254,6 @@ private:
     void curveVisibilityChanged( const caf::SignalEmitter* emitter, bool visible );
     void curveAppearanceChanged( const caf::SignalEmitter* emitter );
     void curveStackingChanged( const caf::SignalEmitter* emitter, bool stacked );
-    void curveStackingColorsChanged( const caf::SignalEmitter* emitter, bool stackWithPhaseColors );
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;

@@ -158,7 +158,7 @@ RimSummaryPlot::RimSummaryPlot()
     CAF_PDM_InitFieldNoDefault( &m_summaryCurveCollection, "SummaryCurveCollection", "", "", "", "" );
     m_summaryCurveCollection.uiCapability()->setUiTreeHidden( true );
     m_summaryCurveCollection = new RimSummaryCurveCollection;
-    m_summaryCurveCollection->curvesAddedOrRemoved.connect( this, &RimSummaryPlot::onCurvesAddedOrRemoved );
+    m_summaryCurveCollection->curvesReordered.connect( this, &RimSummaryPlot::onCurvesReordered );
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSetCollection, "EnsembleCurveSetCollection", "", "", "", "" );
     m_ensembleCurveSetCollection.uiCapability()->setUiTreeHidden( true );
@@ -466,6 +466,47 @@ void RimSummaryPlot::onAxisSelected( int axis, bool toggle )
     {
         RiuPlotMainWindowTools::selectAsCurrentItem( itemToSelect );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::moveCurvesToPlot( RimSummaryPlot* plot, const std::vector<RimSummaryCurve*> curves, int insertAtPosition )
+{
+    CAF_ASSERT( plot );
+
+    std::set<RimSummaryPlot*> srcPlots;
+
+    for ( auto curve : curves )
+    {
+        RimSummaryPlot* srcPlot = nullptr;
+
+        curve->firstAncestorOrThisOfTypeAsserted( srcPlot );
+
+        srcPlot->removeCurve( curve );
+        srcPlots.insert( srcPlot );
+    }
+
+    for ( auto srcPlot : srcPlots )
+    {
+        srcPlot->updateConnectedEditors();
+        srcPlot->loadDataAndUpdate();
+    }
+    for ( size_t cIdx = 0; cIdx < curves.size(); ++cIdx )
+    {
+        if ( insertAtPosition >= 0 )
+        {
+            size_t position = (size_t)insertAtPosition + cIdx;
+            plot->insertCurve( curves[cIdx], position );
+        }
+        else
+        {
+            plot->addCurveNoUpdate( curves[cIdx] );
+        }
+    }
+
+    plot->updateConnectedEditors();
+    plot->updateStackedCurveData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1187,6 +1228,30 @@ void RimSummaryPlot::addCurveNoUpdate( RimSummaryCurve* curve )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::insertCurve( RimSummaryCurve* curve, size_t insertAtPosition )
+{
+    if ( curve )
+    {
+        m_summaryCurveCollection->insertCurve( curve, insertAtPosition );
+        connectCurveSignals( curve );
+        if ( m_plotWidget )
+        {
+            curve->setParentQwtPlotNoReplot( m_plotWidget );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::removeCurve( RimSummaryCurve* curve )
+{
+    m_summaryCurveCollection->removeCurve( curve );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::deleteCurve( RimSummaryCurve* curve )
 {
     deleteCurves( {curve} );
@@ -1364,8 +1429,6 @@ void RimSummaryPlot::childFieldChangedByUi( const caf::PdmFieldHandle* changedCh
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateStackedCurveData()
 {
-    loadDataAndUpdate();
-
     updateStackedCurveDataForAxis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
     updateStackedCurveDataForAxis( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
 }
@@ -1523,6 +1586,8 @@ void RimSummaryPlot::onLoadDataAndUpdate()
     this->updateAxes();
 
     m_textCurveSetEditor->updateTextFilter();
+
+    updateStackedCurveData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1589,10 +1654,6 @@ std::set<RimPlotAxisPropertiesInterface*> RimSummaryPlot::allPlotAxes() const
 void RimSummaryPlot::cleanupBeforeClose()
 {
     detachAllPlotItems();
-    for ( auto curve : summaryCurves() )
-    {
-        disconnectCurveSignals( curve );
-    }
 
     if ( m_plotWidget )
     {
@@ -1631,7 +1692,7 @@ void RimSummaryPlot::disconnectCurveSignals( RimSummaryCurve* curve )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::curveDataChanged( const caf::SignalEmitter* emitter )
 {
-    updateStackedCurveData();
+    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1639,7 +1700,7 @@ void RimSummaryPlot::curveDataChanged( const caf::SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::curveVisibilityChanged( const caf::SignalEmitter* emitter, bool visible )
 {
-    updateStackedCurveData();
+    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1658,7 +1719,7 @@ void RimSummaryPlot::curveAppearanceChanged( const caf::SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::curveStackingChanged( const caf::SignalEmitter* emitter, bool stacked )
 {
-    updateStackedCurveData();
+    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1666,7 +1727,7 @@ void RimSummaryPlot::curveStackingChanged( const caf::SignalEmitter* emitter, bo
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::curveStackingColorsChanged( const caf::SignalEmitter* emitter, bool stackWithPhaseColors )
 {
-    updateStackedCurveData();
+    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2107,11 +2168,9 @@ void RimSummaryPlot::handleKeyPressEvent( QKeyEvent* keyEvent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::onCurvesAddedOrRemoved( const SignalEmitter* emitter )
+void RimSummaryPlot::onCurvesReordered( const SignalEmitter* emitter )
 {
-    loadDataAndUpdate();
     updateStackedCurveData();
-    reattachAllCurves();
 }
 
 //--------------------------------------------------------------------------------------------------

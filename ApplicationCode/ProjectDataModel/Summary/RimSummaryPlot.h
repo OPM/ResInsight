@@ -84,6 +84,10 @@ public:
     void addCurveAndUpdate( RimSummaryCurve* curve );
     void addCurveNoUpdate( RimSummaryCurve* curve );
 
+    void insertCurve( RimSummaryCurve* curve, size_t insertAtPosition );
+
+    void removeCurve( RimSummaryCurve* curve );
+
     void deleteCurve( RimSummaryCurve* curve );
     void deleteCurves( const std::vector<RimSummaryCurve*>& curves );
 
@@ -170,6 +174,8 @@ public:
         return 8;
     }
 
+    static void moveCurvesToPlot( RimSummaryPlot* plot, const std::vector<RimSummaryCurve*> curves, int insertAtPosition );
+
 public:
     // RimViewWindow overrides
     void deleteViewWidget() override;
@@ -189,7 +195,7 @@ private:
     void doRemoveFromCollection() override;
     void handleKeyPressEvent( QKeyEvent* keyEvent ) override;
 
-    void onCurvesAddedOrRemoved( const SignalEmitter* emitter );
+    void onCurvesReordered( const SignalEmitter* emitter );
 
 protected:
     // Overridden PDM methods
