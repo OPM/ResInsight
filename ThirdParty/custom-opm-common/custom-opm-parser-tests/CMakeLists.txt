@@ -2,6 +2,16 @@ cmake_minimum_required (VERSION 2.8)
 
 project ( opm-parser-tests )
 
+# Languages and global compiler settings
+if(CMAKE_VERSION VERSION_LESS 3.8)
+  message(WARNING "CMake version does not support c++17, guessing -std=c++17")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+else()
+  set(CMAKE_CXX_STANDARD 17)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(CMAKE_CXX_EXTENSIONS OFF)
+endif()
+
 if (MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
   # VS 2017 : Disable warnings from from gtest code, using deprecated code related to TR1 
   add_definitions(-D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING)
@@ -44,6 +54,6 @@ target_link_libraries ( ${PROJECT_NAME}
 )
 
 # Add dependency of Shlwapi.lib for Windows platforms
-if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+if (MSVC)
   target_link_libraries(${PROJECT_NAME} Shlwapi)
 endif()
