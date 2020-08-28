@@ -626,11 +626,6 @@ NODEPROP::NODEPROP( ) : ParserKeyword("NODEPROP")
         record.addItem(item);
      }
      {
-        ParserItem item("ADD_GAS_LIFT_GAS", ParserItem::itype::STRING);
-        item.setDefault( std::string("NO") );
-        record.addItem(item);
-     }
-     {
         ParserItem item("CHOKE_GROUP", ParserItem::itype::STRING);
         record.addItem(item);
      }
@@ -651,8 +646,6 @@ const std::string NODEPROP::NAME::itemName = "NAME";
 const std::string NODEPROP::PRESSURE::itemName = "PRESSURE";
 const std::string NODEPROP::AS_CHOKE::itemName = "AS_CHOKE";
 const std::string NODEPROP::AS_CHOKE::defaultValue = "NO";
-const std::string NODEPROP::ADD_GAS_LIFT_GAS::itemName = "ADD_GAS_LIFT_GAS";
-const std::string NODEPROP::ADD_GAS_LIFT_GAS::defaultValue = "NO";
 const std::string NODEPROP::CHOKE_GROUP::itemName = "CHOKE_GROUP";
 const std::string NODEPROP::SOURCE_SINK_GROUP::itemName = "SOURCE_SINK_GROUP";
 const std::string NODEPROP::NETWORK_VALUE_TYPE::itemName = "NETWORK_VALUE_TYPE";

@@ -40,7 +40,6 @@
 #include <opm/parser/eclipse/Parser/Parser.hpp>
 #include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Action/State.hpp>
 
 #include <opm/io/eclipse/rst/connection.hpp>
 #include <opm/io/eclipse/rst/header.hpp>
@@ -261,7 +260,6 @@ BOOST_AUTO_TEST_CASE(State_test) {
     const auto rptStep = std::size_t{4};
     const auto sim_step = rptStep - 1;
     Opm::SummaryState sumState(std::chrono::system_clock::now());
-    Opm::Action::State action_state;
 
     const auto ih = Opm::RestartIO::Helpers::createInteHead(simCase.es,
                                                             simCase.grid,
@@ -279,7 +277,7 @@ BOOST_AUTO_TEST_CASE(State_test) {
                                                             0, 0);
 
     auto wellData = Opm::RestartIO::Helpers::AggregateWellData(ih);
-    wellData.captureDeclaredWellData(simCase.sched, units, sim_step, action_state, sumState, ih);
+    wellData.captureDeclaredWellData(simCase.sched, units, sim_step, sumState, ih);
     wellData.captureDynamicWellData(simCase.sched, sim_step, {} , sumState);
 
     auto connectionData = Opm::RestartIO::Helpers::AggregateConnectionData(ih);

@@ -46,12 +46,6 @@ namespace Opm { namespace EclIO { namespace OutputStream {
 
 }}}
 
-namespace Opm { namespace Action {
-
-    class State;
-
-}}
-
 /*
   The two free functions RestartIO::save() and RestartIO::load() can
   be used to save and load reservoir and well state from restart
@@ -82,14 +76,12 @@ namespace Opm { namespace RestartIO {
               const EclipseState&           es,
               const EclipseGrid&            grid,
               const Schedule&               schedule,
-              const Action::State&          action_state,
               const SummaryState&           sumState,
               bool                          write_double = false);
 
 
     RestartValue load(const std::string&             filename,
                       int                            report_step,
-                      Action::State&                 action_state,
                       SummaryState&                  summary_state,
                       const std::vector<RestartKey>& solution_keys,
                       const EclipseState&            es,

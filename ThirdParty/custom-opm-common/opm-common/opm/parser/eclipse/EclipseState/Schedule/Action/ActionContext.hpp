@@ -25,7 +25,6 @@
 #include <map>
 
 #include <opm/parser/eclipse/EclipseState/Schedule/SummaryState.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Well/WListManager.hpp>
 
 namespace Opm {
 namespace Action {
@@ -38,7 +37,7 @@ namespace Action {
 
 class Context {
 public:
-    explicit Context(const SummaryState& summary_state, const WListManager& wlm);
+    explicit Context(const SummaryState& summary_state);
 
     /*
       The get methods will first check the internal storage in the 'values' map
@@ -51,11 +50,9 @@ public:
     void   add(const std::string& func, double value);
 
     std::vector<std::string> wells(const std::string& func) const;
-    const WListManager& wlist_manager() const;
 
 private:
     const SummaryState& summary_state;
-    const WListManager& wlm;
     std::map<std::string, double> values;
 };
 }

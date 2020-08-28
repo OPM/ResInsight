@@ -48,10 +48,10 @@ public:
             udq(udq_arg),
             input_index(input_index_arg),
             use_index(use_index_arg),
+            wgname(wgname_arg),
             control(control_arg),
             uad_code(UDQ::uadCode(control_arg)),
-            use_count(1),
-            wgname(wgname_arg)
+            use_count(1)
         {}
 
         bool operator==(const Record& other) const  {
@@ -85,16 +85,12 @@ public:
         std::string udq;
         std::size_t input_index;
         std::size_t use_index = 0;
+        std::string wgname;
         UDAControl  control;
         int uad_code;
-        std::string wg_name() const;
         std::size_t use_count;
-    private:
-        // The wgname is need in the update process, but it should
-        // not be exported out.
-        std::string wgname;
     };
-
+   
     class InputRecord {
     public:
         InputRecord() :

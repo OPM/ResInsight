@@ -1504,6 +1504,16 @@ namespace ParserKeywords {
        RWGSALT();
        static const std::string keywordName;
 
+       class RESERVOIR_PRESSURE {
+       public:
+           static const std::string itemName;
+       };
+
+       class SALT_CONCENTRATION {
+       public:
+           static const std::string itemName;
+       };
+
        class DATA {
        public:
            static const std::string itemName;

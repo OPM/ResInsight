@@ -19,11 +19,6 @@
       "default": "NO"
     },
     {
-      "name": "ADD_GAS_LIFT_GAS",
-      "value_type": "STRING",
-      "default": "NO"
-    },
-    {
       "name": "CHOKE_GROUP",
       "value_type": "STRING"
     },

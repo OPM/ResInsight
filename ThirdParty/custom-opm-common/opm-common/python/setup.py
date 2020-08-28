@@ -40,7 +40,7 @@ if 'build' in sys.argv:
 
 ext_modules = [
     Extension(
-        'opm.libopmcommon_python',
+        'libopmcommon_python',
         [
                 'cxx/unit_system.cpp',
                 'cxx/connection.cpp',
@@ -67,22 +67,13 @@ ext_modules = [
         undef_macros=["NDEBUG"],
         include_dirs=["pybind11/include"],
         extra_compile_args=['-std=c++17', '-fopenmp'],
-        extra_link_args=['-fopenmp', @opm-common_PYTHON_LINKAGE@]
+        extra_link_args=['-fopenmp']
     )
 ]
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
-
 setup(
-    name='opm',
-    version = '@opm-common_VERSION@' + '@opm-common_PYTHON_PACKAGE_VERSION@',
-    url='http://www.opm-project.org',
-    author='The Open Porous Media Project',
-    author_email='opmuser@gmail.com',
-    description='OPM-Common Python bindings',
-    long_description=long_description,
-    long_description_content_type="text/markdown",
+    name='Opm',
+    package_dir = {'': 'python'},
     packages=[
                 'opm',
                 'opm.io',
@@ -94,14 +85,10 @@ setup(
                 'opm.tools'
             ],
     ext_modules=ext_modules,
+    package_data={'opm': ['libopmcommon_python{}'.format(suffix)]},
     include_package_data=True,
     license='Open Source',
     zip_safe=False,
     test_suite='tests',
     setup_requires=["pytest-runner", 'setuptools_scm'],
-    python_requires='>=3.5',
-    classifiers=[
-        "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
-    ],
 )

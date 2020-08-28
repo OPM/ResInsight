@@ -463,7 +463,7 @@ void scan_item( DeckItem& deck_item, const ParserItem& parser_item, RawRecord& r
         if (parse_raw) {
             while (record.size()) {
                 auto token = record.pop_front();
-                auto raw_string = RawString{ std::string(token) };
+                auto raw_string = RawString{ token.string() };
                 deck_item.push_back( raw_string );
             }
             return;
@@ -516,7 +516,7 @@ void scan_item( DeckItem& deck_item, const ParserItem& parser_item, RawRecord& r
 
     if (parse_raw) {
         auto token = record.pop_front();
-        auto raw_string = RawString{ std::string(token) };
+        auto raw_string = RawString{ token.string() };
         deck_item.push_back( raw_string );
         return;
     }
@@ -541,20 +541,15 @@ void scan_item( DeckItem& deck_item, const ParserItem& parser_item, RawRecord& r
         deck_item.push_backDummyDefault<T>();
 
     const auto value_start = token.size() - valueString.size();
-    const std::size_t size = token.end() - (token.begin() + value_start);
     // replace the first occurence of "N*FOO" by a sequence of N-1 times
     // "FOO". this is slightly hacky, but it makes it work if the
     // number of defaults pass item boundaries...
-    // We can safely make a std::string_view of one_star because it
+    // We can safely make a string_view of one_star because it
     // has static storage
     static const char* one_star = "1*";
-    std::string_view rep = !st.hasValue() 
-                    ? std::string_view {one_star} 
-#if __cplusplus >= 202002L
-                    : std::string_view { token.begin() + value_start, size };
-#else
-                    : std::string_view { std::string(token.begin() + value_start, token.end()) };
-#endif
+    string_view rep = !st.hasValue()
+                    ? string_view{ one_star }
+                    : string_view{ token.begin() + value_start, token.end() };
     record.prepend( st.count() - 1, rep );
 
     return;

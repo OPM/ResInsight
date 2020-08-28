@@ -106,13 +106,8 @@ macro (find_and_append_package_to prefix name)
 
   # if we're told not to look for the package, pretend it was never found
   if (CMAKE_DISABLE_FIND_PACKAGE_${name})
-    # If required send an error
-    cmake_parse_arguments(FIND "REQUIRED" "" "" ${ARGN} )
-    set (${name}_FOUND FALSE)
-    set (${NAME}_FOUND FALSE)
-    if (FIND_REQUIRED)
-        message(SEND_ERROR "package ${name} but disable with CMAKE_DISABLE_FIND_PACKAGE_${name}")
-    endif ()
+	set (${name}_FOUND FALSE)
+	set (${NAME}_FOUND FALSE)
   else ()
     # List of components might differ for every module. Therefore we will
     # need to research for a library multiple times. _search_components

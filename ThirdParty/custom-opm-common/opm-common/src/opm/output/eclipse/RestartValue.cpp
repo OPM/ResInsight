@@ -32,10 +32,9 @@ namespace Opm {
 
 
 
-    RestartValue::RestartValue(data::Solution sol, data::Wells wells_arg, data::GroupValues groups_arg) :
+    RestartValue::RestartValue(data::Solution sol, data::Wells wells_arg) :
         solution(std::move(sol)),
-        wells(std::move(wells_arg)),
-        groups(std::move(groups_arg))
+        wells(std::move(wells_arg))
     {
     }
 

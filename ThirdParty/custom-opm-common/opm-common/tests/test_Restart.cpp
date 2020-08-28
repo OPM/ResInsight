@@ -27,7 +27,6 @@
 #include <opm/output/eclipse/RestartValue.hpp>
 #include <opm/output/data/Cells.hpp>
 #include <opm/output/data/Wells.hpp>
-#include <opm/output/data/Groups.hpp>
 #include <opm/parser/eclipse/Python/Python.hpp>
 
 #include <opm/parser/eclipse/EclipseState/Tables/Eqldims.hpp>
@@ -39,9 +38,6 @@
 #include <opm/parser/eclipse/Parser/Parser.hpp>
 #include <opm/parser/eclipse/Utility/Functional.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/SummaryState.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Action/State.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/UDQ/UDQConfig.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/UDQ/UDQEnums.hpp>
 
 #include <opm/io/eclipse/OutputStream.hpp>
 #include <opm/io/eclipse/EclIOdata.hpp>
@@ -136,9 +132,6 @@ std::ostream& operator<<( std::ostream& stream,
 
 }
 
-data::GroupValues mkGroups() {
-    return {};
-}
 
 data::Wells mkWells() {
     data::Rates r1, r2, rc1, rc2, rc3;
@@ -368,23 +361,7 @@ struct Setup {
 };
 
 
-void init_st(SummaryState& st) {
-    st.update_well_var("PROD1", "WOPR", 100);
-    st.update_well_var("PROD1", "WLPR", 100);
-    st.update_well_var("PROD2", "WOPR", 100);
-    st.update_well_var("PROD2", "WLPR", 100);
-    st.update_well_var("WINJ1", "WOPR", 100);
-    st.update_well_var("WINJ1", "WLPR", 100);
-    st.update_well_var("WINJ2", "WOPR", 100);
-    st.update_well_var("WINJ2", "WLPR", 100);
-
-    st.update_group_var("GRP1", "GOPR", 100);
-    st.update_group_var("WGRP1", "GOPR", 100);
-    st.update_group_var("WGRP1", "GOPR", 100);
-    st.update("FLPR", 100);
-}
-
-RestartValue first_sim(const Setup& setup, Action::State& action_state, SummaryState& st, bool write_double) {
+RestartValue first_sim(const Setup& setup, SummaryState& st, bool write_double) {
     EclipseIO eclWriter( setup.es, setup.grid, setup.schedule, setup.summary_config);
     auto num_cells = setup.grid.getNumActive( );
     int report_step = 1;
@@ -393,14 +370,9 @@ RestartValue first_sim(const Setup& setup, Action::State& action_state, SummaryS
 
     auto sol = mkSolution( num_cells );
     auto wells = mkWells();
-    auto groups = mkGroups();
-    const auto& udq = setup.schedule.getUDQConfig(report_step);
-    RestartValue restart_value(sol, wells, groups);
+    RestartValue restart_value(sol, wells);
 
-    init_st(st);
-    udq.eval(st);
-    eclWriter.writeTimeStep( action_state,
-                             st,
+    eclWriter.writeTimeStep( st,
                              report_step,
                              false,
                              std::difftime(first_step, start_time),
@@ -410,9 +382,9 @@ RestartValue first_sim(const Setup& setup, Action::State& action_state, SummaryS
     return restart_value;
 }
 
-RestartValue second_sim(const Setup& setup, Action::State& action_state, SummaryState& summary_state, const std::vector<RestartKey>& solution_keys) {
+RestartValue second_sim(const Setup& setup, SummaryState& summary_state, const std::vector<RestartKey>& solution_keys) {
     EclipseIO writer(setup.es, setup.grid, setup.schedule, setup.summary_config);
-    return writer.loadRestart( action_state, summary_state, solution_keys );
+    return writer.loadRestart( summary_state, solution_keys );
 }
 
 
@@ -450,15 +422,14 @@ BOOST_AUTO_TEST_CASE(EclipseReadWriteWellStateData) {
 
     Setup base_setup("BASE_SIM.DATA");
     SummaryState st(std::chrono::system_clock::now());
-    Action::State action_state;
-    auto state1 = first_sim( base_setup , action_state, st, false );
+    auto state1 = first_sim( base_setup , st, false );
 
     Setup restart_setup("RESTART_SIM.DATA");
-    auto state2 = second_sim( restart_setup , action_state, st , keys );
+    auto state2 = second_sim( restart_setup , st , keys );
     compare(state1, state2 , keys);
 
-    BOOST_CHECK_THROW( second_sim( restart_setup, action_state, st, {{"SOIL", UnitSystem::measure::pressure}} ) , std::runtime_error );
-    BOOST_CHECK_THROW( second_sim( restart_setup, action_state, st, {{"SOIL", UnitSystem::measure::pressure, true}}) , std::runtime_error );
+    BOOST_CHECK_THROW( second_sim( restart_setup, st, {{"SOIL", UnitSystem::measure::pressure}} ) , std::runtime_error );
+    BOOST_CHECK_THROW( second_sim( restart_setup, st, {{"SOIL", UnitSystem::measure::pressure, true}}) , std::runtime_error );
 }
 
 
@@ -474,11 +445,9 @@ BOOST_AUTO_TEST_CASE(ECL_FORMATTED) {
         auto num_cells = base_setup.grid.getNumActive( );
         auto cells = mkSolution( num_cells );
         auto wells = mkWells();
-        auto groups = mkGroups();
         auto sumState = sim_state();
-        Action::State action_state;
         {
-            RestartValue restart_value(cells, wells, groups);
+            RestartValue restart_value(cells, wells);
 
             io_config.setEclCompatibleRST( false );
             restart_value.addExtra("EXTRA", UnitSystem::measure::pressure, {10,1,2,3});
@@ -498,7 +467,6 @@ BOOST_AUTO_TEST_CASE(ECL_FORMATTED) {
                                 base_setup.es,
                                 base_setup.grid,
                                 base_setup.schedule,
-                                action_state,
                                 sumState,
                                 true);
             }
@@ -527,7 +495,6 @@ BOOST_AUTO_TEST_CASE(ECL_FORMATTED) {
                                 base_setup.es,
                                 base_setup.grid,
                                 base_setup.schedule,
-                                action_state,
                                 sumState,
                                 true);
             }
@@ -585,12 +552,11 @@ BOOST_AUTO_TEST_CASE(EclipseReadWriteWellStateData_double) {
     test_area.copyIn("BASE_SIM.DATA");
     Setup base_setup("BASE_SIM.DATA");
     SummaryState st(std::chrono::system_clock::now());
-    Action::State action_state;
 
-    auto state1 = first_sim( base_setup , action_state, st, true);
+    auto state1 = first_sim( base_setup , st, true);
     Setup restart_setup("RESTART_SIM.DATA");
 
-    auto state2 = second_sim( restart_setup, action_state, st, solution_keys );
+    auto state2 = second_sim( restart_setup, st, solution_keys );
     compare_equal( state1 , state2 , solution_keys);
 }
 
@@ -606,9 +572,7 @@ BOOST_AUTO_TEST_CASE(WriteWrongSOlutionSize) {
         auto num_cells = setup.grid.getNumActive( ) + 1;
         auto cells = mkSolution( num_cells );
         auto wells = mkWells();
-        auto groups = mkGroups();
         Opm::SummaryState sumState(std::chrono::system_clock::now());
-        Opm::Action::State action_state;
 
         const auto seqnum = 1;
         auto rstFile = OS::Restart {
@@ -618,11 +582,10 @@ BOOST_AUTO_TEST_CASE(WriteWrongSOlutionSize) {
 
         BOOST_CHECK_THROW( RestartIO::save(rstFile, seqnum,
                                            100,
-                                           RestartValue(cells, wells, groups),
+                                           RestartValue(cells, wells),
                                            setup.es,
                                            setup.grid ,
                                            setup.schedule,
-                                           action_state,
                                            sumState),
                            std::runtime_error);
     }
@@ -634,8 +597,7 @@ BOOST_AUTO_TEST_CASE(ExtraData_KEYS) {
     auto num_cells = setup.grid.getNumActive( );
     auto cells = mkSolution( num_cells );
     auto wells = mkWells();
-    auto groups = mkGroups();
-    RestartValue restart_value(cells, wells, groups);
+    RestartValue restart_value(cells, wells);
 
     BOOST_CHECK_THROW( restart_value.addExtra("TOO-LONG-KEY", {0,1,2}), std::runtime_error);
 
@@ -658,14 +620,12 @@ BOOST_AUTO_TEST_CASE(ExtraData_content) {
     test_area.copyIn("RESTART_SIM.DATA");
     Setup setup("BASE_SIM.DATA");
     {
-        Action::State action_state;
         auto num_cells = setup.grid.getNumActive( );
         auto cells = mkSolution( num_cells );
         auto wells = mkWells();
-        auto groups = mkGroups();
         const auto& units = setup.es.getUnits();
         {
-            RestartValue restart_value(cells, wells, groups);
+            RestartValue restart_value(cells, wells);
             SummaryState st(std::chrono::system_clock::now());
             const auto sumState = sim_state();
 
@@ -686,7 +646,6 @@ BOOST_AUTO_TEST_CASE(ExtraData_content) {
                                 setup.es,
                                 setup.grid,
                                 setup.schedule,
-                                action_state,
                                 sumState);
             }
 
@@ -702,10 +661,10 @@ BOOST_AUTO_TEST_CASE(ExtraData_content) {
                 BOOST_CHECK_CLOSE( units.from_si( UnitSystem::measure::pressure, 3), ex[3], 0.00001);
             }
 
-            BOOST_CHECK_THROW( RestartIO::load( rstFile , 1 , action_state, st, {}, setup.es, setup.grid , setup.schedule,
+            BOOST_CHECK_THROW( RestartIO::load( rstFile , 1 , st, {}, setup.es, setup.grid , setup.schedule,
                                                 {{"NOT-THIS", UnitSystem::measure::identity, true}}) , std::runtime_error );
             {
-                const auto rst_value = RestartIO::load(rstFile , 1 , action_state, st,
+                const auto rst_value = RestartIO::load(rstFile , 1 , st,
                                                        /* solution_keys = */ {
                                                                               RestartKey("SWAT", UnitSystem::measure::identity),
                                                                               RestartKey("NO"  , UnitSystem::measure::identity, false)
@@ -741,11 +700,10 @@ BOOST_AUTO_TEST_CASE(STORE_THPRES) {
         auto num_cells = base_setup.grid.getNumActive( );
         auto cells = mkSolution( num_cells );
         auto wells = mkWells();
-        auto groups = mkGroups();
         const auto outputDir = test_area.currentWorkingDirectory();
         {
-            RestartValue restart_value(cells, wells, groups);
-            RestartValue restart_value2(cells, wells, groups);
+            RestartValue restart_value(cells, wells);
+            RestartValue restart_value2(cells, wells);
 
             /* Missing THPRES data in extra container. */
             /* Because it proved to difficult to update the legacy simulators
@@ -762,7 +720,6 @@ BOOST_AUTO_TEST_CASE(STORE_THPRES) {
 
             restart_value.addExtra("THRESHPR", UnitSystem::measure::pressure, {0,1});
             const auto sumState = sim_state();
-            Action::State action_state;
 
             /* THPRES data has wrong size in extra container. */
             {
@@ -778,7 +735,6 @@ BOOST_AUTO_TEST_CASE(STORE_THPRES) {
                                                    base_setup.es,
                                                    base_setup.grid,
                                                    base_setup.schedule,
-                                                   action_state,
                                                    sumState),
                                    std::runtime_error);
             }
@@ -800,9 +756,7 @@ BOOST_AUTO_TEST_CASE(STORE_THPRES) {
                                 restart_value2,
                                 base_setup.es,
                                 base_setup.grid,
-                                base_setup.schedule,
-                                action_state,
-                                sumState);
+                                base_setup.schedule, sumState);
             }
 
             {
@@ -845,8 +799,7 @@ BOOST_AUTO_TEST_CASE(Restore_Cumulatives)
 
     const auto restart_value = RestartValue {
         mkSolution(setup.grid.getNumActive()),
-        mkWells(),
-        mkGroups()
+        mkWells()
     };
     const auto sumState = sim_state();
 
@@ -855,18 +808,16 @@ BOOST_AUTO_TEST_CASE(Restore_Cumulatives)
     const auto rset   = OS::ResultSet{ wa.currentWorkingDirectory(), "FILE" };
     const auto seqnum = 1;
     {
-        Action::State action_state;
         auto rstFile = OS::Restart {
             rset, seqnum, OS::Formatted{ false }, OS::Unified{ true }
         };
 
         RestartIO::save(rstFile, seqnum, 100, restart_value,
-                        setup.es, setup.grid, setup.schedule, action_state, sumState);
+                        setup.es, setup.grid, setup.schedule, sumState);
     }
 
-    Action::State action_state;
     SummaryState rstSumState(std::chrono::system_clock::now());
-    RestartIO::load(OS::outputFileName(rset, "UNRST"), seqnum, action_state, rstSumState,
+    RestartIO::load(OS::outputFileName(rset, "UNRST"), seqnum, rstSumState,
                     /* solution_keys = */ {
                                            RestartKey("SWAT", UnitSystem::measure::identity),
                     },
@@ -989,74 +940,4 @@ BOOST_AUTO_TEST_CASE(Restore_Cumulatives)
 }
 
 
-BOOST_AUTO_TEST_CASE(UDQ_RESTART) {
-    std::vector<RestartKey> keys {{"PRESSURE" , UnitSystem::measure::pressure},
-        {"SWAT" , UnitSystem::measure::identity},
-        {"SGAS" , UnitSystem::measure::identity}};
-    WorkArea test_area("test_udq_restart");
-    test_area.copyIn("UDQ_BASE.DATA");
-    test_area.copyIn("UDQ_RESTART.DATA");
-
-    Setup base_setup("UDQ_BASE.DATA");
-    SummaryState st1(std::chrono::system_clock::now());
-    SummaryState st2(std::chrono::system_clock::now());
-    Action::State action_state;
-    auto state1 = first_sim( base_setup , action_state, st1, false );
-
-    Setup restart_setup("UDQ_RESTART.DATA");
-    auto state2 = second_sim( restart_setup , action_state, st2 , keys );
-    BOOST_CHECK(st1.wells() == st2.wells());
-    BOOST_CHECK(st1.groups() == st2.groups());
-
-    const auto& udq = base_setup.schedule.getUDQConfig(1);
-    for (const auto& well : st1.wells()) {
-        for (const auto& def : udq.definitions(UDQVarType::WELL_VAR)) {
-            const auto& kw = def.keyword();
-            BOOST_CHECK_EQUAL( st1.has_well_var(well, kw), st2.has_well_var(well, kw));
-            if (st1.has_well_var(well, def.keyword()))
-                BOOST_CHECK_EQUAL(st1.get_well_var(well, kw), st2.get_well_var(well, kw));
-        }
-    }
-
-    for (const auto& group : st1.groups()) {
-        for (const auto& def : udq.definitions(UDQVarType::GROUP_VAR)) {
-            const auto& kw = def.keyword();
-            BOOST_CHECK_EQUAL( st1.has_group_var(group, kw), st2.has_group_var(group, kw));
-            if (st1.has_group_var(group, def.keyword()))
-                BOOST_CHECK_EQUAL(st1.get_group_var(group, kw), st2.get_group_var(group, kw));
-        }
-    }
-
-    for (const auto& well : st1.wells()) {
-        for (const auto& def : udq.assignments(UDQVarType::WELL_VAR)) {
-            const auto& kw = def.keyword();
-            BOOST_CHECK_EQUAL( st1.has_well_var(well, kw), st2.has_well_var(well, kw));
-            if (st1.has_well_var(well, def.keyword()))
-                BOOST_CHECK_EQUAL(st1.get_well_var(well, kw), st2.get_well_var(well, kw));
-        }
-    }
-
-    for (const auto& group : st1.groups()) {
-        for (const auto& def : udq.assignments(UDQVarType::GROUP_VAR)) {
-            const auto& kw = def.keyword();
-            BOOST_CHECK_EQUAL( st1.has_group_var(group, kw), st2.has_group_var(group, kw));
-            if (st1.has_group_var(group, def.keyword()))
-                BOOST_CHECK_EQUAL(st1.get_group_var(group, kw), st2.get_group_var(group, kw));
-        }
-    }
-
-    for (const auto& def : udq.assignments(UDQVarType::FIELD_VAR)) {
-        const auto& kw = def.keyword();
-        BOOST_CHECK_EQUAL( st1.has(kw), st2.has(kw));
-            if (st1.has(kw))
-                BOOST_CHECK_EQUAL(st1.get(kw), st2.get(kw));
-    }
-
-    for (const auto& def : udq.definitions(UDQVarType::FIELD_VAR)) {
-        const auto& kw = def.keyword();
-        BOOST_CHECK_EQUAL( st1.has(kw), st2.has(kw));
-        if (st1.has(kw))
-            BOOST_CHECK_EQUAL(st1.get(kw), st2.get(kw));
-    }
-}
 }

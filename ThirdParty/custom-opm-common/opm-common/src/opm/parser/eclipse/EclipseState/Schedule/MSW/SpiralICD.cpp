@@ -19,24 +19,22 @@
 */
 
 #include <opm/parser/eclipse/EclipseState/Schedule/MSW/icd.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/MSW/SICD.hpp>
+#include <opm/parser/eclipse/EclipseState/Schedule/MSW/SpiralICD.hpp>
 #include <opm/parser/eclipse/Deck/DeckRecord.hpp>
 #include <opm/parser/eclipse/Deck/DeckKeyword.hpp>
 
 #include <limits>
 #include <cmath>
 
-#include "src/opm/parser/eclipse/EclipseState/Schedule/MSW/icd_convert.hpp"
-
 
 namespace Opm {
 
-    SICD::SICD()
-        : SICD(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0.0, ICDStatus::SHUT, 1.0)
+    SpiralICD::SpiralICD()
+        : SpiralICD(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0.0, ICDStatus::SHUT, 1.0)
     {
     }
 
-    SICD::SICD(double strength,
+    SpiralICD::SpiralICD(double strength,
                          double length,
                          double densityCalibration,
                          double viscosityCalibration,
@@ -62,7 +60,7 @@ namespace Opm {
     }
 
 
-    SICD::SICD(const DeckRecord& record)
+    SpiralICD::SpiralICD(const DeckRecord& record)
             : m_strength(record.getItem("STRENGTH").getSIDouble(0)),
               m_length(record.getItem("LENGTH").getSIDouble(0)),
               m_density_calibration(record.getItem("DENSITY_CALI").getSIDouble(0)),
@@ -83,9 +81,9 @@ namespace Opm {
     }
 
 
-    SICD SICD::serializeObject()
+    SpiralICD SpiralICD::serializeObject()
     {
-        SICD result;
+        SpiralICD result;
         result.m_strength = 1.0;
         result.m_length = 2.0;
         result.m_density_calibration = 3.0;
@@ -101,60 +99,79 @@ namespace Opm {
         return result;
     }
 
-
-
-
-    std::map<std::string, std::vector<std::pair<int, SICD> > >
-    SICD::fromWSEGSICD(const DeckKeyword& wsegsicd)
+    std::map<std::string, std::vector<std::pair<int, SpiralICD> > >
+    SpiralICD::fromWSEGSICD(const DeckKeyword& wsegsicd)
     {
-        return SICD::fromWSEG<SICD>(wsegsicd);
+        std::map<std::string, std::vector<std::pair<int, SpiralICD> > > res;
+
+        for (const DeckRecord &record : wsegsicd) {
+            const std::string well_name = record.getItem("WELL").getTrimmedString(0);
+
+            const int start_segment = record.getItem("SEG1").get<int>(0);
+            const int end_segment = record.getItem("SEG2").get<int>(0);
+
+            if (start_segment < 2 || end_segment < 2 || end_segment < start_segment) {
+                const std::string message = "Segment numbers " + std::to_string(start_segment) + " and "
+                                            + std::to_string(end_segment) + " specified in WSEGSICD for well " +
+                                            well_name
+                                            + " are illegal ";
+                throw std::invalid_argument(message);
+            }
+
+            const SpiralICD spiral_icd(record);
+            for (int seg = start_segment; seg <= end_segment; seg++) {
+                res[well_name].push_back(std::make_pair(seg, spiral_icd));
+            }
+        }
+
+        return res;
     }
 
-    double SICD::maxAbsoluteRate() const {
+    double SpiralICD::maxAbsoluteRate() const {
         return m_max_absolute_rate;
     }
 
-    ICDStatus SICD::status() const {
+    ICDStatus SpiralICD::status() const {
         return m_status;
     }
 
-    double SICD::strength() const {
+    double SpiralICD::strength() const {
         return m_strength;
     }
 
-    double SICD::length() const {
+    double SpiralICD::length() const {
         return m_length;
     }
 
-    double SICD::densityCalibration() const {
+    double SpiralICD::densityCalibration() const {
         return m_density_calibration;
     }
 
-    double SICD::viscosityCalibration() const
+    double SpiralICD::viscosityCalibration() const
     {
         return m_viscosity_calibration;
     }
 
-    double SICD::criticalValue() const {
+    double SpiralICD::criticalValue() const {
         return m_critical_value;
     }
 
-    double SICD::widthTransitionRegion() const
+    double SpiralICD::widthTransitionRegion() const
     {
         return m_width_transition_region;
     }
 
-    double SICD::maxViscosityRatio() const
+    double SpiralICD::maxViscosityRatio() const
     {
         return m_max_viscosity_ratio;
     }
 
-    int SICD::methodFlowScaling() const
+    int SpiralICD::methodFlowScaling() const
     {
         return m_method_flow_scaling;
     }
 
-    double SICD::scalingFactor() const
+    double SpiralICD::scalingFactor() const
     {
         if (m_scaling_factor <= 0.)
             throw std::runtime_error("the scaling factor has invalid value " + std::to_string(m_scaling_factor));
@@ -162,7 +179,7 @@ namespace Opm {
         return m_scaling_factor;
     }
 
-    void SICD::updateScalingFactor(const double outlet_segment_length, const double completion_length)
+    void SpiralICD::updateScalingFactor(const double outlet_segment_length, const double completion_length)
     {
         if (m_method_flow_scaling < 0) {
             if (m_length > 0.) { // icd length / outlet segment length
@@ -190,7 +207,7 @@ namespace Opm {
     }
 
 
-    bool SICD::operator==(const SICD& data) const {
+    bool SpiralICD::operator==(const SpiralICD& data) const {
         return this->strength() == data.strength() &&
                this->length() == data.length() &&
                this->densityCalibration() == data.densityCalibration() &&
@@ -204,7 +221,7 @@ namespace Opm {
                this->scalingFactor() == data.scalingFactor();
     }
 
-int SICD::ecl_status() const {
+int SpiralICD::ecl_status() const {
     return to_int(this->m_status);
 }
 

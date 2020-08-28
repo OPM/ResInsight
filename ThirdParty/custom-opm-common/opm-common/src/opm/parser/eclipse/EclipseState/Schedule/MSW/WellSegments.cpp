@@ -31,9 +31,8 @@
 #include <opm/parser/eclipse/Deck/DeckItem.hpp>
 #include <opm/parser/eclipse/Deck/DeckKeyword.hpp>
 #include <opm/parser/eclipse/Deck/DeckRecord.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Well/WellConnections.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/MSW/Segment.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/MSW/SICD.hpp>
+#include <opm/parser/eclipse/EclipseState/Schedule/MSW/SpiralICD.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/MSW/Valve.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/MSW/WellSegments.hpp>
 
@@ -142,12 +141,12 @@ namespace Opm {
         if (length_depth_type == LengthDepth::INC) {
             m_segments.emplace_back( 1, 1, 0, 0., 0.,
                                      invalid_value, invalid_value, invalid_value,
-                                     volume_top, false);
+                                     volume_top, false , Segment::SegmentType::REGULAR);
 
         } else if (length_depth_type == LengthDepth::ABS) {
             m_segments.emplace_back( 1, 1, 0, length_top, depth_top,
                                      invalid_value, invalid_value, invalid_value,
-                                     volume_top, true);
+                                     volume_top, true , Segment::SegmentType::REGULAR);
         }
 
         // read all the information out from the DECK first then process to get all the required information
@@ -207,13 +206,13 @@ namespace Opm {
 
                 if (length_depth_type == LengthDepth::INC) {
                     m_segments.emplace_back( i, branch, outlet_segment, segment_length, depth_change,
-                                             diameter, roughness, area, volume, false);
+                                             diameter, roughness, area, volume, false , Segment::SegmentType::REGULAR);
                 } else if (i == segment2) {
                     m_segments.emplace_back( i, branch, outlet_segment, segment_length, depth_change,
-                                             diameter, roughness, area, volume, true);
+                                             diameter, roughness, area, volume, true , Segment::SegmentType::REGULAR);
                 } else {
                     m_segments.emplace_back( i, branch, outlet_segment, invalid_value, invalid_value,
-                                             diameter, roughness, area, volume, false);
+                                             diameter, roughness, area, volume, false , Segment::SegmentType::REGULAR);
                 }
             }
         }
@@ -471,14 +470,6 @@ namespace Opm {
     }
 
 
-    std::set<int> WellSegments::branches() const {
-        std::set<int> bset;
-        for (const auto& segment : this->m_segments)
-            bset.insert( segment.branchNumber() );
-        return bset;
-    }
-
-
     std::vector<Segment> WellSegments::branchSegments(int branch) const {
         std::vector<Segment> segments;
         std::unordered_set<int> segment_set;
@@ -508,7 +499,7 @@ namespace Opm {
         return segments;
     }
 
-    bool WellSegments::updateWSEGSICD(const std::vector<std::pair<int, SICD> >& sicd_pairs) {
+    bool WellSegments::updateWSEGSICD(const std::vector<std::pair<int, SpiralICD> >& sicd_pairs) {
         if (m_comp_pressure_drop == CompPressureDrop::H__) {
             const std::string msg = "to use spiral ICD segment you have to activate the frictional pressure drop calculation";
             throw std::runtime_error(msg);
@@ -516,7 +507,7 @@ namespace Opm {
 
         for (const auto& pair_elem : sicd_pairs) {
             const int segment_number = pair_elem.first;
-            const SICD& spiral_icd = pair_elem.second;
+            const SpiralICD& spiral_icd = pair_elem.second;
             Segment segment = this->getFromSegmentNumber(segment_number);
             segment.updateSpiralICD(spiral_icd);
             this->addSegment(segment);
@@ -619,14 +610,6 @@ WellSegments::MultiPhaseModel WellSegments::MultiPhaseModelFromString(const std:
         return MultiPhaseModel::DF;
     } else {
         throw std::invalid_argument("Unknown enum string_value: " + string_value + " for MultiPhaseModel");
-    }
-}
-
-
-void WellSegments::updatePerfLength(const WellConnections& connections) {
-    for (auto& segment : this->m_segments) {
-        auto perf_length = connections.segment_perf_length( segment.segmentNumber() );
-        segment.updatePerfLength(perf_length);
     }
 }
 

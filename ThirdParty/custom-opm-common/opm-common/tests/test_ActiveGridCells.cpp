@@ -32,9 +32,9 @@ BOOST_AUTO_TEST_CASE(testLocal) {
     Opm::GridDims dims(nx, ny, nz);
     std::vector<int> cells(9);
     std::set<std::array<std::size_t,3> > inactive;
-    inactive.insert({0,0,0});
-    inactive.insert({1,1,0});
-    inactive.insert({1,0,1});
+    inactive.insert({{0,0,0}});
+    inactive.insert({{1,1,0}});
+    inactive.insert({{1,0,1}});
 
     for(std::size_t k = 0, index = 0; k < nz; ++k)
     {

@@ -19,12 +19,13 @@
 
 #include <opm/io/eclipse/rst/segment.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/MSW/Segment.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/MSW/SICD.hpp>
+#include <opm/parser/eclipse/EclipseState/Schedule/MSW/SpiralICD.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/MSW/Valve.hpp>
 
 #include <cassert>
-#include <stdexcept>
+
 #include <string>
+#include <stdexcept>
 
 namespace Opm {
 namespace {
@@ -71,27 +72,28 @@ namespace {
         m_roughness(if_invalid_value(rst_segment.roughness)),
         m_cross_area(if_invalid_value(rst_segment.area)),
         m_volume(rst_segment.volume),
-        m_data_ready(true)
+        m_data_ready(true),
+        m_segment_type(rst_segment.segment_type)
     {
-        if (rst_segment.segment_type == SegmentType::SICD) {
+        if (this->m_segment_type == SegmentType::SICD) {
             double scalingFactor = -1;  // The scaling factor will be and updated from the simulator.
 
-            SICD icd(rst_segment.base_strength,
-                    rst_segment.icd_length,
-                    rst_segment.fluid_density,
-                    rst_segment.fluid_viscosity,
-                    rst_segment.critical_water_fraction,
-                    rst_segment.transition_region_width,
-                    rst_segment.max_emulsion_ratio,
-                    rst_segment.icd_scaling_mode,
-                    rst_segment.max_valid_flow_rate,
-                    rst_segment.icd_status,
-                    scalingFactor);
+            SpiralICD icd(rst_segment.base_strength,
+                          rst_segment.icd_length,
+                          rst_segment.fluid_density,
+                          rst_segment.fluid_viscosity,
+                          rst_segment.critical_water_fraction,
+                          rst_segment.transition_region_width,
+                          rst_segment.max_emulsion_ratio,
+                          rst_segment.icd_scaling_mode,
+                          rst_segment.max_valid_flow_rate,
+                          rst_segment.icd_status,
+                          scalingFactor);
 
             this->updateSpiralICD(icd);
         }
 
-        if (rst_segment.segment_type == SegmentType::VALVE) {
+        if (this->m_segment_type == SegmentType::VALVE) {
             /*
               These three variables are currently not stored in the restart
               file; here we initialize with the default values, but if they have
@@ -112,7 +114,15 @@ namespace {
                         pipeCrossA,
                         rst_segment.icd_status);
 
-            this->updateValve(valve);
+            /*
+              The segment length argument should be the length of this
+              particular segment; in the input phase that is calculated from the
+              WellSegments::segmentLength() function which also uses the outlet
+              segment.
+            */
+            double segment_length = -1;
+            throw std::logic_error("Sorry can not create a Valve segment from restart file");
+            this->updateValve(valve, segment_length);
         }
     }
 
@@ -120,7 +130,7 @@ namespace {
 
     Segment::Segment(int segment_number_in, int branch_in, int outlet_segment_in, double length_in, double depth_in,
                      double internal_diameter_in, double roughness_in, double cross_area_in,
-                     double volume_in, bool data_ready_in)
+                     double volume_in, bool data_ready_in, SegmentType segment_type_in)
     : m_segment_number(segment_number_in),
       m_branch(branch_in),
       m_outlet_segment(outlet_segment_in),
@@ -130,7 +140,8 @@ namespace {
       m_roughness(roughness_in),
       m_cross_area(cross_area_in),
       m_volume(volume_in),
-      m_data_ready(data_ready_in)
+      m_data_ready(data_ready_in),
+      m_segment_type(segment_type_in)
     {
     }
 
@@ -168,7 +179,10 @@ namespace {
       result.m_cross_area = 10.0;
       result.m_volume = 11.0;
       result.m_data_ready = true;
-      result.m_icd = SICD::serializeObject();
+      result.m_segment_type = SegmentType::SICD;
+      result.m_spiral_icd = std::make_shared<SpiralICD>(SpiralICD::serializeObject());
+      result.m_valve = std::make_shared<Valve>(Valve::serializeObject());
+
       return result;
   }
 
@@ -196,9 +210,6 @@ namespace {
         return m_depth;
     }
 
-    double Segment::perfLength() const {
-        return *this->m_perf_length;
-    }
 
     double Segment::internalDiameter() const {
         return m_internal_diameter;
@@ -223,19 +234,7 @@ namespace {
     }
 
     Segment::SegmentType Segment::segmentType() const {
-        if (this->isRegular())
-            return SegmentType::REGULAR;
-
-        if (this->isSpiralICD())
-            return SegmentType::SICD;
-
-        if (this->isAICD())
-            return SegmentType::AICD;
-
-        if (this->isValve())
-            return SegmentType::VALVE;
-
-        throw std::logic_error("This just should not happen ");
+        return m_segment_type;
     }
 
     const std::vector<int>& Segment::inletSegments() const {
@@ -260,8 +259,6 @@ namespace {
             && this->m_roughness         == rhs.m_roughness
             && this->m_cross_area        == rhs.m_cross_area
             && this->m_volume            == rhs.m_volume
-            && this->m_perf_length       == rhs.m_perf_length
-            && this->m_icd               == rhs.m_icd
             && this->m_data_ready        == rhs.m_data_ready;
     }
 
@@ -269,80 +266,58 @@ namespace {
         return !this->operator==(rhs);
     }
 
-    void Segment::updateSpiralICD(const SICD& spiral_icd) {
-        this->m_icd = spiral_icd;
+    void Segment::updateSpiralICD(const SpiralICD& spiral_icd) {
+        m_segment_type = SegmentType::SICD;
+        m_spiral_icd = std::make_shared<SpiralICD>(spiral_icd);
     }
 
-    const SICD& Segment::spiralICD() const {
-        return std::get<SICD>(this->m_icd);
+    const std::shared_ptr<SpiralICD>& Segment::spiralICD() const {
+        return m_spiral_icd;
     }
 
-    void Segment::updateAutoICD(const AutoICD& aicd) {
-        this->m_icd = aicd;
-    }
-
-    const AutoICD& Segment::autoICD() const {
-        return std::get<AutoICD>(this->m_icd);
-    }
-
-
-
-    void Segment::updateValve(const Valve& input_valve) {
-        // we need to update some values for the vale
-        auto valve = input_valve;
-        if (valve.pipeAdditionalLength() < 0)
-            throw std::logic_error("Bug in handling of pipe length for valves");
-
-        if (valve.pipeDiameter() < 0.) {
-            valve.setPipeDiameter(m_internal_diameter);
-        } else {
-            this->m_internal_diameter = valve.pipeDiameter();
-        }
-
-        if (valve.pipeRoughness() < 0.) {
-            valve.setPipeRoughness(m_roughness);
-        } else {
-            this->m_roughness = valve.pipeRoughness();
-        }
-
-        if (valve.pipeCrossArea() < 0.) {
-            valve.setPipeCrossArea(m_cross_area);
-        } else {
-            this->m_cross_area = valve.pipeCrossArea();
-        }
-
-        if (valve.conMaxCrossArea() < 0.) {
-            valve.setConMaxCrossArea(valve.pipeCrossArea());
-        }
-
-        this->m_icd= valve;
-    }
-
-
-    void Segment::updateValve__(Valve& valve, const double segment_length) {
-        if (valve.pipeAdditionalLength() < 0)
-            valve.setPipeAdditionalLength(segment_length);
-
-        this->updateValve(valve);
-    }
 
     void Segment::updateValve(const Valve& valve, const double segment_length) {
-        auto new_valve = valve;
-        this->updateValve__(new_valve, segment_length);
+        // we need to update some values for the vale
+        auto valve_ptr = std::make_shared<Valve>(valve);
+
+        if (valve_ptr->pipeAdditionalLength() < 0.) { // defaulted for this
+            valve_ptr->setPipeAdditionalLength(segment_length);
+        }
+
+        if (valve_ptr->pipeDiameter() < 0.) {
+            valve_ptr->setPipeDiameter(m_internal_diameter);
+        } else {
+            this->m_internal_diameter = valve_ptr->pipeDiameter();
+        }
+
+        if (valve_ptr->pipeRoughness() < 0.) {
+            valve_ptr->setPipeRoughness(m_roughness);
+        } else {
+            this->m_roughness = valve_ptr->pipeRoughness();
+        }
+
+        if (valve_ptr->pipeCrossArea() < 0.) {
+            valve_ptr->setPipeCrossArea(m_cross_area);
+        } else {
+            this->m_cross_area = valve_ptr->pipeCrossArea();
+        }
+
+        if (valve_ptr->conMaxCrossArea() < 0.) {
+            valve_ptr->setConMaxCrossArea(valve_ptr->pipeCrossArea());
+        }
+
+        this->m_valve = valve_ptr;
+
+        m_segment_type = SegmentType::VALVE;
     }
 
 
-   void Segment::updatePerfLength(double perf_length) {
-       this->m_perf_length = perf_length;
-   }
-
-
-    const Valve& Segment::valve() const {
-        return std::get<Valve>(this->m_icd);
+    const Valve* Segment::valve() const {
+        return m_valve.get();
     }
 
     int Segment::ecl_type_id() const {
-        switch (this->segmentType()) {
+        switch (this->m_segment_type) {
         case SegmentType::REGULAR:
             return -1;
         case SegmentType::SICD:

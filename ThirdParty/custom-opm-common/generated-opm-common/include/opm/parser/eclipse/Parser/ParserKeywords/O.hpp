@@ -223,7 +223,7 @@ namespace ParserKeywords {
        OPERATER();
        static const std::string keywordName;
 
-       class TARGET_ARRAY {
+       class RESULT_ARRAY {
        public:
            static const std::string itemName;
        };

@@ -11,13 +11,11 @@
     {
       "name": "MAX_LIFT_GAS_SUPPLY",
       "value_type": "DOUBLE",
-      "dimension" : "GasSurfaceVolume/Time",
       "default": -1e+20
     },
     {
       "name": "MAX_TOTAL_GAS_RATE",
       "value_type": "DOUBLE",
-      "dimension" : "GasSurfaceVolume/Time",
       "default": -1e+20
     }
   ]

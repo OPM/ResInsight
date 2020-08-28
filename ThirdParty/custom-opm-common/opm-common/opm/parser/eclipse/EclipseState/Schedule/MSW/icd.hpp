@@ -28,6 +28,13 @@ enum class ICDStatus {
     SHUT
 };
 
+template<typename T>
+T from_int(int int_status);
+
+template<typename T>
+int to_int(T status);
+
 }
+
 
 #endif

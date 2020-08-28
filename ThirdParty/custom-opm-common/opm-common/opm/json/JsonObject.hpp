@@ -30,25 +30,11 @@ namespace Json {
 
     class JsonObject {
     public:
-        JsonObject();
-
         explicit JsonObject(const Opm::filesystem::path& jsonFile );
         explicit JsonObject(const std::string& inline_json);
         explicit JsonObject(const char * inline_json);
         explicit JsonObject(cJSON * root);
         ~JsonObject();
-
-        void add(double value);
-        void add(int value);
-        void add(const std::string& value);
-        JsonObject add_array();
-        JsonObject add_object();
-        void add_item(const std::string& key, double value);
-        void add_item(const std::string& key, int value);
-        void add_item(const std::string& key, const std::string& value);
-        JsonObject add_array(const std::string& key);
-        JsonObject add_object(const std::string& key);
-        std::string dump() const;
 
         bool has_item(const std::string& key) const;
         JsonObject get_array_item( size_t index ) const;

@@ -1,1 +1,3 @@
-../case.data
+INCLUDE
+'oil.inc' 
+/

@@ -115,34 +115,26 @@ macro (find_opm_package module deps header lib defs prog conf)
   # without config.h
   config_cmd_line (${module}_CMD_CONFIG ${module}_CONFIG_VARS)
 
-  if(prog)
-    # check that we can compile a small test-program
-    include (CMakePushCheckState)
-    cmake_push_check_state ()
-    include (CheckCXXSourceCompiles)
-    # only add these if they are actually found; otherwise it won't
-    # compile and the variable won't be set
-    append_found (${module}_INCLUDE_DIRS CMAKE_REQUIRED_INCLUDES)
-    append_found (${module}_LIBRARIES CMAKE_REQUIRED_LIBRARIES)
-    # since we don't have any config.h yet
-    list (APPEND CMAKE_REQUIRED_DEFINITIONS ${${module}_DEFINITIONS})
-    list (APPEND CMAKE_REQUIRED_DEFINITIONS ${${module}_CMD_CONFIG})
-    check_cxx_source_compiles ("${prog}" HAVE_${MODULE})
-    cmake_pop_check_state ()
-  else(prog)
-    if(${module}_FOUND)
-      # No test code provided, mark compilation as successful
-      # if module was founf
-      set(HAVE_${MODULE} 1)
-    endif(${module}_FOUND)
-  endif(prog)
+  # check that we can compile a small test-program
+  include (CMakePushCheckState)
+  cmake_push_check_state ()
+  include (CheckCXXSourceCompiles)
+  # only add these if they are actually found; otherwise it won't
+  # compile and the variable won't be set
+  append_found (${module}_INCLUDE_DIRS CMAKE_REQUIRED_INCLUDES)
+  append_found (${module}_LIBRARIES CMAKE_REQUIRED_LIBRARIES)
+  # since we don't have any config.h yet
+  list (APPEND CMAKE_REQUIRED_DEFINITIONS ${${module}_DEFINITIONS})
+  list (APPEND CMAKE_REQUIRED_DEFINITIONS ${${module}_CMD_CONFIG})
+  check_cxx_source_compiles ("${prog}" HAVE_${MODULE})
+  cmake_pop_check_state ()
 
   # write status message in the same manner as everyone else
   include (FindPackageHandleStandardArgs)
   find_package_handle_standard_args (
         ${module}
         DEFAULT_MSG
-        ${module}_INCLUDE_DIRS ${module}_LIBRARIES ${module}_FOUND ${module}_ALL_PREREQS HAVE_${MODULE}
+        ${module}_INCLUDE_DIRS ${module}_LIBRARIES ${module}_FOUND ${module}_ALL_PREREQS
         )
 
   # some genius that coded the FindPackageHandleStandardArgs figured out

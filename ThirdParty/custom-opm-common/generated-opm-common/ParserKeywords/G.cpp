@@ -1952,13 +1952,11 @@ GLIFTOPT::GLIFTOPT( ) : ParserKeyword("GLIFTOPT")
      {
         ParserItem item("MAX_LIFT_GAS_SUPPLY", ParserItem::itype::DOUBLE);
         item.setDefault( double(-100000000000000000000.000000) );
-        item.push_backDimension("GasSurfaceVolume/Time");
         record.addItem(item);
      }
      {
         ParserItem item("MAX_TOTAL_GAS_RATE", ParserItem::itype::DOUBLE);
         item.setDefault( double(-100000000000000000000.000000) );
-        item.push_backDimension("GasSurfaceVolume/Time");
         record.addItem(item);
      }
      addRecord( record );
@@ -2168,7 +2166,6 @@ GPMAINT::GPMAINT( ) : ParserKeyword("GPMAINT")
      }
      {
         ParserItem item("FIP_FAMILY", ParserItem::itype::STRING);
-        item.setDefault( std::string("FIPNUM") );
         record.addItem(item);
      }
      {
@@ -2194,7 +2191,6 @@ const std::string GPMAINT::GROUP::itemName = "GROUP";
 const std::string GPMAINT::FLOW_TARGET::itemName = "FLOW_TARGET";
 const std::string GPMAINT::REGION::itemName = "REGION";
 const std::string GPMAINT::FIP_FAMILY::itemName = "FIP_FAMILY";
-const std::string GPMAINT::FIP_FAMILY::defaultValue = "FIPNUM";
 const std::string GPMAINT::PRESSURE_TARGET::itemName = "PRESSURE_TARGET";
 const std::string GPMAINT::PROP_CONSTANT::itemName = "PROP_CONSTANT";
 const std::string GPMAINT::TIME_CONSTANT::itemName = "TIME_CONSTANT";

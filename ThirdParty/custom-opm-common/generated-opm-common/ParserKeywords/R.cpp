@@ -2193,16 +2193,26 @@ RWGSALT::RWGSALT( ) : ParserKeyword("RWGSALT")
 {
   setSizeType(OTHER_KEYWORD_IN_DECK);
   initSizeKeyword("TABDIMS","NTPVT",0);
+  setTableCollection( true );
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("RWGSALT");
   {
      ParserRecord record;
      {
+        ParserItem item("RESERVOIR_PRESSURE", ParserItem::itype::DOUBLE);
+        item.push_backDimension("Pressure");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("SALT_CONCENTRATION", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
+        item.push_backDimension("Mass/Length*Length*Length");
+        record.addItem(item);
+     }
+     {
         ParserItem item("DATA", ParserItem::itype::DOUBLE);
         item.setSizeType(ParserItem::item_size::ALL);
-        item.push_backDimension("Pressure");
-        item.push_backDimension("Mass/Length*Length*Length");
         item.push_backDimension("OilDissolutionFactor");
         record.addItem(item);
      }
@@ -2210,6 +2220,8 @@ RWGSALT::RWGSALT( ) : ParserKeyword("RWGSALT")
   }
 }
 const std::string RWGSALT::keywordName = "RWGSALT";
+const std::string RWGSALT::RESERVOIR_PRESSURE::itemName = "RESERVOIR_PRESSURE";
+const std::string RWGSALT::SALT_CONCENTRATION::itemName = "SALT_CONCENTRATION";
 const std::string RWGSALT::DATA::itemName = "DATA";
 
 

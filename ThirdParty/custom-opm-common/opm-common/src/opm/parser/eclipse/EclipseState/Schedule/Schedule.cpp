@@ -24,7 +24,6 @@
 #endif
 
 #include <iostream>
-#include <optional>
 #include <stdexcept>
 #include <string>
 #include <unordered_set>
@@ -41,7 +40,6 @@
 #include <opm/parser/eclipse/Deck/DeckSection.hpp>
 #include <opm/parser/eclipse/Parser/ErrorGuard.hpp>
 #include <opm/parser/eclipse/Parser/ParseContext.hpp>
-#include <opm/parser/eclipse/Parser/ParserKeywords/B.hpp>
 #include <opm/parser/eclipse/Parser/ParserKeywords/C.hpp>
 #include <opm/parser/eclipse/Parser/ParserKeywords/G.hpp>
 #include <opm/parser/eclipse/Parser/ParserKeywords/L.hpp>
@@ -56,7 +54,8 @@
 #include <opm/parser/eclipse/EclipseState/Schedule/DynamicState.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/DynamicVector.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/Events.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/MSW/SICD.hpp>
+#include <opm/parser/eclipse/EclipseState/Schedule/MSW/SpiralICD.hpp>
+#include <opm/parser/eclipse/EclipseState/Schedule/MSW/updatingConnectionsWithSegments.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/MSW/Valve.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/MSW/WellSegments.hpp>
 
@@ -67,7 +66,6 @@
 #include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/TimeMap.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/Tuning.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Network/Node.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/Well/WList.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/Well/WListManager.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/Well/WellFoamProperties.hpp>
@@ -82,7 +80,6 @@
 #include <opm/parser/eclipse/Units/Units.hpp>
 
 #include "Well/injection.hpp"
-#include "MSW/Compsegs.hpp"
 
 namespace Opm {
 
@@ -153,10 +150,8 @@ std::pair<std::time_t, std::size_t> restart_info(const RestartIO::RstState * rst
         gconsump(this->m_timeMap, std::make_shared<GConSump>() ),
         global_whistctl_mode(this->m_timeMap, Well::ProducerCMode::CMODE_UNDEFINED),
         m_actions(this->m_timeMap, std::make_shared<Action::Actions>()),
-        m_network(this->m_timeMap, std::make_shared<Network::ExtNetwork>()),
-        m_glo(this->m_timeMap, std::make_shared<GasLiftOpt>()),
         rft_config(this->m_timeMap),
-        m_nupcol(this->m_timeMap, runspec.nupcol()),
+        m_nupcol(this->m_timeMap, ParserKeywords::NUPCOL::NUM_ITER::defaultValue),
         restart_config(m_timeMap, deck, parseContext, errors),
         rpt_config(this->m_timeMap, std::make_shared<RPTConfig>())
     {
@@ -268,8 +263,6 @@ Schedule::Schedule(const Deck& deck, const EclipseState& es, const ParseContext&
         result.wtest_config = {{std::make_shared<WellTestConfig>(WellTestConfig::serializeObject())}, 1};
         result.wlist_manager = {{std::make_shared<WListManager>(WListManager::serializeObject())}, 1};
         result.udq_config = {{std::make_shared<UDQConfig>(UDQConfig::serializeObject())}, 1};
-        result.m_network  = {{std::make_shared<Network::ExtNetwork>(Network::ExtNetwork::serializeObject())}, 1};
-        result.m_glo = {{std::make_shared<GasLiftOpt>(GasLiftOpt::serializeObject())}, 1};
         result.udq_active = {{std::make_shared<UDQActive>(UDQActive::serializeObject())}, 1};
         result.guide_rate_config = {{std::make_shared<GuideRateConfig>(GuideRateConfig::serializeObject())}, 1};
         result.gconsale = {{std::make_shared<GConSale>(GConSale::serializeObject())}, 1};
@@ -415,9 +408,6 @@ Schedule::Schedule(const Deck& deck, const EclipseState& es, const ParseContext&
         else if (keyword.name() == "GRUPTREE")
             handleGRUPTREE(keyword, currentStep, unit_system, parseContext, errors);
 
-        else if (keyword.name() == "GPMAINT")
-            handleGPMAINT(keyword, currentStep, parseContext, errors);
-
         else if (keyword.name() == "GRUPNET")
             handleGRUPNET(keyword, currentStep, unit_system);
 
@@ -496,21 +486,6 @@ Schedule::Schedule(const Deck& deck, const EclipseState& es, const ParseContext&
         else if (keyword.name() == "NUPCOL")
             handleNUPCOL(keyword, currentStep);
 
-        else if (keyword.name() == "NODEPROP")
-            handleNODEPROP(keyword, currentStep);
-
-        else if (keyword.name() == "BRANPROP")
-            handleBRANPROP(keyword, currentStep);
-
-        else if (keyword.name() == "LIFTOPT")
-            handleLIFTOPT(keyword, currentStep);
-
-        else if (keyword.name() == "GLIFTOPT")
-            handleGLIFTOPT(keyword, currentStep, parseContext, errors);
-
-        else if (keyword.name() == "WLIFTOPT")
-            handleWLIFTOPT(keyword, currentStep, parseContext, errors);
-
         else if (keyword.name() == "PYACTION")
             handlePYACTION(python, input_path, keyword, currentStep);
 
@@ -549,7 +524,7 @@ Schedule::Schedule(const Deck& deck, const EclipseState& es, const ParseContext&
         while (true) {
             const auto& keyword = section.getKeyword(keywordIdx);
             if (keyword.name() == "ACTIONX") {
-                Action::ActionX action(keyword, this->m_timeMap.getStartTime(currentStep));
+                Action::ActionX action(keyword, this->m_timeMap.getStartTime(currentStep + 1));
                 while (true) {
                     keywordIdx++;
                     if (keywordIdx == section.size())
@@ -1336,22 +1311,19 @@ Schedule::Schedule(const Deck& deck, const EclipseState& es, const ParseContext&
 
     void Schedule::handleWLIST(const DeckKeyword& keyword, size_t currentStep) {
         const std::string legal_actions = "NEW:ADD:DEL:MOV";
+        const auto& current = *this->wlist_manager.get(currentStep);
+        std::shared_ptr<WListManager> new_wlm(new WListManager(current));
         for (const auto& record : keyword) {
             const std::string& name = record.getItem("NAME").getTrimmedString(0);
             const std::string& action = record.getItem("ACTION").getTrimmedString(0);
-            const std::vector<std::string>& well_args = record.getItem("WELLS").getData<std::string>();
-            std::vector<std::string> wells;
-            std::shared_ptr<WListManager> new_wlm = std::make_shared<WListManager>( *this->wlist_manager.get(currentStep) );
+            const std::vector<std::string>& wells = record.getItem("WELLS").getData<std::string>();
 
             if (legal_actions.find(action) == std::string::npos)
                 throw std::invalid_argument("The action:" + action + " is not recognized.");
 
-            for (const auto& well_arg : well_args) {
-                const auto& names = this->wellNames(well_arg, currentStep);
-                if (names.empty() && well_arg.find("*") == std::string::npos)
-                    throw std::invalid_argument("The well: " + well_arg + " has not been defined in the WELSPECS");
-
-                std::move(names.begin(), names.end(), std::back_inserter(wells));
+            for (const auto& well : wells) {
+                if (!this->hasWell(well))
+                    throw std::invalid_argument("The well: " + well + " has not been defined in the WELSPECS");
             }
 
             if (name[0] != '*')
@@ -1377,8 +1349,8 @@ Schedule::Schedule(const Deck& deck, const EclipseState& es, const ParseContext&
                     wlist.add(well);
             }
 
-            this->wlist_manager.update(currentStep, new_wlm);
         }
+        this->wlist_manager.update(currentStep, new_wlm);
     }
 
     void Schedule::handleUDQ(const DeckKeyword& keyword, size_t currentStep) {
@@ -1639,7 +1611,8 @@ Schedule::Schedule(const Deck& deck, const EclipseState& es, const ParseContext&
 
             const std::string& wellNamePattern = record.getItem("WELL").getTrimmedString(0);
             const auto cmode = Well::WELTARGCModeFromString(record.getItem("CMODE").getTrimmedString(0));
-            const auto new_arg = record.getItem("NEW_VALUE").get< UDAValue >(0);
+            double newValue = record.getItem("NEW_VALUE").get< double >(0);
+
             const auto well_names = wellNames( wellNamePattern, currentStep );
 
             if( well_names.empty() )
@@ -1652,20 +1625,16 @@ Schedule::Schedule(const Deck& deck, const EclipseState& es, const ParseContext&
                     bool update = false;
                     if (well2->isProducer()) {
                         auto prop = std::make_shared<Well::WellProductionProperties>(well2->getProductionProperties());
-                        prop->handleWELTARG(cmode, new_arg, SiFactorP);
+                        prop->handleWELTARG(cmode, newValue, SiFactorP);
                         update = well2->updateProduction(prop);
                         if (cmode == Well::WELTARGCMode::GUID)
-                            update |= well2->updateWellGuideRate(new_arg.get<double>());
-
-                        auto udq = std::make_shared<UDQActive>(this->udqActive(currentStep));
-                        if (prop->updateUDQActive(this->getUDQConfig(currentStep), *udq))
-                            this->updateUDQActive(currentStep, udq);
+                            update |= well2->updateWellGuideRate(newValue);
                     } else {
                         auto inj = std::make_shared<Well::WellInjectionProperties>(well2->getInjectionProperties());
-                        inj->handleWELTARG(cmode, new_arg, SiFactorP);
+                        inj->handleWELTARG(cmode, newValue, SiFactorP);
                         update = well2->updateInjection(inj);
                         if (cmode == Well::WELTARGCMode::GUID)
-                            update |= well2->updateWellGuideRate(new_arg.get<double>());
+                            update |= well2->updateWellGuideRate(newValue);
                     }
                     if (update)
                         this->updateWell(std::move(well2), currentStep);
@@ -1771,12 +1740,12 @@ Schedule::Schedule(const Deck& deck, const EclipseState& es, const ParseContext&
                         }
                     }
                 }
-                bool availableForGroupControl = DeckItem::to_bool(record.getItem("RESPOND_TO_PARENT").getTrimmedString(0)) && (group_name != "FIELD");
-
+                auto resv_target = record.getItem("RESERVOIR_FLUID_TARGET").getSIDouble(0);
+                bool availableForGroupControl = DeckItem::to_bool(record.getItem("RESPOND_TO_PARENT").getTrimmedString(0))
+                    && (group_name != "FIELD");
                 {
                     auto group_ptr = std::make_shared<Group>(this->getGroup(group_name, currentStep));
-                    Group::GroupProductionProperties production(group_name);
-                    auto resv_target = record.getItem("RESERVOIR_FLUID_TARGET").getSIDouble(0);
+                    Group::GroupProductionProperties production;
                     production.cmode = controlMode;
                     production.oil_target = oil_target;
                     production.gas_target = gas_target;
@@ -1820,10 +1789,6 @@ Schedule::Schedule(const Deck& deck, const EclipseState& es, const ParseContext&
                         this->updateGroup(std::move(group_ptr), currentStep);
                         m_events.addEvent( ScheduleEvents::GROUP_PRODUCTION_UPDATE , currentStep);
                         this->addWellGroupEvent(group_name, ScheduleEvents::GROUP_PRODUCTION_UPDATE, currentStep);
-
-                        auto udq = std::make_shared<UDQActive>(this->udqActive(currentStep));
-                        if (production.updateUDQActive(this->getUDQConfig(currentStep), *udq))
-                            this->updateUDQActive(currentStep, udq);
                     }
                 }
             }
@@ -2049,9 +2014,38 @@ Schedule::Schedule(const Deck& deck, const EclipseState& es, const ParseContext&
                     auto well2 = std::shared_ptr<Well>(new Well( this->getWell(name, currentStep)));
                     auto connections = std::shared_ptr<WellConnections>( new WellConnections( well2->getConnections()));
                     connections->loadCOMPDAT(record, grid, fp);
+                    /*
+                      This block implements the following dubious logic.
+
+                        1. All competions are shut.
+                        2. A new open completion is added.
+                        3. A currently SHUT well is opened.
+
+                      This code assumes that the reason the well is initially
+                      shut is due to all the shut completions, if the well was
+                      explicitly shut for another reason the explicit opening of
+                      the well might be in error?
+                    */
+                    /*if (all_shut0) {
+                        if (!connections->allConnectionsShut()) {
+                            if (well2->getStatus() == WellCommon::StatusEnum::SHUT) {
+                                printf("Running all_shut inner loop\n");
+                                if (this->updateWellStatus(well2->name(), currentStep, WellCommon::StatusEnum::OPEN))
+                                    // Refresh pointer if the status has updated current slot. Ugly
+                                    well2 = std::shared_ptr<Well>(new Well(this->getWell(name, currentStep)));
+                            }
+                        }
+                    }
+                    */
                     if (well2->updateConnections(connections, grid, fp.get_int("PVTNUM")))
                         this->updateWell(well2, currentStep);
 
+                    if (well2->getStatus() == Well::Status::SHUT) {
+                        std::string msg =
+                            "All completions in well " + well2->name() + " is shut at " + std::to_string ( m_timeMap.getTimePassedUntil(currentStep) / (60*60*24) ) + " days. \n" +
+                            "The well is therefore also shut.";
+                        OpmLog::note(msg);
+                    }
                 }
                 this->addWellGroupEvent(name, ScheduleEvents::COMPLETION_CHANGE, currentStep);
             }
@@ -2087,24 +2081,17 @@ Schedule::Schedule(const Deck& deck, const EclipseState& es, const ParseContext&
 
     void Schedule::handleWSEGSICD( const DeckKeyword& keyword, size_t currentStep) {
 
-        std::map<std::string, std::vector<std::pair<int, SICD> > > spiral_icds = SICD::fromWSEGSICD(keyword);
+        const std::map<std::string, std::vector<std::pair<int, SpiralICD> > > spiral_icds =
+                                SpiralICD::fromWSEGSICD(keyword);
 
-        for (auto& map_elem : spiral_icds) {
+        for (const auto& map_elem : spiral_icds) {
             const std::string& well_name_pattern = map_elem.first;
             const auto well_names = this->wellNames(well_name_pattern, currentStep);
-            std::vector<std::pair<int, SICD> >& sicd_pairs = map_elem.second;
+            const std::vector<std::pair<int, SpiralICD> >& sicd_pairs = map_elem.second;
 
             for (const auto& well_name : well_names) {
                 auto& dynamic_state = this->wells_static.at(well_name);
                 auto well_ptr = std::make_shared<Well>( *dynamic_state[currentStep] );
-
-                const auto& connections = well_ptr->getConnections();
-                const auto& segments = well_ptr->getSegments();
-                for (auto& [segment_nr, sicd] : sicd_pairs) {
-                    const auto& outlet_segment_length = segments.segmentLength( segments.getFromSegmentNumber(segment_nr).outletSegment() );
-                    sicd.updateScalingFactor(outlet_segment_length, connections.segment_perf_length(segment_nr));
-                }
-
                 if (well_ptr -> updateWSEGSICD(sicd_pairs) )
                     this->updateWell(std::move(well_ptr), currentStep);
             }
@@ -2156,42 +2143,18 @@ Schedule::Schedule(const Deck& deck, const EclipseState& es, const ParseContext&
         }
     }
 
-    void Schedule::handleGRUPTREE( const DeckKeyword& keyword, size_t currentStep, const UnitSystem& unit_system, const ParseContext& parseContext, ErrorGuard& errors) {
+void Schedule::handleGRUPTREE( const DeckKeyword& keyword, size_t currentStep, const UnitSystem& unit_system, const ParseContext& parseContext, ErrorGuard& errors) {
         for( const auto& record : keyword ) {
             const std::string& childName = trim_wgname(keyword, record.getItem("CHILD_GROUP").get<std::string>(0), parseContext, errors);
             const std::string& parentName = trim_wgname(keyword, record.getItem("PARENT_GROUP").get<std::string>(0), parseContext, errors);
 
-            if (!hasGroup(childName))
-                addGroup( childName , currentStep, unit_system );
-            
             if (!hasGroup(parentName))
                 addGroup( parentName , currentStep, unit_system );
 
+            if (!hasGroup(childName))
+                addGroup( childName , currentStep, unit_system );
+
             this->addGroupToGroup(parentName, childName, currentStep);
-        }
-    }
-
-
-    void Schedule::handleGPMAINT( const DeckKeyword& keyword, size_t currentStep, const ParseContext& parseContext, ErrorGuard& errors) {
-        for( const auto& record : keyword ) {
-            const std::string& groupNamePattern = record.getItem("GROUP").getTrimmedString(0);
-            const auto group_names = this->groupNames(groupNamePattern);
-
-            if (group_names.empty())
-                invalidNamePattern(groupNamePattern, currentStep, parseContext, errors, keyword);
-
-            using GP = ParserKeywords::GPMAINT;
-            for (const auto& group_name : group_names) {
-                auto group_ptr = std::make_shared<Group>(this->getGroup(group_name, currentStep));
-                const auto& target_string = record.getItem<GP::FLOW_TARGET>().get<std::string>(0);
-                if (target_string == "NONE")
-                    group_ptr->set_gpmaint();
-                else {
-                    GPMaint gpmaint(record);
-                    group_ptr->set_gpmaint(std::move(gpmaint));
-                }
-                this->updateGroup(std::move(group_ptr), currentStep);
-            }
         }
     }
 
@@ -2560,7 +2523,11 @@ void Schedule::invalidNamePattern( const std::string& namePattern,  std::size_t 
         // WLIST
         if (pattern[0] == '*' && pattern.size() > 1) {
             const auto& wlm = this->getWListManager(timeStep);
-            return wlm.wells(pattern);
+            if (wlm.hasList(pattern)) {
+                const auto& wlist = wlm.getList(pattern);
+                return { wlist.begin(), wlist.end() };
+            } else
+                return {};
         }
 
         // Normal pattern matching
@@ -2683,20 +2650,6 @@ void Schedule::invalidNamePattern( const std::string& namePattern,  std::size_t 
             names.push_back(group_pair.first);
 
         return names;
-    }
-
-    std::vector<const Group*> Schedule::restart_groups(std::size_t timeStep) const {
-        std::size_t wdmax = this->m_runspec.wellDimensions().maxGroupsInField();
-        std::vector<const Group*> rst_groups(wdmax + 1 , nullptr );
-        for (const auto& group_name : this->groupNames(timeStep)) {
-            const auto& group = this->getGroup(group_name, timeStep);
-
-            if (group.name() == "FIELD")
-                rst_groups.back() = &group;
-            else
-                rst_groups[group.insert_index() - 1] = &group;
-        }
-        return rst_groups;
     }
 
 
@@ -2848,13 +2801,8 @@ void Schedule::invalidNamePattern( const std::string& namePattern,  std::size_t 
         for (const auto& wname : well_names) {
             const auto& well = this->getWell(wname, timeStep);
             const auto& connections = well.getConnections();
-            if (connections.allConnectionsShut() && well.getStatus() != Well::Status::SHUT) {
-                std::string msg =
-                    "All completions in well " + well.name() + " is shut at " + std::to_string ( m_timeMap.getTimePassedUntil(timeStep) / (60*60*24) ) + " days. \n" +
-                    "The well is therefore also shut.";
-                OpmLog::note(msg);
+            if (connections.allConnectionsShut())
                 this->updateWellStatus( well.name(), timeStep, Well::Status::SHUT, false);
-            }
         }
     }
 
@@ -3073,8 +3021,6 @@ void Schedule::invalidNamePattern( const std::string& namePattern,  std::size_t 
                this->m_runspec == data.m_runspec &&
                compareMap(this->vfpprod_tables, data.vfpprod_tables) &&
                compareMap(this->vfpinj_tables, data.vfpinj_tables) &&
-               compareDynState(this->m_network, data.m_network) &&
-               compareDynState(this->m_glo, data.m_glo) &&
                compareDynState(this->wtest_config, data.wtest_config) &&
                compareDynState(this->wlist_manager, data.wlist_manager) &&
                compareDynState(this->udq_config, data.udq_config) &&
@@ -3090,7 +3036,6 @@ void Schedule::invalidNamePattern( const std::string& namePattern,  std::size_t 
                this->restart_config == data.restart_config &&
                this->wellgroup_events == data.wellgroup_events;
      }
-
 namespace {
 // Duplicated from Well.cpp
 Connection::Order order_from_int(int int_value) {
@@ -3105,6 +3050,7 @@ Connection::Order order_from_int(int int_value) {
         throw std::invalid_argument("Invalid integer value: " + std::to_string(int_value) + " encountered when determining connection ordering");
     }
 }
+
 }
 
 void Schedule::load_rst(const RestartIO::RstState& rst_state, const EclipseGrid& grid, const FieldPropsManager& fp, const UnitSystem& unit_system)
@@ -3117,27 +3063,49 @@ void Schedule::load_rst(const RestartIO::RstState& rst_state, const EclipseGrid&
 
     for (const auto& rst_well : rst_state.wells) {
         Opm::Well well(rst_well, report_step, unit_system, udq_undefined);
-        std::vector<Opm::Connection> rst_connections;
+        std::vector<Opm::Connection> connections;
+        std::unordered_map<int, Opm::Segment> segments;
 
         for (const auto& rst_conn : rst_well.connections)
-            rst_connections.emplace_back(rst_conn, grid, fp);
+            connections.emplace_back(rst_conn, grid, fp);
 
-        if (rst_well.segments.empty()) {
-            Opm::WellConnections connections(order_from_int(rst_well.completion_ordering),
-                                             rst_well.ij[0],
-                                             rst_well.ij[1],
-                                             rst_connections);
-            well.updateConnections( std::make_shared<WellConnections>( std::move(connections) ), grid, fp.get_int("PVTNUM"));
-        } else {
-            std::unordered_map<int, Opm::Segment> rst_segments;
-            for (const auto& rst_segment : rst_well.segments) {
-                Opm::Segment segment(rst_segment);
-                rst_segments.insert(std::make_pair(rst_segment.segment, std::move(segment)));
+        for (const auto& rst_segment : rst_well.segments) {
+            Opm::Segment segment(rst_segment);
+            segments.insert(std::make_pair(rst_segment.segment, std::move(segment)));
+        }
+
+        for (auto& connection : connections) {
+            int segment_id = connection.segment();
+            if (segment_id > 0) {
+                const auto& segment = segments.at(segment_id);
+                connection.updateSegmentRST(segment.segmentNumber(),
+                                            segment.depth());
             }
+        }
 
-            auto [connections, segments] = Compsegs::rstUpdate(rst_well, rst_connections, rst_segments);
-            well.updateConnections( std::make_shared<WellConnections>(std::move(connections)), grid, fp.get_int("PVTNUM"));
-            well.updateSegments( std::make_shared<WellSegments>(std::move(segments) ));
+        {
+            std::shared_ptr<Opm::WellConnections> well_connections = std::make_shared<Opm::WellConnections>(order_from_int(rst_well.completion_ordering), rst_well.ij[0], rst_well.ij[1], connections);
+            well.updateConnections( std::move(well_connections), grid, fp.get_int("PVTNUM") );
+        }
+
+        if (!segments.empty()) {
+            std::vector<Segment> segments_list;
+            /*
+              The ordering of the segments in the WellSegments structure seems a
+              bit random; in some parts of the code the segment_number seems to
+              be treated like a random integer ID, whereas in other parts it
+              seems to be treated like a running index. Here the segments in
+              WellSegments are sorted according to the segment number - observe
+              that this is somewhat important because the first top segment is
+              treated differently from the other segment.
+            */
+            for (const auto& segment_pair : segments)
+                segments_list.push_back( std::move(segment_pair.second) );
+
+            std::sort( segments_list.begin(), segments_list.end(),[](const Segment& seg1, const Segment& seg2) { return seg1.segmentNumber() < seg2.segmentNumber(); } );
+            auto comp_pressure_drop = WellSegments::CompPressureDrop::HFA;
+            std::shared_ptr<Opm::WellSegments> well_segments = std::make_shared<Opm::WellSegments>(comp_pressure_drop, segments_list);
+            well.updateSegments( std::move(well_segments) );
         }
 
         this->addWell(well, report_step);
@@ -3152,161 +3120,6 @@ std::shared_ptr<const Python> Schedule::python() const
 {
     return this->python_handle;
 }
-
-
-void Schedule::updateNetwork(std::shared_ptr<Network::ExtNetwork> network, std::size_t report_step) {
-    this->m_network.update(report_step, std::move(network));
-}
-
-const Network::ExtNetwork& Schedule::network(std::size_t report_step) const {
-    return *this->m_network[report_step];
-}
-
-
-void Schedule::handleNODEPROP(const DeckKeyword& keyword, std::size_t report_step) {
-    using NP = ParserKeywords::NODEPROP;
-    auto ext_network = std::make_shared<Network::ExtNetwork>( this->network(report_step) );
-    for (const auto& record : keyword) {
-        const auto& name = record.getItem<NP::NAME>().get<std::string>(0);
-        const auto& pressure_item = record.getItem<NP::PRESSURE>();
-        bool as_choke = DeckItem::to_bool( record.getItem<NP::AS_CHOKE>().get<std::string>(0));
-        bool add_gas_lift_gas = DeckItem::to_bool( record.getItem<NP::ADD_GAS_LIFT_GAS>().get<std::string>(0));
-        Network::Node node{ name };
-
-        if (pressure_item.hasValue(0) && (pressure_item.get<double>(0) > 0))
-            node.terminal_pressure( pressure_item.getSIDouble(0) );
-
-        if (as_choke) {
-            std::string target_group = name;
-            const auto& target_item = record.getItem<NP::CHOKE_GROUP>();
-            if (target_item.hasValue(0))
-                target_group = target_item.get<std::string>(0);
-
-            if (target_group != name) {
-                if (this->hasGroup(name, report_step)) {
-                    const auto& group = this->getGroup(name, report_step);
-                    if (group.numWells() > 0)
-                        throw std::invalid_argument("A manifold group must respond to its own target");
-                }
-            }
-            node.as_choke( target_group );
-        }
-        node.add_gas_lift_gas( add_gas_lift_gas );
-        ext_network->add_node( node );
-    }
-    this->updateNetwork(ext_network, report_step);
-}
-
-const GasLiftOpt& Schedule::glo(std::size_t report_step) const {
-    return *this->m_glo[report_step];
-}
-
-void Schedule::handleLIFTOPT(const DeckKeyword& keyword, std::size_t report_step) {
-    using LO  = ParserKeywords::LIFTOPT;
-    auto glo = std::make_shared<GasLiftOpt>( this->glo(report_step) );
-    const auto& record = keyword.getRecord(0);
-    double gaslift_increment = record.getItem<LO::INCREMENT_SIZE>().getSIDouble(0);
-    double min_eco_gradient = record.getItem<LO::MIN_ECONOMIC_GRADIENT>().getSIDouble(0);
-    double min_wait = record.getItem<LO::MIN_INTERVAL_BETWEEN_GAS_LIFT_OPTIMIZATIONS>().getSIDouble(0);
-    bool all_newton = DeckItem::to_bool( record.getItem<LO::OPTIMISE_GAS_LIFT>().get<std::string>(0) );
-
-    glo->gaslift_increment(gaslift_increment);
-    glo->min_eco_gradient(min_eco_gradient);
-    glo->min_wait(min_wait);
-    glo->all_newton(all_newton);
-
-    this->m_glo.update(report_step, std::move(glo));
-}
-
-
-void Schedule::handleGLIFTOPT(const DeckKeyword& keyword, std::size_t report_step, const ParseContext& parseContext, ErrorGuard& errors) {
-    using GLO  = ParserKeywords::GLIFTOPT;
-    auto glo = std::make_shared<GasLiftOpt>( this->glo(report_step) );
-    for (const auto& record : keyword) {
-        const std::string& groupNamePattern = record.getItem<GLO::GROUP_NAME>().getTrimmedString(0);
-        const auto group_names = this->groupNames(groupNamePattern);
-        if (group_names.empty())
-            invalidNamePattern(groupNamePattern, report_step, parseContext, errors, keyword);
-
-        const auto& max_total_item = record.getItem<GLO::MAX_TOTAL_GAS_RATE>();
-        const auto& max_gas_item = record.getItem<GLO::MAX_LIFT_GAS_SUPPLY>();
-        double max_lift_gas_value = -1;
-        double max_total_gas_value = -1;
-
-        if (max_gas_item.hasValue(0))
-            max_lift_gas_value = max_gas_item.getSIDouble(0);
-
-        if (max_total_item.hasValue(0))
-            max_total_gas_value = max_total_item.getSIDouble(0);
-
-        for (const auto& gname : group_names) {
-            auto group = GasLiftOpt::Group(gname);
-            group.max_lift_gas(max_lift_gas_value);
-            group.max_total_gas(max_total_gas_value);
-
-            glo->add_group(group);
-        }
-    }
-    this->m_glo.update(report_step, std::move(glo));
-}
-
-void Schedule::handleWLIFTOPT(const DeckKeyword& keyword, std::size_t report_step, const ParseContext& parseContext, ErrorGuard& errors) {
-    using WLO  = ParserKeywords::WLIFTOPT;
-    auto glo = std::make_shared<GasLiftOpt>( this->glo(report_step) );
-
-    for (const auto& record : keyword) {
-        const std::string& wellNamePattern = record.getItem<WLO::WELL>().getTrimmedString(0);
-        bool use_glo = DeckItem::to_bool( record.getItem<WLO::USE_OPTIMIZER>().get<std::string>(0));
-        bool alloc_extra_gas = DeckItem::to_bool( record.getItem<WLO::ALLOCATE_EXTRA_LIFT_GAS>().get<std::string>(0));
-        double weight_factor = record.getItem<WLO::WEIGHT_FACTOR>().get<double>(0);
-        double inc_weight_factor = record.getItem<WLO::DELTA_GAS_RATE_WEIGHT_FACTOR>().get<double>(0);
-        double min_rate = record.getItem<WLO::MIN_LIFT_GAS_RATE>().getSIDouble(0);
-        const auto& max_rate_item = record.getItem<WLO::MAX_LIFT_GAS_RATE>();
-
-        const auto well_names = this->wellNames(wellNamePattern);
-        if (well_names.empty())
-            invalidNamePattern(wellNamePattern, report_step, parseContext, errors, keyword);
-
-        for (const auto& wname : well_names) {
-            auto well = GasLiftOpt::Well(wname, use_glo);
-
-            if (max_rate_item.hasValue(0))
-                well.max_rate( max_rate_item.getSIDouble(0) );
-
-            well.weight_factor(weight_factor);
-            well.inc_weight_factor(inc_weight_factor);
-            well.min_rate(min_rate);
-            well.alloc_extra_gas(alloc_extra_gas);
-
-            glo->add_well(well);
-        }
-    }
-
-    this->m_glo.update(report_step, std::move(glo));
-}
-
-void Schedule::handleBRANPROP(const DeckKeyword& keyword, std::size_t report_step) {
-    using BP = ParserKeywords::BRANPROP;
-    auto ext_network = std::make_shared<Network::ExtNetwork>( this->network(report_step) );
-    for (const auto& record : keyword) {
-        const auto& downtree_node = record.getItem<BP::DOWNTREE_NODE>().get<std::string>(0);
-        const auto& uptree_node = record.getItem<BP::UPTREE_NODE>().get<std::string>(0);
-        int vfp_table = record.getItem<BP::VFP_TABLE>().get<int>(0);
-        if (vfp_table == 0)
-            ext_network->drop_branch( uptree_node, downtree_node );
-        else {
-            auto alq_eq = Network::Branch::AlqEqfromString( record.getItem<BP::ALQ_SURFACE_DENSITY>().get<std::string>(0));
-            if (alq_eq == Network::Branch::AlqEQ::ALQ_INPUT) {
-                double alq_value = record.getItem<BP::ALQ>().get<double>(0);
-                ext_network->add_branch( Network::Branch(downtree_node, uptree_node, vfp_table, alq_value));
-            } else
-                ext_network->add_branch( Network::Branch(downtree_node, uptree_node, vfp_table, alq_eq));
-        }
-    }
-    this->updateNetwork(ext_network, report_step);
-}
-
-
 
 namespace {
 /*

@@ -16,9 +16,6 @@
   You should have received a copy of the GNU General Public License
   along with OPM.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef WLISTMANAGER_HPP
-#define WLISTMANAGER_HPP
-
 #include <cstddef>
 #include <map>
 #include <vector>
@@ -41,7 +38,7 @@ public:
     void delWell(const std::string& well);
 
     bool operator==(const WListManager& data) const;
-    std::vector<std::string> wells(const std::string& wlist_pattern) const;
+
     template<class Serializer>
     void serializeOp(Serializer& serializer)
     {
@@ -53,4 +50,3 @@ private:
 };
 
 }
-#endif

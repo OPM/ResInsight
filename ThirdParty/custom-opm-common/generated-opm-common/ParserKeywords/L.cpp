@@ -310,18 +310,15 @@ LIFTOPT::LIFTOPT( ) : ParserKeyword("LIFTOPT")
      ParserRecord record;
      {
         ParserItem item("INCREMENT_SIZE", ParserItem::itype::DOUBLE);
-        item.push_backDimension("GasSurfaceVolume/Time");
         record.addItem(item);
      }
      {
         ParserItem item("MIN_ECONOMIC_GRADIENT", ParserItem::itype::DOUBLE);
-        item.push_backDimension("LiquidSurfaceVolume/GasSurfaceVolume");
         record.addItem(item);
      }
      {
         ParserItem item("MIN_INTERVAL_BETWEEN_GAS_LIFT_OPTIMIZATIONS", ParserItem::itype::DOUBLE);
         item.setDefault( double(0) );
-        item.push_backDimension("Time");
         record.addItem(item);
      }
      {

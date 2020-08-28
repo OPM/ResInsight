@@ -82,9 +82,6 @@ void UDAValue::assert_numeric(const std::string& error_msg) const {
 
     throw std::invalid_argument(error_msg);
 }
-double UDAValue::epsilonLimit() const {
-        return 1.E-20;
-}
 
 template<>
 bool UDAValue::is<double>() const {
@@ -122,8 +119,6 @@ UDAValue& UDAValue::operator=(const std::string& value) {
     this->numeric_value = false;
     return *this;
 }
-
-
 
 template<>
 std::string UDAValue::get() const {
@@ -167,16 +162,6 @@ std::ostream& operator<<( std::ostream& stream, const UDAValue& uda_value ) {
     else
         stream << "'" << uda_value.get<std::string>() << "'";
     return stream;
-}
-
-void UDAValue::update_value(const UDAValue& other) {
-    if (other.is<double>()) {
-        this->double_value = other.get<double>();
-        this->numeric_value = true;
-    } else {
-        this->string_value = other.get<std::string>();
-        this->numeric_value = false;
-    }
 }
 
 

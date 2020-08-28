@@ -25,7 +25,6 @@
 #include <opm/output/eclipse/AggregateWellData.hpp>
 
 #include <opm/output/eclipse/VectorItems/intehead.hpp>
-#include <opm/output/eclipse/VectorItems/group.hpp>
 #include <opm/output/eclipse/VectorItems/well.hpp>
 #include <opm/parser/eclipse/Python/Python.hpp>
 
@@ -437,35 +436,15 @@ END
         state.update("GOPR:GRP1",   235.);
         state.update("GGPR:GRP1",   100237.);
         state.update("GWPR:GRP1",   239.);
-        state.update("GOPGR:GRP1",  345.6);
-        state.update("GWPGR:GRP1",  456.7);
-        state.update("GGPGR:GRP1",  567.8);
-        state.update("GVPGR:GRP1",  678.9);
-        state.update("GOIGR:GRP1", 0.123);
-        state.update("GWIGR:GRP1", 1234.5);
-        state.update("GGIGR:GRP1", 2345.6);
 
         state.update("GOPR:WGRP1",   23.);
         state.update("GGPR:WGRP1",   50237.);
         state.update("GWPR:WGRP1",   29.);
-        state.update("GOPGR:WGRP1",  456.7);
-        state.update("GWPGR:WGRP1",  567.8);
-        state.update("GGPGR:WGRP1",  678.9);
-        state.update("GVPGR:WGRP1",  789.1);
-        state.update("GOIGR:WGRP1", 1.23);
-        state.update("GWIGR:WGRP1", 2345.6);
-        state.update("GGIGR:WGRP1", 3456.7);
+
 
         state.update("GOPR:WGRP2",   43.);
         state.update("GGPR:WGRP2",   70237.);
         state.update("GWPR:WGRP2",   59.);
-        state.update("GOPGR:WGRP2",  56.7);
-        state.update("GWPGR:WGRP2",  67.8);
-        state.update("GGPGR:WGRP2",  78.9);
-        state.update("GVPGR:WGRP2",  89.1);
-        state.update("GOIGR:WGRP2", 12.3);
-        state.update("GWIGR:WGRP2", 345.6);
-        state.update("GGIGR:WGRP2", 456.7);
 
         state.update("FOPR",   3456.);
         state.update("FGPR",   2003456.);
@@ -557,7 +536,6 @@ BOOST_AUTO_TEST_CASE (Declared_Group_Data)
 
     // XGRP (PROD)
     {
-        using Ix = ::Opm::RestartIO::Helpers::VectorItems::XGroup::index;
         auto start = 0*ih.nxgrpz;
 
         const auto& xGrp = agrpd.getXGroup();
@@ -565,54 +543,10 @@ BOOST_AUTO_TEST_CASE (Declared_Group_Data)
         BOOST_CHECK_EQUAL(xGrp[start + 1] ,  239.); // Group GRP1 - GWPR
         BOOST_CHECK_EQUAL(xGrp[start + 2] ,  100237.); // Group GRP1 - GGPR
 
-        BOOST_CHECK_CLOSE(xGrp[start + Ix::OilPrGuideRate], 345.6, 1.0e-10);
-        BOOST_CHECK_EQUAL(xGrp[start + Ix::OilPrGuideRate],
-                          xGrp[start + Ix::OilPrGuideRate_2]);
-
-        BOOST_CHECK_CLOSE(xGrp[start + Ix::WatPrGuideRate], 456.7, 1.0e-10);
-        BOOST_CHECK_EQUAL(xGrp[start + Ix::WatPrGuideRate],
-                          xGrp[start + Ix::WatPrGuideRate_2]);
-
-        BOOST_CHECK_CLOSE(xGrp[start + Ix::GasPrGuideRate], 567.8, 1.0e-10);
-        BOOST_CHECK_EQUAL(xGrp[start + Ix::GasPrGuideRate],
-                          xGrp[start + Ix::GasPrGuideRate_2]);
-
-        BOOST_CHECK_CLOSE(xGrp[start + Ix::VoidPrGuideRate], 678.9, 1.0e-10);
-        BOOST_CHECK_EQUAL(xGrp[start + Ix::VoidPrGuideRate],
-                          xGrp[start + Ix::VoidPrGuideRate_2]);
-
-        BOOST_CHECK_CLOSE(xGrp[start + Ix::OilInjGuideRate], 0.123, 1.0e-10);
-        BOOST_CHECK_CLOSE(xGrp[start + Ix::WatInjGuideRate], 1234.5, 1.0e-10);
-        BOOST_CHECK_EQUAL(xGrp[start + Ix::WatInjGuideRate],
-                          xGrp[start + Ix::WatInjGuideRate_2]);
-        BOOST_CHECK_CLOSE(xGrp[start + Ix::GasInjGuideRate], 2345.6, 1.0e-10);
-
         start = 1*ih.nxgrpz;
         BOOST_CHECK_EQUAL(xGrp[start + 0] ,  23.); // Group WGRP1 - GOPR
         BOOST_CHECK_EQUAL(xGrp[start + 1] ,  29.); // Group WGRP1 - GWPR
         BOOST_CHECK_EQUAL(xGrp[start + 2] ,  50237.); // Group WGRP1 - GGPR
-
-        BOOST_CHECK_CLOSE(xGrp[start + Ix::OilPrGuideRate], 456.7, 1.0e-10);
-        BOOST_CHECK_EQUAL(xGrp[start + Ix::OilPrGuideRate],
-                          xGrp[start + Ix::OilPrGuideRate_2]);
-
-        BOOST_CHECK_CLOSE(xGrp[start + Ix::WatPrGuideRate], 567.8, 1.0e-10);
-        BOOST_CHECK_EQUAL(xGrp[start + Ix::WatPrGuideRate],
-                          xGrp[start + Ix::WatPrGuideRate_2]);
-
-        BOOST_CHECK_CLOSE(xGrp[start + Ix::GasPrGuideRate], 678.9, 1.0e-10);
-        BOOST_CHECK_EQUAL(xGrp[start + Ix::GasPrGuideRate],
-                          xGrp[start + Ix::GasPrGuideRate_2]);
-
-        BOOST_CHECK_CLOSE(xGrp[start + Ix::VoidPrGuideRate], 789.1, 1.0e-10);
-        BOOST_CHECK_EQUAL(xGrp[start + Ix::VoidPrGuideRate],
-                          xGrp[start + Ix::VoidPrGuideRate_2]);
-
-        BOOST_CHECK_CLOSE(xGrp[start + Ix::OilInjGuideRate], 1.23, 1.0e-10);
-        BOOST_CHECK_CLOSE(xGrp[start + Ix::WatInjGuideRate], 2345.6, 1.0e-10);
-        BOOST_CHECK_EQUAL(xGrp[start + Ix::WatInjGuideRate],
-                          xGrp[start + Ix::WatInjGuideRate_2]);
-        BOOST_CHECK_CLOSE(xGrp[start + Ix::GasInjGuideRate], 3456.7, 1.0e-10);
 
         start = 2*ih.nxgrpz;
         BOOST_CHECK_EQUAL(xGrp[start + 0] ,  43.); // Group WGRP2 - GOPR

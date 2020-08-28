@@ -43,7 +43,7 @@ namespace Opm { namespace RestartIO { namespace Helpers { namespace VectorItems 
                                // simulation deck (WCONINJE, WCONPROD).
 
             item18 = 17, // Unknown
-            XFlow  = 22,
+	    XFlow  = 22,
             item25 = 24, // Unknown
             item32 = 31, // Unknown
             item48 = 47, // Unknown
@@ -113,11 +113,10 @@ namespace Opm { namespace RestartIO { namespace Helpers { namespace VectorItems 
             BHPTarget      = 6, // Well's bottom hole pressure target
 
             DatumDepth     = 9, // Well's reference depth for BHP
-            Alq_value      = 10, // Well's artificial lift quantity
 
             DrainageRadius = 17, // Well's drainage radius - item 7 from WELSPECS
             EfficiencyFactor1 = 24, // Item2 from WEFAC; this value is repeated at two locations.
-            EfficiencyFactor2 = 31, // Item2 from WEFAC
+            EfficiencyFactor2 = 31, //
             HistLiqRateTarget = 33, // Well's historical/observed liquid
                                     // rate target/limit
 
@@ -136,7 +135,7 @@ namespace Opm { namespace RestartIO { namespace Helpers { namespace VectorItems 
             GasPrRate  =  2, // Well's gas production rate
             LiqPrRate  =  3, // Well's liquid production rate
             VoidPrRate =  4, // Well's reservoir voidage production rate
-            TubHeadPr  =  5, // Well's tubing head pressure
+
             FlowBHP    =  6, // Well's flowing/producing bottom hole pressure
             WatCut     =  7, // Well's producing water cut
             GORatio    =  8, // Well's producing gas/oil ratio
@@ -158,12 +157,6 @@ namespace Opm { namespace RestartIO { namespace Helpers { namespace VectorItems 
 
             BHPTarget   = 41,   // Well's current BHP Target/Limit
 
-            PrimGuideRate   = 48, // Well's "primary" guide rate (oil for producers,
-                                  // preferred phase for injectors)
-            WatPrGuideRate  = 49, // Well's producer guide rate for water
-            GasPrGuideRate  = 50, // Well's producer guide rate for gas
-            VoidPrGuideRate = 68, // Well's producer guide rate for reservoir voidag volume
-
             HistOilPrTotal  = 75, // Well's total cumulative oil production
                                   // (observed/historical rates)
             HistWatPrTotal  = 76, // Well's total cumulative water
@@ -175,15 +168,6 @@ namespace Opm { namespace RestartIO { namespace Helpers { namespace VectorItems 
                                   // (observed/historical rates)
             HistGasInjTotal = 82, // Well's total cumulative gas injection
                                   // (observed/historical rates)
-
-            PrimGuideRate_2   = 91, // Second copy of well's primary guide rate.
-                                    // Not fully characterised.
-            WatPrGuideRate_2  = 92, // Second copy of well's producer guide rate for water.
-                                    // Not fully characterised.
-            GasPrGuideRate_2  = 93, // Second copy of well's producer guide rate for gas
-                                    // Not fully characterised.
-            VoidPrGuideRate_2 = 94, // Second copy of well's producer guide rate for reservoir voidage
-                                    // Not fully characterised.
 
             WatVoidPrRate = 122, // Well's voidage production rate
             GasVoidPrRate = 123, // Well's voidage production rate

@@ -40,13 +40,6 @@ namespace Opm {
             case ModeEnum::TOP:
                 stringValue = "TOP";
                 break;
-
-            case ModeEnum::GAP:
-                stringValue = "GAP";
-                break;
-            case ModeEnum::NOGAP:
-                stringValue = "NOGAP";
-                break;
             }
 
             return stringValue;
@@ -59,8 +52,6 @@ namespace Opm {
             if      (s == "ALL")    { mode = ModeEnum::ALL;    }
             else if (s == "TOPBOT") { mode = ModeEnum::TOPBOT; }
             else if (s == "TOP")    { mode = ModeEnum::TOP;    }
-            else if (s == "GAP")    { mode = ModeEnum::GAP;    }
-            else if (s == "NOGAP")  { mode = ModeEnum::NOGAP;    }
             else {
                 std::string msg = "Unsupported pinchout mode " + s;
                 throw std::invalid_argument(msg);

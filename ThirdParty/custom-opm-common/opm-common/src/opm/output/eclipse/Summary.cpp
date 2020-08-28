@@ -42,9 +42,8 @@
 #include <opm/io/eclipse/EclOutput.hpp>
 #include <opm/io/eclipse/OutputStream.hpp>
 
-#include <opm/output/data/Groups.hpp>
 #include <opm/output/data/Wells.hpp>
-
+#include <opm/output/data/Groups.hpp>
 #include <opm/output/eclipse/RegionCache.hpp>
 
 #include <algorithm>
@@ -143,25 +142,19 @@ namespace {
     {
         const auto& vectors = requiredRestartVectors();
         const std::vector<ParamCTorArgs> extra_well_vectors {
-            { "WTHP",  Opm::EclIO::SummaryNode::Type::Pressure },
             { "WBHP",  Opm::EclIO::SummaryNode::Type::Pressure },
             { "WGVIR", Opm::EclIO::SummaryNode::Type::Rate     },
             { "WWVIR", Opm::EclIO::SummaryNode::Type::Rate     },
-            { "WMCTL", Opm::EclIO::SummaryNode::Type::Mode     },
         };
         const std::vector<ParamCTorArgs> extra_group_vectors {
             { "GMCTG", Opm::EclIO::SummaryNode::Type::Mode },
             { "GMCTP", Opm::EclIO::SummaryNode::Type::Mode },
             { "GMCTW", Opm::EclIO::SummaryNode::Type::Mode },
-            { "GMWPR", Opm::EclIO::SummaryNode::Type::Mode },
-            { "GMWIN", Opm::EclIO::SummaryNode::Type::Mode },
         };
         const std::vector<ParamCTorArgs> extra_field_vectors {
             { "FMCTG", Opm::EclIO::SummaryNode::Type::Mode },
             { "FMCTP", Opm::EclIO::SummaryNode::Type::Mode },
             { "FMCTW", Opm::EclIO::SummaryNode::Type::Mode },
-            { "FMWPR", Opm::EclIO::SummaryNode::Type::Mode },
-            { "FMWIN", Opm::EclIO::SummaryNode::Type::Mode },
         };
 
         std::vector<Opm::EclIO::SummaryNode> entities {} ;
@@ -195,7 +188,6 @@ namespace {
             if (grp_name != "FIELD") {
                 makeEntities('G', Opm::EclIO::SummaryNode::Category::Group, grp_name);
                 makeExtraEntities(extra_group_vectors, Opm::EclIO::SummaryNode::Category::Group, grp_name);
-
             }
         }
 
@@ -266,6 +258,7 @@ using rt = Opm::data::Rates::opt;
 using measure = Opm::UnitSystem::measure;
 constexpr const bool injector = true;
 constexpr const bool producer = false;
+constexpr const bool polymer = true;
 
 /* Some numerical value with its unit tag embedded to enable caller to apply
  * unit conversion. This removes a lot of boilerplate. ad-hoc solution to poor
@@ -295,10 +288,6 @@ measure div_unit( measure denom, measure div ) {
     if( denom == measure::mass_rate &&
         div   == measure::time )
         return measure::mass;
-
-    if( denom == measure::mass_rate &&
-        div   == measure::liquid_surface_rate )
-        return measure::polymer_density;
 
     return measure::identity;
 }
@@ -380,7 +369,7 @@ struct fn_args {
     int  num;
     const Opm::SummaryState& st;
     const Opm::data::Wells& wells;
-    const Opm::data::GroupValues& groups;
+    const Opm::data::Group& group;
     const Opm::out::RegionCache& regionCache;
     const Opm::EclipseGrid& grid;
     const std::vector< std::pair< std::string, double > > eff_factors;
@@ -440,7 +429,7 @@ double efac( const std::vector<std::pair<std::string,double>>& eff_factors, cons
     return (it != eff_factors.end()) ? it->second : 1;
 }
 
-template< rt phase, bool injection = true >
+template< rt phase, bool injection = true, bool polymer = false >
 inline quantity rate( const fn_args& args ) {
     double sum = 0.0;
 
@@ -450,7 +439,11 @@ inline quantity rate( const fn_args& args ) {
 
         double eff_fac = efac( args.eff_factors, name );
 
-        const auto v = args.wells.at(name).rates.get(phase, 0.0) * eff_fac;
+        double concentration = polymer
+                             ? sched_well.getPolymerProperties().m_polymerConcentration
+                             : 1;
+
+        const auto v = args.wells.at(name).rates.get(phase, 0.0) * eff_fac * concentration;
 
         if( ( v > 0 ) == injection )
             sum += v;
@@ -458,7 +451,7 @@ inline quantity rate( const fn_args& args ) {
 
     if( !injection ) sum *= -1;
 
-    if (phase == rt::polymer || phase == rt::brine) return { sum, measure::mass_rate };
+    if( polymer ) return { sum, measure::mass_rate };
     return { sum, rate_unit< phase >() };
 }
 
@@ -478,7 +471,7 @@ inline quantity flowing( const fn_args& args ) {
              measure::identity };
 }
 
-template< rt phase, bool injection = true>
+template< rt phase, bool injection = true, bool polymer = false >
 inline quantity crate( const fn_args& args ) {
     const quantity zero = { 0, rate_unit< phase >() };
     // The args.num value is the literal value which will go to the
@@ -502,15 +495,19 @@ inline quantity crate( const fn_args& args ) {
     if( completion == well_data.connections.end() ) return zero;
 
     double eff_fac = efac( args.eff_factors, name );
-    auto v = completion->rates.get( phase, 0.0 ) * eff_fac;
+    double concentration = polymer
+                           ? well.getPolymerProperties().m_polymerConcentration
+                           : 1;
+
+    auto v = completion->rates.get( phase, 0.0 ) * eff_fac * concentration;
     if( ( v > 0 ) != injection ) return zero;
     if( !injection ) v *= -1;
 
-    if( phase == rt::polymer || phase == rt::brine ) return { v, measure::mass_rate };
+    if( polymer ) return { v, measure::mass_rate };
     return { v, rate_unit< phase >() };
 }
 
-template< rt phase>
+template< rt phase, bool polymer = false >
 inline quantity srate( const fn_args& args ) {
     const quantity zero = { 0, rate_unit< phase >() };
     // The args.num value is the literal value which will go to the
@@ -531,11 +528,15 @@ inline quantity srate( const fn_args& args ) {
     if( segment == well_data.segments.end() ) return zero;
 
     double eff_fac = efac( args.eff_factors, name );
-    auto v = segment->second.rates.get( phase, 0.0 ) * eff_fac;
+    double concentration = polymer
+                           ? well.getPolymerProperties().m_polymerConcentration
+                           : 1;
+
+    auto v = segment->second.rates.get( phase, 0.0 ) * eff_fac * concentration;
     //switch sign of rate - opposite convention in flow vs eclipse
     v *= -1;
 
-    if( phase == rt::polymer || phase == rt::brine ) return { v, measure::mass_rate };
+    if( polymer ) return { v, measure::mass_rate };
     return { v, rate_unit< phase >() };
 }
 
@@ -721,11 +722,11 @@ inline quantity potential_rate( const fn_args& args ) {
 
         if (sched_well.isInjector() && outputInjector) {
 	    const auto v = args.wells.at(name).rates.get(phase, 0.0);
-	    sum += v * efac(args.eff_factors, name);
+	    sum += v;
 	}
 	else if (sched_well.isProducer() && outputProducer) {
 	    const auto v = args.wells.at(name).rates.get(phase, 0.0);
-	    sum += v * efac(args.eff_factors, name);
+	    sum += v;
 	}
     }
 
@@ -750,9 +751,9 @@ inline quantity group_control( const fn_args& args ) {
 
     // production control
     if (Producer) {
-        auto it_g = args.groups.find(g_name);
-        if (it_g != args.groups.end()) {
-            const auto& value = it_g->second.currentControl.currentProdConstraint;
+        const auto it_g = args.group.find(g_name);
+        if (it_g != args.group.end()) {
+            const auto& value = it_g->second.currentProdConstraint;
             auto it_c = pCModeToPCntlMode.find(value);
             if (it_c == pCModeToPCntlMode.end()) {
                 std::stringstream str;
@@ -764,9 +765,9 @@ inline quantity group_control( const fn_args& args ) {
     }
     // water injection control
     else if (waterInjector){
-        auto it_g = args.groups.find(g_name);
-        if (it_g != args.groups.end()) {
-            const auto& value = it_g->second.currentControl.currentWaterInjectionConstraint;
+        const auto it_g = args.group.find(g_name);
+        if (it_g != args.group.end()) {
+            const auto& value = it_g->second.currentWaterInjectionConstraint;
             auto it_c = iCModeToICntlMode.find(value);
             if (it_c == iCModeToICntlMode.end()) {
                 std::stringstream str;
@@ -779,9 +780,9 @@ inline quantity group_control( const fn_args& args ) {
 
     // gas injection control
     else if (gasInjector){
-        auto it_g = args.groups.find(g_name);
-        if (it_g != args.groups.end()) {
-            const auto& value = it_g->second.currentControl.currentGasInjectionConstraint;
+        const auto it_g = args.group.find(g_name);
+        if (it_g != args.group.end()) {
+            const auto& value = it_g->second.currentGasInjectionConstraint;
             auto it_c = iCModeToICntlMode.find(value);
             if (it_c == iCModeToICntlMode.end()) {
                 std::stringstream str;
@@ -883,8 +884,7 @@ static const std::unordered_map< std::string, ofun > funs = {
     { "WOIR", rate< rt::oil, injector > },
     { "WGIR", rate< rt::gas, injector > },
     { "WNIR", rate< rt::solvent, injector > },
-    { "WCIR", rate< rt::polymer, injector > },
-    { "WSIR", rate< rt::brine, injector > },
+    { "WCIR", rate< rt::wat, injector, polymer > },
     { "WVIR", sum( sum( rate< rt::reservoir_water, injector >, rate< rt::reservoir_oil, injector > ),
                        rate< rt::reservoir_gas, injector > ) },
 
@@ -892,8 +892,7 @@ static const std::unordered_map< std::string, ofun > funs = {
     { "WOIT", mul( rate< rt::oil, injector >, duration ) },
     { "WGIT", mul( rate< rt::gas, injector >, duration ) },
     { "WNIT", mul( rate< rt::solvent, injector >, duration ) },
-    { "WCIT", mul( rate< rt::polymer, injector >, duration ) },
-    { "WSIT", mul( rate< rt::brine, injector >, duration ) },
+    { "WCIT", mul( rate< rt::wat, injector, polymer >, duration ) },
     { "WVIT", mul( sum( sum( rate< rt::reservoir_water, injector >, rate< rt::reservoir_oil, injector > ),
                         rate< rt::reservoir_gas, injector > ), duration ) },
 
@@ -901,10 +900,6 @@ static const std::unordered_map< std::string, ofun > funs = {
     { "WOPR", rate< rt::oil, producer > },
     { "WGPR", rate< rt::gas, producer > },
     { "WNPR", rate< rt::solvent, producer > },
-    { "WCPR", rate< rt::polymer, producer > },
-    { "WSPR", rate< rt::brine, producer > },
-    { "WCPC", div( rate< rt::polymer, producer >, rate< rt::wat, producer >) },
-    { "WSPC", div( rate< rt::brine, producer >, rate< rt::wat, producer >) },
 
     { "WGPRS", rate< rt::dissolved_gas, producer > },
     { "WGPRF", sub( rate< rt::gas, producer >, rate< rt::dissolved_gas, producer > ) },
@@ -919,10 +914,9 @@ static const std::unordered_map< std::string, ofun > funs = {
     { "WOPT", mul( rate< rt::oil, producer >, duration ) },
     { "WGPT", mul( rate< rt::gas, producer >, duration ) },
     { "WNPT", mul( rate< rt::solvent, producer >, duration ) },
-    { "WCPT", mul( rate< rt::polymer, producer >, duration ) },
-    { "WSPT", mul( rate< rt::brine, producer >, duration ) },
     { "WLPT", mul( sum( rate< rt::wat, producer >, rate< rt::oil, producer > ),
                    duration ) },
+
     { "WGPTS", mul( rate< rt::dissolved_gas, producer >, duration )},
     { "WGPTF", sub( mul( rate< rt::gas, producer >, duration ),
                         mul( rate< rt::dissolved_gas, producer >, duration ))},
@@ -953,16 +947,14 @@ static const std::unordered_map< std::string, ofun > funs = {
     { "GOIR", rate< rt::oil, injector > },
     { "GGIR", rate< rt::gas, injector > },
     { "GNIR", rate< rt::solvent, injector > },
-    { "GCIR", rate< rt::polymer, injector > },
-    { "GSIR", rate< rt::brine, injector > },
+    { "GCIR", rate< rt::wat, injector, polymer > },
     { "GVIR", sum( sum( rate< rt::reservoir_water, injector >, rate< rt::reservoir_oil, injector > ),
                         rate< rt::reservoir_gas, injector > ) },
     { "GWIT", mul( rate< rt::wat, injector >, duration ) },
     { "GOIT", mul( rate< rt::oil, injector >, duration ) },
     { "GGIT", mul( rate< rt::gas, injector >, duration ) },
     { "GNIT", mul( rate< rt::solvent, injector >, duration ) },
-    { "GCIT", mul( rate< rt::polymer, injector >, duration ) },
-    { "GSIT", mul( rate< rt::brine, injector >, duration ) },
+    { "GCIT", mul( rate< rt::wat, injector, polymer >, duration ) },
     { "GVIT", mul( sum( sum( rate< rt::reservoir_water, injector >, rate< rt::reservoir_oil, injector > ),
                         rate< rt::reservoir_gas, injector > ), duration ) },
 
@@ -970,10 +962,6 @@ static const std::unordered_map< std::string, ofun > funs = {
     { "GOPR", rate< rt::oil, producer > },
     { "GGPR", rate< rt::gas, producer > },
     { "GNPR", rate< rt::solvent, producer > },
-    { "GCPR", rate< rt::polymer, producer > },
-    { "GSPR", rate< rt::brine, producer > },
-    { "GCPC", div( rate< rt::polymer, producer >, rate< rt::wat, producer >) },
-    { "GSPC", div( rate< rt::brine, producer >, rate< rt::wat, producer >) },
     { "GOPRS", rate< rt::vaporized_oil, producer > },
     { "GOPRF", sub (rate < rt::oil, producer >, rate< rt::vaporized_oil, producer > ) },
     { "GLPR", sum( rate< rt::wat, producer >, rate< rt::oil, producer > ) },
@@ -984,7 +972,6 @@ static const std::unordered_map< std::string, ofun > funs = {
     { "GOPT", mul( rate< rt::oil, producer >, duration ) },
     { "GGPT", mul( rate< rt::gas, producer >, duration ) },
     { "GNPT", mul( rate< rt::solvent, producer >, duration ) },
-    { "GCPT", mul( rate< rt::polymer, producer >, duration ) },
     { "GOPTS", mul( rate< rt::vaporized_oil, producer >, duration ) },
     { "GOPTF", mul( sub (rate < rt::oil, producer >,
                          rate< rt::vaporized_oil, producer > ),
@@ -1083,8 +1070,7 @@ static const std::unordered_map< std::string, ofun > funs = {
 
     { "CWIR", crate< rt::wat, injector > },
     { "CGIR", crate< rt::gas, injector > },
-    { "CCIR", crate< rt::polymer, injector > },
-    { "CSIR", crate< rt::brine, injector > },
+    { "CCIR", crate< rt::wat, injector, polymer > },
     { "CWIT", mul( crate< rt::wat, injector >, duration ) },
     { "CGIT", mul( crate< rt::gas, injector >, duration ) },
     { "CNIT", mul( crate< rt::solvent, injector >, duration ) },
@@ -1092,8 +1078,6 @@ static const std::unordered_map< std::string, ofun > funs = {
     { "CWPR", crate< rt::wat, producer > },
     { "COPR", crate< rt::oil, producer > },
     { "CGPR", crate< rt::gas, producer > },
-    { "CCPR", crate< rt::polymer, producer > },
-    { "CSPR", crate< rt::brine, producer > },
     { "CGFR", sub(crate<rt::gas, producer>, crate<rt::gas, injector>) },
     { "COFR", sub(crate<rt::oil, producer>, crate<rt::oil, injector>) },
     { "CWFR", sub(crate<rt::wat, producer>, crate<rt::wat, injector>) },
@@ -1106,20 +1090,14 @@ static const std::unordered_map< std::string, ofun > funs = {
     { "COPT", mul( crate< rt::oil, producer >, duration ) },
     { "CGPT", mul( crate< rt::gas, producer >, duration ) },
     { "CNPT", mul( crate< rt::solvent, producer >, duration ) },
-    { "CCIT", mul( crate< rt::polymer, injector >, duration ) },
-    { "CCPT", mul( crate< rt::polymer, producer >, duration ) },
-    { "CSIT", mul( crate< rt::brine, injector >, duration ) },
-    { "CSPT", mul( crate< rt::brine, producer >, duration ) },
+    { "CCIT", mul( crate< rt::wat, injector, polymer >, duration ) },
+    { "CCPT", mul( crate< rt::wat, producer, polymer >, duration ) },
     { "CTFAC", trans_factors },
 
     { "FWPR", rate< rt::wat, producer > },
     { "FOPR", rate< rt::oil, producer > },
     { "FGPR", rate< rt::gas, producer > },
     { "FNPR", rate< rt::solvent, producer > },
-    { "FCPR", rate< rt::polymer, producer > },
-    { "FSPR", rate< rt::brine, producer > },
-    { "FCPC", div( rate< rt::polymer, producer >, rate< rt::wat, producer >) },
-    { "FSPC", div( rate< rt::brine, producer >, rate< rt::wat, producer >) },
     { "FVPR", sum( sum( rate< rt::reservoir_water, producer>, rate< rt::reservoir_oil, producer >),
                    rate< rt::reservoir_gas, producer>)},
     { "FGPRS", rate< rt::dissolved_gas, producer > },
@@ -1132,8 +1110,6 @@ static const std::unordered_map< std::string, ofun > funs = {
     { "FOPT", mul( rate< rt::oil, producer >, duration ) },
     { "FGPT", mul( rate< rt::gas, producer >, duration ) },
     { "FNPT", mul( rate< rt::solvent, producer >, duration ) },
-    { "FCPT", mul( rate< rt::polymer, producer >, duration ) },
-    { "FSPT", mul( rate< rt::brine, producer >, duration ) },
     { "FLPT", mul( sum( rate< rt::wat, producer >, rate< rt::oil, producer > ),
                    duration ) },
     { "FVPT", mul(sum (sum( rate< rt::reservoir_water, producer>, rate< rt::reservoir_oil, producer >),
@@ -1149,10 +1125,8 @@ static const std::unordered_map< std::string, ofun > funs = {
     { "FOIR", rate< rt::oil, injector > },
     { "FGIR", rate< rt::gas, injector > },
     { "FNIR", rate< rt::solvent, injector > },
-    { "FCIR", rate< rt::polymer, injector > },
-    { "FCPR", rate< rt::polymer, producer > },
-    { "FSIR", rate< rt::brine, injector > },
-    { "FSPR", rate< rt::brine, producer > },
+    { "FCIR", rate< rt::wat, injector, polymer > },
+    { "FCPR", rate< rt::wat, producer, polymer > },
     { "FVIR", sum( sum( rate< rt::reservoir_water, injector>, rate< rt::reservoir_oil, injector >),
                    rate< rt::reservoir_gas, injector>)},
 
@@ -1161,10 +1135,8 @@ static const std::unordered_map< std::string, ofun > funs = {
     { "FOIT", mul( rate< rt::oil, injector >, duration ) },
     { "FGIT", mul( rate< rt::gas, injector >, duration ) },
     { "FNIT", mul( rate< rt::solvent, injector >, duration ) },
-    { "FCIT", mul( rate< rt::polymer, injector >, duration ) },
-    { "FCPT", mul( rate< rt::polymer, producer >, duration ) },
-    { "FSIT", mul( rate< rt::brine, injector >, duration ) },
-    { "FSPT", mul( rate< rt::brine, producer >, duration ) },
+    { "FCIT", mul( rate< rt::wat, injector, polymer >, duration ) },
+    { "FCPT", mul( rate< rt::wat, producer, polymer >, duration ) },
     { "FLIT", mul( sum( rate< rt::wat, injector >, rate< rt::oil, injector > ),
                    duration ) },
     { "FVIT", mul( sum( sum( rate< rt::reservoir_water, injector>, rate< rt::reservoir_oil, injector >),
@@ -1400,6 +1372,63 @@ bool need_wells(const Opm::EclIO::SummaryNode& node) {
     throw std::runtime_error("Unhandled summary node category in need_wells");
 }
 
+void eval_udq(const Opm::Schedule& schedule, std::size_t sim_step, Opm::SummaryState& st)
+{
+    using namespace Opm;
+
+    const UDQConfig& udq = schedule.getUDQConfig(sim_step);
+    const auto& func_table = udq.function_table();
+    UDQContext context(func_table, st);
+    {
+        const std::vector<std::string> wells = st.wells();
+
+        for (const auto& assign : udq.assignments(UDQVarType::WELL_VAR)) {
+            auto ws = assign.eval(wells);
+            for (const auto& well : wells) {
+                const auto& udq_value = ws[well];
+                if (udq_value)
+                    st.update_well_var(well, ws.name(), udq_value.value());
+            }
+        }
+
+        for (const auto& def : udq.definitions(UDQVarType::WELL_VAR)) {
+            auto ws = def.eval(context);
+            for (const auto& well : wells) {
+                const auto& udq_value = ws[well];
+                if (udq_value)
+                    st.update_well_var(well, def.keyword(), udq_value.value());
+            }
+        }
+    }
+
+    {
+        const std::vector<std::string> groups = st.groups();
+
+        for (const auto& assign : udq.assignments(UDQVarType::GROUP_VAR)) {
+            auto ws = assign.eval(groups);
+            for (const auto& group : groups) {
+                const auto& udq_value = ws[group];
+                if (udq_value)
+                    st.update_group_var(group, ws.name(), udq_value.value());
+            }
+        }
+
+        for (const auto& def : udq.definitions(UDQVarType::GROUP_VAR)) {
+            auto ws = def.eval(context);
+            for (const auto& group : groups) {
+                const auto& udq_value = ws[group];
+                if (udq_value)
+                    st.update_group_var(group, def.keyword(), udq_value.value());
+            }
+        }
+    }
+
+    for (const auto& def : udq.definitions(UDQVarType::FIELD_VAR)) {
+        auto field_udq = def.eval(context);
+        if (field_udq[0])
+            st.update(def.keyword(), field_udq[0].value());
+    }
+}
 
 void updateValue(const Opm::EclIO::SummaryNode& node, const double value, Opm::SummaryState& st)
 {
@@ -1494,7 +1523,7 @@ namespace Evaluator {
     struct SimulatorResults
     {
         const Opm::data::WellRates& wellSol;
-        const Opm::data::GroupValues& groupSol;
+        const Opm::data::Group&  groupSol;
         const std::map<std::string, double>& single;
         const std::map<std::string, std::vector<double>>& region;
         const std::map<std::pair<std::string, int>, double>& block;
@@ -2020,7 +2049,7 @@ namespace Evaluator {
         const auto& kw = this->node_->keyword;
 
         return this->udq_.has_unit(kw)
-            ?  this->udq_.unit(kw) : "";
+            ?  this->udq_.unit(kw) : "?????";
     }
 } // namespace Evaluator
 
@@ -2230,7 +2259,7 @@ public:
               const int                      sim_step,
               const double                   duration,
               const data::WellRates&         well_solution,
-              const data::GroupValues&       group_solution,
+              const data::Group&             group_solution,
               const GlobalProcessParameters& single_values,
               const RegionParameters&        region_values,
               const BlockValues&             block_values,
@@ -2332,7 +2361,7 @@ eval(const EclipseState&            es,
      const int                      sim_step,
      const double                   duration,
      const data::WellRates&         well_solution,
-     const data::GroupValues&       group_solution,
+     const data::Group&             group_solution,
      const GlobalProcessParameters& single_values,
      const RegionParameters&        region_values,
      const BlockValues&             block_values,
@@ -2633,7 +2662,7 @@ void Summary::eval(SummaryState&                  st,
                    const EclipseState&            es,
                    const Schedule&                schedule,
                    const data::WellRates&         well_solution,
-                   const data::GroupValues&       group_solution,
+                   const data::Group&             group_solution,
                    const GlobalProcessParameters& single_values,
                    const RegionParameters&        region_values,
                    const BlockValues&             block_values) const
@@ -2657,8 +2686,8 @@ void Summary::eval(SummaryState&                  st,
                        well_solution, group_solution, single_values,
                        region_values, block_values, st);
 
-    const auto& udq = schedule.getUDQConfig(sim_step);
-    udq.eval(st);
+    eval_udq(schedule, sim_step, st);
+
     st.update_elapsed(duration);
 }
 

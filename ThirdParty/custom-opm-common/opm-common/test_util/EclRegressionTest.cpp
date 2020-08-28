@@ -895,26 +895,18 @@ void ECLRegressionTest::results_smry()
         std::vector<eclArrType> arrayType2 (keywords1.size(), REAL);
 
         if (integrationTest) {
-
-            auto isIntegrationKw = [](const std::string& kw)
-            {
-                static const auto kwlist = std::vector<std::string> {
-                   "WOPR", "WWPR", "WGPR", "WBHP",
-                   "SPR", "SPRD", "SPRDH", "SPRDF", "SPRDA",
-                };
-
-                const auto p = kw.find_first_of(':');
-                return std::find(kwlist.begin(), kwlist.end(), kw.substr(0, p)) != kwlist.end();
-            };
-
             std::vector<std::string> keywords;
 
-            for (const auto& kw : keywords1) {
-                if (! isIntegrationKw(kw)) { continue; }
-
-                auto search2 = std::find(keywords2.begin(), keywords2.end(), kw);
-                if (search2 != keywords2.end()) {
-                    keywords.push_back(kw);
+            for (size_t i = 0; i < keywords1.size(); i++) {
+                if (keywords1[i].substr(0,5) == "WOPR:" ||
+                    keywords1[i].substr(0,5) == "WWPR:" ||
+                    keywords1[i].substr(0,5) == "WGPR:" ||
+                    keywords1[i].substr(0,5) == "WBHP:" ||
+                    keywords1[i].substr(0,4) == "SPR:")  {
+                    auto search2 = std::find(keywords2.begin(), keywords2.end(), keywords1[i]);
+                    if (search2 != keywords2.end()) {
+                        keywords.push_back(keywords1[i]);
+                    }
                 }
             }
 

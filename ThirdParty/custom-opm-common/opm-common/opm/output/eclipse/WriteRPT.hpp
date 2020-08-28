@@ -26,7 +26,6 @@ namespace Opm {
 
     class Schedule;
     class EclipseGrid;
-    class UnitSystem;
 
     namespace RptIO {
 
@@ -36,13 +35,12 @@ namespace Opm {
             unsigned value,
             const Schedule& schedule,
             const EclipseGrid& grid,
-            const UnitSystem& unit_system,
             std::size_t time_step
         );
 
         namespace workers {
 
-            void write_WELSPECS(std::ostream&, unsigned, const Schedule&, const EclipseGrid& grid, const UnitSystem&, std::size_t);
+            void write_WELSPECS(std::ostream&, unsigned, const Schedule&, const EclipseGrid& grid, std::size_t);
 
 }   }   }
 #endif // OPM_WRITE_RPT_HPP

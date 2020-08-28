@@ -1,1 +1,3 @@
-actual_file_dir/case.data
+INCLUDE
+ 'include/include.inc'
+/

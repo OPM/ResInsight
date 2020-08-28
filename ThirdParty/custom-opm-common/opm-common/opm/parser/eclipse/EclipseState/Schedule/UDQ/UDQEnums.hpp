@@ -179,8 +179,6 @@ namespace UDQ {
     std::string typeName(UDQVarType var_type);
     UDAKeyword keyword(UDAControl control);
     int uadCode(UDAControl control);
-
-    constexpr double restart_default = -0.3E+21;
 }
 }
 

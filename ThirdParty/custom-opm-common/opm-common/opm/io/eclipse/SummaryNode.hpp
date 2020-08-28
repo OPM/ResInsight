@@ -25,7 +25,7 @@
 #include <string>
 #include <unordered_set>
 
-namespace Opm { namespace EclIO {
+namespace Opm::EclIO {
 
 struct SummaryNode {
     enum class Category {
@@ -72,6 +72,6 @@ struct SummaryNode {
     std::optional<std::string> display_number(number_renderer) const;
 };
 
- }} // namespace Opm::EclIO
+} // namespace Opm::EclIO
 
 #endif // OPM_IO_SUMMARYNODE_HPP

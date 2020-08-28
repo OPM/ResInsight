@@ -33,7 +33,8 @@ find_opm_package (
   # test program
 "#include <dune/geometry/quadraturerules.hh>
 int main (void) {
-  Dune::GeometryType gt = Dune::GeometryTypes::quadrilateral;
+  Dune::GeometryType gt;
+  gt.makeQuadrilateral();
   Dune::QuadratureRules<double, 2>::rule(gt, 2).size();
   return 0;
 }

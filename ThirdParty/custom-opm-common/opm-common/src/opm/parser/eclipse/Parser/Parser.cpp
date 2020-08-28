@@ -48,6 +48,7 @@
 #include <opm/parser/eclipse/Parser/ParserItem.hpp>
 #include <opm/parser/eclipse/Parser/ParserKeyword.hpp>
 #include <opm/parser/eclipse/Parser/ParserRecord.hpp>
+#include <opm/parser/eclipse/Utility/Stringview.hpp>
 #include <opm/common/utility/String.hpp>
 
 #include "raw/RawConsts.hpp"
@@ -108,14 +109,9 @@ inline Itr find_terminator( Itr begin, Itr end, Term terminator ) {
     ABC '--Comment1' --Comment2  =>  ABC '--Comment1'
     ABC "-- Not balanced quote?  =>  ABC "-- Not balanced quote?
 */
-static inline std::string_view strip_comments( std::string_view str ) {
-    auto terminator = find_terminator( str.begin(), str.end(), find_comment() );
-    std::size_t size = std::distance(str.begin(), terminator);
-#if __cplusplus >= 202002L
-    return { str.begin(), size };
-#else
-    return { str.data(), size };
-#endif
+static inline string_view strip_comments( string_view str ) {
+    return { str.begin(),
+             find_terminator( str.begin(), str.end(), find_comment() ) };
 }
 
 template< typename Itr >
@@ -132,21 +128,14 @@ inline Itr trim_right( Itr begin, Itr end ) {
     return std::find_if_not( rbegin, rend, RawConsts::is_separator() ).base();
 }
 
-inline std::string_view trim( std::string_view str ) {
+inline string_view trim( string_view str ) {
     auto fst = trim_left( str.begin(), str.end() );
     auto lst = trim_right( fst, str.end() );
-    std::size_t size = std::distance(fst, lst);
-#if __cplusplus >= 202002L
-    return {fst, size};
-#else
-    const char* st = str.data();
-    st += std::distance(str.begin(), fst);
-    return { st, size };
-#endif
+    return { fst, lst };
 }
 
-inline std::string_view del_after_first_slash( std::string_view view ) {
-    using itr = std::string_view::const_iterator;
+inline string_view del_after_first_slash( string_view view ) {
+    using itr = string_view::const_iterator;
     const auto term = []( itr begin, itr end ) {
         return std::find( begin, end, '/' );
     };
@@ -157,15 +146,11 @@ inline std::string_view del_after_first_slash( std::string_view view ) {
 
     /* we want to preserve terminating slashes */
     if( slash != end ) ++slash;
-    std::size_t size = std::distance(begin, slash);
-#if __cplusplus >= 202002L
-    return {begin, size};
-#else
-    return {view.data(), size};
-#endif
+
+    return { begin, slash };
 }
 
-inline std::string_view del_after_last_slash( std::string_view view ) {
+inline string_view del_after_last_slash( string_view view ) {
   auto begin = view.begin();
   auto end = view.end();
   auto slash = end;
@@ -184,15 +169,11 @@ inline std::string_view del_after_last_slash( std::string_view view ) {
 
   /* we want to preserve terminating slashes */
   if( slash != end ) ++slash;
-  std::size_t size = std::distance(begin, slash);
-#if __cplusplus >= 202002L
-  return {begin, size};
-#else
-  return {view.data(), size};
-#endif
+
+  return { begin, slash };
 }
 
-inline std::string_view del_after_slash(std::string_view view, bool raw_strings) {
+inline string_view del_after_slash(string_view view, bool raw_strings) {
     if (raw_strings)
         return del_after_last_slash(view);
     else
@@ -200,19 +181,13 @@ inline std::string_view del_after_slash(std::string_view view, bool raw_strings)
 }
 
 
-inline bool getline( std::string_view& input, std::string_view& line ) {
+inline bool getline( string_view& input, string_view& line ) {
     if( input.empty() ) return false;
 
     auto end = std::find( input.begin(), input.end(), '\n' );
-#if __cplusplus >= 202002L
-    line = std::string_view(input.begin(), end - input.begin());
-    input = std::string_view(end + 1, input.end() - (end + 1));
-#else
-    line = std::string_view(input.data(), std::distance(input.begin(), end));
-    const char* p = input.data();
-    p += std::distance(input.begin(), end) + 1;
-    input = std::string_view(p, std::distance(end + 1, input.end()));
-#endif
+
+    line = string_view( input.begin(), end );
+    input = string_view( end + 1, input.end() );
     return true;
 
     /* we know that we always append a newline onto the input string, so we can
@@ -231,7 +206,7 @@ inline std::string fast_clean( const std::string& str ) {
     std::string dst;
     dst.resize( str.size() );
 
-    std::string_view input( str ), line;
+    string_view input( str ), line;
     auto dsti = dst.begin();
     while( true ) {
 
@@ -249,27 +224,6 @@ inline std::string fast_clean( const std::string& str ) {
     return dst;
 }
 
-inline bool starts_with(const std::string_view& view, const std::string& str) {
-    auto str_size = str.size();
-    if (str_size > view.size())
-        return false;
-
-    auto str_data = str.data();
-    auto pos = view.begin();
-
-    std::size_t si = 0;
-    while (true) {
-        if (*pos != str_data[si])
-            return false;
-
-        ++pos;
-        ++si;
-
-        if (si == str_size)
-            return true;
-    }
-}
-
 inline std::string clean( const std::vector<std::pair<std::string, std::string>>& code_keywords, const std::string& str ) {
     auto count = std::count_if(code_keywords.begin(), code_keywords.end(), [&str](const std::pair<std::string, std::string>& code_pair)
                                                                   {
@@ -282,38 +236,26 @@ inline std::string clean( const std::vector<std::pair<std::string, std::string>>
         std::string dst;
         dst.resize( str.size() );
 
-        std::string_view input( str ), line;
+        string_view input( str ), line;
         auto dsti = dst.begin();
         while( true ) {
             for (const auto& code_pair : code_keywords) {
                 const auto& keyword = code_pair.first;
 
-                if (starts_with(input, keyword)) {
+                if (input.starts_with(keyword)) {
                     std::string end_string = code_pair.second;
                     auto end_pos = input.find(end_string);
                     if (end_pos == std::string::npos) {
                         std::copy(input.begin(), input.end(), dsti);
                         dsti += std::distance( input.begin(), input.end() );
-#if __cplusplus >= 202002L
-                        input = std::string_view(input.end(), 0);
-#else
-                        const char* p = input.data();
-                        p += std::distance(input.begin(), input.end()) + 1;
-                        input = std::string_view(p, 0);
-#endif
+                        input = string_view(input.end(), input.end());
                         break;
                     } else {
                         end_pos += end_string.size();
                         std::copy(input.begin(), input.begin() + end_pos, dsti);
                         dsti += end_pos;
                         *dsti++ = '\n';
-#if __cplusplus >= 202002L
-                        input = std::string_view(input.begin() + end_pos + 1, input.end() - (input.begin() + end_pos + 1));
-#else
-                        const char* p = input.data();
-                        p += end_pos + 1;
-                        input = std::string_view(p, std::distance(input.begin() + end_pos + 1, input.end()));
-#endif
+                        input = string_view(input.begin() + end_pos + 1, input.end());
                         break;
                     }
                 }
@@ -338,31 +280,25 @@ inline std::string clean( const std::vector<std::pair<std::string, std::string>>
 
 
 
-inline std::string make_deck_name(const std::string_view& str) {
+inline std::string make_deck_name(const string_view& str) {
     auto first_sep = std::find_if( str.begin(), str.end(), RawConsts::is_separator() );
-    return uppercase( std::string( str.substr( 0, first_sep - str.begin()) ));
+    return uppercase( str.substr(0, first_sep - str.begin()) );
 }
 
 
-inline std::string_view update_record_buffer(const std::string_view& record_buffer, const std::string_view& line) {
+inline string_view update_record_buffer(const string_view& record_buffer, const string_view& line) {
     if (record_buffer.empty())
         return line;
-    else {
-        std::size_t size = std::distance(record_buffer.begin(), line.end());
-#if __cplusplus >= 202002L
-        return { record_buffer.begin(), size };
-#else
-        return {record_buffer.data(), size};
-#endif
-    }
+    else
+        return { record_buffer.begin(), line.end() };
 }
 
 
-inline bool isTerminator(const std::string_view& line) {
+inline bool isTerminator(const string_view& line) {
     return (line.size() == 1 && line.back() == RawConsts::slash);
 }
 
-inline bool isTerminatedRecordString(const std::string_view& line) {
+inline bool isTerminatedRecordString(const string_view& line) {
     return (line.back() == RawConsts::slash);
 }
 
@@ -373,7 +309,7 @@ struct file {
         input( in ), path( p )
     {}
 
-    std::string_view input;
+    string_view input;
     size_t lineNR = 0;
     Opm::filesystem::path path;
 };
@@ -402,7 +338,7 @@ class ParserState {
         void loadFile( const Opm::filesystem::path& );
         void openRootFile( const Opm::filesystem::path& );
 
-        void handleRandomText(const std::string_view& ) const;
+        void handleRandomText(const string_view& ) const;
         Opm::filesystem::path getIncludeFilePath( std::string ) const;
         void addPathAlias( const std::string& alias, const std::string& path );
 
@@ -410,8 +346,8 @@ class ParserState {
         size_t line() const;
 
         bool done() const;
-        std::string_view getline();
-        void ungetline(const std::string_view& ln);
+        string_view getline();
+        void ungetline(const string_view& ln);
         void closeFile();
 
     private:
@@ -449,8 +385,8 @@ bool ParserState::done() const {
     return this->input_stack.empty();
 }
 
-std::string_view ParserState::getline() {
-    std::string_view ln;
+string_view ParserState::getline() {
+    string_view ln;
 
     str::getline( this->input_stack.top().input, ln );
     this->input_stack.top().lineNR++;
@@ -460,15 +396,12 @@ std::string_view ParserState::getline() {
 
 
 
-void ParserState::ungetline(const std::string_view& line) {
+void ParserState::ungetline(const string_view& line) {
     auto& file_view = this->input_stack.top().input;
     if (line.end() + 1 != file_view.begin())
         throw std::invalid_argument("line view does not immediately proceed file_view");
-#if __cplusplus >= 202002L
-    file_view = std::string_view(line.begin(), file_view.end() - line.begin());
-#else
-    file_view = std::string_view(line.data(), std::distance(line.begin(), file_view.end()));
-#endif
+
+    file_view = string_view(line.begin(), file_view.end());
     this->input_stack.top().lineNR--;
 }
 
@@ -556,10 +489,10 @@ void ParserState::loadFile(const Opm::filesystem::path& inputFile) {
  * of the data section of any keyword.
  */
 
-void ParserState::handleRandomText(const std::string_view& keywordString ) const {
+void ParserState::handleRandomText(const string_view& keywordString ) const {
     std::string errorKey;
     std::stringstream msg;
-    std::string trimmedCopy = std::string( keywordString );
+    std::string trimmedCopy = keywordString.string();
 
 
     if (trimmedCopy == "/") {
@@ -703,7 +636,13 @@ RawKeyword * newRawKeyword(const ParserKeyword& parserKeyword, const std::string
 }
 
 
-RawKeyword * newRawKeyword( const std::string& deck_name, ParserState& parserState, const Parser& parser, const std::string_view& line ) {
+RawKeyword * newRawKeyword( const std::string& deck_name, ParserState& parserState, const Parser& parser, const string_view& line ) {
+    if (parser.isRecognizedKeyword(deck_name)) {
+        parserState.unknown_keyword = false;
+        const auto& parserKeyword = parser.getParserKeywordFromDeckName(deck_name);
+        return newRawKeyword(parserKeyword, deck_name, parserState, parser);
+    }
+
     if (deck_name.size() > RawConsts::maxKeywordLength) {
         const std::string keyword8 = deck_name.substr(0, RawConsts::maxKeywordLength);
         if (parser.isRecognizedKeyword(keyword8)) {
@@ -713,17 +652,7 @@ RawKeyword * newRawKeyword( const std::string& deck_name, ParserState& parserSta
             parserState.unknown_keyword = false;
             const auto& parserKeyword = parser.getParserKeywordFromDeckName( keyword8 );
             return newRawKeyword(parserKeyword, keyword8, parserState, parser);
-        } else {
-            parserState.parseContext.handleUnknownKeyword( deck_name, parserState.errors );
-            parserState.unknown_keyword = true;
-            return nullptr;
         }
-    }
-
-    if (parser.isRecognizedKeyword(deck_name)) {
-        parserState.unknown_keyword = false;
-        const auto& parserKeyword = parser.getParserKeywordFromDeckName(deck_name);
-        return newRawKeyword(parserKeyword, deck_name, parserState, parser);
     }
 
     if( ParserKeyword::validDeckName(deck_name) ) {
@@ -768,7 +697,7 @@ void skipUDT( ParserState& parserState, const Parser& parser) {
 std::unique_ptr<RawKeyword> tryParseKeyword( ParserState& parserState, const Parser& parser) {
     bool is_title = false;
     std::unique_ptr<RawKeyword> rawKeyword;
-    std::string_view record_buffer(str::emptystr);
+    string_view record_buffer(str::emptystr);
     while( !parserState.done() ) {
         auto line = parserState.getline();
 
@@ -822,22 +751,14 @@ std::unique_ptr<RawKeyword> tryParseKeyword( ParserState& parserState, const Par
             if (rawKeyword->getSizeType() == Raw::CODE) {
                 auto end_pos = line.find(parserKeyword.codeEnd());
                 if (end_pos != std::string::npos) {
-#if __cplusplus >= 202002L
-                    std::string_view line_content = { line.begin(), end_pos};
-#else
-                    std::string_view line_content = {line.data(), end_pos};
-#endif
+                    string_view line_content = { line.begin(), line.begin() + end_pos};
                     record_buffer = str::update_record_buffer( record_buffer, line_content );
 
                     RawRecord record(record_buffer, true);
                     rawKeyword->addRecord(record);
                     return rawKeyword;
                 } else
-#if __cplusplus >= 202002L
-                    record_buffer = str::update_record_buffer(record_buffer.begin(), line);
-#else
-                    record_buffer = str::update_record_buffer(record_buffer.data(), line);
-#endif
+                    record_buffer = str::update_record_buffer( record_buffer.begin(), line );
 
                 continue;
             }
@@ -872,12 +793,7 @@ std::unique_ptr<RawKeyword> tryParseKeyword( ParserState& parserState, const Par
                     RawRecord record("opm/flow simulation");
                     rawKeyword->addRecord(record);
                 } else {
-                    std::size_t size = std::distance(record_buffer.begin(),record_buffer.end());
-#if __cplusplus >= 202002L
-                    RawRecord record( std::string_view{ record_buffer.begin(), size });
-#else
-                    RawRecord record(std::string_view {record_buffer.data(), size});
-#endif
+                    RawRecord record( string_view{ record_buffer.begin(), record_buffer.end()});
                     rawKeyword->addRecord(record);
                 }
                 return rawKeyword;
@@ -891,12 +807,7 @@ std::unique_ptr<RawKeyword> tryParseKeyword( ParserState& parserState, const Par
 
 
             if (str::isTerminatedRecordString(record_buffer)) {
-                std::size_t size = std::distance(record_buffer.begin(), record_buffer.end()) - 1;
-#if __cplusplus >= 202002L
-                RawRecord record( std::string_view{ record_buffer.begin(), size });
-#else
-                RawRecord record(std::string_view {record_buffer.data(), size});
-#endif
+                RawRecord record( string_view{ record_buffer.begin(), record_buffer.end( ) - 1});
                 if (rawKeyword->addRecord(record))
                     return rawKeyword;
 
@@ -1114,7 +1025,7 @@ bool parseState( ParserState& parserState, const Parser& parser ) {
         return m_deckParserKeywords.size();
     }
 
-    const ParserKeyword* Parser::matchingKeyword(const std::string_view& name) const {
+    const ParserKeyword* Parser::matchingKeyword(const string_view& name) const {
         for (auto iter = m_wildCardKeywords.begin(); iter != m_wildCardKeywords.end(); ++iter) {
             if (iter->second->matches(name))
                 return iter->second;
@@ -1126,7 +1037,7 @@ bool parseState( ParserState& parserState, const Parser& parser ) {
         return (m_wildCardKeywords.count(internalKeywordName) > 0);
     }
 
-    bool Parser::isRecognizedKeyword(const std::string_view& name ) const {
+    bool Parser::isRecognizedKeyword(const string_view& name ) const {
         if( !ParserKeyword::validDeckName( name ) )
             return false;
 
@@ -1144,7 +1055,7 @@ void Parser::addParserKeyword( ParserKeyword&& parserKeyword ) {
      * * A keyword can be added that overwrites some *but not all* deckname ->
      *   keyword mappings. Keeping track of this is more hassle than worth for
      *   what is essentially edge case usage.
-     * * We can store (and search) via std::string_view's from the keyword added
+     * * We can store (and search) via string_view's from the keyword added
      *   first because we know that it will be kept around, i.e. we don't have to
      *   deal with subtle lifetime issues.
      * * It means we aren't reliant on some internal name mapping, and can only
@@ -1156,7 +1067,7 @@ void Parser::addParserKeyword( ParserKeyword&& parserKeyword ) {
 
     this->keyword_storage.push_back( std::move( parserKeyword ) );
     const ParserKeyword * ptr = std::addressof(this->keyword_storage.back());
-    std::string_view name( ptr->getName() );
+    string_view name( ptr->getName() );
 
     for (auto nameIt = ptr->deckNamesBegin();
             nameIt != ptr->deckNamesEnd();
@@ -1178,15 +1089,15 @@ void Parser::addParserKeyword(const Json::JsonObject& jsonKeyword) {
 }
 
 bool Parser::hasKeyword( const std::string& name ) const {
-    return this->m_deckParserKeywords.find( std::string_view( name ) )
+    return this->m_deckParserKeywords.find( string_view( name ) )
         != this->m_deckParserKeywords.end();
 }
 
 const ParserKeyword& Parser::getKeyword( const std::string& name ) const {
-    return getParserKeywordFromDeckName( std::string_view( name ) );
+    return getParserKeywordFromDeckName( string_view( name ) );
 }
 
-const ParserKeyword& Parser::getParserKeywordFromDeckName(const std::string_view& name ) const {
+const ParserKeyword& Parser::getParserKeywordFromDeckName(const string_view& name ) const {
     auto candidate = m_deckParserKeywords.find( name );
 
     if( candidate != m_deckParserKeywords.end() ) return *candidate->second;
@@ -1194,7 +1105,7 @@ const ParserKeyword& Parser::getParserKeywordFromDeckName(const std::string_view
     const auto* wildCardKeyword = matchingKeyword( name );
 
     if ( !wildCardKeyword )
-        throw std::invalid_argument( "Do not have parser keyword for parsing: " + std::string(name) );
+        throw std::invalid_argument( "Do not have parser keyword for parsing: " + name );
 
     return *wildCardKeyword;
 }
@@ -1202,10 +1113,10 @@ const ParserKeyword& Parser::getParserKeywordFromDeckName(const std::string_view
 std::vector<std::string> Parser::getAllDeckNames () const {
     std::vector<std::string> keywords;
     for (auto iterator = m_deckParserKeywords.begin(); iterator != m_deckParserKeywords.end(); iterator++) {
-        keywords.push_back(std::string(iterator->first));
+        keywords.push_back(iterator->first.string());
     }
     for (auto iterator = m_wildCardKeywords.begin(); iterator != m_wildCardKeywords.end(); iterator++) {
-        keywords.push_back(std::string(iterator->first));
+        keywords.push_back(iterator->first.string());
     }
     return keywords;
 }

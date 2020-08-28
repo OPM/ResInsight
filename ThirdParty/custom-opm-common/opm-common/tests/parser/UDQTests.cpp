@@ -15,7 +15,6 @@ Copyright 2018 Statoil ASA.
 
 #define BOOST_TEST_MODULE UDQTests
 #include <boost/test/unit_test.hpp>
-#include <limits>
 
 #include <opm/parser/eclipse/Utility/Typetools.hpp>
 #include <opm/parser/eclipse/Python/Python.hpp>
@@ -39,24 +38,6 @@ Copyright 2018 Statoil ASA.
 #include <opm/parser/eclipse/EclipseState/Schedule/SummaryState.hpp>
 
 using namespace Opm;
-
-Schedule make_schedule(const std::string& input) {
-    Parser parser;
-    auto python = std::make_shared<Python>();
-
-    auto deck = parser.parseString(input);
-    if (deck.hasKeyword("DIMENS")) {
-        EclipseState es(deck);
-        return Schedule(deck, es, python);
-    } else {
-        EclipseGrid grid(10,10,10);
-        TableManager table ( deck );
-        FieldPropsManager fp( deck, Phases{true, true, true}, grid, table);
-        Runspec runspec (deck);
-        return Schedule(deck, grid , fp, runspec, python);
-    }
-}
-
 
 BOOST_AUTO_TEST_CASE(TYPE_COERCION) {
     BOOST_CHECK( UDQVarType::SCALAR == UDQ::coerce(UDQVarType::SCALAR, UDQVarType::SCALAR) );
@@ -110,6 +91,7 @@ BOOST_AUTO_TEST_CASE(SUBTRACT)
     BOOST_CHECK_EQUAL( res2[0].value(), 16.0);
 }
 
+
 BOOST_AUTO_TEST_CASE(TEST)
 {
     UDQParams udqp;
@@ -155,6 +137,23 @@ BOOST_AUTO_TEST_CASE(TEST)
       UDQVarType == BLOCK is not yet supported.
     */
     BOOST_CHECK_THROW( UDQDefine(udqp, "WUWI2", {"BPR", "1","1", "1", "*", "2.0"}), std::logic_error);
+}
+
+Schedule make_schedule(const std::string& input) {
+    Parser parser;
+    auto python = std::make_shared<Python>();
+
+    auto deck = parser.parseString(input);
+    if (deck.hasKeyword("DIMENS")) {
+        EclipseState es(deck);
+        return Schedule(deck, es, python);
+    } else {
+        EclipseGrid grid(10,10,10);
+        TableManager table ( deck );
+        FieldPropsManager fp( deck, Phases{true, true, true}, grid, table);
+        Runspec runspec (deck);
+        return Schedule(deck, grid , fp, runspec, python);
+    }
 }
 
 
@@ -204,20 +203,6 @@ BOOST_AUTO_TEST_CASE(UDQFieldSetTest) {
         auto fopr_res = def_fopr.eval(context);
         BOOST_CHECK_EQUAL( fopr_res[0].value(), 10.0 );
     }
-}
-
-BOOST_AUTO_TEST_CASE(UDQWellSetNANTest) {
-    std::vector<std::string> wells = {"P1", "P2", "I1", "I2"};
-    UDQSet ws = UDQSet::wells("NAME", wells);
-
-    for (std::size_t i = 0; i < 4; i++)
-        ws.assign(i, i*1.0);
-
-    BOOST_CHECK_EQUAL(ws.defined_size(), 4);
-
-    ws.assign(1,std::numeric_limits<double>::quiet_NaN());
-    ws.assign(3,std::numeric_limits<double>::quiet_NaN());
-    BOOST_CHECK_EQUAL(ws.defined_size(), 2);
 }
 
 
@@ -902,11 +887,10 @@ BOOST_AUTO_TEST_CASE(FUNCTIONS_INVALID_ARGUMENT) {
 }
 
 BOOST_AUTO_TEST_CASE(UDQ_SET_DIV) {
-    UDQSet s("NAME", 6);
+    UDQSet s("NAME", 5);
     s.assign(0,1);
     s.assign(2,2);
     s.assign(4,5);
-    s.assign(5,0);
 
     auto result = 10 / s;
     BOOST_CHECK_EQUAL( result.defined_size(), 3);
@@ -1050,53 +1034,8 @@ BOOST_AUTO_TEST_CASE(UDQ_SCALAR_SET) {
         auto well4 = res["P4"];
         BOOST_CHECK( well4.defined() );
         BOOST_CHECK_EQUAL(well4.value() , 1);
-
-        BOOST_CHECK_EQUAL( "WUOPR", res.name() );
     }
 }
-
-BOOST_AUTO_TEST_CASE(UDQ_SORTD_NAN) {
-    UDQParams udqp;
-    UDQFunctionTable udqft;
-    UDQDefine def(udqp, "WUPR1" , {"1", "/", "(", "WWIR", "'OP*'" , ")"});
-    UDQDefine def_sort(udqp , "WUPR3", {"SORTD", "(", "WUPR1", ")" });
-    SummaryState st(std::chrono::system_clock::now());
-    UDQContext context(udqft, st);
-
-    st.update_well_var("OP1", "WWIR", 1.0);
-    st.update_well_var("OP2", "WWIR", 2.0);
-    st.update_well_var("OP3", "WWIR", 3.0);
-    st.update_well_var("OP4", "WWIR", 4.0);
-
-    auto res1 = def.eval(context);
-    st.update_udq( res1 );
-
-    auto res_sort1 = def_sort.eval(context);
-    st.update_udq( res_sort1 );
-    BOOST_CHECK_EQUAL(res_sort1["OP1"].value(), 1.0);
-    BOOST_CHECK_EQUAL(res_sort1["OP2"].value(), 2.0);
-    BOOST_CHECK_EQUAL(res_sort1["OP3"].value(), 3.0);
-    BOOST_CHECK_EQUAL(res_sort1["OP4"].value(), 4.0);
-    BOOST_CHECK( st.has_well_var("OP1", "WUPR3"));
-    BOOST_CHECK( st.has_well_var("OP4", "WUPR3"));
-
-    st.update_well_var("OP1", "WWIR", 0);
-    auto res2 = def.eval(context);
-    BOOST_CHECK_EQUAL(res2.defined_size(), 3);
-    st.update_udq( res2 );
-    BOOST_CHECK( !st.has_well_var("OP1", "WUPR1"));
-    BOOST_CHECK( st.has_well_var("OP4", "WUPR1"));
-
-    auto res_sort2 = def_sort.eval(context);
-    st.update_udq( res_sort2 );
-    BOOST_CHECK_EQUAL(res_sort2.defined_size(), 3);
-    BOOST_CHECK_EQUAL(res_sort2["OP2"].value(), 1.0);
-    BOOST_CHECK_EQUAL(res_sort2["OP3"].value(), 2.0);
-    BOOST_CHECK_EQUAL(res_sort2["OP4"].value(), 3.0);
-    BOOST_CHECK( !st.has_well_var("OP1", "WUPR3"));
-    BOOST_CHECK( st.has_well_var("OP4", "WUPR3"));
-}
-
 
 
 BOOST_AUTO_TEST_CASE(UDQ_SORTA) {
@@ -1435,6 +1374,7 @@ BOOST_AUTO_TEST_CASE(UDQ_USAGE) {
     BOOST_CHECK_EQUAL( usage[1].use_count, 1);
 
     const auto& rec = usage[0];
+    BOOST_CHECK_EQUAL(rec.wgname, "W1");
     BOOST_CHECK_EQUAL(rec.udq, "WUX");
     BOOST_CHECK(rec.control == UDAControl::WCONPROD_ORAT);
 
@@ -1442,6 +1382,7 @@ BOOST_AUTO_TEST_CASE(UDQ_USAGE) {
     for (std::size_t index = 0; index < usage.IUAD_size(); index++) {
         const auto& record = usage[index];
         BOOST_CHECK_EQUAL(record.input_index, 0);
+        BOOST_CHECK_EQUAL(record.wgname, "W1");
 
         if (index == 0)
             BOOST_CHECK(record.control == UDAControl::WCONPROD_ORAT);
@@ -1459,35 +1400,32 @@ BOOST_AUTO_TEST_CASE(IntegrationTest) {
     auto schedule = make_schedule(deck_string);
     {
         const auto& active = schedule.udqActive(1);
-        BOOST_CHECK_EQUAL(active.IUAD_size(), 6);
+        BOOST_CHECK_EQUAL(active.IUAD_size(), 4);
 
         BOOST_CHECK(active[0].control == UDAControl::WCONPROD_ORAT);
         BOOST_CHECK(active[1].control == UDAControl::WCONPROD_LRAT);
         BOOST_CHECK(active[2].control == UDAControl::WCONPROD_ORAT);
         BOOST_CHECK(active[3].control == UDAControl::WCONPROD_LRAT);
-        BOOST_CHECK(active[4].control == UDAControl::GCONPROD_LIQUID_TARGET);
-        BOOST_CHECK(active[5].control == UDAControl::GCONPROD_LIQUID_TARGET);
+
+        BOOST_CHECK(active[0].wgname == "OPL02");
+        BOOST_CHECK(active[1].wgname == "OPL02");
+        BOOST_CHECK(active[2].wgname == "OPU02");
+        BOOST_CHECK(active[3].wgname == "OPU02");
 
         BOOST_CHECK(active[0].udq == "WUOPRL");
         BOOST_CHECK(active[1].udq == "WULPRL");
         BOOST_CHECK(active[2].udq == "WUOPRU");
         BOOST_CHECK(active[3].udq == "WULPRU");
-        BOOST_CHECK(active[4].udq == "GULPR1");
-        BOOST_CHECK(active[5].udq == "GUOPR1");
 
         BOOST_CHECK(active[0].input_index == 0);
         BOOST_CHECK(active[1].input_index == 1);
         BOOST_CHECK(active[2].input_index == 2);
         BOOST_CHECK(active[3].input_index == 3);
-        BOOST_CHECK(active[4].input_index == 4);
-        BOOST_CHECK(active[5].input_index == 5);
 
         BOOST_CHECK(active[0].use_count == 1);
         BOOST_CHECK(active[1].use_count == 1);
         BOOST_CHECK(active[2].use_count == 1);
         BOOST_CHECK(active[3].use_count == 1);
-        BOOST_CHECK(active[4].use_count == 2);
-        BOOST_CHECK(active[5].use_count == 1);
     }
 }
 
@@ -1618,69 +1556,5 @@ WCONPROD
         BOOST_CHECK_EQUAL( tokens.count( UDQTokenType::binary_op_sub), 1);
         BOOST_CHECK_EQUAL( tokens.count( UDQTokenType::binary_op_mul), 1);
     }
-}
-
-
-BOOST_AUTO_TEST_CASE(UDQ_SCIENTIFIC_LITERAL) {
-    std::string deck_string = R"(
-SCHEDULE
-UDQ
-   DEFINE FU 0 -1.25E-2*(1.0E-1 + 2E-1) /
-/
-
-)";
-    auto schedule = make_schedule(deck_string);
-    const auto& udq = schedule.getUDQConfig(0);
-    UDQParams udqp;
-    auto def0 = udq.definitions()[0];
-    SummaryState st(std::chrono::system_clock::now());
-    UDQFunctionTable udqft(udqp);
-    UDQContext context(udqft, st);
-
-    auto res0 = def0.eval(context);
-    BOOST_CHECK_CLOSE( res0[0].value(), -0.00125*3, 1e-6);
-}
-
-
-BOOST_AUTO_TEST_CASE(UDQ_NEGATIVE_PREFIX_BASIC) {
-    std::string deck_string = R"(
-SCHEDULE
-UDQ
-   DEFINE FUMIN0 - 1.5*FWPR /
-   DEFINE FUMIN1 - 1.5*FWPR*(FGPR + FOPR)^3 - 2*FLPR /
-   DEFINE FU -2.539E-14 * (FUP1+FUP2)^3 + 1.4464E-8 *(FUP1+FUP2)^2 +0.00028875*(FUP1+FUP2)+2.8541 /
-/
-)";
-
-    auto schedule = make_schedule(deck_string);
-    const auto& udq = schedule.getUDQConfig(0);
-    UDQParams udqp;
-    auto def0 = udq.definitions()[0];
-    auto def1 = udq.definitions()[1];
-    auto def2 = udq.definitions()[2];
-    SummaryState st(std::chrono::system_clock::now());
-    UDQFunctionTable udqft(udqp);
-    UDQContext context(udqft, st);
-    const double fwpr = 7;
-    const double fopr = 4;
-    const double fgpr = 7;
-    const double flpr = 13;
-    const double fup1 = 1025;
-    const double fup2 = 107;
-    st.update("FWPR", fwpr);
-    st.update("FOPR", fopr);
-    st.update("FGPR", fgpr);
-    st.update("FLPR", flpr);
-    st.update("FUP1", fup1);
-    st.update("FUP2", fup2);
-
-    auto res0 = def0.eval(context);
-    BOOST_CHECK_EQUAL( res0[0].value(), -1.5*fwpr);
-
-    auto res1 = def1.eval(context);
-    BOOST_CHECK_EQUAL( res1[0].value(), -1.5*fwpr*std::pow(fgpr+fopr, 3) - 2*flpr );
-
-    auto res2 = def2.eval(context);
-    BOOST_CHECK_CLOSE( res2[0].value(), -2.5394E-14 * std::pow(fup1 + fup2, 3) + 1.4464E-8*std::pow(fup1 + fup2, 2) + 0.00028875*(fup1 + fup2) + 2.8541, 1e-6);
 }
 

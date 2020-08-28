@@ -33,9 +33,6 @@ namespace Opm {
     class Schedule;
     class SummaryState;
     class UnitSystem;
-    namespace Action {
-        class State;
-    }
 } // Opm
 
 namespace Opm { namespace data {
@@ -43,18 +40,22 @@ namespace Opm { namespace data {
 }} // Opm::data
 
 namespace Opm { namespace RestartIO { namespace Helpers {
+    
+    struct ActionResStatus {
+        std::vector<Opm::Action::Result> result;
+        std::vector<std::string> name;
+    };
 
     class AggregateWellData
     {
     public:
         explicit AggregateWellData(const std::vector<int>& inteHead);
 
-        void captureDeclaredWellData(const Schedule&   	sched,
-                                     const UnitSystem& 		units,
-                                     const std::size_t 		sim_step,
-                                     const ::Opm::Action::State& action_state,
-                                     const ::Opm::SummaryState&  	smry,
-                                     const std::vector<int>& 	inteHead);
+	void captureDeclaredWellData(const Schedule&   	sched,
+                        const UnitSystem& 		units,
+                        const std::size_t 		sim_step,
+			const ::Opm::SummaryState&  	smry,
+			const std::vector<int>& 	inteHead);
 
         void captureDynamicWellData(const Opm::Schedule&        sched,
                                     const std::size_t           sim_step,
@@ -85,8 +86,8 @@ namespace Opm { namespace RestartIO { namespace Helpers {
             return this->zWell_.data();
         }
 
-
-
+        
+        
     private:
         /// Aggregate 'IWEL' array (Integer) for all wells.
         WindowedArray<int> iWell_;

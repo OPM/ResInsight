@@ -484,12 +484,6 @@ namespace ParserKeywords {
            static const std::string defaultValue;
        };
 
-       class ADD_GAS_LIFT_GAS {
-       public:
-           static const std::string itemName;
-           static const std::string defaultValue;
-       };
-
        class CHOKE_GROUP {
        public:
            static const std::string itemName;

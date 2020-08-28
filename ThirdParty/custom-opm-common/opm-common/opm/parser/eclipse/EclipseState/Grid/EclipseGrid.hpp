@@ -110,7 +110,6 @@ namespace Opm {
         double getPinchThresholdThickness( ) const;
         PinchMode::ModeEnum getPinchOption( ) const;
         PinchMode::ModeEnum getMultzOption( ) const;
-        PinchMode::ModeEnum getPinchGapMode( ) const;
 
         MinpvMode::ModeEnum getMinpvMode() const;
         const std::vector<double>& getMinpvVector( ) const;
@@ -197,7 +196,6 @@ namespace Opm {
         Value<double> m_pinch;
         PinchMode::ModeEnum m_pinchoutMode;
         PinchMode::ModeEnum m_multzMode;
-        PinchMode::ModeEnum m_pinchGapMode;
 
         bool m_circle = false;
 

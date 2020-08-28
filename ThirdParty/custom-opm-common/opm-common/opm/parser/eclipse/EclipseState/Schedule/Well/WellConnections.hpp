@@ -54,6 +54,8 @@ namespace Opm {
                            const Connection::Direction direction = Connection::Direction::Z,
                            const Connection::CTFKind ctf_kind = Connection::CTFKind::DeckValue,
                            const std::size_t seqIndex = 0,
+                           const double segDistStart= 0.0,
+                           const double segDistEnd= 0.0,
                            const bool defaultSatTabId = true);
         void loadCOMPDAT(const DeckRecord& record, const EclipseGrid& grid, const FieldPropsManager& field_properties);
 
@@ -66,7 +68,6 @@ namespace Opm {
         const Connection& getFromIJK(const int i, const int j, const int k) const;
         const Connection& lowest() const;
         Connection& getFromIJK(const int i, const int j, const int k);
-        double segment_perf_length(int segment) const;
 
         const_iterator begin() const { return this->m_connections.begin(); }
         const_iterator end() const { return this->m_connections.end(); }
@@ -116,6 +117,8 @@ namespace Opm {
                            const Connection::Direction direction = Connection::Direction::Z,
                            const Connection::CTFKind ctf_kind = Connection::CTFKind::DeckValue,
                            const std::size_t seqIndex = 0,
+                           const double segDistStart= 0.0,
+                           const double segDistEnd= 0.0,
                            const bool defaultSatTabId = true);
 
         void loadCOMPDAT(const DeckRecord& record,

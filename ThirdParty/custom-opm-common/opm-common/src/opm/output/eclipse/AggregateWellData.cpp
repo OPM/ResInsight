@@ -29,7 +29,6 @@
 #include <opm/parser/eclipse/EclipseState/Runspec.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/SummaryState.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/VFPProdTable.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/SummaryState.hpp>
 #include <opm/parser/eclipse/Units/UnitSystem.hpp>
 #include <opm/parser/eclipse/Units/Units.hpp>
@@ -38,7 +37,6 @@
 #include <opm/parser/eclipse/EclipseState/Schedule/Action/Actions.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/Action/ActionX.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/Action/ActionResult.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Action/State.hpp>
 
 #include <algorithm>
 #include <cassert>
@@ -286,29 +284,6 @@ namespace {
         }
 
         template <class IWellArray>
-        void dynamicContribStop(const Opm::data::Well&  xw,
-                                IWellArray&             iWell)
-        {
-            using Ix = VI::IWell::index;
-
-            const auto any_flowing_conn =
-                std::any_of(std::begin(xw.connections),
-                            std::end  (xw.connections),
-                    [](const Opm::data::Connection& c)
-                {
-                    return c.rates.flowing();
-                });
-
-            iWell[Ix::item9] = any_flowing_conn
-                ? 0 : -1;
-
-            //item11 = 1 for an open well
-            iWell[Ix::item11] = any_flowing_conn
-                ? 0  : -1;
-
-        }
-
-        template <class IWellArray>
         void dynamicContribOpen(const Opm::Well&       well,
                                 const Opm::data::Well& xw,
                                 IWellArray&            iWell)
@@ -330,9 +305,7 @@ namespace {
             iWell[Ix::item9] = any_flowing_conn
                 ? iWell[Ix::ActWCtrl] : -1;
 
-            //item11 = 1 for an open well
-            iWell[Ix::item11] = any_flowing_conn
-                ? 1  : -1;
+            iWell[Ix::item11] = 1;
         }
     } // IWell
 
@@ -418,18 +391,6 @@ namespace {
             std::copy(b, e, std::begin(sWell));
         }
 
-        float getRateLimit(const Opm::UnitSystem& units, Opm::UnitSystem::measure u, const double& rate)
-        {
-            float rLimit = 1.0e+20f;
-            if (rate > 0.0) {
-                rLimit = static_cast<float>(units.from_si(u, rate));
-            }
-            else if (rate < 0.0) {
-                rLimit = 0.0;
-            }
-
-            return rLimit;
-        };
         template <class SWellArray>
         void staticContrib(const Opm::Well&      well,
                            const Opm::UnitSystem& units,
@@ -443,7 +404,7 @@ namespace {
             {
                 return static_cast<float>(units.from_si(u, x));
             };
-            
+
             assignDefaultSWell(sWell);
 
             if (well.isProducer()) {
@@ -497,21 +458,6 @@ namespace {
                     ? swprop(M::pressure, pc.bhp_limit)
                     : swprop(M::pressure, 1.0*::Opm::unit::atm);
                 sWell[Ix::HistBHPTarget] = sWell[Ix::BHPTarget];
-                
-                //alq_value - has no unit conversion according to parser code
-                if (pc.alq_value != 0.0) {
-                    sWell[Ix::Alq_value] = pc.alq_value;
-                }
-
-                if (predMode) {
-                    //if (well.getStatus() == Opm::Well::Status::OPEN) {
-                    sWell[Ix::OilRateTarget]   = getRateLimit(units, M::liquid_surface_rate, pc.oil_rate);
-                    sWell[Ix::WatRateTarget]   = getRateLimit(units, M::liquid_surface_rate, pc.water_rate);
-                    sWell[Ix::GasRateTarget]   = getRateLimit(units, M::gas_surface_rate,    pc.gas_rate);
-                    sWell[Ix::LiqRateTarget]   = getRateLimit(units, M::liquid_surface_rate, pc.liquid_rate);
-                    sWell[Ix::ResVRateTarget]  = getRateLimit(units, M::rate, pc.resv_rate);
-                    //}
-                }
             }
             else if (well.isInjector()) {
                 const auto& ic = well.injectionControls(smry);
@@ -554,7 +500,6 @@ namespace {
             sWell[Ix::DatumDepth] = swprop(M::length, datumDepth(well));
             sWell[Ix::DrainageRadius] = swprop(M::length, well.getDrainageRadius());
             sWell[Ix::EfficiencyFactor1] = well.getEfficiencyFactor();
-            sWell[Ix::EfficiencyFactor2] = sWell[Ix::EfficiencyFactor1];
             /*
               Restart files from Eclipse indicate that the efficiency factor is
               found in two items in the restart file; since only one of the
@@ -623,7 +568,7 @@ namespace {
                                  + xWell[Ix::WatPrRate];
 
             xWell[Ix::VoidPrRate] = get("WVPR");
-            xWell[Ix::TubHeadPr] = get("WTHP");
+
             xWell[Ix::FlowBHP] = get("WBHP");
             xWell[Ix::WatCut]  = get("WWCT");
             xWell[Ix::GORatio] = get("WGOR");
@@ -637,11 +582,6 @@ namespace {
             xWell[Ix::item37] = xWell[Ix::WatPrRate];
             xWell[Ix::item38] = xWell[Ix::GasPrRate];
 
-            xWell[Ix::PrimGuideRate]   = xWell[Ix::PrimGuideRate_2]   = get("WOPGR");
-            xWell[Ix::WatPrGuideRate]  = xWell[Ix::WatPrGuideRate_2]  = get("WWPGR");
-            xWell[Ix::GasPrGuideRate]  = xWell[Ix::GasPrGuideRate_2]  = get("WGPGR");
-            xWell[Ix::VoidPrGuideRate] = xWell[Ix::VoidPrGuideRate_2] = get("WVPGR");
-
             xWell[Ix::HistOilPrTotal] = get("WOPTH");
             xWell[Ix::HistWatPrTotal] = get("WWPTH");
             xWell[Ix::HistGasPrTotal] = get("WGPTH");
@@ -653,7 +593,6 @@ namespace {
         {
             using Ix = ::Opm::RestartIO::Helpers::VectorItems::XWell::index;
 
-            xWell[Ix::TubHeadPr] = get("WTHP");
             xWell[Ix::FlowBHP] = get("WBHP");
 
             // Note: Assign both water and gas cumulatives to support
@@ -687,8 +626,6 @@ namespace {
 
             // Not fully characterised.
             xWell[Ix::item37] = xWell[Ix::WatPrRate];
-
-            xWell[Ix::PrimGuideRate] = xWell[Ix::PrimGuideRate_2] = -get("WWIGR");
 
             xWell[Ix::WatVoidPrRate] = -get("WWVIR");
         }
@@ -724,29 +661,7 @@ namespace {
             // Not fully characterised.
             xWell[Ix::item38] = xWell[Ix::GasPrRate];
 
-            xWell[Ix::PrimGuideRate] = xWell[Ix::PrimGuideRate_2] = -get("WGIGR");
-
             xWell[Ix::GasVoidPrRate] = xWell[Ix::VoidPrRate];
-        }
-
-        template <class XWellArray>
-        void assignOilInjector(const std::string&         well,
-                               const ::Opm::SummaryState& smry,
-                               XWellArray&                xWell)
-        {
-            using Ix = ::Opm::RestartIO::Helpers::VectorItems::XWell::index;
-
-            auto get = [&smry, &well](const std::string& vector)
-            {
-                const auto key = vector + ':' + well;
-
-                return smry.has(key) ? smry.get(key) : 0.0;
-            };
-
-            xWell[Ix::TubHeadPr] = get("WTHP");
-            xWell[Ix::FlowBHP] = get("WBHP");
-
-            xWell[Ix::PrimGuideRate] = xWell[Ix::PrimGuideRate_2] = -get("WOIGR");
         }
 
         template <class XWellArray>
@@ -763,7 +678,7 @@ namespace {
 
                 switch (itype) {
                 case IType::OIL:
-                    assignOilInjector(well.name(), smry, xWell);
+                    // Do nothing.
                     break;
 
                 case IType::WATER:
@@ -807,33 +722,32 @@ namespace {
             };
         }
 
-        std::vector<std::pair<std::string, Opm::Action::Result>>
-        act_res_stat(const Opm::Schedule& sched, const Opm::Action::State& action_state, const Opm::SummaryState&  smry, const std::size_t sim_step) {
-            std::vector<std::pair<std::string, Opm::Action::Result>> results;
+        Opm::RestartIO::Helpers::ActionResStatus
+        act_res_stat(const Opm::Schedule& sched, const Opm::SummaryState&  smry, const std::size_t sim_step) {
+            std::vector<Opm::Action::Result> act_res;
+            std::vector<std::string> act_name;
             const auto& acts = sched.actions(sim_step);
-            Opm::Action::Context context(smry, sched.getWListManager(sim_step));
+            Opm::Action::Context context(smry);
             auto sim_time = sched.simTime(sim_step);
-            for (const auto& action : acts.pending(action_state, sim_time)) {
-                auto result = action->eval(context);
-                if (result)
-                    results.emplace_back( action->name(), std::move(result) );
+            for (const auto& action : acts.pending(sim_time)) {
+                act_res.push_back(action->eval(sim_time, context));
+                act_name.push_back(action->name());
             }
-            return results;
+            return {act_res, act_name};
         }
 
         template <class ZWellArray>
-        void staticContrib(const Opm::Well& well, const std::vector<std::pair<std::string, Opm::Action::Result>>& actResStat, ZWellArray& zWell)
+        void staticContrib(const Opm::Well& well, const Opm::RestartIO::Helpers::ActionResStatus& actResStat, ZWellArray& zWell)
         {
             using Ix = ::Opm::RestartIO::Helpers::VectorItems::ZWell::index;
             zWell[Ix::WellName] = well.name();
             //loop over actions to assign action name for relevant wells
-            for (const auto& [action_name, action_result] : actResStat) {
-                if (action_result.has_well(well.name())) {
-                    zWell[Ix::ActionX] = action_name;
+            for (std::size_t ind = 0; ind < actResStat.result.size(); ind++) {
+                if (actResStat.result[ind].has_well(well.name())) {
+                    zWell[Ix::ActionX] = actResStat.name[ind];
                 }
             }
         }
-
     } // ZWell
 } // Anonymous
 
@@ -855,7 +769,6 @@ Opm::RestartIO::Helpers::AggregateWellData::
 captureDeclaredWellData(const Schedule&   sched,
                         const UnitSystem& units,
                         const std::size_t sim_step,
-                        const ::Opm::Action::State& action_state,
                         const ::Opm::SummaryState&  smry,
                         const std::vector<int>& inteHead)
 {
@@ -896,7 +809,7 @@ captureDeclaredWellData(const Schedule&   sched,
     });
 
     {
-        const auto actResStat = ZWell::act_res_stat(sched, action_state, smry, sim_step);
+        const auto actResStat = ZWell::act_res_stat(sched, smry, sim_step);
         // Static contributions to ZWEL array.
         wellLoop(wells,
             [&actResStat, this](const Well& well, const std::size_t wellID) -> void
@@ -911,7 +824,7 @@ captureDeclaredWellData(const Schedule&   sched,
 
 void
 Opm::RestartIO::Helpers::AggregateWellData::
-captureDynamicWellData(const Opm::Schedule&        sched,
+captureDynamicWellData(const Schedule&             sched,
                        const std::size_t           sim_step,
                        const Opm::data::WellRates& xw,
                        const ::Opm::SummaryState&  smry)
@@ -925,13 +838,8 @@ captureDynamicWellData(const Opm::Schedule&        sched,
         auto iWell = this->iWell_[wellID];
 
         auto i = xw.find(well.name());
-        if ((i == std::end(xw)) || (well.getStatus() != Opm::Well::Status::OPEN)) {
-            if ((i == std::end(xw)) || (well.getStatus() == Opm::Well::Status::SHUT))  {
-                IWell::dynamicContribShut(iWell);
-            }
-            else {
-                IWell::dynamicContribStop(i->second, iWell);
-            }
+        if ((i == std::end(xw)) || !i->second.flowing()) {
+            IWell::dynamicContribShut(iWell);
         }
         else {
             IWell::dynamicContribOpen(well, i->second, iWell);

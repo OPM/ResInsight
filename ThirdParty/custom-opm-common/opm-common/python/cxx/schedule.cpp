@@ -103,7 +103,6 @@ void python::common::export_Schedule(py::module& module) {
     .def( "open_well", &Schedule::open_well)
     .def( "stop_well", &Schedule::stop_well)
     .def( "get_wells", &Schedule::getWells)
-    .def("well_names", py::overload_cast<const std::string&>(&Schedule::wellNames, py::const_))
     .def( "get_well", &get_well)
     .def( "__contains__", &has_well )
     .def( "group", &Schedule::getGroup, ref_internal);

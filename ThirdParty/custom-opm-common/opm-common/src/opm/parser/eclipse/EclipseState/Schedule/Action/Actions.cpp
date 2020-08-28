@@ -55,11 +55,8 @@ void Actions::add(const ActionX& action) {
     auto iter = std::find_if( this->actions.begin(), this->actions.end(), [&action](const ActionX& arg) { return arg.name() == action.name(); });
     if (iter == this->actions.end())
         this->actions.push_back(action);
-    else {
-        auto id = iter->id() + 1;
+    else
         *iter = action;
-        iter->update_id(id);
-    }
 }
 
 void Actions::add(const PyAction& pyaction) {
@@ -92,9 +89,9 @@ int Actions::max_input_lines() const {
 }
 
 
-bool Actions::ready(const State& state, std::time_t sim_time) const {
+bool Actions::ready(std::time_t sim_time) const {
     for (const auto& action : this->actions) {
-        if (action.ready(state, sim_time))
+        if (action.ready(sim_time))
             return true;
     }
     return false;
@@ -111,10 +108,10 @@ std::vector<const PyAction *> Actions::pending_python() const {
 }
 
 
-std::vector<const ActionX *> Actions::pending(const State& state, std::time_t sim_time) const {
+std::vector<const ActionX *> Actions::pending(std::time_t sim_time) const {
     std::vector<const ActionX *> action_vector;
     for (const auto& action : this->actions) {
-        if (action.ready(state, sim_time))
+        if (action.ready(sim_time))
             action_vector.push_back( &action );
     }
     return action_vector;

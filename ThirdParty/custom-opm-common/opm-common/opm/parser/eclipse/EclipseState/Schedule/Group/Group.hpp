@@ -24,19 +24,15 @@
 #include <map>
 #include <optional>
 #include <string>
-#include <algorithm>
 
 #include <opm/parser/eclipse/Deck/UDAValue.hpp>
 #include <opm/parser/eclipse/EclipseState/Util/IOrderSet.hpp>
 #include <opm/parser/eclipse/EclipseState/Runspec.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Group/GPMaint.hpp>
 #include <opm/parser/eclipse/Units/UnitSystem.hpp>
 
 namespace Opm {
 
 class SummaryState;
-class UDQConfig;
-class UDQActive;
 class Group {
 public:
 
@@ -118,7 +114,7 @@ struct GroupInjectionProperties {
     UDAValue target_void_fraction;
     std::string reinj_group;
     std::string voidage_group;
-    bool available_group_control = true;
+    bool available_group_control;
 
     static GroupInjectionProperties serializeObject();
 
@@ -156,12 +152,6 @@ struct InjectionControls {
 };
 
 struct GroupProductionProperties {
-    GroupProductionProperties() = default;
-    GroupProductionProperties(const std::string& gname) :
-        name(gname)
-    {}
-
-    std::string name;
     ProductionCMode cmode = ProductionCMode::NONE;
     ExceedAction exceed_action = ExceedAction::NONE;
     UDAValue oil_target;
@@ -169,7 +159,7 @@ struct GroupProductionProperties {
     UDAValue gas_target;
     UDAValue liquid_target;
     double guide_rate;
-    GuideRateTarget guide_rate_def = GuideRateTarget::NO_GUIDE_RATE;
+    GuideRateTarget guide_rate_def;
     double resv_target = 0;
     bool available_group_control = true;
     static GroupProductionProperties serializeObject();
@@ -177,12 +167,10 @@ struct GroupProductionProperties {
     int production_controls = 0;
     bool operator==(const GroupProductionProperties& other) const;
     bool operator!=(const GroupProductionProperties& other) const;
-    bool updateUDQActive(const UDQConfig& udq_config, UDQActive& active) const;
 
     template<class Serializer>
     void serializeOp(Serializer& serializer)
     {
-        serializer(name);
         serializer(cmode);
         serializer(exceed_action);
         oil_target.serializeOp(serializer);
@@ -206,7 +194,7 @@ struct ProductionControls {
     double gas_target;
     double liquid_target;
     double guide_rate;
-    GuideRateTarget guide_rate_def = GuideRateTarget::NO_GUIDE_RATE;
+    GuideRateTarget guide_rate_def;
     double resv_target = 0;
     int production_controls = 0;
     bool has_control(ProductionCMode control) const;
@@ -265,9 +253,6 @@ struct ProductionControls {
     bool has_control(InjectionCMode control) const;
     bool productionGroupControlAvailable() const;
     bool injectionGroupControlAvailable(const Phase phase) const;
-    const std::optional<GPMaint>& gpmaint() const;
-    void set_gpmaint(GPMaint gpmaint);
-    void set_gpmaint();
 
     bool operator==(const Group& data) const;
     const Phase& topup_phase() const;
@@ -291,7 +276,6 @@ struct ProductionControls {
         serializer.map(injection_properties);
         production_properties.serializeOp(serializer);
         serializer(m_topup_phase);
-        serializer(m_gpmaint);
     }
 
 private:
@@ -313,9 +297,8 @@ private:
     IOrderSet<std::string> m_groups;
 
     std::map<Phase, GroupInjectionProperties> injection_properties;
-    GroupProductionProperties production_properties;
+    GroupProductionProperties production_properties{};
     std::pair<Phase, bool> m_topup_phase{Phase::WATER, false};
-    std::optional<GPMaint> m_gpmaint;
 };
 
 Group::GroupType operator |(Group::GroupType lhs, Group::GroupType rhs);

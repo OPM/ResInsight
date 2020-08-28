@@ -52,8 +52,6 @@
 #include <opm/parser/eclipse/EclipseState/Tables/PvdoTable.hpp>
 #include <opm/parser/eclipse/EclipseState/Tables/PvdsTable.hpp>
 #include <opm/parser/eclipse/EclipseState/Tables/PvtgTable.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/PvtgwTable.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/PvtgwoTable.hpp>
 #include <opm/parser/eclipse/EclipseState/Tables/PvtoTable.hpp>
 #include <opm/parser/eclipse/EclipseState/Tables/RocktabTable.hpp>
 #include <opm/parser/eclipse/EclipseState/Tables/RockwnodTable.hpp>
@@ -63,9 +61,7 @@
 #include <opm/parser/eclipse/EclipseState/Tables/RvvdTable.hpp>
 #include <opm/parser/eclipse/EclipseState/Tables/PbvdTable.hpp>
 #include <opm/parser/eclipse/EclipseState/Tables/PdvdTable.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/PermfactTable.hpp>
 #include <opm/parser/eclipse/EclipseState/Tables/SaltvdTable.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/SaltpvdTable.hpp>
 #include <opm/parser/eclipse/EclipseState/Tables/SgcwmisTable.hpp>
 #include <opm/parser/eclipse/EclipseState/Tables/SgfnTable.hpp>
 #include <opm/parser/eclipse/EclipseState/Tables/SgofTable.hpp>
@@ -109,60 +105,6 @@ PvtgTable PvtgTable::serializeObject() {
 }
 
 bool PvtgTable::operator==(const PvtgTable& data) const {
-    return static_cast<const PvtxTable&>(*this) == static_cast<const PvtxTable&>(data);
-}
-
-PvtgwTable::PvtgwTable( const DeckKeyword& keyword, size_t tableIdx ) :
-    PvtxTable("P") {
-
-        m_underSaturatedSchema.addColumn( ColumnSchema( "RW"  , Table::STRICTLY_DECREASING , Table::DEFAULT_NONE ));
-        m_underSaturatedSchema.addColumn( ColumnSchema( "BG"  , Table::RANDOM , Table::DEFAULT_LINEAR ));
-        m_underSaturatedSchema.addColumn( ColumnSchema( "MUG" , Table::RANDOM , Table::DEFAULT_LINEAR ));
-
-        m_saturatedSchema.addColumn( ColumnSchema( "PG"  , Table::STRICTLY_INCREASING , Table::DEFAULT_NONE ));
-        m_saturatedSchema.addColumn( ColumnSchema( "RW"  , Table::RANDOM , Table::DEFAULT_NONE ));
-        m_saturatedSchema.addColumn( ColumnSchema( "BG"  , Table::RANDOM , Table::DEFAULT_LINEAR ));
-        m_saturatedSchema.addColumn( ColumnSchema( "MUG" , Table::RANDOM , Table::DEFAULT_LINEAR ));
-
-        PvtxTable::init(keyword, tableIdx);
-    }
-
-PvtgwTable PvtgwTable::serializeObject() {
-    PvtgwTable result;
-    static_cast<PvtxTable&>(result) = PvtxTable::serializeObject();
-
-    return result;
-}
-
-bool PvtgwTable::operator==(const PvtgwTable& data) const {
-    return static_cast<const PvtxTable&>(*this) == static_cast<const PvtxTable&>(data);
-}
-
-PvtgwoTable::PvtgwoTable( const DeckKeyword& keyword, size_t tableIdx ) :
-    PvtxTable("P") {
-
-        m_underSaturatedSchema.addColumn( ColumnSchema( "RV"  , Table::STRICTLY_DECREASING , Table::DEFAULT_NONE ));
-        m_underSaturatedSchema.addColumn( ColumnSchema( "RW"  , Table::STRICTLY_DECREASING , Table::DEFAULT_NONE ));
-        m_underSaturatedSchema.addColumn( ColumnSchema( "BG"  , Table::RANDOM , Table::DEFAULT_LINEAR ));
-        m_underSaturatedSchema.addColumn( ColumnSchema( "MUG" , Table::RANDOM , Table::DEFAULT_LINEAR ));
-
-        m_saturatedSchema.addColumn( ColumnSchema( "PG"  , Table::STRICTLY_INCREASING , Table::DEFAULT_NONE ));
-        m_saturatedSchema.addColumn( ColumnSchema( "RV"  , Table::RANDOM , Table::DEFAULT_NONE ));
-        m_saturatedSchema.addColumn( ColumnSchema( "RW"  , Table::RANDOM , Table::DEFAULT_NONE ));
-        m_saturatedSchema.addColumn( ColumnSchema( "BG"  , Table::RANDOM , Table::DEFAULT_LINEAR ));
-        m_saturatedSchema.addColumn( ColumnSchema( "MUG" , Table::RANDOM , Table::DEFAULT_LINEAR ));
-
-        PvtxTable::init(keyword, tableIdx);
-    }
-
-PvtgwoTable PvtgwoTable::serializeObject() {
-    PvtgwoTable result;
-    static_cast<PvtxTable&>(result) = PvtxTable::serializeObject();
-
-    return result;
-}
-
-bool PvtgwoTable::operator==(const PvtgwoTable& data) const {
     return static_cast<const PvtxTable&>(*this) == static_cast<const PvtxTable&>(data);
 }
 
@@ -1000,37 +942,6 @@ const TableColumn& SaltvdTable::getDepthColumn() const {
 const TableColumn& SaltvdTable::getSaltColumn() const {
     return SimpleTable::getColumn(1); 
 }
-
-SaltpvdTable::SaltpvdTable( const DeckItem& item ) {
-    m_schema.addColumn( ColumnSchema( "DEPTH" , Table::STRICTLY_INCREASING , Table::DEFAULT_NONE ));
-    m_schema.addColumn( ColumnSchema( "SALTP" , Table::RANDOM , Table::DEFAULT_NONE ));
-
-    SimpleTable::init(item);
-}
-
-const TableColumn& SaltpvdTable::getDepthColumn() const {
-    return SimpleTable::getColumn(0);
-}
-
-const TableColumn& SaltpvdTable::getSaltpColumn() const {
-    return SimpleTable::getColumn(1); 
-}
-
-PermfactTable::PermfactTable( const DeckItem& item ) {
-    m_schema.addColumn( ColumnSchema( "POROSITYCHANGE" , Table::STRICTLY_INCREASING , Table::DEFAULT_NONE ));
-    m_schema.addColumn( ColumnSchema( "PERMEABILIYMULTIPLIER" , Table::RANDOM , Table::DEFAULT_NONE ));
-
-    SimpleTable::init(item);
-}
-
-const TableColumn& PermfactTable::getPorosityChangeColumn() const {
-    return SimpleTable::getColumn(0);
-}
-
-const TableColumn& PermfactTable::getPermeabilityMultiplierColumn() const {
-    return SimpleTable::getColumn(1); 
-}
-
 
 AqutabTable::AqutabTable( const DeckItem& item ) {
     m_schema.addColumn( ColumnSchema( "TD" ,  Table::STRICTLY_INCREASING , Table::DEFAULT_NONE ) );

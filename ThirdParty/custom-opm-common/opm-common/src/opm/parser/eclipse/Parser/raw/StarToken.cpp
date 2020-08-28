@@ -26,6 +26,7 @@
 
 #include <boost/spirit/include/qi.hpp>
 
+#include <opm/parser/eclipse/Utility/Stringview.hpp>
 #include <opm/parser/eclipse/Deck/UDAValue.hpp>
 
 #include "StarToken.hpp"
@@ -34,7 +35,7 @@ namespace qi = boost::spirit::qi;
 
 namespace Opm {
 
-    bool isStarToken(const std::string_view& token,
+    bool isStarToken(const string_view& token,
                            std::string& countString,
                            std::string& valueString) {
         // find first character which is not a digit
@@ -59,25 +60,25 @@ namespace Opm {
         // possible.)
         else if (pos == 0) {
             countString = "";
-            valueString = std::string(token.substr(pos + 1));
+            valueString = token.substr(pos + 1);
             return true;
         }
 
         // if a star is prefixed by an unsigned integer N, then this should be
         // interpreted as "repeat value after star N times"
-        countString = std::string(token.substr(0, pos));
-        valueString = std::string(token.substr(pos + 1));
+        countString = token.substr(0, pos);
+        valueString = token.substr(pos + 1);
         return true;
     }
 
     template<>
-    int readValueToken< int >( std::string_view view ) {
+    int readValueToken< int >( string_view view ) {
         int n = 0;
         auto cursor = view.begin();
         const bool ok = qi::parse( cursor, view.end(), qi::int_, n );
 
         if( ok && cursor == view.end() ) return n;
-        throw std::invalid_argument( "Malformed integer '" + std::string(view) + "'" );
+        throw std::invalid_argument( "Malformed integer '" + view + "'" );
     }
 
     template< typename T >
@@ -96,36 +97,36 @@ namespace Opm {
     };
 
     template<>
-    double readValueToken< double >( std::string_view view ) {
+    double readValueToken< double >( string_view view ) {
         double n = 0;
         qi::real_parser< double, fortran_double< double > > double_;
         auto cursor = view.begin();
         const auto ok = qi::parse( cursor, view.end(), double_, n );
 
         if( ok && cursor == view.end() ) return n;
-        throw std::invalid_argument( "Malformed floating point number '" + std::string(view) + "'" );
+        throw std::invalid_argument( "Malformed floating point number '" + view + "'" );
     }
 
 
     template <>
-    std::string readValueToken< std::string >( std::string_view view ) {
+    std::string readValueToken< std::string >( string_view view ) {
         if( view.size() == 0 || view[ 0 ] != '\'' )
-            return std::string(view);
+            return view.string();
 
         if( view.size() < 2 || view[ view.size() - 1 ] != '\'')
-            throw std::invalid_argument("Unable to parse string '" + std::string(view) + "' as a string token");
+            throw std::invalid_argument("Unable to parse string '" + view + "' as a string token");
 
-        return std::string(view.substr(1, view.size() - 2 ));
+        return view.substr( 1, view.size() - 2 );
     }
 
     template <>
-    RawString readValueToken<RawString>( std::string_view view ) {
-        return { std::string( view ) };
+    RawString readValueToken<RawString>( string_view view ) {
+        return { view.string() };
     }
 
 
     template<>
-    UDAValue readValueToken< UDAValue >( std::string_view view ) {
+    UDAValue readValueToken< UDAValue >( string_view view ) {
         double n = 0;
         qi::real_parser< double, fortran_double< double > > double_;
         auto cursor = view.begin();
@@ -135,13 +136,13 @@ namespace Opm {
         return UDAValue( readValueToken<std::string>(view) );
     }
 
-    void StarToken::init_( const std::string_view& token ) {
+    void StarToken::init_( const string_view& token ) {
         // special-case the interpretation of a lone star as "1*" but do not
         // allow constructs like "*123"...
         if (m_countString == "") {
             if (m_valueString != "")
                 // TODO: decorate the deck with a warning instead?
-                throw std::invalid_argument("Not specifying a count also implies not specifying a value. Token: \'" + std::string(token) + "\'.");
+                throw std::invalid_argument("Not specifying a count also implies not specifying a value. Token: \'" + token + "\'.");
 
             // TODO: since this is explicitly forbidden by the documentation it might
             // be a good idea to decorate the deck with a warning?
@@ -152,7 +153,7 @@ namespace Opm {
 
             if (cnt < 1)
                 // TODO: decorate the deck with a warning instead?
-                throw std::invalid_argument("Specifing zero repetitions is not allowed. Token: \'" + std::string(token) + "\'.");
+                throw std::invalid_argument("Specifing zero repetitions is not allowed. Token: \'" + token + "\'.");
 
             m_count = static_cast<std::size_t>(cnt);
         }

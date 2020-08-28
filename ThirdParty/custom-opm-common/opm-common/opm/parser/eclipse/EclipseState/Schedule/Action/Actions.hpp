@@ -31,8 +31,6 @@
 namespace Opm {
 namespace Action {
 
-class State;
-
 /*
   The Actions class is a container of ACTIONX keywords. The main functionality
   is to provide a list of ACTIONX keywords which are ready to be evaluated.
@@ -50,10 +48,10 @@ public:
     bool empty() const;
     void add(const ActionX& action);
     void add(const PyAction& pyaction);
-    bool ready(const State& state, std::time_t sim_time) const;
+    bool ready(std::time_t sim_time) const;
     const ActionX& get(const std::string& name) const;
     const ActionX& get(std::size_t index) const;
-    std::vector<const ActionX *> pending(const State& state, std::time_t sim_time) const;
+    std::vector<const ActionX *> pending(std::time_t sim_time) const;
     std::vector<const PyAction *> pending_python() const;
 
     std::vector<ActionX>::const_iterator begin() const;

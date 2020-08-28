@@ -20,6 +20,7 @@ set(genkw_SOURCES src/opm/json/JsonObject.cpp
                   src/opm/parser/eclipse/Parser/raw/StarToken.cpp
                   src/opm/parser/eclipse/Units/Dimension.cpp
                   src/opm/parser/eclipse/Units/UnitSystem.cpp
+                  src/opm/parser/eclipse/Utility/Stringview.cpp
                   src/opm/common/OpmLog/OpmLog.cpp
                   src/opm/common/OpmLog/Logger.cpp
                   src/opm/common/OpmLog/StreamLog.cpp

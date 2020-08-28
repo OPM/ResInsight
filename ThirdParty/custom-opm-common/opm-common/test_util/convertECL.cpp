@@ -175,18 +175,18 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    std::map<std::string, std::string> to_formatted = {{".EGRID", ".FEGRID"}, {".INIT", ".FINIT"}, {".SMSPEC", ".FSMSPEC"},
-        {".UNSMRY", ".FUNSMRY"}, {".UNRST", ".FUNRST"}, {".RFT", ".FRFT"}, {".LODSMRY", ".FLODSMRY"}};
+    std::map<std::string, std::string> to_formatted = {{".EGRID", ".FEGRID"}, {".INIT", ".FINIT"}, {".SMSPEC", ".FSMSPEC"}, 
+        {".UNSMRY", ".FUNSMRY"}, {".UNRST", ".FUNRST"}, {".RFT", ".FRFT"}};
 
-    std::map<std::string, std::string> to_binary = {{".FEGRID", ".EGRID"}, {".FINIT", ".INIT"}, {".FSMSPEC", ".SMSPEC"},
-        {".FUNSMRY", ".UNSMRY"}, {".FUNRST", ".UNRST"}, {".FRFT", ".RFT"}, {".FLODSMRY", ".LODSMRY"}};
-
+    std::map<std::string, std::string> to_binary = {{".FEGRID", ".EGRID"}, {".FINIT", ".INIT"}, {".FSMSPEC", ".SMSPEC"}, 
+        {".FUNSMRY", ".UNSMRY"}, {".FUNRST", ".UNRST"}, {".FRFT", ".RFT"}};
+        
     if (formattedOutput) {
-
+        
         auto search = to_formatted.find(extension);
-
+    
         if (search != to_formatted.end()){
-            resFile = rootN + search->second;
+            resFile = rootN + search->second;     
         } else if (extension.substr(1,1)=="X"){
             resFile = rootN + ".F" + extension.substr(2);
         } else if (extension.substr(1,1)=="S"){
@@ -196,11 +196,11 @@ int main(int argc, char **argv) {
             exit(1);
         }
     } else {
-
+        
         auto search = to_binary.find(extension);
 
         if (search != to_binary.end()){
-            resFile = rootN + search->second;
+            resFile = rootN + search->second;     
         } else if (extension.substr(1,1)=="F"){
             resFile = rootN + ".X" + extension.substr(2);
         } else if (extension.substr(1,1)=="A"){

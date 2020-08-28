@@ -23,17 +23,13 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-#include <cctype>
-#include <chrono>
 #include <cstddef>
-#include <ctime>
 #include <exception>
 #include <memory>
-#include <sstream>
 #include <stdexcept>
-#include <string>
 #include <unordered_map>
-#include <utility>
+#include <cctype>
+#include <ctime>
 
 #include <opm/output/data/Wells.hpp>
 #include <opm/output/data/Groups.hpp>
@@ -191,21 +187,21 @@ static data::Wells result_wells() {
 
 }
 
-static data::GroupValues result_groups() {
-    data::GroupValues groups;
-    data::GroupConstraints cgc_group;
+static data::Group result_groups() {
+    data::Group groups;
+    data::currentGroupConstraints cgc_group;
 
     cgc_group.set(p_cmode::NONE, i_cmode::VREP, i_cmode::RATE);
-    groups["TEST"].currentControl = cgc_group;
+    groups.emplace("TEST", cgc_group);
 
     cgc_group.set(p_cmode::ORAT, i_cmode::RESV, i_cmode::REIN);
-    groups["LOWER"].currentControl = cgc_group;
+    groups.emplace("LOWER", cgc_group);
 
     cgc_group.set(p_cmode::GRAT, i_cmode::REIN, i_cmode::VREP);
-    groups["UPPER"].currentControl = cgc_group;
+    groups.emplace("UPPER", cgc_group);
 
     cgc_group.set(p_cmode::NONE, i_cmode::NONE, i_cmode::NONE);
-    groups["FIELD"].currentControl = cgc_group;
+    groups.emplace("FIELD", cgc_group);
 
     return groups;
 }
@@ -219,7 +215,7 @@ struct setup {
     Schedule schedule;
     SummaryConfig config;
     data::Wells wells;
-    data::GroupValues groups;
+    data::Group groups;
     std::string name;
     WorkArea ta;
 
@@ -239,8 +235,6 @@ struct setup {
     {}
     };
 } // Anonymous namespace
-
-// =====================================================================
 
 BOOST_AUTO_TEST_SUITE(Summary)
 /*

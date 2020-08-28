@@ -20,45 +20,19 @@
 #ifndef SEGMENT_HPP_HEADER_INCLUDED
 #define SEGMENT_HPP_HEADER_INCLUDED
 
-#include <optional>
-#include <variant>
+#include <memory>
 #include <vector>
 
-#include <opm/parser/eclipse/EclipseState/Schedule/MSW/Valve.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/MSW/SICD.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/MSW/AICD.hpp>
-
-
 namespace Opm {
+    class SpiralICD;
+    class Valve;
+
     namespace RestartIO {
         struct RstSegment;
     }
 }
 
 namespace Opm {
-
-    /*
-      The current serialization of std::variant<> requires that all the types in
-      the variant have serializeOp() method, that is why this RegularSegment
-      type is introduced, ideally the icd variant should just have
-      std::monostate to represent the regular non ICD segment.
-    */
-    struct RegularSegment : std::monostate {
-
-        template<class Serializer>
-        void serializeOp(Serializer&) {
-        }
-
-        static RegularSegment serializeObject() {
-            return RegularSegment();
-        }
-
-
-        bool operator==(const RegularSegment& ) {
-            return true;
-        }
-    };
-
 
     class Segment {
     public:
@@ -76,7 +50,7 @@ namespace Opm {
         Segment(const Segment& src, double new_depth, double new_length);
         Segment(const Segment& src, double new_volume);
         Segment(int segment_number_in, int branch_in, int outlet_segment_in, double length_in, double depth_in,
-                double internal_diameter_in, double roughness_in, double cross_area_in, double volume_in, bool data_ready_in);
+                double internal_diameter_in, double roughness_in, double cross_area_in, double volume_in, bool data_ready_in, SegmentType segment_type_in);
         Segment(const RestartIO::RstSegment& rst_segment);
 
         static Segment serializeObject();
@@ -84,7 +58,6 @@ namespace Opm {
         int segmentNumber() const;
         int branchNumber() const;
         int outletSegment() const;
-        double perfLength() const;
         double totalLength() const;
         double depth() const;
         double internalDiameter() const;
@@ -105,36 +78,12 @@ namespace Opm {
         bool operator==( const Segment& ) const;
         bool operator!=( const Segment& ) const;
 
-        const SICD& spiralICD() const;
-        const AutoICD& autoICD() const;
-        const Valve& valve() const;
+        const std::shared_ptr<SpiralICD>& spiralICD() const;
+        const Valve* valve() const;
 
-        void updatePerfLength(double perf_length);
-        void updateSpiralICD(const SICD& spiral_icd);
-        void updateAutoICD(const AutoICD& aicd);
+        void updateSpiralICD(const SpiralICD& spiral_icd);
         void updateValve(const Valve& valve, const double segment_length);
-        void updateValve(const Valve& valve);
         void addInletSegment(const int segment_number);
-
-        bool isRegular() const
-        {
-            return std::holds_alternative<RegularSegment>(this->m_icd);
-        }
-
-        inline bool isSpiralICD() const
-        {
-            return std::holds_alternative<SICD>(this->m_icd);
-        }
-
-        inline bool isAICD() const
-        {
-            return std::holds_alternative<AutoICD>(this->m_icd);
-        }
-
-        inline bool isValve() const
-        {
-            return std::holds_alternative<Valve>(this->m_icd);
-        }
 
         template<class Serializer>
         void serializeOp(Serializer& serializer)
@@ -150,12 +99,12 @@ namespace Opm {
             serializer(m_cross_area);
             serializer(m_volume);
             serializer(m_data_ready);
-            serializer(m_perf_length);
-            serializer(m_icd);
+            serializer(m_segment_type);
+            serializer(m_spiral_icd);
+            serializer(m_valve);
         }
 
     private:
-        void updateValve__(Valve& valve, const double segment_length);
         // segment number
         // it should work as a ID.
         int m_segment_number;
@@ -201,8 +150,17 @@ namespace Opm {
         // the volume will be updated at a final step.
         bool m_data_ready;
 
-        std::optional<double> m_perf_length;
-        std::variant<RegularSegment, SICD, AutoICD, Valve> m_icd;
+        // indicate the type of the segment
+        // regular, spiral ICD, or Valve.
+        SegmentType m_segment_type;
+
+        // information related to SpiralICD. It is nullptr for segments are not
+        // spiral ICD type
+        std::shared_ptr<SpiralICD> m_spiral_icd;
+
+        // information related to sub-critical valve. It is nullptr for segments are not
+        // of type of Valve
+        std::shared_ptr<Valve> m_valve;
 
         // We are not handling the length of segment projected onto the X-axis and Y-axis.
         // They are not used in the simulations and we are not supporting the plotting.
@@ -210,6 +168,20 @@ namespace Opm {
         // while they are not supported by the keyword at the moment.
     };
 
+    inline bool isRegular(const Segment& segment)
+    {
+        return segment.segmentType() == Segment::SegmentType::REGULAR;
+    }
+
+    inline bool isSpiralICD(const Segment& segment)
+    {
+        return segment.segmentType() == Segment::SegmentType::SICD;
+    }
+
+    inline bool isValve(const Segment& segment)
+    {
+        return segment.segmentType() == Segment::SegmentType::VALVE;
+    }
 }
 
 #endif

@@ -57,6 +57,7 @@ static const std::map<std::string, std::string> unit_string = {{"PERMX", "Permea
                                                                {"TRANX", "Transmissibility"},
                                                                {"TRANY", "Transmissibility"},
                                                                {"TRANZ", "Transmissibility"},
+                                                               {"NTG", "1"},
                                                                {"RS", "GasDissolutionFactor"},
                                                                {"RV", "OilDissolutionFactor"},
                                                                {"TEMPI", "Temperature"},
@@ -409,7 +410,6 @@ FieldProps::FieldProps(const Deck& deck, const Phases& phases, const EclipseGrid
     ny(grid.getNY()),
     nz(grid.getNZ()),
     m_phases(phases),
-    m_satfuncctrl(deck),
     m_actnum(grid.getACTNUM()),
     cell_volume(extract_cell_volume(grid)),
     cell_depth(extract_cell_depth(grid)),
@@ -578,8 +578,15 @@ FieldProps::FieldData<double>& FieldProps::init_get(const std::string& keyword) 
     if (keyword == ParserKeywords::TEMPI::keywordName)
         this->init_tempi(this->double_data[keyword]);
 
-    if (keywords::PROPS::satfunc.count(keyword) == 1)
+    if (keywords::PROPS::satfunc.count(keyword) == 1) {
         this->init_satfunc(keyword, this->double_data[keyword]);
+
+        if (this->tables.hasTables("SGOF")) {
+            const auto shift_iter = keywords::PROPS::sogcr_shift.find(keyword);
+            if (shift_iter != keywords::PROPS::sogcr_shift.end())
+                this->subtract_swl(this->double_data[keyword], shift_iter->second);
+        }
+    }
 
     return this->double_data[keyword];
 }
@@ -757,26 +764,11 @@ void FieldProps::apply(ScalarOperation op, FieldData<T>& data, T scalar_value, c
         max_value(data, scalar_value, index_list);
 }
 
-double FieldProps::get_alpha(const std::string& func_name, const std::string& target_array, double raw_alpha) {
-    if ( !(func_name == "ADDX" || func_name == "MAXLIM" || func_name == "MINLIM") )
-        return raw_alpha;
-
-    return this->getSIValue(target_array, raw_alpha);
-}
-
-double FieldProps::get_beta(const std::string& func_name, const std::string& target_array, double raw_beta) {
-    if ( func_name != "MULTA")
-        return raw_beta;
-
-    return this->getSIValue(target_array, raw_beta);
-}
-
 template <typename T>
 void FieldProps::apply(const DeckRecord& record, FieldData<T>& target_data, const FieldData<T>& src_data, const std::vector<Box::cell_index>& index_list) {
     const std::string& func_name = record.getItem("OPERATION").get< std::string >(0);
-    const std::string& target_array = record.getItem("TARGET_ARRAY").get<std::string>(0);
-    const double alpha           = this->get_alpha(func_name, target_array, record.getItem("PARAM1").get< double >(0));
-    const double beta            = this->get_beta( func_name, target_array, record.getItem("PARAM2").get< double >(0));
+    const double alpha           = record.getItem("PARAM1").get< double >(0);
+    const double beta            = record.getItem("PARAM2").get< double >(0);
     Operate::function func       = Operate::get( func_name, alpha, beta );
     bool check_target            = (func_name == "MULTIPLY" || func_name == "POLY");
 
@@ -1057,16 +1049,31 @@ void FieldProps::scanEDITSection(const EDITSection& edit_section) {
 
 
 void FieldProps::init_satfunc(const std::string& keyword, FieldData<double>& satfunc) {
-    if (this->m_rtep == nullptr)
-        this->m_rtep = satfunc::getRawTableEndpoints(this->tables, this->m_phases,
-                                                     this->m_satfuncctrl.minimumRelpermMobilityThreshold());
-
     const auto& endnum = this->get<int>("ENDNUM");
-    const auto& satreg = (keyword[0] == 'I')
-        ? this->get<int>("IMBNUM")
-        : this->get<int>("SATNUM");
+    if (keyword[0] == 'I') {
+        const auto& imbnum = this->get<int>("IMBNUM");
+        satfunc.default_update(satfunc::init(keyword, this->tables, this->m_phases, this->cell_depth, imbnum, endnum));
+    } else {
+        const auto& satnum = this->get<int>("SATNUM");
+        satfunc.default_update(satfunc::init(keyword, this->tables, this->m_phases, this->cell_depth, satnum, endnum));
+    }
+}
 
-    satfunc.default_update(satfunc::init(keyword, this->tables, this->m_phases, *this->m_rtep, this->cell_depth, satreg, endnum));
+/**
+ * Special purpose operation to make various *SOGCR* data elements
+ * account for (scaled) connate water saturation.
+ *
+ * Must only be called if run uses SGOF, because that table is implicitly
+ * defined in terms of connate water saturation.  Subtracts SWL only
+ * if the data item was defaulted (i.e., extracted from unscaled table).
+ */
+void FieldProps::subtract_swl(FieldProps::FieldData<double>& sogcr, const std::string& swl_kw)
+{
+    const auto& swl = this->init_get<double>(swl_kw);
+    for (std::size_t i = 0; i < sogcr.size(); i++) {
+        if (value::defaulted(sogcr.value_status[i]))
+            sogcr.data[i] -= swl.data[i];
+    }
 }
 
 

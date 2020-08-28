@@ -280,35 +280,4 @@ BOOST_AUTO_TEST_CASE(to_string_ok) {
 }
 
 
-BOOST_AUTO_TEST_CASE(create) {
-    Json::JsonObject json;
-    json.add_item("name", "Awesome 4D");
-    json.add_item("size", 100);
-    json.add_item("pi", 3.14159265);
-    {
-        auto list = json.add_array("array");
-        list.add("String");
-        list.add(100);
-        list.add(2.7172);
-    }
-    {
-        auto dict = json.add_object("object");
-        dict.add_item("key", "String");
-        dict.add_item("int", 100);
-        dict.add_item("double", 2.7172);
-    }
 
-    std::string s = json.dump();
-    Json::JsonObject json2(s);
-    BOOST_CHECK_EQUAL(json2.get_string("name"), "Awesome 4D");
-    BOOST_CHECK_EQUAL(json2.get_int("size"), 100);
-
-    auto array = json2.get_item("array");
-    BOOST_CHECK( array.is_array() );
-    BOOST_CHECK_EQUAL( array.size(), 3 );
-    BOOST_CHECK_EQUAL( array.get_array_item(2).as_double(), 2.7172 );
-
-    auto dict = json2.get_item("object");
-    BOOST_CHECK( dict.is_object() );
-    BOOST_CHECK_EQUAL( dict.get_string("key"), "String");
-}
