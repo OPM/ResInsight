@@ -596,7 +596,6 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
 
         if ( allTimeSteps.empty() )
         {
-            CAF_ASSERT( false && "No time steps found" );
             return options;
         }
 
