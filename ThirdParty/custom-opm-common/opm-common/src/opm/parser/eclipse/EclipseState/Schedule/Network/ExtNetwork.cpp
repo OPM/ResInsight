@@ -20,6 +20,7 @@
 #include <stdexcept>
 
 #include <opm/parser/eclipse/EclipseState/Schedule/Network/ExtNetwork.hpp>
+#include <iterator>
 
 namespace Opm {
 namespace Network {
