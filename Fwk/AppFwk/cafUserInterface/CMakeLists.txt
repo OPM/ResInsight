@@ -191,8 +191,3 @@ target_link_libraries ( ${PROJECT_NAME}
 )
 
 source_group("" FILES ${PROJECT_FILES})
-
-# cotire
-if (COMMAND caf_apply_cotire)
-  caf_apply_cotire("${PROJECT_NAME}")
-endif()

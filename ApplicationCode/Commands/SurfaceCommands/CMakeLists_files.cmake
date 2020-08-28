@@ -34,9 +34,3 @@ ${SOURCE_GROUP_SOURCE_FILES}
 
 
 source_group( "CommandFeature\\SurfaceCommands" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake )
-
-# cotire
-caf_cotire_start_unity_at_first_item(SOURCE_GROUP_SOURCE_FILES)
-list(APPEND CAF_COTIRE_START_NEW_UNITY_SOURCES
-${CMAKE_CURRENT_LIST_DIR}/RicImportSurfacesFeature.cpp
-)
