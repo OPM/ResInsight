@@ -306,6 +306,12 @@ find_package( OpenGL )
 
 add_subdirectory(ThirdParty/qwt)
 
+if(RESINSIGHT_ENABLE_UNITY_BUILD)
+    message("Cmake Unity build is enabled on : qwt")
+    set_property(TARGET qwt PROPERTY UNITY_BUILD true)
+    set_property(TARGET custom-opm-flowdiagnostics PROPERTY UNITY_BUILD true)
+endif()
+
 list(APPEND THIRD_PARTY_LIBRARIES
     qwt
 )
