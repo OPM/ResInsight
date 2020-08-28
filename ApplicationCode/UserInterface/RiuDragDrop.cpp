@@ -575,11 +575,7 @@ bool RiuDragDrop::handleSummaryPlotDrop( Qt::DropAction       action,
     {
         if ( action == Qt::MoveAction )
         {
-            RimSummaryCurveCollection::moveCurvesToCollection( summaryPlot->summaryCurveCollection(),
-                                                               summaryCurves,
-                                                               nullptr,
-                                                               insertAtPosition,
-                                                               false );
+            RimSummaryPlot::moveCurvesToPlot( summaryPlot, summaryCurves, insertAtPosition );
             return true;
         }
     }
