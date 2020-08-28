@@ -1054,14 +1054,14 @@ BOOST_AUTO_TEST_CASE(parse_validRecord_noThrow) {
     auto record = createSimpleParserRecord();
     ParseContext parseContext;
     ErrorGuard errors;
-    RawRecord raw( std::string_view( "100 443" ) );
+    RawRecord raw( string_view( "100 443" ) );
     UnitSystem unit_system;
     BOOST_CHECK_NO_THROW(record.parse(parseContext, errors, raw , unit_system, unit_system, "KEYWORD", "filename") );
 }
 
 BOOST_AUTO_TEST_CASE(parse_validRecord_deckRecordCreated) {
     auto record = createSimpleParserRecord();
-    RawRecord rawRecord( std::string_view( "100 443" ) );
+    RawRecord rawRecord( string_view( "100 443" ) );
     ParseContext parseContext;
     ErrorGuard errors;
     UnitSystem unit_system;
@@ -1093,7 +1093,7 @@ static ParserRecord createMixedParserRecord() {
 
 BOOST_AUTO_TEST_CASE(parse_validMixedRecord_noThrow) {
     auto record = createMixedParserRecord();
-    RawRecord rawRecord( std::string_view( "1 2 10.0 20.0 4 90.0") );
+    RawRecord rawRecord( string_view( "1 2 10.0 20.0 4 90.0") );
     ParseContext parseContext;
     ErrorGuard errors;
     UnitSystem unit_system;
@@ -2317,24 +2317,4 @@ BOOST_CHECK_EQUAL( kw.size(), 2 );
 auto record = kw.getRecord(1);
 BOOST_CHECK_EQUAL( record.getItem(5).get<double>(0), 0.9 );
 BOOST_CHECK( !deck.hasKeyword("LANGMUIR") );
-}
-
-
-
-
-BOOST_AUTO_TEST_CASE(ParseLONGKeywords) {
-   Parser parser;
-   ParseContext parseContext;
-   ErrorGuard errors;
-   const auto deck_string = R"(
-GUIDERATE
-/
-)";
-
-   parseContext.update(ParseContext::PARSE_LONG_KEYWORD, Opm::InputError::THROW_EXCEPTION);
-   BOOST_CHECK_THROW(parser.parseString(deck_string, parseContext, errors), std::invalid_argument);
-
-   parseContext.update(ParseContext::PARSE_LONG_KEYWORD, Opm::InputError::IGNORE);
-   auto deck = parser.parseString(deck_string, parseContext, errors);
-   BOOST_CHECK( deck.hasKeyword("GUIDERAT") );
 }

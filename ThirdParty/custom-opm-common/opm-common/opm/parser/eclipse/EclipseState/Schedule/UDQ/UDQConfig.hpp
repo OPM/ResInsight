@@ -38,7 +38,6 @@ namespace Opm {
 
     class DeckRecord;
     class Deck;
-    class SummaryState;
     class UDQConfig {
     public:
         UDQConfig() = default;
@@ -56,7 +55,6 @@ namespace Opm {
         void add_assign(const std::string& quantity, const std::vector<std::string>& selector, double value);
         void add_define(const std::string& quantity, const std::vector<std::string>& expression);
 
-        void eval(SummaryState& st) const;
         std::vector<UDQDefine> definitions() const;
         std::vector<UDQDefine> definitions(UDQVarType var_type) const;
         std::vector<UDQInput> input() const;

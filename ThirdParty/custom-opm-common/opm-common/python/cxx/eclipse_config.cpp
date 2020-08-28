@@ -14,7 +14,7 @@
 void python::common::export_EclipseConfig(py::module& module)
 {
     py::class_< EclipseConfig >( module, "EclipseConfig" )
-        .def( "init",            py::overload_cast<>(&EclipseConfig::init, py::const_));
+        .def( "init",            &EclipseConfig::init, ref_internal);
 
     py::class_< SummaryConfig >( module, "SummaryConfig")
         .def(py::init([](const Deck& deck, const EclipseState& state, const Schedule& schedule) {

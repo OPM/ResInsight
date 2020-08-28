@@ -42,9 +42,8 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstring>
-#include <optional>
-#include <iostream>
 #include <string>
+#include <iostream>
 
 // #####################################################################
 // Class Opm::RestartIO::Helpers
@@ -480,18 +479,18 @@ const std::map<cmp_enum, int> cmpToIndex = {
         }
 
         Opm::Action::Result
-        act_res(const Opm::Schedule& sched, const Opm::Action::State& action_state, const Opm::SummaryState&  smry, const std::size_t sim_step, std::vector<Opm::Action::ActionX>::const_iterator act_x) {
+        act_res(const Opm::Schedule& sched, const Opm::SummaryState&  smry, const std::size_t sim_step, std::vector<Opm::Action::ActionX>::const_iterator act_x) {
+            Opm::Action::Result ar(false);
+            Opm::Action::Context context(smry);
             auto sim_time = sched.simTime(sim_step);
-            if (act_x->ready(action_state, sim_time)) {
-                Opm::Action::Context context(smry, sched.getWListManager(sim_step));
-                return act_x->eval(context);
-            } else
-                return Opm::Action::Result(false);
+            if (act_x->ready(sim_time)) {
+                    ar = act_x->eval(sim_time, context);
+            }
+            return {ar};
         }
 
         template <class SACNArray>
         void staticContrib(std::vector<Opm::Action::ActionX>::const_iterator    actx_it,
-                           const Opm::Action::State&                            action_state,
                            const Opm::SummaryState&                             st,
                            const Opm::Schedule&                                 sched,
                            const std::size_t                                    simStep,
@@ -501,7 +500,7 @@ const std::map<cmp_enum, int> cmpToIndex = {
             int noEPZacn = 16;
             double undef_high_val = 1.0E+20;
             const auto& wells = sched.getWells(simStep);
-            const auto ar = sACN::act_res(sched, action_state, st, simStep, actx_it);
+            const auto ar = sACN::act_res(sched, st, simStep, actx_it);
             // write out the schedule Actionx conditions
             const auto& actx_cond = actx_it->conditions();
             for (const auto&  z_data : actx_cond) {
@@ -575,18 +574,23 @@ const std::map<cmp_enum, int> cmpToIndex = {
 
                 //Treat well, group and field left hand side conditions
                 if (it_lhsq != lhsQuantityToIndex.end()) {
+                    std::string wn = "";
                     //Well variable
-                    if (it_lhsq->first == "W" && ar) {
+                    if (it_lhsq->first == "W") {
                         //find the well that violates action if relevant
-                        auto well_iter = std::find_if(wells.begin(), wells.end(), [&ar](const Opm::Well& well) { return ar.has_well(well.name()); });
-                        if (well_iter != wells.end()) {
-                            const auto& wn = well_iter->name();
-
-                            if (st.has_well_var(wn, z_data.lhs.quantity)) {
-                                sAcn[ind + 4] = st.get_well_var(wn, z_data.lhs.quantity);
-                                sAcn[ind + 6] = st.get_well_var(wn, z_data.lhs.quantity);
-                                sAcn[ind + 8] = st.get_well_var(wn, z_data.lhs.quantity);
+                        for (const auto& well : wells)
+                        {
+                            if (ar.has_well(well.name())) {
+                                //set well name
+                                wn = well.name();
+                                break;
                             }
+                        }
+
+                        if ((it_lhsq->first == "W") && (st.has_well_var(wn, z_data.lhs.quantity)) ) {
+                            sAcn[ind + 4] = st.get_well_var(wn, z_data.lhs.quantity);
+                            sAcn[ind + 6] = st.get_well_var(wn, z_data.lhs.quantity);
+                            sAcn[ind + 8] = st.get_well_var(wn, z_data.lhs.quantity);
                         }
                     }
                     //group variable
@@ -628,11 +632,10 @@ AggregateActionxData(const std::vector<int>& actDims)
 
 void
 Opm::RestartIO::Helpers::AggregateActionxData::
-captureDeclaredActionxData( const Opm::Schedule&      sched,
-                            const Opm::Action::State& action_state,
-                            const Opm::SummaryState&  st,
-                            const std::vector<int>&   actDims,
-                            const std::size_t         simStep)
+captureDeclaredActionxData( const Opm::Schedule&    sched,
+                            const Opm::SummaryState& st,
+                            const std::vector<int>& actDims,
+                            const std::size_t       simStep)
 {
     const auto& acts = sched.actions(simStep);
     std::size_t act_ind = 0;
@@ -669,7 +672,7 @@ captureDeclaredActionxData( const Opm::Schedule&      sched,
 
         {
             auto s_acn = this->sACN_[act_ind];
-            sACN::staticContrib(actx_it, action_state, st, sched, simStep, s_acn);
+            sACN::staticContrib(actx_it, st, sched, simStep, s_acn);
         }
 
         act_ind +=1;

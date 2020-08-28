@@ -57,8 +57,6 @@ public:
     void LoadData(const std::vector<std::string>& vectList) const;
     void LoadData() const;
 
-    bool make_lodsmry_file();
-
     std::chrono::system_clock::time_point startdate() const { return startdat; }
 
     const std::vector<std::string>& keywordList() const;
@@ -67,7 +65,7 @@ public:
 
     int timestepIdxAtReportstepStart(const int reportStep) const;
 
-    size_t numberOfTimeSteps() const { return nTstep; }
+    size_t numberOfTimeSteps() const { return timeStepList.size(); }
 
     const std::string& get_unit(const std::string& name) const;
     const std::string& get_unit(const SummaryNode& node) const;
@@ -76,11 +74,9 @@ public:
     void write_rsm_file(std::optional<Opm::filesystem::path> = std::nullopt) const;
 
 private:
-    Opm::filesystem::path inputFileName, lodFileName;
+    Opm::filesystem::path inputFileName;
     int nI, nJ, nK, nSpecFiles;
-    bool fromSingleRun, lodEnabeled;
-    uint64_t lod_offset, lod_arr_size;
-    size_t nVect, nTstep;
+    size_t nVect;
 
     std::vector<bool> formattedFiles;
     std::vector<std::string> dataFileList;
@@ -133,9 +129,6 @@ private:
 
     std::vector<std::tuple <std::string, uint64_t>> getListOfArrays(std::string filename, bool formatted);
     std::vector<int> makeKeywPosVector(int speInd) const;
-    std::string read_string_from_disk(std::fstream& fileH, uint64_t size) const;
-    void inspect_lodsmry();
-    void Load_from_lodsmry(const std::vector<int>& keywIndVect) const;
 };
 
 }} // namespace Opm::EclIO

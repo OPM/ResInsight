@@ -100,11 +100,8 @@ if(ENABLE_ECL_INPUT)
     src/opm/parser/eclipse/EclipseState/Schedule/Action/ActionValue.cpp
     src/opm/parser/eclipse/EclipseState/Schedule/Action/ASTNode.cpp
     src/opm/parser/eclipse/EclipseState/Schedule/Action/Condition.cpp
-    src/opm/parser/eclipse/EclipseState/Schedule/Action/State.cpp
     src/opm/parser/eclipse/EclipseState/Schedule/ArrayDimChecker.cpp
     src/opm/parser/eclipse/EclipseState/Schedule/Events.cpp
-    src/opm/parser/eclipse/EclipseState/Schedule/GasLiftOpt.cpp
-    src/opm/parser/eclipse/EclipseState/Schedule/Group/GPMaint.cpp
     src/opm/parser/eclipse/EclipseState/Schedule/Group/Group.cpp
     src/opm/parser/eclipse/EclipseState/Schedule/Group/GuideRate.cpp
     src/opm/parser/eclipse/EclipseState/Schedule/Group/GuideRateConfig.cpp
@@ -118,12 +115,9 @@ if(ENABLE_ECL_INPUT)
     src/opm/parser/eclipse/EclipseState/Schedule/MSW/Compsegs.cpp
     src/opm/parser/eclipse/EclipseState/Schedule/MSW/Segment.cpp
     src/opm/parser/eclipse/EclipseState/Schedule/MSW/WellSegments.cpp
-    src/opm/parser/eclipse/EclipseState/Schedule/MSW/AICD.cpp
-    src/opm/parser/eclipse/EclipseState/Schedule/MSW/SICD.cpp
+    src/opm/parser/eclipse/EclipseState/Schedule/MSW/updatingConnectionsWithSegments.cpp
+    src/opm/parser/eclipse/EclipseState/Schedule/MSW/SpiralICD.cpp
     src/opm/parser/eclipse/EclipseState/Schedule/MSW/Valve.cpp
-    src/opm/parser/eclipse/EclipseState/Schedule/Network/Branch.cpp
-    src/opm/parser/eclipse/EclipseState/Schedule/Network/ExtNetwork.cpp
-    src/opm/parser/eclipse/EclipseState/Schedule/Network/Node.cpp
     src/opm/parser/eclipse/EclipseState/Schedule/OilVaporizationProperties.cpp
     src/opm/parser/eclipse/EclipseState/Schedule/RFTConfig.cpp
     src/opm/parser/eclipse/EclipseState/Schedule/RPTConfig.cpp
@@ -161,7 +155,6 @@ if(ENABLE_ECL_INPUT)
     src/opm/parser/eclipse/EclipseState/Tables/TableColumn.cpp
     src/opm/parser/eclipse/EclipseState/Tables/TableContainer.cpp
     src/opm/parser/eclipse/EclipseState/Tables/TableIndex.cpp
-    src/opm/parser/eclipse/EclipseState/Tables/TLMixpar.cpp
     src/opm/parser/eclipse/EclipseState/Tables/TableManager.cpp
     src/opm/parser/eclipse/EclipseState/Tables/TableSchema.cpp
     src/opm/parser/eclipse/EclipseState/Tables/Tables.cpp
@@ -169,7 +162,6 @@ if(ENABLE_ECL_INPUT)
     src/opm/parser/eclipse/EclipseState/Tables/Rock2dtrTable.cpp
     src/opm/parser/eclipse/EclipseState/Tables/PvtwsaltTable.cpp
     src/opm/parser/eclipse/EclipseState/Tables/BrineDensityTable.cpp
-    src/opm/parser/eclipse/EclipseState/Tables/RwgsaltTable.cpp
     src/opm/parser/eclipse/EclipseState/Tables/SolventDensityTable.cpp
     src/opm/parser/eclipse/EclipseState/Schedule/UDQ/UDQASTNode.cpp
     src/opm/parser/eclipse/EclipseState/Schedule/UDQ/UDQParams.cpp
@@ -199,6 +191,7 @@ if(ENABLE_ECL_INPUT)
     src/opm/parser/eclipse/Units/Dimension.cpp
     src/opm/parser/eclipse/Units/UnitSystem.cpp
     src/opm/parser/eclipse/Utility/Functional.cpp
+    src/opm/parser/eclipse/Utility/Stringview.cpp
   )
 
 
@@ -343,7 +336,6 @@ if(ENABLE_ECL_INPUT)
     tests/parser/MultiRegTests.cpp
     tests/parser/MultisegmentWellTests.cpp
     tests/parser/MULTREGTScannerTests.cpp
-    tests/parser/NetworkTests.cpp
     tests/parser/OrderedMapTests.cpp
     tests/parser/ParseContextTests.cpp
     tests/parser/ParseContext_EXIT1.cpp
@@ -393,7 +385,6 @@ if(ENABLE_ECL_OUTPUT)
           tests/test_AggregateConnectionData.cpp
           tests/test_AggregateUDQData.cpp
           tests/test_ArrayDimChecker.cpp
-          tests/test_data_GuideRateValue.cpp
           tests/test_EclipseIO.cpp
           tests/test_DoubHEAD.cpp
           tests/test_InteHEAD.cpp
@@ -437,8 +428,6 @@ if(ENABLE_ECL_OUTPUT)
           tests/SPE1CASE1A.SMSPEC
           tests/SPE9_CP_PACKED.DATA
           tests/SOFR_TEST.DATA
-          tests/UDQ_BASE.DATA
-          tests/UDQ_RESTART.DATA
           tests/UDQ_TEST_WCONPROD_IUAD-2.DATA
           tests/UDQ_ACTIONX_TEST1.DATA
           tests/UDQ_ACTIONX_TEST1_U.DATA
@@ -487,8 +476,6 @@ if(ENABLE_ECL_INPUT)
     #examples/opmi.cpp
     #examples/opmpack.cpp
     #examples/opmhash.cpp
-    #examples/wellgraph.cpp
-    #examples/make_lodsmry.cpp
   )
 endif()
 
@@ -501,7 +488,6 @@ if(ENABLE_ECL_INPUT)
     examples/opmi.cpp
     examples/opmpack.cpp
     examples/opmhash.cpp
-    examples/make_lodsmry.cpp
   )
 endif()
 
@@ -548,6 +534,7 @@ if(ENABLE_ECL_INPUT)
   list(APPEND PUBLIC_HEADER_FILES
        opm/io/eclipse/SummaryNode.hpp
        opm/json/JsonObject.hpp
+       opm/parser/eclipse/Utility/Stringview.hpp
        opm/parser/eclipse/Utility/Functional.hpp
        opm/parser/eclipse/Utility/Typetools.hpp
        opm/parser/eclipse/Generator/KeywordGenerator.hpp
@@ -603,11 +590,8 @@ if(ENABLE_ECL_INPUT)
        opm/parser/eclipse/EclipseState/Tables/SpecrockTable.hpp
        opm/parser/eclipse/EclipseState/Tables/PvtwsaltTable.hpp
        opm/parser/eclipse/EclipseState/Tables/BrineDensityTable.hpp
-       opm/parser/eclipse/EclipseState/Tables/PermfactTable.hpp
-       opm/parser/eclipse/EclipseState/Tables/RwgsaltTable.hpp
-       opm/parser/eclipse/EclipseState/Tables/SaltvdTable.hpp
-       opm/parser/eclipse/EclipseState/Tables/SaltpvdTable.hpp
        opm/parser/eclipse/EclipseState/Tables/SolventDensityTable.hpp
+       opm/parser/eclipse/EclipseState/Tables/SaltvdTable.hpp
        opm/parser/eclipse/EclipseState/Tables/PlydhflfTable.hpp
        opm/parser/eclipse/EclipseState/Tables/PlymwinjTable.hpp
        opm/parser/eclipse/EclipseState/Tables/PlyshlogTable.hpp
@@ -617,7 +601,6 @@ if(ENABLE_ECL_INPUT)
        opm/parser/eclipse/EclipseState/Tables/SpecheatTable.hpp
        opm/parser/eclipse/EclipseState/Tables/SgcwmisTable.hpp
        opm/parser/eclipse/EclipseState/Tables/Sof2Table.hpp
-       opm/parser/eclipse/EclipseState/Tables/TLMixpar.hpp
        opm/parser/eclipse/EclipseState/Tables/TableManager.hpp
        opm/parser/eclipse/EclipseState/Tables/SwfnTable.hpp
        opm/parser/eclipse/EclipseState/Tables/EnptvdTable.hpp
@@ -627,8 +610,6 @@ if(ENABLE_ECL_INPUT)
        opm/parser/eclipse/EclipseState/Tables/JFunc.hpp
        opm/parser/eclipse/EclipseState/Tables/TableIndex.hpp
        opm/parser/eclipse/EclipseState/Tables/PvtgTable.hpp
-       opm/parser/eclipse/EclipseState/Tables/PvtgwTable.hpp
-       opm/parser/eclipse/EclipseState/Tables/PvtgwoTable.hpp
        opm/parser/eclipse/EclipseState/Tables/Tabdims.hpp
        opm/parser/eclipse/EclipseState/Tables/TableSchema.hpp
        opm/parser/eclipse/EclipseState/Tables/RocktabTable.hpp
@@ -685,12 +666,7 @@ if(ENABLE_ECL_INPUT)
        opm/parser/eclipse/EclipseState/Schedule/Action/Condition.hpp
        opm/parser/eclipse/EclipseState/Schedule/Action/ASTNode.hpp
        opm/parser/eclipse/EclipseState/Schedule/Action/PyAction.hpp
-       opm/parser/eclipse/EclipseState/Schedule/Action/State.hpp
        opm/parser/eclipse/EclipseState/Schedule/ArrayDimChecker.hpp
-       opm/parser/eclipse/EclipseState/Schedule/GasLiftOpt.hpp
-       opm/parser/eclipse/EclipseState/Schedule/Network/Branch.hpp
-       opm/parser/eclipse/EclipseState/Schedule/Network/ExtNetwork.hpp
-       opm/parser/eclipse/EclipseState/Schedule/Network/Node.hpp
        opm/parser/eclipse/EclipseState/Schedule/TimeMap.hpp
        opm/parser/eclipse/EclipseState/Schedule/VFPInjTable.hpp
        opm/parser/eclipse/EclipseState/Schedule/VFPProdTable.hpp
@@ -717,7 +693,6 @@ if(ENABLE_ECL_INPUT)
        opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp
        opm/parser/eclipse/EclipseState/Schedule/ScheduleTypes.hpp
        opm/parser/eclipse/EclipseState/Schedule/Tuning.hpp
-       opm/parser/eclipse/EclipseState/Schedule/Group/GPMaint.hpp
        opm/parser/eclipse/EclipseState/Schedule/Group/GTNode.hpp
        opm/parser/eclipse/EclipseState/Schedule/Group/Group.hpp
        opm/parser/eclipse/EclipseState/Schedule/Group/GuideRate.hpp
@@ -733,8 +708,8 @@ if(ENABLE_ECL_INPUT)
        opm/parser/eclipse/EclipseState/Schedule/MSW/Segment.hpp
        opm/parser/eclipse/EclipseState/Schedule/MSW/Segment.hpp
        opm/parser/eclipse/EclipseState/Schedule/MSW/WellSegments.hpp
-       opm/parser/eclipse/EclipseState/Schedule/MSW/AICD.hpp
-       opm/parser/eclipse/EclipseState/Schedule/MSW/SICD.hpp
+       opm/parser/eclipse/EclipseState/Schedule/MSW/updatingConnectionsWithSegments.hpp
+       opm/parser/eclipse/EclipseState/Schedule/MSW/SpiralICD.hpp
        opm/parser/eclipse/EclipseState/SimulationConfig/ThresholdPressure.hpp
        opm/parser/eclipse/EclipseState/SimulationConfig/BCConfig.hpp
        opm/parser/eclipse/EclipseState/SimulationConfig/RockConfig.hpp
@@ -789,10 +764,9 @@ if(ENABLE_ECL_OUTPUT)
         opm/io/eclipse/rst/well.hpp
         opm/output/data/Aquifer.hpp
         opm/output/data/Cells.hpp
-        opm/output/data/GuideRateValue.hpp
-        opm/output/data/Groups.hpp
         opm/output/data/Solution.hpp
         opm/output/data/Wells.hpp
+        opm/output/data/Groups.hpp
         opm/output/eclipse/VectorItems/aquifer.hpp
         opm/output/eclipse/VectorItems/connection.hpp
         opm/output/eclipse/VectorItems/group.hpp

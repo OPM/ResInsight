@@ -49,7 +49,6 @@ struct WellInjectionProperties;
 class WellProductionProperties;
 class UDQActive;
 class UDQConfig;
-class SICD;
 
 namespace RestartIO {
 struct RstWell;
@@ -251,7 +250,7 @@ public:
 
         static WellInjectionProperties serializeObject();
 
-        void handleWELTARG(WELTARGCMode cmode, const UDAValue& new_arg, double SIFactorP);
+        void handleWELTARG(WELTARGCMode cmode, double newValue, double SIFactorP);
         void handleWCONINJE(const DeckRecord& record, bool availableForGroupControl, const std::string& well_name);
         void handleWCONINJH(const DeckRecord& record, bool is_producer, const std::string& well_name);
         bool hasInjectionControl(InjectorCMode controlModeArg) const {
@@ -382,7 +381,7 @@ public:
         static bool effectiveHistoryProductionControl(ProducerCMode cmode);
         void handleWCONPROD( const std::string& well, const DeckRecord& record);
         void handleWCONHIST( const DeckRecord& record);
-        void handleWELTARG( WELTARGCMode cmode, const UDAValue& new_arg, double SiFactorP);
+        void handleWELTARG( WELTARGCMode cmode, double newValue, double SiFactorP);
         void resetDefaultBHPLimit();
         void clearControls();
         ProductionControls controls(const SummaryState& st, double udq_default) const;
@@ -539,7 +538,7 @@ public:
     bool updateEconLimits(std::shared_ptr<WellEconProductionLimits> econ_limits);
     bool updateProduction(std::shared_ptr<WellProductionProperties> production);
     bool updateInjection(std::shared_ptr<WellInjectionProperties> injection);
-    bool updateWSEGSICD(const std::vector<std::pair<int, SICD> >& sicd_pairs);
+    bool updateWSEGSICD(const std::vector<std::pair<int, SpiralICD> >& sicd_pairs);
     bool updateWSEGVALV(const std::vector<std::pair<int, Valve> >& valve_pairs);
 
     bool handleWELSEGS(const DeckKeyword& keyword);

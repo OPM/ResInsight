@@ -23,8 +23,9 @@
 #include <deque>
 #include <memory>
 #include <string>
-#include <string_view>
 #include <list>
+
+#include <opm/parser/eclipse/Utility/Stringview.hpp>
 
 namespace Opm {
 
@@ -34,34 +35,36 @@ namespace Opm {
 
     class RawRecord {
     public:
-        RawRecord( const std::string_view&, bool text);
-        explicit RawRecord( const std::string_view&);
+        RawRecord( const string_view&, bool text);
+        explicit RawRecord( const string_view&);
 
-        inline std::string_view pop_front();
-        inline std::string_view front() const;
-        void push_front( std::string_view token );
-        void prepend( size_t count, std::string_view token );
+        inline string_view pop_front();
+        inline string_view front() const;
+        void push_front( string_view token );
+        void prepend( size_t count, string_view token );
         inline size_t size() const;
 
         std::string getRecordString() const;
-        inline std::string_view getItem(size_t index) const;
+        inline string_view getItem(size_t index) const;
+
+        void dump() const;
 
     private:
-        std::string_view m_sanitizedRecordString;
-        std::deque< std::string_view > m_recordItems;
+        string_view m_sanitizedRecordString;
+        std::deque< string_view > m_recordItems;
     };
 
     /*
      * These are frequently called, but fairly trivial in implementation, and
      * inlining the calls gives a decent low-effort performance benefit.
      */
-    std::string_view RawRecord::pop_front() {
+    string_view RawRecord::pop_front() {
         auto front = m_recordItems.front();
         this->m_recordItems.pop_front();
         return front;
     }
 
-    std::string_view RawRecord::front() const {
+    string_view RawRecord::front() const {
         return this->m_recordItems.front();
     }
 
@@ -69,7 +72,7 @@ namespace Opm {
         return m_recordItems.size();
     }
 
-    std::string_view RawRecord::getItem(size_t index) const {
+    string_view RawRecord::getItem(size_t index) const {
         return this->m_recordItems.at( index );
     }
 }

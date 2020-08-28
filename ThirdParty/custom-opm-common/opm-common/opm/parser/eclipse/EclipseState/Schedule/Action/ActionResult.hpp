@@ -101,9 +101,9 @@ public:
     void add_well(const std::string& well);
 
     Result& operator|=(const Result& other);
-    Result& operator=(const Result& src);
+    Result& operator=(const Result& src); 
     Result& operator&=(const Result& other);
-
+    
 private:
     void assign(bool value);
     bool result;

@@ -1,5 +1,5 @@
 #!/bin/bash
 
-export PYTHONPATH=@PROJECT_BINARY_DIR@/python:$PYTHONPATH
+export PYTHONPATH=@PROJECT_BINARY_DIR@/python/python:$PYTHONPATH
 export LD_LIBRARY_PATH=@_setup_lib_dirs@:$LD_LIBRARY_PATH
 

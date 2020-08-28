@@ -41,8 +41,6 @@ public:
     const std::string& parent_name() const;
 
     const Group& group() const;
-    std::size_t level() const;
-    std::vector<const GTNode*> all_nodes() const;
 private:
     const Group m_group;
     std::size_t m_level;

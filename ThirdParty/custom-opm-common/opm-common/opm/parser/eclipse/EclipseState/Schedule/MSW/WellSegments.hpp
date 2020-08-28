@@ -20,16 +20,14 @@
 #ifndef SEGMENTSET_HPP_HEADER_INCLUDED
 #define SEGMENTSET_HPP_HEADER_INCLUDED
 
-#include <map>
-#include <set>
 #include <vector>
+#include <map>
 
 #include <opm/parser/eclipse/EclipseState/Schedule/MSW/Segment.hpp>
 
 namespace Opm {
-    class SICD;
+    class SpiralICD;
     class Valve;
-    class WellConnections;
 }
 
 namespace Opm {
@@ -86,7 +84,6 @@ namespace Opm {
 
         const Segment& operator[](size_t idx) const;
         void orderSegments();
-        void updatePerfLength(const WellConnections& connections);
 
         bool operator==( const WellSegments& ) const;
         bool operator!=( const WellSegments& ) const;
@@ -94,10 +91,9 @@ namespace Opm {
         double segmentLength(const int segment_number) const;
         double segmentDepthChange(const int segment_number) const;
         std::vector<Segment> branchSegments(int branch) const;
-        std::set<int> branches() const;
 
         // it returns true if there is no error encountered during the update
-        bool updateWSEGSICD(const std::vector<std::pair<int, SICD> >& sicd_pairs);
+        bool updateWSEGSICD(const std::vector<std::pair<int, SpiralICD> >& sicd_pairs);
 
         bool updateWSEGVALV(const std::vector<std::pair<int, Valve> >& valve_pairs);
         const std::vector<Segment>::const_iterator begin() const;

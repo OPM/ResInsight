@@ -343,8 +343,6 @@ BOOST_AUTO_TEST_CASE(UDA) {
 #include "uda.include"
     test_data td( uda_deck );
     msim sim(td.state);
-    auto eps_lim = sim.uda_val().epsilonLimit();
-
     EclipseIO io(td.state, td.state.getInputGrid(), td.schedule, td.summary_config);
 
     sim.well_rate("P1", data::Rates::opt::wat, prod_wpr_P1);
@@ -370,10 +368,8 @@ BOOST_AUTO_TEST_CASE(UDA) {
                     std::string wwpr_key  = std::string("WWPR:") + well;
                     wwpr_sum += ecl_sum_get_general_var(ecl_sum, prev_tstep, wwpr_key.c_str());
                 }
-                wwpr_sum = 0.90 * wwpr_sum;
-                wwpr_sum = std::max(eps_lim, wwpr_sum);
             }
-            BOOST_CHECK_CLOSE( wwpr_sum, ecl_sum_get_general_var(ecl_sum, ecl_sum_iget_report_end(ecl_sum, report_step), "WWIR:INJ"), 1e-3);
+            BOOST_CHECK_CLOSE( 0.90 * wwpr_sum, ecl_sum_get_general_var(ecl_sum, ecl_sum_iget_report_end(ecl_sum, report_step), "WWIR:INJ"), 1e-3);
         }
     }
 }

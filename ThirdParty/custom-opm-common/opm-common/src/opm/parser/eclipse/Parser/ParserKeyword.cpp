@@ -249,7 +249,7 @@ namespace Opm {
     }
 
 
-    bool ParserKeyword::validNameStart( const std::string_view& name) {
+    bool ParserKeyword::validNameStart( const string_view& name) {
         if (!isalpha(name[0]))
             return false;
 
@@ -266,7 +266,7 @@ namespace Opm {
     }
 
 
-    bool ParserKeyword::validDeckName( const std::string_view& name) {
+    bool ParserKeyword::validDeckName( const string_view& name) {
 
         if( !validNameStart( name ) )
             return false;
@@ -651,11 +651,11 @@ void set_dimensions( ParserItem& item,
         }
     }
 
-    bool ParserKeyword::matches(const std::string_view& name ) const {
+    bool ParserKeyword::matches(const string_view& name ) const {
         if (!validDeckName(name ))
             return false;
 
-        else if( m_deckNames.count( std::string(name) ) )
+        else if( m_deckNames.count( name.string() ) )
             return true;
 
         else if (hasMatchRegex())

@@ -33,6 +33,8 @@
 namespace Opm {
 
     class RawRecord;
+    class string_view;
+
     class RawKeyword {
     public:
         RawKeyword(const std::string& name, const std::string& filename, std::size_t lineNR, bool raw_string, Raw::KeywordSizeEnum sizeType);

@@ -34,6 +34,7 @@
 
 #include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
 #include <opm/parser/eclipse/Parser/ParserKeyword.hpp>
+#include <opm/parser/eclipse/Utility/Stringview.hpp>
 
 namespace Json {
     class JsonObject;
@@ -84,8 +85,8 @@ namespace Opm {
         bool hasKeyword( const std::string& ) const;
         const ParserKeyword& getKeyword(const std::string& name) const;
 
-        bool isRecognizedKeyword( const std::string_view& deckKeywordName) const;
-        const ParserKeyword& getParserKeywordFromDeckName(const std::string_view& deckKeywordName) const;
+        bool isRecognizedKeyword( const string_view& deckKeywordName) const;
+        const ParserKeyword& getParserKeywordFromDeckName(const string_view& deckKeywordName) const;
         std::vector<std::string> getAllDeckNames () const;
 
         void loadKeywords(const Json::JsonObject& jsonKeywords);
@@ -134,18 +135,18 @@ namespace Opm {
 
     private:
         bool hasWildCardKeyword(const std::string& keyword) const;
-        const ParserKeyword* matchingKeyword(const std::string_view& keyword) const;
+        const ParserKeyword* matchingKeyword(const string_view& keyword) const;
         void addDefaultKeywords();
 
         // std::vector< std::unique_ptr< const ParserKeyword > > keyword_storage;
         std::list<ParserKeyword> keyword_storage;
 
         // associative map of deck names and the corresponding ParserKeyword object
-        std::map< std::string_view, const ParserKeyword* > m_deckParserKeywords;
+        std::map< string_view, const ParserKeyword* > m_deckParserKeywords;
 
         // associative map of the parser internal names and the corresponding
         // ParserKeyword object for keywords which match a regular expression
-        std::map< std::string_view, const ParserKeyword* > m_wildCardKeywords;
+        std::map< string_view, const ParserKeyword* > m_wildCardKeywords;
 
         std::vector<std::pair<std::string,std::string>> code_keywords;
     };

@@ -18,7 +18,6 @@
 */
 
 #include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/SummaryState.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/UDQ/UDQConfig.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/UDQ/UDQEnums.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/UDQ/UDQInput.hpp>
@@ -289,34 +288,6 @@ namespace Opm {
                this->type_count == data.type_count;
     }
 
-    void UDQConfig::eval(SummaryState& st) const {
-        const auto& func_table = this->function_table();
-        UDQContext context(func_table, st);
-        for (const auto& assign : this->assignments(UDQVarType::WELL_VAR)) {
-            auto ws = assign.eval(st.wells());
-            st.update_udq(ws);
-        }
-
-        for (const auto& def : this->definitions(UDQVarType::WELL_VAR)) {
-            auto ws = def.eval(context);
-            st.update_udq(ws);
-        }
-
-        for (const auto& assign : this->assignments(UDQVarType::GROUP_VAR)) {
-            auto ws = assign.eval(st.groups());
-            st.update_udq(ws);
-        }
-
-        for (const auto& def : this->definitions(UDQVarType::GROUP_VAR)) {
-            auto ws = def.eval(context);
-            st.update_udq(ws);
-        }
-
-        for (const auto& def : this->definitions(UDQVarType::FIELD_VAR)) {
-            auto field_udq = def.eval(context);
-            st.update_udq(field_udq);
-        }
-    }
 }
 
 

@@ -31,8 +31,8 @@
 #include <cctype>
 #include <ctime>
 
-#include <opm/output/data/Groups.hpp>
 #include <opm/output/data/Wells.hpp>
+#include <opm/output/data/Groups.hpp>
 #include <opm/output/eclipse/Summary.hpp>
 
 #include <opm/parser/eclipse/Python/Python.hpp>
@@ -89,7 +89,7 @@ static const int day = 24 * 60 * 60;
   This is quite misleading, because the values prepared in the test
   input deck are NOT used.
 */
-static data::Wells result_wells(const bool w3_injector = true) {
+static data::Wells result_wells() {
     /* populate with the following pattern:
      *
      * Wells are named W_1, W_2 etc, i.e. wells are 1 indexed.
@@ -122,8 +122,6 @@ static data::Wells result_wells(const bool w3_injector = true) {
     rates1.set( rt::well_potential_water, -10.13 / day );
     rates1.set( rt::well_potential_oil, -10.14 / day );
     rates1.set( rt::well_potential_gas, -10.15 / day );
-    rates1.set( rt::polymer, -10.16 / day );
-    rates1.set( rt::brine, -10.17 / day );
 
     data::Rates rates2;
     rates2.set( rt::wat, -20.0 / day );
@@ -141,8 +139,6 @@ static data::Wells result_wells(const bool w3_injector = true) {
     rates2.set( rt::well_potential_water, -20.13 / day );
     rates2.set( rt::well_potential_oil, -20.14 / day );
     rates2.set( rt::well_potential_gas, -20.15 / day );
-    rates2.set( rt::polymer, -20.16 / day );
-    rates2.set( rt::brine, -20.17 / day );
 
     data::Rates rates3;
     rates3.set( rt::wat, 30.0 / day );
@@ -160,8 +156,6 @@ static data::Wells result_wells(const bool w3_injector = true) {
     rates3.set( rt::well_potential_water, 30.13 / day );
     rates3.set( rt::well_potential_oil, 30.14 / day );
     rates3.set( rt::well_potential_gas, 30.15 / day );
-    rates3.set( rt::polymer, 30.16 / day );
-    rates3.set( rt::brine, 30.17 / day );
 
 
     data::Rates rates6;
@@ -180,8 +174,6 @@ static data::Wells result_wells(const bool w3_injector = true) {
     rates6.set( rt::well_potential_water, 60.13 / day );
     rates6.set( rt::well_potential_oil, 60.14 / day );
     rates6.set( rt::well_potential_gas, 60.15 / day );
-    rates6.set( rt::polymer, 60.16 / day );
-    rates6.set( rt::brine, 60.17 / day );
     /* completion rates */
     data::Rates crates1;
     crates1.set( rt::wat, -100.0 / day );
@@ -215,8 +207,6 @@ static data::Wells result_wells(const bool w3_injector = true) {
     crates3.set( rt::reservoir_water, 300.6 / day );
     crates3.set( rt::reservoir_oil, 300.7 / day );
     crates3.set( rt::reservoir_gas, 300.8 / day );
-    crates3.set( rt::polymer, 300.16 / day );
-    crates3.set( rt::brine, 300.17 / day );
 
     data::Rates crates6;
     crates6.set( rt::wat, 600.0 / day );
@@ -269,13 +259,8 @@ static data::Wells result_wells(const bool w3_injector = true) {
     well2.current_control.prod = ::Opm::Well::ProducerCMode::ORAT;
 
     data::Well well3 { rates3, 2.1 * ps, 2.2 * ps, 2.3 * ps, 3, { {well3_comp1} }, SegRes{}, Ctrl{} };
-    well3.current_control.isProducer = !w3_injector;
-    if (! well3.current_control.isProducer) { // W_3 is injector
-        well3.current_control.inj = ::Opm::Well::InjectorCMode::BHP;
-    }
-    else {
-        well3.current_control.prod = ::Opm::Well::ProducerCMode::BHP;
-    }
+    well3.current_control.isProducer = false;
+    well3.current_control.inj = ::Opm::Well::InjectorCMode::BHP;
 
     data::Well well6 { rates6, 2.1 * ps, 2.2 * ps, 2.3 * ps, 3, { {well6_comp1} }, SegRes{}, Ctrl{} };
     well6.current_control.isProducer = false;
@@ -294,22 +279,22 @@ static data::Wells result_wells(const bool w3_injector = true) {
     return wellrates;
 }
 
-static data::GroupValues result_groups() {
+static data::Group result_groups() {
 
-    data::GroupValues groups;
-    data::GroupConstraints cgc_group;
+    data::Group groups;
+    data::currentGroupConstraints cgc_group;
 
     cgc_group.set(p_cmode::NONE, i_cmode::VREP, i_cmode::RATE);
-    groups["G_1"].currentControl = cgc_group;
+    groups.emplace("G_1", cgc_group);
 
     cgc_group.set(p_cmode::ORAT, i_cmode::RESV, i_cmode::FLD);
-    groups["G_2"].currentControl = cgc_group;
+    groups.emplace("G_2", cgc_group);
 
     cgc_group.set(p_cmode::GRAT, i_cmode::REIN, i_cmode::VREP);
-    groups["G_3"].currentControl = cgc_group;
+    groups.emplace("G_3", cgc_group);
 
     cgc_group.set(p_cmode::NONE, i_cmode::NONE, i_cmode::NONE);
-    groups["FIELD"].currentControl = cgc_group;
+    groups.emplace("FIELD", cgc_group);
 
     return groups;
 
@@ -394,20 +379,20 @@ struct setup {
     Schedule schedule;
     SummaryConfig config;
     data::Wells wells;
-    data::GroupValues groups;
+    data::Group groups;
     std::string name;
     WorkArea ta;
 
     /*-----------------------------------------------------------------*/
 
-    setup(std::string fname, const std::string& path = "summary_deck.DATA", const bool w3_injector = true) :
+    setup(std::string fname, const std::string& path = "summary_deck.DATA") :
         deck( Parser().parseFile( path) ),
         es( deck ),
         grid( es.getInputGrid() ),
         python( std::make_shared<Python>() ),
         schedule( deck, es, python),
         config( deck, schedule, es.getTableManager()),
-        wells( result_wells(w3_injector) ),
+        wells( result_wells() ),
         groups( result_groups() ),
         name( toupper(std::move(fname)) ),
         ta( "summary_test" )
@@ -464,8 +449,7 @@ BOOST_AUTO_TEST_CASE(well_keywords) {
     BOOST_CHECK_CLOSE( 20.0 + 20.1, ecl_sum_get_well_var( resp, 1, "W_2", "WLPR" ), 1e-5 );
     BOOST_CHECK_CLOSE( 10.3, ecl_sum_get_well_var( resp, 1, "W_1", "WNPR" ), 1e-5 );
     BOOST_CHECK_CLOSE( 20.3, ecl_sum_get_well_var( resp, 1, "W_2", "WNPR" ), 1e-5 );
-    BOOST_CHECK_CLOSE( 10.16, ecl_sum_get_well_var( resp, 1, "W_1", "WCPR" ), 1e-5 );
-    BOOST_CHECK_CLOSE( 10.17, ecl_sum_get_well_var( resp, 1, "W_1", "WSPR" ), 1e-5 );
+
     BOOST_CHECK_CLOSE( 10.4, ecl_sum_get_well_var( resp, 1, "W_1", "WGPRS" ), 1e-5 );
     BOOST_CHECK_CLOSE( 20.4, ecl_sum_get_well_var( resp, 1, "W_2", "WGPRS" ), 1e-5 );
     BOOST_CHECK_CLOSE( 10.2 - 10.4, ecl_sum_get_well_var( resp, 1, "W_1", "WGPRF" ), 1e-5 );
@@ -533,8 +517,6 @@ BOOST_AUTO_TEST_CASE(well_keywords) {
                                         ecl_sum_get_well_var( resp, 2, "W_1", "WVPT" ), 1e-5 );
     BOOST_CHECK_CLOSE( 2 * (20.6 + 20.7 + 20.8),
                                         ecl_sum_get_well_var( resp, 2, "W_2", "WVPT" ), 1e-5 );
-    BOOST_CHECK_CLOSE( 2 * 10.16, ecl_sum_get_well_var( resp, 2, "W_1", "WCPT" ), 1e-5 );
-    BOOST_CHECK_CLOSE( 2 * 10.17, ecl_sum_get_well_var( resp, 2, "W_1", "WSPT" ), 1e-5 );
 
     /* Production rates (history) */
     BOOST_CHECK_CLOSE( 10, ecl_sum_get_well_var( resp, 1, "W_1", "WWPRH" ), 1e-5 );
@@ -558,21 +540,20 @@ BOOST_AUTO_TEST_CASE(well_keywords) {
     BOOST_CHECK_CLOSE( 30.8, ecl_sum_get_well_var( resp, 1, "W_3", "WGVIR" ), 1e-5 );
     BOOST_CHECK_CLOSE( 30.2, ecl_sum_get_well_var( resp, 1, "W_3", "WGIR" ), 1e-5 );
     BOOST_CHECK_CLOSE( 30.3, ecl_sum_get_well_var( resp, 1, "W_3", "WNIR" ), 1e-5 );
-    BOOST_CHECK_CLOSE( 30.16, ecl_sum_get_well_var( resp, 1, "W_3", "WCIR" ), 1e-5 );
-    BOOST_CHECK_CLOSE( 30.17, ecl_sum_get_well_var( resp, 1, "W_3", "WSIR" ), 1e-5 );
+    BOOST_CHECK_CLOSE( 30.0 * 1.5, ecl_sum_get_well_var( resp, 1, "W_3", "WCIR" ), 1e-5 );
+    BOOST_CHECK_CLOSE( 30.0 * 2.5, ecl_sum_get_well_var( resp, 2, "W_3", "WCIR" ), 1e-5 );
 
     /* Injection totals */
     BOOST_CHECK_CLOSE( 30.0, ecl_sum_get_well_var( resp, 1, "W_3", "WWIT" ), 1e-5 );
     BOOST_CHECK_CLOSE( 30.2, ecl_sum_get_well_var( resp, 1, "W_3", "WGIT" ), 1e-5 );
     BOOST_CHECK_CLOSE( 30.3, ecl_sum_get_well_var( resp, 1, "W_3", "WNIT" ), 1e-5 );
-    BOOST_CHECK_CLOSE( 30.16, ecl_sum_get_well_var( resp, 1, "W_3", "WCIT" ), 1e-5 );
+    BOOST_CHECK_CLOSE( 30.0 * 1.5, ecl_sum_get_well_var( resp, 1, "W_3", "WCIT" ), 1e-5 );
     BOOST_CHECK_CLOSE( (30.6 + 30.7 + 30.8),
                        ecl_sum_get_well_var( resp, 1, "W_3", "WVIT" ), 1e-5 );
     BOOST_CHECK_CLOSE( 2 * 30.0, ecl_sum_get_well_var( resp, 2, "W_3", "WWIT" ), 1e-5 );
     BOOST_CHECK_CLOSE( 2 * 30.2, ecl_sum_get_well_var( resp, 2, "W_3", "WGIT" ), 1e-5 );
     BOOST_CHECK_CLOSE( 2 * 30.3, ecl_sum_get_well_var( resp, 2, "W_3", "WNIT" ), 1e-5 );
-    BOOST_CHECK_CLOSE( 2 * 30.16, ecl_sum_get_well_var( resp, 2, "W_3", "WCIT" ), 1e-5 );
-    BOOST_CHECK_CLOSE( 2 * 30.17, ecl_sum_get_well_var( resp, 2, "W_3", "WSIT" ), 1e-5 );
+    BOOST_CHECK_CLOSE( 30.0 * 1.5 + 30.0 * 2.5, ecl_sum_get_well_var( resp, 2, "W_3", "WCIT" ), 1e-5 );
     BOOST_CHECK_CLOSE( 2* (30.6 + 30.7 + 30.8),
                        ecl_sum_get_well_var( resp, 2, "W_3", "WVIT" ), 1e-5 );
 
@@ -709,9 +690,6 @@ BOOST_AUTO_TEST_CASE(group_keywords) {
     BOOST_CHECK_CLOSE(  30.13 + 60.13, ecl_sum_get_group_var( resp, 1, "G_2", "GWPI" ), 1e-5 );
     BOOST_CHECK_CLOSE(  30.15 + 60.15, ecl_sum_get_group_var( resp, 1, "G_2", "GGPI" ), 1e-5 );
 
-    BOOST_CHECK_CLOSE( 10.16 + 20.16, ecl_sum_get_group_var( resp, 1, "G_1", "GCPR" ), 1e-5 );
-    BOOST_CHECK_CLOSE( 10.17 + 20.17, ecl_sum_get_group_var( resp, 1, "G_1", "GSPR" ), 1e-5 );
-
     /* Production totals */
     BOOST_CHECK_CLOSE( 10.0 + 20.0, ecl_sum_get_group_var( resp, 1, "G_1", "GWPT" ), 1e-5 );
     BOOST_CHECK_CLOSE( 10.1 + 20.1, ecl_sum_get_group_var( resp, 1, "G_1", "GOPT" ), 1e-5 );
@@ -723,7 +701,6 @@ BOOST_AUTO_TEST_CASE(group_keywords) {
     BOOST_CHECK_CLOSE( (10.2 - 10.4) + (20.2 - 20.4), ecl_sum_get_group_var( resp, 1, "G_1", "GGPTF" ), 1e-5 );
     BOOST_CHECK_CLOSE( 10.6 + 10.7 + 10.8 + 20.6 + 20.7 + 20.8,
                                     ecl_sum_get_group_var( resp, 1, "G_1", "GVPT" ), 1e-5 );
-    BOOST_CHECK_CLOSE( 10.16 + 20.16, ecl_sum_get_group_var( resp, 1, "G_1", "GCPT" ), 1e-5 );
     BOOST_CHECK_CLOSE(  2 * (10.0 + 20.0), ecl_sum_get_group_var( resp, 2, "G_1", "GWPT" ), 1e-5 );
     BOOST_CHECK_CLOSE(  2 * (10.1 + 20.1), ecl_sum_get_group_var( resp, 2, "G_1", "GOPT" ), 1e-5 );
     BOOST_CHECK_CLOSE(  2 * (10.2 + 20.2), ecl_sum_get_group_var( resp, 2, "G_1", "GGPT" ), 1e-5 );
@@ -734,7 +711,7 @@ BOOST_AUTO_TEST_CASE(group_keywords) {
     BOOST_CHECK_CLOSE(  2 * ((10.1 - 10.5) + (20.1 - 20.5)), ecl_sum_get_group_var( resp, 2, "G_1", "GOPTF" ), 1e-5 );
     BOOST_CHECK_CLOSE(  2 * (10.6 + 10.7 + 10.8 + 20.6 + 20.7 + 20.8),
                                     ecl_sum_get_group_var( resp, 2, "G_1", "GVPT" ), 1e-5 );
-    BOOST_CHECK_CLOSE( 2 * (10.16 + 20.16), ecl_sum_get_group_var( resp, 2, "G_1", "GCPT" ), 1e-5 );
+
     /* Production rates (history) */
     BOOST_CHECK_CLOSE( 10.0 + 20.0, ecl_sum_get_group_var( resp, 1, "G_1", "GWPRH" ), 1e-5 );
     BOOST_CHECK_CLOSE( 10.1 + 20.1, ecl_sum_get_group_var( resp, 1, "G_1", "GOPRH" ), 1e-5 );
@@ -760,8 +737,8 @@ BOOST_AUTO_TEST_CASE(group_keywords) {
     BOOST_CHECK_CLOSE( 30.0 + 60.0, ecl_sum_get_group_var( resp, 1, "G_2", "GWIR" ), 1e-5 );
     BOOST_CHECK_CLOSE( 30.2 + 60.2, ecl_sum_get_group_var( resp, 1, "G_2", "GGIR" ), 1e-5 );
     BOOST_CHECK_CLOSE( 30.3 + 60.3, ecl_sum_get_group_var( resp, 1, "G_2", "GNIR" ), 1e-5 );
-    BOOST_CHECK_CLOSE( 30.16 + 60.16, ecl_sum_get_group_var( resp, 1, "G_2", "GCIR" ), 1e-5 );
-    BOOST_CHECK_CLOSE( 30.17 + 60.17, ecl_sum_get_group_var( resp, 1, "G_2", "GSIR" ), 1e-5 );
+    BOOST_CHECK_CLOSE( 30.0 * 1.5, ecl_sum_get_group_var( resp, 1, "G_2", "GCIR" ), 1e-5 );
+    BOOST_CHECK_CLOSE( 30.0 * 2.5, ecl_sum_get_group_var( resp, 2, "G_2", "GCIR" ), 1e-5 );
     BOOST_CHECK_CLOSE( (30.6 + 30.7 + 30.8 + 60.6 + 60.7 + 60.8),
                        ecl_sum_get_group_var( resp, 1, "G_2", "GVIR" ), 1e-5 );
 
@@ -769,14 +746,13 @@ BOOST_AUTO_TEST_CASE(group_keywords) {
     BOOST_CHECK_CLOSE( 30.0 + 60.0, ecl_sum_get_group_var( resp, 1, "G_2", "GWIT" ), 1e-5 );
     BOOST_CHECK_CLOSE( 30.2 + 60.2, ecl_sum_get_group_var( resp, 1, "G_2", "GGIT" ), 1e-5 );
     BOOST_CHECK_CLOSE( 30.3 + 60.3, ecl_sum_get_group_var( resp, 1, "G_2", "GNIT" ), 1e-5 );
-    BOOST_CHECK_CLOSE( 30.16 + 60.16, ecl_sum_get_group_var( resp, 1, "G_2", "GCIT" ), 1e-5 );
+    BOOST_CHECK_CLOSE( 30.0 * 1.5, ecl_sum_get_group_var( resp, 1, "G_2", "GCIT" ), 1e-5 );
     BOOST_CHECK_CLOSE( (30.6 + 30.7 + 30.8 + 60.6 + 60.7 + 60.8),
                        ecl_sum_get_group_var( resp, 1, "G_2", "GVIT" ), 1e-5 );
     BOOST_CHECK_CLOSE( 2 * (30.0 + 60.0), ecl_sum_get_group_var( resp, 2, "G_2", "GWIT" ), 1e-5 );
     BOOST_CHECK_CLOSE( 2 * (30.2 + 60.2), ecl_sum_get_group_var( resp, 2, "G_2", "GGIT" ), 1e-5 );
     BOOST_CHECK_CLOSE( 2 * (30.3 + 60.3), ecl_sum_get_group_var( resp, 2, "G_2", "GNIT" ), 1e-5 );
-    BOOST_CHECK_CLOSE( 2 * (30.16 + 60.16), ecl_sum_get_group_var( resp, 2, "G_2", "GCIT" ), 1e-5 );
-    BOOST_CHECK_CLOSE( 2 * (30.17 + 60.17), ecl_sum_get_group_var( resp, 2, "G_2", "GSIT" ), 1e-5 );
+    BOOST_CHECK_CLOSE( 30.0 * 1.5 + 30.0 * 2.5, ecl_sum_get_group_var( resp, 2, "G_2", "GCIT" ), 1e-5 );
     BOOST_CHECK_CLOSE( 2 * (30.6 + 30.7 + 30.8 + 60.6 + 60.7 + 60.8),
                        ecl_sum_get_group_var( resp, 2, "G_2", "GVIT" ), 1e-5 );
 
@@ -917,17 +893,18 @@ BOOST_AUTO_TEST_CASE(completion_kewords) {
     /* Injection rates */
     BOOST_CHECK_CLOSE( 300.0,       ecl_sum_get_well_completion_var( resp, 1, "W_3", "CWIR", 3, 1, 1 ), 1e-5 );
     BOOST_CHECK_CLOSE( 300.2,       ecl_sum_get_well_completion_var( resp, 1, "W_3", "CGIR", 3, 1, 1 ), 1e-5 );
-    BOOST_CHECK_CLOSE( 300.16, ecl_sum_get_well_completion_var( resp, 1, "W_3", "CCIR", 3, 1, 1 ), 1e-5 );
+    BOOST_CHECK_CLOSE( 300.0 * 1.5, ecl_sum_get_well_completion_var( resp, 1, "W_3", "CCIR", 3, 1, 1 ), 1e-5 );
+    BOOST_CHECK_CLOSE( 300.0 * 2.5, ecl_sum_get_well_completion_var( resp, 2, "W_3", "CCIR", 3, 1, 1 ), 1e-5 );
 
     /* Injection totals */
     BOOST_CHECK_CLOSE( 300.0,       ecl_sum_get_well_completion_var( resp, 1, "W_3", "CWIT", 3, 1, 1 ), 1e-5 );
     BOOST_CHECK_CLOSE( 300.2,       ecl_sum_get_well_completion_var( resp, 1, "W_3", "CGIT", 3, 1, 1 ), 1e-5 );
     BOOST_CHECK_CLOSE( 300.3,       ecl_sum_get_well_completion_var( resp, 1, "W_3", "CNIT", 3, 1, 1 ), 1e-5 );
-    BOOST_CHECK_CLOSE( 300.16, ecl_sum_get_well_completion_var( resp, 1, "W_3", "CCIT", 3, 1, 1 ), 1e-5 );
+    BOOST_CHECK_CLOSE( 300.0 * 1.5, ecl_sum_get_well_completion_var( resp, 1, "W_3", "CCIT", 3, 1, 1 ), 1e-5 );
     BOOST_CHECK_CLOSE( 2 * 300.0,   ecl_sum_get_well_completion_var( resp, 2, "W_3", "CWIT", 3, 1, 1 ), 1e-5 );
     BOOST_CHECK_CLOSE( 2 * 300.2,   ecl_sum_get_well_completion_var( resp, 2, "W_3", "CGIT", 3, 1, 1 ), 1e-5 );
     BOOST_CHECK_CLOSE( 2 * 300.3,   ecl_sum_get_well_completion_var( resp, 2, "W_3", "CNIT", 3, 1, 1 ), 1e-5 );
-    BOOST_CHECK_CLOSE( 2 * 300.16,
+    BOOST_CHECK_CLOSE( 300.0 * 1.5 + 300.0 * 2.5,
                                     ecl_sum_get_well_completion_var( resp, 2, "W_3", "CCIT", 3, 1, 1 ), 1e-5 );
 
     /* Solvent flow rate + or - Note OPM uses negative values for producers, while CNFR outputs positive
@@ -1012,9 +989,6 @@ BOOST_AUTO_TEST_CASE(field_keywords) {
     BOOST_CHECK_CLOSE(  30.15 + 60.15, ecl_sum_get_field_var( resp, 1, "FGPI" ), 1e-5 );
     BOOST_CHECK_CLOSE(  30.13 + 60.13, ecl_sum_get_field_var( resp, 1, "FWPI" ), 1e-5 );
 
-    BOOST_CHECK_CLOSE(  10.16 + 20.16, ecl_sum_get_field_var( resp, 1, "FCPR" ), 1e-5 );
-    BOOST_CHECK_CLOSE(  10.17 + 20.17, ecl_sum_get_field_var( resp, 1, "FSPR" ), 1e-5 );
-
     /* Production totals */
     BOOST_CHECK_CLOSE( 10.0 + 20.0, ecl_sum_get_field_var( resp, 1, "FWPT" ), 1e-5 );
     BOOST_CHECK_CLOSE( 10.1 + 20.1, ecl_sum_get_field_var( resp, 1, "FOPT" ), 1e-5 );
@@ -1048,9 +1022,6 @@ BOOST_AUTO_TEST_CASE(field_keywords) {
     BOOST_CHECK_CLOSE( 2 * (10.1 - 10.5 + 20.1 - 20.5),
                                     ecl_sum_get_field_var( resp, 2, "FOPTF" ), 1e-5 );
 
-    BOOST_CHECK_CLOSE(  2 * (10.16 + 20.16), ecl_sum_get_field_var( resp, 2, "FCPT" ), 1e-5 );
-    BOOST_CHECK_CLOSE(  2 * (10.17 + 20.17), ecl_sum_get_field_var( resp, 2, "FSPT" ), 1e-5 );
-
     /* Production rates (history) */
     BOOST_CHECK_CLOSE( 10.0 + 20.0, ecl_sum_get_field_var( resp, 1, "FWPRH" ), 1e-5 );
     BOOST_CHECK_CLOSE( 10.1 + 20.1, ecl_sum_get_field_var( resp, 1, "FOPRH" ), 1e-5 );
@@ -1075,20 +1046,19 @@ BOOST_AUTO_TEST_CASE(field_keywords) {
     BOOST_CHECK_CLOSE( 30.0 + 60., ecl_sum_get_field_var( resp, 1, "FWIR" ), 1e-5 );
     BOOST_CHECK_CLOSE( 30.2 + 60.2, ecl_sum_get_field_var( resp, 1, "FGIR" ), 1e-5 );
     BOOST_CHECK_CLOSE( 30.6 + 30.7 + 30.8 + 60.6 + 60.7 + 60.8, ecl_sum_get_field_var( resp, 1, "FVIR" ), 1e-5 );
-    BOOST_CHECK_CLOSE( 30.16 + 60.16, ecl_sum_get_field_var( resp, 1, "FCIR" ), 1e-5 );
-    BOOST_CHECK_CLOSE( 30.17 + 60.17, ecl_sum_get_field_var( resp, 1, "FSIR" ), 1e-5 );
+    BOOST_CHECK_CLOSE( 30.0 * 1.5, ecl_sum_get_field_var( resp, 1, "FCIR" ), 1e-5 );
+    BOOST_CHECK_CLOSE( 30.0 * 2.5, ecl_sum_get_field_var( resp, 2, "FCIR" ), 1e-5 );
 
     /* Injection totals */
     BOOST_CHECK_CLOSE( 30.0 + 60.,     ecl_sum_get_field_var( resp, 1, "FWIT" ), 1e-5 );
     BOOST_CHECK_CLOSE( 30.2 + 60.2,    ecl_sum_get_field_var( resp, 1, "FGIT" ), 1e-5 );
     BOOST_CHECK_CLOSE( 30.6 + 30.7 + 30.8 + 60.6 + 60.7 + 60.8, ecl_sum_get_field_var( resp, 1, "FVIT" ), 1e-5 );
-    BOOST_CHECK_CLOSE( 30.16 + 60.16,  ecl_sum_get_field_var( resp, 1, "FCIT" ), 1e-5 );
+    BOOST_CHECK_CLOSE( 30.0 * 1.5,         ecl_sum_get_field_var( resp, 1, "FCIT" ), 1e-5 );
 
     BOOST_CHECK_CLOSE( 2 * (30.0 + 60.0), ecl_sum_get_field_var( resp, 2, "FWIT" ), 1e-5 );
     BOOST_CHECK_CLOSE( 2 * (30.2 + 60.2), ecl_sum_get_field_var( resp, 2, "FGIT" ), 1e-5 );
     BOOST_CHECK_CLOSE( 2 * (30.6 + 30.7 + 30.8 + 60.6 + 60.7 + 60.8), ecl_sum_get_field_var( resp, 2, "FVIT" ), 1e-5 );
-    BOOST_CHECK_CLOSE( 2 * (30.16 + 60.16),  ecl_sum_get_field_var( resp, 2, "FCIT" ), 1e-5 );
-    BOOST_CHECK_CLOSE( 2 * (30.17 + 60.17),  ecl_sum_get_field_var( resp, 2, "FSIT" ), 1e-5 );
+    BOOST_CHECK_CLOSE( 30.0 * 1.5 + 30.0 * 2.5,  ecl_sum_get_field_var( resp, 2, "FCIT" ), 1e-5 );
 
     /* Injection totals (history) */
     BOOST_CHECK_CLOSE( 30.0, ecl_sum_get_field_var( resp, 1, "FWITH" ), 1e-5 );
@@ -1609,34 +1579,8 @@ BOOST_AUTO_TEST_CASE(READ_WRITE_WELLDATA) {
             BOOST_CHECK_MESSAGE(curr.inj == ::Opm::Well::InjectorCMode::GRUP, "W_6 must be on GRUP control");
 }
 
-// Well/group tree structure (SUMMARY_EFF_FAC.DATA):
-//
-//    W* are wells, G* are groups.
-//
-//                         +-------+
-//                         | FIELD |
-//                         +---+---+
-//                             |
-//                  +----------+-----------------+
-//                  |                            |
-//             +----+---+                   +----+---+
-//             |    G   |                   |   G_4  |
-//             +----+---+                   +----+---+
-//                  |                            |
-//         +--------+----------+            +----+---+
-//         |                   |            |   G_3  |
-//    +----+---+          +----+---+        +----+---+
-//    |   G_1  |          |   G_2  |             |
-//    +----+---+          +----+---+        +----+---+
-//         |                   |            |   W_3  |
-//    +----+---+          +----+---+        +----+---+
-//    |   W_1  |          |   W_2  |
-//    +----+---+          +----+---+
-//
-
 BOOST_AUTO_TEST_CASE(efficiency_factor) {
-        // W_3 is a producer in SUMMARY_EFF_FAC.DATA
-        setup cfg( "test_efficiency_factor", "SUMMARY_EFF_FAC.DATA", false );
+        setup cfg( "test_efficiency_factor", "SUMMARY_EFF_FAC.DATA" );
 
         out::Summary writer( cfg.es, cfg.config, cfg.grid, cfg.schedule, cfg.name );
         SummaryState st(std::chrono::system_clock::now());
@@ -1655,47 +1599,11 @@ BOOST_AUTO_TEST_CASE(efficiency_factor) {
         BOOST_CHECK_CLOSE( 10.1, ecl_sum_get_well_var( resp, 1, "W_1", "WOPT" ), 1e-5 );
         BOOST_CHECK_CLOSE( 2 * 10.1, ecl_sum_get_well_var( resp, 2, "W_1", "WOPT" ), 1e-5 );
 
-        BOOST_CHECK_CLOSE( -10.13, ecl_sum_get_group_var( resp, 1, "G_1", "GWPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE( -10.14, ecl_sum_get_group_var( resp, 1, "G_1", "GOPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE( -10.15, ecl_sum_get_group_var( resp, 1, "G_1", "GGPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE(   0.0 , ecl_sum_get_group_var( resp, 1, "G_1", "GWPI" ), 1e-5 );
-        BOOST_CHECK_CLOSE(   0.0 , ecl_sum_get_group_var( resp, 1, "G_1", "GGPI" ), 1e-5 );
-
-        BOOST_CHECK_CLOSE( -10.13, ecl_sum_get_group_var( resp, 2, "G_1", "GWPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE( -10.14, ecl_sum_get_group_var( resp, 2, "G_1", "GOPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE( -10.15, ecl_sum_get_group_var( resp, 2, "G_1", "GGPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE(   0.0 , ecl_sum_get_group_var( resp, 2, "G_1", "GWPI" ), 1e-5 );
-        BOOST_CHECK_CLOSE(   0.0 , ecl_sum_get_group_var( resp, 2, "G_1", "GGPI" ), 1e-5 );
-
         /* WEFAC 0.2 assigned to W_2.
          * W_2 assigned to group G2. GEFAC G2 = 0.01 */
         BOOST_CHECK_CLOSE( 20.1, ecl_sum_get_well_var( resp, 1, "W_2", "WOPR" ), 1e-5 );
         BOOST_CHECK_CLOSE( 20.1 * 0.2 * 0.01, ecl_sum_get_well_var( resp, 1, "W_2", "WOPT" ), 1e-5 );
         BOOST_CHECK_CLOSE( 2 * 20.1 * 0.2 * 0.01, ecl_sum_get_well_var( resp, 2, "W_2", "WOPT" ), 1e-5 );
-
-        BOOST_CHECK_CLOSE( -20.13 * 0.2, ecl_sum_get_group_var( resp, 1, "G_2", "GWPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE( -20.14 * 0.2, ecl_sum_get_group_var( resp, 1, "G_2", "GOPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE( -20.15 * 0.2, ecl_sum_get_group_var( resp, 1, "G_2", "GGPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE(   0.0       , ecl_sum_get_group_var( resp, 1, "G_2", "GWPI" ), 1e-5 );
-        BOOST_CHECK_CLOSE(   0.0       , ecl_sum_get_group_var( resp, 1, "G_2", "GGPI" ), 1e-5 );
-
-        BOOST_CHECK_CLOSE( -10.13 - (20.13 * 0.2 * 0.01), ecl_sum_get_group_var( resp, 1, "G", "GWPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE( -10.14 - (20.14 * 0.2 * 0.01), ecl_sum_get_group_var( resp, 1, "G", "GOPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE( -10.15 - (20.15 * 0.2 * 0.01), ecl_sum_get_group_var( resp, 1, "G", "GGPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE(   0.0                        , ecl_sum_get_group_var( resp, 1, "G", "GWPI" ), 1e-5 );
-        BOOST_CHECK_CLOSE(   0.0                        , ecl_sum_get_group_var( resp, 1, "G", "GGPI" ), 1e-5 );
-
-        BOOST_CHECK_CLOSE( -20.13 * 0.2, ecl_sum_get_group_var( resp, 2, "G_2", "GWPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE( -20.14 * 0.2, ecl_sum_get_group_var( resp, 2, "G_2", "GOPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE( -20.15 * 0.2, ecl_sum_get_group_var( resp, 2, "G_2", "GGPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE(   0.0       , ecl_sum_get_group_var( resp, 2, "G_2", "GWPI" ), 1e-5 );
-        BOOST_CHECK_CLOSE(   0.0       , ecl_sum_get_group_var( resp, 2, "G_2", "GGPI" ), 1e-5 );
-
-        BOOST_CHECK_CLOSE( -10.13 - (20.13 * 0.2 * 0.01), ecl_sum_get_group_var( resp, 2, "G", "GWPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE( -10.14 - (20.14 * 0.2 * 0.01), ecl_sum_get_group_var( resp, 2, "G", "GOPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE( -10.15 - (20.15 * 0.2 * 0.01), ecl_sum_get_group_var( resp, 2, "G", "GGPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE(   0.0                        , ecl_sum_get_group_var( resp, 2, "G", "GWPI" ), 1e-5 );
-        BOOST_CHECK_CLOSE(   0.0                        , ecl_sum_get_group_var( resp, 2, "G", "GGPI" ), 1e-5 );
 
         /* WEFAC 0.3 assigned to W_3.
          * W_3 assigned to group G3. GEFAC G_3 = 0.02
@@ -1703,54 +1611,6 @@ BOOST_AUTO_TEST_CASE(efficiency_factor) {
         BOOST_CHECK_CLOSE( 30.1, ecl_sum_get_well_var( resp, 1, "W_3", "WOIR" ), 1e-5 );
         BOOST_CHECK_CLOSE( 30.1 * 0.3 * 0.02 * 0.03, ecl_sum_get_well_var( resp, 1, "W_3", "WOIT" ), 1e-5 );
         BOOST_CHECK_CLOSE( 30.1 * 0.3 * 0.02 * 0.03 + 30.1 * 0.3 * 0.02 * 0.04, ecl_sum_get_well_var( resp, 2, "W_3", "WOIT" ), 1e-5 );
-
-        BOOST_CHECK_CLOSE( 30.13 * 0.3, ecl_sum_get_group_var( resp, 1, "G_3", "GWPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE( 30.14 * 0.3, ecl_sum_get_group_var( resp, 1, "G_3", "GOPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE( 30.15 * 0.3, ecl_sum_get_group_var( resp, 1, "G_3", "GGPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE(  0.0       , ecl_sum_get_group_var( resp, 1, "G_3", "GWPI" ), 1e-5 );
-        BOOST_CHECK_CLOSE(  0.0       , ecl_sum_get_group_var( resp, 1, "G_3", "GGPI" ), 1e-5 );
-
-        BOOST_CHECK_CLOSE( 30.13 * 0.3 * 0.02, ecl_sum_get_group_var( resp, 1, "G_4", "GWPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE( 30.14 * 0.3 * 0.02, ecl_sum_get_group_var( resp, 1, "G_4", "GOPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE( 30.15 * 0.3 * 0.02, ecl_sum_get_group_var( resp, 1, "G_4", "GGPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE(  0.0              , ecl_sum_get_group_var( resp, 1, "G_4", "GWPI" ), 1e-5 );
-        BOOST_CHECK_CLOSE(  0.0              , ecl_sum_get_group_var( resp, 1, "G_4", "GGPI" ), 1e-5 );
-
-        BOOST_CHECK_CLOSE( 30.13 * 0.3, ecl_sum_get_group_var( resp, 2, "G_3", "GWPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE( 30.14 * 0.3, ecl_sum_get_group_var( resp, 2, "G_3", "GOPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE( 30.15 * 0.3, ecl_sum_get_group_var( resp, 2, "G_3", "GGPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE(  0.0       , ecl_sum_get_group_var( resp, 2, "G_3", "GWPI" ), 1e-5 );
-        BOOST_CHECK_CLOSE(  0.0       , ecl_sum_get_group_var( resp, 2, "G_3", "GGPI" ), 1e-5 );
-
-        BOOST_CHECK_CLOSE( 30.13 * 0.3 * 0.02, ecl_sum_get_group_var( resp, 2, "G_4", "GWPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE( 30.14 * 0.3 * 0.02, ecl_sum_get_group_var( resp, 2, "G_4", "GOPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE( 30.15 * 0.3 * 0.02, ecl_sum_get_group_var( resp, 2, "G_4", "GGPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE(  0.0              , ecl_sum_get_group_var( resp, 2, "G_4", "GWPI" ), 1e-5 );
-        BOOST_CHECK_CLOSE(  0.0              , ecl_sum_get_group_var( resp, 2, "G_4", "GGPI" ), 1e-5 );
-
-        BOOST_CHECK_CLOSE( - 10.13
-                           - (20.13 * 0.2 * 0.01)
-                           + (30.13 * 0.3 * 0.02)*0.03, ecl_sum_get_field_var( resp, 1, "FWPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE( - 10.14
-                           - (20.14 * 0.2 * 0.01)
-                           + (30.14 * 0.3 * 0.02)*0.03, ecl_sum_get_field_var( resp, 1, "FOPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE( - 10.15
-                           - (20.15 * 0.2 * 0.01)
-                           + (30.15 * 0.3 * 0.02)*0.03, ecl_sum_get_field_var( resp, 1, "FGPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE( 0.0                        , ecl_sum_get_field_var( resp, 1, "FWPI" ), 1e-5 );
-        BOOST_CHECK_CLOSE( 0.0                        , ecl_sum_get_field_var( resp, 1, "FGPI" ), 1e-5 );
-
-        BOOST_CHECK_CLOSE( - 10.13
-                           - (20.13 * 0.2 * 0.01)
-                           + (30.13 * 0.3 * 0.02)*0.04, ecl_sum_get_field_var( resp, 2, "FWPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE( - 10.14
-                           - (20.14 * 0.2 * 0.01)
-                           + (30.14 * 0.3 * 0.02)*0.04, ecl_sum_get_field_var( resp, 2, "FOPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE( - 10.15
-                           - (20.15 * 0.2 * 0.01)
-                           + (30.15 * 0.3 * 0.02)*0.04, ecl_sum_get_field_var( resp, 2, "FGPP" ), 1e-5 );
-        BOOST_CHECK_CLOSE( 0.0                        , ecl_sum_get_field_var( resp, 2, "FWPI" ), 1e-5 );
-        BOOST_CHECK_CLOSE( 0.0                        , ecl_sum_get_field_var( resp, 2, "FGPI" ), 1e-5 );
 
         /* WEFAC 0.2 assigned to W_2.
          * W_2 assigned to group G2. GEFAC G2 = 0.01 */
@@ -1801,7 +1661,7 @@ BOOST_AUTO_TEST_CASE(Test_SummaryState) {
     BOOST_CHECK_THROW(st.get("NO_SUCH_KEY"), std::out_of_range);
     BOOST_CHECK(st.has("WWCT:OP_2"));
     BOOST_CHECK(!st.has("NO_SUCH_KEY"));
-    BOOST_CHECK_EQUAL(st.get("WWCT:OP_99", -1), -1);
+
 
     st.update_well_var("OP1", "WWCT", 0.75);
     st.update_well_var("OP2", "WWCT", 0.75);
@@ -1813,9 +1673,6 @@ BOOST_AUTO_TEST_CASE(Test_SummaryState) {
     const auto& wopr_wells = st.wells("WOPR");
     BOOST_CHECK_EQUAL( wopr_wells.size() , 0);
 
-    BOOST_CHECK_EQUAL( st.get_well_var("OP99", "WWCT", 0.50), 0.50);
-
-
     const auto& wwct_wells = st.wells("WWCT");
     BOOST_CHECK_EQUAL( wwct_wells.size(), 2);
 
@@ -1825,7 +1682,6 @@ BOOST_AUTO_TEST_CASE(Test_SummaryState) {
     BOOST_CHECK( st.has_group_var("G1", "GWCT"));
     BOOST_CHECK_EQUAL( st.get_group_var("G1", "GWCT"), 0.25);
     BOOST_CHECK_EQUAL( st.get_group_var("G1", "GWCT"), st.get("GWCT:G1"));
-    BOOST_CHECK_EQUAL( st.get_group_var("G99", "GWCT", 1.00), 1.00);
     const auto& gopr_groups = st.groups("GOPR");
     BOOST_CHECK_EQUAL( gopr_groups.size() , 0);
 
@@ -1850,19 +1706,6 @@ BOOST_AUTO_TEST_CASE(Test_SummaryState) {
     // The well 'OP_2' which was indirectly added with the
     // st.update("WWCT:OP_2", 100) call is *not* counted as a well!
     BOOST_CHECK_EQUAL(st.num_wells(), 3);
-
-
-    BOOST_CHECK( st.erase("WWCT:OP2") );
-    BOOST_CHECK( !st.has("WWCT:OP2") );
-    BOOST_CHECK( !st.erase("WWCT:OP2") );
-
-    BOOST_CHECK( st.erase_well_var("OP1", "WWCT") );
-    BOOST_CHECK( !st.has_well_var("OP1", "WWCT"));
-    BOOST_CHECK( !st.has("WWCT:OP1") );
-
-    BOOST_CHECK( st.erase_group_var("G1", "GWCT") );
-    BOOST_CHECK( !st.has_group_var("G1", "GWCT"));
-    BOOST_CHECK( !st.has("GWCT:G1") );
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -1896,13 +1739,10 @@ namespace {
 
     auto calculateRestartVectorsEffFac()
         -> decltype(calculateRestartVectors({"test.Restart.EffFac",
-                                             "SUMMARY_EFF_FAC.DATA", false}))
+                                             "SUMMARY_EFF_FAC.DATA"}))
     {
-        // W_3 is a producer in SUMMARY_EFF_FAC.DATA
-        const auto w3_injector = false;
-
         return calculateRestartVectors({
-            "test.Restart.EffFac", "SUMMARY_EFF_FAC.DATA", w3_injector
+            "test.Restart.EffFac", "SUMMARY_EFF_FAC.DATA"
         });
     }
 

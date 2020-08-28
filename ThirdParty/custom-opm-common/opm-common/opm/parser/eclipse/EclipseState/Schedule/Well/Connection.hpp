@@ -27,7 +27,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <optional>
 
 #include <opm/parser/eclipse/Parser/ParseContext.hpp>
 #include <opm/parser/eclipse/EclipseState/Util/Value.hpp>
@@ -95,6 +94,8 @@ namespace RestartIO {
                    const Direction direction,
                    const CTFKind ctf_kind,
                    const std::size_t sort_value,
+                   const double segDistStart,
+                   const double segDistEnd,
                    const bool defaultSatTabId);
 
         Connection(const RestartIO::RstConnection& rst_connection, const EclipseGrid& grid, const FieldPropsManager& fp);
@@ -128,11 +129,13 @@ namespace RestartIO {
         void updateSegment(int segment_number_arg,
                            double center_depth_arg,
                            std::size_t compseg_insert_index,
-                           const std::pair<double,double>& perf_range);
+                           double start,
+                           double end);
         std::size_t sort_value() const;
         const bool& getDefaultSatTabId() const;
         void setDefaultSatTabId(bool id);
-        const std::optional<std::pair<double, double>>& perf_range() const;
+        const double& getSegDistStart() const;
+        const double& getSegDistEnd() const;
         std::string str() const;
         bool ctfAssignedFromInput() const
         {
@@ -159,7 +162,8 @@ namespace RestartIO {
             serializer(m_global_index);
             serializer(m_ctfkind);
             serializer(m_sort_value);
-            serializer(m_perf_range);
+            serializer(m_segDistStart);
+            serializer(m_segDistEnd);
             serializer(m_defaultSatTabId);
             serializer(segment_number);
         }
@@ -232,7 +236,8 @@ namespace RestartIO {
         */
 
         std::size_t m_sort_value;
-        std::optional<std::pair<double,double>> m_perf_range;
+        double m_segDistStart;
+        double m_segDistEnd;
         bool m_defaultSatTabId;
 
         // related segment number

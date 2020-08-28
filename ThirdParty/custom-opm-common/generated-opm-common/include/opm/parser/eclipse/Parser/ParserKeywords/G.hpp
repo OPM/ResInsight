@@ -1647,7 +1647,6 @@ namespace ParserKeywords {
        class FIP_FAMILY {
        public:
            static const std::string itemName;
-           static const std::string defaultValue;
        };
 
        class PRESSURE_TARGET {

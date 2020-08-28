@@ -86,12 +86,12 @@ std::vector<int>
 Opm::RestartIO::Helpers::
 createUdqDims(const Schedule&     		sched,
               const std::size_t        	lookup_step,
-              const std::vector<int>&   inteHead)
+              const std::vector<int>&   inteHead) 
 {
     const auto& udqCfg = sched.getUDQConfig(lookup_step);
-    std::vector<int> udqDims;
+    std::vector<int> udqDims; 
     udqDims.resize(13,0);
-
+    
     udqDims[ 0] = udqCfg.size();
     udqDims[ 1] = entriesPerIUDQ();
     udqDims[ 2] = inteHead[VI::intehead::NO_IUADS];

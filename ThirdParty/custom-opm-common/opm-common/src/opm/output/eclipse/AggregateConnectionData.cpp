@@ -169,16 +169,12 @@ namespace {
             sConn[Ix::EffectiveKH] =
                 scprop(M::effective_Kh, conn.Kh());
 
-            sConn[Ix::SkinFactor] = conn.skinFactor();
+            sConn[Ix::SkinFactor] = conn.skinFactor(); 
 
             sConn[Ix::item12] = sConn[Ix::ConnTrans];
 
-
-            if (conn.attachedToSegment()) {
-                const auto& [start, end] = *conn.perf_range();
-                sConn[Ix::SegDistStart] = scprop(M::length, start);
-                sConn[Ix::SegDistEnd]   = scprop(M::length, end);
-            }
+            sConn[Ix::SegDistEnd]   = scprop(M::length, conn.getSegDistEnd());
+            sConn[Ix::SegDistStart] = scprop(M::length, conn.getSegDistStart());
 
             sConn[Ix::item30] = -1.0e+20f;
             sConn[Ix::item31] = -1.0e+20f;

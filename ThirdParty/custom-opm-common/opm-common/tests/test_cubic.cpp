@@ -40,6 +40,7 @@
 
 #define BOOST_TEST_MODULE CubicTest
 #include <boost/test/unit_test.hpp>
+#include <boost/test/floating_point_comparison.hpp>
 
 /* --- our own headers --- */
 #include <opm/common/utility/numeric/MonotCubicInterpolator.hpp>

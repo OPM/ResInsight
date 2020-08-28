@@ -38,7 +38,7 @@ namespace Opm {
 
 namespace Opm { namespace data {
     class WellRates;
-    class GroupValues;
+    class Group;
 }} // namespace Opm::data
 
 namespace Opm { namespace out {
@@ -65,7 +65,7 @@ public:
               const EclipseState&            es,
               const Schedule&                schedule,
               const data::WellRates&         well_solution,
-              const data::GroupValues&       group_solution,
+              const data::Group&             group_solution,
               const GlobalProcessParameters& single_values,
               const RegionParameters&        region_values = {},
               const BlockValues&             block_values  = {}) const;

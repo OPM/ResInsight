@@ -74,12 +74,8 @@ public:
                                                          "GOPT", "GWPT", "GGPT", "GVPT", "GWIT",
                                                          "GGIT", "GVIT",
                                                          "GOPTH", "GWPTH", "GGPTH",
-                                                         "GWITH", "GGITH",
-                                                         "GOPGR", "GWPGR", "GGPGR", "GVPGR",
-                                                         "GOIGR", "GWIGR", "GGIGR",
-                                                        };
+                                                         "GWITH", "GGITH"};
 
-    // Note: guide rates don't exist at the FIELD level.
     const std::vector<std::string> restart_field_keys = {"FOPP", "FWPP", "FOPR", "FWPR", "FGPR",
                                                          "FVPR", "FWIR", "FGIR", "FWCT", "FGOR",
                                                          "FOPT", "FWPT", "FGPT", "FVPT", "FWIT",
@@ -105,13 +101,6 @@ public:
                                                            {"GVIT", 17},
                                                            {"GOPP", 22},
                                                            {"GWPP", 23},
-                                                           {"GOPGR", 85},
-                                                           {"GWPGR", 86},
-                                                           {"GGPGR", 87},
-                                                           {"GVPGR", 88},
-                                                           {"GOIGR", 89},
-                                                           {"GWIGR", 91},
-                                                           {"GGIGR", 93},
                                                            {"GOPTH", 135},
                                                            {"GWPTH", 139},
                                                            {"GWITH", 140},
@@ -130,26 +119,6 @@ public:
         {inj_cmode_enum::VREP, 4},
         {inj_cmode_enum::FLD,  0},
         {inj_cmode_enum::SALE, 0},
-    };
-
-    // Note: guide rates don't exist at the FIELD level.
-    const std::map<int, inj_cmode_enum> ICntlModeToiCMode = {
-                                                    {0, inj_cmode_enum::NONE},
-                                                    {1, inj_cmode_enum::RATE},
-                                                    {2, inj_cmode_enum::RESV},
-                                                    {3, inj_cmode_enum::REIN},
-                                                    {4, inj_cmode_enum::VREP},    };
-
-    using p_cmode = Opm::Group::ProductionCMode;
-    const std::map<int, p_cmode> PCntlModeToPCMode = {
-                                                    {0, p_cmode::NONE},
-                                                    {1, p_cmode::ORAT},
-                                                    {2, p_cmode::WRAT},
-                                                    {3, p_cmode::GRAT},
-                                                    {4, p_cmode::LRAT},
-                                                    {9, p_cmode::CRAT},
-                                                    {5, p_cmode::RESV},
-                                                    {6, p_cmode::PRBL},
     };
 
     const std::map<std::string, size_t> fieldKeyToIndex = {

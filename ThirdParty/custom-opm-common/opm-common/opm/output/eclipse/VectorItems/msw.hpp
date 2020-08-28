@@ -55,8 +55,6 @@ namespace Opm { namespace RestartIO { namespace Helpers { namespace VectorItems 
             GasFlowFract = 10,  // Normalised Gas flow rate fraction
             Pressure     = 11,  // Segment pressure
 
-            item31  =  30,      // Very close to Normalised Water flow rate fraction - value used pr today
-
             item40  =  39,      // Unknown
 
             ValveLength    = 40, // Length of valve

@@ -68,8 +68,7 @@ EclipseGrid::EclipseGrid(std::array<int, 3>& dims ,
       m_minpvMode(MinpvMode::ModeEnum::Inactive),
       m_pinch("PINCH"),
       m_pinchoutMode(PinchMode::ModeEnum::TOPBOT),
-      m_multzMode(PinchMode::ModeEnum::TOP),
-      m_pinchGapMode(PinchMode::ModeEnum::GAP)
+      m_multzMode(PinchMode::ModeEnum::TOP)
 {
     initCornerPointGrid( coord , zcorn , actnum , mapaxes );
 }
@@ -85,8 +84,7 @@ EclipseGrid::EclipseGrid(const std::string& fileName )
       m_minpvMode(MinpvMode::ModeEnum::Inactive),
       m_pinch("PINCH"),
       m_pinchoutMode(PinchMode::ModeEnum::TOPBOT),
-      m_multzMode(PinchMode::ModeEnum::TOP),
-      m_pinchGapMode(PinchMode::ModeEnum::GAP)
+      m_multzMode(PinchMode::ModeEnum::TOP)
 {
 
     Opm::EclIO::EclFile egridfile(fileName);
@@ -101,8 +99,7 @@ EclipseGrid::EclipseGrid(size_t nx, size_t ny , size_t nz,
       m_minpvMode(MinpvMode::ModeEnum::Inactive),
       m_pinch("PINCH"),
       m_pinchoutMode(PinchMode::ModeEnum::TOPBOT),
-      m_multzMode(PinchMode::ModeEnum::TOP),
-      m_pinchGapMode(PinchMode::ModeEnum::GAP)
+      m_multzMode(PinchMode::ModeEnum::TOP)
 {
 
     m_coord.reserve((nx+1)*(ny+1)*6);
@@ -210,8 +207,7 @@ EclipseGrid::EclipseGrid(const Deck& deck, const int * actnum)
       m_minpvMode(MinpvMode::ModeEnum::Inactive),
       m_pinch("PINCH"),
       m_pinchoutMode(PinchMode::ModeEnum::TOPBOT),
-      m_multzMode(PinchMode::ModeEnum::TOP),
-      m_pinchGapMode(PinchMode::ModeEnum::GAP)
+      m_multzMode(PinchMode::ModeEnum::TOP)
 {
 
     if (deck.hasKeyword("GDFILE")){
@@ -313,8 +309,6 @@ EclipseGrid::EclipseGrid(const Deck& deck, const int * actnum)
 
             auto multzString = record.getItem<ParserKeywords::PINCH::MULTZ_OPTION>().get< std::string >(0);
             m_multzMode = PinchMode::PinchModeFromString(multzString);
-            auto pinchGapString = record.getItem<ParserKeywords::PINCH::CONTROL_OPTION>().get< std::string >(0);
-            m_pinchGapMode = PinchMode::PinchModeFromString(pinchGapString);
         }
 
         if (deck.hasKeyword<ParserKeywords::MINPV>() && deck.hasKeyword<ParserKeywords::MINPVFIL>()) {
@@ -488,10 +482,6 @@ EclipseGrid::EclipseGrid(const Deck& deck, const int * actnum)
 
     MinpvMode::ModeEnum EclipseGrid::getMinpvMode() const {
         return m_minpvMode;
-    }
-
-    PinchMode::ModeEnum EclipseGrid::getPinchGapMode() const {
-        return m_pinchGapMode;
     }
 
     const std::vector<double>& EclipseGrid::getMinpvVector( ) const {

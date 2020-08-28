@@ -646,17 +646,19 @@ const int PERMAVE::EXPO_2::defaultValue = -1;
 
 PERMFACT::PERMFACT( ) : ParserKeyword("PERMFACT")
 {
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("EQLDIMS","NTEQUL",0);
+  setSizeType(SLASH_TERMINATED);
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PERMFACT");
   {
      ParserRecord record;
      {
-        ParserItem item("DATA", ParserItem::itype::DOUBLE);
-        item.setSizeType(ParserItem::item_size::ALL);
+        ParserItem item("POROSITY", ParserItem::itype::DOUBLE);
         item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("PERMFACTMULT", ParserItem::itype::DOUBLE);
         item.push_backDimension("1");
         record.addItem(item);
      }
@@ -664,7 +666,8 @@ PERMFACT::PERMFACT( ) : ParserKeyword("PERMFACT")
   }
 }
 const std::string PERMFACT::keywordName = "PERMFACT";
-const std::string PERMFACT::DATA::itemName = "DATA";
+const std::string PERMFACT::POROSITY::itemName = "POROSITY";
+const std::string PERMFACT::PERMFACTMULT::itemName = "PERMFACTMULT";
 
 
 PERMJFUN::PERMJFUN( ) : ParserKeyword("PERMJFUN")

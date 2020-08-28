@@ -77,8 +77,6 @@ namespace Opm {
         IOConfig& getIOConfig();
 
         const InitConfig& getInitConfig() const;
-        InitConfig& getInitConfig();
-        
         const SimulationConfig& getSimulationConfig() const;
         virtual const EclipseGrid& getInputGrid() const;
 

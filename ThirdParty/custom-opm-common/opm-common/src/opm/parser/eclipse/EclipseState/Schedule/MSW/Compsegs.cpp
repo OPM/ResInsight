@@ -26,45 +26,16 @@
 #include <opm/parser/eclipse/Deck/DeckItem.hpp>
 #include <opm/parser/eclipse/Deck/DeckKeyword.hpp>
 #include <opm/parser/eclipse/Deck/DeckRecord.hpp>
-#include <opm/io/eclipse/rst/well.hpp>
 
 #include <opm/parser/eclipse/EclipseState/Schedule/Well/WellConnections.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/MSW/WellSegments.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Well/Connection.hpp>
 
 #include "Compsegs.hpp"
 
 namespace Opm {
-namespace Compsegs {
-
-struct Record {
-    int m_i;
-    int m_j;
-    int m_k;
-    // the branch number on the main stem is always 1.
-    // lateral branches should be numbered bigger than 1.
-    // a suboridnate branch must have a higher branch number than parent branch.
-    int m_branch_number;
-    double m_distance_start;
-    double m_distance_end;
-    Connection::Direction m_dir;
-
-    double center_depth;
-    // we do not handle thermal length for the moment
-    // double m_thermal_length;
-    int segment_number;
-    std::size_t m_seqIndex;
-
-    Record(int i_in, int j_in, int k_in, int branch_number_in, double distance_start_in, double distance_end_in,
-           Connection::Direction dir_in, double center_depth_in, int segment_number_in, std::size_t seqIndex_in);
-
-    void calculateCenterDepthWithSegments(const WellSegments& segment_set);
 
 
-};
-
-    Record::Record(int i_in, int j_in, int k_in, int branch_number_in, double distance_start_in, double distance_end_in,
+    Compsegs::Compsegs(int i_in, int j_in, int k_in, int branch_number_in, double distance_start_in, double distance_end_in,
                        Connection::Direction dir_in, double center_depth_in, int segment_number_in, size_t seqIndex_in)
     : m_i(i_in),
       m_j(j_in),
@@ -79,112 +50,10 @@ struct Record {
     {
     }
 
+    std::vector< Compsegs > Compsegs::compsegsFromCOMPSEGSKeyword(const DeckKeyword& compsegsKeyword, const EclipseGrid& grid,
+                                                                  const ParseContext& parseContext, ErrorGuard& errors) {
 
-    void Record::calculateCenterDepthWithSegments(const WellSegments& segment_set) {
-
-        // the depth and distance of the segment to the well head
-        const Segment& segment = segment_set.getFromSegmentNumber(segment_number);
-        const double segment_depth = segment.depth();
-        const double segment_distance = segment.totalLength();
-
-        // for top segment, no interpolation is needed
-        if (segment_number == 1) {
-            center_depth = segment_depth;
-            return;
-        }
-
-        // for other cases, interpolation between two segments is needed.
-        // looking for the other segment needed for interpolation
-        // by default, it uses the outlet segment to do the interpolation
-        int interpolation_segment_number = segment.outletSegment();
-
-        const double center_distance = (m_distance_start + m_distance_end) / 2.0;
-        // if the perforation is further than the segment and the segment has inlet segments in the same branch
-        // we use the inlet segment to do the interpolation
-        if (center_distance > segment_distance) {
-            for (const int inlet : segment.inletSegments()) {
-                const int inlet_index = segment_set.segmentNumberToIndex(inlet);
-                if (segment_set[inlet_index].branchNumber() == m_branch_number) {
-                    interpolation_segment_number = inlet;
-                    break;
-                }
-            }
-        }
-
-        if (interpolation_segment_number == 0) {
-            throw std::runtime_error("Failed in finding a segment to do the interpolation with segment "
-                                      + std::to_string(segment_number));
-        }
-
-        // performing the interpolation
-        const Segment& interpolation_segment = segment_set.getFromSegmentNumber(interpolation_segment_number);
-        const double interpolation_detph = interpolation_segment.depth();
-        const double interpolation_distance = interpolation_segment.totalLength();
-
-        const double depth_change_segment = segment_depth - interpolation_detph;
-        const double segment_length = segment_distance - interpolation_distance;
-
-        if (segment_length == 0.) {
-            throw std::runtime_error("Zero segment length is botained when doing interpolation between segment "
-                                      + std::to_string(segment_number) + " and segment " + std::to_string(interpolation_segment_number) );
-        }
-
-        center_depth = segment_depth + (center_distance - segment_distance) / segment_length * depth_change_segment;
-    }
-
-
-
-namespace {
-
-    void processCOMPSEGS__(std::vector< Record >& compsegs, const WellSegments& segment_set) {
-        // for the current cases we have at the moment, the distance information is specified explicitly,
-        // while the depth information is defaulted though, which need to be obtained from the related segment
-        for( auto& compseg : compsegs ) {
-
-            // need to determine the related segment number first
-            if (compseg.segment_number != 0) continue;
-
-            const double center_distance = (compseg.m_distance_start + compseg.m_distance_end) / 2.0;
-            const int branch_number = compseg.m_branch_number;
-
-            int segment_number = 0;
-            double min_distance_difference = 1.e100; // begin with a big value
-            for (std::size_t i_segment = 0; i_segment < segment_set.size(); ++i_segment) {
-                const Segment& current_segment = segment_set[i_segment];
-                if( branch_number != current_segment.branchNumber() ) continue;
-
-                const double distance = current_segment.totalLength();
-                const double distance_difference = std::abs(center_distance - distance);
-                if (distance_difference < min_distance_difference) {
-                    min_distance_difference = distance_difference;
-                    segment_number = current_segment.segmentNumber();
-                }
-            }
-
-            if (segment_number == 0) {
-                std::ostringstream sstr;
-                sstr << "The connection specified in COMPSEGS with index of " << compseg.m_i + 1 << " "
-                     << compseg.m_j + 1 << " " << compseg.m_k + 1 << " failed in finding a related segment";
-                throw std::runtime_error(sstr.str());
-            }
-
-            compseg.segment_number = segment_number;
-
-            // when depth is default or zero, we obtain the depth of the connection based on the information
-            // of the related segments
-            if (compseg.center_depth == 0.) {
-                compseg.calculateCenterDepthWithSegments(segment_set);
-            }
-        }
-    }
-
-    std::vector< Record > compsegsFromCOMPSEGSKeyword(const DeckKeyword& compsegsKeyword,
-                                                      const WellSegments& segments,
-                                                      const EclipseGrid& grid,
-                                                      const ParseContext& parseContext,
-                                                      ErrorGuard& errors) {
-
-        std::vector< Record > compsegs;
+        std::vector< Compsegs > compsegs;
 
         // The first record in the keyword only contains the well name
         // looping from the second record in the keyword
@@ -286,7 +155,7 @@ namespace {
                                        segment_number,
                                        seqIndex);
               }
-            } else { // a range is defined. genrate a range of Record
+            } else { // a range is defined. genrate a range of Compsegs
                 std::ostringstream sstr;
                 sstr << "COMPSEGS entries can only be input for single connection, not supporting COMPSEGS entries specified with a range yet.\n"
                      << " well " << well_name << " " << I + 1 << " " << J + 1 << " " << K + 1 << " in keyword COMPSEGS\n";
@@ -294,104 +163,128 @@ namespace {
             }
         }
 
-        processCOMPSEGS__(compsegs, segments);
         return compsegs;
     }
-}
 
+    void Compsegs::processCOMPSEGS(std::vector< Compsegs >& compsegs, const WellSegments& segment_set) {
+        // for the current cases we have at the moment, the distance information is specified explicitly,
+        // while the depth information is defaulted though, which need to be obtained from the related segment
+        for( auto& compseg : compsegs ) {
 
-    std::pair<WellConnections, WellSegments>
-    processCOMPSEGS(const DeckKeyword& compsegs,
-                    const WellConnections& input_connections,
-                    const WellSegments& input_segments,
-                    const EclipseGrid& grid,
-                    const ParseContext& parseContext,
-                    ErrorGuard& errors)
-    {
-            const auto& compsegs_vector = Compsegs::compsegsFromCOMPSEGSKeyword( compsegs, input_segments, grid, parseContext, errors);
-            WellSegments new_segment_set = input_segments;
-            WellConnections new_connection_set = input_connections;
+            // need to determine the related segment number first
+            if (compseg.segment_number != 0) continue;
 
-            for (const auto& compseg : compsegs_vector) {
-                const int i = compseg.m_i;
-                const int j = compseg.m_j;
-                const int k = compseg.m_k;
-                if (grid.cellActive(i, j, k)) {
-                    Connection& connection = new_connection_set.getFromIJK(i, j, k);
-                    connection.updateSegment(compseg.segment_number,
-                                             compseg.center_depth,
-                                             compseg.m_seqIndex,
-                                             { compseg.m_distance_start, compseg.m_distance_end });
+            const double center_distance = (compseg.m_distance_start + compseg.m_distance_end) / 2.0;
+            const int branch_number = compseg.m_branch_number;
+
+            int segment_number = 0;
+            double min_distance_difference = 1.e100; // begin with a big value
+            for (std::size_t i_segment = 0; i_segment < segment_set.size(); ++i_segment) {
+                const Segment& current_segment = segment_set[i_segment];
+                if( branch_number != current_segment.branchNumber() ) continue;
+
+                const double distance = current_segment.totalLength();
+                const double distance_difference = std::abs(center_distance - distance);
+                if (distance_difference < min_distance_difference) {
+                    min_distance_difference = distance_difference;
+                    segment_number = current_segment.segmentNumber();
                 }
             }
 
-            for (const auto& connection : new_connection_set) {
-                if (!connection.attachedToSegment())
-                    throw std::runtime_error("Not all the connections are attached with a segment. "
-                                             "The information from COMPSEGS is not complete");
+            if (segment_number == 0) {
+                std::ostringstream sstr;
+                sstr << "The connection specified in COMPSEGS with index of " << compseg.m_i + 1 << " "
+                     << compseg.m_j + 1 << " " << compseg.m_k + 1 << " failed in finding a related segment";
+                throw std::runtime_error(sstr.str());
             }
-            new_segment_set.updatePerfLength( new_connection_set );
 
-            return std::make_pair( WellConnections( std::move( new_connection_set ) ),
-                                   WellSegments( std::move(new_segment_set)));
-    }
+            compseg.segment_number = segment_number;
 
-namespace {
-    // Duplicated from Well.cpp
-    Connection::Order order_from_int(int int_value) {
-        switch(int_value) {
-        case 0:
-            return Connection::Order::TRACK;
-        case 1:
-            return Connection::Order::DEPTH;
-        case 2:
-            return Connection::Order::INPUT;
-        default:
-            throw std::invalid_argument("Invalid integer value: " + std::to_string(int_value) + " encountered when determining connection ordering");
+            // when depth is default or zero, we obtain the depth of the connection based on the information
+            // of the related segments
+            if (compseg.center_depth == 0.) {
+                compseg.calculateCenterDepthWithSegments(segment_set);
+            }
         }
     }
 
-}
+    void Compsegs::calculateCenterDepthWithSegments(const WellSegments& segment_set) {
 
-    std::pair<WellConnections, WellSegments>
-    rstUpdate(const RestartIO::RstWell& rst_well,
-              std::vector<Connection> rst_connections,
-              const std::unordered_map<int, Segment>& rst_segments)
+        // the depth and distance of the segment to the well head
+        const Segment& segment = segment_set.getFromSegmentNumber(segment_number);
+        const double segment_depth = segment.depth();
+        const double segment_distance = segment.totalLength();
+
+        // for top segment, no interpolation is needed
+        if (segment_number == 1) {
+            center_depth = segment_depth;
+            return;
+        }
+
+        // for other cases, interpolation between two segments is needed.
+        // looking for the other segment needed for interpolation
+        // by default, it uses the outlet segment to do the interpolation
+        int interpolation_segment_number = segment.outletSegment();
+
+        const double center_distance = (m_distance_start + m_distance_end) / 2.0;
+        // if the perforation is further than the segment and the segment has inlet segments in the same branch
+        // we use the inlet segment to do the interpolation
+        if (center_distance > segment_distance) {
+            for (const int inlet : segment.inletSegments()) {
+                const int inlet_index = segment_set.segmentNumberToIndex(inlet);
+                if (segment_set[inlet_index].branchNumber() == m_branch_number) {
+                    interpolation_segment_number = inlet;
+                    break;
+                }
+            }
+        }
+
+        if (interpolation_segment_number == 0) {
+            throw std::runtime_error("Failed in finding a segment to do the interpolation with segment "
+                                      + std::to_string(segment_number));
+        }
+
+        // performing the interpolation
+        const Segment& interpolation_segment = segment_set.getFromSegmentNumber(interpolation_segment_number);
+        const double interpolation_detph = interpolation_segment.depth();
+        const double interpolation_distance = interpolation_segment.totalLength();
+
+        const double depth_change_segment = segment_depth - interpolation_detph;
+        const double segment_length = segment_distance - interpolation_distance;
+
+        if (segment_length == 0.) {
+            throw std::runtime_error("Zero segment length is botained when doing interpolation between segment "
+                                      + std::to_string(segment_number) + " and segment " + std::to_string(interpolation_segment_number) );
+        }
+
+        center_depth = segment_depth + (center_distance - segment_distance) / segment_length * depth_change_segment;
+    }
+
+    void
+    Compsegs::updateConnectionsWithSegment(const std::vector<Compsegs>& compsegs,
+                                           const EclipseGrid& grid,
+                                           WellConnections& connection_set)
     {
-        for (auto& connection : rst_connections) {
-            int segment_id = connection.segment();
-            if (segment_id > 0) {
-                const auto& segment = rst_segments.at(segment_id);
-                connection.updateSegmentRST(segment.segmentNumber(),
-                                            segment.depth());
+
+        for (const auto& compseg : compsegs) {
+            const int i = compseg.m_i;
+            const int j = compseg.m_j;
+            const int k = compseg.m_k;
+            if (grid.cellActive(i, j, k)) {
+                Connection& connection = connection_set.getFromIJK(i, j, k);
+                connection.updateSegment(compseg.segment_number,
+                                         compseg.center_depth,
+                                         compseg.m_seqIndex,
+                                         compseg.m_distance_start,
+                                         compseg.m_distance_end);
             }
         }
-        WellConnections connections(order_from_int(rst_well.completion_ordering),
-                                    rst_well.ij[0],
-                                    rst_well.ij[1],
-                                    rst_connections);
 
-
-        std::vector<Segment> segments_list;
-        /*
-          The ordering of the segments in the WellSegments structure seems a
-          bit random; in some parts of the code the segment_number seems to
-          be treated like a random integer ID, whereas in other parts it
-          seems to be treated like a running index. Here the segments in
-          WellSegments are sorted according to the segment number - observe
-          that this is somewhat important because the first top segment is
-          treated differently from the other segment.
-        */
-        for (const auto& segment_pair : rst_segments)
-            segments_list.push_back( std::move(segment_pair.second) );
-
-        std::sort( segments_list.begin(), segments_list.end(),[](const Segment& seg1, const Segment& seg2) { return seg1.segmentNumber() < seg2.segmentNumber(); } );
-        auto comp_pressure_drop = WellSegments::CompPressureDrop::HFA;
-
-        WellSegments segments( comp_pressure_drop, segments_list);
-        segments.updatePerfLength( connections );
-
-        return std::make_pair( std::move(connections), std::move(segments));
+        for (size_t ic = 0; ic < connection_set.size(); ++ic) {
+            if (!(connection_set.get(ic).attachedToSegment())) {
+                throw std::runtime_error("Not all the connections are attached with a segment. "
+                                         "The information from COMPSEGS is not complete");
+            }
+        }
     }
-}
 }

@@ -20,119 +20,63 @@
 #ifndef OPM_OUTPUT_GROUPS_HPP
 #define OPM_OUTPUT_GROUPS_HPP
 
+#include <algorithm>
 #include <cstddef>
+#include <initializer_list>
 #include <map>
 #include <stdexcept>
 #include <string>
+#include <type_traits>
+#include <unordered_map>
 #include <vector>
-
-#include <opm/output/data/GuideRateValue.hpp>
 
 #include <opm/parser/eclipse/EclipseState/Schedule/Group/Group.hpp>
 
-namespace Opm { namespace data {
+namespace Opm {
 
-    struct GroupConstraints {
+    namespace data {
+
+    struct currentGroupConstraints {
         Opm::Group::ProductionCMode currentProdConstraint;
         Opm::Group::InjectionCMode  currentGasInjectionConstraint;
         Opm::Group::InjectionCMode  currentWaterInjectionConstraint;
 
         template <class MessageBufferType>
         void write(MessageBufferType& buffer) const;
-
         template <class MessageBufferType>
         void read(MessageBufferType& buffer);
 
-        bool operator==(const GroupConstraints& other) const
-        {
-            return this->currentProdConstraint == other.currentProdConstraint &&
-                   this->currentGasInjectionConstraint == other.currentGasInjectionConstraint &&
-                   this->currentWaterInjectionConstraint == other.currentWaterInjectionConstraint;
-        }
-
-        inline GroupConstraints& set(Opm::Group::ProductionCMode cpc,
-                                     Opm::Group::InjectionCMode  cgic,
-                                     Opm::Group::InjectionCMode  cwic);
+        inline currentGroupConstraints& set(  Opm::Group::ProductionCMode cpc,
+        Opm::Group::InjectionCMode  cgic,
+        Opm::Group::InjectionCMode  cwic);
     };
 
-    struct GroupGuideRates {
-        GuideRateValue production{};
-        GuideRateValue injection{};
 
-        template <class MessageBufferType>
-        void write(MessageBufferType& buffer) const
-        {
-            this->production.write(buffer);
-            this->injection .write(buffer);
-        }
-
-        template <class MessageBufferType>
-        void read(MessageBufferType& buffer)
-        {
-            this->production.read(buffer);
-            this->injection .read(buffer);
-        }
-
-        bool operator==(const GroupGuideRates& other) const
-        {
-            return this->production == other.production
-                && this->injection  == other.injection;
-        }
-    };
-
-    struct GroupData {
-        GroupConstraints currentControl;
-        GroupGuideRates  guideRates{};
-
-        template <class MessageBufferType>
-        void write(MessageBufferType& buffer) const
-        {
-            this->currentControl.write(buffer);
-            this->guideRates    .write(buffer);
-        }
-
-        template <class MessageBufferType>
-        void read(MessageBufferType& buffer)
-        {
-            this->currentControl.read(buffer);
-            this->guideRates    .read(buffer);
-        }
-
-        bool operator==(const GroupData& other) const
-        {
-            return this->currentControl == other.currentControl
-                && this->guideRates     == other.guideRates;
-        }
-    };
-
-    class GroupValues : public std::map<std::string, GroupData>  {
+    class Group : public std::map<std::string, Opm::data::currentGroupConstraints>  {
     public:
+
         template <class MessageBufferType>
-        void write(MessageBufferType& buffer) const
-        {
+        void write(MessageBufferType& buffer) const {
             unsigned int size = this->size();
             buffer.write(size);
-
-            for (const auto& [gname, gdata] : *this) {
-                buffer.write(gname);
-                gdata .write(buffer);
+            for (const auto& witr : *this) {
+                const std::string& name = witr.first;
+                buffer.write(name);
+                const auto& pi_constr = witr.second;
+                pi_constr.write(buffer);
             }
         }
 
         template <class MessageBufferType>
-        void read(MessageBufferType& buffer)
-        {
-            unsigned int size;
+        void read(MessageBufferType& buffer) {
+             unsigned int size;
             buffer.read(size);
-
             for (size_t i = 0; i < size; ++i) {
                 std::string name;
                 buffer.read(name);
-
-                auto gdata = GroupData{};
-                gdata.read(buffer);
-
-                this->emplace(name, gdata);
+                currentGroupConstraints cgc;
+                cgc.read(buffer);
+                this->emplace(name, cgc);
             }
         }
     };
@@ -140,28 +84,26 @@ namespace Opm { namespace data {
     /* IMPLEMENTATIONS */
 
     template <class MessageBufferType>
-    void GroupConstraints::write(MessageBufferType& buffer) const {
+    void currentGroupConstraints::write(MessageBufferType& buffer) const {
         buffer.write(this->currentProdConstraint);
         buffer.write(this->currentGasInjectionConstraint);
         buffer.write(this->currentWaterInjectionConstraint);
     }
 
     template <class MessageBufferType>
-    void GroupConstraints::read(MessageBufferType& buffer) {
+    void currentGroupConstraints::read(MessageBufferType& buffer) {
         buffer.read(this->currentProdConstraint);
         buffer.read(this->currentGasInjectionConstraint);
         buffer.read(this->currentWaterInjectionConstraint);
     }
 
-    inline GroupConstraints&
-    GroupConstraints::set(Opm::Group::ProductionCMode cpc,
-                          Opm::Group::InjectionCMode  cgic,
-                          Opm::Group::InjectionCMode  cwic)
-    {
+
+    inline currentGroupConstraints& currentGroupConstraints::set(  Opm::Group::ProductionCMode cpc,
+        Opm::Group::InjectionCMode  cgic,
+        Opm::Group::InjectionCMode  cwic) {
         this->currentGasInjectionConstraint = cgic;
         this->currentWaterInjectionConstraint = cwic;
         this->currentProdConstraint = cpc;
-
         return *this;
     }
 

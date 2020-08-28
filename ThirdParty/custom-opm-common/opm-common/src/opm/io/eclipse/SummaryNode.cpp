@@ -120,7 +120,7 @@ bool Opm::EclIO::SummaryNode::is_user_defined() const {
         "SURFWNUM",
     } ;
 
-    static const std::regex user_defined_regex { "[ABCFGRSW]U[A-Z0-9]+" } ;
+    static const std::regex user_defined_regex { "[ABCFGRSW]U[A-Z]+" } ;
 
     const bool matched     { std::regex_match(keyword, user_defined_regex) } ;
     const bool blacklisted { udq_blacklist.find(keyword) != udq_blacklist.end() } ;

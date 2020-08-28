@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(RawKeywordConstructor) {
 
 BOOST_AUTO_TEST_CASE(IsFinished) {
     std::string storage = "RecordString";
-    std::string_view line(storage);
+    string_view line(storage);
     RawRecord rec(line);
 
     RawKeyword kw1("NAME", "file", 10, false, Raw::FIXED, 0);

@@ -14,7 +14,7 @@
     },
     {
       "name": "NEW_VALUE",
-      "value_type": "UDA"
+      "value_type": "DOUBLE"
     }
   ]
 }

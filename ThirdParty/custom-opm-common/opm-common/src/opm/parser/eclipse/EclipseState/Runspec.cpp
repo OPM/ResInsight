@@ -20,13 +20,10 @@
 #include <type_traits>
 
 #include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/Deck/DeckSection.hpp>
-#include <opm/parser/eclipse/Parser/ParserKeywords/N.hpp>
 #include <opm/parser/eclipse/Parser/ParserKeywords/S.hpp>
 #include <opm/parser/eclipse/Parser/ParserKeywords/T.hpp>
 #include <opm/parser/eclipse/Parser/ParserKeywords/W.hpp>
 #include <opm/parser/eclipse/EclipseState/Runspec.hpp>
-#include <opm/common/OpmLog/OpmLog.hpp>
 
 namespace Opm {
 
@@ -41,7 +38,7 @@ Phase get_phase( const std::string& str ) {
     if( str == "POLYMW" ) return Phase::POLYMW;
     if( str == "FOAM" ) return Phase::FOAM;
     if( str == "BRINE" ) return Phase::BRINE;
- 
+
     throw std::invalid_argument( "Unknown phase '" + str + "'" );
 }
 
@@ -314,22 +311,8 @@ Runspec::Runspec( const Deck& deck ) :
     udq_params( deck ),
     hystpar( deck ),
     m_actdims( deck ),
-    m_sfuncctrl( deck ),
-    m_nupcol( ParserKeywords::NUPCOL::NUM_ITER::defaultValue )
-{
-    if (DeckSection::hasRUNSPEC(deck)) {
-        const RUNSPECSection runspecSection{deck};
-        if (runspecSection.hasKeyword("NUPCOL")) {
-            using NC = ParserKeywords::NUPCOL;
-            const auto& item = runspecSection.getKeyword<NC>().getRecord(0).getItem<NC::NUM_ITER>();
-            m_nupcol = item.get<int>(0);
-            if (item.defaultApplied(0)) {
-                std::string msg = "OPM Flow uses 12 as default NUPCOL value";
-                OpmLog::note(msg);
-            }
-        }
-    }
-}
+    m_sfuncctrl( deck )
+{}
 
 Runspec Runspec::serializeObject()
 {
@@ -381,11 +364,6 @@ const EclHysterConfig& Runspec::hysterPar() const noexcept
 const SatFuncControls& Runspec::saturationFunctionControls() const noexcept
 {
     return this->m_sfuncctrl;
-}
-
-int Runspec::nupcol() const noexcept
-{
-    return this->m_nupcol;
 }
 
 /*

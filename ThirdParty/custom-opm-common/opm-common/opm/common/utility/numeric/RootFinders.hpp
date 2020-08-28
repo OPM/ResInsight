@@ -43,7 +43,7 @@ namespace Opm
         {
             OPM_THROW(std::runtime_error, "Maximum number of iterations exceeded: " << maxiter << "\n"
                   << "Current interval is [" << std::min(x0, x1) << ", "
-                  << std::max(x0, x1) << "] abs(x0-x1) " << std::abs(x0-x1));
+                  << std::max(x0, x1) << "]");
             return -1e100; // Never reached.
         }
     };
@@ -64,7 +64,7 @@ namespace Opm
             OPM_REPORT;
             std::cerr << "Maximum number of iterations exceeded: " << maxiter
                       << ", current interval is [" << std::min(x0, x1) << ", "
-                      << std::max(x0, x1) << "]  abs(x0-x1) " << std::abs(x0-x1);
+                      << std::max(x0, x1) << "]";
             return 0.5*(x0 + x1);
         }
     };
@@ -124,7 +124,7 @@ namespace Opm
             iterations_used = 0;
             // In every iteraton, x1 is the last point computed,
             // and x0 is the last point computed that makes it a bracket.
-            while (fabs(x1 - x0) >= eps) {
+            while (fabs(x1 - x0) >= 1e-9*eps) {
                 double xnew = regulaFalsiStep(x0, x1, f0, f1);
                 double fnew = f(xnew);
 // 		cout << "xnew = " << xnew << "    fnew = " << fnew << endl;
@@ -221,7 +221,7 @@ namespace Opm
             iterations_used = 0;
             // In every iteraton, x1 is the last point computed,
             // and x0 is the last point computed that makes it a bracket.
-            while (fabs(x1 - x0) >= eps) {
+            while (fabs(x1 - x0) >= 1e-9*eps) {
                 double xnew = regulaFalsiStep(x0, x1, f0, f1);
                 double fnew = f(xnew);
 // 		cout << "xnew = " << xnew << "    fnew = " << fnew << endl;
@@ -327,7 +327,7 @@ namespace Opm
             // and x0 is the last point computed that makes it a bracket.
             double width = fabs(x1 - x0);
             double contraction = 1.0;
-            while (width >= eps) {
+            while (width >= 1e-9 * eps) {
                 // If we are contracting sufficiently to at least halve
                 // the interval width in two iterations we use regula
                 // falsi. Otherwise, we take a bisection step to avoid

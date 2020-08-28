@@ -64,10 +64,11 @@ namespace {
         return inteHead[163];
     }
 
-     // Categorize function in terms of which token-types are used in formula
+
+    // Categorize function in terms of which token-types are used in formula
     int define_type(const std::set<Opm::UDQTokenType> tokens) {
         int type = -4;
-        std::vector <Opm::UDQTokenType> type_1 = {
+        std::vector <Opm::UDQTokenType> type_1 = { 
         Opm::UDQTokenType::elemental_func_sorta,
         Opm::UDQTokenType::elemental_func_sortd,
         Opm::UDQTokenType::elemental_func_undef,
@@ -76,17 +77,18 @@ namespace {
         Opm::UDQTokenType::scalar_func_aveg,
         Opm::UDQTokenType::scalar_func_aveh,
         Opm::UDQTokenType::scalar_func_max,
-        Opm::UDQTokenType::scalar_func_min,
+        Opm::UDQTokenType::scalar_func_min, 
         Opm::UDQTokenType::binary_op_div
         };
-
+        
         int num_type_1 = 0;
         for (const auto& tok_type : type_1) {
             num_type_1 += tokens.count(tok_type);
-        }
+        }   
         type = (num_type_1 > 0) ? -1 : -4;
         return type;
     }
+    
 
     namespace iUdq {
 
@@ -132,7 +134,7 @@ namespace {
         }
 
         template <class IUADArray>
-        void staticContrib(const Opm::UDQActive::Record& udq_record, IUADArray& iUad, int use_cnt_diff)
+        void staticContrib(const Opm::UDQActive::Record& udq_record, IUADArray& iUad)
         {
             iUad[0] = udq_record.uad_code;
             iUad[1] = udq_record.input_index + 1;
@@ -141,7 +143,7 @@ namespace {
             iUad[2] = 1;
 
             iUad[3] = udq_record.use_count;
-            iUad[4] = udq_record.use_index + 1 - use_cnt_diff;
+            iUad[4] = udq_record.use_index + 1;
         }
     } // iUad
 
@@ -277,11 +279,11 @@ namespace {
         {
             //initialize array to the default value for the array
             for (std::size_t ind = 0; ind < nwmaxz; ind++) {
-                dUdw[ind] = Opm::UDQ::restart_default;
+                dUdw[ind] = -0.3E+21;
             }
             for (std::size_t ind = 0; ind < wnames.size(); ind++) {
                 if (st.has_well_var(wnames[ind], udq)) {
-                    dUdw[ind] = st.get_well_var(wnames[ind], udq);
+                    dUdw[ind] = st.get_well_var(wnames[ind], udq);        
                 }
             }
         }
@@ -310,14 +312,14 @@ namespace {
             //initialize array to the default value for the array
             for (std::size_t ind = 0; ind < groups.size(); ind++) {
                 if ((groups[ind] == nullptr) || (ind == ngmaxz-1)) {
-                    dUdg[ind] = Opm::UDQ::restart_default;
+                    dUdg[ind] = -0.3E+21;
                 }
                 else {
-                    if (st.has_group_var((*groups[ind]).name(), udq)) {
-                        dUdg[ind] = st.get_group_var((*groups[ind]).name(), udq);
+                    if (st.has_group_var((*groups[ind]).name(), udq)) {                        
+                        dUdg[ind] = st.get_group_var((*groups[ind]).name(), udq); 
                     }
                     else {
-                        dUdg[ind] = Opm::UDQ::restart_default;
+                        dUdg[ind] = -0.3E+21; 
                     }
                 }
             }
@@ -343,14 +345,14 @@ namespace {
                            DUDFArray&   dUdf)
         {
             //set value for group name "FIELD"
-            if (st.has(udq)) {
-                dUdf[0] = st.get(udq);
+            if (st.has(udq)) {    
+                dUdf[0] = st.get(udq); 
             }
             else {
-                dUdf[0] = Opm::UDQ::restart_default;
+                dUdf[0] = -0.3E+21; 
             }
         }
-    } // dUdf
+    } // dUdf    
 }
 
 
@@ -378,12 +380,30 @@ std::pair<bool, int > findInVector(const std::vector<T>  & vecOfElements, const 
     return result;
 }
 
+// Make ordered list of current groups
+const std::vector<const Opm::Group*> currentGroups(const Opm::Schedule& sched,
+                                                    const std::size_t simStep,
+                                                    const std::vector<int>& inteHead )
+{
+    std::vector<const Opm::Group*> curGroups(ngmaxz(inteHead), nullptr);
+    for (const auto& group_name : sched.groupNames(simStep)) {
+        const auto& group = sched.getGroup(group_name, simStep);
+        
+        //The FIELD group is the first group according to the insert_index()
+        //In the Eclipse compatible restart file, the FILED group is put at the end of the list of groups (ngmaxz(inteHead)-1)
+        int ind = (group.name() == "FIELD")
+            ? ngmaxz(inteHead)-1 : group.insert_index()-1;
+        curGroups[ind] = std::addressof(group);
+
+    }   
+    return curGroups;
+}
 
 const std::vector<int> Opm::RestartIO::Helpers::igphData::ig_phase(const Opm::Schedule& sched,
                                                                    const std::size_t simStep,
                                                                    const std::vector<int>& inteHead )
 {
-    const auto curGroups = sched.restart_groups(simStep);
+    const auto curGroups = currentGroups(sched, simStep, inteHead);
     std::vector<int> inj_phase(ngmaxz(inteHead), 0);
     for (std::size_t ind = 0; ind < curGroups.size(); ind++) {
         if (curGroups[ind] != nullptr) {
@@ -415,7 +435,7 @@ const std::vector<int> iuap_data(const Opm::Schedule& sched,
     //construct the current list of well or group sequence numbers to output the IUAP array
     std::vector<int> wg_no;
     Opm::UDAKeyword wg_key;
-
+    
     for (std::size_t ind = 0; ind < iuap.size(); ind++) {
         auto& ctrl = iuap[ind].control;
         wg_key = Opm::UDQ::keyword(ctrl);
@@ -425,20 +445,18 @@ const std::vector<int> iuap_data(const Opm::Schedule& sched,
         }
         else if ((wg_key == Opm::UDAKeyword::GCONPROD) || (wg_key == Opm::UDAKeyword::GCONINJE)) {
             const auto& group = sched.getGroup(iuap[ind].wgname, simStep);
-            if (iuap[ind].wgname != "FIELD") {
-                wg_no.push_back(group.insert_index() - 1);
-            }
+            wg_no.push_back(group.insert_index());
         }
         else {
             std::cout << "Invalid Control keyword: " << static_cast<int>(ctrl) << std::endl;
             throw std::invalid_argument("UDQ - variable: " + iuap[ind].udq );
         }
-
+            
     }
 
     return wg_no;
 }
-
+            
 Opm::RestartIO::Helpers::AggregateUDQData::
 AggregateUDQData(const std::vector<int>& udqDims)
     : iUDQ_ (iUdq::allocate(udqDims)),
@@ -485,29 +503,24 @@ captureDeclaredUDQData(const Opm::Schedule&                 sched,
         str << "Inconsistent total number of udqs: " << cnt_udq << " and sum of well, group and field udqs: " << nudq;
         OpmLog::error(str.str());
     }
-
-
+    
+    
     auto udq_active = sched.udqActive(simStep);
     if (udq_active) {
         const auto& udq_records = udq_active.get_iuad();
         int cnt_iuad = 0;
         for (std::size_t index = 0; index < udq_records.size(); index++) {
             const auto& record = udq_records[index];
-            auto i_uad = this->iUAD_[cnt_iuad];
-            const auto& ctrl = record.control;
-            const auto wg_key = Opm::UDQ::keyword(ctrl);
-            if (!(((wg_key == Opm::UDAKeyword::GCONPROD) || (wg_key == Opm::UDAKeyword::GCONINJE)) && (record.wg_name() == "FIELD"))) {
-                int use_count_diff = static_cast<int>(index) - cnt_iuad;
-                iUad::staticContrib(record, i_uad, use_count_diff);
-                cnt_iuad += 1;
-            }
+            auto i_uad = this->iUAD_[index];
+            iUad::staticContrib(record, i_uad);
+            cnt_iuad += 1;
         }
         if (cnt_iuad != inteHead[VI::intehead::NO_IUADS]) {
             std::stringstream str;
             str << "Inconsistent number of iuad's: " << cnt_iuad << " number of iuad's from intehead " << inteHead[VI::intehead::NO_IUADS];
             OpmLog::error(str.str());
         }
-
+        
         const auto& iuap_records = udq_active.get_iuap();
         int cnt_iuap = 0;
         const auto iuap_vect = iuap_data(sched, simStep,iuap_records);
@@ -540,7 +553,7 @@ captureDeclaredUDQData(const Opm::Schedule&                 sched,
             OpmLog::error(str.str());
         }
     }
-
+        
     std::size_t i_wudq = 0;
     const auto& wnames = sched.wellNames(simStep);
     const auto nwmax = nwmaxz(inteHead);
@@ -559,9 +572,9 @@ captureDeclaredUDQData(const Opm::Schedule&                 sched,
         str << "Inconsistent number of dudw's: " << cnt_dudw << " number of dudw's from intehead " << inteHead[VI::intehead::NO_WELL_UDQS];
         OpmLog::error(str.str());
     }
-
+    
     std::size_t i_gudq = 0;
-    const auto curGroups = sched.restart_groups(simStep);
+    const auto curGroups = currentGroups(sched, simStep, inteHead);
     const auto ngmax = ngmaxz(inteHead);
     int cnt_dudg = 0;
     for (const auto& udq_input : udqCfg.input()) {
@@ -578,7 +591,7 @@ captureDeclaredUDQData(const Opm::Schedule&                 sched,
         str << "Inconsistent number of dudg's: " << cnt_dudg << " number of dudg's from intehead " << inteHead[VI::intehead::NO_GROUP_UDQS];
         OpmLog::error(str.str());
     }
-
+   
     std::size_t i_fudq = 0;
     int cnt_dudf = 0;
     for (const auto& udq_input : udqCfg.input()) {
@@ -596,6 +609,6 @@ captureDeclaredUDQData(const Opm::Schedule&                 sched,
         OpmLog::error(str.str());
     }
 
-
+   
 }
 

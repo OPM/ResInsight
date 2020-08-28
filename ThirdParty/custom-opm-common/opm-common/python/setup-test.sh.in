@@ -10,8 +10,8 @@
 
 cp -r @PROJECT_SOURCE_DIR@/python @PROJECT_BINARY_DIR@
 cd @PROJECT_BINARY_DIR@/python
-export PYTHONPATH=@PROJECT_BINARY_DIR@/python:$PYTHONPATH
+export PYTHONPATH=@PROJECT_BINARY_DIR@/python/python:$PYTHONPATH
 export LD_LIBRARY_PATH=@PROJECT_BINARY_DIR@/lib:@_setup_lib_dirs@:$LD_LIBRARY_PATH
 
 
-@PYTHON_EXECUTABLE@ setup.py build_ext --dry-run
+@PYTHON_EXECUTABLE@ setup.py build_ext --dry-run --build-lib=python/opm test

@@ -19,7 +19,6 @@
 #ifndef FIELDPROPS_HPP
 #define FIELDPROPS_HPP
 
-#include <memory>
 #include <string>
 #include <unordered_set>
 #include <vector>
@@ -28,7 +27,6 @@
 #include <opm/parser/eclipse/Deck/DeckSection.hpp>
 #include <opm/parser/eclipse/Units/UnitSystem.hpp>
 #include <opm/parser/eclipse/EclipseState/Grid/Box.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/SatfuncPropertyInitializers.hpp>
 #include <opm/parser/eclipse/EclipseState/Runspec.hpp>
 
 namespace Opm {
@@ -346,8 +344,6 @@ private:
     void handle_region_operation(const DeckKeyword& keyword);
     void handle_COPY(const DeckKeyword& keyword, Box box, bool region);
     void distribute_toplayer(FieldProps::FieldData<double>& field_data, const std::vector<double>& deck_data, const Box& box);
-    double get_beta(const std::string& func_name, const std::string& target_array, double raw_beta);
-    double get_alpha(const std::string& func_name, const std::string& target_array, double raw_alpha);
 
     void handle_keyword(const DeckKeyword& keyword, Box& box);
     void handle_double_keyword(Section section, const DeckKeyword& keyword, const Box& box);
@@ -355,18 +351,17 @@ private:
     void init_satfunc(const std::string& keyword, FieldData<double>& satfunc);
     void init_porv(FieldData<double>& porv);
     void init_tempi(FieldData<double>& tempi);
+    void subtract_swl(FieldProps::FieldData<double>& sogcr, const std::string& swl_kw);
 
     const UnitSystem unit_system;
     std::size_t nx,ny,nz;
     Phases m_phases;
-    SatFuncControls m_satfuncctrl;
     std::vector<int> m_actnum;
     std::vector<double> cell_volume;
     std::vector<double> cell_depth;
     const std::string m_default_region;
     const EclipseGrid * grid_ptr;      // A bit undecided whether to properly use the grid or not ...
     const TableManager& tables;
-    std::shared_ptr<satfunc::RawTableEndPoints> m_rtep;
     std::vector<MultregpRecord> multregp;
     std::unordered_map<std::string, FieldData<int>> int_data;
     std::unordered_map<std::string, FieldData<double>> double_data;

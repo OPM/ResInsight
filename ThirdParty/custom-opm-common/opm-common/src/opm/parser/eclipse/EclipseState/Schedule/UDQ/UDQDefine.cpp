@@ -18,7 +18,7 @@
  */
 #include <iostream>
 #include <cstring>
-#include <tuple>
+
 
 #ifdef _WIN32
 #include <optional>
@@ -47,8 +47,7 @@ std::vector<std::string> quote_split(const std::string& item) {
     while (true) {
         auto quote_pos1 = item.find(quote_char, offset);
         if (quote_pos1 == std::string::npos) {
-            if (offset < item.size())
-                items.push_back(item.substr(offset));
+            items.push_back(item.substr(offset));
             break;
         }
 
@@ -86,37 +85,6 @@ UDQDefine::UDQDefine(const UDQParams& udq_params_arg,
     UDQDefine(udq_params_arg, keyword, deck_data, ParseContext(), ErrorGuard())
 {}
 
-namespace {
-std::optional<std::string> next_token(const std::string& item, std::size_t offset, const std::vector<std::string>& splitters) {
-    if (offset == item.size())
-        return {};
-
-    if (std::isdigit(item[offset])) {
-        std::size_t token_size = 0;
-        try {
-            auto substring = item.substr(offset);
-            std::ignore = std::stod(substring, &token_size);
-        } catch (const std::invalid_argument &) {}
-
-        if (token_size > 0)
-            return item.substr(offset, token_size);
-    }
-
-    std::optional<std::string> token = item.substr(offset);
-    std::size_t min_pos = std::string::npos;
-    for (const auto& splitter : splitters) {
-        auto pos = item.find(splitter, offset);
-        if (pos < min_pos) {
-            min_pos = pos;
-            if (pos == offset)
-                token = splitter;
-            else
-                token = item.substr(offset, pos - offset);
-        }
-    }
-    return token;
-}
-} // Anonymous namespace
 
 UDQDefine::UDQDefine(const UDQParams& udq_params,
                      const std::string& keyword,
@@ -136,26 +104,32 @@ UDQDefine::UDQDefine(const UDQParams& udq_params,
 
             const std::vector<std::string> splitters = {"TU*[]", "(", ")", "[", "]", ",", "+", "-", "/", "*", "==", "!=", "^", ">=", "<=", ">", "<"};
             size_t offset = 0;
-            while (true) {
-                auto token = next_token(item, offset, splitters);
-                if (token) {
-                    tokens.push_back( *token );
-                    offset += token->size();
-                } else
-                    break;
+            size_t pos = 0;
+            while (pos < item.size()) {
+                size_t splitter_index = 0;
+                while (splitter_index < splitters.size()) {
+                    const std::string& splitter = splitters[splitter_index];
+                    size_t find_pos = item.find(splitter, pos);
+                    if (find_pos == pos) {
+                        if (pos > offset)
+                            tokens.push_back(item.substr(offset, pos - offset));
+                        tokens.push_back(splitter);
+                        pos = find_pos + 1;
+                        offset = pos;
+                        break;
+                    }
+                    splitter_index++;
+                }
+                if (splitter_index == splitters.size())
+                    pos += 1;
             }
+            if (pos > offset)
+                tokens.push_back(item.substr(offset, pos - offset));
+
         }
     }
-    /*
-      This is hysterical special casing; the parser does not correctly handle a
-      leading '-' to change sign; we just hack it up by adding a fictious '0'
-      token in front.
-    */
-    if (tokens[0] == "-")
-        tokens.insert( tokens.begin(), "0" );
-
-
     this->ast = std::make_shared<UDQASTNode>( UDQParser::parse(udq_params, this->m_var_type, this->m_keyword, tokens, parseContext, errors) );
+
     this->string_data = "";
     for (std::size_t index = 0; index < deck_data.size(); index++) {
         this->string_data += deck_data[index];
@@ -254,7 +228,6 @@ UDQSet UDQDefine::eval(const UDQContext& context) const {
         }
     }
 
-    res.name( this->m_keyword );
     return res;
 }
 

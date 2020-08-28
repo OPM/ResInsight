@@ -46,7 +46,6 @@
 
 #include <opm/parser/eclipse/EclipseState/Schedule/VFPProdTable.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/VFPInjTable.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/TLMixpar.hpp>
 
 #include <opm/parser/eclipse/Units/UnitSystem.hpp>
 
@@ -1791,36 +1790,4 @@ OILDENT
     BOOST_CHECK_EQUAL(gd.size(), 3);
     BOOST_CHECK( gd == od );
     BOOST_CHECK( wd.size() == 0);
-}
-
-
-
-BOOST_AUTO_TEST_CASE(TLMIXPAR) {
-    const auto deck_string = R"(
-RUNSPEC
-
-MISCIBLE
- 2 /
-
-PROPS
-
-TLMIXPAR
-  0  0.25 /
-  0.25    /
-
-)";
-    Opm::Parser parser;
-    const auto& deck = parser.parseString(deck_string);
-    Opm::TLMixpar tlm(deck);
-    BOOST_CHECK_EQUAL(tlm.size(), 2);
-
-    const auto& r0 = tlm[0];
-    const auto& r1 = tlm[1];
-
-    BOOST_CHECK_EQUAL( r0.viscosity_parameter, 0);
-    BOOST_CHECK_EQUAL( r0.density_parameter, 0.25);
-    BOOST_CHECK_EQUAL( r1.viscosity_parameter, 0.25);
-    BOOST_CHECK_EQUAL( r1.density_parameter, 0.25);
-
-    BOOST_CHECK_THROW(tlm[2], std::out_of_range);
 }

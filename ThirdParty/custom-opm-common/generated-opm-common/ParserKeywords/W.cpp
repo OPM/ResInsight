@@ -2652,7 +2652,7 @@ WELTARG::WELTARG( ) : ParserKeyword("WELTARG")
         record.addItem(item);
      }
      {
-        ParserItem item("NEW_VALUE", ParserItem::itype::UDA);
+        ParserItem item("NEW_VALUE", ParserItem::itype::DOUBLE);
         record.addItem(item);
      }
      addRecord( record );
@@ -4193,62 +4193,61 @@ WSEGAICD::WSEGAICD( ) : ParserKeyword("WSEGAICD")
         record.addItem(item);
      }
      {
-        ParserItem item("SEG1", ParserItem::itype::INT);
+        ParserItem item("SEGMENT1", ParserItem::itype::INT);
+        item.setDefault( 0 );
         record.addItem(item);
      }
      {
-        ParserItem item("SEG2", ParserItem::itype::INT);
+        ParserItem item("SEGMENT2", ParserItem::itype::INT);
+        item.setDefault( 0 );
         record.addItem(item);
      }
      {
-        ParserItem item("STRENGTH", ParserItem::itype::DOUBLE);
-        item.push_backDimension("Pressure*Time*Time/GeometricVolume*GeometricVolume");
+        ParserItem item("AICD_STRENGTH", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0) );
         record.addItem(item);
      }
      {
-        ParserItem item("LENGTH", ParserItem::itype::DOUBLE);
+        ParserItem item("ICD_LENGTH", ParserItem::itype::DOUBLE);
         item.setDefault( double(12.000000) );
         item.push_backDimension("Length");
         record.addItem(item);
      }
      {
-        ParserItem item("DENSITY_CALI", ParserItem::itype::DOUBLE);
+        ParserItem item("RHO", ParserItem::itype::DOUBLE);
         item.setDefault( double(1000.250000) );
-        item.push_backDimension("Density");
+        item.push_backDimension("Mass/Length*Length*Length");
         record.addItem(item);
      }
      {
-        ParserItem item("VISCOSITY_CALI", ParserItem::itype::DOUBLE);
+        ParserItem item("VISCOSITY", ParserItem::itype::DOUBLE);
         item.setDefault( double(1.450000) );
         item.push_backDimension("Viscosity");
         record.addItem(item);
      }
      {
-        ParserItem item("CRITICAL_VALUE", ParserItem::itype::DOUBLE);
+        ParserItem item("WATER_LIMIT", ParserItem::itype::DOUBLE);
         item.setDefault( double(0.500000) );
-        item.push_backDimension("1");
         record.addItem(item);
      }
      {
-        ParserItem item("WIDTH_TRANS", ParserItem::itype::DOUBLE);
+        ParserItem item("TRANSITION_WIDTH", ParserItem::itype::DOUBLE);
         item.setDefault( double(0.050000) );
-        item.push_backDimension("1");
         record.addItem(item);
      }
      {
-        ParserItem item("MAX_VISC_RATIO", ParserItem::itype::DOUBLE);
+        ParserItem item("MAX_SOMETHING", ParserItem::itype::DOUBLE);
         item.setDefault( double(5.000000) );
-        item.push_backDimension("1");
         record.addItem(item);
      }
      {
-        ParserItem item("METHOD_SCALING_FACTOR", ParserItem::itype::INT);
+        ParserItem item("SCALING_METHOD", ParserItem::itype::INT);
         item.setDefault( -1 );
         record.addItem(item);
      }
      {
-        ParserItem item("MAX_ABS_RATE", ParserItem::itype::DOUBLE);
-        item.push_backDimension("GeometricVolume/Time");
+        ParserItem item("MAX_QICD", ParserItem::itype::DOUBLE);
+        item.push_backDimension("ReservoirVolume/Time");
         record.addItem(item);
      }
      {
@@ -4260,7 +4259,7 @@ WSEGAICD::WSEGAICD( ) : ParserKeyword("WSEGAICD")
         record.addItem(item);
      }
      {
-        ParserItem item("STATUS", ParserItem::itype::STRING);
+        ParserItem item("ICD_FLAG", ParserItem::itype::STRING);
         item.setDefault( std::string("OPEN") );
         record.addItem(item);
      }
@@ -4280,7 +4279,7 @@ WSEGAICD::WSEGAICD( ) : ParserKeyword("WSEGAICD")
         record.addItem(item);
      }
      {
-        ParserItem item("OIL_VISC_FRACTION", ParserItem::itype::DOUBLE);
+        ParserItem item("OIL_VSIC_FRACTION", ParserItem::itype::DOUBLE);
         item.setDefault( double(1.000000) );
         record.addItem(item);
      }
@@ -4299,36 +4298,39 @@ WSEGAICD::WSEGAICD( ) : ParserKeyword("WSEGAICD")
 }
 const std::string WSEGAICD::keywordName = "WSEGAICD";
 const std::string WSEGAICD::WELL::itemName = "WELL";
-const std::string WSEGAICD::SEG1::itemName = "SEG1";
-const std::string WSEGAICD::SEG2::itemName = "SEG2";
-const std::string WSEGAICD::STRENGTH::itemName = "STRENGTH";
-const std::string WSEGAICD::LENGTH::itemName = "LENGTH";
-const double WSEGAICD::LENGTH::defaultValue = 12.000000;
-const std::string WSEGAICD::DENSITY_CALI::itemName = "DENSITY_CALI";
-const double WSEGAICD::DENSITY_CALI::defaultValue = 1000.250000;
-const std::string WSEGAICD::VISCOSITY_CALI::itemName = "VISCOSITY_CALI";
-const double WSEGAICD::VISCOSITY_CALI::defaultValue = 1.450000;
-const std::string WSEGAICD::CRITICAL_VALUE::itemName = "CRITICAL_VALUE";
-const double WSEGAICD::CRITICAL_VALUE::defaultValue = 0.500000;
-const std::string WSEGAICD::WIDTH_TRANS::itemName = "WIDTH_TRANS";
-const double WSEGAICD::WIDTH_TRANS::defaultValue = 0.050000;
-const std::string WSEGAICD::MAX_VISC_RATIO::itemName = "MAX_VISC_RATIO";
-const double WSEGAICD::MAX_VISC_RATIO::defaultValue = 5.000000;
-const std::string WSEGAICD::METHOD_SCALING_FACTOR::itemName = "METHOD_SCALING_FACTOR";
-const int WSEGAICD::METHOD_SCALING_FACTOR::defaultValue = -1;
-const std::string WSEGAICD::MAX_ABS_RATE::itemName = "MAX_ABS_RATE";
+const std::string WSEGAICD::SEGMENT1::itemName = "SEGMENT1";
+const int WSEGAICD::SEGMENT1::defaultValue = 0;
+const std::string WSEGAICD::SEGMENT2::itemName = "SEGMENT2";
+const int WSEGAICD::SEGMENT2::defaultValue = 0;
+const std::string WSEGAICD::AICD_STRENGTH::itemName = "AICD_STRENGTH";
+const double WSEGAICD::AICD_STRENGTH::defaultValue = 0.000000;
+const std::string WSEGAICD::ICD_LENGTH::itemName = "ICD_LENGTH";
+const double WSEGAICD::ICD_LENGTH::defaultValue = 12.000000;
+const std::string WSEGAICD::RHO::itemName = "RHO";
+const double WSEGAICD::RHO::defaultValue = 1000.250000;
+const std::string WSEGAICD::VISCOSITY::itemName = "VISCOSITY";
+const double WSEGAICD::VISCOSITY::defaultValue = 1.450000;
+const std::string WSEGAICD::WATER_LIMIT::itemName = "WATER_LIMIT";
+const double WSEGAICD::WATER_LIMIT::defaultValue = 0.500000;
+const std::string WSEGAICD::TRANSITION_WIDTH::itemName = "TRANSITION_WIDTH";
+const double WSEGAICD::TRANSITION_WIDTH::defaultValue = 0.050000;
+const std::string WSEGAICD::MAX_SOMETHING::itemName = "MAX_SOMETHING";
+const double WSEGAICD::MAX_SOMETHING::defaultValue = 5.000000;
+const std::string WSEGAICD::SCALING_METHOD::itemName = "SCALING_METHOD";
+const int WSEGAICD::SCALING_METHOD::defaultValue = -1;
+const std::string WSEGAICD::MAX_QICD::itemName = "MAX_QICD";
 const std::string WSEGAICD::FLOW_RATE_EXPONENT::itemName = "FLOW_RATE_EXPONENT";
 const std::string WSEGAICD::VISC_EXPONENT::itemName = "VISC_EXPONENT";
-const std::string WSEGAICD::STATUS::itemName = "STATUS";
-const std::string WSEGAICD::STATUS::defaultValue = "OPEN";
+const std::string WSEGAICD::ICD_FLAG::itemName = "ICD_FLAG";
+const std::string WSEGAICD::ICD_FLAG::defaultValue = "OPEN";
 const std::string WSEGAICD::OIL_FLOW_FRACTION::itemName = "OIL_FLOW_FRACTION";
 const double WSEGAICD::OIL_FLOW_FRACTION::defaultValue = 1.000000;
 const std::string WSEGAICD::WATER_FLOW_FRACTION::itemName = "WATER_FLOW_FRACTION";
 const double WSEGAICD::WATER_FLOW_FRACTION::defaultValue = 1.000000;
 const std::string WSEGAICD::GAS_FLOW_FRACTION::itemName = "GAS_FLOW_FRACTION";
 const double WSEGAICD::GAS_FLOW_FRACTION::defaultValue = 1.000000;
-const std::string WSEGAICD::OIL_VISC_FRACTION::itemName = "OIL_VISC_FRACTION";
-const double WSEGAICD::OIL_VISC_FRACTION::defaultValue = 1.000000;
+const std::string WSEGAICD::OIL_VSIC_FRACTION::itemName = "OIL_VSIC_FRACTION";
+const double WSEGAICD::OIL_VSIC_FRACTION::defaultValue = 1.000000;
 const std::string WSEGAICD::WATER_VISC_FRACTION::itemName = "WATER_VISC_FRACTION";
 const double WSEGAICD::WATER_VISC_FRACTION::defaultValue = 1.000000;
 const std::string WSEGAICD::GAS_VISC_FRACTION::itemName = "GAS_VISC_FRACTION";

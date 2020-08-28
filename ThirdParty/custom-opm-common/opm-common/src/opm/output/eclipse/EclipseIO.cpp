@@ -187,8 +187,7 @@ void EclipseIO::writeInitial( data::Solution simProps, std::map<std::string, std
 }
 
 // implementation of the writeTimeStep method
-void EclipseIO::writeTimeStep(const Action::State& action_state,
-                              const SummaryState& st,
+void EclipseIO::writeTimeStep(const SummaryState& st,
                               int report_step,
                               bool  isSubstep,
                               double secs_elapsed,
@@ -238,7 +237,7 @@ void EclipseIO::writeTimeStep(const Action::State& action_state,
         };
 
         RestartIO::save(rstFile, report_step, secs_elapsed, value,
-                        es, grid, schedule, action_state, st, write_double);
+                        es, grid, schedule, st, write_double);
     }
 
     // RFT file written only if requested and never for substeps.
@@ -264,10 +263,7 @@ void EclipseIO::writeTimeStep(const Action::State& action_state,
     if (!isSubstep) {
         for (const auto& report : schedule.report_config(report_step)) {
             std::stringstream ss;
-            const auto& unit_system = this->impl->es.getUnits();
-
-            RptIO::write_report(ss, report.first, report.second, schedule, grid, unit_system, report_step);
-
+            RptIO::write_report(ss, report.first, report.second, schedule, grid, report_step);
             auto log_string = ss.str();
             if (!log_string.empty())
                 OpmLog::note(log_string);
@@ -276,7 +272,7 @@ void EclipseIO::writeTimeStep(const Action::State& action_state,
  }
 
 
-RestartValue EclipseIO::loadRestart(Action::State& action_state, SummaryState& summary_state, const std::vector<RestartKey>& solution_keys, const std::vector<RestartKey>& extra_keys) const {
+RestartValue EclipseIO::loadRestart(SummaryState& summary_state, const std::vector<RestartKey>& solution_keys, const std::vector<RestartKey>& extra_keys) const {
     const auto& es                       = this->impl->es;
     const auto& grid                     = this->impl->grid;
     const auto& schedule                 = this->impl->schedule;
@@ -287,7 +283,7 @@ RestartValue EclipseIO::loadRestart(Action::State& action_state, SummaryState& s
                                                                         report_step,
                                                                         false );
 
-    return RestartIO::load(filename, report_step, action_state, summary_state, solution_keys,
+    return RestartIO::load(filename, report_step, summary_state, solution_keys,
                            es, grid, schedule, extra_keys);
 }
 

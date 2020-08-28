@@ -160,7 +160,7 @@ T DeckItem::get( size_t index ) const {
         throw std::out_of_range("Invalid index");
 
     if (!value::has_value(this->value_status[index]))
-        throw std::invalid_argument("Tried to get unitialized value from DeckItem index: " + std::to_string(index));
+        throw std::invalid_argument("Invalid arguemnt");
 
     return this->value_ref< T >()[index];
 }

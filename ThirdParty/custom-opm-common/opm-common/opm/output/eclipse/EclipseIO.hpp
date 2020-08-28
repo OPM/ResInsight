@@ -45,7 +45,7 @@ class EclipseState;
 class Schedule;
 class SummaryConfig;
 class SummaryState;
-namespace Action { class State; }
+
 /*!
  * \brief A class to write the reservoir state and the well state of a
  *        blackoil simulation to disk using the Eclipse binary format.
@@ -174,8 +174,7 @@ public:
      *     hardcoded static map misc_units in Summary.cpp.
      */
 
-    void writeTimeStep( const Action::State& action_state,
-                        const SummaryState& st,
+    void writeTimeStep( const SummaryState& st,
                         int report_step,
                         bool isSubstep,
                         double seconds_elapsed,
@@ -221,7 +220,7 @@ public:
       missing, if the bool is false missing keywords will be ignored
       (there will *not* be an empty vector in the return value).
     */
-    RestartValue loadRestart(Action::State& action_state, SummaryState& summary_state, const std::vector<RestartKey>& solution_keys, const std::vector<RestartKey>& extra_keys = {}) const;
+    RestartValue loadRestart(SummaryState& summary_state, const std::vector<RestartKey>& solution_keys, const std::vector<RestartKey>& extra_keys = {}) const;
     const out::Summary& summary();
 
     EclipseIO( const EclipseIO& ) = delete;

@@ -28,7 +28,6 @@
 #include <opm/output/data/Aquifer.hpp>
 #include <opm/output/data/Solution.hpp>
 #include <opm/output/data/Wells.hpp>
-#include <opm/output/data/Groups.hpp>
 
 namespace Opm {
 
@@ -71,11 +70,10 @@ namespace Opm {
         using ExtraVector = std::vector<std::pair<RestartKey, std::vector<double>>>;
         data::Solution solution;
         data::Wells wells;
-        data::GroupValues groups;
         ExtraVector extra;
         std::vector<data::AquiferData> aquifer;
 
-        RestartValue(data::Solution sol, data::Wells wells_arg, data::GroupValues groups_arg);
+        RestartValue(data::Solution sol, data::Wells wells_arg);
 
         RestartValue() {}
 
@@ -91,7 +89,6 @@ namespace Opm {
         {
           return solution == val2.solution &&
                  wells == val2.wells &&
-                 groups == val2.groups &&
                  extra == val2.extra;
         }
     };

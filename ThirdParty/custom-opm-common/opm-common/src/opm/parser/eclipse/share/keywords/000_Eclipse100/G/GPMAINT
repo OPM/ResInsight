@@ -18,8 +18,7 @@
     },
     {
       "name": "FIP_FAMILY",
-      "value_type": "STRING",
-      "default": "FIPNUM"
+      "value_type": "STRING"
     },
     {
       "name": "PRESSURE_TARGET",

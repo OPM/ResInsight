@@ -23,8 +23,6 @@
 
 #include <string>
 #include <tuple>
-#include <vector>
-#include <functional>
 
 namespace Opm { namespace EclIO {
 
@@ -33,8 +31,6 @@ namespace Opm { namespace EclIO {
     float flipEndianFloat(float num);
     double flipEndianDouble(double num);
     bool isEOF(std::fstream* fileH);
-    bool fileExists(const std::string& filename);
-    bool isFormatted(const std::string& filename);
 
     std::tuple<int, int> block_size_data_binary(eclArrType arrType);
     std::tuple<int, int, int> block_size_data_formatted(eclArrType arrType);
@@ -53,25 +49,6 @@ namespace Opm { namespace EclIO {
     void readFormattedHeader(std::fstream& fileH, std::string& arrName,
                       int64_t &num, Opm::EclIO::eclArrType &arrType);
 
-    template<typename T, typename T2>
-    std::vector<T> readBinaryArray(std::fstream& fileH, const int64_t size, Opm::EclIO::eclArrType type,
-                               std::function<T(T2)>& flip);
-
-    std::vector<int> readBinaryInteArray(std::fstream &fileH, const int64_t size);
-    std::vector<float> readBinaryRealArray(std::fstream& fileH, const int64_t size);
-    std::vector<double> readBinaryDoubArray(std::fstream& fileH, const int64_t size);
-    std::vector<bool> readBinaryLogiArray(std::fstream &fileH, const int64_t size);
-    std::vector<std::string> readBinaryCharArray(std::fstream& fileH, const int64_t size);
-
-    template<typename T>
-    std::vector<T> readFormattedArray(const std::string& file_str, const int size, int64_t fromPos,
-                                       std::function<T(const std::string&)>& process);
-
-    std::vector<int> readFormattedInteArray(const std::string& file_str, const int64_t size, int64_t fromPos);
-    std::vector<std::string> readFormattedCharArray(const std::string& file_str, const int64_t size, int64_t fromPos);
-    std::vector<float> readFormattedRealArray(const std::string& file_str, const int64_t size, int64_t fromPos);
-    std::vector<bool> readFormattedLogiArray(const std::string& file_str, const int64_t size, int64_t fromPos);
-    std::vector<double> readFormattedDoubArray(const std::string& file_str, const int64_t size, int64_t fromPos);
 
 }} // namespace Opm::EclIO
 

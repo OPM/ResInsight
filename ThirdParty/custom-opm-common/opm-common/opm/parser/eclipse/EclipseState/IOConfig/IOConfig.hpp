@@ -165,7 +165,7 @@ namespace Opm {
         const std::string& getEclipseInputPath() const;
 
         void overrideNOSIM(bool nosim);
-        void consistentFileFlags();
+
 
         std::string getRestartFileName(const std::string& restart_base, int report_step, bool output) const;
 

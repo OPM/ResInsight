@@ -3110,64 +3110,67 @@ namespace ParserKeywords {
            static const std::string itemName;
        };
 
-       class SEG1 {
-       public:
-           static const std::string itemName;
-       };
-
-       class SEG2 {
-       public:
-           static const std::string itemName;
-       };
-
-       class STRENGTH {
-       public:
-           static const std::string itemName;
-       };
-
-       class LENGTH {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class DENSITY_CALI {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class VISCOSITY_CALI {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class CRITICAL_VALUE {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class WIDTH_TRANS {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class MAX_VISC_RATIO {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class METHOD_SCALING_FACTOR {
+       class SEGMENT1 {
        public:
            static const std::string itemName;
            static const int defaultValue;
        };
 
-       class MAX_ABS_RATE {
+       class SEGMENT2 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class AICD_STRENGTH {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class ICD_LENGTH {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class RHO {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class VISCOSITY {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class WATER_LIMIT {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class TRANSITION_WIDTH {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class MAX_SOMETHING {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class SCALING_METHOD {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class MAX_QICD {
        public:
            static const std::string itemName;
        };
@@ -3182,7 +3185,7 @@ namespace ParserKeywords {
            static const std::string itemName;
        };
 
-       class STATUS {
+       class ICD_FLAG {
        public:
            static const std::string itemName;
            static const std::string defaultValue;
@@ -3206,7 +3209,7 @@ namespace ParserKeywords {
            static const double defaultValue;
        };
 
-       class OIL_VISC_FRACTION {
+       class OIL_VSIC_FRACTION {
        public:
            static const std::string itemName;
            static const double defaultValue;

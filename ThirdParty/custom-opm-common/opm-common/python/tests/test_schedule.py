@@ -75,15 +75,5 @@ class TestSchedule(unittest.TestCase):
         rst = sch.restart
 
 
-    def test_well_names(self):
-        deck  = Parser().parse(test_path('spe3/SPE3CASE1.DATA'))
-        state = EclipseState(deck)
-        sch = Schedule( deck, state )
-        wnames = sch.well_names("*")
-        self.assertTrue("PROD" in wnames)
-        self.assertTrue("INJ" in wnames)
-        self.assertEqual(len(wnames), 2)
-
-
 if __name__ == "__main__":
     unittest.main()

@@ -28,7 +28,6 @@
 
 #include <opm/output/data/Solution.hpp>
 #include <opm/output/data/Wells.hpp>
-#include <opm/output/data/Groups.hpp>
 #include <opm/output/eclipse/EclipseIO.hpp>
 #include <opm/output/eclipse/InteHEAD.hpp>
 #include <opm/output/eclipse/WriteRFT.hpp>
@@ -38,7 +37,6 @@
 #include <opm/parser/eclipse/EclipseState/IOConfig/IOConfig.hpp>
 #include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
 #include <opm/parser/eclipse/EclipseState/SummaryConfig/SummaryConfig.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Action/State.hpp>
 
 #include <opm/parser/eclipse/Parser/ParseContext.hpp>
 #include <opm/parser/eclipse/Parser/Parser.hpp>
@@ -276,7 +274,6 @@ BOOST_AUTO_TEST_CASE(test_RFT)
         const auto step_time  = timeStamp(::Opm::EclIO::ERft::RftDate{ 2008, 10, 10 });
 
         SummaryState st(std::chrono::system_clock::now());
-        Action::State action_state;
 
         data::Rates r1, r2;
         r1.set( data::Rates::opt::wat, 4.11 );
@@ -300,7 +297,6 @@ BOOST_AUTO_TEST_CASE(test_RFT)
 
         Opm::data::Solution solution = createBlackoilState(2, numCells);
         Opm::data::Wells wells;
-        Opm::data::GroupValues groups;
 
         using SegRes = decltype(wells["w"].segments);
         using Ctrl = decltype(wells["w"].current_control);
@@ -308,10 +304,9 @@ BOOST_AUTO_TEST_CASE(test_RFT)
         wells["OP_1"] = { std::move(r1), 1.0, 1.1, 3.1, 1, std::move(well1_comps), SegRes{}, Ctrl{} };
         wells["OP_2"] = { std::move(r2), 1.0, 1.1, 3.2, 1, std::move(well2_comps), SegRes{}, Ctrl{} };
 
-        RestartValue restart_value(std::move(solution), std::move(wells), std::move(groups));
+        RestartValue restart_value(std::move(solution), std::move(wells));
 
-        eclipseWriter.writeTimeStep( action_state,
-                                     st,
+        eclipseWriter.writeTimeStep( st,
                                      2,
                                      false,
                                      step_time - start_time,
@@ -395,7 +390,6 @@ BOOST_AUTO_TEST_CASE(test_RFT2)
         Schedule schedule(deck, eclipseState, python);
         SummaryConfig summary_config( deck, schedule, eclipseState.getTableManager( ));
         SummaryState st(std::chrono::system_clock::now());
-        Action::State action_state;
 
         const auto  start_time = schedule.posixStartTime();
         const auto& time_map   = schedule.getTimeMap( );
@@ -434,10 +428,9 @@ BOOST_AUTO_TEST_CASE(test_RFT2)
                 wells["OP_1"] = { std::move(r1), 1.0, 1.1, 3.1, 1, std::move(well1_comps), SegRes{}, Ctrl{} };
                 wells["OP_2"] = { std::move(r2), 1.0, 1.1, 3.2, 1, std::move(well2_comps), SegRes{}, Ctrl{} };
 
-                RestartValue restart_value(std::move(solution), std::move(wells), data::GroupValues());
+                RestartValue restart_value(std::move(solution), std::move(wells));
 
-                eclipseWriter.writeTimeStep( action_state,
-                                             st,
+                eclipseWriter.writeTimeStep( st,
                                              step,
                                              false,
                                              step_time - start_time,

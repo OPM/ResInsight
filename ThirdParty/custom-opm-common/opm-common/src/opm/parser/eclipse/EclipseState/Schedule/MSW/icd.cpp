@@ -20,8 +20,6 @@
 #include <stdexcept>
 #include <opm/parser/eclipse/EclipseState/Schedule/MSW/icd.hpp>
 
-#include "icd_convert.hpp"
-
 namespace Opm {
 
 template <>

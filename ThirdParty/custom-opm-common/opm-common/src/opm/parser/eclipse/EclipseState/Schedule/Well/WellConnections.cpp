@@ -196,13 +196,15 @@ inline std::array< size_t, 3> directionIndices(const Opm::Connection::Direction 
                                         const Connection::Direction direction,
                                         const Connection::CTFKind ctf_kind,
                                         const std::size_t seqIndex,
+                                        const double segDistStart,
+                                        const double segDistEnd,
                                         const bool defaultSatTabId)
     {
         int conn_i = (i < 0) ? this->headI : i;
         int conn_j = (j < 0) ? this->headJ : j;
         Connection conn(conn_i, conn_j, k, global_index, complnum, depth, state, CF, Kh, rw, r0,
                         skin_factor, satTableId, direction, ctf_kind,
-                        seqIndex, defaultSatTabId);
+                        seqIndex, segDistStart, segDistEnd, defaultSatTabId);
         this->add(conn);
     }
 
@@ -221,6 +223,8 @@ inline std::array< size_t, 3> directionIndices(const Opm::Connection::Direction 
                                         const Connection::Direction direction,
                                         const Connection::CTFKind ctf_kind,
                                         const std::size_t seqIndex,
+                                        const double segDistStart,
+                                        const double segDistEnd,
                                         const bool defaultSatTabId)
     {
         int complnum = (this->m_connections.size() + 1);
@@ -240,6 +244,8 @@ inline std::array< size_t, 3> directionIndices(const Opm::Connection::Direction 
                             direction,
                             ctf_kind,
                             seqIndex,
+                            segDistStart,
+                            segDistEnd,
                             defaultSatTabId);
     }
 
@@ -379,14 +385,13 @@ inline std::array< size_t, 3> directionIndices(const Opm::Connection::Direction 
                                     r0,
                                     skin_factor,
                                     satTableId,
-                                    direction,
-                                    ctf_kind,
-                                    noConn,
-                                    defaultSatTable);
+                                    direction, ctf_kind,
+                                    noConn, 0., 0., defaultSatTable);
             } else {
                 std::size_t css_ind = prev->sort_value();
                 int conSegNo = prev->segment();
-                const auto& perf_range = prev->perf_range();
+                double conSDStart = prev->getSegDistStart();
+                double conSDEnd = prev->getSegDistEnd();
                 double depth = grid.getCellDepth(I,J,k);
                 *prev = Connection(I,J,k,
                                    grid.getGlobalIndex(I,J,k),
@@ -399,15 +404,14 @@ inline std::array< size_t, 3> directionIndices(const Opm::Connection::Direction 
                                    r0,
                                    skin_factor,
                                    satTableId,
-                                   direction,
-                                   ctf_kind,
-                                   prev->sort_value(),
-                                   defaultSatTable);
+                                   direction, ctf_kind,
+                                   prev->sort_value(), conSDStart, conSDEnd, defaultSatTable);
 
                 prev->updateSegment(conSegNo,
                                     depth,
                                     css_ind,
-                                    *perf_range);
+                                    conSDStart,
+                                    conSDEnd);
             }
         }
     }
@@ -571,18 +575,5 @@ inline std::array< size_t, 3> directionIndices(const Opm::Connection::Direction 
                                       [&grid](const Connection& c) { return !grid.cellActive(c.getI(), c.getJ(), c.getK()); });
         m_connections.erase(new_end, m_connections.end());
     }
-
-
-    double WellConnections::segment_perf_length(int segment) const {
-        double perf_length = 0;
-        for (const auto& conn : this->m_connections) {
-            if (conn.segment() == segment) {
-                const auto& [start, end] = *conn.perf_range();
-                perf_length += end - start;
-            }
-        }
-        return perf_length;
-    }
-
 
 }

@@ -293,7 +293,7 @@ UDQASTNode UDQParser::parse(const UDQParams& udq_params, UDQVarType target_type,
     if (!parser.empty()) {
         size_t index = parser.current_pos;
         auto current = parser.current();
-        std::string msg = "Extra unhandled data starting with token[" + std::to_string(index) + "] = '" + current.value + "'";
+        std::string msg = "Extra unhandled data starting with token[" + std::to_string(index) + "] = " + current.value;
         parseContext.handleError(ParseContext::UDQ_PARSE_ERROR, msg, errors);
         return UDQASTNode( udq_params.undefinedValue() );
     }

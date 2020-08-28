@@ -232,7 +232,7 @@ namespace { namespace SatFunc {
             std::transform(begin, end, dest,
                 [tolcrit](const double kr) -> double
             {
-                return (kr > tolcrit) ? kr : 0.0;
+                return (kr < tolcrit) ? 0.0 : kr;
             });
         }
 

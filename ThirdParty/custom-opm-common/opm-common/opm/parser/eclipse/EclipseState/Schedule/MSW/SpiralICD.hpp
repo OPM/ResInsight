@@ -27,17 +27,18 @@
 #include <string>
 
 #include <opm/parser/eclipse/EclipseState/Schedule/MSW/icd.hpp>
-#include <opm/parser/eclipse/Deck/DeckRecord.hpp>
-#include <opm/parser/eclipse/Deck/DeckKeyword.hpp>
 
 namespace Opm {
 
-    class SICD {
+    class DeckRecord;
+    class DeckKeyword;
+
+    class SpiralICD {
     public:
 
-        SICD();
-        explicit SICD(const DeckRecord& record);
-        SICD(double strength,
+        SpiralICD();
+        explicit SpiralICD(const DeckRecord& record);
+        SpiralICD(double strength,
                   double length,
                   double densityCalibration,
                   double viscosityCalibration,
@@ -49,13 +50,13 @@ namespace Opm {
                   ICDStatus status,
                   double scalingFactor);
 
-        static SICD serializeObject();
+        static SpiralICD serializeObject();
 
         // the function will return a map
         // [
         //     "WELL1" : [<seg1, sicd1>, <seg2, sicd2> ...]
         //     ....
-        static std::map<std::string, std::vector<std::pair<int, SICD> > >
+        static std::map<std::string, std::vector<std::pair<int, SpiralICD> > >
         fromWSEGSICD(const DeckKeyword& wsegsicd);
 
         double maxAbsoluteRate() const;
@@ -72,7 +73,7 @@ namespace Opm {
         void updateScalingFactor(const double segment_length, const double completion_length);
         double scalingFactor() const;
         int ecl_status() const;
-        bool operator==(const SICD& data) const;
+        bool operator==(const SpiralICD& data) const;
 
         template<class Serializer>
         void serializeOp(Serializer& serializer)
@@ -88,33 +89,6 @@ namespace Opm {
             serializer(m_max_absolute_rate);
             serializer(m_status);
             serializer(m_scaling_factor);
-        }
-
-        template<class ICD>
-        static std::map<std::string, std::vector<std::pair<int, ICD> > >
-        fromWSEG(const DeckKeyword& wseg) {
-            std::map<std::string, std::vector<std::pair<int, ICD> > > res;
-
-            for (const DeckRecord &record : wseg) {
-                const std::string well_name = record.getItem("WELL").getTrimmedString(0);
-
-                const int start_segment = record.getItem("SEG1").get<int>(0);
-                const int end_segment = record.getItem("SEG2").get<int>(0);
-
-                if (start_segment < 2 || end_segment < 2 || end_segment < start_segment) {
-                    const std::string message = "Segment numbers " + std::to_string(start_segment) + " and "
-                        + std::to_string(end_segment) + " specified in WSEGSICD for well " +
-                        well_name
-                        + " are illegal ";
-                    throw std::invalid_argument(message);
-                }
-
-                const ICD spiral_icd(record);
-                for (int seg = start_segment; seg <= end_segment; seg++) {
-                    res[well_name].push_back(std::make_pair(seg, spiral_icd));
-                }
-            }
-            return res;
         }
 
     private:

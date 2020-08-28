@@ -46,13 +46,13 @@ void python::common::export_SummaryState(py::module& module) {
         .def("update", &SummaryState::update)
         .def("update_well_var", &SummaryState::update_well_var)
         .def("update_group_var", &SummaryState::update_group_var)
-        .def("well_var", py::overload_cast<const std::string&, const std::string&>(&SummaryState::get_well_var, py::const_))
-        .def("group_var", py::overload_cast<const std::string&, const std::string&>(&SummaryState::get_group_var, py::const_))
+        .def("well_var", &SummaryState::get_well_var)
+        .def("group_var", &SummaryState::get_group_var)
         .def("elapsed", &SummaryState::get_elapsed)
         .def_property_readonly("groups", groups)
         .def_property_readonly("wells", wells)
         .def("__contains__", &SummaryState::has)
         .def("has_well_var", &SummaryState::has_well_var)
         .def("has_group_var", &SummaryState::has_group_var)
-        .def("__getitem__", py::overload_cast<const std::string&>(&SummaryState::get, py::const_));
+        .def("__getitem__", &SummaryState::get);
 }

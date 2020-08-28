@@ -1,8 +1,0 @@
-# Docker file to generate a Docker image capable of building PyPI packages
-# Example use:
-# Use sudo docker build -t lindkvis/manylinux2014_opm:latest -f Dockerfile.create .
-
-FROM quay.io/pypa/manylinux2014_x86_64
-WORKDIR /tmp
-COPY setup-docker-image.sh .
-RUN /bin/bash /tmp/setup-docker-image.sh

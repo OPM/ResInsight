@@ -34,6 +34,9 @@ namespace {
          if (!ParserKeyword::validDeckName(name))
             throw std::invalid_argument("Not a valid keyword:" + name);
 
+         if (name.size() > Opm::RawConsts::maxKeywordLength)
+            throw std::invalid_argument("Too long keyword:" + name);
+
          if (name[0] == ' ')
              throw std::invalid_argument("Illegal whitespace start of keyword:" + name);
 

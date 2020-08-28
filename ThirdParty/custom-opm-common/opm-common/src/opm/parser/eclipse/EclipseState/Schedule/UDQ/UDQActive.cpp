@@ -50,11 +50,6 @@ UDQActive::operator bool() const {
     return this->input_data.size() > 0;
 }
 
-
-std::string UDQActive::Record::wg_name()  const {
-    return this->wgname;
-}
-
 std::string UDQActive::udq_hash(const std::string& udq, UDAControl control) {
   return udq + std::to_string(static_cast<int64_t>(control));
 }
