@@ -77,9 +77,7 @@ void RigVirtualPerforationTransmissibilities::setCompletionDataForWellPath(
     const RimWellPath*                                 wellPath,
     const std::vector<std::vector<RigCompletionData>>& completionsPerTimeStep )
 {
-    auto item = m_mapFromWellToCompletionData.find( wellPath );
-
-    CVF_ASSERT( item == m_mapFromWellToCompletionData.end() );
+    CVF_ASSERT( m_mapFromWellToCompletionData.find( wellPath ) == m_mapFromWellToCompletionData.end() );
 
     {
         std::vector<CompletionDataFrame> values;
