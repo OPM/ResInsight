@@ -14,7 +14,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterNewInViewFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterNewExec.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewViewFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewContourMapViewFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicPropertyFilterNewExec.h
 ${CMAKE_CURRENT_LIST_DIR}/RicRangeFilterExecImpl.h
 ${CMAKE_CURRENT_LIST_DIR}/RicRangeFilterInsertExec.h
 ${CMAKE_CURRENT_LIST_DIR}/RicRangeFilterInsertFeature.h
@@ -33,8 +32,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RicHideIntersectionFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicHideIntersectionBoxFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportElementPropertyFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSelectColorResult.h
-
-${CMAKE_CURRENT_LIST_DIR}/RicWellLogsImportFileFeature.h
 
 ${CMAKE_CURRENT_LIST_DIR}/RicTogglePerspectiveViewFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportGeoMechCaseFeature.h
@@ -69,12 +66,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RicElasticPropertiesImportTools.h
 
 ${CMAKE_CURRENT_LIST_DIR}/RicCloseSourSimDataFeature.h
 
-${CMAKE_CURRENT_LIST_DIR}/RicCommandFeature.h
-
 ${CMAKE_CURRENT_LIST_DIR}/RicReloadCaseFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicReplaceCaseFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicReloadSummaryCaseFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicReloadSummaryCasesFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicReplaceSummaryCaseFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicFlyToObjectFeature.h
 
@@ -191,15 +185,15 @@ ${CMAKE_CURRENT_LIST_DIR}/RicUnstackSelectedCurvesFeature.cpp
 )
 
 
-list(APPEND CODE_HEADER_FILES
+list(APPEND COMMAND_CODE_HEADER_FILES
 ${SOURCE_GROUP_HEADER_FILES}
 )
 
-list(APPEND CODE_SOURCE_FILES
+list(APPEND COMMAND_CODE_SOURCE_FILES
 ${SOURCE_GROUP_SOURCE_FILES}
 )
 
-list(APPEND QT_MOC_HEADERS
+list(APPEND COMMAND_QT_MOC_HEADERS
 ${CMAKE_CURRENT_LIST_DIR}/RicGridStatisticsDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RicRecursiveFileSearchDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCaseRestartDialog.h
