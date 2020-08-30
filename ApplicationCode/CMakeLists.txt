@@ -161,38 +161,8 @@ list( APPEND REFERENCED_CMAKE_FILES
     UserInterface/CMakeLists_files.cmake
     UserInterface/AnalysisPlots/CMakeLists_files.cmake
     
-    Commands/CMakeLists_files.cmake
-	Commands/AnalysisPlotCommands/CMakeLists_files.cmake
-    Commands/ApplicationCommands/CMakeLists_files.cmake
-    Commands/AnnotationCommands/CMakeLists_files.cmake
-	Commands/ColorLegendCommands/CMakeLists_files.cmake
-    Commands/CompletionCommands/CMakeLists_files.cmake
-    Commands/CompletionExportCommands/CMakeLists_files.cmake
-	Commands/CorrelationPlotCommands/CMakeLists_files.cmake
-    Commands/CrossSectionCommands/CMakeLists_files.cmake
-    Commands/EclipseCommands/CMakeLists_files.cmake
-    Commands/EclipseCommands/EclipseWell/CMakeLists_files.cmake
-    Commands/ExportCommands/CMakeLists_files.cmake
-    Commands/FlowCommands/CMakeLists_files.cmake
-    Commands/GridCrossPlotCommands/CMakeLists_files.cmake
-    Commands/HoloLensCommands/CMakeLists_files.cmake
-    Commands/IntersectionBoxCommands/CMakeLists_files.cmake
-    Commands/IntersectionViewCommands/CMakeLists_files.cmake
-    Commands/MeasurementCommands/CMakeLists_files.cmake
-    Commands/OctaveScriptCommands/CMakeLists_files.cmake
-    Commands/OperationsUsingObjReferences/CMakeLists_files.cmake
-    Commands/SummaryPlotCommands/CMakeLists_files.cmake
-    Commands/SsiHubImportCommands/CMakeLists_files.cmake
-    Commands/SurfaceCommands/CMakeLists_files.cmake
-    Commands/ToggleCommands/CMakeLists_files.cmake
-    Commands/ViewLink/CMakeLists_files.cmake
-    Commands/WellLogCommands/CMakeLists_files.cmake
-    Commands/WellPathCommands/CMakeLists_files.cmake
-    Commands/PlotTemplateCommands/CMakeLists_files.cmake
-
     CommandFileInterface/CMakeLists_files.cmake
     CommandFileInterface/Core/CMakeLists_files.cmake
-    Commands/FractureCommands/CMakeLists_files.cmake
 )
 
 option (RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS "Include ApplicationCode Unit Tests" OFF)
@@ -225,8 +195,10 @@ list( APPEND CPP_SOURCES
 #############################################################################
 
 add_subdirectory(ResultStatisticsCache)
+add_subdirectory(Commands)
 
 set( RI_LIBRARIES
+    Commands
     ResultStatisticsCache
 )
 
