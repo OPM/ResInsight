@@ -185,6 +185,10 @@ bool RimFileSurface::loadDataFromFile()
 
         surface = m_gocadData->gocadGeometry();
     }
+    else if ( filePath.endsWith( "dat", Qt::CaseInsensitive ) )
+    {
+        surface = RifSurfaceImporter::readOpenWorksXyzFile( filePath );
+    }
 
     m_vertices       = surface.first;
     m_tringleIndices = surface.second;
