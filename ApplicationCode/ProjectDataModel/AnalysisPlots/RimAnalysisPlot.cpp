@@ -105,7 +105,7 @@ RimAnalysisPlot::RimAnalysisPlot()
     m_analysisPlotDataSelection.uiCapability()->setUiTreeHidden( true );
 
     // Time Step Selection
-    CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Time Step Filter", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Available Time Steps", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "Select Time Steps", "", "", "" );
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
@@ -469,6 +469,8 @@ void RimAnalysisPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     }
     else if ( changedField == &m_timeStepFilter )
     {
+        m_selectedTimeSteps.v().clear();
+
         this->updateConnectedEditors();
     }
 
@@ -627,15 +629,28 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
         QString timeFormatString =
             RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
                                                  RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
-        QString dateTimeFormat = QString( "%1 %2" ).arg( dateFormatString ).arg( timeFormatString );
+        QString dateTimeFormatString = QString( "%1 %2" ).arg( dateFormatString ).arg( timeFormatString );
+
+        bool showTime = m_timeStepFilter() == RimTimeStepFilter::TS_ALL ||
+                        m_timeStepFilter() == RimTimeStepFilter::TS_INTERVAL_DAYS;
 
         for ( auto timeStepIndex : filteredTimeStepIndices )
         {
             QDateTime dateTime = allDateTimes[timeStepIndex];
 
-            options.push_back(
-                caf::PdmOptionItemInfo( RiaQDateTimeTools::toStringUsingApplicationLocale( dateTime, dateTimeFormat ),
-                                        dateTime ) );
+            if ( showTime && dateTime.time() != QTime( 0, 0, 0 ) )
+            {
+                options.push_back(
+                    caf::PdmOptionItemInfo( RiaQDateTimeTools::toStringUsingApplicationLocale( dateTime,
+                                                                                               dateTimeFormatString ),
+                                            dateTime ) );
+            }
+            else
+            {
+                options.push_back(
+                    caf::PdmOptionItemInfo( RiaQDateTimeTools::toStringUsingApplicationLocale( dateTime, dateFormatString ),
+                                            dateTime ) );
+            }
         }
     }
     else if ( fieldNeedingOptions == &m_valueSortOperation )

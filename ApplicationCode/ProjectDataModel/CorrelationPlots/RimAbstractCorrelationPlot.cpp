@@ -45,7 +45,7 @@ RimAbstractCorrelationPlot::RimAbstractCorrelationPlot()
     m_pushButtonSelectSummaryAddress.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_pushButtonSelectSummaryAddress = false;
 
-    CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Time Step Filter", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Available Time Steps", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_timeStep, "TimeStep", "Time Step", "", "", "" );
     m_timeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
@@ -164,18 +164,8 @@ void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
         std::vector<int> filteredTimeStepIndices =
             RimTimeStepFilter::filteredTimeStepIndices( allDateTimes, 0, (int)allDateTimes.size() - 1, m_timeStepFilter(), 1 );
 
-        QDateTime closestTimeStep;
-        for ( int timeStepIndex : filteredTimeStepIndices )
-        {
-            qint64 currentDiff = std::abs( allDateTimes[timeStepIndex].secsTo( m_timeStep() ) );
-            qint64 closestDiff = std::abs( closestTimeStep.secsTo( m_timeStep() ) );
-            if ( closestTimeStep.isNull() || currentDiff < closestDiff )
-            {
-                closestTimeStep = allDateTimes[timeStepIndex];
-                if ( currentDiff == 0 ) break;
-            }
-        }
-        m_timeStep = closestTimeStep;
+        m_timeStep = allDateTimes[filteredTimeStepIndices.back()];
+
         this->updateConnectedEditors();
     }
 }
@@ -233,15 +223,27 @@ QList<caf::PdmOptionItemInfo>
         QString timeFormatString =
             RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
                                                  RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
-        QString dateTimeFormat = QString( "%1 %2" ).arg( dateFormatString ).arg( timeFormatString );
+        QString dateTimeFormatString = QString( "%1 %2" ).arg( dateFormatString ).arg( timeFormatString );
+
+        bool showTime = m_timeStepFilter == RimTimeStepFilter::TS_ALL || RimTimeStepFilter::TS_INTERVAL_DAYS;
 
         for ( auto timeStepIndex : filteredTimeStepIndices )
         {
             QDateTime dateTime = allDateTimes[timeStepIndex];
 
-            options.push_back(
-                caf::PdmOptionItemInfo( RiaQDateTimeTools::toStringUsingApplicationLocale( dateTime, dateTimeFormat ),
-                                        dateTime ) );
+            if ( showTime && dateTime.time() != QTime( 0, 0, 0 ) )
+            {
+                options.push_back(
+                    caf::PdmOptionItemInfo( RiaQDateTimeTools::toStringUsingApplicationLocale( dateTime,
+                                                                                               dateTimeFormatString ),
+                                            dateTime ) );
+            }
+            else
+            {
+                options.push_back(
+                    caf::PdmOptionItemInfo( RiaQDateTimeTools::toStringUsingApplicationLocale( dateTime, dateFormatString ),
+                                            dateTime ) );
+            }
         }
     }
     else if ( fieldNeedingOptions == &m_labelFontSize || fieldNeedingOptions == &m_axisTitleFontSize ||
