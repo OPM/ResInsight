@@ -415,6 +415,7 @@ void RimMudWeightWindowParameters::fieldChangedByUi( const caf::PdmFieldHandle* 
                                                                          m_userDefinedPPNonReservoir,
                                                                          m_porePressureNonReservoirAddress );
             geoMechCase->updateConnectedViews();
+            geoMechCase->settingsChanged.send();
         }
     }
 }
@@ -474,6 +475,7 @@ void RimMudWeightWindowParameters::handleFieldChanged( RimGeoMechCase*          
     }
 
     geoMechCase->updateConnectedViews();
+    geoMechCase->settingsChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------

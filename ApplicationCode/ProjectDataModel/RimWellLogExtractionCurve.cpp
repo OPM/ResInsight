@@ -178,7 +178,11 @@ void RimWellLogExtractionCurve::setFromSimulationWellName( const QString& simWel
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::setCase( RimCase* rimCase )
 {
+    disconnectCaseSignals( m_case.value() );
+
     m_case = rimCase;
+
+    connectCaseSignals( rimCase );
     clearGeneratedSimWellPaths();
 }
 
@@ -197,7 +201,9 @@ void RimWellLogExtractionCurve::setPropertiesFromView( Rim3dView* view )
 {
     if ( view )
     {
+        disconnectCaseSignals( m_case.value() );
         m_case = view->ownerCase();
+        connectCaseSignals( m_case );
     }
 
     RimGeoMechCase* geomCase    = dynamic_cast<RimGeoMechCase*>( m_case.value() );
@@ -763,6 +769,8 @@ void RimWellLogExtractionCurve::initAfterRead()
 
     m_eclipseResultDefinition->setEclipseCase( eclipseCase );
     m_geomResultDefinition->setGeoMechCase( geomCase );
+
+    connectCaseSignals( m_case.value() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1100,4 +1108,34 @@ void RimWellLogExtractionCurve::setBranchDetection( bool branchDetection )
 void RimWellLogExtractionCurve::setBranchIndex( int index )
 {
     m_branchIndex = index;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::connectCaseSignals( RimCase* rimCase )
+{
+    if ( rimCase )
+    {
+        rimCase->settingsChanged.connect( this, &RimWellLogExtractionCurve::onCaseSettingsChanged );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::disconnectCaseSignals( RimCase* rimCase )
+{
+    if ( rimCase != nullptr )
+    {
+        rimCase->settingsChanged.disconnect( this );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::onCaseSettingsChanged( const caf::SignalEmitter* emitter )
+{
+    loadDataAndUpdate( true );
 }
