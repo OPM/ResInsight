@@ -53,32 +53,44 @@ add_library( ${PROJECT_NAME} OBJECT
     ${COMMAND_CODE_SOURCE_FILES}
     ${COMMAND_CODE_HEADER_FILES}
     ${COMMAND_MOC_SOURCE_FILES}
-    CMakeLists_files.cmake
 )
 
 target_include_directories(${PROJECT_NAME}
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
+  $<TARGET_PROPERTY:LibCore,INCLUDE_DIRECTORIES>        # Needed for cmake version < 3.12. Remove when we can use target_link_libraries
+  $<TARGET_PROPERTY:cafCommand,INCLUDE_DIRECTORIES>     # Needed for cmake version < 3.12. Remove when we can use target_link_libraries
+  $<TARGET_PROPERTY:cafPdmCvf,INCLUDE_DIRECTORIES>      # Needed for cmake version < 3.12. Remove when we can use target_link_libraries
+  $<TARGET_PROPERTY:cafTensor,INCLUDE_DIRECTORIES>      # Needed for cmake version < 3.12. Remove when we can use target_link_libraries
+  $<TARGET_PROPERTY:cafViewer,INCLUDE_DIRECTORIES>      # Needed for cmake version < 3.12. Remove when we can use target_link_libraries
+  $<TARGET_PROPERTY:cafVizExtensions,INCLUDE_DIRECTORIES>       # Needed for cmake version < 3.12. Remove when we can use target_link_libraries
+  $<TARGET_PROPERTY:ecl,INCLUDE_DIRECTORIES>            # Needed for cmake version < 3.12. Remove when we can use target_link_libraries
+  $<TARGET_PROPERTY:nightcharts,INCLUDE_DIRECTORIES>    # Needed for cmake version < 3.12. Remove when we can use target_link_libraries
+  $<TARGET_PROPERTY:qwt,INCLUDE_DIRECTORIES>            # Needed for cmake version < 3.12. Remove when we can use target_link_libraries
+  ${Qt5Network_INCLUDE_DIRS}                           # Needed for cmake version < 3.12. Remove when we can use target_link_libraries
 )
 
-set( LINK_LIBRARIES
-  LibCore 
+#  Before cmake 3.12 OBJECT libraries could not use the target_link_libraries command, 
+#  So we need to set the POSITION_INDEPENDENT_CODE option  manually
+set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-  cafCommand
-  cafPdmCvf
-  cafTensor
-  cafViewer
-  cafVizExtensions
+#  Use this code when 3.12 can be used as minimum version of cmake
+#set( LINK_LIBRARIES
+#  LibCore 
+#  cafCommand
+#  cafPdmCvf
+#  cafTensor
+#  cafViewer
+#  cafVizExtensions
+#  ecl
+#  nightcharts
+#  qwt
 
-  ecl
-  nightcharts
-  qwt
+#  ${QT_LIBRARIES}
+#)
 
-  ${QT_LIBRARIES}
-)
-
-target_link_libraries( ${PROJECT_NAME}
-  ${LINK_LIBRARIES}
-)
+#target_link_libraries( ${PROJECT_NAME}
+#  ${LINK_LIBRARIES}
+#)
 
 source_group("" FILES ${PROJECT_FILES})
