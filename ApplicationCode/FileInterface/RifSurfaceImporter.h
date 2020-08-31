@@ -31,6 +31,9 @@ class RifSurfaceImporter
 {
 public:
     static void readGocadFile( const QString& filename, RigGocadData* gocadData );
-
     static std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> readPetrelFile( const QString& filename );
+    static std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> readOpenWorksXyzFile( const QString& filename );
+
+private:
+    static bool vectorFuzzyCompare( const cvf::Vec3d& vector1, const cvf::Vec3d& vector2, double epsilon = DBL_EPSILON );
 };
