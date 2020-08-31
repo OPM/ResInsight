@@ -204,3 +204,59 @@ TEST( RifSurfaceImporter, ReadClippedPetrelData )
         EXPECT_TRUE( indices[i] != ( (unsigned)-1 ) );
     }
 }
+
+TEST( RifSurfaceImporter, ReadTinyOpenWorksXyzFile )
+{
+    QDir baseFolder( TEST_DATA_DIR );
+
+    QString filename( "RifSurfaceImporter/tiny-test.dat" );
+    QString filePath = baseFolder.absoluteFilePath( filename );
+    EXPECT_TRUE( QFile::exists( filePath ) );
+
+    auto surface = RifSurfaceImporter::readOpenWorksXyzFile( filePath );
+
+    auto vertices = surface.first;
+    auto indices  = surface.second;
+
+    EXPECT_EQ( (size_t)13, vertices.size() );
+    EXPECT_EQ( (size_t)24, indices.size() );
+
+    if ( indices.size() > 0 )
+    {
+        EXPECT_EQ( (size_t)0, indices.front() );
+        EXPECT_EQ( (size_t)11, indices.back() );
+
+        for ( size_t i = 0; i < indices.size(); i++ )
+        {
+            EXPECT_TRUE( indices[i] != ( (unsigned)-1 ) );
+        }
+    }
+}
+
+TEST( RifSurfaceImporter, ReadLargeOpenWorksXyzFile )
+{
+    QDir baseFolder( TEST_DATA_DIR );
+
+    QString filename( "RifSurfaceImporter/norne_xyz.dat" );
+    QString filePath = baseFolder.absoluteFilePath( filename );
+    EXPECT_TRUE( QFile::exists( filePath ) );
+
+    auto surface = RifSurfaceImporter::readOpenWorksXyzFile( filePath );
+
+    auto vertices = surface.first;
+    auto indices  = surface.second;
+
+    EXPECT_EQ( (size_t)60805, vertices.size() );
+    EXPECT_EQ( (size_t)360396, indices.size() );
+
+    if ( indices.size() > 0 )
+    {
+        EXPECT_EQ( (size_t)0, indices.front() );
+        EXPECT_EQ( (size_t)60801, indices.back() );
+
+        for ( size_t i = 0; i < indices.size(); i++ )
+        {
+            EXPECT_TRUE( indices[i] != ( (unsigned)-1 ) );
+        }
+    }
+}
