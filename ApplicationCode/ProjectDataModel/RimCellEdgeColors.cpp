@@ -475,8 +475,8 @@ void RimCellEdgeColors::minMaxCellEdgeValues( double& min, double& max )
                     double cMin, cMax;
                     m_reservoirView->currentGridCellResults()->minMaxCellScalarValues( resultAddresses[faceIdx], cMin, cMax );
 
-                    globalMin = CVF_MIN( globalMin, cMin );
-                    globalMax = CVF_MAX( globalMax, cMax );
+                    globalMin = std::min( globalMin, cMin );
+                    globalMax = std::max( globalMax, cMax );
                 }
             }
         }

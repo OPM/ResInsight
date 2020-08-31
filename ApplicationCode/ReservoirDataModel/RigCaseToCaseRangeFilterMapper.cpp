@@ -115,9 +115,9 @@ void RigCaseToCaseRangeFilterMapper::convertRangeFilter( const RimCellRangeFilte
             maxJIndex = femPart->getOrCreateStructGrid()->cellCountJ() - 1;
             maxKIndex = femPart->getOrCreateStructGrid()->cellCountK() - 1;
         }
-        src.EndI = CVF_MIN( src.EndI, maxIIndex );
-        src.EndJ = CVF_MIN( src.EndJ, maxJIndex );
-        src.EndK = CVF_MIN( src.EndK, maxKIndex );
+        src.EndI = std::min( src.EndI, maxIIndex );
+        src.EndJ = std::min( src.EndJ, maxJIndex );
+        src.EndK = std::min( src.EndK, maxKIndex );
     }
 
     // When using femPart as source we need to clamp the fem srcRange filter
@@ -137,12 +137,12 @@ void RigCaseToCaseRangeFilterMapper::convertRangeFilter( const RimCellRangeFilte
 
         convertRangeFilterEndPoints( eclMaxMin, eclExtInFem, eclGrid, femPart, true );
 
-        src.StartI = CVF_MAX( src.StartI, eclExtInFem.StartI );
-        src.StartJ = CVF_MAX( src.StartJ, eclExtInFem.StartJ );
-        src.StartK = CVF_MAX( src.StartK, eclExtInFem.StartK );
-        src.EndI   = CVF_MIN( src.EndI, eclExtInFem.EndI );
-        src.EndJ   = CVF_MIN( src.EndJ, eclExtInFem.EndJ );
-        src.EndK   = CVF_MIN( src.EndK, eclExtInFem.EndK );
+        src.StartI = std::max( src.StartI, eclExtInFem.StartI );
+        src.StartJ = std::max( src.StartJ, eclExtInFem.StartJ );
+        src.StartK = std::max( src.StartK, eclExtInFem.StartK );
+        src.EndI   = std::min( src.EndI, eclExtInFem.EndI );
+        src.EndJ   = std::min( src.EndJ, eclExtInFem.EndJ );
+        src.EndK   = std::min( src.EndK, eclExtInFem.EndK );
     }
 
     RigRangeEndPoints dst;
@@ -270,12 +270,12 @@ void RigCaseToCaseRangeFilterMapper::convertRangeFilterEndPoints( const RigRange
         if ( foundExactMatch )
         {
             // Populate dst range filter from the diagonal that matches exact
-            dst.StartI = CVF_MIN( rangeFilterMatches[cornerIdx].ijk[0], rangeFilterMatches[diagIdx].ijk[0] );
-            dst.StartJ = CVF_MIN( rangeFilterMatches[cornerIdx].ijk[1], rangeFilterMatches[diagIdx].ijk[1] );
-            dst.StartK = CVF_MIN( rangeFilterMatches[cornerIdx].ijk[2], rangeFilterMatches[diagIdx].ijk[2] );
-            dst.EndI   = CVF_MAX( rangeFilterMatches[cornerIdx].ijk[0], rangeFilterMatches[diagIdx].ijk[0] );
-            dst.EndJ   = CVF_MAX( rangeFilterMatches[cornerIdx].ijk[1], rangeFilterMatches[diagIdx].ijk[1] );
-            dst.EndK   = CVF_MAX( rangeFilterMatches[cornerIdx].ijk[2], rangeFilterMatches[diagIdx].ijk[2] );
+            dst.StartI = std::min( rangeFilterMatches[cornerIdx].ijk[0], rangeFilterMatches[diagIdx].ijk[0] );
+            dst.StartJ = std::min( rangeFilterMatches[cornerIdx].ijk[1], rangeFilterMatches[diagIdx].ijk[1] );
+            dst.StartK = std::min( rangeFilterMatches[cornerIdx].ijk[2], rangeFilterMatches[diagIdx].ijk[2] );
+            dst.EndI   = std::max( rangeFilterMatches[cornerIdx].ijk[0], rangeFilterMatches[diagIdx].ijk[0] );
+            dst.EndJ   = std::max( rangeFilterMatches[cornerIdx].ijk[1], rangeFilterMatches[diagIdx].ijk[1] );
+            dst.EndK   = std::max( rangeFilterMatches[cornerIdx].ijk[2], rangeFilterMatches[diagIdx].ijk[2] );
         }
         else
         {

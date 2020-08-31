@@ -469,7 +469,7 @@ void RimRegularLegendConfig::updateLegend()
     else
     {
         // For linear mapping, use the max value as reference for num valid digits
-        double absRange = CVF_MAX( cvf::Math::abs( adjustedMax ), cvf::Math::abs( adjustedMin ) );
+        double absRange = std::max( cvf::Math::abs( adjustedMax ), cvf::Math::abs( adjustedMin ) );
         decadesInRange  = log10( absRange );
     }
 
