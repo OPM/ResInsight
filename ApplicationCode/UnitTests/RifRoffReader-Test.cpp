@@ -47,7 +47,7 @@ std::string readIncorrectFile( const QString filename )
 TEST( RifRoffReader, ReadWrongFileType )
 {
     // Read a surface file: no expected to work
-    QString filename( "RifSurfaceReader/test.ptl" );
+    QString filename( "RifSurfaceImporter/test.ptl" );
     ASSERT_EQ( readIncorrectFile( filename ), std::string( "Unexpected file type: roff-asc header missing." ) );
 }
 

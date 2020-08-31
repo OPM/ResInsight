@@ -323,7 +323,7 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceImporter::re
                     triangleIndices.push_back( q4 );
                 }
 
-                if ( q1 != ( (unsigned)-1 ) && q2 != ( (unsigned)-1 ) && q3 != ( (unsigned)-1 ) )
+                if ( q1 != ( (unsigned)-1 ) && q4 != ( (unsigned)-1 ) && q3 != ( (unsigned)-1 ) )
                 {
                     triangleIndices.push_back( q1 );
                     triangleIndices.push_back( q4 );

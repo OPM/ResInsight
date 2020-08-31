@@ -167,6 +167,8 @@ RimAnalysisPlot::RimAnalysisPlot()
     m_plotDataFilterCollection.uiCapability()->setUiTreeHidden( true );
     m_plotDataFilterCollection = new RimPlotDataFilterCollection;
 
+    connectAxisSignals( m_valueAxisProperties() );
+    m_plotDataFilterCollection->filtersChanged.connect( this, &RimAnalysisPlot::onFiltersChanged );
     setDeletable( true );
 }
 
@@ -414,7 +416,7 @@ void RimAnalysisPlot::maxMinValueFromAddress( const RifEclipseSummaryAddress&   
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnalysisPlot::onFiltersChanged()
+void RimAnalysisPlot::onFiltersChanged( const caf::SignalEmitter* emitter )
 {
     this->loadDataAndUpdate();
 }
@@ -594,7 +596,6 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
 
         if ( allTimeSteps.empty() )
         {
-            CAF_ASSERT( false && "No time steps found" );
             return options;
         }
 
@@ -1023,12 +1024,15 @@ std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::filteredCurveDefs()
 
     for ( const auto& curveDef : dataDefinitions )
     {
-        filteredSumCases.insert( curveDef.summaryCase() );
+        if ( curveDef.summaryCase() )
+        {
+            filteredSumCases.insert( curveDef.summaryCase() );
 
-        RifEclipseSummaryAddress address = curveDef.summaryAddress();
+            RifEclipseSummaryAddress address = curveDef.summaryAddress();
 
-        address.setQuantityName( "" ); // Quantity name set to "" in order to store only unique summary items
-        filteredSummaryItems.insert( address );
+            address.setQuantityName( "" ); // Quantity name set to "" in order to store only unique summary items
+            filteredSummaryItems.insert( address );
+        }
     }
 
     std::vector<RimPlotDataFilterItem*> filters = m_plotDataFilterCollection->filters();
@@ -1077,7 +1081,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
     std::map<RimSummaryCase*, double>          casesToKeepWithValue;
     std::map<RifEclipseSummaryAddress, double> sumItemsToKeepWithValue;
 
-    if ( filter->filterTarget() == RimPlotDataFilterItem::ENSEMBLE_CASE )
+    if ( filter->filterTarget() == RimPlotDataFilterItem::ENSEMBLE_CASE && !filter->ensembleParameterName().isEmpty() )
     {
         sumItemsToKeep = ( *filteredSummaryItems ); // Not filtering items
 

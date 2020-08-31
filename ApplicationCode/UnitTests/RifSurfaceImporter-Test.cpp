@@ -13,7 +13,7 @@ TEST( RifSurfaceImporter, GocadReadValidFile )
 {
     QDir baseFolder( TEST_DATA_DIR );
 
-    QString filename( "RifSurfaceReader/tsurf_eks.ts" );
+    QString filename( "RifSurfaceImporter/tsurf_eks.ts" );
     QString filePath = baseFolder.absoluteFilePath( filename );
     EXPECT_TRUE( QFile::exists( filePath ) );
 
@@ -35,7 +35,7 @@ TEST( RifSurfaceImporter, GocadReadWrongIndices )
 {
     QDir baseFolder( TEST_DATA_DIR );
 
-    QString filename( "RifSurfaceReader/tsurf_invalid.ts" );
+    QString filename( "RifSurfaceImporter/tsurf_invalid.ts" );
     QString filePath = baseFolder.absoluteFilePath( filename );
     EXPECT_TRUE( QFile::exists( filePath ) );
 
@@ -54,7 +54,7 @@ TEST( RifSurfaceImporter, GocadReadProperties )
 {
     QDir baseFolder( TEST_DATA_DIR );
 
-    QString filename( "RifSurfaceReader/geom_with_properties.ts" );
+    QString filename( "RifSurfaceImporter/geom_with_properties.ts" );
     QString filePath = baseFolder.absoluteFilePath( filename );
     EXPECT_TRUE( QFile::exists( filePath ) );
 
@@ -95,7 +95,7 @@ TEST( RifSurfaceImporter, GocadReadNoProperty )
 {
     QDir baseFolder( TEST_DATA_DIR );
 
-    QString filename( "RifSurfaceReader/tsurf_eks.ts" );
+    QString filename( "RifSurfaceImporter/tsurf_eks.ts" );
     QString filePath = baseFolder.absoluteFilePath( filename );
     EXPECT_TRUE( QFile::exists( filePath ) );
 
@@ -113,7 +113,7 @@ TEST( RifSurfaceImporter, GocadReadNonExistingProperty )
 {
     QDir baseFolder( TEST_DATA_DIR );
 
-    QString filename( "RifSurfaceReader/geom_with_properties.ts" );
+    QString filename( "RifSurfaceImporter/geom_with_properties.ts" );
     QString filePath = baseFolder.absoluteFilePath( filename );
     EXPECT_TRUE( QFile::exists( filePath ) );
 
@@ -130,7 +130,7 @@ TEST( RifSurfaceImporter, ReadWrongFileType )
     QDir baseFolder( TEST_DATA_DIR );
 
     {
-        QString filename( "RifSurfaceReader/test.ptl" );
+        QString filename( "RifSurfaceImporter/test.ptl" );
         QString filePath = baseFolder.absoluteFilePath( filename );
         EXPECT_TRUE( QFile::exists( filePath ) );
 
@@ -146,7 +146,7 @@ TEST( RifSurfaceImporter, ReadWrongFileType )
     }
 
     {
-        QString filename( "RifSurfaceReader/tsurf_eks.ts" );
+        QString filename( "RifSurfaceImporter/tsurf_eks.ts" );
         QString filePath = baseFolder.absoluteFilePath( filename );
         EXPECT_TRUE( QFile::exists( filePath ) );
 
@@ -164,7 +164,7 @@ TEST( RifSurfaceImporter, ReadPetrelData )
 {
     QDir baseFolder( TEST_DATA_DIR );
 
-    QString filename( "RifSurfaceReader/test.ptl" );
+    QString filename( "RifSurfaceImporter/test.ptl" );
     QString filePath = baseFolder.absoluteFilePath( filename );
     EXPECT_TRUE( QFile::exists( filePath ) );
 
@@ -178,4 +178,29 @@ TEST( RifSurfaceImporter, ReadPetrelData )
 
     EXPECT_EQ( (size_t)0, indices.front() );
     EXPECT_EQ( (size_t)3439, indices.back() );
+}
+
+TEST( RifSurfaceImporter, ReadClippedPetrelData )
+{
+    QDir baseFolder( TEST_DATA_DIR );
+
+    QString filename( "RifSurfaceImporter/test_small_flipped_clipped.ptl" );
+    QString filePath = baseFolder.absoluteFilePath( filename );
+    EXPECT_TRUE( QFile::exists( filePath ) );
+
+    auto surface = RifSurfaceImporter::readPetrelFile( filePath );
+
+    auto vertices = surface.first;
+    auto indices  = surface.second;
+
+    EXPECT_EQ( (size_t)8, vertices.size() );
+    EXPECT_EQ( (size_t)18, indices.size() );
+
+    EXPECT_EQ( (size_t)0, indices.front() );
+    EXPECT_EQ( (size_t)2, indices.back() );
+
+    for ( size_t i = 0; i < indices.size(); i++ )
+    {
+        EXPECT_TRUE( indices[i] != ( (unsigned)-1 ) );
+    }
 }

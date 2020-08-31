@@ -758,16 +758,20 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
         auto byEnsParamOption  = ColorModeEnum( ColorMode::BY_ENSEMBLE_PARAM );
 
         options.push_back( caf::PdmOptionItemInfo( singleColorOption.uiText(), ColorMode::SINGLE_COLOR ) );
-        if ( !variationSortedEnsembleParameters().empty() )
+        if ( !correlationSortedEnsembleParameters().empty() )
         {
             options.push_back( caf::PdmOptionItemInfo( byEnsParamOption.uiText(), ColorMode::BY_ENSEMBLE_PARAM ) );
         }
     }
     else if ( fieldNeedingOptions == &m_ensembleParameter )
     {
-        for ( const auto& param : variationSortedEnsembleParameters() )
+        auto params = correlationSortedEnsembleParameters();
+        for ( const auto& paramCorrPair : params )
         {
-            options.push_back( caf::PdmOptionItemInfo( param.uiName(), param.name ) );
+            QString name = paramCorrPair.first.name;
+            double  corr = paramCorrPair.second;
+            options.push_back(
+                caf::PdmOptionItemInfo( QString( "%1 (Avg. correlation: %2)" ).arg( name ).arg( corr ), name ) );
         }
     }
     else if ( fieldNeedingOptions == &m_yValuesSummaryAddressUiField )
@@ -1116,6 +1120,27 @@ std::vector<EnsembleParameter> RimEnsembleCurveSet::variationSortedEnsembleParam
     else
     {
         return std::vector<EnsembleParameter>();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<EnsembleParameter, double>> RimEnsembleCurveSet::correlationSortedEnsembleParameters() const
+{
+    RimSummaryCaseCollection* ensemble = m_yValuesSummaryCaseCollection;
+    if ( ensemble )
+    {
+        auto parameters = ensemble->parameterCorrelationsAllTimeSteps( summaryAddress() );
+        std::sort( parameters.begin(),
+                   parameters.end(),
+                   []( const std::pair<EnsembleParameter, double>& lhs,
+                       const std::pair<EnsembleParameter, double>& rhs ) { return lhs.second > rhs.second; } );
+        return parameters;
+    }
+    else
+    {
+        return std::vector<std::pair<EnsembleParameter, double>>();
     }
 }
 

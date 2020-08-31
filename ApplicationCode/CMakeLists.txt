@@ -161,38 +161,8 @@ list( APPEND REFERENCED_CMAKE_FILES
     UserInterface/CMakeLists_files.cmake
     UserInterface/AnalysisPlots/CMakeLists_files.cmake
     
-    Commands/CMakeLists_files.cmake
-	Commands/AnalysisPlotCommands/CMakeLists_files.cmake
-    Commands/ApplicationCommands/CMakeLists_files.cmake
-    Commands/AnnotationCommands/CMakeLists_files.cmake
-	Commands/ColorLegendCommands/CMakeLists_files.cmake
-    Commands/CompletionCommands/CMakeLists_files.cmake
-    Commands/CompletionExportCommands/CMakeLists_files.cmake
-	Commands/CorrelationPlotCommands/CMakeLists_files.cmake
-    Commands/CrossSectionCommands/CMakeLists_files.cmake
-    Commands/EclipseCommands/CMakeLists_files.cmake
-    Commands/EclipseCommands/EclipseWell/CMakeLists_files.cmake
-    Commands/ExportCommands/CMakeLists_files.cmake
-    Commands/FlowCommands/CMakeLists_files.cmake
-    Commands/GridCrossPlotCommands/CMakeLists_files.cmake
-    Commands/HoloLensCommands/CMakeLists_files.cmake
-    Commands/IntersectionBoxCommands/CMakeLists_files.cmake
-    Commands/IntersectionViewCommands/CMakeLists_files.cmake
-    Commands/MeasurementCommands/CMakeLists_files.cmake
-    Commands/OctaveScriptCommands/CMakeLists_files.cmake
-    Commands/OperationsUsingObjReferences/CMakeLists_files.cmake
-    Commands/SummaryPlotCommands/CMakeLists_files.cmake
-    Commands/SsiHubImportCommands/CMakeLists_files.cmake
-    Commands/SurfaceCommands/CMakeLists_files.cmake
-    Commands/ToggleCommands/CMakeLists_files.cmake
-    Commands/ViewLink/CMakeLists_files.cmake
-    Commands/WellLogCommands/CMakeLists_files.cmake
-    Commands/WellPathCommands/CMakeLists_files.cmake
-    Commands/PlotTemplateCommands/CMakeLists_files.cmake
-
     CommandFileInterface/CMakeLists_files.cmake
     CommandFileInterface/Core/CMakeLists_files.cmake
-    Commands/FractureCommands/CMakeLists_files.cmake
 )
 
 option (RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS "Include ApplicationCode Unit Tests" OFF)
@@ -225,8 +195,10 @@ list( APPEND CPP_SOURCES
 #############################################################################
 
 add_subdirectory(ResultStatisticsCache)
+add_subdirectory(Commands)
 
 set( RI_LIBRARIES
+    Commands
     ResultStatisticsCache
 )
 
@@ -475,59 +447,17 @@ target_link_libraries( ResInsight ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
 
 
 #############################################################################
-# cotire and unity builds
+# Unity builds
 #############################################################################
 
 set( UNITY_EXCLUDE_FILES
     # forever is used as variable name, and this symbol is defined by Qt and used in precompiled headers
     ${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc
     
-    # multiple QRC files are not supported
-    qrc_cafAnimControl.cxx
-    qrc_ResInsight.cxx
-
-    # mix of cvf and Qt namespaces
-    ModelVisualization/GridBox/RivGridBoxGenerator.cpp
-    ModelVisualization/Intersections/RivIntersectionGeometryGenerator.cpp
-
-    # exclude file using Eigen
-    ReservoirDataModel/RigCellGeometryTools.cpp
-    ReservoirDataModel/Completions/RigTransmissibilityCondenser.cpp
-    ReservoirDataModel/Completions/RigEclipseToStimPlanCellTransmissibilityCalculator.cpp
-    ReservoirDataModel/Completions/RigEclipseToStimPlanCalculator.cpp
-
-    # exclude file using SolveSpace
-    Application/Tools/WellPathTools/RiaSCurveCalculator.cpp
-
-    # QT 5
     qrc_cafAnimControl.cpp
     qrc_ResInsight.cpp
     qrc_cafCommandFeatures.cpp
-    ProjectDataModel/RimContourMapView.cpp
-    Commands/CompletionExportCommands/RicExportFractureCompletionsImpl.cpp
 )
-
-if(RESINSIGHT_ENABLE_COTIRE)
-
-    foreach (fileToExclude ${UNITY_EXCLUDE_FILES})
-        set_source_files_properties (${fileToExclude} PROPERTIES COTIRE_EXCLUDED TRUE)
-    endforeach(fileToExclude)
-
-    foreach (cppFile ${CAF_COTIRE_START_NEW_UNITY_SOURCES})
-        set_source_files_properties (${cppFile} PROPERTIES COTIRE_START_NEW_UNITY_SOURCE TRUE)
-    endforeach(cppFile ${CAF_COTIRE_START_NEW_UNITY_SOURCES})
-
-    # disable precompiled headers
-    set_target_properties(ResInsight PROPERTIES COTIRE_ENABLE_PRECOMPILED_HEADER FALSE)
-   
-    cotire(ResInsight)
-    
-    # make sure the unity target is included in the active builds to trigger rebuild before debug
-    get_target_property(_unityTargetName ResInsight COTIRE_UNITY_TARGET_NAME)
-    set_target_properties(${_unityTargetName} PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD FALSE)
-    set_target_properties(ResInsight PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
-
-endif()
 
 if(RESINSIGHT_ENABLE_UNITY_BUILD)
     foreach (fileToExclude ${UNITY_EXCLUDE_FILES})

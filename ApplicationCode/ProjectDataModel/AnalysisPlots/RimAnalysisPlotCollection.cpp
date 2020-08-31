@@ -56,6 +56,11 @@ RimAnalysisPlot* RimAnalysisPlotCollection::createAnalysisPlot()
     m_analysisPlots.push_back( plot );
 
     plot->loadDataAndUpdate();
+
+    auto filter = plot->plotDataFilterCollection()->addFilter();
+    filter->updateMaxMinAndDefaultValues( true );
+
+    plot->loadDataAndUpdate();
     plot->updateConnectedEditors();
 
     return plot;
@@ -72,13 +77,15 @@ RimAnalysisPlot* RimAnalysisPlotCollection::createAnalysisPlot( RimSummaryCaseCo
     plot->setAsPlotMdiWindow();
 
     applyEnsembleFieldAndTimeStepToPlot( plot, ensemble, quantityName.toStdString(), timeStep );
-    auto filter = plot->plotDataFilterCollection()->addFilter();
 
     // plot->enableAutoPlotTitle( true );
     m_analysisPlots.push_back( plot );
 
     plot->loadDataAndUpdate();
+
+    auto filter = plot->plotDataFilterCollection()->addFilter();
     filter->updateMaxMinAndDefaultValues( true );
+
     plot->loadDataAndUpdate();
     plot->updateConnectedEditors();
 

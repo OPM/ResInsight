@@ -92,8 +92,6 @@ public:
                                  double*                                   min,
                                  double*                                   max );
 
-    void onFiltersChanged();
-
     std::vector<time_t> selectedTimeSteps();
 
 private:
@@ -113,6 +111,8 @@ private:
 
     std::set<RimSummaryCase*> timestepDefiningSourceCases();
     std::set<RimSummaryCase*> allSourceCases();
+
+    void onFiltersChanged( const caf::SignalEmitter* emitter );
 
     // RimViewWindow overrides
 

@@ -19,6 +19,8 @@
 #include "RimSummaryCaseCollection.h"
 
 #include "RiaFieldHandleTools.h"
+#include "RiaStatisticsTools.h"
+#include "RiaWeightedMeanCalculator.h"
 
 #include "RicfCommandObject.h"
 
@@ -39,6 +41,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <omp.h>
 
 CAF_PDM_SOURCE_INIT( RimSummaryCaseCollection, "SummaryCaseSubCollection" );
 
@@ -461,6 +464,138 @@ const std::vector<EnsembleParameter>&
     RimSummaryCaseCollection::sortByBinnedVariation( m_cachedSortedEnsembleParameters );
 
     return m_cachedSortedEnsembleParameters;
+}
+
+time_t timeDiff( time_t lhs, time_t rhs )
+{
+    if ( lhs >= rhs )
+    {
+        return lhs - rhs;
+    }
+    return rhs - lhs;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<EnsembleParameter, double>>
+    RimSummaryCaseCollection::parameterCorrelations( const RifEclipseSummaryAddress& address,
+                                                     time_t                          timeStep,
+                                                     bool                            spearman,
+                                                     const std::vector<QString>&     selectedParameters ) const
+{
+    auto parameters = variationSortedEnsembleParameters( true );
+
+    if ( !selectedParameters.empty() )
+    {
+        parameters.erase( std::remove_if( parameters.begin(),
+                                          parameters.end(),
+                                          [&selectedParameters]( const EnsembleParameter& parameter ) {
+                                              return std::find( selectedParameters.begin(),
+                                                                selectedParameters.end(),
+                                                                parameter.name ) == selectedParameters.end();
+                                          } ),
+                          parameters.end() );
+    }
+
+    std::vector<double>                              caseValuesAtTimestep;
+    std::map<EnsembleParameter, std::vector<double>> parameterValues;
+
+    for ( size_t caseIdx = 0u; caseIdx < m_cases.size(); ++caseIdx )
+    {
+        RimSummaryCase*            summaryCase = m_cases[caseIdx];
+        RifSummaryReaderInterface* reader      = summaryCase->summaryReader();
+        if ( !reader ) continue;
+
+        if ( !summaryCase->caseRealizationParameters() ) continue;
+
+        std::vector<double> values;
+
+        double closestValue    = std::numeric_limits<double>::infinity();
+        time_t closestTimeStep = 0;
+        if ( reader->values( address, &values ) )
+        {
+            const std::vector<time_t>& timeSteps = reader->timeSteps( address );
+            for ( size_t i = 0; i < timeSteps.size(); ++i )
+            {
+                if ( timeDiff( timeSteps[i], timeStep ) < timeDiff( timeStep, closestTimeStep ) )
+                {
+                    closestValue    = values[i];
+                    closestTimeStep = timeSteps[i];
+                }
+            }
+        }
+        if ( closestValue != std::numeric_limits<double>::infinity() )
+        {
+            caseValuesAtTimestep.push_back( closestValue );
+
+            for ( auto parameter : parameters )
+            {
+                if ( parameter.isNumeric() && parameter.isValid() )
+                {
+                    double paramValue = parameter.values[caseIdx].toDouble();
+                    parameterValues[parameter].push_back( paramValue );
+                }
+            }
+        }
+    }
+
+    std::vector<std::pair<EnsembleParameter, double>> correlationResults;
+    for ( auto parameterValuesPair : parameterValues )
+    {
+        double correlation = 0.0;
+        if ( spearman )
+        {
+            double spearman = RiaStatisticsTools::spearmanCorrelation( parameterValuesPair.second, caseValuesAtTimestep );
+            if ( spearman != std::numeric_limits<double>::infinity() ) correlation = spearman;
+        }
+        else
+        {
+            double pearson = RiaStatisticsTools::pearsonCorrelation( parameterValuesPair.second, caseValuesAtTimestep );
+            if ( pearson != std::numeric_limits<double>::infinity() ) correlation = pearson;
+        }
+        correlationResults.push_back( std::make_pair( parameterValuesPair.first, correlation ) );
+    }
+    return correlationResults;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Returns a vector of the parameters and the average absolute values of correlations per time step
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<EnsembleParameter, double>>
+    RimSummaryCaseCollection::parameterCorrelationsAllTimeSteps( const RifEclipseSummaryAddress& address,
+                                                                 bool                            spearman,
+                                                                 const std::vector<QString>& selectedParameters ) const
+{
+    const size_t     maxTimeStepCount = 10;
+    std::set<time_t> timeSteps        = ensembleTimeSteps();
+    if ( timeSteps.empty() ) return {};
+
+    std::vector<time_t> timeStepsVector( timeSteps.begin(), timeSteps.end() );
+    size_t              stride = std::max( (size_t)1, timeStepsVector.size() / maxTimeStepCount );
+
+    std::vector<std::vector<std::pair<EnsembleParameter, double>>> correlationsForChosenTimeSteps;
+
+    for ( size_t i = stride; i < timeStepsVector.size(); i += stride )
+    {
+        std::vector<std::pair<EnsembleParameter, double>> correlationsForTimeStep =
+            parameterCorrelations( address, timeStepsVector[i], spearman, selectedParameters );
+        correlationsForChosenTimeSteps.push_back( correlationsForTimeStep );
+    }
+
+    for ( size_t i = 1; i < correlationsForChosenTimeSteps.size(); ++i )
+    {
+        for ( size_t j = 0; j < correlationsForChosenTimeSteps[0].size(); ++j )
+        {
+            correlationsForChosenTimeSteps[0][j].second += correlationsForChosenTimeSteps[i][j].second;
+        }
+    }
+    for ( size_t j = 0; j < correlationsForChosenTimeSteps[0].size(); ++j )
+    {
+        correlationsForChosenTimeSteps[0][j].second /= correlationsForChosenTimeSteps.size();
+    }
+
+    return correlationsForChosenTimeSteps[0];
 }
 
 //--------------------------------------------------------------------------------------------------

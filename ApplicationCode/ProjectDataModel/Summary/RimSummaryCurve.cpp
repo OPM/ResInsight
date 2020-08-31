@@ -510,7 +510,7 @@ void RimSummaryCurve::updateZoomInParentPlot()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
-    this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
+    RimPlotCurve::updateCurvePresentation( updateParentPlot );
 
     m_yValuesSummaryAddressUiField = m_yValuesSummaryAddress->address();
     m_xValuesSummaryAddressUiField = m_xValuesSummaryAddress->address();
@@ -931,7 +931,7 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                         const QVariant&            oldValue,
                                         const QVariant&            newValue )
 {
-    this->RimPlotCurve::fieldChangedByUi( changedField, oldValue, newValue );
+    RimStackablePlotCurve::fieldChangedByUi( changedField, oldValue, newValue );
 
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfType( plot );
@@ -965,16 +965,16 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
         mainPlotWindow->updateSummaryPlotToolBar();
 
-        if ( m_showCurve() == true )
-        {
-            plot->summaryCurveCollection()->setCurveAsTopZWithinCategory( this );
-        }
+        // If no plot collection is found, we assume that we are inside a curve creator
+        // Update the summary curve collection to make sure the curve names are updated in curve creator UI
+        visibilityChanged.send( m_showCurve() );
     }
     else if ( changedField == &m_plotAxis )
     {
         updateQwtPlotAxis();
 
         plot->updateAxes();
+        dataChanged.send();
     }
     else if ( changedField == &m_yValuesSummaryCase )
     {
@@ -986,7 +986,10 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
             setSymbol( RiuQwtSymbol::SYMBOL_XCROSS );
         }
         plot->updateCaseNameHasChanged();
+
+        // TODO: is it not ok to just set loadAndUpdate = true?
         this->onLoadDataAndUpdate( true );
+        dataChanged.send();
     }
     else if ( changedField == &m_yPushButtonSelectSummaryAddress )
     {
@@ -1122,24 +1125,8 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
         RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
         mainPlotWindow->updateSummaryPlotToolBar();
-    }
 
-    if ( &m_showCurve == changedField )
-    {
-        // If no plot collection is found, we assume that we are inside a curve creator
-        // Update the summary curve collection to make sure the curve names are updated in curve creator UI
-
-        RimSummaryPlotCollection* plotCollection = nullptr;
-        this->firstAncestorOrThisOfType( plotCollection );
-        if ( !plotCollection )
-        {
-            RimSummaryCurveCollection* curveColl = nullptr;
-            this->firstAncestorOrThisOfType( curveColl );
-            if ( curveColl )
-            {
-                curveColl->updateConnectedEditors();
-            }
-        }
+        dataChanged.send();
     }
 }
 

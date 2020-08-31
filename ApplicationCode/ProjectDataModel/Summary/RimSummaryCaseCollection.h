@@ -111,7 +111,17 @@ public:
     int                                        ensembleId() const;
 
     const std::vector<EnsembleParameter>& variationSortedEnsembleParameters( bool excludeNoVariation = false ) const;
-    std::vector<EnsembleParameter>        alphabeticEnsembleParameters() const;
+    std::vector<std::pair<EnsembleParameter, double>>
+        parameterCorrelations( const RifEclipseSummaryAddress& address,
+                               time_t                          selectedTimeStep,
+                               bool                            spearman           = false,
+                               const std::vector<QString>&     selectedParameters = {} ) const;
+    std::vector<std::pair<EnsembleParameter, double>>
+        parameterCorrelationsAllTimeSteps( const RifEclipseSummaryAddress& address,
+                                           bool                            spearman           = false,
+                                           const std::vector<QString>&     selectedParameters = {} ) const;
+
+    std::vector<EnsembleParameter> alphabeticEnsembleParameters() const;
 
     EnsembleParameter ensembleParameter( const QString& paramName ) const;
     void              calculateEnsembleParametersIntersectionHash();

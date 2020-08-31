@@ -55,15 +55,15 @@ ${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicPolyline3dEditor.cpp
 ${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicPolylineTarget3dEditor.cpp
 )
 
-list(APPEND CODE_HEADER_FILES
+list(APPEND COMMAND_CODE_HEADER_FILES
 ${SOURCE_GROUP_HEADER_FILES}
 )
 
-list(APPEND CODE_SOURCE_FILES
+list(APPEND COMMAND_CODE_SOURCE_FILES
 ${SOURCE_GROUP_SOURCE_FILES}
 )
 
-list(APPEND QT_MOC_HEADERS
+list(APPEND COMMAND_QT_MOC_HEADERS
 ${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicPointTangentManipulator.h
 ${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicWellTarget3dEditor.h
 ${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicWellPathGeometry3dEditor.h

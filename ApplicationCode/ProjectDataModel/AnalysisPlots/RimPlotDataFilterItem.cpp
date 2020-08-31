@@ -79,6 +79,7 @@ CAF_PDM_SOURCE_INIT( RimPlotDataFilterItem, "PlotDataFilterItem" );
 RimPlotDataFilterItem::RimPlotDataFilterItem()
     : m_lowerLimit( -std::numeric_limits<double>::infinity() )
     , m_upperLimit( std::numeric_limits<double>::infinity() )
+    , filterChanged( this )
 {
     CAF_PDM_InitObject( "Plot Data Filter", ":/AnalysisPlotFilter16x16.png", "", "" );
 
@@ -223,48 +224,32 @@ void RimPlotDataFilterItem::fieldChangedByUi( const caf::PdmFieldHandle* changed
                                               const QVariant&            oldValue,
                                               const QVariant&            newValue )
 {
-    RimAnalysisPlot* parentPlot;
-    this->firstAncestorOrThisOfTypeAsserted( parentPlot );
-
     if ( changedField == &m_filterTarget )
     {
         this->updateMaxMinAndDefaultValues( true );
-        parentPlot->onFiltersChanged();
     }
     else if ( changedField == &m_filterQuantityUiField )
     {
         m_filterAddress->setAddress( m_filterQuantityUiField );
         this->updateMaxMinAndDefaultValues( true );
-        parentPlot->onFiltersChanged();
     }
     else if ( changedField == &m_filterEnsembleParameter )
     {
         this->updateMaxMinAndDefaultValues( true );
-        parentPlot->onFiltersChanged();
     }
     else if ( changedField == &m_useAbsoluteValue )
     {
         this->updateMaxMinAndDefaultValues( false );
-        parentPlot->onFiltersChanged();
     }
     else if ( changedField == &m_filterOperation )
     {
         this->updateMaxMinAndDefaultValues( false );
-        parentPlot->onFiltersChanged();
     }
     else if ( changedField == &m_consideredTimestepsType || changedField == &m_explicitlySelectedTimeSteps )
     {
         this->updateMaxMinAndDefaultValues( false );
-        parentPlot->onFiltersChanged();
     }
-    else if ( changedField == &m_isActive )
-    {
-        parentPlot->onFiltersChanged();
-    }
-    else if ( changedField == &m_min || changedField == &m_max )
-    {
-        parentPlot->onFiltersChanged();
-    }
+    filterChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------

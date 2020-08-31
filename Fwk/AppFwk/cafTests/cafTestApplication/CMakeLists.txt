@@ -95,13 +95,3 @@ foreach (qtlib ${QT_LIBRARIES})
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}> $<TARGET_FILE_DIR:${PROJECT_NAME}>
 )
 endforeach(qtlib)
-
-
-# cotire
-if (COMMAND caf_apply_cotire)
-  set_source_files_properties (qrc_textedit.cpp PROPERTIES COTIRE_EXCLUDED TRUE)
-  set_source_files_properties (qrc_cafCommandFeatures.cpp PROPERTIES COTIRE_EXCLUDED TRUE)
-  set_source_files_properties (qrc_cafAnimControl.cpp PROPERTIES COTIRE_EXCLUDED TRUE)
-
-  caf_apply_cotire("${PROJECT_NAME}")
-endif()

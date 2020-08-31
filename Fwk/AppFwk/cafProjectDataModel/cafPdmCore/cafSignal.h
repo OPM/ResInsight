@@ -179,6 +179,9 @@ public:
         observer->beingDeleted.connect( this );
     }
 
+    // Disconnect an observer from the signal. Do this only when the relationship between the
+    // observer and emitter is severed but the object kept alive.
+    // There's no need to do this when deleting the observer.
     void disconnect( SignalObserver* observer )
     {
         m_observerCallbacks.erase( observer );
