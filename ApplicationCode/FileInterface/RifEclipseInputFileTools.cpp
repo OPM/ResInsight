@@ -1819,12 +1819,12 @@ void RifEclipseInputFileTools::readFaults( QFile&                     data,
 
         // Adjust from 1-based to 0-based cell indices
         // Guard against invalid cell ranges by limiting lowest possible range value to zero
-        cvf::CellRange cellrange( CVF_MAX( i1 - 1, 0 ),
-                                  CVF_MAX( j1 - 1, 0 ),
-                                  CVF_MAX( k1 - 1, 0 ),
-                                  CVF_MAX( i2 - 1, 0 ),
-                                  CVF_MAX( j2 - 1, 0 ),
-                                  CVF_MAX( k2 - 1, 0 ) );
+        cvf::CellRange cellrange( std::max( i1 - 1, 0 ),
+                                  std::max( j1 - 1, 0 ),
+                                  std::max( k1 - 1, 0 ),
+                                  std::max( i2 - 1, 0 ),
+                                  std::max( j2 - 1, 0 ),
+                                  std::max( k2 - 1, 0 ) );
 
         if ( !( fault && fault->name() == faultName ) )
         {

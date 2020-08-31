@@ -2112,7 +2112,7 @@ void RigCaseCellResultsData::computeRiTransComponent( const QString& riTransComp
     if ( hasNTGResults )
     {
         size_t ntgResultValueCount = m_cellScalarResults[ntgResultIdx][0].size();
-        resultValueCount           = CVF_MIN( permxResultValueCount, ntgResultValueCount );
+        resultValueCount           = std::min( permxResultValueCount, ntgResultValueCount );
     }
 
     // Get all the actual result values

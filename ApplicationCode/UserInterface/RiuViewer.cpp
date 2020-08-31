@@ -414,7 +414,7 @@ void RiuViewer::paintOverlayItems( QPainter* painter )
     bool showAnimBar = false;
     if ( isAnimationActive() && frameCount() > 1 ) showAnimBar = true;
 
-    if ( m_showInfoText ) columnWidth = CVF_MAX( columnWidth, m_infoLabel->sizeHint().width() );
+    if ( m_showInfoText ) columnWidth = std::max( columnWidth, m_infoLabel->sizeHint().width() );
 
     int columnPos = this->width() - columnWidth - margin - edgeAxisFrameBorderWidth;
 
