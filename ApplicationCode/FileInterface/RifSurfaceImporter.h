@@ -35,5 +35,13 @@ public:
     static std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> readOpenWorksXyzFile( const QString& filename );
 
 private:
-    static bool vectorFuzzyCompare( const cvf::Vec3d& vector1, const cvf::Vec3d& vector2, double epsilon = DBL_EPSILON );
+    static bool       generateTriangleIndices( const std::vector<std::vector<unsigned>>& indexToPointData,
+                                               const size_t&                             i,
+                                               const size_t&                             j,
+                                               std::vector<unsigned>&                    triangleIndices );
+    static bool       vectorFuzzyCompare( const cvf::Vec3d& vector1,
+                                          const cvf::Vec3d& vector2,
+                                          double            epsilon = DBL_EPSILON,
+                                          double            maxDiff = 0.0 );
+    static cvf::Vec3d absVector( const cvf::Vec3d& vector );
 };
