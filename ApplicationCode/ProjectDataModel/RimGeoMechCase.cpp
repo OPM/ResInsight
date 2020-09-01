@@ -422,8 +422,6 @@ std::vector<Rim3dView*> RimGeoMechCase::allSpecialViews() const
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
-    uiTreeOrdering.add( &m_mudWeightWindowParameters );
-
     std::vector<PdmObjectHandle*> children;
     geoMechViews.childObjects( &children );
 
@@ -1142,6 +1140,9 @@ void RimGeoMechCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     m_initialPermeabilityResultAddress.uiCapability()->setUiHidden(
         m_initialPermeabilityType != RimGeoMechCase::InitialPermeabilityType::INITIAL_PERMEABILITY_PER_ELEMENT );
     permeabilityGroup->add( &m_permeabilityExponent );
+
+    caf::PdmUiGroup* mudWeightWindowGroup = uiOrdering.addNewGroup( "Mud Weight Window" );
+    m_mudWeightWindowParameters->uiOrdering( uiConfigName, *mudWeightWindowGroup );
 
     caf::PdmUiGroup* shearSlipIndicatorGroup = uiOrdering.addNewGroup( "Shear Slip Indicator" );
     shearSlipIndicatorGroup->add( &m_waterDensityShearSlipIndicator );

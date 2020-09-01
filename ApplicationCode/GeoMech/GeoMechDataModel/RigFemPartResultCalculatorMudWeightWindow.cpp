@@ -85,9 +85,11 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
 
     for ( auto parameterType : parameterTypes )
     {
-        frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+        auto task =
+            frameCountProgress.task( "Loading parameter: " +
+                                         caf::AppEnum<RimMudWeightWindowParameters::ParameterType>::uiText( parameterType ),
+                                     m_resultCollection->frameCount() );
         loadParameterFramesOrValue( parameterType, partIndex, parameterFrames, parameterValues );
-        frameCountProgress.incrementProgress();
     }
 
     double airGap       = m_resultCollection->airGapMudWeightWindow();
@@ -101,25 +103,30 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
         m_resultCollection->lowerLimitParameterMudWeightWindow();
 
     // Pore pressure
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
-    RigFemScalarResultFrames* porePressureDataFrames =
-        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_ELEMENT_NODAL, "POR-Bar", "" ) );
-    frameCountProgress.incrementProgress();
+    RigFemScalarResultFrames* porePressureDataFrames = nullptr;
+    {
+        auto task = frameCountProgress.task( "Loading POR-Bar.", m_resultCollection->frameCount() );
+        porePressureDataFrames =
+            m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_ELEMENT_NODAL, "POR-Bar", "" ) );
+    }
 
     // Stress (ST.S3)
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
-    RigFemScalarResultFrames* stressDataFrames =
-        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "ST", "S3" ) );
-    frameCountProgress.incrementProgress();
+    RigFemScalarResultFrames* stressDataFrames = nullptr;
+    {
+        auto task = frameCountProgress.task( "Loading ST.S3", m_resultCollection->frameCount() );
+        stressDataFrames =
+            m_resultCollection->findOrLoadScalarResult( partIndex,
+                                                        RigFemResultAddress( resVarAddr.resultPosType, "ST", "S3" ) );
+    }
 
     // Initial overburden gradient (ST.S33)
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
-    RigFemScalarResultFrames* obg0DataFrames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType, "ST", "S33" ) );
-    frameCountProgress.incrementProgress();
-
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    RigFemScalarResultFrames* obg0DataFrames = nullptr;
+    {
+        auto task = frameCountProgress.task( "Loading ST.S33", m_resultCollection->frameCount() );
+        obg0DataFrames =
+            m_resultCollection->findOrLoadScalarResult( partIndex,
+                                                        RigFemResultAddress( resVarAddr.resultPosType, "ST", "S33" ) );
+    }
 
     RigFemScalarResultFrames* mudWeightWindowFrames =
         m_resultCollection->createScalarResult( partIndex,
@@ -133,7 +140,6 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
     RigFemScalarResultFrames* lowerMudWeightLimitFrames =
         m_resultCollection->createScalarResult( partIndex,
                                                 RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "LMWL" ) );
-    frameCountProgress.incrementProgress();
 
     const RigFemPart*     femPart     = m_resultCollection->parts()->part( partIndex );
     const RigFemPartGrid* femPartGrid = femPart->getOrCreateStructGrid();
@@ -150,6 +156,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
     if ( PP_NonReservoirType != RimMudWeightWindowParameters::NonReservoirPorePressureType::HYDROSTATIC &&
          !nonReservoirAddress.isEmpty() )
     {
+        auto task = frameCountProgress.task( "Loading non-reservoir pore pressure.", m_resultCollection->frameCount() );
         nonReservoirResultFrames =
             m_resultCollection->findOrLoadScalarResult( partIndex,
                                                         RigFemResultAddress( RIG_ELEMENT,
@@ -160,6 +167,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
     float inf = std::numeric_limits<float>::infinity();
 
     frameCountProgress.setNextProgressIncrement( 1u );
+    frameCountProgress.setProgressDescription( "Calculating Mud Weight Window." );
 
     int frameCount = stressDataFrames->frameCount();
     for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
