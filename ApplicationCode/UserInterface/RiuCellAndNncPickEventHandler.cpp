@@ -252,8 +252,6 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
     RiuSelectionItem* selItem = nullptr;
     {
         Rim2dIntersectionView* intersectionView = dynamic_cast<Rim2dIntersectionView*>( mainOrComparisonView );
-        RimEclipseView*        eclipseView      = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
-        RimGeoMechView*        geomView         = dynamic_cast<RimGeoMechView*>( mainOrComparisonView );
 
         RimGridView* associatedGridView = dynamic_cast<RimGridView*>( mainOrComparisonView );
 
@@ -266,6 +264,21 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
 
         if ( !eclResDef && !geomResDef )
         {
+            RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
+            RimGeoMechView* geomView    = dynamic_cast<RimGeoMechView*>( mainOrComparisonView );
+
+            if ( !geomView && !eclipseView && associatedGridView )
+            {
+                if ( dynamic_cast<RimGeoMechView*>( associatedGridView ) )
+                {
+                    geomView = dynamic_cast<RimGeoMechView*>( associatedGridView );
+                }
+                else if ( dynamic_cast<RimEclipseView*>( associatedGridView ) )
+                {
+                    eclipseView = dynamic_cast<RimEclipseView*>( associatedGridView );
+                }
+            }
+
             if ( eclipseView )
             {
                 if ( !eclResDef ) eclResDef = eclipseView->cellResult();
@@ -289,7 +302,9 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
             {
                 auto selectedItem = dynamic_cast<RiuEclipseSelectionItem*>( Riu3dSelectionManager::instance()->selectedItem() );
 
-                if ( selectedItem && 
+                RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(mainOrComparisonView);
+
+                if ( selectedItem && eclipseView &&
                      selectedItem->m_gridIndex == gridIndex &&
                      selectedItem->m_gridLocalCellIndex == gridLocalCellIndex && 
                      selectedItem->m_nncIndex == nncIndex )
