@@ -19,7 +19,10 @@
 
 #include "RimGeoMechModels.h"
 
+#include "RiaLogging.h"
+
 #include "RimGeoMechCase.h"
+#include "RimGeoMechView.h"
 
 CAF_PDM_SOURCE_INIT( RimGeoMechModels, "ResInsightGeoMechModels" );
 //--------------------------------------------------------------------------------------------------
@@ -39,4 +42,40 @@ RimGeoMechModels::RimGeoMechModels( void )
 RimGeoMechModels::~RimGeoMechModels( void )
 {
     cases.deleteAllChildObjects();
+}
+
+RimGeoMechCase* RimGeoMechModels::copyCases( std::vector<RimGeoMechCase*> casesToCopy )
+{
+    std::vector<RimGeoMechCase*> newcases;
+
+    // create a copy of each surface given
+    for ( RimGeoMechCase* thecase : casesToCopy )
+    {
+        RimGeoMechCase* copy = thecase->createCopy();
+        if ( copy )
+        {
+            newcases.push_back( copy );
+        }
+        else
+        {
+            RiaLogging::warning( "Create Copy: Could not create a copy of the geomech case" +
+                                 thecase->caseUserDescription() );
+        }
+    }
+
+    RimGeoMechCase* retcase = nullptr;
+    for ( RimGeoMechCase* newcase : newcases )
+    {
+        cases.push_back( newcase );
+        newcase->resolveReferencesRecursively();
+        for ( auto riv : newcase->views() )
+        {
+            riv->loadDataAndUpdate();
+        }
+        retcase = newcase;
+    }
+
+    this->updateConnectedEditors();
+
+    return retcase;
 }

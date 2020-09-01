@@ -301,6 +301,21 @@ RimGeoMechView* RimGeoMechCase::createCopyAndAddView( const RimGeoMechView* sour
     return rimGeoMechView;
 }
 
+RimGeoMechCase* RimGeoMechCase::createCopy()
+{
+    RiaApplication* app     = RiaApplication::instance();
+    RimProject*     project = app->project();
+
+    RimGeoMechCase* copycase = dynamic_cast<RimGeoMechCase*>(
+        this->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+    CVF_ASSERT( copycase );
+
+    copycase->caseUserDescription.setValue( "Copy of " + copycase->caseUserDescription() );
+    project->assignCaseIdToCase( copycase );
+
+    return copycase;
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------

@@ -6,6 +6,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicCloseSummaryCaseFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicCloseSummaryCaseInCollectionFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicCloseObservedDataFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicCreateSummaryCaseCollectionFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicGeoMechCopyCaseFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterFeatureImpl.h
 ${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterInsertFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterInsertExec.h
@@ -99,6 +100,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicCloseSummaryCaseFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicCloseSummaryCaseInCollectionFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicCloseObservedDataFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicCreateSummaryCaseCollectionFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicGeoMechCopyCaseFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterFeatureImpl.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterInsertFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterInsertExec.cpp
