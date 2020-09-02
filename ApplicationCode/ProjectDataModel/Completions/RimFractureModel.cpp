@@ -283,17 +283,10 @@ QList<caf::PdmOptionItemInfo> RimFractureModel::calculateValueOptions( const caf
 
     if ( fieldNeedingOptions == &m_overburdenFormation || fieldNeedingOptions == &m_underburdenFormation )
     {
-        // Find an eclipse case
-        RimProject* proj = RimProject::current();
-        if ( proj->eclipseCases().empty() ) return options;
-
-        RimEclipseCase* eclipseCase = proj->eclipseCases()[0];
-        if ( !eclipseCase ) return options;
-
-        RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
+        RigEclipseCaseData* eclipseCaseData = getEclipseCaseData();
         if ( !eclipseCaseData ) return options;
 
-        std::vector<QString> formationNames = eclipseCase->eclipseCaseData()->formationNames();
+        std::vector<QString> formationNames = eclipseCaseData->formationNames();
         for ( const QString& formationName : formationNames )
         {
             options.push_back( caf::PdmOptionItemInfo( formationName, formationName ) );
@@ -458,15 +451,7 @@ cvf::Vec3d RimFractureModel::calculateTSTDirection() const
 {
     cvf::Vec3d defaultDirection = cvf::Vec3d( 0.0, 0.0, -1.0 );
 
-    // TODO: find a better way?
-    // Find an eclipse case
-    RimProject* proj = RimProject::current();
-    if ( proj->eclipseCases().empty() ) return defaultDirection;
-
-    RimEclipseCase* eclipseCase = proj->eclipseCases()[0];
-    if ( !eclipseCase ) return defaultDirection;
-
-    RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
+    RigEclipseCaseData* eclipseCaseData = getEclipseCaseData();
     if ( !eclipseCaseData ) return defaultDirection;
 
     RigMainGrid* mainGrid = eclipseCaseData->mainGrid();
@@ -565,14 +550,7 @@ QString RimFractureModel::vecToString( const cvf::Vec3d& vec )
 //--------------------------------------------------------------------------------------------------
 void RimFractureModel::findThicknessTargetPoints( cvf::Vec3d& topPosition, cvf::Vec3d& bottomPosition )
 {
-    // TODO: duplicated and ugly!
-    RimProject* proj = RimProject::current();
-    if ( proj->eclipseCases().empty() ) return;
-
-    RimEclipseCase* eclipseCase = proj->eclipseCases()[0];
-    if ( !eclipseCase ) return;
-
-    RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
+    RigEclipseCaseData* eclipseCaseData = getEclipseCaseData();
     if ( !eclipseCaseData ) return;
 
     const cvf::Vec3d& position  = anchorPosition();
@@ -581,7 +559,7 @@ void RimFractureModel::findThicknessTargetPoints( cvf::Vec3d& topPosition, cvf::
     // Create a "fake" well path which from top to bottom of formation
     // passing through the point and with the given direction
 
-    const cvf::BoundingBox& geometryBoundingBox = eclipseCase->mainGrid()->boundingBox();
+    const cvf::BoundingBox& geometryBoundingBox = eclipseCaseData->mainGrid()->boundingBox();
 
     RiaLogging::info( QString( "All cells bounding box: %1 %2" )
                           .arg( RimFractureModel::vecToString( geometryBoundingBox.min() ) )
@@ -941,4 +919,29 @@ double RimFractureModel::referenceTemperatureGradient() const
 double RimFractureModel::referenceTemperatureDepth() const
 {
     return m_referenceTemperatureDepth;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase* RimFractureModel::getEclipseCase()
+{
+    // Find an eclipse case
+    RimProject* proj = RimProject::current();
+    if ( proj->eclipseCases().empty() ) return nullptr;
+
+    return proj->eclipseCases()[0];
+}
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigEclipseCaseData* RimFractureModel::getEclipseCaseData()
+{
+    // Find an eclipse case
+    RimEclipseCase* eclipseCase = getEclipseCase();
+    if ( !eclipseCase ) return nullptr;
+
+    return eclipseCase->eclipseCaseData();
 }
