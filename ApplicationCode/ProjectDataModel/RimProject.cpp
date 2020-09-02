@@ -1442,7 +1442,10 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
 
             if ( mainPlotCollection->fractureModelPlotCollection() )
             {
-                itemCollection->add( mainPlotCollection->fractureModelPlotCollection() );
+                if ( RiaApplication::enableDevelopmentFeatures() )
+                {
+                    itemCollection->add( mainPlotCollection->fractureModelPlotCollection() );
+                }
             }
         }
 
