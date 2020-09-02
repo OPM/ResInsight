@@ -20,6 +20,7 @@
 
 #include <QRegularExpression>
 #include <QString>
+#include <QStringList>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -54,4 +55,30 @@ QString RiaTextStringTools::trimAndRemoveDoubleSpaces( const QString& s )
     } while ( trimmed.size() < length );
 
     return trimmed;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaTextStringTools::findCommonRoot( const QStringList& stringList )
+{
+    QString root = stringList.front();
+    for ( const auto& item : stringList )
+    {
+        if ( root.length() > item.length() )
+        {
+            root.truncate( item.length() );
+        }
+
+        for ( int i = 0; i < root.length(); ++i )
+        {
+            if ( root[i] != item[i] )
+            {
+                root.truncate( i );
+                break;
+            }
+        }
+    }
+
+    return root;
 }

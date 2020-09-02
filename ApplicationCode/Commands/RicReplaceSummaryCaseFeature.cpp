@@ -69,7 +69,7 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
 
     QString oldSummaryHeaderFilename = summaryCase->summaryHeaderFilename();
     summaryCase->setSummaryHeaderFileName( fileNames[0] );
-    summaryCase->resetAutoShortName();
+    summaryCase->updateAutoShortName();
     summaryCase->createSummaryReaderInterface();
     summaryCase->createRftReaderInterface();
     RiaLogging::info( QString( "Replaced summary data for %1" ).arg( oldSummaryHeaderFilename ) );

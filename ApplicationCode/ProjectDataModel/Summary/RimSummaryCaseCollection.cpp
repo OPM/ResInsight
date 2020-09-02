@@ -187,6 +187,7 @@ QString EnsembleParameter::uiName() const
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCaseCollection::RimSummaryCaseCollection()
+    : caseNameChanged( this )
 {
     CAF_PDM_InitScriptableObject( "Summary Case Group", ":/SummaryGroup16x16.png", "", "" );
 
@@ -227,6 +228,8 @@ RimSummaryCaseCollection::~RimSummaryCaseCollection()
 void RimSummaryCaseCollection::removeCase( RimSummaryCase* summaryCase )
 {
     size_t caseCountBeforeRemove = m_cases.size();
+
+    summaryCase->nameChanged.disconnect( this );
     m_cases.removeChildObject( summaryCase );
 
     m_cachedSortedEnsembleParameters.clear();
@@ -245,6 +248,8 @@ void RimSummaryCaseCollection::removeCase( RimSummaryCase* summaryCase )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::addCase( RimSummaryCase* summaryCase, bool updateCurveSets )
 {
+    summaryCase->nameChanged.connect( this, &RimSummaryCaseCollection::onCaseNameChanged );
+
     m_cases.push_back( summaryCase );
     m_cachedSortedEnsembleParameters.clear();
 
@@ -980,6 +985,14 @@ void RimSummaryCaseCollection::fieldChangedByUi( const caf::PdmFieldHandle* chan
     {
         updateIcon();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseCollection::onCaseNameChanged( const SignalEmitter* emitter )
+{
+    caseNameChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------

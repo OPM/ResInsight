@@ -274,7 +274,8 @@ void RimCorrelationPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chart
     {
         double  value     = m_showAbsoluteValues() ? std::abs( parameterCorrPair.second ) : parameterCorrPair.second;
         double  sortValue = m_sortByAbsoluteValues() ? std::abs( value ) : value;
-        QString barText   = QString( "%1 (%2)" ).arg( parameterCorrPair.first.name ).arg( parameterCorrPair.second );
+        QString barText =
+            QString( "%1 (%2)" ).arg( parameterCorrPair.first.name ).arg( parameterCorrPair.second, 5, 'f', 2 );
         QString majorText = "", medText = "", minText = "", legendText = barText;
         chartBuilder.addBarEntry( majorText, medText, minText, sortValue, legendText, barText, value );
     }

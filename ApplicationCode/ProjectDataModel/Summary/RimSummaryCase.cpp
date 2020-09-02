@@ -18,18 +18,15 @@
 
 #include "RimSummaryCase.h"
 
+#include "RiaFilePathTools.h"
 #include "RiaSummaryTools.h"
 
 #include "RicfCommandObject.h"
 #include "RifSummaryReaderInterface.h"
 
 #include "RimMainPlotCollection.h"
-#include "RimObservedDataCollection.h"
-#include "RimObservedSummaryData.h"
-#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCaseCollection.h"
-#include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryPlotCollection.h"
 
 #include "cafPdmFieldScriptingCapability.h"
@@ -37,20 +34,36 @@
 #include "cvfAssert.h"
 
 #include <QFileInfo>
+#include <QRegularExpression>
 
 CAF_PDM_ABSTRACT_SOURCE_INIT( RimSummaryCase, "SummaryCase" );
 
-const QString RimSummaryCase::DEFAULT_DISPLAY_NAME = "Display Name";
+namespace caf
+{
+template <>
+void AppEnum<RimSummaryCase::DisplayName>::setUp()
+{
+    addItem( RimSummaryCase::DisplayName::FULL_CASE_NAME, "FULL_CASE_NAME", "Full Case Name" );
+    addItem( RimSummaryCase::DisplayName::SHORT_CASE_NAME, "SHORT_CASE_NAME", "Shortened Case Name" );
+    addItem( RimSummaryCase::DisplayName::CUSTOM, "CUSTOM_NAME", "Custom Name" );
+    setDefault( RimSummaryCase::DisplayName::SHORT_CASE_NAME );
+}
+} // namespace caf
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCase::RimSummaryCase()
+    : nameChanged( this )
 {
     CAF_PDM_InitScriptableObject( "Summary Case", ":/SummaryCase16x16.png", "", "The Base Class for all Summary Cases" );
 
-    CAF_PDM_InitScriptableField( &m_shortName, "ShortName", QString( "Display Name" ), DEFAULT_DISPLAY_NAME, "", "", "" );
-    CAF_PDM_InitScriptableField( &m_useAutoShortName, "AutoShortyName", false, "Use Auto Display Name", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_displayName, "ShortName", "Display Name", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_displayNameOption, "NameSetting", "Name Setting", "", "", "" );
+
+    CAF_PDM_InitScriptableField( &m_useAutoShortName_OBSOLETE, "AutoShortyName", false, "Use Auto Display Name", "", "", "" );
+    m_useAutoShortName_OBSOLETE.xmlCapability()->setIOWritable( false );
+    m_useAutoShortName_OBSOLETE.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_summaryHeaderFilename, "SummaryHeaderFilename", "Summary Header File", "", "", "" );
     m_summaryHeaderFilename.uiCapability()->setUiReadOnly( true );
@@ -92,7 +105,7 @@ void RimSummaryCase::setSummaryHeaderFileName( const QString& fileName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryCase::isObservedData()
+bool RimSummaryCase::isObservedData() const
 {
     return m_isObservedData;
 }
@@ -136,10 +149,10 @@ RimSummaryCaseCollection* RimSummaryCase::ensemble() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCase::copyFrom( const RimSummaryCase& rhs )
 {
-    m_shortName             = rhs.m_shortName;
-    m_useAutoShortName      = rhs.m_useAutoShortName;
-    m_summaryHeaderFilename = rhs.m_summaryHeaderFilename;
-    m_isObservedData        = rhs.m_isObservedData;
+    m_displayName               = rhs.m_displayName;
+    m_useAutoShortName_OBSOLETE = rhs.m_useAutoShortName_OBSOLETE;
+    m_summaryHeaderFilename     = rhs.m_summaryHeaderFilename;
+    m_isObservedData            = rhs.m_isObservedData;
 
     this->updateTreeItemName();
     this->updateOptionSensitivity();
@@ -160,17 +173,16 @@ void RimSummaryCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                        const QVariant&            oldValue,
                                        const QVariant&            newValue )
 {
-    if ( changedField == &m_useAutoShortName )
+    if ( changedField == &m_displayNameOption )
     {
-        this->updateAutoShortName();
+        updateAutoShortName();
+        nameChanged.send();
     }
-    else if ( changedField == &m_shortName )
+    else if ( changedField == &m_displayName )
     {
         updateTreeItemName();
+        nameChanged.send();
     }
-
-    RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
-    summaryPlotColl->updateSummaryNameHasChanged();
 
     updateOptionSensitivity();
 }
@@ -180,7 +192,7 @@ void RimSummaryCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCase::updateOptionSensitivity()
 {
-    m_shortName.uiCapability()->setUiReadOnly( m_useAutoShortName );
+    m_displayName.uiCapability()->setUiReadOnly( m_displayNameOption != DisplayName::CUSTOM );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -212,10 +224,7 @@ void RimSummaryCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCase::updateTreeItemName()
 {
-    if ( caseName() != displayCaseName() )
-        this->setUiName( caseName() + " (" + displayCaseName() + ")" );
-    else
-        this->setUiName( caseName() );
+    this->setUiName( displayCaseName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -223,7 +232,7 @@ void RimSummaryCase::updateTreeItemName()
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCase::displayCaseName() const
 {
-    return m_shortName();
+    return m_displayName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -257,6 +266,11 @@ void RimSummaryCase::initAfterRead()
         RimProject::current()->assignCaseIdToSummaryCase( this );
     }
 
+    if ( m_useAutoShortName_OBSOLETE )
+    {
+        m_displayNameOption = DisplayName::SHORT_CASE_NAME;
+    }
+
     updateOptionSensitivity();
 }
 
@@ -265,70 +279,69 @@ void RimSummaryCase::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCase::uniqueShortNameForCase( RimSummaryCase* summaryCase )
 {
-    RimOilField* oilField = nullptr;
-    summaryCase->firstAncestorOrThisOfType( oilField );
-    CVF_ASSERT( oilField );
+    QString                      ensembleName;
+    std::vector<RimSummaryCase*> summaryCases;
 
-    std::set<QString> allAutoShortNames;
-
-    std::vector<RimSummaryCase*>         allCases          = oilField->summaryCaseMainCollection->allSummaryCases();
-    std::vector<RimObservedSummaryData*> observedDataCases = oilField->observedDataCollection->allObservedSummaryData();
-
-    for ( auto observedData : observedDataCases )
+    auto ensemble = summaryCase->ensemble();
+    if ( ensemble )
     {
-        allCases.push_back( observedData );
-    }
-
-    for ( RimSummaryCase* sumCase : allCases )
-    {
-        if ( sumCase && sumCase != summaryCase )
-        {
-            allAutoShortNames.insert( sumCase->displayCaseName() );
-        }
-    }
-
-    bool foundUnique = false;
-
-    QString caseName = summaryCase->caseName();
-    QString shortName;
-
-    if ( caseName.size() > 2 )
-    {
-        QString candidate;
-        candidate += caseName[0];
-
-        for ( int i = 1; i < caseName.size(); ++i )
-        {
-            if ( allAutoShortNames.count( candidate + caseName[i] ) == 0 )
-            {
-                shortName   = candidate + caseName[i];
-                foundUnique = true;
-                break;
-            }
-        }
+        summaryCases = ensemble->allSummaryCases();
     }
     else
     {
-        shortName = caseName.left( 2 );
-        if ( allAutoShortNames.count( shortName ) == 0 )
-        {
-            foundUnique = true;
-        }
+        RimProject::current()->descendantsIncludingThisOfType( summaryCases );
     }
 
-    int autoNumber = 0;
+    QRegularExpression trimRe( "^[^a-zA-Z0-9]+" );
 
-    while ( !foundUnique )
+    QStringList summaryFilePaths;
+    summaryFilePaths.push_back( summaryCase->summaryHeaderFilename() );
+
+    for ( auto otherSummaryCase : summaryCases )
     {
-        QString candidate = shortName + QString::number( autoNumber++ );
-        if ( allAutoShortNames.count( candidate ) == 0 )
+        if ( otherSummaryCase != summaryCase )
         {
-            shortName   = candidate;
-            foundUnique = true;
+            summaryFilePaths.push_back( otherSummaryCase->summaryHeaderFilename() );
         }
     }
 
-    return shortName;
+    std::map<QString, QStringList> keyFileComponentsForAllFiles =
+        RiaFilePathTools::keyPathComponentsForEachFilePath( summaryFilePaths );
+
+    QStringList keyFileComponents = keyFileComponentsForAllFiles[summaryCase->summaryHeaderFilename()];
+    CAF_ASSERT( !keyFileComponents.empty() );
+
+    if ( !ensembleName.isEmpty() )
+    {
+        for ( auto& component : keyFileComponents )
+        {
+            component = component.replace( ensembleName, "" );
+            component = component.replace( trimRe, "" );
+        }
+    }
+
+    QStringList        shortNameComponents;
+    QRegularExpression numberRe( "[0-9]+" );
+    for ( auto keyComponent : keyFileComponents )
+    {
+        QStringList subComponents;
+        QString     numberGroup = numberRe.match( keyComponent ).captured();
+        if ( !numberGroup.isEmpty() )
+        {
+            keyComponent = keyComponent.replace( numberGroup, "" );
+
+            QString stem = keyComponent.left( 2 );
+            if ( !stem.isEmpty() ) subComponents.push_back( stem );
+            subComponents.push_back( numberGroup );
+        }
+        else
+        {
+            subComponents.push_back( keyComponent.left( 4 ) );
+        }
+
+        shortNameComponents.push_back( subComponents.join( "-" ) );
+    }
+    return shortNameComponents.join( "," );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -336,25 +349,16 @@ QString RimSummaryCase::uniqueShortNameForCase( RimSummaryCase* summaryCase )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCase::updateAutoShortName()
 {
-    if ( m_useAutoShortName )
+    if ( m_displayNameOption == DisplayName::FULL_CASE_NAME )
     {
-        m_shortName = RimSummaryCase::uniqueShortNameForCase( this );
+        m_displayName = caseName();
     }
-    else if ( m_shortName() == DEFAULT_DISPLAY_NAME )
+    else if ( m_displayNameOption == DisplayName::SHORT_CASE_NAME )
     {
-        m_shortName = caseName();
+        m_displayName = RimSummaryCase::uniqueShortNameForCase( this );
     }
 
     updateTreeItemName();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCase::resetAutoShortName()
-{
-    m_shortName = DEFAULT_DISPLAY_NAME;
-    updateAutoShortName();
 }
 
 //--------------------------------------------------------------------------------------------------

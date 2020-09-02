@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimSummaryCaseMainCollection.h"
 
+#include "RiaSummaryTools.h"
+#include "RimSummaryPlotCollection.h"
+
 #include "RifCaseRealizationParametersReader.h"
 #include "RifEclipseSummaryTools.h"
 #include "RifSummaryCaseRestartSelector.h"
@@ -30,6 +33,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryPlot.h"
 
 #include "cafProgressInfo.h"
 #include <QDir>
@@ -213,6 +217,7 @@ void RimSummaryCaseMainCollection::addCases( const std::vector<RimSummaryCase*> 
 void RimSummaryCaseMainCollection::addCase( RimSummaryCase* summaryCase )
 {
     m_cases.push_back( summaryCase );
+    summaryCase->nameChanged.connect( this, &RimSummaryCaseMainCollection::onCaseNameChanged );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -235,7 +240,9 @@ void RimSummaryCaseMainCollection::removeCase( RimSummaryCase* summaryCase )
         }
     }
 
+    summaryCase->nameChanged.disconnect( this );
     m_cases.removeChildObject( summaryCase );
+
     for ( RimSummaryCaseCollection* summaryCaseCollection : m_caseCollections )
     {
         summaryCaseCollection->removeCase( summaryCase );
@@ -285,6 +292,7 @@ RimSummaryCaseCollection*
 
     summaryCaseCollection->setAsEnsemble( isEnsemble );
 
+    summaryCaseCollection->caseNameChanged.connect( this, &RimSummaryCaseMainCollection::onCaseNameChanged );
     m_caseCollections.push_back( summaryCaseCollection );
 
     return summaryCaseCollection;
@@ -295,6 +303,7 @@ RimSummaryCaseCollection*
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseMainCollection::removeCaseCollection( RimSummaryCaseCollection* caseCollection )
 {
+    caseCollection->caseNameChanged.disconnect( this );
     m_caseCollections.removeChildObject( caseCollection );
 }
 
@@ -485,6 +494,15 @@ void RimSummaryCaseMainCollection::reassignSummaryCurves( const RimGridSummaryCa
 RimSummaryCaseCollection* RimSummaryCaseMainCollection::defaultAllocator()
 {
     return new RimSummaryCaseCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseMainCollection::onCaseNameChanged( const SignalEmitter* emitter )
+{
+    RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
+    summaryPlotColl->updateSummaryNameHasChanged();
 }
 
 //--------------------------------------------------------------------------------------------------

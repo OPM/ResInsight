@@ -19,6 +19,7 @@
 #pragma once
 
 class QString;
+class QStringList;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -27,4 +28,5 @@ namespace RiaTextStringTools
 {
 bool    compare( const QString& expected, const QString& actual );
 QString trimAndRemoveDoubleSpaces( const QString& s );
+QString findCommonRoot( const QStringList& stringList );
 } // namespace RiaTextStringTools
