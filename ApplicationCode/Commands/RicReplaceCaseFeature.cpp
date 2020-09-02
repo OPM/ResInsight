@@ -106,7 +106,7 @@ void RicReplaceCaseFeature::onActionTriggered( bool isChecked )
             if ( gridSummaryCase )
             {
                 gridSummaryCase->setAssociatedEclipseCase( selectedCase );
-                gridSummaryCase->resetAutoShortName();
+                gridSummaryCase->updateAutoShortName();
                 gridSummaryCase->createSummaryReaderInterface();
                 gridSummaryCase->createRftReaderInterface();
 

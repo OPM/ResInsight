@@ -272,7 +272,7 @@ std::pair<std::vector<time_t>, std::vector<double>>
 //--------------------------------------------------------------------------------------------------
 QString RimDerivedSummaryCase::caseName() const
 {
-    return m_shortName;
+    return m_displayName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -413,7 +413,7 @@ void RimDerivedSummaryCase::updateDisplayNameFromCases()
 
     QString name = operatorText + QString( "(%1 , %2)" ).arg( case1Name, case2Name );
 
-    m_shortName = name;
+    m_displayName = name;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -422,7 +422,7 @@ void RimDerivedSummaryCase::updateDisplayNameFromCases()
 void RimDerivedSummaryCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     // Base class
-    uiOrdering.add( &m_shortName );
+    uiOrdering.add( &m_displayName );
 
     uiOrdering.add( &m_summaryCase1 );
     uiOrdering.add( &m_operator );

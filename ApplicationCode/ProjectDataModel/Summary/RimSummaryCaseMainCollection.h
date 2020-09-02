@@ -78,6 +78,8 @@ private:
     static void reassignSummaryCurves( const RimGridSummaryCase* fromGridCase, RimFileSummaryCase* toFileCase );
     static RimSummaryCaseCollection* defaultAllocator();
 
+    void onCaseNameChanged( const SignalEmitter* emitter );
+
 private:
     caf::PdmChildArrayField<RimSummaryCase*>           m_cases;
     caf::PdmChildArrayField<RimSummaryCaseCollection*> m_caseCollections;
