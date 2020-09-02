@@ -98,10 +98,10 @@ RimFractureModel::RimFractureModel()
                                  "",
                                  "" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_anchorPosition, "AnchorPosition", "Anchor Position", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_anchorPosition, "AnchorPosition", "Anchor Position", "", "", "" );
     m_anchorPosition.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_thicknessDirection, "ThicknessDirection", "Thickness Direction", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_thicknessDirection, "ThicknessDirection", "Thickness Direction", "", "", "" );
     m_thicknessDirection.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_thicknessDirectionWellPath,
