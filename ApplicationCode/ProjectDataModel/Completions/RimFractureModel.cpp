@@ -120,15 +120,19 @@ RimFractureModel::RimFractureModel()
     // Stress unit: bar
     // Stress gradient unit: bar/m
     // Depth is meter
-    CAF_PDM_InitScriptableField( &m_verticalStress, "VerticalStress", 879.0, "Vertical Stress", "", "", "" );
+    double defaultStressGradient = 0.238;
+    double defaultStressDepth    = computeDefaultStressDepth();
+    double defaultStress         = defaultStressDepth * defaultStressGradient;
+
+    CAF_PDM_InitScriptableField( &m_verticalStress, "VerticalStress", defaultStress, "Vertical Stress", "", "", "" );
     CAF_PDM_InitScriptableField( &m_verticalStressGradient,
                                  "VerticalStressGradient",
-                                 0.238,
+                                 defaultStressGradient,
                                  "Vertical Stress Gradient",
                                  "",
                                  "",
                                  "" );
-    CAF_PDM_InitScriptableField( &m_stressDepth, "StressDepth", 1000.0, "Stress Depth", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_stressDepth, "StressDepth", defaultStressDepth, "Stress Depth", "", "", "" );
 
     CAF_PDM_InitScriptableField( &m_overburdenHeight, "OverburdenHeight", 50.0, "Overburden Height", "", "", "" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_overburdenFormation, "OverburdenFormation", "Overburden Formation", "", "", "" );
@@ -933,7 +937,6 @@ RimEclipseCase* RimFractureModel::getEclipseCase()
     return proj->eclipseCases()[0];
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -944,4 +947,18 @@ RigEclipseCaseData* RimFractureModel::getEclipseCaseData()
     if ( !eclipseCase ) return nullptr;
 
     return eclipseCase->eclipseCaseData();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModel::computeDefaultStressDepth()
+{
+    const double stressDepth = 1000.0;
+
+    RimEclipseCase* eclipseCase = getEclipseCase();
+    if ( !eclipseCase ) return stressDepth;
+
+    // Use top of active cells as reference stress depth
+    return -eclipseCase->activeCellsBoundingBox().max().z();
 }

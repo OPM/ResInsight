@@ -128,14 +128,16 @@ protected:
                                                          bool*                      useOptionsOnly ) override;
 
 private:
-    void                updatePositionFromMeasuredDepth();
-    void                updateThicknessDirection();
-    cvf::Vec3d          calculateTSTDirection() const;
-    void                findThicknessTargetPoints( cvf::Vec3d& topPosition, cvf::Vec3d& bottomPosition );
-    static QString      vecToString( const cvf::Vec3d& vec );
-    void                updateThicknessDirectionWellPathName();
+    void           updatePositionFromMeasuredDepth();
+    void           updateThicknessDirection();
+    cvf::Vec3d     calculateTSTDirection() const;
+    void           findThicknessTargetPoints( cvf::Vec3d& topPosition, cvf::Vec3d& bottomPosition );
+    static QString vecToString( const cvf::Vec3d& vec );
+    void           updateThicknessDirectionWellPathName();
+    static double  computeDefaultStressDepth();
+
     static RigEclipseCaseData* getEclipseCaseData();
-    static RimEclipseCase* getEclipseCase();
+    static RimEclipseCase*     getEclipseCase();
 
 protected:
     caf::PdmField<double>                       m_MD;
