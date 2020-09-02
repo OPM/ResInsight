@@ -122,12 +122,24 @@ std::pair<QString, QString> RiaFilePathTools::toFolderAndFileName( const QString
 QString RiaFilePathTools::removeDuplicatePathSeparators( const QString& path )
 {
     QString correctedPath = path;
-    int     len;
-    do
+    QString prefix;
+
+    QString doubleBackslash = R"(\\)";
+    if ( correctedPath.size() > 2 )
     {
-        len = correctedPath.size();
-        correctedPath.replace( QString( "%1%1" ).arg( separator() ), separator() );
-    } while ( correctedPath.size() != len );
+        QString prefixCandidate = correctedPath.left( 2 );
+        if ( prefixCandidate == doubleBackslash || prefixCandidate == "//" )
+        {
+            prefix = prefixCandidate;
+
+            correctedPath = correctedPath.right( correctedPath.size() - 2 );
+        }
+    }
+
+    correctedPath.replace( QString( "%1%1" ).arg( separator() ), separator() );
+    correctedPath.replace( doubleBackslash, R"(\)" );
+
+    correctedPath = prefix + correctedPath;
 
     return correctedPath;
 }
