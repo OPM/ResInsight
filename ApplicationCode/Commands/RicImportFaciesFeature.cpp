@@ -91,7 +91,8 @@ void RicImportFaciesFeature::onActionTriggered( bool isChecked )
 
         // Try to find a color from the rock type color legend by fuzzy matching names
         cvf::Color3f color;
-        if ( !matchByName( it.second, rockTypeColorLegend, color ) )
+        if ( !predefinedColorMatch( it.second, rockTypeColorLegend, color ) &&
+             !matchByName( it.second, rockTypeColorLegend, color ) )
         {
             // No match use a random color
             color = colorTable.cycledColor3f( it.first );
@@ -118,7 +119,7 @@ void RicImportFaciesFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportFaciesFeature::matchByName( const QString name, RimColorLegend* colorLegend, cvf::Color3f& color )
+bool RicImportFaciesFeature::matchByName( const QString& name, RimColorLegend* colorLegend, cvf::Color3f& color )
 {
     // No match if color legend does not exist
     if ( !colorLegend ) return false;
@@ -166,4 +167,25 @@ int RicImportFaciesFeature::computeEditDistance( const QString& a, const QString
     bSimplified = bSimplified.trimmed();
 
     return RiaStdStringTools::computeEditDistance( aSimplified.toStdString(), bSimplified.toStdString() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicImportFaciesFeature::predefinedColorMatch( const QString& name, RimColorLegend* colorLegend, cvf::Color3f& color )
+{
+    // Calcite should use limestone color
+    if ( name.toLower().trimmed() == QString( "calcite" ) )
+    {
+        for ( auto i : colorLegend->colorLegendItems() )
+        {
+            if ( i->categoryName() == QString( "Limestone" ) )
+            {
+                color = i->color();
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
