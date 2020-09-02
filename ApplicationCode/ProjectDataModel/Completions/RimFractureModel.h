@@ -36,6 +36,7 @@ class RimEclipseCase;
 class RimWellPath;
 class RimModeledWellPath;
 class RimElasticProperties;
+class RigEclipseCaseData;
 
 //==================================================================================================
 ///
@@ -133,6 +134,10 @@ private:
     void           findThicknessTargetPoints( cvf::Vec3d& topPosition, cvf::Vec3d& bottomPosition );
     static QString vecToString( const cvf::Vec3d& vec );
     void           updateThicknessDirectionWellPathName();
+    static double  computeDefaultStressDepth();
+
+    static RigEclipseCaseData* getEclipseCaseData();
+    static RimEclipseCase*     getEclipseCase();
 
 protected:
     caf::PdmField<double>                       m_MD;

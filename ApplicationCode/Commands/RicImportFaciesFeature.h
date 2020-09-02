@@ -39,6 +39,7 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    int  computeEditDistance( const QString& a, const QString& b );
-    bool matchByName( const QString name, RimColorLegend* colorLegend, cvf::Color3f& color );
+    static int  computeEditDistance( const QString& a, const QString& b );
+    static bool matchByName( const QString& name, RimColorLegend* colorLegend, cvf::Color3f& color );
+    static bool predefinedColorMatch( const QString& name, RimColorLegend* colorLegend, cvf::Color3f& color );
 };

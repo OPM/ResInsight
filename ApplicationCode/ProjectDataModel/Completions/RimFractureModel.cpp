@@ -98,10 +98,10 @@ RimFractureModel::RimFractureModel()
                                  "",
                                  "" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_anchorPosition, "AnchorPosition", "Anchor Position", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_anchorPosition, "AnchorPosition", "Anchor Position", "", "", "" );
     m_anchorPosition.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_thicknessDirection, "ThicknessDirection", "Thickness Direction", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_thicknessDirection, "ThicknessDirection", "Thickness Direction", "", "", "" );
     m_thicknessDirection.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_thicknessDirectionWellPath,
@@ -120,15 +120,19 @@ RimFractureModel::RimFractureModel()
     // Stress unit: bar
     // Stress gradient unit: bar/m
     // Depth is meter
-    CAF_PDM_InitScriptableField( &m_verticalStress, "VerticalStress", 879.0, "Vertical Stress", "", "", "" );
+    double defaultStressGradient = 0.238;
+    double defaultStressDepth    = computeDefaultStressDepth();
+    double defaultStress         = defaultStressDepth * defaultStressGradient;
+
+    CAF_PDM_InitScriptableField( &m_verticalStress, "VerticalStress", defaultStress, "Vertical Stress", "", "", "" );
     CAF_PDM_InitScriptableField( &m_verticalStressGradient,
                                  "VerticalStressGradient",
-                                 0.238,
+                                 defaultStressGradient,
                                  "Vertical Stress Gradient",
                                  "",
                                  "",
                                  "" );
-    CAF_PDM_InitScriptableField( &m_stressDepth, "StressDepth", 1000.0, "Stress Depth", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_stressDepth, "StressDepth", defaultStressDepth, "Stress Depth", "", "", "" );
 
     CAF_PDM_InitScriptableField( &m_overburdenHeight, "OverburdenHeight", 50.0, "Overburden Height", "", "", "" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_overburdenFormation, "OverburdenFormation", "Overburden Formation", "", "", "" );
@@ -283,17 +287,10 @@ QList<caf::PdmOptionItemInfo> RimFractureModel::calculateValueOptions( const caf
 
     if ( fieldNeedingOptions == &m_overburdenFormation || fieldNeedingOptions == &m_underburdenFormation )
     {
-        // Find an eclipse case
-        RimProject* proj = RimProject::current();
-        if ( proj->eclipseCases().empty() ) return options;
-
-        RimEclipseCase* eclipseCase = proj->eclipseCases()[0];
-        if ( !eclipseCase ) return options;
-
-        RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
+        RigEclipseCaseData* eclipseCaseData = getEclipseCaseData();
         if ( !eclipseCaseData ) return options;
 
-        std::vector<QString> formationNames = eclipseCase->eclipseCaseData()->formationNames();
+        std::vector<QString> formationNames = eclipseCaseData->formationNames();
         for ( const QString& formationName : formationNames )
         {
             options.push_back( caf::PdmOptionItemInfo( formationName, formationName ) );
@@ -458,15 +455,7 @@ cvf::Vec3d RimFractureModel::calculateTSTDirection() const
 {
     cvf::Vec3d defaultDirection = cvf::Vec3d( 0.0, 0.0, -1.0 );
 
-    // TODO: find a better way?
-    // Find an eclipse case
-    RimProject* proj = RimProject::current();
-    if ( proj->eclipseCases().empty() ) return defaultDirection;
-
-    RimEclipseCase* eclipseCase = proj->eclipseCases()[0];
-    if ( !eclipseCase ) return defaultDirection;
-
-    RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
+    RigEclipseCaseData* eclipseCaseData = getEclipseCaseData();
     if ( !eclipseCaseData ) return defaultDirection;
 
     RigMainGrid* mainGrid = eclipseCaseData->mainGrid();
@@ -565,14 +554,7 @@ QString RimFractureModel::vecToString( const cvf::Vec3d& vec )
 //--------------------------------------------------------------------------------------------------
 void RimFractureModel::findThicknessTargetPoints( cvf::Vec3d& topPosition, cvf::Vec3d& bottomPosition )
 {
-    // TODO: duplicated and ugly!
-    RimProject* proj = RimProject::current();
-    if ( proj->eclipseCases().empty() ) return;
-
-    RimEclipseCase* eclipseCase = proj->eclipseCases()[0];
-    if ( !eclipseCase ) return;
-
-    RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
+    RigEclipseCaseData* eclipseCaseData = getEclipseCaseData();
     if ( !eclipseCaseData ) return;
 
     const cvf::Vec3d& position  = anchorPosition();
@@ -581,7 +563,7 @@ void RimFractureModel::findThicknessTargetPoints( cvf::Vec3d& topPosition, cvf::
     // Create a "fake" well path which from top to bottom of formation
     // passing through the point and with the given direction
 
-    const cvf::BoundingBox& geometryBoundingBox = eclipseCase->mainGrid()->boundingBox();
+    const cvf::BoundingBox& geometryBoundingBox = eclipseCaseData->mainGrid()->boundingBox();
 
     RiaLogging::info( QString( "All cells bounding box: %1 %2" )
                           .arg( RimFractureModel::vecToString( geometryBoundingBox.min() ) )
@@ -941,4 +923,42 @@ double RimFractureModel::referenceTemperatureGradient() const
 double RimFractureModel::referenceTemperatureDepth() const
 {
     return m_referenceTemperatureDepth;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase* RimFractureModel::getEclipseCase()
+{
+    // Find an eclipse case
+    RimProject* proj = RimProject::current();
+    if ( proj->eclipseCases().empty() ) return nullptr;
+
+    return proj->eclipseCases()[0];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigEclipseCaseData* RimFractureModel::getEclipseCaseData()
+{
+    // Find an eclipse case
+    RimEclipseCase* eclipseCase = getEclipseCase();
+    if ( !eclipseCase ) return nullptr;
+
+    return eclipseCase->eclipseCaseData();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModel::computeDefaultStressDepth()
+{
+    const double stressDepth = 1000.0;
+
+    RimEclipseCase* eclipseCase = getEclipseCase();
+    if ( !eclipseCase ) return stressDepth;
+
+    // Use top of active cells as reference stress depth
+    return -eclipseCase->activeCellsBoundingBox().max().z();
 }

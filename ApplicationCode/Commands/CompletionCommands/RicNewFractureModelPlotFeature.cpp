@@ -175,6 +175,8 @@ RimFractureModelPlot*
     // Make sure the summary plot window is visible
     RiuPlotMainWindowTools::showPlotMainWindow();
 
+    plot->loadDataAndUpdate();
+
     return plot;
 }
 

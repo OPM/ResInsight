@@ -38,3 +38,7 @@ fracture_model_plot = fracture_model_plot_collection.new_fracture_model_plot(ecl
 
 file_path = "/tmp/Geological.frk"
 fracture_model_plot.export_to_file(file_path=file_path)
+
+
+export_folder = "/tmp/"
+fracture_model_plot.export_snapshot(export_folder=export_folder)

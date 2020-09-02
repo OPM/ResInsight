@@ -54,6 +54,8 @@
 #include "RimFormationNamesCollection.h"
 #include "RimFractureModel.h"
 #include "RimFractureModelCollection.h"
+#include "RimFractureModelPlot.h"
+#include "RimFractureModelPlotCollection.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
@@ -1578,6 +1580,7 @@ void RiaApplication::loadAndUpdatePlotData()
     RimAnalysisPlotCollection*           alsColl  = nullptr;
     RimCorrelationPlotCollection*        corrColl = nullptr;
     RimMultiPlotCollection*              gpwColl  = nullptr;
+    RimFractureModelPlotCollection*      frmColl  = nullptr;
 
     if ( m_project->mainPlotCollection() )
     {
@@ -1625,6 +1628,10 @@ void RiaApplication::loadAndUpdatePlotData()
         {
             gpwColl = m_project->mainPlotCollection()->multiPlotCollection();
         }
+        if ( m_project->mainPlotCollection()->fractureModelPlotCollection() )
+        {
+            frmColl = m_project->mainPlotCollection()->fractureModelPlotCollection();
+        }
     }
 
     size_t plotCount = 0;
@@ -1639,6 +1646,7 @@ void RiaApplication::loadAndUpdatePlotData()
     plotCount += alsColl ? alsColl->plots().size() : 0;
     plotCount += corrColl ? corrColl->plots().size() + corrColl->reports().size() : 0;
     plotCount += gpwColl ? gpwColl->multiPlots().size() : 0;
+    plotCount += frmColl ? frmColl->fractureModelPlots().size() : 0;
 
     if ( plotCount > 0 )
     {
@@ -1741,6 +1749,15 @@ void RiaApplication::loadAndUpdatePlotData()
             for ( const auto& multiPlot : gpwColl->multiPlots() )
             {
                 multiPlot->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
+        if ( frmColl )
+        {
+            for ( const auto& fractureModelPlot : frmColl->fractureModelPlots() )
+            {
+                fractureModelPlot->loadDataAndUpdate();
                 plotProgress.incrementProgress();
             }
         }
