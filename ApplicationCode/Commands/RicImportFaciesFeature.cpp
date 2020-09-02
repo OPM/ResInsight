@@ -55,7 +55,7 @@ bool RicImportFaciesFeature::isCommandEnabled()
 void RicImportFaciesFeature::onActionTriggered( bool isChecked )
 {
     RiaApplication* app        = RiaApplication::instance();
-    QString         defaultDir = app->lastUsedDialogDirectory( "ROFF_FILE" );
+    QString         defaultDir = app->lastUsedDialogDirectoryWithFallbackToProjectFolder( "STIMPLAN_DIR" );
 
     QString filterText = QString( "Roff ascii file (*.roff);;All Files (*.*)" );
 
@@ -65,7 +65,7 @@ void RicImportFaciesFeature::onActionTriggered( bool isChecked )
     if ( fileName.isEmpty() ) return;
 
     // Remember the path to next time
-    app->setLastUsedDialogDirectory( "ROFF_FILE", QFileInfo( fileName ).absolutePath() );
+    app->setLastUsedDialogDirectory( "STIMPLAN_DIR", QFileInfo( fileName ).absolutePath() );
 
     std::map<int, QString> codeNames;
     try
