@@ -82,3 +82,33 @@ TEST( RiaFilePathTools, rootSearchPathFromSearchFilter )
         EXPECT_EQ( QString( "//A/B[?]/E/" ), resultRootPath );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+TEST( RiaFilePathTools, removeDuplicatePathSeparators )
+{
+    {
+        QString testPath( "//myshare/folder-a/folder-b/" );
+        QString resultRootPath = RiaFilePathTools::removeDuplicatePathSeparators( testPath );
+        EXPECT_STRCASEEQ( testPath.toLatin1(), resultRootPath.toLatin1() );
+    }
+
+    {
+        QString testPath( "//myshare/folder-a//folder-b/" );
+        QString expectedPath( "//myshare/folder-a/folder-b/" );
+        QString resultRootPath = RiaFilePathTools::removeDuplicatePathSeparators( testPath );
+        EXPECT_STRCASEEQ( expectedPath.toLatin1(), resultRootPath.toLatin1() );
+    }
+
+    {
+        QString testPath( R"(\\myshare\folder-a\folder-b\)" );
+        QString resultRootPath = RiaFilePathTools::removeDuplicatePathSeparators( testPath );
+        EXPECT_STRCASEEQ( testPath.toLatin1(), resultRootPath.toLatin1() );
+    }
+
+    {
+        QString testPath( R"(\\myshare\folder-a\\folder-b\\)" );
+        QString expectedPath( R"(\\myshare\folder-a\folder-b\)" );
+        QString resultRootPath = RiaFilePathTools::removeDuplicatePathSeparators( testPath );
+        EXPECT_STRCASEEQ( expectedPath.toLatin1(), resultRootPath.toLatin1() );
+    }
+}
