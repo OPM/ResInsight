@@ -690,14 +690,17 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const HistogramData& histData,
             {
                 infoText += QString( "%1<br>" ).arg( diffResString );
             }
-            infoText += QString( "<br><b>Statistics:</b> Current Time Step and Visible Cells" );
-            infoText += QString( "<table border=0 cellspacing=5 >"
-                                 "<tr> <td>Min</td> <td>Mean</td> <td>Max</td> </tr>"
-                                 "<tr> <td>%1</td>  <td> %2</td> <td>  %3</td> </tr>"
-                                 "</table>" )
-                            .arg( histData.min )
-                            .arg( histData.mean )
-                            .arg( histData.max );
+            if ( histData.isValid() )
+            {
+                infoText += QString( "<br><b>Statistics:</b> Current Time Step and Visible Cells" );
+                infoText += QString( "<table border=0 cellspacing=5 >"
+                                     "<tr> <td>Min</td> <td>Mean</td> <td>Max</td> </tr>"
+                                     "<tr> <td>%1</td>  <td> %2</td> <td>  %3</td> </tr>"
+                                     "</table>" )
+                                .arg( histData.min )
+                                .arg( histData.mean )
+                                .arg( histData.max );
+            }
         }
     }
     else if ( eclipseView )
@@ -740,19 +743,22 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const HistogramData& histData,
                 infoText += QString( "<b>Dual Porosity Type:</b> %1<br>" ).arg( porosityModelText );
             }
 
-            infoText += QString( "<br><b>Statistics:</b> " ) + timeRangeText + " and " + m_statisticsCellRange().uiText();
-            infoText +=
-                QString( "<table border=0 cellspacing=5 >"
-                         "<tr> <td>Min</td> <td>P90</td> <td>Mean</td> <td>P10</td> <td>Max</td> <td>Sum</td> </tr>"
-                         "<tr> <td>%1</td>  <td> %2</td> <td>  %3</td> <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
-                         "</table>" )
-                    .arg( histData.min )
-                    .arg( histData.p10 )
-                    .arg( histData.mean )
-                    .arg( histData.p90 )
-                    .arg( histData.max )
-                    .arg( histData.sum );
-
+            if ( histData.isValid() )
+            {
+                infoText += QString( "<br><b>Statistics:</b> " ) + timeRangeText + " and " +
+                            m_statisticsCellRange().uiText();
+                infoText +=
+                    QString( "<table border=0 cellspacing=5 >"
+                             "<tr> <td>Min</td> <td>P90</td> <td>Mean</td> <td>P10</td> <td>Max</td> <td>Sum</td> </tr>"
+                             "<tr> <td>%1</td>  <td> %2</td> <td>  %3</td> <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
+                             "</table>" )
+                        .arg( histData.min )
+                        .arg( histData.p10 )
+                        .arg( histData.mean )
+                        .arg( histData.p90 )
+                        .arg( histData.max )
+                        .arg( histData.sum );
+            }
             if ( eclipseView->faultResultSettings()->hasValidCustomResult() )
             {
                 QString faultMapping;
@@ -886,15 +892,19 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const HistogramData& histData, R
                 {
                     infoText += QString( "%1<br>" ).arg( diffResString );
                 }
-                infoText += QString( "<br><b>Statistics:</b> " ) + m_statisticsTimeRange().uiText() + " and " +
-                            m_statisticsCellRange().uiText();
-                infoText += QString( "<table border=0 cellspacing=5 >"
-                                     "<tr> <td>Min</td> <td>Mean</td> <td>Max</td> </tr>"
-                                     "<tr> <td>%1</td>  <td> %2</td> <td> %3</td> </tr>"
-                                     "</table>" )
-                                .arg( histData.min )
-                                .arg( histData.mean )
-                                .arg( histData.max );
+
+                if ( histData.isValid() )
+                {
+                    infoText += QString( "<br><b>Statistics:</b> " ) + m_statisticsTimeRange().uiText() + " and " +
+                                m_statisticsCellRange().uiText();
+                    infoText += QString( "<table border=0 cellspacing=5 >"
+                                         "<tr> <td>Min</td> <td>Mean</td> <td>Max</td> </tr>"
+                                         "<tr> <td>%1</td>  <td> %2</td> <td> %3</td> </tr>"
+                                         "</table>" )
+                                    .arg( histData.min )
+                                    .arg( histData.mean )
+                                    .arg( histData.max );
+                }
             }
             else
             {
@@ -902,19 +912,24 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const HistogramData& histData, R
                 {
                     infoText += QString( "%1<br>" ).arg( diffResString );
                 }
-                infoText += QString( "<br><b>Statistics:</b> " ) + m_statisticsTimeRange().uiText() + " and " +
-                            m_statisticsCellRange().uiText();
-                infoText +=
-                    QString( "<table border=0 cellspacing=5 >"
-                             "<tr> <td>Min</td> <td>P90</td> <td>Mean</td> <td>P10</td> <td>Max</td> <td>Sum</td> </tr>"
-                             "<tr> <td>%1</td>  <td> %2</td> <td> %3</td>  <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
-                             "</table>" )
-                        .arg( histData.min )
-                        .arg( histData.p10 )
-                        .arg( histData.mean )
-                        .arg( histData.p90 )
-                        .arg( histData.max )
-                        .arg( histData.sum );
+
+                if ( histData.isValid() )
+                {
+                    infoText += QString( "<br><b>Statistics:</b> " ) + m_statisticsTimeRange().uiText() + " and " +
+                                m_statisticsCellRange().uiText();
+                    infoText +=
+                        QString(
+                            "<table border=0 cellspacing=5 >"
+                            "<tr> <td>Min</td> <td>P90</td> <td>Mean</td> <td>P10</td> <td>Max</td> <td>Sum</td> </tr>"
+                            "<tr> <td>%1</td>  <td> %2</td> <td> %3</td>  <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
+                            "</table>" )
+                            .arg( histData.min )
+                            .arg( histData.p10 )
+                            .arg( histData.mean )
+                            .arg( histData.p90 )
+                            .arg( histData.max )
+                            .arg( histData.sum );
+                }
             }
         }
         else
