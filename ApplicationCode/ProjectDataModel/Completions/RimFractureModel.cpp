@@ -258,6 +258,17 @@ void RimFractureModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         m_thicknessDirectionWellPath()->updateConnectedEditors();
     }
 
+    if ( changedField == &m_useDetailedFluidLoss )
+    {
+        m_relativePermeabilityFactorDefault.uiCapability()->setUiReadOnly( !m_useDetailedFluidLoss );
+        m_poroElasticConstantDefault.uiCapability()->setUiReadOnly( !m_useDetailedFluidLoss );
+        m_thermalExpansionCoeffientDefault.uiCapability()->setUiReadOnly( !m_useDetailedFluidLoss );
+
+        m_referenceTemperature.uiCapability()->setUiReadOnly( !m_useDetailedFluidLoss );
+        m_referenceTemperatureGradient.uiCapability()->setUiReadOnly( !m_useDetailedFluidLoss );
+        m_referenceTemperatureDepth.uiCapability()->setUiReadOnly( !m_useDetailedFluidLoss );
+    }
+
     {
         RimEclipseCase* eclipseCase = nullptr;
         this->firstAncestorOrThisOfType( eclipseCase );
