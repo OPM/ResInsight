@@ -23,6 +23,7 @@
 #include "RimElasticProperties.h"
 #include "RimFractureModel.h"
 
+#include "RifCsvUserDataParser.h"
 #include "RifElasticPropertiesReader.h"
 #include "RifFileParseTools.h"
 
@@ -37,6 +38,9 @@
 void RicElasticPropertiesImportTools::importElasticPropertiesFromFile( const QString&    filePath,
                                                                        RimFractureModel* fractureModel )
 {
+    RifCsvUserDataFileParser csvParser( filePath );
+    QString                  separator = csvParser.tryDetermineCellSeparator();
+
     typedef std::tuple<QString, QString, QString> FaciesKey;
 
     // Read the facies properties from file
@@ -45,7 +49,7 @@ void RicElasticPropertiesImportTools::importElasticPropertiesFromFile( const QSt
     {
         QStringList filePaths;
         filePaths << filePath;
-        RifElasticPropertiesReader::readElasticProperties( rifElasticProperties, filePaths );
+        RifElasticPropertiesReader::readElasticProperties( rifElasticProperties, filePaths, separator );
     }
     catch ( FileParseException& exception )
     {

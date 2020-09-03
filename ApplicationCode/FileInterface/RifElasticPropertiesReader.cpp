@@ -27,13 +27,14 @@
 ///
 //==================================================================================================
 void RifElasticPropertiesReader::readElasticProperties( std::vector<RifElasticProperties>& elasticProperties,
-                                                        const QStringList&                 filePaths )
+                                                        const QStringList&                 filePaths,
+                                                        const QString&                     separator )
 {
     for ( const QString& filePath : filePaths )
     {
         try
         {
-            readElasticProperties( elasticProperties, filePath );
+            readElasticProperties( elasticProperties, filePath, separator );
         }
         catch ( FileParseException& )
         {
@@ -48,7 +49,8 @@ void RifElasticPropertiesReader::readElasticProperties( std::vector<RifElasticPr
 ///
 //--------------------------------------------------------------------------------------------------
 void RifElasticPropertiesReader::readElasticProperties( std::vector<RifElasticProperties>& elasticProperties,
-                                                        const QString&                     filePath )
+                                                        const QString&                     filePath,
+                                                        const QString&                     separator )
 {
     QFile file( filePath );
     if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
@@ -63,7 +65,7 @@ void RifElasticPropertiesReader::readElasticProperties( std::vector<RifElasticPr
         QString line = in.readLine();
         if ( !isEmptyLine( line ) && !isCommentLine( line ) )
         {
-            RifElasticProperties faciesProp = parseElasticProperties( line, lineNumber, filePath );
+            RifElasticProperties faciesProp = parseElasticProperties( line, lineNumber, filePath, separator );
             elasticProperties.push_back( faciesProp );
         }
 
@@ -74,12 +76,16 @@ void RifElasticPropertiesReader::readElasticProperties( std::vector<RifElasticPr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifElasticProperties
-    RifElasticPropertiesReader::parseElasticProperties( const QString& line, int lineNumber, const QString& filePath )
+RifElasticProperties RifElasticPropertiesReader::parseElasticProperties( const QString& line,
+                                                                         int            lineNumber,
+                                                                         const QString& filePath,
+                                                                         const QString& separator )
 {
-    QStringList tokens = tokenize( line, "," );
+    QStringList tokens = tokenize( line, separator );
 
-    if ( tokens.size() != 13 )
+    // Plus one to allow trailing separator
+    const int expectedTokens = 13;
+    if ( !( tokens.size() == expectedTokens || tokens.size() == expectedTokens + 1 ) )
     {
         throw FileParseException( QString( "Incomplete data on line %1: %2" ).arg( lineNumber ).arg( filePath ) );
     }
