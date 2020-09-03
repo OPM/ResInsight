@@ -35,7 +35,7 @@ RimSummaryCrossPlotCollection::RimSummaryCrossPlotCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_summaryCrossPlots, "SummaryCrossPlots", "Summary Cross Plots", "", "", "" );
     m_summaryCrossPlots.uiCapability()->setUiHidden( true );
-    auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_summaryCrossPlots );
+    caf::PdmFieldReorderCapability::addToField( &m_summaryCrossPlots );
 }
 
 //--------------------------------------------------------------------------------------------------

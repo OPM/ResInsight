@@ -33,7 +33,7 @@ RimMultiPlotCollection::RimMultiPlotCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_multiPlots, "MultiPlots", "Plots Reports", "", "", "" );
     m_multiPlots.uiCapability()->setUiHidden( true );
-    auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_multiPlots );
+    caf::PdmFieldReorderCapability::addToField( &m_multiPlots );
 }
 
 //--------------------------------------------------------------------------------------------------

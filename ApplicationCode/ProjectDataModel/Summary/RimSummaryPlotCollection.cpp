@@ -40,7 +40,7 @@ RimSummaryPlotCollection::RimSummaryPlotCollection()
 
     CAF_PDM_InitFieldNoDefault( &summaryPlots, "SummaryPlots", "Summary Plots", "", "", "" );
     summaryPlots.uiCapability()->setUiHidden( true );
-    auto reorderability = caf::PdmFieldReorderCapability::addToField( &summaryPlots );
+    caf::PdmFieldReorderCapability::addToField( &summaryPlots );
 }
 
 //--------------------------------------------------------------------------------------------------
