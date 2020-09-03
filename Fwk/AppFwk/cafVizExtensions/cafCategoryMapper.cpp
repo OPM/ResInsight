@@ -49,6 +49,20 @@ void CategoryMapper::setCategoriesWithNames( const std::vector<int>&         cat
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void CategoryMapper::setCategoriesValueNameColor( const std::vector<int>&         categoryValues,
+                                                  const std::vector<cvf::String>& categoryNames,
+                                                  const cvf::Color3ubArray&       colorArray )
+{
+    m_categoryValues = categoryValues;
+    m_categoryNames  = categoryNames;
+    m_colors         = colorArray;
+
+    recomputeMaxTexCoord();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void CategoryMapper::setCycleColors( const Color3ubArray& colorArray )
 {
     m_colors.resize( m_categoryValues.size() );

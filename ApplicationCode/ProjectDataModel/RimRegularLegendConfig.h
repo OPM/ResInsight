@@ -109,9 +109,16 @@ public:
         SCIENTIFIC,
         FIXED
     };
-
     typedef caf::AppEnum<MappingType> MappingEnum;
-    void                              onRecreateLegend();
+
+    enum class CategoryColorModeType
+    {
+        INTERPOLATE,
+        COLOR_LEGEND_VALUES
+    };
+    typedef caf::AppEnum<CategoryColorModeType> CategoryColorModeEnum;
+
+    void onRecreateLegend();
 
     void            setColorLegend( RimColorLegend* colorLegend );
     RimColorLegend* colorLegend() const;
@@ -166,6 +173,7 @@ private:
     double roundToNumSignificantDigits( double value, double precision );
 
     void updateCategoryItems();
+    void configureCategoryMapper();
 
     friend class RimViewLinker;
 
@@ -198,16 +206,18 @@ private:
     cvf::Color3ubArray       m_categoryColors;
 
     // Fields
-    caf::PdmField<bool>                           m_showLegend;
-    caf::PdmField<int>                            m_numLevels;
-    caf::PdmField<int>                            m_precision;
-    caf::PdmField<caf::AppEnum<NumberFormatType>> m_tickNumberFormat;
-    caf::PdmField<RangeModeEnum>                  m_rangeMode;
-    caf::PdmField<double>                         m_userDefinedMaxValue;
-    caf::PdmField<double>                         m_userDefinedMinValue;
-    caf::PdmField<caf::AppEnum<ColorRangesType>>  m_colorRangeMode_OBSOLETE;
-    caf::PdmField<caf::AppEnum<MappingType>>      m_mappingMode;
-    caf::PdmPtrField<RimColorLegend*>             m_colorLegend;
+    caf::PdmField<bool>                                m_showLegend;
+    caf::PdmField<int>                                 m_numLevels;
+    caf::PdmField<int>                                 m_precision;
+    caf::PdmField<caf::AppEnum<NumberFormatType>>      m_tickNumberFormat;
+    caf::PdmField<RangeModeEnum>                       m_rangeMode;
+    caf::PdmField<double>                              m_userDefinedMaxValue;
+    caf::PdmField<double>                              m_userDefinedMinValue;
+    caf::PdmField<caf::AppEnum<ColorRangesType>>       m_colorRangeMode_OBSOLETE;
+    caf::PdmField<caf::AppEnum<MappingType>>           m_mappingMode;
+    caf::PdmField<caf::AppEnum<CategoryColorModeType>> m_categoryColorMode;
+
+    caf::PdmPtrField<RimColorLegend*> m_colorLegend;
 
     QString m_title;
     int     m_significantDigitsInData;

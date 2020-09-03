@@ -20,6 +20,10 @@ public:
     void setCategories( const std::vector<int>& categoryValues );
     void setCategoriesWithNames( const std::vector<int>& categoryValues, const std::vector<cvf::String>& categoryNames );
 
+    void setCategoriesValueNameColor( const std::vector<int>&         categoryValues,
+                                      const std::vector<cvf::String>& categoryNames,
+                                      const cvf::Color3ubArray&       colorArray );
+
     // Colors in color array are cycled, if category count is larger than color count, colors are reused
     void setCycleColors( const cvf::Color3ubArray& colorArray );
 
