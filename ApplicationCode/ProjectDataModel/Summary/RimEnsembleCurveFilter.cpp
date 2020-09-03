@@ -141,10 +141,13 @@ QList<caf::PdmOptionItemInfo>
         auto curveSet = parentCurveSet();
         if ( curveSet )
         {
-            auto ensParms = curveSet->variationSortedEnsembleParameters();
-            for ( auto& ensParm : ensParms )
+            auto params = curveSet->correlationSortedEnsembleParameters();
+            for ( const auto& paramCorrPair : params )
             {
-                options.push_back( caf::PdmOptionItemInfo( ensParm.uiName(), ensParm.name ) );
+                QString name = paramCorrPair.first.name;
+                double  corr = paramCorrPair.second;
+                options.push_back(
+                    caf::PdmOptionItemInfo( QString( "%1 (Avg. correlation: %2)" ).arg( name ).arg( corr ), name ) );
             }
         }
     }
@@ -358,10 +361,10 @@ void RimEnsembleCurveFilter::updateMaxMinAndDefaultValues( bool forceDefault )
 {
     if ( !selectedEnsembleParameter().isValid() )
     {
-        auto ensParams = parentCurveSet()->variationSortedEnsembleParameters();
+        auto ensParams = parentCurveSet()->correlationSortedEnsembleParameters();
         if ( !ensParams.empty() )
         {
-            m_ensembleParameterName = ensParams.front().name;
+            m_ensembleParameterName = ensParams.front().first.name;
             updateConnectedEditors();
         }
     }
