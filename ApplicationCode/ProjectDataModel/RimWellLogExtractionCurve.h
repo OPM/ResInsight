@@ -94,8 +94,12 @@ public:
     RiaDefines::PhaseType phaseType() const override;
 
 protected:
-    QString      createCurveAutoName() override;
-    void         onLoadDataAndUpdate( bool updateParentPlot ) override;
+    QString createCurveAutoName() override;
+    void    onLoadDataAndUpdate( bool updateParentPlot ) override;
+    void    onCaseSettingsChanged( const caf::SignalEmitter* emitter );
+    void    connectCaseSignals( RimCase* rimCase );
+    void    disconnectCaseSignals( RimCase* rimCase );
+
     virtual void performDataExtraction( bool* isUsingPseudoLength );
     void extractData( bool* isUsingPseudoLength, bool performDataSmoothing = false, double smoothingThreshold = -1.0 );
 

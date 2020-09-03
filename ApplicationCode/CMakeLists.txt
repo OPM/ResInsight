@@ -198,7 +198,6 @@ add_subdirectory(ResultStatisticsCache)
 add_subdirectory(Commands)
 
 set( RI_LIBRARIES
-    Commands
     ResultStatisticsCache
 )
 
@@ -335,6 +334,7 @@ set( EXE_FILES
     .clang-tidy
     Adm/RiaVersionInfo.h.cmake
     $<TARGET_OBJECTS:cafCommandFeatures> # Needed for cmake version < 3.12. Remove when we can use target_link_libraries with OBJECT libraries
+    $<TARGET_OBJECTS:Commands> # Needed for cmake version < 3.12. Remove when we can use target_link_libraries with OBJECT libraries
 )
 
 if (RESINSIGHT_ENABLE_GRPC)

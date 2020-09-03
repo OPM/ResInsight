@@ -117,38 +117,53 @@ public:
         this->setTickLength( QwtScaleDiv::MediumTick, 0 );
         this->setTickLength( QwtScaleDiv::MinorTick, 0 );
 
-        bool hasMinorTickText   = false;
-        bool hasMediumTickText  = false;
-        int  minTickMaxTextSize = 0;
-        int  medTickMaxTextSize = 0;
+        int minorTextLineCount  = 0;
+        int mediumTextLineCount = 0;
+        int minTickMaxTextSize  = 0;
+        int medTickMaxTextSize  = 0;
 
-        for ( const auto& posTickTypeText : m_posTickTypeAndTexts )
+        for ( auto& posTickTypeText : m_posTickTypeAndTexts )
         {
             if ( posTickTypeText.second.tickType == QwtScaleDiv::MediumTick )
             {
-                hasMediumTickText  = true;
-                medTickMaxTextSize = std::max( posTickTypeText.second.label.size(), medTickMaxTextSize );
+                int lineCount       = 1 + posTickTypeText.second.label.count( "\n" );
+                mediumTextLineCount = std::max( mediumTextLineCount, lineCount );
+                medTickMaxTextSize  = std::max( posTickTypeText.second.label.size(), medTickMaxTextSize );
             }
-            if ( posTickTypeText.second.tickType == QwtScaleDiv::MinorTick )
+            else if ( posTickTypeText.second.tickType == QwtScaleDiv::MinorTick )
             {
-                hasMinorTickText   = true;
+                int lineCount      = 1 + posTickTypeText.second.label.count( "\n" );
+                minorTextLineCount = std::max( minorTextLineCount, lineCount );
                 minTickMaxTextSize = std::max( posTickTypeText.second.label.size(), minTickMaxTextSize );
             }
         }
 
-        m_medLineBreak = hasMinorTickText ? "\n" : "";
-        m_majLineBreak = m_medLineBreak + ( hasMediumTickText ? QString( "\n" ) : QString( "" ) );
+        m_medLineBreak = "";
+        for ( int i = 0; i < minorTextLineCount; ++i )
+        {
+            m_medLineBreak += "\n";
+        }
+
+        m_majLineBreak = m_medLineBreak;
+        for ( int i = 0; i < mediumTextLineCount; ++i )
+        {
+            m_majLineBreak += "\n";
+        }
 
         m_medSpacing.fill( ' ', 2 * minTickMaxTextSize );
         m_majSpacing = m_medSpacing + QString().fill( ' ', 2 * medTickMaxTextSize );
     }
 
-    QwtText createLabelFromString( const QString& string ) const
+    QwtText createLabelFromString( const QString& string, int fontSizeChange = 0 ) const
     {
         QwtText text( string );
-        QFont   font = text.font();
-        font.setPixelSize( caf::FontTools::pointSizeToPixelSize( m_labelFontPointSize ) );
+
+        QFont font = text.font();
+        font.setPixelSize( caf::FontTools::pointSizeToPixelSize( m_labelFontPointSize + fontSizeChange ) );
         text.setFont( font );
+
+        text.setPaintAttribute( QwtText::PaintUsingTextFont, true );
+
         return text;
     }
     /// Override to add new lines to the labels according to the tick level
@@ -162,31 +177,31 @@ public:
             {
                 if ( posTickIt->second.tickType == QwtScaleDiv::MediumTick )
                 {
-                    return createLabelFromString( m_medLineBreak + posTickIt->second.label );
+                    return createLabelFromString( m_medLineBreak + posTickIt->second.label, -1 );
                 }
                 else if ( posTickIt->second.tickType == QwtScaleDiv::MajorTick )
                 {
-                    return createLabelFromString( m_majLineBreak + posTickIt->second.label );
+                    return createLabelFromString( m_majLineBreak + posTickIt->second.label, 0 );
                 }
                 else
                 {
-                    return createLabelFromString( posTickIt->second.label );
+                    return createLabelFromString( posTickIt->second.label, -2 );
                 }
             }
             else if ( this->alignment() == LeftScale )
             {
                 if ( posTickIt->second.tickType == QwtScaleDiv::MediumTick )
                 {
-                    return createLabelFromString( posTickIt->second.label + m_medSpacing );
+                    return createLabelFromString( posTickIt->second.label + m_medSpacing, -1 );
                 }
                 else if ( posTickIt->second.tickType == QwtScaleDiv::MajorTick )
                 {
-                    return createLabelFromString( posTickIt->second.label + m_majSpacing );
+                    return createLabelFromString( posTickIt->second.label + m_majSpacing, 0 );
                 }
 
                 else
                 {
-                    return createLabelFromString( posTickIt->second.label );
+                    return createLabelFromString( posTickIt->second.label, -2 );
                 }
             }
             else
@@ -298,7 +313,7 @@ RiuGroupedBarChartBuilder::RiuGroupedBarChartBuilder( bool sortGroupsByMaxValueI
     : m_isSortingByMaxValueInGroups( sortGroupsByMaxValueInGroup )
 {
     m_labelPointSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(),
-                                                          caf::FontTools::RelativeSize::Small );
+                                                          caf::FontTools::RelativeSize::Medium );
 }
 
 //--------------------------------------------------------------------------------------------------

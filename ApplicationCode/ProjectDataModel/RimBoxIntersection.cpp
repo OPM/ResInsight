@@ -289,7 +289,7 @@ void RimBoxIntersection::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
         }
         else
         {
-            m_minXCoord = CVF_MIN( m_maxXCoord, m_minXCoord );
+            m_minXCoord = std::min( m_maxXCoord, m_minXCoord );
         }
     }
     else if ( changedField == &m_minYCoord )
@@ -300,7 +300,7 @@ void RimBoxIntersection::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
         }
         else
         {
-            m_minYCoord = CVF_MIN( m_maxYCoord, m_minYCoord );
+            m_minYCoord = std::min( m_maxYCoord, m_minYCoord );
         }
     }
     else if ( changedField == &m_minDepth )
@@ -311,20 +311,20 @@ void RimBoxIntersection::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
         }
         else
         {
-            m_minDepth = CVF_MIN( m_maxDepth, m_minDepth );
+            m_minDepth = std::min( m_maxDepth, m_minDepth );
         }
     }
     else if ( changedField == &m_maxXCoord )
     {
-        m_maxXCoord = CVF_MAX( m_maxXCoord, m_minXCoord );
+        m_maxXCoord = std::max( m_maxXCoord, m_minXCoord );
     }
     else if ( changedField == &m_maxYCoord )
     {
-        m_maxYCoord = CVF_MAX( m_maxYCoord, m_minYCoord );
+        m_maxYCoord = std::max( m_maxYCoord, m_minYCoord );
     }
     else if ( changedField == &m_maxDepth )
     {
-        m_maxDepth = CVF_MAX( m_maxDepth, m_minDepth );
+        m_maxDepth = std::max( m_maxDepth, m_minDepth );
     }
     else if ( changedField == &m_show3DManipulator )
     {

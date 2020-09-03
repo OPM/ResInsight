@@ -24,6 +24,7 @@
 #include "RiaDefines.h"
 #include "RiaFontCache.h"
 #include "RiaGuiApplication.h"
+#include "RiaQDateTimeTools.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
@@ -49,6 +50,9 @@ class RiaPreferences : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    using DateFormatComponents = RiaQDateTimeTools::DateFormatComponents;
+    using TimeFormatComponents = RiaQDateTimeTools::TimeFormatComponents;
+
     enum class SummaryRestartFilesImportMode
     {
         IMPORT,
@@ -95,7 +99,8 @@ public:
 
     const QString& dateFormat() const;
     const QString& timeFormat() const;
-    QString        dateTimeFormat() const;
+    QString dateTimeFormat( DateFormatComponents dateComponents = DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY,
+                            TimeFormatComponents timeComponents = TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND ) const;
 
     bool        searchPlotTemplateFoldersRecursively() const;
     QStringList plotTemplateFolders() const;

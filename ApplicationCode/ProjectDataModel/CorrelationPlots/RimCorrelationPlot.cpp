@@ -265,7 +265,7 @@ void RimCorrelationPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chart
     std::vector<std::pair<EnsembleParameter, double>> correlations =
         ensemble->parameterCorrelations( address,
                                          selectedTimestep,
-                                         m_correlationFactor == CorrelationFactor::PEARSON,
+                                         m_correlationFactor == CorrelationFactor::SPEARMAN,
                                          m_selectedParametersList() );
 
     QString timestepString = m_timeStep().toString( RiaPreferences::current()->dateTimeFormat() );

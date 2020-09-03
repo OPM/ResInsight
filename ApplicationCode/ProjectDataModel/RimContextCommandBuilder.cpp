@@ -398,7 +398,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewPerforationIntervalFeature";
             menuBuilder << "RicNewFishbonesSubsFeature";
             menuBuilder << "RicNewWellPathFractureFeature";
-            menuBuilder << "RicNewFractureModelFeature";
+            if ( RiaApplication::enableDevelopmentFeatures() )
+            {
+                menuBuilder << "RicNewFractureModelFeature";
+            }
             menuBuilder.subMenuEnd();
             menuBuilder << "RicCreateTemporaryLgrFeature";
             menuBuilder.addSeparator();
@@ -433,18 +436,27 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimFractureModel*>( firstUiItem ) )
         {
-            menuBuilder << "RicNewFractureModelFeature";
-            menuBuilder << "RicNewFractureModelPlotFeature";
-            menuBuilder << "RicImportFaciesFeature";
-            menuBuilder << "RicImportElasticPropertiesFeature";
+            if ( RiaApplication::enableDevelopmentFeatures() )
+            {
+                menuBuilder << "RicNewFractureModelFeature";
+                menuBuilder << "RicNewFractureModelPlotFeature";
+                menuBuilder << "RicImportFaciesFeature";
+                menuBuilder << "RicImportElasticPropertiesFeature";
+            }
         }
         else if ( dynamic_cast<RimFractureModelCollection*>( firstUiItem ) )
         {
-            menuBuilder << "RicNewFractureModelFeature";
+            if ( RiaApplication::enableDevelopmentFeatures() )
+            {
+                menuBuilder << "RicNewFractureModelFeature";
+            }
         }
         else if ( dynamic_cast<RimFractureModelPlot*>( firstUiItem ) )
         {
-            menuBuilder << "RicExportFractureModelPlotToFileFeature";
+            if ( RiaApplication::enableDevelopmentFeatures() )
+            {
+                menuBuilder << "RicExportFractureModelPlotToFileFeature";
+            }
         }
         else if ( dynamic_cast<Rim3dWellLogCurveCollection*>( firstUiItem ) ||
                   dynamic_cast<Rim3dWellLogExtractionCurve*>( firstUiItem ) ||
@@ -1287,7 +1299,10 @@ int RimContextCommandBuilder::appendCreateCompletions( caf::CmdFeatureMenuBuilde
     candidates << "RicNewValveFeature";
     candidates << "RicNewFishbonesSubsFeature";
     candidates << "RicNewWellPathFractureFeature";
-    candidates << "RicNewFractureModelFeature";
+    if ( RiaApplication::enableDevelopmentFeatures() )
+    {
+        candidates << "RicNewFractureModelFeature";
+    }
     candidates << "Separator";
     candidates << "RicCreateMultipleFracturesFeature";
     candidates << "RicNewWellPathAttributeFeature";

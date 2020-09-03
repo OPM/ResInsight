@@ -51,7 +51,7 @@ void RicImportElasticPropertiesFeature::onActionTriggered( bool isChecked )
 
     // Open dialog box to select files
     RiaApplication* app        = RiaApplication::instance();
-    QString         defaultDir = app->lastUsedDialogDirectory( "FACIES_DIR" );
+    QString         defaultDir = app->lastUsedDialogDirectoryWithFallbackToProjectFolder( "STIMPLAN_DIR" );
     QString         filePath   = QFileDialog::getOpenFileName( Riu3DMainWindowTools::mainWindowWidget(),
                                                      "Import Elastic Properties",
                                                      defaultDir,
@@ -60,7 +60,7 @@ void RicImportElasticPropertiesFeature::onActionTriggered( bool isChecked )
     if ( filePath.isNull() ) return;
 
     // Remember the path to next time
-    app->setLastUsedDialogDirectory( "FACIES_DIR", QFileInfo( filePath ).absolutePath() );
+    app->setLastUsedDialogDirectory( "STIMPLAN_DIR", QFileInfo( filePath ).absolutePath() );
 
     RicElasticPropertiesImportTools::importElasticPropertiesFromFile( filePath, fractureModel );
 }

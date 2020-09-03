@@ -409,7 +409,7 @@ void RigReservoirBuilderMock::addWellData( RigEclipseCaseData* eclipseCase, RigG
             wellCells.m_wellHead.m_gridCellIndex = grid->cellIndexFromIJK( 1, 0, 0 );
 
             // Connections
-            //            int connectionCount = CVF_MIN(dim.x(), CVF_MIN(dim.y(), dim.z())) - 2;
+            //            int connectionCount = std::min(dim.x(), std::min(dim.y(), dim.z())) - 2;
             size_t connectionCount = dim.z() - 2;
             if ( connectionCount > 0 )
             {
