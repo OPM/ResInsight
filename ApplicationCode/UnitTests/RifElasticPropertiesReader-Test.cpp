@@ -78,6 +78,29 @@ TEST( RifElasticPropertiesReaderTest, ReadCorrectInputFile )
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifElasticPropertiesReaderTest, ReadCorrectInputFileWithTrailingSeparator )
+{
+    QTemporaryFile file;
+    EXPECT_TRUE( file.open() );
+
+    {
+        QTextStream out( &file );
+        out << "Norne,Not,Sand,0.00,25,0.25,2000,0.2,0.3,0.4,0.5,0.6,0.4,\n"
+            << "Norne,Not,Sand,0.10,19,0.27,2099,0.3,0.4,0.5,0.2,0.5,0.55,\n";
+    }
+
+    QStringList filePaths;
+    filePaths.append( file.fileName() );
+
+    std::vector<RifElasticProperties> elasticProperties;
+    RifElasticPropertiesReader::readElasticProperties( elasticProperties, filePaths );
+
+    ASSERT_EQ( 2u, elasticProperties.size() );
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Helper to check exception messages when reading invalid files
 //--------------------------------------------------------------------------------------------------
 ::testing::AssertionResult readingElasticPropertiesThrowsException( const QStringList& filePaths,
