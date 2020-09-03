@@ -92,7 +92,7 @@ RimAnalysisPlot::RimAnalysisPlot()
 
     // Variable selection
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedVarsUiField, "selectedVarsUiField", "Selected Variables", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedVarsUiField, "selectedVarsUiField", "Selected Vectors", "", "", "" );
     m_selectedVarsUiField.xmlCapability()->disableIO();
     m_selectedVarsUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_selectedVarsUiField.uiCapability()->setUiReadOnly( true );
@@ -485,6 +485,7 @@ void RimAnalysisPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     caf::PdmUiGroup* selVectorsGrp = uiOrdering.addNewGroup( "Selected Vectors" );
     selVectorsGrp->add( &m_selectedVarsUiField );
     selVectorsGrp->add( &m_selectVariablesButtonField, {false} );
+    selVectorsGrp->add( &m_referenceCase, {true, 3, 2} );
 
     QString vectorNames;
     if ( getOrCreateSelectedCurveDefAnalyser() )
@@ -513,29 +514,26 @@ void RimAnalysisPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     timeStepGrp->add( &m_timeStepFilter );
     timeStepGrp->add( &m_selectedTimeSteps );
 
-    uiOrdering.add( &m_referenceCase, {true, 3, 2} );
-
-    uiOrdering.add( &m_showPlotTitle );
-    uiOrdering.add( &m_useAutoPlotTitle, {false} );
-    uiOrdering.add( &m_description, {false} );
+    caf::PdmUiGroup* titleGrp = uiOrdering.addNewGroup( "Title and Legend" );
+    titleGrp->add( &m_showPlotTitle );
+    titleGrp->add( &m_useAutoPlotTitle, {false} );
+    titleGrp->add( &m_description, {false} );
     m_description.uiCapability()->setUiReadOnly( m_useAutoPlotTitle() );
-
-    uiOrdering.add( &m_barOrientation, {true, 3, 2} );
-
-    caf::PdmUiGroup* sortGrp = uiOrdering.addNewGroup( "Sorting, Grouping and Coloring" );
-    sortGrp->add( &m_majorGroupType );
-    sortGrp->add( &m_mediumGroupType );
-    sortGrp->add( &m_minorGroupType );
-    sortGrp->add( &m_valueSortOperation );
-    sortGrp->add( &m_useTopBarsFilter );
-    sortGrp->add( &m_maxBarCount, {false} );
-    m_maxBarCount.uiCapability()->setUiReadOnly( !m_useTopBarsFilter() );
-    sortGrp->add( &m_sortGroupForColors );
-
-    caf::PdmUiGroup* legendGrp = uiOrdering.addNewGroup( "Legend" );
-    legendGrp->add( &m_showPlotLegends );
-    legendGrp->add( &m_legendFontSize );
+    titleGrp->add( &m_showPlotLegends );
+    titleGrp->add( &m_legendFontSize );
     m_legendFontSize.uiCapability()->setUiReadOnly( !m_showPlotLegends() );
+
+    caf::PdmUiGroup* chartSettings = uiOrdering.addNewGroup( "Bar Settings" );
+    chartSettings->add( &m_barOrientation, {true, 3, 2} );
+
+    chartSettings->add( &m_majorGroupType );
+    chartSettings->add( &m_mediumGroupType );
+    chartSettings->add( &m_minorGroupType );
+    chartSettings->add( &m_valueSortOperation );
+    chartSettings->add( &m_useTopBarsFilter );
+    chartSettings->add( &m_maxBarCount, {false} );
+    m_maxBarCount.uiCapability()->setUiReadOnly( !m_useTopBarsFilter() );
+    chartSettings->add( &m_sortGroupForColors );
 
     caf::PdmUiGroup* barLabelGrp = uiOrdering.addNewGroup( "Bar Labels" );
     barLabelGrp->add( &m_useBarText );
@@ -950,11 +948,11 @@ void RimAnalysisPlot::cleanupBeforeClose()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString assignGroupingText( RimAnalysisPlot::SortGroupType  sortGroup,
-                            const RiaSummaryCurveDefinition dataEntry,
-                            const QString&                  timestepString )
+QString RimAnalysisPlot::assignGroupingText( RimAnalysisPlot::SortGroupType  sortGroup,
+                                             const RiaSummaryCurveDefinition dataEntry,
+                                             const QString&                  timestepString ) const
 {
-    QString groupingText;
+    QString groupingText = "";
 
     switch ( sortGroup )
     {
@@ -1096,61 +1094,65 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
     std::map<RimSummaryCase*, double>          casesToKeepWithValue;
     std::map<RifEclipseSummaryAddress, double> sumItemsToKeepWithValue;
 
-    if ( filter->filterTarget() == RimPlotDataFilterItem::ENSEMBLE_CASE && !filter->ensembleParameterName().isEmpty() )
+    if ( filter->filterTarget() == RimPlotDataFilterItem::ENSEMBLE_CASE )
     {
-        sumItemsToKeep = ( *filteredSummaryItems ); // Not filtering items
-
-        EnsembleParameter eParam = this->ensembleParameter( filter->ensembleParameterName() );
-
-        std::set<RimSummaryCase*> casesToRemove;
-        for ( auto sumCase : ( *filteredSumCases ) )
+        if ( !filter->ensembleParameterName().isEmpty() )
         {
-            if ( !eParam.isValid() ) continue;
-            if ( !sumCase->caseRealizationParameters() ) continue;
+            sumItemsToKeep = ( *filteredSummaryItems ); // Not filtering items
 
-            RigCaseRealizationParameters::Value crpValue =
-                sumCase->caseRealizationParameters()->parameterValue( filter->ensembleParameterName() );
+            EnsembleParameter eParam = this->ensembleParameter( filter->ensembleParameterName() );
 
-            if ( eParam.isNumeric() && crpValue.isNumeric() )
+            std::set<RimSummaryCase*> casesToRemove;
+            for ( auto sumCase : ( *filteredSumCases ) )
             {
-                double value = crpValue.numericValue();
+                if ( !eParam.isValid() ) continue;
+                if ( !sumCase->caseRealizationParameters() ) continue;
 
-                if ( filter->filterOperation() == RimPlotDataFilterItem::RANGE )
+                RigCaseRealizationParameters::Value crpValue =
+                    sumCase->caseRealizationParameters()->parameterValue( filter->ensembleParameterName() );
+
+                if ( eParam.isNumeric() && crpValue.isNumeric() )
                 {
-                    std::pair<double, double> minMax = filter->filterRangeMinMax();
+                    double value = crpValue.numericValue();
 
-                    if ( filter->useAbsoluteValues() ) value = fabs( value );
-
-                    if ( minMax.first <= value && value <= minMax.second )
+                    if ( filter->filterOperation() == RimPlotDataFilterItem::RANGE )
                     {
-                        casesToKeep.insert( sumCase );
-                    }
-                }
-                else if ( filter->filterOperation() == RimPlotDataFilterItem::TOP_N ||
-                          filter->filterOperation() == RimPlotDataFilterItem::BOTTOM_N )
-                {
-                    if ( filter->useAbsoluteValues() ) value = fabs( value );
-                    bool useLargest = filter->filterOperation() == RimPlotDataFilterItem::TOP_N;
+                        std::pair<double, double> minMax = filter->filterRangeMinMax();
 
-                    auto itIsInsertedPair = casesToKeepWithValue.insert( {sumCase, value} );
-                    if ( !itIsInsertedPair.second ) // Already exists in map
-                    {
-                        double& insertedValue = itIsInsertedPair.first->second;
-                        if ( ( useLargest && ( insertedValue < value ) ) || ( !useLargest && ( value < insertedValue ) ) )
+                        if ( filter->useAbsoluteValues() ) value = fabs( value );
+
+                        if ( minMax.first <= value && value <= minMax.second )
                         {
-                            insertedValue = value;
+                            casesToKeep.insert( sumCase );
+                        }
+                    }
+                    else if ( filter->filterOperation() == RimPlotDataFilterItem::TOP_N ||
+                              filter->filterOperation() == RimPlotDataFilterItem::BOTTOM_N )
+                    {
+                        if ( filter->useAbsoluteValues() ) value = fabs( value );
+                        bool useLargest = filter->filterOperation() == RimPlotDataFilterItem::TOP_N;
+
+                        auto itIsInsertedPair = casesToKeepWithValue.insert( {sumCase, value} );
+                        if ( !itIsInsertedPair.second ) // Already exists in map
+                        {
+                            double& insertedValue = itIsInsertedPair.first->second;
+                            if ( ( useLargest && ( insertedValue < value ) ) ||
+                                 ( !useLargest && ( value < insertedValue ) ) )
+                            {
+                                insertedValue = value;
+                            }
                         }
                     }
                 }
-            }
-            else if ( eParam.isText() && crpValue.isText() )
-            {
-                const auto& filterCategories = filter->selectedEnsembleParameterCategories();
-
-                if ( crpValue.isText() &&
-                     std::count( filterCategories.begin(), filterCategories.end(), crpValue.textValue() ) == 0 )
+                else if ( eParam.isText() && crpValue.isText() )
                 {
-                    casesToKeep.insert( sumCase );
+                    const auto& filterCategories = filter->selectedEnsembleParameterCategories();
+
+                    if ( crpValue.isText() &&
+                         std::count( filterCategories.begin(), filterCategories.end(), crpValue.textValue() ) == 0 )
+                    {
+                        casesToKeep.insert( sumCase );
+                    }
                 }
             }
         }
@@ -1509,7 +1511,7 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
             double sortValue = std::numeric_limits<double>::infinity();
 
             QDateTime dateTime     = RiaQDateTimeTools::fromTime_t( timesteps[timestepIdx] );
-            QString   formatString = RiaQDateTimeTools::createTimeFormatStringFromDates( {dateTime} );
+            QString   formatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat() );
 
             QString timestepString = dateTime.toString( formatString );
 
@@ -1531,34 +1533,36 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
             }
 
             QString barText;
-            QString separator = " ";
+            QString separator = ", ";
 
             if ( m_useBarText() )
             {
+                QStringList barTextComponents;
                 if ( m_useQuantityInBarText )
                 {
-                    barText += QString::fromStdString( curveDef.summaryAddress().quantityName() ) + separator;
+                    barTextComponents += QString::fromStdString( curveDef.summaryAddress().quantityName() );
                 }
 
                 if ( m_useSummaryItemInBarText )
                 {
-                    barText += QString::fromStdString( curveDef.summaryAddress().itemUiText() ) + separator;
+                    barTextComponents += QString::fromStdString( curveDef.summaryAddress().itemUiText() );
                 }
 
                 if ( m_useCaseInBarText && curveDef.summaryCase() )
                 {
-                    barText += curveDef.summaryCase()->displayCaseName() + separator;
+                    barTextComponents += curveDef.summaryCase()->displayCaseName();
                 }
 
                 if ( m_useEnsembleInBarText && curveDef.ensemble() )
                 {
-                    barText += curveDef.ensemble()->name() + separator;
+                    barTextComponents += curveDef.ensemble()->name();
                 }
 
                 if ( m_useTimeStepInBarText )
                 {
-                    barText += timestepString + separator;
+                    barTextComponents += timestepString;
                 }
+                barText = barTextComponents.join( separator );
             }
 
             chartBuilder.addBarEntry( majorText, medText, minText, sortValue, legendText, barText, value );
@@ -1616,7 +1620,9 @@ void RimAnalysisPlot::updatePlotTitle()
         {
             if ( !autoTitle.isEmpty() ) autoTitle += " @ ";
 
-            QString formatString = RiaQDateTimeTools::createTimeFormatStringFromDates( {m_selectedTimeSteps()[0]} );
+            QString formatString =
+                RiaPreferences::current()->dateTimeFormat( RiaQDateTimeTools::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY,
+                                                           RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_NONE );
             autoTitle += m_selectedTimeSteps()[0].toString( formatString );
         }
 
