@@ -172,7 +172,7 @@ RimFractureModel::RimFractureModel()
                                  "",
                                  "" );
 
-    CAF_PDM_InitScriptableField( &m_referenceTemperature, "ReferenceTemperature", 20.0, "Temperature [C]", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_referenceTemperature, "ReferenceTemperature", 70.0, "Temperature [C]", "", "", "" );
     CAF_PDM_InitScriptableField( &m_referenceTemperatureGradient,
                                  "ReferenceTemperatureGradient",
                                  0.025,
@@ -182,7 +182,7 @@ RimFractureModel::RimFractureModel()
                                  "" );
     CAF_PDM_InitScriptableField( &m_referenceTemperatureDepth,
                                  "ReferenceTemperatureDepth",
-                                 1000.0,
+                                 2500.0,
                                  "Temperature Depth [m]",
                                  "",
                                  "",
