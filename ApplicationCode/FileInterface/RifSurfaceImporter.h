@@ -22,7 +22,7 @@
 
 #include <utility>
 #include <vector>
-#include <cstdint>
+#include <limits>
 
 #include <QString>
 
@@ -41,5 +41,6 @@ private:
                                                const size_t&                             j,
                                                std::vector<unsigned>&                    triangleIndices );
     static bool       vectorFuzzyCompare( const cvf::Vec2d& vector1,
-                                          const cvf::Vec2d& vector2, double epsilon = DBL_EPSILON );
+                                          const cvf::Vec2d& vector2,
+                                          double            epsilon = std::numeric_limits<double>::epsilon() );
 };
