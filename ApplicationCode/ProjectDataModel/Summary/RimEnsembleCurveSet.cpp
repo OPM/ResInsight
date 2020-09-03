@@ -1134,8 +1134,9 @@ std::vector<std::pair<EnsembleParameter, double>> RimEnsembleCurveSet::correlati
         auto parameters = ensemble->parameterCorrelationsAllTimeSteps( summaryAddress() );
         std::sort( parameters.begin(),
                    parameters.end(),
-                   []( const std::pair<EnsembleParameter, double>& lhs,
-                       const std::pair<EnsembleParameter, double>& rhs ) { return lhs.second > rhs.second; } );
+                   []( const std::pair<EnsembleParameter, double>& lhs, const std::pair<EnsembleParameter, double>& rhs ) {
+                       return std::abs( lhs.second ) > std::abs( rhs.second );
+                   } );
         return parameters;
     }
     else
