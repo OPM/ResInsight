@@ -22,6 +22,7 @@
 
 #include <utility>
 #include <vector>
+#include <cstdint>
 
 #include <QString>
 
@@ -39,9 +40,6 @@ private:
                                                const size_t&                             i,
                                                const size_t&                             j,
                                                std::vector<unsigned>&                    triangleIndices );
-    static bool       vectorFuzzyCompare( const cvf::Vec3d& vector1,
-                                          const cvf::Vec3d& vector2,
-                                          double            epsilon = DBL_EPSILON,
-                                          double            maxDiff = 0.0 );
-    static cvf::Vec3d absVector( const cvf::Vec3d& vector );
+    static bool       vectorFuzzyCompare( const cvf::Vec2d& vector1,
+                                          const cvf::Vec2d& vector2, double epsilon = DBL_EPSILON );
 };
