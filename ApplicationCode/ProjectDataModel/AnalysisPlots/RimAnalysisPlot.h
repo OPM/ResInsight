@@ -153,6 +153,10 @@ private:
     void addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBuilder );
     void updatePlotTitle();
 
+    QString assignGroupingText( RimAnalysisPlot::SortGroupType  sortGroup,
+                                const RiaSummaryCurveDefinition dataEntry,
+                                const QString&                  timestepString ) const;
+
     RiaSummaryCurveDefinitionAnalyser*     getOrCreateSelectedCurveDefAnalyser();
     std::vector<RiaSummaryCurveDefinition> curveDefinitionsWithoutEnsembleReference() const;
     std::vector<RiaSummaryCurveDefinition> curveDefinitionsWithEmbeddedEnsembleReference();

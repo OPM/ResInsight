@@ -22,7 +22,6 @@
 #include "RiaPreferences.h"
 
 #include "RiaColorTables.h"
-#include "RiaQDateTimeTools.h"
 #include "RifReaderSettings.h"
 
 #include "cafPdmFieldCvfColor.h"
@@ -863,9 +862,11 @@ const QString& RiaPreferences::timeFormat() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaPreferences::dateTimeFormat() const
+QString RiaPreferences::dateTimeFormat( DateFormatComponents dateComponents, TimeFormatComponents timeComponents ) const
 {
-    return QString( "%1 %2" ).arg( m_dateFormat() ).arg( m_timeFormat() );
+    return QString( "%1 %2" )
+        .arg( RiaQDateTimeTools::dateFormatString( m_dateFormat(), dateComponents ) )
+        .arg( RiaQDateTimeTools::timeFormatString( m_timeFormat(), timeComponents ) );
 }
 
 //--------------------------------------------------------------------------------------------------
