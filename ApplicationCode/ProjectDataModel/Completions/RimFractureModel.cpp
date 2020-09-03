@@ -500,6 +500,52 @@ void RimFractureModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 {
     m_thicknessDirectionWellPath.uiCapability()->setUiHidden( true );
     m_elasticProperties.uiCapability()->setUiHidden( false );
+
+    uiOrdering.add( nameField() );
+    uiOrdering.add( &m_MD );
+    uiOrdering.add( &m_extractionType );
+    uiOrdering.add( &m_anchorPosition );
+    uiOrdering.add( &m_thicknessDirection );
+
+    caf::PdmUiOrdering* boundingBoxGroup = uiOrdering.addNewGroup( "Bounding Box" );
+    boundingBoxGroup->add( &m_boundingBoxHorizontal );
+    boundingBoxGroup->add( &m_boundingBoxVertical );
+
+    caf::PdmUiOrdering* defaultsGroup = uiOrdering.addNewGroup( "Defaults" );
+    defaultsGroup->add( &m_defaultPorosity );
+    defaultsGroup->add( &m_defaultPermeability );
+
+    caf::PdmUiOrdering* referenceStressGroup = uiOrdering.addNewGroup( "Reference Stress" );
+    referenceStressGroup->add( &m_verticalStress );
+    referenceStressGroup->add( &m_verticalStressGradient );
+    referenceStressGroup->add( &m_stressDepth );
+
+    caf::PdmUiOrdering* overburdenGroup = uiOrdering.addNewGroup( "Overburden" );
+    overburdenGroup->add( &m_overburdenHeight );
+    overburdenGroup->add( &m_overburdenFormation );
+    overburdenGroup->add( &m_overburdenFacies );
+    overburdenGroup->add( &m_overburdenPorosity );
+    overburdenGroup->add( &m_overburdenPermeability );
+    overburdenGroup->add( &m_overburdenFluidDensity );
+
+    caf::PdmUiOrdering* underburdenGroup = uiOrdering.addNewGroup( "Underburden" );
+    underburdenGroup->add( &m_underburdenHeight );
+    underburdenGroup->add( &m_underburdenFormation );
+    underburdenGroup->add( &m_underburdenFacies );
+    underburdenGroup->add( &m_underburdenPorosity );
+    underburdenGroup->add( &m_underburdenPermeability );
+    underburdenGroup->add( &m_underburdenFluidDensity );
+
+    caf::PdmUiOrdering* detailedFluidLossGroup = uiOrdering.addNewGroup( "Detailed Fluid Loss" );
+    detailedFluidLossGroup->add( &m_useDetailedFluidLoss );
+    detailedFluidLossGroup->add( &m_relativePermeabilityFactorDefault );
+    detailedFluidLossGroup->add( &m_poroElasticConstantDefault );
+    detailedFluidLossGroup->add( &m_thermalExpansionCoeffientDefault );
+
+    caf::PdmUiOrdering* temperatureGroup = detailedFluidLossGroup->addNewGroup( "Temperature" );
+    temperatureGroup->add( &m_referenceTemperature );
+    temperatureGroup->add( &m_referenceTemperatureGradient );
+    temperatureGroup->add( &m_referenceTemperatureDepth );
 }
 
 //--------------------------------------------------------------------------------------------------
