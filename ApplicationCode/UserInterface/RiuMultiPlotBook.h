@@ -19,7 +19,6 @@
 
 #include "RiuInterfaceToViewWindow.h"
 #include "RiuMultiPlotPage.h"
-#include "cafUiStyleSheet.h"
 
 #include "cafPdmPointer.h"
 #include "cafSelectionChangedReceiver.h"

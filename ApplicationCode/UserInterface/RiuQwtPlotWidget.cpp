@@ -547,31 +547,6 @@ void RiuQwtPlotWidget::scheduleReplot()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::stashWidgetStates()
-{
-    m_plotStyleSheet.stashWidgetStates();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::restoreWidgetStates()
-{
-    m_plotStyleSheet.restoreWidgetStates();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::setWidgetState( const QString& widgetState )
-{
-    caf::UiStyleSheet::clearWidgetStates( this );
-    m_plotStyleSheet.setWidgetState( this, widgetState );
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Adds an overlay frame. The overlay frame becomes the responsibility of the plot widget
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::addOverlayFrame( RiuDraggableOverlayFrame* overlayFrame )
@@ -685,12 +660,6 @@ void RiuQwtPlotWidget::hideEvent( QHideEvent* event )
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::showEvent( QShowEvent* event )
 {
-    m_plotStyleSheet = createPlotStyleSheet();
-    m_plotStyleSheet.applyToWidget( this );
-
-    m_canvasStyleSheet = createCanvasStyleSheet();
-    m_canvasStyleSheet.applyToWidget( canvas() );
-
     QwtPlot::showEvent( event );
 }
 
@@ -876,34 +845,6 @@ void RiuQwtPlotWidget::recalculateAxisExtents( QwtPlot::Axis axis )
         axisScaleDraw( axis )->setMinimumExtent( extent );
         setMinimumWidth( defaultMinimumWidth() + extent );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::UiStyleSheet RiuQwtPlotWidget::createPlotStyleSheet() const
-{
-    QColor backgroundColor = QColor( "white" );
-    QColor highlightColor  = QApplication::palette().highlight().color();
-
-    caf::UiStyleSheet styleSheet;
-    styleSheet.set( "background-color", backgroundColor.name() );
-    styleSheet.set( "border", "1 px solid transparent" );
-
-    styleSheet.property( "selected" ).set( "border", QString( "1px solid %1" ).arg( highlightColor.name() ) );
-
-    return styleSheet;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::UiStyleSheet RiuQwtPlotWidget::createCanvasStyleSheet() const
-{
-    caf::UiStyleSheet styleSheet;
-    styleSheet.set( "background-color", "#FAFAFA" );
-    styleSheet.set( "border", "1px solid LightGray" );
-    return styleSheet;
 }
 
 //--------------------------------------------------------------------------------------------------

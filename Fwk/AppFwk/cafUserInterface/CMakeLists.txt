@@ -166,8 +166,6 @@ set( PROJECT_FILES
 	cafStyleSheetTools.cpp
     cafPdmUiTabbedPropertyViewDialog.h
     cafPdmUiTabbedPropertyViewDialog.cpp
-	cafUiStyleSheet.h
-	cafUiStyleSheet.cpp
 )
 
 add_library( ${PROJECT_NAME}
