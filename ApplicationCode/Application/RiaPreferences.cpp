@@ -384,6 +384,8 @@ RiaPreferences::RiaPreferences( void )
                        "",
                        "Defines preferred minimum distance between surface points in XY-plane",
                        "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_guiTheme, "guiTheme", "GUI theme", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -595,6 +597,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         uiOrdering.add( &m_showTestToolbar );
         uiOrdering.add( &m_includeFractureDebugInfoFile );
         uiOrdering.add( &m_holoLensExportFolder );
+        uiOrdering.add( &m_guiTheme );
     }
 
     uiOrdering.skipRemainingFields( true );
@@ -680,6 +683,11 @@ void RiaPreferences::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         m_pageRightMargin  = defaultMarginSize( m_pageSize() );
         m_pageTopMargin    = defaultMarginSize( m_pageSize() );
         m_pageBottomMargin = defaultMarginSize( m_pageSize() );
+    }
+
+    if ( changedField == &m_guiTheme )
+    {
+        RiuGuiTheme::updateGuiTheme( m_guiTheme() );
     }
 }
 //--------------------------------------------------------------------------------------------------
@@ -989,6 +997,14 @@ bool RiaPreferences::showProgressBar() const
 bool RiaPreferences::openExportedPdfInViewer() const
 {
     return m_openExportedPdfInViewer;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuGuiTheme::ThemeEnum RiaPreferences::guiTheme() const
+{
+    return m_guiTheme();
 }
 
 //--------------------------------------------------------------------------------------------------

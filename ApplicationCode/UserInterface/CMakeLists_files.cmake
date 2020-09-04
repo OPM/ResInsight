@@ -93,6 +93,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuAbstractLegendFrame.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuCategoryLegendFrame.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuScalarMapperLegendFrame.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuFileDialogTools.h
+${CMAKE_CURRENT_LIST_DIR}/RiuGuiTheme.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -185,6 +186,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuAbstractLegendFrame.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuCategoryLegendFrame.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuScalarMapperLegendFrame.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuFileDialogTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuGuiTheme.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuQssSyntaxHighlighter.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuTextEditWithCompletion.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
@@ -240,6 +244,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuAbstractOverlayContentFrame.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuAbstractLegendFrame.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuCategoryLegendFrame.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuScalarMapperLegendFrame.h
+${CMAKE_CURRENT_LIST_DIR}/RiuQssSyntaxHighlighter.h
+${CMAKE_CURRENT_LIST_DIR}/RiuTextEditWithCompletion.h
 )
 
 list(APPEND QT_UI_FILES

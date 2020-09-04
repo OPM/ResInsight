@@ -530,6 +530,10 @@ void RiuMainWindow::createMenus()
     testMenu->addAction( cmdFeatureMgr->action( "RicHoloLensExportToFolderFeature" ) );
     testMenu->addAction( cmdFeatureMgr->action( "RicHoloLensCreateDummyFiledBackedSessionFeature" ) );
 
+    testMenu->addSeparator();
+
+    testMenu->addAction( cmdFeatureMgr->action( "RicThemeColorEditorFeature" ) );
+
     // Windows menu
     m_windowMenu = menuBar()->addMenu( "&Windows" );
     connect( m_windowMenu, SIGNAL( aboutToShow() ), SLOT( slotBuildWindowActions() ) );
@@ -1730,8 +1734,7 @@ void RiuMainWindow::updateMemoryUsage()
     if ( availVirtualFraction < caf::MemoryInspector::getRemainingMemoryCriticalThresholdFraction() )
     {
         m_memoryCriticalWarning->setText( QString( "Available System Memory Critically Low!" ) );
-        m_memoryCriticalWarning->setStyleSheet(
-            QString( "QLabel {color: %1; padding: 0px 5px 0px 0px;}" ).arg( criticalColor.name() ) );
+        m_memoryCriticalWarning->setProperty( "styleRole", "memoryCriticalWarning" );
     }
     else
     {
@@ -1739,10 +1742,11 @@ void RiuMainWindow::updateMemoryUsage()
     }
 
     m_memoryUsedButton->setText( QString( "Memory Used: %1 MiB" ).arg( currentUsage ) );
+    m_memoryUsedButton->setProperty( "styleRole", "memoryUsedButton" );
     m_memoryTotalStatus->setText( QString( "Total Physical Memory: %1 MiB" ).arg( totalPhysicalMemory ) );
+    m_memoryTotalStatus->setProperty( "styleRole", "memoryTotalStatus" );
 
-    m_memoryUsedButton->setStyleSheet( QString( "QLabel {color: %1; padding: 0px 5px 0px 0px;}" ).arg( usageColor.name() ) );
-    m_memoryTotalStatus->setStyleSheet( QString( "QLabel {padding: 0px 5px 0px 0px; }" ) );
+    m_memoryUsedButton->setStyleSheet( QString( "QLabel {color: %1;}" ).arg( usageColor.name() ) );
 }
 
 //--------------------------------------------------------------------------------------------------

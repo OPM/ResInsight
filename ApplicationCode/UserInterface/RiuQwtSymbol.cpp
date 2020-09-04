@@ -19,6 +19,7 @@
 
 #include "RiuQwtSymbol.h"
 
+#include "RiaColorTools.h"
 #include "RiaFontCache.h"
 
 #include "cvfAssert.h"
@@ -157,6 +158,7 @@ void RiuQwtSymbol::renderSymbolLabel( QPainter* painter, const QPointF& position
     QFont font = painter->font();
     font.setPixelSize( m_labelFontSizePx );
     painter->setFont( font );
+    painter->setPen( RiaColorTools::systemPaletteTextColor() );
 
     QSize symbolSize = QwtSymbol::size();
     QRect symbolRect( position.x(), position.y(), symbolSize.width(), symbolSize.height() );

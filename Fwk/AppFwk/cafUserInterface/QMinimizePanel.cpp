@@ -45,7 +45,9 @@
 #include <QLabel>
 #include <QPixmap>
 #include <QPushButton>
+#include <QRegularExpression>
 #include <QResizeEvent>
+#include <QStyle>
 #include <QVBoxLayout>
 
 #include <algorithm>
@@ -150,6 +152,12 @@ static const QIcon& expandUpIcon()
 QMinimizePanel::QMinimizePanel( QWidget* parent /*=0*/ )
     : QFrame( parent )
 {
+    m_titleBackground =
+        "qlineargradient(spread:pad, x1:0 y1:0, x2:0 y2:1, stop:0 rgba(150, 150, 150, 20), stop:1 rgba(0, 0, 0, 50))";
+    m_border       = "1px solid darkgray";
+    m_background   = "rgba(255, 250, 250, 85)";
+    m_collapseIcon = expandUpIcon();
+    m_expandIcon   = expandDownIcon();
     this->initialize( "" );
 }
 
@@ -227,6 +235,121 @@ bool QMinimizePanel::isExpanded() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString QMinimizePanel::getBackground() const
+{
+    return m_background;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void QMinimizePanel::setBackground( QString background )
+{
+    m_background = background;
+    m_contentFrame->setStyleSheet( contentFrameStyleSheet() );
+    m_contentFrame->style()->unpolish( m_contentFrame );
+    m_contentFrame->style()->polish( m_contentFrame );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString QMinimizePanel::getTitleBackground() const
+{
+    return m_titleBackground;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void QMinimizePanel::setTitleBackground( QString background )
+{
+    m_titleBackground = background;
+    m_titleFrame->setStyleSheet( titleFrameStyleSheet() );
+    m_titleFrame->style()->unpolish( m_titleFrame );
+    m_titleFrame->style()->polish( m_titleFrame );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString QMinimizePanel::getBorder() const
+{
+    return m_border;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void QMinimizePanel::setBorder( QString border )
+{
+    m_border = border;
+    m_contentFrame->setStyleSheet( contentFrameStyleSheet() );
+    m_contentFrame->style()->unpolish( m_contentFrame );
+    m_contentFrame->style()->polish( m_contentFrame );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString QMinimizePanel::getExpandIconPath() const
+{
+    return m_expandIconPath;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void QMinimizePanel::setExpandIconPath( QString path )
+{
+    m_expandIconPath = path;
+    m_expandIcon     = QIcon( path );
+    if ( !isExpanded() ) m_collapseButton->setIcon( m_expandIcon );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString QMinimizePanel::getCollapseIconPath() const
+{
+    return m_expandIconPath;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void QMinimizePanel::setCollapseIconPath( QString path )
+{
+    m_collapseIconPath = path;
+    m_collapseIcon     = QIcon( path );
+    if ( isExpanded() ) m_collapseButton->setIcon( m_collapseIcon );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString QMinimizePanel::getIconSize() const
+{
+    return m_iconSize;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void QMinimizePanel::setIconSize( QString size )
+{
+    m_iconSize                    = size;
+    QRegularExpression sizeRegExp = QRegularExpression( "\\s*([0-9]+)px\\s*" );
+    if ( sizeRegExp.match( size ).hasMatch() )
+    {
+        m_collapseButton->setIconSize(
+            QSize( sizeRegExp.match( size ).captured( 1 ).toInt(), sizeRegExp.match( size ).captured( 1 ).toInt() ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void QMinimizePanel::setExpanded( bool isExpanded )
 {
     if ( m_contentFrame->isHidden() != isExpanded ) return;
@@ -234,12 +357,12 @@ void QMinimizePanel::setExpanded( bool isExpanded )
     m_contentFrame->setVisible( isExpanded );
     if ( isExpanded )
     {
-        m_collapseButton->setIcon( expandUpIcon() );
+        m_collapseButton->setIcon( m_collapseIcon );
         this->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
     }
     else
     {
-        m_collapseButton->setIcon( expandDownIcon() );
+        m_collapseButton->setIcon( m_expandIcon );
         this->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
     }
 
@@ -287,7 +410,7 @@ void QMinimizePanel::initialize( const QString& title )
         {
             m_collapseButton = new QPushButton();
             m_collapseButton->setFlat( true );
-            m_collapseButton->setIcon( expandUpIcon() );
+            m_collapseButton->setIcon( m_collapseIcon );
             m_collapseButton->setDefault( false );
             m_collapseButton->setAutoDefault( false );
             m_collapseButton->setIconSize( QSize( 16, 16 ) );
@@ -314,9 +437,9 @@ QString QMinimizePanel::titleFrameStyleSheet()
     return QString( "QFrame#GroupTitleFrame "
                     "{"
                     "  border-top: none; border-left: none; border-right: none; border-bottom: none;"
-                    "  background: qlineargradient(spread:pad, x1:0 y1:0, x2:0 y2:1,"
-                    "                              stop:0 rgba(150, 150, 150, 20), stop:1 rgba(0, 0, 0, 50));"
-                    "}" );
+                    "  background: %0;"
+                    "}" )
+        .arg( m_titleBackground );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -326,11 +449,12 @@ QString QMinimizePanel::contentFrameStyleSheet()
 {
     return QString( "QFrame#FramedGroupContent"
                     "{"
-                    "  border-top: 1px solid darkgray; border-left: none; border-right: none; border-bottom: none; "
-                    "  background: rgba(255, 250, 250, 85)"
+                    "  border-top: %0; border-left: none; border-right: none; border-bottom: none; "
+                    "  background: %1;"
                     "}"
                     "QFrame#UnframedGroupContent"
                     "{"
                     "  border-top: none; border-left: none; border-right: none; border-bottom: none; "
-                    "}" );
+                    "}" )
+        .arg( m_border, m_background );
 }

@@ -25,6 +25,8 @@
 #include <algorithm>
 #include <cmath>
 
+#include <QPalette>
+
 //--------------------------------------------------------------------------------------------------
 /// Uses W3.org relative luminance calculation taking into account the different luminance of the different colors
 /// https://www.w3.org/TR/WCAG20-TECHS/G18.html
@@ -139,6 +141,24 @@ QColor RiaColorTools::toQColor( cvf::Color4f color )
 cvf::Color3f RiaColorTools::fromQColorTo3f( QColor color )
 {
     return cvf::Color3f( color.redF(), color.greenF(), color.blueF() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QColor RiaColorTools::systemPaletteTextColor()
+{
+    QPalette systemPalette;
+
+    return systemPalette.color( QPalette::Text );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RiaColorTools::systemPaletteTextColor3f()
+{
+    return fromQColorTo3f( systemPaletteTextColor() );
 }
 
 //--------------------------------------------------------------------------------------------------
