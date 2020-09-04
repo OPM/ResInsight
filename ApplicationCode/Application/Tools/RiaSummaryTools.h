@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <QString>
+
 #include <vector>
 
 class RimSummaryPlotCollection;
@@ -29,7 +31,7 @@ class RimSummaryCase;
 
 class RifEclipseSummaryAddress;
 
-class QString;
+class QStringList;
 
 namespace caf
 {
@@ -59,4 +61,6 @@ public:
     static void getSummaryCasesAndAddressesForCalculation( int                                    id,
                                                            std::vector<RimSummaryCase*>&          cases,
                                                            std::vector<RifEclipseSummaryAddress>& addresses );
+
+    static QString findSuitableEnsembleName( const QStringList& summaryCaseFileNames );
 };

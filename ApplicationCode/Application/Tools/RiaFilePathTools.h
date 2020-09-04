@@ -43,6 +43,7 @@ public:
     static std::pair<QString, QString> toFolderAndFileName( const QString& absFileName );
     static QString                     removeDuplicatePathSeparators( const QString& path );
     static QString                     rootSearchPathFromSearchFilter( const QString& searchFilter );
+    static QString                     commonRootOfFileNames( const QStringList& filePaths );
 
     static QStringList splitPathIntoComponents( const QString& path, bool splitExtensionIntoSeparateEntry = false );
 

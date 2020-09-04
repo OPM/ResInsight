@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaFilePathTools.h"
 #include "RiaPreferences.h"
+#include "RiaSummaryTools.h"
 #include "RiaTextStringTools.h"
 
 #include "RicCreateSummaryCaseCollectionFeature.h"
@@ -76,14 +77,9 @@ void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
 
     if ( fileNames.isEmpty() ) return;
 
-    QString root = commonRoot( fileNames );
+    QString ensembleNameSuggestion = RiaSummaryTools::findSuitableEnsembleName( fileNames );
 
-    QRegularExpression trimRe( "[^a-zA-Z0-9]+$" );
-    QString            trimmedRoot = root.replace( trimRe, "" );
-    QString            suggestion  = trimmedRoot;
-    if ( suggestion.isEmpty() ) suggestion = "Ensemble";
-
-    QString ensembleName = askForEnsembleName( trimmedRoot );
+    QString ensembleName = askForEnsembleName( ensembleNameSuggestion );
     if ( ensembleName.isEmpty() ) return;
 
     std::vector<RimSummaryCase*> cases;
@@ -149,20 +145,4 @@ QString RicImportEnsembleFeature::askForEnsembleName( const QString& suggestion 
     dialog.resize( 300, 50 );
     dialog.exec();
     return dialog.result() == QDialog::Accepted ? dialog.textValue() : QString( "" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RicImportEnsembleFeature::commonRoot( const QStringList& fileList )
-{
-    QStringList fileNameList;
-    for ( auto filePath : fileList )
-    {
-        QFileInfo fileInfo( filePath );
-        QString   fileNameWithoutExt = fileInfo.baseName();
-        fileNameList.push_back( fileNameWithoutExt );
-    }
-    QString root = RiaTextStringTools::findCommonRoot( fileNameList );
-    return root;
 }
