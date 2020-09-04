@@ -18,7 +18,7 @@
 
 #include "RifSurfaceExporter.h"
 
-#include <QFileDialog>
+#include <QFile>
 #include <QTextStream>
 
 //--------------------------------------------------------------------------------------------------

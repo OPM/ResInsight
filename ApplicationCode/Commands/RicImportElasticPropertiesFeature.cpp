@@ -25,11 +25,12 @@
 #include "RimFractureModel.h"
 
 #include "Riu3DMainWindowTools.h"
+#include "RiuFileDialogTools.h"
 
 #include "cafSelectionManager.h"
 
 #include <QAction>
-#include <QFileDialog>
+#include <QFileInfo>
 
 CAF_CMD_SOURCE_INIT( RicImportElasticPropertiesFeature, "RicImportElasticPropertiesFeature" );
 
@@ -52,10 +53,10 @@ void RicImportElasticPropertiesFeature::onActionTriggered( bool isChecked )
     // Open dialog box to select files
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectoryWithFallbackToProjectFolder( "STIMPLAN_DIR" );
-    QString         filePath   = QFileDialog::getOpenFileName( Riu3DMainWindowTools::mainWindowWidget(),
-                                                     "Import Elastic Properties",
-                                                     defaultDir,
-                                                     "Elastic Properties (*.csv);;All Files (*.*)" );
+    QString         filePath   = RiuFileDialogTools::getOpenFileName( Riu3DMainWindowTools::mainWindowWidget(),
+                                                            "Import Elastic Properties",
+                                                            defaultDir,
+                                                            "Elastic Properties (*.csv);;All Files (*.*)" );
 
     if ( filePath.isNull() ) return;
 
