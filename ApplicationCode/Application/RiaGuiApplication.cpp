@@ -417,6 +417,8 @@ void RiaGuiApplication::initialize()
 {
     RiaApplication::initialize();
 
+    RiuGuiTheme::updateGuiTheme( m_preferences->guiTheme() );
+
     applyGuiPreferences( nullptr );
 
     // Create main windows

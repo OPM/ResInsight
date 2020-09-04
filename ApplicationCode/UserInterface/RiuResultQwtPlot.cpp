@@ -52,6 +52,7 @@
 RiuResultQwtPlot::RiuResultQwtPlot( QWidget* parent )
     : RiuDockedQwtPlot( parent )
 {
+    setAutoFillBackground( true );
     setDefaults();
 }
 

@@ -1,0 +1,363 @@
+$mainBackgroundColor: #24292e; // Main background color
+$backgroundColor1: #394046; // Background color layer 1
+$backgroundColor2: #464c53; // Background color layer 2
+$backgroundColor3: #5a6067; // Background color layer 3
+$backgroundColor4: #89939d; // Background color layer 4
+$backgroundColor5: #adbac6; // Background color layer 5
+$textColor: #e6e7ea; // Main text color
+$primaryColor: #018fa3; // Primary color (buttons etc)
+$secondaryColor: #e82257; // Secondary color
+$tertiaryColor: #ffc50d; // Tertiary color
+$quaternaryColor: #36b27e; // Quaternary color
+$quinaryColor: #0ce5d5; // Quinary color
+$senaryColor: #a54ce5; // Senary color
+$borderColor: #394046; // Main border color
+$curveColorGas: #2196f3; // Curve color for gas plot
+$curveColorOil: #4caf50; // Curve color for oil plot
+$markerColor: #e6e7ea; // Marker color
+$lineMarkerColor: #eeeeee; // Color of line marker
+$plotGridColor: #394046; // Plot grid color
+$auxiliaryCurveColor: #000000; // Auxiliary curve color
+
+QwtPlot["*"]::grid["*"] {
+    color: $backgroundColor2;
+}
+
+QwtPlot["*"]::legend {
+    text-color: $textColor;
+}
+
+RiuQwtPlotWidget {
+    color: $textColor;
+}
+
+QwtTextLabel {
+    color: $textColor;
+}
+
+QwtPlot["PvtPlot"]::picker {
+    text-color: $textColor;
+}
+
+QwtPlot["PvtPlot"]::curve["Auxiliary"] {
+    line-color: #ffffff;
+}
+
+QwtPlot["PvtPlot"]::curve["Oil"] {
+    line-color: $primaryColor;
+    symbol-color:  $primaryColor;
+}
+
+QwtPlot["PvtPlot"]::curve["Gas"] {
+    line-color: $secondaryColor;
+    symbol-color:  $secondaryColor;
+}
+
+QwtPlot["RelPermPlot"]::curve["KRW"] {
+    line-color: $primaryColor;
+    symbol-color:  $primaryColor;
+}
+
+QwtPlot["RelPermPlot"]::curve["KROW"] {
+    line-color: $secondaryColor;
+    symbol-color:  $secondaryColor;
+}
+
+QwtPlot["RelPermPlot"]::curve["PCOW"] {
+    line-color: $tertiaryColor;
+    symbol-color:  $tertiaryColor;
+}
+
+QwtPlot["RelPermPlot"]::curve["KRG"] {
+    line-color: $quaternaryColor;
+    symbol-color:  $quaternaryColor;
+}
+
+QwtPlot["RelPermPlot"]::curve["KROG"] {
+    line-color: $quinaryColor;
+    symbol-color:  $quinaryColor;
+}
+
+QwtPlot["RelPermPlot"]::curve["PCOG"] {
+    line-color: $senaryColor;
+    symbol-color:  $senaryColor;
+}
+
+QwtPlot["PvtPlot"]::lineMarker["*"] {
+    color: $textColor;
+}
+
+QwtPlot["PvtPlot"]::pointMarker["*"] {
+    color: $textColor;
+}
+
+QToolBox {
+    background-color: $mainBackgroundColor;
+}
+
+QToolButton {
+    background-color: $backgroundColor1;
+    color: $textColor;
+    border-width : 0px;
+    padding: 3px;
+}
+
+QLabel, QCheckBox {
+    background-color: transparent;
+}
+
+QWidget {
+    background-color: $mainBackgroundColor;
+    color: $textColor;
+    border-color: $borderColor;
+}
+
+QProgressBar {
+    text-align: center;
+    background-color: $backgroundColor1;
+}
+
+QAbstractItemView {
+    border: 2px solid $borderColor;
+    border-style: solid;
+}
+
+QAbstractItemView::item:hover {
+    background-color: $primaryColor;
+}
+
+QAbstractItemView::item:selected {
+    background-color: $secondaryColor;
+    color: $textColor;
+}
+
+QTreeView::branch:has-children:!has-siblings:closed,
+QTreeView::branch:closed:has-children:has-siblings {
+    border-image: none;
+    image: url(:/themes/dark/collapsed.svg);
+    width: 12px;
+    height: 12px;
+}
+
+QTreeView::branch:open:has-children:!has-siblings,
+QTreeView::branch:open:has-children:has-siblings {
+    border-image: none;
+    image: url(:/themes/dark/expanded.svg);
+    icon-size: 12px;
+}
+
+QDockWidget {
+    background-color: $mainBackgroundColor;
+    titlebar-close-icon:  url(:/themes/dark/blank.svg);
+    titlebar-normal-icon:  url(:/themes/dark/blank.svg);
+}
+
+QDockWidget::title {
+    background-color: $backgroundColor1;
+    padding: 5px;
+}
+
+QDockWidget::close-button, QDockWidget::float-button {
+    background: transparent;
+    border: none;
+    icon-size: 12px;
+    padding: 0px;
+}
+
+QDockWidget::float-button {
+     image: url(:/themes/dark/float.svg);
+}
+
+QDockWidget::close-button {
+     image: url(:/themes/dark/close.svg);
+}
+
+QDockWidget::float-button:hover {
+     image: url(:/themes/dark/float-hover.svg);
+}
+
+QDockWidget::close-button:hover {
+     image: url(:/themes/dark/close-hover.svg);
+}
+
+QToolBar QWidget {
+    background-color: transparent;
+    border-color: $borderColor;
+}
+
+QMenuBar::item:selected {
+    background-color: $primaryColor;
+    color: $textColor;
+}
+
+QMenu::item:selected {
+    background-color: $primaryColor;
+    color: $textColor;
+}
+
+QLineEdit, QComboBox, QSpinBox, 
+QDoubleSpinBox, QDateEdit, QDateTimeEdit {
+    background-color: $backgroundColor1;
+    color: $textColor;
+    border-color: $borderColor;
+    border-width : 1.5px;
+    border-style: solid;
+    padding: 3px;
+}
+
+QToolBar {
+    background-color: #2e353a;
+}
+
+QToolBar QToolButton {
+    border: none;
+}
+
+QToolBar QToolButton:hover {
+    background-color: $backgroundColor1;
+}
+
+QLCDNumber {
+    color: $textColor;
+    border-color: $borderColor;
+    border-width : 1.5px;
+    border-style: solid;
+    border-radius: 5px;
+}
+
+QPushButton {
+    color: $textColor;
+    border-color: $borderColor;
+    background-color: $backgroundColor1;
+    border-width: 1.5px;
+    border-style: solid;
+    padding: 5px;
+    font-weight: bold;
+}
+
+QTabWidget {
+    background-color: #535353;
+}
+
+QTabWidget::pane { 
+    border-top: 1px solid $backgroundColor3;
+    background-color: $mainBackgroundColor;
+}
+
+QTabBar::tab {
+    background-color: $backgroundColor1;
+    border: 1px solid #2C2C2C;
+    border-bottom: 0px;
+    border-radius: 1px;
+    padding: 6px;
+}
+
+QTabBar::tab:selected, QTabBar::tab:hover {
+    background-color: $backgroundColor3;
+}
+
+QTabBar::tab:selected {
+    border-bottom: 0px;
+}
+
+QTabBar::tab:!selected {
+    color: $textColor;
+}
+
+/* Scrollbars */
+
+QScrollBar:vertical {
+     border: 0px;;
+     background: transparent;
+     width: 15px;
+     margin: 0px 0px 0px 0px;
+ }
+
+ QScrollBar:vertical:hover {
+     background: $backgroundColor2;
+ }
+
+ QScrollBar::handle:vertical {
+     background: $backgroundColor4;
+     min-height: 20px;
+     margin: 3px 3px 3px 3px;
+     border-radius: 3px;
+ }
+
+QScrollBar::handle:vertical::hover,
+QScrollBar::handle:horizontal::hover  {
+     background: $backgroundColor5;
+ }
+
+QScrollBar::handle:vertical::pressed,
+QScrollBar::handle:horizontal::pressed  {
+     background: white;
+ }
+
+QScrollBar::add-line:vertical,  
+QScrollBar::sub-line:vertical,  
+QScrollBar::add-line:horizontal, 
+QScrollBar::sub-line:horizontal {
+     border: 0px;
+     height: 0px;
+ }
+
+QScrollBar::up-arrow:vertical, 
+QScrollBar::down-arrow:vertical, 
+QScrollBar::down-arrow:horizontal, 
+QScrollBar::up-arrow:horizontal {
+     border: 0px;
+     background: none;
+}
+
+QScrollBar::add-page:vertical, 
+QScrollBar::sub-page:vertical,  
+QScrollBar::add-page:horizontal, 
+QScrollBar::sub-page:horizontal {
+     background: none;
+ }
+
+QScrollBar:horizontal {
+     border: 0px;
+     background: transparent;
+     height: 15px;
+     margin: 0px 0px 0px 0px;
+ }
+
+QScrollBar:horizontal:hover {
+     background: $backgroundColor2;
+ }
+
+ QScrollBar::handle:horizontal {
+     background: $backgroundColor4;
+     min-width: 20px;
+     margin: 3px 3px 3px 3px;
+     border-radius: 3px;
+ }
+
+QFrame#FramedGroupContent {
+    background-color: $mainBackgroundColor;
+    border-top: 1px solid $borderColor;
+}
+
+QFrame#GroupTitleFrame QToolButton {
+    padding: 3px;
+}
+
+QMinimizePanel {
+    qproperty-background: $mainBackgroundColor;
+    qproperty-titleBackground: $backgroundColor2;
+    qproperty-border: $borderColor;
+    qproperty-expandIconPath: url(:/themes/dark/arrow-down.svg);
+    qproperty-collapseIconPath: url(:/themes/dark/arrow-up.svg);
+    qproperty-iconSize: 8px;
+    border: 2px solid $backgroundColor2;
+}
+
+QMinimizePanel QLabel, QMinimizePanel QCheckBox, QToolButton {
+    background-color: transparent;
+}
+
+QTextEdit, QPlainTextEdit {
+    border: 2px solid $borderColor;
+}

@@ -18,9 +18,9 @@
 
 #include "RimEnsembleCurveSet.h"
 
+#include "RiaColorTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaStatisticsTools.h"
-#include "RiuAbstractLegendFrame.h"
 
 #include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 
@@ -46,6 +46,7 @@
 #include "RimSummaryFilter.h"
 #include "RimSummaryPlot.h"
 
+#include "RiuAbstractLegendFrame.h"
 #include "RiuCvfOverlayItemWidget.h"
 #include "RiuDraggableOverlayFrame.h"
 #include "RiuPlotMainWindow.h"
@@ -115,7 +116,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     CAF_PDM_InitField( &m_colorMode, "ColorMode", caf::AppEnum<ColorMode>( ColorMode::SINGLE_COLOR ), "Coloring Mode", "", "", "" );
 
-    CAF_PDM_InitField( &m_color, "Color", cvf::Color3f( cvf::Color3::BLACK ), "Color", "", "", "" );
+    CAF_PDM_InitField( &m_color, "Color", RiaColorTools::systemPaletteTextColor3f(), "Color", "", "", "" );
 
     CAF_PDM_InitField( &m_ensembleParameter, "EnsembleParameter", QString( "" ), "Ensemble Parameter", "", "", "" );
     m_ensembleParameter.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
@@ -1032,7 +1033,6 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
         auto curve = new RimSummaryCurve();
         curve->setParentQwtPlotNoReplot( plot->viewer() );
         m_curves.push_back( curve );
-        curve->setColor( m_statistics->color() );
         curve->setColor( m_statistics->color() );
 
         auto symbol = statisticsCurveSymbolFromAddress( address );
