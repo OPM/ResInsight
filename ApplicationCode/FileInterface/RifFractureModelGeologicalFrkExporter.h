@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020- Equinor ASA
+//  Copyright (C) 2020-    Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,34 +18,22 @@
 
 #pragma once
 
-#include "RimFractureModelPlot.h"
-
-#include "cafPdmField.h"
-#include "cafPdmObjectHandle.h"
-#include "cafPdmObjectMethod.h"
-#include "cafPdmPtrArrayField.h"
-#include "cafPdmPtrField.h"
-
-#include <QString>
+#include <vector>
 
 class RimFractureModelPlot;
-class RimWellPath;
+class QString;
+class QTextStream;
 
 //==================================================================================================
-///
+//
 //==================================================================================================
-class RimcFractureModelPlot_exportToFile : public caf::PdmObjectMethod
+class RifFractureModelGeologicalFrkExporter
 {
-    CAF_PDM_HEADER_INIT;
-
 public:
-    RimcFractureModelPlot_exportToFile( caf::PdmObjectHandle* self );
-
-    caf::PdmObjectHandle*            execute();
-    bool                             resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
-    bool                             isNullptrValidResult() const override;
+    static bool writeToFile( RimFractureModelPlot* plot, bool useDetailedFluidLoss, const QString& filepath );
 
 private:
-    caf::PdmField<QString> m_directoryPath;
+    static void appendHeaderToStream( QTextStream& stream );
+    static void appendToStream( QTextStream& stream, const QString& label, const std::vector<double>& values );
+    static void appendFooterToStream( QTextStream& stream );
 };
