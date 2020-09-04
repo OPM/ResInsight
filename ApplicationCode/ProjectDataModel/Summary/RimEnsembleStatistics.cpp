@@ -18,8 +18,8 @@
 
 #include "RimEnsembleStatistics.h"
 
+#include "RiaColorTools.h"
 #include "RifSummaryReaderInterface.h"
-
 #include "RigStatisticsMath.h"
 
 #include "RimEnsembleCurveSet.h"
@@ -46,7 +46,8 @@ RimEnsembleStatistics::RimEnsembleStatistics()
     CAF_PDM_InitField( &m_includeIncompleteCurves, "IncludeIncompleteCurves", false, "Include Incomplete Curves", "", "", "" );
 
     CAF_PDM_InitField( &m_warningLabel, "WarningLabel", QString( "Warning: Ensemble time range mismatch" ), "", "", "", "" );
-    CAF_PDM_InitField( &m_color, "Color", cvf::Color3f( cvf::Color3::BLACK ), "Color", "", "", "" );
+
+    CAF_PDM_InitField( &m_color, "Color", RiaColorTools::systemPaletteTextColor3f(), "Color", "", "", "" );
 
     m_warningLabel.xmlCapability()->disableIO();
     m_warningLabel.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );

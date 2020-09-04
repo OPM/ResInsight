@@ -18,6 +18,7 @@
 
 #include "RiuRelativePermeabilityPlotPanel.h"
 #include "RiuDockedQwtPlot.h"
+#include "RiuGuiTheme.h"
 #include "RiuQwtPlotCurve.h"
 #include "RiuQwtPlotTools.h"
 #include "RiuRelativePermeabilityPlotUpdater.h"
@@ -85,6 +86,8 @@ RiuRelativePermeabilityPlotPanel::RiuRelativePermeabilityPlotPanel( QDockWidget*
     , m_plotUpdater( new RiuRelativePermeabilityPlotUpdater( this ) )
 {
     m_qwtPlot = new RelPermQwtPlot( this );
+    m_qwtPlot->setProperty( "qss-class", "RelPermPlot" );
+
     setPlotDefaults( m_qwtPlot );
     applyFontSizes( false );
 
@@ -366,37 +369,36 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaEclipseUnitTools::Uni
         qwtCurve->setStyle( QwtPlotCurve::Lines );
 
         Qt::PenStyle penStyle = Qt::SolidLine;
-        QColor       clr      = Qt::magenta;
         switch ( curve.ident )
         {
             case RigFlowDiagSolverInterface::RelPermCurve::KRW:
-                clr = QColor( 0, 0, 200 );
+                qwtCurve->setTitle( "KRW" );
                 break;
             case RigFlowDiagSolverInterface::RelPermCurve::KROW:
-                clr = QColor( 0, 0, 200 );
+                qwtCurve->setTitle( "KROW" );
                 break;
             case RigFlowDiagSolverInterface::RelPermCurve::PCOW:
-                clr      = QColor( 0, 130, 175 );
+                qwtCurve->setTitle( "PCOW" );
                 penStyle = Qt::DashLine;
                 break;
             case RigFlowDiagSolverInterface::RelPermCurve::KRG:
-                clr = QColor( 200, 0, 0 );
+                qwtCurve->setTitle( "KRG" );
                 break;
             case RigFlowDiagSolverInterface::RelPermCurve::KROG:
-                clr = QColor( 200, 0, 0 );
+                qwtCurve->setTitle( "KROG" );
                 break;
             case RigFlowDiagSolverInterface::RelPermCurve::PCOG:
-                clr      = QColor( 225, 110, 0 );
+                qwtCurve->setTitle( "PCOG" );
                 penStyle = Qt::DashLine;
                 break;
         }
 
-        const QPen curvePen( clr, 1, penStyle );
+        const QPen curvePen( Qt::black, 1, penStyle );
         qwtCurve->setPen( curvePen );
 
         QwtSymbol* curveSymbol = new QwtSymbol( QwtSymbol::Ellipse );
         curveSymbol->setSize( 6, 6 );
-        curveSymbol->setPen( clr );
+        curveSymbol->setPen( Qt::black );
         curveSymbol->setBrush( Qt::NoBrush );
         qwtCurve->setSymbol( curveSymbol );
 
@@ -414,6 +416,8 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaEclipseUnitTools::Uni
 
         qwtCurve->attach( plot );
 
+        RiuGuiTheme::styleQwtItem( qwtCurve );
+
         // Add markers to indicate where SWAT and/or SGAS saturation intersects the respective curves
         // Note that if we're using log scale we must guard against non-positive values
         if ( swat != HUGE_VAL )
@@ -424,7 +428,7 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaEclipseUnitTools::Uni
             {
                 addCurveConstSaturationIntersectionMarker( curve,
                                                            swat,
-                                                           Qt::blue,
+                                                           RiuGuiTheme::getColorByVariableName( "markerColor" ),
                                                            plotOnWhichYAxis,
                                                            plot,
                                                            myPlotMarkers,
@@ -440,7 +444,7 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaEclipseUnitTools::Uni
             {
                 addCurveConstSaturationIntersectionMarker( curve,
                                                            sgas,
-                                                           Qt::red,
+                                                           RiuGuiTheme::getColorByVariableName( "markerColor" ),
                                                            plotOnWhichYAxis,
                                                            plot,
                                                            myPlotMarkers,
@@ -457,11 +461,11 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaEclipseUnitTools::Uni
     // Add vertical marker lines to indicate cell SWAT and/or SGAS saturations
     if ( swat != HUGE_VAL )
     {
-        addVerticalSaturationMarkerLine( swat, "SWAT", Qt::blue, plot, myPlotMarkers );
+        addVerticalSaturationMarkerLine( swat, "SWAT", RiuGuiTheme::getColorByVariableName( "markerColor" ), plot, myPlotMarkers );
     }
     if ( sgas != HUGE_VAL )
     {
-        addVerticalSaturationMarkerLine( sgas, "SGAS", Qt::red, plot, myPlotMarkers );
+        addVerticalSaturationMarkerLine( sgas, "SGAS", RiuGuiTheme::getColorByVariableName( "markerColor" ), plot, myPlotMarkers );
     }
 
     if ( logScaleLeftAxis )

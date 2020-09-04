@@ -179,15 +179,6 @@ void PdmUiListEditor::configureAndUpdateUi( const QString& uiConfigName )
 
         QPalette myPalette;
 
-        if ( attributes.m_baseColor == myPalette.color( QPalette::Active, QPalette::Base ) )
-        {
-            m_listView->setStyleSheet( "" );
-        }
-        else
-        {
-            m_listView->setStyleSheet( "background-color: " + attributes.m_baseColor.name() + ";" );
-        }
-
         m_listView->setHeightHint( attributes.m_heightHint );
         if ( !attributes.m_allowHorizontalScrollBar )
         {

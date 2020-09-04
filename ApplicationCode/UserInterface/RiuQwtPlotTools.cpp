@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RiuQwtPlotTools.h"
 
+#include "RiuGuiTheme.h"
+
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 
@@ -53,8 +55,8 @@ void RiuQwtPlotTools::setCommonPlotBehaviour( QwtPlot* plot )
     QwtPlotGrid* grid = new QwtPlotGrid;
     grid->attach( plot );
     QPen gridPen( Qt::SolidLine );
-    gridPen.setColor( Qt::lightGray );
     grid->setPen( gridPen );
+    RiuGuiTheme::styleQwtItem( grid );
 
     // Axis number font
     int   axisFontSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(),

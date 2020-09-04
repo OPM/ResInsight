@@ -141,7 +141,7 @@ RimPlotCurve::RimPlotCurve()
 
     CAF_PDM_InitField( &m_isUsingAutoName, "AutoName", true, "Auto Name", "", "", "" );
 
-    CAF_PDM_InitField( &m_curveColor, "Color", cvf::Color3f( cvf::Color3::BLACK ), "Color", "", "", "" );
+    CAF_PDM_InitField( &m_curveColor, "Color", RiaColorTools::systemPaletteTextColor3f(), "Color", "", "", "" );
     CAF_PDM_InitField( &m_fillColor, "FillColor", cvf::Color3f( -1.0, -1.0, -1.0 ), "Fill Color", "", "", "" );
 
     CAF_PDM_InitField( &m_curveThickness, "Thickness", 1, "Line Thickness", "", "", "" );
@@ -151,7 +151,13 @@ RimPlotCurve::RimPlotCurve()
     CAF_PDM_InitFieldNoDefault( &m_lineStyle, "LineStyle", "Line Style", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_fillStyle, "FillStyle", "Area Fill Style", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_pointSymbol, "PointSymbol", "Symbol", "", "", "" );
-    CAF_PDM_InitField( &m_symbolEdgeColor, "SymbolEdgeColor", cvf::Color3f( cvf::Color3::BLACK ), "Symbol Edge Color", "", "", "" );
+    CAF_PDM_InitField( &m_symbolEdgeColor,
+                       "SymbolEdgeColor",
+                       RiaColorTools::systemPaletteTextColor3f(),
+                       "Symbol Edge Color",
+                       "",
+                       "",
+                       "" );
 
     CAF_PDM_InitField( &m_symbolSkipPixelDistance,
                        "SymbolSkipPxDist",
@@ -991,8 +997,8 @@ void RimPlotCurve::setLineThickness( int thickness )
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::resetAppearance()
 {
-    setColor( cvf::Color3f( cvf::Color3::BLACK ) );
-    setSymbolEdgeColor( cvf::Color3f( cvf::Color3::BLACK ) );
+    setColor( RiaColorTools::systemPaletteTextColor3f() );
+    setSymbolEdgeColor( RiaColorTools::systemPaletteTextColor3f() );
     setLineThickness( 2 );
     setLineStyle( RiuQwtPlotCurve::STYLE_SOLID );
     setSymbol( RiuQwtSymbol::SYMBOL_NONE );

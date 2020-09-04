@@ -19,6 +19,7 @@
 #include "RiuPvtPlotPanel.h"
 
 #include "RiuDockedQwtPlot.h"
+#include "RiuGuiTheme.h"
 #include "RiuPvtPlotUpdater.h"
 
 #include "RigFlowDiagSolverInterface.h"
@@ -101,6 +102,7 @@ RiuPvtPlotWidget::RiuPvtPlotWidget( RiuPvtPlotPanel* parent )
     , m_trackerPlotMarker( nullptr )
 {
     m_qwtPlot = new PvtQwtPlot( this );
+    m_qwtPlot->setProperty( "qss-class", "PvtPlot" );
     setPlotDefaults( m_qwtPlot );
     applyFontSizes( false );
 
@@ -112,6 +114,7 @@ RiuPvtPlotWidget::RiuPvtPlotWidget( RiuPvtPlotPanel* parent )
     setLayout( layout );
 
     m_qwtPicker = new RiuPvtQwtPicker( m_qwtPlot, this );
+    RiuGuiTheme::styleQwtItem( m_qwtPicker );
     connect( m_qwtPicker, SIGNAL( activated( bool ) ), this, SLOT( slotPickerActivated( bool ) ) );
     connect( m_qwtPicker, SIGNAL( moved( const QPoint& ) ), this, SLOT( slotPickerPointChanged( const QPoint& ) ) );
 }
@@ -121,13 +124,7 @@ RiuPvtPlotWidget::RiuPvtPlotWidget( RiuPvtPlotPanel* parent )
 //--------------------------------------------------------------------------------------------------
 void RiuPvtPlotWidget::setPlotDefaults( QwtPlot* plot )
 {
-    // Plot background and frame look
-    QPalette newPalette( plot->palette() );
-    newPalette.setColor( QPalette::Window, Qt::white );
-    plot->setPalette( newPalette );
-
     plot->setAutoFillBackground( true );
-    plot->setCanvasBackground( Qt::white );
 
     QFrame* canvasFrame = dynamic_cast<QFrame*>( plot->canvas() );
     if ( canvasFrame )
@@ -139,9 +136,7 @@ void RiuPvtPlotWidget::setPlotDefaults( QwtPlot* plot )
     {
         QwtPlotGrid* grid = new QwtPlotGrid;
         grid->attach( plot );
-        QPen gridPen( Qt::SolidLine );
-        gridPen.setColor( Qt::lightGray );
-        grid->setPen( gridPen );
+        RiuGuiTheme::styleQwtItem( grid );
     }
 
     // Axis number font
@@ -215,48 +210,50 @@ void RiuPvtPlotWidget::plotCurves( RiaEclipseUnitTools::UnitSystem              
 
         if ( xVals.size() > 1 )
         {
-            QwtPlotCurve* qwtCurve = new QwtPlotCurve();
+            QwtPlotCurve* qwtCurve = new QwtPlotCurve( "Auxiliary" );
             qwtCurve->setSamples( xVals.data(), yVals.data(), static_cast<int>( xVals.size() ) );
 
             qwtCurve->setStyle( QwtPlotCurve::Lines );
             qwtCurve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
 
-            QColor     curveClr = Qt::darkGreen;
-            const QPen curvePen( curveClr );
-            qwtCurve->setPen( curvePen );
-
             qwtCurve->attach( m_qwtPlot );
+            RiuGuiTheme::styleQwtItem( qwtCurve );
         }
     }
 
     // Add the primary curves
     for ( size_t i = 0; i < curveArr.size(); i++ )
     {
-        const RigFlowDiagSolverInterface::PvtCurve& curve    = curveArr[i];
-        QwtPlotCurve*                               qwtCurve = new QwtPlotCurve();
+        const RigFlowDiagSolverInterface::PvtCurve& curve       = curveArr[i];
+        QwtPlotCurve*                               qwtCurve    = new QwtPlotCurve();
+        QwtSymbol*                                  curveSymbol = new QwtSymbol( QwtSymbol::Ellipse );
 
         CVF_ASSERT( curve.pressureVals.size() == curve.yVals.size() );
         qwtCurve->setSamples( curve.pressureVals.data(), curve.yVals.data(), static_cast<int>( curve.pressureVals.size() ) );
 
         qwtCurve->setStyle( QwtPlotCurve::Lines );
 
-        QColor curveClr = Qt::magenta;
         if ( curve.phase == RigFlowDiagSolverInterface::PvtCurve::GAS )
-            curveClr = QColor( Qt::red );
+        {
+            qwtCurve->setTitle( "Gas" );
+        }
         else if ( curve.phase == RigFlowDiagSolverInterface::PvtCurve::OIL )
-            curveClr = QColor( Qt::green );
-        const QPen curvePen( curveClr );
-        qwtCurve->setPen( curvePen );
+        {
+            qwtCurve->setTitle( "Oil" );
+        }
+        else
+        {
+            qwtCurve->setTitle( "Undefined" );
+        }
 
         qwtCurve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
 
-        QwtSymbol* curveSymbol = new QwtSymbol( QwtSymbol::Ellipse );
         curveSymbol->setSize( 6, 6 );
-        curveSymbol->setPen( curvePen );
         curveSymbol->setBrush( Qt::NoBrush );
         qwtCurve->setSymbol( curveSymbol );
 
         qwtCurve->attach( m_qwtPlot );
+        RiuGuiTheme::styleQwtItem( qwtCurve );
 
         m_qwtCurveArr.push_back( qwtCurve );
     }
@@ -268,13 +265,18 @@ void RiuPvtPlotWidget::plotCurves( RiaEclipseUnitTools::UnitSystem              
     if ( pressure != HUGE_VAL )
     {
         QwtPlotMarker* lineMarker = new QwtPlotMarker;
+
+        QPen pen;
+        pen.setStyle( Qt::DashLine );
+        lineMarker->setLinePen( pen );
+
         lineMarker->setXValue( pressure );
         lineMarker->setLineStyle( QwtPlotMarker::VLine );
-        lineMarker->setLinePen( QPen( QColor( 128, 128, 255 ), 1, Qt::DashLine ) );
         lineMarker->setLabel( QString( "PRESSURE" ) );
         lineMarker->setLabelAlignment( Qt::AlignTop | Qt::AlignRight );
         lineMarker->setLabelOrientation( Qt::Vertical );
         lineMarker->attach( m_qwtPlot );
+        RiuGuiTheme::styleQwtItem( lineMarker );
     }
 
     // Then point marker
@@ -283,10 +285,11 @@ void RiuPvtPlotWidget::plotCurves( RiaEclipseUnitTools::UnitSystem              
         QwtPlotMarker* pointMarker = new QwtPlotMarker;
         pointMarker->setValue( pressure, pointMarkerYValue );
 
-        QColor     markerClr( 128, 0, 255 );
         QwtSymbol* symbol = new QwtSymbol( QwtSymbol::Ellipse );
         symbol->setSize( 13, 13 );
-        symbol->setPen( QPen( markerClr, 2 ) );
+        QPen pen;
+        pen.setWidth( 2 );
+        symbol->setPen( pen );
         symbol->setBrush( Qt::NoBrush );
         pointMarker->setSymbol( symbol );
 
@@ -294,12 +297,13 @@ void RiuPvtPlotWidget::plotCurves( RiaEclipseUnitTools::UnitSystem              
         {
             QwtText text( pointMarkerLabel );
             text.setRenderFlags( Qt::AlignLeft );
-            text.setColor( markerClr );
+            text.setColor( RiuGuiTheme::getColorByVariableName( "textColor" ) );
             pointMarker->setLabel( text );
             pointMarker->setLabelAlignment( Qt::AlignTop | Qt::AlignRight );
         }
 
         pointMarker->attach( m_qwtPlot );
+        RiuGuiTheme::styleQwtItem( pointMarker );
     }
 
     m_qwtPlot->setTitle( plotTitle );
@@ -366,13 +370,14 @@ void RiuPvtPlotWidget::updateTrackerPlotMarkerAndLabelFromPicker()
         if ( !m_trackerPlotMarker )
         {
             m_trackerPlotMarker = new QwtPlotMarker;
+            m_trackerPlotMarker->setTitle( QString( "TrackedPoint" ) );
 
             QwtSymbol* symbol = new QwtSymbol( QwtSymbol::Ellipse );
             symbol->setSize( 13, 13 );
-            symbol->setPen( QPen( QColor( 0, 0, 0 ), 2 ) );
             symbol->setBrush( Qt::NoBrush );
             m_trackerPlotMarker->setSymbol( symbol );
             m_trackerPlotMarker->attach( m_qwtPlot );
+            RiuGuiTheme::styleQwtItem( m_trackerPlotMarker );
 
             needsReplot = true;
         }
