@@ -50,6 +50,7 @@ set( PROJECT_FILES
     cafNotificationCenter.h
 
     cafSignal.h
+    cafSignal.cpp
 
     cafTristate.cpp
     cafTristate.h

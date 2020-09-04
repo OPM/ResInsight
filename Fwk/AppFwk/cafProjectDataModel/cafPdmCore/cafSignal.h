@@ -56,10 +56,7 @@ class DeleteSignal
 public:
     using DisconnectCallback = std::function<void( SignalObserver* )>;
 
-    DeleteSignal( SignalObserver* observer )
-        : m_observer( observer )
-    {
-    }
+    DeleteSignal( SignalObserver* observer );
 
     template <typename ClassType>
     void connect( ClassType* signal )
@@ -72,14 +69,8 @@ public:
 
         if ( signalCasted ) m_disconnectCallbacks[signalCasted] = disconnectCallback;
     }
-    void disconnect( SignalObserver* observer ) { m_disconnectCallbacks.erase( observer ); }
-    void send()
-    {
-        for ( auto signalCallbackPair : m_disconnectCallbacks )
-        {
-            signalCallbackPair.second( m_observer );
-        }
-    }
+    void disconnect( SignalObserver* observer );
+    void send();
 
 private:
     std::map<SignalObserver*, DisconnectCallback> m_disconnectCallbacks;
@@ -107,11 +98,9 @@ public:
     DeleteSignal beingDeleted;
 
 public:
-    SignalObserver()
-        : beingDeleted( this )
-    {
-    }
-    virtual ~SignalObserver() { beingDeleted.send(); }
+    SignalObserver();
+    void sendDeleteSignal();
+    virtual ~SignalObserver();
 
 }; // namespace caf
 
@@ -170,6 +159,7 @@ public:
         };
         connect( observer, lambda );
     }
+
     template <typename ClassType>
     void connect( ClassType* observer, const MemberCallback& callback )
     {
@@ -187,6 +177,7 @@ public:
         m_observerCallbacks.erase( observer );
         observer->beingDeleted.disconnect( this );
     }
+
     void send( Args... args )
     {
         for ( auto observerCallbackPair : m_observerCallbacks )
@@ -197,12 +188,14 @@ public:
             }
         }
     }
+
     void block( SignalObserver* observer )
     {
         auto it = m_observerCallbacks.find( observer );
         CAF_ASSERT( it != m_observerCallbacks.end() );
         it->second.second = false;
     }
+
     void unblock( SignalObserver* observer )
     {
         auto it = m_observerCallbacks.find( observer );
