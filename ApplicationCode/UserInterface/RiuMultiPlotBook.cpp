@@ -308,11 +308,6 @@ void RiuMultiPlotBook::scheduleReplotOfAllPlots()
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotBook::renderTo( QPaintDevice* paintDevice )
 {
-    for ( auto page : m_pages )
-    {
-        page->stashWidgetStates();
-    }
-
     int    resolution = paintDevice->logicalDpiX();
     double scaling    = resolution / static_cast<double>( RiaGuiApplication::applicationResolution() );
 
@@ -330,11 +325,6 @@ void RiuMultiPlotBook::renderTo( QPaintDevice* paintDevice )
         }
         page->renderTo( &painter, scaling );
         firstPage = false;
-    }
-
-    for ( auto page : m_pages )
-    {
-        page->restoreWidgetStates();
     }
 }
 
