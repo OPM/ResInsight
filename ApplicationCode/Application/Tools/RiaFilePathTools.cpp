@@ -19,6 +19,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaFilePathTools.h"
+#include "RiaTextStringTools.h"
 
 #include "cafAssert.h"
 
@@ -176,6 +177,22 @@ QString RiaFilePathTools::rootSearchPathFromSearchFilter( const QString& searchF
     pathPartList.erase( pathPartIt, pathPartList.end() );
 
     return pathPartList.join( separator() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaFilePathTools::commonRootOfFileNames( const QStringList& fileList )
+{
+    QStringList fileNameList;
+    for ( auto filePath : fileList )
+    {
+        QFileInfo fileInfo( filePath );
+        QString   fileNameWithoutExt = fileInfo.baseName();
+        fileNameList.push_back( fileNameWithoutExt );
+    }
+    QString root = RiaTextStringTools::findCommonRoot( fileNameList );
+    return root;
 }
 
 //--------------------------------------------------------------------------------------------------

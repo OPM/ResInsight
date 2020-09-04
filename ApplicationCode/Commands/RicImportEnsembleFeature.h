@@ -40,5 +40,4 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
     QString askForEnsembleName( const QString& suggestion );
-    QString commonRoot( const QStringList& fileList );
 };

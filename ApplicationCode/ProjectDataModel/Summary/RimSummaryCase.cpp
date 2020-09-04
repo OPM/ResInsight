@@ -330,13 +330,13 @@ QString RimSummaryCase::uniqueShortNameForCase( RimSummaryCase* summaryCase )
         {
             keyComponent = keyComponent.replace( numberGroup, "" );
 
-            QString stem = keyComponent.left( 2 );
+            QString stem = keyComponent.left( 4 );
             if ( !stem.isEmpty() ) subComponents.push_back( stem );
             subComponents.push_back( numberGroup );
         }
         else
         {
-            subComponents.push_back( keyComponent.left( 4 ) );
+            subComponents.push_back( keyComponent.left( 6 ) );
         }
 
         shortNameComponents.push_back( subComponents.join( "-" ) );
