@@ -116,7 +116,8 @@ RiuRelativePermeabilityPlotPanel::RiuRelativePermeabilityPlotPanel( QDockWidget*
     m_fixedXAxisCheckBox->setChecked( true );
     m_fixedLeftYAxisCheckBox->setChecked( true );
 
-    QCheckBox* showCurveSelection = new QCheckBox( "Show Curve Selection", false );
+    QCheckBox* showCurveSelection = new QCheckBox( "Show Curve Selection" );
+    showCurveSelection->setCheckState( Qt::Unchecked );
     connect( showCurveSelection, SIGNAL( stateChanged( int ) ), SLOT( slotShowCurveSelectionWidgets( int ) ) );
 
     QVBoxLayout* leftLayout = new QVBoxLayout;
