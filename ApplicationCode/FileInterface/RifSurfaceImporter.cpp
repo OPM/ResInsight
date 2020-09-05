@@ -24,6 +24,7 @@
 
 #include "QStringList"
 
+#include <cmath>
 #include <fstream>
 #include <limits>
 #include <map>
