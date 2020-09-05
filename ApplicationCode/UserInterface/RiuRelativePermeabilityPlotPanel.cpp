@@ -44,6 +44,7 @@
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QMenu>
+#include <QPushButton>
 #include <QVBoxLayout>
 
 #include <algorithm>
@@ -97,9 +98,9 @@ RiuRelativePermeabilityPlotPanel::RiuRelativePermeabilityPlotPanel( QDockWidget*
     m_selectedCurvesButtonGroup->addButton( new QCheckBox( "PCOW" ), RigFlowDiagSolverInterface::RelPermCurve::PCOW );
     m_selectedCurvesButtonGroup->addButton( new QCheckBox( "PCOG" ), RigFlowDiagSolverInterface::RelPermCurve::PCOG );
 
-    QGroupBox*   groupBox       = new QGroupBox( "Curves" );
+    m_groupBox                  = new QGroupBox( "Curves" );
     QGridLayout* groupBoxLayout = new QGridLayout;
-    groupBox->setLayout( groupBoxLayout );
+    m_groupBox->setLayout( groupBoxLayout );
 
     QList<QAbstractButton*> checkButtonList = m_selectedCurvesButtonGroup->buttons();
     for ( int i = 0; i < checkButtonList.size(); i++ )
@@ -115,8 +116,12 @@ RiuRelativePermeabilityPlotPanel::RiuRelativePermeabilityPlotPanel( QDockWidget*
     m_fixedXAxisCheckBox->setChecked( true );
     m_fixedLeftYAxisCheckBox->setChecked( true );
 
+    QCheckBox* showCurveSelection = new QCheckBox( "Show Curve Selection", false );
+    connect( showCurveSelection, SIGNAL( stateChanged( int ) ), SLOT( slotShowCurveSelectionWidgets( int ) ) );
+
     QVBoxLayout* leftLayout = new QVBoxLayout;
-    leftLayout->addWidget( groupBox );
+    leftLayout->addWidget( showCurveSelection );
+    leftLayout->addWidget( m_groupBox );
     leftLayout->addWidget( m_logarithmicScaleKrAxisCheckBox );
     leftLayout->addWidget( m_showUnscaledCheckBox );
     leftLayout->addWidget( m_fixedXAxisCheckBox );
@@ -135,6 +140,8 @@ RiuRelativePermeabilityPlotPanel::RiuRelativePermeabilityPlotPanel( QDockWidget*
     connect( m_showUnscaledCheckBox, SIGNAL( stateChanged( int ) ), SLOT( slotSomeCheckBoxStateChanged( int ) ) );
     connect( m_fixedXAxisCheckBox, SIGNAL( stateChanged( int ) ), SLOT( slotSomeCheckBoxStateChanged( int ) ) );
     connect( m_fixedLeftYAxisCheckBox, SIGNAL( stateChanged( int ) ), SLOT( slotSomeCheckBoxStateChanged( int ) ) );
+
+    slotShowCurveSelectionWidgets( showCurveSelection->checkState() );
 
     plotUiSelectedCurves();
 }
@@ -778,6 +785,20 @@ void RiuRelativePermeabilityPlotPanel::slotCurrentPlotDataInTextDialog()
     textDialog->setWindowTitle( "Relative Permeability Data" );
     textDialog->setText( outTxt );
     textDialog->show();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuRelativePermeabilityPlotPanel::slotShowCurveSelectionWidgets( int state )
+{
+    bool setVisible = ( state != Qt::CheckState::Unchecked );
+
+    m_groupBox->setVisible( setVisible );
+    m_showUnscaledCheckBox->setVisible( setVisible );
+    m_logarithmicScaleKrAxisCheckBox->setVisible( setVisible );
+    m_fixedXAxisCheckBox->setVisible( setVisible );
+    m_fixedLeftYAxisCheckBox->setVisible( setVisible );
 }
 
 //--------------------------------------------------------------------------------------------------
