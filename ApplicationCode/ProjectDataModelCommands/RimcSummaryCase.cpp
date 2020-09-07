@@ -104,6 +104,7 @@ caf::PdmObjectHandle* RimSummaryCase_availableAddresses::execute()
 {
     auto*                      summaryCase = self<RimSummaryCase>();
     RifSummaryReaderInterface* sumReader   = summaryCase->summaryReader();
+    CAF_ASSERT( sumReader );
 
     const std::set<RifEclipseSummaryAddress>& addresses = sumReader->allResultAddresses();
 
@@ -153,6 +154,7 @@ caf::PdmObjectHandle* RimSummaryCase_availableTimeSteps::execute()
 {
     auto*                      summaryCase = self<RimSummaryCase>();
     RifSummaryReaderInterface* sumReader   = summaryCase->summaryReader();
+    CAF_ASSERT( sumReader );
 
     RifEclipseSummaryAddress adr;
     auto                     timeValues = sumReader->timeSteps( adr );

@@ -179,10 +179,10 @@ class PdmObjectBase:
         if isinstance(value, PdmObjectBase):
             return value.__class__.__name__ + ":" + str(value.address())
         if isinstance(value, list):
-            list_of_strings = []
+            list_of_values = []
             for val in value:
-                list_of_strings.append('\"' + self.__convert_to_grpc_value(val) + '\"')
-            return "[" + ", ".join(list_of_strings) + "]"
+                list_of_values.append(self.__convert_to_grpc_value(val))
+            return "[" + ", ".join(list_of_values) + "]"
         return str(value)
 
     def __get_grpc_value(self, camel_keyword):

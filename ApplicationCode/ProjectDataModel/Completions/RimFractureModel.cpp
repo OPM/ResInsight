@@ -51,7 +51,7 @@
 #include "RimWellPathGeometryDef.h"
 #include "RimWellPathTarget.h"
 
-#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmFieldCvfVec3d.h"
 #include "cafPdmFieldScriptingCapabilityCvfVec3d.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDoubleSliderEditor.h"

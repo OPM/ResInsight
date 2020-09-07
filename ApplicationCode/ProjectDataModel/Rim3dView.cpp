@@ -516,7 +516,11 @@ size_t Rim3dView::timeStepCount()
 //--------------------------------------------------------------------------------------------------
 QString Rim3dView::timeStepName( int frameIdx ) const
 {
-    return this->ownerCase()->timeStepName( frameIdx );
+    if ( this->ownerCase() )
+    {
+        return this->ownerCase()->timeStepName( frameIdx );
+    }
+    return QString( "" );
 }
 
 //--------------------------------------------------------------------------------------------------
