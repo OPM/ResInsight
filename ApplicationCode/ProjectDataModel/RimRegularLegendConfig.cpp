@@ -43,6 +43,7 @@
 #include "RimWellRftEnsembleCurveSet.h"
 #include "RimWellRftPlot.h"
 
+#include "Riu3DMainWindowTools.h"
 #include "RiuCategoryLegendFrame.h"
 #include "RiuScalarMapperLegendFrame.h"
 
@@ -56,6 +57,7 @@
 #include "cafPdmFieldCvfMat4d.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiLineEditor.h"
+#include "cafPdmUiToolButtonEditor.h"
 
 #include "cvfMath.h"
 #include "cvfScalarMapperContinuousLinear.h"
@@ -179,6 +181,10 @@ RimRegularLegendConfig::RimRegularLegendConfig()
 
     CAF_PDM_InitFieldNoDefault( &m_colorLegend, "ColorLegend", "Colors", "", "", "" );
     m_colorLegend = mapToColorLegend( ColorRangeEnum( ColorRangesType::NORMAL ) );
+    CAF_PDM_InitField( &m_selectColorLegendButton, "selectColorLegendButton", false, "Edit", "", "", "" );
+    m_selectColorLegendButton.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
+    m_selectColorLegendButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_selectColorLegendButton.xmlCapability()->disableIO();
 
     CAF_PDM_InitField( &m_mappingMode, "MappingMode", MappingEnum( MappingType::LINEAR_CONTINUOUS ), "Mapping", "", "", "" );
     CAF_PDM_InitField( &m_rangeMode,
@@ -255,6 +261,16 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
                                                const QVariant&            oldValue,
                                                const QVariant&            newValue )
 {
+    if ( changedField == &m_selectColorLegendButton )
+    {
+        m_selectColorLegendButton = false;
+        if ( m_colorLegend != nullptr )
+        {
+            Riu3DMainWindowTools::selectAsCurrentItem( m_colorLegend() );
+        }
+        return;
+    }
+
     if ( changedField == &m_numLevels )
     {
         int upperLimit = std::numeric_limits<int>::max();
@@ -1059,7 +1075,9 @@ void RimRegularLegendConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiO
         formatGr->add( &m_numLevels );
         formatGr->add( &m_precision );
         formatGr->add( &m_tickNumberFormat );
-        formatGr->add( &m_colorLegend );
+
+        formatGr->add( &m_colorLegend, {true, 2, 1} );
+        formatGr->add( &m_selectColorLegendButton, {false, 1, 0} );
 
         caf::PdmUiOrdering* mappingGr = uiOrdering.addNewGroup( "Mapping" );
         mappingGr->add( &m_mappingMode );
