@@ -39,8 +39,6 @@
 #include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
-#include "cafPdmCoreColor3f.h"
-#include "cafPdmCoreVec3d.h"
 #include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
 #include "cafPdmScriptIOMessages.h"
