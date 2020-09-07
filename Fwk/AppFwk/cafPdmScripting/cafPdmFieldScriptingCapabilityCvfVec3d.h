@@ -33,22 +33,24 @@
 //   for more details.
 //
 //##################################################################################################
+#pragma once
+
 #include "cafPdmFieldScriptingCapability.h"
 
-#include "cvfColor3.h"
+#include "cvfVector3.h"
 
 namespace caf
 {
 template <>
-struct PdmFieldScriptingCapabilityIOHandler<cvf::Color3f>
+struct PdmFieldScriptingCapabilityIOHandler<cvf::Vector3<double>>
 {
-    static void writeToField( cvf::Color3f&        fieldValue,
-                              QTextStream&         inputStream,
-                              PdmScriptIOMessages* errorMessageContainer,
-                              bool                 stringsAreQuoted = true );
-    static void readFromField( const cvf::Color3f& fieldValue,
-                               QTextStream&        outputStream,
-                               bool                quoteStrings     = true,
-                               bool                quoteNonBuiltins = false );
+    static void writeToField( cvf::Vector3<double>& fieldValue,
+                              QTextStream&          inputStream,
+                              PdmScriptIOMessages*  errorMessageContainer,
+                              bool                  stringsAreQuoted = true );
+    static void readFromField( const cvf::Vector3<double>& fieldValue,
+                               QTextStream&                outputStream,
+                               bool                        quoteStrings     = true,
+                               bool                        quoteNonBuiltins = false );
 };
 } // namespace caf

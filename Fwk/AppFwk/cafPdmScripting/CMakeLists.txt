@@ -30,6 +30,10 @@ set( PROJECT_FILES
      cafPdmMarkdownGenerator.cpp
      cafPdmMarkdownBuilder.h
      cafPdmMarkdownBuilder.cpp
+     cafPdmFieldScriptingCapabilityCvfColor3.h
+     cafPdmFieldScriptingCapabilityCvfColor3.cpp
+     cafPdmFieldScriptingCapabilityCvfVec3d.h
+     cafPdmFieldScriptingCapabilityCvfVec3d.cpp
 )
 
 
@@ -45,6 +49,7 @@ target_include_directories(${PROJECT_NAME}
 
 target_link_libraries ( ${PROJECT_NAME}
     cafProjectDataModel
+    cafPdmCvf
 )
 
 source_group("" FILES ${PROJECT_FILES})

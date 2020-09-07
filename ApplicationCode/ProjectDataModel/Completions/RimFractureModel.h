@@ -24,9 +24,6 @@
 #include "RimCheckableNamedObject.h"
 #include "RimWellPathComponentInterface.h"
 
-#include "cvfObject.h"
-#include "cvfVector3.h"
-
 #include "cafPdmChildField.h"
 #include "cafPdmFieldCvfVec3d.h"
 #include "cafPdmProxyValueField.h"

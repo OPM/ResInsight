@@ -40,10 +40,10 @@ using namespace caf;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmFieldScriptingCapabilityIOHandler<cvf::Vec3d>::writeToField( cvf::Vec3d&               fieldValue,
-                                                                     QTextStream&              inputStream,
-                                                                     caf::PdmScriptIOMessages* errorMessageContainer,
-                                                                     bool                      stringsAreQuoted )
+void PdmFieldScriptingCapabilityIOHandler<cvf::Vector3<double>>::writeToField( cvf::Vector3<double>& fieldValue,
+                                                                               QTextStream&          inputStream,
+                                                                               caf::PdmScriptIOMessages* errorMessageContainer,
+                                                                               bool stringsAreQuoted )
 {
     std::vector<double> fieldVectorValue;
     PdmFieldScriptingCapabilityIOHandler<std::vector<double>>::writeToField( fieldVectorValue,
@@ -67,10 +67,10 @@ void PdmFieldScriptingCapabilityIOHandler<cvf::Vec3d>::writeToField( cvf::Vec3d&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmFieldScriptingCapabilityIOHandler<cvf::Vec3d>::readFromField( const cvf::Vec3d& fieldValue,
-                                                                      QTextStream&      outputStream,
-                                                                      bool              quoteStrings,
-                                                                      bool              quoteNonBuiltin )
+void PdmFieldScriptingCapabilityIOHandler<cvf::Vector3<double>>::readFromField( const cvf::Vector3<double>& fieldValue,
+                                                                                QTextStream& outputStream,
+                                                                                bool         quoteStrings,
+                                                                                bool         quoteNonBuiltin )
 {
     std::vector<double> fieldVectorValue( 3u );
     for ( int i = 0; i < 3; ++i )
