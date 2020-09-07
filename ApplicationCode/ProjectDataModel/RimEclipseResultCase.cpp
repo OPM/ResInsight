@@ -249,7 +249,8 @@ bool RimEclipseResultCase::importAsciiInputProperties( const QStringList& fileNa
     return RifEclipseInputPropertyLoader::readInputPropertiesFromFiles( m_inputPropertyCollection,
                                                                         this->eclipseCaseData(),
                                                                         importFaults,
-                                                                        fileNames.toVector().toStdVector() );
+                                                                        std::vector<QString>( fileNames.begin(),
+                                                                                              fileNames.end() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
