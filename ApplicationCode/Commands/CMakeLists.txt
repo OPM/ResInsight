@@ -61,6 +61,7 @@ target_include_directories(${PROJECT_NAME}
   $<TARGET_PROPERTY:LibCore,INCLUDE_DIRECTORIES>        # Needed for cmake version < 3.12. Remove when we can use target_link_libraries
   $<TARGET_PROPERTY:cafCommand,INCLUDE_DIRECTORIES>     # Needed for cmake version < 3.12. Remove when we can use target_link_libraries
   $<TARGET_PROPERTY:cafPdmCvf,INCLUDE_DIRECTORIES>      # Needed for cmake version < 3.12. Remove when we can use target_link_libraries
+  $<TARGET_PROPERTY:cafPdmScripting,INCLUDE_DIRECTORIES>      # Needed for cmake version < 3.12. Remove when we can use target_link_libraries
   $<TARGET_PROPERTY:cafTensor,INCLUDE_DIRECTORIES>      # Needed for cmake version < 3.12. Remove when we can use target_link_libraries
   $<TARGET_PROPERTY:cafViewer,INCLUDE_DIRECTORIES>      # Needed for cmake version < 3.12. Remove when we can use target_link_libraries
   $<TARGET_PROPERTY:cafVizExtensions,INCLUDE_DIRECTORIES>       # Needed for cmake version < 3.12. Remove when we can use target_link_libraries
