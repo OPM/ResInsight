@@ -150,6 +150,10 @@ RifReaderEclipseRft* RimFileSummaryCase::findRftDataAndCreateReader( const QStri
 //--------------------------------------------------------------------------------------------------
 RifSummaryReaderInterface* RimFileSummaryCase::summaryReader()
 {
+    if ( m_summaryFileReader.isNull() )
+    {
+        createSummaryReaderInterface();
+    }
     return m_summaryFileReader.p();
 }
 
@@ -158,6 +162,10 @@ RifSummaryReaderInterface* RimFileSummaryCase::summaryReader()
 //--------------------------------------------------------------------------------------------------
 RifReaderRftInterface* RimFileSummaryCase::rftReader()
 {
+    if ( m_summaryEclipseRftReader.isNull() )
+    {
+        createRftReaderInterface();
+    }
     return m_summaryEclipseRftReader.p();
 }
 
