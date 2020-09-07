@@ -219,6 +219,7 @@ if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
 		"rips/tests/dataroot.py"
 		"rips/tests/test_nnc_properties.py"
 		"rips/tests/test_simulation_wells.py"
+		"rips/tests/test_summary_cases.py"
 		"rips/tests/test_wells.py"
 		"requirements.txt"
 		"setup.py"
