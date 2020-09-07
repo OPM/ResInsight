@@ -688,9 +688,9 @@ void RimProject::allCases( std::vector<RimCase*>& cases ) const
         RimGeoMechModels* geomModels = oilField->geoMechModels();
         if ( geomModels )
         {
-            for ( size_t caseIdx = 0; caseIdx < geomModels->cases.size(); caseIdx++ )
+            for ( auto acase : geomModels->cases() )
             {
-                cases.push_back( geomModels->cases[caseIdx] );
+                cases.push_back( acase );
             }
         }
     }
@@ -1223,9 +1223,9 @@ std::vector<RimGeoMechCase*> RimProject::geoMechCases() const
         RimGeoMechModels* geomModels = oilField->geoMechModels();
         if ( geomModels )
         {
-            for ( size_t caseIdx = 0; caseIdx < geomModels->cases.size(); caseIdx++ )
+            for ( auto acase : geomModels->cases() )
             {
-                cases.push_back( geomModels->cases[caseIdx] );
+                cases.push_back( acase );
             }
         }
     }

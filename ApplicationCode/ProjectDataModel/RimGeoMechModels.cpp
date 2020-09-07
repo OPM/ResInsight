@@ -23,6 +23,10 @@
 
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
+#include "RimGridView.h"
+#include "RimIntersectionCollection.h"
+#include "RimIntersectionResultDefinition.h"
+#include "RimIntersectionResultsDefinitionCollection.h"
 
 CAF_PDM_SOURCE_INIT( RimGeoMechModels, "ResInsightGeoMechModels" );
 //--------------------------------------------------------------------------------------------------
@@ -32,8 +36,8 @@ RimGeoMechModels::RimGeoMechModels( void )
 {
     CAF_PDM_InitObject( "Geomechanical Models", ":/GeoMechCases48x48.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &cases, "Cases", "", "", "", "" );
-    cases.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_cases, "Cases", "", "", "", "" );
+    m_cases.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -41,41 +45,70 @@ RimGeoMechModels::RimGeoMechModels( void )
 //--------------------------------------------------------------------------------------------------
 RimGeoMechModels::~RimGeoMechModels( void )
 {
-    cases.deleteAllChildObjects();
+    m_cases.deleteAllChildObjects();
 }
 
-RimGeoMechCase* RimGeoMechModels::copyCases( std::vector<RimGeoMechCase*> casesToCopy )
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimGeoMechCase*> RimGeoMechModels::cases() const
+{
+    return m_cases.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechModels::addCase( RimGeoMechCase* thecase )
+{
+    m_cases.push_back( thecase );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechModels::deleteCase( RimGeoMechCase* thecase )
+{
+    m_cases.removeChildObject( thecase );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimGeoMechCase* RimGeoMechModels::copyCase( RimGeoMechCase* thecase, const QString& newInputFileName )
 {
     std::vector<RimGeoMechCase*> newcases;
 
-    // create a copy of each surface given
-    for ( RimGeoMechCase* thecase : casesToCopy )
+    RimGeoMechCase* copy = thecase->createCopy( newInputFileName );
+    if ( !copy )
     {
-        RimGeoMechCase* copy = thecase->createCopy();
-        if ( copy )
-        {
-            newcases.push_back( copy );
-        }
-        else
-        {
-            RiaLogging::warning( "Create Copy: Could not create a copy of the geomech case" +
-                                 thecase->caseUserDescription() );
-        }
+        RiaLogging::warning( "Create Copy: Could not create a copy of the geomech case" +
+                             thecase->caseUserDescription() + " using the new input file " + newInputFileName );
+        return nullptr;
     }
 
-    RimGeoMechCase* retcase = nullptr;
-    for ( RimGeoMechCase* newcase : newcases )
-    {
-        cases.push_back( newcase );
-        newcase->resolveReferencesRecursively();
-        for ( auto riv : newcase->views() )
-        {
-            riv->loadDataAndUpdate();
-        }
-        retcase = newcase;
-    }
+    m_cases.push_back( copy );
 
+    copy->resolveReferencesRecursively();
+
+    copy->updateConnectedEditors();
     this->updateConnectedEditors();
 
-    return retcase;
+    for ( auto riv : copy->views() )
+    {
+        RimGridView* rgv = dynamic_cast<RimGridView*>( riv );
+        if ( rgv )
+        {
+            rgv->loadDataAndUpdate();
+            rgv->scheduleCreateDisplayModelAndRedraw();
+            rgv->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+
+            for ( auto coll : rgv->separateSurfaceResultsCollection()->intersectionResultsDefinitions() )
+            {
+                coll->update2dIntersectionViews();
+            }
+        }
+    }
+
+    return copy;
 }

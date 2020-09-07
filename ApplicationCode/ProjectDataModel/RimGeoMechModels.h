@@ -38,9 +38,12 @@ public:
     RimGeoMechModels( void );
     ~RimGeoMechModels( void ) override;
 
-    caf::PdmChildArrayField<RimGeoMechCase*> cases;
+    RimGeoMechCase* copyCase( RimGeoMechCase* thecase, const QString& newInputFileName );
+    void            deleteCase( RimGeoMechCase* thecase );
+    void            addCase( RimGeoMechCase* thecase );
 
-    RimGeoMechCase* copyCases( std::vector<RimGeoMechCase*> cases );
+    std::vector<RimGeoMechCase*> cases() const;
 
 private:
+    caf::PdmChildArrayField<RimGeoMechCase*> m_cases;
 };

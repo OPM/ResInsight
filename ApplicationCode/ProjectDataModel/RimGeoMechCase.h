@@ -72,7 +72,7 @@ public:
 
     CaseOpenStatus openGeoMechCase( std::string* errorMessage );
 
-    RimGeoMechCase* createCopy();
+    RimGeoMechCase* createCopy( const QString& newInputFileName );
 
     RigGeoMechCaseData*       geoMechData();
     const RigGeoMechCaseData* geoMechData() const;

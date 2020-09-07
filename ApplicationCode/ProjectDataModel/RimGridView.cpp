@@ -148,6 +148,8 @@ RimGridView::~RimGridView( void )
 
     delete this->m_overlayInfoConfig();
 
+    delete m_surfaceResultDefCollection;
+    delete m_intersectionResultDefCollection;
     delete m_wellMeasurementCollection;
     delete m_rangeFilterCollection;
     delete m_overrideRangeFilterCollection;

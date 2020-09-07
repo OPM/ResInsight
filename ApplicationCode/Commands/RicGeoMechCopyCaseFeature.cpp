@@ -23,7 +23,9 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 
+#include "RiaApplication.h"
 #include "Riu3DMainWindowTools.h"
+#include "RiuFileDialogTools.h"
 
 #include "cafSelectionManagerTools.h"
 #include "cafUtils.h"
@@ -50,10 +52,26 @@ void RicGeoMechCopyCaseFeature::onActionTriggered( bool isChecked )
     if ( coll )
     {
         // get the cases
-
         std::vector<RimGeoMechCase*> cases = caf::selectedObjectsByTypeStrict<RimGeoMechCase*>();
 
-        RimGeoMechCase* caseToSelect = coll->copyCases( cases );
+        RimGeoMechCase* caseToSelect = nullptr;
+
+        for ( RimGeoMechCase* gmc : cases )
+        {
+            RiaApplication* app = RiaApplication::instance();
+
+            QString defaultDir = app->lastUsedDialogDirectory( "GEOMECH_MODEL" );
+            QString fileName   = RiuFileDialogTools::getOpenFileName( nullptr,
+                                                                    "Import Geo-Mechanical Model",
+                                                                    defaultDir,
+                                                                    "Abaqus results (*.odb)" );
+            if ( fileName.isEmpty() ) break;
+
+            defaultDir = QFileInfo( fileName ).absolutePath();
+            app->setLastUsedDialogDirectory( "GEOMECH_MODEL", defaultDir );
+
+            caseToSelect = coll->copyCase( gmc, fileName );
+        }
 
         if ( caseToSelect )
         {
@@ -68,5 +86,5 @@ void RicGeoMechCopyCaseFeature::onActionTriggered( bool isChecked )
 void RicGeoMechCopyCaseFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/Copy.png" ) );
-    actionToSetup->setText( "Create Copy" );
+    actionToSetup->setText( "Copy and Replace Input" );
 }
