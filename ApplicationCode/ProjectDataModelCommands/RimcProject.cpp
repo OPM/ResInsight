@@ -29,6 +29,9 @@
 
 #include "cafPdmFieldScriptingCapability.h"
 
+#include <QDir>
+#include <QFileInfo>
+
 #include <memory>
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_importSummaryCase, "importSummaryCase" );
@@ -48,7 +51,15 @@ RimProject_importSummaryCase::RimProject_importSummaryCase( caf::PdmObjectHandle
 //--------------------------------------------------------------------------------------------------
 caf::PdmObjectHandle* RimProject_importSummaryCase::execute()
 {
-    QStringList                  summaryFileNames{m_fileName};
+    QString   absolutePath = m_fileName;
+    QFileInfo projectPathInfo( absolutePath );
+    if ( !projectPathInfo.exists() )
+    {
+        QDir startDir( RiaApplication::instance()->startDir() );
+        absolutePath = startDir.absoluteFilePath( m_fileName );
+    }
+
+    QStringList                  summaryFileNames{absolutePath};
     std::vector<RimSummaryCase*> newCases;
 
     if ( RicImportSummaryCasesFeature::createSummaryCasesFromFiles( summaryFileNames, &newCases ) )
