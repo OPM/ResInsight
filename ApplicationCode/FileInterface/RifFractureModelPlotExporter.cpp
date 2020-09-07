@@ -18,141 +18,18 @@
 
 #include "RifFractureModelPlotExporter.h"
 
-#include "RimFractureModelPlot.h"
+#include "RifFractureModelDeviationFrkExporter.h"
+#include "RifFractureModelGeologicalFrkExporter.h"
 
-#include <QFile>
-#include <QTextStream>
+#include "RimFractureModelPlot.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifFractureModelPlotExporter::writeToFile( RimFractureModelPlot* plot, bool useDetailedLoss, const QString& filepath )
+bool RifFractureModelPlotExporter::writeToDirectory( RimFractureModelPlot* plot,
+                                                     bool                  useDetailedFluidLoss,
+                                                     const QString&        directoryPath )
 {
-    std::vector<QString> labels;
-    // TVD depth of top of zone (ft)
-    labels.push_back( "dpthlyr" );
-
-    // Stress at top of zone (psi)
-    labels.push_back( "strs" );
-
-    // Stress gradient (psi/ft)
-    labels.push_back( "strsg" );
-
-    // Young's modulus (MMpsi)
-    labels.push_back( "elyr" );
-
-    // Poisson's Ratio
-    labels.push_back( "poissonr" );
-
-    // K-Ic (psi*sqrt(in)
-    labels.push_back( "tuflyr" );
-
-    // Fluid Loss Coefficient
-    labels.push_back( "clyrc" );
-
-    // Spurt loss (gal/100f^2)
-    labels.push_back( "clyrs" );
-
-    // Proppand Embedmeent (lb/ft^2)
-    labels.push_back( "pembed" );
-
-    if ( useDetailedLoss )
-    {
-        // B2 Detailed Loss
-        // Reservoir Pressure (psi)
-        labels.push_back( "zoneResPres" );
-
-        // Immobile Fluid Saturation (fraction)
-        labels.push_back( "zoneWaterSat" );
-
-        // Porosity (fraction)
-        labels.push_back( "zonePorosity" );
-
-        // Horizontal Perm (md)
-        labels.push_back( "zoneHorizPerm" );
-
-        // Vertical Perm (md)
-        labels.push_back( "zoneVertPerm" );
-
-        // Temperature (F)
-        labels.push_back( "zoneTemp" );
-
-        // Relative permeability
-        labels.push_back( "zoneRelPerm" );
-
-        // Poro-Elastic constant
-        labels.push_back( "zonePoroElas" );
-
-        // Thermal Epansion Coefficient (1/F)
-        labels.push_back( "zoneThermalExp" );
-    }
-
-    std::map<QString, std::vector<double>> values;
-    values["dpthlyr"]        = plot->calculateTrueVerticalDepth();
-    values["strs"]           = plot->calculateStress();
-    values["strsg"]          = plot->calculateStressGradient();
-    values["elyr"]           = plot->calculateYoungsModulus();
-    values["poissonr"]       = plot->calculatePoissonsRatio();
-    values["tuflyr"]         = plot->calculateKIc();
-    values["clyrc"]          = plot->calculateFluidLossCoefficient();
-    values["clyrs"]          = plot->calculateSpurtLoss();
-    values["pembed"]         = plot->calculateProppandEmbedment();
-    values["zoneResPres"]    = plot->calculateReservoirPressure();
-    values["zoneWaterSat"]   = plot->calculateImmobileFluidSaturation();
-    values["zonePorosity"]   = plot->calculatePorosity();
-    values["zoneHorizPerm"]  = plot->calculateHorizontalPermeability();
-    values["zoneVertPerm"]   = plot->calculateVerticalPermeability();
-    values["zoneTemp"]       = plot->calculateTemperature();
-    values["zoneRelPerm"]    = plot->calculateRelativePermeabilityFactor();
-    values["zonePoroElas"]   = plot->calculatePoroElasticConstant();
-    values["zoneThermalExp"] = plot->calculateThermalExpansionCoefficient();
-
-    QFile data( filepath );
-    if ( !data.open( QFile::WriteOnly | QFile::Truncate ) )
-    {
-        return false;
-    }
-
-    QTextStream stream( &data );
-    appendHeaderToStream( stream );
-
-    for ( QString label : labels )
-    {
-        appendToStream( stream, label, values[label] );
-    }
-
-    appendFooterToStream( stream );
-
-    return true;
-}
-
-void RifFractureModelPlotExporter::appendHeaderToStream( QTextStream& stream )
-{
-    stream << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl << "<geologic>" << endl;
-}
-
-void RifFractureModelPlotExporter::appendToStream( QTextStream& stream, const QString& label, const std::vector<double>& values )
-{
-    stream << "<cNamedSet>" << endl
-           << "<name>" << endl
-           << label << endl
-           << "</name>" << endl
-           << "<dimCount>" << endl
-           << 1 << endl
-           << "</dimCount>" << endl
-           << "<sizes>" << endl
-           << values.size() << endl
-           << "</sizes>" << endl
-           << "<data>" << endl;
-    for ( auto val : values )
-    {
-        stream << val << endl;
-    }
-
-    stream << "</data>" << endl << "</cNamedSet>" << endl;
-}
-
-void RifFractureModelPlotExporter::appendFooterToStream( QTextStream& stream )
-{
-    stream << "</geologic>" << endl;
+    return RifFractureModelGeologicalFrkExporter::writeToFile( plot, useDetailedFluidLoss, directoryPath + "/Geological.frk" ) &&
+           RifFractureModelDeviationFrkExporter::writeToFile( plot, directoryPath + "/Deviation.frk" );
 }

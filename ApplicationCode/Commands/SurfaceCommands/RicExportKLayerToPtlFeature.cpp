@@ -23,13 +23,15 @@
 #include "RifSurfaceExporter.h"
 #include "RigSurface.h"
 #include "RimGridCaseSurface.h"
+
 #include "Riu3DMainWindowTools.h"
+#include "RiuFileDialogTools.h"
 
 #include "cafSelectionManagerTools.h"
 #include "cafUtils.h"
 
 #include <QAction>
-#include <QFileDialog>
+#include <QFileInfo>
 
 CAF_CMD_SOURCE_INIT( RicExportKLayerToPtlFeature, "RicExportKLayerToPtlFeature" );
 
@@ -70,11 +72,11 @@ void RicExportKLayerToPtlFeature::onActionTriggered( bool isChecked )
 
     for ( RimGridCaseSurface* surf : surfaces )
     {
-        QString fileName = QFileDialog::getSaveFileName( nullptr,
-                                                         tr( "Export to File" ),
-                                                         defaultAbsFileName,
-                                                         fileExtensionFilter,
-                                                         &selectedExtension );
+        QString fileName = RiuFileDialogTools::getSaveFileName( nullptr,
+                                                                tr( "Export to File" ),
+                                                                defaultAbsFileName,
+                                                                fileExtensionFilter,
+                                                                &selectedExtension );
         if ( fileName.isEmpty() ) return;
 
         app->setLastUsedDialogDirectory( "EXPORT_SURFACE", QFileInfo( fileName ).absolutePath() );

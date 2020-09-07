@@ -92,6 +92,9 @@ class RimSummaryCaseCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    caf::Signal<> caseNameChanged;
+
+public:
     RimSummaryCaseCollection();
     ~RimSummaryCaseCollection() override;
 
@@ -145,6 +148,8 @@ private:
 
     void initAfterRead() override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+
+    void onCaseNameChanged( const SignalEmitter* emitter );
 
 protected:
     virtual void onLoadDataAndUpdate();

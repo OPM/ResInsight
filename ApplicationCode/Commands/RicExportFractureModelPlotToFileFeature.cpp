@@ -23,13 +23,14 @@
 #include "RimFractureModel.h"
 #include "RimFractureModelPlot.h"
 
+#include "RiuFileDialogTools.h"
+
 #include "RifFractureModelPlotExporter.h"
 
 #include "cafSelectionManager.h"
 #include "cafUtils.h"
 
 #include <QAction>
-#include <QFileDialog>
 
 CAF_CMD_SOURCE_INIT( RicExportFractureModelPlotToFileFeature, "RicExportFractureModelPlotToFileFeature" );
 
@@ -53,21 +54,17 @@ void RicExportFractureModelPlotToFileFeature::onActionTriggered( bool isChecked 
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( "FRACTURE_MODEL_PLOT" );
 
-    QString fileNameCandidate = "Geological";
-    QString defaultFileName   = defaultDir + "/" + caf::Utils::makeValidFileBasename( fileNameCandidate ) + ".frk";
-    QString fileName          = QFileDialog::getSaveFileName( nullptr,
-                                                     "Select File for Fracture Model Plot Export",
-                                                     defaultFileName,
-                                                     "Geologic Model File(*.frk);;All files(*.*)" );
+    QString directoryPath =
+        RiuFileDialogTools::getExistingDirectory( nullptr, "Select Directory for Fracture Model Plot Export", defaultDir );
 
-    if ( fileName.isEmpty() ) return;
+    if ( directoryPath.isEmpty() ) return;
 
-    RifFractureModelPlotExporter::writeToFile( fractureModelPlot,
-                                               fractureModelPlot->fractureModel()->useDetailedFluidLoss(),
-                                               fileName );
+    RifFractureModelPlotExporter::writeToDirectory( fractureModelPlot,
+                                                    fractureModelPlot->fractureModel()->useDetailedFluidLoss(),
+                                                    directoryPath );
 
     // Remember the path to next time
-    app->setLastUsedDialogDirectory( "FRACTURE_MODEL_PLOT", QFileInfo( fileName ).absolutePath() );
+    app->setLastUsedDialogDirectory( "FRACTURE_MODEL_PLOT", directoryPath );
 }
 
 //--------------------------------------------------------------------------------------------------

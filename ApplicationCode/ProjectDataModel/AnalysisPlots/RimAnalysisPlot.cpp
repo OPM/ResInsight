@@ -661,7 +661,24 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
               fieldNeedingOptions == &m_minorGroupType || fieldNeedingOptions == &m_sortGroupForColors )
     {
         options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( NONE ), NONE ) );
-        options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( SUMMARY_ITEM ), SUMMARY_ITEM ) );
+        QStringList currentSummaryItems;
+        for ( auto summaryAddr : getOrCreateSelectedCurveDefAnalyser()->m_summaryItems )
+        {
+            currentSummaryItems.push_back( QString::fromStdString( summaryAddr.itemUiText() ) );
+        }
+        currentSummaryItems.removeDuplicates();
+        if ( !currentSummaryItems.isEmpty() )
+        {
+            QString exampleString = currentSummaryItems.join( ", " );
+            if ( exampleString.length() > 16 )
+            {
+                exampleString = exampleString.left( 13 ) + "...";
+            }
+
+            QString summaryItemText =
+                QString( "%1 (%2)" ).arg( SortGroupAppEnum::uiText( SUMMARY_ITEM ) ).arg( exampleString );
+            options.push_back( caf::PdmOptionItemInfo( summaryItemText, SUMMARY_ITEM ) );
+        }
         options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( QUANTITY ), QUANTITY ) );
         options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( CASE ), CASE ) );
         options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( ENSEMBLE ), ENSEMBLE ) );

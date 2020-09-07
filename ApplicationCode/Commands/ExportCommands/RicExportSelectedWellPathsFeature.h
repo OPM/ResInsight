@@ -25,6 +25,7 @@
 #include <memory>
 
 class RigWellPath;
+class RigWellPathGeom;
 class RimWellPath;
 class RicExportWellPathsUi;
 class QTextStream;
@@ -65,6 +66,15 @@ class RicExportSelectedWellPathsFeature : public caf::CmdFeature
                                                bool               writeProjectInfo );
 
 private:
+    static void writeWellPathGeometryToStream( QTextStream&               stream,
+                                               const QString&             exportName,
+                                               const std::vector<double>& xValues,
+                                               const std::vector<double>& yValues,
+                                               const std::vector<double>& tvdValues,
+                                               const std::vector<double>& mdValues,
+                                               bool                       useMdRkb,
+                                               bool                       writeProjectInfo );
+
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;

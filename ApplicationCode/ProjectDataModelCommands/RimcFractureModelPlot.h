@@ -47,5 +47,5 @@ public:
     bool                             isNullptrValidResult() const override;
 
 private:
-    caf::PdmField<QString> m_filePath;
+    caf::PdmField<QString> m_directoryPath;
 };

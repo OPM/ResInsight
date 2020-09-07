@@ -24,6 +24,8 @@
 #include "RimProject.h"
 #include "RimSummaryPlot.h"
 
+#include "cafPdmFieldReorderCapability.h"
+
 #include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmObjectMethod.h"
 #include "cafPdmObjectScriptingCapability.h"
@@ -39,6 +41,7 @@ RimSummaryPlotCollection::RimSummaryPlotCollection()
 
     CAF_PDM_InitFieldNoDefault( &summaryPlots, "SummaryPlots", "Summary Plots", "", "", "" );
     summaryPlots.uiCapability()->setUiHidden( true );
+    caf::PdmFieldReorderCapability::addToField( &summaryPlots );
 }
 
 //--------------------------------------------------------------------------------------------------

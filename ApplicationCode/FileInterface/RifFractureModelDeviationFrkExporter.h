@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2020-    Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,28 +18,23 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include <vector>
 
-#include <QFile>
-
-#include <memory>
-
-class RimWellPath;
+class RimFractureModelPlot;
+class QString;
+class QTextStream;
 
 //==================================================================================================
-///
+//
 //==================================================================================================
-typedef std::shared_ptr<QFile> QFilePtr;
-
-//==================================================================================================
-///
-//==================================================================================================
-class RicExportVisibleWellPathsFeature : public caf::CmdFeature
+class RifFractureModelDeviationFrkExporter
 {
-    CAF_CMD_HEADER_INIT;
+public:
+    static bool writeToFile( RimFractureModelPlot* plot, const QString& filepath );
 
 private:
-    bool isCommandEnabled() override;
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
+    static void appendHeaderToStream( QTextStream& stream );
+    static void appendToStream( QTextStream& stream, const QString& label, const std::vector<double>& values );
+    static void appendFooterToStream( QTextStream& stream );
+    static void convertFromMeterToFeet( std::vector<double>& data );
 };

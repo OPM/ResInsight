@@ -24,16 +24,17 @@
 #include "RimColorLegend.h"
 #include "RimColorLegendCollection.h"
 #include "RimColorLegendItem.h"
-
 #include "RimProject.h"
 
 #include "RifColorLegendData.h"
+
 #include "Riu3DMainWindowTools.h"
+#include "RiuFileDialogTools.h"
 
 #include "cafSelectionManager.h"
 
 #include <QAction>
-#include <QFileDialog>
+#include <QFileInfo>
 
 CAF_CMD_SOURCE_INIT( RicImportColorCategoriesFeature, "RicImportColorCategoriesFeature" );
 
@@ -65,10 +66,10 @@ void RicImportColorCategoriesFeature::onActionTriggered( bool isChecked )
 
     QString filterText = QString( "Formation Names description File (*.lyr);;All Files (*.*)" );
 
-    QString fileName = QFileDialog::getOpenFileName( Riu3DMainWindowTools::mainWindowWidget(),
-                                                     "Import Formation File",
-                                                     defaultDir,
-                                                     filterText );
+    QString fileName = RiuFileDialogTools::getOpenFileName( Riu3DMainWindowTools::mainWindowWidget(),
+                                                            "Import Formation File",
+                                                            defaultDir,
+                                                            filterText );
 
     if ( fileName.isEmpty() ) return;
 

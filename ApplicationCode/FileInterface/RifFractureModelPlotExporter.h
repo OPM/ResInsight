@@ -30,10 +30,5 @@ class QTextStream;
 class RifFractureModelPlotExporter
 {
 public:
-    static bool writeToFile( RimFractureModelPlot* plot, bool useDetailedFluidLoss, const QString& filepath );
-
-private:
-    static void appendHeaderToStream( QTextStream& stream );
-    static void appendToStream( QTextStream& stream, const QString& label, const std::vector<double>& values );
-    static void appendFooterToStream( QTextStream& stream );
+    static bool writeToDirectory( RimFractureModelPlot* plot, bool useDetailedFluidLoss, const QString& directoryPath );
 };

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Equinor ASA
+//  Copyright (C) 2020-    Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,15 +18,22 @@
 
 #pragma once
 
-class QString;
-class QStringList;
+#include <vector>
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-namespace RiaTextStringTools
+class RimFractureModelPlot;
+class QString;
+class QTextStream;
+
+//==================================================================================================
+//
+//==================================================================================================
+class RifFractureModelGeologicalFrkExporter
 {
-bool    compare( const QString& expected, const QString& actual );
-QString trimAndRemoveDoubleSpaces( const QString& s );
-QString findCommonRoot( const QStringList& stringList );
-} // namespace RiaTextStringTools
+public:
+    static bool writeToFile( RimFractureModelPlot* plot, bool useDetailedFluidLoss, const QString& filepath );
+
+private:
+    static void appendHeaderToStream( QTextStream& stream );
+    static void appendToStream( QTextStream& stream, const QString& label, const std::vector<double>& values );
+    static void appendFooterToStream( QTextStream& stream );
+};

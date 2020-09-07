@@ -34,7 +34,7 @@ RimcFractureModelPlot_exportToFile::RimcFractureModelPlot_exportToFile( caf::Pdm
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Export Fracture Model Plot", "", "", "Export Fracture Model Plot to File" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_filePath, "FilePath", "", "", "", "File Path" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_directoryPath, "DirectoryPath", "", "", "", "Directory Path" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -44,9 +44,9 @@ caf::PdmObjectHandle* RimcFractureModelPlot_exportToFile::execute()
 {
     RimFractureModelPlot* fractureModelPlot = self<RimFractureModelPlot>();
 
-    RifFractureModelPlotExporter::writeToFile( fractureModelPlot,
-                                               fractureModelPlot->fractureModel()->useDetailedFluidLoss(),
-                                               m_filePath() );
+    RifFractureModelPlotExporter::writeToDirectory( fractureModelPlot,
+                                                    fractureModelPlot->fractureModel()->useDetailedFluidLoss(),
+                                                    m_directoryPath() );
 
     return nullptr;
 }
