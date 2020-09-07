@@ -218,6 +218,7 @@ private:
     caf::PdmField<caf::AppEnum<CategoryColorModeType>> m_categoryColorMode;
 
     caf::PdmPtrField<RimColorLegend*> m_colorLegend;
+    caf::PdmField<bool>               m_selectColorLegendButton;
 
     QString m_title;
     int     m_significantDigitsInData;
