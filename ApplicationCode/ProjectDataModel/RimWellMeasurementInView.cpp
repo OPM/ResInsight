@@ -460,7 +460,11 @@ void RimWellMeasurementInView::setAllQualitiesSelected()
 //--------------------------------------------------------------------------------------------------
 QString RimWellMeasurementInView::convertToSerializableString( const std::vector<QString>& strings )
 {
-    QStringList stringList = QVector<QString>::fromStdVector( strings ).toList();
+    QStringList stringList;
+    for ( const auto& string : strings )
+    {
+        stringList.push_back( string );
+    }
     return stringList.join( '|' );
 }
 
@@ -470,7 +474,7 @@ QString RimWellMeasurementInView::convertToSerializableString( const std::vector
 std::vector<QString> RimWellMeasurementInView::convertFromSerializableString( const QString& string )
 {
     QStringList stringList = string.split( '|' );
-    return stringList.toVector().toStdVector();
+    return std::vector<QString>( stringList.begin(), stringList.end() );
 }
 
 //--------------------------------------------------------------------------------------------------
