@@ -47,6 +47,7 @@
 #include <QDebug>
 #include <QDesktopServices>
 #include <QDir>
+#include <QElapsedTimer>
 #include <QMdiSubWindow>
 #include <QSettings>
 #include <QStatusBar>
@@ -70,7 +71,7 @@ const QString commandFileFilter        = "commandfile-*";
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void logInfoTextWithTimeInSeconds( const QTime& time, const QString& msg )
+void logInfoTextWithTimeInSeconds( const QElapsedTimer& time, const QString& msg )
 {
     double timeRunning = time.elapsed() / 1000.0;
 
@@ -164,7 +165,7 @@ void RiaRegressionTestRunner::runRegressionTest()
     RiaLogging::info( QTime::currentTime().toString() + ": Launching regression tests" );
     RiaLogging::info( "--------------------------------------------------" );
 
-    QTime timeStamp;
+    QElapsedTimer timeStamp;
     timeStamp.start();
     logInfoTextWithTimeInSeconds( timeStamp, "Starting regression tests\n" );
 
