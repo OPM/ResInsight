@@ -31,6 +31,8 @@
 #include "RimWellPath.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
+
+#include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
 
 CAF_PDM_SOURCE_INIT( RimModeledWellPath, "ModeledWellPath" );
@@ -40,12 +42,18 @@ CAF_PDM_SOURCE_INIT( RimModeledWellPath, "ModeledWellPath" );
 //--------------------------------------------------------------------------------------------------
 RimModeledWellPath::RimModeledWellPath()
 {
-    CAF_PDM_InitScriptableObject( "Modeled WellPath",
+    CAF_PDM_InitScriptableObject( "Modeled Well Path",
                                   ":/EditableWell.png",
                                   "",
                                   "A Well Path created interactively in ResInsight" );
 
-    CAF_PDM_InitFieldNoDefault( &m_geometryDefinition, "WellPathGeometryDef", "Trajectory", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_geometryDefinition,
+                                                           "WellPathGeometryDef",
+                                                           "WellPathGeometry",
+                                                           "Trajectory",
+                                                           "",
+                                                           "",
+                                                           "" );
     m_geometryDefinition = new RimWellPathGeometryDef;
 
     // Required, as these settings are set in RimWellPath()

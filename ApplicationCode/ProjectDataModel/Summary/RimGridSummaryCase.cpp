@@ -191,6 +191,10 @@ void RimGridSummaryCase::createSummaryReaderInterface()
 //--------------------------------------------------------------------------------------------------
 RifSummaryReaderInterface* RimGridSummaryCase::summaryReader()
 {
+    if ( m_summaryFileReader.isNull() )
+    {
+        createSummaryReaderInterface();
+    }
     return m_summaryFileReader.p();
 }
 
