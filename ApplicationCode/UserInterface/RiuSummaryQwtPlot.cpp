@@ -286,7 +286,7 @@ void RiuSummaryQwtPlot::contextMenuEvent( QContextMenuEvent* event )
                                                                                QString( "New Cross Plot Against %1 "
                                                                                         "(Correlation: %2)" )
                                                                                    .arg( param.first.name )
-                                                                                   .arg( param.second ),
+                                                                                   .arg( param.second, 5, 'f', 2 ),
                                                                                variant );
                                     }
                                 }
