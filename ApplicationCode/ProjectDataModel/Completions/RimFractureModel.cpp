@@ -79,6 +79,17 @@ void caf::AppEnum<RimFractureModel::ExtractionType>::setUp()
 
     setDefault( RimFractureModel::ExtractionType::TRUE_VERTICAL_THICKNESS );
 }
+
+template <>
+void caf::AppEnum<RimFractureModel::FractureOrientation>::setUp()
+{
+    addItem( RimFractureModel::FractureOrientation::ALONG_WELL_PATH, "ALONG_WELL_PATH", "Along Well Path" );
+    addItem( RimFractureModel::FractureOrientation::TRANSVERSE_WELL_PATH,
+             "TRANSVERSE_WELL_PATH",
+             "Transverse (normal) to Well Path" );
+
+    setDefault( RimFractureModel::FractureOrientation::TRANSVERSE_WELL_PATH );
+}
 }; // namespace caf
 
 //--------------------------------------------------------------------------------------------------
@@ -202,6 +213,15 @@ RimFractureModel::RimFractureModel()
                                  "ThermalExpansionCoefficient",
                                  0.0,
                                  "Thermal Expansion Coefficient [1/C]",
+                                 "",
+                                 "",
+                                 "" );
+
+    CAF_PDM_InitScriptableField( &m_perforationLength, "PerforationLength", 10.0, "Perforation Length [m]", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_fractureOrientation,
+                                 "FractureOrientation",
+                                 caf::AppEnum<FractureOrientation>( FractureOrientation::ALONG_WELL_PATH ),
+                                 "Fracture Orientation",
                                  "",
                                  "",
                                  "" );
@@ -557,6 +577,10 @@ void RimFractureModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     temperatureGroup->add( &m_referenceTemperature );
     temperatureGroup->add( &m_referenceTemperatureGradient );
     temperatureGroup->add( &m_referenceTemperatureDepth );
+
+    caf::PdmUiOrdering* perforationGroup = uiOrdering.addNewGroup( "Perforation" );
+    perforationGroup->add( &m_perforationLength );
+    perforationGroup->add( &m_fractureOrientation );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1018,4 +1042,20 @@ double RimFractureModel::computeDefaultStressDepth()
 
     // Use top of active cells as reference stress depth
     return -eclipseCase->activeCellsBoundingBox().max().z();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModel::perforationLength() const
+{
+    return m_perforationLength();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimFractureModel::FractureOrientation RimFractureModel::fractureOrientation() const
+{
+    return m_fractureOrientation();
 }

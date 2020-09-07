@@ -53,6 +53,12 @@ public:
         TRUE_STRATIGRAPHIC_THICKNESS,
     };
 
+    enum class FractureOrientation
+    {
+        ALONG_WELL_PATH,
+        TRANSVERSE_WELL_PATH
+    };
+
     RimFractureModel( void );
     ~RimFractureModel( void ) override;
 
@@ -91,6 +97,9 @@ public:
     double referenceTemperatureDepth() const;
 
     bool useDetailedFluidLoss() const;
+
+    double              perforationLength() const;
+    FractureOrientation fractureOrientation() const;
 
     // RimWellPathCompletionsInterface overrides.
     RiaDefines::WellPathComponentType componentType() const override;
@@ -172,4 +181,7 @@ protected:
     caf::PdmField<double>                       m_poroElasticConstantDefault;
     caf::PdmField<double>                       m_thermalExpansionCoeffientDefault;
     caf::PdmField<bool>                         m_useDetailedFluidLoss;
+
+    caf::PdmField<caf::AppEnum<FractureOrientation>> m_fractureOrientation;
+    caf::PdmField<double>                            m_perforationLength;
 };
