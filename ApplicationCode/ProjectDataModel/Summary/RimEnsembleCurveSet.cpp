@@ -771,7 +771,7 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
             QString name = paramCorrPair.first.name;
             double  corr = paramCorrPair.second;
             options.push_back(
-                caf::PdmOptionItemInfo( QString( "%1 (Avg. correlation: %2)" ).arg( name ).arg( corr ), name ) );
+                caf::PdmOptionItemInfo( QString( "%1 (Avg. correlation: %2)" ).arg( name ).arg( corr, 5, 'f', 2 ), name ) );
         }
     }
     else if ( fieldNeedingOptions == &m_yValuesSummaryAddressUiField )
