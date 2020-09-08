@@ -197,7 +197,7 @@ Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-inline bool Rim3dOverlayInfoConfig::HistogramData::isValid() const
+bool Rim3dOverlayInfoConfig::HistogramData::isValid() const
 {
     return histogram && histogram->size() > 0 && isValid( min ) && isValid( max );
 }
@@ -205,7 +205,7 @@ inline bool Rim3dOverlayInfoConfig::HistogramData::isValid() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-inline bool Rim3dOverlayInfoConfig::HistogramData::isValid( double parameter ) const
+bool Rim3dOverlayInfoConfig::HistogramData::isValid( double parameter ) const
 {
     return parameter != HUGE_VAL && parameter != -HUGE_VAL;
 }
