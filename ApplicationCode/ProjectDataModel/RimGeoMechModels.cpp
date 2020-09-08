@@ -103,6 +103,11 @@ RimGeoMechCase* RimGeoMechModels::copyCase( RimGeoMechCase* thecase, const QStri
             rgv->scheduleCreateDisplayModelAndRedraw();
             rgv->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
 
+            for ( auto coll : rgv->separateIntersectionResultsCollection()->intersectionResultsDefinitions() )
+            {
+                coll->update2dIntersectionViews();
+            }
+
             for ( auto coll : rgv->separateSurfaceResultsCollection()->intersectionResultsDefinitions() )
             {
                 coll->update2dIntersectionViews();
