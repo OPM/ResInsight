@@ -127,9 +127,9 @@ template <>
 void AppEnum<RimRegularLegendConfig::CategoryColorModeType>::setUp()
 {
     addItem( RimRegularLegendConfig::CategoryColorModeType::INTERPOLATE, "INTERPOLATE", "Interpolate" );
-    addItem( RimRegularLegendConfig::CategoryColorModeType::COLOR_LEGEND_VALUES,
+    addItem( RimRegularLegendConfig::CategoryColorModeType::EXCLUSIVELY_COLORS,
              "COLOR_LEGEND_VALUES",
-             "Color Legend Values" );
+             "Exclusively Category Colors" );
     setDefault( RimRegularLegendConfig::CategoryColorModeType::INTERPOLATE );
 }
 
@@ -733,7 +733,7 @@ void RimRegularLegendConfig::updateCategoryItems()
 //--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::configureCategoryMapper()
 {
-    if ( m_categoryColorMode() == CategoryColorModeType::COLOR_LEGEND_VALUES )
+    if ( m_categoryColorMode() == CategoryColorModeType::EXCLUSIVELY_COLORS )
     {
         std::vector<RimColorLegendItem*> legendItems = m_colorLegend()->colorLegendItems();
         cvf::Color3ubArray               colorArray;
