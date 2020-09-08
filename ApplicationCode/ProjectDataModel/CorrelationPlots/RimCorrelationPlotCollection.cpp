@@ -89,8 +89,7 @@ RimCorrelationMatrixPlot* RimCorrelationPlotCollection::createCorrelationMatrixP
 {
     RimCorrelationMatrixPlot* plot = new RimCorrelationMatrixPlot();
     plot->setAsPlotMdiWindow();
-    if ( defaultToFirstEnsembleField ) applyFirstEnsembleFieldAddressesToPlot( plot );
-    plot->selectAllParameters();
+    if ( defaultToFirstEnsembleField ) applyFirstEnsembleFieldAddressesToPlot( plot, {"FOPT", "FWPT", "FGPT"} );
 
     m_correlationPlots.push_back( plot );
 
@@ -148,11 +147,12 @@ RimParameterResultCrossPlot* RimCorrelationPlotCollection::createParameterResult
 ///
 //--------------------------------------------------------------------------------------------------
 RimCorrelationReportPlot*
-    RimCorrelationPlotCollection::createCorrelationReportPlot( bool defaultToFirstEnsembleFopt /*= true */ )
+    RimCorrelationPlotCollection::createCorrelationReportPlot( bool defaultToFirstEnsembleField /*= true */ )
 {
     RimCorrelationReportPlot* report = new RimCorrelationReportPlot;
     report->setAsPlotMdiWindow();
-    if ( defaultToFirstEnsembleFopt ) applyFirstEnsembleFieldAddressesToReport( report, {"FOPT"}, "FOPT" );
+    if ( defaultToFirstEnsembleField )
+        applyFirstEnsembleFieldAddressesToReport( report, {"FOPT", "FWPT", "FGPT"}, "FOPT" );
     report->matrixPlot()->selectAllParameters();
     report->correlationPlot()->selectAllParameters();
     m_correlationReports.push_back( report );
