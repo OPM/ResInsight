@@ -55,6 +55,7 @@
 #include "cafPdmFieldScriptingCapabilityCvfVec3d.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDoubleSliderEditor.h"
+#include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
@@ -136,6 +137,7 @@ RimFractureModel::RimFractureModel()
     double defaultStress         = defaultStressDepth * defaultStressGradient;
 
     CAF_PDM_InitScriptableField( &m_verticalStress, "VerticalStress", defaultStress, "Vertical Stress", "", "", "" );
+    m_verticalStress.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
     CAF_PDM_InitScriptableField( &m_verticalStressGradient,
                                  "VerticalStressGradient",
                                  defaultStressGradient,
@@ -144,6 +146,7 @@ RimFractureModel::RimFractureModel()
                                  "",
                                  "" );
     CAF_PDM_InitScriptableField( &m_stressDepth, "StressDepth", defaultStressDepth, "Stress Depth", "", "", "" );
+    m_stressDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
     CAF_PDM_InitScriptableField( &m_overburdenHeight, "OverburdenHeight", 50.0, "Overburden Height", "", "", "" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_overburdenFormation, "OverburdenFormation", "Overburden Formation", "", "", "" );
@@ -228,6 +231,7 @@ RimFractureModel::RimFractureModel()
 
     CAF_PDM_InitScriptableField( &m_formationDip, "FormationDip", 0.0, "Formation Dip", "", "", "" );
     m_formationDip.uiCapability()->setUiReadOnly( true );
+    m_formationDip.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
     CAF_PDM_InitScriptableField( &m_hasBarrier, "Barrier", true, "Barrier", "", "", "" );
     CAF_PDM_InitScriptableField( &m_distanceToBarrier, "DistanceToBarrier", 0.0, "Distance To Barrier [m]", "", "", "" );
@@ -597,6 +601,24 @@ void RimFractureModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     asymmetricGroup->add( &m_distanceToBarrier );
     asymmetricGroup->add( &m_barrierDip );
     asymmetricGroup->add( &m_wellPenetrationLayer );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModel::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                              QString                    uiConfigName,
+                                              caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_stressDepth || field == &m_verticalStress || field == &m_formationDip )
+    {
+        auto doubleAttr = dynamic_cast<caf::PdmUiDoubleValueEditorAttribute*>( attribute );
+        if ( doubleAttr )
+        {
+            doubleAttr->m_decimals     = 2;
+            doubleAttr->m_numberFormat = caf::PdmUiDoubleValueEditorAttribute::NumberFormat::FIXED;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
