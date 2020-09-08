@@ -104,7 +104,9 @@ void RicElasticPropertiesImportTools::importElasticPropertiesFromFile( const QSt
                                                item.immobileFluidSaturation );
         }
 
-        rimElasticProperties->setPropertiesForFacies( key, rigElasticProperties );
+        // Avoid using the field name in the match for now
+        FaciesKey noFieldKey = std::make_tuple( "", formationName, faciesName );
+        rimElasticProperties->setPropertiesForFacies( noFieldKey, rigElasticProperties );
     }
 
     rimElasticProperties->setFilePath( filePath );

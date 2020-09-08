@@ -257,8 +257,8 @@ void RimElasticPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength
 
         for ( size_t i = 0; i < tvDepthValues.size(); i++ )
         {
-            // TODO: get from somewhere??
-            QString fieldName     = "Norne";
+            // Avoid using the field name in the match for now
+            QString fieldName     = "";
             QString faciesName    = findFaciesName( *colorLegend, faciesValues[i] );
             int     idx           = static_cast<int>( formationValues[i] );
             QString formationName = formationNamesVector[idx];
