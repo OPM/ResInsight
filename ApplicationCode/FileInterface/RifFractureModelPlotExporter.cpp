@@ -18,6 +18,7 @@
 
 #include "RifFractureModelPlotExporter.h"
 
+#include "RifFractureModelAsymmetricFrkExporter.h"
 #include "RifFractureModelDeviationFrkExporter.h"
 #include "RifFractureModelGeologicalFrkExporter.h"
 #include "RifFractureModelPerfsFrkExporter.h"
@@ -33,5 +34,6 @@ bool RifFractureModelPlotExporter::writeToDirectory( RimFractureModelPlot* plot,
 {
     return RifFractureModelGeologicalFrkExporter::writeToFile( plot, useDetailedFluidLoss, directoryPath + "/Geological.frk" ) &&
            RifFractureModelDeviationFrkExporter::writeToFile( plot, directoryPath + "/Deviation.frk" ) &&
-           RifFractureModelPerfsFrkExporter::writeToFile( plot, directoryPath + "/Perfs.frk" );
+           RifFractureModelPerfsFrkExporter::writeToFile( plot, directoryPath + "/Perfs.frk" ) &&
+           RifFractureModelAsymmetricFrkExporter::writeToFile( plot, directoryPath + "/Asymmetric.frk" );
 }
