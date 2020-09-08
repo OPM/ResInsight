@@ -58,7 +58,7 @@ public:
                                                                  const QString&            quantityName,
                                                                  std::time_t               timeStep );
 
-    RimCorrelationReportPlot* createCorrelationReportPlot( bool defaultToFirstEnsembleFopt = true );
+    RimCorrelationReportPlot* createCorrelationReportPlot( bool defaultToFirstEnsembleField = true );
     RimCorrelationReportPlot* createCorrelationReportPlot( RimSummaryCaseCollection*   ensemble,
                                                            const std::vector<QString>& matrixQuantityNames,
                                                            const QString&              tornadoAndCrossPlotQuantityName,
