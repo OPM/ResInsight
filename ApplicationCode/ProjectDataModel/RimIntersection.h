@@ -51,7 +51,6 @@ protected:
     caf::PdmFieldHandle*          objectToggleField() override final;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
-    void                          initAfterRead() override;
 
     void defineSeparateDataSourceUi( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
     void updateDefaultSeparateDataSource();
