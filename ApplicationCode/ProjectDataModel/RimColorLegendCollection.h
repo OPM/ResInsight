@@ -43,18 +43,16 @@ public:
     ~RimColorLegendCollection() override;
 
     void createStandardColorLegends();
-
     void appendCustomColorLegend( RimColorLegend* customColorLegend );
-
     bool isStandardColorLegend( RimColorLegend* colorLegend );
-
     void deleteCustomColorLegends();
 
     std::vector<RimColorLegend*> allColorLegends() const;
 
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-
     RimColorLegend* findByName( const QString& name ) const;
+
+protected:
+    void initAfterRead() override;
 
 private:
     RimColorLegendItem* createColorLegendItem( const QString& name, int r, int g, int b ) const;
