@@ -131,14 +131,20 @@ RimFractureModelPlot*
     }
 
     {
+        auto task = progInfo.task( "Creating stress track", 2 );
+        createStressTrack( plot, fractureModel, eclipseCase, timeStep, RiaDefines::CurveProperty::STRESS );
+        createStressTrack( plot, fractureModel, eclipseCase, timeStep, RiaDefines::CurveProperty::STRESS_GRADIENT );
+    }
+
+    {
         auto task = progInfo.task( "Creating facies properties track", 15 );
 
         std::vector<RiaDefines::CurveProperty> results = {RiaDefines::CurveProperty::YOUNGS_MODULUS,
                                                           RiaDefines::CurveProperty::POISSONS_RATIO,
-                                                          RiaDefines::CurveProperty::K_IC,
-                                                          RiaDefines::CurveProperty::PROPPANT_EMBEDMENT,
                                                           RiaDefines::CurveProperty::BIOT_COEFFICIENT,
                                                           RiaDefines::CurveProperty::K0,
+                                                          RiaDefines::CurveProperty::K_IC,
+                                                          RiaDefines::CurveProperty::PROPPANT_EMBEDMENT,
                                                           RiaDefines::CurveProperty::FLUID_LOSS_COEFFICIENT,
                                                           RiaDefines::CurveProperty::SPURT_LOSS,
                                                           RiaDefines::CurveProperty::RELATIVE_PERMEABILITY_FACTOR,
@@ -153,9 +159,7 @@ RimFractureModelPlot*
     }
 
     {
-        auto task = progInfo.task( "Creating stress track", 2 );
-        createStressTrack( plot, fractureModel, eclipseCase, timeStep, RiaDefines::CurveProperty::STRESS );
-        createStressTrack( plot, fractureModel, eclipseCase, timeStep, RiaDefines::CurveProperty::STRESS_GRADIENT );
+        auto task = progInfo.task( "Creating temperature track", 2 );
         createStressTrack( plot, fractureModel, eclipseCase, timeStep, RiaDefines::CurveProperty::TEMPERATURE );
     }
 
