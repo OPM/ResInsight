@@ -93,7 +93,7 @@ void RicSaveProjectAsFeature::onActionTriggered( bool isChecked )
 void RicSaveProjectAsFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Save Project &As" );
-    actionToSetup->setIcon( QIcon( ":/Save.png" ) );
+    actionToSetup->setIcon( QIcon( ":/SaveAs24x24.png" ) );
 
     applyShortcutWithHintToAction( actionToSetup, QKeySequence::SaveAs );
 }

@@ -243,7 +243,7 @@ void RiuPlotMainWindow::createMenus()
 
     QMenu* importMenu = fileMenu->addMenu( "&Import" );
 
-    QMenu* importEclipseMenu = importMenu->addMenu( QIcon( ":/Case48x48.png" ), "Eclipse Cases" );
+    QMenu* importEclipseMenu = importMenu->addMenu( QIcon( ":/Case24x24.png" ), "Eclipse Cases" );
     importEclipseMenu->addAction( cmdFeatureMgr->action( "RicImportEclipseCaseFeature" ) );
     importEclipseMenu->addAction( cmdFeatureMgr->action( "RicImportEclipseCasesFeature" ) );
     importEclipseMenu->addAction( cmdFeatureMgr->action( "RicImportInputEclipseCaseFeature" ) );
@@ -252,13 +252,13 @@ void RiuPlotMainWindow::createMenus()
 
 #ifdef USE_ODB_API
     importMenu->addSeparator();
-    QMenu* importGeoMechMenu = importMenu->addMenu( QIcon( ":/GeoMechCase48x48.png" ), "Geo Mechanical Cases" );
+    QMenu* importGeoMechMenu = importMenu->addMenu( QIcon( ":/GeoMechCase24x24.png" ), "Geo Mechanical Cases" );
     importGeoMechMenu->addAction( cmdFeatureMgr->action( "RicImportGeoMechCaseFeature" ) );
     importGeoMechMenu->addAction( cmdFeatureMgr->action( "RicImportElementPropertyFeature" ) );
 #endif
 
     importMenu->addSeparator();
-    QMenu* importSummaryMenu = importMenu->addMenu( QIcon( ":/SummaryCase48x48.png" ), "Summary Cases" );
+    QMenu* importSummaryMenu = importMenu->addMenu( QIcon( ":/SummaryCase24x24.png" ), "Summary Cases" );
     importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportSummaryCaseFeature" ) );
     importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportSummaryCasesFeature" ) );
     importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportSummaryGroupFeature" ) );
