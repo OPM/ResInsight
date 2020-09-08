@@ -101,6 +101,12 @@ public:
     double              perforationLength() const;
     FractureOrientation fractureOrientation() const;
 
+    double formationDip() const;
+    bool   hasBarrier() const;
+    double distanceToBarrier() const;
+    double barrierDip() const;
+    int    wellPenetrationLayer() const;
+
     // RimWellPathCompletionsInterface overrides.
     RiaDefines::WellPathComponentType componentType() const override;
     QString                           componentLabel() const override;
@@ -141,6 +147,7 @@ private:
     void           updateThicknessDirection();
     cvf::Vec3d     calculateTSTDirection() const;
     void           findThicknessTargetPoints( cvf::Vec3d& topPosition, cvf::Vec3d& bottomPosition );
+    static double  calculateFormationDip( const cvf::Vec3d& direction );
     static QString vecToString( const cvf::Vec3d& vec );
     void           updateThicknessDirectionWellPathName();
     static double  computeDefaultStressDepth();
@@ -184,4 +191,10 @@ protected:
 
     caf::PdmField<caf::AppEnum<FractureOrientation>> m_fractureOrientation;
     caf::PdmField<double>                            m_perforationLength;
+
+    caf::PdmField<double> m_formationDip;
+    caf::PdmField<bool>   m_hasBarrier;
+    caf::PdmField<double> m_distanceToBarrier;
+    caf::PdmField<double> m_barrierDip;
+    caf::PdmField<int>    m_wellPenetrationLayer;
 };

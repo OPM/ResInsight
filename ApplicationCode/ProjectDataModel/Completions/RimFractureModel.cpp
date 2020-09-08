@@ -226,6 +226,14 @@ RimFractureModel::RimFractureModel()
                                  "",
                                  "" );
 
+    CAF_PDM_InitScriptableField( &m_formationDip, "FormationDip", 0.0, "Formation Dip", "", "", "" );
+    m_formationDip.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitScriptableField( &m_hasBarrier, "Barrier", true, "Barrier", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_distanceToBarrier, "DistanceToBarrier", 0.0, "Distance To Barrier [m]", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_barrierDip, "BarrierDip", 0.0, "Barrier Dip", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_wellPenetrationLayer, "WellPenetrationLayer", 0, "Well Penetration Layer", "", "", "" );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_elasticProperties, "ElasticProperties", "Elastic Properties", "", "", "" );
     m_elasticProperties.uiCapability()->setUiHidden( true );
     m_elasticProperties.uiCapability()->setUiTreeHidden( true );
@@ -452,6 +460,7 @@ void RimFractureModel::updateThicknessDirection()
     }
 
     m_thicknessDirection = direction;
+    m_formationDip       = calculateFormationDip( direction );
 
     if ( m_thicknessDirectionWellPath )
     {
@@ -581,6 +590,13 @@ void RimFractureModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     caf::PdmUiOrdering* perforationGroup = uiOrdering.addNewGroup( "Perforation" );
     perforationGroup->add( &m_perforationLength );
     perforationGroup->add( &m_fractureOrientation );
+
+    caf::PdmUiOrdering* asymmetricGroup = uiOrdering.addNewGroup( "Asymmetric" );
+    asymmetricGroup->add( &m_formationDip );
+    asymmetricGroup->add( &m_hasBarrier );
+    asymmetricGroup->add( &m_distanceToBarrier );
+    asymmetricGroup->add( &m_barrierDip );
+    asymmetricGroup->add( &m_wellPenetrationLayer );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -667,6 +683,15 @@ void RimFractureModel::findThicknessTargetPoints( cvf::Vec3d& topPosition, cvf::
     cvf::Vec3d belowPlane = position + ( direction * 10000.0 );
     bottomPlane.intersect( position, belowPlane, &bottomPosition );
     RiaLogging::info( QString( "Bottom: %1" ).arg( RimFractureModel::vecToString( bottomPosition ) ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModel::calculateFormationDip( const cvf::Vec3d& direction )
+{
+    // Formation dip is inclination of a plane from horizontal.
+    return cvf::Math::toDegrees( cvf::GeometryTools::getAngle( direction, -cvf::Vec3d::Z_AXIS ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1058,4 +1083,44 @@ double RimFractureModel::perforationLength() const
 RimFractureModel::FractureOrientation RimFractureModel::fractureOrientation() const
 {
     return m_fractureOrientation();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModel::formationDip() const
+{
+    return m_formationDip;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFractureModel::hasBarrier() const
+{
+    return m_hasBarrier;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModel::distanceToBarrier() const
+{
+    return m_distanceToBarrier;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModel::barrierDip() const
+{
+    return m_barrierDip;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimFractureModel::wellPenetrationLayer() const
+{
+    return m_wellPenetrationLayer;
 }
