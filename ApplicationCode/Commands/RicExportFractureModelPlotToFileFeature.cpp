@@ -73,5 +73,5 @@ void RicExportFractureModelPlotToFileFeature::onActionTriggered( bool isChecked 
 void RicExportFractureModelPlotToFileFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Export Fracture Model to File" );
-    actionToSetup->setIcon( QIcon( ":/Save.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Save24x24.png" ) );
 }

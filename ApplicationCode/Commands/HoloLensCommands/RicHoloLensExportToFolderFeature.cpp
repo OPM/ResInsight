@@ -126,6 +126,6 @@ void RicHoloLensExportToFolderFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicHoloLensExportToFolderFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/Save.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Save24x24.png" ) );
     actionToSetup->setText( "HoloLens : Export to Folder" );
 }

@@ -15,6 +15,7 @@
     <file>Axes16x16.png</file>
     <file>BottomAxis16x16.png</file>
     <file>Case48x48.png</file>
+    <file>Case24x24.png</file>
     <file>Cases16x16.png</file>
     <file>CasingDesign16x16.png</file>
     <file>CellFilter_Range.png</file>
@@ -120,7 +121,8 @@
     <file>RightAxis16x16.png</file>
     <file>Ruler24x24.png</file>
     <file>RulerPoly24x24.png</file>
-    <file>Save.png</file>
+    <file>Save24x24.png</file>
+    <file>SaveAs24x24.png</file>
     <file>SnapShot.png</file>
     <file>SnapShotSave.png</file>
     <file>SnapShotSaveViews.png</file>
@@ -130,6 +132,7 @@
     <file>StepUpDown16x16.png</file>
     <file>StepUpDownCorner16x16.png</file>
     <file>SummaryCase16x16.png</file>
+    <file>SummaryCase24x24.png</file>
     <file>SummaryCase48x48.png</file>
     <file>SummaryCases16x16.png</file>
     <file>SummaryCurve16x16.png</file>
