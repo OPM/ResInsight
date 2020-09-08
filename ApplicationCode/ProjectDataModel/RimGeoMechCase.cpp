@@ -488,7 +488,6 @@ void RimGeoMechCase::initAfterRead()
 {
     RimCase::initAfterRead();
 
-    size_t j;
     for ( RimGeoMechView* riv : geoMechViews() )
     {
         CVF_ASSERT( riv );
