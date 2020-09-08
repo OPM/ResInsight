@@ -59,6 +59,7 @@ RimColorLegendCollection::~RimColorLegendCollection()
 //--------------------------------------------------------------------------------------------------
 void RimColorLegendCollection::appendCustomColorLegend( RimColorLegend* colorLegend )
 {
+    colorLegend->addReorderCapability();
     m_customColorLegends.push_back( colorLegend );
 }
 
@@ -160,15 +161,6 @@ std::vector<RimColorLegend*> RimColorLegendCollection::allColorLegends() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimColorLegendCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                 const QVariant&            oldValue,
-                                                 const QVariant&            newValue )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimColorLegend* RimColorLegendCollection::findByName( const QString& name ) const
 {
     std::vector<RimColorLegend*> allLegends = allColorLegends();
@@ -257,4 +249,15 @@ RimColorLegend* RimColorLegendCollection::createRockTypeColorLegend() const
     }
 
     return colorLegend;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimColorLegendCollection::initAfterRead()
+{
+    for ( auto legend : m_customColorLegends )
+    {
+        legend->addReorderCapability();
+    }
 }

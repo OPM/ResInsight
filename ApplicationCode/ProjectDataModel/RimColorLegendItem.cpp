@@ -19,6 +19,8 @@
 #include "RimColorLegendItem.h"
 #include "RimColorLegend.h"
 
+#include "cafPdmUiSliderEditor.h"
+
 #include "cvfColor3.h"
 
 #include <QColor>
@@ -36,7 +38,9 @@ RimColorLegendItem::RimColorLegendItem()
     CAF_PDM_InitFieldNoDefault( &m_color, "Color", "Color", "", "", "" );
     m_color = cvf::Color3f( cvf::Color3::ColorIdent::BLACK );
 
-    CAF_PDM_InitField( &m_categoryValue, "CategoryValue", 0, "Category Value", "", "", "" );
+    CAF_PDM_InitField( &m_categoryValue, "CategoryValue", 0, "Category Number", "", "", "" );
+    m_categoryValue.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+
     CAF_PDM_InitField( &m_categoryName, "CategoryName", QString( "" ), "Category Name", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name Proxy", "", "", "" );
@@ -128,6 +132,21 @@ void RimColorLegendItem::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 caf::PdmFieldHandle* RimColorLegendItem::userDescriptionField()
 {
     return &m_nameProxy;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimColorLegendItem::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                QString                    uiConfigName,
+                                                caf::PdmUiEditorAttribute* attribute )
+{
+    caf::PdmUiSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
+    if ( myAttr )
+    {
+        myAttr->m_minimum = 0;
+        myAttr->m_maximum = 100;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

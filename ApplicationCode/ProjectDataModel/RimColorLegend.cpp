@@ -23,6 +23,8 @@
 #include "Rim3dView.h"
 #include "RimColorLegendItem.h"
 
+#include "cafPdmFieldReorderCapability.h"
+
 CAF_PDM_SOURCE_INIT( RimColorLegend, "ColorLegend" );
 
 //--------------------------------------------------------------------------------------------------
@@ -80,6 +82,15 @@ void RimColorLegend::setReadOnly( bool doReadOnly )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimColorLegend::addReorderCapability()
+{
+    auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_colorLegendItems );
+    reorderability->orderChanged.connect( this, &RimColorLegend::orderChanged );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimColorLegend::appendColorLegendItem( RimColorLegendItem* colorLegendItem )
 {
     m_colorLegendItems.push_back( colorLegendItem );
@@ -116,6 +127,14 @@ void RimColorLegend::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 void RimColorLegend::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
     this->setUiIcon( paletteIconProvider() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimColorLegend::orderChanged( const caf::SignalEmitter* emitter )
+{
+    onColorLegendItemHasChanged();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -48,6 +48,7 @@ public:
     QString colorLegendName();
 
     void setReadOnly( bool doReadOnly );
+    void addReorderCapability();
 
     void                             appendColorLegendItem( RimColorLegendItem* colorLegendItem );
     std::vector<RimColorLegendItem*> colorLegendItems() const;
@@ -62,6 +63,9 @@ public:
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
+
+private:
+    void orderChanged( const caf::SignalEmitter* emitter );
 
 private:
     caf::PdmField<QString>                       m_colorLegendName;
