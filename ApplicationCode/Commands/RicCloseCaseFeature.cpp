@@ -236,7 +236,7 @@ void RicCloseCaseFeature::deleteGeoMechCase( RimGeoMechCase* geoMechCase )
     RimGeoMechModels* models         = ( activeOilField ) ? activeOilField->geoMechModels() : nullptr;
     if ( models )
     {
-        models->deleteCase( geoMechCase );
+        models->removeCase( geoMechCase );
         models->updateConnectedEditors();
     }
 

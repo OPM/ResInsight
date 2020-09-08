@@ -39,7 +39,7 @@ public:
     ~RimGeoMechModels( void ) override;
 
     RimGeoMechCase* copyCase( RimGeoMechCase* thecase, const QString& newInputFileName );
-    void            deleteCase( RimGeoMechCase* thecase );
+    void            removeCase( RimGeoMechCase* thecase );
     void            addCase( RimGeoMechCase* thecase );
 
     std::vector<RimGeoMechCase*> cases() const;

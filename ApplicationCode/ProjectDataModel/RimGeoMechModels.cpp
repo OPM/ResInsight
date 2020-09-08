@@ -67,7 +67,7 @@ void RimGeoMechModels::addCase( RimGeoMechCase* thecase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechModels::deleteCase( RimGeoMechCase* thecase )
+void RimGeoMechModels::removeCase( RimGeoMechCase* thecase )
 {
     m_cases.removeChildObject( thecase );
 }
