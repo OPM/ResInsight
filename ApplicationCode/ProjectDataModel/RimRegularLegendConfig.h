@@ -114,7 +114,7 @@ public:
     enum class CategoryColorModeType
     {
         INTERPOLATE,
-        COLOR_LEGEND_VALUES
+        EXCLUSIVELY_COLORS
     };
     typedef caf::AppEnum<CategoryColorModeType> CategoryColorModeEnum;
 
