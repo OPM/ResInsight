@@ -221,7 +221,6 @@ public:
         QSizeF  labelSize     = lbl.textSize( painter->font() );
         QPointF localLabelPos = labelPosition( value ) - pos();
 
-        // Only support shifting labels for horizontal bars.
         if ( alignment() == RightScale )
         {
             return QPoint( -2 * localLabelPos.x() - labelSize.width(), 0 );
@@ -230,6 +229,15 @@ public:
         {
             return QPoint( 2 * localLabelPos.x() + labelSize.width(), 0 );
         }
+        else if ( alignment() == BottomScale )
+        {
+            return QPoint( 0, 2 * localLabelPos.y() - labelSize.width() );
+        }
+        if ( alignment() == TopScale )
+        {
+            return QPoint( 0, -2 * localLabelPos.y() + labelSize.width() );
+        }
+
         return QPoint( 0, 0 );
     }
 
