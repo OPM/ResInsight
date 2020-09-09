@@ -194,7 +194,7 @@ void RiaInterpolationTools::interpolateMissingValues( const std::vector<double>&
             {
                 // The last value is inf: extrapolate from two last data points
                 int prevSetIndex2 = findPreviousDataPoint( y, prevSetIndex - 1 );
-                index             = extrapolateRange( index, (int) y.size(), prevSetIndex2, prevSetIndex, x, y );
+                index             = extrapolateRange( index, (int)y.size(), prevSetIndex2, prevSetIndex, x, y );
             }
             else if ( nextSetIndex != static_cast<int>( y.size() ) )
             {
