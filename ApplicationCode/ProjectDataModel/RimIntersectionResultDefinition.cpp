@@ -97,7 +97,7 @@ bool RimIntersectionResultDefinition::isActive() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionResultDefinition::autoSetCase() const
+void RimIntersectionResultDefinition::assignCaseIfMissing() const
 {
     if ( !m_case )
     {
@@ -115,7 +115,7 @@ QString RimIntersectionResultDefinition::autoName() const
     QString timestepName;
     QString caseName = "Default undefined source";
 
-    autoSetCase();
+    assignCaseIfMissing();
 
     if ( m_case )
     {
@@ -239,7 +239,7 @@ void RimIntersectionResultDefinition::updateLegendRangesTextAndVisibility( const
                                                                            RiuViewer*     nativeOrOverrideViewer,
                                                                            bool           isUsingOverrideViewer )
 {
-    autoSetCase();
+    assignCaseIfMissing();
 
     if ( !this->isInAction() ) return;
 
@@ -325,7 +325,7 @@ void RimIntersectionResultDefinition::fieldChangedByUi( const caf::PdmFieldHandl
 {
     bool reDraw = false;
 
-    autoSetCase();
+    assignCaseIfMissing();
 
     if ( changedField == &m_case )
     {

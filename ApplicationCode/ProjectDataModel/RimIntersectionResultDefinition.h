@@ -75,7 +75,7 @@ protected:
     virtual void initAfterRead() override;
 
 private:
-    void autoSetCase() const;
+    void assignCaseIfMissing() const;
     void updateCaseInResultDefinitions();
 
     caf::PdmField<bool>              m_isActive;
