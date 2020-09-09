@@ -61,8 +61,10 @@ caf::PdmObjectHandle* RimProject_importSummaryCase::execute()
 
     QStringList                  summaryFileNames{absolutePath};
     std::vector<RimSummaryCase*> newCases;
+    bool                         ensembleOrGroup = false;
+    bool                         allowDialogs    = false;
 
-    if ( RicImportSummaryCasesFeature::createSummaryCasesFromFiles( summaryFileNames, &newCases ) )
+    if ( RicImportSummaryCasesFeature::createSummaryCasesFromFiles( summaryFileNames, &newCases, ensembleOrGroup, allowDialogs ) )
     {
         RicImportSummaryCasesFeature::addSummaryCases( newCases );
 
