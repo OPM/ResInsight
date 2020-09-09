@@ -24,6 +24,7 @@
 #include "RifDerivedEnsembleReader.h"
 
 #include "RimProject.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryPlot.h"
 
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -411,7 +412,17 @@ void RimDerivedSummaryCase::updateDisplayNameFromCases()
     else if ( m_operator() == DerivedSummaryOperator::DERIVED_OPERATOR_ADD )
         operatorText = "Sum";
 
-    QString name = operatorText + QString( "(%1 , %2)" ).arg( case1Name, case2Name );
+    QString name;
+    if ( case1Name == case2Name && m_summaryCase1->ensemble() && m_summaryCase2->ensemble() )
+    {
+        QString ensembleName1 = m_summaryCase1->ensemble()->name();
+        QString ensembleName2 = m_summaryCase2->ensemble()->name();
+        name                  = QString( "%1: %2 - %3" ).arg( case1Name ).arg( ensembleName1 ).arg( ensembleName2 );
+    }
+    else
+    {
+        name = operatorText + QString( "(%1 , %2)" ).arg( case1Name ).arg( case2Name );
+    }
 
     m_displayName = name;
 }

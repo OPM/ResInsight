@@ -279,7 +279,7 @@ void RimSummaryCase::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCase::uniqueShortNameForCase( RimSummaryCase* summaryCase )
 {
-    QString                      ensembleName;
+    QString                      ensembleName = summaryCase->caseName();
     std::vector<RimSummaryCase*> summaryCases;
 
     auto ensemble = summaryCase->ensemble();
@@ -309,7 +309,7 @@ QString RimSummaryCase::uniqueShortNameForCase( RimSummaryCase* summaryCase )
         RiaFilePathTools::keyPathComponentsForEachFilePath( summaryFilePaths );
 
     QStringList keyFileComponents = keyFileComponentsForAllFiles[summaryCase->summaryHeaderFilename()];
-    CAF_ASSERT( !keyFileComponents.empty() );
+    if ( keyFileComponents.empty() ) return ensembleName;
 
     if ( !ensembleName.isEmpty() )
     {
