@@ -846,10 +846,6 @@ RiuQwtPlotWidget* RimAnalysisPlot::doCreatePlotViewWidget( QWidget* mainWindowPa
     if ( !m_plotWidget )
     {
         m_plotWidget = new RiuQwtPlotWidget( this, mainWindowParent );
-
-        this->connect( m_plotWidget, SIGNAL( plotZoomed() ), SLOT( onPlotZoomed() ) );
-
-        // updatePlotTitle();
     }
 
     return m_plotWidget;
