@@ -19,6 +19,7 @@
 #pragma once
 
 class QWidget;
+class QString;
 
 namespace caf
 {
