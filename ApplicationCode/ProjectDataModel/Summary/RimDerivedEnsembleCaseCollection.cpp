@@ -83,14 +83,10 @@ RimDerivedEnsembleCaseCollection::RimDerivedEnsembleCaseCollection()
     m_fixedTimeStepIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_fixedTimeStepIndex.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    // Do not show child cases
-    uiCapability()->setUiTreeChildrenHidden( true );
-
-    // Do not store child cases to project file
-    m_cases.xmlCapability()->disableIO();
-
     setNameAsReadOnly();
     setName( "Delta Ensemble" );
+
+    setAsEnsemble( true );
 
     setDeletable( true );
 }
@@ -192,6 +188,7 @@ void RimDerivedEnsembleCaseCollection::updateDerivedEnsembleCases()
         derivedCase->createSummaryReaderInterface();
         derivedCase->setCaseRealizationParameters( crp );
         derivedCase->setInUse( true );
+        derivedCase->updateDisplayNameFromCases();
     }
 
     // If other derived ensembles are referring to this ensemble, update their cases as well
