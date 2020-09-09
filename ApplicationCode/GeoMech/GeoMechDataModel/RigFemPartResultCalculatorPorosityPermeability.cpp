@@ -19,13 +19,14 @@
 #include "RigFemPartResultCalculatorPorosityPermeability.h"
 
 #include "RiaEclipseUnitTools.h"
-#include "RiaLogging.h"
 
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigFemResultAddress.h"
 #include "RigFemScalarResultFrames.h"
+
+#include "Riu3DMainWindowTools.h"
 
 #include "cafProgressInfo.h"
 
@@ -86,7 +87,11 @@ RigFemScalarResultFrames*
                                                     RigFemResultAddress( resVarAddr.resultPosType, "COMPRESSIBILITY", "PORE" ) );
     if ( poreCompressibilityFrames->frameData( 0 ).empty() )
     {
-        RiaLogging::error( "Missing pore compressibility data." );
+        QString txt = QString( "Failed to compute %1\n" ).arg( QString::fromStdString( resVarAddr.componentName ) );
+        txt += "Missing pore compressibility data";
+
+        Riu3DMainWindowTools::reportAndShowWarning( "Required data missing", txt );
+
         return nullptr;
     }
 

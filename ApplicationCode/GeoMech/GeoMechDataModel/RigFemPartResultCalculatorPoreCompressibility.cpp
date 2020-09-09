@@ -19,13 +19,14 @@
 #include "RigFemPartResultCalculatorPoreCompressibility.h"
 
 #include "RiaEclipseUnitTools.h"
-#include "RiaLogging.h"
 
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigFemResultAddress.h"
 #include "RigFemScalarResultFrames.h"
+
+#include "Riu3DMainWindowTools.h"
 
 #include "cafProgressInfo.h"
 
@@ -104,7 +105,11 @@ RigFemScalarResultFrames*
         m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_ELEMENT, "MODULUS", "" ) );
     if ( youngsModuliFrames->frameData( 0 ).empty() )
     {
-        RiaLogging::error( "Missing Youngs Moduli element data (MODULUS)." );
+        QString txt = QString( "Failed to compute %1\n" ).arg( QString::fromStdString( resVarAddr.componentName ) );
+        txt += "Missing Young's Modulus element data (MODULUS)";
+
+        Riu3DMainWindowTools::reportAndShowWarning( "Required data missing", txt );
+
         return nullptr;
     }
 
@@ -112,7 +117,11 @@ RigFemScalarResultFrames*
         m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_ELEMENT, "RATIO", "" ) );
     if ( poissonRatioFrames->frameData( 0 ).empty() )
     {
-        RiaLogging::error( "Missing Poisson Ratio element data (RATIO)." );
+        QString txt = QString( "Failed to compute %1\n" ).arg( QString::fromStdString( resVarAddr.componentName ) );
+        txt += "Missing Poisson Ratio element data (RATIO)";
+
+        Riu3DMainWindowTools::reportAndShowWarning( "Required data missing", txt );
+
         return nullptr;
     }
 
