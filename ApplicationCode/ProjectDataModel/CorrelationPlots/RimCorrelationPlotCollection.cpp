@@ -90,6 +90,7 @@ RimCorrelationMatrixPlot* RimCorrelationPlotCollection::createCorrelationMatrixP
     RimCorrelationMatrixPlot* plot = new RimCorrelationMatrixPlot();
     plot->setAsPlotMdiWindow();
     if ( defaultToFirstEnsembleField ) applyFirstEnsembleFieldAddressesToPlot( plot, {"FOPT", "FWPT", "FGPT"} );
+    plot->selectAllParameters();
 
     m_correlationPlots.push_back( plot );
 
