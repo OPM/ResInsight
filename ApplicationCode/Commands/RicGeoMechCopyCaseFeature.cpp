@@ -55,13 +55,12 @@ void RicGeoMechCopyCaseFeature::onActionTriggered( bool isChecked )
         std::vector<RimGeoMechCase*> cases = caf::selectedObjectsByTypeStrict<RimGeoMechCase*>();
 
         RimGeoMechCase* caseToSelect = nullptr;
+        RiaApplication* app          = RiaApplication::instance();
+        QString         defaultDir   = app->lastUsedDialogDirectory( "GEOMECH_MODEL" );
 
         for ( RimGeoMechCase* gmc : cases )
         {
-            RiaApplication* app = RiaApplication::instance();
-
-            QString defaultDir = app->lastUsedDialogDirectory( "GEOMECH_MODEL" );
-            QString fileName   = RiuFileDialogTools::getOpenFileName( nullptr,
+            QString fileName = RiuFileDialogTools::getOpenFileName( nullptr,
                                                                     "Import Geo-Mechanical Model",
                                                                     defaultDir,
                                                                     "Abaqus results (*.odb)" );
