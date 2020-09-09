@@ -23,11 +23,6 @@
 
 #include "RifElementPropertyReader.h"
 #include "RifGeoMechReaderInterface.h"
-#include "RimMudWeightWindowParameters.h"
-
-#ifdef USE_ODB_API
-#include "RifOdbReader.h"
-#endif
 
 #include "RigFemNativeStatCalc.h"
 #include "RigFemPartCollection.h"
@@ -69,9 +64,16 @@
 #include "RigWbsParameter.h"
 
 #include "RimMainPlotCollection.h"
+#include "RimMudWeightWindowParameters.h"
 #include "RimProject.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
+
+#include "Riu3DMainWindowTools.h"
+
+#ifdef USE_ODB_API
+#include "RifOdbReader.h"
+#endif
 
 #include "cafProgressInfo.h"
 #include "cafTensor3.h"
@@ -1578,9 +1580,12 @@ bool RigFemPartResultsCollection::isValidBiotData( const std::vector<float>& bio
 {
     if ( biotData.size() != elementCount )
     {
-        RiaLogging::error( QString( "Unexpected size of biot coefficient element properties: %1 (expected: %2)" )
-                               .arg( biotData.size() )
-                               .arg( elementCount ) );
+        QString txt = QString( "Unexpected size of biot coefficient element properties: %1 (expected: %2)" )
+                          .arg( biotData.size() )
+                          .arg( elementCount );
+
+        Riu3DMainWindowTools::reportAndShowWarning( "Wrong size of biot data", txt );
+
         return false;
     }
 
