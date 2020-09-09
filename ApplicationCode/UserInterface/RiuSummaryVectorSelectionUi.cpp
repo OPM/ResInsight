@@ -1614,7 +1614,7 @@ void RiuSummaryVectorSelectionUi::handleAddedSource( SummarySource* sourceAdded 
 {
     CAF_ASSERT( sourceAdded );
     auto caseCollection = dynamic_cast<RimSummaryCaseCollection*>( sourceAdded );
-    if ( caseCollection )
+    if ( caseCollection && m_showIndividualEnsembleCases )
     {
         // Select all children
         for ( auto summaryCase : caseCollection->allSummaryCases() )
