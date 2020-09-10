@@ -301,6 +301,26 @@ RimGeoMechView* RimGeoMechCase::createCopyAndAddView( const RimGeoMechView* sour
     return rimGeoMechView;
 }
 
+RimGeoMechCase* RimGeoMechCase::createCopy( const QString& newInputFileName )
+{
+    RiaApplication* app     = RiaApplication::instance();
+    RimProject*     project = app->project();
+
+    RimGeoMechCase* copycase = dynamic_cast<RimGeoMechCase*>(
+        this->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+    CVF_ASSERT( copycase );
+
+    QFileInfo filenameInfo( newInputFileName );
+    QString   newCaseName = filenameInfo.completeBaseName();
+
+    copycase->caseUserDescription.setValue( newCaseName + " (copy of " + caseUserDescription.value() + ")" );
+    copycase->setGridFileName( newInputFileName );
+
+    project->assignCaseIdToCase( copycase );
+
+    return copycase;
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -466,12 +486,9 @@ void RimGeoMechCase::initAfterRead()
 {
     RimCase::initAfterRead();
 
-    size_t j;
-    for ( j = 0; j < geoMechViews().size(); j++ )
+    for ( RimGeoMechView* riv : geoMechViews() )
     {
-        RimGeoMechView* riv = geoMechViews()[j];
         CVF_ASSERT( riv );
-
         riv->setGeoMechCase( this );
     }
 

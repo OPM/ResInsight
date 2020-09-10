@@ -880,7 +880,7 @@ bool RiaApplication::openOdbCaseFromFile( const QString& fileName, bool applyTim
         delete geoMechCase;
         return false;
     }
-    geoMechModelCollection->cases.push_back( geoMechCase );
+    geoMechModelCollection->addCase( geoMechCase );
 
     progress.incrementProgress();
     progress.setProgressDescription( "Loading results information" );
