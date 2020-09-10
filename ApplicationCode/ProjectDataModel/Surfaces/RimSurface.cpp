@@ -18,6 +18,9 @@
 
 #include "RimSurface.h"
 
+#include "RiaApplication.h"
+#include "RimCase.h"
+#include "RimProject.h"
 #include "RimSurfaceCollection.h"
 
 #include "RigSurface.h"
@@ -26,9 +29,11 @@
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
-
 #include "cafPdmUiDoubleSliderEditor.h"
 
+#include "cvfBoundingBox.h"
+
+#include <algorithm>
 #include <cmath>
 
 CAF_PDM_ABSTRACT_SOURCE_INIT( RimSurface, "SurfaceInterface" );
@@ -238,8 +243,24 @@ void RimSurface::defineEditorAttribute( const caf::PdmFieldHandle* field,
     {
         if ( field == &m_depthOffset )
         {
-            doubleSliderAttrib->m_minimum = -2000;
-            doubleSliderAttrib->m_maximum = 2000;
+            RiaApplication*       app = RiaApplication::instance();
+            std::vector<RimCase*> cases;
+            app->project()->allCases( cases );
+
+            cvf::BoundingBox bb;
+
+            for ( auto c : cases )
+            {
+                bb.add( c->allCellsBoundingBox() );
+            }
+
+            double extentFromCase = std::fabs( bb.extent().z() ) * 2.0;
+            extentFromCase        = std::floor( extentFromCase / 1000.0 ) * 1000.0;
+
+            double minimumExtent = std::max( 1000.0, extentFromCase );
+
+            doubleSliderAttrib->m_minimum = -minimumExtent;
+            doubleSliderAttrib->m_maximum = minimumExtent;
         }
     }
 }
