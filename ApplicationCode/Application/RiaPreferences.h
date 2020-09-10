@@ -118,6 +118,8 @@ public:
     QPageLayout defaultPageLayout() const;
     QMarginsF   margins() const;
 
+    double surfaceImportResamplingDistance() const;
+
     // 3D view
     RiaDefines::MeshModeType              defaultMeshModeType() const;
     RiaGuiApplication::RINavigationPolicy navigationPolicy() const;
@@ -183,6 +185,7 @@ private:
     static QString tabNameScripting();
     static QString tabNameExport();
     static QString tabNameSystem();
+    static QString tabNameImport();
 
     static double defaultMarginSize( QPageSize::PageSizeId pageSizeId );
 
@@ -218,6 +221,9 @@ private:
     caf::PdmField<QString>       m_plotTemplateFolders;
     caf::PdmField<bool>          m_searchPlotTemplateFoldersRecursively;
     caf::PdmField<caf::FilePath> m_defaultPlotTemplate;
+
+    // Surface Import
+    caf::PdmField<double> m_surfaceImportResamplingDistance;
 
     // 3d view
     caf::PdmField<caf::AppEnum<RiaDefines::MeshModeType>>              m_defaultMeshModeType;

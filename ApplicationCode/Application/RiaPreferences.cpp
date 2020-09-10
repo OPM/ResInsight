@@ -370,6 +370,14 @@ RiaPreferences::RiaPreferences( void )
     m_openExportedPdfInViewer.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitField( &m_gtestFilter, "gtestFilter", QString(), "Unit Test Filter (gtest)", "", "", "" );
+
+    CAF_PDM_InitField( &m_surfaceImportResamplingDistance,
+                       "SurfaceImportResamplingDistance",
+                       100.0,
+                       "Surface Import Coarsening",
+                       "",
+                       "Defines preferred minimum distance between surface points in XY-plane",
+                       "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -552,6 +560,10 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         uiOrdering.add( &csvTextExportFieldSeparator );
         uiOrdering.add( &m_openExportedPdfInViewer );
     }
+    else if ( uiConfigName == RiaPreferences::tabNameImport() )
+    {
+        uiOrdering.add( &m_surfaceImportResamplingDistance );
+    }
     else if ( RiaApplication::enableDevelopmentFeatures() && uiConfigName == RiaPreferences::tabNameSystem() )
     {
         {
@@ -711,6 +723,14 @@ QString RiaPreferences::tabNameSystem()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiaPreferences::tabNameImport()
+{
+    return "Import";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RiaPreferences::defaultMarginSize( QPageSize::PageSizeId pageSizeId )
 {
     QPageSize::Unit unit = QPageSize( pageSizeId ).definitionUnits();
@@ -736,6 +756,7 @@ QStringList RiaPreferences::tabNames()
     names << tabNamePlotting();
     names << tabNameScripting();
     names << tabNameExport();
+    names << tabNameImport();
 
     if ( RiaApplication::enableDevelopmentFeatures() )
     {
@@ -998,6 +1019,14 @@ QPageLayout RiaPreferences::defaultPageLayout() const
 QMarginsF RiaPreferences::margins() const
 {
     return QMarginsF( m_pageLeftMargin, m_pageTopMargin, m_pageRightMargin, m_pageBottomMargin );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RiaPreferences::surfaceImportResamplingDistance() const
+{
+    return m_surfaceImportResamplingDistance;
 }
 
 //--------------------------------------------------------------------------------------------------
