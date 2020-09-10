@@ -145,16 +145,6 @@ RimGridView::~RimGridView( void )
 
         proj->uiCapability()->updateConnectedEditors();
     }
-
-    delete this->m_overlayInfoConfig();
-
-    delete m_surfaceResultDefCollection;
-    delete m_intersectionResultDefCollection;
-    delete m_wellMeasurementCollection;
-    delete m_rangeFilterCollection;
-    delete m_overrideRangeFilterCollection;
-    delete m_intersectionCollection;
-    delete m_gridCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
