@@ -18,7 +18,10 @@
 
 #include "RimFileSurface.h"
 
+#include "RiaPreferences.h"
+
 #include "RifSurfaceImporter.h"
+
 #include "RigGocadData.h"
 #include "RigSurface.h"
 #include "RimSurfaceCollection.h"
@@ -187,7 +190,8 @@ bool RimFileSurface::loadDataFromFile()
     }
     else if ( filePath.endsWith( "dat", Qt::CaseInsensitive ) )
     {
-        surface = RifSurfaceImporter::readOpenWorksXyzFile( filePath );
+        double resamplingDistance = RiaPreferences::current()->surfaceImportResamplingDistance();
+        surface                   = RifSurfaceImporter::readOpenWorksXyzFile( filePath, resamplingDistance );
     }
 
     m_vertices       = surface.first;

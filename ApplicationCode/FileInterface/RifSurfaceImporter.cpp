@@ -19,10 +19,14 @@
 #include "RifSurfaceImporter.h"
 #include "RigGocadData.h"
 
+#include "cafProgressInfo.h"
+
 #include "cvfAssert.h"
+#include "cvfGeometryTools.h"
 #include "cvfVector3.h"
 
-#include "QStringList"
+#include <QFile>
+#include <QStringList>
 
 #include <cmath>
 #include <fstream>
@@ -325,10 +329,26 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceImporter::re
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceImporter::readOpenWorksXyzFile( const QString& filename )
+std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>>
+    RifSurfaceImporter::readOpenWorksXyzFile( const QString& filename, double preferredPointDistance )
 {
+    size_t estimatedPointCount = 0;
+    {
+        QFile  f( filename );
+        size_t fileSizeInBytes = size_t( f.size() );
+
+        size_t estimatedBytesPerLine = 40; // Test file has 4.5M lines, file size is 220 MB, one point per line
+
+        if ( fileSizeInBytes > estimatedBytesPerLine * 50 )
+        {
+            estimatedPointCount = fileSizeInBytes / estimatedBytesPerLine;
+        }
+    }
+
     // Note: the assumption is that the grid will always be in the x-y plane.
     std::ifstream stream( filename.toLatin1().data() );
+
+    caf::ProgressInfo progInfo( estimatedPointCount, "Importing Surface Data" );
 
     struct vec2dCompare
     {
@@ -341,28 +361,19 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceImporter::re
     std::map<cvf::Vec2d, double, vec2dCompare> axesVectorCandidates;
     // Mapping axes vectors to their number of occurrence
     std::map<cvf::Vec2d, unsigned, vec2dCompare> axesVectorCandidatesNum;
-    // Mapping axes vectors to their number of neighbored points
-    std::map<cvf::Vec2d, unsigned, vec2dCompare> numOfNeighbouredPoints;
-    // Vector of points where the vector between two following surface points changes.
-    std::vector<cvf::Vec2d> vectorChanges;
-    // Vector of potential end/start points.
-    std::vector<size_t> potentialEndPointIndices;
 
-    cvf::Vec2d lastVector;
-
-    double epsilon                = 0.001;
-    bool   ignoreNextVectorChange = false;
+    double epsilon = 0.01;
 
     // Converts a 3d vector to a 2d vector
     auto to2d = []( const cvf::Vec3d vector ) -> cvf::Vec2d { return cvf::Vec2d( vector.x(), vector.y() ); };
+    auto to3d = []( const cvf::Vec2d vector ) -> cvf::Vec3d { return cvf::Vec3d( vector.x(), vector.y(), 0.0 ); };
 
     // Checks if the given vector is a possible new candidate for an axis vector and adds it to the given list of
     // axesVectorCandidates. Also increases the number of occurrences of vector candidates.
     auto maybeInsertAxisVectorCandidate =
         [epsilon]( const cvf::Vec2d                              vector,
                    std::map<cvf::Vec2d, double, vec2dCompare>&   axesVectorCandidates,
-                   std::map<cvf::Vec2d, unsigned, vec2dCompare>& axesVectorCandidatesNum,
-                   std::map<cvf::Vec2d, unsigned, vec2dCompare>& numOfNeighbouredPoints ) -> bool {
+                   std::map<cvf::Vec2d, unsigned, vec2dCompare>& axesVectorCandidatesNum ) -> bool {
         double     length           = vector.length();
         cvf::Vec2d normalizedVector = vector.getNormalized();
         for ( std::map<cvf::Vec2d, double, vec2dCompare>::iterator iter = axesVectorCandidates.begin();
@@ -386,14 +397,11 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceImporter::re
         {
             axesVectorCandidates[normalizedVector] = length;
         }
-        if ( numOfNeighbouredPoints.count( normalizedVector ) == 0 )
-        {
-            numOfNeighbouredPoints.insert( std::pair<cvf::Vec2d, unsigned>( normalizedVector, 0 ) );
-        }
-        numOfNeighbouredPoints[normalizedVector] += 1;
         axesVectorCandidatesNum[normalizedVector] += 1;
         return false;
     };
+
+    size_t lineIndex = 0;
 
     while ( stream.good() )
     {
@@ -434,55 +442,21 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceImporter::re
                 if ( surfacePoints.size() > 1 )
                 {
                     cvf::Vec3d pointToPointVector = surfacePoints.back() - surfacePoints[surfacePoints.size() - 2];
-
-                    // Assuming that any change bigger than 45 degrees is a new column in the grid.
-                    if ( lastVector.dot( to2d( pointToPointVector ) ) < 0.5 && !ignoreNextVectorChange )
-                    {
-                        // Compare the current vector to all points where the vector has changed
-                        // in order to identify the secondary axis vector.
-                        for ( size_t i = 0; i < vectorChanges.size(); i++ )
-                        {
-                            cvf::Vec2d vector = to2d( surfacePoints.back() ) - vectorChanges[i];
-                            maybeInsertAxisVectorCandidate( vector,
-                                                            axesVectorCandidates,
-                                                            axesVectorCandidatesNum,
-                                                            numOfNeighbouredPoints );
-                        }
-                        vectorChanges.push_back( to2d( surfacePoints.back() ) );
-                        if ( !std::count( potentialEndPointIndices.begin(),
-                                          potentialEndPointIndices.end(),
-                                          surfacePoints.size() - 1 ) )
-                            potentialEndPointIndices.push_back( surfacePoints.size() - 1 );
-
-                        if ( !std::count( potentialEndPointIndices.begin(),
-                                          potentialEndPointIndices.end(),
-                                          surfacePoints.size() - 2 ) )
-                            potentialEndPointIndices.push_back( surfacePoints.size() - 2 );
-
-                        if ( vectorChanges.size() > 2 ) ignoreNextVectorChange = true;
-                    }
-                    else
-                    {
-                        if ( lastVector.dot( to2d( pointToPointVector ) ) < 0.5 && ignoreNextVectorChange )
-                        {
-                            ignoreNextVectorChange = false;
-                        }
-                        maybeInsertAxisVectorCandidate( to2d( pointToPointVector ),
-                                                        axesVectorCandidates,
-                                                        axesVectorCandidatesNum,
-                                                        numOfNeighbouredPoints );
-                    }
-
-                    lastVector = to2d( pointToPointVector ).getNormalized();
-                }
-                else
-                {
-                    vectorChanges.push_back( to2d( surfacePoints.back() ) );
+                    maybeInsertAxisVectorCandidate( to2d( pointToPointVector ),
+                                                    axesVectorCandidates,
+                                                    axesVectorCandidatesNum );
                 }
             }
+            else // Probably a comment line, skip
+            {
+            }
         }
-        else // Probably a comment line, skip
+
+        lineIndex++;
+
+        if ( estimatedPointCount < 100 || lineIndex % ( estimatedPointCount / 100 ) == 0 )
         {
+            progInfo.setProgress( std::min( lineIndex, estimatedPointCount ) );
         }
     }
 
@@ -497,80 +471,101 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceImporter::re
         return a.second > b.second;
     } );
 
-    size_t primaryIndex = 0;
-    if ( numOfNeighbouredPoints[pairs[0].first] > numOfNeighbouredPoints[pairs[1].first] )
-    {
-        primaryIndex = 0;
-    }
-    else
-    {
-        primaryIndex = 1;
-    }
+    cvf::Vec2d primaryAxisVector = pairs[0].first * axesVectorCandidates[pairs[0].first];
 
-    cvf::Vec2d primaryAxisVector   = pairs[primaryIndex].first * axesVectorCandidates[pairs[primaryIndex].first];
-    cvf::Vec2d secondaryAxisVector = pairs[1 - primaryIndex].first * axesVectorCandidates[pairs[1 - primaryIndex].first];
-
-    // Find starting and end point
-    cvf::Vec2d startPoint = to2d( surfacePoints.front() );
-    cvf::Vec2d endPoint   = to2d( surfacePoints.back() );
-
-    size_t row       = 0;
-    size_t column    = 0;
-    size_t maxColumn = ( potentialEndPointIndices.size() + 1 ) / 2;
-    size_t maxRow =
-        ( ( endPoint - secondaryAxisVector * ( maxColumn - 1 ) ) - startPoint ).length() / primaryAxisVector.length() + 1;
-
-    for ( size_t k = 0; k < potentialEndPointIndices.size(); k++ )
-    {
-        if ( column >= 2 )
-            column = ( k - 2 ) / 2;
-        else
-            column = 0;
-
-        // Bring all points on the same line, so that we are having a one-dimensional comparison
-        cvf::Vec2d currentProjected = to2d( surfacePoints[k] ) - secondaryAxisVector * column;
-        cvf::Vec2d endProjected     = endPoint - secondaryAxisVector * ( maxColumn - 1 );
-
-        // Check if pointing in same direction
-        if ( ( currentProjected - startPoint ).dot( endPoint - startPoint ) > 0.0 )
-        {
-            if ( ( currentProjected - startPoint ).length() > ( endProjected - startPoint ).length() )
-            {
-                // Found a new end point
-                endPoint = currentProjected + secondaryAxisVector * ( maxColumn - 1 );
-                maxRow   = ( currentProjected - startPoint ).length() / primaryAxisVector.length() + 1;
-                continue;
-            }
-        }
-        else
-        {
-            // Found new start point
-            maxRow += ( currentProjected - startPoint ).length() / primaryAxisVector.length();
-            startPoint = currentProjected;
-        }
-    }
-
-    // Fill list of index to point data in order to generate the triangles later.
-    cvf::Vec2d currentPoint = startPoint;
-
-    size_t                             index = 0;
+    size_t                             row    = 0;
+    size_t                             column = 0;
     std::vector<std::vector<unsigned>> indexToPointData;
-    indexToPointData.resize( maxColumn, std::vector<unsigned>( maxRow, -1 ) );
-    for ( column = 0; column < maxColumn; column++ )
+    std::vector<unsigned>              startOffsets;
+    cvf::Vec2d                         lineStartPoint;
+    cvf::Vec2d                         lineEndPoint;
+    unsigned                           largestStartOffset = 0;
+    unsigned                           largestEndOffset   = 0;
+
+    auto distanceOnLine = [to3d, to2d, surfacePoints, primaryAxisVector, epsilon]( const cvf::Vec2d linePoint1,
+                                                                                   const cvf::Vec2d linePoint2,
+                                                                                   const cvf::Vec2d point ) -> int {
+        double     normalizedIntersection = 0.0;
+        cvf::Vec2d projectedPoint         = to2d( cvf::GeometryTools::projectPointOnLine( to3d( linePoint1 ),
+                                                                                  to3d( linePoint2 ),
+                                                                                  to3d( point ),
+                                                                                  &normalizedIntersection ) );
+        if ( vectorFuzzyCompare( ( projectedPoint - to2d( surfacePoints[0] ) ).getNormalized(),
+                                 primaryAxisVector.getNormalized(),
+                                 epsilon ) )
+            return static_cast<int>( ( projectedPoint - to2d( surfacePoints[0] ) ).length() / primaryAxisVector.length() );
+        else
+            return static_cast<int>( -( projectedPoint - to2d( surfacePoints[0] ) ).length() / primaryAxisVector.length() );
+    };
+
+    for ( size_t index = 0; index < surfacePoints.size(); index++ )
     {
-        currentPoint = startPoint + secondaryAxisVector * column;
-        for ( row = 0; row < maxRow; row++ )
+        if ( index > 0 )
         {
-            if ( vectorFuzzyCompare( to2d( surfacePoints[index] ), currentPoint, epsilon ) )
+            cvf::Vec2d vector = to2d( surfacePoints[index] - surfacePoints[index - 1] );
+            if ( !vectorFuzzyCompare( vector.getNormalized(), primaryAxisVector.getNormalized(), epsilon ) )
             {
-                indexToPointData[column][row] = static_cast<unsigned>( index );
-                currentPoint                  = to2d( surfacePoints[index] ) += primaryAxisVector;
-                index                         = std::min( index + 1, surfacePoints.size() - 1 );
+                column++;
+                if ( indexToPointData.size() < column + 1 )
+                {
+                    indexToPointData.push_back( std::vector<unsigned>() );
+                }
+                row        = 0;
+                int offset = distanceOnLine( lineStartPoint, lineEndPoint, to2d( surfacePoints[index] ) );
+                if ( offset < 0 )
+                {
+                    startOffsets.push_back( std::abs( offset ) );
+                    largestStartOffset = std::max<unsigned>( largestStartOffset, std::abs( offset ) );
+                }
+                else
+                {
+                    for ( int i = 0; i < offset; i++ )
+                    {
+                        indexToPointData[column].push_back( -1 );
+                        row++;
+                    }
+                    startOffsets.push_back( 0 );
+                }
             }
             else
             {
-                currentPoint += primaryAxisVector;
+                size_t rowDiff = static_cast<size_t>( std::round( vector.length() / primaryAxisVector.length() ) );
+                if ( rowDiff > 1 )
+                {
+                    for ( size_t i = 1; i < rowDiff; i++ )
+                    {
+                        indexToPointData[column].push_back( -1 );
+                        row++;
+                    }
+                }
+                int offset       = distanceOnLine( lineStartPoint, lineEndPoint, to2d( surfacePoints[index] ) );
+                largestEndOffset = std::max<unsigned>( largestEndOffset, std::abs( offset ) );
             }
+        }
+        else
+        {
+            lineStartPoint = to2d( surfacePoints[index] ) - 9999999999.0 * primaryAxisVector;
+            lineEndPoint   = to2d( surfacePoints[index] ) + 9999999999.0 * primaryAxisVector;
+            startOffsets.push_back( 0 );
+        }
+        if ( indexToPointData.size() < column + 1 )
+        {
+            indexToPointData.push_back( std::vector<unsigned>() );
+        }
+        indexToPointData[column].push_back( static_cast<unsigned>( index ) );
+        row++;
+    }
+
+    for ( size_t i = 0; i < startOffsets.size(); i++ )
+    {
+        unsigned endOffset = largestStartOffset + largestEndOffset;
+        for ( unsigned j = startOffsets[i]; j < largestStartOffset; j++ )
+        {
+            indexToPointData[i].insert( indexToPointData[i].begin(), static_cast<unsigned>( -1 ) );
+        }
+        for ( unsigned j = static_cast<unsigned>( indexToPointData[i].size() ); j <= endOffset; j++ )
+        {
+            indexToPointData[i].push_back( static_cast<unsigned>( -1 ) );
         }
     }
 
@@ -580,11 +575,17 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceImporter::re
         return {};
     }
 
-    for ( size_t iIdx = 0; iIdx < indexToPointData.size() - 1; ++iIdx )
+    size_t rowColumnStride = size_t( 1 );
+    if ( primaryAxisVector.length() < preferredPointDistance )
     {
-        for ( size_t jIdx = 0; jIdx < indexToPointData[iIdx].size() - 1; ++jIdx )
+        rowColumnStride = preferredPointDistance / primaryAxisVector.length();
+    }
+
+    for ( size_t iIdx = 0; iIdx < indexToPointData.size() - 1; iIdx += rowColumnStride )
+    {
+        for ( size_t jIdx = 0; jIdx < indexToPointData[iIdx].size() - 1; jIdx += rowColumnStride )
         {
-            generateTriangleIndices( indexToPointData, iIdx, jIdx, triangleIndices );
+            generateTriangleIndices( indexToPointData, iIdx, jIdx, triangleIndices, static_cast<unsigned>( rowColumnStride ) );
         }
     }
 
@@ -597,12 +598,18 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceImporter::re
 bool RifSurfaceImporter::generateTriangleIndices( const std::vector<std::vector<unsigned>>& indexToPointData,
                                                   const size_t&                             i,
                                                   const size_t&                             j,
-                                                  std::vector<unsigned>&                    triangleIndices )
+                                                  std::vector<unsigned>&                    triangleIndices,
+                                                  unsigned                                  resolution /*= 1 */ )
 {
+    unsigned topI = unsigned( std::min( indexToPointData.size() - 1, i + resolution ) );
+    unsigned topJ = unsigned( std::min( indexToPointData[topI].size() - 1, j + resolution ) );
+
+    if ( topI == i || topJ == j ) return false;
+
     unsigned q1 = indexToPointData[i + 0][j + 0];
-    unsigned q2 = indexToPointData[i + 0][j + 1];
-    unsigned q3 = indexToPointData[i + 1][j + 0];
-    unsigned q4 = indexToPointData[i + 1][j + 1];
+    unsigned q2 = indexToPointData[i + 0][topJ];
+    unsigned q3 = indexToPointData[topI][j + 0];
+    unsigned q4 = indexToPointData[topI][topJ];
 
     if ( q1 != ( (unsigned)-1 ) && q2 != ( (unsigned)-1 ) && q4 != ( (unsigned)-1 ) && q1 != ( (unsigned)-1 ) &&
          q4 != ( (unsigned)-1 ) && q3 != ( (unsigned)-1 ) )
