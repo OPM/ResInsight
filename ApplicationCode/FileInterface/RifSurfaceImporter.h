@@ -20,6 +20,7 @@
 
 #include "cvfVector3.h"
 
+#include <limits>
 #include <utility>
 #include <vector>
 #include <limits>
@@ -33,14 +34,16 @@ class RifSurfaceImporter
 public:
     static void readGocadFile( const QString& filename, RigGocadData* gocadData );
     static std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> readPetrelFile( const QString& filename );
-    static std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> readOpenWorksXyzFile( const QString& filename );
+    static std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>>
+        readOpenWorksXyzFile( const QString& filename, double preferredPointDistance );
 
 private:
-    static bool       generateTriangleIndices( const std::vector<std::vector<unsigned>>& indexToPointData,
-                                               const size_t&                             i,
-                                               const size_t&                             j,
-                                               std::vector<unsigned>&                    triangleIndices );
-    static bool       vectorFuzzyCompare( const cvf::Vec2d& vector1,
-                                          const cvf::Vec2d& vector2,
-                                          double            epsilon = std::numeric_limits<double>::epsilon() );
+    static bool generateTriangleIndices( const std::vector<std::vector<unsigned>>& indexToPointData,
+                                         const size_t&                             i,
+                                         const size_t&                             j,
+                                         std::vector<unsigned>&                    triangleIndices,
+                                         unsigned                                  resolution = 1 );
+    static bool vectorFuzzyCompare( const cvf::Vec2d& vector1,
+                                    const cvf::Vec2d& vector2,
+                                    double            epsilon = std::numeric_limits<double>::epsilon() );
 };
