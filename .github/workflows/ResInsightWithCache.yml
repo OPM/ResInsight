@@ -44,6 +44,14 @@ jobs:
             vcpkg-triplet: x64-linux,
             cmake-toolchain: 'vcpkg/scripts/buildsystems/vcpkg.cmake'
           }
+        - {
+            name: "Ubuntu 20.04 clang",
+            os: ubuntu-20.04,
+            cc: "clang", cxx: "clang++",
+            vcpkg-response-file: vcpkg_x64-linux.txt,
+            vcpkg-triplet: x64-linux,
+            cmake-toolchain: 'vcpkg/scripts/buildsystems/vcpkg.cmake'
+          }
     steps:
       - name: Checkout
         uses: actions/checkout@v2
