@@ -365,9 +365,13 @@ endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "-Wall -Wno-unused-parameter -Wno-reorder -Wno-parentheses -Wno-switch")
-    # Treat warnings as errors on new gcc versions
+    # Treat warnings as errors if asked to do so
     if (RESINSIGHT_TREAT_WARNINGS_AS_ERRORS)
           set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "-Wall -Wno-unused-parameter -Wno-reorder -Wno-parentheses -Wno-switch -Werror")
+    endif()
+
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+          set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "-Wall -Wno-unused-parameter -Wno-reorder -Wno-parentheses -Wno-switch -Winconsistent-missing-override")
     endif()
 endif()
 
