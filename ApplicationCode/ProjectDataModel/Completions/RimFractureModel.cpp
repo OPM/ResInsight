@@ -47,7 +47,9 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimStimPlanColors.h"
 #include "RimStimPlanFractureTemplate.h"
+#include "RimTools.h"
 #include "RimWellPath.h"
+#include "RimWellPathCollection.h"
 #include "RimWellPathGeometryDef.h"
 #include "RimWellPathTarget.h"
 
@@ -241,6 +243,8 @@ RimFractureModel::RimFractureModel()
     CAF_PDM_InitScriptableFieldNoDefault( &m_elasticProperties, "ElasticProperties", "Elastic Properties", "", "", "" );
     m_elasticProperties.uiCapability()->setUiHidden( true );
     m_elasticProperties.uiCapability()->setUiTreeHidden( true );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -248,6 +252,17 @@ RimFractureModel::RimFractureModel()
 //--------------------------------------------------------------------------------------------------
 RimFractureModel::~RimFractureModel()
 {
+    RimWellPath*           wellPath           = m_thicknessDirectionWellPath.value();
+    RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
+
+    if ( wellPath && wellPathCollection )
+    {
+        wellPathCollection->removeWellPath( wellPath );
+        delete wellPath;
+
+        wellPathCollection->uiCapability()->updateConnectedEditors();
+        wellPathCollection->scheduleRedrawAffectedViews();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

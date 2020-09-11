@@ -110,7 +110,7 @@ void RimFractureModelStressCurve::performDataExtraction( bool* isUsingPseudoLeng
     // Extract porosity data: get the porosity values from parent
     RimFractureModelPlot* fractureModelPlot;
     firstAncestorOrThisOfType( fractureModelPlot );
-    if ( !fractureModelPlot )
+    if ( !fractureModelPlot || !m_fractureModel )
     {
         RiaLogging::error( QString( "No fracture model plot found." ) );
         return;
@@ -196,6 +196,9 @@ QString RimFractureModelStressCurve::createCurveAutoName()
     return caf::AppEnum<RiaDefines::CurveProperty>::uiText( m_curveProperty() );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFractureModelStressCurve::addDatapointsForBottomOfLayers( std::vector<double>&       tvDepthValues,
                                                                   std::vector<double>&       stress,
                                                                   const std::vector<double>& stressGradients )
