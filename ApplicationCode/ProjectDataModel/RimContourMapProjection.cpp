@@ -44,7 +44,10 @@
 #include "cvfStructGridGeometryGenerator.h"
 
 #include <algorithm>
+
+#ifdef USE_OPENMP
 #include <omp.h>
+#endif
 
 namespace caf
 {
@@ -857,11 +860,20 @@ void RimContourMapProjection::generateTrianglesWithVertexValues()
             }
         }
     }
+
+#ifdef USE_OPENMP
     std::vector<std::vector<std::vector<cvf::Vec4d>>> threadTriangles( omp_get_max_threads() );
+#else
+    std::vector<std::vector<std::vector<cvf::Vec4d>>> threadTriangles( 1 );
+#endif
 
 #pragma omp parallel
     {
+#ifdef USE_OPENMP
         int myThread = omp_get_thread_num();
+#else
+        int myThread = 0;
+#endif
         threadTriangles[myThread].resize( std::max( (size_t)1, m_contourPolygons.size() ) );
 
 #pragma omp for schedule( dynamic )
