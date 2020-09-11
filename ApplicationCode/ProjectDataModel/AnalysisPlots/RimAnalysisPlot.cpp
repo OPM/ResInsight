@@ -202,6 +202,7 @@ RimPlotDataFilterCollection* RimAnalysisPlot::plotDataFilterCollection() const
 //--------------------------------------------------------------------------------------------------
 void RimAnalysisPlot::setCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions )
 {
+    disconnectAllCaseSignals();
     m_analysisPlotDataSelection.deleteAllChildObjects();
     for ( auto curveDef : curveDefinitions )
     {
@@ -209,6 +210,8 @@ void RimAnalysisPlot::setCurveDefinitions( const std::vector<RiaSummaryCurveDefi
         dataEntry->setFromCurveDefinition( curveDef );
         m_analysisPlotDataSelection.push_back( dataEntry );
     }
+    connectAllCaseSignals();
+
     auto timeSteps = allAvailableTimeSteps();
     if ( m_selectedTimeSteps().empty() && !timeSteps.empty() )
     {
@@ -456,13 +459,16 @@ void RimAnalysisPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         if ( dlg.exec() == QDialog::Accepted )
         {
             std::vector<RiaSummaryCurveDefinition> summaryVectorDefinitions = dlg.curveSelection();
+
+            disconnectAllCaseSignals();
             m_analysisPlotDataSelection.deleteAllChildObjects();
             for ( const RiaSummaryCurveDefinition& vectorDef : summaryVectorDefinitions )
             {
-                auto plotEntry = new RimAnalysisPlotDataEntry();
-                plotEntry->setFromCurveDefinition( vectorDef );
-                m_analysisPlotDataSelection.push_back( plotEntry );
+                auto dataEntry = new RimAnalysisPlotDataEntry();
+                dataEntry->setFromCurveDefinition( vectorDef );
+                m_analysisPlotDataSelection.push_back( dataEntry );
             }
+            connectAllCaseSignals();
         }
 
         m_selectVariablesButtonField = false;
@@ -1673,7 +1679,10 @@ std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::curveDefinitionsWithoutE
     std::vector<RiaSummaryCurveDefinition> curveDefs;
     for ( auto dataEntry : m_analysisPlotDataSelection )
     {
-        curveDefs.push_back( dataEntry->curveDefinition() );
+        if ( dataEntry->isEnsembleCurve() )
+        {
+            curveDefs.push_back( dataEntry->curveDefinition() );
+        }
     }
 
     return curveDefs;
@@ -1694,7 +1703,8 @@ std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::curveDefinitionsWithEmbe
         {
             barDataDefinitions.push_back( RiaSummaryCurveDefinition( orgBarDataEntry.summaryCase(),
                                                                      orgBarDataEntry.summaryAddress(),
-                                                                     orgBarDataEntry.summaryCase()->ensemble() ) );
+                                                                     orgBarDataEntry.summaryCase()->ensemble(),
+                                                                     orgBarDataEntry.isEnsembleCurve() ) );
         }
         else
         {
@@ -1795,4 +1805,58 @@ void RimAnalysisPlot::buildTestPlot( RiuGroupedBarChartBuilder& chartBuilder )
 int RimAnalysisPlot::barTextFontSize() const
 {
     return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_barTextFontSize() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnalysisPlot::initAfterRead()
+{
+    connectAllCaseSignals();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnalysisPlot::onCaseRemoved( const SignalEmitter* emitter, RimSummaryCase* summaryCase )
+{
+    for ( auto existingEntry : m_analysisPlotDataSelection )
+    {
+        if ( existingEntry->summaryCase() == summaryCase )
+        {
+            m_analysisPlotDataSelection.removeChildObject( existingEntry );
+            delete existingEntry;
+            break;
+        }
+    }
+    loadDataAndUpdate();
+    if ( m_plotWidget ) m_plotWidget->scheduleReplot();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnalysisPlot::connectAllCaseSignals()
+{
+    for ( auto dataEntry : m_analysisPlotDataSelection )
+    {
+        if ( dataEntry->ensemble() )
+        {
+            dataEntry->ensemble()->caseRemoved.connect( this, &RimAnalysisPlot::onCaseRemoved );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnalysisPlot::disconnectAllCaseSignals()
+{
+    for ( auto dataEntry : m_analysisPlotDataSelection )
+    {
+        if ( dataEntry->ensemble() )
+        {
+            dataEntry->ensemble()->caseRemoved.disconnect( this );
+        }
+    }
 }

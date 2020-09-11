@@ -115,6 +115,13 @@ protected:
 
     QString selectedVarsText();
 
+    void initAfterRead() final;
+
+private:
+    void onCaseRemoved( const SignalEmitter* emitter, RimSummaryCase* summaryCase );
+    void connectAllCaseSignals();
+    void disconnectAllCaseSignals();
+
 protected:
     std::unique_ptr<RiaSummaryCurveDefinitionAnalyser> m_analyserOfSelectedCurveDefs;
     QPointer<RiuQwtPlotWidget>                         m_plotWidget;

@@ -76,6 +76,7 @@ RimAbstractCorrelationPlot::~RimAbstractCorrelationPlot()
 //--------------------------------------------------------------------------------------------------
 void RimAbstractCorrelationPlot::setCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions )
 {
+    disconnectAllCaseSignals();
     m_analysisPlotDataSelection.deleteAllChildObjects();
     for ( auto curveDef : curveDefinitions )
     {
@@ -83,6 +84,8 @@ void RimAbstractCorrelationPlot::setCurveDefinitions( const std::vector<RiaSumma
         dataEntry->setFromCurveDefinition( curveDef );
         m_analysisPlotDataSelection.push_back( dataEntry );
     }
+    connectAllCaseSignals();
+
     auto timeSteps = allAvailableTimeSteps();
     if ( m_timeStep().isNull() && !timeSteps.empty() )
     {
@@ -124,6 +127,7 @@ void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
             if ( !curveSelection.empty() )
             {
                 std::vector<RiaSummaryCurveDefinition> summaryVectorDefinitions = dlg.curveSelection();
+                disconnectAllCaseSignals();
                 m_analysisPlotDataSelection.deleteAllChildObjects();
                 for ( const RiaSummaryCurveDefinition& vectorDef : summaryVectorDefinitions )
                 {
@@ -131,6 +135,7 @@ void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
                     plotEntry->setFromCurveDefinition( vectorDef );
                     m_analysisPlotDataSelection.push_back( plotEntry );
                 }
+                connectAllCaseSignals();
                 this->loadDataAndUpdate();
                 this->updateConnectedEditors();
             }
@@ -576,4 +581,49 @@ QString RimAbstractCorrelationPlot::selectedVarsText()
     }
 
     return vectorNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAbstractCorrelationPlot::initAfterRead()
+{
+    connectAllCaseSignals();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAbstractCorrelationPlot::onCaseRemoved( const SignalEmitter* emitter, RimSummaryCase* summaryCase )
+{
+    loadDataAndUpdate();
+    if ( m_plotWidget ) m_plotWidget->scheduleReplot();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAbstractCorrelationPlot::connectAllCaseSignals()
+{
+    for ( auto dataEntry : m_analysisPlotDataSelection )
+    {
+        if ( dataEntry->ensemble() )
+        {
+            dataEntry->ensemble()->caseRemoved.connect( this, &RimAbstractCorrelationPlot::onCaseRemoved );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAbstractCorrelationPlot::disconnectAllCaseSignals()
+{
+    for ( auto dataEntry : m_analysisPlotDataSelection )
+    {
+        if ( dataEntry->ensemble() )
+        {
+            dataEntry->ensemble()->caseRemoved.disconnect( this );
+        }
+    }
 }

@@ -96,7 +96,7 @@ void RiuSummaryVectorSelectionDialog::setEnsembleAndAddress( RimSummaryCaseColle
     if ( ensemble )
     {
         std::vector<RiaSummaryCurveDefinition> curveDefs;
-        curveDefs.push_back( RiaSummaryCurveDefinition( nullptr, address, ensemble ) );
+        curveDefs.push_back( RiaSummaryCurveDefinition( nullptr, address, ensemble, true ) );
         setCurveSelection( curveDefs );
     }
 }

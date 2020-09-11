@@ -38,11 +38,22 @@ RiaSummaryCurveDefinition::RiaSummaryCurveDefinition()
 ///
 //--------------------------------------------------------------------------------------------------
 RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( RimSummaryCase*                 summaryCase,
+                                                      const RifEclipseSummaryAddress& summaryAddress )
+    : m_summaryCase( summaryCase )
+    , m_ensemble( nullptr )
+    , m_summaryAddress( summaryAddress )
+    , m_treatAsSingleSummaryCurve( true )
+{
+}
+
+RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( RimSummaryCase*                 summaryCase,
                                                       const RifEclipseSummaryAddress& summaryAddress,
-                                                      RimSummaryCaseCollection*       ensemble )
+                                                      RimSummaryCaseCollection*       ensemble,
+                                                      bool                            treatAsSingleSummaryCurve )
     : m_summaryCase( summaryCase )
     , m_ensemble( ensemble )
     , m_summaryAddress( summaryAddress )
+    , m_treatAsSingleSummaryCurve( treatAsSingleSummaryCurve )
 {
 }
 
@@ -75,7 +86,7 @@ const RifEclipseSummaryAddress& RiaSummaryCurveDefinition::summaryAddress() cons
 //--------------------------------------------------------------------------------------------------
 bool RiaSummaryCurveDefinition::isEnsembleCurve() const
 {
-    return m_ensemble != nullptr;
+    return m_ensemble != nullptr && !m_treatAsSingleSummaryCurve;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -210,7 +221,12 @@ void RiaSummaryCurveDefinitionAnalyser::setCurveDefinitions( const std::vector<R
     for ( const auto& curveDef : curveDefs )
     {
         bool valid = false;
-        if ( curveDef.summaryCase() )
+        if ( curveDef.ensemble() && curveDef.isEnsembleCurve() )
+        {
+            m_ensembles.insert( curveDef.ensemble() );
+            valid = true;
+        }
+        else if ( curveDef.summaryCase() )
         {
             m_singleSummaryCases.insert( curveDef.summaryCase() );
 
@@ -219,11 +235,6 @@ void RiaSummaryCurveDefinitionAnalyser::setCurveDefinitions( const std::vector<R
                 m_ensembles.insert( curveDef.summaryCase()->ensemble() );
                 valid = true;
             }
-        }
-        else if ( curveDef.ensemble() )
-        {
-            m_ensembles.insert( curveDef.ensemble() );
-            valid = true;
         }
         if ( valid )
         {

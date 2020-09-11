@@ -92,14 +92,15 @@ class RimSummaryCaseCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    caf::Signal<> caseNameChanged;
+    caf::Signal<>                caseNameChanged;
+    caf::Signal<RimSummaryCase*> caseRemoved;
 
 public:
     RimSummaryCaseCollection();
     ~RimSummaryCaseCollection() override;
 
     void                                       removeCase( RimSummaryCase* summaryCase );
-    void                                       addCase( RimSummaryCase* summaryCase, bool updateCurveSets = true );
+    void                                       addCase( RimSummaryCase* summaryCase );
     virtual std::vector<RimSummaryCase*>       allSummaryCases() const;
     void                                       setName( const QString& name );
     QString                                    name() const;

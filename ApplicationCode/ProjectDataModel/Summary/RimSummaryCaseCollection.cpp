@@ -24,6 +24,7 @@
 
 #include "RicfCommandObject.h"
 
+#include "RimAnalysisPlotDataEntry.h"
 #include "RimDerivedEnsembleCaseCollection.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimGridSummaryCase.h"
@@ -187,6 +188,7 @@ QString EnsembleParameter::uiName() const
 //--------------------------------------------------------------------------------------------------
 RimSummaryCaseCollection::RimSummaryCaseCollection()
     : caseNameChanged( this )
+    , caseRemoved( this )
 {
     CAF_PDM_InitScriptableObject( "Summary Case Group", ":/SummaryGroup16x16.png", "", "" );
 
@@ -233,6 +235,8 @@ void RimSummaryCaseCollection::removeCase( RimSummaryCase* summaryCase )
 
     m_cachedSortedEnsembleParameters.clear();
 
+    caseRemoved.send( summaryCase );
+
     updateReferringCurveSets();
 
     if ( m_isEnsemble && m_cases.size() != caseCountBeforeRemove )
@@ -245,7 +249,7 @@ void RimSummaryCaseCollection::removeCase( RimSummaryCase* summaryCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::addCase( RimSummaryCase* summaryCase, bool updateCurveSets )
+void RimSummaryCaseCollection::addCase( RimSummaryCase* summaryCase )
 {
     summaryCase->nameChanged.connect( this, &RimSummaryCaseCollection::onCaseNameChanged );
 
@@ -255,12 +259,12 @@ void RimSummaryCaseCollection::addCase( RimSummaryCase* summaryCase, bool update
     // Update derived ensemble cases (if any)
     std::vector<RimDerivedEnsembleCaseCollection*> referringObjects;
     objectsWithReferringPtrFieldsOfType( referringObjects );
-    for ( auto derEnsemble : referringObjects )
+    for ( auto derivedEnsemble : referringObjects )
     {
-        if ( !derEnsemble ) continue;
+        if ( !derivedEnsemble ) continue;
 
-        derEnsemble->updateDerivedEnsembleCases();
-        if ( updateCurveSets ) derEnsemble->updateReferringCurveSets();
+        derivedEnsemble->createDerivedEnsembleCases();
+        derivedEnsemble->updateReferringCurveSets();
     }
 
     if ( m_isEnsemble )
@@ -269,7 +273,7 @@ void RimSummaryCaseCollection::addCase( RimSummaryCase* summaryCase, bool update
         calculateEnsembleParametersIntersectionHash();
     }
 
-    if ( updateCurveSets ) updateReferringCurveSets();
+    updateReferringCurveSets();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -924,13 +928,18 @@ void RimSummaryCaseCollection::onLoadDataAndUpdate()
 void RimSummaryCaseCollection::updateReferringCurveSets()
 {
     // Update curve set referring to this group
-    std::vector<RimEnsembleCurveSet*> referringObjects;
+    std::vector<caf::PdmObject*> referringObjects;
     objectsWithReferringPtrFieldsOfType( referringObjects );
 
-    for ( auto curveSet : referringObjects )
+    for ( auto object : referringObjects )
     {
+        RimEnsembleCurveSet* curveSet = dynamic_cast<RimEnsembleCurveSet*>( object );
+
         bool updateParentPlot = true;
-        if ( curveSet ) curveSet->loadDataAndUpdate( updateParentPlot );
+        if ( curveSet )
+        {
+            curveSet->loadDataAndUpdate( updateParentPlot );
+        }
     }
 }
 

@@ -144,7 +144,7 @@ std::set<RifEclipseSummaryAddress> RimDerivedEnsembleCaseCollection::ensembleSum
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDerivedEnsembleCaseCollection::updateDerivedEnsembleCases()
+void RimDerivedEnsembleCaseCollection::createDerivedEnsembleCases()
 {
     if ( !m_ensemble1 || !m_ensemble2 ) return;
 
@@ -194,7 +194,7 @@ void RimDerivedEnsembleCaseCollection::updateDerivedEnsembleCases()
     // If other derived ensembles are referring to this ensemble, update their cases as well
     for ( auto referring : findReferringEnsembles() )
     {
-        referring->updateDerivedEnsembleCases();
+        referring->createDerivedEnsembleCases();
     }
 
     deleteCasesNoInUse();
@@ -343,7 +343,7 @@ void RimDerivedEnsembleCaseCollection::fieldChangedByUi( const caf::PdmFieldHand
 
         if ( doUpdateCases )
         {
-            updateDerivedEnsembleCases();
+            createDerivedEnsembleCases();
             updateConnectedEditors();
 
             if ( doShowDialog && m_ensemble1 != nullptr && m_ensemble2 != nullptr && allSummaryCases().empty() )
@@ -518,6 +518,27 @@ void RimDerivedEnsembleCaseCollection::updateAutoName()
     {
         refering->updateAutoName();
         refering->updateConnectedEditors();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimDerivedEnsembleCaseCollection::updateDerivedEnsembleCases()
+{
+    for ( auto& derivedCase : allDerivedCases( true ) )
+    {
+        derivedCase->createSummaryReaderInterface();
+
+        auto crp = derivedCase->summaryCase1()->caseRealizationParameters();
+        if ( !crp ) continue;
+        derivedCase->setCaseRealizationParameters( crp );
+    }
+
+    // If other derived ensembles are referring to this ensemble, update their cases as well
+    for ( auto referring : findReferringEnsembles() )
+    {
+        referring->updateDerivedEnsembleCases();
     }
 }
 

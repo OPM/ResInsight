@@ -251,7 +251,7 @@ void RimSummaryCaseMainCollection::removeCase( RimSummaryCase* summaryCase )
     // Update derived ensemble cases (if any)
     for ( auto derEnsemble : derivedEnsembles )
     {
-        derEnsemble->updateDerivedEnsembleCases();
+        derEnsemble->createDerivedEnsembleCases();
     }
 }
 

@@ -147,7 +147,7 @@ void RimAnalysisPlotCollection::applyFirstEnsembleFieldAddressesToPlot( RimAnaly
                 {
                     for ( auto summaryCase : ensembles.front()->allSummaryCases() )
                     {
-                        curveDefs.push_back( RiaSummaryCurveDefinition( summaryCase, address, nullptr ) );
+                        curveDefs.push_back( RiaSummaryCurveDefinition( summaryCase, address, ensembles.front(), false ) );
                     }
                 }
             }
@@ -173,7 +173,7 @@ void RimAnalysisPlotCollection::applyEnsembleFieldAndTimeStepToPlot( RimAnalysis
                 {
                     for ( auto summaryCase : ensemble->allSummaryCases() )
                     {
-                        curveDefs.push_back( RiaSummaryCurveDefinition( summaryCase, address, nullptr ) );
+                        curveDefs.push_back( RiaSummaryCurveDefinition( summaryCase, address, ensemble, false ) );
                     }
                 }
             }

@@ -47,6 +47,8 @@ RimAnalysisPlotDataEntry::RimAnalysisPlotDataEntry()
     m_summaryAddress.uiCapability()->setUiHidden( true );
     m_summaryAddress.uiCapability()->setUiTreeChildrenHidden( true );
     m_summaryAddress = new RimSummaryAddress;
+
+    CAF_PDM_InitField( &m_isEnsembleCurve, "IsEnsembleCurve", false, "Is Ensemble Curve", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,10 +68,8 @@ void RimAnalysisPlotDataEntry::setFromCurveDefinition( const RiaSummaryCurveDefi
     {
         m_ensemble = curveDef.ensemble();
     }
-    else
-    {
-        m_summaryCase = curveDef.summaryCase();
-    }
+    m_summaryCase     = curveDef.summaryCase();
+    m_isEnsembleCurve = curveDef.isEnsembleCurve();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,9 +79,9 @@ RiaSummaryCurveDefinition RimAnalysisPlotDataEntry::curveDefinition() const
 {
     if ( m_ensemble )
     {
-        return RiaSummaryCurveDefinition( nullptr, m_summaryAddress->address(), m_ensemble() );
+        return RiaSummaryCurveDefinition( m_summaryCase(), m_summaryAddress->address(), m_ensemble(), m_isEnsembleCurve );
     }
-    return RiaSummaryCurveDefinition( m_summaryCase(), m_summaryAddress->address(), nullptr );
+    return RiaSummaryCurveDefinition( m_summaryCase(), m_summaryAddress->address() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,4 +106,12 @@ RimSummaryCaseCollection* RimAnalysisPlotDataEntry::ensemble() const
 RifEclipseSummaryAddress RimAnalysisPlotDataEntry::summaryAddress() const
 {
     return m_summaryAddress->address();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimAnalysisPlotDataEntry::isEnsembleCurve() const
+{
+    return m_isEnsembleCurve;
 }

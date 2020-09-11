@@ -71,10 +71,9 @@ RimDerivedSummaryCase::RimDerivedSummaryCase()
 
     CAF_PDM_InitFieldNoDefault( &m_useFixedTimeStep, "UseFixedTimeStep", "Use Fixed Time Step", "", "", "" );
     CAF_PDM_InitField( &m_fixedTimeStepIndex, "FixedTimeStepIndex", 0, "Time Step", "", "", "" );
+    CAF_PDM_InitField( &m_inUse, "InUse", false, "In Use", "", "", "" );
     m_fixedTimeStepIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_fixedTimeStepIndex.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-
-    m_inUse = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -425,6 +424,22 @@ void RimDerivedSummaryCase::updateDisplayNameFromCases()
     }
 
     m_displayName = name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCase* RimDerivedSummaryCase::summaryCase1() const
+{
+    return m_summaryCase1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCase* RimDerivedSummaryCase::summaryCase2() const
+{
+    return m_summaryCase2;
 }
 
 //--------------------------------------------------------------------------------------------------
