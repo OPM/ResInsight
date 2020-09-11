@@ -28,7 +28,9 @@
 #include "cvfAssert.h"
 #include "cvfBoundingBoxTree.h"
 
+#ifdef USE_OPENMP
 #include <omp.h>
+#endif
 
 RigMainGrid::RigMainGrid()
     : RigGridBase( this )
@@ -740,7 +742,10 @@ void RigMainGrid::buildCellSearchTree()
 
 #pragma omp parallel
         {
-            size_t threadCellCount = std::ceil( cellCount / static_cast<double>( omp_get_num_threads() ) );
+            size_t threadCellCount = cellCount;
+#ifdef USE_OPENMP
+            threadCellCount = std::ceil( cellCount / static_cast<double>( omp_get_num_threads() ) );
+#endif
 
             std::vector<size_t>           threadIndicesForBoundingBoxes;
             std::vector<cvf::BoundingBox> threadBoundingBoxes;
