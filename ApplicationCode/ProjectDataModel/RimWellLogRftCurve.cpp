@@ -1014,15 +1014,14 @@ bool RimWellLogRftCurve::deriveMeasuredDepthValuesFromWellPath( const std::vecto
     RimProject*  proj     = RimProject::current();
     RimWellPath* wellPath = proj->wellPathByName( m_wellName );
 
-    std::vector<double> derivedMdValues;
     if ( wellPath )
     {
         const std::vector<double>& mdValuesOfWellPath  = wellPath->wellPathGeometry()->measureDepths();
-        std::vector<double>        tvdValuesOfWellPath = wellPath->wellPathGeometry()->trueVerticalDepths();
+        const std::vector<double>& tvdValuesOfWellPath = wellPath->wellPathGeometry()->trueVerticalDepths();
 
-        derivedMdValues =
+        derivedMDValues =
             RigWellPathGeometryTools::interpolateMdFromTvd( mdValuesOfWellPath, tvdValuesOfWellPath, tvDepthValues );
-        CVF_ASSERT( derivedMdValues.size() == tvDepthValues.size() );
+        CVF_ASSERT( derivedMDValues.size() == tvDepthValues.size() );
         return true;
     }
     return false;
