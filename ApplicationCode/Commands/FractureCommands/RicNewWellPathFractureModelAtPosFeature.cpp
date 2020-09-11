@@ -1,0 +1,68 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2020-     Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#include "RicNewWellPathFractureModelAtPosFeature.h"
+
+#include "RicNewFractureModelFeature.h"
+
+#include "RimTools.h"
+#include "RimWellPath.h"
+#include "RimWellPathCollection.h"
+
+#include "Riu3dSelectionManager.h"
+
+#include <QAction>
+
+CAF_CMD_SOURCE_INIT( RicNewWellPathFractureModelAtPosFeature, "RicNewWellPathFractureModelAtPosFeature" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicNewWellPathFractureModelAtPosFeature::onActionTriggered( bool isChecked )
+{
+    Riu3dSelectionManager* riuSelManager = Riu3dSelectionManager::instance();
+    RiuSelectionItem*      selItem       = riuSelManager->selectedItem( Riu3dSelectionManager::RUI_TEMPORARY );
+
+    RiuWellPathSelectionItem* wellPathItem = dynamic_cast<RiuWellPathSelectionItem*>( selItem );
+    if ( !wellPathItem ) return;
+
+    RimWellPath* wellPath = wellPathItem->m_wellpath;
+    if ( !wellPath ) return;
+
+    RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
+    if ( !wellPathCollection ) return;
+
+    RicNewFractureModelFeature::addFractureModel( wellPath, wellPathCollection, wellPathItem->m_measuredDepth );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicNewWellPathFractureModelAtPosFeature::setupActionLook( QAction* actionToSetup )
+{
+    actionToSetup->setIcon( QIcon( ":/FractureSymbol16x16.png" ) );
+    actionToSetup->setText( "Create Fracture Model at this Depth" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicNewWellPathFractureModelAtPosFeature::isCommandEnabled()
+{
+    return true;
+}

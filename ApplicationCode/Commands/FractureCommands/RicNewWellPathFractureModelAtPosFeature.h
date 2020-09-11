@@ -20,27 +20,17 @@
 
 #include "cafCmdFeature.h"
 
-class RimFractureModel;
-class RimFractureModelCollection;
-class RimWellPath;
-class RimWellPathCollection;
+#include <vector>
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewFractureModelFeature : public caf::CmdFeature
+class RicNewWellPathFractureModelAtPosFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
-
-public:
-    static RimFractureModel*
-        addFractureModel( RimWellPath* wellPath, RimWellPathCollection* wellPathCollection, double measuredDepth = -1.0 );
 
 protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
     bool isCommandEnabled() override;
-
-private:
-    static RimFractureModelCollection* selectedFractureModelCollection();
 };
