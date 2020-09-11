@@ -107,7 +107,7 @@ void RimLayerCurve::performDataExtraction( bool* isUsingPseudoLength )
     *isUsingPseudoLength = false;
 
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case.value() );
-    if ( eclipseCase )
+    if ( eclipseCase && m_fractureModel )
     {
         RigEclipseWellLogExtractor eclExtractor( eclipseCase->eclipseCaseData(),
                                                  m_fractureModel->thicknessDirectionWellPath()->wellPathGeometry(),
