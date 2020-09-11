@@ -41,7 +41,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <omp.h>
 
 CAF_PDM_SOURCE_INIT( RimSummaryCaseCollection, "SummaryCaseSubCollection" );
 
