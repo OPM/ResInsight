@@ -40,6 +40,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmPointer.h"
+#include "cafPdmUiItem.h"
 
 #include <QString>
 #include <set>
@@ -47,7 +48,6 @@
 
 namespace caf
 {
-class PdmUiItem;
 class NotificationCenter;
 class PdmChildArrayFieldHandle;
 
