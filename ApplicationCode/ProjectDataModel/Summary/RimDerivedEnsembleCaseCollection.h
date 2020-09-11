@@ -62,8 +62,10 @@ public:
 
     std::vector<RimSummaryCase*>       allSummaryCases() const override;
     std::set<RifEclipseSummaryAddress> ensembleSummaryAddresses() const override;
+    void                               createDerivedEnsembleCases();
     void                               updateDerivedEnsembleCases();
-    bool                               hasCaseReference( const RimSummaryCase* sumCase ) const;
+
+    bool hasCaseReference( const RimSummaryCase* sumCase ) const;
 
     void onLoadDataAndUpdate() override;
 

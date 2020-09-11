@@ -176,7 +176,13 @@ private:
 
     void buildTestPlot( RiuGroupedBarChartBuilder& chartBuilder );
 
-    int barTextFontSize() const;
+    int  barTextFontSize() const;
+    void initAfterRead();
+
+private:
+    void onCaseRemoved( const SignalEmitter* emitter, RimSummaryCase* summaryCase );
+    void connectAllCaseSignals();
+    void disconnectAllCaseSignals();
 
 private:
     std::unique_ptr<RiaSummaryCurveDefinitionAnalyser> m_analyserOfSelectedCurveDefs;

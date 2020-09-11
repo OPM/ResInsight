@@ -21,6 +21,7 @@
 #include "RiaSummaryCurveDefinition.h"
 #include "RifEclipseSummaryAddress.h"
 #include "cafPdmChildField.h"
+#include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
@@ -42,9 +43,11 @@ public:
     RimSummaryCase*           summaryCase() const;
     RimSummaryCaseCollection* ensemble() const;
     RifEclipseSummaryAddress  summaryAddress() const;
+    bool                      isEnsembleCurve() const;
 
 private:
     caf::PdmPtrField<RimSummaryCase*>           m_summaryCase;
     caf::PdmPtrField<RimSummaryCaseCollection*> m_ensemble;
     caf::PdmChildField<RimSummaryAddress*>      m_summaryAddress;
+    caf::PdmField<bool>                         m_isEnsembleCurve;
 };

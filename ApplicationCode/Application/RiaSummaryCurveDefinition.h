@@ -35,9 +35,11 @@ class RiaSummaryCurveDefinition
 {
 public:
     RiaSummaryCurveDefinition();
+    explicit RiaSummaryCurveDefinition( RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& summaryAddress );
     explicit RiaSummaryCurveDefinition( RimSummaryCase*                 summaryCase,
                                         const RifEclipseSummaryAddress& summaryAddress,
-                                        RimSummaryCaseCollection*       ensemble = nullptr );
+                                        RimSummaryCaseCollection*       ensemble,
+                                        bool                            treatAsSingleSummaryCurve );
 
     RimSummaryCase*                 summaryCase() const;
     const RifEclipseSummaryAddress& summaryAddress() const;
@@ -58,6 +60,7 @@ private:
     RimSummaryCase*           m_summaryCase;
     RifEclipseSummaryAddress  m_summaryAddress;
     RimSummaryCaseCollection* m_ensemble;
+    bool                      m_treatAsSingleSummaryCurve;
 };
 
 class RiaSummaryCurveDefinitionAnalyser

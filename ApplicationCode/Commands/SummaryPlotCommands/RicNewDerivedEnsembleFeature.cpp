@@ -89,7 +89,7 @@ void RicNewDerivedEnsembleFeature::onActionTriggered( bool isChecked )
             if ( ensembles.size() == 2 )
             {
                 newEnsemble->setEnsemble2( ensembles[1] );
-                newEnsemble->updateDerivedEnsembleCases();
+                newEnsemble->createDerivedEnsembleCases();
 
                 if ( newEnsemble->allSummaryCases().empty() )
                 {

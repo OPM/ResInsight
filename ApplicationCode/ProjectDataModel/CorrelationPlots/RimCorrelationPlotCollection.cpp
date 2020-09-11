@@ -228,7 +228,7 @@ void RimCorrelationPlotCollection::applyFirstEnsembleFieldAddressesToPlot( RimAb
             auto it = std::find( quantityNames.begin(), quantityNames.end(), QString::fromStdString( address.uiText() ) );
             if ( it != quantityNames.end() || quantityNames.empty() )
             {
-                curveDefs.push_back( RiaSummaryCurveDefinition( nullptr, address, ensembles.front() ) );
+                curveDefs.push_back( RiaSummaryCurveDefinition( nullptr, address, ensembles.front(), true ) );
             }
         }
         plot->setCurveDefinitions( curveDefs );
@@ -258,7 +258,7 @@ void RimCorrelationPlotCollection::applyEnsembleFieldAndTimeStepToPlot( RimAbstr
             auto it = std::find( quantityNames.begin(), quantityNames.end(), QString::fromStdString( address.uiText() ) );
             if ( it != quantityNames.end() || quantityNames.empty() )
             {
-                curveDefs.push_back( RiaSummaryCurveDefinition( nullptr, address, ensemble ) );
+                curveDefs.push_back( RiaSummaryCurveDefinition( nullptr, address, ensemble, true ) );
             }
         }
         plot->setCurveDefinitions( curveDefs );
@@ -287,13 +287,14 @@ void RimCorrelationPlotCollection::applyFirstEnsembleFieldAddressesToReport( Rim
                                  QString::fromStdString( address.uiText() ) );
             if ( it != matrixQuantityNames.end() || matrixQuantityNames.empty() )
             {
-                curveDefsMatrix.push_back( RiaSummaryCurveDefinition( nullptr, address, ensembles.front() ) );
+                curveDefsMatrix.push_back( RiaSummaryCurveDefinition( nullptr, address, ensembles.front(), true ) );
             }
 
             if ( tornadoAndCrossPlotQuantityName.isEmpty() ||
                  tornadoAndCrossPlotQuantityName == QString::fromStdString( address.uiText() ) )
             {
-                curveDefsTornadoAndCrossPlot.push_back( RiaSummaryCurveDefinition( nullptr, address, ensembles.front() ) );
+                curveDefsTornadoAndCrossPlot.push_back(
+                    RiaSummaryCurveDefinition( nullptr, address, ensembles.front(), true ) );
             }
         }
 
@@ -325,13 +326,13 @@ void RimCorrelationPlotCollection::applyEnsembleFieldAndTimeStepToReport( RimCor
                                  QString::fromStdString( address.uiText() ) );
             if ( it != matrixQuantityNames.end() || matrixQuantityNames.empty() )
             {
-                curveDefsMatrix.push_back( RiaSummaryCurveDefinition( nullptr, address, ensemble ) );
+                curveDefsMatrix.push_back( RiaSummaryCurveDefinition( nullptr, address, ensemble, true ) );
             }
 
             if ( tornadoAndCrossPlotQuantityName.isEmpty() ||
                  tornadoAndCrossPlotQuantityName == QString::fromStdString( address.uiText() ) )
             {
-                curveDefsTornadoAndCrossPlot.push_back( RiaSummaryCurveDefinition( nullptr, address, ensemble ) );
+                curveDefsTornadoAndCrossPlot.push_back( RiaSummaryCurveDefinition( nullptr, address, ensemble, true ) );
             }
         }
         plot->matrixPlot()->setCurveDefinitions( curveDefsMatrix );

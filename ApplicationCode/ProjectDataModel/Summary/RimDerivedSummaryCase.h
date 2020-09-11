@@ -83,6 +83,9 @@ public:
 
     void updateDisplayNameFromCases();
 
+    RimSummaryCase* summaryCase1() const;
+    RimSummaryCase* summaryCase2() const;
+
 protected:
     QString caseName() const override;
 
@@ -107,7 +110,7 @@ private:
     caf::PdmField<caf::AppEnum<FixedTimeStepMode>> m_useFixedTimeStep;
     caf::PdmField<int>                             m_fixedTimeStepIndex;
 
-    bool                                      m_inUse;
+    caf::PdmField<bool>                       m_inUse;
     std::unique_ptr<RifDerivedEnsembleReader> m_reader;
 
     std::map<RifEclipseSummaryAddress, std::pair<std::vector<time_t>, std::vector<double>>> m_dataCache;
