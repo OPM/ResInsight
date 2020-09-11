@@ -59,7 +59,10 @@
 #include <cmath> // Needed for HUGE_VAL on Linux
 #include <iostream>
 #include <map>
+
+#ifdef USE_OPENMP
 #include <omp.h>
+#endif
 
 //--------------------------------------------------------------------------------------------------
 ///     ECLIPSE cell numbering layout:
@@ -138,7 +141,10 @@ bool transferGridCellData( RigMainGrid*         mainGrid,
     // Loop over cells and fill them with data
 #pragma omp parallel
     {
-        int cellCountPerThread = std::max( 1, cellCount / omp_get_num_threads() );
+        int cellCountPerThread = cellCount;
+#ifdef USE_OPENMP
+        cellCountPerThread = std::max( 1, cellCount / omp_get_num_threads() );
+#endif
 
         int computedThreadCellCount = 0;
 
@@ -210,13 +216,18 @@ bool transferGridCellData( RigMainGrid*         mainGrid,
             // if (!invalid && (cell.isInCoarseCell() || (!cell.isActiveInMatrixModel() &&
             // !cell.isActiveInFractureModel()) ) )
             cell.setInvalid( cell.isLongPyramidCell() );
-
+#ifdef USE_OPENMP
             if ( omp_get_thread_num() == 0 )
             {
                 computedThreadCellCount++;
                 if ( computedThreadCellCount <= maxProgressCell && computedThreadCellCount % cellsPrProgressTick == 0 )
                     progInfo.incrementProgress();
             }
+#else
+            computedThreadCellCount++;
+            if ( computedThreadCellCount <= maxProgressCell && computedThreadCellCount % cellsPrProgressTick == 0 )
+                progInfo.incrementProgress();
+#endif
         }
     }
     return true;
@@ -1428,7 +1439,7 @@ cvf::Vec3d interpolate3DPosition( const std::vector<SegmentPositionContribution>
             // distance = 1.0;
         }
 
-        distance      = 1.0 / distance;
+        distance = 1.0 / distance;
         nominators[i] = distance;
         denominator += distance;
 
