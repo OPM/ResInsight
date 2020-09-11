@@ -47,7 +47,8 @@ CAF_CMD_SOURCE_INIT( RicNewFractureModelFeature, "RicNewFractureModelFeature" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimFractureModel* RicNewFractureModelFeature::addFractureModel( RimWellPath*           wellPath,
-                                                                RimWellPathCollection* wellPathCollection )
+                                                                RimWellPathCollection* wellPathCollection,
+                                                                double                 measuredDepth )
 {
     CVF_ASSERT( wellPath );
 
@@ -80,6 +81,11 @@ RimFractureModel* RicNewFractureModelFeature::addFractureModel( RimWellPath*    
     {
         project->reloadCompletionTypeResultsInAllViews();
         project->updateAllRequiredEditors();
+    }
+
+    if ( measuredDepth > 0.0 )
+    {
+        fractureModel->setMD( measuredDepth );
     }
 
     Riu3DMainWindowTools::selectAsCurrentItem( fractureModel );

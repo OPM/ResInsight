@@ -526,6 +526,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             menuBuilder << "RicNewValveAtMeasuredDepthFeature";
             menuBuilder << "RicNewFishbonesSubsAtMeasuredDepthFeature";
             menuBuilder << "RicNewWellPathFractureAtPosFeature";
+            menuBuilder << "RicNewWellPathFractureModelAtPosFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicNewWellPathAttributeFeature";
             menuBuilder << "RicWellPathImportCompletionsFileFeature";
