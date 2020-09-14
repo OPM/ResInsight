@@ -140,10 +140,10 @@ public:
                                    RiaSelectedCellsStateHandler* stateHandler );
     grpc::Status GetReservoirBoundingBox( grpc::ServerContext*     context,
                                           const rips::CaseRequest* request,
-                                          rips::BoundingBox*       reply );
+                                          rips::BoundingBox*       reply ) override;
     grpc::Status GetCoarseningInfoArray( grpc::ServerContext*       context,
                                          const rips::CaseRequest*   request,
-                                         rips::CoarseningInfoArray* reply );
+                                         rips::CoarseningInfoArray* reply ) override;
 
     std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
 };

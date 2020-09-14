@@ -98,11 +98,11 @@ protected:
     static void attachPlotWidgetSignals( RimPlot* plot, RiuQwtPlotWidget* plotWidget );
     QWidget*    createViewWidget( QWidget* parent = nullptr ) final;
 
-    void updateFonts();
+    void updateFonts() override;
 
 private:
     virtual void              doRemoveFromCollection() = 0;
-    virtual void              doRenderWindowContent( QPaintDevice* paintDevice );
+    virtual void              doRenderWindowContent( QPaintDevice* paintDevice ) override;
     virtual void              handleKeyPressEvent( QKeyEvent* event ) {}
     virtual void              handleWheelEvent( QWheelEvent* event ) {}
     virtual RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* parent ) = 0;

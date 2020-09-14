@@ -57,7 +57,7 @@ public:
     void setUiValuesFromLegendConfig( const RimTernaryLegendConfig* otherLegendConfig );
     void setAutomaticRanges( TernaryArrayIndex ternaryIndex, double globalMin, double globalMax, double localMin, double localMax );
 
-    void                           onRecreateLegend();
+    void                           onRecreateLegend() override;
     bool                           showLegend() const;
     void                           setTitle( const QString& title );
     const RivTernaryScalarMapper*  scalarMapper() const;

@@ -120,7 +120,7 @@ public:
     void                      onProcessRequest() override;
 
 protected:
-    virtual QString methodType() const;
+    virtual QString methodType() const override;
 
 private:
     ServerContext   m_context;
@@ -160,7 +160,7 @@ public:
     void                      onProcessRequest() override;
 
 protected:
-    virtual QString methodType() const;
+    virtual QString methodType() const override;
 
 private:
     ServerContext                  m_context;
@@ -204,7 +204,7 @@ public:
     void                      onFinishRequest() override;
 
 protected:
-    virtual QString methodType() const;
+    virtual QString methodType() const override;
 
 private:
     ServerContext                  m_context;

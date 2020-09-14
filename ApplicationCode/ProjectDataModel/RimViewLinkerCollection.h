@@ -40,7 +40,8 @@ public:
     caf::PdmField<bool>                isActive;
     caf::PdmChildField<RimViewLinker*> viewLinker;
 
-    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects );
+    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
 protected:
     caf::PdmFieldHandle* objectToggleField() override { return &isActive; }

@@ -47,11 +47,11 @@ class RiaGrpcSimulationWellService final : public rips::SimulationWell::AsyncSer
 public:
     grpc::Status GetSimulationWellStatus( grpc::ServerContext*               context,
                                           const rips::SimulationWellRequest* request,
-                                          rips::SimulationWellStatus*        reply );
+                                          rips::SimulationWellStatus*        reply ) override;
 
     grpc::Status GetSimulationWellCells( grpc::ServerContext*               context,
                                          const rips::SimulationWellRequest* request,
-                                         rips::SimulationWellCellInfoArray* reply );
+                                         rips::SimulationWellCellInfoArray* reply ) override;
 
     std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
 

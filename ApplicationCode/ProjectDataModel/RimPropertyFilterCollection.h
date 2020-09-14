@@ -46,7 +46,8 @@ public:
 
     void         updateDisplayModelNotifyManagedViews( RimPropertyFilter* changedFilter ) const;
     virtual void updateIconState() = 0;
-    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects );
+    void         onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                 std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
 protected:
     // Overridden methods

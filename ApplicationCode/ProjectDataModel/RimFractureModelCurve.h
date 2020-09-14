@@ -71,7 +71,7 @@ public:
     RiaDefines::CurveProperty curveProperty() const override;
 
 protected:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     void performDataExtraction( bool* isUsingPseudoLength ) override;
 
