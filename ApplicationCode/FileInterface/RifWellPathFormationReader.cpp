@@ -118,7 +118,7 @@ std::map<QString, cvf::ref<RigWellPathFormations>>
         formations[wellNames[i]].push_back( formation );
     }
 
-    for ( const std::pair<QString, std::vector<RigWellPathFormation>>& formation : formations )
+    for ( const std::pair<const QString, std::vector<RigWellPathFormation>>& formation : formations )
     {
         cvf::ref<RigWellPathFormations> wellPathFormations =
             new RigWellPathFormations( formation.second, filePath, formation.first );

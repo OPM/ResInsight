@@ -729,7 +729,7 @@ void RifReaderEclipseSummary::ValuesCache::markAddressForPurge( const RifEclipse
 //--------------------------------------------------------------------------------------------------
 void RifReaderEclipseSummary::ValuesCache::purgeData()
 {
-    for ( const auto purgeAddr : m_purgeList )
+    for ( const auto& purgeAddr : m_purgeList )
     {
         m_cachedValues.erase( purgeAddr );
     }

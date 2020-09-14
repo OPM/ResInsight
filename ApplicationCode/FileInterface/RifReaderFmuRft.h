@@ -88,8 +88,8 @@ public:
     void load();
 
 private:
-    typedef std::pair<QString, WellObservationSet> WellObservationPair;
-    typedef std::map<QString, WellObservationSet>  WellObservationMap;
+    typedef std::pair<const QString, WellObservationSet> WellObservationPair;
+    typedef std::map<QString, WellObservationSet>        WellObservationMap;
 
     WellObservationMap loadWellDates( QDir& dir, QString* errorMsg );
     static bool readTxtFile( const QString& txtFileName, QString* errorMsg, WellObservationSet* wellObservationSet );

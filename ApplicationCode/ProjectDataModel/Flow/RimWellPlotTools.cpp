@@ -1193,14 +1193,14 @@ void RimWellPlotTools::calculateValueOptionsForTimeSteps(
     QString dateFormatString;
     {
         std::vector<QDateTime> allTimeSteps;
-        for ( const std::pair<QDateTime, std::set<RifDataSourceForRftPlt>>& timeStepPair : timestepsToShowWithSources )
+        for ( const std::pair<const QDateTime, std::set<RifDataSourceForRftPlt>>& timeStepPair : timestepsToShowWithSources )
         {
             allTimeSteps.push_back( timeStepPair.first );
         }
         dateFormatString = RiaQDateTimeTools::createTimeFormatStringFromDates( allTimeSteps );
     }
 
-    for ( const std::pair<QDateTime, std::set<RifDataSourceForRftPlt>>& timeStepPair : timestepsToShowWithSources )
+    for ( const std::pair<const QDateTime, std::set<RifDataSourceForRftPlt>>& timeStepPair : timestepsToShowWithSources )
     {
         QString optionText = RiaQDateTimeTools::toStringUsingApplicationLocale( timeStepPair.first, dateFormatString );
 

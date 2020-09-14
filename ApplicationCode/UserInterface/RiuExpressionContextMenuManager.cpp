@@ -52,7 +52,7 @@ void RiuExpressionContextMenuManager::slotMenuItems( QPoint point )
 {
     QMenu menu;
 
-    for ( const std::pair<QString, std::set<QString>>& subMenuPair : MENU_MAP )
+    for ( const std::pair<const QString, std::set<QString>>& subMenuPair : MENU_MAP )
     {
         QMenu* subMenu = menu.addMenu( subMenuPair.first );
 

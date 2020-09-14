@@ -1321,7 +1321,7 @@ public:
 
         for ( size_t timeStep : requestedTimesteps )
         {
-            for ( const std::pair<size_t, size_t> selectedCell : selectedCells )
+            for ( const std::pair<size_t, size_t>& selectedCell : selectedCells )
             {
                 cvf::ref<RigResultAccessor> resultAccessor =
                     RigResultAccessorFactory::createFromResultAddress( rimCase->eclipseCaseData(),
