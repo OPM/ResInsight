@@ -127,7 +127,7 @@ public:
     cvf::Color3f backgroundColor() const override; // Implementation of RiuViewerToViewInterface
     void         applyBackgroundColorAndFontChanges();
 
-    int  fontSize() const;
+    int  fontSize() const override;
     void updateFonts() override;
 
     void disableLighting( bool disable );

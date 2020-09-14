@@ -41,10 +41,10 @@ struct DataHolder : public AbstractDataHolder
     size_t dataCount() const override { return data.size(); }
     size_t dataSizeOf() const override { return sizeof( typename DataType::value_type ); }
 
-    void   reserveReplyStorage( rips::PdmObjectGetterReply* reply ) const;
-    void   addValueToReply( size_t valueIndex, rips::PdmObjectGetterReply* reply ) const;
-    size_t getValuesFromChunk( size_t startIndex, const rips::PdmObjectSetterChunk* chunk );
-    void   applyValuesToProxyField( caf::PdmProxyFieldHandle* proxyField );
+    void   reserveReplyStorage( rips::PdmObjectGetterReply* reply ) const override;
+    void   addValueToReply( size_t valueIndex, rips::PdmObjectGetterReply* reply ) const override;
+    size_t getValuesFromChunk( size_t startIndex, const rips::PdmObjectSetterChunk* chunk ) override;
+    void   applyValuesToProxyField( caf::PdmProxyFieldHandle* proxyField ) override;
 
     DataType data;
 };

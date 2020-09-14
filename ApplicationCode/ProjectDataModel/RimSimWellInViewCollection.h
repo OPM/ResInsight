@@ -169,7 +169,7 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly );
+                                                         bool*                      useOptionsOnly ) override;
 
     caf::PdmFieldHandle* objectToggleField() override;
     void                 initAfterRead() override;

@@ -60,7 +60,7 @@ public:
     void onGlobalCollectionChanged( const RimAnnotationCollection* globalCollection );
 
     int  fontSize() const override;
-    void updateFonts();
+    void updateFonts() override;
     void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 

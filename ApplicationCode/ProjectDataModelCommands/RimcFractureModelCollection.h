@@ -41,7 +41,7 @@ class RimcFractureModelCollection_newFractureModel : public caf::PdmObjectMethod
 public:
     RimcFractureModelCollection_newFractureModel( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute();
+    caf::PdmObjectHandle*            execute() override;
     bool                             resultIsPersistent() const override;
     std::unique_ptr<PdmObjectHandle> defaultResult() const override;
 

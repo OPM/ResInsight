@@ -43,7 +43,7 @@ class RimcSurfaceCollection_importSurface : public caf::PdmObjectMethod
 public:
     RimcSurfaceCollection_importSurface( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute();
+    caf::PdmObjectHandle*            execute() override;
     bool                             resultIsPersistent() const override;
     std::unique_ptr<PdmObjectHandle> defaultResult() const override;
     bool                             isNullptrValidResult() const override;
@@ -62,7 +62,7 @@ class RimcSurfaceCollection_addFolder : public caf::PdmObjectMethod
 public:
     RimcSurfaceCollection_addFolder( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute();
+    caf::PdmObjectHandle*            execute() override;
     bool                             resultIsPersistent() const override;
     std::unique_ptr<PdmObjectHandle> defaultResult() const override;
     bool                             isNullptrValidResult() const override;

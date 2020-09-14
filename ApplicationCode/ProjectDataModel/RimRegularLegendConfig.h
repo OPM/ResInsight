@@ -118,7 +118,7 @@ public:
     };
     typedef caf::AppEnum<CategoryColorModeType> CategoryColorModeEnum;
 
-    void onRecreateLegend();
+    void onRecreateLegend() override;
 
     void            setColorLegend( RimColorLegend* colorLegend );
     RimColorLegend* colorLegend() const;

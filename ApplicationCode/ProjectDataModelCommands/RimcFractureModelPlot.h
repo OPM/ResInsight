@@ -41,7 +41,7 @@ class RimcFractureModelPlot_exportToFile : public caf::PdmObjectMethod
 public:
     RimcFractureModelPlot_exportToFile( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute();
+    caf::PdmObjectHandle*            execute() override;
     bool                             resultIsPersistent() const override;
     std::unique_ptr<PdmObjectHandle> defaultResult() const override;
     bool                             isNullptrValidResult() const override;

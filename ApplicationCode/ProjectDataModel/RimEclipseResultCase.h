@@ -55,7 +55,7 @@ public:
     bool openEclipseGridFile() override;
 
     bool importGridAndResultMetaData( bool showTimeStepFilter );
-    bool importAsciiInputProperties( const QStringList& fileNames );
+    bool importAsciiInputProperties( const QStringList& fileNames ) override;
 
     void reloadEclipseGridFile() override;
     bool openAndReadActiveCellData( RigEclipseCaseData* mainEclipseCase );
