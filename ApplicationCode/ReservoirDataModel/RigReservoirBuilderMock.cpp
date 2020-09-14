@@ -144,13 +144,11 @@ void RigReservoirBuilderMock::appendCells( size_t                nodeStartIndex,
                                            RigGridBase*          hostGrid,
                                            std::vector<RigCell>& cells )
 {
-    long long i;
-
     size_t cellIndexStart = cells.size();
     cells.resize( cells.size() + cellCount );
 
 #pragma omp parallel for
-    for ( i = 0; i < static_cast<long long>( cellCount ); i++ )
+    for ( long long i = 0; i < static_cast<long long>( cellCount ); i++ )
     {
         RigCell& riCell = cells[cellIndexStart + i];
 
