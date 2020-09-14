@@ -238,9 +238,12 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
 
                 std::vector<double> statParams( STAT_PARAM_COUNT, HUGE_VAL );
                 std::vector<double> values( sourceDataAccessList.size(), HUGE_VAL );
+
+                int cellCount = static_cast<int>( grid->cellCount() );
+
                 // Loop over the cells in the grid, get the case values, and calculate the cell statistics
 #pragma omp parallel for schedule( dynamic ) firstprivate( statParams, values )
-                for ( int cellIdx = 0; static_cast<size_t>( cellIdx ) < grid->cellCount(); cellIdx++ )
+                for ( int cellIdx = 0; cellIdx < cellCount; cellIdx++ )
                 {
                     size_t reservoirCellIndex = grid->reservoirCellIndex( cellIdx );
                     if ( m_destinationCase->activeCellInfo( poroModel )->isActive( reservoirCellIndex ) )
