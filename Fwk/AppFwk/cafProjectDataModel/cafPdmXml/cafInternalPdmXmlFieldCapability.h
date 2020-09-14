@@ -34,7 +34,7 @@ public:
     void writeFieldData( QXmlStreamWriter& xmlStream ) const override;
     bool resolveReferences() override;
 
-    bool isVectorField() const;
+    bool isVectorField() const override;
 
 private:
     FieldType* m_field;
@@ -96,7 +96,7 @@ public:
     void readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory ) override;
     void writeFieldData( QXmlStreamWriter& xmlStream ) const override;
     bool resolveReferences() override;
-    bool isVectorField() const;
+    bool isVectorField() const override;
 
 private:
     FieldType* m_field;
@@ -153,7 +153,7 @@ public:
     void readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory ) override;
     void writeFieldData( QXmlStreamWriter& xmlStream ) const override;
     bool resolveReferences() override;
-    bool isVectorField() const;
+    bool isVectorField() const override;
 
 private:
     FieldType* m_field;
@@ -181,7 +181,7 @@ public:
     void readFieldData( QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory ) override;
     void writeFieldData( QXmlStreamWriter& xmlStream ) const override;
     bool resolveReferences() override;
-    bool isVectorField() const;
+    bool isVectorField() const override;
 
 private:
     FieldType* m_field;
