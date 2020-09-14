@@ -1230,7 +1230,7 @@ QList<caf::PdmOptionItemInfo> RimGeoMechCase::calculateValueOptions( const caf::
         std::map<std::string, QString> addressesInFile =
             geoMechData()->femPartResults()->addressesInElementPropertyFiles( paths );
 
-        for ( const std::string elementProperty : elementProperties )
+        for ( const std::string& elementProperty : elementProperties )
         {
             QString result   = QString::fromStdString( elementProperty );
             QString filename = findFileNameForElementProperty( elementProperty, addressesInFile );

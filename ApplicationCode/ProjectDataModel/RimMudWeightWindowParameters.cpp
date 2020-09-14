@@ -612,7 +612,7 @@ QList<caf::PdmOptionItemInfo>
             std::map<std::string, QString> addressesInFile =
                 geoMechCase->geoMechData()->femPartResults()->addressesInElementPropertyFiles( paths );
 
-            for ( const std::string elementProperty : elementProperties )
+            for ( const std::string& elementProperty : elementProperties )
             {
                 QString result   = QString::fromStdString( elementProperty );
                 QString filename = geoMechCase->findFileNameForElementProperty( elementProperty, addressesInFile );

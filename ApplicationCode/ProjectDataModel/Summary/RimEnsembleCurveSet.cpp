@@ -1086,7 +1086,7 @@ void RimEnsembleCurveSet::showCurves( bool show )
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::markCachedDataForPurge()
 {
-    for ( const auto curve : m_curves )
+    for ( const auto& curve : m_curves )
     {
         curve->markCachedDataForPurge();
     }

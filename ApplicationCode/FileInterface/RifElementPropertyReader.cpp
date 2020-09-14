@@ -77,7 +77,7 @@ std::vector<std::string> RifElementPropertyReader::scalarElementFields() const
 {
     std::vector<std::string> fields;
 
-    for ( const std::pair<std::string, RifElementPropertyMetadata>& field : m_fieldsMetaData )
+    for ( const std::pair<const std::string, RifElementPropertyMetadata>& field : m_fieldsMetaData )
     {
         fields.push_back( field.first );
     }

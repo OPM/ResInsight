@@ -749,7 +749,7 @@ void RifEclipseInputFileTools::saveFaults( QTextStream&       stream,
     stream << "-- Name  I1  I2  J1  J2  K1  K2  Face ( I/J/K )" << endl;
 
     const cvf::Collection<RigFault>& faults = mainGrid->faults();
-    for ( const auto fault : faults )
+    for ( const auto& fault : faults )
     {
         if ( fault->name() != RiaDefines::undefinedGridFaultName() &&
              fault->name() != RiaDefines::undefinedGridFaultWithInactiveName() )
@@ -1281,7 +1281,7 @@ qint64 RifEclipseInputFileTools::findKeyword( const QString& keyword, QFile& fil
 bool RifEclipseInputFileTools::isValidDataKeyword( const QString& keyword )
 {
     const std::vector<QString>& keywordsToSkip = RifEclipseInputFileTools::invalidPropertyDataKeywords();
-    for ( const QString keywordToSkip : keywordsToSkip )
+    for ( const QString& keywordToSkip : keywordsToSkip )
     {
         if ( keywordToSkip == keyword.toUpper() )
         {

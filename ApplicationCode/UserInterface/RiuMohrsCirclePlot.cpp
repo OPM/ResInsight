@@ -345,7 +345,7 @@ void RiuMohrsCirclePlot::addorUpdateEnvelopeCurve( const cvf::Vec3f& principals,
 //--------------------------------------------------------------------------------------------------
 void RiuMohrsCirclePlot::deleteEnvelopes()
 {
-    for ( const std::pair<const RimGeoMechCase*, QwtPlotCurve*>& envelope : m_envolopePlotItems )
+    for ( const std::pair<const RimGeoMechCase* const, QwtPlotCurve*>& envelope : m_envolopePlotItems )
     {
         envelope.second->detach();
         delete envelope.second;
@@ -643,7 +643,7 @@ void RiuMohrsCirclePlot::idealAxesEndPoints( double* xMin, double* xMax, double*
     *yMax = -HUGE_VAL;
 
     double maxYEnvelope = -HUGE_VAL;
-    for ( const std::pair<const RimGeoMechCase*, QwtPlotCurve*>& envelope : m_envolopePlotItems )
+    for ( const std::pair<const RimGeoMechCase* const, QwtPlotCurve*>& envelope : m_envolopePlotItems )
     {
         double tempMax = envelope.second->maxYValue();
         if ( tempMax > maxYEnvelope )
@@ -655,7 +655,7 @@ void RiuMohrsCirclePlot::idealAxesEndPoints( double* xMin, double* xMax, double*
     *yMax = std::max( maxYEnvelope, 1.2 * largestCircleRadiusInPlot() );
 
     double minXEvelope = HUGE_VAL;
-    for ( const std::pair<const RimGeoMechCase*, QwtPlotCurve*>& envelope : m_envolopePlotItems )
+    for ( const std::pair<const RimGeoMechCase* const, QwtPlotCurve*>& envelope : m_envolopePlotItems )
     {
         double tempMin = envelope.second->minXValue();
         if ( tempMin < minXEvelope )
