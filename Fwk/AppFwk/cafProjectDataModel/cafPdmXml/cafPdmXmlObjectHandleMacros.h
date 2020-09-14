@@ -25,13 +25,13 @@
 /// Place this in the header file inside the class definition of your PdmObject
 
 // To be renamed CAF_PDM_XML_HEADER_INIT
-#define CAF_PDM_XML_HEADER_INIT                                                      \
-public:                                                                              \
-    virtual QString             classKeyword() const;                                \
-    static QString              classKeywordStatic();                                \
-    static std::vector<QString> classKeywordAliases();                               \
-    virtual bool                matchesClassKeyword( const QString& keyword ) const; \
-                                                                                     \
+#define CAF_PDM_XML_HEADER_INIT                                                               \
+public:                                                                                       \
+    virtual QString             classKeyword() const override;                                \
+    static QString              classKeywordStatic();                                         \
+    static std::vector<QString> classKeywordAliases();                                        \
+    virtual bool                matchesClassKeyword( const QString& keyword ) const override; \
+                                                                                              \
     static bool Error_You_forgot_to_add_the_macro_CAF_PDM_XML_HEADER_INIT_and_or_CAF_PDM_XML_SOURCE_INIT_to_your_cpp_file_for_this_class()
 
 #define CAF_PDM_XML_ABSTRACT_SOURCE_INIT( ClassName, keyword, ... )                                                                            \
