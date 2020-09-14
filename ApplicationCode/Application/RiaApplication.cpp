@@ -853,21 +853,30 @@ bool RiaApplication::openOdbCaseFromFile( const QString& fileName, bool applyTim
     QFileInfo gridFileName( fileName );
     QString   caseName = gridFileName.completeBaseName();
 
-    RimGeoMechCase* geoMechCase = new RimGeoMechCase();
-    geoMechCase->setGridFileName( fileName );
-    geoMechCase->caseUserDescription = caseName;
-    geoMechCase->setApplyTimeFilter( applyTimeStepFilter );
-    m_project->assignCaseIdToCase( geoMechCase );
-
     RimGeoMechModels* geoMechModelCollection = m_project->activeOilField() ? m_project->activeOilField()->geoMechModels()
                                                                            : nullptr;
-
     // Create the geoMech model container if it is not there already
     if ( geoMechModelCollection == nullptr )
     {
         geoMechModelCollection                     = new RimGeoMechModels();
         m_project->activeOilField()->geoMechModels = geoMechModelCollection;
     }
+
+    // Check if the file is already open, the odb reader does not support opening the same file twice very well
+    for ( auto gmcase : geoMechModelCollection->cases() )
+    {
+        if ( gmcase->gridFileName() == fileName )
+        {
+            RiaLogging::warning( "File has already been opened. Cannot open the file twice! - " + fileName );
+            return false;
+        }
+    }
+
+    RimGeoMechCase* geoMechCase = new RimGeoMechCase();
+    geoMechCase->setGridFileName( fileName );
+    geoMechCase->caseUserDescription = caseName;
+    geoMechCase->setApplyTimeFilter( applyTimeStepFilter );
+    m_project->assignCaseIdToCase( geoMechCase );
 
     RimGeoMechView*   riv = geoMechCase->createAndAddReservoirView();
     caf::ProgressInfo progress( 11, "Loading Case" );

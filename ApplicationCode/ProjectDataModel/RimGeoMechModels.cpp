@@ -78,6 +78,15 @@ RimGeoMechCase* RimGeoMechModels::copyCase( RimGeoMechCase* thecase, const QStri
 {
     std::vector<RimGeoMechCase*> newcases;
 
+    for ( auto gmcase : m_cases() )
+    {
+        if ( gmcase->gridFileName() == newInputFileName )
+        {
+            RiaLogging::warning( "File has already been opened. Cannot open the file twice! - " + newInputFileName );
+            return nullptr;
+        }
+    }
+
     RimGeoMechCase* copy = thecase->createCopy( newInputFileName );
     if ( !copy )
     {
