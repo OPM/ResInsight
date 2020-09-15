@@ -511,26 +511,10 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
         if ( oilField == nullptr ) continue;
         if ( oilField->wellPathCollection == nullptr )
         {
-            // printf("Create well path collection for oil field %i in loadProject.\n", oilFieldIdx);
             oilField->wellPathCollection = new RimWellPathCollection();
         }
 
-        if ( oilField->wellPathCollection )
-        {
-            oilField->wellPathCollection->loadDataAndUpdate();
-            oilField->wellPathCollection->readWellPathFormationFiles();
-            for ( RimWellPath* wellPath : oilField->wellPathCollection->wellPaths() )
-            {
-                RimFractureModelCollection* fractureModelCollection = wellPath->fractureModelCollection();
-                if ( fractureModelCollection )
-                {
-                    for ( RimFractureModel* fractureModel : fractureModelCollection->allFractureModels() )
-                    {
-                        fractureModel->loadDataAndUpdate();
-                    }
-                }
-            }
-        }
+        oilField->wellPathCollection->loadDataAndUpdate();
     }
 
     {
