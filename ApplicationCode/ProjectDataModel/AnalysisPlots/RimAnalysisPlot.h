@@ -158,8 +158,7 @@ private:
                                 const QString&                  timestepString ) const;
 
     RiaSummaryCurveDefinitionAnalyser*     getOrCreateSelectedCurveDefAnalyser();
-    std::vector<RiaSummaryCurveDefinition> curveDefinitionsWithoutEnsembleReference() const;
-    std::vector<RiaSummaryCurveDefinition> curveDefinitionsWithEmbeddedEnsembleReference();
+    std::vector<RiaSummaryCurveDefinition> curveDefinitions() const;
     std::vector<RiaSummaryCurveDefinition> filteredCurveDefs();
     void                                   applyFilter( const RimPlotDataFilterItem*        filter,
                                                         std::set<RimSummaryCase*>*          filteredSumCases,

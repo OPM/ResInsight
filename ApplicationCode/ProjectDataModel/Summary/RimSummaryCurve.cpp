@@ -70,7 +70,6 @@ RimSummaryCurve::RimSummaryCurve()
     CAF_PDM_InitObject( "Summary Curve", ":/SummaryCurve16x16.png", "", "" );
 
     // Y Values
-
     CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryCase, "SummaryCase", "Case", "", "", "" );
     m_yValuesSummaryCase.uiCapability()->setUiTreeChildrenHidden( true );
     m_yValuesSummaryCase.uiCapability()->setAutoAddingOptionFromValue( false );
@@ -91,7 +90,6 @@ RimSummaryCurve::RimSummaryCurve()
     m_yValuesSummaryAddress = new RimSummaryAddress;
 
     // X Values
-
     CAF_PDM_InitFieldNoDefault( &m_xValuesSummaryCase, "SummaryCaseX", "Case", "", "", "" );
     m_xValuesSummaryCase.uiCapability()->setUiTreeChildrenHidden( true );
     m_xValuesSummaryCase.uiCapability()->setAutoAddingOptionFromValue( false );
@@ -113,6 +111,8 @@ RimSummaryCurve::RimSummaryCurve()
     m_xValuesSummaryAddress = new RimSummaryAddress;
 
     // Other members
+    CAF_PDM_InitFieldNoDefault( &m_isEnsembleCurve, "IsEnsembleCurve", "Ensemble Curve", "", "", "" );
+    m_isEnsembleCurve.v() = caf::Tristate::State::PartiallyTrue;
 
     CAF_PDM_InitFieldNoDefault( &m_plotAxis, "PlotAxis", "Axis", "", "", "" );
 
@@ -153,11 +153,24 @@ RimSummaryCurve::~RimSummaryCurve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaSummaryCurveDefinition RimSummaryCurve::curveDefinitionY() const
+{
+    return RiaSummaryCurveDefinition( summaryCaseY(), summaryAddressY(), isEnsembleCurve() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setSummaryCaseY( RimSummaryCase* sumCase )
 {
     if ( m_yValuesSummaryCase != sumCase )
     {
         m_qwtCurveErrorBars->setSamples( nullptr );
+    }
+
+    if ( m_isEnsembleCurve().isPartiallyTrue() )
+    {
+        setIsEnsembleCurve( sumCase->ensemble() );
     }
 
     m_yValuesSummaryCase = sumCase;
@@ -278,6 +291,16 @@ std::vector<double> RimSummaryCurve::valuesY() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::applyCurveDefinitionY( const RiaSummaryCurveDefinition& curveDefinition )
+{
+    setSummaryCaseY( curveDefinition.summaryCase() );
+    setSummaryAddressY( curveDefinition.summaryAddress() );
+    setIsEnsembleCurve( curveDefinition.isEnsembleCurve() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress RimSummaryCurve::errorSummaryAddressY() const
 {
     auto addr = summaryAddressY();
@@ -392,6 +415,11 @@ void RimSummaryCurve::setOverrideCurveDataY( const std::vector<time_t>& dateTime
 void RimSummaryCurve::setSummaryCaseX( RimSummaryCase* sumCase )
 {
     m_xValuesSummaryCase = sumCase;
+
+    if ( m_isEnsembleCurve().isPartiallyTrue() )
+    {
+        setIsEnsembleCurve( sumCase->ensemble() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -416,6 +444,22 @@ void RimSummaryCurve::setLeftOrRightAxisY( RiaDefines::PlotAxis plotAxis )
 RiaDefines::PlotAxis RimSummaryCurve::axisY() const
 {
     return m_plotAxis();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryCurve::isEnsembleCurve() const
+{
+    return m_isEnsembleCurve().isTrue();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::setIsEnsembleCurve( bool isEnsembleCurve )
+{
+    m_isEnsembleCurve.v() = isEnsembleCurve ? caf::Tristate::State::True : caf::Tristate::State::False;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -662,6 +706,18 @@ void RimSummaryCurve::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderi
     }
 
     setUiIcon( iconProvider );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::initAfterRead()
+{
+    if ( m_isEnsembleCurve().isPartiallyTrue() )
+    {
+        m_isEnsembleCurve.v() = ( summaryCaseY() && summaryCaseY()->ensemble() ) ? caf::Tristate::State::True
+                                                                                 : caf::Tristate::State::False;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

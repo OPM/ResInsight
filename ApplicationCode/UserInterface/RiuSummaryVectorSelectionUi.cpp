@@ -445,7 +445,7 @@ std::vector<RiaSummaryCurveDefinition> RiuSummaryVectorSelectionUi::allCurveDefi
                     if ( selectedAddressesFromUi.count( addressFromSource ) > 0 )
                     {
                         curveDefinitions.insert(
-                            RiaSummaryCurveDefinition( caseFromSource, addressFromSource, ensemble, false ) );
+                            RiaSummaryCurveDefinition( caseFromSource, addressFromSource, ensemble != nullptr ) );
                     }
                 }
             }
@@ -512,7 +512,7 @@ std::vector<RiaSummaryCurveDefinition> RiuSummaryVectorSelectionUi::selection() 
             {
                 if ( addressUnion.count( addr ) )
                 {
-                    curveDefSelection.push_back( RiaSummaryCurveDefinition( nullptr, addr, ensemble, true ) );
+                    curveDefSelection.push_back( RiaSummaryCurveDefinition( ensemble, addr ) );
                 }
             }
         }
@@ -525,7 +525,7 @@ std::vector<RiaSummaryCurveDefinition> RiuSummaryVectorSelectionUi::selection() 
             {
                 if ( readerAddresses.count( addr ) )
                 {
-                    curveDefSelection.push_back( RiaSummaryCurveDefinition( sourceCase, addr ) );
+                    curveDefSelection.push_back( RiaSummaryCurveDefinition( sourceCase, addr, false ) );
                 }
             }
         }
@@ -594,9 +594,14 @@ void RiuSummaryVectorSelectionUi::setDefaultSelection( const std::vector<Summary
         {
             RimSummaryCase*           sumCase  = dynamic_cast<RimSummaryCase*>( s );
             RimSummaryCaseCollection* ensemble = dynamic_cast<RimSummaryCaseCollection*>( s );
-
-            RiaSummaryCurveDefinition curveDef( sumCase, defaultAddress, ensemble, true );
-            curveDefs.push_back( curveDef );
+            if ( ensemble )
+            {
+                curveDefs.push_back( RiaSummaryCurveDefinition( ensemble, defaultAddress ) );
+            }
+            else
+            {
+                curveDefs.push_back( RiaSummaryCurveDefinition( sumCase, defaultAddress, false ) );
+            }
         }
 
         setSelectedCurveDefinitions( curveDefs );
@@ -640,14 +645,20 @@ void RiuSummaryVectorSelectionUi::setSelectedCurveDefinitions( const std::vector
         }
 
         // Select case if not already selected
-        SummarySource* summSource = curveDef.isEnsembleCurve() ? static_cast<SummarySource*>( curveDef.ensemble() )
-                                                               : summaryCase;
-        if ( std::find( m_selectedSources.begin(), m_selectedSources.end(), summSource ) == m_selectedSources.end() )
+        if ( curveDef.isEnsembleCurve() )
         {
-            if ( summaryCase != calculatedSummaryCase() )
+            if ( curveDef.ensemble() && !m_hideEnsembles )
             {
-                m_selectedSources.push_back( summSource );
-                handleAddedSource( summSource );
+                m_selectedSources.push_back( curveDef.ensemble() );
+                handleAddedSource( curveDef.ensemble() );
+            }
+        }
+        else
+        {
+            if ( curveDef.summaryCase() && m_showIndividualEnsembleCases )
+            {
+                m_selectedSources.push_back( curveDef.summaryCase() );
+                handleAddedSource( curveDef.summaryCase() );
             }
         }
 

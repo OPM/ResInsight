@@ -30,7 +30,7 @@
 RiaSummaryCurveDefinition::RiaSummaryCurveDefinition()
     : m_summaryCase( nullptr )
     , m_ensemble( nullptr )
-
+    , m_isEnsembleCurve( false )
 {
 }
 
@@ -38,22 +38,31 @@ RiaSummaryCurveDefinition::RiaSummaryCurveDefinition()
 ///
 //--------------------------------------------------------------------------------------------------
 RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( RimSummaryCase*                 summaryCase,
-                                                      const RifEclipseSummaryAddress& summaryAddress )
+                                                      const RifEclipseSummaryAddress& summaryAddress,
+                                                      bool                            isEnsembleCurve )
     : m_summaryCase( summaryCase )
-    , m_ensemble( nullptr )
     , m_summaryAddress( summaryAddress )
-    , m_treatAsSingleSummaryCurve( true )
+    , m_isEnsembleCurve( isEnsembleCurve )
 {
+    CAF_ASSERT( summaryCase );
+
+    if ( summaryCase )
+    {
+        RimSummaryCaseCollection* ensemble = nullptr;
+        summaryCase->firstAncestorOfType( ensemble );
+        m_ensemble = ensemble;
+    }
 }
 
-RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( RimSummaryCase*                 summaryCase,
-                                                      const RifEclipseSummaryAddress& summaryAddress,
-                                                      RimSummaryCaseCollection*       ensemble,
-                                                      bool                            treatAsSingleSummaryCurve )
-    : m_summaryCase( summaryCase )
-    , m_ensemble( ensemble )
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( RimSummaryCaseCollection*       ensemble,
+                                                      const RifEclipseSummaryAddress& summaryAddress )
+    : m_summaryCase( nullptr )
     , m_summaryAddress( summaryAddress )
-    , m_treatAsSingleSummaryCurve( treatAsSingleSummaryCurve )
+    , m_ensemble( ensemble )
+    , m_isEnsembleCurve( true )
 {
 }
 
@@ -86,7 +95,7 @@ const RifEclipseSummaryAddress& RiaSummaryCurveDefinition::summaryAddress() cons
 //--------------------------------------------------------------------------------------------------
 bool RiaSummaryCurveDefinition::isEnsembleCurve() const
 {
-    return m_ensemble != nullptr && !m_treatAsSingleSummaryCurve;
+    return m_isEnsembleCurve;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -205,7 +214,12 @@ bool RiaSummaryCurveDefinition::operator<( const RiaSummaryCurveDefinition& othe
         return m_summaryCase < other.summaryCase();
     }
 
-    return ( m_summaryAddress < other.summaryAddress() );
+    if ( m_summaryAddress != other.summaryAddress() )
+    {
+        return ( m_summaryAddress < other.summaryAddress() );
+    }
+
+    return m_isEnsembleCurve < other.isEnsembleCurve();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -454,7 +454,7 @@ void RimAnalysisPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
         dlg.enableMultiSelect( true );
         dlg.enableIndividualEnsembleCaseSelection( true );
-        dlg.setCurveSelection( this->curveDefinitionsWithoutEnsembleReference() );
+        dlg.setCurveSelection( this->curveDefinitions() );
 
         if ( dlg.exec() == QDialog::Accepted )
         {
@@ -899,7 +899,7 @@ void RimAnalysisPlot::updateAxes()
 
         std::set<QString> timeHistoryQuantities;
 
-        RimSummaryPlotAxisFormatter calc( valAxisProperties, {}, curveDefinitionsWithoutEnsembleReference(), {}, {} );
+        RimSummaryPlotAxisFormatter calc( valAxisProperties, {}, curveDefinitions(), {}, {} );
         calc.applyAxisPropertiesToPlot( m_plotWidget );
     }
     else
@@ -1047,7 +1047,7 @@ std::vector<size_t> RimAnalysisPlot::findTimestepIndices( std::vector<time_t>   
 //--------------------------------------------------------------------------------------------------
 std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::filteredCurveDefs()
 {
-    std::vector<RiaSummaryCurveDefinition> dataDefinitions = curveDefinitionsWithEmbeddedEnsembleReference();
+    std::vector<RiaSummaryCurveDefinition> dataDefinitions = curveDefinitions();
 
     // Split out the filter targets
 
@@ -1667,52 +1667,22 @@ RiaSummaryCurveDefinitionAnalyser* RimAnalysisPlot::getOrCreateSelectedCurveDefA
         m_analyserOfSelectedCurveDefs =
             std::unique_ptr<RiaSummaryCurveDefinitionAnalyser>( new RiaSummaryCurveDefinitionAnalyser );
     }
-    m_analyserOfSelectedCurveDefs->setCurveDefinitions( this->curveDefinitionsWithoutEnsembleReference() );
+    m_analyserOfSelectedCurveDefs->setCurveDefinitions( this->curveDefinitions() );
     return m_analyserOfSelectedCurveDefs.get();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::curveDefinitionsWithoutEnsembleReference() const
+std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::curveDefinitions() const
 {
     std::vector<RiaSummaryCurveDefinition> curveDefs;
     for ( auto dataEntry : m_analysisPlotDataSelection )
     {
-        if ( dataEntry->isEnsembleCurve() )
-        {
-            curveDefs.push_back( dataEntry->curveDefinition() );
-        }
+        curveDefs.push_back( dataEntry->curveDefinition() );
     }
 
     return curveDefs;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// The curve definitions returned contain both the case AND the ensemble from which it has been spawned
-//--------------------------------------------------------------------------------------------------
-std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::curveDefinitionsWithEmbeddedEnsembleReference()
-{
-    std::vector<RiaSummaryCurveDefinition> barDataDefinitions;
-
-    for ( const RimAnalysisPlotDataEntry* dataEntry : m_analysisPlotDataSelection )
-    {
-        RiaSummaryCurveDefinition orgBarDataEntry = dataEntry->curveDefinition();
-
-        if ( orgBarDataEntry.summaryCase() && orgBarDataEntry.summaryCase()->ensemble() )
-        {
-            barDataDefinitions.push_back( RiaSummaryCurveDefinition( orgBarDataEntry.summaryCase(),
-                                                                     orgBarDataEntry.summaryAddress(),
-                                                                     orgBarDataEntry.summaryCase()->ensemble(),
-                                                                     orgBarDataEntry.isEnsembleCurve() ) );
-        }
-        else
-        {
-            barDataDefinitions.push_back( orgBarDataEntry );
-        }
-    }
-
-    return barDataDefinitions;
 }
 
 //--------------------------------------------------------------------------------------------------

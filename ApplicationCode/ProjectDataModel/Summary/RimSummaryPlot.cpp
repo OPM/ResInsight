@@ -535,7 +535,8 @@ std::set<RiaSummaryCurveDefinition> RimSummaryPlot::summaryAndEnsembleCurveDefin
 
     for ( const auto& curve : this->summaryAndEnsembleCurves() )
     {
-        allCurveDefs.insert( RiaSummaryCurveDefinition( curve->summaryCaseY(), curve->summaryAddressY() ) );
+        allCurveDefs.insert(
+            RiaSummaryCurveDefinition( curve->summaryCaseY(), curve->summaryAddressY(), curve->isEnsembleCurve() ) );
     }
     return allCurveDefs;
 }
