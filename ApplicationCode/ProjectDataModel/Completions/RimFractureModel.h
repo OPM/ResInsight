@@ -24,6 +24,8 @@
 #include "RimCheckableNamedObject.h"
 #include "RimWellPathComponentInterface.h"
 
+#include "RigWellLogExtractor.h"
+
 #include "cafPdmChildField.h"
 #include "cafPdmFieldCvfVec3d.h"
 #include "cafPdmProxyValueField.h"
@@ -34,6 +36,8 @@ class RimWellPath;
 class RimModeledWellPath;
 class RimElasticProperties;
 class RigEclipseCaseData;
+class RimAnnotationCollection;
+class RimUserDefinedPolylinesAnnotation;
 
 //==================================================================================================
 ///
@@ -143,17 +147,32 @@ protected:
                                                          caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
-    void           updatePositionFromMeasuredDepth();
-    void           updateThicknessDirection();
-    cvf::Vec3d     calculateTSTDirection() const;
-    void           findThicknessTargetPoints( cvf::Vec3d& topPosition, cvf::Vec3d& bottomPosition );
-    static double  calculateFormationDip( const cvf::Vec3d& direction );
+    void          updatePositionFromMeasuredDepth();
+    void          updateThicknessDirection();
+    void          updateDistanceToBarrierAndDip();
+    cvf::Vec3d    calculateTSTDirection() const;
+    void          findThicknessTargetPoints( cvf::Vec3d& topPosition, cvf::Vec3d& bottomPosition );
+    static double calculateFormationDip( const cvf::Vec3d& direction );
+
     static QString vecToString( const cvf::Vec3d& vec );
     void           updateThicknessDirectionWellPathName();
     static double  computeDefaultStressDepth();
 
     static RigEclipseCaseData* getEclipseCaseData();
     static RimEclipseCase*     getEclipseCase();
+
+    void                     addBarrierAnnotation( const cvf::Vec3d& startPosition, const cvf::Vec3d& endPosition );
+    void                     clearBarrierAnnotation();
+    RimAnnotationCollection* annotationCollection();
+
+    static std::vector<WellPathCellIntersectionInfo> generateBarrierIntersections( RigEclipseCaseData* eclipseCaseData,
+                                                                                   const cvf::Vec3d&   position,
+                                                                                   const cvf::Vec3d& directionToBarrier );
+
+    static std::vector<WellPathCellIntersectionInfo>
+        generateBarrierIntersectionsBetweenPoints( RigEclipseCaseData* eclipseCaseData,
+                                                   const cvf::Vec3d&   startPosition,
+                                                   const cvf::Vec3d&   endPosition );
 
 protected:
     caf::PdmField<double>                       m_MD;
@@ -192,9 +211,11 @@ protected:
     caf::PdmField<caf::AppEnum<FractureOrientation>> m_fractureOrientation;
     caf::PdmField<double>                            m_perforationLength;
 
-    caf::PdmField<double> m_formationDip;
-    caf::PdmField<bool>   m_hasBarrier;
-    caf::PdmField<double> m_distanceToBarrier;
-    caf::PdmField<double> m_barrierDip;
-    caf::PdmField<int>    m_wellPenetrationLayer;
+    caf::PdmField<double>                                m_formationDip;
+    caf::PdmField<bool>                                  m_autoComputeBarrier;
+    caf::PdmField<bool>                                  m_hasBarrier;
+    caf::PdmField<double>                                m_distanceToBarrier;
+    caf::PdmField<double>                                m_barrierDip;
+    caf::PdmField<int>                                   m_wellPenetrationLayer;
+    caf::PdmPtrField<RimUserDefinedPolylinesAnnotation*> m_barrierAnnotation;
 };
