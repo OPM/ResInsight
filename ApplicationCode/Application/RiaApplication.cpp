@@ -568,14 +568,20 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
         oilField->fractureDefinitionCollection()->loadAndUpdateData();
         oilField->fractureDefinitionCollection()->createAndAssignTemplateCopyForNonMatchingUnit();
 
-        {
-            std::vector<RimWellPathFracture*> wellPathFractures;
-            oilField->wellPathCollection->descendantsIncludingThisOfType( wellPathFractures );
+        std::vector<RimWellPathFracture*> wellPathFractures;
+        oilField->wellPathCollection->descendantsIncludingThisOfType( wellPathFractures );
 
-            for ( auto fracture : wellPathFractures )
-            {
-                fracture->loadDataAndUpdate();
-            }
+        for ( auto fracture : wellPathFractures )
+        {
+            fracture->loadDataAndUpdate();
+        }
+
+        std::vector<RimWellLogFile*> wellLogFiles;
+        oilField->wellPathCollection->descendantsOfType( wellLogFiles );
+        for ( auto welllogfile : wellLogFiles )
+        {
+            QString errmsg;
+            welllogfile->readFile( &errmsg );
         }
 
         oilField->surfaceCollection()->loadData();
