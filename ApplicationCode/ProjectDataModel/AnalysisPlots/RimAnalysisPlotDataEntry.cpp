@@ -77,11 +77,15 @@ void RimAnalysisPlotDataEntry::setFromCurveDefinition( const RiaSummaryCurveDefi
 //--------------------------------------------------------------------------------------------------
 RiaSummaryCurveDefinition RimAnalysisPlotDataEntry::curveDefinition() const
 {
-    if ( m_ensemble )
+    if ( m_summaryCase() )
     {
-        return RiaSummaryCurveDefinition( m_summaryCase(), m_summaryAddress->address(), m_ensemble(), m_isEnsembleCurve );
+        return RiaSummaryCurveDefinition( m_summaryCase(), m_summaryAddress->address(), m_isEnsembleCurve );
     }
-    return RiaSummaryCurveDefinition( m_summaryCase(), m_summaryAddress->address() );
+    else
+    {
+        CAF_ASSERT( m_ensemble() );
+        return RiaSummaryCurveDefinition( m_ensemble(), m_summaryAddress->address() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

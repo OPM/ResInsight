@@ -354,11 +354,7 @@ void RicSummaryPlotEditorUi::syncPreviewCurvesFromUiSelection()
 
         for ( const auto& curve : currentCurvesInPreviewPlot )
         {
-            RimSummaryCase* sumCase = curve->summaryCaseY();
-            currentCurveDefs.insert( RiaSummaryCurveDefinition( sumCase,
-                                                                curve->summaryAddressY(),
-                                                                sumCase ? sumCase->ensemble() : nullptr,
-                                                                sumCase && sumCase->ensemble() ) );
+            currentCurveDefs.insert( curve->curveDefinitionY() );
         }
 
         {
@@ -372,11 +368,7 @@ void RicSummaryPlotEditorUi::syncPreviewCurvesFromUiSelection()
 
             for ( const auto& curve : currentCurvesInPreviewPlot )
             {
-                RimSummaryCase* sumCase = curve->summaryCaseY();
-                if ( sumCase && sumCase->ensemble() ) continue;
-
-                RiaSummaryCurveDefinition curveDef =
-                    RiaSummaryCurveDefinition( sumCase, curve->summaryAddressY(), nullptr, false );
+                RiaSummaryCurveDefinition curveDef = curve->curveDefinitionY();
                 if ( deleteCurveDefs.count( curveDef ) > 0 ) curvesToDelete.insert( curve );
             }
         }
@@ -597,7 +589,7 @@ void RicSummaryPlotEditorUi::populateCurveCreator( const RimSummaryPlot& sourceS
 
     for ( const auto& curve : sourceSummaryPlot.summaryCurves() )
     {
-        curveDefs.push_back( RiaSummaryCurveDefinition( curve->summaryCaseY(), curve->summaryAddressY(), nullptr, false ) );
+        curveDefs.push_back( curve->curveDefinitionY() );
 
         // Copy curve object to the preview plot
         copyCurveAndAddToPlot( curve, m_previewPlot.get(), true );
@@ -613,8 +605,7 @@ void RicSummaryPlotEditorUi::populateCurveCreator( const RimSummaryPlot& sourceS
         RimSummaryCaseCollection* ensemble = curveSet->summaryCaseCollection();
         for ( const auto& curve : curveSet->curves() )
         {
-            curveDefs.push_back(
-                RiaSummaryCurveDefinition( curve->summaryCaseY(), curve->summaryAddressY(), ensemble, true ) );
+            curveDefs.push_back( curve->curveDefinitionY() );
         }
     }
 

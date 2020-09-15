@@ -281,7 +281,7 @@ bool RimSummaryCalculation::calculate()
             return false;
         }
 
-        RiaSummaryCurveDefinition curveDef( v->summaryCase(), v->summaryAddress()->address() );
+        RiaSummaryCurveDefinition curveDef( v->summaryCase(), v->summaryAddress()->address(), false );
 
         std::vector<double> curveValues;
         RiaSummaryCurveDefinition::resultValues( curveDef, &curveValues );
