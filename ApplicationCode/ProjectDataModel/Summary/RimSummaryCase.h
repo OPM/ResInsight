@@ -63,6 +63,7 @@ public:
 
     RiaEclipseUnitTools::UnitSystemType unitsSystem();
 
+    void setDisplayNameOption( DisplayName displayNameOption );
     void updateAutoShortName();
     void updateOptionSensitivity();
 
@@ -95,7 +96,8 @@ protected:
     void initAfterRead() override;
 
 private:
-    static QString uniqueShortNameForCase( RimSummaryCase* summaryCase );
+    static QString uniqueShortNameForEnsembleCase( RimSummaryCase* summaryCase );
+    static QString uniqueShortNameForSummaryCase( RimSummaryCase* summaryCase );
 
 protected:
     caf::PdmField<QString>         m_displayName;

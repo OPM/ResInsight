@@ -288,6 +288,10 @@ RimSummaryCaseCollection*
         }
 
         summaryCaseCollection->addCase( summaryCase );
+        if ( isEnsemble )
+        {
+            summaryCase->setDisplayNameOption( RimSummaryCase::DisplayName::SHORT_CASE_NAME );
+        }
     }
 
     summaryCaseCollection->setAsEnsemble( isEnsemble );
