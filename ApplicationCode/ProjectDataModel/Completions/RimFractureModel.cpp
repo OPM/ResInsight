@@ -28,8 +28,12 @@
 #include "Riu3DMainWindowTools.h"
 
 #include "RigEclipseCaseData.h"
+#include "RigEclipseWellLogExtractor.h"
 #include "RigMainGrid.h"
+#include "RigSimulationWellCoordsAndMD.h"
+#include "RigWellLogExtractor.h"
 #include "RigWellPath.h"
+#include "RigWellPathIntersectionTools.h"
 
 #include "Rim3dView.h"
 #include "RimColorLegend.h"
@@ -297,6 +301,7 @@ void RimFractureModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField
          changedField == &m_boundingBoxHorizontal )
     {
         updateThicknessDirection();
+        updateDistanceToBarrierAndDip();
     }
 
     if ( changedField == &m_extractionType || changedField == &m_thicknessDirectionWellPath )
@@ -550,6 +555,78 @@ cvf::Vec3d RimFractureModel::calculateTSTDirection() const
     }
 
     return ( direction / static_cast<double>( numContributingCells ) ).getNormalized();
+}
+
+void RimFractureModel::updateDistanceToBarrierAndDip()
+{
+    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( this );
+    if ( !objHandle ) return;
+
+    RimWellPath* wellPath = nullptr;
+    objHandle->firstAncestorOrThisOfType( wellPath );
+    if ( !wellPath ) return;
+
+    RigEclipseCaseData* eclipseCaseData = getEclipseCaseData();
+    if ( !eclipseCaseData ) return;
+
+    const cvf::Vec3d& position = anchorPosition();
+
+    RiaLogging::info( "Computing distance to barrier." );
+    RiaLogging::info( QString( "Anchor position: %1" ).arg( RimFractureModel::vecToString( position ) ) );
+
+    RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
+
+    // Find the well path points closest to the anchor position
+    cvf::Vec3d p1;
+    cvf::Vec3d p2;
+    wellPathGeometry->twoClosestPoints( position, &p1, &p2 );
+    RiaLogging::info( QString( "Closest points on well path: %1 %2" )
+                          .arg( RimFractureModel::vecToString( p1 ) )
+                          .arg( RimFractureModel::vecToString( p2 ) ) );
+
+    // Create a well direction based on the two points
+    cvf::Vec3d wellDirection = ( p2 - p1 ).getNormalized();
+    RiaLogging::info( QString( "Well direction: %1" ).arg( RimFractureModel::vecToString( wellDirection ) ) );
+
+    // The direction to the barrier is normal to the TST
+    cvf::Vec3d directionToBarrier = ( thicknessDirection() ^ wellDirection ).getNormalized();
+    RiaLogging::info( QString( "Direction to barrier: %1" ).arg( RimFractureModel::vecToString( directionToBarrier ) ) );
+
+    // Create a fake well path from the anchor point to
+    // a point far away in the direction barrier direction
+    std::vector<cvf::Vec3d> pathCoords;
+    pathCoords.push_back( cvf::Vec3d( position.x(), position.y(), -position.z() ) );
+
+    double     randoDistance = 200.0;
+    cvf::Vec3d farAway       = position + ( directionToBarrier * randoDistance );
+    pathCoords.push_back( cvf::Vec3d( farAway.x(), farAway.y(), -farAway.z() ) );
+
+    RiaLogging::info( QString( "Far Away pointr: %1" ).arg( RimFractureModel::vecToString( farAway ) ) );
+
+    RigSimulationWellCoordsAndMD              helper( pathCoords );
+    std::vector<WellPathCellIntersectionInfo> intersections =
+        RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath( eclipseCaseData,
+                                                                          helper.wellPathPoints(),
+                                                                          helper.measuredDepths() );
+    RiaLogging::info( QString( "Intersections: %1" ).arg( intersections.size() ) );
+
+    double shortestDistance = 1000000000.0;
+
+    RigMainGrid* mainGrid = eclipseCaseData->mainGrid();
+    for ( const WellPathCellIntersectionInfo& intersection : intersections )
+    {
+        // Find the closest cell face which is a fault
+        const RigCell& cell     = mainGrid->globalCellArray()[intersection.globCellIndex];
+        double         distance = position.pointDistance( intersection.startPoint );
+        if ( cell.isCellFaceFault( intersection.intersectedCellFaceIn ) && distance < shortestDistance )
+        {
+            shortestDistance = distance;
+        }
+    }
+
+    RiaLogging::info( QString( "Found barrier distance: %1" ).arg( shortestDistance ) );
+
+    // TODO: compute barrier dip
 }
 
 //--------------------------------------------------------------------------------------------------

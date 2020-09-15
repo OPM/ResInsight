@@ -145,6 +145,7 @@ protected:
 private:
     void           updatePositionFromMeasuredDepth();
     void           updateThicknessDirection();
+    void           updateDistanceToBarrierAndDip();
     cvf::Vec3d     calculateTSTDirection() const;
     void           findThicknessTargetPoints( cvf::Vec3d& topPosition, cvf::Vec3d& bottomPosition );
     static double  calculateFormationDip( const cvf::Vec3d& direction );
