@@ -153,13 +153,17 @@ void PdmUiFilePathEditor::fileSelectionClicked()
         defaultPath = m_lineEdit->text();
     }
 
+    QFileDialog::Options fileDialogOptions;
+#ifndef WIN32
+    fileDialogOptions = QFileDialog::DontUseNativeDialog;
+#endif
+
     if ( m_attributes.m_selectDirectory )
     {
+        auto folderOptions = fileDialogOptions | QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks;
+
         QString directoryPath =
-            QFileDialog::getExistingDirectory( m_lineEdit,
-                                               tr( "Get existing directory" ),
-                                               defaultPath,
-                                               QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks );
+            QFileDialog::getExistingDirectory( m_lineEdit, tr( "Get existing directory" ), defaultPath, folderOptions );
 
         if ( !directoryPath.isEmpty() )
         {
@@ -188,15 +192,21 @@ void PdmUiFilePathEditor::fileSelectionClicked()
         QString filePath;
         if ( m_attributes.m_selectSaveFileName )
         {
-            filePath =
-                QFileDialog::getSaveFileName( m_lineEdit, tr( "Save File" ), defaultPath, m_attributes.m_fileSelectionFilter );
+            filePath = QFileDialog::getSaveFileName( m_lineEdit,
+                                                     tr( "Save File" ),
+                                                     defaultPath,
+                                                     m_attributes.m_fileSelectionFilter,
+                                                     nullptr,
+                                                     fileDialogOptions );
         }
         else
         {
             filePath = QFileDialog::getOpenFileName( m_lineEdit,
                                                      tr( "Choose a file" ),
                                                      defaultPath,
-                                                     m_attributes.m_fileSelectionFilter );
+                                                     m_attributes.m_fileSelectionFilter,
+                                                     nullptr,
+                                                     fileDialogOptions );
         }
 
         if ( !filePath.isEmpty() )
