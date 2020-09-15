@@ -36,8 +36,9 @@
 #include <QFileInfo>
 #include <QRegularExpression>
 
-CAF_PDM_ABSTRACT_SOURCE_INIT( RimSummaryCase, "SummaryCase" );
+#define SUMMARY_CASE_SHORT_NAME_LENGTH 6 // TODO: Could make this a preference if required.
 
+CAF_PDM_ABSTRACT_SOURCE_INIT( RimSummaryCase, "SummaryCase" );
 namespace caf
 {
 template <>
@@ -46,7 +47,7 @@ void AppEnum<RimSummaryCase::DisplayName>::setUp()
     addItem( RimSummaryCase::DisplayName::FULL_CASE_NAME, "FULL_CASE_NAME", "Full Case Name" );
     addItem( RimSummaryCase::DisplayName::SHORT_CASE_NAME, "SHORT_CASE_NAME", "Shortened Case Name" );
     addItem( RimSummaryCase::DisplayName::CUSTOM, "CUSTOM_NAME", "Custom Name" );
-    setDefault( RimSummaryCase::DisplayName::SHORT_CASE_NAME );
+    setDefault( RimSummaryCase::DisplayName::FULL_CASE_NAME );
 }
 } // namespace caf
 
@@ -259,6 +260,14 @@ RiaEclipseUnitTools::UnitSystemType RimSummaryCase::unitsSystem()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCase::setDisplayNameOption( DisplayName displayNameOption )
+{
+    m_displayNameOption = displayNameOption;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCase::initAfterRead()
 {
     if ( m_caseId() == -1 )
@@ -277,20 +286,15 @@ void RimSummaryCase::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryCase::uniqueShortNameForCase( RimSummaryCase* summaryCase )
+QString RimSummaryCase::uniqueShortNameForEnsembleCase( RimSummaryCase* summaryCase )
 {
-    QString                      ensembleName = summaryCase->caseName();
-    std::vector<RimSummaryCase*> summaryCases;
+    CAF_ASSERT( summaryCase && summaryCase->ensemble() );
+
+    QString ensembleCaseName = summaryCase->caseName();
 
     auto ensemble = summaryCase->ensemble();
-    if ( ensemble )
-    {
-        summaryCases = ensemble->allSummaryCases();
-    }
-    else
-    {
-        RimProject::current()->descendantsIncludingThisOfType( summaryCases );
-    }
+
+    std::vector<RimSummaryCase*> summaryCases = ensemble->allSummaryCases();
 
     QRegularExpression trimRe( "^[^a-zA-Z0-9]+" );
 
@@ -309,13 +313,13 @@ QString RimSummaryCase::uniqueShortNameForCase( RimSummaryCase* summaryCase )
         RiaFilePathTools::keyPathComponentsForEachFilePath( summaryFilePaths );
 
     QStringList keyFileComponents = keyFileComponentsForAllFiles[summaryCase->summaryHeaderFilename()];
-    if ( keyFileComponents.empty() ) return ensembleName;
+    if ( keyFileComponents.empty() ) return ensembleCaseName;
 
-    if ( !ensembleName.isEmpty() )
+    if ( !ensembleCaseName.isEmpty() )
     {
         for ( auto& component : keyFileComponents )
         {
-            component = component.replace( ensembleName, "" );
+            component = component.replace( ensembleCaseName, "" );
             component = component.replace( trimRe, "" );
         }
     }
@@ -325,23 +329,96 @@ QString RimSummaryCase::uniqueShortNameForCase( RimSummaryCase* summaryCase )
     for ( auto keyComponent : keyFileComponents )
     {
         QStringList subComponents;
-        QString     numberGroup = numberRe.match( keyComponent ).captured();
+        QString     numberGroup                   = numberRe.match( keyComponent ).captured();
+        int         numberGroupAndDelimiterLength = numberGroup.length() + 1;
         if ( !numberGroup.isEmpty() )
         {
             keyComponent = keyComponent.replace( numberGroup, "" );
 
-            QString stem = keyComponent.left( 4 );
+            QString stem =
+                keyComponent.left( std::max( 1, SUMMARY_CASE_SHORT_NAME_LENGTH - numberGroupAndDelimiterLength ) );
             if ( !stem.isEmpty() ) subComponents.push_back( stem );
             subComponents.push_back( numberGroup );
         }
         else
         {
-            subComponents.push_back( keyComponent.left( 6 ) );
+            subComponents.push_back( keyComponent.left( SUMMARY_CASE_SHORT_NAME_LENGTH ) );
         }
 
         shortNameComponents.push_back( subComponents.join( "-" ) );
     }
     return shortNameComponents.join( "," );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryCase::uniqueShortNameForSummaryCase( RimSummaryCase* summaryCase )
+{
+    std::set<QString> allAutoShortNames;
+
+    std::vector<RimSummaryCase*> allCases;
+    RimProject::current()->descendantsOfType( allCases );
+
+    for ( RimSummaryCase* sumCase : allCases )
+    {
+        if ( sumCase && sumCase != summaryCase )
+        {
+            allAutoShortNames.insert( sumCase->displayCaseName() );
+        }
+    }
+
+    bool foundUnique = false;
+
+    QString caseName = summaryCase->caseName();
+    QString shortName;
+
+    if ( caseName.size() > SUMMARY_CASE_SHORT_NAME_LENGTH )
+    {
+        QString candidate;
+        candidate += caseName[0];
+
+        for ( int i = 1; i < caseName.size(); ++i )
+        {
+            if ( foundUnique && !caseName[i].isLetterOrNumber() )
+            {
+                break;
+            }
+
+            candidate += caseName[i];
+            if ( allAutoShortNames.count( candidate ) == 0 )
+            {
+                shortName   = candidate;
+                foundUnique = true;
+                if ( shortName.length() >= SUMMARY_CASE_SHORT_NAME_LENGTH )
+                {
+                    break;
+                }
+            }
+        }
+    }
+    else
+    {
+        shortName = caseName.left( SUMMARY_CASE_SHORT_NAME_LENGTH );
+        if ( allAutoShortNames.count( shortName ) == 0 )
+        {
+            foundUnique = true;
+        }
+    }
+
+    int autoNumber = 1;
+
+    while ( !foundUnique )
+    {
+        QString candidate = QString( "%1 %2" ).arg( shortName ).arg( autoNumber++ );
+        if ( allAutoShortNames.count( candidate ) == 0 )
+        {
+            shortName   = candidate;
+            foundUnique = true;
+        }
+    }
+
+    return shortName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -355,9 +432,15 @@ void RimSummaryCase::updateAutoShortName()
     }
     else if ( m_displayNameOption == DisplayName::SHORT_CASE_NAME )
     {
-        m_displayName = RimSummaryCase::uniqueShortNameForCase( this );
+        if ( ensemble() )
+        {
+            m_displayName = RimSummaryCase::uniqueShortNameForEnsembleCase( this );
+        }
+        else
+        {
+            m_displayName = RimSummaryCase::uniqueShortNameForSummaryCase( this );
+        }
     }
-
     updateTreeItemName();
 }
 
