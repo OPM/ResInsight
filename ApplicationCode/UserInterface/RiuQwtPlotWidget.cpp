@@ -26,6 +26,7 @@
 #include "RimPlot.h"
 
 #include "RiuDraggableOverlayFrame.h"
+#include "RiuGuiTheme.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtCurvePointTracker.h"
 #include "RiuQwtLinearScaleEngine.h"
@@ -1095,7 +1096,10 @@ void RiuQwtPlotWidget::resetPlotItemHighlighting()
         else if ( plotShapeItem )
         {
             QPen pen = plotShapeItem->pen();
-            pen.setColor( QColor( Qt::black ) );
+
+            auto color = RiuGuiTheme::getColorByVariableName( "markerColor" );
+
+            pen.setColor( color );
             pen.setWidth( 1 );
             plotShapeItem->setPen( pen );
             plotShapeItem->setZ( plotShapeItem->z() - 100.0 );
