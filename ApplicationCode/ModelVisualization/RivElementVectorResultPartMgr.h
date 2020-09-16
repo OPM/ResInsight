@@ -54,16 +54,18 @@ public:
 private:
     struct ElementVectorResultVisualization
     {
-        ElementVectorResultVisualization( cvf::Vec3d faceCenter, cvf::Vec3d faceNormal, double result )
+        ElementVectorResultVisualization( cvf::Vec3d faceCenter, cvf::Vec3d faceNormal, double result, double characteristicCellSize )
             : faceCenter( faceCenter )
             , faceNormal( faceNormal )
             , result( result )
+            , characteristicCellSize( characteristicCellSize )
         {
         }
 
         cvf::Vec3f faceCenter;
         cvf::Vec3f faceNormal;
         double     result;
+        double     characteristicCellSize;
     };
 
 private:
@@ -76,7 +78,8 @@ private:
                                         const cvf::ScalarMapper*                             mapper );
 
     std::array<cvf::Vec3f, 5> createArrowVertices( const ElementVectorResultVisualization& tensorVisualization ) const;
-    std::array<uint, 8>       createArrowIndices( uint startIndex ) const;
+    std::array<uint, 2>       createArrowShaftIndices( uint startIndex ) const;
+    std::array<uint, 3>       createArrowHeadIndices( uint startIndex ) const;
 
 private:
     caf::PdmPointer<RimEclipseView> m_rimReservoirView;

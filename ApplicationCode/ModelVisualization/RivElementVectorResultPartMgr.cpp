@@ -153,7 +153,10 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
                     }
 
                     tensorVisualizations.push_back(
-                        ElementVectorResultVisualization( faceCenter, faceNormal, resultValue ) );
+                        ElementVectorResultVisualization( faceCenter,
+                                                          faceNormal,
+                                                          resultValue,
+                                                          std::cbrt( cells[gcIdx].volume() / 3.0 ) ) );
                 }
             }
         }
@@ -175,8 +178,11 @@ cvf::ref<cvf::Part>
     RivElementVectorResultPartMgr::createPart( const RimElementVectorResult&                        result,
                                                const std::vector<ElementVectorResultVisualization>& tensorVisualizations ) const
 {
-    std::vector<uint> indices;
-    indices.reserve( tensorVisualizations.size() * 5 );
+    std::vector<uint> shaftIndices;
+    shaftIndices.reserve( tensorVisualizations.size() * 2 );
+
+    std::vector<uint> headIndices;
+    headIndices.reserve( tensorVisualizations.size() * 3 );
 
     std::vector<cvf::Vec3f> vertices;
     vertices.reserve( tensorVisualizations.size() * 5 );
@@ -189,21 +195,34 @@ cvf::ref<cvf::Part>
             vertices.push_back( vertex );
         }
 
-        for ( const uint& index : createArrowIndices( counter ) )
+        for ( const uint& index : createArrowShaftIndices( counter ) )
         {
-            indices.push_back( index );
+            shaftIndices.push_back( index );
+        }
+
+        for ( const uint& index : createArrowHeadIndices( counter ) )
+        {
+            headIndices.push_back( index );
         }
 
         counter += 5;
     }
 
-    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt = new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_LINES );
-    cvf::ref<cvf::UIntArray>               indexArray = new cvf::UIntArray( indices );
+    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUIntShaft =
+        new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_LINES );
+    cvf::ref<cvf::UIntArray> indexArrayShaft = new cvf::UIntArray( shaftIndices );
+
+    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUIntHead =
+        new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_TRIANGLES );
+    cvf::ref<cvf::UIntArray> indexArrayHead = new cvf::UIntArray( headIndices );
 
     cvf::ref<cvf::DrawableGeo> drawable = new cvf::DrawableGeo();
 
-    indexedUInt->setIndices( indexArray.p() );
-    drawable->addPrimitiveSet( indexedUInt.p() );
+    indexedUIntShaft->setIndices( indexArrayShaft.p() );
+    drawable->addPrimitiveSet( indexedUIntShaft.p() );
+
+    indexedUIntHead->setIndices( indexArrayHead.p() );
+    drawable->addPrimitiveSet( indexedUIntHead.p() );
 
     cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray( vertices );
     drawable->setVertexArray( vertexArray.p() );
@@ -255,12 +274,12 @@ void RivElementVectorResultPartMgr::createResultColorTextureCoords(
     CVF_ASSERT( textureCoords );
     CVF_ASSERT( mapper );
 
-    size_t vertexCount = elementVectorResultVisualizations.size() * 5;
+    size_t vertexCount = elementVectorResultVisualizations.size() * 7;
     if ( textureCoords->size() != vertexCount ) textureCoords->reserve( vertexCount );
 
     for ( auto evrViz : elementVectorResultVisualizations )
     {
-        for ( size_t vxIdx = 0; vxIdx < 5; ++vxIdx )
+        for ( size_t vxIdx = 0; vxIdx < 7; ++vxIdx )
         {
             cvf::Vec2f texCoord = mapper->mapToTextureCoord( evrViz.result );
             textureCoords->add( texCoord );
@@ -285,12 +304,15 @@ std::array<cvf::Vec3f, 5>
         std::swap( headTop, shaftStart );
     }
 
-    float headWidth = 0.05 * evrViz.faceNormal.length();
+    // float headWidth = 0.05 * evrViz.faceNormal.length();
+    float headLength = std::min<float>( evrViz.characteristicCellSize / 5.0f, ( headTop - shaftStart ).length() / 2.0 );
 
-    cvf::Vec3f headBottom = headTop - ( headTop - shaftStart ) * 0.2f;
+    // A fixed size is preferred here
+    cvf::Vec3f headBottom = headTop - ( headTop - shaftStart ).getNormalized() * headLength;
+    // cvf::Vec3f headBottom = headTop - ( headTop - shaftStart ) * 0.2f;
 
     cvf::Vec3f headBottomDirection = evrViz.faceNormal ^ evrViz.faceCenter;
-    cvf::Vec3f arrowBottomSegment  = headBottomDirection.getNormalized() * headWidth;
+    cvf::Vec3f arrowBottomSegment  = headBottomDirection.getNormalized() * headLength / 8.0f;
 
     vertices[0] = shaftStart;
     vertices[1] = headBottom;
@@ -304,18 +326,26 @@ std::array<cvf::Vec3f, 5>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::array<uint, 8> RivElementVectorResultPartMgr::createArrowIndices( uint startIndex ) const
+std::array<uint, 2> RivElementVectorResultPartMgr::createArrowShaftIndices( uint startIndex ) const
 {
-    std::array<uint, 8> indices;
+    std::array<uint, 2> indices;
 
     indices[0] = startIndex;
     indices[1] = startIndex + 1;
-    indices[2] = startIndex + 2;
-    indices[3] = startIndex + 3;
-    indices[4] = startIndex + 3;
-    indices[5] = startIndex + 4;
-    indices[6] = startIndex + 4;
-    indices[7] = startIndex + 2;
+
+    return indices;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::array<uint, 3> RivElementVectorResultPartMgr::createArrowHeadIndices( uint startIndex ) const
+{
+    std::array<uint, 3> indices;
+
+    indices[0] = startIndex + 2;
+    indices[1] = startIndex + 3;
+    indices[2] = startIndex + 4;
 
     return indices;
 }
