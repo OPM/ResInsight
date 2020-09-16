@@ -64,10 +64,6 @@ class SignalEmitter
 public:
     SignalEmitter();
     virtual ~SignalEmitter();
-    std::list<AbstractSignal*> emittedSignals() const;
-
-private:
-    mutable std::list<AbstractSignal*> m_signals;
 };
 
 //==================================================================================================
