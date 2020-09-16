@@ -112,30 +112,6 @@ public:
         m_emitter->addEmittedSignal( this );
     }
 
-    Signal( const Signal& rhs )
-        : m_emitter( rhs.m_emitter )
-    {
-        m_emitter->addEmittedSignal( this );
-
-        for ( auto observerCallbackPair : rhs.m_observerCallbacks )
-        {
-            connect( observerCallbackPair.first, observerCallbackPair.second.first );
-        }
-    }
-
-    Signal& operator=( const Signal& rhs )
-    {
-        m_emitter = rhs.m_emitter;
-        m_emitter->addEmittedSignal( this );
-
-        for ( auto observerCallbackPair : rhs.m_observerCallbacks )
-        {
-            connect( observerCallbackPair.first, observerCallbackPair.second.first );
-        }
-
-        return *this;
-    }
-
     virtual ~Signal()
     {
         for ( auto observerCallbackPair : m_observerCallbacks )
@@ -172,7 +148,7 @@ public:
         observer->removeObservedSignal( this );
     }
 
-    void send( Args... args )
+    void send( Args... args ) const
     {
         for ( auto observerCallbackPair : m_observerCallbacks )
         {
@@ -197,6 +173,10 @@ public:
         it->second.second = true;
     }
     size_t observerCount() const { return m_observerCallbacks.size(); }
+
+private:
+    Signal( const Signal& rhs ) = delete;
+    Signal& operator=( const Signal& rhs ) = delete;
 
 private:
     std::map<SignalObserver*, MemberCallbackAndActiveFlag> m_observerCallbacks;
