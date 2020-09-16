@@ -69,19 +69,19 @@ RiuTofAccumulatedPhaseFractionsPlot::RiuTofAccumulatedPhaseFractionsPlot( RimTof
     setTitle( title );
 
     m_watCurve = new QwtPlotCurve;
-    setCurveColor( m_watCurve, RiuGuiTheme::getColorByVariableName( "waterCurveColor" ) );
+    setCurveColor( m_watCurve, RiuGuiTheme::getColorByVariableName( "curveColorWater" ) );
     m_watCurve->setZ( 0.9 );
     m_watCurve->setTitle( "Water" );
     m_watCurve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
 
     m_oilCurve = new QwtPlotCurve;
-    setCurveColor( m_oilCurve, RiuGuiTheme::getColorByVariableName( "oilCurveColor" ) );
+    setCurveColor( m_oilCurve, RiuGuiTheme::getColorByVariableName( "curveColorOil" ) );
     m_oilCurve->setZ( 0.8 );
     m_oilCurve->setTitle( "Oil" );
     m_oilCurve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
 
     m_gasCurve = new QwtPlotCurve;
-    setCurveColor( m_gasCurve, RiuGuiTheme::getColorByVariableName( "gasCurveColor" ) );
+    setCurveColor( m_gasCurve, RiuGuiTheme::getColorByVariableName( "curveColorGas" ) );
     m_gasCurve->setZ( 0.7 );
     m_gasCurve->setTitle( "Gas" );
     m_gasCurve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
