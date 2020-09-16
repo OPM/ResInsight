@@ -38,6 +38,7 @@
 #include "cafAssert.h"
 
 #include <functional>
+#include <list>
 #include <map>
 #include <string>
 #include <type_traits>
@@ -47,35 +48,11 @@ namespace caf
 class SignalEmitter;
 class SignalObserver;
 
-//==================================================================================================
-/// Basic delete signal emitted by any observer when deleted.
-/// Allows a regular signal to disconnect from the observer.
-//==================================================================================================
-class DeleteSignal
+class AbstractSignal
 {
 public:
-    using DisconnectCallback = std::function<void( SignalObserver* )>;
-
-    DeleteSignal( SignalObserver* observer );
-
-    template <typename ClassType>
-    void connect( ClassType* signal )
-    {
-        static_assert( std::is_convertible<ClassType*, SignalObserver*>::value,
-                       "Only classes that inherit SignalObserver can connect as an observer of a Signal." );
-
-        DisconnectCallback disconnectCallback = [=]( SignalObserver* observer ) { ( signal->disconnect )( observer ); };
-        auto               signalCasted       = dynamic_cast<SignalObserver*>( signal );
-
-        if ( signalCasted ) m_disconnectCallbacks[signalCasted] = disconnectCallback;
-    }
-    void disconnect( SignalObserver* observer );
-    void send();
-
-private:
-    std::map<SignalObserver*, DisconnectCallback> m_disconnectCallbacks;
-
-    SignalObserver* m_observer;
+    virtual ~AbstractSignal()                           = default;
+    virtual void disconnect( SignalObserver* observer ) = 0;
 };
 
 //==================================================================================================
@@ -85,7 +62,12 @@ private:
 class SignalEmitter
 {
 public:
-    virtual ~SignalEmitter() = default;
+    SignalEmitter();
+    virtual ~SignalEmitter();
+    std::list<AbstractSignal*> emittedSignals() const;
+
+private:
+    std::list<AbstractSignal*> m_signals;
 };
 
 //==================================================================================================
@@ -95,14 +77,18 @@ public:
 class SignalObserver
 {
 public:
-    DeleteSignal beingDeleted;
-
-public:
     SignalObserver();
-    void sendDeleteSignal();
     virtual ~SignalObserver();
+    std::list<AbstractSignal*> observedSignals() const;
+    void                       addSignal( AbstractSignal* signalToAdd ) const;
+    void                       removeSignal( AbstractSignal* signalToRemove ) const;
 
-}; // namespace caf
+private:
+    void disconnectAllSignals();
+
+private:
+    mutable std::list<AbstractSignal*> m_signals;
+};
 
 //==================================================================================================
 /// General signal class.
@@ -111,7 +97,7 @@ public:
 /// The method should accept that data may be nullptr
 //==================================================================================================
 template <typename... Args>
-class Signal : public SignalObserver
+class Signal : public AbstractSignal
 {
 public:
     using MemberCallback              = std::function<void( const SignalEmitter*, Args... args )>;
@@ -146,7 +132,7 @@ public:
     {
         for ( auto observerCallbackPair : m_observerCallbacks )
         {
-            observerCallbackPair.first->beingDeleted.disconnect( this );
+            observerCallbackPair.first->removeSignal( this );
         }
     }
 
@@ -166,16 +152,16 @@ public:
         static_assert( std::is_convertible<ClassType*, SignalObserver*>::value,
                        "Only classes that inherit SignalObserver can connect as an observer of a Signal." );
         m_observerCallbacks[observer] = std::make_pair( callback, true );
-        observer->beingDeleted.connect( this );
+        observer->addSignal( this );
     }
 
     // Disconnect an observer from the signal. Do this only when the relationship between the
     // observer and emitter is severed but the object kept alive.
     // There's no need to do this when deleting the observer.
-    void disconnect( SignalObserver* observer )
+    void disconnect( SignalObserver* observer ) override
     {
         m_observerCallbacks.erase( observer );
-        observer->beingDeleted.disconnect( this );
+        observer->removeSignal( this );
     }
 
     void send( Args... args )

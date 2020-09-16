@@ -119,8 +119,6 @@ void PdmObjectHandle::objectsWithReferringPtrFields( std::vector<PdmObjectHandle
 //--------------------------------------------------------------------------------------------------
 void PdmObjectHandle::prepareForDelete()
 {
-    this->sendDeleteSignal();
-
     m_parentField = nullptr;
 
     for ( size_t i = 0; i < m_capabilities.size(); ++i )
