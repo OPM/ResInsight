@@ -66,7 +66,23 @@ void PdmObjectHandle::removeAsParentField( PdmFieldHandle* parentField )
 {
     CAF_ASSERT( m_parentField == parentField );
 
+    if ( parentField ) disconnectObserverFromAllSignals( parentField->ownerObject() );
+
     m_parentField = nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmObjectHandle::disconnectObserverFromAllSignals( SignalObserver* observer )
+{
+    if ( observer )
+    {
+        for ( auto emittedSignal : emittedSignals() )
+        {
+            emittedSignal->disconnect( observer );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
