@@ -158,7 +158,7 @@ void RiuQwtSymbol::renderSymbolLabel( QPainter* painter, const QPointF& position
     QFont font = painter->font();
     font.setPixelSize( m_labelFontSizePx );
     painter->setFont( font );
-    painter->setPen( RiaColorTools::systemPaletteTextColor() );
+    painter->setPen( RiaColorTools::textColor() );
 
     QSize symbolSize = QwtSymbol::size();
     QRect symbolRect( position.x(), position.y(), symbolSize.width(), symbolSize.height() );
