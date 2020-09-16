@@ -76,7 +76,6 @@ RimAbstractCorrelationPlot::~RimAbstractCorrelationPlot()
 //--------------------------------------------------------------------------------------------------
 void RimAbstractCorrelationPlot::setCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions )
 {
-    disconnectAllCaseSignals();
     m_analysisPlotDataSelection.deleteAllChildObjects();
     for ( auto curveDef : curveDefinitions )
     {
@@ -127,7 +126,6 @@ void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
             if ( !curveSelection.empty() )
             {
                 std::vector<RiaSummaryCurveDefinition> summaryVectorDefinitions = dlg.curveSelection();
-                disconnectAllCaseSignals();
                 m_analysisPlotDataSelection.deleteAllChildObjects();
                 for ( const RiaSummaryCurveDefinition& vectorDef : summaryVectorDefinitions )
                 {
@@ -610,20 +608,6 @@ void RimAbstractCorrelationPlot::connectAllCaseSignals()
         if ( dataEntry->ensemble() )
         {
             dataEntry->ensemble()->caseRemoved.connect( this, &RimAbstractCorrelationPlot::onCaseRemoved );
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimAbstractCorrelationPlot::disconnectAllCaseSignals()
-{
-    for ( auto dataEntry : m_analysisPlotDataSelection )
-    {
-        if ( dataEntry->ensemble() )
-        {
-            dataEntry->ensemble()->caseRemoved.disconnect( this );
         }
     }
 }

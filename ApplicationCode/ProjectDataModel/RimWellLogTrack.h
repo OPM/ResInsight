@@ -299,7 +299,6 @@ private:
                                                                 const RigWellLogExtractor* extractor ) const;
 
     void connectCurveSignals( RimWellLogCurve* curve );
-    void disconnectCurveSignals( RimWellLogCurve* curve );
 
 private:
     QString m_xAxisTitle;

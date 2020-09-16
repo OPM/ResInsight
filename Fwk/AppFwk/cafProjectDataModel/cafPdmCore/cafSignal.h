@@ -64,6 +64,8 @@ class SignalEmitter
 public:
     SignalEmitter();
     virtual ~SignalEmitter();
+
+    void                       addEmittedSignal( AbstractSignal* signalToAdd ) const;
     std::list<AbstractSignal*> emittedSignals() const;
 
 private:
@@ -80,8 +82,8 @@ public:
     SignalObserver();
     virtual ~SignalObserver();
     std::list<AbstractSignal*> observedSignals() const;
-    void                       addSignal( AbstractSignal* signalToAdd ) const;
-    void                       removeSignal( AbstractSignal* signalToRemove ) const;
+    void                       addObservedSignal( AbstractSignal* signalToAdd ) const;
+    void                       removeObservedSignal( AbstractSignal* signalToRemove ) const;
 
 private:
     void disconnectAllSignals();
@@ -107,11 +109,14 @@ public:
     Signal( const SignalEmitter* emitter )
         : m_emitter( emitter )
     {
+        m_emitter->addEmittedSignal( this );
     }
 
     Signal( const Signal& rhs )
         : m_emitter( rhs.m_emitter )
     {
+        m_emitter->addEmittedSignal( this );
+
         for ( auto observerCallbackPair : rhs.m_observerCallbacks )
         {
             connect( observerCallbackPair.first, observerCallbackPair.second.first );
@@ -121,10 +126,13 @@ public:
     Signal& operator=( const Signal& rhs )
     {
         m_emitter = rhs.m_emitter;
+        m_emitter->addEmittedSignal( this );
+
         for ( auto observerCallbackPair : rhs.m_observerCallbacks )
         {
             connect( observerCallbackPair.first, observerCallbackPair.second.first );
         }
+
         return *this;
     }
 
@@ -132,7 +140,7 @@ public:
     {
         for ( auto observerCallbackPair : m_observerCallbacks )
         {
-            observerCallbackPair.first->removeSignal( this );
+            observerCallbackPair.first->removeObservedSignal( this );
         }
     }
 
@@ -152,7 +160,7 @@ public:
         static_assert( std::is_convertible<ClassType*, SignalObserver*>::value,
                        "Only classes that inherit SignalObserver can connect as an observer of a Signal." );
         m_observerCallbacks[observer] = std::make_pair( callback, true );
-        observer->addSignal( this );
+        observer->addObservedSignal( this );
     }
 
     // Disconnect an observer from the signal. Do this only when the relationship between the
@@ -161,7 +169,7 @@ public:
     void disconnect( SignalObserver* observer ) override
     {
         m_observerCallbacks.erase( observer );
-        observer->removeSignal( this );
+        observer->removeObservedSignal( this );
     }
 
     void send( Args... args )

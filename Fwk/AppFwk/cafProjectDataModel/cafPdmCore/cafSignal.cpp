@@ -54,6 +54,14 @@ SignalEmitter::~SignalEmitter()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void SignalEmitter::addEmittedSignal( AbstractSignal* signalToAdd ) const
+{
+    m_signals.push_back( signalToAdd );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::list<AbstractSignal*> SignalEmitter::emittedSignals() const
 {
     return m_signals;
@@ -85,7 +93,7 @@ std::list<AbstractSignal*> SignalObserver::observedSignals() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void SignalObserver::addSignal( AbstractSignal* signalToObserve ) const
+void SignalObserver::addObservedSignal( AbstractSignal* signalToObserve ) const
 {
     m_signals.push_back( signalToObserve );
 }
@@ -93,7 +101,7 @@ void SignalObserver::addSignal( AbstractSignal* signalToObserve ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void SignalObserver::removeSignal( AbstractSignal* signalToRemove ) const
+void SignalObserver::removeObservedSignal( AbstractSignal* signalToRemove ) const
 {
     m_signals.remove( signalToRemove );
 }

@@ -56,8 +56,6 @@ RimPlotDataFilterItem* RimPlotDataFilterCollection::addFilter()
 //--------------------------------------------------------------------------------------------------
 void RimPlotDataFilterCollection::removeFilter( RimPlotDataFilterItem* filter )
 {
-    filter->filterChanged.disconnect( this );
-
     m_filters.removeChildObject( filter );
     delete filter;
 

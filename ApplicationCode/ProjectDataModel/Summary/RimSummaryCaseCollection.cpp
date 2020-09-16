@@ -230,7 +230,6 @@ void RimSummaryCaseCollection::removeCase( RimSummaryCase* summaryCase )
 {
     size_t caseCountBeforeRemove = m_cases.size();
 
-    summaryCase->nameChanged.disconnect( this );
     m_cases.removeChildObject( summaryCase );
 
     m_cachedSortedEnsembleParameters.clear();
