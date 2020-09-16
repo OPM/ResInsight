@@ -1,6 +1,8 @@
 #include "RimPlot.h"
 
 #include "RicfCommandObject.h"
+
+#include "RimAbstractPlotCollection.h"
 #include "RimMultiPlot.h"
 #include "RimPlotCurve.h"
 #include "RimPlotWindow.h"
@@ -124,7 +126,13 @@ void RimPlot::removeFromMdiAreaAndCollection()
     {
         revokeMdiWindowStatus();
     }
-    doRemoveFromCollection();
+
+    RimAbstractPlotCollection* plotCollection = nullptr;
+    this->firstAncestorOfType( plotCollection );
+    if ( plotCollection )
+    {
+        plotCollection->removeRimPlot( this );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

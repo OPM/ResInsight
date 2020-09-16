@@ -164,6 +164,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimElasticProperties.h
 ${CMAKE_CURRENT_LIST_DIR}/RimElasticPropertiesCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimLayerCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureModelStressCurve.h
+${CMAKE_CURRENT_LIST_DIR}/RimAbstractPlotCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureModelPropertyCurve.h
 )
 

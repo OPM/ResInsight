@@ -190,7 +190,6 @@ private:
 
     void detachAllPlotItems();
 
-    void doRemoveFromCollection() override;
     void handleKeyPressEvent( QKeyEvent* keyEvent ) override;
 
     void onCurvesReordered( const SignalEmitter* emitter );

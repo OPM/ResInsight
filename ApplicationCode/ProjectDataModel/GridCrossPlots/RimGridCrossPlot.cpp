@@ -394,20 +394,6 @@ void RimGridCrossPlot::onAxisSelected( int axis, bool toggle )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlot::doRemoveFromCollection()
-{
-    RimGridCrossPlotCollection* crossPlotCollection = nullptr;
-    this->firstAncestorOrThisOfType( crossPlotCollection );
-    if ( crossPlotCollection )
-    {
-        crossPlotCollection->removeGridCrossPlot( this );
-        crossPlotCollection->updateAllRequiredEditors();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RimGridCrossPlot::generateInfoBoxText() const
 {
     QStringList curveInfoTexts;

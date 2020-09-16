@@ -47,7 +47,7 @@ void RicPasteSummaryPlotFeature::copyPlotAndAddToCollection( RimSummaryPlot* sou
             sourcePlot->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
         CVF_ASSERT( newSummaryPlot );
 
-        plotColl->summaryPlots.push_back( newSummaryPlot );
+        plotColl->addPlot( newSummaryPlot );
 
         // Resolve references after object has been inserted into the data model
         newSummaryPlot->resolveReferencesRecursively();

@@ -217,52 +217,6 @@ QString RimDepthTrackPlot::description() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDepthTrackPlot::addPlot( RimPlot* plot )
-{
-    insertPlot( plot, m_plots.size() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimDepthTrackPlot::insertPlot( RimPlot* plot, size_t index )
-{
-    if ( plot )
-    {
-        m_plots.insert( index, plot );
-
-        if ( m_viewer )
-        {
-            plot->createPlotWidget();
-            m_viewer->insertPlot( plot->viewer(), index );
-        }
-        plot->setShowWindow( true );
-        plot->setLegendsVisible( false );
-
-        onPlotAdditionOrRemoval();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimDepthTrackPlot::removePlot( RimPlot* plot )
-{
-    if ( plot )
-    {
-        if ( m_viewer )
-        {
-            m_viewer->removePlot( plot->viewer() );
-        }
-        m_plots.removeChildObject( plot );
-
-        onPlotAdditionOrRemoval();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 size_t RimDepthTrackPlot::plotCount() const
 {
     return m_plots.size();
@@ -755,7 +709,6 @@ void RimDepthTrackPlot::onPlotsReordered( const SignalEmitter* emitter )
     recreatePlotWidgets();
     loadDataAndUpdate();
 }
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -945,7 +898,6 @@ void RimDepthTrackPlot::initAfterRead()
     {
         m_nameConfig->setCustomName( m_plotWindowTitle );
     }
-
     performAutoNameUpdate();
 }
 
@@ -999,6 +951,44 @@ void RimDepthTrackPlot::updatePlots()
 caf::PdmFieldHandle* RimDepthTrackPlot::userDescriptionField()
 {
     return &m_plotWindowTitle;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimDepthTrackPlot::insertPlot( RimPlot* plot, size_t index )
+{
+    if ( plot )
+    {
+        m_plots.insert( index, plot );
+
+        if ( m_viewer )
+        {
+            plot->createPlotWidget();
+            m_viewer->insertPlot( plot->viewer(), index );
+        }
+        plot->setShowWindow( true );
+        plot->setLegendsVisible( false );
+
+        onPlotAdditionOrRemoval();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimDepthTrackPlot::removePlot( RimPlot* plot )
+{
+    if ( plot )
+    {
+        if ( m_viewer )
+        {
+            m_viewer->removePlot( plot->viewer() );
+        }
+        m_plots.removeChildObject( plot );
+
+        onPlotAdditionOrRemoval();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1129,6 +1119,9 @@ void RimDepthTrackPlot::setDepthUnit( RiaDefines::DepthUnitType depthUnit )
     updateLayout();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimDepthTrackPlot::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                                         std::vector<caf::PdmObjectHandle*>& referringObjects )
 {

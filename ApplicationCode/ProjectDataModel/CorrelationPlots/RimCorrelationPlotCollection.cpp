@@ -59,7 +59,7 @@ RimCorrelationPlot* RimCorrelationPlotCollection::createCorrelationPlot( bool de
     if ( defaultToFirstEnsembleFopt ) applyFirstEnsembleFieldAddressesToPlot( plot, {"FOPT"} );
     plot->selectAllParameters();
 
-    m_correlationPlots.push_back( plot );
+    addPlot( plot );
 
     return plot;
 }
@@ -77,7 +77,7 @@ RimCorrelationPlot* RimCorrelationPlotCollection::createCorrelationPlot( RimSumm
     applyEnsembleFieldAndTimeStepToPlot( plot, ensemble, {quantityName}, timeStep );
     plot->selectAllParameters();
 
-    m_correlationPlots.push_back( plot );
+    addPlot( plot );
 
     return plot;
 }
@@ -92,7 +92,7 @@ RimCorrelationMatrixPlot* RimCorrelationPlotCollection::createCorrelationMatrixP
     if ( defaultToFirstEnsembleField ) applyFirstEnsembleFieldAddressesToPlot( plot, {"FOPT", "FWPT", "FGPT"} );
     plot->selectAllParameters();
 
-    m_correlationPlots.push_back( plot );
+    addPlot( plot );
 
     return plot;
 }
@@ -109,7 +109,7 @@ RimCorrelationMatrixPlot* RimCorrelationPlotCollection::createCorrelationMatrixP
     applyEnsembleFieldAndTimeStepToPlot( plot, ensemble, quantityNames, timeStep );
     plot->selectAllParameters();
 
-    m_correlationPlots.push_back( plot );
+    addPlot( plot );
 
     return plot;
 }
@@ -123,7 +123,7 @@ RimParameterResultCrossPlot* RimCorrelationPlotCollection::createParameterResult
     plot->setAsPlotMdiWindow();
     if ( defaultToFirstEnsembleFopt ) applyFirstEnsembleFieldAddressesToPlot( plot, {"FOPT"} );
 
-    m_correlationPlots.push_back( plot );
+    addPlot( plot );
     return plot;
 }
 
@@ -140,7 +140,7 @@ RimParameterResultCrossPlot* RimCorrelationPlotCollection::createParameterResult
     applyEnsembleFieldAndTimeStepToPlot( plot, ensemble, {quantityName}, timeStep );
     plot->setEnsembleParameter( paramName );
 
-    m_correlationPlots.push_back( plot );
+    addPlot( plot );
     return plot;
 }
 
@@ -181,15 +181,23 @@ RimCorrelationReportPlot*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCorrelationPlotCollection::removePlot( RimAbstractCorrelationPlot* correlationPlot )
+void RimCorrelationPlotCollection::insertPlot( RimAbstractCorrelationPlot* plot, size_t index )
 {
-    m_correlationPlots.removeChildObject( correlationPlot );
+    m_correlationPlots.insert( index, plot );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimAbstractCorrelationPlot*> RimCorrelationPlotCollection::plots()
+void RimCorrelationPlotCollection::removePlot( RimAbstractCorrelationPlot* plot )
+{
+    m_correlationPlots.removeChildObject( plot );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimAbstractCorrelationPlot*> RimCorrelationPlotCollection::plots() const
 {
     return m_correlationPlots.childObjects();
 }
@@ -197,7 +205,15 @@ std::vector<RimAbstractCorrelationPlot*> RimCorrelationPlotCollection::plots()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimCorrelationReportPlot*> RimCorrelationPlotCollection::reports()
+size_t RimCorrelationPlotCollection::plotCount() const
+{
+    return m_correlationPlots.size();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimCorrelationReportPlot*> RimCorrelationPlotCollection::reports() const
 {
     return m_correlationReports.childObjects();
 }
@@ -205,9 +221,9 @@ std::vector<RimCorrelationReportPlot*> RimCorrelationPlotCollection::reports()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCorrelationPlotCollection::deleteAllChildObjects()
+void RimCorrelationPlotCollection::deleteAllPlots()
 {
-    m_correlationPlots.deleteAllChildObjects();
+    RimTypedPlotCollection<RimAbstractCorrelationPlot>::deleteAllPlots();
     m_correlationReports.deleteAllChildObjects();
 }
 

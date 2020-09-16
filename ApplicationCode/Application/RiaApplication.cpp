@@ -1645,15 +1645,15 @@ void RiaApplication::loadAndUpdatePlotData()
 
     size_t plotCount = 0;
     plotCount += wlpColl ? wlpColl->wellLogPlots().size() : 0;
-    plotCount += spColl ? spColl->summaryPlots().size() : 0;
-    plotCount += scpColl ? scpColl->summaryPlots().size() : 0;
+    plotCount += spColl ? spColl->plots().size() : 0;
+    plotCount += scpColl ? scpColl->plots().size() : 0;
     plotCount += flowColl ? flowColl->plotCount() : 0;
     plotCount += rftColl ? rftColl->rftPlots().size() : 0;
     plotCount += pltColl ? pltColl->pltPlots().size() : 0;
-    plotCount += gcpColl ? gcpColl->gridCrossPlots().size() : 0;
-    plotCount += sppColl ? sppColl->plots().size() : 0;
-    plotCount += alsColl ? alsColl->plots().size() : 0;
-    plotCount += corrColl ? corrColl->plots().size() + corrColl->reports().size() : 0;
+    plotCount += gcpColl ? gcpColl->plotCount() : 0;
+    plotCount += sppColl ? sppColl->plotCount() : 0;
+    plotCount += alsColl ? alsColl->plotCount() : 0;
+    plotCount += corrColl ? corrColl->plotCount() + corrColl->reports().size() : 0;
     plotCount += gpwColl ? gpwColl->multiPlots().size() : 0;
     plotCount += frmColl ? frmColl->fractureModelPlots().size() : 0;
 
@@ -1671,16 +1671,16 @@ void RiaApplication::loadAndUpdatePlotData()
 
         if ( spColl )
         {
-            for ( size_t wlpIdx = 0; wlpIdx < spColl->summaryPlots().size(); ++wlpIdx )
+            for ( auto plot : spColl->plots() )
             {
-                spColl->summaryPlots[wlpIdx]->loadDataAndUpdate();
+                plot->loadDataAndUpdate();
                 plotProgress.incrementProgress();
             }
         }
 
         if ( scpColl )
         {
-            for ( auto plot : scpColl->summaryPlots() )
+            for ( auto plot : scpColl->plots() )
             {
                 plot->loadDataAndUpdate();
                 plotProgress.incrementProgress();
@@ -1714,7 +1714,7 @@ void RiaApplication::loadAndUpdatePlotData()
 
         if ( gcpColl )
         {
-            for ( const auto& gcpPlot : gcpColl->gridCrossPlots() )
+            for ( const auto& gcpPlot : gcpColl->plots() )
             {
                 gcpPlot->loadDataAndUpdate();
                 plotProgress.incrementProgress();

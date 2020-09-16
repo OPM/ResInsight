@@ -91,7 +91,7 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
     }
 
     RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
-    for ( RimSummaryPlot* summaryPlot : summaryPlotColl->summaryPlots )
+    for ( RimSummaryPlot* summaryPlot : summaryPlotColl->plots() )
     {
         // Update summary curves on calculated data
         std::vector<RimSummaryCurve*> summaryCurves = summaryPlot->summaryCurves();
@@ -118,7 +118,7 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
     }
 
     RimSummaryCrossPlotCollection* summaryCrossPlotColl = RiaSummaryTools::summaryCrossPlotCollection();
-    for ( RimSummaryPlot* summaryPlot : summaryCrossPlotColl->summaryPlots() )
+    for ( RimSummaryPlot* summaryPlot : summaryCrossPlotColl->plots() )
     {
         // Update summary curves on calculated data
         std::vector<RimSummaryCurve*> summaryCurves = summaryPlot->summaryCurves();

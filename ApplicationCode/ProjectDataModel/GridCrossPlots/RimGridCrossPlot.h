@@ -141,7 +141,6 @@ private:
     void doUpdateLayout() override;
     void cleanupBeforeClose();
 
-    void    doRemoveFromCollection() override;
     QString generateInfoBoxText() const;
 
     void connectAxisSignals( RimPlotAxisProperties* axis );

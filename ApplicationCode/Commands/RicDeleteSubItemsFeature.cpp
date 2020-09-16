@@ -66,7 +66,7 @@ void RicDeleteSubItemsFeature::onActionTriggered( bool isChecked )
             auto collection = dynamic_cast<RimSummaryPlotCollection*>( item );
             if ( collection )
             {
-                collection->summaryPlots.deleteAllChildObjects();
+                collection->deleteAllPlots();
 
                 collection->updateConnectedEditors();
             }
@@ -116,7 +116,7 @@ bool RicDeleteSubItemsFeature::hasDeletableSubItems( caf::PdmUiItem* uiItem )
 {
     {
         auto collection = dynamic_cast<RimSummaryPlotCollection*>( uiItem );
-        if ( collection && !collection->summaryPlots().empty() )
+        if ( collection && !collection->plots().empty() )
         {
             return true;
         }

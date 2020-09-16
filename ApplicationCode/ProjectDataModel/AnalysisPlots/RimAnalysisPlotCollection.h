@@ -18,19 +18,21 @@
 
 #pragma once
 
+#include "RimAbstractPlotCollection.h"
+#include "RimAnalysisPlot.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 
 #include <ctime>
 
-class RimAnalysisPlot;
 class RimSummaryCaseCollection;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimAnalysisPlotCollection : public caf::PdmObject
+class RimAnalysisPlotCollection : public caf::PdmObject, public RimTypedPlotCollection<RimAnalysisPlot>
 {
     CAF_PDM_HEADER_INIT;
 
@@ -43,11 +45,11 @@ public:
         createAnalysisPlot( RimSummaryCaseCollection* ensemble, const QString& quantityName, std::time_t timeStep );
 
     void updateSummaryNameHasChanged();
-    void removeSummaryPlot( RimAnalysisPlot* analysisPlot );
 
-    std::vector<RimAnalysisPlot*> plots();
-
-    void deleteAllChildObjects();
+    std::vector<RimAnalysisPlot*> plots() const final;
+    size_t                        plotCount() const final;
+    void                          insertPlot( RimAnalysisPlot* analysisPlot, size_t index ) final;
+    void                          removePlot( RimAnalysisPlot* analysisPlot ) final;
 
 private:
     void applyFirstEnsembleFieldAddressesToPlot( RimAnalysisPlot* plot, const std::string& quantityName = "" );

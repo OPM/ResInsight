@@ -103,9 +103,9 @@ RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
             defaultSelectedPlot = dynamic_cast<RimSummaryPlot*>( app->activePlotWindow() );
         }
 
-        if ( !defaultSelectedPlot && summaryPlotColl->summaryPlots().size() > 0 )
+        if ( !defaultSelectedPlot && !summaryPlotColl->plots().empty() )
         {
-            defaultSelectedPlot = summaryPlotColl->summaryPlots()[0];
+            defaultSelectedPlot = summaryPlotColl->plots().front();
         }
     }
 
