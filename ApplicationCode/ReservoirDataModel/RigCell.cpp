@@ -47,13 +47,6 @@ RigCell::RigCell()
     , m_isInvalid( false )
 {
     memcpy( m_cornerIndices.data(), undefinedCornersArray, 8 * sizeof( size_t ) );
-
-    m_cellFaceFaults[0] = false;
-    m_cellFaceFaults[1] = false;
-    m_cellFaceFaults[2] = false;
-    m_cellFaceFaults[3] = false;
-    m_cellFaceFaults[4] = false;
-    m_cellFaceFaults[5] = false;
 }
 
 //--------------------------------------------------------------------------------------------------
