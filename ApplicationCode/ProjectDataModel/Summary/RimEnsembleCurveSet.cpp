@@ -116,7 +116,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     CAF_PDM_InitField( &m_colorMode, "ColorMode", caf::AppEnum<ColorMode>( ColorMode::SINGLE_COLOR ), "Coloring Mode", "", "", "" );
 
-    CAF_PDM_InitField( &m_color, "Color", RiaColorTools::systemPaletteTextColor3f(), "Color", "", "", "" );
+    CAF_PDM_InitField( &m_color, "Color", RiaColorTools::textColor3f(), "Color", "", "", "" );
 
     CAF_PDM_InitField( &m_ensembleParameter, "EnsembleParameter", QString( "" ), "Ensemble Parameter", "", "", "" );
     m_ensembleParameter.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );

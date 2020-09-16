@@ -47,7 +47,7 @@ RimEnsembleStatistics::RimEnsembleStatistics()
 
     CAF_PDM_InitField( &m_warningLabel, "WarningLabel", QString( "Warning: Ensemble time range mismatch" ), "", "", "", "" );
 
-    CAF_PDM_InitField( &m_color, "Color", RiaColorTools::systemPaletteTextColor3f(), "Color", "", "", "" );
+    CAF_PDM_InitField( &m_color, "Color", RiaColorTools::textColor3f(), "Color", "", "", "" );
 
     m_warningLabel.xmlCapability()->disableIO();
     m_warningLabel.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
