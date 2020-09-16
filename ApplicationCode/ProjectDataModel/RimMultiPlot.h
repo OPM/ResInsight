@@ -135,6 +135,7 @@ private:
     void updatePlotWindowTitle();
     void doRenderWindowContent( QPaintDevice* paintDevice ) override;
     void onPlotAdditionOrRemoval();
+    void onPlotsReordered( const caf::SignalEmitter* emitter );
 
 protected:
     caf::PdmField<bool>                             m_showPlotWindowTitle;
