@@ -98,7 +98,11 @@ void PdmObjectHandle::addReferencingPtrField( PdmFieldHandle* fieldReferringToMe
 //--------------------------------------------------------------------------------------------------
 void PdmObjectHandle::removeReferencingPtrField( PdmFieldHandle* fieldReferringToMe )
 {
-    if ( fieldReferringToMe != nullptr ) m_referencingPtrFields.erase( fieldReferringToMe );
+    if ( fieldReferringToMe != nullptr )
+    {
+        disconnectObserverFromAllSignals( fieldReferringToMe->ownerObject() );
+        m_referencingPtrFields.erase( fieldReferringToMe );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
