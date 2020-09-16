@@ -73,8 +73,6 @@ public:
     RimSummaryPlot();
     ~RimSummaryPlot() override;
 
-    bool    showPlotTitle() const;
-    void    setShowPlotTitle( bool showTitle );
     void    setDescription( const QString& description );
     QString description() const override;
 
@@ -251,7 +249,6 @@ private:
 private:
     caf::PdmField<bool> m_normalizeCurveYValues;
 
-    caf::PdmField<bool>    m_showPlotTitle;
     caf::PdmField<bool>    m_useAutoPlotTitle;
     caf::PdmField<QString> m_description;
 

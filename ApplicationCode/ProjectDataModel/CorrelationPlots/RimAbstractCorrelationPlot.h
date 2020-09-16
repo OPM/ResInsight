@@ -135,7 +135,6 @@ protected:
     caf::PdmField<TimeStepFilterEnum> m_timeStepFilter;
     caf::PdmField<QDateTime>          m_timeStep;
 
-    caf::PdmField<bool>    m_showPlotTitle;
     caf::PdmField<bool>    m_useAutoPlotTitle;
     caf::PdmField<QString> m_description;
 

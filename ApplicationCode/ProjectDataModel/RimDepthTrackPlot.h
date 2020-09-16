@@ -63,12 +63,11 @@ public:
     RimDepthTrackPlot();
     ~RimDepthTrackPlot() override;
 
+    RimDepthTrackPlot& operator=( RimDepthTrackPlot&& rhs );
+
     QWidget* viewWidget() override;
     QWidget* createPlotWidget( QWidget* mainWindowParent = nullptr );
     QString  description() const override;
-
-    bool isPlotTitleVisible() const;
-    void setPlotTitleVisible( bool visible );
 
     void addPlot( RimPlot* plot );
     void insertPlot( RimPlot* plot, size_t index );
@@ -161,7 +160,7 @@ protected:
     caf::PdmChildField<RimWellLogCurveCommonDataSource*> m_commonDataSource;
     bool                                                 m_commonDataSourceEnabled;
 
-    caf::PdmField<bool>                                    m_showPlotWindowTitle;
+    caf::PdmField<bool>                                    m_showPlotWindowTitle_OBSOLETE;
     caf::PdmField<QString>                                 m_plotWindowTitle;
     caf::PdmField<caf::AppEnum<DepthTypeEnum>>             m_depthType;
     caf::PdmField<caf::AppEnum<RiaDefines::DepthUnitType>> m_depthUnit;

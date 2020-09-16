@@ -146,13 +146,8 @@ RimSummaryPlot::RimSummaryPlot()
 {
     CAF_PDM_InitScriptableObject( "Summary Plot", ":/SummaryPlotLight16x16.png", "", "A Summary Plot" );
 
-    CAF_PDM_InitScriptableField( &m_showPlotTitle, "ShowPlotTitle", true, "Plot Title", "", "", "" );
-    m_showPlotTitle.xmlCapability()->setIOWritable( false );
-
     CAF_PDM_InitScriptableField( &m_useAutoPlotTitle, "IsUsingAutoName", true, "Auto Title", "", "", "" );
-
     CAF_PDM_InitScriptableField( &m_description, "PlotDescription", QString( "Summary Plot" ), "Name", "", "", "" );
-
     CAF_PDM_InitScriptableField( &m_normalizeCurveYValues, "normalizeCurveYValues", false, "Normalize all curves", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryCurveCollection, "SummaryCurveCollection", "", "", "", "" );
@@ -233,22 +228,6 @@ RimSummaryPlot::~RimSummaryPlot()
     m_curveFilters_OBSOLETE.deleteAllChildObjects();
     delete m_summaryCurveCollection;
     delete m_ensembleCurveSetCollection;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimSummaryPlot::showPlotTitle() const
-{
-    return m_showPlotTitle;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::setShowPlotTitle( bool showTitle )
-{
-    m_showPlotTitle = showTitle;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -609,7 +588,7 @@ void RimSummaryPlot::updatePlotTitle()
     {
         QString plotTitle = description();
         m_plotWidget->setPlotTitle( plotTitle );
-        m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && isMdiWindow() );
+        m_plotWidget->setPlotTitleEnabled( m_showPlotTitle );
         m_plotWidget->scheduleReplot();
     }
 }
@@ -677,7 +656,7 @@ void RimSummaryPlot::updateLegend()
 {
     if ( m_plotWidget )
     {
-        m_plotWidget->setLegendVisible( m_showPlotLegends && isMdiWindow() );
+        m_plotWidget->setLegendVisible( m_showPlotLegends );
     }
 
     reattachAllCurves();
@@ -1580,7 +1559,7 @@ void RimSummaryPlot::onLoadDataAndUpdate()
 
     if ( m_plotWidget )
     {
-        m_plotWidget->setLegendVisible( m_showPlotLegends && isMdiWindow() );
+        m_plotWidget->setLegendVisible( m_showPlotLegends );
         m_plotWidget->setLegendFontSize( legendFontSize() );
         m_plotWidget->updateLegend();
     }

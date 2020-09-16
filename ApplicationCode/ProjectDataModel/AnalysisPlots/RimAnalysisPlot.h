@@ -199,7 +199,6 @@ private:
 
     caf::PdmPtrField<RimSummaryCase*> m_referenceCase;
 
-    caf::PdmField<bool>    m_showPlotTitle;
     caf::PdmField<bool>    m_useAutoPlotTitle;
     caf::PdmField<QString> m_description;
 

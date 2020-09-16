@@ -76,38 +76,6 @@ RimWellLogPlot::~RimWellLogPlot()
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlot& RimWellLogPlot::operator=( RimWellLogPlot&& rhs )
 {
-    RimPlotWindow::operator=( std::move( rhs ) );
-
-    // Move all tracks
-    std::vector<RimPlot*> plots = rhs.m_plots.childObjects();
-    rhs.m_plots.clear();
-    for ( RimPlot* plot : plots )
-    {
-        m_plots.push_back( plot );
-    }
-
-    // Deliberately don't set m_plotWindowTitle. This operator is used for copying parameters from children.
-    // This only happens for some plots that used to own a plot but now inherits the plot.
-    // These all had their own description at top level which we don't want to overwrite.
-
-    m_showPlotWindowTitle = rhs.m_showPlotWindowTitle;
-
-    auto dataSource = rhs.m_commonDataSource();
-    rhs.m_commonDataSource.removeChildObject( dataSource );
-    m_commonDataSource = dataSource;
-
-    m_depthType               = rhs.m_depthType();
-    m_depthUnit               = rhs.m_depthUnit();
-    m_minVisibleDepth         = rhs.m_minVisibleDepth();
-    m_maxVisibleDepth         = rhs.m_maxVisibleDepth();
-    m_depthAxisGridVisibility = rhs.m_depthAxisGridVisibility();
-    m_isAutoScaleDepthEnabled = rhs.m_isAutoScaleDepthEnabled();
-
-    // Deliberately don't copy m_nameConfig. This operator is used for copying parameters from children.
-    // This only happens for some plots that used to own a plot but now inherits the plot.
-    // These all had their own description at top level which we don't want to overwrite.
-
-    m_minAvailableDepth = rhs.m_minAvailableDepth;
-    m_maxAvailableDepth = rhs.m_maxAvailableDepth;
+    RimDepthTrackPlot::operator=( std::move( rhs ) );
     return *this;
 }
