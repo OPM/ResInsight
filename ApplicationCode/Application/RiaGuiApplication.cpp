@@ -93,6 +93,7 @@
 #include "Riu3dSelectionManager.h"
 #include "RiuDockWidgetTools.h"
 #include "RiuFileDialogTools.h"
+#include "RiuGuiTheme.h"
 #include "RiuMainWindow.h"
 #include "RiuMainWindowTools.h"
 #include "RiuMdiMaximizeWindowGuard.h"
