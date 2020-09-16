@@ -18,6 +18,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaColorTools.h"
+#include "RiuGuiTheme.h"
 
 #include "cvfAssert.h"
 #include "cvfMath.h"
@@ -146,19 +147,17 @@ cvf::Color3f RiaColorTools::fromQColorTo3f( QColor color )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QColor RiaColorTools::systemPaletteTextColor()
+QColor RiaColorTools::textColor()
 {
-    QPalette systemPalette;
-
-    return systemPalette.color( QPalette::Text );
+    return RiuGuiTheme::getColorByVariableName( "textColor" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Color3f RiaColorTools::systemPaletteTextColor3f()
+cvf::Color3f RiaColorTools::textColor3f()
 {
-    return fromQColorTo3f( systemPaletteTextColor() );
+    return fromQColorTo3f( textColor() );
 }
 
 //--------------------------------------------------------------------------------------------------
