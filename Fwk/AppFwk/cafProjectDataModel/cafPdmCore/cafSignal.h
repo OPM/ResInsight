@@ -67,7 +67,7 @@ public:
     std::list<AbstractSignal*> emittedSignals() const;
 
 private:
-    std::list<AbstractSignal*> m_signals;
+    mutable std::list<AbstractSignal*> m_signals;
 };
 
 //==================================================================================================
