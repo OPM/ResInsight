@@ -18,13 +18,15 @@
 
 #include "RicThemeColorEditorFeature.h"
 
+#include "RiaDefines.h"
 #include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
-#include "RiuMainWindow.h"
 
 #include "RiuGuiTheme.h"
+#include "RiuMainWindow.h"
 #include "RiuQssSyntaxHighlighter.h"
 #include "RiuTextEditWithCompletion.h"
+
 #include "cafAppEnum.h"
 
 #include <QAction>
@@ -51,7 +53,7 @@ bool RicThemeColorEditorFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicThemeColorEditorFeature::onActionTriggered( bool isChecked )
 {
-    RiuGuiTheme::ThemeEnum theme = RiaGuiApplication::instance()->preferences()->guiTheme();
+    RiaDefines::ThemeEnum theme = RiaGuiApplication::instance()->preferences()->guiTheme();
 
     QDialog* dialog = new QDialog( RiuMainWindow::instance() );
     connect( dialog, &QDialog::close, [this, theme]() { RiuGuiTheme::updateGuiTheme( theme ); } );
@@ -62,12 +64,12 @@ void RicThemeColorEditorFeature::onActionTriggered( bool isChecked )
 
     layout->addWidget( new QLabel( "GUI theme" ), 0, 0 );
 
-    QComboBox*                           themeSelector = new QComboBox();
-    caf::AppEnum<RiuGuiTheme::ThemeEnum> themes;
+    QComboBox*                          themeSelector = new QComboBox();
+    caf::AppEnum<RiaDefines::ThemeEnum> themes;
     for ( size_t index = 0; index < themes.size(); index++ )
     {
         themeSelector->addItem( themes.uiTextFromIndex( index ), QVariant::fromValue( index ) );
-        if ( static_cast<RiuGuiTheme::ThemeEnum>( index ) == theme )
+        if ( static_cast<RiaDefines::ThemeEnum>( index ) == theme )
         {
             themeSelector->setCurrentIndex( static_cast<int>( index ) );
         }
@@ -104,7 +106,7 @@ void RicThemeColorEditorFeature::onActionTriggered( bool isChecked )
         QGridLayout*           innerLayout = new QGridLayout();
         int                    row         = 0;
         int                    column      = 0;
-        RiuGuiTheme::ThemeEnum theme = static_cast<RiuGuiTheme::ThemeEnum>( themeSelector->currentData().toInt() );
+        RiaDefines::ThemeEnum  theme       = static_cast<RiaDefines::ThemeEnum>( themeSelector->currentData().toInt() );
         QMap<QString, QString> variableValueMap   = RiuGuiTheme::getVariableValueMap( theme );
         QMap<QString, QString> variableGuiTextMap = RiuGuiTheme::getVariableGuiTextMap( theme );
         for ( const QString variableName : variableValueMap.keys() )
@@ -139,8 +141,8 @@ void RicThemeColorEditorFeature::onActionTriggered( bool isChecked )
     // connect( themeSelector, qOverload<int>( &QComboBox::currentIndexChanged ), [=]() {
     connect( themeSelector, static_cast<void ( QComboBox::* )( int )>( &QComboBox::currentIndexChanged ), [=]() {
         generateColorFields();
-        RiuGuiTheme::ThemeEnum theme = static_cast<RiuGuiTheme::ThemeEnum>( themeSelector->currentData().toInt() );
-        RiuGuiTheme::updateGuiTheme( static_cast<RiuGuiTheme::ThemeEnum>( theme ) );
+        RiaDefines::ThemeEnum theme = static_cast<RiaDefines::ThemeEnum>( themeSelector->currentData().toInt() );
+        RiuGuiTheme::updateGuiTheme( static_cast<RiaDefines::ThemeEnum>( theme ) );
         editor->setPlainText( RiuGuiTheme::loadStyleSheet( theme ) );
     } );
 
@@ -157,7 +159,7 @@ void RicThemeColorEditorFeature::onActionTriggered( bool isChecked )
     QPushButton* button = new QPushButton( "Apply style sheet changes" );
     layout->addWidget( button, 6, 1 );
     connect( button, &QPushButton::clicked, [this, themeSelector, editor, generateColorFields]() {
-        RiuGuiTheme::ThemeEnum theme = static_cast<RiuGuiTheme::ThemeEnum>( themeSelector->currentData().toInt() );
+        RiaDefines::ThemeEnum theme = static_cast<RiaDefines::ThemeEnum>( themeSelector->currentData().toInt() );
         RiuGuiTheme::writeStyleSheetToFile( theme, editor->toPlainText() );
         generateColorFields();
     } );

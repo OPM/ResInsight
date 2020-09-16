@@ -23,6 +23,7 @@
 
 #include "RiaColorTables.h"
 #include "RifReaderSettings.h"
+#include "RiuGuiTheme.h"
 
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmSettings.h"
@@ -992,7 +993,7 @@ bool RiaPreferences::openExportedPdfInViewer() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuGuiTheme::ThemeEnum RiaPreferences::guiTheme() const
+RiaDefines::ThemeEnum RiaPreferences::guiTheme() const
 {
     return m_guiTheme();
 }
