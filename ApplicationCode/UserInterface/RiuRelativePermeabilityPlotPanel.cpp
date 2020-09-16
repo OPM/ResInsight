@@ -393,12 +393,11 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaEclipseUnitTools::Uni
                 break;
         }
 
-        const QPen curvePen( Qt::black, 1, penStyle );
+        const QPen curvePen( QBrush(), 1, penStyle );
         qwtCurve->setPen( curvePen );
 
         QwtSymbol* curveSymbol = new QwtSymbol( QwtSymbol::Ellipse );
         curveSymbol->setSize( 6, 6 );
-        curveSymbol->setPen( Qt::black );
         curveSymbol->setBrush( Qt::NoBrush );
         qwtCurve->setSymbol( curveSymbol );
 
