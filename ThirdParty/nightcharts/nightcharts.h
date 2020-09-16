@@ -63,6 +63,7 @@ public:
     int draw(QPainter *painter);
     void drawLegend(QPainter *painter);
     int pieceCount() const;
+    void setTextColor(const QColor& color);
     double palpha;
 
 private:
@@ -72,6 +73,7 @@ private:
     QVector<pieceNC> pieces;
     int ctype, cltype;
     QFont font;
+    QColor textColor;
     //QPainter *cpainter;
     QPointF GetPoint(double angle, double R1 = 0, double R2 = 0);
     int GetQuater(double angle);
