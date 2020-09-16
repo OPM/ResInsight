@@ -25,7 +25,6 @@
 #include "RiaFontCache.h"
 #include "RiaGuiApplication.h"
 #include "RiaQDateTimeTools.h"
-#include "RiuGuiTheme.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
@@ -113,7 +112,7 @@ public:
     bool        showProgressBar() const;
     bool        openExportedPdfInViewer() const;
 
-    RiuGuiTheme::ThemeEnum guiTheme() const;
+    RiaDefines::ThemeEnum guiTheme() const;
 
     std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> defaultFontSizes() const;
 
@@ -215,7 +214,7 @@ private:
     caf::PdmField<bool>    m_showProgressBar;
     caf::PdmField<QString> m_gtestFilter;
 
-    caf::PdmField<caf::AppEnum<RiuGuiTheme::ThemeEnum>> m_guiTheme;
+    caf::PdmField<caf::AppEnum<RiaDefines::ThemeEnum>> m_guiTheme;
 
     caf::PdmField<PageSizeEnum>        m_pageSize;
     caf::PdmField<PageOrientationEnum> m_pageOrientation;

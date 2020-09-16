@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaPreferences.h"
+
 #include <functional>
 
 #include <QMap>
@@ -34,27 +36,21 @@ class QwtSymbol;
 class QwtPlotMarker;
 class QwtPlotCurve;
 class QwtPicker;
+class QwtText;
 
 typedef std::function<void( QRegularExpressionMatch& )> CustomStyleSheetApplicator;
 
 class RiuGuiTheme
 {
 public:
-    enum class ThemeEnum
-    {
-        DEFAULT,
-        DARK,
-        LIGHT
-    };
-
-    static void updateGuiTheme( ThemeEnum theme );
-    static bool applyStyleSheet( ThemeEnum theme );
-    static void changeVariableValue( RiuGuiTheme::ThemeEnum theme, const QString& variableName, const QString& newValue );
-    static QMap<QString, QString> getVariableValueMap( RiuGuiTheme::ThemeEnum theme );
-    static QMap<QString, QString> getVariableGuiTextMap( RiuGuiTheme::ThemeEnum theme );
-    static QString                applyVariableValueMapToStyleSheet( RiuGuiTheme::ThemeEnum theme );
-    static bool                   writeStyleSheetToFile( RiuGuiTheme::ThemeEnum theme, const QString& styleSheet );
-    static QString                loadStyleSheet( RiuGuiTheme::ThemeEnum theme );
+    static void updateGuiTheme( RiaDefines::ThemeEnum theme );
+    static bool applyStyleSheet( RiaDefines::ThemeEnum theme );
+    static void changeVariableValue( RiaDefines::ThemeEnum theme, const QString& variableName, const QString& newValue );
+    static QMap<QString, QString> getVariableValueMap( RiaDefines::ThemeEnum theme );
+    static QMap<QString, QString> getVariableGuiTextMap( RiaDefines::ThemeEnum theme );
+    static QString                applyVariableValueMapToStyleSheet( RiaDefines::ThemeEnum theme );
+    static bool                   writeStyleSheetToFile( RiaDefines::ThemeEnum theme, const QString& styleSheet );
+    static QString                loadStyleSheet( RiaDefines::ThemeEnum theme );
     static QAbstractItemModel*    getQssCompletionModel( QCompleter* completer );
     static QColor                 getColorByVariableName( const QString& variable, int theme = -1 );
     static QString
@@ -63,8 +59,8 @@ public:
     static void styleQwtItem( QwtPicker* item );
 
 private:
-    static void         preparseStyleSheet( RiuGuiTheme::ThemeEnum theme, QString& styleSheet );
-    static QString      getStyleSheetPath( RiuGuiTheme::ThemeEnum theme );
+    static void         preparseStyleSheet( RiaDefines::ThemeEnum theme, QString& styleSheet );
+    static QString      getStyleSheetPath( RiaDefines::ThemeEnum theme );
     static void         storeQwtStyleSheetProperty( const QString& plotName,
                                                     const QString& itemType,
                                                     const QString& itemName,
@@ -75,8 +71,8 @@ private:
     static QwtSymbol*   cloneCurveSymbol( QwtPlotCurve* curve );
 
 private:
-    static QMap<RiuGuiTheme::ThemeEnum, QMap<QString, QString>>                s_variableValueMap;
-    static QMap<RiuGuiTheme::ThemeEnum, QMap<QString, QString>>                s_variableGuiTextMap;
+    static QMap<RiaDefines::ThemeEnum, QMap<QString, QString>>                 s_variableValueMap;
+    static QMap<RiaDefines::ThemeEnum, QMap<QString, QString>>                 s_variableGuiTextMap;
     static QMap<QString, QMap<QString, QMap<QString, QMap<QString, QString>>>> s_qwtPlotItemPropertiesMap;
     static QMap<QString, CustomStyleSheetApplicator>                           s_customStyleSheetApplicators;
 };
