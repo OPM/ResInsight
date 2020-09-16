@@ -214,7 +214,10 @@ void RiuGridCrossQwtPlot::onPlotItemSelected( QwtPlotItem* plotItem, bool toggle
                 QwtText curveLabel( labelString, QwtText::RichText );
                 curveLabel.setBackgroundBrush( QBrush( QColor( 250, 250, 250, 220 ) ) );
                 curveLabel.setPaintAttribute( QwtText::PaintBackground );
-                curveLabel.setBorderPen( QPen( Qt::black, 1.0 ) );
+
+                auto color = RiuGuiTheme::getColorByVariableName( "markerColor" );
+                curveLabel.setBorderPen( QPen( color, 1.0 ) );
+
                 curveLabel.setBorderRadius( 2.0 );
                 m_selectedPointMarker->setLabel( curveLabel );
             }
