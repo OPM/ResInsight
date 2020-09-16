@@ -296,12 +296,8 @@ void RimCorrelationPlot::updatePlotTitle()
                             .arg( timeStepString() );
     }
     m_plotWidget->setPlotTitle( m_description );
-    m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && isMdiWindow() );
-
-    if ( isMdiWindow() )
-    {
-        m_plotWidget->setPlotTitleFontSize( titleFontSize() );
-    }
+    m_plotWidget->setPlotTitleEnabled( m_showPlotTitle );
+    m_plotWidget->setPlotTitleFontSize( titleFontSize() );
 }
 
 //--------------------------------------------------------------------------------------------------

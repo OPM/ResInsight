@@ -900,7 +900,7 @@ void RicSummaryPlotEditorUi::selectionEditorFieldChanged()
 void RicSummaryPlotEditorUi::proxyEnablePlotAutoTitle( const bool& enable )
 {
     m_previewPlot->enableAutoPlotTitle( enable );
-    m_previewPlot->setShowPlotTitle( enable );
+    m_previewPlot->setPlotTitleVisible( enable );
     m_previewPlot->updateCurveNames();
     m_previewPlot->loadDataAndUpdate();
 }

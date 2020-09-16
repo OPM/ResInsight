@@ -161,6 +161,5 @@ private:
     std::map<QDateTime, RiuQwtSymbol::PointSymbolEnum> m_timeStepSymbols;
     bool                                               m_isOnLoad;
 
-    caf::PdmField<bool>                 m_showPlotTitle_OBSOLETE;
     caf::PdmChildField<RimWellLogPlot*> m_wellLogPlot_OBSOLETE;
 };

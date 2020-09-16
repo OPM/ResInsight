@@ -114,10 +114,6 @@ RimAnalysisPlot::RimAnalysisPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_referenceCase, "ReferenceCase", "Reference Case", "", "", "" );
 
-    CAF_PDM_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Title", "", "", "" );
-    m_showPlotTitle.xmlCapability()->setIOWritable( false );
-    m_showPlotTitle.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-
     CAF_PDM_InitField( &m_useAutoPlotTitle, "IsUsingAutoName", true, "Auto", "", "", "" );
     m_useAutoPlotTitle.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
@@ -1650,7 +1646,7 @@ void RimAnalysisPlot::updatePlotTitle()
     {
         QString plotTitle = description();
         m_plotWidget->setPlotTitle( plotTitle );
-        m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && isMdiWindow() );
+        m_plotWidget->setPlotTitleEnabled( m_showPlotTitle );
         m_plotWidget->scheduleReplot();
     }
 }
