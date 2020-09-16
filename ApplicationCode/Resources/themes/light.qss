@@ -15,8 +15,8 @@ $borderColor: #cccccc; // Main border color
 $curveColorGas: #a91210; // Curve color for gas plot
 $curveColorOil: #7ba700; // Curve color for oil plot
 $curveColorWater: #3e7aa7; // Curve color for water plot
-$markerColor: #e6e7ea; // Marker color
-$lineMarkerColor: #eeeeee; // Color of line marker
+$markerColor: #141719; // Marker color
+$lineMarkerColor: #018fa3; // Color of line marker
 $plotGridColor: #394046; // Plot grid color
 $auxiliaryCurveColor: #000000; // Auxiliary curve color
 
