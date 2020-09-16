@@ -189,6 +189,18 @@ void RiuMultiPlotBook::removePlot( RiuQwtPlotWidget* plotWidget )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::removeAllPlots()
+{
+    auto plotWidgets = m_plotWidgets;
+    for ( RiuQwtPlotWidget* plotWidget : plotWidgets )
+    {
+        removePlot( plotWidget );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMultiPlotBook::setPlotTitle( const QString& plotTitle )
 {
     m_plotTitle = plotTitle;

@@ -28,6 +28,7 @@
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 
+#include "cafPdmFieldReorderCapability.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
 
@@ -74,6 +75,8 @@ RimMultiPlot::RimMultiPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_plots, "Plots", "", "", "", "" );
     m_plots.uiCapability()->setUiHidden( true );
+    auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_plots );
+    reorderability->orderChanged.connect( this, &RimMultiPlot::onPlotsReordered );
 
     CAF_PDM_InitFieldNoDefault( &m_columnCount, "NumberOfColumns", "Number of Columns", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_rowsPerPage, "RowsPerPage", "Rows per Page", "", "", "" );
@@ -203,6 +206,8 @@ void RimMultiPlot::insertPlot( RimPlot* plot, size_t index )
             m_viewer->insertPlot( plot->viewer(), index );
         }
         plot->setShowWindow( true );
+        plot->setLegendsVisible( false );
+        plot->setPlotTitleVisible( false );
         plot->updateAfterInsertingIntoMultiPlot();
 
         onPlotAdditionOrRemoval();
@@ -487,6 +492,16 @@ void RimMultiPlot::onPlotAdditionOrRemoval()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimMultiPlot::onPlotsReordered( const caf::SignalEmitter* emitter )
+{
+    updateSubPlotNames();
+    recreatePlotWidgets();
+    loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimMultiPlot::previewModeEnabled() const
 {
     if ( m_viewer )
@@ -704,6 +719,7 @@ void RimMultiPlot::onLoadDataAndUpdate()
     applyPlotWindowTitleToWidgets();
     updatePlots();
     updateLayout();
+    RiuPlotMainWindowTools::refreshToolbars();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -759,6 +775,8 @@ void RimMultiPlot::updateZoom()
 void RimMultiPlot::recreatePlotWidgets()
 {
     CVF_ASSERT( m_viewer );
+
+    m_viewer->removeAllPlots();
 
     auto plotVector = plots();
 

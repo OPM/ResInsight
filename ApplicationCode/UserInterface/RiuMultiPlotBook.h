@@ -67,6 +67,7 @@ public:
     void addPlot( RiuQwtPlotWidget* plotWidget );
     void insertPlot( RiuQwtPlotWidget* plotWidget, size_t index );
     void removePlot( RiuQwtPlotWidget* plotWidget );
+    void removeAllPlots();
 
     void setPlotTitle( const QString& plotTitle );
 
