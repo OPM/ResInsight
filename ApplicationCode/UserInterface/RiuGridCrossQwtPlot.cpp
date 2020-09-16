@@ -63,9 +63,7 @@ RiuGridCrossQwtPlot::RiuGridCrossQwtPlot( RimGridCrossPlot* plot, QWidget* paren
 {
     // LeftButton for the zooming
     m_zoomerLeft = new RiuQwtPlotZoomer( canvas() );
-    m_zoomerLeft->setRubberBandPen( QColor( Qt::black ) );
     m_zoomerLeft->setTrackerMode( QwtPicker::AlwaysOff );
-    m_zoomerLeft->setTrackerPen( QColor( Qt::black ) );
     m_zoomerLeft->initMousePattern( 1 );
 
     // Attach a zoomer for the right axis

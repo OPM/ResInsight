@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RiuGuiTheme.h"
+
 #include "qwt_plot_zoomer.h"
 
 #include <QMouseEvent>
@@ -27,6 +29,10 @@ public:
     RiuQwtPlotZoomer( QWidget* canvas, bool doReplot = true )
         : QwtPlotZoomer( canvas, doReplot )
     {
+        auto color = RiuGuiTheme::getColorByVariableName( "markerColor" );
+
+        setRubberBandPen( color );
+        setTrackerPen( color );
     }
 
     bool isActiveAndValid() const
