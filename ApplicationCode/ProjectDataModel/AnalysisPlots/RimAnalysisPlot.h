@@ -135,7 +135,6 @@ private:
     void detachAllCurves() override;
 
     void reattachAllCurves() override {}
-    void doRemoveFromCollection() override {}
     void updateAxes() override;
     void onAxisSelected( int axis, bool toggle ) override;
     void updateZoomInQwt() override {}
@@ -176,7 +175,7 @@ private:
     void buildTestPlot( RiuGroupedBarChartBuilder& chartBuilder );
 
     int  barTextFontSize() const;
-    void initAfterRead();
+    void initAfterRead() override;
 
 private:
     void onCaseRemoved( const SignalEmitter* emitter, RimSummaryCase* summaryCase );

@@ -101,7 +101,6 @@ protected:
     void updateFonts() override;
 
 private:
-    virtual void              doRemoveFromCollection() = 0;
     virtual void              doRenderWindowContent( QPaintDevice* paintDevice ) override;
     virtual void              handleKeyPressEvent( QKeyEvent* event ) {}
     virtual void              handleWheelEvent( QWheelEvent* event ) {}

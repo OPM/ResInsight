@@ -98,7 +98,6 @@ protected:
     RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
 
     void reattachAllCurves() override {}
-    void doRemoveFromCollection() override {}
     void updateZoomInQwt() override {}
     void updateZoomFromQwt() override {}
     void setAutoScaleXEnabled( bool enabled ) override {}

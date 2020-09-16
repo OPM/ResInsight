@@ -521,19 +521,6 @@ int RimWellLogTrack::axisFontSize() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::doRemoveFromCollection()
-{
-    RimDepthTrackPlot* wellLogPlot = nullptr;
-    this->firstAncestorOrThisOfType( wellLogPlot );
-    if ( wellLogPlot )
-    {
-        wellLogPlot->removePlot( this );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                         const QVariant&            oldValue,
                                         const QVariant&            newValue )

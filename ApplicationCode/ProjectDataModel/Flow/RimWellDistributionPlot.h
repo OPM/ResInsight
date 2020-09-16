@@ -71,9 +71,6 @@ public:
     void     zoomAll() override;
 
 private:
-    // RimPlot implementations
-    void doRemoveFromCollection() override;
-
     // RimViewWindow implementations
     void deleteViewWidget() override;
     void onLoadDataAndUpdate() override;

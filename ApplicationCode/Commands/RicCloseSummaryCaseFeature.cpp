@@ -59,7 +59,7 @@ void RicCloseSummaryCaseFeature::deleteSummaryCases( std::vector<RimSummaryCase*
 
     for ( RimSummaryCase* summaryCase : cases )
     {
-        for ( RimSummaryPlot* summaryPlot : summaryPlotColl->summaryPlots )
+        for ( RimSummaryPlot* summaryPlot : summaryPlotColl->plots() )
         {
             summaryPlot->deleteCurvesAssosiatedWithCase( summaryCase );
         }

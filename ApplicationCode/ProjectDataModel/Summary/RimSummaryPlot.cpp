@@ -1738,20 +1738,6 @@ void RimSummaryPlot::axisLogarithmicChanged( const caf::SignalEmitter* emitter, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::doRemoveFromCollection()
-{
-    RimSummaryPlotCollection* summaryCollection = nullptr;
-    this->firstAncestorOrThisOfType( summaryCollection );
-    if ( summaryCollection )
-    {
-        summaryCollection->removeSummaryPlot( this );
-        summaryCollection->updateAllRequiredEditors();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::deleteAllGridTimeHistoryCurves()
 {
     m_gridTimeHistoryCurves.deleteAllChildObjects();

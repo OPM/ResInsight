@@ -150,7 +150,8 @@ public:
 
     void send( Args... args ) const
     {
-        for ( auto observerCallbackPair : m_observerCallbacks )
+        auto observerCallBacksCopy = m_observerCallbacks;
+        for ( auto observerCallbackPair : observerCallBacksCopy )
         {
             if ( observerCallbackPair.second.second )
             {

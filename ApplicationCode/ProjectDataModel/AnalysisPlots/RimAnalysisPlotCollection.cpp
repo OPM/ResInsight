@@ -53,7 +53,7 @@ RimAnalysisPlot* RimAnalysisPlotCollection::createAnalysisPlot()
     applyFirstEnsembleFieldAddressesToPlot( plot, "FOPT" );
 
     // plot->enableAutoPlotTitle( true );
-    m_analysisPlots.push_back( plot );
+    addPlot( plot );
 
     plot->loadDataAndUpdate();
 
@@ -79,7 +79,7 @@ RimAnalysisPlot* RimAnalysisPlotCollection::createAnalysisPlot( RimSummaryCaseCo
     applyEnsembleFieldAndTimeStepToPlot( plot, ensemble, quantityName.toStdString(), timeStep );
 
     // plot->enableAutoPlotTitle( true );
-    m_analysisPlots.push_back( plot );
+    addPlot( plot );
 
     plot->loadDataAndUpdate();
 
@@ -106,15 +106,7 @@ void RimAnalysisPlotCollection::updateSummaryNameHasChanged()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnalysisPlotCollection::removeSummaryPlot( RimAnalysisPlot* analysisPlot )
-{
-    m_analysisPlots.removeChildObject( analysisPlot );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimAnalysisPlot*> RimAnalysisPlotCollection::plots()
+std::vector<RimAnalysisPlot*> RimAnalysisPlotCollection::plots() const
 {
     return m_analysisPlots.childObjects();
 }
@@ -122,9 +114,9 @@ std::vector<RimAnalysisPlot*> RimAnalysisPlotCollection::plots()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnalysisPlotCollection::deleteAllChildObjects()
+size_t RimAnalysisPlotCollection::plotCount() const
 {
-    m_analysisPlots.deleteAllChildObjects();
+    return m_analysisPlots.size();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -156,6 +148,9 @@ void RimAnalysisPlotCollection::applyFirstEnsembleFieldAddressesToPlot( RimAnaly
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimAnalysisPlotCollection::applyEnsembleFieldAndTimeStepToPlot( RimAnalysisPlot*          plot,
                                                                      RimSummaryCaseCollection* ensemble,
                                                                      const std::string&        quantityName,
@@ -181,4 +176,20 @@ void RimAnalysisPlotCollection::applyEnsembleFieldAndTimeStepToPlot( RimAnalysis
         plot->setCurveDefinitions( curveDefs );
         plot->setTimeSteps( {timeStep} );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnalysisPlotCollection::insertPlot( RimAnalysisPlot* analysisPlot, size_t index )
+{
+    m_analysisPlots.insert( index, analysisPlot );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnalysisPlotCollection::removePlot( RimAnalysisPlot* analysisPlot )
+{
+    m_analysisPlots.removeChildObject( analysisPlot );
 }
