@@ -436,6 +436,9 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>>
                     if ( lineStream.good() ) values.push_back( d );
                 }
 
+                // Z should be given in negative values, switch sign if positive
+                if ( z > 0.0 ) z = -z;
+
                 // Add point
                 surfacePoints.push_back( {x, y, z} );
 
