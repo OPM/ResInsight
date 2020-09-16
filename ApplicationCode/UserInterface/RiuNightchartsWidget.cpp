@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiuNightchartsWidget.h"
+#include "RiuGuiTheme.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -88,6 +89,9 @@ void RiuNightchartsWidget::clear()
     m_chart.setType( Nightcharts::Pie );
     m_chart.setLegendType( Nightcharts::Vertical );
     m_chart.setShadows( false );
+
+    auto col = RiuGuiTheme::getColorByVariableName( "textColor" );
+    m_chart.setTextColor( col );
 
     m_marginLeft   = 10;
     m_marginTop    = 10;

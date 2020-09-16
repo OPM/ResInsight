@@ -45,6 +45,8 @@ Nightcharts::Nightcharts()//QPainter *painter)
     // Was originally uninitialized, and caused overflow issues and invalid drawing when running debug
     // Suggest rewrite and use locally defined aggregatedAngle (see below for usage)
     palpha = 0.0;
+
+    textColor = QPalette().color(QPalette::Text);
 }
 
 Nightcharts::~Nightcharts()
@@ -350,9 +352,6 @@ void Nightcharts::drawLegend(QPainter *painter)
     //double ptext = 25;
     double angle = palpha;
     painter->setPen(Qt::SolidLine);
-
-    QPalette palette;
-    QColor textColor = palette.color(QPalette::Text);
     painter->setPen(textColor);
 
     switch(cltype)
@@ -464,4 +463,12 @@ void pieceNC::setPerc(float Percentage)
 int Nightcharts::pieceCount() const
 {
     return pieces.count();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Nightcharts::setTextColor(const QColor& color)
+{
+    textColor = color;
 }
