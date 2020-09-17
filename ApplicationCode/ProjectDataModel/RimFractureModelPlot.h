@@ -49,6 +49,7 @@ public:
     std::vector<double> calculateHorizontalPermeability() const;
     std::vector<double> calculateReservoirPressure() const;
     std::vector<double> calculateStress() const;
+    std::vector<double> calculateInitialStress() const;
     std::vector<double> calculateStressGradient() const;
     std::vector<double> calculateYoungsModulus() const;
     std::vector<double> calculatePoissonsRatio() const;
@@ -73,7 +74,9 @@ protected:
     void                       calculateLayers( std::vector<std::pair<double, double>>& layerBoundaryDepths,
                                                 std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes ) const;
     RimWellLogExtractionCurve* findCurveByProperty( RiaDefines::CurveProperty curveProperty ) const;
-    bool calculateStressWithGradients( std::vector<double>& stress, std::vector<double>& stressGradients ) const;
+    bool                       calculateStressWithGradients( std::vector<double>& stress,
+                                                             std::vector<double>& stressGradients,
+                                                             std::vector<double>& initialStress ) const;
 
     static double findValueAtTopOfLayer( const std::vector<double>&                    values,
                                          const std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes,
