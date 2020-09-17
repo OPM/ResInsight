@@ -34,26 +34,6 @@ class RimFractureModelPlot : public RimDepthTrackPlot
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum class PropertyType
-    {
-        FACIES,
-        LAYERS,
-        POROSITY,
-        PERMEABILITY_X,
-        PERMEABILITY_Z,
-        INITIAL_PRESSURE,
-        PRESSURE,
-        STRESS,
-        STRESS_GRADIENT,
-        YOUNGS_MODULUS,
-        POISSONS_RATIO,
-        K_IC,
-        PROPPANT_EMBEDMENT,
-        BIOT_COEFFICIENT,
-        K0,
-        FLUID_LOSS_COEFFICIENT,
-    };
-
     RimFractureModelPlot();
 
     void              setFractureModel( RimFractureModel* fractureModel );
