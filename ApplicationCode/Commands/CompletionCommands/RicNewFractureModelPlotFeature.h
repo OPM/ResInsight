@@ -72,11 +72,12 @@ private:
                                               int                       timeStep,
                                               RiaDefines::CurveProperty propertyType );
 
-    static void createStressTrack( RimFractureModelPlot*     plot,
-                                   RimFractureModel*         fractureModel,
-                                   RimEclipseCase*           eclipseCase,
-                                   int                       timeStep,
-                                   RiaDefines::CurveProperty propertyType );
+    static void createStressTrack( RimFractureModelPlot*                         plot,
+                                   RimFractureModel*                             fractureModel,
+                                   RimEclipseCase*                               eclipseCase,
+                                   int                                           timeStep,
+                                   const QString&                                trackName,
+                                   const std::vector<RiaDefines::CurveProperty>& propertyTypes );
 
     static RimFractureModelPlot* createFractureModelPlot( bool showAfterCreation, const QString& plotDescription );
 
