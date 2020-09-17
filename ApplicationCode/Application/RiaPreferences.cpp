@@ -226,6 +226,12 @@ RiaPreferences::RiaPreferences( void )
     CAF_PDM_InitField( &m_enableFaultsByDefault, "enableFaultsByDefault", true, "Enable Faults By Default", "", "", "" );
     m_enableFaultsByDefault.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
+    CAF_PDM_InitField( &m_showInfoBox, "showInfoBox", true, "Show Info Box in New Projects", "", "", "" );
+    m_showInfoBox.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    CAF_PDM_InitField( &m_showGridBox, "showGridBox", true, "Show Grid Box in New Projects", "", "", "" );
+    m_showInfoBox.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
     CAF_PDM_InitFieldNoDefault( &lastUsedProjectFileName, "lastUsedProjectFileName", "Last Used Project File", "", "", "" );
     lastUsedProjectFileName.uiCapability()->setUiHidden( true );
 
@@ -425,7 +431,8 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
          field == &m_showProjectChangedDialog || field == &m_searchPlotTemplateFoldersRecursively ||
          field == &m_showLegendBackground || field == &m_showSummaryTimeAsLongString ||
          field == &m_showViewIdInProjectTree || field == &m_useMultipleThreadsWhenLoadingSummaryData ||
-         field == &m_enableFaultsByDefault || field == &m_showProgressBar || field == &m_openExportedPdfInViewer )
+         field == &m_enableFaultsByDefault || field == &m_showProgressBar || field == &m_openExportedPdfInViewer ||
+         field == &m_showInfoBox || field == &m_showGridBox )
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
         if ( myAttr )
@@ -472,8 +479,11 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         viewsGroup->add( &m_defaultMeshModeType );
         viewsGroup->add( &m_navigationPolicy );
         viewsGroup->add( &m_defaultScaleFactorZ );
+
         viewsGroup->add( &m_showLegendBackground );
-        viewsGroup->add( &m_enableFaultsByDefault );
+        viewsGroup->add( &m_enableFaultsByDefault, {false, 1} );
+        viewsGroup->add( &m_showInfoBox );
+        viewsGroup->add( &m_showGridBox, {false, 1} );
 
         caf::PdmUiGroup* otherGroup = uiOrdering.addNewGroup( "Other" );
         otherGroup->add( &ssihubAddress );
@@ -1059,6 +1069,22 @@ int RiaPreferences::defaultScaleFactorZ() const
 bool RiaPreferences::showLegendBackground() const
 {
     return m_showLegendBackground();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::showInfoBox() const
+{
+    return m_showInfoBox();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::showGridBox() const
+{
+    return m_showGridBox();
 }
 
 //--------------------------------------------------------------------------------------------------
