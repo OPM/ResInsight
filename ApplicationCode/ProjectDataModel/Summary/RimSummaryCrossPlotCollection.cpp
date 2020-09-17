@@ -108,6 +108,7 @@ void RimSummaryCrossPlotCollection::insertPlot( RimSummaryPlot* plot, size_t ind
 void RimSummaryCrossPlotCollection::removePlot( RimSummaryPlot* plot )
 {
     m_summaryCrossPlots.removeChildObject( plot );
+    updateAllRequiredEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

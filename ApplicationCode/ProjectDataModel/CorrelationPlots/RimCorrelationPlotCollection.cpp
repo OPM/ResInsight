@@ -192,6 +192,7 @@ void RimCorrelationPlotCollection::insertPlot( RimAbstractCorrelationPlot* plot,
 void RimCorrelationPlotCollection::removePlot( RimAbstractCorrelationPlot* plot )
 {
     m_correlationPlots.removeChildObject( plot );
+    updateAllRequiredEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

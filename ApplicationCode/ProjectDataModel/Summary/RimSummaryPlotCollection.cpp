@@ -145,4 +145,5 @@ void RimSummaryPlotCollection::insertPlot( RimSummaryPlot* summaryPlot, size_t i
 void RimSummaryPlotCollection::removePlot( RimSummaryPlot* summaryPlot )
 {
     m_summaryPlots.removeChildObject( summaryPlot );
+    updateAllRequiredEditors();
 }

@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "RimAbstractPlotCollection.h"
 #include "RimPlotAxisPropertiesInterface.h"
 #include "RimPlotWindow.h"
 
@@ -37,7 +38,7 @@
 
 class RimPlot;
 
-class RimMultiPlot : public RimPlotWindow
+class RimMultiPlot : public RimPlotWindow, public RimTypedPlotCollection<RimPlot>
 {
     CAF_PDM_HEADER_INIT;
 
@@ -69,16 +70,15 @@ public:
     QString multiPlotTitle() const;
     void    setMultiPlotTitle( const QString& title );
 
-    void addPlot( RimPlot* plot );
-    void insertPlot( RimPlot* plot, size_t index );
-    void removePlot( RimPlot* plot );
+    void insertPlot( RimPlot* plot, size_t index ) override;
+    void removePlot( RimPlot* plot ) override;
     void movePlotsToThis( const std::vector<RimPlot*>& plots, int insertAtPosition );
 
-    size_t   plotCount() const;
+    size_t   plotCount() const override;
     size_t   plotIndex( const RimPlot* plot ) const;
     RimPlot* plotByIndex( size_t index ) const;
 
-    std::vector<RimPlot*> plots() const;
+    std::vector<RimPlot*> plots() const override;
     std::vector<RimPlot*> visiblePlots() const;
 
     void updatePlotOrderFromGridWidget();
@@ -136,6 +136,8 @@ private:
     void doRenderWindowContent( QPaintDevice* paintDevice ) override;
     void onPlotAdditionOrRemoval();
     void onPlotsReordered( const caf::SignalEmitter* emitter );
+    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
 protected:
     caf::PdmField<bool>                             m_showPlotWindowTitle;

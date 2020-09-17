@@ -166,10 +166,13 @@ void RimParameterResultCrossPlot::onLoadDataAndUpdate()
     if ( m_plotWidget && m_analyserOfSelectedCurveDefs )
     {
         createPoints();
-        QwtLegend* legend = new QwtLegend( m_plotWidget );
-        m_plotWidget->insertLegend( legend, QwtPlot::RightLegend );
-        m_plotWidget->setLegendFontSize( legendFontSize() );
-        m_plotWidget->updateLegend();
+        if ( m_showPlotLegends && !isSubPlot() )
+        {
+            QwtLegend* legend = new QwtLegend( m_plotWidget );
+            m_plotWidget->insertLegend( legend, QwtPlot::RightLegend );
+            m_plotWidget->setLegendFontSize( legendFontSize() );
+            m_plotWidget->updateLegend();
+        }
 
         this->updateAxes();
         this->updatePlotTitle();
@@ -307,6 +310,6 @@ void RimParameterResultCrossPlot::updatePlotTitle()
                             .arg( timeStepString() );
     }
     m_plotWidget->setPlotTitle( m_description );
-    m_plotWidget->setPlotTitleEnabled( m_showPlotTitle );
+    m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && !isSubPlot() );
     m_plotWidget->setPlotTitleFontSize( titleFontSize() );
 }
