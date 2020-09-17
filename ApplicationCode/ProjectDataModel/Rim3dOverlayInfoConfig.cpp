@@ -20,6 +20,7 @@
 
 #include "Rim3dOverlayInfoConfig.h"
 
+#include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
 
 #include "RicGridStatisticsDialog.h"
@@ -105,6 +106,7 @@ Rim3dOverlayInfoConfig::Rim3dOverlayInfoConfig()
 
     CAF_PDM_InitField( &m_active, "Active", true, "Active", "", "", "" );
     m_active.uiCapability()->setUiHidden( true );
+    m_active = RiaPreferences::current()->showInfoBox();
 
     CAF_PDM_InitField( &m_showAnimProgress, "ShowAnimProgress", true, "Animation progress", "", "", "" );
     CAF_PDM_InitField( &m_showCaseInfo, "ShowInfoText", true, "Case Info", "", "", "" );

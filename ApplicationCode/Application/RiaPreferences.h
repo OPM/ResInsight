@@ -125,6 +125,8 @@ public:
     RiaGuiApplication::RINavigationPolicy navigationPolicy() const;
     int                                   defaultScaleFactorZ() const;
     bool                                  showLegendBackground() const;
+    bool                                  showInfoBox() const;
+    bool                                  showGridBox() const;
 
 public: // Pdm Fields
     caf::PdmField<bool> enableGrpcServer;
@@ -231,6 +233,8 @@ private:
     caf::PdmField<int>                                                 m_defaultScaleFactorZ;
     caf::PdmField<bool>                                                m_showLegendBackground;
     caf::PdmField<bool>                                                m_enableFaultsByDefault;
+    caf::PdmField<bool>                                                m_showInfoBox;
+    caf::PdmField<bool>                                                m_showGridBox;
 
     QStringList m_tabNames;
 };
