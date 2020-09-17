@@ -634,7 +634,7 @@ void RimGridCrossPlot::updateCurveNamesAndPlotTitle()
     {
         QString plotTitle = this->createAutoName();
         m_plotWidget->setPlotTitle( plotTitle );
-        m_plotWidget->setPlotTitleEnabled( m_showPlotTitle );
+        m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && !isSubPlot() );
     }
     updateMdiWindowTitle();
 }

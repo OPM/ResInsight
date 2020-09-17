@@ -89,6 +89,7 @@ RimCorrelationPlot::RimCorrelationPlot()
     m_selectedParametersList.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_selectedParametersList.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
+    setLegendsVisible( false );
     setDeletable( true );
 }
 
@@ -296,7 +297,7 @@ void RimCorrelationPlot::updatePlotTitle()
                             .arg( timeStepString() );
     }
     m_plotWidget->setPlotTitle( m_description );
-    m_plotWidget->setPlotTitleEnabled( m_showPlotTitle );
+    m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && !isSubPlot() );
     m_plotWidget->setPlotTitleFontSize( titleFontSize() );
 }
 

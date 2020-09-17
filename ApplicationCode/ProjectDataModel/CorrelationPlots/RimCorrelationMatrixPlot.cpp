@@ -176,6 +176,8 @@ RimCorrelationMatrixPlot::RimCorrelationMatrixPlot()
     m_legendConfig->setColorLegend(
         RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CORRELATION ) );
 
+    setLegendsVisible( false );
+
     this->uiCapability()->setUiTreeChildrenHidden( true );
     m_selectMultipleVectors = true;
 }
@@ -661,7 +663,7 @@ void RimCorrelationMatrixPlot::updatePlotTitle()
     if ( m_plotWidget )
     {
         m_plotWidget->setPlotTitle( m_description );
-        m_plotWidget->setPlotTitleEnabled( m_showPlotTitle );
+        m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && !isSubPlot() );
         if ( isMdiWindow() )
         {
             m_plotWidget->setPlotTitleFontSize( titleFontSize() );

@@ -93,6 +93,7 @@ void RimViewWindow::loadDataAndUpdate()
 {
     assignIdIfNecessary();
     onLoadDataAndUpdate();
+    updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------

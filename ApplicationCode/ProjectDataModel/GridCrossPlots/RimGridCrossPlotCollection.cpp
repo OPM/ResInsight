@@ -83,4 +83,5 @@ void RimGridCrossPlotCollection::insertPlot( RimGridCrossPlot* plot, size_t inde
 void RimGridCrossPlotCollection::removePlot( RimGridCrossPlot* plot )
 {
     m_gridCrossPlots.removeChildObject( plot );
+    updateAllRequiredEditors();
 }

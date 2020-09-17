@@ -588,7 +588,7 @@ void RimSummaryPlot::updatePlotTitle()
     {
         QString plotTitle = description();
         m_plotWidget->setPlotTitle( plotTitle );
-        m_plotWidget->setPlotTitleEnabled( m_showPlotTitle );
+        m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && !isSubPlot() );
         m_plotWidget->scheduleReplot();
     }
 }
@@ -656,7 +656,7 @@ void RimSummaryPlot::updateLegend()
 {
     if ( m_plotWidget )
     {
-        m_plotWidget->setLegendVisible( m_showPlotLegends );
+        m_plotWidget->setInternalLegendVisible( m_showPlotLegends && !isSubPlot() );
     }
 
     reattachAllCurves();
@@ -1559,7 +1559,7 @@ void RimSummaryPlot::onLoadDataAndUpdate()
 
     if ( m_plotWidget )
     {
-        m_plotWidget->setLegendVisible( m_showPlotLegends );
+        m_plotWidget->setInternalLegendVisible( m_showPlotLegends && !isSubPlot() );
         m_plotWidget->setLegendFontSize( legendFontSize() );
         m_plotWidget->updateLegend();
     }

@@ -186,14 +186,6 @@ void RimMultiPlot::setMultiPlotTitle( const QString& title )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiPlot::addPlot( RimPlot* plot )
-{
-    insertPlot( plot, m_plots.size() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimMultiPlot::insertPlot( RimPlot* plot, size_t index )
 {
     if ( plot )
@@ -206,8 +198,6 @@ void RimMultiPlot::insertPlot( RimPlot* plot, size_t index )
             m_viewer->insertPlot( plot->viewer(), index );
         }
         plot->setShowWindow( true );
-        plot->setLegendsVisible( false );
-        plot->setPlotTitleVisible( false );
         plot->updateAfterInsertingIntoMultiPlot();
 
         onPlotAdditionOrRemoval();
@@ -484,7 +474,7 @@ void RimMultiPlot::onPlotAdditionOrRemoval()
     updateSubPlotNames();
     updatePlotWindowTitle();
     applyPlotWindowTitleToWidgets();
-    updateConnectedEditors();
+    updateAllRequiredEditors();
     updateLayout();
     RiuPlotMainWindowTools::refreshToolbars();
 }
@@ -493,6 +483,17 @@ void RimMultiPlot::onPlotAdditionOrRemoval()
 ///
 //--------------------------------------------------------------------------------------------------
 void RimMultiPlot::onPlotsReordered( const caf::SignalEmitter* emitter )
+{
+    updateSubPlotNames();
+    recreatePlotWidgets();
+    loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMultiPlot::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                   std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     updateSubPlotNames();
     recreatePlotWidgets();

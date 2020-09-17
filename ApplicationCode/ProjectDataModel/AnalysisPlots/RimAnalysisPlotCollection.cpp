@@ -192,4 +192,5 @@ void RimAnalysisPlotCollection::insertPlot( RimAnalysisPlot* analysisPlot, size_
 void RimAnalysisPlotCollection::removePlot( RimAnalysisPlot* analysisPlot )
 {
     m_analysisPlots.removeChildObject( analysisPlot );
+    updateAllRequiredEditors();
 }

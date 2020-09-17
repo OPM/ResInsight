@@ -191,11 +191,9 @@ void RiuMultiPlotBook::removePlot( RiuQwtPlotWidget* plotWidget )
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotBook::removeAllPlots()
 {
-    auto plotWidgets = m_plotWidgets;
-    for ( RiuQwtPlotWidget* plotWidget : plotWidgets )
-    {
-        removePlot( plotWidget );
-    }
+    deleteAllPages();
+    m_plotWidgets.clear();
+    scheduleUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -483,6 +481,7 @@ QList<QPointer<RiuQwtPlotWidget>> RiuMultiPlotBook::visiblePlotWidgets() const
     QList<QPointer<RiuQwtPlotWidget>> plotWidgets;
     for ( QPointer<RiuQwtPlotWidget> plotWidget : m_plotWidgets )
     {
+        CAF_ASSERT( plotWidget );
         if ( plotWidget->isChecked() )
         {
             plotWidgets.push_back( plotWidget );
@@ -534,6 +533,7 @@ void RiuMultiPlotBook::createPages()
             row    = 0;
             column = 0;
         }
+        CAF_ASSERT( plotWidgets[visibleIndex] );
         page->addPlot( plotWidgets[visibleIndex] );
         page->performUpdate();
     }

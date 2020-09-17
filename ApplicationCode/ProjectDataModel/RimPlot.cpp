@@ -140,9 +140,10 @@ void RimPlot::removeFromMdiAreaAndCollection()
 //--------------------------------------------------------------------------------------------------
 void RimPlot::updateAfterInsertingIntoMultiPlot()
 {
-    updateLegend();
-    updateAxes();
-    updateLayout();
+    loadDataAndUpdate();
+    /*    updateLegend();
+        updateAxes();
+        updateLayout(); */
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -280,4 +281,14 @@ void RimPlot::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                               std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Is this inside another plot window?
+//--------------------------------------------------------------------------------------------------
+bool RimPlot::isSubPlot() const
+{
+    RimPlotWindow* parentPlotWindow = nullptr;
+    firstAncestorOfType( parentPlotWindow );
+    return parentPlotWindow != nullptr;
 }

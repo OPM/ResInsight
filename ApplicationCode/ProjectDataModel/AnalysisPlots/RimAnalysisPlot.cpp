@@ -1646,7 +1646,7 @@ void RimAnalysisPlot::updatePlotTitle()
     {
         QString plotTitle = description();
         m_plotWidget->setPlotTitle( plotTitle );
-        m_plotWidget->setPlotTitleEnabled( m_showPlotTitle );
+        m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && !isSubPlot() );
         m_plotWidget->scheduleReplot();
     }
 }

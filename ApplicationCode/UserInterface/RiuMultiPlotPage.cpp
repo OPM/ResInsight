@@ -155,7 +155,7 @@ void RiuMultiPlotPage::insertPlot( RiuQwtPlotWidget* plotWidget, size_t index )
     m_subTitles.insert( static_cast<int>( index ), subTitle );
 
     RiuQwtPlotLegend* legend = nullptr;
-    if ( m_plotDefinition->legendsVisible() )
+    if ( m_plotDefinition->legendsVisible() && plotWidget->plotDefinition()->legendsVisible() )
     {
         legend            = new RiuQwtPlotLegend( this );
         int legendColumns = 1;

@@ -290,7 +290,7 @@ void RiuQwtPlotWidget::setLegendFontSize( int fontSize )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::setLegendVisible( bool visible )
+void RiuQwtPlotWidget::setInternalLegendVisible( bool visible )
 {
     if ( visible )
     {

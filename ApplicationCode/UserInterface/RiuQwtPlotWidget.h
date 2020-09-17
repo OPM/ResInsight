@@ -91,7 +91,7 @@ public:
     void           setPlotTitleFontSize( int titleFontSize );
 
     void setLegendFontSize( int fontSize );
-    void setLegendVisible( bool visible );
+    void setInternalLegendVisible( bool visible );
 
     QwtInterval axisRange( QwtPlot::Axis axis ) const;
     void        setAxisRange( QwtPlot::Axis axis, double min, double max );
