@@ -18,10 +18,10 @@
 
 #include "RiuGuiTheme.h"
 
-#include "RiuThemesDirectory.h"
-
+#include "RiaApplication.h"
 #include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
+#include "RiuThemesDirectory.h"
 #include "cafAppEnum.h"
 
 #include <QAbstractItemModel>
@@ -564,15 +564,18 @@ QAbstractItemModel* RiuGuiTheme::getQssCompletionModel( QCompleter* completer )
 //--------------------------------------------------------------------------------------------------
 QColor RiuGuiTheme::getColorByVariableName( const QString& variable, int theme /*= -1 */ )
 {
-    RiaDefines::ThemeEnum eTheme = RiaGuiApplication::instance()->preferences()->guiTheme();
-    if ( theme >= 0 && theme < static_cast<int>( caf::AppEnum<RiaDefines::ThemeEnum>().size() ) )
+    if ( dynamic_cast<RiaGuiApplication*>( RiaApplication::instance() ) )
     {
-        eTheme = static_cast<RiaDefines::ThemeEnum>( theme );
-    }
+        RiaDefines::ThemeEnum eTheme = RiaGuiApplication::instance()->preferences()->guiTheme();
+        if ( theme >= 0 && theme < static_cast<int>( caf::AppEnum<RiaDefines::ThemeEnum>().size() ) )
+        {
+            eTheme = static_cast<RiaDefines::ThemeEnum>( theme );
+        }
 
-    if ( s_variableValueMap.keys().contains( eTheme ) && s_variableValueMap[eTheme].keys().contains( "$" + variable ) )
-    {
-        return QColor( s_variableValueMap[eTheme]["$" + variable] );
+        if ( s_variableValueMap.keys().contains( eTheme ) && s_variableValueMap[eTheme].keys().contains( "$" + variable ) )
+        {
+            return QColor( s_variableValueMap[eTheme]["$" + variable] );
+        }
     }
     return Qt::black;
 }
