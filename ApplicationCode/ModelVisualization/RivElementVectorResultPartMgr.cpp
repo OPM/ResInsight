@@ -110,6 +110,7 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
 
     std::vector<cvf::StructGridInterface::FaceType> directions;
     std::vector<RigEclipseResultAddress>            resultAddresses;
+
     if ( result->showVectorI() )
     {
         directions.push_back( cvf::StructGridInterface::POS_I );
@@ -127,7 +128,17 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
     }
 
     RigCaseCellResultsData* resultsData = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    RigNNCData*             nncData     = eclipseCaseData->mainGrid()->nncData();
     RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+
+    const std::vector<std::vector<double>>* nncResultVals = nullptr;
+    if ( result->showNncData() )
+    {
+        if ( result->resultAddressCombined().m_resultCatType == RiaDefines::ResultCatType::DYNAMIC_NATIVE )
+        {
+            nncResultVals = nncData->dynamicConnectionScalarResult( result->resultAddressCombined() );
+        }
+    }
 
     const cvf::Vec3d offset = eclipseCase->mainGrid()->displayModelOffset();
 
@@ -136,11 +147,10 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
     {
         if ( !cells[gcIdx].isInvalid() && activeCellInfo->isActive( gcIdx ) )
         {
+            size_t resultIdx = activeCellInfo->cellResultIndex( gcIdx );
             for ( int dir = 0; dir < static_cast<int>( directions.size() ); dir++ )
             {
-                size_t resultIdx = activeCellInfo->cellResultIndex( gcIdx );
                 double resultValue = resultsData->cellScalarResults( resultAddresses[dir], timeStepIndex ).at( resultIdx );
-
                 if ( std::abs( resultValue ) >= result->threshold() )
                 {
                     cvf::Vec3d faceCenter = cells[gcIdx].faceCenter( directions[dir] ) - offset;
@@ -157,6 +167,38 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
                                                           faceNormal,
                                                           resultValue,
                                                           std::cbrt( cells[gcIdx].volume() / 3.0 ) ) );
+                }
+            }
+
+            if ( nncResultVals && nncResultVals->size() > 0 && nncResultVals->at( timeStepIndex ).size() > 0 )
+            {
+                // The nnc connections can have more connections than reported from Eclipse, clamp the result index to
+                // Eclipse Results
+
+                double resultValue = 0.0;
+                if ( resultIdx < nncResultVals->at( timeStepIndex ).size() )
+                {
+                    resultValue = ( *nncResultVals )[timeStepIndex][resultIdx];
+                }
+                if ( std::abs( resultValue ) >= result->threshold() )
+                {
+                    for ( int dir = 0; dir < static_cast<int>( directions.size() ); dir++ )
+                    {
+                        cvf::Vec3d faceCenter = cells[gcIdx].faceCenter( directions[dir] ) - offset;
+                        cvf::Vec3d cellCenter = cells[gcIdx].center() - offset;
+                        cvf::Vec3d faceNormal = ( faceCenter - cellCenter ).getNormalized() * arrowScaling;
+
+                        if ( result->scaleMethod() == RimElementVectorResult::RESULT )
+                        {
+                            faceNormal *= std::abs( resultValue );
+                        }
+
+                        tensorVisualizations.push_back(
+                            ElementVectorResultVisualization( faceCenter,
+                                                              faceNormal,
+                                                              resultValue,
+                                                              std::cbrt( cells[gcIdx].volume() / 3.0 ) ) );
+                    }
                 }
             }
         }

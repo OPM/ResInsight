@@ -65,6 +65,7 @@ public:
     bool         showVectorI() const;
     bool         showVectorJ() const;
     bool         showVectorK() const;
+    bool         showNncData() const;
     float        threshold() const;
     float        sizeScale() const;
     TensorColors vectorColors() const;
@@ -102,6 +103,7 @@ private:
     caf::PdmField<bool>                                  m_showVectorI;
     caf::PdmField<bool>                                  m_showVectorJ;
     caf::PdmField<bool>                                  m_showVectorK;
+    caf::PdmField<bool>                                  m_showNncData;
     caf::PdmField<float>                                 m_threshold;
     caf::PdmField<caf::AppEnum<TensorColors>>            m_vectorColor;
     caf::PdmField<cvf::Color3f>                          m_uniformVectorColor;

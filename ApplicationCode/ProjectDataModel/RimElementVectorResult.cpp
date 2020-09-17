@@ -74,6 +74,7 @@ RimElementVectorResult::RimElementVectorResult()
     CAF_PDM_InitField( &m_showVectorI, "ShowVectorI", true, "I", "", "", "" );
     CAF_PDM_InitField( &m_showVectorJ, "ShowVectorJ", true, "J", "", "", "" );
     CAF_PDM_InitField( &m_showVectorK, "ShowVectorK", true, "K", "", "", "" );
+    CAF_PDM_InitField( &m_showNncData, "ShowNncData", true, "Show NNC data", "", "", "" );
     CAF_PDM_InitField( &m_threshold, "Threshold", 0.0f, "Threshold", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_vectorColor, "VectorColor", "Color", "", "", "" );
@@ -134,6 +135,14 @@ bool RimElementVectorResult::showVectorJ() const
 bool RimElementVectorResult::showVectorK() const
 {
     return m_showVectorK();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimElementVectorResult::showNncData() const
+{
+    return m_showNncData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -315,6 +324,7 @@ void RimElementVectorResult::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     visibilityGroup->add( &m_showVectorI );
     visibilityGroup->add( &m_showVectorJ );
     visibilityGroup->add( &m_showVectorK );
+    visibilityGroup->add( &m_showNncData );
     visibilityGroup->add( &m_threshold );
 
     caf::PdmUiGroup* vectorColorsGroup = uiOrdering.addNewGroup( "Vector Colors" );
