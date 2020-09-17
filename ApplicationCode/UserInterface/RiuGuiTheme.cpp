@@ -564,18 +564,19 @@ QAbstractItemModel* RiuGuiTheme::getQssCompletionModel( QCompleter* completer )
 //--------------------------------------------------------------------------------------------------
 QColor RiuGuiTheme::getColorByVariableName( const QString& variable, int theme /*= -1 */ )
 {
+    RiaDefines::ThemeEnum eTheme = RiaDefines::ThemeEnum::DEFAULT;
     if ( dynamic_cast<RiaGuiApplication*>( RiaApplication::instance() ) )
     {
-        RiaDefines::ThemeEnum eTheme = RiaGuiApplication::instance()->preferences()->guiTheme();
-        if ( theme >= 0 && theme < static_cast<int>( caf::AppEnum<RiaDefines::ThemeEnum>().size() ) )
-        {
-            eTheme = static_cast<RiaDefines::ThemeEnum>( theme );
-        }
+        eTheme = RiaGuiApplication::instance()->preferences()->guiTheme();
+    }
+    if ( theme >= 0 && theme < static_cast<int>( caf::AppEnum<RiaDefines::ThemeEnum>().size() ) )
+    {
+        eTheme = static_cast<RiaDefines::ThemeEnum>( theme );
+    }
 
-        if ( s_variableValueMap.keys().contains( eTheme ) && s_variableValueMap[eTheme].keys().contains( "$" + variable ) )
-        {
-            return QColor( s_variableValueMap[eTheme]["$" + variable] );
-        }
+    if ( s_variableValueMap.keys().contains( eTheme ) && s_variableValueMap[eTheme].keys().contains( "$" + variable ) )
+    {
+        return QColor( s_variableValueMap[eTheme]["$" + variable] );
     }
     return Qt::black;
 }
