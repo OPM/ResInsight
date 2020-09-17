@@ -206,7 +206,16 @@ void RiuMultiPlotBook::setPlotTitle( const QString& plotTitle )
     m_plotTitle = plotTitle;
     for ( int i = 0; i < m_pages.size(); ++i )
     {
-        m_pages[i]->setPlotTitle( QString( "%1 %2/%3" ).arg( m_plotTitle ).arg( i + 1 ).arg( m_pages.size() ) );
+        int pageIndex = i + 1;
+        int pageCount = (int)m_pages.size();
+        if ( pageCount > pageIndex )
+        {
+            m_pages[i]->setPlotTitle( QString( "%1 %2/%3" ).arg( m_plotTitle ).arg( i + 1 ).arg( m_pages.size() ) );
+        }
+        else
+        {
+            m_pages[i]->setPlotTitle( QString( "%1" ).arg( m_plotTitle ) );
+        }
     }
 }
 
