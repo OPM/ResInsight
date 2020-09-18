@@ -19,6 +19,7 @@ $markerColor: #141719; // Marker color
 $lineMarkerColor: #eeeeee; // Color of line marker
 $plotGridColor: #394046; // Plot grid color
 $auxiliaryCurveColor: #000000; // Auxiliary curve color
+$externalInputColor: #fff2a7; // Background color for external input fields
 
 QwtPlot["*"]::grid["*"] {
     color: $backgroundColor2;
@@ -90,4 +91,9 @@ QMainWindow {
 
 QToolBar {
     background-color: #eeeeee;
+}
+
+QListView[state="ExternalInput"] {
+    background-color: $externalInputColor;
+    border: 2px solid $borderColor;
 }

@@ -19,6 +19,7 @@ $markerColor: #e6e7ea; // Marker color
 $lineMarkerColor: #eeeeee; // Color of line marker
 $plotGridColor: #394046; // Plot grid color
 $auxiliaryCurveColor: #000000; // Auxiliary curve color
+$externalInputColor: #e82257; // External input background color
 
 QwtPlot["*"]::grid["*"] {
     color: $backgroundColor2;
@@ -360,5 +361,10 @@ QMinimizePanel QLabel, QMinimizePanel QCheckBox, QToolButton {
 }
 
 QTextEdit, QPlainTextEdit {
+    border: 2px solid $borderColor;
+}
+
+QWidget[state="ExternalInput"] {
+    background-color: $externalInputColor;
     border: 2px solid $borderColor;
 }
