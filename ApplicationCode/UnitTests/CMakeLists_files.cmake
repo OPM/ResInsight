@@ -73,6 +73,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RifElasticPropertiesReader-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaStatisticsTools-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanXmlReader-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigWellPathGeometryExporter-Test.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifFractureModelDeviationFrkExporter-Test.cpp
 )
 
 if (RESINSIGHT_ENABLE_GRPC)
