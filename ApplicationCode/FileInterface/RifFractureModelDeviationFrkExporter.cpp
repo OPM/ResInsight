@@ -61,11 +61,15 @@ bool RifFractureModelDeviationFrkExporter::writeToFile( RimFractureModelPlot* pl
     std::vector<double> mdValues;
     RigWellPathGeometryExporter::exportWellPathGeometry( wellPath, mdStepSize, xValues, yValues, tvdValues, mdValues, useMdRkb );
 
-    convertFromMeterToFeet( mdValues );
-    convertFromMeterToFeet( tvdValues );
+    std::vector<double> exportTvdValues;
+    std::vector<double> exportMdValues;
+    fixupDepthValuesForExport( tvdValues, mdValues, exportTvdValues, exportMdValues );
 
-    appendToStream( stream, "mdArray", mdValues );
-    appendToStream( stream, "tvdArray", tvdValues );
+    convertFromMeterToFeet( exportMdValues );
+    convertFromMeterToFeet( exportTvdValues );
+
+    appendToStream( stream, "mdArray", exportMdValues );
+    appendToStream( stream, "tvdArray", exportTvdValues );
 
     appendFooterToStream( stream );
 
@@ -122,5 +126,40 @@ void RifFractureModelDeviationFrkExporter::convertFromMeterToFeet( std::vector<d
     for ( size_t i = 0; i < data.size(); i++ )
     {
         data[i] = RiaEclipseUnitTools::meterToFeet( data[i] );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifFractureModelDeviationFrkExporter::fixupDepthValuesForExport( const std::vector<double>& tvdValues,
+                                                                      const std::vector<double>& mdValues,
+                                                                      std::vector<double>&       exportTvdValues,
+                                                                      std::vector<double>&       exportMdValues )
+{
+    if (tvdValues.empty() || mdValues.empty())
+        return;
+
+    exportMdValues.push_back( mdValues[0] );
+    exportTvdValues.push_back(tvdValues[0] );
+
+    for ( size_t i = 1; i < tvdValues.size(); i++ )
+    {
+        double changeMd  = mdValues[i] - exportMdValues[i - 1];
+        double changeTvd = tvdValues[i] - exportTvdValues[i - 1];
+
+        // Stimplan checks that the change in MD is larger than or equal to change in TVD.
+        // This condition is not always satisfied due to the interpolation of TVDs.
+        // Move the MD value to produce a file which can be imported.
+        if ( changeMd > changeTvd )
+        {
+            exportMdValues.push_back( exportMdValues[i - 1] + changeTvd );
+        }
+        else
+        {
+            exportMdValues.push_back( mdValues[i] );
+        }
+
+        exportTvdValues.push_back( tvdValues[i] );
     }
 }

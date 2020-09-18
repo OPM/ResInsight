@@ -32,6 +32,11 @@ class RifFractureModelDeviationFrkExporter
 public:
     static bool writeToFile( RimFractureModelPlot* plot, const QString& filepath );
 
+    static void fixupDepthValuesForExport( const std::vector<double>& tvdValues,
+                                           const std::vector<double>& mdValues,
+                                           std::vector<double>&       exportTvdValues,
+                                           std::vector<double>&       exportMdValues );
+
 private:
     static void appendHeaderToStream( QTextStream& stream );
     static void appendToStream( QTextStream& stream, const QString& label, const std::vector<double>& values );
