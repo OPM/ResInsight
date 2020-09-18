@@ -703,9 +703,11 @@ void RimExtrudedCurveIntersection::setPushButtonText( bool buttonEnable, caf::Pd
 //--------------------------------------------------------------------------------------------------
 void RimExtrudedCurveIntersection::setBaseColor( bool enable, caf::PdmUiListEditorAttribute* attribute )
 {
-    if ( attribute && enable )
+    // if ( attribute && enable )
+    if ( attribute )
     {
-        attribute->m_baseColor.setRgb( 255, 220, 255 );
+        attribute->m_qssState = enable ? "ExternalInput" : QString();
+        // attribute->m_baseColor.setRgb( 255, 220, 255 );
     }
 }
 
