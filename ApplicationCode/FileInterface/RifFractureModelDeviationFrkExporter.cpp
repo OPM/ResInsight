@@ -137,11 +137,10 @@ void RifFractureModelDeviationFrkExporter::fixupDepthValuesForExport( const std:
                                                                       std::vector<double>&       exportTvdValues,
                                                                       std::vector<double>&       exportMdValues )
 {
-    if (tvdValues.empty() || mdValues.empty())
-        return;
+    if ( tvdValues.empty() || mdValues.empty() ) return;
 
     exportMdValues.push_back( mdValues[0] );
-    exportTvdValues.push_back(tvdValues[0] );
+    exportTvdValues.push_back( tvdValues[0] );
 
     for ( size_t i = 1; i < tvdValues.size(); i++ )
     {
