@@ -44,6 +44,8 @@ public:
     void                  addSubCollection( RimSurfaceCollection* collection );
     RimSurfaceCollection* getSubCollection( const QString name );
 
+    bool containsSurface();
+
     void reloadSurfaces( std::vector<RimSurface*> surfaces );
     void removeSurface( RimSurface* surface );
 
