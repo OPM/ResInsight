@@ -342,6 +342,9 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaEclipseUnitTools::Uni
     std::vector<QPointF>    points;
     std::vector<WhichYAxis> axes;
 
+    const QColor waterColor = RiuGuiTheme::getColorByVariableName( "curveColorWater" );
+    const QColor gasColor   = RiuGuiTheme::getColorByVariableName( "curveColorGas" );
+
     bool shouldEnableRightYAxis = false;
 
     for ( size_t i = 0; i < curveArr.size(); i++ )
@@ -427,7 +430,7 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaEclipseUnitTools::Uni
             {
                 addCurveConstSaturationIntersectionMarker( curve,
                                                            swat,
-                                                           RiuGuiTheme::getColorByVariableName( "markerColor" ),
+                                                           waterColor,
                                                            plotOnWhichYAxis,
                                                            plot,
                                                            myPlotMarkers,
@@ -443,7 +446,7 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaEclipseUnitTools::Uni
             {
                 addCurveConstSaturationIntersectionMarker( curve,
                                                            sgas,
-                                                           RiuGuiTheme::getColorByVariableName( "markerColor" ),
+                                                           gasColor,
                                                            plotOnWhichYAxis,
                                                            plot,
                                                            myPlotMarkers,
@@ -460,11 +463,11 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaEclipseUnitTools::Uni
     // Add vertical marker lines to indicate cell SWAT and/or SGAS saturations
     if ( swat != HUGE_VAL )
     {
-        addVerticalSaturationMarkerLine( swat, "SWAT", RiuGuiTheme::getColorByVariableName( "markerColor" ), plot, myPlotMarkers );
+        addVerticalSaturationMarkerLine( swat, "SWAT", waterColor, plot, myPlotMarkers );
     }
     if ( sgas != HUGE_VAL )
     {
-        addVerticalSaturationMarkerLine( sgas, "SGAS", RiuGuiTheme::getColorByVariableName( "markerColor" ), plot, myPlotMarkers );
+        addVerticalSaturationMarkerLine( sgas, "SGAS", gasColor, plot, myPlotMarkers );
     }
 
     if ( logScaleLeftAxis )

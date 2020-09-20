@@ -46,23 +46,23 @@ QwtPlot["PvtPlot"]::curve["Auxiliary"] {
 }
 
 QwtPlot["PvtPlot"]::curve["Oil"] {
-    line-color: $primaryColor;
-    symbol-color:  $primaryColor;
+    line-color: $curveColorOil;
+    symbol-color:  $curveColorOil;
 }
 
 QwtPlot["PvtPlot"]::curve["Gas"] {
-    line-color: $secondaryColor;
-    symbol-color:  $secondaryColor;
+    line-color: $curveColorGas;
+    symbol-color:  $curveColorGas;
 }
 
 QwtPlot["RelPermPlot"]::curve["KRW"] {
-    line-color: $primaryColor;
-    symbol-color:  $primaryColor;
+    line-color: $curveColorWater;
+    symbol-color:  $curveColorWater;
 }
 
 QwtPlot["RelPermPlot"]::curve["KROW"] {
-    line-color: $secondaryColor;
-    symbol-color:  $secondaryColor;
+    line-color: $curveColorWater;
+    symbol-color:  $curveColorWater;
 }
 
 QwtPlot["RelPermPlot"]::curve["PCOW"] {
@@ -71,13 +71,13 @@ QwtPlot["RelPermPlot"]::curve["PCOW"] {
 }
 
 QwtPlot["RelPermPlot"]::curve["KRG"] {
-    line-color: $quaternaryColor;
-    symbol-color:  $quaternaryColor;
+    line-color: $curveColorGas;
+    symbol-color:  $curveColorGas;
 }
 
 QwtPlot["RelPermPlot"]::curve["KROG"] {
-    line-color: $quinaryColor;
-    symbol-color:  $quinaryColor;
+    line-color: $curveColorGas;
+    symbol-color:  $curveColorGas;
 }
 
 QwtPlot["RelPermPlot"]::curve["PCOG"] {
