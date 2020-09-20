@@ -464,6 +464,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         colorGroup->add( &defaultGridLineColors, false );
         colorGroup->add( &defaultFaultGridLineColors );
         colorGroup->add( &defaultWellLabelColor, false );
+        colorGroup->add( &m_guiTheme, {true, 2} );
 
         caf::PdmUiGroup* fontGroup = uiOrdering.addNewGroup( "Default Font Sizes" );
         fontGroup->add( &defaultSceneFontSize );
@@ -588,7 +589,6 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         uiOrdering.add( &m_showTestToolbar );
         uiOrdering.add( &m_includeFractureDebugInfoFile );
         uiOrdering.add( &m_holoLensExportFolder );
-        uiOrdering.add( &m_guiTheme );
     }
 
     uiOrdering.skipRemainingFields( true );
