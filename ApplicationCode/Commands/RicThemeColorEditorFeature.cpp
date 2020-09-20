@@ -121,11 +121,14 @@ void RicThemeColorEditorFeature::onActionTriggered( bool isChecked )
                      &QPushButton::clicked,
                      [this, variableValueMap, variableName, theme, editor, widget, colorBox]() -> void {
                          QColor color = QColorDialog::getColor( colorBox->palette().color( QPalette::Button ), widget );
-                         colorBox->setStyleSheet( QString( "background-color: %0;" ).arg( color.name() ) );
-                         colorBox->style()->unpolish( colorBox );
-                         colorBox->style()->polish( colorBox );
-                         RiuGuiTheme::changeVariableValue( theme, variableName, color.name() );
-                         editor->setPlainText( RiuGuiTheme::applyVariableValueMapToStyleSheet( theme ) );
+                         if ( color.isValid() )
+                         {
+                             colorBox->setStyleSheet( QString( "background-color: %0;" ).arg( color.name() ) );
+                             colorBox->style()->unpolish( colorBox );
+                             colorBox->style()->polish( colorBox );
+                             RiuGuiTheme::changeVariableValue( theme, variableName, color.name() );
+                             editor->setPlainText( RiuGuiTheme::applyVariableValueMapToStyleSheet( theme ) );
+                         }
                      } );
             innerLayout->addWidget( colorBox, row++, column + 1 );
             if ( row == 10 )
