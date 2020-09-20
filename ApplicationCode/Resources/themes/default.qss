@@ -13,8 +13,11 @@ $quinaryColor: #0ce5d5; // Quinary color
 $senaryColor: #a54ce5; // Senary color
 $borderColor: #394046; // Main border color
 $curveColorGas: #c80000; // Curve color for gas plot
+$curveColorGas2: #a91210; // Curve color for gas plot
 $curveColorOil: #00c800; // Curve color for oil plot
+$curveColorOil2: #7ba700; // Curve color for oil plot
 $curveColorWater: #0000c8; // Curve color for water plot
+$curveColorWater2: #3e7aa7; // Curve color for water plot
 $markerColor: #141719; // Marker color
 $lineMarkerColor: #eeeeee; // Color of line marker
 $plotGridColor: #394046; // Plot grid color
