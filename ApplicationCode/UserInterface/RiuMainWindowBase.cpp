@@ -293,6 +293,8 @@ void RiuMainWindowBase::removeViewerFromMdiArea( QMdiArea* mdiArea, QWidget* vie
     }
     mdiArea->removeSubWindow( subWindowBeingClosed );
 
+    delete subWindowBeingClosed;
+
     QList<QMdiSubWindow*> subWindowList = mdiArea->subWindowList( QMdiArea::ActivationHistoryOrder );
     if ( !subWindowList.empty() )
     {
