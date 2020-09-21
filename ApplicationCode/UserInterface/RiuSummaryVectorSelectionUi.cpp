@@ -701,6 +701,9 @@ void RiuSummaryVectorSelectionUi::setSelectedCurveDefinitions( const std::vector
     }
 
     m_previouslySelectedSources = m_selectedSources.ptrReferencedObjects();
+
+    m_prevCurveCount    = allCurveDefinitionsFromSelection().size();
+    m_prevCurveSetCount = allCurveSetDefinitionsFromSelections().size();
 }
 
 //--------------------------------------------------------------------------------------------------
