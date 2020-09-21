@@ -44,16 +44,22 @@ class RimElementVectorResult : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum TensorColors
+    enum class TensorColors
     {
         UNIFORM_COLOR,
         RESULT_COLORS
     };
 
-    enum ScaleMethod
+    enum class ScaleMethod
     {
         RESULT,
         CONSTANT
+    };
+
+    enum class VectorView
+    {
+        AGGREGATED,
+        INDIVIDUAL
     };
 
 public:
@@ -62,6 +68,7 @@ public:
 
     void         setShowResult( bool enableResult );
     bool         showResult() const;
+    VectorView   vectorView();
     bool         showVectorI() const;
     bool         showVectorJ() const;
     bool         showVectorK() const;
@@ -100,6 +107,7 @@ private:
 private:
     caf::PdmField<bool>                                  m_showResult;
     caf::PdmField<QString>                               m_resultName;
+    caf::PdmField<caf::AppEnum<VectorView>>              m_vectorView;
     caf::PdmField<bool>                                  m_showVectorI;
     caf::PdmField<bool>                                  m_showVectorJ;
     caf::PdmField<bool>                                  m_showVectorK;

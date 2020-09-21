@@ -38,19 +38,28 @@ namespace caf
 template <>
 void AppEnum<RimElementVectorResult::TensorColors>::setUp()
 {
-    addItem( RimElementVectorResult::RESULT_COLORS, "RESULT_COLORS", "Result Colors" );
-    addItem( RimElementVectorResult::UNIFORM_COLOR, "UNIFORM_COLOR", "Uniform" );
+    addItem( RimElementVectorResult::TensorColors::RESULT_COLORS, "RESULT_COLORS", "Result Colors" );
+    addItem( RimElementVectorResult::TensorColors::UNIFORM_COLOR, "UNIFORM_COLOR", "Uniform" );
 
-    setDefault( RimElementVectorResult::RESULT_COLORS );
+    setDefault( RimElementVectorResult::TensorColors::RESULT_COLORS );
 }
 
 template <>
 void AppEnum<RimElementVectorResult::ScaleMethod>::setUp()
 {
-    addItem( RimElementVectorResult::RESULT, "RESULT", "Result" );
-    addItem( RimElementVectorResult::CONSTANT, "CONSTANT", "Constant" );
+    addItem( RimElementVectorResult::ScaleMethod::RESULT, "RESULT", "Result" );
+    addItem( RimElementVectorResult::ScaleMethod::CONSTANT, "CONSTANT", "Constant" );
 
-    setDefault( RimElementVectorResult::RESULT );
+    setDefault( RimElementVectorResult::ScaleMethod::RESULT );
+}
+
+template <>
+void AppEnum<RimElementVectorResult::VectorView>::setUp()
+{
+    addItem( RimElementVectorResult::VectorView::AGGREGATED, "AGGREGATED", "Aggregated" );
+    addItem( RimElementVectorResult::VectorView::INDIVIDUAL, "INDIVIDUAL", "Individual" );
+
+    setDefault( RimElementVectorResult::VectorView::AGGREGATED );
 }
 } // namespace caf
 
@@ -70,6 +79,8 @@ RimElementVectorResult::RimElementVectorResult()
     m_resultName.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
     CAF_PDM_InitField( &m_showResult, "ShowResult", false, "", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_vectorView, "VectorView", "", "", "", "" );
 
     CAF_PDM_InitField( &m_showVectorI, "ShowVectorI", true, "I", "", "", "" );
     CAF_PDM_InitField( &m_showVectorJ, "ShowVectorJ", true, "J", "", "", "" );
@@ -110,6 +121,14 @@ void RimElementVectorResult::setShowResult( bool enableResult )
 bool RimElementVectorResult::showResult() const
 {
     return m_showResult();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimElementVectorResult::VectorView RimElementVectorResult::vectorView()
+{
+    return m_vectorView();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -321,6 +340,7 @@ void RimElementVectorResult::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     uiOrdering.add( &m_resultName );
 
     caf::PdmUiGroup* visibilityGroup = uiOrdering.addNewGroup( "Visibility" );
+    visibilityGroup->add( &m_vectorView );
     visibilityGroup->add( &m_showVectorI );
     visibilityGroup->add( &m_showVectorJ );
     visibilityGroup->add( &m_showVectorK );
@@ -329,7 +349,7 @@ void RimElementVectorResult::defineUiOrdering( QString uiConfigName, caf::PdmUiO
 
     caf::PdmUiGroup* vectorColorsGroup = uiOrdering.addNewGroup( "Vector Colors" );
     vectorColorsGroup->add( &m_vectorColor );
-    if ( m_vectorColor == UNIFORM_COLOR )
+    if ( m_vectorColor == TensorColors::UNIFORM_COLOR )
     {
         vectorColorsGroup->add( &m_uniformVectorColor );
     }
