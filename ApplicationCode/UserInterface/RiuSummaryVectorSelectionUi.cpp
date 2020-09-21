@@ -655,7 +655,7 @@ void RiuSummaryVectorSelectionUi::setSelectedCurveDefinitions( const std::vector
         }
         else
         {
-            if ( curveDef.summaryCase() && m_showIndividualEnsembleCases )
+            if ( curveDef.summaryCase() && ( !curveDef.ensemble() || m_showIndividualEnsembleCases ) )
             {
                 m_selectedSources.push_back( curveDef.summaryCase() );
                 handleAddedSource( curveDef.summaryCase() );
