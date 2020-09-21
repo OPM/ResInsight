@@ -270,16 +270,26 @@ void RimCorrelationPlotCollection::applyEnsembleFieldAndTimeStepToPlot( RimAbstr
     {
         std::set<RifEclipseSummaryAddress>     allAddresses = ensemble->ensembleSummaryAddresses();
         std::vector<RiaSummaryCurveDefinition> curveDefs;
+        std::vector<QString>                   highestCorrelationParameters;
         for ( auto address : allAddresses )
         {
             auto it = std::find( quantityNames.begin(), quantityNames.end(), QString::fromStdString( address.uiText() ) );
             if ( it != quantityNames.end() || quantityNames.empty() )
             {
                 curveDefs.push_back( RiaSummaryCurveDefinition( ensemble, address ) );
+                auto correlationSortedEnsembleParameters =
+                    ensemble->correlationSortedEnsembleParameters( address, timeStep );
+                highestCorrelationParameters.push_back( correlationSortedEnsembleParameters.front().first.name );
             }
         }
         plot->setCurveDefinitions( curveDefs );
         plot->setTimeStep( timeStep );
+
+        auto crossPlot = dynamic_cast<RimParameterResultCrossPlot*>( plot );
+        if ( crossPlot && !highestCorrelationParameters.empty() )
+        {
+            crossPlot->setEnsembleParameter( highestCorrelationParameters.front() );
+        }
     }
 }
 
@@ -317,7 +327,17 @@ void RimCorrelationPlotCollection::applyFirstEnsembleFieldAddressesToReport( Rim
         plot->matrixPlot()->setCurveDefinitions( curveDefsMatrix );
         plot->correlationPlot()->setCurveDefinitions( curveDefsTornadoAndCrossPlot );
         plot->crossPlot()->setCurveDefinitions( curveDefsTornadoAndCrossPlot );
-        plot->crossPlot()->setEnsembleParameter( ensembles.front()->variationSortedEnsembleParameters().front().name );
+
+        time_t timeStep = *( plot->matrixPlot()->allAvailableTimeSteps().rbegin() );
+        auto   correlationSortedEnsembleParameters =
+            ensembles.front()->correlationSortedEnsembleParameters( curveDefsTornadoAndCrossPlot.front().summaryAddress(),
+                                                                    timeStep );
+        if ( !correlationSortedEnsembleParameters.empty() )
+        {
+            QString crossPlotEnsembleParameterName = correlationSortedEnsembleParameters.front().first.name;
+            plot->crossPlot()->setEnsembleParameter( crossPlotEnsembleParameterName );
+        }
+        plot->matrixPlot()->setTimeStep( timeStep );
     }
 }
 
@@ -351,12 +371,17 @@ void RimCorrelationPlotCollection::applyEnsembleFieldAndTimeStepToReport( RimCor
                 curveDefsTornadoAndCrossPlot.push_back( RiaSummaryCurveDefinition( ensemble, address ) );
             }
         }
+
         plot->matrixPlot()->setCurveDefinitions( curveDefsMatrix );
         plot->matrixPlot()->setTimeStep( timeStep );
         plot->correlationPlot()->setCurveDefinitions( curveDefsTornadoAndCrossPlot );
         plot->correlationPlot()->setTimeStep( timeStep );
         plot->crossPlot()->setCurveDefinitions( curveDefsTornadoAndCrossPlot );
         plot->crossPlot()->setTimeStep( timeStep );
-        plot->crossPlot()->setEnsembleParameter( ensemble->variationSortedEnsembleParameters().front().name );
+
+        auto correlationSortedEnsembleParameters =
+            ensemble->correlationSortedEnsembleParameters( curveDefsTornadoAndCrossPlot.front().summaryAddress(), timeStep );
+        QString crossPlotEnsembleParameterName = correlationSortedEnsembleParameters.front().first.name;
+        plot->crossPlot()->setEnsembleParameter( crossPlotEnsembleParameterName );
     }
 }

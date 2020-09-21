@@ -473,6 +473,37 @@ const std::vector<EnsembleParameter>&
     return m_cachedSortedEnsembleParameters;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<EnsembleParameter, double>>
+    RimSummaryCaseCollection::correlationSortedEnsembleParameters( const RifEclipseSummaryAddress& address ) const
+{
+    auto parameters = parameterCorrelationsAllTimeSteps( address );
+    std::sort( parameters.begin(),
+               parameters.end(),
+               []( const std::pair<EnsembleParameter, double>& lhs, const std::pair<EnsembleParameter, double>& rhs ) {
+                   return std::abs( lhs.second ) > std::abs( rhs.second );
+               } );
+    return parameters;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<EnsembleParameter, double>>
+    RimSummaryCaseCollection::correlationSortedEnsembleParameters( const RifEclipseSummaryAddress& address,
+                                                                   time_t selectedTimeStep ) const
+{
+    auto parameters = parameterCorrelations( address, selectedTimeStep );
+    std::sort( parameters.begin(),
+               parameters.end(),
+               []( const std::pair<EnsembleParameter, double>& lhs, const std::pair<EnsembleParameter, double>& rhs ) {
+                   return std::abs( lhs.second ) > std::abs( rhs.second );
+               } );
+    return parameters;
+}
+
 time_t timeDiff( time_t lhs, time_t rhs )
 {
     if ( lhs >= rhs )

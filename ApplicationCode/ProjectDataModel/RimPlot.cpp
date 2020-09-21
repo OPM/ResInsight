@@ -282,13 +282,3 @@ void RimPlot::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
 {
     loadDataAndUpdate();
 }
-
-//--------------------------------------------------------------------------------------------------
-/// Is this inside another plot window?
-//--------------------------------------------------------------------------------------------------
-bool RimPlot::isSubPlot() const
-{
-    RimPlotWindow* parentPlotWindow = nullptr;
-    firstAncestorOfType( parentPlotWindow );
-    return parentPlotWindow != nullptr;
-}

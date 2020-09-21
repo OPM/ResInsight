@@ -91,7 +91,13 @@ public:
     void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
-    bool isSubPlot() const;
+    template <typename PlotWindowType = RimPlotWindow>
+    bool isSubPlot() const
+    {
+        PlotWindowType* parentPlotWindow = nullptr;
+        firstAncestorOfType( parentPlotWindow );
+        return parentPlotWindow != nullptr;
+    }
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

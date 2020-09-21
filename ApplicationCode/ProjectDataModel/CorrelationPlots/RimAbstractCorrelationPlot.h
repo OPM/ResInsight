@@ -60,9 +60,10 @@ public:
     int axisTitleFontSize() const;
     int axisValueFontSize() const;
 
-    void setLabelFontSize( caf::FontTools::RelativeSize fontSize );
-    void setAxisTitleFontSize( caf::FontTools::RelativeSize fontSize );
-    void setAxisValueFontSize( caf::FontTools::RelativeSize fontSize );
+    void             setLabelFontSize( caf::FontTools::RelativeSize fontSize );
+    void             setAxisTitleFontSize( caf::FontTools::RelativeSize fontSize );
+    void             setAxisValueFontSize( caf::FontTools::RelativeSize fontSize );
+    std::set<time_t> allAvailableTimeSteps();
 
 protected:
     // Overridden PDM methods
@@ -76,7 +77,6 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
 
-    std::set<time_t>                   allAvailableTimeSteps();
     RiaSummaryCurveDefinitionAnalyser* getOrCreateSelectedCurveDefAnalyser();
 
     std::set<RifEclipseSummaryAddress> addresses();

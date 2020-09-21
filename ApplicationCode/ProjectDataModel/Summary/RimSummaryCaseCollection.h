@@ -116,6 +116,10 @@ public:
 
     const std::vector<EnsembleParameter>& variationSortedEnsembleParameters( bool excludeNoVariation = false ) const;
     std::vector<std::pair<EnsembleParameter, double>>
+        correlationSortedEnsembleParameters( const RifEclipseSummaryAddress& address ) const;
+    std::vector<std::pair<EnsembleParameter, double>>
+        correlationSortedEnsembleParameters( const RifEclipseSummaryAddress& address, time_t selectedTimeStep ) const;
+    std::vector<std::pair<EnsembleParameter, double>>
         parameterCorrelations( const RifEclipseSummaryAddress& address,
                                time_t                          selectedTimeStep,
                                bool                            spearman           = false,
