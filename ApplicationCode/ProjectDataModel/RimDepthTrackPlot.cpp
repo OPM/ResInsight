@@ -798,7 +798,7 @@ void RimDepthTrackPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     else if ( changedField == &m_depthUnit )
     {
         m_isAutoScaleDepthEnabled = true;
-        updateZoom();
+        onLoadDataAndUpdate();
     }
     else if ( changedField == &m_subTitleFontSize || changedField == &m_axisTitleFontSize ||
               changedField == &m_axisValueFontSize )
