@@ -379,7 +379,6 @@ bool RiuGuiTheme::applyStyleSheet( RiaDefines::ThemeEnum theme )
             RiaGuiApplication* app        = RiaGuiApplication::instance();
             QString            styleSheet = styleSheetFile.readAll();
             preparseStyleSheet( theme, styleSheet );
-            qDebug() << styleSheet;
             app->setStyleSheet( styleSheet );
             styleSheetFile.close();
         }
@@ -506,9 +505,10 @@ bool RiuGuiTheme::writeStyleSheetToFile( RiaDefines::ThemeEnum theme, const QStr
     {
         if ( styleSheetFile.open( QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text ) )
         {
-            styleSheetFile.write( styleSheet.toLatin1() );
-            styleSheetFile.close();
             QString modifiedStyleSheet = styleSheet;
+            formatStyleSheetForWriting( modifiedStyleSheet );
+            styleSheetFile.write( modifiedStyleSheet.toLatin1() );
+            styleSheetFile.close();
             preparseStyleSheet( theme, modifiedStyleSheet );
             RiaGuiApplication* app = RiaGuiApplication::instance();
             app->setStyleSheet( modifiedStyleSheet );
@@ -752,7 +752,7 @@ void RiuGuiTheme::preparseStyleSheet( RiaDefines::ThemeEnum theme, QString& styl
 {
     QRegularExpression variableRegExp(
         "[ \\t]*(?<name>\\$[a-zA-z0-9_]+)[ \\t]*:[ \\t]*(?<value>[a-zA-Z-_0-9#]+);[ \\t]*(\\/\\/[ "
-        "\\t]*(?<descriptor>(.*)))?" );
+        "\\t]*(?<descriptor>(.*)))?[\\n\\r]*" );
     QRegularExpressionMatchIterator matchIterator = variableRegExp.globalMatch( styleSheet );
 
     if ( !s_variableValueMap.keys().contains( theme ) )
@@ -768,13 +768,29 @@ void RiuGuiTheme::preparseStyleSheet( RiaDefines::ThemeEnum theme, QString& styl
     {
         QRegularExpressionMatch match = matchIterator.next();
         styleSheet.replace( match.captured( 0 ), "" );
-        if ( s_variableValueMap[theme].keys().contains( match.captured( "name" ) ) )
+
+        QRegularExpression              replaceRegExp( "(\\" + match.captured( "name" ) + ")([ ;\\n\\t]+)" );
+        QRegularExpressionMatchIterator replaceMatchIterator = replaceRegExp.globalMatch( styleSheet );
+        while ( replaceMatchIterator.hasNext() )
         {
-            styleSheet.replace( match.captured( "name" ), s_variableValueMap[theme].value( match.captured( "name" ) ) );
+            QRegularExpressionMatch replaceMatch = replaceMatchIterator.next();
+            if ( s_variableValueMap[theme].keys().contains( match.captured( "name" ) ) )
+            {
+                styleSheet = styleSheet.left( replaceMatch.capturedStart( 1 ) ) +
+                             s_variableValueMap[theme].value( match.captured( "name" ) ) + replaceMatch.captured( 2 ) +
+                             styleSheet.right( styleSheet.length() - replaceMatch.capturedEnd( 0 ) );
+            }
+            else
+            {
+                styleSheet = styleSheet.left( replaceMatch.capturedStart( 0 ) ) + match.captured( "value" ) +
+                             replaceMatch.captured( 2 ) +
+                             styleSheet.right( styleSheet.length() - replaceMatch.capturedEnd( 0 ) );
+            }
+            // Positions got updated, we need to reassign the iterator.
+            replaceMatchIterator = replaceRegExp.globalMatch( styleSheet );
         }
-        else
+        if ( !s_variableValueMap[theme].keys().contains( match.captured( "name" ) ) )
         {
-            styleSheet.replace( match.captured( "name" ), match.captured( "value" ) );
             s_variableValueMap[theme].insert( match.captured( "name" ), match.captured( "value" ) );
             s_variableGuiTextMap[theme].insert( match.captured( "name" ), match.captured( "descriptor" ) );
         }
@@ -902,4 +918,12 @@ QwtSymbol* RiuGuiTheme::cloneCurveSymbol( QwtPlotCurve* curve )
     symbol->setSize( curve->symbol()->size() );
     symbol->setPinPoint( curve->symbol()->pinPoint() );
     return symbol;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuGuiTheme::formatStyleSheetForWriting( QString& styleSheet )
+{
+    styleSheet.replace( "\\r", "" );
 }
