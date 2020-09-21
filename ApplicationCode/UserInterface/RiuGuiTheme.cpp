@@ -380,7 +380,6 @@ bool RiuGuiTheme::applyStyleSheet( RiaDefines::ThemeEnum theme )
             QString            styleSheet = styleSheetFile.readAll();
             preparseStyleSheet( theme, styleSheet );
             app->setStyleSheet( styleSheet );
-            styleSheetFile.close();
         }
         return true;
     }
@@ -417,7 +416,6 @@ QMap<QString, QString> RiuGuiTheme::getVariableValueMap( RiaDefines::ThemeEnum t
             {
                 QString styleSheet = styleSheetFile.readAll();
                 preparseStyleSheet( theme, styleSheet );
-                styleSheetFile.close();
                 return s_variableValueMap[theme];
             }
         }
@@ -443,7 +441,6 @@ QMap<QString, QString> RiuGuiTheme::getVariableGuiTextMap( RiaDefines::ThemeEnum
             {
                 QString styleSheet = styleSheetFile.readAll();
                 preparseStyleSheet( theme, styleSheet );
-                styleSheetFile.close();
                 return s_variableGuiTextMap[theme];
             }
         }
@@ -482,7 +479,6 @@ QString RiuGuiTheme::applyVariableValueMapToStyleSheet( RiaDefines::ThemeEnum th
                                         .arg( s_variableValueMap[theme].value( match.captured( "name" ) ) )
                                         .arg( match.captured( "suffix" ) ) );
             }
-            styleSheetFile.close();
         }
         if ( styleSheetFile.open( QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text ) )
         {
@@ -508,7 +504,6 @@ bool RiuGuiTheme::writeStyleSheetToFile( RiaDefines::ThemeEnum theme, const QStr
             QString modifiedStyleSheet = styleSheet;
             formatStyleSheetForWriting( modifiedStyleSheet );
             styleSheetFile.write( modifiedStyleSheet.toLatin1() );
-            styleSheetFile.close();
             preparseStyleSheet( theme, modifiedStyleSheet );
             RiaGuiApplication* app = RiaGuiApplication::instance();
             app->setStyleSheet( modifiedStyleSheet );
