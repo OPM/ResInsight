@@ -203,6 +203,7 @@
         <file>themes/dark/expanded.svg</file>
         <file>themes/dark/arrow-down.svg</file>
         <file>themes/dark/arrow-up.svg</file>
+        <file>SummaryCase24x24.png</file>
     </qresource>
     <qresource prefix="/Shader">
         <file>fs_CellFace.glsl</file>
