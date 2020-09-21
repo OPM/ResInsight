@@ -379,6 +379,7 @@ bool RiuGuiTheme::applyStyleSheet( RiaDefines::ThemeEnum theme )
             RiaGuiApplication* app        = RiaGuiApplication::instance();
             QString            styleSheet = styleSheetFile.readAll();
             preparseStyleSheet( theme, styleSheet );
+            qDebug() << styleSheet;
             app->setStyleSheet( styleSheet );
             styleSheetFile.close();
         }
