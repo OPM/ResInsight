@@ -69,6 +69,7 @@ private:
     static Qt::PenStyle getPenStyleFromString( const QString& style );
     static QwtSymbol*   cloneMarkerSymbol( QwtPlotMarker* marker );
     static QwtSymbol*   cloneCurveSymbol( QwtPlotCurve* curve );
+    static void         formatStyleSheetForWriting( QString& styleSheet );
 
 private:
     static QMap<RiaDefines::ThemeEnum, QMap<QString, QString>>                 s_variableValueMap;
