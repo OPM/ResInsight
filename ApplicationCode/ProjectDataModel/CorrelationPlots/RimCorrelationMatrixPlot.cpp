@@ -164,8 +164,8 @@ RimCorrelationMatrixPlot::RimCorrelationMatrixPlot()
                        "",
                        "",
                        "" );
-    CAF_PDM_InitField( &m_showOnlyTopNCorrelations, "ShowOnlyTopNCorrelations", false, "Show Only Top Correlations", "", "", "" );
-    CAF_PDM_InitField( &m_topNFilterCount, "TopNFilterCount", 15, "Number rows/columns", "", "", "" );
+    CAF_PDM_InitField( &m_showOnlyTopNCorrelations, "ShowOnlyTopNCorrelations", true, "Show Only Top Correlations", "", "", "" );
+    CAF_PDM_InitField( &m_topNFilterCount, "TopNFilterCount", 20, "Number rows/columns", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendConfig", "", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_selectedParametersList, "SelectedParameters", "Select Parameters", "", "", "" );
     m_selectedParametersList.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
