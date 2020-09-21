@@ -34,6 +34,7 @@ class RimWellPath;
 class RimModeledWellPath;
 class RimElasticProperties;
 class RigEclipseCaseData;
+class RimFaciesProperties;
 
 //==================================================================================================
 ///
@@ -132,6 +133,9 @@ public:
     double                    getOverburdenGradient( const QString& keyword ) const;
     double                    getUnderburdenGradient( const QString& keyword ) const;
 
+    void                 setFaciesProperties( RimFaciesProperties* faciesProperties );
+    RimFaciesProperties* faciesProperties() const;
+
     void updateReferringPlots();
 
 protected:
@@ -164,6 +168,7 @@ protected:
     caf::PdmField<double>                       m_boundingBoxHorizontal;
     caf::PdmPtrField<RimModeledWellPath*>       m_thicknessDirectionWellPath;
     caf::PdmChildField<RimElasticProperties*>   m_elasticProperties;
+    caf::PdmChildField<RimFaciesProperties*>    m_faciesProperties;
     caf::PdmField<double>                       m_defaultPorosity;
     caf::PdmField<double>                       m_defaultPermeability;
     caf::PdmField<double>                       m_verticalStress;
