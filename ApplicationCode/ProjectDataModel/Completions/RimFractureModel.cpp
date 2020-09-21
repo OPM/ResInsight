@@ -39,6 +39,8 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimElasticProperties.h"
+#include "RimEllipseFractureTemplate.h"
+#include "RimFaciesProperties.h"
 #include "RimFractureModelPlot.h"
 #include "RimModeledWellPath.h"
 #include "RimOilField.h"
@@ -68,7 +70,7 @@
 
 #include <cmath>
 
-CAF_PDM_SOURCE_INIT( RimFractureModel, "RimFractureModel" );
+    CAF_PDM_SOURCE_INIT( RimFractureModel, "RimFractureModel" );
 
 namespace caf
 {
@@ -249,6 +251,9 @@ RimFractureModel::RimFractureModel()
     m_elasticProperties.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_barrierAnnotation, "BarrierAnnotation", "Barrier Annotation", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_faciesProperties, "FaciesProperties", "Facies Properties", "", "", "" );
+    m_faciesProperties.uiCapability()->setUiHidden( true );
+    m_faciesProperties.uiCapability()->setUiTreeHidden( true );
 
     setDeletable( true );
 }
@@ -960,11 +965,32 @@ void RimFractureModel::setElasticProperties( RimElasticProperties* elasticProper
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimFaciesProperties* RimFractureModel::faciesProperties() const
+{
+    return m_faciesProperties;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModel::setFaciesProperties( RimFaciesProperties* faciesProperties )
+{
+    m_faciesProperties = faciesProperties;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFractureModel::loadDataAndUpdate()
 {
     if ( m_elasticProperties )
     {
         m_elasticProperties->loadDataAndUpdate();
+    }
+
+    if ( m_faciesProperties )
+    {
+        m_faciesProperties->loadDataAndUpdate();
     }
 }
 
@@ -1119,9 +1145,9 @@ double RimFractureModel::getDefaultValueForProperty( RiaDefines::CurveProperty c
 //--------------------------------------------------------------------------------------------------
 bool RimFractureModel::hasDefaultValueForProperty( RiaDefines::CurveProperty curveProperty ) const
 {
-    auto withDefaults = {RiaDefines::CurveProperty::RELATIVE_PERMEABILITY_FACTOR,
-                         RiaDefines::CurveProperty::PORO_ELASTIC_CONSTANT,
-                         RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFICIENT};
+    auto withDefaults = { RiaDefines::CurveProperty::RELATIVE_PERMEABILITY_FACTOR,
+                          RiaDefines::CurveProperty::PORO_ELASTIC_CONSTANT,
+                          RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFICIENT };
     return std::find( withDefaults.begin(), withDefaults.end(), curveProperty ) != withDefaults.end();
 }
 
