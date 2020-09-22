@@ -19,7 +19,7 @@
 #pragma once
 
 class RimColorLegend;
-class RimFractureModel;
+class RimFractureModelTemplate;
 
 namespace cvf
 {
@@ -34,9 +34,9 @@ class QString;
 class RicFaciesPropertiesImportTools
 {
 public:
-    static void importFaciesPropertiesFromFile( const QString&    filePath,
-                                                RimFractureModel* fractureModel,
-                                                bool              createColorLegend = false );
+    static void importFaciesPropertiesFromFile( const QString&            filePath,
+                                                RimFractureModelTemplate* fractureModelTemplate,
+                                                bool                      createColorLegend = false );
 
 private:
     static int  computeEditDistance( const QString& a, const QString& b );

@@ -69,7 +69,9 @@ caf::PdmObjectHandle* RimcFractureModelCollection_newFractureModel::execute()
     {
         newFractureModel->setMD( m_md() );
 
-        RicElasticPropertiesImportTools::importElasticPropertiesFromFile( m_elasticPropertiesFilePath, newFractureModel );
+        // TODO: fix this!!!
+        //        RicElasticPropertiesImportTools::importElasticPropertiesFromFile( m_elasticPropertiesFilePath,
+        //        newFractureModel );
 
         self<RimFractureModelCollection>()->updateAllRequiredEditors();
     }
