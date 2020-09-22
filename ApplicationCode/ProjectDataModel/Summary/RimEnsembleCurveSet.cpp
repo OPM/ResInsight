@@ -930,6 +930,8 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
     {
         if ( isCurvesVisible() )
         {
+            std::vector<RimSummaryCurve*> newSummaryCurves;
+
             for ( auto& sumCase : sumCases )
             {
                 RimSummaryCurve* curve = new RimSummaryCurve();
@@ -940,12 +942,23 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
                 addCurve( curve );
 
                 curve->updateCurveVisibility();
-                curve->loadDataAndUpdate( false );
-                curve->updateQwtPlotAxis();
 
-                if ( curve->qwtPlotCurve() )
+                newSummaryCurves.push_back( curve );
+            }
+
+#pragma omp parallel for
+            for ( int i = 0; i < (int)newSummaryCurves.size(); ++i )
+            {
+                newSummaryCurves[i]->valuesX();
+            }
+
+            for ( int i = 0; i < (int)newSummaryCurves.size(); ++i )
+            {
+                newSummaryCurves[i]->loadDataAndUpdate( false );
+                newSummaryCurves[i]->updateQwtPlotAxis();
+                if ( newSummaryCurves[i]->qwtPlotCurve() )
                 {
-                    curve->qwtPlotCurve()->setItemAttribute( QwtPlotItem::Legend, false );
+                    newSummaryCurves[i]->qwtPlotCurve()->setItemAttribute( QwtPlotItem::Legend, false );
                 }
             }
 
