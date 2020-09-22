@@ -48,6 +48,7 @@ template <>
 void AppEnum<RimElementVectorResult::ScaleMethod>::setUp()
 {
     addItem( RimElementVectorResult::ScaleMethod::RESULT, "RESULT", "Result" );
+    addItem( RimElementVectorResult::ScaleMethod::RESULT_LOG, "RESULT_LOG", "Result (logarithmic scaling)" );
     addItem( RimElementVectorResult::ScaleMethod::CONSTANT, "CONSTANT", "Constant" );
 
     setDefault( RimElementVectorResult::ScaleMethod::RESULT );
@@ -80,7 +81,7 @@ RimElementVectorResult::RimElementVectorResult()
 
     CAF_PDM_InitField( &m_showResult, "ShowResult", false, "", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_vectorView, "VectorView", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_vectorView, "VectorView", "View vectors", "", "", "" );
 
     CAF_PDM_InitField( &m_showVectorI, "ShowVectorI", true, "I", "", "", "" );
     CAF_PDM_InitField( &m_showVectorJ, "ShowVectorJ", true, "J", "", "", "" );

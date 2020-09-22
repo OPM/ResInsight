@@ -53,6 +53,7 @@ public:
     enum class ScaleMethod
     {
         RESULT,
+        RESULT_LOG,
         CONSTANT
     };
 
