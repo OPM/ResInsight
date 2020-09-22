@@ -45,6 +45,7 @@
 #include "RimAnnotationTextAppearance.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimCommandObject.h"
+#include "RimCompletionTemplateCollection.h"
 #include "RimCorrelationPlot.h"
 #include "RimCorrelationPlotCollection.h"
 #include "RimCorrelationReportPlot.h"
@@ -549,7 +550,7 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
             observedFmuData->createRftReaderInterface();
         }
 
-        oilField->fractureDefinitionCollection()->loadAndUpdateData();
+        oilField->completionTemplateCollection()->loadAndUpdateData();
         oilField->fractureDefinitionCollection()->createAndAssignTemplateCopyForNonMatchingUnit();
 
         {

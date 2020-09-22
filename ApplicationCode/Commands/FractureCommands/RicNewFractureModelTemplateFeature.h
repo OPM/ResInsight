@@ -18,19 +18,19 @@
 
 #pragma once
 
-#include <QString>
+#include "cafCmdFeature.h"
 
-class RimFractureModelTemplate;
+#include <vector>
 
-//--------------------------------------------------------------------------------------------------
+//==================================================================================================
 ///
-//--------------------------------------------------------------------------------------------------
-class RicElasticPropertiesImportTools
+//==================================================================================================
+class RicNewFractureModelTemplateFeature : public caf::CmdFeature
 {
-public:
-    static void importElasticPropertiesFromFile( const QString& filePath, RimFractureModelTemplate* fractureModelTemplate );
+    CAF_CMD_HEADER_INIT;
 
-private:
-    // Hidden to avoid instantiation
-    RicElasticPropertiesImportTools();
+protected:
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
+    bool isCommandEnabled() override;
 };

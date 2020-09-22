@@ -34,6 +34,7 @@
 #include "RimElasticProperties.h"
 #include "RimFractureModel.h"
 #include "RimFractureModelPlot.h"
+#include "RimFractureModelTemplate.h"
 #include "RimModeledWellPath.h"
 #include "RimProject.h"
 #include "RimTools.h"
@@ -212,7 +213,14 @@ void RimElasticPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength
             return;
         }
 
-        RimElasticProperties* elasticProperties = m_fractureModel->elasticProperties();
+        RimFractureModelTemplate* fractureModelTemplate = m_fractureModel->fractureModelTemplate();
+        if ( !fractureModelTemplate )
+        {
+            RiaLogging::error( QString( "No fracture model template found" ) );
+            return;
+        }
+
+        RimElasticProperties* elasticProperties = fractureModelTemplate->elasticProperties();
         if ( !elasticProperties )
         {
             RiaLogging::error( QString( "No elastic properties found" ) );

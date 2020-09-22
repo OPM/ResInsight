@@ -73,6 +73,8 @@
 #include "RimFractureModel.h"
 #include "RimFractureModelCollection.h"
 #include "RimFractureModelPlot.h"
+#include "RimFractureModelTemplate.h"
+#include "RimFractureModelTemplateCollection.h"
 #include "RimFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
@@ -442,8 +444,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             {
                 menuBuilder << "RicNewFractureModelFeature";
                 menuBuilder << "RicNewFractureModelPlotFeature";
-                menuBuilder << "RicImportFaciesFeature";
-                menuBuilder << "RicImportElasticPropertiesFeature";
             }
         }
         else if ( dynamic_cast<RimFractureModelCollection*>( firstUiItem ) )
@@ -882,9 +882,14 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicNewValveTemplateFeature";
         }
-        else if ( dynamic_cast<RimValveTemplate*>( firstUiItem ) )
+        else if ( dynamic_cast<RimFractureModelTemplate*>( firstUiItem ) )
         {
-            menuBuilder << "RicDeleteValveTemplateFeature";
+            menuBuilder << "RicImportFaciesFeature";
+            menuBuilder << "RicImportElasticPropertiesFeature";
+        }
+        else if ( dynamic_cast<RimFractureModelTemplateCollection*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewFractureModelTemplateFeature";
         }
         else if ( dynamic_cast<RimFractureTemplateCollection*>( firstUiItem ) )
         {

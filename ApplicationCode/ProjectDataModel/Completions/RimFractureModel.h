@@ -39,6 +39,7 @@ class RigEclipseCaseData;
 class RimAnnotationCollection;
 class RimUserDefinedPolylinesAnnotation;
 class RimFaciesProperties;
+class RimFractureModelTemplate;
 
 //==================================================================================================
 ///
@@ -122,10 +123,10 @@ public:
 
     void loadDataAndUpdate();
 
-    RimModeledWellPath*   thicknessDirectionWellPath() const;
-    void                  setThicknessDirectionWellPath( RimModeledWellPath* thicknessDirectionWellPath );
-    void                  setElasticProperties( RimElasticProperties* elasticProperties );
-    RimElasticProperties* elasticProperties() const;
+    RimModeledWellPath* thicknessDirectionWellPath() const;
+    void                setThicknessDirectionWellPath( RimModeledWellPath* thicknessDirectionWellPath );
+    // void                  setElasticProperties( RimElasticProperties* elasticProperties );
+    // RimElasticProperties* elasticProperties() const;
 
     double getDefaultValueForProperty( RiaDefines::CurveProperty ) const;
     bool   hasDefaultValueForProperty( RiaDefines::CurveProperty ) const;
@@ -137,8 +138,8 @@ public:
     double                    getOverburdenGradient( const QString& keyword ) const;
     double                    getUnderburdenGradient( const QString& keyword ) const;
 
-    void                 setFaciesProperties( RimFaciesProperties* faciesProperties );
-    RimFaciesProperties* faciesProperties() const;
+    void                      setFractureModelTemplate( RimFractureModelTemplate* fractureModelTemplate );
+    RimFractureModelTemplate* fractureModelTemplate() const;
 
     void updateReferringPlots();
 
@@ -186,25 +187,11 @@ protected:
     caf::PdmField<double>                       m_boundingBoxVertical;
     caf::PdmField<double>                       m_boundingBoxHorizontal;
     caf::PdmPtrField<RimModeledWellPath*>       m_thicknessDirectionWellPath;
-    caf::PdmChildField<RimElasticProperties*>   m_elasticProperties;
-    caf::PdmChildField<RimFaciesProperties*>    m_faciesProperties;
     caf::PdmField<double>                       m_defaultPorosity;
     caf::PdmField<double>                       m_defaultPermeability;
     caf::PdmField<double>                       m_verticalStress;
     caf::PdmField<double>                       m_verticalStressGradient;
     caf::PdmField<double>                       m_stressDepth;
-    caf::PdmField<double>                       m_overburdenHeight;
-    caf::PdmField<double>                       m_overburdenPorosity;
-    caf::PdmField<double>                       m_overburdenPermeability;
-    caf::PdmField<QString>                      m_overburdenFormation;
-    caf::PdmField<QString>                      m_overburdenFacies;
-    caf::PdmField<double>                       m_overburdenFluidDensity;
-    caf::PdmField<double>                       m_underburdenHeight;
-    caf::PdmField<double>                       m_underburdenPorosity;
-    caf::PdmField<double>                       m_underburdenPermeability;
-    caf::PdmField<QString>                      m_underburdenFormation;
-    caf::PdmField<QString>                      m_underburdenFacies;
-    caf::PdmField<double>                       m_underburdenFluidDensity;
     caf::PdmField<double>                       m_referenceTemperature;
     caf::PdmField<double>                       m_referenceTemperatureGradient;
     caf::PdmField<double>                       m_referenceTemperatureDepth;
@@ -212,6 +199,9 @@ protected:
     caf::PdmField<double>                       m_poroElasticConstantDefault;
     caf::PdmField<double>                       m_thermalExpansionCoeffientDefault;
     caf::PdmField<bool>                         m_useDetailedFluidLoss;
+
+    caf::PdmPtrField<RimFractureModelTemplate*> m_fractureModelTemplate;
+    caf::PdmField<bool>                         m_editFractureModelTemplate;
 
     caf::PdmField<caf::AppEnum<FractureOrientation>> m_fractureOrientation;
     caf::PdmField<double>                            m_perforationLength;
