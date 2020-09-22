@@ -678,9 +678,16 @@ EnsembleParameter RimSummaryCaseCollection::createEnsembleParameter( const QStri
     size_t numericValuesCount = 0;
     size_t textValuesCount    = 0;
 
+    auto summaryCases = allSummaryCases();
+    // Make sure the values list exactly matches the case count
+    // And use an invalid value (infinity) for invalid cases.
+    eParam.values.resize( summaryCases.size(), std::numeric_limits<double>::infinity() );
+
     // Prepare case realization params, and check types
-    for ( const auto& rimCase : allSummaryCases() )
+    for ( size_t caseIdx = 0; caseIdx < summaryCases.size(); ++caseIdx )
     {
+        auto rimCase = summaryCases[caseIdx];
+
         auto crp = rimCase->caseRealizationParameters();
         if ( !crp ) continue;
 
@@ -689,15 +696,15 @@ EnsembleParameter RimSummaryCaseCollection::createEnsembleParameter( const QStri
 
         if ( value.isNumeric() )
         {
-            double numVal = value.numericValue();
-            eParam.values.push_back( QVariant( numVal ) );
+            double numVal          = value.numericValue();
+            eParam.values[caseIdx] = QVariant( numVal );
             if ( numVal < eParam.minValue ) eParam.minValue = numVal;
             if ( numVal > eParam.maxValue ) eParam.maxValue = numVal;
             numericValuesCount++;
         }
         else if ( value.isText() )
         {
-            eParam.values.push_back( QVariant( value.textValue() ) );
+            eParam.values[caseIdx] = QVariant( value.textValue() );
             textValuesCount++;
         }
     }
