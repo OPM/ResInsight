@@ -84,7 +84,7 @@ RimCorrelationReportPlot::RimCorrelationReportPlot()
     m_correlationPlot->setLegendsVisible( false );
 
     m_parameterResultCrossPlot = new RimParameterResultCrossPlot;
-    m_parameterResultCrossPlot->setLegendsVisible( false );
+    m_parameterResultCrossPlot->setLegendsVisible( true );
 
     this->uiCapability()->setUiTreeChildrenHidden( true );
 

@@ -1131,13 +1131,7 @@ std::vector<std::pair<EnsembleParameter, double>> RimEnsembleCurveSet::correlati
     RimSummaryCaseCollection* ensemble = m_yValuesSummaryCaseCollection;
     if ( ensemble )
     {
-        auto parameters = ensemble->parameterCorrelationsAllTimeSteps( summaryAddress() );
-        std::sort( parameters.begin(),
-                   parameters.end(),
-                   []( const std::pair<EnsembleParameter, double>& lhs, const std::pair<EnsembleParameter, double>& rhs ) {
-                       return std::abs( lhs.second ) > std::abs( rhs.second );
-                   } );
-        return parameters;
+        return ensemble->correlationSortedEnsembleParameters( summaryAddress() );
     }
     else
     {

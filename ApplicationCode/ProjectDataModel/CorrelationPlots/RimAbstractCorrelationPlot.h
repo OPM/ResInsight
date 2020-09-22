@@ -60,9 +60,10 @@ public:
     int axisTitleFontSize() const;
     int axisValueFontSize() const;
 
-    void setLabelFontSize( caf::FontTools::RelativeSize fontSize );
-    void setAxisTitleFontSize( caf::FontTools::RelativeSize fontSize );
-    void setAxisValueFontSize( caf::FontTools::RelativeSize fontSize );
+    void             setLabelFontSize( caf::FontTools::RelativeSize fontSize );
+    void             setAxisTitleFontSize( caf::FontTools::RelativeSize fontSize );
+    void             setAxisValueFontSize( caf::FontTools::RelativeSize fontSize );
+    std::set<time_t> allAvailableTimeSteps();
 
 protected:
     // Overridden PDM methods
@@ -76,7 +77,6 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
 
-    std::set<time_t>                   allAvailableTimeSteps();
     RiaSummaryCurveDefinitionAnalyser* getOrCreateSelectedCurveDefAnalyser();
 
     std::set<RifEclipseSummaryAddress> addresses();
@@ -98,7 +98,6 @@ protected:
     RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
 
     void reattachAllCurves() override {}
-    void doRemoveFromCollection() override {}
     void updateZoomInQwt() override {}
     void updateZoomFromQwt() override {}
     void setAutoScaleXEnabled( bool enabled ) override {}
@@ -120,7 +119,6 @@ protected:
 private:
     void onCaseRemoved( const SignalEmitter* emitter, RimSummaryCase* summaryCase );
     void connectAllCaseSignals();
-    void disconnectAllCaseSignals();
 
 protected:
     std::unique_ptr<RiaSummaryCurveDefinitionAnalyser> m_analyserOfSelectedCurveDefs;
@@ -136,7 +134,6 @@ protected:
     caf::PdmField<TimeStepFilterEnum> m_timeStepFilter;
     caf::PdmField<QDateTime>          m_timeStep;
 
-    caf::PdmField<bool>    m_showPlotTitle;
     caf::PdmField<bool>    m_useAutoPlotTitle;
     caf::PdmField<QString> m_description;
 

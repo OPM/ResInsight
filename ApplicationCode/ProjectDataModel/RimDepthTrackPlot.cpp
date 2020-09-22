@@ -86,7 +86,7 @@ RimDepthTrackPlot::RimDepthTrackPlot()
     m_commonDataSource.xmlCapability()->disableIO();
     m_commonDataSource = new RimWellLogCurveCommonDataSource;
 
-    CAF_PDM_InitScriptableField( &m_showPlotWindowTitle, "ShowTitleInPlot", true, "Show Title", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_showPlotWindowTitle_OBSOLETE, "ShowTitleInPlot", true, "Show Title", "", "", "" );
 
     CAF_PDM_InitField( &m_plotWindowTitle, "PlotDescription", QString( "" ), "Name", "", "", "" );
     m_plotWindowTitle.xmlCapability()->setIOWritable( false );
@@ -149,6 +149,48 @@ RimDepthTrackPlot::~RimDepthTrackPlot()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Move-assignment operator. Argument has to be passed with std::move()
+//--------------------------------------------------------------------------------------------------
+RimDepthTrackPlot& RimDepthTrackPlot::operator=( RimDepthTrackPlot&& rhs )
+{
+    RimPlotWindow::operator=( std::move( rhs ) );
+
+    // Move all tracks
+    std::vector<RimPlot*> plots = rhs.m_plots.childObjects();
+    rhs.m_plots.clear();
+    for ( RimPlot* plot : plots )
+    {
+        m_plots.push_back( plot );
+    }
+
+    // Deliberately don't set m_plotWindowTitle and m_nameConfig. This operator is used for copying parameters from
+    // children. This only happens for some plots that used to own a plot but now inherits the plot.
+    // They had their own description at top level which we don't want to overwrite.
+
+    m_showPlotWindowTitle_OBSOLETE = rhs.m_showPlotWindowTitle_OBSOLETE;
+
+    auto dataSource = rhs.m_commonDataSource();
+    rhs.m_commonDataSource.removeChildObject( dataSource );
+    m_commonDataSource        = dataSource;
+    m_commonDataSourceEnabled = rhs.m_commonDataSourceEnabled;
+
+    m_depthType               = rhs.m_depthType();
+    m_depthUnit               = rhs.m_depthUnit();
+    m_minVisibleDepth         = rhs.m_minVisibleDepth();
+    m_maxVisibleDepth         = rhs.m_maxVisibleDepth();
+    m_depthAxisGridVisibility = rhs.m_depthAxisGridVisibility();
+    m_isAutoScaleDepthEnabled = rhs.m_isAutoScaleDepthEnabled();
+
+    m_subTitleFontSize  = rhs.m_subTitleFontSize();
+    m_axisTitleFontSize = rhs.m_axisTitleFontSize();
+    m_axisValueFontSize = rhs.m_axisValueFontSize();
+
+    m_minAvailableDepth = rhs.m_minAvailableDepth;
+    m_maxAvailableDepth = rhs.m_maxAvailableDepth;
+    return *this;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 QWidget* RimDepthTrackPlot::viewWidget()
@@ -170,68 +212,6 @@ QWidget* RimDepthTrackPlot::createPlotWidget( QWidget* mainWindowParent /*= null
 QString RimDepthTrackPlot::description() const
 {
     return m_plotWindowTitle;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimDepthTrackPlot::isPlotTitleVisible() const
-{
-    return m_showPlotWindowTitle;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimDepthTrackPlot::setPlotTitleVisible( bool visible )
-{
-    m_showPlotWindowTitle = visible;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimDepthTrackPlot::addPlot( RimPlot* plot )
-{
-    insertPlot( plot, m_plots.size() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimDepthTrackPlot::insertPlot( RimPlot* plot, size_t index )
-{
-    if ( plot )
-    {
-        m_plots.insert( index, plot );
-
-        if ( m_viewer )
-        {
-            plot->createPlotWidget();
-            m_viewer->insertPlot( plot->viewer(), index );
-        }
-        plot->setShowWindow( true );
-        plot->setLegendsVisible( false );
-
-        onPlotAdditionOrRemoval();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimDepthTrackPlot::removePlot( RimPlot* plot )
-{
-    if ( plot )
-    {
-        if ( m_viewer )
-        {
-            m_viewer->removePlot( plot->viewer() );
-        }
-        m_plots.removeChildObject( plot );
-
-        onPlotAdditionOrRemoval();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -425,7 +405,7 @@ void RimDepthTrackPlot::uiOrderingForDepthAxis( QString uiConfigName, caf::PdmUi
 //--------------------------------------------------------------------------------------------------
 void RimDepthTrackPlot::uiOrderingForAutoName( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_showPlotWindowTitle );
+    uiOrdering.add( &m_showPlotTitle );
     m_nameConfig->uiOrdering( uiConfigName, uiOrdering );
 }
 
@@ -559,7 +539,7 @@ void RimDepthTrackPlot::performAutoNameUpdate()
     m_plotWindowTitle = createAutoName();
     if ( m_viewer )
     {
-        m_viewer->setTitleVisible( m_showPlotWindowTitle() );
+        m_viewer->setTitleVisible( m_showPlotTitle() );
         m_viewer->setPlotTitle( m_plotWindowTitle );
     }
     updateMdiWindowTitle();
@@ -692,7 +672,7 @@ void RimDepthTrackPlot::onPlotAdditionOrRemoval()
     calculateAvailableDepthRange();
     updateZoom();
     updateSubPlotNames();
-    updateConnectedEditors();
+    updateAllRequiredEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -729,7 +709,6 @@ void RimDepthTrackPlot::onPlotsReordered( const SignalEmitter* emitter )
     recreatePlotWidgets();
     loadDataAndUpdate();
 }
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -826,7 +805,7 @@ void RimDepthTrackPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     {
         updateFonts();
     }
-    else if ( changedField == &m_showPlotWindowTitle )
+    else if ( changedField == &m_showPlotTitle )
     {
         performAutoNameUpdate();
     }
@@ -910,11 +889,15 @@ void RimDepthTrackPlot::initAfterRead()
         m_depthAxisGridVisibility = AXIS_GRID_MAJOR_AND_MINOR;
     }
 
+    if ( !m_showPlotWindowTitle_OBSOLETE() )
+    {
+        m_showPlotTitle = false;
+    }
+
     if ( !m_plotWindowTitle().isEmpty() )
     {
         m_nameConfig->setCustomName( m_plotWindowTitle );
     }
-
     performAutoNameUpdate();
 }
 
@@ -968,6 +951,44 @@ void RimDepthTrackPlot::updatePlots()
 caf::PdmFieldHandle* RimDepthTrackPlot::userDescriptionField()
 {
     return &m_plotWindowTitle;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimDepthTrackPlot::insertPlot( RimPlot* plot, size_t index )
+{
+    if ( plot )
+    {
+        m_plots.insert( index, plot );
+
+        if ( m_viewer )
+        {
+            plot->createPlotWidget();
+            m_viewer->insertPlot( plot->viewer(), index );
+        }
+        plot->setShowWindow( true );
+        plot->setLegendsVisible( false );
+
+        onPlotAdditionOrRemoval();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimDepthTrackPlot::removePlot( RimPlot* plot )
+{
+    if ( plot )
+    {
+        if ( m_viewer )
+        {
+            m_viewer->removePlot( plot->viewer() );
+        }
+        m_plots.removeChildObject( plot );
+
+        onPlotAdditionOrRemoval();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1098,6 +1119,9 @@ void RimDepthTrackPlot::setDepthUnit( RiaDefines::DepthUnitType depthUnit )
     updateLayout();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimDepthTrackPlot::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                                         std::vector<caf::PdmObjectHandle*>& referringObjects )
 {

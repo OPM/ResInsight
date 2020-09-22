@@ -21,7 +21,6 @@
 
 #include "cafPdmPointer.h"
 #include "cafSelectionChangedReceiver.h"
-#include "cafUiStyleSheet.h"
 
 #include <QFrame>
 #include <QGridLayout>
@@ -124,8 +123,6 @@ protected:
 
     std::pair<int, int> findAvailableRowAndColumn( int startRow, int startColumn, int columnSpan, int columnCount ) const;
 
-    void stashWidgetStates();
-    void restoreWidgetStates();
     void applyLook();
 private slots:
     virtual void performUpdate();

@@ -82,13 +82,14 @@ RimCorrelationPlot::RimCorrelationPlot()
                        "",
                        "",
                        "" );
-    CAF_PDM_InitField( &m_showOnlyTopNCorrelations, "ShowOnlyTopNCorrelations", false, "Show Only Top Correlations", "", "", "" );
-    CAF_PDM_InitField( &m_topNFilterCount, "TopNFilterCount", 15, "Number rows/columns", "", "", "" );
+    CAF_PDM_InitField( &m_showOnlyTopNCorrelations, "ShowOnlyTopNCorrelations", true, "Show Only Top Correlations", "", "", "" );
+    CAF_PDM_InitField( &m_topNFilterCount, "TopNFilterCount", 20, "Number rows/columns", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedParametersList, "SelectedParameters", "Select Parameters", "", "", "" );
     m_selectedParametersList.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_selectedParametersList.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
+    setLegendsVisible( false );
     setDeletable( true );
 }
 
@@ -296,12 +297,8 @@ void RimCorrelationPlot::updatePlotTitle()
                             .arg( timeStepString() );
     }
     m_plotWidget->setPlotTitle( m_description );
-    m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && isMdiWindow() );
-
-    if ( isMdiWindow() )
-    {
-        m_plotWidget->setPlotTitleFontSize( titleFontSize() );
-    }
+    m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && !isSubPlot() );
+    m_plotWidget->setPlotTitleFontSize( titleFontSize() );
 }
 
 //--------------------------------------------------------------------------------------------------

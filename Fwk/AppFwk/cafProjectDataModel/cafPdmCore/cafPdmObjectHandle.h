@@ -117,8 +117,10 @@ private:
     std::vector<std::pair<PdmObjectCapability*, bool>> m_capabilities;
 
     // Child/Parent Relationships
-    void            setAsParentField( PdmFieldHandle* parentField );
-    void            removeAsParentField( PdmFieldHandle* parentField );
+    void setAsParentField( PdmFieldHandle* parentField );
+    void removeAsParentField( PdmFieldHandle* parentField );
+    void disconnectObserverFromAllSignals( SignalObserver* observer );
+
     PdmFieldHandle* m_parentField;
 
     // PtrReferences

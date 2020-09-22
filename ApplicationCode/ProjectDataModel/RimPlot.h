@@ -91,6 +91,14 @@ public:
     void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
+    template <typename PlotWindowType = RimPlotWindow>
+    bool isSubPlot() const
+    {
+        PlotWindowType* parentPlotWindow = nullptr;
+        firstAncestorOfType( parentPlotWindow );
+        return parentPlotWindow != nullptr;
+    }
+
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -101,7 +109,6 @@ protected:
     void updateFonts() override;
 
 private:
-    virtual void              doRemoveFromCollection() = 0;
     virtual void              doRenderWindowContent( QPaintDevice* paintDevice ) override;
     virtual void              handleKeyPressEvent( QKeyEvent* event ) {}
     virtual void              handleWheelEvent( QWheelEvent* event ) {}

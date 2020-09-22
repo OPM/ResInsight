@@ -108,9 +108,17 @@ std::vector<RimSaturationPressurePlot*>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSaturationPressurePlot*> RimSaturationPressurePlotCollection::plots()
+std::vector<RimSaturationPressurePlot*> RimSaturationPressurePlotCollection::plots() const
 {
     return m_saturationPressurePlots.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RimSaturationPressurePlotCollection::plotCount() const
+{
+    return m_saturationPressurePlots.size();
 }
 
 //--------------------------------------------------------------------------------------------------

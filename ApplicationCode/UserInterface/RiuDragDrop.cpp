@@ -199,6 +199,10 @@ Qt::DropActions RiuDragDrop::supportedDropActions() const
     {
         return Qt::CopyAction;
     }
+    else if ( RiuTypedPdmObjects<RimPlot>::containsTypedObjects( m_dragItems ) )
+    {
+        // return Qt::CopyAction;
+    }
 
     return Qt::MoveAction;
 }

@@ -178,8 +178,6 @@ void RimWellLogExtractionCurve::setFromSimulationWellName( const QString& simWel
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::setCase( RimCase* rimCase )
 {
-    disconnectCaseSignals( m_case.value() );
-
     m_case = rimCase;
 
     connectCaseSignals( rimCase );
@@ -201,7 +199,6 @@ void RimWellLogExtractionCurve::setPropertiesFromView( Rim3dView* view )
 {
     if ( view )
     {
-        disconnectCaseSignals( m_case.value() );
         m_case = view->ownerCase();
         connectCaseSignals( m_case );
     }
@@ -1118,17 +1115,6 @@ void RimWellLogExtractionCurve::connectCaseSignals( RimCase* rimCase )
     if ( rimCase )
     {
         rimCase->settingsChanged.connect( this, &RimWellLogExtractionCurve::onCaseSettingsChanged );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellLogExtractionCurve::disconnectCaseSignals( RimCase* rimCase )
-{
-    if ( rimCase != nullptr )
-    {
-        rimCase->settingsChanged.disconnect( this );
     }
 }
 

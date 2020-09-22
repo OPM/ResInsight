@@ -34,13 +34,14 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseView.h"
+#include "RimFractureModel.h"
+#include "RimFractureModelCollection.h"
 #include "RimOilField.h"
 #include "RimPerforationCollection.h"
 #include "RimProject.h"
 #include "RimWellLogFile.h"
 #include "RimWellMeasurementCollection.h"
 #include "RimWellPath.h"
-
 #include "Riu3DMainWindowTools.h"
 
 #include "RifWellPathFormationsImporter.h"
@@ -143,10 +144,14 @@ void RimWellPathCollection::loadDataAndUpdate()
 {
     caf::ProgressInfo progress( wellPaths.size(), "Reading well paths from file" );
 
-    for ( size_t wpIdx = 0; wpIdx < wellPaths.size(); wpIdx++ )
+    readWellPathFormationFiles();
+
+    for ( RimWellPath* wellPath : wellPaths() )
     {
-        RimFileWellPath*    fWPath = dynamic_cast<RimFileWellPath*>( wellPaths[wpIdx] );
-        RimModeledWellPath* mWPath = dynamic_cast<RimModeledWellPath*>( wellPaths[wpIdx] );
+        progress.setProgressDescription( QString( "Reading file %1" ).arg( wellPath->name() ) );
+
+        RimFileWellPath*    fWPath = dynamic_cast<RimFileWellPath*>( wellPath );
+        RimModeledWellPath* mWPath = dynamic_cast<RimModeledWellPath*>( wellPath );
         if ( fWPath )
         {
             if ( !fWPath->filePath().isEmpty() )
@@ -157,8 +162,15 @@ void RimWellPathCollection::loadDataAndUpdate()
                     RiaLogging::warning( errorMessage );
                 }
             }
+        }
+        else if ( mWPath )
+        {
+            mWPath->createWellPathGeometry();
+        }
 
-            for ( RimWellLogFile* const wellLogFile : fWPath->wellLogFiles() )
+        if ( wellPath )
+        {
+            for ( RimWellLogFile* const wellLogFile : wellPath->wellLogFiles() )
             {
                 if ( wellLogFile )
                 {
@@ -169,13 +181,16 @@ void RimWellPathCollection::loadDataAndUpdate()
                     }
                 }
             }
-        }
-        else if ( mWPath )
-        {
-            mWPath->createWellPathGeometry();
-        }
 
-        progress.setProgressDescription( QString( "Reading file %1" ).arg( wellPaths[wpIdx]->name() ) );
+            RimFractureModelCollection* fractureModelCollection = wellPath->fractureModelCollection();
+            if ( fractureModelCollection )
+            {
+                for ( RimFractureModel* fractureModel : fractureModelCollection->allFractureModels() )
+                {
+                    fractureModel->loadDataAndUpdate();
+                }
+            }
+        }
         progress.incrementProgress();
     }
 

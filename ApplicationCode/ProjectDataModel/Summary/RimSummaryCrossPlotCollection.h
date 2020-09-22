@@ -18,16 +18,17 @@
 
 #pragma once
 
+#include "RimAbstractPlotCollection.h"
+#include "RimSummaryPlot.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 
-class RimSummaryPlot;
-
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimSummaryCrossPlotCollection : public caf::PdmObject
+class RimSummaryCrossPlotCollection : public caf::PdmObject, public RimTypedPlotCollection<RimSummaryPlot>
 {
     CAF_PDM_HEADER_INIT;
 
@@ -35,11 +36,14 @@ public:
     RimSummaryCrossPlotCollection();
     ~RimSummaryCrossPlotCollection() override;
 
-    void deleteAllChildObjects();
+    void deleteAllPlots() final;
 
-    std::vector<RimSummaryPlot*> summaryPlots() const;
-    RimSummaryPlot*              createSummaryPlot();
-    void                         addSummaryPlot( RimSummaryPlot* plot );
+    std::vector<RimSummaryPlot*> plots() const final;
+    size_t                       plotCount() const final;
+    void                         insertPlot( RimSummaryPlot* plot, size_t index ) final;
+    void                         removePlot( RimSummaryPlot* plot ) final;
+
+    RimSummaryPlot* createSummaryPlot();
 
     void updateSummaryNameHasChanged();
     void summaryPlotItemInfos( QList<caf::PdmOptionItemInfo>* optionInfos ) const;

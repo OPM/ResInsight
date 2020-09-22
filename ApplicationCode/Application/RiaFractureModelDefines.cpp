@@ -32,6 +32,7 @@ void AppEnum<RiaDefines::CurveProperty>::setUp()
     addItem( RiaDefines::CurveProperty::INITIAL_PRESSURE, "INITIAL_PRESSURE", "Initial Pressure" );
     addItem( RiaDefines::CurveProperty::PRESSURE, "PRESSURE", "Pressure" );
     addItem( RiaDefines::CurveProperty::STRESS, "STRESS", "Stress" );
+    addItem( RiaDefines::CurveProperty::INITIAL_STRESS, "INITIAL_STRESS", "Initial Stress" );
     addItem( RiaDefines::CurveProperty::STRESS_GRADIENT, "STRESS_GRADIENT", "Stress Gradient" );
     addItem( RiaDefines::CurveProperty::YOUNGS_MODULUS, "YOUNGS_MODULUS", "Young's Modulus" );
     addItem( RiaDefines::CurveProperty::POISSONS_RATIO, "POISSONS_RATIO", "Poisson's Ratio" );

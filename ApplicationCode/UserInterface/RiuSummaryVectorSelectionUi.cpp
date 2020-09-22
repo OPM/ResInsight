@@ -655,7 +655,7 @@ void RiuSummaryVectorSelectionUi::setSelectedCurveDefinitions( const std::vector
         }
         else
         {
-            if ( curveDef.summaryCase() && m_showIndividualEnsembleCases )
+            if ( curveDef.summaryCase() && ( !curveDef.ensemble() || m_showIndividualEnsembleCases ) )
             {
                 m_selectedSources.push_back( curveDef.summaryCase() );
                 handleAddedSource( curveDef.summaryCase() );
@@ -701,6 +701,9 @@ void RiuSummaryVectorSelectionUi::setSelectedCurveDefinitions( const std::vector
     }
 
     m_previouslySelectedSources = m_selectedSources.ptrReferencedObjects();
+
+    m_prevCurveCount    = allCurveDefinitionsFromSelection().size();
+    m_prevCurveSetCount = allCurveSetDefinitionsFromSelections().size();
 }
 
 //--------------------------------------------------------------------------------------------------

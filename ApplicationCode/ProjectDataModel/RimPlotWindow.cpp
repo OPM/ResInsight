@@ -52,6 +52,7 @@ RimPlotWindow::RimPlotWindow()
     m_id.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
     m_id.xmlCapability()->setCopyable( false );
 
+    CAF_PDM_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title", "", "", "" );
     CAF_PDM_InitField( &m_showPlotLegends, "ShowTrackLegends", true, "Show Legends", "", "", "" );
     CAF_PDM_InitField( &m_plotLegendsHorizontal, "TrackLegendsHorizontal", true, "Legend Orientation", "", "", "" );
     m_plotLegendsHorizontal.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
@@ -83,11 +84,28 @@ int RimPlotWindow::id() const
 //--------------------------------------------------------------------------------------------------
 RimPlotWindow& RimPlotWindow::operator=( RimPlotWindow&& rhs )
 {
+    m_showPlotTitle         = rhs.m_showPlotTitle();
     m_showPlotLegends       = rhs.m_showPlotLegends();
     m_plotLegendsHorizontal = rhs.m_plotLegendsHorizontal();
     m_titleFontSize         = rhs.m_titleFontSize();
     m_legendFontSize        = rhs.m_legendFontSize();
     return *this;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPlotWindow::plotTitleVisible() const
+{
+    return m_showPlotTitle;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotWindow::setPlotTitleVisible( bool showPlotTitle )
+{
+    m_showPlotTitle = showPlotTitle;
 }
 
 //--------------------------------------------------------------------------------------------------

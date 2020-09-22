@@ -38,7 +38,8 @@ public:
     std::vector<RimSaturationPressurePlot*> createSaturationPressurePlots( RimEclipseResultCase* eclipseResultCase,
                                                                            int                   timeStep );
 
-    std::vector<RimSaturationPressurePlot*> plots();
+    std::vector<RimSaturationPressurePlot*> plots() const;
+    size_t                                  plotCount() const;
     void                                    deleteAllChildObjects();
 
 private:

@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "cafUiStyleSheet.h"
-
 #include <QMainWindow>
 
 class QMdiArea;

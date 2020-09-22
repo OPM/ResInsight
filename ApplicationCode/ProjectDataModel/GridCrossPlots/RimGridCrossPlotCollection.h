@@ -17,16 +17,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RimAbstractPlotCollection.h"
+#include "RimGridCrossPlot.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 
-class RimGridCrossPlot;
-
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimGridCrossPlotCollection : public caf::PdmObject
+class RimGridCrossPlotCollection : public caf::PdmObject, public RimTypedPlotCollection<RimGridCrossPlot>
 {
     CAF_PDM_HEADER_INIT;
 
@@ -34,12 +35,12 @@ public:
     RimGridCrossPlotCollection();
     ~RimGridCrossPlotCollection() override;
 
-    void deleteAllChildObjects();
+    std::vector<RimGridCrossPlot*> plots() const final;
+    size_t                         plotCount() const final;
+    void                           insertPlot( RimGridCrossPlot* plot, size_t index ) final;
+    void                           removePlot( RimGridCrossPlot* plot ) final;
 
-    std::vector<RimGridCrossPlot*> gridCrossPlots() const;
-    RimGridCrossPlot*              createGridCrossPlot();
-    void                           addGridCrossPlot( RimGridCrossPlot* plot );
-    void                           removeGridCrossPlot( RimGridCrossPlot* plot );
+    RimGridCrossPlot* createGridCrossPlot();
 
 private:
     caf::PdmChildArrayField<RimGridCrossPlot*> m_gridCrossPlots;

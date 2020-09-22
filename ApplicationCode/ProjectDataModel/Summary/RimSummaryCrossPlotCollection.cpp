@@ -48,7 +48,7 @@ RimSummaryCrossPlotCollection::~RimSummaryCrossPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCrossPlotCollection::deleteAllChildObjects()
+void RimSummaryCrossPlotCollection::deleteAllPlots()
 {
     m_summaryCrossPlots.deleteAllChildObjects();
 }
@@ -56,9 +56,17 @@ void RimSummaryCrossPlotCollection::deleteAllChildObjects()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryPlot*> RimSummaryCrossPlotCollection::summaryPlots() const
+std::vector<RimSummaryPlot*> RimSummaryCrossPlotCollection::plots() const
 {
     return m_summaryCrossPlots.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RimSummaryCrossPlotCollection::plotCount() const
+{
+    return m_summaryCrossPlots.size();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,6 +97,23 @@ void RimSummaryCrossPlotCollection::summaryPlotItemInfos( QList<caf::PdmOptionIt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCrossPlotCollection::insertPlot( RimSummaryPlot* plot, size_t index )
+{
+    m_summaryCrossPlots.insert( index, plot );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCrossPlotCollection::removePlot( RimSummaryPlot* plot )
+{
+    m_summaryCrossPlots.removeChildObject( plot );
+    updateAllRequiredEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimSummaryPlot* RimSummaryCrossPlotCollection::createSummaryPlot()
 {
     RimSummaryPlot* plot = new RimSummaryCrossPlot();
@@ -97,12 +122,4 @@ RimSummaryPlot* RimSummaryCrossPlotCollection::createSummaryPlot()
     plot->setDescription( QString( "Summary Cross Plot %1" ).arg( m_summaryCrossPlots.size() ) );
 
     return plot;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCrossPlotCollection::addSummaryPlot( RimSummaryPlot* plot )
-{
-    m_summaryCrossPlots().push_back( plot );
 }

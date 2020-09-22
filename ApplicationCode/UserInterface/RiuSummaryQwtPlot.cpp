@@ -131,7 +131,7 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent /*= 
     RiuQwtPlotTools::setCommonPlotBehaviour( this );
     RiuQwtPlotTools::setDefaultAxes( this );
 
-    setLegendVisible( true );
+    setInternalLegendVisible( true );
 }
 
 //--------------------------------------------------------------------------------------------------

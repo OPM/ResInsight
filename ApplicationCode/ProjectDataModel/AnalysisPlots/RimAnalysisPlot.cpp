@@ -114,10 +114,6 @@ RimAnalysisPlot::RimAnalysisPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_referenceCase, "ReferenceCase", "Reference Case", "", "", "" );
 
-    CAF_PDM_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Title", "", "", "" );
-    m_showPlotTitle.xmlCapability()->setIOWritable( false );
-    m_showPlotTitle.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-
     CAF_PDM_InitField( &m_useAutoPlotTitle, "IsUsingAutoName", true, "Auto", "", "", "" );
     m_useAutoPlotTitle.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
@@ -202,7 +198,6 @@ RimPlotDataFilterCollection* RimAnalysisPlot::plotDataFilterCollection() const
 //--------------------------------------------------------------------------------------------------
 void RimAnalysisPlot::setCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions )
 {
-    disconnectAllCaseSignals();
     m_analysisPlotDataSelection.deleteAllChildObjects();
     for ( auto curveDef : curveDefinitions )
     {
@@ -460,7 +455,6 @@ void RimAnalysisPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         {
             std::vector<RiaSummaryCurveDefinition> summaryVectorDefinitions = dlg.curveSelection();
 
-            disconnectAllCaseSignals();
             m_analysisPlotDataSelection.deleteAllChildObjects();
             for ( const RiaSummaryCurveDefinition& vectorDef : summaryVectorDefinitions )
             {
@@ -1652,7 +1646,7 @@ void RimAnalysisPlot::updatePlotTitle()
     {
         QString plotTitle = description();
         m_plotWidget->setPlotTitle( plotTitle );
-        m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && isMdiWindow() );
+        m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && !isSubPlot() );
         m_plotWidget->scheduleReplot();
     }
 }
@@ -1813,20 +1807,6 @@ void RimAnalysisPlot::connectAllCaseSignals()
         if ( dataEntry->ensemble() )
         {
             dataEntry->ensemble()->caseRemoved.connect( this, &RimAnalysisPlot::onCaseRemoved );
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimAnalysisPlot::disconnectAllCaseSignals()
-{
-    for ( auto dataEntry : m_analysisPlotDataSelection )
-    {
-        if ( dataEntry->ensemble() )
-        {
-            dataEntry->ensemble()->caseRemoved.disconnect( this );
         }
     }
 }

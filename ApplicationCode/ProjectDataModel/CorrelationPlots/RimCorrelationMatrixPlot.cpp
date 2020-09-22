@@ -164,8 +164,8 @@ RimCorrelationMatrixPlot::RimCorrelationMatrixPlot()
                        "",
                        "",
                        "" );
-    CAF_PDM_InitField( &m_showOnlyTopNCorrelations, "ShowOnlyTopNCorrelations", false, "Show Only Top Correlations", "", "", "" );
-    CAF_PDM_InitField( &m_topNFilterCount, "TopNFilterCount", 15, "Number rows/columns", "", "", "" );
+    CAF_PDM_InitField( &m_showOnlyTopNCorrelations, "ShowOnlyTopNCorrelations", true, "Show Only Top Correlations", "", "", "" );
+    CAF_PDM_InitField( &m_topNFilterCount, "TopNFilterCount", 20, "Number rows/columns", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendConfig", "", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_selectedParametersList, "SelectedParameters", "Select Parameters", "", "", "" );
     m_selectedParametersList.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
@@ -174,7 +174,9 @@ RimCorrelationMatrixPlot::RimCorrelationMatrixPlot()
     m_legendConfig = new RimRegularLegendConfig();
     m_legendConfig->setAutomaticRanges( -1.0, 1.0, -1.0, 1.0 );
     m_legendConfig->setColorLegend(
-        RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CORRELATION ) );
+        RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::RED_WHITE_BLUE ) );
+
+    setLegendsVisible( false );
 
     this->uiCapability()->setUiTreeChildrenHidden( true );
     m_selectMultipleVectors = true;
@@ -661,7 +663,7 @@ void RimCorrelationMatrixPlot::updatePlotTitle()
     if ( m_plotWidget )
     {
         m_plotWidget->setPlotTitle( m_description );
-        m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && isMdiWindow() );
+        m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && !isSubPlot() );
         if ( isMdiWindow() )
         {
             m_plotWidget->setPlotTitleFontSize( titleFontSize() );

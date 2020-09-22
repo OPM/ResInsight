@@ -50,7 +50,6 @@ RimAbstractCorrelationPlot::RimAbstractCorrelationPlot()
     CAF_PDM_InitFieldNoDefault( &m_timeStep, "TimeStep", "Time Step", "", "", "" );
     m_timeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title", "", "", "" );
     CAF_PDM_InitField( &m_useAutoPlotTitle, "AutoTitle", true, "Automatic Plot Title", "", "", "" );
     CAF_PDM_InitField( &m_description, "PlotTitle", QString( "Correlation Plot" ), "Custom Plot Title", "", "", "" );
 
@@ -76,7 +75,6 @@ RimAbstractCorrelationPlot::~RimAbstractCorrelationPlot()
 //--------------------------------------------------------------------------------------------------
 void RimAbstractCorrelationPlot::setCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions )
 {
-    disconnectAllCaseSignals();
     m_analysisPlotDataSelection.deleteAllChildObjects();
     for ( auto curveDef : curveDefinitions )
     {
@@ -127,7 +125,6 @@ void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
             if ( !curveSelection.empty() )
             {
                 std::vector<RiaSummaryCurveDefinition> summaryVectorDefinitions = dlg.curveSelection();
-                disconnectAllCaseSignals();
                 m_analysisPlotDataSelection.deleteAllChildObjects();
                 for ( const RiaSummaryCurveDefinition& vectorDef : summaryVectorDefinitions )
                 {
@@ -610,20 +607,6 @@ void RimAbstractCorrelationPlot::connectAllCaseSignals()
         if ( dataEntry->ensemble() )
         {
             dataEntry->ensemble()->caseRemoved.connect( this, &RimAbstractCorrelationPlot::onCaseRemoved );
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimAbstractCorrelationPlot::disconnectAllCaseSignals()
-{
-    for ( auto dataEntry : m_analysisPlotDataSelection )
-    {
-        if ( dataEntry->ensemble() )
-        {
-            dataEntry->ensemble()->caseRemoved.disconnect( this );
         }
     }
 }

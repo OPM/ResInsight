@@ -72,6 +72,9 @@ void RigWellPathGeometryExporter::exportWellPathGeometry( const RigWellPath*   w
     double currMd = wellPathGeom->measureDepths().front() - mdStepSize;
     double endMd  = wellPathGeom->measureDepths().back();
 
+    bool   isFirst = true;
+    double prevMd  = 0.0;
+    double prevTvd = 0.0;
     while ( currMd < endMd )
     {
         currMd += mdStepSize;
@@ -80,9 +83,26 @@ void RigWellPathGeometryExporter::exportWellPathGeometry( const RigWellPath*   w
         auto   pt  = wellPathGeom->interpolatedPointAlongWellPath( currMd );
         double tvd = -pt.z();
 
+        // The change in measured depth (MD) must be greater or equal to change in
+        // true vertical depth (TVD), and this was not always the case due to
+        // interpolation imprecision. Fix by adjusting TVD.
+        if ( !isFirst )
+        {
+            double deltaMd  = currMd - prevMd;
+            double deltaTvd = tvd - prevTvd;
+            if ( deltaMd < deltaTvd )
+            {
+                tvd = prevTvd + deltaMd;
+            }
+        }
+
         xValues.push_back( pt.x() );
         yValues.push_back( pt.y() );
         tvdValues.push_back( tvd );
         mdValues.push_back( currMd + rkbOffset );
+
+        prevMd  = currMd;
+        prevTvd = tvd;
+        isFirst = false;
     }
 }

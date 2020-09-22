@@ -285,14 +285,6 @@ void RimWellDistributionPlot::zoomAll()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellDistributionPlot::doRemoveFromCollection()
-{
-    // cvf::Trace::show("RimWellDistributionPlot::doRemoveFromCollection()");
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RiuQwtPlotWidget* RimWellDistributionPlot::doCreatePlotViewWidget( QWidget* mainWindowParent )
 {
     // cvf::Trace::show("RimWellDistributionPlot::createViewWidget()");

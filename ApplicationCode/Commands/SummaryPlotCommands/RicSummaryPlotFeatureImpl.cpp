@@ -129,7 +129,7 @@ void RicSummaryPlotFeatureImpl::ensureAtLeastOnePlot( RimSummaryPlotCollection* 
 {
     if ( summaryPlotCollection && summaryCase )
     {
-        if ( summaryPlotCollection->summaryPlots.empty() )
+        if ( summaryPlotCollection->plots().empty() )
         {
             auto objectToSelect = createDefaultSummaryPlot( summaryCase );
             if ( objectToSelect )
