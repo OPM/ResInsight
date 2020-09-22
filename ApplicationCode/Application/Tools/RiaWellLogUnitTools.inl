@@ -153,8 +153,8 @@ std::vector<FloatType> RiaWellLogUnitTools<FloatType>::convertDepths( const std:
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FloatType>
-FloatType RiaWellLogUnitTools<FloatType>::convertDepth( FloatType                 depthIn, 
-                                                        RiaDefines::DepthUnitType unitsIn, 
+FloatType RiaWellLogUnitTools<FloatType>::convertDepth( FloatType                 depthIn,
+                                                        RiaDefines::DepthUnitType unitsIn,
                                                         RiaDefines::DepthUnitType unitsOut )
 {
     FloatType factor = 1.0;
@@ -169,17 +169,17 @@ FloatType RiaWellLogUnitTools<FloatType>::convertDepth( FloatType               
     return depthIn * factor;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FloatType>
-std::vector<std::pair<FloatType, FloatType>> RiaWellLogUnitTools<FloatType>::convertDepths( const std::vector<std::pair<FloatType, FloatType>>& depthsIn,
-                                                                                            RiaDefines::DepthUnitType     unitsIn,
-                                                                                            RiaDefines::DepthUnitType     unitsOut )
+std::vector<std::pair<FloatType, FloatType>>
+    RiaWellLogUnitTools<FloatType>::convertDepths( const std::vector<std::pair<FloatType, FloatType>>& depthsIn,
+                                                   RiaDefines::DepthUnitType                           unitsIn,
+                                                   RiaDefines::DepthUnitType                           unitsOut )
 {
-    std::vector<std::pair<FloatType, FloatType>> convertedDepths(depthsIn.size());
-    double factor = 1.0;
+    std::vector<std::pair<FloatType, FloatType>> convertedDepths( depthsIn.size() );
+    double                                       factor = 1.0;
     if ( unitsOut == RiaDefines::DepthUnitType::UNIT_METER && unitsIn == RiaDefines::DepthUnitType::UNIT_FEET )
     {
         factor = RiaEclipseUnitTools::meterPerFeet();
