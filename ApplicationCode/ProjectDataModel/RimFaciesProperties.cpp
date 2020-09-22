@@ -19,8 +19,10 @@
 #include "RimFaciesProperties.h"
 
 #include "RimColorLegend.h"
+#include "RimColorLegendCollection.h"
 #include "RimEclipseResultDefinition.h"
-#include "RimFractureModel.h"
+#include "RimFractureModelTemplate.h"
+#include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 
 #include "RicFaciesPropertiesImportTools.h"
@@ -96,6 +98,28 @@ void RimFaciesProperties::setFaciesCodeName( int code, const QString& name )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimFaciesProperties::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                          bool*                      useOptionsOnly )
+{
+    QList<caf::PdmOptionItemInfo> options;
+    if ( fieldNeedingOptions == &m_colorLegend )
+    {
+        RimProject*                  project               = RimProject::current();
+        RimColorLegendCollection*    colorLegendCollection = project->colorLegendCollection();
+        std::vector<RimColorLegend*> colorLegends          = colorLegendCollection->allColorLegends();
+
+        for ( RimColorLegend* colorLegend : colorLegends )
+        {
+            options.push_back( caf::PdmOptionItemInfo( colorLegend->colorLegendName(), colorLegend ) );
+        }
+    }
+
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFaciesProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_filePath );
@@ -165,8 +189,16 @@ void RimFaciesProperties::loadDataAndUpdate()
 {
     if ( !m_filePath().path().isEmpty() )
     {
-        RimFractureModel* fractureModel;
-        firstAncestorOrThisOfType( fractureModel );
-        RicFaciesPropertiesImportTools::importFaciesPropertiesFromFile( m_filePath().path(), fractureModel );
+        RimFractureModelTemplate* fractureModelTemplate;
+        firstAncestorOrThisOfType( fractureModelTemplate );
+        RicFaciesPropertiesImportTools::importFaciesPropertiesFromFile( m_filePath().path(), fractureModelTemplate );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaciesProperties::setEclipseCase( RimEclipseCase* eclipseCase )
+{
+    m_faciesDefinition->setEclipseCase( eclipseCase );
 }

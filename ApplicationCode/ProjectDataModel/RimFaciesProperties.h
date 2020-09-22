@@ -28,6 +28,7 @@
 
 class RimEclipseResultDefinition;
 class RimColorLegend;
+class RimEclipseCase;
 
 //==================================================================================================
 ///
@@ -45,13 +46,17 @@ public:
 
     void setFaciesCodeName( int code, const QString& name );
 
+    void setEclipseCase( RimEclipseCase* eclipseCase );
+
     void loadDataAndUpdate();
 
 protected:
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                         QString                    uiConfigName,
+                                                         caf::PdmUiEditorAttribute* attribute ) override;
+    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
 
 private:
     QString generatePropertiesTable();
