@@ -29,23 +29,16 @@ CAF_PDM_SOURCE_INIT( RimVirtualPerforationResults, "RimVirtualPerforationResults
 //--------------------------------------------------------------------------------------------------
 RimVirtualPerforationResults::RimVirtualPerforationResults()
 {
-    // clang-format off
+    CAF_PDM_InitObject( "Well Connection Factors", ":/WellCF16x16.png", "", "" );
 
-    QString connectionFactorUiName = "Well Connection Factors";
+    CAF_PDM_InitField( &m_isActive, "ShowConnectionFactors", false, "", "", "", "" );
+    CAF_PDM_InitField( &m_showClosedConnections, "ShowClosedConnections", true, "Show On Closed Connections", "", "", "" );
+    CAF_PDM_InitField( &m_geometryScaleFactor, "GeometryScaleFactor", 2.0, "Geometry Scale Factor", "", "", "" );
 
-    CAF_PDM_InitObject(connectionFactorUiName, ":/WellCF16x16.png", "", "");
-
-    CAF_PDM_InitField(&m_isActive,              "ShowConnectionFactors",    false,   "", "", "", "");
-    CAF_PDM_InitField(&m_showClosedConnections, "ShowClosedConnections",    true,   "Show On Closed Connections", "", "", "");
-    CAF_PDM_InitField(&m_geometryScaleFactor,   "GeometryScaleFactor",      2.0,    "Geometry Scale Factor", "", "", "");
-
-    CAF_PDM_InitFieldNoDefault(&m_legendConfig, "LegendDefinition", "Color Legend", "", "", "");
-    m_legendConfig.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend", "", "", "" );
+    m_legendConfig.uiCapability()->setUiHidden( true );
 
     m_legendConfig = new RimRegularLegendConfig();
-    m_legendConfig->setTitle(connectionFactorUiName);
-
-    // clang-format on
 }
 
 //--------------------------------------------------------------------------------------------------

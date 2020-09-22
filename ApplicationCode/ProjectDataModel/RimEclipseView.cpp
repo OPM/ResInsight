@@ -1424,6 +1424,7 @@ void RimEclipseView::onUpdateLegends()
         updateVirtualConnectionLegendRanges();
 
         RimRegularLegendConfig* virtLegend = m_virtualPerforationResult->legendConfig();
+        virtLegend->setTitle( m_virtualPerforationResult->uiName() );
         nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( virtLegend->titledOverlayFrame(),
                                                                     isUsingOverrideViewer() );
     }
