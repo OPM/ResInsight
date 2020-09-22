@@ -61,6 +61,8 @@ public:
     bool openAndReadActiveCellData( RigEclipseCaseData* mainEclipseCase );
     void readGridDimensions( std::vector<std::vector<int>>& gridDimensions );
 
+    RiaEclipseUnitTools::UnitSystemType unitSystem();
+
     // Overrides from RimCase
     QString locationOnDisc() const override;
     void    updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath ) override;

@@ -26,8 +26,12 @@
 #include "RigWellPath.h"
 
 #include "RimEclipseCase.h"
+#include "RimEclipseCaseCollection.h"
+#include "RimEclipseResultCase.h"
 #include "RimGeoMechCase.h"
+#include "RimOilfield.h"
 #include "RimPlot.h"
+#include "RimProject.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogCurveCommonDataSource.h"
@@ -378,6 +382,38 @@ void RimDepthTrackPlot::visibleDepthRange( double* minimumDepth, double* maximum
 {
     *minimumDepth = m_minVisibleDepth;
     *maximumDepth = m_maxVisibleDepth;
+}
+
+RiaDefines::DepthUnitType RimDepthTrackPlot::caseDepthUnit() const
+{
+    RimEclipseResultCase* thecase = dynamic_cast<RimEclipseResultCase*>( commonDataSource()->caseToApply() );
+    if ( thecase == nullptr )
+    {
+        // no suitable case found, look in the project to see if there is a eclipse case with units defined loaded
+        RimProject* p = RiaApplication::instance()->project();
+        for ( RimEclipseCase* aCase : p->activeOilField()->analysisModels()->cases() )
+        {
+            thecase = dynamic_cast<RimEclipseResultCase*>( aCase );
+            if ( thecase ) break;
+        }
+    }
+
+    if ( thecase )
+    {
+        switch ( thecase->unitSystem() )
+        {
+            case RiaEclipseUnitTools::UnitSystem::UNITS_FIELD:
+                return RiaDefines::DepthUnitType::UNIT_FEET;
+
+            case RiaEclipseUnitTools::UnitSystem::UNITS_METRIC:
+                return RiaDefines::DepthUnitType::UNIT_METER;
+
+            default:
+                break;
+        }
+    }
+
+    return RiaDefines::DepthUnitType::UNIT_NONE;
 }
 
 //--------------------------------------------------------------------------------------------------
