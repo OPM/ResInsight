@@ -235,6 +235,11 @@ std::pair<std::vector<time_t>, std::vector<double>>
     reader1->values( address, &values1 );
     reader2->values( address, &values2 );
 
+    if ( values1.empty() && values2.empty() )
+    {
+        return ResultPair();
+    }
+
     merger.addCurveData( reader1->timeSteps( address ), values1 );
     merger.addCurveData( reader2->timeSteps( address ), values2 );
     merger.computeInterpolatedValues();
