@@ -36,7 +36,7 @@
 #include <QFileInfo>
 #include <QRegularExpression>
 
-#define SUMMARY_CASE_SHORT_NAME_LENGTH 6 // TODO: Could make this a preference if required.
+#define SUMMARY_CASE_SHORT_NAME_LENGTH 4 // TODO: Could make this a preference if required.
 
 CAF_PDM_ABSTRACT_SOURCE_INIT( RimSummaryCase, "SummaryCase" );
 namespace caf
@@ -329,14 +329,11 @@ QString RimSummaryCase::uniqueShortNameForEnsembleCase( RimSummaryCase* summaryC
     for ( auto keyComponent : keyFileComponents )
     {
         QStringList subComponents;
-        QString     numberGroup                   = numberRe.match( keyComponent ).captured();
-        int         numberGroupAndDelimiterLength = numberGroup.length() + 1;
+        QString     numberGroup = numberRe.match( keyComponent ).captured();
         if ( !numberGroup.isEmpty() )
         {
             keyComponent = keyComponent.replace( numberGroup, "" );
-
-            QString stem =
-                keyComponent.left( std::max( 1, SUMMARY_CASE_SHORT_NAME_LENGTH - numberGroupAndDelimiterLength ) );
+            QString stem = keyComponent.left( SUMMARY_CASE_SHORT_NAME_LENGTH );
             if ( !stem.isEmpty() ) subComponents.push_back( stem );
             subComponents.push_back( numberGroup );
         }
