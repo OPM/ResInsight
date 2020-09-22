@@ -21,7 +21,7 @@
 #include "RiaLogging.h"
 
 #include "RimElasticProperties.h"
-#include "RimFractureModel.h"
+#include "RimFractureModelTemplate.h"
 
 #include "RifCsvUserDataParser.h"
 #include "RifElasticPropertiesReader.h"
@@ -35,8 +35,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicElasticPropertiesImportTools::importElasticPropertiesFromFile( const QString&    filePath,
-                                                                       RimFractureModel* fractureModel )
+void RicElasticPropertiesImportTools::importElasticPropertiesFromFile( const QString&            filePath,
+                                                                       RimFractureModelTemplate* fractureModelTemplate )
 {
     RifCsvUserDataFileParser csvParser( filePath );
     QString                  separator = csvParser.tryDetermineCellSeparator();
@@ -110,6 +110,6 @@ void RicElasticPropertiesImportTools::importElasticPropertiesFromFile( const QSt
     }
 
     rimElasticProperties->setFilePath( filePath );
-    fractureModel->setElasticProperties( rimElasticProperties );
-    fractureModel->updateConnectedEditors();
+    fractureModelTemplate->setElasticProperties( rimElasticProperties );
+    fractureModelTemplate->updateConnectedEditors();
 }
