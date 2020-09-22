@@ -29,7 +29,7 @@
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseResultCase.h"
 #include "RimGeoMechCase.h"
-#include "RimOilfield.h"
+#include "RimOilField.h"
 #include "RimPlot.h"
 #include "RimProject.h"
 #include "RimWellAllocationPlot.h"
