@@ -205,6 +205,21 @@ void RimParameterResultCrossPlot::updateAxes()
     m_plotWidget->setAxisRange( QwtPlot::xBottom, m_xRange.first - xRangeWidth * 0.1, m_xRange.second + xRangeWidth * 0.1 );
 }
 
+QStringList caseNamesOfValidEnsembleCases( const RimSummaryCaseCollection* ensemble )
+{
+    QStringList caseNames;
+    for ( auto summaryCase : ensemble->allSummaryCases() )
+    {
+        RifSummaryReaderInterface* reader = summaryCase->summaryReader();
+
+        if ( !reader ) continue;
+        if ( !summaryCase->caseRealizationParameters() ) continue;
+
+        caseNames.push_back( summaryCase->displayCaseName() );
+    }
+    return caseNames;
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -234,18 +249,8 @@ void RimParameterResultCrossPlot::createPoints()
             EnsembleParameter parameter = ensembleParameter( m_ensembleParameter );
             if ( !( parameter.isNumeric() && parameter.isValid() ) ) return;
 
-            QStringList caseNames;
-            for ( size_t caseIdx = 0u; caseIdx < ensemble->allSummaryCases().size(); ++caseIdx )
-            {
-                auto summaryCase = ensemble->allSummaryCases()[caseIdx];
-
-                RifSummaryReaderInterface* reader = summaryCase->summaryReader();
-                if ( !reader ) continue;
-
-                if ( !summaryCase->caseRealizationParameters() ) continue;
-                caseNames.push_back( summaryCase->displayCaseName() );
-            }
-            QString commonCaseRoot = RiaTextStringTools::findCommonRoot( caseNames );
+            QStringList caseNames      = caseNamesOfValidEnsembleCases( ensemble );
+            QString     commonCaseRoot = RiaTextStringTools::findCommonRoot( caseNames );
 
             for ( size_t caseIdx = 0u; caseIdx < ensemble->allSummaryCases().size(); ++caseIdx )
             {
