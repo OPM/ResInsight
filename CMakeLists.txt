@@ -12,6 +12,13 @@ SET(BUILD_SHARED_LIBS OFF CACHE BOOL "ERT: Build shared libraries")
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
+# Use CMake to enforce C++11 when using CMake 3 or newer.
+# The check can be removed when the minimum version is 3.
+if( (${CMAKE_MAJOR_VERSION} GREATER 3) OR (${CMAKE_MAJOR_VERSION} EQUAL 3))
+    set(CMAKE_CXX_STANDARD 11)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+endif()
+
 ################################################################################
 # Setup the main platform defines
 ################################################################################
