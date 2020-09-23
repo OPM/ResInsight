@@ -84,10 +84,10 @@ public:
 
     void mappingRange( double& min, double& max ) const;
 
-    RigEclipseResultAddress resultAddressCombined() const;
-    bool                    resultAddressIJK( std::vector<RigEclipseResultAddress>& addresses ) const;
+    bool resultAddressesCombined( std::vector<RigEclipseResultAddress>& addresses ) const;
+    bool resultAddressesIJK( std::vector<RigEclipseResultAddress>& addresses ) const;
 
-    QString resultName() const;
+    std::vector<QString> resultNames() const;
 
     void updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer );
 
@@ -107,7 +107,7 @@ private:
 
 private:
     caf::PdmField<bool>                                  m_showResult;
-    caf::PdmField<QString>                               m_resultName;
+    caf::PdmField<std::vector<QString>>                  m_resultNames;
     caf::PdmField<caf::AppEnum<VectorView>>              m_vectorView;
     caf::PdmField<bool>                                  m_showVectorI;
     caf::PdmField<bool>                                  m_showVectorJ;

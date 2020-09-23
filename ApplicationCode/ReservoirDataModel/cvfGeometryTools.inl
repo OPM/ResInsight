@@ -30,7 +30,7 @@ Vec3Type GeometryTools::computePolygonCenter(const std::vector<Vec3Type>& polygo
 {
     Vec3Type s;
 
-    for (int i = 0; i < polygon.size(); i++)
+    for (size_t i = 0; i < polygon.size(); i++)
     {
         s.x() += polygon[i].x();
         s.y() += polygon[i].y();
