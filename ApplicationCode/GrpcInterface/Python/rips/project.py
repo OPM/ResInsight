@@ -17,7 +17,7 @@ from Definitions_pb2 import Empty
 import Project_pb2_grpc
 import Project_pb2
 import PdmObject_pb2
-from resinsight_classes import Project, PlotWindow, WellPath
+from resinsight_classes import Project, PlotWindow, WellPath, SummaryCase
 
 
 @add_method(Project)
@@ -63,7 +63,7 @@ def close(self):
 
 @add_method(Project)
 def load_case(self, path):
-    """Load a new case from the given file path
+    """Load a new grid case from the given file path
 
     Arguments:
         path(str): file path to case
@@ -77,7 +77,7 @@ def load_case(self, path):
 
 @add_method(Project)
 def selected_cases(self):
-    """Get a list of all cases selected in the project tree
+    """Get a list of all grid cases selected in the project tree
 
     Returns:
         A list of :class:`rips.generated.resinsight_classes.Case`
@@ -91,7 +91,7 @@ def selected_cases(self):
 
 @add_method(Project)
 def cases(self):
-    """Get a list of all cases in the project
+    """Get a list of all grid cases in the project
 
     Returns:
         A list of :class:`rips.generated.resinsight_classes.Case`
@@ -101,7 +101,7 @@ def cases(self):
 
 @add_method(Project)
 def case(self, case_id):
-    """Get a specific case from the provided case Id
+    """Get a specific grid case from the provided case Id
 
     Arguments:
         id(int): case id
@@ -117,7 +117,7 @@ def case(self, case_id):
 
 @add_method(Project)
 def replace_source_cases(self, grid_list_file, case_group_id=0):
-    """Replace all source cases within a case group
+    """Replace all source grid cases within a case group
 
     Arguments:
         grid_list_file (str): path to file containing a list of cases
@@ -143,6 +143,13 @@ def create_grid_case_group(self, case_paths):
     return self.grid_case_group(
         command_reply.createGridCaseGroupResult.groupId)
 
+@add_method(Project)
+def summary_cases(self):
+    """Get a list of all summary cases in the Project
+
+    Returns: A list of :class:`rips.generated.resinsight_classes.SummaryCase`
+    """        
+    return self.descendants(SummaryCase)
 
 @add_method(Project)
 def views(self):
