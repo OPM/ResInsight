@@ -38,8 +38,6 @@ class RiuMultiPlotPage;
 class RimCorrelationReportPlot : public QObject, public RimPlotWindow
 {
     CAF_PDM_HEADER_INIT;
-    using CorrelationFactor     = RimCorrelationPlot::CorrelationFactor;
-    using CorrelationFactorEnum = RimCorrelationPlot::CorrelationFactorEnum;
 
 public:
     RimCorrelationReportPlot();

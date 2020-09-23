@@ -266,9 +266,7 @@ void RiuSummaryQwtPlot::contextMenuEvent( QContextMenuEvent* event )
                                 menuBuilder.subMenuStart( "Cross Plots",
                                                           *caf::IconProvider( ":/CorrelationCrossPlot16x16.png" ).icon() );
                                 std::vector<std::pair<EnsembleParameter, double>> ensembleParameters =
-                                    ensemble->parameterCorrelations( clickedEnsembleCurveSet->summaryAddress(),
-                                                                     timeStep,
-                                                                     false );
+                                    ensemble->parameterCorrelations( clickedEnsembleCurveSet->summaryAddress(), timeStep );
                                 std::sort( ensembleParameters.begin(),
                                            ensembleParameters.end(),
                                            []( const std::pair<EnsembleParameter, double>& lhs,

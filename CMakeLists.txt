@@ -162,10 +162,7 @@ set(CMAKE_CXX_COMPILER_LAUNCHER ${TEMP_CMAKE_CXX_COMPILER_LAUNCHER})
 # Go through required git submodules #
 ######################################
 list(APPEND THIRD_PARTY_SUBMODULES qwt)
-option(GSL_ENABLE "Enable the GNU Scientific Library for Statistics" OFF)
-if(GSL_ENABLE)
-    list(APPEND THIRD_PARTY_SUBMODULES gsl)
-endif(GSL_ENABLE)
+
 ###############################################
 # Init GIT submodules if they haven't already #
 ###############################################
@@ -360,29 +357,6 @@ set_property(TARGET
     ${THIRD_PARTY_LIBRARIES}
     PROPERTY FOLDER "Thirdparty"
 )
-
-################################################################################
-# GNU GSL
-################################################################################
-if(GSL_ENABLE)
-    if (NOT EXISTS "${PROJECT_SOURCE_DIR}/ThirdParty/gsl/CMakeLists.txt")
-        message(FATAL_ERROR "The GSL submodule was not downloaded! GIT_SUBMODULE was turned off or failed. Please update submodules and try again.")
-    endif()
-    option(GSL_DISABLE_TESTS "Disable the GSL tests" ON)
-    set(GSL_INSTALL OFF)
-    add_subdirectory(ThirdParty/gsl)
-    add_definitions(-DUSE_GSL)
-    list(APPEND THIRD_PARTY_LIBRARIES gsl)
-    
-    # set this property manually for all GSL projects, as they are put into a separate folder
-    set_property(TARGET  
-        gsl
-        gslcblas
-        copy-headers
-        PROPERTY FOLDER "Thirdparty/GSL"
-        )
-endif()
-
 
 ################################################################################
 # Vizualization Framework
