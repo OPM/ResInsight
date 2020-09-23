@@ -96,7 +96,6 @@ public:
     QString ensembleParameterName() const;
 
     FilterOperation           filterOperation() const { return m_filterOperation(); }
-    bool                      useAbsoluteValues() const { return m_useAbsoluteValue(); }
     std::pair<double, double> filterRangeMinMax() const;
     int                       topBottomN() const;
 
@@ -135,7 +134,6 @@ private:
     // Operation and parameters
 
     caf::PdmField<caf::AppEnum<FilterOperation>> m_filterOperation;
-    caf::PdmField<bool>                          m_useAbsoluteValue;
     caf::PdmField<int>                           m_topBottomN;
     caf::PdmField<double>                        m_max;
     caf::PdmField<double>                        m_min;

@@ -1132,8 +1132,6 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
                     {
                         std::pair<double, double> minMax = filter->filterRangeMinMax();
 
-                        if ( filter->useAbsoluteValues() ) value = fabs( value );
-
                         if ( minMax.first <= value && value <= minMax.second )
                         {
                             casesToKeep.insert( sumCase );
@@ -1142,7 +1140,6 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
                     else if ( filter->filterOperation() == RimPlotDataFilterItem::TOP_N ||
                               filter->filterOperation() == RimPlotDataFilterItem::BOTTOM_N )
                     {
-                        if ( filter->useAbsoluteValues() ) value = fabs( value );
                         bool useLargest = filter->filterOperation() == RimPlotDataFilterItem::TOP_N;
 
                         auto itIsInsertedPair = casesToKeepWithValue.insert( {sumCase, value} );
@@ -1282,8 +1279,6 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
                 // clang-format off
                 storeResultCoreLambda = [&]( double value ) // clang-format on
                 {
-                    if ( filter->useAbsoluteValues() ) value = fabs( value );
-
                     if ( minMax.first <= value && value <= minMax.second )
                     {
                         casesToKeep.insert( sumCaseInEvaluation );
@@ -1296,7 +1291,6 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
                 // clang-format off
                 storeResultCoreLambda = [&]( double value ) // clang-format on
                 {
-                    if ( filter->useAbsoluteValues() ) value = fabs( value );
                     bool useLargest = filter->filterOperation() == RimPlotDataFilterItem::TOP_N;
 
                     auto itIsInsertedPair = casesToKeepWithValue.insert( {sumCaseInEvaluation, value} );
@@ -1336,8 +1330,6 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
                     // clang-format off
                     storeResultCoreLambda = [&]( double value ) // clang-format on
                     {
-                        if ( filter->useAbsoluteValues() ) value = fabs( value );
-
                         if ( minMax.first <= value && value <= minMax.second )
                         {
                             sumItemsToKeep.insert( sumItem );
@@ -1350,7 +1342,6 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
                     // clang-format off
                     storeResultCoreLambda = [&]( double value ) // clang-format on
                     {
-                        if ( filter->useAbsoluteValues() ) value = fabs( value );
                         bool useLargest = filter->filterOperation() == RimPlotDataFilterItem::TOP_N;
 
                         auto itIsInsertedPair = sumItemsToKeepWithValue.insert( {sumItem, value} );
