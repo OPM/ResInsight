@@ -967,7 +967,7 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
 
         if ( plot->viewer() )
         {
-            plot->viewer()->updateLegend();
+            if ( plot->legendsVisible() ) plot->viewer()->updateLegend();
             plot->viewer()->scheduleReplot();
             plot->updateAxes();
             plot->updatePlotInfoLabel();
