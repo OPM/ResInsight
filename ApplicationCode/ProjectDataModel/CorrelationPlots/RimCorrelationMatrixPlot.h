@@ -39,9 +39,6 @@ public:
     caf::Signal<std::pair<QString, RiaSummaryCurveDefinition>> matrixCellSelected;
 
 public:
-    using CorrelationFactor     = RimCorrelationPlot::CorrelationFactor;
-    using CorrelationFactorEnum = RimCorrelationPlot::CorrelationFactorEnum;
-
     enum class Sorting
     {
         NO_SORTING,
@@ -55,7 +52,6 @@ public:
     RimCorrelationMatrixPlot();
     ~RimCorrelationMatrixPlot() override;
 
-    CorrelationFactor       correlationFactor() const;
     bool                    showAbsoluteValues() const;
     bool                    sortByAbsoluteValues() const;
     RimRegularLegendConfig* legendConfig();
@@ -85,14 +81,13 @@ private:
     void onPlotItemSelected( QwtPlotItem* plotItem, bool toggle, int sampleIndex ) override;
 
 private:
-    caf::PdmField<CorrelationFactorEnum> m_correlationFactor;
-    caf::PdmField<bool>                  m_showAbsoluteValues;
-    caf::PdmField<SortingEnum>           m_sortByValues;
-    caf::PdmField<bool>                  m_sortByAbsoluteValues;
-    caf::PdmField<bool>                  m_excludeParametersWithoutVariation;
-    caf::PdmField<bool>                  m_showOnlyTopNCorrelations;
-    caf::PdmField<int>                   m_topNFilterCount;
-    caf::PdmField<std::vector<QString>>  m_selectedParametersList;
+    caf::PdmField<bool>                 m_showAbsoluteValues;
+    caf::PdmField<SortingEnum>          m_sortByValues;
+    caf::PdmField<bool>                 m_sortByAbsoluteValues;
+    caf::PdmField<bool>                 m_excludeParametersWithoutVariation;
+    caf::PdmField<bool>                 m_showOnlyTopNCorrelations;
+    caf::PdmField<int>                  m_topNFilterCount;
+    caf::PdmField<std::vector<QString>> m_selectedParametersList;
 
     caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
 

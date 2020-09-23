@@ -519,7 +519,6 @@ time_t timeDiff( time_t lhs, time_t rhs )
 std::vector<std::pair<EnsembleParameter, double>>
     RimSummaryCaseCollection::parameterCorrelations( const RifEclipseSummaryAddress& address,
                                                      time_t                          timeStep,
-                                                     bool                            spearman,
                                                      const std::vector<QString>&     selectedParameters ) const
 {
     auto parameters = variationSortedEnsembleParameters( true );
@@ -582,16 +581,8 @@ std::vector<std::pair<EnsembleParameter, double>>
     for ( auto parameterValuesPair : parameterValues )
     {
         double correlation = 0.0;
-        if ( spearman )
-        {
-            double spearman = RiaStatisticsTools::spearmanCorrelation( parameterValuesPair.second, caseValuesAtTimestep );
-            if ( spearman != std::numeric_limits<double>::infinity() ) correlation = spearman;
-        }
-        else
-        {
-            double pearson = RiaStatisticsTools::pearsonCorrelation( parameterValuesPair.second, caseValuesAtTimestep );
-            if ( pearson != std::numeric_limits<double>::infinity() ) correlation = pearson;
-        }
+        double pearson     = RiaStatisticsTools::pearsonCorrelation( parameterValuesPair.second, caseValuesAtTimestep );
+        if ( pearson != std::numeric_limits<double>::infinity() ) correlation = pearson;
         correlationResults.push_back( std::make_pair( parameterValuesPair.first, correlation ) );
     }
     return correlationResults;
@@ -602,7 +593,6 @@ std::vector<std::pair<EnsembleParameter, double>>
 //--------------------------------------------------------------------------------------------------
 std::vector<std::pair<EnsembleParameter, double>>
     RimSummaryCaseCollection::parameterCorrelationsAllTimeSteps( const RifEclipseSummaryAddress& address,
-                                                                 bool                            spearman,
                                                                  const std::vector<QString>& selectedParameters ) const
 {
     const size_t     maxTimeStepCount = 10;
@@ -617,7 +607,7 @@ std::vector<std::pair<EnsembleParameter, double>>
     for ( size_t i = stride; i < timeStepsVector.size(); i += stride )
     {
         std::vector<std::pair<EnsembleParameter, double>> correlationsForTimeStep =
-            parameterCorrelations( address, timeStepsVector[i], spearman, selectedParameters );
+            parameterCorrelations( address, timeStepsVector[i], selectedParameters );
         correlationsForChosenTimeSteps.push_back( correlationsForTimeStep );
     }
 
