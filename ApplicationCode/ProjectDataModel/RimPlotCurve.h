@@ -115,6 +115,8 @@ public:
 
     void setZOrder( double z );
 
+    void setErrorBarsVisible( bool isVisible );
+
     virtual void updateCurveAppearance();
     bool         isCrossPlotCurve() const;
     void         updateUiIconFromPlotSymbol();
