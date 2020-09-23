@@ -103,7 +103,6 @@ RimPlotDataFilterItem::RimPlotDataFilterItem()
     caf::PdmUiActionPushButtonEditor::configureEditorForField( &m_filterQuantitySelectButton );
 
     CAF_PDM_InitFieldNoDefault( &m_filterOperation, "FilterOperation", "is", "", "", "" );
-    CAF_PDM_InitField( &m_useAbsoluteValue, "UseAbsoluteValue", true, "using absolute values", "", "", "" );
     CAF_PDM_InitField( &m_topBottomN, "MinTopN", 20, "N", "", "", "" );
     m_topBottomN.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
@@ -237,10 +236,6 @@ void RimPlotDataFilterItem::fieldChangedByUi( const caf::PdmFieldHandle* changed
     {
         this->updateMaxMinAndDefaultValues( true );
     }
-    else if ( changedField == &m_useAbsoluteValue )
-    {
-        this->updateMaxMinAndDefaultValues( false );
-    }
     else if ( changedField == &m_filterOperation )
     {
         this->updateMaxMinAndDefaultValues( false );
@@ -361,15 +356,12 @@ void RimPlotDataFilterItem::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 
         if ( m_filterOperation() == RANGE )
         {
-            uiOrdering.add( &m_useAbsoluteValue, {false} );
-
             uiOrdering.add( &m_max, {true, -1, 1} );
             uiOrdering.add( &m_min, {true, -1, 1} );
         }
         else if ( m_filterOperation == TOP_N || m_filterOperation == BOTTOM_N )
         {
             uiOrdering.add( &m_topBottomN, {false} );
-            uiOrdering.add( &m_useAbsoluteValue, {true} );
         }
     }
 
@@ -432,16 +424,16 @@ void RimPlotDataFilterItem::updateMaxMinAndDefaultValues( bool forceDefault )
             if ( RiaCurveDataTools::isValidValue( eParam.minValue, false ) )
             {
                 m_lowerLimit = eParam.minValue;
-                if ( m_useAbsoluteValue ) m_lowerLimit = fabs( eParam.minValue );
             }
             if ( RiaCurveDataTools::isValidValue( eParam.maxValue, false ) )
             {
                 m_upperLimit = eParam.maxValue;
-                if ( m_useAbsoluteValue ) m_upperLimit = fabs( eParam.maxValue );
             }
 
-            // Make sure max is > min after doing abs
-            if ( m_upperLimit < m_lowerLimit ) std::swap( m_upperLimit, m_lowerLimit );
+            if ( m_upperLimit < m_lowerLimit )
+            {
+                std::swap( m_upperLimit, m_lowerLimit );
+            }
         }
     }
     else
@@ -449,7 +441,7 @@ void RimPlotDataFilterItem::updateMaxMinAndDefaultValues( bool forceDefault )
         parentPlot->maxMinValueFromAddress( m_filterQuantityUiField,
                                             m_consideredTimestepsType(),
                                             m_explicitlySelectedTimeSteps(),
-                                            m_useAbsoluteValue(),
+                                            false,
                                             &m_lowerLimit,
                                             &m_upperLimit );
     }
