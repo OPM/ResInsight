@@ -252,6 +252,7 @@ void RicNewFractureModelPlotFeature::createFormationTrack( RimFractureModelPlot*
     formationTrack->setOverburdenHeight( fractureModel->overburdenHeight() );
     formationTrack->setUnderburdenHeight( fractureModel->underburdenHeight() );
     formationTrack->setColSpan( RimPlot::ONE );
+    formationTrack->setLegendsVisible( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -286,6 +287,8 @@ void RicNewFractureModelPlotFeature::createFaciesTrack( RimFractureModelPlot* pl
     faciesTrack->setRegionPropertyResultType( faciesDefinition->resultType(), faciesDefinition->resultVariable() );
     faciesTrack->setOverburdenHeight( fractureModel->overburdenHeight() );
     faciesTrack->setUnderburdenHeight( fractureModel->underburdenHeight() );
+    faciesTrack->setLegendsVisible( true );
+    faciesTrack->setPlotTitleVisible( true );
 
     RimColorLegend* faciesColors = faciesProperties->colorLegend();
     if ( faciesColors )
@@ -334,6 +337,8 @@ void RicNewFractureModelPlotFeature::createLayersTrack( RimFractureModelPlot* pl
     RimWellLogTrack* faciesTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, "Layers", plot );
     faciesTrack->setFormationWellPath( fractureModel->thicknessDirectionWellPath() );
     faciesTrack->setFormationCase( eclipseCase );
+    faciesTrack->setLegendsVisible( true );
+    faciesTrack->setPlotTitleVisible( true );
 
     RimFractureModelTemplate* fractureModelTemplate = fractureModel->fractureModelTemplate();
     if ( !fractureModelTemplate )
@@ -397,6 +402,8 @@ void RicNewFractureModelPlotFeature::createParametersTrack( RimFractureModelPlot
     plotTrack->setFormationCase( eclipseCase );
     plotTrack->setFormationWellPath( fractureModel->thicknessDirectionWellPath() );
     plotTrack->setColSpan( RimPlot::TWO );
+    plotTrack->setLegendsVisible( true );
+    plotTrack->setPlotTitleVisible( true );
 
     caf::ColorTable colors = RiaColorTables::wellLogPlotPaletteColors();
 
@@ -476,6 +483,8 @@ void RicNewFractureModelPlotFeature::createElasticPropertiesTrack( RimFractureMo
     plotTrack->setShowRegionLabels( true );
     plotTrack->setShowWindow( true );
     plotTrack->setColSpan( RimPlot::TWO );
+    plotTrack->setLegendsVisible( true );
+    plotTrack->setPlotTitleVisible( true );
 
     caf::ColorTable colors = RiaColorTables::wellLogPlotPaletteColors();
 
@@ -520,6 +529,8 @@ void RicNewFractureModelPlotFeature::createStressTrack( RimFractureModelPlot*   
     plotTrack->setShowRegionLabels( true );
     plotTrack->setShowWindow( true );
     plotTrack->setColSpan( RimPlot::TWO );
+    plotTrack->setLegendsVisible( true );
+    plotTrack->setPlotTitleVisible( true );
 
     caf::ColorTable colors     = RiaColorTables::wellLogPlotPaletteColors();
     int             colorIndex = 0;
