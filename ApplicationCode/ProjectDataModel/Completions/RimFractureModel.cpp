@@ -134,9 +134,6 @@ RimFractureModel::RimFractureModel()
     CAF_PDM_InitScriptableField( &m_boundingBoxHorizontal, "BoundingBoxHorizontal", 50.0, "Bounding Box Horizontal", "", "", "" );
     CAF_PDM_InitScriptableField( &m_boundingBoxVertical, "BoundingBoxVertical", 100.0, "Bounding Box Vertical", "", "", "" );
 
-    CAF_PDM_InitScriptableField( &m_defaultPorosity, "DefaultPorosity", 0.0, "Default Porosity", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_defaultPermeability, "DefaultPermeability", 10.0e-6, "Default Permeability", "", "", "" );
-
     // Stress unit: bar
     // Stress gradient unit: bar/m
     // Depth is meter
@@ -899,7 +896,7 @@ void RimFractureModel::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 double RimFractureModel::defaultPorosity() const
 {
-    return m_defaultPorosity();
+    return m_fractureModelTemplate() ? m_fractureModelTemplate()->defaultPorosity() : 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -907,7 +904,7 @@ double RimFractureModel::defaultPorosity() const
 //--------------------------------------------------------------------------------------------------
 double RimFractureModel::defaultPermeability() const
 {
-    return m_defaultPermeability();
+    return m_fractureModelTemplate() ? m_fractureModelTemplate()->defaultPermeability() : 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
