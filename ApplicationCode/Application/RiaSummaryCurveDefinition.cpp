@@ -37,28 +37,23 @@ RiaSummaryCurveDefinition::RiaSummaryCurveDefinition()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( RimSummaryCase*                 summaryCase,
+RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( gsl::not_null<RimSummaryCase*>  summaryCase,
                                                       const RifEclipseSummaryAddress& summaryAddress,
                                                       bool                            isEnsembleCurve )
     : m_summaryCase( summaryCase )
     , m_summaryAddress( summaryAddress )
     , m_isEnsembleCurve( isEnsembleCurve )
 {
-    CAF_ASSERT( summaryCase );
-
-    if ( summaryCase )
-    {
-        RimSummaryCaseCollection* ensemble = nullptr;
-        summaryCase->firstAncestorOfType( ensemble );
-        m_ensemble = ensemble;
-    }
+    RimSummaryCaseCollection* ensemble = nullptr;
+    summaryCase->firstAncestorOfType( ensemble );
+    m_ensemble = ensemble;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( RimSummaryCaseCollection*       ensemble,
-                                                      const RifEclipseSummaryAddress& summaryAddress )
+RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( gsl::not_null<RimSummaryCaseCollection*> ensemble,
+                                                      const RifEclipseSummaryAddress&          summaryAddress )
     : m_summaryCase( nullptr )
     , m_summaryAddress( summaryAddress )
     , m_ensemble( ensemble )
@@ -101,10 +96,9 @@ bool RiaSummaryCurveDefinition::isEnsembleCurve() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSummaryCurveDefinition::resultValues( const RiaSummaryCurveDefinition& curveDefinition, std::vector<double>* values )
+void RiaSummaryCurveDefinition::resultValues( const RiaSummaryCurveDefinition&    curveDefinition,
+                                              gsl::not_null<std::vector<double>*> values )
 {
-    CVF_ASSERT( values );
-
     if ( !curveDefinition.summaryAddress().isValid() ) return;
     if ( !curveDefinition.summaryCase() ) return;
 
