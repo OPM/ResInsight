@@ -50,6 +50,9 @@ public:
 
     void loadDataAndUpdate();
 
+    RimColorLegend* colorLegend() const;
+    void            setColorLegend( RimColorLegend* colorLegend );
+
 protected:
     void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                          QString                    uiConfigName,

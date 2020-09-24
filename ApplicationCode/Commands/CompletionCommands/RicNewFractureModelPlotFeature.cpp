@@ -33,10 +33,12 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimElasticPropertiesCurve.h"
+#include "RimFaciesProperties.h"
 #include "RimFractureModel.h"
 #include "RimFractureModelCurve.h"
 #include "RimFractureModelPlot.h"
 #include "RimFractureModelPlotCollection.h"
+#include "RimFractureModelTemplate.h"
 #include "RimLayerCurve.h"
 #include "RimMainPlotCollection.h"
 #include "RimModeledWellPath.h"
@@ -268,8 +270,19 @@ void RicNewFractureModelPlotFeature::createFaciesTrack( RimFractureModelPlot* pl
     faciesTrack->setOverburdenHeight( fractureModel->overburdenHeight() );
     faciesTrack->setUnderburdenHeight( fractureModel->underburdenHeight() );
 
-    RimColorLegend* faciesColors =
-        RimProject::current()->colorLegendCollection()->findByName( RiaDefines::faciesColorLegendName() );
+    RimFractureModelTemplate* fractureModelTemplate = fractureModel->fractureModelTemplate();
+    if ( !fractureModelTemplate )
+    {
+        return;
+    }
+
+    RimFaciesProperties* faciesProperties = fractureModelTemplate->faciesProperties();
+    if ( !faciesProperties )
+    {
+        return;
+    }
+
+    RimColorLegend* faciesColors = faciesProperties->colorLegend();
     if ( faciesColors )
     {
         faciesTrack->setColorShadingLegend( faciesColors );
@@ -319,8 +332,19 @@ void RicNewFractureModelPlotFeature::createLayersTrack( RimFractureModelPlot* pl
     faciesTrack->setFormationWellPath( fractureModel->thicknessDirectionWellPath() );
     faciesTrack->setFormationCase( eclipseCase );
 
-    RimColorLegend* faciesColors =
-        RimProject::current()->colorLegendCollection()->findByName( RiaDefines::faciesColorLegendName() );
+    RimFractureModelTemplate* fractureModelTemplate = fractureModel->fractureModelTemplate();
+    if ( !fractureModelTemplate )
+    {
+        return;
+    }
+
+    RimFaciesProperties* faciesProperties = fractureModelTemplate->faciesProperties();
+    if ( !faciesProperties )
+    {
+        return;
+    }
+
+    RimColorLegend* faciesColors = faciesProperties->colorLegend();
     if ( faciesColors )
     {
         faciesTrack->setColorShadingLegend( faciesColors );
