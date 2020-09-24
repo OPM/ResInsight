@@ -1,7 +1,7 @@
 //  windows_attributes  ----------------------------------------------------------------//
 
 //  Copyright Beman Dawes 2010
-   
+
 //  Distributed under the Boost Software License, Version 1.0.
 //  See http://www.boost.org/LICENSE_1_0.txt
 
@@ -83,8 +83,8 @@ int cpp_main( int argc, char* argv[])
 
   fs::file_status stat = fs::status(argv[1]);
 
-  const char* types[] = 
-    { 
+  const char* types[] =
+    {
     "status_error",
     "file_not_found",
     "regular_file",

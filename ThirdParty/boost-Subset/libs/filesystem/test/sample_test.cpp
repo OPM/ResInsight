@@ -13,7 +13,7 @@
 
 #include <boost/config/warning_disable.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/detail/lightweight_test.hpp>
+#include <boost/core/lightweight_test.hpp>
 #include <iostream>
 #include <string>
 #include <cstring>
@@ -43,12 +43,12 @@ int cpp_main(int argc, char* argv[])
     cleanup = false;
 
   //  Test cases go after this block of comments
-  //    Use test case macros from boost/detail/lightweight_test.hpp:
+  //    Use test case macros from boost/core/lightweight_test.hpp:
   //
   //    BOOST_TEST(predicate);  // test passes if predicate evaluates to true
   //    BOOST_TEST_EQ(x, y);    // test passes if x == y
   //    BOOST_TEST_NE(x, y);    // test passes if x != y
-  //    BOOST_ERROR(msg);       // test fails, outputs msg 
+  //    BOOST_ERROR(msg);       // test fails, outputs msg
   //    Examples:
   //      BOOST_TEST(path("f00").size() == 3);   // test passes
   //      BOOST_TEST_EQ(path("f00").size(), 3);  // test passes
