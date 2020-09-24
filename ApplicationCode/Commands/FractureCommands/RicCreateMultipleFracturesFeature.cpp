@@ -176,9 +176,9 @@ void RicCreateMultipleFracturesFeature::onActionTriggered( bool isChecked )
             {
                 firstSourceCase = proj->eclipseCases().front();
 
-                auto ijkRange = ijkRangeForGrid( firstSourceCase );
-                int  topK     = static_cast<int>( ijkRange.first.z() );
-                int  baseK    = static_cast<int>( ijkRange.second.z() );
+                auto [top, base] = ijkRangeForGrid( firstSourceCase );
+                int topK         = static_cast<int>( top.z() );
+                int baseK        = static_cast<int>( base.z() );
 
                 double minimumDistanceFromTip = 100.0;
                 int    maxFractureCount       = 100;
