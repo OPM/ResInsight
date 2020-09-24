@@ -49,10 +49,10 @@ void RiuQwtPlotLegend::resizeEvent( QResizeEvent* event )
     const QwtDynGridLayout* legendLayout = qobject_cast<QwtDynGridLayout*>( contentsWidget()->layout() );
     if ( legendLayout )
     {
-        int left, right, top, bottom;
-        getContentsMargins( &left, &top, &right, &bottom );
+        QMargins margins = this->contentsMargins();
 
-        m_columnCount = std::max( 1, (int)legendLayout->columnsForWidth( size.width() - left - right ) );
+        m_columnCount =
+            std::max( 1, (int)legendLayout->columnsForWidth( size.width() - margins.left() - margins.right() ) );
 
         updateGeometry();
     }
