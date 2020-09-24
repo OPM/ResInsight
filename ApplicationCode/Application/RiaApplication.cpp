@@ -705,9 +705,8 @@ bool RiaApplication::loadProject( const QString& projectFileName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaApplication::saveProject( QString* errorMessage )
+bool RiaApplication::saveProject( gsl::not_null<QString*> errorMessage )
 {
-    CAF_ASSERT( errorMessage );
     CAF_ASSERT( m_project.notNull() );
 
     if ( !isProjectSavedToDisc() )
@@ -724,8 +723,9 @@ bool RiaApplication::saveProject( QString* errorMessage )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaApplication::saveProjectAs( const QString& fileName, QString* errorMessage )
+bool RiaApplication::saveProjectAs( const QString& fileName, gsl::not_null<QString*> errorMessage )
 {
+    CAF_ASSERT( m_project.notNull() );
     // Make sure we always store path with forward slash to avoid issues when opening the project file on Linux
     m_project->fileName = RiaFilePathTools::toInternalSeparator( fileName );
 
@@ -733,7 +733,6 @@ bool RiaApplication::saveProjectAs( const QString& fileName, QString* errorMessa
 
     if ( !m_project->writeProjectFile() )
     {
-        CAF_ASSERT( errorMessage );
         *errorMessage = QString( "Not possible to save project file. Make sure you have sufficient access "
                                  "rights.\n\nProject file location : %1" )
                             .arg( fileName );
@@ -889,10 +888,9 @@ bool RiaApplication::openOdbCaseFromFile( const QString& fileName, bool applyTim
 //--------------------------------------------------------------------------------------------------
 /// Add a list of well path file paths (JSON files) to the well path collection
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellPath*> RiaApplication::addWellPathsToModel( QList<QString> wellPathFilePaths, QStringList* errorMessages )
+std::vector<RimWellPath*> RiaApplication::addWellPathsToModel( QList<QString>              wellPathFilePaths,
+                                                               gsl::not_null<QStringList*> errorMessages )
 {
-    CAF_ASSERT( errorMessages );
-
     if ( m_project == nullptr || m_project->oilFields.size() < 1 ) return {};
 
     RimOilField* oilField = m_project->activeOilField();
@@ -945,11 +943,9 @@ void RiaApplication::addWellPathFormationsToModel( QList<QString> wellPathFormat
 //--------------------------------------------------------------------------------------------------
 /// Add a list of well log file paths (LAS files) to the well path collection
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellLogFile*> RiaApplication::addWellLogsToModel( const QList<QString>& wellLogFilePaths,
-                                                                 QStringList*          errorMessages )
+std::vector<RimWellLogFile*> RiaApplication::addWellLogsToModel( const QList<QString>&       wellLogFilePaths,
+                                                                 gsl::not_null<QStringList*> errorMessages )
 {
-    CAF_ASSERT( errorMessages );
-
     if ( m_project == nullptr || m_project->oilFields.size() < 1 ) return {};
 
     RimOilField* oilField = m_project->activeOilField();
@@ -1776,10 +1772,8 @@ void RiaApplication::resetProject()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaApplication::generateCode( const QString& fileName, QString* errMsg )
+bool RiaApplication::generateCode( const QString& fileName, gsl::not_null<QString*> errMsg )
 {
-    CAF_ASSERT( errMsg );
-
     std::string fileExt = QFileInfo( fileName ).suffix().toStdString();
 
     {
