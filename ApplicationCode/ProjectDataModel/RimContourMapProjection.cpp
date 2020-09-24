@@ -467,13 +467,12 @@ double RimContourMapProjection::calculateValueInMapCell( uint i, uint j, const s
             case RESULTS_MEAN_VALUE:
             {
                 RiaWeightedMeanCalculator<double> calculator;
-                for ( auto cellIdxAndWeight : matchingCells )
+                for ( auto [cellIdx, weight] : matchingCells )
                 {
-                    size_t cellIdx   = cellIdxAndWeight.first;
                     double cellValue = gridCellValues[cellIdx];
                     if ( cellValue != std::numeric_limits<double>::infinity() )
                     {
-                        calculator.addValueAndWeight( cellValue, cellIdxAndWeight.second );
+                        calculator.addValueAndWeight( cellValue, weight );
                     }
                 }
                 if ( calculator.validAggregatedWeight() )
@@ -485,9 +484,8 @@ double RimContourMapProjection::calculateValueInMapCell( uint i, uint j, const s
             case RESULTS_GEOM_VALUE:
             {
                 RiaWeightedGeometricMeanCalculator calculator;
-                for ( auto cellIdxAndWeight : matchingCells )
+                for ( auto [cellIdx, weight] : matchingCells )
                 {
-                    size_t cellIdx   = cellIdxAndWeight.first;
                     double cellValue = gridCellValues[cellIdx];
                     if ( cellValue < 1.0e-8 )
                     {
@@ -495,7 +493,7 @@ double RimContourMapProjection::calculateValueInMapCell( uint i, uint j, const s
                     }
                     if ( cellValue != std::numeric_limits<double>::infinity() )
                     {
-                        calculator.addValueAndWeight( cellValue, cellIdxAndWeight.second );
+                        calculator.addValueAndWeight( cellValue, weight );
                     }
                 }
                 if ( calculator.validAggregatedWeight() )

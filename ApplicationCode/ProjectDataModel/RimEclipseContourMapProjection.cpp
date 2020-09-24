@@ -125,9 +125,9 @@ void RimEclipseContourMapProjection::updateLegend()
     double minVal = minValue( m_aggregatedResults );
     double maxVal = maxValue( m_aggregatedResults );
 
-    std::pair<double, double> minmaxValAllTimeSteps = minmaxValuesAllTimeSteps();
+    auto [minValAllTimeSteps, maxValAllTimeSteps] = minmaxValuesAllTimeSteps();
 
-    legendConfig()->setAutomaticRanges( minmaxValAllTimeSteps.first, minmaxValAllTimeSteps.second, minVal, maxVal );
+    legendConfig()->setAutomaticRanges( minValAllTimeSteps, maxValAllTimeSteps, minVal, maxVal );
 
     if ( m_resultAggregation() == RESULTS_OIL_COLUMN || m_resultAggregation() == RESULTS_GAS_COLUMN ||
          m_resultAggregation() == RESULTS_HC_COLUMN )
