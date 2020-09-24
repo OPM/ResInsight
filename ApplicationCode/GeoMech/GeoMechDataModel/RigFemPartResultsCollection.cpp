@@ -460,12 +460,12 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult( i
         std::map<std::string, std::vector<float>> elementProperties =
             m_elementPropertyReader->readAllElementPropertiesInFileContainingField( resVarAddr.fieldName );
 
-        for ( std::pair<std::string, std::vector<float>> elem : elementProperties )
+        for ( auto [addrString, values] : elementProperties )
         {
-            RigFemResultAddress       addressForElement( RIG_ELEMENT, elem.first, "" );
+            RigFemResultAddress       addressForElement( RIG_ELEMENT, addrString, "" );
             RigFemScalarResultFrames* currentFrames = m_femPartResults[partIndex]->createScalarResult( addressForElement );
             currentFrames->enableAsSingleFrameResult();
-            currentFrames->frameData( 0 ).swap( elem.second );
+            currentFrames->frameData( 0 ).swap( values );
         }
 
         frames = m_femPartResults[partIndex]->findScalarResult( resVarAddr );
