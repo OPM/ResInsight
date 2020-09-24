@@ -11,10 +11,8 @@
 project
     : requirements
       <library>/boost/filesystem//boost_filesystem
-      <library>/boost/system//boost_system
-      <toolset>msvc:<asynch-exceptions>on
     ;
-    
+
 exe tut1 : tut1.cpp ;
 exe tut2 : tut2.cpp ;
 exe tut3 : tut3.cpp ;

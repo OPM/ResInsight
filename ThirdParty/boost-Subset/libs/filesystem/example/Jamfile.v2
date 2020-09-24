@@ -10,11 +10,9 @@
 project
     : requirements
       <library>/boost/filesystem//boost_filesystem
-      <library>/boost/system//boost_system
-      <toolset>msvc:<asynch-exceptions>on
       <link>static
     ;
-    
+
 exe tut0 : tut0.cpp ;
 exe tut1 : tut1.cpp ;
 exe tut2 : tut2.cpp ;
@@ -24,3 +22,4 @@ exe tut5 : tut5.cpp ;
 exe path_info : path_info.cpp ;
 exe file_status : file_status.cpp ;
 exe file_size : file_size.cpp ;
+exe directory_symlink_parent_resolution : directory_symlink_parent_resolution.cpp ;

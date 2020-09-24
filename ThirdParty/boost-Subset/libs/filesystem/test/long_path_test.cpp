@@ -17,7 +17,7 @@
 
 using namespace boost::filesystem;
 
-#include <boost/detail/lightweight_test.hpp>
+#include <boost/core/lightweight_test.hpp>
 #include <boost/detail/lightweight_main.hpp>
 
 namespace

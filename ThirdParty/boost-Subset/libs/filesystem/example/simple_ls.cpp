@@ -18,9 +18,9 @@
 #  define BOOST_SYSTEM_NO_DEPRECATED
 #endif
 
-#include "boost/filesystem/operations.hpp"
-#include "boost/filesystem/path.hpp"
-#include "boost/progress.hpp"
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/directory.hpp>
+#include <boost/filesystem/path.hpp>
 #include <iostream>
 
 namespace fs = boost::filesystem;
@@ -85,7 +85,8 @@ int main(int argc, char* argv[])
   }
   else // must be a file
   {
-    std::cout << "\nFound: " << p << "\n";    
+    std::cout << "\nFound: " << p << "\n";
   }
+
   return 0;
 }

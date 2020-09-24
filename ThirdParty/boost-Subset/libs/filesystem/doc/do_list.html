@@ -80,11 +80,11 @@ to return paths with fewer elements.]</pre>
   <li>Reorganize files - delete examples that no longer apply.</li>
   <li>Should minimal.css be changed to used relative font sizes? See
   <a href="http://www.w3schools.com/CSS/pr_font_font-size.asp/">http://www.w3schools.com/CSS/pr_font_font-size.asp\</a></li>
-  <li>Document behavior of path::replace_extension has change WRT argument w/o a 
+  <li>Document behavior of path::replace_extension has change WRT argument w/o a
   dot.</li>
-  <li style="font-size: 10pt">Document leading //: no longer treated specially. 
+  <li style="font-size: 10pt">Document leading //: no longer treated specially.
   But is that really correct?</li>
-  <li style="font-size: 10pt">Behavior of root_path() has been changed. Change 
+  <li style="font-size: 10pt">Behavior of root_path() has been changed. Change
   needs to be propagated to trunk?</li>
   <li style="font-size: 10pt">Regenerate path decomposition table.</li>
 </ul>
@@ -93,18 +93,18 @@ to return paths with fewer elements.]</pre>
 <h3>All</h3>
 <ul>
   <li style="font-size: 10pt">Move semantics.</li>
-  <li style="font-size: 10pt">Use BOOST_DELETED, BOOST_DEFAULTED, where 
+  <li style="font-size: 10pt">Use BOOST_DELETED, BOOST_DEFAULTED, where
   appropriate.</li>
   <li style="font-size: 10pt">Other C++0x features.</li>
 </ul>
 <h3>Class path</h3>
 <ul>
   <li>Windows, POSIX, conversions for char16_t, char32_t for C++0x compilers.</li>
-  <li>Add Windows Alternate Data Stream test cases. See http://en.wikipedia.org/wiki/NTFS 
+  <li>Add Windows Alternate Data Stream test cases. See http://en.wikipedia.org/wiki/NTFS
   Features.</li>
-  <li>Add test case: relational operators on paths differing only in trailing 
+  <li>Add test case: relational operators on paths differing only in trailing
   separator. Rationale?</li>
-  <li>Provide the name check functions for more character types? Templatize? 
+  <li>Provide the name check functions for more character types? Templatize?
   take a path argument?</li>
   <li style="font-size: 10pt">Add codepage 936/950/etc test cases.</li>
   <li style="font-size: 10pt">Should UDT's be supported?</li>
@@ -116,17 +116,17 @@ to return paths with fewer elements.]</pre>
 </ul>
 <h3>Operations</h3>
 <ul>
-  <li>Would complete(), system_complete() be clearer if renamed absolute(), 
+  <li>Would complete(), system_complete() be clearer if renamed absolute(),
   absolute_system() (or absolute_native())?</li>
-  <li>Review all operations.cpp code for race conditions similar to #2925. Fix 
+  <li>Review all operations.cpp code for race conditions similar to #2925. Fix
   or document.</li>
   <li>Enable all BOOST_FILESYSTEM_NO_DEPRECATED code.</li>
-  <li>rename and remove names are problems. If users says &quot;using 
+  <li>rename and remove names are problems. If users says &quot;using
   namespace boost::filesystem&quot;<br>
   and some header included stdio, there is just too much chance of silent error.</li>
   <li>create_directories error handling needs work.</li>
   <li>Fold convenience.hpp into operations.hpp</li>
-  <li>Two argument recursive_directory_iterator ctor isn't recognizing throws(). 
+  <li>Two argument recursive_directory_iterator ctor isn't recognizing throws().
   Would it be better to fold into a single two argument ctor with default?</li>
   <li>Add the push_directory class from tools/release/required_files.cpp</li>
 </ul>
