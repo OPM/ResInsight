@@ -32,6 +32,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimElasticProperties.h"
+#include "RimFaciesProperties.h"
 #include "RimFractureModel.h"
 #include "RimFractureModelPlot.h"
 #include "RimFractureModelTemplate.h"
@@ -203,20 +204,24 @@ void RimElasticPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength
             return;
         }
 
-        // TODO: make this settable??
-        QString         colorLegendName = RiaDefines::faciesColorLegendName();
-        RimColorLegend* colorLegend     = RimProject::current()->colorLegendCollection()->findByName( colorLegendName );
-        if ( !colorLegend )
-        {
-            RiaLogging::error(
-                QString( "No color legend found when extracting elastic properties. Looked for '%1'" ).arg( colorLegendName ) );
-            return;
-        }
-
         RimFractureModelTemplate* fractureModelTemplate = m_fractureModel->fractureModelTemplate();
         if ( !fractureModelTemplate )
         {
             RiaLogging::error( QString( "No fracture model template found" ) );
+            return;
+        }
+
+        RimFaciesProperties* faciesProperties = fractureModelTemplate->faciesProperties();
+        if ( !faciesProperties )
+        {
+            RiaLogging::error( QString( "No facies properties found when extracting elastic properties." ) );
+            return;
+        }
+
+        RimColorLegend* colorLegend = faciesProperties->colorLegend();
+        if ( !colorLegend )
+        {
+            RiaLogging::error( QString( "No color legend found when extracting elastic properties." ) );
             return;
         }
 

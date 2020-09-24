@@ -202,3 +202,19 @@ void RimFaciesProperties::setEclipseCase( RimEclipseCase* eclipseCase )
 {
     m_faciesDefinition->setEclipseCase( eclipseCase );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimColorLegend* RimFaciesProperties::colorLegend() const
+{
+    return m_colorLegend;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaciesProperties::setColorLegend( RimColorLegend* colorLegend )
+{
+    m_colorLegend = colorLegend;
+}
