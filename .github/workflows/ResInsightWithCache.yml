@@ -26,7 +26,7 @@ jobs:
             environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
             vcpkg-response-file: vcpkg_x64-windows.txt,
             vcpkg-triplet: x64-windows,
-            cmake-toolchain: 'vcpkg/scripts/buildsystems/vcpkg.cmake'
+            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake'
           }
         - {
             name: "Ubuntu Latest GCC",
@@ -34,7 +34,7 @@ jobs:
             cc: "gcc", cxx: "g++",
             vcpkg-response-file: vcpkg_x64-linux.txt,
             vcpkg-triplet: x64-linux,
-            cmake-toolchain: 'vcpkg/scripts/buildsystems/vcpkg.cmake'
+            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake'
           }
         - {
             name: "Ubuntu 20.04",
@@ -42,7 +42,7 @@ jobs:
             cc: "gcc", cxx: "g++",
             vcpkg-response-file: vcpkg_x64-linux.txt,
             vcpkg-triplet: x64-linux,
-            cmake-toolchain: 'vcpkg/scripts/buildsystems/vcpkg.cmake'
+            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake'
           }
         - {
             name: "Ubuntu 20.04 clang",
@@ -50,7 +50,7 @@ jobs:
             cc: "clang", cxx: "clang++",
             vcpkg-response-file: vcpkg_x64-linux.txt,
             vcpkg-triplet: x64-linux,
-            cmake-toolchain: 'vcpkg/scripts/buildsystems/vcpkg.cmake'
+            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake'
           }
     steps:
       - name: Checkout
@@ -124,15 +124,15 @@ jobs:
       - name: Cache vcpkg artifacts
         uses: actions/cache@v2
         with:
-          path: ${{ github.workspace }}/vcpkg/
+          path: ${{ github.workspace }}/ThirdParty/vcpkg/
           # Ensure the cache is invalidated any time vcpkg version changes, or a different set of packages is being used.
-          key: ${{ hashFiles( format('{0}/{1}', github.workspace, matrix.config.vcpkg-response-file )) }}-${{ hashFiles('.git/modules/vcpkg/HEAD') }}-${{ runner.os }}-v02
+          key: ${{ hashFiles( format('{0}/{1}', github.workspace, matrix.config.vcpkg-response-file )) }}-${{ hashFiles('.git/modules/ThirdParty/vcpkg/HEAD') }}-${{ runner.os }}-v02
       - name: Run vcpkg
         uses: lukka/run-vcpkg@v1
         id: runvcpkg
         with:
           vcpkgArguments: '@${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}'
-          vcpkgDirectory: '${{ github.workspace }}/vcpkg'
+          vcpkgDirectory: '${{ github.workspace }}/ThirdParty/vcpkg'
       - name: Configure
         shell: cmake -P {0}
         run: |
