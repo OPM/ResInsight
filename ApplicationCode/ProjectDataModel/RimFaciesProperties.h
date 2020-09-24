@@ -53,6 +53,8 @@ public:
     RimColorLegend* colorLegend() const;
     void            setColorLegend( RimColorLegend* colorLegend );
 
+    const RimEclipseResultDefinition* faciesDefinition() const;
+
 protected:
     void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                          QString                    uiConfigName,

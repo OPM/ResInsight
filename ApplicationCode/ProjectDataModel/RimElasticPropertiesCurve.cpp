@@ -166,9 +166,25 @@ void RimElasticPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength
         std::vector<std::pair<double, double>> yValues;
         std::vector<QString> formationNamesVector = RimWellLogTrack::formationNamesVector( eclipseCase );
 
+        RimFractureModelTemplate* fractureModelTemplate = m_fractureModel->fractureModelTemplate();
+        if ( !fractureModelTemplate )
+        {
+            RiaLogging::error( QString( "No fracture model template found" ) );
+            return;
+        }
+
+        RimFaciesProperties* faciesProperties = fractureModelTemplate->faciesProperties();
+        if ( !faciesProperties )
+        {
+            RiaLogging::error( QString( "No facies properties found when extracting elastic properties." ) );
+            return;
+        }
+
+        const RimEclipseResultDefinition* faciesDefinition = faciesProperties->faciesDefinition();
+
         // Extract facies data
-        m_eclipseResultDefinition->setResultVariable( "OPERNUM_1" );
-        m_eclipseResultDefinition->setResultType( RiaDefines::ResultCatType::INPUT_PROPERTY );
+        m_eclipseResultDefinition->setResultVariable( faciesDefinition->resultVariable() );
+        m_eclipseResultDefinition->setResultType( faciesDefinition->resultType() );
         m_eclipseResultDefinition->setEclipseCase( eclipseCase );
         m_eclipseResultDefinition->loadResult();
 
@@ -201,20 +217,6 @@ void RimElasticPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength
         if ( poroValues.empty() )
         {
             RiaLogging::error( QString( "Empty porosity data found when extracting elastic properties." ) );
-            return;
-        }
-
-        RimFractureModelTemplate* fractureModelTemplate = m_fractureModel->fractureModelTemplate();
-        if ( !fractureModelTemplate )
-        {
-            RiaLogging::error( QString( "No fracture model template found" ) );
-            return;
-        }
-
-        RimFaciesProperties* faciesProperties = fractureModelTemplate->faciesProperties();
-        if ( !faciesProperties )
-        {
-            RiaLogging::error( QString( "No facies properties found when extracting elastic properties." ) );
             return;
         }
 

@@ -218,3 +218,11 @@ void RimFaciesProperties::setColorLegend( RimColorLegend* colorLegend )
 {
     m_colorLegend = colorLegend;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RimEclipseResultDefinition* RimFaciesProperties::faciesDefinition() const
+{
+    return m_faciesDefinition.value();
+}
