@@ -349,7 +349,7 @@ QList<caf::PdmOptionItemInfo> RimFractureModel::calculateValueOptions( const caf
 
             for ( RimFractureModelTemplate* fracDef : fracDefColl->fractureModelTemplates() )
             {
-                QString displayText = QString( "junk" ); // fracDef->name();
+                QString displayText = fracDef->name();
                 options.push_back( caf::PdmOptionItemInfo( displayText, fracDef ) );
             }
         }
@@ -731,7 +731,10 @@ void RimFractureModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     m_thicknessDirectionWellPath.uiCapability()->setUiHidden( true );
     m_barrierAnnotation.uiCapability()->setUiHidden( true );
 
-    uiOrdering.add( nameField() );
+    uiOrdering.add( nameField(), caf::PdmUiOrdering::LayoutOptions( true, 3, 1 ) );
+    uiOrdering.add( &m_fractureModelTemplate, {true, 2, 1} );
+    uiOrdering.add( &m_editFractureModelTemplate, {false, 1, 0} );
+
     uiOrdering.add( &m_MD );
     uiOrdering.add( &m_extractionType );
     uiOrdering.add( &m_anchorPosition );
