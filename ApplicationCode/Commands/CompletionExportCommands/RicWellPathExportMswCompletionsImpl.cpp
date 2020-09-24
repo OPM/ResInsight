@@ -1674,7 +1674,6 @@ void RicWellPathExportMswCompletionsImpl::writeMainBoreWelsegsSegment( std::shar
         prevOutMD  = previousSegment->outputMD();
         prevOutTVD = previousSegment->outputTVD();
     }
-
     for ( const auto& [subStartMD, subEndMD] : subSegments )
     {
         auto startPoint = exportInfo.wellPath()->wellPathGeometry()->interpolatedPointAlongWellPath( subStartMD );
