@@ -22,10 +22,10 @@
 #include <boost/config/warning_disable.hpp>
 
 //  See deprecated_test for tests of deprecated features
-#ifndef BOOST_FILESYSTEM_NO_DEPRECATED 
+#ifndef BOOST_FILESYSTEM_NO_DEPRECATED
 # define BOOST_FILESYSTEM_NO_DEPRECATED
 #endif
-#ifndef BOOST_SYSTEM_NO_DEPRECATED 
+#ifndef BOOST_SYSTEM_NO_DEPRECATED
 # define BOOST_SYSTEM_NO_DEPRECATED
 #endif
 
@@ -232,7 +232,7 @@ namespace
     // easy-to-make coding errors
     // path e1(x0, path::codecvt());  // fails to compile, and that is OK
 
-    boost::shared_ptr< Derived > pDerived( new Derived() ); 
+    boost::shared_ptr< Derived > pDerived( new Derived() );
     fun( pDerived );  // tests constructor member template enable_if working correctly;
                       // will fail to compile if enable_if not taking path off the table
   }
@@ -278,6 +278,32 @@ namespace
     x = ws.c_str();                                    // const wchar_t* null terminated
     PATH_IS(x, L"wstring");
    }
+
+  //  test_move_construction_and_assignment  -------------------------------------------//
+
+  void test_move_construction_and_assignment()
+  {
+    std::cout << "testing move_construction_and_assignment..." << std::endl;
+
+# if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
+    path from("long enough to avoid small object optimization");
+    path to(std::move(from));
+    BOOST_TEST(to == "long enough to avoid small object optimization");
+    if (!from.empty())
+      cout << "Note: move construction did not result in empty source path" << endl;
+
+    path from2("long enough to avoid small object optimization");
+    path to2;
+    to2 = std::move(from2);
+    BOOST_TEST(to2 == "long enough to avoid small object optimization");
+    if (!from2.empty())
+      cout << "Note: move assignment did not result in empty rhs path" << endl;
+# else
+    std::cout <<
+      "Test skipped because compiler does not support move semantics" << std::endl;
+# endif
+
+  }
 
   //  test_appends  --------------------------------------------------------------------//
 
@@ -420,10 +446,15 @@ namespace
     path p0("abc");
 
     CHECK(p0.native().size() == 3);
+    CHECK(p0.size() == 3);
     CHECK(p0.string() == "abc");
     CHECK(p0.string().size() == 3);
     CHECK(p0.wstring() == L"abc");
     CHECK(p0.wstring().size() == 3);
+
+    p0 = "";
+    CHECK(p0.native().size() == 0);
+    CHECK(p0.size() == 0);
 
 # ifdef BOOST_WINDOWS_API
 
@@ -434,6 +465,7 @@ namespace
     CHECK(p.string() == "abc\\def/ghi");
     CHECK(p.wstring() == L"abc\\def/ghi");
 
+    CHECK(p.generic_path().string() == "abc/def/ghi");
     CHECK(p.generic_string() == "abc/def/ghi");
     CHECK(p.generic_wstring() == L"abc/def/ghi");
 
@@ -450,6 +482,7 @@ namespace
     CHECK(p.string() == "abc\\def/ghi");
     CHECK(p.wstring() == L"abc\\def/ghi");
 
+    CHECK(p.generic_path().string() == "abc\\def/ghi");
     CHECK(p.generic_string() == "abc\\def/ghi");
     CHECK(p.generic_wstring() == L"abc\\def/ghi");
 
@@ -574,9 +607,50 @@ namespace
     CHECK(p1 == "bar");
     CHECK(p2 == "foo");
 
-    CHECK(path("").remove_filename() == "");
-    CHECK(path("foo").remove_filename() == "");
-    CHECK(path("foo/bar").remove_filename() == "foo");
+    CHECK(!path("").filename_is_dot());
+    CHECK(!path("").filename_is_dot_dot());
+    CHECK(!path("..").filename_is_dot());
+    CHECK(!path(".").filename_is_dot_dot());
+    CHECK(!path("...").filename_is_dot_dot());
+    CHECK(path(".").filename_is_dot());
+    CHECK(path("..").filename_is_dot_dot());
+    CHECK(path("/.").filename_is_dot());
+    CHECK(path("/..").filename_is_dot_dot());
+    CHECK(!path("a.").filename_is_dot());
+    CHECK(!path("a..").filename_is_dot_dot());
+
+    // edge cases
+    CHECK(path("foo/").filename() == path("."));
+    CHECK(path("foo/").filename_is_dot());
+    CHECK(path("/").filename() == path("/"));
+    CHECK(!path("/").filename_is_dot());
+# ifdef BOOST_WINDOWS_API
+    CHECK(path("c:.").filename() == path("."));
+    CHECK(path("c:.").filename_is_dot());
+    CHECK(path("c:/").filename() == path("/"));
+    CHECK(!path("c:\\").filename_is_dot());
+# else
+    CHECK(path("c:.").filename() == path("c:."));
+    CHECK(!path("c:.").filename_is_dot());
+    CHECK(path("c:/").filename() == path("."));
+    CHECK(path("c:/").filename_is_dot());
+# endif
+
+    // check that the implementation code to make the edge cases above work right
+    // doesn't cause some non-edge cases to fail
+    CHECK(path("c:").filename() != path("."));
+    CHECK(!path("c:").filename_is_dot());
+
+    // examples from reference.html
+    std::cout << path(".").filename_is_dot();            // outputs 1
+    std::cout << path("/.").filename_is_dot();           // outputs 1
+    std::cout << path("foo/.").filename_is_dot();        // outputs 1
+    std::cout << path("foo/").filename_is_dot();         // outputs 1
+    std::cout << path("/").filename_is_dot();            // outputs 0
+    std::cout << path("/foo").filename_is_dot();         // outputs 0
+    std::cout << path("/foo.").filename_is_dot();        // outputs 0
+    std::cout << path("..").filename_is_dot();           // outputs 0
+    cout << std::endl;
   }
 
 //  //  test_modifiers  ------------------------------------------------------------------//
@@ -615,11 +689,51 @@ namespace
     CHECK(++it == p3.end());
   }
 
+  //  test_reverse_iterators  ----------------------------------------------------------//
+
+  void test_reverse_iterators()
+  {
+    std::cout << "testing reverse_iterators..." << std::endl;
+
+    path p1;
+    CHECK(p1.rbegin() == p1.rend());
+
+    path p2("/");
+    CHECK(p2.rbegin() != p2.rend());
+    CHECK(*p2.rbegin() == "/");
+    CHECK(++p2.rbegin() == p2.rend());
+
+    path p3("foo/bar/baz");
+
+    path::reverse_iterator it(p3.rbegin());
+    CHECK(p3.rbegin() != p3.rend());
+    CHECK(*it == "baz");
+    CHECK(*++it == "bar");
+    CHECK(*++it == "foo");
+    CHECK(*--it == "bar");
+    CHECK(*--it == "baz");
+    CHECK(*++it == "bar");
+    CHECK(*++it == "foo");
+    CHECK(++it == p3.rend());
+  }
+
   //  test_modifiers  ------------------------------------------------------------------//
 
   void test_modifiers()
   {
     std::cout << "testing modifiers..." << std::endl;
+
+    CHECK(path("").remove_filename() == "");
+    CHECK(path("foo").remove_filename() == "");
+    CHECK(path("/foo").remove_filename() == "/");
+    CHECK(path("foo/bar").remove_filename() == "foo");
+    BOOST_TEST_EQ(path("foo/bar/").remove_filename(), path("foo/bar"));
+    BOOST_TEST_EQ(path(".").remove_filename(), path(""));
+    BOOST_TEST_EQ(path("./.").remove_filename(), path("."));
+    BOOST_TEST_EQ(path("/.").remove_filename(), path("/"));
+    BOOST_TEST_EQ(path("..").remove_filename(), path(""));
+    BOOST_TEST_EQ(path("../..").remove_filename(), path(".."));
+    BOOST_TEST_EQ(path("/..").remove_filename(), path("/"));
 
   }
 
@@ -714,7 +828,7 @@ namespace
     std::cout << "testing imbue locale..." << std::endl;
 
     //  weak test case for before/after states since we don't know what characters the
-    //  default locale accepts. 
+    //  default locale accepts.
     path before("abc");
 
     //  So that tests are run with known encoding, use Boost UTF-8 codecvt
@@ -1029,6 +1143,27 @@ namespace
 
 # endif
 
+  inline const char* macro_value(const char* name, const char* value)
+  {
+    static const char* no_value = "[no value]";
+    static const char* not_defined = "[not defined]";
+
+    //if (0 != strcmp(name, value + 1))  // macro is defined
+    //{
+    //  if (value[1])
+    //    return value;
+    //  else
+    //    return no_value;
+    //}
+    //return not_defined;
+
+    return 0 == strcmp(name, value + 1)
+      ? not_defined
+      : (value[1] ? value : no_value);
+  }
+
+#define BOOST_MACRO_VALUE(X) macro_value(#X, BOOST_STRINGIZE(=X))
+
 }  // unnamed namespace
 
 //--------------------------------------------------------------------------------------//
@@ -1048,6 +1183,16 @@ int test_main(int, char*[])
   cout << "BOOST_WINDOWS_API" << endl;
   BOOST_TEST(path::preferred_separator == '\\');
 #endif
+
+  cout << "BOOST_FILESYSTEM_DECL "
+    << BOOST_MACRO_VALUE(BOOST_FILESYSTEM_DECL) << endl;
+
+//#ifdef BOOST_FILESYSTEM_DECL
+//  cout << "BOOST_FILESYSTEM_DECL is defined as "
+//    << BOOST_STRINGIZE(BOOST_FILESYSTEM_DECL) << endl;
+//#else
+//  cout << "BOOST_FILESYSTEM_DECL is not defined" << endl;
+//#endif
 
   l.push_back('s');
   l.push_back('t');
@@ -1076,6 +1221,7 @@ int test_main(int, char*[])
   test_overloads();
   test_constructors();
   test_assignments();
+  test_move_construction_and_assignment();
   test_appends();
   test_concats();
   test_modifiers();
@@ -1084,6 +1230,7 @@ int test_main(int, char*[])
   test_inserter_and_extractor();
   test_other_non_members();
   test_iterators();
+  test_reverse_iterators();
   test_decompositions();
   test_queries();
   test_imbue_locale();
