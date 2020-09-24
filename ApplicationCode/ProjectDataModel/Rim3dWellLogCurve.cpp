@@ -304,10 +304,7 @@ cvf::ref<Riv3dWellLogCurveGeometryGenerator> Rim3dWellLogCurve::geometryGenerato
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogCurve::resetMinMaxValues()
 {
-    std::pair<double, double> valueRange = findCurveValueRange();
-
-    m_minCurveDataValue = valueRange.first;
-    m_maxCurveDataValue = valueRange.second;
+    std::tie( m_minCurveDataValue, m_maxCurveDataValue ) = findCurveValueRange();
 
     m_minCurveUIValue = m_minCurveDataValue;
     m_maxCurveUIValue = m_maxCurveDataValue;

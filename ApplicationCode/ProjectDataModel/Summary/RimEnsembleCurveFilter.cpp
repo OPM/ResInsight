@@ -142,12 +142,11 @@ QList<caf::PdmOptionItemInfo>
         if ( curveSet )
         {
             auto params = curveSet->correlationSortedEnsembleParameters();
-            for ( const auto& paramCorrPair : params )
+            for ( const auto& [param, corr] : params )
             {
-                QString name = paramCorrPair.first.name;
-                double  corr = paramCorrPair.second;
                 options.push_back(
-                    caf::PdmOptionItemInfo( QString( "%1 (Avg. correlation: %2)" ).arg( name ).arg( corr ), name ) );
+                    caf::PdmOptionItemInfo( QString( "%1 (Avg. correlation: %2)" ).arg( param.name ).arg( corr ),
+                                            param.name ) );
             }
         }
     }
