@@ -20,6 +20,7 @@
 
 #include "RimFracture.h"
 #include "RimFractureModel.h"
+#include "RimFractureModelTemplate.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -35,4 +36,12 @@ QString RicFractureNameGenerator::nameForNewFracture()
 QString RicFractureNameGenerator::nameForNewFractureModel()
 {
     return RicFractureNameGenerator::nameForNewObject<RimFractureModel>( "Fracture Model_%1" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicFractureNameGenerator::nameForNewFractureModelTemplate()
+{
+    return RicFractureNameGenerator::nameForNewObject<RimFractureModelTemplate>( "Fracture Model Template_%1" );
 }
