@@ -31,6 +31,7 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     add_definitions(-DCVF_OSX)
 elseif(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+    set(_HAS_STD_BYTE 0)
 endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
