@@ -36,6 +36,8 @@
 #include <QProcessEnvironment>
 #include <QString>
 
+#include <gsl/gsl>
+
 #include <iostream>
 #include <memory>
 
@@ -131,8 +133,8 @@ public:
     bool loadProject( const QString& projectFileName );
     bool loadProject( const QString& projectFileName, ProjectLoadAction loadAction, RiaProjectModifier* projectModifier );
 
-    bool saveProject( QString* errorMessage );
-    bool saveProjectAs( const QString& fileName, QString* errorMessage );
+    bool saveProject( gsl::not_null<QString*> errorMessage );
+    bool saveProjectAs( const QString& fileName, gsl::not_null<QString*> errorMessage );
 
     static bool hasValidProjectFileExtension( const QString& fileName );
     void        closeProject();
@@ -144,9 +146,11 @@ public:
 
     bool openOdbCaseFromFile( const QString& fileName, bool applyTimeStepFilter = false );
 
-    std::vector<RimWellPath*>    addWellPathsToModel( QList<QString> wellPathFilePaths, QStringList* errorMessages );
+    std::vector<RimWellPath*>    addWellPathsToModel( QList<QString>              wellPathFilePaths,
+                                                      gsl::not_null<QStringList*> errorMessages );
     void                         addWellPathFormationsToModel( QList<QString> wellPathFilePaths );
-    std::vector<RimWellLogFile*> addWellLogsToModel( const QList<QString>& wellLogFilePaths, QStringList* errorMessages );
+    std::vector<RimWellLogFile*> addWellLogsToModel( const QList<QString>&       wellLogFilePaths,
+                                                     gsl::not_null<QStringList*> errorMessages );
 
     QString scriptDirectories() const;
     QString scriptEditorPath() const;
@@ -196,7 +200,7 @@ public:
 
     // Public implementation specific overrides
     virtual void              initialize();
-    virtual ApplicationStatus handleArguments( cvf::ProgramOptions* progOpt ) = 0;
+    virtual ApplicationStatus handleArguments( gsl::not_null<cvf::ProgramOptions*> progOpt ) = 0;
     virtual int               launchUnitTestsWithConsole();
     virtual void              addToRecentFiles( const QString& fileName ) {}
     virtual void              showFormattedTextInMessageBoxOrConsole( const QString& errMsg ) = 0;
@@ -227,7 +231,7 @@ protected:
     friend class RiaRegressionTestRunner;
     void resetProject();
 
-    bool generateCode( const QString& outputPath, QString* errMsg );
+    bool generateCode( const QString& outputPath, gsl::not_null<QString*> errMsg );
 
 protected:
     cvf::ref<cvf::Font> m_defaultSceneFont;
