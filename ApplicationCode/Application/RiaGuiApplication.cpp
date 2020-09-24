@@ -441,10 +441,8 @@ void RiaGuiApplication::initialize()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::ProgramOptions* progOpt )
+RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_null<cvf::ProgramOptions*> progOpt )
 {
-    CVF_ASSERT( progOpt );
-
     // Handling of the actual command line options
     // --------------------------------------------------------
     if ( cvf::Option o = progOpt->option( "ignoreArgs" ) )
