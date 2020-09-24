@@ -1650,11 +1650,8 @@ void RicWellPathExportMswCompletionsImpl::writeMainBoreWelsegsSegment( std::shar
 
     std::vector<std::pair<double, double>> subSegments = createSubSegmentMDPairs( startMD, endMD, maxSegmentLength );
 
-    for ( auto mdPair : subSegments )
+    for ( const auto& [subStartMD, subEndMD] : subSegments )
     {
-        double subStartMD = mdPair.first;
-        double subEndMD   = mdPair.second;
-
         auto startPoint = exportInfo.wellPath()->wellPathGeometry()->interpolatedPointAlongWellPath( subStartMD );
         auto endPoint   = exportInfo.wellPath()->wellPathGeometry()->interpolatedPointAlongWellPath( subEndMD );
 
@@ -1714,12 +1711,9 @@ void RicWellPathExportMswCompletionsImpl::writeValveWelsegsSegment( std::shared_
 
     std::vector<std::pair<double, double>> splitSegments = createSubSegmentMDPairs( startMD, endMD, maxSegmentLength );
 
-    for ( auto mdPair : splitSegments )
+    for ( const auto& [subStartMD, subEndMD] : splitSegments )
     {
         int subSegmentNumber = ( *segmentNumber )++;
-
-        double subStartMD = mdPair.first;
-        double subEndMD   = mdPair.second;
 
         auto startPoint = exportInfo.wellPath()->wellPathGeometry()->interpolatedPointAlongWellPath( subStartMD );
         auto endPoint   = exportInfo.wellPath()->wellPathGeometry()->interpolatedPointAlongWellPath( subEndMD );
@@ -1781,12 +1775,9 @@ void RicWellPathExportMswCompletionsImpl::writeCompletionWelsegsSegment( std::sh
 
         std::vector<std::pair<double, double>> splitSegments = createSubSegmentMDPairs( startMD, endMD, maxSegmentLength );
 
-        for ( auto mdPair : splitSegments )
+        for ( const auto& [subStartMD, subEndMD] : splitSegments )
         {
             int subSegmentNumber = ( *segmentNumber )++;
-
-            double subStartMD = mdPair.first;
-            double subEndMD   = mdPair.second;
 
             auto startPoint = exportInfo.wellPath()->wellPathGeometry()->interpolatedPointAlongWellPath( subStartMD );
             auto endPoint   = exportInfo.wellPath()->wellPathGeometry()->interpolatedPointAlongWellPath( subEndMD );

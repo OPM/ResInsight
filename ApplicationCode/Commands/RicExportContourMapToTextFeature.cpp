@@ -62,12 +62,7 @@ RicExportContourMapToTextFeature::RicExportContourMapToTextFeature()
 //--------------------------------------------------------------------------------------------------
 bool RicExportContourMapToTextFeature::isCommandEnabled()
 {
-    RimEclipseContourMapView* existingEclipseContourMap = nullptr;
-    RimGeoMechContourMapView* existingGeoMechContourMap = nullptr;
-
-    auto sourceViews          = findContourMapView();
-    existingEclipseContourMap = sourceViews.first;
-    existingGeoMechContourMap = sourceViews.second;
+    auto [existingEclipseContourMap, existingGeoMechContourMap] = findContourMapView();
 
     return existingEclipseContourMap || existingGeoMechContourMap;
 }

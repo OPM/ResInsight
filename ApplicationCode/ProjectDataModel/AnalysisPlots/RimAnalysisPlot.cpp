@@ -1132,9 +1132,9 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
 
                     if ( filter->filterOperation() == RimPlotDataFilterItem::RANGE )
                     {
-                        std::pair<double, double> minMax = filter->filterRangeMinMax();
+                        auto [min, max] = filter->filterRangeMinMax();
 
-                        if ( minMax.first <= value && value <= minMax.second )
+                        if ( min <= value && value <= max )
                         {
                             casesToKeep.insert( sumCase );
                         }
