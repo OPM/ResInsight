@@ -42,12 +42,8 @@
 #include "RimEllipseFractureTemplate.h"
 #include "RimFaciesProperties.h"
 #include "RimFractureModelPlot.h"
-#include "RimModeledWellPath.h"
 #include "RimOilField.h"
 #include "RimProject.h"
-#include "RimReservoirCellResultsStorage.h"
-#include "RimStimPlanColors.h"
-#include "RimStimPlanFractureTemplate.h"
 #include "RimTools.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -188,8 +184,9 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &m_overburdenFacies || fieldNeedingOptions == &m_underburdenFacies )
     {
-        RimColorLegend* faciesColors =
-            RimProject::current()->colorLegendCollection()->findByName( RiaDefines::faciesColorLegendName() );
+        if ( !m_faciesProperties ) return options;
+
+        RimColorLegend* faciesColors = m_faciesProperties->colorLegend();
         if ( faciesColors )
         {
             for ( RimColorLegendItem* item : faciesColors->colorLegendItems() )

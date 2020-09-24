@@ -95,6 +95,8 @@ void RicFaciesPropertiesImportTools::importFaciesPropertiesFromFile( const QStri
 
         colorLegendCollection->appendCustomColorLegend( colorLegend );
         colorLegendCollection->updateConnectedEditors();
+
+        faciesProperties->setColorLegend( colorLegend );
     }
 
     faciesProperties->setFilePath( filePath );
