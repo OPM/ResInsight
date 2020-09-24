@@ -50,6 +50,7 @@ RimFractureModelPlot::RimFractureModelPlot()
     m_fractureModel.uiCapability()->setUiTreeChildrenHidden( true );
     m_fractureModel.uiCapability()->setUiHidden( true );
 
+    setLegendsVisible( true );
     setDeletable( true );
 }
 
