@@ -51,8 +51,8 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install grpcio-tools
 
-        vcpkg/bootstrap-vcpkg.sh 
-        vcpkg/vcpkg install grpc
+        ThirdParty/vcpkg/bootstrap-vcpkg.sh 
+        ThirdParty/vcpkg/vcpkg install grpc
         
         mkdir cmakebuild
         cd cmakebuild
@@ -61,7 +61,7 @@ jobs:
         -DRESINSIGHT_ENABLE_GRPC=true \
         -DRESINSIGHT_ENABLE_UNITY_BUILD=true \
         -DVCPKG_TARGET_TRIPLET=x64-linux \
-        -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake \
+        -DCMAKE_TOOLCHAIN_FILE=../ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake \
         -DRESINSIGHT_GRPC_PYTHON_EXECUTABLE=python \
         ..
         
