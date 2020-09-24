@@ -76,7 +76,8 @@ RimFractureModelTemplate::RimFractureModelTemplate()
 {
     CAF_PDM_InitScriptableObject( "FractureModelTemplate", "", "", "" );
 
-    CAF_PDM_InitScriptableField( &m_id, "Id", -1, "Id", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_id, "Id", -1, "ID", "", "", "" );
+    m_id.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitScriptableField( &m_defaultPorosity, "DefaultPorosity", 0.0, "Default Porosity", "", "", "" );
     CAF_PDM_InitScriptableField( &m_defaultPermeability, "DefaultPermeability", 10.0e-6, "Default Permeability", "", "", "" );
@@ -204,6 +205,9 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 void RimFractureModelTemplate::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    uiOrdering.add( nameField() );
+    uiOrdering.add( &m_id );
+
     caf::PdmUiOrdering* defaultsGroup = uiOrdering.addNewGroup( "Defaults" );
     defaultsGroup->add( &m_defaultPorosity );
     defaultsGroup->add( &m_defaultPermeability );

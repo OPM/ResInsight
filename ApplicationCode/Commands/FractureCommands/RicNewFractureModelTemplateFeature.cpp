@@ -24,6 +24,8 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 
+#include "RicFractureNameGenerator.h"
+
 #include "Riu3DMainWindowTools.h"
 
 #include "cafSelectionManager.h"
@@ -50,6 +52,8 @@ void RicNewFractureModelTemplateFeature::onActionTriggered( bool isChecked )
     if ( !fracModColl ) return;
 
     RimFractureModelTemplate* fractureModelTemplate = new RimFractureModelTemplate;
+    fractureModelTemplate->setName( RicFractureNameGenerator::nameForNewFractureModelTemplate() );
+
     fracModColl->addFractureModelTemplate( fractureModelTemplate );
     fracModColl->updateConnectedEditors();
     Riu3DMainWindowTools::selectAsCurrentItem( fractureModelTemplate );

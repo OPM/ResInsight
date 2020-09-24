@@ -21,6 +21,8 @@
 #include "RiaEclipseUnitTools.h"
 #include "RiaFractureModelDefines.h"
 
+#include "RimNamedObject.h"
+
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -36,7 +38,7 @@ class RimFaciesProperties;
 ///
 ///
 //==================================================================================================
-class RimFractureModelTemplate : public caf::PdmObject
+class RimFractureModelTemplate : public RimNamedObject
 {
     CAF_PDM_HEADER_INIT;
 
