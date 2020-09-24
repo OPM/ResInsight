@@ -239,7 +239,8 @@ QString RiuResultTextBuilder::geometrySelectionText( QString itemSeparator )
                 QString formattedText;
                 if ( m_2dIntersectionView )
                 {
-                    formattedText.sprintf( "Horizontal length from well start: %.2f", m_intersectionPointInDisplay.x() );
+                    formattedText =
+                        QString( "Horizontal length from well start: %1" ).arg( m_intersectionPointInDisplay.x(), 5, 'f', 2 );
                     text += formattedText + itemSeparator;
 
                     cvf::Mat4d t = m_2dIntersectionView->flatIntersectionPartMgr()->unflattenTransformMatrix(
@@ -247,10 +248,10 @@ QString RiuResultTextBuilder::geometrySelectionText( QString itemSeparator )
                     if ( !t.isZero() )
                     {
                         cvf::Vec3d intPt = m_intersectionPointInDisplay.getTransformedPoint( t );
-                        formattedText.sprintf( "Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]",
-                                               intPt.x(),
-                                               intPt.y(),
-                                               -intPt.z() );
+                        formattedText    = QString( "Intersection point : [E: %1, N: %2, Depth: %3]" )
+                                            .arg( intPt.x(), 5, 'f', 2 )
+                                            .arg( intPt.y(), 5, 'f', 2 )
+                                            .arg( -intPt.z(), 5, 'f', 2 );
                         text += formattedText;
                     }
                 }
@@ -261,10 +262,10 @@ QString RiuResultTextBuilder::geometrySelectionText( QString itemSeparator )
                         cvf::ref<caf::DisplayCoordTransform> transForm = m_displayCoordView->displayCoordTransform();
                         cvf::Vec3d domainCoord = transForm->translateToDomainCoord( m_intersectionPointInDisplay );
 
-                        formattedText.sprintf( "Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]",
-                                               domainCoord.x(),
-                                               domainCoord.y(),
-                                               -domainCoord.z() );
+                        formattedText = QString( "Intersection point : [E: %1, N: %2, Depth: %3]" )
+                                            .arg( domainCoord.x(), 5, 'f', 2 )
+                                            .arg( domainCoord.y(), 5, 'f', 2 )
+                                            .arg( -domainCoord.z(), 5, 'f', 2 );
                         text += formattedText;
                     }
                 }
