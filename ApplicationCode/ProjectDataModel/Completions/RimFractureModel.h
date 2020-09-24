@@ -187,8 +187,6 @@ protected:
     caf::PdmField<double>                       m_boundingBoxVertical;
     caf::PdmField<double>                       m_boundingBoxHorizontal;
     caf::PdmPtrField<RimModeledWellPath*>       m_thicknessDirectionWellPath;
-    caf::PdmField<double>                       m_defaultPorosity;
-    caf::PdmField<double>                       m_defaultPermeability;
     caf::PdmField<double>                       m_verticalStress;
     caf::PdmField<double>                       m_verticalStressGradient;
     caf::PdmField<double>                       m_stressDepth;
