@@ -31,6 +31,7 @@
 #include "RimColorLegend.h"
 #include "RimColorLegendCollection.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
 #include "RimElasticPropertiesCurve.h"
 #include "RimFaciesProperties.h"
@@ -260,16 +261,6 @@ void RicNewFractureModelPlotFeature::createFaciesTrack( RimFractureModelPlot* pl
                                                         RimFractureModel*     fractureModel,
                                                         RimEclipseCase*       eclipseCase )
 {
-    QString defaultProperty = "OPERNUM_1";
-
-    RimWellLogTrack* faciesTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, "Facies", plot );
-    faciesTrack->setFormationWellPath( fractureModel->thicknessDirectionWellPath() );
-    faciesTrack->setFormationCase( eclipseCase );
-    faciesTrack->setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType::RESULT_PROPERTY_ANNOTATIONS );
-    faciesTrack->setRegionPropertyResultType( RiaDefines::ResultCatType::INPUT_PROPERTY, defaultProperty );
-    faciesTrack->setOverburdenHeight( fractureModel->overburdenHeight() );
-    faciesTrack->setUnderburdenHeight( fractureModel->underburdenHeight() );
-
     RimFractureModelTemplate* fractureModelTemplate = fractureModel->fractureModelTemplate();
     if ( !fractureModelTemplate )
     {
@@ -281,6 +272,20 @@ void RicNewFractureModelPlotFeature::createFaciesTrack( RimFractureModelPlot* pl
     {
         return;
     }
+
+    const RimEclipseResultDefinition* faciesDefinition = faciesProperties->faciesDefinition();
+    if ( !faciesDefinition )
+    {
+        return;
+    }
+
+    RimWellLogTrack* faciesTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, "Facies", plot );
+    faciesTrack->setFormationWellPath( fractureModel->thicknessDirectionWellPath() );
+    faciesTrack->setFormationCase( eclipseCase );
+    faciesTrack->setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType::RESULT_PROPERTY_ANNOTATIONS );
+    faciesTrack->setRegionPropertyResultType( faciesDefinition->resultType(), faciesDefinition->resultVariable() );
+    faciesTrack->setOverburdenHeight( fractureModel->overburdenHeight() );
+    faciesTrack->setUnderburdenHeight( fractureModel->underburdenHeight() );
 
     RimColorLegend* faciesColors = faciesProperties->colorLegend();
     if ( faciesColors )
@@ -297,8 +302,8 @@ void RicNewFractureModelPlotFeature::createFaciesTrack( RimFractureModelPlot* pl
     curve->setFractureModel( fractureModel );
     curve->setCurveProperty( RiaDefines::CurveProperty::FACIES );
     curve->setCase( eclipseCase );
-    curve->setEclipseResultCategory( RiaDefines::ResultCatType::INPUT_PROPERTY );
-    curve->setEclipseResultVariable( defaultProperty );
+    curve->setEclipseResultCategory( faciesDefinition->resultType() );
+    curve->setEclipseResultVariable( faciesDefinition->resultVariable() );
     curve->setColor( colors.cycledColor3f( 0 ) );
     curve->setLineStyle( RiuQwtPlotCurve::STYLE_SOLID );
     curve->setLineThickness( 2 );
@@ -326,8 +331,6 @@ void RicNewFractureModelPlotFeature::createLayersTrack( RimFractureModelPlot* pl
                                                         RimFractureModel*     fractureModel,
                                                         RimEclipseCase*       eclipseCase )
 {
-    QString defaultProperty = "OPERNUM_1";
-
     RimWellLogTrack* faciesTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, "Layers", plot );
     faciesTrack->setFormationWellPath( fractureModel->thicknessDirectionWellPath() );
     faciesTrack->setFormationCase( eclipseCase );
