@@ -69,7 +69,7 @@ namespace riOctavePlugin
 
     bool isOctaveValueNumeric(const octave_value& value)
     {
-#if (OCTAVE_MAJOR_VERSION >= 4 && OCTAVE_MINOR_VERSION >= 4)
+#if (OCTAVE_MAJOR_VERSION > 4 || (OCTAVE_MAJOR_VERSION == 4 && OCTAVE_MINOR_VERSION >= 4))
         return value.isnumeric();
 #else
         return value.is_numeric_type();
