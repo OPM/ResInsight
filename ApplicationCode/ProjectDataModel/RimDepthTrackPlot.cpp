@@ -86,7 +86,8 @@ RimDepthTrackPlot::RimDepthTrackPlot()
     m_commonDataSource.xmlCapability()->disableIO();
     m_commonDataSource = new RimWellLogCurveCommonDataSource;
 
-    CAF_PDM_InitScriptableField( &m_showPlotWindowTitle_OBSOLETE, "ShowTitleInPlot", true, "Show Title", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_showPlotWindowTitle_OBSOLETE, "ShowTitleInPlot", false, "Show Title", "", "", "" );
+    m_showPlotWindowTitle_OBSOLETE.xmlCapability()->setIOWritable( false );
 
     CAF_PDM_InitField( &m_plotWindowTitle, "PlotDescription", QString( "" ), "Name", "", "", "" );
     m_plotWindowTitle.xmlCapability()->setIOWritable( false );
@@ -120,10 +121,10 @@ RimDepthTrackPlot::RimDepthTrackPlot()
     auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_plots );
     reorderability->orderChanged.connect( this, &RimDepthTrackPlot::onPlotsReordered );
 
-    m_availableDepthUnits = {RiaDefines::DepthUnitType::UNIT_METER, RiaDefines::DepthUnitType::UNIT_FEET};
-    m_availableDepthTypes = {RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
-                             RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH,
-                             RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB};
+    m_availableDepthUnits = { RiaDefines::DepthUnitType::UNIT_METER, RiaDefines::DepthUnitType::UNIT_FEET };
+    m_availableDepthTypes = { RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
+                              RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH,
+                              RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB };
 
     m_minAvailableDepth = HUGE_VAL;
     m_maxAvailableDepth = -HUGE_VAL;
@@ -166,8 +167,6 @@ RimDepthTrackPlot& RimDepthTrackPlot::operator=( RimDepthTrackPlot&& rhs )
     // Deliberately don't set m_plotWindowTitle and m_nameConfig. This operator is used for copying parameters from
     // children. This only happens for some plots that used to own a plot but now inherits the plot.
     // They had their own description at top level which we don't want to overwrite.
-
-    m_showPlotWindowTitle_OBSOLETE = rhs.m_showPlotWindowTitle_OBSOLETE;
 
     auto dataSource = rhs.m_commonDataSource();
     rhs.m_commonDataSource.removeChildObject( dataSource );
@@ -889,9 +888,9 @@ void RimDepthTrackPlot::initAfterRead()
         m_depthAxisGridVisibility = AXIS_GRID_MAJOR_AND_MINOR;
     }
 
-    if ( !m_showPlotWindowTitle_OBSOLETE() )
+    if ( m_showPlotWindowTitle_OBSOLETE() )
     {
-        m_showPlotTitle = false;
+        m_showPlotTitle = true;
     }
 
     if ( !m_plotWindowTitle().isEmpty() )
@@ -968,8 +967,6 @@ void RimDepthTrackPlot::insertPlot( RimPlot* plot, size_t index )
             m_viewer->insertPlot( plot->viewer(), index );
         }
         plot->setShowWindow( true );
-        plot->setLegendsVisible( false );
-
         onPlotAdditionOrRemoval();
     }
 }

@@ -114,6 +114,7 @@ RimWellPltPlot::RimWellPltPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_selectedSourcesForIo, "Sources", "Sources", "", "", "" );
     m_selectedSourcesForIo.uiCapability()->setUiHidden( true );
+    m_selectedSourcesForIo.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "Time Steps", "", "", "" );
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
@@ -125,7 +126,7 @@ RimWellPltPlot::RimWellPltPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_phases, "Phases", "Phases", "", "", "" );
     m_phases.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
-    m_phases = std::vector<caf::AppEnum<FlowPhase>>( {FLOW_PHASE_OIL, FLOW_PHASE_GAS, FLOW_PHASE_WATER} );
+    m_phases = std::vector<caf::AppEnum<FlowPhase>>( { FLOW_PHASE_OIL, FLOW_PHASE_GAS, FLOW_PHASE_WATER } );
     m_phases.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     m_nameConfig->setCustomName( "PLT Plot" );
@@ -135,7 +136,8 @@ RimWellPltPlot::RimWellPltPlot()
     m_isOnLoad              = true;
     m_plotLegendsHorizontal = false;
 
-    setAvailableDepthTypes( {RiaDefines::DepthTypeEnum::MEASURED_DEPTH} );
+    setAvailableDepthTypes( { RiaDefines::DepthTypeEnum::MEASURED_DEPTH } );
+    setPlotTitleVisible( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -958,7 +960,7 @@ void RimWellPltPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 void RimWellPltPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
-    // uiTreeOrdering.skipRemainingChildren( true );
+    uiTreeOrdering.skipRemainingChildren( true );
 }
 
 //--------------------------------------------------------------------------------------------------
