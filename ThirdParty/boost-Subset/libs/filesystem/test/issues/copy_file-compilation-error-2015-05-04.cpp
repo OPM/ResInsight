@@ -7,8 +7,8 @@ void myFunc()
 {
    using namespace boost::filesystem;
 
-   copy_option opt(copy_option::overwrite_if_exists);
+   copy_options opt(copy_options::overwrite_existing);
 
-   copy_file(path("p1"),path("p2"),copy_option::overwrite_if_exists);
+   copy_file(path("p1"),path("p2"),copy_options::overwrite_existing);
 //   copy_file(path("p1"),path("p2"),opt);
 }

@@ -22,7 +22,7 @@ int main( int argc, char * argv[] )
     std::cout << "Usage: equivalent path1 path2\n";
     return 2;
   }
-  
+
   bool eq;
   try
   {
