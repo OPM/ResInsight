@@ -37,10 +37,14 @@ CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.h.cmake
                 ${CMAKE_BINARY_DIR}/Generated/RiaVersionInfo.h
 )
 
-if (MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
-  # VS 2017 : Disable warnings from from gtest code, using deprecated code related to TR1 
-  add_definitions(-D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING)
-  message(STATUS "Add flag to disable warings from gtest -  _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING")
+if (MSVC)
+  # Avoid Qt warnings about macro redefinitions for math constants
+  add_definitions(-D_USE_MATH_DEFINES)
+  if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11)
+    # VS 2017 : Disable warnings from from gtest code, using deprecated code related to TR1 
+    add_definitions(-D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING)
+    message(STATUS "Add flag to disable warings from gtest -  _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING")
+  endif()
 endif()
 
 include_directories(
