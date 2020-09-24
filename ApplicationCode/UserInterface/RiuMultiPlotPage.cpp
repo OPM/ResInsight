@@ -155,7 +155,7 @@ void RiuMultiPlotPage::insertPlot( RiuQwtPlotWidget* plotWidget, size_t index )
     m_subTitles.insert( static_cast<int>( index ), subTitle );
 
     RiuQwtPlotLegend* legend = nullptr;
-    if ( m_plotDefinition->legendsVisible() )
+    if ( m_plotDefinition->legendsVisible() && plotWidget->plotDefinition()->legendsVisible() )
     {
         legend            = new RiuQwtPlotLegend( this );
         int legendColumns = 1;
@@ -352,7 +352,6 @@ void RiuMultiPlotPage::renderTo( QPaintDevice* paintDevice )
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::renderTo( QPainter* painter, double scalingFactor )
 {
-    stashWidgetStates();
     painter->fillRect( painter->viewport(), Qt::white );
     m_plotTitle->render( painter );
 
@@ -386,8 +385,6 @@ void RiuMultiPlotPage::renderTo( QPainter* painter, double scalingFactor )
 
         plotWidget->renderTo( painter, plotWidgetGeometry, scalingFactor );
     }
-
-    restoreWidgetStates();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -530,14 +527,6 @@ void RiuMultiPlotPage::onSelectionManagerSelectionChanged( const std::set<int>& 
         for ( int changedLevel : changedSelectionLevels )
         {
             isSelected = isSelected || caf::SelectionManager::instance()->isSelected( plot, changedLevel );
-        }
-        if ( isSelected )
-        {
-            plotWidget->setWidgetState( "selected" );
-        }
-        else
-        {
-            caf::UiStyleSheet::clearWidgetStates( plotWidget );
         }
     }
 }
@@ -817,28 +806,6 @@ std::pair<int, int>
         availableRow++;
     }
     return std::make_pair( availableRow, availableColumn );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMultiPlotPage::stashWidgetStates()
-{
-    for ( RiuQwtPlotWidget* plotWidget : m_plotWidgets )
-    {
-        plotWidget->stashWidgetStates();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMultiPlotPage::restoreWidgetStates()
-{
-    for ( RiuQwtPlotWidget* plotWidget : m_plotWidgets )
-    {
-        plotWidget->restoreWidgetStates();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

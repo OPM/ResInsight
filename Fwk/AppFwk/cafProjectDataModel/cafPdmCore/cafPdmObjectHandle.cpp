@@ -66,7 +66,23 @@ void PdmObjectHandle::removeAsParentField( PdmFieldHandle* parentField )
 {
     CAF_ASSERT( m_parentField == parentField );
 
+    if ( parentField ) disconnectObserverFromAllSignals( parentField->ownerObject() );
+
     m_parentField = nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmObjectHandle::disconnectObserverFromAllSignals( SignalObserver* observer )
+{
+    if ( observer )
+    {
+        for ( auto emittedSignal : emittedSignals() )
+        {
+            emittedSignal->disconnect( observer );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,7 +98,11 @@ void PdmObjectHandle::addReferencingPtrField( PdmFieldHandle* fieldReferringToMe
 //--------------------------------------------------------------------------------------------------
 void PdmObjectHandle::removeReferencingPtrField( PdmFieldHandle* fieldReferringToMe )
 {
-    if ( fieldReferringToMe != nullptr ) m_referencingPtrFields.erase( fieldReferringToMe );
+    if ( fieldReferringToMe != nullptr )
+    {
+        disconnectObserverFromAllSignals( fieldReferringToMe->ownerObject() );
+        m_referencingPtrFields.erase( fieldReferringToMe );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -119,8 +139,6 @@ void PdmObjectHandle::objectsWithReferringPtrFields( std::vector<PdmObjectHandle
 //--------------------------------------------------------------------------------------------------
 void PdmObjectHandle::prepareForDelete()
 {
-    this->sendDeleteSignal();
-
     m_parentField = nullptr;
 
     for ( size_t i = 0; i < m_capabilities.size(); ++i )

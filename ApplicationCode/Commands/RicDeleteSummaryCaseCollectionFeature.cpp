@@ -48,7 +48,7 @@ void RicDeleteSummaryCaseCollectionFeature::deleteSummaryCaseCollection( RimSumm
 
     for ( RimSummaryCase* summaryCase : caseCollection->allSummaryCases() )
     {
-        for ( RimSummaryPlot* summaryPlot : summaryPlotColl->summaryPlots )
+        for ( RimSummaryPlot* summaryPlot : summaryPlotColl->plots() )
         {
             summaryPlot->deleteCurvesAssosiatedWithCase( summaryCase );
         }

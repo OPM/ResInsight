@@ -128,6 +128,12 @@ void RimFractureModelStressCurve::performDataExtraction( bool* isUsingPseudoLeng
         std::vector<double> stressGradients = fractureModelPlot->calculateStressGradient();
         addDatapointsForBottomOfLayers( tvDepthValues, values, stressGradients );
     }
+    else if ( m_curveProperty() == RiaDefines::CurveProperty::INITIAL_STRESS )
+    {
+        values                              = fractureModelPlot->calculateInitialStress();
+        std::vector<double> stressGradients = fractureModelPlot->calculateStressGradient();
+        addDatapointsForBottomOfLayers( tvDepthValues, values, stressGradients );
+    }
     else if ( m_curveProperty() == RiaDefines::CurveProperty::STRESS_GRADIENT )
     {
         values = fractureModelPlot->calculateStressGradient();

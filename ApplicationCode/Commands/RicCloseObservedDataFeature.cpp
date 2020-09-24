@@ -56,7 +56,7 @@ void RicCloseObservedDataFeature::deleteObservedSummaryData( const std::vector<R
 
     for ( RimObservedSummaryData* observedData : data )
     {
-        for ( RimSummaryPlot* summaryPlot : summaryPlotColl->summaryPlots )
+        for ( RimSummaryPlot* summaryPlot : summaryPlotColl->plots() )
         {
             summaryPlot->deleteCurvesAssosiatedWithCase( observedData );
         }

@@ -230,7 +230,6 @@ void RimSummaryCaseCollection::removeCase( RimSummaryCase* summaryCase )
 {
     size_t caseCountBeforeRemove = m_cases.size();
 
-    summaryCase->nameChanged.disconnect( this );
     m_cases.removeChildObject( summaryCase );
 
     m_cachedSortedEnsembleParameters.clear();
@@ -474,6 +473,37 @@ const std::vector<EnsembleParameter>&
     return m_cachedSortedEnsembleParameters;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<EnsembleParameter, double>>
+    RimSummaryCaseCollection::correlationSortedEnsembleParameters( const RifEclipseSummaryAddress& address ) const
+{
+    auto parameters = parameterCorrelationsAllTimeSteps( address );
+    std::sort( parameters.begin(),
+               parameters.end(),
+               []( const std::pair<EnsembleParameter, double>& lhs, const std::pair<EnsembleParameter, double>& rhs ) {
+                   return std::abs( lhs.second ) > std::abs( rhs.second );
+               } );
+    return parameters;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<EnsembleParameter, double>>
+    RimSummaryCaseCollection::correlationSortedEnsembleParameters( const RifEclipseSummaryAddress& address,
+                                                                   time_t selectedTimeStep ) const
+{
+    auto parameters = parameterCorrelations( address, selectedTimeStep );
+    std::sort( parameters.begin(),
+               parameters.end(),
+               []( const std::pair<EnsembleParameter, double>& lhs, const std::pair<EnsembleParameter, double>& rhs ) {
+                   return std::abs( lhs.second ) > std::abs( rhs.second );
+               } );
+    return parameters;
+}
+
 time_t timeDiff( time_t lhs, time_t rhs )
 {
     if ( lhs >= rhs )
@@ -658,9 +688,16 @@ EnsembleParameter RimSummaryCaseCollection::createEnsembleParameter( const QStri
     size_t numericValuesCount = 0;
     size_t textValuesCount    = 0;
 
+    auto summaryCases = allSummaryCases();
+    // Make sure the values list exactly matches the case count
+    // And use an invalid value (infinity) for invalid cases.
+    eParam.values.resize( summaryCases.size(), std::numeric_limits<double>::infinity() );
+
     // Prepare case realization params, and check types
-    for ( const auto& rimCase : allSummaryCases() )
+    for ( size_t caseIdx = 0; caseIdx < summaryCases.size(); ++caseIdx )
     {
+        auto rimCase = summaryCases[caseIdx];
+
         auto crp = rimCase->caseRealizationParameters();
         if ( !crp ) continue;
 
@@ -669,15 +706,15 @@ EnsembleParameter RimSummaryCaseCollection::createEnsembleParameter( const QStri
 
         if ( value.isNumeric() )
         {
-            double numVal = value.numericValue();
-            eParam.values.push_back( QVariant( numVal ) );
+            double numVal          = value.numericValue();
+            eParam.values[caseIdx] = QVariant( numVal );
             if ( numVal < eParam.minValue ) eParam.minValue = numVal;
             if ( numVal > eParam.maxValue ) eParam.maxValue = numVal;
             numericValuesCount++;
         }
         else if ( value.isText() )
         {
-            eParam.values.push_back( QVariant( value.textValue() ) );
+            eParam.values[caseIdx] = QVariant( value.textValue() );
             textValuesCount++;
         }
     }

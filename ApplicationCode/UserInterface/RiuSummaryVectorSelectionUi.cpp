@@ -649,16 +649,24 @@ void RiuSummaryVectorSelectionUi::setSelectedCurveDefinitions( const std::vector
         {
             if ( curveDef.ensemble() && !m_hideEnsembles )
             {
-                m_selectedSources.push_back( curveDef.ensemble() );
-                handleAddedSource( curveDef.ensemble() );
+                if ( std::find( m_selectedSources.begin(), m_selectedSources.end(), curveDef.ensemble() ) ==
+                     m_selectedSources.end() )
+                {
+                    m_selectedSources.push_back( curveDef.ensemble() );
+                    handleAddedSource( curveDef.ensemble() );
+                }
             }
         }
         else
         {
-            if ( curveDef.summaryCase() && m_showIndividualEnsembleCases )
+            if ( curveDef.summaryCase() && ( !curveDef.ensemble() || m_showIndividualEnsembleCases ) )
             {
-                m_selectedSources.push_back( curveDef.summaryCase() );
-                handleAddedSource( curveDef.summaryCase() );
+                if ( std::find( m_selectedSources.begin(), m_selectedSources.end(), curveDef.summaryCase() ) ==
+                     m_selectedSources.end() )
+                {
+                    m_selectedSources.push_back( curveDef.summaryCase() );
+                    handleAddedSource( curveDef.summaryCase() );
+                }
             }
         }
 
@@ -701,6 +709,9 @@ void RiuSummaryVectorSelectionUi::setSelectedCurveDefinitions( const std::vector
     }
 
     m_previouslySelectedSources = m_selectedSources.ptrReferencedObjects();
+
+    m_prevCurveCount    = allCurveDefinitionsFromSelection().size();
+    m_prevCurveSetCount = allCurveSetDefinitionsFromSelections().size();
 }
 
 //--------------------------------------------------------------------------------------------------

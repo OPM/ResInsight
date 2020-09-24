@@ -50,6 +50,8 @@
 #include <QTreeView>
 #include <QWidget>
 
+#include <memory>
+
 class MySortFilterProxyModel;
 
 class QGridLayout;
@@ -93,9 +95,15 @@ public:
         bool         selectedOnly;
 
         caf::Signal<size_t> clicked;
+
+        static std::unique_ptr<Tag> create() { return std::unique_ptr<Tag>( new Tag ); }
+
+    private:
+        Tag( const Tag& rhs ) = default;
+        Tag& operator         =( const Tag& rhs ) { return *this; }
     };
 
-    std::vector<Tag> tags;
+    std::vector<std::unique_ptr<Tag>> tags;
 };
 
 class PdmUiTreeViewItemDelegate : public QStyledItemDelegate
@@ -104,25 +112,25 @@ public:
     PdmUiTreeViewItemDelegate( PdmUiTreeViewEditor* parent, PdmUiTreeViewQModel* model );
     void clearTags( QModelIndex index );
     void clearAllTags();
-    void addTag( QModelIndex index, const PdmUiTreeViewItemAttribute::Tag& tag );
+    void addTag( QModelIndex index, std::unique_ptr<PdmUiTreeViewItemAttribute::Tag> tag );
     void paint( QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index ) const override;
-    std::vector<PdmUiTreeViewItemAttribute::Tag> tags( QModelIndex index ) const;
+    std::vector<const PdmUiTreeViewItemAttribute::Tag*> tags( QModelIndex index ) const;
 
 protected:
     bool  editorEvent( QEvent*                     event,
                        QAbstractItemModel*         model,
                        const QStyleOptionViewItem& option,
                        const QModelIndex&          itemIndex ) override;
-    bool  tagClicked( const QPoint&                    clickPos,
-                      const QRect&                     itemRect,
-                      const QModelIndex&               itemIndex,
-                      PdmUiTreeViewItemAttribute::Tag* tag ) const;
+    bool  tagClicked( const QPoint&                           clickPos,
+                      const QRect&                            itemRect,
+                      const QModelIndex&                      itemIndex,
+                      const PdmUiTreeViewItemAttribute::Tag** tag ) const;
     QRect tagRect( const QRect& itemRect, QModelIndex itemIndex, size_t tagIndex ) const;
 
 private:
-    PdmUiTreeViewEditor*                                                m_treeView;
-    PdmUiTreeViewQModel*                                                m_model;
-    std::map<QModelIndex, std::vector<PdmUiTreeViewItemAttribute::Tag>> m_tags;
+    PdmUiTreeViewEditor*                                                                 m_treeView;
+    PdmUiTreeViewQModel*                                                                 m_model;
+    std::map<QModelIndex, std::vector<std::unique_ptr<PdmUiTreeViewItemAttribute::Tag>>> m_tags;
 };
 
 //--------------------------------------------------------------------------------------------------

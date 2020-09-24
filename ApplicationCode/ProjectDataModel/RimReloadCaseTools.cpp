@@ -159,7 +159,7 @@ void RimReloadCaseTools::updateAllPlots()
         RimSummaryPlotCollection* summaryPlotCollection = project->mainPlotCollection()->summaryPlotCollection();
         if ( summaryPlotCollection )
         {
-            for ( RimSummaryPlot* summaryPlot : summaryPlotCollection->summaryPlots() )
+            for ( RimSummaryPlot* summaryPlot : summaryPlotCollection->plots() )
             {
                 summaryPlot->loadDataAndUpdate();
             }
@@ -168,7 +168,7 @@ void RimReloadCaseTools::updateAllPlots()
         RimGridCrossPlotCollection* gridCrossPlotCollection = project->mainPlotCollection()->gridCrossPlotCollection();
         if ( gridCrossPlotCollection )
         {
-            for ( RimGridCrossPlot* crossPlot : gridCrossPlotCollection->gridCrossPlots() )
+            for ( RimGridCrossPlot* crossPlot : gridCrossPlotCollection->plots() )
             {
                 crossPlot->loadDataAndUpdate();
             }

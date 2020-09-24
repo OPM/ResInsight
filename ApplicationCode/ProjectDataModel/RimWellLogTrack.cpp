@@ -521,19 +521,6 @@ int RimWellLogTrack::axisFontSize() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::doRemoveFromCollection()
-{
-    RimDepthTrackPlot* wellLogPlot = nullptr;
-    this->firstAncestorOrThisOfType( wellLogPlot );
-    if ( wellLogPlot )
-    {
-        wellLogPlot->removePlot( this );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                         const QVariant&            oldValue,
                                         const QVariant&            newValue )
@@ -1112,7 +1099,6 @@ void RimWellLogTrack::removeCurve( RimWellLogCurve* curve )
     {
         m_curves[index]->detachQwtCurve();
         m_curves.removeChildObject( curve );
-        disconnectCurveSignals( curve );
     }
 }
 
@@ -2043,17 +2029,6 @@ void RimWellLogTrack::connectCurveSignals( RimWellLogCurve* curve )
     curve->visibilityChanged.connect( this, &RimWellLogTrack::curveVisibilityChanged );
     curve->appearanceChanged.connect( this, &RimWellLogTrack::curveAppearanceChanged );
     curve->stackingChanged.connect( this, &RimWellLogTrack::curveStackingChanged );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::disconnectCurveSignals( RimWellLogCurve* curve )
-{
-    curve->dataChanged.disconnect( this );
-    curve->visibilityChanged.disconnect( this );
-    curve->appearanceChanged.disconnect( this );
-    curve->stackingChanged.disconnect( this );
 }
 
 //--------------------------------------------------------------------------------------------------

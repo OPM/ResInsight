@@ -50,6 +50,9 @@ public:
 
     RimPlotWindow& operator=( RimPlotWindow&& rhs );
 
+    bool plotTitleVisible() const;
+    void setPlotTitleVisible( bool showPlotTitle );
+
     virtual QString description() const = 0;
     bool            legendsVisible() const;
     void            setLegendsVisible( bool doShow );
@@ -94,6 +97,7 @@ private:
 
 protected:
     caf::PdmField<int>  m_id;
+    caf::PdmField<bool> m_showPlotTitle;
     caf::PdmField<bool> m_showPlotLegends;
     caf::PdmField<bool> m_plotLegendsHorizontal;
 

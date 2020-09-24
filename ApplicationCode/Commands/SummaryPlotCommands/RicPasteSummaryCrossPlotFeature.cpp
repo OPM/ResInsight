@@ -47,7 +47,7 @@ void RicPasteSummaryCrossPlotFeature::copyPlotAndAddToCollection( RimSummaryCros
             sourcePlot->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
         CVF_ASSERT( newSummaryPlot );
 
-        plotColl->addSummaryPlot( newSummaryPlot );
+        plotColl->addPlot( newSummaryPlot );
 
         // Resolve references after object has been inserted into the data model
         newSummaryPlot->resolveReferencesRecursively();
