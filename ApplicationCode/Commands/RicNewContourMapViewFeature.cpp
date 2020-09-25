@@ -18,10 +18,14 @@
 
 #include "RicNewContourMapViewFeature.h"
 
+#include "RigActiveCellInfo.h"
+#include "RigEclipseCaseData.h"
+
 #include "Rim3dView.h"
 #include "RimCellEdgeColors.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipseContourMapProjection.h"
 #include "RimEclipseContourMapView.h"
 #include "RimEclipseContourMapViewCollection.h"
 #include "RimEclipseView.h"
@@ -48,6 +52,8 @@
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicNewContourMapViewFeature, "RicNewContourMapViewFeature" );
+
+const size_t samplingThresholdCellCount = 500000u;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -202,6 +208,14 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMapFr
                                                                     caf::PdmDefaultObjectFactory::instance() ) );
     CVF_ASSERT( contourMap );
 
+    const RigActiveCellInfo* activeCellInfo =
+        eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    size_t activeCellCount = activeCellInfo->reservoirActiveCellCount();
+    if ( activeCellCount >= samplingThresholdCellCount )
+    {
+        contourMap->contourMapProjection()->setSampleSpacingFactor( 1.2 );
+    }
+
     contourMap->setEclipseCase( eclipseCase );
     contourMap->setBackgroundColor( cvf::Color3f( 1.0f, 1.0f, 0.98f ) ); // Ignore original view background
     contourMap->setDefaultCustomName();
@@ -248,6 +262,15 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMap( 
 
     size_t i = eclipseCase->contourMapCollection()->views().size();
     contourMap->setName( QString( "Contour Map %1" ).arg( i + 1 ) );
+
+    const RigActiveCellInfo* activeCellInfo =
+        eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    size_t activeCellCount = activeCellInfo->reservoirActiveCellCount();
+    if ( activeCellCount > samplingThresholdCellCount )
+    {
+        contourMap->contourMapProjection()->setSampleSpacingFactor( 1.2 );
+    }
+
     eclipseCase->contourMapCollection()->push_back( contourMap );
 
     contourMap->hasUserRequestedAnimation = true;
