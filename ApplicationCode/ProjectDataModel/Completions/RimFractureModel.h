@@ -125,8 +125,6 @@ public:
 
     RimModeledWellPath* thicknessDirectionWellPath() const;
     void                setThicknessDirectionWellPath( RimModeledWellPath* thicknessDirectionWellPath );
-    // void                  setElasticProperties( RimElasticProperties* elasticProperties );
-    // RimElasticProperties* elasticProperties() const;
 
     double getDefaultValueForProperty( RiaDefines::CurveProperty ) const;
     bool   hasDefaultValueForProperty( RiaDefines::CurveProperty ) const;
@@ -150,6 +148,7 @@ protected:
     void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                          QString                    uiConfigName,
                                                          caf::PdmUiEditorAttribute* attribute ) override;
+    void                          initAfterRead() override;
 
 private:
     void          updatePositionFromMeasuredDepth();
@@ -178,6 +177,9 @@ private:
         generateBarrierIntersectionsBetweenPoints( RigEclipseCaseData* eclipseCaseData,
                                                    const cvf::Vec3d&   startPosition,
                                                    const cvf::Vec3d&   endPosition );
+
+    void updateViewsAndPlots();
+    void fractureModelTemplateChanged( const caf::SignalEmitter* emitter );
 
 protected:
     caf::PdmField<double>                       m_MD;
