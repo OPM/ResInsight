@@ -25,7 +25,9 @@
 #include "RimFractureModelTemplate.h"
 #include "RimProject.h"
 
+#include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObject.h"
+#include "cafPdmObjectScriptingCapability.h"
 
 CAF_PDM_SOURCE_INIT( RimFractureModelTemplateCollection, "FractureModelTemplateCollection" );
 
@@ -34,9 +36,14 @@ CAF_PDM_SOURCE_INIT( RimFractureModelTemplateCollection, "FractureModelTemplateC
 //--------------------------------------------------------------------------------------------------
 RimFractureModelTemplateCollection::RimFractureModelTemplateCollection()
 {
-    CAF_PDM_InitObject( "Fracture Model Templates", ":/FractureTemplates16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Fracture Model Templates", ":/FractureTemplates16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_fractureModelTemplates, "FractureDefinitions", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_fractureModelTemplates,
+                                          "FractureModelTemplates",
+                                          "Fracture Model Templates",
+                                          "",
+                                          "",
+                                          "" );
     m_fractureModelTemplates.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitField( &m_nextValidId, "NextValidId", 0, "", "", "", "" );

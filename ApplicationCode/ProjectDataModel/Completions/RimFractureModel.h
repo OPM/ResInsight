@@ -164,6 +164,7 @@ private:
     static RigEclipseCaseData* getEclipseCaseData();
     static RimEclipseCase*     getEclipseCase();
 
+    void updateBarrierProperties();
     void                     addBarrierAnnotation( const cvf::Vec3d& startPosition, const cvf::Vec3d& endPosition );
     void                     clearBarrierAnnotation();
     RimAnnotationCollection* annotationCollection();
