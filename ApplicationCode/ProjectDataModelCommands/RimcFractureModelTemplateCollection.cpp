@@ -67,7 +67,9 @@ caf::PdmObjectHandle* RimcFractureModelTemplateCollection_newFractureModelTempla
 
     RicElasticPropertiesImportTools::importElasticPropertiesFromFile( m_elasticPropertiesFilePath,
                                                                       newFractureModelTemplate );
-    RicFaciesPropertiesImportTools::importFaciesPropertiesFromFile( m_faciesPropertiesFilePath, newFractureModelTemplate, true );
+    RicFaciesPropertiesImportTools::importFaciesPropertiesFromFile( m_faciesPropertiesFilePath,
+                                                                    newFractureModelTemplate,
+                                                                    true );
     fractureModelTemplateCollection->updateAllRequiredEditors();
     return newFractureModelTemplate;
 }

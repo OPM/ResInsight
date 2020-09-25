@@ -21,9 +21,9 @@
 
 #include "FractureCommands/RicNewFractureModelFeature.h"
 
-#include "RimFractureModelTemplate.h"
 #include "RimFractureModel.h"
 #include "RimFractureModelCollection.h"
+#include "RimFractureModelTemplate.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
@@ -43,12 +43,7 @@ RimcFractureModelCollection_newFractureModel::RimcFractureModelCollection_newFra
     CAF_PDM_InitObject( "Create Fracture Model", "", "", "Create a new Fracture Model" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "", "", "", "Well Path" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_md, "MeasuredDepth", "", "", "", "Measured Depth" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_fractureModelTemplate,
-                                          "FractureModelTemplate",
-                                          "",
-                                          "",
-                                          "",
-                                          "Fracture Model Template" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_fractureModelTemplate, "FractureModelTemplate", "", "", "", "Fracture Model Template" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,11 +51,11 @@ RimcFractureModelCollection_newFractureModel::RimcFractureModelCollection_newFra
 //--------------------------------------------------------------------------------------------------
 caf::PdmObjectHandle* RimcFractureModelCollection_newFractureModel::execute()
 {
-    RimFractureModel* newFractureModel = nullptr;
+    RimFractureModel*           newFractureModel        = nullptr;
     RimFractureModelCollection* fractureModelCollection = self<RimFractureModelCollection>();
     if ( m_wellPath )
     {
-        RimWellPathCollection*      wellPathCollection      = nullptr;
+        RimWellPathCollection* wellPathCollection = nullptr;
         fractureModelCollection->firstAncestorOrThisOfTypeAsserted( wellPathCollection );
 
         newFractureModel = RicNewFractureModelFeature::addFractureModel( m_wellPath, wellPathCollection );
