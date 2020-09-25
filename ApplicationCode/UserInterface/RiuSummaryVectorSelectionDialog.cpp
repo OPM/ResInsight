@@ -85,9 +85,12 @@ void RiuSummaryVectorSelectionDialog::setCaseAndAddress( RimSummaryCase*        
         curveDefs.push_back( RiaSummaryCurveDefinition( summaryCase, address, false ) );
         summaryAddressSelection()->setSelectedCurveDefinitions( curveDefs );
     }
-
-    summaryAddressSelection()->updateConnectedEditors();
-    updateLabel();
+    else
+    {
+        //  Still need to update the editors
+        summaryAddressSelection()->updateConnectedEditors();
+        updateLabel();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -102,9 +105,12 @@ void RiuSummaryVectorSelectionDialog::setEnsembleAndAddress( RimSummaryCaseColle
         curveDefs.push_back( RiaSummaryCurveDefinition( ensemble, address ) );
         setCurveSelection( curveDefs );
     }
-
-    summaryAddressSelection()->updateConnectedEditors();
-    updateLabel();
+    else
+    {
+        //  Still need to update the editors
+        summaryAddressSelection()->updateConnectedEditors();
+        updateLabel();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -113,6 +119,8 @@ void RiuSummaryVectorSelectionDialog::setEnsembleAndAddress( RimSummaryCaseColle
 void RiuSummaryVectorSelectionDialog::setCurveSelection( const std::vector<RiaSummaryCurveDefinition>& selection )
 {
     summaryAddressSelection()->setSelectedCurveDefinitions( selection );
+    summaryAddressSelection()->updateConnectedEditors();
+    updateLabel();
 }
 
 //--------------------------------------------------------------------------------------------------
