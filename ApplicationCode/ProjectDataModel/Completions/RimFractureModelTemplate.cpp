@@ -73,6 +73,7 @@ CAF_PDM_SOURCE_INIT( RimFractureModelTemplate, "RimFractureModelTemplate" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimFractureModelTemplate::RimFractureModelTemplate()
+    : changed( this )
 {
     CAF_PDM_InitScriptableObject( "FractureModelTemplate", "", "", "" );
 
@@ -145,23 +146,7 @@ void RimFractureModelTemplate::fieldChangedByUi( const caf::PdmFieldHandle* chan
                                                  const QVariant&            oldValue,
                                                  const QVariant&            newValue )
 {
-    // {
-    //     RimEclipseCase* eclipseCase = nullptr;
-    //     this->firstAncestorOrThisOfType( eclipseCase );
-    //     if ( eclipseCase )
-    //     {
-    //         RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews(
-    //             eclipseCase );
-    //     }
-    //     else
-    //     {
-    //         RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews();
-    //     }
-
-    //     RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
-
-    //     updateReferringPlots();
-    // }
+    changed.send();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -274,10 +259,16 @@ RimFaciesProperties* RimFractureModelTemplate::faciesProperties() const
 //--------------------------------------------------------------------------------------------------
 void RimFractureModelTemplate::setFaciesProperties( RimFaciesProperties* faciesProperties )
 {
+    if ( m_faciesProperties )
+    {
+        m_faciesProperties->changed.disconnect( this );
+    }
+
     m_faciesProperties = faciesProperties;
 
     if ( m_faciesProperties )
     {
+        m_faciesProperties->changed.connect( this, &RimFractureModelTemplate::faciesPropertiesChanged );
         RimEclipseCase* eclipseCase = getEclipseCase();
         if ( !eclipseCase ) return;
 
@@ -297,6 +288,14 @@ void RimFractureModelTemplate::initAfterRead()
 
         m_faciesProperties->setEclipseCase( eclipseCase );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModelTemplate::faciesPropertiesChanged( const caf::SignalEmitter* emitter )
+{
+    changed.send();
 }
 
 //--------------------------------------------------------------------------------------------------

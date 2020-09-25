@@ -38,6 +38,7 @@ CAF_PDM_SOURCE_INIT( RimFaciesProperties, "FaciesProperties" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimFaciesProperties::RimFaciesProperties()
+    : changed( this )
 {
     CAF_PDM_InitScriptableObject( "RimFaciesProperties", "", "", "" );
 
@@ -146,6 +147,16 @@ void RimFaciesProperties::defineEditorAttribute( const caf::PdmFieldHandle* fiel
             myAttr->textMode = caf::PdmUiTextEditorAttribute::HTML;
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaciesProperties::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                            const QVariant&            oldValue,
+                                            const QVariant&            newValue )
+{
+    changed.send();
 }
 
 //--------------------------------------------------------------------------------------------------
