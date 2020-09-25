@@ -109,6 +109,7 @@ RimFractureModel::RimFractureModel()
     m_editFractureModelTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitScriptableField( &m_MD, "MD", 0.0, "MD", "", "", "" );
+    m_MD.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitScriptableField( &m_extractionType,
                                  "ExtractionType",
@@ -788,6 +789,27 @@ void RimFractureModel::defineEditorAttribute( const caf::PdmFieldHandle* field,
         {
             doubleAttr->m_decimals     = 2;
             doubleAttr->m_numberFormat = caf::PdmUiDoubleValueEditorAttribute::NumberFormat::FIXED;
+        }
+    }
+
+    if ( field == &m_MD )
+    {
+        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
+
+        if ( myAttr )
+        {
+            RimWellPath* rimWellPath = nullptr;
+            this->firstAncestorOrThisOfType( rimWellPath );
+            if ( !rimWellPath ) return;
+
+            RigWellPath* wellPathGeo = rimWellPath->wellPathGeometry();
+            if ( !wellPathGeo ) return;
+
+            if ( wellPathGeo->m_measuredDepths.size() > 1 )
+            {
+                myAttr->m_minimum = wellPathGeo->m_measuredDepths.front();
+                myAttr->m_maximum = wellPathGeo->m_measuredDepths.back();
+            }
         }
     }
 }
