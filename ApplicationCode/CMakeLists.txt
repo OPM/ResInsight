@@ -84,6 +84,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Measurement
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Summary
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Surfaces
+    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Streamlines
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModelCommands
     
     ${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
@@ -154,6 +155,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     ProjectDataModel/Measurement/CMakeLists_files.cmake
     ProjectDataModel/PlotTemplates/CMakeLists_files.cmake
     ProjectDataModel/Surfaces/CMakeLists_files.cmake
+    ProjectDataModel/Streamlines/CMakeLists_files.cmake
     ProjectDataModelCommands/CMakeLists_files.cmake
     GeoMech/GeoMechVisualization/CMakeLists_files.cmake
     

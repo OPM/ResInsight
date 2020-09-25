@@ -70,6 +70,7 @@
 #include "RimRftPlotCollection.h"
 #include "RimSaturationPressurePlotCollection.h"
 #include "RimScriptCollection.h"
+#include "RimStreamlineCollection.h"
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCaseCollection.h"
@@ -1466,6 +1467,7 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
             if ( oilField->geoMechModels() ) uiTreeOrdering.add( oilField->geoMechModels() );
             if ( oilField->wellPathCollection() ) uiTreeOrdering.add( oilField->wellPathCollection() );
             if ( oilField->surfaceCollection() ) uiTreeOrdering.add( oilField->surfaceCollection() );
+            if ( oilField->streamlineCollection() ) uiTreeOrdering.add( oilField->streamlineCollection() );
             if ( oilField->formationNamesCollection() ) uiTreeOrdering.add( oilField->formationNamesCollection() );
             if ( oilField->completionTemplateCollection() )
                 uiTreeOrdering.add( oilField->completionTemplateCollection() );
