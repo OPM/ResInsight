@@ -48,7 +48,7 @@ CAF_PDM_SOURCE_INIT( RimSummaryCurveCollection, "RimSummaryCurveCollection" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurveCollection::RimSummaryCurveCollection()
-    : curvesReordered( this )
+    : curvesChanged( this )
 {
     CAF_PDM_InitObject( "Summary Curves", ":/SummaryCurveFilter16x16.png", "", "" );
 
@@ -476,7 +476,16 @@ void RimSummaryCurveCollection::defineEditorAttribute( const caf::PdmFieldHandle
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::onCurvesReordered( const SignalEmitter* emitter )
 {
-    curvesReordered.send();
+    curvesChanged.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                                std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    curvesChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------

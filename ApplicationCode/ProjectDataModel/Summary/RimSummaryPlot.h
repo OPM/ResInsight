@@ -192,7 +192,7 @@ private:
 
     void handleKeyPressEvent( QKeyEvent* keyEvent ) override;
 
-    void onCurvesReordered( const SignalEmitter* emitter );
+    void onCurveCollectionChanged( const SignalEmitter* emitter );
 
 protected:
     // Overridden PDM methods

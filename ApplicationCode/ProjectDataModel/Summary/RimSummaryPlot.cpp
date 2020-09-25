@@ -153,7 +153,7 @@ RimSummaryPlot::RimSummaryPlot()
     CAF_PDM_InitFieldNoDefault( &m_summaryCurveCollection, "SummaryCurveCollection", "", "", "", "" );
     m_summaryCurveCollection.uiCapability()->setUiTreeHidden( true );
     m_summaryCurveCollection = new RimSummaryCurveCollection;
-    m_summaryCurveCollection->curvesReordered.connect( this, &RimSummaryPlot::onCurvesReordered );
+    m_summaryCurveCollection->curvesChanged.connect( this, &RimSummaryPlot::onCurveCollectionChanged );
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSetCollection, "EnsembleCurveSetCollection", "", "", "", "" );
     m_ensembleCurveSetCollection.uiCapability()->setUiTreeHidden( true );
@@ -339,7 +339,7 @@ QString RimSummaryPlot::asciiDataForSummaryPlotExport( RiaQDateTimeTools::DateTi
         populateTimeHistoryCurvesData( m_gridTimeHistoryCurves.childObjects(), &timeHistoryCurvesData );
 
         // Export observed data
-        appendToExportData( out, {summaryCurvesObsData}, showTimeAsLongString );
+        appendToExportData( out, { summaryCurvesObsData }, showTimeAsLongString );
 
         std::vector<CurvesData> exportData( 2 );
 
@@ -358,7 +358,7 @@ QString RimSummaryPlot::asciiDataForSummaryPlotExport( RiaQDateTimeTools::DateTi
         CurvesData asciiCurvesData;
         populateAsciiDataCurvesData( m_asciiDataCurves.childObjects(), &asciiCurvesData );
 
-        appendToExportData( out, {asciiCurvesData}, showTimeAsLongString );
+        appendToExportData( out, { asciiCurvesData }, showTimeAsLongString );
     }
 
     return out;
@@ -1234,7 +1234,7 @@ void RimSummaryPlot::removeCurve( RimSummaryCurve* curve )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::deleteCurve( RimSummaryCurve* curve )
 {
-    deleteCurves( {curve} );
+    deleteCurves( { curve } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1411,6 +1411,12 @@ void RimSummaryPlot::updateStackedCurveData()
 {
     updateStackedCurveDataForAxis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
     updateStackedCurveDataForAxis( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
+
+    if ( m_plotWidget )
+    {
+        reattachAllCurves();
+        m_plotWidget->scheduleReplot();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1470,10 +1476,6 @@ void RimSummaryPlot::updateStackedCurveDataForAxis( RiaDefines::PlotAxis plotAxi
             }
             zPos -= 1.0;
         }
-    }
-    if ( m_plotWidget )
-    {
-        m_plotWidget->scheduleReplot();
     }
 }
 //--------------------------------------------------------------------------------------------------
@@ -1625,7 +1627,7 @@ void RimSummaryPlot::updateZoomFromQwt()
 //--------------------------------------------------------------------------------------------------
 std::set<RimPlotAxisPropertiesInterface*> RimSummaryPlot::allPlotAxes() const
 {
-    return {m_timeAxisProperties, m_bottomAxisProperties, m_leftYAxisProperties, m_rightYAxisProperties};
+    return { m_timeAxisProperties, m_bottomAxisProperties, m_leftYAxisProperties, m_rightYAxisProperties };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2134,7 +2136,7 @@ void RimSummaryPlot::handleKeyPressEvent( QKeyEvent* keyEvent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::onCurvesReordered( const SignalEmitter* emitter )
+void RimSummaryPlot::onCurveCollectionChanged( const SignalEmitter* emitter )
 {
     updateStackedCurveData();
 }
@@ -2257,13 +2259,13 @@ void populateTimeHistoryCurvesData( std::vector<RimGridTimeHistoryCurve*> curves
             if ( curveCaseName == curvesData->caseNames[i] ) casePosInList = i;
         }
 
-        CurveData curveData = {curve->curveExportDescription(), RifEclipseSummaryAddress(), curve->yValues()};
+        CurveData curveData = { curve->curveExportDescription(), RifEclipseSummaryAddress(), curve->yValues() };
 
         if ( casePosInList == cvf::UNDEFINED_SIZE_T )
         {
             curvesData->caseNames.push_back( curveCaseName );
             curvesData->timeSteps.push_back( curve->timeStepValues() );
-            curvesData->allCurveData.push_back( std::vector<CurveData>( {curveData} ) );
+            curvesData->allCurveData.push_back( std::vector<CurveData>( { curveData } ) );
         }
         else
         {
@@ -2289,13 +2291,13 @@ void populateAsciiDataCurvesData( std::vector<RimAsciiDataCurve*> curves, Curves
 
         size_t casePosInList = cvf::UNDEFINED_SIZE_T;
 
-        CurveData curveData = {curve->curveExportDescription(), RifEclipseSummaryAddress(), curve->yValues()};
+        CurveData curveData = { curve->curveExportDescription(), RifEclipseSummaryAddress(), curve->yValues() };
 
         if ( casePosInList == cvf::UNDEFINED_SIZE_T )
         {
             curvesData->caseNames.push_back( "" );
             curvesData->timeSteps.push_back( curve->timeSteps() );
-            curvesData->allCurveData.push_back( std::vector<CurveData>( {curveData} ) );
+            curvesData->allCurveData.push_back( std::vector<CurveData>( { curveData } ) );
         }
         else
         {
@@ -2332,7 +2334,7 @@ void populateSummaryCurvesData( std::vector<RimSummaryCurve*> curves, SummaryCur
             if ( curveCaseName == curvesData->caseNames[i] ) casePosInList = i;
         }
 
-        CurveData curveData = {curve->curveExportDescription(), curve->summaryAddressY(), curve->valuesY()};
+        CurveData curveData = { curve->curveExportDescription(), curve->summaryAddressY(), curve->valuesY() };
         CurveData errorCurveData;
 
         // Error data
@@ -2353,7 +2355,7 @@ void populateSummaryCurvesData( std::vector<RimSummaryCurve*> curves, SummaryCur
             // 1. Case is not referenced before, or
             // 2. We have calculated data, and it we cannot assume identical time axis
 
-            auto curveDataList = std::vector<CurveData>( {curveData} );
+            auto curveDataList = std::vector<CurveData>( { curveData } );
             if ( hasErrorData ) curveDataList.push_back( errorCurveData );
 
             curvesData->caseNames.push_back( curveCaseName );
