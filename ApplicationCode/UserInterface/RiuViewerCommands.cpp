@@ -771,12 +771,11 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
                         if ( eclView ) resultInfoText = partMgr->resultInfoText( *eclView, domainCoord );
 
                         // Set intersection point result text
-                        QString intersectionPointText;
-
-                        intersectionPointText.sprintf( "Intersection point : Global [E: %.2f, N: %.2f, Depth: %.2f]",
-                                                       domainCoord.x(),
-                                                       domainCoord.y(),
-                                                       -domainCoord.z() );
+                        QString intersectionPointText =
+                            QString( "Intersection point : Global [E: %1, N: %2, Depth: %3]" )
+                                .arg( domainCoord.x(), 5, 'f', 2 )
+                                .arg( domainCoord.y(), 5, 'f', 2 )
+                                .arg( -domainCoord.z(), 5, 'f', 2 );
                         resultInfoText.append( intersectionPointText );
 
                         // Display result info text

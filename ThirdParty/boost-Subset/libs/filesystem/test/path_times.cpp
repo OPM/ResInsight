@@ -9,10 +9,10 @@
 
 #include <boost/config/warning_disable.hpp>
 
-#ifndef BOOST_FILESYSTEM_NO_DEPRECATED 
+#ifndef BOOST_FILESYSTEM_NO_DEPRECATED
 #  define BOOST_FILESYSTEM_NO_DEPRECATED
 #endif
-#ifndef BOOST_SYSTEM_NO_DEPRECATED 
+#ifndef BOOST_SYSTEM_NO_DEPRECATED
 #  define BOOST_SYSTEM_NO_DEPRECATED
 #endif
 
@@ -86,10 +86,10 @@ int cpp_main(int argc, char* argv[])
 
   cout << "time_loop" << endl;
   nanosecond_type x = time_loop();
-   
+
   cout << "time_ctor with string" << endl;
   nanosecond_type s = time_ctor(std::string("/foo/bar/baz"));
-   
+
   cout << "time_ctor with wstring" << endl;
   nanosecond_type w = time_ctor(std::wstring(L"/foo/bar/baz"));
 

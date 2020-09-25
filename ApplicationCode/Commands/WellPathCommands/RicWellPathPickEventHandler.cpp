@@ -218,11 +218,10 @@ bool RicWellPathPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& event
         wellPathText += QString( "Well path name : %1\n" ).arg( wellPathSourceInfo->wellPath()->name() );
         wellPathText += QString( "Measured depth : %1\n" ).arg( measuredDepth );
 
-        QString formattedText;
-        formattedText.sprintf( "Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]",
-                               trueVerticalDepth.x(),
-                               trueVerticalDepth.y(),
-                               -trueVerticalDepth.z() );
+        QString formattedText = QString( "Intersection point : [E: %1, N: %2, Depth: %3]" )
+                                    .arg( trueVerticalDepth.x(), 5, 'f', 2 )
+                                    .arg( trueVerticalDepth.y(), 5, 'f', 2 )
+                                    .arg( -trueVerticalDepth.z(), 5, 'f', 2 );
         wellPathText += formattedText;
 
         RiuMainWindow::instance()->setResultInfo( wellPathText );

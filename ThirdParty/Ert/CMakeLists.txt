@@ -4,8 +4,12 @@ project( ERT C CXX )
 include(GNUInstallDirs)
 include(TestBigEndian)
 
-if(POLICY CMP0042)
-  cmake_policy(SET CMP0042 OLD)
+if(NOT DEFINED CMAKE_MACOSX_RPATH)
+  # There is some weirdness around this variable, the default value is different depending on
+  # the cmake version, see policy CMP0042.
+  # A more explicit way to treat this would be `cmake_policy(SET CMP0042 NEW)` but that would
+  # fail on CMake 2.8.12 (the variable exists but the policy doesn't)
+  set(CMAKE_MACOSX_RPATH ON)
 endif()
 
 #-----------------------------------------------------------------

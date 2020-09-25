@@ -39,12 +39,12 @@
 </table>
 
 <h2><a name="Deprecated-names">Deprecated names</a> and features</h2>
-<p style="font-size: 10pt">As the library evolves over time, names sometimes 
-change or old features are removed to make way for new features. To ease transition, Boost.Filesystem deprecates 
-the old names and features, but by default continues to provide many of them. 
+<p style="font-size: 10pt">As the library evolves over time, names sometimes
+change or old features are removed to make way for new features. To ease transition, Boost.Filesystem deprecates
+the old names and features, but by default continues to provide many of them.
 The deprecated names and other workarounds can be suppressed by defining macro <code>
 BOOST_FILESYSTEM_NO_DEPRECATED</code>, and this is recommended for all new code.</p>
-<p style="font-size: 10pt">In the table, &#10004; indicates a synonym or other 
+<p style="font-size: 10pt">In the table, &#10004; indicates a synonym or other
 workaround is provided unless <code>
 BOOST_FILESYSTEM_NO_DEPRECATED</code> is defined.</p>
 <table border="1" cellpadding="5" cellspacing="1" style="border-collapse: collapse" bordercolor="#111111">
@@ -142,7 +142,7 @@ BOOST_FILESYSTEM_NO_DEPRECATED</code> is defined.</p>
   </tr>
   <tr>
     <td style="font-size: 10pt" valign="top"><code>class path</code></td>
-    <td style="font-size: 10pt" valign="top"><code>is_complere()</code></td>
+    <td style="font-size: 10pt" valign="top"><code>is_complete()</code></td>
     <td style="font-size: 10pt" valign="top">&#10004;</td>
     <td style="font-size: 10pt" valign="top"><code>is_absolute()</code></td>
   </tr>
@@ -190,7 +190,7 @@ BOOST_FILESYSTEM_NO_DEPRECATED</code> is defined.</p>
     <td style="font-size: 10pt" valign="top">
     &#10004;</td>
     <td style="font-size: 10pt" valign="top">
-    <i>Function removed. Workaround ignores </i><code>name_check</code><i> 
+    <i>Function removed. Workaround ignores </i><code>name_check</code><i>
     argument.</i></td>
   </tr>
   <tr>
@@ -201,7 +201,7 @@ BOOST_FILESYSTEM_NO_DEPRECATED</code> is defined.</p>
     <td style="font-size: 10pt" valign="top">
     &#10004;</td>
     <td style="font-size: 10pt" valign="top">
-    <i>Function removed. Workaround ignores </i><code>name_check</code><i> 
+    <i>Function removed. Workaround ignores </i><code>name_check</code><i>
     argument.</i></td>
   </tr>
   <tr>
@@ -223,8 +223,8 @@ BOOST_FILESYSTEM_NO_DEPRECATED</code> is defined.</p>
     <td style="font-size: 10pt" valign="top">
     &nbsp;</td>
     <td style="font-size: 10pt" valign="top">
-    Class template <code>basic_path</code> is replaced by <code>class path</code>. 
-    No workaround for an explicitly coded <code>basic_path</code> is provided, 
+    Class template <code>basic_path</code> is replaced by <code>class path</code>.
+    No workaround for an explicitly coded <code>basic_path</code> is provided,
     but see the next row - <code>path</code>.</td>
   </tr>
   <tr>
@@ -295,6 +295,16 @@ BOOST_FILESYSTEM_NO_DEPRECATED</code> is defined.</p>
   </tr>
   <tr>
     <td style="font-size: 10pt" valign="top">
+    <code>operations.hpp</code></td>
+    <td style="font-size: 10pt" valign="top">
+    <code>copy_directory(const path&amp; from, const path&amp; to)</code></td>
+    <td style="font-size: 10pt" valign="top">
+    &nbsp;</td>
+    <td style="font-size: 10pt" valign="top">
+    <i>Function removed, use <code>create_directory(const path&amp; to, const path&amp; from)</code> instead (note the reversed order of arguments)</i></td>
+  </tr>
+  <tr>
+    <td style="font-size: 10pt" valign="top">
     <code>class directory_entry</code></td>
     <td style="font-size: 10pt" valign="top">
     <code>filename()</code></td>
@@ -322,6 +332,53 @@ BOOST_FILESYSTEM_NO_DEPRECATED</code> is defined.</p>
     &#10004;</td>
     <td style="font-size: 10pt" valign="top">
     <i>Function removed, use </i><code>path().string()</code><i> instead.</i></td>
+  </tr>
+  <tr>
+    <td style="font-size: 10pt" valign="top"><code>class recursive_directory_iterator</code></td>
+    <td style="font-size: 10pt" valign="top"><code>level()</code></td>
+    <td style="font-size: 10pt" valign="top">&#10004;</td>
+    <td style="font-size: 10pt" valign="top"><code>depth()</code></td>
+  </tr>
+  <tr>
+    <td style="font-size: 10pt" valign="top"><code>class recursive_directory_iterator</code></td>
+    <td style="font-size: 10pt" valign="top"><code>no_push_pending()</code></td>
+    <td style="font-size: 10pt" valign="top">&#10004;</td>
+    <td style="font-size: 10pt" valign="top"><code>!recursion_pending()</code></td>
+  </tr>
+  <tr>
+    <td style="font-size: 10pt" valign="top"><code>class recursive_directory_iterator</code></td>
+    <td style="font-size: 10pt" valign="top"><code>no_push()</code></td>
+    <td style="font-size: 10pt" valign="top">&#10004;</td>
+    <td style="font-size: 10pt" valign="top"><code>disable_recursion_pending()</code></td>
+  </tr>
+  <tr>
+    <td style="font-size: 10pt" valign="top"><code>directory.hpp</code></td>
+    <td style="font-size: 10pt" valign="top"><code>enum class symlink_option</code></td>
+    <td style="font-size: 10pt" valign="top">&#10004;</td>
+    <td style="font-size: 10pt" valign="top"><i>Removed; use corresponding values of </i><code>enum class directory_options</code><i> instead.</i></td>
+  </tr>
+  <tr>
+    <td style="font-size: 10pt" valign="top">
+    <code>directory.hpp</code></td>
+    <td style="font-size: 10pt" valign="top">
+    <code>wrecursive_directory_iterator</code> typedef</td>
+    <td style="font-size: 10pt" valign="top">
+    &#10004;</td>
+    <td style="font-size: 10pt" valign="top">
+    <i>Removed; use </i><code>class recursive_directory_iterator</code><i> instead. Workaround provides
+    </i><code>typedef recursive_directory_iterator wrecursive_directory_iterator</code></td>
+  </tr>
+  <tr>
+    <td style="font-size: 10pt" valign="top">
+    <code>operations.hpp</code></td>
+    <td style="font-size: 10pt" valign="top">
+    The header provides <code>filesystem_error</code>, <code>file_status</code>, <code>directory_entry</code>, <code>directory_iterator</code>, <code>recursive_directory_iterator</code> and associated enums and functions.</td>
+    <td style="font-size: 10pt" valign="top">
+    &#10004;</td>
+    <td style="font-size: 10pt" valign="top">
+    <i>These components were moved to separate headers </i><code>exception.hpp</code><i>, </i><code>file_status.hpp</code><i> and </i><code>directory.hpp</code><i>.
+    The workaround is to include the new headers or </i><code>filesystem.hpp</code><i>. The new headers are still included by </i><code>operations.hpp</code><i> if
+    </i><code>BOOST_FILESYSTEM_NO_DEPRECATED</code><i> is not defined.</i></td>
   </tr>
   <tr>
     <td style="font-size: 10pt" valign="top">
@@ -363,14 +420,27 @@ BOOST_FILESYSTEM_NO_DEPRECATED</code> is defined.</p>
     <td style="font-size: 10pt" valign="top">
     <i>No longer supported; native path format selection is always automatic.</i></td>
   </tr>
+  <tr>
+    <td style="font-size: 10pt" valign="top">
+    Build system</td>
+    <td style="font-size: 10pt" valign="top">
+    <code>Auto-linking on Windows</code></td>
+    <td style="font-size: 10pt" valign="top">
+    &nbsp;</td>
+    <td style="font-size: 10pt" valign="top">
+    <i>No longer supported. When users are linking against static library of Boost.Filesystem,
+    they are recommended to explicitly add Boost.Filesystem dependencies to their linker command
+    line. Shared library of Boost.Filesystem is not affected by this as it is already linked with
+    all its dependencies.</i></td>
+  </tr>
 </table>
 
 <h2>Deprecation rationale</h2>
 <h3><code>initial_path</code> function</h3>
-<p dir="ltr">Full implementation of <code>initial_path()</code> would require 
-support from the C++ runtime startup code, and that doesn't seem likely to 
-happen. Depending on the user to call <code>initial_path()</code> at the 
-beginning of <code>main()</code> is too error prone.&nbsp; An equivalent 
+<p dir="ltr">Full implementation of <code>initial_path()</code> would require
+support from the C++ runtime startup code, and that doesn't seem likely to
+happen. Depending on the user to call <code>initial_path()</code> at the
+beginning of <code>main()</code> is too error prone.&nbsp; An equivalent
 function can trivially be provided by a user.</p>
 
 <hr>
@@ -378,7 +448,7 @@ function can trivially be provided by a user.</p>
 <!--webbot bot="Timestamp" S-Type="EDITED" S-Format="%d %B, %Y" startspan -->29 December, 2014<!--webbot bot="Timestamp" endspan i-checksum="38652" --></p>
 
 <p>&copy; Copyright Beman Dawes, 2002-2005, 2010</p>
-<p> Use, modification, and distribution are subject to the Boost Software 
+<p> Use, modification, and distribution are subject to the Boost Software
 License, Version 1.0. See <a href="http://www.boost.org/LICENSE_1_0.txt">
 www.boost.org/LICENSE_1_0.txt</a></p>
 

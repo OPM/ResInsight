@@ -12,8 +12,8 @@
 <body bgcolor="#FFFFFF">
 
 <h1>
-<img border="0" src="../../../boost.png" align="center" width="300" height="86">Path 
-Name Portability 
+<img border="0" src="../../../boost.png" align="center" width="300" height="86">Path
+Name Portability
 Guide</h1>
 
 <table border="0" cellpadding="5" cellspacing="0" style="border-collapse: collapse"
@@ -34,48 +34,48 @@ Guide</h1>
 
 <p>
 <a href="#Introduction">Introduction</a><br>
-<a href="#name_check­_functions">name_check functions</a><br>
+<a href="#name_check_functions">name_check functions</a><br>
 <a href="#recommendations">File and directory name recommendations</a></p>
 <h2><a name="Introduction">Introduction</a></h2>
-<p>Like any other C++ program which performs I/O operations, there is no 
-guarantee that a program using Boost.Filesystem will be portable between 
-operating systems. Critical aspects of I/O such as how the operating system 
+<p>Like any other C++ program which performs I/O operations, there is no
+guarantee that a program using Boost.Filesystem will be portable between
+operating systems. Critical aspects of I/O such as how the operating system
 interprets paths are unspecified by the C and C++ Standards.</p>
-<p>It is not possible to know  if a file or directory name will be 
-valid (and thus portable) for an unknown operating system. There is always the possibility that an operating system could use 
-names which are unusual (numbers less than 4096, for example) or very 
-limited in size (maximum of six character names, for example). In other words, 
-portability is never absolute; it is always relative to specific operating 
-systems or 
+<p>It is not possible to know  if a file or directory name will be
+valid (and thus portable) for an unknown operating system. There is always the possibility that an operating system could use
+names which are unusual (numbers less than 4096, for example) or very
+limited in size (maximum of six character names, for example). In other words,
+portability is never absolute; it is always relative to specific operating
+systems or
 file systems.</p>
-<p>It is possible, however, to know in advance if a directory or file name is likely to be valid for a particular 
-operating system.&nbsp;It is also possible to construct names which are 
+<p>It is possible, however, to know in advance if a directory or file name is likely to be valid for a particular
+operating system.&nbsp;It is also possible to construct names which are
 likely to be portable to a large number of modern and legacy operating systems.</p>
 
-<p>Almost all modern operating systems support multiple file systems. At the 
-minimum, they support a native file system plus a CD-ROM file system (Generally 
-ISO-9669, often with Juliet extensions).</p>
+<p>Almost all modern operating systems support multiple file systems. At the
+minimum, they support a native file system plus a CD-ROM file system (Generally
+ISO-9669, often with Joliet extensions).</p>
 
-<p>Each file system 
-may have its own naming rules. For example, modern versions of Windows support NTFS, FAT, FAT32, and ISO-9660 file systems, among others, and the naming rules 
-for those file systems differ. Each file system may also have 
-differing rules for overall path validity, such as a maximum length or number of 
-sub-directories. Some legacy systems have different rules for directory names 
+<p>Each file system
+may have its own naming rules. For example, modern versions of Windows support NTFS, FAT, FAT32, and ISO-9660 file systems, among others, and the naming rules
+for those file systems differ. Each file system may also have
+differing rules for overall path validity, such as a maximum length or number of
+sub-directories. Some legacy systems have different rules for directory names
 versus regular file names.</p>
 
-<p>As a result, Boost.Filesystem's <i>name_check</i> functions 
-cannot guarantee directory and file name portability. Rather, they are intended to 
-give the programmer a &quot;fighting chance&quot; to achieve portability by early 
+<p>As a result, Boost.Filesystem's <i>name_check</i> functions
+cannot guarantee directory and file name portability. Rather, they are intended to
+give the programmer a &quot;fighting chance&quot; to achieve portability by early
 detection of common naming problems.</p>
 
-<h2><a name="name_check­_functions">name_check functions</a></h2>
+<h2><a name="name_check_functions">name_check functions</a></h2>
 
-<p>A <i>name_check</i> function 
-returns true if its argument is valid as a directory and regular file name for a 
+<p>A <i>name_check</i> function
+returns true if its argument is valid as a directory and regular file name for a
 particular operating or file system. A number of these functions are provided.</p>
 
-<p>The <a href="#portable_name">portable_name</a> function is of particular 
-interest because it has been carefully designed to provide wide 
+<p>The <a href="#portable_name">portable_name</a> function is of particular
+interest because it has been carefully designed to provide wide
 portability yet not overly restrict expressiveness.</p>
 
 <table border="1" cellpadding="5" cellspacing="0">
@@ -87,63 +87,63 @@ portability yet not overly restrict expressiveness.</p>
     <td align="center"><b>Description</b></td>
   </tr>
   <tr>
-    <td align="left" valign="top"><code><a name="portable_posix_name">portable_posix_name</a>(const 
+    <td align="left" valign="top"><code><a name="portable_posix_name">portable_posix_name</a>(const
     std::string&amp;<i> name</i>)</code></td>
-    <td><b>Returns:</b> <i>true</i> if <code>!name.empty() &amp;&amp; name</code> contains only the characters 
-    specified in<i> Portable Filename Character Set</i> rules as defined in by 
+    <td><b>Returns:</b> <i>true</i> if <code>!name.empty() &amp;&amp; name</code> contains only the characters
+    specified in<i> Portable Filename Character Set</i> rules as defined in by
     POSIX (<a href="http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap03.html">www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap03.html</a>).<br>
-    The allowed characters are <code>0-9</code>, <code>a-z</code>, <code>A-Z</code>, 
-    <code>'.'</code>, <code>'_'</code>, and <code>'-'</code>.<p><b>Use:</b> 
+    The allowed characters are <code>0-9</code>, <code>a-z</code>, <code>A-Z</code>,
+    <code>'.'</code>, <code>'_'</code>, and <code>'-'</code>.<p><b>Use:</b>
     applications which must be portable to any POSIX system.</td>
   </tr>
   <tr>
-    <td align="left" valign="top"><code><a name="windows_name">windows_name</a>(const 
+    <td align="left" valign="top"><code><a name="windows_name">windows_name</a>(const
     std::string&amp;<i> name</i>)</code></td>
-    <td><b>Returns:</b>&nbsp; <i>true</i> if <code>!name.empty() &amp;&amp; name</code> contains 
-    only the characters specified by the Windows platform SDK as valid 
+    <td><b>Returns:</b>&nbsp; <i>true</i> if <code>!name.empty() &amp;&amp; name</code> contains
+    only the characters specified by the Windows platform SDK as valid
     regardless of the file system <code>&amp;&amp; (name</code> is <code>&quot;.&quot;</code> or
-    <code>&quot;..&quot;</code>&nbsp; or does not end with a trailing space or period<code>)</code>.&nbsp; 
+    <code>&quot;..&quot;</code>&nbsp; or does not end with a trailing space or period<code>)</code>.&nbsp;
     The allowed characters are anything except <code>0x0-0x1F</code>, <code>'&lt;'</code>,
     <code>'&gt;'</code>, <code>':'</code>, <code>'&quot;'</code>, <code>'/'</code>,
     <code>'\'</code>, and <code>'|'</code>.<p>
     <b>Use:</b> applications which must be portable to Windows.</p>
-    <p><b>Note:</b> Reserved device names are not valid as file names, but are 
-    not being detected because they are still valid as a path. Specifically, 
-    CON, PRN, AUX, CLOCK$, NUL, COM[1-9], LPT[1-9], and these names followed by 
+    <p><b>Note:</b> Reserved device names are not valid as file names, but are
+    not being detected because they are still valid as a path. Specifically,
+    CON, PRN, AUX, CLOCK$, NUL, COM[1-9], LPT[1-9], and these names followed by
     an extension (for example, NUL.tx7).</td>
   </tr>
   <tr>
-    <td align="left" valign="top"><code><a name="portable_name">portable_name</a>(const 
+    <td align="left" valign="top"><code><a name="portable_name">portable_name</a>(const
     std::string&amp;<i> name</i>)</code></td>
-    <td><b>Returns:</b> <code>&nbsp;windows_name(name) &amp;&amp; portable_posix_name(name) 
-    &amp;&amp; (name</code> is <code>&quot;.&quot;</code> or <code>&quot;..&quot;</code>, and the first character not a period or hyphen<code>)</code>.<p><b>Use:</b> applications which must be portable to a wide variety of 
-    modern operating systems, large and small, and to some legacy O/S's. The 
-    first character not a period or hyphen restriction is a requirement of 
+    <td><b>Returns:</b> <code>&nbsp;windows_name(name) &amp;&amp; portable_posix_name(name)
+    &amp;&amp; (name</code> is <code>&quot;.&quot;</code> or <code>&quot;..&quot;</code>, and the first character not a period or hyphen<code>)</code>.<p><b>Use:</b> applications which must be portable to a wide variety of
+    modern operating systems, large and small, and to some legacy O/S's. The
+    first character not a period or hyphen restriction is a requirement of
     several older operating systems.</td>
   </tr>
   <tr>
     <td align="left" valign="top"><code><a name="portable_directory_name">
     portable_directory_name</a>(const std::string&amp;<i> name</i>)</code></td>
-    <td><b>Returns:</b> <code>portable_name(name) &amp;&amp; (name</code> is <code>&quot;.&quot;</code> 
-    or <code>&quot;..&quot;</code>&nbsp; or contains no periods<code>)</code>.<p><b>Use:</b> applications 
+    <td><b>Returns:</b> <code>portable_name(name) &amp;&amp; (name</code> is <code>&quot;.&quot;</code>
+    or <code>&quot;..&quot;</code>&nbsp; or contains no periods<code>)</code>.<p><b>Use:</b> applications
     which must be portable to a wide variety of platforms, including OpenVMS.</td>
   </tr>
   <tr>
     <td align="left" valign="top"><code><a name="portable_file_name">
     portable_file_name</a>(const std::string&amp;<i> name</i>)</code></td>
-    <td><b>Returns:</b> <code>portable_name(name) &amp;&amp; </code>any period is followed by one to three additional 
-    non-period characters.<p><b>Use:</b> 
-    applications which must be portable to a wide variety of platforms, 
-    including OpenVMS and other systems which have a concept of &quot;file extension&quot; 
+    <td><b>Returns:</b> <code>portable_name(name) &amp;&amp; </code>any period is followed by one to three additional
+    non-period characters.<p><b>Use:</b>
+    applications which must be portable to a wide variety of platforms,
+    including OpenVMS and other systems which have a concept of &quot;file extension&quot;
     but limit its length.</td>
   </tr>
   <tr>
-    <td align="left" valign="top"><code><a name="native">native</a>(const 
+    <td align="left" valign="top"><code><a name="native">native</a>(const
     std::string&amp;<i> name</i>)</code></td>
     <td><b>Returns:</b> Implementation defined. Returns <i>
-    true</i> for names considered valid by the operating system's native file 
-    systems.<p><b>Note:</b> May return <i>true</i> for some names not considered valid 
-    by the operating system under all conditions (particularly on operating systems which support 
+    true</i> for names considered valid by the operating system's native file
+    systems.<p><b>Note:</b> May return <i>true</i> for some names not considered valid
+    by the operating system under all conditions (particularly on operating systems which support
     multiple file systems.)</td>
   </tr>
 </table>
@@ -158,42 +158,42 @@ portability yet not overly restrict expressiveness.</p>
   </tr>
   <tr>
     <td valign="top">Limit file and directory names to the characters A-Z, a-z, 0-9, period, hyphen, and
-    underscore.<p>Use any of the &quot;portable_&quot; <a href="#name_check­_functions">
+    underscore.<p>Use any of the &quot;portable_&quot; <a href="#name_check_functions">
     name check functions</a> to enforce this recommendation.</td>
     <td valign="top">These are the characters specified by the POSIX standard for portable directory and
     file names, and are also valid for Windows, Mac, and many other modern file systems.</td>
   </tr>
   <tr>
-    <td valign="top">Do not use a period or hyphen as the first 
+    <td valign="top">Do not use a period or hyphen as the first
     character of a name. Do not use period as the last character of a name.<p>
     Use <a href="#portable_name">portable_name</a>,
     <a href="#portable_directory_name">portable_directory_name</a>, or
-    <a href="#portable_file_name">portable_file_name</a> to enforce this 
+    <a href="#portable_file_name">portable_file_name</a> to enforce this
     recommendation.</td>
-    <td valign="top">Some operating systems treat have special rules for the 
-    first character of names. POSIX, for example. Windows does not permit period 
+    <td valign="top">Some operating systems treat have special rules for the
+    first character of names. POSIX, for example. Windows does not permit period
     as the last character.</td>
   </tr>
   <tr>
     <td valign="top">Do not use periods in directory names.<p>Use
-    <a href="#portable_directory_name">portable_directory_name</a> to enforce 
+    <a href="#portable_directory_name">portable_directory_name</a> to enforce
     this recommendation.</td>
     <td valign="top">Requirement for ISO-9660 without Juliet extensions, OpenVMS filesystem, and other legacy systems.</td>
   </tr>
   <tr>
-    <td valign="top">Do not use more that one period in a file name, and limit 
+    <td valign="top">Do not use more that one period in a file name, and limit
     the portion after the period to three characters.<p>Use
-    <a href="#portable_file_name">portable_file_name</a> to enforce this 
+    <a href="#portable_file_name">portable_file_name</a> to enforce this
     recommendation.</td>
-    <td valign="top">Requirement for ISO-9660 level 1, OpenVMS filesystem, and 
+    <td valign="top">Requirement for ISO-9660 level 1, OpenVMS filesystem, and
     other legacy systems. </td>
   </tr>
   <tr>
     <td valign="top">Do not assume names are case sensitive. For example, do not expected a directory to be
     able to hold separate elements named &quot;Foo&quot; and &quot;foo&quot;. </td>
-    <td valign="top">Some file systems are case insensitive.&nbsp; For example, Windows 
-    NTFS is case preserving in the way it stores names, but case insensitive in 
-    searching for names (unless running under the POSIX sub-system, it which 
+    <td valign="top">Some file systems are case insensitive.&nbsp; For example, Windows
+    NTFS is case preserving in the way it stores names, but case insensitive in
+    searching for names (unless running under the POSIX sub-system, it which
     case it does case sensitive searches). </td>
   </tr>
   <tr>
@@ -203,13 +203,13 @@ portability yet not overly restrict expressiveness.</p>
   </tr>
   <tr>
     <td valign="top">Don't use hyphens in names.</td>
-    <td valign="top">ISO-9660 level 1, and possibly some legacy systems, do not permit 
+    <td valign="top">ISO-9660 level 1, and possibly some legacy systems, do not permit
     hyphens.</td>
   </tr>
   <tr>
-    <td valign="top">Limit the length of the string returned by path::string() to 
-    255 characters.&nbsp; 
-    Note that ISO 9660 has an explicit directory tree depth limit of 8, although 
+    <td valign="top">Limit the length of the string returned by path::string() to
+    255 characters.&nbsp;
+    Note that ISO 9660 has an explicit directory tree depth limit of 8, although
     this depth limit is removed by the Juliet extensions.</td>
     <td valign="top">Some operating systems place limits on the total path length.&nbsp; For example,
     Windows 2000 limits paths to 260 characters total length.</td>
@@ -232,7 +232,7 @@ portability yet not overly restrict expressiveness.</p>
 <!--webbot bot="Timestamp" S-Type="EDITED" S-Format="%d %B, %Y" startspan -->29 December, 2014<!--webbot bot="Timestamp" endspan i-checksum="38652" --></p>
 
 <p>&copy; Copyright Beman Dawes, 2002, 2003</p>
-<p> Use, modification, and distribution are subject to the Boost Software 
+<p> Use, modification, and distribution are subject to the Boost Software
 License, Version 1.0. (See accompanying file <a href="../../../LICENSE_1_0.txt">
 LICENSE_1_0.txt</a> or copy at <a href="http://www.boost.org/LICENSE_1_0.txt">
 www.boost.org/LICENSE_1_0.txt</a>)</p>
