@@ -1,29 +1,38 @@
 # Load ResInsight Processing Server Client Library
 import rips
 import tempfile
+from os.path import expanduser
+
 # Connect to ResInsight instance
 resinsight = rips.Instance.find()
 # Example code
 project = resinsight.project
 
+# Create fracture model template
+home_dir = expanduser("~")
+elastic_properties_file_path = home_dir + "/elastic_properties.csv"
+facies_properties_file_path = home_dir + "/facies_id.roff"
+
+fmt_collection = project.descendants(rips.FractureModelTemplateCollection)[0]
+fracture_model_template = fmt_collection.new_fracture_model_template(elastic_properties_file_path=elastic_properties_file_path,
+                                                                     facies_properties_file_path=facies_properties_file_path)
+fracture_model_template.overburden_formation = "Garn"
+fracture_model_template.overburden_facies = "Shale"
+fracture_model_template.underburden_formation = "Garn"
+fracture_model_template.underburden_facies = "Shale"
+fracture_model_template.overburden_height = 68
+fracture_model_template.update()
+print("Overburden: ", fracture_model_template.overburden_formation)
+
+
 # Find a well
-well_path = project.well_path_by_name("Well-1")
+well_path = project.well_path_by_name("B-2_H")
 print("well path:", well_path)
 fracture_model_collection = project.descendants(rips.FractureModelCollection)[0]
 
 # Create fracture model at a give measured depth
-measured_depth = 4100.0
-elastic_properties_file_path = "/home/resinsight/stimplan/complete_dataset_2020-06-22/Elastic_Template_CSV_file-with-biot.csv"
-fracture_model = fracture_model_collection.new_fracture_model(well_path=well_path, measured_depth=measured_depth, elastic_properties_file_path=elastic_properties_file_path)
-
-fracture_model.overburden_formation = "Garn"
-fracture_model.overburden_facies = "Shale"
-fracture_model.underburden_formation = "Garn"
-fracture_model.underburden_facies = "Shale"
-fracture_model.overburden_height = 68
-fracture_model.update()
-
-print("Overburden: ", fracture_model.overburden_formation)
+measured_depth = 3200.0
+fracture_model = fracture_model_collection.new_fracture_model(well_path=well_path, measured_depth=measured_depth, fracture_model_template=fracture_model_template)
 
 
 cases = resinsight.project.cases()

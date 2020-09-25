@@ -5,6 +5,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimcSummaryCase.h
 ${CMAKE_CURRENT_LIST_DIR}/RimcSummaryResampleData.h
 ${CMAKE_CURRENT_LIST_DIR}/RimcProject.h
 ${CMAKE_CURRENT_LIST_DIR}/RimcFractureModelCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimcFractureModelTemplateCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimcFractureModelPlotCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimcFractureModelPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RimcSurfaceCollection.h
@@ -19,6 +20,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimcSummaryCase.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimcSummaryResampleData.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimcProject.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimcFractureModelCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimcFractureModelTemplateCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimcFractureModelPlotCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimcFractureModelPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimcSurfaceCollection.cpp
