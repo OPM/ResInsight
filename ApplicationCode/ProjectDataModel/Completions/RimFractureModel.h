@@ -160,7 +160,6 @@ private:
 
     static QString vecToString( const cvf::Vec3d& vec );
     void           updateThicknessDirectionWellPathName();
-    static double  computeDefaultStressDepth();
 
     static RigEclipseCaseData* getEclipseCaseData();
     static RimEclipseCase*     getEclipseCase();
@@ -189,12 +188,6 @@ protected:
     caf::PdmField<double>                       m_boundingBoxVertical;
     caf::PdmField<double>                       m_boundingBoxHorizontal;
     caf::PdmPtrField<RimModeledWellPath*>       m_thicknessDirectionWellPath;
-    caf::PdmField<double>                       m_verticalStress;
-    caf::PdmField<double>                       m_verticalStressGradient;
-    caf::PdmField<double>                       m_stressDepth;
-    caf::PdmField<double>                       m_referenceTemperature;
-    caf::PdmField<double>                       m_referenceTemperatureGradient;
-    caf::PdmField<double>                       m_referenceTemperatureDepth;
     caf::PdmField<double>                       m_relativePermeabilityFactorDefault;
     caf::PdmField<double>                       m_poroElasticConstantDefault;
     caf::PdmField<double>                       m_thermalExpansionCoeffientDefault;

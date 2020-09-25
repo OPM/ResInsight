@@ -74,6 +74,14 @@ public:
     double overburdenFluidDensity() const;
     double underburdenFluidDensity() const;
 
+    double referenceTemperature() const;
+    double referenceTemperatureGradient() const;
+    double referenceTemperatureDepth() const;
+
+    double verticalStress() const;
+    double verticalStressGradient() const;
+    double stressDepth() const;
+
     void loadDataAndUpdate();
 
     void                  setElasticProperties( RimElasticProperties* elasticProperties );
@@ -89,16 +97,27 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
     void                          initAfterRead() override;
+    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                         QString                    uiConfigName,
+                                                         caf::PdmUiEditorAttribute* attribute ) override;
 
     static RimEclipseCase*     getEclipseCase();
     static RigEclipseCaseData* getEclipseCaseData();
 
     void faciesPropertiesChanged( const caf::SignalEmitter* emitter );
 
+    static double computeDefaultStressDepth();
+
 protected:
     caf::PdmField<int>                        m_id;
     caf::PdmField<double>                     m_defaultPorosity;
     caf::PdmField<double>                     m_defaultPermeability;
+    caf::PdmField<double>                     m_verticalStress;
+    caf::PdmField<double>                     m_verticalStressGradient;
+    caf::PdmField<double>                     m_stressDepth;
+    caf::PdmField<double>                     m_referenceTemperature;
+    caf::PdmField<double>                     m_referenceTemperatureGradient;
+    caf::PdmField<double>                     m_referenceTemperatureDepth;
     caf::PdmField<double>                     m_overburdenHeight;
     caf::PdmField<double>                     m_overburdenPorosity;
     caf::PdmField<double>                     m_overburdenPermeability;
