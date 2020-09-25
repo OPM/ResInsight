@@ -2489,6 +2489,9 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
     RimDepthTrackPlot* plot = nullptr;
     firstAncestorOrThisOfTypeAsserted( plot );
 
+    RiaDefines::DepthUnitType fromDepthUnit = plot->caseDepthUnit();
+    RiaDefines::DepthUnitType toDepthUnit   = plot->depthUnit();
+
     if ( m_formationSource() == WELL_PICK_FILTER )
     {
         if ( m_formationWellPathForSourceWellPath == nullptr ) return;
@@ -2520,7 +2523,10 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
             }
         }
 
-        m_annotationTool->attachWellPicks( m_plotWidget, formationNamesToPlot, yValues );
+        std::vector<double> convertedYValues =
+            RiaWellLogUnitTools<double>::convertDepths( yValues, fromDepthUnit, toDepthUnit );
+
+        m_annotationTool->attachWellPicks( m_plotWidget, formationNamesToPlot, convertedYValues );
     }
     else
     {
@@ -2587,10 +2593,14 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
             const caf::ColorTable waterAndRockColors = RiaColorTables::waterAndRockPaletteColors();
             const std::vector<std::pair<double, double>> waterAndRockIntervals =
                 waterAndRockRegions( plot->depthType(), extractor );
+
+            const std::vector<std::pair<double, double>> convertedYValues =
+                RiaWellLogUnitTools<double>::convertDepths( waterAndRockIntervals, fromDepthUnit, toDepthUnit );
+
             m_annotationTool->attachNamedRegions( m_plotWidget,
                                                   {"Sea Level", ""},
                                                   xRange,
-                                                  waterAndRockIntervals,
+                                                  convertedYValues,
                                                   m_regionAnnotationDisplay(),
                                                   waterAndRockColors,
                                                   ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100,
@@ -2628,11 +2638,14 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
 
             const std::pair<double, double> xRange = std::make_pair( m_visibleXRangeMin(), m_visibleXRangeMax() );
 
+            std::vector<std::pair<double, double>> convertedYValues =
+                RiaWellLogUnitTools<double>::convertDepths( yValues, fromDepthUnit, toDepthUnit );
+
             caf::ColorTable colorTable( m_colorShadingLegend->colorArray() );
             m_annotationTool->attachNamedRegions( m_plotWidget,
                                                   formationNamesToPlot,
                                                   xRange,
-                                                  yValues,
+                                                  convertedYValues,
                                                   m_regionAnnotationDisplay(),
                                                   colorTable,
                                                   ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100,
@@ -2648,6 +2661,9 @@ void RimWellLogTrack::updateResultPropertyNamesOnPlot()
 {
     RimDepthTrackPlot* plot = nullptr;
     firstAncestorOrThisOfTypeAsserted( plot );
+
+    RiaDefines::DepthUnitType fromDepthUnit = plot->caseDepthUnit();
+    RiaDefines::DepthUnitType toDepthUnit   = plot->depthUnit();
 
     RigEclipseWellLogExtractor* eclWellLogExtractor =
         RiaExtractionTools::wellLogExtractorEclipseCase( m_formationWellPathForSourceCase,
@@ -2705,6 +2721,10 @@ void RimWellLogTrack::updateResultPropertyNamesOnPlot()
         std::vector<std::pair<double, double>> yValues;
         RimWellLogTrack::findRegionNamesToPlot( curveData, namesVector, plot->depthType(), &namesToPlot, &yValues );
 
+        // convert to plot depth unit
+        std::vector<std::pair<double, double>> convertedYValues =
+            RiaWellLogUnitTools<double>::convertDepths( yValues, fromDepthUnit, toDepthUnit );
+
         // TODO: unecessarily messy!
         // Need to map colors to names (since a category can be used several times)
         for ( QString nameToPlot : namesToPlot )
@@ -2726,7 +2746,7 @@ void RimWellLogTrack::updateResultPropertyNamesOnPlot()
         m_annotationTool->attachNamedRegions( m_plotWidget,
                                               namesToPlot,
                                               xRange,
-                                              yValues,
+                                              convertedYValues,
                                               m_regionAnnotationDisplay(),
                                               colorTable,
                                               ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100,
@@ -2743,6 +2763,9 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
     this->firstAncestorOrThisOfType( wellBoreStabilityPlot );
     if ( wellBoreStabilityPlot )
     {
+        RiaDefines::DepthUnitType fromDepthUnit = wellBoreStabilityPlot->caseDepthUnit();
+        RiaDefines::DepthUnitType toDepthUnit   = wellBoreStabilityPlot->depthUnit();
+
         wellBoreStabilityPlot->updateCommonDataSource();
         RimGeoMechCase* geoMechCase =
             dynamic_cast<RimGeoMechCase*>( wellBoreStabilityPlot->commonDataSource()->caseToApply() );
@@ -2789,10 +2812,15 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
                                                         wellBoreStabilityPlot->depthType(),
                                                         &sourceNamesToPlot,
                                                         &yValues );
+
+                // convert to plot depth unit
+                std::vector<std::pair<double, double>> convertedYValues =
+                    RiaWellLogUnitTools<double>::convertDepths( yValues, fromDepthUnit, toDepthUnit );
+
                 m_annotationTool->attachNamedRegions( m_plotWidget,
                                                       sourceNamesToPlot,
                                                       xRange,
-                                                      yValues,
+                                                      convertedYValues,
                                                       m_regionAnnotationDisplay(),
                                                       colorTable,
                                                       ( ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100 ) / 3,
@@ -2815,10 +2843,15 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
                                                         wellBoreStabilityPlot->depthType(),
                                                         &sourceNamesToPlot,
                                                         &yValues );
+
+                // convert to plot depth unit
+                std::vector<std::pair<double, double>> convertedYValues =
+                    RiaWellLogUnitTools<double>::convertDepths( yValues, fromDepthUnit, toDepthUnit );
+
                 m_annotationTool->attachNamedRegions( m_plotWidget,
                                                       sourceNamesToPlot,
                                                       xRange,
-                                                      yValues,
+                                                      convertedYValues,
                                                       m_regionAnnotationDisplay(),
                                                       colorTable,
                                                       ( ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100 ) / 3,
@@ -2840,10 +2873,15 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
                                                         wellBoreStabilityPlot->depthType(),
                                                         &sourceNamesToPlot,
                                                         &yValues );
+
+                // convert to plot depth unit
+                std::vector<std::pair<double, double>> convertedYValues =
+                    RiaWellLogUnitTools<double>::convertDepths( yValues, fromDepthUnit, toDepthUnit );
+
                 m_annotationTool->attachNamedRegions( m_plotWidget,
                                                       sourceNamesToPlot,
                                                       xRange,
-                                                      yValues,
+                                                      convertedYValues,
                                                       m_regionAnnotationDisplay(),
                                                       colorTable,
                                                       ( ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100 ) / 3,

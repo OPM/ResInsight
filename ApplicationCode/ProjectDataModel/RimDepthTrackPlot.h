@@ -125,6 +125,8 @@ public:
     int axisTitleFontSize() const;
     int axisValueFontSize() const;
 
+    RiaDefines::DepthUnitType caseDepthUnit() const;
+
 protected:
     QImage snapshotWindowContent() override;
 

@@ -47,15 +47,24 @@ public:
     static std::vector<FloatType> convertDepths( const std::vector<FloatType>& depthsIn,
                                                  RiaDefines::DepthUnitType     unitsIn,
                                                  RiaDefines::DepthUnitType     unitsOut );
-    static bool                   convertValues( const std::vector<FloatType>& tvdRKBs,
-                                                 const std::vector<FloatType>& valuesIn,
-                                                 std::vector<FloatType>*       valuesOut,
-                                                 const QString&                unitsIn,
-                                                 const QString&                unitsOut );
-    static bool                   convertValues( std::vector<std::pair<FloatType, FloatType>>* measuredDepthsAndValues,
-                                                 const QString&                                unitsIn,
-                                                 const QString&                                unitsOut,
-                                                 const RigWellPath*                            wellPath );
+
+    static std::vector<std::pair<FloatType, FloatType>>
+        convertDepths( const std::vector<std::pair<FloatType, FloatType>>& depthsIn,
+                       RiaDefines::DepthUnitType                           unitsIn,
+                       RiaDefines::DepthUnitType                           unitsOut );
+
+    static FloatType
+        convertDepth( FloatType depthIn, RiaDefines::DepthUnitType unitsIn, RiaDefines::DepthUnitType unitsOut );
+
+    static bool convertValues( const std::vector<FloatType>& tvdRKBs,
+                               const std::vector<FloatType>& valuesIn,
+                               std::vector<FloatType>*       valuesOut,
+                               const QString&                unitsIn,
+                               const QString&                unitsOut );
+    static bool convertValues( std::vector<std::pair<FloatType, FloatType>>* measuredDepthsAndValues,
+                               const QString&                                unitsIn,
+                               const QString&                                unitsOut,
+                               const RigWellPath*                            wellPath );
 
     static std::vector<FloatType> tvdRKBs( const std::vector<FloatType>& measuredDepths, const RigWellPath* wellPath );
 
