@@ -20,6 +20,8 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
+#include "RigMainGrid.h"
+#include "RigNNCData.h"
 
 #include "Rim3dView.h"
 #include "RimEclipseCase.h"
@@ -62,6 +64,15 @@ void AppEnum<RimElementVectorResult::VectorView>::setUp()
 
     setDefault( RimElementVectorResult::VectorView::AGGREGATED );
 }
+
+template <>
+void AppEnum<RimElementVectorResult::VectorSurfaceCrossingLocation>::setUp()
+{
+    addItem( RimElementVectorResult::VectorSurfaceCrossingLocation::VECTOR_ANCHOR, "VECTOR_ANCHOR", "At vector anchor" );
+    addItem( RimElementVectorResult::VectorSurfaceCrossingLocation::VECTOR_CENTER, "VECTOR_CENTER", "At vector center" );
+
+    setDefault( RimElementVectorResult::VectorSurfaceCrossingLocation::VECTOR_ANCHOR );
+}
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------
@@ -75,13 +86,22 @@ RimElementVectorResult::RimElementVectorResult()
     m_legendConfig = new RimRegularLegendConfig();
     m_legendConfig.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_resultNames, "ResultVariable", std::vector<QString>{QString( "Oil" )}, "Fluid", "", "", "" );
-    m_resultNames.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
-    m_resultNames.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    CAF_PDM_InitField( &m_showOil, "ShowOil", true, "Oil", "", "", "" );
+    CAF_PDM_InitField( &m_showGas, "ShowGas", false, "Gas", "", "", "" );
+    CAF_PDM_InitField( &m_showWater, "ShowWater", true, "Water", "", "", "" );
 
     CAF_PDM_InitField( &m_showResult, "ShowResult", false, "", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_vectorView, "VectorView", "View vectors", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_vectorSurfaceCrossingLocation,
+                                "VectorSurfaceCrossingLocation",
+                                "Vectors touching surface",
+                                "",
+                                "",
+                                "" );
+    m_vectorSurfaceCrossingLocation.uiCapability()->setUiReadOnly( m_vectorView() ==
+                                                                   RimElementVectorResult::VectorView::AGGREGATED );
 
     CAF_PDM_InitField( &m_showVectorI, "ShowVectorI", true, "I", "", "", "" );
     CAF_PDM_InitField( &m_showVectorJ, "ShowVectorJ", true, "J", "", "", "" );
@@ -127,9 +147,33 @@ bool RimElementVectorResult::showResult() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimElementVectorResult::VectorView RimElementVectorResult::vectorView()
+RimElementVectorResult::VectorView RimElementVectorResult::vectorView() const
 {
     return m_vectorView();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimElementVectorResult::showOil() const
+{
+    return m_showOil();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimElementVectorResult::showGas() const
+{
+    return m_showGas();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimElementVectorResult::showWater() const
+{
+    return m_showWater();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -163,6 +207,14 @@ bool RimElementVectorResult::showVectorK() const
 bool RimElementVectorResult::showNncData() const
 {
     return m_showNncData();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimElementVectorResult::VectorSurfaceCrossingLocation RimElementVectorResult::vectorSuraceCrossingLocation() const
+{
+    return m_vectorSurfaceCrossingLocation();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -219,32 +271,144 @@ void RimElementVectorResult::mappingRange( double& min, double& max ) const
     int currentTimeStep = view->currentTimeStep();
 
     std::vector<RigEclipseResultAddress> resVarAddresses;
-    if ( !resultAddressesCombined( resVarAddresses ) ) return;
+    size_t                               directions = 1;
+    if ( !resultAddressesIJK( resVarAddresses ) ) return;
+    std::vector<RigEclipseResultAddress> cleanedResVarAddresses;
+    directions = 0;
+    std::vector<cvf::Vec3d> unitVectors;
 
-    for ( size_t index = 0; index < resVarAddresses.size(); index++ )
+    for ( size_t fluidIndex = 0; fluidIndex < resVarAddresses.size(); fluidIndex += 3 )
     {
-        double localMin = cvf::UNDEFINED_DOUBLE;
-        double localMax = cvf::UNDEFINED_DOUBLE;
-
-        RigEclipseResultAddress resVarAddr = resVarAddresses.at( index );
-        if ( !resVarAddr.isValid() ) return;
-
-        RimEclipseView*         eclipseView = dynamic_cast<RimEclipseView*>( view );
-        RigCaseCellResultsData* resultsData =
-            eclipseView->eclipseCase()->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-
-        resultsData->ensureKnownResultLoaded( resVarAddr );
-
-        if ( m_legendConfig->rangeMode() == RimRegularLegendConfig::RangeModeType::AUTOMATIC_ALLTIMESTEPS )
+        if ( showVectorI() )
         {
-            resultsData->minMaxCellScalarValues( resVarAddr, localMin, localMax );
+            if ( fluidIndex == 0 )
+            {
+                directions++;
+                unitVectors.push_back( cvf::Vec3d( 1, 0, 0 ) );
+            }
+            cleanedResVarAddresses.push_back( resVarAddresses.at( 0 + fluidIndex ) );
         }
-        else if ( m_legendConfig->rangeMode() == RimRegularLegendConfig::RangeModeType::AUTOMATIC_CURRENT_TIMESTEP )
+        if ( showVectorJ() )
         {
-            resultsData->minMaxCellScalarValues( resVarAddr, currentTimeStep, localMin, localMax );
+            if ( fluidIndex == 0 )
+            {
+                directions++;
+                unitVectors.push_back( cvf::Vec3d( 0, 1, 0 ) );
+            }
+            cleanedResVarAddresses.push_back( resVarAddresses.at( 1 + fluidIndex ) );
         }
-        min += localMin;
-        max += localMax;
+        if ( showVectorK() )
+        {
+            if ( fluidIndex == 0 )
+            {
+                directions++;
+                unitVectors.push_back( cvf::Vec3d( 0, 0, 1 ) );
+            }
+            cleanedResVarAddresses.push_back( resVarAddresses.at( 2 + fluidIndex ) );
+        }
+    }
+    resVarAddresses = cleanedResVarAddresses;
+
+    if ( directions > 0 )
+    {
+        std::vector<double> directionsMax;
+        directionsMax.resize( directions, 0.0 );
+        std::vector<double> directionsMin;
+        directionsMin.resize( directions, 0.0 );
+
+        for ( size_t index = 0; index < resVarAddresses.size(); index += directions )
+        {
+            cvf::Vec3d aggregatedVectorMax;
+            cvf::Vec3d aggregatedVectorMin;
+            for ( size_t dir = 0; dir < directions; dir += 1 )
+            {
+                double localMin = cvf::UNDEFINED_DOUBLE;
+                double localMax = cvf::UNDEFINED_DOUBLE;
+
+                RigEclipseResultAddress resVarAddr = resVarAddresses.at( index + dir );
+                if ( !resVarAddr.isValid() ) return;
+
+                RimEclipseView*         eclipseView = dynamic_cast<RimEclipseView*>( view );
+                RigCaseCellResultsData* resultsData =
+                    eclipseView->eclipseCase()->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+
+                resultsData->ensureKnownResultLoaded( resVarAddr );
+
+                if ( m_legendConfig->rangeMode() == RimRegularLegendConfig::RangeModeType::AUTOMATIC_ALLTIMESTEPS )
+                {
+                    resultsData->minMaxCellScalarValues( resVarAddr, localMin, localMax );
+                }
+                else if ( m_legendConfig->rangeMode() == RimRegularLegendConfig::RangeModeType::AUTOMATIC_CURRENT_TIMESTEP )
+                {
+                    resultsData->minMaxCellScalarValues( resVarAddr, currentTimeStep, localMin, localMax );
+                }
+                if ( vectorView() == RimElementVectorResult::VectorView::AGGREGATED )
+                {
+                    aggregatedVectorMax += unitVectors.at( dir ) * localMax;
+                    aggregatedVectorMin += unitVectors.at( dir ) * localMin;
+                }
+                else
+                {
+                    directionsMax[dir] += localMax;
+                    directionsMin[dir] += localMin;
+                }
+            }
+            if ( vectorView() == RimElementVectorResult::VectorView::AGGREGATED )
+            {
+                directionsMax[0] += aggregatedVectorMax.length();
+                directionsMin[0] += aggregatedVectorMin.length();
+            }
+        }
+        min = directionsMin.front();
+        max = directionsMax.front();
+        if ( vectorView() != RimElementVectorResult::VectorView::AGGREGATED )
+        {
+            for ( size_t i = 0; i < directionsMax.size(); i++ )
+            {
+                max = std::max<double>( max, directionsMax.at( i ) );
+                min = std::min<double>( min, directionsMin.at( i ) );
+            }
+        }
+    }
+
+    if ( showNncData() )
+    {
+        RigNNCData* nncData =
+            dynamic_cast<RimEclipseView*>( view )->eclipseCase()->eclipseCaseData()->mainGrid()->nncData();
+        std::vector<RigEclipseResultAddress> combinedAddresses;
+        if ( !resultAddressesCombined( combinedAddresses ) ) return;
+
+        for ( size_t flIdx = 0; flIdx < combinedAddresses.size(); flIdx++ )
+        {
+            if ( combinedAddresses[flIdx].m_resultCatType == RiaDefines::ResultCatType::DYNAMIC_NATIVE )
+            {
+                const std::vector<std::vector<double>>* nncResultVals;
+                if ( m_legendConfig->rangeMode() == RimRegularLegendConfig::RangeModeType::AUTOMATIC_ALLTIMESTEPS )
+                {
+                    const std::vector<std::vector<double>>* nncResultVals =
+                        nncData->dynamicConnectionScalarResult( combinedAddresses[flIdx] );
+                    for ( size_t i = 0; i < nncResultVals->size(); i++ )
+                    {
+                        for ( size_t j = 0; j < nncResultVals->at( i ).size(); j++ )
+                        {
+                            max = std::max<double>( max, nncResultVals->at( i ).at( j ) );
+                            min = std::min<double>( min, nncResultVals->at( i ).at( j ) );
+                        }
+                    }
+                }
+                else if ( m_legendConfig->rangeMode() == RimRegularLegendConfig::RangeModeType::AUTOMATIC_CURRENT_TIMESTEP )
+                {
+                    const std::vector<double>* nncResultVals =
+                        nncData->dynamicConnectionScalarResult( combinedAddresses[flIdx],
+                                                                static_cast<size_t>( currentTimeStep ) );
+                    for ( size_t i = 0; i < nncResultVals->size(); i++ )
+                    {
+                        max = std::max<double>( max, nncResultVals->at( i ) );
+                        min = std::min<double>( min, nncResultVals->at( i ) );
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -255,9 +419,17 @@ void RimElementVectorResult::updateLegendRangesTextAndVisibility( RiuViewer* nat
                                                                   bool       isUsingOverrideViewer )
 {
     QStringList resultNames;
-    for ( size_t i = 0; i < m_resultNames().size(); i++ )
+    if ( showOil() )
     {
-        resultNames << m_resultNames().at( i );
+        resultNames << QString( "Oil" );
+    }
+    if ( showGas() )
+    {
+        resultNames << QString( "Gas" );
+    }
+    if ( showWater() )
+    {
+        resultNames << QString( "Water" );
     }
 
     m_legendConfig->setTitle( QString( "Element Vector Result: \n" ) + resultNames.join( ", " ) );
@@ -286,27 +458,6 @@ const RimRegularLegendConfig* RimElementVectorResult::legendConfig() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RimElementVectorResult::resultNames() const
-{
-    return m_resultNames();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<std::string> RimElementVectorResult::getResultMetaDataForUIFieldSetting()
-{
-    std::vector<std::string> fieldNames;
-    fieldNames.push_back( "Oil" );
-    fieldNames.push_back( "Water" );
-    fieldNames.push_back( "Gas" );
-
-    return fieldNames;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimElementVectorResult::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                                const QVariant&            oldValue,
                                                const QVariant&            newValue )
@@ -314,6 +465,11 @@ void RimElementVectorResult::fieldChangedByUi( const caf::PdmFieldHandle* change
     if ( changedField == &m_showResult )
     {
         setShowResult( m_showResult );
+    }
+    if ( changedField == &m_vectorView )
+    {
+        m_vectorSurfaceCrossingLocation.uiCapability()->setUiReadOnly( vectorView() ==
+                                                                       RimElementVectorResult::VectorView::AGGREGATED );
     }
 
     RimEclipseView* view;
@@ -332,35 +488,16 @@ caf::PdmFieldHandle* RimElementVectorResult::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimElementVectorResult::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
-{
-    QList<caf::PdmOptionItemInfo> options;
-    *useOptionsOnly = true;
-
-    if ( fieldNeedingOptions == &m_resultNames )
-    {
-        std::vector<std::string> fieldCompNames = getResultMetaDataForUIFieldSetting();
-
-        for ( size_t oIdx = 0; oIdx < fieldCompNames.size(); ++oIdx )
-        {
-            options.push_back( caf::PdmOptionItemInfo( QString::fromStdString( fieldCompNames[oIdx] ),
-                                                       QString::fromStdString( fieldCompNames[oIdx] ) ) );
-        }
-    }
-
-    return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimElementVectorResult::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_resultNames );
+    caf::PdmUiGroup* fluidsGroup = uiOrdering.addNewGroup( "Fluids" );
+    fluidsGroup->add( &m_showOil );
+    fluidsGroup->add( &m_showGas );
+    fluidsGroup->add( &m_showWater );
 
     caf::PdmUiGroup* visibilityGroup = uiOrdering.addNewGroup( "Visibility" );
     visibilityGroup->add( &m_vectorView );
+    visibilityGroup->add( &m_vectorSurfaceCrossingLocation );
     visibilityGroup->add( &m_showVectorI );
     visibilityGroup->add( &m_showVectorJ );
     visibilityGroup->add( &m_showVectorK );
@@ -384,38 +521,21 @@ void RimElementVectorResult::defineUiOrdering( QString uiConfigName, caf::PdmUiO
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimElementVectorResult::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                    QString                    uiConfigName,
-                                                    caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_resultNames )
-    {
-        caf::PdmUiListEditorAttribute* listEditAttr = dynamic_cast<caf::PdmUiListEditorAttribute*>( attribute );
-        if ( listEditAttr )
-        {
-            listEditAttr->m_heightHint = 50;
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RimElementVectorResult::resultAddressesCombined( std::vector<RigEclipseResultAddress>& addresses ) const
 {
     addresses.clear();
 
-    if ( std::count( m_resultNames().begin(), m_resultNames().end(), "Oil" ) )
+    if ( showOil() )
     {
         addresses.push_back( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                       RiaDefines::combinedOilFluxResultName() ) );
     }
-    if ( std::count( m_resultNames().begin(), m_resultNames().end(), "Gas" ) )
+    if ( showGas() )
     {
         addresses.push_back( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                       RiaDefines::combinedGasFluxResultName() ) );
     }
-    if ( std::count( m_resultNames().begin(), m_resultNames().end(), "Water" ) )
+    if ( showWater() )
     {
         addresses.push_back( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                       RiaDefines::combinedWaterFluxResultName() ) );
@@ -430,20 +550,19 @@ bool RimElementVectorResult::resultAddressesIJK( std::vector<RigEclipseResultAdd
 {
     addresses.clear();
 
-    // TODO: use enum??
-    if ( std::count( m_resultNames().begin(), m_resultNames().end(), "Oil" ) )
+    if ( showOil() )
     {
         addresses.push_back( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLROILI+" ) );
         addresses.push_back( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLROILJ+" ) );
         addresses.push_back( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLROILK+" ) );
     }
-    if ( std::count( m_resultNames().begin(), m_resultNames().end(), "Gas" ) )
+    if ( showGas() )
     {
         addresses.push_back( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRGASI+" ) );
         addresses.push_back( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRGASJ+" ) );
         addresses.push_back( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRGASK+" ) );
     }
-    if ( std::count( m_resultNames().begin(), m_resultNames().end(), "Water" ) )
+    if ( showWater() )
     {
         addresses.push_back( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRWATI+" ) );
         addresses.push_back( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRWATJ+" ) );

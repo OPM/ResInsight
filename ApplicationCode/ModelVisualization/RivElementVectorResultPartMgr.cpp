@@ -30,6 +30,8 @@
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
 
+#include "cafDisplayCoordTransform.h"
+
 #include "cafEffectGenerator.h"
 
 #include "cvfDrawableGeo.h"
@@ -123,17 +125,17 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
         if ( result->showVectorI() )
         {
             if ( fluidIndex == 0 ) directions.push_back( cvf::StructGridInterface::POS_I );
-            resultAddresses.push_back( addresses[0] );
+            resultAddresses.push_back( addresses[0 + fluidIndex] );
         }
         if ( result->showVectorJ() )
         {
             if ( fluidIndex == 0 ) directions.push_back( cvf::StructGridInterface::POS_J );
-            resultAddresses.push_back( addresses[1] );
+            resultAddresses.push_back( addresses[1 + fluidIndex] );
         }
         if ( result->showVectorK() )
         {
             if ( fluidIndex == 0 ) directions.push_back( cvf::StructGridInterface::POS_K );
-            resultAddresses.push_back( addresses[2] );
+            resultAddresses.push_back( addresses[2 + fluidIndex] );
         }
     }
 
@@ -225,14 +227,12 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
     RigNNCData* nncData           = eclipseCaseData->mainGrid()->nncData();
     size_t      numNncConnections = nncData->connections().size();
 
-    std::vector<const std::vector<std::vector<double>>*> nncResultVals;
-
     if ( result->showNncData() )
     {
-        std::vector<RigEclipseResultAddress> combinedAddresses;
+        std::vector<const std::vector<std::vector<double>>*> nncResultVals;
+        std::vector<RigEclipseResultAddress>                 combinedAddresses;
         result->resultAddressesCombined( combinedAddresses );
 
-        double resultValue = 0.0;
         for ( size_t flIdx = 0; flIdx < combinedAddresses.size(); flIdx++ )
         {
             if ( combinedAddresses[flIdx].m_resultCatType == RiaDefines::ResultCatType::DYNAMIC_NATIVE )
@@ -257,10 +257,9 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
                 cvf::Vec3d connCenter =
                     static_cast<cvf::Vec3d>( cvf::GeometryTools::computePolygonCenter<cvf::Vec3f>( conn.polygon() ) );
 
-                cvf::Vec3d connNormal = ( ( static_cast<cvf::Vec3d>( conn.polygon()[0] ) - connCenter ) ^
-                                          ( static_cast<cvf::Vec3d>( conn.polygon()[1] ) - connCenter ) )
-                                            .getNormalized() *
-                                        arrowScaling;
+                cvf::Vec3d faceCenter = cells[conn.c1GlobIdx()].faceCenter( conn.face() ) - offset;
+                cvf::Vec3d cellCenter = cells[conn.c1GlobIdx()].center() - offset;
+                cvf::Vec3d connNormal = ( faceCenter - cellCenter ).getNormalized() * arrowScaling;
 
                 if ( result->scaleMethod() == RimElementVectorResult::ScaleMethod::RESULT )
                 {
@@ -412,8 +411,17 @@ std::array<cvf::Vec3f, 5>
 {
     std::array<cvf::Vec3f, 5> vertices;
 
+    RimElementVectorResult* result = m_rimReservoirView->elementVectorResult();
+    if ( !result ) return vertices;
+
     cvf::Vec3f headTop    = evrViz.faceCenter + evrViz.faceNormal;
     cvf::Vec3f shaftStart = evrViz.faceCenter;
+    if ( result->vectorSuraceCrossingLocation() == RimElementVectorResult::VectorSurfaceCrossingLocation::VECTOR_CENTER &&
+         result->vectorView() == RimElementVectorResult::VectorView::INDIVIDUAL )
+    {
+        headTop    = evrViz.faceCenter + evrViz.faceNormal / 2.0;
+        shaftStart = evrViz.faceCenter - evrViz.faceNormal / 2.0;
+    }
 
     // Flip arrow for negative results
     if ( evrViz.result < 0 )

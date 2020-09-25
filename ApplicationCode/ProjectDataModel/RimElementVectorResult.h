@@ -63,21 +63,31 @@ public:
         INDIVIDUAL
     };
 
+    enum class VectorSurfaceCrossingLocation
+    {
+        VECTOR_ANCHOR,
+        VECTOR_CENTER
+    };
+
 public:
     RimElementVectorResult();
     ~RimElementVectorResult() override;
 
-    void         setShowResult( bool enableResult );
-    bool         showResult() const;
-    VectorView   vectorView();
-    bool         showVectorI() const;
-    bool         showVectorJ() const;
-    bool         showVectorK() const;
-    bool         showNncData() const;
-    float        threshold() const;
-    float        sizeScale() const;
-    TensorColors vectorColors() const;
-    ScaleMethod  scaleMethod() const;
+    void                          setShowResult( bool enableResult );
+    bool                          showResult() const;
+    VectorView                    vectorView() const;
+    bool                          showOil() const;
+    bool                          showGas() const;
+    bool                          showWater() const;
+    bool                          showVectorI() const;
+    bool                          showVectorJ() const;
+    bool                          showVectorK() const;
+    bool                          showNncData() const;
+    VectorSurfaceCrossingLocation vectorSuraceCrossingLocation() const;
+    float                         threshold() const;
+    float                         sizeScale() const;
+    TensorColors                  vectorColors() const;
+    ScaleMethod                   scaleMethod() const;
 
     const cvf::Color3f&           getUniformVectorColor() const;
     const RimRegularLegendConfig* legendConfig() const;
@@ -87,37 +97,32 @@ public:
     bool resultAddressesCombined( std::vector<RigEclipseResultAddress>& addresses ) const;
     bool resultAddressesIJK( std::vector<RigEclipseResultAddress>& addresses ) const;
 
-    std::vector<QString> resultNames() const;
-
     void updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer );
 
 private:
-    std::vector<std::string>      getResultMetaDataForUIFieldSetting();
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    caf::PdmFieldHandle*          objectToggleField() override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
-    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                         QString                    uiConfigName,
-                                                         caf::PdmUiEditorAttribute* attribute ) override;
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    caf::PdmFieldHandle* objectToggleField() override;
+    void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
     static QString fieldNameFromUi( const QString& uiFieldName );
 
 private:
-    caf::PdmField<bool>                                  m_showResult;
-    caf::PdmField<std::vector<QString>>                  m_resultNames;
-    caf::PdmField<caf::AppEnum<VectorView>>              m_vectorView;
-    caf::PdmField<bool>                                  m_showVectorI;
-    caf::PdmField<bool>                                  m_showVectorJ;
-    caf::PdmField<bool>                                  m_showVectorK;
-    caf::PdmField<bool>                                  m_showNncData;
-    caf::PdmField<float>                                 m_threshold;
-    caf::PdmField<caf::AppEnum<TensorColors>>            m_vectorColor;
-    caf::PdmField<cvf::Color3f>                          m_uniformVectorColor;
-    caf::PdmField<caf::AppEnum<ScaleMethod>>             m_scaleMethod;
-    caf::PdmField<float>                                 m_sizeScale;
-    caf::PdmField<RimRegularLegendConfig::RangeModeEnum> m_rangeMode;
-    caf::PdmChildField<RimRegularLegendConfig*>          m_legendConfig;
+    caf::PdmField<bool>                                        m_showResult;
+    caf::PdmField<bool>                                        m_showOil;
+    caf::PdmField<bool>                                        m_showGas;
+    caf::PdmField<bool>                                        m_showWater;
+    caf::PdmField<caf::AppEnum<VectorView>>                    m_vectorView;
+    caf::PdmField<bool>                                        m_showVectorI;
+    caf::PdmField<bool>                                        m_showVectorJ;
+    caf::PdmField<bool>                                        m_showVectorK;
+    caf::PdmField<bool>                                        m_showNncData;
+    caf::PdmField<caf::AppEnum<VectorSurfaceCrossingLocation>> m_vectorSurfaceCrossingLocation;
+    caf::PdmField<float>                                       m_threshold;
+    caf::PdmField<caf::AppEnum<TensorColors>>                  m_vectorColor;
+    caf::PdmField<cvf::Color3f>                                m_uniformVectorColor;
+    caf::PdmField<caf::AppEnum<ScaleMethod>>                   m_scaleMethod;
+    caf::PdmField<float>                                       m_sizeScale;
+    caf::PdmField<RimRegularLegendConfig::RangeModeEnum>       m_rangeMode;
+    caf::PdmChildField<RimRegularLegendConfig*>                m_legendConfig;
 };
