@@ -976,11 +976,11 @@ void RimContourMapProjection::generateTrianglesWithVertexValues()
                                 std::vector<cvf::Vec3d> clippedTriangle;
                                 if ( v == clippedPolygon.size() - 1 )
                                 {
-                                    clippedTriangle = { clippedPolygon[v], clippedPolygon[0], baryCenter };
+                                    clippedTriangle = {clippedPolygon[v], clippedPolygon[0], baryCenter};
                                 }
                                 else
                                 {
-                                    clippedTriangle = { clippedPolygon[v], clippedPolygon[v + 1], baryCenter };
+                                    clippedTriangle = {clippedPolygon[v], clippedPolygon[v + 1], baryCenter};
                                 }
                                 polygonTriangles.push_back( clippedTriangle );
                             }
