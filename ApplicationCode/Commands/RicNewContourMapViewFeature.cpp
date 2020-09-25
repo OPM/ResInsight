@@ -53,7 +53,8 @@
 
 CAF_CMD_SOURCE_INIT( RicNewContourMapViewFeature, "RicNewContourMapViewFeature" );
 
-const size_t samplingThresholdCellCount = 500000u;
+const size_t mediumSamplingThresholdCellCount = 500000u;
+const size_t largeSamplingThresholdCellCount  = 5000000u;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -211,7 +212,11 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMapFr
     const RigActiveCellInfo* activeCellInfo =
         eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
     size_t activeCellCount = activeCellInfo->reservoirActiveCellCount();
-    if ( activeCellCount >= samplingThresholdCellCount )
+    if ( activeCellCount >= largeSamplingThresholdCellCount )
+    {
+        contourMap->contourMapProjection()->setSampleSpacingFactor( 1.5 );
+    }
+    else if ( activeCellCount >= mediumSamplingThresholdCellCount )
     {
         contourMap->contourMapProjection()->setSampleSpacingFactor( 1.2 );
     }
@@ -266,7 +271,11 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMap( 
     const RigActiveCellInfo* activeCellInfo =
         eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
     size_t activeCellCount = activeCellInfo->reservoirActiveCellCount();
-    if ( activeCellCount > samplingThresholdCellCount )
+    if ( activeCellCount >= largeSamplingThresholdCellCount )
+    {
+        contourMap->contourMapProjection()->setSampleSpacingFactor( 1.5 );
+    }
+    else if ( activeCellCount >= mediumSamplingThresholdCellCount )
     {
         contourMap->contourMapProjection()->setSampleSpacingFactor( 1.2 );
     }
