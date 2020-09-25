@@ -271,6 +271,9 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMap( 
         contourMap->contourMapProjection()->setSampleSpacingFactor( 1.2 );
     }
 
+    contourMap->faultCollection()->showFaultCollection = false;
+    contourMap->wellCollection()->isActive             = false;
+
     eclipseCase->contourMapCollection()->push_back( contourMap );
 
     contourMap->hasUserRequestedAnimation = true;
