@@ -432,3 +432,17 @@ RimSurfaceCollection* RimSurfaceCollection::getSubCollection( const QString name
 
     return nullptr;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSurfaceCollection::containsSurface()
+{
+    bool containsSurface = ( surfaces().size() > 0 );
+
+    for ( auto coll : m_subCollections )
+    {
+        containsSurface |= coll->containsSurface();
+    }
+    return containsSurface;
+}

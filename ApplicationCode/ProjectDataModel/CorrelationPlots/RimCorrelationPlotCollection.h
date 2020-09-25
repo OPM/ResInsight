@@ -18,13 +18,15 @@
 
 #pragma once
 
+#include "RimAbstractCorrelationPlot.h"
+#include "RimAbstractPlotCollection.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 
 #include <ctime>
 #include <vector>
 
-class RimAbstractCorrelationPlot;
 class RimCorrelationPlot;
 class RimCorrelationMatrixPlot;
 class RimCorrelationReportPlot;
@@ -35,7 +37,7 @@ class RimSummaryCaseCollection;
 ///
 ///
 //==================================================================================================
-class RimCorrelationPlotCollection : public caf::PdmObject
+class RimCorrelationPlotCollection : public caf::PdmObject, public RimTypedPlotCollection<RimAbstractCorrelationPlot>
 {
     CAF_PDM_HEADER_INIT;
 
@@ -64,13 +66,15 @@ public:
                                                            const QString&              tornadoAndCrossPlotQuantityName,
                                                            std::time_t                 timeStep );
 
-    void removePlot( RimAbstractCorrelationPlot* correlationPlot );
     void removeReport( RimCorrelationReportPlot* correlationReport );
 
-    std::vector<RimAbstractCorrelationPlot*> plots();
-    std::vector<RimCorrelationReportPlot*>   reports();
+    std::vector<RimAbstractCorrelationPlot*> plots() const final;
+    size_t                                   plotCount() const final;
+    void                                     insertPlot( RimAbstractCorrelationPlot* plot, size_t index ) final;
+    void                                     removePlot( RimAbstractCorrelationPlot* correlationPlot ) final;
+    void                                     deleteAllPlots() final;
 
-    void deleteAllChildObjects();
+    std::vector<RimCorrelationReportPlot*> reports() const;
 
 private:
     void applyFirstEnsembleFieldAddressesToPlot( RimAbstractCorrelationPlot* plot,

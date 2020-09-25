@@ -70,7 +70,7 @@ RiuProjectAndPropertyView::RiuProjectAndPropertyView( QWidget* parent, Qt::Windo
     {
         QLabel* propertyHeader = new QLabel;
         propertyHeader->setText( "Property Editor" );
-        propertyHeader->setStyleSheet( "QLabel { background-color: #CCCCCC }" );
+        // propertyHeader->setStyleSheet( "QLabel { background-color: #CCCCCC }" );
         propertyHeader->setFixedHeight( 20 );
 
         QVBoxLayout* layout = new QVBoxLayout;

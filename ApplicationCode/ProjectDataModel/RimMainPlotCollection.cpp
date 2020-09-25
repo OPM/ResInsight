@@ -240,14 +240,14 @@ void RimMainPlotCollection::deleteAllContainedObjects()
     m_wellLogPlotCollection()->wellLogPlots.deleteAllChildObjects();
     m_rftPlotCollection()->deleteAllPlots();
     m_pltPlotCollection()->deleteAllPlots();
-    m_summaryPlotCollection()->summaryPlots.deleteAllChildObjects();
-    m_summaryCrossPlotCollection()->deleteAllChildObjects();
-    m_gridCrossPlotCollection->deleteAllChildObjects();
+    m_summaryPlotCollection()->deleteAllPlots();
+    m_summaryCrossPlotCollection()->deleteAllPlots();
+    m_gridCrossPlotCollection->deleteAllPlots();
     m_flowPlotCollection()->closeDefaultPlotWindowAndDeletePlots();
     m_saturationPressurePlotCollection()->deleteAllChildObjects();
     m_multiPlotCollection()->deleteAllChildObjects();
-    m_analysisPlotCollection()->deleteAllChildObjects();
-    m_correlationPlotCollection()->deleteAllChildObjects();
+    m_analysisPlotCollection()->deleteAllPlots();
+    m_correlationPlotCollection()->deleteAllPlots();
     m_fractureModelPlotCollection()->deleteAllPlots();
 }
 
@@ -295,7 +295,7 @@ void RimMainPlotCollection::updatePlotsWithFormations()
 
     if ( m_gridCrossPlotCollection )
     {
-        for ( RimGridCrossPlot* crossPlot : m_gridCrossPlotCollection->gridCrossPlots() )
+        for ( RimGridCrossPlot* crossPlot : m_gridCrossPlotCollection->plots() )
         {
             crossPlot->loadDataAndUpdate();
         }

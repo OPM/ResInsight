@@ -19,16 +19,17 @@
 
 #pragma once
 
+#include "RiaDefines.h"
+#include "RimAbstractPlotCollection.h"
+#include "RimPlotWindow.h"
+#include "RimWellLogPlotNameConfig.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmFieldHandle.h"
 #include "cafPdmObject.h"
-
-#include "RiaDefines.h"
-#include "RimPlotWindow.h"
-#include "RimWellLogPlotNameConfig.h"
 
 #include <QPointer>
 
@@ -43,7 +44,7 @@ class QKeyEvent;
 ///
 ///
 //==================================================================================================
-class RimDepthTrackPlot : public RimPlotWindow, public RimNameConfigHolderInterface
+class RimDepthTrackPlot : public RimTypedPlotCollection<RimPlot>, public RimPlotWindow, public RimNameConfigHolderInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -63,23 +64,20 @@ public:
     RimDepthTrackPlot();
     ~RimDepthTrackPlot() override;
 
+    RimDepthTrackPlot& operator=( RimDepthTrackPlot&& rhs );
+
     QWidget* viewWidget() override;
     QWidget* createPlotWidget( QWidget* mainWindowParent = nullptr );
     QString  description() const override;
 
-    bool isPlotTitleVisible() const;
-    void setPlotTitleVisible( bool visible );
-
-    void addPlot( RimPlot* plot );
-    void insertPlot( RimPlot* plot, size_t index );
-    void removePlot( RimPlot* plot );
-
-    size_t   plotCount() const;
+    size_t   plotCount() const override;
     size_t   plotIndex( const RimPlot* plot ) const;
     RimPlot* plotByIndex( size_t index ) const;
 
-    std::vector<RimPlot*> plots() const;
+    std::vector<RimPlot*> plots() const override;
     std::vector<RimPlot*> visiblePlots() const;
+    void                  insertPlot( RimPlot* plot, size_t index ) final;
+    void                  removePlot( RimPlot* plot ) final;
 
     DepthTypeEnum depthType() const;
     void          setDepthType( DepthTypeEnum depthType );
@@ -127,6 +125,8 @@ public:
     int axisTitleFontSize() const;
     int axisValueFontSize() const;
 
+    RiaDefines::DepthUnitType caseDepthUnit() const;
+
 protected:
     QImage snapshotWindowContent() override;
 
@@ -155,13 +155,13 @@ private:
     void onPlotAdditionOrRemoval();
     void doRenderWindowContent( QPaintDevice* paintDevice ) override;
     void doUpdateLayout() override;
-    void onPlotsReordered( const SignalEmitter* emitter );
+    void onPlotsReordered( const caf::SignalEmitter* emitter );
 
 protected:
     caf::PdmChildField<RimWellLogCurveCommonDataSource*> m_commonDataSource;
     bool                                                 m_commonDataSourceEnabled;
 
-    caf::PdmField<bool>                                    m_showPlotWindowTitle;
+    caf::PdmField<bool>                                    m_showPlotWindowTitle_OBSOLETE;
     caf::PdmField<QString>                                 m_plotWindowTitle;
     caf::PdmField<caf::AppEnum<DepthTypeEnum>>             m_depthType;
     caf::PdmField<caf::AppEnum<RiaDefines::DepthUnitType>> m_depthUnit;

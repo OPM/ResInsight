@@ -240,7 +240,6 @@ void RimSummaryCaseMainCollection::removeCase( RimSummaryCase* summaryCase )
         }
     }
 
-    summaryCase->nameChanged.disconnect( this );
     m_cases.removeChildObject( summaryCase );
 
     for ( RimSummaryCaseCollection* summaryCaseCollection : m_caseCollections )
@@ -307,7 +306,6 @@ RimSummaryCaseCollection*
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseMainCollection::removeCaseCollection( RimSummaryCaseCollection* caseCollection )
 {
-    caseCollection->caseNameChanged.disconnect( this );
     m_caseCollections.removeChildObject( caseCollection );
 }
 

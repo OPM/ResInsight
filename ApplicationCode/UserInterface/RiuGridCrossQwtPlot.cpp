@@ -19,7 +19,17 @@
 
 #include "RiaFontCache.h"
 
+#include "RimGridCrossPlot.h"
+#include "RimGridCrossPlotCurve.h"
+#include "RimGridCrossPlotDataSet.h"
+#include "RimPlot.h"
+#include "RimPlotAxisAnnotation.h"
+#include "RimPlotAxisProperties.h"
+#include "RimRegularLegendConfig.h"
+
 #include "RiuCvfOverlayItemWidget.h"
+#include "RiuGuiTheme.h"
+#include "RiuPlotAnnotationTool.h"
 #include "RiuQwtCurvePointTracker.h"
 #include "RiuQwtPlotTools.h"
 #include "RiuQwtPlotWheelZoomer.h"
@@ -27,20 +37,10 @@
 #include "RiuRimQwtPlotCurve.h"
 #include "RiuWidgetDragger.h"
 
-#include "RimGridCrossPlot.h"
-#include "RimGridCrossPlotCurve.h"
-#include "RimGridCrossPlotDataSet.h"
-#include "RimPlot.h"
-#include "RimRegularLegendConfig.h"
-
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafFixedAtlasFont.h"
 #include "cafSelectionManager.h"
 #include "cafTitledOverlayFrame.h"
-
-#include "RimPlotAxisAnnotation.h"
-#include "RimPlotAxisProperties.h"
-#include "RiuPlotAnnotationTool.h"
 
 #include "qwt_legend.h"
 #include "qwt_legend_label.h"
@@ -63,9 +63,7 @@ RiuGridCrossQwtPlot::RiuGridCrossQwtPlot( RimGridCrossPlot* plot, QWidget* paren
 {
     // LeftButton for the zooming
     m_zoomerLeft = new RiuQwtPlotZoomer( canvas() );
-    m_zoomerLeft->setRubberBandPen( QColor( Qt::black ) );
     m_zoomerLeft->setTrackerMode( QwtPicker::AlwaysOff );
-    m_zoomerLeft->setTrackerPen( QColor( Qt::black ) );
     m_zoomerLeft->initMousePattern( 1 );
 
     // Attach a zoomer for the right axis
@@ -92,8 +90,10 @@ RiuGridCrossQwtPlot::RiuGridCrossQwtPlot( RimGridCrossPlot* plot, QWidget* paren
     m_selectedPointMarker = new QwtPlotMarker;
 
     // QwtPlotMarker takes ownership of the symbol, it is deleted in destructor of QwtPlotMarker
+    auto       color = RiuGuiTheme::getColorByVariableName( "markerColor" );
     QwtSymbol* mySymbol =
-        new QwtSymbol( QwtSymbol::Ellipse, QBrush( QColor( 255, 255, 255, 50 ) ), QPen( Qt::black, 2.0 ), QSize( 10, 10 ) );
+        new QwtSymbol( QwtSymbol::Ellipse, QBrush( QColor( 255, 255, 255, 50 ) ), QPen( color, 2.0 ), QSize( 10, 10 ) );
+
     m_selectedPointMarker->setSymbol( mySymbol );
     m_selectedPointMarker->setLabelAlignment( Qt::AlignRight | Qt::AlignVCenter );
     m_selectedPointMarker->setSpacing( 3 );
@@ -214,7 +214,10 @@ void RiuGridCrossQwtPlot::onPlotItemSelected( QwtPlotItem* plotItem, bool toggle
                 QwtText curveLabel( labelString, QwtText::RichText );
                 curveLabel.setBackgroundBrush( QBrush( QColor( 250, 250, 250, 220 ) ) );
                 curveLabel.setPaintAttribute( QwtText::PaintBackground );
-                curveLabel.setBorderPen( QPen( Qt::black, 1.0 ) );
+
+                auto color = RiuGuiTheme::getColorByVariableName( "markerColor" );
+                curveLabel.setBorderPen( QPen( color, 1.0 ) );
+
                 curveLabel.setBorderRadius( 2.0 );
                 m_selectedPointMarker->setLabel( curveLabel );
             }

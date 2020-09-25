@@ -40,51 +40,38 @@ using namespace caf;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-DeleteSignal::DeleteSignal( SignalObserver* observer )
-    : m_observer( observer )
+SignalEmitter::SignalEmitter()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void DeleteSignal::disconnect( SignalObserver* observer )
+SignalEmitter::~SignalEmitter()
 {
-    // Remove the observer from the call back list
-    m_disconnectCallbacks.erase( observer );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void DeleteSignal::send()
+void SignalEmitter::addEmittedSignal( AbstractSignal* signalToAdd ) const
 {
-    // Make sure we swap out the disconnect signals to avoid
-    // erasing from the signal-map while looping through it.
-    std::map<SignalObserver*, DisconnectCallback> disconnectCallbacks;
-    disconnectCallbacks.swap( m_disconnectCallbacks );
+    m_signals.push_back( signalToAdd );
+}
 
-    for ( auto signalCallbackPair : disconnectCallbacks )
-    {
-        signalCallbackPair.second( m_observer );
-    }
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::list<AbstractSignal*> SignalEmitter::emittedSignals() const
+{
+    return m_signals;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 SignalObserver::SignalObserver()
-    : beingDeleted( this )
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void SignalObserver::sendDeleteSignal()
-{
-    // Make sure we
-    beingDeleted.send();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -92,5 +79,41 @@ void SignalObserver::sendDeleteSignal()
 //--------------------------------------------------------------------------------------------------
 SignalObserver::~SignalObserver()
 {
-    sendDeleteSignal();
+    disconnectAllSignals();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::list<AbstractSignal*> SignalObserver::observedSignals() const
+{
+    return m_signals;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void SignalObserver::addObservedSignal( AbstractSignal* signalToObserve ) const
+{
+    m_signals.push_back( signalToObserve );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void SignalObserver::removeObservedSignal( AbstractSignal* signalToRemove ) const
+{
+    m_signals.remove( signalToRemove );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void SignalObserver::disconnectAllSignals()
+{
+    auto observedSignals = m_signals;
+    for ( auto observedSignal : observedSignals )
+    {
+        observedSignal->disconnect( const_cast<SignalObserver*>( this ) );
+    }
 }

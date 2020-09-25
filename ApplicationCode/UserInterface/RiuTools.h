@@ -23,4 +23,5 @@
 namespace RiuTools
 {
 Qt::WindowFlags defaultDialogFlags();
+void            applyGuiTheme();
 } // end namespace RiuTools

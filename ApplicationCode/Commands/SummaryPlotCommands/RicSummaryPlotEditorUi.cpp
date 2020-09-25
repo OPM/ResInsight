@@ -455,11 +455,16 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions(
 
     size_t ensembleCurveCnt = ensembleCurveCount( allCurveDefsToDisplay );
 
+    // Disable legends when adding curves
+    m_previewPlot->setLegendsVisible( false );
+
     // Add new curves
     for ( const auto& curveDef : curveDefsToAdd )
     {
         RimSummaryCase*  currentCase = curveDef.summaryCase();
         RimSummaryCurve* curve       = new RimSummaryCurve();
+        curve->setErrorBarsVisible( false );
+        curve->showLegend( false );
         curve->setSummaryCaseY( currentCase );
         curve->setSummaryAddressYAndApplyInterpolation( curveDef.summaryAddress() );
         curve->applyCurveAutoNameSettings( *m_curveNameConfig() );
@@ -522,6 +527,8 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions(
         }
     }
 
+    // Enable legends if there is not too many curves
+    m_previewPlot->setLegendsVisible( !warningDisplayed );
     m_previewPlot->loadDataAndUpdate();
     m_previewPlot->zoomAll();
     m_previewPlot->updateConnectedEditors();
@@ -900,7 +907,7 @@ void RicSummaryPlotEditorUi::selectionEditorFieldChanged()
 void RicSummaryPlotEditorUi::proxyEnablePlotAutoTitle( const bool& enable )
 {
     m_previewPlot->enableAutoPlotTitle( enable );
-    m_previewPlot->setShowPlotTitle( enable );
+    m_previewPlot->setPlotTitleVisible( enable );
     m_previewPlot->updateCurveNames();
     m_previewPlot->loadDataAndUpdate();
 }

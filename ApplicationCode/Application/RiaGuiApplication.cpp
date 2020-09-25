@@ -93,6 +93,7 @@
 #include "Riu3dSelectionManager.h"
 #include "RiuDockWidgetTools.h"
 #include "RiuFileDialogTools.h"
+#include "RiuGuiTheme.h"
 #include "RiuMainWindow.h"
 #include "RiuMainWindowTools.h"
 #include "RiuMdiMaximizeWindowGuard.h"
@@ -416,6 +417,8 @@ RiaGuiApplication::RINavigationPolicy RiaGuiApplication::navigationPolicy() cons
 void RiaGuiApplication::initialize()
 {
     RiaApplication::initialize();
+
+    RiuGuiTheme::updateGuiTheme( m_preferences->guiTheme() );
 
     applyGuiPreferences( nullptr );
 

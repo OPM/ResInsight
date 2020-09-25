@@ -189,12 +189,31 @@ void RiuMultiPlotBook::removePlot( RiuQwtPlotWidget* plotWidget )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::removeAllPlots()
+{
+    deleteAllPages();
+    m_plotWidgets.clear();
+    scheduleUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMultiPlotBook::setPlotTitle( const QString& plotTitle )
 {
     m_plotTitle = plotTitle;
     for ( int i = 0; i < m_pages.size(); ++i )
     {
-        m_pages[i]->setPlotTitle( QString( "%1 %2/%3" ).arg( m_plotTitle ).arg( i + 1 ).arg( m_pages.size() ) );
+        int pageIndex = i + 1;
+        int pageCount = (int)m_pages.size();
+        if ( pageCount > pageIndex )
+        {
+            m_pages[i]->setPlotTitle( QString( "%1 %2/%3" ).arg( m_plotTitle ).arg( i + 1 ).arg( m_pages.size() ) );
+        }
+        else
+        {
+            m_pages[i]->setPlotTitle( QString( "%1" ).arg( m_plotTitle ) );
+        }
     }
 }
 
@@ -308,11 +327,6 @@ void RiuMultiPlotBook::scheduleReplotOfAllPlots()
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotBook::renderTo( QPaintDevice* paintDevice )
 {
-    for ( auto page : m_pages )
-    {
-        page->stashWidgetStates();
-    }
-
     int    resolution = paintDevice->logicalDpiX();
     double scaling    = resolution / static_cast<double>( RiaGuiApplication::applicationResolution() );
 
@@ -330,11 +344,6 @@ void RiuMultiPlotBook::renderTo( QPaintDevice* paintDevice )
         }
         page->renderTo( &painter, scaling );
         firstPage = false;
-    }
-
-    for ( auto page : m_pages )
-    {
-        page->restoreWidgetStates();
     }
 }
 
@@ -462,6 +471,7 @@ QList<QPointer<RiuQwtPlotWidget>> RiuMultiPlotBook::visiblePlotWidgets() const
     QList<QPointer<RiuQwtPlotWidget>> plotWidgets;
     for ( QPointer<RiuQwtPlotWidget> plotWidget : m_plotWidgets )
     {
+        CAF_ASSERT( plotWidget );
         if ( plotWidget->isChecked() )
         {
             plotWidgets.push_back( plotWidget );
@@ -513,6 +523,7 @@ void RiuMultiPlotBook::createPages()
             row    = 0;
             column = 0;
         }
+        CAF_ASSERT( plotWidgets[visibleIndex] );
         page->addPlot( plotWidgets[visibleIndex] );
         page->performUpdate();
     }

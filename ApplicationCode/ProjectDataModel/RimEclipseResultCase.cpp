@@ -318,6 +318,14 @@ bool RimEclipseResultCase::openAndReadActiveCellData( RigEclipseCaseData* mainEc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaEclipseUnitTools::UnitSystemType RimEclipseResultCase::unitSystem()
+{
+    return m_unitSystem();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipseResultCase::loadAndUpdateSourSimData()
 {
     if ( !results( RiaDefines::PorosityModelType::MATRIX_MODEL ) ) return;

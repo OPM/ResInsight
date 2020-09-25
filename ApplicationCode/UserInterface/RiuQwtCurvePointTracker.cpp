@@ -19,6 +19,7 @@
 #include "RiuQwtCurvePointTracker.h"
 
 #include "RiaQDateTimeTools.h"
+#include "RiuGuiTheme.h"
 
 #include "qwt_plot_marker.h"
 #include "qwt_symbol.h"
@@ -44,8 +45,10 @@ RiuQwtCurvePointTracker::RiuQwtCurvePointTracker( QwtPlot*                    pl
     this->setTrackerMode( QwtPicker::AlwaysOn );
     m_plotMarker = new QwtPlotMarker;
 
+    auto color = RiuGuiTheme::getColorByVariableName( "markerColor" );
+
     // QwtPlotMarker takes ownership of the symbol, it is deleted in destructor of QwtPlotMarker
-    QwtSymbol* mySymbol = new QwtSymbol( QwtSymbol::Ellipse, Qt::NoBrush, QPen( Qt::black, 2.0 ), QSize( 12, 12 ) );
+    QwtSymbol* mySymbol = new QwtSymbol( QwtSymbol::Ellipse, Qt::NoBrush, QPen( color, 2.0 ), QSize( 12, 12 ) );
     m_plotMarker->setSymbol( mySymbol );
 }
 
@@ -117,6 +120,9 @@ QwtText RiuQwtCurvePointTracker::trackerText( const QPoint& pos ) const
 
         updateClosestCurvePointMarker( closestPoint, relatedXAxis, relatedYAxis );
     }
+
+    auto color = RiuGuiTheme::getColorByVariableName( "markerColor" );
+    txt.setColor( color );
 
     return txt;
 }

@@ -63,9 +63,10 @@ public:
     }
 
 public:
-    QColor m_baseColor;
-    int    m_heightHint;
-    bool   m_allowHorizontalScrollBar;
+    QColor  m_baseColor;
+    QString m_qssState;
+    int     m_heightHint;
+    bool    m_allowHorizontalScrollBar;
 };
 
 //==================================================================================================

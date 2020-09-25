@@ -114,8 +114,6 @@ private:
     void updateFormationsOnPlot() const;
 
 private:
-    caf::PdmField<bool> m_showPlotTitle_OBSOLETE;
-
     caf::PdmField<QString> m_wellPathName;
 
     caf::PdmField<std::vector<RifDataSourceForRftPlt>> m_selectedSources;

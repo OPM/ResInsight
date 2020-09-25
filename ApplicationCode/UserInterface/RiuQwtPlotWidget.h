@@ -23,7 +23,6 @@
 
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
-#include "cafUiStyleSheet.h"
 
 #include "qwt_plot.h"
 
@@ -91,7 +90,7 @@ public:
     void           setPlotTitleFontSize( int titleFontSize );
 
     void setLegendFontSize( int fontSize );
-    void setLegendVisible( bool visible );
+    void setInternalLegendVisible( bool visible );
 
     QwtInterval axisRange( QwtPlot::Axis axis ) const;
     void        setAxisRange( QwtPlot::Axis axis, double min, double max );
@@ -123,9 +122,6 @@ public:
     QPoint dragStartPosition() const;
 
     void scheduleReplot();
-    void stashWidgetStates();
-    void restoreWidgetStates();
-    void setWidgetState( const QString& widgetState );
 
     void addOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
     void removeOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
@@ -176,9 +172,6 @@ private:
     void onAxisSelected( QwtScaleWidget* scale, bool toggleItemInSelection );
     void recalculateAxisExtents( QwtPlot::Axis axis );
 
-    caf::UiStyleSheet createPlotStyleSheet() const;
-    caf::UiStyleSheet createCanvasStyleSheet() const;
-
     void updateOverlayFrameLayout();
 
 private:
@@ -202,9 +195,6 @@ private:
 
     std::map<QwtPlotCurve*, CurveColors> m_originalCurveColors;
     std::map<QwtPlotCurve*, double>      m_originalZValues;
-
-    caf::UiStyleSheet m_plotStyleSheet;
-    caf::UiStyleSheet m_canvasStyleSheet;
 
     friend class RiaPlotWindowRedrawScheduler;
 };

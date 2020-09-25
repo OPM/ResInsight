@@ -22,6 +22,7 @@
 #include "nightcharts.h"
 
 #include <QPainterPath>
+#include <QPalette>
 
 Nightcharts::Nightcharts()//QPainter *painter)
 
@@ -44,6 +45,8 @@ Nightcharts::Nightcharts()//QPainter *painter)
     // Was originally uninitialized, and caused overflow issues and invalid drawing when running debug
     // Suggest rewrite and use locally defined aggregatedAngle (see below for usage)
     palpha = 0.0;
+
+    textColor = QPalette().color(QPalette::Text);
 }
 
 Nightcharts::~Nightcharts()
@@ -332,13 +335,13 @@ int Nightcharts::draw(QPainter *painter)
         painter->setPen(Qt::SolidLine);
         for (int i=1;i<10;i++)
         {
-            painter->drawLine(cX-3,cY+cH/10*i,cX+3,cY+cH/10*i);    //äåëåíèÿ ïî îñè Y
+            painter->drawLine(cX-3,cY+cH/10*i,cX+3,cY+cH/10*i);
             //painter->drawText(cX-20,cY+cH/10*i,QString::number((10-i)*10)+"%");
         }
-        painter->drawLine(cX,cY+cH,cX,cY);         //îñü Y
-        painter->drawLine(cX,cY,cX+4,cY+10);       //ñòðåëêè
+        painter->drawLine(cX,cY+cH,cX,cY);
+        painter->drawLine(cX,cY,cX+4,cY+10);
         painter->drawLine(cX,cY,cX-4,cY+10);
-        painter->drawLine(cX,cY+cH,cX+cW,cY+cH);   //îñü Õ
+        painter->drawLine(cX,cY+cH,cX+cW,cY+cH);
 
     }
     return 0;
@@ -349,36 +352,13 @@ void Nightcharts::drawLegend(QPainter *painter)
     //double ptext = 25;
     double angle = palpha;
     painter->setPen(Qt::SolidLine);
+    painter->setPen(textColor);
 
     switch(cltype)
     {
-    /*case Nightcharts::Horizontal:
-    {
-        int dist = 5;
-        painter->setBrush(Qt::white);
-        float x = cX;
-        float y = cY+cH+20+dist;
-        //painter->drawRoundRect(cX+cW+20,cY,dist*2+200,pieces.size()*(fontmetr.height()+2*dist)+dist,15,15);
-        for (int i=0;i<pieces.size();i++)
-        {
-            painter->setBrush(pieces[i].rgbColor);
-            x += fontmetr.height()+2*dist;
-            if (i%3 == 0)
-            {
-                x = cX;
-                y += dist+fontmetr.height();
-            }
-            painter->drawRect(x,y,fontmetr.height(),fontmetr.height());
-            QString label = pieces[i].pname + " - " + QString::number(pieces[i].pPerc)+"%";
-            painter->drawText(x+fontmetr.height()+dist,y+fontmetr.height()/2+dist,label);
-            x += fontmetr.width(label);
-        }
-        break;
-    }*/
     case Nightcharts::Vertical:
     {
         int dist = 5;
-        painter->setBrush(Qt::white);
         //painter->drawRoundRect(cX+cW+20,cY,dist*2+200,pieces.size()*(painter->fontMetrics().height()+2*dist)+dist,15,15);
         for (int i=pieces.size()-1;i>=0;i--)
         {
@@ -410,7 +390,7 @@ void Nightcharts::drawLegend(QPainter *painter)
             float recH = painter->fontMetrics().height()+10;
             p_.setX(p_.x()-recW/2 + recW/2*cos(angle*M_PI/180));
             p_.setY(p_.y()+recH/2 + recH/2*sin(angle*M_PI/180));
-            painter->setBrush(Qt::white);
+            painter->setBrush(textColor);
             painter->drawRoundRect(p_.x() ,p_.y(), recW, -recH);
             painter->drawText(p_.x()+5, p_.y()-recH/2+5, label);
             angle -= pdegree/2;
@@ -483,4 +463,12 @@ void pieceNC::setPerc(float Percentage)
 int Nightcharts::pieceCount() const
 {
     return pieces.count();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Nightcharts::setTextColor(const QColor& color)
+{
+    textColor = color;
 }

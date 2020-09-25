@@ -28,6 +28,7 @@
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 
+#include "cafPdmFieldReorderCapability.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
 
@@ -74,6 +75,8 @@ RimMultiPlot::RimMultiPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_plots, "Plots", "", "", "", "" );
     m_plots.uiCapability()->setUiHidden( true );
+    auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_plots );
+    reorderability->orderChanged.connect( this, &RimMultiPlot::onPlotsReordered );
 
     CAF_PDM_InitFieldNoDefault( &m_columnCount, "NumberOfColumns", "Number of Columns", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_rowsPerPage, "RowsPerPage", "Rows per Page", "", "", "" );
@@ -178,14 +181,6 @@ QString RimMultiPlot::multiPlotTitle() const
 void RimMultiPlot::setMultiPlotTitle( const QString& title )
 {
     m_plotWindowTitle = title;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimMultiPlot::addPlot( RimPlot* plot )
-{
-    insertPlot( plot, m_plots.size() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -479,9 +474,30 @@ void RimMultiPlot::onPlotAdditionOrRemoval()
     updateSubPlotNames();
     updatePlotWindowTitle();
     applyPlotWindowTitleToWidgets();
-    updateConnectedEditors();
+    updateAllRequiredEditors();
     updateLayout();
     RiuPlotMainWindowTools::refreshToolbars();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMultiPlot::onPlotsReordered( const caf::SignalEmitter* emitter )
+{
+    updateSubPlotNames();
+    recreatePlotWidgets();
+    loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMultiPlot::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                   std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    updateSubPlotNames();
+    recreatePlotWidgets();
+    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -704,6 +720,7 @@ void RimMultiPlot::onLoadDataAndUpdate()
     applyPlotWindowTitleToWidgets();
     updatePlots();
     updateLayout();
+    RiuPlotMainWindowTools::refreshToolbars();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -759,6 +776,8 @@ void RimMultiPlot::updateZoom()
 void RimMultiPlot::recreatePlotWidgets()
 {
     CVF_ASSERT( m_viewer );
+
+    m_viewer->removeAllPlots();
 
     auto plotVector = plots();
 

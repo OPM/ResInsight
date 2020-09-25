@@ -83,7 +83,7 @@ void RicNewSummaryCrossPlotFeature::onActionTriggered( bool isChecked )
     RimSummaryCrossPlotCollection* summaryCrossPlotColl = project->mainPlotCollection()->summaryCrossPlotCollection();
     RimSummaryPlot*                summaryPlot          = summaryCrossPlotColl->createSummaryPlot();
 
-    summaryCrossPlotColl->addSummaryPlot( summaryPlot );
+    summaryCrossPlotColl->addPlot( summaryPlot );
     if ( summaryPlot )
     {
         summaryCrossPlotColl->updateConnectedEditors();

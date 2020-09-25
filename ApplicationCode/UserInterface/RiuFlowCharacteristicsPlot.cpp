@@ -140,9 +140,7 @@ RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot( RimFlowCharacteristicsPl
 void RiuFlowCharacteristicsPlot::addWindowZoom( QwtPlot* plot )
 {
     auto zoomer = new RiuQwtPlotZoomer( plot->canvas() );
-    zoomer->setRubberBandPen( QColor( Qt::black ) );
     zoomer->setTrackerMode( QwtPicker::AlwaysOff );
-    zoomer->setTrackerPen( QColor( Qt::black ) );
     zoomer->initMousePattern( 1 );
 }
 //--------------------------------------------------------------------------------------------------

@@ -152,8 +152,6 @@ RimCorrelationMatrixPlot::RimCorrelationMatrixPlot()
 {
     CAF_PDM_InitObject( "Correlation Plot", ":/CorrelationMatrixPlot16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_correlationFactor, "CorrelationFactor", "Correlation Factor", "", "", "" );
-    m_correlationFactor.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_showAbsoluteValues, "CorrelationAbsValues", false, "Show Absolute Values", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_sortByValues, "CorrelationSorting", "Sort Matrix by Values", "", "", "" );
     CAF_PDM_InitField( &m_sortByAbsoluteValues, "CorrelationAbsSorting", true, "Sort by Absolute Values", "", "", "" );
@@ -164,8 +162,8 @@ RimCorrelationMatrixPlot::RimCorrelationMatrixPlot()
                        "",
                        "",
                        "" );
-    CAF_PDM_InitField( &m_showOnlyTopNCorrelations, "ShowOnlyTopNCorrelations", false, "Show Only Top Correlations", "", "", "" );
-    CAF_PDM_InitField( &m_topNFilterCount, "TopNFilterCount", 15, "Number rows/columns", "", "", "" );
+    CAF_PDM_InitField( &m_showOnlyTopNCorrelations, "ShowOnlyTopNCorrelations", true, "Show Only Top Correlations", "", "", "" );
+    CAF_PDM_InitField( &m_topNFilterCount, "TopNFilterCount", 20, "Number rows/columns", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendConfig", "", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_selectedParametersList, "SelectedParameters", "Select Parameters", "", "", "" );
     m_selectedParametersList.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
@@ -174,7 +172,9 @@ RimCorrelationMatrixPlot::RimCorrelationMatrixPlot()
     m_legendConfig = new RimRegularLegendConfig();
     m_legendConfig->setAutomaticRanges( -1.0, 1.0, -1.0, 1.0 );
     m_legendConfig->setColorLegend(
-        RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CORRELATION ) );
+        RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::RED_WHITE_BLUE ) );
+
+    setLegendsVisible( false );
 
     this->uiCapability()->setUiTreeChildrenHidden( true );
     m_selectMultipleVectors = true;
@@ -188,14 +188,6 @@ RimCorrelationMatrixPlot::~RimCorrelationMatrixPlot()
     if ( isMdiWindow() ) removeMdiWindowFromMdiArea();
 
     cleanupBeforeClose();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimCorrelationMatrixPlot::CorrelationFactor RimCorrelationMatrixPlot::correlationFactor() const
-{
-    return m_correlationFactor();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -262,10 +254,10 @@ void RimCorrelationMatrixPlot::fieldChangedByUi( const caf::PdmFieldHandle* chan
                                                  const QVariant&            newValue )
 {
     RimAbstractCorrelationPlot::fieldChangedByUi( changedField, oldValue, newValue );
-    if ( changedField == &m_correlationFactor || changedField == &m_showAbsoluteValues ||
-         changedField == &m_sortByValues || changedField == &m_sortByAbsoluteValues ||
-         changedField == &m_showOnlyTopNCorrelations || changedField == &m_topNFilterCount ||
-         changedField == &m_excludeParametersWithoutVariation || changedField == &m_selectedParametersList )
+    if ( changedField == &m_showAbsoluteValues || changedField == &m_sortByValues ||
+         changedField == &m_sortByAbsoluteValues || changedField == &m_showOnlyTopNCorrelations ||
+         changedField == &m_topNFilterCount || changedField == &m_excludeParametersWithoutVariation ||
+         changedField == &m_selectedParametersList )
     {
         if ( changedField == &m_excludeParametersWithoutVariation )
         {
@@ -282,8 +274,7 @@ void RimCorrelationMatrixPlot::fieldChangedByUi( const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 void RimCorrelationMatrixPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiGroup* correlationGroup = uiOrdering.addNewGroup( "Correlation Factor Settings" );
-    correlationGroup->add( &m_correlationFactor );
+    caf::PdmUiGroup* correlationGroup = uiOrdering.addNewGroup( "Correlation Settings" );
     correlationGroup->add( &m_excludeParametersWithoutVariation );
     correlationGroup->add( &m_selectedParametersList );
     correlationGroup->add( &m_showAbsoluteValues );
@@ -551,14 +542,7 @@ void RimCorrelationMatrixPlot::createMatrix()
 
                     if ( parameterValues.empty() ) continue;
 
-                    if ( m_correlationFactor == CorrelationFactor::PEARSON )
-                    {
-                        correlation = RiaStatisticsTools::pearsonCorrelation( parameterValues, caseValuesAtTimestep );
-                    }
-                    else
-                    {
-                        correlation = RiaStatisticsTools::spearmanCorrelation( parameterValues, caseValuesAtTimestep );
-                    }
+                    correlation = RiaStatisticsTools::pearsonCorrelation( parameterValues, caseValuesAtTimestep );
 
                     bool validResult = RiaCurveDataTools::isValidValue( correlation, false );
                     if ( validResult )
@@ -653,15 +637,13 @@ void RimCorrelationMatrixPlot::updatePlotTitle()
 {
     if ( m_useAutoPlotTitle )
     {
-        m_description = QString( "%1 Matrix for Parameters vs Result Vectors at %2" )
-                            .arg( m_correlationFactor().uiText() )
-                            .arg( timeStepString() );
+        m_description = QString( "Correlation Matrix for Parameters vs Result Vectors at %2" ).arg( timeStepString() );
     }
 
     if ( m_plotWidget )
     {
         m_plotWidget->setPlotTitle( m_description );
-        m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && isMdiWindow() );
+        m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && !isSubPlot() );
         if ( isMdiWindow() )
         {
             m_plotWidget->setPlotTitleFontSize( titleFontSize() );

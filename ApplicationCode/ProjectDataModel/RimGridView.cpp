@@ -551,7 +551,7 @@ void RimGridView::updateSurfacesInViewTreeItems()
     RimProject*           proj     = RimProject::current();
     RimSurfaceCollection* surfColl = proj->activeOilField()->surfaceCollection();
 
-    if ( surfColl && surfColl->surfaces().size() )
+    if ( surfColl && surfColl->containsSurface() )
     {
         if ( !m_surfaceCollection() )
         {

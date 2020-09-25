@@ -64,7 +64,7 @@ void RicReloadSummaryCaseFeature::onActionTriggered( bool isChecked )
         RiaLogging::info( QString( "Reloaded data for %1" ).arg( summaryCase->summaryHeaderFilename() ) );
     }
 
-    for ( RimSummaryPlot* summaryPlot : summaryPlotColl->summaryPlots )
+    for ( RimSummaryPlot* summaryPlot : summaryPlotColl->plots() )
     {
         summaryPlot->loadDataAndUpdate();
     }

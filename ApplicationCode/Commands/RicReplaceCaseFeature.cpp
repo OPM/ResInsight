@@ -111,7 +111,7 @@ void RicReplaceCaseFeature::onActionTriggered( bool isChecked )
                 gridSummaryCase->createRftReaderInterface();
 
                 RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
-                for ( RimSummaryPlot* summaryPlot : summaryPlotColl->summaryPlots )
+                for ( RimSummaryPlot* summaryPlot : summaryPlotColl->plots() )
                 {
                     summaryPlot->loadDataAndUpdate();
                 }

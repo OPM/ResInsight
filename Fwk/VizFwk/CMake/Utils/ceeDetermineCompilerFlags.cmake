@@ -75,9 +75,6 @@ if (MSVC)
         set(CEE_STRICT_CXX_FLAGS  "${CEE_BASE_CXX_FLAGS} /Wall")
     endif()
     
-    # Must add base warning level after setting up strict
-    set(CEE_BASE_CXX_FLAGS   "${CEE_BASE_CXX_FLAGS} /W3")
-
 endif()
 
 

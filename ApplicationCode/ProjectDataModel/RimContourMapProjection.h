@@ -26,6 +26,7 @@
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmProxyValueField.h"
 
 #include "cvfArray.h"
 #include "cvfBoundingBox.h"
@@ -83,8 +84,10 @@ public:
     const std::vector<ContourPolygons>& contourPolygons() const;
     const std::vector<cvf::Vec4d>&      trianglesWithVertexValues();
 
-    double sampleSpacing() const;
+    virtual double sampleSpacing() const = 0;
+
     double sampleSpacingFactor() const;
+    void   setSampleSpacingFactor( double spacingFactor );
     bool   showContourLines() const;
 
     QString resultAggregationText() const;
@@ -209,7 +212,8 @@ protected:
     void initAfterRead() override;
 
 protected:
-    caf::PdmField<double>            m_relativeSampleSpacing;
+    caf::PdmField<double> m_relativeSampleSpacing;
+
     caf::PdmField<ResultAggregation> m_resultAggregation;
     caf::PdmField<bool>              m_showContourLines;
     caf::PdmField<bool>              m_showContourLabels;
@@ -224,7 +228,6 @@ protected:
     cvf::Vec2ui                  m_mapSize;
     cvf::BoundingBox             m_expandedBoundingBox;
     cvf::BoundingBox             m_gridBoundingBox;
-    double                       m_sampleSpacing;
     std::vector<ContourPolygons> m_contourPolygons;
     std::vector<double>          m_contourLevelCumulativeAreas;
     std::vector<cvf::Vec4d>      m_trianglesWithVertexValues;

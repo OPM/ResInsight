@@ -83,27 +83,3 @@ TEST( RiaStatisticsTools, NegativeCorrelation )
     double correlation = RiaStatisticsTools::pearsonCorrelation( a, b );
     EXPECT_NEAR( correlation, -1.0, 1.0e-2 );
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-#ifdef USE_GSL
-TEST( RiaStatisticsTools, ComparisonGSLAndOwn )
-{
-    const int           N = 1000;
-    std::vector<double> a, b;
-    a.reserve( N );
-    b.reserve( N );
-    for ( int i = 0; i < N; ++i )
-    {
-        a.push_back( (double)i );
-    }
-    for ( int i = 0; i < N; ++i )
-    {
-        b.push_back( (double)std::rand() );
-    }
-    double correlationGSL = RiaStatisticsTools::pearsonCorrelationGSL( a, b );
-    double correlationOwn = RiaStatisticsTools::pearsonCorrelationOwn( a, b );
-    EXPECT_NEAR( correlationGSL, correlationOwn, 1.0e-3 );
-}
-#endif

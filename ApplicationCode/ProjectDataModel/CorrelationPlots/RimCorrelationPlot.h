@@ -41,19 +41,8 @@ public:
     caf::Signal<std::pair<QString, RiaSummaryCurveDefinition>> tornadoItemSelected;
 
 public:
-    enum class CorrelationFactor
-    {
-        PEARSON,
-        SPEARMAN
-    };
-    using CorrelationFactorEnum = caf::AppEnum<CorrelationFactor>;
-
-public:
     RimCorrelationPlot();
     ~RimCorrelationPlot() override;
-
-    CorrelationFactor correlationFactor() const;
-    void              setCorrelationFactor( CorrelationFactor factor );
 
     bool showAbsoluteValues() const;
     void setShowAbsoluteValues( bool showAbsoluteValues );
@@ -84,11 +73,10 @@ private:
     void onPlotItemSelected( QwtPlotItem* plotItem, bool toggle, int sampleIndex ) override;
 
 private:
-    caf::PdmField<CorrelationFactorEnum> m_correlationFactor;
-    caf::PdmField<bool>                  m_showAbsoluteValues;
-    caf::PdmField<bool>                  m_sortByAbsoluteValues;
-    caf::PdmField<bool>                  m_excludeParametersWithoutVariation;
-    caf::PdmField<bool>                  m_showOnlyTopNCorrelations;
-    caf::PdmField<int>                   m_topNFilterCount;
-    caf::PdmField<std::vector<QString>>  m_selectedParametersList;
+    caf::PdmField<bool>                 m_showAbsoluteValues;
+    caf::PdmField<bool>                 m_sortByAbsoluteValues;
+    caf::PdmField<bool>                 m_excludeParametersWithoutVariation;
+    caf::PdmField<bool>                 m_showOnlyTopNCorrelations;
+    caf::PdmField<int>                  m_topNFilterCount;
+    caf::PdmField<std::vector<QString>> m_selectedParametersList;
 };

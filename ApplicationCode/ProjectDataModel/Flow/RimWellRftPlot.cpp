@@ -83,9 +83,6 @@ RimWellRftPlot::RimWellRftPlot()
 {
     CAF_PDM_InitObject( "RFT Plot", ":/RFTPlot16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_showPlotTitle_OBSOLETE, "ShowPlotTitle", false, "Show Plot Title", "", "", "" );
-    m_showPlotTitle_OBSOLETE.xmlCapability()->setIOWritable( false );
-
     CAF_PDM_InitField( &m_showStatisticsCurves, "ShowStatisticsCurves", true, "Show Statistics Curves", "", "", "" );
     CAF_PDM_InitField( &m_showEnsembleCurves, "ShowEnsembleCurves", true, "Show Ensemble Curves", "", "", "" );
     CAF_PDM_InitField( &m_showErrorInObservedData, "ShowErrorObserved", true, "Show Observed Data Error", "", "", "" );
@@ -127,10 +124,12 @@ RimWellRftPlot::RimWellRftPlot()
 
     // TODO: may want to support TRUE_VERTICAL_DEPTH_RKB in the future
     // It was developed for regular well log plots and requires some more work for RFT plots.
-    setAvailableDepthTypes( {RiaDefines::DepthTypeEnum::MEASURED_DEPTH, RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH} );
+    setAvailableDepthTypes( { RiaDefines::DepthTypeEnum::MEASURED_DEPTH, RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH } );
 
     m_nameConfig->setCustomName( "RFT Plot" );
     m_plotLegendsHorizontal = false;
+
+    setPlotTitleVisible( true );
 
     this->setAsPlotMdiWindow();
     m_isOnLoad = true;
@@ -382,7 +381,7 @@ void RimWellRftPlot::updateEditorsFromCurves()
             selectedSources.insert( curveDef.address() );
 
         auto newTimeStepMap = std::map<QDateTime, std::set<RifDataSourceForRftPlt>>{
-            {curveDef.timeStep(), std::set<RifDataSourceForRftPlt>{curveDef.address()}}};
+            { curveDef.timeStep(), std::set<RifDataSourceForRftPlt>{ curveDef.address() } } };
         RimWellPlotTools::addTimeStepsToMap( selectedTimeStepsMap, newTimeStepMap );
         selectedTimeSteps.insert( curveDef.timeStep() );
     }
@@ -911,11 +910,6 @@ void RimWellRftPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         updateFormationsOnPlot();
         syncCurvesFromUiSelection();
     }
-
-    else if ( changedField == &m_showPlotWindowTitle )
-    {
-        // m_wellLogPlot->setShowDescription(m_showPlotTitle);
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1108,10 +1102,6 @@ void RimWellRftPlot::initAfterRead()
         delete m_wellLogPlot_OBSOLETE;
         m_wellLogPlot_OBSOLETE = nullptr;
     }
-    if ( m_showPlotTitle_OBSOLETE() && !m_showPlotWindowTitle() )
-    {
-        m_showPlotWindowTitle = m_showPlotTitle_OBSOLETE();
-    }
 
     RimWellLogPlot::initAfterRead();
 }
@@ -1286,12 +1276,12 @@ void RimWellRftPlot::defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveD
     std::vector<cvf::Color3f> colorTable;
     RiaColorTables::summaryCurveDefaultPaletteColors().color3fArray().toStdVector( &colorTable );
 
-    std::vector<RiuQwtSymbol::PointSymbolEnum> symbolTable = {RiuQwtSymbol::SYMBOL_ELLIPSE,
-                                                              RiuQwtSymbol::SYMBOL_RECT,
-                                                              RiuQwtSymbol::SYMBOL_DIAMOND,
-                                                              RiuQwtSymbol::SYMBOL_CROSS,
-                                                              RiuQwtSymbol::SYMBOL_XCROSS,
-                                                              RiuQwtSymbol::SYMBOL_STAR1};
+    std::vector<RiuQwtSymbol::PointSymbolEnum> symbolTable = { RiuQwtSymbol::SYMBOL_ELLIPSE,
+                                                               RiuQwtSymbol::SYMBOL_RECT,
+                                                               RiuQwtSymbol::SYMBOL_DIAMOND,
+                                                               RiuQwtSymbol::SYMBOL_CROSS,
+                                                               RiuQwtSymbol::SYMBOL_XCROSS,
+                                                               RiuQwtSymbol::SYMBOL_STAR1 };
 
     // Add new curves
     for ( const RiaRftPltCurveDefinition& curveDefToAdd : allCurveDefs )

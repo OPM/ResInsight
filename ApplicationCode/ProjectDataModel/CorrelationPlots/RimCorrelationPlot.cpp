@@ -47,19 +47,6 @@
 #include <map>
 #include <set>
 
-namespace caf
-{
-template <>
-void caf::AppEnum<RimCorrelationPlot::CorrelationFactor>::setUp()
-{
-    addItem( RimCorrelationPlot::CorrelationFactor::PEARSON, "PEARSON", "Pearson Correlation Coefficient" );
-#ifdef USE_GSL
-    addItem( RimCorrelationPlot::CorrelationFactor::SPEARMAN, "SPEARMAN", "Spearman's Rank Correlation Coefficient" );
-#endif
-    setDefault( RimCorrelationPlot::CorrelationFactor::PEARSON );
-}
-} // namespace caf
-
 CAF_PDM_SOURCE_INIT( RimCorrelationPlot, "CorrelationPlot" );
 
 //--------------------------------------------------------------------------------------------------
@@ -71,8 +58,6 @@ RimCorrelationPlot::RimCorrelationPlot()
 {
     CAF_PDM_InitObject( "Correlation Tornado Plot", ":/CorrelationTornadoPlot16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_correlationFactor, "CorrelationFactor", "Correlation Factor", "", "", "" );
-    m_correlationFactor.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_showAbsoluteValues, "CorrelationAbsValues", false, "Show Absolute Values", "", "", "" );
     CAF_PDM_InitField( &m_sortByAbsoluteValues, "CorrelationAbsSorting", true, "Sort by Absolute Values", "", "", "" );
     CAF_PDM_InitField( &m_excludeParametersWithoutVariation,
@@ -82,13 +67,14 @@ RimCorrelationPlot::RimCorrelationPlot()
                        "",
                        "",
                        "" );
-    CAF_PDM_InitField( &m_showOnlyTopNCorrelations, "ShowOnlyTopNCorrelations", false, "Show Only Top Correlations", "", "", "" );
-    CAF_PDM_InitField( &m_topNFilterCount, "TopNFilterCount", 15, "Number rows/columns", "", "", "" );
+    CAF_PDM_InitField( &m_showOnlyTopNCorrelations, "ShowOnlyTopNCorrelations", true, "Show Only Top Correlations", "", "", "" );
+    CAF_PDM_InitField( &m_topNFilterCount, "TopNFilterCount", 20, "Number rows/columns", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedParametersList, "SelectedParameters", "Select Parameters", "", "", "" );
     m_selectedParametersList.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_selectedParametersList.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
+    setLegendsVisible( false );
     setDeletable( true );
 }
 
@@ -110,10 +96,9 @@ void RimCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
                                            const QVariant&            newValue )
 {
     RimAbstractCorrelationPlot::fieldChangedByUi( changedField, oldValue, newValue );
-    if ( changedField == &m_correlationFactor || changedField == &m_showAbsoluteValues ||
-         changedField == &m_sortByAbsoluteValues || changedField == &m_excludeParametersWithoutVariation ||
-         changedField == &m_selectedParametersList || changedField == &m_showOnlyTopNCorrelations ||
-         changedField == &m_topNFilterCount )
+    if ( changedField == &m_showAbsoluteValues || changedField == &m_sortByAbsoluteValues ||
+         changedField == &m_excludeParametersWithoutVariation || changedField == &m_selectedParametersList ||
+         changedField == &m_showOnlyTopNCorrelations || changedField == &m_topNFilterCount )
     {
         if ( changedField == &m_excludeParametersWithoutVariation )
         {
@@ -129,8 +114,7 @@ void RimCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 void RimCorrelationPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiGroup* correlationGroup = uiOrdering.addNewGroup( "Correlation Factor Settings" );
-    correlationGroup->add( &m_correlationFactor );
+    caf::PdmUiGroup* correlationGroup = uiOrdering.addNewGroup( "Correlation Settings" );
     correlationGroup->add( &m_excludeParametersWithoutVariation );
     correlationGroup->add( &m_selectedParametersList );
 
@@ -263,10 +247,7 @@ void RimCorrelationPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chart
     auto address  = *addresses().begin();
 
     std::vector<std::pair<EnsembleParameter, double>> correlations =
-        ensemble->parameterCorrelations( address,
-                                         selectedTimestep,
-                                         m_correlationFactor == CorrelationFactor::SPEARMAN,
-                                         m_selectedParametersList() );
+        ensemble->parameterCorrelations( address, selectedTimestep, m_selectedParametersList() );
 
     QString timestepString = m_timeStep().toString( RiaPreferences::current()->dateTimeFormat() );
 
@@ -289,19 +270,12 @@ void RimCorrelationPlot::updatePlotTitle()
     if ( m_useAutoPlotTitle && !ensembles().empty() )
     {
         auto ensemble = *ensembles().begin();
-        m_description = QString( "%1 for %2, %3 at %4" )
-                            .arg( m_correlationFactor().uiText() )
-                            .arg( ensemble->name() )
-                            .arg( m_selectedVarsUiField )
-                            .arg( timeStepString() );
+        m_description =
+            QString( "Correlations for %2, %3 at %4" ).arg( ensemble->name() ).arg( m_selectedVarsUiField ).arg( timeStepString() );
     }
     m_plotWidget->setPlotTitle( m_description );
-    m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && isMdiWindow() );
-
-    if ( isMdiWindow() )
-    {
-        m_plotWidget->setPlotTitleFontSize( titleFontSize() );
-    }
+    m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && !isSubPlot() );
+    m_plotWidget->setPlotTitleFontSize( titleFontSize() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -322,22 +296,6 @@ void RimCorrelationPlot::onPlotItemSelected( QwtPlotItem* plotItem, bool toggle,
             }
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimCorrelationPlot::CorrelationFactor RimCorrelationPlot::correlationFactor() const
-{
-    return m_correlationFactor();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimCorrelationPlot::setCorrelationFactor( CorrelationFactor factor )
-{
-    m_correlationFactor = factor;
 }
 
 //--------------------------------------------------------------------------------------------------

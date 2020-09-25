@@ -112,6 +112,8 @@ public:
     bool        showProgressBar() const;
     bool        openExportedPdfInViewer() const;
 
+    RiaDefines::ThemeEnum guiTheme() const;
+
     std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> defaultFontSizes() const;
 
     void        writePreferencesToApplicationStore();
@@ -125,6 +127,8 @@ public:
     RiaGuiApplication::RINavigationPolicy navigationPolicy() const;
     int                                   defaultScaleFactorZ() const;
     bool                                  showLegendBackground() const;
+    bool                                  showInfoBox() const;
+    bool                                  showGridBox() const;
 
 public: // Pdm Fields
     caf::PdmField<bool> enableGrpcServer;
@@ -210,6 +214,8 @@ private:
     caf::PdmField<bool>    m_showProgressBar;
     caf::PdmField<QString> m_gtestFilter;
 
+    caf::PdmField<caf::AppEnum<RiaDefines::ThemeEnum>> m_guiTheme;
+
     caf::PdmField<PageSizeEnum>        m_pageSize;
     caf::PdmField<PageOrientationEnum> m_pageOrientation;
     caf::PdmField<double>              m_pageLeftMargin;
@@ -231,6 +237,8 @@ private:
     caf::PdmField<int>                                                 m_defaultScaleFactorZ;
     caf::PdmField<bool>                                                m_showLegendBackground;
     caf::PdmField<bool>                                                m_enableFaultsByDefault;
+    caf::PdmField<bool>                                                m_showInfoBox;
+    caf::PdmField<bool>                                                m_showGridBox;
 
     QStringList m_tabNames;
 };

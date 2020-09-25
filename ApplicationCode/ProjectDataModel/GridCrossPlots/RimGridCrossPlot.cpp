@@ -394,20 +394,6 @@ void RimGridCrossPlot::onAxisSelected( int axis, bool toggle )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlot::doRemoveFromCollection()
-{
-    RimGridCrossPlotCollection* crossPlotCollection = nullptr;
-    this->firstAncestorOrThisOfType( crossPlotCollection );
-    if ( crossPlotCollection )
-    {
-        crossPlotCollection->removeGridCrossPlot( this );
-        crossPlotCollection->updateAllRequiredEditors();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RimGridCrossPlot::generateInfoBoxText() const
 {
     QStringList curveInfoTexts;
@@ -648,7 +634,7 @@ void RimGridCrossPlot::updateCurveNamesAndPlotTitle()
     {
         QString plotTitle = this->createAutoName();
         m_plotWidget->setPlotTitle( plotTitle );
-        m_plotWidget->setPlotTitleEnabled( isMdiWindow() );
+        m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && !isSubPlot() );
     }
     updateMdiWindowTitle();
 }
@@ -774,7 +760,7 @@ void RimGridCrossPlot::updateLegend()
 {
     if ( m_plotWidget )
     {
-        m_plotWidget->setInternalQwtLegendVisible( legendsVisible() && isMdiWindow() );
+        m_plotWidget->setInternalQwtLegendVisible( legendsVisible() );
         m_plotWidget->setLegendFontSize( legendFontSize() );
         for ( auto dataSet : m_crossPlotDataSets )
         {

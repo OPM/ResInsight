@@ -73,8 +73,6 @@ public:
     RimSummaryPlot();
     ~RimSummaryPlot() override;
 
-    bool    showPlotTitle() const;
-    void    setShowPlotTitle( bool showTitle );
     void    setDescription( const QString& description );
     QString description() const override;
 
@@ -192,10 +190,9 @@ private:
 
     void detachAllPlotItems();
 
-    void doRemoveFromCollection() override;
     void handleKeyPressEvent( QKeyEvent* keyEvent ) override;
 
-    void onCurvesReordered( const SignalEmitter* emitter );
+    void onCurveCollectionChanged( const SignalEmitter* emitter );
 
 protected:
     // Overridden PDM methods
@@ -251,7 +248,6 @@ private:
 private:
     caf::PdmField<bool> m_normalizeCurveYValues;
 
-    caf::PdmField<bool>    m_showPlotTitle;
     caf::PdmField<bool>    m_useAutoPlotTitle;
     caf::PdmField<QString> m_description;
 

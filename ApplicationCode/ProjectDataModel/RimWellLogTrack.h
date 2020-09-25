@@ -247,8 +247,6 @@ private:
 
     int axisFontSize() const;
 
-    void doRemoveFromCollection() override;
-
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void curveDataChanged( const caf::SignalEmitter* emitter );
     void curveVisibilityChanged( const caf::SignalEmitter* emitter, bool visible );
@@ -299,7 +297,6 @@ private:
                                                                 const RigWellLogExtractor* extractor ) const;
 
     void connectCurveSignals( RimWellLogCurve* curve );
-    void disconnectCurveSignals( RimWellLogCurve* curve );
 
 private:
     QString m_xAxisTitle;

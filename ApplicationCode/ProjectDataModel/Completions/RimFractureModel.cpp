@@ -18,36 +18,34 @@
 
 #include "RimFractureModel.h"
 
-#include "RiaColorTables.h"
 #include "RiaCompletionTypeCalculationScheduler.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaFractureDefines.h"
 #include "RiaFractureModelDefines.h"
 #include "RiaLogging.h"
 
-#include "Riu3DMainWindowTools.h"
-
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
+#include "RigSimulationWellCoordsAndMD.h"
 #include "RigWellPath.h"
+#include "RigWellPathIntersectionTools.h"
 
 #include "Rim3dView.h"
+#include "RimAnnotationCollection.h"
+#include "RimAnnotationInViewCollection.h"
 #include "RimColorLegend.h"
 #include "RimColorLegendCollection.h"
 #include "RimColorLegendItem.h"
 #include "RimEclipseCase.h"
-#include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimElasticProperties.h"
-#include "RimEllipseFractureTemplate.h"
 #include "RimFractureModelPlot.h"
 #include "RimModeledWellPath.h"
 #include "RimOilField.h"
+#include "RimPolylineTarget.h"
 #include "RimProject.h"
-#include "RimReservoirCellResultsStorage.h"
-#include "RimStimPlanColors.h"
-#include "RimStimPlanFractureTemplate.h"
 #include "RimTools.h"
+#include "RimUserDefinedPolylinesAnnotation.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathGeometryDef.h"
@@ -235,14 +233,22 @@ RimFractureModel::RimFractureModel()
     m_formationDip.uiCapability()->setUiReadOnly( true );
     m_formationDip.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
+    CAF_PDM_InitScriptableField( &m_autoComputeBarrier, "AutoComputeBarrier", true, "Auto Compute Barrier", "", "", "" );
     CAF_PDM_InitScriptableField( &m_hasBarrier, "Barrier", true, "Barrier", "", "", "" );
     CAF_PDM_InitScriptableField( &m_distanceToBarrier, "DistanceToBarrier", 0.0, "Distance To Barrier [m]", "", "", "" );
+    m_distanceToBarrier.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+    m_distanceToBarrier.uiCapability()->setUiReadOnly( true );
+
     CAF_PDM_InitScriptableField( &m_barrierDip, "BarrierDip", 0.0, "Barrier Dip", "", "", "" );
+    m_barrierDip.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+    m_barrierDip.uiCapability()->setUiReadOnly( true );
     CAF_PDM_InitScriptableField( &m_wellPenetrationLayer, "WellPenetrationLayer", 0, "Well Penetration Layer", "", "", "" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_elasticProperties, "ElasticProperties", "Elastic Properties", "", "", "" );
     m_elasticProperties.uiCapability()->setUiHidden( true );
     m_elasticProperties.uiCapability()->setUiTreeHidden( true );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_barrierAnnotation, "BarrierAnnotation", "Barrier Annotation", "", "", "" );
 
     setDeletable( true );
 }
@@ -252,6 +258,8 @@ RimFractureModel::RimFractureModel()
 //--------------------------------------------------------------------------------------------------
 RimFractureModel::~RimFractureModel()
 {
+    clearBarrierAnnotation();
+
     RimWellPath*           wellPath           = m_thicknessDirectionWellPath.value();
     RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
 
@@ -294,9 +302,25 @@ void RimFractureModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField
     }
 
     if ( changedField == &m_MD || changedField == &m_extractionType || changedField == &m_boundingBoxVertical ||
-         changedField == &m_boundingBoxHorizontal )
+         changedField == &m_boundingBoxHorizontal || changedField == &m_fractureOrientation ||
+         changedField == &m_autoComputeBarrier )
     {
         updateThicknessDirection();
+
+        if ( m_autoComputeBarrier )
+        {
+            updateDistanceToBarrierAndDip();
+        }
+        else
+        {
+            clearBarrierAnnotation();
+        }
+    }
+
+    if ( changedField == &m_autoComputeBarrier || changedField == &m_hasBarrier )
+    {
+        m_barrierDip.uiCapability()->setUiReadOnly( m_autoComputeBarrier || !m_hasBarrier );
+        m_distanceToBarrier.uiCapability()->setUiReadOnly( m_autoComputeBarrier || !m_hasBarrier );
     }
 
     if ( changedField == &m_extractionType || changedField == &m_thicknessDirectionWellPath )
@@ -555,10 +579,194 @@ cvf::Vec3d RimFractureModel::calculateTSTDirection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimFractureModel::updateDistanceToBarrierAndDip()
+{
+    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( this );
+    if ( !objHandle ) return;
+
+    RimWellPath* wellPath = nullptr;
+    objHandle->firstAncestorOrThisOfType( wellPath );
+    if ( !wellPath ) return;
+
+    RigEclipseCaseData* eclipseCaseData = getEclipseCaseData();
+    if ( !eclipseCaseData ) return;
+
+    const cvf::Vec3d& position = anchorPosition();
+
+    RiaLogging::info( "Computing distance to barrier." );
+    RiaLogging::info( QString( "Anchor position: %1" ).arg( RimFractureModel::vecToString( position ) ) );
+
+    RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
+
+    // Find the well path points closest to the anchor position
+    cvf::Vec3d p1;
+    cvf::Vec3d p2;
+    wellPathGeometry->twoClosestPoints( position, &p1, &p2 );
+    RiaLogging::info( QString( "Closest points on well path: %1 %2" )
+                          .arg( RimFractureModel::vecToString( p1 ) )
+                          .arg( RimFractureModel::vecToString( p2 ) ) );
+
+    // Create a well direction based on the two points
+    cvf::Vec3d wellDirection = ( p2 - p1 ).getNormalized();
+    RiaLogging::info( QString( "Well direction: %1" ).arg( RimFractureModel::vecToString( wellDirection ) ) );
+
+    cvf::Vec3d fractureDirection = wellDirection;
+    if ( m_fractureOrientation == FractureOrientation::ALONG_WELL_PATH )
+    {
+        cvf::Mat3d azimuthRotation = cvf::Mat3d::fromRotation( cvf::Vec3d::Z_AXIS, cvf::Math::toRadians( 90.0 ) );
+        fractureDirection.transformVector( azimuthRotation );
+    }
+
+    // The direction to the barrier is normal to the TST
+    cvf::Vec3d directionToBarrier = ( thicknessDirection() ^ fractureDirection ).getNormalized();
+    RiaLogging::info( QString( "Direction to barrier: %1" ).arg( RimFractureModel::vecToString( directionToBarrier ) ) );
+
+    std::vector<WellPathCellIntersectionInfo> intersections =
+        generateBarrierIntersections( eclipseCaseData, position, directionToBarrier );
+
+    RiaLogging::info( QString( "Intersections: %1" ).arg( intersections.size() ) );
+
+    double shortestDistance = std::numeric_limits<double>::max();
+
+    RigMainGrid* mainGrid   = eclipseCaseData->mainGrid();
+    bool         foundFault = false;
+    cvf::Vec3d   barrierPosition;
+    double       barrierDip = 0.0;
+    for ( const WellPathCellIntersectionInfo& intersection : intersections )
+    {
+        // Find the closest cell face which is a fault
+        double          distance = position.pointDistance( intersection.startPoint );
+        const RigFault* fault    = mainGrid->findFaultFromCellIndexAndCellFace( intersection.globCellIndex,
+                                                                             intersection.intersectedCellFaceIn );
+        if ( fault && distance < shortestDistance )
+        {
+            foundFault       = true;
+            shortestDistance = distance;
+            barrierPosition  = intersection.startPoint;
+
+            const RigCell& cell       = mainGrid->globalCellArray()[intersection.globCellIndex];
+            cvf::Vec3d     faceNormal = cell.faceNormalWithAreaLength( intersection.intersectedCellFaceIn );
+            barrierDip                = calculateFormationDip( faceNormal );
+        }
+    }
+
+    if ( foundFault )
+    {
+        RiaLogging::info( QString( "Found barrier distance: %1 Dip: %2" ).arg( shortestDistance ).arg( barrierDip ) );
+        clearBarrierAnnotation();
+        addBarrierAnnotation( position, barrierPosition );
+
+        m_hasBarrier        = true;
+        m_barrierDip        = barrierDip;
+        m_distanceToBarrier = shortestDistance;
+    }
+    else
+    {
+        RiaLogging::info( "No barrier found." );
+        clearBarrierAnnotation();
+        m_hasBarrier        = false;
+        m_barrierDip        = 0.0;
+        m_distanceToBarrier = 0.0;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<WellPathCellIntersectionInfo>
+    RimFractureModel::generateBarrierIntersections( RigEclipseCaseData* eclipseCaseData,
+                                                    const cvf::Vec3d&   position,
+                                                    const cvf::Vec3d&   directionToBarrier )
+{
+    double                                    randoDistance    = 10000.0;
+    cvf::Vec3d                                forwardPosition  = position + ( directionToBarrier * randoDistance );
+    cvf::Vec3d                                backwardPosition = position + ( directionToBarrier * -randoDistance );
+    std::vector<WellPathCellIntersectionInfo> intersections =
+        generateBarrierIntersectionsBetweenPoints( eclipseCaseData, position, forwardPosition );
+    std::vector<WellPathCellIntersectionInfo> backwardIntersections =
+        generateBarrierIntersectionsBetweenPoints( eclipseCaseData, position, backwardPosition );
+
+    // Merge the intersections for the search for closest
+    intersections.insert( intersections.end(), backwardIntersections.begin(), backwardIntersections.end() );
+    return intersections;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<WellPathCellIntersectionInfo>
+    RimFractureModel::generateBarrierIntersectionsBetweenPoints( RigEclipseCaseData* eclipseCaseData,
+                                                                 const cvf::Vec3d&   startPosition,
+                                                                 const cvf::Vec3d&   endPosition )
+{
+    // Create a fake well path from the anchor point to
+    // a point far away in the direction barrier direction
+    std::vector<cvf::Vec3d> pathCoords;
+    pathCoords.push_back( startPosition );
+    pathCoords.push_back( endPosition );
+
+    RigSimulationWellCoordsAndMD helper( pathCoords );
+    return RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath( eclipseCaseData,
+                                                                             helper.wellPathPoints(),
+                                                                             helper.measuredDepths() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModel::clearBarrierAnnotation()
+{
+    auto existingAnnotation = m_barrierAnnotation.value();
+    if ( existingAnnotation )
+    {
+        delete existingAnnotation;
+        m_barrierAnnotation = nullptr;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModel::addBarrierAnnotation( const cvf::Vec3d& startPosition, const cvf::Vec3d& endPosition )
+{
+    RimAnnotationCollection* coll = annotationCollection();
+    if ( !coll ) return;
+
+    auto newAnnotation = new RimUserDefinedPolylinesAnnotation();
+
+    RimPolylineTarget* startTarget = new RimPolylineTarget();
+    startTarget->setAsPointXYZ( startPosition );
+    newAnnotation->insertTarget( nullptr, startTarget );
+
+    RimPolylineTarget* endTarget = new RimPolylineTarget();
+    endTarget->setAsPointXYZ( endPosition );
+    newAnnotation->insertTarget( nullptr, endTarget );
+
+    m_barrierAnnotation = newAnnotation;
+
+    coll->addAnnotation( newAnnotation );
+    coll->scheduleRedrawOfRelevantViews();
+    coll->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimAnnotationCollection* RimFractureModel::annotationCollection()
+{
+    const auto project  = RimProject::current();
+    auto       oilField = project->activeOilField();
+    return oilField ? oilField->annotationCollection() : nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFractureModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     m_thicknessDirectionWellPath.uiCapability()->setUiHidden( true );
     m_elasticProperties.uiCapability()->setUiHidden( false );
+    m_barrierAnnotation.uiCapability()->setUiHidden( true );
 
     uiOrdering.add( nameField() );
     uiOrdering.add( &m_MD );
@@ -613,6 +821,7 @@ void RimFractureModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     caf::PdmUiOrdering* asymmetricGroup = uiOrdering.addNewGroup( "Asymmetric" );
     asymmetricGroup->add( &m_formationDip );
     asymmetricGroup->add( &m_hasBarrier );
+    asymmetricGroup->add( &m_autoComputeBarrier );
     asymmetricGroup->add( &m_distanceToBarrier );
     asymmetricGroup->add( &m_barrierDip );
     asymmetricGroup->add( &m_wellPenetrationLayer );
@@ -625,7 +834,8 @@ void RimFractureModel::defineEditorAttribute( const caf::PdmFieldHandle* field,
                                               QString                    uiConfigName,
                                               caf::PdmUiEditorAttribute* attribute )
 {
-    if ( field == &m_stressDepth || field == &m_verticalStress || field == &m_formationDip )
+    if ( field == &m_stressDepth || field == &m_verticalStress || field == &m_formationDip || field == &m_barrierDip ||
+         field == &m_distanceToBarrier )
     {
         auto doubleAttr = dynamic_cast<caf::PdmUiDoubleValueEditorAttribute*>( attribute );
         if ( doubleAttr )
