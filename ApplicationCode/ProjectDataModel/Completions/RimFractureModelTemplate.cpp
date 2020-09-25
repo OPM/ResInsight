@@ -83,6 +83,41 @@ RimFractureModelTemplate::RimFractureModelTemplate()
     CAF_PDM_InitScriptableField( &m_defaultPorosity, "DefaultPorosity", 0.0, "Default Porosity", "", "", "" );
     CAF_PDM_InitScriptableField( &m_defaultPermeability, "DefaultPermeability", 10.0e-6, "Default Permeability", "", "", "" );
 
+    // Stress unit: bar
+    // Stress gradient unit: bar/m
+    // Depth is meter
+    double defaultStressGradient = 0.238;
+    double defaultStressDepth    = computeDefaultStressDepth();
+    double defaultStress         = defaultStressDepth * defaultStressGradient;
+
+    CAF_PDM_InitScriptableField( &m_verticalStress, "VerticalStress", defaultStress, "Vertical Stress", "", "", "" );
+    m_verticalStress.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+    CAF_PDM_InitScriptableField( &m_verticalStressGradient,
+                                 "VerticalStressGradient",
+                                 defaultStressGradient,
+                                 "Vertical Stress Gradient",
+                                 "",
+                                 "",
+                                 "" );
+    CAF_PDM_InitScriptableField( &m_stressDepth, "StressDepth", defaultStressDepth, "Stress Depth", "", "", "" );
+    m_stressDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitScriptableField( &m_referenceTemperature, "ReferenceTemperature", 70.0, "Temperature [C]", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_referenceTemperatureGradient,
+                                 "ReferenceTemperatureGradient",
+                                 0.025,
+                                 "Temperature Gradient [C/m]",
+                                 "",
+                                 "",
+                                 "" );
+    CAF_PDM_InitScriptableField( &m_referenceTemperatureDepth,
+                                 "ReferenceTemperatureDepth",
+                                 2500.0,
+                                 "Temperature Depth [m]",
+                                 "",
+                                 "",
+                                 "" );
+
     CAF_PDM_InitScriptableField( &m_overburdenHeight, "OverburdenHeight", 50.0, "Overburden Height", "", "", "" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_overburdenFormation, "OverburdenFormation", "Overburden Formation", "", "", "" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_overburdenFacies, "OverburdenFacies", "Overburden Facies", "", "", "" );
@@ -197,6 +232,16 @@ void RimFractureModelTemplate::defineUiOrdering( QString uiConfigName, caf::PdmU
     defaultsGroup->add( &m_defaultPorosity );
     defaultsGroup->add( &m_defaultPermeability );
 
+    caf::PdmUiOrdering* referenceStressGroup = uiOrdering.addNewGroup( "Reference Stress" );
+    referenceStressGroup->add( &m_verticalStress );
+    referenceStressGroup->add( &m_verticalStressGradient );
+    referenceStressGroup->add( &m_stressDepth );
+
+    caf::PdmUiOrdering* temperatureGroup = uiOrdering.addNewGroup( "Temperature" );
+    temperatureGroup->add( &m_referenceTemperature );
+    temperatureGroup->add( &m_referenceTemperatureGradient );
+    temperatureGroup->add( &m_referenceTemperatureDepth );
+
     caf::PdmUiOrdering* overburdenGroup = uiOrdering.addNewGroup( "Overburden" );
     overburdenGroup->add( &m_overburdenHeight );
     overburdenGroup->add( &m_overburdenFormation );
@@ -212,6 +257,24 @@ void RimFractureModelTemplate::defineUiOrdering( QString uiConfigName, caf::PdmU
     underburdenGroup->add( &m_underburdenPorosity );
     underburdenGroup->add( &m_underburdenPermeability );
     underburdenGroup->add( &m_underburdenFluidDensity );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModelTemplate::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                      QString                    uiConfigName,
+                                                      caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_stressDepth || field == &m_verticalStress )
+    {
+        auto doubleAttr = dynamic_cast<caf::PdmUiDoubleValueEditorAttribute*>( attribute );
+        if ( doubleAttr )
+        {
+            doubleAttr->m_decimals     = 2;
+            doubleAttr->m_numberFormat = caf::PdmUiDoubleValueEditorAttribute::NumberFormat::FIXED;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -424,6 +487,68 @@ QString RimFractureModelTemplate::underburdenFormation() const
 QString RimFractureModelTemplate::underburdenFacies() const
 {
     return m_underburdenFacies;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModelTemplate::verticalStress() const
+{
+    return m_verticalStress;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModelTemplate::verticalStressGradient() const
+{
+    return m_verticalStressGradient;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModelTemplate::stressDepth() const
+{
+    return m_stressDepth;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModelTemplate::referenceTemperature() const
+{
+    return m_referenceTemperature;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModelTemplate::referenceTemperatureGradient() const
+{
+    return m_referenceTemperatureGradient;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModelTemplate::referenceTemperatureDepth() const
+{
+    return m_referenceTemperatureDepth;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModelTemplate::computeDefaultStressDepth()
+{
+    const double stressDepth = 1000.0;
+
+    RimEclipseCase* eclipseCase = getEclipseCase();
+    if ( !eclipseCase ) return stressDepth;
+
+    // Use top of active cells as reference stress depth
+    return -eclipseCase->activeCellsBoundingBox().max().z();
 }
 
 //--------------------------------------------------------------------------------------------------
