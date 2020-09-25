@@ -30,12 +30,9 @@
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
 
-#include "cafDisplayCoordTransform.h"
-
 #include "cafEffectGenerator.h"
 
 #include "cvfDrawableGeo.h"
-#include "cvfGeometryTools.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
@@ -103,39 +100,30 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
     }
 
     float arrowScaling = arrowConstantScaling;
-    if ( result->scaleMethod() == RimElementVectorResult::ScaleMethod::RESULT )
+    if ( result->scaleMethod() == RimElementVectorResult::RESULT )
     {
         arrowScaling = arrowConstantScaling / maxAbsResult;
     }
 
-    if ( result->scaleMethod() == RimElementVectorResult::ScaleMethod::RESULT_LOG )
-    {
-        arrowScaling = result->sizeScale() * scaleLogarithmically( maxAbsResult );
-    }
-
     std::vector<RigEclipseResultAddress> addresses;
-    result->resultAddressesIJK( addresses );
+    result->resultAddressIJK( addresses );
 
     std::vector<cvf::StructGridInterface::FaceType> directions;
     std::vector<RigEclipseResultAddress>            resultAddresses;
-
-    for ( size_t fluidIndex = 0; fluidIndex < addresses.size(); fluidIndex += 3 )
+    if ( result->showVectorI() )
     {
-        if ( result->showVectorI() )
-        {
-            if ( fluidIndex == 0 ) directions.push_back( cvf::StructGridInterface::POS_I );
-            resultAddresses.push_back( addresses[0 + fluidIndex] );
-        }
-        if ( result->showVectorJ() )
-        {
-            if ( fluidIndex == 0 ) directions.push_back( cvf::StructGridInterface::POS_J );
-            resultAddresses.push_back( addresses[1 + fluidIndex] );
-        }
-        if ( result->showVectorK() )
-        {
-            if ( fluidIndex == 0 ) directions.push_back( cvf::StructGridInterface::POS_K );
-            resultAddresses.push_back( addresses[2 + fluidIndex] );
-        }
+        directions.push_back( cvf::StructGridInterface::POS_I );
+        resultAddresses.push_back( addresses[0] );
+    }
+    if ( result->showVectorJ() )
+    {
+        directions.push_back( cvf::StructGridInterface::POS_J );
+        resultAddresses.push_back( addresses[1] );
+    }
+    if ( result->showVectorK() )
+    {
+        directions.push_back( cvf::StructGridInterface::POS_K );
+        resultAddresses.push_back( addresses[2] );
     }
 
     RigCaseCellResultsData* resultsData = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
@@ -148,135 +136,25 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
     {
         if ( !cells[gcIdx].isInvalid() && activeCellInfo->isActive( gcIdx ) )
         {
-            size_t resultIdx = activeCellInfo->cellResultIndex( gcIdx );
-            if ( result->vectorView() == RimElementVectorResult::VectorView::INDIVIDUAL )
+            for ( int dir = 0; dir < static_cast<int>( directions.size() ); dir++ )
             {
-                for ( int dir = 0; dir < static_cast<int>( directions.size() ); dir++ )
+                size_t resultIdx = activeCellInfo->cellResultIndex( gcIdx );
+                double resultValue = resultsData->cellScalarResults( resultAddresses[dir], timeStepIndex ).at( resultIdx );
+
+                if ( std::abs( resultValue ) >= result->threshold() )
                 {
-                    double resultValue = 0.0;
-                    for ( size_t flIdx = dir; flIdx < resultAddresses.size(); flIdx += directions.size() )
-                    {
-                        resultValue +=
-                            resultsData->cellScalarResults( resultAddresses[flIdx], timeStepIndex ).at( resultIdx );
-                    }
-
-                    if ( std::abs( resultValue ) >= result->threshold() )
-                    {
-                        cvf::Vec3d faceCenter = cells[gcIdx].faceCenter( directions[dir] ) - offset;
-                        cvf::Vec3d cellCenter = cells[gcIdx].center() - offset;
-                        cvf::Vec3d faceNormal = ( faceCenter - cellCenter ).getNormalized() * arrowScaling;
-
-                        if ( result->scaleMethod() == RimElementVectorResult::ScaleMethod::RESULT )
-                        {
-                            faceNormal *= std::abs( resultValue );
-                        }
-                        else if ( result->scaleMethod() == RimElementVectorResult::ScaleMethod::RESULT_LOG )
-                        {
-                            faceNormal *= std::abs( scaleLogarithmically( std::abs( resultValue ) ) );
-                        }
-
-                        tensorVisualizations.push_back(
-                            ElementVectorResultVisualization( faceCenter,
-                                                              faceNormal,
-                                                              resultValue,
-                                                              std::cbrt( cells[gcIdx].volume() / 3.0 ) ) );
-                    }
-                }
-            }
-            else if ( result->vectorView() == RimElementVectorResult::VectorView::AGGREGATED )
-            {
-                cvf::Vec3d aggregatedVector;
-                cvf::Vec3d aggregatedResult;
-                for ( int dir = 0; dir < static_cast<int>( directions.size() ); dir++ )
-                {
-                    double resultValue = 0.0;
-                    for ( size_t flIdx = dir; flIdx < resultAddresses.size(); flIdx += directions.size() )
-                    {
-                        resultValue +=
-                            resultsData->cellScalarResults( resultAddresses[flIdx], timeStepIndex ).at( resultIdx );
-                    }
                     cvf::Vec3d faceCenter = cells[gcIdx].faceCenter( directions[dir] ) - offset;
                     cvf::Vec3d cellCenter = cells[gcIdx].center() - offset;
                     cvf::Vec3d faceNormal = ( faceCenter - cellCenter ).getNormalized() * arrowScaling;
 
-                    aggregatedVector += faceNormal;
-
-                    if ( result->scaleMethod() == RimElementVectorResult::ScaleMethod::RESULT )
+                    if ( result->scaleMethod() == RimElementVectorResult::RESULT )
                     {
-                        faceNormal *= resultValue;
-                    }
-                    else if ( result->scaleMethod() == RimElementVectorResult::ScaleMethod::RESULT_LOG )
-                    {
-                        faceNormal *= ( 1.0 - static_cast<double>( std::signbit( resultValue ) ) * 2.0 ) *
-                                      scaleLogarithmically( std::abs( resultValue ) );
+                        faceNormal *= std::abs( resultValue );
                     }
 
-                    aggregatedVector += faceNormal;
-                    aggregatedResult += ( faceCenter - cellCenter ).getNormalized() * resultValue;
-                }
-                if ( aggregatedVector.length() > 0 )
-                {
                     tensorVisualizations.push_back(
-                        ElementVectorResultVisualization( cells[gcIdx].center() - offset,
-                                                          aggregatedVector,
-                                                          aggregatedResult.length(),
-                                                          std::cbrt( cells[gcIdx].volume() / 3.0 ) ) );
+                        ElementVectorResultVisualization( faceCenter, faceNormal, resultValue ) );
                 }
-            }
-        }
-    }
-
-    RigNNCData* nncData           = eclipseCaseData->mainGrid()->nncData();
-    size_t      numNncConnections = nncData->connections().size();
-
-    if ( result->showNncData() )
-    {
-        std::vector<const std::vector<std::vector<double>>*> nncResultVals;
-        std::vector<RigEclipseResultAddress>                 combinedAddresses;
-        result->resultAddressesCombined( combinedAddresses );
-
-        for ( size_t flIdx = 0; flIdx < combinedAddresses.size(); flIdx++ )
-        {
-            if ( combinedAddresses[flIdx].m_resultCatType == RiaDefines::ResultCatType::DYNAMIC_NATIVE )
-            {
-                nncResultVals.push_back( nncData->dynamicConnectionScalarResult( combinedAddresses[flIdx] ) );
-            }
-        }
-
-        for ( size_t nIdx = 0; nIdx < numNncConnections; ++nIdx )
-        {
-            const RigConnection& conn = nncData->connections()[nIdx];
-            if ( conn.polygon().size() )
-            {
-                double resultValue = 0.0;
-                for ( size_t flIdx = 0; flIdx < nncResultVals.size(); flIdx++ )
-                {
-                    if ( nIdx < nncResultVals.at( flIdx )->at( timeStepIndex ).size() )
-                    {
-                        resultValue += nncResultVals.at( flIdx )->at( timeStepIndex )[nIdx];
-                    }
-                }
-                cvf::Vec3d connCenter =
-                    static_cast<cvf::Vec3d>( cvf::GeometryTools::computePolygonCenter<cvf::Vec3f>( conn.polygon() ) );
-
-                cvf::Vec3d faceCenter = cells[conn.c1GlobIdx()].faceCenter( conn.face() ) - offset;
-                cvf::Vec3d cellCenter = cells[conn.c1GlobIdx()].center() - offset;
-
-                cvf::Vec3d connNormal = ( faceCenter - cellCenter ).getNormalized() * arrowScaling;
-
-                if ( result->scaleMethod() == RimElementVectorResult::ScaleMethod::RESULT )
-                {
-                    connNormal *= std::abs( resultValue );
-                }
-                else if ( result->scaleMethod() == RimElementVectorResult::ScaleMethod::RESULT_LOG )
-                {
-                    connNormal *= scaleLogarithmically( std::abs( resultValue ) );
-                }
-                tensorVisualizations.push_back(
-                    ElementVectorResultVisualization( connCenter - offset,
-                                                      connNormal,
-                                                      resultValue,
-                                                      std::cbrt( cells[conn.c1GlobIdx()].volume() / 3.0 ) ) );
             }
         }
     }
@@ -297,14 +175,11 @@ cvf::ref<cvf::Part>
     RivElementVectorResultPartMgr::createPart( const RimElementVectorResult&                        result,
                                                const std::vector<ElementVectorResultVisualization>& tensorVisualizations ) const
 {
-    std::vector<uint> shaftIndices;
-    shaftIndices.reserve( tensorVisualizations.size() * 2 );
-
-    std::vector<uint> headIndices;
-    headIndices.reserve( tensorVisualizations.size() * 6 );
+    std::vector<uint> indices;
+    indices.reserve( tensorVisualizations.size() * 5 );
 
     std::vector<cvf::Vec3f> vertices;
-    vertices.reserve( tensorVisualizations.size() * 7 );
+    vertices.reserve( tensorVisualizations.size() * 5 );
 
     uint counter = 0;
     for ( ElementVectorResultVisualization tensor : tensorVisualizations )
@@ -314,34 +189,21 @@ cvf::ref<cvf::Part>
             vertices.push_back( vertex );
         }
 
-        for ( const uint& index : createArrowShaftIndices( counter ) )
+        for ( const uint& index : createArrowIndices( counter ) )
         {
-            shaftIndices.push_back( index );
+            indices.push_back( index );
         }
 
-        for ( const uint& index : createArrowHeadIndices( counter ) )
-        {
-            headIndices.push_back( index );
-        }
-
-        counter += 7;
+        counter += 5;
     }
 
-    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUIntShaft =
-        new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_LINES );
-    cvf::ref<cvf::UIntArray> indexArrayShaft = new cvf::UIntArray( shaftIndices );
-
-    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUIntHead =
-        new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_TRIANGLES );
-    cvf::ref<cvf::UIntArray> indexArrayHead = new cvf::UIntArray( headIndices );
+    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt = new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_LINES );
+    cvf::ref<cvf::UIntArray>               indexArray = new cvf::UIntArray( indices );
 
     cvf::ref<cvf::DrawableGeo> drawable = new cvf::DrawableGeo();
 
-    indexedUIntShaft->setIndices( indexArrayShaft.p() );
-    drawable->addPrimitiveSet( indexedUIntShaft.p() );
-
-    indexedUIntHead->setIndices( indexArrayHead.p() );
-    drawable->addPrimitiveSet( indexedUIntHead.p() );
+    indexedUInt->setIndices( indexArray.p() );
+    drawable->addPrimitiveSet( indexedUInt.p() );
 
     cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray( vertices );
     drawable->setVertexArray( vertexArray.p() );
@@ -358,7 +220,7 @@ cvf::ref<cvf::Part>
     cvf::ref<cvf::Effect> effect;
 
     auto vectorColors = result.vectorColors();
-    if ( vectorColors == RimElementVectorResult::TensorColors::RESULT_COLORS )
+    if ( vectorColors == RimElementVectorResult::RESULT_COLORS )
     {
         activeScalerMapper = result.legendConfig()->scalarMapper();
         createResultColorTextureCoords( lineTexCoords.p(), tensorVisualizations, activeScalerMapper );
@@ -393,12 +255,12 @@ void RivElementVectorResultPartMgr::createResultColorTextureCoords(
     CVF_ASSERT( textureCoords );
     CVF_ASSERT( mapper );
 
-    size_t vertexCount = elementVectorResultVisualizations.size() * 7;
+    size_t vertexCount = elementVectorResultVisualizations.size() * 5;
     if ( textureCoords->size() != vertexCount ) textureCoords->reserve( vertexCount );
 
     for ( auto evrViz : elementVectorResultVisualizations )
     {
-        for ( size_t vxIdx = 0; vxIdx < 7; ++vxIdx )
+        for ( size_t vxIdx = 0; vxIdx < 5; ++vxIdx )
         {
             cvf::Vec2f texCoord = mapper->mapToTextureCoord( evrViz.result );
             textureCoords->add( texCoord );
@@ -409,48 +271,32 @@ void RivElementVectorResultPartMgr::createResultColorTextureCoords(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::array<cvf::Vec3f, 7>
+std::array<cvf::Vec3f, 5>
     RivElementVectorResultPartMgr::createArrowVertices( const ElementVectorResultVisualization& evrViz ) const
 {
-    std::array<cvf::Vec3f, 7> vertices;
-
-    RimElementVectorResult* result = m_rimReservoirView->elementVectorResult();
-    if ( !result ) return vertices;
+    std::array<cvf::Vec3f, 5> vertices;
 
     cvf::Vec3f headTop    = evrViz.faceCenter + evrViz.faceNormal;
     cvf::Vec3f shaftStart = evrViz.faceCenter;
-    if ( result->vectorSuraceCrossingLocation() == RimElementVectorResult::VectorSurfaceCrossingLocation::VECTOR_CENTER &&
-         result->vectorView() == RimElementVectorResult::VectorView::INDIVIDUAL )
-    {
-        headTop    = evrViz.faceCenter + evrViz.faceNormal / 2.0;
-        shaftStart = evrViz.faceCenter - evrViz.faceNormal / 2.0;
-    }
 
     // Flip arrow for negative results
-    if ( evrViz.result < 0 && result->vectorView() != RimElementVectorResult::VectorView::AGGREGATED )
+    if ( evrViz.result < 0 )
     {
         std::swap( headTop, shaftStart );
     }
 
-    // float headWidth = 0.05 * evrViz.faceNormal.length();
-    float headLength = std::min<float>( evrViz.characteristicCellSize / 5.0f, ( headTop - shaftStart ).length() / 2.0 );
+    float headWidth = 0.05 * evrViz.faceNormal.length();
 
-    // A fixed size is preferred here
-    cvf::Vec3f headBottom = headTop - ( headTop - shaftStart ).getNormalized() * headLength;
-    // cvf::Vec3f headBottom = headTop - ( headTop - shaftStart ) * 0.2f;
+    cvf::Vec3f headBottom = headTop - ( headTop - shaftStart ) * 0.2f;
 
-    cvf::Vec3f headBottomDirection1 = evrViz.faceNormal ^ evrViz.faceCenter;
-    cvf::Vec3f headBottomDirection2 = headBottomDirection1 ^ evrViz.faceNormal;
-    cvf::Vec3f arrowBottomSegment1  = headBottomDirection1.getNormalized() * headLength / 8.0f;
-    cvf::Vec3f arrowBottomSegment2  = headBottomDirection2.getNormalized() * headLength / 8.0f;
+    cvf::Vec3f headBottomDirection = evrViz.faceNormal ^ evrViz.faceCenter;
+    cvf::Vec3f arrowBottomSegment  = headBottomDirection.getNormalized() * headWidth;
 
     vertices[0] = shaftStart;
     vertices[1] = headBottom;
-    vertices[2] = headBottom + arrowBottomSegment1;
-    vertices[3] = headBottom - arrowBottomSegment1;
+    vertices[2] = headBottom + arrowBottomSegment;
+    vertices[3] = headBottom - arrowBottomSegment;
     vertices[4] = headTop;
-    vertices[5] = headBottom + arrowBottomSegment2;
-    vertices[6] = headBottom - arrowBottomSegment2;
 
     return vertices;
 }
@@ -458,41 +304,18 @@ std::array<cvf::Vec3f, 7>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::array<uint, 2> RivElementVectorResultPartMgr::createArrowShaftIndices( uint startIndex ) const
+std::array<uint, 8> RivElementVectorResultPartMgr::createArrowIndices( uint startIndex ) const
 {
-    std::array<uint, 2> indices;
+    std::array<uint, 8> indices;
 
     indices[0] = startIndex;
     indices[1] = startIndex + 1;
-
-    return indices;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::array<uint, 6> RivElementVectorResultPartMgr::createArrowHeadIndices( uint startIndex ) const
-{
-    std::array<uint, 6> indices;
-
-    indices[0] = startIndex + 2;
-    indices[1] = startIndex + 3;
-    indices[2] = startIndex + 4;
-
-    indices[3] = startIndex + 5;
-    indices[4] = startIndex + 6;
+    indices[2] = startIndex + 2;
+    indices[3] = startIndex + 3;
+    indices[4] = startIndex + 3;
     indices[5] = startIndex + 4;
-    return indices;
-}
+    indices[6] = startIndex + 4;
+    indices[7] = startIndex + 2;
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RivElementVectorResultPartMgr::scaleLogarithmically( double value ) const
-{
-    if ( value <= 1.0 )
-    {
-        value += 1.0;
-    }
-    return std::log10( value );
+    return indices;
 }
