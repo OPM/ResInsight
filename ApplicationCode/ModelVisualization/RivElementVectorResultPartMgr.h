@@ -77,9 +77,9 @@ private:
                                         const std::vector<ElementVectorResultVisualization>& elementVectorResultVisualizations,
                                         const cvf::ScalarMapper*                             mapper );
 
-    std::array<cvf::Vec3f, 5> createArrowVertices( const ElementVectorResultVisualization& tensorVisualization ) const;
+    std::array<cvf::Vec3f, 7> createArrowVertices( const ElementVectorResultVisualization& tensorVisualization ) const;
     std::array<uint, 2>       createArrowShaftIndices( uint startIndex ) const;
-    std::array<uint, 3>       createArrowHeadIndices( uint startIndex ) const;
+    std::array<uint, 6>       createArrowHeadIndices( uint startIndex ) const;
 
     double scaleLogarithmically( double value ) const;
 

@@ -369,6 +369,11 @@ void RimElementVectorResult::mappingRange( double& min, double& max ) const
                 min = std::min<double>( min, directionsMin.at( i ) );
             }
         }
+        else
+        {
+            max = std::max<double>( max, min );
+            min = 0.0;
+        }
     }
 
     if ( showNncData() )
@@ -382,7 +387,6 @@ void RimElementVectorResult::mappingRange( double& min, double& max ) const
         {
             if ( combinedAddresses[flIdx].m_resultCatType == RiaDefines::ResultCatType::DYNAMIC_NATIVE )
             {
-                const std::vector<std::vector<double>>* nncResultVals;
                 if ( m_legendConfig->rangeMode() == RimRegularLegendConfig::RangeModeType::AUTOMATIC_ALLTIMESTEPS )
                 {
                     const std::vector<std::vector<double>>* nncResultVals =
