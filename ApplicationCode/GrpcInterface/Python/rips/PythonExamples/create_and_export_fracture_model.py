@@ -1,5 +1,6 @@
 # Load ResInsight Processing Server Client Library
 import rips
+import tempfile
 # Connect to ResInsight instance
 resinsight = rips.Instance.find()
 # Example code
@@ -36,7 +37,7 @@ time_step = time_steps[len(time_steps) - 1]
 fracture_model_plot_collection = project.descendants(rips.FractureModelPlotCollection)[0]
 fracture_model_plot = fracture_model_plot_collection.new_fracture_model_plot(eclipse_case=case, fracture_model=fracture_model, time_step=time_step)
 
-export_folder = "/tmp/"
+export_folder = tempfile.gettempdir()
 
 fracture_model_plot.export_to_file(directory_path=export_folder)
 
