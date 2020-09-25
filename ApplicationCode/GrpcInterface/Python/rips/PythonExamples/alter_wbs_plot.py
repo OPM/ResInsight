@@ -1,5 +1,6 @@
 # Load ResInsight Processing Server Client Library
 import rips
+import tempfile
 
 # Connect to ResInsight instance
 resinsight = rips.Instance.find()
@@ -11,7 +12,7 @@ project = resinsight.project
 wbsplots = project.descendants(rips.WellBoreStabilityPlot)
 
 # Chose a sensible output folder
-dirname = "C:/temp"
+dirname = tempfile.gettempdir()
 
 # Loop through all Well Bore Stability plots
 for wbsplot in wbsplots:
