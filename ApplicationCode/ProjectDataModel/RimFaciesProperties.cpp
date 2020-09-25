@@ -52,13 +52,13 @@ RimFaciesProperties::RimFaciesProperties()
     m_propertiesTable.uiCapability()->setUiReadOnly( true );
     m_propertiesTable.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_faciesDefinition, "FaciesDefinition", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_faciesDefinition, "FaciesDefinition", "", "", "", "" );
     m_faciesDefinition.uiCapability()->setUiHidden( true );
     m_faciesDefinition.uiCapability()->setUiTreeChildrenHidden( true );
     m_faciesDefinition = new RimEclipseResultDefinition;
     m_faciesDefinition->findField( "MResultType" )->uiCapability()->setUiName( "Facies Definiton" );
 
-    CAF_PDM_InitFieldNoDefault( &m_colorLegend, "ColorLegend", "Colors", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_colorLegend, "ColorLegend", "Colors", "", "", "" );
     m_colorLegend = RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL );
 
     setUiName( "Facies Properties" );

@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RimFractureModelCollection.h"
+#include "RimFractureModelTemplateCollection.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObjectHandle.h"
@@ -28,26 +28,23 @@
 
 #include <QString>
 
-class RimFractureModelCollection;
-class RimFractureModelTemplate;
-class RimWellPath;
+class RimFractureModelTemplateCollection;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcFractureModelCollection_newFractureModel : public caf::PdmObjectMethod
+class RimcFractureModelTemplateCollection_newFractureModelTemplate : public caf::PdmObjectMethod
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimcFractureModelCollection_newFractureModel( caf::PdmObjectHandle* self );
+    RimcFractureModelTemplateCollection_newFractureModelTemplate( caf::PdmObjectHandle* self );
 
     caf::PdmObjectHandle*            execute() override;
     bool                             resultIsPersistent() const override;
     std::unique_ptr<PdmObjectHandle> defaultResult() const override;
 
 private:
-    caf::PdmPtrField<RimWellPath*> m_wellPath;
-    caf::PdmField<double>          m_md;
-    caf::PdmPtrField<RimFractureModelTemplate*> m_fractureModelTemplate;
+    caf::PdmField<QString> m_elasticPropertiesFilePath;
+    caf::PdmField<QString> m_faciesPropertiesFilePath;
 };

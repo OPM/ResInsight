@@ -246,15 +246,7 @@ void RimFractureModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField
          changedField == &m_autoComputeBarrier )
     {
         updateThicknessDirection();
-
-        if ( m_autoComputeBarrier )
-        {
-            updateDistanceToBarrierAndDip();
-        }
-        else
-        {
-            clearBarrierAnnotation();
-        }
+        updateBarrierProperties();
     }
 
     if ( changedField == &m_autoComputeBarrier || changedField == &m_hasBarrier )
@@ -501,6 +493,22 @@ cvf::Vec3d RimFractureModel::calculateTSTDirection() const
 
     return ( direction / static_cast<double>( numContributingCells ) ).getNormalized();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModel::updateBarrierProperties()
+{
+    if ( m_autoComputeBarrier )
+    {
+        updateDistanceToBarrierAndDip();
+    }
+    else
+    {
+        clearBarrierAnnotation();
+    }
+}
+
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -1159,6 +1167,7 @@ void RimFractureModel::setMD( double md )
     m_MD = md;
     updatePositionFromMeasuredDepth();
     updateThicknessDirection();
+    updateBarrierProperties();
 }
 
 //--------------------------------------------------------------------------------------------------
