@@ -255,6 +255,17 @@ bool RimFractureModel::useDetailedFluidLoss() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimFractureModel::initAfterRead()
+{
+    if ( m_fractureModelTemplate )
+    {
+        m_fractureModelTemplate->changed.connect( this, &RimFractureModel::fractureModelTemplateChanged );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFractureModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                          const QVariant&            oldValue,
                                          const QVariant&            newValue )
@@ -312,23 +323,12 @@ void RimFractureModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         }
     }
 
+    if ( changedField == &m_fractureModelTemplate )
     {
-        RimEclipseCase* eclipseCase = nullptr;
-        this->firstAncestorOrThisOfType( eclipseCase );
-        if ( eclipseCase )
-        {
-            RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews(
-                eclipseCase );
-        }
-        else
-        {
-            RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews();
-        }
-
-        RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
-
-        updateReferringPlots();
+        setFractureModelTemplate( m_fractureModelTemplate() );
     }
+
+    updateViewsAndPlots();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1312,7 +1312,17 @@ int RimFractureModel::wellPenetrationLayer() const
 //--------------------------------------------------------------------------------------------------
 void RimFractureModel::setFractureModelTemplate( RimFractureModelTemplate* fractureModelTemplate )
 {
+    if ( m_fractureModelTemplate )
+    {
+        m_fractureModelTemplate->changed.disconnect( this );
+    }
+
     m_fractureModelTemplate = fractureModelTemplate;
+
+    if ( m_fractureModelTemplate )
+    {
+        m_fractureModelTemplate->changed.connect( this, &RimFractureModel::fractureModelTemplateChanged );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1321,4 +1331,33 @@ void RimFractureModel::setFractureModelTemplate( RimFractureModelTemplate* fract
 RimFractureModelTemplate* RimFractureModel::fractureModelTemplate() const
 {
     return m_fractureModelTemplate;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModel::fractureModelTemplateChanged( const caf::SignalEmitter* emitter )
+{
+    updateViewsAndPlots();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModel::updateViewsAndPlots()
+{
+    RimEclipseCase* eclipseCase = nullptr;
+    this->firstAncestorOrThisOfType( eclipseCase );
+    if ( eclipseCase )
+    {
+        RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews( eclipseCase );
+    }
+    else
+    {
+        RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews();
+    }
+
+    RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
+
+    updateReferringPlots();
 }

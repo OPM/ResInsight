@@ -46,6 +46,8 @@ public:
     RimFractureModelTemplate( void );
     ~RimFractureModelTemplate( void ) override;
 
+    caf::Signal<> changed;
+
     void setId( int id );
     int  id() const;
 
@@ -90,6 +92,8 @@ protected:
 
     static RimEclipseCase*     getEclipseCase();
     static RigEclipseCaseData* getEclipseCaseData();
+
+    void faciesPropertiesChanged( const caf::SignalEmitter* emitter );
 
 protected:
     caf::PdmField<int>                        m_id;
