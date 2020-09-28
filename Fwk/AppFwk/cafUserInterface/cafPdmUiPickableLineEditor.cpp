@@ -72,14 +72,10 @@ void caf::PdmUiPickableLineEditor::configureAndUpdateUi( const QString& uiConfig
         if ( m_attribute.enablePicking )
         {
             m_attribute.pickEventHandler->registerAsPickEventHandler();
-            m_lineEdit->setStyleSheet( "QLineEdit {"
-                                       "color: #000000;"
-                                       "background-color: #FFDCFF;}" );
         }
         else
         {
             m_attribute.pickEventHandler->unregisterAsPickEventHandler();
-            m_lineEdit->setStyleSheet( "" );
         }
     }
 

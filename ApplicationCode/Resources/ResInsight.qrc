@@ -210,6 +210,12 @@
         <file>themes/dark/checkbox-checked-disabled-20x20.png</file>
         <file>themes/dark/checkbox-indeterminate-disabled-20x20.png</file>
         <file>SummaryCase24x24.png</file>
+        <file>themes/dark/checkbox-checked.svg</file>
+        <file>themes/dark/checkbox-checked-disabled.svg</file>
+        <file>themes/dark/checkbox-unchecked.svg</file>
+        <file>themes/dark/checkbox-unchecked-disabled.svg</file>
+        <file>themes/dark/checkbox-indeterminate.svg</file>
+        <file>themes/dark/checkbox-indeterminate-disabled.svg</file>
     </qresource>
     <qresource prefix="/Shader">
         <file>fs_CellFace.glsl</file>
