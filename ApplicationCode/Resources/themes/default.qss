@@ -24,16 +24,16 @@ $plotGridColor: #394046; // Plot grid color
 $auxiliaryCurveColor: #000000; // Auxiliary curve color
 $externalInputColor: #fff2a7; // Background color for external input fields
 
-QwtPlot["*"]::grid["*"] {
-    color: $backgroundColor2;
-}
-
 QwtPlot {
-    background-color: white;
+    background-color: QPalette::Base;
 }
 
 QwtPlot > QWidget {
-    background-color: white;
+    background-color: QPalette::Base;
+}
+
+QwtPlot["*"]::grid["*"] {
+    color: $backgroundColor2;
 }
 
 QwtPlot["PvtPlot"]::curve["Auxiliary"] {
@@ -86,14 +86,6 @@ QwtPlot["PvtPlot"]::lineMarker["*"] {
 
 QwtPlot["PvtPlot"]::pointMarker["*"] {
     color: $textColor;
-}
-
-QMainWindow {
-    background-color: #ffffff;
-}
-
-QToolBar {
-    background-color: #eeeeee;
 }
 
 QListView[state="ExternalInput"] {
