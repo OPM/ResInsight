@@ -57,10 +57,10 @@ void TextEditWithCompletion::setCompleter( QCompleter* completer )
     m_completer->setWidget( this );
     m_completer->setCompletionMode( QCompleter::PopupCompletion );
     m_completer->setCaseSensitivity( Qt::CaseInsensitive );
-    QObject::connect( m_completer,
-                      QOverload<const QString&>::of( &QCompleter::activated ),
-                      this,
-                      &TextEditWithCompletion::insertCompletion );
+    connect( m_completer,
+             static_cast<void ( QCompleter::* )( const QString& )>( &QCompleter::activated ),
+             this,
+             &TextEditWithCompletion::insertCompletion );
 }
 
 //--------------------------------------------------------------------------------------------------
