@@ -24,36 +24,36 @@ $plotGridColor: #394046; // Plot grid color
 $auxiliaryCurveColor: #000000; // Auxiliary curve color
 $externalInputColor: #e82257; // External input background color
 
-QCheckBox::indicator:unchecked
+QCheckBox::indicator:unchecked, QTreeView::indicator:unchecked, QTableView::indicator:unchecked
 {
     background-color: $backgroundColor1;
     image: url(:/themes/dark/checkbox-unchecked-20x20.png);
 }
 
-QCheckBox::indicator:checked
+QCheckBox::indicator:checked, QTreeView::indicator:checked, QTableView::indicator:checked
 {
     background-color: $backgroundColor1;
     image: url(:/themes/dark/checkbox-checked-20x20.png);
 }
-QCheckBox::indicator:indeterminate
+QCheckBox::indicator:indeterminate, QTreeView::indicator:indeterminate, QTableView::indicator:indeterminate
 {
     background-color: $backgroundColor1;
     image: url(:/themes/dark/checkbox-indeterminate-20x20.png);
 }
 
-QCheckBox::indicator:unchecked:disabled
+QCheckBox::indicator:unchecked:disabled, QTreeView::indicator:unchecked:disabled, QTableView::indicator:unchecked:disabled
 {
     background-color: $backgroundColor1;
     image: url(:/themes/dark/checkbox-unchecked-disabled-20x20.png);
 }
 
-QCheckBox::indicator:checked:disabled
+QCheckBox::indicator:checked:disabled, QTreeView::indicator:checked:disabled, QTableView::indicator:checked:disabled
 {
     background-color: $backgroundColor1;
     image: url(:/themes/dark/checkbox-checked-disabled-20x20.png);
 }
 
-QCheckBox::indicator:indeterminate:disabled
+QCheckBox::indicator:indeterminate:disabled, QTreeView::indicator:indeterminate:disabled, QTableView::indicator:indeterminate:disabled
 {
     background-color: $backgroundColor1;
     image: url(:/themes/dark/checkbox-indeterminate-disabled-20x20.png);
@@ -184,42 +184,6 @@ QTreeView::branch:open:has-children:has-siblings {
     border-image: none;
     image: url(:/themes/dark/expanded.svg);
     icon-size: 12px;
-}
-
-QTreeView::indicator:unchecked
-{
-    background-color: $backgroundColor1;
-    image: url(:/themes/dark/checkbox-unchecked-20x20.png);
-}
-
-QTreeView::indicator:checked
-{
-    background-color: $backgroundColor1;
-    image: url(:/themes/dark/checkbox-checked-20x20.png);
-}
-
-QTreeView::indicator:indeterminate
-{
-    background-color: $backgroundColor1;
-    image: url(:/themes/dark/checkbox-indeterminate-20x20.png);
-}
-
-QTreeView::indicator:unchecked:disabled
-{
-    background-color: $backgroundColor1;
-    image: url(:/themes/dark/checkbox-unchecked-disabled-20x20.png);
-}
-
-QTreeView::indicator:checked:disabled
-{
-    background-color: $backgroundColor1;
-    image: url(:/themes/dark/checkbox-checked-disabled-20x20.png);
-}
-
-QTreeView::indicator:indeterminate:disabled
-{
-    background-color: $backgroundColor1;
-    image: url(:/themes/dark/checkbox-indeterminate-disabled-20x20.png);
 }
 
 QDockWidget {
