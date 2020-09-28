@@ -745,10 +745,59 @@ void RiuGuiTheme::styleQwtItem( QwtPicker* item )
 //--------------------------------------------------------------------------------------------------
 void RiuGuiTheme::preparseStyleSheet( RiaDefines::ThemeEnum theme, QString& styleSheet )
 {
+    QMap<QString, QPalette::ColorRole> colorRoleMap;
+    colorRoleMap.insert( "AlternateBase", QPalette::ColorRole::AlternateBase );
+    colorRoleMap.insert( "Base", QPalette::ColorRole::Base );
+    colorRoleMap.insert( "BrightText", QPalette::ColorRole::BrightText );
+    colorRoleMap.insert( "Button", QPalette::ColorRole::Button );
+    colorRoleMap.insert( "ButtonText", QPalette::ColorRole::ButtonText );
+    colorRoleMap.insert( "Dark", QPalette::ColorRole::Dark );
+    colorRoleMap.insert( "Highlight", QPalette::ColorRole::Highlight );
+    colorRoleMap.insert( "HighlightedText", QPalette::ColorRole::HighlightedText );
+    colorRoleMap.insert( "Light", QPalette::ColorRole::Light );
+    colorRoleMap.insert( "Link", QPalette::ColorRole::Link );
+    colorRoleMap.insert( "LinkVisited", QPalette::ColorRole::LinkVisited );
+    colorRoleMap.insert( "Mid", QPalette::ColorRole::Mid );
+    colorRoleMap.insert( "Midlight", QPalette::ColorRole::Midlight );
+    colorRoleMap.insert( "NoRole", QPalette::ColorRole::NoRole );
+    colorRoleMap.insert( "Shadow", QPalette::ColorRole::Shadow );
+    colorRoleMap.insert( "Text", QPalette::ColorRole::Text );
+    colorRoleMap.insert( "ToolTipBase", QPalette::ColorRole::ToolTipBase );
+    colorRoleMap.insert( "ToolTipText", QPalette::ColorRole::ToolTipText );
+    colorRoleMap.insert( "Window", QPalette::ColorRole::Window );
+    colorRoleMap.insert( "WindowText", QPalette::ColorRole::WindowText );
+
+    QMap<QString, QPalette::ColorGroup> colorGroupMap;
+    colorGroupMap.insert( "Active", QPalette::ColorGroup::Active );
+    colorGroupMap.insert( "Disabled", QPalette::ColorGroup::Disabled );
+    colorGroupMap.insert( "Inactive", QPalette::ColorGroup::Inactive );
+
+    QString regExp = "QPalette::(";
+    regExp += colorRoleMap.keys().join( "|" );
+    regExp += "){1}(::(";
+    regExp += colorGroupMap.keys().join( "|" );
+    regExp += "){1})?";
+
+    QRegularExpression              paletteRegExp( regExp );
+    QRegularExpressionMatchIterator matchIterator = paletteRegExp.globalMatch( styleSheet );
+    QPalette                        palette       = RiaGuiApplication::instance()->palette();
+
+    while ( matchIterator.hasNext() )
+    {
+        QRegularExpressionMatch match      = matchIterator.next();
+        QPalette::ColorGroup    colorGroup = QPalette::ColorGroup::Active;
+        if ( match.lastCapturedIndex() == 3 )
+        {
+            colorGroup = colorGroupMap.value( match.captured( 3 ) );
+        }
+        QColor color = palette.color( colorGroup, colorRoleMap.value( match.captured( 1 ) ) );
+        styleSheet.replace( match.captured( 0 ), color.name() );
+    }
+
     QRegularExpression variableRegExp(
         "[ \\t]*(?<name>\\$[a-zA-z0-9_]+)[ \\t]*:[ \\t]*(?<value>[a-zA-Z-_0-9#]+);[ \\t]*(\\/\\/[ "
         "\\t]*(?<descriptor>(.*)))?[\\n\\r]*" );
-    QRegularExpressionMatchIterator matchIterator = variableRegExp.globalMatch( styleSheet );
+    matchIterator = variableRegExp.globalMatch( styleSheet );
 
     if ( !s_variableValueMap.keys().contains( theme ) )
     {
