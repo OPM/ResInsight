@@ -101,6 +101,7 @@ protected:
                                                          QString                    uiConfigName,
                                                          caf::PdmUiEditorAttribute* attribute ) override;
 
+private:
     static RimEclipseCase*     getEclipseCase();
     static RigEclipseCaseData* getEclipseCaseData();
 
@@ -108,7 +109,6 @@ protected:
 
     static double computeDefaultStressDepth();
 
-protected:
     caf::PdmField<int>                        m_id;
     caf::PdmField<double>                     m_defaultPorosity;
     caf::PdmField<double>                     m_defaultPermeability;
