@@ -203,6 +203,8 @@
         <file>themes/dark/expanded.svg</file>
         <file>themes/dark/arrow-down.svg</file>
         <file>themes/dark/arrow-up.svg</file>
+        <file>themes/dark/checkbox-unchecked-20x20.png</file>
+        <file>themes/dark/checkbox-checked-20x20.png</file>
         <file>SummaryCase24x24.png</file>
     </qresource>
     <qresource prefix="/Shader">
