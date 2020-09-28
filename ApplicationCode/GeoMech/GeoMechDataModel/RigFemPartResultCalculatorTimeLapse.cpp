@@ -61,117 +61,134 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorTimeLapse::calculate( int   
 {
     CVF_ASSERT( resVarAddr.isTimeLapse() );
 
-    if ( resVarAddr.fieldName != "Gamma" )
+    if ( resVarAddr.fieldName == "Gamma" )
     {
-        caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * 2, "" );
-        frameCountProgress.setProgressDescription(
-            "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-        frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
-
-        RigFemResultAddress resVarNative( resVarAddr.resultPosType,
-                                          resVarAddr.fieldName,
-                                          resVarAddr.componentName,
-                                          RigFemResultAddress::noTimeLapseValue(),
-                                          resVarAddr.refKLayerIndex );
-        resVarNative.normalizedByHydrostaticPressure = resVarAddr.normalizedByHydrostaticPressure;
-
-        RigFemScalarResultFrames* srcDataFrames = nullptr;
-        RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
-
-        // Normalizable result: needs to be normalized before the diff is calculated
-        if ( resVarAddr.normalizeByHydrostaticPressure() && RigFemPartResultsCollection::isNormalizableResult( resVarAddr ) )
-        {
-            RigFemPartResultCalculatorNormalized normalizedCalculator( *m_resultCollection );
-            srcDataFrames = normalizedCalculator.calculate( partIndex, resVarNative );
-        }
-        else
-        {
-            srcDataFrames = m_resultCollection->findOrLoadScalarResult( partIndex, resVarNative );
-        }
-
-        frameCountProgress.incrementProgress();
-
-        int frameCount   = srcDataFrames->frameCount();
-        int baseFrameIdx = resVarAddr.timeLapseBaseFrameIdx;
-        if ( baseFrameIdx >= frameCount ) return dstDataFrames;
-        const std::vector<float>& baseFrameData = srcDataFrames->frameData( baseFrameIdx );
-        if ( baseFrameData.empty() ) return dstDataFrames;
-
-        for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
-        {
-            const std::vector<float>& srcFrameData = srcDataFrames->frameData( fIdx );
-            if ( srcFrameData.empty() ) continue; // Create empty results
-
-            std::vector<float>& dstFrameData = dstDataFrames->frameData( fIdx );
-            size_t              valCount     = srcFrameData.size();
-            dstFrameData.resize( valCount );
-
-#pragma omp parallel for
-            for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
-            {
-                dstFrameData[vIdx] = srcFrameData[vIdx] - baseFrameData[vIdx];
-            }
-
-            frameCountProgress.incrementProgress();
-        }
-
-        return dstDataFrames;
+        return calculateGammaTimeLapse( partIndex, resVarAddr );
     }
     else
     {
-        // Gamma time lapse needs to be calculated as ST_dt / POR_dt and not Gamma - Gamma_baseFrame see github
-        // issue #937
-
-        caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * 3, "" );
-        frameCountProgress.setProgressDescription(
-            "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-        frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
-
-        RigFemResultAddress totStressCompAddr( resVarAddr.resultPosType, "ST", "", resVarAddr.timeLapseBaseFrameIdx );
-        {
-            std::string scomp;
-            std::string gcomp = resVarAddr.componentName;
-            if ( gcomp == "Gamma1" )
-                scomp = "S1";
-            else if ( gcomp == "Gamma2" )
-                scomp = "S2";
-            else if ( gcomp == "Gamma3" )
-                scomp = "S3";
-            else if ( gcomp == "Gamma11" )
-                scomp = "S11";
-            else if ( gcomp == "Gamma22" )
-                scomp = "S22";
-            else if ( gcomp == "Gamma33" )
-                scomp = "S33";
-            totStressCompAddr.componentName = scomp;
-        }
-
-        RigFemScalarResultFrames* srcDataFrames =
-            m_resultCollection->findOrLoadScalarResult( partIndex, totStressCompAddr );
-        frameCountProgress.incrementProgress();
-        frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
-        RigFemScalarResultFrames* srcPORDataFrames =
-            m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                        RigFemResultAddress( RIG_NODAL,
-                                                                             "POR-Bar",
-                                                                             "",
-                                                                             resVarAddr.timeLapseBaseFrameIdx ) );
-        RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
-
-        frameCountProgress.incrementProgress();
-
-        RigFemPartResultCalculatorGamma::calculateGammaFromFrames( partIndex,
-                                                                   m_resultCollection->parts(),
-                                                                   srcDataFrames,
-                                                                   srcPORDataFrames,
-                                                                   dstDataFrames,
-                                                                   &frameCountProgress );
-        if ( resVarAddr.normalizeByHydrostaticPressure() && RigFemPartResultsCollection::isNormalizableResult( resVarAddr ) )
-        {
-            RigFemPartResultCalculatorNormalized normalizedCalculator( *m_resultCollection );
-            dstDataFrames = normalizedCalculator.calculate( partIndex, resVarAddr );
-        }
-
-        return dstDataFrames;
+        return calculateTimeLapse( partIndex, resVarAddr );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigFemScalarResultFrames*
+    RigFemPartResultCalculatorTimeLapse::calculateTimeLapse( int partIndex, const RigFemResultAddress& resVarAddr )
+{
+    caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * 2, "" );
+    frameCountProgress.setProgressDescription(
+        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
+    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+
+    RigFemResultAddress resVarNative( resVarAddr.resultPosType,
+                                      resVarAddr.fieldName,
+                                      resVarAddr.componentName,
+                                      RigFemResultAddress::noTimeLapseValue(),
+                                      resVarAddr.refKLayerIndex );
+    resVarNative.normalizedByHydrostaticPressure = resVarAddr.normalizedByHydrostaticPressure;
+
+    RigFemScalarResultFrames* srcDataFrames = nullptr;
+    RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
+
+    // Normalizable result: needs to be normalized before the diff is calculated
+    if ( resVarAddr.normalizeByHydrostaticPressure() && RigFemPartResultsCollection::isNormalizableResult( resVarAddr ) )
+    {
+        RigFemPartResultCalculatorNormalized normalizedCalculator( *m_resultCollection );
+        srcDataFrames = normalizedCalculator.calculate( partIndex, resVarNative );
+    }
+    else
+    {
+        srcDataFrames = m_resultCollection->findOrLoadScalarResult( partIndex, resVarNative );
+    }
+
+    frameCountProgress.incrementProgress();
+
+    int frameCount   = srcDataFrames->frameCount();
+    int baseFrameIdx = resVarAddr.timeLapseBaseFrameIdx;
+    if ( baseFrameIdx >= frameCount ) return dstDataFrames;
+    const std::vector<float>& baseFrameData = srcDataFrames->frameData( baseFrameIdx );
+    if ( baseFrameData.empty() ) return dstDataFrames;
+
+    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+    {
+        const std::vector<float>& srcFrameData = srcDataFrames->frameData( fIdx );
+        if ( srcFrameData.empty() ) continue; // Create empty results
+
+        std::vector<float>& dstFrameData = dstDataFrames->frameData( fIdx );
+        size_t              valCount     = srcFrameData.size();
+        dstFrameData.resize( valCount );
+
+#pragma omp parallel for
+        for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
+        {
+            dstFrameData[vIdx] = srcFrameData[vIdx] - baseFrameData[vIdx];
+        }
+
+        frameCountProgress.incrementProgress();
+    }
+
+    return dstDataFrames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigFemScalarResultFrames*
+    RigFemPartResultCalculatorTimeLapse::calculateGammaTimeLapse( int partIndex, const RigFemResultAddress& resVarAddr )
+{
+    // Gamma time lapse needs to be calculated as ST_dt / POR_dt and not Gamma - Gamma_baseFrame see github
+    // issue #937
+
+    caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * 3, "" );
+    frameCountProgress.setProgressDescription(
+        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
+    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+
+    RigFemResultAddress totStressCompAddr( resVarAddr.resultPosType, "ST", "", resVarAddr.timeLapseBaseFrameIdx );
+    {
+        std::string scomp;
+        std::string gcomp = resVarAddr.componentName;
+        if ( gcomp == "Gamma1" )
+            scomp = "S1";
+        else if ( gcomp == "Gamma2" )
+            scomp = "S2";
+        else if ( gcomp == "Gamma3" )
+            scomp = "S3";
+        else if ( gcomp == "Gamma11" )
+            scomp = "S11";
+        else if ( gcomp == "Gamma22" )
+            scomp = "S22";
+        else if ( gcomp == "Gamma33" )
+            scomp = "S33";
+        totStressCompAddr.componentName = scomp;
+    }
+
+    RigFemScalarResultFrames* srcDataFrames = m_resultCollection->findOrLoadScalarResult( partIndex, totStressCompAddr );
+    frameCountProgress.incrementProgress();
+    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    RigFemScalarResultFrames* srcPORDataFrames =
+        m_resultCollection->findOrLoadScalarResult( partIndex,
+                                                    RigFemResultAddress( RIG_NODAL,
+                                                                         "POR-Bar",
+                                                                         "",
+                                                                         resVarAddr.timeLapseBaseFrameIdx ) );
+    RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
+
+    frameCountProgress.incrementProgress();
+
+    RigFemPartResultCalculatorGamma::calculateGammaFromFrames( partIndex,
+                                                               m_resultCollection->parts(),
+                                                               srcDataFrames,
+                                                               srcPORDataFrames,
+                                                               dstDataFrames,
+                                                               &frameCountProgress );
+    if ( resVarAddr.normalizeByHydrostaticPressure() && RigFemPartResultsCollection::isNormalizableResult( resVarAddr ) )
+    {
+        RigFemPartResultCalculatorNormalized normalizedCalculator( *m_resultCollection );
+        dstDataFrames = normalizedCalculator.calculate( partIndex, resVarAddr );
+    }
+
+    return dstDataFrames;
 }

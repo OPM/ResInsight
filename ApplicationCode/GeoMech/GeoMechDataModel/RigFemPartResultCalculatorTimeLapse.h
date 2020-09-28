@@ -34,4 +34,9 @@ public:
     virtual ~RigFemPartResultCalculatorTimeLapse();
     bool                      isMatching( const RigFemResultAddress& resVarAddr ) const override;
     RigFemScalarResultFrames* calculate( int partIndex, const RigFemResultAddress& resVarAddr ) override;
+
+private:
+    RigFemScalarResultFrames* calculateTimeLapse( int partIndex, const RigFemResultAddress& resVarAddr );
+
+    RigFemScalarResultFrames* calculateGammaTimeLapse( int partIndex, const RigFemResultAddress& resVarAddr );
 };
