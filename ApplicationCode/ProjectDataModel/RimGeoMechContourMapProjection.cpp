@@ -595,13 +595,13 @@ QList<caf::PdmOptionItemInfo>
 
     if ( fieldNeedingOptions == &m_resultAggregation )
     {
-        std::vector<ResultAggregationEnum> validOptions = { RESULTS_TOP_VALUE,
-                                                            RESULTS_MEAN_VALUE,
-                                                            RESULTS_GEOM_VALUE,
-                                                            RESULTS_HARM_VALUE,
-                                                            RESULTS_MIN_VALUE,
-                                                            RESULTS_MAX_VALUE,
-                                                            RESULTS_SUM };
+        std::vector<ResultAggregationEnum> validOptions = {RESULTS_TOP_VALUE,
+                                                           RESULTS_MEAN_VALUE,
+                                                           RESULTS_GEOM_VALUE,
+                                                           RESULTS_HARM_VALUE,
+                                                           RESULTS_MIN_VALUE,
+                                                           RESULTS_MAX_VALUE,
+                                                           RESULTS_SUM};
 
         for ( ResultAggregationEnum option : validOptions )
         {

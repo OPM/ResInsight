@@ -125,10 +125,10 @@ RimDepthTrackPlot::RimDepthTrackPlot()
     auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_plots );
     reorderability->orderChanged.connect( this, &RimDepthTrackPlot::onPlotsReordered );
 
-    m_availableDepthUnits = { RiaDefines::DepthUnitType::UNIT_METER, RiaDefines::DepthUnitType::UNIT_FEET };
-    m_availableDepthTypes = { RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
-                              RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH,
-                              RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB };
+    m_availableDepthUnits = {RiaDefines::DepthUnitType::UNIT_METER, RiaDefines::DepthUnitType::UNIT_FEET};
+    m_availableDepthTypes = {RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
+                             RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH,
+                             RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB};
 
     m_minAvailableDepth = HUGE_VAL;
     m_maxAvailableDepth = -HUGE_VAL;
