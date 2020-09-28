@@ -893,7 +893,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimFractureModelTemplateCollection*>( firstUiItem ) )
         {
-            menuBuilder << "RicNewFractureModelTemplateFeature";
+            if ( RiaApplication::enableDevelopmentFeatures() )
+            {
+                menuBuilder << "RicNewFractureModelTemplateFeature";
+            }
         }
         else if ( dynamic_cast<RimFractureTemplateCollection*>( firstUiItem ) )
         {
