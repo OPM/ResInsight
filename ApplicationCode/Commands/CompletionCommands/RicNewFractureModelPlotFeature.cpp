@@ -263,22 +263,13 @@ void RicNewFractureModelPlotFeature::createFaciesTrack( RimFractureModelPlot* pl
                                                         RimEclipseCase*       eclipseCase )
 {
     RimFractureModelTemplate* fractureModelTemplate = fractureModel->fractureModelTemplate();
-    if ( !fractureModelTemplate )
-    {
-        return;
-    }
+    if ( !fractureModelTemplate ) return;
 
     RimFaciesProperties* faciesProperties = fractureModelTemplate->faciesProperties();
-    if ( !faciesProperties )
-    {
-        return;
-    }
+    if ( !faciesProperties ) return;
 
     const RimEclipseResultDefinition* faciesDefinition = faciesProperties->faciesDefinition();
-    if ( !faciesDefinition )
-    {
-        return;
-    }
+    if ( !faciesDefinition ) return;
 
     RimWellLogTrack* faciesTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, "Facies", plot );
     faciesTrack->setFormationWellPath( fractureModel->thicknessDirectionWellPath() );
@@ -291,10 +282,7 @@ void RicNewFractureModelPlotFeature::createFaciesTrack( RimFractureModelPlot* pl
     faciesTrack->setPlotTitleVisible( true );
 
     RimColorLegend* faciesColors = faciesProperties->colorLegend();
-    if ( faciesColors )
-    {
-        faciesTrack->setColorShadingLegend( faciesColors );
-    }
+    if ( faciesColors ) faciesTrack->setColorShadingLegend( faciesColors );
 
     faciesTrack->setVisibleXRange( 0.0, 0.0 );
     faciesTrack->setColSpan( RimPlot::ONE );
@@ -341,22 +329,13 @@ void RicNewFractureModelPlotFeature::createLayersTrack( RimFractureModelPlot* pl
     faciesTrack->setPlotTitleVisible( true );
 
     RimFractureModelTemplate* fractureModelTemplate = fractureModel->fractureModelTemplate();
-    if ( !fractureModelTemplate )
-    {
-        return;
-    }
+    if ( !fractureModelTemplate ) return;
 
     RimFaciesProperties* faciesProperties = fractureModelTemplate->faciesProperties();
-    if ( !faciesProperties )
-    {
-        return;
-    }
+    if ( !faciesProperties ) return;
 
     RimColorLegend* faciesColors = faciesProperties->colorLegend();
-    if ( faciesColors )
-    {
-        faciesTrack->setColorShadingLegend( faciesColors );
-    }
+    if ( faciesColors ) faciesTrack->setColorShadingLegend( faciesColors );
 
     faciesTrack->setVisibleXRange( 0.0, 0.0 );
     faciesTrack->setColSpan( RimPlot::ONE );
