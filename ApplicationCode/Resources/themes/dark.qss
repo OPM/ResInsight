@@ -24,6 +24,18 @@ $plotGridColor: #394046; // Plot grid color
 $auxiliaryCurveColor: #000000; // Auxiliary curve color
 $externalInputColor: #e82257; // External input background color
 
+QCheckBox::indicator:unchecked
+{
+    background-color: $backgroundColor1;
+    image: url(:/themes/dark/checkbox-unchecked-20x20.png);
+}
+
+QCheckBox::indicator:checked
+{
+    background-color: $backgroundColor1;
+    image: url(:/themes/dark/checkbox-checked-20x20.png);
+}
+
 QwtPlot["*"]::grid["*"] {
     color: $backgroundColor2;
 }
@@ -149,6 +161,18 @@ QTreeView::branch:open:has-children:has-siblings {
     border-image: none;
     image: url(:/themes/dark/expanded.svg);
     icon-size: 12px;
+}
+
+QTreeView::indicator:unchecked
+{
+    background-color: $backgroundColor1;
+    image: url(:/themes/dark/checkbox-unchecked-20x20.png);
+}
+
+QTreeView::indicator:checked
+{
+    background-color: $backgroundColor1;
+    image: url(:/themes/dark/checkbox-checked-20x20.png);
 }
 
 QDockWidget {
