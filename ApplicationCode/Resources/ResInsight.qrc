@@ -205,6 +205,10 @@
         <file>themes/dark/arrow-up.svg</file>
         <file>themes/dark/checkbox-unchecked-20x20.png</file>
         <file>themes/dark/checkbox-checked-20x20.png</file>
+        <file>themes/dark/checkbox-indeterminate-20x20.png</file>
+        <file>themes/dark/checkbox-unchecked-disabled-20x20.png</file>
+        <file>themes/dark/checkbox-checked-disabled-20x20.png</file>
+        <file>themes/dark/checkbox-indeterminate-disabled-20x20.png</file>
         <file>SummaryCase24x24.png</file>
     </qresource>
     <qresource prefix="/Shader">
