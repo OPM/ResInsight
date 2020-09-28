@@ -73,14 +73,10 @@ void PdmUiLineEditor::updateLineEditFromReadOnlyState( QLineEdit* lineEdit, bool
     if ( isReadOnly )
     {
         lineEdit->setReadOnly( true );
-        lineEdit->setStyleSheet( "QLineEdit {"
-                                 "color: #808080;"
-                                 "background-color: #F0F0F0;}" );
     }
     else
     {
         lineEdit->setReadOnly( false );
-        lineEdit->setStyleSheet( "" );
     }
 }
 

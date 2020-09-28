@@ -27,36 +27,36 @@ $externalInputColor: #e82257; // External input background color
 QCheckBox::indicator:unchecked, QTreeView::indicator:unchecked, QTableView::indicator:unchecked
 {
     background-color: $backgroundColor1;
-    image: url(:/themes/dark/checkbox-unchecked-20x20.png);
+    image: url(:/themes/dark/checkbox-unchecked.svg);
 }
 
 QCheckBox::indicator:checked, QTreeView::indicator:checked, QTableView::indicator:checked
 {
     background-color: $backgroundColor1;
-    image: url(:/themes/dark/checkbox-checked-20x20.png);
+    image: url(:/themes/dark/checkbox-checked.svg);
 }
 QCheckBox::indicator:indeterminate, QTreeView::indicator:indeterminate, QTableView::indicator:indeterminate
 {
     background-color: $backgroundColor1;
-    image: url(:/themes/dark/checkbox-indeterminate-20x20.png);
+    image: url(:/themes/dark/checkbox-indeterminate.svg);
 }
 
 QCheckBox::indicator:unchecked:disabled, QTreeView::indicator:unchecked:disabled, QTableView::indicator:unchecked:disabled
 {
     background-color: $backgroundColor1;
-    image: url(:/themes/dark/checkbox-unchecked-disabled-20x20.png);
+    image: url(:/themes/dark/checkbox-unchecked-disabled.svg);
 }
 
 QCheckBox::indicator:checked:disabled, QTreeView::indicator:checked:disabled, QTableView::indicator:checked:disabled
 {
     background-color: $backgroundColor1;
-    image: url(:/themes/dark/checkbox-checked-disabled-20x20.png);
+    image: url(:/themes/dark/checkbox-checked-disabled.svg);
 }
 
 QCheckBox::indicator:indeterminate:disabled, QTreeView::indicator:indeterminate:disabled, QTableView::indicator:indeterminate:disabled
 {
     background-color: $backgroundColor1;
-    image: url(:/themes/dark/checkbox-indeterminate-disabled-20x20.png);
+    image: url(:/themes/dark/checkbox-indeterminate-disabled.svg);
 }
 
 QwtPlot["*"]::grid["*"] {
@@ -186,6 +186,22 @@ QTreeView::branch:open:has-children:has-siblings {
     icon-size: 12px;
 }
 
+QHeaderView::section 
+{
+    background-color: $backgroundColor1;
+    color: $textColor;
+    padding: 4px;
+}
+
+QTableView QTableCornerButton::section {
+    background: transparent;
+}
+
+QHeaderView
+{
+    background-color: $backgroundColor1;
+}
+
 QDockWidget {
     background-color: $mainBackgroundColor;
     titlebar-close-icon:  url(:/themes/dark/blank.svg);
@@ -194,7 +210,6 @@ QDockWidget {
 
 QDockWidget::title {
     background-color: $backgroundColor1;
-    padding: 5px;
 }
 
 QDockWidget::close-button, QDockWidget::float-button {
@@ -405,4 +420,9 @@ QTextEdit, QPlainTextEdit {
 QWidget[state="ExternalInput"] {
     background-color: $externalInputColor;
     border: 2px solid $borderColor;
+}
+
+QWidget:readonly {
+    background-color: $backgroundColor1;
+    color: $backgroundColor3;
 }
