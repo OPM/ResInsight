@@ -25,10 +25,12 @@
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfRay.h"
 #include "cvfScalarMapper.h"
+#include "cvfqtUtils.h"
 
 #include <cmath>
 
 #include <QDebug>
+#include <QString>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -267,7 +269,9 @@ std::vector<std::vector<cvf::ref<cvf::Drawable>>>
         {
             if ( m_contourLinePolygons[i][j].vertices.empty() ) continue;
 
-            cvf::String labelText( m_contourLinePolygons[i][j].value );
+            // cvf::String::number does not allow precision on 'g' formats, so use Qt.
+            QString     qLabelText = QString::number( m_contourLinePolygons[i][j].value, 'g', 2 );
+            cvf::String labelText  = cvfqt::Utils::toString( qLabelText );
 
             size_t nVertices = m_contourLinePolygons[i][j].vertices.size();
 
@@ -402,7 +406,9 @@ std::vector<cvf::ref<cvf::Drawable>>
         {
             if ( m_contourLinePolygons[i][j].vertices.empty() ) continue;
 
-            cvf::String labelText( m_contourLinePolygons[i][j].value );
+            // cvf::String::number does not allow precision on 'g' formats, so use Qt.
+            QString     qLabelText = QString::number( m_contourLinePolygons[i][j].value, 'g', 2 );
+            cvf::String labelText  = cvfqt::Utils::toString( qLabelText );
 
             size_t nVertices              = m_contourLinePolygons[i][j].vertices.size();
             size_t nLabels                = nVertices;
