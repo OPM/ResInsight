@@ -976,11 +976,11 @@ void RimContourMapProjection::generateTrianglesWithVertexValues()
                                 std::vector<cvf::Vec3d> clippedTriangle;
                                 if ( v == clippedPolygon.size() - 1 )
                                 {
-                                    clippedTriangle = { clippedPolygon[v], clippedPolygon[0], baryCenter };
+                                    clippedTriangle = {clippedPolygon[v], clippedPolygon[0], baryCenter};
                                 }
                                 else
                                 {
-                                    clippedTriangle = { clippedPolygon[v], clippedPolygon[v + 1], baryCenter };
+                                    clippedTriangle = {clippedPolygon[v], clippedPolygon[v + 1], baryCenter};
                                 }
                                 polygonTriangles.push_back( clippedTriangle );
                             }
@@ -1103,18 +1103,14 @@ void RimContourMapProjection::generateContourPolygons()
         {
             if ( nContourLevels > 2 )
             {
-                if ( legendConfig()->mappingMode() == RimRegularLegendConfig::MappingType::LINEAR_DISCRETE ||
-                     legendConfig()->mappingMode() == RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS )
-                {
-                    const int fudgeFactor = 0.01;
-                    // Adjust contour levels slightly to avoid weird visual artifacts due to numerical error.
-                    contourLevels.front() -= fudgeFactor * ( contourLevels.back() - contourLevels.front() );
-                    contourLevels.back() += fudgeFactor * ( contourLevels.back() - contourLevels.front() );
-                }
-                else
-                {
-                    contourLevels.front() *= 0.5;
-                }
+                const size_t N = contourLevels.size();
+                // Adjust contour levels slightly to avoid weird visual artifacts due to numerical error.
+                double fudgeFactor    = 1.0e-3;
+                double fudgeAmountMin = fudgeFactor * ( contourLevels[1] - contourLevels[0] );
+                double fudgeAmountMax = fudgeFactor * ( contourLevels[N - 1u] - contourLevels[N - 2u] );
+
+                contourLevels.front() += fudgeAmountMin;
+                contourLevels.back() -= fudgeAmountMax;
 
                 double simplifyEpsilon = m_smoothContourLines() ? 5.0e-2 * sampleSpacing() : 1.0e-3 * sampleSpacing();
 
