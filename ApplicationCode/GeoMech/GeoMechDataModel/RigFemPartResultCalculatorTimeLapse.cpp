@@ -22,6 +22,7 @@
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultCalculatorGamma.h"
 #include "RigFemPartResultCalculatorNormalized.h"
+#include "RigFemPartResultCalculatorStressAnisotropy.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigFemResultAddress.h"
 #include "RigFemScalarResultFrames.h"
@@ -61,9 +62,14 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorTimeLapse::calculate( int   
 {
     CVF_ASSERT( resVarAddr.isTimeLapse() );
 
+    RigFemPartResultCalculatorStressAnisotropy anisotropyCalculator( *m_resultCollection );
     if ( resVarAddr.fieldName == "Gamma" )
     {
         return calculateGammaTimeLapse( partIndex, resVarAddr );
+    }
+    else if ( anisotropyCalculator.isMatching( resVarAddr ) )
+    {
+        return anisotropyCalculator.calculateTimeLapse( partIndex, resVarAddr );
     }
     else
     {
