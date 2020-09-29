@@ -918,7 +918,7 @@ void RiuViewer::updateLegendLayout()
         const int xPos = width() - (int)scaleLegendSize.x() - margin - edgeAxisBorderWidth;
         const int yPos = margin + edgeAxisBorderHeight + margin + otherItemsHeight;
 
-        m_scaleLegend->setLayoutFixedPosition( { xPos, yPos } );
+        m_scaleLegend->setLayoutFixedPosition( {xPos, yPos} );
     }
 }
 
@@ -1297,9 +1297,9 @@ void RiuViewer::showScaleLegend( bool show )
     if ( show )
     {
         if ( m_scaleLegend->orientation() == caf::OverlayScaleLegend::HORIZONTAL )
-            m_scaleLegend->setRenderSize( { 280, 45 } );
+            m_scaleLegend->setRenderSize( {280, 45} );
         else
-            m_scaleLegend->setRenderSize( { 50, 280 } );
+            m_scaleLegend->setRenderSize( {50, 280} );
 
         overlayItemsRendering()->addOverlayItem( m_scaleLegend.p() );
     }
