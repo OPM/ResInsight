@@ -83,7 +83,7 @@ void RiuSummaryVectorSelectionDialog::setCaseAndAddress( RimSummaryCase*        
     {
         std::vector<RiaSummaryCurveDefinition> curveDefs;
         curveDefs.push_back( RiaSummaryCurveDefinition( summaryCase, address, false ) );
-        summaryAddressSelection()->setSelectedCurveDefinitions( curveDefs );
+        setCurveSelection( curveDefs );
     }
     else
     {
