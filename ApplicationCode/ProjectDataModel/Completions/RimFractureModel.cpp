@@ -91,6 +91,7 @@ void caf::AppEnum<RimFractureModel::FractureOrientation>::setUp()
     addItem( RimFractureModel::FractureOrientation::TRANSVERSE_WELL_PATH,
              "TRANSVERSE_WELL_PATH",
              "Transverse (normal) to Well Path" );
+    addItem( RimFractureModel::FractureOrientation::AZIMUTH, "AZIMUTH", "Azimuth" );
 
     setDefault( RimFractureModel::FractureOrientation::TRANSVERSE_WELL_PATH );
 }
@@ -161,6 +162,7 @@ RimFractureModel::RimFractureModel()
                                  "",
                                  "",
                                  "" );
+    CAF_PDM_InitScriptableField( &m_azimuthAngle, "AzimuthAngle", 0.0, "Azimuth Angle", "", "", "" );
 
     CAF_PDM_InitScriptableField( &m_formationDip, "FormationDip", 0.0, "Formation Dip", "", "", "" );
     m_formationDip.uiCapability()->setUiReadOnly( true );
@@ -243,7 +245,7 @@ void RimFractureModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 
     if ( changedField == &m_MD || changedField == &m_extractionType || changedField == &m_boundingBoxVertical ||
          changedField == &m_boundingBoxHorizontal || changedField == &m_fractureOrientation ||
-         changedField == &m_autoComputeBarrier )
+         changedField == &m_autoComputeBarrier || changedField == &m_azimuthAngle )
     {
         updateThicknessDirection();
         updateBarrierProperties();
@@ -549,6 +551,14 @@ void RimFractureModel::updateDistanceToBarrierAndDip()
         cvf::Mat3d azimuthRotation = cvf::Mat3d::fromRotation( cvf::Vec3d::Z_AXIS, cvf::Math::toRadians( 90.0 ) );
         fractureDirection.transformVector( azimuthRotation );
     }
+    else if ( m_fractureOrientation == FractureOrientation::AZIMUTH )
+    {
+        // Azimuth angle of fracture is relative to north.
+        double     wellAzimuth = wellPathGeometry->wellPathAzimuthAngle( position );
+        cvf::Mat3d azimuthRotation =
+            cvf::Mat3d::fromRotation( cvf::Vec3d::Z_AXIS, cvf::Math::toRadians( wellAzimuth - m_azimuthAngle() - 90.0 ) );
+        fractureDirection.transformVector( azimuthRotation );
+    }
 
     // The direction to the barrier is normal to the TST
     cvf::Vec3d directionToBarrier = ( thicknessDirection() ^ fractureDirection ).getNormalized();
@@ -699,6 +709,7 @@ void RimFractureModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 {
     m_thicknessDirectionWellPath.uiCapability()->setUiHidden( true );
     m_barrierAnnotation.uiCapability()->setUiHidden( true );
+    m_azimuthAngle.uiCapability()->setUiHidden( m_fractureOrientation() != RimFractureModel::FractureOrientation::AZIMUTH );
 
     uiOrdering.add( nameField(), caf::PdmUiOrdering::LayoutOptions( true, 3, 1 ) );
     uiOrdering.add( &m_fractureModelTemplate, {true, 2, 1} );
@@ -722,6 +733,7 @@ void RimFractureModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     caf::PdmUiOrdering* perforationGroup = uiOrdering.addNewGroup( "Perforation" );
     perforationGroup->add( &m_perforationLength );
     perforationGroup->add( &m_fractureOrientation );
+    perforationGroup->add( &m_azimuthAngle );
 
     caf::PdmUiOrdering* asymmetricGroup = uiOrdering.addNewGroup( "Asymmetric" );
     asymmetricGroup->add( &m_formationDip );
