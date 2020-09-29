@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Generator: Adobe Illustrator 24.1.2, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 13.9 13.9" style="enable-background:new 0 0 13.9 13.9;" xml:space="preserve">
+	 viewBox="0 0 12.9 12.9" style="enable-background:new 0 0 12.9 12.9;" xml:space="preserve">
 <style type="text/css">
-	.st0{fill:#394046;stroke:#5B6068;stroke-miterlimit:10;}
-	.st1{fill:none;stroke:#5B6068;stroke-width:1.5;stroke-miterlimit:10;}
-	.st2{display:none;fill:#E7E8EA;}
+	.st0{display:none;fill:#394046;}
+	.st1{fill:none;stroke:#5C6169;stroke-width:1.5;stroke-miterlimit:10;}
+	.st2{display:none;fill:#5C6169;}
 </style>
-<rect x="0.5" y="0.5" class="st0" width="12.9" height="12.9"/>
-<polyline class="st1" points="3.2,7.3 6.1,10.2 11.8,4.6 "/>
-<rect x="3.4" y="3.4" class="st2" width="7" height="7"/>
+<rect class="st0" width="12.9" height="12.9"/>
+<polyline class="st1" points="2.7,6.8 5.6,9.7 11.3,4.1 "/>
+<rect x="3" y="3" class="st2" width="7" height="7"/>
 </svg>
