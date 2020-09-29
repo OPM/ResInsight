@@ -182,6 +182,9 @@ private:
     void updateViewsAndPlots();
     void fractureModelTemplateChanged( const caf::SignalEmitter* emitter );
 
+    void hideOtherFaults( const QString& targetFaultName );
+    void showAllFaults();
+
 protected:
     caf::PdmField<double>                       m_MD;
     caf::PdmField<caf::AppEnum<ExtractionType>> m_extractionType;
@@ -209,4 +212,7 @@ protected:
     caf::PdmField<double>                                m_barrierDip;
     caf::PdmField<int>                                   m_wellPenetrationLayer;
     caf::PdmPtrField<RimUserDefinedPolylinesAnnotation*> m_barrierAnnotation;
+    caf::PdmField<QString>                               m_barrierFaultName;
+    caf::PdmField<bool>                                  m_showOnlyBarrierFault;
+    caf::PdmField<bool>                                  m_showAllFaults;
 };

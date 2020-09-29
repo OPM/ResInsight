@@ -18,6 +18,7 @@
 
 #include "RimFractureModel.h"
 
+#include "RiaApplication.h"
 #include "RiaCompletionTypeCalculationScheduler.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaFractureDefines.h"
@@ -39,6 +40,8 @@
 #include "RimCompletionTemplateCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
+#include "RimFaultInView.h"
+#include "RimFaultInViewCollection.h"
 #include "RimFractureModelPlot.h"
 #include "RimFractureModelTemplate.h"
 #include "RimFractureModelTemplateCollection.h"
@@ -179,6 +182,14 @@ RimFractureModel::RimFractureModel()
     m_barrierDip.uiCapability()->setUiReadOnly( true );
     CAF_PDM_InitScriptableField( &m_wellPenetrationLayer, "WellPenetrationLayer", 0, "Well Penetration Layer", "", "", "" );
 
+    CAF_PDM_InitScriptableField( &m_showOnlyBarrierFault, "ShowOnlyBarrierFault", false, "Show Only Barrier Fault", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_showAllFaults, "ShowAllFaults", false, "Show All Faults", "", "", "" );
+    m_showAllFaults.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
+    m_showAllFaults.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    CAF_PDM_InitScriptableField( &m_barrierFaultName, "BarrierFaultName", QString( "" ), "Barrier Fault", "", "", "" );
+    m_barrierFaultName.uiCapability()->setUiReadOnly( true );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_barrierAnnotation, "BarrierAnnotation", "Barrier Annotation", "", "", "" );
 
     setDeletable( true );
@@ -245,16 +256,24 @@ void RimFractureModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 
     if ( changedField == &m_MD || changedField == &m_extractionType || changedField == &m_boundingBoxVertical ||
          changedField == &m_boundingBoxHorizontal || changedField == &m_fractureOrientation ||
-         changedField == &m_autoComputeBarrier || changedField == &m_azimuthAngle )
+         changedField == &m_autoComputeBarrier || changedField == &m_azimuthAngle || changedField == &m_showOnlyBarrierFault )
     {
         updateThicknessDirection();
         updateBarrierProperties();
+    }
+
+    if ( changedField == &m_showAllFaults )
+    {
+        m_showAllFaults        = false;
+        m_showOnlyBarrierFault = false;
+        showAllFaults();
     }
 
     if ( changedField == &m_autoComputeBarrier || changedField == &m_hasBarrier )
     {
         m_barrierDip.uiCapability()->setUiReadOnly( m_autoComputeBarrier || !m_hasBarrier );
         m_distanceToBarrier.uiCapability()->setUiReadOnly( m_autoComputeBarrier || !m_hasBarrier );
+        m_showOnlyBarrierFault.uiCapability()->setUiReadOnly( !m_hasBarrier );
     }
 
     if ( changedField == &m_extractionType || changedField == &m_thicknessDirectionWellPath )
@@ -509,6 +528,11 @@ void RimFractureModel::updateBarrierProperties()
     {
         clearBarrierAnnotation();
     }
+
+    if ( m_showOnlyBarrierFault() && m_hasBarrier() )
+    {
+        hideOtherFaults( m_barrierFaultName() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -571,10 +595,10 @@ void RimFractureModel::updateDistanceToBarrierAndDip()
 
     double shortestDistance = std::numeric_limits<double>::max();
 
-    RigMainGrid* mainGrid   = eclipseCaseData->mainGrid();
-    bool         foundFault = false;
-    cvf::Vec3d   barrierPosition;
-    double       barrierDip = 0.0;
+    RigMainGrid*    mainGrid = eclipseCaseData->mainGrid();
+    cvf::Vec3d      barrierPosition;
+    double          barrierDip = 0.0;
+    const RigFault* foundFault = nullptr;
     for ( const WellPathCellIntersectionInfo& intersection : intersections )
     {
         // Find the closest cell face which is a fault
@@ -583,7 +607,7 @@ void RimFractureModel::updateDistanceToBarrierAndDip()
                                                                              intersection.intersectedCellFaceIn );
         if ( fault && distance < shortestDistance )
         {
-            foundFault       = true;
+            foundFault       = fault;
             shortestDistance = distance;
             barrierPosition  = intersection.startPoint;
 
@@ -595,13 +619,17 @@ void RimFractureModel::updateDistanceToBarrierAndDip()
 
     if ( foundFault )
     {
-        RiaLogging::info( QString( "Found barrier distance: %1 Dip: %2" ).arg( shortestDistance ).arg( barrierDip ) );
+        RiaLogging::info( QString( "Found barrier distance: %1. Dip: %2. Fault: %3" )
+                              .arg( shortestDistance )
+                              .arg( barrierDip )
+                              .arg( foundFault->name() ) );
         clearBarrierAnnotation();
         addBarrierAnnotation( position, barrierPosition );
 
         m_hasBarrier        = true;
         m_barrierDip        = barrierDip;
         m_distanceToBarrier = shortestDistance;
+        m_barrierFaultName  = foundFault->name();
     }
     else
     {
@@ -610,6 +638,7 @@ void RimFractureModel::updateDistanceToBarrierAndDip()
         m_hasBarrier        = false;
         m_barrierDip        = 0.0;
         m_distanceToBarrier = 0.0;
+        m_barrierFaultName  = "";
     }
 }
 
@@ -741,6 +770,11 @@ void RimFractureModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     asymmetricGroup->add( &m_autoComputeBarrier );
     asymmetricGroup->add( &m_distanceToBarrier );
     asymmetricGroup->add( &m_barrierDip );
+    asymmetricGroup->add( &m_barrierFaultName );
+
+    asymmetricGroup->add( &m_showOnlyBarrierFault, caf::PdmUiOrdering::LayoutOptions( true, 2, 1 ) );
+    asymmetricGroup->add( &m_showAllFaults, {false, 1, 0} );
+
     asymmetricGroup->add( &m_wellPenetrationLayer );
 }
 
@@ -1338,4 +1372,38 @@ void RimFractureModel::updateViewsAndPlots()
     RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
 
     updateReferringPlots();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModel::hideOtherFaults( const QString& targetFaultName )
+{
+    RimEclipseView* view = dynamic_cast<RimEclipseView*>( RiaApplication::instance()->activeReservoirView() );
+    if ( !view ) return;
+
+    RimFaultInViewCollection* faultCollection = view->faultCollection();
+    if ( !faultCollection ) return;
+
+    for ( RimFaultInView* rimFault : faultCollection->faults() )
+    {
+        rimFault->showFault = ( rimFault->name() == targetFaultName );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModel::showAllFaults()
+{
+    RimEclipseView* view = dynamic_cast<RimEclipseView*>( RiaApplication::instance()->activeReservoirView() );
+    if ( !view ) return;
+
+    RimFaultInViewCollection* faultCollection = view->faultCollection();
+    if ( !faultCollection ) return;
+
+    for ( RimFaultInView* rimFault : faultCollection->faults() )
+    {
+        rimFault->showFault = true;
+    }
 }
