@@ -150,5 +150,5 @@ void RicSnapshotAllPlotsToFileFeature::onActionTriggered( bool isChecked )
 void RicSnapshotAllPlotsToFileFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Snapshot All Plots To File" );
-    actionToSetup->setIcon( QIcon( ":/SnapShotSaveViews.png" ) );
+    actionToSetup->setIcon( QIcon( ":/SnapShotSaveViews.svg" ) );
 }

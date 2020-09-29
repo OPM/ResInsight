@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="5.949" y1="3.512" x2="5.949" y2="11.277" id="gradient-0" gradientTransform="matrix(0.936761, 0.349972, -0.362703, 0.984288, 3.431201, -1.956806)">
+      <stop offset="0" style="stop-color: rgb(209, 229, 238);"/>
+      <stop offset="1" style="stop-color: rgb(128, 192, 224);"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="9.614" y1="3.582" x2="9.614" y2="11.225" id="gradient-1" gradientTransform="matrix(0.992063, 0.125744, -0.125487, 1.009159, 1.484897, -1.311708)">
+      <stop offset="0" style="stop-color: rgb(199, 229, 244);"/>
+      <stop offset="1" style="stop-color: rgb(102, 183, 223);"/>
+    </linearGradient>
+  </defs>
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M14.5 2H1.5L1 2.5V12.5L1.5 13H7V14H4V15H12V14H9V13H14.5L15 12.5V2.5L14.5 2ZM14 12H2V3H14V12Z" style="fill: rgb(144, 144, 144);"/>
+  <polygon points="3.722 11.277 7.495 3.512 8.176 3.512 6.033 11.277" style="fill: url(#gradient-0);"/>
+  <polygon points="10.702 3.582 10.802 11.224 8.426 11.225 10.253 3.6" style="fill: url(#gradient-1);"/>
+</svg>

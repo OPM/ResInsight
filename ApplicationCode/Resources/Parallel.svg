@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M14.5 2H1.5L1 2.5V12.5L1.5 13H7V14H4V15H12V14H9V13H14.5L15 12.5V2.5L14.5 2ZM14 12H2V3H14V12Z" style="fill: rgb(144, 144, 144);"/>
+  <line style="fill: rgb(253, 194, 93); stroke: rgb(157, 203, 226);" x1="6.344" y1="3.373" x2="6.344" y2="11.349"/>
+  <line style="fill: rgb(157, 203, 226); stroke: rgb(157, 203, 226);" x1="9.656" y1="11.349" x2="9.656" y2="3.373" transform="matrix(-1, 0, 0, -1, 19.312, 14.722)"/>
+</svg>

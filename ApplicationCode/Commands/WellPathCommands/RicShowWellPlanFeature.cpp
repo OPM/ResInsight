@@ -80,5 +80,5 @@ void RicShowWellPlanFeature::onActionTriggered( bool isChecked )
 void RicShowWellPlanFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Show Well Plan" );
-    actionToSetup->setIcon( QIcon( ":/PlotWindow24x24.png" ) );
+    actionToSetup->setIcon( QIcon( ":/PlotWindow.svg" ) );
 }

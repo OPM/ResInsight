@@ -54,7 +54,7 @@ void RicSnapshotViewToClipboardFeature::copyToClipboard( const QImage& image )
 //--------------------------------------------------------------------------------------------------
 QIcon RicSnapshotViewToClipboardFeature::icon()
 {
-    return QIcon( ":/SnapShot.png" );
+    return QIcon( ":/SnapShot.svg" );
 }
 
 //--------------------------------------------------------------------------------------------------

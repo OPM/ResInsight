@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com">
+  <defs>
+    <linearGradient id="gradient-2" bx:pinned="true"/>
+  </defs>
+  <path style="fill-opacity: 0; paint-order: stroke; fill: rgb(216, 216, 216); stroke: rgb(83, 191, 0); stroke-linejoin: round; stroke-width: 3px;" d="M 2.453 1.54 C 2.618 3.657 2.199 9.657 4.396 11.599 C 5.305 12.402 7.086 13.411 11.115 13.445 C 15.012 13.478 15.331 14.902 16.636 17.166 C 18.511 20.082 20.926 19.661 23.438 19.995"/>
+  <polygon points="14.626 11.39 23.278 12.466" style="fill: rgb(137, 209, 133);"/>
+  <polygon points="15.704 12.466 23.392 12.481 23.403 22.46 15.706 22.403" style="fill: rgb(217, 202, 0); stroke-width: 0.72px; stroke: rgb(144, 144, 144); fill-opacity: 0.6;"/>
+  <polygon points="8.619000434875488 16.05500030517578 0.625 16.136999130249023 0.6110000014305115 9.336999893188477 8.58899974822998 9.265999794006348" style="stroke-width: 0.72px; stroke: rgb(144, 144, 144); fill-opacity: 0.6; fill: rgb(51, 68, 255);"/>
+  <polygon points="15.704 18.282 8.631 18.37 8.619 11.043 15.677 10.967" style="stroke-width: 0.72px; stroke: rgb(144, 144, 144); fill-opacity: 0.6; fill: rgb(255, 28, 28);"/>
+</svg>

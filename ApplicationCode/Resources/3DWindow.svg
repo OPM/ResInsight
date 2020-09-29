@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="8" y1="5.959" x2="8" y2="8.851" id="gradient-0" gradientTransform="matrix(0.705646, -0.708567, 1.347236, 1.341692, -9.569551, 2.644224)">
+      <stop offset="0" style="stop-color: rgb(255, 255, 255);"/>
+      <stop offset="1" style="stop-color: rgb(164, 110, 205);"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="8" y1="5.5" x2="8" y2="12.802" id="gradient-1" gradientTransform="matrix(0.760783, -0.649009, 0.900899, 1.056064, -6.979774, 4.573143)">
+      <stop offset="0" style="stop-color: rgb(255, 255, 255);"/>
+      <stop offset="1" style="stop-color: rgb(110, 110, 110);"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="6.364" y1="8.004" x2="6.364" y2="12.189" id="gradient-2" gradientTransform="matrix(0.990605, -0.136753, 0.158539, 1.14842, -1.900873, -0.938787)">
+      <stop offset="0" style="stop-color: rgb(200, 162, 229);"/>
+      <stop offset="1" style="stop-color: rgb(160, 98, 207);"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="9.635" y1="8.004" x2="9.635" y2="12.189" id="gradient-3" gradientTransform="matrix(0.826668, -0.562691, 0.988337, 1.452005, -10.3909, -0.130304)">
+      <stop offset="0" style="stop-color: rgb(152, 92, 197);"/>
+      <stop offset="1" style="stop-color: rgb(157, 99, 202);"/>
+    </linearGradient>
+  </defs>
+  <path d="M 15 2.5 L 15 13.5 L 14.5 14 L 1.5 14 L 1 13.5 L 1 2.5 L 1.5 2 L 14.5 2 L 15 2.5 Z" style="fill: rgb(144, 144, 144);"/>
+  <path d="M 14 3 L 2 3 L 2 4.506 L 14 4.506 L 14 3 Z" style="fill: rgb(193, 193, 193);"/>
+  <path d="M 14 5.351 L 2 5.351 L 2 13 L 14 13 L 14 5.351 Z" style="fill: rgb(177, 228, 255);"/>
+  <path d="M 11.271 7.1 L 8.297 5.5 L 7.702 5.5 L 4.729 7.1 L 4.438 7.557 L 4.438 10.752 L 4.729 11.205 L 7.702 12.802 L 8.297 12.802 L 11.271 11.205 L 11.562 10.752 L 11.562 7.557 L 11.271 7.1 Z" style="fill: url(#gradient-1);"/>
+  <path d="M 10.974 10.752 L 8.297 12.189 L 8.297 9.308 L 10.974 8.004 L 10.974 10.752 Z" style="fill: url(#gradient-3);"/>
+  <path d="M 5.182 7.471 L 8 5.959 L 10.818 7.471 L 8 8.851 L 5.182 7.471 Z" style="fill: url(#gradient-0);"/>
+  <path d="M 7.702 12.189 L 5.026 10.752 L 5.026 8.004 L 7.702 9.308 L 7.702 12.189 Z" style="fill: url(#gradient-2);"/>
+</svg>

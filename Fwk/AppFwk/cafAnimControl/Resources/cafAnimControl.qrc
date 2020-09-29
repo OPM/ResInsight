@@ -8,12 +8,22 @@
         <file>SkipToEnd.png</file>
         <file>SkipToStart.png</file>
         <file>RepeatFromStart.png</file>
-        <file>RepeatFwdBwd.png</file>
-        <file>PlayBwd.png</file>
         <file>Slow.png</file>
         <file>Fast.png</file> 
+        <file>Speed.png</file>
+        <file>Play.svg</file>
+        <file>Pause.svg</file>
+        <file>StepFwd.svg</file>
+        <file>StepBwd.svg</file>
+        <file>SkipToEnd.svg</file>
+        <file>SkipToStart.svg</file>
+        <file>RepeatFromStart.svg</file>
+        <file>Slow.svg</file>
+        <file>Fast.svg</file>
+        <file>Speed.svg</file>
+        <file>PlayBwd.png</file>
         <file>SlowHorizontal.png</file>
-        <file>FastHorizontal.png</file> 
-		<file>Speed.png</file> 
+        <file>FastHorizontal.png</file>
+        <file>RepeatFwdBwd.png</file>
     </qresource>
 </RCC>

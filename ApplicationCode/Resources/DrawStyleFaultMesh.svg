@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <line style="stroke: rgb(0, 0, 0);" x1="8.191" y1="8.124" x2="8.191" y2="8.124"/>
+  <polygon points="2.009 20.704 2.009 15.568 8.653 12.966 8.653 17.477" style="fill: rgb(255, 0, 0); stroke: rgb(144, 144, 144); stroke-width: 0.72px;"/>
+  <polygon points="2.016 16.734 2.017 12.511 8.662 10.372 8.661 14.08" style="fill: rgb(0, 85, 255); stroke: rgb(144, 144, 144); stroke-width: 0.72px;"/>
+  <polygon points="8.669 12.322 8.669 8.08 15.312 5.931 15.312 9.657" style="fill: rgb(0, 85, 255); stroke: rgb(144, 144, 144); stroke-width: 0.72px;"/>
+  <polygon points="8.669 16.131 8.669 11.365 15.312 8.95 15.312 13.134" style="fill: rgb(255, 0, 0); stroke: rgb(144, 144, 144); stroke-width: 0.72px;"/>
+  <polygon points="15.349 9.409 15.349 4.313 21.991 1.73 21.991 6.207" style="fill: rgb(0, 85, 255); stroke: rgb(144, 144, 144); stroke-width: 0.72px;"/>
+  <polygon points="15.377 11.999 15.377 8.051 21.991 6.049 21.991 9.518" style="fill: rgb(255, 0, 0); stroke: rgb(144, 144, 144); stroke-width: 0.72px;"/>
+  <polygon points="2.049 22.27 2.049 18.787 8.634 17.023 8.634 20.082" style="fill: rgb(255, 119, 0); stroke: rgb(144, 144, 144); stroke-width: 0.72px;"/>
+  <polygon points="8.669 19.513 8.669 15.196 15.312 13.006 15.312 16.801" style="fill: rgb(255, 119, 0); stroke: rgb(144, 144, 144); stroke-width: 0.72px;"/>
+  <polygon points="15.378 15.486 15.378 10.954 21.991 8.657 21.991 12.638" style="fill: rgb(255, 119, 0); stroke: rgb(144, 144, 144); stroke-width: 0.72px;"/>
+</svg>

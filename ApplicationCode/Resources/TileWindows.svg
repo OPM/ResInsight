@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M14.5 2H1.5L1 2.5V12.5L1.5 13H7V14H4V15H12V14H9V13H14.5L15 12.5V2.5L14.5 2ZM14 12H2V3H14V12Z" style="fill: rgb(144, 144, 144);"/>
+  <rect x="7.978" y="3.076" width="6.028" height="4.884" style="stroke: rgb(0, 0, 0); stroke-width: 0.2px; fill: rgb(85, 205, 218);"/>
+  <rect x="8.025" y="3.109" width="5.949" height="1.044" style="stroke: rgb(0, 0, 0); stroke-width: 0.1px; fill: rgb(205, 205, 205);"/>
+  <rect x="1.964" y="3.077" width="6.028" height="4.884" style="stroke: rgb(0, 0, 0); stroke-width: 0.2px; fill: rgb(85, 156, 218);"/>
+  <rect x="2.011" y="3.11" width="5.949" height="1.044" style="stroke: rgb(0, 0, 0); stroke-width: 0.1px; fill: rgb(205, 205, 205);"/>
+  <rect x="1.95" y="7.516" width="6.028" height="4.567" style="stroke: rgb(0, 0, 0); stroke-width: 0.2px; fill: rgb(212, 225, 210);"/>
+  <rect x="1.997" y="7.546" width="5.949" height="0.852" style="stroke: rgb(0, 0, 0); stroke-width: 0.1px; fill: rgb(205, 205, 205);"/>
+  <rect x="7.978" y="7.493" width="6.028" height="4.59" style="stroke: rgb(0, 0, 0); stroke-width: 0.2px; fill: rgb(218, 211, 85);"/>
+  <rect x="8.025" y="7.524" width="5.949" height="0.869" style="stroke: rgb(0, 0, 0); stroke-width: 0.1px; fill: rgb(205, 205, 205);"/>
+</svg>

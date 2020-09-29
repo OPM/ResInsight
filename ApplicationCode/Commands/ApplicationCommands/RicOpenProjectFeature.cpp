@@ -69,7 +69,7 @@ void RicOpenProjectFeature::onActionTriggered( bool isChecked )
 void RicOpenProjectFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Open Project" );
-    actionToSetup->setIcon( QIcon( ":/openFolder24x24.png" ) );
+    actionToSetup->setIcon( QIcon( ":/OpenFolder.svg" ) );
 
     applyShortcutWithHintToAction( actionToSetup, QKeySequence::Open );
 }

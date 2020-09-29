@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M14.5 2H1.5L1 2.5V12.5L1.5 13H7V14H4V15H12V14H9V13H14.5L15 12.5V2.5L14.5 2ZM14 12H2V3H14V12Z" style="fill: rgb(144, 144, 144);"/>
+  <text style="font-size: 36; font-family: Roboto; white-space: pre;" transform="matrix(1, 0, 0, 1, -53.118594, 17.258764)">#fbb000</text>
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M 7.311 7.268 L 7.311 3.568 L 8.688 3.568 L 8.688 7.268 L 9.94 6.021 L 11.012 7.088 L 8.313 9.776 L 7.686 9.776 L 4.987 7.088 L 6.059 6.021 Z" style="fill: rgb(251, 176, 0);"/>
+  <rect x="4.456" y="9.795" width="7.087" height="0.847" style="fill: rgb(137, 209, 133);"/>
+</svg>

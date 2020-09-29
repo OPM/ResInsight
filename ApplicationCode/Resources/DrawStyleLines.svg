@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="8.859" y1="9.283" x2="8.859" y2="23.94" id="gradient-4" gradientTransform="matrix(0.690171, -0.687766, 1.66232, 1.564733, -21.269178, -8.539625)">
+      <stop offset="0" style="stop-color: rgb(147, 221, 143);"/>
+      <stop offset="1" style="stop-color: rgb(91, 194, 86);"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="11.795" y1="1.828" x2="11.795" y2="9.308" id="gradient-5" gradientTransform="matrix(0.718847, -0.659394, 3.018714, 3.095417, -13.720654, 2.012001)">
+      <stop offset="0" style="stop-color: rgb(180, 236, 177);"/>
+      <stop offset="1" style="stop-color: rgb(99, 196, 93);"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" x1="19.924" y1="1.645" x2="19.924" y2="22.888" id="gradient-0" gradientTransform="matrix(0.701802, -0.712375, 1.11246, 1.08145, -15.812701, 12.414362)">
+      <stop offset="0" style="stop-color: rgba(137, 209, 133, 1)"/>
+      <stop offset="1" style="stop-color: rgba(71, 174, 66, 1)"/>
+    </linearGradient>
+  </defs>
+  <polygon points="1.024 8.814 1.049 22.827 17.01 22.9 17.036 8.814" style="fill: url(#gradient-4); fill-opacity: 0;"/>
+  <polygon points="0.949 8.838 17.037 8.814 22.912 1.65 7.494 1.747" style="fill: url(#gradient-5); fill-opacity: 0;"/>
+  <line style="stroke: rgb(0, 0, 0);" x1="8.191" y1="8.403" x2="8.191" y2="8.403"/>
+  <rect x="-6.267" y="-2.75" width="0.225" height="0.038" style="fill: rgb(216, 216, 216);"/>
+  <polygon points="17.012 22.888 17.012 8.789 22.836 1.645 22.836 14.026" style="fill: url(#gradient-0); fill-opacity: 0;"/>
+  <g transform="matrix(0.963485, 0, 0, 0.961045, -52.067142, 1.38383)" style="">
+    <g transform="matrix(1.134672, 0, 0, 1, 13.970593, -0.152153)" style="">
+      <g transform="matrix(1, 0, 0, 1, 4.056296, -0.152153)">
+        <g transform="matrix(1, 0, 0, 1, 13.604543, -0.22823)">
+          <g>
+            <rect y="7.555" width="14.603" height="14.338" style="fill-opacity: 0; stroke-width: 0.7px; fill: rgb(162, 162, 162); stroke: rgb(144, 144, 144);" x="0.557" transform="matrix(0.999998, -0.001875, 0.001875, 0.999998, 17.813007, 0.94766)"/>
+            <line style="stroke-width: 0.7px; fill: rgb(162, 162, 162); stroke: rgb(144, 144, 144);" x1="35.791" y1="4.668" x2="21.162" y2="4.771"/>
+            <polygon style="fill-opacity: 0; stroke-width: 0.7px; fill: rgb(162, 162, 162); stroke: rgb(144, 144, 144);" points="18.423 23.143 18.397 8.145 24.38 1.131 38.479 1.08 38.532 13.553 33.187 23.042"/>
+          </g>
+          <line style="fill-opacity: 0; stroke-width: 0.7px; fill: rgb(162, 162, 162); stroke: rgb(144, 144, 144);" x1="33.014" y1="15.382" x2="38.532" y2="7.318"/>
+          <line style="fill-opacity: 0; stroke-width: 0.7px; fill: rgb(162, 162, 162); stroke: rgb(144, 144, 144);" x1="30.802" y1="1.068" x2="25.613" y2="8.463" transform="matrix(0.999992, -0.004574, 0.003694, 0.999992, -0.017364, 0.129062)"/>
+        </g>
+        <line style="fill-opacity: 0; stroke-width: 0.7px; fill: rgb(162, 162, 162); stroke: rgb(144, 144, 144);" x1="39.197" y1="8.247" x2="39.23" y2="22.612"/>
+        <line style="fill-opacity: 0; stroke-width: 0.7px; fill: rgb(162, 162, 162); stroke: rgb(144, 144, 144);" x1="31.989" y1="15.176" x2="46.619" y2="15.154"/>
+        <line style="fill-opacity: 0; stroke-width: 0.7px; fill: rgb(162, 162, 162); stroke: rgb(144, 144, 144);" x1="49.652" y1="17.741" x2="49.551" y2="4.402"/>
+        <line style="fill-opacity: 0; stroke-width: 0.7px; fill: rgb(162, 162, 162); stroke: rgb(144, 144, 144);" x1="46.619" y1="8.247" x2="52.137" y2="0.852"/>
+      </g>
+    </g>
+  </g>
+</svg>
