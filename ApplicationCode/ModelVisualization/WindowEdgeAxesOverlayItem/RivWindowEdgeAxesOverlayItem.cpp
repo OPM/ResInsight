@@ -73,7 +73,7 @@ RivWindowEdgeAxesOverlayItem::RivWindowEdgeAxesOverlayItem( Font* font )
     CVF_ASSERT( font );
     CVF_ASSERT( !font->isEmpty() );
 
-    setLayoutFixedPosition( { 0, 0 } );
+    setLayoutFixedPosition( {0, 0} );
     updateGeomerySizes();
 }
 
@@ -561,8 +561,8 @@ void RivWindowEdgeAxesOverlayItem::renderShaderFrameAndTickLines( OpenGLContext*
 
     // Triangle indices for the frame background
 
-    static const ushort backgroundTriangleIndices[] = { 0, 1, 5, 0, 5, 4, 1, 2, 6, 1, 6, 5,
-                                                        3, 0, 4, 3, 4, 7, 2, 3, 6, 3, 7, 6 };
+    static const ushort backgroundTriangleIndices[] = {0, 1, 5, 0, 5, 4, 1, 2, 6, 1, 6, 5,
+                                                       3, 0, 4, 3, 4, 7, 2, 3, 6, 3, 7, 6};
 
     glDrawRangeElements( GL_TRIANGLES, 0, 7, 24, GL_UNSIGNED_SHORT, backgroundTriangleIndices );
 
@@ -571,13 +571,13 @@ void RivWindowEdgeAxesOverlayItem::renderShaderFrameAndTickLines( OpenGLContext*
     UniformFloat uniformColor( "u_color", Color4f( m_lineColor, m_showAxisLines ? 0.25f : 1.0f ) );
     shaderProgram->applyUniform( oglContext, uniformColor );
 
-    static const ushort frameLineIndices[] = { 7, 4, 4, 5, 5, 6, 6, 7 };
+    static const ushort frameLineIndices[] = {7, 4, 4, 5, 5, 6, 6, 7};
 
     glDrawRangeElements( GL_LINES, 0, 7, 8, GL_UNSIGNED_SHORT, frameLineIndices );
 
     // Render tickmarks
 
-    static const ushort tickLineIndices[] = { 0, 1 };
+    static const ushort tickLineIndices[] = {0, 1};
 
     // X - axis Tick lines
 
