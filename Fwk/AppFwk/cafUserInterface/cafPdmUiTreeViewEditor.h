@@ -46,6 +46,7 @@
 #include <QColor>
 #include <QItemSelectionModel>
 #include <QPointer>
+#include <QProxyStyle>
 #include <QStyledItemDelegate>
 #include <QTreeView>
 #include <QWidget>
@@ -67,6 +68,35 @@ class PdmUiItem;
 class PdmUiTreeViewEditor;
 class PdmUiTreeViewQModel;
 class PdmUiTreeViewWidget;
+
+class PdmUiTreeViewStyle : public QProxyStyle
+{
+public:
+    void drawPrimitive( QStyle::PrimitiveElement element,
+                        const QStyleOption*      option,
+                        QPainter*                painter,
+                        const QWidget*           widget ) const override;
+};
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class PdmUiTreeViewWidget : public QTreeView
+{
+public:
+    explicit PdmUiTreeViewWidget( QWidget* parent = nullptr )
+        : QTreeView( parent )
+    {
+        setStyle( new PdmUiTreeViewStyle );
+    };
+    ~PdmUiTreeViewWidget() override{};
+
+    bool isTreeItemEditWidgetActive() const { return state() == QAbstractItemView::EditingState; }
+
+protected:
+    void dragMoveEvent( QDragMoveEvent* event ) override;
+    void dragLeaveEvent( QDragLeaveEvent* event ) override;
+};
 
 class PdmUiTreeViewItemAttribute : public PdmUiEditorAttribute
 {

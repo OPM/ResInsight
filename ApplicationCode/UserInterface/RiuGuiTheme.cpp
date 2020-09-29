@@ -22,7 +22,9 @@
 #include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
 #include "RiuThemesDirectory.h"
+
 #include "cafAppEnum.h"
+#include "cafPdmUiTreeViewEditor.h"
 
 #include <QAbstractItemModel>
 #include <QColor>
@@ -362,6 +364,10 @@ void RiuGuiTheme::updateGuiTheme( RiaDefines::ThemeEnum theme )
     {
         widget->style()->unpolish( widget );
         widget->style()->polish( widget );
+        if ( caf::PdmUiTreeViewWidget* treeViewWidget = dynamic_cast<caf::PdmUiTreeViewWidget*>( widget ) )
+        {
+            treeViewWidget->setStyle( new caf::PdmUiTreeViewStyle );
+        }
     }
 }
 

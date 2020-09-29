@@ -5,8 +5,11 @@ $backgroundColor3: #5a6067; // Background color layer 3
 $backgroundColor4: #89939d; // Background color layer 4
 $backgroundColor5: #adbac6; // Background color layer 5
 $textColor: #e6e7ea; // Main text color
-$primaryColor: #018fa3; // Primary color (buttons etc)
-$secondaryColor: #e82257; // Secondary color
+$inputColor: #394046; // Input background color
+$buttonColor: #0a639d; // Button color
+$buttonHoverColor: #136fa3; // Button hover color
+$primaryColor: #084771; // Primary color
+$secondaryColor: #cc6632; // Secondary color
 $tertiaryColor: #ffc50d; // Tertiary color
 $quaternaryColor: #36b27e; // Quaternary color
 $quinaryColor: #0ce5d5; // Quinary color
@@ -24,38 +27,39 @@ $plotGridColor: #394046; // Plot grid color
 $auxiliaryCurveColor: #000000; // Auxiliary curve color
 $externalInputColor: #e82257; // External input background color
 
+QCheckBox::indicator, QTreeView::indicator, QTableView::indicator {
+    background-color: $backgroundColor1;
+    border-radius: 3px;
+    width: 16px;
+    height: 16px;
+}
+
 QCheckBox::indicator:unchecked, QTreeView::indicator:unchecked, QTableView::indicator:unchecked
 {
-    background-color: $backgroundColor1;
     image: url(:/themes/dark/checkbox-unchecked.svg);
 }
 
 QCheckBox::indicator:checked, QTreeView::indicator:checked, QTableView::indicator:checked
 {
-    background-color: $backgroundColor1;
     image: url(:/themes/dark/checkbox-checked.svg);
 }
 QCheckBox::indicator:indeterminate, QTreeView::indicator:indeterminate, QTableView::indicator:indeterminate
 {
-    background-color: $backgroundColor1;
     image: url(:/themes/dark/checkbox-indeterminate.svg);
 }
 
 QCheckBox::indicator:unchecked:disabled, QTreeView::indicator:unchecked:disabled, QTableView::indicator:unchecked:disabled
 {
-    background-color: $backgroundColor1;
     image: url(:/themes/dark/checkbox-unchecked-disabled.svg);
 }
 
 QCheckBox::indicator:checked:disabled, QTreeView::indicator:checked:disabled, QTableView::indicator:checked:disabled
 {
-    background-color: $backgroundColor1;
     image: url(:/themes/dark/checkbox-checked-disabled.svg);
 }
 
 QCheckBox::indicator:indeterminate:disabled, QTreeView::indicator:indeterminate:disabled, QTableView::indicator:indeterminate:disabled
 {
-    background-color: $backgroundColor1;
     image: url(:/themes/dark/checkbox-indeterminate-disabled.svg);
 }
 
@@ -142,7 +146,7 @@ QToolButton {
     padding: 3px;
 }
 
-QLabel, QCheckBox {
+QLabel {
     background-color: transparent;
 }
 
@@ -150,6 +154,7 @@ QWidget {
     background-color: $mainBackgroundColor;
     color: $textColor;
     border-color: $borderColor;
+    selection-background-color: $primaryColor;
 }
 
 QProgressBar {
@@ -252,12 +257,16 @@ QMenu::item:selected {
 
 QLineEdit, QComboBox, QSpinBox, 
 QDoubleSpinBox, QDateEdit, QDateTimeEdit {
-    background-color: $backgroundColor1;
+    background-color: $inputColor;
     color: $textColor;
-    border-color: $borderColor;
-    border-width : 1.5px;
-    border-style: solid;
+    border: 0;
     padding: 3px;
+    border: 2px solid $inputColor;
+}
+
+QLineEdit:focus, QComboBox:focus, QSpinBox:focus, 
+QDoubleSpinBox:focus, QDateEdit:focus, QDateTimeEdit:focus {
+    border: 2px solid $primaryColor;
 }
 
 QToolBar {
@@ -283,11 +292,13 @@ QLCDNumber {
 QPushButton {
     color: $textColor;
     border-color: $borderColor;
-    background-color: $backgroundColor1;
-    border-width: 1.5px;
-    border-style: solid;
-    padding: 5px;
-    font-weight: bold;
+    background-color: $buttonColor;
+    border: 0px;
+    padding: 8px;
+}
+
+QPushButton:hover {
+    background-color: $buttonHoverColor;
 }
 
 QTabWidget {
@@ -425,4 +436,21 @@ QWidget[state="ExternalInput"] {
 QWidget:readonly {
     background-color: $backgroundColor1;
     color: $backgroundColor3;
+}
+
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 18px;
+    border: 0px;
+}
+
+QComboBox QAbstractItemView {
+    background-color: $inputColor;
+}
+
+QComboBox::down-arrow {
+    image: url(:/themes/dark/expanded.svg);
+    width: 18px;
+    height: 16px;
 }
