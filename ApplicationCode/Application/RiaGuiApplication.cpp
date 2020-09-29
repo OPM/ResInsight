@@ -418,8 +418,6 @@ void RiaGuiApplication::initialize()
 {
     RiaApplication::initialize();
 
-    RiuGuiTheme::updateGuiTheme( m_preferences->guiTheme() );
-
     applyGuiPreferences( nullptr );
 
     // Create main windows
@@ -427,6 +425,8 @@ void RiaGuiApplication::initialize()
     getOrCreateAndShowMainWindow();
     RiuPlotMainWindow* plotMainWindow = getOrCreateMainPlotWindow();
     plotMainWindow->hideAllDockWidgets();
+
+    RiuGuiTheme::updateGuiTheme( m_preferences->guiTheme() );
 
     {
         auto logger = new RiuMessagePanelLogger;
