@@ -55,7 +55,7 @@ RiuMessagePanel::RiuMessagePanel( QDockWidget* parent )
 //--------------------------------------------------------------------------------------------------
 void RiuMessagePanel::addMessage( RILogLevel messageLevel, const QString& msg )
 {
-    QColor clr( Qt::black );
+    QColor clr = palette().color( QPalette::ColorRole::Text );
     if ( messageLevel == RILogLevel::RI_LL_ERROR )
         clr = Qt::red;
     else if ( messageLevel == RILogLevel::RI_LL_WARNING )

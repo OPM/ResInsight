@@ -34,26 +34,6 @@ class RimFractureModelPlot : public RimDepthTrackPlot
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum class PropertyType
-    {
-        FACIES,
-        LAYERS,
-        POROSITY,
-        PERMEABILITY_X,
-        PERMEABILITY_Z,
-        INITIAL_PRESSURE,
-        PRESSURE,
-        STRESS,
-        STRESS_GRADIENT,
-        YOUNGS_MODULUS,
-        POISSONS_RATIO,
-        K_IC,
-        PROPPANT_EMBEDMENT,
-        BIOT_COEFFICIENT,
-        K0,
-        FLUID_LOSS_COEFFICIENT,
-    };
-
     RimFractureModelPlot();
 
     void              setFractureModel( RimFractureModel* fractureModel );
@@ -69,6 +49,7 @@ public:
     std::vector<double> calculateHorizontalPermeability() const;
     std::vector<double> calculateReservoirPressure() const;
     std::vector<double> calculateStress() const;
+    std::vector<double> calculateInitialStress() const;
     std::vector<double> calculateStressGradient() const;
     std::vector<double> calculateYoungsModulus() const;
     std::vector<double> calculatePoissonsRatio() const;
@@ -93,7 +74,9 @@ protected:
     void                       calculateLayers( std::vector<std::pair<double, double>>& layerBoundaryDepths,
                                                 std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes ) const;
     RimWellLogExtractionCurve* findCurveByProperty( RiaDefines::CurveProperty curveProperty ) const;
-    bool calculateStressWithGradients( std::vector<double>& stress, std::vector<double>& stressGradients ) const;
+    bool                       calculateStressWithGradients( std::vector<double>& stress,
+                                                             std::vector<double>& stressGradients,
+                                                             std::vector<double>& initialStress ) const;
 
     static double findValueAtTopOfLayer( const std::vector<double>&                    values,
                                          const std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes,

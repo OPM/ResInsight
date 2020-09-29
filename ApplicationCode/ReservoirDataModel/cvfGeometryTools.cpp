@@ -37,19 +37,6 @@ cvf::Vec3d
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::Vec3d GeometryTools::computeTriangleCenter( const cvf::Vec3d& v0, const cvf::Vec3d& v1, const cvf::Vec3d& v2 )
-{
-    cvf::Vec3d centerCoord = v0;
-    centerCoord += v1;
-    centerCoord += v2;
-    centerCoord /= 3.0;
-
-    return centerCoord;
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Ez = Plane normal, Ex = in XY plane (horizontal), Ey = semi vertical upwards
 //--------------------------------------------------------------------------------------------------
 cvf::Mat3f GeometryTools::computePlaneHorizontalRotationMx( const cvf::Vec3f& inPlaneVec0, const cvf::Vec3f& inPlaneVec1 )

@@ -36,9 +36,6 @@ class GeometryTools
 public:
     static cvf::Vec3d
                       computeFaceCenter( const cvf::Vec3d& v0, const cvf::Vec3d& v1, const cvf::Vec3d& v2, const cvf::Vec3d& v3 );
-    static cvf::Vec3d computeTriangleCenter( const cvf::Vec3d& v0, const cvf::Vec3d& v1, const cvf::Vec3d& v2 );
-    template <typename Vec3Type>
-    static Vec3Type   computePolygonCenter( const std::vector<Vec3Type>& polygon );
     static cvf::Mat3f computePlaneHorizontalRotationMx( const cvf::Vec3f& inPlaneVec0, const cvf::Vec3f& inPlaneVec1 );
 
     static cvf::Vec3d projectPointOnLine( const cvf::Vec3d& p1,

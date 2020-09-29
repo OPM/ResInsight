@@ -20,6 +20,7 @@
 
 #include "Rim3dOverlayInfoConfig.h"
 
+#include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
 
 #include "RicGridStatisticsDialog.h"
@@ -105,6 +106,7 @@ Rim3dOverlayInfoConfig::Rim3dOverlayInfoConfig()
 
     CAF_PDM_InitField( &m_active, "Active", true, "Active", "", "", "" );
     m_active.uiCapability()->setUiHidden( true );
+    m_active = RiaPreferences::current()->showInfoBox();
 
     CAF_PDM_InitField( &m_showAnimProgress, "ShowAnimProgress", true, "Animation progress", "", "", "" );
     CAF_PDM_InitField( &m_showCaseInfo, "ShowInfoText", true, "Case Info", "", "", "" );
@@ -197,9 +199,9 @@ Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool Rim3dOverlayInfoConfig::HistogramData::isValid() const
+bool Rim3dOverlayInfoConfig::HistogramData::isMinMaxValid() const
 {
-    return histogram && histogram->size() > 0 && isValid( min ) && isValid( max );
+    return isValid( min ) && isValid( max );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -208,6 +210,14 @@ bool Rim3dOverlayInfoConfig::HistogramData::isValid() const
 bool Rim3dOverlayInfoConfig::HistogramData::isValid( double parameter ) const
 {
     return parameter != HUGE_VAL && parameter != -HUGE_VAL;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool Rim3dOverlayInfoConfig::HistogramData::isHistogramVectorValid() const
+{
+    return histogram && histogram->size() > 0 && isMinMaxValid();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -706,7 +716,7 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const HistogramData& histData,
             {
                 infoText += QString( "%1<br>" ).arg( diffResString );
             }
-            if ( histData.isValid() )
+            if ( histData.isMinMaxValid() )
             {
                 infoText += QString( "<br><b>Statistics:</b> Current Time Step and Visible Cells" );
                 infoText += QString( "<table border=0 cellspacing=5 >"
@@ -759,7 +769,7 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const HistogramData& histData,
                 infoText += QString( "<b>Dual Porosity Type:</b> %1<br>" ).arg( porosityModelText );
             }
 
-            if ( histData.isValid() )
+            if ( histData.isMinMaxValid() )
             {
                 infoText += QString( "<br><b>Statistics:</b> " ) + timeRangeText + " and " +
                             m_statisticsCellRange().uiText();
@@ -909,7 +919,7 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const HistogramData& histData, R
                     infoText += QString( "%1<br>" ).arg( diffResString );
                 }
 
-                if ( histData.isValid() )
+                if ( histData.isMinMaxValid() )
                 {
                     infoText += QString( "<br><b>Statistics:</b> " ) + m_statisticsTimeRange().uiText() + " and " +
                                 m_statisticsCellRange().uiText();
@@ -929,7 +939,7 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const HistogramData& histData, R
                     infoText += QString( "%1<br>" ).arg( diffResString );
                 }
 
-                if ( histData.isValid() )
+                if ( histData.isMinMaxValid() )
                 {
                     infoText += QString( "<br><b>Statistics:</b> " ) + m_statisticsTimeRange().uiText() + " and " +
                                 m_statisticsCellRange().uiText();
@@ -1147,7 +1157,7 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo( RimEclipseView* eclipseView )
     {
         bool isResultsInfoRelevant = eclipseView->hasUserRequestedAnimation() && eclipseView->cellResult()->hasResult();
 
-        if ( isResultsInfoRelevant && histData.histogram )
+        if ( isResultsInfoRelevant && histData.isHistogramVectorValid() )
         {
             eclipseView->viewer()->showHistogram( true );
             eclipseView->viewer()->setHistogram( histData.min, histData.max, *histData.histogram );
@@ -1196,7 +1206,7 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo( RimGeoMechView* geoMechView )
         bool                isResultsInfoRelevant = caseData && geoMechView->hasUserRequestedAnimation() &&
                                      geoMechView->cellResultResultDefinition()->hasResult();
 
-        if ( isResultsInfoRelevant )
+        if ( isResultsInfoRelevant && histData.isHistogramVectorValid() )
         {
             geoMechView->viewer()->showHistogram( true );
             geoMechView->viewer()->setHistogram( histData.min, histData.max, *histData.histogram );

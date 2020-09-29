@@ -23,6 +23,7 @@
 
 #include "RimFractureModel.h"
 #include "RimFractureModelCollection.h"
+#include "RimFractureModelTemplate.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
@@ -42,12 +43,7 @@ RimcFractureModelCollection_newFractureModel::RimcFractureModelCollection_newFra
     CAF_PDM_InitObject( "Create Fracture Model", "", "", "Create a new Fracture Model" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "", "", "", "Well Path" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_md, "MeasuredDepth", "", "", "", "Measured Depth" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_elasticPropertiesFilePath,
-                                          "ElasticPropertiesFilePath",
-                                          "",
-                                          "",
-                                          "",
-                                          "Elastic Properties File Path" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_fractureModelTemplate, "FractureModelTemplate", "", "", "", "Fracture Model Template" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,11 +51,11 @@ RimcFractureModelCollection_newFractureModel::RimcFractureModelCollection_newFra
 //--------------------------------------------------------------------------------------------------
 caf::PdmObjectHandle* RimcFractureModelCollection_newFractureModel::execute()
 {
-    RimFractureModel* newFractureModel = nullptr;
+    RimFractureModel*           newFractureModel        = nullptr;
+    RimFractureModelCollection* fractureModelCollection = self<RimFractureModelCollection>();
     if ( m_wellPath )
     {
-        RimFractureModelCollection* fractureModelCollection = self<RimFractureModelCollection>();
-        RimWellPathCollection*      wellPathCollection      = nullptr;
+        RimWellPathCollection* wellPathCollection = nullptr;
         fractureModelCollection->firstAncestorOrThisOfTypeAsserted( wellPathCollection );
 
         newFractureModel = RicNewFractureModelFeature::addFractureModel( m_wellPath, wellPathCollection );
@@ -68,10 +64,8 @@ caf::PdmObjectHandle* RimcFractureModelCollection_newFractureModel::execute()
     if ( newFractureModel )
     {
         newFractureModel->setMD( m_md() );
-
-        RicElasticPropertiesImportTools::importElasticPropertiesFromFile( m_elasticPropertiesFilePath, newFractureModel );
-
-        self<RimFractureModelCollection>()->updateAllRequiredEditors();
+        newFractureModel->setFractureModelTemplate( m_fractureModelTemplate() );
+        fractureModelCollection->updateAllRequiredEditors();
     }
 
     return newFractureModel;

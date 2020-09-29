@@ -41,12 +41,6 @@ class RimFractureModelStressCurve : public RimWellLogExtractionCurve, public Rim
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum class PropertyType
-    {
-        STRESS,
-        STRESS_GRADIENT
-    };
-
     RimFractureModelStressCurve();
     ~RimFractureModelStressCurve() override;
 

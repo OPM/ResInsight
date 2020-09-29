@@ -19,7 +19,6 @@
 
 #include "RiuInterfaceToViewWindow.h"
 #include "RiuMultiPlotPage.h"
-#include "cafUiStyleSheet.h"
 
 #include "cafPdmPointer.h"
 #include "cafSelectionChangedReceiver.h"
@@ -67,6 +66,7 @@ public:
     void addPlot( RiuQwtPlotWidget* plotWidget );
     void insertPlot( RiuQwtPlotWidget* plotWidget, size_t index );
     void removePlot( RiuQwtPlotWidget* plotWidget );
+    void removeAllPlots();
 
     void setPlotTitle( const QString& plotTitle );
 

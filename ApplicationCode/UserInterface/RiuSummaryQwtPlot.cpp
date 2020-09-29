@@ -103,9 +103,7 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent /*= 
 {
     // LeftButton for the zooming
     m_zoomerLeft = new RiuQwtPlotZoomer( canvas() );
-    m_zoomerLeft->setRubberBandPen( QColor( Qt::black ) );
     m_zoomerLeft->setTrackerMode( QwtPicker::AlwaysOff );
-    m_zoomerLeft->setTrackerPen( QColor( Qt::black ) );
     m_zoomerLeft->initMousePattern( 1 );
 
     // Attach a zoomer for the right axis
@@ -131,7 +129,7 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent /*= 
     RiuQwtPlotTools::setCommonPlotBehaviour( this );
     RiuQwtPlotTools::setDefaultAxes( this );
 
-    setLegendVisible( true );
+    setInternalLegendVisible( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -266,9 +264,7 @@ void RiuSummaryQwtPlot::contextMenuEvent( QContextMenuEvent* event )
                                 menuBuilder.subMenuStart( "Cross Plots",
                                                           *caf::IconProvider( ":/CorrelationCrossPlot16x16.png" ).icon() );
                                 std::vector<std::pair<EnsembleParameter, double>> ensembleParameters =
-                                    ensemble->parameterCorrelations( clickedEnsembleCurveSet->summaryAddress(),
-                                                                     timeStep,
-                                                                     false );
+                                    ensemble->parameterCorrelations( clickedEnsembleCurveSet->summaryAddress(), timeStep );
                                 std::sort( ensembleParameters.begin(),
                                            ensembleParameters.end(),
                                            []( const std::pair<EnsembleParameter, double>& lhs,

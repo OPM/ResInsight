@@ -18,40 +18,42 @@
 
 #include "RimFractureModel.h"
 
-#include "RiaColorTables.h"
 #include "RiaCompletionTypeCalculationScheduler.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaFractureDefines.h"
 #include "RiaFractureModelDefines.h"
 #include "RiaLogging.h"
 
-#include "Riu3DMainWindowTools.h"
-
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
+#include "RigSimulationWellCoordsAndMD.h"
 #include "RigWellPath.h"
+#include "RigWellPathIntersectionTools.h"
 
 #include "Rim3dView.h"
+#include "RimAnnotationCollection.h"
+#include "RimAnnotationInViewCollection.h"
 #include "RimColorLegend.h"
 #include "RimColorLegendCollection.h"
 #include "RimColorLegendItem.h"
+#include "RimCompletionTemplateCollection.h"
 #include "RimEclipseCase.h"
-#include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
-#include "RimElasticProperties.h"
-#include "RimEllipseFractureTemplate.h"
 #include "RimFractureModelPlot.h"
+#include "RimFractureModelTemplate.h"
+#include "RimFractureModelTemplateCollection.h"
 #include "RimModeledWellPath.h"
 #include "RimOilField.h"
+#include "RimPolylineTarget.h"
 #include "RimProject.h"
-#include "RimReservoirCellResultsStorage.h"
-#include "RimStimPlanColors.h"
-#include "RimStimPlanFractureTemplate.h"
 #include "RimTools.h"
+#include "RimUserDefinedPolylinesAnnotation.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathGeometryDef.h"
 #include "RimWellPathTarget.h"
+
+#include "Riu3DMainWindowTools.h"
 
 #include "cafPdmFieldCvfVec3d.h"
 #include "cafPdmFieldScriptingCapabilityCvfVec3d.h"
@@ -65,7 +67,6 @@
 #include "cvfBoundingBox.h"
 #include "cvfGeometryTools.h"
 #include "cvfMath.h"
-#include "cvfMatrix4.h"
 #include "cvfPlane.h"
 
 #include <cmath>
@@ -102,7 +103,13 @@ RimFractureModel::RimFractureModel()
 {
     CAF_PDM_InitScriptableObject( "FractureModel", "", "", "" );
 
+    CAF_PDM_InitFieldNoDefault( &m_fractureModelTemplate, "FractureModelTemplate", "Fracture Model Template", "", "", "" );
+    CAF_PDM_InitField( &m_editFractureModelTemplate, "EditModelTemplate", false, "Edit", "", "", "" );
+    m_editFractureModelTemplate.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
+    m_editFractureModelTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
     CAF_PDM_InitScriptableField( &m_MD, "MD", 0.0, "MD", "", "", "" );
+    m_MD.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitScriptableField( &m_extractionType,
                                  "ExtractionType",
@@ -127,82 +134,6 @@ RimFractureModel::RimFractureModel()
 
     CAF_PDM_InitScriptableField( &m_boundingBoxHorizontal, "BoundingBoxHorizontal", 50.0, "Bounding Box Horizontal", "", "", "" );
     CAF_PDM_InitScriptableField( &m_boundingBoxVertical, "BoundingBoxVertical", 100.0, "Bounding Box Vertical", "", "", "" );
-
-    CAF_PDM_InitScriptableField( &m_defaultPorosity, "DefaultPorosity", 0.0, "Default Porosity", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_defaultPermeability, "DefaultPermeability", 10.0e-6, "Default Permeability", "", "", "" );
-
-    // Stress unit: bar
-    // Stress gradient unit: bar/m
-    // Depth is meter
-    double defaultStressGradient = 0.238;
-    double defaultStressDepth    = computeDefaultStressDepth();
-    double defaultStress         = defaultStressDepth * defaultStressGradient;
-
-    CAF_PDM_InitScriptableField( &m_verticalStress, "VerticalStress", defaultStress, "Vertical Stress", "", "", "" );
-    m_verticalStress.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
-    CAF_PDM_InitScriptableField( &m_verticalStressGradient,
-                                 "VerticalStressGradient",
-                                 defaultStressGradient,
-                                 "Vertical Stress Gradient",
-                                 "",
-                                 "",
-                                 "" );
-    CAF_PDM_InitScriptableField( &m_stressDepth, "StressDepth", defaultStressDepth, "Stress Depth", "", "", "" );
-    m_stressDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
-
-    CAF_PDM_InitScriptableField( &m_overburdenHeight, "OverburdenHeight", 50.0, "Overburden Height", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_overburdenFormation, "OverburdenFormation", "Overburden Formation", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_overburdenFacies, "OverburdenFacies", "Overburden Facies", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_overburdenPorosity, "OverburdenPorosity", 0.0, "Overburden Porosity", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_overburdenPermeability,
-                                 "OverburdenPermeability",
-                                 10.0e-6,
-                                 "Overburden Permeability",
-                                 "",
-                                 "",
-                                 "" );
-    CAF_PDM_InitScriptableField( &m_overburdenFluidDensity,
-                                 "OverburdenFluidDensity",
-                                 1.03,
-                                 "Overburden Fluid Density [g/cm^3]",
-                                 "",
-                                 "",
-                                 "" );
-
-    CAF_PDM_InitScriptableField( &m_underburdenHeight, "UnderburdenHeight", 50.0, "Underburden Height", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_underburdenFormation, "UnderburdenFormation", "Underburden Formation", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_underburdenFacies, "UnderburdenFacies", "Underburden Facies", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_underburdenPorosity, "UnderburdenPorosity", 0.0, "Underburden Porosity", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_underburdenPermeability,
-                                 "UnderburdenPermeability",
-                                 10.0e-6,
-                                 "Underburden Permeability",
-                                 "",
-                                 "",
-                                 "" );
-    CAF_PDM_InitScriptableField( &m_underburdenFluidDensity,
-                                 "UnderburdenFluidDensity",
-                                 1.03,
-                                 "Underburden Fluid Density [g/cm^3]",
-                                 "",
-                                 "",
-                                 "" );
-
-    CAF_PDM_InitScriptableField( &m_referenceTemperature, "ReferenceTemperature", 70.0, "Temperature [C]", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_referenceTemperatureGradient,
-                                 "ReferenceTemperatureGradient",
-                                 0.025,
-                                 "Temperature Gradient [C/m]",
-                                 "",
-                                 "",
-                                 "" );
-    CAF_PDM_InitScriptableField( &m_referenceTemperatureDepth,
-                                 "ReferenceTemperatureDepth",
-                                 2500.0,
-                                 "Temperature Depth [m]",
-                                 "",
-                                 "",
-                                 "" );
 
     CAF_PDM_InitScriptableField( &m_useDetailedFluidLoss, "UseDetailedFluidLoss", true, "Use Detailed Fluid Loss", "", "", "" );
 
@@ -235,14 +166,18 @@ RimFractureModel::RimFractureModel()
     m_formationDip.uiCapability()->setUiReadOnly( true );
     m_formationDip.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
+    CAF_PDM_InitScriptableField( &m_autoComputeBarrier, "AutoComputeBarrier", true, "Auto Compute Barrier", "", "", "" );
     CAF_PDM_InitScriptableField( &m_hasBarrier, "Barrier", true, "Barrier", "", "", "" );
     CAF_PDM_InitScriptableField( &m_distanceToBarrier, "DistanceToBarrier", 0.0, "Distance To Barrier [m]", "", "", "" );
+    m_distanceToBarrier.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+    m_distanceToBarrier.uiCapability()->setUiReadOnly( true );
+
     CAF_PDM_InitScriptableField( &m_barrierDip, "BarrierDip", 0.0, "Barrier Dip", "", "", "" );
+    m_barrierDip.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+    m_barrierDip.uiCapability()->setUiReadOnly( true );
     CAF_PDM_InitScriptableField( &m_wellPenetrationLayer, "WellPenetrationLayer", 0, "Well Penetration Layer", "", "", "" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_elasticProperties, "ElasticProperties", "Elastic Properties", "", "", "" );
-    m_elasticProperties.uiCapability()->setUiHidden( true );
-    m_elasticProperties.uiCapability()->setUiTreeHidden( true );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_barrierAnnotation, "BarrierAnnotation", "Barrier Annotation", "", "", "" );
 
     setDeletable( true );
 }
@@ -252,6 +187,8 @@ RimFractureModel::RimFractureModel()
 //--------------------------------------------------------------------------------------------------
 RimFractureModel::~RimFractureModel()
 {
+    clearBarrierAnnotation();
+
     RimWellPath*           wellPath           = m_thicknessDirectionWellPath.value();
     RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
 
@@ -284,6 +221,17 @@ bool RimFractureModel::useDetailedFluidLoss() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimFractureModel::initAfterRead()
+{
+    if ( m_fractureModelTemplate )
+    {
+        m_fractureModelTemplate->changed.connect( this, &RimFractureModel::fractureModelTemplateChanged );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFractureModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                          const QVariant&            oldValue,
                                          const QVariant&            newValue )
@@ -294,9 +242,17 @@ void RimFractureModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField
     }
 
     if ( changedField == &m_MD || changedField == &m_extractionType || changedField == &m_boundingBoxVertical ||
-         changedField == &m_boundingBoxHorizontal )
+         changedField == &m_boundingBoxHorizontal || changedField == &m_fractureOrientation ||
+         changedField == &m_autoComputeBarrier )
     {
         updateThicknessDirection();
+        updateBarrierProperties();
+    }
+
+    if ( changedField == &m_autoComputeBarrier || changedField == &m_hasBarrier )
+    {
+        m_barrierDip.uiCapability()->setUiReadOnly( m_autoComputeBarrier || !m_hasBarrier );
+        m_distanceToBarrier.uiCapability()->setUiReadOnly( m_autoComputeBarrier || !m_hasBarrier );
     }
 
     if ( changedField == &m_extractionType || changedField == &m_thicknessDirectionWellPath )
@@ -310,29 +266,23 @@ void RimFractureModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         m_relativePermeabilityFactorDefault.uiCapability()->setUiReadOnly( !m_useDetailedFluidLoss );
         m_poroElasticConstantDefault.uiCapability()->setUiReadOnly( !m_useDetailedFluidLoss );
         m_thermalExpansionCoeffientDefault.uiCapability()->setUiReadOnly( !m_useDetailedFluidLoss );
-
-        m_referenceTemperature.uiCapability()->setUiReadOnly( !m_useDetailedFluidLoss );
-        m_referenceTemperatureGradient.uiCapability()->setUiReadOnly( !m_useDetailedFluidLoss );
-        m_referenceTemperatureDepth.uiCapability()->setUiReadOnly( !m_useDetailedFluidLoss );
     }
 
+    if ( changedField == &m_editFractureModelTemplate )
     {
-        RimEclipseCase* eclipseCase = nullptr;
-        this->firstAncestorOrThisOfType( eclipseCase );
-        if ( eclipseCase )
+        m_editFractureModelTemplate = false;
+        if ( m_fractureModelTemplate != nullptr )
         {
-            RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews(
-                eclipseCase );
+            Riu3DMainWindowTools::selectAsCurrentItem( m_fractureModelTemplate() );
         }
-        else
-        {
-            RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews();
-        }
-
-        RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
-
-        updateReferringPlots();
     }
+
+    if ( changedField == &m_fractureModelTemplate )
+    {
+        setFractureModelTemplate( m_fractureModelTemplate() );
+    }
+
+    updateViewsAndPlots();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -343,26 +293,18 @@ QList<caf::PdmOptionItemInfo> RimFractureModel::calculateValueOptions( const caf
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if ( fieldNeedingOptions == &m_overburdenFormation || fieldNeedingOptions == &m_underburdenFormation )
+    if ( fieldNeedingOptions == &m_fractureModelTemplate )
     {
-        RigEclipseCaseData* eclipseCaseData = getEclipseCaseData();
-        if ( !eclipseCaseData ) return options;
+        RimOilField* oilField = RimProject::current()->activeOilField();
+        if ( oilField && oilField->completionTemplateCollection() )
+        {
+            RimFractureModelTemplateCollection* fracDefColl =
+                oilField->completionTemplateCollection()->fractureModelTemplateCollection();
 
-        std::vector<QString> formationNames = eclipseCaseData->formationNames();
-        for ( const QString& formationName : formationNames )
-        {
-            options.push_back( caf::PdmOptionItemInfo( formationName, formationName ) );
-        }
-    }
-    else if ( fieldNeedingOptions == &m_overburdenFacies || fieldNeedingOptions == &m_underburdenFacies )
-    {
-        RimColorLegend* faciesColors =
-            RimProject::current()->colorLegendCollection()->findByName( RiaDefines::faciesColorLegendName() );
-        if ( faciesColors )
-        {
-            for ( RimColorLegendItem* item : faciesColors->colorLegendItems() )
+            for ( RimFractureModelTemplate* fracDef : fracDefColl->fractureModelTemplates() )
             {
-                options.push_back( caf::PdmOptionItemInfo( item->categoryName(), item->categoryName() ) );
+                QString displayText = fracDef->name();
+                options.push_back( caf::PdmOptionItemInfo( displayText, fracDef ) );
             }
         }
     }
@@ -555,12 +497,213 @@ cvf::Vec3d RimFractureModel::calculateTSTDirection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimFractureModel::updateBarrierProperties()
+{
+    if ( m_autoComputeBarrier )
+    {
+        updateDistanceToBarrierAndDip();
+    }
+    else
+    {
+        clearBarrierAnnotation();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModel::updateDistanceToBarrierAndDip()
+{
+    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( this );
+    if ( !objHandle ) return;
+
+    RimWellPath* wellPath = nullptr;
+    objHandle->firstAncestorOrThisOfType( wellPath );
+    if ( !wellPath ) return;
+
+    RigEclipseCaseData* eclipseCaseData = getEclipseCaseData();
+    if ( !eclipseCaseData ) return;
+
+    const cvf::Vec3d& position = anchorPosition();
+
+    RiaLogging::info( "Computing distance to barrier." );
+    RiaLogging::info( QString( "Anchor position: %1" ).arg( RimFractureModel::vecToString( position ) ) );
+
+    RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
+
+    // Find the well path points closest to the anchor position
+    cvf::Vec3d p1;
+    cvf::Vec3d p2;
+    wellPathGeometry->twoClosestPoints( position, &p1, &p2 );
+    RiaLogging::info( QString( "Closest points on well path: %1 %2" )
+                          .arg( RimFractureModel::vecToString( p1 ) )
+                          .arg( RimFractureModel::vecToString( p2 ) ) );
+
+    // Create a well direction based on the two points
+    cvf::Vec3d wellDirection = ( p2 - p1 ).getNormalized();
+    RiaLogging::info( QString( "Well direction: %1" ).arg( RimFractureModel::vecToString( wellDirection ) ) );
+
+    cvf::Vec3d fractureDirection = wellDirection;
+    if ( m_fractureOrientation == FractureOrientation::ALONG_WELL_PATH )
+    {
+        cvf::Mat3d azimuthRotation = cvf::Mat3d::fromRotation( cvf::Vec3d::Z_AXIS, cvf::Math::toRadians( 90.0 ) );
+        fractureDirection.transformVector( azimuthRotation );
+    }
+
+    // The direction to the barrier is normal to the TST
+    cvf::Vec3d directionToBarrier = ( thicknessDirection() ^ fractureDirection ).getNormalized();
+    RiaLogging::info( QString( "Direction to barrier: %1" ).arg( RimFractureModel::vecToString( directionToBarrier ) ) );
+
+    std::vector<WellPathCellIntersectionInfo> intersections =
+        generateBarrierIntersections( eclipseCaseData, position, directionToBarrier );
+
+    RiaLogging::info( QString( "Intersections: %1" ).arg( intersections.size() ) );
+
+    double shortestDistance = std::numeric_limits<double>::max();
+
+    RigMainGrid* mainGrid   = eclipseCaseData->mainGrid();
+    bool         foundFault = false;
+    cvf::Vec3d   barrierPosition;
+    double       barrierDip = 0.0;
+    for ( const WellPathCellIntersectionInfo& intersection : intersections )
+    {
+        // Find the closest cell face which is a fault
+        double          distance = position.pointDistance( intersection.startPoint );
+        const RigFault* fault    = mainGrid->findFaultFromCellIndexAndCellFace( intersection.globCellIndex,
+                                                                             intersection.intersectedCellFaceIn );
+        if ( fault && distance < shortestDistance )
+        {
+            foundFault       = true;
+            shortestDistance = distance;
+            barrierPosition  = intersection.startPoint;
+
+            const RigCell& cell       = mainGrid->globalCellArray()[intersection.globCellIndex];
+            cvf::Vec3d     faceNormal = cell.faceNormalWithAreaLength( intersection.intersectedCellFaceIn );
+            barrierDip                = calculateFormationDip( faceNormal );
+        }
+    }
+
+    if ( foundFault )
+    {
+        RiaLogging::info( QString( "Found barrier distance: %1 Dip: %2" ).arg( shortestDistance ).arg( barrierDip ) );
+        clearBarrierAnnotation();
+        addBarrierAnnotation( position, barrierPosition );
+
+        m_hasBarrier        = true;
+        m_barrierDip        = barrierDip;
+        m_distanceToBarrier = shortestDistance;
+    }
+    else
+    {
+        RiaLogging::info( "No barrier found." );
+        clearBarrierAnnotation();
+        m_hasBarrier        = false;
+        m_barrierDip        = 0.0;
+        m_distanceToBarrier = 0.0;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<WellPathCellIntersectionInfo>
+    RimFractureModel::generateBarrierIntersections( RigEclipseCaseData* eclipseCaseData,
+                                                    const cvf::Vec3d&   position,
+                                                    const cvf::Vec3d&   directionToBarrier )
+{
+    double                                    randoDistance    = 10000.0;
+    cvf::Vec3d                                forwardPosition  = position + ( directionToBarrier * randoDistance );
+    cvf::Vec3d                                backwardPosition = position + ( directionToBarrier * -randoDistance );
+    std::vector<WellPathCellIntersectionInfo> intersections =
+        generateBarrierIntersectionsBetweenPoints( eclipseCaseData, position, forwardPosition );
+    std::vector<WellPathCellIntersectionInfo> backwardIntersections =
+        generateBarrierIntersectionsBetweenPoints( eclipseCaseData, position, backwardPosition );
+
+    // Merge the intersections for the search for closest
+    intersections.insert( intersections.end(), backwardIntersections.begin(), backwardIntersections.end() );
+    return intersections;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<WellPathCellIntersectionInfo>
+    RimFractureModel::generateBarrierIntersectionsBetweenPoints( RigEclipseCaseData* eclipseCaseData,
+                                                                 const cvf::Vec3d&   startPosition,
+                                                                 const cvf::Vec3d&   endPosition )
+{
+    // Create a fake well path from the anchor point to
+    // a point far away in the direction barrier direction
+    std::vector<cvf::Vec3d> pathCoords;
+    pathCoords.push_back( startPosition );
+    pathCoords.push_back( endPosition );
+
+    RigSimulationWellCoordsAndMD helper( pathCoords );
+    return RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath( eclipseCaseData,
+                                                                             helper.wellPathPoints(),
+                                                                             helper.measuredDepths() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModel::clearBarrierAnnotation()
+{
+    auto existingAnnotation = m_barrierAnnotation.value();
+    if ( existingAnnotation )
+    {
+        delete existingAnnotation;
+        m_barrierAnnotation = nullptr;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModel::addBarrierAnnotation( const cvf::Vec3d& startPosition, const cvf::Vec3d& endPosition )
+{
+    RimAnnotationCollection* coll = annotationCollection();
+    if ( !coll ) return;
+
+    auto newAnnotation = new RimUserDefinedPolylinesAnnotation();
+
+    RimPolylineTarget* startTarget = new RimPolylineTarget();
+    startTarget->setAsPointXYZ( startPosition );
+    newAnnotation->insertTarget( nullptr, startTarget );
+
+    RimPolylineTarget* endTarget = new RimPolylineTarget();
+    endTarget->setAsPointXYZ( endPosition );
+    newAnnotation->insertTarget( nullptr, endTarget );
+
+    m_barrierAnnotation = newAnnotation;
+
+    coll->addAnnotation( newAnnotation );
+    coll->scheduleRedrawOfRelevantViews();
+    coll->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimAnnotationCollection* RimFractureModel::annotationCollection()
+{
+    const auto project  = RimProject::current();
+    auto       oilField = project->activeOilField();
+    return oilField ? oilField->annotationCollection() : nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFractureModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     m_thicknessDirectionWellPath.uiCapability()->setUiHidden( true );
-    m_elasticProperties.uiCapability()->setUiHidden( false );
+    m_barrierAnnotation.uiCapability()->setUiHidden( true );
 
-    uiOrdering.add( nameField() );
+    uiOrdering.add( nameField(), caf::PdmUiOrdering::LayoutOptions( true, 3, 1 ) );
+    uiOrdering.add( &m_fractureModelTemplate, {true, 2, 1} );
+    uiOrdering.add( &m_editFractureModelTemplate, {false, 1, 0} );
+
     uiOrdering.add( &m_MD );
     uiOrdering.add( &m_extractionType );
     uiOrdering.add( &m_anchorPosition );
@@ -570,41 +713,11 @@ void RimFractureModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     boundingBoxGroup->add( &m_boundingBoxHorizontal );
     boundingBoxGroup->add( &m_boundingBoxVertical );
 
-    caf::PdmUiOrdering* defaultsGroup = uiOrdering.addNewGroup( "Defaults" );
-    defaultsGroup->add( &m_defaultPorosity );
-    defaultsGroup->add( &m_defaultPermeability );
-
-    caf::PdmUiOrdering* referenceStressGroup = uiOrdering.addNewGroup( "Reference Stress" );
-    referenceStressGroup->add( &m_verticalStress );
-    referenceStressGroup->add( &m_verticalStressGradient );
-    referenceStressGroup->add( &m_stressDepth );
-
-    caf::PdmUiOrdering* overburdenGroup = uiOrdering.addNewGroup( "Overburden" );
-    overburdenGroup->add( &m_overburdenHeight );
-    overburdenGroup->add( &m_overburdenFormation );
-    overburdenGroup->add( &m_overburdenFacies );
-    overburdenGroup->add( &m_overburdenPorosity );
-    overburdenGroup->add( &m_overburdenPermeability );
-    overburdenGroup->add( &m_overburdenFluidDensity );
-
-    caf::PdmUiOrdering* underburdenGroup = uiOrdering.addNewGroup( "Underburden" );
-    underburdenGroup->add( &m_underburdenHeight );
-    underburdenGroup->add( &m_underburdenFormation );
-    underburdenGroup->add( &m_underburdenFacies );
-    underburdenGroup->add( &m_underburdenPorosity );
-    underburdenGroup->add( &m_underburdenPermeability );
-    underburdenGroup->add( &m_underburdenFluidDensity );
-
     caf::PdmUiOrdering* detailedFluidLossGroup = uiOrdering.addNewGroup( "Detailed Fluid Loss" );
     detailedFluidLossGroup->add( &m_useDetailedFluidLoss );
     detailedFluidLossGroup->add( &m_relativePermeabilityFactorDefault );
     detailedFluidLossGroup->add( &m_poroElasticConstantDefault );
     detailedFluidLossGroup->add( &m_thermalExpansionCoeffientDefault );
-
-    caf::PdmUiOrdering* temperatureGroup = detailedFluidLossGroup->addNewGroup( "Temperature" );
-    temperatureGroup->add( &m_referenceTemperature );
-    temperatureGroup->add( &m_referenceTemperatureGradient );
-    temperatureGroup->add( &m_referenceTemperatureDepth );
 
     caf::PdmUiOrdering* perforationGroup = uiOrdering.addNewGroup( "Perforation" );
     perforationGroup->add( &m_perforationLength );
@@ -613,6 +726,7 @@ void RimFractureModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     caf::PdmUiOrdering* asymmetricGroup = uiOrdering.addNewGroup( "Asymmetric" );
     asymmetricGroup->add( &m_formationDip );
     asymmetricGroup->add( &m_hasBarrier );
+    asymmetricGroup->add( &m_autoComputeBarrier );
     asymmetricGroup->add( &m_distanceToBarrier );
     asymmetricGroup->add( &m_barrierDip );
     asymmetricGroup->add( &m_wellPenetrationLayer );
@@ -625,13 +739,34 @@ void RimFractureModel::defineEditorAttribute( const caf::PdmFieldHandle* field,
                                               QString                    uiConfigName,
                                               caf::PdmUiEditorAttribute* attribute )
 {
-    if ( field == &m_stressDepth || field == &m_verticalStress || field == &m_formationDip )
+    if ( field == &m_formationDip || field == &m_barrierDip || field == &m_distanceToBarrier )
     {
         auto doubleAttr = dynamic_cast<caf::PdmUiDoubleValueEditorAttribute*>( attribute );
         if ( doubleAttr )
         {
             doubleAttr->m_decimals     = 2;
             doubleAttr->m_numberFormat = caf::PdmUiDoubleValueEditorAttribute::NumberFormat::FIXED;
+        }
+    }
+
+    if ( field == &m_MD )
+    {
+        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
+
+        if ( myAttr )
+        {
+            RimWellPath* rimWellPath = nullptr;
+            this->firstAncestorOrThisOfType( rimWellPath );
+            if ( !rimWellPath ) return;
+
+            RigWellPath* wellPathGeo = rimWellPath->wellPathGeometry();
+            if ( !wellPathGeo ) return;
+
+            if ( wellPathGeo->m_measuredDepths.size() > 1 )
+            {
+                myAttr->m_minimum = wellPathGeo->m_measuredDepths.front();
+                myAttr->m_maximum = wellPathGeo->m_measuredDepths.back();
+            }
         }
     }
 }
@@ -734,28 +869,8 @@ double RimFractureModel::calculateFormationDip( const cvf::Vec3d& direction )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimElasticProperties* RimFractureModel::elasticProperties() const
-{
-    return m_elasticProperties;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimFractureModel::setElasticProperties( RimElasticProperties* elasticProperties )
-{
-    m_elasticProperties = elasticProperties;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimFractureModel::loadDataAndUpdate()
 {
-    if ( m_elasticProperties )
-    {
-        m_elasticProperties->loadDataAndUpdate();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -763,7 +878,7 @@ void RimFractureModel::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 double RimFractureModel::defaultPorosity() const
 {
-    return m_defaultPorosity();
+    return m_fractureModelTemplate() ? m_fractureModelTemplate()->defaultPorosity() : 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -771,7 +886,7 @@ double RimFractureModel::defaultPorosity() const
 //--------------------------------------------------------------------------------------------------
 double RimFractureModel::defaultPermeability() const
 {
-    return m_defaultPermeability();
+    return m_fractureModelTemplate() ? m_fractureModelTemplate()->defaultPermeability() : 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -854,7 +969,11 @@ double RimFractureModel::getOverburdenGradient( const QString& keyword ) const
 {
     if ( keyword == QString( "PRESSURE" ) )
     {
-        return m_overburdenFluidDensity * 9.81 * 1000.0 / 1.0e5;
+        if ( !m_fractureModelTemplate )
+        {
+            return 0.0;
+        }
+        return m_fractureModelTemplate()->overburdenFluidDensity() * 9.81 * 1000.0 / 1.0e5;
     }
     else
     {
@@ -870,7 +989,12 @@ double RimFractureModel::getUnderburdenGradient( const QString& keyword ) const
 {
     if ( keyword == QString( "PRESSURE" ) )
     {
-        return m_underburdenFluidDensity * 9.81 * 1000.0 / 1.0e5;
+        if ( !m_fractureModelTemplate )
+        {
+            return 0.0;
+        }
+
+        return m_fractureModelTemplate()->underburdenFluidDensity() * 9.81 * 1000.0 / 1.0e5;
     }
     else
     {
@@ -920,7 +1044,7 @@ bool RimFractureModel::hasDefaultValueForProperty( RiaDefines::CurveProperty cur
 //--------------------------------------------------------------------------------------------------
 double RimFractureModel::verticalStress() const
 {
-    return m_verticalStress;
+    return m_fractureModelTemplate() ? m_fractureModelTemplate()->verticalStress() : 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -928,7 +1052,7 @@ double RimFractureModel::verticalStress() const
 //--------------------------------------------------------------------------------------------------
 double RimFractureModel::verticalStressGradient() const
 {
-    return m_verticalStressGradient;
+    return m_fractureModelTemplate() ? m_fractureModelTemplate()->verticalStressGradient() : 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -936,7 +1060,7 @@ double RimFractureModel::verticalStressGradient() const
 //--------------------------------------------------------------------------------------------------
 double RimFractureModel::stressDepth() const
 {
-    return m_stressDepth;
+    return m_fractureModelTemplate() ? m_fractureModelTemplate()->stressDepth() : 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -944,7 +1068,7 @@ double RimFractureModel::stressDepth() const
 //--------------------------------------------------------------------------------------------------
 double RimFractureModel::overburdenHeight() const
 {
-    return m_overburdenHeight;
+    return m_fractureModelTemplate() ? m_fractureModelTemplate()->overburdenHeight() : 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -952,7 +1076,7 @@ double RimFractureModel::overburdenHeight() const
 //--------------------------------------------------------------------------------------------------
 double RimFractureModel::underburdenHeight() const
 {
-    return m_underburdenHeight;
+    return m_fractureModelTemplate() ? m_fractureModelTemplate()->underburdenHeight() : 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -960,7 +1084,7 @@ double RimFractureModel::underburdenHeight() const
 //--------------------------------------------------------------------------------------------------
 double RimFractureModel::defaultOverburdenPorosity() const
 {
-    return m_overburdenPorosity;
+    return m_fractureModelTemplate() ? m_fractureModelTemplate()->defaultOverburdenPorosity() : 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -968,7 +1092,7 @@ double RimFractureModel::defaultOverburdenPorosity() const
 //--------------------------------------------------------------------------------------------------
 double RimFractureModel::defaultUnderburdenPorosity() const
 {
-    return m_underburdenPorosity;
+    return m_fractureModelTemplate() ? m_fractureModelTemplate()->defaultUnderburdenPorosity() : 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -976,7 +1100,7 @@ double RimFractureModel::defaultUnderburdenPorosity() const
 //--------------------------------------------------------------------------------------------------
 double RimFractureModel::defaultOverburdenPermeability() const
 {
-    return m_overburdenPermeability;
+    return m_fractureModelTemplate() ? m_fractureModelTemplate()->defaultOverburdenPermeability() : 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -984,7 +1108,7 @@ double RimFractureModel::defaultOverburdenPermeability() const
 //--------------------------------------------------------------------------------------------------
 double RimFractureModel::defaultUnderburdenPermeability() const
 {
-    return m_underburdenPermeability;
+    return m_fractureModelTemplate() ? m_fractureModelTemplate()->defaultUnderburdenPermeability() : 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -992,7 +1116,7 @@ double RimFractureModel::defaultUnderburdenPermeability() const
 //--------------------------------------------------------------------------------------------------
 QString RimFractureModel::overburdenFormation() const
 {
-    return m_overburdenFormation;
+    return m_fractureModelTemplate() ? m_fractureModelTemplate()->overburdenFormation() : "";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1000,7 +1124,7 @@ QString RimFractureModel::overburdenFormation() const
 //--------------------------------------------------------------------------------------------------
 QString RimFractureModel::overburdenFacies() const
 {
-    return m_overburdenFacies;
+    return m_fractureModelTemplate() ? m_fractureModelTemplate()->overburdenFacies() : "";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1008,7 +1132,7 @@ QString RimFractureModel::overburdenFacies() const
 //--------------------------------------------------------------------------------------------------
 QString RimFractureModel::underburdenFormation() const
 {
-    return m_underburdenFormation;
+    return m_fractureModelTemplate() ? m_fractureModelTemplate()->underburdenFormation() : "";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1016,7 +1140,7 @@ QString RimFractureModel::underburdenFormation() const
 //--------------------------------------------------------------------------------------------------
 QString RimFractureModel::underburdenFacies() const
 {
-    return m_underburdenFacies;
+    return m_fractureModelTemplate() ? m_fractureModelTemplate()->underburdenFacies() : "";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1042,6 +1166,7 @@ void RimFractureModel::setMD( double md )
     m_MD = md;
     updatePositionFromMeasuredDepth();
     updateThicknessDirection();
+    updateBarrierProperties();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1049,7 +1174,7 @@ void RimFractureModel::setMD( double md )
 //--------------------------------------------------------------------------------------------------
 double RimFractureModel::referenceTemperature() const
 {
-    return m_referenceTemperature;
+    return m_fractureModelTemplate() ? m_fractureModelTemplate()->referenceTemperature() : 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1057,7 +1182,7 @@ double RimFractureModel::referenceTemperature() const
 //--------------------------------------------------------------------------------------------------
 double RimFractureModel::referenceTemperatureGradient() const
 {
-    return m_referenceTemperatureGradient;
+    return m_fractureModelTemplate() ? m_fractureModelTemplate()->referenceTemperatureGradient() : 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1065,7 +1190,7 @@ double RimFractureModel::referenceTemperatureGradient() const
 //--------------------------------------------------------------------------------------------------
 double RimFractureModel::referenceTemperatureDepth() const
 {
-    return m_referenceTemperatureDepth;
+    return m_fractureModelTemplate() ? m_fractureModelTemplate()->referenceTemperatureDepth() : 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1090,20 +1215,6 @@ RigEclipseCaseData* RimFractureModel::getEclipseCaseData()
     if ( !eclipseCase ) return nullptr;
 
     return eclipseCase->eclipseCaseData();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimFractureModel::computeDefaultStressDepth()
-{
-    const double stressDepth = 1000.0;
-
-    RimEclipseCase* eclipseCase = getEclipseCase();
-    if ( !eclipseCase ) return stressDepth;
-
-    // Use top of active cells as reference stress depth
-    return -eclipseCase->activeCellsBoundingBox().max().z();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1160,4 +1271,59 @@ double RimFractureModel::barrierDip() const
 int RimFractureModel::wellPenetrationLayer() const
 {
     return m_wellPenetrationLayer;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModel::setFractureModelTemplate( RimFractureModelTemplate* fractureModelTemplate )
+{
+    if ( m_fractureModelTemplate )
+    {
+        m_fractureModelTemplate->changed.disconnect( this );
+    }
+
+    m_fractureModelTemplate = fractureModelTemplate;
+
+    if ( m_fractureModelTemplate )
+    {
+        m_fractureModelTemplate->changed.connect( this, &RimFractureModel::fractureModelTemplateChanged );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimFractureModelTemplate* RimFractureModel::fractureModelTemplate() const
+{
+    return m_fractureModelTemplate;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModel::fractureModelTemplateChanged( const caf::SignalEmitter* emitter )
+{
+    updateViewsAndPlots();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModel::updateViewsAndPlots()
+{
+    RimEclipseCase* eclipseCase = nullptr;
+    this->firstAncestorOrThisOfType( eclipseCase );
+    if ( eclipseCase )
+    {
+        RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews( eclipseCase );
+    }
+    else
+    {
+        RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews();
+    }
+
+    RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
+
+    updateReferringPlots();
 }

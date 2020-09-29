@@ -150,6 +150,18 @@ void RimEclipseContourMapProjection::updateLegend()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RimEclipseContourMapProjection::sampleSpacing() const
+{
+    if ( m_mainGrid.notNull() )
+    {
+        return m_relativeSampleSpacing * m_mainGrid->characteristicIJCellSize();
+    }
+    return 0.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipseContourMapProjection::updatedWeightingResult()
 {
     this->clearGridMapping();
@@ -324,8 +336,8 @@ std::vector<double> RimEclipseContourMapProjection::calculateColumnResult( Resul
 //--------------------------------------------------------------------------------------------------
 void RimEclipseContourMapProjection::updateGridInformation()
 {
-    m_mainGrid                  = eclipseCase()->eclipseCaseData()->mainGrid();
-    m_sampleSpacing             = m_relativeSampleSpacing * m_mainGrid->characteristicIJCellSize();
+    m_mainGrid = eclipseCase()->eclipseCaseData()->mainGrid();
+
     m_gridBoundingBox           = eclipseCase()->activeCellsBoundingBox();
     cvf::Vec3d minExpandedPoint = m_gridBoundingBox.min() - cvf::Vec3d( gridEdgeOffset(), gridEdgeOffset(), 0.0 );
     cvf::Vec3d maxExpandedPoint = m_gridBoundingBox.max() + cvf::Vec3d( gridEdgeOffset(), gridEdgeOffset(), 0.0 );
@@ -336,8 +348,8 @@ void RimEclipseContourMapProjection::updateGridInformation()
     // Re-jig max point to be an exact multiple of cell size
     cvf::Vec3d minPoint   = m_expandedBoundingBox.min();
     cvf::Vec3d maxPoint   = m_expandedBoundingBox.max();
-    maxPoint.x()          = minPoint.x() + m_mapSize.x() * m_sampleSpacing;
-    maxPoint.y()          = minPoint.y() + m_mapSize.y() * m_sampleSpacing;
+    maxPoint.x()          = minPoint.x() + m_mapSize.x() * sampleSpacing();
+    maxPoint.y()          = minPoint.y() + m_mapSize.y() * sampleSpacing();
     m_expandedBoundingBox = cvf::BoundingBox( minPoint, maxPoint );
 }
 

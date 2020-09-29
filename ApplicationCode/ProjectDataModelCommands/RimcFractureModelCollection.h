@@ -29,6 +29,7 @@
 #include <QString>
 
 class RimFractureModelCollection;
+class RimFractureModelTemplate;
 class RimWellPath;
 
 //==================================================================================================
@@ -48,5 +49,5 @@ public:
 private:
     caf::PdmPtrField<RimWellPath*> m_wellPath;
     caf::PdmField<double>          m_md;
-    caf::PdmField<QString>         m_elasticPropertiesFilePath;
+    caf::PdmPtrField<RimFractureModelTemplate*> m_fractureModelTemplate;
 };

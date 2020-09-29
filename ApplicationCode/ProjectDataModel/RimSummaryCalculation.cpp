@@ -475,7 +475,7 @@ void RimSummaryCalculation::updateDependentCurvesAndPlots()
     calcColl->rebuildCaseMetaData();
 
     RimSummaryPlotCollection* summaryPlotCollection = RiaSummaryTools::summaryPlotCollection();
-    for ( RimSummaryPlot* sumPlot : summaryPlotCollection->summaryPlots() )
+    for ( RimSummaryPlot* sumPlot : summaryPlotCollection->plots() )
     {
         bool plotContainsCalculatedCurves = false;
 

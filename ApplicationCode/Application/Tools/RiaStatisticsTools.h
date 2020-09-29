@@ -52,7 +52,4 @@ public:
     }
 
     static double pearsonCorrelation( const std::vector<double>& xValues, const std::vector<double>& yValues );
-    static double pearsonCorrelationGSL( const std::vector<double>& xValues, const std::vector<double>& yValues );
-    static double pearsonCorrelationOwn( const std::vector<double>& xValues, const std::vector<double>& yValues );
-    static double spearmanCorrelation( const std::vector<double>& xValues, const std::vector<double>& yValues );
 };

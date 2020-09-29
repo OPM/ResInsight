@@ -230,7 +230,6 @@ void RimSummaryCaseCollection::removeCase( RimSummaryCase* summaryCase )
 {
     size_t caseCountBeforeRemove = m_cases.size();
 
-    summaryCase->nameChanged.disconnect( this );
     m_cases.removeChildObject( summaryCase );
 
     m_cachedSortedEnsembleParameters.clear();
@@ -474,6 +473,37 @@ const std::vector<EnsembleParameter>&
     return m_cachedSortedEnsembleParameters;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<EnsembleParameter, double>>
+    RimSummaryCaseCollection::correlationSortedEnsembleParameters( const RifEclipseSummaryAddress& address ) const
+{
+    auto parameters = parameterCorrelationsAllTimeSteps( address );
+    std::sort( parameters.begin(),
+               parameters.end(),
+               []( const std::pair<EnsembleParameter, double>& lhs, const std::pair<EnsembleParameter, double>& rhs ) {
+                   return std::abs( lhs.second ) > std::abs( rhs.second );
+               } );
+    return parameters;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<EnsembleParameter, double>>
+    RimSummaryCaseCollection::correlationSortedEnsembleParameters( const RifEclipseSummaryAddress& address,
+                                                                   time_t selectedTimeStep ) const
+{
+    auto parameters = parameterCorrelations( address, selectedTimeStep );
+    std::sort( parameters.begin(),
+               parameters.end(),
+               []( const std::pair<EnsembleParameter, double>& lhs, const std::pair<EnsembleParameter, double>& rhs ) {
+                   return std::abs( lhs.second ) > std::abs( rhs.second );
+               } );
+    return parameters;
+}
+
 time_t timeDiff( time_t lhs, time_t rhs )
 {
     if ( lhs >= rhs )
@@ -489,7 +519,6 @@ time_t timeDiff( time_t lhs, time_t rhs )
 std::vector<std::pair<EnsembleParameter, double>>
     RimSummaryCaseCollection::parameterCorrelations( const RifEclipseSummaryAddress& address,
                                                      time_t                          timeStep,
-                                                     bool                            spearman,
                                                      const std::vector<QString>&     selectedParameters ) const
 {
     auto parameters = variationSortedEnsembleParameters( true );
@@ -552,16 +581,8 @@ std::vector<std::pair<EnsembleParameter, double>>
     for ( auto parameterValuesPair : parameterValues )
     {
         double correlation = 0.0;
-        if ( spearman )
-        {
-            double spearman = RiaStatisticsTools::spearmanCorrelation( parameterValuesPair.second, caseValuesAtTimestep );
-            if ( spearman != std::numeric_limits<double>::infinity() ) correlation = spearman;
-        }
-        else
-        {
-            double pearson = RiaStatisticsTools::pearsonCorrelation( parameterValuesPair.second, caseValuesAtTimestep );
-            if ( pearson != std::numeric_limits<double>::infinity() ) correlation = pearson;
-        }
+        double pearson     = RiaStatisticsTools::pearsonCorrelation( parameterValuesPair.second, caseValuesAtTimestep );
+        if ( pearson != std::numeric_limits<double>::infinity() ) correlation = pearson;
         correlationResults.push_back( std::make_pair( parameterValuesPair.first, correlation ) );
     }
     return correlationResults;
@@ -572,7 +593,6 @@ std::vector<std::pair<EnsembleParameter, double>>
 //--------------------------------------------------------------------------------------------------
 std::vector<std::pair<EnsembleParameter, double>>
     RimSummaryCaseCollection::parameterCorrelationsAllTimeSteps( const RifEclipseSummaryAddress& address,
-                                                                 bool                            spearman,
                                                                  const std::vector<QString>& selectedParameters ) const
 {
     const size_t     maxTimeStepCount = 10;
@@ -587,7 +607,7 @@ std::vector<std::pair<EnsembleParameter, double>>
     for ( size_t i = stride; i < timeStepsVector.size(); i += stride )
     {
         std::vector<std::pair<EnsembleParameter, double>> correlationsForTimeStep =
-            parameterCorrelations( address, timeStepsVector[i], spearman, selectedParameters );
+            parameterCorrelations( address, timeStepsVector[i], selectedParameters );
         correlationsForChosenTimeSteps.push_back( correlationsForTimeStep );
     }
 
@@ -658,9 +678,16 @@ EnsembleParameter RimSummaryCaseCollection::createEnsembleParameter( const QStri
     size_t numericValuesCount = 0;
     size_t textValuesCount    = 0;
 
+    auto summaryCases = allSummaryCases();
+    // Make sure the values list exactly matches the case count
+    // And use an invalid value (infinity) for invalid cases.
+    eParam.values.resize( summaryCases.size(), std::numeric_limits<double>::infinity() );
+
     // Prepare case realization params, and check types
-    for ( const auto& rimCase : allSummaryCases() )
+    for ( size_t caseIdx = 0; caseIdx < summaryCases.size(); ++caseIdx )
     {
+        auto rimCase = summaryCases[caseIdx];
+
         auto crp = rimCase->caseRealizationParameters();
         if ( !crp ) continue;
 
@@ -669,15 +696,15 @@ EnsembleParameter RimSummaryCaseCollection::createEnsembleParameter( const QStri
 
         if ( value.isNumeric() )
         {
-            double numVal = value.numericValue();
-            eParam.values.push_back( QVariant( numVal ) );
+            double numVal          = value.numericValue();
+            eParam.values[caseIdx] = QVariant( numVal );
             if ( numVal < eParam.minValue ) eParam.minValue = numVal;
             if ( numVal > eParam.maxValue ) eParam.maxValue = numVal;
             numericValuesCount++;
         }
         else if ( value.isText() )
         {
-            eParam.values.push_back( QVariant( value.textValue() ) );
+            eParam.values[caseIdx] = QVariant( value.textValue() );
             textValuesCount++;
         }
     }

@@ -100,9 +100,6 @@ RimWellPltPlot::RimWellPltPlot()
 {
     CAF_PDM_InitObject( "Well Allocation Plot", ":/WellFlowPlot16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_showPlotTitle_OBSOLETE, "ShowPlotTitle", false, "Show Plot Title", "", "", "" );
-    m_showPlotTitle_OBSOLETE.xmlCapability()->setIOWritable( false );
-
     CAF_PDM_InitFieldNoDefault( &m_wellLogPlot_OBSOLETE, "WellLog", "WellLog", "", "", "" );
     m_wellLogPlot_OBSOLETE.uiCapability()->setUiHidden( true );
     m_wellLogPlot_OBSOLETE.xmlCapability()->setIOWritable( false );
@@ -117,6 +114,7 @@ RimWellPltPlot::RimWellPltPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_selectedSourcesForIo, "Sources", "Sources", "", "", "" );
     m_selectedSourcesForIo.uiCapability()->setUiHidden( true );
+    m_selectedSourcesForIo.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "Time Steps", "", "", "" );
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
@@ -139,6 +137,7 @@ RimWellPltPlot::RimWellPltPlot()
     m_plotLegendsHorizontal = false;
 
     setAvailableDepthTypes( {RiaDefines::DepthTypeEnum::MEASURED_DEPTH} );
+    setPlotTitleVisible( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -961,7 +960,7 @@ void RimWellPltPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 void RimWellPltPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
-    // uiTreeOrdering.skipRemainingChildren( true );
+    uiTreeOrdering.skipRemainingChildren( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1032,11 +1031,6 @@ void RimWellPltPlot::initAfterRead()
         wellLogPlot                 = std::move( *m_wellLogPlot_OBSOLETE.value() );
         delete m_wellLogPlot_OBSOLETE;
         m_wellLogPlot_OBSOLETE = nullptr;
-    }
-
-    if ( m_showPlotTitle_OBSOLETE() && !m_showPlotWindowTitle() )
-    {
-        m_showPlotWindowTitle = m_showPlotTitle_OBSOLETE();
     }
 
     RimWellLogPlot::initAfterRead();

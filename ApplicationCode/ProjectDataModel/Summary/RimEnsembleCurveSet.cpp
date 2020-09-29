@@ -18,9 +18,9 @@
 
 #include "RimEnsembleCurveSet.h"
 
+#include "RiaColorTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaStatisticsTools.h"
-#include "RiuAbstractLegendFrame.h"
 
 #include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 
@@ -46,6 +46,7 @@
 #include "RimSummaryFilter.h"
 #include "RimSummaryPlot.h"
 
+#include "RiuAbstractLegendFrame.h"
 #include "RiuCvfOverlayItemWidget.h"
 #include "RiuDraggableOverlayFrame.h"
 #include "RiuPlotMainWindow.h"
@@ -115,7 +116,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     CAF_PDM_InitField( &m_colorMode, "ColorMode", caf::AppEnum<ColorMode>( ColorMode::SINGLE_COLOR ), "Coloring Mode", "", "", "" );
 
-    CAF_PDM_InitField( &m_color, "Color", cvf::Color3f( cvf::Color3::BLACK ), "Color", "", "", "" );
+    CAF_PDM_InitField( &m_color, "Color", RiaColorTools::textColor3f(), "Color", "", "", "" );
 
     CAF_PDM_InitField( &m_ensembleParameter, "EnsembleParameter", QString( "" ), "Ensemble Parameter", "", "", "" );
     m_ensembleParameter.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
@@ -930,6 +931,8 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
     {
         if ( isCurvesVisible() )
         {
+            std::vector<RimSummaryCurve*> newSummaryCurves;
+
             for ( auto& sumCase : sumCases )
             {
                 RimSummaryCurve* curve = new RimSummaryCurve();
@@ -940,12 +943,23 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
                 addCurve( curve );
 
                 curve->updateCurveVisibility();
-                curve->loadDataAndUpdate( false );
-                curve->updateQwtPlotAxis();
 
-                if ( curve->qwtPlotCurve() )
+                newSummaryCurves.push_back( curve );
+            }
+
+#pragma omp parallel for
+            for ( int i = 0; i < (int)newSummaryCurves.size(); ++i )
+            {
+                newSummaryCurves[i]->valuesX();
+            }
+
+            for ( int i = 0; i < (int)newSummaryCurves.size(); ++i )
+            {
+                newSummaryCurves[i]->loadDataAndUpdate( false );
+                newSummaryCurves[i]->updateQwtPlotAxis();
+                if ( newSummaryCurves[i]->qwtPlotCurve() )
                 {
-                    curve->qwtPlotCurve()->setItemAttribute( QwtPlotItem::Legend, false );
+                    newSummaryCurves[i]->qwtPlotCurve()->setItemAttribute( QwtPlotItem::Legend, false );
                 }
             }
 
@@ -954,7 +968,7 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
 
         if ( plot->viewer() )
         {
-            plot->viewer()->updateLegend();
+            if ( plot->legendsVisible() ) plot->viewer()->updateLegend();
             plot->viewer()->scheduleReplot();
             plot->updateAxes();
             plot->updatePlotInfoLabel();
@@ -1019,7 +1033,6 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
         auto curve = new RimSummaryCurve();
         curve->setParentQwtPlotNoReplot( plot->viewer() );
         m_curves.push_back( curve );
-        curve->setColor( m_statistics->color() );
         curve->setColor( m_statistics->color() );
 
         auto symbol = statisticsCurveSymbolFromAddress( address );
@@ -1131,13 +1144,7 @@ std::vector<std::pair<EnsembleParameter, double>> RimEnsembleCurveSet::correlati
     RimSummaryCaseCollection* ensemble = m_yValuesSummaryCaseCollection;
     if ( ensemble )
     {
-        auto parameters = ensemble->parameterCorrelationsAllTimeSteps( summaryAddress() );
-        std::sort( parameters.begin(),
-                   parameters.end(),
-                   []( const std::pair<EnsembleParameter, double>& lhs, const std::pair<EnsembleParameter, double>& rhs ) {
-                       return std::abs( lhs.second ) > std::abs( rhs.second );
-                   } );
-        return parameters;
+        return ensemble->correlationSortedEnsembleParameters( summaryAddress() );
     }
     else
     {

@@ -77,7 +77,7 @@ void RiaSummaryTools::notifyCalculatedCurveNameHasChanged( int calculationId, co
 {
     RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
 
-    for ( RimSummaryPlot* plot : summaryPlotColl->summaryPlots() )
+    for ( RimSummaryPlot* plot : summaryPlotColl->plots() )
     {
         for ( RimSummaryCurve* curve : plot->summaryCurves() )
         {

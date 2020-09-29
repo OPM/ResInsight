@@ -133,6 +133,19 @@ void RimGeoMechContourMapProjection::updateLegend()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RimGeoMechContourMapProjection::sampleSpacing() const
+{
+    RimGeoMechCase* geoMechCase = this->geoMechCase();
+    if ( geoMechCase )
+    {
+        return m_relativeSampleSpacing * geoMechCase->characteristicCellSize();
+    }
+    return 0.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::UByteArray> RimGeoMechContourMapProjection::getCellVisibility() const
 {
     cvf::ref<cvf::UByteArray> cellGridIdxVisibility = new cvf::UByteArray( m_femPart->elementCount() );
@@ -205,7 +218,6 @@ void RimGeoMechContourMapProjection::updateGridInformation()
     RimGeoMechCase* geoMechCase = this->geoMechCase();
     m_femPart                   = geoMechCase->geoMechData()->femParts()->part( 0 );
     m_femPartGrid               = m_femPart->getOrCreateStructGrid();
-    m_sampleSpacing             = m_relativeSampleSpacing * geoMechCase->characteristicCellSize();
     m_femPart->ensureIntersectionSearchTreeIsBuilt();
 
     m_gridBoundingBox = geoMechCase->activeCellsBoundingBox();
@@ -232,8 +244,8 @@ void RimGeoMechContourMapProjection::updateGridInformation()
     // Re-jig max point to be an exact multiple of cell size
     cvf::Vec3d minPoint   = m_expandedBoundingBox.min();
     cvf::Vec3d maxPoint   = m_expandedBoundingBox.max();
-    maxPoint.x()          = minPoint.x() + m_mapSize.x() * m_sampleSpacing;
-    maxPoint.y()          = minPoint.y() + m_mapSize.y() * m_sampleSpacing;
+    maxPoint.x()          = minPoint.x() + m_mapSize.x() * sampleSpacing();
+    maxPoint.y()          = minPoint.y() + m_mapSize.y() * sampleSpacing();
     m_expandedBoundingBox = cvf::BoundingBox( minPoint, maxPoint );
 }
 
@@ -281,7 +293,7 @@ std::vector<bool> RimGeoMechContourMapProjection::getMapCellVisibility()
             cvf::Vec3d porExtent   = validResBoundingBox.extent();
             double     radius      = std::max( porExtent.x(), porExtent.y() ) * 0.25;
             double     expansion   = m_paddingAroundPorePressureRegion * radius;
-            size_t     cellPadding = std::ceil( expansion / m_sampleSpacing );
+            size_t     cellPadding = std::ceil( expansion / sampleSpacing() );
             for ( size_t cellIndex = 0; cellIndex < cellResults.size(); ++cellIndex )
             {
                 if ( !mapCellVisibility[cellIndex] )

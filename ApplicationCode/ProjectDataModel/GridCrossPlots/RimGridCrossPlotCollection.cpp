@@ -43,17 +43,17 @@ RimGridCrossPlotCollection::~RimGridCrossPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCollection::deleteAllChildObjects()
+std::vector<RimGridCrossPlot*> RimGridCrossPlotCollection::plots() const
 {
-    m_gridCrossPlots.deleteAllChildObjects();
+    return m_gridCrossPlots.childObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimGridCrossPlot*> RimGridCrossPlotCollection::gridCrossPlots() const
+size_t RimGridCrossPlotCollection::plotCount() const
 {
-    return m_gridCrossPlots.childObjects();
+    return m_gridCrossPlots.size();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,22 +65,23 @@ RimGridCrossPlot* RimGridCrossPlotCollection::createGridCrossPlot()
     plot->setAsPlotMdiWindow();
 
     // plot->setDescription(QString("Summary Cross Plot %1").arg(m_gridCrossPlots.size()));
-    addGridCrossPlot( plot );
+    addPlot( plot );
     return plot;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCollection::addGridCrossPlot( RimGridCrossPlot* plot )
+void RimGridCrossPlotCollection::insertPlot( RimGridCrossPlot* plot, size_t index )
 {
-    m_gridCrossPlots().push_back( plot );
+    m_gridCrossPlots.insert( index, plot );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCollection::removeGridCrossPlot( RimGridCrossPlot* plot )
+void RimGridCrossPlotCollection::removePlot( RimGridCrossPlot* plot )
 {
     m_gridCrossPlots.removeChildObject( plot );
+    updateAllRequiredEditors();
 }

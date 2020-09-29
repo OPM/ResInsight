@@ -146,19 +146,14 @@ RimSummaryPlot::RimSummaryPlot()
 {
     CAF_PDM_InitScriptableObject( "Summary Plot", ":/SummaryPlotLight16x16.png", "", "A Summary Plot" );
 
-    CAF_PDM_InitScriptableField( &m_showPlotTitle, "ShowPlotTitle", true, "Plot Title", "", "", "" );
-    m_showPlotTitle.xmlCapability()->setIOWritable( false );
-
     CAF_PDM_InitScriptableField( &m_useAutoPlotTitle, "IsUsingAutoName", true, "Auto Title", "", "", "" );
-
     CAF_PDM_InitScriptableField( &m_description, "PlotDescription", QString( "Summary Plot" ), "Name", "", "", "" );
-
     CAF_PDM_InitScriptableField( &m_normalizeCurveYValues, "normalizeCurveYValues", false, "Normalize all curves", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryCurveCollection, "SummaryCurveCollection", "", "", "", "" );
     m_summaryCurveCollection.uiCapability()->setUiTreeHidden( true );
     m_summaryCurveCollection = new RimSummaryCurveCollection;
-    m_summaryCurveCollection->curvesReordered.connect( this, &RimSummaryPlot::onCurvesReordered );
+    m_summaryCurveCollection->curvesChanged.connect( this, &RimSummaryPlot::onCurveCollectionChanged );
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSetCollection, "EnsembleCurveSetCollection", "", "", "", "" );
     m_ensembleCurveSetCollection.uiCapability()->setUiTreeHidden( true );
@@ -233,22 +228,6 @@ RimSummaryPlot::~RimSummaryPlot()
     m_curveFilters_OBSOLETE.deleteAllChildObjects();
     delete m_summaryCurveCollection;
     delete m_ensembleCurveSetCollection;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimSummaryPlot::showPlotTitle() const
-{
-    return m_showPlotTitle;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::setShowPlotTitle( bool showTitle )
-{
-    m_showPlotTitle = showTitle;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -609,7 +588,7 @@ void RimSummaryPlot::updatePlotTitle()
     {
         QString plotTitle = description();
         m_plotWidget->setPlotTitle( plotTitle );
-        m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && isMdiWindow() );
+        m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && !isSubPlot() );
         m_plotWidget->scheduleReplot();
     }
 }
@@ -677,7 +656,7 @@ void RimSummaryPlot::updateLegend()
 {
     if ( m_plotWidget )
     {
-        m_plotWidget->setLegendVisible( m_showPlotLegends && isMdiWindow() );
+        m_plotWidget->setInternalLegendVisible( m_showPlotLegends && !isSubPlot() );
     }
 
     reattachAllCurves();
@@ -1432,6 +1411,12 @@ void RimSummaryPlot::updateStackedCurveData()
 {
     updateStackedCurveDataForAxis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
     updateStackedCurveDataForAxis( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
+
+    if ( m_plotWidget )
+    {
+        reattachAllCurves();
+        m_plotWidget->scheduleReplot();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1491,10 +1476,6 @@ void RimSummaryPlot::updateStackedCurveDataForAxis( RiaDefines::PlotAxis plotAxi
             }
             zPos -= 1.0;
         }
-    }
-    if ( m_plotWidget )
-    {
-        m_plotWidget->scheduleReplot();
     }
 }
 //--------------------------------------------------------------------------------------------------
@@ -1580,7 +1561,7 @@ void RimSummaryPlot::onLoadDataAndUpdate()
 
     if ( m_plotWidget )
     {
-        m_plotWidget->setLegendVisible( m_showPlotLegends && isMdiWindow() );
+        m_plotWidget->setInternalLegendVisible( m_showPlotLegends && !isSubPlot() );
         m_plotWidget->setLegendFontSize( legendFontSize() );
         m_plotWidget->updateLegend();
     }
@@ -1754,20 +1735,6 @@ void RimSummaryPlot::axisSettingsChanged( const caf::SignalEmitter* emitter )
 void RimSummaryPlot::axisLogarithmicChanged( const caf::SignalEmitter* emitter, bool isLogarithmic )
 {
     loadDataAndUpdate();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::doRemoveFromCollection()
-{
-    RimSummaryPlotCollection* summaryCollection = nullptr;
-    this->firstAncestorOrThisOfType( summaryCollection );
-    if ( summaryCollection )
-    {
-        summaryCollection->removeSummaryPlot( this );
-        summaryCollection->updateAllRequiredEditors();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2169,7 +2136,7 @@ void RimSummaryPlot::handleKeyPressEvent( QKeyEvent* keyEvent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::onCurvesReordered( const SignalEmitter* emitter )
+void RimSummaryPlot::onCurveCollectionChanged( const SignalEmitter* emitter )
 {
     updateStackedCurveData();
 }

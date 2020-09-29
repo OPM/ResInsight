@@ -93,7 +93,7 @@ void RicSummaryPlotTemplateTools::appendSummaryPlotToPlotCollection(
 
     RimSummaryPlotCollection* plotColl = RimProject::current()->mainPlotCollection()->summaryPlotCollection();
 
-    plotColl->summaryPlots.push_back( summaryPlot );
+    plotColl->addPlot( summaryPlot );
     summaryPlot->resolveReferencesRecursively();
     summaryPlot->initAfterReadRecursively();
 

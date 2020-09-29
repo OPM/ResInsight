@@ -63,13 +63,17 @@ QString RicfSingleCaseReplace::filePath() const
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfSingleCaseReplace::execute()
 {
-    QString lastProjectPath = RicfCommandFileExecutor::instance()->getLastProjectPath();
-    if ( lastProjectPath.isNull() )
+    QString projectPath = RimProject::current()->fileName();
+    if ( projectPath.isEmpty() )
     {
-        QString errMsg( "replaceCase: 'openProject' must be called before 'replaceCase' to specify project file to "
-                        "replace case in." );
-        RiaLogging::error( errMsg );
-        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, errMsg );
+        QString lastProjectPath = RicfCommandFileExecutor::instance()->getLastProjectPath();
+        if ( lastProjectPath.isNull() )
+        {
+            QString errMsg( "replaceCase: The project must be saved as a file before calling 'replaceCase'." );
+            RiaLogging::error( errMsg );
+            return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, errMsg );
+        }
+        projectPath = lastProjectPath;
     }
 
     cvf::ref<RiaProjectModifier> projectModifier = new RiaProjectModifier;
@@ -91,7 +95,7 @@ caf::PdmScriptResponse RicfSingleCaseReplace::execute()
         projectModifier->setReplaceCase( m_caseId(), filePath );
     }
 
-    if ( !RiaApplication::instance()->loadProject( lastProjectPath,
+    if ( !RiaApplication::instance()->loadProject( projectPath,
                                                    RiaApplication::ProjectLoadAction::PLA_NONE,
                                                    projectModifier.p() ) )
     {

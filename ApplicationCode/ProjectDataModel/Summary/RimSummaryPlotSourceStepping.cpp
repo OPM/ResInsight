@@ -41,6 +41,7 @@
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiItem.h"
 #include "cafPdmUiListEditor.h"
+#include "cafPdmUiToolBarEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimSummaryPlotSourceStepping, "RimSummaryCurveCollectionModifier" );
 
@@ -1117,5 +1118,10 @@ void RimSummaryPlotSourceStepping::defineEditorAttribute( const caf::PdmFieldHan
             myAttr->nextButtonText = "Next " + modifierText + "PgDown)";
             myAttr->prevButtonText = "Previous " + modifierText + "PgUp)";
         }
+    }
+
+    if ( myAttr && ( uiConfigName == caf::PdmUiToolBarEditor::uiEditorConfigName() ) )
+    {
+        myAttr->minimumWidth = 120;
     }
 }

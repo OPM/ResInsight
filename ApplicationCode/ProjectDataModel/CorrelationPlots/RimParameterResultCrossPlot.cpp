@@ -22,6 +22,8 @@
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaStatisticsTools.h"
+#include "RiaTextStringTools.h"
+
 #include "RiuPlotMainWindowTools.h"
 #include "RiuSummaryQwtPlot.h"
 #include "RiuSummaryVectorSelectionDialog.h"
@@ -30,6 +32,7 @@
 
 #include "RimDerivedSummaryCase.h"
 #include "RimEnsembleCurveSet.h"
+#include "RimMultiPlot.h"
 #include "RimPlotAxisProperties.h"
 #include "RimPlotAxisPropertiesInterface.h"
 #include "RimPlotDataFilterCollection.h"
@@ -166,10 +169,13 @@ void RimParameterResultCrossPlot::onLoadDataAndUpdate()
     if ( m_plotWidget && m_analyserOfSelectedCurveDefs )
     {
         createPoints();
-        QwtLegend* legend = new QwtLegend( m_plotWidget );
-        m_plotWidget->insertLegend( legend, QwtPlot::RightLegend );
-        m_plotWidget->setLegendFontSize( legendFontSize() );
-        m_plotWidget->updateLegend();
+        if ( m_showPlotLegends && !isSubPlot<RimMultiPlot>() )
+        {
+            QwtLegend* legend = new QwtLegend( m_plotWidget );
+            m_plotWidget->insertLegend( legend, QwtPlot::RightLegend );
+            m_plotWidget->setLegendFontSize( legendFontSize() );
+            m_plotWidget->updateLegend();
+        }
 
         this->updateAxes();
         this->updatePlotTitle();
@@ -197,6 +203,21 @@ void RimParameterResultCrossPlot::updateAxes()
 
     double xRangeWidth = m_xRange.second - m_xRange.first;
     m_plotWidget->setAxisRange( QwtPlot::xBottom, m_xRange.first - xRangeWidth * 0.1, m_xRange.second + xRangeWidth * 0.1 );
+}
+
+QStringList caseNamesOfValidEnsembleCases( const RimSummaryCaseCollection* ensemble )
+{
+    QStringList caseNames;
+    for ( auto summaryCase : ensemble->allSummaryCases() )
+    {
+        RifSummaryReaderInterface* reader = summaryCase->summaryReader();
+
+        if ( !reader ) continue;
+        if ( !summaryCase->caseRealizationParameters() ) continue;
+
+        caseNames.push_back( summaryCase->displayCaseName() );
+    }
+    return caseNames;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -227,6 +248,9 @@ void RimParameterResultCrossPlot::createPoints()
         {
             EnsembleParameter parameter = ensembleParameter( m_ensembleParameter );
             if ( !( parameter.isNumeric() && parameter.isValid() ) ) return;
+
+            QStringList caseNames      = caseNamesOfValidEnsembleCases( ensemble );
+            QString     commonCaseRoot = RiaTextStringTools::findCommonRoot( caseNames );
 
             for ( size_t caseIdx = 0u; caseIdx < ensemble->allSummaryCases().size(); ++caseIdx )
             {
@@ -278,7 +302,7 @@ void RimParameterResultCrossPlot::createPoints()
                     plotCurve->setSymbol( symbol );
                     QStringList curveName;
                     if ( showEnsembleName ) curveName += ensemble->name();
-                    curveName += summaryCase->displayCaseName();
+                    curveName += summaryCase->displayCaseName().replace( commonCaseRoot, "" );
                     if ( showAddressName ) curveName += QString::fromStdString( address.uiText() );
 
                     plotCurve->setTitle( curveName.join( " - " ) );
@@ -307,10 +331,6 @@ void RimParameterResultCrossPlot::updatePlotTitle()
                             .arg( timeStepString() );
     }
     m_plotWidget->setPlotTitle( m_description );
-    m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && isMdiWindow() );
-
-    if ( isMdiWindow() )
-    {
-        m_plotWidget->setPlotTitleFontSize( titleFontSize() );
-    }
+    m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && !isSubPlot() );
+    m_plotWidget->setPlotTitleFontSize( titleFontSize() );
 }

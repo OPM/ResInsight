@@ -114,6 +114,16 @@ void caf::AppEnum<RiaDefines::GridCaseAxis>::setUp()
 
     setDefault( RiaDefines::GridCaseAxis::AXIS_K );
 }
+
+template <>
+void caf::AppEnum<RiaDefines::ThemeEnum>::setUp()
+{
+    addItem( RiaDefines::ThemeEnum::DEFAULT, "DEFAULT", "Default theme" );
+    addItem( RiaDefines::ThemeEnum::DARK, "DARK", "Dark theme" );
+    addItem( RiaDefines::ThemeEnum::LIGHT, "LIGHT", "Light theme" );
+    setDefault( RiaDefines::ThemeEnum::DEFAULT );
+}
+
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------

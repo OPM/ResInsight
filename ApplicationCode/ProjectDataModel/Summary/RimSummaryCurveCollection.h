@@ -42,7 +42,7 @@ class RimSummaryCurveCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 private:
-    caf::Signal<> curvesReordered;
+    caf::Signal<> curvesChanged;
 
 public:
     RimSummaryCurveCollection();
@@ -97,6 +97,8 @@ private:
                                 caf::PdmUiEditorAttribute* attribute ) override;
 
     void onCurvesReordered( const SignalEmitter* emitter );
+    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
 private:
     friend class RimSummaryCrossPlot;

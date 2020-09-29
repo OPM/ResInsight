@@ -83,9 +83,6 @@ RimWellRftPlot::RimWellRftPlot()
 {
     CAF_PDM_InitObject( "RFT Plot", ":/RFTPlot16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_showPlotTitle_OBSOLETE, "ShowPlotTitle", false, "Show Plot Title", "", "", "" );
-    m_showPlotTitle_OBSOLETE.xmlCapability()->setIOWritable( false );
-
     CAF_PDM_InitField( &m_showStatisticsCurves, "ShowStatisticsCurves", true, "Show Statistics Curves", "", "", "" );
     CAF_PDM_InitField( &m_showEnsembleCurves, "ShowEnsembleCurves", true, "Show Ensemble Curves", "", "", "" );
     CAF_PDM_InitField( &m_showErrorInObservedData, "ShowErrorObserved", true, "Show Observed Data Error", "", "", "" );
@@ -131,6 +128,8 @@ RimWellRftPlot::RimWellRftPlot()
 
     m_nameConfig->setCustomName( "RFT Plot" );
     m_plotLegendsHorizontal = false;
+
+    setPlotTitleVisible( true );
 
     this->setAsPlotMdiWindow();
     m_isOnLoad = true;
@@ -911,11 +910,6 @@ void RimWellRftPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         updateFormationsOnPlot();
         syncCurvesFromUiSelection();
     }
-
-    else if ( changedField == &m_showPlotWindowTitle )
-    {
-        // m_wellLogPlot->setShowDescription(m_showPlotTitle);
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1107,10 +1101,6 @@ void RimWellRftPlot::initAfterRead()
         wellLogPlot                 = std::move( *m_wellLogPlot_OBSOLETE.value() );
         delete m_wellLogPlot_OBSOLETE;
         m_wellLogPlot_OBSOLETE = nullptr;
-    }
-    if ( m_showPlotTitle_OBSOLETE() && !m_showPlotWindowTitle() )
-    {
-        m_showPlotWindowTitle = m_showPlotTitle_OBSOLETE();
     }
 
     RimWellLogPlot::initAfterRead();

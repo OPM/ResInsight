@@ -32,8 +32,10 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimElasticProperties.h"
+#include "RimFaciesProperties.h"
 #include "RimFractureModel.h"
 #include "RimFractureModelPlot.h"
+#include "RimFractureModelTemplate.h"
 #include "RimModeledWellPath.h"
 #include "RimProject.h"
 #include "RimTools.h"
@@ -164,9 +166,25 @@ void RimElasticPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength
         std::vector<std::pair<double, double>> yValues;
         std::vector<QString> formationNamesVector = RimWellLogTrack::formationNamesVector( eclipseCase );
 
+        RimFractureModelTemplate* fractureModelTemplate = m_fractureModel->fractureModelTemplate();
+        if ( !fractureModelTemplate )
+        {
+            RiaLogging::error( QString( "No fracture model template found" ) );
+            return;
+        }
+
+        RimFaciesProperties* faciesProperties = fractureModelTemplate->faciesProperties();
+        if ( !faciesProperties )
+        {
+            RiaLogging::error( QString( "No facies properties found when extracting elastic properties." ) );
+            return;
+        }
+
+        const RimEclipseResultDefinition* faciesDefinition = faciesProperties->faciesDefinition();
+
         // Extract facies data
-        m_eclipseResultDefinition->setResultVariable( "OPERNUM_1" );
-        m_eclipseResultDefinition->setResultType( RiaDefines::ResultCatType::INPUT_PROPERTY );
+        m_eclipseResultDefinition->setResultVariable( faciesDefinition->resultVariable() );
+        m_eclipseResultDefinition->setResultType( faciesDefinition->resultType() );
         m_eclipseResultDefinition->setEclipseCase( eclipseCase );
         m_eclipseResultDefinition->loadResult();
 
@@ -202,17 +220,14 @@ void RimElasticPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength
             return;
         }
 
-        // TODO: make this settable??
-        QString         colorLegendName = RiaDefines::faciesColorLegendName();
-        RimColorLegend* colorLegend     = RimProject::current()->colorLegendCollection()->findByName( colorLegendName );
+        RimColorLegend* colorLegend = faciesProperties->colorLegend();
         if ( !colorLegend )
         {
-            RiaLogging::error(
-                QString( "No color legend found when extracting elastic properties. Looked for '%1'" ).arg( colorLegendName ) );
+            RiaLogging::error( QString( "No color legend found when extracting elastic properties." ) );
             return;
         }
 
-        RimElasticProperties* elasticProperties = m_fractureModel->elasticProperties();
+        RimElasticProperties* elasticProperties = fractureModelTemplate->elasticProperties();
         if ( !elasticProperties )
         {
             RiaLogging::error( QString( "No elastic properties found" ) );

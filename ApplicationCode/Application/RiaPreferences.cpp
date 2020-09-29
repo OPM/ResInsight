@@ -23,6 +23,7 @@
 
 #include "RiaColorTables.h"
 #include "RifReaderSettings.h"
+#include "RiuGuiTheme.h"
 
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmSettings.h"
@@ -226,6 +227,12 @@ RiaPreferences::RiaPreferences( void )
     CAF_PDM_InitField( &m_enableFaultsByDefault, "enableFaultsByDefault", true, "Enable Faults By Default", "", "", "" );
     m_enableFaultsByDefault.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
+    CAF_PDM_InitField( &m_showInfoBox, "showInfoBox", true, "Show Info Box in New Projects", "", "", "" );
+    m_showInfoBox.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    CAF_PDM_InitField( &m_showGridBox, "showGridBox", true, "Show Grid Box in New Projects", "", "", "" );
+    m_showInfoBox.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
     CAF_PDM_InitFieldNoDefault( &lastUsedProjectFileName, "lastUsedProjectFileName", "Last Used Project File", "", "", "" );
     lastUsedProjectFileName.uiCapability()->setUiHidden( true );
 
@@ -378,6 +385,8 @@ RiaPreferences::RiaPreferences( void )
                        "",
                        "Defines preferred minimum distance between surface points in XY-plane",
                        "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_guiTheme, "guiTheme", "GUI theme", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -425,7 +434,8 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
          field == &m_showProjectChangedDialog || field == &m_searchPlotTemplateFoldersRecursively ||
          field == &m_showLegendBackground || field == &m_showSummaryTimeAsLongString ||
          field == &m_showViewIdInProjectTree || field == &m_useMultipleThreadsWhenLoadingSummaryData ||
-         field == &m_enableFaultsByDefault || field == &m_showProgressBar || field == &m_openExportedPdfInViewer )
+         field == &m_enableFaultsByDefault || field == &m_showProgressBar || field == &m_openExportedPdfInViewer ||
+         field == &m_showInfoBox || field == &m_showGridBox )
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
         if ( myAttr )
@@ -461,6 +471,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         colorGroup->add( &defaultGridLineColors, false );
         colorGroup->add( &defaultFaultGridLineColors );
         colorGroup->add( &defaultWellLabelColor, false );
+        colorGroup->add( &m_guiTheme, {true, 2} );
 
         caf::PdmUiGroup* fontGroup = uiOrdering.addNewGroup( "Default Font Sizes" );
         fontGroup->add( &defaultSceneFontSize );
@@ -472,8 +483,11 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         viewsGroup->add( &m_defaultMeshModeType );
         viewsGroup->add( &m_navigationPolicy );
         viewsGroup->add( &m_defaultScaleFactorZ );
+
         viewsGroup->add( &m_showLegendBackground );
-        viewsGroup->add( &m_enableFaultsByDefault );
+        viewsGroup->add( &m_enableFaultsByDefault, {false, 1} );
+        viewsGroup->add( &m_showInfoBox );
+        viewsGroup->add( &m_showGridBox, {false, 1} );
 
         caf::PdmUiGroup* otherGroup = uiOrdering.addNewGroup( "Other" );
         otherGroup->add( &ssihubAddress );
@@ -670,6 +684,11 @@ void RiaPreferences::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         m_pageRightMargin  = defaultMarginSize( m_pageSize() );
         m_pageTopMargin    = defaultMarginSize( m_pageSize() );
         m_pageBottomMargin = defaultMarginSize( m_pageSize() );
+    }
+
+    if ( changedField == &m_guiTheme )
+    {
+        RiuGuiTheme::updateGuiTheme( m_guiTheme() );
     }
 }
 //--------------------------------------------------------------------------------------------------
@@ -984,6 +1003,14 @@ bool RiaPreferences::openExportedPdfInViewer() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaDefines::ThemeEnum RiaPreferences::guiTheme() const
+{
+    return m_guiTheme();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> RiaPreferences::defaultFontSizes() const
 {
     std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> fontSizes;
@@ -1059,6 +1086,22 @@ int RiaPreferences::defaultScaleFactorZ() const
 bool RiaPreferences::showLegendBackground() const
 {
     return m_showLegendBackground();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::showInfoBox() const
+{
+    return m_showInfoBox();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::showGridBox() const
+{
+    return m_showGridBox();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -136,7 +136,13 @@ Rim3dView::Rim3dView( void )
     CAF_PDM_InitField( &meshMode, "MeshMode", defaultMeshType, "Grid Lines", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &surfaceMode, "SurfaceMode", "Grid Surface", "", "", "" );
 
-    CAF_PDM_InitScriptableField( &m_showGridBox, "ShowGridBox", true, "Show Grid Box", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_showGridBox,
+                                 "ShowGridBox",
+                                 RiaPreferences::current()->showGridBox(),
+                                 "Show Grid Box",
+                                 "",
+                                 "",
+                                 "" );
 
     CAF_PDM_InitScriptableField( &m_disableLighting,
                                  "DisableLighting",

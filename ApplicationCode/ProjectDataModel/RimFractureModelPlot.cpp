@@ -50,6 +50,7 @@ RimFractureModelPlot::RimFractureModelPlot()
     m_fractureModel.uiCapability()->setUiTreeChildrenHidden( true );
     m_fractureModel.uiCapability()->setUiHidden( true );
 
+    setLegendsVisible( true );
     setDeletable( true );
 }
 
@@ -379,8 +380,21 @@ std::vector<double> RimFractureModelPlot::calculateStress() const
 {
     std::vector<double> stress;
     std::vector<double> stressGradients;
-    calculateStressWithGradients( stress, stressGradients );
+    std::vector<double> initialStress;
+    calculateStressWithGradients( stress, stressGradients, initialStress );
     return stress;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimFractureModelPlot::calculateInitialStress() const
+{
+    std::vector<double> stress;
+    std::vector<double> stressGradients;
+    std::vector<double> initialStress;
+    calculateStressWithGradients( stress, stressGradients, initialStress );
+    return initialStress;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -402,7 +416,8 @@ std::vector<double> RimFractureModelPlot::findCurveXValuesByProperty( RiaDefines
 ///
 //--------------------------------------------------------------------------------------------------
 bool RimFractureModelPlot::calculateStressWithGradients( std::vector<double>& stress,
-                                                         std::vector<double>& stressGradients ) const
+                                                         std::vector<double>& stressGradients,
+                                                         std::vector<double>& initialStress ) const
 {
     // Reference stress
     const double verticalStressRef         = m_fractureModel->verticalStress();
@@ -468,6 +483,8 @@ bool RimFractureModelPlot::calculateStressWithGradients( std::vector<double>& st
         double depletionStress = Sh_init + deltaHorizontalStress;
         stress.push_back( RiaEclipseUnitTools::barToPsi( depletionStress ) );
 
+        initialStress.push_back( RiaEclipseUnitTools::barToPsi( Sh_init ) );
+
         // Cache some results for the gradients calculation
         stressForGradients.push_back( Sv );
         pressureForGradients.push_back( initialPressure );
@@ -493,12 +510,12 @@ bool RimFractureModelPlot::calculateStressWithGradients( std::vector<double>& st
     // Second pass to calculate the stress gradients
     for ( size_t i = 0; i < layerBoundaryDepths.size(); i++ )
     {
-        double diffStress   = stressForGradients[i + 1] - stressForGradients[i];
-        double diffPressure = pressureForGradients[i + 1] - pressureForGradients[i];
-        double diffDepth    = depthForGradients[i + 1] - depthForGradients[i];
-        double k0           = findValueAtTopOfLayer( k0Data, layerBoundaryIndexes, i );
-        double gradient     = ( diffStress * k0 + diffPressure * ( 1.0 - k0 ) ) / diffDepth;
-        stressGradients.push_back( RiaEclipseUnitTools::barPerMeterToPsiPerFeet( gradient ) );
+        double diffStress     = stressForGradients[i + 1] - stressForGradients[i];
+        double diffPressure   = pressureForGradients[i + 1] - pressureForGradients[i];
+        double diffDepth      = depthForGradients[i + 1] - depthForGradients[i];
+        double k0             = findValueAtTopOfLayer( k0Data, layerBoundaryIndexes, i );
+        double stressGradient = ( diffStress * k0 + diffPressure * ( 1.0 - k0 ) ) / diffDepth;
+        stressGradients.push_back( RiaEclipseUnitTools::barPerMeterToPsiPerFeet( stressGradient ) );
     }
 
     return true;
@@ -511,7 +528,8 @@ std::vector<double> RimFractureModelPlot::calculateStressGradient() const
 {
     std::vector<double> stress;
     std::vector<double> stressGradients;
-    calculateStressWithGradients( stress, stressGradients );
+    std::vector<double> initialStress;
+    calculateStressWithGradients( stress, stressGradients, initialStress );
     return stressGradients;
 }
 

@@ -18,7 +18,7 @@
 
 #include "RimElasticProperties.h"
 
-#include "RimFractureModel.h"
+#include "RimFractureModelTemplate.h"
 
 #include "RicElasticPropertiesImportTools.h"
 
@@ -96,6 +96,15 @@ const RigElasticProperties& RimElasticProperties::propertiesForFacies( FaciesKey
 {
     assert( hasPropertiesForFacies( key ) );
     return m_properties.find( key )->second;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimElasticProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.add( &m_filePath );
+    uiOrdering.add( &m_propertiesTable );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -204,8 +213,8 @@ void RimElasticProperties::loadDataAndUpdate()
 {
     if ( !m_filePath().path().isEmpty() )
     {
-        RimFractureModel* fractureModel;
-        firstAncestorOrThisOfType( fractureModel );
-        RicElasticPropertiesImportTools::importElasticPropertiesFromFile( m_filePath().path(), fractureModel );
+        RimFractureModelTemplate* fractureModelTemplate;
+        firstAncestorOrThisOfType( fractureModelTemplate );
+        RicElasticPropertiesImportTools::importElasticPropertiesFromFile( m_filePath().path(), fractureModelTemplate );
     }
 }

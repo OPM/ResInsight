@@ -215,4 +215,11 @@ enum class GridCaseAxis
     UNDEFINED_AXIS
 };
 
+enum class ThemeEnum
+{
+    DEFAULT,
+    DARK,
+    LIGHT
+};
+
 }; // namespace RiaDefines

@@ -20,7 +20,7 @@
 
 #include <QString>
 
-class RimFractureModel;
+class RimFractureModelTemplate;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -28,7 +28,7 @@ class RimFractureModel;
 class RicElasticPropertiesImportTools
 {
 public:
-    static void importElasticPropertiesFromFile( const QString& filePath, RimFractureModel* fractureModel );
+    static void importElasticPropertiesFromFile( const QString& filePath, RimFractureModelTemplate* fractureModelTemplate );
 
 private:
     // Hidden to avoid instantiation

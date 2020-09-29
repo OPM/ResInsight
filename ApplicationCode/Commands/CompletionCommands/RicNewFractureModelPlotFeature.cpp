@@ -31,12 +31,15 @@
 #include "RimColorLegend.h"
 #include "RimColorLegendCollection.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
 #include "RimElasticPropertiesCurve.h"
+#include "RimFaciesProperties.h"
 #include "RimFractureModel.h"
 #include "RimFractureModelCurve.h"
 #include "RimFractureModelPlot.h"
 #include "RimFractureModelPlotCollection.h"
+#include "RimFractureModelTemplate.h"
 #include "RimLayerCurve.h"
 #include "RimMainPlotCollection.h"
 #include "RimModeledWellPath.h"
@@ -132,8 +135,18 @@ RimFractureModelPlot*
 
     {
         auto task = progInfo.task( "Creating stress track", 2 );
-        createStressTrack( plot, fractureModel, eclipseCase, timeStep, RiaDefines::CurveProperty::STRESS );
-        createStressTrack( plot, fractureModel, eclipseCase, timeStep, RiaDefines::CurveProperty::STRESS_GRADIENT );
+        createStressTrack( plot,
+                           fractureModel,
+                           eclipseCase,
+                           timeStep,
+                           "Stress",
+                           {RiaDefines::CurveProperty::STRESS, RiaDefines::CurveProperty::INITIAL_STRESS} );
+        createStressTrack( plot,
+                           fractureModel,
+                           eclipseCase,
+                           timeStep,
+                           "Stress Gradient",
+                           {RiaDefines::CurveProperty::STRESS_GRADIENT} );
     }
 
     {
@@ -160,7 +173,7 @@ RimFractureModelPlot*
 
     {
         auto task = progInfo.task( "Creating temperature track", 2 );
-        createStressTrack( plot, fractureModel, eclipseCase, timeStep, RiaDefines::CurveProperty::TEMPERATURE );
+        createStressTrack( plot, fractureModel, eclipseCase, timeStep, "Temperature", {RiaDefines::CurveProperty::TEMPERATURE} );
     }
 
     {
@@ -239,6 +252,7 @@ void RicNewFractureModelPlotFeature::createFormationTrack( RimFractureModelPlot*
     formationTrack->setOverburdenHeight( fractureModel->overburdenHeight() );
     formationTrack->setUnderburdenHeight( fractureModel->underburdenHeight() );
     formationTrack->setColSpan( RimPlot::ONE );
+    formationTrack->setLegendsVisible( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -248,22 +262,27 @@ void RicNewFractureModelPlotFeature::createFaciesTrack( RimFractureModelPlot* pl
                                                         RimFractureModel*     fractureModel,
                                                         RimEclipseCase*       eclipseCase )
 {
-    QString defaultProperty = "OPERNUM_1";
+    RimFractureModelTemplate* fractureModelTemplate = fractureModel->fractureModelTemplate();
+    if ( !fractureModelTemplate ) return;
+
+    RimFaciesProperties* faciesProperties = fractureModelTemplate->faciesProperties();
+    if ( !faciesProperties ) return;
+
+    const RimEclipseResultDefinition* faciesDefinition = faciesProperties->faciesDefinition();
+    if ( !faciesDefinition ) return;
 
     RimWellLogTrack* faciesTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, "Facies", plot );
     faciesTrack->setFormationWellPath( fractureModel->thicknessDirectionWellPath() );
     faciesTrack->setFormationCase( eclipseCase );
     faciesTrack->setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType::RESULT_PROPERTY_ANNOTATIONS );
-    faciesTrack->setRegionPropertyResultType( RiaDefines::ResultCatType::INPUT_PROPERTY, defaultProperty );
+    faciesTrack->setRegionPropertyResultType( faciesDefinition->resultType(), faciesDefinition->resultVariable() );
     faciesTrack->setOverburdenHeight( fractureModel->overburdenHeight() );
     faciesTrack->setUnderburdenHeight( fractureModel->underburdenHeight() );
+    faciesTrack->setLegendsVisible( true );
+    faciesTrack->setPlotTitleVisible( true );
 
-    RimColorLegend* faciesColors =
-        RimProject::current()->colorLegendCollection()->findByName( RiaDefines::faciesColorLegendName() );
-    if ( faciesColors )
-    {
-        faciesTrack->setColorShadingLegend( faciesColors );
-    }
+    RimColorLegend* faciesColors = faciesProperties->colorLegend();
+    if ( faciesColors ) faciesTrack->setColorShadingLegend( faciesColors );
 
     faciesTrack->setVisibleXRange( 0.0, 0.0 );
     faciesTrack->setColSpan( RimPlot::ONE );
@@ -274,8 +293,8 @@ void RicNewFractureModelPlotFeature::createFaciesTrack( RimFractureModelPlot* pl
     curve->setFractureModel( fractureModel );
     curve->setCurveProperty( RiaDefines::CurveProperty::FACIES );
     curve->setCase( eclipseCase );
-    curve->setEclipseResultCategory( RiaDefines::ResultCatType::INPUT_PROPERTY );
-    curve->setEclipseResultVariable( defaultProperty );
+    curve->setEclipseResultCategory( faciesDefinition->resultType() );
+    curve->setEclipseResultVariable( faciesDefinition->resultVariable() );
     curve->setColor( colors.cycledColor3f( 0 ) );
     curve->setLineStyle( RiuQwtPlotCurve::STYLE_SOLID );
     curve->setLineThickness( 2 );
@@ -303,18 +322,20 @@ void RicNewFractureModelPlotFeature::createLayersTrack( RimFractureModelPlot* pl
                                                         RimFractureModel*     fractureModel,
                                                         RimEclipseCase*       eclipseCase )
 {
-    QString defaultProperty = "OPERNUM_1";
-
     RimWellLogTrack* faciesTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, "Layers", plot );
     faciesTrack->setFormationWellPath( fractureModel->thicknessDirectionWellPath() );
     faciesTrack->setFormationCase( eclipseCase );
+    faciesTrack->setLegendsVisible( true );
+    faciesTrack->setPlotTitleVisible( true );
 
-    RimColorLegend* faciesColors =
-        RimProject::current()->colorLegendCollection()->findByName( RiaDefines::faciesColorLegendName() );
-    if ( faciesColors )
-    {
-        faciesTrack->setColorShadingLegend( faciesColors );
-    }
+    RimFractureModelTemplate* fractureModelTemplate = fractureModel->fractureModelTemplate();
+    if ( !fractureModelTemplate ) return;
+
+    RimFaciesProperties* faciesProperties = fractureModelTemplate->faciesProperties();
+    if ( !faciesProperties ) return;
+
+    RimColorLegend* faciesColors = faciesProperties->colorLegend();
+    if ( faciesColors ) faciesTrack->setColorShadingLegend( faciesColors );
 
     faciesTrack->setVisibleXRange( 0.0, 0.0 );
     faciesTrack->setColSpan( RimPlot::ONE );
@@ -360,6 +381,8 @@ void RicNewFractureModelPlotFeature::createParametersTrack( RimFractureModelPlot
     plotTrack->setFormationCase( eclipseCase );
     plotTrack->setFormationWellPath( fractureModel->thicknessDirectionWellPath() );
     plotTrack->setColSpan( RimPlot::TWO );
+    plotTrack->setLegendsVisible( true );
+    plotTrack->setPlotTitleVisible( true );
 
     caf::ColorTable colors = RiaColorTables::wellLogPlotPaletteColors();
 
@@ -439,6 +462,8 @@ void RicNewFractureModelPlotFeature::createElasticPropertiesTrack( RimFractureMo
     plotTrack->setShowRegionLabels( true );
     plotTrack->setShowWindow( true );
     plotTrack->setColSpan( RimPlot::TWO );
+    plotTrack->setLegendsVisible( true );
+    plotTrack->setPlotTitleVisible( true );
 
     caf::ColorTable colors = RiaColorTables::wellLogPlotPaletteColors();
 
@@ -470,48 +495,56 @@ void RicNewFractureModelPlotFeature::createElasticPropertiesTrack( RimFractureMo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewFractureModelPlotFeature::createStressTrack( RimFractureModelPlot*     plot,
-                                                        RimFractureModel*         fractureModel,
-                                                        RimEclipseCase*           eclipseCase,
-                                                        int                       timeStep,
-                                                        RiaDefines::CurveProperty propertyType )
+void RicNewFractureModelPlotFeature::createStressTrack( RimFractureModelPlot*                         plot,
+                                                        RimFractureModel*                             fractureModel,
+                                                        RimEclipseCase*                               eclipseCase,
+                                                        int                                           timeStep,
+                                                        const QString&                                trackName,
+                                                        const std::vector<RiaDefines::CurveProperty>& propertyTypes )
 {
-    QString          trackName = caf::AppEnum<RiaDefines::CurveProperty>::uiText( propertyType );
     RimWellLogTrack* plotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, trackName, plot );
     plotTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR );
     plotTrack->setLogarithmicScale( false );
     plotTrack->setShowRegionLabels( true );
     plotTrack->setShowWindow( true );
     plotTrack->setColSpan( RimPlot::TWO );
+    plotTrack->setLegendsVisible( true );
+    plotTrack->setPlotTitleVisible( true );
 
-    caf::ColorTable colors = RiaColorTables::wellLogPlotPaletteColors();
+    caf::ColorTable colors     = RiaColorTables::wellLogPlotPaletteColors();
+    int             colorIndex = 0;
 
-    RimFractureModelStressCurve* curve = new RimFractureModelStressCurve;
-    curve->setCurveProperty( propertyType );
-    curve->setFractureModel( fractureModel );
-    curve->setCase( eclipseCase );
-    curve->setColor( colors.cycledColor3f( 0 ) );
-    curve->setLineStyle( RiuQwtPlotCurve::STYLE_SOLID );
-    curve->setLineThickness( 2 );
-    curve->setUiName( trackName );
-    curve->setAutoNameComponents( false, false, false, false, false );
-    if ( propertyType == RiaDefines::CurveProperty::STRESS_GRADIENT )
+    for ( const RiaDefines::CurveProperty& propertyType : propertyTypes )
     {
-        curve->setInterpolation( RiuQwtPlotCurve::INTERPOLATION_STEP_LEFT );
+        RimFractureModelStressCurve* curve = new RimFractureModelStressCurve;
+        curve->setCurveProperty( propertyType );
+        curve->setFractureModel( fractureModel );
+        curve->setCase( eclipseCase );
+        curve->setColor( colors.cycledColor3f( colorIndex ) );
+        curve->setLineStyle( RiuQwtPlotCurve::STYLE_SOLID );
+        curve->setLineThickness( 2 );
+        curve->setUiName( trackName );
+        curve->setAutoNameComponents( false, false, false, false, false );
+        if ( propertyType == RiaDefines::CurveProperty::STRESS_GRADIENT )
+        {
+            curve->setInterpolation( RiuQwtPlotCurve::INTERPOLATION_STEP_LEFT );
+        }
+
+        plotTrack->addCurve( curve );
+        plotTrack->setAutoScaleXEnabled( true );
+        curve->loadDataAndUpdate( true );
+
+        curve->updateConnectedEditors();
+
+        colorIndex++;
     }
 
-    plotTrack->addCurve( curve );
-    plotTrack->setAutoScaleXEnabled( true );
-    curve->loadDataAndUpdate( true );
-
-    curve->updateConnectedEditors();
     plotTrack->updateConnectedEditors();
     plot->updateConnectedEditors();
 
     RiaApplication::instance()->project()->updateConnectedEditors();
 
     RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
-    RiuPlotMainWindowTools::selectAsCurrentItem( curve );
     RiuPlotMainWindowTools::showPlotMainWindow();
 }
 

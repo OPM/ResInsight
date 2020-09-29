@@ -84,7 +84,7 @@ RimCorrelationReportPlot::RimCorrelationReportPlot()
     m_correlationPlot->setLegendsVisible( false );
 
     m_parameterResultCrossPlot = new RimParameterResultCrossPlot;
-    m_parameterResultCrossPlot->setLegendsVisible( false );
+    m_parameterResultCrossPlot->setLegendsVisible( true );
 
     this->uiCapability()->setUiTreeChildrenHidden( true );
 
@@ -320,7 +320,6 @@ void RimCorrelationReportPlot::onLoadDataAndUpdate()
         m_parameterResultCrossPlot->setAxisTitleFontSize( m_axisTitleFontSize() );
         m_parameterResultCrossPlot->setAxisValueFontSize( m_axisValueFontSize() );
 
-        m_correlationPlot->setCorrelationFactor( m_correlationMatrixPlot->correlationFactor() );
         m_correlationPlot->setShowAbsoluteValues( m_correlationMatrixPlot->showAbsoluteValues() );
         m_correlationPlot->setSortByAbsoluteValues( m_correlationMatrixPlot->sortByAbsoluteValues() );
 

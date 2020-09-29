@@ -19,23 +19,15 @@
 #include "RicImportFaciesFeature.h"
 
 #include "RiaApplication.h"
-#include "RiaColorTables.h"
-#include "RiaFractureDefines.h"
-#include "RiaLogging.h"
-#include "RiaStdStringTools.h"
-
-#include "RimColorLegend.h"
-#include "RimColorLegendCollection.h"
-#include "RimColorLegendItem.h"
-#include "RimProject.h"
-
-#include "RifColorLegendData.h"
-#include "RifRoffReader.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuFileDialogTools.h"
 
-#include "cafColorTable.h"
+#include "RicFaciesPropertiesImportTools.h"
+
+#include "RimFractureModelTemplate.h"
+
+#include "cafSelectionManager.h"
 
 #include <QAction>
 #include <QFileInfo>
@@ -55,6 +47,10 @@ bool RicImportFaciesFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicImportFaciesFeature::onActionTriggered( bool isChecked )
 {
+    RimFractureModelTemplate* fractureModelTemplate =
+        caf::SelectionManager::instance()->selectedItemAncestorOfType<RimFractureModelTemplate>();
+    if ( !fractureModelTemplate ) return;
+
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectoryWithFallbackToProjectFolder( "STIMPLAN_DIR" );
 
@@ -70,43 +66,8 @@ void RicImportFaciesFeature::onActionTriggered( bool isChecked )
     // Remember the path to next time
     app->setLastUsedDialogDirectory( "STIMPLAN_DIR", QFileInfo( fileName ).absolutePath() );
 
-    std::map<int, QString> codeNames;
-    try
-    {
-        RifRoffReader::readCodeNames( fileName, codeNames );
-    }
-    catch ( RifRoffReaderException& ex )
-    {
-        RiaLogging::error( QString::fromStdString( ex.message ) );
-        return;
-    }
-
-    const caf::ColorTable&    colorTable            = RiaColorTables::contrastCategoryPaletteColors();
-    RimColorLegendCollection* colorLegendCollection = RimProject::current()->colorLegendCollection;
-    RimColorLegend* rockTypeColorLegend = colorLegendCollection->findByName( RiaDefines::rockTypeColorLegendName() );
-
-    RimColorLegend* colorLegend = new RimColorLegend;
-    colorLegend->setColorLegendName( RiaDefines::faciesColorLegendName() );
-
-    for ( auto it : codeNames )
-    {
-        RimColorLegendItem* colorLegendItem = new RimColorLegendItem;
-
-        // Try to find a color from the rock type color legend by fuzzy matching names
-        cvf::Color3f color;
-        if ( !predefinedColorMatch( it.second, rockTypeColorLegend, color ) &&
-             !matchByName( it.second, rockTypeColorLegend, color ) )
-        {
-            // No match use a random color
-            color = colorTable.cycledColor3f( it.first );
-        }
-
-        colorLegendItem->setValues( it.second, it.first, color );
-        colorLegend->appendColorLegendItem( colorLegendItem );
-    }
-
-    colorLegendCollection->appendCustomColorLegend( colorLegend );
-    colorLegendCollection->updateConnectedEditors();
+    bool createColorLegend = true;
+    RicFaciesPropertiesImportTools::importFaciesPropertiesFromFile( fileName, fractureModelTemplate, createColorLegend );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -117,78 +78,4 @@ void RicImportFaciesFeature::setupActionLook( QAction* actionToSetup )
     // TODO: add icon?
     // actionToSetup->setIcon( QIcon( ":/Formations16x16.png" ) );
     actionToSetup->setText( "Import Facies" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicImportFaciesFeature::matchByName( const QString& name, RimColorLegend* colorLegend, cvf::Color3f& color )
-{
-    // No match if color legend does not exist
-    if ( !colorLegend ) return false;
-
-    // Find the best matching name from the legend
-    int                 bestScore = std::numeric_limits<int>::max();
-    RimColorLegendItem* bestItem  = nullptr;
-    for ( RimColorLegendItem* item : colorLegend->colorLegendItems() )
-    {
-        int score = computeEditDistance( name, item->categoryName() );
-        if ( score < bestScore )
-        {
-            bestScore = score;
-            bestItem  = item;
-        }
-    }
-
-    // Allow only small difference when determining if something matches
-    const int maximumScoreToMatch = 1;
-    if ( bestScore <= maximumScoreToMatch )
-    {
-        color = bestItem->color();
-        return true;
-    }
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int RicImportFaciesFeature::computeEditDistance( const QString& a, const QString& b )
-{
-    // Remove common words from the domain which does not help in the matching
-    std::vector<QString> stopWords   = {"rocks", "rock", "stones", "stone"};
-    QString              aSimplified = a.toLower();
-    QString              bSimplified = b.toLower();
-    for ( auto r : stopWords )
-    {
-        aSimplified.remove( r );
-        bSimplified.remove( r );
-    }
-
-    aSimplified = aSimplified.trimmed();
-    bSimplified = bSimplified.trimmed();
-
-    return RiaStdStringTools::computeEditDistance( aSimplified.toStdString(), bSimplified.toStdString() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicImportFaciesFeature::predefinedColorMatch( const QString& name, RimColorLegend* colorLegend, cvf::Color3f& color )
-{
-    // Calcite should use limestone color
-    if ( name.toLower().trimmed() == QString( "calcite" ) )
-    {
-        for ( auto i : colorLegend->colorLegendItems() )
-        {
-            if ( i->categoryName() == QString( "Limestone" ) )
-            {
-                color = i->color();
-                return true;
-            }
-        }
-    }
-
-    return false;
 }
