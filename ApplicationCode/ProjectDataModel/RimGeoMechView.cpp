@@ -649,6 +649,9 @@ std::vector<RimLegendConfig*> RimGeoMechView::legendConfigs() const
         }
     }
 
+    absLegendConfigs.erase( std::remove( absLegendConfigs.begin(), absLegendConfigs.end(), nullptr ),
+                            absLegendConfigs.end() );
+
     return absLegendConfigs;
 }
 

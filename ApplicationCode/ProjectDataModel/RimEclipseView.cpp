@@ -2215,6 +2215,8 @@ std::vector<RimLegendConfig*> RimEclipseView::legendConfigs() const
         }
     }
 
+    absLegends.erase( std::remove( absLegends.begin(), absLegends.end(), nullptr ), absLegends.end() );
+
     return absLegends;
 }
 
