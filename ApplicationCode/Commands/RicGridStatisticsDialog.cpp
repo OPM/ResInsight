@@ -174,7 +174,7 @@ void RicGridStatisticsDialog::setHistogramData( RimGridView* view )
 
         Rim3dOverlayInfoConfig::HistogramData histogramData = overlayInfo->histogramData();
 
-        if ( histogramData.isValid() )
+        if ( histogramData.isHistogramVectorValid() )
         {
             QVector<QwtIntervalSample> histSamples;
             QVector<QPointF>           aggrSamples;
