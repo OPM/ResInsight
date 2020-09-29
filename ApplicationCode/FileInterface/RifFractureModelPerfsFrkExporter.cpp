@@ -58,7 +58,10 @@ bool RifFractureModelPerfsFrkExporter::writeToFile( RimFractureModelPlot* plot, 
     QTextStream stream( &data );
     appendHeaderToStream( stream );
 
-    bool isTransverse = fractureModel->fractureOrientation() == RimFractureModel::FractureOrientation::TRANSVERSE_WELL_PATH;
+    bool isTransverse =
+        ( fractureModel->fractureOrientation() == RimFractureModel::FractureOrientation::TRANSVERSE_WELL_PATH ||
+          fractureModel->fractureOrientation() == RimFractureModel::FractureOrientation::AZIMUTH );
+
     appendFractureOrientationToStream( stream, isTransverse );
 
     // Unit: meter

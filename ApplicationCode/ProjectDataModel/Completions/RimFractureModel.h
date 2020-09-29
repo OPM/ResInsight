@@ -59,7 +59,8 @@ public:
     enum class FractureOrientation
     {
         ALONG_WELL_PATH,
-        TRANSVERSE_WELL_PATH
+        TRANSVERSE_WELL_PATH,
+        AZIMUTH
     };
 
     RimFractureModel( void );
@@ -164,7 +165,7 @@ private:
     static RigEclipseCaseData* getEclipseCaseData();
     static RimEclipseCase*     getEclipseCase();
 
-    void updateBarrierProperties();
+    void                     updateBarrierProperties();
     void                     addBarrierAnnotation( const cvf::Vec3d& startPosition, const cvf::Vec3d& endPosition );
     void                     clearBarrierAnnotation();
     RimAnnotationCollection* annotationCollection();
@@ -198,6 +199,7 @@ protected:
     caf::PdmField<bool>                         m_editFractureModelTemplate;
 
     caf::PdmField<caf::AppEnum<FractureOrientation>> m_fractureOrientation;
+    caf::PdmField<double>                            m_azimuthAngle;
     caf::PdmField<double>                            m_perforationLength;
 
     caf::PdmField<double>                                m_formationDip;
