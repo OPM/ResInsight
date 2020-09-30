@@ -197,10 +197,17 @@ QRect RiuScalarMapperLegendFrame::labelRect( const LayoutInfo& layout, int index
 {
     const int posX = layout.tickEndX + layout.tickTextLeadSpace;
 
-    int     posY   = layout.colorBarRect.bottom() - layout.tickYPixelPos[index];
-    int     posYp1 = layout.colorBarRect.bottom() - layout.tickYPixelPos[index + 1];
     QString labelI = this->label( index );
-    int     width  = this->fontMetrics().boundingRect( labelI ).width() + 4;
-    int     height = std::min( layout.lineSpacing, std::abs( posY - posYp1 ) );
+
+    int width  = this->fontMetrics().boundingRect( labelI ).width() + 4;
+    int height = layout.lineSpacing;
+
+    int posY = layout.colorBarRect.bottom() - layout.tickYPixelPos[index];
+
+    if ( index + 1 < labelCount() )
+    {
+        int posYp1 = layout.colorBarRect.bottom() - layout.tickYPixelPos[index + 1];
+        height     = std::min( height, std::abs( posY - posYp1 ) );
+    }
     return QRect( posX, posY - height / 2, width, height );
 }
