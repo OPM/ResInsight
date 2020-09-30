@@ -60,7 +60,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorEV::calculate( int partIndex
 
     QString progressText = "Calculating " + QString::fromStdString( resAddr.fieldName + ": " + resAddr.componentName );
 
-    caf::ProgressInfo frameCountProgress( static_cast<size_t>( m_resultCollection->frameCount() ) * 4, "" );
+    caf::ProgressInfo frameCountProgress( static_cast<size_t>( m_resultCollection->frameCount() ) * 4, progressText );
 
     auto loadFrameLambda = [&]( const QString& component ) {
         auto task = frameCountProgress.task( "Loading " + component, m_resultCollection->frameCount() );
