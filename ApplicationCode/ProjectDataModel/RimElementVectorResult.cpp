@@ -277,44 +277,44 @@ void RimElementVectorResult::mappingRange( double& min, double& max ) const
     directions = 0;
     std::vector<cvf::Vec3d> unitVectors;
 
-    for ( size_t fluidIndex = 0; fluidIndex < resVarAddresses.size(); fluidIndex += 3 )
+    // resVarAddresses contains three directions per fluid, check which of them shall be used.
+    for ( size_t fluidDirIndex = 0; fluidDirIndex < resVarAddresses.size(); fluidDirIndex += 3 )
     {
         if ( showVectorI() )
         {
-            if ( fluidIndex == 0 )
+            // Only increment directions and add to unit vectors once per direction (not per direction for each fluid).
+            if ( fluidDirIndex == 0 )
             {
                 directions++;
-                unitVectors.push_back( cvf::Vec3d( 1, 0, 0 ) );
+                unitVectors.push_back( cvf::Vec3d::X_AXIS );
             }
-            cleanedResVarAddresses.push_back( resVarAddresses.at( 0 + fluidIndex ) );
+            cleanedResVarAddresses.push_back( resVarAddresses.at( 0 + fluidDirIndex ) );
         }
         if ( showVectorJ() )
         {
-            if ( fluidIndex == 0 )
+            if ( fluidDirIndex == 0 )
             {
                 directions++;
-                unitVectors.push_back( cvf::Vec3d( 0, 1, 0 ) );
+                unitVectors.push_back( cvf::Vec3d::Y_AXIS );
             }
-            cleanedResVarAddresses.push_back( resVarAddresses.at( 1 + fluidIndex ) );
+            cleanedResVarAddresses.push_back( resVarAddresses.at( 1 + fluidDirIndex ) );
         }
         if ( showVectorK() )
         {
-            if ( fluidIndex == 0 )
+            if ( fluidDirIndex == 0 )
             {
                 directions++;
-                unitVectors.push_back( cvf::Vec3d( 0, 0, 1 ) );
+                unitVectors.push_back( cvf::Vec3d::Z_AXIS );
             }
-            cleanedResVarAddresses.push_back( resVarAddresses.at( 2 + fluidIndex ) );
+            cleanedResVarAddresses.push_back( resVarAddresses.at( 2 + fluidDirIndex ) );
         }
     }
     resVarAddresses = cleanedResVarAddresses;
 
     if ( directions > 0 )
     {
-        std::vector<double> directionsMax;
-        directionsMax.resize( directions, 0.0 );
-        std::vector<double> directionsMin;
-        directionsMin.resize( directions, 0.0 );
+        std::vector<double> directionsMax( directions, 0.0 );
+        std::vector<double> directionsMin( directions, 0.0 );
 
         for ( size_t index = 0; index < resVarAddresses.size(); index += directions )
         {
