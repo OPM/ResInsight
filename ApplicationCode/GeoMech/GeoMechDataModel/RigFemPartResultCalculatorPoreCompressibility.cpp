@@ -91,12 +91,10 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorPoreCompressibility::calcula
 
     // Biot porelastic coefficient (alpha)
     RigFemScalarResultFrames* biotCoefficient = nullptr;
+    if ( !m_resultCollection->biotResultAddress().isEmpty() )
     {
-        if ( !m_resultCollection->biotResultAddress().isEmpty() )
-        {
-            biotCoefficient = loadFrameLambda(
-                RigFemResultAddress( RIG_ELEMENT, m_resultCollection->biotResultAddress().toStdString(), "" ) );
-        }
+        biotCoefficient = loadFrameLambda(
+            RigFemResultAddress( RIG_ELEMENT, m_resultCollection->biotResultAddress().toStdString(), "" ) );
     }
 
     QString youngsErrMsg = QString( "Failed to compute %1\n" ).arg( QString::fromStdString( resAddr.componentName ) );
