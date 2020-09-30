@@ -64,27 +64,33 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorStressAnisotropy::calculate(
     caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * 4, "" );
     frameCountProgress.setProgressDescription(
         "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
 
-    RigFemScalarResultFrames* s1Frames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType,
-                                                                         resVarAddr.fieldName,
-                                                                         "S1" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
-    RigFemScalarResultFrames* s2Frames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType,
-                                                                         resVarAddr.fieldName,
-                                                                         "S2" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
-    RigFemScalarResultFrames* s3Frames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType,
-                                                                         resVarAddr.fieldName,
-                                                                         "S3" ) );
+    RigFemScalarResultFrames* s1Frames = nullptr;
+    {
+        auto task = frameCountProgress.task( "Loading S1.", m_resultCollection->frameCount() );
+        s1Frames  = m_resultCollection->findOrLoadScalarResult( partIndex,
+                                                               RigFemResultAddress( resVarAddr.resultPosType,
+                                                                                    resVarAddr.fieldName,
+                                                                                    "S1" ) );
+    }
+
+    RigFemScalarResultFrames* s2Frames = nullptr;
+    {
+        auto task = frameCountProgress.task( "Loading S2.", m_resultCollection->frameCount() );
+        s2Frames  = m_resultCollection->findOrLoadScalarResult( partIndex,
+                                                               RigFemResultAddress( resVarAddr.resultPosType,
+                                                                                    resVarAddr.fieldName,
+                                                                                    "S2" ) );
+    }
+
+    RigFemScalarResultFrames* s3Frames = nullptr;
+    {
+        auto task = frameCountProgress.task( "Loading S3.", m_resultCollection->frameCount() );
+        s3Frames  = m_resultCollection->findOrLoadScalarResult( partIndex,
+                                                               RigFemResultAddress( resVarAddr.resultPosType,
+                                                                                    resVarAddr.fieldName,
+                                                                                    "S3" ) );
+    }
 
     RigFemScalarResultFrames* s12Frames =
         m_resultCollection->createScalarResult( partIndex,
@@ -96,12 +102,11 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorStressAnisotropy::calculate(
         m_resultCollection->createScalarResult( partIndex,
                                                 RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "SA23" ) );
 
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( 1u );
-
     int frameCount = s1Frames->frameCount();
     for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
     {
+        auto task = frameCountProgress.task( QString( "Calculating %1/%2." ).arg( fIdx ).arg( frameCount - 1 ) );
+
         const std::vector<float>& s1 = s1Frames->frameData( fIdx );
         const std::vector<float>& s2 = s2Frames->frameData( fIdx );
         const std::vector<float>& s3 = s3Frames->frameData( fIdx );
@@ -123,8 +128,6 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorStressAnisotropy::calculate(
             s13[vIdx] = 2.0 * ( s1[vIdx] - s3[vIdx] ) / ( s1[vIdx] + s3[vIdx] );
             s23[vIdx] = 2.0 * ( s2[vIdx] - s3[vIdx] ) / ( s2[vIdx] + s3[vIdx] );
         }
-
-        frameCountProgress.incrementProgress();
     }
 
     RigFemScalarResultFrames* requestedStress = m_resultCollection->findOrLoadScalarResult( partIndex, resVarAddr );
@@ -142,28 +145,34 @@ RigFemScalarResultFrames*
     caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * 4, "" );
     frameCountProgress.setProgressDescription(
         "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
 
-    RigFemScalarResultFrames* s1Frames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType,
-                                                                         resVarAddr.fieldName,
-                                                                         "S1" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
-    RigFemScalarResultFrames* s2Frames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType,
-                                                                         resVarAddr.fieldName,
-                                                                         "S2" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
-    RigFemScalarResultFrames* s3Frames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType,
-                                                                         resVarAddr.fieldName,
-                                                                         "S3" ) );
-    int                       baseTimeStep = resVarAddr.timeLapseBaseFrameIdx;
+    RigFemScalarResultFrames* s1Frames = nullptr;
+    {
+        auto task = frameCountProgress.task( "Loading S1.", m_resultCollection->frameCount() );
+        s1Frames  = m_resultCollection->findOrLoadScalarResult( partIndex,
+                                                               RigFemResultAddress( resVarAddr.resultPosType,
+                                                                                    resVarAddr.fieldName,
+                                                                                    "S1" ) );
+    }
+
+    RigFemScalarResultFrames* s2Frames = nullptr;
+    {
+        auto task = frameCountProgress.task( "Loading S2.", m_resultCollection->frameCount() );
+        s2Frames  = m_resultCollection->findOrLoadScalarResult( partIndex,
+                                                               RigFemResultAddress( resVarAddr.resultPosType,
+                                                                                    resVarAddr.fieldName,
+                                                                                    "S2" ) );
+    }
+
+    RigFemScalarResultFrames* s3Frames = nullptr;
+    {
+        auto task = frameCountProgress.task( "Loading S3.", m_resultCollection->frameCount() );
+        s3Frames  = m_resultCollection->findOrLoadScalarResult( partIndex,
+                                                               RigFemResultAddress( resVarAddr.resultPosType,
+                                                                                    resVarAddr.fieldName,
+                                                                                    "S3" ) );
+    }
+
     RigFemScalarResultFrames* s12Frames =
         m_resultCollection->createScalarResult( partIndex,
                                                 RigFemResultAddress( resVarAddr.resultPosType,
@@ -183,13 +192,14 @@ RigFemScalarResultFrames*
                                                                      "SA23",
                                                                      resVarAddr.timeLapseBaseFrameIdx ) );
 
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( 1u );
+    float inf          = std::numeric_limits<float>::infinity();
+    int   frameCount   = s1Frames->frameCount();
+    int   baseTimeStep = resVarAddr.timeLapseBaseFrameIdx;
 
-    float inf        = std::numeric_limits<float>::infinity();
-    int   frameCount = s1Frames->frameCount();
     for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
     {
+        auto task = frameCountProgress.task( QString( "Calculating %1/%2." ).arg( fIdx ).arg( frameCount - 1 ) );
+
         const std::vector<float>& s1t = s1Frames->frameData( fIdx );
         const std::vector<float>& s2t = s2Frames->frameData( fIdx );
         const std::vector<float>& s3t = s3Frames->frameData( fIdx );
@@ -232,8 +242,6 @@ RigFemScalarResultFrames*
                     s23[vIdx] = inf;
             }
         }
-
-        frameCountProgress.incrementProgress();
     }
 
     RigFemScalarResultFrames* requestedStress = m_resultCollection->findOrLoadScalarResult( partIndex, resVarAddr );
