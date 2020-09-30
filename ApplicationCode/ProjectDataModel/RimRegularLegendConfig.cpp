@@ -38,6 +38,7 @@
 #include "RimIntersectionCollection.h"
 #include "RimProject.h"
 #include "RimStimPlanColors.h"
+#include "RimTools.h"
 #include "RimViewLinker.h"
 #include "RimWellMeasurementInView.h"
 #include "RimWellRftEnsembleCurveSet.h"
@@ -1153,17 +1154,7 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &m_colorLegend )
     {
-        RimProject*                  project               = RimProject::current();
-        RimColorLegendCollection*    colorLegendCollection = project->colorLegendCollection();
-        std::vector<RimColorLegend*> colorLegends          = colorLegendCollection->allColorLegends();
-
-        for ( RimColorLegend* colorLegend : colorLegends )
-        {
-            options.push_back( caf::PdmOptionItemInfo( colorLegend->colorLegendName(),
-                                                       colorLegend,
-                                                       false,
-                                                       colorLegend->paletteIconProvider() ) );
-        }
+        RimTools::colorLegendOptionItems( &options );
     }
     else if ( fieldNeedingOptions == &m_rangeMode )
     {
