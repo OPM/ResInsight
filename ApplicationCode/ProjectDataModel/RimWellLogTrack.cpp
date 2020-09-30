@@ -1040,14 +1040,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogTrack::calculateValueOptions( const caf:
     }
     else if ( fieldNeedingOptions == &m_colorShadingLegend )
     {
-        RimProject*                  project               = RimProject::current();
-        RimColorLegendCollection*    colorLegendCollection = project->colorLegendCollection();
-        std::vector<RimColorLegend*> colorLegends          = colorLegendCollection->allColorLegends();
-
-        for ( RimColorLegend* colorLegend : colorLegends )
-        {
-            options.push_back( caf::PdmOptionItemInfo( colorLegend->colorLegendName(), colorLegend ) );
-        }
+        RimTools::colorLegendOptionItems( &options );
     }
 
     return options;
