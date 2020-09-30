@@ -59,8 +59,8 @@ public:
 
     enum class VectorView
     {
-        AGGREGATED,
-        INDIVIDUAL
+        CELL_CENTER_TOTAL,
+        PER_FACE
     };
 
     enum class VectorSurfaceCrossingLocation
