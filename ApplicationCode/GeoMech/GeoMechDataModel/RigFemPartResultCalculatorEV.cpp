@@ -54,39 +54,30 @@ bool RigFemPartResultCalculatorEV::isMatching( const RigFemResultAddress& resVar
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultCalculatorEV::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
+RigFemScalarResultFrames* RigFemPartResultCalculatorEV::calculate( int partIndex, const RigFemResultAddress& resAddr )
 {
-    CVF_ASSERT( resVarAddr.fieldName == "NE" && resVarAddr.componentName == "EV" );
+    CVF_ASSERT( resAddr.fieldName == "NE" && resAddr.componentName == "EV" );
 
-    caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * 4, "" );
-    frameCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    QString progressText = "Calculating " + QString::fromStdString( resAddr.fieldName + ": " + resAddr.componentName );
 
-    RigFemScalarResultFrames* ea11 = nullptr;
-    RigFemScalarResultFrames* ea22 = nullptr;
-    RigFemScalarResultFrames* ea33 = nullptr;
+    caf::ProgressInfo frameCountProgress( static_cast<size_t>( m_resultCollection->frameCount() ) * 4, "" );
 
-    {
-        ea11 = m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                           RigFemResultAddress( resVarAddr.resultPosType, "NE", "E11" ) );
-        frameCountProgress.incrementProgress();
-        frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
-        ea22 = m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                           RigFemResultAddress( resVarAddr.resultPosType, "NE", "E22" ) );
-        frameCountProgress.incrementProgress();
-        frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
-        ea33 = m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                           RigFemResultAddress( resVarAddr.resultPosType, "NE", "E33" ) );
-    }
+    auto loadFrameLambda = [&]( const QString& component ) {
+        auto task = frameCountProgress.task( "Loading " + component, m_resultCollection->frameCount() );
+        return m_resultCollection->findOrLoadScalarResult( partIndex, resAddr.copyWithComponent( component.toStdString() ) );
+    };
 
-    RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
+    RigFemScalarResultFrames* ea11 = loadFrameLambda( "E11" );
+    RigFemScalarResultFrames* ea22 = loadFrameLambda( "E22" );
+    RigFemScalarResultFrames* ea33 = loadFrameLambda( "E33" );
 
-    frameCountProgress.incrementProgress();
+    RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resAddr );
 
     int frameCount = ea11->frameCount();
     for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
     {
+        auto task = frameCountProgress.task( QString( "Frame %1" ).arg( fIdx ) );
+
         const std::vector<float>& ea11Data = ea11->frameData( fIdx );
         const std::vector<float>& ea22Data = ea22->frameData( fIdx );
         const std::vector<float>& ea33Data = ea33->frameData( fIdx );
@@ -100,8 +91,6 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorEV::calculate( int partIndex
         {
             dstFrameData[vIdx] = ( ea11Data[vIdx] + ea22Data[vIdx] + ea33Data[vIdx] );
         }
-
-        frameCountProgress.incrementProgress();
     }
 
     return dstDataFrames;

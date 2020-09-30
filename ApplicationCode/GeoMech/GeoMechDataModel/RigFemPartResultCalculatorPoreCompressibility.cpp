@@ -60,101 +60,85 @@ bool RigFemPartResultCalculatorPoreCompressibility::isMatching( const RigFemResu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames*
-    RigFemPartResultCalculatorPoreCompressibility::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
+RigFemScalarResultFrames* RigFemPartResultCalculatorPoreCompressibility::calculate( int partIndex,
+                                                                                    const RigFemResultAddress& resAddr )
 {
-    caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * 6, "" );
-    frameCountProgress.setProgressDescription( "Calculating Pore Compressibility" );
+    caf::ProgressInfo frameCountProgress( static_cast<size_t>( m_resultCollection->frameCount() ) * 6,
+                                          "Calculating Pore Compressibility" );
 
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
-    RigFemScalarResultFrames* srcPORDataFrames =
-        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_NODAL, "POR-Bar", "" ) );
-    frameCountProgress.incrementProgress();
+    auto loadFrameLambda = [&]( RigFemResultAddress addr, const QString& errMsg = "" ) -> RigFemScalarResultFrames* {
+        auto task   = frameCountProgress.task( QString( "Loading %1: %2" )
+                                                 .arg( QString::fromStdString( addr.fieldName ) )
+                                                 .arg( QString::fromStdString( addr.componentName ) ),
+                                             m_resultCollection->frameCount() );
+        auto result = m_resultCollection->findOrLoadScalarResult( partIndex, addr );
+        if ( result->frameData( 0 ).empty() )
+        {
+            if ( !errMsg.isEmpty() ) Riu3DMainWindowTools::reportAndShowWarning( "Required data missing", errMsg );
+            return nullptr;
+        }
+        return result;
+    };
+
+    RigFemScalarResultFrames* srcPORDataFrames = loadFrameLambda( RigFemResultAddress( RIG_NODAL, "POR-Bar", "" ) );
 
     // Volumetric Strain
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
-    RigFemScalarResultFrames* srcEVDataFrames =
-        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "NE", "EV" ) );
-
-    frameCountProgress.incrementProgress();
+    RigFemScalarResultFrames* srcEVDataFrames = loadFrameLambda( RigFemResultAddress( resAddr.resultPosType, "NE", "EV" ) );
 
     // Vertical Strain
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
     RigFemScalarResultFrames* verticalStrainDataFrames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType, "NE", "E33" ) );
-
-    frameCountProgress.incrementProgress();
+        loadFrameLambda( RigFemResultAddress( resAddr.resultPosType, "NE", "E33" ) );
 
     // Biot porelastic coefficient (alpha)
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
     RigFemScalarResultFrames* biotCoefficient = nullptr;
-    if ( !m_resultCollection->biotResultAddress().isEmpty() )
     {
-        biotCoefficient =
-            m_resultCollection
-                ->findOrLoadScalarResult( partIndex,
-                                          RigFemResultAddress( RIG_ELEMENT,
-                                                               m_resultCollection->biotResultAddress().toStdString(),
-                                                               "" ) );
+        if ( !m_resultCollection->biotResultAddress().isEmpty() )
+        {
+            biotCoefficient = loadFrameLambda(
+                RigFemResultAddress( RIG_ELEMENT, m_resultCollection->biotResultAddress().toStdString(), "" ) );
+        }
     }
-    frameCountProgress.incrementProgress();
 
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    QString youngsErrMsg = QString( "Failed to compute %1\n" ).arg( QString::fromStdString( resAddr.componentName ) );
+    youngsErrMsg += "Missing Young's Modulus element data (MODULUS)";
+
     RigFemScalarResultFrames* youngsModuliFrames =
-        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_ELEMENT, "MODULUS", "" ) );
-    if ( youngsModuliFrames->frameData( 0 ).empty() )
-    {
-        QString txt = QString( "Failed to compute %1\n" ).arg( QString::fromStdString( resVarAddr.componentName ) );
-        txt += "Missing Young's Modulus element data (MODULUS)";
+        loadFrameLambda( RigFemResultAddress( RIG_ELEMENT, "MODULUS", "" ), youngsErrMsg );
+    if ( !youngsModuliFrames ) return nullptr;
 
-        Riu3DMainWindowTools::reportAndShowWarning( "Required data missing", txt );
-
-        return nullptr;
-    }
+    QString poissonError = QString( "Failed to compute %1\n" ).arg( QString::fromStdString( resAddr.componentName ) );
+    poissonError += "Missing Poisson Ratio element data (RATIO)";
 
     RigFemScalarResultFrames* poissonRatioFrames =
-        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_ELEMENT, "RATIO", "" ) );
-    if ( poissonRatioFrames->frameData( 0 ).empty() )
-    {
-        QString txt = QString( "Failed to compute %1\n" ).arg( QString::fromStdString( resVarAddr.componentName ) );
-        txt += "Missing Poisson Ratio element data (RATIO)";
-
-        Riu3DMainWindowTools::reportAndShowWarning( "Required data missing", txt );
-
-        return nullptr;
-    }
+        loadFrameLambda( RigFemResultAddress( RIG_ELEMENT, "RATIO", "" ), poissonError );
+    if ( !poissonRatioFrames ) return nullptr;
 
     RigFemScalarResultFrames* voidRatioFrames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType, "VOIDR", "" ) );
+        loadFrameLambda( RigFemResultAddress( resAddr.resultPosType, "VOIDR", "" ) );
 
     RigFemScalarResultFrames* poreCompressibilityFrames =
         m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "PORE" ) );
+                                                RigFemResultAddress( resAddr.resultPosType, resAddr.fieldName, "PORE" ) );
 
     RigFemScalarResultFrames* verticalCompressibilityFrames =
         m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType,
-                                                                     resVarAddr.fieldName,
-                                                                     "VERTICAL" ) );
+                                                RigFemResultAddress( resAddr.resultPosType, resAddr.fieldName, "VERTICAL" ) );
     RigFemScalarResultFrames* verticalCompressibilityRatioFrames =
         m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType,
-                                                                     resVarAddr.fieldName,
+                                                RigFemResultAddress( resAddr.resultPosType,
+                                                                     resAddr.fieldName,
                                                                      "VERTICAL-RATIO" ) );
-    frameCountProgress.incrementProgress();
 
     const RigFemPart* femPart = m_resultCollection->parts()->part( partIndex );
     float             inf     = std::numeric_limits<float>::infinity();
-
-    frameCountProgress.setNextProgressIncrement( 1u );
 
     int referenceFrameIdx = m_resultCollection->referenceTimeStep();
 
     int frameCount = srcEVDataFrames->frameCount();
     for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
     {
+        auto task = frameCountProgress.task( QString( "Frame %1" ).arg( fIdx ) );
+
         const std::vector<float>& evData                      = srcEVDataFrames->frameData( fIdx );
         const std::vector<float>& referenceEvData             = srcEVDataFrames->frameData( referenceFrameIdx );
         const std::vector<float>& verticalStrainData          = verticalStrainDataFrames->frameData( fIdx );
@@ -182,7 +166,7 @@ RigFemScalarResultFrames*
             biotData = biotCoefficient->frameData( fIdx );
             if ( !m_resultCollection->isValidBiotData( biotData, elementCount ) )
             {
-                m_resultCollection->deleteResult( resVarAddr );
+                m_resultCollection->deleteResult( resAddr );
                 return nullptr;
             }
         }
@@ -294,10 +278,8 @@ RigFemScalarResultFrames*
                 }
             }
         }
-
-        frameCountProgress.incrementProgress();
     }
 
-    RigFemScalarResultFrames* requestedResultFrames = m_resultCollection->findOrLoadScalarResult( partIndex, resVarAddr );
+    RigFemScalarResultFrames* requestedResultFrames = m_resultCollection->findOrLoadScalarResult( partIndex, resAddr );
     return requestedResultFrames;
 }
