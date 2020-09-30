@@ -59,10 +59,10 @@ void AppEnum<RimElementVectorResult::ScaleMethod>::setUp()
 template <>
 void AppEnum<RimElementVectorResult::VectorView>::setUp()
 {
-    addItem( RimElementVectorResult::VectorView::AGGREGATED, "AGGREGATED", "Aggregated" );
-    addItem( RimElementVectorResult::VectorView::INDIVIDUAL, "INDIVIDUAL", "Individual" );
+    addItem( RimElementVectorResult::VectorView::CELL_CENTER_TOTAL, "AGGREGATED", "Cell Center Total" );
+    addItem( RimElementVectorResult::VectorView::PER_FACE, "INDIVIDUAL", "Per Face" );
 
-    setDefault( RimElementVectorResult::VectorView::AGGREGATED );
+    setDefault( RimElementVectorResult::VectorView::CELL_CENTER_TOTAL );
 }
 
 template <>
@@ -80,7 +80,7 @@ void AppEnum<RimElementVectorResult::VectorSurfaceCrossingLocation>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimElementVectorResult::RimElementVectorResult()
 {
-    CAF_PDM_InitObject( "Element Vector Result", ":/CellResult.png", "", "" );
+    CAF_PDM_InitObject( "Flow Vector Result", ":/CellResult.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend", "", "", "" );
     m_legendConfig = new RimRegularLegendConfig();
@@ -100,8 +100,8 @@ RimElementVectorResult::RimElementVectorResult()
                                 "",
                                 "",
                                 "" );
-    m_vectorSurfaceCrossingLocation.uiCapability()->setUiReadOnly( m_vectorView() ==
-                                                                   RimElementVectorResult::VectorView::AGGREGATED );
+    m_vectorSurfaceCrossingLocation.uiCapability()->setUiReadOnly(
+        m_vectorView() == RimElementVectorResult::VectorView::CELL_CENTER_TOTAL );
 
     CAF_PDM_InitField( &m_showVectorI, "ShowVectorI", true, "I", "", "", "" );
     CAF_PDM_InitField( &m_showVectorJ, "ShowVectorJ", true, "J", "", "", "" );
@@ -342,7 +342,7 @@ void RimElementVectorResult::mappingRange( double& min, double& max ) const
                 {
                     resultsData->minMaxCellScalarValues( resVarAddr, currentTimeStep, localMin, localMax );
                 }
-                if ( vectorView() == RimElementVectorResult::VectorView::AGGREGATED )
+                if ( vectorView() == RimElementVectorResult::VectorView::CELL_CENTER_TOTAL )
                 {
                     aggregatedVectorMax += unitVectors.at( dir ) * localMax;
                     aggregatedVectorMin += unitVectors.at( dir ) * localMin;
@@ -353,7 +353,7 @@ void RimElementVectorResult::mappingRange( double& min, double& max ) const
                     directionsMin[dir] += localMin;
                 }
             }
-            if ( vectorView() == RimElementVectorResult::VectorView::AGGREGATED )
+            if ( vectorView() == RimElementVectorResult::VectorView::CELL_CENTER_TOTAL )
             {
                 directionsMax[0] += aggregatedVectorMax.length();
                 directionsMin[0] += aggregatedVectorMin.length();
@@ -361,7 +361,7 @@ void RimElementVectorResult::mappingRange( double& min, double& max ) const
         }
         min = directionsMin.front();
         max = directionsMax.front();
-        if ( vectorView() != RimElementVectorResult::VectorView::AGGREGATED )
+        if ( vectorView() != RimElementVectorResult::VectorView::CELL_CENTER_TOTAL )
         {
             for ( size_t i = 0; i < directionsMax.size(); i++ )
             {
@@ -472,8 +472,8 @@ void RimElementVectorResult::fieldChangedByUi( const caf::PdmFieldHandle* change
     }
     if ( changedField == &m_vectorView )
     {
-        m_vectorSurfaceCrossingLocation.uiCapability()->setUiReadOnly( vectorView() ==
-                                                                       RimElementVectorResult::VectorView::AGGREGATED );
+        m_vectorSurfaceCrossingLocation.uiCapability()->setUiReadOnly(
+            vectorView() == RimElementVectorResult::VectorView::CELL_CENTER_TOTAL );
     }
 
     RimEclipseView* view;

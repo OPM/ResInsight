@@ -149,7 +149,7 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
         if ( !cells[gcIdx].isInvalid() && activeCellInfo->isActive( gcIdx ) )
         {
             size_t resultIdx = activeCellInfo->cellResultIndex( gcIdx );
-            if ( result->vectorView() == RimElementVectorResult::VectorView::INDIVIDUAL )
+            if ( result->vectorView() == RimElementVectorResult::VectorView::PER_FACE )
             {
                 for ( int dir = 0; dir < static_cast<int>( directions.size() ); dir++ )
                 {
@@ -183,7 +183,7 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
                     }
                 }
             }
-            else if ( result->vectorView() == RimElementVectorResult::VectorView::AGGREGATED )
+            else if ( result->vectorView() == RimElementVectorResult::VectorView::CELL_CENTER_TOTAL )
             {
                 cvf::Vec3d aggregatedVector;
                 cvf::Vec3d aggregatedResult;
@@ -420,7 +420,7 @@ std::array<cvf::Vec3f, 7>
     cvf::Vec3f headTop    = evrViz.faceCenter + evrViz.faceNormal;
     cvf::Vec3f shaftStart = evrViz.faceCenter;
     if ( result->vectorSuraceCrossingLocation() == RimElementVectorResult::VectorSurfaceCrossingLocation::VECTOR_CENTER &&
-         result->vectorView() == RimElementVectorResult::VectorView::INDIVIDUAL )
+         result->vectorView() == RimElementVectorResult::VectorView::PER_FACE )
     {
         headTop    = evrViz.faceCenter + evrViz.faceNormal / 2.0;
         shaftStart = evrViz.faceCenter - evrViz.faceNormal / 2.0;
@@ -428,7 +428,7 @@ std::array<cvf::Vec3f, 7>
 
     // Flip arrow for negative results and if the vector is not aggregated (in which case we do not have any negative
     // result)
-    if ( evrViz.result < 0 && result->vectorView() != RimElementVectorResult::VectorView::AGGREGATED )
+    if ( evrViz.result < 0 && result->vectorView() != RimElementVectorResult::VectorView::CELL_CENTER_TOTAL )
     {
         std::swap( headTop, shaftStart );
     }
