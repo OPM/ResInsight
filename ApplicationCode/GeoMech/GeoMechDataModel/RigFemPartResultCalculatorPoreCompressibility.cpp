@@ -63,7 +63,7 @@ bool RigFemPartResultCalculatorPoreCompressibility::isMatching( const RigFemResu
 RigFemScalarResultFrames* RigFemPartResultCalculatorPoreCompressibility::calculate( int partIndex,
                                                                                     const RigFemResultAddress& resAddr )
 {
-    caf::ProgressInfo frameCountProgress( static_cast<size_t>( m_resultCollection->frameCount() ) * 6,
+    caf::ProgressInfo frameCountProgress( static_cast<size_t>( m_resultCollection->frameCount() ) * 7,
                                           "Calculating Pore Compressibility" );
 
     auto loadFrameLambda = [&]( RigFemResultAddress addr, const QString& errMsg = "" ) -> RigFemScalarResultFrames* {
