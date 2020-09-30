@@ -218,6 +218,7 @@ RigFemScalarResultFrames*
         s13.resize( valCount, 0.0 );
         s23.resize( valCount, 0.0 );
 
+        double epsilon = 0.0000001;
 #pragma omp parallel for schedule( dynamic )
         for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
         {
@@ -226,17 +227,17 @@ RigFemScalarResultFrames*
                 double diffS1 = s1t[vIdx] - s1b[vIdx];
                 double diffS2 = s2t[vIdx] - s2b[vIdx];
                 double diffS3 = s3t[vIdx] - s3b[vIdx];
-                if ( diffS1 + diffS2 != 0.0 )
+                if ( std::abs( diffS1 + diffS2 ) > epsilon )
                     s12[vIdx] = 2.0 * ( diffS1 - diffS2 ) / ( diffS1 + diffS2 );
                 else
                     s12[vIdx] = inf;
 
-                if ( diffS1 + diffS3 != 0.0 )
+                if ( std::abs( diffS1 + diffS3 ) > epsilon )
                     s13[vIdx] = 2.0 * ( diffS1 - diffS3 ) / ( diffS1 + diffS3 );
                 else
                     s13[vIdx] = inf;
 
-                if ( diffS2 + diffS3 != 0.0 )
+                if ( std::abs( diffS2 + diffS3 ) > epsilon )
                     s23[vIdx] = 2.0 * ( diffS2 - diffS3 ) / ( diffS2 + diffS3 );
                 else
                     s23[vIdx] = inf;
