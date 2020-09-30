@@ -54,18 +54,18 @@ public:
 private:
     struct ElementVectorResultVisualization
     {
-        ElementVectorResultVisualization( cvf::Vec3d faceCenter, cvf::Vec3d faceNormal, double result, double characteristicCellSize )
+        ElementVectorResultVisualization( cvf::Vec3d faceCenter, cvf::Vec3d faceNormal, double result, double approximateCellLength )
             : faceCenter( faceCenter )
             , faceNormal( faceNormal )
             , result( result )
-            , characteristicCellSize( characteristicCellSize )
+            , approximateCellLength( approximateCellLength )
         {
         }
 
         cvf::Vec3f faceCenter;
         cvf::Vec3f faceNormal;
         double     result;
-        double     characteristicCellSize;
+        double     approximateCellLength;
     };
 
 private:

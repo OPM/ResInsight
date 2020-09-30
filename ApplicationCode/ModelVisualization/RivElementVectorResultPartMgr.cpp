@@ -426,18 +426,17 @@ std::array<cvf::Vec3f, 7>
         shaftStart = evrViz.faceCenter - evrViz.faceNormal / 2.0;
     }
 
-    // Flip arrow for negative results
+    // Flip arrow for negative results and if the vector is not aggregated (in which case we do not have any negative
+    // result)
     if ( evrViz.result < 0 && result->vectorView() != RimElementVectorResult::VectorView::AGGREGATED )
     {
         std::swap( headTop, shaftStart );
     }
 
-    // float headWidth = 0.05 * evrViz.faceNormal.length();
-    float headLength = std::min<float>( evrViz.characteristicCellSize / 5.0f, ( headTop - shaftStart ).length() / 2.0 );
+    float headLength = std::min<float>( evrViz.approximateCellLength / 5.0f, ( headTop - shaftStart ).length() / 2.0 );
 
     // A fixed size is preferred here
     cvf::Vec3f headBottom = headTop - ( headTop - shaftStart ).getNormalized() * headLength;
-    // cvf::Vec3f headBottom = headTop - ( headTop - shaftStart ) * 0.2f;
 
     cvf::Vec3f headBottomDirection1 = evrViz.faceNormal ^ evrViz.faceCenter;
     cvf::Vec3f headBottomDirection2 = headBottomDirection1 ^ evrViz.faceNormal;
@@ -490,6 +489,10 @@ std::array<uint, 6> RivElementVectorResultPartMgr::createArrowHeadIndices( uint 
 //--------------------------------------------------------------------------------------------------
 double RivElementVectorResultPartMgr::scaleLogarithmically( double value ) const
 {
+    // If values are smaller than one, the logarithm would return
+    // increasing negative values the smaller the number is. However, small
+    // numbers shall remain small and not be scaled up. In order to achieve this,
+    // add 1.0 to small values in order to still obtain small positive numbers after scaling.
     if ( value <= 1.0 )
     {
         value += 1.0;
