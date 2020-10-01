@@ -56,6 +56,7 @@
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
+#include "RimElasticProperties.h"
 #include "RimEllipseFractureTemplate.h"
 #include "RimEnsembleCurveFilterCollection.h"
 #include "RimEnsembleCurveSet.h"
@@ -928,6 +929,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewStimPlanFractureTemplateFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicConvertFractureTemplateUnitFeature";
+        }
+        else if ( dynamic_cast<RimElasticProperties*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewElasticPropertyScalingFeature";
         }
         else if ( dynamic_cast<RimSurfaceCollection*>( firstUiItem ) )
         {

@@ -18,6 +18,7 @@
 
 #include "RimElasticProperties.h"
 
+#include "RimElasticPropertyScalingCollection.h"
 #include "RimFractureModelTemplate.h"
 
 #include "RicElasticPropertiesImportTools.h"
@@ -45,6 +46,11 @@ RimElasticProperties::RimElasticProperties()
     m_propertiesTable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_propertiesTable.uiCapability()->setUiReadOnly( true );
     m_propertiesTable.xmlCapability()->disableIO();
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_scalings, "PropertyScalingCollection", "PropertyScalingCollection", "", "", "" );
+    m_scalings.uiCapability()->setUiHidden( true );
+    m_scalings.uiCapability()->setUiTreeHidden( true );
+    m_scalings = new RimElasticPropertyScalingCollection;
 
     setUiName( "Elastic Properties" );
 }
@@ -217,4 +223,12 @@ void RimElasticProperties::loadDataAndUpdate()
         firstAncestorOrThisOfType( fractureModelTemplate );
         RicElasticPropertiesImportTools::importElasticPropertiesFromFile( m_filePath().path(), fractureModelTemplate );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimElasticPropertyScalingCollection* RimElasticProperties::scalingCollection()
+{
+    return m_scalings.value();
 }
