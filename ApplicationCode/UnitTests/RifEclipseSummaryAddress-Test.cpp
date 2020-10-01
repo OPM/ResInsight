@@ -2,6 +2,7 @@
 
 #include "RifEclipseSummaryAddress.h"
 
+#include <QString>
 #include <string>
 
 //--------------------------------------------------------------------------------------------------
@@ -292,4 +293,33 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressRegToRegParsing )
     EXPECT_EQ( 123, addr.regionNumber() );
     EXPECT_EQ( 456, addr.regionNumber2() );
     EXPECT_TRUE( !addr.isErrorResult() );
+}
+
+TEST( RifEclipseSummaryAddressTest, TestQuantityNameManipulations )
+{
+    {
+        auto s = RifEclipseSummaryAddress::baseQuantityName( "FOPT" );
+        EXPECT_EQ( "FOPT", s.toStdString() );
+    }
+
+    {
+        auto s = RifEclipseSummaryAddress::baseQuantityName( "FOPT_1" );
+        EXPECT_EQ( "FOPT", s.toStdString() );
+    }
+
+    {
+        auto s = RifEclipseSummaryAddress::baseQuantityName( "FOPR" );
+        EXPECT_EQ( "FOPR", s.toStdString() );
+    }
+
+    {
+        auto s = RifEclipseSummaryAddress::baseQuantityName( "FOPR_1" );
+        EXPECT_EQ( "FOPR", s.toStdString() );
+    }
+
+    {
+        // https://github.com/OPM/ResInsight/issues/6481
+        auto s = RifEclipseSummaryAddress::baseQuantityName( "FCMIT_1" );
+        EXPECT_EQ( "FCMIT", s.toStdString() );
+    }
 }

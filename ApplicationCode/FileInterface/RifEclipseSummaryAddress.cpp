@@ -871,9 +871,15 @@ bool RifEclipseSummaryAddress::isValidEclipseCategory() const
 QString RifEclipseSummaryAddress::baseQuantityName( const QString& quantityName )
 {
     QString qBaseName = quantityName;
+
     if ( qBaseName.size() == 8 ) qBaseName.chop( 3 );
-    while ( qBaseName.endsWith( "_" ) )
-        qBaseName.chop( 1 );
+
+    auto indexToUnderScore = qBaseName.indexOf( "_" );
+    if ( indexToUnderScore > 0 )
+    {
+        qBaseName = qBaseName.left( indexToUnderScore );
+    }
+
     return qBaseName;
 }
 
