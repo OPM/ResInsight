@@ -43,8 +43,9 @@ typedef std::function<void( QRegularExpressionMatch& )> CustomStyleSheetApplicat
 class RiuGuiTheme
 {
 public:
-    static void updateGuiTheme( RiaDefines::ThemeEnum theme );
-    static bool applyStyleSheet( RiaDefines::ThemeEnum theme );
+    static RiaDefines::ThemeEnum currentGuiTheme();
+    static void                  updateGuiTheme( RiaDefines::ThemeEnum theme );
+    static bool                  applyStyleSheet( RiaDefines::ThemeEnum theme );
     static void changeVariableValue( RiaDefines::ThemeEnum theme, const QString& variableName, const QString& newValue );
     static QMap<QString, QString> getVariableValueMap( RiaDefines::ThemeEnum theme );
     static QMap<QString, QString> getVariableGuiTextMap( RiaDefines::ThemeEnum theme );
@@ -52,7 +53,8 @@ public:
     static bool                   writeStyleSheetToFile( RiaDefines::ThemeEnum theme, const QString& styleSheet );
     static QString                loadStyleSheet( RiaDefines::ThemeEnum theme );
     static QAbstractItemModel*    getQssCompletionModel( QCompleter* completer );
-    static QColor                 getColorByVariableName( const QString& variable, int theme = -1 );
+    static QColor                 getColorByVariableName( const QString&        variable,
+                                                          RiaDefines::ThemeEnum theme = RiaDefines::ThemeEnum::UNDEFINED );
     static QString
                 getQwtStyleSheetProperty( QString plotName, const QString& itemType, QString itemName, const QString& propertyName );
     static void styleQwtItem( QwtPlotItem* item );
@@ -72,6 +74,8 @@ private:
     static void         formatStyleSheetForWriting( QString& styleSheet );
 
 private:
+    static RiaDefines::ThemeEnum s_currentTheme;
+
     static QMap<RiaDefines::ThemeEnum, QMap<QString, QString>>                 s_variableValueMap;
     static QMap<RiaDefines::ThemeEnum, QMap<QString, QString>>                 s_variableGuiTextMap;
     static QMap<QString, QMap<QString, QMap<QString, QMap<QString, QString>>>> s_qwtPlotItemPropertiesMap;

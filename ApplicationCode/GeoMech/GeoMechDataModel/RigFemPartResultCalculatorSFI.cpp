@@ -54,24 +54,23 @@ bool RigFemPartResultCalculatorSFI::isMatching( const RigFemResultAddress& resVa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultCalculatorSFI::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
+RigFemScalarResultFrames* RigFemPartResultCalculatorSFI::calculate( int partIndex, const RigFemResultAddress& resAddr )
 {
-    CVF_ASSERT( resVarAddr.fieldName == "SE" && resVarAddr.componentName == "SFI" );
-    caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * 3, "" );
-    frameCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    CVF_ASSERT( resAddr.fieldName == "SE" && resAddr.componentName == "SFI" );
 
-    RigFemScalarResultFrames* se1Frames =
-        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "SE", "S1" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
-    RigFemScalarResultFrames* se3Frames =
-        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "SE", "S3" ) );
+    QString progressText = "Calculating " + QString::fromStdString( resAddr.fieldName + ": " + resAddr.componentName );
 
-    RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
+    caf::ProgressInfo frameCountProgress( static_cast<size_t>( m_resultCollection->frameCount() ) * 3, progressText );
 
-    frameCountProgress.incrementProgress();
+    auto loadFrameLambda = [&]( const QString& component ) {
+        auto task = frameCountProgress.task( "Loading " + component, m_resultCollection->frameCount() );
+        return m_resultCollection->findOrLoadScalarResult( partIndex, resAddr.copyWithComponent( component.toStdString() ) );
+    };
+
+    RigFemScalarResultFrames* se1Frames = loadFrameLambda( "S1" );
+    RigFemScalarResultFrames* se3Frames = loadFrameLambda( "S3" );
+
+    RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resAddr );
 
     float cohPrFricAngle =
         (float)( m_resultCollection->parameterCohesion() / tan( m_resultCollection->parameterFrictionAngleRad() ) );
@@ -80,6 +79,8 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorSFI::calculate( int partInde
     int frameCount = se1Frames->frameCount();
     for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
     {
+        auto task = frameCountProgress.task( QString( "Frame %1" ).arg( fIdx ) );
+
         const std::vector<float>& se1Data = se1Frames->frameData( fIdx );
         const std::vector<float>& se3Data = se3Frames->frameData( fIdx );
 
@@ -104,8 +105,6 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorSFI::calculate( int partInde
                                      ( 0.5 * ( se1Data[vIdx] - se3Data[vIdx] ) );
             }
         }
-
-        frameCountProgress.incrementProgress();
     }
 
     return dstDataFrames;

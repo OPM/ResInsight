@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
 #include "RiaFractureModelDefines.h"
 
 #include "RimCheckableNamedObject.h"
@@ -36,10 +35,11 @@ class RimWellPath;
 class RimModeledWellPath;
 class RimElasticProperties;
 class RigEclipseCaseData;
-class RimAnnotationCollection;
+class RimAnnotationCollectionBase;
 class RimUserDefinedPolylinesAnnotation;
 class RimFaciesProperties;
 class RimFractureModelTemplate;
+class RimTextAnnotation;
 
 //==================================================================================================
 ///
@@ -165,10 +165,10 @@ private:
     static RigEclipseCaseData* getEclipseCaseData();
     static RimEclipseCase*     getEclipseCase();
 
-    void                     updateBarrierProperties();
-    void                     addBarrierAnnotation( const cvf::Vec3d& startPosition, const cvf::Vec3d& endPosition );
-    void                     clearBarrierAnnotation();
-    RimAnnotationCollection* annotationCollection();
+    void updateBarrierProperties();
+    void addBarrierAnnotation( const cvf::Vec3d& startPosition, const cvf::Vec3d& endPosition, const QString& barrierText );
+    void                         clearBarrierAnnotation();
+    RimAnnotationCollectionBase* annotationCollection();
 
     static std::vector<WellPathCellIntersectionInfo> generateBarrierIntersections( RigEclipseCaseData* eclipseCaseData,
                                                                                    const cvf::Vec3d&   position,
@@ -212,6 +212,7 @@ protected:
     caf::PdmField<double>                                m_barrierDip;
     caf::PdmField<int>                                   m_wellPenetrationLayer;
     caf::PdmPtrField<RimUserDefinedPolylinesAnnotation*> m_barrierAnnotation;
+    caf::PdmPtrField<RimTextAnnotation*>                 m_barrierTextAnnotation;
     caf::PdmField<QString>                               m_barrierFaultName;
     caf::PdmField<bool>                                  m_showOnlyBarrierFault;
     caf::PdmField<bool>                                  m_showAllFaults;

@@ -19,11 +19,11 @@
 #include "RimFaciesProperties.h"
 
 #include "RimColorLegend.h"
-#include "RimColorLegendCollection.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimFractureModelTemplate.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
+#include "RimTools.h"
 
 #include "RicFaciesPropertiesImportTools.h"
 
@@ -105,17 +105,7 @@ QList<caf::PdmOptionItemInfo> RimFaciesProperties::calculateValueOptions( const 
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_colorLegend )
     {
-        RimProject*                  project               = RimProject::current();
-        RimColorLegendCollection*    colorLegendCollection = project->colorLegendCollection();
-        std::vector<RimColorLegend*> colorLegends          = colorLegendCollection->allColorLegends();
-
-        for ( RimColorLegend* colorLegend : colorLegends )
-        {
-            options.push_back( caf::PdmOptionItemInfo( colorLegend->colorLegendName(),
-                                                       colorLegend,
-                                                       false,
-                                                       colorLegend->paletteIconProvider() ) );
-        }
+        RimTools::colorLegendOptionItems( &options );
     }
 
     return options;

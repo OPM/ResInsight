@@ -1211,16 +1211,14 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::gener
                                                                                settings.useLateralNTG );
 
                     transmissibility = transmissibilityData.connectionFactor();
+                    kh               = transmissibilityData.kh();
 
                     if ( nonDarcyParameters->nonDarcyFlowType() == RimNonDarcyPerforationParameters::NON_DARCY_USER_DEFINED )
                     {
-                        kh      = transmissibilityData.kh();
                         dFactor = nonDarcyParameters->userDefinedDFactor();
                     }
                     else if ( nonDarcyParameters->nonDarcyFlowType() == RimNonDarcyPerforationParameters::NON_DARCY_COMPUTED )
                     {
-                        kh = transmissibilityData.kh();
-
                         const double effectiveH = transmissibilityData.effectiveH();
 
                         const double effectivePermeability =

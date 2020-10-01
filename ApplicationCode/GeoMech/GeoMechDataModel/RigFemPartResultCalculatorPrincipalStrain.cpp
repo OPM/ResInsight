@@ -56,103 +56,68 @@ bool RigFemPartResultCalculatorPrincipalStrain::isMatching( const RigFemResultAd
 ///
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultCalculatorPrincipalStrain::calculate( int                        partIndex,
-                                                                                const RigFemResultAddress& resVarAddr )
+                                                                                const RigFemResultAddress& resAddr )
 {
-    CVF_ASSERT( resVarAddr.componentName == "E1" || resVarAddr.componentName == "E2" || resVarAddr.componentName == "E3" );
+    CVF_ASSERT( resAddr.componentName == "E1" || resAddr.componentName == "E2" || resAddr.componentName == "E3" );
 
-    caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * 7, "" );
-    frameCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    QString progressText = "Calculating " + QString::fromStdString( resAddr.fieldName + ": " + resAddr.componentName );
 
-    RigFemScalarResultFrames* s11Frames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType,
-                                                                         resVarAddr.fieldName,
-                                                                         "E11" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
-    RigFemScalarResultFrames* s22Frames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType,
-                                                                         resVarAddr.fieldName,
-                                                                         "E22" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
-    RigFemScalarResultFrames* s33Frames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType,
-                                                                         resVarAddr.fieldName,
-                                                                         "E33" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
-    RigFemScalarResultFrames* s12Frames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType,
-                                                                         resVarAddr.fieldName,
-                                                                         "E12" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
-    RigFemScalarResultFrames* s13Frames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType,
-                                                                         resVarAddr.fieldName,
-                                                                         "E13" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
-    RigFemScalarResultFrames* s23Frames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType,
-                                                                         resVarAddr.fieldName,
-                                                                         "E23" ) );
+    caf::ProgressInfo frameCountProgress( static_cast<size_t>( m_resultCollection->frameCount() ) * 7, progressText );
 
-    RigFemScalarResultFrames* s1Frames =
-        m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "E1" ) );
-    RigFemScalarResultFrames* s2Frames =
-        m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "E2" ) );
-    RigFemScalarResultFrames* s3Frames =
-        m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "E3" ) );
+    auto loadFrameLambda = [&]( const QString& component ) {
+        auto task = frameCountProgress.task( "Loading " + component, m_resultCollection->frameCount() );
+        return m_resultCollection->findOrLoadScalarResult( partIndex, resAddr.copyWithComponent( component.toStdString() ) );
+    };
 
-    frameCountProgress.incrementProgress();
+    RigFemScalarResultFrames* e11Frames = loadFrameLambda( "E11" );
+    RigFemScalarResultFrames* e22Frames = loadFrameLambda( "E22" );
+    RigFemScalarResultFrames* e33Frames = loadFrameLambda( "E33" );
+    RigFemScalarResultFrames* e12Frames = loadFrameLambda( "E12" );
+    RigFemScalarResultFrames* e13Frames = loadFrameLambda( "E13" );
+    RigFemScalarResultFrames* e23Frames = loadFrameLambda( "E23" );
 
-    int frameCount = s11Frames->frameCount();
+    RigFemScalarResultFrames* e1Frames =
+        m_resultCollection->createScalarResult( partIndex, resAddr.copyWithComponent( "E1" ) );
+    RigFemScalarResultFrames* e2Frames =
+        m_resultCollection->createScalarResult( partIndex, resAddr.copyWithComponent( "E2" ) );
+    RigFemScalarResultFrames* e3Frames =
+        m_resultCollection->createScalarResult( partIndex, resAddr.copyWithComponent( "E3" ) );
+
+    int frameCount = e11Frames->frameCount();
     for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
     {
-        const std::vector<float>& s11 = s11Frames->frameData( fIdx );
-        const std::vector<float>& s22 = s22Frames->frameData( fIdx );
-        const std::vector<float>& s33 = s33Frames->frameData( fIdx );
-        const std::vector<float>& s12 = s12Frames->frameData( fIdx );
-        const std::vector<float>& s13 = s13Frames->frameData( fIdx );
-        const std::vector<float>& s23 = s23Frames->frameData( fIdx );
+        auto task = frameCountProgress.task( QString( "Frame %1" ).arg( fIdx ) );
 
-        std::vector<float>& s1 = s1Frames->frameData( fIdx );
-        std::vector<float>& s2 = s2Frames->frameData( fIdx );
-        std::vector<float>& s3 = s3Frames->frameData( fIdx );
+        const std::vector<float>& e11 = e11Frames->frameData( fIdx );
+        const std::vector<float>& e22 = e22Frames->frameData( fIdx );
+        const std::vector<float>& e33 = e33Frames->frameData( fIdx );
+        const std::vector<float>& e12 = e12Frames->frameData( fIdx );
+        const std::vector<float>& e13 = e13Frames->frameData( fIdx );
+        const std::vector<float>& e23 = e23Frames->frameData( fIdx );
 
-        size_t valCount = s11.size();
+        std::vector<float>& e1 = e1Frames->frameData( fIdx );
+        std::vector<float>& e2 = e2Frames->frameData( fIdx );
+        std::vector<float>& e3 = e3Frames->frameData( fIdx );
 
-        s1.resize( valCount );
-        s2.resize( valCount );
-        s3.resize( valCount );
+        size_t valCount = e11.size();
+
+        e1.resize( valCount );
+        e2.resize( valCount );
+        e3.resize( valCount );
 
 #pragma omp parallel for
         for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
         {
-            caf::Ten3f T( s11[vIdx], s22[vIdx], s33[vIdx], s12[vIdx], s23[vIdx], s13[vIdx] );
+            caf::Ten3f T( e11[vIdx], e22[vIdx], e33[vIdx], e12[vIdx], e23[vIdx], e13[vIdx] );
             cvf::Vec3f principalDirs[3];
             cvf::Vec3f principals = T.calculatePrincipals( principalDirs );
-            s1[vIdx]              = principals[0];
-            s2[vIdx]              = principals[1];
-            s3[vIdx]              = principals[2];
+            e1[vIdx]              = principals[0];
+            e2[vIdx]              = principals[1];
+            e3[vIdx]              = principals[2];
         }
-
-        frameCountProgress.incrementProgress();
     }
 
-    RigFemScalarResultFrames* requestedPrincipal = m_resultCollection->findOrLoadScalarResult( partIndex, resVarAddr );
+    RigFemScalarResultFrames* requestedPrincipal = m_resultCollection->findOrLoadScalarResult( partIndex, resAddr );
 
     return requestedPrincipal;
 }

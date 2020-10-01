@@ -20,7 +20,6 @@
 
 #include "RiaApplication.h"
 #include "RiaGuiApplication.h"
-#include "RiaPreferences.h"
 #include "RiuThemesDirectory.h"
 
 #include "cafAppEnum.h"
@@ -46,6 +45,8 @@
 #include "qwt_plot_grid.h"
 #include "qwt_plot_marker.h"
 #include "qwt_symbol.h"
+
+RiaDefines::ThemeEnum RiuGuiTheme::s_currentTheme = RiaDefines::ThemeEnum::DEFAULT;
 
 QMap<RiaDefines::ThemeEnum, QMap<QString, QString>>                 RiuGuiTheme::s_variableValueMap         = {};
 QMap<RiaDefines::ThemeEnum, QMap<QString, QString>>                 RiuGuiTheme::s_variableGuiTextMap       = {};
@@ -355,9 +356,19 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaDefines::ThemeEnum RiuGuiTheme::currentGuiTheme()
+{
+    return s_currentTheme;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuGuiTheme::updateGuiTheme( RiaDefines::ThemeEnum theme )
 {
+    s_currentTheme = theme;
     s_qwtPlotItemPropertiesMap.clear();
+
     applyStyleSheet( theme );
     const QWidgetList allWidgets = RiaGuiApplication::instance()->allWidgets();
     for ( QWidget* widget : allWidgets )
@@ -564,16 +575,13 @@ QAbstractItemModel* RiuGuiTheme::getQssCompletionModel( QCompleter* completer )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QColor RiuGuiTheme::getColorByVariableName( const QString& variable, int theme /*= -1 */ )
+QColor RiuGuiTheme::getColorByVariableName( const QString& variable, RiaDefines::ThemeEnum theme /*= UNDEFINED */ )
 {
-    RiaDefines::ThemeEnum eTheme = RiaDefines::ThemeEnum::DEFAULT;
-    if ( dynamic_cast<RiaGuiApplication*>( RiaApplication::instance() ) )
+    RiaDefines::ThemeEnum eTheme = s_currentTheme;
+
+    if ( theme != RiaDefines::ThemeEnum::UNDEFINED )
     {
-        eTheme = RiaGuiApplication::instance()->preferences()->guiTheme();
-    }
-    if ( theme >= 0 && theme < static_cast<int>( caf::AppEnum<RiaDefines::ThemeEnum>().size() ) )
-    {
-        eTheme = static_cast<RiaDefines::ThemeEnum>( theme );
+        eTheme = theme;
     }
 
     if ( s_variableValueMap.keys().contains( eTheme ) && s_variableValueMap[eTheme].keys().contains( "$" + variable ) )

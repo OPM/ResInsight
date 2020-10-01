@@ -173,6 +173,7 @@ QProgressBar {
 QAbstractItemView {
     border: 2px solid $borderColor;
     border-style: solid;
+    outline: 0;
 }
 
 QAbstractItemView::item:hover {
@@ -260,6 +261,10 @@ QToolBar::handle {
 QMenuBar::item:selected {
     background-color: $primaryColor;
     color: $textColor;
+}
+
+QMenu {
+    border: 2px solid $borderColor;
 }
 
 QMenu::item:selected {

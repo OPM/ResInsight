@@ -101,6 +101,7 @@
 #include "RimWellRftPlot.h"
 
 #include "Riu3DMainWindowTools.h"
+#include "RiuGuiTheme.h"
 #include "RiuViewer.h"
 #include "RiuViewerCommands.h"
 
