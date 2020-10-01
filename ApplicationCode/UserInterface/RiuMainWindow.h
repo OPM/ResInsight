@@ -210,7 +210,7 @@ private slots:
     void slotDrawStyleChanged( QAction* activatedAction );
     void slotToggleHideGridCellsAction( bool );
     void slotToggleFaultLabelsAction( bool );
-    void slotDisableLightingAction( bool );
+    void slotToggleLightingAction( bool );
 
     void slotShowWellCellsAction( bool doAdd );
 
@@ -255,7 +255,7 @@ private:
     QSpinBox* m_scaleFactor;
 
     QActionGroup* m_dsActionGroup;
-    QAction*      m_disableLightingAction;
+    QAction*      m_enableLightingAction;
     QAction*      m_drawStyleHideGridCellsAction;
     QAction*      m_toggleFaultsLabelAction;
     QAction*      m_drawStyleLinesAction;

@@ -113,7 +113,7 @@ void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicImportEnsembleFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/SummaryEnsemble24x24.png" ) );
+    actionToSetup->setIcon( QIcon( ":/SummaryEnsemble.svg" ) );
     actionToSetup->setText( "Import Ensemble" );
 }
 

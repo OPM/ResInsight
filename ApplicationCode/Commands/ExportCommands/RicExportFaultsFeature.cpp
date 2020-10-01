@@ -110,5 +110,5 @@ void RicExportFaultsFeature::onActionTriggered( bool isChecked )
 void RicExportFaultsFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Export Faults ..." );
-    actionToSetup->setIcon( QIcon( ":/Save24x24.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Save.svg" ) );
 }

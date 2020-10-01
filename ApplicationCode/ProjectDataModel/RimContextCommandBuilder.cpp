@@ -344,7 +344,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicImportWellMeasurementsFeature";
             menuBuilder.subMenuEnd();
             menuBuilder.addSeparator();
-            menuBuilder.subMenuStart( "Export Well Paths", QIcon( ":/Save24x24.png" ) );
+            menuBuilder.subMenuStart( "Export Well Paths", QIcon( ":/Save.svg" ) );
             menuBuilder << "RicExportSelectedWellPathsFeature";
             menuBuilder << "RicExportVisibleWellPathsFeature";
             menuBuilder.subMenuEnd();
@@ -1357,11 +1357,7 @@ int RimContextCommandBuilder::appendExportWellPaths( caf::CmdFeatureMenuBuilder&
     candidates << "RicExportSelectedWellPathsFeature";
     candidates << "RicExportVisibleWellPathsFeature";
 
-    return appendSubMenuWithCommands( menuBuilder,
-                                      candidates,
-                                      "Export Well Paths",
-                                      QIcon( ":/Save24x24.png" ),
-                                      addSeparatorBeforeMenu );
+    return appendSubMenuWithCommands( menuBuilder, candidates, "Export Well Paths", QIcon( ":/Save.svg" ), addSeparatorBeforeMenu );
 }
 
 //-------------------------------------------------------------------------------------------------

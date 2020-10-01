@@ -151,7 +151,7 @@ void RicImportGeneralDataFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicImportGeneralDataFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/Case24x24.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Case.svg" ) );
     actionToSetup->setText( "Import Eclipse Files" );
 }
 
