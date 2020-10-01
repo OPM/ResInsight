@@ -101,6 +101,7 @@ public:
     void setTransAndWPImultBackgroundDataFromFishbone( double        transmissibility,
                                                        double        skinFactor,
                                                        double        diameter,
+                                                       double        kh,
                                                        CellDirection direction,
                                                        bool          isMainBore );
 
