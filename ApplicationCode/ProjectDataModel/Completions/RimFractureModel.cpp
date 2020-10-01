@@ -256,7 +256,8 @@ void RimFractureModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 
     if ( changedField == &m_MD || changedField == &m_extractionType || changedField == &m_boundingBoxVertical ||
          changedField == &m_boundingBoxHorizontal || changedField == &m_fractureOrientation ||
-         changedField == &m_autoComputeBarrier || changedField == &m_azimuthAngle || changedField == &m_showOnlyBarrierFault )
+         changedField == &m_autoComputeBarrier || changedField == &m_azimuthAngle ||
+         changedField == &m_showOnlyBarrierFault )
     {
         updateThicknessDirection();
         updateBarrierProperties();
