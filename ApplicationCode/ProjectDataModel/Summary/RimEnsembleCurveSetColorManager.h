@@ -37,7 +37,8 @@ public:
     enum class ColorMode
     {
         SINGLE_COLOR,
-        BY_ENSEMBLE_PARAM
+        BY_ENSEMBLE_PARAM,
+        BY_OBJECTIVE_FUNCTION
     };
     using ColorModeEnum = caf::AppEnum<ColorMode>;
 

@@ -35,6 +35,9 @@ void AppEnum<RimEnsembleCurveSetColorManager::ColorMode>::setUp()
 {
     addItem( RimEnsembleCurveSetColorManager::ColorMode::SINGLE_COLOR, "SINGLE_COLOR", "Single Color" );
     addItem( RimEnsembleCurveSetColorManager::ColorMode::BY_ENSEMBLE_PARAM, "BY_ENSEMBLE_PARAM", "By Ensemble Parameter" );
+    addItem( RimEnsembleCurveSetColorManager::ColorMode::BY_OBJECTIVE_FUNCTION,
+             "BY_OBJECTIVE_FUNCTION",
+             "By Objective Function" );
     setDefault( RimEnsembleCurveSetColorManager::ColorMode::SINGLE_COLOR );
 }
 } // namespace caf
