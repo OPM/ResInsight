@@ -542,7 +542,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
 
             bool isFirstSummaryCurveInEnsemble =
                 ensemblesWithSummaryCurves.count( curveDefToAdd.address().ensemble() ) == 0u;
-            curve->showLegend( isFirstSummaryCurveInEnsemble );
+            curve->setShowInLegend( isFirstSummaryCurveInEnsemble );
             ensemblesWithSummaryCurves.insert( curveDefToAdd.address().ensemble() );
         }
         else if ( m_showStatisticsCurves && curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::ENSEMBLE_RFT )

@@ -618,7 +618,7 @@ void RimGridCrossPlotDataSet::createCurves( const RigEclipseCrossPlotResult& res
             }
             curve->setSymbolEdgeColor( curve->color() );
             curve->setSamples( it->second.xValues, it->second.yValues );
-            curve->showLegend( m_crossPlotCurves.empty() );
+            curve->setShowInLegend( m_crossPlotCurves.empty() );
             curve->setLegendEntryText( createAutoName() );
             curve->setCurveAutoAppearance();
             curve->updateUiIconFromPlotSymbol();
