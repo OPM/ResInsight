@@ -165,6 +165,7 @@ QProgressBar {
 QAbstractItemView {
     border: 2px solid $borderColor;
     border-style: solid;
+    outline: 0;
 }
 
 QAbstractItemView::item:hover {
