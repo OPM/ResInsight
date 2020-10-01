@@ -138,7 +138,7 @@ void RicLinkViewFeature::setupActionLook( QAction* actionToSetup )
     if ( cmdImpl.viewsToLink().size() >= 2u )
     {
         actionToSetup->setText( "Link Selected Views" );
-        actionToSetup->setIcon( QIcon( ":/LinkView16x16.png" ) );
+        actionToSetup->setIcon( QIcon( ":/LinkView.svg" ) );
     }
     else
     {
