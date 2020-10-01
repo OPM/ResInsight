@@ -763,6 +763,10 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
         {
             options.push_back( caf::PdmOptionItemInfo( byEnsParamOption.uiText(), ColorMode::BY_ENSEMBLE_PARAM ) );
         }
+        if ( !correlationSortedEnsembleParameters().empty() )
+        {
+            options.push_back( caf::PdmOptionItemInfo( byEnsParamOption.uiText(), ColorMode::BY_ENSEMBLE_PARAM ) );
+        }
     }
     else if ( fieldNeedingOptions == &m_ensembleParameter )
     {
@@ -1149,6 +1153,22 @@ std::vector<std::pair<EnsembleParameter, double>> RimEnsembleCurveSet::correlati
     else
     {
         return std::vector<std::pair<EnsembleParameter, double>>();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<ObjectiveFunction> RimEnsembleCurveSet::objectiveFunctions() const
+{
+    RimSummaryCaseCollection* ensemble = m_yValuesSummaryCaseCollection;
+    if ( ensemble )
+    {
+        return ensemble->objectiveFunctions( summaryAddress() );
+    }
+    else
+    {
+        return std::vector<ObjectiveFunction>();
     }
 }
 
