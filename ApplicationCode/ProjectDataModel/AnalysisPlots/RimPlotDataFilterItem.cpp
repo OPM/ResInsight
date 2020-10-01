@@ -324,16 +324,16 @@ void RimPlotDataFilterItem::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     uiOrdering.add( &m_filterTarget, {true, -1, 1} );
     if ( m_filterTarget() == ENSEMBLE_CASE )
     {
-        uiOrdering.add( &m_filterEnsembleParameter, {true, -1, 1} );
+        uiOrdering.add( &m_filterEnsembleParameter, {true, caf::PdmUiOrdering::LayoutOptions::MAX_COLUMN_SPAN, 1} );
     }
     else
     {
-        uiOrdering.add( &m_filterQuantityUiField, {true, -1, 1} );
+        uiOrdering.add( &m_filterQuantityUiField, {true, caf::PdmUiOrdering::LayoutOptions::MAX_COLUMN_SPAN, 1} );
         // uiOrdering.add( &m_filterQuantitySelectButton, {false, 1, 0} );
     }
     if ( m_filterTarget() != ENSEMBLE_CASE )
     {
-        uiOrdering.add( &m_consideredTimestepsType, {true, -1, 1} );
+        uiOrdering.add( &m_consideredTimestepsType, {true, caf::PdmUiOrdering::LayoutOptions::MAX_COLUMN_SPAN, 1} );
         if ( m_consideredTimestepsType == SELECT_TIMESTEPS || m_consideredTimestepsType == SELECT_TIMESTEP_RANGE )
         {
             uiOrdering.add( &m_explicitlySelectedTimeSteps );
@@ -356,8 +356,8 @@ void RimPlotDataFilterItem::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 
         if ( m_filterOperation() == RANGE )
         {
-            uiOrdering.add( &m_max, {true, -1, 1} );
-            uiOrdering.add( &m_min, {true, -1, 1} );
+            uiOrdering.add( &m_max, {true, caf::PdmUiOrdering::LayoutOptions::MAX_COLUMN_SPAN, 1} );
+            uiOrdering.add( &m_min, {true, caf::PdmUiOrdering::LayoutOptions::MAX_COLUMN_SPAN, 1} );
         }
         else if ( m_filterOperation == TOP_N || m_filterOperation == BOTTOM_N )
         {
