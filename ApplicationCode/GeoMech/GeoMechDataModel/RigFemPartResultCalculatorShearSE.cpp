@@ -55,23 +55,22 @@ bool RigFemPartResultCalculatorShearSE::isMatching( const RigFemResultAddress& r
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultCalculatorShearSE::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
+RigFemScalarResultFrames* RigFemPartResultCalculatorShearSE::calculate( int partIndex, const RigFemResultAddress& resAddr )
 {
-    caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * 3, "" );
-    frameCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    QString progressText = "Calculating " + QString::fromStdString( resAddr.fieldName + ": " + resAddr.componentName );
 
-    RigFemScalarResultFrames* srcDataFrames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType,
-                                                                         "S-Bar",
-                                                                         resVarAddr.componentName ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
-    RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
+    caf::ProgressInfo frameCountProgress( static_cast<size_t>( m_resultCollection->frameCount() ) * 2, progressText );
 
-    frameCountProgress.incrementProgress();
+    RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resAddr );
+
+    RigFemScalarResultFrames* srcDataFrames = nullptr;
+    {
+        auto task     = frameCountProgress.task( "S-Bar", m_resultCollection->frameCount() );
+        srcDataFrames = m_resultCollection->findOrLoadScalarResult( partIndex,
+                                                                    RigFemResultAddress( resAddr.resultPosType,
+                                                                                         "S-Bar",
+                                                                                         resAddr.componentName ) );
+    }
 
     const RigFemPart* femPart = m_resultCollection->parts()->part( partIndex );
     float             inf     = std::numeric_limits<float>::infinity();
@@ -80,6 +79,8 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorShearSE::calculate( int part
 
     for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
     {
+        auto task = frameCountProgress.task( QString( "Frame %1" ).arg( fIdx ) );
+
         const std::vector<float>& srcSFrameData = srcDataFrames->frameData( fIdx );
         std::vector<float>&       dstFrameData  = dstDataFrames->frameData( fIdx );
         size_t                    valCount      = srcSFrameData.size();
@@ -117,8 +118,6 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorShearSE::calculate( int part
                 }
             }
         }
-
-        frameCountProgress.incrementProgress();
     }
 
     return dstDataFrames;

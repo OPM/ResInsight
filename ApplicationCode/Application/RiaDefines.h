@@ -219,7 +219,8 @@ enum class ThemeEnum
 {
     DEFAULT,
     DARK,
-    LIGHT
+    LIGHT,
+    UNDEFINED
 };
 
 }; // namespace RiaDefines

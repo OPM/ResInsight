@@ -54,12 +54,40 @@ public:
     {
     }
 
+    RigFemResultAddress( const RigFemResultAddress& rhs )
+        : resultPosType( rhs.resultPosType )
+        , fieldName( rhs.fieldName )
+        , componentName( rhs.componentName )
+        , timeLapseBaseFrameIdx( rhs.timeLapseBaseFrameIdx )
+        , refKLayerIndex( rhs.refKLayerIndex )
+        , normalizedByHydrostaticPressure( rhs.normalizedByHydrostaticPressure )
+    {
+    }
+
+    RigFemResultAddress& operator=( const RigFemResultAddress& rhs )
+    {
+        resultPosType                   = rhs.resultPosType;
+        fieldName                       = rhs.fieldName;
+        componentName                   = rhs.componentName;
+        timeLapseBaseFrameIdx           = rhs.timeLapseBaseFrameIdx;
+        refKLayerIndex                  = rhs.refKLayerIndex;
+        normalizedByHydrostaticPressure = rhs.normalizedByHydrostaticPressure;
+        return *this;
+    }
+
     RigFemResultPosEnum resultPosType;
     std::string         fieldName;
     std::string         componentName;
     int                 timeLapseBaseFrameIdx;
     int                 refKLayerIndex;
     bool                normalizedByHydrostaticPressure;
+
+    RigFemResultAddress copyWithComponent( const std::string& componentName ) const
+    {
+        auto copy          = *this;
+        copy.componentName = componentName;
+        return copy;
+    }
 
     static constexpr int allTimeLapsesValue() { return ALL_TIME_LAPSES; }
     static constexpr int noTimeLapseValue() { return NO_TIME_LAPSE; }

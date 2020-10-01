@@ -24,6 +24,22 @@ namespace cvf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+template <typename Vec3Type>
+Vec3Type GeometryTools::computePolygonCenter( const std::vector<Vec3Type>& polygon )
+{
+    Vec3Type s;
+
+    for ( size_t i = 0; i < polygon.size(); i++ )
+    {
+        s += polygon[i];
+    }
+    s /= polygon.size();
+    return s;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 template <typename DataType>
 DataType GeometryTools::interpolateQuad( const cvf::Vec3d& v1,
                                          DataType          s1,

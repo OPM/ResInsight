@@ -140,6 +140,7 @@ std::vector<RigCompletionData>
             completion.setSecondOrderingValue( wellBorePart.lateralIndex );
 
             double transmissibility = 0.0;
+            double kh               = RigCompletionData::defaultValue();
             if ( wellBorePart.isMainBore )
             {
                 // No change in transmissibility for main bore
@@ -153,6 +154,7 @@ std::vector<RigCompletionData>
                                                                                                settings.useLateralNTG );
 
                 transmissibility = transmissibilityAndPermeability.connectionFactor();
+                kh               = transmissibilityAndPermeability.kh();
             }
             else
             {
@@ -169,6 +171,7 @@ std::vector<RigCompletionData>
                                                                                                mainBoreDirection );
 
                 transmissibility = transmissibilityAndPermeability.connectionFactor();
+                kh               = transmissibilityAndPermeability.kh();
             }
 
             CellDirection direction =
@@ -179,6 +182,7 @@ std::vector<RigCompletionData>
             completion.setTransAndWPImultBackgroundDataFromFishbone( transmissibility,
                                                                      wellBorePart.skinFactor,
                                                                      wellBorePart.wellRadius * 2,
+                                                                     kh,
                                                                      direction,
                                                                      wellBorePart.isMainBore );
 

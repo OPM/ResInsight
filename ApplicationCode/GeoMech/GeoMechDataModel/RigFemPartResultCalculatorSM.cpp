@@ -58,38 +58,28 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorSM::calculate( int partIndex
 {
     CVF_ASSERT( isMatching( resVarAddr ) );
 
-    caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * 4, "" );
-    frameCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    QString progressText = "Calculating " +
+                           QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName );
 
-    RigFemScalarResultFrames* st11 =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType,
-                                                                         resVarAddr.fieldName,
-                                                                         "S11" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
-    RigFemScalarResultFrames* st22 =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType,
-                                                                         resVarAddr.fieldName,
-                                                                         "S22" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
-    RigFemScalarResultFrames* st33 =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType,
-                                                                         resVarAddr.fieldName,
-                                                                         "S33" ) );
+    caf::ProgressInfo frameCountProgress( static_cast<size_t>( m_resultCollection->frameCount() ) * 4, progressText );
+
+    auto loadFrameLambda = [&]( const QString& component ) {
+        auto task = frameCountProgress.task( component );
+        return m_resultCollection->findOrLoadScalarResult( partIndex,
+                                                           resVarAddr.copyWithComponent( component.toStdString() ) );
+    };
+
+    RigFemScalarResultFrames* st11 = loadFrameLambda( "S11" );
+    RigFemScalarResultFrames* st22 = loadFrameLambda( "S22" );
+    RigFemScalarResultFrames* st33 = loadFrameLambda( "S33" );
 
     RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
-
-    frameCountProgress.incrementProgress();
 
     int frameCount = st11->frameCount();
     for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
     {
+        auto task = frameCountProgress.task( QString( "Frame %1" ).arg( fIdx ) );
+
         const std::vector<float>& st11Data = st11->frameData( fIdx );
         const std::vector<float>& st22Data = st22->frameData( fIdx );
         const std::vector<float>& st33Data = st33->frameData( fIdx );
@@ -103,8 +93,6 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorSM::calculate( int partIndex
         {
             dstFrameData[vIdx] = ( st11Data[vIdx] + st22Data[vIdx] + st33Data[vIdx] ) / 3.0f;
         }
-
-        frameCountProgress.incrementProgress();
     }
 
     return dstDataFrames;

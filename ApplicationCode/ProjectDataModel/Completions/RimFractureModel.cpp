@@ -49,6 +49,7 @@
 #include "RimOilField.h"
 #include "RimPolylineTarget.h"
 #include "RimProject.h"
+#include "RimTextAnnotation.h"
 #include "RimTools.h"
 #include "RimUserDefinedPolylinesAnnotation.h"
 #include "RimWellPath.h"
@@ -191,6 +192,12 @@ RimFractureModel::RimFractureModel()
     m_barrierFaultName.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_barrierAnnotation, "BarrierAnnotation", "Barrier Annotation", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_barrierTextAnnotation,
+                                          "BarrierTextAnnotation",
+                                          "Barrier Text Annotation",
+                                          "",
+                                          "",
+                                          "" );
 
     setDeletable( true );
 }
@@ -256,7 +263,8 @@ void RimFractureModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 
     if ( changedField == &m_MD || changedField == &m_extractionType || changedField == &m_boundingBoxVertical ||
          changedField == &m_boundingBoxHorizontal || changedField == &m_fractureOrientation ||
-         changedField == &m_autoComputeBarrier || changedField == &m_azimuthAngle || changedField == &m_showOnlyBarrierFault )
+         changedField == &m_autoComputeBarrier || changedField == &m_azimuthAngle ||
+         changedField == &m_showOnlyBarrierFault )
     {
         updateThicknessDirection();
         updateBarrierProperties();
@@ -623,8 +631,11 @@ void RimFractureModel::updateDistanceToBarrierAndDip()
                               .arg( shortestDistance )
                               .arg( barrierDip )
                               .arg( foundFault->name() ) );
+        QString barrierText =
+            QString( "Barrier Fault: %1\nDistance: %2m" ).arg( foundFault->name() ).arg( shortestDistance );
+
         clearBarrierAnnotation();
-        addBarrierAnnotation( position, barrierPosition );
+        addBarrierAnnotation( position, barrierPosition, barrierText );
 
         m_hasBarrier        = true;
         m_barrierDip        = barrierDip;
@@ -694,29 +705,53 @@ void RimFractureModel::clearBarrierAnnotation()
         delete existingAnnotation;
         m_barrierAnnotation = nullptr;
     }
+
+    auto existingTextAnnotation = m_barrierTextAnnotation.value();
+    if ( existingTextAnnotation )
+    {
+        delete existingTextAnnotation;
+        m_barrierTextAnnotation = nullptr;
+    }
+
+    RimAnnotationCollectionBase* coll = annotationCollection();
+    coll->onAnnotationDeleted();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureModel::addBarrierAnnotation( const cvf::Vec3d& startPosition, const cvf::Vec3d& endPosition )
+void RimFractureModel::addBarrierAnnotation( const cvf::Vec3d& startPosition,
+                                             const cvf::Vec3d& endPosition,
+                                             const QString&    text )
 {
-    RimAnnotationCollection* coll = annotationCollection();
+    RimAnnotationCollectionBase* coll = annotationCollection();
     if ( !coll ) return;
 
-    auto newAnnotation = new RimUserDefinedPolylinesAnnotation();
+    {
+        auto newAnnotation = new RimUserDefinedPolylinesAnnotation();
 
-    RimPolylineTarget* startTarget = new RimPolylineTarget();
-    startTarget->setAsPointXYZ( startPosition );
-    newAnnotation->insertTarget( nullptr, startTarget );
+        RimPolylineTarget* startTarget = new RimPolylineTarget();
+        startTarget->setAsPointXYZ( startPosition );
+        newAnnotation->insertTarget( nullptr, startTarget );
 
-    RimPolylineTarget* endTarget = new RimPolylineTarget();
-    endTarget->setAsPointXYZ( endPosition );
-    newAnnotation->insertTarget( nullptr, endTarget );
+        RimPolylineTarget* endTarget = new RimPolylineTarget();
+        endTarget->setAsPointXYZ( endPosition );
+        newAnnotation->insertTarget( nullptr, endTarget );
 
-    m_barrierAnnotation = newAnnotation;
+        m_barrierAnnotation = newAnnotation;
+        dynamic_cast<RimAnnotationCollection*>( coll )->addAnnotation( newAnnotation );
+    }
 
-    coll->addAnnotation( newAnnotation );
+    {
+        auto newAnnotation = new RimTextAnnotation();
+        newAnnotation->setText( text );
+        newAnnotation->setLabelPoint( endPosition );
+        newAnnotation->setAnchorPoint( endPosition );
+
+        m_barrierTextAnnotation = newAnnotation;
+        coll->addAnnotation( newAnnotation );
+    }
+
     coll->scheduleRedrawOfRelevantViews();
     coll->updateConnectedEditors();
 }
@@ -724,7 +759,7 @@ void RimFractureModel::addBarrierAnnotation( const cvf::Vec3d& startPosition, co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimAnnotationCollection* RimFractureModel::annotationCollection()
+RimAnnotationCollectionBase* RimFractureModel::annotationCollection()
 {
     const auto project  = RimProject::current();
     auto       oilField = project->activeOilField();
@@ -738,6 +773,7 @@ void RimFractureModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 {
     m_thicknessDirectionWellPath.uiCapability()->setUiHidden( true );
     m_barrierAnnotation.uiCapability()->setUiHidden( true );
+    m_barrierTextAnnotation.uiCapability()->setUiHidden( true );
     m_azimuthAngle.uiCapability()->setUiHidden( m_fractureOrientation() != RimFractureModel::FractureOrientation::AZIMUTH );
 
     uiOrdering.add( nameField(), caf::PdmUiOrdering::LayoutOptions( true, 3, 1 ) );

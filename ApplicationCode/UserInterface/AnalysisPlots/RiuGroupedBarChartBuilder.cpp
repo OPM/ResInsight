@@ -21,6 +21,8 @@
 #include "RiaColorTables.h"
 #include "RiaPreferences.h"
 
+#include "RiuGuiTheme.h"
+
 #include "cafFontTools.h"
 
 #include "qwt_column_symbol.h"
@@ -32,6 +34,8 @@
 #include "qwt_plot_scaleitem.h"
 #include "qwt_scale_draw.h"
 #include "qwt_scale_widget.h"
+
+#include <QColor>
 
 #include <limits>
 #include <map>
@@ -109,9 +113,12 @@ public:
     };
 
 public:
-    RiuBarChartScaleDraw( const std::map<double, RiuBarChartTick>& posTickTypeAndTexts, int labelFontPointSize )
+    RiuBarChartScaleDraw( const std::map<double, RiuBarChartTick>& posTickTypeAndTexts,
+                          int                                      labelFontPointSize,
+                          const QColor&                            textColor = QColor( Qt::white ) )
         : m_posTickTypeAndTexts( posTickTypeAndTexts )
         , m_labelFontPointSize( labelFontPointSize )
+        , m_textColor( textColor )
     {
         this->setTickLength( QwtScaleDiv::MajorTick, 0 );
         this->setTickLength( QwtScaleDiv::MediumTick, 0 );
@@ -163,6 +170,8 @@ public:
         text.setFont( font );
 
         text.setPaintAttribute( QwtText::PaintUsingTextFont, true );
+        text.setPaintAttribute( QwtText::PaintUsingTextColor, true );
+        text.setColor( m_textColor );
 
         return text;
     }
@@ -312,6 +321,8 @@ private:
     QString m_majSpacing;
 
     int m_labelFontPointSize;
+
+    QColor m_textColor;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -678,7 +689,10 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
             }
         }
 
-        RiuBarChartScaleDraw* scaleDrawer = new RiuBarChartScaleDraw( groupPositionedAxisTexts, m_labelPointSize );
+        QColor textColor = RiuGuiTheme::getColorByVariableName( "textColor" );
+
+        RiuBarChartScaleDraw* scaleDrawer =
+            new RiuBarChartScaleDraw( groupPositionedAxisTexts, m_labelPointSize, textColor );
 
         plot->setAxisScaleDraw( axis, scaleDrawer );
         plot->setAxisScaleDiv( axis, groupAxisScaleDiv );
