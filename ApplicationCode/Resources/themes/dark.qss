@@ -146,7 +146,6 @@ QToolButton {
     padding:8px;
 }
 
-QLabel {
 QToolButton:checked {
     background-color: $backgroundColor3;
     color: $textColor;
@@ -155,7 +154,7 @@ QToolButton:checked {
 }
 
 
-QLabel, QCheckBox {
+QLabel {
     background-color: transparent;
 }
 
