@@ -1224,8 +1224,6 @@ void RiaApplication::applyPreferences()
     m_defaultAnnotationFont = RiaFontCache::getFont( fontSizes[RiaDefines::FontSettingType::ANNOTATION_FONT] );
     m_defaultWellLabelFont  = RiaFontCache::getFont( fontSizes[RiaDefines::FontSettingType::WELL_LABEL_FONT] );
 
-    RiuGuiTheme::updateGuiTheme( m_preferences->guiTheme() );
-
     if ( this->project() )
     {
         this->project()->setScriptDirectories( m_preferences->scriptDirectories() );
