@@ -15,6 +15,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathFractureFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewFractureModelFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathFractureModelAtPosFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewFractureModelTemplateFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicNewElasticPropertyScalingFeature.h
 
 ${CMAKE_CURRENT_LIST_DIR}/RicCreateMultipleFracturesFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicCreateMultipleFracturesOptionItemUi.h
@@ -39,6 +40,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathFractureFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewFractureModelFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathFractureModelAtPosFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewFractureModelTemplateFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicNewElasticPropertyScalingFeature.cpp
 
 ${CMAKE_CURRENT_LIST_DIR}/RicCreateMultipleFracturesFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicCreateMultipleFracturesOptionItemUi.cpp

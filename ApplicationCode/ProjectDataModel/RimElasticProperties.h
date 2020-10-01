@@ -19,6 +19,7 @@
 #pragma once
 
 #include "cafFilePath.h"
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
@@ -27,6 +28,8 @@
 #include <QString>
 
 #include <tuple>
+
+class RimElasticPropertyScalingCollection;
 
 typedef std::tuple<QString, QString, QString> FaciesKey;
 
@@ -50,6 +53,8 @@ public:
 
     void loadDataAndUpdate();
 
+    RimElasticPropertyScalingCollection* scalingCollection();
+
 protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
@@ -59,8 +64,9 @@ protected:
 private:
     QString generatePropertiesTable();
 
-    caf::PdmField<caf::FilePath> m_filePath;
-    caf::PdmField<QString>       m_propertiesTable;
+    caf::PdmField<caf::FilePath>                             m_filePath;
+    caf::PdmField<QString>                                   m_propertiesTable;
+    caf::PdmChildField<RimElasticPropertyScalingCollection*> m_scalings;
 
     std::map<FaciesKey, RigElasticProperties> m_properties;
 };
