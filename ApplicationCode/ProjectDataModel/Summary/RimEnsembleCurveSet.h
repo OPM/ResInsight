@@ -25,6 +25,7 @@
 #include "RiaDefines.h"
 
 #include "RimEnsembleCurveSetColorManager.h"
+#include "RimObjectiveFunction.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
@@ -121,6 +122,8 @@ public:
     std::vector<EnsembleParameter> variationSortedEnsembleParameters() const;
 
     std::vector<std::pair<EnsembleParameter, double>> correlationSortedEnsembleParameters() const;
+
+    std::vector<ObjectiveFunction> objectiveFunctions() const;
 
     std::vector<RimSummaryCase*> filterEnsembleCases( const std::vector<RimSummaryCase*>& sumCases );
     void                         disableStatisticCurves();

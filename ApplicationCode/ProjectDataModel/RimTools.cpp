@@ -21,6 +21,8 @@
 #include "RimTools.h"
 
 #include "RimCase.h"
+#include "RimColorLegend.h"
+#include "RimColorLegendCollection.h"
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
 #include "RimOilField.h"
@@ -356,6 +358,25 @@ void RimTools::geoMechCaseOptionItems( QList<caf::PdmOptionItemInfo>* options )
                 options->push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, false, c->uiIconProvider() ) );
             }
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTools::colorLegendOptionItems( QList<caf::PdmOptionItemInfo>* options )
+{
+    CVF_ASSERT( options );
+    if ( !options ) return;
+
+    RimProject*                  project               = RimProject::current();
+    RimColorLegendCollection*    colorLegendCollection = project->colorLegendCollection();
+    std::vector<RimColorLegend*> colorLegends          = colorLegendCollection->allColorLegends();
+
+    for ( RimColorLegend* colorLegend : colorLegends )
+    {
+        options->push_back(
+            caf::PdmOptionItemInfo( colorLegend->colorLegendName(), colorLegend, false, colorLegend->paletteIconProvider() ) );
     }
 }
 

@@ -57,6 +57,7 @@ public:
     static void                   caseOptionItems( QList<caf::PdmOptionItemInfo>* options );
     static void                   eclipseCaseOptionItems( QList<caf::PdmOptionItemInfo>* options );
     static void                   geoMechCaseOptionItems( QList<caf::PdmOptionItemInfo>* options );
+    static void                   colorLegendOptionItems( QList<caf::PdmOptionItemInfo>* options );
     static RimWellPathCollection* wellPathCollection();
 
     static void timeStepsForCase( RimCase* gridCase, QList<caf::PdmOptionItemInfo>* options );
