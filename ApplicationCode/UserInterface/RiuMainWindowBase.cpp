@@ -293,7 +293,11 @@ void RiuMainWindowBase::removeViewerFromMdiArea( QMdiArea* mdiArea, QWidget* vie
     }
     mdiArea->removeSubWindow( subWindowBeingClosed );
 
-    delete subWindowBeingClosed;
+    // These two lines had to be introduced after themes was used
+    // Probably related to polish/unpolish of widgets in an MDI setting
+    // https://github.com/OPM/ResInsight/issues/6676
+    subWindowBeingClosed->hide();
+    subWindowBeingClosed->deleteLater();
 
     QList<QMdiSubWindow*> subWindowList = mdiArea->subWindowList( QMdiArea::ActivationHistoryOrder );
     if ( !subWindowList.empty() )
