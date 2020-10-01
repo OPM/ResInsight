@@ -106,7 +106,7 @@ void RicAdvancedSnapshotExportFeature::onActionTriggered( bool isChecked )
 void RicAdvancedSnapshotExportFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Advanced Snapshot Export ..." );
-    actionToSetup->setIcon( QIcon( ":/SnapShotSaveViews.png" ) );
+    actionToSetup->setIcon( QIcon( ":/SnapShotSaveViews.svg" ) );
 }
 
 //--------------------------------------------------------------------------------------------------

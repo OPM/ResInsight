@@ -178,5 +178,5 @@ void RicSnapshotAllViewsToFileFeature::onActionTriggered( bool isChecked )
 void RicSnapshotAllViewsToFileFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Snapshot All Views To File" );
-    actionToSetup->setIcon( QIcon( ":/SnapShotSaveViews.png" ) );
+    actionToSetup->setIcon( QIcon( ":/SnapShotSaveViews.svg" ) );
 }

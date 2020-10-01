@@ -57,6 +57,6 @@ void RicImportSummaryCaseFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicImportSummaryCaseFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/SummaryCase24x24.png" ) );
+    actionToSetup->setIcon( QIcon( ":/SummaryCase.svg" ) );
     actionToSetup->setText( "Import Summary Case" );
 }

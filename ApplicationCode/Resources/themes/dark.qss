@@ -147,8 +147,16 @@ QToolButton {
     background-color: $backgroundColor1;
     color: $textColor;
     border-width : 0px;
-    padding: 3px;
+    padding:8px;
 }
+
+QToolButton:checked {
+    background-color: $backgroundColor3;
+    color: $textColor;
+    border-width : 0px;
+    padding: 8px;
+}
+
 
 QLabel {
     background-color: transparent;
@@ -250,6 +258,10 @@ QToolBar QWidget {
     border-color: $borderColor;
 }
 
+QToolBar::handle {
+    image: url(:/themes/dark/gripper.svg);
+}
+
 QMenuBar::item:selected {
     background-color: $primaryColor;
     color: $textColor;
@@ -287,7 +299,8 @@ QToolBar QToolButton {
 }
 
 QToolBar QToolButton:hover {
-    background-color: $backgroundColor1;
+    background-color: $primaryColor;
+    border-width: 0px;
 }
 
 QLCDNumber {

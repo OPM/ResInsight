@@ -62,7 +62,7 @@ RimDerivedSummaryCase::RimDerivedSummaryCase()
     : m_summaryCase1( nullptr )
     , m_summaryCase2( nullptr )
 {
-    CAF_PDM_InitObject( "Summary Case", ":/SummaryCase16x16.png", "", "" );
+    CAF_PDM_InitObject( "Summary Case", ":/SummaryCase.svg", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_summaryCase1, "SummaryCase1", "Summary Case 1", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_operator, "Operator", "Operator", "", "", "" );

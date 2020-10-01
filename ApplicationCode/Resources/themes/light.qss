@@ -165,6 +165,10 @@ QToolBar QWidget {
     border-color: $borderColor;
 }
 
+QToolBar::handle {
+    image: url(:/themes/light/gripper.svg);
+}
+
 QMenu::item:selected {
     background-color: #bbd9f2;
 }

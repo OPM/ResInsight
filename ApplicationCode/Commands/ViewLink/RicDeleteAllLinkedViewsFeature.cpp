@@ -75,5 +75,5 @@ void RicDeleteAllLinkedViewsFeature::onActionTriggered( bool isChecked )
 void RicDeleteAllLinkedViewsFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Unlink All Views" );
-    actionToSetup->setIcon( QIcon( ":/UnLinkView16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/UnLinkView.svg" ) );
 }

@@ -69,7 +69,7 @@ void RicTileWindowsFeature::onActionTriggered( bool isChecked )
 void RicTileWindowsFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Tile Windows" );
-    actionToSetup->setIcon( QIcon( ":/TileWindows24x24.png" ) );
+    actionToSetup->setIcon( QIcon( ":/TileWindows.svg" ) );
     actionToSetup->setCheckable( true );
 }
 
@@ -126,7 +126,7 @@ void RicTilePlotWindowsFeature::onActionTriggered( bool isChecked )
 void RicTilePlotWindowsFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Tile Windows" );
-    actionToSetup->setIcon( QIcon( ":/TileWindows24x24.png" ) );
+    actionToSetup->setIcon( QIcon( ":/TileWindows.svg" ) );
     actionToSetup->setCheckable( true );
 }
 
