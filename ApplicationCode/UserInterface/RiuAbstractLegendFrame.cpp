@@ -21,6 +21,8 @@
 #include "RiaFontCache.h"
 #include "RiaPreferences.h"
 
+#include "RiuGuiTheme.h"
+
 #include <QPaintEvent>
 #include <QPainter>
 #include <QTextDocument>
@@ -108,20 +110,24 @@ void RiuAbstractLegendFrame::renderTo( QPainter* painter, const QRect& targetRec
         caf::FontTools::pointSizeToPixelSize( RiaApplication::instance()->preferences()->defaultPlotFontSize() ) );
     this->setFont( font );
 
+    QColor textColor = RiuGuiTheme::getColorByVariableName( "textColor" );
+
     LayoutInfo layout( QSize( targetRect.width(), targetRect.height() ) );
     layoutInfo( &layout );
 
     painter->save();
+
     painter->setFont( this->font() );
     painter->translate( targetRect.topLeft() );
     QPoint titlePos( layout.margins.left(), layout.margins.top() );
     {
         painter->save();
         painter->translate( QPoint( layout.margins.left(), layout.margins.top() ) );
+        painter->setPen( QPen( textColor ) );
         QTextDocument td;
         td.setDocumentMargin( 0.0 );
         td.setDefaultFont( this->font() );
-        td.setPlainText( m_title );
+        td.setHtml( QString( "<body><font color='%1'>%2</font></body>" ).arg( textColor.name() ).arg( m_title ) );
         td.drawContents( painter );
         painter->restore();
     }
@@ -131,10 +137,11 @@ void RiuAbstractLegendFrame::renderTo( QPainter* painter, const QRect& targetRec
     {
         painter->save();
         painter->translate( tickLabel.first.topLeft() );
+        painter->setPen( QPen( textColor ) );
         QTextDocument td;
         td.setDocumentMargin( 0.0 );
         td.setDefaultFont( this->font() );
-        td.setPlainText( tickLabel.second );
+        td.setHtml( QString( "<body><font color='%1'>%2</font></body>" ).arg( textColor.name() ).arg( tickLabel.second ) );
         td.drawContents( painter );
         painter->restore();
     }

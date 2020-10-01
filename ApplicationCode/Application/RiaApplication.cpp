@@ -101,6 +101,7 @@
 #include "RimWellRftPlot.h"
 
 #include "Riu3DMainWindowTools.h"
+#include "RiuGuiTheme.h"
 #include "RiuViewer.h"
 #include "RiuViewerCommands.h"
 
@@ -1222,6 +1223,8 @@ void RiaApplication::applyPreferences()
     m_defaultSceneFont      = RiaFontCache::getFont( fontSizes[RiaDefines::FontSettingType::SCENE_FONT] );
     m_defaultAnnotationFont = RiaFontCache::getFont( fontSizes[RiaDefines::FontSettingType::ANNOTATION_FONT] );
     m_defaultWellLabelFont  = RiaFontCache::getFont( fontSizes[RiaDefines::FontSettingType::WELL_LABEL_FONT] );
+
+    RiuGuiTheme::updateGuiTheme( m_preferences->guiTheme() );
 
     if ( this->project() )
     {
