@@ -262,6 +262,10 @@ QMenuBar::item:selected {
     color: $textColor;
 }
 
+QMenu {
+    border: 2px solid $borderColor;
+}
+
 QMenu::item:selected {
     background-color: $primaryColor;
     color: $textColor;

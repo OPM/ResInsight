@@ -297,7 +297,7 @@ const caf::ColorTable& RiaColorTables::summaryCurveDefaultPaletteColors()
         cvf::Color3ub( 202, 0, 0 ), // Red
         cvf::Color3ub( 78, 204, 0 ), // Clear Green
         cvf::Color3ub( 236, 118, 0 ), // Orange
-        cvf::Color3ub( 0, 0, 0 ), // Black
+        cvf::Color3ub( 130, 130, 130 ), // Grey
         cvf::Color3ub( 56, 56, 255 ), // Vivid Blue
         cvf::Color3ub( 248, 0, 170 ), // Magenta
         cvf::Color3ub( 169, 2, 240 ), // Purple

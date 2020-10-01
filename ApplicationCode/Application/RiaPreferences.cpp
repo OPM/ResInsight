@@ -231,7 +231,7 @@ RiaPreferences::RiaPreferences( void )
     m_showInfoBox.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitField( &m_showGridBox, "showGridBox", true, "Show Grid Box in New Projects", "", "", "" );
-    m_showInfoBox.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_showGridBox.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitFieldNoDefault( &lastUsedProjectFileName, "lastUsedProjectFileName", "Last Used Project File", "", "", "" );
     lastUsedProjectFileName.uiCapability()->setUiHidden( true );
