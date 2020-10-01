@@ -455,16 +455,24 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions(
 
     size_t ensembleCurveCnt = ensembleCurveCount( allCurveDefsToDisplay );
 
+    bool speedCheatsRequired = ensembleCurveCnt > ENSEMBLE_CURVE_COUNT_THRESHOLD;
+    bool legendsVisible      = m_previewPlot->legendsVisible();
+
     // Disable legends when adding curves
-    m_previewPlot->setLegendsVisible( false );
+    if ( speedCheatsRequired ) m_previewPlot->setLegendsVisible( false );
 
     // Add new curves
+    std::map<RimSummaryCurve*, std::pair<bool, bool>> stashedErrorBarsAndLegendVisibility;
     for ( const auto& curveDef : curveDefsToAdd )
     {
         RimSummaryCase*  currentCase = curveDef.summaryCase();
         RimSummaryCurve* curve       = new RimSummaryCurve();
-        curve->setErrorBarsVisible( false );
-        curve->showLegend( false );
+        if ( speedCheatsRequired )
+        {
+            stashedErrorBarsAndLegendVisibility[curve] = std::make_pair( curve->errorBarsVisible(), curve->showInLegend() );
+            curve->setErrorBarsVisible( false );
+            curve->setShowInLegend( false );
+        }
         curve->setSummaryCaseY( currentCase );
         curve->setSummaryAddressYAndApplyInterpolation( curveDef.summaryAddress() );
         curve->applyCurveAutoNameSettings( *m_curveNameConfig() );
@@ -528,7 +536,18 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions(
     }
 
     // Enable legends if there is not too many curves
-    m_previewPlot->setLegendsVisible( !warningDisplayed );
+    if ( speedCheatsRequired && !warningDisplayed )
+    {
+        m_previewPlot->setLegendsVisible( legendsVisible );
+
+        for ( const auto& curveAndVisibilityPair : stashedErrorBarsAndLegendVisibility )
+        {
+            auto curve                        = curveAndVisibilityPair.first;
+            auto errorBarsAndLegendVisibility = curveAndVisibilityPair.second;
+            curve->setErrorBarsVisible( errorBarsAndLegendVisibility.first );
+            curve->setShowInLegend( errorBarsAndLegendVisibility.second );
+        }
+    }
     m_previewPlot->loadDataAndUpdate();
     m_previewPlot->zoomAll();
     m_previewPlot->updateConnectedEditors();

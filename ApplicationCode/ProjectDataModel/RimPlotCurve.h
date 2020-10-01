@@ -111,10 +111,11 @@ public:
     void updateLegendEntryVisibilityAndPlotLegend();
     void updateLegendEntryVisibilityNoPlotUpdate();
 
-    void showLegend( bool show );
+    bool showInLegend() const;
+    bool errorBarsVisible() const;
 
+    void setShowInLegend( bool show );
     void setZOrder( double z );
-
     void setErrorBarsVisible( bool isVisible );
 
     virtual void updateCurveAppearance();
