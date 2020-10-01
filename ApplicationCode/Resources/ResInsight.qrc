@@ -5,7 +5,7 @@
         <file>2DMaps16x16.png</file>
         <file>3DView16x16.png</file>
         <file>3DViewGeoMech16x16.png</file>
-        <file>3DWindow24x24.png</file>
+        <file>3DWindow.svg</file>
         <file>AICDValve16x16.png</file>
         <file>Annotations16x16.png</file>
         <file>AnalysisPlot16x16.png</file>
@@ -14,6 +14,8 @@
         <file>AppLogo48x48.png</file>
         <file>Axes16x16.png</file>
         <file>BottomAxis16x16.png</file>
+        <file>CascadeWindows.svg</file>
+        <file>Case.svg</file>
         <file>Cases16x16.png</file>
         <file>Case24x24.png</file>
         <file>Case48x48.png</file>
@@ -39,8 +41,8 @@
         <file>CrossSection16x16.png</file>
         <file>CrossSections16x16.png</file>
         <file>CumulativePhaseDist16x16.png</file>
-        <file>DownViewArrow.png</file>
-        <file>EastViewArrow.png</file>
+        <file>DownView.svg</file>
+        <file>EastView.svg</file>
         <file>EclipseInput48x48.png</file>
         <file>EdgeResult_1.png</file>
         <file>EditableWell.png</file>
@@ -84,12 +86,11 @@
         <file>LasFile16x16.png</file>
         <file>LeftAxis16x16.png</file>
         <file>Legend.png</file>
-        <file>LinkView16x16.png</file>
-        <file>LinkView24x24.png</file>
+        <file>LinkView.svg</file>
         <file>MainGrid16x16.png</file>
         <file>MasterView16x16.png</file>
         <file>Minus.png</file>
-        <file>NorthViewArrow.png</file>
+        <file>NorthView.svg</file>
         <file>MultiPlot16x16.png</file>
         <file>ObservedCSVDataFile16x16.png</file>
         <file>ObservedDataFile16x16.png</file>
@@ -97,12 +98,12 @@
         <file>ObservedRSMDataFile16x16.png</file>
         <file>OctaveScriptFile16x16.png</file>
         <file>PagePreview16x16.png</file>
-        <file>PdfSave.png</file>
-        <file>Parallel24x24.png</file>
+        <file>PdfSave.svg</file>
+        <file>Parallel.svg</file>
         <file>PerforationInterval16x16.png</file>
         <file>PerforationIntervals16x16.png</file>
-        <file>Perspective24x24.png</file>
-        <file>PlotWindow24x24.png</file>
+        <file>Perspective.svg</file>
+        <file>PlotWindow.svg</file>
         <file>Plus.png</file>
         <file>PolylinesFromFile16x16.png</file>
         <file>PythonScriptFile16x16.png</file>
@@ -119,25 +120,23 @@
         <file>Rows3.png</file>
         <file>Rows4.png</file>
         <file>RightAxis16x16.png</file>
-        <file>Ruler24x24.png</file>
-        <file>RulerPoly24x24.png</file>
-        <file>Save24x24.png</file>
-        <file>SaveAs24x24.png</file>
-        <file>SnapShot.png</file>
-        <file>SnapShotSave.png</file>
-        <file>SnapShotSaveViews.png</file>
-        <file>SouthViewArrow.png</file>
+        <file>Ruler.svg</file>
+        <file>RulerPoly.svg</file>
+        <file>Save.svg</file>
+        <file>SaveAs.svg</file>
+        <file>SnapShot.svg</file>
+        <file>SnapShotSave.svg</file>
+        <file>SnapShotSaveViews.svg</file>
+        <file>SouthView.svg</file>
         <file>SplitterH.png</file>
         <file>SplitterV.png</file>
         <file>StepUpDown16x16.png</file>
         <file>StepUpDownCorner16x16.png</file>
-        <file>SummaryCase16x16.png</file>
-        <file>SummaryCase48x48.png</file>
+        <file>SummaryCase.svg</file>
         <file>SummaryCases16x16.png</file>
         <file>SummaryCurve16x16.png</file>
         <file>SummaryCurveFilter16x16.png</file>
-        <file>SummaryEnsemble16x16.png</file>
-        <file>SummaryEnsemble24x24.png</file>
+        <file>SummaryEnsemble.svg</file>
         <file>SummaryGroup16x16.png</file>
         <file>SummaryPlotLight16x16.png</file>
         <file>SummaryPlots16x16.png</file>
@@ -149,13 +148,13 @@
         <file>TOFAccSatPlot16x16.png</file>
         <file>TempLGR16x16.png</file>
         <file>TextAnnotation16x16.png</file>
-        <file>TileWindows24x24.png</file>
+        <file>TileWindows.svg</file>
         <file>ToggleOff16x16.png</file>
         <file>ToggleOn16x16.png</file>
         <file>ToggleOnOff16x16.png</file>
         <file>ToggleOnOthersOff16x16.png</file>
-        <file>UnLinkView16x16.png</file>
-        <file>UpViewArrow.png</file>
+        <file>UnLinkView.svg</file>
+        <file>UpView.svg</file>
         <file>Well.png</file>
         <file>WellAllocLegend16x16.png</file>
         <file>WellAllocPie16x16.png</file>
@@ -173,10 +172,10 @@
         <file>WellTargetPoint16x16.png</file>
         <file>WellTargetPointTangent16x16.png</file>
         <file>WellTargets.png</file>
-        <file>WestViewArrow.png</file>
+        <file>WestView.svg</file>
         <file>Window16x16.png</file>
-        <file>ZoomAll16x16.png</file>
-        <file>calculator.png</file>
+        <file>ZoomAll.svg</file>
+        <file>Calculator.svg</file>
         <file>chain.png</file>
         <file>clipboard.png</file>
         <file>disable_lighting_24x24.png</file>
@@ -187,8 +186,13 @@
         <file>draw_style_meshlines_24x24.png</file>
         <file>draw_style_surface_24x24.png</file>
         <file>draw_style_surface_w_fault_mesh_24x24.png</file>
+        <file>DrawStyleLines.svg</file>
+        <file>DrawStyleMeshLines.svg</file>
+        <file>DrawStyleSurface.svg</file>
+        <file>DrawLightingEnabled.svg</file>
+        <file>DrawLightingDisabled.svg</file>
         <file>octave.png</file>
-        <file>openFolder24x24.png</file>
+        <file>OpenFolder.svg</file>
         <file>statistics.png</file>
         <file>themes/dark.qss</file>
         <file>themes/default.qss</file>
@@ -209,7 +213,8 @@
         <file>themes/dark/checkbox-unchecked-disabled-20x20.png</file>
         <file>themes/dark/checkbox-checked-disabled-20x20.png</file>
         <file>themes/dark/checkbox-indeterminate-disabled-20x20.png</file>
-        <file>SummaryCase24x24.png</file>
+        <file>themes/dark/gripper.svg</file>
+        <file>themes/light/gripper.svg</file>
         <file>themes/dark/checkbox-checked.svg</file>
         <file>themes/dark/checkbox-checked-disabled.svg</file>
         <file>themes/dark/checkbox-unchecked.svg</file>

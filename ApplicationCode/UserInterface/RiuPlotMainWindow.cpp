@@ -258,7 +258,7 @@ void RiuPlotMainWindow::createMenus()
 #endif
 
     importMenu->addSeparator();
-    QMenu* importSummaryMenu = importMenu->addMenu( QIcon( ":/SummaryCase24x24.png" ), "Summary Cases" );
+    QMenu* importSummaryMenu = importMenu->addMenu( QIcon( ":/SummaryCase.svg" ), "Summary Cases" );
     importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportSummaryCaseFeature" ) );
     importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportSummaryCasesFeature" ) );
     importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportSummaryGroupFeature" ) );

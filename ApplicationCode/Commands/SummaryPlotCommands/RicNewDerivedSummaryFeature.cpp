@@ -71,7 +71,7 @@ void RicNewDerivedSummaryFeature::onActionTriggered( bool isChecked )
 void RicNewDerivedSummaryFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "New Delta Summary Case" );
-    actionToSetup->setIcon( QIcon( ":/SummaryCase16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/SummaryCase.svg" ) );
 }
 
 //--------------------------------------------------------------------------------------------------

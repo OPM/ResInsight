@@ -229,7 +229,7 @@ QString RicSnapshotViewToFileFeature::generateSaveFileName( const QString& defau
 //--------------------------------------------------------------------------------------------------
 QIcon RicSnapshotViewToFileFeature::icon()
 {
-    return QIcon( ":/SnapShotSave.png" );
+    return QIcon( ":/SnapShotSave.svg" );
 }
 
 //--------------------------------------------------------------------------------------------------

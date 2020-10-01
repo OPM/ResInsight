@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="1.024 8.814 1.049 22.827 17.01 22.9 17.036 8.814" style="stroke-opacity: 0.2; fill-opacity: 0.2; fill: rgb(255, 255, 255);"/>
+  <polygon points="0.949 8.838 17.037 8.814 22.912 1.65 7.494 1.747" style="stroke-opacity: 0.2; fill-opacity: 0.2; fill: rgb(255, 255, 255);"/>
+  <line style="stroke: rgb(0, 0, 0); stroke-opacity: 0.2; fill-opacity: 0.2;" x1="8.191" y1="8.403" x2="8.191" y2="8.403"/>
+  <rect x="-6.267" y="-2.75" width="0.225" height="0.038" style="fill: rgb(216, 216, 216); stroke-opacity: 0.2; fill-opacity: 0.2;"/>
+  <polygon points="17.012 22.888 17.012 8.789 22.836 1.645 22.836 14.026" style="stroke-opacity: 0.2; fill-opacity: 0.2; fill: rgb(255, 255, 255);"/>
+  <g transform="matrix(0.963485, 0, 0, 0.961045, -52.125736, 1.442423)" style="">
+    <g transform="matrix(1.134672, 0, 0, 1, 13.970593, -0.152153)" style="">
+      <g transform="matrix(1, 0, 0, 1, 4.056296, -0.152153)">
+        <g transform="matrix(1, 0, 0, 1, 13.604543, -0.22823)">
+          <g>
+            <rect y="7.555" width="14.603" height="14.338" style="stroke-width: 0.7px; fill: rgb(162, 162, 162); stroke: rgb(144, 144, 144); stroke-opacity: 0.1; fill-opacity: 0.1;" x="0.557" transform="matrix(0.999998, -0.001875, 0.001875, 0.999998, 17.813007, 0.94766)"/>
+            <line style="stroke-width: 0.7px; fill: rgb(162, 162, 162); stroke: rgb(144, 144, 144); stroke-opacity: 0.1; fill-opacity: 0.1;" x1="35.791" y1="4.668" x2="21.162" y2="4.771"/>
+            <polygon style="stroke-width: 0.7px; fill: rgb(162, 162, 162); stroke: rgb(144, 144, 144); stroke-opacity: 0.1; fill-opacity: 0.1;" points="18.423 23.143 18.397 8.145 24.38 1.131 38.479 1.08 38.532 13.553 33.187 23.042"/>
+          </g>
+          <line style="stroke-width: 0.7px; fill: rgb(162, 162, 162); stroke: rgb(144, 144, 144); stroke-opacity: 0.1; fill-opacity: 0.1;" x1="33.014" y1="15.382" x2="38.532" y2="7.318"/>
+          <line style="stroke-width: 0.7px; fill: rgb(162, 162, 162); stroke: rgb(144, 144, 144); stroke-opacity: 0.1; fill-opacity: 0.1;" x1="30.802" y1="1.068" x2="25.613" y2="8.463" transform="matrix(0.999992, -0.004574, 0.003694, 0.999992, -0.017364, 0.129062)"/>
+        </g>
+        <line style="stroke-width: 0.7px; fill: rgb(162, 162, 162); stroke: rgb(144, 144, 144); stroke-opacity: 0.2; fill-opacity: 0.2;" x1="39.197" y1="8.247" x2="39.23" y2="22.612"/>
+        <line style="stroke-width: 0.7px; fill: rgb(162, 162, 162); stroke: rgb(144, 144, 144); stroke-opacity: 0.2; fill-opacity: 0.2;" x1="31.989" y1="15.176" x2="46.619" y2="15.154"/>
+        <line style="stroke-width: 0.7px; fill: rgb(162, 162, 162); stroke: rgb(144, 144, 144); stroke-opacity: 0.2; fill-opacity: 0.2;" x1="49.652" y1="17.741" x2="49.551" y2="4.402"/>
+        <line style="stroke-width: 0.7px; fill: rgb(162, 162, 162); stroke: rgb(144, 144, 144); stroke-opacity: 0.2; fill-opacity: 0.2;" x1="46.619" y1="8.247" x2="52.137" y2="0.852"/>
+        <line style="stroke: rgb(0, 0, 0);" x1="38.533" y1="8.903" x2="38.533" y2="8.903"/>
+        <polygon points="32.878 17.233 32.878 13.832 38.955 12.11 38.955 15.096" style="fill: rgb(255, 0, 0); stroke: rgb(144, 144, 144); stroke-width: 0.72px;"/>
+        <polygon points="32.884 14.604 32.885 11.808 38.963 10.392 38.963 12.847" style="fill: rgb(0, 85, 255); stroke: rgb(144, 144, 144); stroke-width: 0.72px;"/>
+        <polygon points="38.97 11.683 38.97 8.874 45.046 7.451 45.046 9.919" style="fill: rgb(0, 85, 255); stroke: rgb(144, 144, 144); stroke-width: 0.72px;"/>
+        <polygon points="38.97 14.205 38.97 11.049 45.046 9.45 45.046 12.221" style="fill: rgb(255, 0, 0); stroke: rgb(144, 144, 144); stroke-width: 0.72px;"/>
+        <polygon points="45.08 9.754 45.08 6.38 51.156 4.67 51.156 7.634" style="fill: rgb(0, 85, 255); stroke: rgb(144, 144, 144); stroke-width: 0.72px;"/>
+        <polygon points="45.106 11.469 45.106 8.855 51.156 7.53 51.156 9.827" style="fill: rgb(255, 0, 0); stroke: rgb(144, 144, 144); stroke-width: 0.72px;"/>
+        <polygon points="32.914 18.27 32.914 15.964 38.938 14.796 38.938 16.821" style="fill: rgb(255, 119, 0); stroke: rgb(144, 144, 144); stroke-width: 0.72px;"/>
+        <polygon points="38.97 16.445 38.97 13.586 45.046 12.136 45.046 14.649" style="fill: rgb(255, 119, 0); stroke: rgb(144, 144, 144); stroke-width: 0.72px;"/>
+        <polygon points="45.107 13.778 45.107 10.777 51.156 9.256 51.156 11.892" style="fill: rgb(255, 119, 0); stroke: rgb(144, 144, 144); stroke-width: 0.72px;"/>
+      </g>
+    </g>
+  </g>
+</svg>

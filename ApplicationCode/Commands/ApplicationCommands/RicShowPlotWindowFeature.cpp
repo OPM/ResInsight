@@ -49,6 +49,6 @@ void RicShowPlotWindowFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Open Plot Window" );
     actionToSetup->setToolTip( "Open Plot Window (Ctrl+Shift+P)" );
-    actionToSetup->setIcon( QIcon( ":/PlotWindow24x24.png" ) );
+    actionToSetup->setIcon( QIcon( ":/PlotWindow.svg" ) );
     applyShortcutWithHintToAction( actionToSetup, QKeySequence( tr( "Ctrl+Shift+P" ) ) );
 }

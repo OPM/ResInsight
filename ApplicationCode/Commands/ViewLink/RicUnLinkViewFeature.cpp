@@ -104,5 +104,5 @@ void RicUnLinkViewFeature::onActionTriggered( bool isChecked )
 void RicUnLinkViewFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Unlink View" );
-    actionToSetup->setIcon( QIcon( ":/UnLinkView16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/UnLinkView.svg" ) );
 }
