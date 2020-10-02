@@ -138,6 +138,7 @@ RiuViewer::RiuViewer( const QGLFormat& format, QWidget* parent )
     m_versionInfoLabel = new QLabel();
     m_versionInfoLabel->setFrameShape( QFrame::NoFrame );
     m_versionInfoLabel->setAlignment( Qt::AlignRight );
+    m_versionInfoLabel->setObjectName( "VersionInfo" );
     m_versionInfoLabel->setText(
         QString( "%1 v%2" ).arg( RI_APPLICATION_NAME, RiaApplication::getVersionStringApp( false ) ) );
     m_versionInfoLabel->setFont( font );
@@ -147,6 +148,7 @@ RiuViewer::RiuViewer( const QGLFormat& format, QWidget* parent )
     m_zScaleLabel = new QLabel();
     m_zScaleLabel->setFrameShape( QFrame::NoFrame );
     m_zScaleLabel->setAlignment( Qt::AlignLeft );
+    m_zScaleLabel->setObjectName( "ZScaleLabel" );
     m_zScaleLabel->setText( QString( "Z: " ) );
     m_zScaleLabel->setFont( font );
     m_showZScaleLabel    = true;
@@ -1443,19 +1445,6 @@ void RiuViewer::updateOverlayItemsStyle()
         contrastColor        = RiaColorTools::toQColor( cvf_contrastColor );
     }
 
-    QPalette p = QApplication::palette();
-
-    p.setColor( QPalette::Window, backgroundColor );
-    p.setColor( QPalette::Base, backgroundColor );
-
-    p.setColor( QPalette::WindowText, contrastColor );
-
-    p.setColor( QPalette::Shadow, backgroundFrameColor );
-    p.setColor( QPalette::Light, backgroundFrameColor );
-    p.setColor( QPalette::Midlight, backgroundFrameColor );
-    p.setColor( QPalette::Dark, backgroundFrameColor );
-    p.setColor( QPalette::Mid, backgroundFrameColor );
-
     m_infoLabel->setStyleSheet( caf::StyleSheetTools::createFrameStyleSheet( "QLabel",
                                                                              "InfoLabel",
                                                                              contrastColor,
@@ -1471,15 +1460,15 @@ void RiuViewer::updateOverlayItemsStyle()
                                                                                           contrastColor,
                                                                                           backgroundColor,
                                                                                           backgroundFrameColor ) );
-    m_histogramWidget->setStyleSheet( caf::StyleSheetTools::createFrameStyleSheet( "",
+    m_versionInfoLabel->setStyleSheet(
+        caf::StyleSheetTools::createFrameStyleSheet( "QLabel", "VersionInfo", contrastColor, backgroundColor, backgroundColor ) );
+    m_zScaleLabel->setStyleSheet(
+        caf::StyleSheetTools::createFrameStyleSheet( "QLabel", "ZScaleLabel", contrastColor, backgroundColor, backgroundColor ) );
+    m_histogramWidget->setStyleSheet( caf::StyleSheetTools::createFrameStyleSheet( "QWidget",
                                                                                    "HistogramWidget",
                                                                                    contrastColor,
                                                                                    backgroundColor,
                                                                                    backgroundFrameColor ) );
-    m_histogramWidget->setPalette( p );
-
-    m_versionInfoLabel->setPalette( p );
-    m_zScaleLabel->setPalette( p );
 
     QColor progressColor( Qt::green );
     progressColor.setAlphaF( 0.8f );
