@@ -280,51 +280,11 @@ void RimElasticPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength
             FaciesKey faciesKey = std::make_tuple( fieldName, formationName, faciesName );
             if ( elasticProperties->hasPropertiesForFacies( faciesKey ) )
             {
-                const RigElasticProperties& rigElasticProperties = elasticProperties->propertiesForFacies( faciesKey );
-
-                if ( m_curveProperty() == RiaDefines::CurveProperty::YOUNGS_MODULUS )
+                if ( RimElasticProperties::isScalableProperty( curveProperty() ) )
                 {
-                    double val = rigElasticProperties.getYoungsModulus( porosity );
-                    values.push_back( val );
-                }
-                else if ( m_curveProperty() == RiaDefines::CurveProperty::POISSONS_RATIO )
-                {
-                    double val = rigElasticProperties.getPoissonsRatio( porosity );
-                    values.push_back( val );
-                }
-                else if ( m_curveProperty() == RiaDefines::CurveProperty::K_IC )
-                {
-                    double val = rigElasticProperties.getK_Ic( porosity );
-                    values.push_back( val );
-                }
-                else if ( m_curveProperty() == RiaDefines::CurveProperty::PROPPANT_EMBEDMENT )
-                {
-                    double val = rigElasticProperties.getProppantEmbedment( porosity );
-                    values.push_back( val );
-                }
-                else if ( m_curveProperty() == RiaDefines::CurveProperty::BIOT_COEFFICIENT )
-                {
-                    double val = rigElasticProperties.getBiotCoefficient( porosity );
-                    values.push_back( val );
-                }
-                else if ( m_curveProperty() == RiaDefines::CurveProperty::K0 )
-                {
-                    double val = rigElasticProperties.getK0( porosity );
-                    values.push_back( val );
-                }
-                else if ( m_curveProperty() == RiaDefines::CurveProperty::FLUID_LOSS_COEFFICIENT )
-                {
-                    double val = rigElasticProperties.getFluidLossCoefficient( porosity );
-                    values.push_back( val );
-                }
-                else if ( m_curveProperty() == RiaDefines::CurveProperty::SPURT_LOSS )
-                {
-                    double val = rigElasticProperties.getSpurtLoss( porosity );
-                    values.push_back( val );
-                }
-                else if ( m_curveProperty() == RiaDefines::CurveProperty::IMMOBILE_FLUID_SATURATION )
-                {
-                    double val = rigElasticProperties.getImmobileFluidSaturation( porosity );
+                    const RigElasticProperties& rigElasticProperties = elasticProperties->propertiesForFacies( faciesKey );
+                    double scale = elasticProperties->getPropertyScaling( formationName, faciesName, curveProperty() );
+                    double val   = rigElasticProperties.getValueForPorosity( curveProperty(), porosity, scale );
                     values.push_back( val );
                 }
                 else if ( m_fractureModel->hasDefaultValueForProperty( curveProperty() ) )
