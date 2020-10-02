@@ -67,7 +67,7 @@
 
 #include <cmath>
 
-CAF_PDM_SOURCE_INIT( RimFractureModelTemplate, "RimFractureModelTemplate" );
+CAF_PDM_SOURCE_INIT( RimFractureModelTemplate, "FractureModelTemplate" );
 
 //--------------------------------------------------------------------------------------------------
 ///
