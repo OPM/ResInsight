@@ -19,6 +19,7 @@
 #include "RimAnalysisPlot.h"
 
 #include "RiaPreferences.h"
+#include "RiaTextStringTools.h"
 
 #include "RiuGroupedBarChartBuilder.h"
 #include "RiuPlotMainWindowTools.h"
@@ -28,6 +29,7 @@
 #include "RifSummaryReaderInterface.h"
 
 #include "RimAnalysisPlotDataEntry.h"
+#include "RimCalculatedSummaryCase.h"
 #include "RimDerivedSummaryCase.h"
 #include "RimPlotAxisProperties.h"
 #include "RimPlotAxisPropertiesInterface.h"
@@ -1597,6 +1599,31 @@ void RimAnalysisPlot::updatePlotTitle()
         {
             if ( !autoTitle.isEmpty() ) autoTitle += separator;
             autoTitle += ( *getOrCreateSelectedCurveDefAnalyser()->m_singleSummaryCases.begin() )->displayCaseName();
+        }
+        else if ( getOrCreateSelectedCurveDefAnalyser()->m_singleSummaryCases.size() > 1 )
+        {
+            if ( !autoTitle.isEmpty() ) autoTitle += separator;
+
+            QStringList caseNameList;
+            for ( auto summaryCase : getOrCreateSelectedCurveDefAnalyser()->m_singleSummaryCases )
+            {
+                if ( !dynamic_cast<RimCalculatedSummaryCase*>( summaryCase ) )
+                {
+                    caseNameList.push_back( summaryCase->displayCaseName() );
+                }
+            }
+
+            QString            root = RiaTextStringTools::findCommonRoot( caseNameList );
+            QRegularExpression trimRe( "[^a-zA-Z0-9]+$" );
+            QString            trimmedRoot = root.replace( trimRe, "" );
+            if ( !trimmedRoot.isEmpty() )
+            {
+                autoTitle += trimmedRoot;
+            }
+            else
+            {
+                autoTitle += "Several Summary Cases";
+            }
         }
 
         if ( getOrCreateSelectedCurveDefAnalyser()->m_summaryItems.size() == 1 )
