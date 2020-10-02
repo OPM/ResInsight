@@ -27,38 +27,38 @@ $plotGridColor: #394046; // Plot grid color
 $auxiliaryCurveColor: #000000; // Auxiliary curve color
 $externalInputColor: #e82257; // External input background color
 
-QCheckBox::indicator, QTreeView::indicator, QTableView::indicator {
+QCheckBox::indicator, QTreeView::indicator, QTableView::indicator, QListWidget::indicator {
     background-color: $backgroundColor1;
     border-radius: 3px;
     width: 16px;
     height: 16px;
 }
 
-QCheckBox::indicator:unchecked, QTreeView::indicator:unchecked, QTableView::indicator:unchecked
+QCheckBox::indicator:unchecked, QTreeView::indicator:unchecked, QTableView::indicator:unchecked, QListWidget::indicator:unchecked
 {
     image: url(:/themes/dark/checkbox-unchecked.svg);
 }
 
-QCheckBox::indicator:checked, QTreeView::indicator:checked, QTableView::indicator:checked
+QCheckBox::indicator:checked, QTreeView::indicator:checked, QTableView::indicator:checked, QListWidget::indicator:checked
 {
     image: url(:/themes/dark/checkbox-checked.svg);
 }
-QCheckBox::indicator:indeterminate, QTreeView::indicator:indeterminate, QTableView::indicator:indeterminate
+QCheckBox::indicator:indeterminate, QTreeView::indicator:indeterminate, QTableView::indicator:indeterminate, QListWidget::indicator:indeterminate
 {
     image: url(:/themes/dark/checkbox-indeterminate.svg);
 }
 
-QCheckBox::indicator:unchecked:disabled, QTreeView::indicator:unchecked:disabled, QTableView::indicator:unchecked:disabled
+QCheckBox::indicator:unchecked:disabled, QTreeView::indicator:unchecked:disabled, QTableView::indicator:unchecked:disabled, QListWidget::indicator:unchecked:disabled
 {
     image: url(:/themes/dark/checkbox-unchecked-disabled.svg);
 }
 
-QCheckBox::indicator:checked:disabled, QTreeView::indicator:checked:disabled, QTableView::indicator:checked:disabled
+QCheckBox::indicator:checked:disabled, QTreeView::indicator:checked:disabled, QTableView::indicator:checked:disabled, QListWidget::indicator:checked:disabled
 {
     image: url(:/themes/dark/checkbox-checked-disabled.svg);
 }
 
-QCheckBox::indicator:indeterminate:disabled, QTreeView::indicator:indeterminate:disabled, QTableView::indicator:indeterminate:disabled
+QCheckBox::indicator:indeterminate:disabled, QTreeView::indicator:indeterminate:disabled, QTableView::indicator:indeterminate:disabled, QListWidget::indicator:indeterminate:disabled
 {
     image: url(:/themes/dark/checkbox-indeterminate-disabled.svg);
 }
