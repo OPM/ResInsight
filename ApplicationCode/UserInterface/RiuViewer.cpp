@@ -202,7 +202,7 @@ RiuViewer::RiuViewer( const QGLFormat& format, QWidget* parent )
     m_windowEdgeAxisOverlay      = new RivWindowEdgeAxesOverlayItem( standardFont );
     m_showWindowEdgeAxes         = false;
 
-    auto backgroundColor = RiuGuiTheme::getColorByVariableName( "backgroundColor2" );
+    auto backgroundColor = RiuGuiTheme::getColorByVariableName( "backgroundColor1" );
     auto textColor       = RiuGuiTheme::getColorByVariableName( "textColor" );
     m_windowEdgeAxisOverlay->setFrameColor( cvf::Color4f( RiaColorTools::fromQColorTo3f( backgroundColor ) ) );
     m_windowEdgeAxisOverlay->setTextColor( RiaColorTools::fromQColorTo3f( textColor ) );
