@@ -185,7 +185,7 @@ RimEclipseContourMapView*
 
     contourMap->setEclipseCase( eclipseCase );
 
-    auto col = RiuGuiTheme::getColorByVariableName( "backgroundColor3" );
+    auto col = RiuGuiTheme::getColorByVariableName( "backgroundColor2" );
     contourMap->setBackgroundColor( RiaColorTools::fromQColorTo3f( col ) ); // Ignore original view background
 
     caf::PdmDocument::updateUiIconStateRecursively( contourMap );
@@ -227,7 +227,7 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMapFr
 
     contourMap->setEclipseCase( eclipseCase );
 
-    auto col = RiuGuiTheme::getColorByVariableName( "backgroundColor3" );
+    auto col = RiuGuiTheme::getColorByVariableName( "backgroundColor2" );
     contourMap->setBackgroundColor( RiaColorTools::fromQColorTo3f( col ) ); // Ignore original view background
 
     contourMap->setDefaultCustomName();
@@ -294,7 +294,7 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMap( 
 
     contourMap->hasUserRequestedAnimation = true;
 
-    auto col = RiuGuiTheme::getColorByVariableName( "backgroundColor3" );
+    auto col = RiuGuiTheme::getColorByVariableName( "backgroundColor2" );
     contourMap->setBackgroundColor( RiaColorTools::fromQColorTo3f( col ) ); // Ignore original view background
 
     contourMap->initAfterReadRecursively();
@@ -315,7 +315,7 @@ RimGeoMechContourMapView*
 
     contourMap->setGeoMechCase( geoMechCase );
 
-    auto col = RiuGuiTheme::getColorByVariableName( "backgroundColor3" );
+    auto col = RiuGuiTheme::getColorByVariableName( "backgroundColor2" );
     contourMap->setBackgroundColor( RiaColorTools::fromQColorTo3f( col ) ); // Ignore original view background
 
     caf::PdmDocument::updateUiIconStateRecursively( contourMap );
@@ -345,7 +345,7 @@ RimGeoMechContourMapView* RicNewContourMapViewFeature::createGeoMechContourMapFr
 
     contourMap->setGeoMechCase( geoMechCase );
 
-    auto col = RiuGuiTheme::getColorByVariableName( "backgroundColor3" );
+    auto col = RiuGuiTheme::getColorByVariableName( "backgroundColor2" );
     contourMap->setBackgroundColor( RiaColorTools::fromQColorTo3f( col ) ); // Ignore original view background
 
     contourMap->setDefaultCustomName();
@@ -381,7 +381,7 @@ RimGeoMechContourMapView* RicNewContourMapViewFeature::createGeoMechContourMap( 
 
     contourMap->hasUserRequestedAnimation = true;
 
-    auto col = RiuGuiTheme::getColorByVariableName( "backgroundColor3" );
+    auto col = RiuGuiTheme::getColorByVariableName( "backgroundColor2" );
     contourMap->setBackgroundColor( RiaColorTools::fromQColorTo3f( col ) ); // Ignore original view background
 
     contourMap->initAfterReadRecursively();

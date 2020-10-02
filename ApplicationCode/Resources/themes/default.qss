@@ -1,10 +1,10 @@
-$mainBackgroundColor: #24292e; // Main background color
-$backgroundColor1: #394046; // Background color layer 1
-$backgroundColor2: #464c53; // Background color layer 2
-$backgroundColor3: #5a6067; // Background color layer 3
+$mainBackgroundColor: #ffffff; // Main background color
+$backgroundColor1: #efefef; // Background color layer 1
+$backgroundColor2: #d6d6d6; // Background color layer 2
+$backgroundColor3: #848484; // Background color layer 3
 $backgroundColor4: #89939d; // Background color layer 4
 $backgroundColor5: #adbac6; // Background color layer 5
-$textColor: #000000; // Main text color
+$textColor: #141719; // Main text color
 $primaryColor: #018fa3; // Primary color (buttons etc)
 $secondaryColor: #e82257; // Secondary color
 $tertiaryColor: #ffc50d; // Tertiary color
