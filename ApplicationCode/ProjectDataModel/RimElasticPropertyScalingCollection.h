@@ -22,6 +22,8 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include "RiaFractureModelDefines.h"
+
 class RimElasticPropertyScaling;
 
 //==================================================================================================
@@ -41,6 +43,8 @@ public:
 
     void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+
+    double getScaling( const QString& formationName, const QString& faciesName, RiaDefines::CurveProperty property ) const;
 
 private:
     caf::PdmChildArrayField<RimElasticPropertyScaling*> m_elasticPropertyScalings;

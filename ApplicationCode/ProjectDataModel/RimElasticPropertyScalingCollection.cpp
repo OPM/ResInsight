@@ -79,3 +79,22 @@ void RimElasticPropertyScalingCollection::onChildDeleted( caf::PdmChildArrayFiel
                                                           std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimElasticPropertyScalingCollection::getScaling( const QString&            formationName,
+                                                        const QString&            faciesName,
+                                                        RiaDefines::CurveProperty property ) const
+{
+    for ( const RimElasticPropertyScaling* scaling : m_elasticPropertyScalings )
+    {
+        if ( scaling->property() == property && scaling->formation() == formationName && scaling->facies() == faciesName )
+        {
+            return scaling->scale();
+        }
+    }
+
+    // No scaling found. Default is not scaling (1.0).
+    return 1.0;
+}

@@ -55,11 +55,19 @@ public:
 
     RimElasticPropertyScalingCollection* scalingCollection();
 
+    static std::vector<RiaDefines::CurveProperty> scalableProperties();
+    static bool                                   isScalableProperty( RiaDefines::CurveProperty );
+
+    double getPropertyScaling( const QString&            formationName,
+                               const QString&            faciesName,
+                               RiaDefines::CurveProperty property ) const;
+
 protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
     QString generatePropertiesTable();
@@ -67,6 +75,7 @@ private:
     caf::PdmField<caf::FilePath>                             m_filePath;
     caf::PdmField<QString>                                   m_propertiesTable;
     caf::PdmChildField<RimElasticPropertyScalingCollection*> m_scalings;
+    caf::PdmField<bool>                                      m_showScaledProperties;
 
     std::map<FaciesKey, RigElasticProperties> m_properties;
 };

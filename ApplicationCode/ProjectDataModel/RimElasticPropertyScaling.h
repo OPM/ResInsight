@@ -39,6 +39,11 @@ public:
     RimElasticPropertyScaling();
     ~RimElasticPropertyScaling() override;
 
+    const QString&            formation() const;
+    const QString&            facies() const;
+    RiaDefines::CurveProperty property() const;
+    double                    scale() const;
+
     caf::Signal<> changed;
 
 protected:
