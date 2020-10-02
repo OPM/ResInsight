@@ -763,9 +763,9 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
         {
             options.push_back( caf::PdmOptionItemInfo( byEnsParamOption.uiText(), ColorMode::BY_ENSEMBLE_PARAM ) );
         }
-        if ( !correlationSortedEnsembleParameters().empty() )
+        if ( !objectiveFunctions().empty() )
         {
-            options.push_back( caf::PdmOptionItemInfo( byEnsParamOption.uiText(), ColorMode::BY_ENSEMBLE_PARAM ) );
+            options.push_back( caf::PdmOptionItemInfo( byEnsParamOption.uiText(), ColorMode::BY_OBJECTIVE_FUNCTION ) );
         }
     }
     else if ( fieldNeedingOptions == &m_ensembleParameter )
