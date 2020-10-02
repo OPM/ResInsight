@@ -31,7 +31,7 @@
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTextEditor.h"
 
-CAF_PDM_SOURCE_INIT( RimElasticPropertyScaling, "RimElasticPropertyScaling" );
+CAF_PDM_SOURCE_INIT( RimElasticPropertyScaling, "ElasticPropertyScaling" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -39,7 +39,7 @@ CAF_PDM_SOURCE_INIT( RimElasticPropertyScaling, "RimElasticPropertyScaling" );
 RimElasticPropertyScaling::RimElasticPropertyScaling()
     : changed( this )
 {
-    CAF_PDM_InitScriptableObject( "RimElasticPropertyScaling", "", "", "" );
+    CAF_PDM_InitScriptableObject( "ElasticPropertyScaling", "", "", "" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_formation, "Formation", "Formation", "", "", "" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_facies, "Facies", "Facies", "", "", "" );
