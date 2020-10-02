@@ -47,6 +47,8 @@ RimElasticProperties::RimElasticProperties()
     m_propertiesTable.uiCapability()->setUiReadOnly( true );
     m_propertiesTable.xmlCapability()->disableIO();
 
+    CAF_PDM_InitScriptableField( &m_showScaledProperties, "ShowScaledProperties", true, "ShowScaledProperties", "", "", "" );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_scalings, "PropertyScalingCollection", "PropertyScalingCollection", "", "", "" );
     m_scalings.uiCapability()->setUiHidden( true );
     m_scalings.uiCapability()->setUiTreeHidden( true );
@@ -107,9 +109,23 @@ const RigElasticProperties& RimElasticProperties::propertiesForFacies( FaciesKey
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimElasticProperties::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                             const QVariant&            oldValue,
+                                             const QVariant&            newValue )
+{
+    if ( changedField == &m_showScaledProperties )
+    {
+        m_propertiesTable = generatePropertiesTable();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimElasticProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_filePath );
+    uiOrdering.add( &m_showScaledProperties );
     uiOrdering.add( &m_propertiesTable );
 }
 
@@ -156,52 +172,43 @@ QString RimElasticProperties::generatePropertiesTable()
                     "  </thead>"
                     "  <tbody>" );
 
+    std::vector<RiaDefines::CurveProperty> properties = scalableProperties();
+
     QString body;
     for ( auto prop : m_properties )
     {
-        const QString&             fieldName               = prop.second.fieldName();
-        const std::vector<double>& porosity                = prop.second.porosity();
-        const std::vector<double>& youngsModulus           = prop.second.youngsModulus();
-        const std::vector<double>& poissonsRatio           = prop.second.poissonsRatio();
-        const std::vector<double>& K_Ic                    = prop.second.K_Ic();
-        const std::vector<double>& proppantEmbedment       = prop.second.proppantEmbedment();
-        const std::vector<double>& biotCoefficient         = prop.second.biotCoefficient();
-        const std::vector<double>& k0                      = prop.second.k0();
-        const std::vector<double>& fluidLossCoefficient    = prop.second.fluidLossCoefficient();
-        const std::vector<double>& spurtLoss               = prop.second.spurtLoss();
-        const std::vector<double>& immobileFluidSaturation = prop.second.immobileFluidSaturation();
+        const QString& fieldName     = prop.second.fieldName();
+        const QString& formationName = prop.second.formationName();
+        const QString& faciesName    = prop.second.faciesName();
+
+        const std::vector<double>& porosity = prop.second.porosity();
 
         for ( size_t i = 0; i < porosity.size(); i++ )
         {
-            QString format( "<tr>"
-                            "  <td>%1</td>"
-                            "  <td>%2</td>"
-                            "  <td>%3</td>"
-                            "  <td align=right>%4</td>"
-                            "  <td align=right>%5</td>"
-                            "  <td align=right>%6</td>"
-                            "  <td align=right>%7</td>"
-                            "  <td align=right>%8</td>"
-                            "  <td align=right>%9</td>"
-                            "  <td align=right>%10</td>"
-                            "  <td align=right>%11</td>"
-                            "  <td align=right>%12</td>"
-                            "  <td align=right>%13</td>"
-                            "</tr>" );
+            QString line = QString( "<tr>"
+                                    "  <td>%1</td>"
+                                    "  <td>%2</td>"
+                                    "  <td>%3</td>"
+                                    "  <td align=right>%4</td>" )
+                               .arg( fieldName )
+                               .arg( formationName )
+                               .arg( faciesName )
+                               .arg( porosity[i] );
 
-            QString line = format.arg( fieldName )
-                               .arg( prop.second.formationName() )
-                               .arg( prop.second.faciesName() )
-                               .arg( porosity[i] )
-                               .arg( youngsModulus[i] )
-                               .arg( poissonsRatio[i] )
-                               .arg( K_Ic[i] )
-                               .arg( proppantEmbedment[i] )
-                               .arg( biotCoefficient[i] )
-                               .arg( k0[i] )
-                               .arg( fluidLossCoefficient[i] )
-                               .arg( spurtLoss[i] )
-                               .arg( immobileFluidSaturation[i] );
+            for ( auto property : properties )
+            {
+                double scale = 1.0;
+                if ( m_showScaledProperties() )
+                {
+                    scale = getPropertyScaling( formationName, faciesName, property );
+                }
+                double value = prop.second.getValue( property, i, scale );
+
+                QString propertyElement = QString( "<td align=right>%1</td>" ).arg( value );
+                line.append( propertyElement );
+            }
+
+            line.append( "</tr>" );
 
             body.append( line );
         }
@@ -231,4 +238,48 @@ void RimElasticProperties::loadDataAndUpdate()
 RimElasticPropertyScalingCollection* RimElasticProperties::scalingCollection()
 {
     return m_scalings.value();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaDefines::CurveProperty> RimElasticProperties::scalableProperties()
+{
+    std::vector<RiaDefines::CurveProperty> properties = {
+        RiaDefines::CurveProperty::YOUNGS_MODULUS,
+        RiaDefines::CurveProperty::POISSONS_RATIO,
+        RiaDefines::CurveProperty::K_IC,
+        RiaDefines::CurveProperty::PROPPANT_EMBEDMENT,
+        RiaDefines::CurveProperty::BIOT_COEFFICIENT,
+        RiaDefines::CurveProperty::K0,
+        RiaDefines::CurveProperty::FLUID_LOSS_COEFFICIENT,
+        RiaDefines::CurveProperty::SPURT_LOSS,
+        RiaDefines::CurveProperty::IMMOBILE_FLUID_SATURATION,
+    };
+
+    return properties;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimElasticProperties::isScalableProperty( RiaDefines::CurveProperty property )
+{
+    std::vector<RiaDefines::CurveProperty> properties = scalableProperties();
+    return std::find( properties.begin(), properties.end(), property ) != properties.end();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimElasticProperties::getPropertyScaling( const QString&            formationName,
+                                                 const QString&            faciesName,
+                                                 RiaDefines::CurveProperty property ) const
+{
+    if ( m_scalings )
+    {
+        return m_scalings->getScaling( formationName, faciesName, property );
+    }
+
+    return 1.0;
 }

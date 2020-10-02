@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaFractureModelDefines.h"
+
 #include <QString>
 
 #include <vector>
@@ -43,28 +45,16 @@ public:
                          double fluidLossCoefficient,
                          double spurtLoss,
                          double immobileFluidSaturation );
-    double getYoungsModulus( double porosity ) const;
-    double getPoissonsRatio( double porosity ) const;
-    double getK_Ic( double porosity ) const;
-    double getProppantEmbedment( double porosity ) const;
-    double getBiotCoefficient( double porosity ) const;
-    double getK0( double porosity ) const;
-    double getFluidLossCoefficient( double porosity ) const;
-    double getSpurtLoss( double porosity ) const;
-    double getImmobileFluidSaturation( double porosity ) const;
+
+    size_t numValues() const;
+    double getValue( RiaDefines::CurveProperty property, size_t index, double scale = 1.0 ) const;
+    double getValueForPorosity( RiaDefines::CurveProperty property, double porosity, double scale = 1.0 ) const;
 
     const std::vector<double>& porosity() const;
-    const std::vector<double>& youngsModulus() const;
-    const std::vector<double>& poissonsRatio() const;
-    const std::vector<double>& K_Ic() const;
-    const std::vector<double>& proppantEmbedment() const;
-    const std::vector<double>& biotCoefficient() const;
-    const std::vector<double>& k0() const;
-    const std::vector<double>& fluidLossCoefficient() const;
-    const std::vector<double>& spurtLoss() const;
-    const std::vector<double>& immobileFluidSaturation() const;
 
 private:
+    const std::vector<double>& getVector( RiaDefines::CurveProperty property ) const;
+
     QString m_fieldName;
     QString m_formationName;
     QString m_faciesName;
