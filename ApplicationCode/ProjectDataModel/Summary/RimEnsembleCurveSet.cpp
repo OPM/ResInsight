@@ -1162,14 +1162,14 @@ std::vector<std::pair<EnsembleParameter, double>> RimEnsembleCurveSet::correlati
 std::vector<ObjectiveFunction> RimEnsembleCurveSet::objectiveFunctions() const
 {
     RimSummaryCaseCollection* ensemble = m_yValuesSummaryCaseCollection;
-    if ( ensemble )
+    /*if ( ensemble )
     {
         return ensemble->objectiveFunctions( summaryAddress() );
     }
     else
-    {
-        return std::vector<ObjectiveFunction>();
-    }
+    {*/
+    return std::vector<ObjectiveFunction>();
+    //}
 }
 
 //--------------------------------------------------------------------------------------------------
