@@ -207,12 +207,6 @@
         <file>themes/dark/expanded.svg</file>
         <file>themes/dark/arrow-down.svg</file>
         <file>themes/dark/arrow-up.svg</file>
-        <file>themes/dark/checkbox-unchecked-20x20.png</file>
-        <file>themes/dark/checkbox-checked-20x20.png</file>
-        <file>themes/dark/checkbox-indeterminate-20x20.png</file>
-        <file>themes/dark/checkbox-unchecked-disabled-20x20.png</file>
-        <file>themes/dark/checkbox-checked-disabled-20x20.png</file>
-        <file>themes/dark/checkbox-indeterminate-disabled-20x20.png</file>
         <file>themes/dark/gripper.svg</file>
         <file>themes/light/gripper.svg</file>
         <file>themes/dark/checkbox-checked.svg</file>
