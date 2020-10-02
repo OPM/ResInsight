@@ -168,3 +168,17 @@ void RiuMdiSubWindow::moveEvent( QMoveEvent* moveEvent )
 
     QMdiSubWindow::moveEvent( moveEvent );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMdiSubWindow::showEvent( QShowEvent* event )
+{
+    QMdiSubWindow::showEvent( event );
+    resize( size() + QSize( 1, 1 ) );
+    update();
+    QApplication::processEvents();
+    resize( size() + QSize( -1, -1 ) );
+    update();
+    QApplication::processEvents();
+}

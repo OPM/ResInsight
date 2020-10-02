@@ -37,6 +37,7 @@ protected:
     void closeEvent( QCloseEvent* event ) override;
     void resizeEvent( QResizeEvent* resizeEvent ) override;
     void moveEvent( QMoveEvent* moveEvent ) override;
+    void showEvent( QShowEvent* event ) override;
 
 private:
     QRect m_normalWindowGeometry;
