@@ -150,7 +150,7 @@ QLabel {
     background-color: transparent;
 }
 
-QWidget {
+.QWidget, QFrame, QMainWindow, QDialog, QMenu, QLabel, QCheckBox, QTabBar, QDockWidget {
     background-color: $mainBackgroundColor;
     color: $textColor;
     border-color: $borderColor;
