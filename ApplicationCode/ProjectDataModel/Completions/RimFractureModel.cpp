@@ -75,7 +75,7 @@
 
 #include <cmath>
 
-CAF_PDM_SOURCE_INIT( RimFractureModel, "RimFractureModel" );
+CAF_PDM_SOURCE_INIT( RimFractureModel, "FractureModel" );
 
 namespace caf
 {
