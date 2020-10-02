@@ -90,6 +90,7 @@ public:
 
     bool         isActive() const { return m_isActive(); }
     FilterTarget filterTarget() const { return m_filterTarget(); }
+    bool         isValid() const;
 
     RifEclipseSummaryAddress summaryAddress() const;
 

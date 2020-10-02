@@ -130,6 +130,23 @@ RimPlotDataFilterItem::~RimPlotDataFilterItem()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimPlotDataFilterItem::isValid() const
+{
+    if ( m_filterTarget() == ENSEMBLE_CASE && ensembleParameterName().isEmpty() )
+    {
+        return false;
+    }
+    else if ( ( m_filterTarget() == SUMMARY_CASE || m_filterTarget() == SUMMARY_ITEM ) && !summaryAddress().isValid() )
+    {
+        return false;
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress RimPlotDataFilterItem::summaryAddress() const
 {
     CVF_ASSERT( m_filterTarget() == SUMMARY_CASE || m_filterTarget() == SUMMARY_ITEM );
