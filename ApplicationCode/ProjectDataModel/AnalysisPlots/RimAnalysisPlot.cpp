@@ -1097,7 +1097,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
 {
     const std::vector<RiaSummaryCurveDefinition> curveDefsToFilter;
 
-    if ( !filter->isActive() ) return;
+    if ( !filter->isActive() || !filter->isValid() ) return;
 
     std::vector<RiaSummaryCurveDefinition> filteredCurveDefs;
 
@@ -1165,6 +1165,10 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
                     }
                 }
             }
+        }
+        else
+        {
+            casesToKeep = ( *filteredSumCases );
         }
     }
     else
