@@ -279,6 +279,7 @@ QDoubleSpinBox, QDateEdit, QDateTimeEdit {
     border: 0;
     padding: 3px;
     border: 2px solid $inputColor;
+    selection-background-color: $secondaryColor;
 }
 
 QLineEdit:focus, QComboBox:focus, QSpinBox:focus, 
