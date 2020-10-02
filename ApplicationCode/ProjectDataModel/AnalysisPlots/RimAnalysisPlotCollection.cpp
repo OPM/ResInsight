@@ -21,6 +21,7 @@
 #include "RimAnalysisPlot.h"
 #include "RimPlotDataFilterCollection.h"
 #include "RimProject.h"
+#include "RimSummaryCase.h"
 
 CAF_PDM_SOURCE_INIT( RimAnalysisPlotCollection, "AnalysisPlotCollection" );
 
@@ -50,7 +51,18 @@ RimAnalysisPlot* RimAnalysisPlotCollection::createAnalysisPlot()
     RimAnalysisPlot* plot = new RimAnalysisPlot();
     plot->setAsPlotMdiWindow();
 
-    applyFirstEnsembleFieldAddressesToPlot( plot, "FOPT" );
+    if ( firstEnsemble() )
+    {
+        applyFirstEnsembleFieldAddressesToPlot( plot, "FOPT" );
+    }
+    else if ( firstSummaryCaseCollection() )
+    {
+        applyFirstSummaryCaseCollectionAndFieldAddressesToPlot( plot, "FOPT" );
+    }
+    else
+    {
+        applyAllSummaryCasesAndFieldAddressesToPlot( plot, "FOPT" );
+    }
 
     // plot->enableAutoPlotTitle( true );
     addPlot( plot );
@@ -76,7 +88,8 @@ RimAnalysisPlot* RimAnalysisPlotCollection::createAnalysisPlot( RimSummaryCaseCo
     RimAnalysisPlot* plot = new RimAnalysisPlot();
     plot->setAsPlotMdiWindow();
 
-    applyEnsembleFieldAndTimeStepToPlot( plot, ensemble, quantityName.toStdString(), timeStep );
+    applySummaryCaseCollectionAndFieldAddressToPlot( plot, ensemble, quantityName.toStdString() );
+    plot->setTimeSteps( {timeStep} );
 
     // plot->enableAutoPlotTitle( true );
     addPlot( plot );
@@ -125,21 +138,81 @@ size_t RimAnalysisPlotCollection::plotCount() const
 void RimAnalysisPlotCollection::applyFirstEnsembleFieldAddressesToPlot( RimAnalysisPlot*   plot,
                                                                         const std::string& quantityName )
 {
-    std::vector<RimSummaryCaseCollection*> ensembles;
-    RimProject::current()->descendantsIncludingThisOfType( ensembles );
-    if ( !ensembles.empty() )
+    auto ensemble = firstSummaryCaseCollection();
+    if ( ensemble )
     {
-        std::set<RifEclipseSummaryAddress>     allAddresses = ensembles.front()->ensembleSummaryAddresses();
+        applySummaryCaseCollectionAndFieldAddressToPlot( plot, ensemble, quantityName );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnalysisPlotCollection::applyFirstSummaryCaseCollectionAndFieldAddressesToPlot( RimAnalysisPlot* plot,
+                                                                                        const std::string& quantityName /*= "" */ )
+{
+    auto summaryCaseCollection = firstSummaryCaseCollection();
+    if ( summaryCaseCollection )
+    {
+        applySummaryCaseCollectionAndFieldAddressToPlot( plot, summaryCaseCollection, quantityName );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnalysisPlotCollection::applyAllSummaryCasesAndFieldAddressesToPlot( RimAnalysisPlot*   plot,
+                                                                             const std::string& quantityName /*= "" */ )
+{
+    std::vector<RimSummaryCase*> allSummaryCases;
+    RimProject::current()->descendantsOfType( allSummaryCases );
+
+    if ( !allSummaryCases.empty() )
+    {
         std::vector<RiaSummaryCurveDefinition> curveDefs;
-        for ( auto address : allAddresses )
+
+        for ( auto summaryCase : allSummaryCases )
         {
-            if ( address.category() == RifEclipseSummaryAddress::SUMMARY_FIELD )
+            curveDefs.push_back(
+                RiaSummaryCurveDefinition( summaryCase, RifEclipseSummaryAddress::fieldAddress( quantityName ), false ) );
+        }
+
+        plot->setCurveDefinitions( curveDefs );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnalysisPlotCollection::applySummaryCaseCollectionAndFieldAddressToPlot( RimAnalysisPlot*          plot,
+                                                                                 RimSummaryCaseCollection* summaryCaseCollection,
+                                                                                 const std::string& quantityName )
+{
+    if ( summaryCaseCollection )
+    {
+        std::set<RifEclipseSummaryAddress>     allAddresses = summaryCaseCollection->ensembleSummaryAddresses();
+        std::vector<RiaSummaryCurveDefinition> curveDefs;
+        if ( allAddresses.empty() )
+        {
+            for ( auto summaryCase : summaryCaseCollection->allSummaryCases() )
             {
-                if ( quantityName.empty() || quantityName == address.quantityName() )
+                curveDefs.push_back( RiaSummaryCurveDefinition( summaryCase,
+                                                                RifEclipseSummaryAddress::fieldAddress( quantityName ),
+                                                                false ) );
+            }
+        }
+        else
+        {
+            for ( auto address : allAddresses )
+            {
+                if ( address.category() == RifEclipseSummaryAddress::SUMMARY_FIELD )
                 {
-                    for ( auto summaryCase : ensembles.front()->allSummaryCases() )
+                    if ( quantityName.empty() || quantityName == address.quantityName() )
                     {
-                        curveDefs.push_back( RiaSummaryCurveDefinition( summaryCase, address, false ) );
+                        for ( auto summaryCase : summaryCaseCollection->allSummaryCases() )
+                        {
+                            curveDefs.push_back( RiaSummaryCurveDefinition( summaryCase, address, false ) );
+                        }
                     }
                 }
             }
@@ -151,31 +224,28 @@ void RimAnalysisPlotCollection::applyFirstEnsembleFieldAddressesToPlot( RimAnaly
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnalysisPlotCollection::applyEnsembleFieldAndTimeStepToPlot( RimAnalysisPlot*          plot,
-                                                                     RimSummaryCaseCollection* ensemble,
-                                                                     const std::string&        quantityName,
-                                                                     std::time_t               timeStep )
+RimSummaryCaseCollection* RimAnalysisPlotCollection::firstEnsemble() const
 {
-    if ( ensemble )
+    std::vector<RimSummaryCaseCollection*> allSummaryCaseCollections;
+    RimProject::current()->descendantsOfType( allSummaryCaseCollections );
+    for ( auto summaryCaseCollection : allSummaryCaseCollections )
     {
-        std::set<RifEclipseSummaryAddress>     allAddresses = ensemble->ensembleSummaryAddresses();
-        std::vector<RiaSummaryCurveDefinition> curveDefs;
-        for ( auto address : allAddresses )
-        {
-            if ( address.category() == RifEclipseSummaryAddress::SUMMARY_FIELD )
-            {
-                if ( quantityName.empty() || quantityName == address.quantityName() )
-                {
-                    for ( auto summaryCase : ensemble->allSummaryCases() )
-                    {
-                        curveDefs.push_back( RiaSummaryCurveDefinition( summaryCase, address, false ) );
-                    }
-                }
-            }
-        }
-        plot->setCurveDefinitions( curveDefs );
-        plot->setTimeSteps( {timeStep} );
+        if ( summaryCaseCollection->isEnsemble() ) return summaryCaseCollection;
     }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCaseCollection* RimAnalysisPlotCollection::firstSummaryCaseCollection() const
+{
+    std::vector<RimSummaryCaseCollection*> allSummaryCaseCollections;
+    RimProject::current()->descendantsOfType( allSummaryCaseCollections );
+
+    if ( !allSummaryCaseCollections.empty() ) return allSummaryCaseCollections.front();
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

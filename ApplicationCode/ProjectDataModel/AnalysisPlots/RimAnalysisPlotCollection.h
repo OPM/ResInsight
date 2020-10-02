@@ -53,10 +53,15 @@ public:
 
 private:
     void applyFirstEnsembleFieldAddressesToPlot( RimAnalysisPlot* plot, const std::string& quantityName = "" );
-    void applyEnsembleFieldAndTimeStepToPlot( RimAnalysisPlot*          plot,
-                                              RimSummaryCaseCollection* ensemble,
-                                              const std::string&        quantityName,
-                                              std::time_t               timeStep );
+    void applyFirstSummaryCaseCollectionAndFieldAddressesToPlot( RimAnalysisPlot*   plot,
+                                                                 const std::string& quantityName = "" );
+    void applyAllSummaryCasesAndFieldAddressesToPlot( RimAnalysisPlot* plot, const std::string& quantityName = "" );
+    void applySummaryCaseCollectionAndFieldAddressToPlot( RimAnalysisPlot*          plot,
+                                                          RimSummaryCaseCollection* summaryCaseCollection,
+                                                          const std::string&        quantityName );
+
+    RimSummaryCaseCollection* firstEnsemble() const;
+    RimSummaryCaseCollection* firstSummaryCaseCollection() const;
 
 private:
     caf::PdmChildArrayField<RimAnalysisPlot*> m_analysisPlots;
