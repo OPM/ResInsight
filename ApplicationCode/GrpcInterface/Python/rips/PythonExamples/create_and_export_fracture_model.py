@@ -2,6 +2,7 @@
 import rips
 import tempfile
 from os.path import expanduser
+from pathlib import Path
 
 # Connect to ResInsight instance
 resinsight = rips.Instance.find()
@@ -10,8 +11,11 @@ project = resinsight.project
 
 # Create fracture model template
 home_dir = expanduser("~")
-elastic_properties_file_path = home_dir + "/elastic_properties.csv"
-facies_properties_file_path = home_dir + "/facies_id.roff"
+elastic_properties_file_path = (Path(home_dir) / "elastic_properties.csv").as_posix()
+print("Elastic properties file path:", elastic_properties_file_path)
+
+facies_properties_file_path = (Path(home_dir) / "facies_id.roff").as_posix()
+print("Facies properties file path:", facies_properties_file_path)
 
 fmt_collection = project.descendants(rips.FractureModelTemplateCollection)[0]
 fracture_model_template = fmt_collection.new_fracture_model_template(elastic_properties_file_path=elastic_properties_file_path,
@@ -32,8 +36,13 @@ eclipse_result.result_variable = "OPERNUM_1"
 eclipse_result.update()
 
 
+# Add some scaling factors
+elastic_properties = fracture_model_template.elastic_properties()
+elastic_properties.add_property_scaling(formation="Garn", facies="Calcite", property="YOUNGS_MODULUS", scale=1.44)
+
+
 # Find a well
-well_path = project.well_path_by_name("B-2_H")
+well_path = project.well_path_by_name("B-2 H")
 print("well path:", well_path)
 fracture_model_collection = project.descendants(rips.FractureModelCollection)[0]
 

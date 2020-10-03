@@ -641,7 +641,12 @@ QDateTime RifCsvUserDataParser::tryParseDateTime( const std::string& colData, co
 //--------------------------------------------------------------------------------------------------
 QString RifCsvUserDataParser::tryDetermineCellSeparator()
 {
-    QTextStream*         dataStream = openDataStream();
+    QTextStream* dataStream = openDataStream();
+    if ( !dataStream )
+    {
+        return "";
+    }
+
     std::vector<QString> lines;
     int                  iLine = 0;
 
@@ -792,6 +797,7 @@ bool RifCsvUserDataFileParser::openFile()
             RiaLogging::error( QString( "Failed to open %1" ).arg( m_fileName ) );
 
             delete m_file;
+            m_file = nullptr;
             return false;
         }
     }
