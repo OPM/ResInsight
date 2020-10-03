@@ -59,4 +59,10 @@ private:
     caf::PdmField<QString>                                 m_facies;
     caf::PdmField<caf::AppEnum<RiaDefines::CurveProperty>> m_property;
     caf::PdmField<double>                                  m_scale;
+
+public:
+    void setFormation( const QString& formation );
+    void setFacies( const QString& facies );
+    void setScale( double m_scale );
+    void setProperty( RiaDefines::CurveProperty property );
 };
