@@ -440,8 +440,9 @@ bool RifReaderEclipseSummary::values( const RifEclipseSummaryAddress& resultAddr
     {
         if ( m_differenceAddresses.count( resultAddress ) )
         {
-            std::string quantityName    = resultAddress.quantityName();
-            auto        historyQuantity = quantityName.substr( 0, quantityName.size() - differenceIdentifier().size() );
+            std::string quantityName = resultAddress.quantityName();
+            auto historyQuantity     = quantityName.substr( 0, quantityName.size() - differenceIdentifier().size() ) +
+                                   historyIdentifier();
 
             RifEclipseSummaryAddress nativeAdrNoHistory = resultAddress;
             nativeAdrNoHistory.setQuantityName( historyQuantity );
@@ -549,8 +550,6 @@ void RifReaderEclipseSummary::buildMetaData()
     bool addDifferenceVectors = true;
     if ( addDifferenceVectors )
     {
-        const std::string historyIdentifier( "H" );
-
         for ( const auto& adr : m_allResultAddresses )
         {
             RifEclipseSummaryAddress adrWithHistory;
@@ -558,7 +557,7 @@ void RifReaderEclipseSummary::buildMetaData()
 
             {
                 std::string s = adr.quantityName();
-                if ( RiaStdStringTools::endsWith( s, historyIdentifier ) )
+                if ( RiaStdStringTools::endsWith( s, historyIdentifier() ) )
                 {
                     RifEclipseSummaryAddress candidate = adr;
 
@@ -573,7 +572,7 @@ void RifReaderEclipseSummary::buildMetaData()
                 else
                 {
                     RifEclipseSummaryAddress candidate = adr;
-                    candidate.setQuantityName( s + historyIdentifier );
+                    candidate.setQuantityName( s + historyIdentifier() );
                     if ( m_allResultAddresses.count( candidate ) )
                     {
                         adrWithHistory    = candidate;
