@@ -80,13 +80,14 @@ public:
 
     void markForCachePurge( const RifEclipseSummaryAddress& address ) override;
 
+    static std::string       differenceIdentifier() { return "_DIFF"; }
+    static const std::string historyIdentifier() { return "H"; }
+
 private:
     int                timeStepCount() const;
     int                indexFromAddress( const RifEclipseSummaryAddress& resultAddress ) const;
     void               buildMetaData();
     RifRestartFileInfo getRestartFile( const QString& headerFileName );
-
-    static std::string differenceIdentifier() { return "_DIFF"; }
 
 private:
     // Taken from ecl_sum.h
