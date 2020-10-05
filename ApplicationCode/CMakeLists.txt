@@ -27,8 +27,8 @@ option(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS "Treat warnings as errors (stops buil
 find_package(Qt5 COMPONENTS Core QUIET)
 
 if (Qt5Core_FOUND)
-    find_package(Qt5 CONFIG REQUIRED Core Gui OpenGL Network Script Widgets Xml Concurrent PrintSupport)
-    set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Network Qt5::OpenGL Qt5::Script Qt5::Widgets Qt5::Xml Qt5::Concurrent Qt5::PrintSupport)
+    find_package(Qt5 CONFIG REQUIRED Core Gui OpenGL Network Script Widgets Xml Concurrent PrintSupport Svg)
+    set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Network Qt5::OpenGL Qt5::Script Qt5::Widgets Qt5::Xml Qt5::Concurrent Qt5::PrintSupport Qt5::Svg)
 endif(Qt5Core_FOUND)
 
 # NB: The generated file is written to Cmake binary folder to avoid source tree pollution
@@ -596,6 +596,8 @@ if (RESINSIGHT_PRIVATE_INSTALL)
 
         # include platform files
         install(FILES ${_dir}/qt5/plugins/platforms/libqxcb.so DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/platforms/ )
+        install(FILES ${_dir}/qt5/plugins/imageformats/libqsvg.so DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/imageformats/ )
+        install(FILES ${_dir}/qt5/plugins/iconengines/libqsvgicon.so DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/iconengines/ )
 
       endif(RESINSIGHT_QT5_BUNDLE_LIBRARIES)
 
