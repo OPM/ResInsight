@@ -358,7 +358,6 @@ void RiuMainWindowBase::addViewerToMdiArea( QMdiArea*     mdiArea,
         new RiuMdiSubWindow( nullptr, Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint | Qt::WindowMaximizeButtonHint );
     subWin->setAttribute( Qt::WA_DeleteOnClose ); // Make sure the contained widget is destroyed when the MDI window is
                                                   // closed
-    subWin->setWidget( viewer );
 
     bool initialStateTiled     = subWindowsAreTiled();
     bool initialStateMaximized = false;
@@ -394,6 +393,8 @@ void RiuMainWindowBase::addViewerToMdiArea( QMdiArea*     mdiArea,
             tileSubWindows();
         }
     }
+
+    subWin->setWidget( viewer );
 }
 
 //--------------------------------------------------------------------------------------------------
