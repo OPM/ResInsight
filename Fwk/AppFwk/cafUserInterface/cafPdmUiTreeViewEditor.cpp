@@ -502,45 +502,43 @@ void PdmUiTreeViewEditor::updateItemDelegateForSubTree( const QModelIndex& model
             PdmObjectHandle* pdmObject = uiObjectHandle->objectHandle();
             if ( pdmObject )
             {
-                PdmPtrArrayFieldHandle* arrayField = dynamic_cast<PdmPtrArrayFieldHandle*>( pdmObject->parentField() );
-                if ( arrayField )
+                PdmFieldReorderCapability* reorderability =
+                    PdmFieldReorderCapability::reorderCapabilityOfParentContainer( pdmObject );
+
+                std::vector<PdmUiItem*> selection;
+                selectedUiItems( selection );
+
+                if ( reorderability && index.row() >= 0 && selection.size() == 1u && selection.front() == uiItem )
                 {
-                    PdmFieldReorderCapability* reorderability = arrayField->capability<PdmFieldReorderCapability>();
-                    std::vector<PdmUiItem*>    selection;
-                    selectedUiItems( selection );
-
-                    if ( reorderability && index.row() >= 0 && selection.size() == 1u && selection.front() == uiItem )
+                    size_t indexInParent = static_cast<size_t>( index.row() );
                     {
-                        size_t indexInParent = static_cast<size_t>( index.row() );
+                        auto tag          = PdmUiTreeViewItemAttribute::Tag::create();
+                        tag->icon         = caf::IconProvider( ":/caf/Up16x16.png" );
+                        tag->selectedOnly = true;
+                        if ( reorderability->canItemBeMovedUp( indexInParent ) )
                         {
-                            auto tag          = PdmUiTreeViewItemAttribute::Tag::create();
-                            tag->icon         = caf::IconProvider( ":/caf/Up16x16.png" );
-                            tag->selectedOnly = true;
-                            if ( reorderability->canItemBeMovedUp( indexInParent ) )
-                            {
-                                tag->clicked.connect( reorderability, &PdmFieldReorderCapability::onMoveItemUp );
-                            }
-                            else
-                            {
-                                tag->icon.setActive( false );
-                            }
+                            tag->clicked.connect( reorderability, &PdmFieldReorderCapability::onMoveItemUp );
+                        }
+                        else
+                        {
+                            tag->icon.setActive( false );
+                        }
 
-                            m_delegate->addTag( index, std::move( tag ) );
-                        }
+                        m_delegate->addTag( index, std::move( tag ) );
+                    }
+                    {
+                        auto tag          = PdmUiTreeViewItemAttribute::Tag::create();
+                        tag->icon         = IconProvider( ":/caf/Down16x16.png" );
+                        tag->selectedOnly = true;
+                        if ( reorderability->canItemBeMovedDown( indexInParent ) )
                         {
-                            auto tag          = PdmUiTreeViewItemAttribute::Tag::create();
-                            tag->icon         = IconProvider( ":/caf/Down16x16.png" );
-                            tag->selectedOnly = true;
-                            if ( reorderability->canItemBeMovedDown( indexInParent ) )
-                            {
-                                tag->clicked.connect( reorderability, &PdmFieldReorderCapability::onMoveItemDown );
-                            }
-                            else
-                            {
-                                tag->icon.setActive( false );
-                            }
-                            m_delegate->addTag( index, std::move( tag ) );
+                            tag->clicked.connect( reorderability, &PdmFieldReorderCapability::onMoveItemDown );
                         }
+                        else
+                        {
+                            tag->icon.setActive( false );
+                        }
+                        m_delegate->addTag( index, std::move( tag ) );
                     }
                 }
             }

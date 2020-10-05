@@ -1147,6 +1147,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicToggleItemsOnFeature";
             menuBuilder << "RicToggleItemsOffFeature";
             menuBuilder << "RicToggleItemsFeature";
+
             addSeparator = false;
         }
 
@@ -1164,6 +1165,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicCollapseSiblingsFeature";
         }
+
+        menuBuilder << "RicMoveItemsToTopFeature";
     }
 
     if ( caf::CmdFeatureManager::instance()->getCommandFeature( "RicDeleteItemFeature" )->canFeatureBeExecuted() )

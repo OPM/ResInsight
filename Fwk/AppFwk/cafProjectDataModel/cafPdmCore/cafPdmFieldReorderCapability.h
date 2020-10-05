@@ -41,6 +41,8 @@
 
 namespace caf
 {
+class PdmObjectHandle;
+
 class PdmFieldReorderCapability : public PdmFieldCapability, public SignalEmitter, public SignalObserver
 {
 public:
@@ -52,6 +54,7 @@ public:
     bool canItemBeMovedUp( size_t index ) const;
     bool canItemBeMovedDown( size_t index ) const;
 
+    bool moveItemToTop( size_t index );
     bool moveItemUp( size_t index );
     bool moveItemDown( size_t index );
 
@@ -68,6 +71,9 @@ public:
     }
     static bool fieldIsReorderable( PdmPtrArrayFieldHandle* field );
 
+    static PdmFieldReorderCapability* reorderCapabilityOfParentContainer( const PdmObjectHandle* pdmObject );
+
+    void onMoveItemToTop( const SignalEmitter* emitter, size_t index );
     void onMoveItemUp( const SignalEmitter* emitter, size_t index );
     void onMoveItemDown( const SignalEmitter* emitter, size_t index );
 
