@@ -147,14 +147,20 @@ QToolButton {
     background-color: $backgroundColor1;
     color: $textColor;
     border-width : 0px;
-    padding:8px;
+    padding-top: 6px;
+	padding-bottom: 6px;
+	padding-left: 4px;
+	padding-right: 4px;
 }
 
 QToolButton:checked {
     background-color: $backgroundColor3;
     color: $textColor;
     border-width : 0px;
-    padding: 8px;
+    padding-top: 6px;
+	padding-bottom: 6px;
+	padding-left: 4px;
+	padding-right: 4px;
 }
 
 
@@ -268,7 +274,7 @@ QMenuBar::item:selected {
 }
 
 QMenu {
-    border: 2px solid $borderColor;
+    border: none;
 }
 
 QMenu::item:selected {
@@ -280,7 +286,6 @@ QLineEdit, QComboBox, QSpinBox,
 QDoubleSpinBox, QDateEdit, QDateTimeEdit {
     background-color: $inputColor;
     color: $textColor;
-    border: 0;
     padding: 3px;
     border: 2px solid $inputColor;
     selection-background-color: $secondaryColor;
@@ -293,6 +298,7 @@ QDoubleSpinBox:focus, QDateEdit:focus, QDateTimeEdit:focus {
 
 QToolBar {
     background-color: #2e353a;
+    border: none;
 }
 
 QToolBar QToolButton {
@@ -301,7 +307,7 @@ QToolBar QToolButton {
 
 QToolBar QToolButton:hover {
     background-color: $primaryColor;
-    border-width: 0px;
+    border: none;
 }
 
 QLCDNumber {
