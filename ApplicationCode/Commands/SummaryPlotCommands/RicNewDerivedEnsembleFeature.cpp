@@ -112,5 +112,5 @@ void RicNewDerivedEnsembleFeature::onActionTriggered( bool isChecked )
 void RicNewDerivedEnsembleFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "New Delta Ensemble" );
-    actionToSetup->setIcon( QIcon( ":/SummaryEnsemble16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/SummaryEnsemble.svg" ) );
 }

@@ -56,7 +56,7 @@ CAF_PDM_SOURCE_INIT( RimDerivedEnsembleCaseCollection, "RimDerivedEnsembleCaseCo
 //--------------------------------------------------------------------------------------------------
 RimDerivedEnsembleCaseCollection::RimDerivedEnsembleCaseCollection()
 {
-    CAF_PDM_InitObject( "Delta Ensemble", ":/SummaryEnsemble16x16.png", "", "" );
+    CAF_PDM_InitObject( "Delta Ensemble", ":/SummaryEnsemble.svg", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_ensemble1, "Ensemble1", "Ensemble 1", "", "", "" );
     m_ensemble1.uiCapability()->setUiTreeChildrenHidden( true );

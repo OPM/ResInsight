@@ -990,7 +990,7 @@ QString RimSummaryCaseCollection::nameAndItemCount() const
 void RimSummaryCaseCollection::updateIcon()
 {
     if ( m_isEnsemble )
-        setUiIconFromResourceString( ":/SummaryEnsemble16x16.png" );
+        setUiIconFromResourceString( ":/SummaryEnsemble.svg" );
     else
         setUiIconFromResourceString( ":/SummaryGroup16x16.png" );
 }
