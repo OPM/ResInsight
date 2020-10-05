@@ -33,7 +33,9 @@
 //   for more details.
 //
 //##################################################################################################
+
 #include "cafPdmFieldReorderCapability.h"
+#include "cafPdmObjectHandle.h"
 
 #include "cafAssert.h"
 
@@ -140,4 +142,50 @@ void PdmFieldReorderCapability::onMoveItemUp( const SignalEmitter* emitter, size
 void PdmFieldReorderCapability::onMoveItemDown( const SignalEmitter* emitter, size_t index )
 {
     moveItemDown( index );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmFieldReorderCapability::onMoveItemToTop( const SignalEmitter* emitter, size_t index )
+{
+    moveItemToTop( index );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmFieldReorderCapability::moveItemToTop( size_t index )
+{
+    if ( canItemBeMovedUp( index ) )
+    {
+        PdmObjectHandle* itemToShift = m_field->at( index );
+        if ( itemToShift )
+        {
+            int newIndex = 0;
+            m_field->erase( index );
+            m_field->insertAt( newIndex, itemToShift );
+            orderChanged.send();
+            return true;
+        }
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmFieldReorderCapability* PdmFieldReorderCapability::reorderCapabilityOfParentContainer( const PdmObjectHandle* pdmObject )
+{
+    if ( pdmObject )
+    {
+        PdmPtrArrayFieldHandle* arrayField = dynamic_cast<PdmPtrArrayFieldHandle*>( pdmObject->parentField() );
+        if ( arrayField )
+        {
+            PdmFieldReorderCapability* reorderability = arrayField->capability<PdmFieldReorderCapability>();
+            return reorderability;
+        }
+    }
+
+    return nullptr;
 }
