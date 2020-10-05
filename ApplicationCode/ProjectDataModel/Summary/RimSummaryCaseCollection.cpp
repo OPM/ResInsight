@@ -20,6 +20,7 @@
 
 #include "RiaFieldHandleTools.h"
 #include "RiaStatisticsTools.h"
+#include "RiaStdStringTools.h"
 #include "RiaWeightedMeanCalculator.h"
 
 #include "RicfCommandObject.h"
@@ -32,6 +33,7 @@
 #include "RimSummaryCase.h"
 
 #include "RifReaderEclipseRft.h"
+#include "RifReaderEclipseSummary.h"
 #include "RifReaderEnsembleStatisticsRft.h"
 #include "RifSummaryReaderInterface.h"
 
@@ -212,6 +214,8 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
     m_statisticsEclipseRftReader = new RifReaderEnsembleStatisticsRft( this );
 
     m_commonAddressCount = 0;
+
+    m_objectiveFunction = std::make_shared<ObjectiveFunction>( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -837,6 +841,14 @@ void RimSummaryCaseCollection::clearEnsembleParametersHashes()
         auto crp = sumCase->caseRealizationParameters();
         if ( crp ) crp->clearParametersHash();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::shared_ptr<ObjectiveFunction> RimSummaryCaseCollection::objectiveFunctions() const
+{
+    return m_objectiveFunction;
 }
 
 //--------------------------------------------------------------------------------------------------

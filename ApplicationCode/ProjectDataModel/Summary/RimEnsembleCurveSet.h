@@ -53,6 +53,7 @@ class RimSummaryCurveAutoName;
 class RimEnsembleCurveFilterCollection;
 class RimEnsembleStatistics;
 class RimEnsembleStatisticsCase;
+class RimObjectiveFunction;
 class RiuDraggableOverlayFrame;
 
 class QwtPlot;
@@ -123,8 +124,6 @@ public:
 
     std::vector<std::pair<EnsembleParameter, double>> correlationSortedEnsembleParameters() const;
 
-    std::vector<ObjectiveFunction> objectiveFunctions() const;
-
     std::vector<RimSummaryCase*> filterEnsembleCases( const std::vector<RimSummaryCase*>& sumCases );
     void                         disableStatisticCurves();
     bool                         isFiltered() const;
@@ -179,6 +178,11 @@ private:
     caf::PdmField<ColorModeEnum> m_colorMode;
     caf::PdmField<cvf::Color3f>  m_color;
     caf::PdmField<QString>       m_ensembleParameter;
+
+    caf::PdmChildField<RimSummaryAddress*>                       m_objectiveValuesSummaryAddress;
+    caf::PdmField<RifEclipseSummaryAddress>                      m_objectiveValuesSummaryAddressUiField;
+    caf::PdmField<bool>                                          m_objectiveValuesSelectSummaryAddressPushButton;
+    caf::PdmField<caf::AppEnum<ObjectiveFunction::FunctionType>> m_objectiveFunction;
 
     caf::PdmField<caf::AppEnum<RiaDefines::PlotAxis>> m_plotAxis;
 

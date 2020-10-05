@@ -54,9 +54,17 @@ public:
     }
 
     static void initializeLegendConfig( RimRegularLegendConfig* legendConfig, const EnsembleParameter& parameter );
+    static void initializeLegendConfig( RimRegularLegendConfig*            legendConfig,
+                                        std::shared_ptr<ObjectiveFunction> objectiveFunction,
+                                        const RifEclipseSummaryAddress&    vectorSummaryAddress );
     static cvf::Color3f caseColor( const RimRegularLegendConfig* legendConfig,
                                    const RimSummaryCase*         summaryCase,
                                    const EnsembleParameter&      parameter );
+
+    static cvf::Color3f caseColor( const RimRegularLegendConfig*      legendConfig,
+                                   RimSummaryCase*                    summaryCase,
+                                   std::shared_ptr<ObjectiveFunction> objectiveFunction,
+                                   const RifEclipseSummaryAddress&    vectorSummaryAddress );
 
 private:
     static const std::map<RimRegularLegendConfig::ColorRangesType, cvf::Color3ubArray> m_ensembleColorRanges;

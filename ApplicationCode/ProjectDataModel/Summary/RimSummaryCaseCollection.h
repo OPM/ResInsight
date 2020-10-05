@@ -23,6 +23,8 @@
 #include "RifEclipseSummaryAddress.h"
 #include "RifReaderEnsembleStatisticsRft.h"
 
+#include "RimObjectiveFunction.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -36,6 +38,7 @@
 class RifReaderRftInterface;
 class RifReaderEnsembleStatisticsRft;
 class RimSummaryCase;
+class ObjectiveFunction;
 
 //==================================================================================================
 ///
@@ -133,6 +136,8 @@ public:
     void              calculateEnsembleParametersIntersectionHash();
     void              clearEnsembleParametersHashes();
 
+    std::shared_ptr<ObjectiveFunction> objectiveFunctions() const;
+
     void loadDataAndUpdate();
 
     static bool validateEnsembleCases( const std::vector<RimSummaryCase*> cases );
@@ -173,4 +178,6 @@ private:
     size_t m_commonAddressCount; // if different address count among cases, set to 0
 
     mutable std::vector<EnsembleParameter> m_cachedSortedEnsembleParameters;
+
+    std::shared_ptr<ObjectiveFunction> m_objectiveFunction;
 };
