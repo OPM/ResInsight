@@ -18,50 +18,125 @@
 
 #include "RimObjectiveFunction.h"
 
+#include "RimSummaryCase.h"
+
+#include "RifReaderEclipseSummary.h"
+
+#include "RiaStdStringTools.h"
+
+#include "cafAppEnum.h"
+
 #include <cmath>
+
+namespace caf
+{
+template <>
+void caf::AppEnum<ObjectiveFunction::FunctionType>::setUp()
+{
+    addItem( ObjectiveFunction::FunctionType::M, "M", "M" );
+    setDefault( ObjectiveFunction::FunctionType::M );
+}
+
+} // namespace caf
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double ObjectiveFunction::stdDeviation() const
+bool ObjectiveFunction::setRange( size_t startIndex, size_t endIndex )
 {
-    double N = static_cast<double>( values.size() );
-    if ( N > 1 )
-    {
-        double sumValues        = 0.0;
-        double sumValuesSquared = 0.0;
-        for ( const QVariant& variant : values )
-        {
-            double value = variant.toDouble();
-            sumValues += value;
-            sumValuesSquared += value * value;
-        }
+    m_startIndex = startIndex;
+    m_endIndex   = endIndex;
+    return true;
+}
 
-        return std::sqrt( ( N * sumValuesSquared - sumValues * sumValues ) / ( N * ( N - 1.0 ) ) );
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+ObjectiveFunction::ObjectiveFunction( const RimSummaryCaseCollection* summaryCaseCollection )
+{
+    m_summaryCaseCollection = summaryCaseCollection;
+    functionType            = FunctionType::M;
+    m_startIndex            = 0;
+    m_endIndex              = 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double ObjectiveFunction::value( size_t caseIndex, const RifEclipseSummaryAddress& vectorSummaryAddress ) const
+{
+    auto summaryCases = m_summaryCaseCollection->allSummaryCases();
+
+    if ( caseIndex < summaryCases.size() )
+    {
+        return value( summaryCases[caseIndex], vectorSummaryAddress );
     }
     return 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Standard deviation normalized by max absolute value of min/max values.
-/// Produces values between 0.0 and sqrt(2.0).
+///
 //--------------------------------------------------------------------------------------------------
-double ObjectiveFunction::normalizedStdDeviation() const
+double ObjectiveFunction::value( RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& vectorSummaryAddress ) const
 {
-    const double eps = 1.0e-4;
+    RifSummaryReaderInterface* readerInterface = summaryCase->summaryReader();
 
-    double maxAbs = std::max( std::fabs( maxValue ), std::fabs( minValue ) );
-    if ( maxAbs < eps )
+    if ( functionType == FunctionType::M )
     {
-        return 0.0;
+        std::string s = vectorSummaryAddress.quantityName() + RifReaderEclipseSummary::differenceIdentifier();
+        RifEclipseSummaryAddress vectorSummaryAddressDiff = vectorSummaryAddress;
+        vectorSummaryAddressDiff.setQuantityName( s );
+
+        if ( readerInterface->allResultAddresses().count( vectorSummaryAddressDiff ) )
+        {
+            std::vector<double> values;
+            if ( readerInterface->values( vectorSummaryAddressDiff, &values ) )
+            {
+                double N          = static_cast<double>( values.size() );
+                size_t startIndex = m_startIndex;
+                size_t endIndex   = m_endIndex;
+                if ( m_startIndex < m_endIndex )
+                {
+                    N = static_cast<double>( m_endIndex - m_startIndex );
+                }
+                else
+                {
+                    startIndex = 0;
+                    endIndex   = values.size();
+                }
+                if ( N > 1 )
+                {
+                    double sumValues        = 0.0;
+                    double sumValuesSquared = 0.0;
+                    for ( size_t index = startIndex; index < endIndex; index++ )
+                    {
+                        const double& value = values[index];
+                        sumValues += value;
+                        sumValuesSquared += value * value;
+                    }
+
+                    return sumValues / std::sqrt( ( N * sumValuesSquared - sumValues * sumValues ) / ( N * ( N - 1.0 ) ) );
+                }
+            }
+        }
+    }
+    return 0.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> ObjectiveFunction::values( const RifEclipseSummaryAddress& vectorSummaryAddress ) const
+{
+    std::vector<double> values;
+    auto                summaryCases = m_summaryCaseCollection->allSummaryCases();
+
+    for ( size_t index = 0; index < summaryCases.size(); index++ )
+    {
+        values.push_back( value( index, vectorSummaryAddress ) );
     }
 
-    double normalisedStdDev = stdDeviation() / maxAbs;
-    if ( normalisedStdDev < eps )
-    {
-        return 0.0;
-    }
-    return normalisedStdDev;
+    return values;
 }
 
 //--------------------------------------------------------------------------------------------------

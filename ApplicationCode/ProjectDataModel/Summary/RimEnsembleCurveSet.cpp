@@ -36,6 +36,7 @@
 #include "RimEnsembleCurveSetColorManager.h"
 #include "RimEnsembleStatistics.h"
 #include "RimEnsembleStatisticsCase.h"
+#include "RimObjectiveFunction.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryAddress.h"
@@ -120,6 +121,28 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     CAF_PDM_InitField( &m_ensembleParameter, "EnsembleParameter", QString( "" ), "Ensemble Parameter", "", "", "" );
     m_ensembleParameter.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSummaryAddressUiField, "SelectedObjectiveSummaryVar", "Vector", "", "", "" );
+    m_objectiveValuesSummaryAddressUiField.xmlCapability()->disableIO();
+    m_objectiveValuesSummaryAddressUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSummaryAddress, "ObjectiveSummaryAddress", "Summary Address", "", "", "" );
+    m_objectiveValuesSummaryAddress.uiCapability()->setUiHidden( true );
+    m_objectiveValuesSummaryAddress.uiCapability()->setUiTreeChildrenHidden( true );
+    m_objectiveValuesSummaryAddress = new RimSummaryAddress;
+
+    CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSelectSummaryAddressPushButton,
+                                "SelectObjectiveSummaryAddress",
+                                "",
+                                "",
+                                "",
+                                "" );
+    caf::PdmUiPushButtonEditor::configureEditorForField( &m_objectiveValuesSelectSummaryAddressPushButton );
+    m_objectiveValuesSelectSummaryAddressPushButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_objectiveValuesSelectSummaryAddressPushButton = false;
+
+    CAF_PDM_InitFieldNoDefault( &m_objectiveFunction, "ObjectiveFunction", "Objective Function", "", "", "" );
+    m_objectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_plotAxis, "PlotAxis", "Axis", "", "", "" );
 
@@ -220,6 +243,8 @@ void RimEnsembleCurveSet::setColor( cvf::Color3f color )
 void RimEnsembleCurveSet::loadDataAndUpdate( bool updateParentPlot )
 {
     m_yValuesSummaryAddressUiField = m_yValuesSummaryAddress->address();
+
+    m_objectiveValuesSummaryAddressUiField = m_objectiveValuesSummaryAddress->address();
 
     updateAllCurves();
 
@@ -537,13 +562,33 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         updateLegendMappingMode();
         updateCurveColors();
     }
+    else if ( changedField == &m_objectiveFunction )
+    {
+        updateLegendMappingMode();
+        updateCurveColors();
+    }
+    else if ( changedField == &m_objectiveValuesSummaryAddressUiField )
+    {
+        m_objectiveValuesSummaryAddress->setAddress( m_objectiveValuesSummaryAddressUiField() );
+
+        updateCurveColors();
+
+        updateTextInPlot = true;
+    }
     else if ( changedField == &m_colorMode )
     {
-        if ( m_ensembleParameter().isEmpty() )
+        m_ensembleParameter.uiCapability()->setUiHidden( m_colorMode() != ColorMode::BY_ENSEMBLE_PARAM );
+        m_objectiveFunction.uiCapability()->setUiHidden( m_colorMode() != ColorMode::BY_OBJECTIVE_FUNCTION );
+
+        if ( m_colorMode() == ColorMode::BY_ENSEMBLE_PARAM )
         {
-            auto params         = variationSortedEnsembleParameters();
-            m_ensembleParameter = !params.empty() ? params.front().name : "";
+            if ( m_ensembleParameter().isEmpty() )
+            {
+                auto params         = variationSortedEnsembleParameters();
+                m_ensembleParameter = !params.empty() ? params.front().name : "";
+            }
         }
+
         updateCurveColors();
 
         updateTextInPlot = true;
@@ -602,6 +647,28 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         }
 
         m_yPushButtonSelectSummaryAddress = false;
+    }
+    else if ( changedField == &m_objectiveValuesSelectSummaryAddressPushButton )
+    {
+        RiuSummaryVectorSelectionDialog dlg( nullptr );
+        RimSummaryCaseCollection*       candidateEnsemble = m_yValuesSummaryCaseCollection();
+        RifEclipseSummaryAddress        candicateAddress  = m_objectiveValuesSummaryAddress->address();
+
+        dlg.hideSummaryCases();
+        dlg.setEnsembleAndAddress( candidateEnsemble, candicateAddress );
+
+        if ( dlg.exec() == QDialog::Accepted )
+        {
+            auto curveSelection = dlg.curveSelection();
+            if ( !curveSelection.empty() )
+            {
+                m_objectiveValuesSummaryAddress->setAddress( curveSelection[0].summaryAddress() );
+                this->loadDataAndUpdate( true );
+                updateCurveColors();
+            }
+        }
+
+        m_objectiveValuesSelectSummaryAddressPushButton = false;
     }
 
     if ( updateTextInPlot )
@@ -663,6 +730,13 @@ void RimEnsembleCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrdering )
     {
         m_ensembleParameter.uiCapability()->setUiReadOnly( !m_yValuesSummaryCaseCollection() );
         colorsGroup->add( &m_ensembleParameter );
+    }
+    else if ( m_colorMode == ColorMode::BY_OBJECTIVE_FUNCTION )
+    {
+        m_objectiveFunction.uiCapability()->setUiReadOnly( !m_yValuesSummaryCaseCollection() );
+        colorsGroup->add( &m_objectiveValuesSummaryAddressUiField );
+        colorsGroup->add( &m_objectiveValuesSelectSummaryAddressPushButton, {false, 1, 0} );
+        colorsGroup->add( &m_objectiveFunction );
     }
 }
 
@@ -757,16 +831,14 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
     {
         auto singleColorOption = ColorModeEnum( ColorMode::SINGLE_COLOR );
         auto byEnsParamOption  = ColorModeEnum( ColorMode::BY_ENSEMBLE_PARAM );
+        auto byObjFuncOption   = ColorModeEnum( ColorMode::BY_OBJECTIVE_FUNCTION );
 
         options.push_back( caf::PdmOptionItemInfo( singleColorOption.uiText(), ColorMode::SINGLE_COLOR ) );
         if ( !correlationSortedEnsembleParameters().empty() )
         {
             options.push_back( caf::PdmOptionItemInfo( byEnsParamOption.uiText(), ColorMode::BY_ENSEMBLE_PARAM ) );
         }
-        if ( !objectiveFunctions().empty() )
-        {
-            options.push_back( caf::PdmOptionItemInfo( byEnsParamOption.uiText(), ColorMode::BY_OBJECTIVE_FUNCTION ) );
-        }
+        options.push_back( caf::PdmOptionItemInfo( byObjFuncOption.uiText(), ColorMode::BY_OBJECTIVE_FUNCTION ) );
     }
     else if ( fieldNeedingOptions == &m_ensembleParameter )
     {
@@ -780,6 +852,10 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
         }
     }
     else if ( fieldNeedingOptions == &m_yValuesSummaryAddressUiField )
+    {
+        appendOptionItemsForSummaryAddresses( &options, m_yValuesSummaryCaseCollection() );
+    }
+    else if ( fieldNeedingOptions == &m_objectiveValuesSummaryAddressUiField )
     {
         appendOptionItemsForSummaryAddresses( &options, m_yValuesSummaryCaseCollection() );
     }
@@ -877,12 +953,54 @@ void RimEnsembleCurveSet::updateCurveColors()
             curve->updateCurveAppearance();
         }
     }
+    else if ( m_colorMode == ColorMode::BY_OBJECTIVE_FUNCTION )
+    {
+        RimSummaryCaseCollection* group = m_yValuesSummaryCaseCollection();
+
+        {
+            QString legendTitle;
+            if ( m_isUsingAutoName )
+            {
+                legendTitle = m_autoGeneratedName();
+            }
+            else
+            {
+                legendTitle += m_userDefinedName();
+            }
+
+            legendTitle += "\n";
+            legendTitle += QString::fromStdString( m_objectiveValuesSummaryAddress()->address().quantityName() );
+
+            m_legendConfig->setTitle( legendTitle );
+        }
+
+        if ( group && !group->allSummaryCases().empty() )
+        {
+            auto objectiveFunction = group->objectiveFunctions();
+            RimEnsembleCurveSetColorManager::initializeLegendConfig( m_legendConfig,
+                                                                     objectiveFunction,
+                                                                     m_objectiveValuesSummaryAddress()->address() );
+            for ( auto& curve : m_curves )
+            {
+                if ( curve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS )
+                    continue;
+                RimSummaryCase* rimCase = curve->summaryCaseY();
+                cvf::Color3f    curveColor =
+                    RimEnsembleCurveSetColorManager::caseColor( m_legendConfig,
+                                                                rimCase,
+                                                                objectiveFunction,
+                                                                m_objectiveValuesSummaryAddress()->address() );
+                curve->setColor( curveColor );
+                curve->updateCurveAppearance();
+            }
+        }
+    }
 
     RimSummaryPlot* plot;
     firstAncestorOrThisOfType( plot );
     if ( plot && plot->viewer() )
     {
-        if ( m_yValuesSummaryCaseCollection() && isCurvesVisible() && m_colorMode == ColorMode::BY_ENSEMBLE_PARAM &&
+        if ( m_yValuesSummaryCaseCollection() && isCurvesVisible() && m_colorMode != ColorMode::SINGLE_COLOR &&
              m_legendConfig->showLegend() )
         {
             if ( !m_legendOverlayFrame )
@@ -1154,22 +1272,6 @@ std::vector<std::pair<EnsembleParameter, double>> RimEnsembleCurveSet::correlati
     {
         return std::vector<std::pair<EnsembleParameter, double>>();
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<ObjectiveFunction> RimEnsembleCurveSet::objectiveFunctions() const
-{
-    RimSummaryCaseCollection* ensemble = m_yValuesSummaryCaseCollection;
-    /*if ( ensemble )
-    {
-        return ensemble->objectiveFunctions( summaryAddress() );
-    }
-    else
-    {*/
-    return std::vector<ObjectiveFunction>();
-    //}
 }
 
 //--------------------------------------------------------------------------------------------------

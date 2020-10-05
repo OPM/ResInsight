@@ -128,6 +128,28 @@ void RimEnsembleCurveSetColorManager::initializeLegendConfig( RimRegularLegendCo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSetColorManager::initializeLegendConfig( RimRegularLegendConfig*            legendConfig,
+                                                              std::shared_ptr<ObjectiveFunction> objectiveFunction,
+                                                              const RifEclipseSummaryAddress&    vectorSummaryAddress )
+{
+    double minValue = std::numeric_limits<double>::infinity();
+    double maxValue = -std::numeric_limits<double>::infinity();
+
+    for ( auto value : objectiveFunction->values( vectorSummaryAddress ) )
+    {
+        if ( value != std::numeric_limits<double>::infinity() )
+        {
+            if ( value < minValue ) minValue = value;
+            if ( value > maxValue ) maxValue = value;
+        }
+    }
+
+    legendConfig->setAutomaticRanges( minValue, maxValue, minValue, maxValue );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::Color3f RimEnsembleCurveSetColorManager::caseColor( const RimRegularLegendConfig* legendConfig,
                                                          const RimSummaryCase*         summaryCase,
                                                          const EnsembleParameter&      ensembleParam )
@@ -153,6 +175,22 @@ cvf::Color3f RimEnsembleCurveSetColorManager::caseColor( const RimRegularLegendC
         {
             return cvf::Color3f( legendConfig->scalarMapper()->mapToColor( value ) );
         }
+    }
+    return RiaColorTables::undefinedCellColor();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimEnsembleCurveSetColorManager::caseColor( const RimRegularLegendConfig*      legendConfig,
+                                                         RimSummaryCase*                    summaryCase,
+                                                         std::shared_ptr<ObjectiveFunction> objectiveFunction,
+                                                         const RifEclipseSummaryAddress&    vectorSummaryAddress )
+{
+    double value = objectiveFunction->value( summaryCase, vectorSummaryAddress );
+    if ( value != std::numeric_limits<double>::infinity() )
+    {
+        return cvf::Color3f( legendConfig->scalarMapper()->mapToColor( value ) );
     }
     return RiaColorTables::undefinedCellColor();
 }

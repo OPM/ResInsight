@@ -18,10 +18,14 @@
 
 #pragma once
 
+#include <RimSummaryCaseCollection.h>
+
 #include <QString>
 #include <QVariant>
 
 #include <vector>
+
+class RimSummaryCase;
 
 //==================================================================================================
 ///
@@ -29,33 +33,32 @@
 class ObjectiveFunction
 {
 public:
-    enum class Type
+    enum class FunctionType
     {
-        NONE,
-        WCT,
-        GOR,
-        BHP
+        M = 0
     };
+    QString                         uiName() const { return name; };
+    QString                         name;
+    ObjectiveFunction::FunctionType functionType;
 
-    QString               uiName() const { return name; };
-    QString               name;
-    Type                  type;
-    std::vector<QVariant> values;
-    double                minValue;
-    double                maxValue;
+    bool setRange( size_t startIndex, size_t endIndex );
 
-    ObjectiveFunction()
-        : type( Type::WCT )
-        , minValue( std::numeric_limits<double>::infinity() )
-        , maxValue( -std::numeric_limits<double>::infinity() )
-    {
-    }
+    double minValue;
+    double maxValue;
 
-    bool   isValid() const { return !name.isEmpty() && type != Type::NONE; }
-    double normalizedStdDeviation() const;
+    ObjectiveFunction( const RimSummaryCaseCollection* summaryCaseCollection );
+
+    double value( size_t caseIndex, const RifEclipseSummaryAddress& vectorSummaryAddress ) const;
+
+    double value( RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& vectorSummaryAddress ) const;
+
+    std::vector<double> values( const RifEclipseSummaryAddress& vectorSummaryAddress ) const;
 
     bool operator<( const ObjectiveFunction& other ) const;
 
 private:
-    double stdDeviation() const;
+    const RimSummaryCaseCollection* m_summaryCaseCollection;
+
+    size_t m_startIndex;
+    size_t m_endIndex;
 };
