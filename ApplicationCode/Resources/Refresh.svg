@@ -7,7 +7,7 @@
 		.st0{display:none;fill:#FFFFFF;stroke:#8F9090;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10.6667;}
 	
 		.st1{display:none;fill:none;stroke:#8F9090;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10.6667;}
-	.st2{fill:none;stroke:#8F9090;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10.6667;}
+	.st2{fill:none;stroke:#8DC584;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10.6667;}
 </style>
 <path class="st0" d="M18.94,5.84v14.43c0,1.14-0.92,2.06-2.06,2.06H6.57c-1.14,0-2.06-0.92-2.06-2.06V5.84 M7.6,5.84V3.78
 	c0-1.14,0.92-2.06,2.06-2.06h4.12c1.14,0,2.06,0.92,2.06,2.06v2.06"/>
