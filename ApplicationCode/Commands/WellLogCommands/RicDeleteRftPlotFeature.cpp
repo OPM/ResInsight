@@ -75,6 +75,6 @@ void RicDeleteRftPlotFeature::onActionTriggered( bool isChecked )
 void RicDeleteRftPlotFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Delete RFT Plot" );
-    actionToSetup->setIcon( QIcon( ":/Erase.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Erase.svg" ) );
     applyShortcutWithHintToAction( actionToSetup, QKeySequence::Delete );
 }

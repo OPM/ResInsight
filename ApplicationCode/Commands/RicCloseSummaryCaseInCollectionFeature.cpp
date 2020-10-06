@@ -48,7 +48,7 @@ CAF_CMD_SOURCE_INIT( RicCloseSummaryCaseInCollectionFeature, "RicCloseSummaryCas
 void RicCloseSummaryCaseInCollectionFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Close Summary Cases" );
-    actionToSetup->setIcon( QIcon( ":/Erase.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Close.svg" ) );
 }
 
 //--------------------------------------------------------------------------------------------------

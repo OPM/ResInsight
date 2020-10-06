@@ -53,7 +53,7 @@ void RicCloseSourSimDataFeature::onActionTriggered( bool isChecked )
 void RicCloseSourSimDataFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Close SourSim Data" );
-    actionToSetup->setIcon( QIcon( ":/Erase.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Close.svg" ) );
 }
 
 //--------------------------------------------------------------------------------------------------

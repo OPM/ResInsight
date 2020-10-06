@@ -64,5 +64,5 @@ void RicDeleteWellMeasurementFilePathFeature::onActionTriggered( bool isChecked 
 void RicDeleteWellMeasurementFilePathFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Delete Well Measurement File" );
-    actionToSetup->setIcon( QIcon( ":/Erase.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Erase.svg" ) );
 }

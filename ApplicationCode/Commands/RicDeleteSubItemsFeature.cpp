@@ -105,7 +105,7 @@ void RicDeleteSubItemsFeature::onActionTriggered( bool isChecked )
 void RicDeleteSubItemsFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Delete Sub Items" );
-    actionToSetup->setIcon( QIcon( ":/Erase.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Erase.svg" ) );
     applyShortcutWithHintToAction( actionToSetup, QKeySequence::Delete );
 }
 

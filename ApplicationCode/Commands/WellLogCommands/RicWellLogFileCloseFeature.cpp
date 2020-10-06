@@ -81,7 +81,7 @@ void RicWellLogFileCloseFeature::onActionTriggered( bool isChecked )
 void RicWellLogFileCloseFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Close Well Log File(s)" );
-    actionToSetup->setIcon( QIcon( ":/Erase.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Close.svg" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
