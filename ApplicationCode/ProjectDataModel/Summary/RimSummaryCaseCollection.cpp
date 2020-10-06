@@ -385,11 +385,17 @@ std::set<time_t> RimSummaryCaseCollection::ensembleTimeSteps() const
 
     if ( maxAddrIndex >= 0 && m_cases[maxAddrIndex]->summaryReader() )
     {
-        const std::set<RifEclipseSummaryAddress>& addrs = m_cases[maxAddrIndex]->summaryReader()->allResultAddresses();
+        RifSummaryReaderInterface* reader = m_cases[maxAddrIndex]->summaryReader();
+
+        const std::set<RifEclipseSummaryAddress>& addrs = reader->allResultAddresses();
         for ( RifEclipseSummaryAddress addr : addrs )
         {
-            std::vector<time_t> timeSteps = m_cases[maxAddrIndex]->summaryReader()->timeSteps( addr );
-            allTimeSteps.insert( timeSteps.begin(), timeSteps.end() );
+            std::vector<time_t> timeSteps = reader->timeSteps( addr );
+            if ( !timeSteps.empty() )
+            {
+                allTimeSteps.insert( timeSteps.begin(), timeSteps.end() );
+                break;
+            }
         }
     }
     return allTimeSteps;
@@ -1065,4 +1071,20 @@ void RimSummaryCaseCollection::setEnsembleId( int ensembleId )
 int RimSummaryCaseCollection::ensembleId() const
 {
     return m_ensembleId();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryCaseCollection::hasEnsembleParameters() const
+{
+    for ( RimSummaryCase* rimCase : this->allSummaryCases() )
+    {
+        if ( rimCase->caseRealizationParameters() != nullptr )
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
