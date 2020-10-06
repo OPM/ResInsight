@@ -166,9 +166,10 @@ QToolButton:checked {
 
 QLabel {
     background-color: transparent;
+    color: $textColor;
 }
 
-.QWidget, QFrame, QMainWindow, QDialog, QMenu, QLabel, QCheckBox, QTabBar, QDockWidget {
+.QWidget, QFrame, QMainWindow, QDialog, QMenu, QLabel, QCheckBox, QTabBar, QDockWidget, QTextEdit, QPlainTextEdit, QScrollArea, QTextBrowser {
     background-color: $mainBackgroundColor;
     color: $textColor;
     border-color: $borderColor;
@@ -176,8 +177,14 @@ QLabel {
 }
 
 QProgressBar {
+    border-color: $borderColor;
     text-align: center;
     background-color: $backgroundColor1;
+    color: $textColor;
+}
+
+QStatusBar {
+    color: $textColor;
 }
 
 QAbstractItemView {

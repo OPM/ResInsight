@@ -20,6 +20,8 @@
 
 #include "RiaRegressionTestRunner.h"
 
+#include "RiuGuiTheme.h"
+
 #include <QDockWidget>
 #include <QMenu>
 #include <QPlainTextEdit>
@@ -55,7 +57,7 @@ RiuMessagePanel::RiuMessagePanel( QDockWidget* parent )
 //--------------------------------------------------------------------------------------------------
 void RiuMessagePanel::addMessage( RILogLevel messageLevel, const QString& msg )
 {
-    QColor clr = palette().color( QPalette::ColorRole::Text );
+    QColor clr = RiuGuiTheme::getColorByVariableName( "textColor" );
     if ( messageLevel == RILogLevel::RI_LL_ERROR )
         clr = Qt::red;
     else if ( messageLevel == RILogLevel::RI_LL_WARNING )
