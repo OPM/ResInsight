@@ -97,11 +97,9 @@ bool RicNewWellLogFileCurveFeature::wellLogFilesAvailable()
     auto wellPathCollection = RimTools::wellPathCollection();
     if ( wellPathCollection )
     {
-        caf::PdmChildArrayField<RimWellPath*>& wellPaths = wellPathCollection->wellPaths;
-
-        for ( size_t i = 0; i < wellPaths.size(); i++ )
+        for ( auto wellPath : wellPathCollection->wellPaths() )
         {
-            if ( !wellPaths[i]->wellLogFiles().empty() )
+            if ( !wellPath->wellLogFiles().empty() )
             {
                 return true;
             }

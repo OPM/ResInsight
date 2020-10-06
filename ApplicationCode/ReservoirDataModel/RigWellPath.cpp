@@ -28,6 +28,7 @@
 RigWellPath::RigWellPath()
     : m_hasDatumElevation( false )
     , m_datumElevation( 0.0 )
+    , objectBeingDeleted( this )
 {
 }
 
@@ -39,6 +40,7 @@ RigWellPath::RigWellPath( const RigWellPath& rhs )
     , m_measuredDepths( rhs.m_measuredDepths )
     , m_hasDatumElevation( rhs.m_hasDatumElevation )
     , m_datumElevation( rhs.m_datumElevation )
+    , objectBeingDeleted( this )
 {
 }
 
@@ -48,6 +50,7 @@ RigWellPath::RigWellPath( const RigWellPath& rhs )
 RigWellPath::RigWellPath( const std::vector<cvf::Vec3d>& wellPathPoints, const std::vector<double>& measuredDepths )
     : m_wellPathPoints( wellPathPoints )
     , m_measuredDepths( measuredDepths )
+    , objectBeingDeleted( this )
 {
 }
 
@@ -61,6 +64,11 @@ RigWellPath& RigWellPath::operator=( const RigWellPath& rhs )
     m_hasDatumElevation = rhs.m_hasDatumElevation;
     m_datumElevation    = rhs.m_datumElevation;
     return *this;
+}
+
+RigWellPath::~RigWellPath()
+{
+    objectBeingDeleted.send();
 }
 
 //--------------------------------------------------------------------------------------------------

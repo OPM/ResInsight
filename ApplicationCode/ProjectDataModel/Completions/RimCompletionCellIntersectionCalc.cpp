@@ -75,7 +75,7 @@ void RimCompletionCellIntersectionCalc::calculateCompletionTypeResult( RimEclips
     {
         const RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
 
-        for ( const RimWellPath* wellPath : project->activeOilField()->wellPathCollection->wellPaths )
+        for ( const RimWellPath* wellPath : project->activeOilField()->wellPathCollection->wellPaths() )
         {
             if ( wellPath->showWellPath() && wellPath->wellPathGeometry() )
             {
