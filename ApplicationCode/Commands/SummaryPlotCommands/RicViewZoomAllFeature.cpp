@@ -32,12 +32,32 @@
 
 CAF_CMD_SOURCE_INIT( RicViewZoomAllFeature, "RicViewZoomAllFeature" );
 
+RimViewWindow* activeViewWindow()
+{
+    QWidget* topLevelWidget = RiaGuiApplication::activeWindow();
+
+    if ( dynamic_cast<RiuMainWindow*>( topLevelWidget ) )
+    {
+        return RiaGuiApplication::instance()->activeReservoirView();
+    }
+    else if ( dynamic_cast<RiuPlotMainWindow*>( topLevelWidget ) )
+    {
+        RiuPlotMainWindow*    mainPlotWindow = dynamic_cast<RiuPlotMainWindow*>( topLevelWidget );
+        QList<QMdiSubWindow*> subwindows     = mainPlotWindow->subWindowList( QMdiArea::StackingOrder );
+        if ( !subwindows.empty() )
+        {
+            return RiuInterfaceToViewWindow::viewWindowFromWidget( subwindows.back()->widget() );
+        }
+    }
+    return nullptr;
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 bool RicViewZoomAllFeature::isCommandEnabled()
 {
-    return true;
+    return activeViewWindow() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -47,29 +67,10 @@ void RicViewZoomAllFeature::onActionTriggered( bool isChecked )
 {
     this->disableModelChangeContribution();
 
-    QWidget* topLevelWidget = RiaGuiApplication::activeWindow();
-
-    if ( dynamic_cast<RiuMainWindow*>( topLevelWidget ) )
+    RimViewWindow* viewWindow = activeViewWindow();
+    if ( viewWindow )
     {
-        RimViewWindow* viewWindow = RiaGuiApplication::instance()->activeReservoirView();
-        if ( viewWindow )
-        {
-            viewWindow->zoomAll();
-        }
-    }
-    else if ( dynamic_cast<RiuPlotMainWindow*>( topLevelWidget ) )
-    {
-        RiuPlotMainWindow*    mainPlotWindow = dynamic_cast<RiuPlotMainWindow*>( topLevelWidget );
-        QList<QMdiSubWindow*> subwindows     = mainPlotWindow->subWindowList( QMdiArea::StackingOrder );
-        if ( !subwindows.empty() )
-        {
-            RimViewWindow* viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget( subwindows.back()->widget() );
-
-            if ( viewWindow )
-            {
-                viewWindow->zoomAll();
-            }
-        }
+        viewWindow->zoomAll();
     }
 }
 
