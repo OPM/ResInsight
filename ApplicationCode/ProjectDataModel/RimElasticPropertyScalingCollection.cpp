@@ -30,6 +30,7 @@ CAF_PDM_SOURCE_INIT( RimElasticPropertyScalingCollection, "ElasticPropertyScalin
 ///
 //--------------------------------------------------------------------------------------------------
 RimElasticPropertyScalingCollection::RimElasticPropertyScalingCollection()
+    : changed( this )
 {
     CAF_PDM_InitScriptableObject( "Elastic Property Scalings", "", "", "" );
 
@@ -67,9 +68,18 @@ std::vector<RimElasticPropertyScaling*> RimElasticPropertyScalingCollection::ela
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimElasticPropertyScalingCollection::addElasticPropertyScaling( RimElasticPropertyScaling* templ )
+void RimElasticPropertyScalingCollection::addElasticPropertyScaling( RimElasticPropertyScaling* scaling )
 {
-    m_elasticPropertyScalings.push_back( templ );
+    scaling->changed.connect( this, &RimElasticPropertyScalingCollection::elasticPropertyScalingChanged );
+    m_elasticPropertyScalings.push_back( scaling );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimElasticPropertyScalingCollection::elasticPropertyScalingChanged( const caf::SignalEmitter* emitter )
+{
+    changed.send();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,6 +88,7 @@ void RimElasticPropertyScalingCollection::addElasticPropertyScaling( RimElasticP
 void RimElasticPropertyScalingCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                                                           std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
+    changed.send();
 }
 
 //--------------------------------------------------------------------------------------------------

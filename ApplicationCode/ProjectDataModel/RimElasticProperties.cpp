@@ -34,6 +34,7 @@ CAF_PDM_SOURCE_INIT( RimElasticProperties, "ElasticProperties" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimElasticProperties::RimElasticProperties()
+    : changed( this )
 {
     CAF_PDM_InitScriptableObject( "RimElasticProperties", "", "", "" );
 
@@ -53,6 +54,7 @@ RimElasticProperties::RimElasticProperties()
     m_scalings.uiCapability()->setUiHidden( true );
     m_scalings.uiCapability()->setUiTreeHidden( true );
     m_scalings = new RimElasticPropertyScalingCollection;
+    m_scalings->changed.connect( this, &RimElasticProperties::elasticPropertyScalingCollectionChanged );
 
     setUiName( "Elastic Properties" );
 }
@@ -282,4 +284,13 @@ double RimElasticProperties::getPropertyScaling( const QString&            forma
     }
 
     return 1.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimElasticProperties::elasticPropertyScalingCollectionChanged( const caf::SignalEmitter* emitter )
+{
+    m_propertiesTable = generatePropertiesTable();
+    changed.send();
 }

@@ -106,6 +106,7 @@ private:
     static RigEclipseCaseData* getEclipseCaseData();
 
     void faciesPropertiesChanged( const caf::SignalEmitter* emitter );
+    void elasticPropertiesChanged( const caf::SignalEmitter* emitter );
 
     static double computeDefaultStressDepth();
 
