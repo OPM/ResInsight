@@ -44,6 +44,8 @@ public:
     RimElasticProperties();
     ~RimElasticProperties() override;
 
+    caf::Signal<> changed;
+
     QString filePath() const;
     void    setFilePath( const QString& filePath );
 
@@ -70,6 +72,7 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
+    void    elasticPropertyScalingCollectionChanged( const caf::SignalEmitter* emitter );
     QString generatePropertiesTable();
 
     caf::PdmField<caf::FilePath>                             m_filePath;

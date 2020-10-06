@@ -22,6 +22,7 @@
 #include "RimColorLegend.h"
 #include "RimColorLegendItem.h"
 #include "RimEclipseCase.h"
+#include "RimElasticProperties.h"
 #include "RimFaciesProperties.h"
 #include "RimFractureModelTemplate.h"
 #include "RimProject.h"
@@ -47,6 +48,7 @@ RimElasticPropertyScaling::RimElasticPropertyScaling()
     CAF_PDM_InitScriptableField( &m_scale, "Scale", 1.0, "Scale", "", "", "" );
 
     setUiName( "Property Scaling" );
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -93,8 +95,7 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &m_property )
     {
-        std::vector<RiaDefines::CurveProperty> properties = {RiaDefines::CurveProperty::YOUNGS_MODULUS,
-                                                             RiaDefines::CurveProperty::POISSONS_RATIO};
+        std::vector<RiaDefines::CurveProperty> properties = RimElasticProperties::scalableProperties();
         for ( auto property : properties )
         {
             options.push_back(

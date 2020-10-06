@@ -306,7 +306,17 @@ RimElasticProperties* RimFractureModelTemplate::elasticProperties() const
 //--------------------------------------------------------------------------------------------------
 void RimFractureModelTemplate::setElasticProperties( RimElasticProperties* elasticProperties )
 {
+    if ( m_elasticProperties )
+    {
+        m_elasticProperties->changed.disconnect( this );
+    }
+
     m_elasticProperties = elasticProperties;
+
+    if ( m_elasticProperties )
+    {
+        m_elasticProperties->changed.connect( this, &RimFractureModelTemplate::elasticPropertiesChanged );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -357,6 +367,14 @@ void RimFractureModelTemplate::initAfterRead()
 ///
 //--------------------------------------------------------------------------------------------------
 void RimFractureModelTemplate::faciesPropertiesChanged( const caf::SignalEmitter* emitter )
+{
+    changed.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModelTemplate::elasticPropertiesChanged( const caf::SignalEmitter* emitter )
 {
     changed.send();
 }
