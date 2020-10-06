@@ -153,6 +153,8 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     CAF_PDM_InitFieldNoDefault( &m_curveFilters, "CurveFilters", "Curve Filters", "", "", "" );
     m_curveFilters = new RimEnsembleCurveFilterCollection();
+    m_curveFilters->setUiTreeHidden( true );
+    m_curveFilters->setUiTreeChildrenHidden( false );
 
     CAF_PDM_InitFieldNoDefault( &m_statistics, "Statistics", "Statistics", "", "", "" );
     m_statistics = new RimEnsembleStatistics();
@@ -337,6 +339,7 @@ void RimEnsembleCurveSet::deleteCurve( RimSummaryCurve* curve )
 void RimEnsembleCurveSet::setSummaryAddress( RifEclipseSummaryAddress address )
 {
     m_yValuesSummaryAddress->setAddress( address );
+    m_objectiveValuesSummaryAddress->setAddress( address );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -589,6 +592,15 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
             }
         }
 
+        if ( m_colorMode() == ColorMode::BY_OBJECTIVE_FUNCTION )
+        {
+            if ( m_objectiveValuesSummaryAddress->address().category() == RifEclipseSummaryAddress::SUMMARY_INVALID )
+            {
+                m_objectiveValuesSummaryAddress->setAddress( m_yValuesSummaryAddress->address() );
+                m_objectiveValuesSummaryAddressUiField.setValue( m_yValuesSummaryAddress->address() );
+            }
+        }
+
         updateCurveColors();
 
         updateTextInPlot = true;
@@ -664,7 +676,6 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
             {
                 m_objectiveValuesSummaryAddress->setAddress( curveSelection[0].summaryAddress() );
                 this->loadDataAndUpdate( true );
-                updateCurveColors();
             }
         }
 
@@ -752,6 +763,12 @@ void RimEnsembleCurveSet::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOr
 
     if ( uiConfigName != RicSummaryPlotEditorUi::CONFIGURATION_NAME )
     {
+        /*
+        for ( auto filter : m_curveFilters->filters() )
+        {
+            uiTreeOrdering.add( filter );
+        }
+        */
         uiTreeOrdering.add( m_curveFilters );
     }
 
@@ -976,22 +993,29 @@ void RimEnsembleCurveSet::updateCurveColors()
 
         if ( group && !group->allSummaryCases().empty() )
         {
-            auto objectiveFunction = group->objectiveFunctions();
-            RimEnsembleCurveSetColorManager::initializeLegendConfig( m_legendConfig,
-                                                                     objectiveFunction,
-                                                                     m_objectiveValuesSummaryAddress()->address() );
-            for ( auto& curve : m_curves )
+            auto objectiveFunction = group->objectiveFunction( m_objectiveFunction() );
+            if ( objectiveFunction->isValid( m_objectiveValuesSummaryAddress()->address() ) )
             {
-                if ( curve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS )
-                    continue;
-                RimSummaryCase* rimCase = curve->summaryCaseY();
-                cvf::Color3f    curveColor =
-                    RimEnsembleCurveSetColorManager::caseColor( m_legendConfig,
-                                                                rimCase,
-                                                                objectiveFunction,
-                                                                m_objectiveValuesSummaryAddress()->address() );
-                curve->setColor( curveColor );
-                curve->updateCurveAppearance();
+                RimEnsembleCurveSetColorManager::initializeLegendConfig( m_legendConfig,
+                                                                         objectiveFunction,
+                                                                         m_objectiveValuesSummaryAddress()->address() );
+                for ( auto& curve : m_curves )
+                {
+                    if ( curve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS )
+                        continue;
+                    RimSummaryCase* rimCase = curve->summaryCaseY();
+                    cvf::Color3f    curveColor =
+                        RimEnsembleCurveSetColorManager::caseColor( m_legendConfig,
+                                                                    rimCase,
+                                                                    objectiveFunction,
+                                                                    m_objectiveValuesSummaryAddress()->address() );
+                    curve->setColor( curveColor );
+                    curve->updateCurveAppearance();
+                }
+            }
+            else if ( m_legendOverlayFrame )
+            {
+                m_legendOverlayFrame->hide();
             }
         }
     }

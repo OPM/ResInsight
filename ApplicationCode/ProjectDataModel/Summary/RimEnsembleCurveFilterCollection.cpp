@@ -42,7 +42,7 @@ static void garbageCollectFilters();
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveFilterCollection::RimEnsembleCurveFilterCollection()
 {
-    CAF_PDM_InitObject( "Curve Filters", ":/SummaryCurveFilter16x16.png", "", "" );
+    CAF_PDM_InitObject( "Curve Filters", ":/FilterCollection.svg", "", "" );
 
     CAF_PDM_InitField( &m_active, "Active", true, "Active", "", "", "" );
 
@@ -206,6 +206,10 @@ void RimEnsembleCurveFilterCollection::defineUiOrdering( QString uiConfigName, c
 void RimEnsembleCurveFilterCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
                                                              QString                 uiConfigName /* = "" */ )
 {
+    for ( auto filter : filters() )
+    {
+        uiTreeOrdering.add( filter );
+    }
     uiTreeOrdering.skipRemainingChildren( true );
 }
 

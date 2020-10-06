@@ -38,7 +38,6 @@
 class RifReaderRftInterface;
 class RifReaderEnsembleStatisticsRft;
 class RimSummaryCase;
-class ObjectiveFunction;
 
 //==================================================================================================
 ///
@@ -136,7 +135,8 @@ public:
     void              calculateEnsembleParametersIntersectionHash();
     void              clearEnsembleParametersHashes();
 
-    std::shared_ptr<ObjectiveFunction> objectiveFunctions() const;
+    std::vector<std::shared_ptr<ObjectiveFunction>> objectiveFunctions() const;
+    std::shared_ptr<ObjectiveFunction>              objectiveFunction( ObjectiveFunction::FunctionType functionType );
 
     void loadDataAndUpdate();
 
@@ -179,5 +179,5 @@ private:
 
     mutable std::vector<EnsembleParameter> m_cachedSortedEnsembleParameters;
 
-    std::shared_ptr<ObjectiveFunction> m_objectiveFunction;
+    std::vector<std::shared_ptr<ObjectiveFunction>> m_objectiveFunctions;
 };

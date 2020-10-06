@@ -18,14 +18,14 @@
 
 #pragma once
 
-#include <RimSummaryCaseCollection.h>
-
 #include <QString>
 #include <QVariant>
 
 #include <vector>
 
 class RimSummaryCase;
+class RimSummaryCaseCollection;
+class RifEclipseSummaryAddress;
 
 //==================================================================================================
 ///
@@ -35,7 +35,7 @@ class ObjectiveFunction
 public:
     enum class FunctionType
     {
-        M = 0
+        M1 = 0
     };
     QString                         uiName() const { return name; };
     QString                         name;
@@ -46,13 +46,19 @@ public:
     double minValue;
     double maxValue;
 
-    ObjectiveFunction( const RimSummaryCaseCollection* summaryCaseCollection );
+    ObjectiveFunction( const RimSummaryCaseCollection* summaryCaseCollection, FunctionType type );
 
-    double value( size_t caseIndex, const RifEclipseSummaryAddress& vectorSummaryAddress ) const;
+    double value( size_t caseIndex, const RifEclipseSummaryAddress& vectorSummaryAddress, bool* hasWarning = nullptr ) const;
 
-    double value( RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& vectorSummaryAddress ) const;
+    double value( RimSummaryCase*                 summaryCase,
+                  const RifEclipseSummaryAddress& vectorSummaryAddress,
+                  bool*                           hasWarning = nullptr ) const;
+
+    std::pair<double, double> minMaxValues( const RifEclipseSummaryAddress& vectorSummaryAddress ) const;
 
     std::vector<double> values( const RifEclipseSummaryAddress& vectorSummaryAddress ) const;
+
+    bool isValid( const RifEclipseSummaryAddress& vectorSummaryAddress ) const;
 
     bool operator<( const ObjectiveFunction& other ) const;
 

@@ -18,12 +18,18 @@
 
 #pragma once
 
+#include "RifEclipseSummaryAddress.h"
+
+#include "RimObjectiveFunction.h"
+
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
 class EnsembleParameter;
 class RimEnsembleCurveSet;
 class RimSummaryCase;
+class RimSummaryAddress;
 class RimSummaryPlot;
 class RimEnsembleCurveFilterCollection;
 
@@ -35,6 +41,12 @@ class RimEnsembleCurveFilter : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class FilterMode
+    {
+        BY_ENSEMBLE_PARAMETER = 0,
+        BY_OBJECTIVE_FUNCTION
+    };
+
     RimEnsembleCurveFilter();
     RimEnsembleCurveFilter( const QString& ensembleParameterName );
 
@@ -67,12 +79,17 @@ private:
     void                              updateMaxMinAndDefaultValues( bool forceDefault );
 
 private:
-    caf::PdmField<bool>                 m_active;
-    caf::PdmField<bool>                 m_deleteButton;
-    caf::PdmField<QString>              m_ensembleParameterName;
-    caf::PdmField<double>               m_minValue;
-    caf::PdmField<double>               m_maxValue;
-    caf::PdmField<std::vector<QString>> m_categories;
+    caf::PdmField<bool>                                          m_active;
+    caf::PdmField<bool>                                          m_deleteButton;
+    caf::PdmField<caf::AppEnum<FilterMode>>                      m_filterMode;
+    caf::PdmField<QString>                                       m_ensembleParameterName;
+    caf::PdmChildField<RimSummaryAddress*>                       m_objectiveValuesSummaryAddress;
+    caf::PdmField<RifEclipseSummaryAddress>                      m_objectiveValuesSummaryAddressUiField;
+    caf::PdmField<bool>                                          m_objectiveValuesSelectSummaryAddressPushButton;
+    caf::PdmField<caf::AppEnum<ObjectiveFunction::FunctionType>> m_objectiveFunction;
+    caf::PdmField<double>                                        m_minValue;
+    caf::PdmField<double>                                        m_maxValue;
+    caf::PdmField<std::vector<QString>>                          m_categories;
 
     double m_lowerLimit;
     double m_upperLimit;

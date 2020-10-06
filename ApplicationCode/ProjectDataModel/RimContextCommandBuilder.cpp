@@ -713,6 +713,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicSetSourceSteppingEnsembleCurveSetFeature";
             menuBuilder << "RicClearSourceSteppingEnsembleCurveSetFeature";
+            menuBuilder << "Separator";
+            menuBuilder << "RicNewEnsembleCurveFilterFeature";
         }
         else if ( dynamic_cast<RimEnsembleCurveFilterCollection*>( firstUiItem ) )
         {

@@ -35,10 +35,7 @@ CAF_CMD_SOURCE_INIT( RicNewEnsembleCurveFilterFeature, "RicNewEnsembleCurveFilte
 //--------------------------------------------------------------------------------------------------
 bool RicNewEnsembleCurveFilterFeature::isCommandEnabled()
 {
-    std::vector<RimEnsembleCurveFilterCollection*> filterColls =
-        caf::selectedObjectsByType<RimEnsembleCurveFilterCollection*>();
-
-    return filterColls.size() == 1;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -46,8 +43,9 @@ bool RicNewEnsembleCurveFilterFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewEnsembleCurveFilterFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimEnsembleCurveFilterCollection*> filterColls =
-        caf::selectedObjectsByType<RimEnsembleCurveFilterCollection*>();
+    caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
+    std::vector<RimEnsembleCurveFilterCollection*> filterColls;
+    selObj->descendantsIncludingThisOfType( filterColls );
 
     if ( filterColls.size() == 1 )
     {
@@ -55,6 +53,8 @@ void RicNewEnsembleCurveFilterFeature::onActionTriggered( bool isChecked )
         filterColls[0]->updateConnectedEditors();
         RiuPlotMainWindowTools::selectAsCurrentItem( filterColls.front() );
     }
+
+    selObj->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
