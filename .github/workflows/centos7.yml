@@ -1,6 +1,7 @@
 name: centOS 7 (without geomech)
 
 on:
+  workflow_dispatch:
   schedule:
     # Once every night
     - cron: '0 1 * * * '
@@ -21,6 +22,7 @@ jobs:
         yum install -y qt5-qtbase
         yum install -y qt5-qtbase-devel
         yum install -y qt5-qtscript-devel
+        yum install -y qt5-qtsvg-devel
 
         yum install -y cmake3
         yum install -y make
