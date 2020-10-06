@@ -23,10 +23,12 @@
 #include "RicExportCompletionDataSettingsUi.h"
 #include "RicWellPathFractureReportItem.h"
 
-#include <QFile>
-
 #include "cvfVector2.h"
 #include "cvfVector3.h"
+
+#include <QFile>
+
+#include <gsl/gsl>
 
 #include <memory>
 #include <vector>
@@ -127,7 +129,7 @@ public:
         computeDynamicCompletionsForWellPath( RimWellPath* wellPath, RimEclipseCase* eclipseCase, size_t timeStepIndex );
 
     static std::vector<RigCompletionData>
-        generatePerforationsCompdatValues( const RimWellPath*                                wellPath,
+        generatePerforationsCompdatValues( gsl::not_null<const RimWellPath*>                 wellPath,
                                            const std::vector<const RimPerforationInterval*>& intervals,
                                            const RicExportCompletionDataSettingsUi&          settings );
 
@@ -182,9 +184,9 @@ private:
     static void appendCompletionData( std::map<size_t, std::vector<RigCompletionData>>* completionData,
                                       const std::vector<RigCompletionData>&             data );
 
-    static std::pair<double, cvf::Vec2i> wellPathUpperGridIntersectionIJ( const RimEclipseCase* gridCase,
-                                                                          const RimWellPath*    wellPath,
-                                                                          const QString&        gridName = "" );
+    static std::pair<double, cvf::Vec2i> wellPathUpperGridIntersectionIJ( gsl::not_null<const RimEclipseCase*> gridCase,
+                                                                          gsl::not_null<const RimWellPath*>    wellPath,
+                                                                          const QString& gridName = "" );
 
     static void exportCarfinForTemporaryLgrs( const RimEclipseCase* sourceCase, const QString& folder );
 

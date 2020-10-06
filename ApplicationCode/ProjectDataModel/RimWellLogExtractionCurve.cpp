@@ -462,7 +462,7 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
     {
         measuredDepthValues = eclExtractor->cellIntersectionMDs();
         tvDepthValues       = eclExtractor->cellIntersectionTVDs();
-        rkbDiff             = eclExtractor->wellPathData()->rkbDiff();
+        rkbDiff             = eclExtractor->wellPathGeometry()->rkbDiff();
 
         m_eclipseResultDefinition->loadResult();
 
@@ -489,7 +489,7 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
     {
         measuredDepthValues = geomExtractor->cellIntersectionMDs();
         tvDepthValues       = geomExtractor->cellIntersectionTVDs();
-        rkbDiff             = geomExtractor->wellPathData()->rkbDiff();
+        rkbDiff             = geomExtractor->wellPathGeometry()->rkbDiff();
 
         if ( measuredDepthValues.empty() )
         {

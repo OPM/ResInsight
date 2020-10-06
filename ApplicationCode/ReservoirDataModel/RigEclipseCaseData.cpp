@@ -522,9 +522,8 @@ std::vector<const RigWellPath*> RigEclipseCaseData::simulationWellBranches( cons
         {
             auto wellMdCalculator = RigSimulationWellCoordsAndMD( pipeBranchesCLCoords[brIdx] );
 
-            cvf::ref<RigWellPath> newWellPath = new RigWellPath();
-            newWellPath->m_measuredDepths     = wellMdCalculator.measuredDepths();
-            newWellPath->m_wellPathPoints     = wellMdCalculator.wellPathPoints();
+            cvf::ref<RigWellPath> newWellPath =
+                new RigWellPath( wellMdCalculator.wellPathPoints(), wellMdCalculator.measuredDepths() );
 
             m_simWellBranchCache[simWellSeachItem].push_back( newWellPath.p() );
         }

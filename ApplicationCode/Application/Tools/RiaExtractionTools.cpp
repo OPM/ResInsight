@@ -28,8 +28,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigEclipseWellLogExtractor* RiaExtractionTools::wellLogExtractorEclipseCase( RimWellPath*    wellPath,
-                                                                             RimEclipseCase* eclipseCase )
+RigEclipseWellLogExtractor* RiaExtractionTools::findOrCreateWellLogExtractor( gsl::not_null<RimWellPath*>    wellPath,
+                                                                              gsl::not_null<RimEclipseCase*> eclipseCase )
 {
     auto wlPlotCollection = wellLogPlotCollection();
     if ( !wlPlotCollection ) return nullptr;
@@ -40,7 +40,8 @@ RigEclipseWellLogExtractor* RiaExtractionTools::wellLogExtractorEclipseCase( Rim
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigGeoMechWellLogExtractor* RiaExtractionTools::wellLogExtractorGeoMechCase( RimWellPath* wellPath, RimGeoMechCase* geomCase )
+RigGeoMechWellLogExtractor* RiaExtractionTools::findOrCreateWellLogExtractor( gsl::not_null<RimWellPath*>    wellPath,
+                                                                              gsl::not_null<RimGeoMechCase*> geomCase )
 {
     auto wlPlotCollection = wellLogPlotCollection();
     if ( !wlPlotCollection ) return nullptr;
@@ -51,16 +52,12 @@ RigGeoMechWellLogExtractor* RiaExtractionTools::wellLogExtractorGeoMechCase( Rim
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigEclipseWellLogExtractor* RiaExtractionTools::findOrCreateSimWellExtractor( const RimSimWellInView* simWell,
-                                                                              const RigWellPath*      wellPathGeom )
+RigEclipseWellLogExtractor*
+    RiaExtractionTools::findOrCreateSimWellExtractor( gsl::not_null<const RimSimWellInView*> simWell,
+                                                      gsl::not_null<const RigWellPath*>      wellPathGeom )
 {
     auto wlPlotCollection = wellLogPlotCollection();
     if ( !wlPlotCollection ) return nullptr;
-
-    if ( !( simWell && wellPathGeom ) )
-    {
-        return nullptr;
-    }
 
     RimEclipseCase* eclipseCase = nullptr;
     simWell->firstAncestorOrThisOfType( eclipseCase );

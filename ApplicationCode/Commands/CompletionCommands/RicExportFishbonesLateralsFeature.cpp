@@ -90,16 +90,14 @@ void RicExportFishbonesLateralsFeature::onActionTriggered( bool isChecked )
                         lateralMDs.push_back( coordMD.second );
                     }
 
-                    RigWellPath geometry;
-                    geometry.m_wellPathPoints = lateralCoords;
-                    geometry.m_measuredDepths = lateralMDs;
+                    RigWellPath geometry( lateralCoords, lateralMDs );
 
                     // Pad with "0" to get a total of two characters defining the sub index text
                     QString subIndexText = QString( "%1" ).arg( sub.subIndex, 2, 10, QChar( '0' ) );
                     QString lateralName =
                         QString( "%1_%2_Sub%3_Lat%4" ).arg( wellPath->name() ).arg( fishboneName ).arg( subIndexText ).arg( lateralIndex );
 
-                    EXP::writeWellPathGeometryToStream( *stream, &geometry, lateralName, mdStepSize, false, 0.0, false );
+                    EXP::writeWellPathGeometryToStream( *stream, geometry, lateralName, mdStepSize, false, 0.0, false );
                 }
             }
         }

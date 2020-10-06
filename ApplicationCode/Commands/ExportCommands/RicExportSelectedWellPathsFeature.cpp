@@ -50,10 +50,10 @@ CAF_CMD_SOURCE_INIT( RicExportSelectedWellPathsFeature, "RicExportSelectedWellPa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportSelectedWellPathsFeature::exportWellPath( const RimWellPath* wellPath,
-                                                        double             mdStepSize,
-                                                        const QString&     folder,
-                                                        bool               writeProjectInfo )
+void RicExportSelectedWellPathsFeature::exportWellPath( gsl::not_null<const RimWellPath*> wellPath,
+                                                        double                            mdStepSize,
+                                                        const QString&                    folder,
+                                                        bool                              writeProjectInfo )
 {
     auto fileName = wellPath->name() + ".dev";
     auto filePtr  = openFileForExport( folder, fileName );
@@ -75,7 +75,7 @@ void RicExportSelectedWellPathsFeature::exportWellPath( const RimWellPath* wellP
 ///
 //--------------------------------------------------------------------------------------------------
 void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream( QTextStream&       stream,
-                                                                       const RigWellPath* wellPathGeom,
+                                                                       const RigWellPath& wellPathGeom,
                                                                        const QString&     exportName,
                                                                        double             mdStepSize,
                                                                        bool               useMdRkb,

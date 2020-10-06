@@ -237,7 +237,7 @@ RimFractureModelPlotCollection* RimMainPlotCollection::fractureModelPlotCollecti
 //--------------------------------------------------------------------------------------------------
 void RimMainPlotCollection::deleteAllContainedObjects()
 {
-    m_wellLogPlotCollection()->wellLogPlots.deleteAllChildObjects();
+    m_wellLogPlotCollection()->deleteAllPlots();
     m_rftPlotCollection()->deleteAllPlots();
     m_pltPlotCollection()->deleteAllPlots();
     m_summaryPlotCollection()->deleteAllPlots();

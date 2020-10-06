@@ -652,7 +652,7 @@ RiaEclipseUnitTools::UnitSystemType RimWellPathCollection::findUnitSystemForWell
     const RigEclipseCaseData* eclipseCaseData = project->activeOilField()->analysisModels->cases()[0]->eclipseCaseData();
     cvf::BoundingBox          caseBoundingBox = eclipseCaseData->mainGrid()->boundingBox();
     cvf::BoundingBox          wellPathBoundingBox;
-    for ( auto& wellPathPoint : wellPath->wellPathGeometry()->m_wellPathPoints )
+    for ( const auto& wellPathPoint : wellPath->wellPathGeometry()->wellPathPoints() )
     {
         wellPathBoundingBox.add( wellPathPoint );
     }

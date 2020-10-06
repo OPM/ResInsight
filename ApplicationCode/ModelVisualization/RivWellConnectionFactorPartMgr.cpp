@@ -104,7 +104,7 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel( cvf::Mod
     std::vector<WellPathCellIntersectionInfo> wellPathCellIntersections;
     {
         RigEclipseWellLogExtractor* extractor =
-            RiaExtractionTools::wellLogExtractorEclipseCase( m_rimWellPath, eclipseCase );
+            RiaExtractionTools::findOrCreateWellLogExtractor( m_rimWellPath, eclipseCase );
         if ( extractor )
         {
             wellPathCellIntersections = extractor->cellIntersectionInfosAlongWellPath();

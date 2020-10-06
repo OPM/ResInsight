@@ -27,10 +27,8 @@ class RiaPolyArcLineSampler
 public:
     RiaPolyArcLineSampler( const cvf::Vec3d& startTangent, const std::vector<cvf::Vec3d>& lineArcEndPoints );
 
-    void sampledPointsAndMDs( double                   maxSampleInterval,
-                              bool                     isResamplingLines,
-                              std::vector<cvf::Vec3d>* points,
-                              std::vector<double>*     mds );
+    std::pair<std::vector<cvf::Vec3d>, std::vector<double>> sampledPointsAndMDs( double maxSampleInterval,
+                                                                                 bool   isResamplingLines );
 
     static std::vector<cvf::Vec3d> pointsWithoutDuplicates( const std::vector<cvf::Vec3d>& points );
 

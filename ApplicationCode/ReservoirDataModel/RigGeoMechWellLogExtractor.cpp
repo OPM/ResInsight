@@ -53,9 +53,9 @@ const double RigGeoMechWellLogExtractor::GRAVITY_ACCEL           = 9.81; // m / 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigGeoMechWellLogExtractor::RigGeoMechWellLogExtractor( RigGeoMechCaseData* aCase,
-                                                        const RigWellPath*  wellpath,
-                                                        const std::string&  wellCaseErrorMsgName )
+RigGeoMechWellLogExtractor::RigGeoMechWellLogExtractor( gsl::not_null<RigGeoMechCaseData*> aCase,
+                                                        gsl::not_null<const RigWellPath*>  wellpath,
+                                                        const std::string&                 wellCaseErrorMsgName )
     : RigWellLogExtractor( wellpath, wellCaseErrorMsgName )
     , m_caseData( aCase )
 {
@@ -118,7 +118,7 @@ QString RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAdd
 
     if ( resAddr.resultPosType == RIG_WELLPATH_DERIVED )
     {
-        if ( m_wellPath->rkbDiff() == HUGE_VAL )
+        if ( m_wellPathGeometry->rkbDiff() == HUGE_VAL )
         {
             RiaLogging::error( "Well path has an invalid datum elevation and we cannot estimate TVDRKB. No well bore "
                                "stability curves created." );
@@ -276,7 +276,7 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
         std::vector<float> tvdRKBs;
         for ( double tvdValue : m_intersectionTVDs )
         {
-            tvdRKBs.push_back( tvdValue + m_wellPath->rkbDiff() );
+            tvdRKBs.push_back( tvdValue + m_wellPathGeometry->rkbDiff() );
         }
         RigFemResultAddress elementPropertyAddr = parameter.femAddress( RigWbsParameter::ELEMENT_PROPERTY_TABLE );
         elementPropertyValuesInput = &( resultCollection->resultValues( elementPropertyAddr, 0, frameIndex ) );
@@ -970,11 +970,11 @@ void RigGeoMechWellLogExtractor::calculateIntersection()
     const RigFemPart*              femPart    = m_caseData->femParts()->part( 0 );
     const std::vector<cvf::Vec3f>& nodeCoords = femPart->nodes().coordinates;
 
-    for ( size_t wpp = 0; wpp < m_wellPath->m_wellPathPoints.size() - 1; ++wpp )
+    for ( size_t wpp = 0; wpp < m_wellPathGeometry->wellPathPoints().size() - 1; ++wpp )
     {
         std::vector<HexIntersectionInfo> intersections;
-        cvf::Vec3d                       p1 = m_wellPath->m_wellPathPoints[wpp];
-        cvf::Vec3d                       p2 = m_wellPath->m_wellPathPoints[wpp + 1];
+        cvf::Vec3d                       p1 = m_wellPathGeometry->wellPathPoints()[wpp];
+        cvf::Vec3d                       p2 = m_wellPathGeometry->wellPathPoints()[wpp + 1];
 
         cvf::BoundingBox bb;
 
@@ -1011,8 +1011,8 @@ void RigGeoMechWellLogExtractor::calculateIntersection()
         // Inserting the intersections in this map will remove identical intersections
         // and sort them according to MD, CellIdx, Leave/enter
 
-        double md1 = m_wellPath->m_measuredDepths[wpp];
-        double md2 = m_wellPath->m_measuredDepths[wpp + 1];
+        double md1 = m_wellPathGeometry->measuredDepths()[wpp];
+        double md2 = m_wellPathGeometry->measuredDepths()[wpp + 1];
 
         insertIntersectionsInMap( intersections, p1, md1, p2, md2, &uniqueIntersections );
     }
@@ -1068,7 +1068,7 @@ cvf::Vec3d RigGeoMechWellLogExtractor::calculateWellPathTangent( int64_t        
     if ( calculationType == TangentFollowWellPathSegments )
     {
         cvf::Vec3d segmentStart, segmentEnd;
-        m_wellPath->twoClosestPoints( m_intersections[intersectionIdx], &segmentStart, &segmentEnd );
+        m_wellPathGeometry->twoClosestPoints( m_intersections[intersectionIdx], &segmentStart, &segmentEnd );
         return ( segmentEnd - segmentStart ).getNormalized();
     }
     else
@@ -1374,7 +1374,7 @@ double RigGeoMechWellLogExtractor::hydroStaticPorePressureForIntersection( size_
                                                                            double waterDensityGCM3 ) const
 {
     double trueVerticalDepth    = m_intersectionTVDs[intersectionIdx];
-    double effectiveDepthMeters = trueVerticalDepth + wellPathData()->rkbDiff();
+    double effectiveDepthMeters = trueVerticalDepth + m_wellPathGeometry->rkbDiff();
     return hydroStaticPorePressureAtDepth( effectiveDepthMeters, waterDensityGCM3 );
 }
 
@@ -1385,7 +1385,7 @@ double RigGeoMechWellLogExtractor::hydroStaticPorePressureForSegment( size_t int
 {
     cvf::Vec3f centroid             = cellCentroid( intersectionIdx );
     double     trueVerticalDepth    = -centroid.z();
-    double     effectiveDepthMeters = trueVerticalDepth + wellPathData()->rkbDiff();
+    double     effectiveDepthMeters = trueVerticalDepth + m_wellPathGeometry->rkbDiff();
     return hydroStaticPorePressureAtDepth( effectiveDepthMeters, waterDensityGCM3 );
 }
 
@@ -1405,9 +1405,9 @@ double RigGeoMechWellLogExtractor::hydroStaticPorePressureAtDepth( double effect
 double RigGeoMechWellLogExtractor::wbsCurveValuesAtMsl() const
 {
     double waterDensityGCM3 = m_userDefinedValues.at( RigWbsParameter::waterDensity() );
-    double waterDepth       = std::abs( wellPathData()->wellPathPoints().front().z() );
+    double waterDepth       = std::abs( m_wellPathGeometry->wellPathPoints().front().z() );
 
-    double rkbDiff = wellPathData()->rkbDiff();
+    double rkbDiff = m_wellPathGeometry->rkbDiff();
     if ( rkbDiff == std::numeric_limits<double>::infinity() )
     {
         rkbDiff = 0.0;

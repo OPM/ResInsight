@@ -34,6 +34,99 @@ RigWellPath::RigWellPath()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RigWellPath::RigWellPath( const RigWellPath& rhs )
+    : m_wellPathPoints( rhs.m_wellPathPoints )
+    , m_measuredDepths( rhs.m_measuredDepths )
+    , m_hasDatumElevation( rhs.m_hasDatumElevation )
+    , m_datumElevation( rhs.m_datumElevation )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigWellPath::RigWellPath( const std::vector<cvf::Vec3d>& wellPathPoints, const std::vector<double>& measuredDepths )
+    : m_wellPathPoints( wellPathPoints )
+    , m_measuredDepths( measuredDepths )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigWellPath& RigWellPath::operator=( const RigWellPath& rhs )
+{
+    m_wellPathPoints    = rhs.m_wellPathPoints;
+    m_measuredDepths    = rhs.m_measuredDepths;
+    m_hasDatumElevation = rhs.m_hasDatumElevation;
+    m_datumElevation    = rhs.m_datumElevation;
+    return *this;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<cvf::Vec3d>& RigWellPath::wellPathPoints() const
+{
+    return m_wellPathPoints;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>& RigWellPath::measuredDepths() const
+{
+    return m_measuredDepths;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigWellPath::trueVerticalDepths() const
+{
+    std::vector<double> tvds;
+    for ( const cvf::Vec3d& point : m_wellPathPoints )
+    {
+        tvds.push_back( std::fabs( point.z() ) );
+    }
+    return tvds;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigWellPath::setWellPathPoints( const std::vector<cvf::Vec3d>& wellPathPoints )
+{
+    m_wellPathPoints = wellPathPoints;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigWellPath::setMeasuredDepths( const std::vector<double>& measuredDepths )
+{
+    m_measuredDepths = measuredDepths;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigWellPath::addWellPathPoint( const cvf::Vec3d& wellPathPoint )
+{
+    m_wellPathPoints.push_back( wellPathPoint );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigWellPath::addMeasuredDepth( double measuredDepth )
+{
+    m_measuredDepths.push_back( measuredDepth );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigWellPath::setDatumElevation( double value )
 {
     m_hasDatumElevation = true;
@@ -398,27 +491,4 @@ std::vector<cvf::Vec3d> RigWellPath::clipPolylineStartAboveZ( const std::vector<
     }
 
     return clippedPolyLine;
-}
-
-const std::vector<cvf::Vec3d>& RigWellPath::wellPathPoints() const
-{
-    return m_wellPathPoints;
-}
-
-const std::vector<double>& RigWellPath::measureDepths() const
-{
-    return m_measuredDepths;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RigWellPath::trueVerticalDepths() const
-{
-    std::vector<double> tvds;
-    for ( const cvf::Vec3d& point : m_wellPathPoints )
-    {
-        tvds.push_back( std::fabs( point.z() ) );
-    }
-    return tvds;
 }

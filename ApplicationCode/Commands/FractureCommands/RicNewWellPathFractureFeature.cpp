@@ -52,10 +52,8 @@ CAF_CMD_SOURCE_INIT( RicNewWellPathFractureFeature, "RicNewWellPathFractureFeatu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewWellPathFractureFeature::addFracture( RimWellPath* wellPath, double measuredDepth )
+void RicNewWellPathFractureFeature::addFracture( gsl::not_null<RimWellPath*> wellPath, double measuredDepth )
 {
-    CVF_ASSERT( wellPath );
-
     if ( !RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem( wellPath ) ) return;
 
     RimWellPathFractureCollection* fractureCollection = wellPath->fractureCollection();
@@ -76,8 +74,11 @@ void RicNewWellPathFractureFeature::addFracture( RimWellPath* wellPath, double m
     fracture->setMeasuredDepth( measuredDepth );
     fracture->setFractureUnit( wellPath->unitSystem() );
 
-    RigWellPath* wellPathGeometry   = wellPath->wellPathGeometry();
-    cvf::Vec3d   positionAtWellpath = wellPathGeometry->interpolatedPointAlongWellPath( measuredDepth );
+    auto wellPathGeometry = wellPath->wellPathGeometry();
+    CVF_ASSERT( wellPathGeometry );
+    if ( !wellPathGeometry ) return;
+
+    cvf::Vec3d positionAtWellpath = wellPathGeometry->interpolatedPointAlongWellPath( measuredDepth );
     fracture->setAnchorPosition( positionAtWellpath );
 
     RimOilField* oilfield = nullptr;

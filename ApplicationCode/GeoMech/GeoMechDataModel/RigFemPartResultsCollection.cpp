@@ -219,7 +219,7 @@ void RigFemPartResultsCollection::setActiveFormationNames( RigFormationNames* ac
             RimWellLogPlotCollection* plotCollection = project->mainPlotCollection()->wellLogPlotCollection();
             if ( plotCollection )
             {
-                for ( RimWellLogPlot* wellLogPlot : plotCollection->wellLogPlots )
+                for ( auto wellLogPlot : plotCollection->wellLogPlots() )
                 {
                     wellLogPlot->loadDataAndUpdate();
                 }

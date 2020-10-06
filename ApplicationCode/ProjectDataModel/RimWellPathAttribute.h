@@ -19,13 +19,13 @@
 
 #include "RimWellPathComponentInterface.h"
 
+#include "cafAppEnum.h"
+#include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include "cafAppEnum.h"
-
-#include "cafPdmField.h"
-
 #include <QString>
+
+#include <gsl/gsl>
 
 class RimWellPath;
 
@@ -44,7 +44,7 @@ public:
     double  diameterInInches() const;
     QString diameterLabel() const;
     bool    operator<( const RimWellPathAttribute& rhs ) const;
-    void    setDepthsFromWellPath( const RimWellPath* wellPath );
+    void    setDepthsFromWellPath( gsl::not_null<const RimWellPath*> wellPath );
 
     // Overrides from RimWellPathCompletionInterface
     bool                              isEnabled() const override;
