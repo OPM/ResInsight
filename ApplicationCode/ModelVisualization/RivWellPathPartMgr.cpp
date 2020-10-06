@@ -100,7 +100,7 @@ bool RivWellPathPartMgr::isWellPathWithinBoundingBox( const cvf::BoundingBox& we
 {
     if ( !m_rimWellPath->wellPathGeometry() ) return false;
 
-    const std::vector<cvf::Vec3d>& wellpathCenterLine = m_rimWellPath->wellPathGeometry()->m_wellPathPoints;
+    const std::vector<cvf::Vec3d>& wellpathCenterLine = m_rimWellPath->wellPathGeometry()->wellPathPoints();
     if ( wellpathCenterLine.size() < 2 ) return false;
 
     // Skip visualization if outside the domain of this case
@@ -430,7 +430,7 @@ void RivWellPathPartMgr::appendPerforationsToModel( cvf::ModelBasicList*        
     }
 
     // Since we're using the index of measured depths to find the index of a point, ensure they're equal
-    CVF_ASSERT( wellPathGeometry->m_measuredDepths.size() == wellPathGeometry->m_wellPathPoints.size() );
+    CVF_ASSERT( wellPathGeometry->measuredDepths().size() == wellPathGeometry->wellPathPoints().size() );
 
     double wellPathRadius    = this->wellPathRadius( characteristicCellSize, wellPathCollection );
     double perforationRadius = wellPathRadius * 1.1;
@@ -652,7 +652,7 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
     RigWellPath* wellPathGeometry = m_rimWellPath->wellPathGeometry();
     if ( !wellPathGeometry ) return;
 
-    const std::vector<cvf::Vec3d>& wellpathCenterLine = wellPathGeometry->m_wellPathPoints;
+    const std::vector<cvf::Vec3d>& wellpathCenterLine = wellPathGeometry->wellPathPoints();
 
     if ( wellpathCenterLine.size() < 2 ) return;
 

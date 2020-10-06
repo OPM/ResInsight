@@ -68,8 +68,8 @@ TEST( RigEclipseWellLogExtractor, ShortWellPathInsideOneCell )
             mdValues.push_back( offset );
         }
 
-        wellPathGeometry->m_wellPathPoints = wellPathPoints;
-        wellPathGeometry->m_measuredDepths = mdValues;
+        wellPathGeometry->setWellPathPoints( wellPathPoints );
+        wellPathGeometry->setMeasuredDepths( mdValues );
     }
 
     cvf::ref<RigEclipseWellLogExtractor> e = new RigEclipseWellLogExtractor( reservoir.p(), wellPathGeometry.p(), "" );

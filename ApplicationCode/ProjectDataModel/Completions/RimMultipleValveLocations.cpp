@@ -159,23 +159,18 @@ void RimMultipleValveLocations::computeRangesAndLocations()
             RimWellPath* wellPath = nullptr;
             this->firstAncestorOrThisOfTypeAsserted( wellPath );
 
-            RigWellPath* rigWellPathGeo = wellPath->wellPathGeometry();
-            if ( rigWellPathGeo && rigWellPathGeo->m_measuredDepths.size() > 1 )
+            double firstWellPathMD = wellPath->startMD();
+            double lastWellPathMD  = wellPath->endMD();
+
+            double overlapStart = std::max( firstWellPathMD, m_rangeStart() );
+            double overlapEnd   = std::min( lastWellPathMD, m_rangeEnd() );
+            double overlap      = std::max( 0.0, overlapEnd - overlapStart );
+
+            if ( overlap )
             {
-                double firstWellPathMD = rigWellPathGeo->m_measuredDepths.front();
-                double lastWellPathMD  = rigWellPathGeo->m_measuredDepths.back();
-
-                double overlapStart = std::max( firstWellPathMD, m_rangeStart() );
-                double overlapEnd   = std::min( lastWellPathMD, m_rangeEnd() );
-                double overlap      = std::max( 0.0, overlapEnd - overlapStart );
-
-                if ( overlap )
+                for ( auto md : locationsFromStartSpacingAndCount( overlapStart, m_rangeValveSpacing, m_rangeValveCount ) )
                 {
-                    for ( auto md :
-                          locationsFromStartSpacingAndCount( overlapStart, m_rangeValveSpacing, m_rangeValveCount ) )
-                    {
-                        validMeasuredDepths.push_back( md );
-                    }
+                    validMeasuredDepths.push_back( md );
                 }
             }
         }
@@ -433,13 +428,7 @@ double RimMultipleValveLocations::perforationEndMD() const
     RimWellPath* wellPath = nullptr;
     this->firstAncestorOrThisOfTypeAsserted( wellPath );
 
-    RigWellPath* rigWellPathGeo = wellPath->wellPathGeometry();
-    if ( rigWellPathGeo && !rigWellPathGeo->m_measuredDepths.empty() )
-    {
-        double lastWellPathMD = rigWellPathGeo->m_measuredDepths.back();
-        return lastWellPathMD;
-    }
-    return std::numeric_limits<double>::infinity();
+    return wellPath->endMD();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -434,7 +434,7 @@ std::vector<std::vector<cvf::Vec3d>> RimExtrudedCurveIntersection::polyLines( cv
     {
         if ( wellPath() && wellPath->wellPathGeometry() )
         {
-            lines.push_back( wellPath->wellPathGeometry()->m_wellPathPoints );
+            lines.push_back( wellPath->wellPathGeometry()->wellPathPoints() );
             RimCase* ownerCase = nullptr;
             this->firstAncestorOrThisOfType( ownerCase );
             if ( ownerCase )
@@ -550,7 +550,7 @@ void RimExtrudedCurveIntersection::updateSimulationWellCenterline() const
             auto branches = simulationWell->wellPipeBranches();
             for ( const auto& branch : branches )
             {
-                m_simulationWellBranchCenterlines.push_back( branch->m_wellPathPoints );
+                m_simulationWellBranchCenterlines.push_back( branch->wellPathPoints() );
             }
         }
     }

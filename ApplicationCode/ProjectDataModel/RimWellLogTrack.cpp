@@ -1988,9 +1988,9 @@ std::vector<std::pair<double, double>> RimWellLogTrack::waterAndRockRegions( Ria
     if ( depthType == RiaDefines::DepthTypeEnum::MEASURED_DEPTH )
     {
         double waterStartMD = 0.0;
-        if ( extractor->wellPathData()->rkbDiff() != std::numeric_limits<double>::infinity() )
+        if ( extractor->wellPathGeometry()->rkbDiff() != std::numeric_limits<double>::infinity() )
         {
-            waterStartMD += extractor->wellPathData()->rkbDiff();
+            waterStartMD += extractor->wellPathGeometry()->rkbDiff();
         }
         double waterEndMD = extractor->cellIntersectionMDs().front();
         double rockEndMD  = extractor->cellIntersectionMDs().back();
@@ -2005,9 +2005,9 @@ std::vector<std::pair<double, double>> RimWellLogTrack::waterAndRockRegions( Ria
     }
     else if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB )
     {
-        double waterStartTVDRKB = extractor->wellPathData()->rkbDiff();
-        double waterEndTVDRKB   = extractor->cellIntersectionTVDs().front() + extractor->wellPathData()->rkbDiff();
-        double rockEndTVDRKB    = extractor->cellIntersectionTVDs().back() + extractor->wellPathData()->rkbDiff();
+        double waterStartTVDRKB = extractor->wellPathGeometry()->rkbDiff();
+        double waterEndTVDRKB   = extractor->cellIntersectionTVDs().front() + extractor->wellPathGeometry()->rkbDiff();
+        double rockEndTVDRKB    = extractor->cellIntersectionTVDs().back() + extractor->wellPathGeometry()->rkbDiff();
         return {{waterStartTVDRKB, waterEndTVDRKB}, {waterEndTVDRKB, rockEndTVDRKB}};
     }
     return {};
@@ -2198,7 +2198,7 @@ CurveSamplingPointData RimWellLogTrack::curveSamplingPointData( RigEclipseWellLo
 
     curveData.md      = extractor->cellIntersectionMDs();
     curveData.tvd     = extractor->cellIntersectionTVDs();
-    curveData.rkbDiff = extractor->wellPathData()->rkbDiff();
+    curveData.rkbDiff = extractor->wellPathGeometry()->rkbDiff();
 
     extractor->curveData( resultAccessor, &curveData.data );
 
@@ -2215,7 +2215,7 @@ CurveSamplingPointData RimWellLogTrack::curveSamplingPointData( RigGeoMechWellLo
 
     curveData.md      = extractor->cellIntersectionMDs();
     curveData.tvd     = extractor->cellIntersectionTVDs();
-    curveData.rkbDiff = extractor->wellPathData()->rkbDiff();
+    curveData.rkbDiff = extractor->wellPathGeometry()->rkbDiff();
 
     extractor->curveData( resultAddress, 0, &curveData.data );
     return curveData;
@@ -2545,8 +2545,8 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
         else
         {
             eclWellLogExtractor =
-                RiaExtractionTools::wellLogExtractorEclipseCase( m_formationWellPathForSourceCase,
-                                                                 dynamic_cast<RimEclipseCase*>( m_formationCase() ) );
+                RiaExtractionTools::findOrCreateWellLogExtractor( m_formationWellPathForSourceCase,
+                                                                  dynamic_cast<RimEclipseCase*>( m_formationCase() ) );
         }
 
         if ( eclWellLogExtractor )
@@ -2566,8 +2566,8 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
         else
         {
             geoMechWellLogExtractor =
-                RiaExtractionTools::wellLogExtractorGeoMechCase( m_formationWellPathForSourceCase,
-                                                                 dynamic_cast<RimGeoMechCase*>( m_formationCase() ) );
+                RiaExtractionTools::findOrCreateWellLogExtractor( m_formationWellPathForSourceCase,
+                                                                  dynamic_cast<RimGeoMechCase*>( m_formationCase() ) );
             if ( !geoMechWellLogExtractor ) return;
 
             std::string activeFormationNamesResultName = RiaDefines::activeFormationNamesResultName().toStdString();
@@ -2659,8 +2659,8 @@ void RimWellLogTrack::updateResultPropertyNamesOnPlot()
     RiaDefines::DepthUnitType toDepthUnit   = plot->depthUnit();
 
     RigEclipseWellLogExtractor* eclWellLogExtractor =
-        RiaExtractionTools::wellLogExtractorEclipseCase( m_formationWellPathForSourceCase,
-                                                         dynamic_cast<RimEclipseCase*>( m_formationCase() ) );
+        RiaExtractionTools::findOrCreateWellLogExtractor( m_formationWellPathForSourceCase,
+                                                          dynamic_cast<RimEclipseCase*>( m_formationCase() ) );
 
     if ( !eclWellLogExtractor )
     {
@@ -2768,7 +2768,7 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
         {
             RigGeoMechWellLogExtractor* geoMechWellLogExtractor = nullptr;
             geoMechWellLogExtractor =
-                RiaExtractionTools::wellLogExtractorGeoMechCase( wellPath, dynamic_cast<RimGeoMechCase*>( geoMechCase ) );
+                RiaExtractionTools::findOrCreateWellLogExtractor( wellPath, dynamic_cast<RimGeoMechCase*>( geoMechCase ) );
             if ( !geoMechWellLogExtractor ) return;
 
             std::pair<double, double> xRange = std::make_pair( m_visibleXRangeMin(), m_visibleXRangeMax() );

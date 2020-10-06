@@ -20,6 +20,8 @@
 
 #include "cvfMatrix4.h"
 
+#include <gsl/gsl>
+
 #include <map>
 #include <vector>
 
@@ -48,7 +50,8 @@ public:
         double computeLength() const { return cvf::Math::sqrt( hlength * hlength + vlength * vlength ); }
     };
 
-    RigWellPathStimplanIntersector( const RigWellPath* wellpathGeom, const RimFracture* rimFracture );
+    RigWellPathStimplanIntersector( gsl::not_null<const RigWellPath*> wellpathGeom,
+                                    gsl::not_null<const RimFracture*> rimFracture );
 
     const std::map<size_t, WellCellIntersection>& intersections() const;
 

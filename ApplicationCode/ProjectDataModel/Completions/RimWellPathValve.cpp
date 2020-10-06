@@ -572,16 +572,11 @@ void RimWellPathValve::defineEditorAttribute( const caf::PdmFieldHandle* field,
             }
             else
             {
-                RimWellPath* rimWellPath = nullptr;
-                this->firstAncestorOrThisOfTypeAsserted( rimWellPath );
-                RigWellPath* wellPathGeo = rimWellPath->wellPathGeometry();
-                if ( !wellPathGeo ) return;
+                RimWellPath* wellPath = nullptr;
+                this->firstAncestorOrThisOfTypeAsserted( wellPath );
 
-                if ( wellPathGeo->m_measuredDepths.size() > 1 )
-                {
-                    minimumValue = wellPathGeo->measureDepths().front();
-                    maximumValue = wellPathGeo->measureDepths().back();
-                }
+                minimumValue = wellPath->startMD();
+                maximumValue = wellPath->endMD();
             }
             myAttr->m_minimum = minimumValue;
             myAttr->m_maximum = maximumValue;

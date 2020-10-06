@@ -121,7 +121,7 @@ double RifFractureModelPerfsFrkExporter::computeMeasuredDepthForPosition( const 
 {
     const RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
 
-    const std::vector<double>& mdValuesOfWellPath  = wellPathGeometry->measureDepths();
+    const std::vector<double>& mdValuesOfWellPath  = wellPathGeometry->measuredDepths();
     const std::vector<double>& tvdValuesOfWellPath = wellPathGeometry->trueVerticalDepths();
     const double               targetTvd           = -position.z();
 

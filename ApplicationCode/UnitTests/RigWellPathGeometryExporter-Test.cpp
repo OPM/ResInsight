@@ -39,8 +39,8 @@ TEST( RigWellPathGeometryExporter, VerticalPath )
 
     for ( double md : inputMds )
     {
-        rigWellPath.m_measuredDepths.push_back( md );
-        rigWellPath.m_wellPathPoints.push_back( cvf::Vec3d( x, y, -md ) );
+        rigWellPath.addMeasuredDepth( md );
+        rigWellPath.addWellPathPoint( cvf::Vec3d( x, y, -md ) );
     }
 
     double              mdStepSize = 5.0;
@@ -49,7 +49,7 @@ TEST( RigWellPathGeometryExporter, VerticalPath )
     std::vector<double> yValues;
     std::vector<double> tvdValues;
     std::vector<double> mdValues;
-    RigWellPathGeometryExporter::exportWellPathGeometry( &rigWellPath, mdStepSize, rkbOffset, xValues, yValues, tvdValues, mdValues );
+    RigWellPathGeometryExporter::exportWellPathGeometry( rigWellPath, mdStepSize, rkbOffset, xValues, yValues, tvdValues, mdValues );
 
     double firstMd               = inputMds.front();
     double lastMd                = inputMds.back();

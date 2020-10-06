@@ -40,27 +40,25 @@ RiaPolyArcLineSampler::RiaPolyArcLineSampler( const cvf::Vec3d&              sta
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-
-void RiaPolyArcLineSampler::sampledPointsAndMDs( double                   sampleInterval,
-                                                 bool                     isResamplingLines,
-                                                 std::vector<cvf::Vec3d>* points,
-                                                 std::vector<double>*     mds )
+std::pair<std::vector<cvf::Vec3d>, std::vector<double>>
+    RiaPolyArcLineSampler::sampledPointsAndMDs( double sampleInterval, bool isResamplingLines )
 {
     CVF_ASSERT( sampleInterval > 0.0 );
+
+    std::vector<cvf::Vec3d> points;
+    std::vector<double>     mds;
 
     m_maxSamplingsInterval = sampleInterval;
     m_isResamplingLines    = isResamplingLines;
 
     double startMD = 0.0;
-    points->clear();
-    mds->clear();
 
     std::vector<cvf::Vec3d> pointsNoDuplicates = RiaPolyArcLineSampler::pointsWithoutDuplicates( m_lineArcEndPoints );
 
-    if ( pointsNoDuplicates.size() < 2 ) return;
+    if ( pointsNoDuplicates.size() < 2 ) return std::make_pair( points, mds );
 
-    m_points  = points;
-    m_meshDs  = mds;
+    m_points  = &points;
+    m_meshDs  = &mds;
     m_totalMD = startMD;
 
     cvf::Vec3d p1 = pointsNoDuplicates[0];
@@ -75,7 +73,7 @@ void RiaPolyArcLineSampler::sampledPointsAndMDs( double                   sample
         sampleSegment( t2, pointsNoDuplicates[pIdx], pointsNoDuplicates[pIdx + 1], &t2 );
     }
 
-    return;
+    return std::make_pair( points, mds );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -20,6 +20,8 @@
 #include "RicMswExportInfo.h"
 #include "RigCompletionData.h"
 
+#include <gsl/gsl>
+
 class RicExportCompletionDataSettingsUi;
 class RifTextDataTableFormatter;
 class RigActiveCellInfo;
@@ -83,8 +85,8 @@ private:
     static std::vector<WellPathCellIntersectionInfo>
         filterIntersections( const std::vector<WellPathCellIntersectionInfo>& intersections,
                              double                                           initialMD,
-                             const RigWellPath*                               wellPathGeometry,
-                             const RimEclipseCase*                            eclipseCase );
+                             gsl::not_null<const RigWellPath*>                wellPathGeometry,
+                             gsl::not_null<const RimEclipseCase*>             eclipseCase );
 
     static void generateWelsegsTable( RifTextDataTableFormatter& formatter,
                                       const RicMswExportInfo&    exportInfo,
@@ -180,10 +182,11 @@ private:
                                                         std::shared_ptr<RicMswSegment>        segment,
                                                         bool* foundSubGridIntersections );
 
-    static std::vector<RigCompletionData> generatePerforationIntersections( const RimWellPath*            wellPath,
-                                                                            const RimPerforationInterval* perforationInterval,
-                                                                            int                           timeStep,
-                                                                            RimEclipseCase*               eclipseCase );
+    static std::vector<RigCompletionData>
+        generatePerforationIntersections( gsl::not_null<const RimWellPath*>            wellPath,
+                                          gsl::not_null<const RimPerforationInterval*> perforationInterval,
+                                          int                                          timeStep,
+                                          gsl::not_null<RimEclipseCase*>               eclipseCase );
 
     static void assignPerforationIntersections( const std::vector<RigCompletionData>& completionData,
                                                 std::shared_ptr<RicMswCompletion>     perforationCompletion,
@@ -196,5 +199,5 @@ private:
                 assignBranchNumbers( const RimEclipseCase* caseToApply, std::shared_ptr<RicMswSegment> segment, int* branchNum );
     static void assignBranchNumbers( const RimEclipseCase* caseToApply, RicMswExportInfo* exportInfo );
 
-    static double tvdFromMeasuredDepth( const RimWellPath* wellPath, double measuredDepth );
+    static double tvdFromMeasuredDepth( gsl::not_null<const RimWellPath*> wellPath, double measuredDepth );
 };

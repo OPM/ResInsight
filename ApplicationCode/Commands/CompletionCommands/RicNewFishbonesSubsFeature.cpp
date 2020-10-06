@@ -43,12 +43,7 @@
 
 CAF_CMD_SOURCE_INIT( RicNewFishbonesSubsFeature, "RicNewFishbonesSubsFeature" );
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double getWellPathTipMd( RimWellPath* wellPath );
-
-//--------------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RicNewFishbonesSubsFeature::onActionTriggered( bool isChecked )
@@ -63,7 +58,7 @@ void RicNewFishbonesSubsFeature::onActionTriggered( bool isChecked )
     RimFishbonesMultipleSubs* obj = new RimFishbonesMultipleSubs;
     fishbonesCollection->appendFishbonesSubs( obj );
 
-    double wellPathTipMd = getWellPathTipMd( wellPath );
+    double wellPathTipMd = wellPath->endMD();
     if ( wellPathTipMd != HUGE_VAL )
     {
         double startMd = wellPathTipMd - 150 - 100;
@@ -203,18 +198,4 @@ void RicNewFishbonesSubsFeature::askUserToSetUsefulScaling( RimFishbonesCollecti
 
         RiuMainWindow::instance()->updateScaleValue();
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double getWellPathTipMd( RimWellPath* wellPath )
-{
-    RigWellPath* geometry = wellPath ? wellPath->wellPathGeometry() : nullptr;
-
-    if ( geometry && !geometry->m_measuredDepths.empty() )
-    {
-        return geometry->m_measuredDepths.back();
-    }
-    return HUGE_VAL;
 }

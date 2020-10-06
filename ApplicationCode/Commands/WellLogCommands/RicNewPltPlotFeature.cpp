@@ -61,7 +61,7 @@ bool RicNewPltPlotFeature::isCommandEnabled()
 
     if ( selectedWellPath )
     {
-        if ( selectedWellPath->wellPathGeometry() == nullptr && !RimWellPlotTools::hasFlowData( selectedWellPath ) )
+        if ( !selectedWellPath->wellPathGeometry() || !RimWellPlotTools::hasFlowData( selectedWellPath ) )
         {
             return false;
         }

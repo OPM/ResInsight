@@ -1638,9 +1638,9 @@ void RiaApplication::loadAndUpdatePlotData()
         caf::ProgressInfo plotProgress( plotCount, "Loading Plot Data" );
         if ( wlpColl )
         {
-            for ( size_t wlpIdx = 0; wlpIdx < wlpColl->wellLogPlots().size(); ++wlpIdx )
+            for ( auto wellLogPlot : wlpColl->wellLogPlots() )
             {
-                wlpColl->wellLogPlots[wlpIdx]->loadDataAndUpdate();
+                wellLogPlot->loadDataAndUpdate();
                 plotProgress.incrementProgress();
             }
         }

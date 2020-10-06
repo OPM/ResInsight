@@ -79,7 +79,7 @@ void RicPasteWellLogPlotFeature::onActionTriggered( bool isChecked )
                 fileCurve->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
             CVF_ASSERT( newObject );
 
-            wellLogPlotCollection->wellLogPlots.push_back( newObject );
+            wellLogPlotCollection->addWellLogPlot( newObject );
 
             // Resolve references after object has been inserted into the project data model
             newObject->resolveReferencesRecursively();

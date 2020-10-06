@@ -22,13 +22,12 @@
 
 #include "RiaEclipseUnitTools.h"
 
-#include "RimWellPathComponentInterface.h"
+#include "RimAbstractWellPath.h"
 
 #include "cafAppEnum.h"
 #include "cafFilePath.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
-#include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 #include "cafPdmProxyValueField.h"
 
@@ -42,7 +41,6 @@
 
 class RifWellPathImporter;
 class RifWellPathFormationsImporter;
-class RigWellPath;
 class RimProject;
 class RimWellLogFile;
 class RimFractureTemplateCollection;
@@ -63,7 +61,7 @@ class Rim3dWellLogCurveCollection;
 ///
 ///
 //==================================================================================================
-class RimWellPath : public caf::PdmObject, public RimWellPathComponentInterface
+class RimWellPath : public RimAbstractWellPath
 {
     CAF_PDM_HEADER_INIT;
 
@@ -90,8 +88,8 @@ public:
     double airGap() const;
     double datumElevation() const;
 
-    RigWellPath*       wellPathGeometry();
-    const RigWellPath* wellPathGeometry() const;
+    RigWellPath*       wellPathGeometry() override;
+    const RigWellPath* wellPathGeometry() const override;
 
     void                         addWellLogFile( RimWellLogFile* logFileInfo );
     void                         deleteWellLogFile( RimWellLogFile* logFileInfo );
@@ -136,8 +134,6 @@ public:
     QString                           componentLabel() const override;
     QString                           componentTypeLabel() const override;
     cvf::Color3f                      defaultComponentColor() const override;
-    double                            startMD() const override;
-    double                            endMD() const override;
 
     void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
@@ -188,8 +184,7 @@ private:
 
 private:
     // Geometry and data
-
-    cvf::ref<RigWellPath>           m_wellPath;
+    cvf::ref<RigWellPath>           m_wellPathGeometry;
     cvf::ref<RigWellPathFormations> m_wellPathFormations;
 
     // Obsolete fields

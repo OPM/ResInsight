@@ -54,12 +54,10 @@ RiuWellPathComponentPlotItem::RiuWellPathComponentPlotItem( const RimWellPath* w
     , m_showLabel( false )
 {
     CVF_ASSERT( wellPath && wellPath->wellPathGeometry() );
-    double wellStart = 0.0;
-    double wellEnd   = wellPath->wellPathGeometry()->measureDepths().back();
-    m_startMD        = wellStart;
-    m_endMD          = wellEnd;
-    m_label          = wellPath->name();
-    m_legendTitle    = "Well Tube";
+    m_startMD     = wellPath->startMD();
+    m_endMD       = wellPath->endMD();
+    m_label       = wellPath->name();
+    m_legendTitle = "Well Tube";
 }
 
 //--------------------------------------------------------------------------------------------------

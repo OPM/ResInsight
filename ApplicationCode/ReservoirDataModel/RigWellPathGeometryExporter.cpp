@@ -27,13 +27,13 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellPathGeometryExporter::exportWellPathGeometry( const RimWellPath*   wellPath,
-                                                          double               mdStepSize,
-                                                          std::vector<double>& xValues,
-                                                          std::vector<double>& yValues,
-                                                          std::vector<double>& tvdValues,
-                                                          std::vector<double>& mdValues,
-                                                          bool&                useMdRkb )
+void RigWellPathGeometryExporter::exportWellPathGeometry( gsl::not_null<const RimWellPath*> wellPath,
+                                                          double                            mdStepSize,
+                                                          std::vector<double>&              xValues,
+                                                          std::vector<double>&              yValues,
+                                                          std::vector<double>&              tvdValues,
+                                                          std::vector<double>&              mdValues,
+                                                          bool&                             useMdRkb )
 {
     auto wellPathGeom = wellPath->wellPathGeometry();
     if ( !wellPathGeom ) return;
@@ -41,7 +41,7 @@ void RigWellPathGeometryExporter::exportWellPathGeometry( const RimWellPath*   w
     useMdRkb         = false;
     double rkbOffset = 0.0;
     {
-        const RimModeledWellPath* modeledWellPath = dynamic_cast<const RimModeledWellPath*>( wellPath );
+        const RimModeledWellPath* modeledWellPath = dynamic_cast<const RimModeledWellPath*>( wellPath.get() );
         if ( modeledWellPath )
         {
             useMdRkb = true;
@@ -55,13 +55,13 @@ void RigWellPathGeometryExporter::exportWellPathGeometry( const RimWellPath*   w
             }
         }
     }
-    exportWellPathGeometry( wellPathGeom, mdStepSize, rkbOffset, xValues, yValues, tvdValues, mdValues );
+    exportWellPathGeometry( *wellPathGeom, mdStepSize, rkbOffset, xValues, yValues, tvdValues, mdValues );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellPathGeometryExporter::exportWellPathGeometry( const RigWellPath*   wellPathGeom,
+void RigWellPathGeometryExporter::exportWellPathGeometry( const RigWellPath&   wellPathGeom,
                                                           double               mdStepSize,
                                                           double               rkbOffset,
                                                           std::vector<double>& xValues,
@@ -69,8 +69,8 @@ void RigWellPathGeometryExporter::exportWellPathGeometry( const RigWellPath*   w
                                                           std::vector<double>& tvdValues,
                                                           std::vector<double>& mdValues )
 {
-    double currMd = wellPathGeom->measureDepths().front() - mdStepSize;
-    double endMd  = wellPathGeom->measureDepths().back();
+    double currMd = wellPathGeom.measuredDepths().front() - mdStepSize;
+    double endMd  = wellPathGeom.measuredDepths().back();
 
     bool   isFirst = true;
     double prevMd  = 0.0;
@@ -80,7 +80,7 @@ void RigWellPathGeometryExporter::exportWellPathGeometry( const RigWellPath*   w
         currMd += mdStepSize;
         if ( currMd > endMd ) currMd = endMd;
 
-        auto   pt  = wellPathGeom->interpolatedPointAlongWellPath( currMd );
+        auto   pt  = wellPathGeom.interpolatedPointAlongWellPath( currMd );
         double tvd = -pt.z();
 
         // The change in measured depth (MD) must be greater or equal to change in

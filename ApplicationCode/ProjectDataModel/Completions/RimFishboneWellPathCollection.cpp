@@ -68,8 +68,8 @@ void RimFishboneWellPathCollection::importCompletionsFromFile( const QStringList
             RifWellPathImporter::WellData wellData       = wellPathImporter.readWellData( filePath, i );
             RimFishboneWellPath*          wellCompletion = new RimFishboneWellPath();
             wellCompletion->setName( wellData.m_name );
-            wellCompletion->setCoordinates( wellData.m_wellPathGeometry->m_wellPathPoints );
-            wellCompletion->setMeasuredDepths( wellData.m_wellPathGeometry->m_measuredDepths );
+            wellCompletion->setCoordinates( wellData.m_wellPathGeometry->wellPathPoints() );
+            wellCompletion->setMeasuredDepths( wellData.m_wellPathGeometry->measuredDepths() );
             appendCompletion( wellCompletion );
         }
     }
