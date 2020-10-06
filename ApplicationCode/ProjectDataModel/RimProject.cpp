@@ -1118,16 +1118,16 @@ RimWellPath* RimProject::wellPathByName( const QString& wellPathName ) const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellPath*> RimProject::allWellPaths() const
 {
-    std::vector<RimWellPath*> paths;
+    std::vector<RimWellPath*> wellPaths;
     for ( const auto& oilField : oilFields() )
     {
         auto wellPathColl = oilField->wellPathCollection();
-        for ( const auto& path : wellPathColl->wellPaths )
+        for ( auto wellPath : wellPathColl->wellPaths() )
         {
-            paths.push_back( path );
+            wellPaths.push_back( wellPath );
         }
     }
-    return paths;
+    return wellPaths;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -34,6 +34,8 @@
 
 #include "cvfObject.h"
 
+#include <memory>
+
 class RifWellPathImporter;
 class RigWellPath;
 class RimFileWellPath;
@@ -87,13 +89,12 @@ public:
     caf::PdmField<bool>               wellPathClip;
     caf::PdmField<int>                wellPathClipZDistance;
 
-    caf::PdmChildArrayField<RimWellPath*> wellPaths;
-
     void                      loadDataAndUpdate();
     std::vector<RimWellPath*> addWellPaths( QStringList filePaths, QStringList* errorMessages );
 
-    void removeWellPath( RimWellPath* wellPath );
-    void deleteAllWellPaths();
+    std::vector<RimWellPath*> wellPaths();
+    void                      removeWellPath( RimWellPath* wellPath );
+    void                      deleteAllWellPaths();
 
     RimWellPath* mostRecentlyUpdatedWellPath();
 
@@ -132,8 +133,10 @@ private:
 
     RiaEclipseUnitTools::UnitSystemType findUnitSystemForWellPath( const RimWellPath* wellPath );
 
-    RifWellPathImporter*                              m_wellPathImporter;
-    RifWellPathFormationsImporter*                    m_wellPathFormationsImporter;
+    std::unique_ptr<RifWellPathImporter>           m_wellPathImporter;
+    std::unique_ptr<RifWellPathFormationsImporter> m_wellPathFormationsImporter;
+
     caf::PdmPointer<RimWellPath>                      m_mostRecentlyUpdatedWellPath;
     caf::PdmChildField<RimWellMeasurementCollection*> m_wellMeasurements;
+    caf::PdmChildArrayField<RimWellPath*>             m_wellPaths;
 };
