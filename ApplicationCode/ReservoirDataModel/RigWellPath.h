@@ -35,14 +35,21 @@ class BoundingBox;
 class RigWellPath : public cvf::Object
 {
 public:
-    std::vector<cvf::Vec3d> m_wellPathPoints;
-    std::vector<double>     m_measuredDepths;
+    RigWellPath();
+    RigWellPath( const std::vector<cvf::Vec3d>& wellPathPoints, const std::vector<double>& measuredDepths );
+    RigWellPath( const RigWellPath& rhs );
+    RigWellPath& operator=( const RigWellPath& rhs );
 
     const std::vector<cvf::Vec3d>& wellPathPoints() const;
-    const std::vector<double>&     measureDepths() const;
+    const std::vector<double>&     measuredDepths() const;
     std::vector<double>            trueVerticalDepths() const;
 
-    RigWellPath();
+    void setWellPathPoints( const std::vector<cvf::Vec3d>& wellPathPoints );
+    void setMeasuredDepths( const std::vector<double>& measuredDepths );
+
+    void addWellPathPoint( const cvf::Vec3d& wellPathPoint );
+    void addMeasuredDepth( double measuredDepth );
+
     void       setDatumElevation( double value );
     bool       hasDatumElevation() const;
     double     datumElevation() const;
@@ -69,6 +76,9 @@ public:
                                                             size_t* indexToFirstVisibleSegment );
 
 private:
+    std::vector<cvf::Vec3d> m_wellPathPoints;
+    std::vector<double>     m_measuredDepths;
+
     bool   m_hasDatumElevation;
     double m_datumElevation;
 };

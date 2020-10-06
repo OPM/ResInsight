@@ -58,17 +58,7 @@ add_library( ${PROJECT_NAME} OBJECT
 target_include_directories(${PROJECT_NAME}
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
-  $<TARGET_PROPERTY:LibCore,INCLUDE_DIRECTORIES>        # Needed for cmake version < 3.12. Remove when we can use target_link_libraries
-  $<TARGET_PROPERTY:cafCommand,INCLUDE_DIRECTORIES>     # Needed for cmake version < 3.12. Remove when we can use target_link_libraries
-  $<TARGET_PROPERTY:cafPdmCvf,INCLUDE_DIRECTORIES>      # Needed for cmake version < 3.12. Remove when we can use target_link_libraries
-  $<TARGET_PROPERTY:cafPdmScripting,INCLUDE_DIRECTORIES>      # Needed for cmake version < 3.12. Remove when we can use target_link_libraries
-  $<TARGET_PROPERTY:cafTensor,INCLUDE_DIRECTORIES>      # Needed for cmake version < 3.12. Remove when we can use target_link_libraries
-  $<TARGET_PROPERTY:cafViewer,INCLUDE_DIRECTORIES>      # Needed for cmake version < 3.12. Remove when we can use target_link_libraries
-  $<TARGET_PROPERTY:cafVizExtensions,INCLUDE_DIRECTORIES>       # Needed for cmake version < 3.12. Remove when we can use target_link_libraries
-  $<TARGET_PROPERTY:ecl,INCLUDE_DIRECTORIES>            # Needed for cmake version < 3.12. Remove when we can use target_link_libraries
-  $<TARGET_PROPERTY:nightcharts,INCLUDE_DIRECTORIES>    # Needed for cmake version < 3.12. Remove when we can use target_link_libraries
-  $<TARGET_PROPERTY:qwt,INCLUDE_DIRECTORIES>            # Needed for cmake version < 3.12. Remove when we can use target_link_libraries
-  ${Qt5Network_INCLUDE_DIRS}                           # Needed for cmake version < 3.12. Remove when we can use target_link_libraries
+    ${CMAKE_SOURCE_DIR}/ThirdParty
 )
 
 #  Before cmake 3.12 OBJECT libraries could not use the target_link_libraries command, 
@@ -76,22 +66,23 @@ target_include_directories(${PROJECT_NAME}
 set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 #  Use this code when 3.12 can be used as minimum version of cmake
-#set( LINK_LIBRARIES
-#  LibCore 
-#  cafCommand
-#  cafPdmCvf
-#  cafTensor
-#  cafViewer
-#  cafVizExtensions
-#  ecl
-#  nightcharts
-#  qwt
+set( LINK_LIBRARIES
+  LibCore 
+  cafCommand
+  cafPdmCvf
+  cafPdmScripting
+  cafTensor
+  cafViewer
+  cafVizExtensions
+  ecl
+  nightcharts
+  qwt
 
-#  ${QT_LIBRARIES}
-#)
+  ${QT_LIBRARIES}
+)
 
-#target_link_libraries( ${PROJECT_NAME}
-#  ${LINK_LIBRARIES}
-#)
+target_link_libraries( ${PROJECT_NAME}
+  ${LINK_LIBRARIES}
+)
 
 source_group("" FILES ${PROJECT_FILES})

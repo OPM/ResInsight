@@ -25,8 +25,9 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigWellLogExtractor::RigWellLogExtractor( const RigWellPath* wellpath, const std::string& wellCaseErrorMsgName )
-    : m_wellPath( wellpath )
+RigWellLogExtractor::RigWellLogExtractor( gsl::not_null<const RigWellPath*> wellpath,
+                                          const std::string&                wellCaseErrorMsgName )
+    : m_wellPathGeometry( wellpath )
     , m_wellCaseErrorMsgName( wellCaseErrorMsgName )
 {
 }
@@ -97,9 +98,9 @@ const std::vector<size_t>& RigWellLogExtractor::intersectedCellsGlobIdx() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RigWellPath* RigWellLogExtractor::wellPathData() const
+const RigWellPath* RigWellLogExtractor::wellPathGeometry() const
 {
-    return m_wellPath.p();
+    return m_wellPathGeometry.p();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -201,14 +202,15 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
         {
             // Needs wellpath start point in front
             HexIntersectionInfo firstLeavingPoint      = it->second;
-            firstLeavingPoint.m_intersectionPoint      = m_wellPath->m_wellPathPoints[0];
+            firstLeavingPoint.m_intersectionPoint      = m_wellPathGeometry->wellPathPoints()[0];
             firstLeavingPoint.m_face                   = cvf::StructGridInterface::NO_FACE;
             firstLeavingPoint.m_isIntersectionEntering = true;
 
-            sortedUniqueIntersections.insert( std::make_pair( RigMDEnterLeaveCellIdxKey( m_wellPath->m_measuredDepths[0],
-                                                                                         true,
-                                                                                         firstLeavingPoint.m_hexIndex ),
-                                                              firstLeavingPoint ) );
+            sortedUniqueIntersections.insert(
+                std::make_pair( RigMDEnterLeaveCellIdxKey( m_wellPathGeometry->measuredDepths()[0],
+                                                           true,
+                                                           firstLeavingPoint.m_hexIndex ),
+                                firstLeavingPoint ) );
         }
 
         // Add an intersection for the well endpoint possibly inside the last cell.
@@ -220,12 +222,14 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
         {
             // Needs wellpath end point at end
             HexIntersectionInfo lastEnterPoint      = rit->second;
-            lastEnterPoint.m_intersectionPoint      = m_wellPath->m_wellPathPoints.back();
+            lastEnterPoint.m_intersectionPoint      = m_wellPathGeometry->wellPathPoints().back();
             lastEnterPoint.m_isIntersectionEntering = false;
             lastEnterPoint.m_face                   = cvf::StructGridInterface::NO_FACE;
 
             sortedUniqueIntersections.insert(
-                std::make_pair( RigMDEnterLeaveCellIdxKey( m_wellPath->m_measuredDepths.back(), false, lastEnterPoint.m_hexIndex ),
+                std::make_pair( RigMDEnterLeaveCellIdxKey( m_wellPathGeometry->measuredDepths().back(),
+                                                           false,
+                                                           lastEnterPoint.m_hexIndex ),
                                 lastEnterPoint ) );
         }
     }

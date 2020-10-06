@@ -60,7 +60,7 @@ RimWellBoreStabilityPlot*
 
     plot->setAsPlotMdiWindow();
 
-    wellLogPlotColl->wellLogPlots().push_back( plot );
+    wellLogPlotColl->addWellLogPlot( plot );
 
     if ( !plotDescription.isEmpty() )
     {
@@ -69,7 +69,7 @@ RimWellBoreStabilityPlot*
     else
     {
         plot->nameConfig()->setCustomName(
-            QString( "Well Bore Stability Plot %1" ).arg( wellLogPlotCollection()->wellLogPlots.size() ) );
+            QString( "Well Bore Stability Plot %1" ).arg( wellLogPlotCollection()->wellLogPlots().size() ) );
     }
 
     if ( showAfterCreation )
@@ -94,7 +94,7 @@ RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createWellLogPlot( bool showAfterC
     RimWellLogPlot* plot = new RimWellLogPlot();
     plot->setAsPlotMdiWindow();
 
-    wellLogPlotColl->wellLogPlots().push_back( plot );
+    wellLogPlotColl->addWellLogPlot( plot );
 
     if ( !plotDescription.isEmpty() )
     {
@@ -103,7 +103,7 @@ RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createWellLogPlot( bool showAfterC
     else
     {
         plot->nameConfig()->setCustomName(
-            QString( "Well Log Plot %1" ).arg( wellLogPlotCollection()->wellLogPlots.size() ) );
+            QString( "Well Log Plot %1" ).arg( wellLogPlotCollection()->wellLogPlots().size() ) );
     }
 
     if ( showAfterCreation )

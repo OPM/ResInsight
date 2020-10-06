@@ -37,9 +37,9 @@
 ///
 //==================================================================================================
 
-RigEclipseWellLogExtractor::RigEclipseWellLogExtractor( const RigEclipseCaseData* aCase,
-                                                        const RigWellPath*        wellpath,
-                                                        const std::string&        wellCaseErrorMsgName )
+RigEclipseWellLogExtractor::RigEclipseWellLogExtractor( gsl::not_null<const RigEclipseCaseData*> aCase,
+                                                        gsl::not_null<const RigWellPath*>        wellpath,
+                                                        const std::string&                       wellCaseErrorMsgName )
     : RigWellLogExtractor( wellpath, wellCaseErrorMsgName )
     , m_caseData( aCase )
 {
@@ -55,13 +55,13 @@ void RigEclipseWellLogExtractor::calculateIntersection()
 
     bool isCellFaceNormalsOut = m_caseData->mainGrid()->isFaceNormalsOutwards();
 
-    if ( m_wellPath->m_wellPathPoints.empty() ) return;
+    if ( m_wellPathGeometry->wellPathPoints().empty() ) return;
 
-    for ( size_t wpp = 0; wpp < m_wellPath->m_wellPathPoints.size() - 1; ++wpp )
+    for ( size_t wpp = 0; wpp < m_wellPathGeometry->wellPathPoints().size() - 1; ++wpp )
     {
         std::vector<HexIntersectionInfo> intersections;
-        cvf::Vec3d                       p1 = m_wellPath->m_wellPathPoints[wpp];
-        cvf::Vec3d                       p2 = m_wellPath->m_wellPathPoints[wpp + 1];
+        cvf::Vec3d                       p1 = m_wellPathGeometry->wellPathPoints()[wpp];
+        cvf::Vec3d                       p2 = m_wellPathGeometry->wellPathPoints()[wpp + 1];
 
         cvf::BoundingBox bb;
 
@@ -96,19 +96,19 @@ void RigEclipseWellLogExtractor::calculateIntersection()
         // Inserting the intersections in this map will remove identical intersections
         // and sort them according to MD, CellIdx, Leave/enter
 
-        double md1 = m_wellPath->m_measuredDepths[wpp];
-        double md2 = m_wellPath->m_measuredDepths[wpp + 1];
+        double md1 = m_wellPathGeometry->measuredDepths()[wpp];
+        double md2 = m_wellPathGeometry->measuredDepths()[wpp + 1];
 
         insertIntersectionsInMap( intersections, p1, md1, p2, md2, &uniqueIntersections );
     }
 
-    if ( uniqueIntersections.empty() && m_wellPath->m_wellPathPoints.size() > 1 )
+    if ( uniqueIntersections.empty() && m_wellPathGeometry->wellPathPoints().size() > 1 )
     {
         // When entering this function, all well path points are either completely outside the grid
         // or all well path points are inside one cell
 
-        cvf::Vec3d firstPoint = m_wellPath->m_wellPathPoints.front();
-        cvf::Vec3d lastPoint  = m_wellPath->m_wellPathPoints.back();
+        cvf::Vec3d firstPoint = m_wellPathGeometry->wellPathPoints().front();
+        cvf::Vec3d lastPoint  = m_wellPathGeometry->wellPathPoints().back();
 
         {
             cvf::BoundingBox bb;
@@ -137,7 +137,7 @@ void RigEclipseWellLogExtractor::calculateIntersection()
                                                       isEntering,
                                                       cvf::StructGridInterface::NO_FACE,
                                                       globalCellIndex );
-                            RigMDCellIdxEnterLeaveKey enterLeaveKey( m_wellPath->m_measuredDepths.front(),
+                            RigMDCellIdxEnterLeaveKey enterLeaveKey( m_wellPathGeometry->measuredDepths().front(),
                                                                      globalCellIndex,
                                                                      isEntering );
 
@@ -149,7 +149,7 @@ void RigEclipseWellLogExtractor::calculateIntersection()
 
                             bool                isEntering = false;
                             HexIntersectionInfo info( lastPoint, isEntering, cvf::StructGridInterface::NO_FACE, globalCellIndex );
-                            RigMDCellIdxEnterLeaveKey enterLeaveKey( m_wellPath->m_measuredDepths.back(),
+                            RigMDCellIdxEnterLeaveKey enterLeaveKey( m_wellPathGeometry->measuredDepths().back(),
                                                                      globalCellIndex,
                                                                      isEntering );
 

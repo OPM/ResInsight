@@ -640,7 +640,7 @@ std::map<QString, std::vector<RigCompletionData>>
             auto it = completions.find( gridName );
             if ( it == completions.end() )
             {
-                completions.insert( std::pair<QString, std::vector<RigCompletionData>>( gridName, { completion } ) );
+                completions.insert( std::pair<QString, std::vector<RigCompletionData>>( gridName, {completion} ) );
             }
             else
             {
@@ -716,19 +716,19 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspecsToFile( RimEclips
     RifTextDataTableFormatter formatter( stream );
     formatter.setColumnSpacing( 2 );
 
-    std::vector<RifTextDataTableColumn> header = { RifTextDataTableColumn( "Well" ),
-                                                   RifTextDataTableColumn( "Grp" ),
-                                                   RifTextDataTableColumn( "I" ),
-                                                   RifTextDataTableColumn( "J" ),
-                                                   RifTextDataTableColumn( "RefDepth" ),
-                                                   RifTextDataTableColumn( "Type" ),
-                                                   RifTextDataTableColumn( "DrainRad" ),
-                                                   RifTextDataTableColumn( "GasInEq" ),
-                                                   RifTextDataTableColumn( "AutoShut" ),
-                                                   RifTextDataTableColumn( "XFlow" ),
-                                                   RifTextDataTableColumn( "FluidPVT" ),
-                                                   RifTextDataTableColumn( "HydSDens" ),
-                                                   RifTextDataTableColumn( "FluidInPlReg" ) };
+    std::vector<RifTextDataTableColumn> header = {RifTextDataTableColumn( "Well" ),
+                                                  RifTextDataTableColumn( "Grp" ),
+                                                  RifTextDataTableColumn( "I" ),
+                                                  RifTextDataTableColumn( "J" ),
+                                                  RifTextDataTableColumn( "RefDepth" ),
+                                                  RifTextDataTableColumn( "Type" ),
+                                                  RifTextDataTableColumn( "DrainRad" ),
+                                                  RifTextDataTableColumn( "GasInEq" ),
+                                                  RifTextDataTableColumn( "AutoShut" ),
+                                                  RifTextDataTableColumn( "XFlow" ),
+                                                  RifTextDataTableColumn( "FluidPVT" ),
+                                                  RifTextDataTableColumn( "HydSDens" ),
+                                                  RifTextDataTableColumn( "FluidInPlReg" )};
 
     formatter.keyword( "WELSPECS" );
     formatter.header( header );
@@ -783,20 +783,20 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspeclToFile(
     RifTextDataTableFormatter formatter( stream );
     formatter.setColumnSpacing( 2 );
 
-    std::vector<RifTextDataTableColumn> header = { RifTextDataTableColumn( "Well" ),
-                                                   RifTextDataTableColumn( "Grp" ),
-                                                   RifTextDataTableColumn( "LGR" ),
-                                                   RifTextDataTableColumn( "I" ),
-                                                   RifTextDataTableColumn( "J" ),
-                                                   RifTextDataTableColumn( "RefDepth" ),
-                                                   RifTextDataTableColumn( "Type" ),
-                                                   RifTextDataTableColumn( "DrainRad" ),
-                                                   RifTextDataTableColumn( "GasInEq" ),
-                                                   RifTextDataTableColumn( "AutoShut" ),
-                                                   RifTextDataTableColumn( "XFlow" ),
-                                                   RifTextDataTableColumn( "FluidPVT" ),
-                                                   RifTextDataTableColumn( "HydSDens" ),
-                                                   RifTextDataTableColumn( "FluidInPlReg" ) };
+    std::vector<RifTextDataTableColumn> header = {RifTextDataTableColumn( "Well" ),
+                                                  RifTextDataTableColumn( "Grp" ),
+                                                  RifTextDataTableColumn( "LGR" ),
+                                                  RifTextDataTableColumn( "I" ),
+                                                  RifTextDataTableColumn( "J" ),
+                                                  RifTextDataTableColumn( "RefDepth" ),
+                                                  RifTextDataTableColumn( "Type" ),
+                                                  RifTextDataTableColumn( "DrainRad" ),
+                                                  RifTextDataTableColumn( "GasInEq" ),
+                                                  RifTextDataTableColumn( "AutoShut" ),
+                                                  RifTextDataTableColumn( "XFlow" ),
+                                                  RifTextDataTableColumn( "FluidPVT" ),
+                                                  RifTextDataTableColumn( "HydSDens" ),
+                                                  RifTextDataTableColumn( "FluidInPlReg" )};
 
     formatter.keyword( "WELSPECL" );
     formatter.header( header );
@@ -960,46 +960,44 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatTableUsingFormatte
 
     if ( gridName.isEmpty() )
     {
-        header =
-            { RifTextDataTableColumn( "Well" ),
-              RifTextDataTableColumn( "I" ),
-              RifTextDataTableColumn( "J" ),
-              RifTextDataTableColumn( "K1" ),
-              RifTextDataTableColumn( "K2" ),
-              RifTextDataTableColumn( "Status" ),
-              RifTextDataTableColumn( "SAT" ),
-              RifTextDataTableColumn( "TR",
-                                      RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
-              RifTextDataTableColumn( "DIAM" ),
-              RifTextDataTableColumn( "KH",
-                                      RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
-              RifTextDataTableColumn( "S" ),
-              RifTextDataTableColumn( "Df",
-                                      RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
-              RifTextDataTableColumn( "DIR" ) };
+        header = {RifTextDataTableColumn( "Well" ),
+                  RifTextDataTableColumn( "I" ),
+                  RifTextDataTableColumn( "J" ),
+                  RifTextDataTableColumn( "K1" ),
+                  RifTextDataTableColumn( "K2" ),
+                  RifTextDataTableColumn( "Status" ),
+                  RifTextDataTableColumn( "SAT" ),
+                  RifTextDataTableColumn( "TR",
+                                          RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
+                  RifTextDataTableColumn( "DIAM" ),
+                  RifTextDataTableColumn( "KH",
+                                          RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
+                  RifTextDataTableColumn( "S" ),
+                  RifTextDataTableColumn( "Df",
+                                          RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
+                  RifTextDataTableColumn( "DIR" )};
 
         formatter.keyword( "COMPDAT" );
     }
     else
     {
-        header =
-            { RifTextDataTableColumn( "Well" ),
-              RifTextDataTableColumn( "LgrName" ),
-              RifTextDataTableColumn( "I" ),
-              RifTextDataTableColumn( "J" ),
-              RifTextDataTableColumn( "K1" ),
-              RifTextDataTableColumn( "K2" ),
-              RifTextDataTableColumn( "Status" ),
-              RifTextDataTableColumn( "SAT" ),
-              RifTextDataTableColumn( "TR",
-                                      RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
-              RifTextDataTableColumn( "DIAM" ),
-              RifTextDataTableColumn( "KH",
-                                      RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
-              RifTextDataTableColumn( "S" ),
-              RifTextDataTableColumn( "Df",
-                                      RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
-              RifTextDataTableColumn( "DIR" ) };
+        header = {RifTextDataTableColumn( "Well" ),
+                  RifTextDataTableColumn( "LgrName" ),
+                  RifTextDataTableColumn( "I" ),
+                  RifTextDataTableColumn( "J" ),
+                  RifTextDataTableColumn( "K1" ),
+                  RifTextDataTableColumn( "K2" ),
+                  RifTextDataTableColumn( "Status" ),
+                  RifTextDataTableColumn( "SAT" ),
+                  RifTextDataTableColumn( "TR",
+                                          RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
+                  RifTextDataTableColumn( "DIAM" ),
+                  RifTextDataTableColumn( "KH",
+                                          RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
+                  RifTextDataTableColumn( "S" ),
+                  RifTextDataTableColumn( "Df",
+                                          RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
+                  RifTextDataTableColumn( "DIR" )};
 
         formatter.keyword( "COMPDATL" );
     }
@@ -1151,22 +1149,21 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWpimultTableUsingFormatte
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::generatePerforationsCompdatValues(
-    const RimWellPath*                                wellPath,
+    gsl::not_null<const RimWellPath*>                 wellPath,
     const std::vector<const RimPerforationInterval*>& intervals,
     const RicExportCompletionDataSettingsUi&          settings )
 {
     RiaEclipseUnitTools::UnitSystem unitSystem = settings.caseToApply->eclipseCaseData()->unitsType();
 
     std::vector<RigCompletionData> completionData;
-    if ( !wellPath || !wellPath->wellPathGeometry() )
-    {
-        return completionData;
-    }
 
     const RigActiveCellInfo* activeCellInfo =
         settings.caseToApply->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
+    auto wellPathGeometry = wellPath->wellPathGeometry();
+    if ( !wellPathGeometry ) return completionData;
     auto timeSteps = settings.caseToApply->timeStepDates();
+
 
     if ( wellPath->perforationIntervalCollection()->isChecked() )
     {
@@ -1178,7 +1175,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::gener
                 continue;
 
             std::pair<std::vector<cvf::Vec3d>, std::vector<double>> perforationPointsAndMD =
-                wellPath->wellPathGeometry()->clippedPointSubset( interval->startMD(), interval->endMD() );
+                wellPathGeometry->clippedPointSubset( interval->startMD(), interval->endMD() );
 
             std::vector<WellPathCellIntersectionInfo> intersectedCells =
                 RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath( settings.caseToApply->eclipseCaseData(),
@@ -1274,7 +1271,7 @@ void RicWellPathExportCompletionDataFeatureImpl::appendCompletionData(
         {
             completionData->insert(
                 std::pair<size_t, std::vector<RigCompletionData>>( completion.completionDataGridCell().globalCellIndex(),
-                                                                   std::vector<RigCompletionData>{ completion } ) );
+                                                                   std::vector<RigCompletionData>{completion} ) );
         }
     }
 }
@@ -1654,17 +1651,20 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityAsEc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, cvf::Vec2i>
-    RicWellPathExportCompletionDataFeatureImpl::wellPathUpperGridIntersectionIJ( const RimEclipseCase* gridCase,
-                                                                                 const RimWellPath*    wellPath,
-                                                                                 const QString&        gridName )
+std::pair<double, cvf::Vec2i> RicWellPathExportCompletionDataFeatureImpl::wellPathUpperGridIntersectionIJ(
+    gsl::not_null<const RimEclipseCase*> gridCase,
+    gsl::not_null<const RimWellPath*>    wellPath,
+    const QString&                       gridName )
 {
     const RigEclipseCaseData* caseData       = gridCase->eclipseCaseData();
     const RigMainGrid*        mainGrid       = caseData->mainGrid();
     const RigActiveCellInfo*  activeCellInfo = caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    const RigWellPath*        wellPathGeometry = wellPath->wellPathGeometry();
-    const std::vector<cvf::Vec3d>& coords      = wellPathGeometry->wellPathPoints();
-    const std::vector<double>&     mds         = wellPathGeometry->measureDepths();
+
+    auto wellPathGeometry = wellPath->wellPathGeometry();
+    CVF_ASSERT( wellPathGeometry );
+
+    const std::vector<cvf::Vec3d>& coords = wellPathGeometry->wellPathPoints();
+    const std::vector<double>&     mds    = wellPathGeometry->measuredDepths();
     CVF_ASSERT( !coords.empty() && !mds.empty() );
 
     std::vector<WellPathCellIntersectionInfo> intersections =

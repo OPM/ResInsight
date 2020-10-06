@@ -64,10 +64,14 @@ double RivWellPathSourceInfo::measuredDepth( size_t triangleIndex, const cvf::Ve
     size_t firstSegmentIndex = cvf::UNDEFINED_SIZE_T;
     double norm              = 0.0;
 
+    CAF_ASSERT( m_wellPath.notNull() );
+    auto wellPathGeometry = m_wellPath->wellPathGeometry();
+    CAF_ASSERT( wellPathGeometry );
+
     normalizedIntersection( triangleIndex, globalIntersectionInDomain, &firstSegmentIndex, &norm );
 
-    double firstDepth = m_wellPath->wellPathGeometry()->m_measuredDepths[firstSegmentIndex];
-    double secDepth   = m_wellPath->wellPathGeometry()->m_measuredDepths[firstSegmentIndex + 1];
+    double firstDepth = wellPathGeometry->measuredDepths()[firstSegmentIndex];
+    double secDepth   = wellPathGeometry->measuredDepths()[firstSegmentIndex + 1];
 
     return firstDepth * ( 1.0 - norm ) + norm * secDepth;
 }
@@ -81,10 +85,14 @@ cvf::Vec3d RivWellPathSourceInfo::closestPointOnCenterLine( size_t            tr
     size_t firstSegmentIndex = cvf::UNDEFINED_SIZE_T;
     double norm              = 0.0;
 
+    CAF_ASSERT( m_wellPath.notNull() );
+    auto wellPathGeometry = m_wellPath->wellPathGeometry();
+    CAF_ASSERT( wellPathGeometry );
+
     normalizedIntersection( triangleIndex, globalIntersectionInDomain, &firstSegmentIndex, &norm );
 
-    cvf::Vec3d firstDepth = m_wellPath->wellPathGeometry()->m_wellPathPoints[firstSegmentIndex];
-    cvf::Vec3d secDepth   = m_wellPath->wellPathGeometry()->m_wellPathPoints[firstSegmentIndex + 1];
+    cvf::Vec3d firstDepth = wellPathGeometry->wellPathPoints()[firstSegmentIndex];
+    cvf::Vec3d secDepth   = wellPathGeometry->wellPathPoints()[firstSegmentIndex + 1];
 
     return firstDepth * ( 1.0 - norm ) + norm * secDepth;
 }
@@ -97,11 +105,14 @@ void RivWellPathSourceInfo::normalizedIntersection( size_t            triangleIn
                                                     size_t*           firstSegmentIndex,
                                                     double*           normalizedSegmentIntersection ) const
 {
-    size_t       segIndex    = segmentIndex( triangleIndex );
-    RigWellPath* rigWellPath = m_wellPath->wellPathGeometry();
+    CAF_ASSERT( m_wellPath.notNull() );
+    auto wellPathGeometry = m_wellPath->wellPathGeometry();
+    CAF_ASSERT( wellPathGeometry );
 
-    cvf::Vec3d segmentStart = rigWellPath->m_wellPathPoints[segIndex];
-    cvf::Vec3d segmentEnd   = rigWellPath->m_wellPathPoints[segIndex + 1];
+    size_t segIndex = segmentIndex( triangleIndex );
+
+    cvf::Vec3d segmentStart = wellPathGeometry->wellPathPoints()[segIndex];
+    cvf::Vec3d segmentEnd   = wellPathGeometry->wellPathPoints()[segIndex + 1];
 
     double norm = 0.0;
     cvf::GeometryTools::projectPointOnLine( segmentStart, segmentEnd, globalIntersectionInDomain, &norm );

@@ -10,10 +10,7 @@ TEST( RiaPolyArcLineSampler, Basic )
 
     RiaPolyArcLineSampler sampler( {0, 0, -1}, points );
 
-    std::vector<cvf::Vec3d> sampledPoints;
-    std::vector<double>     mds;
-
-    sampler.sampledPointsAndMDs( 2, true, &sampledPoints, &mds );
+    auto [sampledPoints, mds] = sampler.sampledPointsAndMDs( 2, true );
 #if 1
     for ( size_t pIdx = 0; pIdx < sampledPoints.size(); ++pIdx )
     {
@@ -40,10 +37,7 @@ TEST( RiaPolyArcLineSampler, TestInvalidInput )
 
         RiaPolyArcLineSampler sampler( {0, 0, -1}, points );
 
-        std::vector<cvf::Vec3d> sampledPoints;
-        std::vector<double>     mds;
-
-        sampler.sampledPointsAndMDs( 2, true, &sampledPoints, &mds );
+        auto [sampledPoints, mds] = sampler.sampledPointsAndMDs( 2, true );
 
         EXPECT_EQ( 0, (int)sampledPoints.size() );
     }
@@ -53,10 +47,7 @@ TEST( RiaPolyArcLineSampler, TestInvalidInput )
 
         RiaPolyArcLineSampler sampler( {0, 0, -1}, points );
 
-        std::vector<cvf::Vec3d> sampledPoints;
-        std::vector<double>     mds;
-
-        sampler.sampledPointsAndMDs( 2, true, &sampledPoints, &mds );
+        auto [sampledPoints, mds] = sampler.sampledPointsAndMDs( 2, true );
 
         EXPECT_EQ( 0, (int)sampledPoints.size() );
     }
@@ -66,10 +57,7 @@ TEST( RiaPolyArcLineSampler, TestInvalidInput )
 
         RiaPolyArcLineSampler sampler( {0, 0, -1}, points );
 
-        std::vector<cvf::Vec3d> sampledPoints;
-        std::vector<double>     mds;
-
-        sampler.sampledPointsAndMDs( 2, true, &sampledPoints, &mds );
+        auto [sampledPoints, mds] = sampler.sampledPointsAndMDs( 2, true );
 
         EXPECT_EQ( 0, (int)sampledPoints.size() );
     }

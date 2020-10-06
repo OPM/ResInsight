@@ -22,6 +22,8 @@
 
 #include <QFile>
 
+#include <gsl/gsl>
+
 #include <memory>
 
 class RigWellPath;
@@ -44,21 +46,23 @@ class RicExportSelectedWellPathsFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
     static void handleAction( const std::vector<RimWellPath*>& wellPaths );
-    static void
-        exportWellPath( const RimWellPath* wellPath, double mdStepSize, const QString& folder, bool writeProjectInfo = true );
+    static void exportWellPath( gsl::not_null<const RimWellPath*> wellPath,
+                                double                            mdStepSize,
+                                const QString&                    folder,
+                                bool                              writeProjectInfo = true );
 
     static RicExportWellPathsUi* openDialog();
     static QFilePtr              openFileForExport( const QString& folderName, const QString& fileName );
     static QTextStreamPtr        createOutputFileStream( QFile& file );
 
-    static void writeWellPathGeometryToStream( QTextStream&       stream,
-                                               const RimWellPath* wellPath,
-                                               const QString&     exportName,
-                                               double             mdStepSize,
-                                               bool               writeProjectInfo = true );
+    static void writeWellPathGeometryToStream( QTextStream&                      stream,
+                                               gsl::not_null<const RimWellPath*> wellPath,
+                                               const QString&                    exportName,
+                                               double                            mdStepSize,
+                                               bool                              writeProjectInfo = true );
 
     static void writeWellPathGeometryToStream( QTextStream&       stream,
-                                               const RigWellPath* wellPath,
+                                               const RigWellPath& wellPath,
                                                const QString&     exportName,
                                                double             mdStepSize,
                                                bool               useMdRkb,

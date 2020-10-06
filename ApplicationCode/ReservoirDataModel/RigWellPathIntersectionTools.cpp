@@ -43,9 +43,7 @@ std::vector<WellPathCellIntersectionInfo>
 
     if ( pathCoords.size() < 2 ) return intersectionInfos;
 
-    cvf::ref<RigWellPath> dummyWellPath = new RigWellPath;
-    dummyWellPath->m_wellPathPoints     = pathCoords;
-    dummyWellPath->m_measuredDepths     = pathMds;
+    cvf::ref<RigWellPath> dummyWellPath = new RigWellPath( pathCoords, pathMds );
 
     std::string errorIdName = ( wellPathName + " " + caseData->ownerCase()->caseUserDescription() ).toStdString();
 
@@ -90,19 +88,17 @@ std::set<size_t> RigWellPathIntersectionTools::findIntersectedGlobalCellIndices(
 
     if ( caseData )
     {
-        cvf::ref<RigWellPath> dummyWellPath = new RigWellPath;
+        cvf::ref<RigWellPath> dummyWellPath;
 
         if ( measuredDepths.size() == coords.size() )
         {
-            dummyWellPath->m_wellPathPoints = coords;
-            dummyWellPath->m_measuredDepths = measuredDepths;
+            dummyWellPath = new RigWellPath( coords, measuredDepths );
         }
         else
         {
             RigSimulationWellCoordsAndMD helper( coords );
 
-            dummyWellPath->m_wellPathPoints = helper.wellPathPoints();
-            dummyWellPath->m_measuredDepths = helper.measuredDepths();
+            dummyWellPath = new RigWellPath( helper.wellPathPoints(), helper.measuredDepths() );
         }
 
         globalCellIndices = findIntersectedGlobalCellIndicesForWellPath( caseData, dummyWellPath.p() );

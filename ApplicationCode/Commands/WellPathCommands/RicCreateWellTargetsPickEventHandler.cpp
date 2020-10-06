@@ -55,7 +55,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicCreateWellTargetsPickEventHandler::RicCreateWellTargetsPickEventHandler( RimWellPathGeometryDef* wellGeometryDef )
+RicCreateWellTargetsPickEventHandler::RicCreateWellTargetsPickEventHandler( gsl::not_null<RimWellPathGeometryDef*> wellGeometryDef )
     : m_geometryToAddTargetsTo( wellGeometryDef )
 {
 }
@@ -104,17 +104,15 @@ bool RicCreateWellTargetsPickEventHandler::handle3dPickEvent( const Ric3dPickEve
         double azimuth                    = 0.0;
         double inclination                = 0.0;
 
-        if ( wellPathSourceInfo )
+        if ( wellPathSourceInfo && wellPathSourceInfo->wellPath() && wellPathSourceInfo->wellPath()->wellPathGeometry() )
         {
+            auto wellPathGeometry = wellPathSourceInfo->wellPath()->wellPathGeometry();
+
             targetPointInDomain =
                 wellPathSourceInfo->closestPointOnCenterLine( firstPickItem.faceIdx(), intersectionPointInDomain );
             double md = wellPathSourceInfo->measuredDepth( firstPickItem.faceIdx(), intersectionPointInDomain );
-            doSetAzimuthAndInclination =
-                calculateAzimuthAndInclinationAtMd( md,
-                                                    wellPathSourceInfo->wellPath()->wellPathGeometry(),
-                                                    &azimuth,
-                                                    &inclination );
-            double rkbDiff = wellPathSourceInfo->wellPath()->wellPathGeometry()->rkbDiff();
+            doSetAzimuthAndInclination = calculateAzimuthAndInclinationAtMd( md, wellPathGeometry, &azimuth, &inclination );
+            double rkbDiff             = wellPathGeometry->rkbDiff();
             if ( m_geometryToAddTargetsTo->airGap() == 0.0 && rkbDiff != std::numeric_limits<double>::infinity() )
             {
                 m_geometryToAddTargetsTo->setAirGap( rkbDiff );
@@ -195,13 +193,13 @@ bool RicCreateWellTargetsPickEventHandler::handle3dPickEvent( const Ric3dPickEve
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateWellTargetsPickEventHandler::calculateAzimuthAndInclinationAtMd( double             measuredDepth,
-                                                                               const RigWellPath* wellPathGeometry,
-                                                                               double*            azimuth,
-                                                                               double*            inclination ) const
+bool RicCreateWellTargetsPickEventHandler::calculateAzimuthAndInclinationAtMd( double measuredDepth,
+                                                                               gsl::not_null<const RigWellPath*> wellPathGeometry,
+                                                                               double* azimuth,
+                                                                               double* inclination ) const
 {
     int  mdIndex = -1;
-    auto mdList  = wellPathGeometry->measureDepths();
+    auto mdList  = wellPathGeometry->measuredDepths();
 
     for ( int i = 0; i < (int)mdList.size(); i++ )
     {
@@ -258,10 +256,10 @@ bool RicCreateWellTargetsPickEventHandler::isGridSourceObject( const cvf::Object
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RicCreateWellTargetsPickEventHandler::findHexElementIntersection( Rim3dView*             view,
-                                                                             const RiuPickItemInfo& pickItem,
-                                                                             const cvf::Vec3d&      domainRayOrigin,
-                                                                             const cvf::Vec3d&      domainRayEnd )
+cvf::Vec3d RicCreateWellTargetsPickEventHandler::findHexElementIntersection( gsl::not_null<Rim3dView*> view,
+                                                                             const RiuPickItemInfo&    pickItem,
+                                                                             const cvf::Vec3d&         domainRayOrigin,
+                                                                             const cvf::Vec3d&         domainRayEnd )
 {
     auto sourceInfo    = dynamic_cast<const RivSourceInfo*>( pickItem.sourceInfo() );
     auto femSourceInfo = dynamic_cast<const RivFemPickSourceInfo*>( pickItem.sourceInfo() );
@@ -275,7 +273,7 @@ cvf::Vec3d RicCreateWellTargetsPickEventHandler::findHexElementIntersection( Rim
         {
             cellIndex = sourceInfo->m_cellFaceFromTriangleMapper->cellIndex( pickItem.faceIdx() );
 
-            RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( view );
+            RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( view.get() );
             if ( eclipseView && eclipseView->mainGrid() )
             {
                 RigGridBase* hitGrid = eclipseView->mainGrid()->gridByIndex( gridIndex );
@@ -290,7 +288,7 @@ cvf::Vec3d RicCreateWellTargetsPickEventHandler::findHexElementIntersection( Rim
         {
             size_t elementIndex = femSourceInfo->triangleToElmMapper()->elementIndex( pickItem.faceIdx() );
 
-            RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>( view );
+            RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>( view.get() );
             if ( geoMechView && geoMechView->femParts() )
             {
                 RigFemPart*    femPart = geoMechView->femParts()->part( femPartIndex );

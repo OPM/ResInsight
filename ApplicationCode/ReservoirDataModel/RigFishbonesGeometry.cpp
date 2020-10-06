@@ -80,12 +80,12 @@ void RigFisbonesGeometry::computeLateralPositionAndOrientation( size_t      subI
     RimWellPath* wellPath = nullptr;
     m_fishbonesSub->firstAncestorOrThisOfTypeAsserted( wellPath );
 
-    RigWellPath* rigWellPath = wellPath->wellPathGeometry();
-    CVF_ASSERT( rigWellPath );
+    auto wellPathGeometry = wellPath->wellPathGeometry();
+    if ( !wellPathGeometry ) return;
 
     double measuredDepth = m_fishbonesSub->measuredDepth( subIndex );
 
-    cvf::Vec3d position = rigWellPath->interpolatedPointAlongWellPath( measuredDepth );
+    cvf::Vec3d position = wellPathGeometry->interpolatedPointAlongWellPath( measuredDepth );
 
     cvf::Mat4d buildAngleMat;
     cvf::Vec3d lateralDirection;
@@ -94,7 +94,7 @@ void RigFisbonesGeometry::computeLateralPositionAndOrientation( size_t      subI
         cvf::Vec3d lateralInitialDirection = cvf::Vec3d::Z_AXIS;
         cvf::Vec3d p1                      = cvf::Vec3d::UNDEFINED;
         cvf::Vec3d p2                      = cvf::Vec3d::UNDEFINED;
-        rigWellPath->twoClosestPoints( position, &p1, &p2 );
+        wellPathGeometry->twoClosestPoints( position, &p1, &p2 );
 
         CVF_ASSERT( !p1.isUndefined() && !p2.isUndefined() );
 

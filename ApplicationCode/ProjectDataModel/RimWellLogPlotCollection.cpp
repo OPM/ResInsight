@@ -45,8 +45,8 @@ RimWellLogPlotCollection::RimWellLogPlotCollection()
 {
     CAF_PDM_InitObject( "Well Log Plots", ":/WellLogPlots16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &wellLogPlots, "WellLogPlots", "", "", "", "" );
-    wellLogPlots.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_wellLogPlots, "WellLogPlots", "", "", "", "" );
+    m_wellLogPlots.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -54,25 +54,20 @@ RimWellLogPlotCollection::RimWellLogPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlotCollection::~RimWellLogPlotCollection()
 {
-    wellLogPlots.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigEclipseWellLogExtractor* RimWellLogPlotCollection::findOrCreateSimWellExtractor( const QString& simWellName,
-                                                                                    const QString& caseUserDescription,
-                                                                                    const RigWellPath* wellPathGeom,
-                                                                                    const RigEclipseCaseData* eclCaseData )
+RigEclipseWellLogExtractor*
+    RimWellLogPlotCollection::findOrCreateSimWellExtractor( const QString&                    simWellName,
+                                                            const QString&                    caseUserDescription,
+                                                            gsl::not_null<const RigWellPath*> wellPathGeometry,
+                                                            gsl::not_null<const RigEclipseCaseData*> eclCaseData )
 {
-    if ( !( wellPathGeom && eclCaseData ) )
-    {
-        return nullptr;
-    }
-
     for ( size_t exIdx = 0; exIdx < m_extractors.size(); ++exIdx )
     {
-        if ( m_extractors[exIdx]->caseData() == eclCaseData && m_extractors[exIdx]->wellPathData() == wellPathGeom )
+        if ( m_extractors[exIdx]->caseData() == eclCaseData && m_extractors[exIdx]->wellPathGeometry() == wellPathGeometry )
         {
             return m_extractors[exIdx].p();
         }
@@ -80,7 +75,7 @@ RigEclipseWellLogExtractor* RimWellLogPlotCollection::findOrCreateSimWellExtract
 
     std::string                          errorIdName = ( simWellName + " " + caseUserDescription ).toStdString();
     cvf::ref<RigEclipseWellLogExtractor> extractor =
-        new RigEclipseWellLogExtractor( eclCaseData, wellPathGeom, errorIdName );
+        new RigEclipseWellLogExtractor( eclCaseData, wellPathGeometry, errorIdName );
     m_extractors.push_back( extractor.p() );
 
     return extractor.p();
@@ -89,18 +84,17 @@ RigEclipseWellLogExtractor* RimWellLogPlotCollection::findOrCreateSimWellExtract
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigEclipseWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor( RimWellPath* wellPath, RimEclipseCase* eclCase )
+RigEclipseWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor( gsl::not_null<RimWellPath*>    wellPath,
+                                                                             gsl::not_null<RimEclipseCase*> eclCase )
 {
-    if ( !( wellPath && eclCase && wellPath->wellPathGeometry() && eclCase->eclipseCaseData() ) )
-    {
-        return nullptr;
-    }
+    RigEclipseCaseData* eclCaseData      = eclCase->eclipseCaseData();
+    auto                wellPathGeometry = wellPath->wellPathGeometry();
 
-    RigEclipseCaseData* eclCaseData  = eclCase->eclipseCaseData();
-    RigWellPath*        wellPathGeom = wellPath->wellPathGeometry();
+    if ( !( eclCaseData && wellPathGeometry ) ) return nullptr;
+
     for ( size_t exIdx = 0; exIdx < m_extractors.size(); ++exIdx )
     {
-        if ( m_extractors[exIdx]->caseData() == eclCaseData && m_extractors[exIdx]->wellPathData() == wellPathGeom )
+        if ( m_extractors[exIdx]->caseData() == eclCaseData && m_extractors[exIdx]->wellPathGeometry() == wellPathGeometry )
         {
             return m_extractors[exIdx].p();
         }
@@ -108,7 +102,7 @@ RigEclipseWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor( Rim
 
     std::string errorIdName = ( wellPath->name() + " " + eclCase->caseUserDescription() ).toStdString();
     cvf::ref<RigEclipseWellLogExtractor> extractor =
-        new RigEclipseWellLogExtractor( eclCaseData, wellPathGeom, errorIdName );
+        new RigEclipseWellLogExtractor( eclCaseData, wellPathGeometry, errorIdName );
     m_extractors.push_back( extractor.p() );
 
     return extractor.p();
@@ -117,26 +111,25 @@ RigEclipseWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor( Rim
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigGeoMechWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor( RimWellPath* wellPath, RimGeoMechCase* geomCase )
+RigGeoMechWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor( gsl::not_null<RimWellPath*>    wellPath,
+                                                                             gsl::not_null<RimGeoMechCase*> geoMechCase )
 {
-    if ( !( wellPath && geomCase && wellPath->wellPathGeometry() && geomCase->geoMechData() ) )
-    {
-        return nullptr;
-    }
+    RigGeoMechCaseData* caseData         = geoMechCase->geoMechData();
+    auto                wellPathGeometry = wellPath->wellPathGeometry();
+    if ( !( caseData && wellPathGeometry ) ) return nullptr;
 
-    RigGeoMechCaseData* geomCaseData = geomCase->geoMechData();
-    RigWellPath*        wellPathGeom = wellPath->wellPathGeometry();
     for ( size_t exIdx = 0; exIdx < m_geomExtractors.size(); ++exIdx )
     {
-        if ( m_geomExtractors[exIdx]->caseData() == geomCaseData && m_geomExtractors[exIdx]->wellPathData() == wellPathGeom )
+        if ( m_geomExtractors[exIdx]->caseData() == caseData &&
+             m_geomExtractors[exIdx]->wellPathGeometry() == wellPathGeometry )
         {
             return m_geomExtractors[exIdx].p();
         }
     }
 
-    std::string errorIdName = ( wellPath->name() + " " + geomCase->caseUserDescription() ).toStdString();
+    std::string errorIdName = ( wellPath->name() + " " + geoMechCase->caseUserDescription() ).toStdString();
     cvf::ref<RigGeoMechWellLogExtractor> extractor =
-        new RigGeoMechWellLogExtractor( geomCaseData, wellPathGeom, errorIdName );
+        new RigGeoMechWellLogExtractor( caseData, wellPathGeometry, errorIdName );
     m_geomExtractors.push_back( extractor.p() );
 
     return extractor.p();
@@ -145,9 +138,33 @@ RigGeoMechWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor( Rim
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimWellLogPlot*> RimWellLogPlotCollection::wellLogPlots() const
+{
+    return m_wellLogPlots.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlotCollection::addWellLogPlot( gsl::not_null<RimWellLogPlot*> wellLogPlot )
+{
+    m_wellLogPlots.push_back( wellLogPlot );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlotCollection::deleteAllPlots()
+{
+    m_wellLogPlots.deleteAllChildObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogPlotCollection::reloadAllPlots()
 {
-    for ( const auto& w : wellLogPlots() )
+    for ( const auto& w : m_wellLogPlots() )
     {
         w->loadDataAndUpdate();
     }
@@ -165,11 +182,11 @@ void RimWellLogPlotCollection::deleteAllExtractors()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotCollection::removeExtractors( const RigWellPath* wellPath )
+void RimWellLogPlotCollection::removeExtractors( const RigWellPath* wellPathGeometry )
 {
     for ( int eIdx = (int)m_extractors.size() - 1; eIdx >= 0; eIdx-- )
     {
-        if ( m_extractors[eIdx]->wellPathData() == wellPath )
+        if ( m_extractors[eIdx]->wellPathGeometry() == wellPathGeometry )
         {
             m_extractors.eraseAt( eIdx );
         }
@@ -177,7 +194,7 @@ void RimWellLogPlotCollection::removeExtractors( const RigWellPath* wellPath )
 
     for ( int eIdx = (int)m_geomExtractors.size() - 1; eIdx >= 0; eIdx-- )
     {
-        if ( m_geomExtractors[eIdx]->wellPathData() == wellPath )
+        if ( m_geomExtractors[eIdx]->wellPathGeometry() == wellPathGeometry )
         {
             m_geomExtractors.eraseAt( eIdx );
         }
@@ -216,7 +233,7 @@ void RimWellLogPlotCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*   
                                                std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     // Make sure the plot collection disappears with the last plot
-    if ( wellLogPlots.empty() )
+    if ( m_wellLogPlots().empty() )
     {
         RimProject* project = RimProject::current();
         if ( project )

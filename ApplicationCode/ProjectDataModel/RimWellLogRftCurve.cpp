@@ -1016,7 +1016,7 @@ bool RimWellLogRftCurve::deriveMeasuredDepthValuesFromWellPath( const std::vecto
 
     if ( wellPath )
     {
-        const std::vector<double>& mdValuesOfWellPath  = wellPath->wellPathGeometry()->measureDepths();
+        const std::vector<double>& mdValuesOfWellPath  = wellPath->wellPathGeometry()->measuredDepths();
         const std::vector<double>& tvdValuesOfWellPath = wellPath->wellPathGeometry()->trueVerticalDepths();
 
         derivedMDValues =

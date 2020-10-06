@@ -187,7 +187,7 @@ void RimFractureModelCurve::performDataExtraction( bool* isUsingPseudoLength )
 
         measuredDepthValues = eclExtractor.cellIntersectionMDs();
         tvDepthValues       = eclExtractor.cellIntersectionTVDs();
-        rkbDiff             = eclExtractor.wellPathData()->rkbDiff();
+        rkbDiff             = eclExtractor.wellPathGeometry()->rkbDiff();
 
         m_eclipseResultDefinition->setEclipseCase( eclipseCase );
 

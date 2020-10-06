@@ -84,10 +84,10 @@ bool RimWellPathAttribute::operator<( const RimWellPathAttribute& rhs ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathAttribute::setDepthsFromWellPath( const RimWellPath* wellPath )
+void RimWellPathAttribute::setDepthsFromWellPath( gsl::not_null<const RimWellPath*> wellPath )
 {
-    m_startMD = wellPath->wellPathGeometry()->measureDepths().front();
-    m_endMD   = wellPath->wellPathGeometry()->measureDepths().back();
+    m_startMD = wellPath->startMD();
+    m_endMD   = wellPath->endMD();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -256,7 +256,7 @@ void RimWellPathAttribute::fieldChangedByUi( const caf::PdmFieldHandle* changedF
         {
             RimWellPath* wellPath = nullptr;
             this->firstAncestorOrThisOfTypeAsserted( wellPath );
-            m_startMD = wellPath->wellPathGeometry()->measureDepths().front();
+            m_startMD = wellPath->startMD();
 
             if ( !supportedDiameters( m_type() ).count( m_diameterInInches() ) )
             {

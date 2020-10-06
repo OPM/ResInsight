@@ -838,18 +838,12 @@ void RimFractureModel::defineEditorAttribute( const caf::PdmFieldHandle* field,
 
         if ( myAttr )
         {
-            RimWellPath* rimWellPath = nullptr;
-            this->firstAncestorOrThisOfType( rimWellPath );
-            if ( !rimWellPath ) return;
+            RimWellPath* wellPath = nullptr;
+            this->firstAncestorOrThisOfType( wellPath );
+            if ( !wellPath ) return;
 
-            RigWellPath* wellPathGeo = rimWellPath->wellPathGeometry();
-            if ( !wellPathGeo ) return;
-
-            if ( wellPathGeo->m_measuredDepths.size() > 1 )
-            {
-                myAttr->m_minimum = wellPathGeo->m_measuredDepths.front();
-                myAttr->m_maximum = wellPathGeo->m_measuredDepths.back();
-            }
+            myAttr->m_minimum = wellPath->startMD();
+            myAttr->m_maximum = wellPath->endMD();
         }
     }
 }

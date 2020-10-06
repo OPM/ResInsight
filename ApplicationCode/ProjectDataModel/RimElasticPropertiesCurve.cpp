@@ -141,7 +141,7 @@ void RimElasticPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength
 
         measuredDepthValues = eclExtractor.cellIntersectionMDs();
         tvDepthValues       = eclExtractor.cellIntersectionTVDs();
-        rkbDiff             = eclExtractor.wellPathData()->rkbDiff();
+        rkbDiff             = eclExtractor.wellPathGeometry()->rkbDiff();
 
         // Extract formation data
         cvf::ref<RigResultAccessor> formationResultAccessor = RigResultAccessorFactory::

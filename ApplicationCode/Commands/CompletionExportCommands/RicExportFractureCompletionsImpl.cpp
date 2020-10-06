@@ -598,12 +598,13 @@ void RicExportFractureCompletionsImpl::calculateInternalFractureTransmissibiliti
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportFractureCompletionsImpl::calculateFractureToWellTransmissibilities( const RimFractureTemplate* fracTemplate,
-                                                                                  const RigFractureGrid* fractureGrid,
-                                                                                  const RimFracture*     fracture,
-                                                                                  double cDarcyInCorrectUnit,
-                                                                                  const RigWellPath* wellPathGeometry,
-                                                                                  RigTransmissibilityCondenser& transCondenser )
+void RicExportFractureCompletionsImpl::calculateFractureToWellTransmissibilities(
+    gsl::not_null<const RimFractureTemplate*> fracTemplate,
+    gsl::not_null<const RigFractureGrid*>     fractureGrid,
+    gsl::not_null<const RimFracture*>         fracture,
+    double                                    cDarcyInCorrectUnit,
+    gsl::not_null<const RigWellPath*>         wellPathGeometry,
+    RigTransmissibilityCondenser&             transCondenser )
 {
     ////
     // If fracture has orientation Azimuth or Transverse, assume only radial inflow

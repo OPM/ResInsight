@@ -46,8 +46,8 @@ TEST( RigWellPathTest, FindWellPathCoordsIncludingIntersectionPoint )
         mdValues.push_back( 3.0 );
         mdValues.push_back( 4.0 );
 
-        wellPathGeometry.m_wellPathPoints = wellPathPoints;
-        wellPathGeometry.m_measuredDepths = mdValues;
+        wellPathGeometry.setWellPathPoints( wellPathPoints );
+        wellPathGeometry.setMeasuredDepths( mdValues );
     }
 
     // Before first MD

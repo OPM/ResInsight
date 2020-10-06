@@ -149,10 +149,10 @@ void RimFractureModelStressCurve::performDataExtraction( bool* isUsingPseudoLeng
         RigWellPath*               wellPathGeometry = m_fractureModel->thicknessDirectionWellPath()->wellPathGeometry();
         RigEclipseWellLogExtractor eclExtractor( eclipseCase->eclipseCaseData(), wellPathGeometry, "fracture model" );
 
-        rkbDiff = eclExtractor.wellPathData()->rkbDiff();
+        rkbDiff = eclExtractor.wellPathGeometry()->rkbDiff();
 
         // Generate MD data by interpolation
-        const std::vector<double>& mdValuesOfWellPath  = wellPathGeometry->measureDepths();
+        const std::vector<double>& mdValuesOfWellPath  = wellPathGeometry->measuredDepths();
         std::vector<double>        tvdValuesOfWellPath = wellPathGeometry->trueVerticalDepths();
 
         measuredDepthValues =

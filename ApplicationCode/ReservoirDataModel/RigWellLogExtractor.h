@@ -19,17 +19,18 @@
 
 #pragma once
 
+#include "RigHexIntersectionTools.h"
+#include "RigWellLogExtractionTools.h"
+
 #include "cvfMath.h"
 #include "cvfObject.h"
+#include "cvfStructGrid.h"
 #include "cvfVector3.h"
+
+#include <gsl/gsl>
 
 #include <map>
 #include <vector>
-
-#include "cvfStructGrid.h"
-
-#include "RigHexIntersectionTools.h"
-#include "RigWellLogExtractionTools.h"
 
 //==================================================================================================
 ///
@@ -58,14 +59,14 @@ class RigWellPath;
 class RigWellLogExtractor : public cvf::Object
 {
 public:
-    RigWellLogExtractor( const RigWellPath* wellpath, const std::string& wellCaseErrorMsgName );
+    RigWellLogExtractor( gsl::not_null<const RigWellPath*> wellpath, const std::string& wellCaseErrorMsgName );
     ~RigWellLogExtractor() override;
 
     const std::vector<double>& cellIntersectionMDs() const;
     const std::vector<double>& cellIntersectionTVDs() const;
     const std::vector<size_t>& intersectedCellsGlobIdx() const;
 
-    const RigWellPath* wellPathData() const;
+    const RigWellPath* wellPathGeometry() const;
 
     std::vector<WellPathCellIntersectionInfo> cellIntersectionInfosAlongWellPath() const;
 
@@ -87,7 +88,7 @@ protected:
     std::vector<size_t>                             m_intersectedCellsGlobIdx;
     std::vector<cvf::StructGridInterface::FaceType> m_intersectedCellFaces;
 
-    cvf::cref<RigWellPath> m_wellPath;
+    cvf::cref<RigWellPath> m_wellPathGeometry;
 
     std::vector<double> m_intersectionMeasuredDepths;
     std::vector<double> m_intersectionTVDs;

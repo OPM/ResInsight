@@ -57,7 +57,7 @@ bool Riv3dWellLogDrawSurfaceGenerator::createDrawSurface( const caf::DisplayCoor
 
     clearGeometry();
 
-    if ( !wellPathGeometry() || wellPathGeometry()->m_measuredDepths.empty() )
+    if ( !wellPathGeometry() || wellPathGeometry()->measuredDepths().empty() )
     {
         return false;
     }
@@ -72,7 +72,7 @@ bool Riv3dWellLogDrawSurfaceGenerator::createDrawSurface( const caf::DisplayCoor
 
     std::vector<cvf::Vec3d> wellPathDisplayCoords;
     {
-        std::vector<cvf::Vec3d> domainCoords = wellPathGeometry()->m_wellPathPoints;
+        const std::vector<cvf::Vec3d>& domainCoords = wellPathGeometry()->wellPathPoints();
         if ( domainCoords.size() < (size_t)2 )
         {
             // Need at least two well path points to create a valid path.
@@ -193,8 +193,8 @@ void Riv3dWellLogDrawSurfaceGenerator::createCurveNormalVectors( const caf::Disp
     std::vector<cvf::Vec3d> interpolatedWellPathPoints;
     std::vector<cvf::Vec3d> interpolatedWellPathNormals;
 
-    double firstMd = wellPathGeometry()->m_measuredDepths.at( clipStartIndex );
-    double lastMd  = wellPathGeometry()->m_measuredDepths.back();
+    double firstMd = wellPathGeometry()->measuredDepths().at( clipStartIndex );
+    double lastMd  = wellPathGeometry()->measuredDepths().back();
 
     double md = lastMd;
     while ( md >= firstMd )

@@ -56,19 +56,20 @@ RimPltPlotCollection::~RimPltPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigEclipseWellLogExtractor* RimPltPlotCollection::findOrCreateSimWellExtractor( const QString&     simWellName,
-                                                                                const QString&     caseUserDescription,
-                                                                                const RigWellPath* wellPathGeom,
-                                                                                const RigEclipseCaseData* eclCaseData )
+RigEclipseWellLogExtractor*
+    RimPltPlotCollection::findOrCreateSimWellExtractor( const QString&                           simWellName,
+                                                        const QString&                           caseUserDescription,
+                                                        gsl::not_null<const RigWellPath*>        wellPathGeometry,
+                                                        gsl::not_null<const RigEclipseCaseData*> eclCaseData )
 {
-    if ( !( wellPathGeom && eclCaseData ) )
+    if ( !( wellPathGeometry && eclCaseData ) )
     {
         return nullptr;
     }
 
     for ( size_t exIdx = 0; exIdx < m_extractors.size(); ++exIdx )
     {
-        if ( m_extractors[exIdx]->caseData() == eclCaseData && m_extractors[exIdx]->wellPathData() == wellPathGeom )
+        if ( m_extractors[exIdx]->caseData() == eclCaseData && m_extractors[exIdx]->wellPathGeometry() == wellPathGeometry )
         {
             return m_extractors[exIdx].p();
         }
@@ -76,7 +77,7 @@ RigEclipseWellLogExtractor* RimPltPlotCollection::findOrCreateSimWellExtractor( 
 
     std::string                          errorIdName = ( simWellName + " " + caseUserDescription ).toStdString();
     cvf::ref<RigEclipseWellLogExtractor> extractor =
-        new RigEclipseWellLogExtractor( eclCaseData, wellPathGeom, errorIdName );
+        new RigEclipseWellLogExtractor( eclCaseData, wellPathGeometry, errorIdName );
     m_extractors.push_back( extractor.p() );
 
     return extractor.p();
@@ -85,18 +86,19 @@ RigEclipseWellLogExtractor* RimPltPlotCollection::findOrCreateSimWellExtractor( 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigEclipseWellLogExtractor* RimPltPlotCollection::findOrCreateExtractor( RimWellPath* wellPath, RimEclipseCase* eclCase )
+RigEclipseWellLogExtractor* RimPltPlotCollection::findOrCreateExtractor( gsl::not_null<RimWellPath*>    wellPath,
+                                                                         gsl::not_null<RimEclipseCase*> eclCase )
 {
     if ( !( wellPath && eclCase && wellPath->wellPathGeometry() && eclCase->eclipseCaseData() ) )
     {
         return nullptr;
     }
 
-    RigEclipseCaseData* eclCaseData  = eclCase->eclipseCaseData();
-    RigWellPath*        wellPathGeom = wellPath->wellPathGeometry();
+    RigEclipseCaseData* eclCaseData      = eclCase->eclipseCaseData();
+    RigWellPath*        wellPathGeometry = wellPath->wellPathGeometry();
     for ( size_t exIdx = 0; exIdx < m_extractors.size(); ++exIdx )
     {
-        if ( m_extractors[exIdx]->caseData() == eclCaseData && m_extractors[exIdx]->wellPathData() == wellPathGeom )
+        if ( m_extractors[exIdx]->caseData() == eclCaseData && m_extractors[exIdx]->wellPathGeometry() == wellPathGeometry )
         {
             return m_extractors[exIdx].p();
         }
@@ -104,7 +106,7 @@ RigEclipseWellLogExtractor* RimPltPlotCollection::findOrCreateExtractor( RimWell
 
     std::string errorIdName = ( wellPath->name() + " " + eclCase->caseUserDescription() ).toStdString();
     cvf::ref<RigEclipseWellLogExtractor> extractor =
-        new RigEclipseWellLogExtractor( eclCaseData, wellPathGeom, errorIdName );
+        new RigEclipseWellLogExtractor( eclCaseData, wellPathGeometry, errorIdName );
     m_extractors.push_back( extractor.p() );
 
     return extractor.p();
@@ -113,18 +115,20 @@ RigEclipseWellLogExtractor* RimPltPlotCollection::findOrCreateExtractor( RimWell
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigGeoMechWellLogExtractor* RimPltPlotCollection::findOrCreateExtractor( RimWellPath* wellPath, RimGeoMechCase* geomCase )
+RigGeoMechWellLogExtractor* RimPltPlotCollection::findOrCreateExtractor( gsl::not_null<RimWellPath*>    wellPath,
+                                                                         gsl::not_null<RimGeoMechCase*> geomCase )
 {
     if ( !( wellPath && geomCase && wellPath->wellPathGeometry() && geomCase->geoMechData() ) )
     {
         return nullptr;
     }
 
-    RigGeoMechCaseData* geomCaseData = geomCase->geoMechData();
-    RigWellPath*        wellPathGeom = wellPath->wellPathGeometry();
+    RigGeoMechCaseData* geomCaseData     = geomCase->geoMechData();
+    RigWellPath*        wellPathGeometry = wellPath->wellPathGeometry();
     for ( size_t exIdx = 0; exIdx < m_geomExtractors.size(); ++exIdx )
     {
-        if ( m_geomExtractors[exIdx]->caseData() == geomCaseData && m_geomExtractors[exIdx]->wellPathData() == wellPathGeom )
+        if ( m_geomExtractors[exIdx]->caseData() == geomCaseData &&
+             m_geomExtractors[exIdx]->wellPathGeometry() == wellPathGeometry )
         {
             return m_geomExtractors[exIdx].p();
         }
@@ -132,7 +136,7 @@ RigGeoMechWellLogExtractor* RimPltPlotCollection::findOrCreateExtractor( RimWell
 
     std::string errorIdName = ( wellPath->name() + " " + geomCase->caseUserDescription() ).toStdString();
     cvf::ref<RigGeoMechWellLogExtractor> extractor =
-        new RigGeoMechWellLogExtractor( geomCaseData, wellPathGeom, errorIdName );
+        new RigGeoMechWellLogExtractor( geomCaseData, wellPathGeometry, errorIdName );
     m_geomExtractors.push_back( extractor.p() );
 
     return extractor.p();
@@ -141,11 +145,11 @@ RigGeoMechWellLogExtractor* RimPltPlotCollection::findOrCreateExtractor( RimWell
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPltPlotCollection::removeExtractors( const RigWellPath* wellPath )
+void RimPltPlotCollection::removeExtractors( const RigWellPath* wellPathGeometry )
 {
     for ( int eIdx = (int)m_extractors.size() - 1; eIdx >= 0; eIdx-- )
     {
-        if ( m_extractors[eIdx]->wellPathData() == wellPath )
+        if ( m_extractors[eIdx]->wellPathGeometry() == wellPathGeometry )
         {
             m_extractors.eraseAt( eIdx );
         }
@@ -153,7 +157,7 @@ void RimPltPlotCollection::removeExtractors( const RigWellPath* wellPath )
 
     for ( int eIdx = (int)m_geomExtractors.size() - 1; eIdx >= 0; eIdx-- )
     {
-        if ( m_geomExtractors[eIdx]->wellPathData() == wellPath )
+        if ( m_geomExtractors[eIdx]->wellPathGeometry() == wellPathGeometry )
         {
             m_geomExtractors.eraseAt( eIdx );
         }
@@ -213,7 +217,7 @@ const std::vector<RimWellPltPlot*> RimPltPlotCollection::pltPlots() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPltPlotCollection::addPlot( RimWellPltPlot* newPlot )
+void RimPltPlotCollection::addPlot( gsl::not_null<RimWellPltPlot*> newPlot )
 {
     m_pltPlots.push_back( newPlot );
 }
@@ -221,7 +225,7 @@ void RimPltPlotCollection::addPlot( RimWellPltPlot* newPlot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPltPlotCollection::removePlot( RimWellPltPlot* plot )
+void RimPltPlotCollection::removePlot( gsl::not_null<RimWellPltPlot*> plot )
 {
     m_pltPlots.removeChildObject( plot );
     updateAllRequiredEditors();

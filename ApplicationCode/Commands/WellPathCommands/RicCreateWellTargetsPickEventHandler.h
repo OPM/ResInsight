@@ -22,6 +22,8 @@
 
 #include "cafPdmPointer.h"
 
+#include <gsl/gsl>
+
 class RimWellPathGeometryDef;
 class RigWellPath;
 
@@ -31,7 +33,7 @@ class RigWellPath;
 class RicCreateWellTargetsPickEventHandler : public Ric3dViewPickEventHandler
 {
 public:
-    RicCreateWellTargetsPickEventHandler( RimWellPathGeometryDef* wellGeometryDef );
+    RicCreateWellTargetsPickEventHandler( gsl::not_null<RimWellPathGeometryDef*> wellGeometryDef );
     ~RicCreateWellTargetsPickEventHandler();
 
     void registerAsPickEventHandler() override;
@@ -41,16 +43,16 @@ protected:
     void notifyUnregistered() override;
 
 private:
-    bool calculateAzimuthAndInclinationAtMd( double             measuredDepth,
-                                             const RigWellPath* wellPathGeometry,
-                                             double*            azimuth,
-                                             double*            inclination ) const;
+    bool calculateAzimuthAndInclinationAtMd( double                            measuredDepth,
+                                             gsl::not_null<const RigWellPath*> wellPathGeometry,
+                                             double*                           azimuth,
+                                             double*                           inclination ) const;
 
     static bool       isGridSourceObject( const cvf::Object* object );
-    static cvf::Vec3d findHexElementIntersection( Rim3dView*             view,
-                                                  const RiuPickItemInfo& pickItem,
-                                                  const cvf::Vec3d&      domainRayOrigin,
-                                                  const cvf::Vec3d&      domainRayEnd );
+    static cvf::Vec3d findHexElementIntersection( gsl::not_null<Rim3dView*> view,
+                                                  const RiuPickItemInfo&    pickItem,
+                                                  const cvf::Vec3d&         domainRayOrigin,
+                                                  const cvf::Vec3d&         domainRayEnd );
 
 private:
     caf::PdmPointer<RimWellPathGeometryDef> m_geometryToAddTargetsTo;

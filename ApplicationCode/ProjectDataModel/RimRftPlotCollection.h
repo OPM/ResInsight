@@ -24,6 +24,8 @@
 #include "cafPdmObject.h"
 #include "cvfCollection.h"
 
+#include <gsl/gsl>
+
 class RimWellLogPlot;
 class RigEclipseWellLogExtractor;
 class RigGeoMechWellLogExtractor;
@@ -48,13 +50,15 @@ public:
     RimRftPlotCollection();
     ~RimRftPlotCollection() override;
 
-    RigEclipseWellLogExtractor* findOrCreateSimWellExtractor( const QString&            simWellName,
-                                                              const QString&            caseUserDescription,
-                                                              const RigWellPath*        wellPathGeom,
-                                                              const RigEclipseCaseData* eclCaseData );
+    RigEclipseWellLogExtractor* findOrCreateSimWellExtractor( const QString&                    simWellName,
+                                                              const QString&                    caseUserDescription,
+                                                              gsl::not_null<const RigWellPath*> wellPathGeom,
+                                                              gsl::not_null<const RigEclipseCaseData*> eclCaseData );
 
-    RigEclipseWellLogExtractor* findOrCreateExtractor( RimWellPath* wellPath, RimEclipseCase* eclCase );
-    RigGeoMechWellLogExtractor* findOrCreateExtractor( RimWellPath* wellPath, RimGeoMechCase* eclCase );
+    RigEclipseWellLogExtractor* findOrCreateExtractor( gsl::not_null<RimWellPath*>    wellPath,
+                                                       gsl::not_null<RimEclipseCase*> eclCase );
+    RigGeoMechWellLogExtractor* findOrCreateExtractor( gsl::not_null<RimWellPath*>    wellPath,
+                                                       gsl::not_null<RimGeoMechCase*> eclCase );
 
     void removeExtractors( const RigWellPath* wellPath );
     void removeExtractors( const RigEclipseCaseData* caseData );
@@ -62,8 +66,8 @@ public:
     void deleteAllExtractors();
 
     const std::vector<RimWellRftPlot*> rftPlots() const;
-    void                               addPlot( RimWellRftPlot* newPlot );
-    void                               removePlot( RimWellRftPlot* plot );
+    void                               addPlot( gsl::not_null<RimWellRftPlot*> newPlot );
+    void                               removePlot( gsl::not_null<RimWellRftPlot*> plot );
     void                               deleteAllPlots();
 
 private:

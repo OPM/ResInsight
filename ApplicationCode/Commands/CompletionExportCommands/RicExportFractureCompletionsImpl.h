@@ -20,6 +20,8 @@
 
 #include "RigCompletionData.h"
 
+#include <gsl/gsl>
+
 #include <map>
 #include <vector>
 
@@ -118,12 +120,12 @@ private:
                                                              double                        cDarcyInCorrectUnit,
                                                              RigTransmissibilityCondenser& transCondenser );
 
-    static void calculateFractureToWellTransmissibilities( const RimFractureTemplate*    fracTemplate,
-                                                           const RigFractureGrid*        fractureGrid,
-                                                           const RimFracture*            fracture,
-                                                           double                        cDarcyInCorrectUnit,
-                                                           const RigWellPath*            wellPathGeometry,
-                                                           RigTransmissibilityCondenser& transCondenser );
+    static void calculateFractureToWellTransmissibilities( gsl::not_null<const RimFractureTemplate*> fracTemplate,
+                                                           gsl::not_null<const RigFractureGrid*>     fractureGrid,
+                                                           gsl::not_null<const RimFracture*>         fracture,
+                                                           double                            cDarcyInCorrectUnit,
+                                                           gsl::not_null<const RigWellPath*> wellPathGeometry,
+                                                           RigTransmissibilityCondenser&     transCondenser );
 
     static std::map<size_t, double> calculateMatrixToWellTransmissibilities( RigTransmissibilityCondenser& transCondenser );
 

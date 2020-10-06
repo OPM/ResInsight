@@ -330,13 +330,13 @@ std::vector<LocationForNewFracture> RiuCreateMultipleFractionsUi::locationsForNe
     {
         for ( auto w : m_wellPaths )
         {
-            auto wellPathGeometry = w->wellPathGeometry();
-            if ( wellPathGeometry )
+            if ( w->wellPathGeometry() )
             {
+                double endMD = w->endMD();
+
                 int    fractureCountForWell = 0;
                 auto   options              = fractureOptions( m_sourceCase->eclipseCaseData(), w, this->options() );
-                auto   mdOfWellPathTip      = wellPathGeometry->measureDepths().back();
-                double lastFracMd           = mdOfWellPathTip;
+                double lastFracMd           = endMD;
 
                 // Iterate options which are sorted from deeper to shallower
                 for ( size_t i = 0; i < options.size(); i++ )
@@ -345,7 +345,7 @@ std::vector<LocationForNewFracture> RiuCreateMultipleFractionsUi::locationsForNe
                     double      fracMdCandidate;
                     if ( i == 0 )
                     {
-                        fracMdCandidate = mdOfWellPathTip - m_minDistanceFromWellTd;
+                        fracMdCandidate = endMD - m_minDistanceFromWellTd;
                     }
                     else
                     {
@@ -428,12 +428,13 @@ std::vector<MultipleFracturesOption>
     if ( !caseData->mainGrid() ) return options;
 
     auto wellPathGeometry = wellPath->wellPathGeometry();
+    CAF_ASSERT( wellPathGeometry );
 
     std::vector<WellPathCellIntersectionInfo> wellPathInfos =
         RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath( caseData,
                                                                           wellPath->name(),
                                                                           wellPathGeometry->wellPathPoints(),
-                                                                          wellPathGeometry->measureDepths() );
+                                                                          wellPathGeometry->measuredDepths() );
     std::reverse( wellPathInfos.begin(), wellPathInfos.end() );
 
     bool doCreateNewOption = true;

@@ -190,7 +190,7 @@ void Rim3dWellLogExtractionCurve::curveValuesAndMdsAtTimeStep( std::vector<doubl
     if ( eclipseCase )
     {
         cvf::ref<RigEclipseWellLogExtractor> eclExtractor =
-            RiaExtractionTools::wellLogExtractorEclipseCase( wellPath, eclipseCase );
+            RiaExtractionTools::findOrCreateWellLogExtractor( wellPath, eclipseCase );
         if ( eclExtractor.notNull() )
         {
             *measuredDepthValues = eclExtractor->cellIntersectionMDs();
@@ -214,7 +214,7 @@ void Rim3dWellLogExtractionCurve::curveValuesAndMdsAtTimeStep( std::vector<doubl
         if ( geomCase )
         {
             cvf::ref<RigGeoMechWellLogExtractor> geomExtractor =
-                RiaExtractionTools::wellLogExtractorGeoMechCase( wellPath, geomCase );
+                RiaExtractionTools::findOrCreateWellLogExtractor( wellPath, geomCase );
 
             if ( geomExtractor.notNull() )
             {

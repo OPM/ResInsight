@@ -178,9 +178,11 @@ RifWellPathImporter::WellData RifWellPathImporter::readJsonWellData( const QStri
         cvf::Vec3d              vec3d( coordinateMap["east"].toDouble(),
                           coordinateMap["north"].toDouble(),
                           -( coordinateMap["tvd"].toDouble() - datumElevation ) );
-        wellData.m_wellPathGeometry->m_wellPathPoints.push_back( vec3d );
+
         double measuredDepth = coordinateMap["md"].toDouble();
-        wellData.m_wellPathGeometry->m_measuredDepths.push_back( measuredDepth );
+
+        wellData.m_wellPathGeometry->addWellPathPoint( vec3d );
+        wellData.m_wellPathGeometry->addMeasuredDepth( measuredDepth );
     }
     return wellData;
 }
@@ -225,8 +227,8 @@ void RifWellPathImporter::readAllAsciiWellData( const QString& filePath )
                 }
 
                 cvf::Vec3d wellPoint( x, y, -tvd );
-                fileWellDataArray.back().m_wellPathGeometry->m_wellPathPoints.push_back( wellPoint );
-                fileWellDataArray.back().m_wellPathGeometry->m_measuredDepths.push_back( md );
+                fileWellDataArray.back().m_wellPathGeometry->addWellPathPoint( wellPoint );
+                fileWellDataArray.back().m_wellPathGeometry->addMeasuredDepth( md );
 
                 hasReadWellPointInCurrentWell = true;
             }
