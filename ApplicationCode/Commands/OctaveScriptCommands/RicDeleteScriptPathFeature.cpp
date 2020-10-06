@@ -73,6 +73,6 @@ void RicDeleteScriptPathFeature::onActionTriggered( bool isChecked )
 void RicDeleteScriptPathFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Delete Script Path" );
-    actionToSetup->setIcon( QIcon( ":/Erase.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Erase.svg" ) );
     applyShortcutWithHintToAction( actionToSetup, QKeySequence::Delete );
 }

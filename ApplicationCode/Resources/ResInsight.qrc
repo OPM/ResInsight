@@ -215,6 +215,12 @@
         <file>themes/dark/checkbox-unchecked-disabled.svg</file>
         <file>themes/dark/checkbox-indeterminate.svg</file>
         <file>themes/dark/checkbox-indeterminate-disabled.svg</file>
+        <file>Filter.svg</file>
+        <file>FilterCollection.svg</file>
+        <file>Copy.svg</file>
+        <file>Erase.svg</file>
+        <file>Close.svg</file>
+        <file>Refresh.svg</file>
     </qresource>
     <qresource prefix="/Shader">
         <file>fs_CellFace.glsl</file>

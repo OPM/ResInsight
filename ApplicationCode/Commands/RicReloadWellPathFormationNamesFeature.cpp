@@ -81,5 +81,5 @@ void RicReloadWellPathFormationNamesFeature::onActionTriggered( bool isChecked )
 void RicReloadWellPathFormationNamesFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Reload All Well Picks" );
-    actionToSetup->setIcon( QIcon( ":/Refresh-32.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Refresh.svg" ) );
 }

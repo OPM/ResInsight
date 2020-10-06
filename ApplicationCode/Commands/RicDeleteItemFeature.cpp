@@ -111,6 +111,6 @@ void RicDeleteItemFeature::onActionTriggered( bool isChecked )
 void RicDeleteItemFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Delete" );
-    actionToSetup->setIcon( QIcon( ":/Erase.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Erase.svg" ) );
     applyShortcutWithHintToAction( actionToSetup, QKeySequence::Delete );
 }

@@ -65,6 +65,6 @@ void RicCopySurfaceFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicCopySurfaceFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/Copy.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Copy.svg" ) );
     actionToSetup->setText( "Create Copy" );
 }

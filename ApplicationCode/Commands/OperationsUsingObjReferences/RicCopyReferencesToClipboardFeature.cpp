@@ -96,7 +96,7 @@ void RicCopyReferencesToClipboardFeature::onActionTriggered( bool isChecked )
 void RicCopyReferencesToClipboardFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Copy" );
-    actionToSetup->setIcon( QIcon( ":/Copy.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Copy.svg" ) );
     applyShortcutWithHintToAction( actionToSetup, QKeySequence::Copy );
 }
 

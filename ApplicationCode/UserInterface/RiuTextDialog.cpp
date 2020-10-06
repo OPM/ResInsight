@@ -163,7 +163,7 @@ void RiuTextDialog::contextMenuEvent( QContextMenuEvent* event )
         QAction* actionToSetup = new QAction( this );
 
         actionToSetup->setText( "Copy" );
-        actionToSetup->setIcon( QIcon( ":/Copy.png" ) );
+        actionToSetup->setIcon( QIcon( ":/Copy.svg" ) );
         caf::CmdFeature::applyShortcutWithHintToAction( actionToSetup, QKeySequence::Copy );
 
         connect( actionToSetup, SIGNAL( triggered() ), m_textEdit, SLOT( slotCopyContentToClipboard() ) );
@@ -310,7 +310,7 @@ void RiuTabbedTextDialog::contextMenuEvent( QContextMenuEvent* event )
         QAction* actionToSetup = new QAction( this );
 
         actionToSetup->setText( "Copy" );
-        actionToSetup->setIcon( QIcon( ":/Copy.png" ) );
+        actionToSetup->setIcon( QIcon( ":/Copy.svg" ) );
         caf::CmdFeature::applyShortcutWithHintToAction( actionToSetup, QKeySequence::Copy );
 
         connect( actionToSetup, SIGNAL( triggered() ), textEdit, SLOT( slotCopyContentToClipboard() ) );

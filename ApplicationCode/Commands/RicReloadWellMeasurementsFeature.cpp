@@ -61,5 +61,5 @@ void RicReloadWellMeasurementsFeature::onActionTriggered( bool isChecked )
 void RicReloadWellMeasurementsFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Reload" );
-    actionToSetup->setIcon( QIcon( ":/Refresh-32.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Refresh.svg" ) );
 }

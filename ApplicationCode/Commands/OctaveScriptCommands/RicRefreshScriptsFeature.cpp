@@ -50,7 +50,7 @@ void RicRefreshScriptsFeature::onActionTriggered( bool isChecked )
 void RicRefreshScriptsFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Refresh" );
-    actionToSetup->setIcon( QIcon( ":/Refresh-32.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Refresh.svg" ) );
 }
 
 //--------------------------------------------------------------------------------------------------

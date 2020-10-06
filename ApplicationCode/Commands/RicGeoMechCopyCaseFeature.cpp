@@ -84,6 +84,6 @@ void RicGeoMechCopyCaseFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicGeoMechCopyCaseFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/Copy.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Copy.svg" ) );
     actionToSetup->setText( "Copy and Replace Input" );
 }
