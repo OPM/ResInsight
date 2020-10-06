@@ -48,7 +48,7 @@ QSize RiuAbstractLegendFrame::sizeHint() const
     layoutInfo( &layout );
 
     QFontMetrics fontMetrics( this->font() );
-    QRect        titleRect = fontMetrics.boundingRect( QRect( 0, 0, 200, 200 ), Qt::AlignLeft, m_title );
+    QRect titleRect = fontMetrics.boundingRect( QRect( 0, 0, 200, 200 ), Qt::AlignLeft | Qt::TextWordWrap, m_title );
 
     int preferredContentHeight = titleRect.height() + labelCount() * layout.lineSpacing + 0.5 * layout.lineSpacing;
     int preferredHeight        = preferredContentHeight + layout.margins.top() + layout.margins.bottom();
@@ -67,7 +67,7 @@ QSize RiuAbstractLegendFrame::sizeHint() const
                          maxTickTextWidth;
 
     preferredWidth = std::max( preferredWidth, titleWidth );
-    preferredWidth = std::min( preferredWidth, 400 );
+    preferredWidth = std::min( preferredWidth, 200 );
 
     return QSize( preferredWidth, preferredHeight );
 }
@@ -81,7 +81,7 @@ QSize RiuAbstractLegendFrame::minimumSizeHint() const
     layoutInfo( &layout );
 
     QFontMetrics fontMetrics( this->font() );
-    QRect        titleRect = fontMetrics.boundingRect( QRect( 0, 0, 200, 200 ), Qt::AlignLeft, m_title );
+    QRect titleRect = fontMetrics.boundingRect( QRect( 0, 0, 200, 200 ), Qt::AlignLeft | Qt::TextWordWrap, m_title );
 
     int preferredContentHeight = titleRect.height() + 2 * layout.lineSpacing + 0.5 * layout.lineSpacing;
     int preferredHeight        = preferredContentHeight + layout.margins.top() + layout.margins.bottom();
@@ -127,7 +127,9 @@ void RiuAbstractLegendFrame::renderTo( QPainter* painter, const QRect& targetRec
         QTextDocument td;
         td.setDocumentMargin( 0.0 );
         td.setDefaultFont( this->font() );
-        td.setHtml( QString( "<body><font color='%1'>%2</font></body>" ).arg( textColor.name() ).arg( m_title ) );
+        td.setHtml( QString( "<body><font color='%1'>%2</font></body>" )
+                        .arg( textColor.name() )
+                        .arg( m_title.replace( "\n", "<br />" ) ) );
         td.drawContents( painter );
         painter->restore();
     }
