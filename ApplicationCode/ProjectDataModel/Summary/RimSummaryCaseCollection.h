@@ -113,6 +113,7 @@ public:
     RifReaderRftInterface*                     rftStatisticsReader();
     void                                       setEnsembleId( int ensembleId );
     int                                        ensembleId() const;
+    bool                                       hasEnsembleParameters() const;
 
     const std::vector<EnsembleParameter>& variationSortedEnsembleParameters( bool excludeNoVariation = false ) const;
     std::vector<std::pair<EnsembleParameter, double>>

@@ -759,7 +759,9 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
         auto byEnsParamOption  = ColorModeEnum( ColorMode::BY_ENSEMBLE_PARAM );
 
         options.push_back( caf::PdmOptionItemInfo( singleColorOption.uiText(), ColorMode::SINGLE_COLOR ) );
-        if ( !correlationSortedEnsembleParameters().empty() )
+
+        RimSummaryCaseCollection* group = m_yValuesSummaryCaseCollection();
+        if ( group && group->hasEnsembleParameters() )
         {
             options.push_back( caf::PdmOptionItemInfo( byEnsParamOption.uiText(), ColorMode::BY_ENSEMBLE_PARAM ) );
         }
