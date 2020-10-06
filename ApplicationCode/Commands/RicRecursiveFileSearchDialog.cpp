@@ -554,7 +554,7 @@ void RicRecursiveFileSearchDialog::slotFileListCustomMenuRequested( const QPoint
     QMenu    menu;
     QAction* action;
 
-    action = new QAction( QIcon( ":/Copy.png" ), "&Copy", this );
+    action = new QAction( QIcon( ":/Copy.svg" ), "&Copy", this );
     connect( action, SIGNAL( triggered() ), SLOT( slotCopyFileItemText() ) );
     menu.addAction( action );
     menu.addSeparator();

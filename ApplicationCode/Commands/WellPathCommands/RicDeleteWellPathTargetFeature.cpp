@@ -70,5 +70,5 @@ void RicDeleteWellPathTargetFeature::onActionTriggered( bool isChecked )
 void RicDeleteWellPathTargetFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Delete Target" );
-    actionToSetup->setIcon( QIcon( ":/Erase.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Erase.svg" ) );
 }

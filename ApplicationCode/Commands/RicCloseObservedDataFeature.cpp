@@ -44,7 +44,7 @@ CAF_CMD_SOURCE_INIT( RicCloseObservedDataFeature, "RicCloseObservedDataFeature" 
 void RicCloseObservedDataFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Close" );
-    actionToSetup->setIcon( QIcon( ":/Erase.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Close.svg" ) );
 }
 
 //--------------------------------------------------------------------------------------------------

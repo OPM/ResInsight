@@ -61,6 +61,6 @@ void RicReloadSurfaceFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicReloadSurfaceFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/Refresh-32.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Refresh.svg" ) );
     actionToSetup->setText( "Reload" );
 }
