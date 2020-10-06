@@ -296,14 +296,12 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions( const 
         auto wellPathColl = RimTools::wellPathCollection();
         if ( wellPathColl )
         {
-            caf::PdmChildArrayField<RimWellPath*>& wellPaths = wellPathColl->wellPaths;
-
-            for ( size_t i = 0; i < wellPaths.size(); i++ )
+            for ( auto wellPath : wellPathColl->wellPaths() )
             {
                 // Only include well paths coming from a well log file
-                if ( wellPaths[i]->wellLogFiles().size() > 0 )
+                if ( wellPath->wellLogFiles().size() > 0 )
                 {
-                    options.push_back( caf::PdmOptionItemInfo( wellPaths[i]->name(), wellPaths[i] ) );
+                    options.push_back( caf::PdmOptionItemInfo( wellPath->name(), wellPath ) );
                 }
             }
 

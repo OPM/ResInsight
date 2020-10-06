@@ -127,7 +127,7 @@ RimWellPath::RimWellPath()
     m_wellPathAttributes = new RimWellPathAttributeCollection;
     m_wellPathAttributes->uiCapability()->setUiTreeHidden( true );
 
-    m_wellPathGeometry = nullptr;
+    CAF_PDM_InitFieldNoDefault( &m_childWellPaths, "ChildWellPaths", "Child Well Paths", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -335,6 +335,30 @@ RigWellPath* RimWellPath::wellPathGeometry()
 const RigWellPath* RimWellPath::wellPathGeometry() const
 {
     return m_wellPathGeometry.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellPath::startMD() const
+{
+    if ( wellPathGeometry() )
+    {
+        return wellPathGeometry()->measuredDepths().front();
+    }
+    return std::numeric_limits<double>::infinity();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellPath::endMD() const
+{
+    if ( wellPathGeometry() )
+    {
+        return wellPathGeometry()->measuredDepths().back();
+    }
+    return std::numeric_limits<double>::infinity();
 }
 
 //--------------------------------------------------------------------------------------------------

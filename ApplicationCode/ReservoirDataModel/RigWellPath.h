@@ -18,27 +18,33 @@
 
 #pragma once
 
+#include "cafSignal.h"
+
 #include "cvfMath.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
+
+#include <vector>
 
 namespace cvf
 {
 class BoundingBox;
 }
 
-#include <vector>
-
 //==================================================================================================
 ///
 //==================================================================================================
-class RigWellPath : public cvf::Object
+class RigWellPath : public cvf::Object, public caf::SignalEmitter
 {
+public:
+    caf::Signal<> objectBeingDeleted;
+
 public:
     RigWellPath();
     RigWellPath( const std::vector<cvf::Vec3d>& wellPathPoints, const std::vector<double>& measuredDepths );
     RigWellPath( const RigWellPath& rhs );
     RigWellPath& operator=( const RigWellPath& rhs );
+    ~RigWellPath();
 
     const std::vector<cvf::Vec3d>& wellPathPoints() const;
     const std::vector<double>&     measuredDepths() const;

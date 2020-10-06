@@ -22,12 +22,13 @@
 
 #include "RiaEclipseUnitTools.h"
 
-#include "RimAbstractWellPath.h"
+#include "RimWellPathComponentInterface.h"
 
 #include "cafAppEnum.h"
 #include "cafFilePath.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
+#include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 #include "cafPdmProxyValueField.h"
 
@@ -41,17 +42,18 @@
 
 class RifWellPathImporter;
 class RifWellPathFormationsImporter;
+class RigWellPath;
+class RigWellPathFormations;
+
 class RimProject;
 class RimWellLogFile;
 class RimFractureTemplateCollection;
 class RimFishboneWellPathCollection;
 class RimFractureModelCollection;
-
 class RimFishbonesCollection;
 class RimPerforationCollection;
 class RimWellPathAttributeCollection;
 class RimWellPathCompletions;
-class RigWellPathFormations;
 
 class RimWellPathFractureCollection;
 class Rim3dWellLogCurve;
@@ -61,7 +63,7 @@ class Rim3dWellLogCurveCollection;
 ///
 ///
 //==================================================================================================
-class RimWellPath : public RimAbstractWellPath
+class RimWellPath : public caf::PdmObject, public RimWellPathComponentInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -88,8 +90,11 @@ public:
     double airGap() const;
     double datumElevation() const;
 
-    RigWellPath*       wellPathGeometry() override;
-    const RigWellPath* wellPathGeometry() const override;
+    RigWellPath*       wellPathGeometry();
+    const RigWellPath* wellPathGeometry() const;
+
+    double startMD() const override;
+    double endMD() const override;
 
     void                         addWellLogFile( RimWellLogFile* logFileInfo );
     void                         deleteWellLogFile( RimWellLogFile* logFileInfo );
@@ -190,4 +195,6 @@ private:
     // Obsolete fields
 
     caf::PdmChildField<RimWellLogFile*> m_wellLogFile_OBSOLETE;
+
+    caf::PdmChildArrayField<RimWellPath*> m_childWellPaths;
 };
