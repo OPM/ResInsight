@@ -557,19 +557,7 @@ void RifReaderEclipseSummary::buildMetaData()
 
             {
                 std::string s = adr.quantityName();
-                if ( RiaStdStringTools::endsWith( s, historyIdentifier() ) )
-                {
-                    RifEclipseSummaryAddress candidate = adr;
-
-                    std::string quantityNoHistory = s.substr( 0, s.size() - 1 );
-                    candidate.setQuantityName( quantityNoHistory );
-                    if ( m_allResultAddresses.count( candidate ) )
-                    {
-                        adrWithHistory    = adr;
-                        adrWithoutHistory = candidate;
-                    }
-                }
-                else
+                if ( !RiaStdStringTools::endsWith( s, historyIdentifier() ) )
                 {
                     RifEclipseSummaryAddress candidate = adr;
                     candidate.setQuantityName( s + historyIdentifier() );
