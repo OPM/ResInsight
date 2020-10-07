@@ -21,6 +21,8 @@
 #include "RiaColorTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaStatisticsTools.h"
+#include "RiaSummaryCurveAnalyzer.h"
+#include "RiaSummaryCurveDefinition.h"
 
 #include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 
@@ -60,6 +62,7 @@
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 #include "cafTitledOverlayFrame.h"
 
 #include "cvfScalarMapper.h"
@@ -143,6 +146,12 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     CAF_PDM_InitFieldNoDefault( &m_objectiveFunction, "ObjectiveFunction", "Objective Function", "", "", "" );
     m_objectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+
+    // Time Step Selection
+    CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Available Time Steps", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "Select Time Steps", "", "", "" );
+    m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
     CAF_PDM_InitFieldNoDefault( &m_plotAxis, "PlotAxis", "Axis", "", "", "" );
 
@@ -516,6 +525,39 @@ void RimEnsembleCurveSet::updateAllCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::setTimeSteps( const std::vector<size_t>& timeStepIndices )
+{
+    m_selectedTimeSteps.v().clear();
+    std::set<time_t> timeSteps = allAvailableTimeSteps();
+    size_t           index     = 0;
+    for ( auto time : timeSteps )
+    {
+        if ( std::find( timeStepIndices.begin(), timeStepIndices.end(), index++ ) != timeStepIndices.end() )
+        {
+            m_selectedTimeSteps.v().push_back( RiaQDateTimeTools::fromTime_t( time ) );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<size_t, time_t> RimEnsembleCurveSet::selectedTimeSteps()
+{
+    std::map<size_t, time_t> selectedTimeTTimeSteps;
+    size_t                   index = 0;
+    for ( const QDateTime& dateTime : m_selectedTimeSteps.v() )
+    {
+        selectedTimeTTimeSteps.insert( std::make_pair( index, dateTime.toTime_t() ) );
+        index++;
+    }
+
+    return selectedTimeTTimeSteps;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                             const QVariant&            oldValue,
                                             const QVariant&            newValue )
@@ -604,6 +646,27 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         updateCurveColors();
 
         updateTextInPlot = true;
+    }
+    else if ( changedField == &m_objectiveFunction )
+    {
+        if ( m_objectiveFunction() == ObjectiveFunction::FunctionType::M2 )
+        {
+            std::vector<size_t> indices;
+            indices.push_back( summaryCaseCollection()->objectiveFunction( m_objectiveFunction() )->range().first );
+            setTimeSteps( indices );
+        }
+    }
+    else if ( changedField == &m_timeStepFilter )
+    {
+        m_selectedTimeSteps.v().clear();
+
+        this->updateConnectedEditors();
+    }
+    else if ( changedField == &m_selectedTimeSteps )
+    {
+        summaryCaseCollection()
+            ->objectiveFunction( ObjectiveFunction::FunctionType::M2 )
+            ->setRange( selectedTimeSteps().begin()->first, selectedTimeSteps().begin()->first );
     }
     else if ( changedField == &m_plotAxis )
     {
@@ -748,6 +811,11 @@ void RimEnsembleCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrdering )
         colorsGroup->add( &m_objectiveValuesSummaryAddressUiField );
         colorsGroup->add( &m_objectiveValuesSelectSummaryAddressPushButton, {false, 1, 0} );
         colorsGroup->add( &m_objectiveFunction );
+        if ( m_objectiveFunction() == ObjectiveFunction::FunctionType::M2 )
+        {
+            colorsGroup->add( &m_timeStepFilter );
+            colorsGroup->add( &m_selectedTimeSteps );
+        }
     }
 }
 
@@ -876,8 +944,80 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
     {
         appendOptionItemsForSummaryAddresses( &options, m_yValuesSummaryCaseCollection() );
     }
+    else if ( fieldNeedingOptions == &m_selectedTimeSteps )
+    {
+        auto timeSteps = allAvailableTimeSteps();
+        if ( m_selectedTimeSteps().empty() && !timeSteps.empty() )
+        {
+            m_selectedTimeSteps.v().push_back( RiaQDateTimeTools::fromTime_t( *timeSteps.rbegin() ) );
+        }
+    }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<time_t> RimEnsembleCurveSet::allAvailableTimeSteps()
+{
+    std::set<time_t> timeStepUnion;
+
+    for ( RimSummaryCase* sumCase : timestepDefiningSourceCases() )
+    {
+        const std::vector<time_t>& timeSteps = sumCase->summaryReader()->timeSteps( RifEclipseSummaryAddress() );
+
+        for ( time_t t : timeSteps )
+        {
+            timeStepUnion.insert( t );
+        }
+    }
+
+    return timeStepUnion;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RimSummaryCase*> RimEnsembleCurveSet::timestepDefiningSourceCases()
+{
+    RiaSummaryCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = getOrCreateSelectedCurveDefAnalyser();
+    std::set<RimSummaryCase*>          timeStepDefiningSumCases    = analyserOfSelectedCurveDefs->m_singleSummaryCases;
+    for ( auto ensemble : analyserOfSelectedCurveDefs->m_ensembles )
+    {
+        auto allSumCases = ensemble->allSummaryCases();
+        timeStepDefiningSumCases.insert( allSumCases.begin(), allSumCases.end() );
+    }
+
+    return timeStepDefiningSumCases;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaSummaryCurveDefinitionAnalyser* RimEnsembleCurveSet::getOrCreateSelectedCurveDefAnalyser()
+{
+    if ( !m_analyserOfSelectedCurveDefs )
+    {
+        m_analyserOfSelectedCurveDefs =
+            std::unique_ptr<RiaSummaryCurveDefinitionAnalyser>( new RiaSummaryCurveDefinitionAnalyser );
+    }
+    m_analyserOfSelectedCurveDefs->setCurveDefinitions( this->curveDefinitions() );
+    return m_analyserOfSelectedCurveDefs.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaSummaryCurveDefinition> RimEnsembleCurveSet::curveDefinitions() const
+{
+    std::vector<RiaSummaryCurveDefinition> curveDefs;
+    for ( auto dataEntry : m_curves() )
+    {
+        curveDefs.push_back( dataEntry->curveDefinitionX() );
+    }
+
+    return curveDefs;
 }
 
 //--------------------------------------------------------------------------------------------------

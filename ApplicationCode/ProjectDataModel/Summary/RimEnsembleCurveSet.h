@@ -29,6 +29,7 @@
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
+#include "RimTimeStepFilter.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
@@ -55,6 +56,8 @@ class RimEnsembleStatistics;
 class RimEnsembleStatisticsCase;
 class RimObjectiveFunction;
 class RiuDraggableOverlayFrame;
+class RiaSummaryCurveDefinitionAnalyser;
+class RiaSummaryCurveDefinition;
 
 class QwtPlot;
 class QwtPlotCurve;
@@ -69,8 +72,9 @@ class RimEnsembleCurveSet : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    using ColorMode     = RimEnsembleCurveSetColorManager::ColorMode;
-    using ColorModeEnum = RimEnsembleCurveSetColorManager::ColorModeEnum;
+    using ColorMode          = RimEnsembleCurveSetColorManager::ColorMode;
+    using ColorModeEnum      = RimEnsembleCurveSetColorManager::ColorModeEnum;
+    using TimeStepFilterEnum = caf::AppEnum<RimTimeStepFilter::TimeStepFilterTypeEnum>;
 
 public:
     RimEnsembleCurveSet();
@@ -111,8 +115,10 @@ public:
     void                      updateEnsembleLegendItem();
     RiuDraggableOverlayFrame* legendFrame() const;
 
-    void updateAllCurves();
-    void updateStatisticsCurves();
+    void                     updateAllCurves();
+    void                     setTimeSteps( const std::vector<size_t>& timeStepIndices );
+    std::map<size_t, time_t> selectedTimeSteps();
+    void                     updateStatisticsCurves();
 
     RimEnsembleCurveSet* clone() const;
     void                 showCurves( bool show );
@@ -148,9 +154,13 @@ private:
                                                 QString                    uiConfigName,
                                                 caf::PdmUiEditorAttribute* attribute ) override;
 
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
-    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    QList<caf::PdmOptionItemInfo>          calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                  bool*                      useOptionsOnly ) override;
+    std::set<time_t>                       allAvailableTimeSteps();
+    std::set<RimSummaryCase*>              timestepDefiningSourceCases();
+    RiaSummaryCurveDefinitionAnalyser*     getOrCreateSelectedCurveDefAnalyser();
+    std::vector<RiaSummaryCurveDefinition> curveDefinitions() const;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
@@ -183,6 +193,8 @@ private:
     caf::PdmField<RifEclipseSummaryAddress>                      m_objectiveValuesSummaryAddressUiField;
     caf::PdmField<bool>                                          m_objectiveValuesSelectSummaryAddressPushButton;
     caf::PdmField<caf::AppEnum<ObjectiveFunction::FunctionType>> m_objectiveFunction;
+    caf::PdmField<TimeStepFilterEnum>                            m_timeStepFilter;
+    caf::PdmField<std::vector<QDateTime>>                        m_selectedTimeSteps;
 
     caf::PdmField<caf::AppEnum<RiaDefines::PlotAxis>> m_plotAxis;
 
@@ -199,6 +211,8 @@ private:
     QPointer<RiuDraggableOverlayFrame> m_legendOverlayFrame;
 
     std::unique_ptr<RimEnsembleStatisticsCase> m_ensembleStatCase;
+
+    std::unique_ptr<RiaSummaryCurveDefinitionAnalyser> m_analyserOfSelectedCurveDefs;
 
     bool m_disableStatisticCurves;
     bool m_isCurveSetFiltered;

@@ -72,10 +72,11 @@ public:
     void setOverrideCurveDataY( const std::vector<time_t>& xValues, const std::vector<double>& yValues );
 
     // X Axis functions
-    RimSummaryCase*          summaryCaseX() const;
-    RifEclipseSummaryAddress summaryAddressX() const;
-    std::string              unitNameX() const;
-    std::vector<double>      valuesX() const;
+    RiaSummaryCurveDefinition curveDefinitionX() const;
+    RimSummaryCase*           summaryCaseX() const;
+    RifEclipseSummaryAddress  summaryAddressX() const;
+    std::string               unitNameX() const;
+    std::vector<double>       valuesX() const;
 
     void setSummaryCaseX( RimSummaryCase* sumCase );
     void setSummaryAddressX( const RifEclipseSummaryAddress& address );

@@ -216,6 +216,7 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
     m_commonAddressCount = 0;
 
     m_objectiveFunctions.push_back( std::make_shared<ObjectiveFunction>( this, ObjectiveFunction::FunctionType::M1 ) );
+    m_objectiveFunctions.push_back( std::make_shared<ObjectiveFunction>( this, ObjectiveFunction::FunctionType::M2 ) );
 }
 
 //--------------------------------------------------------------------------------------------------

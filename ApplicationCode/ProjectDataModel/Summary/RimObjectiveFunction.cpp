@@ -36,6 +36,7 @@ template <>
 void caf::AppEnum<ObjectiveFunction::FunctionType>::setUp()
 {
     addItem( ObjectiveFunction::FunctionType::M1, "M1", "M1" );
+    addItem( ObjectiveFunction::FunctionType::M2, "M2", "M2" );
     setDefault( ObjectiveFunction::FunctionType::M1 );
 }
 
@@ -84,70 +85,117 @@ double ObjectiveFunction::value( RimSummaryCase*                 summaryCase,
                                  bool*                           hasWarning ) const
 {
     RifSummaryReaderInterface* readerInterface = summaryCase->summaryReader();
-
-    if ( functionType == FunctionType::M1 )
+    if ( readerInterface )
     {
-        std::string s = vectorSummaryAddress.quantityName() + RifReaderEclipseSummary::differenceIdentifier();
-        if ( !vectorSummaryAddress.quantityName().empty() )
+        if ( functionType == FunctionType::M1 )
         {
-            if ( vectorSummaryAddress.quantityName().find( RifReaderEclipseSummary::differenceIdentifier() ) !=
-                 std::string::npos )
+            std::string s = vectorSummaryAddress.quantityName() + RifReaderEclipseSummary::differenceIdentifier();
+            if ( !vectorSummaryAddress.quantityName().empty() )
             {
-                s = vectorSummaryAddress.quantityName();
-            }
-            RifEclipseSummaryAddress vectorSummaryAddressDiff = vectorSummaryAddress;
-            vectorSummaryAddressDiff.setQuantityName( s );
-
-            if ( readerInterface->allResultAddresses().count( vectorSummaryAddressDiff ) )
-            {
-                std::vector<double> values;
-                if ( readerInterface->values( vectorSummaryAddressDiff, &values ) )
+                if ( vectorSummaryAddress.quantityName().find( RifReaderEclipseSummary::differenceIdentifier() ) !=
+                     std::string::npos )
                 {
-                    double N          = static_cast<double>( values.size() );
-                    size_t startIndex = m_startIndex;
-                    size_t endIndex   = m_endIndex;
-                    if ( m_startIndex < m_endIndex )
+                    s = vectorSummaryAddress.quantityName();
+                }
+                RifEclipseSummaryAddress vectorSummaryAddressDiff = vectorSummaryAddress;
+                vectorSummaryAddressDiff.setQuantityName( s );
+
+                if ( readerInterface->allResultAddresses().count( vectorSummaryAddressDiff ) )
+                {
+                    std::vector<double> values;
+                    if ( readerInterface->values( vectorSummaryAddressDiff, &values ) )
                     {
-                        N = static_cast<double>( m_endIndex - m_startIndex );
-                    }
-                    else
-                    {
-                        startIndex = 0;
-                        endIndex   = values.size();
-                    }
-                    if ( N > 1 )
-                    {
-                        double sumValues        = 0.0;
-                        double sumValuesSquared = 0.0;
-                        for ( size_t index = startIndex; index < endIndex; index++ )
+                        double N          = static_cast<double>( values.size() );
+                        size_t startIndex = m_startIndex;
+                        size_t endIndex   = m_endIndex;
+                        if ( m_startIndex < m_endIndex )
                         {
-                            const double& value = values[index];
-                            sumValues += value;
-                            sumValuesSquared += value * value;
+                            N = static_cast<double>( m_endIndex - m_startIndex );
                         }
-                        if ( sumValues != 0 )
+                        else
                         {
-                            return sumValues /
-                                   std::sqrt( ( N * sumValuesSquared - sumValues * sumValues ) / ( N * ( N - 1.0 ) ) );
+                            startIndex = 0;
+                            endIndex   = values.size();
                         }
+                        if ( N > 1 )
+                        {
+                            double sumValues        = 0.0;
+                            double sumValuesSquared = 0.0;
+                            for ( size_t index = startIndex; index < endIndex; index++ )
+                            {
+                                const double& value = values[index];
+                                sumValues += value;
+                                sumValuesSquared += value * value;
+                            }
+                            if ( sumValues != 0 )
+                            {
+                                return sumValues / std::sqrt( ( N * sumValuesSquared - sumValues * sumValues ) /
+                                                              ( N * ( N - 1.0 ) ) );
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    RiaLogging::info( "The selected summary address does not have a related difference address." );
+                    if ( hasWarning )
+                    {
+                        *hasWarning = true;
                     }
                 }
             }
             else
             {
-                RiaLogging::info( "The selected summary address does not have a related difference address." );
+                RiaLogging::info( "Invalid summary address." );
                 if ( hasWarning )
                 {
                     *hasWarning = true;
                 }
             }
         }
-        else
+        else if ( functionType == FunctionType::M2 )
         {
-            RiaLogging::info( "Invalid summary address." );
-            if ( hasWarning )
+            std::string s = vectorSummaryAddress.quantityName() + RifReaderEclipseSummary::differenceIdentifier();
+            if ( !vectorSummaryAddress.quantityName().empty() )
             {
-                *hasWarning = true;
+                if ( vectorSummaryAddress.quantityName().find( RifReaderEclipseSummary::differenceIdentifier() ) !=
+                     std::string::npos )
+                {
+                    s = vectorSummaryAddress.quantityName();
+                }
+                RifEclipseSummaryAddress vectorSummaryAddressDiff = vectorSummaryAddress;
+                vectorSummaryAddressDiff.setQuantityName( s );
+
+                if ( readerInterface->allResultAddresses().count( vectorSummaryAddressDiff ) )
+                {
+                    std::vector<double> values;
+                    if ( readerInterface->values( vectorSummaryAddressDiff, &values ) )
+                    {
+                        double N          = static_cast<double>( values.size() );
+                        size_t startIndex = m_startIndex;
+                        size_t endIndex   = m_endIndex;
+                        if ( m_startIndex == m_endIndex )
+                        {
+                            return values[m_startIndex];
+                        }
+                    }
+                }
+                else
+                {
+                    RiaLogging::info( "The selected summary address does not have a related difference address." );
+                    if ( hasWarning )
+                    {
+                        *hasWarning = true;
+                    }
+                }
+            }
+            else
+            {
+                RiaLogging::info( "Invalid summary address." );
+                if ( hasWarning )
+                {
+                    *hasWarning = true;
+                }
             }
         }
     }
@@ -171,6 +219,14 @@ std::pair<double, double> ObjectiveFunction::minMaxValues( const RifEclipseSumma
         }
     }
     return std::make_pair( minValue, maxValue );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> ObjectiveFunction::range() const
+{
+    return std::make_pair( m_startIndex, m_endIndex );
 }
 
 //--------------------------------------------------------------------------------------------------

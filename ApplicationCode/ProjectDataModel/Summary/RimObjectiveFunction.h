@@ -35,7 +35,8 @@ class ObjectiveFunction
 public:
     enum class FunctionType
     {
-        M1 = 0
+        M1 = 0,
+        M2
     };
     QString                         uiName() const { return name; };
     QString                         name;
@@ -55,6 +56,8 @@ public:
                   bool*                           hasWarning = nullptr ) const;
 
     std::pair<double, double> minMaxValues( const RifEclipseSummaryAddress& vectorSummaryAddress ) const;
+
+    std::pair<double, double> range() const;
 
     std::vector<double> values( const RifEclipseSummaryAddress& vectorSummaryAddress ) const;
 
