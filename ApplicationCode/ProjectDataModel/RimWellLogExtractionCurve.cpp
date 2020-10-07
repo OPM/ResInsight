@@ -421,6 +421,7 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
     RimWellLogPlotCollection* wellLogCollection = mainPlotCollection->wellLogPlotCollection();
 
     cvf::ref<RigEclipseWellLogExtractor> eclExtractor;
+    cvf::ref<RigGeoMechWellLogExtractor> geomExtractor;
 
     if ( eclipseCase )
     {
@@ -448,7 +449,10 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
             }
         }
     }
-    cvf::ref<RigGeoMechWellLogExtractor> geomExtractor = wellLogCollection->findOrCreateExtractor( m_wellPath, geomCase );
+    else if ( geomCase )
+    {
+        geomExtractor = wellLogCollection->findOrCreateExtractor( m_wellPath, geomCase );
+    }
 
     std::vector<double> values;
     std::vector<double> measuredDepthValues;
@@ -458,7 +462,7 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
     RiaDefines::DepthUnitType depthUnit = RiaDefines::DepthUnitType::UNIT_METER;
     QString                   xUnits    = RiaWellLogUnitTools<double>::noUnitString();
 
-    if ( eclExtractor.notNull() && eclipseCase )
+    if ( eclExtractor.notNull() )
     {
         measuredDepthValues = eclExtractor->cellIntersectionMDs();
         tvDepthValues       = eclExtractor->cellIntersectionTVDs();
