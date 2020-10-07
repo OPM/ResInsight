@@ -165,7 +165,7 @@ void RimLayerCurve::performDataExtraction( bool* isUsingPseudoLength )
             return;
         }
 
-        assert( faciesValues.size() == curveData.data.size() );
+        if ( faciesValues.size() != curveData.data.size() || faciesValues.size() != measuredDepthValues.size() ) return;
 
         values.resize( faciesValues.size() );
 

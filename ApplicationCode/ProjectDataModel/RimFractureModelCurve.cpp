@@ -311,6 +311,12 @@ void RimFractureModelCurve::performDataExtraction( bool* isUsingPseudoLength )
                     return;
                 }
 
+                if ( values.size() != initialValues.size() )
+                {
+                    RiaLogging::error( QString( "Inconsistent state." ) );
+                    return;
+                }
+
                 replaceMissingValues( values, initialValues );
             }
         }
@@ -325,7 +331,7 @@ void RimFractureModelCurve::performDataExtraction( bool* isUsingPseudoLength )
     }
 
     bool performDataSmoothing = false;
-    if ( !values.empty() && !measuredDepthValues.empty() )
+    if ( !values.empty() && !measuredDepthValues.empty() && measuredDepthValues.size() == values.size() )
     {
         if ( tvDepthValues.empty() )
         {
