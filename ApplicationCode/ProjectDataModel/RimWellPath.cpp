@@ -364,6 +364,14 @@ double RimWellPath::endMD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellPath::addChildWellPath( RimWellPath* wellPath )
+{
+    m_childWellPaths.push_back( wellPath );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellPath::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimProject* proj;
@@ -630,6 +638,9 @@ void RimWellPath::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, 
     {
         uiTreeOrdering.add( m_wellPathAttributes() );
     }
+
+    for ( auto child : m_childWellPaths() )
+        uiTreeOrdering.add( child );
 
     uiTreeOrdering.skipRemainingChildren( true );
 }
