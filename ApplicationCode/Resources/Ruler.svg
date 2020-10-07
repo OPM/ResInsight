@@ -1,20 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient gradientUnits="userSpaceOnUse" x1="9.854" y1="1" x2="9.854" y2="15" id="gradient-0">
-      <stop offset="0" style="stop-color: rgb(223, 223, 223);"/>
-      <stop offset="1" style="stop-color: rgb(223, 223, 223);"/>
-    </linearGradient>
-  </defs>
   <g transform="matrix(1.157394, 0, 0, 1, 1.260791, 0)">
     <rect x="2.548" y="1" width="0.974" height="14" style="fill: rgb(117, 190, 255);"/>
   </g>
   <rect x="3.803" y="1" width="1.995" height="1.919" style="fill: rgb(117, 190, 255);"/>
   <rect x="3.803" y="13.023" width="1.995" height="1.977" style="fill: rgb(117, 190, 255);"/>
-  <rect x="7.51" y="1" width="4.687" height="14" style="stroke: rgb(144, 144, 144); fill-opacity: 0.8; fill: url(#gradient-0);"/>
-  <line style="fill: rgb(253, 194, 93); stroke: rgb(144, 144, 144);" x1="7.51" y1="13.023" x2="9.543" y2="13.023"/>
-  <line style="fill: rgb(253, 194, 93); stroke: rgb(144, 144, 144);" x1="7.51" y1="2.919" x2="9.543" y2="2.919"/>
-  <line style="fill: rgb(253, 194, 93); stroke: rgb(144, 144, 144);" x1="7.51" y1="8.007" x2="9.543" y2="7.993"/>
-  <line style="fill: rgb(253, 194, 93); stroke: rgb(144, 144, 144);" x1="7.51" y1="5.377" x2="9.543" y2="5.377"/>
-  <line style="fill: rgb(253, 194, 93); stroke: rgb(144, 144, 144);" x1="7.524" y1="10.431" x2="9.557" y2="10.431"/>
+  <rect x="7.51" y="1" width="4.687" height="14" style="fill: rgb(251, 176, 0); stroke: rgb(128, 128, 128);"/>
+  <line style="fill: rgb(253, 194, 93); stroke: rgb(128, 128, 128);" x1="7.51" y1="13.023" x2="9.543" y2="13.023"/>
+  <line style="fill: rgb(253, 194, 93); stroke: rgb(128, 128, 128);" x1="7.51" y1="2.919" x2="9.543" y2="2.919"/>
+  <line style="fill: rgb(253, 194, 93); stroke: rgb(128, 128, 128);" x1="7.51" y1="8.007" x2="9.543" y2="7.993"/>
+  <line style="fill: rgb(253, 194, 93); stroke: rgb(128, 128, 128);" x1="7.51" y1="5.377" x2="9.543" y2="5.377"/>
+  <line style="fill: rgb(253, 194, 93); stroke: rgb(128, 128, 128);" x1="7.524" y1="10.431" x2="9.557" y2="10.431"/>
 </svg>
