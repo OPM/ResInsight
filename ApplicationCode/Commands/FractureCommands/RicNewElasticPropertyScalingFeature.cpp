@@ -44,11 +44,11 @@ void RicNewElasticPropertyScalingFeature::onActionTriggered( bool isChecked )
     RimElasticPropertyScalingCollection* scalingColl = elasticProperties->scalingCollection();
     if ( !scalingColl ) return;
 
-    RimElasticPropertyScaling* fractureModelTemplate = new RimElasticPropertyScaling;
+    RimElasticPropertyScaling* elasticPropertyScaling = new RimElasticPropertyScaling;
 
-    scalingColl->addElasticPropertyScaling( fractureModelTemplate );
+    scalingColl->addElasticPropertyScaling( elasticPropertyScaling );
     scalingColl->updateConnectedEditors();
-    Riu3DMainWindowTools::selectAsCurrentItem( fractureModelTemplate );
+    Riu3DMainWindowTools::selectAsCurrentItem( elasticPropertyScaling );
 }
 
 //--------------------------------------------------------------------------------------------------

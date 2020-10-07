@@ -29,6 +29,7 @@
 
 class RimEclipseCase;
 class RigEclipseCaseData;
+class RimColorLegend;
 
 //==================================================================================================
 ///
@@ -46,6 +47,12 @@ public:
     RiaDefines::CurveProperty property() const;
     double                    scale() const;
 
+    void setFormation( const QString& formation );
+    void setFacies( const QString& facies );
+    void setScale( double m_scale );
+    void setProperty( RiaDefines::CurveProperty property );
+    void ensureDefaultFormationAndFacies();
+
     caf::Signal<> changed;
 
 protected:
@@ -57,16 +64,12 @@ protected:
     static RigEclipseCaseData* getEclipseCaseData();
 
 private:
+    void                 updateAutoName();
+    RimColorLegend*      getFaciesColorLegend();
+    std::vector<QString> getFormationNames();
+
     caf::PdmField<QString>                                 m_formation;
     caf::PdmField<QString>                                 m_facies;
     caf::PdmField<caf::AppEnum<RiaDefines::CurveProperty>> m_property;
     caf::PdmField<double>                                  m_scale;
-
-    void updateAutoName();
-
-public:
-    void setFormation( const QString& formation );
-    void setFacies( const QString& facies );
-    void setScale( double m_scale );
-    void setProperty( RiaDefines::CurveProperty property );
 };
