@@ -47,6 +47,8 @@ RimElasticPropertyScaling::RimElasticPropertyScaling()
     CAF_PDM_InitScriptableFieldNoDefault( &m_property, "Property", "Property", "", "", "" );
     CAF_PDM_InitScriptableField( &m_scale, "Scale", 1.0, "Scale", "", "", "" );
 
+    nameField()->uiCapability()->setUiReadOnly( true );
+
     setUiName( "Property Scaling" );
     setDeletable( true );
 }
@@ -113,6 +115,7 @@ void RimElasticPropertyScaling::fieldChangedByUi( const caf::PdmFieldHandle* cha
                                                   const QVariant&            oldValue,
                                                   const QVariant&            newValue )
 {
+    updateAutoName();
     changed.send();
 }
 
@@ -140,12 +143,23 @@ RigEclipseCaseData* RimElasticPropertyScaling::getEclipseCaseData()
     return eclipseCase->eclipseCaseData();
 }
 
+void RimElasticPropertyScaling::updateAutoName()
+{
+    QString name = QString( "%1/%2 - %3: %4" )
+                       .arg( m_formation )
+                       .arg( m_facies )
+                       .arg( caf::AppEnum<RiaDefines::CurveProperty>::uiText( m_property() ) )
+                       .arg( m_scale );
+    setName( name );
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimElasticPropertyScaling::setFormation( const QString& formation )
 {
     m_formation = formation;
+    updateAutoName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -154,6 +168,7 @@ void RimElasticPropertyScaling::setFormation( const QString& formation )
 void RimElasticPropertyScaling::setFacies( const QString& facies )
 {
     m_facies = facies;
+    updateAutoName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -162,6 +177,7 @@ void RimElasticPropertyScaling::setFacies( const QString& facies )
 void RimElasticPropertyScaling::setScale( double scale )
 {
     m_scale = scale;
+    updateAutoName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -170,6 +186,7 @@ void RimElasticPropertyScaling::setScale( double scale )
 void RimElasticPropertyScaling::setProperty( RiaDefines::CurveProperty property )
 {
     m_property = property;
+    updateAutoName();
 }
 
 //--------------------------------------------------------------------------------------------------
