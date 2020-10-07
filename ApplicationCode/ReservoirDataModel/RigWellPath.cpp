@@ -344,6 +344,36 @@ void RigWellPath::twoClosestPoints( const cvf::Vec3d& position, cvf::Vec3d* p1, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RigWellPath::identicalTubeLength( const RigWellPath& other ) const
+{
+    const double eps = 1.0e-8;
+
+    size_t minimumVertices = std::min( m_wellPathPoints.size(), other.wellPathPoints().size() );
+    if ( minimumVertices < 2u ) return 0.0;
+
+    size_t minimumSegments = minimumVertices - 1u;
+
+    double identicalMD = 0.0;
+    for ( size_t segmentIndex = 0; segmentIndex < minimumSegments; ++segmentIndex )
+    {
+        size_t vIndex1 = segmentIndex;
+        size_t vIndex2 = segmentIndex + 1u;
+        if ( ( m_wellPathPoints[vIndex1] - other.wellPathPoints()[vIndex1] ).length() < eps &&
+             ( m_wellPathPoints[vIndex2] - other.wellPathPoints()[vIndex2] ).length() < eps )
+        {
+            identicalMD = m_measuredDepths[vIndex2];
+        }
+        else
+        {
+            break;
+        }
+    }
+    return identicalMD;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::pair<std::vector<cvf::Vec3d>, std::vector<double>>
     RigWellPath::clippedPointSubset( double startMD, double endMD, double* horizontalLengthAlongWellToStartClipPoint ) const
 {

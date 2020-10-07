@@ -96,6 +96,8 @@ public:
     double startMD() const override;
     double endMD() const override;
 
+    void addChildWellPath( RimWellPath* wellPath );
+
     void                         addWellLogFile( RimWellLogFile* logFileInfo );
     void                         deleteWellLogFile( RimWellLogFile* logFileInfo );
     void                         detachWellLogFile( RimWellLogFile* logFileInfo );
@@ -184,6 +186,8 @@ private:
     caf::PdmChildField<RimWellPathCompletions*>         m_completions;
     caf::PdmChildField<RimWellPathAttributeCollection*> m_wellPathAttributes;
 
+    caf::PdmChildArrayField<RimWellPath*> m_childWellPaths;
+
 private:
     static size_t simulationWellBranchCount( const QString& simWellName );
 
@@ -195,6 +199,4 @@ private:
     // Obsolete fields
 
     caf::PdmChildField<RimWellLogFile*> m_wellLogFile_OBSOLETE;
-
-    caf::PdmChildArrayField<RimWellPath*> m_childWellPaths;
 };
