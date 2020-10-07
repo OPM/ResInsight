@@ -128,7 +128,7 @@ std::vector<RimWellPath*> RicExportCompletionsForVisibleWellPathsFeature::visibl
         {
             for ( auto wellPathCollection : wellPathCollections )
             {
-                for ( const auto& wellPath : wellPathCollection->wellPaths() )
+                for ( const auto& wellPath : wellPathCollection->allWellPaths() )
                 {
                     if ( wellPath->showWellPath() )
                     {

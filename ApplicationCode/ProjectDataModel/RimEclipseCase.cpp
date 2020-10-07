@@ -992,7 +992,7 @@ bool RimEclipseCase::openReserviorCase()
     RimProject* proj = RimProject::current();
     for ( const auto& oilField : proj->oilFields() )
     {
-        for ( const auto& wellPath : oilField->wellPathCollection()->wellPaths() )
+        for ( const auto& wellPath : oilField->wellPathCollection()->allWellPaths() )
         {
             if ( !wellPath->isAssociatedWithSimulationWell() )
             {

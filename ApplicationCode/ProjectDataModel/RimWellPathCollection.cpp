@@ -141,7 +141,7 @@ void RimWellPathCollection::loadDataAndUpdate()
 
     readWellPathFormationFiles();
 
-    for ( RimWellPath* wellPath : wellPaths() )
+    for ( RimWellPath* wellPath : allWellPaths() )
     {
         progress.setProgressDescription( QString( "Reading file %1" ).arg( wellPath->name() ) );
 
@@ -257,7 +257,7 @@ std::vector<RimWellPath*> RimWellPathCollection::addWellPaths( QStringList fileP
     scheduleRedrawAffectedViews();
     updateAllRequiredEditors();
 
-    return wellPaths();
+    return topLevelWellPaths();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -280,9 +280,19 @@ void RimWellPathCollection::addWellPath( gsl::not_null<RimWellPath*> wellPath )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellPath*> RimWellPathCollection::wellPaths()
+std::vector<RimWellPath*> RimWellPathCollection::topLevelWellPaths() const
 {
     return m_wellPaths.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellPath*> RimWellPathCollection::allWellPaths() const
+{
+    std::vector<RimWellPath*> wellPaths;
+    descendantsOfType( wellPaths );
+    return wellPaths;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -609,7 +619,26 @@ void RimWellPathCollection::reloadAllWellPathFormations()
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::removeWellPath( RimWellPath* wellPath )
 {
-    m_wellPaths.removeChildObject( wellPath );
+    bool removed = false;
+    if ( m_wellPaths.count( wellPath ) != 0u )
+    {
+        m_wellPaths.removeChildObject( wellPath );
+        removed = true;
+    }
+    else
+    {
+        for ( auto possibleParentWellPath : allWellPaths() )
+        {
+            if ( possibleParentWellPath->hasChildWellPath( wellPath ) )
+            {
+                possibleParentWellPath->removeChildWellPath( wellPath );
+                removed = true;
+                break;
+            }
+        }
+    }
+    CAF_ASSERT( removed );
+    if ( !removed ) return;
 
     RimFileWellPath* fileWellPath = dynamic_cast<RimFileWellPath*>( wellPath );
     if ( fileWellPath )
@@ -664,14 +693,11 @@ RimWellPath* RimWellPathCollection::findSuitableParentWellPath( gsl::not_null<co
     auto wellPathGeometry = wellPath->wellPathGeometry();
     if ( !wellPathGeometry ) return nullptr;
 
-    std::vector<RimWellPath*> allWellPaths;
-    descendantsOfType( allWellPaths );
-
     const double eps                    = 1.0e-4;
     double       maxIdenticalTubeLength = 0.0;
     RimWellPath* maxIdenticalWellPath   = nullptr;
 
-    for ( auto existingWellPath : allWellPaths )
+    for ( auto existingWellPath : allWellPaths() )
     {
         double identicalTubeLength = existingWellPath->wellPathGeometry()->identicalTubeLength( *wellPathGeometry );
         if ( identicalTubeLength > maxIdenticalTubeLength && identicalTubeLength > eps )

@@ -97,7 +97,7 @@ bool RicNewWellLogFileCurveFeature::wellLogFilesAvailable()
     auto wellPathCollection = RimTools::wellPathCollection();
     if ( wellPathCollection )
     {
-        for ( auto wellPath : wellPathCollection->wellPaths() )
+        for ( auto wellPath : wellPathCollection->allWellPaths() )
         {
             if ( !wellPath->wellLogFiles().empty() )
             {

@@ -1122,7 +1122,7 @@ std::vector<RimWellPath*> RimProject::allWellPaths() const
     for ( const auto& oilField : oilFields() )
     {
         auto wellPathColl = oilField->wellPathCollection();
-        for ( auto wellPath : wellPathColl->wellPaths() )
+        for ( auto wellPath : wellPathColl->allWellPaths() )
         {
             wellPaths.push_back( wellPath );
         }
