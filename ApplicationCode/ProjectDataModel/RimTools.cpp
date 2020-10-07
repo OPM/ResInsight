@@ -243,7 +243,7 @@ void RimTools::wellPathOptionItems( QList<caf::PdmOptionItemInfo>* options )
     if ( wellPathColl )
     {
         caf::IconProvider wellIcon( ":/Well.png" );
-        for ( auto wellPath : wellPathColl->wellPaths() )
+        for ( auto wellPath : wellPathColl->allWellPaths() )
         {
             options->push_back( caf::PdmOptionItemInfo( wellPath->name(), wellPath, false, wellIcon ) );
         }
@@ -276,7 +276,7 @@ void RimTools::wellPathWithFormations( std::vector<RimWellPath*>* wellPaths )
     auto wellPathColl = RimTools::wellPathCollection();
     if ( wellPathColl )
     {
-        for ( RimWellPath* wellPath : wellPathColl->wellPaths() )
+        for ( RimWellPath* wellPath : wellPathColl->allWellPaths() )
         {
             if ( wellPath->hasFormations() )
             {

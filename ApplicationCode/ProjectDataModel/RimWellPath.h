@@ -97,6 +97,8 @@ public:
     double endMD() const override;
 
     void addChildWellPath( RimWellPath* wellPath );
+    bool hasChildWellPath( RimWellPath* wellPath );
+    void removeChildWellPath( RimWellPath* wellPath );
 
     void                         addWellLogFile( RimWellLogFile* logFileInfo );
     void                         deleteWellLogFile( RimWellLogFile* logFileInfo );

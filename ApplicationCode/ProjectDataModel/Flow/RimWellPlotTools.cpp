@@ -352,7 +352,7 @@ RimWellPath* RimWellPlotTools::wellPathFromWellLogFile( const RimWellLogFile* we
     RimProject* const project = RimProject::current();
     for ( const auto& oilField : project->oilFields )
     {
-        for ( const auto& wellPath : oilField->wellPathCollection()->wellPaths() )
+        for ( const auto& wellPath : oilField->wellPathCollection()->allWellPaths() )
         {
             for ( RimWellLogFile* const file : wellPath->wellLogFiles() )
             {

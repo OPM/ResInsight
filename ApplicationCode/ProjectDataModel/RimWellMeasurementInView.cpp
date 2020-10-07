@@ -333,7 +333,7 @@ QList<caf::PdmOptionItemInfo>
 
             // Find wells with a given measurement.
             std::set<QString> wellsWithMeasurementKind;
-            for ( const auto& well : wellPathCollection->wellPaths() )
+            for ( const auto& well : wellPathCollection->allWellPaths() )
             {
                 if ( hasMeasurementKindForWell( well, wellPathCollection, measurements, m_measurementKind ) )
                     wellsWithMeasurementKind.insert( well->name() );
@@ -416,7 +416,7 @@ void RimWellMeasurementInView::setAllWellsSelected()
 
         // Find wells with a given measurement.
         std::set<QString> wellsWithMeasurementKind;
-        for ( const auto& well : wellPathCollection->wellPaths() )
+        for ( const auto& well : wellPathCollection->allWellPaths() )
         {
             if ( hasMeasurementKindForWell( well, wellPathCollection, measurements, m_measurementKind ) )
                 wellsWithMeasurementKind.insert( well->name() );
