@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient gradientUnits="userSpaceOnUse" x1="11.073" y1="1" x2="11.073" y2="15" id="gradient-0">
-      <stop offset="0" style="stop-color: rgb(255, 255, 255);"/>
-      <stop offset="1" style="stop-color: rgb(223, 223, 223);"/>
-    </linearGradient>
-  </defs>
-  <rect x="8.73" y="1" width="4.687" height="14" style="stroke: rgb(144, 144, 144); fill-opacity: 0.8; fill: url(#gradient-0);"/>
+  <rect x="8.73" y="1" width="4.687" height="14" style="fill: rgb(251, 176, 0); stroke: rgb(128, 128, 128);"/>
   <line style="fill: rgb(253, 194, 93); stroke: rgb(144, 144, 144);" x1="8.73" y1="13.023" x2="10.763" y2="13.023"/>
   <line style="fill: rgb(253, 194, 93); stroke: rgb(144, 144, 144);" x1="8.73" y1="2.919" x2="10.763" y2="2.919"/>
   <line style="fill: rgb(253, 194, 93); stroke: rgb(144, 144, 144);" x1="8.73" y1="8.007" x2="10.763" y2="7.993"/>
