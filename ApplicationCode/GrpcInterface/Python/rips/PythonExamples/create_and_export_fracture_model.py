@@ -65,5 +65,9 @@ export_folder = tempfile.gettempdir()
 
 print("Exporting fracture model to: ", export_folder)
 fracture_model_plot.export_to_file(directory_path=export_folder)
-
 fracture_model_plot.export_snapshot(export_folder=export_folder)
+
+print("Setting measured depth and perforation length.")
+fracture_model.measured_depth = 3300.0
+fracture_model.perforation_length = 123.445
+fracture_model.update()

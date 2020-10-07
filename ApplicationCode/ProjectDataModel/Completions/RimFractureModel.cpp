@@ -113,7 +113,7 @@ RimFractureModel::RimFractureModel()
     m_editFractureModelTemplate.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     m_editFractureModelTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitScriptableField( &m_MD, "MD", 0.0, "MD", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_MD, "MeasuredDepth", 0.0, "Measured Depth", "", "", "" );
     m_MD.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitScriptableField( &m_extractionType,
