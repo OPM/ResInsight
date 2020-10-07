@@ -23,6 +23,8 @@
 
 #include "RiaFractureModelDefines.h"
 
+#include "RimCheckableNamedObject.h"
+
 #include <QString>
 
 class RimEclipseCase;
@@ -31,7 +33,7 @@ class RigEclipseCaseData;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimElasticPropertyScaling : public caf::PdmObject
+class RimElasticPropertyScaling : public RimCheckableNamedObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -59,6 +61,8 @@ private:
     caf::PdmField<QString>                                 m_facies;
     caf::PdmField<caf::AppEnum<RiaDefines::CurveProperty>> m_property;
     caf::PdmField<double>                                  m_scale;
+
+    void updateAutoName();
 
 public:
     void setFormation( const QString& formation );

@@ -48,7 +48,7 @@ RimElasticProperties::RimElasticProperties()
     m_propertiesTable.uiCapability()->setUiReadOnly( true );
     m_propertiesTable.xmlCapability()->disableIO();
 
-    CAF_PDM_InitScriptableField( &m_showScaledProperties, "ShowScaledProperties", true, "ShowScaledProperties", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_showScaledProperties, "ShowScaledProperties", true, "Show Scaled Properties", "", "", "" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_scalings, "PropertyScalingCollection", "PropertyScalingCollection", "", "", "" );
     m_scalings.uiCapability()->setUiHidden( true );
