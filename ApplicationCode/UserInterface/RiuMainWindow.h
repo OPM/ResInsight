@@ -89,7 +89,7 @@ public:
     void cleanupGuiBeforeProjectClose();
 
     void removeViewer( QWidget* viewer ) override;
-    void addViewer( QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry ) override;
+    void initializeViewer( QMdiSubWindow* subWindow, QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry ) override;
     void setActiveViewer( QWidget* subWindow ) override;
 
     void setResultInfo( const QString& info ) const;

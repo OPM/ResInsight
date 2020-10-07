@@ -707,7 +707,7 @@ void RiuPlotMainWindow::removeViewer( QWidget* viewer )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotMainWindow::addViewer( QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry )
+void RiuPlotMainWindow::initializeViewer( QMdiSubWindow* subWindow, QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry )
 {
     QSize  subWindowSize;
     QPoint subWindowPos( -1, -1 );
@@ -722,7 +722,8 @@ void RiuPlotMainWindow::addViewer( QWidget* viewer, const RimMdiWindowGeometry& 
         subWindowSize = QSize( 400, 400 );
     }
 
-    addViewerToMdiArea( m_mdiArea, viewer, subWindowPos, subWindowSize );
+    initializeSubWindow( m_mdiArea, subWindow, subWindowPos, subWindowSize );
+    subWindow->setWidget( viewer );
 
     refreshToolbars();
 }

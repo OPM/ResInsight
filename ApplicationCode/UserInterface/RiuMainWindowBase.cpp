@@ -51,6 +51,19 @@ RiuMainWindowBase::RiuMainWindowBase()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QMdiSubWindow* RiuMainWindowBase::createViewWindow()
+{
+    RiuMdiSubWindow* subWin =
+        new RiuMdiSubWindow( nullptr, Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint | Qt::WindowMaximizeButtonHint );
+    subWin->setAttribute( Qt::WA_DeleteOnClose ); // Make sure the contained widget is destroyed when the MDI window is
+                                                  // closed
+
+    return subWin;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimMdiWindowGeometry RiuMainWindowBase::windowGeometryForViewer( QWidget* viewer )
 {
     RiuMdiSubWindow* mdiWindow = dynamic_cast<RiuMdiSubWindow*>( findMdiSubWindow( viewer ) );
@@ -349,16 +362,11 @@ void RiuMainWindowBase::slotDockWidgetToggleViewActionTriggered()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindowBase::addViewerToMdiArea( QMdiArea*     mdiArea,
-                                            QWidget*      viewer,
-                                            const QPoint& subWindowPos,
-                                            const QSize&  subWindowSize )
+void RiuMainWindowBase::initializeSubWindow( QMdiArea*      mdiArea,
+                                             QMdiSubWindow* mdiSubWindow,
+                                             const QPoint&  subWindowPos,
+                                             const QSize&   subWindowSize )
 {
-    RiuMdiSubWindow* subWin =
-        new RiuMdiSubWindow( nullptr, Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint | Qt::WindowMaximizeButtonHint );
-    subWin->setAttribute( Qt::WA_DeleteOnClose ); // Make sure the contained widget is destroyed when the MDI window is
-                                                  // closed
-
     bool initialStateTiled     = subWindowsAreTiled();
     bool initialStateMaximized = false;
 
@@ -373,28 +381,26 @@ void RiuMainWindowBase::addViewerToMdiArea( QMdiArea*     mdiArea,
         initialStateMaximized = true;
     }
 
-    mdiArea->addSubWindow( subWin );
+    mdiArea->addSubWindow( mdiSubWindow );
 
     if ( subWindowPos.x() > -1 )
     {
-        subWin->move( subWindowPos );
+        mdiSubWindow->move( subWindowPos );
     }
-    subWin->resize( subWindowSize );
+    mdiSubWindow->resize( subWindowSize );
 
     if ( initialStateMaximized )
     {
-        subWin->showMaximized();
+        mdiSubWindow->showMaximized();
     }
     else
     {
-        subWin->showNormal();
+        mdiSubWindow->showNormal();
         if ( initialStateTiled )
         {
             tileSubWindows();
         }
     }
-
-    subWin->setWidget( viewer );
 }
 
 //--------------------------------------------------------------------------------------------------

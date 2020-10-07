@@ -23,6 +23,8 @@
 #include "RimViewWindow.h"
 #include "RiuMainWindowBase.h"
 
+#include <QMdiSubWindow>
+
 CAF_PDM_XML_SOURCE_INIT( RimMdiWindowController, "MdiWindowController" );
 
 //--------------------------------------------------------------------------------------------------
@@ -154,9 +156,9 @@ void RimMdiWindowController::updateViewerWidget()
     {
         if ( !viewWidget() )
         {
-            QWidget* viewWidget = viewPdmObject()->createViewWidget( mainWindow );
-
-            mainWindow->addViewer( viewWidget, this->mdiWindowGeometry() );
+            QMdiSubWindow* viewWindow = mainWindow->createViewWindow();
+            QWidget*       viewWidget = viewPdmObject()->createViewWidget( viewWindow );
+            mainWindow->initializeViewer( viewWindow, viewWidget, this->mdiWindowGeometry() );
 
             viewPdmObject()->updateViewWidgetAfterCreation();
         }
