@@ -171,7 +171,6 @@ double ObjectiveFunction::value( RimSummaryCase*                 summaryCase,
                     std::vector<double> values;
                     if ( readerInterface->values( vectorSummaryAddressDiff, &values ) )
                     {
-                        double N          = static_cast<double>( values.size() );
                         size_t startIndex = m_startIndex;
                         size_t endIndex   = m_endIndex;
                         if ( m_startIndex == m_endIndex )
@@ -260,7 +259,7 @@ bool ObjectiveFunction::isValid( const RifEclipseSummaryAddress& vectorSummaryAd
     if ( m_summaryCaseCollection && m_summaryCaseCollection->allSummaryCases().size() > 0 &&
          m_summaryCaseCollection->allSummaryCases().front() )
     {
-        double test = value( m_summaryCaseCollection->allSummaryCases().front(), vectorSummaryAddress, &hasWarning );
+        value( m_summaryCaseCollection->allSummaryCases().front(), vectorSummaryAddress, &hasWarning );
         if ( hasWarning )
         {
             return false;

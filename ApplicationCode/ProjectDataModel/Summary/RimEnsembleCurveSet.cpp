@@ -20,6 +20,7 @@
 
 #include "RiaColorTools.h"
 #include "RiaGuiApplication.h"
+#include "RiaPreferences.h"
 #include "RiaStatisticsTools.h"
 #include "RiaSummaryCurveAnalyzer.h"
 #include "RiaSummaryCurveDefinition.h"
@@ -48,6 +49,7 @@
 #include "RimSummaryCurveAutoName.h"
 #include "RimSummaryFilter.h"
 #include "RimSummaryPlot.h"
+#include "RimTimeStepFilter.h"
 
 #include "RiuAbstractLegendFrame.h"
 #include "RiuCvfOverlayItemWidget.h"
@@ -58,6 +60,7 @@
 #include "RiuSummaryVectorSelectionDialog.h"
 
 #include "cafPdmObject.h"
+#include "cafPdmUiItem.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
@@ -545,11 +548,19 @@ void RimEnsembleCurveSet::setTimeSteps( const std::vector<size_t>& timeStepIndic
 std::map<size_t, time_t> RimEnsembleCurveSet::selectedTimeSteps()
 {
     std::map<size_t, time_t> selectedTimeTTimeSteps;
-    size_t                   index = 0;
+    bool                     optionsOnly  = true;
+    auto                     valueOptions = m_selectedTimeSteps.uiCapability()->valueOptions( &optionsOnly );
     for ( const QDateTime& dateTime : m_selectedTimeSteps.v() )
     {
-        selectedTimeTTimeSteps.insert( std::make_pair( index, dateTime.toTime_t() ) );
-        index++;
+        auto it =
+            std::find_if( valueOptions.begin(), valueOptions.end(), [&dateTime]( const caf::PdmOptionItemInfo& option ) {
+                return option.value().toDateTime() == dateTime;
+            } );
+        if ( it != valueOptions.end() )
+        {
+            selectedTimeTTimeSteps.insert(
+                std::make_pair( std::distance( valueOptions.begin(), it ), dateTime.toTime_t() ) );
+        }
     }
 
     return selectedTimeTTimeSteps;
@@ -664,9 +675,13 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     }
     else if ( changedField == &m_selectedTimeSteps )
     {
-        summaryCaseCollection()
-            ->objectiveFunction( ObjectiveFunction::FunctionType::M2 )
-            ->setRange( selectedTimeSteps().begin()->first, selectedTimeSteps().begin()->first );
+        if ( selectedTimeSteps().size() > 0 )
+        {
+            summaryCaseCollection()
+                ->objectiveFunction( m_objectiveFunction() )
+                ->setRange( selectedTimeSteps().begin()->first, selectedTimeSteps().begin()->first );
+            updateCurveColors();
+        }
     }
     else if ( changedField == &m_plotAxis )
     {
@@ -944,12 +959,66 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
     {
         appendOptionItemsForSummaryAddresses( &options, m_yValuesSummaryCaseCollection() );
     }
-    else if ( fieldNeedingOptions == &m_selectedTimeSteps )
+    if ( fieldNeedingOptions == &m_selectedTimeSteps )
     {
-        auto timeSteps = allAvailableTimeSteps();
-        if ( m_selectedTimeSteps().empty() && !timeSteps.empty() )
+        std::set<time_t>    allTimeSteps = allAvailableTimeSteps();
+        std::set<QDateTime> currentlySelectedTimeSteps( m_selectedTimeSteps().begin(), m_selectedTimeSteps().end() );
+
+        if ( allTimeSteps.empty() )
         {
-            m_selectedTimeSteps.v().push_back( RiaQDateTimeTools::fromTime_t( *timeSteps.rbegin() ) );
+            return options;
+        }
+
+        std::set<int>          currentlySelectedTimeStepIndices;
+        std::vector<QDateTime> allDateTimes;
+        for ( time_t timeStep : allTimeSteps )
+        {
+            QDateTime dateTime = RiaQDateTimeTools::fromTime_t( timeStep );
+            if ( currentlySelectedTimeSteps.count( dateTime ) )
+            {
+                currentlySelectedTimeStepIndices.insert( (int)allDateTimes.size() );
+            }
+            allDateTimes.push_back( dateTime );
+        }
+
+        std::vector<int> filteredTimeStepIndices =
+            RimTimeStepFilter::filteredTimeStepIndices( allDateTimes, 0, (int)allDateTimes.size() - 1, m_timeStepFilter(), 1 );
+
+        // Add existing time steps to list of options to avoid removing them when changing filter.
+        filteredTimeStepIndices.insert( filteredTimeStepIndices.end(),
+                                        currentlySelectedTimeStepIndices.begin(),
+                                        currentlySelectedTimeStepIndices.end() );
+        std::sort( filteredTimeStepIndices.begin(), filteredTimeStepIndices.end() );
+        filteredTimeStepIndices.erase( std::unique( filteredTimeStepIndices.begin(), filteredTimeStepIndices.end() ),
+                                       filteredTimeStepIndices.end() );
+
+        QString dateFormatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
+                                                                        RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
+        QString timeFormatString =
+            RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
+                                                 RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
+        QString dateTimeFormatString = QString( "%1 %2" ).arg( dateFormatString ).arg( timeFormatString );
+
+        bool showTime = m_timeStepFilter() == RimTimeStepFilter::TS_ALL ||
+                        m_timeStepFilter() == RimTimeStepFilter::TS_INTERVAL_DAYS;
+
+        for ( auto timeStepIndex : filteredTimeStepIndices )
+        {
+            QDateTime dateTime = allDateTimes[timeStepIndex];
+
+            if ( showTime && dateTime.time() != QTime( 0, 0, 0 ) )
+            {
+                options.push_back(
+                    caf::PdmOptionItemInfo( RiaQDateTimeTools::toStringUsingApplicationLocale( dateTime,
+                                                                                               dateTimeFormatString ),
+                                            dateTime ) );
+            }
+            else
+            {
+                options.push_back(
+                    caf::PdmOptionItemInfo( RiaQDateTimeTools::toStringUsingApplicationLocale( dateTime, dateFormatString ),
+                                            dateTime ) );
+            }
         }
     }
 
@@ -965,7 +1034,8 @@ std::set<time_t> RimEnsembleCurveSet::allAvailableTimeSteps()
 
     for ( RimSummaryCase* sumCase : timestepDefiningSourceCases() )
     {
-        const std::vector<time_t>& timeSteps = sumCase->summaryReader()->timeSteps( RifEclipseSummaryAddress() );
+        const std::vector<time_t>& timeSteps =
+            sumCase->summaryReader()->timeSteps( m_objectiveValuesSummaryAddress()->address() );
 
         for ( time_t t : timeSteps )
         {
@@ -1014,7 +1084,7 @@ std::vector<RiaSummaryCurveDefinition> RimEnsembleCurveSet::curveDefinitions() c
     std::vector<RiaSummaryCurveDefinition> curveDefs;
     for ( auto dataEntry : m_curves() )
     {
-        curveDefs.push_back( dataEntry->curveDefinitionX() );
+        curveDefs.push_back( dataEntry->curveDefinitionY() );
     }
 
     return curveDefs;
