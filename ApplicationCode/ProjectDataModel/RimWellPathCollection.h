@@ -34,6 +34,8 @@
 
 #include "cvfObject.h"
 
+#include <gsl/gsl>
+
 #include <memory>
 
 class RifWellPathImporter;
@@ -103,7 +105,7 @@ public:
     RimWellPath* wellPathByName( const QString& wellPathName ) const;
     RimWellPath* tryFindMatchingWellPath( const QString& wellName ) const;
     void         addWellPaths( const std::vector<RimWellPath*> incomingWellPaths );
-    void         addWellPath( RimWellPath* wellPath );
+    void         addWellPath( gsl::not_null<RimWellPath*> wellPath );
 
     std::vector<RimWellLogFile*> addWellLogs( const QStringList& filePaths, QStringList* errorMessages );
     void                         addWellPathFormations( const QStringList& filePaths );
@@ -131,6 +133,8 @@ private:
 
     void readAndAddWellPaths( std::vector<RimFileWellPath*>& wellPathArray );
     void sortWellsByName();
+
+    RimWellPath* findSuitableParentWellPath( gsl::not_null<const RimWellPath*> wellPath ) const;
 
     RiaEclipseUnitTools::UnitSystemType findUnitSystemForWellPath( const RimWellPath* wellPath );
 

@@ -263,9 +263,17 @@ std::vector<RimWellPath*> RimWellPathCollection::addWellPaths( QStringList fileP
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::addWellPath( RimWellPath* wellPath )
+void RimWellPathCollection::addWellPath( gsl::not_null<RimWellPath*> wellPath )
 {
-    m_wellPaths.push_back( wellPath );
+    auto mainWellPath = findSuitableParentWellPath( wellPath );
+    if ( mainWellPath )
+    {
+        mainWellPath->addChildWellPath( wellPath );
+    }
+    else
+    {
+        m_wellPaths.push_back( wellPath );
+    }
     m_mostRecentlyUpdatedWellPath = wellPath;
 }
 
@@ -646,6 +654,33 @@ bool lessWellPath( const caf::PdmPointer<RimWellPath>& w1, const caf::PdmPointer
 void RimWellPathCollection::sortWellsByName()
 {
     std::sort( m_wellPaths.begin(), m_wellPaths.end(), lessWellPath );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellPath* RimWellPathCollection::findSuitableParentWellPath( gsl::not_null<const RimWellPath*> wellPath ) const
+{
+    auto wellPathGeometry = wellPath->wellPathGeometry();
+    if ( !wellPathGeometry ) return nullptr;
+
+    std::vector<RimWellPath*> allWellPaths;
+    descendantsOfType( allWellPaths );
+
+    const double eps                    = 1.0e-4;
+    double       maxIdenticalTubeLength = 0.0;
+    RimWellPath* maxIdenticalWellPath   = nullptr;
+
+    for ( auto existingWellPath : allWellPaths )
+    {
+        double identicalTubeLength = existingWellPath->wellPathGeometry()->identicalTubeLength( *wellPathGeometry );
+        if ( identicalTubeLength > maxIdenticalTubeLength && identicalTubeLength > eps )
+        {
+            maxIdenticalTubeLength = identicalTubeLength;
+            maxIdenticalWellPath   = existingWellPath;
+        }
+    }
+    return maxIdenticalWellPath;
 }
 
 //--------------------------------------------------------------------------------------------------

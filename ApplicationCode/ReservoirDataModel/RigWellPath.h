@@ -68,6 +68,7 @@ public:
 
     double wellPathAzimuthAngle( const cvf::Vec3d& position ) const;
     void   twoClosestPoints( const cvf::Vec3d& position, cvf::Vec3d* p1, cvf::Vec3d* p2 ) const;
+    double identicalTubeLength( const RigWellPath& otherWellPathGeometry ) const;
 
     std::pair<std::vector<cvf::Vec3d>, std::vector<double>>
         clippedPointSubset( double startMD, double endMD, double* horizontalLengthAlongWellToStartClipPoint = nullptr ) const;
