@@ -44,7 +44,8 @@ RimElasticPropertyScaling::RimElasticPropertyScaling()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_formation, "Formation", "Formation", "", "", "" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_facies, "Facies", "Facies", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_property, "Property", "Property", "", "", "" );
+    caf::AppEnum<RiaDefines::CurveProperty> defaultProperty = RiaDefines::CurveProperty::YOUNGS_MODULUS;
+    CAF_PDM_InitScriptableField( &m_property, "Property", defaultProperty, "Property", "", "", "" );
     CAF_PDM_InitScriptableField( &m_scale, "Scale", 1.0, "Scale", "", "", "" );
 
     nameField()->uiCapability()->setUiReadOnly( true );
@@ -69,10 +70,7 @@ QList<caf::PdmOptionItemInfo>
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_formation )
     {
-        RigEclipseCaseData* eclipseCaseData = getEclipseCaseData();
-        if ( !eclipseCaseData ) return options;
-
-        std::vector<QString> formationNames = eclipseCaseData->formationNames();
+        std::vector<QString> formationNames = getFormationNames();
         for ( const QString& formationName : formationNames )
         {
             options.push_back( caf::PdmOptionItemInfo( formationName, formationName ) );
@@ -80,14 +78,7 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &m_facies )
     {
-        RimFractureModelTemplate* fractureModelTemplate;
-        firstAncestorOrThisOfType( fractureModelTemplate );
-        if ( !fractureModelTemplate ) return options;
-
-        RimFaciesProperties* faciesProperties = fractureModelTemplate->faciesProperties();
-        if ( !faciesProperties ) return options;
-
-        RimColorLegend* faciesColors = faciesProperties->colorLegend();
+        RimColorLegend* faciesColors = getFaciesColorLegend();
         if ( !faciesColors ) return options;
 
         for ( RimColorLegendItem* item : faciesColors->colorLegendItems() )
@@ -104,6 +95,8 @@ QList<caf::PdmOptionItemInfo>
                 caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::CurveProperty>::uiText( property ), property ) );
         }
     }
+
+    if ( useOptionsOnly ) *useOptionsOnly = true;
 
     return options;
 }
@@ -143,6 +136,9 @@ RigEclipseCaseData* RimElasticPropertyScaling::getEclipseCaseData()
     return eclipseCase->eclipseCaseData();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimElasticPropertyScaling::updateAutoName()
 {
     QString name = QString( "%1/%2 - %3: %4" )
@@ -151,6 +147,32 @@ void RimElasticPropertyScaling::updateAutoName()
                        .arg( caf::AppEnum<RiaDefines::CurveProperty>::uiText( m_property() ) )
                        .arg( m_scale );
     setName( name );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimColorLegend* RimElasticPropertyScaling::getFaciesColorLegend()
+{
+    RimFractureModelTemplate* fractureModelTemplate;
+    firstAncestorOrThisOfType( fractureModelTemplate );
+    if ( !fractureModelTemplate ) return nullptr;
+
+    RimFaciesProperties* faciesProperties = fractureModelTemplate->faciesProperties();
+    if ( !faciesProperties ) return nullptr;
+
+    return faciesProperties->colorLegend();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimElasticPropertyScaling::getFormationNames()
+{
+    RigEclipseCaseData* eclipseCaseData = getEclipseCaseData();
+    if ( !eclipseCaseData ) return std::vector<QString>();
+
+    return eclipseCaseData->formationNames();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -219,4 +241,24 @@ RiaDefines::CurveProperty RimElasticPropertyScaling::property() const
 double RimElasticPropertyScaling::scale() const
 {
     return m_scale;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimElasticPropertyScaling::ensureDefaultFormationAndFacies()
+{
+    RimColorLegend* faciesColorLegend = getFaciesColorLegend();
+    if ( faciesColorLegend && !faciesColorLegend->colorLegendItems().empty() )
+    {
+        m_facies = faciesColorLegend->colorLegendItems().front()->categoryName();
+    }
+
+    std::vector<QString> formationNames = getFormationNames();
+    if ( !formationNames.empty() )
+    {
+        m_formation = formationNames.front();
+    }
+
+    updateAutoName();
 }
