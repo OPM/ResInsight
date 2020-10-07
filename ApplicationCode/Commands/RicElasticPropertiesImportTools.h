@@ -19,6 +19,7 @@
 #pragma once
 
 #include <QString>
+#include <vector>
 
 class RimFractureModelTemplate;
 
@@ -28,9 +29,13 @@ class RimFractureModelTemplate;
 class RicElasticPropertiesImportTools
 {
 public:
-    static void importElasticPropertiesFromFile( const QString& filePath, RimFractureModelTemplate* fractureModelTemplate );
+    static void importElasticPropertiesFromFile( const QString&            filePath,
+                                                 RimFractureModelTemplate* fractureModelTemplate,
+                                                 const QString&            formationWildCard = "1*" );
 
 private:
     // Hidden to avoid instantiation
     RicElasticPropertiesImportTools();
+
+    static std::vector<QString> getFormationNames();
 };
