@@ -93,7 +93,8 @@ public:
 
     void                      loadDataAndUpdate();
     std::vector<RimWellPath*> addWellPaths( QStringList filePaths, QStringList* errorMessages );
-    std::vector<RimWellPath*> wellPaths();
+    std::vector<RimWellPath*> topLevelWellPaths() const;
+    std::vector<RimWellPath*> allWellPaths() const;
     void                      removeWellPath( RimWellPath* wellPath );
     void                      deleteAllWellPaths();
 

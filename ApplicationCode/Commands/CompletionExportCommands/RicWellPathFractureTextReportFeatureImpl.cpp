@@ -212,7 +212,7 @@ std::vector<RimWellPath*> RicWellPathFractureTextReportFeatureImpl::wellPathsWit
     auto* wellPathColl = RimTools::wellPathCollection();
     if ( wellPathColl )
     {
-        for ( const auto& wellPath : wellPathColl->wellPaths() )
+        for ( const auto& wellPath : wellPathColl->allWellPaths() )
         {
             if ( !wellPath->fractureCollection()->activeFractures().empty() )
             {

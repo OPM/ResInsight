@@ -296,7 +296,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions( const 
         auto wellPathColl = RimTools::wellPathCollection();
         if ( wellPathColl )
         {
-            for ( auto wellPath : wellPathColl->wellPaths() )
+            for ( auto wellPath : wellPathColl->allWellPaths() )
             {
                 // Only include well paths coming from a well log file
                 if ( wellPath->wellLogFiles().size() > 0 )

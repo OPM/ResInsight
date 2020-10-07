@@ -171,7 +171,7 @@ caf::PdmScriptResponse RicfExportWellPathCompletions::execute()
     std::vector<RimWellPath*> wellPaths;
     if ( m_wellPathNames().empty() )
     {
-        for ( auto wellPath : RimProject::current()->activeOilField()->wellPathCollection->wellPaths() )
+        for ( auto wellPath : RimProject::current()->activeOilField()->wellPathCollection->allWellPaths() )
         {
             if ( wellPath->showWellPath() )
             {

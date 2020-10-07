@@ -1183,11 +1183,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
     // Special delete commands for specific features
     // Placed here to fit context menu location of general delete feature
-    if ( caf::CmdFeatureManager::instance()->getCommandFeature( "RicWellPathDeleteFeature" )->canFeatureBeExecuted() )
-    {
-        menuBuilder << "Separator";
-        menuBuilder << "RicWellPathDeleteFeature";
-    }
 
     if ( caf::CmdFeatureManager::instance()->getCommandFeature( "Ric3dWellLogCurveDeleteFeature" )->canFeatureBeExecuted() )
     {
