@@ -1118,7 +1118,7 @@ void RiuMainWindow::removeViewer( QWidget* viewer )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::addViewer( QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry )
+void RiuMainWindow::initializeViewer( QMdiSubWindow* subWindow, QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry )
 {
     QSize  subWindowSize;
     QPoint subWindowPos( -1, -1 );
@@ -1133,7 +1133,8 @@ void RiuMainWindow::addViewer( QWidget* viewer, const RimMdiWindowGeometry& wind
         subWindowSize = QSize( 400, 400 );
     }
 
-    addViewerToMdiArea( m_mdiArea, viewer, subWindowPos, subWindowSize );
+    initializeSubWindow( m_mdiArea, subWindow, subWindowPos, subWindowSize );
+    subWindow->setWidget( viewer );
 
     slotRefreshViewActions();
 }

@@ -45,9 +45,13 @@ public:
 
     virtual QString mainWindowName() = 0;
 
-    virtual void removeViewer( QWidget* viewer )                                           = 0;
-    virtual void addViewer( QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry ) = 0;
-    virtual void setActiveViewer( QWidget* subWindow )                                     = 0;
+    QMdiSubWindow* createViewWindow();
+
+    virtual void removeViewer( QWidget* viewer )                                 = 0;
+    virtual void initializeViewer( QMdiSubWindow*              viewWindow,
+                                   QWidget*                    viewWidget,
+                                   const RimMdiWindowGeometry& windowsGeometry ) = 0;
+    virtual void setActiveViewer( QWidget* subWindow )                           = 0;
 
     virtual QMdiSubWindow* findMdiSubWindow( QWidget* viewer ) = 0;
 
@@ -81,10 +85,13 @@ public:
 
 protected:
     void removeViewerFromMdiArea( QMdiArea* mdiArea, QWidget* viewer );
+    void initializeSubWindow( QMdiArea*      mdiArea,
+                              QMdiSubWindow* mdiSubWindow,
+                              const QPoint&  subWindowPos,
+                              const QSize&   subWindowSize );
 
 protected slots:
     void slotDockWidgetToggleViewActionTriggered();
-    void addViewerToMdiArea( QMdiArea* mdiArea, QWidget* viewer, const QPoint& subWindowPos, const QSize& subWindowSize );
     void slotRefreshHelpActions();
 
 protected:
