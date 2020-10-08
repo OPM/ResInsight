@@ -78,10 +78,9 @@ void RiuScalarMapperLegendFrame::layoutInfo( LayoutInfo* layout ) const
 
     int colorBarWidth  = 25;
     int colorBarHeight = layout->overallLegendSize.height() - layout->margins.top() - layout->margins.bottom() -
-                         titleLines.size() * ( layout->charHeight + layout->lineSpacing ) - 0.5 * layout->lineSpacing;
+                         titleLines.size() * layout->lineSpacing - 0.5 * layout->lineSpacing;
 
-    int colorBarStartY = layout->margins.top() + titleLines.size() * ( layout->lineSpacing + layout->charHeight ) +
-                         0.5 * layout->lineSpacing;
+    int colorBarStartY = layout->margins.top() + titleLines.size() * layout->lineSpacing + 0.5 * layout->lineSpacing;
 
     layout->colorBarRect = QRect( layout->margins.left(), colorBarStartY, colorBarWidth, colorBarHeight );
 
