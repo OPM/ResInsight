@@ -545,22 +545,12 @@ void RimEnsembleCurveSet::setTimeSteps( const std::vector<size_t>& timeStepIndic
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<size_t, time_t> RimEnsembleCurveSet::selectedTimeSteps()
+std::vector<time_t> RimEnsembleCurveSet::selectedTimeSteps()
 {
-    std::map<size_t, time_t> selectedTimeTTimeSteps;
-    bool                     optionsOnly  = true;
-    auto                     valueOptions = m_selectedTimeSteps.uiCapability()->valueOptions( &optionsOnly );
+    std::vector<time_t> selectedTimeTTimeSteps;
     for ( const QDateTime& dateTime : m_selectedTimeSteps.v() )
     {
-        auto it =
-            std::find_if( valueOptions.begin(), valueOptions.end(), [&dateTime]( const caf::PdmOptionItemInfo& option ) {
-                return option.value().toDateTime() == dateTime;
-            } );
-        if ( it != valueOptions.end() )
-        {
-            selectedTimeTTimeSteps.insert(
-                std::make_pair( std::distance( valueOptions.begin(), it ), dateTime.toTime_t() ) );
-        }
+        selectedTimeTTimeSteps.push_back( static_cast<time_t>( dateTime.toSecsSinceEpoch() ) );
     }
 
     return selectedTimeTTimeSteps;
@@ -620,6 +610,16 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     }
     else if ( changedField == &m_objectiveFunction )
     {
+        if ( m_objectiveFunction() == ObjectiveFunction::FunctionType::M2 )
+        {
+            std::vector<size_t> indices;
+            summaryCaseCollection()
+                ->objectiveFunction( m_objectiveFunction() )
+                ->setTimeStepMode( ObjectiveFunction::TimeStepMode::List );
+            indices.push_back( summaryCaseCollection()->objectiveFunction( m_objectiveFunction() )->range().first );
+            setTimeSteps( indices );
+        }
+
         updateLegendMappingMode();
         updateCurveColors();
     }
@@ -658,15 +658,6 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 
         updateTextInPlot = true;
     }
-    else if ( changedField == &m_objectiveFunction )
-    {
-        if ( m_objectiveFunction() == ObjectiveFunction::FunctionType::M2 )
-        {
-            std::vector<size_t> indices;
-            indices.push_back( summaryCaseCollection()->objectiveFunction( m_objectiveFunction() )->range().first );
-            setTimeSteps( indices );
-        }
-    }
     else if ( changedField == &m_timeStepFilter )
     {
         m_selectedTimeSteps.v().clear();
@@ -677,9 +668,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     {
         if ( selectedTimeSteps().size() > 0 )
         {
-            summaryCaseCollection()
-                ->objectiveFunction( m_objectiveFunction() )
-                ->setRange( selectedTimeSteps().begin()->first, selectedTimeSteps().begin()->first );
+            summaryCaseCollection()->objectiveFunction( m_objectiveFunction() )->setTimeStepList( selectedTimeSteps() );
             updateCurveColors();
         }
     }
@@ -1032,7 +1021,7 @@ std::set<time_t> RimEnsembleCurveSet::allAvailableTimeSteps()
 {
     std::set<time_t> timeStepUnion;
 
-    for ( RimSummaryCase* sumCase : timestepDefiningSourceCases() )
+    for ( RimSummaryCase* sumCase : summaryCaseCollection()->allSummaryCases() )
     {
         const std::vector<time_t>& timeSteps =
             sumCase->summaryReader()->timeSteps( m_objectiveValuesSummaryAddress()->address() );
@@ -1197,6 +1186,8 @@ void RimEnsembleCurveSet::updateCurveColors()
 
             legendTitle += "\n";
             legendTitle += QString::fromStdString( m_objectiveValuesSummaryAddress()->address().quantityName() );
+            legendTitle += "\n";
+            legendTitle += caf::AppEnum<ObjectiveFunction::FunctionType>( m_objectiveFunction() ).uiText();
 
             m_legendConfig->setTitle( legendTitle );
         }

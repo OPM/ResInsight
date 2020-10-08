@@ -23,6 +23,7 @@
 
 #include "RifReaderEclipseSummary.h"
 
+#include "RiaCurveMerger.h"
 #include "RiaLogging.h"
 #include "RiaStdStringTools.h"
 
@@ -45,11 +46,34 @@ void caf::AppEnum<ObjectiveFunction::FunctionType>::setUp()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool ObjectiveFunction::setRange( size_t startIndex, size_t endIndex )
+ObjectiveFunction::FunctionType ObjectiveFunction::functionType()
 {
-    m_startIndex = startIndex;
-    m_endIndex   = endIndex;
-    return true;
+    return m_functionType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void ObjectiveFunction::setTimeStepRange( time_t startTime, time_t endTime )
+{
+    m_startTime = startTime;
+    m_endTime   = endTime;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void ObjectiveFunction::setTimeStepList( std::vector<time_t> timeSteps )
+{
+    m_timeSteps = timeSteps;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void ObjectiveFunction::setTimeStepMode( TimeStepMode mode )
+{
+    m_timeStepMode = mode;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,9 +82,10 @@ bool ObjectiveFunction::setRange( size_t startIndex, size_t endIndex )
 ObjectiveFunction::ObjectiveFunction( const RimSummaryCaseCollection* summaryCaseCollection, FunctionType type )
 {
     m_summaryCaseCollection = summaryCaseCollection;
-    functionType            = type;
-    m_startIndex            = 0;
-    m_endIndex              = 0;
+    m_functionType          = type;
+    m_startTime             = 0;
+    m_endTime               = 0;
+    m_timeStepMode          = TimeStepMode::Range;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,7 +112,7 @@ double ObjectiveFunction::value( RimSummaryCase*                 summaryCase,
     RifSummaryReaderInterface* readerInterface = summaryCase->summaryReader();
     if ( readerInterface )
     {
-        if ( functionType == FunctionType::M1 )
+        if ( m_functionType == FunctionType::M1 )
         {
             std::string s = vectorSummaryAddress.quantityName() + RifReaderEclipseSummary::differenceIdentifier();
             if ( !vectorSummaryAddress.quantityName().empty() )
@@ -105,26 +130,15 @@ double ObjectiveFunction::value( RimSummaryCase*                 summaryCase,
                     std::vector<double> values;
                     if ( readerInterface->values( vectorSummaryAddressDiff, &values ) )
                     {
-                        double N          = static_cast<double>( values.size() );
-                        size_t startIndex = m_startIndex;
-                        size_t endIndex   = m_endIndex;
-                        if ( m_startIndex < m_endIndex )
-                        {
-                            N = static_cast<double>( m_endIndex - m_startIndex );
-                        }
-                        else
-                        {
-                            startIndex = 0;
-                            endIndex   = values.size();
-                        }
+                        double N = static_cast<double>( values.size() );
                         if ( N > 1 )
                         {
                             double sumValues        = 0.0;
                             double sumValuesSquared = 0.0;
-                            for ( size_t index = startIndex; index < endIndex; index++ )
+                            for ( size_t index = 0; index < values.size(); index++ )
                             {
                                 const double& value = values[index];
-                                sumValues += value;
+                                sumValues += std::abs( value );
                                 sumValuesSquared += value * value;
                             }
                             if ( sumValues != 0 )
@@ -153,7 +167,7 @@ double ObjectiveFunction::value( RimSummaryCase*                 summaryCase,
                 }
             }
         }
-        else if ( functionType == FunctionType::M2 )
+        else if ( m_functionType == FunctionType::M2 )
         {
             std::string s = vectorSummaryAddress.quantityName() + RifReaderEclipseSummary::differenceIdentifier();
             if ( !vectorSummaryAddress.quantityName().empty() )
@@ -171,12 +185,59 @@ double ObjectiveFunction::value( RimSummaryCase*                 summaryCase,
                     std::vector<double> values;
                     if ( readerInterface->values( vectorSummaryAddressDiff, &values ) )
                     {
-                        size_t startIndex = m_startIndex;
-                        size_t endIndex   = m_endIndex;
-                        if ( m_startIndex == m_endIndex )
+                        const std::vector<time_t>& timeSteps = readerInterface->timeSteps( vectorSummaryAddressDiff );
+
+                        size_t              index = 0;
+                        double              value = 0;
+                        std::vector<time_t> xValues( 2, 0 );
+                        std::vector<double> yValues( 2, 0.0 );
+                        for ( time_t t : timeSteps )
                         {
-                            return values[m_startIndex];
+                            if ( m_timeStepMode == TimeStepMode::Range )
+                            {
+                                if ( t >= m_startTime && t <= m_endTime )
+                                {
+                                    value += std::abs( values[index] );
+                                }
+                            }
+                            else if ( m_timeStepMode == TimeStepMode::List )
+                            {
+                                if ( xValues.front() == 0 )
+                                {
+                                    xValues[0] = t;
+                                    yValues[0] = values[index];
+                                }
+                                else if ( xValues.back() == 0 )
+                                {
+                                    xValues[1] = t;
+                                    yValues[1] = values[index];
+                                }
+                                else
+                                {
+                                    xValues[0] = xValues[1];
+                                    xValues[1] = t;
+                                    yValues[0] = yValues[1];
+                                    yValues[1] = values[index];
+                                }
+                                if ( xValues.back() != 0 )
+                                {
+                                    for ( time_t timeStep : m_timeSteps )
+                                    {
+                                        if ( xValues[0] <= timeStep && xValues[1] >= timeStep )
+                                        {
+                                            double interpValue = std::abs(
+                                                RiaCurveMerger<time_t>::interpolatedYValue( timeStep, xValues, yValues ) );
+                                            if ( interpValue != HUGE_VAL )
+                                            {
+                                                value += interpValue;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            index++;
                         }
+                        return value;
                     }
                 }
                 else
@@ -223,9 +284,9 @@ std::pair<double, double> ObjectiveFunction::minMaxValues( const RifEclipseSumma
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, double> ObjectiveFunction::range() const
+std::pair<time_t, time_t> ObjectiveFunction::range() const
 {
-    return std::make_pair( m_startIndex, m_endIndex );
+    return std::make_pair( m_startTime, m_endTime );
 }
 
 //--------------------------------------------------------------------------------------------------

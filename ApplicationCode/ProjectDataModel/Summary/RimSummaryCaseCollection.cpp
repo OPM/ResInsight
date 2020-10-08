@@ -859,7 +859,7 @@ std::shared_ptr<ObjectiveFunction> RimSummaryCaseCollection::objectiveFunction( 
 {
     for ( auto objectiveFunc : m_objectiveFunctions )
     {
-        if ( objectiveFunc->functionType == functionType )
+        if ( objectiveFunc->functionType() == functionType )
         {
             return objectiveFunc;
         }

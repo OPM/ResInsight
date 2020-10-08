@@ -38,11 +38,20 @@ public:
         M1 = 0,
         M2
     };
+
+    enum class TimeStepMode
+    {
+        Range = 0,
+        List
+    };
+
     QString                         uiName() const { return name; };
     QString                         name;
-    ObjectiveFunction::FunctionType functionType;
+    ObjectiveFunction::FunctionType functionType();
 
-    bool setRange( size_t startIndex, size_t endIndex );
+    void setTimeStepRange( time_t startTime, time_t endTime );
+    void setTimeStepList( std::vector<time_t> timeSteps );
+    void setTimeStepMode( TimeStepMode mode );
 
     double minValue;
     double maxValue;
@@ -57,7 +66,7 @@ public:
 
     std::pair<double, double> minMaxValues( const RifEclipseSummaryAddress& vectorSummaryAddress ) const;
 
-    std::pair<double, double> range() const;
+    std::pair<time_t, time_t> range() const;
 
     std::vector<double> values( const RifEclipseSummaryAddress& vectorSummaryAddress ) const;
 
@@ -68,6 +77,9 @@ public:
 private:
     const RimSummaryCaseCollection* m_summaryCaseCollection;
 
-    size_t m_startIndex;
-    size_t m_endIndex;
+    time_t              m_startTime;
+    time_t              m_endTime;
+    TimeStepMode        m_timeStepMode;
+    std::vector<time_t> m_timeSteps;
+    FunctionType        m_functionType;
 };

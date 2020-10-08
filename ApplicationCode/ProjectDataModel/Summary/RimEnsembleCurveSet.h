@@ -115,10 +115,10 @@ public:
     void                      updateEnsembleLegendItem();
     RiuDraggableOverlayFrame* legendFrame() const;
 
-    void                     updateAllCurves();
-    void                     setTimeSteps( const std::vector<size_t>& timeStepIndices );
-    std::map<size_t, time_t> selectedTimeSteps();
-    void                     updateStatisticsCurves();
+    void                updateAllCurves();
+    void                setTimeSteps( const std::vector<size_t>& timeStepIndices );
+    std::vector<time_t> selectedTimeSteps();
+    void                updateStatisticsCurves();
 
     RimEnsembleCurveSet* clone() const;
     void                 showCurves( bool show );
