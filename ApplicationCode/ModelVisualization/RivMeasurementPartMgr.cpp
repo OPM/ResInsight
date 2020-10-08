@@ -32,6 +32,8 @@
 #include "RimProject.h"
 #include "RimUserDefinedPolylinesAnnotationInView.h"
 
+#include "RiuGuiTheme.h"
+
 #include "RivPartPriority.h"
 #include "RivPolylineAnnotationPartMgr.h"
 #include "RivPolylineGenerator.h"
@@ -191,7 +193,7 @@ void RivMeasurementPartMgr::buildPolyLineParts( const cvf::Camera*              
         RiaGuiApplication* app = RiaGuiApplication::instance();
 
         auto    backgroundColor = app->preferences()->defaultViewerBackgroundColor;
-        auto    fontColor       = cvf::Color3f::BLACK;
+        auto    fontColor       = RiuGuiTheme::getColorByVariableName( "textColor" );
         QString text            = m_measurement->label();
         auto    labelPosition   = pointsInDisplay.back();
         auto    font            = app->defaultWellLabelFont();
@@ -204,7 +206,7 @@ void RivMeasurementPartMgr::buildPolyLineParts( const cvf::Camera*              
         drawableText->setVerticalAlignment( cvf::TextDrawer::BASELINE );
         drawableText->setBackgroundColor( backgroundColor );
         drawableText->setBorderColor( RiaColorTools::computeOffsetColor( backgroundColor, 0.3f ) );
-        drawableText->setTextColor( fontColor );
+        drawableText->setTextColor( RiaColorTools::fromQColorTo3f( fontColor ) );
 
         cvf::String cvfString = cvfqt::Utils::toString( text );
 
