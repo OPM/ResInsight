@@ -71,7 +71,7 @@ void RicInsertColorLegendFeature::onActionTriggered( bool isChecked )
 void RicInsertColorLegendFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/Legend.png" ) );
-    actionToSetup->setText( "New Custom Color Legend" );
+    actionToSetup->setText( "New Color Legend" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -86,7 +86,17 @@ RimColorLegendCollection* RicInsertColorLegendFeature::selectedColorLegendCollec
     RimColorLegendCollection* colorLegendCollection = nullptr;
 
     selectedObject->firstAncestorOrThisOfType( colorLegendCollection );
-    if ( colorLegendCollection ) return colorLegendCollection;
+    if ( colorLegendCollection )
+    {
+        // Disable the menu for standard color legends
+        RimColorLegend* colorLegend = dynamic_cast<RimColorLegend*>( selectedObject );
+        if ( colorLegend && colorLegendCollection->isStandardColorLegend( colorLegend ) )
+        {
+            return nullptr;
+        }
+
+        return colorLegendCollection;
+    }
 
     return nullptr;
 }
