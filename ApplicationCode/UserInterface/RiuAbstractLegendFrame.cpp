@@ -127,9 +127,10 @@ void RiuAbstractLegendFrame::renderTo( QPainter* painter, const QRect& targetRec
         QTextDocument td;
         td.setDocumentMargin( 0.0 );
         td.setDefaultFont( this->font() );
+        QString formattedTitle = m_title;
         td.setHtml( QString( "<body><font color='%1'>%2</font></body>" )
                         .arg( textColor.name() )
-                        .arg( m_title.replace( "\n", "<br />" ) ) );
+                        .arg( formattedTitle.replace( "\n", "<br />" ) ) );
         td.drawContents( painter );
         painter->restore();
     }
