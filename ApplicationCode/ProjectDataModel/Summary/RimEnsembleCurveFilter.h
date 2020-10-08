@@ -25,6 +25,7 @@
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmProxyValueField.h"
 
 class EnsembleParameter;
 class RimEnsembleCurveSet;
@@ -56,10 +57,13 @@ public:
     std::set<QString> categories() const;
     QString           ensembleParameterName() const;
     QString           filterId() const;
+    QString           description() const;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    caf::PdmFieldHandle*          userDescriptionField() override;
+    void                          updateIcon();
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                          QString                    uiConfigName,
@@ -79,6 +83,7 @@ private:
     void                              updateMaxMinAndDefaultValues( bool forceDefault );
 
 private:
+    caf::PdmProxyValueField<QString>                             m_filterTitle;
     caf::PdmField<bool>                                          m_active;
     caf::PdmField<bool>                                          m_deleteButton;
     caf::PdmField<caf::AppEnum<FilterMode>>                      m_filterMode;

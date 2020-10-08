@@ -209,6 +209,7 @@ private:
 
     QwtPlotCurve*                      m_qwtPlotCurveForLegendText;
     QPointer<RiuDraggableOverlayFrame> m_legendOverlayFrame;
+    QPointer<RiuDraggableOverlayFrame> m_filterOverlayFrame;
 
     std::unique_ptr<RimEnsembleStatisticsCase> m_ensembleStatCase;
 

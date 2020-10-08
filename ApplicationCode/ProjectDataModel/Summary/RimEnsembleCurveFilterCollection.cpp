@@ -22,6 +22,8 @@
 #include "RimEnsembleCurveSet.h"
 #include "RimSummaryPlot.h"
 
+#include "RiuTextContentFrame.h"
+
 #include <cafPdmUiPushButtonEditor.h>
 #include <cafPdmUiTableViewEditor.h>
 #include <cafPdmUiTreeOrdering.h>
@@ -97,6 +99,22 @@ std::vector<RimEnsembleCurveFilter*> RimEnsembleCurveFilterCollection::filters()
 bool RimEnsembleCurveFilterCollection::isActive() const
 {
     return m_active;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimEnsembleCurveFilterCollection::countActiveFilters() const
+{
+    int activeFilters = 0;
+    for ( auto& filter : m_filters )
+    {
+        if ( filter->isActive() )
+        {
+            activeFilters++;
+        }
+    }
+    return activeFilters;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -236,6 +254,30 @@ void RimEnsembleCurveFilterCollection::loadDataAndUpdate()
 {
     for ( auto& filter : m_filters )
         filter->loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimEnsembleCurveFilterCollection::filterDescriptions() const
+{
+    QStringList descriptions;
+    for ( auto filter : m_filters )
+    {
+        if ( filter->isActive() )
+        {
+            descriptions << filter->description();
+        }
+    }
+    return descriptions.join( "\n" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuTextContentFrame* RimEnsembleCurveFilterCollection::makeFilterDescriptionFrame() const
+{
+    return new RiuTextContentFrame( nullptr, QString( "Active curve filters:" ), filterDescriptions() );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -61,6 +61,9 @@ RimEnsembleCurveFilter::RimEnsembleCurveFilter()
 {
     CAF_PDM_InitObject( "Ensemble Curve Filter", ":/Filter.svg", "", "" );
 
+    CAF_PDM_InitFieldNoDefault( &m_filterTitle, "FilterTitle", "Title", "", "", "" );
+    m_filterTitle.registerGetMethod( this, &RimEnsembleCurveFilter::description );
+
     CAF_PDM_InitFieldNoDefault( &m_active, "Active", "Active", "", "", "" );
     m_active = true;
 
@@ -166,6 +169,23 @@ QString RimEnsembleCurveFilter::ensembleParameterName() const
 QString RimEnsembleCurveFilter::filterId() const
 {
     return QString( "%1" ).arg( (int64_t)this );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimEnsembleCurveFilter::description() const
+{
+    QString descriptor;
+    if ( m_filterMode() == FilterMode::BY_ENSEMBLE_PARAMETER )
+    {
+        descriptor = QString( "%0" ).arg( m_ensembleParameterName() );
+    }
+    else if ( m_filterMode() == FilterMode::BY_OBJECTIVE_FUNCTION )
+    {
+        descriptor = QString( "%0" ).arg( m_objectiveFunction().text() );
+    }
+    return QString( "%0 : %1 - %2" ).arg( descriptor ).arg( QString::number( m_minValue() ) ).arg( QString::number( m_maxValue() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -314,6 +334,32 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
 
         m_objectiveValuesSelectSummaryAddressPushButton = false;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimEnsembleCurveFilter::userDescriptionField()
+{
+    updateIcon();
+    return &m_filterTitle;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveFilter::updateIcon()
+{
+    QString resourceString;
+    if ( m_filterMode() == FilterMode::BY_ENSEMBLE_PARAMETER )
+    {
+        resourceString = ":/FilterParameter.svg";
+    }
+    else if ( m_filterMode() == FilterMode::BY_OBJECTIVE_FUNCTION )
+    {
+        resourceString = ":/FilterFunction.svg";
+    }
+    setUiIconFromResourceString( resourceString );
 }
 
 //--------------------------------------------------------------------------------------------------

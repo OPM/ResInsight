@@ -58,6 +58,7 @@
 #include "RiuQwtPlotCurve.h"
 #include "RiuSummaryQwtPlot.h"
 #include "RiuSummaryVectorSelectionDialog.h"
+#include "RiuTextContentFrame.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmUiItem.h"
@@ -1241,6 +1242,23 @@ void RimEnsembleCurveSet::updateCurveColors()
             if ( m_legendOverlayFrame )
             {
                 plot->viewer()->removeOverlayFrame( m_legendOverlayFrame );
+            }
+        }
+        if ( m_curveFilters()->isActive() && m_curveFilters()->countActiveFilters() > 0 )
+        {
+            if ( !m_filterOverlayFrame )
+            {
+                m_filterOverlayFrame =
+                    new RiuDraggableOverlayFrame( plot->viewer()->canvas(), plot->viewer()->overlayMargins() );
+            }
+            m_filterOverlayFrame->setContentFrame( m_curveFilters()->makeFilterDescriptionFrame() );
+            plot->viewer()->addOverlayFrame( m_filterOverlayFrame );
+        }
+        else
+        {
+            if ( m_filterOverlayFrame )
+            {
+                plot->viewer()->removeOverlayFrame( m_filterOverlayFrame );
             }
         }
         plot->viewer()->scheduleReplot();
