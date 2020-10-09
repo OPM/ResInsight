@@ -156,13 +156,13 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     CAF_PDM_InitFieldNoDefault( &m_minDateRange, "MinDateRange", "From", "", "", "" );
     m_minDateRange.uiCapability()->setUiEditorTypeName( caf::PdmUiDateEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_minTimeStep, "MinTimeStep", "From", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_minTimeStep, "MinTimeStep", "", "", "", "" );
     m_minTimeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_maxDateRange, "MaxDateRange", "To", "", "", "" );
     m_maxDateRange.uiCapability()->setUiEditorTypeName( caf::PdmUiDateEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_maxTimeStep, "MaxTimeStep", "To", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_maxTimeStep, "MaxTimeStep", "", "", "", "" );
     m_maxTimeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
     // Time Step Selection
@@ -632,6 +632,9 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
             setTimeSteps( indices );
         }
 
+        m_minTimeStep = *allAvailableTimeSteps().begin();
+        m_maxTimeStep = *allAvailableTimeSteps().rbegin();
+
         updateLegendMappingMode();
         updateMaxMinAndDefaultValues();
         updateCurveColors();
@@ -665,6 +668,12 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
                 m_objectiveValuesSummaryAddress->setAddress( m_yValuesSummaryAddress->address() );
                 m_objectiveValuesSummaryAddressUiField.setValue( m_yValuesSummaryAddress->address() );
             }
+
+            m_minTimeStep = *allAvailableTimeSteps().begin();
+            m_maxTimeStep = *allAvailableTimeSteps().rbegin();
+
+            updateMaxMinAndDefaultValues();
+            updateCurveColors();
         }
 
         updateCurveColors();
@@ -688,6 +697,13 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     else if ( changedField == &m_minTimeStep || changedField == &m_maxTimeStep )
     {
         updateMaxMinAndDefaultValues();
+        updateCurveColors();
+    }
+    else if ( changedField == &m_minDateRange || changedField == &m_maxDateRange )
+    {
+        m_minTimeStep = QDateTime( m_minDateRange() ).toSecsSinceEpoch();
+        m_maxTimeStep = QDateTime( m_maxDateRange() ).toSecsSinceEpoch();
+        updateCurveColors();
     }
     else if ( changedField == &m_plotAxis )
     {
@@ -813,13 +829,8 @@ void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::updateMaxMinAndDefaultValues()
 {
-    std::set<time_t> timeSteps = allAvailableTimeSteps();
-
-    m_minTimeStep = QDateTime( m_minDateRange() ).toSecsSinceEpoch();
-    m_maxTimeStep = QDateTime( m_maxDateRange() ).toSecsSinceEpoch();
-
-    m_minTimeStep.uiCapability()->setUiName( RiaQDateTimeTools::fromTime_t( m_minTimeStep() ).toString() );
-    m_maxTimeStep.uiCapability()->setUiName( RiaQDateTimeTools::fromTime_t( m_maxTimeStep() ).toString() );
+    m_minDateRange = QDateTime::fromSecsSinceEpoch( m_minTimeStep ).date();
+    m_maxDateRange = QDateTime::fromSecsSinceEpoch( m_maxTimeStep ).date();
 
     summaryCaseCollection()->objectiveFunction( m_objectiveFunction() )->setTimeStepRange( m_minTimeStep(), m_maxTimeStep() );
 }
