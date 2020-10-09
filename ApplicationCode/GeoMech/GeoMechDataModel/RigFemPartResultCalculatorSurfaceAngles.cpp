@@ -120,7 +120,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorSurfaceAngles::calculate( in
                     cvf::Mat3f rotMx = cvf::GeometryTools::computePlaneHorizontalRotationMx( quadVxs[2] - quadVxs[0],
                                                                                              quadVxs[3] - quadVxs[1] );
                     RiaOffshoreSphericalCoords sphCoord(
-                        cvf::Vec3f( rotMx.rowCol( 0, 2 ), rotMx.rowCol( 1, 2 ), rotMx.rowCol( 2, 2 ) ) ); // Use Ez
+                        cvf::Vec3f( rotMx.rowCol( 2, 0 ), rotMx.rowCol( 2, 1 ), rotMx.rowCol( 2, 2 ) ) ); // Use Ez
                                                                                                           // from the
                                                                                                           // matrix
                                                                                                           // as plane
