@@ -55,6 +55,8 @@ public:
     static QVariant dockWidgetsVisibility( const QObject* parent );
     static QVariant defaultDockWidgetVisibilities();
 
+    static void workaroundForQwtDockWidgets();
+
     static void setVisibleDockingWindowsForEclipse();
     static void setVisibleDockingWindowsForGeoMech();
 
