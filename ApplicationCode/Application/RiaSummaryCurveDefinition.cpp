@@ -247,8 +247,8 @@ void RiaSummaryCurveDefinitionAnalyser::setCurveDefinitions( const std::vector<R
             if ( curveDef.summaryCase()->ensemble() )
             {
                 m_ensembles.insert( curveDef.summaryCase()->ensemble() );
-                valid = true;
             }
+            valid = true;
         }
         if ( valid )
         {
