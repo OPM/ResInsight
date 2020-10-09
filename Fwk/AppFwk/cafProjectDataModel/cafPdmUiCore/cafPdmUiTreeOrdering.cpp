@@ -54,7 +54,19 @@ void PdmUiTreeOrdering::add( PdmFieldHandle* field, QString uiConfigName )
 {
     CAF_ASSERT( field );
 
-    if ( field->uiCapability()->isUiTreeHidden( uiConfigName ) )
+    bool isObjectUiTreeHidden = false;
+
+    {
+        std::vector<PdmObjectHandle*> children;
+        field->childObjects( &children );
+
+        if ( children.size() == 1 )
+        {
+            isObjectUiTreeHidden = children[0]->uiCapability()->isUiTreeHidden( uiConfigName );
+        }
+    }
+
+    if ( isObjectUiTreeHidden || field->uiCapability()->isUiTreeHidden( uiConfigName ) )
     {
         if ( !field->uiCapability()->isUiTreeChildrenHidden( uiConfigName ) )
         {
