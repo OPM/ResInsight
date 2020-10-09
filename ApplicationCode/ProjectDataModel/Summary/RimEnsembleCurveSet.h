@@ -173,6 +173,7 @@ private:
     QString createAutoName() const;
 
     void updateLegendMappingMode();
+    void updateMaxMinAndDefaultValues();
 
 private:
     caf::PdmField<bool>                       m_showCurves;
@@ -193,6 +194,8 @@ private:
     caf::PdmField<RifEclipseSummaryAddress>                      m_objectiveValuesSummaryAddressUiField;
     caf::PdmField<bool>                                          m_objectiveValuesSelectSummaryAddressPushButton;
     caf::PdmField<caf::AppEnum<ObjectiveFunction::FunctionType>> m_objectiveFunction;
+    caf::PdmField<time_t>                                        m_minTimeStep;
+    caf::PdmField<time_t>                                        m_maxTimeStep;
     caf::PdmField<TimeStepFilterEnum>                            m_timeStepFilter;
     caf::PdmField<std::vector<QDateTime>>                        m_selectedTimeSteps;
 

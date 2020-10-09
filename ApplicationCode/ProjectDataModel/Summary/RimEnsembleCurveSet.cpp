@@ -65,6 +65,7 @@
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiSliderEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cafTitledOverlayFrame.h"
@@ -150,6 +151,12 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     CAF_PDM_InitFieldNoDefault( &m_objectiveFunction, "ObjectiveFunction", "Objective Function", "", "", "" );
     m_objectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_minTimeStep, "MinTimeStep", "From", "", "", "" );
+    m_minTimeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_maxTimeStep, "MaxTimeStep", "To", "", "", "" );
+    m_maxTimeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
     // Time Step Selection
     CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Available Time Steps", "", "", "" );
@@ -614,20 +621,18 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         if ( m_objectiveFunction() == ObjectiveFunction::FunctionType::M2 )
         {
             std::vector<size_t> indices;
-            summaryCaseCollection()
-                ->objectiveFunction( m_objectiveFunction() )
-                ->setTimeStepMode( ObjectiveFunction::TimeStepMode::List );
             indices.push_back( summaryCaseCollection()->objectiveFunction( m_objectiveFunction() )->range().first );
             setTimeSteps( indices );
         }
 
         updateLegendMappingMode();
+        updateMaxMinAndDefaultValues();
         updateCurveColors();
     }
     else if ( changedField == &m_objectiveValuesSummaryAddressUiField )
     {
         m_objectiveValuesSummaryAddress->setAddress( m_objectiveValuesSummaryAddressUiField() );
-
+        updateMaxMinAndDefaultValues();
         updateCurveColors();
 
         updateTextInPlot = true;
@@ -672,6 +677,10 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
             summaryCaseCollection()->objectiveFunction( m_objectiveFunction() )->setTimeStepList( selectedTimeSteps() );
             updateCurveColors();
         }
+    }
+    else if ( changedField == &m_minTimeStep || changedField == &m_maxTimeStep )
+    {
+        updateMaxMinAndDefaultValues();
     }
     else if ( changedField == &m_plotAxis )
     {
@@ -795,6 +804,19 @@ void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::updateMaxMinAndDefaultValues()
+{
+    std::set<time_t> timeSteps = allAvailableTimeSteps();
+
+    m_minTimeStep.uiCapability()->setUiName( RiaQDateTimeTools::fromTime_t( m_minTimeStep() ).toString() );
+    m_maxTimeStep.uiCapability()->setUiName( RiaQDateTimeTools::fromTime_t( m_maxTimeStep() ).toString() );
+
+    summaryCaseCollection()->objectiveFunction( m_objectiveFunction() )->setTimeStepRange( m_minTimeStep(), m_maxTimeStep() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrdering )
 {
     caf::PdmUiGroup* colorsGroup = uiOrdering.addNewGroup( "Colors" );
@@ -821,6 +843,7 @@ void RimEnsembleCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrdering )
             colorsGroup->add( &m_timeStepFilter );
             colorsGroup->add( &m_selectedTimeSteps );
         }
+        updateMaxMinAndDefaultValues();
     }
 }
 
@@ -1024,15 +1047,17 @@ std::set<time_t> RimEnsembleCurveSet::allAvailableTimeSteps()
 
     for ( RimSummaryCase* sumCase : summaryCaseCollection()->allSummaryCases() )
     {
-        const std::vector<time_t>& timeSteps =
-            sumCase->summaryReader()->timeSteps( m_objectiveValuesSummaryAddress()->address() );
-
-        for ( time_t t : timeSteps )
+        if ( sumCase->summaryReader() )
         {
-            timeStepUnion.insert( t );
+            const std::vector<time_t>& timeSteps =
+                sumCase->summaryReader()->timeSteps( m_objectiveValuesSummaryAddress()->address() );
+
+            for ( time_t t : timeSteps )
+            {
+                timeStepUnion.insert( t );
+            }
         }
     }
-
     return timeStepUnion;
 }
 

@@ -39,19 +39,12 @@ public:
         M2
     };
 
-    enum class TimeStepMode
-    {
-        Range = 0,
-        List
-    };
-
     QString                         uiName() const { return name; };
     QString                         name;
     ObjectiveFunction::FunctionType functionType();
 
     void setTimeStepRange( time_t startTime, time_t endTime );
     void setTimeStepList( std::vector<time_t> timeSteps );
-    void setTimeStepMode( TimeStepMode mode );
 
     double minValue;
     double maxValue;
@@ -79,7 +72,6 @@ private:
 
     time_t              m_startTime;
     time_t              m_endTime;
-    TimeStepMode        m_timeStepMode;
     std::vector<time_t> m_timeSteps;
     FunctionType        m_functionType;
 };

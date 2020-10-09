@@ -71,21 +71,12 @@ void ObjectiveFunction::setTimeStepList( std::vector<time_t> timeSteps )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectiveFunction::setTimeStepMode( TimeStepMode mode )
-{
-    m_timeStepMode = mode;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 ObjectiveFunction::ObjectiveFunction( const RimSummaryCaseCollection* summaryCaseCollection, FunctionType type )
 {
     m_summaryCaseCollection = summaryCaseCollection;
     m_functionType          = type;
     m_startTime             = 0;
     m_endTime               = 0;
-    m_timeStepMode          = TimeStepMode::Range;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -130,16 +121,24 @@ double ObjectiveFunction::value( RimSummaryCase*                 summaryCase,
                     std::vector<double> values;
                     if ( readerInterface->values( vectorSummaryAddressDiff, &values ) )
                     {
+                        const std::vector<time_t>& timeSteps = readerInterface->timeSteps( vectorSummaryAddressDiff );
+
+                        size_t index = 0;
+
                         double N = static_cast<double>( values.size() );
                         if ( N > 1 )
                         {
                             double sumValues        = 0.0;
                             double sumValuesSquared = 0.0;
-                            for ( size_t index = 0; index < values.size(); index++ )
+                            for ( time_t t : timeSteps )
                             {
-                                const double& value = values[index];
-                                sumValues += std::abs( value );
-                                sumValuesSquared += value * value;
+                                if ( t >= m_startTime && t <= m_endTime )
+                                {
+                                    const double& value = values[index];
+                                    sumValues += std::abs( value );
+                                    sumValuesSquared += value * value;
+                                }
+                                index++;
                             }
                             if ( sumValues != 0 )
                             {
@@ -193,14 +192,7 @@ double ObjectiveFunction::value( RimSummaryCase*                 summaryCase,
                         std::vector<double> yValues( 2, 0.0 );
                         for ( time_t t : timeSteps )
                         {
-                            if ( m_timeStepMode == TimeStepMode::Range )
-                            {
-                                if ( t >= m_startTime && t <= m_endTime )
-                                {
-                                    value += std::abs( values[index] );
-                                }
-                            }
-                            else if ( m_timeStepMode == TimeStepMode::List )
+                            if ( t >= m_startTime && t <= m_endTime )
                             {
                                 if ( xValues.front() == 0 )
                                 {
@@ -234,8 +226,8 @@ double ObjectiveFunction::value( RimSummaryCase*                 summaryCase,
                                         }
                                     }
                                 }
+                                index++;
                             }
-                            index++;
                         }
                         return value;
                     }
