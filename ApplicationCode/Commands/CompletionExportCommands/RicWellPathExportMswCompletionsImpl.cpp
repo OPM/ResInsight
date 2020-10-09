@@ -1709,6 +1709,7 @@ void RicWellPathExportMswCompletionsImpl::writeValveWelsegsSegment( std::shared_
     formatter.comment( valve->label() );
 
     auto subSegment = valve->subSegments().front();
+    subSegment->setSegmentNumber( *segmentNumber );
 
     double startMD = subSegment->startMD();
     double endMD   = subSegment->endMD();
