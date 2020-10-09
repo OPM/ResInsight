@@ -92,9 +92,8 @@ void RigFemPartGrid::generateStructGridData()
 
         m_elementIJKCounts = cvf::Vec3st( 0, 0, 0 );
 
-        int        elmIdxInK  = elmIdxForIJK_000;
-        cvf::Vec3f posKNormal = m_femPart->faceNormal( elmIdxInK, posKFaceIdx );
-        int        kCoord     = 0;
+        int elmIdxInK = elmIdxForIJK_000;
+        int kCoord    = 0;
         while ( true )
         {
             int        elmIdxInJ          = elmIdxInK;

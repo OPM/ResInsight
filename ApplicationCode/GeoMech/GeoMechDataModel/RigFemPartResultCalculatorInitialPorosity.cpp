@@ -78,8 +78,6 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorInitialPorosity::calculate( 
 
     frameCountProgress.setNextProgressIncrement( 1u );
 
-    int referenceFrameIdx = m_resultCollection->referenceTimeStep();
-
     int frameCount = voidRatioFrames->frameCount();
     for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
     {

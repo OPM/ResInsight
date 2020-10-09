@@ -76,8 +76,6 @@ void RimGeoMechModels::removeCase( RimGeoMechCase* thecase )
 //--------------------------------------------------------------------------------------------------
 RimGeoMechCase* RimGeoMechModels::copyCase( RimGeoMechCase* thecase, const QString& newInputFileName )
 {
-    std::vector<RimGeoMechCase*> newcases;
-
     for ( auto gmcase : m_cases() )
     {
         if ( gmcase->gridFileName() == newInputFileName )

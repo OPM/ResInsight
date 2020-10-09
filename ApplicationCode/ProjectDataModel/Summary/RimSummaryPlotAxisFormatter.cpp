@@ -118,8 +118,6 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuQwtPlotWidget* q
         QString axisTitle = m_axisProperties->customTitle;
         if ( m_axisProperties->useAutoTitle() ) axisTitle = autoAxisTitle();
 
-        QwtText axisTitleY = qwtPlot->axisTitle( m_axisProperties->qwtPlotAxisType() );
-
         Qt::AlignmentFlag titleAlignment = Qt::AlignCenter;
         if ( m_axisProperties->titlePosition() == RimPlotAxisPropertiesInterface::AXIS_TITLE_END )
         {

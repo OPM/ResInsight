@@ -103,8 +103,6 @@ void RigGeoMechWellLogExtractor::performCurveDataSmoothing( int                 
 
     if ( !mds->empty() && !values->empty() )
     {
-        std::vector<std::vector<double>*> dependentValues = {tvds, &interfaceShValuesDbl, &interfacePorePressuresDbl};
-
         std::vector<unsigned char> smoothOrFilterSegments = determineFilteringOrSmoothing( interfacePorePressuresDbl );
 
         smoothSegments( mds, tvds, values, interfaceShValuesDbl, smoothOrFilterSegments, smoothingTreshold );
@@ -576,14 +574,6 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData( const RigFemResultAddres
     // The result addresses needed
     RigFemResultAddress stressResAddr( RIG_ELEMENT_NODAL, "ST", "" );
     RigFemResultAddress porBarResAddr( RIG_ELEMENT_NODAL, "POR-Bar", "" );
-
-    // Allow POR as an element property value
-    RigFemResultAddress ppSandElementPropertyAddr =
-        RigWbsParameter::PP_Reservoir().femAddress( RigWbsParameter::ELEMENT_PROPERTY_TABLE );
-
-    RigFemResultAddress poissonResAddr =
-        RigWbsParameter::poissonRatio().femAddress( RigWbsParameter::ELEMENT_PROPERTY_TABLE );
-    RigFemResultAddress ucsResAddr = RigWbsParameter::UCS().femAddress( RigWbsParameter::ELEMENT_PROPERTY_TABLE );
 
     RigFemPartResultsCollection* resultCollection = m_caseData->femPartResults();
 

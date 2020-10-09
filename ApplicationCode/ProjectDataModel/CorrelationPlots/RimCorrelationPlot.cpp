@@ -249,8 +249,6 @@ void RimCorrelationPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chart
     std::vector<std::pair<EnsembleParameter, double>> correlations =
         ensemble->parameterCorrelations( address, selectedTimestep, m_selectedParametersList() );
 
-    QString timestepString = m_timeStep().toString( RiaPreferences::current()->dateTimeFormat() );
-
     for ( auto parameterCorrPair : correlations )
     {
         double  value     = m_showAbsoluteValues() ? std::abs( parameterCorrPair.second ) : parameterCorrPair.second;

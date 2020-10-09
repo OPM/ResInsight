@@ -183,8 +183,7 @@ void RifStimPlanXmlReader::readStimplanGridAndTimesteps( QXmlStreamReader&      
                                                          MirrorMode                      mirrorMode,
                                                          RiaEclipseUnitTools::UnitSystem requiredUnit )
 {
-    size_t  startNegValuesYs = 0;
-    QString gridunit         = "unknown";
+    size_t startNegValuesYs = 0;
 
     xmlStream.readNext();
 
@@ -209,7 +208,7 @@ void RifStimPlanXmlReader::readStimplanGridAndTimesteps( QXmlStreamReader&      
                 // Support for one grid per file
                 if ( gridSectionCount < 1 )
                 {
-                    gridunit = getAttributeValueString( xmlStream, "uom" );
+                    QString gridunit = getAttributeValueString( xmlStream, "uom" );
 
                     if ( gridunit == "m" )
                         stimPlanFileData->m_unitSet = RiaEclipseUnitTools::UnitSystem::UNITS_METRIC;

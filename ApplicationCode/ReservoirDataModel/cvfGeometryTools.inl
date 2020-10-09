@@ -861,10 +861,9 @@ void GeometryTools::calculatePartiallyFreeCubeFacePolygon(
 
     // Check for holes
 
-    bool hasHoles = false;
     for ( size_t i = 0; i < isConnectionPolygonMerged.size(); ++i )
     {
-        hasHoles = !isConnectionPolygonMerged[i];
+        bool hasHoles = !isConnectionPolygonMerged[i];
         if ( hasHoles )
         {
             *m_partiallyFreeCubeFaceHasHoles = true;

@@ -66,10 +66,6 @@ void RicNewCorrelationPlotFeature::onActionTriggered( bool isChecked )
         selObj->firstAncestorOrThisOfType( correlationPlotColl );
     }
 
-    RimSummaryCaseCollection* ensemble = nullptr;
-    QString                   quantityName;
-    std::time_t               timeStep = 0;
-
     RimCorrelationPlot* newPlot = nullptr;
     if ( !correlationPlotColl )
     {
@@ -81,10 +77,10 @@ void RicNewCorrelationPlotFeature::onActionTriggered( bool isChecked )
             CAF_ASSERT( !correlationPlotCollections.empty() );
             correlationPlotColl = correlationPlotCollections.front();
 
-            EnsemblePlotParams params = userData.value<EnsemblePlotParams>();
-            ensemble                  = params.ensemble;
-            quantityName              = params.mainQuantityName;
-            timeStep                  = params.timeStep;
+            EnsemblePlotParams        params       = userData.value<EnsemblePlotParams>();
+            RimSummaryCaseCollection* ensemble     = params.ensemble;
+            QString                   quantityName = params.mainQuantityName;
+            std::time_t               timeStep     = params.timeStep;
 
             newPlot = correlationPlotColl->createCorrelationPlot( ensemble, quantityName, timeStep );
         }

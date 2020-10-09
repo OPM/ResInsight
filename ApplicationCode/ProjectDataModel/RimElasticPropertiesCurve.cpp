@@ -163,7 +163,6 @@ void RimElasticPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength
 
         std::vector<double> formationValues = curveData.data;
 
-        std::vector<std::pair<double, double>> yValues;
         std::vector<QString> formationNamesVector = RimWellLogTrack::formationNamesVector( eclipseCase );
 
         RimFractureModelTemplate* fractureModelTemplate = m_fractureModel->fractureModelTemplate();

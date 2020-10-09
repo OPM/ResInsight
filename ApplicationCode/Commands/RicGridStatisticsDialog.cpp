@@ -259,8 +259,6 @@ void RicGridStatisticsDialog::deletePlotItems( QwtPlot* plot )
 //--------------------------------------------------------------------------------------------------
 void RicGridStatisticsDialog::setMarkers( const Rim3dOverlayInfoConfig::HistogramData& histData, QwtPlot* plot )
 {
-    auto scale = plot->axisScaleDiv( QwtPlot::yLeft );
-
     QwtPlotMarker* marker;
 
     if ( histData.p10 != HUGE_VAL )

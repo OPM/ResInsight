@@ -49,8 +49,6 @@ RimSummaryCase_summaryVectorValues::RimSummaryCase_summaryVectorValues( caf::Pdm
 //--------------------------------------------------------------------------------------------------
 caf::PdmObjectHandle* RimSummaryCase_summaryVectorValues::execute()
 {
-    QStringList addressStrings = m_addressString().split( ";", QString::SkipEmptyParts );
-
     auto*                      summaryCase = self<RimSummaryCase>();
     RifSummaryReaderInterface* sumReader   = summaryCase->summaryReader();
 
@@ -200,8 +198,6 @@ RimSummaryCase_resampleValues::RimSummaryCase_resampleValues( caf::PdmObjectHand
 //--------------------------------------------------------------------------------------------------
 caf::PdmObjectHandle* RimSummaryCase_resampleValues::execute()
 {
-    QStringList addressStrings = m_addressString().split( ";", QString::SkipEmptyParts );
-
     auto*                      summaryCase = self<RimSummaryCase>();
     RifSummaryReaderInterface* sumReader   = summaryCase->summaryReader();
 

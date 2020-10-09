@@ -893,8 +893,6 @@ void RimAnalysisPlot::updateAxes()
         m_plotWidget->enableAxis( qwtAxis, true );
         m_valueAxisProperties->setNameAndAxis( "Value-Axis", qwtAxis );
 
-        std::set<QString> timeHistoryQuantities;
-
         RimSummaryPlotAxisFormatter calc( valAxisProperties, {}, curveDefinitions(), {}, {} );
         calc.applyAxisPropertiesToPlot( m_plotWidget );
     }
@@ -1097,11 +1095,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
                                    std::set<RimSummaryCase*>*          filteredSumCases,
                                    std::set<RifEclipseSummaryAddress>* filteredSummaryItems )
 {
-    const std::vector<RiaSummaryCurveDefinition> curveDefsToFilter;
-
     if ( !filter->isActive() || !filter->isValid() ) return;
-
-    std::vector<RiaSummaryCurveDefinition> filteredCurveDefs;
 
     std::set<RimSummaryCase*>          casesToKeep;
     std::set<RifEclipseSummaryAddress> sumItemsToKeep;
@@ -1117,7 +1111,6 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
 
             EnsembleParameter eParam = this->ensembleParameter( filter->ensembleParameterName() );
 
-            std::set<RimSummaryCase*> casesToRemove;
             for ( auto sumCase : ( *filteredSumCases ) )
             {
                 if ( !eParam.isValid() ) continue;

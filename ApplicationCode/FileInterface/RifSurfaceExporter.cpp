@@ -35,12 +35,12 @@ bool RifSurfaceExporter::writeGocadTSurfFile( const QString&                 fil
 
     QTextStream out( &exportFile );
 
-    QString headerForExport = headerText;
-    if ( headerText.isEmpty() ) headerForExport = "surface";
+    QString headerForExport = headerForExport = "surface";
+    if ( !headerText.isEmpty() ) headerForExport = headerText;
 
     out << "GOCAD TSurf 1 \n";
     out << "HEADER { \n";
-    out << "name:" + headerText + " \n";
+    out << "name:" + headerForExport + " \n";
     out << "} \n";
     out << "GOCAD_ORIGINAL_COORDINATE_SYSTEM \n";
     out << "NAME Default  \n";
