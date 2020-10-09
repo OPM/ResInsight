@@ -979,25 +979,31 @@ void RifEclipseInputFileTools::findKeywordsOnFile( const QString& fileName, std:
         if ( lineLength > 0 )
         {
             line = QString::fromLatin1( buf );
-            if ( line.size() && line[0].isLetter() )
+            RifKeywordAndFilePos keyPos;
+
+            filepos        = data.pos() - lineLength;
+            keyPos.filePos = filepos;
+
+            QString trimmedLine  = line;
+            int     commentStart = trimmedLine.indexOf( "--" );
+            if ( commentStart > 0 )
             {
-                RifKeywordAndFilePos keyPos;
+                trimmedLine = trimmedLine.left( commentStart );
+            }
 
-                filepos        = data.pos() - lineLength;
-                keyPos.filePos = filepos;
-
-                QString keywordCandidate = line;
-                int     commentStart     = keywordCandidate.indexOf( "--" );
-                if ( commentStart > 0 )
+            trimmedLine = trimmedLine.trimmed();
+            if ( !trimmedLine.isEmpty() && trimmedLine[0].isLetter() )
+            {
+                // Ensure we don't attempt to find keywords with a space in it.
+                QStringList keywordCandidates = trimmedLine.split( " " );
+                if ( !keywordCandidates.isEmpty() )
                 {
-                    keywordCandidate = keywordCandidate.left( commentStart );
+                    QString keywordCandidate = keywordCandidates.front();
+
+                    keyPos.keyword = keywordCandidate;
+                    keywords->push_back( keyPos );
+                    // qDebug() << keyPos.keyword << " - " << keyPos.filePos;
                 }
-
-                keywordCandidate = keywordCandidate.trimmed();
-
-                keyPos.keyword = keywordCandidate;
-                keywords->push_back( keyPos );
-                // qDebug() << keyPos.keyword << " - " << keyPos.filePos;
             }
         }
     } while ( lineLength != -1 );
