@@ -236,6 +236,8 @@ private slots:
     void selectedObjectsChanged();
     void customMenuRequested( const QPoint& pos );
 
+    void slotWorkaroundForQwtDockWidgets();
+
 private:
     void selectViewInProjectTreePreservingSubItemSelection( const Rim3dView* previousActiveReservoirView,
                                                             Rim3dView*       activatedView );

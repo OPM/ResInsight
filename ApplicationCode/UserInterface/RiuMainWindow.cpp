@@ -154,6 +154,11 @@ RiuMainWindow::RiuMainWindow()
     m_memoryRefreshTimer = new QTimer( this );
     connect( m_memoryRefreshTimer, SIGNAL( timeout() ), this, SLOT( updateMemoryUsage() ) );
     m_memoryRefreshTimer->start( 1000 );
+
+    auto dockTimer = new QTimer( this );
+    dockTimer->setSingleShot( true );
+    connect( dockTimer, SIGNAL( timeout() ), this, SLOT( slotWorkaroundForQwtDockWidgets() ) );
+    dockTimer->start( 1000 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1966,6 +1971,14 @@ void RiuMainWindow::customMenuRequested( const QPoint& pos )
         QPoint globalPos = treeView->viewport()->mapToGlobal( pos );
         menu.exec( globalPos );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotWorkaroundForQwtDockWidgets()
+{
+    RiuDockWidgetTools::workaroundForQwtDockWidgets();
 }
 
 //--------------------------------------------------------------------------------------------------

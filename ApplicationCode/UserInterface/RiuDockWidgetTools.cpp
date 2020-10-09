@@ -264,6 +264,50 @@ QVariant RiuDockWidgetTools::defaultDockWidgetVisibilities()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Qwt widgets in non-visible dock widgets (tabbed dock windows) will on some systems enter an
+/// eternal update loop. This is seen on both Windows and Linux.
+/// The workaround is to hide all dock widgets, and then set visible the docking windows seen to
+/// trigger the unwanted behavior
+///
+/// https://github.com/OPM/ResInsight/issues/6743
+/// https://github.com/OPM/ResInsight/issues/6627
+//--------------------------------------------------------------------------------------------------
+void RiuDockWidgetTools::workaroundForQwtDockWidgets()
+{
+    RiuMainWindow* mainWindow = RiuMainWindow::instance();
+
+    QList<QDockWidget*> dockWidgets = mainWindow->findChildren<QDockWidget*>();
+    dockWidgets.removeAll( nullptr );
+
+    for ( QDockWidget* dock : dockWidgets )
+    {
+        dock->setVisible( false );
+    }
+    QApplication::processEvents();
+
+    {
+        auto dock = findDockWidget( mainWindow, relPermPlotName() );
+        if ( dock )
+        {
+            dock->setVisible( true );
+        }
+    }
+
+    {
+        auto dock = findDockWidget( mainWindow, pvtPlotName() );
+        if ( dock )
+        {
+            dock->setVisible( true );
+        }
+    }
+
+    QApplication::processEvents();
+
+    mainWindow->restoreDockWidgetVisibilities();
+    mainWindow->loadWinGeoAndDockToolBarLayout();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RiuDockWidgetTools::applyDockWidgetVisibilities( const QObject*                 parent,
