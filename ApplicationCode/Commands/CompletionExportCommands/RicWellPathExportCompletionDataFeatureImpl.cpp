@@ -1164,12 +1164,16 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::gener
     const RigActiveCellInfo* activeCellInfo =
         settings.caseToApply->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
+    auto timeSteps = settings.caseToApply->timeStepDates();
+
     if ( wellPath->perforationIntervalCollection()->isChecked() )
     {
         for ( const RimPerforationInterval* interval : intervals )
         {
             if ( !interval->isChecked() ) continue;
-            if ( !interval->isActiveOnDate( settings.caseToApply->timeStepDates()[settings.timeStep] ) ) continue;
+            if ( (size_t)settings.timeStep < timeSteps.size() &&
+                 !interval->isActiveOnDate( settings.caseToApply->timeStepDates()[settings.timeStep] ) )
+                continue;
 
             using namespace std;
             pair<vector<cvf::Vec3d>, vector<double>> perforationPointsAndMD =
