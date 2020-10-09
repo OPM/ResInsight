@@ -807,7 +807,8 @@ double RicWellPathExportMswCompletionsImpl::calculateLengthThroughActiveCells(
     double totalOverlap = 0.0;
     for ( const WellPathCellIntersectionInfo& intersection : wellPathIntersections )
     {
-        if ( activeCellInfo->isActive( intersection.globCellIndex ) )
+        if ( intersection.globCellIndex < activeCellInfo->reservoirCellCount() &&
+             activeCellInfo->isActive( intersection.globCellIndex ) )
         {
             double overlapStart = std::max( startMD, intersection.startMD );
             double overlapEnd   = std::min( endMD, intersection.endMD );
@@ -1993,8 +1994,10 @@ std::vector<RigCompletionData>
     const RigActiveCellInfo*       activeCellInfo =
         eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
-    if ( wellPath->perforationIntervalCollection()->isChecked() && perforationInterval->isChecked() &&
-         perforationInterval->isActiveOnDate( eclipseCase->timeStepDates()[timeStep] ) )
+    bool hasDate  = (size_t)timeStep < eclipseCase->timeStepDates().size();
+    bool isActive = !hasDate || perforationInterval->isActiveOnDate( eclipseCase->timeStepDates()[timeStep] );
+
+    if ( wellPath->perforationIntervalCollection()->isChecked() && perforationInterval->isChecked() && isActive )
     {
         std::pair<std::vector<cvf::Vec3d>, std::vector<double>> perforationPointsAndMD =
             wellPath->wellPathGeometry()->clippedPointSubset( perforationInterval->startMD(),
