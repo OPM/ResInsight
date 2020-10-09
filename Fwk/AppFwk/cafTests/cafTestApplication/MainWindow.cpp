@@ -19,6 +19,7 @@
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafFilePath.h"
+#include "cafPdmChildField.h"
 #include "cafPdmDocument.h"
 #include "cafPdmObject.h"
 #include "cafPdmObjectGroup.h"
@@ -47,6 +48,8 @@
 #include <QTreeView>
 #include <QUndoView>
 
+class ObjectCollectionRoot;
+
 class DemoPdmObjectGroup : public caf::PdmDocument
 {
     CAF_PDM_HEADER_INIT;
@@ -54,14 +57,15 @@ class DemoPdmObjectGroup : public caf::PdmDocument
 public:
     DemoPdmObjectGroup()
     {
-        CAF_PDM_InitFieldNoDefault(&objects, "PdmObjects", "", "", "", "")
+        CAF_PDM_InitFieldNoDefault(&objects, "PdmObjects", "", "", "", "");
+        objects.uiCapability()->setUiHidden(true);
 
-            objects.uiCapability()
-                ->setUiHidden(true);
+        CAF_PDM_InitFieldNoDefault(&m_objectCollectionRoot, "objectCollection", "objectCollection", "", "", "");
     }
 
 public:
     caf::PdmChildArrayField<PdmObjectHandle*> objects;
+    caf::PdmChildField<ObjectCollectionRoot*> m_objectCollectionRoot;
 };
 
 CAF_PDM_SOURCE_INIT(DemoPdmObjectGroup, "DemoPdmObjectGroup");
@@ -652,6 +656,75 @@ protected:
 
 CAF_PDM_SOURCE_INIT(SingleEditorPdmObject, "SingleEditorObject");
 
+class ObjectCollection : public caf::PdmObject
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    ObjectCollection()
+    {
+        CAF_PDM_InitObject("ObjectCollection", "Object Collection", "", "");
+
+        CAF_PDM_InitFieldNoDefault(&m_collection1, "m_collection1", "m_collection1", "", "", "");
+        m_collection1.push_back(new SmallDemoPdmObject);
+        m_collection1.push_back(new SmallDemoPdmObject);
+        m_collection1.push_back(new SmallDemoPdmObject);
+    }
+
+private:
+    caf::PdmChildArrayField<SmallDemoPdmObject*> m_collection1;
+};
+
+CAF_PDM_SOURCE_INIT(ObjectCollection, "ObjectCollection");
+
+class ObjectCollectionRoot : public caf::PdmObject
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    ObjectCollectionRoot()
+    {
+        CAF_PDM_InitObject("ObjectCollectionRoot", "Object Collection Root", "", "");
+
+        CAF_PDM_InitFieldNoDefault(&m_collection1, "m_collection1", "Collection default (field)", "", "", "");
+        m_collection1 = new ObjectCollection;
+        m_collection1->setUiName("Collection default");
+
+        CAF_PDM_InitFieldNoDefault(&m_collection2, "m_collection2", "Collection hide field (field)", "", "", "");
+        m_collection2 = new ObjectCollection;
+        m_collection2.uiCapability()->setUiTreeHidden(true);
+        m_collection2->setUiName("Collection hide field");
+
+        CAF_PDM_InitFieldNoDefault(&m_collection3, "m_collection3", "Collection hide field and object (field)", "", "", "");
+        m_collection3 = new ObjectCollection;
+        m_collection3.uiCapability()->setUiTreeHidden(true);
+        m_collection3->setUiTreeHidden(true);
+        m_collection3->setUiName("Collection hide field and object");
+
+        CAF_PDM_InitFieldNoDefault(&m_collection4, "m_collection4", "Collection hide object (field)", "", "", "");
+        m_collection4 = new ObjectCollection;
+        m_collection4->setUiTreeHidden(true);
+        m_collection4->setUiName("Collection hide object");
+    }
+
+protected:
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override
+    {
+        caf::PdmObject::defineUiTreeOrdering(uiTreeOrdering, uiConfigName);
+    }
+
+private:
+    caf::PdmChildField<ObjectCollection*> m_collection1;
+    caf::PdmChildField<ObjectCollection*> m_collection2;
+    caf::PdmChildField<ObjectCollection*> m_collection3;
+    caf::PdmChildField<ObjectCollection*> m_collection4;
+};
+
+CAF_PDM_SOURCE_INIT(ObjectCollectionRoot, "ObjectCollectionRoot");
+
 class SmallDemoPdmObjectA : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
@@ -1180,7 +1253,8 @@ void MainWindow::createDockPanels()
 //--------------------------------------------------------------------------------------------------
 void MainWindow::buildTestModel()
 {
-    m_testRoot = new DemoPdmObjectGroup;
+    m_testRoot                         = new DemoPdmObjectGroup;
+    m_testRoot->m_objectCollectionRoot = new ObjectCollectionRoot;
 
     ManyGroups* manyGroups = new ManyGroups;
     m_testRoot->objects.push_back(manyGroups);
