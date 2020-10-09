@@ -63,6 +63,7 @@ class QwtPlot;
 class QwtPlotCurve;
 class QKeyEvent;
 class QFrame;
+class QDate;
 
 //==================================================================================================
 ///
@@ -196,6 +197,8 @@ private:
     caf::PdmField<caf::AppEnum<ObjectiveFunction::FunctionType>> m_objectiveFunction;
     caf::PdmField<time_t>                                        m_minTimeStep;
     caf::PdmField<time_t>                                        m_maxTimeStep;
+    caf::PdmField<QDate>                                         m_minDateRange;
+    caf::PdmField<QDate>                                         m_maxDateRange;
     caf::PdmField<TimeStepFilterEnum>                            m_timeStepFilter;
     caf::PdmField<std::vector<QDateTime>>                        m_selectedTimeSteps;
 

@@ -61,6 +61,7 @@
 #include "RiuTextContentFrame.h"
 
 #include "cafPdmObject.h"
+#include "cafPdmUiDateEditor.h"
 #include "cafPdmUiItem.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiListEditor.h"
@@ -152,8 +153,14 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     CAF_PDM_InitFieldNoDefault( &m_objectiveFunction, "ObjectiveFunction", "Objective Function", "", "", "" );
     m_objectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
+    CAF_PDM_InitFieldNoDefault( &m_minDateRange, "MinDateRange", "From", "", "", "" );
+    m_minDateRange.uiCapability()->setUiEditorTypeName( caf::PdmUiDateEditor::uiEditorTypeName() );
+
     CAF_PDM_InitFieldNoDefault( &m_minTimeStep, "MinTimeStep", "From", "", "", "" );
     m_minTimeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_maxDateRange, "MaxDateRange", "To", "", "", "" );
+    m_maxDateRange.uiCapability()->setUiEditorTypeName( caf::PdmUiDateEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_maxTimeStep, "MaxTimeStep", "To", "", "", "" );
     m_maxTimeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
@@ -174,7 +181,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     CAF_PDM_InitFieldNoDefault( &m_curveFilters, "CurveFilters", "Curve Filters", "", "", "" );
     m_curveFilters = new RimEnsembleCurveFilterCollection();
     m_curveFilters->setUiTreeHidden( true );
-    m_curveFilters->setUiTreeChildrenHidden( false );
+    m_curveFilters->uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_statistics, "Statistics", "Statistics", "", "", "" );
     m_statistics = new RimEnsembleStatistics();
@@ -808,6 +815,9 @@ void RimEnsembleCurveSet::updateMaxMinAndDefaultValues()
 {
     std::set<time_t> timeSteps = allAvailableTimeSteps();
 
+    m_minTimeStep = QDateTime( m_minDateRange() ).toSecsSinceEpoch();
+    m_maxTimeStep = QDateTime( m_maxDateRange() ).toSecsSinceEpoch();
+
     m_minTimeStep.uiCapability()->setUiName( RiaQDateTimeTools::fromTime_t( m_minTimeStep() ).toString() );
     m_maxTimeStep.uiCapability()->setUiName( RiaQDateTimeTools::fromTime_t( m_maxTimeStep() ).toString() );
 
@@ -838,7 +848,9 @@ void RimEnsembleCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrdering )
         colorsGroup->add( &m_objectiveValuesSummaryAddressUiField );
         colorsGroup->add( &m_objectiveValuesSelectSummaryAddressPushButton, {false, 1, 0} );
         colorsGroup->add( &m_objectiveFunction );
+        colorsGroup->add( &m_minDateRange );
         colorsGroup->add( &m_minTimeStep );
+        colorsGroup->add( &m_maxDateRange );
         colorsGroup->add( &m_maxTimeStep );
         if ( m_objectiveFunction() == ObjectiveFunction::FunctionType::M2 )
         {
@@ -861,13 +873,10 @@ void RimEnsembleCurveSet::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOr
 
     if ( uiConfigName != RicSummaryPlotEditorUi::CONFIGURATION_NAME )
     {
-        /*
         for ( auto filter : m_curveFilters->filters() )
         {
             uiTreeOrdering.add( filter );
         }
-        */
-        uiTreeOrdering.add( m_curveFilters );
     }
 
     uiTreeOrdering.skipRemainingChildren( true );
