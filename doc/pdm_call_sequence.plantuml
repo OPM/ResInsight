@@ -1,10 +1,17 @@
 @startuml
-PDM -> PdmObject: fieldChangedByUi(changedField, oldValue, newValue)
-note right: Called for changed UI field (by the user)
+PdmUiObjectHandle -> PdmObject: fieldChangedByUi(changedField, oldValue, newValue)
+note right: Called whenever the user manipulates the content of a field from user interface
 
-PDM -> PdmObject: defineUiOrdering(uiOrdering)
-note right: Called each time the view have to be rebuilt, also after UI field change
+PdmUiObjectHandle -> PdmObject: defineUiOrdering(uiOrdering)
+note right: Called each time the property editor have to be rebuilt, also after UI field change. Defines the ordering and layout of fields in the property editor
 
-PDM -> PdmObject: calculateValueOptions(fieldNeedingOptions)
-note right: Called for each visible field
+PdmUiObjectHandle -> PdmObject: calculateValueOptions(fieldNeedingOptions)
+note right: Called for each visible field, used to fill data in combo box or list fields
+
+PdmUiObjectHandle -> PdmObject: userDescriptionField
+note right: Called from the tree view to give name to an object in the tree
+
+PdmUiObjectHandle -> PdmObject: objectToggleField
+note right: If a valid boolean field is returned, a check box is displayed next to the object
+
 @enduml
