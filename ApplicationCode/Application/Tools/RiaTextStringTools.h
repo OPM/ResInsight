@@ -28,5 +28,6 @@ namespace RiaTextStringTools
 {
 bool    compare( const QString& expected, const QString& actual );
 QString trimAndRemoveDoubleSpaces( const QString& s );
-QString findCommonRoot( const QStringList& stringList );
+QString commonRoot( const QStringList& stringList );
+QString trimNonAlphaNumericCharacters( const QString& s );
 } // namespace RiaTextStringTools

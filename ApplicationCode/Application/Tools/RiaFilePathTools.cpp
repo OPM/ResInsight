@@ -192,7 +192,7 @@ QString RiaFilePathTools::commonRootOfFileNames( const QStringList& fileList )
         QString   fileNameWithoutExt = fileInfo.baseName();
         fileNameList.push_back( fileNameWithoutExt );
     }
-    QString root = RiaTextStringTools::findCommonRoot( fileNameList );
+    QString root = RiaTextStringTools::commonRoot( fileNameList );
     return root;
 }
 

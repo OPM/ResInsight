@@ -374,6 +374,22 @@ void RimWellPath::addChildWellPath( RimWellPath* wellPath )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimWellPath*> RimWellPath::childWellPaths() const
+{
+    return m_childWellPaths.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RimWellPath::childWellpathCount() const
+{
+    return m_childWellPaths.size();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimWellPath::hasChildWellPath( RimWellPath* wellPath )
 {
     return m_childWellPaths.count( wellPath ) != 0u;
@@ -385,6 +401,14 @@ bool RimWellPath::hasChildWellPath( RimWellPath* wellPath )
 void RimWellPath::removeChildWellPath( RimWellPath* wellPath )
 {
     m_childWellPaths.removeChildObject( wellPath );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPath::removeAllChildWellPaths()
+{
+    m_childWellPaths.clear();
 }
 
 //--------------------------------------------------------------------------------------------------

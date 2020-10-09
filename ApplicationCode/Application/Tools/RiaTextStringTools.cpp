@@ -60,7 +60,7 @@ QString RiaTextStringTools::trimAndRemoveDoubleSpaces( const QString& s )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaTextStringTools::findCommonRoot( const QStringList& stringList )
+QString RiaTextStringTools::commonRoot( const QStringList& stringList )
 {
     QString root = stringList.front();
     for ( const auto& item : stringList )
@@ -81,4 +81,15 @@ QString RiaTextStringTools::findCommonRoot( const QStringList& stringList )
     }
 
     return root;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaTextStringTools::trimNonAlphaNumericCharacters( const QString& s )
+{
+    QString            trimmedString = s;
+    QRegularExpression trimRe( "[^a-zA-Z0-9]+$" );
+    trimmedString.replace( trimRe, "" );
+    return trimmedString;
 }
