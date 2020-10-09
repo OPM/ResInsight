@@ -614,8 +614,7 @@ bool RifSurfaceImporter::generateTriangleIndices( const std::vector<std::vector<
     unsigned q3 = indexToPointData[topI][j + 0];
     unsigned q4 = indexToPointData[topI][topJ];
 
-    if ( q1 != ( (unsigned)-1 ) && q2 != ( (unsigned)-1 ) && q4 != ( (unsigned)-1 ) && q1 != ( (unsigned)-1 ) &&
-         q4 != ( (unsigned)-1 ) && q3 != ( (unsigned)-1 ) )
+    if ( q1 != ( (unsigned)-1 ) && q2 != ( (unsigned)-1 ) && q3 != ( (unsigned)-1 ) && q4 != ( (unsigned)-1 ) )
     {
         triangleIndices.push_back( q1 );
         triangleIndices.push_back( q2 );
