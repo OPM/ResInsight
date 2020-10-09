@@ -55,13 +55,15 @@ class PdmUiSliderEditorAttribute : public PdmUiEditorAttribute
 public:
     PdmUiSliderEditorAttribute()
     {
-        m_minimum = 0;
-        m_maximum = 10;
+        m_minimum     = 0;
+        m_maximum     = 10;
+        m_showSpinBox = true;
     }
 
 public:
-    int m_minimum;
-    int m_maximum;
+    int  m_minimum;
+    int  m_maximum;
+    bool m_showSpinBox;
 };
 
 class PdmUiSliderEditor : public PdmUiFieldEditorHandle

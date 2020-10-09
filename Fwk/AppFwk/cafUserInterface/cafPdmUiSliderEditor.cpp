@@ -82,6 +82,8 @@ void PdmUiSliderEditor::configureAndUpdateUi( const QString& uiConfigName )
         QString textValue = uiField()->uiValue().toString();
         m_spinBox->setValue( textValue.toInt() );
         m_spinBox->blockSignals( false );
+
+        m_spinBox->setVisible( m_attributes.m_showSpinBox );
     }
 
     {

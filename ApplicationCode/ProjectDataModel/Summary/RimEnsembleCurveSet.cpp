@@ -920,6 +920,18 @@ void RimEnsembleCurveSet::defineEditorAttribute( const caf::PdmFieldHandle* fiel
     {
         attrib->m_buttonText = "...";
     }
+    if ( field == &m_minTimeStep || field == &m_maxTimeStep )
+    {
+        caf::PdmUiSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
+        if ( !myAttr )
+        {
+            return;
+        }
+
+        myAttr->m_minimum     = *allAvailableTimeSteps().begin();
+        myAttr->m_maximum     = *allAvailableTimeSteps().rbegin();
+        myAttr->m_showSpinBox = false;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
