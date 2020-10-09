@@ -54,10 +54,10 @@ ObjectiveFunction::FunctionType ObjectiveFunction::functionType()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectiveFunction::setTimeStepRange( time_t startTime, time_t endTime )
+void ObjectiveFunction::setTimeStepRange( time_t startTimeStep, time_t endTimeStep )
 {
-    m_startTime = startTime;
-    m_endTime   = endTime;
+    m_startTimeStep = startTimeStep;
+    m_endTimeStep   = endTimeStep;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -75,8 +75,8 @@ ObjectiveFunction::ObjectiveFunction( const RimSummaryCaseCollection* summaryCas
 {
     m_summaryCaseCollection = summaryCaseCollection;
     m_functionType          = type;
-    m_startTime             = 0;
-    m_endTime               = 0;
+    m_startTimeStep         = 0;
+    m_endTimeStep           = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -132,7 +132,7 @@ double ObjectiveFunction::value( RimSummaryCase*                 summaryCase,
                             double sumValuesSquared = 0.0;
                             for ( time_t t : timeSteps )
                             {
-                                if ( t >= m_startTime && t <= m_endTime )
+                                if ( t >= m_startTimeStep && t <= m_endTimeStep )
                                 {
                                     const double& value = values[index];
                                     sumValues += std::abs( value );
@@ -192,7 +192,7 @@ double ObjectiveFunction::value( RimSummaryCase*                 summaryCase,
                         std::vector<double> yValues( 2, 0.0 );
                         for ( time_t t : timeSteps )
                         {
-                            if ( t >= m_startTime && t <= m_endTime )
+                            if ( t >= m_startTimeStep && t <= m_endTimeStep )
                             {
                                 if ( xValues.front() == 0 )
                                 {
@@ -278,7 +278,7 @@ std::pair<double, double> ObjectiveFunction::minMaxValues( const RifEclipseSumma
 //--------------------------------------------------------------------------------------------------
 std::pair<time_t, time_t> ObjectiveFunction::range() const
 {
-    return std::make_pair( m_startTime, m_endTime );
+    return std::make_pair( m_startTimeStep, m_endTimeStep );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -70,8 +70,8 @@ public:
 private:
     const RimSummaryCaseCollection* m_summaryCaseCollection;
 
-    time_t              m_startTime;
-    time_t              m_endTime;
+    time_t              m_startTimeStep;
+    time_t              m_endTimeStep;
     std::vector<time_t> m_timeSteps;
     FunctionType        m_functionType;
 };

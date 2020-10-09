@@ -838,6 +838,8 @@ void RimEnsembleCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrdering )
         colorsGroup->add( &m_objectiveValuesSummaryAddressUiField );
         colorsGroup->add( &m_objectiveValuesSelectSummaryAddressPushButton, {false, 1, 0} );
         colorsGroup->add( &m_objectiveFunction );
+        colorsGroup->add( &m_minTimeStep );
+        colorsGroup->add( &m_maxTimeStep );
         if ( m_objectiveFunction() == ObjectiveFunction::FunctionType::M2 )
         {
             colorsGroup->add( &m_timeStepFilter );
