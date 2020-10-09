@@ -1608,9 +1608,8 @@ void RimAnalysisPlot::updatePlotTitle()
                 }
             }
 
-            QString            root = RiaTextStringTools::findCommonRoot( caseNameList );
-            QRegularExpression trimRe( "[^a-zA-Z0-9]+$" );
-            QString            trimmedRoot = root.replace( trimRe, "" );
+            QString root        = RiaTextStringTools::commonRoot( caseNameList );
+            QString trimmedRoot = RiaTextStringTools::trimNonAlphaNumericCharacters( root );
             if ( !trimmedRoot.isEmpty() )
             {
                 autoTitle += trimmedRoot;

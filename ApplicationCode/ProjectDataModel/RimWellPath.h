@@ -92,13 +92,17 @@ public:
 
     RigWellPath*       wellPathGeometry();
     const RigWellPath* wellPathGeometry() const;
+    void               setWellPathGeometry( RigWellPath* wellPathModel );
 
     double startMD() const override;
     double endMD() const override;
 
-    void addChildWellPath( RimWellPath* wellPath );
-    bool hasChildWellPath( RimWellPath* wellPath );
-    void removeChildWellPath( RimWellPath* wellPath );
+    void                      addChildWellPath( RimWellPath* wellPath );
+    std::vector<RimWellPath*> childWellPaths() const;
+    size_t                    childWellpathCount() const;
+    bool                      hasChildWellPath( RimWellPath* wellPath );
+    void                      removeChildWellPath( RimWellPath* wellPath );
+    void                      removeAllChildWellPaths();
 
     void                         addWellLogFile( RimWellLogFile* logFileInfo );
     void                         deleteWellLogFile( RimWellLogFile* logFileInfo );
@@ -159,8 +163,6 @@ protected:
     void                          initAfterRead() override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
-
-    void setWellPathGeometry( RigWellPath* wellPathModel );
 
     // Fields
 protected:

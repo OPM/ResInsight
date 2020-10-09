@@ -250,7 +250,7 @@ void RimParameterResultCrossPlot::createPoints()
             if ( !( parameter.isNumeric() && parameter.isValid() ) ) return;
 
             QStringList caseNames      = caseNamesOfValidEnsembleCases( ensemble );
-            QString     commonCaseRoot = RiaTextStringTools::findCommonRoot( caseNames );
+            QString     commonCaseRoot = RiaTextStringTools::commonRoot( caseNames );
 
             for ( size_t caseIdx = 0u; caseIdx < ensemble->allSummaryCases().size(); ++caseIdx )
             {

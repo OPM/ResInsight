@@ -22,6 +22,8 @@
 #include "cvfGeometryTools.h"
 #include "cvfPlane.h"
 
+#include <algorithm>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -348,27 +350,67 @@ double RigWellPath::identicalTubeLength( const RigWellPath& other ) const
 {
     const double eps = 1.0e-8;
 
-    size_t minimumVertices = std::min( m_wellPathPoints.size(), other.wellPathPoints().size() );
-    if ( minimumVertices < 2u ) return 0.0;
+    size_t minimumVertexCount = std::min( m_wellPathPoints.size(), other.wellPathPoints().size() );
+    if ( minimumVertexCount < 2u ) return 0.0;
 
-    size_t minimumSegments = minimumVertices - 1u;
-
-    double identicalMD = 0.0;
-    for ( size_t segmentIndex = 0; segmentIndex < minimumSegments; ++segmentIndex )
+    double identicalLength = 0.0;
+    if ( ( m_wellPathPoints.front() - other.wellPathPoints().front() ).length() < eps )
     {
-        size_t vIndex1 = segmentIndex;
-        size_t vIndex2 = segmentIndex + 1u;
-        if ( ( m_wellPathPoints[vIndex1] - other.wellPathPoints()[vIndex1] ).length() < eps &&
-             ( m_wellPathPoints[vIndex2] - other.wellPathPoints()[vIndex2] ).length() < eps )
+        for ( size_t vIndex = 1; vIndex < minimumVertexCount; ++vIndex )
         {
-            identicalMD = m_measuredDepths[vIndex2];
+            if ( ( m_wellPathPoints[vIndex] - other.wellPathPoints()[vIndex] ).length() < eps )
+            {
+                identicalLength = m_measuredDepths[vIndex];
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+    return identicalLength;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigWellPath RigWellPath::commonGeometry( const std::vector<const RigWellPath*>& allGeometries )
+{
+    const double eps = 1.0e-8;
+
+    if ( allGeometries.empty() )
+        return RigWellPath();
+    else if ( allGeometries.size() == 1u )
+        return *allGeometries.front();
+
+    const RigWellPath* firstGeometry = allGeometries.front();
+
+    std::vector<cvf::Vec3d> commonWellPathPoints;
+    std::vector<double>     commonMDs;
+
+    for ( size_t vIndex = 0u; vIndex < firstGeometry->wellPathPoints().size(); ++vIndex )
+    {
+        const cvf::Vec3d& firstGeometryVertex = firstGeometry->wellPathPoints()[vIndex];
+
+        bool allMatches = std::all_of( allGeometries.begin() + 1, allGeometries.end(), [=]( const RigWellPath* geometry ) {
+            if ( geometry->wellPathPoints().size() > vIndex )
+            {
+                return ( firstGeometryVertex - geometry->wellPathPoints()[vIndex] ).length() < eps;
+            }
+            return false;
+        } );
+
+        if ( allMatches )
+        {
+            commonWellPathPoints.push_back( firstGeometryVertex );
+            commonMDs.push_back( firstGeometry->measuredDepths()[vIndex] );
         }
         else
         {
             break;
         }
     }
-    return identicalMD;
+    return RigWellPath( commonWellPathPoints, commonMDs );
 }
 
 //--------------------------------------------------------------------------------------------------

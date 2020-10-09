@@ -25,6 +25,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
+#include "RiaTextStringTools.h"
 #include "RiaWellNameComparer.h"
 
 #include "RigEclipseCaseData.h"
@@ -269,6 +270,7 @@ void RimWellPathCollection::addWellPath( gsl::not_null<RimWellPath*> wellPath )
     if ( mainWellPath )
     {
         mainWellPath->addChildWellPath( wellPath );
+        createWellPathBranchFromExistingWellPath( mainWellPath );
     }
     else
     {
@@ -683,6 +685,39 @@ bool lessWellPath( const caf::PdmPointer<RimWellPath>& w1, const caf::PdmPointer
 void RimWellPathCollection::sortWellsByName()
 {
     std::sort( m_wellPaths.begin(), m_wellPaths.end(), lessWellPath );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::createWellPathBranchFromExistingWellPath( RimWellPath* wellPath )
+{
+    if ( wellPath->childWellpathCount() > 0u )
+    {
+        auto childCopy = static_cast<RimWellPath*>(
+            wellPath->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+
+        childCopy->setWellPathGeometry( wellPath->wellPathGeometry() );
+        wellPath->setWellPathGeometry( nullptr );
+
+        childCopy->removeAllChildWellPaths();
+        wellPath->addChildWellPath( childCopy );
+
+        std::vector<const RigWellPath*> allGeometries;
+        QStringList                     allNames;
+        for ( const auto& childWellPath : wellPath->childWellPaths() )
+        {
+            allGeometries.push_back( childWellPath->wellPathGeometry() );
+            allNames.push_back( childWellPath->name() );
+        }
+
+        cvf::ref<RigWellPath> commonGeometry    = new RigWellPath( RigWellPath::commonGeometry( allGeometries ) );
+        QString               commonName        = RiaTextStringTools::commonRoot( allNames );
+        QString               trimmedCommonName = RiaTextStringTools::trimNonAlphaNumericCharacters( commonName );
+
+        wellPath->setWellPathGeometry( commonGeometry.p() );
+        wellPath->setName( trimmedCommonName );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
