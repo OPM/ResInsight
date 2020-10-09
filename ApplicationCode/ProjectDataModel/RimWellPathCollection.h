@@ -135,6 +135,7 @@ private:
     void readAndAddWellPaths( std::vector<RimFileWellPath*>& wellPathArray );
     void sortWellsByName();
 
+    void         createWellPathBranchFromExistingWellPath( RimWellPath* wellPath );
     RimWellPath* findSuitableParentWellPath( gsl::not_null<const RimWellPath*> wellPath ) const;
 
     RiaEclipseUnitTools::UnitSystemType findUnitSystemForWellPath( const RimWellPath* wellPath );
