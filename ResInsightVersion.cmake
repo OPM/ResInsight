@@ -4,7 +4,7 @@ set(RESINSIGHT_MINOR_VERSION 10)
 set(RESINSIGHT_PATCH_VERSION 0)
 
 # Opional text with no restrictions
-set(RESINSIGHT_VERSION_TEXT "-RC02")
+set(RESINSIGHT_VERSION_TEXT "-RC03")
 
 # Optional text
 # Must be unique and increasing within one combination of major/minor/patch version 
