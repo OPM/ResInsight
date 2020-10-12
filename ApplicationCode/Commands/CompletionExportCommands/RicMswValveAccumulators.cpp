@@ -62,7 +62,7 @@ bool RicMswICDAccumulator::accumulateValveParameters( const RimWellPathValve* we
         double icdOrificeRadius = wellPathValve->orificeDiameter( m_unitSystem ) / 2;
         double icdArea          = icdOrificeRadius * icdOrificeRadius * cvf::PI_D;
 
-        m_areaSum += icdArea * combinedFraction;
+        m_areaSum += icdArea;
         m_coefficientCalculator.addValueAndWeight( wellPathValve->flowCoefficient(), icdArea * combinedFraction );
         return true;
     }
