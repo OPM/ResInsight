@@ -690,6 +690,7 @@ std::vector<WellPathCellIntersectionInfo>
 
     RigSimulationWellCoordsAndMD helper( pathCoords );
     return RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath( eclipseCaseData,
+                                                                             "",
                                                                              helper.wellPathPoints(),
                                                                              helper.measuredDepths() );
 }

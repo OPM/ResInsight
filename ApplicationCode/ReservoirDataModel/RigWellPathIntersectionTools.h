@@ -21,6 +21,8 @@
 #include "cvfBoundingBox.h"
 #include "cvfVector3.h"
 
+#include <QString>
+
 #include <array>
 
 class RigWellPath;
@@ -42,6 +44,7 @@ class RigWellPathIntersectionTools
 public:
     static std::vector<WellPathCellIntersectionInfo>
         findCellIntersectionInfosAlongPath( const RigEclipseCaseData*      caseData,
+                                            const QString&                 wellPathName,
                                             const std::vector<cvf::Vec3d>& pathCoords,
                                             const std::vector<double>&     pathMds );
 

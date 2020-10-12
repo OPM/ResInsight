@@ -311,6 +311,20 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
 
 void RigWellLogExtractor::appendIntersectionToArrays( double measuredDepth, const HexIntersectionInfo& intersection )
 {
+    if ( !m_intersectionMeasuredDepths.empty() && measuredDepth < m_intersectionMeasuredDepths.back() )
+    {
+        RiaLogging::warning(
+            QString( "Well Log Extraction : %1 does not have a monotonously increasing measured depth." )
+                .arg( QString::fromStdString( m_wellCaseErrorMsgName ) ) );
+        // Allow alterations of up to 0.1 percent as long as we keep the measured depth monotonously increasing.
+        const double tolerance = std::max( 1.0, measuredDepth ) * 1.0e-3;
+        if ( RigWellLogExtractionTools::isEqualDepth( measuredDepth, m_intersectionMeasuredDepths.back(), tolerance ) )
+        {
+            RiaLogging::warning( "The well path has been slightly adjusted" );
+            measuredDepth = m_intersectionMeasuredDepths.back();
+        }
+    }
+
     m_intersectionMeasuredDepths.push_back( measuredDepth );
     m_intersectionTVDs.push_back( fabs( intersection.m_intersectionPoint[2] ) );
     m_intersections.push_back( intersection.m_intersectionPoint );

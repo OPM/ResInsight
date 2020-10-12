@@ -1181,6 +1181,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::gener
 
             std::vector<WellPathCellIntersectionInfo> intersectedCells =
                 RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath( settings.caseToApply->eclipseCaseData(),
+                                                                                  wellPath->name(),
                                                                                   perforationPointsAndMD.first,
                                                                                   perforationPointsAndMD.second );
 
@@ -1666,7 +1667,7 @@ std::pair<double, cvf::Vec2i>
     CVF_ASSERT( !coords.empty() && !mds.empty() );
 
     std::vector<WellPathCellIntersectionInfo> intersections =
-        RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath( caseData, coords, mds );
+        RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath( caseData, wellPath->name(), coords, mds );
 
     int gridId = 0;
 

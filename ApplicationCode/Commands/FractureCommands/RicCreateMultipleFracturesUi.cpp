@@ -431,6 +431,7 @@ std::vector<MultipleFracturesOption>
 
     std::vector<WellPathCellIntersectionInfo> wellPathInfos =
         RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath( caseData,
+                                                                          wellPath->name(),
                                                                           wellPathGeometry->wellPathPoints(),
                                                                           wellPathGeometry->measureDepths() );
     std::reverse( wellPathInfos.begin(), wellPathInfos.end() );

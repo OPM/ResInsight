@@ -169,6 +169,7 @@ private:
     static void moveIntersectionsToSuperICDsOrAICDs( MainBoreSegments mainBoreSegments );
 
     static void assignFishbonesLateralIntersections( const RimEclipseCase*           caseToApply,
+                                                     const RimWellPath*              wellPath,
                                                      const RimFishbonesMultipleSubs* fishbonesSubs,
                                                      std::shared_ptr<RicMswSegment>  segment,
                                                      bool*                           foundSubGridIntersections,

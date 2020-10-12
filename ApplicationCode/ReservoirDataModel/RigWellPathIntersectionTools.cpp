@@ -35,6 +35,7 @@
 //--------------------------------------------------------------------------------------------------
 std::vector<WellPathCellIntersectionInfo>
     RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath( const RigEclipseCaseData*      caseData,
+                                                                      const QString&                 wellPathName,
                                                                       const std::vector<cvf::Vec3d>& pathCoords,
                                                                       const std::vector<double>&     pathMds )
 {
@@ -46,10 +47,10 @@ std::vector<WellPathCellIntersectionInfo>
     dummyWellPath->m_wellPathPoints     = pathCoords;
     dummyWellPath->m_measuredDepths     = pathMds;
 
+    std::string errorIdName = ( wellPathName + " " + caseData->ownerCase()->caseUserDescription() ).toStdString();
+
     cvf::ref<RigEclipseWellLogExtractor> extractor =
-        new RigEclipseWellLogExtractor( caseData,
-                                        dummyWellPath.p(),
-                                        caseData->ownerCase()->caseUserDescription().toStdString() );
+        new RigEclipseWellLogExtractor( caseData, dummyWellPath.p(), errorIdName );
 
     return extractor->cellIntersectionInfosAlongWellPath();
 }
