@@ -314,6 +314,10 @@ void RimDerivedSummaryCase::createSummaryReaderInterface()
 //--------------------------------------------------------------------------------------------------
 RifSummaryReaderInterface* RimDerivedSummaryCase::summaryReader()
 {
+    if ( !m_reader )
+    {
+        createSummaryReaderInterface();
+    }
     return m_reader.get();
 }
 
