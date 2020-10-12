@@ -445,9 +445,7 @@ void RimProject::setProjectFileNameAndUpdateDependencies( const QString& project
     QFileInfo fileInfoOld( oldProjectFileName );
     QString   oldProjectPath = fileInfoOld.path();
 
-    std::vector<caf::FilePath*> filePaths;
-    fieldContentsByType( this, filePaths );
-
+    std::vector<caf::FilePath*> filePaths = allFilePaths();
     for ( caf::FilePath* filePath : filePaths )
     {
         bool                 foundFile = false;
@@ -1345,6 +1343,17 @@ RimPlotTemplateFolderItem* RimProject::rootPlotTemlateItem() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<caf::FilePath*> RimProject::allFilePaths() const
+{
+    std::vector<caf::FilePath*> filePaths;
+    fieldContentsByType( this, filePaths );
+
+    return filePaths;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimProject::reloadCompletionTypeResultsForEclipseCase( RimEclipseCase* eclipseCase )
 {
     std::vector<Rim3dView*> views = eclipseCase->views();
@@ -1629,9 +1638,7 @@ void RimProject::transferPathsToGlobalPathList()
 {
     GlobalPathListMapper pathListMapper( m_globalPathList() );
 
-    std::vector<caf::FilePath*> filePaths;
-    fieldContentsByType( this, filePaths );
-
+    std::vector<caf::FilePath*> filePaths = allFilePaths();
     for ( caf::FilePath* filePath : filePaths )
     {
         QString path = filePath->path();
@@ -1652,9 +1659,7 @@ void RimProject::distributePathsFromGlobalPathList()
 {
     GlobalPathListMapper pathListMapper( m_globalPathList() );
 
-    std::vector<caf::FilePath*> filePaths;
-    fieldContentsByType( this, filePaths );
-
+    std::vector<caf::FilePath*> filePaths = allFilePaths();
     for ( caf::FilePath* filePath : filePaths )
     {
         QString     pathIdCandidate  = filePath->path().trimmed();
