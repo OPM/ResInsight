@@ -190,6 +190,8 @@ public:
 
     RimPlotTemplateFolderItem* rootPlotTemlateItem() const;
 
+    std::vector<caf::FilePath*> allFilePaths() const;
+
 protected:
     // Overridden methods
     void initAfterRead() override;
@@ -199,7 +201,7 @@ protected:
 
 private:
     template <typename T>
-    void fieldContentsByType( caf::PdmObjectHandle* object, std::vector<T*>& fieldContents );
+    static void fieldContentsByType( const caf::PdmObjectHandle* object, std::vector<T*>& fieldContents );
 
     void transferPathsToGlobalPathList();
     void distributePathsFromGlobalPathList();
@@ -233,7 +235,7 @@ private:
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-void RimProject::fieldContentsByType( caf::PdmObjectHandle* object, std::vector<T*>& fieldContents )
+void RimProject::fieldContentsByType( const caf::PdmObjectHandle* object, std::vector<T*>& fieldContents )
 {
     if ( !object ) return;
 

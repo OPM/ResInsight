@@ -23,6 +23,7 @@
 #include "RiaImageCompareReporter.h"
 #include "RiaImageFileCompare.h"
 #include "RiaLogging.h"
+#include "RiaProjectModifier.h"
 #include "RiaRegressionTest.h"
 #include "RiaTextFileCompare.h"
 
@@ -194,9 +195,17 @@ void RiaRegressionTestRunner::runRegressionTest()
 
             if ( !projectFileName.isEmpty() )
             {
+                cvf::ref<RiaProjectModifier> projectModifier;
+                if ( regressionTestConfig.makeExternalIncludePathsInvalid )
+                {
+                    projectModifier = new RiaProjectModifier;
+                    projectModifier->setInvalidateExternalPaths();
+                }
                 logInfoTextWithTimeInSeconds( timeStamp, "Initializing test :" + testCaseFolder.absolutePath() );
 
-                app->loadProject( testCaseFolder.filePath( projectFileName ) );
+                app->loadProject( testCaseFolder.filePath( projectFileName ),
+                                  RiaApplication::ProjectLoadAction::PLA_NONE,
+                                  projectModifier.p() );
 
                 // Wait until all command objects have completed
                 app->waitUntilCommandObjectsHasBeenProcessed();
