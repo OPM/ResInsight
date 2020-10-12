@@ -97,6 +97,10 @@ void RimObservedEclipseUserData::createSummaryReaderInterface()
 //--------------------------------------------------------------------------------------------------
 RifSummaryReaderInterface* RimObservedEclipseUserData::summaryReader()
 {
+    if ( m_summeryReader.isNull() )
+    {
+        createSummaryReaderInterface();
+    }
     return m_summeryReader.p();
 }
 

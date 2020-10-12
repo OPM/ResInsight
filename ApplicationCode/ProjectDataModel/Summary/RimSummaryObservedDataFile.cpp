@@ -60,5 +60,9 @@ void RimSummaryObservedDataFile::createSummaryReaderInterface()
 //--------------------------------------------------------------------------------------------------
 RifSummaryReaderInterface* RimSummaryObservedDataFile::summaryReader()
 {
+    if ( m_summaryReader.isNull() )
+    {
+        createSummaryReaderInterface();
+    }
     return m_summaryReader.p();
 }

@@ -105,6 +105,10 @@ void RimEnsembleStatisticsCase::createSummaryReaderInterface()
 //--------------------------------------------------------------------------------------------------
 RifSummaryReaderInterface* RimEnsembleStatisticsCase::summaryReader()
 {
+    if ( !m_statisticsReader )
+    {
+        createSummaryReaderInterface();
+    }
     return m_statisticsReader.get();
 }
 

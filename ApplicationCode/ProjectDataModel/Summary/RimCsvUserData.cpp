@@ -78,6 +78,10 @@ void RimCsvUserData::createSummaryReaderInterface()
 //--------------------------------------------------------------------------------------------------
 RifSummaryReaderInterface* RimCsvUserData::summaryReader()
 {
+    if ( m_summaryReader.isNull() )
+    {
+        createSummaryReaderInterface();
+    }
     return m_summaryReader.p();
 }
 
