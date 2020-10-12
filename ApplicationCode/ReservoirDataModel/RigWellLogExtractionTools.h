@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include <QDebug>
-
 #include <algorithm>
 #include <cmath>
 
