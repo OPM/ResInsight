@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017- Statoil ASA
+//  Copyright (C) 2020 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,88 +18,60 @@
 
 #pragma once
 
+#include "RimObjectiveFunction.h"
+
 #include "RifEclipseSummaryAddress.h"
 #include "RifEclipseSummaryAddressQMetaType.h"
-
-#include "RimObjectiveFunction.h"
+#include "RifSummaryReaderInterface.h"
 
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
 
-class EnsembleParameter;
+#include <QString>
+
 class RimEnsembleCurveSet;
 class RimSummaryCase;
 class RimSummaryAddress;
-class RimSummaryPlot;
-class RimEnsembleCurveFilterCollection;
+class RimCustomObjectiveFunction;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RimEnsembleCurveFilter : public caf::PdmObject
+class RimCustomObjectiveFunctionWeight : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum class FilterMode
-    {
-        BY_ENSEMBLE_PARAMETER = 0,
-        BY_OBJECTIVE_FUNCTION
-    };
+    RimCustomObjectiveFunctionWeight();
 
-    RimEnsembleCurveFilter();
-    RimEnsembleCurveFilter( const QString& ensembleParameterName );
+    QString                         title() const;
+    void                            setSummaryAddress( RifEclipseSummaryAddress address );
+    RifEclipseSummaryAddress        summaryAddress() const;
+    ObjectiveFunction::FunctionType objectiveFunction() const;
+    double                          weightValue() const;
 
-    bool                     isActive() const;
-    double                   minValue() const;
-    double                   maxValue() const;
-    std::set<QString>        categories() const;
-    QString                  ensembleParameterName() const;
-    QString                  filterId() const;
-    QString                  description() const;
-    RifEclipseSummaryAddress summaryAddress() const;
-    void                     setSummaryAddress( RifEclipseSummaryAddress address );
+    RimEnsembleCurveSet* parentCurveSet() const;
+
+private:
+    caf::PdmFieldHandle* userDescriptionField() override;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    caf::PdmFieldHandle*          userDescriptionField() override;
-    void                          updateIcon();
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                          QString                    uiConfigName,
                                                          caf::PdmUiEditorAttribute* attribute ) override;
 
-    std::vector<RimSummaryCase*> applyFilter( const std::vector<RimSummaryCase*>& allSumCases );
-
-    void              loadDataAndUpdate();
-    EnsembleParameter selectedEnsembleParameter() const;
-
-    RimEnsembleCurveSet* parentCurveSet() const;
-
-protected:
-    caf::PdmFieldHandle* objectToggleField() override;
+    RimCustomObjectiveFunction* parentObjectiveFunction() const;
 
 private:
-    RimEnsembleCurveFilterCollection* parentCurveFilterCollection() const;
-    void                              updateMaxMinAndDefaultValues( bool forceDefault );
-
-private:
-    caf::PdmProxyValueField<QString>                             m_filterTitle;
-    caf::PdmField<bool>                                          m_active;
-    caf::PdmField<bool>                                          m_deleteButton;
-    caf::PdmField<caf::AppEnum<FilterMode>>                      m_filterMode;
-    caf::PdmField<QString>                                       m_ensembleParameterName;
+    caf::PdmProxyValueField<QString>                             m_title;
     caf::PdmChildField<RimSummaryAddress*>                       m_objectiveValuesSummaryAddress;
     caf::PdmField<RifEclipseSummaryAddress>                      m_objectiveValuesSummaryAddressUiField;
     caf::PdmField<bool>                                          m_objectiveValuesSelectSummaryAddressPushButton;
     caf::PdmField<caf::AppEnum<ObjectiveFunction::FunctionType>> m_objectiveFunction;
-    caf::PdmField<double>                                        m_minValue;
-    caf::PdmField<double>                                        m_maxValue;
-    caf::PdmField<std::vector<QString>>                          m_categories;
-
-    double m_lowerLimit;
-    double m_upperLimit;
+    caf::PdmField<double>                                        m_weightValue;
 };

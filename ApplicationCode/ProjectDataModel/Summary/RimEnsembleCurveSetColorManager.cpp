@@ -19,8 +19,10 @@
 #include "RimEnsembleCurveSetColorManager.h"
 
 #include "RiaColorTables.h"
+#include "RimCustomObjectiveFunction.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
+#include "RimObjectiveFunction.h"
 
 #include "RimRegularLegendConfig.h"
 #include "cvfScalarMapper.h"
@@ -38,6 +40,9 @@ void AppEnum<RimEnsembleCurveSetColorManager::ColorMode>::setUp()
     addItem( RimEnsembleCurveSetColorManager::ColorMode::BY_OBJECTIVE_FUNCTION,
              "BY_OBJECTIVE_FUNCTION",
              "By Objective Function" );
+    addItem( RimEnsembleCurveSetColorManager::ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION,
+             "BY_CUSTOM_OBJECTIVE_FUNCTION",
+             "By Custom Objective Function" );
     setDefault( RimEnsembleCurveSetColorManager::ColorMode::SINGLE_COLOR );
 }
 } // namespace caf
@@ -150,6 +155,28 @@ void RimEnsembleCurveSetColorManager::initializeLegendConfig( RimRegularLegendCo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSetColorManager::initializeLegendConfig( RimRegularLegendConfig*                     legendConfig,
+                                                              caf::PdmPointer<RimCustomObjectiveFunction> customObjectiveFunction,
+                                                              const RifEclipseSummaryAddress& vectorSummaryAddress )
+{
+    double minValue = std::numeric_limits<double>::infinity();
+    double maxValue = -std::numeric_limits<double>::infinity();
+
+    for ( auto value : customObjectiveFunction->values() )
+    {
+        if ( value != std::numeric_limits<double>::infinity() )
+        {
+            if ( value < minValue ) minValue = value;
+            if ( value > maxValue ) maxValue = value;
+        }
+    }
+
+    legendConfig->setAutomaticRanges( minValue, maxValue, minValue, maxValue );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::Color3f RimEnsembleCurveSetColorManager::caseColor( const RimRegularLegendConfig* legendConfig,
                                                          const RimSummaryCase*         summaryCase,
                                                          const EnsembleParameter&      ensembleParam )
@@ -188,6 +215,22 @@ cvf::Color3f RimEnsembleCurveSetColorManager::caseColor( const RimRegularLegendC
                                                          const RifEclipseSummaryAddress&    vectorSummaryAddress )
 {
     double value = objectiveFunction->value( summaryCase, vectorSummaryAddress );
+    if ( value != std::numeric_limits<double>::infinity() )
+    {
+        return cvf::Color3f( legendConfig->scalarMapper()->mapToColor( value ) );
+    }
+    return RiaColorTables::undefinedCellColor();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimEnsembleCurveSetColorManager::caseColor( const RimRegularLegendConfig*               legendConfig,
+                                                         RimSummaryCase*                             summaryCase,
+                                                         caf::PdmPointer<RimCustomObjectiveFunction> customObjectiveFunction,
+                                                         const RifEclipseSummaryAddress& vectorSummaryAddress )
+{
+    double value = customObjectiveFunction->value( summaryCase );
     if ( value != std::numeric_limits<double>::infinity() )
     {
         return cvf::Color3f( legendConfig->scalarMapper()->mapToColor( value ) );

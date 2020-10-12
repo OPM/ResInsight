@@ -223,6 +223,9 @@
         <file>Refresh.svg</file>
         <file>FilterFunction.svg</file>
         <file>FilterParameter.svg</file>
+        <file>ObjectiveFunction.svg</file>
+        <file>ObjectiveFunctionCollection.svg</file>
+        <file>ObjectiveFunctionWeight.svg</file>
     </qresource>
     <qresource prefix="/Shader">
         <file>fs_CellFace.glsl</file>

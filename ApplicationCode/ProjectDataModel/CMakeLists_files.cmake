@@ -167,6 +167,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RimFractureModelStressCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimAbstractPlotCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureModelPropertyCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimFaciesProperties.h
+${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunctionCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunction.h
+${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunctionWeight.h
 )
 
 
@@ -336,6 +339,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RimElasticPropertiesCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimLayerCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureModelStressCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimFaciesProperties.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunctionCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunction.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunctionWeight.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

@@ -183,9 +183,27 @@ QString RimEnsembleCurveFilter::description() const
     }
     else if ( m_filterMode() == FilterMode::BY_OBJECTIVE_FUNCTION )
     {
-        descriptor = QString( "%0" ).arg( m_objectiveFunction().text() );
+        descriptor = QString( "%0::%1" )
+                         .arg( m_objectiveFunction().text() )
+                         .arg( QString::fromStdString( m_objectiveValuesSummaryAddressUiField().quantityName() ) );
     }
     return QString( "%0 : %1 - %2" ).arg( descriptor ).arg( QString::number( m_minValue() ) ).arg( QString::number( m_maxValue() ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddress RimEnsembleCurveFilter::summaryAddress() const
+{
+    return m_objectiveValuesSummaryAddress->address();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveFilter::setSummaryAddress( RifEclipseSummaryAddress address )
+{
+    m_objectiveValuesSummaryAddress->setAddress( address );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -228,7 +246,6 @@ QList<caf::PdmOptionItemInfo>
     else if ( fieldNeedingOptions == &m_objectiveValuesSummaryAddressUiField )
     {
         parentCurveSet()->appendOptionItemsForSummaryAddresses( &options, parentCurveSet()->summaryCaseCollection() );
-        m_objectiveValuesSummaryAddress->setAddress( parentCurveSet()->summaryAddress() );
         m_objectiveValuesSummaryAddressUiField.setValue( m_objectiveValuesSummaryAddress->address() );
     }
 
@@ -334,6 +351,8 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
 
         m_objectiveValuesSelectSummaryAddressPushButton = false;
     }
+
+    parentCurveSet()->updateFilterLegend();
 }
 
 //--------------------------------------------------------------------------------------------------

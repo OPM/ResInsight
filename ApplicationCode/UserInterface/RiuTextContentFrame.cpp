@@ -69,9 +69,11 @@ QSize RiuTextContentFrame::minimumSizeHint() const
 {
     LayoutInfo layout( QSize( 200, 100 ) ); // Use default size
     layoutInfo( &layout );
-
-    QFontMetrics fontMetrics( this->font() );
+    QFont titleFont = this->font();
+    titleFont.setBold( true );
+    QFontMetrics fontMetrics( titleFont );
     QRect titleRect = fontMetrics.boundingRect( QRect( 0, 0, 300, 200 ), Qt::AlignLeft | Qt::TextWordWrap, m_title );
+    fontMetrics     = QFontMetrics( this->font() );
     QRect textRect  = fontMetrics.boundingRect( QRect( 0, 0, 300, 200 ), Qt::AlignLeft | Qt::TextWordWrap, m_text );
 
     int preferredContentHeight = titleRect.height() + layout.lineSpacing + textRect.height();
