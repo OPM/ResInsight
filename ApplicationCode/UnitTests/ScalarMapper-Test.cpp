@@ -6,6 +6,7 @@
 
 #include "RiaOffshoreSphericalCoords.h"
 #include "cafTickMarkGenerator.h"
+#include "cvfGeometryTools.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -322,4 +323,50 @@ TEST( Tensor, TensorAddScale )
     EXPECT_NEAR( 1.35f, newT[caf::Ten3f::SXY], 1e-4 );
     EXPECT_NEAR( 1.35f, newT[caf::Ten3f::SZX], 1e-4 );
     EXPECT_NEAR( 1.35f, newT[caf::Ten3f::SYZ], 1e-4 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( Tensor, TensorTestRotationMatrix )
+{
+    {
+        cvf::Vec3f vec1 = cvf::Vec3f::X_AXIS;
+        cvf::Vec3f vec2 = cvf::Vec3f::Z_AXIS;
+
+        cvf::Mat3f triangleXf = cvf::GeometryTools::computePlaneHorizontalRotationMx( vec1, vec2 );
+
+        float ipT11 = 11;
+        float ipT22 = 22;
+        float ipT33 = 33;
+        float ipT12 = 12;
+        float ipT23 = 23;
+        float ipT13 = 13;
+
+        caf::Ten3f tensor( ipT11, ipT22, ipT33, ipT12, ipT23, ipT13 );
+        caf::Ten3f xfTen = tensor.rotated( triangleXf );
+
+        auto szz = xfTen[caf::Ten3f::SZZ];
+        EXPECT_NEAR( ipT22, szz, 1e-4 );
+    }
+
+    {
+        cvf::Vec3f vec1 = cvf::Vec3f::Y_AXIS;
+        cvf::Vec3f vec2 = cvf::Vec3f::Z_AXIS;
+
+        cvf::Mat3f triangleXf = cvf::GeometryTools::computePlaneHorizontalRotationMx( vec1, vec2 );
+
+        float ipT11 = 11;
+        float ipT22 = 22;
+        float ipT33 = 33;
+        float ipT12 = 12;
+        float ipT23 = 23;
+        float ipT13 = 13;
+
+        caf::Ten3f tensor( ipT11, ipT22, ipT33, ipT12, ipT23, ipT13 );
+        caf::Ten3f xfTen = tensor.rotated( triangleXf );
+
+        auto szz = xfTen[caf::Ten3f::SZZ];
+        EXPECT_NEAR( ipT11, szz, 1e-4 );
+    }
 }
