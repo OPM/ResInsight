@@ -660,7 +660,9 @@ void PdmUiTreeViewItemDelegate::paint( QPainter* painter, const QStyleOptionView
     // Save painter so we can restore it
     painter->save();
 
-    QRect rect     = option.rect;
+    QRect  rect   = option.rect;
+    QPoint center = rect.center();
+
     QSize fullSize = rect.size();
 
     QPoint offset( 0, 0 );
@@ -676,15 +678,15 @@ void PdmUiTreeViewItemDelegate::paint( QPainter* painter, const QStyleOptionView
             QRect iconRect;
             if ( tag->position == PdmUiTreeViewItemAttribute::Tag::AT_END )
             {
-                QPoint bottomRight = rect.bottomRight() - offset;
-                QPoint topLeft     = bottomRight - QPoint( iconSize.width(), iconSize.height() );
-                iconRect           = QRect( topLeft, bottomRight );
+                QPoint bottomRight( rect.bottomRight().x() - offset.x(), center.y() + iconSize.height() / 2 );
+                QPoint topLeft( bottomRight.x() - iconSize.width(), bottomRight.y() - iconSize.height() );
+                iconRect = QRect( topLeft, bottomRight );
             }
             else
             {
-                QPoint topLeft     = rect.topLeft() + offset;
-                QPoint bottomRight = topLeft + QPoint( iconSize.width(), iconSize.height() );
-                iconRect           = QRect( topLeft, bottomRight );
+                QPoint topLeft( rect.topLeft().x() + offset.x(), center.y() - iconSize.height() / 2 );
+                QPoint bottomRight( topLeft.x() + iconSize.width(), topLeft.y() + iconSize.height() );
+                iconRect = QRect( topLeft, bottomRight );
             }
             offset += QPoint( iconSize.width() + 2, 0 );
             icon->paint( painter, iconRect );
