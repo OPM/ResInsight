@@ -91,24 +91,22 @@ private:
                                       double                     maxSegmentLength );
 
     static void writeMainBoreWelsegsSegment( std::shared_ptr<RicMswSegment> segment,
+                                             std::shared_ptr<RicMswSegment> previousSegment,
                                              RifTextDataTableFormatter&     formatter,
                                              const RicMswExportInfo&        exportInfo,
                                              double                         maxSegmentLength,
-                                             int*                           segmentNumber,
-                                             double*                        prevMD,
-                                             double*                        prevTVD );
-    static void writeValveWelsegsSegment( std::shared_ptr<RicMswValve> valve,
-                                          RifTextDataTableFormatter&   formatter,
-                                          const RicMswExportInfo&      exportInfo,
-                                          double                       maxSegmentLength,
-                                          int                          mainSegmentNumber,
-                                          int*                         segmentNumber );
+                                             int*                           segmentNumber );
+    static void writeValveWelsegsSegment( std::shared_ptr<RicMswSegment> segment,
+                                          std::shared_ptr<RicMswValve>   valve,
+                                          RifTextDataTableFormatter&     formatter,
+                                          const RicMswExportInfo&        exportInfo,
+                                          double                         maxSegmentLength,
+                                          int*                           segmentNumber );
     static void writeCompletionWelsegsSegment( std::shared_ptr<RicMswSegment>    segment,
                                                std::shared_ptr<RicMswCompletion> completion,
                                                RifTextDataTableFormatter&        formatter,
                                                const RicMswExportInfo&           exportInfo,
                                                double                            maxSegmentLength,
-                                               int                               mainSegmentNumber,
                                                int*                              segmentNumber );
 
     static void generateWelsegsSegments( RifTextDataTableFormatter&                         formatter,
