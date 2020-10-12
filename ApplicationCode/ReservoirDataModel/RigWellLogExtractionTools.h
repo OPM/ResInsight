@@ -18,20 +18,23 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
+#include <QDebug>
+
+#include <algorithm>
 #include <cmath>
 
 //==================================================================================================
 ///
+/// Default tolerance is 0.1 meters to handle inaccuracies across faults
 ///
 //==================================================================================================
 
 struct RigWellLogExtractionTools
 {
-    static bool isEqualDepth( double d1, double d2 )
+    static bool isEqualDepth( double d1, double d2, const double tolerance = 0.1 )
     {
         double depthDiff = d1 - d2;
-
-        const double tolerance = 0.1; // Meters To handle inaccuracies across faults
 
         return ( fabs( depthDiff ) < tolerance ); // Equal depth
     }

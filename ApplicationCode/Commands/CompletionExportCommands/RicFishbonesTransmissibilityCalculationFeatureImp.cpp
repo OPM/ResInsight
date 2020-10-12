@@ -302,6 +302,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneImportedLate
 
         std::vector<WellPathCellIntersectionInfo> intersectedCells =
             RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath( settings.caseToApply->eclipseCaseData(),
+                                                                              wellPath->name(),
                                                                               fishbonesPath->coordinates(),
                                                                               fishbonesPath->measuredDepths() );
 
@@ -348,6 +349,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::appendMainWellBoreParts(
 
     std::vector<WellPathCellIntersectionInfo> intersectedCellsIntersectionInfo =
         RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath( settings.caseToApply->eclipseCaseData(),
+                                                                          wellPath->name(),
                                                                           fishbonePerfWellPathCoords.first,
                                                                           fishbonePerfWellPathCoords.second );
 

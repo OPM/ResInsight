@@ -890,7 +890,12 @@ RicMswExportInfo RicWellPathExportMswCompletionsImpl::generateFishbonesMswExport
                     QString label = QString( "Lateral %1" ).arg( lateralIndex );
                     segment->addCompletion( std::make_shared<RicMswFishbones>( label, lateralIndex ) );
                 }
-                assignFishbonesLateralIntersections( caseToApply, subs, segment, &foundSubGridIntersections, maxSegmentLength );
+                assignFishbonesLateralIntersections( caseToApply,
+                                                     wellPath,
+                                                     subs,
+                                                     segment,
+                                                     &foundSubGridIntersections,
+                                                     maxSegmentLength );
 
                 exportInfo.addSegment( segment );
             }
@@ -937,7 +942,10 @@ RicMswExportInfo
     CVF_ASSERT( !coords.empty() && !mds.empty() );
 
     std::vector<WellPathCellIntersectionInfo> intersections =
-        RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath( caseToApply->eclipseCaseData(), coords, mds );
+        RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath( caseToApply->eclipseCaseData(),
+                                                                          wellPath->name(),
+                                                                          coords,
+                                                                          mds );
 
     double initialMD = 0.0;
     if ( wellPath->fractureCollection()->mswParameters()->referenceMDType() ==
@@ -1115,7 +1123,10 @@ std::vector<WellPathCellIntersectionInfo>
     const RigMainGrid* mainGrid = eclipseCase->mainGrid();
 
     std::vector<WellPathCellIntersectionInfo> allIntersections =
-        RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath( eclipseCase->eclipseCaseData(), coords, mds );
+        RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath( eclipseCase->eclipseCaseData(),
+                                                                          wellPath->name(),
+                                                                          coords,
+                                                                          mds );
     std::vector<WellPathCellIntersectionInfo> continuousIntersections =
         RigWellPathIntersectionTools::buildContinuousIntersections( allIntersections, mainGrid );
 
@@ -1867,6 +1878,7 @@ void RicWellPathExportMswCompletionsImpl::moveIntersectionsToSuperICDsOrAICDs( M
 ///
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportMswCompletionsImpl::assignFishbonesLateralIntersections( const RimEclipseCase* caseToApply,
+                                                                               const RimWellPath*    wellPath,
                                                                                const RimFishbonesMultipleSubs* fishbonesSubs,
                                                                                std::shared_ptr<RicMswSegment> segment,
                                                                                bool*  foundSubGridIntersections,
@@ -1905,6 +1917,7 @@ void RicWellPathExportMswCompletionsImpl::assignFishbonesLateralIntersections( c
 
         std::vector<WellPathCellIntersectionInfo> intersections =
             RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath( caseToApply->eclipseCaseData(),
+                                                                              wellPath->name(),
                                                                               lateralCoords,
                                                                               lateralMDs );
 
@@ -2006,6 +2019,7 @@ std::vector<RigCompletionData>
 
         std::vector<WellPathCellIntersectionInfo> intersectedCells =
             RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath( eclipseCase->eclipseCaseData(),
+                                                                              wellPath->name(),
                                                                               perforationPointsAndMD.first,
                                                                               perforationPointsAndMD.second );
 
