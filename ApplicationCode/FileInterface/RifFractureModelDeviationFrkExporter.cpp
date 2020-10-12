@@ -60,13 +60,12 @@ bool RifFractureModelDeviationFrkExporter::writeToFile( RimFractureModelPlot* pl
     std::vector<double> tvdValues;
     std::vector<double> mdValues;
     RigWellPathGeometryExporter::exportWellPathGeometry( wellPath, mdStepSize, xValues, yValues, tvdValues, mdValues, useMdRkb );
+    convertFromMeterToFeet( mdValues );
+    convertFromMeterToFeet( tvdValues );
 
     std::vector<double> exportTvdValues;
     std::vector<double> exportMdValues;
     fixupDepthValuesForExport( tvdValues, mdValues, exportTvdValues, exportMdValues );
-
-    convertFromMeterToFeet( exportMdValues );
-    convertFromMeterToFeet( exportTvdValues );
 
     appendToStream( stream, "mdArray", exportMdValues );
     appendToStream( stream, "tvdArray", exportTvdValues );
@@ -91,6 +90,7 @@ void RifFractureModelDeviationFrkExporter::appendToStream( QTextStream&         
                                                            const QString&             label,
                                                            const std::vector<double>& values )
 {
+    stream.setRealNumberPrecision( 20 );
     stream << "<cNamedSet>" << endl
            << "<name>" << endl
            << label << endl
