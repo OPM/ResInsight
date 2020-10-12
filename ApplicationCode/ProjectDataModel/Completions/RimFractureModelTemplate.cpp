@@ -42,6 +42,7 @@
 #include "RimEllipseFractureTemplate.h"
 #include "RimFaciesProperties.h"
 #include "RimFractureModelPlot.h"
+#include "RimNonNetLayers.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimTools.h"
@@ -163,6 +164,11 @@ RimFractureModelTemplate::RimFractureModelTemplate()
     CAF_PDM_InitScriptableFieldNoDefault( &m_faciesProperties, "FaciesProperties", "Facies Properties", "", "", "" );
     m_faciesProperties.uiCapability()->setUiHidden( true );
     m_faciesProperties.uiCapability()->setUiTreeHidden( true );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_nonNetLayers, "NonNetLayers", "Non-Net Layers", "", "", "" );
+    m_nonNetLayers.uiCapability()->setUiHidden( true );
+    m_nonNetLayers.uiCapability()->setUiTreeHidden( true );
+    setNonNetLayers( new RimNonNetLayers );
 
     setDeletable( true );
 }
@@ -352,6 +358,36 @@ void RimFractureModelTemplate::setFaciesProperties( RimFaciesProperties* faciesP
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimFractureModelTemplate::setNonNetLayers( RimNonNetLayers* nonNetLayers )
+{
+    if ( m_nonNetLayers )
+    {
+        m_nonNetLayers->changed.disconnect( this );
+    }
+
+    m_nonNetLayers = nonNetLayers;
+
+    if ( m_nonNetLayers )
+    {
+        m_nonNetLayers->changed.connect( this, &RimFractureModelTemplate::nonNetLayersChanged );
+        RimEclipseCase* eclipseCase = getEclipseCase();
+        if ( !eclipseCase ) return;
+
+        m_nonNetLayers->setEclipseCase( eclipseCase );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimNonNetLayers* RimFractureModelTemplate::nonNetLayers() const
+{
+    return m_nonNetLayers;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFractureModelTemplate::initAfterRead()
 {
     if ( m_faciesProperties )
@@ -375,6 +411,14 @@ void RimFractureModelTemplate::faciesPropertiesChanged( const caf::SignalEmitter
 ///
 //--------------------------------------------------------------------------------------------------
 void RimFractureModelTemplate::elasticPropertiesChanged( const caf::SignalEmitter* emitter )
+{
+    changed.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModelTemplate::nonNetLayersChanged( const caf::SignalEmitter* emitter )
 {
     changed.send();
 }

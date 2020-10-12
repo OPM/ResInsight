@@ -33,6 +33,7 @@ class RimEclipseCase;
 class RimElasticProperties;
 class RigEclipseCaseData;
 class RimFaciesProperties;
+class RimNonNetLayers;
 
 //==================================================================================================
 ///
@@ -90,6 +91,9 @@ public:
     void                 setFaciesProperties( RimFaciesProperties* faciesProperties );
     RimFaciesProperties* faciesProperties() const;
 
+    void             setNonNetLayers( RimNonNetLayers* nonNetLayers );
+    RimNonNetLayers* nonNetLayers() const;
+
     void updateReferringPlots();
 
 protected:
@@ -107,6 +111,7 @@ private:
 
     void faciesPropertiesChanged( const caf::SignalEmitter* emitter );
     void elasticPropertiesChanged( const caf::SignalEmitter* emitter );
+    void nonNetLayersChanged( const caf::SignalEmitter* emitter );
 
     static double computeDefaultStressDepth();
 
@@ -133,4 +138,5 @@ private:
     caf::PdmField<double>                     m_underburdenFluidDensity;
     caf::PdmChildField<RimElasticProperties*> m_elasticProperties;
     caf::PdmChildField<RimFaciesProperties*>  m_faciesProperties;
+    caf::PdmChildField<RimNonNetLayers*>      m_nonNetLayers;
 };
