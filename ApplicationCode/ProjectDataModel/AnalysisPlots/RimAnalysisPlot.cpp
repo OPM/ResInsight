@@ -721,6 +721,8 @@ std::set<time_t> RimAnalysisPlot::allAvailableTimeSteps()
 
     for ( RimSummaryCase* sumCase : timestepDefiningSourceCases() )
     {
+        if ( !sumCase || !sumCase->summaryReader() ) continue;
+
         const std::vector<time_t>& timeSteps = sumCase->summaryReader()->timeSteps( RifEclipseSummaryAddress() );
 
         for ( time_t t : timeSteps )

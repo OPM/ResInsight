@@ -210,9 +210,10 @@ cvf::ref<RivIntersectionHexGridInterface> RimIntersection::createHexGridInterfac
 
     RimEclipseView* eclipseView;
     this->firstAncestorOrThisOfType( eclipseView );
-    if ( eclipseView )
+    if ( eclipseView && eclipseView->mainGrid() )
     {
         RigMainGrid* grid = eclipseView->mainGrid();
+
         return new RivEclipseIntersectionGrid( grid, eclipseView->currentActiveCellInfo(), this->isInactiveCellsVisible() );
     }
 

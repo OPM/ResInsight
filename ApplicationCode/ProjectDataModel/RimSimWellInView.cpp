@@ -215,6 +215,11 @@ void RimSimWellInView::wellHeadTopBottomPosition( int frameIndex, cvf::Vec3d* to
     RimEclipseView* m_rimReservoirView;
     firstAncestorOrThisOfTypeAsserted( m_rimReservoirView );
 
+    if ( !m_rimReservoirView->eclipseCase() || !m_rimReservoirView->eclipseCase()->eclipseCaseData() )
+    {
+        return;
+    }
+
     RigEclipseCaseData* rigReservoir = m_rimReservoirView->eclipseCase()->eclipseCaseData();
 
     const RigWellResultFrame* wellResultFramePtr = nullptr;
