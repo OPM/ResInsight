@@ -54,7 +54,6 @@
 #include "cafPdmUiTreeOrdering.h"
 
 #include <QFileInfo>
-#include <QMessageBox>
 
 CAF_PDM_SOURCE_INIT( RimLayerCurve, "LayerCurve" );
 

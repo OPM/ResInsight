@@ -25,7 +25,6 @@
 
 #include <QFile>
 #include <QFileInfo>
-#include <QMessageBox>
 
 #include "cvfColor3.h"
 

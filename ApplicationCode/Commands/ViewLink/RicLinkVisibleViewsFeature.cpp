@@ -34,7 +34,6 @@
 
 #include "RimGeoMechContourMapView.h"
 #include <QAction>
-#include <QMessageBox>
 #include <QTreeView>
 
 CAF_CMD_SOURCE_INIT( RicLinkVisibleViewsFeature, "RicLinkVisibleViewsFeature" );

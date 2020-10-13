@@ -1139,9 +1139,6 @@ bool RiaApplication::launchProcess( const QString&             program,
 
             stopMonitoringWorkProgress();
 
-            //            QMessageBox::warning(m_mainWindow, "Script execution", "Failed to start script executable
-            //            located at\n" + program);
-
             return false;
         }
 
@@ -1149,9 +1146,6 @@ bool RiaApplication::launchProcess( const QString&             program,
     }
     else
     {
-        // QMessageBox::warning(nullptr,
-        //                   "Script execution",
-        //                 "An Octave process is still running. Please stop this process before executing a new script.");
         return false;
     }
 }

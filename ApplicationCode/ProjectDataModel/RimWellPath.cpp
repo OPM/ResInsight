@@ -57,7 +57,6 @@
 #include <QDateTime>
 #include <QDir>
 #include <QFileInfo>
-#include <QMessageBox>
 #include <QString>
 
 #include <regex>

@@ -34,7 +34,6 @@
 #include <QComboBox>
 #include <QCompleter>
 #include <QGridLayout>
-#include <QMessageBox>
 #include <QPushButton>
 #include <QStringListModel>
 

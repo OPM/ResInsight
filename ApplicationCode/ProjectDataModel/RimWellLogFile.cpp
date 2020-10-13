@@ -39,7 +39,6 @@
 #include "cafPdmUiDateEditor.h"
 
 #include <QFileInfo>
-#include <QMessageBox>
 #include <QString>
 #include <QStringList>
 
