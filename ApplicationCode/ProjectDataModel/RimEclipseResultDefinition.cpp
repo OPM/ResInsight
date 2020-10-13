@@ -1884,15 +1884,12 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
         }
         else
         {
-            CVF_ASSERT( rimEclipseCase );
             if ( !rimEclipseCase ) return;
 
             RigEclipseCaseData* eclipseCaseData = rimEclipseCase->eclipseCaseData();
-            CVF_ASSERT( eclipseCaseData );
             if ( !eclipseCaseData ) return;
 
             RigCaseCellResultsData* cellResultsData = eclipseCaseData->results( this->porosityModel() );
-            CVF_ASSERT( cellResultsData );
 
             double globalMin, globalMax;
             double globalPosClosestToZero, globalNegClosestToZero;
@@ -2039,11 +2036,9 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
 
     // Ternary legend update
     {
-        CVF_ASSERT( rimEclipseCase );
         if ( !rimEclipseCase ) return;
 
         RigEclipseCaseData* eclipseCase = rimEclipseCase->eclipseCaseData();
-        CVF_ASSERT( eclipseCase );
         if ( !eclipseCase ) return;
 
         RigCaseCellResultsData* cellResultsData = eclipseCase->results( this->porosityModel() );

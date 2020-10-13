@@ -864,7 +864,7 @@ bool RimViewController::isRangeFilterMappingApplicable() const
 
     if ( eclipseView && geomView )
     {
-        if ( eclipseView->eclipseCase()->eclipseCaseData() && geomView->geoMechCase() &&
+        if ( eclipseView->eclipseCase() && eclipseView->eclipseCase()->eclipseCaseData() && geomView->geoMechCase() &&
              geomView->geoMechCase()->geoMechData() )
         {
             RigMainGrid* eclGrid = eclipseView->mainGrid();

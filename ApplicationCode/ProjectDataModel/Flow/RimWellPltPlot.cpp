@@ -157,7 +157,11 @@ void RimWellPltPlot::setPlotXAxisTitles( RimWellLogTrack* plotTrack )
     std::set<RiaEclipseUnitTools::UnitSystem> presentUnitSystems;
     for ( const RifDataSourceForRftPlt& source : m_selectedSources.v() )
     {
-        if ( source.eclCase() ) presentUnitSystems.insert( source.eclCase()->eclipseCaseData()->unitsType() );
+        if ( source.eclCase() && source.eclCase()->eclipseCaseData() )
+        {
+            presentUnitSystems.insert( source.eclCase()->eclipseCaseData()->unitsType() );
+        }
+
         if ( source.wellLogFile() )
         {
             if ( source.wellLogFile()->wellLogFileData() )

@@ -1075,7 +1075,7 @@ QString RimEclipseCase::timeStepName( int frameIdx ) const
 double RimEclipseCase::characteristicCellSize() const
 {
     const RigEclipseCaseData* rigEclipseCase = eclipseCaseData();
-    if ( rigEclipseCase )
+    if ( rigEclipseCase && rigEclipseCase->mainGrid() )
     {
         return rigEclipseCase->mainGrid()->characteristicIJCellSize();
     }

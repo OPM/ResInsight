@@ -100,7 +100,10 @@ RigFlowDiagResults* RimFlowDiagSolution::flowDiagResults()
             RimEclipseResultCase* eclCase;
             this->firstAncestorOrThisOfType( eclCase );
 
-            CVF_ASSERT( eclCase && eclCase->eclipseCaseData() );
+            if ( !eclCase || !eclCase->eclipseCaseData() )
+            {
+                return nullptr;
+            }
 
             timeStepCount =
                 eclCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->maxTimeStepCount();

@@ -232,7 +232,7 @@ public:
         QString porosityModelName = args[4];
 
         RimEclipseCase* rimCase = server->findReservoir( caseId );
-        if ( rimCase == nullptr )
+        if ( !rimCase || !rimCase->eclipseCaseData() )
         {
             server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
                                       RiaSocketServer::tr( "Could not find the case with ID: \"%1\"" ).arg( caseId ) );

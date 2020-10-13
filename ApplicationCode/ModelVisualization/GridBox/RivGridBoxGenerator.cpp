@@ -235,7 +235,7 @@ void RivGridBoxGenerator::updateFromCamera( const cvf::Camera* camera )
 {
     m_gridBoxModel->removeAllParts();
 
-    if ( m_gridBoxFaceParts.size() == 0 ) return;
+    if ( m_gridBoxFaceParts.empty() ) return;
 
     std::vector<bool> faceVisibility( 6, false );
     for ( size_t i = POS_X; i <= NEG_Z; i++ )
@@ -263,17 +263,20 @@ void RivGridBoxGenerator::updateFromCamera( const cvf::Camera* camera )
         }
     }
 
-    std::vector<bool> edgeVisibility( 12, false );
-    computeEdgeVisibility( faceVisibility, edgeVisibility );
-
-    CVF_ASSERT( m_gridBoxLegendParts.size() == ( NEG_X_NEG_Y + 1 ) * 2 );
-    for ( size_t i = POS_Z_POS_X; i <= NEG_X_NEG_Y; i++ )
+    if ( !m_gridBoxLegendParts.empty() )
     {
-        if ( edgeVisibility[i] )
+        std::vector<bool> edgeVisibility( 12, false );
+        computeEdgeVisibility( faceVisibility, edgeVisibility );
+
+        CVF_ASSERT( m_gridBoxLegendParts.size() == ( NEG_X_NEG_Y + 1 ) * 2 );
+        for ( size_t i = POS_Z_POS_X; i <= NEG_X_NEG_Y; i++ )
         {
-            // We have two parts for each edge - line and text
-            m_gridBoxModel->addPart( m_gridBoxLegendParts[2 * i].p() );
-            m_gridBoxModel->addPart( m_gridBoxLegendParts[2 * i + 1].p() );
+            if ( edgeVisibility[i] )
+            {
+                // We have two parts for each edge - line and text
+                m_gridBoxModel->addPart( m_gridBoxLegendParts[2 * i].p() );
+                m_gridBoxModel->addPart( m_gridBoxLegendParts[2 * i + 1].p() );
+            }
         }
     }
 
@@ -491,6 +494,11 @@ void RivGridBoxGenerator::createLegend( EdgeType edge, cvf::Collection<cvf::Part
 
     cvf::Vec3d min = m_displayCoordsBoundingBox.min();
     cvf::Vec3d max = m_displayCoordsBoundingBox.max();
+
+    if ( min == max )
+    {
+        return;
+    }
 
     AxisType axis = X_AXIS;
 

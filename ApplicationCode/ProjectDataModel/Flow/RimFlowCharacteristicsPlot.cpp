@@ -650,6 +650,7 @@ void RimFlowCharacteristicsPlot::onLoadDataAndUpdate()
     if ( m_flowDiagSolution && m_flowCharPlotWidget )
     {
         RigFlowDiagResults* flowResult = m_flowDiagSolution->flowDiagResults();
+        if ( !flowResult ) return;
 
         {
             std::vector<int> calculatedTimesteps = flowResult->calculatedTimeSteps( RigFlowDiagResultAddress::PHASE_ALL );
