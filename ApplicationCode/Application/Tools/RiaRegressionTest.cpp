@@ -84,10 +84,10 @@ RiaRegressionTest::RiaRegressionTest( void )
                        "",
                        "" );
 
-    CAF_PDM_InitField( &makeExternalIncludePathsInvalid,
-                       "makeExternalIncludePathsInvalid",
+    CAF_PDM_InitField( &invalidateExternalFilePaths,
+                       "invalidateExternalFilePaths",
                        false,
-                       "Invalidate all External Paths",
+                       "Invalidate External File Paths",
                        "",
                        "",
                        "" );

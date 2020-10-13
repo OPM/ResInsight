@@ -49,7 +49,7 @@ public:
 
     // Used by the regression test system to invalidate all paths to test if the tests run as expected if external files
     // are missing/invalid
-    void setInvalidateExternalPaths();
+    void setInvalidateExternalFilePaths();
 
     bool applyModificationsToProject( RimProject* project );
 
@@ -57,7 +57,7 @@ private:
     void replaceSourceCases( RimProject* project );
     void replaceCase( RimProject* project );
     void replacePropertiesFolder( RimProject* project );
-    void invalidateExternalPaths( RimProject* project );
+    void invalidateExternalFilePaths( RimProject* project );
 
     static QString makeFilePathAbsolute( const QString& relOrAbsolutePath );
     static QString caseNameFromGridFileName( const QString& fullGridFilePathName );
@@ -72,5 +72,5 @@ private:
     std::map<int, QString>              m_caseIdToGridFileNameMap;
     std::map<int, std::vector<QString>> m_groupIdToGridFileNamesMap;
     std::map<int, QString>              m_caseIdToPropertiesFolderMap;
-    bool                                m_invalidateExternalPaths;
+    bool                                m_invalidateExternalFilePaths;
 };
