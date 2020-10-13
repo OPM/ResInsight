@@ -1276,7 +1276,7 @@ void RiaGuiApplication::onProjectBeingOpened()
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::onProjectOpeningError( const QString& errMsg )
 {
-    QMessageBox::warning( nullptr, "Error when opening project file", errMsg );
+    RiaLogging::errorInMessageBox( nullptr, "Error when opening project file", errMsg );
     m_mainWindow->setPdmRoot( nullptr );
 }
 

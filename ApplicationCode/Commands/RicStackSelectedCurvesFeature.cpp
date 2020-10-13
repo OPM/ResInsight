@@ -28,7 +28,6 @@
 #include "cafSelectionManager.h"
 
 #include <QAction>
-#include <QMessageBox>
 
 RICF_SOURCE_INIT( RicStackSelectedCurvesFeature, "RicStackSelectedCurvesFeature", "stackCurves" );
 
@@ -132,11 +131,7 @@ void RicStackSelectedCurvesFeature::onActionTriggered( bool isChecked )
     if ( response.status() != caf::PdmScriptResponse::COMMAND_OK )
     {
         QString displayMessage = response.messages().join( "\n" );
-        if ( RiaGuiApplication::isRunning() )
-        {
-            QMessageBox::warning( nullptr, "Error when saving project file", displayMessage );
-        }
-        RiaLogging::error( displayMessage );
+        RiaLogging::errorInMessageBox( nullptr, "Error when saving project file", displayMessage );
     }
 }
 

@@ -20,6 +20,7 @@
 #include "RicNewOctaveScriptFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 
 #include "RicRefreshScriptsFeature.h"
 #include "RicScriptFeatureImpl.h"
@@ -36,7 +37,6 @@
 #include <QFileInfo>
 #include <QInputDialog>
 #include <QLineEdit>
-#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT( RicNewOctaveScriptFeature, "RicNewOctaveScriptFeature" );
 
@@ -109,9 +109,9 @@ void RicNewOctaveScriptFeature::onActionTriggered( bool isChecked )
         QFile file( fullPathFilenameNewScript );
         if ( !file.open( QIODevice::WriteOnly | QIODevice::Text ) )
         {
-            QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(),
-                                  "Script editor",
-                                  "Failed to create file\n" + fullPathFilenameNewScript );
+            RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(),
+                                           "Script editor",
+                                           "Failed to create file\n" + fullPathFilenameNewScript );
 
             return;
         }
@@ -135,9 +135,9 @@ void RicNewOctaveScriptFeature::onActionTriggered( bool isChecked )
 
             if ( !myProcess->waitForStarted( 1000 ) )
             {
-                QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(),
-                                      "Script editor",
-                                      "Failed to start script editor executable\n" + scriptEditor );
+                RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(),
+                                               "Script editor",
+                                               "Failed to start script editor executable\n" + scriptEditor );
             }
         }
     }

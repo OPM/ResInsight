@@ -20,6 +20,7 @@
 
 #include "Rim3dOverlayInfoConfig.h"
 
+#include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
 
@@ -65,7 +66,6 @@
 
 #include <QApplication>
 #include <QLocale>
-#include <QMessageBox>
 
 CAF_PDM_SOURCE_INIT( Rim3dOverlayInfoConfig, "View3dOverlayInfoConfig" );
 //--------------------------------------------------------------------------------------------------
@@ -1429,14 +1429,15 @@ void Rim3dOverlayInfoConfig::displayPropertyFilteredStatisticsMessage( bool show
     if ( !isShowing )
     {
         isShowing = true;
-        QMessageBox::information( m_viewDef->viewer()->layoutWidget(),
-                                  QString( "ResInsight" ),
-                                  QString( "Statistics not available<br>"
+        RiaLogging::errorInMessageBox( m_viewDef->viewer()->layoutWidget(),
+                                       QString( "ResInsight" ),
+                                       QString(
+                                           "Statistics not available<br>"
                                            "<br>"
                                            "Statistics calculations of <b>Visible Cells</b> for <b>All Time Steps</b> "
                                            "is not supported<br>"
                                            "when you have an active Property filter on a time varying result.<br>" ) +
-                                      switchString );
+                                           switchString );
         isShowing = false;
     }
 }

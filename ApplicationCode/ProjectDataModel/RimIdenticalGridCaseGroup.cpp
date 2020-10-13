@@ -46,7 +46,6 @@
 #include "cafProgressInfo.h"
 
 #include <QDir>
-#include <QMessageBox>
 
 CAF_PDM_SOURCE_INIT( RimIdenticalGridCaseGroup, "RimIdenticalGridCaseGroup" );
 
@@ -193,11 +192,9 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
         QString errorMessage = QString( "Could not open the Eclipse Grid file: \n" ) + mainCase->gridFileName() + "\n" +
                                "Current working directory is: \n" + QDir::currentPath();
 
-        if ( RiaGuiApplication::isRunning() )
-        {
-            QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(), "Error when opening project file", errorMessage );
-        }
-        RiaLogging::error( errorMessage );
+        RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(),
+                                       "Error when opening project file",
+                                       errorMessage );
         return;
     }
 

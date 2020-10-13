@@ -37,7 +37,6 @@
 
 #include <QAction>
 #include <QFileInfo>
-#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT( RicSaveEclipseInputPropertyFeature, "RicSaveEclipseInputPropertyFeature" );
 
@@ -69,9 +68,10 @@ void RicSaveEclipseInputPropertyFeature::onActionTriggered( bool isChecked )
 
         if ( !isResolved )
         {
-            QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(),
-                                  "Export failure",
-                                  "Property is not resolved, and then it is not possible to export the property." );
+            RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(),
+                                           "Export failure",
+                                           "Property is not resolved, and then it is not possible to export the "
+                                           "property." );
 
             return;
         }

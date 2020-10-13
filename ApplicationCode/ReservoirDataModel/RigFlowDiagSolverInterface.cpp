@@ -40,7 +40,6 @@
 #include "RimFlowDiagSolution.h"
 
 #include "cafProgressInfo.h"
-#include <QMessageBox>
 
 #include "cvfTrace.h"
 
@@ -287,10 +286,11 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
 
             if ( restartFileCount <= timeStepIndex && restartFileCount != maxTimeStepCount )
             {
-                QMessageBox::critical( nullptr,
-                                       "ResInsight",
-                                       "Flow Diagnostics: Could not find all the restart files. Results will not be "
-                                       "loaded." );
+                RiaLogging::errorInMessageBox( nullptr,
+                                               "ResInsight",
+                                               "Flow Diagnostics: Could not find all the restart files. Results will "
+                                               "not be "
+                                               "loaded." );
                 return result;
             }
 
@@ -307,7 +307,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
     }
     catch ( const std::exception& e )
     {
-        QMessageBox::critical( nullptr, "ResInsight", "Flow Diagnostics Exception: " + QString( e.what() ) );
+        RiaLogging::errorInMessageBox( nullptr, "ResInsight", "Flow Diagnostics Exception: " + QString( e.what() ) );
         return result;
     }
 
@@ -340,10 +340,11 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
 
     if ( !currentRestartData->selectReportStep( reportStepNumber ) )
     {
-        QMessageBox::critical( nullptr,
-                               "ResInsight",
-                               "Flow Diagnostics: Could not find the requested timestep in the result file. Results "
-                               "will not be loaded." );
+        RiaLogging::errorInMessageBox( nullptr,
+                                       "ResInsight",
+                                       "Flow Diagnostics: Could not find the requested timestep in the result file. "
+                                       "Results "
+                                       "will not be loaded." );
         return result;
     }
 
@@ -386,7 +387,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
     }
     catch ( const std::exception& e )
     {
-        QMessageBox::critical( nullptr, "ResInsight", "Flow Diagnostics Exception: " + QString( e.what() ) );
+        RiaLogging::errorInMessageBox( nullptr, "ResInsight", "Flow Diagnostics Exception: " + QString( e.what() ) );
         return result;
     }
 
@@ -505,7 +506,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
     }
     catch ( const std::exception& e )
     {
-        QMessageBox::critical( nullptr, "ResInsight", "Flow Diagnostics Exception: " + QString( e.what() ) );
+        RiaLogging::errorInMessageBox( nullptr, "ResInsight", "Flow Diagnostics Exception: " + QString( e.what() ) );
         return result;
     }
 
@@ -611,7 +612,7 @@ void RigFlowDiagSolverInterface::reportRelPermCurveError( const QString& message
 {
     if ( m_relpermCurveErrorCount == 0 )
     {
-        QMessageBox::critical( nullptr, "ResInsight", "RelPerm curve problems: \n" + message );
+        RiaLogging::errorInMessageBox( nullptr, "ResInsight", "RelPerm curve problems: \n" + message );
     }
     m_relpermCurveErrorCount++;
 }
@@ -623,7 +624,7 @@ void RigFlowDiagSolverInterface::reportPvtCurveError( const QString& message )
 {
     if ( m_pvtCurveErrorCount == 0 )
     {
-        QMessageBox::critical( nullptr, "ResInsight", "PVT curve problems: \n" + message );
+        RiaLogging::errorInMessageBox( nullptr, "ResInsight", "PVT curve problems: \n" + message );
     }
     m_pvtCurveErrorCount++;
 }
@@ -662,7 +663,7 @@ RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame
     }
     catch ( const std::exception& e )
     {
-        QMessageBox::critical( nullptr, "ResInsight", "Flow Diagnostics: " + QString( e.what() ) );
+        RiaLogging::errorInMessageBox( nullptr, "ResInsight", "Flow Diagnostics: " + QString( e.what() ) );
     }
 
     return result;

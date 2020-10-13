@@ -22,6 +22,7 @@
 #include "RiaCurveMerger.h"
 #include "RiaDefines.h"
 #include "RiaGuiApplication.h"
+#include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaStatisticsTools.h"
 #include "RiaSummaryTools.h"
@@ -58,7 +59,6 @@
 #include "qwt_plot.h"
 
 #include "cafPdmUiLineEditor.h"
-#include <QMessageBox>
 
 CAF_PDM_SOURCE_INIT( RimSummaryCurve, "SummaryCurve" );
 
@@ -1166,7 +1166,7 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                        .arg( last.toString( formatString ) );
                 }
 
-                QMessageBox::warning( nullptr, "Detected no overlapping time steps", description );
+                RiaLogging::errorInMessageBox( nullptr, "Detected no overlapping time steps", description );
             }
         }
     }

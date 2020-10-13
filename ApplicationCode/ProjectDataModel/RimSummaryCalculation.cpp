@@ -20,10 +20,10 @@
 
 #include "expressionparser/ExpressionParser.h"
 
+#include "RiaCurveMerger.h"
+#include "RiaLogging.h"
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaSummaryTools.h"
-
-#include "RiaCurveMerger.h"
 
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
@@ -37,8 +37,6 @@
 
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTextEditor.h"
-
-#include <QMessageBox>
 
 #include <algorithm>
 
@@ -199,7 +197,7 @@ bool RimSummaryCalculation::parseExpression()
     QString leftHandSideVariableName = RimSummaryCalculation::findLeftHandSide( m_expression );
     if ( leftHandSideVariableName.isEmpty() )
     {
-        QMessageBox::warning( nullptr, "Expression Parser", "Failed to detect left hand side of equation" );
+        RiaLogging::errorInMessageBox( nullptr, "Expression Parser", "Failed to detect left hand side of equation" );
 
         return false;
     }
@@ -207,7 +205,7 @@ bool RimSummaryCalculation::parseExpression()
     std::vector<QString> variableNames = ExpressionParser::detectReferencedVariables( m_expression );
     if ( variableNames.size() < 1 )
     {
-        QMessageBox::warning( nullptr, "Expression Parser", "Failed to detect any variable names" );
+        RiaLogging::errorInMessageBox( nullptr, "Expression Parser", "Failed to detect any variable names" );
 
         return false;
     }
@@ -265,18 +263,18 @@ bool RimSummaryCalculation::calculate()
 
         if ( !v->summaryCase() )
         {
-            QMessageBox::warning( nullptr,
-                                  "Expression Parser",
-                                  QString( "No summary case defined for variable : %1" ).arg( v->name() ) );
+            RiaLogging::errorInMessageBox( nullptr,
+                                           "Expression Parser",
+                                           QString( "No summary case defined for variable : %1" ).arg( v->name() ) );
 
             return false;
         }
 
         if ( !v->summaryAddress() )
         {
-            QMessageBox::warning( nullptr,
-                                  "Expression Parser",
-                                  QString( "No summary address defined for variable : %1" ).arg( v->name() ) );
+            RiaLogging::errorInMessageBox( nullptr,
+                                           "Expression Parser",
+                                           QString( "No summary address defined for variable : %1" ).arg( v->name() ) );
 
             return false;
         }
@@ -339,7 +337,7 @@ bool RimSummaryCalculation::calculate()
         QString s = "The following error message was received from the parser library : \n\n";
         s += errorText;
 
-        QMessageBox::warning( nullptr, "Expression Parser", s );
+        RiaLogging::errorInMessageBox( nullptr, "Expression Parser", s );
     }
 
     return evaluatedOk;

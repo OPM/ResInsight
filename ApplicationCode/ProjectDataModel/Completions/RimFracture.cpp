@@ -61,7 +61,6 @@
 #include "cvfMatrix4.h"
 #include "cvfPlane.h"
 
-#include <QMessageBox>
 #include <QString>
 
 #include <cmath>
@@ -219,7 +218,7 @@ void RimFracture::fieldChangedByUi( const caf::PdmFieldHandle* changedField, con
                          "fracture template of unit '%1'" )
                     .arg( fractureUnitText );
 
-            QMessageBox::warning( nullptr, "Fracture Template Selection", warningText );
+            RiaLogging::errorInMessageBox( nullptr, "Fracture Template Selection", warningText );
 
             PdmObjectHandle* prevValue    = oldValue.value<caf::PdmPointer<PdmObjectHandle>>().rawPtr();
             auto             prevTemplate = dynamic_cast<RimFractureTemplate*>( prevValue );
@@ -522,7 +521,7 @@ void RimFracture::setFractureTemplateNoUpdate( RimFractureTemplate* fractureTemp
                      "fracture template of unit '%1'" )
                 .arg( fractureUnitText );
 
-        QMessageBox::warning( nullptr, "Fracture Template Selection", warningText );
+        RiaLogging::errorInMessageBox( nullptr, "Fracture Template Selection", warningText );
 
         return;
     }

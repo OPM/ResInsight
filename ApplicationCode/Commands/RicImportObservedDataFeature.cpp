@@ -19,6 +19,7 @@
 #include "RicImportObservedDataFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 
 #include "RimObservedDataCollection.h"
 #include "RimObservedSummaryData.h"
@@ -33,7 +34,6 @@
 
 #include <QAction>
 #include <QFileInfo>
-#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT( RicImportObservedDataFeature, "RicImportObservedDataFeature" );
 
@@ -93,11 +93,7 @@ void RicImportObservedDataFeature::selectObservedDataFileInDialog()
 
             if ( !errorText.isEmpty() )
             {
-                QMessageBox msgBox;
-                msgBox.setIcon( QMessageBox::Warning );
-                msgBox.setText( "Errors detected during import                                                 " );
-                msgBox.setDetailedText( errorText );
-                msgBox.exec();
+                RiaLogging::errorInMessageBox( nullptr, "Errors detected during import", errorText );
             }
         } while ( retryImport );
     }

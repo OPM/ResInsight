@@ -53,7 +53,6 @@
 
 #include <QFile>
 #include <QFileInfo>
-#include <QMessageBox>
 #include <QString>
 
 #include "RimFileWellPath.h"
@@ -401,11 +400,7 @@ void RimWellPathCollection::addWellPathFormations( const QStringList& filePaths 
 
     if ( fileReadSuccess )
     {
-        if ( RiaGuiApplication::isRunning() )
-        {
-            QMessageBox::information( Riu3DMainWindowTools::mainWindowWidget(), "Well Picks Import", outputMessage );
-        }
-        RiaLogging::info( outputMessage );
+        RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "Well Picks Import", outputMessage );
     }
 
     this->sortWellsByName();
@@ -562,11 +557,7 @@ void RimWellPathCollection::readWellPathFormationFiles()
         QString errorMessage;
         if ( !wellPaths[wpIdx]->readWellPathFormationsFile( &errorMessage, m_wellPathFormationsImporter ) )
         {
-            if ( RiaGuiApplication::isRunning() )
-            {
-                QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(), "File open error", errorMessage );
-            }
-            RiaLogging::warning( errorMessage );
+            RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "File open error", errorMessage );
         }
 
         progress.setProgressDescription( QString( "Reading formation file %1" ).arg( wpIdx ) );
@@ -586,11 +577,7 @@ void RimWellPathCollection::reloadAllWellPathFormations()
         QString errorMessage;
         if ( !wellPaths[wpIdx]->reloadWellPathFormationsFile( &errorMessage, m_wellPathFormationsImporter ) )
         {
-            if ( RiaGuiApplication::isRunning() )
-            {
-                QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(), "File open error", errorMessage );
-            }
-            RiaLogging::warning( errorMessage );
+            RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "File open error", errorMessage );
         }
 
         progress.setProgressDescription( QString( "Reloading formation file %1" ).arg( wpIdx ) );

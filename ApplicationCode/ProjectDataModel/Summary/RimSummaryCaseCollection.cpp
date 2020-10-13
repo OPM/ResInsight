@@ -19,6 +19,7 @@
 #include "RimSummaryCaseCollection.h"
 
 #include "RiaFieldHandleTools.h"
+#include "RiaLogging.h"
 #include "RiaStatisticsTools.h"
 #include "RiaWeightedMeanCalculator.h"
 
@@ -38,7 +39,6 @@
 #include "cafPdmFieldScriptingCapability.h"
 
 #include <QFileInfo>
-#include <QMessageBox>
 
 #include <algorithm>
 #include <cmath>
@@ -911,10 +911,8 @@ bool RimSummaryCaseCollection::validateEnsembleCases( const std::vector<RimSumma
     }
     catch ( QString errorMessage )
     {
-        QMessageBox mbox;
-        mbox.setIcon( QMessageBox::Icon::Warning );
-        mbox.setText( errorMessage );
-        mbox.exec();
+        RiaLogging::errorInMessageBox( nullptr, "", errorMessage );
+
         return false;
     }
 }

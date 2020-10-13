@@ -31,7 +31,6 @@
 
 #include <QAction>
 #include <QFileInfo>
-#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT( RicWellLogsImportFileFeature, "RicWellLogsImportFileFeature" );
 
@@ -93,12 +92,7 @@ void RicWellLogsImportFileFeature::onActionTriggered( bool isChecked )
         if ( !errorMessages.empty() )
         {
             QString displayMessage = "Errors opening the LAS files: \n" + errorMessages.join( "\n" );
-
-            if ( RiaGuiApplication::isRunning() )
-            {
-                QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(), "File open error", displayMessage );
-            }
-            RiaLogging::warning( displayMessage );
+            RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "File open error", displayMessage );
         }
     }
 }

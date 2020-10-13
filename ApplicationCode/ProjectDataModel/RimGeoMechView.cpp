@@ -76,8 +76,6 @@
 #include "cvfViewport.h"
 #include "cvfqtUtils.h"
 
-#include <QMessageBox>
-
 CAF_PDM_SOURCE_INIT( RimGeoMechView, "GeoMechView" );
 //--------------------------------------------------------------------------------------------------
 ///
@@ -152,11 +150,7 @@ void RimGeoMechView::onLoadDataAndUpdate()
                                              ? "Could not open the Odb file: \n" + m_geomechCase->gridFileName()
                                              : QString::fromStdString( errorMessage );
 
-                if ( RiaGuiApplication::isRunning() )
-                {
-                    QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(), "File open error", displayMessage );
-                }
-                RiaLogging::error( displayMessage );
+                RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "File open error", displayMessage );
             }
 
             m_geomechCase = nullptr;

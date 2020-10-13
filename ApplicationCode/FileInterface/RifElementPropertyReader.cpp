@@ -17,12 +17,12 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RifElementPropertyReader.h"
+#include "RiaLogging.h"
 
 #include "cvfAssert.h"
 
 #include <cmath>
 
-#include <QMessageBox>
 #include <QString>
 
 //--------------------------------------------------------------------------------------------------
@@ -233,11 +233,7 @@ void RifElementPropertyReader::makeElementIdToIdxMap()
 //--------------------------------------------------------------------------------------------------
 void RifElementPropertyReader::outputWarningAboutWrongFileData()
 {
-    QMessageBox msgBox;
-    msgBox.setIcon( QMessageBox::Warning );
-    QString warningText;
-    warningText = QString( "The chosen result property does not fit the model" );
-    msgBox.setText( warningText );
-    msgBox.setStandardButtons( QMessageBox::Ok );
-    msgBox.exec();
+    QString warningText = QString( "The chosen result property does not fit the model" );
+
+    RiaLogging::errorInMessageBox( nullptr, "Element Property Reader", warningText );
 }
