@@ -115,6 +115,10 @@ RimSummaryTimeAxisProperties::RimSummaryTimeAxisProperties()
 
     CAF_PDM_InitFieldNoDefault( &m_majorTickmarkCount, "MajorTickmarkCount", "Major Tickmark Count", "", "", "" );
 
+    CAF_PDM_InitFieldNoDefault( &m_annotations, "Annotations", "", "", "", "" );
+
+    m_annotations.uiCapability()->setUiHidden( true );
+
     CAF_PDM_InitFieldNoDefault( &m_visibleDateTimeRangeMax_OBSOLETE, "VisibleRangeMax", "Max", "", "", "" );
     m_visibleDateTimeRangeMax_OBSOLETE.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
@@ -488,6 +492,22 @@ RiaQDateTimeTools::TimeFormatComponents
     RiaQDateTimeTools::TimeFormatComponents components = m_timeComponents();
 
     return components;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPlotAxisAnnotation*> RimSummaryTimeAxisProperties::annotations() const
+{
+    return m_annotations.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryTimeAxisProperties::appendAnnotation( RimPlotAxisAnnotation* annotation )
+{
+    m_annotations.push_back( annotation );
 }
 
 //--------------------------------------------------------------------------------------------------

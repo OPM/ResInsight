@@ -76,7 +76,7 @@ ObjectiveFunction::ObjectiveFunction( const RimSummaryCaseCollection* summaryCas
     m_summaryCaseCollection = summaryCaseCollection;
     m_functionType          = type;
     m_startTimeStep         = 0;
-    m_endTimeStep           = 0;
+    m_endTimeStep           = HUGE_VAL;
 }
 
 //--------------------------------------------------------------------------------------------------

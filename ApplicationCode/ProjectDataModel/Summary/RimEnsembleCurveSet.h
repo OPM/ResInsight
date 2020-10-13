@@ -96,6 +96,8 @@ public:
     RifEclipseSummaryAddress      summaryAddress() const;
     std::vector<RimSummaryCurve*> curves() const;
 
+    RimCustomObjectiveFunctionCollection* customObjectiveFunctionCollection();
+
     void deleteEnsembleCurves();
     void deleteStatisticsCurves();
 
@@ -177,6 +179,7 @@ private:
     void updateLegendMappingMode();
     void updateMaxMinAndDefaultValues();
     void updateCurveColors();
+    void updateTimeAnnotations();
 
     void onObjectiveFunctionChanged( const caf::SignalEmitter* emitter );
 

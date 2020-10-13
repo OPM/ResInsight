@@ -50,6 +50,7 @@ public:
     std::vector<RimCustomObjectiveFunctionWeight*> weights();
     std::vector<double>                            values() const;
     double                                         value( RimSummaryCase* summaryCase ) const;
+    std::pair<double, double>                      minMaxValues();
     bool    weightContainsFunctionType( ObjectiveFunction::FunctionType functionType ) const;
     QString title() const;
     bool    isValid() const;

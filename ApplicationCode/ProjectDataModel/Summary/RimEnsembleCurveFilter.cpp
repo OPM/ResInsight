@@ -20,6 +20,8 @@
 
 #include "RiaCurveDataTools.h"
 
+#include "RimCustomObjectiveFunction.h"
+#include "RimCustomObjectiveFunctionCollection.h"
 #include "RimEnsembleCurveFilterCollection.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimSummaryAddress.h"
@@ -41,6 +43,9 @@ void caf::AppEnum<RimEnsembleCurveFilter::FilterMode>::setUp()
 {
     addItem( RimEnsembleCurveFilter::FilterMode::BY_ENSEMBLE_PARAMETER, "BY_ENSEMBLE_PARAMETER", "By Ensemble Parameter" );
     addItem( RimEnsembleCurveFilter::FilterMode::BY_OBJECTIVE_FUNCTION, "BY_OBJECTIVE_FUNCTION", "By Objective Function" );
+    addItem( RimEnsembleCurveFilter::FilterMode::BY_CUSTOM_OBJECTIVE_FUNCTION,
+             "By_CUSTOM_OBJECTIVE_FUNCTION",
+             "By Custom Objective Function" );
     setDefault( RimEnsembleCurveFilter::FilterMode::BY_ENSEMBLE_PARAMETER );
 }
 } // namespace caf
@@ -93,6 +98,9 @@ RimEnsembleCurveFilter::RimEnsembleCurveFilter()
 
     CAF_PDM_InitFieldNoDefault( &m_objectiveFunction, "ObjectiveFunction", "Objective Function", "", "", "" );
     m_objectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_customObjectiveFunction, "CustomObjectiveFunction", "Custom Objective Function", "", "", "" );
+    m_customObjectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_minValue, "MinValue", m_lowerLimit, "Min", "", "", "" );
     m_minValue.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -187,6 +195,13 @@ QString RimEnsembleCurveFilter::description() const
                          .arg( m_objectiveFunction().text() )
                          .arg( QString::fromStdString( m_objectiveValuesSummaryAddressUiField().quantityName() ) );
     }
+    else if ( m_filterMode() == FilterMode::BY_CUSTOM_OBJECTIVE_FUNCTION )
+    {
+        if ( m_customObjectiveFunction() )
+        {
+            descriptor = m_customObjectiveFunction()->title();
+        }
+    }
     return QString( "%0 : %1 - %2" ).arg( descriptor ).arg( QString::number( m_minValue() ) ).arg( QString::number( m_maxValue() ) );
 }
 
@@ -248,6 +263,13 @@ QList<caf::PdmOptionItemInfo>
         parentCurveSet()->appendOptionItemsForSummaryAddresses( &options, parentCurveSet()->summaryCaseCollection() );
         m_objectiveValuesSummaryAddressUiField.setValue( m_objectiveValuesSummaryAddress->address() );
     }
+    else if ( fieldNeedingOptions == &m_customObjectiveFunction )
+    {
+        for ( auto objFunc : parentCurveSet()->customObjectiveFunctionCollection()->objectiveFunctions() )
+        {
+            options.push_back( caf::PdmOptionItemInfo( objFunc->title(), objFunc ) );
+        }
+    }
 
     return options;
 }
@@ -283,23 +305,19 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
     }
     else if ( changedField == &m_objectiveFunction )
     {
-        auto eParam = selectedEnsembleParameter();
-        if ( eParam.isNumeric() )
-        {
-            updateMaxMinAndDefaultValues( true );
-        }
-        else if ( eParam.isText() )
-        {
-            m_categories.v().clear();
-            for ( const auto& val : eParam.values )
-            {
-                m_categories.v().push_back( val.toString() );
-            }
-        }
         curveSet->updateAllCurves();
 
         auto collection = parentCurveFilterCollection();
         if ( collection ) collection->updateConnectedEditors();
+        updateMaxMinAndDefaultValues( true );
+    }
+    else if ( changedField == &m_customObjectiveFunction )
+    {
+        curveSet->updateAllCurves();
+
+        auto collection = parentCurveFilterCollection();
+        if ( collection ) collection->updateConnectedEditors();
+        updateMaxMinAndDefaultValues( true );
     }
     else if ( changedField == &m_filterMode )
     {
@@ -398,11 +416,15 @@ void RimEnsembleCurveFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     {
         uiOrdering.add( &m_ensembleParameterName );
     }
-    else
+    else if ( m_filterMode() == FilterMode::BY_OBJECTIVE_FUNCTION )
     {
         uiOrdering.add( &m_objectiveValuesSummaryAddressUiField );
         uiOrdering.add( &m_objectiveValuesSelectSummaryAddressPushButton, {false, 1, 0} );
         uiOrdering.add( &m_objectiveFunction );
+    }
+    else if ( m_filterMode() == FilterMode::BY_CUSTOM_OBJECTIVE_FUNCTION )
+    {
+        uiOrdering.add( &m_customObjectiveFunction );
     }
 
     if ( eParam.isNumeric() )
@@ -505,6 +527,19 @@ std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter( const std::vec
                 casesToRemove.insert( sumCase );
             }
         }
+        else if ( m_filterMode() == FilterMode::BY_CUSTOM_OBJECTIVE_FUNCTION )
+        {
+            bool hasWarning = false;
+
+            if ( m_customObjectiveFunction() )
+            {
+                double value = m_customObjectiveFunction()->value( sumCase );
+                if ( value < m_minValue() || value > m_maxValue )
+                {
+                    casesToRemove.insert( sumCase );
+                }
+            }
+        }
     }
 
     std::vector<RimSummaryCase*> filteredCases;
@@ -586,13 +621,31 @@ void RimEnsembleCurveFilter::updateMaxMinAndDefaultValues( bool forceDefault )
             m_maxValue.uiCapability()->setUiName( QString( "Max (%1)" ).arg( m_upperLimit ) );
         }
     }
-    else
+    else if ( m_filterMode() == FilterMode::BY_OBJECTIVE_FUNCTION )
     {
         auto objectiveFunction = parentCurveSet()->summaryCaseCollection()->objectiveFunction( m_objectiveFunction() );
         if ( objectiveFunction->isValid( m_objectiveValuesSummaryAddress()->address() ) )
         {
             std::pair<double, double> minMaxValues =
                 objectiveFunction->minMaxValues( m_objectiveValuesSummaryAddress()->address() );
+
+            m_lowerLimit = minMaxValues.first;
+            m_upperLimit = minMaxValues.second;
+
+            if ( forceDefault || !( m_minValue >= m_lowerLimit && m_minValue <= m_upperLimit ) )
+                m_minValue = m_lowerLimit;
+            if ( forceDefault || !( m_maxValue >= m_lowerLimit && m_maxValue <= m_upperLimit ) )
+                m_maxValue = m_upperLimit;
+
+            m_minValue.uiCapability()->setUiName( QString( "Min (%1)" ).arg( m_lowerLimit ) );
+            m_maxValue.uiCapability()->setUiName( QString( "Max (%1)" ).arg( m_upperLimit ) );
+        }
+    }
+    else if ( m_filterMode() == FilterMode::BY_CUSTOM_OBJECTIVE_FUNCTION )
+    {
+        if ( m_customObjectiveFunction() && m_customObjectiveFunction()->isValid() )
+        {
+            std::pair<double, double> minMaxValues = m_customObjectiveFunction->minMaxValues();
 
             m_lowerLimit = minMaxValues.first;
             m_upperLimit = minMaxValues.second;

@@ -18,6 +18,9 @@
 
 #pragma once
 
+#include "RimPlotAxisAnnotation.h"
+
+#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
@@ -28,30 +31,29 @@
 ///
 ///
 //==================================================================================================
-class RimPlotAxisAnnotation : public caf::PdmObject
+class RimTimeAxisAnnotation : public RimPlotAxisAnnotation
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimPlotAxisAnnotation();
+    enum class TimeAnnotationType
+    {
+        TIME = 0,
+        TIME_RANGE
+    };
 
-    void setName( const QString& name );
-    void setValue( double value );
+    RimTimeAxisAnnotation();
 
-    QString name() const;
-    double  value() const;
-    QColor  color() const;
-
-    caf::PdmFieldHandle* userDescriptionField() override;
-    caf::PdmFieldHandle* objectToggleField() override;
-
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void   setTime( time_t time );
+    void   setTimeRange( time_t startTime, time_t endTime );
+    QColor color() const;
 
 protected:
     virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
-protected:
-    caf::PdmField<bool>    m_isActive;
-    caf::PdmField<QString> m_name;
-    caf::PdmField<double>  m_value;
+private:
+    caf::PdmField<caf::AppEnum<TimeAnnotationType>> m_annotationType;
+    caf::PdmField<time_t>                           m_time;
+    caf::PdmField<time_t>                           m_startTime;
+    caf::PdmField<time_t>                           m_endTime;
 };

@@ -401,6 +401,14 @@ std::vector<RimSummaryCurve*> RimEnsembleCurveSet::curves() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimCustomObjectiveFunctionCollection* RimEnsembleCurveSet::customObjectiveFunctionCollection()
+{
+    return m_customObjectiveFunctions;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::deleteEnsembleCurves()
 {
     std::vector<size_t> curvesIndexesToDelete;
@@ -686,7 +694,6 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
             m_maxTimeStep = *allAvailableTimeSteps().rbegin();
 
             updateMaxMinAndDefaultValues();
-            updateCurveColors();
         }
 
         updateCurveColors();
@@ -706,6 +713,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
             summaryCaseCollection()->objectiveFunction( m_objectiveFunction() )->setTimeStepList( selectedTimeSteps() );
             updateCurveColors();
         }
+        updateTimeAnnotations();
     }
     else if ( changedField == &m_minTimeStep || changedField == &m_maxTimeStep )
     {
@@ -877,6 +885,7 @@ void RimEnsembleCurveSet::updateMaxMinAndDefaultValues()
 void RimEnsembleCurveSet::onObjectiveFunctionChanged( const caf::SignalEmitter* emitter )
 {
     updateCurveColors();
+    updateFilterLegend();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1445,6 +1454,25 @@ void RimEnsembleCurveSet::updateCurveColors()
             }
         }
         plot->viewer()->scheduleReplot();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::updateTimeAnnotations()
+{
+    if ( m_colorMode() == ColorMode::BY_OBJECTIVE_FUNCTION || m_colorMode() == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION )
+    {
+        RimSummaryPlot* plot = nullptr;
+        firstAncestorOrThisOfType( plot );
+        CVF_ASSERT( plot );
+
+        for ( QDateTime timeStep : m_selectedTimeSteps() )
+        {
+            plot->addTimeAnnotation( timeStep.toSecsSinceEpoch() );
+        }
+        plot->updateAxes();
     }
 }
 

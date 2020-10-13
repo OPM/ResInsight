@@ -24,7 +24,7 @@
 #include "RimGridCrossPlotDataSet.h"
 #include "RimPlot.h"
 #include "RimPlotAxisAnnotation.h"
-#include "RimPlotAxisProperties.h"
+#include "RimPlotAxisPropertiesInterface.h"
 #include "RimRegularLegendConfig.h"
 
 #include "RiuCvfOverlayItemWidget.h"
@@ -123,13 +123,17 @@ RiuGridCrossQwtPlot::~RiuGridCrossQwtPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridCrossQwtPlot::updateAnnotationObjects( RimPlotAxisProperties* axisProperties )
+void RiuGridCrossQwtPlot::updateAnnotationObjects( RimPlotAxisPropertiesInterface* axisProperties )
 {
     m_annotationTool->detachAllAnnotations();
 
     for ( auto annotation : axisProperties->annotations() )
     {
-        m_annotationTool->attachAnnotationLine( this, annotation->color(), annotation->name(), annotation->value() );
+        m_annotationTool->attachAnnotationLine( this,
+                                                annotation->color(),
+                                                annotation->name(),
+                                                annotation->value(),
+                                                RiuPlotAnnotationTool::Orientation::HORIZONTAL );
     }
 }
 

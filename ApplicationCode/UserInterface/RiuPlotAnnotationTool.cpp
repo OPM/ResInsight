@@ -160,12 +160,20 @@ void RiuPlotAnnotationTool::attachWellPicks( QwtPlot*                    plot,
 void RiuPlotAnnotationTool::attachAnnotationLine( QwtPlot*       plot,
                                                   const QColor&  color,
                                                   const QString& annotationText,
-                                                  const double   yPosition )
+                                                  const double   position,
+                                                  Orientation    orientation )
 {
     m_plot = plot;
 
     QwtPlotMarker* line( new QwtPlotMarker() );
-    RiuPlotAnnotationTool::horizontalDashedLine( line, annotationText, yPosition, color, color );
+    if ( orientation == Orientation::HORIZONTAL )
+    {
+        RiuPlotAnnotationTool::horizontalDashedLine( line, annotationText, position, color, color );
+    }
+    else if ( orientation == Orientation::VERTICAL )
+    {
+        RiuPlotAnnotationTool::verticalDashedLine( line, annotationText, position, color, color );
+    }
     line->attach( m_plot );
     m_markers.push_back( std::move( line ) );
 }
@@ -223,6 +231,30 @@ void RiuPlotAnnotationTool::horizontalDashedLine( QwtPlotMarker* line,
     line->setLineStyle( QwtPlotMarker::HLine );
     line->setLinePen( curvePen );
     line->setYValue( yValue );
+    QwtText label( name );
+    label.setColor( textColor );
+    line->setLabel( label );
+    line->setLabelAlignment( horizontalAlignment | Qt::AlignBottom );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotAnnotationTool::verticalDashedLine( QwtPlotMarker* line,
+                                                const QString& name,
+                                                double         xValue,
+                                                const QColor&  color /*= QColor(0, 0, 100) */,
+                                                const QColor&  textColor /*= QColor(0, 0, 100) */,
+                                                Qt::Alignment  horizontalAlignment /*= Qt::AlignRight */ )
+{
+    QPen curvePen;
+    curvePen.setStyle( Qt::DashLine );
+    curvePen.setColor( color );
+    curvePen.setWidth( 1 );
+
+    line->setLineStyle( QwtPlotMarker::VLine );
+    line->setLinePen( curvePen );
+    line->setXValue( xValue );
     QwtText label( name );
     label.setColor( textColor );
     line->setLabel( label );

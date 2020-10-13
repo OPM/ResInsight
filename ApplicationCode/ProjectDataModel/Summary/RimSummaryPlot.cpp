@@ -247,6 +247,17 @@ void RimSummaryPlot::updateAxes()
         updateTimeAxis();
     }
 
+    if ( m_timeAxisProperties() && m_plotWidget )
+    {
+        m_plotWidget->updateAnnotationObjects( m_timeAxisProperties() );
+    }
+    if ( m_leftYAxisProperties() && m_plotWidget )
+    {
+        m_plotWidget->updateAnnotationObjects( m_leftYAxisProperties() );
+    }
+
+    m_plotWidget->scheduleReplot();
+
     updateZoomInQwt();
 }
 
@@ -1159,6 +1170,34 @@ void RimSummaryPlot::updateCaseNameHasChanged()
     if ( m_summaryCurveCollection )
     {
         m_summaryCurveCollection->updateCaseNameHasChanged();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::addTimeAnnotation( time_t time )
+{
+    RimSummaryTimeAxisProperties* axisProps = timeAxisProperties();
+    {
+        RimTimeAxisAnnotation* annotation = new RimTimeAxisAnnotation;
+        annotation->setTime( time );
+
+        axisProps->appendAnnotation( annotation );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::addTimeRangeAnnotation( time_t startTime, time_t endTime )
+{
+    RimSummaryTimeAxisProperties* axisProps = timeAxisProperties();
+    {
+        RimTimeAxisAnnotation* annotation = new RimTimeAxisAnnotation;
+        annotation->setTimeRange( startTime, endTime );
+
+        axisProps->appendAnnotation( annotation );
     }
 }
 

@@ -140,6 +140,25 @@ double RimCustomObjectiveFunction::value( RimSummaryCase* summaryCase ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::pair<double, double> RimCustomObjectiveFunction::minMaxValues()
+{
+    double minValue = std::numeric_limits<double>::infinity();
+    double maxValue = -std::numeric_limits<double>::infinity();
+
+    for ( auto value : values() )
+    {
+        if ( value != std::numeric_limits<double>::infinity() )
+        {
+            if ( value < minValue ) minValue = value;
+            if ( value > maxValue ) maxValue = value;
+        }
+    }
+    return std::make_pair( minValue, maxValue );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimCustomObjectiveFunction::weightContainsFunctionType( ObjectiveFunction::FunctionType functionType ) const
 {
     for ( auto weight : m_weights )

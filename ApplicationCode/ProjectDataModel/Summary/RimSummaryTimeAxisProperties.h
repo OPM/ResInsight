@@ -19,7 +19,9 @@
 #pragma once
 
 #include "RiaQDateTimeTools.h"
+
 #include "RimPlotAxisPropertiesInterface.h"
+#include "RimTimeAxisAnnotation.h"
 
 #include "cafAppEnum.h"
 #include "cafFontTools.h"
@@ -77,6 +79,9 @@ public:
     RiaQDateTimeTools::TimeFormatComponents
         timeComponents( RiaQDateTimeTools::TimeFormatComponents fallback =
                             RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED ) const;
+
+    std::vector<RimPlotAxisAnnotation*> annotations() const override;
+    void                                appendAnnotation( RimPlotAxisAnnotation* annotation ) override;
 
     const QString& dateFormat() const;
     const QString& timeFormat() const;
@@ -142,6 +147,7 @@ private:
     caf::PdmField<QString>                             m_dateFormat;
     caf::PdmField<QString>                             m_timeFormat;
     caf::PdmField<LegendTickmarkCountEnum>             m_majorTickmarkCount;
+    caf::PdmChildArrayField<RimPlotAxisAnnotation*>    m_annotations;
 
     caf::PdmField<QDateTime> m_visibleDateTimeRangeMin_OBSOLETE;
     caf::PdmField<QDateTime> m_visibleDateTimeRangeMax_OBSOLETE;

@@ -27,6 +27,9 @@
 #include "RimEnsembleStatisticsCase.h"
 #include "RimMainPlotCollection.h"
 #include "RimPlot.h"
+#include "RimPlotAxisAnnotation.h"
+#include "RimPlotAxisProperties.h"
+#include "RimPlotAxisPropertiesInterface.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
@@ -36,6 +39,7 @@
 #include "RimSummaryPlotCollection.h"
 
 #include "RiuCvfOverlayItemWidget.h"
+#include "RiuPlotAnnotationTool.h"
 #include "RiuQwtCurvePointTracker.h"
 #include "RiuQwtPlotWheelZoomer.h"
 #include "RiuRimQwtPlotCurve.h"
@@ -130,6 +134,8 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent /*= 
     RiuQwtPlotTools::setDefaultAxes( this );
 
     setInternalLegendVisible( true );
+
+    m_annotationTool = std::unique_ptr<RiuPlotAnnotationTool>( new RiuPlotAnnotationTool() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -165,6 +171,23 @@ void RiuSummaryQwtPlot::useTimeBasedTimeAxis()
 void RiuSummaryQwtPlot::setAxisIsLogarithmic( QwtPlot::Axis axis, bool logarithmic )
 {
     if ( m_wheelZoomer ) m_wheelZoomer->setAxisIsLogarithmic( axis, logarithmic );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::updateAnnotationObjects( RimPlotAxisPropertiesInterface* axisProperties )
+{
+    m_annotationTool->detachAllAnnotations();
+
+    for ( auto annotation : axisProperties->annotations() )
+    {
+        m_annotationTool->attachAnnotationLine( this,
+                                                annotation->color(),
+                                                annotation->name(),
+                                                annotation->value(),
+                                                RiuPlotAnnotationTool::Orientation::VERTICAL );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -27,6 +27,7 @@
 #include "RicSummaryPlotEditorUi.h"
 #include "RicSummaryPlotFeatureImpl.h"
 
+#include "RimCustomObjectiveFunctionCollection.h"
 #include "RimEnsembleCurveFilter.h"
 #include "RimEnsembleCurveFilterCollection.h"
 #include "RimProject.h"
@@ -64,7 +65,10 @@ bool RicNewSummaryPlotFeature::isCommandEnabled()
     auto ensembleFilterColl = dynamic_cast<RimEnsembleCurveFilterCollection*>( selObj );
     auto legendConfig       = dynamic_cast<RimRegularLegendConfig*>( selObj );
 
-    if ( ensembleFilter || ensembleFilterColl || legendConfig ) return false;
+    RimCustomObjectiveFunctionCollection* customObjFuncCollection = nullptr;
+    selObj->firstAncestorOrThisOfType( customObjFuncCollection );
+
+    if ( ensembleFilter || ensembleFilterColl || legendConfig || customObjFuncCollection ) return false;
     if ( sumPlotColl ) return true;
 
     // Multiple case selections
@@ -239,9 +243,14 @@ bool RicNewDefaultSummaryPlotFeature::isCommandEnabled()
     std::vector<RimSummaryCase*>           selectedIndividualSummaryCases;
     std::vector<RimSummaryCaseCollection*> selectedEnsembles;
 
+    caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
+
     extractPlotObjectsFromSelection( &selectedIndividualSummaryCases, &selectedEnsembles );
 
-    return !( selectedIndividualSummaryCases.empty() && selectedEnsembles.empty() );
+    RimCustomObjectiveFunctionCollection* customObjFuncCollection = nullptr;
+    selObj->firstAncestorOrThisOfType( customObjFuncCollection );
+
+    return selectedIndividualSummaryCases.empty() && selectedEnsembles.empty() && ( customObjFuncCollection == nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------

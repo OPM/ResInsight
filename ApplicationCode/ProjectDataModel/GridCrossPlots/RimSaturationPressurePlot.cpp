@@ -27,8 +27,8 @@
 
 #include "RimEclipseResultCase.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimEquilibriumAxisAnnotation.h"
 #include "RimGridCrossPlotDataSet.h"
-#include "RimPlotAxisAnnotation.h"
 #include "RimPlotAxisProperties.h"
 
 #include "CellFilters/RimPlotCellPropertyFilter.h"
@@ -172,18 +172,18 @@ void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion( RiaDefines::Poro
     yAxisProps->setInvertedAxis( true );
 
     {
-        RimPlotAxisAnnotation* annotation = new RimPlotAxisAnnotation;
+        RimEquilibriumAxisAnnotation* annotation = new RimEquilibriumAxisAnnotation;
         annotation->setEquilibriumData( eclipseResultCase,
                                         zeroBasedEquilRegionIndex,
-                                        RimPlotAxisAnnotation::PL_EQUIL_GAS_OIL_CONTACT );
+                                        RimEquilibriumAxisAnnotation::PlotAxisAnnotationType::PL_EQUIL_GAS_OIL_CONTACT );
 
         yAxisProps->appendAnnotation( annotation );
     }
     {
-        RimPlotAxisAnnotation* annotation = new RimPlotAxisAnnotation;
+        RimEquilibriumAxisAnnotation* annotation = new RimEquilibriumAxisAnnotation;
         annotation->setEquilibriumData( eclipseResultCase,
                                         zeroBasedEquilRegionIndex,
-                                        RimPlotAxisAnnotation::PL_EQUIL_WATER_OIL_CONTACT );
+                                        RimEquilibriumAxisAnnotation::PlotAxisAnnotationType::PL_EQUIL_WATER_OIL_CONTACT );
 
         yAxisProps->appendAnnotation( annotation );
     }

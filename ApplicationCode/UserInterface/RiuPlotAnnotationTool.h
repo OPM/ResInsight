@@ -55,6 +55,11 @@ public:
         CENTRE_COLUMN,
         RIGHT_COLUMN
     };
+    enum class Orientation
+    {
+        HORIZONTAL = 0,
+        VERTICAL
+    };
 
 public:
     RiuPlotAnnotationTool(){};
@@ -72,7 +77,11 @@ public:
                              const std::vector<Qt::BrushStyle>&            brushStyles = {} );
     void attachWellPicks( QwtPlot* plot, const std::vector<QString>& names, const std::vector<double>& yPositions );
 
-    void attachAnnotationLine( QwtPlot* plot, const QColor& color, const QString& annotationText, const double yPosition );
+    void attachAnnotationLine( QwtPlot*       plot,
+                               const QColor&  color,
+                               const QString& annotationText,
+                               const double   position,
+                               Orientation    orientation );
 
     void detachAllAnnotations();
 
@@ -84,6 +93,13 @@ private:
                                                const QColor&  color               = QColor( 0, 0, 100 ),
                                                const QColor&  textColor           = QColor( 0, 0, 100 ),
                                                Qt::Alignment  horizontalAlignment = Qt::AlignRight );
+
+    void verticalDashedLine( QwtPlotMarker* line,
+                             const QString& name,
+                             double         xValue,
+                             const QColor&  color               = QColor( 0, 0, 100 ),
+                             const QColor&  textColor           = QColor( 0, 0, 100 ),
+                             Qt::Alignment  horizontalAlignment = Qt::AlignRight );
 
 private:
     QPointer<QwtPlot>         m_plot;

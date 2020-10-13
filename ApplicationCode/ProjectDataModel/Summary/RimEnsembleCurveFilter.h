@@ -27,6 +27,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
+#include "cafPdmPtrField.h"
 
 class EnsembleParameter;
 class RimEnsembleCurveSet;
@@ -34,6 +35,7 @@ class RimSummaryCase;
 class RimSummaryAddress;
 class RimSummaryPlot;
 class RimEnsembleCurveFilterCollection;
+class RimCustomObjectiveFunction;
 
 //==================================================================================================
 ///
@@ -46,7 +48,8 @@ public:
     enum class FilterMode
     {
         BY_ENSEMBLE_PARAMETER = 0,
-        BY_OBJECTIVE_FUNCTION
+        BY_OBJECTIVE_FUNCTION,
+        BY_CUSTOM_OBJECTIVE_FUNCTION
     };
 
     RimEnsembleCurveFilter();
@@ -96,6 +99,7 @@ private:
     caf::PdmField<RifEclipseSummaryAddress>                      m_objectiveValuesSummaryAddressUiField;
     caf::PdmField<bool>                                          m_objectiveValuesSelectSummaryAddressPushButton;
     caf::PdmField<caf::AppEnum<ObjectiveFunction::FunctionType>> m_objectiveFunction;
+    caf::PdmPtrField<RimCustomObjectiveFunction*>                m_customObjectiveFunction;
     caf::PdmField<double>                                        m_minValue;
     caf::PdmField<double>                                        m_maxValue;
     caf::PdmField<std::vector<QString>>                          m_categories;
