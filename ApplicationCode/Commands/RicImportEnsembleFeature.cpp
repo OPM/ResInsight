@@ -50,7 +50,6 @@
 #include <QDebug>
 #include <QFileInfo>
 #include <QInputDialog>
-#include <QMessageBox>
 #include <QRegularExpression>
 
 #include <set>

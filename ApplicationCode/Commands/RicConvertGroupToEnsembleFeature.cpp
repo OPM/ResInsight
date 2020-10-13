@@ -43,7 +43,6 @@
 
 #include <QAction>
 #include <QInputDialog>
-#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT( RicConvertGroupToEnsembleFeature, "RicConvertGroupToEnsembleFeature" );
 

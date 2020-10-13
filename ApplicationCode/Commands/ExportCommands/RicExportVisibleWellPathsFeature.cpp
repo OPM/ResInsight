@@ -35,7 +35,6 @@
 
 #include <QAction>
 #include <QFileInfo>
-#include <QMessageBox>
 
 #include <memory>
 

@@ -23,7 +23,6 @@
 #include "RiuMainWindow.h"
 
 #include <QFile>
-#include <QMessageBox>
 #include <QStringList>
 #include <QTextStream>
 
