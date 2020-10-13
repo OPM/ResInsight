@@ -35,7 +35,10 @@
 #include <cstring>
 #endif
 
-#include "QString"
+#include "RiaGuiApplication.h"
+#include "RiaRegressionTestRunner.h"
+#include <QMessageBox>
+#include <QString>
 
 //==================================================================================================
 //
@@ -245,6 +248,19 @@ void RiaLogging::debug( const QString& message )
 #pragma omp critical( critical_section_logging )
         sm_logger->debug( message.toLatin1().constData() );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaLogging::errorInMessageBox( QWidget* parent, const QString& title, const QString& text )
+{
+    if ( RiaGuiApplication::isRunning() && !RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
+    {
+        QMessageBox::warning( parent, title, text );
+    }
+
+    RiaLogging::error( text );
 }
 
 //--------------------------------------------------------------------------------------------------
