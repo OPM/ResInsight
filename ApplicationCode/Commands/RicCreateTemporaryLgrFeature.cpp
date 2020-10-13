@@ -57,7 +57,6 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
-#include <QMessageBox>
 #include <QTextStream>
 
 #include <cafPdmUiPropertyViewDialog.h>
@@ -183,10 +182,10 @@ void RicCreateTemporaryLgrFeature::onActionTriggered( bool isChecked )
 
         if ( !wellsIntersectingOtherLgrs.empty() )
         {
-            QMessageBox::warning( nullptr,
-                                  "LGR cells intersected",
-                                  "At least one completion intersects with an LGR. No LGR(s) for those cells are "
-                                  "produced" );
+            RiaLogging::errorInMessageBox( nullptr,
+                                           "LGR cells intersected",
+                                           "At least one completion intersects with an LGR. No LGR(s) for those cells "
+                                           "are produced" );
         }
     }
 }

@@ -18,10 +18,9 @@
 
 #include "RimFormationNamesCollection.h"
 
+#include "RiaLogging.h"
 #include "RimCase.h"
 #include "RimFormationNames.h"
-
-#include <QMessageBox>
 
 CAF_PDM_SOURCE_INIT( RimFormationNamesCollection, "FormationNamesCollectionObject" );
 
@@ -107,7 +106,7 @@ std::vector<RimFormationNames*> RimFormationNamesCollection::importFiles( const 
 
     if ( !totalErrorMessage.isEmpty() )
     {
-        QMessageBox::warning( nullptr, "Import Formation Names", totalErrorMessage );
+        RiaLogging::errorInMessageBox( nullptr, "Import Formation Names", totalErrorMessage );
     }
 
     return m_formationNamesList.childObjects();

@@ -56,7 +56,6 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
-#include <QMessageBox>
 #include <QStringList>
 #include <QTextStream>
 
@@ -796,10 +795,11 @@ void RicExportLgrFeature::onActionTriggered( bool isChecked )
         if ( !wellsIntersectingOtherLgrs.empty() )
         {
             auto wellsList = wellsIntersectingOtherLgrs.join( ", " );
-            QMessageBox::warning( nullptr,
-                                  "LGR cells intersected",
-                                  "No export for some wells due to existing intersecting LGR(s). Affected wells: " +
-                                      wellsList );
+            RiaLogging::errorInMessageBox( nullptr,
+                                           "LGR cells intersected",
+                                           "No export for some wells due to existing intersecting LGR(s). Affected "
+                                           "wells: " +
+                                               wellsList );
         }
     }
 }

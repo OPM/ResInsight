@@ -36,7 +36,6 @@
 
 #include <QAction>
 #include <QDir>
-#include <QMessageBox>
 
 //==================================================================================================
 ///
@@ -231,19 +230,7 @@ void RicImportWellPaths::onActionTriggered( bool isChecked )
         if ( !messages.empty() )
         {
             QString displayMessage = QString( "Problem loading well path files:\n%2" ).arg( messages.join( "\n" ) );
-
-            if ( RiaGuiApplication::isRunning() )
-            {
-                QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(), "Well Path Loading", displayMessage );
-            }
-            if ( response.status() == caf::PdmScriptResponse::COMMAND_ERROR )
-            {
-                RiaLogging::error( displayMessage );
-            }
-            else
-            {
-                RiaLogging::warning( displayMessage );
-            }
+            RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "Well Path Loading", displayMessage );
         }
     }
 }

@@ -20,11 +20,11 @@
 
 #include "RiaFilePathTools.h"
 #include "RiaGuiApplication.h"
+#include "RiaLogging.h"
 #include "RiaStringListSerializer.h"
 
 #include <QAction>
 #include <QFileInfo>
-#include <QMessageBox>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -138,7 +138,7 @@ void RiuRecentFileActionProvider::slotOpenRecentFile()
         }
         else
         {
-            QMessageBox::warning( nullptr, "File open", "Failed to import file located at\n" + fileName );
+            RiaLogging::errorInMessageBox( nullptr, "File open", "Failed to import file located at\n" + fileName );
 
             removeFileName( fileName );
         }

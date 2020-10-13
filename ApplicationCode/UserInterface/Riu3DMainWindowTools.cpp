@@ -23,7 +23,6 @@
 
 #include "RiuMainWindow.h"
 
-#include <QMessageBox>
 #include <QString>
 
 //--------------------------------------------------------------------------------------------------
@@ -72,10 +71,5 @@ void Riu3DMainWindowTools::selectAsCurrentItem( const caf::PdmObject* object, bo
 //--------------------------------------------------------------------------------------------------
 void Riu3DMainWindowTools::reportAndShowWarning( const QString& warningDialogHeader, const QString& warningtext )
 {
-    if ( RiaGuiApplication::isRunning() )
-    {
-        QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(), warningDialogHeader, warningtext );
-    }
-
-    RiaLogging::error( warningtext );
+    RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), warningDialogHeader, warningtext );
 }

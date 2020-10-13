@@ -18,14 +18,14 @@
 
 #include "RimFormationNames.h"
 
+#include "RiaLogging.h"
+#include "RifColorLegendData.h"
 #include "RigFormationNames.h"
 
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimTools.h"
 #include "RimWellLogTrack.h"
-
-#include "RifColorLegendData.h"
 
 #include "RiuPlotMainWindowTools.h"
 
@@ -34,7 +34,6 @@
 
 #include <QFile>
 #include <QFileInfo>
-#include <QMessageBox>
 
 CAF_PDM_SOURCE_INIT( RimFormationNames, "FormationNames" );
 
@@ -73,7 +72,7 @@ void RimFormationNames::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
         readFormationNamesFile( &errorMessage );
         if ( !errorMessage.isEmpty() )
         {
-            QMessageBox::warning( nullptr, "Formation Names", errorMessage );
+            RiaLogging::errorInMessageBox( nullptr, "Formation Names", errorMessage );
         }
         updateConnectedViews();
     }

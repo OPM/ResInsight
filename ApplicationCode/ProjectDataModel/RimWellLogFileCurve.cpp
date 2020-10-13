@@ -19,6 +19,10 @@
 
 #include "RimWellLogFileCurve.h"
 
+#include "RiaApplication.h"
+#include "RiaLogging.h"
+#include "RiaPreferences.h"
+
 #include "RigWellLogCurveData.h"
 #include "RigWellPath.h"
 
@@ -36,14 +40,9 @@
 #include "RiuQwtPlotCurve.h"
 #include "RiuQwtPlotWidget.h"
 
-#include "RiaApplication.h"
-#include "RiaLogging.h"
-#include "RiaPreferences.h"
-
 #include "cafPdmUiTreeOrdering.h"
 
 #include <QFileInfo>
-#include <QMessageBox>
 
 CAF_PDM_SOURCE_INIT( RimWellLogFileCurve, "WellLogFileCurve" );
 
@@ -155,7 +154,7 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     tmp += "Control display of this warning from \"Preferences->Show LAS curve without TVD "
                            "warning\"";
 
-                    QMessageBox::warning( nullptr, "LAS curve without current depth type", tmp );
+                    RiaLogging::errorInMessageBox( nullptr, "LAS curve without current depth type", tmp );
                 }
             }
 

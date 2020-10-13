@@ -18,20 +18,20 @@
 
 #include "RicNewIntersectionViewFeature.h"
 
+#include "RiaLogging.h"
 #include "Rim2dIntersectionView.h"
 #include "RimCase.h"
 #include "RimExtrudedCurveIntersection.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "Riu3dSelectionManager.h"
+#include "RiuViewer.h"
 
 #include "cafSelectionManagerTools.h"
 
-#include <QAction>
-#include <QMessageBox>
-
-#include "RiuViewer.h"
 #include "cvfCamera.h"
+
+#include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicNewIntersectionViewFeature, "RicNewIntersectionViewFeature" );
 
@@ -69,7 +69,7 @@ void RicNewIntersectionViewFeature::onActionTriggered( bool isChecked )
                                         "in the view ." )
                                    .arg( intersection->name() );
 
-                QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(), "New Intersection View", text );
+                RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "New Intersection View", text );
             }
 
             Rim2dIntersectionView* intersectionView = intersection->correspondingIntersectionView();

@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaLogging.h"
+#include "RiaGuiApplication.h"
+#include "RiaRegressionTestRunner.h"
 
 #include <iostream>
 #include <sstream>
@@ -35,8 +37,6 @@
 #include <cstring>
 #endif
 
-#include "RiaGuiApplication.h"
-#include "RiaRegressionTestRunner.h"
 #include <QMessageBox>
 #include <QString>
 

@@ -41,7 +41,6 @@
 #include "cafSelectionManager.h"
 
 #include <QAction>
-#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT( RicCreateSaturationPressurePlotsFeature, "RicCreateSaturationPressurePlotsFeature" );
 
@@ -188,9 +187,7 @@ void RicCreateSaturationPressurePlotsFeature::onActionTriggered( bool isChecked 
         text += "and DISGAS are disabled, saturation pressure are not valid.\n\n";
         text += "See error log for more details.";
 
-        QMessageBox::warning( nullptr, "Saturation Pressure Plots", text );
-
-        RiaLogging::warning( text );
+        RiaLogging::errorInMessageBox( nullptr, "Saturation Pressure Plots", text );
     }
     else
     {

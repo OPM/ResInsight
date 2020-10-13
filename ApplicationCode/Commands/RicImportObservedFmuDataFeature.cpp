@@ -42,7 +42,6 @@
 #include <QAction>
 #include <QDir>
 #include <QFileInfo>
-#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT( RicImportObservedFmuDataFeature, "RicImportObservedFmuDataFeature" );
 
@@ -65,13 +64,7 @@ void RicImportObservedFmuDataFeature::selectObservedDataPathInDialog()
                               .arg( RifReaderFmuRft::wellPathFileName() )
                               .arg( directory );
 
-        RiaGuiApplication* guiApp = RiaGuiApplication::instance();
-        if ( guiApp )
-        {
-            QMessageBox::warning( nullptr, "Import of Observed FMU Data", message );
-        }
-
-        RiaLogging::warning( message );
+        RiaLogging::errorInMessageBox( nullptr, "Import of Observed FMU Data", message );
 
         return;
     }

@@ -19,6 +19,7 @@
 #include "RimWellPltPlot.h"
 
 #include "RiaDateStringParser.h"
+#include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaWellNameComparer.h"
 
@@ -58,8 +59,6 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cafVecIjk.h"
-
-#include <QMessageBox>
 
 #include <algorithm>
 #include <iterator>
@@ -182,7 +181,7 @@ void RimWellPltPlot::setPlotXAxisTitles( RimWellLogTrack* plotTrack )
 
     if ( presentUnitSystems.size() > 1 )
     {
-        QMessageBox::warning( nullptr, "ResInsight PLT Plot", "Inconsistent units in PLT plot" );
+        RiaLogging::errorInMessageBox( nullptr, "ResInsight PLT Plot", "Inconsistent units in PLT plot" );
     }
 
     if ( presentUnitSystems.empty() ) return;
@@ -915,7 +914,7 @@ void RimWellPltPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                             QString( "Display of Measured Depth (MD) for Grid or RFT curves is not possible without a "
                                      "well log path, and the curve will be hidden in this mode.\n\n" );
 
-                        QMessageBox::warning( nullptr, "Grid/RFT curve without MD", tmp );
+                        RiaLogging::errorInMessageBox( nullptr, "Grid/RFT curve without MD", tmp );
 
                         // Do not show multiple dialogs
                         break;
