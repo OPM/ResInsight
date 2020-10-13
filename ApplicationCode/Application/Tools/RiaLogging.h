@@ -21,6 +21,7 @@
 #include <string>
 
 class QString;
+class QWidget;
 
 enum class RILogLevel
 {
@@ -65,6 +66,8 @@ public:
     static void warning( const QString& message );
     static void info( const QString& message );
     static void debug( const QString& message );
+
+    static void errorInMessageBox( QWidget* parent, const QString& title, const QString& text );
 
 private:
     static RiaLogger* sm_logger;
