@@ -59,7 +59,8 @@ void RicNewCustomObjectiveFunctionWeightFeature::onActionTriggered( bool isCheck
             newWeight->setSummaryAddress( newWeight->parentCurveSet()->summaryAddress() );
         }
         func[0]->updateConnectedEditors();
-        RiuPlotMainWindowTools::selectAsCurrentItem( func.front() );
+        RiuPlotMainWindowTools::selectAsCurrentItem( newWeight );
+        RiuPlotMainWindowTools::setExpanded( func.front() );
     }
 
     selObj->updateConnectedEditors();

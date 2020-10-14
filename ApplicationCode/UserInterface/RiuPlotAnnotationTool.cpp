@@ -252,6 +252,7 @@ void RiuPlotAnnotationTool::verticalDashedLine( QwtPlotMarker* line,
     curvePen.setColor( color );
     curvePen.setWidth( 1 );
 
+    line->setAxes( QwtPlot::xBottom, QwtPlot::yLeft );
     line->setLineStyle( QwtPlotMarker::VLine );
     line->setLinePen( curvePen );
     line->setXValue( xValue );

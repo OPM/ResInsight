@@ -21,6 +21,7 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafSignal.h"
 
 #include <QString>
 
@@ -34,10 +35,17 @@ class RimCustomObjectiveFunctionCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    caf::Signal<RimCustomObjectiveFunction*> objectiveFunctionAdded;
+    caf::Signal<RimCustomObjectiveFunction*> objectiveFunctionChanged;
+    caf::Signal<RimCustomObjectiveFunction*> objectiveFunctionAboutToBeDeleted;
+    caf::Signal<>                            objectiveFunctionDeleted;
+
+public:
     RimCustomObjectiveFunctionCollection();
 
-    RimCustomObjectiveFunction*              addObjectiveFunction();
-    void                                     removeObjectiveFunction( RimCustomObjectiveFunction* objectiveFunction );
+    RimCustomObjectiveFunction* addObjectiveFunction();
+    void                        onObjectiveFunctionChanged( RimCustomObjectiveFunction* objectiveFunction );
+    void                        removeObjectiveFunction( RimCustomObjectiveFunction* objectiveFunction );
     std::vector<RimCustomObjectiveFunction*> objectiveFunctions() const;
 
 private:

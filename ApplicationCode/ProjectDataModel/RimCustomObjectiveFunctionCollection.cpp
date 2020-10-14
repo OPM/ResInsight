@@ -35,6 +35,10 @@ static void garbageCollectObjectiveFunctions();
 ///
 //--------------------------------------------------------------------------------------------------
 RimCustomObjectiveFunctionCollection::RimCustomObjectiveFunctionCollection()
+    : objectiveFunctionAdded( this )
+    , objectiveFunctionChanged( this )
+    , objectiveFunctionAboutToBeDeleted( this )
+    , objectiveFunctionDeleted( this )
 {
     CAF_PDM_InitObject( "Custom Objective Functions", ":/ObjectiveFunctionCollection.svg", "", "" );
 
@@ -50,7 +54,16 @@ RimCustomObjectiveFunction* RimCustomObjectiveFunctionCollection::addObjectiveFu
 
     auto newFunction = new RimCustomObjectiveFunction();
     m_objectiveFunctions.push_back( newFunction );
+    objectiveFunctionAdded.send( newFunction );
     return newFunction;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCustomObjectiveFunctionCollection::onObjectiveFunctionChanged( RimCustomObjectiveFunction* objectiveFunction )
+{
+    objectiveFunctionChanged.send( objectiveFunction );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,6 +71,9 @@ RimCustomObjectiveFunction* RimCustomObjectiveFunctionCollection::addObjectiveFu
 //--------------------------------------------------------------------------------------------------
 void RimCustomObjectiveFunctionCollection::removeObjectiveFunction( RimCustomObjectiveFunction* objectiveFunction )
 {
+    objectiveFunction->invalidate();
+    objectiveFunctionAboutToBeDeleted.send( objectiveFunction );
+
     garbageCollectObjectiveFunctions();
 
     size_t sizeBefore = m_objectiveFunctions.size();
@@ -65,6 +81,8 @@ void RimCustomObjectiveFunctionCollection::removeObjectiveFunction( RimCustomObj
     size_t sizeAfter = m_objectiveFunctions.size();
 
     if ( sizeAfter < sizeBefore ) _removedFunctions.push_back( objectiveFunction );
+
+    objectiveFunctionDeleted.send();
 }
 
 //--------------------------------------------------------------------------------------------------

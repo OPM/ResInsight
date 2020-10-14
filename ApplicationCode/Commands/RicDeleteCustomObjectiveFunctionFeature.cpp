@@ -20,6 +20,7 @@
 
 #include "RimCustomObjectiveFunction.h"
 #include "RimCustomObjectiveFunctionCollection.h"
+#include "RimEnsembleCurveSet.h"
 
 #include "RiuPlotMainWindowTools.h"
 
@@ -44,9 +45,9 @@ void RicDeleteCustomObjectiveFunctionFeature::onActionTriggered( bool isChecked 
 {
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
     std::vector<RimCustomObjectiveFunction*> func;
-    selObj->descendantsIncludingThisOfType( func );
+    selObj->allAncestorsOrThisOfType( func );
     std::vector<RimCustomObjectiveFunctionCollection*> coll;
-    selObj->descendantsIncludingThisOfType( coll );
+    selObj->allAncestorsOrThisOfType( coll );
 
     if ( func.size() == 1 && coll.size() == 1 )
     {
@@ -64,5 +65,6 @@ void RicDeleteCustomObjectiveFunctionFeature::onActionTriggered( bool isChecked 
 void RicDeleteCustomObjectiveFunctionFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Delete" );
+    actionToSetup->setShortcut( QKeySequence( QKeySequence::Delete ) );
     actionToSetup->setIcon( QIcon( ":/Erase.svg" ) );
 }

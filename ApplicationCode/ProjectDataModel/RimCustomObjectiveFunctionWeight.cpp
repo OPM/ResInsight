@@ -62,11 +62,11 @@ RimCustomObjectiveFunctionWeight::RimCustomObjectiveFunctionWeight()
     m_objectiveValuesSelectSummaryAddressPushButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_objectiveValuesSelectSummaryAddressPushButton = false;
 
-    CAF_PDM_InitFieldNoDefault( &m_objectiveFunction, "ObjectiveFunction", "Objective Function", "", "", "" );
-    m_objectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
-
     CAF_PDM_InitField( &m_weightValue, "WeightValue", 1.0, "Weight", "", "", "" );
     m_weightValue.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_objectiveFunction, "ObjectiveFunction", "Objective Function", "", "", "" );
+    m_objectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
     setDeletable( true );
 }
@@ -88,7 +88,7 @@ QString RimCustomObjectiveFunctionWeight::title() const
 void RimCustomObjectiveFunctionWeight::setSummaryAddress( RifEclipseSummaryAddress address )
 {
     m_objectiveValuesSummaryAddress->setAddress( address );
-    parentObjectiveFunction()->weightUpdated();
+    parentObjectiveFunction()->onWeightChanged();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -163,15 +163,15 @@ void RimCustomObjectiveFunctionWeight::fieldChangedByUi( const caf::PdmFieldHand
         }
 
         m_objectiveValuesSelectSummaryAddressPushButton = false;
-        parentObjectiveFunction()->weightUpdated();
+        parentObjectiveFunction()->onWeightChanged();
     }
     else if ( changedField == &m_weightValue )
     {
-        parentObjectiveFunction()->weightUpdated();
+        parentObjectiveFunction()->onWeightChanged();
     }
     else if ( changedField == &m_objectiveFunction )
     {
-        parentObjectiveFunction()->weightUpdated();
+        parentObjectiveFunction()->onWeightChanged();
     }
 }
 
@@ -182,8 +182,8 @@ void RimCustomObjectiveFunctionWeight::defineUiOrdering( QString uiConfigName, c
 {
     uiOrdering.add( &m_objectiveValuesSummaryAddressUiField );
     uiOrdering.add( &m_objectiveValuesSelectSummaryAddressPushButton, {false, 1, 0} );
-    uiOrdering.add( &m_objectiveFunction );
     uiOrdering.add( &m_weightValue );
+    uiOrdering.add( &m_objectiveFunction );
 
     uiOrdering.skipRemainingFields( true );
 }

@@ -18,6 +18,8 @@
 
 #include "RimTimeAxisAnnotation.h"
 
+#include "RiaTimeTTools.h"
+
 #include "RigEclipseCaseData.h"
 #include "RigEquil.h"
 
@@ -99,8 +101,7 @@ QColor RimTimeAxisAnnotation::color() const
 //--------------------------------------------------------------------------------------------------
 double RimTimeAxisAnnotation::value() const
 {
-    double milliSecSinceEpoch = m_time * 1000.0;
-    return milliSecSinceEpoch;
+    return RiaTimeTTools::toDouble( m_time );
 }
 
 //--------------------------------------------------------------------------------------------------

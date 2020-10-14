@@ -24,6 +24,7 @@
 #include "RiaStatisticsTools.h"
 #include "RiaSummaryCurveAnalyzer.h"
 #include "RiaSummaryCurveDefinition.h"
+#include "RiaTimeTTools.h"
 
 #include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 
@@ -195,6 +196,9 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
                                 "",
                                 "" );
     m_customObjectiveFunctions = new RimCustomObjectiveFunctionCollection();
+    m_customObjectiveFunctions->objectiveFunctionChanged.connect( this, &RimEnsembleCurveSet::onObjectiveFunctionChanged );
+    m_customObjectiveFunctions->objectiveFunctionAboutToBeDeleted
+        .connect( this, &RimEnsembleCurveSet::onObjectiveFunctionAboutToBeDeleted );
 
     CAF_PDM_InitFieldNoDefault( &m_statistics, "Statistics", "Statistics", "", "", "" );
     m_statistics = new RimEnsembleStatistics();
@@ -586,7 +590,7 @@ std::vector<time_t> RimEnsembleCurveSet::selectedTimeSteps()
     std::vector<time_t> selectedTimeTTimeSteps;
     for ( const QDateTime& dateTime : m_selectedTimeSteps.v() )
     {
-        selectedTimeTTimeSteps.push_back( static_cast<time_t>( dateTime.toSecsSinceEpoch() ) );
+        selectedTimeTTimeSteps.push_back( RiaTimeTTools::fromQDateTime( dateTime ) );
     }
 
     return selectedTimeTTimeSteps;
@@ -725,8 +729,8 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     }
     else if ( changedField == &m_minDateRange || changedField == &m_maxDateRange )
     {
-        m_minTimeStep = QDateTime( m_minDateRange() ).toSecsSinceEpoch();
-        m_maxTimeStep = QDateTime( m_maxDateRange() ).toSecsSinceEpoch();
+        m_minTimeStep = RiaTimeTTools::fromQDateTime( QDateTime( m_minDateRange() ) );
+        m_maxTimeStep = RiaTimeTTools::fromQDateTime( QDateTime( m_maxDateRange() ) );
         updateCurveColors();
         updateTimeAnnotations();
     }
@@ -810,9 +814,6 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     {
         if ( m_customObjectiveFunction() )
         {
-            m_customObjectiveFunction()->objectiveFunctionChanged.connect( this,
-                                                                           &RimEnsembleCurveSet::onObjectiveFunctionChanged );
-
             if ( m_customObjectiveFunction()->weightContainsFunctionType( ObjectiveFunction::FunctionType::M2 ) )
             {
                 std::vector<size_t> indices;
@@ -887,8 +888,23 @@ void RimEnsembleCurveSet::updateMaxMinAndDefaultValues()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::onObjectiveFunctionChanged( const caf::SignalEmitter* emitter )
+void RimEnsembleCurveSet::onObjectiveFunctionChanged( const caf::SignalEmitter*   emitter,
+                                                      RimCustomObjectiveFunction* objectiveFunction )
 {
+    updateCurveColors();
+    updateFilterLegend();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::onObjectiveFunctionAboutToBeDeleted( const caf::SignalEmitter*   emitter,
+                                                               RimCustomObjectiveFunction* objectiveFunction )
+{
+    if ( objectiveFunction == m_customObjectiveFunction )
+    {
+        m_customObjectiveFunction = nullptr;
+    }
     updateCurveColors();
     updateFilterLegend();
 }
@@ -1407,15 +1423,22 @@ void RimEnsembleCurveSet::updateCurveColors()
             }
 
             legendTitle += "\n";
-            if ( m_customObjectiveFunction() )
+            if ( m_customObjectiveFunction() && m_customObjectiveFunction()->isValid() )
             {
-                legendTitle += m_customObjectiveFunction()->title();
+                QString descriptions = m_customObjectiveFunction()->title();
+                descriptions.replace( "+", "\n+" );
+                legendTitle += descriptions;
+            }
+            else
+            {
+                legendTitle += "(Invalid Objective Function)";
             }
 
             m_legendConfig->setTitle( legendTitle );
         }
 
-        if ( group && !group->allSummaryCases().empty() && m_customObjectiveFunction() )
+        if ( group && !group->allSummaryCases().empty() && m_customObjectiveFunction() &&
+             m_customObjectiveFunction->isValid() )
         {
             RimEnsembleCurveSetColorManager::initializeLegendConfig( m_legendConfig,
                                                                      m_customObjectiveFunction(),
@@ -1471,13 +1494,13 @@ void RimEnsembleCurveSet::updateTimeAnnotations()
     firstAncestorOrThisOfType( plot );
     CVF_ASSERT( plot );
 
-    plot->removeAllAnnotations();
+    plot->removeAllTimeAnnotations();
 
     if ( m_colorMode() == ColorMode::BY_OBJECTIVE_FUNCTION || m_colorMode() == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION )
     {
         for ( QDateTime timeStep : m_selectedTimeSteps() )
         {
-            plot->addTimeAnnotation( timeStep.toSecsSinceEpoch() );
+            plot->addTimeAnnotation( RiaTimeTTools::fromQDateTime( timeStep ) );
         }
         plot->updateAxes();
     }

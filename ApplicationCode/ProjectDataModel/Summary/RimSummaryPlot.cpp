@@ -1204,7 +1204,7 @@ void RimSummaryPlot::addTimeRangeAnnotation( time_t startTime, time_t endTime )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::removeAllAnnotations()
+void RimSummaryPlot::removeAllTimeAnnotations()
 {
     RimSummaryTimeAxisProperties* axisProps = timeAxisProperties();
     {

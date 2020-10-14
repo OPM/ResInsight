@@ -18,13 +18,13 @@
 
 #pragma once
 
+#include "RimCustomObjectiveFunctionCollection.h"
+#include "RimObjectiveFunction.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
-#include "cafSignal.h"
-
-#include "RimObjectiveFunction.h"
 
 #include <QString>
 
@@ -40,9 +40,6 @@ class RimCustomObjectiveFunction : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    caf::Signal<> objectiveFunctionChanged;
-
-public:
     RimCustomObjectiveFunction();
 
     RimCustomObjectiveFunctionWeight*              addWeight();
@@ -54,15 +51,18 @@ public:
     bool    weightContainsFunctionType( ObjectiveFunction::FunctionType functionType ) const;
     QString title() const;
     bool    isValid() const;
-    void    weightUpdated();
+    void    onWeightChanged();
+    void    invalidate();
 
 private:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /* = "" */ ) override;
-    RimEnsembleCurveSet* parentCurveSet() const;
+    RimEnsembleCurveSet*                  parentCurveSet() const;
+    RimCustomObjectiveFunctionCollection* parentCollection() const;
 
     caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
     caf::PdmProxyValueField<QString>                           m_functionTitle;
     caf::PdmChildArrayField<RimCustomObjectiveFunctionWeight*> m_weights;
+    bool                                                       m_isValid;
 };

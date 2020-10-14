@@ -197,9 +197,13 @@ QString RimEnsembleCurveFilter::description() const
     }
     else if ( m_filterMode() == FilterMode::BY_CUSTOM_OBJECTIVE_FUNCTION )
     {
-        if ( m_customObjectiveFunction() )
+        if ( m_customObjectiveFunction() && m_customObjectiveFunction()->isValid() )
         {
             descriptor = m_customObjectiveFunction()->title();
+        }
+        else
+        {
+            descriptor = "(Invalid Objective Function)";
         }
     }
     return QString( "%0 : %1 - %2" ).arg( descriptor ).arg( QString::number( m_minValue() ) ).arg( QString::number( m_maxValue() ) );
@@ -531,7 +535,7 @@ std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter( const std::vec
         {
             bool hasWarning = false;
 
-            if ( m_customObjectiveFunction() )
+            if ( m_customObjectiveFunction() && m_customObjectiveFunction()->isValid() )
             {
                 double value = m_customObjectiveFunction()->value( sumCase );
                 if ( value < m_minValue() || value > m_maxValue )

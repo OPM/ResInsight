@@ -30,6 +30,7 @@
 #include "cafAppEnum.h"
 
 #include <cmath>
+#include <limits.h>
 
 namespace caf
 {
@@ -76,7 +77,7 @@ ObjectiveFunction::ObjectiveFunction( const RimSummaryCaseCollection* summaryCas
     m_summaryCaseCollection = summaryCaseCollection;
     m_functionType          = type;
     m_startTimeStep         = 0;
-    m_endTimeStep           = HUGE_VAL;
+    m_endTimeStep           = INT_MAX;
 }
 
 //--------------------------------------------------------------------------------------------------

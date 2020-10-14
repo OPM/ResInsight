@@ -181,7 +181,9 @@ private:
     void updateCurveColors();
     void updateTimeAnnotations();
 
-    void onObjectiveFunctionChanged( const caf::SignalEmitter* emitter );
+    void onObjectiveFunctionChanged( const caf::SignalEmitter* emitter, RimCustomObjectiveFunction* objectiveFunction );
+    void onObjectiveFunctionAboutToBeDeleted( const caf::SignalEmitter*   emitter,
+                                              RimCustomObjectiveFunction* objectiveFunction );
 
 private:
     caf::PdmField<bool>                       m_showCurves;

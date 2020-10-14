@@ -109,7 +109,7 @@ public:
 
     void addTimeAnnotation( time_t time );
     void addTimeRangeAnnotation( time_t startTime, time_t endTime );
-    void removeAllAnnotations();
+    void removeAllTimeAnnotations();
 
     void updateAxes() override;
 

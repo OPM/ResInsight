@@ -40,7 +40,6 @@ static void garbageCollectWeights();
 ///
 //--------------------------------------------------------------------------------------------------
 RimCustomObjectiveFunction::RimCustomObjectiveFunction()
-    : objectiveFunctionChanged( this )
 {
     CAF_PDM_InitObject( "Objective Function", ":/ObjectiveFunction.svg", "", "" );
 
@@ -50,7 +49,7 @@ RimCustomObjectiveFunction::RimCustomObjectiveFunction()
 
     CAF_PDM_InitFieldNoDefault( &m_weights, "Weights", "", "", "", "" );
 
-    setDeletable( true );
+    m_isValid = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -62,7 +61,6 @@ RimCustomObjectiveFunctionWeight* RimCustomObjectiveFunction::addWeight()
 
     auto newWeight = new RimCustomObjectiveFunctionWeight();
     m_weights.push_back( newWeight );
-    objectiveFunctionChanged.send();
     return newWeight;
 }
 
@@ -76,7 +74,6 @@ void RimCustomObjectiveFunction::removeWeight( RimCustomObjectiveFunctionWeight*
     size_t sizeBefore = m_weights.size();
     m_weights.removeChildObject( weight );
     size_t sizeAfter = m_weights.size();
-    objectiveFunctionChanged.send();
     if ( sizeAfter < sizeBefore ) _removedWeights.push_back( weight );
 }
 
@@ -193,15 +190,23 @@ QString RimCustomObjectiveFunction::title() const
 //--------------------------------------------------------------------------------------------------
 bool RimCustomObjectiveFunction::isValid() const
 {
-    return m_weights.size() > 0;
+    return m_weights.size() > 0 && m_isValid;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCustomObjectiveFunction::weightUpdated()
+void RimCustomObjectiveFunction::onWeightChanged()
 {
-    objectiveFunctionChanged.send();
+    parentCollection()->onObjectiveFunctionChanged( this );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCustomObjectiveFunction::invalidate()
+{
+    m_isValid = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -233,6 +238,16 @@ RimEnsembleCurveSet* RimCustomObjectiveFunction::parentCurveSet() const
     RimEnsembleCurveSet* curveSet;
     firstAncestorOrThisOfType( curveSet );
     return curveSet;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimCustomObjectiveFunctionCollection* RimCustomObjectiveFunction::parentCollection() const
+{
+    RimCustomObjectiveFunctionCollection* collection;
+    firstAncestorOrThisOfType( collection );
+    return collection;
 }
 
 //--------------------------------------------------------------------------------------------------

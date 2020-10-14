@@ -277,7 +277,9 @@ QString RimEnsembleCurveFilterCollection::filterDescriptions() const
 //--------------------------------------------------------------------------------------------------
 RiuTextContentFrame* RimEnsembleCurveFilterCollection::makeFilterDescriptionFrame() const
 {
-    return new RiuTextContentFrame( nullptr, QString( "Active curve filters:" ), filterDescriptions() );
+    QString descriptions = filterDescriptions();
+    descriptions.replace( "+", "\n+" );
+    return new RiuTextContentFrame( nullptr, QString( "Active curve filters:" ), descriptions );
 }
 
 //--------------------------------------------------------------------------------------------------

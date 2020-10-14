@@ -21,6 +21,7 @@
 
 #include "RiaCurveDataTools.h"
 #include "RiaImageTools.h"
+#include "RiaTimeTTools.h"
 
 #include "RiuQwtSymbol.h"
 
@@ -392,11 +393,7 @@ std::vector<double> RiuQwtPlotCurve::fromTime_t( const std::vector<time_t>& time
         doubleValues.reserve( timeSteps.size() );
         for ( const auto& time : timeSteps )
         {
-            double milliSecSinceEpoch = time * 1000; // This is kind of hack, as the c++ standard does not state what
-                                                     // time_t is. "Almost always" secs since epoch according to
-                                                     // cppreference.com
-
-            doubleValues.push_back( milliSecSinceEpoch );
+            doubleValues.push_back( RiaTimeTTools::toDouble( time ) );
         }
     }
 
