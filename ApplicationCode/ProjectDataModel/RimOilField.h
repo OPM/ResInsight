@@ -38,7 +38,6 @@ class RimWellPathCollection;
 class RimAnnotationCollection;
 class RimMeasurement;
 class RimSurfaceCollection;
-class RimStreamlineCollection;
 
 //==================================================================================================
 ///
@@ -68,7 +67,6 @@ public:
     caf::PdmChildField<RimAnnotationCollection*>         annotationCollection;
     caf::PdmChildField<RimMeasurement*>                  measurement;
     caf::PdmChildField<RimSurfaceCollection*>            surfaceCollection;
-    caf::PdmChildField<RimStreamlineCollection*>         streamlineCollection;
 
 protected:
     void initAfterRead() override;
