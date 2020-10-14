@@ -127,8 +127,6 @@ RimWellPath::RimWellPath()
     m_wellPathAttributes = new RimWellPathAttributeCollection;
     m_wellPathAttributes->uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_childWellPaths, "ChildWellPaths", "Child Well Paths", "", "", "" );
-
     this->setDeletable( true );
 }
 
@@ -361,54 +359,6 @@ double RimWellPath::endMD() const
         return wellPathGeometry()->measuredDepths().back();
     }
     return std::numeric_limits<double>::infinity();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellPath::addChildWellPath( RimWellPath* wellPath )
-{
-    m_childWellPaths.push_back( wellPath );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimWellPath*> RimWellPath::childWellPaths() const
-{
-    return m_childWellPaths.childObjects();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RimWellPath::childWellpathCount() const
-{
-    return m_childWellPaths.size();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimWellPath::hasChildWellPath( RimWellPath* wellPath )
-{
-    return m_childWellPaths.count( wellPath ) != 0u;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellPath::removeChildWellPath( RimWellPath* wellPath )
-{
-    m_childWellPaths.removeChildObject( wellPath );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellPath::removeAllChildWellPaths()
-{
-    m_childWellPaths.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -679,14 +629,6 @@ void RimWellPath::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, 
     if ( !m_wellPathAttributes->attributes().empty() )
     {
         uiTreeOrdering.add( m_wellPathAttributes() );
-    }
-
-    for ( auto child : m_childWellPaths() )
-    {
-        if ( child )
-        {
-            uiTreeOrdering.add( child );
-        }
     }
 
     uiTreeOrdering.skipRemainingChildren( true );

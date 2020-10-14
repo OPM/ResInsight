@@ -97,13 +97,6 @@ public:
     double startMD() const override;
     double endMD() const override;
 
-    void                      addChildWellPath( RimWellPath* wellPath );
-    std::vector<RimWellPath*> childWellPaths() const;
-    size_t                    childWellpathCount() const;
-    bool                      hasChildWellPath( RimWellPath* wellPath );
-    void                      removeChildWellPath( RimWellPath* wellPath );
-    void                      removeAllChildWellPaths();
-
     void                         addWellLogFile( RimWellLogFile* logFileInfo );
     void                         deleteWellLogFile( RimWellLogFile* logFileInfo );
     void                         detachWellLogFile( RimWellLogFile* logFileInfo );
@@ -189,8 +182,6 @@ private:
     caf::PdmChildField<Rim3dWellLogCurveCollection*>    m_3dWellLogCurves;
     caf::PdmChildField<RimWellPathCompletions*>         m_completions;
     caf::PdmChildField<RimWellPathAttributeCollection*> m_wellPathAttributes;
-
-    caf::PdmChildArrayField<RimWellPath*> m_childWellPaths;
 
 private:
     static size_t simulationWellBranchCount( const QString& simWellName );

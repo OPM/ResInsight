@@ -374,14 +374,14 @@ double RigWellPath::identicalTubeLength( const RigWellPath& other ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigWellPath RigWellPath::commonGeometry( const std::vector<const RigWellPath*>& allGeometries )
+cvf::ref<RigWellPath> RigWellPath::commonGeometry( const std::vector<const RigWellPath*>& allGeometries )
 {
     const double eps = 1.0e-8;
 
     if ( allGeometries.empty() )
-        return RigWellPath();
+        return nullptr;
     else if ( allGeometries.size() == 1u )
-        return *allGeometries.front();
+        return cvf::ref<RigWellPath>( new RigWellPath( *allGeometries.front() ) );
 
     const RigWellPath* firstGeometry = allGeometries.front();
 
@@ -410,7 +410,7 @@ RigWellPath RigWellPath::commonGeometry( const std::vector<const RigWellPath*>& 
             break;
         }
     }
-    return RigWellPath( commonWellPathPoints, commonMDs );
+    return cvf::ref<RigWellPath>( new RigWellPath( commonWellPathPoints, commonMDs ) );
 }
 
 //--------------------------------------------------------------------------------------------------

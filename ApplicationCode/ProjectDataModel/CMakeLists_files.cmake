@@ -25,6 +25,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimSimWellInView.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSimWellInViewCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSimWellInViewTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPath.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellPathGroup.h
 ${CMAKE_CURRENT_LIST_DIR}/RimFileWellPath.h
 ${CMAKE_CURRENT_LIST_DIR}/RimModeledWellPath.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurement.h
@@ -205,6 +206,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimSimWellInView.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSimWellInViewCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSimWellInViewTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPath.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellPathGroup.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimFileWellPath.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimModeledWellPath.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurement.cpp
