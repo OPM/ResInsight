@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimStreamlineInViewCollection.h"
+#include "RimEclipseCase.h"
 #include "RimStreamline.h"
 
 #include "RiaLogging.h"
@@ -42,6 +43,8 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
     // CAF_PDM_InitScriptableFieldNoDefault( &m_streamlines, "Streamlines", "Streamlines", "", "", "" );
     // m_streamlines.uiCapability()->setUiTreeHidden( true );
 
+    m_eclipseCase = nullptr;
+
     // we are a topmost folder, do not delete us
     setDeletable( false );
 }
@@ -59,4 +62,27 @@ RimStreamlineInViewCollection::~RimStreamlineInViewCollection()
 caf::PdmFieldHandle* RimStreamlineInViewCollection::objectToggleField()
 {
     return &m_isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStreamlineInViewCollection::setEclipseCase( RimEclipseCase* reservoir )
+{
+    m_eclipseCase = reservoir;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase* RimStreamlineInViewCollection::eclipseCase() const
+{
+    return m_eclipseCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStreamlineInViewCollection::goForIt()
+{
 }
