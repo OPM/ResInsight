@@ -533,8 +533,6 @@ std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter( const std::vec
         }
         else if ( m_filterMode() == FilterMode::BY_CUSTOM_OBJECTIVE_FUNCTION )
         {
-            bool hasWarning = false;
-
             if ( m_customObjectiveFunction() && m_customObjectiveFunction()->isValid() )
             {
                 double value = m_customObjectiveFunction()->value( sumCase );
