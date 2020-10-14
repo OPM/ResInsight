@@ -45,6 +45,7 @@ class RimEclipseView;
 class RimProject;
 class RimWellLogFile;
 class RimWellPath;
+class RimWellPathGroup;
 class RifWellPathFormationsImporter;
 class RimWellMeasurementCollection;
 class QString;
@@ -134,11 +135,11 @@ private:
 
     caf::PdmFieldHandle* objectToggleField() override;
 
+    void checkAndFixBranchNames();
     void readAndAddWellPaths( std::vector<RimFileWellPath*>& wellPathArray, bool importGrouped );
     void sortWellsByName();
 
-    void         createWellPathBranchFromExistingWellPath( RimWellPath* wellPath );
-    RimWellPath* findSuitableParentWellPath( gsl::not_null<const RimWellPath*> wellPath ) const;
+    RimWellPathGroup* findOrCreateWellPathGroup( gsl::not_null<RimWellPath*> wellPath );
 
     RiaEclipseUnitTools::UnitSystemType findUnitSystemForWellPath( const RimWellPath* wellPath );
 

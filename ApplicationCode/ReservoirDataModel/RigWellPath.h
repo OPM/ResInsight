@@ -70,7 +70,7 @@ public:
     void   twoClosestPoints( const cvf::Vec3d& position, cvf::Vec3d* p1, cvf::Vec3d* p2 ) const;
     double identicalTubeLength( const RigWellPath& otherWellPathGeometry ) const;
 
-    static RigWellPath commonGeometry( const std::vector<const RigWellPath*>& allGeometries );
+    static cvf::ref<RigWellPath> commonGeometry( const std::vector<const RigWellPath*>& allGeometries );
 
     std::pair<std::vector<cvf::Vec3d>, std::vector<double>>
         clippedPointSubset( double startMD, double endMD, double* horizontalLengthAlongWellToStartClipPoint = nullptr ) const;

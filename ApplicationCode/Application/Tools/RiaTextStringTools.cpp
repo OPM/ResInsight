@@ -62,24 +62,27 @@ QString RiaTextStringTools::trimAndRemoveDoubleSpaces( const QString& s )
 //--------------------------------------------------------------------------------------------------
 QString RiaTextStringTools::commonRoot( const QStringList& stringList )
 {
-    QString root = stringList.front();
-    for ( const auto& item : stringList )
+    QString root;
+    if ( !stringList.isEmpty() )
     {
-        if ( root.length() > item.length() )
+        root = stringList.front();
+        for ( const auto& item : stringList )
         {
-            root.truncate( item.length() );
-        }
-
-        for ( int i = 0; i < root.length(); ++i )
-        {
-            if ( root[i] != item[i] )
+            if ( root.length() > item.length() )
             {
-                root.truncate( i );
-                break;
+                root.truncate( item.length() );
+            }
+
+            for ( int i = 0; i < root.length(); ++i )
+            {
+                if ( root[i] != item[i] )
+                {
+                    root.truncate( i );
+                    break;
+                }
             }
         }
     }
-
     return root;
 }
 
