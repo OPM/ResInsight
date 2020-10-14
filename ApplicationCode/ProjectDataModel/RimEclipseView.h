@@ -64,6 +64,7 @@ class RimRegularLegendConfig;
 class RimTernaryLegendConfig;
 class RimEclipseResultDefinition;
 class RimElementVectorResult;
+class RimStreamlineInViewCollection;
 
 namespace cvf
 {
@@ -216,8 +217,9 @@ private:
 
     caf::PdmProxyValueField<std::vector<double>> m_cellResultData;
 
-    caf::PdmChildField<RimSimWellInViewCollection*> m_wellCollection;
-    caf::PdmChildField<RimFaultInViewCollection*>   m_faultCollection;
+    caf::PdmChildField<RimSimWellInViewCollection*>    m_wellCollection;
+    caf::PdmChildField<RimFaultInViewCollection*>      m_faultCollection;
+    caf::PdmChildField<RimStreamlineInViewCollection*> m_streamlineCollection;
 
     caf::PdmChildField<RimEclipsePropertyFilterCollection*> m_propertyFilterCollection;
     caf::PdmPointer<RimEclipsePropertyFilterCollection>     m_overridePropertyFilterCollection;

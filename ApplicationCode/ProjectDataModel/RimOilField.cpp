@@ -28,7 +28,6 @@
 #include "RimGeoMechModels.h"
 #include "RimMeasurement.h"
 #include "RimObservedDataCollection.h"
-#include "RimStreamlineCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSurfaceCollection.h"
 #include "RimWellPathCollection.h"
@@ -67,9 +66,6 @@ RimOilField::RimOilField( void )
     CAF_PDM_InitFieldNoDefault( &surfaceCollection, "SurfaceCollection", "Surfaces", "", "", "" );
     surfaceCollection = new RimSurfaceCollection();
     surfaceCollection->setAsTopmostFolder();
-
-    CAF_PDM_InitFieldNoDefault( &streamlineCollection, "StreamlineCollection", "Streamlines", "", "", "" );
-    streamlineCollection = new RimStreamlineCollection();
 
     completionTemplateCollection = new RimCompletionTemplateCollection;
     analysisModels               = new RimEclipseCaseCollection();

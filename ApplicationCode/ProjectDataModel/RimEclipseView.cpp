@@ -73,6 +73,7 @@
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimStimPlanColors.h"
+#include "RimStreamlineInViewCollection.h"
 #include "RimSurfaceInViewCollection.h"
 #include "RimTernaryLegendConfig.h"
 #include "RimViewController.h"
@@ -175,6 +176,10 @@ RimEclipseView::RimEclipseView()
     CAF_PDM_InitFieldNoDefault( &m_annotationCollection, "AnnotationCollection", "Annotations", "", "", "" );
     m_annotationCollection = new RimAnnotationInViewCollection;
     m_annotationCollection.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_streamlineCollection, "StreamlineCollection", "Streamlines", "", "", "" );
+    m_streamlineCollection = new RimStreamlineInViewCollection();
+    m_streamlineCollection.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_propertyFilterCollection, "PropertyFilters", "Property Filters", "", "", "" );
     m_propertyFilterCollection = new RimEclipsePropertyFilterCollection();
@@ -1853,6 +1858,8 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     uiTreeOrdering.add( faultResultSettings() );
     uiTreeOrdering.add( &m_intersectionResultDefCollection );
     uiTreeOrdering.add( &m_surfaceResultDefCollection );
+
+    uiTreeOrdering.add( &m_streamlineCollection );
 
     uiTreeOrdering.add( wellCollection() );
     uiTreeOrdering.add( &m_wellMeasurementCollection );
