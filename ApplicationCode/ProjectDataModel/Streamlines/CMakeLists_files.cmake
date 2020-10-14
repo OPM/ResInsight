@@ -1,12 +1,12 @@
 
 set (SOURCE_GROUP_HEADER_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RimStreamline.h
-${CMAKE_CURRENT_LIST_DIR}/RimStreamlineCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimStreamlineInViewCollection.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RimStreamline.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimStreamlineCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimStreamlineInViewCollection.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

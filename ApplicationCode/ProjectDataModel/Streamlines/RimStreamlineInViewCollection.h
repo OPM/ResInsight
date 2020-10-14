@@ -24,15 +24,19 @@
 
 // class RimStreamline;
 
-class RimStreamlineCollection : public caf::PdmObject
+class RimStreamlineInViewCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimStreamlineCollection();
-    ~RimStreamlineCollection() override;
+    RimStreamlineInViewCollection();
+    ~RimStreamlineInViewCollection() override;
+
+protected:
+    caf::PdmFieldHandle* objectToggleField() override;
 
 private:
+    caf::PdmField<bool>    m_isActive;
     caf::PdmField<QString> m_collectionName;
     // caf::PdmChildArrayField<RimStreamline*> m_streamlines;
 };

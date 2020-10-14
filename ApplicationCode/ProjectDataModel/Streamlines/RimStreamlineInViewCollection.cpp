@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimStreamlineCollection.h"
+#include "RimStreamlineInViewCollection.h"
 #include "RimStreamline.h"
 
 #include "RiaLogging.h"
@@ -24,17 +24,20 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 
-CAF_PDM_SOURCE_INIT( RimStreamlineCollection, "StreamlineCollection" );
+CAF_PDM_SOURCE_INIT( RimStreamlineInViewCollection, "StreamlineInViewCollection" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimStreamlineCollection::RimStreamlineCollection()
+RimStreamlineInViewCollection::RimStreamlineInViewCollection()
 {
     CAF_PDM_InitScriptableObject( "Streamlines", ":/Erase.png", "", "" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_collectionName, "Name", "Name", "", "", "" );
     m_collectionName = "Streamlines";
+
+    CAF_PDM_InitField( &m_isActive, "isActive", false, "Active", "", "", "" );
+    m_isActive.uiCapability()->setUiHidden( true );
 
     // CAF_PDM_InitScriptableFieldNoDefault( &m_streamlines, "Streamlines", "Streamlines", "", "", "" );
     // m_streamlines.uiCapability()->setUiTreeHidden( true );
@@ -46,6 +49,14 @@ RimStreamlineCollection::RimStreamlineCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimStreamlineCollection::~RimStreamlineCollection()
+RimStreamlineInViewCollection::~RimStreamlineInViewCollection()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimStreamlineInViewCollection::objectToggleField()
+{
+    return &m_isActive;
 }
