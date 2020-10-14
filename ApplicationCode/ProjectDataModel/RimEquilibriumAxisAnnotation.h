@@ -53,8 +53,8 @@ public:
                              int                    zeroBasedEquilRegionIndex,
                              PlotAxisAnnotationType annotationType );
 
-    double value() const;
-    QColor color() const;
+    double value() const override;
+    QColor color() const override;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;

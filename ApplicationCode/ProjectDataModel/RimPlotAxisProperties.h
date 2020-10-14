@@ -79,6 +79,7 @@ public:
 
     std::vector<RimPlotAxisAnnotation*> annotations() const;
     void                                appendAnnotation( RimPlotAxisAnnotation* annotation );
+    void                                removeAllAnnotations() override;
 
     caf::PdmField<QString> customTitle;
 

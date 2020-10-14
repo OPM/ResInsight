@@ -238,15 +238,6 @@ void RimSummaryPlot::updateAxes()
     updateYAxis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
     updateYAxis( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
 
-    if ( m_isCrossPlot )
-    {
-        updateBottomXAxis();
-    }
-    else
-    {
-        updateTimeAxis();
-    }
-
     if ( m_timeAxisProperties() && m_plotWidget )
     {
         m_plotWidget->updateAnnotationObjects( m_timeAxisProperties() );
@@ -254,6 +245,15 @@ void RimSummaryPlot::updateAxes()
     if ( m_leftYAxisProperties() && m_plotWidget )
     {
         m_plotWidget->updateAnnotationObjects( m_leftYAxisProperties() );
+    }
+
+    if ( m_isCrossPlot )
+    {
+        updateBottomXAxis();
+    }
+    else
+    {
+        updateTimeAxis();
     }
 
     m_plotWidget->scheduleReplot();
@@ -1198,6 +1198,17 @@ void RimSummaryPlot::addTimeRangeAnnotation( time_t startTime, time_t endTime )
         annotation->setTimeRange( startTime, endTime );
 
         axisProps->appendAnnotation( annotation );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::removeAllAnnotations()
+{
+    RimSummaryTimeAxisProperties* axisProps = timeAxisProperties();
+    {
+        axisProps->removeAllAnnotations();
     }
 }
 

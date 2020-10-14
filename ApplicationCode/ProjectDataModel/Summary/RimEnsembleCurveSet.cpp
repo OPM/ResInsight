@@ -659,6 +659,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         updateLegendMappingMode();
         updateMaxMinAndDefaultValues();
         updateCurveColors();
+        updateTimeAnnotations();
     }
     else if ( changedField == &m_objectiveValuesSummaryAddressUiField )
     {
@@ -697,6 +698,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         }
 
         updateCurveColors();
+        updateTimeAnnotations();
 
         updateTextInPlot = true;
     }
@@ -719,12 +721,14 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     {
         updateMaxMinAndDefaultValues();
         updateCurveColors();
+        updateTimeAnnotations();
     }
     else if ( changedField == &m_minDateRange || changedField == &m_maxDateRange )
     {
         m_minTimeStep = QDateTime( m_minDateRange() ).toSecsSinceEpoch();
         m_maxTimeStep = QDateTime( m_maxDateRange() ).toSecsSinceEpoch();
         updateCurveColors();
+        updateTimeAnnotations();
     }
     else if ( changedField == &m_plotAxis )
     {
@@ -823,6 +827,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
             updateLegendMappingMode();
             updateMaxMinAndDefaultValues();
             updateCurveColors();
+            updateTimeAnnotations();
         }
     }
 
@@ -1462,12 +1467,14 @@ void RimEnsembleCurveSet::updateCurveColors()
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::updateTimeAnnotations()
 {
+    RimSummaryPlot* plot = nullptr;
+    firstAncestorOrThisOfType( plot );
+    CVF_ASSERT( plot );
+
+    plot->removeAllAnnotations();
+
     if ( m_colorMode() == ColorMode::BY_OBJECTIVE_FUNCTION || m_colorMode() == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION )
     {
-        RimSummaryPlot* plot = nullptr;
-        firstAncestorOrThisOfType( plot );
-        CVF_ASSERT( plot );
-
         for ( QDateTime timeStep : m_selectedTimeSteps() )
         {
             plot->addTimeAnnotation( timeStep.toSecsSinceEpoch() );

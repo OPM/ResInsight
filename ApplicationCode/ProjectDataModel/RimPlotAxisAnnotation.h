@@ -38,9 +38,9 @@ public:
     void setName( const QString& name );
     void setValue( double value );
 
-    QString name() const;
-    double  value() const;
-    QColor  color() const;
+    virtual QString name() const;
+    virtual double  value() const;
+    virtual QColor  color() const;
 
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* objectToggleField() override;

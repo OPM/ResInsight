@@ -46,7 +46,8 @@ public:
 
     void   setTime( time_t time );
     void   setTimeRange( time_t startTime, time_t endTime );
-    QColor color() const;
+    QColor color() const override;
+    double value() const override;
 
 protected:
     virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

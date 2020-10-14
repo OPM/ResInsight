@@ -513,6 +513,14 @@ void RimSummaryTimeAxisProperties::appendAnnotation( RimPlotAxisAnnotation* anno
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryTimeAxisProperties::removeAllAnnotations()
+{
+    m_annotations.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const QString& RimSummaryTimeAxisProperties::dateFormat() const
 {
     return m_dateFormat();

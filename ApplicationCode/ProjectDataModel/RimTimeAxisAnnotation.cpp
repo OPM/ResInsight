@@ -21,6 +21,8 @@
 #include "RigEclipseCaseData.h"
 #include "RigEquil.h"
 
+#include "RiuQwtPlotCurve.h"
+
 #include "RimEclipseCase.h"
 #include "RimPlot.h"
 #include "RimTools.h"
@@ -90,6 +92,15 @@ QColor RimTimeAxisAnnotation::color() const
         return QColor( 0, 255, 0 );
     }
     return QColor( 0, 0, 100 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimTimeAxisAnnotation::value() const
+{
+    double milliSecSinceEpoch = m_time * 1000.0;
+    return milliSecSinceEpoch;
 }
 
 //--------------------------------------------------------------------------------------------------
