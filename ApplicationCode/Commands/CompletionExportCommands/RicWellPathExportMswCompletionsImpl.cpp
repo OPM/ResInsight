@@ -510,12 +510,6 @@ void RicWellPathExportMswCompletionsImpl::generateCompsegTable(
                                 endLength   = endMD;
                             }
 
-                            if ( exportInfo.lengthAndDepthText() == QString( "INC" ) && completion->branchNumber() != 1 )
-                            {
-                                startLength -= startMD;
-                                endLength -= startMD;
-                            }
-
                             if ( exportSubGridIntersections )
                             {
                                 formatter.add( intersection->gridName() );
