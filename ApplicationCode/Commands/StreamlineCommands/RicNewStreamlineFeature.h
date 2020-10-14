@@ -15,37 +15,21 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
-#include "cafPdmField.h"
+#include "cafCmdFeature.h"
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmObject.h"
-
-// class RimStreamline;
-class RimEclipseCase;
-
-class RimStreamlineInViewCollection : public caf::PdmObject
+//==================================================================================================
+///
+//==================================================================================================
+class RicNewStreamlineFeature : public caf::CmdFeature
 {
-    CAF_PDM_HEADER_INIT;
-
-public:
-    RimStreamlineInViewCollection();
-    ~RimStreamlineInViewCollection() override;
-
-    void            setEclipseCase( RimEclipseCase* reservoir );
-    RimEclipseCase* eclipseCase() const;
-
-    void goForIt();
+    CAF_CMD_HEADER_INIT;
 
 protected:
-    caf::PdmFieldHandle* objectToggleField() override;
-
-private:
-    caf::PdmField<bool>    m_isActive;
-    caf::PdmField<QString> m_collectionName;
-
-    caf::PdmPointer<RimEclipseCase> m_eclipseCase;
-
-    // caf::PdmChildArrayField<RimStreamline*> m_streamlines;
+    // Overrides
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };
