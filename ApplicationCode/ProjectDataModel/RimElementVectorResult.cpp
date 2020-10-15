@@ -420,6 +420,153 @@ void RimElementVectorResult::mappingRange( double& min, double& max ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimElementVectorResult::meanValue( double& mean ) const
+{
+    mean = 0.0;
+    std::vector<double> means;
+    Rim3dView*          view = nullptr;
+    firstAncestorOrThisOfType( view );
+
+    int currentTimeStep = view->currentTimeStep();
+
+    std::vector<RigEclipseResultAddress> resVarAddresses;
+    size_t                               directions = 1;
+    if ( !resultAddressesIJK( resVarAddresses ) ) return;
+    std::vector<RigEclipseResultAddress> cleanedResVarAddresses;
+    directions = 0;
+    std::vector<cvf::Vec3d> unitVectors;
+
+    // resVarAddresses contains three directions per fluid, check which of them shall be used.
+    for ( size_t fluidDirIndex = 0; fluidDirIndex < resVarAddresses.size(); fluidDirIndex += 3 )
+    {
+        if ( showVectorI() )
+        {
+            // Only increment directions and add to unit vectors once per direction (not per direction for each fluid).
+            if ( fluidDirIndex == 0 )
+            {
+                directions++;
+                unitVectors.push_back( cvf::Vec3d::X_AXIS );
+            }
+            cleanedResVarAddresses.push_back( resVarAddresses.at( 0 + fluidDirIndex ) );
+        }
+        if ( showVectorJ() )
+        {
+            if ( fluidDirIndex == 0 )
+            {
+                directions++;
+                unitVectors.push_back( cvf::Vec3d::Y_AXIS );
+            }
+            cleanedResVarAddresses.push_back( resVarAddresses.at( 1 + fluidDirIndex ) );
+        }
+        if ( showVectorK() )
+        {
+            if ( fluidDirIndex == 0 )
+            {
+                directions++;
+                unitVectors.push_back( cvf::Vec3d::Z_AXIS );
+            }
+            cleanedResVarAddresses.push_back( resVarAddresses.at( 2 + fluidDirIndex ) );
+        }
+    }
+    resVarAddresses = cleanedResVarAddresses;
+
+    if ( directions > 0 )
+    {
+        std::vector<double> directionsMean( directions, 0.0 );
+
+        for ( size_t index = 0; index < resVarAddresses.size(); index += directions )
+        {
+            cvf::Vec3d aggregatedVectorMean;
+            for ( size_t dir = 0; dir < directions; dir += 1 )
+            {
+                double localMean = cvf::UNDEFINED_DOUBLE;
+
+                RigEclipseResultAddress resVarAddr = resVarAddresses.at( index + dir );
+                if ( !resVarAddr.isValid() ) return;
+
+                RimEclipseView*         eclipseView = dynamic_cast<RimEclipseView*>( view );
+                RigCaseCellResultsData* resultsData =
+                    eclipseView->eclipseCase()->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+
+                resultsData->ensureKnownResultLoaded( resVarAddr );
+                if ( !resultsData->hasResultEntry( resVarAddr ) ) return;
+
+                if ( m_legendConfig->rangeMode() == RimRegularLegendConfig::RangeModeType::AUTOMATIC_ALLTIMESTEPS )
+                {
+                    resultsData->meanCellScalarValues( resVarAddr, localMean );
+                }
+                else if ( m_legendConfig->rangeMode() == RimRegularLegendConfig::RangeModeType::AUTOMATIC_CURRENT_TIMESTEP )
+                {
+                    resultsData->meanCellScalarValues( resVarAddr, currentTimeStep, localMean );
+                }
+                if ( vectorView() == RimElementVectorResult::VectorView::CELL_CENTER_TOTAL )
+                {
+                    aggregatedVectorMean += unitVectors.at( dir ) * localMean;
+                }
+                else
+                {
+                    means.push_back( localMean );
+                }
+            }
+            if ( vectorView() == RimElementVectorResult::VectorView::CELL_CENTER_TOTAL )
+            {
+                means.push_back( aggregatedVectorMean.length() );
+            }
+        }
+    }
+
+    if ( showNncData() )
+    {
+        RigNNCData* nncData =
+            dynamic_cast<RimEclipseView*>( view )->eclipseCase()->eclipseCaseData()->mainGrid()->nncData();
+        std::vector<RigEclipseResultAddress> combinedAddresses;
+        if ( !resultAddressesCombined( combinedAddresses ) ) return;
+
+        for ( size_t flIdx = 0; flIdx < combinedAddresses.size(); flIdx++ )
+        {
+            double nncMean = 0.0;
+            if ( combinedAddresses[flIdx].m_resultCatType == RiaDefines::ResultCatType::DYNAMIC_NATIVE )
+            {
+                if ( m_legendConfig->rangeMode() == RimRegularLegendConfig::RangeModeType::AUTOMATIC_ALLTIMESTEPS )
+                {
+                    const std::vector<std::vector<double>>* nncResultVals =
+                        nncData->dynamicConnectionScalarResult( combinedAddresses[flIdx] );
+                    for ( size_t i = 0; i < nncResultVals->size(); i++ )
+                    {
+                        double localMean = 0.0;
+                        for ( size_t j = 0; j < nncResultVals->at( i ).size(); j++ )
+                        {
+                            localMean += nncResultVals->at( i ).at( j );
+                        }
+                        nncMean += localMean / static_cast<double>( nncResultVals->at( i ).size() );
+                    }
+                    nncMean /= static_cast<double>( nncResultVals->size() );
+                }
+                else if ( m_legendConfig->rangeMode() == RimRegularLegendConfig::RangeModeType::AUTOMATIC_CURRENT_TIMESTEP )
+                {
+                    const std::vector<double>* nncResultVals =
+                        nncData->dynamicConnectionScalarResult( combinedAddresses[flIdx],
+                                                                static_cast<size_t>( currentTimeStep ) );
+                    for ( size_t i = 0; i < nncResultVals->size(); i++ )
+                    {
+                        nncMean += nncResultVals->at( i );
+                    }
+                    nncMean /= static_cast<double>( nncResultVals->size() );
+                }
+            }
+            means.push_back( nncMean );
+        }
+    }
+    for ( double m : means )
+    {
+        mean += m;
+    }
+    mean /= static_cast<double>( means.size() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimElementVectorResult::updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer,
                                                                   bool       isUsingOverrideViewer )
 {

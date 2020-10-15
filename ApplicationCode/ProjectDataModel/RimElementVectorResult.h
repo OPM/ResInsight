@@ -93,6 +93,7 @@ public:
     const RimRegularLegendConfig* legendConfig() const;
 
     void mappingRange( double& min, double& max ) const;
+    void meanValue( double& mean ) const;
 
     bool resultAddressesCombined( std::vector<RigEclipseResultAddress>& addresses ) const;
     bool resultAddressesIJK( std::vector<RigEclipseResultAddress>& addresses ) const;

@@ -91,7 +91,7 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
     std::vector<ElementVectorResultVisualization> tensorVisualizations;
 
     double characteristicCellSize = eclipseCase->characteristicCellSize();
-    float  arrowConstantScaling   = 0.5 * result->sizeScale() * characteristicCellSize;
+    float  arrowConstantScaling   = 10.0 * result->sizeScale() * characteristicCellSize;
 
     double min, max;
     result->mappingRange( min, max );
