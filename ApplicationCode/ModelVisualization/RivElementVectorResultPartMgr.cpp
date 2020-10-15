@@ -214,7 +214,7 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
                     aggregatedVector += faceNormal;
                     aggregatedResult += ( faceCenter - cellCenter ).getNormalized() * resultValue;
                 }
-                if ( aggregatedVector.length() > 0 )
+                if ( aggregatedVector.length() >= result->threshold() )
                 {
                     tensorVisualizations.push_back(
                         ElementVectorResultVisualization( cells[gcIdx].center() - offset,
@@ -272,11 +272,15 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
                 {
                     connNormal *= scaleLogarithmically( std::abs( resultValue ) );
                 }
-                tensorVisualizations.push_back(
-                    ElementVectorResultVisualization( connCenter - offset,
-                                                      connNormal,
-                                                      resultValue,
-                                                      std::cbrt( cells[conn.c1GlobIdx()].volume() / 3.0 ) ) );
+
+                if ( std::abs( resultValue ) >= result->threshold() )
+                {
+                    tensorVisualizations.push_back(
+                        ElementVectorResultVisualization( connCenter - offset,
+                                                          connNormal,
+                                                          resultValue,
+                                                          std::cbrt( cells[conn.c1GlobIdx()].volume() / 3.0 ) ) );
+                }
             }
         }
     }
@@ -400,7 +404,7 @@ void RivElementVectorResultPartMgr::createResultColorTextureCoords(
     {
         for ( size_t vxIdx = 0; vxIdx < 7; ++vxIdx )
         {
-            cvf::Vec2f texCoord = mapper->mapToTextureCoord( evrViz.result );
+            cvf::Vec2f texCoord = mapper->mapToTextureCoord( std::abs( evrViz.result ) );
             textureCoords->add( texCoord );
         }
     }
