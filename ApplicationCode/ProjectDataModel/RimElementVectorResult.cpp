@@ -414,6 +414,8 @@ void RimElementVectorResult::mappingRange( double& min, double& max ) const
             }
         }
     }
+    max = std::max<double>( std::abs( min ), std::abs( max ) );
+    min = 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
