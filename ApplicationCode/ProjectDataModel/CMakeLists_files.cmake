@@ -170,6 +170,12 @@ ${CMAKE_CURRENT_LIST_DIR}/RimAbstractPlotCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureModelPropertyCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimFaciesProperties.h
 ${CMAKE_CURRENT_LIST_DIR}/RimNonNetLayers.h
+${CMAKE_CURRENT_LIST_DIR}/RimFractureModelCalculator.h
+${CMAKE_CURRENT_LIST_DIR}/RimFractureModelPropertyCalculator.h
+${CMAKE_CURRENT_LIST_DIR}/RimFractureModelWellLogCalculator.h
+${CMAKE_CURRENT_LIST_DIR}/RimFractureModelElasticPropertyCalculator.h
+${CMAKE_CURRENT_LIST_DIR}/RimFractureModelLayerCalculator.h
+${CMAKE_CURRENT_LIST_DIR}/RimFractureModelStressCalculator.h
 )
 
 
@@ -342,6 +348,11 @@ ${CMAKE_CURRENT_LIST_DIR}/RimLayerCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureModelStressCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimFaciesProperties.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimNonNetLayers.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimFractureModelCalculator.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimFractureModelWellLogCalculator.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimFractureModelElasticPropertyCalculator.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimFractureModelLayerCalculator.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimFractureModelStressCalculator.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

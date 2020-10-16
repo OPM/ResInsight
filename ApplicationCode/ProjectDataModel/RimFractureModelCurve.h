@@ -21,19 +21,12 @@
 #include "RimFractureModelPropertyCurve.h"
 #include "RimWellLogExtractionCurve.h"
 
-#include "RiuQwtSymbol.h"
-
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"
 
 #include <vector>
 
-class RimWellPath;
-class RimWellMeasurement;
 class RimFractureModel;
-class RimEclipseInputPropertyCollection;
-class RigEclipseCaseData;
-class RigResultAccessor;
 
 //==================================================================================================
 ///
@@ -43,29 +36,12 @@ class RimFractureModelCurve : public RimWellLogExtractionCurve, public RimFractu
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum class MissingValueStrategy
-    {
-        DEFAULT_VALUE,
-        LINEAR_INTERPOLATION,
-        OTHER_CURVE_PROPERTY
-    };
-
-    enum class BurdenStrategy
-    {
-        DEFAULT_VALUE,
-        GRADIENT
-    };
-
     RimFractureModelCurve();
     ~RimFractureModelCurve() override;
 
     void setFractureModel( RimFractureModel* fractureModel );
 
     void setEclipseResultCategory( RiaDefines::ResultCatType catType );
-
-    void setMissingValueStrategy( MissingValueStrategy strategy );
-
-    void setBurdenStrategy( BurdenStrategy strategy );
 
     void                      setCurveProperty( RiaDefines::CurveProperty ) override;
     RiaDefines::CurveProperty curveProperty() const override;
@@ -75,25 +51,6 @@ protected:
 
     void performDataExtraction( bool* isUsingPseudoLength ) override;
 
-    static bool hasMissingValues( const std::vector<double>& values );
-    static void replaceMissingValues( std::vector<double>& values, double defaultValue );
-    static void replaceMissingValues( std::vector<double>& values, const std::vector<double>& replacementValues );
-    cvf::ref<RigResultAccessor> findMissingValuesAccessor( RigEclipseCaseData*                caseData,
-                                                           RimEclipseInputPropertyCollection* inputPropertyCollection,
-                                                           int                                gridIndex,
-                                                           int                                timeStepIndex,
-                                                           RimEclipseResultDefinition*        eclipseResultDefinition );
-
-    void addOverburden( std::vector<double>& tvDepthValues,
-                        std::vector<double>& measuredDepthValues,
-                        std::vector<double>& values ) const;
-
-    void addUnderburden( std::vector<double>& tvDepthValues,
-                         std::vector<double>& measuredDepthValues,
-                         std::vector<double>& values ) const;
-
     caf::PdmPtrField<RimFractureModel*>                    m_fractureModel;
-    caf::PdmField<caf::AppEnum<MissingValueStrategy>>      m_missingValueStrategy;
-    caf::PdmField<caf::AppEnum<BurdenStrategy>>            m_burdenStrategy;
     caf::PdmField<caf::AppEnum<RiaDefines::CurveProperty>> m_curveProperty;
 };

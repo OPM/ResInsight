@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020-    Equinor ASA
+//  Copyright (C) 2020-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,17 +18,27 @@
 
 #pragma once
 
+#include "RiaFractureModelDefines.h"
+
 #include <vector>
 
+class RimFractureModelCalculator;
 class RimFractureModel;
-class QString;
-class QTextStream;
 
 //==================================================================================================
-//
+///
 //==================================================================================================
-class RifFractureModelPlotExporter
+class RimFractureModelPropertyCalculator
 {
 public:
-    static bool writeToDirectory( RimFractureModel* fractureModel, bool useDetailedFluidLoss, const QString& directoryPath );
+    virtual ~RimFractureModelPropertyCalculator(){};
+
+    virtual bool isMatching( RiaDefines::CurveProperty curveProperty ) const = 0;
+    virtual bool calculate( RiaDefines::CurveProperty curveProperty,
+                            const RimFractureModel*   fractureModel,
+                            int                       timeStep,
+                            std::vector<double>&      values,
+                            std::vector<double>&      measuredDepthValues,
+                            std::vector<double>&      tvDepthValues,
+                            double&                   rkbDiff ) const                          = 0;
 };

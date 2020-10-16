@@ -20,7 +20,7 @@
 
 #include "cvfVector3.h"
 
-class RimFractureModelPlot;
+class RimFractureModel;
 class RimWellPath;
 
 class QString;
@@ -32,7 +32,7 @@ class QTextStream;
 class RifFractureModelPerfsFrkExporter
 {
 public:
-    static bool writeToFile( RimFractureModelPlot* plot, const QString& filepath );
+    static bool writeToFile( RimFractureModel* fractureModel, const QString& filepath );
 
 private:
     static void   appendHeaderToStream( QTextStream& stream );

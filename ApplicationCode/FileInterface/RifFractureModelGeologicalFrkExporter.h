@@ -20,7 +20,7 @@
 
 #include <vector>
 
-class RimFractureModelPlot;
+class RimFractureModel;
 class QString;
 class QTextStream;
 
@@ -30,7 +30,7 @@ class QTextStream;
 class RifFractureModelGeologicalFrkExporter
 {
 public:
-    static bool writeToFile( RimFractureModelPlot* plot, bool useDetailedFluidLoss, const QString& filepath );
+    static bool writeToFile( RimFractureModel* plot, bool useDetailedFluidLoss, const QString& filepath );
 
 private:
     static void appendHeaderToStream( QTextStream& stream );

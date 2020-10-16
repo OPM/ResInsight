@@ -19,7 +19,6 @@
 #include "RifFractureModelAsymmetricFrkExporter.h"
 
 #include "RimFractureModel.h"
-#include "RimFractureModelPlot.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -27,14 +26,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifFractureModelAsymmetricFrkExporter::writeToFile( RimFractureModelPlot* plot, const QString& filepath )
+bool RifFractureModelAsymmetricFrkExporter::writeToFile( RimFractureModel* fractureModel, const QString& filepath )
 {
-    RimFractureModel* fractureModel = plot->fractureModel();
-    if ( !fractureModel )
-    {
-        return false;
-    }
-
     QFile data( filepath );
     if ( !data.open( QFile::WriteOnly | QFile::Truncate ) )
     {

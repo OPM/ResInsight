@@ -18,7 +18,7 @@
 
 #pragma once
 
-class RimFractureModelPlot;
+class RimFractureModel;
 
 class QString;
 class QTextStream;
@@ -29,7 +29,7 @@ class QTextStream;
 class RifFractureModelAsymmetricFrkExporter
 {
 public:
-    static bool writeToFile( RimFractureModelPlot* plot, const QString& filepath );
+    static bool writeToFile( RimFractureModel* fractureModel, const QString& filepath );
 
 private:
     static void appendHeaderToStream( QTextStream& stream );

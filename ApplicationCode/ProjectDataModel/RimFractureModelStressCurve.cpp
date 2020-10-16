@@ -30,6 +30,7 @@
 #include "RimCase.h"
 #include "RimEclipseCase.h"
 #include "RimFractureModel.h"
+#include "RimFractureModelCalculator.h"
 #include "RimFractureModelPlot.h"
 #include "RimModeledWellPath.h"
 #include "RimWellLogFile.h"
@@ -107,59 +108,14 @@ void RimFractureModelStressCurve::performDataExtraction( bool* isUsingPseudoLeng
 
     *isUsingPseudoLength = false;
 
-    // Extract porosity data: get the porosity values from parent
-    RimFractureModelPlot* fractureModelPlot;
-    firstAncestorOrThisOfType( fractureModelPlot );
-    if ( !fractureModelPlot || !m_fractureModel )
+    bool isOk = m_fractureModel->calculator()
+                    ->extractCurveData( curveProperty(), m_timeStep, values, measuredDepthValues, tvDepthValues, rkbDiff );
+    if ( !isOk )
     {
-        RiaLogging::error( QString( "No fracture model plot found." ) );
         return;
     }
 
-    std::vector<double> tvDepthInFeet = fractureModelPlot->calculateTrueVerticalDepth();
-    for ( double f : tvDepthInFeet )
-    {
-        tvDepthValues.push_back( RiaEclipseUnitTools::feetToMeter( f ) );
-    }
-
-    if ( m_curveProperty() == RiaDefines::CurveProperty::STRESS )
-    {
-        values                              = fractureModelPlot->calculateStress();
-        std::vector<double> stressGradients = fractureModelPlot->calculateStressGradient();
-        addDatapointsForBottomOfLayers( tvDepthValues, values, stressGradients );
-    }
-    else if ( m_curveProperty() == RiaDefines::CurveProperty::INITIAL_STRESS )
-    {
-        values                              = fractureModelPlot->calculateInitialStress();
-        std::vector<double> stressGradients = fractureModelPlot->calculateStressGradient();
-        addDatapointsForBottomOfLayers( tvDepthValues, values, stressGradients );
-    }
-    else if ( m_curveProperty() == RiaDefines::CurveProperty::STRESS_GRADIENT )
-    {
-        values = fractureModelPlot->calculateStressGradient();
-    }
-    else if ( m_curveProperty() == RiaDefines::CurveProperty::TEMPERATURE )
-    {
-        fractureModelPlot->calculateTemperature( values );
-    }
-
-    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case.value() );
-    if ( eclipseCase )
-    {
-        RigWellPath*               wellPathGeometry = m_fractureModel->thicknessDirectionWellPath()->wellPathGeometry();
-        RigEclipseWellLogExtractor eclExtractor( eclipseCase->eclipseCaseData(), wellPathGeometry, "fracture model" );
-
-        rkbDiff = eclExtractor.wellPathData()->rkbDiff();
-
-        // Generate MD data by interpolation
-        const std::vector<double>& mdValuesOfWellPath  = wellPathGeometry->measureDepths();
-        std::vector<double>        tvdValuesOfWellPath = wellPathGeometry->trueVerticalDepths();
-
-        measuredDepthValues =
-            RigWellPathGeometryTools::interpolateMdFromTvd( mdValuesOfWellPath, tvdValuesOfWellPath, tvDepthValues );
-        CVF_ASSERT( measuredDepthValues.size() == tvDepthValues.size() );
-    }
-
+    RimEclipseCase*                 eclipseCase      = dynamic_cast<RimEclipseCase*>( m_case.value() );
     RiaEclipseUnitTools::UnitSystem eclipseUnitsType = eclipseCase->eclipseCaseData()->unitsType();
     if ( eclipseUnitsType == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
     {
@@ -200,37 +156,4 @@ void RimFractureModelStressCurve::performDataExtraction( bool* isUsingPseudoLeng
 QString RimFractureModelStressCurve::createCurveAutoName()
 {
     return caf::AppEnum<RiaDefines::CurveProperty>::uiText( m_curveProperty() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimFractureModelStressCurve::addDatapointsForBottomOfLayers( std::vector<double>&       tvDepthValues,
-                                                                  std::vector<double>&       stress,
-                                                                  const std::vector<double>& stressGradients )
-{
-    std::vector<double> tvdWithBottomLayers;
-    std::vector<double> valuesWithBottomLayers;
-    for ( size_t i = 0; i < stress.size(); i++ )
-    {
-        // Add the data point at top of the layer
-        double topLayerDepth = tvDepthValues[i];
-        double stressValue   = stress[i];
-        tvdWithBottomLayers.push_back( topLayerDepth );
-        valuesWithBottomLayers.push_back( stressValue );
-
-        // Add extra data points for bottom part of the layer
-        if ( i < stress.size() - 1 )
-        {
-            double bottomLayerDepth = tvDepthValues[i + 1];
-            double diffDepthFeet    = RiaEclipseUnitTools::meterToFeet( bottomLayerDepth - topLayerDepth );
-            double bottomStress     = stressValue + diffDepthFeet * stressGradients[i];
-
-            tvdWithBottomLayers.push_back( bottomLayerDepth );
-            valuesWithBottomLayers.push_back( bottomStress );
-        }
-    }
-
-    stress        = valuesWithBottomLayers;
-    tvDepthValues = tvdWithBottomLayers;
 }

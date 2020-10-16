@@ -39,9 +39,12 @@
 #include "RimColorLegendItem.h"
 #include "RimCompletionTemplateCollection.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
+#include "RimFaciesProperties.h"
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
+#include "RimFractureModelCalculator.h"
 #include "RimFractureModelPlot.h"
 #include "RimFractureModelTemplate.h"
 #include "RimFractureModelTemplateCollection.h"
@@ -99,6 +102,25 @@ void caf::AppEnum<RimFractureModel::FractureOrientation>::setUp()
 
     setDefault( RimFractureModel::FractureOrientation::TRANSVERSE_WELL_PATH );
 }
+
+template <>
+void caf::AppEnum<RimFractureModel::MissingValueStrategy>::setUp()
+{
+    addItem( RimFractureModel::MissingValueStrategy::DEFAULT_VALUE, "DEFAULT_VALUE", "Default value" );
+    addItem( RimFractureModel::MissingValueStrategy::LINEAR_INTERPOLATION, "LINEAR_INTERPOLATION", "Linear interpolation" );
+    addItem( RimFractureModel::MissingValueStrategy::OTHER_CURVE_PROPERTY, "OTHER_CURVE_PROPERTY", "Other Curve Property" );
+
+    setDefault( RimFractureModel::MissingValueStrategy::DEFAULT_VALUE );
+}
+
+template <>
+void caf::AppEnum<RimFractureModel::BurdenStrategy>::setUp()
+{
+    addItem( RimFractureModel::BurdenStrategy::DEFAULT_VALUE, "DEFAULT_VALUE", "Default value" );
+    addItem( RimFractureModel::BurdenStrategy::GRADIENT, "GRADIENT", "Gradient" );
+
+    setDefault( RimFractureModel::BurdenStrategy::DEFAULT_VALUE );
+}
 }; // namespace caf
 
 //--------------------------------------------------------------------------------------------------
@@ -112,6 +134,8 @@ RimFractureModel::RimFractureModel()
     CAF_PDM_InitField( &m_editFractureModelTemplate, "EditModelTemplate", false, "Edit", "", "", "" );
     m_editFractureModelTemplate.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     m_editFractureModelTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step", "", "", "" );
 
     CAF_PDM_InitScriptableField( &m_MD, "MeasuredDepth", 0.0, "Measured Depth", "", "", "" );
     m_MD.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -198,6 +222,9 @@ RimFractureModel::RimFractureModel()
                                           "",
                                           "",
                                           "" );
+
+    m_calculator = std::shared_ptr<RimFractureModelCalculator>( new RimFractureModelCalculator );
+    m_calculator->setFractureModel( this );
 
     setDeletable( true );
 }
@@ -782,6 +809,7 @@ void RimFractureModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     uiOrdering.add( &m_fractureModelTemplate, {true, 2, 1} );
     uiOrdering.add( &m_editFractureModelTemplate, {false, 1, 0} );
 
+    uiOrdering.add( &m_timeStep );
     uiOrdering.add( &m_MD );
     uiOrdering.add( &m_extractionType );
     uiOrdering.add( &m_anchorPosition );
@@ -976,19 +1004,21 @@ double RimFractureModel::defaultPermeability() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFractureModel::getDefaultForMissingValue( const QString& keyword ) const
+double RimFractureModel::getDefaultForMissingValue( RiaDefines::CurveProperty curveProperty ) const
 {
-    if ( keyword == QString( "PORO" ) )
+    if ( curveProperty == RiaDefines::CurveProperty::POROSITY )
     {
         return defaultPorosity();
     }
-    else if ( keyword == QString( "PERMX" ) || keyword == QString( "PERMZ" ) )
+    else if ( curveProperty == RiaDefines::CurveProperty::PERMEABILITY_X ||
+              curveProperty == RiaDefines::CurveProperty::PERMEABILITY_Z )
     {
         return defaultPermeability();
     }
     else
     {
-        RiaLogging::error( QString( "Missing default value for %1." ).arg( keyword ) );
+        RiaLogging::error( QString( "Missing default value for %1." )
+                               .arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
         return std::numeric_limits<double>::infinity();
     }
 }
@@ -996,9 +1026,9 @@ double RimFractureModel::getDefaultForMissingValue( const QString& keyword ) con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaDefines::CurveProperty RimFractureModel::getDefaultPropertyForMissingValues( const QString& keyword ) const
+RiaDefines::CurveProperty RimFractureModel::getDefaultPropertyForMissingValues( RiaDefines::CurveProperty curveProperty ) const
 {
-    if ( keyword == QString( "PRESSURE" ) )
+    if ( curveProperty == RiaDefines::CurveProperty::PRESSURE )
     {
         return RiaDefines::CurveProperty::INITIAL_PRESSURE;
     }
@@ -1009,19 +1039,27 @@ RiaDefines::CurveProperty RimFractureModel::getDefaultPropertyForMissingValues( 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFractureModel::getDefaultForMissingOverburdenValue( const QString& keyword ) const
+double RimFractureModel::getDefaultForMissingOverburdenValue( RiaDefines::CurveProperty curveProperty ) const
 {
-    if ( keyword == QString( "PORO" ) )
+    if ( curveProperty == RiaDefines::CurveProperty::POROSITY )
     {
         return defaultOverburdenPorosity();
     }
-    else if ( keyword == QString( "PERMX" ) || keyword == QString( "PERMZ" ) )
+    else if ( curveProperty == RiaDefines::CurveProperty::PERMEABILITY_X ||
+              curveProperty == RiaDefines::CurveProperty::PERMEABILITY_Z )
     {
         return defaultOverburdenPermeability();
     }
+    else if ( curveProperty == RiaDefines::CurveProperty::FACIES )
+    {
+        RimColorLegend* faciesColorLegend = getFaciesColorLegend();
+        if ( !faciesColorLegend ) return std::numeric_limits<double>::infinity();
+        return findFaciesValue( *faciesColorLegend, overburdenFacies() );
+    }
     else
     {
-        RiaLogging::error( QString( "Missing default overburden value for %1." ).arg( keyword ) );
+        RiaLogging::error( QString( "Missing default overburden value for %1." )
+                               .arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
         return std::numeric_limits<double>::infinity();
     }
 }
@@ -1029,19 +1067,27 @@ double RimFractureModel::getDefaultForMissingOverburdenValue( const QString& key
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFractureModel::getDefaultForMissingUnderburdenValue( const QString& keyword ) const
+double RimFractureModel::getDefaultForMissingUnderburdenValue( RiaDefines::CurveProperty curveProperty ) const
 {
-    if ( keyword == QString( "PORO" ) )
+    if ( curveProperty == RiaDefines::CurveProperty::POROSITY )
     {
         return defaultUnderburdenPorosity();
     }
-    else if ( keyword == QString( "PERMX" ) || keyword == QString( "PERMZ" ) )
+    else if ( curveProperty == RiaDefines::CurveProperty::PERMEABILITY_X ||
+              curveProperty == RiaDefines::CurveProperty::PERMEABILITY_Z )
     {
         return defaultUnderburdenPermeability();
     }
+    else if ( curveProperty == RiaDefines::CurveProperty::FACIES )
+    {
+        RimColorLegend* faciesColorLegend = getFaciesColorLegend();
+        if ( !faciesColorLegend ) return std::numeric_limits<double>::infinity();
+        return findFaciesValue( *faciesColorLegend, underburdenFacies() );
+    }
     else
     {
-        RiaLogging::error( QString( "Missing default underburden value for %1." ).arg( keyword ) );
+        RiaLogging::error( QString( "Missing default underburden value for %1." )
+                               .arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
         return std::numeric_limits<double>::infinity();
     }
 }
@@ -1049,9 +1095,10 @@ double RimFractureModel::getDefaultForMissingUnderburdenValue( const QString& ke
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFractureModel::getOverburdenGradient( const QString& keyword ) const
+double RimFractureModel::getOverburdenGradient( RiaDefines::CurveProperty curveProperty ) const
 {
-    if ( keyword == QString( "PRESSURE" ) )
+    if ( curveProperty == RiaDefines::CurveProperty::PRESSURE ||
+         curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
     {
         if ( !m_fractureModelTemplate )
         {
@@ -1061,7 +1108,8 @@ double RimFractureModel::getOverburdenGradient( const QString& keyword ) const
     }
     else
     {
-        RiaLogging::error( QString( "Missing overburden gradient for %1." ).arg( keyword ) );
+        RiaLogging::error( QString( "Missing overburden gradient for %1." )
+                               .arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
         return std::numeric_limits<double>::infinity();
     }
 }
@@ -1069,9 +1117,10 @@ double RimFractureModel::getOverburdenGradient( const QString& keyword ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFractureModel::getUnderburdenGradient( const QString& keyword ) const
+double RimFractureModel::getUnderburdenGradient( RiaDefines::CurveProperty curveProperty ) const
 {
-    if ( keyword == QString( "PRESSURE" ) )
+    if ( curveProperty == RiaDefines::CurveProperty::PRESSURE ||
+         curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
     {
         if ( !m_fractureModelTemplate )
         {
@@ -1082,7 +1131,8 @@ double RimFractureModel::getUnderburdenGradient( const QString& keyword ) const
     }
     else
     {
-        RiaLogging::error( QString( "Missing underburden gradient for %1." ).arg( keyword ) );
+        RiaLogging::error( QString( "Missing underburden gradient for %1." )
+                               .arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
         return std::numeric_limits<double>::infinity();
     }
 }
@@ -1110,6 +1160,30 @@ double RimFractureModel::getDefaultValueForProperty( RiaDefines::CurveProperty c
             QString( "Missing default for %1." ).arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
         return std::numeric_limits<double>::infinity();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimFractureModel::MissingValueStrategy RimFractureModel::missingValueStrategy( RiaDefines::CurveProperty curveProperty ) const
+{
+    if ( curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
+        return RimFractureModel::MissingValueStrategy::LINEAR_INTERPOLATION;
+    else if ( curveProperty == RiaDefines::CurveProperty::PRESSURE )
+        return RimFractureModel::MissingValueStrategy::OTHER_CURVE_PROPERTY;
+    else
+        return RimFractureModel::MissingValueStrategy::DEFAULT_VALUE;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimFractureModel::BurdenStrategy RimFractureModel::burdenStrategy( RiaDefines::CurveProperty curveProperty ) const
+{
+    if ( curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
+        return RimFractureModel::BurdenStrategy::GRADIENT;
+
+    return RimFractureModel::BurdenStrategy::DEFAULT_VALUE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1251,6 +1325,14 @@ void RimFractureModel::setMD( double md )
     updatePositionFromMeasuredDepth();
     updateThicknessDirection();
     updateBarrierProperties();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimFractureModel::timeStep() const
+{
+    return m_timeStep;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1444,4 +1526,105 @@ void RimFractureModel::showAllFaults()
     {
         rimFault->showFault = true;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::shared_ptr<RimFractureModelCalculator> RimFractureModel::calculator() const
+{
+    return m_calculator;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase* RimFractureModel::eclipseCase() const
+{
+    RimProject* proj = RimProject::current();
+    if ( proj->eclipseCases().empty() ) return nullptr;
+
+    return proj->eclipseCases()[0];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::ResultCatType RimFractureModel::eclipseResultCategory( RiaDefines::CurveProperty curveProperty ) const
+{
+    if ( curveProperty == RiaDefines::CurveProperty::PRESSURE ||
+         curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
+    {
+        return RiaDefines::ResultCatType::DYNAMIC_NATIVE;
+    }
+    else if ( curveProperty == RiaDefines::CurveProperty::FACIES )
+    {
+        RimFaciesProperties* faciesProperties = m_fractureModelTemplate->faciesProperties();
+        if ( !faciesProperties ) return RiaDefines::ResultCatType::STATIC_NATIVE;
+
+        const RimEclipseResultDefinition* faciesDefinition = faciesProperties->faciesDefinition();
+        if ( !faciesDefinition ) return RiaDefines::ResultCatType::STATIC_NATIVE;
+
+        return faciesDefinition->resultType();
+    }
+    else
+    {
+        return RiaDefines::ResultCatType::STATIC_NATIVE;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFractureModel::eclipseResultVariable( RiaDefines::CurveProperty curveProperty ) const
+{
+    if ( curveProperty == RiaDefines::CurveProperty::PRESSURE ||
+         curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
+        return "PRESSURE";
+    else if ( curveProperty == RiaDefines::CurveProperty::PERMEABILITY_X )
+        return "PERMX";
+    else if ( curveProperty == RiaDefines::CurveProperty::PERMEABILITY_Z )
+        return "PERMZ";
+    else if ( curveProperty == RiaDefines::CurveProperty::POROSITY )
+        return "PORO";
+    else if ( curveProperty == RiaDefines::CurveProperty::FACIES )
+    {
+        if ( !m_fractureModelTemplate ) return "";
+
+        RimFaciesProperties* faciesProperties = m_fractureModelTemplate->faciesProperties();
+        if ( !faciesProperties ) return "";
+
+        const RimEclipseResultDefinition* faciesDefinition = faciesProperties->faciesDefinition();
+        if ( !faciesDefinition ) return "";
+
+        return faciesDefinition->resultVariable();
+    }
+    else
+        return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimColorLegend* RimFractureModel::getFaciesColorLegend() const
+{
+    if ( !m_fractureModelTemplate ) return nullptr;
+
+    RimFaciesProperties* faciesProperties = m_fractureModelTemplate->faciesProperties();
+    if ( !faciesProperties ) return nullptr;
+
+    return faciesProperties->colorLegend();
+}
+
+//-------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModel::findFaciesValue( const RimColorLegend& colorLegend, const QString& name )
+{
+    for ( auto item : colorLegend.colorLegendItems() )
+    {
+        if ( item->categoryName() == name ) return item->categoryValue();
+    }
+
+    return std::numeric_limits<double>::infinity();
 }

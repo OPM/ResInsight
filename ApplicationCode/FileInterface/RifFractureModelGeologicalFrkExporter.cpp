@@ -18,7 +18,8 @@
 
 #include "RifFractureModelGeologicalFrkExporter.h"
 
-#include "RimFractureModelPlot.h"
+#include "RimFractureModel.h"
+#include "RimFractureModelCalculator.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -26,9 +27,9 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifFractureModelGeologicalFrkExporter::writeToFile( RimFractureModelPlot* plot,
-                                                         bool                  useDetailedLoss,
-                                                         const QString&        filepath )
+bool RifFractureModelGeologicalFrkExporter::writeToFile( RimFractureModel* fractureModel,
+                                                         bool              useDetailedLoss,
+                                                         const QString&    filepath )
 {
     std::vector<QString> labels;
     // TVD depth of top of zone (ft)
@@ -90,24 +91,24 @@ bool RifFractureModelGeologicalFrkExporter::writeToFile( RimFractureModelPlot* p
     }
 
     std::map<QString, std::vector<double>> values;
-    values["dpthlyr"]        = plot->calculateTrueVerticalDepth();
-    values["strs"]           = plot->calculateStress();
-    values["strsg"]          = plot->calculateStressGradient();
-    values["elyr"]           = plot->calculateYoungsModulus();
-    values["poissonr"]       = plot->calculatePoissonsRatio();
-    values["tuflyr"]         = plot->calculateKIc();
-    values["clyrc"]          = plot->calculateFluidLossCoefficient();
-    values["clyrs"]          = plot->calculateSpurtLoss();
-    values["pembed"]         = plot->calculateProppandEmbedment();
-    values["zoneResPres"]    = plot->calculateReservoirPressure();
-    values["zoneWaterSat"]   = plot->calculateImmobileFluidSaturation();
-    values["zonePorosity"]   = plot->calculatePorosity();
-    values["zoneHorizPerm"]  = plot->calculateHorizontalPermeability();
-    values["zoneVertPerm"]   = plot->calculateVerticalPermeability();
-    values["zoneTemp"]       = plot->calculateTemperature();
-    values["zoneRelPerm"]    = plot->calculateRelativePermeabilityFactor();
-    values["zonePoroElas"]   = plot->calculatePoroElasticConstant();
-    values["zoneThermalExp"] = plot->calculateThermalExpansionCoefficient();
+    values["dpthlyr"]        = fractureModel->calculator()->calculateTrueVerticalDepth();
+    values["strs"]           = fractureModel->calculator()->calculateStress();
+    values["strsg"]          = fractureModel->calculator()->calculateStressGradient();
+    values["elyr"]           = fractureModel->calculator()->calculateYoungsModulus();
+    values["poissonr"]       = fractureModel->calculator()->calculatePoissonsRatio();
+    values["tuflyr"]         = fractureModel->calculator()->calculateKIc();
+    values["clyrc"]          = fractureModel->calculator()->calculateFluidLossCoefficient();
+    values["clyrs"]          = fractureModel->calculator()->calculateSpurtLoss();
+    values["pembed"]         = fractureModel->calculator()->calculateProppandEmbedment();
+    values["zoneResPres"]    = fractureModel->calculator()->calculateReservoirPressure();
+    values["zoneWaterSat"]   = fractureModel->calculator()->calculateImmobileFluidSaturation();
+    values["zonePorosity"]   = fractureModel->calculator()->calculatePorosity();
+    values["zoneHorizPerm"]  = fractureModel->calculator()->calculateHorizontalPermeability();
+    values["zoneVertPerm"]   = fractureModel->calculator()->calculateVerticalPermeability();
+    values["zoneTemp"]       = fractureModel->calculator()->calculateTemperature();
+    values["zoneRelPerm"]    = fractureModel->calculator()->calculateRelativePermeabilityFactor();
+    values["zonePoroElas"]   = fractureModel->calculator()->calculatePoroElasticConstant();
+    values["zoneThermalExp"] = fractureModel->calculator()->calculateThermalExpansionCoefficient();
 
     QFile data( filepath );
     if ( !data.open( QFile::WriteOnly | QFile::Truncate ) )

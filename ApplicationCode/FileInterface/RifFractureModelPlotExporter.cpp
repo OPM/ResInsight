@@ -28,12 +28,14 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifFractureModelPlotExporter::writeToDirectory( RimFractureModelPlot* plot,
-                                                     bool                  useDetailedFluidLoss,
-                                                     const QString&        directoryPath )
+bool RifFractureModelPlotExporter::writeToDirectory( RimFractureModel* fractureModel,
+                                                     bool              useDetailedFluidLoss,
+                                                     const QString&    directoryPath )
 {
-    return RifFractureModelGeologicalFrkExporter::writeToFile( plot, useDetailedFluidLoss, directoryPath + "/Geological.frk" ) &&
-           RifFractureModelDeviationFrkExporter::writeToFile( plot, directoryPath + "/Deviation.frk" ) &&
-           RifFractureModelPerfsFrkExporter::writeToFile( plot, directoryPath + "/Perfs.frk" ) &&
-           RifFractureModelAsymmetricFrkExporter::writeToFile( plot, directoryPath + "/Asymmetric.frk" );
+    return RifFractureModelGeologicalFrkExporter::writeToFile( fractureModel,
+                                                               useDetailedFluidLoss,
+                                                               directoryPath + "/Geological.frk" ) &&
+           RifFractureModelDeviationFrkExporter::writeToFile( fractureModel, directoryPath + "/Deviation.frk" ) &&
+           RifFractureModelPerfsFrkExporter::writeToFile( fractureModel, directoryPath + "/Perfs.frk" ) &&
+           RifFractureModelAsymmetricFrkExporter::writeToFile( fractureModel, directoryPath + "/Asymmetric.frk" );
 }

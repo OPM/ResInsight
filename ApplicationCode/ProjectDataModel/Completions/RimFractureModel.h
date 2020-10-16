@@ -40,6 +40,8 @@ class RimUserDefinedPolylinesAnnotation;
 class RimFaciesProperties;
 class RimFractureModelTemplate;
 class RimTextAnnotation;
+class RimFractureModelCalculator;
+class RimColorLegend;
 
 //==================================================================================================
 ///
@@ -63,10 +65,25 @@ public:
         AZIMUTH
     };
 
+    enum class MissingValueStrategy
+    {
+        DEFAULT_VALUE,
+        LINEAR_INTERPOLATION,
+        OTHER_CURVE_PROPERTY
+    };
+
+    enum class BurdenStrategy
+    {
+        DEFAULT_VALUE,
+        GRADIENT
+    };
+
     RimFractureModel( void );
     ~RimFractureModel( void ) override;
 
     void setMD( double md );
+
+    int timeStep() const;
 
     cvf::Vec3d anchorPosition() const;
     cvf::Vec3d thicknessDirection() const;
@@ -130,17 +147,27 @@ public:
     double getDefaultValueForProperty( RiaDefines::CurveProperty ) const;
     bool   hasDefaultValueForProperty( RiaDefines::CurveProperty ) const;
 
-    RiaDefines::CurveProperty getDefaultPropertyForMissingValues( const QString& keyword ) const;
-    double                    getDefaultForMissingOverburdenValue( const QString& keyword ) const;
-    double                    getDefaultForMissingUnderburdenValue( const QString& keyword ) const;
-    double                    getDefaultForMissingValue( const QString& keyword ) const;
-    double                    getOverburdenGradient( const QString& keyword ) const;
-    double                    getUnderburdenGradient( const QString& keyword ) const;
+    RiaDefines::CurveProperty getDefaultPropertyForMissingValues( RiaDefines::CurveProperty curveProperty ) const;
+    double                    getDefaultForMissingOverburdenValue( RiaDefines::CurveProperty curveProperty ) const;
+    double                    getDefaultForMissingUnderburdenValue( RiaDefines::CurveProperty curveProperty ) const;
+    double                    getDefaultForMissingValue( RiaDefines::CurveProperty curveProperty ) const;
+    double                    getOverburdenGradient( RiaDefines::CurveProperty curveProperty ) const;
+    double                    getUnderburdenGradient( RiaDefines::CurveProperty curveProperty ) const;
 
     void                      setFractureModelTemplate( RimFractureModelTemplate* fractureModelTemplate );
     RimFractureModelTemplate* fractureModelTemplate() const;
 
     void updateReferringPlots();
+
+    std::shared_ptr<RimFractureModelCalculator> calculator() const;
+
+    RimFractureModel::MissingValueStrategy missingValueStrategy( RiaDefines::CurveProperty curveProperty ) const;
+    RimFractureModel::BurdenStrategy       burdenStrategy( RiaDefines::CurveProperty curveProperty ) const;
+    RimEclipseCase*                        eclipseCase() const;
+    RiaDefines::ResultCatType              eclipseResultCategory( RiaDefines::CurveProperty curveProperty ) const;
+    QString                                eclipseResultVariable( RiaDefines::CurveProperty curveProperty ) const;
+
+    static double findFaciesValue( const RimColorLegend& colorLegend, const QString& name );
 
 protected:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -185,8 +212,11 @@ private:
     void hideOtherFaults( const QString& targetFaultName );
     void showAllFaults();
 
+    RimColorLegend* getFaciesColorLegend() const;
+
 protected:
     caf::PdmField<double>                       m_MD;
+    caf::PdmField<int>                          m_timeStep;
     caf::PdmField<caf::AppEnum<ExtractionType>> m_extractionType;
     caf::PdmField<cvf::Vec3d>                   m_anchorPosition;
     caf::PdmField<cvf::Vec3d>                   m_thicknessDirection;
@@ -216,4 +246,6 @@ protected:
     caf::PdmField<QString>                               m_barrierFaultName;
     caf::PdmField<bool>                                  m_showOnlyBarrierFault;
     caf::PdmField<bool>                                  m_showAllFaults;
+
+    std::shared_ptr<RimFractureModelCalculator> m_calculator;
 };

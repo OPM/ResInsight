@@ -19,7 +19,6 @@
 #include "RifFractureModelDeviationFrkExporter.h"
 
 #include "RimFractureModel.h"
-#include "RimFractureModelPlot.h"
 #include "RimWellPath.h"
 
 #include "RigWellPathGeometryExporter.h"
@@ -30,14 +29,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifFractureModelDeviationFrkExporter::writeToFile( RimFractureModelPlot* plot, const QString& filepath )
+bool RifFractureModelDeviationFrkExporter::writeToFile( RimFractureModel* fractureModel, const QString& filepath )
 {
-    RimFractureModel* fractureModel = plot->fractureModel();
-    if ( !fractureModel )
-    {
-        return false;
-    }
-
     RimWellPath* wellPath = fractureModel->wellPath();
     if ( !wellPath )
     {

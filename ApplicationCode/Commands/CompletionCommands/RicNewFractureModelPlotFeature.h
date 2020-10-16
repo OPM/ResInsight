@@ -31,9 +31,6 @@ class RimFractureModelPlot;
 class RimFractureModelPlotCollection;
 class RimFractureModel;
 
-typedef std::tuple<QString, RiaDefines::ResultCatType, RimFractureModelCurve::MissingValueStrategy, bool, RiaDefines::CurveProperty> PlotDef;
-typedef std::vector<PlotDef> PlotDefVector;
-
 //==================================================================================================
 ///
 //==================================================================================================
@@ -58,13 +55,13 @@ private:
     static void
         createLayersTrack( RimFractureModelPlot* plot, RimFractureModel* fractureModel, RimEclipseCase* eclipseCase );
 
-    static void createParametersTrack( RimFractureModelPlot* plot,
-                                       RimFractureModel*     fractureModel,
-                                       RimEclipseCase*       eclipseCase,
-                                       int                   timeStep,
-                                       const QString&        trackTitle,
-                                       const PlotDefVector&  curveConfiguration,
-                                       bool                  isPlotLogarithmic );
+    static void createParametersTrack( RimFractureModelPlot*                         plot,
+                                       RimFractureModel*                             fractureModel,
+                                       RimEclipseCase*                               eclipseCase,
+                                       int                                           timeStep,
+                                       const QString&                                trackTitle,
+                                       const std::vector<RiaDefines::CurveProperty>& propertyTypes,
+                                       bool                                          isPlotLogarithmic );
 
     static void createElasticPropertiesTrack( RimFractureModelPlot*     plot,
                                               RimFractureModel*         fractureModel,
