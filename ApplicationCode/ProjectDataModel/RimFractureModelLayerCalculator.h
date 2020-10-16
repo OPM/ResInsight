@@ -17,34 +17,30 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RimDepthTrackPlot.h"
+#include "RimFractureModelPropertyCalculator.h"
 
 #include "RiaFractureModelDefines.h"
 
-#include "cafPdmPtrField.h"
+#include <vector>
 
+class RimFractureModelCalculator;
 class RimFractureModel;
-class RimWellLogExtractionCurve;
 
-class RimFractureModelPlot : public RimDepthTrackPlot
+class RimFractureModelLayerCalculator : public RimFractureModelPropertyCalculator
 {
-    CAF_PDM_HEADER_INIT;
-
 public:
-    RimFractureModelPlot();
+    RimFractureModelLayerCalculator( RimFractureModelCalculator* calculator );
 
-    void              setFractureModel( RimFractureModel* fractureModel );
-    RimFractureModel* fractureModel();
+    bool calculate( RiaDefines::CurveProperty curveProperty,
+                    const RimFractureModel*   fractureModel,
+                    int                       timeStep,
+                    std::vector<double>&      values,
+                    std::vector<double>&      measuredDepthValues,
+                    std::vector<double>&      tvDepthValues,
+                    double&                   rkbDiff ) const override;
 
-protected:
-    RimWellLogExtractionCurve* findCurveByProperty( RiaDefines::CurveProperty curveProperty ) const;
-
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-
-    void onLoadDataAndUpdate() override;
+    bool isMatching( RiaDefines::CurveProperty curveProperty ) const override;
 
 private:
-    void applyDataSource();
-
-    caf::PdmPtrField<RimFractureModel*> m_fractureModel;
+    RimFractureModelCalculator* m_fractureModelCalculator;
 };

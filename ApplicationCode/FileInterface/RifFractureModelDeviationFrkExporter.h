@@ -20,7 +20,7 @@
 
 #include <vector>
 
-class RimFractureModelPlot;
+class RimFractureModel;
 class QString;
 class QTextStream;
 
@@ -30,7 +30,7 @@ class QTextStream;
 class RifFractureModelDeviationFrkExporter
 {
 public:
-    static bool writeToFile( RimFractureModelPlot* plot, const QString& filepath );
+    static bool writeToFile( RimFractureModel* fractureModel, const QString& filepath );
 
     static void fixupDepthValuesForExport( const std::vector<double>& tvdValues,
                                            const std::vector<double>& mdValues,

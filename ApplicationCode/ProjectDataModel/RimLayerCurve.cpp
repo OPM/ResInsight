@@ -15,45 +15,14 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 #include "RimLayerCurve.h"
 
 #include "RigEclipseCaseData.h"
-#include "RigEclipseWellLogExtractor.h"
-#include "RigElasticProperties.h"
-#include "RigResultAccessorFactory.h"
-#include "RigWellLogCurveData.h"
-#include "RigWellPath.h"
 
-#include "RimCase.h"
-#include "RimColorLegend.h"
-#include "RimColorLegendCollection.h"
-#include "RimColorLegendItem.h"
 #include "RimEclipseCase.h"
-#include "RimEclipseResultDefinition.h"
-#include "RimElasticProperties.h"
 #include "RimFractureModel.h"
-#include "RimFractureModelPlot.h"
+#include "RimFractureModelCalculator.h"
 #include "RimModeledWellPath.h"
-#include "RimProject.h"
-#include "RimTools.h"
-#include "RimWellLogFile.h"
-#include "RimWellLogPlot.h"
-#include "RimWellLogTrack.h"
-#include "RimWellPath.h"
-#include "RimWellPathCollection.h"
-#include "RimWellPlotTools.h"
-
-#include "RiuQwtPlotCurve.h"
-#include "RiuQwtPlotWidget.h"
-
-#include "RiaApplication.h"
-#include "RiaLogging.h"
-#include "RiaPreferences.h"
-
-#include "cafPdmUiTreeOrdering.h"
-
-#include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT( RimLayerCurve, "LayerCurve" );
 
@@ -108,80 +77,15 @@ void RimLayerCurve::performDataExtraction( bool* isUsingPseudoLength )
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case.value() );
     if ( eclipseCase && m_fractureModel )
     {
-        RigEclipseWellLogExtractor eclExtractor( eclipseCase->eclipseCaseData(),
-                                                 m_fractureModel->thicknessDirectionWellPath()->wellPathGeometry(),
-                                                 "fracture model" );
-
-        rkbDiff = eclExtractor.wellPathData()->rkbDiff();
-
-        // Extract formation data
-        cvf::ref<RigResultAccessor> formationResultAccessor = RigResultAccessorFactory::
-            createFromResultAddress( eclipseCase->eclipseCaseData(),
-                                     0,
-                                     RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                     0,
-                                     RigEclipseResultAddress( RiaDefines::ResultCatType::FORMATION_NAMES,
-                                                              RiaDefines::activeFormationNamesResultName() ) );
-        if ( !formationResultAccessor.notNull() )
+        bool isOk = m_fractureModel->calculator()->extractCurveData( curveProperty(),
+                                                                     m_timeStep,
+                                                                     values,
+                                                                     measuredDepthValues,
+                                                                     tvDepthValues,
+                                                                     rkbDiff );
+        if ( !isOk )
         {
-            RiaLogging::error( QString( "No formation result found." ) );
             return;
-        }
-
-        CurveSamplingPointData curveData =
-            RimWellLogTrack::curveSamplingPointData( &eclExtractor, formationResultAccessor.p() );
-
-        std::vector<QString> formationNamesVector = RimWellLogTrack::formationNamesVector( eclipseCase );
-
-        double overburdenHeight = m_fractureModel->overburdenHeight();
-        if ( overburdenHeight > 0.0 )
-        {
-            RimWellLogTrack::addOverburden( formationNamesVector, curveData, overburdenHeight );
-        }
-
-        double underburdenHeight = m_fractureModel->underburdenHeight();
-        if ( underburdenHeight > 0.0 )
-        {
-            RimWellLogTrack::addUnderburden( formationNamesVector, curveData, underburdenHeight );
-        }
-
-        measuredDepthValues = curveData.md;
-        tvDepthValues       = curveData.tvd;
-
-        // Extract facies data
-        RimFractureModelPlot* fractureModelPlot;
-        firstAncestorOrThisOfType( fractureModelPlot );
-        if ( !fractureModelPlot )
-        {
-            RiaLogging::error( QString( "No facies data found for layer curve." ) );
-            return;
-        }
-
-        std::vector<double> faciesValues;
-        fractureModelPlot->getFaciesValues( faciesValues );
-        if ( faciesValues.empty() )
-        {
-            RiaLogging::error( QString( "Empty facies data found for layer curve." ) );
-            return;
-        }
-
-        if ( faciesValues.size() != curveData.data.size() || faciesValues.size() != measuredDepthValues.size() ) return;
-
-        values.resize( faciesValues.size() );
-
-        int    layerNo           = 0;
-        double previousFormation = -1.0;
-        double previousFacies    = -1.0;
-        for ( size_t i = 0; i < faciesValues.size(); i++ )
-        {
-            if ( previousFormation != curveData.data[i] || previousFacies != faciesValues[i] )
-            {
-                layerNo++;
-            }
-
-            values[i]         = layerNo;
-            previousFormation = curveData.data[i];
-            previousFacies    = faciesValues[i];
         }
 
         RiaEclipseUnitTools::UnitSystem eclipseUnitsType = eclipseCase->eclipseCaseData()->unitsType();

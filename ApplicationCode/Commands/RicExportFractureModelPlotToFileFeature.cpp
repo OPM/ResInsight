@@ -59,7 +59,7 @@ void RicExportFractureModelPlotToFileFeature::onActionTriggered( bool isChecked 
 
     if ( directoryPath.isEmpty() ) return;
 
-    RifFractureModelPlotExporter::writeToDirectory( fractureModelPlot,
+    RifFractureModelPlotExporter::writeToDirectory( fractureModelPlot->fractureModel(),
                                                     fractureModelPlot->fractureModel()->useDetailedFluidLoss(),
                                                     directoryPath );
 

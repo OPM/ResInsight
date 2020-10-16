@@ -94,34 +94,10 @@ RimFractureModelPlot*
     {
         auto task = progInfo.task( "Creating parameters track", 15 );
 
-        std::map<QString, PlotDefVector> plots;
-        plots["Porosity"] = {std::make_tuple( "PORO",
-                                              RiaDefines::ResultCatType::STATIC_NATIVE,
-                                              RimFractureModelCurve::MissingValueStrategy::DEFAULT_VALUE,
-                                              false,
-                                              RiaDefines::CurveProperty::POROSITY )};
-
-        plots["Pressure"] = {std::make_tuple( "PRESSURE",
-                                              RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                              RimFractureModelCurve::MissingValueStrategy::LINEAR_INTERPOLATION,
-                                              true,
-                                              RiaDefines::CurveProperty::INITIAL_PRESSURE ),
-                             std::make_tuple( "PRESSURE",
-                                              RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                              RimFractureModelCurve::MissingValueStrategy::OTHER_CURVE_PROPERTY,
-                                              false,
-                                              RiaDefines::CurveProperty::PRESSURE )};
-
-        plots["Permeability"] = {std::make_tuple( "PERMX",
-                                                  RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                  RimFractureModelCurve::MissingValueStrategy::DEFAULT_VALUE,
-                                                  false,
-                                                  RiaDefines::CurveProperty::PERMEABILITY_X ),
-                                 std::make_tuple( "PERMZ",
-                                                  RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                  RimFractureModelCurve::MissingValueStrategy::DEFAULT_VALUE,
-                                                  false,
-                                                  RiaDefines::CurveProperty::PERMEABILITY_Z )};
+        std::map<QString, std::vector<RiaDefines::CurveProperty>> plots;
+        plots["Porosity"]     = {RiaDefines::CurveProperty::POROSITY};
+        plots["Pressure"]     = {RiaDefines::CurveProperty::INITIAL_PRESSURE, RiaDefines::CurveProperty::PRESSURE};
+        plots["Permeability"] = {RiaDefines::CurveProperty::PERMEABILITY_X, RiaDefines::CurveProperty::PERMEABILITY_Z};
 
         std::set<QString> logarithmicPlots;
         logarithmicPlots.insert( "Permeability" );
@@ -369,13 +345,13 @@ void RicNewFractureModelPlotFeature::createLayersTrack( RimFractureModelPlot* pl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewFractureModelPlotFeature::createParametersTrack( RimFractureModelPlot* plot,
-                                                            RimFractureModel*     fractureModel,
-                                                            RimEclipseCase*       eclipseCase,
-                                                            int                   timeStep,
-                                                            const QString&        trackTitle,
-                                                            const PlotDefVector&  curveConfigurations,
-                                                            bool                  isPlotLogarithmic )
+void RicNewFractureModelPlotFeature::createParametersTrack( RimFractureModelPlot*                         plot,
+                                                            RimFractureModel*                             fractureModel,
+                                                            RimEclipseCase*                               eclipseCase,
+                                                            int                                           timeStep,
+                                                            const QString&                                trackTitle,
+                                                            const std::vector<RiaDefines::CurveProperty>& propertyTypes,
+                                                            bool isPlotLogarithmic )
 {
     RimWellLogTrack* plotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, trackTitle, plot );
     plotTrack->setFormationCase( eclipseCase );
@@ -387,21 +363,19 @@ void RicNewFractureModelPlotFeature::createParametersTrack( RimFractureModelPlot
     caf::ColorTable colors = RiaColorTables::wellLogPlotPaletteColors();
 
     int colorIndex = 0;
-    for ( auto curveConfig : curveConfigurations )
+    for ( const RiaDefines::CurveProperty& propertyType : propertyTypes )
     {
-        QString                                     resultVariable       = std::get<0>( curveConfig );
-        RiaDefines::ResultCatType                   resultCategoryType   = std::get<1>( curveConfig );
-        RimFractureModelCurve::MissingValueStrategy missingValueStrategy = std::get<2>( curveConfig );
-        bool                                        fixedInitialTimeStep = std::get<3>( curveConfig );
-        RiaDefines::CurveProperty                   curveProperty        = std::get<4>( curveConfig );
+        QString                   resultVariable     = fractureModel->eclipseResultVariable( propertyType );
+        RiaDefines::ResultCatType resultCategoryType = fractureModel->eclipseResultCategory( propertyType );
+        // TODO: maybe improve?
+        bool fixedInitialTimeStep = ( propertyType == RiaDefines::CurveProperty::INITIAL_PRESSURE );
 
         RimFractureModelCurve* curve = new RimFractureModelCurve;
-        curve->setCurveProperty( curveProperty );
+        curve->setCurveProperty( propertyType );
         curve->setFractureModel( fractureModel );
         curve->setCase( eclipseCase );
         curve->setEclipseResultVariable( resultVariable );
         curve->setEclipseResultCategory( resultCategoryType );
-        curve->setMissingValueStrategy( missingValueStrategy );
         curve->setColor( colors.cycledColor3f( colorIndex ) );
         curve->setLineStyle( RiuQwtPlotCurve::STYLE_SOLID );
         curve->setLineThickness( 2 );
@@ -416,11 +390,6 @@ void RicNewFractureModelPlotFeature::createParametersTrack( RimFractureModelPlot
         {
             curve->setAutoNameComponents( false, true, false, false, false );
             curve->setCurrentTimeStep( timeStep );
-        }
-
-        if ( curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
-        {
-            curve->setBurdenStrategy( RimFractureModelCurve::BurdenStrategy::GRADIENT );
         }
 
         plotTrack->addCurve( curve );
