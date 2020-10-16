@@ -33,13 +33,21 @@ class RimPlotAxisAnnotation : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class AnnotationType
+    {
+        LINE = 0,
+        RANGE
+    };
     RimPlotAxisAnnotation();
 
     void setName( const QString& name );
     void setValue( double value );
 
+    AnnotationType  annotationType() const;
     virtual QString name() const;
     virtual double  value() const;
+    virtual double  rangeStart() const;
+    virtual double  rangeEnd() const;
     virtual QColor  color() const;
 
     caf::PdmFieldHandle* userDescriptionField() override;
@@ -54,4 +62,12 @@ protected:
     caf::PdmField<bool>    m_isActive;
     caf::PdmField<QString> m_name;
     caf::PdmField<double>  m_value;
+    caf::PdmField<double>  m_rangeStart;
+    caf::PdmField<double>  m_rangeEnd;
+
+protected:
+    void setAnnotationType( AnnotationType annotationType );
+
+private:
+    AnnotationType m_annotationType;
 };

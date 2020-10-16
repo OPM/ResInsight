@@ -1502,6 +1502,7 @@ void RimEnsembleCurveSet::updateTimeAnnotations()
         {
             plot->addTimeAnnotation( RiaTimeTTools::fromQDateTime( timeStep ) );
         }
+        plot->addTimeRangeAnnotation( m_minTimeStep, m_maxTimeStep );
         plot->updateAxes();
     }
 }

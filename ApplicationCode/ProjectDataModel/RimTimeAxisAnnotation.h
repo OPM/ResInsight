@@ -36,25 +36,17 @@ class RimTimeAxisAnnotation : public RimPlotAxisAnnotation
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum class TimeAnnotationType
-    {
-        TIME = 0,
-        TIME_RANGE
-    };
-
     RimTimeAxisAnnotation();
 
     void   setTime( time_t time );
     void   setTimeRange( time_t startTime, time_t endTime );
     QColor color() const override;
-    double value() const override;
 
 protected:
     virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
-    caf::PdmField<caf::AppEnum<TimeAnnotationType>> m_annotationType;
-    caf::PdmField<time_t>                           m_time;
-    caf::PdmField<time_t>                           m_startTime;
-    caf::PdmField<time_t>                           m_endTime;
+    caf::PdmField<time_t> m_time;
+    caf::PdmField<time_t> m_startTime;
+    caf::PdmField<time_t> m_endTime;
 };

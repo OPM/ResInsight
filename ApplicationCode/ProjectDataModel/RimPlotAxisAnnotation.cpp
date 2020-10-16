@@ -35,6 +35,7 @@ CAF_PDM_SOURCE_INIT( RimPlotAxisAnnotation, "RimPlotAxisAnnotation" );
 //--------------------------------------------------------------------------------------------------
 RimPlotAxisAnnotation::RimPlotAxisAnnotation()
 {
+    m_annotationType = AnnotationType::LINE;
     CAF_PDM_InitObject( "Plot Axis Annotation", ":/LeftAxis16x16.png", "", "" );
 
     CAF_PDM_InitField( &m_isActive, "Active", true, "Active", "", "", "" );
@@ -42,6 +43,9 @@ RimPlotAxisAnnotation::RimPlotAxisAnnotation()
 
     CAF_PDM_InitFieldNoDefault( &m_name, "Name", "Name", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_value, "Value", "Value", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_rangeStart, "RangeStart", "Range Start", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_rangeEnd, "RangeEnd", "Range End", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,6 +67,14 @@ void RimPlotAxisAnnotation::setValue( double value )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimPlotAxisAnnotation::AnnotationType RimPlotAxisAnnotation::annotationType() const
+{
+    return m_annotationType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimPlotAxisAnnotation::name() const
 {
     return m_name();
@@ -74,6 +86,22 @@ QString RimPlotAxisAnnotation::name() const
 double RimPlotAxisAnnotation::value() const
 {
     return m_value();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimPlotAxisAnnotation::rangeStart() const
+{
+    return m_rangeStart();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimPlotAxisAnnotation::rangeEnd() const
+{
+    return m_rangeEnd();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -124,4 +152,12 @@ void RimPlotAxisAnnotation::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     uiOrdering.add( &m_value );
 
     uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisAnnotation::setAnnotationType( AnnotationType annoType )
+{
+    m_annotationType = annoType;
 }

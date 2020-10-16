@@ -137,6 +137,14 @@ RimPlotAxisPropertiesInterface::AxisTitlePositionType RimSummaryTimeAxisProperti
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaDefines::PlotAxis RimSummaryTimeAxisProperties::plotAxisType() const
+{
+    return RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 int RimSummaryTimeAxisProperties::titleFontSize() const
 {
     return caf::FontTools::absolutePointSize( plotFontSize(), m_titleFontSize() );

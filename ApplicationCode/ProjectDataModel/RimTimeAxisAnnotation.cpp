@@ -32,17 +32,6 @@
 
 #include <cmath>
 
-namespace caf
-{
-template <>
-void caf::AppEnum<RimTimeAxisAnnotation::TimeAnnotationType>::setUp()
-{
-    addItem( RimTimeAxisAnnotation::TimeAnnotationType::TIME, "TIME", "Time" );
-    addItem( RimTimeAxisAnnotation::TimeAnnotationType::TIME_RANGE, "TIME_RANGE", "Time Range" );
-    setDefault( RimTimeAxisAnnotation::TimeAnnotationType::TIME );
-}
-} // namespace caf
-
 CAF_PDM_SOURCE_INIT( RimTimeAxisAnnotation, "RimTimeAxisAnnotation" );
 
 //--------------------------------------------------------------------------------------------------
@@ -55,7 +44,6 @@ RimTimeAxisAnnotation::RimTimeAxisAnnotation()
 
     m_value.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_annotationType, "AnnotationType", "AnnotationType", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_time, "Time", "Time", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_startTime, "StartTime", "StartTime", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_endTime, "EndTime", "EndTime", "", "", "" );
@@ -66,8 +54,8 @@ RimTimeAxisAnnotation::RimTimeAxisAnnotation()
 //--------------------------------------------------------------------------------------------------
 void RimTimeAxisAnnotation::setTime( time_t time )
 {
-    m_time           = time;
-    m_annotationType = TimeAnnotationType::TIME;
+    m_time = RiaTimeTTools::toDouble( time );
+    this->setAnnotationType( AnnotationType::LINE );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -75,9 +63,9 @@ void RimTimeAxisAnnotation::setTime( time_t time )
 //--------------------------------------------------------------------------------------------------
 void RimTimeAxisAnnotation::setTimeRange( time_t startTime, time_t endTime )
 {
-    m_startTime      = startTime;
-    m_endTime        = endTime;
-    m_annotationType = TimeAnnotationType::TIME_RANGE;
+    m_rangeStart = RiaTimeTTools::toDouble( startTime );
+    m_rangeEnd   = RiaTimeTTools::toDouble( endTime );
+    this->setAnnotationType( AnnotationType::RANGE );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -85,23 +73,15 @@ void RimTimeAxisAnnotation::setTimeRange( time_t startTime, time_t endTime )
 //--------------------------------------------------------------------------------------------------
 QColor RimTimeAxisAnnotation::color() const
 {
-    if ( m_annotationType() == TimeAnnotationType::TIME )
+    if ( annotationType() == AnnotationType::LINE )
     {
         return QColor( 255, 0, 0 );
     }
-    else if ( m_annotationType() == TimeAnnotationType::TIME_RANGE )
+    else if ( annotationType() == RimPlotAxisAnnotation::AnnotationType::RANGE )
     {
-        return QColor( 0, 255, 0 );
+        return QColor( 0, 0, 255 );
     }
     return QColor( 0, 0, 100 );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimTimeAxisAnnotation::value() const
-{
-    return RiaTimeTTools::toDouble( m_time );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -112,11 +92,11 @@ void RimTimeAxisAnnotation::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     uiOrdering.add( &m_name );
     uiOrdering.add( &m_value );
 
-    if ( m_annotationType() == TimeAnnotationType::TIME )
+    if ( annotationType() == RimPlotAxisAnnotation::AnnotationType::LINE )
     {
         uiOrdering.add( &m_time );
     }
-    else if ( m_annotationType() == TimeAnnotationType::TIME_RANGE )
+    else if ( annotationType() == RimPlotAxisAnnotation::AnnotationType::RANGE )
     {
         uiOrdering.add( &m_startTime );
         uiOrdering.add( &m_endTime );

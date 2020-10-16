@@ -178,15 +178,32 @@ void RiuSummaryQwtPlot::setAxisIsLogarithmic( QwtPlot::Axis axis, bool logarithm
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::updateAnnotationObjects( RimPlotAxisPropertiesInterface* axisProperties )
 {
-    m_annotationTool->detachAllAnnotations();
+    RiuPlotAnnotationTool::Orientation orientation = RiuPlotAnnotationTool::Orientation::HORIZONTAL;
+    if ( axisProperties->plotAxisType() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
+    {
+        orientation = RiuPlotAnnotationTool::Orientation::VERTICAL;
+    }
+    m_annotationTool->detachAllAnnotations( orientation );
 
     for ( auto annotation : axisProperties->annotations() )
     {
-        m_annotationTool->attachAnnotationLine( this,
-                                                annotation->color(),
-                                                annotation->name(),
-                                                annotation->value(),
-                                                RiuPlotAnnotationTool::Orientation::VERTICAL );
+        if ( annotation->annotationType() == RimPlotAxisAnnotation::AnnotationType::LINE )
+        {
+            m_annotationTool->attachAnnotationLine( this,
+                                                    annotation->color(),
+                                                    annotation->name(),
+                                                    annotation->value(),
+                                                    orientation );
+        }
+        else if ( annotation->annotationType() == RimPlotAxisAnnotation::AnnotationType::RANGE )
+        {
+            m_annotationTool->attachAnnotationRange( this,
+                                                     annotation->color(),
+                                                     annotation->name(),
+                                                     annotation->rangeStart(),
+                                                     annotation->rangeEnd(),
+                                                     orientation );
+        }
     }
 }
 
