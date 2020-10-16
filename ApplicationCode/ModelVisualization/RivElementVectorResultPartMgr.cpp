@@ -231,7 +231,7 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
                     // Hence, we need to separate the result value from the vector.
                     aggregatedResult += faceNormal.getNormalized() * resultValue;
                 }
-                if ( aggregatedVector.length() >= result->threshold() )
+                if ( aggregatedResult.length() >= result->threshold() )
                 {
                     tensorVisualizations.push_back(
                         ElementVectorResultVisualization( displayCordXf->transformToDisplayCoord( cells[gcIdx].center() ),
@@ -292,10 +292,10 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
                 if ( std::abs( resultValue ) >= result->threshold() )
                 {
                     tensorVisualizations.push_back(
-                    ElementVectorResultVisualization( displayCordXf->transformToDisplayCoord( connCenter ),
-                                                      connNormal,
-                                                      resultValue,
-                                                      std::cbrt( cells[conn.c1GlobIdx()].volume() / 3.0 ) ) );
+                        ElementVectorResultVisualization( displayCordXf->transformToDisplayCoord( connCenter ),
+                                                          connNormal,
+                                                          resultValue,
+                                                          std::cbrt( cells[conn.c1GlobIdx()].volume() / 3.0 ) ) );
                 }
             }
         }
