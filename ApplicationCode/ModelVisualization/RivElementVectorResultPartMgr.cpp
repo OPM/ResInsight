@@ -302,7 +302,6 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
     if ( !tensorVisualizations.empty() )
     {
         cvf::ref<cvf::Part> partIdx = createPart( *result, tensorVisualizations );
-        // partIdx->setTransform( m_scaleTransform.p() );
         partIdx->updateBoundingBox();
         model->addPart( partIdx.p() );
     }
