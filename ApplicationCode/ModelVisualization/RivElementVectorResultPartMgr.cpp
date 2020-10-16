@@ -88,10 +88,12 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
 
     if ( !result->showResult() ) return;
 
+    cvf::ref<caf::DisplayCoordTransform> displayCordXf = m_rimReservoirView->displayCoordTransform();
+
     std::vector<ElementVectorResultVisualization> tensorVisualizations;
 
     double characteristicCellSize = eclipseCase->characteristicCellSize();
-    float  arrowConstantScaling   = 0.5 * result->sizeScale() * characteristicCellSize;
+    float  arrowConstantScaling   = 10.0 * result->sizeScale() * characteristicCellSize;
 
     double min, max;
     result->mappingRange( min, max );
@@ -144,7 +146,18 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
     const cvf::Vec3d offset = eclipseCase->mainGrid()->displayModelOffset();
 
     const std::vector<RigCell>& cells = eclipseCase->mainGrid()->globalCellArray();
-    for ( int gcIdx = 0; gcIdx < static_cast<int>( cells.size() ); ++gcIdx )
+
+    auto getFaceCenterAndNormal =
+        [activeCellInfo, cells, arrowScaling, displayCordXf]( size_t                             globalCellIdx,
+                                                              cvf::StructGridInterface::FaceType faceType,
+                                                              cvf::Vec3d&                        faceCenter,
+                                                              cvf::Vec3d&                        faceNormal ) {
+            faceCenter = displayCordXf->transformToDisplayCoord( cells[globalCellIdx].faceCenter( faceType ) );
+            cvf::Vec3d cellCenter = displayCordXf->transformToDisplayCoord( cells[globalCellIdx].center() );
+            faceNormal            = ( faceCenter - cellCenter ).getNormalized() * arrowScaling;
+        };
+
+    for ( size_t gcIdx = 0; gcIdx < cells.size(); ++gcIdx )
     {
         if ( !cells[gcIdx].isInvalid() && activeCellInfo->isActive( gcIdx ) )
         {
@@ -162,9 +175,9 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
 
                     if ( std::abs( resultValue ) >= result->threshold() )
                     {
-                        cvf::Vec3d faceCenter = cells[gcIdx].faceCenter( directions[dir] ) - offset;
-                        cvf::Vec3d cellCenter = cells[gcIdx].center() - offset;
-                        cvf::Vec3d faceNormal = ( faceCenter - cellCenter ).getNormalized() * arrowScaling;
+                        cvf::Vec3d faceCenter;
+                        cvf::Vec3d faceNormal;
+                        getFaceCenterAndNormal( gcIdx, directions[dir], faceCenter, faceNormal );
 
                         if ( result->scaleMethod() == RimElementVectorResult::ScaleMethod::RESULT )
                         {
@@ -195,29 +208,33 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
                         resultValue +=
                             resultsData->cellScalarResults( resultAddresses[flIdx], timeStepIndex ).at( resultIdx );
                     }
-                    cvf::Vec3d faceCenter = cells[gcIdx].faceCenter( directions[dir] ) - offset;
-                    cvf::Vec3d cellCenter = cells[gcIdx].center() - offset;
-                    cvf::Vec3d faceNormal = ( faceCenter - cellCenter ).getNormalized() * arrowScaling;
 
-                    aggregatedVector += faceNormal;
+                    cvf::Vec3d faceCenter;
+                    cvf::Vec3d faceNormal;
+                    cvf::Vec3d faceNormalScaled;
+                    getFaceCenterAndNormal( gcIdx, directions[dir], faceCenter, faceNormal );
+                    faceNormalScaled = faceNormal;
 
                     if ( result->scaleMethod() == RimElementVectorResult::ScaleMethod::RESULT )
                     {
-                        faceNormal *= resultValue;
+                        faceNormalScaled *= resultValue;
                     }
                     else if ( result->scaleMethod() == RimElementVectorResult::ScaleMethod::RESULT_LOG )
                     {
-                        faceNormal *= ( 1.0 - static_cast<double>( std::signbit( resultValue ) ) * 2.0 ) *
-                                      scaleLogarithmically( std::abs( resultValue ) );
+                        faceNormalScaled *= ( 1.0 - static_cast<double>( std::signbit( resultValue ) ) * 2.0 ) *
+                                            scaleLogarithmically( std::abs( resultValue ) );
                     }
 
-                    aggregatedVector += faceNormal;
-                    aggregatedResult += ( faceCenter - cellCenter ).getNormalized() * resultValue;
+                    aggregatedVector += faceNormalScaled;
+
+                    // If the vector is scaled in a logarithmic scale, the result should still be the same as before.
+                    // Hence, we need to separate the result value from the vector.
+                    aggregatedResult += faceNormal.getNormalized() * resultValue;
                 }
                 if ( aggregatedVector.length() >= result->threshold() )
                 {
                     tensorVisualizations.push_back(
-                        ElementVectorResultVisualization( cells[gcIdx].center() - offset,
+                        ElementVectorResultVisualization( displayCordXf->transformToDisplayCoord( cells[gcIdx].center() ),
                                                           aggregatedVector,
                                                           aggregatedResult.length(),
                                                           std::cbrt( cells[gcIdx].volume() / 3.0 ) ) );
@@ -259,10 +276,9 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
                 cvf::Vec3d connCenter =
                     static_cast<cvf::Vec3d>( cvf::GeometryTools::computePolygonCenter<cvf::Vec3f>( conn.polygon() ) );
 
-                cvf::Vec3d faceCenter = cells[conn.c1GlobIdx()].faceCenter( conn.face() ) - offset;
-                cvf::Vec3d cellCenter = cells[conn.c1GlobIdx()].center() - offset;
-
-                cvf::Vec3d connNormal = ( faceCenter - cellCenter ).getNormalized() * arrowScaling;
+                cvf::Vec3d faceCenter;
+                cvf::Vec3d connNormal;
+                getFaceCenterAndNormal( conn.c1GlobIdx(), conn.face(), faceCenter, connNormal );
 
                 if ( result->scaleMethod() == RimElementVectorResult::ScaleMethod::RESULT )
                 {
@@ -276,10 +292,10 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
                 if ( std::abs( resultValue ) >= result->threshold() )
                 {
                     tensorVisualizations.push_back(
-                        ElementVectorResultVisualization( connCenter - offset,
-                                                          connNormal,
-                                                          resultValue,
-                                                          std::cbrt( cells[conn.c1GlobIdx()].volume() / 3.0 ) ) );
+                    ElementVectorResultVisualization( displayCordXf->transformToDisplayCoord( connCenter ),
+                                                      connNormal,
+                                                      resultValue,
+                                                      std::cbrt( cells[conn.c1GlobIdx()].volume() / 3.0 ) ) );
                 }
             }
         }
@@ -288,7 +304,7 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
     if ( !tensorVisualizations.empty() )
     {
         cvf::ref<cvf::Part> partIdx = createPart( *result, tensorVisualizations );
-        partIdx->setTransform( m_scaleTransform.p() );
+        // partIdx->setTransform( m_scaleTransform.p() );
         partIdx->updateBoundingBox();
         model->addPart( partIdx.p() );
     }
