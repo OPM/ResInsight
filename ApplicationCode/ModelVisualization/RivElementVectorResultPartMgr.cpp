@@ -143,8 +143,6 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
     RigCaseCellResultsData* resultsData = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
-    const cvf::Vec3d offset = eclipseCase->mainGrid()->displayModelOffset();
-
     const std::vector<RigCell>& cells = eclipseCase->mainGrid()->globalCellArray();
 
     auto getFaceCenterAndNormal =
