@@ -34,15 +34,17 @@ public:
     bool                      hasChildWellPath( RimWellPath* wellPath );
     void                      removeChildWellPath( RimWellPath* wellPath );
     void                      removeAllChildWellPaths();
-    void                      fixBranchNames();
-    void                      makeMoreLevelsIfNecessary();
+
+    void createWellPathGeometry();
+    void updateWellPathName();
+    void fixBranchNames();
+    void makeMoreLevelsIfNecessary();
 
 protected:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName );
 
 private:
     std::vector<const RigWellPath*> wellPathGeometries() const;
-    void                            updateWellPathName();
     QString                         createWellPathName() const;
 
 private:

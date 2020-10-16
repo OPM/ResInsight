@@ -71,6 +71,8 @@ public:
     double identicalTubeLength( const RigWellPath& otherWellPathGeometry ) const;
 
     static cvf::ref<RigWellPath> commonGeometry( const std::vector<const RigWellPath*>& allGeometries );
+    void                         setUniqueStartIndex( size_t uniqueStartIndex );
+    std::vector<cvf::Vec3d>      uniqueWellPathPoints() const;
 
     std::pair<std::vector<cvf::Vec3d>, std::vector<double>>
         clippedPointSubset( double startMD, double endMD, double* horizontalLengthAlongWellToStartClipPoint = nullptr ) const;
@@ -90,4 +92,5 @@ private:
 
     bool   m_hasDatumElevation;
     double m_datumElevation;
+    size_t m_startIndex;
 };

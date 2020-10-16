@@ -30,6 +30,7 @@
 RigWellPath::RigWellPath()
     : m_hasDatumElevation( false )
     , m_datumElevation( 0.0 )
+    , m_startIndex( 0u )
     , objectBeingDeleted( this )
 {
 }
@@ -42,6 +43,7 @@ RigWellPath::RigWellPath( const RigWellPath& rhs )
     , m_measuredDepths( rhs.m_measuredDepths )
     , m_hasDatumElevation( rhs.m_hasDatumElevation )
     , m_datumElevation( rhs.m_datumElevation )
+    , m_startIndex( rhs.m_startIndex )
     , objectBeingDeleted( this )
 {
 }
@@ -52,6 +54,7 @@ RigWellPath::RigWellPath( const RigWellPath& rhs )
 RigWellPath::RigWellPath( const std::vector<cvf::Vec3d>& wellPathPoints, const std::vector<double>& measuredDepths )
     : m_wellPathPoints( wellPathPoints )
     , m_measuredDepths( measuredDepths )
+    , m_startIndex( 0u )
     , objectBeingDeleted( this )
 {
 }
@@ -65,6 +68,7 @@ RigWellPath& RigWellPath::operator=( const RigWellPath& rhs )
     m_measuredDepths    = rhs.m_measuredDepths;
     m_hasDatumElevation = rhs.m_hasDatumElevation;
     m_datumElevation    = rhs.m_datumElevation;
+    m_startIndex        = rhs.m_startIndex;
     return *this;
 }
 
@@ -411,6 +415,22 @@ cvf::ref<RigWellPath> RigWellPath::commonGeometry( const std::vector<const RigWe
         }
     }
     return cvf::ref<RigWellPath>( new RigWellPath( commonWellPathPoints, commonMDs ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigWellPath::setUniqueStartIndex( size_t uniqueStartIndex )
+{
+    m_startIndex = uniqueStartIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> RigWellPath::uniqueWellPathPoints() const
+{
+    return std::vector<cvf::Vec3d>( m_wellPathPoints.begin() + m_startIndex, m_wellPathPoints.end() );
 }
 
 //--------------------------------------------------------------------------------------------------

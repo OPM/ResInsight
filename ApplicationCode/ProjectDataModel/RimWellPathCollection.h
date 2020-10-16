@@ -139,7 +139,8 @@ private:
     void readAndAddWellPaths( std::vector<RimFileWellPath*>& wellPathArray, bool importGrouped );
     void sortWellsByName();
 
-    RimWellPathGroup* findOrCreateWellPathGroup( gsl::not_null<RimWellPath*> wellPath );
+    std::vector<RimWellPathGroup*> topLevelGroups() const;
+    RimWellPathGroup*              findOrCreateWellPathGroup( gsl::not_null<RimWellPath*> wellPath );
 
     RiaEclipseUnitTools::UnitSystemType findUnitSystemForWellPath( const RimWellPath* wellPath );
 

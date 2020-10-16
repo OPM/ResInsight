@@ -45,9 +45,9 @@ void RimWellPathGroup::addChildWellPath( RimWellPath* wellPath )
 {
     if ( !this->wellPathGeometry()->wellPathPoints().empty() )
     {
-        auto commonGeometry = RigWellPath::commonGeometry( {this->wellPathGeometry(), wellPath->wellPathGeometry()} );
-        setWellPathGeometry( commonGeometry.p() );
         m_childWellPaths.push_back( wellPath );
+        createWellPathGeometry();
+
         makeMoreLevelsIfNecessary();
     }
     else
@@ -89,8 +89,7 @@ bool RimWellPathGroup::hasChildWellPath( RimWellPath* wellPath )
 void RimWellPathGroup::removeChildWellPath( RimWellPath* wellPath )
 {
     m_childWellPaths.removeChildObject( wellPath );
-    auto commonGeometry = RigWellPath::commonGeometry( wellPathGeometries() );
-    setWellPathGeometry( commonGeometry.p() );
+    createWellPathGeometry();
     updateWellPathName();
 }
 
@@ -100,9 +99,31 @@ void RimWellPathGroup::removeChildWellPath( RimWellPath* wellPath )
 void RimWellPathGroup::removeAllChildWellPaths()
 {
     m_childWellPaths.clear();
-    auto commonGeometry = RigWellPath::commonGeometry( wellPathGeometries() );
-    setWellPathGeometry( commonGeometry.p() );
+    setWellPathGeometry( cvf::ref<RigWellPath>( new RigWellPath ).p() );
     updateWellPathName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathGroup::createWellPathGeometry()
+{
+    for ( auto wellPath : m_childWellPaths )
+    {
+        if ( auto group = dynamic_cast<RimWellPathGroup*>( wellPath.p() ); group )
+        {
+            group->createWellPathGeometry();
+        }
+    }
+    auto commonGeometry = RigWellPath::commonGeometry( wellPathGeometries() );
+    for ( auto wellPath : m_childWellPaths )
+    {
+        size_t startIndex = 0u;
+        size_t commonSize = commonGeometry->wellPathPoints().size();
+        if ( commonSize > 0u ) startIndex = commonSize - 1u;
+        wellPath->wellPathGeometry()->setUniqueStartIndex( startIndex );
+    }
+    setWellPathGeometry( commonGeometry.p() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -223,6 +244,10 @@ void RimWellPathGroup::makeMoreLevelsIfNecessary()
 
     if ( branches.size() <= 1u ) return;
 
+    size_t startIndex = 0u;
+    size_t commonSize = wellPathGeometry()->wellPathPoints().size();
+    if ( commonSize > 0u ) startIndex = commonSize - 1u;
+
     for ( const auto& [firstDeviation, wellPaths] : branches )
     {
         if ( wellPaths.size() > 1u )
@@ -232,6 +257,7 @@ void RimWellPathGroup::makeMoreLevelsIfNecessary()
             {
                 m_childWellPaths().removeChildObject( wellPath );
                 newGroup->addChildWellPath( wellPath );
+                newGroup->wellPathGeometry()->setUniqueStartIndex( startIndex );
             }
             m_childWellPaths().push_back( newGroup );
         }

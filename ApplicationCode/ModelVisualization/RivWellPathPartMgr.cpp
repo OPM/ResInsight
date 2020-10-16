@@ -652,7 +652,7 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
     RigWellPath* wellPathGeometry = m_rimWellPath->wellPathGeometry();
     if ( !wellPathGeometry ) return;
 
-    const std::vector<cvf::Vec3d>& wellpathCenterLine = wellPathGeometry->wellPathPoints();
+    std::vector<cvf::Vec3d> wellpathCenterLine = wellPathGeometry->uniqueWellPathPoints();
 
     if ( wellpathCenterLine.size() < 2 ) return;
 

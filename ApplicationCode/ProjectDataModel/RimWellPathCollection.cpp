@@ -53,7 +53,6 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
 
-#include <QDebug>
 #include <QFile>
 #include <QFileInfo>
 #include <QString>
@@ -150,6 +149,7 @@ void RimWellPathCollection::loadDataAndUpdate()
 
         RimFileWellPath*    fWPath = dynamic_cast<RimFileWellPath*>( wellPath );
         RimModeledWellPath* mWPath = dynamic_cast<RimModeledWellPath*>( wellPath );
+        RimWellPathGroup*   branch = dynamic_cast<RimWellPathGroup*>( wellPath );
         if ( fWPath )
         {
             if ( !fWPath->filePath().isEmpty() )
@@ -164,6 +164,10 @@ void RimWellPathCollection::loadDataAndUpdate()
         else if ( mWPath )
         {
             mWPath->createWellPathGeometry();
+        }
+        else if ( branch )
+        {
+            branch->updateWellPathName();
         }
 
         if ( wellPath )
@@ -191,7 +195,10 @@ void RimWellPathCollection::loadDataAndUpdate()
         }
         progress.incrementProgress();
     }
-
+    for ( auto group : topLevelGroups() )
+    {
+        group->createWellPathGeometry();
+    }
     this->checkAndFixBranchNames();
     this->sortWellsByName();
 }
@@ -669,12 +676,14 @@ void RimWellPathCollection::removeWellPath( RimWellPath* wellPath )
     {
         for ( auto possibleParentWellPath : allWellPaths() )
         {
-            auto wellPathGroup = dynamic_cast<RimWellPathGroup*>( possibleParentWellPath );
-            if ( wellPathGroup->hasChildWellPath( wellPath ) )
+            if ( auto wellPathGroup = dynamic_cast<RimWellPathGroup*>( possibleParentWellPath ); wellPathGroup )
             {
-                wellPathGroup->removeChildWellPath( wellPath );
-                removed = true;
-                break;
+                if ( wellPathGroup->hasChildWellPath( wellPath ) )
+                {
+                    wellPathGroup->removeChildWellPath( wellPath );
+                    removed = true;
+                    break;
+                }
             }
         }
     }
@@ -729,12 +738,26 @@ void RimWellPathCollection::sortWellsByName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimWellPathGroup*> RimWellPathCollection::topLevelGroups() const
+{
+    std::vector<RimWellPathGroup*> groups;
+    for ( auto wellPath : m_wellPaths )
+    {
+        if ( auto group = dynamic_cast<RimWellPathGroup*>( wellPath.p() ); group )
+        {
+            groups.push_back( group );
+        }
+    }
+    return groups;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWellPathGroup* RimWellPathCollection::findOrCreateWellPathGroup( gsl::not_null<RimWellPath*> wellPath )
 {
     auto wellPathGeometry = wellPath->wellPathGeometry();
     if ( !wellPathGeometry ) return nullptr;
-
-    qDebug() << wellPath->name();
 
     const double                   eps = 1.0e-4;
     std::map<RimWellPath*, double> wellPathsWithCommonGeometry;
