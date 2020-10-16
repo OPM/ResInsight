@@ -17,13 +17,22 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimStreamlineInViewCollection.h"
+#include "RigCell.h"
+#include "RigEclipseCaseData.h"
+#include "RigGridBase.h"
+#include "RigSimWellData.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseView.h"
 #include "RimStreamline.h"
 
 #include "RiaLogging.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
+
+#include "cvfCollection.h"
+
+#include <qdebug.h>
 
 CAF_PDM_SOURCE_INIT( RimStreamlineInViewCollection, "StreamlineInViewCollection" );
 
@@ -85,4 +94,39 @@ RimEclipseCase* RimStreamlineInViewCollection::eclipseCase() const
 //--------------------------------------------------------------------------------------------------
 void RimStreamlineInViewCollection::goForIt()
 {
+    // get the view
+    RimEclipseView* eclView = nullptr;
+    this->firstAncestorOrThisOfType( eclView );
+    if ( !eclView ) return;
+
+    int timeIdx = eclView->currentTimeStep();
+
+    const cvf::Collection<RigSimWellData>& simWellData = eclipseCase()->eclipseCaseData()->wellResults();
+
+    std::vector<RigCell> seedCells;
+
+    std::vector<const RigGridBase*> grids;
+    eclipseCase()->eclipseCaseData()->allGrids( &grids );
+
+    for ( auto swdata : simWellData )
+    {
+        if ( !swdata->hasWellResult( timeIdx ) || !swdata->hasAnyValidCells( timeIdx ) ) continue;
+
+        RigWellResultFrame frame = swdata->wellResultFrame( timeIdx );
+        if ( frame.m_productionType != RigWellResultFrame::WellProductionType::PRODUCER ) continue;
+
+        for ( auto branch : frame.m_wellResultBranches )
+        {
+            for ( const auto& point : branch.m_branchResultPoints )
+            {
+                if ( point.isValid() && point.m_isOpen )
+                {
+                    RigCell cell = grids[point.m_gridIndex]->cell( point.m_gridCellIndex );
+                    seedCells.push_back( cell );
+                }
+            }
+        }
+    }
+
+    qDebug() << "Found " << seedCells.size() << " producing cells";
 }
