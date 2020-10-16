@@ -817,7 +817,10 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
             }
         }
 
-        RiuBarChartScaleDraw* barTextScaleDrawer = new RiuBarChartScaleDraw( positionedBarLabels, m_labelPointSize );
+        QColor textColor = RiuGuiTheme::getColorByVariableName( "textColor" );
+
+        RiuBarChartScaleDraw* barTextScaleDrawer =
+            new RiuBarChartScaleDraw( positionedBarLabels, m_labelPointSize, textColor );
         barTextScaleDrawer->setAlignment( alignment );
         barTextScaleDrawer->setLabelRotation( labelRotation );
         barTextScaleDrawer->setLabelAlignment( labelAlignment );
@@ -850,6 +853,7 @@ void RiuGroupedBarChartBuilder::addQwtBarChart( QwtPlot*                plot,
     QPalette palette;
     palette.setColor( QPalette::Window, barColor );
     palette.setColor( QPalette::Dark, barColor );
+    palette.setColor( QPalette::Text, Qt::black );
 
     RiuAvoidPixelOverlapColumnSymbol* barStyle = new RiuAvoidPixelOverlapColumnSymbol( QwtColumnSymbol::Box );
     barStyle->setPalette( palette );
