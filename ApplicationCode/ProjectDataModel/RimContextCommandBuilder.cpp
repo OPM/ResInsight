@@ -1158,6 +1158,12 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicMoveItemsToTopFeature";
     }
 
+    if ( caf::CmdFeatureManager::instance()->getCommandFeature( "RicToggleWellPathGroupingFeature" )->canFeatureBeExecuted() )
+    {
+        menuBuilder << "Separator";
+        menuBuilder << "RicToggleWellPathGroupingFeature";
+    }
+
     if ( caf::CmdFeatureManager::instance()->getCommandFeature( "RicDeleteItemFeature" )->canFeatureBeExecuted() )
     {
         menuBuilder << "Separator";
