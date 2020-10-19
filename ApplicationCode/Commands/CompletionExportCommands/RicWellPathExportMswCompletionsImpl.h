@@ -128,14 +128,15 @@ private:
     static void generateWsegvalvTable( RifTextDataTableFormatter& formatter, const RicMswExportInfo& exportInfo );
     static void generateWsegAicdTable( RifTextDataTableFormatter& formatter, const RicMswExportInfo& exportInfo );
 
-    static double calculateLengthThroughActiveCells( double                                           startMD,
-                                                     double                                           endMD,
-                                                     const std::vector<WellPathCellIntersectionInfo>& wellPathIntersections,
-                                                     const RigActiveCellInfo*                         activeCellInfo );
+    static std::pair<double, double>
+        calculateOverlapWithActiveCells( double                                           startMD,
+                                         double                                           endMD,
+                                         const std::vector<WellPathCellIntersectionInfo>& wellPathIntersections,
+                                         const RigActiveCellInfo*                         activeCellInfo );
 
 private:
-    typedef std::vector<std::shared_ptr<RicMswSegment>> MainBoreSegments;
-    typedef std::map<std::shared_ptr<RicMswCompletion>, std::set<std::pair<const RimWellPathValve*, size_t>>> ValveContributionMap;
+    typedef std::vector<std::shared_ptr<RicMswSegment>>                                       MainBoreSegments;
+    typedef std::map<std::shared_ptr<RicMswCompletion>, std::vector<const RimWellPathValve*>> ValveContributionMap;
 
     static std::vector<std::pair<double, double>>
         createSubSegmentMDPairs( double startMD, double endMD, double maxSegmentLength );
