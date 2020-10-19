@@ -169,6 +169,8 @@ public:
 
     static double findFaciesValue( const RimColorLegend& colorLegend, const QString& name );
 
+    bool isScaledByNetToGross( RiaDefines::CurveProperty curveProperty ) const;
+
 protected:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,

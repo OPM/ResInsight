@@ -36,21 +36,17 @@
 #include "RimEclipseResultDefinition.h"
 #include "RimFractureModel.h"
 #include "RimFractureModelCalculator.h"
-#include "RimFractureModelPlot.h"
+#include "RimFractureModelTemplate.h"
 #include "RimLayerCurve.h"
 #include "RimModeledWellPath.h"
-#include "RimTools.h"
-#include "RimWellLogFile.h"
-#include "RimWellLogPlot.h"
-#include "RimWellLogTrack.h"
+#include "RimNonNetLayers.h"
 #include "RimWellPath.h"
-#include "RimWellPathCollection.h"
-#include "RimWellPlotTools.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFractureModelWellLogCalculator::RimFractureModelWellLogCalculator( RimFractureModelCalculator& )
+RimFractureModelWellLogCalculator::RimFractureModelWellLogCalculator( RimFractureModelCalculator* fractureModelCalculator )
+    : m_fractureModelCalculator( fractureModelCalculator )
 {
 }
 
@@ -66,6 +62,7 @@ bool RimFractureModelWellLogCalculator::isMatching( RiaDefines::CurveProperty cu
         RiaDefines::CurveProperty::PERMEABILITY_Z,
         RiaDefines::CurveProperty::INITIAL_PRESSURE,
         RiaDefines::CurveProperty::PRESSURE,
+        RiaDefines::CurveProperty::NET_TO_GROSS,
     };
 
     return std::find( matching.begin(), matching.end(), curveProperty ) != matching.end();
@@ -224,6 +221,14 @@ bool RimFractureModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
             CVF_ASSERT( values.size() == initialValues.size() );
             replaceMissingValues( values, initialValues );
         }
+    }
+
+    if ( fractureModel->isScaledByNetToGross( curveProperty ) )
+    {
+        std::vector<double> netToGross =
+            m_fractureModelCalculator->extractValues( RiaDefines::CurveProperty::NET_TO_GROSS, timeStep );
+
+        scaleByNetToGross( fractureModel, netToGross, values );
     }
 
     return true;
@@ -397,5 +402,34 @@ void RimFractureModelWellLogCalculator::addUnderburden( RiaDefines::CurvePropert
 
         values.push_back( underburdenTopValue );
         values.push_back( underburdenBottomValue );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModelWellLogCalculator::scaleByNetToGross( const RimFractureModel*    fractureModel,
+                                                           const std::vector<double>& netToGross,
+                                                           std::vector<double>&       values )
+{
+    if ( netToGross.size() != values.size() )
+    {
+        RiaLogging::error( QString( "Different sizes for net to gross calculation." ) );
+        return;
+    }
+
+    double cutoff = 1.0;
+    if ( fractureModel->fractureModelTemplate() && fractureModel->fractureModelTemplate()->nonNetLayers() )
+    {
+        cutoff = fractureModel->fractureModelTemplate()->nonNetLayers()->cutOff();
+    }
+
+    for ( size_t i = 0; i < values.size(); i++ )
+    {
+        double ntg = netToGross[i];
+        if ( ntg <= cutoff )
+        {
+            values[i] = ntg * values[i];
+        }
     }
 }

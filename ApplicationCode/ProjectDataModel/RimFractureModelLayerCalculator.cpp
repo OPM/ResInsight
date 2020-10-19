@@ -19,40 +19,27 @@
 
 #include "RiaDefines.h"
 #include "RiaFractureModelDefines.h"
-#include "RiaInterpolationTools.h"
 #include "RiaLogging.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigEclipseWellLogExtractor.h"
-#include "RigElasticProperties.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
-#include "RigWellLogCurveData.h"
 #include "RigWellPath.h"
 
 #include "RimCase.h"
-#include "RimColorLegend.h"
-#include "RimColorLegendItem.h"
 #include "RimEclipseCase.h"
-#include "RimEclipseInputProperty.h"
-#include "RimEclipseInputPropertyCollection.h"
 #include "RimEclipseResultDefinition.h"
-#include "RimElasticProperties.h"
-#include "RimFaciesProperties.h"
 #include "RimFractureModel.h"
 #include "RimFractureModelCalculator.h"
 #include "RimFractureModelLayerCalculator.h"
-#include "RimFractureModelPlot.h"
 #include "RimFractureModelTemplate.h"
-#include "RimLayerCurve.h"
 #include "RimModeledWellPath.h"
-#include "RimTools.h"
-#include "RimWellLogFile.h"
-#include "RimWellLogPlot.h"
+#include "RimNonNetLayers.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
-#include "RimWellPathCollection.h"
-#include "RimWellPlotTools.h"
+
+#include "cafAssert.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -136,14 +123,31 @@ bool RimFractureModelLayerCalculator::calculate( RiaDefines::CurveProperty curve
         return false;
     }
 
+    std::vector<double> netToGrossValues =
+        m_fractureModelCalculator->extractValues( RiaDefines::CurveProperty::NET_TO_GROSS, timeStep );
+    if ( netToGrossValues.empty() )
+    {
+        RiaLogging::warning( QString( "Empty net-to-gross data found for layer curve." ) );
+    }
+
+    CAF_ASSERT( faciesValues.size() == curveData.data.size() );
+
     values.resize( faciesValues.size() );
 
-    int    layerNo           = 0;
-    double previousFormation = -1.0;
-    double previousFacies    = -1.0;
+    int    layerNo            = 0;
+    double previousFormation  = -1.0;
+    double previousFacies     = -1.0;
+    double previousNetToGross = -1.0;
+    double netToGrossCutoff   = 1.0;
+    if ( fractureModel->fractureModelTemplate() && fractureModel->fractureModelTemplate()->nonNetLayers() )
+    {
+        netToGrossCutoff = fractureModel->fractureModelTemplate()->nonNetLayers()->cutOff();
+    }
+    bool useNetToGross = !netToGrossValues.empty();
     for ( size_t i = 0; i < faciesValues.size(); i++ )
     {
-        if ( previousFormation != curveData.data[i] || previousFacies != faciesValues[i] )
+        if ( previousFormation != curveData.data[i] || previousFacies != faciesValues[i] ||
+             ( useNetToGross && netToGrossValues[i] <= netToGrossCutoff && previousNetToGross != netToGrossValues[i] ) )
         {
             layerNo++;
         }
@@ -151,6 +155,10 @@ bool RimFractureModelLayerCalculator::calculate( RiaDefines::CurveProperty curve
         values[i]         = layerNo;
         previousFormation = curveData.data[i];
         previousFacies    = faciesValues[i];
+        if ( useNetToGross )
+        {
+            previousNetToGross = netToGrossValues[i];
+        }
     }
 
     return true;

@@ -92,12 +92,6 @@ QList<caf::PdmOptionItemInfo> RimNonNetLayers::calculateValueOptions( const caf:
         }
     }
 
-    // QList<caf::PdmOptionItemInfo> options;
-    // if ( fieldNeedingOptions == &m_colorLegend )
-    // {
-    //     RimTools::colorLegendOptionItems( &options );
-    // }
-
     return options;
 }
 

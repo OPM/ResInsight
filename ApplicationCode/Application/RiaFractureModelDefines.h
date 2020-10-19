@@ -50,5 +50,6 @@ enum class CurveProperty
     PORO_ELASTIC_CONSTANT,
     THERMAL_EXPANSION_COEFFICIENT,
     IMMOBILE_FLUID_SATURATION,
+    NET_TO_GROSS,
 };
 }; // namespace RiaDefines

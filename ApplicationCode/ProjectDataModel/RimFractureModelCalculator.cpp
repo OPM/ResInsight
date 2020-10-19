@@ -38,7 +38,7 @@
 RimFractureModelCalculator::RimFractureModelCalculator()
 {
     m_resultCalculators.push_back(
-        std::unique_ptr<RimFractureModelPropertyCalculator>( new RimFractureModelWellLogCalculator( *this ) ) );
+        std::unique_ptr<RimFractureModelPropertyCalculator>( new RimFractureModelWellLogCalculator( this ) ) );
     m_resultCalculators.push_back(
         std::unique_ptr<RimFractureModelPropertyCalculator>( new RimFractureModelElasticPropertyCalculator( this ) ) );
     m_resultCalculators.push_back(
