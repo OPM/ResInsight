@@ -16,21 +16,21 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RifFractureModelPlotExporter.h"
+#include "RifFractureModelExporter.h"
 
 #include "RifFractureModelAsymmetricFrkExporter.h"
 #include "RifFractureModelDeviationFrkExporter.h"
 #include "RifFractureModelGeologicalFrkExporter.h"
 #include "RifFractureModelPerfsFrkExporter.h"
 
-#include "RimFractureModelPlot.h"
+#include "RimFractureModel.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifFractureModelPlotExporter::writeToDirectory( RimFractureModel* fractureModel,
-                                                     bool              useDetailedFluidLoss,
-                                                     const QString&    directoryPath )
+bool RifFractureModelExporter::writeToDirectory( RimFractureModel* fractureModel,
+                                                 bool              useDetailedFluidLoss,
+                                                 const QString&    directoryPath )
 {
     return RifFractureModelGeologicalFrkExporter::writeToFile( fractureModel,
                                                                useDetailedFluidLoss,
