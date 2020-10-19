@@ -66,6 +66,7 @@ RicImportWellPaths::RicImportWellPaths()
 {
     CAF_PDM_InitScriptableFieldNoDefault( &m_wellPathFolder, "wellPathFolder", "", "", "", "" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_wellPathFiles, "wellPathFiles", "", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_importGrouped, "importGrouped", false, "", "", "", "" );
 }
 
 caf::PdmScriptResponse RicImportWellPaths::execute()
@@ -120,7 +121,7 @@ caf::PdmScriptResponse RicImportWellPaths::execute()
     caf::PdmScriptResponse response;
     if ( !wellPathFiles.empty() )
     {
-        std::vector<RimWellPath*> importedWellPaths = importWellPaths( wellPathFiles, &warningMessages );
+        std::vector<RimWellPath*> importedWellPaths = importWellPaths( wellPathFiles, m_importGrouped(), &warningMessages );
         if ( !importedWellPaths.empty() )
         {
             RicImportWellPathsResult* wellPathsResult = new RicImportWellPathsResult;
@@ -154,6 +155,7 @@ caf::PdmScriptResponse RicImportWellPaths::execute()
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellPath*> RicImportWellPaths::importWellPaths( const QStringList& wellPathFilePaths,
+                                                               bool               importGrouped,
                                                                QStringList*       errorMessages )
 {
     RiaApplication* app = RiaApplication::instance();
@@ -161,7 +163,7 @@ std::vector<RimWellPath*> RicImportWellPaths::importWellPaths( const QStringList
     // Remember the path to next time
     app->setLastUsedDialogDirectory( "WELLPATH_DIR", QFileInfo( wellPathFilePaths.last() ).absolutePath() );
 
-    std::vector<RimWellPath*> wellPaths = app->addWellPathsToModel( wellPathFilePaths, errorMessages );
+    std::vector<RimWellPath*> wellPaths = app->addWellPathsToModel( wellPathFilePaths, importGrouped, errorMessages );
 
     RimProject* project = app->project();
 

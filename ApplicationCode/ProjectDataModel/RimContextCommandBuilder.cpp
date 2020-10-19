@@ -334,6 +334,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
             menuBuilder.subMenuStart( "Import" );
             menuBuilder << "RicWellPathsImportFileFeature";
+            menuBuilder << "RicImportGroupedWellPathsFeature";
             menuBuilder << "RicWellPathsImportSsihubFeature";
             menuBuilder << "RicWellPathFormationsImportFileFeature";
             menuBuilder << "RicWellLogsImportFileFeature";
@@ -472,6 +473,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimWellLogFile*>( firstUiItem ) )
         {
             menuBuilder << "RicWellPathsImportFileFeature";
+            menuBuilder << "RicImportGroupedWellPathsFeature";
             menuBuilder << "RicWellLogsImportFileFeature";
 
             menuBuilder << "Separator";
@@ -1291,6 +1293,7 @@ int RimContextCommandBuilder::appendImportMenu( caf::CmdFeatureMenuBuilder& menu
 {
     QStringList candidates;
     candidates << "RicWellPathsImportFileFeature";
+    candidates << "RicImportGroupedWellPathsFeature";
     candidates << "RicWellPathFormationsImportFileFeature";
     candidates << "RicWellLogsImportFileFeature";
     candidates << "RicReloadWellPathFormationNamesFeature";

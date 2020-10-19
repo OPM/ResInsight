@@ -118,7 +118,7 @@ void RicWellPathsImportSsihubFeature::onActionTriggered( bool isChecked )
         if ( wellPaths.size() > 0 )
         {
             QStringList errorMessages;
-            app->addWellPathsToModel( wellPaths, &errorMessages );
+            app->addWellPathsToModel( wellPaths, false, &errorMessages );
             app->project()->scheduleCreateDisplayModelAndRedrawAllViews();
         }
 
