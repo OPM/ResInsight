@@ -45,6 +45,10 @@ RiuQwtCurvePointTracker::RiuQwtCurvePointTracker( QwtPlot*                    pl
     this->setTrackerMode( QwtPicker::AlwaysOn );
     m_plotMarker = new QwtPlotMarker;
 
+    // Have this marker always on top of all curves/plot items.
+    double zAlwaysOnTop = 99999999;
+    m_plotMarker->setZ( zAlwaysOnTop );
+
     auto color = RiuGuiTheme::getColorByVariableName( "markerColor" );
 
     // QwtPlotMarker takes ownership of the symbol, it is deleted in destructor of QwtPlotMarker
