@@ -1164,7 +1164,6 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::gener
     if ( !wellPathGeometry ) return completionData;
     auto timeSteps = settings.caseToApply->timeStepDates();
 
-
     if ( wellPath->perforationIntervalCollection()->isChecked() )
     {
         for ( const RimPerforationInterval* interval : intervals )
