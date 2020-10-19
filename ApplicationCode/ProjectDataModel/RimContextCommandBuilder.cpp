@@ -445,6 +445,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             {
                 menuBuilder << "RicNewFractureModelFeature";
                 menuBuilder << "RicNewFractureModelPlotFeature";
+                menuBuilder << "RicExportFractureModelToFileFeature";
             }
         }
         else if ( dynamic_cast<RimFractureModelCollection*>( firstUiItem ) )
@@ -452,13 +453,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             if ( RiaApplication::enableDevelopmentFeatures() )
             {
                 menuBuilder << "RicNewFractureModelFeature";
-            }
-        }
-        else if ( dynamic_cast<RimFractureModelPlot*>( firstUiItem ) )
-        {
-            if ( RiaApplication::enableDevelopmentFeatures() )
-            {
-                menuBuilder << "RicExportFractureModelPlotToFileFeature";
             }
         }
         else if ( dynamic_cast<Rim3dWellLogCurveCollection*>( firstUiItem ) ||

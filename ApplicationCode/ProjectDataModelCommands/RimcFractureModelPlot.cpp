@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimcFractureModelPlot.h"
 
-#include "RifFractureModelPlotExporter.h"
+#include "RifFractureModelExporter.h"
 
 #include "RimFractureModel.h"
 #include "RimFractureModelPlot.h"
@@ -44,9 +44,9 @@ caf::PdmObjectHandle* RimcFractureModelPlot_exportToFile::execute()
 {
     RimFractureModelPlot* fractureModelPlot = self<RimFractureModelPlot>();
 
-    RifFractureModelPlotExporter::writeToDirectory( fractureModelPlot->fractureModel(),
-                                                    fractureModelPlot->fractureModel()->useDetailedFluidLoss(),
-                                                    m_directoryPath() );
+    RifFractureModelExporter::writeToDirectory( fractureModelPlot->fractureModel(),
+                                                fractureModelPlot->fractureModel()->useDetailedFluidLoss(),
+                                                m_directoryPath() );
 
     return nullptr;
 }

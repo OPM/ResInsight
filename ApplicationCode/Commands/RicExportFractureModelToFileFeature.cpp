@@ -16,28 +16,27 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicExportFractureModelPlotToFileFeature.h"
+#include "RicExportFractureModelToFileFeature.h"
 
 #include "RiaApplication.h"
 
 #include "RimFractureModel.h"
-#include "RimFractureModelPlot.h"
 
 #include "RiuFileDialogTools.h"
 
-#include "RifFractureModelPlotExporter.h"
+#include "RifFractureModelExporter.h"
 
 #include "cafSelectionManager.h"
 #include "cafUtils.h"
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT( RicExportFractureModelPlotToFileFeature, "RicExportFractureModelPlotToFileFeature" );
+CAF_CMD_SOURCE_INIT( RicExportFractureModelToFileFeature, "RicExportFractureModelToFileFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicExportFractureModelPlotToFileFeature::isCommandEnabled()
+bool RicExportFractureModelToFileFeature::isCommandEnabled()
 {
     return true;
 }
@@ -45,32 +44,29 @@ bool RicExportFractureModelPlotToFileFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportFractureModelPlotToFileFeature::onActionTriggered( bool isChecked )
+void RicExportFractureModelToFileFeature::onActionTriggered( bool isChecked )
 {
-    RimFractureModelPlot* fractureModelPlot =
-        caf::SelectionManager::instance()->selectedItemOfType<RimFractureModelPlot>();
-    if ( !fractureModelPlot ) return;
+    RimFractureModel* fractureModel = caf::SelectionManager::instance()->selectedItemOfType<RimFractureModel>();
+    if ( !fractureModel ) return;
 
     RiaApplication* app        = RiaApplication::instance();
-    QString         defaultDir = app->lastUsedDialogDirectory( "FRACTURE_MODEL_PLOT" );
+    QString         defaultDir = app->lastUsedDialogDirectory( "FRACTURE_MODEL_EXPORT" );
 
     QString directoryPath =
-        RiuFileDialogTools::getExistingDirectory( nullptr, "Select Directory for Fracture Model Plot Export", defaultDir );
+        RiuFileDialogTools::getExistingDirectory( nullptr, "Select Directory for Fracture Model Export", defaultDir );
 
     if ( directoryPath.isEmpty() ) return;
 
-    RifFractureModelPlotExporter::writeToDirectory( fractureModelPlot->fractureModel(),
-                                                    fractureModelPlot->fractureModel()->useDetailedFluidLoss(),
-                                                    directoryPath );
+    RifFractureModelExporter::writeToDirectory( fractureModel, fractureModel->useDetailedFluidLoss(), directoryPath );
 
     // Remember the path to next time
-    app->setLastUsedDialogDirectory( "FRACTURE_MODEL_PLOT", directoryPath );
+    app->setLastUsedDialogDirectory( "FRACTURE_MODEL_EXPORT", directoryPath );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportFractureModelPlotToFileFeature::setupActionLook( QAction* actionToSetup )
+void RicExportFractureModelToFileFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Export Fracture Model to File" );
     actionToSetup->setIcon( QIcon( ":/Save.svg" ) );
