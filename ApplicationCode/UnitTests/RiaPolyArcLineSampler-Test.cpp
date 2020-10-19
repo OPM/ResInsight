@@ -40,6 +40,7 @@ TEST( RiaPolyArcLineSampler, TestInvalidInput )
         auto [sampledPoints, mds] = sampler.sampledPointsAndMDs( 2, true );
 
         EXPECT_EQ( 0, (int)sampledPoints.size() );
+        EXPECT_EQ( 0, (int)mds.size() );
     }
 
     {
@@ -50,6 +51,7 @@ TEST( RiaPolyArcLineSampler, TestInvalidInput )
         auto [sampledPoints, mds] = sampler.sampledPointsAndMDs( 2, true );
 
         EXPECT_EQ( 0, (int)sampledPoints.size() );
+        EXPECT_EQ( 0, (int)mds.size() );
     }
 
     {
@@ -60,5 +62,6 @@ TEST( RiaPolyArcLineSampler, TestInvalidInput )
         auto [sampledPoints, mds] = sampler.sampledPointsAndMDs( 2, true );
 
         EXPECT_EQ( 0, (int)sampledPoints.size() );
+        EXPECT_EQ( 0, (int)mds.size() );
     }
 }
