@@ -68,6 +68,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/GridBox
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Intersections
+	${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Streamlines
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Surfaces
     ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface
 	${CMAKE_CURRENT_SOURCE_DIR}/UserInterface/AnalysisPlots
@@ -164,6 +165,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     ModelVisualization/Intersections/CMakeLists_files.cmake
 	ModelVisualization/Surfaces/CMakeLists_files.cmake
     ModelVisualization/WindowEdgeAxesOverlayItem/CMakeLists_files.cmake
+	ModelVisualization/Streamlines/CMakeLists_files.cmake
     
     UserInterface/CMakeLists_files.cmake
     UserInterface/AnalysisPlots/CMakeLists_files.cmake

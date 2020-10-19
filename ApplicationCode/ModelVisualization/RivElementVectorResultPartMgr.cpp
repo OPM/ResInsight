@@ -31,7 +31,6 @@
 #include "RigMainGrid.h"
 
 #include "cafDisplayCoordTransform.h"
-
 #include "cafEffectGenerator.h"
 
 #include "cvfDrawableGeo.h"
