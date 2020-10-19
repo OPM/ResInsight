@@ -196,7 +196,8 @@ void RimWellPathCollection::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellPath*> RimWellPathCollection::addWellPaths( QStringList filePaths, QStringList* errorMessages )
+std::vector<RimWellPath*>
+    RimWellPathCollection::addWellPaths( QStringList filePaths, bool importGrouped, QStringList* errorMessages )
 {
     CAF_ASSERT( errorMessages );
 
@@ -252,7 +253,7 @@ std::vector<RimWellPath*> RimWellPathCollection::addWellPaths( QStringList fileP
         }
     }
 
-    readAndAddWellPaths( wellPathArray );
+    readAndAddWellPaths( wellPathArray, importGrouped );
     CAF_ASSERT( wellPathArray.empty() );
 
     scheduleRedrawAffectedViews();
@@ -264,9 +265,14 @@ std::vector<RimWellPath*> RimWellPathCollection::addWellPaths( QStringList fileP
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::addWellPath( gsl::not_null<RimWellPath*> wellPath )
+void RimWellPathCollection::addWellPath( gsl::not_null<RimWellPath*> wellPath, bool importGrouped )
 {
-    auto mainWellPath = findSuitableParentWellPath( wellPath );
+    RimWellPath* mainWellPath = nullptr;
+    if ( importGrouped )
+    {
+        mainWellPath = findSuitableParentWellPath( wellPath );
+    }
+
     if ( mainWellPath )
     {
         mainWellPath->addChildWellPath( wellPath );
@@ -300,7 +306,7 @@ std::vector<RimWellPath*> RimWellPathCollection::allWellPaths() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& wellPathArray )
+void RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& wellPathArray, bool importGrouped )
 {
     caf::ProgressInfo progress( wellPathArray.size(), "Reading well paths from file" );
 
@@ -329,7 +335,7 @@ void RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& 
         {
             wellPath->setWellPathColor( RiaColorTables::wellPathsPaletteColors().cycledColor3f( m_wellPaths.size() ) );
             wellPath->setUnitSystem( findUnitSystemForWellPath( wellPath ) );
-            addWellPath( wellPath );
+            addWellPath( wellPath, importGrouped );
         }
 
         progress.incrementProgress();
@@ -341,11 +347,11 @@ void RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::addWellPaths( const std::vector<RimWellPath*> incomingWellPaths )
+void RimWellPathCollection::addWellPaths( const std::vector<RimWellPath*> incomingWellPaths, bool importGrouped )
 {
     for ( const auto& wellPath : incomingWellPaths )
     {
-        addWellPath( wellPath );
+        addWellPath( wellPath, importGrouped );
     }
     this->sortWellsByName();
 
@@ -375,7 +381,7 @@ std::vector<RimWellLogFile*> RimWellPathCollection::addWellLogs( const QStringLi
             if ( !wellPath )
             {
                 wellPath = new RimWellPath();
-                addWellPath( wellPath );
+                addWellPath( wellPath, false );
             }
 
             wellPath->addWellLogFile( logFileInfo );
@@ -414,7 +420,7 @@ void RimWellPathCollection::addWellPathFormations( const QStringList& filePaths 
             {
                 wellPath = new RimWellPath();
                 wellPath->setName( it->first );
-                addWellPath( wellPath );
+                addWellPath( wellPath, false );
                 RiaLogging::info( QString( "Created new well: %1" ).arg( wellPath->name() ) );
             }
             wellPath->setFormationsGeometry( it->second );

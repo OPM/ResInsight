@@ -81,7 +81,7 @@ void RicNewEditableWellPathFeature::onActionTriggered( bool isChecked )
             newModeledWellPath->setWellPathColor(
                 RiaColorTables::editableWellPathsPaletteColors().cycledColor3f( modelledWellpathCount ) );
 
-            wellPathCollection->addWellPaths( newWellPaths );
+            wellPathCollection->addWellPaths( newWellPaths, false );
             wellPathCollection->uiCapability()->updateConnectedEditors();
 
             newModeledWellPath->geometryDefinition()->enableTargetPointPicking( true );

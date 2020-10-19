@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2020-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,41 +18,22 @@
 
 #pragma once
 
-#include "CommandFileInterface/Core/RicfCommandObject.h"
-
-#include "cafCmdFeature.h"
-#include "cafPdmField.h"
-
-#include <QString>
-#include <QStringList>
-
-#include <vector>
+#include "RicImportWellPaths.h"
 
 class RimWellPath;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicImportWellPaths : public caf::CmdFeature, public RicfCommandObject
+class RicImportGroupedWellPaths : public RicImportWellPaths
 {
     RICF_HEADER_INIT;
 
 public:
-    RicImportWellPaths();
-    caf::PdmScriptResponse execute() override;
+    RicImportGroupedWellPaths();
 
 protected:
-    static std::vector<RimWellPath*>
-                       importWellPaths( const QStringList& wellPathFilePaths, bool importGrouped, QStringList* errorMessages );
-    static QStringList wellPathNameFilters();
-
     // Overrides
-    bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-
-protected:
-    caf::PdmField<QString>              m_wellPathFolder;
-    caf::PdmField<std::vector<QString>> m_wellPathFiles;
-    caf::PdmField<bool>                 m_importGrouped;
 };

@@ -75,7 +75,7 @@ RimFractureModel* RicNewFractureModelFeature::addFractureModel( RimWellPath*    
     fractureModel->setThicknessDirectionWellPath( thicknessDirectionWellPath );
 
     std::vector<RimWellPath*> wellPaths = {thicknessDirectionWellPath};
-    wellPathCollection->addWellPaths( wellPaths );
+    wellPathCollection->addWellPaths( wellPaths, false );
 
     if ( project )
     {
