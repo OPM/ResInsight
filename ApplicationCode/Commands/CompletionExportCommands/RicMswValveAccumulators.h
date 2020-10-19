@@ -36,6 +36,7 @@ public:
     RicMswValveAccumulator( std::shared_ptr<RicMswValve> valve, RiaEclipseUnitTools::UnitSystem unitSystem )
         : m_valve( valve )
         , m_unitSystem( unitSystem )
+        , m_valid( false )
     {
     }
     virtual bool accumulateValveParameters( const RimWellPathValve* wellPathValve,
@@ -48,6 +49,7 @@ public:
 protected:
     std::shared_ptr<RicMswValve>    m_valve;
     RiaEclipseUnitTools::UnitSystem m_unitSystem;
+    bool                            m_valid;
 };
 
 //==================================================================================================
@@ -74,13 +76,13 @@ class RicMswAICDAccumulator : public RicMswValveAccumulator
 {
 public:
     RicMswAICDAccumulator( std::shared_ptr<RicMswValve> valve, RiaEclipseUnitTools::UnitSystem unitSystem );
-    bool accumulateValveParameters( const RimWellPathValve* wellPathValve,
-                                    double                  overlapLength,
-                                    double                  perforationCompsegsLength ) override;
-    void applyToSuperValve() override;
+    bool   accumulateValveParameters( const RimWellPathValve* wellPathValve,
+                                      double                  overlapLength,
+                                      double                  perforationCompsegsLength ) override;
+    void   applyToSuperValve() override;
+    double accumulatedLength() const;
 
 private:
-    bool                                                           m_valid;
     bool                                                           m_deviceOpen;
     std::array<RiaWeightedMeanCalculator<double>, AICD_NUM_PARAMS> m_meanCalculators;
     double                                                         m_accumulatedLength;

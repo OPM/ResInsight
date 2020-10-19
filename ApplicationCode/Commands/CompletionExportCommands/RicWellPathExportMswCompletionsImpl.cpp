@@ -665,104 +665,106 @@ void RicWellPathExportMswCompletionsImpl::generateWsegAicdTable( RifTextDataTabl
             if ( completion->completionType() == RigCompletionData::PERFORATION_AICD )
             {
                 std::shared_ptr<RicMswPerforationAICD> aicd = std::static_pointer_cast<RicMswPerforationAICD>( completion );
-                if ( !aicd->isValid() )
+                if ( aicd->isValid() )
+                {
+                    if ( !foundValve )
+                    {
+                        std::vector<QString> columnDescriptions =
+                            {"Well Name",
+                             "Segment Number",
+                             "Segment Number",
+                             "Strength of AICD",
+                             "Flow Scaling Factor for AICD",
+                             "Density of Calibration Fluid",
+                             "Viscosity of Calibration Fluid",
+                             "Critical water in liquid fraction for emulsions viscosity model",
+                             "Emulsion viscosity transition region",
+                             "Max ratio of emulsion viscosity to continuous phase viscosity",
+                             "Flow scaling factor method",
+                             "Maximum flowrate for AICD device",
+                             "Volume flow rate exponent, x",
+                             "Viscosity function exponent, y",
+                             "Device OPEN/SHUT",
+                             "Exponent of the oil flowing fraction in the density mixture calculation",
+                             "Exponent of the water flowing fraction in the density mixture calculation",
+                             "Exponent of the gas flowing fraction in the density mixture calculation",
+                             "Exponent of the oil flowing fraction in the density viscosity calculation",
+                             "Exponent of the water flowing fraction in the density viscosity calculation",
+                             "Exponent of the gas flowing fraction in the density viscosity calculation"};
+
+                        tighterFormatter.keyword( "WSEGAICD" );
+                        tighterFormatter.comment( "Column Overview:" );
+                        for ( size_t i = 0; i < columnDescriptions.size(); ++i )
+                        {
+                            tighterFormatter.comment(
+                                QString( "%1: %2" ).arg( i + 1, 2, 10, QChar( '0' ) ).arg( columnDescriptions[i] ) );
+                        }
+
+                        std::vector<RifTextDataTableColumn> header;
+                        for ( size_t i = 1; i <= 21; ++i )
+                        {
+                            QString                cName = QString( "%1" ).arg( i, 2, 10, QChar( '0' ) );
+                            RifTextDataTableColumn col( cName,
+                                                        RifTextDataTableDoubleFormatting(
+                                                            RifTextDataTableDoubleFormat::RIF_CONSISE ),
+                                                        RIGHT );
+                            header.push_back( col );
+                        }
+                        tighterFormatter.header( header );
+
+                        foundValve = true;
+                    }
+                    if ( !aicd->subSegments().empty() )
+                    {
+                        CVF_ASSERT( aicd->subSegments().size() == 1u );
+                        tighterFormatter.comment( aicd->label() );
+                        tighterFormatter.add( exportInfo.wellPath()->completions()->wellNameForExport() ); // #1
+                        tighterFormatter.add( aicd->subSegments().front()->segmentNumber() );
+                        tighterFormatter.add( aicd->subSegments().front()->segmentNumber() );
+
+                        std::array<double, AICD_NUM_PARAMS> values = aicd->values();
+                        tighterFormatter.add( values[AICD_STRENGTH] );
+
+                        tighterFormatter.add( aicd->flowScalingFactor() ); // #5 Flow scaling factor used when item #11
+                                                                           // is set to '1'
+
+                        tighterFormatter.add( values[AICD_DENSITY_CALIB_FLUID] );
+                        tighterFormatter.add( values[AICD_VISCOSITY_CALIB_FLUID] );
+                        tighterFormatter.addValueOrDefaultMarker( values[AICD_CRITICAL_WATER_IN_LIQUID_FRAC],
+                                                                  RicMswExportInfo::defaultDoubleValue() );
+                        tighterFormatter.addValueOrDefaultMarker( values[AICD_EMULSION_VISC_TRANS_REGION],
+                                                                  RicMswExportInfo::defaultDoubleValue() );
+                        tighterFormatter.addValueOrDefaultMarker( values[AICD_MAX_RATIO_EMULSION_VISC],
+                                                                  RicMswExportInfo::defaultDoubleValue() ); // #10
+
+                        tighterFormatter.add( 1 ); // #11 : Always use method "b. Scale factor". The value of the scale
+                                                   // factor is given in item #5
+
+                        tighterFormatter.addValueOrDefaultMarker( values[AICD_MAX_FLOW_RATE],
+                                                                  RicMswExportInfo::defaultDoubleValue() );
+                        tighterFormatter.add( values[AICD_VOL_FLOW_EXP] );
+                        tighterFormatter.add( values[AICD_VISOSITY_FUNC_EXP] );
+                        tighterFormatter.add( aicd->isOpen() ? "OPEN" : "SHUT" ); // #15
+                        tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_OIL_FRAC_DENSITY],
+                                                                  RicMswExportInfo::defaultDoubleValue() );
+                        tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_WATER_FRAC_DENSITY],
+                                                                  RicMswExportInfo::defaultDoubleValue() );
+                        tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_GAS_FRAC_DENSITY],
+                                                                  RicMswExportInfo::defaultDoubleValue() );
+                        tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_OIL_FRAC_VISCOSITY],
+                                                                  RicMswExportInfo::defaultDoubleValue() );
+                        tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_WATER_FRAC_VISCOSITY],
+                                                                  RicMswExportInfo::defaultDoubleValue() ); // #20
+                        tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_GAS_FRAC_VISCOSITY],
+                                                                  RicMswExportInfo::defaultDoubleValue() );
+                        tighterFormatter.rowCompleted();
+                    }
+                }
+                else
                 {
                     RiaLogging::error( QString( "Export AICD Valve (%1): Valve is invalid. At least one required "
                                                 "template parameter is not set." )
                                            .arg( aicd->label() ) );
-                }
-
-                if ( !foundValve )
-                {
-                    std::vector<QString> columnDescriptions =
-                        {"Well Name",
-                         "Segment Number",
-                         "Segment Number",
-                         "Strength of AICD",
-                         "Flow Scaling Factor for AICD",
-                         "Density of Calibration Fluid",
-                         "Viscosity of Calibration Fluid",
-                         "Critical water in liquid fraction for emulsions viscosity model",
-                         "Emulsion viscosity transition region",
-                         "Max ratio of emulsion viscosity to continuous phase viscosity",
-                         "Flow scaling factor method",
-                         "Maximum flowrate for AICD device",
-                         "Volume flow rate exponent, x",
-                         "Viscosity function exponent, y",
-                         "Device OPEN/SHUT",
-                         "Exponent of the oil flowing fraction in the density mixture calculation",
-                         "Exponent of the water flowing fraction in the density mixture calculation",
-                         "Exponent of the gas flowing fraction in the density mixture calculation",
-                         "Exponent of the oil flowing fraction in the density viscosity calculation",
-                         "Exponent of the water flowing fraction in the density viscosity calculation",
-                         "Exponent of the gas flowing fraction in the density viscosity calculation"};
-
-                    tighterFormatter.keyword( "WSEGAICD" );
-                    tighterFormatter.comment( "Column Overview:" );
-                    for ( size_t i = 0; i < columnDescriptions.size(); ++i )
-                    {
-                        tighterFormatter.comment(
-                            QString( "%1: %2" ).arg( i + 1, 2, 10, QChar( '0' ) ).arg( columnDescriptions[i] ) );
-                    }
-
-                    std::vector<RifTextDataTableColumn> header;
-                    for ( size_t i = 1; i <= 21; ++i )
-                    {
-                        QString                cName = QString( "%1" ).arg( i, 2, 10, QChar( '0' ) );
-                        RifTextDataTableColumn col( cName,
-                                                    RifTextDataTableDoubleFormatting(
-                                                        RifTextDataTableDoubleFormat::RIF_CONSISE ),
-                                                    RIGHT );
-                        header.push_back( col );
-                    }
-                    tighterFormatter.header( header );
-
-                    foundValve = true;
-                }
-                if ( !aicd->subSegments().empty() )
-                {
-                    CVF_ASSERT( aicd->subSegments().size() == 1u );
-                    tighterFormatter.comment( aicd->label() );
-                    tighterFormatter.add( exportInfo.wellPath()->completions()->wellNameForExport() ); // #1
-                    tighterFormatter.add( aicd->subSegments().front()->segmentNumber() );
-                    tighterFormatter.add( aicd->subSegments().front()->segmentNumber() );
-
-                    std::array<double, AICD_NUM_PARAMS> values = aicd->values();
-                    tighterFormatter.add( values[AICD_STRENGTH] );
-
-                    tighterFormatter.add( aicd->flowScalingFactor() ); // #5 Flow scaling factor used when item #11 is
-                                                                       // set to '1'
-
-                    tighterFormatter.add( values[AICD_DENSITY_CALIB_FLUID] );
-                    tighterFormatter.add( values[AICD_VISCOSITY_CALIB_FLUID] );
-                    tighterFormatter.addValueOrDefaultMarker( values[AICD_CRITICAL_WATER_IN_LIQUID_FRAC],
-                                                              RicMswExportInfo::defaultDoubleValue() );
-                    tighterFormatter.addValueOrDefaultMarker( values[AICD_EMULSION_VISC_TRANS_REGION],
-                                                              RicMswExportInfo::defaultDoubleValue() );
-                    tighterFormatter.addValueOrDefaultMarker( values[AICD_MAX_RATIO_EMULSION_VISC],
-                                                              RicMswExportInfo::defaultDoubleValue() ); // #10
-
-                    tighterFormatter.add( 1 ); // #11 : Always use method "b. Scale factor". The value of the scale
-                                               // factor is given in item #5
-
-                    tighterFormatter.addValueOrDefaultMarker( values[AICD_MAX_FLOW_RATE],
-                                                              RicMswExportInfo::defaultDoubleValue() );
-                    tighterFormatter.add( values[AICD_VOL_FLOW_EXP] );
-                    tighterFormatter.add( values[AICD_VISOSITY_FUNC_EXP] );
-                    tighterFormatter.add( aicd->isOpen() ? "OPEN" : "SHUT" ); // #15
-                    tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_OIL_FRAC_DENSITY],
-                                                              RicMswExportInfo::defaultDoubleValue() );
-                    tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_WATER_FRAC_DENSITY],
-                                                              RicMswExportInfo::defaultDoubleValue() );
-                    tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_GAS_FRAC_DENSITY],
-                                                              RicMswExportInfo::defaultDoubleValue() );
-                    tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_OIL_FRAC_VISCOSITY],
-                                                              RicMswExportInfo::defaultDoubleValue() );
-                    tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_WATER_FRAC_VISCOSITY],
-                                                              RicMswExportInfo::defaultDoubleValue() ); // #20
-                    tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_GAS_FRAC_VISCOSITY],
-                                                              RicMswExportInfo::defaultDoubleValue() );
-                    tighterFormatter.rowCompleted();
                 }
             }
         }
@@ -1729,6 +1731,7 @@ void RicWellPathExportMswCompletionsImpl::writeValveWelsegsSegment( std::shared_
                                                                     int*                           segmentNumber )
 {
     CVF_ASSERT( valve );
+    if ( !valve->isValid() ) return;
 
     formatter.comment( valve->label() );
 
