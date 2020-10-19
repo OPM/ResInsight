@@ -2,6 +2,7 @@
 set (SOURCE_GROUP_HEADER_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RicImportWellPaths.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportGroupedWellPaths.h
+${CMAKE_CURRENT_LIST_DIR}/RicToggleWellPathGrouping.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewEditableWellPathFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicShowWellPlanFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathListTargetFeature.h
@@ -30,6 +31,7 @@ ${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicPolylineTarget3dEditor.h
 set (SOURCE_GROUP_SOURCE_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RicImportWellPaths.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicImportGroupedWellPaths.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicToggleWellPathGrouping.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewEditableWellPathFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicShowWellPlanFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathListTargetFeature.cpp

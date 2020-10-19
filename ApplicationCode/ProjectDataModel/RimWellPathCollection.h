@@ -97,6 +97,8 @@ public:
     std::vector<RimWellPath*> allWellPaths() const;
     void                      removeWellPath( RimWellPath* wellPath );
     void                      deleteAllWellPaths();
+    void                      groupWellPaths( const std::vector<RimWellPath*> wellPaths );
+    void                      ungroupWellPaths( const std::vector<RimWellPath*> wellPaths );
 
     RimWellPath* mostRecentlyUpdatedWellPath();
 
