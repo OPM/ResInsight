@@ -30,7 +30,7 @@ class RifEclipseSummaryAddress;
 //==================================================================================================
 ///
 //==================================================================================================
-class ObjectiveFunction
+class RimObjectiveFunction
 {
 public:
     enum class FunctionType
@@ -39,9 +39,9 @@ public:
         M2
     };
 
-    QString                         uiName() const { return name; };
-    QString                         name;
-    ObjectiveFunction::FunctionType functionType();
+    QString                            uiName() const { return name; };
+    QString                            name;
+    RimObjectiveFunction::FunctionType functionType();
 
     void setTimeStepRange( time_t startTime, time_t endTime );
     void setTimeStepList( std::vector<time_t> timeSteps );
@@ -49,7 +49,7 @@ public:
     double minValue;
     double maxValue;
 
-    ObjectiveFunction( const RimSummaryCaseCollection* summaryCaseCollection, FunctionType type );
+    RimObjectiveFunction( const RimSummaryCaseCollection* summaryCaseCollection, FunctionType type );
 
     double value( size_t caseIndex, const RifEclipseSummaryAddress& vectorSummaryAddress, bool* hasWarning = nullptr ) const;
 
@@ -65,7 +65,7 @@ public:
 
     bool isValid( const RifEclipseSummaryAddress& vectorSummaryAddress ) const;
 
-    bool operator<( const ObjectiveFunction& other ) const;
+    bool operator<( const RimObjectiveFunction& other ) const;
 
 private:
     const RimSummaryCaseCollection* m_summaryCaseCollection;

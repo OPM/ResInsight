@@ -30,7 +30,7 @@
 class RimEnsembleCurveSet;
 class RimEnsembleCurveSetCollection;
 class RimCustomObjectiveFunction;
-class ObjectiveFunction;
+class RimObjectiveFunction;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -59,9 +59,9 @@ public:
     }
 
     static void initializeLegendConfig( RimRegularLegendConfig* legendConfig, const EnsembleParameter& parameter );
-    static void initializeLegendConfig( RimRegularLegendConfig*            legendConfig,
-                                        std::shared_ptr<ObjectiveFunction> objectiveFunction,
-                                        const RifEclipseSummaryAddress&    vectorSummaryAddress );
+    static void initializeLegendConfig( RimRegularLegendConfig*               legendConfig,
+                                        std::shared_ptr<RimObjectiveFunction> objectiveFunction,
+                                        const RifEclipseSummaryAddress&       vectorSummaryAddress );
 
     static void initializeLegendConfig( RimRegularLegendConfig*                     legendConfig,
                                         caf::PdmPointer<RimCustomObjectiveFunction> customObjectiveFunction,
@@ -71,10 +71,10 @@ public:
                                    const RimSummaryCase*         summaryCase,
                                    const EnsembleParameter&      parameter );
 
-    static cvf::Color3f caseColor( const RimRegularLegendConfig*      legendConfig,
-                                   RimSummaryCase*                    summaryCase,
-                                   std::shared_ptr<ObjectiveFunction> objectiveFunction,
-                                   const RifEclipseSummaryAddress&    vectorSummaryAddress );
+    static cvf::Color3f caseColor( const RimRegularLegendConfig*         legendConfig,
+                                   RimSummaryCase*                       summaryCase,
+                                   std::shared_ptr<RimObjectiveFunction> objectiveFunction,
+                                   const RifEclipseSummaryAddress&       vectorSummaryAddress );
 
     static cvf::Color3f caseColor( const RimRegularLegendConfig*               legendConfig,
                                    RimSummaryCase*                             summaryCase,

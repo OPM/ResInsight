@@ -48,7 +48,7 @@ public:
     std::vector<double>                            values() const;
     double                                         value( RimSummaryCase* summaryCase ) const;
     std::pair<double, double>                      minMaxValues();
-    bool    weightContainsFunctionType( ObjectiveFunction::FunctionType functionType ) const;
+    bool    weightContainsFunctionType( RimObjectiveFunction::FunctionType functionType ) const;
     QString title() const;
     bool    isValid() const;
     void    onWeightChanged();

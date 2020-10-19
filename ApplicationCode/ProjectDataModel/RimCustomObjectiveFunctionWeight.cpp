@@ -78,7 +78,7 @@ QString RimCustomObjectiveFunctionWeight::title() const
 {
     return QString( "%0 * %1::%2" )
         .arg( m_weightValue, 0, 'f', 2 )
-        .arg( caf::AppEnum<ObjectiveFunction::FunctionType>( m_objectiveFunction() ).uiText() )
+        .arg( caf::AppEnum<RimObjectiveFunction::FunctionType>( m_objectiveFunction() ).uiText() )
         .arg( QString::fromStdString( m_objectiveValuesSummaryAddress->address().quantityName() ) );
 }
 
@@ -102,7 +102,7 @@ RifEclipseSummaryAddress RimCustomObjectiveFunctionWeight::summaryAddress() cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectiveFunction::FunctionType RimCustomObjectiveFunctionWeight::objectiveFunction() const
+RimObjectiveFunction::FunctionType RimCustomObjectiveFunctionWeight::objectiveFunction() const
 {
     return m_objectiveFunction();
 }

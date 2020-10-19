@@ -156,7 +156,7 @@ std::pair<double, double> RimCustomObjectiveFunction::minMaxValues()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimCustomObjectiveFunction::weightContainsFunctionType( ObjectiveFunction::FunctionType functionType ) const
+bool RimCustomObjectiveFunction::weightContainsFunctionType( RimObjectiveFunction::FunctionType functionType ) const
 {
     for ( auto weight : m_weights )
     {

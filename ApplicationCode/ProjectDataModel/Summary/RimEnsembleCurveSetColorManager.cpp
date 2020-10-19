@@ -133,9 +133,9 @@ void RimEnsembleCurveSetColorManager::initializeLegendConfig( RimRegularLegendCo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSetColorManager::initializeLegendConfig( RimRegularLegendConfig*            legendConfig,
-                                                              std::shared_ptr<ObjectiveFunction> objectiveFunction,
-                                                              const RifEclipseSummaryAddress&    vectorSummaryAddress )
+void RimEnsembleCurveSetColorManager::initializeLegendConfig( RimRegularLegendConfig*               legendConfig,
+                                                              std::shared_ptr<RimObjectiveFunction> objectiveFunction,
+                                                              const RifEclipseSummaryAddress& vectorSummaryAddress )
 {
     double minValue = std::numeric_limits<double>::infinity();
     double maxValue = -std::numeric_limits<double>::infinity();
@@ -209,10 +209,10 @@ cvf::Color3f RimEnsembleCurveSetColorManager::caseColor( const RimRegularLegendC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Color3f RimEnsembleCurveSetColorManager::caseColor( const RimRegularLegendConfig*      legendConfig,
-                                                         RimSummaryCase*                    summaryCase,
-                                                         std::shared_ptr<ObjectiveFunction> objectiveFunction,
-                                                         const RifEclipseSummaryAddress&    vectorSummaryAddress )
+cvf::Color3f RimEnsembleCurveSetColorManager::caseColor( const RimRegularLegendConfig*         legendConfig,
+                                                         RimSummaryCase*                       summaryCase,
+                                                         std::shared_ptr<RimObjectiveFunction> objectiveFunction,
+                                                         const RifEclipseSummaryAddress&       vectorSummaryAddress )
 {
     double value = objectiveFunction->value( summaryCase, vectorSummaryAddress );
     if ( value != std::numeric_limits<double>::infinity() )

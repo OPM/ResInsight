@@ -215,8 +215,8 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
 
     m_commonAddressCount = 0;
 
-    m_objectiveFunctions.push_back( std::make_shared<ObjectiveFunction>( this, ObjectiveFunction::FunctionType::M1 ) );
-    m_objectiveFunctions.push_back( std::make_shared<ObjectiveFunction>( this, ObjectiveFunction::FunctionType::M2 ) );
+    m_objectiveFunctions.push_back( std::make_shared<RimObjectiveFunction>( this, RimObjectiveFunction::FunctionType::M1 ) );
+    m_objectiveFunctions.push_back( std::make_shared<RimObjectiveFunction>( this, RimObjectiveFunction::FunctionType::M2 ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -847,7 +847,7 @@ void RimSummaryCaseCollection::clearEnsembleParametersHashes()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::shared_ptr<ObjectiveFunction>> RimSummaryCaseCollection::objectiveFunctions() const
+std::vector<std::shared_ptr<RimObjectiveFunction>> RimSummaryCaseCollection::objectiveFunctions() const
 {
     return m_objectiveFunctions;
 }
@@ -855,7 +855,8 @@ std::vector<std::shared_ptr<ObjectiveFunction>> RimSummaryCaseCollection::object
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<ObjectiveFunction> RimSummaryCaseCollection::objectiveFunction( ObjectiveFunction::FunctionType functionType )
+std::shared_ptr<RimObjectiveFunction>
+    RimSummaryCaseCollection::objectiveFunction( RimObjectiveFunction::FunctionType functionType )
 {
     for ( auto objectiveFunc : m_objectiveFunctions )
     {

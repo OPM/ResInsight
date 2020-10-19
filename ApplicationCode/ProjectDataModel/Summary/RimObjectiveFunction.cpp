@@ -35,11 +35,11 @@
 namespace caf
 {
 template <>
-void caf::AppEnum<ObjectiveFunction::FunctionType>::setUp()
+void caf::AppEnum<RimObjectiveFunction::FunctionType>::setUp()
 {
-    addItem( ObjectiveFunction::FunctionType::M1, "M1", "M1" );
-    addItem( ObjectiveFunction::FunctionType::M2, "M2", "M2" );
-    setDefault( ObjectiveFunction::FunctionType::M1 );
+    addItem( RimObjectiveFunction::FunctionType::M1, "M1", "M1" );
+    addItem( RimObjectiveFunction::FunctionType::M2, "M2", "M2" );
+    setDefault( RimObjectiveFunction::FunctionType::M1 );
 }
 
 } // namespace caf
@@ -47,7 +47,7 @@ void caf::AppEnum<ObjectiveFunction::FunctionType>::setUp()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectiveFunction::FunctionType ObjectiveFunction::functionType()
+RimObjectiveFunction::FunctionType RimObjectiveFunction::functionType()
 {
     return m_functionType;
 }
@@ -55,7 +55,7 @@ ObjectiveFunction::FunctionType ObjectiveFunction::functionType()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectiveFunction::setTimeStepRange( time_t startTimeStep, time_t endTimeStep )
+void RimObjectiveFunction::setTimeStepRange( time_t startTimeStep, time_t endTimeStep )
 {
     m_startTimeStep = startTimeStep;
     m_endTimeStep   = endTimeStep;
@@ -64,7 +64,7 @@ void ObjectiveFunction::setTimeStepRange( time_t startTimeStep, time_t endTimeSt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void ObjectiveFunction::setTimeStepList( std::vector<time_t> timeSteps )
+void RimObjectiveFunction::setTimeStepList( std::vector<time_t> timeSteps )
 {
     m_timeSteps = timeSteps;
 }
@@ -72,7 +72,7 @@ void ObjectiveFunction::setTimeStepList( std::vector<time_t> timeSteps )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-ObjectiveFunction::ObjectiveFunction( const RimSummaryCaseCollection* summaryCaseCollection, FunctionType type )
+RimObjectiveFunction::RimObjectiveFunction( const RimSummaryCaseCollection* summaryCaseCollection, FunctionType type )
 {
     m_summaryCaseCollection = summaryCaseCollection;
     m_functionType          = type;
@@ -83,7 +83,9 @@ ObjectiveFunction::ObjectiveFunction( const RimSummaryCaseCollection* summaryCas
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double ObjectiveFunction::value( size_t caseIndex, const RifEclipseSummaryAddress& vectorSummaryAddress, bool* hasWarning ) const
+double RimObjectiveFunction::value( size_t                          caseIndex,
+                                    const RifEclipseSummaryAddress& vectorSummaryAddress,
+                                    bool*                           hasWarning ) const
 {
     auto summaryCases = m_summaryCaseCollection->allSummaryCases();
 
@@ -97,9 +99,9 @@ double ObjectiveFunction::value( size_t caseIndex, const RifEclipseSummaryAddres
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double ObjectiveFunction::value( RimSummaryCase*                 summaryCase,
-                                 const RifEclipseSummaryAddress& vectorSummaryAddress,
-                                 bool*                           hasWarning ) const
+double RimObjectiveFunction::value( RimSummaryCase*                 summaryCase,
+                                    const RifEclipseSummaryAddress& vectorSummaryAddress,
+                                    bool*                           hasWarning ) const
 {
     RifSummaryReaderInterface* readerInterface = summaryCase->summaryReader();
     if ( readerInterface )
@@ -258,7 +260,7 @@ double ObjectiveFunction::value( RimSummaryCase*                 summaryCase,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, double> ObjectiveFunction::minMaxValues( const RifEclipseSummaryAddress& vectorSummaryAddress ) const
+std::pair<double, double> RimObjectiveFunction::minMaxValues( const RifEclipseSummaryAddress& vectorSummaryAddress ) const
 {
     double minValue = std::numeric_limits<double>::infinity();
     double maxValue = -std::numeric_limits<double>::infinity();
@@ -277,7 +279,7 @@ std::pair<double, double> ObjectiveFunction::minMaxValues( const RifEclipseSumma
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<time_t, time_t> ObjectiveFunction::range() const
+std::pair<time_t, time_t> RimObjectiveFunction::range() const
 {
     return std::make_pair( m_startTimeStep, m_endTimeStep );
 }
@@ -285,7 +287,7 @@ std::pair<time_t, time_t> ObjectiveFunction::range() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> ObjectiveFunction::values( const RifEclipseSummaryAddress& vectorSummaryAddress ) const
+std::vector<double> RimObjectiveFunction::values( const RifEclipseSummaryAddress& vectorSummaryAddress ) const
 {
     std::vector<double> values;
     auto                summaryCases = m_summaryCaseCollection->allSummaryCases();
@@ -307,7 +309,7 @@ std::vector<double> ObjectiveFunction::values( const RifEclipseSummaryAddress& v
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool ObjectiveFunction::isValid( const RifEclipseSummaryAddress& vectorSummaryAddress ) const
+bool RimObjectiveFunction::isValid( const RifEclipseSummaryAddress& vectorSummaryAddress ) const
 {
     bool hasWarning = false;
     if ( m_summaryCaseCollection && m_summaryCaseCollection->allSummaryCases().size() > 0 &&
@@ -329,7 +331,7 @@ bool ObjectiveFunction::isValid( const RifEclipseSummaryAddress& vectorSummaryAd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool ObjectiveFunction::operator<( const ObjectiveFunction& other ) const
+bool RimObjectiveFunction::operator<( const RimObjectiveFunction& other ) const
 {
     return this->name < other.name;
 }
