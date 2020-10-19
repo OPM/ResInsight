@@ -94,7 +94,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuCategoryLegendFrame.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuScalarMapperLegendFrame.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuFileDialogTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuGuiTheme.h
-${CMAKE_CURRENT_LIST_DIR}/RiuQssSyntaxHighlighter.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -245,6 +244,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuAbstractOverlayContentFrame.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuAbstractLegendFrame.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuCategoryLegendFrame.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuScalarMapperLegendFrame.h
+${CMAKE_CURRENT_LIST_DIR}/RiuQssSyntaxHighlighter.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuTextEditWithCompletion.h
 )
 
