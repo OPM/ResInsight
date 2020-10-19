@@ -18,17 +18,22 @@
 
 #include "RimTimeAxisAnnotation.h"
 
+#include "RiaPreferences.h"
+#include "RiaQDateTimeTools.h"
 #include "RiaTimeTTools.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigEquil.h"
 
+#include "RiuGuiTheme.h"
 #include "RiuQwtPlotCurve.h"
 
 #include "RimEclipseCase.h"
 #include "RimPlot.h"
 #include "RimTools.h"
 #include "RimViewWindow.h"
+
+#include <QDateTime>
 
 #include <cmath>
 
@@ -40,13 +45,9 @@ CAF_PDM_SOURCE_INIT( RimTimeAxisAnnotation, "RimTimeAxisAnnotation" );
 RimTimeAxisAnnotation::RimTimeAxisAnnotation()
     : RimPlotAxisAnnotation()
 {
-    CAF_PDM_InitObject( "Equilibrium Annotation", ":/LeftAxis16x16.png", "", "" );
+    CAF_PDM_InitObject( "Time Axis Annotation", ":/LeftAxis16x16.png", "", "" );
 
     m_value.uiCapability()->setUiHidden( true );
-
-    CAF_PDM_InitFieldNoDefault( &m_time, "Time", "Time", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_startTime, "StartTime", "StartTime", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_endTime, "EndTime", "EndTime", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -54,7 +55,20 @@ RimTimeAxisAnnotation::RimTimeAxisAnnotation()
 //--------------------------------------------------------------------------------------------------
 void RimTimeAxisAnnotation::setTime( time_t time )
 {
-    m_time = RiaTimeTTools::toDouble( time );
+    m_value = RiaTimeTTools::toDouble( time );
+
+    QString dateFormatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
+                                                                    RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
+
+    QString timeFormatString =
+        RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
+                                             RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
+
+    QString dateTimeFormatString = QString( "%1 %2" ).arg( dateFormatString ).arg( timeFormatString );
+
+    m_name =
+        RiaQDateTimeTools::toStringUsingApplicationLocale( RiaQDateTimeTools::fromTime_t( time ), dateTimeFormatString );
+
     this->setAnnotationType( AnnotationType::LINE );
 }
 
@@ -65,6 +79,22 @@ void RimTimeAxisAnnotation::setTimeRange( time_t startTime, time_t endTime )
 {
     m_rangeStart = RiaTimeTTools::toDouble( startTime );
     m_rangeEnd   = RiaTimeTTools::toDouble( endTime );
+
+    QString dateFormatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
+                                                                    RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
+
+    QString timeFormatString =
+        RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
+                                             RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
+
+    QString dateTimeFormatString = QString( "%1 %2" ).arg( dateFormatString ).arg( timeFormatString );
+
+    m_name = QString( "%0 - %1" )
+                 .arg( RiaQDateTimeTools::toStringUsingApplicationLocale( RiaQDateTimeTools::fromTime_t( startTime ),
+                                                                          dateTimeFormatString ) )
+                 .arg( RiaQDateTimeTools::toStringUsingApplicationLocale( RiaQDateTimeTools::fromTime_t( endTime ),
+                                                                          dateTimeFormatString ) );
+
     this->setAnnotationType( AnnotationType::RANGE );
 }
 
@@ -75,13 +105,13 @@ QColor RimTimeAxisAnnotation::color() const
 {
     if ( annotationType() == AnnotationType::LINE )
     {
-        return QColor( 255, 0, 0 );
+        return RiuGuiTheme::getColorByVariableName( "secondaryColor" ); // QColor(255, 0, 0);
     }
     else if ( annotationType() == RimPlotAxisAnnotation::AnnotationType::RANGE )
     {
-        return QColor( 0, 0, 255 );
+        return RiuGuiTheme::getColorByVariableName( "primaryColor" ); // QColor( 0, 0, 255 );
     }
-    return QColor( 0, 0, 100 );
+    return RiuGuiTheme::getColorByVariableName( "textColor" ); // QColor(0, 0, 100);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,16 +121,8 @@ void RimTimeAxisAnnotation::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 {
     uiOrdering.add( &m_name );
     uiOrdering.add( &m_value );
-
-    if ( annotationType() == RimPlotAxisAnnotation::AnnotationType::LINE )
-    {
-        uiOrdering.add( &m_time );
-    }
-    else if ( annotationType() == RimPlotAxisAnnotation::AnnotationType::RANGE )
-    {
-        uiOrdering.add( &m_startTime );
-        uiOrdering.add( &m_endTime );
-    }
+    uiOrdering.add( &m_rangeStart );
+    uiOrdering.add( &m_rangeEnd );
 
     uiOrdering.skipRemainingFields();
 }

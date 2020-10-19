@@ -44,9 +44,4 @@ public:
 
 protected:
     virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-
-private:
-    caf::PdmField<time_t> m_time;
-    caf::PdmField<time_t> m_startTime;
-    caf::PdmField<time_t> m_endTime;
 };

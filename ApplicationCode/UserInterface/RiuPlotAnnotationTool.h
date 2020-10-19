@@ -114,12 +114,13 @@ private:
                                                const QColor&  textColor           = QColor( 0, 0, 100 ),
                                                Qt::Alignment  horizontalAlignment = Qt::AlignRight );
 
-    void verticalDashedLine( QwtPlotMarker* line,
-                             const QString& name,
-                             double         xValue,
-                             const QColor&  color               = QColor( 0, 0, 100 ),
-                             const QColor&  textColor           = QColor( 0, 0, 100 ),
-                             Qt::Alignment  horizontalAlignment = Qt::AlignRight );
+    void verticalLine( QwtPlotMarker* line,
+                       const QString& name,
+                       double         xValue,
+                       const QColor&  color               = QColor( 0, 0, 100 ),
+                       const QColor&  textColor           = QColor( 0, 0, 100 ),
+                       Qt::PenStyle   lineStyle           = Qt::DashLine,
+                       Qt::Alignment  horizontalAlignment = Qt::AlignRight | Qt::AlignBottom );
 
 private:
     QPointer<QwtPlot>         m_plot;
