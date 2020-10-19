@@ -450,15 +450,17 @@ std::array<cvf::Vec3f, 7>
         std::swap( headTop, shaftStart );
     }
 
-    float headLength = std::min<float>( evrViz.approximateCellLength / 5.0f, ( headTop - shaftStart ).length() / 2.0 );
+    float headLength = std::min<float>( evrViz.approximateCellLength / 3.0f, ( headTop - shaftStart ).length() / 2.0 );
 
     // A fixed size is preferred here
     cvf::Vec3f headBottom = headTop - ( headTop - shaftStart ).getNormalized() * headLength;
 
+    float arrowWidth = headLength / 2.0f;
+
     cvf::Vec3f headBottomDirection1 = evrViz.faceNormal ^ evrViz.faceCenter;
     cvf::Vec3f headBottomDirection2 = headBottomDirection1 ^ evrViz.faceNormal;
-    cvf::Vec3f arrowBottomSegment1  = headBottomDirection1.getNormalized() * headLength / 8.0f;
-    cvf::Vec3f arrowBottomSegment2  = headBottomDirection2.getNormalized() * headLength / 8.0f;
+    cvf::Vec3f arrowBottomSegment1  = headBottomDirection1.getNormalized() * arrowWidth;
+    cvf::Vec3f arrowBottomSegment2  = headBottomDirection2.getNormalized() * arrowWidth;
 
     vertices[0] = shaftStart;
     vertices[1] = headBottom;
