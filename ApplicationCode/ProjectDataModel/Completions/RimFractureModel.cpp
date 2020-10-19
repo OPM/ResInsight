@@ -49,6 +49,7 @@
 #include "RimFractureModelTemplate.h"
 #include "RimFractureModelTemplateCollection.h"
 #include "RimModeledWellPath.h"
+#include "RimNonNetLayers.h"
 #include "RimOilField.h"
 #include "RimPolylineTarget.h"
 #include "RimProject.h"
@@ -1015,6 +1016,10 @@ double RimFractureModel::getDefaultForMissingValue( RiaDefines::CurveProperty cu
     {
         return defaultPermeability();
     }
+    else if ( curveProperty == RiaDefines::CurveProperty::NET_TO_GROSS )
+    {
+        return 1.0;
+    }
     else
     {
         RiaLogging::error( QString( "Missing default value for %1." )
@@ -1056,6 +1061,10 @@ double RimFractureModel::getDefaultForMissingOverburdenValue( RiaDefines::CurveP
         if ( !faciesColorLegend ) return std::numeric_limits<double>::infinity();
         return findFaciesValue( *faciesColorLegend, overburdenFacies() );
     }
+    else if ( curveProperty == RiaDefines::CurveProperty::NET_TO_GROSS )
+    {
+        return 1.0;
+    }
     else
     {
         RiaLogging::error( QString( "Missing default overburden value for %1." )
@@ -1083,6 +1092,10 @@ double RimFractureModel::getDefaultForMissingUnderburdenValue( RiaDefines::Curve
         RimColorLegend* faciesColorLegend = getFaciesColorLegend();
         if ( !faciesColorLegend ) return std::numeric_limits<double>::infinity();
         return findFaciesValue( *faciesColorLegend, underburdenFacies() );
+    }
+    else if ( curveProperty == RiaDefines::CurveProperty::NET_TO_GROSS )
+    {
+        return 1.0;
     }
     else
     {
@@ -1567,6 +1580,18 @@ RiaDefines::ResultCatType RimFractureModel::eclipseResultCategory( RiaDefines::C
 
         return faciesDefinition->resultType();
     }
+    else if ( curveProperty == RiaDefines::CurveProperty::NET_TO_GROSS )
+    {
+        if ( !m_fractureModelTemplate ) return RiaDefines::ResultCatType::STATIC_NATIVE;
+
+        RimNonNetLayers* nonNetLayers = m_fractureModelTemplate->nonNetLayers();
+        if ( !nonNetLayers ) return RiaDefines::ResultCatType::STATIC_NATIVE;
+
+        const RimEclipseResultDefinition* resultDef = nonNetLayers->resultDefinition();
+        if ( !resultDef ) return RiaDefines::ResultCatType::STATIC_NATIVE;
+
+        return resultDef->resultType();
+    }
     else
     {
         return RiaDefines::ResultCatType::STATIC_NATIVE;
@@ -1599,6 +1624,18 @@ QString RimFractureModel::eclipseResultVariable( RiaDefines::CurveProperty curve
 
         return faciesDefinition->resultVariable();
     }
+    else if ( curveProperty == RiaDefines::CurveProperty::NET_TO_GROSS )
+    {
+        if ( !m_fractureModelTemplate ) return "";
+
+        RimNonNetLayers* nonNetLayers = m_fractureModelTemplate->nonNetLayers();
+        if ( !nonNetLayers ) return "";
+
+        const RimEclipseResultDefinition* resultDef = nonNetLayers->resultDefinition();
+        if ( !resultDef ) return "";
+
+        return resultDef->resultVariable();
+    }
     else
         return "";
 }
@@ -1627,4 +1664,28 @@ double RimFractureModel::findFaciesValue( const RimColorLegend& colorLegend, con
     }
 
     return std::numeric_limits<double>::infinity();
+}
+
+//-------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFractureModel::isScaledByNetToGross( RiaDefines::CurveProperty curveProperty ) const
+{
+    std::vector<RiaDefines::CurveProperty> matching = {RiaDefines::CurveProperty::POROSITY,
+                                                       RiaDefines::CurveProperty::PERMEABILITY_X,
+                                                       RiaDefines::CurveProperty::PERMEABILITY_Z,
+                                                       RiaDefines::CurveProperty::YOUNGS_MODULUS,
+                                                       RiaDefines::CurveProperty::POISSONS_RATIO,
+                                                       RiaDefines::CurveProperty::BIOT_COEFFICIENT,
+                                                       RiaDefines::CurveProperty::K0,
+                                                       RiaDefines::CurveProperty::K_IC,
+                                                       RiaDefines::CurveProperty::PROPPANT_EMBEDMENT,
+                                                       RiaDefines::CurveProperty::FLUID_LOSS_COEFFICIENT,
+                                                       RiaDefines::CurveProperty::SPURT_LOSS,
+                                                       RiaDefines::CurveProperty::RELATIVE_PERMEABILITY_FACTOR,
+                                                       RiaDefines::CurveProperty::PORO_ELASTIC_CONSTANT,
+                                                       RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFICIENT,
+                                                       RiaDefines::CurveProperty::IMMOBILE_FLUID_SATURATION};
+
+    return std::find( matching.begin(), matching.end(), curveProperty ) != matching.end();
 }

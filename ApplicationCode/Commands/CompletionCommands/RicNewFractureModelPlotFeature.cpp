@@ -98,6 +98,7 @@ RimFractureModelPlot*
         plots["Porosity"]     = {RiaDefines::CurveProperty::POROSITY};
         plots["Pressure"]     = {RiaDefines::CurveProperty::INITIAL_PRESSURE, RiaDefines::CurveProperty::PRESSURE};
         plots["Permeability"] = {RiaDefines::CurveProperty::PERMEABILITY_X, RiaDefines::CurveProperty::PERMEABILITY_Z};
+        plots["Net-To-Gross"] = {RiaDefines::CurveProperty::NET_TO_GROSS};
 
         std::set<QString> logarithmicPlots;
         logarithmicPlots.insert( "Permeability" );

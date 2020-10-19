@@ -34,7 +34,7 @@ class RigResultAccessor;
 class RimFractureModelWellLogCalculator : public RimFractureModelPropertyCalculator
 {
 public:
-    RimFractureModelWellLogCalculator( RimFractureModelCalculator& fractureModelCalculator );
+    RimFractureModelWellLogCalculator( RimFractureModelCalculator* fractureModelCalculator );
 
     bool calculate( RiaDefines::CurveProperty curveProperty,
                     const RimFractureModel*   fractureModel,
@@ -67,4 +67,10 @@ protected:
                          std::vector<double>&      tvDepthValues,
                          std::vector<double>&      measuredDepthValues,
                          std::vector<double>&      values ) const;
+
+    static void scaleByNetToGross( const RimFractureModel*    fractureModel,
+                                   const std::vector<double>& netToGross,
+                                   std::vector<double>&       values );
+
+    RimFractureModelCalculator* m_fractureModelCalculator;
 };

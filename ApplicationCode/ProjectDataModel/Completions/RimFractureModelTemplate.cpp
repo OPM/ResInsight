@@ -390,12 +390,17 @@ RimNonNetLayers* RimFractureModelTemplate::nonNetLayers() const
 //--------------------------------------------------------------------------------------------------
 void RimFractureModelTemplate::initAfterRead()
 {
+    RimEclipseCase* eclipseCase = getEclipseCase();
+    if ( !eclipseCase ) return;
+
     if ( m_faciesProperties )
     {
-        RimEclipseCase* eclipseCase = getEclipseCase();
-        if ( !eclipseCase ) return;
-
         m_faciesProperties->setEclipseCase( eclipseCase );
+    }
+
+    if ( m_nonNetLayers )
+    {
+        m_nonNetLayers->setEclipseCase( eclipseCase );
     }
 }
 

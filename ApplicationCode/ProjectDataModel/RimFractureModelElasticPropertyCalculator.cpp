@@ -46,6 +46,7 @@
 #include "RimFractureModelTemplate.h"
 #include "RimLayerCurve.h"
 #include "RimModeledWellPath.h"
+#include "RimNonNetLayers.h"
 #include "RimTools.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogPlot.h"
@@ -187,9 +188,25 @@ bool RimFractureModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
                         underburdenFormation );
     }
 
+    std::vector<double> netToGrossValues =
+        m_fractureModelCalculator->extractValues( RiaDefines::CurveProperty::NET_TO_GROSS, timeStep );
+
     CAF_ASSERT( tvDepthValues.size() == faciesValues.size() );
     CAF_ASSERT( tvDepthValues.size() == poroValues.size() );
     CAF_ASSERT( tvDepthValues.size() == formationValues.size() );
+
+    bool    isScaledByNetToGross    = fractureModel->isScaledByNetToGross( curveProperty ) && !netToGrossValues.empty();
+    double  netToGrossCutoff        = 1.0;
+    QString netToGrossFaciesName    = "";
+    QString netToGrossFormationName = "";
+    if ( fractureModel->fractureModelTemplate() && fractureModel->fractureModelTemplate()->nonNetLayers() )
+    {
+        netToGrossCutoff        = fractureModel->fractureModelTemplate()->nonNetLayers()->cutOff();
+        netToGrossFaciesName    = fractureModel->fractureModelTemplate()->nonNetLayers()->facies();
+        netToGrossFormationName = fractureModel->fractureModelTemplate()->nonNetLayers()->formation();
+    }
+
+    FaciesKey ntgFaciesKey = std::make_tuple( "", netToGrossFormationName, netToGrossFaciesName );
 
     for ( size_t i = 0; i < tvDepthValues.size(); i++ )
     {
@@ -208,6 +225,21 @@ bool RimFractureModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
                 const RigElasticProperties& rigElasticProperties = elasticProperties->propertiesForFacies( faciesKey );
                 double scale = elasticProperties->getPropertyScaling( formationName, faciesName, curveProperty );
                 double val   = rigElasticProperties.getValueForPorosity( curveProperty, porosity, scale );
+
+                //
+                if ( isScaledByNetToGross )
+                {
+                    double netToGross = netToGrossValues[i];
+                    if ( netToGross < netToGrossCutoff )
+                    {
+                        double ntgScale = elasticProperties->getPropertyScaling( netToGrossFormationName,
+                                                                                 netToGrossFaciesName,
+                                                                                 curveProperty );
+                        double ntgValue = rigElasticProperties.getValueForPorosity( curveProperty, porosity, ntgScale );
+                        val             = val * netToGross + ( 1.0 - netToGross ) * ntgValue;
+                    }
+                }
+
                 values.push_back( val );
             }
             else if ( fractureModel->hasDefaultValueForProperty( curveProperty ) )
