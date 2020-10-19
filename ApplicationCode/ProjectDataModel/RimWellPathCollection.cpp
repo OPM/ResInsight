@@ -577,6 +577,22 @@ void RimWellPathCollection::deleteAllWellPaths()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::groupWellPaths( const std::vector<RimWellPath*> wellPaths )
+{
+    // TODO: implement
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::ungroupWellPaths( const std::vector<RimWellPath*> wellPaths )
+{
+    // TODO: implement
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWellPath* RimWellPathCollection::mostRecentlyUpdatedWellPath()
 {
     return m_mostRecentlyUpdatedWellPath;
