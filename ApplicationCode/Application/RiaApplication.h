@@ -147,6 +147,7 @@ public:
     bool openOdbCaseFromFile( const QString& fileName, bool applyTimeStepFilter = false );
 
     std::vector<RimWellPath*>    addWellPathsToModel( QList<QString>              wellPathFilePaths,
+                                                      bool                        importGrouped,
                                                       gsl::not_null<QStringList*> errorMessages );
     void                         addWellPathFormationsToModel( QList<QString> wellPathFilePaths );
     std::vector<RimWellLogFile*> addWellLogsToModel( const QList<QString>&       wellLogFilePaths,

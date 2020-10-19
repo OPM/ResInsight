@@ -92,7 +92,7 @@ public:
     caf::PdmField<int>                wellPathClipZDistance;
 
     void                      loadDataAndUpdate();
-    std::vector<RimWellPath*> addWellPaths( QStringList filePaths, QStringList* errorMessages );
+    std::vector<RimWellPath*> addWellPaths( QStringList filePaths, bool importGrouped, QStringList* errorMessages );
     std::vector<RimWellPath*> topLevelWellPaths() const;
     std::vector<RimWellPath*> allWellPaths() const;
     void                      removeWellPath( RimWellPath* wellPath );
@@ -105,8 +105,8 @@ public:
 
     RimWellPath* wellPathByName( const QString& wellPathName ) const;
     RimWellPath* tryFindMatchingWellPath( const QString& wellName ) const;
-    void         addWellPaths( const std::vector<RimWellPath*> incomingWellPaths );
-    void         addWellPath( gsl::not_null<RimWellPath*> wellPath );
+    void         addWellPaths( const std::vector<RimWellPath*> incomingWellPaths, bool importGrouped );
+    void         addWellPath( gsl::not_null<RimWellPath*> wellPath, bool importGrouped );
 
     std::vector<RimWellLogFile*> addWellLogs( const QStringList& filePaths, QStringList* errorMessages );
     void                         addWellPathFormations( const QStringList& filePaths );
@@ -132,7 +132,7 @@ private:
 
     caf::PdmFieldHandle* objectToggleField() override;
 
-    void readAndAddWellPaths( std::vector<RimFileWellPath*>& wellPathArray );
+    void readAndAddWellPaths( std::vector<RimFileWellPath*>& wellPathArray, bool importGrouped );
     void sortWellsByName();
 
     void         createWellPathBranchFromExistingWellPath( RimWellPath* wellPath );
