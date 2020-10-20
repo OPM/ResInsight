@@ -19,10 +19,10 @@
 
 #pragma once
 
+#include "cafIconProvider.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
-#include "cafQIconProvider.h"
 
 #include "cvfObject.h"
 

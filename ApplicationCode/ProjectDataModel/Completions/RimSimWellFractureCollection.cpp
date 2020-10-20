@@ -32,6 +32,8 @@ RimSimWellFractureCollection::RimSimWellFractureCollection( void )
 
     CAF_PDM_InitFieldNoDefault( &simwellFractures, "Fractures", "", "", "", "" );
     simwellFractures.uiCapability()->setUiHidden( true );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

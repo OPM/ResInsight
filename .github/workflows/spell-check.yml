@@ -1,0 +1,22 @@
+name: Spell Check
+
+on:
+  - push
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: sobolevn/misspell-fixer-action@master
+      with:
+        options: '-rsvnuR ApplicationCode/'
+    - uses: peter-evans/create-pull-request@v2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: 'Fixes by misspell-fixer'
+        title: 'Typos fix by misspell-fixer'
+        branch: spell-check-patches
+ 

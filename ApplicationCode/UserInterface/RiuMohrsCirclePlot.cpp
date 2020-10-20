@@ -26,6 +26,7 @@
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
+#include "RigFemPartResultCalculatorDSM.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigFemResultPosEnum.h"
 #include "RigGeoMechCaseData.h"
@@ -344,7 +345,7 @@ void RiuMohrsCirclePlot::addorUpdateEnvelopeCurve( const cvf::Vec3f& principals,
 //--------------------------------------------------------------------------------------------------
 void RiuMohrsCirclePlot::deleteEnvelopes()
 {
-    for ( const std::pair<const RimGeoMechCase*, QwtPlotCurve*>& envelope : m_envolopePlotItems )
+    for ( const std::pair<const RimGeoMechCase* const, QwtPlotCurve*>& envelope : m_envolopePlotItems )
     {
         envelope.second->detach();
         delete envelope.second;
@@ -567,7 +568,7 @@ float RiuMohrsCirclePlot::calculateFOS( const cvf::Vec3f& principals, double fri
     float tanFricAng        = cvf::Math::tan( cvf::Math::toRadians( frictionAngle ) );
     float cohPrTanFricAngle = 1.0f * cohesion / tanFricAng;
 
-    float dsm = RigFemPartResultsCollection::dsm( se1, se3, tanFricAng, cohPrTanFricAngle );
+    float dsm = RigFemPartResultCalculatorDSM::dsm( se1, se3, tanFricAng, cohPrTanFricAngle );
 
     return 1.0f / dsm;
 }
@@ -642,7 +643,7 @@ void RiuMohrsCirclePlot::idealAxesEndPoints( double* xMin, double* xMax, double*
     *yMax = -HUGE_VAL;
 
     double maxYEnvelope = -HUGE_VAL;
-    for ( const std::pair<const RimGeoMechCase*, QwtPlotCurve*>& envelope : m_envolopePlotItems )
+    for ( const std::pair<const RimGeoMechCase* const, QwtPlotCurve*>& envelope : m_envolopePlotItems )
     {
         double tempMax = envelope.second->maxYValue();
         if ( tempMax > maxYEnvelope )
@@ -654,7 +655,7 @@ void RiuMohrsCirclePlot::idealAxesEndPoints( double* xMin, double* xMax, double*
     *yMax = std::max( maxYEnvelope, 1.2 * largestCircleRadiusInPlot() );
 
     double minXEvelope = HUGE_VAL;
-    for ( const std::pair<const RimGeoMechCase*, QwtPlotCurve*>& envelope : m_envolopePlotItems )
+    for ( const std::pair<const RimGeoMechCase* const, QwtPlotCurve*>& envelope : m_envolopePlotItems )
     {
         double tempMin = envelope.second->minXValue();
         if ( tempMin < minXEvelope )

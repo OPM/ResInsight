@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafPdmUiFieldEditorHandle.h"
@@ -47,11 +46,10 @@
 #include <QToolButton>
 #include <QWidget>
 
-namespace caf 
+namespace caf
 {
-
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class PdmUiComboBoxEditorAttribute : public PdmUiEditorAttribute
 {
@@ -64,27 +62,26 @@ public:
         maximumMenuContentsLength  = 40;
         enableEditableContent      = false;
         minimumWidth               = -1;
-        iconSize = QSize(14, 14);
+        iconSize                   = QSize( 14, 14 );
     }
 
 public:
-    bool    adjustWidthToContents;
-    bool    showPreviousAndNextButtons;
-    int     minimumContentsLength; // The length of string to adjust to if adjustWidthToContents = false.
-                                   // Set to <= 0 to ignore and use AdjustToContentsOnFirstShow instead
+    bool adjustWidthToContents;
+    bool showPreviousAndNextButtons;
+    int  minimumContentsLength; // The length of string to adjust to if adjustWidthToContents = false.
+                               // Set to <= 0 to ignore and use AdjustToContentsOnFirstShow instead
     int     maximumMenuContentsLength;
     bool    enableEditableContent;
     int     minimumWidth;
     QString placeholderText;
     QString nextButtonText;
     QString prevButtonText;
-    
-    QSize   iconSize;
+
+    QSize iconSize;
 };
 
-
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class PdmUiComboBoxEditor : public PdmUiFieldEditorHandle
 {
@@ -92,24 +89,24 @@ class PdmUiComboBoxEditor : public PdmUiFieldEditorHandle
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiComboBoxEditor()          {} 
-    ~PdmUiComboBoxEditor() override {} 
+    PdmUiComboBoxEditor() {}
+    ~PdmUiComboBoxEditor() override {}
 
 protected:
-    QWidget*    createEditorWidget(QWidget * parent) override;
-    QWidget*    createLabelWidget(QWidget * parent) override;
-    void        configureAndUpdateUi(const QString& uiConfigName) override;
-    QMargins    calculateLabelContentMargins() const override;
+    QWidget* createEditorWidget( QWidget* parent ) override;
+    QWidget* createLabelWidget( QWidget* parent ) override;
+    void     configureAndUpdateUi( const QString& uiConfigName ) override;
+    QMargins calculateLabelContentMargins() const override;
 
 protected slots:
-    void        slotIndexActivated(int index);
+    void slotIndexActivated( int index );
 
-    void        slotNextButtonPressed();
-    void        slotPreviousButtonPressed();
+    void slotNextButtonPressed();
+    void slotPreviousButtonPressed();
 
 private:
-    QPointer<QComboBox> m_comboBox;
-    QPointer<QShortenedLabel>    m_label;
+    QPointer<QComboBox>       m_comboBox;
+    QPointer<QShortenedLabel> m_label;
 
     QPointer<QToolButton> m_previousItemButton;
     QPointer<QToolButton> m_nextItemButton;
@@ -118,6 +115,5 @@ private:
 
     PdmUiComboBoxEditorAttribute m_attributes;
 };
-
 
 } // end namespace caf

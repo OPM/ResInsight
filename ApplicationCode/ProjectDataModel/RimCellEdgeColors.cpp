@@ -127,7 +127,7 @@ void RimCellEdgeColors::loadResult()
         for ( i = 0; i < vars.size(); ++i )
         {
             m_reservoirView->currentGridCellResults()->ensureKnownResultLoaded(
-                RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, vars[i] ) );
+                RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, vars[i] ) );
             int cubeFaceIdx;
             for ( cubeFaceIdx = 0; cubeFaceIdx < 6; ++cubeFaceIdx )
             {
@@ -140,7 +140,8 @@ void RimCellEdgeColors::loadResult()
                     if ( vars[i].endsWith( varEnd ) )
                     {
                         m_resultNameToAddressPairs[cubeFaceIdx] =
-                            std::make_pair( vars[i], RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, vars[i] ) );
+                            std::make_pair( vars[i],
+                                            RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, vars[i] ) );
                     }
                 }
             }
@@ -202,7 +203,7 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeColors::calculateValueOptions( const ca
         if ( m_reservoirView && m_reservoirView->currentGridCellResults() )
         {
             QStringList varList;
-            varList = m_reservoirView->currentGridCellResults()->resultNames( RiaDefines::STATIC_NATIVE );
+            varList = m_reservoirView->currentGridCellResults()->resultNames( RiaDefines::ResultCatType::STATIC_NATIVE );
 
             // TODO: Must also handle input properties
             // varList += m_reservoirView->gridCellResults()->resultNames(RiaDefines::INPUT_PROPERTY);
@@ -310,7 +311,7 @@ QStringList RimCellEdgeColors::findResultVariableNames()
     if ( m_reservoirView && m_reservoirView->currentGridCellResults() && !m_resultVariable().isEmpty() )
     {
         QStringList varList;
-        varList = m_reservoirView->currentGridCellResults()->resultNames( RiaDefines::STATIC_NATIVE );
+        varList = m_reservoirView->currentGridCellResults()->resultNames( RiaDefines::ResultCatType::STATIC_NATIVE );
         // TODO: Must handle Input properties
 
         int i;
@@ -377,7 +378,7 @@ void RimCellEdgeColors::cellEdgeMetaData( std::vector<RimCellEdgeMetaData>* meta
     bool isStatic = true;
     if ( isUsingSingleVariable() )
     {
-        isStatic = m_singleVarEdgeResultColors->resultType() == RiaDefines::STATIC_NATIVE;
+        isStatic = m_singleVarEdgeResultColors->resultType() == RiaDefines::ResultCatType::STATIC_NATIVE;
     }
 
     for ( size_t i = 0; i < 6; i++ )
@@ -474,8 +475,8 @@ void RimCellEdgeColors::minMaxCellEdgeValues( double& min, double& max )
                     double cMin, cMax;
                     m_reservoirView->currentGridCellResults()->minMaxCellScalarValues( resultAddresses[faceIdx], cMin, cMax );
 
-                    globalMin = CVF_MIN( globalMin, cMin );
-                    globalMax = CVF_MAX( globalMax, cMax );
+                    globalMin = std::min( globalMin, cMin );
+                    globalMax = std::max( globalMax, cMax );
                 }
             }
         }

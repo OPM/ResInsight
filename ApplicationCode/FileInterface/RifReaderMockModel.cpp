@@ -33,7 +33,7 @@ bool RifReaderMockModel::open( const QString& fileName, RigEclipseCaseData* ecli
 
     m_reservoir = eclipseCase;
 
-    RigCaseCellResultsData* cellResults = eclipseCase->results( RiaDefines::MATRIX_MODEL );
+    RigCaseCellResultsData* cellResults = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
     std::vector<RigEclipseTimeStepInfo> timeStepInfos;
     {
@@ -53,7 +53,8 @@ bool RifReaderMockModel::open( const QString& fileName, RigEclipseCaseData* ecli
 
     for ( size_t i = 0; i < m_reservoirBuilder.resultCount(); i++ )
     {
-        RigEclipseResultAddress resAddr( RiaDefines::DYNAMIC_NATIVE, QString( "Dynamic_Result_%1" ).arg( i ) );
+        RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                         QString( "Dynamic_Result_%1" ).arg( i ) );
         cellResults->createResultEntry( resAddr, false );
         cellResults->setTimeStepInfos( resAddr, timeStepInfos );
     }
@@ -71,7 +72,7 @@ bool RifReaderMockModel::open( const QString& fileName, RigEclipseCaseData* ecli
         int resIndex = 0;
         if ( i > 1 ) resIndex = i;
 
-        RigEclipseResultAddress resAddr( RiaDefines::STATIC_NATIVE,
+        RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::STATIC_NATIVE,
                                          QString( "Static_Result_%1%2" ).arg( resIndex ).arg( varEnd ) );
 
         cellResults->createResultEntry( resAddr, false );
@@ -81,7 +82,7 @@ bool RifReaderMockModel::open( const QString& fileName, RigEclipseCaseData* ecli
 #define ADD_INPUT_PROPERTY( Name )                                                                          \
     {                                                                                                       \
         QString                 resultName( Name );                                                         \
-        RigEclipseResultAddress resAddr( RiaDefines::INPUT_PROPERTY, resultName );                          \
+        RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::INPUT_PROPERTY, resultName );           \
         cellResults->createResultEntry( resAddr, false );                                                   \
         cellResults->setTimeStepInfos( resAddr, staticResultTimeStepInfos );                                \
         cellResults->modifiableCellScalarResultTimesteps( resAddr )->resize( 1 );                           \

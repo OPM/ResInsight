@@ -43,7 +43,7 @@
 #include <QAction>
 #include <QClipboard>
 #include <QDebug>
-#include <QFileDialog>
+#include <QDir>
 #include <QFileInfo>
 #include <QMdiSubWindow>
 
@@ -75,7 +75,7 @@ void RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( const QS
                                                                         int            caseId /*= -1*/,
                                                                         int            viewId /*= -1*/ )
 {
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
 
     if ( project == nullptr ) return;
 
@@ -178,5 +178,5 @@ void RicSnapshotAllViewsToFileFeature::onActionTriggered( bool isChecked )
 void RicSnapshotAllViewsToFileFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Snapshot All Views To File" );
-    actionToSetup->setIcon( QIcon( ":/SnapShotSaveViews.png" ) );
+    actionToSetup->setIcon( QIcon( ":/SnapShotSaveViews.svg" ) );
 }

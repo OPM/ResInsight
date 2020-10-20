@@ -41,6 +41,7 @@
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiItem.h"
 #include "cafPdmUiListEditor.h"
+#include "cafPdmUiToolBarEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimSummaryPlotSourceStepping, "RimSummaryCurveCollectionModifier" );
 
@@ -200,7 +201,7 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &m_ensemble )
     {
-        RimProject* proj = RiaApplication::instance()->project();
+        RimProject* proj = RimProject::current();
         for ( auto ensemble : proj->summaryGroups() )
         {
             if ( ensemble->isEnsemble() )
@@ -742,7 +743,7 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::computeVisibleFi
     auto sumCases = summaryCasesCurveCollection();
     if ( sumCases.size() == 1 )
     {
-        RimProject* proj = RiaApplication::instance()->project();
+        RimProject* proj = RimProject::current();
         if ( proj->allSummaryCases().size() > 1 )
         {
             m_summaryCase = *( sumCases.begin() );
@@ -758,7 +759,7 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::computeVisibleFi
     auto ensembleColl = ensembleCollection();
     if ( ensembleColl.size() == 1 )
     {
-        RimProject* proj = RiaApplication::instance()->project();
+        RimProject* proj = RimProject::current();
 
         if ( proj->summaryGroups().size() > 1 )
         {
@@ -1061,7 +1062,7 @@ std::vector<RimSummaryCase*> RimSummaryPlotSourceStepping::summaryCasesForSource
 {
     std::vector<RimSummaryCase*> cases;
 
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
     for ( auto sumCase : proj->allSummaryCases() )
     {
         if ( sumCase->isObservedData() ) continue;
@@ -1117,5 +1118,10 @@ void RimSummaryPlotSourceStepping::defineEditorAttribute( const caf::PdmFieldHan
             myAttr->nextButtonText = "Next " + modifierText + "PgDown)";
             myAttr->prevButtonText = "Previous " + modifierText + "PgUp)";
         }
+    }
+
+    if ( myAttr && ( uiConfigName == caf::PdmUiToolBarEditor::uiEditorConfigName() ) )
+    {
+        myAttr->minimumWidth = 120;
     }
 }

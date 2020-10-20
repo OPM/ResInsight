@@ -18,7 +18,6 @@
 
 #include "RicNewSummaryCrossPlotFeature.h"
 
-#include "RiaApplication.h"
 #include "RiaPreferences.h"
 #include "RiaSummaryTools.h"
 
@@ -78,13 +77,13 @@ bool RicNewSummaryCrossPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewSummaryCrossPlotFeature::onActionTriggered( bool isChecked )
 {
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
     CVF_ASSERT( project );
 
     RimSummaryCrossPlotCollection* summaryCrossPlotColl = project->mainPlotCollection()->summaryCrossPlotCollection();
     RimSummaryPlot*                summaryPlot          = summaryCrossPlotColl->createSummaryPlot();
 
-    summaryCrossPlotColl->addSummaryPlot( summaryPlot );
+    summaryCrossPlotColl->addPlot( summaryPlot );
     if ( summaryPlot )
     {
         summaryCrossPlotColl->updateConnectedEditors();

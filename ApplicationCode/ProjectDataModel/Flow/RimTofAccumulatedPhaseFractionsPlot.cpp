@@ -18,7 +18,7 @@
 
 #include "RimTofAccumulatedPhaseFractionsPlot.h"
 
-#include "RiaApplication.h"
+#include "RiaPreferences.h"
 
 #include "RimEclipseView.h"
 #include "RimSimWellInViewCollection.h"
@@ -133,6 +133,21 @@ size_t RimTofAccumulatedPhaseFractionsPlot::timeStep()
     firstAncestorOrThisOfTypeAsserted( allocationPlot );
 
     return static_cast<size_t>( allocationPlot->timeStep() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimTofAccumulatedPhaseFractionsPlot::fontSize() const
+{
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTofAccumulatedPhaseFractionsPlot::updateFonts()
+{
 }
 
 //--------------------------------------------------------------------------------------------------

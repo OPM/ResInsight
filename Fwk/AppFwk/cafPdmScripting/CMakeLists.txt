@@ -2,22 +2,30 @@ cmake_minimum_required (VERSION 2.8.12)
 
 project (cafPdmScripting)
 
+option(CAF_CVF_SCRIPTING "Enable CVF-data support in Scripting" OFF)
+
+# Unity Build
+if (CAF_ENABLE_UNITY_BUILD)
+  message("Cmake Unity build is enabled on : ${PROJECT_NAME}")
+  set(CMAKE_UNITY_BUILD true)
+endif()
+
 set( PROJECT_FILES
      cafPdmCodeGenerator.h
-     cafPdmFieldScriptability.h
-     cafPdmFieldScriptability.cpp
-     cafPdmFieldIOScriptability.h
-     cafPdmFieldIOScriptability.cpp
-	 cafPdmObjectMethod.h
-	 cafPdmObjectMethod.cpp
-     cafPdmObjectScriptabilityRegister.h
-     cafPdmObjectScriptabilityRegister.cpp
+     cafPdmAbstractFieldScriptingCapability.h
+     cafPdmAbstractFieldScriptingCapability.cpp
+     cafPdmFieldScriptingCapability.h
+     cafPdmFieldScriptingCapability.cpp
+     cafPdmObjectMethod.h
+     cafPdmObjectMethod.cpp
+     cafPdmObjectScriptingCapabilityRegister.h
+     cafPdmObjectScriptingCapabilityRegister.cpp
      cafPdmPythonGenerator.h
      cafPdmPythonGenerator.cpp
      cafPdmScriptIOMessages.h
      cafPdmScriptIOMessages.cpp
-     cafPdmObjectScriptability.h
-     cafPdmObjectScriptability.cpp
+     cafPdmObjectScriptingCapability.h
+     cafPdmObjectScriptingCapability.cpp
      cafPdmScriptResponse.h
      cafPdmScriptResponse.cpp
      cafPdmMarkdownGenerator.h
@@ -26,9 +34,22 @@ set( PROJECT_FILES
      cafPdmMarkdownBuilder.cpp
 )
 
+set (CAF_LIBS cafProjectDataModel)
+
+if (CAF_CVF_SCRIPTING)
+    list(APPEND PROJECT_FILES
+     cafPdmFieldScriptingCapabilityCvfColor3.h
+     cafPdmFieldScriptingCapabilityCvfColor3.cpp
+     cafPdmFieldScriptingCapabilityCvfVec3d.h
+     cafPdmFieldScriptingCapabilityCvfVec3d.cpp
+    )
+    list(APPEND CAF_LIBS cafPdmCvf)
+endif()
+
+
 
 add_library( ${PROJECT_NAME}
- 	${PROJECT_FILES}
+    ${PROJECT_FILES}
 )
 
 target_include_directories(${PROJECT_NAME}
@@ -37,14 +58,10 @@ target_include_directories(${PROJECT_NAME}
 )
 
 
+
+
 target_link_libraries ( ${PROJECT_NAME}
-    cafProjectDataModel
+    ${CAF_LIBS}
 )
 
-
 source_group("" FILES ${PROJECT_FILES})
-
-# cotire
-if (COMMAND caf_apply_cotire)
-  caf_apply_cotire("${PROJECT_NAME}")
-endif()

@@ -38,7 +38,7 @@
 
 #include <QTextStream>
 
-QTextStream& operator >> (QTextStream& str, cvf::Vec3d& value)
+QTextStream& operator>>( QTextStream& str, cvf::Vec3d& value )
 {
     QString text;
 
@@ -47,14 +47,13 @@ QTextStream& operator >> (QTextStream& str, cvf::Vec3d& value)
     str >> y;
     str >> z;
 
-    value.set(x, y, z);
+    value.set( x, y, z );
     return str;
 }
 
-QTextStream& operator << (QTextStream& str, const cvf::Vec3d& value)
+QTextStream& operator<<( QTextStream& str, const cvf::Vec3d& value )
 {
     str << value.x() << " " << value.y() << " " << value.z();
 
     return str;
 }
-

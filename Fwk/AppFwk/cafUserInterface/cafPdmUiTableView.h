@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafNotificationCenter.h"
@@ -49,40 +48,35 @@ class QMenu;
 
 namespace caf
 {
-
 class PdmObjectHandle;
 class PdmUiTableViewEditor;
 class PdmChildArrayFieldHandle;
 
-
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class PdmUiTableView : public QWidget
 {
     Q_OBJECT
 public:
-    PdmUiTableView(QWidget* parent = nullptr, Qt::WindowFlags f = nullptr);
+    PdmUiTableView( QWidget* parent = nullptr, Qt::WindowFlags f = nullptr );
     ~PdmUiTableView() override;
 
-    void              setChildArrayField(PdmChildArrayFieldHandle* childArrayField);
-    void              setUiConfigurationName(QString uiConfigName);
-    void              enableHeaderText(bool enable);
-    void              setTableSelectionLevel(int selectionLevel);
-    void              setRowSelectionLevel(int selectionLevel);
+    void setChildArrayField( PdmChildArrayFieldHandle* childArrayField );
+    void setUiConfigurationName( QString uiConfigName );
+    void enableHeaderText( bool enable );
+    void setTableSelectionLevel( int selectionLevel );
+    void setRowSelectionLevel( int selectionLevel );
 
-    PdmObjectHandle*  pdmObjectFromModelIndex(const QModelIndex& mi);
+    PdmObjectHandle* pdmObjectFromModelIndex( const QModelIndex& mi );
 
-    QTableView*       tableView();
+    QTableView* tableView();
 
-    static void       addActionsToMenu(QMenu* menu, PdmChildArrayFieldHandle* childArrayField);
+    static void addActionsToMenu( QMenu* menu, PdmChildArrayFieldHandle* childArrayField );
 
 private:
-    PdmUiTableViewEditor*   m_listViewEditor;
-    QString                 m_uiConfigName;
+    PdmUiTableViewEditor* m_listViewEditor;
+    QString               m_uiConfigName;
 };
 
-
-
 } // End of namespace caf
-

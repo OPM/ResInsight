@@ -21,6 +21,9 @@
 #include "RiaStatisticsTools.h"
 
 #include "RifEclipseSummaryAddress.h"
+#include "RigStatisticsMath.h"
+
+#include "cafAssert.h"
 
 #include <QString>
 
@@ -48,4 +51,46 @@ const QString RiaStatisticsTools::replacePercentileByPValueText( const QString& 
         result.replace( ENSEMBLE_STAT_P90_QUANTITY_NAME, ENSEMBLE_STAT_P10_QUANTITY_NAME );
     }
     return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RiaStatisticsTools::pearsonCorrelation( const std::vector<double>& xValues, const std::vector<double>& yValues )
+{
+    const double eps    = 1.0e-8;
+    double       rangeX = 0.0, rangeY = 0.0;
+    RigStatisticsMath::calculateBasicStatistics( xValues, nullptr, nullptr, nullptr, &rangeX, nullptr, nullptr );
+    RigStatisticsMath::calculateBasicStatistics( yValues, nullptr, nullptr, nullptr, &rangeY, nullptr, nullptr );
+    if ( rangeX < eps || rangeY < eps ) return 0.0;
+
+    if ( xValues.size() != yValues.size() ) return 0.0;
+    if ( xValues.empty() ) return 0.0;
+
+    size_t sampleSize = xValues.size();
+
+    double meanX = 0.0, meanY = 0.0;
+    for ( size_t i = 0; i < sampleSize; ++i )
+    {
+        meanX += xValues[i];
+        meanY += yValues[i];
+    }
+    meanX /= sampleSize;
+    meanY /= sampleSize;
+
+    double sumNumerator    = 0.0;
+    double sumxDiffSquared = 0.0, sumyDiffSquared = 0.0;
+    for ( size_t i = 0; i < sampleSize; ++i )
+    {
+        double xDiff = xValues[i] - meanX;
+        double yDiff = yValues[i] - meanY;
+        sumNumerator += xDiff * yDiff;
+        sumxDiffSquared += xDiff * xDiff;
+        sumyDiffSquared += yDiff * yDiff;
+    }
+
+    if ( sumxDiffSquared < eps && sumyDiffSquared < eps ) return 1.0;
+    if ( sumxDiffSquared < eps || sumyDiffSquared < eps ) return 0.0;
+
+    return sumNumerator / ( std::sqrt( sumxDiffSquared ) * std::sqrt( sumyDiffSquared ) );
 }

@@ -19,10 +19,10 @@
 
 #include "RicNewWellLogPlotFeatureImpl.h"
 
-#include "RiaApplication.h"
-
 #include "RimCase.h"
 #include "RimEclipseCase.h"
+#include "RimFractureModelPlot.h"
+#include "RimFractureModelPlotCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimWellBoreStabilityPlot.h"
@@ -117,11 +117,11 @@ RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createWellLogPlot( bool showAfterC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogTrack* RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( bool            updateAfter,
-                                                                       const QString&  trackDescription,
-                                                                       RimWellLogPlot* existingPlot )
+RimWellLogTrack* RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( bool               updateAfter,
+                                                                       const QString&     trackDescription,
+                                                                       RimDepthTrackPlot* existingPlot )
 {
-    RimWellLogPlot* plot = existingPlot;
+    RimDepthTrackPlot* plot = existingPlot;
     if ( plot == nullptr )
     {
         plot = createWellLogPlot();
@@ -141,7 +141,7 @@ RimWellLogTrack* RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( bool     
     if ( !caseToApply )
     {
         std::vector<RimCase*> allCases;
-        RiaApplication::instance()->project()->allCases( allCases );
+        RimProject::current()->allCases( allCases );
         if ( !allCases.empty() )
         {
             caseToApply = allCases.front();
@@ -150,7 +150,7 @@ RimWellLogTrack* RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( bool     
 
     if ( !wellPathToApply && caseToApply )
     {
-        auto allWellPaths = RiaApplication::instance()->project()->allWellPaths();
+        auto allWellPaths = RimProject::current()->allWellPaths();
         if ( !allWellPaths.empty() )
         {
             wellPathToApply = allWellPaths.front();
@@ -225,7 +225,7 @@ RimWellLogTrack* RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( bool     
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewWellLogPlotFeatureImpl::updateAfterCreation( RimWellLogPlot* plot )
+void RicNewWellLogPlotFeatureImpl::updateAfterCreation( RimDepthTrackPlot* plot )
 {
     CVF_ASSERT( plot );
     plot->loadDataAndUpdate();
@@ -236,7 +236,7 @@ void RicNewWellLogPlotFeatureImpl::updateAfterCreation( RimWellLogPlot* plot )
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlotCollection* RicNewWellLogPlotFeatureImpl::wellLogPlotCollection()
 {
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
     CVF_ASSERT( project );
 
     RimMainPlotCollection* mainPlotColl = project->mainPlotCollection();

@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaLogging.h"
+#include "RiaGuiApplication.h"
+#include "RiaRegressionTestRunner.h"
 
 #include <iostream>
 #include <sstream>
@@ -35,7 +37,8 @@
 #include <cstring>
 #endif
 
-#include "QString"
+#include <QMessageBox>
+#include <QString>
 
 //==================================================================================================
 //
@@ -66,7 +69,7 @@ private:
 ///
 //--------------------------------------------------------------------------------------------------
 RiaDefaultConsoleLogger::RiaDefaultConsoleLogger()
-    : m_logLevel( RI_LL_WARNING )
+    : m_logLevel( int( RILogLevel::RI_LL_WARNING ) )
 {
 }
 
@@ -204,7 +207,7 @@ void RiaLogging::deleteLoggerInstance()
 //--------------------------------------------------------------------------------------------------
 void RiaLogging::error( const QString& message )
 {
-    if ( sm_logger && sm_logger->level() >= RI_LL_ERROR )
+    if ( sm_logger && sm_logger->level() >= int( RILogLevel::RI_LL_ERROR ) )
     {
 #pragma omp critical( critical_section_logging )
         sm_logger->error( message.toLatin1().constData() );
@@ -216,7 +219,7 @@ void RiaLogging::error( const QString& message )
 //--------------------------------------------------------------------------------------------------
 void RiaLogging::warning( const QString& message )
 {
-    if ( sm_logger && sm_logger->level() >= RI_LL_WARNING )
+    if ( sm_logger && sm_logger->level() >= int( RILogLevel::RI_LL_WARNING ) )
     {
 #pragma omp critical( critical_section_logging )
         sm_logger->warning( message.toLatin1().constData() );
@@ -228,7 +231,7 @@ void RiaLogging::warning( const QString& message )
 //--------------------------------------------------------------------------------------------------
 void RiaLogging::info( const QString& message )
 {
-    if ( sm_logger && sm_logger->level() >= RI_LL_INFO )
+    if ( sm_logger && sm_logger->level() >= int( RILogLevel::RI_LL_INFO ) )
     {
 #pragma omp critical( critical_section_logging )
         sm_logger->info( message.toLatin1().constData() );
@@ -240,7 +243,7 @@ void RiaLogging::info( const QString& message )
 //--------------------------------------------------------------------------------------------------
 void RiaLogging::debug( const QString& message )
 {
-    if ( sm_logger && sm_logger->level() >= RI_LL_DEBUG )
+    if ( sm_logger && sm_logger->level() >= int( RILogLevel::RI_LL_DEBUG ) )
     {
 #pragma omp critical( critical_section_logging )
         sm_logger->debug( message.toLatin1().constData() );
@@ -250,8 +253,21 @@ void RiaLogging::debug( const QString& message )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiaLogging::errorInMessageBox( QWidget* parent, const QString& title, const QString& text )
+{
+    if ( RiaGuiApplication::isRunning() && !RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
+    {
+        QMessageBox::warning( parent, title, text );
+    }
+
+    RiaLogging::error( text );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiuMessageLoggerBase::RiuMessageLoggerBase()
-    : m_logLevel( RI_LL_WARNING )
+    : m_logLevel( (int)RILogLevel::RI_LL_WARNING )
 {
 }
 

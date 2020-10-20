@@ -23,6 +23,8 @@ add_library( ${PROJECT_NAME}
 	RigFemPartResultsCollection.cpp
 	RigFemScalarResultFrames.h
 	RigFemScalarResultFrames.cpp
+	RigFemClosestResultIndexCalculator.h
+	RigFemClosestResultIndexCalculator.cpp
 	RigFemNativeStatCalc.h
 	RigFemNativeStatCalc.cpp
 	RigFemNativeVisibleCellsStatCalc.h
@@ -36,6 +38,70 @@ add_library( ${PROJECT_NAME}
 	RimFemResultObserver.cpp
 	RigHexGradientTools.h
 	RigHexGradientTools.cpp
+	RigFemPartResultCalculator.h
+	RigFemPartResultCalculator.cpp
+	RigFemPartResultCalculatorNormalSE.h
+	RigFemPartResultCalculatorNormalSE.cpp
+	RigFemPartResultCalculatorShearSE.h
+	RigFemPartResultCalculatorShearSE.cpp
+	RigFemPartResultCalculatorNormalST.h
+	RigFemPartResultCalculatorNormalST.cpp
+	RigFemPartResultCalculatorShearST.h
+	RigFemPartResultCalculatorShearST.cpp
+	RigFemPartResultCalculatorTimeLapse.h
+	RigFemPartResultCalculatorTimeLapse.cpp
+	RigFemPartResultCalculatorGamma.h
+	RigFemPartResultCalculatorGamma.cpp
+	RigFemPartResultCalculatorNormalized.h
+	RigFemPartResultCalculatorNormalized.cpp
+	RigFemPartResultCalculatorSurfaceAngles.h
+	RigFemPartResultCalculatorSurfaceAngles.cpp
+	RigFemPartResultCalculatorSurfaceAlignedStress.h
+	RigFemPartResultCalculatorSurfaceAlignedStress.cpp
+	RigFemPartResultCalculatorPrincipalStrain.h
+	RigFemPartResultCalculatorPrincipalStrain.cpp
+	RigFemPartResultCalculatorPrincipalStress.h
+	RigFemPartResultCalculatorPrincipalStress.cpp
+ 	RigFemPartResultCalculatorSFI.h
+	RigFemPartResultCalculatorSFI.cpp
+	RigFemPartResultCalculatorDSM.h
+	RigFemPartResultCalculatorDSM.cpp
+	RigFemPartResultCalculatorFOS.h
+	RigFemPartResultCalculatorFOS.cpp
+	RigFemPartResultCalculatorED.h
+	RigFemPartResultCalculatorED.cpp
+ 	RigFemPartResultCalculatorEV.h
+	RigFemPartResultCalculatorEV.cpp
+	RigFemPartResultCalculatorQ.h
+	RigFemPartResultCalculatorQ.cpp
+	RigFemPartResultCalculatorSM.h
+	RigFemPartResultCalculatorSM.cpp
+	RigFemPartResultCalculatorCompaction.h
+	RigFemPartResultCalculatorCompaction.cpp
+	RigFemPartResultCalculatorStressGradients.h
+	RigFemPartResultCalculatorStressGradients.cpp
+	RigFemPartResultCalculatorNE.h
+	RigFemPartResultCalculatorNE.cpp
+	RigFemPartResultCalculatorFormationIndices.h
+	RigFemPartResultCalculatorFormationIndices.cpp
+	RigFemPartResultCalculatorBarConverted.h
+	RigFemPartResultCalculatorBarConverted.cpp
+	RigFemPartResultCalculatorEnIpPorBar.h
+	RigFemPartResultCalculatorEnIpPorBar.cpp
+	RigFemPartResultCalculatorNodalGradients.h
+	RigFemPartResultCalculatorNodalGradients.cpp
+	RigFemPartResultCalculatorStressAnisotropy.h
+	RigFemPartResultCalculatorStressAnisotropy.cpp
+	RigFemPartResultCalculatorPoreCompressibility.h
+	RigFemPartResultCalculatorPoreCompressibility.cpp
+	RigFemPartResultCalculatorPorosityPermeability.h
+	RigFemPartResultCalculatorPorosityPermeability.cpp
+	RigFemPartResultCalculatorInitialPorosity.h
+	RigFemPartResultCalculatorInitialPorosity.cpp
+	RigFemPartResultCalculatorMudWeightWindow.h
+	RigFemPartResultCalculatorMudWeightWindow.cpp
+	RigFemPartResultCalculatorShearSlipIndicator.h
+	RigFemPartResultCalculatorShearSlipIndicator.cpp
 	RimGeoMechGeometrySelectionItem.h
 	RimGeoMechGeometrySelectionItem.cpp
 )
@@ -61,8 +127,3 @@ target_link_libraries( ${PROJECT_NAME}
 )
 
 source_group("" FILES ${PROJECT_FILES})
-
-# cotire
-if (COMMAND caf_apply_cotire)
-  caf_apply_cotire("${PROJECT_NAME}")
-endif()

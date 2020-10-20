@@ -41,9 +41,15 @@ public:
 
     double startMD() const;
     double endMD() const;
+    void   setOutputMD( double outputMD );
+    double outputMD() const;
+    double length() const;
+
     double deltaMD() const;
     double startTVD() const;
     double endTVD() const;
+    void   setOutputTVD( double outputTVD );
+    double outputTVD() const;
     double deltaTVD() const;
 
     double effectiveDiameter() const;
@@ -77,6 +83,8 @@ private:
     double  m_endMD;
     double  m_startTVD;
     double  m_endTVD;
+    double  m_outputMD;
+    double  m_outputTVD;
     double  m_effectiveDiameter;
     double  m_holeDiameter;
     double  m_openHoleRoughnessFactor;

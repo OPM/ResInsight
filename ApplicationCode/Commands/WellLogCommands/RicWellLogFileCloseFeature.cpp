@@ -19,8 +19,6 @@
 
 #include "RicWellLogFileCloseFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RimViewWindow.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogFile.h"
@@ -83,7 +81,7 @@ void RicWellLogFileCloseFeature::onActionTriggered( bool isChecked )
 void RicWellLogFileCloseFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Close Well Log File(s)" );
-    actionToSetup->setIcon( QIcon( ":/Erase.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Close.svg" ) );
 }
 
 //--------------------------------------------------------------------------------------------------

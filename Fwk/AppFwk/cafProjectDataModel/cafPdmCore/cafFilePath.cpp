@@ -5,12 +5,17 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::FilePath::FilePath() {}
+caf::FilePath::FilePath()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::FilePath::FilePath(const QString& filePath) : m_filePath(filePath) {}
+caf::FilePath::FilePath( const QString& filePath )
+    : m_filePath( filePath )
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -23,7 +28,7 @@ QString caf::FilePath::path() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::FilePath::setPath(const QString& filePath)
+void caf::FilePath::setPath( const QString& filePath )
 {
     m_filePath = filePath;
 }
@@ -31,15 +36,7 @@ void caf::FilePath::setPath(const QString& filePath)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::FilePath::operator=(const FilePath& other)
-{
-    m_filePath = other.m_filePath;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool caf::FilePath::operator==(const FilePath& other) const
+bool caf::FilePath::operator==( const FilePath& other ) const
 {
     return m_filePath == other.m_filePath;
 }
@@ -47,23 +44,23 @@ bool caf::FilePath::operator==(const FilePath& other) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QTextStream& operator>>(QTextStream& str, caf::FilePath& filePath)
+QTextStream& operator>>( QTextStream& str, caf::FilePath& filePath )
 {
     QString text;
 
-    while (str.status() == QTextStream::Ok)
+    while ( str.status() == QTextStream::Ok )
     {
         // Read QChar to avoid white space trimming when reading QString
         QChar singleChar;
         str >> singleChar;
 
-        if (!singleChar.isNull())
+        if ( !singleChar.isNull() )
         {
             text += singleChar;
         }
     }
 
-    filePath.setPath(text);
+    filePath.setPath( text );
 
     return str;
 }
@@ -71,7 +68,7 @@ QTextStream& operator>>(QTextStream& str, caf::FilePath& filePath)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QTextStream& operator<<(QTextStream& str, const caf::FilePath& filePath)
+QTextStream& operator<<( QTextStream& str, const caf::FilePath& filePath )
 {
     str << filePath.path();
 

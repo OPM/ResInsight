@@ -26,7 +26,7 @@
 
 #include "RimProject.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
 #include <QDir>
 #include <QFileInfo>
@@ -38,8 +38,8 @@ CAF_PDM_SOURCE_INIT( RicfSingleCaseReplace, "replaceCase" );
 //--------------------------------------------------------------------------------------------------
 RicfSingleCaseReplace::RicfSingleCaseReplace()
 {
-    CAF_PDM_InitScriptableFieldWithIO( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_newGridFile, "newGridFile", QString(), "New Grid File", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_newGridFile, "newGridFile", QString(), "New Grid File", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,13 +63,17 @@ QString RicfSingleCaseReplace::filePath() const
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfSingleCaseReplace::execute()
 {
-    QString lastProjectPath = RicfCommandFileExecutor::instance()->getLastProjectPath();
-    if ( lastProjectPath.isNull() )
+    QString projectPath = RimProject::current()->fileName();
+    if ( projectPath.isEmpty() )
     {
-        QString errMsg( "replaceCase: 'openProject' must be called before 'replaceCase' to specify project file to "
-                        "replace case in." );
-        RiaLogging::error( errMsg );
-        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, errMsg );
+        QString lastProjectPath = RicfCommandFileExecutor::instance()->getLastProjectPath();
+        if ( lastProjectPath.isNull() )
+        {
+            QString errMsg( "replaceCase: The project must be saved as a file before calling 'replaceCase'." );
+            RiaLogging::error( errMsg );
+            return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, errMsg );
+        }
+        projectPath = lastProjectPath;
     }
 
     cvf::ref<RiaProjectModifier> projectModifier = new RiaProjectModifier;
@@ -91,7 +95,9 @@ caf::PdmScriptResponse RicfSingleCaseReplace::execute()
         projectModifier->setReplaceCase( m_caseId(), filePath );
     }
 
-    if ( !RiaApplication::instance()->loadProject( lastProjectPath, RiaApplication::PLA_NONE, projectModifier.p() ) )
+    if ( !RiaApplication::instance()->loadProject( projectPath,
+                                                   RiaApplication::ProjectLoadAction::PLA_NONE,
+                                                   projectModifier.p() ) )
     {
         QString errMsg( "Could not reload project" );
         RiaLogging::error( errMsg );
@@ -161,7 +167,9 @@ caf::PdmScriptResponse RicfMultiCaseReplace::execute()
         }
     }
 
-    if ( !RiaApplication::instance()->loadProject( lastProjectPath, RiaApplication::PLA_NONE, projectModifier.p() ) )
+    if ( !RiaApplication::instance()->loadProject( lastProjectPath,
+                                                   RiaApplication::ProjectLoadAction::PLA_NONE,
+                                                   projectModifier.p() ) )
     {
         QString errMsg( "Could not reload project" );
         RiaLogging::error( errMsg );

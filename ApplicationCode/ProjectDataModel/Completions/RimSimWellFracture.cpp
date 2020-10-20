@@ -50,6 +50,8 @@ RimSimWellFracture::RimSimWellFracture( void )
     m_displayIJK.xmlCapability()->disableIO();
 
     CAF_PDM_InitField( &m_branchIndex, "Branch", 0, "Branch", "", "", "" );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

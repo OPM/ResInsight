@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include <QDialog>
@@ -42,31 +41,32 @@
 
 namespace caf
 {
-
 class PdmObject;
 class PdmUiPropertyView;
-
 
 class PdmUiPropertyViewDialog : public QDialog
 {
 public:
-    PdmUiPropertyViewDialog(QWidget* parent, PdmObject* object, const QString& windowTitle, const QString& uiConfigName);
-    PdmUiPropertyViewDialog(QWidget* parent, PdmObject* object, const QString& windowTitle, const QString& uiConfigName, const QDialogButtonBox::StandardButtons& standardButtons);
+    PdmUiPropertyViewDialog( QWidget* parent, PdmObject* object, const QString& windowTitle, const QString& uiConfigName );
+    PdmUiPropertyViewDialog( QWidget*                                 parent,
+                             PdmObject*                               object,
+                             const QString&                           windowTitle,
+                             const QString&                           uiConfigName,
+                             const QDialogButtonBox::StandardButtons& standardButtons );
     ~PdmUiPropertyViewDialog() override;
 
     QDialogButtonBox* dialogButtonBox();
 
 private:
-    void initialize(PdmObject* object, const QString& windowTitle, const QString& uiConfigName);
+    void initialize( PdmObject* object, const QString& windowTitle, const QString& uiConfigName );
     void setupUi();
 
 private:
-    QString                m_windowTitle;
-    QString                m_uiConfigName;
-    PdmObject*             m_pdmObject;
-    PdmUiPropertyView*     m_pdmUiPropertyView;
-    QDialogButtonBox*      m_buttonBox;
+    QString            m_windowTitle;
+    QString            m_uiConfigName;
+    PdmObject*         m_pdmObject;
+    PdmUiPropertyView* m_pdmUiPropertyView;
+    QDialogButtonBox*  m_buttonBox;
 };
 
 } // End of namespace caf
-

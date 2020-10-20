@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 2.8.12)
 
-project (cafPdmUiCore)		
+project (cafPdmUiCore)
 
 # Unity Build
 if (CAF_ENABLE_UNITY_BUILD)
@@ -9,7 +9,7 @@ if (CAF_ENABLE_UNITY_BUILD)
 endif()
 
 # These headers need to go through Qt's MOC compiler
-set (MOC_HEADER_FILES    
+set (MOC_HEADER_FILES
     cafPdmUiEditorHandle.h
     cafPdmUiFieldEditorHandle.h
 	cafPdmUiSelection3dEditorVisualizer.h
@@ -17,15 +17,9 @@ set (MOC_HEADER_FILES
 )
 
 # Qt
-if (CEE_USE_QT5)
-	find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
-	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
-	qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
-else()
-    find_package(Qt4 COMPONENTS QtCore QtGui QtMain REQUIRED)
-    include(${QT_USE_FILE})
-	qt4_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
-endif(CEE_USE_QT5)
+find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
+set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
+qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
 
 include_directories (
     ..
@@ -78,9 +72,25 @@ set( PROJECT_FILES
 	cafPdmUiSelection3dEditorVisualizer.cpp
 	cafQShortenedLabel.cpp
 	cafQShortenedLabel.h
-	cafQIconProvider.cpp
-	cafQIconProvider.h
+	cafIconProvider.cpp
+	cafIconProvider.h
+	cafFontTools.cpp
+	cafFontTools.h
+)
 
+# NOTE! Resources in this subfolder appends to the variable QRC_FILES in parent scope
+# CMakeList.txt in the application folder (parent scope) must use the following syntax
+# to make sure the QRC_FILES variable contains appended files in subfolders
+
+#   set( QRC_FILES
+#       ${QRC_FILES} 
+#       Resources/MyaApplication.qrc
+#   )
+
+set( QRC_FILES
+    ${QRC_FILES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/Resources/caf.qrc
+    PARENT_SCOPE
 )
 
 add_library( ${PROJECT_NAME}
@@ -98,13 +108,8 @@ target_include_directories(${PROJECT_NAME}
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-if (MSVC) 
+if (MSVC)
     set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127")
 endif()
 
 source_group("" FILES ${PROJECT_FILES})
-
-# cotire
-if (COMMAND caf_apply_cotire)
-  caf_apply_cotire("${PROJECT_NAME}")
-endif()

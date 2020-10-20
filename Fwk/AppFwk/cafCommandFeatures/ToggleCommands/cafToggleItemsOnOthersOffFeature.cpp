@@ -40,79 +40,76 @@
 
 #include "cafSelectionManager.h"
 
-#include <QAction>
-#include "cafPdmObjectHandle.h"
 #include "cafPdmObject.h"
+#include "cafPdmObjectHandle.h"
 #include "cafPdmUiItem.h"
+#include <QAction>
 
 namespace caf
 {
-
-CAF_CMD_SOURCE_INIT(ToggleItemsOnOthersOffFeature, "cafToggleItemsOnOthersOffFeature");
+CAF_CMD_SOURCE_INIT( ToggleItemsOnOthersOffFeature, "cafToggleItemsOnOthersOffFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool ToggleItemsOnOthersOffFeature::isCommandEnabled() 
+bool ToggleItemsOnOthersOffFeature::isCommandEnabled()
 {
     std::vector<caf::PdmObject*> selectedObjects;
-    caf::SelectionManager::instance()->objectsByType(&selectedObjects);
+    caf::SelectionManager::instance()->objectsByType( &selectedObjects );
 
-    caf::PdmFieldHandle* commonParent = verifySameParentForSelection(selectedObjects);
-    std::vector<caf::PdmObjectHandle*> children = childObjects(commonParent);
+    caf::PdmFieldHandle*               commonParent = verifySameParentForSelection( selectedObjects );
+    std::vector<caf::PdmObjectHandle*> children     = childObjects( commonParent );
 
-    return commonParent != nullptr
-        && children.size() > 0
-        && objectToggleField(children.front())
-        && children.size() > selectedObjects.size();
+    return commonParent != nullptr && children.size() > 0 && objectToggleField( children.front() ) &&
+           children.size() > selectedObjects.size();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void ToggleItemsOnOthersOffFeature::onActionTriggered(bool isChecked)
+void ToggleItemsOnOthersOffFeature::onActionTriggered( bool isChecked )
 {
     std::vector<caf::PdmObject*> selectedObjects;
-    caf::SelectionManager::instance()->objectsByType(&selectedObjects);
+    caf::SelectionManager::instance()->objectsByType( &selectedObjects );
 
     // First toggle off all siblings
 
-    caf::PdmFieldHandle* commonParent = verifySameParentForSelection(selectedObjects);
+    caf::PdmFieldHandle* commonParent = verifySameParentForSelection( selectedObjects );
 
-    for (caf::PdmObjectHandle* child : childObjects(commonParent))
+    for ( caf::PdmObjectHandle* child : childObjects( commonParent ) )
     {
-        caf::PdmField<bool>* field = objectToggleField(child);
+        caf::PdmField<bool>* field = objectToggleField( child );
 
-        if (field)
+        if ( field )
         {
-            field->setValueWithFieldChanged(false);
+            field->setValueWithFieldChanged( false );
         }
     }
 
     // Then toggle on the selected item(s)
-    for (caf::PdmObject* selectedObject : selectedObjects)
+    for ( caf::PdmObject* selectedObject : selectedObjects )
     {
-        caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>*>(selectedObject->objectToggleField());
+        caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>*>( selectedObject->objectToggleField() );
 
-        field->setValueWithFieldChanged(true);
+        field->setValueWithFieldChanged( true );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void ToggleItemsOnOthersOffFeature::setupActionLook(QAction* actionToSetup)
+void ToggleItemsOnOthersOffFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("On - Others Off");
+    actionToSetup->setText( "On - Others Off" );
 
-    actionToSetup->setIcon(QIcon(":/cafCommandFeatures/ToggleOnOthersOffL16x16.png"));
-
+    actionToSetup->setIcon( QIcon( ":/cafCommandFeatures/ToggleOnOthersOffL16x16.png" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* ToggleItemsOnOthersOffFeature::verifySameParentForSelection(const std::vector<caf::PdmObject*>& selection)
+caf::PdmFieldHandle*
+    ToggleItemsOnOthersOffFeature::verifySameParentForSelection( const std::vector<caf::PdmObject*>& selection )
 {
     caf::PdmFieldHandle* sameParent = nullptr;
 
@@ -137,29 +134,29 @@ caf::PdmFieldHandle* ToggleItemsOnOthersOffFeature::verifySameParentForSelection
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<caf::PdmObjectHandle*> ToggleItemsOnOthersOffFeature::childObjects(caf::PdmFieldHandle* parent)
+std::vector<caf::PdmObjectHandle*> ToggleItemsOnOthersOffFeature::childObjects( caf::PdmFieldHandle* parent )
 {
     std::vector<caf::PdmObjectHandle*> children;
     if ( parent )
     {
-        parent->childObjects(&children);
+        parent->childObjects( &children );
     }
     return children;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-caf::PdmField<bool>* ToggleItemsOnOthersOffFeature::objectToggleField(caf::PdmObjectHandle* objectHandle)
+caf::PdmField<bool>* ToggleItemsOnOthersOffFeature::objectToggleField( caf::PdmObjectHandle* objectHandle )
 {
-    caf::PdmUiObjectHandle* childUiObject = uiObj(objectHandle);
+    caf::PdmUiObjectHandle* childUiObject = uiObj( objectHandle );
     if ( childUiObject && childUiObject->objectToggleField() )
     {
-        return dynamic_cast<caf::PdmField<bool>*>(childUiObject->objectToggleField());
+        return dynamic_cast<caf::PdmField<bool>*>( childUiObject->objectToggleField() );
     }
     return nullptr;
 }
 
-}
+} // namespace caf

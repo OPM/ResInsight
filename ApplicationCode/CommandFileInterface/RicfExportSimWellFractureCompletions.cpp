@@ -37,7 +37,7 @@
 
 #include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
 CAF_PDM_SOURCE_INIT( RicfExportSimWellFractureCompletions, "exportSimWellFractureCompletions" );
 
@@ -46,31 +46,31 @@ CAF_PDM_SOURCE_INIT( RicfExportSimWellFractureCompletions, "exportSimWellFractur
 //--------------------------------------------------------------------------------------------------
 RicfExportSimWellFractureCompletions::RicfExportSimWellFractureCompletions()
 {
-    CAF_PDM_InitScriptableFieldWithIO( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_viewId, "viewId", -1, "View ID", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_viewName, "viewName", QString( "" ), "View Name", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_timeStep, "timeStep", -1, "Time Step Index", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_simWellNames,
-                                       "simulationWellNames",
-                                       std::vector<QString>(),
-                                       "Simulation Well Names",
-                                       "",
-                                       "",
-                                       "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_fileSplit,
-                                       "fileSplit",
-                                       RicExportCompletionDataSettingsUi::ExportSplitType(),
-                                       "File Split",
-                                       "",
-                                       "",
-                                       "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_compdatExport,
-                                       "compdatExport",
-                                       RicExportCompletionDataSettingsUi::CompdatExportType(),
-                                       "Compdat Export",
-                                       "",
-                                       "",
-                                       "" );
+    CAF_PDM_InitScriptableField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_viewId, "viewId", -1, "View ID", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_viewName, "viewName", QString( "" ), "View Name", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_timeStep, "timeStep", -1, "Time Step Index", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_simWellNames,
+                                 "simulationWellNames",
+                                 std::vector<QString>(),
+                                 "Simulation Well Names",
+                                 "",
+                                 "",
+                                 "" );
+    CAF_PDM_InitScriptableField( &m_fileSplit,
+                                 "fileSplit",
+                                 RicExportCompletionDataSettingsUi::ExportSplitType(),
+                                 "File Split",
+                                 "",
+                                 "",
+                                 "" );
+    CAF_PDM_InitScriptableField( &m_compdatExport,
+                                 "compdatExport",
+                                 RicExportCompletionDataSettingsUi::CompdatExportType(),
+                                 "Compdat Export",
+                                 "",
+                                 "",
+                                 "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -80,7 +80,7 @@ caf::PdmScriptResponse RicfExportSimWellFractureCompletions::execute()
 {
     using TOOLS = RicfApplicationTools;
 
-    RimProject*                        project        = RiaApplication::instance()->project();
+    RimProject*                        project        = RimProject::current();
     RicExportCompletionDataSettingsUi* exportSettings = project->dialogData()->exportCompletionData();
 
     exportSettings->timeStep      = m_timeStep;
@@ -98,7 +98,8 @@ caf::PdmScriptResponse RicfExportSimWellFractureCompletions::execute()
         exportSettings->caseToApply = eclipseCase;
     }
 
-    QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::COMPLETIONS );
+    QString exportFolder =
+        RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::COMPLETIONS );
     if ( exportFolder.isNull() )
     {
         exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath( "completions" );

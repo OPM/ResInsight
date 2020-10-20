@@ -1,0 +1,27 @@
+#Type: scattered data
+#Version: 6
+#Description: No description
+#Format: free
+#Field: 1 x
+#Field: 2 y
+#Field: 3 z meters
+#Field: 4 column
+#Field: 5 row
+#Projection: Local Rectangular
+#Units: meters
+#End: 
+#Information from grid
+#Grid_size: Not_available
+#Grid_space: Not_available
+#Z_field: z
+#Vertical_faults: Not_available
+#History: No history
+#Z_units: meters
+455586.440000 7321154.500000 -2596.739000 1 1
+455638.060000 7321221.000000 -2609.231900 2 1
+455679.250000 7321294.000000 -2608.159900 3 1
+455608.340000 7321073.000000 -2578.846900 1 2
+455660.470000 7321140.000000 -2588.700000 2 2
+455717.560000 7321214.500000 -2584.720900 3 2
+455624.750000 7320986.000000 -2573.064900 1 3
+455680.310000 7321061.000000 -2577.110100 2 3

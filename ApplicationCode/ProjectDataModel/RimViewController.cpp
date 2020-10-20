@@ -85,8 +85,9 @@ RimViewController::RimViewController()
 
     CAF_PDM_InitField(&m_syncRangeFilters,    "SyncRangeFilters", false,   "Range Filters", "", "", "");
     CAF_PDM_InitField(&m_syncPropertyFilters, "SyncPropertyFilters", false,"Property Filters", "", "", "");
-
     // clang-format on
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -111,7 +112,7 @@ QList<caf::PdmOptionItemInfo> RimViewController::calculateValueOptions( const ca
 
     if ( fieldNeedingOptions == &m_managedView )
     {
-        RimProject*               proj = RiaApplication::instance()->project();
+        RimProject*               proj = RimProject::current();
         std::vector<RimGridView*> views;
         proj->allNotLinkedViews( views );
 
@@ -512,7 +513,7 @@ void RimViewController::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 //--------------------------------------------------------------------------------------------------
 void RimViewController::updateDisplayNameAndIcon()
 {
-    caf::QIconProvider iconProvider;
+    caf::IconProvider iconProvider;
     RimViewLinker::findNameAndIconFromView( &m_name.v(), &iconProvider, managedView() );
     iconProvider.setActive( m_isActive() );
     setUiIcon( iconProvider );
@@ -863,7 +864,7 @@ bool RimViewController::isRangeFilterMappingApplicable() const
 
     if ( eclipseView && geomView )
     {
-        if ( eclipseView->eclipseCase()->eclipseCaseData() && geomView->geoMechCase() &&
+        if ( eclipseView->eclipseCase() && eclipseView->eclipseCase()->eclipseCaseData() && geomView->geoMechCase() &&
              geomView->geoMechCase()->geoMechData() )
         {
             RigMainGrid* eclGrid = eclipseView->mainGrid();

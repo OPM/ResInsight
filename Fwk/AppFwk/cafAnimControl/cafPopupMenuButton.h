@@ -50,14 +50,14 @@ class PopupMenuButton : public QToolButton
     Q_OBJECT
 
 public:
-    PopupMenuButton(QWidget* parentWidget,
-                Qt::Orientation orientation = Qt::Horizontal,
-                ToolButtonPopupMode popupMode = InstantPopup);
+    PopupMenuButton( QWidget*            parentWidget,
+                     Qt::Orientation     orientation = Qt::Horizontal,
+                     ToolButtonPopupMode popupMode   = InstantPopup );
 
-    void addWidget(QWidget* widget, int stretch = 0, Qt::Alignment alignment = Qt::Alignment());
+    void addWidget( QWidget* widget, int stretch = 0, Qt::Alignment alignment = Qt::Alignment() );
 
-private:    
+private:
     QPointer<QBoxLayout> m_layout;
 };
 
-}
+} // namespace caf

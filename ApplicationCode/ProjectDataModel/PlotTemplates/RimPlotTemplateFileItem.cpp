@@ -18,7 +18,6 @@
 
 #include "RimPlotTemplateFileItem.h"
 
-#include "RiaApplication.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaLogging.h"
 

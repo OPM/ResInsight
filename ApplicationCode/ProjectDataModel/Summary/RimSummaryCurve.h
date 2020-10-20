@@ -25,10 +25,12 @@
 #include "cafPdmPtrField.h"
 
 #include "RiaDefines.h"
+#include "RiaSummaryCurveDefinition.h"
 #include "RifEclipseSummaryAddressQMetaType.h"
-#include "RimPlotCurve.h"
+#include "RimStackablePlotCurve.h"
 
 #include "cafAppEnum.h"
+#include "cafTristate.h"
 
 class RifSummaryReaderInterface;
 class RimSummaryCase;
@@ -41,7 +43,7 @@ class RimSummaryAddress;
 ///
 ///
 //==================================================================================================
-class RimSummaryCurve : public RimPlotCurve
+class RimSummaryCurve : public RimStackablePlotCurve
 {
     CAF_PDM_HEADER_INIT;
 
@@ -50,29 +52,38 @@ public:
     ~RimSummaryCurve() override;
 
     // Y Axis functions
-    void            setSummaryCaseY( RimSummaryCase* sumCase );
-    RimSummaryCase* summaryCaseY() const;
-    void            setSummaryAddressYAndApplyInterpolation( const RifEclipseSummaryAddress& address );
-    void            setSummaryAddressY( const RifEclipseSummaryAddress& address );
+    RiaSummaryCurveDefinition curveDefinitionY() const;
+    RimSummaryCase*           summaryCaseY() const;
+    RifEclipseSummaryAddress  summaryAddressY() const;
+    std::string               unitNameY() const;
+    std::vector<double>       valuesY() const;
 
-    RifEclipseSummaryAddress   summaryAddressY() const;
-    std::string                unitNameY() const;
-    std::vector<double>        valuesY() const;
+    void applyCurveDefinitionY( const RiaSummaryCurveDefinition& curveDefinition );
+    void setSummaryCaseY( RimSummaryCase* sumCase );
+    void setSummaryAddressYAndApplyInterpolation( const RifEclipseSummaryAddress& address );
+    void setSummaryAddressY( const RifEclipseSummaryAddress& address );
+
     RifEclipseSummaryAddress   errorSummaryAddressY() const;
     std::vector<double>        errorValuesY() const;
     void                       setLeftOrRightAxisY( RiaDefines::PlotAxis plotAxis );
     RiaDefines::PlotAxis       axisY() const;
     const std::vector<time_t>& timeStepsY() const;
+    double                     yValueAtTimeT( time_t time ) const;
+    void setOverrideCurveDataY( const std::vector<time_t>& xValues, const std::vector<double>& yValues );
 
     // X Axis functions
-    void                     setSummaryCaseX( RimSummaryCase* sumCase );
     RimSummaryCase*          summaryCaseX() const;
     RifEclipseSummaryAddress summaryAddressX() const;
-    void                     setSummaryAddressX( const RifEclipseSummaryAddress& address );
     std::string              unitNameX() const;
     std::vector<double>      valuesX() const;
 
+    void setSummaryCaseX( RimSummaryCase* sumCase );
+    void setSummaryAddressX( const RifEclipseSummaryAddress& address );
+
     // Other
+    bool isEnsembleCurve() const;
+    void setIsEnsembleCurve( bool isEnsembleCurve );
+
     void updateQwtPlotAxis();
     void applyCurveAutoNameSettings( const RimSummaryCurveAutoName& autoNameSettings );
 
@@ -84,6 +95,8 @@ public:
     void setAsTopZWithinCategory( bool enable );
     void setZIndexFromCurveInfo();
 
+    RiaDefines::PhaseType phaseType() const override;
+
 protected:
     // RimPlotCurve overrides
     QString createCurveAutoName() override;
@@ -93,6 +106,7 @@ protected:
     void updateLegendsInPlot() override;
 
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    void initAfterRead() override;
 
 private:
     RifSummaryReaderInterface* valuesSummaryReaderX() const;
@@ -124,6 +138,8 @@ private:
     caf::PdmChildField<RimSummaryAddress*>  m_xValuesSummaryAddress;
     caf::PdmField<RifEclipseSummaryAddress> m_xValuesSummaryAddressUiField;
     caf::PdmField<bool>                     m_xPushButtonSelectSummaryAddress;
+
+    caf::PdmField<caf::Tristate> m_isEnsembleCurve;
 
     caf::PdmChildField<RimSummaryCurveAutoName*>      m_curveNameConfig;
     caf::PdmField<caf::AppEnum<RiaDefines::PlotAxis>> m_plotAxis;

@@ -28,6 +28,10 @@
 #include "cvfAssert.h"
 #include "cvfBoundingBoxTree.h"
 
+#ifdef USE_OPENMP
+#include <omp.h>
+#endif
+
 RigMainGrid::RigMainGrid()
     : RigGridBase( this )
 {
@@ -446,112 +450,135 @@ void RigMainGrid::calculateFaults( const RigActiveCellInfo* activeCellInfo )
 
     const std::vector<cvf::Vec3d>& vxs = m_mainGrid->nodes();
 
+    std::vector<RigFault::FaultFace>& unNamedFaultFaces         = unNamedFault->faultFaces();
+    std::vector<RigFault::FaultFace>& unNamedFaultFacesInactive = unNamedFaultWithInactive->faultFaces();
     for ( int gcIdx = 0; gcIdx < static_cast<int>( m_cells.size() ); ++gcIdx )
     {
-        if ( m_cells[gcIdx].isInvalid() )
+        addUnNamedFaultFaces( gcIdx,
+                              activeCellInfo,
+                              vxs,
+                              unNamedFaultIdx,
+                              unNamedFaultWithInactiveIdx,
+                              unNamedFaultFaces,
+                              unNamedFaultFacesInactive,
+                              m_faultsPrCellAcc.p() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigMainGrid::addUnNamedFaultFaces( int                               gcIdx,
+                                        const RigActiveCellInfo*          activeCellInfo,
+                                        const std::vector<cvf::Vec3d>&    vxs,
+                                        int                               unNamedFaultIdx,
+                                        int                               unNamedFaultWithInactiveIdx,
+                                        std::vector<RigFault::FaultFace>& unNamedFaultFaces,
+                                        std::vector<RigFault::FaultFace>& unNamedFaultFacesInactive,
+                                        RigFaultsPrCellAccumulator*       faultsPrCellAcc ) const
+{
+    if ( m_cells[gcIdx].isInvalid() )
+    {
+        return;
+    }
+
+    size_t neighborReservoirCellIdx;
+    size_t neighborGridCellIdx;
+    size_t i = 0;
+    size_t j = 0;
+    size_t k = 0;
+
+    const RigGridBase* hostGrid                 = nullptr;
+    bool               firstNO_FAULTFaceForCell = true;
+    bool               isCellActive             = true;
+
+    char upperLimitForFaceType = cvf::StructGridInterface::FaceType::POS_K;
+
+    // Compare only I and J faces
+    for ( char faceIdx = 0; faceIdx < upperLimitForFaceType; ++faceIdx )
+    {
+        cvf::StructGridInterface::FaceType face = cvf::StructGridInterface::FaceType( faceIdx );
+
+        // For faces that has no used defined Fault assigned:
+
+        if ( m_faultsPrCellAcc->faultIdx( gcIdx, face ) == RigFaultsPrCellAccumulator::NO_FAULT )
         {
-            continue;
-        }
-
-        size_t neighborReservoirCellIdx;
-        size_t neighborGridCellIdx;
-        size_t i = 0;
-        size_t j = 0;
-        size_t k = 0;
-
-        RigGridBase* hostGrid                 = nullptr;
-        bool         firstNO_FAULTFaceForCell = true;
-        bool         isCellActive             = true;
-
-        char upperLimitForFaceType = cvf::StructGridInterface::FaceType::POS_K;
-
-        // Compare only I and J faces
-        for ( char faceIdx = 0; faceIdx < upperLimitForFaceType; ++faceIdx )
-        {
-            cvf::StructGridInterface::FaceType face = cvf::StructGridInterface::FaceType( faceIdx );
-
-            // For faces that has no used defined Fault assigned:
-
-            if ( m_faultsPrCellAcc->faultIdx( gcIdx, face ) == RigFaultsPrCellAccumulator::NO_FAULT )
+            // Find neighbor cell
+            if ( firstNO_FAULTFaceForCell ) // To avoid doing this for every face, and only when detecting a NO_FAULT
             {
-                // Find neighbor cell
-                if ( firstNO_FAULTFaceForCell ) // To avoid doing this for every face, and only when detecting a NO_FAULT
+                size_t gridLocalCellIndex;
+                hostGrid = this->gridAndGridLocalIdxFromGlobalCellIdx( gcIdx, &gridLocalCellIndex );
+
+                hostGrid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k );
+                isCellActive = activeCellInfo->isActive( gcIdx );
+
+                firstNO_FAULTFaceForCell = false;
+            }
+
+            if ( !hostGrid->cellIJKNeighbor( i, j, k, face, &neighborGridCellIdx ) )
+            {
+                continue;
+            }
+
+            neighborReservoirCellIdx = hostGrid->reservoirCellIndex( neighborGridCellIdx );
+            if ( m_cells[neighborReservoirCellIdx].isInvalid() )
+            {
+                continue;
+            }
+
+            bool isNeighborCellActive = activeCellInfo->isActive( neighborReservoirCellIdx );
+
+            double tolerance = 1e-6;
+
+            std::array<size_t, 4> faceIdxs;
+            m_cells[gcIdx].faceIndices( face, &faceIdxs );
+            std::array<size_t, 4> nbFaceIdxs;
+            m_cells[neighborReservoirCellIdx].faceIndices( StructGridInterface::oppositeFace( face ), &nbFaceIdxs );
+
+            bool sharedFaceVertices = true;
+            if ( sharedFaceVertices && vxs[faceIdxs[0]].pointDistance( vxs[nbFaceIdxs[0]] ) > tolerance )
+                sharedFaceVertices = false;
+            if ( sharedFaceVertices && vxs[faceIdxs[1]].pointDistance( vxs[nbFaceIdxs[3]] ) > tolerance )
+                sharedFaceVertices = false;
+            if ( sharedFaceVertices && vxs[faceIdxs[2]].pointDistance( vxs[nbFaceIdxs[2]] ) > tolerance )
+                sharedFaceVertices = false;
+            if ( sharedFaceVertices && vxs[faceIdxs[3]].pointDistance( vxs[nbFaceIdxs[1]] ) > tolerance )
+                sharedFaceVertices = false;
+
+            if ( sharedFaceVertices )
+            {
+                continue;
+            }
+
+            // To avoid doing this calculation for the opposite face
+            int faultIdx = unNamedFaultIdx;
+            if ( !( isCellActive && isNeighborCellActive ) ) faultIdx = unNamedFaultWithInactiveIdx;
+
+            faultsPrCellAcc->setFaultIdx( gcIdx, face, faultIdx );
+            faultsPrCellAcc->setFaultIdx( neighborReservoirCellIdx, StructGridInterface::oppositeFace( face ), faultIdx );
+
+            // Add as fault face only if the grid index is less than the neighbors
+
+            if ( static_cast<size_t>( gcIdx ) < neighborReservoirCellIdx )
+            {
+                RigFault::FaultFace ff( gcIdx, cvf::StructGridInterface::FaceType( faceIdx ), neighborReservoirCellIdx );
+                if ( isCellActive && isNeighborCellActive )
                 {
-                    size_t gridLocalCellIndex;
-                    hostGrid = this->gridAndGridLocalIdxFromGlobalCellIdx( gcIdx, &gridLocalCellIndex );
-
-                    hostGrid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k );
-                    isCellActive = activeCellInfo->isActive( gcIdx );
-
-                    firstNO_FAULTFaceForCell = false;
-                }
-
-                if ( !hostGrid->cellIJKNeighbor( i, j, k, face, &neighborGridCellIdx ) )
-                {
-                    continue;
-                }
-
-                neighborReservoirCellIdx = hostGrid->reservoirCellIndex( neighborGridCellIdx );
-                if ( m_cells[neighborReservoirCellIdx].isInvalid() )
-                {
-                    continue;
-                }
-
-                bool isNeighborCellActive = activeCellInfo->isActive( neighborReservoirCellIdx );
-
-                double tolerance = 1e-6;
-
-                std::array<size_t, 4> faceIdxs;
-                m_cells[gcIdx].faceIndices( face, &faceIdxs );
-                std::array<size_t, 4> nbFaceIdxs;
-                m_cells[neighborReservoirCellIdx].faceIndices( StructGridInterface::oppositeFace( face ), &nbFaceIdxs );
-
-                bool sharedFaceVertices = true;
-                if ( sharedFaceVertices && vxs[faceIdxs[0]].pointDistance( vxs[nbFaceIdxs[0]] ) > tolerance )
-                    sharedFaceVertices = false;
-                if ( sharedFaceVertices && vxs[faceIdxs[1]].pointDistance( vxs[nbFaceIdxs[3]] ) > tolerance )
-                    sharedFaceVertices = false;
-                if ( sharedFaceVertices && vxs[faceIdxs[2]].pointDistance( vxs[nbFaceIdxs[2]] ) > tolerance )
-                    sharedFaceVertices = false;
-                if ( sharedFaceVertices && vxs[faceIdxs[3]].pointDistance( vxs[nbFaceIdxs[1]] ) > tolerance )
-                    sharedFaceVertices = false;
-
-                if ( sharedFaceVertices )
-                {
-                    continue;
-                }
-
-                // To avoid doing this calculation for the opposite face
-                int faultIdx = unNamedFaultIdx;
-                if ( !( isCellActive && isNeighborCellActive ) ) faultIdx = unNamedFaultWithInactiveIdx;
-
-                m_faultsPrCellAcc->setFaultIdx( gcIdx, face, faultIdx );
-                m_faultsPrCellAcc->setFaultIdx( neighborReservoirCellIdx,
-                                                StructGridInterface::oppositeFace( face ),
-                                                faultIdx );
-
-                // Add as fault face only if the grid index is less than the neighbors
-
-                if ( static_cast<size_t>( gcIdx ) < neighborReservoirCellIdx )
-                {
-                    RigFault::FaultFace ff( gcIdx, cvf::StructGridInterface::FaceType( faceIdx ), neighborReservoirCellIdx );
-                    if ( isCellActive && isNeighborCellActive )
-                    {
-                        unNamedFault->faultFaces().push_back( ff );
-                    }
-                    else
-                    {
-                        unNamedFaultWithInactive->faultFaces().push_back( ff );
-                    }
+                    unNamedFaultFaces.push_back( ff );
                 }
                 else
                 {
-                    CVF_FAIL_MSG(
-                        "Found fault with global neighbor index less than the native index. " ); // Should never occur.
-                                                                                                 // because we flag the
-                                                                                                 // opposite face in the
-                                                                                                 // faultsPrCellAcc
+                    unNamedFaultFacesInactive.push_back( ff );
                 }
+            }
+            else
+            {
+                CVF_FAIL_MSG( "Found fault with global neighbor index less than the native index. " ); // Should never
+                                                                                                       // occur. because
+                                                                                                       // we flag the
+                                                                                                       // opposite face
+                                                                                                       // in the
+                                                                                                       // faultsPrCellAcc
             }
         }
     }
@@ -618,7 +645,7 @@ bool RigMainGrid::isFaceNormalsOutwards() const
         {
             cvf::Vec3d cellCenter = m_cells[gcIdx].center();
             cvf::Vec3d faceCenter = m_cells[gcIdx].faceCenter( StructGridInterface::POS_I );
-            cvf::Vec3d faceNormal = m_cells[gcIdx].faceNormalWithAreaLenght( StructGridInterface::POS_I );
+            cvf::Vec3d faceNormal = m_cells[gcIdx].faceNormalWithAreaLength( StructGridInterface::POS_I );
 
             double typicalIJCellSize = characteristicIJCellSize();
             double dummy, dummy2, typicalKSize;
@@ -710,38 +737,58 @@ void RigMainGrid::buildCellSearchTree()
 
         size_t cellCount = m_cells.size();
 
-        std::vector<size_t> cellIndicesForBoundingBoxes;
-        cellIndicesForBoundingBoxes.reserve( cellCount );
-
+        std::vector<size_t>           cellIndicesForBoundingBoxes;
         std::vector<cvf::BoundingBox> cellBoundingBoxes;
-        cellBoundingBoxes.reserve( cellCount );
 
-        for ( size_t cIdx = 0; cIdx < cellCount; ++cIdx )
+#pragma omp parallel
         {
-            if ( m_cells[cIdx].isInvalid() ) continue;
+            size_t threadCellCount = cellCount;
+#ifdef USE_OPENMP
+            threadCellCount = std::ceil( cellCount / static_cast<double>( omp_get_num_threads() ) );
+#endif
 
-            const std::array<size_t, 8>& cellIndices = m_cells[cIdx].cornerIndices();
+            std::vector<size_t>           threadIndicesForBoundingBoxes;
+            std::vector<cvf::BoundingBox> threadBoundingBoxes;
 
-            cvf::BoundingBox cellBB;
-            cellBB.add( m_nodes[cellIndices[0]] );
-            cellBB.add( m_nodes[cellIndices[1]] );
-            cellBB.add( m_nodes[cellIndices[2]] );
-            cellBB.add( m_nodes[cellIndices[3]] );
-            cellBB.add( m_nodes[cellIndices[4]] );
-            cellBB.add( m_nodes[cellIndices[5]] );
-            cellBB.add( m_nodes[cellIndices[6]] );
-            cellBB.add( m_nodes[cellIndices[7]] );
+            threadIndicesForBoundingBoxes.reserve( threadCellCount );
+            threadBoundingBoxes.reserve( threadCellCount );
 
-            if ( cellBB.isValid() )
+#pragma omp for
+            for ( int cIdx = 0; cIdx < (int)cellCount; ++cIdx )
             {
-                cellIndicesForBoundingBoxes.emplace_back( cIdx );
-                cellBoundingBoxes.emplace_back( cellBB );
+                if ( m_cells[cIdx].isInvalid() ) continue;
+
+                const std::array<size_t, 8>& cellIndices = m_cells[cIdx].cornerIndices();
+
+                cvf::BoundingBox cellBB;
+                cellBB.add( m_nodes[cellIndices[0]] );
+                cellBB.add( m_nodes[cellIndices[1]] );
+                cellBB.add( m_nodes[cellIndices[2]] );
+                cellBB.add( m_nodes[cellIndices[3]] );
+                cellBB.add( m_nodes[cellIndices[4]] );
+                cellBB.add( m_nodes[cellIndices[5]] );
+                cellBB.add( m_nodes[cellIndices[6]] );
+                cellBB.add( m_nodes[cellIndices[7]] );
+
+                if ( cellBB.isValid() )
+                {
+                    threadIndicesForBoundingBoxes.emplace_back( cIdx );
+                    threadBoundingBoxes.emplace_back( cellBB );
+                }
+            }
+
+            threadIndicesForBoundingBoxes.shrink_to_fit();
+            threadBoundingBoxes.shrink_to_fit();
+
+#pragma omp critical
+            {
+                cellIndicesForBoundingBoxes.insert( cellIndicesForBoundingBoxes.end(),
+                                                    threadIndicesForBoundingBoxes.begin(),
+                                                    threadIndicesForBoundingBoxes.end() );
+
+                cellBoundingBoxes.insert( cellBoundingBoxes.end(), threadBoundingBoxes.begin(), threadBoundingBoxes.end() );
             }
         }
-
-        cellIndicesForBoundingBoxes.shrink_to_fit();
-        cellBoundingBoxes.shrink_to_fit();
-
         m_cellSearchTree = new cvf::BoundingBoxTree;
         m_cellSearchTree->buildTreeFromBoundingBoxes( cellBoundingBoxes, &cellIndicesForBoundingBoxes );
     }

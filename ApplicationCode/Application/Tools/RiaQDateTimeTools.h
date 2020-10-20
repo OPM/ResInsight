@@ -66,7 +66,7 @@ public:
         DATE_FORMAT_SIZE
     };
 
-    enum TimeFormatComponents
+    enum class TimeFormatComponents
     {
         TIME_FORMAT_UNSPECIFIED = -2,
         TIME_FORMAT_NONE        = -1,
@@ -117,7 +117,7 @@ public:
     static QDateTime          truncateTime( const QDateTime& dt, RiaQDateTimeTools::DateTimePeriod period );
 
     static std::vector<RiaQDateTimeTools::DateTimePeriod> dateTimePeriods();
-    static QString                     dateTimePeriodName( RiaQDateTimeTools::DateTimePeriod period );
+    static QString dateTimePeriodName( RiaQDateTimeTools::DateTimePeriod period );
 
     // This function uses C locale to make sure the text representation of a date is stable, independent of the locale
     // settings on local machine. Required for stable regression testing.
@@ -129,8 +129,12 @@ public:
     static std::vector<QString> supportedDateFormats();
     static std::vector<QString> supportedTimeFormats();
 
-    static QString dateFormatString( const QString& fullDateFormat, DateFormatComponents dateComponents );
-    static QString timeFormatString( const QString& fullTimeFormat, TimeFormatComponents timeComponents );
+    static QString
+        dateFormatString( const QString&       fullDateFormat,
+                          DateFormatComponents dateComponents = DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
+    static QString
+        timeFormatString( const QString&       fullTimeFormat,
+                          TimeFormatComponents timeComponents = TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND );
 
     static QList<caf::PdmOptionItemInfo> createOptionItems( const std::vector<time_t>& timeSteps );
 

@@ -325,7 +325,7 @@ void RifWellPathImporter::readAllAsciiWellData( const QString& filePath )
                     QString name = wellName.c_str();
                     if ( !name.trimmed().isEmpty() )
                     {
-                        // Do not overwrite the name aquired from a line above, if this line is empty
+                        // Do not overwrite the name acquired from a line above, if this line is empty
                         fileWellDataArray.back().m_name = name.trimmed();
                     }
                     hasReadWellPointInCurrentWell = false;

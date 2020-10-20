@@ -46,6 +46,7 @@ class RimWellPathAttributeCollection;
 class RimWellFlowRateCurve;
 class RimWellLogCurve;
 class RimWellPath;
+class RimDepthTrackPlot;
 class RiuWellPathComponentPlotItem;
 class RiuWellLogTrack;
 class RigEclipseWellLogExtractor;
@@ -54,6 +55,8 @@ class RigGeoMechWellLogExtractor;
 class RigResultAccessor;
 class RigFemResultAddress;
 class RigWellLogExtractor;
+class RimEclipseResultDefinition;
+class RimColorLegend;
 
 class QwtPlotCurve;
 
@@ -124,6 +127,7 @@ public:
     RimCase*       formationNamesCase() const;
     void           setFormationTrajectoryType( TrajectoryType trajectoryType );
     TrajectoryType formationTrajectoryType() const;
+    void setRegionPropertyResultType( RiaDefines::ResultCatType resultCatType, const QString& resultVariable );
 
     void detachAllCurves() override;
     void reattachAllCurves() override;
@@ -162,6 +166,7 @@ public:
     void setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType annotationType );
     void setAnnotationDisplay( RiuPlotAnnotationTool::RegionDisplay annotationDisplay );
     void setAnnotationTransparency( int percent );
+    void setColorShadingLegend( RimColorLegend* colorLegend );
 
     RiuPlotAnnotationTool::RegionAnnotationType annotationType() const;
     RiuPlotAnnotationTool::RegionDisplay        annotationDisplay() const;
@@ -177,13 +182,16 @@ public:
     void setShowBothSidesOfWell( bool on );
     void setWellPathAttributesSource( RimWellPath* wellPath );
 
+    void setOverburdenHeight( double overburdenHeight );
+    void setUnderburdenHeight( double underburdenHeight );
+
     RimWellPath* wellPathAttributeSource() const;
 
     caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const override;
 
     void setLogarithmicScale( bool enable );
 
-    std::map<int, std::vector<RimWellFlowRateCurve*>> visibleStackedCurves();
+    std::map<int, std::vector<RimWellLogCurve*>> visibleStackedCurves();
 
     std::vector<RimWellLogCurve*> curves() const;
     std::vector<RimWellLogCurve*> visibleCurves() const;
@@ -198,15 +206,28 @@ public:
 
     QString asciiDataForPlotExport() const override;
 
-    bool hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const override;
-    bool applyFontSize( RiaDefines::FontSettingType fontSettingType,
-                        int                         oldFontSize,
-                        int                         fontSize,
-                        bool                        forceChange = false ) override;
-
     void onAxisSelected( int axis, bool toggle ) override;
+    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
     void updateAxes() override;
+
+    static CurveSamplingPointData curveSamplingPointData( RigEclipseWellLogExtractor* extractor,
+                                                          RigResultAccessor*          resultAccessor );
+    static CurveSamplingPointData curveSamplingPointData( RigGeoMechWellLogExtractor* extractor,
+                                                          const RigFemResultAddress&  resultAddress );
+
+    static void findRegionNamesToPlot( const CurveSamplingPointData&           curveData,
+                                       const std::vector<QString>&             formationNamesVector,
+                                       RimWellLogPlot::DepthTypeEnum           depthType,
+                                       std::vector<QString>*                   formationNamesToPlot,
+                                       std::vector<std::pair<double, double>>* yValues );
+
+    static std::vector<QString> formationNamesVector( RimCase* rimCase );
+    void                        updateStackedCurveData();
+
+    static void addOverburden( std::vector<QString>& namesVector, CurveSamplingPointData& curveData, double height );
+    static void addUnderburden( std::vector<QString>& namesVector, CurveSamplingPointData& curveData, double height );
 
 protected:
     // RimViewWindow overrides
@@ -224,9 +245,13 @@ private:
     void updateXZoom();
     void updateYZoom();
 
-    void doRemoveFromCollection() override;
+    int axisFontSize() const;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void curveDataChanged( const caf::SignalEmitter* emitter );
+    void curveVisibilityChanged( const caf::SignalEmitter* emitter, bool visible );
+    void curveAppearanceChanged( const caf::SignalEmitter* emitter );
+    void curveStackingChanged( const caf::SignalEmitter* emitter, bool stacked );
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
@@ -249,23 +274,11 @@ private:
                                                                int                       branchIndex,
                                                                bool                      useBranchDetection );
 
-    static CurveSamplingPointData curveSamplingPointData( RigEclipseWellLogExtractor* extractor,
-                                                          RigResultAccessor*          resultAccessor );
-    static CurveSamplingPointData curveSamplingPointData( RigGeoMechWellLogExtractor* extractor,
-                                                          const RigFemResultAddress&  resultAddress );
-
-    static void findRegionNamesToPlot( const CurveSamplingPointData&           curveData,
-                                       const std::vector<QString>&             formationNamesVector,
-                                       RimWellLogPlot::DepthTypeEnum           depthType,
-                                       std::vector<QString>*                   formationNamesToPlot,
-                                       std::vector<std::pair<double, double>>* yValues );
-
-    static std::vector<QString> formationNamesVector( RimCase* rimCase );
-
     void setFormationFieldsUiReadOnly( bool readOnly = true );
 
     void updateRegionAnnotationsOnPlot();
     void updateFormationNamesOnPlot();
+    void updateResultPropertyNamesOnPlot();
     void updateCurveDataRegionsOnPlot();
     void updateWellPathAttributesOnPlot();
     void removeRegionAnnotations();
@@ -275,13 +288,15 @@ private:
 
     void updateWellPathAttributesCollection();
 
-    RimWellLogPlot* parentWellLogPlot() const;
+    RimDepthTrackPlot* parentWellLogPlot() const;
 
     void handleWheelEvent( QWheelEvent* event ) override;
     void doUpdateLayout() override;
 
     std::vector<std::pair<double, double>> waterAndRockRegions( RiaDefines::DepthTypeEnum  depthType,
                                                                 const RigWellLogExtractor* extractor ) const;
+
+    void connectCurveSignals( RimWellLogCurve* curve );
 
 private:
     QString m_xAxisTitle;
@@ -301,9 +316,11 @@ private:
     caf::PdmField<double>                       m_majorTickInterval;
     caf::PdmField<double>                       m_minorTickInterval;
 
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisFontSize;
+
     caf::PdmField<RegionAnnotationTypeEnum>                            m_regionAnnotationType;
     caf::PdmField<RegionAnnotationDisplayEnum>                         m_regionAnnotationDisplay;
-    caf::PdmField<RimRegularLegendConfig::ColorRangeEnum>              m_colorShadingPalette;
+    caf::PdmPtrField<RimColorLegend*>                                  m_colorShadingLegend;
     caf::PdmField<int>                                                 m_colorShadingTransparency;
     caf::PdmField<bool>                                                m_showRegionLabels;
     caf::PdmField<caf::AppEnum<FormationSource>>                       m_formationSource;
@@ -324,9 +341,13 @@ private:
     caf::PdmField<bool>                                                m_wellPathCompletionsInLegend;
     caf::PdmPtrField<RimWellPath*>                                     m_wellPathComponentSource;
     caf::PdmPtrField<RimWellPathAttributeCollection*>                  m_wellPathAttributeCollection;
+    caf::PdmChildField<RimEclipseResultDefinition*>                    m_resultDefinition;
+    caf::PdmField<double>                                              m_overburdenHeight;
+    caf::PdmField<double>                                              m_underburdenHeight;
 
-    caf::PdmField<bool> m_showFormations_OBSOLETE;
-    caf::PdmField<bool> m_show_OBSOLETE;
+    caf::PdmField<bool>                                   m_showFormations_OBSOLETE;
+    caf::PdmField<bool>                                   m_show_OBSOLETE;
+    caf::PdmField<RimRegularLegendConfig::ColorRangeEnum> m_colorShadingPalette_OBSOLETE;
 
     std::vector<std::unique_ptr<RiuWellPathComponentPlotItem>> m_wellPathAttributePlotObjects;
 

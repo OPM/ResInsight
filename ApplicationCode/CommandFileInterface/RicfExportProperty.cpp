@@ -18,7 +18,6 @@
 
 #include "RicfExportProperty.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "ExportCommands/RicEclipseCellResultToFileImpl.h"
@@ -35,7 +34,7 @@
 #include "RimEclipseView.h"
 #include "RimProject.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 #include "cafUtils.h"
 
 #include <QDir>
@@ -48,12 +47,12 @@ CAF_PDM_SOURCE_INIT( RicfExportProperty, "exportProperty" );
 RicfExportProperty::RicfExportProperty()
 {
     // clang-format off
-    CAF_PDM_InitScriptableFieldWithIO(&m_caseId,           "caseId",           -1, "Case ID", "", "", "");
-    CAF_PDM_InitScriptableFieldWithIO(&m_timeStepIndex,    "timeStep",         -1, "Time Step Index", "", "", "");
-    CAF_PDM_InitScriptableFieldWithIO(&m_propertyName,     "property",         QString(), "Property Name", "", "", "");
-    CAF_PDM_InitScriptableFieldWithIO(&m_eclipseKeyword,   "eclipseKeyword",   QString(), "Eclipse Keyword", "", "", "");
-    CAF_PDM_InitScriptableFieldWithIO(&m_undefinedValue,   "undefinedValue",   0.0, "Undefined Value", "", "", "");
-    CAF_PDM_InitScriptableFieldWithIO(&m_exportFileName,   "exportFile",       QString(), "Export FileName", "", "", "");
+    CAF_PDM_InitScriptableField(&m_caseId,           "caseId",           -1, "Case ID", "", "", "");
+    CAF_PDM_InitScriptableField(&m_timeStepIndex,    "timeStep",         -1, "Time Step Index", "", "", "");
+    CAF_PDM_InitScriptableField(&m_propertyName,     "property",         QString(), "Property Name", "", "", "");
+    CAF_PDM_InitScriptableField(&m_eclipseKeyword,   "eclipseKeyword",   QString(), "Eclipse Keyword", "", "", "");
+    CAF_PDM_InitScriptableField(&m_undefinedValue,   "undefinedValue",   0.0, "Undefined Value", "", "", "");
+    CAF_PDM_InitScriptableField(&m_exportFileName,   "exportFile",       QString(), "Export FileName", "", "", "");
     // clang-format on
 }
 
@@ -86,7 +85,7 @@ caf::PdmScriptResponse RicfExportProperty::execute()
 
     RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
 
-    RigCaseCellResultsData* cellResultsData = eclipseCaseData->results( RiaDefines::MATRIX_MODEL );
+    RigCaseCellResultsData* cellResultsData = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
     if ( !cellResultsData->ensureKnownResultLoaded( RigEclipseResultAddress( m_propertyName ) ) )
     {
@@ -98,7 +97,8 @@ caf::PdmScriptResponse RicfExportProperty::execute()
     QString filePath = m_exportFileName;
     if ( filePath.isNull() )
     {
-        QDir propertiesDir( RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::PROPERTIES ) );
+        QDir propertiesDir(
+            RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::PROPERTIES ) );
         QString fileName = QString( "%1-%2" ).arg( eclipseCase->caseUserDescription() ).arg( m_propertyName );
         fileName         = caf::Utils::makeValidFileBasename( fileName );
         filePath         = propertiesDir.filePath( fileName );

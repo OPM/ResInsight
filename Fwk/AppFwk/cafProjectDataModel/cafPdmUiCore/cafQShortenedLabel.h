@@ -43,19 +43,20 @@ class QShortenedLabel : public QLabel
 {
     Q_OBJECT
 public:
-    explicit QShortenedLabel(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+    explicit QShortenedLabel( QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags() );
 
-    void    setText(const QString& text);
+    void    setText( const QString& text );
     QString fullText() const;
 
-    QSize   minimumSizeHint() const override;
-    QSize   sizeHint() const override;
-protected:
-    void    resizeEvent(QResizeEvent *event) override;
-    void    resizeText(QSize paintSize);
-    void    setDisplayText(const QString& shortText);
-private:
-    QString  m_fullLengthText;
-};
-}
+    QSize minimumSizeHint() const override;
+    QSize sizeHint() const override;
 
+protected:
+    void resizeEvent( QResizeEvent* event ) override;
+    void resizeText( QSize paintSize );
+    void setDisplayText( const QString& shortText );
+
+private:
+    QString m_fullLengthText;
+};
+} // namespace caf

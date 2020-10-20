@@ -34,18 +34,16 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include <QModelIndexList>
 
 class QMimeData;
 
-namespace caf 
+namespace caf
 {
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 class PdmUiDragDropInterface
 {
@@ -53,22 +51,24 @@ public:
     virtual ~PdmUiDragDropInterface() = 0;
 
 protected:
-
     friend class PdmUiTreeViewQModel;
     friend class PdmUiTreeViewWidget;
 
     // Forwarding from Qt functions in QAbstractItemModel
-    virtual Qt::DropActions     supportedDropActions() const = 0;
-    virtual Qt::ItemFlags       flags(const QModelIndex &index) const = 0;
-    virtual bool                dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) = 0;
-    virtual QMimeData*          mimeData(const QModelIndexList &indexes) const = 0;
-    virtual QStringList         mimeTypes() const = 0;
+    virtual Qt::DropActions supportedDropActions() const            = 0;
+    virtual Qt::ItemFlags   flags( const QModelIndex& index ) const = 0;
+    virtual bool
+                        dropMimeData( const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent ) = 0;
+    virtual QMimeData*  mimeData( const QModelIndexList& indexes ) const = 0;
+    virtual QStringList mimeTypes() const                                = 0;
 
     // Forwarding of tree view events
-    virtual void                onDragCanceled() = 0;
-    virtual void                onProposedDropActionUpdated(Qt::DropAction action) = 0;
+    virtual void onDragCanceled()                                     = 0;
+    virtual void onProposedDropActionUpdated( Qt::DropAction action ) = 0;
 };
 
-inline PdmUiDragDropInterface::~PdmUiDragDropInterface() { }
+inline PdmUiDragDropInterface::~PdmUiDragDropInterface()
+{
+}
 
 } // end namespace caf

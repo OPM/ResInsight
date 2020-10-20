@@ -405,7 +405,7 @@ void RigCaseToCaseCellMapperTools::rotateCellTopologicallyToMatchBaseCell( const
         flipQuadWinding( femDeepestQuad );
     }
 
-    // We now need to rotate the fem quads to be alligned with the ecl quads
+    // We now need to rotate the fem quads to be aligned with the ecl quads
     // Since the start point of the quad always is aligned with the opposite face-quad start
     // we can find the rotation for the top, and apply it to both top and bottom
 

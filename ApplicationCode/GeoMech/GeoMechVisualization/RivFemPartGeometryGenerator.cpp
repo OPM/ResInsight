@@ -188,7 +188,7 @@ void RivFemPartGeometryGenerator::computeArrays()
         if ( m_elmVisibility.isNull() || ( *m_elmVisibility )[elmIdx] )
         {
             RigElementType eType     = m_part->elementType( elmIdx );
-            int            faceCount = RigFemTypes::elmentFaceCount( eType );
+            int            faceCount = RigFemTypes::elementFaceCount( eType );
 
             const int* elmNodeIndices = m_part->connectivities( elmIdx );
 
@@ -300,7 +300,7 @@ cvf::ref<cvf::DrawableGeo>
         const std::vector<cvf::Vec3f>& nodeCoordinates = part->nodes().coordinates;
 
         RigElementType eType     = part->elementType( elmIdx );
-        int            faceCount = RigFemTypes::elmentFaceCount( eType );
+        int            faceCount = RigFemTypes::elementFaceCount( eType );
 
         const int* elmNodeIndices = part->connectivities( elmIdx );
 

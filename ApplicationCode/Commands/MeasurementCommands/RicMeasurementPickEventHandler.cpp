@@ -85,7 +85,7 @@ void RicMeasurementPickEventHandler::enablePolyLineMode( bool polyLineModeEnable
 //--------------------------------------------------------------------------------------------------
 bool RicMeasurementPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eventObject )
 {
-    RimMeasurement* measurement = RiaApplication::instance()->project()->measurement();
+    RimMeasurement* measurement = RimProject::current()->measurement();
 
     if ( measurement && measurement->measurementMode() )
     {

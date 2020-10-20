@@ -17,7 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "Riu3DMainWindowTools.h"
+
+#include "RiaGuiApplication.h"
+#include "RiaLogging.h"
+
 #include "RiuMainWindow.h"
+
+#include <QString>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -58,4 +64,12 @@ void Riu3DMainWindowTools::selectAsCurrentItem( const caf::PdmObject* object, bo
     {
         RiuMainWindow::instance()->selectAsCurrentItem( object, allowActiveViewChange );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Riu3DMainWindowTools::reportAndShowWarning( const QString& warningDialogHeader, const QString& warningtext )
+{
+    RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), warningDialogHeader, warningtext );
 }

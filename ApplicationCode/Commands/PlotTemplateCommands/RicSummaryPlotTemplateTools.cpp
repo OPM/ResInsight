@@ -91,10 +91,9 @@ void RicSummaryPlotTemplateTools::appendSummaryPlotToPlotCollection(
 
     if ( selectedSummaryCases.empty() && selectedEnsembles.empty() ) return;
 
-    RimSummaryPlotCollection* plotColl =
-        RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
+    RimSummaryPlotCollection* plotColl = RimProject::current()->mainPlotCollection()->summaryPlotCollection();
 
-    plotColl->summaryPlots.push_back( summaryPlot );
+    plotColl->addPlot( summaryPlot );
     summaryPlot->resolveReferencesRecursively();
     summaryPlot->initAfterReadRecursively();
 

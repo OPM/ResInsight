@@ -71,13 +71,13 @@ public:
     ~PdmUiTimeEditor() override {}
 
 protected:
-    QWidget* createEditorWidget(QWidget* parent) override;
-    QWidget* createLabelWidget(QWidget* parent) override;
-    void     configureAndUpdateUi(const QString& uiConfigName) override;
+    QWidget* createEditorWidget( QWidget* parent ) override;
+    QWidget* createLabelWidget( QWidget* parent ) override;
+    void     configureAndUpdateUi( const QString& uiConfigName ) override;
 
 protected slots:
     void slotEditingFinished();
-    void slotTimeChanged(const QTime& time);
+    void slotTimeChanged( const QTime& time );
 
 private:
     QPointer<QTimeEdit>       m_timeEdit;

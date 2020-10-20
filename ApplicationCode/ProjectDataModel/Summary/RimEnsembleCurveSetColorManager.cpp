@@ -44,15 +44,15 @@ void AppEnum<RimEnsembleCurveSetColorManager::ColorMode>::setUp()
 //--------------------------------------------------------------------------------------------------
 const std::map<RimRegularLegendConfig::ColorRangesType, cvf::Color3ubArray>
     RimEnsembleCurveSetColorManager::m_ensembleColorRanges(
-        {{RimRegularLegendConfig::GREEN_RED,
+        {{RimRegularLegendConfig::ColorRangesType::GREEN_RED,
           cvf::Color3ubArray( {cvf::Color3ub( 0x00, 0xff, 0x00 ), cvf::Color3ub( 0xff, 0x00, 0x00 )} )},
-         {RimRegularLegendConfig::BLUE_MAGENTA,
+         {RimRegularLegendConfig::ColorRangesType::BLUE_MAGENTA,
           cvf::Color3ubArray( {cvf::Color3ub( 0x00, 0x00, 0xff ), cvf::Color3ub( 0xff, 0x00, 0xff )} )},
-         {RimRegularLegendConfig::RED_LIGHT_DARK,
+         {RimRegularLegendConfig::ColorRangesType::RED_LIGHT_DARK,
           cvf::Color3ubArray( {cvf::Color3ub( 0xff, 0xcc, 0xcc ), cvf::Color3ub( 0x99, 0x00, 0x00 )} )},
-         {RimRegularLegendConfig::GREEN_LIGHT_DARK,
+         {RimRegularLegendConfig::ColorRangesType::GREEN_LIGHT_DARK,
           cvf::Color3ubArray( {cvf::Color3ub( 0xcc, 0xff, 0xcc ), cvf::Color3ub( 0x00, 0x99, 0x00 )} )},
-         {RimRegularLegendConfig::BLUE_LIGHT_DARK,
+         {RimRegularLegendConfig::ColorRangesType::BLUE_LIGHT_DARK,
           cvf::Color3ubArray( {cvf::Color3ub( 0xcc, 0xcc, 0xff ), cvf::Color3ub( 0x00, 0x00, 0x99 )} )}} );
 
 //--------------------------------------------------------------------------------------------------
@@ -68,7 +68,7 @@ const std::map<RimRegularLegendConfig::ColorRangesType, cvf::Color3ubArray>&
 ///
 //--------------------------------------------------------------------------------------------------
 const RimRegularLegendConfig::ColorRangesType RimEnsembleCurveSetColorManager::DEFAULT_ENSEMBLE_COLOR_RANGE =
-    RimRegularLegendConfig::GREEN_RED;
+    RimRegularLegendConfig::ColorRangesType::GREEN_RED;
 
 //--------------------------------------------------------------------------------------------------
 ///

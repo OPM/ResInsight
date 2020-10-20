@@ -20,6 +20,7 @@
 
 #include "RiaVersionInfo.h"
 
+#include "RiuFileDialogTools.h"
 #include "RiuMainWindow.h"
 
 #include "cafClassTypeName.h"
@@ -29,7 +30,7 @@
 #include <QAction>
 #include <QApplication>
 #include <QDateTime>
-#include <QFileDialog>
+#include <QFile>
 #include <QTextStream>
 
 CAF_CMD_SOURCE_INIT( RicExportObjectAndFieldKeywordsFeature, "RicExportObjectAndFieldKeywordsFeature" );
@@ -47,10 +48,9 @@ bool RicExportObjectAndFieldKeywordsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicExportObjectAndFieldKeywordsFeature::onActionTriggered( bool isChecked )
 {
-    QString dir = QFileDialog::getExistingDirectory( RiuMainWindow::instance(),
-                                                     tr( "Select Directory For Export" ),
-                                                     "c:/temp",
-                                                     QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks );
+    QString dir = RiuFileDialogTools::getExistingDirectory( RiuMainWindow::instance(),
+                                                            tr( "Select Directory For Export" ),
+                                                            "c:/temp" );
 
     if ( !dir.isEmpty() )
     {

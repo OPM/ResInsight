@@ -21,7 +21,6 @@
 
 #include "cafPdmPointer.h"
 #include "cafSelectionChangedReceiver.h"
-#include "cafUiStyleSheet.h"
 
 #include <QFrame>
 #include <QGridLayout>
@@ -79,16 +78,18 @@ public:
 
     void setPlotTitle( const QString& plotTitle );
     void setTitleVisible( bool visible );
-    void setFontSize( int fontSize );
-    int  fontSize() const;
+    void setTitleFontSizes( int titleFontSize, int subTitleFontSize );
+    void setLegendFontSize( int legendFontSize );
+    void setAxisFontSizes( int axisTitleFontSize, int axisValueFontSize );
     void setSubTitlesVisible( bool visible );
 
     bool previewModeEnabled() const;
-    void setPreviewModeEnabled( bool previewMode );
+    void setPagePreviewModeEnabled( bool previewMode );
 
     void         scheduleUpdate();
     void         scheduleReplotOfAllPlots();
     virtual void updateVerticalScrollBar( double visibleMin, double visibleMax, double totalMin, double totalMax ) {}
+    void         updateSubTitles();
 
     virtual void renderTo( QPaintDevice* paintDevice );
     void         renderTo( QPainter* painter, double scalingFactor );
@@ -122,9 +123,7 @@ protected:
 
     std::pair<int, int> findAvailableRowAndColumn( int startRow, int startColumn, int columnSpan, int columnCount ) const;
 
-    void stashWidgetStates();
-    void restoreWidgetStates();
-
+    void applyLook();
 private slots:
     virtual void performUpdate();
     void         onLegendUpdated();
@@ -141,6 +140,12 @@ protected:
     QList<QPointer<RiuQwtPlotLegend>> m_legends;
     QList<QPointer<RiuQwtPlotWidget>> m_plotWidgets;
     caf::PdmPointer<RimPlotWindow>    m_plotDefinition;
+
+    int m_titleFontPixelSize;
+    int m_subTitleFontPixelSize;
+    int m_legendFontPixelSize;
+    int m_axisTitleFontSize;
+    int m_axisValueFontSize;
 
     bool m_previewMode;
     bool m_showSubTitles;

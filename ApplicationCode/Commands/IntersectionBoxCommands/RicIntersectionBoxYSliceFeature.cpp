@@ -20,8 +20,6 @@
 
 #include "RicIntersectionFeatureImpl.h"
 
-#include "RiaApplication.h"
-
 #include "RimBoxIntersection.h"
 #include "RimCase.h"
 #include "RimGridView.h"

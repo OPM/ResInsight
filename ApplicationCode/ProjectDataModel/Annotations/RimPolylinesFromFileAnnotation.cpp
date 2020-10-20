@@ -18,6 +18,7 @@
 
 #include "RimPolylinesFromFileAnnotation.h"
 
+#include "RiaLogging.h"
 #include "RigPolyLinesData.h"
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationLineAppearance.h"
@@ -26,7 +27,6 @@
 
 #include <QFile>
 #include <QFileInfo>
-#include <QMessageBox>
 
 CAF_PDM_SOURCE_INIT( RimPolylinesFromFileAnnotation, "PolylinesFromFileAnnotation" );
 
@@ -204,7 +204,7 @@ void RimPolylinesFromFileAnnotation::fieldChangedByUi( const caf::PdmFieldHandle
         if ( !errorMessage.isEmpty() )
         {
             QString totalError = "\nError in: " + this->fileName() + "\n\t" + errorMessage;
-            QMessageBox::warning( nullptr, "Import Polylines", totalError );
+            RiaLogging::errorInMessageBox( nullptr, "Import Polylines", totalError );
         }
     }
     else if ( changedField == &m_showLines )

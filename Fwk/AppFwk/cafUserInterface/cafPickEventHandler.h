@@ -40,7 +40,6 @@
 
 namespace caf
 {
-
 //==================================================================================================
 /// Interface for Pick Events
 //==================================================================================================
@@ -56,12 +55,10 @@ public:
 class PickEventHandler
 {
 public:
-    virtual void registerAsPickEventHandler()                  = 0;
-    virtual void unregisterAsPickEventHandler()                = 0;
+    virtual void registerAsPickEventHandler()   = 0;
+    virtual void unregisterAsPickEventHandler() = 0;
     // TODO: Rename to just handlePickEvent when the RicPickEventHandler::handlePickEvent has been renamed
-    virtual bool handlePickEvent(const PickEvent& eventObject) = 0;
-    virtual void notifyUnregistered()                          = 0;
-
+    virtual bool handlePickEvent( const PickEvent& eventObject ) = 0;
+    virtual void notifyUnregistered()                            = 0;
 };
-}
-
+} // namespace caf

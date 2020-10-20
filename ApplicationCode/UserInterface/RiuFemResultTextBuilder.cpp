@@ -19,6 +19,7 @@
 
 #include "RiuFemResultTextBuilder.h"
 
+#include "RigFemClosestResultIndexCalculator.h"
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
@@ -149,7 +150,8 @@ QString RiuFemResultTextBuilder::geometrySelectionText( QString itemSeparator )
                 QString formattedText;
                 if ( m_2dIntersectionView )
                 {
-                    formattedText.sprintf( "Horizontal length from well start: %.2f", m_intersectionPointInDisplay.x() );
+                    formattedText =
+                        QString( "Horizontal length from well start: %1" ).arg( m_intersectionPointInDisplay.x(), 5, 'f', 2 );
                     text += formattedText + itemSeparator;
 
                     cvf::Mat4d t = m_2dIntersectionView->flatIntersectionPartMgr()->unflattenTransformMatrix(
@@ -157,10 +159,10 @@ QString RiuFemResultTextBuilder::geometrySelectionText( QString itemSeparator )
                     if ( !t.isZero() )
                     {
                         cvf::Vec3d intPt = m_intersectionPointInDisplay.getTransformedPoint( t );
-                        formattedText.sprintf( "Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]",
-                                               intPt.x(),
-                                               intPt.y(),
-                                               -intPt.z() );
+                        formattedText    = QString( "Intersection point : [E: %1, N: %2, Depth: %3]" )
+                                            .arg( intPt.x(), 5, 'f', 2 )
+                                            .arg( intPt.y(), 5, 'f', 2 )
+                                            .arg( -intPt.z(), 5, 'f', 2 );
                         text += formattedText;
                     }
                 }
@@ -171,10 +173,10 @@ QString RiuFemResultTextBuilder::geometrySelectionText( QString itemSeparator )
                         cvf::ref<caf::DisplayCoordTransform> transForm = m_displayCoordView->displayCoordTransform();
                         cvf::Vec3d domainCoord = transForm->translateToDomainCoord( m_intersectionPointInDisplay );
 
-                        formattedText.sprintf( "Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]",
-                                               domainCoord.x(),
-                                               domainCoord.y(),
-                                               -domainCoord.z() );
+                        formattedText = QString( "Intersection point : [E: %1, N: %2, Depth: %3]" )
+                                            .arg( domainCoord.x(), 5, 'f', 2 )
+                                            .arg( domainCoord.y(), 5, 'f', 2 )
+                                            .arg( -domainCoord.z(), 5, 'f', 2 );
                         text += formattedText;
                     }
                 }
@@ -282,14 +284,14 @@ void RiuFemResultTextBuilder::appendTextFromResultColors( RigGeoMechCaseData*   
             {
                 RigFemPart*    femPart         = geomData->femParts()->part( gridIndex );
                 RigElementType elmType         = femPart->elementType( cellIndex );
-                const int*     elmentConn      = femPart->connectivities( cellIndex );
-                int            elmNodeCount    = RigFemTypes::elmentNodeCount( elmType );
+                const int*     elementConn     = femPart->connectivities( cellIndex );
+                int            elmNodeCount    = RigFemTypes::elementNodeCount( elmType );
                 const int*     lElmNodeToIpMap = RigFemTypes::localElmNodeToIntegrationPointMapping( elmType );
 
                 for ( int lNodeIdx = 0; lNodeIdx < elmNodeCount; ++lNodeIdx )
                 {
                     float scalarValue = std::numeric_limits<float>::infinity();
-                    int   nodeIdx     = elmentConn[lNodeIdx];
+                    int   nodeIdx     = elementConn[lNodeIdx];
                     if ( resultDefinition->resultPositionType() == RIG_NODAL ||
                          ( resultDefinition->resultPositionType() == RIG_DIFFERENTIALS &&
                            resultDefinition->resultFieldName() == "POR-Bar" ) )

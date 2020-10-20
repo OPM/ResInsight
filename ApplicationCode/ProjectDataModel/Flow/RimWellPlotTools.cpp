@@ -18,7 +18,6 @@
 
 #include "RimWellPlotTools.h"
 
-#include "RiaApplication.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaWellNameComparer.h"
 
@@ -115,10 +114,11 @@ std::pair<RigEclipseResultAddress, QString>
     {
         for ( const auto& pressureDataName : PRESSURE_DATA_NAMES )
         {
-            if ( eclipseCaseData->results( RiaDefines::MATRIX_MODEL )
-                     ->hasResultEntry( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, pressureDataName ) ) )
+            if ( eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
+                     ->hasResultEntry(
+                         RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, pressureDataName ) ) )
             {
-                return std::make_pair( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, pressureDataName ),
+                return std::make_pair( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, pressureDataName ),
                                        pressureDataName );
             }
         }
@@ -177,7 +177,7 @@ bool RimWellPlotTools::hasFlowData( const RimWellPath* wellPath )
 //--------------------------------------------------------------------------------------------------
 bool RimWellPlotTools::hasAssociatedWellPath( const QString& wellName )
 {
-    RimProject*  proj     = RiaApplication::instance()->project();
+    RimProject*  proj     = RimProject::current();
     RimWellPath* wellPath = proj->wellPathByName( wellName );
 
     return wellPath != nullptr;
@@ -232,8 +232,8 @@ bool RimWellPlotTools::hasFlowData( RimEclipseResultCase* gridCase )
 
     for ( const QString& channelName : FLOW_DATA_NAMES )
     {
-        if ( eclipseCaseData->results( RiaDefines::MATRIX_MODEL )
-                 ->hasResultEntry( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, channelName ) ) )
+        if ( eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
+                 ->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, channelName ) ) )
         {
             return true;
         }
@@ -275,7 +275,7 @@ void RimWellPlotTools::addTimeStepsToMap( std::map<QDateTime, std::set<RifDataSo
 std::vector<RimWellLogFile*> RimWellPlotTools::wellLogFilesContainingPressure( const QString& wellPathNameOrSimWellName )
 {
     std::vector<RimWellLogFile*> wellLogFiles;
-    const RimProject* const      project   = RiaApplication::instance()->project();
+    const RimProject* const      project   = RimProject::current();
     std::vector<RimWellPath*>    wellPaths = project->allWellPaths();
 
     for ( auto wellPath : wellPaths )
@@ -323,7 +323,7 @@ RimWellLogFileChannel* RimWellPlotTools::getPressureChannelFromWellFile( const R
 std::vector<RimWellLogFile*> RimWellPlotTools::wellLogFilesContainingFlow( const QString& wellPathName )
 {
     std::vector<RimWellLogFile*> wellLogFiles;
-    const RimProject* const      project   = RiaApplication::instance()->project();
+    const RimProject* const      project   = RimProject::current();
     std::vector<RimWellPath*>    wellPaths = project->allWellPaths();
 
     for ( auto wellPath : wellPaths )
@@ -349,7 +349,7 @@ std::vector<RimWellLogFile*> RimWellPlotTools::wellLogFilesContainingFlow( const
 //--------------------------------------------------------------------------------------------------
 RimWellPath* RimWellPlotTools::wellPathFromWellLogFile( const RimWellLogFile* wellLogFile )
 {
-    RimProject* const project = RiaApplication::instance()->project();
+    RimProject* const project = RimProject::current();
     for ( const auto& oilField : project->oilFields )
     {
         auto wellPaths = std::vector<RimWellPath*>( oilField->wellPathCollection()->wellPaths.begin(),
@@ -376,7 +376,7 @@ RimWellPath* RimWellPlotTools::wellPathFromWellLogFile( const RimWellLogFile* we
 std::vector<RimEclipseResultCase*> RimWellPlotTools::gridCasesForWell( const QString& simWellName )
 {
     std::vector<RimEclipseResultCase*> cases;
-    const RimProject*                  project = RiaApplication::instance()->project();
+    const RimProject*                  project = RimProject::current();
 
     for ( RimEclipseCase* eclCase : project->eclipseCases() )
     {
@@ -399,7 +399,7 @@ std::vector<RimEclipseResultCase*> RimWellPlotTools::gridCasesForWell( const QSt
 std::vector<RimEclipseResultCase*> RimWellPlotTools::rftCasesForWell( const QString& simWellName )
 {
     std::vector<RimEclipseResultCase*> cases;
-    const RimProject*                  project = RiaApplication::instance()->project();
+    const RimProject*                  project = RimProject::current();
 
     for ( RimEclipseCase* eclCase : project->eclipseCases() )
     {
@@ -418,7 +418,7 @@ std::vector<RimEclipseResultCase*> RimWellPlotTools::rftCasesForWell( const QStr
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCaseCollection*> RimWellPlotTools::rftEnsemblesForWell( const QString& simWellName )
 {
-    const RimProject* project = RiaApplication::instance()->project();
+    const RimProject* project = RimProject::current();
 
     std::vector<RimSummaryCaseCollection*> allSummaryCaseCollections = project->summaryGroups();
 
@@ -440,7 +440,7 @@ std::vector<RimSummaryCaseCollection*> RimWellPlotTools::rftEnsemblesForWell( co
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCaseCollection*> RimWellPlotTools::rftEnsembles()
 {
-    const RimProject* project = RiaApplication::instance()->project();
+    const RimProject* project = RimProject::current();
 
     std::vector<RimSummaryCaseCollection*> allSummaryCaseCollections = project->summaryGroups();
 
@@ -478,7 +478,7 @@ std::vector<RimObservedFmuRftData*> RimWellPlotTools::observedFmuRftDataForWell(
 //--------------------------------------------------------------------------------------------------
 std::vector<RimObservedFmuRftData*> RimWellPlotTools::observedFmuRftData()
 {
-    const RimProject*          project = RiaApplication::instance()->project();
+    const RimProject*          project = RimProject::current();
     RimObservedDataCollection* observedDataCollection =
         project->activeOilField() ? project->activeOilField()->observedDataCollection() : nullptr;
 
@@ -501,7 +501,7 @@ std::map<QDateTime, std::set<RifDataSourceForRftPlt>> RimWellPlotTools::timeStep
     if ( resultDataInfo.first.isValid() )
     {
         for ( const QDateTime& timeStep :
-              eclipseCaseData->results( RiaDefines::MATRIX_MODEL )->timeStepDates( resultDataInfo.first ) )
+              eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->timeStepDates( resultDataInfo.first ) )
         {
             if ( timeStepsMap.count( timeStep ) == 0 )
             {
@@ -555,14 +555,18 @@ std::set<QDateTime> RimWellPlotTools::availableSimWellTimesteps( RimEclipseCase*
 {
     std::set<QDateTime> availebleTimeSteps;
 
-    std::vector<QDateTime> allTimeSteps = eclCase->eclipseCaseData()->results( RiaDefines::MATRIX_MODEL )->timeStepDates();
-    const RigSimWellData* simWell       = eclCase->eclipseCaseData()->findSimWellData( simWellName );
-
-    for ( size_t tsIdx = 0; tsIdx < allTimeSteps.size(); ++tsIdx )
+    if ( eclCase && eclCase->eclipseCaseData() )
     {
-        if ( simWell->hasWellResult( tsIdx ) || ( addFirstReportTimestep && tsIdx == 0 ) )
+        std::vector<QDateTime> allTimeSteps =
+            eclCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->timeStepDates();
+        const RigSimWellData* simWell = eclCase->eclipseCaseData()->findSimWellData( simWellName );
+
+        for ( size_t tsIdx = 0; tsIdx < allTimeSteps.size(); ++tsIdx )
         {
-            availebleTimeSteps.insert( allTimeSteps[tsIdx] );
+            if ( simWell->hasWellResult( tsIdx ) || ( addFirstReportTimestep && tsIdx == 0 ) )
+            {
+                availebleTimeSteps.insert( allTimeSteps[tsIdx] );
+            }
         }
     }
 
@@ -660,7 +664,7 @@ RiaRftPltCurveDefinition RimWellPlotTools::curveDefFromCurve( const RimWellLogCu
 //--------------------------------------------------------------------------------------------------
 RimWellPath* RimWellPlotTools::wellPathByWellPathNameOrSimWellName( const QString& wellPathNameOrSimwellName )
 {
-    RimProject*  proj     = RiaApplication::instance()->project();
+    RimProject*  proj     = RimProject::current();
     RimWellPath* wellPath = proj->wellPathByName( wellPathNameOrSimwellName );
 
     return wellPath != nullptr ? wellPath : proj->wellPathFromSimWellName( wellPathNameOrSimwellName );
@@ -833,13 +837,13 @@ QString flowConditionReservoirUnitText( RiaEclipseUnitTools::UnitSystem unitSyst
 
     switch ( unitSystem )
     {
-        case RiaEclipseUnitTools::UNITS_METRIC:
+        case RiaEclipseUnitTools::UnitSystem::UNITS_METRIC:
             unitText = "[m<sup>3</sup>/day]";
             break;
-        case RiaEclipseUnitTools::UNITS_FIELD:
+        case RiaEclipseUnitTools::UnitSystem::UNITS_FIELD:
             unitText = "[Brl/day]";
             break;
-        case RiaEclipseUnitTools::UNITS_LAB:
+        case RiaEclipseUnitTools::UnitSystem::UNITS_LAB:
             unitText = "[cm<sup>3</sup>/hr]";
             break;
         default:
@@ -865,13 +869,13 @@ QString RimWellPlotTools::flowUnitText( RimWellLogFile::WellFlowCondition condit
     {
         switch ( unitSystem )
         {
-            case RiaEclipseUnitTools::UNITS_METRIC:
+            case RiaEclipseUnitTools::UnitSystem::UNITS_METRIC:
                 unitText = "[Liquid Sm<sup>3</sup>/day], [Gas kSm<sup>3</sup>/day]";
                 break;
-            case RiaEclipseUnitTools::UNITS_FIELD:
+            case RiaEclipseUnitTools::UnitSystem::UNITS_FIELD:
                 unitText = "[Liquid BBL/day], [Gas BOE/day]";
                 break;
-            case RiaEclipseUnitTools::UNITS_LAB:
+            case RiaEclipseUnitTools::UnitSystem::UNITS_LAB:
                 unitText = "[cm<sup>3</sup>/hr]";
                 break;
             default:
@@ -899,7 +903,7 @@ QString RimWellPlotTools::curveUnitText( RimWellLogFile::WellFlowCondition condi
     {
         switch ( unitSystem )
         {
-            case RiaEclipseUnitTools::UNITS_METRIC:
+            case RiaEclipseUnitTools::UnitSystem::UNITS_METRIC:
                 switch ( flowPhase )
                 {
                     case FLOW_PHASE_GAS:
@@ -915,7 +919,7 @@ QString RimWellPlotTools::curveUnitText( RimWellLogFile::WellFlowCondition condi
                 }
                 break;
 
-            case RiaEclipseUnitTools::UNITS_FIELD:
+            case RiaEclipseUnitTools::UnitSystem::UNITS_FIELD:
                 switch ( flowPhase )
                 {
                     case FLOW_PHASE_GAS:
@@ -930,7 +934,7 @@ QString RimWellPlotTools::curveUnitText( RimWellLogFile::WellFlowCondition condi
                         break;
                 }
                 break;
-            case RiaEclipseUnitTools::UNITS_LAB:
+            case RiaEclipseUnitTools::UnitSystem::UNITS_LAB:
                 unitText = "[cm<sup>3</sup>/hr]";
                 break;
             default:
@@ -1192,14 +1196,14 @@ void RimWellPlotTools::calculateValueOptionsForTimeSteps(
     QString dateFormatString;
     {
         std::vector<QDateTime> allTimeSteps;
-        for ( const std::pair<QDateTime, std::set<RifDataSourceForRftPlt>>& timeStepPair : timestepsToShowWithSources )
+        for ( const std::pair<const QDateTime, std::set<RifDataSourceForRftPlt>>& timeStepPair : timestepsToShowWithSources )
         {
             allTimeSteps.push_back( timeStepPair.first );
         }
         dateFormatString = RiaQDateTimeTools::createTimeFormatStringFromDates( allTimeSteps );
     }
 
-    for ( const std::pair<QDateTime, std::set<RifDataSourceForRftPlt>>& timeStepPair : timestepsToShowWithSources )
+    for ( const std::pair<const QDateTime, std::set<RifDataSourceForRftPlt>>& timeStepPair : timestepsToShowWithSources )
     {
         QString optionText = RiaQDateTimeTools::toStringUsingApplicationLocale( timeStepPair.first, dateFormatString );
 

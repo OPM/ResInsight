@@ -34,27 +34,26 @@
 //
 //##################################################################################################
 
-#include "cafPdmObjectHandle.h"
 #include "cafPdmPointer.h"
+#include "cafPdmObjectHandle.h"
 
-namespace caf 
+namespace caf
 {
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmPointerImpl::addReference(PdmObjectHandle ** addressToObjectPointer)
+void PdmPointerImpl::addReference( PdmObjectHandle** addressToObjectPointer )
 {
-    if (*addressToObjectPointer) (*addressToObjectPointer)->m_pointersReferencingMe.insert(addressToObjectPointer);
+    if ( *addressToObjectPointer )
+        ( *addressToObjectPointer )->m_pointersReferencingMe.insert( addressToObjectPointer );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmPointerImpl::removeReference(PdmObjectHandle ** addressToObjectPointer)
+void PdmPointerImpl::removeReference( PdmObjectHandle** addressToObjectPointer )
 {
-    if (*addressToObjectPointer)  (*addressToObjectPointer)->m_pointersReferencingMe.erase(addressToObjectPointer);
+    if ( *addressToObjectPointer ) ( *addressToObjectPointer )->m_pointersReferencingMe.erase( addressToObjectPointer );
 }
 
 } // End of namespace caf

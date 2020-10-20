@@ -18,8 +18,6 @@
 
 #include "RicShowContributingWellsFeatureImpl.h"
 
-#include "RiaApplication.h"
-
 #include "RicSelectOrCreateViewFeatureImpl.h"
 
 #include "RigFlowDiagResultAddress.h"
@@ -109,7 +107,7 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells( Rim
     }
 
     viewToModify->setCurrentTimeStep( timeStep );
-    viewToModify->cellResult()->setResultType( RiaDefines::FLOW_DIAGNOSTICS );
+    viewToModify->cellResult()->setResultType( RiaDefines::ResultCatType::FLOW_DIAGNOSTICS );
     viewToModify->cellResult()->setResultVariable( "MaxFractionTracer" );
     viewToModify->cellResult()->setFlowSolution( flowDiagSolution );
 

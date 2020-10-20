@@ -45,6 +45,7 @@
 #include <cmath>
 #include <deque>
 #include <limits>
+#include <thread>
 
 #define ALLOCATION_CHUNK_SIZE 10000
 
@@ -69,8 +70,7 @@ namespace cvf {
     {
         AB_UNDEFINED,
         AB_LEAF,
-        AB_INTERNAL,
-        AB_LEAF_GROUP
+        AB_INTERNAL
     };
 
 
@@ -88,6 +88,7 @@ namespace cvf {
 
         const cvf::BoundingBox& boundingBox() const;
         void                    setBoundingBox(const cvf::BoundingBox bb);
+        const cvf::Vec3d&       boundingBoxCenter() const;
 
         NodeType                type() const;
 
@@ -96,6 +97,7 @@ namespace cvf {
 
     private:
         cvf::BoundingBox        m_boundingBox;
+        cvf::Vec3d              m_boundingBoxCenter;
     };
 
 
@@ -138,27 +140,6 @@ namespace cvf {
         size_t m_index;					///< An index of the leaf node. The interpretation of this index is depending on which tree the node is in.
     };
 
-
-    //=================================================================================================================================
-    /// Group leaf node in the AABB tree. The leaf node contains an array with indices, and the interpretation of these are depending on
-    /// the type of AABB tree using the node.
-    //=================================================================================================================================
-    class AABBTreeNodeLeafGroup : public AABBTreeNode
-    {
-    public:
-        AABBTreeNodeLeafGroup();
-
-        size_t                          addIndex(size_t index);
-        const std::vector<size_t>&      indices() const;
-
-        void                            sort();
-
-    private:
-        std::vector<size_t> m_indices;		///< The interpretation of these indices is depending on which tree the node is in.
-    };
-
-
-
     //=================================================================================================================================
     //
     /// An axis oriented bounding box tree. This is an abstract base class for AABB trees used for searching and intersection testing.
@@ -190,40 +171,45 @@ namespace cvf {
         cvf::String treeInfo() const;
 
     protected:
-        virtual bool   createLeaves() = 0;
+        virtual cvf::BoundingBox createLeaves() = 0;
         virtual size_t treeNodeSize(const AABBTreeNode* pNode) const;
-
-        virtual AABBTreeNodeLeafGroup* createGroupNode(size_t iStartIdx, size_t iEndIdx);
 
         void   freeThis();
 
         size_t treeSize(const AABBTreeNode* pNode) const;
         size_t treeHeight(const AABBTreeNode* pNode, size_t iLevel, size_t* piMin, size_t* piMax) const;
-        void   leafBoundingBox(cvf::BoundingBox& pBox, size_t iStartIdx, size_t iEndIdx) const;
-        bool   buildTree(AABBTreeNodeInternal* pNode, size_t iFromIdx, size_t iToIdx);
+        cvf::BoundingBox leafBoundingBox(size_t iStartIdx, size_t iEndIdx) const;
+        bool buildTree(AABBTreeNodeInternal* pNode, size_t iFromIdx, size_t iToIdx, int currentLevel, int maxLevel = -1);
 
         // Queries
         bool intersect(const AABBTreeNode* pA, const AABBTreeNode* pB) const;
 
         AABBTreeNodeInternal*  createNode();
-        AABBTreeNodeLeaf*      createLeaf(size_t bbId);
-        AABBTreeNodeLeafGroup* createLeafGroup();
+        AABBTreeNodeLeaf*      createOrAssignLeaf(size_t leafIndex, size_t bbId);
 
     protected:
+        struct InternalNodeAndRange
+        {
+            AABBTreeNodeInternal* node;
+            size_t fromIdx;
+            size_t toIdx;
+
+            InternalNodeAndRange(AABBTreeNodeInternal* node, size_t fromIdx, size_t toIdx)
+                : node(node)
+                , fromIdx(fromIdx)
+                , toIdx(toIdx)
+            {}
+        };
+
         std::vector<AABBTreeNodeLeaf*> m_ppLeaves;
         size_t m_iNumLeaves;
 
         AABBTreeNode* m_pRoot;
 
-        bool m_bUseGroupNodes;
-        size_t m_iGroupLimit;
+        std::vector<AABBTreeNodeLeaf>      m_leafPool;
+        size_t                             m_nextNodeIndex;
 
-        std::deque<AABBTreeNodeInternal>  m_nodePool;
-        std::deque<AABBTreeNodeLeaf>      m_leafPool;
-        std::deque<AABBTreeNodeLeafGroup> m_leafGroupPool;
-        size_t                            m_nextNodeIndex;
-        size_t                            m_nextLeafIndex;
-        size_t                            m_nextLeafGroupIndex;
+        std::vector<InternalNodeAndRange>  m_previousLevelNodes;
     };
 
     class BoundingBoxTreeImpl : public AABBTree
@@ -233,13 +219,13 @@ namespace cvf {
     private:
         friend class BoundingBoxTree;
 
-        bool createLeaves();
+        cvf::BoundingBox createLeaves();
         void findIntersections(const cvf::BoundingBox& bb, std::vector<size_t>& bbIds) const;
 
         void findIntersections(const cvf::BoundingBox& bb, const AABBTreeNode* node, std::vector<size_t>& indices) const;
 
-        const std::vector<cvf::BoundingBox>* m_boundingBoxes;
-        const std::vector<size_t>* m_optionalBoundingBoxIds;
+        std::vector<cvf::BoundingBox> m_validBoundingBoxes;
+        std::vector<size_t>           m_validOptionalBoundingBoxIds;
     };
 }
 
@@ -329,8 +315,17 @@ NodeType AABBTreeNode::type() const
 void AABBTreeNode::setBoundingBox(const cvf::BoundingBox bb)
 {
     m_boundingBox = bb;
+    m_boundingBoxCenter = m_boundingBox.center();
 }
 
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const cvf::Vec3d& AABBTreeNode::boundingBoxCenter() const
+{
+    return m_boundingBoxCenter;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -437,51 +432,12 @@ void AABBTreeNodeLeaf::setIndex(size_t index)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t AABBTreeNodeLeafGroup::addIndex(size_t index)
-{
-    m_indices.push_back(index);
-
-    return m_indices.size() - 1;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::vector<size_t>& AABBTreeNodeLeafGroup::indices() const
-{
-    return m_indices;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-AABBTreeNodeLeafGroup::AABBTreeNodeLeafGroup()
-{
-    m_type = AB_LEAF_GROUP;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void AABBTreeNodeLeafGroup::sort()
-{
-    std::sort(m_indices.begin(), m_indices.end());
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 AABBTree::AABBTree()
 {
     m_pRoot = NULL;
     m_iNumLeaves = 0;
 
-    m_bUseGroupNodes = false;
-    m_iGroupLimit = 33;
-
     m_nextNodeIndex      = 0u;
-    m_nextLeafIndex      = 0u;
-    m_nextLeafGroupIndex = 0u;
 //    ResetStatistics();
 }
 
@@ -507,128 +463,139 @@ void AABBTree::free()
 bool AABBTree::buildTree()
 {
 
-	// Possibly delete the tree before building it
-	freeThis();
+    // Possibly delete the tree before building it
+    freeThis();
 
-	// First, create all the leaves
-	if (!createLeaves()) return false;
+    // First, create all the leaves
+    cvf::BoundingBox box = createLeaves();
 
-	if (m_iNumLeaves == 0) return true;
+    if (m_iNumLeaves == 0) return true;
 
-    m_nodePool.resize(m_iNumLeaves);
-
-	// Then find the bounding box of all items in the tree
-	cvf::BoundingBox box;
-	leafBoundingBox(box, 0, m_iNumLeaves - 1);
-
-	// Create the root
-	if (m_iNumLeaves == 1)
-	{
-		m_pRoot = m_ppLeaves[0];
-		
-		return true;
-	}
+    // Create the root
+    if (m_iNumLeaves == 1)
+    {
+        m_pRoot = m_ppLeaves[0];
+        
+        return true;
+    }
 
     m_pRoot = createNode();
-	m_pRoot->setBoundingBox(box);
-		
-	bool bRes = buildTree((AABBTreeNodeInternal*)m_pRoot, 0, m_iNumLeaves - 1);
+    m_pRoot->setBoundingBox(box);
+        
+    bool bRes = buildTree((AABBTreeNodeInternal*)m_pRoot, 0, m_iNumLeaves - 1, 0, 4);
 
-	return bRes;
+#pragma omp parallel
+    {
+        bool bThreadRes = bRes;
+#pragma omp for
+        for (int i = 0; i < static_cast<int>(m_previousLevelNodes.size()); ++i)
+        {
+            bThreadRes = bThreadRes && buildTree(m_previousLevelNodes[i].node, m_previousLevelNodes[i].fromIdx, m_previousLevelNodes[i].toIdx, 4);
+        }
+#pragma omp critical
+        {
+            bRes = bRes && bThreadRes;
+        }
+    }
+    m_previousLevelNodes.clear();
+
+    return bRes;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool AABBTree::buildTree(AABBTreeNodeInternal* pNode, size_t iFromIdx, size_t iToIdx)
+bool AABBTree::buildTree(AABBTreeNodeInternal* pNode, size_t iFromIdx, size_t iToIdx, int currentLevel, int maxLevel)
 {
-    if (!pNode->boundingBox().isValid()) return false;
+    if (currentLevel == maxLevel)
+    {
+        m_previousLevelNodes.emplace_back(pNode, iFromIdx, iToIdx);
+        return true;
+    }
 
-	int iLongestAxis = largestComponent(pNode->boundingBox().extent());
+    int iLongestAxis = largestComponent(pNode->boundingBox().extent());
 
-	double splitValue = pNode->boundingBox().center()[iLongestAxis];
-	size_t i = iFromIdx;
-	size_t iMid = iToIdx;
+    double splitValue = pNode->boundingBoxCenter()[iLongestAxis];
+    size_t i = iFromIdx;
+    size_t iMid = iToIdx;
 
-//=================================================================================================================================
-//
-// Geometric split tree - best!
-//
-//=================================================================================================================================
-	// Order the leaves according to the position of the center of each BB in comparison with longest axis of the BB
-	while (i < iMid)
-	{
-		if (!(m_ppLeaves[i]->boundingBox().isValid()) || m_ppLeaves[i]->boundingBox().center()[iLongestAxis] < splitValue)
-		{
-			// Ok, move on
-			i++;
-		}
-		else
-		{
-			// Swap, and move iMid back
-			AABBTreeNodeLeaf* pTemp = m_ppLeaves[i];
-			m_ppLeaves[i] = m_ppLeaves[iMid];
-			m_ppLeaves[iMid] = pTemp;
-			
-			iMid--;
-		}
-	}
+    //=================================================================================================================================
+    //
+    // Geometric split tree - best!
+    //
+    //=================================================================================================================================
+    // Order the leaves according to the position of the center of each BB in comparison with longest axis of the BB
+    while (i < iMid)
+    {
+        if (m_ppLeaves[i]->boundingBoxCenter()[iLongestAxis] < splitValue)
+        {
+            // Ok, move on
+            i++;
+        }
+        else
+        {
+            // Swap, and move iMid back
+            AABBTreeNodeLeaf* pTemp = m_ppLeaves[i];
+            m_ppLeaves[i] = m_ppLeaves[iMid];
+            m_ppLeaves[iMid] = pTemp;
+            
+            iMid--;
+        }
+    }
 
-	if ((iMid == iFromIdx) || (iMid == iToIdx))
-	{
-		iMid = (iToIdx + iFromIdx)/2;
-	}
+    if ((iMid == iFromIdx) || (iMid == iToIdx))
+    {
+        iMid = (iToIdx + iFromIdx)/2;
+    }
+    else
+    {
+        const size_t maxInbalance = 1000u;
+        size_t rangeA = iMid - iFromIdx;
+        size_t rangeB = iToIdx - iMid;
+        if (rangeA > maxInbalance * rangeB || rangeB > maxInbalance * rangeA)
+        {
+            // Extremely imbalanced tree. Sort leaves and chose iMid as the median of the centres.
+            std::sort(m_ppLeaves.begin() + iFromIdx, m_ppLeaves.begin() + iToIdx, [=](const AABBTreeNodeLeaf* lhs, const AABBTreeNodeLeaf* rhs)
+            {
+                return lhs->boundingBoxCenter()[iLongestAxis] < rhs->boundingBoxCenter()[iLongestAxis];
+            });
+            iMid = (iToIdx + iFromIdx)/2;
+        }
+    }
 
-	// Create the left tree
-	if (iMid > iFromIdx)
-	{
-		if (m_bUseGroupNodes && ((iMid - iFromIdx + 1) < m_iGroupLimit))
-		{
+    // Create the left tree
+    if (iMid > iFromIdx)
+    {
+        cvf::BoundingBox box = leafBoundingBox(iFromIdx, iMid);
 
-			pNode->setLeft(createGroupNode(iFromIdx, iMid));
-		}
-		else
-		{
-			cvf::BoundingBox box;
-			leafBoundingBox(box, iFromIdx, iMid);
+        AABBTreeNodeInternal* newNode = createNode();
+        newNode->setBoundingBox(box);
+        pNode->setLeft(newNode);
 
-            AABBTreeNodeInternal* newNode = createNode();
-			newNode->setBoundingBox(box);
-            pNode->setLeft(newNode);
+        if (!buildTree((AABBTreeNodeInternal*)pNode->left(), iFromIdx, iMid, currentLevel + 1, maxLevel)) return false;
+    }
+    else
+    {
+        pNode->setLeft(m_ppLeaves[iFromIdx]);
+    }
 
-			if (!buildTree((AABBTreeNodeInternal*)pNode->left(), iFromIdx, iMid)) return false;
-		}
-	}
-	else
-	{
-		pNode->setLeft(m_ppLeaves[iFromIdx]);
-	}
+    // Create the right tree
+    if (iMid < (iToIdx - 1))
+    {
+        cvf::BoundingBox box = leafBoundingBox(iMid + 1, iToIdx);
 
-	// Create the right tree
-	if (iMid < (iToIdx - 1))
-	{
-		if (m_bUseGroupNodes && ((iToIdx - (iMid + 1) + 1) < m_iGroupLimit))
-		{
-			pNode->setRight(createGroupNode(iMid + 1, iToIdx));
-		}
-		else
-		{
-            cvf::BoundingBox box;
-			leafBoundingBox(box, iMid + 1, iToIdx);
+        AABBTreeNodeInternal* newNode = createNode();
+        newNode->setBoundingBox(box);
+        pNode->setRight(newNode);
 
-            AABBTreeNodeInternal* newNode = createNode();
-            newNode->setBoundingBox(box);
-            pNode->setRight(newNode);
+        if (!buildTree((AABBTreeNodeInternal*)pNode->right(), iMid + 1, iToIdx, currentLevel + 1, maxLevel)) return false;
+    }
+    else
+    {
+        pNode->setRight(m_ppLeaves[iToIdx]);
+    }
 
-			if (!buildTree((AABBTreeNodeInternal*)pNode->right(), iMid + 1, iToIdx)) return false;
-		}
-	}
-	else
-	{
-		pNode->setRight(m_ppLeaves[iToIdx]);
-	}
-
-	return true;
+    return true;
 
 }
 //--------------------------------------------------------------------------------------------------
@@ -643,64 +610,30 @@ void AABBTree::freeThis()
     }
 
     m_ppLeaves.clear();
-    
-    m_nodePool.clear();
     m_leafPool.clear();
-    m_leafGroupPool.clear();
 
-    m_iNumLeaves = 0;
+    m_previousLevelNodes.clear();
 
+    m_iNumLeaves    = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-AABBTreeNodeLeafGroup* AABBTree::createGroupNode(size_t iStartIdx, size_t iEndIdx)
-{
-    size_t iNumItems = iEndIdx - iStartIdx + 1;
-    CVF_ASSERT(iNumItems > 1);
-
-    AABBTreeNodeLeafGroup* pNode = createLeafGroup();
-    if (!pNode) return NULL;
-
-    cvf::BoundingBox bb;
-    leafBoundingBox(bb, iStartIdx, iEndIdx);
-    pNode->setBoundingBox(bb);
-
-    size_t i;
-    for (i = iStartIdx; i <= iEndIdx; i++)
-    {
-        pNode->addIndex(m_ppLeaves[i]->index());
-
-        m_ppLeaves[i] = NULL;
-    }
-
-    // Sort the element indices (this is not really required)
-    // This is done to give then same result as the old implementation that did just a linear search in cases where
-    // the points are on the element surfaces and thus will give multiple hits.
-    // 
-    // The performance hit of this seems very small.
-    pNode->sort();
-
-    return pNode;
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void AABBTree::leafBoundingBox(cvf::BoundingBox& bb, size_t iStartIdx, size_t iEndIdx) const
+cvf::BoundingBox AABBTree::leafBoundingBox(size_t iStartIdx, size_t iEndIdx) const
 {
     CVF_ASSERT(iStartIdx <= iEndIdx);
 
-    bb.reset();
+    cvf::BoundingBox bb;
 
     size_t i;
     for (i = iStartIdx; i <= iEndIdx; i++)
     {
         CVF_ASSERT(m_ppLeaves[i]);
-        bb.add(m_ppLeaves[i]->boundingBox());
+        bb.addValid(m_ppLeaves[i]->boundingBox());
     }
+
+    return bb;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -711,11 +644,6 @@ size_t AABBTree::treeSize(const AABBTreeNode* pNode) const
     CVF_ASSERT(pNode);
 
     if (pNode->type() == AB_LEAF)
-    {
-        return treeNodeSize(pNode);
-    }
-
-    if (pNode->type() == AB_LEAF_GROUP)
     {
         return treeNodeSize(pNode);
     }
@@ -744,12 +672,6 @@ size_t AABBTree::treeNodeSize(const AABBTreeNode* pNode) const
 
     if (pNode->type() == AB_INTERNAL)	return sizeof(AABBTreeNodeInternal);
     if (pNode->type() == AB_LEAF)		return sizeof(AABBTreeNodeLeaf);
-    if (pNode->type() == AB_LEAF_GROUP)
-    {
-        const AABBTreeNodeLeafGroup* pLeafGroup = (const AABBTreeNodeLeafGroup*)pNode;
-
-        return static_cast<size_t>(sizeof(AABBTreeNodeLeafGroup) + static_cast<size_t>(pLeafGroup->indices().size()) * sizeof(cvf::uint));
-    }
 
     // Should not get here...
     CVF_ASSERT(0);
@@ -764,7 +686,7 @@ size_t AABBTree::treeHeight(const AABBTreeNode* pNode, size_t iLevel, size_t* pi
 {
     CVF_ASSERT(pNode);
 
-    if ((pNode->type() == AB_LEAF) || (pNode->type() == AB_LEAF_GROUP))
+    if (pNode->type() == AB_LEAF)
     {
         if (iLevel < *piMin) *piMin = iLevel;
         if (iLevel > *piMax) *piMax = iLevel;
@@ -818,11 +740,11 @@ bool AABBTree::boundingBox(cvf::BoundingBox* pBox) const
 {
     CVF_ASSERT(pBox);
 
-	if (!m_pRoot) return false;
-	
-	*pBox = m_pRoot->boundingBox();
+    if (!m_pRoot) return false;
+    
+    *pBox = m_pRoot->boundingBox();
 
-	return true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -846,63 +768,53 @@ bool AABBTree::intersect(const AABBTreeNode* pA, const AABBTreeNode* pB) const
 //--------------------------------------------------------------------------------------------------
 cvf::AABBTreeNodeInternal* AABBTree::createNode()
 {
-    if (m_nextNodeIndex >= m_nodePool.size())
-    {
-        m_nodePool.resize(m_nodePool.size() + ALLOCATION_CHUNK_SIZE);
-    }
-    return &m_nodePool[m_nextNodeIndex++];
+    return new AABBTreeNodeInternal;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::AABBTreeNodeLeaf* AABBTree::createLeaf(size_t bbId)
+cvf::AABBTreeNodeLeaf* AABBTree::createOrAssignLeaf(size_t leafIndex, size_t bbId)
 {
-    if (m_nextLeafIndex >= m_leafPool.size())
-    {
-        m_leafPool.resize(m_leafPool.size() + ALLOCATION_CHUNK_SIZE);
-    }
-    cvf::AABBTreeNodeLeaf* leaf = &m_leafPool[m_nextLeafIndex++];
+    cvf::AABBTreeNodeLeaf* leaf = &m_leafPool[leafIndex];
     leaf->setIndex(bbId);
     return leaf;
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::AABBTreeNodeLeafGroup* AABBTree::createLeafGroup()
-{
-    if (m_nextLeafGroupIndex >= m_leafGroupPool.size())
-    {
-        m_leafGroupPool.resize(m_leafGroupPool.size() + ALLOCATION_CHUNK_SIZE);
-    }
-    return &m_leafGroupPool[m_nextLeafGroupIndex++];
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Creates leafs for the supplied valid bounding boxes, keeping the original index 
 //--------------------------------------------------------------------------------------------------
-bool BoundingBoxTreeImpl::createLeaves()
+cvf::BoundingBox BoundingBoxTreeImpl::createLeaves()
 {
-    m_leafPool.resize(m_boundingBoxes->size());
+    cvf::BoundingBox box;
 
-    size_t i;
-    for (i = 0; i < m_boundingBoxes->size(); i++)
+    m_leafPool.resize(m_validBoundingBoxes.size());
+    m_ppLeaves.resize(m_validBoundingBoxes.size());
+
+#pragma omp parallel
     {
-        if (!(*m_boundingBoxes)[i].isValid()) continue;
-        size_t bbId = i;
-        if (m_optionalBoundingBoxIds) bbId = (*m_optionalBoundingBoxIds)[i];
+        cvf::BoundingBox threadBox;
+#pragma omp for
+        for (int i = 0; i < (int)m_validBoundingBoxes.size(); i++)
+        {
+            size_t bbId = i;
+            if (!m_validOptionalBoundingBoxIds.empty()) bbId = m_validOptionalBoundingBoxIds[i];
 
-        AABBTreeNodeLeaf* leaf = createLeaf(bbId);
-        
-        leaf->setBoundingBox((*m_boundingBoxes)[i]);
+            AABBTreeNodeLeaf* leaf = createOrAssignLeaf(i, bbId);
 
-        m_ppLeaves.push_back(leaf);
+            leaf->setBoundingBox(m_validBoundingBoxes[i]);
+
+            m_ppLeaves[i] = leaf;
+            threadBox.addValid(m_validBoundingBoxes[i]);
+        }
+#pragma omp critical
+        {
+            box.addValid(threadBox);
+        }
     }
-
     m_iNumLeaves = m_ppLeaves.size();
 
-    return true;
+    return box;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -970,11 +882,23 @@ void BoundingBoxTree::buildTreeFromBoundingBoxes(const std::vector<cvf::Bounding
 {
     if (optionalBoundingBoxIds) CVF_ASSERT(boundingBoxes.size() == optionalBoundingBoxIds->size());
 
-    m_implTree->m_boundingBoxes = &boundingBoxes;
-    m_implTree->m_optionalBoundingBoxIds = optionalBoundingBoxIds;
+    m_implTree->m_validBoundingBoxes.clear();
+    m_implTree->m_validBoundingBoxes.reserve(boundingBoxes.size());
+    if (optionalBoundingBoxIds)
+        m_implTree->m_validOptionalBoundingBoxIds.reserve(optionalBoundingBoxIds->size());
 
-    m_implTree->buildTree();
- 
+    for (int i = 0; i < (int)boundingBoxes.size(); ++i)
+    {
+        if (boundingBoxes[i].isValid())
+        {
+            m_implTree->m_validBoundingBoxes.push_back(boundingBoxes[i]);
+            if (optionalBoundingBoxIds)
+            {
+                m_implTree->m_validOptionalBoundingBoxIds.push_back((*optionalBoundingBoxIds)[i]);
+            }
+        }
+    }
+    m_implTree->buildTree(); 
 }
 
 //--------------------------------------------------------------------------------------------------

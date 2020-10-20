@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 class QMouseEvent;
@@ -42,8 +41,8 @@ class QGraphicsSceneMouseEvent;
 
 #include <Qt>
 
-namespace caf {
-
+namespace caf
+{
 //==================================================================================================
 //
 // Helper class for storing mouse positions and button states. Should be reset whenever widget looses focus.
@@ -54,28 +53,31 @@ class QtMouseState
 public:
     QtMouseState();
 
-    void                    updateFromMouseEvent(QMouseEvent* event);
-    void                    updateFromMouseEvent(QGraphicsSceneMouseEvent* event);
-    void                    reset();
+    void updateFromMouseEvent( QMouseEvent* event );
+    void updateFromMouseEvent( QGraphicsSceneMouseEvent* event );
+    void reset();
 
-    Qt::MouseButtons        mouseButtonState() const;
-    Qt::KeyboardModifiers   keyboardModifierFlags() const;
-    Qt::MouseButton         cleanButtonClickButton() const;
+    Qt::MouseButtons      mouseButtonState() const;
+    Qt::KeyboardModifiers keyboardModifierFlags() const;
+    Qt::MouseButton       cleanButtonClickButton() const;
 
 public:
-    static int              numMouseButtonsInState(Qt::MouseButtons buttonState);
+    static int numMouseButtonsInState( Qt::MouseButtons buttonState );
 
 private:
-    Qt::MouseButtons        m_mouseButtonState;            // Stores current mouse button state (combination of mouse buttons that are down)
-    Qt::KeyboardModifiers   m_keyboardModifierFlags;       // Stores current keyboard modifier flags (combination of keyboard modifier keys that are down)
+    Qt::MouseButtons m_mouseButtonState; // Stores current mouse button state (combination of mouse buttons that are down)
+    Qt::KeyboardModifiers m_keyboardModifierFlags; // Stores current keyboard modifier flags (combination of keyboard
+                                                   // modifier keys that are down)
 
-    int                     m_cleanButtonClickTolerance;   // The movement tolerance in pixels for considering a mouse button press/release sequence a clean button click
-    Qt::MouseButton         m_cleanButtonPressButton;      // The mouse button that was last pressed 'cleanly', that is without any other mouse buttons down. Used to detect clean button clicks (for showing context menus etc)
-    int                     m_cleanButtonPressPosX;        // The position of the mouse cursor in widget coordinates of the last clean button press. Used to check if cursor has moved when button is released
-    int                     m_cleanButtonPressPosY;        //
-    Qt::MouseButton         m_cleanButtonClickButton;      // The button (if any) that was last clicked 'cleanly'.
-
+    int m_cleanButtonClickTolerance; // The movement tolerance in pixels for considering a mouse button press/release
+                                     // sequence a clean button click
+    Qt::MouseButton m_cleanButtonPressButton; // The mouse button that was last pressed 'cleanly', that is without any
+                                              // other mouse buttons down. Used to detect clean button clicks (for
+                                              // showing context menus etc)
+    int m_cleanButtonPressPosX; // The position of the mouse cursor in widget coordinates of the last clean button
+                                // press. Used to check if cursor has moved when button is released
+    int             m_cleanButtonPressPosY; //
+    Qt::MouseButton m_cleanButtonClickButton; // The button (if any) that was last clicked 'cleanly'.
 };
 
-}
-
+} // namespace caf

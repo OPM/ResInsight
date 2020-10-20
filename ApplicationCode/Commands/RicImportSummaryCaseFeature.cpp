@@ -18,7 +18,6 @@
 
 #include "RicImportSummaryCaseFeature.h"
 
-#include "RiaApplication.h"
 #include "RiaFilePathTools.h"
 #include "RiaPreferences.h"
 
@@ -34,7 +33,6 @@
 #include "RiuPlotMainWindow.h"
 
 #include <QAction>
-#include <QFileDialog>
 
 CAF_CMD_SOURCE_INIT( RicImportSummaryCaseFeature, "RicImportSummaryCaseFeature" );
 
@@ -51,7 +49,7 @@ bool RicImportSummaryCaseFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicImportSummaryCaseFeature::onActionTriggered( bool isChecked )
 {
-    RicImportGeneralDataFeature::openFileDialog( RiaDefines::ECLIPSE_SUMMARY_FILE );
+    RicImportGeneralDataFeature::openFileDialog( RiaDefines::ImportFileType::ECLIPSE_SUMMARY_FILE );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -59,6 +57,6 @@ void RicImportSummaryCaseFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicImportSummaryCaseFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/SummaryCase48x48.png" ) );
+    actionToSetup->setIcon( QIcon( ":/SummaryCase.svg" ) );
     actionToSetup->setText( "Import Summary Case" );
 }

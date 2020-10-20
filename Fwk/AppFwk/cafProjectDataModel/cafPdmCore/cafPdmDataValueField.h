@@ -48,10 +48,8 @@
 #include <typeinfo>
 #include <vector>
 
-
-namespace caf 
+namespace caf
 {
-
 class PdmObjectHandle;
 
 //==================================================================================================
@@ -59,74 +57,101 @@ class PdmObjectHandle;
 /// read/write-FieldData is supposed to be specialized for types needing specialization
 //==================================================================================================
 
-template<typename DataType >
+template <typename DataType>
 class PdmDataValueField : public PdmValueField
 {
 public:
     // Type traits magic to check if a template argument is a vector
-    template<typename T> struct is_vector : public std::false_type {};
-    template<typename T, typename A> struct is_vector<std::vector<T, A>> : public std::true_type {};
+    template <typename T>
+    struct is_vector : public std::false_type
+    {
+    };
+    template <typename T, typename A>
+    struct is_vector<std::vector<T, A>> : public std::true_type
+    {
+    };
 
     typedef DataType FieldDataType;
     PdmDataValueField() {}
-    PdmDataValueField(const PdmDataValueField& other)                   {  m_fieldValue = other.m_fieldValue; }
-    explicit PdmDataValueField(const DataType& fieldValue)              {  m_fieldValue = fieldValue; }
+    PdmDataValueField( const PdmDataValueField& other ) { m_fieldValue = other.m_fieldValue; }
+    explicit PdmDataValueField( const DataType& fieldValue ) { m_fieldValue = fieldValue; }
     ~PdmDataValueField() override {}
 
-    // Assignment 
+    // Assignment
 
-    PdmDataValueField&  operator= (const PdmDataValueField& other)      {  CAF_ASSERT(isInitializedByInitFieldMacro()); m_fieldValue = other.m_fieldValue; return *this; }
-    PdmDataValueField&  operator= (const DataType& fieldValue)          {  CAF_ASSERT(isInitializedByInitFieldMacro()); m_fieldValue = fieldValue; return *this; }
+    PdmDataValueField& operator=( const PdmDataValueField& other )
+    {
+        CAF_ASSERT( isInitializedByInitFieldMacro() );
+        m_fieldValue = other.m_fieldValue;
+        return *this;
+    }
+    PdmDataValueField& operator=( const DataType& fieldValue )
+    {
+        CAF_ASSERT( isInitializedByInitFieldMacro() );
+        m_fieldValue = fieldValue;
+        return *this;
+    }
 
-    // Basic access 
+    // Basic access
 
-    DataType            value() const                                   { return m_fieldValue;  }
-    void                setValue(const DataType& fieldValue)            { CAF_ASSERT(isInitializedByInitFieldMacro()); m_fieldValue = fieldValue; }
-    void                setValueWithFieldChanged(const DataType& fieldValue);
+    DataType value() const { return m_fieldValue; }
+    void     setValue( const DataType& fieldValue )
+    {
+        CAF_ASSERT( isInitializedByInitFieldMacro() );
+        m_fieldValue = fieldValue;
+    }
+    void setValueWithFieldChanged( const DataType& fieldValue );
 
     // Implementation of PdmValueField interface
 
-    QVariant    toQVariant() const override                              { CAF_ASSERT(isInitializedByInitFieldMacro()); return PdmValueFieldSpecialization<DataType>::convert(m_fieldValue); }
-    void        setFromQVariant(const QVariant& variant) override        { CAF_ASSERT(isInitializedByInitFieldMacro()); PdmValueFieldSpecialization<DataType>::setFromVariant(variant, m_fieldValue);   }
-    bool        isReadOnly() const override                              { return false;  }
+    QVariant toQVariant() const override
+    {
+        CAF_ASSERT( isInitializedByInitFieldMacro() );
+        return PdmValueFieldSpecialization<DataType>::convert( m_fieldValue );
+    }
+    void setFromQVariant( const QVariant& variant ) override
+    {
+        CAF_ASSERT( isInitializedByInitFieldMacro() );
+        PdmValueFieldSpecialization<DataType>::setFromVariant( variant, m_fieldValue );
+    }
+    bool isReadOnly() const override { return false; }
 
     // Access operators
 
-    /*Conversion */     operator DataType () const                      { return m_fieldValue; }
-    const DataType&     operator()() const                              { return m_fieldValue; }
+    /*Conversion */ operator DataType() const { return m_fieldValue; }
+    const DataType& operator()() const { return m_fieldValue; }
 
-    DataType&           v()                                             { return m_fieldValue; } // This one breaches encapsulation. Remove ?
-    const DataType&     v() const                                       { return m_fieldValue; }
+    DataType&       v() { return m_fieldValue; } // This one breaches encapsulation. Remove ?
+    const DataType& v() const { return m_fieldValue; }
 
-    bool                operator== (const DataType& fieldValue) const   { return m_fieldValue == fieldValue; }
-    bool                operator!= (const DataType& fieldValue) const   { return m_fieldValue != fieldValue; }
+    bool operator==( const DataType& fieldValue ) const { return m_fieldValue == fieldValue; }
+    bool operator!=( const DataType& fieldValue ) const { return m_fieldValue != fieldValue; }
 
 protected:
-    DataType            m_fieldValue;
+    DataType m_fieldValue;
 
-    // Default value stuff. 
+    // Default value stuff.
     //
-    // This is not used enough. Remove when dust has settled. 
+    // This is not used enough. Remove when dust has settled.
     // ResInsight uses at one point to find whether the value is changed by the user
 public:
-    const DataType&     defaultValue() const                            { return m_defaultFieldValue; }
-    void                setDefaultValue(const DataType& val)            { m_defaultFieldValue = val; }
-protected:
-    DataType            m_defaultFieldValue;
+    const DataType& defaultValue() const { return m_defaultFieldValue; }
+    void            setDefaultValue( const DataType& val ) { m_defaultFieldValue = val; }
 
+protected:
+    DataType m_defaultFieldValue;
 };
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-template<typename DataType >
-void caf::PdmDataValueField<DataType>::setValueWithFieldChanged(const DataType& fieldValue)
+template <typename DataType>
+void caf::PdmDataValueField<DataType>::setValueWithFieldChanged( const DataType& fieldValue )
 {
-    CAF_ASSERT(isInitializedByInitFieldMacro());
+    CAF_ASSERT( isInitializedByInitFieldMacro() );
 
     PdmUiFieldHandleInterface* uiFieldHandleInterface = capability<PdmUiFieldHandleInterface>();
-    if (uiFieldHandleInterface)
+    if ( uiFieldHandleInterface )
     {
         QVariant oldValue = uiFieldHandleInterface->toUiBasedQVariant();
 
@@ -134,7 +159,7 @@ void caf::PdmDataValueField<DataType>::setValueWithFieldChanged(const DataType& 
 
         QVariant newUiBasedQVariant = uiFieldHandleInterface->toUiBasedQVariant();
 
-        uiFieldHandleInterface->notifyFieldChanged(oldValue, newUiBasedQVariant);
+        uiFieldHandleInterface->notifyFieldChanged( oldValue, newUiBasedQVariant );
     }
     else
     {

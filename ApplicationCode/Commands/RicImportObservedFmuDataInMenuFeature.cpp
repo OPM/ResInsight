@@ -18,8 +18,6 @@
 
 #include "RicImportObservedFmuDataInMenuFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RicImportObservedFmuDataFeature.h"
 
 #include "RimObservedDataCollection.h"
@@ -28,7 +26,6 @@
 #include "RimSummaryObservedDataFile.h"
 
 #include <QAction>
-#include <QFileDialog>
 
 CAF_CMD_SOURCE_INIT( RicImportObservedFmuDataInMenuFeature, "RicImportObservedFmuDataInMenuFeature" );
 

@@ -35,6 +35,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RiaProjectModifier::RiaProjectModifier()
+    : m_invalidateExternalFilePaths( false )
 {
 }
 
@@ -98,6 +99,28 @@ void RiaProjectModifier::setReplacePropertiesFolder( int caseIdToReplace, QStrin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiaProjectModifier::setInvalidateExternalFilePaths()
+{
+    m_invalidateExternalFilePaths = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaProjectModifier::invalidateExternalFilePaths( RimProject* project )
+{
+    std::vector<caf::FilePath*> filePaths = project->allFilePaths();
+
+    const QString invalidPath = "path_does_not_exist";
+    for ( caf::FilePath* filePath : filePaths )
+    {
+        filePath->setPath( invalidPath );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RiaProjectModifier::applyModificationsToProject( RimProject* project )
 {
     if ( m_caseIdToGridFileNameMap.size() > 0 )
@@ -113,6 +136,11 @@ bool RiaProjectModifier::applyModificationsToProject( RimProject* project )
     if ( m_caseIdToPropertiesFolderMap.size() > 0 )
     {
         replacePropertiesFolder( project );
+    }
+
+    if ( m_invalidateExternalFilePaths )
+    {
+        invalidateExternalFilePaths( project );
     }
 
     return true;

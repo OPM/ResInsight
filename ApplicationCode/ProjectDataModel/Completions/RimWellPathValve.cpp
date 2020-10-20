@@ -62,6 +62,8 @@ RimWellPathValve::RimWellPathValve()
     m_createValveTemplate.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
 
     nameField()->uiCapability()->setUiReadOnly( true );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -76,7 +78,7 @@ RimWellPathValve::~RimWellPathValve()
 //--------------------------------------------------------------------------------------------------
 void RimWellPathValve::perforationIntervalUpdated()
 {
-    if ( componentType() == RiaDefines::ICV )
+    if ( componentType() == RiaDefines::WellPathComponentType::ICV )
     {
         const RimPerforationInterval* perfInterval = nullptr;
         this->firstAncestorOrThisOfType( perfInterval );
@@ -84,7 +86,8 @@ void RimWellPathValve::perforationIntervalUpdated()
         double endMD    = perfInterval->endMD();
         m_measuredDepth = cvf::Math::clamp( m_measuredDepth(), std::min( startMD, endMD ), std::max( startMD, endMD ) );
     }
-    else if ( componentType() == RiaDefines::ICD || componentType() == RiaDefines::AICD )
+    else if ( componentType() == RiaDefines::WellPathComponentType::ICD ||
+              componentType() == RiaDefines::WellPathComponentType::AICD )
     {
         m_multipleValveLocations->perforationIntervalUpdated();
     }
@@ -121,11 +124,12 @@ void RimWellPathValve::multipleValveGeometryUpdated()
 std::vector<double> RimWellPathValve::valveLocations() const
 {
     std::vector<double> valveDepths;
-    if ( componentType() == RiaDefines::ICV )
+    if ( componentType() == RiaDefines::WellPathComponentType::ICV )
     {
         valveDepths.push_back( m_measuredDepth );
     }
-    else if ( componentType() == RiaDefines::ICD || componentType() == RiaDefines::AICD )
+    else if ( componentType() == RiaDefines::WellPathComponentType::ICD ||
+              componentType() == RiaDefines::WellPathComponentType::AICD )
     {
         valveDepths = m_multipleValveLocations->valveLocations();
     }
@@ -179,13 +183,13 @@ void RimWellPathValve::setValveTemplate( RimValveTemplate* valveTemplate )
 //--------------------------------------------------------------------------------------------------
 void RimWellPathValve::applyValveLabelAndIcon()
 {
-    if ( componentType() == RiaDefines::ICV )
+    if ( componentType() == RiaDefines::WellPathComponentType::ICV )
     {
         this->setUiIconFromResourceString( ":/ICVValve16x16.png" );
         QString fullName = QString( "%1: %2" ).arg( componentLabel() ).arg( m_measuredDepth() );
         this->setName( fullName );
     }
-    else if ( componentType() == RiaDefines::ICD )
+    else if ( componentType() == RiaDefines::WellPathComponentType::ICD )
     {
         this->setUiIconFromResourceString( ":/ICDValve16x16.png" );
         QString fullName = QString( "%1 %2: %3 - %4" )
@@ -195,7 +199,7 @@ void RimWellPathValve::applyValveLabelAndIcon()
                                .arg( m_multipleValveLocations->rangeEnd() );
         this->setName( fullName );
     }
-    else if ( componentType() == RiaDefines::AICD )
+    else if ( componentType() == RiaDefines::WellPathComponentType::AICD )
     {
         this->setUiIconFromResourceString( ":/AICDValve16x16.png" );
         QString fullName = QString( "%1 %2: %3 - %4" )
@@ -230,9 +234,9 @@ double RimWellPathValve::convertOrificeDiameter( double                         
                                                  RiaEclipseUnitTools::UnitSystem wellPathUnits,
                                                  RiaEclipseUnitTools::UnitSystem unitSystem )
 {
-    if ( unitSystem == RiaEclipseUnitTools::UNITS_METRIC )
+    if ( unitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
     {
-        if ( wellPathUnits == RiaEclipseUnitTools::UNITS_FIELD )
+        if ( wellPathUnits == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
         {
             return RiaEclipseUnitTools::inchToMeter( orificeDiameterWellPathUnits );
         }
@@ -241,9 +245,9 @@ double RimWellPathValve::convertOrificeDiameter( double                         
             return RiaEclipseUnitTools::mmToMeter( orificeDiameterWellPathUnits );
         }
     }
-    else if ( unitSystem == RiaEclipseUnitTools::UNITS_FIELD )
+    else if ( unitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
     {
-        if ( wellPathUnits == RiaEclipseUnitTools::UNITS_METRIC )
+        if ( wellPathUnits == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
         {
             return RiaEclipseUnitTools::meterToFeet( RiaEclipseUnitTools::mmToMeter( orificeDiameterWellPathUnits ) );
         }
@@ -264,27 +268,39 @@ std::vector<std::pair<double, double>> RimWellPathValve::valveSegments() const
     RimPerforationInterval* perforationInterval = nullptr;
     this->firstAncestorOrThisOfType( perforationInterval );
 
-    double              startMD  = perforationInterval->startMD();
-    double              endMD    = perforationInterval->endMD();
-    std::vector<double> valveMDs = valveLocations();
-
     std::vector<std::pair<double, double>> segments;
-    segments.reserve( valveMDs.size() );
-
-    for ( size_t i = 0; i < valveMDs.size(); ++i )
+    if ( componentType() == RiaDefines::WellPathComponentType::ICV )
     {
-        double segmentStart = startMD;
-        double segmentEnd   = endMD;
-        if ( i > 0 )
-        {
-            segmentStart = 0.5 * ( valveMDs[i - 1] + valveMDs[i] );
-        }
-        if ( i < valveMDs.size() - 1u )
-        {
-            segmentEnd = 0.5 * ( valveMDs[i] + valveMDs[i + 1] );
-        }
-        segments.push_back( std::make_pair( segmentStart, segmentEnd ) );
+        // Flow for ICV is defined as the complete perforation interval
+
+        segments.push_back( std::make_pair( perforationInterval->startMD(), perforationInterval->endMD() ) );
     }
+    else
+    {
+        // ICD/AICD : Use the valve start/end, can be a subset of perforation interval
+
+        double startMD = this->startMD();
+        double endMD   = this->endMD();
+
+        std::vector<double> valveMDs = valveLocations();
+        segments.reserve( valveMDs.size() );
+
+        for ( size_t i = 0; i < valveMDs.size(); ++i )
+        {
+            double segmentStart = startMD;
+            double segmentEnd   = endMD;
+            if ( i > 0 )
+            {
+                segmentStart = 0.5 * ( valveMDs[i - 1] + valveMDs[i] );
+            }
+            if ( i < valveMDs.size() - 1u )
+            {
+                segmentEnd = 0.5 * ( valveMDs[i] + valveMDs[i + 1] );
+            }
+            segments.push_back( std::make_pair( segmentStart, segmentEnd ) );
+        }
+    }
+
     return segments;
 }
 
@@ -307,7 +323,7 @@ RiaDefines::WellPathComponentType RimWellPathValve::componentType() const
     {
         return m_valveTemplate()->type();
     }
-    return RiaDefines::UNDEFINED_COMPONENT;
+    return RiaDefines::WellPathComponentType::UNDEFINED_COMPONENT;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -315,7 +331,7 @@ RiaDefines::WellPathComponentType RimWellPathValve::componentType() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellPathValve::componentLabel() const
 {
-    if ( componentType() == RiaDefines::ICD )
+    if ( componentType() == RiaDefines::WellPathComponentType::ICD )
     {
         if ( m_multipleValveLocations->valveLocations().size() > 1 )
         {
@@ -326,7 +342,7 @@ QString RimWellPathValve::componentLabel() const
             return "ICD";
         }
     }
-    else if ( componentType() == RiaDefines::AICD )
+    else if ( componentType() == RiaDefines::WellPathComponentType::AICD )
     {
         if ( m_multipleValveLocations->valveLocations().size() > 1 )
         {
@@ -337,7 +353,7 @@ QString RimWellPathValve::componentLabel() const
             return "AICD";
         }
     }
-    else if ( componentType() == RiaDefines::ICV )
+    else if ( componentType() == RiaDefines::WellPathComponentType::ICV )
     {
         return "ICV";
     }
@@ -349,15 +365,15 @@ QString RimWellPathValve::componentLabel() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellPathValve::componentTypeLabel() const
 {
-    if ( componentType() == RiaDefines::ICD )
+    if ( componentType() == RiaDefines::WellPathComponentType::ICD )
     {
         return "ICD";
     }
-    else if ( componentType() == RiaDefines::AICD )
+    else if ( componentType() == RiaDefines::WellPathComponentType::AICD )
     {
         return "AICD";
     }
-    else if ( componentType() == RiaDefines::ICV )
+    else if ( componentType() == RiaDefines::WellPathComponentType::ICV )
     {
         return "ICV";
     }
@@ -377,11 +393,11 @@ cvf::Color3f RimWellPathValve::defaultComponentColor() const
 //--------------------------------------------------------------------------------------------------
 double RimWellPathValve::startMD() const
 {
-    if ( componentType() == RiaDefines::ICV )
+    if ( componentType() == RiaDefines::WellPathComponentType::ICV )
     {
         return m_measuredDepth;
     }
-    else if ( m_multipleValveLocations()->valveLocations().empty() )
+    else if ( m_multipleValveLocations()->valveLocations().size() < 2 )
     {
         return m_multipleValveLocations->rangeStart();
     }
@@ -396,11 +412,11 @@ double RimWellPathValve::startMD() const
 //--------------------------------------------------------------------------------------------------
 double RimWellPathValve::endMD() const
 {
-    if ( componentType() == RiaDefines::ICV )
+    if ( componentType() == RiaDefines::WellPathComponentType::ICV )
     {
         return m_measuredDepth + 0.5;
     }
-    else if ( m_multipleValveLocations()->valveLocations().empty() )
+    else if ( m_multipleValveLocations()->valveLocations().size() < 2 )
     {
         return m_multipleValveLocations->rangeEnd();
     }
@@ -493,19 +509,20 @@ void RimWellPathValve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
         uiOrdering.add( &m_createValveTemplate, false );
     }
 
-    if ( componentType() == RiaDefines::ICV || componentType() == RiaDefines::ICD )
+    if ( componentType() == RiaDefines::WellPathComponentType::ICV ||
+         componentType() == RiaDefines::WellPathComponentType::ICD )
     {
-        if ( componentType() == RiaDefines::ICV )
+        if ( componentType() == RiaDefines::WellPathComponentType::ICV )
         {
             RimWellPath* wellPath;
             firstAncestorOrThisOfType( wellPath );
             if ( wellPath )
             {
-                if ( wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC )
+                if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
                 {
                     m_measuredDepth.uiCapability()->setUiName( "Measured Depth [m]" );
                 }
-                else if ( wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD )
+                else if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
                 {
                     m_measuredDepth.uiCapability()->setUiName( "Measured Depth [ft]" );
                 }
@@ -514,7 +531,8 @@ void RimWellPathValve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
         }
     }
 
-    if ( componentType() == RiaDefines::ICD || componentType() == RiaDefines::AICD )
+    if ( componentType() == RiaDefines::WellPathComponentType::ICD ||
+         componentType() == RiaDefines::WellPathComponentType::AICD )
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Multiple Valve Locations" );
         m_multipleValveLocations->uiOrdering( uiConfigName, *group );

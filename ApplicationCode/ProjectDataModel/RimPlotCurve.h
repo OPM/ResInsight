@@ -20,6 +20,7 @@
 #include "RifEclipseSummaryAddress.h"
 
 #include "RiaCurveDataTools.h"
+#include "RiaDefines.h"
 
 #include "RiuQwtPlotCurve.h"
 #include "RiuQwtSymbol.h"
@@ -29,6 +30,7 @@
 #include "cafPdmObject.h"
 
 #include <QPointer>
+#include <Qt>
 
 class QwtPlot;
 class QwtPlotCurve;
@@ -43,10 +45,17 @@ class RimPlotCurve : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    caf::Signal<>        appearanceChanged;
+    caf::Signal<bool>    visibilityChanged;
+    caf::Signal<>        dataChanged;
+    caf::Signal<QString> nameChanged;
+
+public:
     typedef caf::AppEnum<RiuQwtPlotCurve::CurveInterpolationEnum> CurveInterpolation;
     typedef caf::AppEnum<RiuQwtPlotCurve::LineStyleEnum>          LineStyle;
     typedef caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>           PointSymbol;
     typedef caf::AppEnum<RiuQwtSymbol::LabelPosition>             LabelPosition;
+    typedef caf::AppEnum<Qt::BrushStyle>                          FillStyle;
 
 public:
     RimPlotCurve();
@@ -67,6 +76,7 @@ public:
     cvf::Color3f                  color() const { return m_curveColor; }
     void                          setLineStyle( RiuQwtPlotCurve::LineStyleEnum lineStyle );
     void                          setSymbol( RiuQwtSymbol::PointSymbolEnum symbolStyle );
+    void                          setInterpolation( RiuQwtPlotCurve::CurveInterpolationEnum );
     RiuQwtSymbol::PointSymbolEnum symbol();
     int                           symbolSize() const;
     cvf::Color3f                  symbolEdgeColor() const;
@@ -77,9 +87,12 @@ public:
     void                          setSymbolSize( int sizeInPixels );
     void                          setLineThickness( int thickness );
     void                          resetAppearance();
+    Qt::BrushStyle                fillStyle() const;
+    void                          setFillStyle( Qt::BrushStyle brushStyle );
+    void                          setFillColor( const cvf::Color3f& fillColor );
 
     bool isCurveVisible() const;
-    void setCurveVisiblity( bool visible );
+    void setCurveVisibility( bool visible );
 
     void updateCurveName();
     void updateCurveNameAndUpdatePlotLegendAndTitle();
@@ -98,9 +111,12 @@ public:
     void updateLegendEntryVisibilityAndPlotLegend();
     void updateLegendEntryVisibilityNoPlotUpdate();
 
-    void showLegend( bool show );
+    bool showInLegend() const;
+    bool errorBarsVisible() const;
 
+    void setShowInLegend( bool show );
     void setZOrder( double z );
+    void setErrorBarsVisible( bool isVisible );
 
     virtual void updateCurveAppearance();
     bool         isCrossPlotCurve() const;
@@ -117,11 +133,11 @@ protected:
     void         updatePlotTitle();
     virtual void updateLegendsInPlot();
 
-    void setSamplesFromXYErrorValues( const std::vector<double>&   xValues,
-                                      const std::vector<double>&   yValues,
-                                      const std::vector<double>&   errorValues,
-                                      bool                         keepOnlyPositiveValues,
-                                      RiaCurveDataTools::ErrorAxis errorAxis = RiaCurveDataTools::ERROR_ALONG_Y_AXIS );
+    void setSamplesFromXYErrorValues( const std::vector<double>& xValues,
+                                      const std::vector<double>& yValues,
+                                      const std::vector<double>& errorValues,
+                                      bool                       keepOnlyPositiveValues,
+                                      RiaCurveDataTools::ErrorAxis errorAxis = RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS );
     void setSamplesFromXYValues( const std::vector<double>& xValues,
                                  const std::vector<double>& yValues,
                                  bool                       keepOnlyPositiveValues );
@@ -146,6 +162,7 @@ protected:
 private:
     bool canCurveBeAttached() const;
     void attachCurveAndErrorBars();
+    void checkAndApplyDefaultFillColor();
 
 protected:
     QPointer<QwtPlot> m_parentQwtPlot;
@@ -169,6 +186,8 @@ protected:
 
     caf::PdmField<PointSymbol>        m_pointSymbol;
     caf::PdmField<LineStyle>          m_lineStyle;
+    caf::PdmField<FillStyle>          m_fillStyle;
+    caf::PdmField<cvf::Color3f>       m_fillColor;
     caf::PdmField<CurveInterpolation> m_curveInterpolation;
     caf::PdmField<LabelPosition>      m_symbolLabelPosition;
     caf::PdmField<cvf::Color3f>       m_symbolEdgeColor;

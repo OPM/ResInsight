@@ -18,9 +18,9 @@
 
 #include "RimcDataContainerString.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
-#include "cafPdmObjectScriptability.h"
+#include "cafPdmObjectScriptingCapability.h"
 
 CAF_PDM_SOURCE_INIT( RimcDataContainerString, "DataContainerString" );
 
@@ -30,5 +30,5 @@ CAF_PDM_SOURCE_INIT( RimcDataContainerString, "DataContainerString" );
 RimcDataContainerString::RimcDataContainerString()
 {
     CAF_PDM_InitScriptableObject( "Data Container String", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_stringValues, "values", "String Values", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_stringValues, "values", "String Values", "", "", "" );
 }

@@ -29,6 +29,7 @@
 #include "RimEclipseView.h"
 #include "RimProject.h"
 
+#include "RiuFileDialogTools.h"
 #include "RiuTools.h"
 
 #include "cafCmdFeatureManager.h"
@@ -38,7 +39,6 @@
 #include <QAbstractItemView>
 #include <QBoxLayout>
 #include <QDialogButtonBox>
-#include <QFileDialog>
 #include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
@@ -76,11 +76,7 @@ RiuAdvancedSnapshotExportWidget::RiuAdvancedSnapshotExportWidget( QWidget* paren
     m_pdmTableView->setChildArrayField( &( project->multiSnapshotDefinitions() ) );
 
     QHeaderView* verticalHeader = m_pdmTableView->tableView()->verticalHeader();
-#if QT_VERSION >= 0x050000
     verticalHeader->setSectionResizeMode( QHeaderView::Interactive );
-#else
-    verticalHeader->setResizeMode( QHeaderView::Interactive );
-#endif
     m_pdmTableView->tableView()->resizeColumnsToContents();
 
     // Set active child array to be able to use generic delete
@@ -251,10 +247,7 @@ void RiuAdvancedSnapshotExportWidget::folderSelectionClicked()
     QString defaultPath = m_exportFolderLineEdit->text();
 
     QString directoryPath =
-        QFileDialog::getExistingDirectory( m_exportFolderLineEdit,
-                                           tr( "Get existing directory" ),
-                                           defaultPath,
-                                           QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks );
+        RiuFileDialogTools::getExistingDirectory( m_exportFolderLineEdit, tr( "Get existing directory" ), defaultPath );
 
     if ( !directoryPath.isEmpty() )
     {

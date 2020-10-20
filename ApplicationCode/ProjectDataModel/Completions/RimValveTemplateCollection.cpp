@@ -18,8 +18,6 @@
 
 #include "RimValveTemplateCollection.h"
 
-#include "RiaApplication.h"
-
 #include "RimProject.h"
 #include "RimValveTemplate.h"
 
@@ -38,7 +36,7 @@ RimValveTemplateCollection::RimValveTemplateCollection()
                                 "",
                                 "",
                                 "" );
-    m_defaultUnitsForValveTemplates = RiaEclipseUnitTools::UNITS_METRIC;
+    m_defaultUnitsForValveTemplates = RiaEclipseUnitTools::UnitSystem::UNITS_METRIC;
     m_valveDefinitions.uiCapability()->setUiHidden( true );
     addDefaultValveTemplates();
 }
@@ -93,10 +91,10 @@ RiaEclipseUnitTools::UnitSystemType RimValveTemplateCollection::defaultUnitSyste
 //--------------------------------------------------------------------------------------------------
 void RimValveTemplateCollection::setDefaultUnitSystemBasedOnLoadedCases()
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
 
     auto commonUnitSystem = proj->commonUnitSystemForAllCases();
-    if ( commonUnitSystem != RiaEclipseUnitTools::UNITS_UNKNOWN )
+    if ( commonUnitSystem != RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN )
     {
         m_defaultUnitsForValveTemplates = commonUnitSystem;
     }
@@ -108,15 +106,15 @@ void RimValveTemplateCollection::setDefaultUnitSystemBasedOnLoadedCases()
 void RimValveTemplateCollection::addDefaultValveTemplates()
 {
     RimValveTemplate* aicd = new RimValveTemplate;
-    aicd->setType( RiaDefines::AICD );
+    aicd->setType( RiaDefines::WellPathComponentType::AICD );
     aicd->setUserLabel( "Valve Template #1" );
 
     RimValveTemplate* icd = new RimValveTemplate;
-    icd->setType( RiaDefines::ICD );
+    icd->setType( RiaDefines::WellPathComponentType::ICD );
     icd->setUserLabel( "Valve Template #2" );
 
     RimValveTemplate* icv = new RimValveTemplate;
-    icv->setType( RiaDefines::ICV );
+    icv->setType( RiaDefines::WellPathComponentType::ICV );
     icv->setUserLabel( "Valve Template #3" );
 
     addValveTemplate( aicd );

@@ -42,11 +42,11 @@ using namespace caf;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString StyleSheetTools::createFrameStyleSheet(const QString& classType,
-                                                    const QString& objectName,
-                                                    const QColor&  textColor,
-                                                    const QColor&  backgroundColor,
-                                                    const QColor&  backgroundFrameColor)
+QString StyleSheetTools::createFrameStyleSheet( const QString& classType,
+                                                const QString& objectName,
+                                                const QColor&  textColor,
+                                                const QColor&  backgroundColor,
+                                                const QColor&  backgroundFrameColor )
 {
     QString styleSheetTemplate = "%1#%2"
                                  "{"
@@ -54,19 +54,19 @@ QString StyleSheetTools::createFrameStyleSheet(const QString& classType,
                                  "background-color: %4;"
                                  "border: 1px solid %5;"
                                  "}";
-    QString textColString     = colorStringWithAlpha(textColor);
-    QString bgColString       = colorStringWithAlpha(backgroundColor);
-    QString bgFrameColString  = colorStringWithAlpha(backgroundFrameColor);
+    QString textColString    = colorStringWithAlpha( textColor );
+    QString bgColString      = colorStringWithAlpha( backgroundColor );
+    QString bgFrameColString = colorStringWithAlpha( backgroundFrameColor );
 
     QString fullStyleSheet =
-        styleSheetTemplate.arg(classType).arg(objectName).arg(textColString).arg(bgColString).arg(bgFrameColString);
+        styleSheetTemplate.arg( classType ).arg( objectName ).arg( textColString ).arg( bgColString ).arg( bgFrameColString );
     return fullStyleSheet;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString StyleSheetTools::colorStringWithAlpha(const QColor& color) 
+QString StyleSheetTools::colorStringWithAlpha( const QColor& color )
 {
-    return QString("rgba(%1, %2, %3, %4)").arg(color.red()).arg(color.green()).arg(color.blue()).arg(color.alpha());
+    return QString( "rgba(%1, %2, %3, %4)" ).arg( color.red() ).arg( color.green() ).arg( color.blue() ).arg( color.alpha() );
 }

@@ -18,7 +18,6 @@
 
 #include "RiuFlowCharacteristicsPlot.h"
 
-#include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaFeatureCommandContext.h"
 #include "RiaFontCache.h"
@@ -81,8 +80,8 @@ RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot( RimFlowCharacteristicsPl
     new RiuQwtPlotWheelZoomer( m_lorenzPlot );
     addWindowZoom( m_lorenzPlot );
 
-    QString dateFormat = RiaApplication::instance()->preferences()->dateFormat();
-    QString timeFormat = RiaApplication::instance()->preferences()->timeFormat();
+    QString dateFormat = RiaPreferences::current()->dateFormat();
+    QString timeFormat = RiaPreferences::current()->timeFormat();
 
     RiuQwtPlotTools::enableDateBasedBottomXAxis( m_lorenzPlot, dateFormat, timeFormat );
     m_lorenzPlot->setTitle( "Lorenz Coefficient" );
@@ -92,7 +91,8 @@ RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot( RimFlowCharacteristicsPl
     addWindowZoom( m_sweepEffPlot );
     m_sweepEffPlot->setTitle( "Sweep Efficiency" );
 
-    int legendFontSize = RiaApplication::instance()->preferences()->defaultPlotFontSize();
+    int legendFontSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(),
+                                                            caf::FontTools::RelativeSize::Small );
 
     {
         QwtText axisTitle = m_sweepEffPlot->axisTitle( QwtPlot::xBottom );
@@ -140,9 +140,7 @@ RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot( RimFlowCharacteristicsPl
 void RiuFlowCharacteristicsPlot::addWindowZoom( QwtPlot* plot )
 {
     auto zoomer = new RiuQwtPlotZoomer( plot->canvas() );
-    zoomer->setRubberBandPen( QColor( Qt::black ) );
     zoomer->setTrackerMode( QwtPicker::AlwaysOff );
-    zoomer->setTrackerPen( QColor( Qt::black ) );
     zoomer->initMousePattern( 1 );
 }
 //--------------------------------------------------------------------------------------------------

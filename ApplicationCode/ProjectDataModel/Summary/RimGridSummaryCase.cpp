@@ -25,7 +25,7 @@
 #include "RimFileSummaryCase.h"
 #include "RimProject.h"
 
-#include "cafPdmObjectScriptability.h"
+#include "cafPdmObjectScriptingCapability.h"
 
 #include <QFileInfo>
 
@@ -191,6 +191,10 @@ void RimGridSummaryCase::createSummaryReaderInterface()
 //--------------------------------------------------------------------------------------------------
 RifSummaryReaderInterface* RimGridSummaryCase::summaryReader()
 {
+    if ( m_summaryFileReader.isNull() )
+    {
+        createSummaryReaderInterface();
+    }
     return m_summaryFileReader.p();
 }
 

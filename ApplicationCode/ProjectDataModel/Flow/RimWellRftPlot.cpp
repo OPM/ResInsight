@@ -18,7 +18,6 @@
 
 #include "RimWellRftPlot.h"
 
-#include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaColorTools.h"
 #include "RiaDateStringParser.h"
@@ -84,9 +83,6 @@ RimWellRftPlot::RimWellRftPlot()
 {
     CAF_PDM_InitObject( "RFT Plot", ":/RFTPlot16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_showPlotTitle_OBSOLETE, "ShowPlotTitle", false, "Show Plot Title", "", "", "" );
-    m_showPlotTitle_OBSOLETE.xmlCapability()->setIOWritable( false );
-
     CAF_PDM_InitField( &m_showStatisticsCurves, "ShowStatisticsCurves", true, "Show Statistics Curves", "", "", "" );
     CAF_PDM_InitField( &m_showEnsembleCurves, "ShowEnsembleCurves", true, "Show Ensemble Curves", "", "", "" );
     CAF_PDM_InitField( &m_showErrorInObservedData, "ShowErrorObserved", true, "Show Observed Data Error", "", "", "" );
@@ -95,7 +91,7 @@ RimWellRftPlot::RimWellRftPlot()
     m_wellLogPlot_OBSOLETE.uiCapability()->setUiHidden( true );
     m_wellLogPlot_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    m_depthType = RiaDefines::TRUE_VERTICAL_DEPTH;
+    m_depthType = RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH;
 
     CAF_PDM_InitFieldNoDefault( &m_wellPathNameOrSimWellName, "WellName", "Well Name", "", "", "" );
     CAF_PDM_InitField( &m_branchIndex, "BranchIndex", 0, "Branch Index", "", "", "" );
@@ -122,16 +118,18 @@ RimWellRftPlot::RimWellRftPlot()
     CAF_PDM_InitFieldNoDefault( &m_wellPathCollection, "WellPathCollection", "Well Path Collection", "", "", "" );
     m_wellPathCollection.uiCapability()->setUiHidden( true );
     m_wellPathCollection.xmlCapability()->disableIO();
-    m_wellPathCollection = RiaApplication::instance()->project()->activeOilField()->wellPathCollection();
+    m_wellPathCollection = RimProject::current()->activeOilField()->wellPathCollection();
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSets, "EnsembleCurveSets", "Ensemble Curve Sets", "", "", "" );
 
     // TODO: may want to support TRUE_VERTICAL_DEPTH_RKB in the future
     // It was developed for regular well log plots and requires some more work for RFT plots.
-    setAvailableDepthTypes( {RiaDefines::MEASURED_DEPTH, RiaDefines::TRUE_VERTICAL_DEPTH} );
+    setAvailableDepthTypes( {RiaDefines::DepthTypeEnum::MEASURED_DEPTH, RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH} );
 
     m_nameConfig->setCustomName( "RFT Plot" );
     m_plotLegendsHorizontal = false;
+
+    setPlotTitleVisible( true );
 
     this->setAsPlotMdiWindow();
     m_isOnLoad = true;
@@ -190,7 +188,7 @@ void RimWellRftPlot::updateFormationsOnPlot() const
 {
     if ( plotCount() > 0 )
     {
-        RimProject*  proj     = RiaApplication::instance()->project();
+        RimProject*  proj     = RimProject::current();
         RimWellPath* wellPath = proj->wellPathByName( m_wellPathNameOrSimWellName );
 
         RimCase*         formationNamesCase = nullptr;
@@ -544,7 +542,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
 
             bool isFirstSummaryCurveInEnsemble =
                 ensemblesWithSummaryCurves.count( curveDefToAdd.address().ensemble() ) == 0u;
-            curve->showLegend( isFirstSummaryCurveInEnsemble );
+            curve->setShowInLegend( isFirstSummaryCurveInEnsemble );
             ensemblesWithSummaryCurves.insert( curveDefToAdd.address().ensemble() );
         }
         else if ( m_showStatisticsCurves && curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::ENSEMBLE_RFT )
@@ -610,7 +608,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                 // Time step
 
                 std::vector<QDateTime> timeSteps =
-                    gridCase->eclipseCaseData()->results( RiaDefines::MATRIX_MODEL )->timeStepDates();
+                    gridCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->timeStepDates();
                 int currentTimeStepIndex = -1;
                 for ( size_t tsIdx = 0; tsIdx < timeSteps.size(); ++tsIdx )
                 {
@@ -647,7 +645,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
         }
     }
 
-    if ( depthType() == RiaDefines::MEASURED_DEPTH )
+    if ( depthType() == RiaDefines::DepthTypeEnum::MEASURED_DEPTH )
     {
         assignWellPathToExtractionCurves();
     }
@@ -912,11 +910,6 @@ void RimWellRftPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         updateFormationsOnPlot();
         syncCurvesFromUiSelection();
     }
-
-    else if ( changedField == &m_showPlotWindowTitle )
-    {
-        // m_wellLogPlot->setShowDescription(m_showPlotTitle);
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -996,7 +989,7 @@ std::map<QString, QStringList> RimWellRftPlot::findWellSources()
 {
     std::map<QString /*value*/, QStringList /*uitext*/> wellNames;
 
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
 
     if ( proj != nullptr )
     {
@@ -1064,7 +1057,7 @@ void RimWellRftPlot::onLoadDataAndUpdate()
             CAF_ASSERT( plotTrack );
             if ( plotTrack )
             {
-                plotTrack->setAnnotationType( RiuPlotAnnotationTool::FORMATION_ANNOTATIONS );
+                plotTrack->setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType::FORMATION_ANNOTATIONS );
             }
         }
 
@@ -1074,7 +1067,7 @@ void RimWellRftPlot::onLoadDataAndUpdate()
     updateMdiWindowVisibility();
     updateFormationsOnPlot();
 
-    if ( depthType() == RiaDefines::MEASURED_DEPTH )
+    if ( depthType() == RiaDefines::DepthTypeEnum::MEASURED_DEPTH )
     {
         assignWellPathToExtractionCurves();
     }
@@ -1109,10 +1102,6 @@ void RimWellRftPlot::initAfterRead()
         delete m_wellLogPlot_OBSOLETE;
         m_wellLogPlot_OBSOLETE = nullptr;
     }
-    if ( m_showPlotTitle_OBSOLETE() && !m_showPlotWindowTitle() )
-    {
-        m_showPlotWindowTitle = m_showPlotTitle_OBSOLETE();
-    }
 
     RimWellLogPlot::initAfterRead();
 }
@@ -1138,7 +1127,7 @@ void RimWellRftPlot::onLegendDefinitionChanged()
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::assignWellPathToExtractionCurves()
 {
-    RimProject*  proj     = RiaApplication::instance()->project();
+    RimProject*  proj     = RimProject::current();
     RimWellPath* wellPath = proj->wellPathByName( m_wellPathNameOrSimWellName );
 
     if ( wellPath )

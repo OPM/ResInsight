@@ -114,15 +114,15 @@ void RigWellLogExtractor::insertIntersectionsInMap( const std::vector<HexInterse
 {
     for ( size_t intIdx = 0; intIdx < intersections.size(); ++intIdx )
     {
-        double lenghtAlongLineSegment1 = ( intersections[intIdx].m_intersectionPoint - p1 ).length();
-        double lenghtAlongLineSegment2 = ( p2 - intersections[intIdx].m_intersectionPoint ).length();
+        double lengthAlongLineSegment1 = ( intersections[intIdx].m_intersectionPoint - p1 ).length();
+        double lengthAlongLineSegment2 = ( p2 - intersections[intIdx].m_intersectionPoint ).length();
         double measuredDepthDiff       = md2 - md1;
-        double lineLength              = lenghtAlongLineSegment1 + lenghtAlongLineSegment2;
+        double lineLength              = lengthAlongLineSegment1 + lengthAlongLineSegment2;
         double measuredDepthOfPoint    = 0.0;
 
         if ( lineLength > 0.00001 )
         {
-            measuredDepthOfPoint = md1 + measuredDepthDiff * lenghtAlongLineSegment1 / ( lineLength );
+            measuredDepthOfPoint = md1 + measuredDepthDiff * lengthAlongLineSegment1 / ( lineLength );
         }
         else
         {
@@ -311,6 +311,20 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
 
 void RigWellLogExtractor::appendIntersectionToArrays( double measuredDepth, const HexIntersectionInfo& intersection )
 {
+    if ( !m_intersectionMeasuredDepths.empty() && measuredDepth < m_intersectionMeasuredDepths.back() )
+    {
+        RiaLogging::warning(
+            QString( "Well Log Extraction : %1 does not have a monotonously increasing measured depth." )
+                .arg( QString::fromStdString( m_wellCaseErrorMsgName ) ) );
+        // Allow alterations of up to 0.1 percent as long as we keep the measured depth monotonously increasing.
+        const double tolerance = std::max( 1.0, measuredDepth ) * 1.0e-3;
+        if ( RigWellLogExtractionTools::isEqualDepth( measuredDepth, m_intersectionMeasuredDepths.back(), tolerance ) )
+        {
+            RiaLogging::warning( "The well path has been slightly adjusted" );
+            measuredDepth = m_intersectionMeasuredDepths.back();
+        }
+    }
+
     m_intersectionMeasuredDepths.push_back( measuredDepth );
     m_intersectionTVDs.push_back( fabs( intersection.m_intersectionPoint[2] ) );
     m_intersections.push_back( intersection.m_intersectionPoint );

@@ -17,7 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RicfExportWellLogPlotData.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "ExportCommands/RicExportToLasFileFeature.h"
@@ -26,7 +25,7 @@
 #include "RimProject.h"
 #include "RimWellLogPlot.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
 #include <QDir>
 #include <QFileInfo>
@@ -37,9 +36,9 @@ namespace caf
 template <>
 void RicfExportWellLogPlotData::ExportFormatEnum::setUp()
 {
-    addItem( RicfExportWellLogPlotData::LAS, "LAS", "LAS" );
-    addItem( RicfExportWellLogPlotData::ASCII, "ASCII", "ASCII" );
-    setDefault( RicfExportWellLogPlotData::LAS );
+    addItem( RicfExportWellLogPlotData::ExportFormat::LAS, "LAS", "LAS" );
+    addItem( RicfExportWellLogPlotData::ExportFormat::ASCII, "ASCII", "ASCII" );
+    setDefault( RicfExportWellLogPlotData::ExportFormat::LAS );
 }
 } // namespace caf
 
@@ -61,14 +60,14 @@ CAF_PDM_SOURCE_INIT( RicfExportWellLogPlotData, "exportWellLogPlotData" );
 //--------------------------------------------------------------------------------------------------
 RicfExportWellLogPlotData::RicfExportWellLogPlotData()
 {
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_format, "exportFormat", "", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_viewId, "viewId", -1, "", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_folder, "exportFolder", QString(), "", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_filePrefix, "filePrefix", QString(), "", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_exportTvdRkb, "exportTvdRkb", false, "", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_capitalizeFileNames, "capitalizeFileNames", false, "", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_resampleInterval, "resampleInterval", 0.0, "", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_convertCurveUnits, "convertCurveUnits", false, "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_format, "exportFormat", "", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_viewId, "viewId", -1, "", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_folder, "exportFolder", QString(), "", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_filePrefix, "filePrefix", QString(), "", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_exportTvdRkb, "exportTvdRkb", false, "", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_capitalizeFileNames, "capitalizeFileNames", false, "", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_resampleInterval, "resampleInterval", 0.0, "", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_convertCurveUnits, "convertCurveUnits", false, "", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,14 +82,14 @@ caf::PdmScriptResponse RicfExportWellLogPlotData::execute()
     if ( QFileInfo::exists( m_folder ) )
     {
         std::vector<RimWellLogPlot*> plots;
-        RiaApplication::instance()->project()->descendantsIncludingThisOfType( plots );
+        RimProject::current()->descendantsIncludingThisOfType( plots );
         RicfExportWellLogPlotDataResult* result = new RicfExportWellLogPlotDataResult;
 
         for ( RimWellLogPlot* plot : plots )
         {
             if ( plot->id() == m_viewId() )
             {
-                if ( m_format() == ASCII )
+                if ( m_format() == ExportFormat::ASCII )
                 {
                     QString validFileName =
                         RicAsciiExportWellLogPlotFeature::makeValidExportFileName( plot,

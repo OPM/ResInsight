@@ -81,6 +81,12 @@ public:
     std::vector<double> poissonSourceRegions( int frameIndex );
     std::vector<double> ucsSourceRegions( int frameIndex );
 
+    static caf::Ten3d transformTensorToWellPathOrientation( const cvf::Vec3d& wellPathTangent,
+                                                            const caf::Ten3d& wellPathTensor );
+
+    static double hydroStaticPorePressureAtDepth( double effectiveDepthMeters,
+                                                  double waterDensityGCM3 = PURE_WATER_DENSITY_GCM3 );
+
 private:
     enum WellPathTangentCalculation
     {
@@ -122,8 +128,6 @@ private:
     cvf::Vec3d
                calculateLengthInCell( size_t cellIndex, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint ) const override;
     cvf::Vec3d calculateWellPathTangent( int64_t intersectionIdx, WellPathTangentCalculation calculationType ) const;
-    static caf::Ten3d transformTensorToWellPathOrientation( const cvf::Vec3d& wellPathTangent,
-                                                            const caf::Ten3d& wellPathTensor );
 
     cvf::Vec3f cellCentroid( size_t intersectionIdx ) const;
     double     getWellLogIntersectionValue( size_t                                        intersectionIdx,

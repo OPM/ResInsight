@@ -31,9 +31,9 @@
 #include "RimWellLogFile.h"
 
 #include "cafPdmBase.h"
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObject.h"
-#include "cafPdmObjectScriptability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiGroup.h"
 
@@ -49,13 +49,13 @@ RimWellBoreStabilityPlot::RimWellBoreStabilityPlot()
                                   "",
                                   "A GeoMechanical Well Bore Stabilit Plot" );
 
-    CAF_PDM_InitScriptableFieldWithKeywordNoDefault( &m_wbsParameters,
-                                                     "WbsParameters",
-                                                     "Parameters",
-                                                     "Well Bore Stability Parameters",
-                                                     "",
-                                                     "",
-                                                     "" );
+    CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_wbsParameters,
+                                                           "WbsParameters",
+                                                           "Parameters",
+                                                           "Well Bore Stability Parameters",
+                                                           "",
+                                                           "",
+                                                           "" );
     m_wbsParameters = new RimWbsParameters;
     m_wbsParameters.uiCapability()->setUiTreeHidden( true );
     m_wbsParameters.uiCapability()->setUiTreeChildrenHidden( true );
@@ -63,7 +63,7 @@ RimWellBoreStabilityPlot::RimWellBoreStabilityPlot()
     m_nameConfig->setCustomName( "Well Bore Stability" );
     m_nameConfig->enableAllAutoNameTags( true );
 
-    m_commonDataSource->setCaseType( RiaDefines::GEOMECH_ODB_CASE );
+    m_commonDataSource->setCaseType( RiaDefines::CaseType::GEOMECH_ODB_CASE );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -121,6 +121,9 @@ void RimWellBoreStabilityPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
 
     caf::PdmUiGroup* plotLayoutGroup = uiOrdering.addNewGroup( "Plot Layout" );
     RimPlotWindow::uiOrderingForPlotLayout( uiConfigName, *plotLayoutGroup );
+    plotLayoutGroup->add( &m_subTitleFontSize );
+    plotLayoutGroup->add( &m_axisTitleFontSize );
+    plotLayoutGroup->add( &m_axisValueFontSize );
 
     uiOrdering.skipRemainingFields( true );
 }

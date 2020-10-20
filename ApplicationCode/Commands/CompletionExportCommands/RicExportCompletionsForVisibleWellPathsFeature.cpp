@@ -18,8 +18,6 @@
 
 #include "RicExportCompletionsForVisibleWellPathsFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RicWellPathExportCompletionDataFeature.h"
 
 #include "RiuPlotMainWindow.h"
@@ -143,7 +141,7 @@ std::vector<RimWellPath*> RicExportCompletionsForVisibleWellPathsFeature::visibl
         {
             // No well path or well path collection selected
 
-            auto allWellPaths = RiaApplication::instance()->project()->allWellPaths();
+            auto allWellPaths = RimProject::current()->allWellPaths();
             for ( const auto& w : allWellPaths )
             {
                 if ( w->showWellPath() )

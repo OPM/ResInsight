@@ -166,9 +166,9 @@ void Rim2dIntersectionView::scheduleGeometryRegen( RivCellSetEnum geometryType )
 RimCase* Rim2dIntersectionView::ownerCase() const
 {
     RimCase* rimCase = nullptr;
-    if ( RimIntersectionResultDefinition* sepInterResultDef = m_intersection->activeSeparateResultDefinition() )
+    if ( m_intersection && m_intersection->activeSeparateResultDefinition() )
     {
-        rimCase = sepInterResultDef->activeCase();
+        rimCase = m_intersection->activeSeparateResultDefinition()->activeCase();
     }
 
     if ( !rimCase )

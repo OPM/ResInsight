@@ -137,6 +137,7 @@ RigCompletionData::CompletionType RicMswPerforation::completionType() const
 RicMswValve::RicMswValve( const QString& label, const RimWellPathValve* wellPathValve )
     : RicMswCompletion( label )
     , m_wellPathValve( wellPathValve )
+    , m_valid( false )
 {
 }
 
@@ -146,6 +147,22 @@ RicMswValve::RicMswValve( const QString& label, const RimWellPathValve* wellPath
 const RimWellPathValve* RicMswValve::wellPathValve() const
 {
     return m_wellPathValve;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicMswValve::isValid() const
+{
+    return m_valid;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicMswValve::setIsValid( bool valid )
+{
+    m_valid = valid;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -196,6 +213,7 @@ void RicMswWsegValve::setArea( double icdArea )
 RicMswFishbonesICD::RicMswFishbonesICD( const QString& label, const RimWellPathValve* wellPathValve )
     : RicMswWsegValve( label, wellPathValve )
 {
+    setIsValid( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -228,6 +246,7 @@ RigCompletionData::CompletionType RicMswPerforationICD::completionType() const
 RicMswPerforationICV::RicMswPerforationICV( const QString& label, const RimWellPathValve* wellPathValve )
     : RicMswWsegValve( label, wellPathValve )
 {
+    setIsValid( true );
 }
 
 //-------------------------------------------------------------------
@@ -243,9 +262,9 @@ RigCompletionData::CompletionType RicMswPerforationICV::completionType() const
 //--------------------------------------------------------------------------------------------------
 RicMswPerforationAICD::RicMswPerforationAICD( const QString& label, const RimWellPathValve* wellPathValve )
     : RicMswValve( label, wellPathValve )
-    , m_valid( false )
     , m_deviceOpen( false )
     , m_length( 0.0 )
+    , m_flowScalingFactor( 0.0 )
 {
 }
 
@@ -255,22 +274,6 @@ RicMswPerforationAICD::RicMswPerforationAICD( const QString& label, const RimWel
 RigCompletionData::CompletionType RicMswPerforationAICD::completionType() const
 {
     return RigCompletionData::PERFORATION_AICD;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicMswPerforationAICD::isValid() const
-{
-    return m_valid;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicMswPerforationAICD::setIsValid( bool valid )
-{
-    m_valid = valid;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -303,6 +306,22 @@ double RicMswPerforationAICD::length() const
 void RicMswPerforationAICD::setLength( double length )
 {
     m_length = length;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RicMswPerforationAICD::flowScalingFactor() const
+{
+    return m_flowScalingFactor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicMswPerforationAICD::setflowScalingFactor( double scalingFactor )
+{
+    m_flowScalingFactor = scalingFactor;
 }
 
 //--------------------------------------------------------------------------------------------------

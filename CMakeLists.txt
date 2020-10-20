@@ -12,6 +12,13 @@ SET(BUILD_SHARED_LIBS OFF CACHE BOOL "ERT: Build shared libraries")
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
+# Use CMake to enforce C++11 when using CMake 3 or newer.
+# The check can be removed when the minimum version is 3.
+if( (${CMAKE_MAJOR_VERSION} GREATER 3) OR (${CMAKE_MAJOR_VERSION} EQUAL 3))
+    set(CMAKE_CXX_STANDARD 11)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+endif()
+
 ################################################################################
 # Setup the main platform defines
 ################################################################################
@@ -20,11 +27,11 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     add_definitions(-DCVF_OSX)
 elseif(MSVC)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /std:c++14")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /std:c++14")
 endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set(CMAKE_CXX_FLAGS 		"-DCVF_LINUX -pipe -Wextra -Woverloaded-virtual -Wformat -std=c++11")
+    set(CMAKE_CXX_FLAGS 		"-DCVF_LINUX -pipe -Wextra -Woverloaded-virtual -Wformat -Wno-unused-parameter -std=c++11")
     set(CMAKE_CXX_FLAGS_DEBUG 	"-ggdb -g3 -O0 -DDEBUG -D_DEBUG")
     set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNO_DEBUG")
 endif() 
@@ -39,7 +46,7 @@ if (RESINSIGHT_USE_OPENMP)
     if(OPENMP_FOUND)
         message(STATUS "Enabling OpenMP support")
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -DUSE_OPENMP")
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
     else()
         message(STATUS "Disabling OpenMP support")
@@ -59,9 +66,7 @@ include (ResInsightVersion.cmake)
 find_package(Octave)
 
 ################################################################################
-# cotire and CMake Unity Build
-# Fully automated CMake module for build speedup
-# https://github.com/sakra/cotire
+# Unity Build
 ################################################################################
 
 # CMAKE_UNITY_BUILD was introduced in CMake 3.16.2
@@ -72,24 +77,14 @@ if(RESINSIGHT_ENABLE_UNITY_BUILD)
   set(CVF_ENABLE_UNITY_BUILD true)
 endif()
 
-option(RESINSIGHT_ENABLE_COTIRE "Experimental speedup of compilation using cotire" OFF)
-mark_as_advanced(FORCE RESINSIGHT_ENABLE_COTIRE)
-if(RESINSIGHT_ENABLE_COTIRE)
-
-  if(NOT COTIRE_MAXIMUM_NUMBER_OF_UNITY_INCLUDES)
-    message(STATUS "cotire: Setting default number of includes to 5")
-    set(COTIRE_MAXIMUM_NUMBER_OF_UNITY_INCLUDES 5)
-  endif()
-  
-  include(cotire)
-endif()
-
-# always include cotire tools to avoid checking if a macro is available
-include(cafCotireTools)
-
 ################################################################################
 # ERT
 ################################################################################
+
+# Use of CMAKE_CXX_COMPILER_LAUNCHER is not working with libecl. Disable by temporarily setting
+# compiler launcher to nothing
+set(TEMP_CMAKE_CXX_COMPILER_LAUNCHER ${CMAKE_CXX_COMPILER_LAUNCHER})
+set(CMAKE_CXX_COMPILER_LAUNCHER)
 
 if (NOT MSVC)
   # Linux: Optional configuration of externally installed ERT, requires path to libraries and includes
@@ -109,7 +104,7 @@ if (RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
   )
 
   list(APPEND ERT_LIBRARIES
-	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libecl.so
+    ${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libecl.so
   )
   
 else()
@@ -152,7 +147,7 @@ else()
 
     set_property(TARGET  
       catch2
-	  PROPERTY FOLDER "Thirdparty"
+      PROPERTY FOLDER "Thirdparty"
     )
     
     # Restore original state
@@ -160,6 +155,63 @@ else()
     
 endif(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 
+# restore buildcache when libecl has been configured
+set(CMAKE_CXX_COMPILER_LAUNCHER ${TEMP_CMAKE_CXX_COMPILER_LAUNCHER})
+
+######################################
+# Go through required git submodules #
+######################################
+list(APPEND THIRD_PARTY_SUBMODULES qwt)
+
+###############################################
+# Init GIT submodules if they haven't already #
+###############################################
+find_package(Git QUIET)
+if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
+    # Update submodules as needed
+    option(GIT_SUBMODULE "Check submodules during build" ON)
+    if(GIT_SUBMODULE)
+        foreach (SUBMODULE ${THIRD_PARTY_SUBMODULES})
+            set (SUBDIR "${PROJECT_SOURCE_DIR}/ThirdParty/${SUBMODULE}")
+            message(STATUS "Initializing GIT submodules")
+            execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive -- ${SUBDIR}
+                            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                            RESULT_VARIABLE GIT_SUBMOD_RESULT)
+            if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+                message(FATAL_ERROR "git submodule update --init failed for ${SUBMODULE} with ${GIT_SUBMOD_RESULT}, please checkout submodules")
+            endif()
+        endforeach()
+    endif()
+endif()
+
+
+################################################################################
+# buildcache
+# 
+# buildcache will be used if found in path
+# It is required to use compiler flag /Zi to be able to use buildcache
+# See https://docs.microsoft.com/en-us/cpp/build/reference/z7-zi-zi-debug-information-format?view=vs-2019
+# The adjustments of build flags must also be placed after libecl, as the adjustments
+# cause compiler issues for libecl
+################################################################################
+find_program(buildcache_program buildcache)
+if(buildcache_program)
+  set(CMAKE_CXX_COMPILER_LAUNCHER "${buildcache_program}")
+  message( STATUS "Found buildcache from : ${buildcache_program}" )
+
+  if (MSVC)
+    string(REGEX REPLACE "/Zi" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+
+    if(CMAKE_CXX_FLAGS_DEBUG MATCHES "/Zi")
+      message(STATUS "Clearing pdb setting")
+      string(REGEX REPLACE "/Zi" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+    endif()
+
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Z7")
+  endif()
+else()
+    message( STATUS "No buildcache found" )
+endif()
 
 ################################################################################
 # HDF5
@@ -168,43 +220,38 @@ if(MSVC)
     set(RESINSIGHT_HDF5_DIR "" CACHE PATH "Windows Only: Optional path to HDF5 libraries on Windows")
 endif()
 
-option (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING "Enable prototype feature Souring (requires third party library HDF5)" ON)
-mark_as_advanced(FORCE RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING) 
+if(MSVC)
+    if(NOT ${RESINSIGHT_HDF5_DIR} EQUAL "")
+        list(APPEND EXTERNAL_LINK_LIBRARIES
+            ${RESINSIGHT_HDF5_DIR}/lib/hdf5.lib
+            ${RESINSIGHT_HDF5_DIR}/lib/hdf5_cpp.lib
+        )
 
-if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
-    if(MSVC)
-        if(NOT ${RESINSIGHT_HDF5_DIR} EQUAL "")
-	        list(APPEND EXTERNAL_LINK_LIBRARIES
-                ${RESINSIGHT_HDF5_DIR}/lib/hdf5.lib
-                ${RESINSIGHT_HDF5_DIR}/lib/hdf5_cpp.lib
-	        )
-
-	        set(RESINSIGHT_FOUND_HDF5 1)
-	        message( STATUS "Using HDF5 from : ${RESINSIGHT_HDF5_DIR}" )
-        else()
-	        message( WARNING "Use of HDF5 is enabled, but RESINSIGHT_HDF5_DIR is empty. Specify RESINSIGHT_HDF5_DIR to be able to use HDF5" )
-        endif()
+        set(RESINSIGHT_FOUND_HDF5 1)
+        message( STATUS "Using HDF5 from : ${RESINSIGHT_HDF5_DIR}" )
     else()
-        find_package(HDF5 COMPONENTS CXX)
-        if (HDF5_FOUND)
-		    list(APPEND EXTERNAL_LINK_LIBRARIES
-		        ${HDF5_LIBRARIES}
-		    )
+        message( WARNING "Use of HDF5 is enabled, but RESINSIGHT_HDF5_DIR is empty. Specify RESINSIGHT_HDF5_DIR to be able to use HDF5" )
+    endif()
+else()
+    find_package(HDF5 COMPONENTS CXX)
+    if (HDF5_FOUND)
+        list(APPEND EXTERNAL_LINK_LIBRARIES
+            ${HDF5_LIBRARIES}
+        )
 
-	        set(RESINSIGHT_FOUND_HDF5 1)
-	        message( STATUS "Using HDF5 libraries : ${HDF5_LIBRARIES}" )
+        set(RESINSIGHT_FOUND_HDF5 1)
+        message( STATUS "Using HDF5 libraries : ${HDF5_LIBRARIES}" )
 
-			option (RESINSIGHT_HDF5_BUNDLE_LIBRARIES "Bundle HDF5 libraries" OFF)
-			mark_as_advanced(FORCE RESINSIGHT_HDF5_BUNDLE_LIBRARIES) 
-	        if (RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
-		        message( STATUS "Bundling of HDF5 libraries is enabled" )
-	        endif() # RESINSIGHT_HDF5_BUNDLE_LIBRARIES
+        option (RESINSIGHT_HDF5_BUNDLE_LIBRARIES "Bundle HDF5 libraries" OFF)
+        mark_as_advanced(FORCE RESINSIGHT_HDF5_BUNDLE_LIBRARIES) 
+        if (RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
+            message( STATUS "Bundling of HDF5 libraries is enabled" )
+        endif() # RESINSIGHT_HDF5_BUNDLE_LIBRARIES
 
-        else()
-            message( WARNING "Use of HDF5 is enabled, but no HDF5 is found." )
-        endif() # HDF5_FOUND
-    endif() # MSVC
-endif() # RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING
+    else()
+        message( WARNING "Use of HDF5 is enabled, but no HDF5 is found." )
+    endif() # HDF5_FOUND
+endif() # MSVC
 
 
 ################################################################################ 
@@ -236,7 +283,7 @@ list(APPEND OPM_LIBRARIES
 
 set_property(TARGET  
     ${OPM_LIBRARIES}
-	PROPERTY FOLDER "Thirdparty/OPM"
+    PROPERTY FOLDER "Thirdparty/OPM"
 )
 
 ################################################################################
@@ -252,14 +299,7 @@ list(APPEND THIRD_PARTY_LIBRARIES
 ################################################################################
 # Qt
 ################################################################################
-option(RESINSIGHT_BUILD_WITH_QT5 "Use Qt5" ON)
-mark_as_advanced(FORCE RESINSIGHT_BUILD_WITH_QT5)
-
-if (RESINSIGHT_BUILD_WITH_QT5)
-	find_package(Qt5 COMPONENTS REQUIRED Core Gui OpenGL Network Script ScriptTools Widgets)
-else()
-    find_package(Qt4 COMPONENTS QtCore QtGui QtMain QtOpenGl QtNetwork QtScript QtScriptTools REQUIRED)
-endif(RESINSIGHT_BUILD_WITH_QT5)
+find_package(Qt5 COMPONENTS REQUIRED Core Gui OpenGL Network Script ScriptTools Widgets)
 
 # Open GL
 find_package( OpenGL )
@@ -268,12 +308,17 @@ find_package( OpenGL )
 # Qwt
 ################################################################################
 
-add_subdirectory(ThirdParty/Qwt/src)
+add_subdirectory(ThirdParty/qwt)
+
+if(RESINSIGHT_ENABLE_UNITY_BUILD)
+    message("Cmake Unity build is enabled on : qwt")
+    set_property(TARGET qwt PROPERTY UNITY_BUILD true)
+    set_property(TARGET custom-opm-flowdiagnostics PROPERTY UNITY_BUILD true)
+endif()
 
 list(APPEND THIRD_PARTY_LIBRARIES
-    Qwt
+    qwt
 )
-
 
 ################################################################################
 # Nightcharts
@@ -310,15 +355,8 @@ list(APPEND THIRD_PARTY_LIBRARIES
 ################################################################################
 set_property(TARGET  
     ${THIRD_PARTY_LIBRARIES}
-	PROPERTY FOLDER "Thirdparty"
+    PROPERTY FOLDER "Thirdparty"
 )
-
-
-################################################################################
-# App and Viz Framework Qt5 setting, propagate settings in RESINSIGHT_BUILD_WITH_QT5
-################################################################################
-set(CEE_USE_QT5 ${RESINSIGHT_BUILD_WITH_QT5} CACHE BOOL "Flag used to enable Qt5 in AppFwk and VizFwk" FORCE)
-
 
 ################################################################################
 # Vizualization Framework
@@ -361,7 +399,7 @@ list(APPEND VIZ_FWK_LIBRARIES
 
 set_property(TARGET  
     ${VIZ_FWK_LIBRARIES}
-	PROPERTY FOLDER "VizFwk"
+    PROPERTY FOLDER "VizFwk"
 )
 
 
@@ -382,14 +420,12 @@ add_subdirectory(Fwk/AppFwk/cafUserInterface)
 add_subdirectory(Fwk/AppFwk/cafPdmCvf)
 add_subdirectory(Fwk/AppFwk/CommonCode)
 add_subdirectory(Fwk/AppFwk/cafVizExtensions)
+option(CAF_CVF_SCRIPTING "" ON)
 add_subdirectory(Fwk/AppFwk/cafPdmScripting)
 set_property(TARGET cafPdmScripting PROPERTY FOLDER "AppFwk")
 
 add_subdirectory(Fwk/AppFwk/cafCommandFeatures)
 set_property(TARGET cafCommandFeatures PROPERTY FOLDER "AppFwk")
-
-
-#add_subdirectory(Fwk/AppFwk/cafTests/cafTestCvfApplication)
 
 add_subdirectory(Fwk/AppFwk/cafTensor)
 add_subdirectory(Fwk/AppFwk/cafHexInterpolator)
@@ -414,8 +450,8 @@ list(APPEND APP_FWK_LIBRARIES
 
 set_property(TARGET  
     ${APP_FWK_LIBRARIES}
-	cafHexInterpolator
-	PROPERTY FOLDER "AppFwk"
+    cafHexInterpolator
+    PROPERTY FOLDER "AppFwk"
 )
 
 option (RESINSIGHT_INCLUDE_APPFWK_TESTS "Enable AppFwk Tests" OFF)
@@ -438,6 +474,9 @@ if (RESINSIGHT_INCLUDE_APPFWK_TESTS)
     # Executables
     add_subdirectory(Fwk/AppFwk/cafTests/cafTestApplication)
     set_property(TARGET cafTestApplication PROPERTY FOLDER "AppFwkTests")
+    
+    add_subdirectory(Fwk/AppFwk/cafTests/cafTestCvfApplication)
+    set_property(TARGET cafTestCvfApplication PROPERTY FOLDER "AppFwkTests")
 endif()
 
 
@@ -453,8 +492,7 @@ option (RESINSIGHT_PRIVATE_INSTALL "Linux only: Install the libecl shared librar
 mark_as_advanced(FORCE RESINSIGHT_PRIVATE_INSTALL)
 
 if (RESINSIGHT_PRIVATE_INSTALL)
-    set (CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/Install/)
-    
+   
     ################################################################################
     # ERT shared library files
     # Install procedure will copy so-files from ERT into same install folder as ResInsight
@@ -476,12 +514,12 @@ if (RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
     if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         # find all file names with text hdf5
         # use file globbing to also copy the symlinks to make sure the dependencies from ResInsight runtime is correct
-	    foreach (FILE_TO_COPY ${HDF5_LIBRARIES})
-	        STRING( FIND ${FILE_TO_COPY} "hdf5" POS_IN_STRING ) 
-	        if(${POS_IN_STRING} GREATER -1)
+        foreach (FILE_TO_COPY ${HDF5_LIBRARIES})
+            STRING( FIND ${FILE_TO_COPY} "hdf5" POS_IN_STRING ) 
+            if(${POS_IN_STRING} GREATER -1)
                 file(GLOB FILE_AND_SYMLINKS ${FILE_TO_COPY}*)
                 install(FILES ${FILE_AND_SYMLINKS} DESTINATION ${RESINSIGHT_INSTALL_FOLDER} )
-		    endif()
+            endif()
         endforeach()
     endif()
 endif (RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
@@ -515,8 +553,8 @@ if(RESINSIGHT_BUILD_DOCUMENTATION)
                  ${PROJECT_BINARY_DIR}/Doxyfile  @ONLY IMMEDIATE)
   #-- Add a custom target to run Doxygen when ever the project is built
   add_custom_target (Docs 
-  					COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxyfile
-  					SOURCES ${PROJECT_BINARY_DIR}/Doxyfile)
+                    COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxyfile
+                    SOURCES ${PROJECT_BINARY_DIR}/Doxyfile)
   # IF you do NOT want the documentation to be generated EVERY time you build the project
   # then leave out the 'ALL' keyword from the above command.
 endif(RESINSIGHT_BUILD_DOCUMENTATION)

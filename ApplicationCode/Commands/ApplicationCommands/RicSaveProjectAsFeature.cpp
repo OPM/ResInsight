@@ -23,10 +23,9 @@
 #include "RicSaveProjectFeature.h"
 #include "Riu3DMainWindowTools.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
 #include <QAction>
-#include <QMessageBox>
 
 RICF_SOURCE_INIT( RicSaveProjectAsFeature, "RicSaveProjectAsFeature", "saveProjectAs" );
 
@@ -35,7 +34,7 @@ RICF_SOURCE_INIT( RicSaveProjectAsFeature, "RicSaveProjectAsFeature", "saveProje
 //--------------------------------------------------------------------------------------------------
 RicSaveProjectAsFeature::RicSaveProjectAsFeature()
 {
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_filePath, "filePath", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_filePath, "filePath", "", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,11 +77,7 @@ void RicSaveProjectAsFeature::onActionTriggered( bool isChecked )
         if ( response.status() != caf::PdmScriptResponse::COMMAND_OK )
         {
             QString displayMessage = response.messages().join( "\n" );
-            if ( RiaGuiApplication::isRunning() )
-            {
-                QMessageBox::warning( nullptr, "Error when saving project file", displayMessage );
-            }
-            RiaLogging::error( displayMessage );
+            RiaLogging::errorInMessageBox( nullptr, "Error when saving project file", displayMessage );
         }
     }
 }
@@ -93,7 +88,7 @@ void RicSaveProjectAsFeature::onActionTriggered( bool isChecked )
 void RicSaveProjectAsFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Save Project &As" );
-    actionToSetup->setIcon( QIcon( ":/Save.png" ) );
+    actionToSetup->setIcon( QIcon( ":/SaveAs.svg" ) );
 
     applyShortcutWithHintToAction( actionToSetup, QKeySequence::SaveAs );
 }

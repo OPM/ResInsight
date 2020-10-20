@@ -34,41 +34,38 @@
 //
 //##################################################################################################
 
-
 #include "cafCmdFieldChangeExec.h"
 
-#include "cafPdmReferenceHelper.h"
 #include "cafNotificationCenter.h"
-
+#include "cafPdmReferenceHelper.h"
 
 namespace caf
 {
-
-CAF_PDM_SOURCE_INIT(CmdFieldChangeExecData, "CmdFieldChangeExecData");
-
+CAF_PDM_SOURCE_INIT( CmdFieldChangeExecData, "CmdFieldChangeExecData" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString CmdFieldChangeExec::name()
 {
-    PdmFieldHandle* field = PdmReferenceHelper::fieldFromReference(m_commandData->m_rootObject, m_commandData->m_pathToField);
-    if (field)
+    PdmFieldHandle* field =
+        PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, m_commandData->m_pathToField );
+    if ( field )
     {
         QString fieldText;
 
         PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
-        if (uiFieldHandle)
+        if ( uiFieldHandle )
         {
-            fieldText = QString("Change field '%1'").arg(uiFieldHandle->uiName());
+            fieldText = QString( "Change field '%1'" ).arg( uiFieldHandle->uiName() );
         }
 
-        if (field->ownerObject())
+        if ( field->ownerObject() )
         {
-            PdmUiObjectHandle* uiObjHandle = uiObj(field->ownerObject());
-            if (uiObjHandle)
+            PdmUiObjectHandle* uiObjHandle = uiObj( field->ownerObject() );
+            if ( uiObjHandle )
             {
-                fieldText += QString(" in '%1'").arg(uiObjHandle->uiName());
+                fieldText += QString( " in '%1'" ).arg( uiObjHandle->uiName() );
             }
         }
         return fieldText;
@@ -80,108 +77,108 @@ QString CmdFieldChangeExec::name()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void CmdFieldChangeExec::redo()
 {
-    PdmFieldHandle* field = PdmReferenceHelper::fieldFromReference(m_commandData->m_rootObject, m_commandData->m_pathToField);
-    if (!field)
+    PdmFieldHandle* field =
+        PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, m_commandData->m_pathToField );
+    if ( !field )
     {
-        CAF_ASSERT(false);
+        CAF_ASSERT( false );
         return;
     }
 
-    PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
+    PdmUiFieldHandle*  uiFieldHandle  = field->uiCapability();
     PdmXmlFieldHandle* xmlFieldHandle = field->xmlCapability();
-    if (uiFieldHandle && xmlFieldHandle)
+    if ( uiFieldHandle && xmlFieldHandle )
     {
-        if (m_commandData->m_redoFieldValueSerialized.isEmpty())
+        if ( m_commandData->m_redoFieldValueSerialized.isEmpty() )
         {
             // We end up here only when the user actually has done something in the actual living Gui editor.
             {
-                QXmlStreamWriter xmlStream(&m_commandData->m_undoFieldValueSerialized);
-                writeFieldDataToValidXmlDocument(xmlStream, xmlFieldHandle);
+                QXmlStreamWriter xmlStream( &m_commandData->m_undoFieldValueSerialized );
+                writeFieldDataToValidXmlDocument( xmlStream, xmlFieldHandle );
             }
 
             // This function will notify field change, no need to explicitly call notification
-            // The ui value might be an index into the option entry cache, so we need to set the value 
+            // The ui value might be an index into the option entry cache, so we need to set the value
             // and be aware of the option entries, and then serialize the actual field value we ended up with.
 
-            uiFieldHandle->setValueFromUiEditor(m_commandData->m_newUiValue);
+            uiFieldHandle->setValueFromUiEditor( m_commandData->m_newUiValue );
 
             {
-                QXmlStreamWriter xmlStream(&m_commandData->m_redoFieldValueSerialized);
-                writeFieldDataToValidXmlDocument(xmlStream, xmlFieldHandle);
+                QXmlStreamWriter xmlStream( &m_commandData->m_redoFieldValueSerialized );
+                writeFieldDataToValidXmlDocument( xmlStream, xmlFieldHandle );
             }
         }
         else
         {
             QVariant oldFieldData = uiFieldHandle->toUiBasedQVariant();
 
-            QXmlStreamReader xmlStream(m_commandData->m_redoFieldValueSerialized);
+            QXmlStreamReader xmlStream( m_commandData->m_redoFieldValueSerialized );
 
-            readFieldValueFromValidXmlDocument(xmlStream, xmlFieldHandle);
+            readFieldValueFromValidXmlDocument( xmlStream, xmlFieldHandle );
 
             QVariant newFieldData = uiFieldHandle->toUiBasedQVariant();
 
             // New data is present in field, notify data changed
-            uiFieldHandle->notifyFieldChanged(oldFieldData, newFieldData);
+            uiFieldHandle->notifyFieldChanged( oldFieldData, newFieldData );
         }
     }
 
-    if (m_notificationCenter) m_notificationCenter->notifyObserversOfDataChange(field->ownerObject());
+    if ( m_notificationCenter ) m_notificationCenter->notifyObserversOfDataChange( field->ownerObject() );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void CmdFieldChangeExec::undo()
 {
-    PdmFieldHandle* field = PdmReferenceHelper::fieldFromReference(m_commandData->m_rootObject, m_commandData->m_pathToField);
-    if (!field)
+    PdmFieldHandle* field =
+        PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, m_commandData->m_pathToField );
+    if ( !field )
     {
-        CAF_ASSERT(false);
+        CAF_ASSERT( false );
         return;
     }
 
-    PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
+    PdmUiFieldHandle*  uiFieldHandle  = field->uiCapability();
     PdmXmlFieldHandle* xmlFieldHandle = field->xmlCapability();
-    if (uiFieldHandle && xmlFieldHandle)
+    if ( uiFieldHandle && xmlFieldHandle )
     {
-        QXmlStreamReader xmlStream(m_commandData->m_undoFieldValueSerialized);
-        QVariant oldFieldData = uiFieldHandle->toUiBasedQVariant();
+        QXmlStreamReader xmlStream( m_commandData->m_undoFieldValueSerialized );
+        QVariant         oldFieldData = uiFieldHandle->toUiBasedQVariant();
 
-        readFieldValueFromValidXmlDocument(xmlStream, xmlFieldHandle);
+        readFieldValueFromValidXmlDocument( xmlStream, xmlFieldHandle );
 
         QVariant newFieldData = uiFieldHandle->toUiBasedQVariant();
 
         // New data is present in field, notify data changed
-        uiFieldHandle->notifyFieldChanged(oldFieldData, newFieldData);
+        uiFieldHandle->notifyFieldChanged( oldFieldData, newFieldData );
     }
 
-    if (m_notificationCenter) m_notificationCenter->notifyObserversOfDataChange(field->ownerObject());
+    if ( m_notificationCenter ) m_notificationCenter->notifyObserversOfDataChange( field->ownerObject() );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-CmdFieldChangeExec::CmdFieldChangeExec(NotificationCenter* notificationCenter)
-    : CmdExecuteCommand(notificationCenter)
+CmdFieldChangeExec::CmdFieldChangeExec( NotificationCenter* notificationCenter )
+    : CmdExecuteCommand( notificationCenter )
 {
     m_commandData = new CmdFieldChangeExecData;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 CmdFieldChangeExec::~CmdFieldChangeExec()
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 CmdFieldChangeExecData* CmdFieldChangeExec::commandData()
 {
@@ -189,32 +186,32 @@ CmdFieldChangeExecData* CmdFieldChangeExec::commandData()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void CmdFieldChangeExec::writeFieldDataToValidXmlDocument(QXmlStreamWriter &xmlStream, PdmXmlFieldHandle* xmlFieldHandle)
+void CmdFieldChangeExec::writeFieldDataToValidXmlDocument( QXmlStreamWriter& xmlStream, PdmXmlFieldHandle* xmlFieldHandle )
 {
-    xmlStream.setAutoFormatting(true);
+    xmlStream.setAutoFormatting( true );
     xmlStream.writeStartDocument();
-    xmlStream.writeStartElement("", "d");
-    xmlFieldHandle->writeFieldData(xmlStream);
+    xmlStream.writeStartElement( "", "d" );
+    xmlFieldHandle->writeFieldData( xmlStream );
     xmlStream.writeEndElement();
     xmlStream.writeEndDocument();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void CmdFieldChangeExec::readFieldValueFromValidXmlDocument(QXmlStreamReader &xmlStream, PdmXmlFieldHandle* xmlFieldHandle)
+void CmdFieldChangeExec::readFieldValueFromValidXmlDocument( QXmlStreamReader& xmlStream, PdmXmlFieldHandle* xmlFieldHandle )
 {
     // See PdmObject::readFields and friends to match token count for reading field values
     // The stream is supposed to be pointing at the first token of field content when calling readFieldData()
     QXmlStreamReader::TokenType tt;
-    int tokenCount = 3;
-    for (int i = 0; i < tokenCount; i++)
+    int                         tokenCount = 3;
+    for ( int i = 0; i < tokenCount; i++ )
     {
         tt = xmlStream.readNext();
     }
-    xmlFieldHandle->readFieldData(xmlStream, PdmDefaultObjectFactory::instance());
+    xmlFieldHandle->readFieldData( xmlStream, PdmDefaultObjectFactory::instance() );
 }
 
 } // end namespace caf

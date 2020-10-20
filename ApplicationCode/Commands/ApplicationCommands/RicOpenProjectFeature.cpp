@@ -20,10 +20,11 @@
 
 #include "RiaGuiApplication.h"
 
+#include "RiuFileDialogTools.h"
 #include "RiuMainWindow.h"
 
 #include <QAction>
-#include <QFileDialog>
+#include <QFileInfo>
 #include <QStyle>
 
 CAF_CMD_SOURCE_INIT( RicOpenProjectFeature, "RicOpenProjectFeature" );
@@ -46,10 +47,10 @@ void RicOpenProjectFeature::onActionTriggered( bool isChecked )
     if ( !app->askUserToSaveModifiedProject() ) return;
 
     QString defaultDir = app->lastUsedDialogDirectory( "BINARY_GRID" );
-    QString fileName   = QFileDialog::getOpenFileName( nullptr,
-                                                     "Open ResInsight Project",
-                                                     defaultDir,
-                                                     "ResInsight project (*.rsp *.rip);;All files(*.*)" );
+    QString fileName   = RiuFileDialogTools::getOpenFileName( nullptr,
+                                                            "Open ResInsight Project",
+                                                            defaultDir,
+                                                            "ResInsight project (*.rsp *.rip);;All files(*.*)" );
 
     if ( fileName.isEmpty() ) return;
 
@@ -68,7 +69,7 @@ void RicOpenProjectFeature::onActionTriggered( bool isChecked )
 void RicOpenProjectFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Open Project" );
-    actionToSetup->setIcon( QIcon( ":/openFolder24x24.png" ) );
+    actionToSetup->setIcon( QIcon( ":/OpenFolder.svg" ) );
 
     applyShortcutWithHintToAction( actionToSetup, QKeySequence::Open );
 }

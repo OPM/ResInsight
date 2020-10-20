@@ -28,9 +28,10 @@
 #include "RimSummaryCase.h"
 
 #include "Riu3DMainWindowTools.h"
+#include "RiuFileDialogTools.h"
 
 #include <QAction>
-#include <QFileDialog>
+#include <QFileInfo>
 #include <QString>
 #include <QStringList>
 
@@ -54,15 +55,16 @@ RicImportGeneralDataFeature::OpenCaseResults
 
     for ( const QString& fileName : fileNames )
     {
-        if ( obtainFileTypeFromFileName( fileName ) & ( ECLIPSE_GRID_FILE | ECLIPSE_EGRID_FILE ) )
+        int fileTypeAsInt = int( obtainFileTypeFromFileName( fileName ) );
+        if ( fileTypeAsInt & ( int( ImportFileType::ECLIPSE_GRID_FILE ) | int( ImportFileType::ECLIPSE_EGRID_FILE ) ) )
         {
             eclipseCaseFiles.push_back( fileName );
         }
-        else if ( obtainFileTypeFromFileName( fileName ) & ECLIPSE_INPUT_FILE )
+        else if ( fileTypeAsInt & int( ImportFileType::ECLIPSE_INPUT_FILE ) )
         {
             eclipseInputFiles.push_back( fileName );
         }
-        else if ( obtainFileTypeFromFileName( fileName ) & ECLIPSE_SUMMARY_FILE )
+        else if ( fileTypeAsInt & int( ImportFileType::ECLIPSE_SUMMARY_FILE ) )
         {
             eclipseSummaryFiles.push_back( fileName );
         }
@@ -76,7 +78,8 @@ RicImportGeneralDataFeature::OpenCaseResults
             return OpenCaseResults();
         }
         results.eclipseCaseFiles = eclipseCaseFiles;
-        RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirectoryLabel( ECLIPSE_EGRID_FILE ), defaultDir );
+        RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirectoryLabel( ImportFileType::ECLIPSE_EGRID_FILE ),
+                                                                defaultDir );
     }
     if ( !eclipseInputFiles.empty() )
     {
@@ -85,7 +88,8 @@ RicImportGeneralDataFeature::OpenCaseResults
             return OpenCaseResults();
         }
         results.eclipseInputFiles = eclipseInputFiles;
-        RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirectoryLabel( ECLIPSE_INPUT_FILE ), defaultDir );
+        RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirectoryLabel( ImportFileType::ECLIPSE_INPUT_FILE ),
+                                                                defaultDir );
     }
     if ( !eclipseSummaryFiles.empty() )
     {
@@ -94,7 +98,8 @@ RicImportGeneralDataFeature::OpenCaseResults
             return OpenCaseResults();
         }
         results.eclipseSummaryFiles = eclipseSummaryFiles;
-        RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirectoryLabel( ECLIPSE_SUMMARY_FILE ), defaultDir );
+        RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirectoryLabel( ImportFileType::ECLIPSE_SUMMARY_FILE ),
+                                                                defaultDir );
     }
     return results;
 }
@@ -138,7 +143,7 @@ bool RicImportGeneralDataFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicImportGeneralDataFeature::onActionTriggered( bool isChecked )
 {
-    openFileDialog( ANY_ECLIPSE_FILE );
+    openFileDialog( ImportFileType::ANY_ECLIPSE_FILE );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -146,14 +151,14 @@ void RicImportGeneralDataFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicImportGeneralDataFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/Case48x48.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Case.svg" ) );
     actionToSetup->setText( "Import Eclipse Files" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RicImportGeneralDataFeature::getEclipseFileNamesWithDialog( RiaDefines::ImportFileType fileTypes )
+QStringList RicImportGeneralDataFeature::getEclipseFileNamesWithDialog( RiaDefines::ImportFileType fileType )
 {
     QString eclipseGridFilePattern( "*.GRID" );
     QString eclipseEGridFilePattern( "*.EGRID" );
@@ -161,7 +166,7 @@ QStringList RicImportGeneralDataFeature::getEclipseFileNamesWithDialog( RiaDefin
     QString eclipseSummaryFilePattern( "*.SMSPEC" );
 
     QStringList filePatternTexts;
-    if ( fileTypes == ANY_ECLIPSE_FILE )
+    if ( fileType == ImportFileType::ANY_ECLIPSE_FILE )
     {
         filePatternTexts += QString( "Eclipse Files (%1 %2 %3 %4)" )
                                 .arg( eclipseGridFilePattern )
@@ -169,29 +174,34 @@ QStringList RicImportGeneralDataFeature::getEclipseFileNamesWithDialog( RiaDefin
                                 .arg( eclipseInputFilePattern )
                                 .arg( eclipseSummaryFilePattern );
     }
-    if ( fileTypes & ECLIPSE_EGRID_FILE )
+
+    int fileTypeAsInt = int( fileType );
+
+    if ( fileTypeAsInt & int( ImportFileType::ECLIPSE_EGRID_FILE ) )
     {
         filePatternTexts += QString( "Eclipse EGrid Files (%1)" ).arg( eclipseEGridFilePattern );
     }
-    if ( fileTypes & ECLIPSE_GRID_FILE )
+    if ( fileTypeAsInt & int( ImportFileType::ECLIPSE_GRID_FILE ) )
     {
         filePatternTexts += QString( "Eclipse Grid Files (%1)" ).arg( eclipseGridFilePattern );
     }
-    if ( fileTypes & ECLIPSE_INPUT_FILE )
+    if ( fileTypeAsInt & int( ImportFileType::ECLIPSE_INPUT_FILE ) )
     {
         filePatternTexts += QString( "Eclipse Input Files and Input Properties (%1)" ).arg( eclipseInputFilePattern );
     }
-    if ( fileTypes & ECLIPSE_SUMMARY_FILE )
+    if ( fileTypeAsInt & int( ImportFileType::ECLIPSE_SUMMARY_FILE ) )
     {
         filePatternTexts += QString( "Eclipse Summary File (%1)" ).arg( eclipseSummaryFilePattern );
     }
 
     QString fullPattern = filePatternTexts.join( ";;" );
 
-    QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectory( defaultDirectoryLabel( fileTypes ) );
+    QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectory( defaultDirectoryLabel( fileType ) );
 
-    QStringList fileNames =
-        QFileDialog::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(), "Import Data File", defaultDir, fullPattern );
+    QStringList fileNames = RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
+                                                                  "Import Data File",
+                                                                  defaultDir,
+                                                                  fullPattern );
     return fileNames;
 }
 
@@ -203,9 +213,9 @@ void RicImportGeneralDataFeature::openFileDialog( ImportFileType fileTypes )
     QStringList fileNames = getEclipseFileNamesWithDialog( fileTypes );
     if ( fileNames.empty() ) return;
 
-    if ( fileTypes == ANY_ECLIPSE_FILE )
+    if ( fileTypes == ImportFileType::ANY_ECLIPSE_FILE )
     {
-        RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirectoryLabel( ANY_ECLIPSE_FILE ),
+        RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirectoryLabel( ImportFileType::ANY_ECLIPSE_FILE ),
                                                                 fileNames.front() );
     }
 

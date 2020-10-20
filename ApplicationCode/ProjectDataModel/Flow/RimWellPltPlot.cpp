@@ -18,9 +18,8 @@
 
 #include "RimWellPltPlot.h"
 
-#include "RiaApplication.h"
-#include "RiaColorTables.h"
 #include "RiaDateStringParser.h"
+#include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaWellNameComparer.h"
 
@@ -61,8 +60,6 @@
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cafVecIjk.h"
 
-#include <QMessageBox>
-
 #include <algorithm>
 #include <iterator>
 #include <tuple>
@@ -102,9 +99,6 @@ RimWellPltPlot::RimWellPltPlot()
 {
     CAF_PDM_InitObject( "Well Allocation Plot", ":/WellFlowPlot16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_showPlotTitle_OBSOLETE, "ShowPlotTitle", false, "Show Plot Title", "", "", "" );
-    m_showPlotTitle_OBSOLETE.xmlCapability()->setIOWritable( false );
-
     CAF_PDM_InitFieldNoDefault( &m_wellLogPlot_OBSOLETE, "WellLog", "WellLog", "", "", "" );
     m_wellLogPlot_OBSOLETE.uiCapability()->setUiHidden( true );
     m_wellLogPlot_OBSOLETE.xmlCapability()->setIOWritable( false );
@@ -119,6 +113,7 @@ RimWellPltPlot::RimWellPltPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_selectedSourcesForIo, "Sources", "Sources", "", "", "" );
     m_selectedSourcesForIo.uiCapability()->setUiHidden( true );
+    m_selectedSourcesForIo.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "Time Steps", "", "", "" );
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
@@ -140,7 +135,8 @@ RimWellPltPlot::RimWellPltPlot()
     m_isOnLoad              = true;
     m_plotLegendsHorizontal = false;
 
-    setAvailableDepthTypes( {RiaDefines::MEASURED_DEPTH} );
+    setAvailableDepthTypes( {RiaDefines::DepthTypeEnum::MEASURED_DEPTH} );
+    setPlotTitleVisible( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -161,7 +157,11 @@ void RimWellPltPlot::setPlotXAxisTitles( RimWellLogTrack* plotTrack )
     std::set<RiaEclipseUnitTools::UnitSystem> presentUnitSystems;
     for ( const RifDataSourceForRftPlt& source : m_selectedSources.v() )
     {
-        if ( source.eclCase() ) presentUnitSystems.insert( source.eclCase()->eclipseCaseData()->unitsType() );
+        if ( source.eclCase() && source.eclCase()->eclipseCaseData() )
+        {
+            presentUnitSystems.insert( source.eclCase()->eclipseCaseData()->unitsType() );
+        }
+
         if ( source.wellLogFile() )
         {
             if ( source.wellLogFile()->wellLogFileData() )
@@ -169,14 +169,14 @@ void RimWellPltPlot::setPlotXAxisTitles( RimWellLogTrack* plotTrack )
                 // Todo: Handle different units in the relevant las channels
                 switch ( source.wellLogFile()->wellLogFileData()->depthUnit() )
                 {
-                    case RiaDefines::UNIT_METER:
-                        presentUnitSystems.insert( RiaEclipseUnitTools::UNITS_METRIC );
+                    case RiaDefines::DepthUnitType::UNIT_METER:
+                        presentUnitSystems.insert( RiaEclipseUnitTools::UnitSystem::UNITS_METRIC );
                         break;
-                    case RiaDefines::UNIT_FEET:
-                        presentUnitSystems.insert( RiaEclipseUnitTools::UNITS_FIELD );
+                    case RiaDefines::DepthUnitType::UNIT_FEET:
+                        presentUnitSystems.insert( RiaEclipseUnitTools::UnitSystem::UNITS_FIELD );
                         break;
-                    case RiaDefines::UNIT_NONE:
-                        presentUnitSystems.insert( RiaEclipseUnitTools::UNITS_UNKNOWN );
+                    case RiaDefines::DepthUnitType::UNIT_NONE:
+                        presentUnitSystems.insert( RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN );
                         break;
                 }
             }
@@ -185,7 +185,7 @@ void RimWellPltPlot::setPlotXAxisTitles( RimWellLogTrack* plotTrack )
 
     if ( presentUnitSystems.size() > 1 )
     {
-        QMessageBox::warning( nullptr, "ResInsight PLT Plot", "Inconsistent units in PLT plot" );
+        RiaLogging::errorInMessageBox( nullptr, "ResInsight PLT Plot", "Inconsistent units in PLT plot" );
     }
 
     if ( presentUnitSystems.empty() ) return;
@@ -233,7 +233,7 @@ void RimWellPltPlot::updateFormationsOnPlot() const
 {
     if ( plotCount() > 0 )
     {
-        RimProject*  proj     = RiaApplication::instance()->project();
+        RimProject*  proj     = RimProject::current();
         RimWellPath* wellPath = proj->wellPathByName( m_wellPathName );
 
         RimWellLogTrack* track = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
@@ -289,7 +289,7 @@ public:
 protected:
     RigEclipseWellLogExtractor* findWellLogExtractor( const QString& wellPathName, RimEclipseResultCase* eclCase )
     {
-        RimProject*                 proj              = RiaApplication::instance()->project();
+        RimProject*                 proj              = RimProject::current();
         RimWellPath*                wellPath          = proj->wellPathByName( wellPathName );
         RimWellLogPlotCollection*   wellLogCollection = proj->mainPlotCollection()->wellLogPlotCollection();
         RigEclipseWellLogExtractor* eclExtractor      = wellLogCollection->findOrCreateExtractor( wellPath, eclCase );
@@ -402,7 +402,7 @@ public:
         // Find timestep index from qdatetime
 
         const std::vector<QDateTime> timeSteps =
-            eclCase->eclipseCaseData()->results( RiaDefines::MATRIX_MODEL )->timeStepDates();
+            eclCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->timeStepDates();
         size_t tsIdx = timeSteps.size();
         for ( tsIdx = 0; tsIdx < timeSteps.size(); ++tsIdx )
         {
@@ -541,7 +541,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
             resultPointCalc.reset( new RigSimWellResultPointCalculator( m_wellPathName, rimEclipseResultCase, timeStep ) );
         }
 
-        RiaEclipseUnitTools::UnitSystem unitSet = RiaEclipseUnitTools::UNITS_UNKNOWN;
+        RiaEclipseUnitTools::UnitSystem unitSet = RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
         if ( rimEclipseResultCase )
         {
             unitSet = rimEclipseResultCase->eclipseCaseData()->unitsType();
@@ -654,11 +654,13 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
 
                     std::vector<double> depthValues = wellLogFileData->depthValues();
 
-                    RiaEclipseUnitTools::UnitSystem unitSystem = RiaEclipseUnitTools::UNITS_UNKNOWN;
+                    RiaEclipseUnitTools::UnitSystem unitSystem = RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
                     {
                         RiaDefines::DepthUnitType depthUnit = wellLogFileData->depthUnit();
-                        if ( depthUnit == RiaDefines::UNIT_FEET ) unitSystem = RiaEclipseUnitTools::UNITS_FIELD;
-                        if ( depthUnit == RiaDefines::UNIT_METER ) unitSystem = RiaEclipseUnitTools::UNITS_METRIC;
+                        if ( depthUnit == RiaDefines::DepthUnitType::UNIT_FEET )
+                            unitSystem = RiaEclipseUnitTools::UnitSystem::UNITS_FIELD;
+                        if ( depthUnit == RiaDefines::DepthUnitType::UNIT_METER )
+                            unitSystem = RiaEclipseUnitTools::UnitSystem::UNITS_METRIC;
                     }
 
                     for ( const ChannelValNameIdxTuple& channelInfo : sortedChannels )
@@ -901,7 +903,7 @@ void RimWellPltPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     }
     else if ( changedField == &m_selectedSources )
     {
-        RimProject*  project  = RiaApplication::instance()->project();
+        RimProject*  project  = RimProject::current();
         RimWellPath* wellPath = project->wellPathByName( m_wellPathName() );
         if ( wellPath && !wellPath->wellPathGeometry() )
         {
@@ -916,7 +918,7 @@ void RimWellPltPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                             QString( "Display of Measured Depth (MD) for Grid or RFT curves is not possible without a "
                                      "well log path, and the curve will be hidden in this mode.\n\n" );
 
-                        QMessageBox::warning( nullptr, "Grid/RFT curve without MD", tmp );
+                        RiaLogging::errorInMessageBox( nullptr, "Grid/RFT curve without MD", tmp );
 
                         // Do not show multiple dialogs
                         break;
@@ -1034,11 +1036,6 @@ void RimWellPltPlot::initAfterRead()
         m_wellLogPlot_OBSOLETE = nullptr;
     }
 
-    if ( m_showPlotTitle_OBSOLETE() && !m_showPlotWindowTitle() )
-    {
-        m_showPlotWindowTitle = m_showPlotTitle_OBSOLETE();
-    }
-
     RimWellLogPlot::initAfterRead();
 
     // Postpone init until data has been loaded
@@ -1084,7 +1081,7 @@ void RimWellPltPlot::syncSourcesIoFieldFromGuiField()
 //--------------------------------------------------------------------------------------------------
 void RimWellPltPlot::calculateValueOptionsForWells( QList<caf::PdmOptionItemInfo>& options )
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
 
     if ( proj != nullptr )
     {
@@ -1120,7 +1117,7 @@ void RimWellPltPlot::onLoadDataAndUpdate()
             CAF_ASSERT( plotTrack );
             if ( plotTrack )
             {
-                plotTrack->setAnnotationType( RiuPlotAnnotationTool::FORMATION_ANNOTATIONS );
+                plotTrack->setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType::FORMATION_ANNOTATIONS );
             }
         }
         m_isOnLoad = false;

@@ -41,28 +41,26 @@
 
 namespace caf
 {
-template<typename S>
+template <typename S>
 class Line
 {
 public:
     Line();
-    Line(const cvf::Vector3<S>& startPoint, const cvf::Vector3<S>& endPoint);
-    Line(const Line& copyFrom);
-    Line& operator=(const Line& copyFrom);
+    Line( const cvf::Vector3<S>& startPoint, const cvf::Vector3<S>& endPoint );
+    Line( const Line& copyFrom );
+    Line& operator=( const Line& copyFrom );
 
     const cvf::Vector3<S>& start() const;
     const cvf::Vector3<S>& end() const;
     cvf::Vector3<S>        vector() const;
-    
-    Line findLineBetweenNearestPoints(const Line& otherLine, bool* withinLineSegments = nullptr);
+
+    Line findLineBetweenNearestPoints( const Line& otherLine, bool* withinLineSegments = nullptr );
 
 private:
     cvf::Vector3<S> m_start;
     cvf::Vector3<S> m_end;
 };
 
-}
+} // namespace caf
 
 #include "cafLine.inl"
-
-

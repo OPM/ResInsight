@@ -183,51 +183,49 @@ void Rim3dWellLogExtractionCurve::curveValuesAndMdsAtTimeStep( std::vector<doubl
     CAF_ASSERT( values != nullptr );
     CAF_ASSERT( measuredDepthValues != nullptr );
 
-    cvf::ref<RigEclipseWellLogExtractor> eclExtractor;
-    cvf::ref<RigGeoMechWellLogExtractor> geomExtractor;
-
     RimWellPath* wellPath;
     firstAncestorOrThisOfType( wellPath );
 
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() );
-
     if ( eclipseCase )
     {
-        eclExtractor = RiaExtractionTools::wellLogExtractorEclipseCase( wellPath, eclipseCase );
+        cvf::ref<RigEclipseWellLogExtractor> eclExtractor =
+            RiaExtractionTools::wellLogExtractorEclipseCase( wellPath, eclipseCase );
+        if ( eclExtractor.notNull() )
+        {
+            *measuredDepthValues = eclExtractor->cellIntersectionMDs();
+
+            m_eclipseResultDefinition->loadResult();
+
+            cvf::ref<RigResultAccessor> resAcc =
+                RigResultAccessorFactory::createFromResultDefinition( eclipseCase->eclipseCaseData(),
+                                                                      0,
+                                                                      timeStep,
+                                                                      m_eclipseResultDefinition );
+            if ( resAcc.notNull() )
+            {
+                eclExtractor->curveData( resAcc.p(), values );
+            }
+        }
     }
     else
     {
         RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>( m_case() );
         if ( geomCase )
         {
-            geomExtractor = RiaExtractionTools::wellLogExtractorGeoMechCase( wellPath, geomCase );
+            cvf::ref<RigGeoMechWellLogExtractor> geomExtractor =
+                RiaExtractionTools::wellLogExtractorGeoMechCase( wellPath, geomCase );
+
+            if ( geomExtractor.notNull() )
+            {
+                *measuredDepthValues = geomExtractor->cellIntersectionMDs();
+
+                RimWellLogExtractionCurve::findAndLoadWbsParametersFromLasFiles( wellPath, geomExtractor.p() );
+
+                m_geomResultDefinition->loadResult();
+                geomExtractor->curveData( m_geomResultDefinition->resultAddress(), timeStep, values );
+            }
         }
-    }
-
-    if ( eclExtractor.notNull() && eclipseCase )
-    {
-        *measuredDepthValues = eclExtractor->cellIntersectionMDs();
-
-        m_eclipseResultDefinition->loadResult();
-
-        cvf::ref<RigResultAccessor> resAcc =
-            RigResultAccessorFactory::createFromResultDefinition( eclipseCase->eclipseCaseData(),
-                                                                  0,
-                                                                  timeStep,
-                                                                  m_eclipseResultDefinition );
-        if ( resAcc.notNull() )
-        {
-            eclExtractor->curveData( resAcc.p(), values );
-        }
-    }
-    else if ( geomExtractor.notNull() )
-    {
-        *measuredDepthValues = geomExtractor->cellIntersectionMDs();
-
-        RimWellLogExtractionCurve::findAndLoadWbsParametersFromLasFiles( wellPath, geomExtractor.p() );
-
-        m_geomResultDefinition->loadResult();
-        geomExtractor->curveData( m_geomResultDefinition->resultAddress(), timeStep, values );
     }
 }
 
@@ -252,6 +250,11 @@ std::pair<double, double> Rim3dWellLogExtractionCurve::findCurveValueRange()
         else
         {
             timeStepsToCheck.insert( m_timeStep() );
+        }
+
+        if ( timeStepsToCheck.empty() )
+        {
+            timeStepsToCheck.insert( 0 );
         }
 
         for ( int timeStep : timeStepsToCheck )
@@ -322,7 +325,8 @@ QString Rim3dWellLogExtractionCurve::createAutoName() const
 
         if ( eclipseCase )
         {
-            addTimeStep = addTimeStep && m_eclipseResultDefinition->resultType() != RiaDefines::STATIC_NATIVE;
+            addTimeStep = addTimeStep &&
+                          m_eclipseResultDefinition->resultType() != RiaDefines::ResultCatType::STATIC_NATIVE;
             RigEclipseCaseData* data = eclipseCase->eclipseCaseData();
             if ( data )
             {
@@ -533,7 +537,7 @@ QString Rim3dWellLogExtractionCurve::wellDate() const
 
     if ( eclipseCase )
     {
-        if ( m_eclipseResultDefinition->resultType() == RiaDefines::STATIC_NATIVE )
+        if ( m_eclipseResultDefinition->resultType() == RiaDefines::ResultCatType::STATIC_NATIVE )
         {
             return QString();
         }

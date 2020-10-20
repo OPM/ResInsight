@@ -50,7 +50,7 @@ void RicRefreshScriptsFeature::onActionTriggered( bool isChecked )
 void RicRefreshScriptsFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Refresh" );
-    actionToSetup->setIcon( QIcon( ":/Refresh-32.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Refresh.svg" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,7 +58,7 @@ void RicRefreshScriptsFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 void RicRefreshScriptsFeature::refreshScriptFolders()
 {
-    RimProject*     proj  = RiaApplication::instance()->project();
+    RimProject*     proj  = RimProject::current();
     RiaPreferences* prefs = RiaApplication::instance()->preferences();
 
     proj->setScriptDirectories( prefs->scriptDirectories() );

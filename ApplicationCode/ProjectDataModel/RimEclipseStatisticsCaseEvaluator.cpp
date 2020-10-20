@@ -50,9 +50,9 @@ void RimEclipseStatisticsCaseEvaluator::addNamedResult( RigCaseCellResultsData* 
     CVF_ASSERT( m_sourceCases.size() > 0 );
 
     std::vector<RigEclipseResultAddress> resAddresses =
-        m_sourceCases[0]->results( RiaDefines::MATRIX_MODEL )->existingResults();
+        m_sourceCases[0]->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->existingResults();
     std::vector<RigEclipseTimeStepInfo> sourceTimeStepInfos =
-        m_sourceCases[0]->results( RiaDefines::MATRIX_MODEL )->timeStepInfos( resAddresses[0] );
+        m_sourceCases[0]->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->timeStepInfos( resAddresses[0] );
 
     RigEclipseResultAddress resAddr( resultType, resultName );
     destinationCellResults->createResultEntry( resAddr, true );
@@ -175,7 +175,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
                 size_t dataAccessTimeStepIndex = timeStepIdx;
 
                 // Always evaluate statistics once, and always use time step index zero
-                if ( resultType == RiaDefines::STATIC_NATIVE )
+                if ( resultType == RiaDefines::ResultCatType::STATIC_NATIVE )
                 {
                     if ( timeIndicesIdx > 0 ) continue;
 
@@ -238,9 +238,12 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
 
                 std::vector<double> statParams( STAT_PARAM_COUNT, HUGE_VAL );
                 std::vector<double> values( sourceDataAccessList.size(), HUGE_VAL );
+
+                int cellCount = static_cast<int>( grid->cellCount() );
+
                 // Loop over the cells in the grid, get the case values, and calculate the cell statistics
 #pragma omp parallel for schedule( dynamic ) firstprivate( statParams, values )
-                for ( int cellIdx = 0; static_cast<size_t>( cellIdx ) < grid->cellCount(); cellIdx++ )
+                for ( int cellIdx = 0; cellIdx < cellCount; cellIdx++ )
                 {
                     size_t reservoirCellIndex = grid->reservoirCellIndex( cellIdx );
                     if ( m_destinationCase->activeCellInfo( poroModel )->isActive( reservoirCellIndex ) )
@@ -349,8 +352,8 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
 
             if ( !eclipseCase->reservoirViews.size() )
             {
-                eclipseCase->results( RiaDefines::MATRIX_MODEL )->freeAllocatedResultsData();
-                eclipseCase->results( RiaDefines::FRACTURE_MODEL )->freeAllocatedResultsData();
+                eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->freeAllocatedResultsData();
+                eclipseCase->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->freeAllocatedResultsData();
             }
         }
 

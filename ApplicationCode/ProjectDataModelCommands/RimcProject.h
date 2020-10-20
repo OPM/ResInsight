@@ -36,7 +36,7 @@ class RimProject_importSummaryCase : public caf::PdmObjectMethod
 public:
     RimProject_importSummaryCase( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute();
+    caf::PdmObjectHandle*            execute() override;
     bool                             resultIsPersistent() const override;
     std::unique_ptr<PdmObjectHandle> defaultResult() const override;
 
@@ -54,11 +54,30 @@ class RimProject_summaryCase : public caf::PdmObjectMethod
 public:
     RimProject_summaryCase( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute();
+    caf::PdmObjectHandle*            execute() override;
     bool                             resultIsPersistent() const override;
     std::unique_ptr<PdmObjectHandle> defaultResult() const override;
     bool                             isNullptrValidResult() const override;
 
 private:
     caf::PdmField<int> m_caseId;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimProject_surfaceFolder : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimProject_surfaceFolder( caf::PdmObjectHandle* self );
+
+    caf::PdmObjectHandle*            execute() override;
+    bool                             resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+    bool                             isNullptrValidResult() const override;
+
+private:
+    caf::PdmField<QString> m_folderName;
 };

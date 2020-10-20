@@ -18,8 +18,6 @@
 
 #include "RicNewDerivedEnsembleFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RimDerivedEnsembleCaseCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -78,7 +76,7 @@ void RicNewDerivedEnsembleFeature::onActionTriggered( bool isChecked )
 {
     if ( isCommandEnabled() )
     {
-        auto project  = RiaApplication::instance()->project();
+        auto project  = RimProject::current();
         auto mainColl = project->firstSummaryCaseMainCollection();
 
         auto newColl = mainColl->addCaseCollection( {}, "", true, []() { return new RimDerivedEnsembleCaseCollection(); } );
@@ -91,7 +89,7 @@ void RicNewDerivedEnsembleFeature::onActionTriggered( bool isChecked )
             if ( ensembles.size() == 2 )
             {
                 newEnsemble->setEnsemble2( ensembles[1] );
-                newEnsemble->updateDerivedEnsembleCases();
+                newEnsemble->createDerivedEnsembleCases();
 
                 if ( newEnsemble->allSummaryCases().empty() )
                 {
@@ -114,5 +112,5 @@ void RicNewDerivedEnsembleFeature::onActionTriggered( bool isChecked )
 void RicNewDerivedEnsembleFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "New Delta Ensemble" );
-    actionToSetup->setIcon( QIcon( ":/SummaryEnsemble16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/SummaryEnsemble.svg" ) );
 }

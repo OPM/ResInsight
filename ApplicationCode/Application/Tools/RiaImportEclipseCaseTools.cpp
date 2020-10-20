@@ -66,7 +66,6 @@
 #include "cafUtils.h"
 
 #include <QFileInfo>
-#include <QMessageBox>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -270,7 +269,7 @@ bool RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( const QString
 
     RimEclipseView* riv = rimInputReservoir->createAndAddReservoirView();
 
-    riv->cellResult()->setResultType( RiaDefines::INPUT_PROPERTY );
+    riv->cellResult()->setResultType( RiaDefines::ResultCatType::INPUT_PROPERTY );
 
     riv->loadDataAndUpdate();
 

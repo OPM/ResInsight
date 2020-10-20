@@ -18,7 +18,6 @@
 
 #include "RicSelectSummaryPlotUI.h"
 
-#include "RiaApplication.h"
 #include "RiaSummaryTools.h"
 
 #include "RimEclipseResultCase.h"
@@ -105,7 +104,7 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 void RicSelectSummaryPlotUI::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    if ( RiaSummaryTools::summaryPlotCollection()->summaryPlots().size() == 0 )
+    if ( RiaSummaryTools::summaryPlotCollection()->plots().empty() )
     {
         m_createNewPlot = true;
     }

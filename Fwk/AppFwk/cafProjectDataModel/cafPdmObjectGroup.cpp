@@ -7,64 +7,59 @@
 
 namespace caf
 {
-
-CAF_PDM_SOURCE_INIT(PdmObjectGroup, "PdmObjectGroup");
+CAF_PDM_SOURCE_INIT( PdmObjectGroup, "PdmObjectGroup" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-PdmObjectGroup::PdmObjectGroup() 
+PdmObjectGroup::PdmObjectGroup()
 {
-    CAF_PDM_InitObject("Object Group", "", "", "");
+    CAF_PDM_InitObject( "Object Group", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmObjectGroup::~PdmObjectGroup()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmObjectGroup::deleteObjects()
 {
     size_t it;
-    for (it = 0; it != objects.size(); ++it)
+    for ( it = 0; it != objects.size(); ++it )
     {
         delete objects[it];
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmObjectGroup::addObject(PdmObjectHandle * obj)
+void PdmObjectGroup::addObject( PdmObjectHandle* obj )
 {
-    objects.push_back(obj);
+    objects.push_back( obj );
 }
 
-
-
-CAF_PDM_SOURCE_INIT(PdmObjectCollection, "PdmObjectCollection");
+CAF_PDM_SOURCE_INIT( PdmObjectCollection, "PdmObjectCollection" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmObjectCollection::PdmObjectCollection()
 {
-    CAF_PDM_InitObject("PdmObjectCollection", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&objects, "PdmObjects", "", "", "", "")
+    CAF_PDM_InitObject( "PdmObjectCollection", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &objects, "PdmObjects", "", "", "", "" )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmObjectCollection::~PdmObjectCollection()
 {
-
 }
 
-} //End of namespace caf
-
+} // End of namespace caf

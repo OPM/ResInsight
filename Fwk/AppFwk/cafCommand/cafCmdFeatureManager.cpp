@@ -34,46 +34,43 @@
 //
 //##################################################################################################
 
-
 #include "cafCmdFeatureManager.h"
 
 #include "cafCmdFeature.h"
 #include "cafCmdSelectionHelper.h"
-#include "cafFactory.h" 
+#include "cafFactory.h"
 
 #include <QAction>
 #include <QKeySequence>
 
 namespace caf
 {
-
-    typedef Factory<CmdFeature, std::string> CommandFeatureFactory;
+typedef Factory<CmdFeature, std::string> CommandFeatureFactory;
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 CmdFeatureManager::CmdFeatureManager()
 {
     // Make sure all command features are created. The command feature is registered
     // in the command factory, and instantiated when required. This will enable possibility
-    // of searching through all command features instead of having to use the string keys to 
+    // of searching through all command features instead of having to use the string keys to
     // be sure all command features are present.
     std::vector<std::string> keys = CommandFeatureFactory::instance()->allKeys();
-    for (size_t i = 0; i < keys.size(); i++)
+    for ( size_t i = 0; i < keys.size(); i++ )
     {
-        createFeature(keys[i]);
+        createFeature( keys[i] );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 CmdFeatureManager::~CmdFeatureManager()
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 CmdFeatureManager* CmdFeatureManager::instance()
 {
@@ -85,99 +82,101 @@ CmdFeatureManager* CmdFeatureManager::instance()
 /// Get action for the specified command.
 /// The action is owned by the PdmCommandItemManager
 //--------------------------------------------------------------------------------------------------
-QAction* CmdFeatureManager::action(const QString& commandId)
+QAction* CmdFeatureManager::action( const QString& commandId )
 {
-    std::pair<CmdFeature*, size_t> featurePair = createFeature(commandId.toStdString());
+    std::pair<CmdFeature*, size_t> featurePair = createFeature( commandId.toStdString() );
 
-    QAction* act = featurePair.first->action();
+    QAction* act                 = featurePair.first->action();
     m_actionToFeatureIdxMap[act] = featurePair.second;
 
     return act;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Get action for the specified command, with custom action text 
+/// Get action for the specified command, with custom action text
 /// The action is owned by the PdmCommandItemManager
 //--------------------------------------------------------------------------------------------------
-QAction* CmdFeatureManager::action(const QString& commandId, const QString& customActionText)
+QAction* CmdFeatureManager::action( const QString& commandId, const QString& customActionText )
 {
-    std::pair<CmdFeature*, size_t> featurePair = createFeature(commandId.toStdString());
+    std::pair<CmdFeature*, size_t> featurePair = createFeature( commandId.toStdString() );
 
-    QAction* act = featurePair.first->actionWithCustomText(customActionText);
+    QAction* act                 = featurePair.first->actionWithCustomText( customActionText );
     m_actionToFeatureIdxMap[act] = featurePair.second;
 
     return act;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Get action for the specified command, with custom action text 
+/// Get action for the specified command, with custom action text
 /// The action is owned by the PdmCommandItemManager
 //--------------------------------------------------------------------------------------------------
-QAction* CmdFeatureManager::actionWithUserData(const QString& commandId, const QString& customActionText, const QVariant& userData)
+QAction* CmdFeatureManager::actionWithUserData( const QString&  commandId,
+                                                const QString&  customActionText,
+                                                const QVariant& userData )
 {
-    std::pair<CmdFeature*, size_t> featurePair = createFeature(commandId.toStdString());
+    std::pair<CmdFeature*, size_t> featurePair = createFeature( commandId.toStdString() );
 
-    QAction* act = featurePair.first->actionWithUserData(customActionText, userData);
+    QAction* act                 = featurePair.first->actionWithUserData( customActionText, userData );
     m_actionToFeatureIdxMap[act] = featurePair.second;
 
     return act;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::pair<CmdFeature*, size_t> CmdFeatureManager::createFeature(const std::string& commandId)
+std::pair<CmdFeature*, size_t> CmdFeatureManager::createFeature( const std::string& commandId )
 {
-    std::pair<CmdFeature*, size_t> featurePair = this->findExistingCmdFeature(commandId);
+    std::pair<CmdFeature*, size_t> featurePair = this->findExistingCmdFeature( commandId );
 
-    if (featurePair.first)
+    if ( featurePair.first )
     {
         return featurePair;
     }
-    
-    CmdFeature* feature = CommandFeatureFactory::instance()->create(commandId);
-    CAF_ASSERT(feature); // The command ID is not known in the factory
 
-    feature->setParent(this);
+    CmdFeature* feature = CommandFeatureFactory::instance()->create( commandId );
+    CAF_ASSERT( feature ); // The command ID is not known in the factory
+
+    feature->setParent( this );
     size_t index = m_commandFeatures.size();
-    m_commandFeatures.push_back(feature);
+    m_commandFeatures.push_back( feature );
     m_commandIdToFeatureIdxMap[commandId] = index;
 
-    return std::make_pair(feature, index);
+    return std::make_pair( feature, index );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::pair<CmdFeature*, size_t>  CmdFeatureManager::findExistingCmdFeature(const std::string& commandId)
+std::pair<CmdFeature*, size_t> CmdFeatureManager::findExistingCmdFeature( const std::string& commandId )
 {
     std::map<std::string, size_t>::const_iterator it;
-    it = m_commandIdToFeatureIdxMap.find(commandId);
+    it = m_commandIdToFeatureIdxMap.find( commandId );
 
-    if (it != m_commandIdToFeatureIdxMap.end())
+    if ( it != m_commandIdToFeatureIdxMap.end() )
     {
         size_t itemIndex = it->second;
 
         CmdFeature* item = m_commandFeatures[itemIndex];
         item->refreshEnabledState();
 
-        return std::make_pair(item, itemIndex);
+        return std::make_pair( item, itemIndex );
     }
     else
     {
-        return std::make_pair(static_cast<CmdFeature*>(nullptr), -1);
+        return std::make_pair( static_cast<CmdFeature*>( nullptr ), -1 );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-caf::CmdFeature* CmdFeatureManager::commandFeature(const std::string& commandId) const
+caf::CmdFeature* CmdFeatureManager::commandFeature( const std::string& commandId ) const
 {
     std::map<std::string, size_t>::const_iterator it;
-    it = m_commandIdToFeatureIdxMap.find(commandId);
+    it = m_commandIdToFeatureIdxMap.find( commandId );
 
-    if (it != m_commandIdToFeatureIdxMap.end())
+    if ( it != m_commandIdToFeatureIdxMap.end() )
     {
         size_t itemIndex = it->second;
 
@@ -190,17 +189,17 @@ caf::CmdFeature* CmdFeatureManager::commandFeature(const std::string& commandId)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void CmdFeatureManager::refreshStates(const QStringList& commandIdList)
+void CmdFeatureManager::refreshStates( const QStringList& commandIdList )
 {
-    if (commandIdList.size() == 0)
+    if ( commandIdList.size() == 0 )
     {
-        for (size_t i = 0; i < m_commandFeatures.size(); i++)
+        for ( size_t i = 0; i < m_commandFeatures.size(); i++ )
         {
             CmdFeature* cmdFeature = m_commandFeatures[i];
 
-            if (cmdFeature)
+            if ( cmdFeature )
             {
                 cmdFeature->refreshEnabledState();
                 cmdFeature->refreshCheckedState();
@@ -209,11 +208,11 @@ void CmdFeatureManager::refreshStates(const QStringList& commandIdList)
     }
     else
     {
-        for (int i = 0; i < commandIdList.size(); i++)
+        for ( int i = 0; i < commandIdList.size(); i++ )
         {
-            std::pair<CmdFeature*, size_t>  featurePair = findExistingCmdFeature(commandIdList.at(i).toStdString());
+            std::pair<CmdFeature*, size_t> featurePair = findExistingCmdFeature( commandIdList.at( i ).toStdString() );
 
-            if (featurePair.first)
+            if ( featurePair.first )
             {
                 featurePair.first->refreshEnabledState();
                 featurePair.first->refreshCheckedState();
@@ -223,24 +222,24 @@ void CmdFeatureManager::refreshStates(const QStringList& commandIdList)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void CmdFeatureManager::refreshEnabledState(const QStringList& commandIdList)
+void CmdFeatureManager::refreshEnabledState( const QStringList& commandIdList )
 {
-    if (commandIdList.size() == 0)
+    if ( commandIdList.size() == 0 )
     {
-        for (size_t i = 0; i < m_commandFeatures.size(); i++)
+        for ( size_t i = 0; i < m_commandFeatures.size(); i++ )
         {
             m_commandFeatures[i]->refreshEnabledState();
         }
     }
     else
     {
-        for (int i = 0; i < commandIdList.size(); i++)
+        for ( int i = 0; i < commandIdList.size(); i++ )
         {
-            std::pair<CmdFeature*, size_t>  featurePair = findExistingCmdFeature(commandIdList.at(i).toStdString());
+            std::pair<CmdFeature*, size_t> featurePair = findExistingCmdFeature( commandIdList.at( i ).toStdString() );
 
-            if (featurePair.first)
+            if ( featurePair.first )
             {
                 featurePair.first->refreshEnabledState();
             }
@@ -249,24 +248,24 @@ void CmdFeatureManager::refreshEnabledState(const QStringList& commandIdList)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void CmdFeatureManager::refreshCheckedState(const QStringList& commandIdList)
+void CmdFeatureManager::refreshCheckedState( const QStringList& commandIdList )
 {
-    if (commandIdList.size() == 0)
+    if ( commandIdList.size() == 0 )
     {
-        for (size_t i = 0; i < m_commandFeatures.size(); i++)
+        for ( size_t i = 0; i < m_commandFeatures.size(); i++ )
         {
             m_commandFeatures[i]->refreshCheckedState();
         }
     }
     else
     {
-        for (int i = 0; i < commandIdList.size(); i++)
+        for ( int i = 0; i < commandIdList.size(); i++ )
         {
-            std::pair<CmdFeature*, size_t>  featurePair = findExistingCmdFeature(commandIdList.at(i).toStdString());
+            std::pair<CmdFeature*, size_t> featurePair = findExistingCmdFeature( commandIdList.at( i ).toStdString() );
 
-            if (featurePair.first)
+            if ( featurePair.first )
             {
                 featurePair.first->refreshCheckedState();
             }
@@ -275,32 +274,31 @@ void CmdFeatureManager::refreshCheckedState(const QStringList& commandIdList)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-CmdFeature* CmdFeatureManager::getCommandFeature(const std::string& commandId)
+CmdFeature* CmdFeatureManager::getCommandFeature( const std::string& commandId )
 {
-    std::pair<CmdFeature*, size_t> featurePair = createFeature(commandId);
+    std::pair<CmdFeature*, size_t> featurePair = createFeature( commandId );
 
     return featurePair.first;
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<CmdFeature*> CmdFeatureManager::commandFeaturesMatchingSubString(const std::string& subString) const
+std::vector<CmdFeature*> CmdFeatureManager::commandFeaturesMatchingSubString( const std::string& subString ) const
 {
     std::vector<CmdFeature*> matches;
 
     std::vector<std::string> keys = CommandFeatureFactory::instance()->allKeys();
-    for (size_t i = 0; i < keys.size(); i++)
+    for ( size_t i = 0; i < keys.size(); i++ )
     {
-        if (keys[i].find(subString) != std::string::npos)
+        if ( keys[i].find( subString ) != std::string::npos )
         {
-            caf::CmdFeature* cmdFeature = commandFeature(keys[i]);
-            if (cmdFeature)
+            caf::CmdFeature* cmdFeature = commandFeature( keys[i] );
+            if ( cmdFeature )
             {
-                matches.push_back(cmdFeature);
+                matches.push_back( cmdFeature );
             }
         }
     }
@@ -311,19 +309,19 @@ std::vector<CmdFeature*> CmdFeatureManager::commandFeaturesMatchingSubString(con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<CmdFeature*> CmdFeatureManager::commandFeaturesMatchingKeyboardShortcut(const QKeySequence& keySequence) const
+std::vector<CmdFeature*> CmdFeatureManager::commandFeaturesMatchingKeyboardShortcut( const QKeySequence& keySequence ) const
 {
     std::vector<CmdFeature*> matches;
 
     std::vector<std::string> keys = CommandFeatureFactory::instance()->allKeys();
-    for (size_t i = 0; i < keys.size(); i++)
+    for ( size_t i = 0; i < keys.size(); i++ )
     {
-        caf::CmdFeature* cmdFeature = commandFeature(keys[i]);
-        if (cmdFeature)
+        caf::CmdFeature* cmdFeature = commandFeature( keys[i] );
+        if ( cmdFeature )
         {
-            if (cmdFeature->action()->shortcut().matches(keySequence) == QKeySequence::ExactMatch)
+            if ( cmdFeature->action()->shortcut().matches( keySequence ) == QKeySequence::ExactMatch )
             {
-                matches.push_back(cmdFeature);
+                matches.push_back( cmdFeature );
             }
         }
     }
@@ -332,15 +330,15 @@ std::vector<CmdFeature*> CmdFeatureManager::commandFeaturesMatchingKeyboardShort
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void CmdFeatureManager::setCurrentContextMenuTargetWidget(QWidget * targetWidget)
+void CmdFeatureManager::setCurrentContextMenuTargetWidget( QWidget* targetWidget )
 {
     m_currentContextMenuTargetWidget = targetWidget;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QWidget* CmdFeatureManager::currentContextMenuTargetWidget()
 {

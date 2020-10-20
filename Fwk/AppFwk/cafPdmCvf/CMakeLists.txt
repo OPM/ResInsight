@@ -9,15 +9,9 @@ if (CAF_ENABLE_UNITY_BUILD)
 endif()
 
 # Qt
-if (CEE_USE_QT5)
-	find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
-	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
-	qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
-else()
-    find_package(Qt4 COMPONENTS QtCore QtGui QtMain REQUIRED)
-    include(${QT_USE_FILE})
-	qt4_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
-endif(CEE_USE_QT5)
+find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
+set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
+qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
 
 add_definitions(-DCVF_USING_CMAKE)
 
@@ -28,9 +22,6 @@ add_library( ${PROJECT_NAME}
     cafPdmXmlColor3f.cpp
     cafPdmXmlColor3f.h
     cafPdmFieldCvfColor.h
-	cafPdmFieldIOScriptabilityCvfColor3.h
-	cafPdmFieldIOScriptabilityCvfColor3.cpp
-
     cafPdmCoreVec3d.h
     cafPdmUiCoreVec3d.cpp
     cafPdmUiCoreVec3d.h
@@ -45,7 +36,7 @@ add_library( ${PROJECT_NAME}
     cafPdmXmlMat4d.h
     cafPdmFieldCvfMat4d.h
 
-	cafPdmMat3d/cafPdmCoreMat3d.h
+    cafPdmMat3d/cafPdmCoreMat3d.h
     cafPdmMat3d/cafPdmUiCoreMat3d.h
     cafPdmMat3d/cafPdmXmlMat3d.cpp
     cafPdmMat3d/cafPdmXmlMat3d.h
@@ -64,7 +55,6 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries ( ${PROJECT_NAME}
     cafUserInterface
     LibCore
-	cafPdmScripting
     ${QT_LIBRARIES}
 )
 

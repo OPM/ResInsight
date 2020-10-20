@@ -62,10 +62,17 @@ ${CMAKE_CURRENT_LIST_DIR}/RifActiveCellsReader-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifCsvDataTableFormatter-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryCurveAnalyzer-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaStdStringTools-Test.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaInterpolationTools-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifWellMeasurementReader-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaDateStringParser-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigHexGradientTools-Test.cpp
-${CMAKE_CURRENT_LIST_DIR}/RifSurfaceReader-Test.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifSurfaceImporter-Test.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifColorLegendData-Test.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifRoffReader-Test.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifElasticPropertiesReader-Test.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaStatisticsTools-Test.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifStimPlanXmlReader-Test.cpp
+${CMAKE_CURRENT_LIST_DIR}/RigWellPathGeometryExporter-Test.cpp
 )
 
 if (RESINSIGHT_ENABLE_GRPC)

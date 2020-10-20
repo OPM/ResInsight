@@ -43,40 +43,37 @@
 
 #include "cafPdmXmlMat3d.h"
 
-
-namespace caf 
+namespace caf
 {
-
 template <>
-class PdmValueFieldSpecialization < cvf::Mat3d >
+class PdmValueFieldSpecialization<cvf::Mat3d>
 {
 public:
     /// Convert the field value into a QVariant
-    static QVariant convert(const cvf::Mat3d& value)
+    static QVariant convert( const cvf::Mat3d& value )
     {
         QString str;
 
-        QTextStream textStream(&str);
+        QTextStream textStream( &str );
         textStream << value;
 
-        return QVariant(str);
+        return QVariant( str );
     }
 
     /// Set the field value from a QVariant
-    static void setFromVariant(const QVariant& variantValue, cvf::Mat3d& value)
+    static void setFromVariant( const QVariant& variantValue, cvf::Mat3d& value )
     {
         QString str = variantValue.toString();
 
-        QTextStream textStream(&str);
+        QTextStream textStream( &str );
 
         textStream >> value;
     }
 
-    static bool isEqual(const QVariant& variantValue, const QVariant& variantValue2)
+    static bool isEqual( const QVariant& variantValue, const QVariant& variantValue2 )
     {
         return variantValue == variantValue2;
     }
 };
-
 
 } // end namespace caf

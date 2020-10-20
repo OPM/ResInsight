@@ -26,6 +26,7 @@
 #include "RifTextDataTableFormatter.h"
 
 #include "RigWellPath.h"
+#include "RigWellPathGeometryExporter.h"
 
 #include "RimDialogData.h"
 #include "RimModeledWellPath.h"
@@ -37,7 +38,8 @@
 #include "cafSelectionManagerTools.h"
 
 #include <QAction>
-#include <QFileDialog>
+#include <QDir>
+#include <QFileInfo>
 
 #include <cafUtils.h>
 
@@ -57,41 +59,16 @@ void RicExportSelectedWellPathsFeature::exportWellPath( const RimWellPath* wellP
     auto filePtr  = openFileForExport( folder, fileName );
     auto stream   = createOutputFileStream( *filePtr );
 
-    writeWellPathGeometryToStream( *stream, wellPath, wellPath->name(), mdStepSize, writeProjectInfo );
+    std::vector<double> xValues;
+    std::vector<double> yValues;
+    std::vector<double> tvdValues;
+    std::vector<double> mdValues;
+
+    bool useMdRkb = false;
+    RigWellPathGeometryExporter::exportWellPathGeometry( wellPath, mdStepSize, xValues, yValues, tvdValues, mdValues, useMdRkb );
+
+    writeWellPathGeometryToStream( *stream, wellPath->name(), xValues, yValues, tvdValues, mdValues, useMdRkb, writeProjectInfo );
     filePtr->close();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream( QTextStream&       stream,
-                                                                       const RimWellPath* wellPath,
-                                                                       const QString&     exportName,
-                                                                       double             mdStepSize,
-                                                                       bool               writeProjectInfo )
-{
-    auto wellPathGeom = wellPath->wellPathGeometry();
-    if ( !wellPathGeom ) return;
-
-    bool   useMdRkb = false;
-    double rkb      = 0.0;
-    {
-        const RimModeledWellPath* modeledWellPath = dynamic_cast<const RimModeledWellPath*>( wellPath );
-        if ( modeledWellPath )
-        {
-            useMdRkb = true;
-            if ( modeledWellPath->geometryDefinition()->airGap() != 0.0 )
-            {
-                rkb = modeledWellPath->geometryDefinition()->airGap();
-            }
-            else
-            {
-                rkb = modeledWellPath->geometryDefinition()->mdAtFirstTarget();
-            }
-        }
-    }
-
-    writeWellPathGeometryToStream( stream, wellPathGeom, exportName, mdStepSize, useMdRkb, rkb, writeProjectInfo );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -105,11 +82,27 @@ void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream( QTextStre
                                                                        double             rkbOffset,
                                                                        bool               writeProjectInfo )
 {
-    if ( !wellPathGeom ) return;
+    std::vector<double> xValues;
+    std::vector<double> yValues;
+    std::vector<double> tvdValues;
+    std::vector<double> mdValues;
 
-    double currMd = wellPathGeom->measureDepths().front() - mdStepSize;
-    double endMd  = wellPathGeom->measureDepths().back();
+    RigWellPathGeometryExporter::exportWellPathGeometry( wellPathGeom, mdStepSize, rkbOffset, xValues, yValues, tvdValues, mdValues );
+    writeWellPathGeometryToStream( stream, exportName, xValues, yValues, tvdValues, mdValues, useMdRkb, writeProjectInfo );
+}
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream( QTextStream&               stream,
+                                                                       const QString&             exportName,
+                                                                       const std::vector<double>& xValues,
+                                                                       const std::vector<double>& yValues,
+                                                                       const std::vector<double>& tvdValues,
+                                                                       const std::vector<double>& mdValues,
+                                                                       bool                       useMdRkb,
+                                                                       bool                       writeProjectInfo )
+{
     RifTextDataTableFormatter formatter( stream );
     formatter.setHeaderPrefix( "# " );
     formatter.setCommentPrefix( "# " );
@@ -117,31 +110,25 @@ void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream( QTextStre
 
     if ( writeProjectInfo )
     {
-        formatter.comment( "Project: " + RiaApplication::instance()->project()->fileName );
+        formatter.comment( "Project: " + RimProject::current()->fileName );
         stream << endl;
     }
 
     stream << "WELLNAME: '" << caf::Utils::makeValidFileBasename( exportName ) << "'" << endl;
 
     auto numberFormat = RifTextDataTableDoubleFormatting( RIF_FLOAT, 2 );
-    formatter.header( { { "X", numberFormat, RIGHT },
-                        { "Y", numberFormat, RIGHT },
-                        { "TVDMSL", numberFormat, RIGHT },
-                        { useMdRkb ? "MDRKB" : "MDMSL", numberFormat, RIGHT } } );
+    formatter.header( {{"X", numberFormat, RIGHT},
+                       {"Y", numberFormat, RIGHT},
+                       {"TVDMSL", numberFormat, RIGHT},
+                       {useMdRkb ? "MDRKB" : "MDMSL", numberFormat, RIGHT}} );
 
-    while ( currMd < endMd )
+    for ( size_t i = 0; i < xValues.size(); i++ )
     {
-        currMd += mdStepSize;
-        if ( currMd > endMd ) currMd = endMd;
-
-        auto   pt  = wellPathGeom->interpolatedPointAlongWellPath( currMd );
-        double tvd = -pt.z();
-
         // Write to file
-        formatter.add( pt.x() );
-        formatter.add( pt.y() );
-        formatter.add( tvd );
-        formatter.add( currMd + rkbOffset );
+        formatter.add( xValues[i] );
+        formatter.add( yValues[i] );
+        formatter.add( tvdValues[i] );
+        formatter.add( mdValues[i] );
         formatter.rowCompleted( "" );
     }
     formatter.tableCompleted( "", false );

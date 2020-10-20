@@ -19,7 +19,10 @@
 #include "RicImportEnsembleFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaFilePathTools.h"
 #include "RiaPreferences.h"
+#include "RiaSummaryTools.h"
+#include "RiaTextStringTools.h"
 
 #include "RicCreateSummaryCaseCollectionFeature.h"
 #include "RicImportSummaryCasesFeature.h"
@@ -44,9 +47,12 @@
 #include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
 
 #include <QAction>
-#include <QFileDialog>
+#include <QDebug>
+#include <QFileInfo>
 #include <QInputDialog>
-#include <QMessageBox>
+#include <QRegularExpression>
+
+#include <set>
 
 CAF_CMD_SOURCE_INIT( RicImportEnsembleFeature, "RicImportEnsembleFeature" );
 
@@ -70,7 +76,9 @@ void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
 
     if ( fileNames.isEmpty() ) return;
 
-    QString ensembleName = askForEnsembleName();
+    QString ensembleNameSuggestion = RiaSummaryTools::findSuitableEnsembleName( fileNames );
+
+    QString ensembleName = askForEnsembleName( ensembleNameSuggestion );
     if ( ensembleName.isEmpty() ) return;
 
     std::vector<RimSummaryCase*> cases;
@@ -79,6 +87,11 @@ void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
     RicImportSummaryCasesFeature::addSummaryCases( cases );
     RimSummaryCaseCollection* ensemble =
         RicCreateSummaryCaseCollectionFeature::groupSummaryCases( cases, ensembleName, true );
+
+    for ( auto summaryCase : ensemble->allSummaryCases() )
+    {
+        summaryCase->updateAutoShortName();
+    }
 
     if ( ensemble )
     {
@@ -99,27 +112,35 @@ void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicImportEnsembleFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/SummaryEnsemble24x24.png" ) );
+    actionToSetup->setIcon( QIcon( ":/SummaryEnsemble.svg" ) );
     actionToSetup->setText( "Import Ensemble" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicImportEnsembleFeature::askForEnsembleName()
+QString RicImportEnsembleFeature::askForEnsembleName( const QString& suggestion )
 {
-    RimProject*                            project = RiaApplication::instance()->project();
+    RimProject*                            project = RimProject::current();
     std::vector<RimSummaryCaseCollection*> groups  = project->summaryGroups();
-    int ensembleCount = std::count_if( groups.begin(), groups.end(), []( RimSummaryCaseCollection* group ) {
-        return group->isEnsemble();
-    } );
-    ensembleCount += 1;
+    int                                    ensemblesStartingWithRoot =
+        std::count_if( groups.begin(), groups.end(), [suggestion]( RimSummaryCaseCollection* group ) {
+            return group->isEnsemble() && group->name().startsWith( suggestion );
+        } );
 
     QInputDialog dialog;
     dialog.setInputMode( QInputDialog::TextInput );
     dialog.setWindowTitle( "Ensemble Name" );
     dialog.setLabelText( "Ensemble Name" );
-    dialog.setTextValue( QString( "Ensemble %1" ).arg( ensembleCount ) );
+    if ( ensemblesStartingWithRoot > 0 )
+    {
+        dialog.setTextValue( QString( "%1 %2" ).arg( suggestion ).arg( ensemblesStartingWithRoot + 1 ) );
+    }
+    else
+    {
+        dialog.setTextValue( suggestion );
+    }
+
     dialog.resize( 300, 50 );
     dialog.exec();
     return dialog.result() == QDialog::Accepted ? dialog.textValue() : QString( "" );

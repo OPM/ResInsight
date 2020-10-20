@@ -41,22 +41,20 @@
 
 namespace cvf
 {
-    class Model;
+class Model;
 }
 
 namespace caf
 {
-
 class PointOfInterestVisualizer : public cvf::Object
 {
 public:
     /// Returns the model containing the visualization of the PointOfInterest
-    /// Must always return the same model. 
+    /// Must always return the same model.
     virtual cvf::Model* model() = 0;
 
     /// Update the model to show a different point of interest position
-    virtual void update(cvf::Vec3d pointOfInterest) = 0;
+    virtual void update( cvf::Vec3d pointOfInterest ) = 0;
 };
 
-}
-
+} // namespace caf

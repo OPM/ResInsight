@@ -40,7 +40,6 @@
 #include "RimFlowDiagSolution.h"
 
 #include "cafProgressInfo.h"
-#include <QMessageBox>
 
 #include "cvfTrace.h"
 
@@ -148,11 +147,11 @@ public:
 
         // Try and set output unit system to the same system as the eclipse case system
         std::unique_ptr<const Opm::ECLUnits::UnitSystem> eclUnitSystem;
-        if ( caseUnitSystem == RiaEclipseUnitTools::UNITS_METRIC )
+        if ( caseUnitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
             eclUnitSystem = Opm::ECLUnits::metricUnitConventions();
-        else if ( caseUnitSystem == RiaEclipseUnitTools::UNITS_FIELD )
+        else if ( caseUnitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
             eclUnitSystem = Opm::ECLUnits::fieldUnitConventions();
-        else if ( caseUnitSystem == RiaEclipseUnitTools::UNITS_LAB )
+        else if ( caseUnitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_LAB )
             eclUnitSystem = Opm::ECLUnits::labUnitConventions();
 
         if ( eclUnitSystem )
@@ -231,8 +230,9 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
 {
     using namespace Opm::FlowDiagnostics;
 
-    RigFlowDiagTimeStepResult result(
-        m_eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::MATRIX_MODEL )->reservoirActiveCellCount() );
+    RigFlowDiagTimeStepResult result( m_eclipseCase->eclipseCaseData()
+                                          ->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )
+                                          ->reservoirActiveCellCount() );
 
     caf::ProgressInfo progressInfo( 8, "Calculating Flow Diagnostics" );
 
@@ -282,14 +282,15 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
 
             size_t restartFileCount = static_cast<size_t>( restartFileNames.size() );
             size_t maxTimeStepCount =
-                m_eclipseCase->eclipseCaseData()->results( RiaDefines::MATRIX_MODEL )->maxTimeStepCount();
+                m_eclipseCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->maxTimeStepCount();
 
             if ( restartFileCount <= timeStepIndex && restartFileCount != maxTimeStepCount )
             {
-                QMessageBox::critical( nullptr,
-                                       "ResInsight",
-                                       "Flow Diagnostics: Could not find all the restart files. Results will not be "
-                                       "loaded." );
+                RiaLogging::errorInMessageBox( nullptr,
+                                               "ResInsight",
+                                               "Flow Diagnostics: Could not find all the restart files. Results will "
+                                               "not be "
+                                               "loaded." );
                 return result;
             }
 
@@ -306,7 +307,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
     }
     catch ( const std::exception& e )
     {
-        QMessageBox::critical( nullptr, "ResInsight", "Flow Diagnostics Exception: " + QString( e.what() ) );
+        RiaLogging::errorInMessageBox( nullptr, "ResInsight", "Flow Diagnostics Exception: " + QString( e.what() ) );
         return result;
     }
 
@@ -329,18 +330,21 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
     CVF_ASSERT( currentRestartData );
 
     RigEclipseResultAddress addrToMaxTimeStepCountResult;
-    m_eclipseCase->eclipseCaseData()->results( RiaDefines::MATRIX_MODEL )->maxTimeStepCount( &addrToMaxTimeStepCountResult );
+    m_eclipseCase->eclipseCaseData()
+        ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
+        ->maxTimeStepCount( &addrToMaxTimeStepCountResult );
 
     int reportStepNumber = m_eclipseCase->eclipseCaseData()
-                               ->results( RiaDefines::MATRIX_MODEL )
+                               ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
                                ->reportStepNumber( addrToMaxTimeStepCountResult, timeStepIndex );
 
     if ( !currentRestartData->selectReportStep( reportStepNumber ) )
     {
-        QMessageBox::critical( nullptr,
-                               "ResInsight",
-                               "Flow Diagnostics: Could not find the requested timestep in the result file. Results "
-                               "will not be loaded." );
+        RiaLogging::errorInMessageBox( nullptr,
+                                       "ResInsight",
+                                       "Flow Diagnostics: Could not find the requested timestep in the result file. "
+                                       "Results "
+                                       "will not be loaded." );
         return result;
     }
 
@@ -349,7 +353,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
 
     try
     {
-        if ( m_eclipseCase->eclipseCaseData()->results( RiaDefines::MATRIX_MODEL )->hasFlowDiagUsableFluxes() )
+        if ( m_eclipseCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->hasFlowDiagUsableFluxes() )
         {
             Opm::FlowDiagnostics::ConnectionValues connectionsVals =
                 RigFlowDiagInterfaceTools::extractFluxFieldFromRestartFile( *( m_opmFlowDiagStaticData->m_eclGraph ),
@@ -383,7 +387,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
     }
     catch ( const std::exception& e )
     {
-        QMessageBox::critical( nullptr, "ResInsight", "Flow Diagnostics Exception: " + QString( e.what() ) );
+        RiaLogging::errorInMessageBox( nullptr, "ResInsight", "Flow Diagnostics Exception: " + QString( e.what() ) );
         return result;
     }
 
@@ -502,7 +506,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
     }
     catch ( const std::exception& e )
     {
-        QMessageBox::critical( nullptr, "ResInsight", "Flow Diagnostics Exception: " + QString( e.what() ) );
+        RiaLogging::errorInMessageBox( nullptr, "ResInsight", "Flow Diagnostics Exception: " + QString( e.what() ) );
         return result;
     }
 
@@ -528,7 +532,7 @@ bool RigFlowDiagSolverInterface::ensureStaticDataObjectInstanceCreated()
                 return false;
             }
 
-            auto fileReader = eclipseCaseData->results( RiaDefines::MATRIX_MODEL )->readerInterface();
+            auto fileReader = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->readerInterface();
             auto eclOutput  = dynamic_cast<const RifReaderEclipseOutput*>( fileReader );
             if ( eclOutput )
             {
@@ -562,16 +566,22 @@ void RigFlowDiagSolverInterface::assignPhaseCorrecedPORV( RigFlowDiagResultAddre
     switch ( phaseSelection )
     {
         case RigFlowDiagResultAddress::PHASE_OIL:
-            phaseSaturation =
-                eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE, "SOIL", timeStepIdx );
+            phaseSaturation = eclipseCaseData->resultValues( RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                             RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                             "SOIL",
+                                                             timeStepIdx );
             break;
         case RigFlowDiagResultAddress::PHASE_GAS:
-            phaseSaturation =
-                eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE, "SGAS", timeStepIdx );
+            phaseSaturation = eclipseCaseData->resultValues( RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                             RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                             "SGAS",
+                                                             timeStepIdx );
             break;
         case RigFlowDiagResultAddress::PHASE_WAT:
-            phaseSaturation =
-                eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE, "SWAT", timeStepIdx );
+            phaseSaturation = eclipseCaseData->resultValues( RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                             RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                             "SWAT",
+                                                             timeStepIdx );
             break;
         default:
             m_opmFlowDiagStaticData->m_fldToolbox->assignPoreVolume( m_opmFlowDiagStaticData->m_poreVolume );
@@ -602,7 +612,7 @@ void RigFlowDiagSolverInterface::reportRelPermCurveError( const QString& message
 {
     if ( m_relpermCurveErrorCount == 0 )
     {
-        QMessageBox::critical( nullptr, "ResInsight", "RelPerm curve problems: \n" + message );
+        RiaLogging::errorInMessageBox( nullptr, "ResInsight", "RelPerm curve problems: \n" + message );
     }
     m_relpermCurveErrorCount++;
 }
@@ -614,7 +624,7 @@ void RigFlowDiagSolverInterface::reportPvtCurveError( const QString& message )
 {
     if ( m_pvtCurveErrorCount == 0 )
     {
-        QMessageBox::critical( nullptr, "ResInsight", "PVT curve problems: \n" + message );
+        RiaLogging::errorInMessageBox( nullptr, "ResInsight", "PVT curve problems: \n" + message );
     }
     m_pvtCurveErrorCount++;
 }
@@ -653,7 +663,7 @@ RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame
     }
     catch ( const std::exception& e )
     {
-        QMessageBox::critical( nullptr, "ResInsight", "Flow Diagnostics: " + QString( e.what() ) );
+        RiaLogging::errorInMessageBox( nullptr, "ResInsight", "Flow Diagnostics: " + QString( e.what() ) );
     }
 
     return result;

@@ -18,8 +18,6 @@
 
 #include "RicNewValveTemplateFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RimEclipseView.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -51,7 +49,7 @@ void RicNewValveTemplateFeature::selectValveTemplateAndUpdate( RimValveTemplate*
         templateCollection->updateConnectedEditors();
     }
 
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
 
     std::vector<Rim3dView*> views;
     project->allVisibleViews( views );
@@ -82,7 +80,7 @@ void RicNewValveTemplateFeature::createNewValveTemplateForValveAndUpdate( RimWel
 //--------------------------------------------------------------------------------------------------
 RimValveTemplate* RicNewValveTemplateFeature::createNewValveTemplate()
 {
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
     CVF_ASSERT( project );
 
     RimOilField* oilfield = project->activeOilField();

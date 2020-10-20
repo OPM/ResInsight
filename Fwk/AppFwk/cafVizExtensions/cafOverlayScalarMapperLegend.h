@@ -34,27 +34,26 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafTitledOverlayFrame.h"
-#include "cvfOverlayItem.h"
 #include "cvfArray.h"
 #include "cvfCamera.h"
-#include "cvfString.h"
+#include "cvfOverlayItem.h"
 #include "cvfRect.h"
+#include "cvfString.h"
 
-namespace cvf {
+namespace cvf
+{
 class Font;
 class ShaderProgram;
 class MatrixState;
 class TextDrawer;
 class ScalarMapper;
-}
+} // namespace cvf
 
-namespace caf {
-
-
+namespace caf
+{
 //==================================================================================================
 //
 // Overlay color legend
@@ -62,47 +61,52 @@ namespace caf {
 //==================================================================================================
 class OverlayScalarMapperLegend : public caf::TitledOverlayFrame
 {
-    using Font = cvf::Font;
-    using ScalarMapper = cvf::ScalarMapper;
+    using Font          = cvf::Font;
+    using ScalarMapper  = cvf::ScalarMapper;
     using OpenGLContext = cvf::OpenGLContext;
-    using Vec2i = cvf::Vec2i;
-    using Vec2ui = cvf::Vec2ui;
-    using Color3f = cvf::Color3f;
-    using Color4f = cvf::Color4f;
-    using String = cvf::String;
-    using DoubleArray = cvf::DoubleArray;
-    using MatrixState = cvf::MatrixState;
-    using Vec2f = cvf::Vec2f;
-    using Rectf = cvf::Rectf;
-    using TextDrawer = cvf::TextDrawer;
+    using Vec2i         = cvf::Vec2i;
+    using Vec2ui        = cvf::Vec2ui;
+    using Color3f       = cvf::Color3f;
+    using Color4f       = cvf::Color4f;
+    using String        = cvf::String;
+    using DoubleArray   = cvf::DoubleArray;
+    using MatrixState   = cvf::MatrixState;
+    using Vec2f         = cvf::Vec2f;
+    using Rectf         = cvf::Rectf;
+    using TextDrawer    = cvf::TextDrawer;
 
 public:
-    OverlayScalarMapperLegend(Font* font);
+    OverlayScalarMapperLegend( Font* font );
     ~OverlayScalarMapperLegend() override;
 
-    void            setScalarMapper(const ScalarMapper* scalarMapper);
+    void setScalarMapper( const ScalarMapper* scalarMapper );
 
-    void            setTickPrecision(int precision);
-    enum            NumberFormat { AUTO, SCIENTIFIC, FIXED};
-    void            setTickFormat(NumberFormat format);
+    void setTickPrecision( int precision );
+    enum NumberFormat
+    {
+        AUTO,
+        SCIENTIFIC,
+        FIXED
+    };
+    void setTickFormat( NumberFormat format );
 
     cvf::Vec2ui preferredSize() override;
-    
+
 protected:
-    void            render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size) override;
-    void            renderSoftware(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size) override;
-    bool            pick(int oglXCoord, int oglYCoord, const Vec2i& position, const Vec2ui& size) override;
+    void render( OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size ) override;
+    void renderSoftware( OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size ) override;
+    bool pick( int oglXCoord, int oglYCoord, const Vec2i& position, const Vec2ui& size ) override;
 
     struct OverlayColorLegendLayoutInfo
     {
-        OverlayColorLegendLayoutInfo(const Vec2ui& setSize)
+        OverlayColorLegendLayoutInfo( const Vec2ui& setSize )
         {
-            charHeight = 0.0f;
-            lineSpacing = 0.0f;
-            margins = cvf::Vec2f::ZERO;
-            tickStartX = 0.0f;
-            tickMidX = 0.0f;
-            tickEndX = 0.0f;
+            charHeight        = 0.0f;
+            lineSpacing       = 0.0f;
+            margins           = cvf::Vec2f::ZERO;
+            tickStartX        = 0.0f;
+            tickMidX          = 0.0f;
+            tickEndX          = 0.0f;
             tickTextLeadSpace = 0.0f;
 
             overallLegendSize = setSize;
@@ -121,29 +125,24 @@ protected:
         Vec2ui overallLegendSize;
     };
 
-    void         layoutInfo(OverlayColorLegendLayoutInfo* layout);
+    void layoutInfo( OverlayColorLegendLayoutInfo* layout );
 
-    void         renderGeneric(OpenGLContext* oglContext,
-                               const Vec2i& position,
-                               const Vec2ui& size,
-                               bool software);
-    void         renderLegendUsingShaders(OpenGLContext* oglContext,
-                                          OverlayColorLegendLayoutInfo* layout,
-                                          const MatrixState& matrixState);
-    void         renderLegendImmediateMode(OpenGLContext* oglContext,
-                                           OverlayColorLegendLayoutInfo* layout);
-    void         setupTextDrawer(TextDrawer* textDrawer,
-                                 const OverlayColorLegendLayoutInfo* layout);
+    void renderGeneric( OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software );
+    void renderLegendUsingShaders( OpenGLContext*                oglContext,
+                                   OverlayColorLegendLayoutInfo* layout,
+                                   const MatrixState&            matrixState );
+    void renderLegendImmediateMode( OpenGLContext* oglContext, OverlayColorLegendLayoutInfo* layout );
+    void setupTextDrawer( TextDrawer* textDrawer, const OverlayColorLegendLayoutInfo* layout );
 
 protected:
-    DoubleArray         m_tickValues;           // Ticks between each level + top and bottom of legend (n+1 entries)
-    std::vector<bool>   m_visibleTickLabels;    // Skip tick labels ending up on top of previous visible label
-    int                 m_tickNumberPrecision;
-    NumberFormat        m_numberFormat;
+    DoubleArray       m_tickValues; // Ticks between each level + top and bottom of legend (n+1 entries)
+    std::vector<bool> m_visibleTickLabels; // Skip tick labels ending up on top of previous visible label
+    int               m_tickNumberPrecision;
+    NumberFormat      m_numberFormat;
 
     OverlayColorLegendLayoutInfo m_Layout;
     cvf::ref<TextDrawer>         m_textDrawer;
     cvf::cref<ScalarMapper>      m_scalarMapper;
 };
 
-}
+} // namespace caf

@@ -153,7 +153,7 @@ void RiaImageCompareReporter::showInteractiveOnly()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Retuns the names of the *.png files in a directory. The names are without path, but with extention
+/// Retuns the names of the *.png files in a directory. The names are without path, but with extension
 //--------------------------------------------------------------------------------------------------
 
 std::vector<std::string> RiaImageCompareReporter::getPngFilesInDirectory( const std::string& searchPath )

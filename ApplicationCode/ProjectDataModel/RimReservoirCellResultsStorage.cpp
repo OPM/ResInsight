@@ -321,7 +321,7 @@ RimReservoirCellResultsStorageEntryInfo::RimReservoirCellResultsStorageEntryInfo
 
     CAF_PDM_InitField( &m_resultType,
                        "ResultType",
-                       caf::AppEnum<RiaDefines::ResultCatType>( RiaDefines::REMOVED ),
+                       caf::AppEnum<RiaDefines::ResultCatType>( RiaDefines::ResultCatType::REMOVED ),
                        "ResultType",
                        "",
                        "",

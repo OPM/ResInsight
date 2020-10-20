@@ -20,12 +20,16 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 
+#include "Commands/CorrelationPlotCommands/RicNewCorrelationPlotFeature.h"
+
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
+#include "RimEnsembleStatisticsCase.h"
 #include "RimMainPlotCollection.h"
 #include "RimPlot.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryPlot.h"
@@ -46,6 +50,7 @@
 #include "RimProject.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
+#include "cafIconProvider.h"
 #include "cafSelectionManager.h"
 #include "cafTitledOverlayFrame.h"
 
@@ -60,11 +65,12 @@
 #include "qwt_scale_div.h"
 #include "qwt_scale_draw.h"
 #include "qwt_scale_engine.h"
-
 #include <QEvent>
 #include <QMenu>
 #include <QMouseEvent>
 #include <QWheelEvent>
+
+#include <limits>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -97,9 +103,7 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent /*= 
 {
     // LeftButton for the zooming
     m_zoomerLeft = new RiuQwtPlotZoomer( canvas() );
-    m_zoomerLeft->setRubberBandPen( QColor( Qt::black ) );
     m_zoomerLeft->setTrackerMode( QwtPicker::AlwaysOff );
-    m_zoomerLeft->setTrackerPen( QColor( Qt::black ) );
     m_zoomerLeft->initMousePattern( 1 );
 
     // Attach a zoomer for the right axis
@@ -125,7 +129,7 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent /*= 
     RiuQwtPlotTools::setCommonPlotBehaviour( this );
     RiuQwtPlotTools::setDefaultAxes( this );
 
-    setLegendVisible( true );
+    setInternalLegendVisible( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -158,41 +162,6 @@ void RiuSummaryQwtPlot::useTimeBasedTimeAxis()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::setLegendFontSize( int fontSize )
-{
-    if ( legend() )
-    {
-        QFont font = legend()->font();
-        font.setPixelSize( RiaFontCache::pointSizeToPixelSize( fontSize ) );
-        legend()->setFont( font );
-        // Set font size for all existing labels
-        QList<QwtLegendLabel*> labels = legend()->findChildren<QwtLegendLabel*>();
-        for ( QwtLegendLabel* label : labels )
-        {
-            label->setFont( font );
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::setLegendVisible( bool visible )
-{
-    if ( visible )
-    {
-        QwtLegend* legend = new QwtLegend( this );
-        this->insertLegend( legend, BottomLegend );
-    }
-    else
-    {
-        this->insertLegend( nullptr );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::setAxisIsLogarithmic( QwtPlot::Axis axis, bool logarithmic )
 {
     if ( m_wheelZoomer ) m_wheelZoomer->setAxisIsLogarithmic( axis, logarithmic );
@@ -210,6 +179,122 @@ void RiuSummaryQwtPlot::contextMenuEvent( QContextMenuEvent* event )
 
     menuBuilder << "RicShowPlotDataFeature";
     menuBuilder << "RicSavePlotTemplateFeature";
+
+    QwtPlotItem* closestItem       = nullptr;
+    double       distanceFromClick = std::numeric_limits<double>::infinity();
+    int          closestCurvePoint = -1;
+    QPoint       globalPos         = event->globalPos();
+    QPoint       localPos          = this->canvas()->mapFromGlobal( globalPos );
+
+    findClosestPlotItem( localPos, &closestItem, &closestCurvePoint, &distanceFromClick );
+    if ( closestItem && closestCurvePoint >= 0 )
+    {
+        RiuRimQwtPlotCurve* plotCurve = dynamic_cast<RiuRimQwtPlotCurve*>( closestItem );
+        if ( plotCurve )
+        {
+            RimSummaryCurve* summaryCurve = dynamic_cast<RimSummaryCurve*>( plotCurve->ownerRimCurve() );
+            if ( summaryCurve && closestCurvePoint < (int)summaryCurve->timeStepsY().size() )
+            {
+                std::time_t timeStep = summaryCurve->timeStepsY()[closestCurvePoint];
+
+                RimSummaryCaseCollection* ensemble = nullptr;
+                QString                   clickedQuantityName;
+                QStringList               allQuantityNamesInPlot;
+
+                RimEnsembleCurveSet* clickedEnsembleCurveSet = nullptr;
+                summaryCurve->firstAncestorOrThisOfType( clickedEnsembleCurveSet );
+
+                bool curveClicked = distanceFromClick < 50;
+
+                if ( clickedEnsembleCurveSet )
+                {
+                    ensemble = clickedEnsembleCurveSet->summaryCaseCollection();
+                    if ( ensemble && ensemble->isEnsemble() )
+                    {
+                        clickedQuantityName = QString::fromStdString( clickedEnsembleCurveSet->summaryAddress().uiText() );
+                    }
+                }
+
+                if ( !curveClicked )
+                {
+                    RimSummaryPlot*                   summaryPlot = static_cast<RimSummaryPlot*>( plotDefinition() );
+                    std::vector<RimEnsembleCurveSet*> allCurveSetsInPlot;
+                    summaryPlot->descendantsOfType( allCurveSetsInPlot );
+                    for ( auto curveSet : allCurveSetsInPlot )
+                    {
+                        allQuantityNamesInPlot.push_back( QString::fromStdString( curveSet->summaryAddress().uiText() ) );
+                    }
+                }
+                else
+                {
+                    allQuantityNamesInPlot.push_back( clickedQuantityName );
+                }
+
+                if ( !clickedQuantityName.isEmpty() || !allQuantityNamesInPlot.isEmpty() )
+                {
+                    if ( ensemble && ensemble->isEnsemble() )
+                    {
+                        EnsemblePlotParams params( ensemble, allQuantityNamesInPlot, clickedQuantityName, timeStep );
+                        QVariant           variant = QVariant::fromValue( params );
+
+                        menuBuilder.addCmdFeatureWithUserData( "RicNewAnalysisPlotFeature", "New Analysis Plot", variant );
+
+                        QString subMenuName = "Create Correlation Plot";
+                        if ( curveClicked )
+                        {
+                            subMenuName = "Create Correlation Plot From Curve Point";
+                        }
+                        menuBuilder.subMenuStart( subMenuName, *caf::IconProvider( ":/CorrelationPlots16x16.png" ).icon() );
+
+                        {
+                            if ( curveClicked )
+                            {
+                                menuBuilder.addCmdFeatureWithUserData( "RicNewCorrelationPlotFeature",
+                                                                       "New Tornado Plot",
+                                                                       variant );
+                            }
+                            menuBuilder.addCmdFeatureWithUserData( "RicNewCorrelationMatrixPlotFeature",
+                                                                   "New Matrix Plot",
+                                                                   variant );
+                            menuBuilder.addCmdFeatureWithUserData( "RicNewCorrelationReportPlotFeature",
+                                                                   "New Report Plot",
+                                                                   variant );
+                            if ( curveClicked )
+                            {
+                                menuBuilder.subMenuStart( "Cross Plots",
+                                                          *caf::IconProvider( ":/CorrelationCrossPlot16x16.png" ).icon() );
+                                std::vector<std::pair<EnsembleParameter, double>> ensembleParameters =
+                                    ensemble->parameterCorrelations( clickedEnsembleCurveSet->summaryAddress(), timeStep );
+                                std::sort( ensembleParameters.begin(),
+                                           ensembleParameters.end(),
+                                           []( const std::pair<EnsembleParameter, double>& lhs,
+                                               const std::pair<EnsembleParameter, double>& rhs ) {
+                                               return std::fabs( lhs.second ) > std::fabs( rhs.second );
+                                           } );
+
+                                for ( const auto& param : ensembleParameters )
+                                {
+                                    if ( std::fabs( param.second ) >= 1.0e-6 )
+                                    {
+                                        params.ensembleParameter = param.first.name;
+                                        variant                  = QVariant::fromValue( params );
+                                        menuBuilder.addCmdFeatureWithUserData( "RicNewParameterResultCrossPlotFeature",
+                                                                               QString( "New Cross Plot Against %1 "
+                                                                                        "(Correlation: %2)" )
+                                                                                   .arg( param.first.name )
+                                                                                   .arg( param.second, 5, 'f', 2 ),
+                                                                               variant );
+                                    }
+                                }
+                                menuBuilder.subMenuEnd();
+                            }
+                        }
+                        menuBuilder.subMenuEnd();
+                    }
+                }
+            }
+        }
+    }
 
     menuBuilder.appendToMenu( &menu );
 

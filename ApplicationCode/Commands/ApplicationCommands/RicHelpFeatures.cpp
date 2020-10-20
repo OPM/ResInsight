@@ -76,7 +76,7 @@ void RicHelpAboutFeature::onActionTriggered( bool isChecked )
     activeFeatures += "  Geomech";
 #endif
 #ifdef USE_HDF5
-    activeFeatures += "  Souring";
+    activeFeatures += "  HDF5";
 #endif
 
     if ( !activeFeatures.isEmpty() )

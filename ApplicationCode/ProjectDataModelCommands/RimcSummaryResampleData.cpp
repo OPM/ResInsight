@@ -18,9 +18,9 @@
 
 #include "RimcSummaryResampleData.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
-#include "cafPdmObjectScriptability.h"
+#include "cafPdmObjectScriptingCapability.h"
 
 CAF_PDM_SOURCE_INIT( RimcSummaryResampleData, "ResampleData" );
 
@@ -30,6 +30,6 @@ CAF_PDM_SOURCE_INIT( RimcSummaryResampleData, "ResampleData" );
 RimcSummaryResampleData::RimcSummaryResampleData()
 {
     CAF_PDM_InitScriptableObject( "Resample Data", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_timeValues, "TimeSteps", "Time Steps", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_doubleValues, "Values", "Values", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_timeValues, "TimeSteps", "Time Steps", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_doubleValues, "Values", "Values", "", "", "" );
 }

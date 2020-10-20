@@ -2,7 +2,7 @@
 //
 //   QMinimizePanel
 //   Copyright (C) 2017 Ceetron Solutions AS
-//  
+//
 //   This class may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
 //
@@ -37,6 +37,7 @@
 #pragma once
 
 #include <QFrame>
+#include <QIcon>
 
 class QLabel;
 class QPushButton;
@@ -49,34 +50,66 @@ class QPushButton;
 class QMinimizePanel : public QFrame
 {
     Q_OBJECT
+    Q_PROPERTY( QString background READ getBackground WRITE setBackground DESIGNABLE true )
+    Q_PROPERTY( QString titleBackground READ getTitleBackground WRITE setTitleBackground DESIGNABLE true )
+    Q_PROPERTY( QString border READ getBorder WRITE setBorder DESIGNABLE true )
+    Q_PROPERTY( QString expandIconPath READ getExpandIconPath WRITE setExpandIconPath DESIGNABLE true )
+    Q_PROPERTY( QString collapseIconPath READ getCollapseIconPath WRITE setCollapseIconPath DESIGNABLE true )
+    Q_PROPERTY( QString iconSize READ getIconSize WRITE setIconSize DESIGNABLE true )
 public:
-    explicit QMinimizePanel(QWidget* parent=nullptr);
-    explicit QMinimizePanel(const QString &title, QWidget* parent=nullptr);
+    explicit QMinimizePanel( QWidget* parent = nullptr );
+    explicit QMinimizePanel( const QString& title, QWidget* parent = nullptr );
     ~QMinimizePanel() override;
 
-    QFrame* contentFrame();  
-    void    setTitle (const QString& title);
+    QFrame* contentFrame();
+    void    setTitle( const QString& title );
     QString title() const;
-    void    enableFrame(bool showFrame);
+    void    enableFrame( bool showFrame );
     bool    isExpanded() const;
+
+    QString getBackground() const;
+    void    setBackground( QString background );
+
+    QString getTitleBackground() const;
+    void    setTitleBackground( QString background );
+
+    QString getBorder() const;
+    void    setBorder( QString border );
+
+    QString getExpandIconPath() const;
+    void    setExpandIconPath( QString path );
+
+    QString getCollapseIconPath() const;
+    void    setCollapseIconPath( QString path );
+
+    QString getIconSize() const;
+    void    setIconSize( QString size );
+
 public slots:
-    void    setExpanded(bool isExpanded);
-    void    toggleExpanded();
+    void setExpanded( bool isExpanded );
+    void toggleExpanded();
 
 signals:
-    void    expandedChanged(bool isExpanded);
+    void expandedChanged( bool isExpanded );
 
 protected:
-
-    QFrame*         m_titleFrame;
-    QLabel*         m_titleLabel;
-    QPushButton*    m_collapseButton;
-    QFrame*         m_contentFrame;
+    QFrame*      m_titleFrame;
+    QLabel*      m_titleLabel;
+    QPushButton* m_collapseButton;
+    QFrame*      m_contentFrame;
 
 private:
-    void    initialize(const QString &title);
+    void initialize( const QString& title );
 
     QString titleFrameStyleSheet();
     QString contentFrameStyleSheet();
 
+    QString m_background;
+    QString m_titleBackground;
+    QString m_border;
+    QString m_expandIconPath;
+    QString m_collapseIconPath;
+    QString m_iconSize;
+    QIcon   m_expandIcon;
+    QIcon   m_collapseIcon;
 };

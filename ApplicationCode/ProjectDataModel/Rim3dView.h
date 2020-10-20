@@ -126,11 +126,9 @@ public:
     void         setBackgroundColor( const cvf::Color3f& newBackgroundColor );
     cvf::Color3f backgroundColor() const override; // Implementation of RiuViewerToViewInterface
     void         applyBackgroundColorAndFontChanges();
-    bool         hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const override;
-    bool         applyFontSize( RiaDefines::FontSettingType fontSettingType,
-                                int                         oldFontSize,
-                                int                         fontSize,
-                                bool                        forceChange = false ) override;
+
+    int  fontSize() const override;
+    void updateFonts() override;
 
     void disableLighting( bool disable );
     bool isLightingDisabled() const;
@@ -161,6 +159,7 @@ public:
     void createMeasurementDisplayModelAndRedraw();
     void updateGridBoxData();
     void updateAnnotationItems();
+    void resetLegends();
 
     void setScaleZAndUpdate( double scaleZ );
     void updateScaling();
@@ -209,7 +208,7 @@ protected:
     virtual void   onClampCurrentTimestep()   = 0;
     virtual size_t onTimeStepCountRequested() = 0;
 
-    virtual void onClearReservoirCellVisibilitiesIfNeccessary(){};
+    virtual void onClearReservoirCellVisibilitiesIfNecessary(){};
     virtual bool isTimeStepDependentDataVisible() const                                            = 0;
     virtual void defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) = 0;
     virtual void onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts )          = 0;
@@ -302,6 +301,8 @@ private:
     caf::PdmField<bool>                    m_showGridBox;
     caf::PdmField<bool>                    m_showZScaleLabel;
     caf::PdmPtrField<Rim3dView*>           m_comparisonView;
+
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_fontSize;
 
     // 3D display model data
     cvf::ref<cvf::ModelBasicList>   m_highlightVizModel;

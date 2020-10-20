@@ -18,7 +18,6 @@
 
 #include "RicExportWellPathsUi.h"
 
-#include "RiaApplication.h"
 #include "RiaOptionItemFactory.h"
 
 #include "RimCase.h"

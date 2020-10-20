@@ -18,8 +18,6 @@
 
 #include "RimSaturationPressurePlotCollection.h"
 
-#include "RiaApplication.h"
-
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
@@ -63,11 +61,11 @@ std::vector<RimSaturationPressurePlot*>
     RigEclipseCaseData* eclipseCaseData = eclipseResultCase->eclipseCaseData();
     if ( !eclipseCaseData ) return generatedPlots;
 
-    auto results = eclipseCaseData->results( RiaDefines::MATRIX_MODEL );
+    auto results = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
     std::set<int> eqlnumRegionIdsFound;
     {
-        RigEclipseResultAddress resAdr( RiaDefines::STATIC_NATIVE, RiaDefines::eqlnumResultName() );
+        RigEclipseResultAddress resAdr( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::eqlnumResultName() );
         if ( results->hasResultEntry( resAdr ) )
         {
             results->ensureKnownResultLoaded( resAdr );
@@ -93,7 +91,7 @@ std::vector<RimSaturationPressurePlot*>
 
             // As discussed with Liv Merete, it is not any use for creation of different plots for matrix/fracture. For
             // now, use hardcoded value for MATRIX
-            plot->assignCaseAndEquilibriumRegion( RiaDefines::MATRIX_MODEL,
+            plot->assignCaseAndEquilibriumRegion( RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                   eclipseResultCase,
                                                   zeroBasedEquilibriumRegion,
                                                   timeStep );
@@ -110,9 +108,17 @@ std::vector<RimSaturationPressurePlot*>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSaturationPressurePlot*> RimSaturationPressurePlotCollection::plots()
+std::vector<RimSaturationPressurePlot*> RimSaturationPressurePlotCollection::plots() const
 {
     return m_saturationPressurePlots.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RimSaturationPressurePlotCollection::plotCount() const
+{
+    return m_saturationPressurePlots.size();
 }
 
 //--------------------------------------------------------------------------------------------------

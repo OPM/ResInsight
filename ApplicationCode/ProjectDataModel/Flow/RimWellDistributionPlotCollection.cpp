@@ -95,9 +95,9 @@ RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()
 
     setAsPlotMdiWindow();
 
-    addPlot( new RimWellDistributionPlot( RiaDefines::OIL_PHASE ) );
-    addPlot( new RimWellDistributionPlot( RiaDefines::GAS_PHASE ) );
-    addPlot( new RimWellDistributionPlot( RiaDefines::WATER_PHASE ) );
+    addPlot( new RimWellDistributionPlot( RiaDefines::PhaseType::OIL_PHASE ) );
+    addPlot( new RimWellDistributionPlot( RiaDefines::PhaseType::GAS_PHASE ) );
+    addPlot( new RimWellDistributionPlot( RiaDefines::PhaseType::WATER_PHASE ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -293,7 +293,7 @@ QList<caf::PdmOptionItemInfo>
     {
         if ( m_case && m_case->eclipseCaseData() )
         {
-            caf::QIconProvider      simWellIcon( ":/Well.png" );
+            caf::IconProvider       simWellIcon( ":/Well.png" );
             const std::set<QString> sortedWellNameSet = m_case->eclipseCaseData()->findSortedWellNames();
             for ( const QString& name : sortedWellNameSet )
             {

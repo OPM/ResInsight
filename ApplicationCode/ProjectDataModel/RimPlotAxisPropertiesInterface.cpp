@@ -40,5 +40,3 @@ void RimPlotAxisPropertiesInterface::LegendTickmarkCountEnum::setUp()
     setDefault( RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_DEFAULT );
 }
 } // namespace caf
-
-

@@ -24,10 +24,6 @@
 #include "RiuQwtPlotWidget.h"
 #include "RiuWellLogPlot.h"
 
-#include "RimGridCrossPlot.h"
-#include "RimGridCrossPlotCollection.h"
-#include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
@@ -39,7 +35,7 @@
 //--------------------------------------------------------------------------------------------------
 void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack( RimWellLogTrack*                     destTrack,
                                                                    const std::vector<RimWellLogCurve*>& curves,
-                                                                   RimWellLogCurve* curveToInsertAfter )
+                                                                   int insertAtPosition )
 {
     CVF_ASSERT( destTrack );
 
@@ -55,7 +51,6 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack( RimWellLogTra
         if ( wellLogPlotTrack )
         {
             wellLogPlotTrack->removeCurve( curve );
-            wellLogPlotTrack->updateConnectedEditors();
             srcTracks.insert( wellLogPlotTrack );
             RimWellLogPlot* plot;
             wellLogPlotTrack->firstAncestorOrThisOfType( plot );
@@ -63,27 +58,69 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack( RimWellLogTra
         }
     }
 
-    size_t insertionStartIndex = 0;
-    if ( curveToInsertAfter ) insertionStartIndex = destTrack->curveIndex( curveToInsertAfter ) + 1;
-
     for ( size_t cIdx = 0; cIdx < curves.size(); cIdx++ )
     {
-        destTrack->insertCurve( curves[cIdx], insertionStartIndex + cIdx );
+        if ( insertAtPosition >= 0 )
+        {
+            size_t position = (size_t)insertAtPosition + cIdx;
+            destTrack->insertCurve( curves[cIdx], position );
+        }
+        else
+        {
+            destTrack->addCurve( curves[cIdx] );
+        }
     }
 
-    for ( std::set<RimWellLogPlot*>::iterator pIt = srcPlots.begin(); pIt != srcPlots.end(); ++pIt )
+    for ( auto track : srcTracks )
     {
-        ( *pIt )->calculateAvailableDepthRange();
+        track->setAutoScaleXEnabled( true );
+        track->updateParentPlotZoom();
+        track->updateStackedCurveData();
+        track->updateConnectedEditors();
     }
 
-    for ( std::set<RimWellLogTrack*>::iterator tIt = srcTracks.begin(); tIt != srcTracks.end(); ++tIt )
+    for ( auto plot : srcPlots )
     {
-        ( *tIt )->setAutoScaleXEnabled( true );
-        ( *tIt )->updateParentPlotZoom();
+        plot->calculateAvailableDepthRange();
     }
 
     destTrack->loadDataAndUpdate();
+    destTrack->updateStackedCurveData();
     destTrack->setAutoScaleXEnabled( true );
     destTrack->updateParentPlotZoom();
     destTrack->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot( RimWellLogPlot*                      wellLogPlot,
+                                                              const std::vector<RimWellLogTrack*>& tracksToMove,
+                                                              int                                  insertAtPosition )
+{
+    CVF_ASSERT( wellLogPlot );
+
+    for ( size_t tIdx = 0; tIdx < tracksToMove.size(); tIdx++ )
+    {
+        RimWellLogTrack* plot      = tracksToMove[tIdx];
+        caf::PdmObject*  pdmObject = dynamic_cast<caf::PdmObject*>( plot );
+        RimWellLogPlot*  srcPlot;
+        pdmObject->firstAncestorOrThisOfType( srcPlot );
+        if ( srcPlot )
+        {
+            srcPlot->removePlot( plot );
+        }
+    }
+
+    for ( size_t tIdx = 0; tIdx < tracksToMove.size(); tIdx++ )
+    {
+        if ( insertAtPosition >= 0 )
+        {
+            wellLogPlot->insertPlot( tracksToMove[tIdx], (size_t)insertAtPosition + tIdx );
+        }
+        else
+        {
+            wellLogPlot->addPlot( tracksToMove[tIdx] );
+        }
+    }
 }

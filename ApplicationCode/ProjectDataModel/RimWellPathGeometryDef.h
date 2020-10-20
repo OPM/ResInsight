@@ -60,6 +60,7 @@ public:
 
     void insertTarget( const RimWellPathTarget* targetToInsertBefore, RimWellPathTarget* targetToInsert );
     void deleteTarget( RimWellPathTarget* targetTodelete );
+    void deleteAllTargets();
     void appendTarget();
 
     const RimWellPathTarget* firstActiveTarget() const;

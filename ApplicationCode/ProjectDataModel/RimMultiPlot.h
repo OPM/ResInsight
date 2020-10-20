@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "RimAbstractPlotCollection.h"
 #include "RimPlotAxisPropertiesInterface.h"
 #include "RimPlotWindow.h"
 
@@ -37,7 +38,7 @@
 
 class RimPlot;
 
-class RimMultiPlot : public RimPlotWindow
+class RimMultiPlot : public RimPlotWindow, public RimTypedPlotCollection<RimPlot>
 {
     CAF_PDM_HEADER_INIT;
 
@@ -69,16 +70,15 @@ public:
     QString multiPlotTitle() const;
     void    setMultiPlotTitle( const QString& title );
 
-    void addPlot( RimPlot* plot );
-    void insertPlot( RimPlot* plot, size_t index );
-    void removePlot( RimPlot* plot );
-    void movePlotsToThis( const std::vector<RimPlot*>& plots, RimPlot* plotToInsertAfter );
+    void insertPlot( RimPlot* plot, size_t index ) override;
+    void removePlot( RimPlot* plot ) override;
+    void movePlotsToThis( const std::vector<RimPlot*>& plots, int insertAtPosition );
 
-    size_t   plotCount() const;
+    size_t   plotCount() const override;
     size_t   plotIndex( const RimPlot* plot ) const;
     RimPlot* plotByIndex( size_t index ) const;
 
-    std::vector<RimPlot*> plots() const;
+    std::vector<RimPlot*> plots() const override;
     std::vector<RimPlot*> visiblePlots() const;
 
     void updatePlotOrderFromGridWidget();
@@ -90,6 +90,7 @@ public:
     int                  rowsPerPage() const;
     caf::PdmFieldHandle* columnCountField();
     caf::PdmFieldHandle* rowsPerPageField();
+    caf::PdmFieldHandle* pagePreviewField();
     bool                 showPlotTitles() const;
 
     void zoomAll() override;
@@ -97,6 +98,10 @@ public:
     QString asciiDataForPlotExport() const;
 
     bool previewModeEnabled() const;
+
+    int subTitleFontSize() const;
+    int axisTitleFontSize() const;
+    int axisValueFontSize() const;
 
 protected:
     QImage snapshotWindowContent() override;
@@ -108,7 +113,9 @@ protected:
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
     void uiOrderingForMultiPlotLayout( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
@@ -121,12 +128,6 @@ protected:
     void updateZoom();
     void recreatePlotWidgets();
 
-    bool hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const override;
-    bool applyFontSize( RiaDefines::FontSettingType fontSettingType,
-                        int                         oldFontSize,
-                        int                         fontSize,
-                        bool                        forceChange = false ) override;
-
 private:
     void cleanupBeforeClose();
     void doUpdateLayout() override;
@@ -134,13 +135,20 @@ private:
     void updatePlotWindowTitle();
     void doRenderWindowContent( QPaintDevice* paintDevice ) override;
     void onPlotAdditionOrRemoval();
+    void onPlotsReordered( const caf::SignalEmitter* emitter );
+    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
 protected:
-    caf::PdmField<bool>            m_showPlotWindowTitle;
-    caf::PdmField<QString>         m_plotWindowTitle;
-    caf::PdmField<ColumnCountEnum> m_columnCount;
-    caf::PdmField<RowCountEnum>    m_rowsPerPage;
-    caf::PdmField<bool>            m_showIndividualPlotTitles;
+    caf::PdmField<bool>                             m_showPlotWindowTitle;
+    caf::PdmField<QString>                          m_plotWindowTitle;
+    caf::PdmField<ColumnCountEnum>                  m_columnCount;
+    caf::PdmField<RowCountEnum>                     m_rowsPerPage;
+    caf::PdmField<bool>                             m_showIndividualPlotTitles;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_subTitleFontSize;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisTitleFontSize;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisValueFontSize;
+    caf::PdmField<bool>                             m_pagePreviewMode;
 
     caf::PdmField<RimPlotAxisPropertiesInterface::LegendTickmarkCountEnum> m_majorTickmarkCount;
 

@@ -43,6 +43,7 @@ public:
     caf::PdmField<bool>    useOpenMPForGeometryCreation;
     caf::PdmField<bool>    openReportInBrowser;
     caf::PdmField<bool>    appendTestsAfterTestFilter;
+    caf::PdmField<bool>    invalidateExternalFilePaths;
 
 protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field,

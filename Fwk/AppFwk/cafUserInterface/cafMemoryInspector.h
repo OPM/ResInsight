@@ -40,13 +40,13 @@
 
 namespace caf
 {
-    namespace MemoryInspector
-    {
-        uint64_t getApplicationPhysicalMemoryUsageMiB(); 
-        uint64_t getApplicationVirtualMemoryUsageMiB();        
-        uint64_t getTotalVirtualMemoryMiB();
-        uint64_t getTotalPhysicalMemoryMiB();
-        uint64_t getAvailableVirtualMemoryMiB();
-        float    getRemainingMemoryCriticalThresholdFraction();
-    }
-}
+namespace MemoryInspector
+{
+    uint64_t getApplicationPhysicalMemoryUsageMiB();
+    uint64_t getApplicationVirtualMemoryUsageMiB();
+    uint64_t getTotalVirtualMemoryMiB();
+    uint64_t getTotalPhysicalMemoryMiB();
+    uint64_t getAvailableVirtualMemoryMiB();
+    float    getRemainingMemoryCriticalThresholdFraction();
+} // namespace MemoryInspector
+} // namespace caf

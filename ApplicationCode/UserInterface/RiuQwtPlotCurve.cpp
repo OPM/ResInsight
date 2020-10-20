@@ -264,7 +264,8 @@ void RiuQwtPlotCurve::setPerPointLabels( const std::vector<QString>& labels )
 void RiuQwtPlotCurve::setAppearance( LineStyleEnum          lineStyle,
                                      CurveInterpolationEnum interpolationType,
                                      int                    requestedCurveThickness,
-                                     const QColor&          curveColor )
+                                     const QColor&          curveColor,
+                                     const QBrush&          fillBrush /* = QBrush( Qt::NoBrush )*/ )
 {
     QwtPlotCurve::CurveStyle curveStyle = QwtPlotCurve::NoCurve;
     Qt::PenStyle             penStyle   = Qt::NoPen;
@@ -311,6 +312,7 @@ void RiuQwtPlotCurve::setAppearance( LineStyleEnum          lineStyle,
 
     setPen( curvePen );
     setStyle( curveStyle );
+    setBrush( fillBrush );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -58,6 +58,8 @@ public:
                                               RiuViewer*     nativeOrOverrideViewer,
                                               bool           isUsingOverrideViewer );
 
+    void update2dIntersectionViews();
+
 protected:
     virtual caf::PdmFieldHandle* userDescriptionField() override;
     virtual caf::PdmFieldHandle* objectToggleField() override;
@@ -73,7 +75,8 @@ protected:
     virtual void initAfterRead() override;
 
 private:
-    void update2dIntersectionViews();
+    void assignCaseIfMissing() const;
+    void updateCaseInResultDefinitions();
 
     caf::PdmField<bool>              m_isActive;
     caf::PdmProxyValueField<QString> m_autoName;

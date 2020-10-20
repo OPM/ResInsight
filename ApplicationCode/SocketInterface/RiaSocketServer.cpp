@@ -35,12 +35,8 @@
 
 #include "cafFactory.h"
 
-#if QT_VERSION >= 0x050000
-#include <QtWidgets/qmdisubwindow.h>
-#else
-#include <QtGui>
-#endif
 #include <QtNetwork>
+#include <QtWidgets/QMdiSubWindow>
 
 #include <cstdlib>
 
@@ -164,7 +160,7 @@ RimEclipseCase* RiaSocketServer::findReservoir( int caseId )
     }
     else
     {
-        RimProject* project = RiaApplication::instance()->project();
+        RimProject* project = RimProject::current();
         if ( !project ) return nullptr;
 
         std::vector<RimCase*> cases;

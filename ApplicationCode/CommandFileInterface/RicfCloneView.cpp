@@ -1,6 +1,5 @@
 #include "RicfCloneView.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "RicfCreateView.h"
@@ -14,7 +13,7 @@
 
 #include "Riu3DMainWindowTools.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 #include "cafSelectionManager.h"
 
 #include <QAction>
@@ -26,7 +25,7 @@ CAF_PDM_SOURCE_INIT( RicfCloneView, "cloneView" );
 //--------------------------------------------------------------------------------------------------
 RicfCloneView::RicfCloneView()
 {
-    CAF_PDM_InitScriptableFieldWithIO( &m_viewId, "viewId", -1, "View Id", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_viewId, "viewId", -1, "View Id", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -34,7 +33,7 @@ RicfCloneView::RicfCloneView()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfCloneView::execute()
 {
-    RimProject*             project = RiaApplication::instance()->project();
+    RimProject*             project = RimProject::current();
     std::vector<Rim3dView*> allViews;
     project->descendantsIncludingThisOfType( allViews );
 

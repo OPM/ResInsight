@@ -19,7 +19,6 @@
 
 CAF_CMD_SOURCE_INIT( RicNewEditableWellPathFeature, "RicNewEditableWellPathFeature" );
 
-#include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RimModeledWellPath.h"
 #include "RimOilField.h"
@@ -63,11 +62,10 @@ bool RicNewEditableWellPathFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewEditableWellPathFeature::onActionTriggered( bool isChecked )
 {
-    RimProject* project = RiaApplication::instance()->project();
-    if ( project && RiaApplication::instance()->project()->activeOilField() )
+    RimProject* project = RimProject::current();
+    if ( project && RimProject::current()->activeOilField() )
     {
-        RimWellPathCollection* wellPathCollection =
-            RiaApplication::instance()->project()->activeOilField()->wellPathCollection();
+        RimWellPathCollection* wellPathCollection = RimProject::current()->activeOilField()->wellPathCollection();
 
         if ( wellPathCollection )
         {

@@ -24,6 +24,7 @@
 
 #include "RimEclipseCase.h"
 
+#include "RivElementVectorResultPartMgr.h"
 #include "RivGridPartMgr.h"
 #include "RivReservoirFaultsPartMgr.h"
 
@@ -52,7 +53,8 @@ void RivReservoirPartMgr::clearAndSetReservoir( RivCellSetEnum  cellSetType,
         if ( eclipseCase->mainGrid() )
         {
             // Faults read from file are present only on main grid
-            m_faultsPartMgr = new RivReservoirFaultsPartMgr( eclipseCase->mainGrid(), reservoirView );
+            m_faultsPartMgr          = new RivReservoirFaultsPartMgr( eclipseCase->mainGrid(), reservoirView );
+            m_elementVectorResultMgr = new RivElementVectorResultPartMgr( reservoirView );
         }
     }
 }
@@ -70,6 +72,11 @@ void RivReservoirPartMgr::setTransform( cvf::Transform* scaleTransform )
     if ( m_faultsPartMgr.notNull() )
     {
         m_faultsPartMgr->setTransform( scaleTransform );
+    }
+
+    if ( m_elementVectorResultMgr.notNull() )
+    {
+        m_elementVectorResultMgr->setTransform( scaleTransform );
     }
 }
 
@@ -160,6 +167,17 @@ void RivReservoirPartMgr::appendGridPartsToModel( cvf::ModelBasicList* model, co
         {
             m_allGrids[gridIndices[i]]->appendPartsToModel( model );
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivReservoirPartMgr::appendElementVectorResultPartsToModel( cvf::ModelBasicList* model, size_t timeStepIndex )
+{
+    if ( m_elementVectorResultMgr.notNull() )
+    {
+        m_elementVectorResultMgr->appendDynamicGeometryPartsToModel( model, timeStepIndex );
     }
 }
 

@@ -22,7 +22,7 @@
 #include "RiaApplication.h"
 #include "RimWellLogFile.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
 #include <QDir>
 #include <QFileInfo>
@@ -46,8 +46,8 @@ CAF_PDM_SOURCE_INIT( RicfImportWellLogFiles, "importWellLogFiles" );
 //--------------------------------------------------------------------------------------------------
 RicfImportWellLogFiles::RicfImportWellLogFiles()
 {
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_wellLogFileFolder, "wellLogFolder", "", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_wellLogFilePaths, "wellLogFiles", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellLogFileFolder, "wellLogFolder", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellLogFilePaths, "wellLogFiles", "", "", "", "" );
 }
 
 caf::PdmScriptResponse RicfImportWellLogFiles::execute()

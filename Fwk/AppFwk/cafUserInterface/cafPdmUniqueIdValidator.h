@@ -44,11 +44,14 @@ class PdmUniqueIdValidator : public QValidator
 {
     Q_OBJECT
 public:
-    PdmUniqueIdValidator(const std::set<int>& usedIds, bool multipleSelectionOfSameFieldsSelected, const QString& errorMessage, QObject* parent);
+    PdmUniqueIdValidator( const std::set<int>& usedIds,
+                          bool                 multipleSelectionOfSameFieldsSelected,
+                          const QString&       errorMessage,
+                          QObject*             parent );
 
-    State validate(QString& currentString, int &) const override;
+    State validate( QString& currentString, int& ) const override;
 
-    void fixup(QString& editorText) const override;
+    void fixup( QString& editorText ) const override;
 
 private:
     int computeNextValidId();
@@ -56,8 +59,8 @@ private:
 private:
     std::set<int> m_usedIds;
 
-    int m_nextValidValue;
-    bool m_multipleSelectionOfSameFieldsSelected;
+    int     m_nextValidValue;
+    bool    m_multipleSelectionOfSameFieldsSelected;
     QString m_errorMessage;
 };
-}
+} // namespace caf

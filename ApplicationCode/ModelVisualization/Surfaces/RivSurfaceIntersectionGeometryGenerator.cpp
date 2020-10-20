@@ -141,24 +141,26 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
 {
     if ( m_triangleVxes->size() ) return;
     if ( m_hexGrid.isNull() ) return;
+    if ( !m_surfaceInView->surface()->surfaceData() ) return;
 
     std::vector<cvf::Vec3f> outputTriangleVertices;
 
     MeshLinesAccumulator meshAcc( m_hexGrid.p() );
-
-    cvf::BoundingBox    gridBBox = m_hexGrid->boundingBox();
-    std::vector<size_t> cellDummy;
-    m_hexGrid->findIntersectingCells( cvf::BoundingBox( cvf::Vec3d::ZERO, cvf::Vec3d::ZERO ), &cellDummy );
 
     m_usedSurfaceData = m_surfaceInView->surface()->surfaceData();
 
     const std::vector<cvf::Vec3d>& nativeVertices        = m_usedSurfaceData->vertices();
     const std::vector<unsigned>&   nativeTriangleIndices = m_usedSurfaceData->triangleIndices();
     cvf::Vec3d                     displayModelOffset    = m_hexGrid->displayOffset();
-    double                         depthOffset           = m_surfaceInView->depthOffset();
 
     m_triVxToCellCornerWeights.reserve( nativeTriangleIndices.size() * 24 );
     outputTriangleVertices.reserve( nativeTriangleIndices.size() * 24 );
+
+    // Ensure AABB search tree is constructed outside parallel loop
+    {
+        std::vector<size_t> triIntersectedCellCandidates;
+        m_hexGrid->findIntersectingCells( cvf::BoundingBox(), &triIntersectedCellCandidates );
+    }
 
 #pragma omp parallel num_threads( 6 ) // More threads have nearly no effect
     {
@@ -187,10 +189,6 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
             cvf::Vec3d p0 = nativeVertices[nativeTriangleIndices[ntVxIdx + 0]];
             cvf::Vec3d p1 = nativeVertices[nativeTriangleIndices[ntVxIdx + 1]];
             cvf::Vec3d p2 = nativeVertices[nativeTriangleIndices[ntVxIdx + 2]];
-
-            p0.z() = p0.z() - depthOffset;
-            p1.z() = p1.z() - depthOffset;
-            p2.z() = p2.z() - depthOffset;
 
             cvf::BoundingBox triangleBBox;
             triangleBBox.add( p0 );
@@ -322,8 +320,6 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
 cvf::ref<cvf::DrawableGeo> RivSurfaceIntersectionGeometryGenerator::generateSurface()
 {
     calculateArrays();
-
-    CVF_ASSERT( m_triangleVxes.notNull() );
 
     if ( m_triangleVxes->size() == 0 ) return nullptr;
 

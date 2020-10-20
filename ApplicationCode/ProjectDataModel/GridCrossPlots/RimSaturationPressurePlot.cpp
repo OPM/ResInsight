@@ -105,7 +105,7 @@ void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion( RiaDefines::Poro
             RigCaseCellResultsData* caseCellResultsData = eclipseResultCase->eclipseCaseData()->results( porosityModel );
             if ( caseCellResultsData )
             {
-                RigEclipseResultAddress depthResultAddress( RiaDefines::STATIC_NATIVE, "DEPTH" );
+                RigEclipseResultAddress depthResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DEPTH" );
 
                 double minDepth = 0.0;
                 double maxDepth = 0.0;
@@ -136,7 +136,7 @@ void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion( RiaDefines::Poro
             {
                 RimEclipseResultDefinition* resultDefinition = new RimEclipseResultDefinition();
                 resultDefinition->setEclipseCase( eclipseResultCase );
-                resultDefinition->setResultType( RiaDefines::STATIC_NATIVE );
+                resultDefinition->setResultType( RiaDefines::ResultCatType::STATIC_NATIVE );
                 resultDefinition->setResultVariable( RiaDefines::eqlnumResultName() );
 
                 cellFilter->setResultDefinition( resultDefinition );
@@ -151,7 +151,7 @@ void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion( RiaDefines::Poro
             RigCaseCellResultsData* caseCellResultsData = eclipseResultCase->eclipseCaseData()->results( porosityModel );
             if ( caseCellResultsData )
             {
-                RigEclipseResultAddress depthResultAddress( RiaDefines::STATIC_NATIVE, "DEPTH" );
+                RigEclipseResultAddress depthResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DEPTH" );
 
                 double minDepth = 0.0;
                 double maxDepth = 0.0;
@@ -169,7 +169,6 @@ void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion( RiaDefines::Poro
     }
 
     RimPlotAxisProperties* yAxisProps = yAxisProperties();
-
     yAxisProps->setInvertedAxis( true );
 
     {
@@ -244,7 +243,7 @@ RimPlotCellPropertyFilter*
 
     RimEclipseResultDefinition* resultDefinition = new RimEclipseResultDefinition();
     resultDefinition->setEclipseCase( eclipseResultCase );
-    resultDefinition->setResultType( RiaDefines::STATIC_NATIVE );
+    resultDefinition->setResultType( RiaDefines::ResultCatType::STATIC_NATIVE );
     resultDefinition->setResultVariable( RiaDefines::eqlnumResultName() );
 
     cellFilter->setResultDefinition( resultDefinition );
@@ -265,7 +264,7 @@ RimPlotCellPropertyFilter* RimSaturationPressurePlot::createDepthPropertyFilter(
 
     RimEclipseResultDefinition* resultDefinition = new RimEclipseResultDefinition();
     resultDefinition->setEclipseCase( eclipseResultCase );
-    resultDefinition->setResultType( RiaDefines::STATIC_NATIVE );
+    resultDefinition->setResultType( RiaDefines::ResultCatType::STATIC_NATIVE );
     resultDefinition->setResultVariable( "DEPTH" );
 
     depthCellFilter->setResultDefinition( resultDefinition );

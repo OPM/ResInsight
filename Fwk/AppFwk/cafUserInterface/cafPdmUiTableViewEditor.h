@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafPdmDocument.h"
@@ -49,9 +48,8 @@ class QItemSelection;
 class QLabel;
 class QTableView;
 
-namespace caf 
+namespace caf
 {
-
 class PdmUiCheckBoxDelegate;
 class PdmUiFieldEditorHandle;
 class PdmUiItem;
@@ -60,22 +58,22 @@ class PdmUiTableViewQModel;
 class PdmChildArrayFieldHandle;
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 class PdmUiTableViewPushButtonEditorAttribute : public PdmUiEditorAttribute
 {
 public:
-    void    registerPushButtonTextForFieldKeyword(const QString& keyword, const QString& text);
+    void registerPushButtonTextForFieldKeyword( const QString& keyword, const QString& text );
 
-    bool    showPushButtonForFieldKeyword(const QString& keyword) const;
-    QString pushButtonText(const QString& keyword) const;
+    bool    showPushButtonForFieldKeyword( const QString& keyword ) const;
+    QString pushButtonText( const QString& keyword ) const;
 
 private:
     std::map<QString, QString> m_fieldKeywordAndPushButtonText;
 };
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 class PdmUiTableViewEditorAttribute : public PdmUiEditorAttribute
 {
@@ -88,31 +86,30 @@ public:
     };
 
     PdmUiTableViewEditorAttribute()
-        : tableSelectionLevel(0)
-        , rowSelectionLevel(1)
-        , enableHeaderText(true)
-        , minimumHeight(-1)
-        , alwaysEnforceResizePolicy(false)
-        , resizePolicy(NO_AUTOMATIC_RESIZE)
+        : tableSelectionLevel( 0 )
+        , rowSelectionLevel( 1 )
+        , enableHeaderText( true )
+        , minimumHeight( -1 )
+        , alwaysEnforceResizePolicy( false )
+        , resizePolicy( NO_AUTOMATIC_RESIZE )
     {
         QPalette myPalette;
-        baseColor = myPalette.color(QPalette::Active, QPalette::Base);
+        baseColor = myPalette.color( QPalette::Active, QPalette::Base );
     }
 
-    int                 selectionLevel;
-    int                 tableSelectionLevel;
-    int                 rowSelectionLevel;
-    bool                enableHeaderText;
-    std::vector<int>    columnWidths;
-    int                 minimumHeight; ///< Not used if If < 0 
-    QColor              baseColor;
-    bool                alwaysEnforceResizePolicy;
-    ResizePolicy        resizePolicy;
+    int              selectionLevel;
+    int              tableSelectionLevel;
+    int              rowSelectionLevel;
+    bool             enableHeaderText;
+    std::vector<int> columnWidths;
+    int              minimumHeight; ///< Not used if If < 0
+    QColor           baseColor;
+    bool             alwaysEnforceResizePolicy;
+    ResizePolicy     resizePolicy;
 };
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 
 class PdmUiTableViewEditor : public PdmUiFieldEditorHandle, public SelectionChangedReceiver
@@ -124,31 +121,31 @@ public:
     PdmUiTableViewEditor();
     ~PdmUiTableViewEditor() override;
 
-    void            enableHeaderText(bool enable);
-    void            setTableSelectionLevel(int selectionLevel);
-    void            setRowSelectionLevel(int selectionLevel);
+    void enableHeaderText( bool enable );
+    void setTableSelectionLevel( int selectionLevel );
+    void setRowSelectionLevel( int selectionLevel );
 
-    PdmObjectHandle* pdmObjectFromModelIndex(const QModelIndex& mi);
-    QTableView*     tableView();
+    PdmObjectHandle* pdmObjectFromModelIndex( const QModelIndex& mi );
+    QTableView*      tableView();
 
 protected:
-    QWidget*        createEditorWidget(QWidget * parent) override;
-    QWidget*        createLabelWidget(QWidget * parent) override;
-    void            configureAndUpdateUi(const QString& uiConfigName) override;
+    QWidget* createEditorWidget( QWidget* parent ) override;
+    QWidget* createLabelWidget( QWidget* parent ) override;
+    void     configureAndUpdateUi( const QString& uiConfigName ) override;
 
-    void            onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels ) override;
+    void onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels ) override;
     bool isMultiRowEditor() const override;
 
 private:
-    void            selectedUiItems(const QModelIndexList& modelIndexList, std::vector<PdmUiItem*>& objects);
-    bool            isSelectionRoleDefined() const;
-    void            updateSelectionManagerFromTableSelection();
+    void selectedUiItems( const QModelIndexList& modelIndexList, std::vector<PdmUiItem*>& objects );
+    bool isSelectionRoleDefined() const;
+    void updateSelectionManagerFromTableSelection();
 
-    bool            eventFilter(QObject* obj, QEvent* event) override;
+    bool                      eventFilter( QObject* obj, QEvent* event ) override;
     PdmChildArrayFieldHandle* childArrayFieldHandle();
 
 private slots:
-    void            slotSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
+    void slotSelectionChanged( const QItemSelection& selected, const QItemSelection& deselected );
 
 private:
     friend class FocusEventHandler;
@@ -156,21 +153,19 @@ private:
     QPointer<QShortenedLabel> m_tableHeading;
     QPointer<QLabel>          m_tableHeadingIcon;
 
-    QTableView*             m_tableView;
-    PdmUiTableViewQModel*   m_tableModelPdm;
+    QTableView*           m_tableView;
+    PdmUiTableViewQModel* m_tableModelPdm;
 
     PdmUiTableViewDelegate* m_delegate;
     PdmUiCheckBoxDelegate*  m_checkboxDelegate;
 
-    bool                    m_useDefaultContextMenu;
-    int                     m_tableSelectionLevel;
-    int                     m_rowSelectionLevel;
-    bool                    m_isBlockingSelectionManagerChanged;
-    bool                    m_isUpdatingSelectionQModel;
+    bool m_useDefaultContextMenu;
+    int  m_tableSelectionLevel;
+    int  m_rowSelectionLevel;
+    bool m_isBlockingSelectionManagerChanged;
+    bool m_isUpdatingSelectionQModel;
 
     caf::PdmChildArrayFieldHandle* m_previousFieldHandle;
 };
-
-
 
 } // end namespace caf

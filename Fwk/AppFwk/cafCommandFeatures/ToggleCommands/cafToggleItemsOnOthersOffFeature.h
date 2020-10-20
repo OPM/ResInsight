@@ -41,28 +41,27 @@
 
 namespace caf
 {
-    class PdmFieldHandle;
-    class PdmObject;
-    class PdmObjectHandle;
-
+class PdmFieldHandle;
+class PdmObject;
+class PdmObjectHandle;
 
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class ToggleItemsOnOthersOffFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
-protected:
 
+protected:
     // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    caf::PdmFieldHandle* verifySameParentForSelection(const std::vector<caf::PdmObject*>& selectedObjects);
-    std::vector<caf::PdmObjectHandle*> childObjects(caf::PdmFieldHandle* parent);
-    caf::PdmField<bool>* objectToggleField(caf::PdmObjectHandle* objectHandle);
+    caf::PdmFieldHandle* verifySameParentForSelection( const std::vector<caf::PdmObject*>& selectedObjects );
+    std::vector<caf::PdmObjectHandle*> childObjects( caf::PdmFieldHandle* parent );
+    caf::PdmField<bool>*               objectToggleField( caf::PdmObjectHandle* objectHandle );
 };
 
-}
+} // namespace caf

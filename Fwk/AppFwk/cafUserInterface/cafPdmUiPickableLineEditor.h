@@ -49,7 +49,10 @@ class PickEventHandler;
 class PdmUiPickableLineEditorAttribute : public PdmUiEditorAttribute
 {
 public:
-    PdmUiPickableLineEditorAttribute() : enablePicking(false) {}
+    PdmUiPickableLineEditorAttribute()
+        : enablePicking( false )
+    {
+    }
 
 public:
     bool                              enablePicking;
@@ -69,12 +72,10 @@ public:
     ~PdmUiPickableLineEditor() override;
 
 protected:
-    void configureAndUpdateUi(const QString& uiConfigName) override;
+    void configureAndUpdateUi( const QString& uiConfigName ) override;
 
 private:
     PdmUiPickableLineEditorAttribute m_attribute;
 };
 
 } // end namespace caf
-
-

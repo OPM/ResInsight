@@ -41,6 +41,17 @@ class RimSummaryCase : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    caf::Signal<> nameChanged;
+
+    enum class DisplayName
+    {
+        FULL_CASE_NAME,
+        SHORT_CASE_NAME,
+        CUSTOM
+    };
+    using DisplayNameEnum = caf::AppEnum<DisplayName>;
+
+public:
     RimSummaryCase();
     ~RimSummaryCase() override;
 
@@ -52,8 +63,8 @@ public:
 
     RiaEclipseUnitTools::UnitSystemType unitsSystem();
 
+    void setDisplayNameOption( DisplayName displayNameOption );
     void updateAutoShortName();
-    void resetAutoShortName();
     void updateOptionSensitivity();
 
     virtual void                       createSummaryReaderInterface() = 0;
@@ -66,7 +77,7 @@ public:
 
     void setSummaryHeaderFileName( const QString& fileName );
 
-    bool isObservedData();
+    bool isObservedData() const;
 
     void setCaseRealizationParameters( const std::shared_ptr<RigCaseRealizationParameters>& crlParameters );
     std::shared_ptr<RigCaseRealizationParameters> caseRealizationParameters() const;
@@ -85,16 +96,20 @@ protected:
     void initAfterRead() override;
 
 private:
-    static QString uniqueShortNameForCase( RimSummaryCase* summaryCase );
+    static QString uniqueShortNameForEnsembleCase( RimSummaryCase* summaryCase );
+    static QString uniqueShortNameForSummaryCase( RimSummaryCase* summaryCase );
 
 protected:
-    caf::PdmField<QString>       m_shortName;
-    caf::PdmField<bool>          m_useAutoShortName;
-    caf::PdmField<caf::FilePath> m_summaryHeaderFilename;
-    bool                         m_isObservedData;
-    caf::PdmField<int>           m_caseId;
+    caf::PdmField<QString>         m_displayName;
+    caf::PdmField<DisplayNameEnum> m_displayNameOption;
+    caf::PdmField<caf::FilePath>   m_summaryHeaderFilename;
+
+    bool               m_isObservedData;
+    caf::PdmField<int> m_caseId;
 
     std::shared_ptr<RigCaseRealizationParameters> m_crlParameters;
+
+    caf::PdmField<bool> m_useAutoShortName_OBSOLETE;
 
     static const QString DEFAULT_DISPLAY_NAME;
 };

@@ -85,6 +85,7 @@ public:
     void                          setPorosityModel( RiaDefines::PorosityModelType val );
     QString                       resultVariable() const { return m_resultVariable(); }
     virtual void                  setResultVariable( const QString& val );
+    RiaDefines::PhaseType         resultPhaseType() const;
 
     void                     setFlowSolution( RimFlowDiagSolution* flowSol );
     RimFlowDiagSolution*     flowDiagSolution() const;

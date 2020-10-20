@@ -30,12 +30,12 @@
 #include "RimWellPathCollection.h"
 
 #include "Riu3DMainWindowTools.h"
+#include "RiuFileDialogTools.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
 #include <QAction>
-#include <QFileDialog>
-#include <QMessageBox>
+#include <QDir>
 
 //==================================================================================================
 ///
@@ -64,8 +64,8 @@ RICF_SOURCE_INIT( RicImportWellPaths, "RicWellPathsImportFileFeature", "importWe
 //--------------------------------------------------------------------------------------------------
 RicImportWellPaths::RicImportWellPaths()
 {
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_wellPathFolder, "wellPathFolder", "", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_wellPathFiles, "wellPathFiles", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPathFolder, "wellPathFolder", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPathFiles, "wellPathFiles", "", "", "", "" );
 }
 
 caf::PdmScriptResponse RicImportWellPaths::execute()
@@ -216,8 +216,10 @@ void RicImportWellPaths::onActionTriggered( bool isChecked )
 
     QString nameList = QString( "Well Paths (%1);;All Files (*.*)" ).arg( wellPathNameFilters().join( " " ) );
 
-    QStringList wellPathFilePaths =
-        QFileDialog::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(), "Import Well Paths", defaultDir, nameList );
+    QStringList wellPathFilePaths = RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
+                                                                          "Import Well Paths",
+                                                                          defaultDir,
+                                                                          nameList );
 
     if ( wellPathFilePaths.size() >= 1 )
     {
@@ -228,19 +230,7 @@ void RicImportWellPaths::onActionTriggered( bool isChecked )
         if ( !messages.empty() )
         {
             QString displayMessage = QString( "Problem loading well path files:\n%2" ).arg( messages.join( "\n" ) );
-
-            if ( RiaGuiApplication::isRunning() )
-            {
-                QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(), "Well Path Loading", displayMessage );
-            }
-            if ( response.status() == caf::PdmScriptResponse::COMMAND_ERROR )
-            {
-                RiaLogging::error( displayMessage );
-            }
-            else
-            {
-                RiaLogging::warning( displayMessage );
-            }
+            RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "Well Path Loading", displayMessage );
         }
     }
 }

@@ -1,12 +1,12 @@
 #pragma once
 
-
 #include <QDialog>
 
-namespace caf {
-    class PdmObject;
-    class PdmUiPropertyView;
-}
+namespace caf
+{
+class PdmObject;
+class PdmUiPropertyView;
+} // namespace caf
 
 class QDialogButtonBox;
 class QWidget;
@@ -15,14 +15,13 @@ class QStringList;
 
 namespace caf
 {
-
 class PdmUiTabbedPropertyViewDialog : public QDialog
 {
 public:
-    PdmUiTabbedPropertyViewDialog(caf::PdmObject* object,
-                                  const QStringList& uiConfigNameForTabs,
-                                  const QString& windowTitle,
-                                  QWidget* parent);
+    PdmUiTabbedPropertyViewDialog( caf::PdmObject*    object,
+                                   const QStringList& uiConfigNameForTabs,
+                                   const QString&     windowTitle,
+                                   QWidget*           parent );
     ~PdmUiTabbedPropertyViewDialog() override;
 
     QDialogButtonBox* dialogButtonBox();
@@ -36,4 +35,4 @@ private:
     QDialogButtonBox*               m_dialogButtonBox;
 };
 
-}
+} // namespace caf

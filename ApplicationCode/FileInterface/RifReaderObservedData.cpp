@@ -215,5 +215,5 @@ std::string RifReaderObservedData::unitName( const RifEclipseSummaryAddress& res
 //--------------------------------------------------------------------------------------------------
 RiaEclipseUnitTools::UnitSystem RifReaderObservedData::unitSystem() const
 {
-    return RiaEclipseUnitTools::UNITS_UNKNOWN;
+    return RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
 }

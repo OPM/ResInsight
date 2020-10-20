@@ -46,112 +46,110 @@
 
 namespace caf
 {
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 CmdFeature::CmdFeature()
-    : m_triggerModelChange(true)
+    : m_triggerModelChange( true )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 CmdFeature::~CmdFeature()
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QAction* CmdFeature::action()
 {
-    return this->actionWithCustomText(QString(""));
+    return this->actionWithCustomText( QString( "" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QAction* CmdFeature::actionWithCustomText(const QString& customText)
+QAction* CmdFeature::actionWithCustomText( const QString& customText )
 {
-    return actionWithUserData(customText, QVariant());
+    return actionWithUserData( customText, QVariant() );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QAction* CmdFeature::actionWithUserData(const QString& customText, const QVariant& userData)
+QAction* CmdFeature::actionWithUserData( const QString& customText, const QVariant& userData )
 {
     QAction* action = nullptr;
 
     std::map<QString, QAction*>::iterator it;
-    it = m_customTextToActionMap.find(customText);
+    it = m_customTextToActionMap.find( customText );
 
-    if (it != m_customTextToActionMap.end() && it->second != NULL)
+    if ( it != m_customTextToActionMap.end() && it->second != NULL )
     {
         action = it->second;
     }
     else
     {
-        action = new QAction(this);
+        action = new QAction( this );
 
-        connect(action, SIGNAL(triggered(bool)), SLOT(actionTriggered(bool)));
-        m_customTextToActionMap[customText]= action;
+        connect( action, SIGNAL( triggered( bool ) ), SLOT( actionTriggered( bool ) ) );
+        m_customTextToActionMap[customText] = action;
     }
 
-    if (!userData.isNull())
+    if ( !userData.isNull() )
     {
-        action->setData(userData);
+        action->setData( userData );
     }
 
-    if (dynamic_cast<QApplication*>(QCoreApplication::instance()))
+    if ( dynamic_cast<QApplication*>( QCoreApplication::instance() ) )
     {
-        this->setupActionLook(action);
+        this->setupActionLook( action );
     }
-    if (!customText.isEmpty())
+    if ( !customText.isEmpty() )
     {
-        action->setText(customText);
+        action->setText( customText );
     }
 
     return action;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void CmdFeature::refreshEnabledState()
 {
     std::map<QString, QAction*>::iterator it;
-    bool isEnabled = this->isCommandEnabled();
+    bool                                  isEnabled = this->isCommandEnabled();
 
-    for (it = m_customTextToActionMap.begin(); it != m_customTextToActionMap.end(); ++it)
+    for ( it = m_customTextToActionMap.begin(); it != m_customTextToActionMap.end(); ++it )
     {
-        it->second->setEnabled(isEnabled);
+        it->second->setEnabled( isEnabled );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void CmdFeature::refreshCheckedState()
 {
     std::map<QString, QAction*>::iterator it;
-    bool isChecked = this->isCommandChecked();
+    bool                                  isChecked = this->isCommandChecked();
 
-    for (it = m_customTextToActionMap.begin(); it != m_customTextToActionMap.end(); ++it)
+    for ( it = m_customTextToActionMap.begin(); it != m_customTextToActionMap.end(); ++it )
     {
         QAction* act = it->second;
-        if (act->isCheckable())
+        if ( act->isCheckable() )
         {
-            it->second->setChecked(isChecked);
+            it->second->setChecked( isChecked );
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool CmdFeature::canFeatureBeExecuted()
 {
@@ -161,32 +159,32 @@ bool CmdFeature::canFeatureBeExecuted()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void CmdFeature::applyShortcutWithHintToAction(QAction* action, const QKeySequence& keySequence)
+void CmdFeature::applyShortcutWithHintToAction( QAction* action, const QKeySequence& keySequence )
 {
-    action->setShortcut(keySequence);
+    action->setShortcut( keySequence );
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
+#if ( QT_VERSION >= QT_VERSION_CHECK( 5, 10, 0 ) )
     // Qt made keyboard shortcuts in context menus platform dependent in Qt 5.10
     // With no global way of removing it.
-    action->setShortcutVisibleInContextMenu(true);
+    action->setShortcutVisibleInContextMenu( true );
 #endif
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void CmdFeature::actionTriggered(bool isChecked)
+void CmdFeature::actionTriggered( bool isChecked )
 {
-    this->onActionTriggered(isChecked);
+    this->onActionTriggered( isChecked );
 
-    if (m_triggerModelChange)
+    if ( m_triggerModelChange )
     {
         caf::PdmUiModelChangeDetector::instance()->setModelChanged();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool CmdFeature::isCommandChecked()
 {
@@ -194,7 +192,7 @@ bool CmdFeature::isCommandChecked()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void CmdFeature::disableModelChangeContribution()
 {
@@ -207,8 +205,8 @@ void CmdFeature::disableModelChangeContribution()
 //--------------------------------------------------------------------------------------------------
 const QVariant CmdFeature::userData() const
 {
-    QAction* action = qobject_cast<QAction*>(sender());
-    CAF_ASSERT(action);
+    QAction* action = qobject_cast<QAction*>( sender() );
+    CAF_ASSERT( action );
 
     return action->data();
 }

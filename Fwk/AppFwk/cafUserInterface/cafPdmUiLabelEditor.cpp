@@ -34,62 +34,52 @@
 //
 //##################################################################################################
 
-
 #include "cafPdmUiLabelEditor.h"
-
-
 
 namespace caf
 {
-
-CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiLabelEditor);
-
-
-
+CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiLabelEditor );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmUiLabelEditor::PdmUiLabelEditor()
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmUiLabelEditor::~PdmUiLabelEditor()
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiLabelEditor::configureAndUpdateUi(const QString& uiConfigName)
+void PdmUiLabelEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
-    CAF_ASSERT(!m_label.isNull());
+    CAF_ASSERT( !m_label.isNull() );
 
-    PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
-
+    PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiLabelEditor::createEditorWidget(QWidget * parent)
+QWidget* PdmUiLabelEditor::createEditorWidget( QWidget* parent )
 {
-    return createLabelWidget(parent);
+    return createLabelWidget( parent );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiLabelEditor::createLabelWidget(QWidget * parent)
+QWidget* PdmUiLabelEditor::createLabelWidget( QWidget* parent )
 {
-    if (m_label.isNull())
+    if ( m_label.isNull() )
     {
-        m_label = new QShortenedLabel(parent);
+        m_label = new QShortenedLabel( parent );
     }
 
     return m_label;

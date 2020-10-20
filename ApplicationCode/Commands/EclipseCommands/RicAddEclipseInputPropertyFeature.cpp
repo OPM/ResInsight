@@ -27,11 +27,11 @@
 
 #include "RiaApplication.h"
 #include "Riu3DMainWindowTools.h"
+#include "RiuFileDialogTools.h"
 
 #include "cafSelectionManager.h"
 
 #include <QAction>
-#include <QFileDialog>
 #include <QFileInfo>
 #include <QStringList>
 
@@ -67,10 +67,10 @@ void RicAddEclipseInputPropertyFeature::onActionTriggered( bool isChecked )
 
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectoryWithFallback( "INPUT_FILES", casePath );
-    QStringList     fileNames  = QFileDialog::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
-                                                           "Select Eclipse Input Property Files",
-                                                           defaultDir,
-                                                           "All Files (*.* *)" );
+    QStringList     fileNames  = RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
+                                                                  "Select Eclipse Input Property Files",
+                                                                  defaultDir,
+                                                                  "All Files (*.* *)" );
 
     if ( fileNames.isEmpty() ) return;
 

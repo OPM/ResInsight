@@ -29,7 +29,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
 #include <QDir>
 #include <QFile>
@@ -42,13 +42,13 @@ CAF_PDM_SOURCE_INIT( RicfExportFlowCharacteristics, "exportFlowCharacteristics" 
 //--------------------------------------------------------------------------------------------------
 RicfExportFlowCharacteristics::RicfExportFlowCharacteristics()
 {
-    CAF_PDM_InitScriptableFieldWithIO( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_selectedTimeSteps, "timeSteps", std::vector<int>(), "Selected Time Steps", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_injectors, "injectors", std::vector<QString>(), "Injectors", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_producers, "producers", std::vector<QString>(), "Producers", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_fileName, "fileName", QString(), "Export File Name", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_minCommunication, "minimumCommunication", 0.0, "Minimum Communication", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_maxPvFraction, "aquiferCellThreshold", 0.1, "Aquifer Cell Threshold", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_selectedTimeSteps, "timeSteps", std::vector<int>(), "Selected Time Steps", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_injectors, "injectors", std::vector<QString>(), "Injectors", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_producers, "producers", std::vector<QString>(), "Producers", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_fileName, "fileName", QString(), "Export File Name", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_minCommunication, "minimumCommunication", 0.0, "Minimum Communication", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_maxPvFraction, "aquiferCellThreshold", 0.1, "Aquifer Cell Threshold", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,8 +88,7 @@ caf::PdmScriptResponse RicfExportFlowCharacteristics::execute()
             exportFileName = exportFolder + "/" + fi.fileName();
         }
 
-        RimFlowPlotCollection* flowPlotColl =
-            RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
+        RimFlowPlotCollection* flowPlotColl = RimProject::current()->mainPlotCollection->flowPlotCollection();
         if ( flowPlotColl )
         {
             RimFlowCharacteristicsPlot* plot = flowPlotColl->defaultFlowCharacteristicsPlot();

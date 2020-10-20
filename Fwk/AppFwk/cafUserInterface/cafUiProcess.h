@@ -34,48 +34,44 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
-#include <QtCore/QProcess>
 #include <QDateTime>
+#include <QtCore/QProcess>
 
 namespace caf
 {
-
-const int PROCESS_STATE_NORMAL  = 0;    // Normal messages
-const int PROCESS_STATE_RUNNING = 1;    // Messages sent as long as the process is running 
-const int PROCESS_STATE_ERROR   = 2;    // Message sent for error messages
-
+const int PROCESS_STATE_NORMAL  = 0; // Normal messages
+const int PROCESS_STATE_RUNNING = 1; // Messages sent as long as the process is running
+const int PROCESS_STATE_ERROR   = 2; // Message sent for error messages
 
 //=================================================================================================================================
 //
-// 
+//
 //=================================================================================================================================
 class UiProcess : public QProcess
 {
     Q_OBJECT
 
 private:
-    QTime       m_timer;
+    QTime m_timer;
 
 public:
-    explicit UiProcess(QObject* pParent = nullptr);
+    explicit UiProcess( QObject* pParent = nullptr );
 
 private:
-    void    doEmitStatusMsg(const QString& msg, int statusMsgType);
+    void doEmitStatusMsg( const QString& msg, int statusMsgType );
 
 private slots:
-    void    slotProcStarted();
-    void    slotProcError(QProcess::ProcessError error);
-    void    slotProcFinished(int exitCode, QProcess::ExitStatus exitStatus);
-    void    slotProcStateChanged(QProcess::ProcessState newState);
-    void    slotUpdateStatusMessage();
+    void slotProcStarted();
+    void slotProcError( QProcess::ProcessError error );
+    void slotProcFinished( int exitCode, QProcess::ExitStatus exitStatus );
+    void slotProcStateChanged( QProcess::ProcessState newState );
+    void slotUpdateStatusMessage();
 
 signals:
-    void    signalStatusMsg(const QString& msg, int statusMsgType);
-    void    signalFormattedStatusMsg(const QString& msg);
+    void signalStatusMsg( const QString& msg, int statusMsgType );
+    void signalFormattedStatusMsg( const QString& msg );
 };
-
 
 } // end namespace caf

@@ -51,11 +51,11 @@ class PdmObjectHandle;
 class PdmUiTableRowEditor : public PdmUiEditorHandle
 {
 public:
-    PdmUiTableRowEditor(PdmUiTableViewQModel* model, caf::PdmObjectHandle* pdmObject, int row);
+    PdmUiTableRowEditor( PdmUiTableViewQModel* model, caf::PdmObjectHandle* pdmObject, int row );
     ~PdmUiTableRowEditor() override;
 
 protected:
-    void configureAndUpdateUi(const QString& uiConfigName) override;
+    void configureAndUpdateUi( const QString& uiConfigName ) override;
 
 private:
     QPointer<PdmUiTableViewQModel> m_model;

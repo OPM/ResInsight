@@ -21,7 +21,6 @@
 #include "RimSimWellInViewCollection.h"
 
 #include "RiaApplication.h"
-#include "RiaColorTables.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaPreferences.h"
 
@@ -674,7 +673,7 @@ void RimSimWellInViewCollection::assignDefaultWellColors()
 //--------------------------------------------------------------------------------------------------
 void RimSimWellInViewCollection::updateWellAllocationPlots()
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
 
     std::vector<RimWellAllocationPlot*> wellAllocationPlots;
     proj->descendantsIncludingThisOfType( wellAllocationPlots );

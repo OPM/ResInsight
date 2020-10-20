@@ -68,12 +68,18 @@ RiuMultiPlotPage::RiuMultiPlotPage( RimPlotWindow* plotDefinition, QWidget* pare
     , m_plotDefinition( plotDefinition )
     , m_previewMode( false )
     , m_showSubTitles( false )
+    , m_titleFontPixelSize( 12 )
+    , m_subTitleFontPixelSize( 11 )
+    , m_legendFontPixelSize( 8 )
+    , m_axisTitleFontSize( 8 )
+    , m_axisValueFontSize( 8 )
+
 {
     CAF_ASSERT( m_plotDefinition );
 
     m_layout = new QVBoxLayout( this );
     m_layout->setMargin( 0 );
-    m_layout->setSpacing( 2 );
+    m_layout->setSpacing( 4 );
 
     m_plotTitle = createTitleLabel();
     m_layout->addWidget( m_plotTitle );
@@ -88,40 +94,15 @@ RiuMultiPlotPage::RiuMultiPlotPage( RimPlotWindow* plotDefinition, QWidget* pare
 
     m_gridLayout = new QGridLayout( m_plotWidgetFrame );
     m_gridLayout->setContentsMargins( 0, 0, 0, 0 );
-    m_gridLayout->setSpacing( 1 );
-
-    QPalette newPalette( palette() );
-    newPalette.setColor( QPalette::Window, Qt::white );
-    setPalette( newPalette );
-
-    setAutoFillBackground( true );
+    m_gridLayout->setSpacing( 5 );
 
     new RiuPlotObjectPicker( m_plotTitle, m_plotDefinition );
 
-    if ( m_previewMode )
-    {
-        this->setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding );
-    }
-    else
-    {
-        this->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
-    }
-
     setFocusPolicy( Qt::StrongFocus );
-
-    RiaApplication* app             = RiaApplication::instance();
-    int             defaultFontSize = app->preferences()->defaultPlotFontSize();
-    setFontSize( defaultFontSize );
 
     this->setObjectName( QString( "%1" ).arg( reinterpret_cast<uint64_t>( this ) ) );
 
-    this->setBackgroundRole( QPalette::Window );
-
-    QGraphicsDropShadowEffect* dropShadowEffect = new QGraphicsDropShadowEffect( this );
-    dropShadowEffect->setOffset( 4.0, 4.0 );
-    dropShadowEffect->setBlurRadius( 4.0 );
-    dropShadowEffect->setColor( QColor( 40, 40, 40, 40 ) );
-    this->setGraphicsEffect( dropShadowEffect );
+    applyLook();
 
     updateMarginsFromPageLayout();
 }
@@ -173,23 +154,27 @@ void RiuMultiPlotPage::insertPlot( RiuQwtPlotWidget* plotWidget, size_t index )
     subTitle->setVisible( false );
     m_subTitles.insert( static_cast<int>( index ), subTitle );
 
-    RiuQwtPlotLegend* legend        = new RiuQwtPlotLegend( this );
-    int               legendColumns = 1;
-    if ( m_plotDefinition->legendsHorizontal() )
+    RiuQwtPlotLegend* legend = nullptr;
+    if ( m_plotDefinition->legendsVisible() && plotWidget->plotDefinition()->legendsVisible() )
     {
-        legendColumns = 0; // unlimited
-    }
-    legend->setMaxColumns( legendColumns );
-    legend->horizontalScrollBar()->setVisible( false );
-    legend->verticalScrollBar()->setVisible( false );
-    legend->connect( plotWidget,
-                     SIGNAL( legendDataChanged( const QVariant&, const QList<QwtLegendData>& ) ),
-                     SLOT( updateLegend( const QVariant&, const QList<QwtLegendData>& ) ) );
-    QObject::connect( legend, SIGNAL( legendUpdated() ), this, SLOT( onLegendUpdated() ) );
+        legend            = new RiuQwtPlotLegend( this );
+        int legendColumns = 1;
+        if ( m_plotDefinition->legendsHorizontal() )
+        {
+            legendColumns = 0; // unlimited
+        }
+        legend->setMaxColumns( legendColumns );
+        legend->horizontalScrollBar()->setVisible( false );
+        legend->verticalScrollBar()->setVisible( false );
+        legend->connect( plotWidget,
+                         SIGNAL( legendDataChanged( const QVariant&, const QList<QwtLegendData>& ) ),
+                         SLOT( updateLegend( const QVariant&, const QList<QwtLegendData>& ) ) );
+        QObject::connect( legend, SIGNAL( legendUpdated() ), this, SLOT( onLegendUpdated() ) );
 
-    legend->contentsWidget()->layout()->setAlignment( Qt::AlignBottom | Qt::AlignHCenter );
-    legend->setVisible( false );
-    plotWidget->updateLegend();
+        legend->contentsWidget()->layout()->setAlignment( Qt::AlignBottom | Qt::AlignHCenter );
+        legend->setVisible( false );
+        plotWidget->updateLegend();
+    }
     m_legends.insert( static_cast<int>( index ), legend );
 
     scheduleUpdate();
@@ -209,9 +194,12 @@ void RiuMultiPlotPage::removePlot( RiuQwtPlotWidget* plotWidget )
     plotWidget->setParent( nullptr );
 
     RiuQwtPlotLegend* legend = m_legends[plotWidgetIdx];
-    legend->setParent( nullptr );
+    if ( legend )
+    {
+        legend->setParent( nullptr );
+        delete legend;
+    }
     m_legends.removeAt( plotWidgetIdx );
-    delete legend;
 
     QLabel* subTitle = m_subTitles[plotWidgetIdx];
     subTitle->setParent( nullptr );
@@ -252,32 +240,33 @@ void RiuMultiPlotPage::setTitleVisible( bool visible )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotPage::setFontSize( int fontSize )
+void RiuMultiPlotPage::setTitleFontSizes( int titleFontSize, int subTitleFontSize )
 {
-    int pixelSize = RiaFontCache::pointSizeToPixelSize( fontSize );
-    {
-        QFont font = m_plotTitle->font();
+    m_titleFontPixelSize    = caf::FontTools::pointSizeToPixelSize( titleFontSize );
+    m_subTitleFontPixelSize = caf::FontTools::pointSizeToPixelSize( subTitleFontSize );
 
-        font.setPixelSize( pixelSize + 2 );
-        font.setBold( true );
-        m_plotTitle->setFont( font );
-    }
-
-    for ( QLabel* subTitle : m_subTitles )
-    {
-        QFont font = subTitle->font();
-        font.setPixelSize( pixelSize );
-        font.setBold( true );
-        subTitle->setFont( font );
-    }
+    scheduleUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiuMultiPlotPage::fontSize() const
+void RiuMultiPlotPage::setLegendFontSize( int legendFontSize )
 {
-    return m_plotTitle->font().pointSize() - 2;
+    m_legendFontPixelSize = caf::FontTools::pointSizeToPixelSize( legendFontSize );
+
+    scheduleUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotPage::setAxisFontSizes( int axisTitleFontSize, int axisValueFontSize )
+{
+    m_axisTitleFontSize = axisTitleFontSize;
+    m_axisValueFontSize = axisValueFontSize;
+
+    scheduleUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -299,7 +288,7 @@ bool RiuMultiPlotPage::previewModeEnabled() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotPage::setPreviewModeEnabled( bool previewMode )
+void RiuMultiPlotPage::setPagePreviewModeEnabled( bool previewMode )
 {
     m_previewMode = previewMode;
 }
@@ -335,6 +324,20 @@ void RiuMultiPlotPage::scheduleReplotOfAllPlots()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuMultiPlotPage::updateSubTitles()
+{
+    for ( int i = 0; i < m_plotWidgets.size(); ++i )
+    {
+        if ( m_plotWidgets[i]->isChecked() )
+        {
+            m_subTitles[i]->setText( m_plotWidgets[i]->plotTitle() );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::renderTo( QPaintDevice* paintDevice )
 {
     int    resolution = paintDevice->logicalDpiX();
@@ -349,7 +352,6 @@ void RiuMultiPlotPage::renderTo( QPaintDevice* paintDevice )
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::renderTo( QPainter* painter, double scalingFactor )
 {
-    stashWidgetStates();
     painter->fillRect( painter->viewport(), Qt::white );
     m_plotTitle->render( painter );
 
@@ -367,8 +369,11 @@ void RiuMultiPlotPage::renderTo( QPainter* painter, double scalingFactor )
 
     for ( auto legend : legendsForVisiblePlots() )
     {
-        QPoint renderOffset = m_plotWidgetFrame->mapToParent( legend->frameGeometry().topLeft() ) - marginOffset;
-        legend->render( painter, renderOffset );
+        if ( legend )
+        {
+            QPoint renderOffset = m_plotWidgetFrame->mapToParent( legend->frameGeometry().topLeft() ) - marginOffset;
+            legend->render( painter, renderOffset );
+        }
     }
 
     for ( auto plotWidget : visiblePlotWidgets() )
@@ -380,8 +385,6 @@ void RiuMultiPlotPage::renderTo( QPainter* painter, double scalingFactor )
 
         plotWidget->renderTo( painter, plotWidgetGeometry, scalingFactor );
     }
-
-    restoreWidgetStates();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -525,14 +528,6 @@ void RiuMultiPlotPage::onSelectionManagerSelectionChanged( const std::set<int>& 
         {
             isSelected = isSelected || caf::SelectionManager::instance()->isSelected( plot, changedLevel );
         }
-        if ( isSelected )
-        {
-            plotWidget->setWidgetState( "selected" );
-        }
-        else
-        {
-            caf::UiStyleSheet::clearWidgetStates( plotWidget );
-        }
     }
 }
 
@@ -549,6 +544,7 @@ bool RiuMultiPlotPage::showYAxis( int row, int column ) const
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::performUpdate()
 {
+    applyLook();
     updateMarginsFromPageLayout();
     reinsertPlotWidgets();
     alignCanvasTops();
@@ -568,6 +564,10 @@ void RiuMultiPlotPage::onLegendUpdated()
 void RiuMultiPlotPage::reinsertPlotWidgets()
 {
     clearGridLayout();
+
+    auto titleFont = m_plotTitle->font();
+    titleFont.setPixelSize( m_titleFontPixelSize );
+    m_plotTitle->setFont( titleFont );
 
     for ( int tIdx = 0; tIdx < m_plotWidgets.size(); ++tIdx )
     {
@@ -604,34 +604,45 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
             std::tie( row, column ) = findAvailableRowAndColumn( row, column, colSpan, rowAndColumnCount.second );
 
             m_gridLayout->addWidget( subTitles[visibleIndex], 3 * row, column, 1, colSpan );
-            m_gridLayout->addWidget( legends[visibleIndex], 3 * row + 1, column, 1, colSpan, Qt::AlignHCenter | Qt::AlignBottom );
+            if ( legends[visibleIndex] )
+            {
+                m_gridLayout->addWidget( legends[visibleIndex], 3 * row + 1, column, 1, colSpan, Qt::AlignHCenter | Qt::AlignBottom );
+            }
             m_gridLayout->addWidget( plotWidgets[visibleIndex], 3 * row + 2, column, 1 + ( rowSpan - 1 ) * 3, colSpan );
 
             subTitles[visibleIndex]->setVisible( m_showSubTitles );
+            QFont subTitleFont = subTitles[visibleIndex]->font();
+            subTitleFont.setPixelSize( m_subTitleFontPixelSize );
+            subTitles[visibleIndex]->setFont( subTitleFont );
 
-            plotWidgets[visibleIndex]->setAxisLabelsAndTicksEnabled( QwtPlot::yLeft, showYAxis( row, column ) );
+            plotWidgets[visibleIndex]->setAxisLabelsAndTicksEnabled( QwtPlot::yLeft,
+                                                                     showYAxis( row, column ),
+                                                                     showYAxis( row, column ) );
             plotWidgets[visibleIndex]->setAxisTitleEnabled( QwtPlot::yLeft, showYAxis( row, column ) );
+            plotWidgets[visibleIndex]->setAxesFontsAndAlignment( m_axisTitleFontSize, m_axisValueFontSize );
 
             plotWidgets[visibleIndex]->show();
 
-            if ( m_plotDefinition->legendsVisible() )
+            if ( legends[visibleIndex] )
             {
-                int legendColumns = 1;
-                if ( m_plotDefinition->legendsHorizontal() )
+                if ( m_plotDefinition->legendsVisible() )
                 {
-                    legendColumns = 0; // unlimited
+                    int legendColumns = 1;
+                    if ( m_plotDefinition->legendsHorizontal() )
+                    {
+                        legendColumns = 0; // unlimited
+                    }
+                    legends[visibleIndex]->setMaxColumns( legendColumns );
+                    QFont legendFont = legends[visibleIndex]->font();
+                    legendFont.setPixelSize( m_legendFontPixelSize );
+                    legends[visibleIndex]->setFont( legendFont );
+                    legends[visibleIndex]->show();
                 }
-                legends[visibleIndex]->setMaxColumns( legendColumns );
-                QFont legendFont = legends[visibleIndex]->font();
-                legendFont.setPixelSize( RiaFontCache::pointSizeToPixelSize( m_plotDefinition->legendFontSize() ) );
-                legends[visibleIndex]->setFont( legendFont );
-                legends[visibleIndex]->show();
+                else
+                {
+                    legends[visibleIndex]->hide();
+                }
             }
-            else
-            {
-                legends[visibleIndex]->hide();
-            }
-
             // Set basic row and column stretches
             for ( int r = row; r < row + rowSpan; ++r )
             {
@@ -677,7 +688,10 @@ int RiuMultiPlotPage::alignCanvasTops()
     {
         int row = visibleIndex / rowAndColumnCount.second;
         plotWidgets[visibleIndex]->axisScaleDraw( QwtPlot::xTop )->setMinimumExtent( maxExtents[row] );
-        legends[visibleIndex]->adjustSize();
+        if ( legends[visibleIndex] )
+        {
+            legends[visibleIndex]->adjustSize();
+        }
     }
     return maxExtents[0];
 }
@@ -692,7 +706,10 @@ void RiuMultiPlotPage::clearGridLayout()
         for ( int tIdx = 0; tIdx < m_plotWidgets.size(); ++tIdx )
         {
             m_gridLayout->removeWidget( m_subTitles[tIdx] );
-            m_gridLayout->removeWidget( m_legends[tIdx] );
+            if ( m_legends[tIdx] )
+            {
+                m_gridLayout->removeWidget( m_legends[tIdx] );
+            }
             m_gridLayout->removeWidget( m_plotWidgets[tIdx] );
         }
 
@@ -748,6 +765,7 @@ QList<QPointer<QLabel>> RiuMultiPlotPage::subTitlesForVisiblePlots() const
     {
         if ( m_plotWidgets[i]->isChecked() )
         {
+            m_subTitles[i]->setText( m_plotWidgets[i]->plotTitle() );
             subTitles.push_back( m_subTitles[i] );
         }
     }
@@ -793,21 +811,28 @@ std::pair<int, int>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotPage::stashWidgetStates()
+void RiuMultiPlotPage::applyLook()
 {
-    for ( RiuQwtPlotWidget* plotWidget : m_plotWidgets )
-    {
-        plotWidget->stashWidgetStates();
-    }
-}
+    QPalette newPalette( palette() );
+    newPalette.setColor( QPalette::Window, Qt::white );
+    setPalette( newPalette );
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMultiPlotPage::restoreWidgetStates()
-{
-    for ( RiuQwtPlotWidget* plotWidget : m_plotWidgets )
+    setAutoFillBackground( true );
+    setBackgroundRole( QPalette::Window );
+
+    if ( m_previewMode )
     {
-        plotWidget->restoreWidgetStates();
+        setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding );
+
+        QGraphicsDropShadowEffect* dropShadowEffect = new QGraphicsDropShadowEffect( this );
+        dropShadowEffect->setOffset( 4.0, 4.0 );
+        dropShadowEffect->setBlurRadius( 4.0 );
+        dropShadowEffect->setColor( QColor( 40, 40, 40, 40 ) );
+        setGraphicsEffect( dropShadowEffect );
+    }
+    else
+    {
+        setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
+        setGraphicsEffect( nullptr );
     }
 }

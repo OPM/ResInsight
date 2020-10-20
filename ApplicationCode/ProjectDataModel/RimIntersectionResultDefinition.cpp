@@ -75,6 +75,8 @@ RimIntersectionResultDefinition::RimIntersectionResultDefinition()
     m_ternaryLegendConfig.uiCapability()->setUiHidden( true );
     m_ternaryLegendConfig.uiCapability()->setUiTreeChildrenHidden( false );
     m_ternaryLegendConfig = new RimTernaryLegendConfig;
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,17 +97,25 @@ bool RimIntersectionResultDefinition::isActive() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimIntersectionResultDefinition::autoName() const
+void RimIntersectionResultDefinition::assignCaseIfMissing() const
 {
-    QString timestepName;
-    QString caseName = "Default undefined source";
-
     if ( !m_case )
     {
         RimCase* ownerCase = nullptr;
         this->firstAncestorOrThisOfType( ownerCase );
         const_cast<RimIntersectionResultDefinition*>( this )->setActiveCase( ownerCase );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimIntersectionResultDefinition::autoName() const
+{
+    QString timestepName;
+    QString caseName = "Default undefined source";
+
+    assignCaseIfMissing();
 
     if ( m_case )
     {
@@ -127,6 +137,7 @@ QString RimIntersectionResultDefinition::autoName() const
     }
     else if ( geomCase )
     {
+        m_geomResultDefinition->setGeoMechCase( geomCase );
         resultVarUiName = m_geomResultDefinition->resultFieldUiName() + ":" +
                           m_geomResultDefinition->resultComponentUiName();
     }
@@ -148,11 +159,7 @@ RimCase* RimIntersectionResultDefinition::activeCase() const
 void RimIntersectionResultDefinition::setActiveCase( RimCase* activeCase )
 {
     m_case = activeCase;
-
-    RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>( m_case.value() );
-    m_geomResultDefinition->setGeoMechCase( geomCase );
-    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case.value() );
-    m_eclipseResultDefinition->setEclipseCase( eclipseCase );
+    updateCaseInResultDefinitions();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -232,24 +239,29 @@ void RimIntersectionResultDefinition::updateLegendRangesTextAndVisibility( const
                                                                            RiuViewer*     nativeOrOverrideViewer,
                                                                            bool           isUsingOverrideViewer )
 {
+    assignCaseIfMissing();
+
     if ( !this->isInAction() ) return;
 
     if ( ( this->isEclipseResultDefinition() && m_eclipseResultDefinition()->hasCategoryResult() ) ||
          ( !this->isEclipseResultDefinition() && m_geomResultDefinition()->hasCategoryResult() ) )
     {
-        regularLegendConfig()->setMappingMode( RimRegularLegendConfig::CATEGORY_INTEGER );
-        regularLegendConfig()->setColorRange( RimRegularLegendConfig::CATEGORY );
+        regularLegendConfig()->setMappingMode( RimRegularLegendConfig::MappingType::CATEGORY_INTEGER );
+        regularLegendConfig()->setColorLegend(
+            RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) );
     }
     else
     {
-        if ( regularLegendConfig()->mappingMode() == RimRegularLegendConfig::CATEGORY_INTEGER )
+        if ( regularLegendConfig()->mappingMode() == RimRegularLegendConfig::MappingType::CATEGORY_INTEGER )
         {
-            regularLegendConfig()->setMappingMode( RimRegularLegendConfig::LINEAR_CONTINUOUS );
+            regularLegendConfig()->setMappingMode( RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS );
         }
 
-        if ( regularLegendConfig()->colorRange() == RimRegularLegendConfig::CATEGORY )
+        if ( regularLegendConfig()->colorLegend() ==
+             RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) )
         {
-            regularLegendConfig()->setColorRange( RimRegularLegendConfig::NORMAL );
+            regularLegendConfig()->setColorLegend(
+                RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL ) );
         }
     }
 
@@ -311,12 +323,18 @@ void RimIntersectionResultDefinition::fieldChangedByUi( const caf::PdmFieldHandl
                                                         const QVariant&            oldValue,
                                                         const QVariant&            newValue )
 {
+    bool reDraw = false;
+
+    assignCaseIfMissing();
+
     if ( changedField == &m_case )
     {
         RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>( m_case.value() );
         m_geomResultDefinition->setGeoMechCase( geomCase );
         RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case.value() );
         m_eclipseResultDefinition->setEclipseCase( eclipseCase );
+
+        reDraw = true;
     }
 
     this->updateConnectedEditors();
@@ -334,6 +352,11 @@ void RimIntersectionResultDefinition::fieldChangedByUi( const caf::PdmFieldHandl
             obj->updateConnectedEditors();
         }
 
+        reDraw = true;
+    }
+
+    if ( reDraw )
+    {
         RimGridView* gridView = nullptr;
         this->firstAncestorOrThisOfType( gridView );
         if ( gridView ) gridView->scheduleCreateDisplayModelAndRedraw();
@@ -350,6 +373,7 @@ void RimIntersectionResultDefinition::fieldChangedByUi( const caf::PdmFieldHandl
 void RimIntersectionResultDefinition::update2dIntersectionViews()
 {
     // Update 2D Intersection views
+    updateCaseInResultDefinitions();
 
     std::vector<RimExtrudedCurveIntersection*> intersections;
     this->objectsWithReferringPtrFieldsOfType( intersections );
@@ -438,19 +462,26 @@ void RimIntersectionResultDefinition::defineUiTreeOrdering( caf::PdmUiTreeOrderi
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionResultDefinition::initAfterRead()
 {
-    RimGeoMechCase* geomCase    = dynamic_cast<RimGeoMechCase*>( m_case.value() );
-    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case.value() );
-
-    if ( eclipseCase )
-    {
-        m_eclipseResultDefinition->setEclipseCase( eclipseCase );
-    }
-    else if ( geomCase )
-    {
-        m_geomResultDefinition->setGeoMechCase( geomCase );
-    }
+    updateCaseInResultDefinitions();
 
     this->updateUiIconFromToggleField();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionResultDefinition::updateCaseInResultDefinitions()
+{
+    if ( m_geomResultDefinition->geoMechCase() == nullptr )
+    {
+        RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>( m_case.value() );
+        m_geomResultDefinition->setGeoMechCase( geomCase );
+    }
+    if ( m_eclipseResultDefinition->eclipseCase() == nullptr )
+    {
+        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case.value() );
+        m_eclipseResultDefinition->setEclipseCase( eclipseCase );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

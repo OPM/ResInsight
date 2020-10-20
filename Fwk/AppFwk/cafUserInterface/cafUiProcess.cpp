@@ -34,142 +34,155 @@
 //
 //##################################################################################################
 
-
 #include "cafUiProcess.h"
 #include <QTimer>
 
-
 namespace caf
 {
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-UiProcess::UiProcess(QObject* parent)
-    : QProcess(parent)
+UiProcess::UiProcess( QObject* parent )
+    : QProcess( parent )
 {
-    connect(this, SIGNAL(started()),                            SLOT(slotProcStarted()));
-    connect(this, SIGNAL(error(QProcess::ProcessError)),        SLOT(slotProcError(QProcess::ProcessError)));
-    connect(this, SIGNAL(finished(int, QProcess::ExitStatus)),  SLOT(slotProcFinished(int, QProcess::ExitStatus)));
-    connect(this, SIGNAL(stateChanged(QProcess::ProcessState)), SLOT(slotProcStateChanged(QProcess::ProcessState)));
-    connect(this, SIGNAL(readyReadStandardError()),             SLOT(slotUpdateStatusMessage()));
-    connect(this, SIGNAL(readyReadStandardOutput()),            SLOT(slotUpdateStatusMessage()));
+    connect( this, SIGNAL( started() ), SLOT( slotProcStarted() ) );
+    connect( this, SIGNAL( error( QProcess::ProcessError ) ), SLOT( slotProcError( QProcess::ProcessError ) ) );
+    connect( this, SIGNAL( finished( int, QProcess::ExitStatus ) ), SLOT( slotProcFinished( int, QProcess::ExitStatus ) ) );
+    connect( this, SIGNAL( stateChanged( QProcess::ProcessState ) ), SLOT( slotProcStateChanged( QProcess::ProcessState ) ) );
+    connect( this, SIGNAL( readyReadStandardError() ), SLOT( slotUpdateStatusMessage() ) );
+    connect( this, SIGNAL( readyReadStandardOutput() ), SLOT( slotUpdateStatusMessage() ) );
 
     // Use a one sec timer to make sure the status message is updated at least every second
-    QTimer* timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(slotUpdateStatusMessage()));
-    timer->start(1000);
+    QTimer* timer = new QTimer( this );
+    connect( timer, SIGNAL( timeout() ), this, SLOT( slotUpdateStatusMessage() ) );
+    timer->start( 1000 );
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void UiProcess::doEmitStatusMsg(const QString& msg, int statusMsgType)
+void UiProcess::doEmitStatusMsg( const QString& msg, int statusMsgType )
 {
-    QString simpleMsg = msg;
+    QString simpleMsg    = msg;
     QString formattedMsg = simpleMsg;
 
-    if        (statusMsgType == PROCESS_STATE_RUNNING)    formattedMsg = QString("<font color='green'>%1</font>").arg(simpleMsg);
-    else if (statusMsgType == PROCESS_STATE_ERROR)        formattedMsg = QString("<font color='red'>%1</font>").arg(simpleMsg);
+    if ( statusMsgType == PROCESS_STATE_RUNNING )
+        formattedMsg = QString( "<font color='green'>%1</font>" ).arg( simpleMsg );
+    else if ( statusMsgType == PROCESS_STATE_ERROR )
+        formattedMsg = QString( "<font color='red'>%1</font>" ).arg( simpleMsg );
 
-    emit signalStatusMsg(simpleMsg, statusMsgType);
-    emit signalFormattedStatusMsg(formattedMsg);
+    emit signalStatusMsg( simpleMsg, statusMsgType );
+    emit signalFormattedStatusMsg( formattedMsg );
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void UiProcess::slotProcStarted()
 {
     m_timer.start();
 
-    doEmitStatusMsg("Started", PROCESS_STATE_NORMAL);
+    doEmitStatusMsg( "Started", PROCESS_STATE_NORMAL );
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void UiProcess::slotProcError(QProcess::ProcessError error)
+void UiProcess::slotProcError( QProcess::ProcessError error )
 {
     QString msg = "UNKNOWN";
 
-    switch (error)
+    switch ( error )
     {
-        case QProcess::FailedToStart:    msg = "Failed to start";    break;
-        case QProcess::Crashed:            msg = "Crashed";            break;
-        case QProcess::Timedout:        msg = "Timed out";            break;
-        case QProcess::WriteError:        msg = "Write error";        break;
-        case QProcess::ReadError:        msg = "Read error";        break;
-        case QProcess::UnknownError:    msg = "Unknown error";        break;
+        case QProcess::FailedToStart:
+            msg = "Failed to start";
+            break;
+        case QProcess::Crashed:
+            msg = "Crashed";
+            break;
+        case QProcess::Timedout:
+            msg = "Timed out";
+            break;
+        case QProcess::WriteError:
+            msg = "Write error";
+            break;
+        case QProcess::ReadError:
+            msg = "Read error";
+            break;
+        case QProcess::UnknownError:
+            msg = "Unknown error";
+            break;
     }
-    
-    doEmitStatusMsg(msg, PROCESS_STATE_ERROR);
+
+    doEmitStatusMsg( msg, PROCESS_STATE_ERROR );
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void UiProcess::slotProcFinished(int exitCode, QProcess::ExitStatus exitStatus)
+void UiProcess::slotProcFinished( int exitCode, QProcess::ExitStatus exitStatus )
 {
-    if (exitStatus == QProcess::CrashExit)
+    if ( exitStatus == QProcess::CrashExit )
     {
-        doEmitStatusMsg("Crashed or aborted", PROCESS_STATE_ERROR);
+        doEmitStatusMsg( "Crashed or aborted", PROCESS_STATE_ERROR );
     }
 
-    else if (exitStatus == QProcess::NormalExit)
+    else if ( exitStatus == QProcess::NormalExit )
     {
-        if (exitCode == 0)
+        if ( exitCode == 0 )
         {
-            doEmitStatusMsg("Finished OK", PROCESS_STATE_NORMAL);
+            doEmitStatusMsg( "Finished OK", PROCESS_STATE_NORMAL );
         }
         else
         {
-            QString msg = QString("Error exit (code %1)").arg(exitCode);
-            doEmitStatusMsg(msg, PROCESS_STATE_ERROR);
+            QString msg = QString( "Error exit (code %1)" ).arg( exitCode );
+            doEmitStatusMsg( msg, PROCESS_STATE_ERROR );
         }
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void UiProcess::slotProcStateChanged(QProcess::ProcessState newState)
+void UiProcess::slotProcStateChanged( QProcess::ProcessState newState )
 {
-    int statusMsgType = PROCESS_STATE_ERROR;
-    QString msg = "UNKNOWN";
+    int     statusMsgType = PROCESS_STATE_ERROR;
+    QString msg           = "UNKNOWN";
 
-    switch (newState)
+    switch ( newState )
     {
-        case QProcess::NotRunning:  msg = "Not running";    statusMsgType = PROCESS_STATE_NORMAL;   break;
-        case QProcess::Starting:    msg = "Starting...";    statusMsgType = PROCESS_STATE_NORMAL;   break;
-        case QProcess::Running:     msg = "Running";        statusMsgType = PROCESS_STATE_RUNNING;  break;
+        case QProcess::NotRunning:
+            msg           = "Not running";
+            statusMsgType = PROCESS_STATE_NORMAL;
+            break;
+        case QProcess::Starting:
+            msg           = "Starting...";
+            statusMsgType = PROCESS_STATE_NORMAL;
+            break;
+        case QProcess::Running:
+            msg           = "Running";
+            statusMsgType = PROCESS_STATE_RUNNING;
+            break;
     }
 
-    doEmitStatusMsg(msg, statusMsgType);
+    doEmitStatusMsg( msg, statusMsgType );
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void UiProcess::slotUpdateStatusMessage()
 {
-    if (state() == QProcess::Running)
+    if ( state() == QProcess::Running )
     {
         // Use this as a sign that the process is alive and kicking
         // Emit a message with the current run time to signify progress
         double timeRunning = m_timer.elapsed() / 1000.0;
 
-        QString msg = QString("Running (%1 s)").arg(timeRunning, 0, 'f', 1);
-    
-        doEmitStatusMsg(msg, PROCESS_STATE_RUNNING);
+        QString msg = QString( "Running (%1 s)" ).arg( timeRunning, 0, 'f', 1 );
+
+        doEmitStatusMsg( msg, PROCESS_STATE_RUNNING );
     }
 }
-
 
 } // namespace caf

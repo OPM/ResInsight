@@ -33,6 +33,9 @@ class RimMultiPlot;
 class RimIdenticalGridCaseGroup;
 class RimSummaryCaseCollection;
 class RimSummaryCaseMainCollection;
+class RimSummaryCurve;
+class RimSummaryPlot;
+class RimSurfaceCollection;
 class RimWellLogPlot;
 class RimWellLogTrack;
 class RimWellLogCurve;
@@ -61,23 +64,37 @@ private:
     bool handleGridCaseGroupDrop( Qt::DropAction             action,
                                   caf::PdmObjectGroup&       objectGroup,
                                   RimIdenticalGridCaseGroup* gridCaseGroup );
+
     bool handleWellLogPlotTrackDrop( Qt::DropAction       action,
                                      caf::PdmObjectGroup& objectGroup,
                                      RimWellLogTrack*     wellLogPlotTrack,
                                      int                  insertAtPosition );
+
+    bool handleWellLogPlotDrop( Qt::DropAction       action,
+                                caf::PdmObjectGroup& objectGroup,
+                                RimWellLogPlot*      wellLogPlot,
+                                int                  insertAtPosition );
+
+    bool handleSummaryPlotDrop( Qt::DropAction       action,
+                                caf::PdmObjectGroup& objectGroup,
+                                RimSummaryPlot*      summaryPlot,
+                                int                  insertAtPosition );
+
     bool handleMultiPlotDrop( Qt::DropAction       action,
                               caf::PdmObjectGroup& objectGroup,
                               RimMultiPlot*        multiPlot,
                               int                  insertAtPosition );
-    bool handleWellLogPlotCurveDrop( Qt::DropAction       action,
-                                     caf::PdmObjectGroup& objectGroup,
-                                     RimWellLogCurve*     wellLogPlotCurve );
     bool handleSummaryCaseCollectionDrop( Qt::DropAction            action,
                                           caf::PdmObjectGroup&      objectGroup,
                                           RimSummaryCaseCollection* summaryCaseCollection );
     bool handleSummaryCaseMainCollectionDrop( Qt::DropAction                action,
                                               caf::PdmObjectGroup&          objectGroup,
                                               RimSummaryCaseMainCollection* summaryCaseMainCollection );
+
+    bool handleSurfaceCollectionDrop( Qt::DropAction        action,
+                                      int                   row,
+                                      caf::PdmObjectGroup&  objectGroup,
+                                      RimSurfaceCollection* surfaceCollection );
 
     static void objectGroupFromModelIndexes( caf::PdmObjectGroup* objectGroup, const QModelIndexList& indexes );
     static std::vector<caf::PdmPointer<caf::PdmObjectHandle>> objectHandlesFromSelection();

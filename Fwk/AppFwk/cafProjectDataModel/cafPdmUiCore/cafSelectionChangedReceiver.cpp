@@ -39,21 +39,20 @@
 
 namespace caf
 {
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::SelectionChangedReceiver::SelectionChangedReceiver()
 {
-    SelectionManager::instance()->registerSelectionChangedReceiver(this);
+    SelectionManager::instance()->registerSelectionChangedReceiver( this );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::SelectionChangedReceiver::~SelectionChangedReceiver()
 {
-    SelectionManager::instance()->unregisterSelectionChangedReceiver(this);
+    SelectionManager::instance()->unregisterSelectionChangedReceiver( this );
 }
 
-}
+} // namespace caf

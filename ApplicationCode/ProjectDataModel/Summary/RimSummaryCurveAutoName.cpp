@@ -18,7 +18,6 @@
 
 #include "RimSummaryCurveAutoName.h"
 
-#include "RiaApplication.h"
 #include "RiaStatisticsTools.h"
 
 #include "RifEclipseSummaryAddress.h"
@@ -204,7 +203,7 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
         else if ( summaryAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
         {
             // Need to add case name for calculated summary
-            RimProject*                      proj     = RiaApplication::instance()->project();
+            RimProject*                      proj     = RimProject::current();
             RimSummaryCalculationCollection* calcColl = proj->calculationCollection();
 
             RimSummaryCalculation* calculation = calcColl->findCalculationById( summaryAddress.id() );

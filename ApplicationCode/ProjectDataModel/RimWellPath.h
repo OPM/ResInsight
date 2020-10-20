@@ -47,6 +47,7 @@ class RimProject;
 class RimWellLogFile;
 class RimFractureTemplateCollection;
 class RimFishboneWellPathCollection;
+class RimFractureModelCollection;
 
 class RimFishbonesCollection;
 class RimPerforationCollection;
@@ -114,6 +115,8 @@ public:
     const RimPerforationCollection*       perforationIntervalCollection() const;
     RimWellPathFractureCollection*        fractureCollection();
     const RimWellPathFractureCollection*  fractureCollection() const;
+    RimFractureModelCollection*           fractureModelCollection();
+    const RimFractureModelCollection*     fractureModelCollection() const;
     RimWellPathAttributeCollection*       attributeCollection();
     const RimWellPathAttributeCollection* attributeCollection() const;
 
@@ -135,6 +138,9 @@ public:
     cvf::Color3f                      defaultComponentColor() const override;
     double                            startMD() const override;
     double                            endMD() const override;
+
+    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
 protected:
     // Override PdmObject

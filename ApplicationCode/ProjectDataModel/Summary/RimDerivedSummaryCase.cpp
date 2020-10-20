@@ -18,13 +18,13 @@
 
 #include "RimDerivedSummaryCase.h"
 
-#include "RiaApplication.h"
 #include "RiaCurveMerger.h"
 #include "RiaLogging.h"
 
 #include "RifDerivedEnsembleReader.h"
 
 #include "RimProject.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryPlot.h"
 
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -62,7 +62,7 @@ RimDerivedSummaryCase::RimDerivedSummaryCase()
     : m_summaryCase1( nullptr )
     , m_summaryCase2( nullptr )
 {
-    CAF_PDM_InitObject( "Summary Case", ":/SummaryCase16x16.png", "", "" );
+    CAF_PDM_InitObject( "Summary Case", ":/SummaryCase.svg", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_summaryCase1, "SummaryCase1", "Summary Case 1", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_operator, "Operator", "Operator", "", "", "" );
@@ -71,10 +71,9 @@ RimDerivedSummaryCase::RimDerivedSummaryCase()
 
     CAF_PDM_InitFieldNoDefault( &m_useFixedTimeStep, "UseFixedTimeStep", "Use Fixed Time Step", "", "", "" );
     CAF_PDM_InitField( &m_fixedTimeStepIndex, "FixedTimeStepIndex", 0, "Time Step", "", "", "" );
+    CAF_PDM_InitField( &m_inUse, "InUse", false, "In Use", "", "", "" );
     m_fixedTimeStepIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_fixedTimeStepIndex.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-
-    m_inUse = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -236,6 +235,11 @@ std::pair<std::vector<time_t>, std::vector<double>>
     reader1->values( address, &values1 );
     reader2->values( address, &values2 );
 
+    if ( values1.empty() && values2.empty() )
+    {
+        return ResultPair();
+    }
+
     merger.addCurveData( reader1->timeSteps( address ), values1 );
     merger.addCurveData( reader2->timeSteps( address ), values2 );
     merger.computeInterpolatedValues();
@@ -273,7 +277,7 @@ std::pair<std::vector<time_t>, std::vector<double>>
 //--------------------------------------------------------------------------------------------------
 QString RimDerivedSummaryCase::caseName() const
 {
-    return m_shortName;
+    return m_displayName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -310,6 +314,10 @@ void RimDerivedSummaryCase::createSummaryReaderInterface()
 //--------------------------------------------------------------------------------------------------
 RifSummaryReaderInterface* RimDerivedSummaryCase::summaryReader()
 {
+    if ( !m_reader )
+    {
+        createSummaryReaderInterface();
+    }
     return m_reader.get();
 }
 
@@ -379,7 +387,7 @@ void RimDerivedSummaryCase::updateDisplayNameFromCases()
             if ( summaryReader )
             {
                 const std::vector<time_t>& timeSteps = summaryReader->timeSteps( RifEclipseSummaryAddress() );
-                if ( m_fixedTimeStepIndex >= 0 && m_fixedTimeStepIndex < timeSteps.size() )
+                if ( m_fixedTimeStepIndex >= 0 && m_fixedTimeStepIndex < static_cast<int>( timeSteps.size() ) )
                 {
                     time_t    selectedTime = timeSteps[m_fixedTimeStepIndex];
                     QDateTime dt           = RiaQDateTimeTools::fromTime_t( selectedTime );
@@ -412,9 +420,35 @@ void RimDerivedSummaryCase::updateDisplayNameFromCases()
     else if ( m_operator() == DerivedSummaryOperator::DERIVED_OPERATOR_ADD )
         operatorText = "Sum";
 
-    QString name = operatorText + QString( "(%1 , %2)" ).arg( case1Name, case2Name );
+    QString name;
+    if ( case1Name == case2Name && m_summaryCase1->ensemble() && m_summaryCase2->ensemble() )
+    {
+        QString ensembleName1 = m_summaryCase1->ensemble()->name();
+        QString ensembleName2 = m_summaryCase2->ensemble()->name();
+        name                  = QString( "%1: %2 - %3" ).arg( case1Name ).arg( ensembleName1 ).arg( ensembleName2 );
+    }
+    else
+    {
+        name = operatorText + QString( "(%1 , %2)" ).arg( case1Name ).arg( case2Name );
+    }
 
-    m_shortName = name;
+    m_displayName = name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCase* RimDerivedSummaryCase::summaryCase1() const
+{
+    return m_summaryCase1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCase* RimDerivedSummaryCase::summaryCase2() const
+{
+    return m_summaryCase2;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -423,7 +457,7 @@ void RimDerivedSummaryCase::updateDisplayNameFromCases()
 void RimDerivedSummaryCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     // Base class
-    uiOrdering.add( &m_shortName );
+    uiOrdering.add( &m_displayName );
 
     uiOrdering.add( &m_summaryCase1 );
     uiOrdering.add( &m_operator );
@@ -446,7 +480,7 @@ QList<caf::PdmOptionItemInfo>
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    RimProject* proj         = RiaApplication::instance()->project();
+    RimProject* proj         = RimProject::current();
     auto        summaryCases = proj->allSummaryCases();
 
     if ( fieldNeedingOptions == &m_fixedTimeStepIndex )

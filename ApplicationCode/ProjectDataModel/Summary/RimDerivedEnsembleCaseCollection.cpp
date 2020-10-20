@@ -16,7 +16,6 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaApplication.h"
 #include "RiaQDateTimeTools.h"
 
 #include "SummaryPlotCommands/RicNewDerivedEnsembleFeature.h"
@@ -57,7 +56,7 @@ CAF_PDM_SOURCE_INIT( RimDerivedEnsembleCaseCollection, "RimDerivedEnsembleCaseCo
 //--------------------------------------------------------------------------------------------------
 RimDerivedEnsembleCaseCollection::RimDerivedEnsembleCaseCollection()
 {
-    CAF_PDM_InitObject( "Delta Ensemble", ":/SummaryEnsemble16x16.png", "", "" );
+    CAF_PDM_InitObject( "Delta Ensemble", ":/SummaryEnsemble.svg", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_ensemble1, "Ensemble1", "Ensemble 1", "", "", "" );
     m_ensemble1.uiCapability()->setUiTreeChildrenHidden( true );
@@ -84,14 +83,12 @@ RimDerivedEnsembleCaseCollection::RimDerivedEnsembleCaseCollection()
     m_fixedTimeStepIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_fixedTimeStepIndex.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    // Do not show child cases
-    uiCapability()->setUiTreeChildrenHidden( true );
-
-    // Do not store child cases to project file
-    m_cases.xmlCapability()->disableIO();
-
     setNameAsReadOnly();
     setName( "Delta Ensemble" );
+
+    setAsEnsemble( true );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -147,7 +144,7 @@ std::set<RifEclipseSummaryAddress> RimDerivedEnsembleCaseCollection::ensembleSum
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDerivedEnsembleCaseCollection::updateDerivedEnsembleCases()
+void RimDerivedEnsembleCaseCollection::createDerivedEnsembleCases()
 {
     if ( !m_ensemble1 || !m_ensemble2 ) return;
 
@@ -191,12 +188,13 @@ void RimDerivedEnsembleCaseCollection::updateDerivedEnsembleCases()
         derivedCase->createSummaryReaderInterface();
         derivedCase->setCaseRealizationParameters( crp );
         derivedCase->setInUse( true );
+        derivedCase->updateDisplayNameFromCases();
     }
 
     // If other derived ensembles are referring to this ensemble, update their cases as well
     for ( auto referring : findReferringEnsembles() )
     {
-        referring->updateDerivedEnsembleCases();
+        referring->createDerivedEnsembleCases();
     }
 
     deleteCasesNoInUse();
@@ -345,7 +343,7 @@ void RimDerivedEnsembleCaseCollection::fieldChangedByUi( const caf::PdmFieldHand
 
         if ( doUpdateCases )
         {
-            updateDerivedEnsembleCases();
+            createDerivedEnsembleCases();
             updateConnectedEditors();
 
             if ( doShowDialog && m_ensemble1 != nullptr && m_ensemble2 != nullptr && allSummaryCases().empty() )
@@ -479,7 +477,7 @@ void RimDerivedEnsembleCaseCollection::updateAutoName()
             if ( summaryReader )
             {
                 const std::vector<time_t>& timeSteps = summaryReader->timeSteps( RifEclipseSummaryAddress() );
-                if ( m_fixedTimeStepIndex >= 0 && m_fixedTimeStepIndex < timeSteps.size() )
+                if ( m_fixedTimeStepIndex >= 0 && m_fixedTimeStepIndex < static_cast<int>( timeSteps.size() ) )
                 {
                     time_t    selectedTime = timeSteps[m_fixedTimeStepIndex];
                     QDateTime dt           = RiaQDateTimeTools::fromTime_t( selectedTime );
@@ -520,6 +518,27 @@ void RimDerivedEnsembleCaseCollection::updateAutoName()
     {
         refering->updateAutoName();
         refering->updateConnectedEditors();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimDerivedEnsembleCaseCollection::updateDerivedEnsembleCases()
+{
+    for ( auto& derivedCase : allDerivedCases( true ) )
+    {
+        derivedCase->createSummaryReaderInterface();
+
+        auto crp = derivedCase->summaryCase1()->caseRealizationParameters();
+        if ( !crp ) continue;
+        derivedCase->setCaseRealizationParameters( crp );
+    }
+
+    // If other derived ensembles are referring to this ensemble, update their cases as well
+    for ( auto referring : findReferringEnsembles() )
+    {
+        referring->updateDerivedEnsembleCases();
     }
 }
 
@@ -584,7 +603,7 @@ std::vector<RimSummaryCaseCollection*> RimDerivedEnsembleCaseCollection::allEnse
 {
     std::vector<RimSummaryCaseCollection*> ensembles;
 
-    auto project = RiaApplication::instance()->project();
+    auto project = RimProject::current();
 
     for ( auto group : project->summaryGroups() )
     {

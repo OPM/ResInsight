@@ -43,7 +43,7 @@ RiaTextFileCompare::~RiaTextFileCompare()
 //--------------------------------------------------------------------------------------------------
 void RiaTextFileCompare::reset()
 {
-    m_lastError = IC_NO_ERROR;
+    m_lastError = ErrorType::IC_NO_ERROR;
     m_errorMsg.clear();
     m_errorDetails.clear();
     m_diffOutput.clear();
@@ -77,7 +77,7 @@ bool RiaTextFileCompare::runComparison( const QString& baseFolder, const QString
     QProcess::ProcessError procError = proc.error();
     if ( procError != QProcess::UnknownError )
     {
-        m_lastError    = SEVERE_ERROR;
+        m_lastError    = ErrorType::SEVERE_ERROR;
         m_errorMsg     = "Error running 'diff' tool process";
         m_errorDetails = completeCommand;
         return false;
@@ -102,7 +102,7 @@ bool RiaTextFileCompare::runComparison( const QString& baseFolder, const QString
         stdErr = stdErr.simplified();
 
         // Report non-severe error
-        m_lastError    = IC_ERROR;
+        m_lastError    = ErrorType::IC_ERROR;
         m_errorMsg     = "Error running 'diff' tool process";
         m_errorDetails = stdErr;
 

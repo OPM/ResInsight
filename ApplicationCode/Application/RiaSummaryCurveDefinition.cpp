@@ -22,13 +22,15 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RiaSummaryCurveDefinition::RiaSummaryCurveDefinition()
     : m_summaryCase( nullptr )
     , m_ensemble( nullptr )
-
+    , m_isEnsembleCurve( false )
 {
 }
 
@@ -37,10 +39,30 @@ RiaSummaryCurveDefinition::RiaSummaryCurveDefinition()
 //--------------------------------------------------------------------------------------------------
 RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( RimSummaryCase*                 summaryCase,
                                                       const RifEclipseSummaryAddress& summaryAddress,
-                                                      RimSummaryCaseCollection*       ensemble )
+                                                      bool                            isEnsembleCurve )
     : m_summaryCase( summaryCase )
-    , m_ensemble( ensemble )
     , m_summaryAddress( summaryAddress )
+    , m_isEnsembleCurve( isEnsembleCurve )
+{
+    CAF_ASSERT( summaryCase );
+
+    if ( summaryCase )
+    {
+        RimSummaryCaseCollection* ensemble = nullptr;
+        summaryCase->firstAncestorOfType( ensemble );
+        m_ensemble = ensemble;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( RimSummaryCaseCollection*       ensemble,
+                                                      const RifEclipseSummaryAddress& summaryAddress )
+    : m_summaryCase( nullptr )
+    , m_summaryAddress( summaryAddress )
+    , m_ensemble( ensemble )
+    , m_isEnsembleCurve( true )
 {
 }
 
@@ -73,7 +95,7 @@ const RifEclipseSummaryAddress& RiaSummaryCurveDefinition::summaryAddress() cons
 //--------------------------------------------------------------------------------------------------
 bool RiaSummaryCurveDefinition::isEnsembleCurve() const
 {
-    return m_ensemble != nullptr;
+    return m_isEnsembleCurve;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -192,5 +214,50 @@ bool RiaSummaryCurveDefinition::operator<( const RiaSummaryCurveDefinition& othe
         return m_summaryCase < other.summaryCase();
     }
 
-    return ( m_summaryAddress < other.summaryAddress() );
+    if ( m_summaryAddress != other.summaryAddress() )
+    {
+        return ( m_summaryAddress < other.summaryAddress() );
+    }
+
+    return m_isEnsembleCurve < other.isEnsembleCurve();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSummaryCurveDefinitionAnalyser::setCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefs )
+{
+    m_singleSummaryCases.clear();
+    m_ensembles.clear();
+    m_quantityNames.clear();
+    m_summaryItems.clear();
+
+    for ( const auto& curveDef : curveDefs )
+    {
+        bool valid = false;
+        if ( curveDef.ensemble() && curveDef.isEnsembleCurve() )
+        {
+            m_ensembles.insert( curveDef.ensemble() );
+            valid = true;
+        }
+        else if ( curveDef.summaryCase() )
+        {
+            m_singleSummaryCases.insert( curveDef.summaryCase() );
+
+            if ( curveDef.summaryCase()->ensemble() )
+            {
+                m_ensembles.insert( curveDef.summaryCase()->ensemble() );
+            }
+            valid = true;
+        }
+        if ( valid )
+        {
+            RifEclipseSummaryAddress address = curveDef.summaryAddress();
+
+            m_quantityNames.insert( address.quantityName() );
+
+            address.setQuantityName( "" );
+            if ( !address.itemUiText().empty() ) m_summaryItems.insert( address );
+        }
+    }
 }

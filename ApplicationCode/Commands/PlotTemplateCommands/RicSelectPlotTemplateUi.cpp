@@ -18,7 +18,6 @@
 
 #include "RicSelectPlotTemplateUi.h"
 
-#include "RiaApplication.h"
 #include "RiaSummaryTools.h"
 
 #include "PlotTemplates/RimPlotTemplateFileItem.h"
@@ -74,7 +73,7 @@ QList<caf::PdmOptionItemInfo>
 
     if ( fieldNeedingOptions == &m_selectedPlotTemplates )
     {
-        auto plotTemplateRoot = RiaApplication::instance()->project()->rootPlotTemlateItem();
+        auto plotTemplateRoot = RimProject::current()->rootPlotTemlateItem();
 
         RimPlotTemplateFolderItem::appendOptionItemsForPlotTemplates( options, plotTemplateRoot );
     }

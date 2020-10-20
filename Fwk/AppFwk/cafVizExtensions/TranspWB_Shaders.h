@@ -1,3 +1,5 @@
+// clang-format off
+
 
 // -----------------------------------------
 // THIS IS A GENERATED FILE!!  DO NOT MODIFY
@@ -154,4 +156,4 @@ static const char TranspWB_TransparentPartsFrag_inl[] =
 "    gl_FragData[1].r = color.a * depthWeight(gl_FragCoord.z, color.a);                                              \n"
 "}                                                                                                                   \n";
 
-
+// clang-format on

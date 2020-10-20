@@ -27,10 +27,9 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
 CAF_PDM_SOURCE_INIT( RicfComputeCaseGroupStatistics, "computeCaseGroupStatistics" );
 
@@ -39,8 +38,8 @@ CAF_PDM_SOURCE_INIT( RicfComputeCaseGroupStatistics, "computeCaseGroupStatistics
 //--------------------------------------------------------------------------------------------------
 RicfComputeCaseGroupStatistics::RicfComputeCaseGroupStatistics()
 {
-    CAF_PDM_InitScriptableFieldWithIO( &m_groupId, "caseGroupId", -1, "Case Group ID", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_caseIds, "caseIds", std::vector<int>(), "Case IDs", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_groupId, "caseGroupId", -1, "Case Group ID", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_caseIds, "caseIds", std::vector<int>(), "Case IDs", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -54,8 +53,7 @@ caf::PdmScriptResponse RicfComputeCaseGroupStatistics::execute()
 
     if ( m_groupId() >= 0 )
     {
-        for ( RimIdenticalGridCaseGroup* group :
-              RiaApplication::instance()->project()->activeOilField()->analysisModels()->caseGroups )
+        for ( RimIdenticalGridCaseGroup* group : RimProject::current()->activeOilField()->analysisModels()->caseGroups )
         {
             for ( RimEclipseCase* c : group->statisticsCaseCollection->reservoirs )
             {
@@ -67,8 +65,7 @@ caf::PdmScriptResponse RicfComputeCaseGroupStatistics::execute()
     for ( int caseId : caseIds )
     {
         bool foundCase = false;
-        for ( RimIdenticalGridCaseGroup* group :
-              RiaApplication::instance()->project()->activeOilField()->analysisModels()->caseGroups )
+        for ( RimIdenticalGridCaseGroup* group : RimProject::current()->activeOilField()->analysisModels()->caseGroups )
         {
             for ( RimEclipseCase* c : group->statisticsCaseCollection->reservoirs )
             {

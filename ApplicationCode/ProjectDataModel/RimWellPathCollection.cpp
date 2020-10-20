@@ -34,13 +34,14 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseView.h"
+#include "RimFractureModel.h"
+#include "RimFractureModelCollection.h"
 #include "RimOilField.h"
 #include "RimPerforationCollection.h"
 #include "RimProject.h"
 #include "RimWellLogFile.h"
 #include "RimWellMeasurementCollection.h"
 #include "RimWellPath.h"
-
 #include "Riu3DMainWindowTools.h"
 
 #include "RifWellPathFormationsImporter.h"
@@ -52,7 +53,6 @@
 
 #include <QFile>
 #include <QFileInfo>
-#include <QMessageBox>
 #include <QString>
 
 #include "RimFileWellPath.h"
@@ -143,10 +143,14 @@ void RimWellPathCollection::loadDataAndUpdate()
 {
     caf::ProgressInfo progress( wellPaths.size(), "Reading well paths from file" );
 
-    for ( size_t wpIdx = 0; wpIdx < wellPaths.size(); wpIdx++ )
+    readWellPathFormationFiles();
+
+    for ( RimWellPath* wellPath : wellPaths() )
     {
-        RimFileWellPath*    fWPath = dynamic_cast<RimFileWellPath*>( wellPaths[wpIdx] );
-        RimModeledWellPath* mWPath = dynamic_cast<RimModeledWellPath*>( wellPaths[wpIdx] );
+        progress.setProgressDescription( QString( "Reading file %1" ).arg( wellPath->name() ) );
+
+        RimFileWellPath*    fWPath = dynamic_cast<RimFileWellPath*>( wellPath );
+        RimModeledWellPath* mWPath = dynamic_cast<RimModeledWellPath*>( wellPath );
         if ( fWPath )
         {
             if ( !fWPath->filePath().isEmpty() )
@@ -157,8 +161,15 @@ void RimWellPathCollection::loadDataAndUpdate()
                     RiaLogging::warning( errorMessage );
                 }
             }
+        }
+        else if ( mWPath )
+        {
+            mWPath->createWellPathGeometry();
+        }
 
-            for ( RimWellLogFile* const wellLogFile : fWPath->wellLogFiles() )
+        if ( wellPath )
+        {
+            for ( RimWellLogFile* const wellLogFile : wellPath->wellLogFiles() )
             {
                 if ( wellLogFile )
                 {
@@ -169,13 +180,16 @@ void RimWellPathCollection::loadDataAndUpdate()
                     }
                 }
             }
-        }
-        else if ( mWPath )
-        {
-            mWPath->createWellPathGeometry();
-        }
 
-        progress.setProgressDescription( QString( "Reading file %1" ).arg( wellPaths[wpIdx]->name() ) );
+            RimFractureModelCollection* fractureModelCollection = wellPath->fractureModelCollection();
+            if ( fractureModelCollection )
+            {
+                for ( RimFractureModel* fractureModel : fractureModelCollection->allFractureModels() )
+                {
+                    fractureModel->loadDataAndUpdate();
+                }
+            }
+        }
         progress.incrementProgress();
     }
 
@@ -386,11 +400,7 @@ void RimWellPathCollection::addWellPathFormations( const QStringList& filePaths 
 
     if ( fileReadSuccess )
     {
-        if ( RiaGuiApplication::isRunning() )
-        {
-            QMessageBox::information( Riu3DMainWindowTools::mainWindowWidget(), "Well Picks Import", outputMessage );
-        }
-        RiaLogging::info( outputMessage );
+        RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "Well Picks Import", outputMessage );
     }
 
     this->sortWellsByName();
@@ -547,11 +557,7 @@ void RimWellPathCollection::readWellPathFormationFiles()
         QString errorMessage;
         if ( !wellPaths[wpIdx]->readWellPathFormationsFile( &errorMessage, m_wellPathFormationsImporter ) )
         {
-            if ( RiaGuiApplication::isRunning() )
-            {
-                QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(), "File open error", errorMessage );
-            }
-            RiaLogging::warning( errorMessage );
+            RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "File open error", errorMessage );
         }
 
         progress.setProgressDescription( QString( "Reading formation file %1" ).arg( wpIdx ) );
@@ -571,11 +577,7 @@ void RimWellPathCollection::reloadAllWellPathFormations()
         QString errorMessage;
         if ( !wellPaths[wpIdx]->reloadWellPathFormationsFile( &errorMessage, m_wellPathFormationsImporter ) )
         {
-            if ( RiaGuiApplication::isRunning() )
-            {
-                QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(), "File open error", errorMessage );
-            }
-            RiaLogging::warning( errorMessage );
+            RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "File open error", errorMessage );
         }
 
         progress.setProgressDescription( QString( "Reloading formation file %1" ).arg( wpIdx ) );
@@ -644,7 +646,7 @@ RiaEclipseUnitTools::UnitSystemType RimWellPathCollection::findUnitSystemForWell
     firstAncestorOrThisOfTypeAsserted( project );
     if ( project->activeOilField()->analysisModels->cases.empty() )
     {
-        return RiaEclipseUnitTools::UNITS_UNKNOWN;
+        return RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
     }
 
     const RigEclipseCaseData* eclipseCaseData = project->activeOilField()->analysisModels->cases()[0]->eclipseCaseData();
@@ -659,13 +661,12 @@ RiaEclipseUnitTools::UnitSystemType RimWellPathCollection::findUnitSystemForWell
     {
         return eclipseCaseData->unitsType();
     }
-    return RiaEclipseUnitTools::UNITS_UNKNOWN;
+    return RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-
 RimWellMeasurementCollection* RimWellPathCollection::measurementCollection()
 {
     return m_wellMeasurements;
@@ -674,8 +675,17 @@ RimWellMeasurementCollection* RimWellPathCollection::measurementCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-
 const RimWellMeasurementCollection* RimWellPathCollection::measurementCollection() const
 {
     return m_wellMeasurements;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                            std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    scheduleRedrawAffectedViews();
+    uiCapability()->updateConnectedEditors();
 }

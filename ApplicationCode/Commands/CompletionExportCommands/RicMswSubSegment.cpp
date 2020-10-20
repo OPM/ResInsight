@@ -73,7 +73,6 @@ RicMswSubSegment::RicMswSubSegment( double startMD, double endMD, double startTV
     , m_startTVD( startTVD )
     , m_endTVD( endTVD )
     , m_segmentNumber( -1 )
-    , m_attachedSegmentNumber( -1 )
 {
 }
 
@@ -136,27 +135,10 @@ int RicMswSubSegment::segmentNumber() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RicMswSubSegment::attachedSegmentNumber() const
-{
-    return m_attachedSegmentNumber;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicMswSubSegment::setSegmentNumber( int segmentNumber )
 {
     m_segmentNumber = segmentNumber;
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicMswSubSegment::setAttachedSegmentNumber( int attachedSegmentNumber )
-{
-    m_attachedSegmentNumber = attachedSegmentNumber;
-}
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------

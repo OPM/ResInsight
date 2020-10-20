@@ -135,7 +135,7 @@ void RiuMainWindowTools::setFixedWindowSizeFor3dViews( RiuMainWindowBase* mainWi
 {
     if ( !mainWindow ) return;
 
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
     if ( !proj ) return;
 
     std::vector<RimCase*> projectCases;

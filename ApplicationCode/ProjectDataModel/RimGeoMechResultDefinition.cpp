@@ -20,7 +20,6 @@
 
 #include "RimGeoMechResultDefinition.h"
 
-#include "RiaApplication.h"
 #include "RiaDefines.h"
 #include "RiaMedianCalculator.h"
 
@@ -94,6 +93,7 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition( void )
                        "",
                        "",
                        "" );
+    CAF_PDM_InitField( &m_referenceTimeStep, "ReferenceTimeStep", 0, "Reference Time Step", "", "", "" );
 
     CAF_PDM_InitField( &m_compactionRefLayer, "CompactionRefLayer", 0, "Compaction Ref Layer", "", "", "" );
     m_compactionRefLayer.uiCapability()->setUiHidden( true );
@@ -171,8 +171,17 @@ void RimGeoMechResultDefinition::defineUiOrdering( QString uiConfigName, caf::Pd
 
     if ( m_resultPositionTypeUiField() != RIG_FORMATION_NAMES )
     {
-        caf::PdmUiGroup* timeLapseGr = uiOrdering.addNewGroup( "Difference Options" );
-        timeLapseGr->add( &m_timeLapseBaseTimestep );
+        bool isReferenceCaseDependent = referenceCaseDependentResultSelected();
+        if ( isReferenceCaseDependent )
+        {
+            caf::PdmUiGroup* referenceCaseGr = uiOrdering.addNewGroup( "Reference Case" );
+            referenceCaseGr->add( &m_referenceTimeStep );
+        }
+        else
+        {
+            caf::PdmUiGroup* timeLapseGr = uiOrdering.addNewGroup( "Difference Options" );
+            timeLapseGr->add( &m_timeLapseBaseTimestep );
+        }
     }
 
     if ( m_resultPositionTypeUiField() == RIG_NODAL )
@@ -265,6 +274,21 @@ QList<caf::PdmOptionItemInfo>
                                             static_cast<int>( stepIdx ) ) );
             }
         }
+        else if ( &m_referenceTimeStep == fieldNeedingOptions )
+        {
+            std::vector<std::string> stepNames;
+            if ( m_geomCase->geoMechData() )
+            {
+                stepNames = m_geomCase->geoMechData()->femPartResults()->filteredStepNames();
+            }
+
+            for ( size_t stepIdx = 0; stepIdx < stepNames.size(); ++stepIdx )
+            {
+                options.push_back(
+                    caf::PdmOptionItemInfo( QString( "%1 (#%2)" ).arg( QString::fromStdString( stepNames[stepIdx] ) ).arg( stepIdx ),
+                                            static_cast<int>( stepIdx ) ) );
+            }
+        }
         else if ( &m_compactionRefLayerUiField == fieldNeedingOptions )
         {
             if ( m_geomCase->geoMechData() )
@@ -320,7 +344,8 @@ void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
         }
     }
 
-    if ( &m_resultPositionTypeUiField == changedField || &m_timeLapseBaseTimestep == changedField )
+    if ( &m_resultPositionTypeUiField == changedField || &m_timeLapseBaseTimestep == changedField ||
+         &m_referenceTimeStep == changedField )
     {
         std::map<std::string, std::vector<std::string>> fieldCompNames = getResultMetaDataForUIFieldSetting();
         QStringList                                     uiVarNames;
@@ -336,6 +361,11 @@ void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
         else
         {
             m_resultVariableUiField = "";
+        }
+
+        if ( &m_referenceTimeStep == changedField )
+        {
+            m_geomCase->geoMechData()->femPartResults()->setReferenceTimeStep( m_referenceTimeStep() );
         }
     }
     if ( &m_normalizeByHydrostaticPressure == changedField && m_normalizationAirGap == 0.0 )
@@ -358,7 +388,7 @@ void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
 
     if ( &m_resultVariableUiField == changedField || &m_compactionRefLayerUiField == changedField ||
          &m_timeLapseBaseTimestep == changedField || &m_normalizeByHydrostaticPressure == changedField ||
-         &m_normalizationAirGap == changedField )
+         &m_normalizationAirGap == changedField || &m_referenceTimeStep == changedField )
     {
         QStringList fieldComponentNames = m_resultVariableUiField().split( QRegExp( "\\s+" ) );
         if ( fieldComponentNames.size() > 0 )
@@ -442,7 +472,7 @@ void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
 void RimGeoMechResultDefinition::calculateNormalizationAirGapDefault()
 {
     RiaMedianCalculator<double> airGapCalc;
-    for ( auto wellPath : RiaApplication::instance()->project()->allWellPaths() )
+    for ( auto wellPath : RimProject::current()->allWellPaths() )
     {
         if ( wellPath->wellPathGeometry() )
         {
@@ -534,6 +564,8 @@ void RimGeoMechResultDefinition::initAfterRead()
         m_timeLapseBaseTimestep = RigFemResultAddress::noTimeLapseValue();
     }
 
+    if ( m_resultComponentName == "STM" || m_resultComponentName == "SEM" ) m_resultComponentName = "SM";
+
     m_resultPositionTypeUiField = m_resultPositionType;
     m_resultVariableUiField     = composeFieldCompString( m_resultFieldName(), m_resultComponentName() );
     m_compactionRefLayerUiField = m_compactionRefLayer;
@@ -624,6 +656,11 @@ RigFemResultAddress RimGeoMechResultDefinition::resultAddress() const
             address.normalizedByHydrostaticPressure = false;
         }
 
+        if ( RigFemPartResultsCollection::isReferenceCaseDependentResult( address ) )
+        {
+            address.timeLapseBaseFrameIdx = RigFemResultAddress::noTimeLapseValue();
+        }
+
         return address;
     }
 }
@@ -666,9 +703,15 @@ QString RimGeoMechResultDefinition::resultComponentName() const
 QString RimGeoMechResultDefinition::diffResultUiName() const
 {
     QString diffResultString;
-    if ( m_timeLapseBaseTimestep != RigFemResultAddress::noTimeLapseValue() )
+    if ( m_geomCase->geoMechData() )
     {
-        if ( m_geomCase->geoMechData() )
+        if ( referenceCaseDependentResultSelected() )
+        {
+            std::vector<std::string> stepNames      = m_geomCase->geoMechData()->femPartResults()->filteredStepNames();
+            QString                  timeStepString = QString::fromStdString( stepNames[m_referenceTimeStep()] );
+            diffResultString += QString( "<b>Reference Time Step</b>: %1" ).arg( timeStepString );
+        }
+        else if ( m_timeLapseBaseTimestep != RigFemResultAddress::noTimeLapseValue() )
         {
             std::vector<std::string> stepNames      = m_geomCase->geoMechData()->femPartResults()->filteredStepNames();
             QString                  timeStepString = QString::fromStdString( stepNames[m_timeLapseBaseTimestep()] );
@@ -684,9 +727,13 @@ QString RimGeoMechResultDefinition::diffResultUiName() const
 QString RimGeoMechResultDefinition::diffResultUiShortName() const
 {
     QString diffResultString;
-    if ( m_timeLapseBaseTimestep != RigFemResultAddress::noTimeLapseValue() )
+    if ( m_geomCase->geoMechData() )
     {
-        if ( m_geomCase->geoMechData() )
+        if ( referenceCaseDependentResultSelected() )
+        {
+            diffResultString += QString( "Ref. Time: #%1" ).arg( m_referenceTimeStep() );
+        }
+        else if ( m_timeLapseBaseTimestep != RigFemResultAddress::noTimeLapseValue() )
         {
             diffResultString += QString( "Base Time: #%1" ).arg( m_timeLapseBaseTimestep() );
         }
@@ -781,6 +828,15 @@ QString RimGeoMechResultDefinition::currentResultUnits() const
     {
         return "GPa";
     }
+    else if ( this->resultFieldName() == "COMPRESSIBILITY" &&
+              ( this->resultComponentName() == "PORE" || this->resultComponentName() == "VERTICAL" ) )
+    {
+        return "1/GPa";
+    }
+    else if ( this->resultFieldName() == "PORO-PERM" && this->resultComponentName() == "PERM" )
+    {
+        return "mD";
+    }
     else
     {
         for ( auto resultName : RiaDefines::wbsDerivedResultNames() )
@@ -856,6 +912,14 @@ bool RimGeoMechResultDefinition::normalizableResultSelected() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimGeoMechResultDefinition::referenceCaseDependentResultSelected() const
+{
+    return RigFemPartResultsCollection::isReferenceCaseDependentResult( this->resultAddress() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGeoMechResultDefinition::setResultAddress( const RigFemResultAddress& resultAddress )
 {
     m_resultPositionType             = resultAddress.resultPosType;
@@ -907,7 +971,7 @@ void RimGeoMechResultDefinition::updateLegendTextAndRanges( RimRegularLegendConf
     if ( this->hasCategoryResult() )
     {
         std::vector<QString> fnVector = gmCase->femPartResults()->formationNames();
-        legendConfigToUpdate->setNamedCategoriesInverse( fnVector );
+        legendConfigToUpdate->setNamedCategories( fnVector );
     }
 
     QString legendTitle = legendHeading + caf::AppEnum<RigFemResultPosEnum>( this->resultPositionType() ).uiText() +
@@ -930,4 +994,12 @@ void RimGeoMechResultDefinition::updateLegendTextAndRanges( RimRegularLegendConf
     }
 
     legendConfigToUpdate->setTitle( legendTitle );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGeoMechResultDefinition::isBiotCoefficientDependent() const
+{
+    return ( this->resultFieldName() == "COMPRESSIBILITY" || this->resultFieldName() == "PORO-PERM" );
 }

@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RiuQwtPlotTools.h"
 
+#include "RiuGuiTheme.h"
+
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 
@@ -25,6 +27,7 @@
 #include "qwt_plot.h"
 #include "qwt_plot_grid.h"
 #include "qwt_plot_layout.h"
+#include "qwt_plot_shapeitem.h"
 #include "qwt_scale_widget.h"
 
 #include <QRegExp>
@@ -52,13 +55,14 @@ void RiuQwtPlotTools::setCommonPlotBehaviour( QwtPlot* plot )
     QwtPlotGrid* grid = new QwtPlotGrid;
     grid->attach( plot );
     QPen gridPen( Qt::SolidLine );
-    gridPen.setColor( Qt::lightGray );
     grid->setPen( gridPen );
+    RiuGuiTheme::styleQwtItem( grid );
 
-    int fontSize = RiaApplication::instance()->preferences()->defaultPlotFontSize();
     // Axis number font
-    QFont axisFont = plot->axisFont( QwtPlot::xBottom );
-    axisFont.setPixelSize( RiaFontCache::pointSizeToPixelSize( fontSize ) );
+    int   axisFontSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(),
+                                                          caf::FontTools::RelativeSize::Medium );
+    QFont axisFont     = plot->axisFont( QwtPlot::xBottom );
+    axisFont.setPixelSize( caf::FontTools::pointSizeToPixelSize( axisFontSize ) );
 
     plot->setAxisFont( QwtPlot::xBottom, axisFont );
     plot->setAxisFont( QwtPlot::xTop, axisFont );
@@ -72,7 +76,7 @@ void RiuQwtPlotTools::setCommonPlotBehaviour( QwtPlot* plot )
     {
         QwtText axisTitle     = plot->axisTitle( axis );
         QFont   axisTitleFont = axisTitle.font();
-        axisTitleFont.setPixelSize( RiaFontCache::pointSizeToPixelSize( fontSize ) );
+        axisTitleFont.setPixelSize( caf::FontTools::pointSizeToPixelSize( axisFontSize ) );
         axisTitleFont.setBold( false );
         axisTitle.setFont( axisTitleFont );
         axisTitle.setRenderFlags( Qt::AlignRight );
@@ -160,7 +164,7 @@ QString RiuQwtPlotTools::dateTimeFormatForInterval( QwtDate::IntervalType       
                                                     RiaQDateTimeTools::TimeFormatComponents timeComponents )
 {
     if ( dateComponents != RiaQDateTimeTools::DATE_FORMAT_UNSPECIFIED &&
-         timeComponents != RiaQDateTimeTools::TIME_FORMAT_UNSPECIFIED )
+         timeComponents != RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED )
     {
         return RiaQDateTimeTools::timeFormatString( timeFormat, timeComponents ) + "\n" +
                RiaQDateTimeTools::dateFormatString( dateFormat, dateComponents );
@@ -171,13 +175,15 @@ QString RiuQwtPlotTools::dateTimeFormatForInterval( QwtDate::IntervalType       
         {
             case QwtDate::Millisecond:
                 return RiaQDateTimeTools::timeFormatString( timeFormat,
-                                                            RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND_MILLISECOND );
+                                                            RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND_MILLISECOND );
             case QwtDate::Second:
-                return RiaQDateTimeTools::timeFormatString( timeFormat, RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND );
+                return RiaQDateTimeTools::timeFormatString( timeFormat,
+                                                            RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND );
             case QwtDate::Minute:
             {
                 QString fullFormat =
-                    RiaQDateTimeTools::timeFormatString( timeFormat, RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE );
+                    RiaQDateTimeTools::timeFormatString( timeFormat,
+                                                         RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
                 fullFormat += "\n";
                 fullFormat +=
                     RiaQDateTimeTools::dateFormatString( dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
@@ -185,7 +191,9 @@ QString RiuQwtPlotTools::dateTimeFormatForInterval( QwtDate::IntervalType       
             }
             case QwtDate::Hour:
             {
-                QString fullFormat = RiaQDateTimeTools::timeFormatString( timeFormat, RiaQDateTimeTools::TIME_FORMAT_HOUR );
+                QString fullFormat =
+                    RiaQDateTimeTools::timeFormatString( timeFormat,
+                                                         RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR );
                 if ( !fullFormat.endsWith( "AP" ) )
                 {
                     fullFormat += ":00";
@@ -207,4 +215,18 @@ QString RiuQwtPlotTools::dateTimeFormatForInterval( QwtDate::IntervalType       
                 return RiaQDateTimeTools::dateFormatString( dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QwtPlotShapeItem* RiuQwtPlotTools::createBoxShape( const QString& label,
+                                                   double         startX,
+                                                   double         endX,
+                                                   double         startY,
+                                                   double         endY,
+                                                   QColor         color,
+                                                   Qt::BrushStyle brushStyle )
+{
+    return createBoxShapeT<QwtPlotShapeItem>( label, startX, endX, startY, endY, color, brushStyle );
 }

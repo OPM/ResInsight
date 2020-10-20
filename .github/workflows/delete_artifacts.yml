@@ -1,0 +1,25 @@
+name: Remove old artifacts
+
+on:
+  schedule:
+    # Every day at 1am
+    - cron: '0 1 * * *'
+
+jobs:
+  remove-old-artifacts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: setup python
+        uses: actions/setup-python@v2  
+        with:
+          python-version: 3.8
+      - name: Remove old artifacts
+        run: |
+          python -m pip install --upgrade pip
+          pip install urllib3 requests
+          cd .github/workflows
+          python delete_artifacts.py ${{ secrets.GITHUB_TOKEN }}

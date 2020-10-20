@@ -50,7 +50,17 @@ ${CMAKE_CURRENT_LIST_DIR}/RifDerivedEnsembleReader.h
 ${CMAKE_CURRENT_LIST_DIR}/RifActiveCellsReader.h
 ${CMAKE_CURRENT_LIST_DIR}/RifCsvDataTableFormatter.h
 ${CMAKE_CURRENT_LIST_DIR}/RifEclipseInputPropertyLoader.h
-${CMAKE_CURRENT_LIST_DIR}/RifSurfaceReader.h
+${CMAKE_CURRENT_LIST_DIR}/RifSurfaceImporter.h
+${CMAKE_CURRENT_LIST_DIR}/RifRoffReader.h
+${CMAKE_CURRENT_LIST_DIR}/RifColorLegendData.h
+${CMAKE_CURRENT_LIST_DIR}/RifElasticPropertiesReader.h
+${CMAKE_CURRENT_LIST_DIR}/RifFractureModelPlotExporter.h
+${CMAKE_CURRENT_LIST_DIR}/RifFractureModelGeologicalFrkExporter.h
+${CMAKE_CURRENT_LIST_DIR}/RifFractureModelDeviationFrkExporter.h
+${CMAKE_CURRENT_LIST_DIR}/RifFractureModelPerfsFrkExporter.h
+${CMAKE_CURRENT_LIST_DIR}/RifFractureModelAsymmetricFrkExporter.h
+${CMAKE_CURRENT_LIST_DIR}/RifSurfaceExporter.h
+
 
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt
 #${CMAKE_CURRENT_LIST_DIR}/RifHdf5Reader.h
@@ -105,8 +115,16 @@ ${CMAKE_CURRENT_LIST_DIR}/RifActiveCellsReader.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifCsvDataTableFormatter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifReaderEnsembleStatisticsRft.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifEclipseInputPropertyLoader.cpp
-${CMAKE_CURRENT_LIST_DIR}/RifSurfaceReader.cpp
-
+${CMAKE_CURRENT_LIST_DIR}/RifSurfaceImporter.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifRoffReader.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifColorLegendData.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifElasticPropertiesReader.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifFractureModelPlotExporter.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifFractureModelGeologicalFrkExporter.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifFractureModelDeviationFrkExporter.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifFractureModelPerfsFrkExporter.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifFractureModelAsymmetricFrkExporter.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifSurfaceExporter.cpp
 
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt
 #${CMAKE_CURRENT_LIST_DIR}/RifHdf5Reader.cpp

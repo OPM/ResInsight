@@ -121,7 +121,7 @@ bool RifEclipseInputFileTools::openGridFile( const QString&      fileName,
         if ( gridFile.open( QFile::ReadOnly ) )
         {
             RiaEclipseUnitTools::UnitSystem units = readUnitSystem( gridFile, gridunitPos );
-            if ( units != RiaEclipseUnitTools::UNITS_UNKNOWN )
+            if ( units != RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN )
             {
                 eclipseCase->setUnitsType( units );
             }
@@ -272,7 +272,7 @@ bool RifEclipseInputFileTools::exportGrid( const QString&         fileName,
         return false;
     }
 
-    const RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo( RiaDefines::MATRIX_MODEL );
+    const RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
     CVF_ASSERT( activeCellInfo );
 
@@ -417,9 +417,9 @@ bool RifEclipseInputFileTools::exportGrid( const QString&         fileName,
     }
 
     ert_ecl_unit_enum ecl_units = ECL_METRIC_UNITS;
-    if ( eclipseCase->unitsType() == RiaEclipseUnitTools::UNITS_FIELD )
+    if ( eclipseCase->unitsType() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
         ecl_units = ECL_FIELD_UNITS;
-    else if ( eclipseCase->unitsType() == RiaEclipseUnitTools::UNITS_LAB )
+    else if ( eclipseCase->unitsType() == RiaEclipseUnitTools::UnitSystem::UNITS_LAB )
         ecl_units = ECL_LAB_UNITS;
 
     ecl_grid_fprintf_grdecl2( mainEclGrid, filePtr, ecl_units );
@@ -446,7 +446,7 @@ bool RifEclipseInputFileTools::exportKeywords( const QString&              resul
     {
         return false;
     }
-    RigCaseCellResultsData* cellResultsData = eclipseCase->results( RiaDefines::MATRIX_MODEL );
+    RigCaseCellResultsData* cellResultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     RigActiveCellInfo*      activeCells     = cellResultsData->activeCellInfo();
     RigMainGrid*            mainGrid        = eclipseCase->mainGrid();
 
@@ -462,7 +462,7 @@ bool RifEclipseInputFileTools::exportKeywords( const QString&              resul
     {
         std::vector<double> resultValues;
 
-        RigEclipseResultAddress resAddr( RiaDefines::STATIC_NATIVE, keyword );
+        RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::STATIC_NATIVE, keyword );
         if ( !cellResultsData->hasResultEntry( resAddr ) ) continue;
 
         cellResultsData->ensureKnownResultLoaded( resAddr );
@@ -749,7 +749,7 @@ void RifEclipseInputFileTools::saveFaults( QTextStream&       stream,
     stream << "-- Name  I1  I2  J1  J2  K1  K2  Face ( I/J/K )" << endl;
 
     const cvf::Collection<RigFault>& faults = mainGrid->faults();
-    for ( const auto fault : faults )
+    for ( const auto& fault : faults )
     {
         if ( fault->name() != RiaDefines::undefinedGridFaultName() &&
              fault->name() != RiaDefines::undefinedGridFaultWithInactiveName() )
@@ -802,7 +802,7 @@ std::map<QString, QString> RifEclipseInputFileTools::readProperties( const QStri
         if ( eclipseKeywordData )
         {
             QString newResultName =
-                caseData->results( RiaDefines::MATRIX_MODEL )->makeResultNameUnique( fileKeywords[i].keyword );
+                caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->makeResultNameUnique( fileKeywords[i].keyword );
             QString errMsg;
             if ( readDataFromKeyword( eclipseKeywordData, caseData, newResultName, &errMsg ) )
             {
@@ -922,10 +922,12 @@ bool RifEclipseInputFileTools::readDataFromKeyword( ecl_kw_type*        eclipseK
 
             scalarValueCount = caseData->mainGrid()->globalCellArray().size();
         }
-        else if ( keywordItemCount == caseData->activeCellInfo( RiaDefines::MATRIX_MODEL )->reservoirActiveCellCount() )
+        else if ( keywordItemCount ==
+                  caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->reservoirActiveCellCount() )
         {
             mathingItemCount = true;
-            scalarValueCount = caseData->activeCellInfo( RiaDefines::MATRIX_MODEL )->reservoirActiveCellCount();
+            scalarValueCount =
+                caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->reservoirActiveCellCount();
         }
 
         if ( !mathingItemCount )
@@ -936,10 +938,11 @@ bool RifEclipseInputFileTools::readDataFromKeyword( ecl_kw_type*        eclipseK
         }
     }
 
-    RigEclipseResultAddress resAddr( RiaDefines::INPUT_PROPERTY, resultName );
-    caseData->results( RiaDefines::MATRIX_MODEL )->createResultEntry( resAddr, false );
+    RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::INPUT_PROPERTY, resultName );
+    caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->createResultEntry( resAddr, false );
 
-    auto newPropertyData = caseData->results( RiaDefines::MATRIX_MODEL )->modifiableCellScalarResultTimesteps( resAddr );
+    auto newPropertyData =
+        caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->modifiableCellScalarResultTimesteps( resAddr );
 
     newPropertyData->push_back( std::vector<double>() );
     newPropertyData->at( 0 ).resize( scalarValueCount, HUGE_VAL );
@@ -976,25 +979,31 @@ void RifEclipseInputFileTools::findKeywordsOnFile( const QString& fileName, std:
         if ( lineLength > 0 )
         {
             line = QString::fromLatin1( buf );
-            if ( line.size() && line[0].isLetter() )
+            RifKeywordAndFilePos keyPos;
+
+            filepos        = data.pos() - lineLength;
+            keyPos.filePos = filepos;
+
+            QString trimmedLine  = line;
+            int     commentStart = trimmedLine.indexOf( "--" );
+            if ( commentStart > 0 )
             {
-                RifKeywordAndFilePos keyPos;
+                trimmedLine = trimmedLine.left( commentStart );
+            }
 
-                filepos        = data.pos() - lineLength;
-                keyPos.filePos = filepos;
-
-                QString keywordCandidate = line;
-                int     commentStart     = keywordCandidate.indexOf( "--" );
-                if ( commentStart > 0 )
+            trimmedLine = trimmedLine.trimmed();
+            if ( !trimmedLine.isEmpty() && trimmedLine[0].isLetter() )
+            {
+                // Ensure we don't attempt to find keywords with a space in it.
+                QStringList keywordCandidates = trimmedLine.split( " " );
+                if ( !keywordCandidates.isEmpty() )
                 {
-                    keywordCandidate = keywordCandidate.left( commentStart );
+                    QString keywordCandidate = keywordCandidates.front();
+
+                    keyPos.keyword = keywordCandidate;
+                    keywords->push_back( keyPos );
+                    // qDebug() << keyPos.keyword << " - " << keyPos.filePos;
                 }
-
-                keywordCandidate = keywordCandidate.trimmed();
-
-                keyPos.keyword = keywordCandidate;
-                keywords->push_back( keyPos );
-                // qDebug() << keyPos.keyword << " - " << keyPos.filePos;
             }
         }
     } while ( lineLength != -1 );
@@ -1278,7 +1287,7 @@ qint64 RifEclipseInputFileTools::findKeyword( const QString& keyword, QFile& fil
 bool RifEclipseInputFileTools::isValidDataKeyword( const QString& keyword )
 {
     const std::vector<QString>& keywordsToSkip = RifEclipseInputFileTools::invalidPropertyDataKeywords();
-    for ( const QString keywordToSkip : keywordsToSkip )
+    for ( const QString& keywordToSkip : keywordsToSkip )
     {
         if ( keywordToSkip == keyword.toUpper() )
         {
@@ -1662,18 +1671,18 @@ RiaEclipseUnitTools::UnitSystem RifEclipseInputFileTools::readUnitSystem( QFile&
     {
         if ( unitString.contains( "FEET", Qt::CaseInsensitive ) )
         {
-            return RiaEclipseUnitTools::UNITS_FIELD;
+            return RiaEclipseUnitTools::UnitSystem::UNITS_FIELD;
         }
         else if ( unitString.contains( "CM", Qt::CaseInsensitive ) )
         {
-            return RiaEclipseUnitTools::UNITS_LAB;
+            return RiaEclipseUnitTools::UnitSystem::UNITS_LAB;
         }
         else if ( unitString.contains( "MET", Qt::CaseInsensitive ) )
         {
-            return RiaEclipseUnitTools::UNITS_METRIC;
+            return RiaEclipseUnitTools::UnitSystem::UNITS_METRIC;
         }
     }
-    return RiaEclipseUnitTools::UNITS_UNKNOWN;
+    return RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1816,12 +1825,12 @@ void RifEclipseInputFileTools::readFaults( QFile&                     data,
 
         // Adjust from 1-based to 0-based cell indices
         // Guard against invalid cell ranges by limiting lowest possible range value to zero
-        cvf::CellRange cellrange( CVF_MAX( i1 - 1, 0 ),
-                                  CVF_MAX( j1 - 1, 0 ),
-                                  CVF_MAX( k1 - 1, 0 ),
-                                  CVF_MAX( i2 - 1, 0 ),
-                                  CVF_MAX( j2 - 1, 0 ),
-                                  CVF_MAX( k2 - 1, 0 ) );
+        cvf::CellRange cellrange( std::max( i1 - 1, 0 ),
+                                  std::max( j1 - 1, 0 ),
+                                  std::max( k1 - 1, 0 ),
+                                  std::max( i2 - 1, 0 ),
+                                  std::max( j2 - 1, 0 ),
+                                  std::max( k2 - 1, 0 ) );
 
         if ( !( fault && fault->name() == faultName ) )
         {

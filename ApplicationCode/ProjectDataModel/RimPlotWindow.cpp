@@ -26,7 +26,7 @@
 #include "RimProject.h"
 #include "RiuMultiPlotPage.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmUiComboBoxEditor.h"
 
 #include <QPainter>
@@ -45,18 +45,23 @@ RimPlotWindow::RimPlotWindow()
                                                     "PlotWindow",
                                                     "The Abstract base class for all MDI Windows in the Plot Window" );
 
-    CAF_PDM_InitScriptableFieldWithIO( &m_id, "Id", -1, "View ID", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_id, "Id", -1, "View ID", "", "", "" );
     m_id.registerKeywordAlias( "ViewId" );
     m_id.uiCapability()->setUiReadOnly( true );
     m_id.uiCapability()->setUiHidden( true );
-    m_id.capability<caf::PdmFieldScriptability>()->setIOWriteable( false );
+    m_id.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
     m_id.xmlCapability()->setCopyable( false );
 
+    CAF_PDM_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title", "", "", "" );
     CAF_PDM_InitField( &m_showPlotLegends, "ShowTrackLegends", true, "Show Legends", "", "", "" );
     CAF_PDM_InitField( &m_plotLegendsHorizontal, "TrackLegendsHorizontal", true, "Legend Orientation", "", "", "" );
     m_plotLegendsHorizontal.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
-    int defaultFontSize = RiaApplication::instance()->preferences()->defaultPlotFontSize();
-    CAF_PDM_InitField( &m_legendFontSize, "LegendFontSize", std::max( 8, defaultFontSize - 2 ), "Legend Font Size", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_titleFontSize, "TitleFontSize", "Title Font Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_legendFontSize, "LegendDeltaFontSize", "Legend Font Size", "", "", "" );
+
+    m_titleFontSize  = caf::FontTools::RelativeSize::XXLarge;
+    m_legendFontSize = caf::FontTools::RelativeSize::Small;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,10 +84,28 @@ int RimPlotWindow::id() const
 //--------------------------------------------------------------------------------------------------
 RimPlotWindow& RimPlotWindow::operator=( RimPlotWindow&& rhs )
 {
+    m_showPlotTitle         = rhs.m_showPlotTitle();
     m_showPlotLegends       = rhs.m_showPlotLegends();
     m_plotLegendsHorizontal = rhs.m_plotLegendsHorizontal();
+    m_titleFontSize         = rhs.m_titleFontSize();
     m_legendFontSize        = rhs.m_legendFontSize();
     return *this;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPlotWindow::plotTitleVisible() const
+{
+    return m_showPlotTitle;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotWindow::setPlotTitleVisible( bool showPlotTitle )
+{
+    m_showPlotTitle = showPlotTitle;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -120,15 +143,39 @@ void RimPlotWindow::setLegendsHorizontal( bool horizontal )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimPlotWindow::legendFontSize() const
+void RimPlotWindow::updateFonts()
 {
-    return m_legendFontSize;
+    updateLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotWindow::setLegendFontSize( int fontSize )
+int RimPlotWindow::fontSize() const
+{
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimPlotWindow::titleFontSize() const
+{
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_titleFontSize() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimPlotWindow::legendFontSize() const
+{
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_legendFontSize() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotWindow::setLegendFontSize( caf::FontTools::RelativeSize fontSize )
 {
     m_legendFontSize = fontSize;
 }
@@ -207,7 +254,7 @@ void RimPlotWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     {
         updateLayout();
     }
-    else if ( changedField == &m_legendFontSize )
+    else if ( changedField == &m_legendFontSize || changedField == &m_titleFontSize )
     {
         updateLayout();
     }
@@ -222,30 +269,16 @@ QList<caf::PdmOptionItemInfo> RimPlotWindow::calculateValueOptions( const caf::P
                                                                     bool*                      useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
-    if ( fieldNeedingOptions == &m_legendFontSize )
-    {
-        std::vector<int> fontSizes;
-        fontSizes.push_back( 8 );
-        fontSizes.push_back( 9 );
-        fontSizes.push_back( 10 );
-        fontSizes.push_back( 11 );
-        fontSizes.push_back( 12 );
-        fontSizes.push_back( 14 );
-        fontSizes.push_back( 16 );
-        fontSizes.push_back( 18 );
-        fontSizes.push_back( 24 );
-
-        for ( int value : fontSizes )
-        {
-            QString text = QString( "%1" ).arg( value );
-            options.push_back( caf::PdmOptionItemInfo( text, value ) );
-        }
-    }
-    else if ( fieldNeedingOptions == &m_plotLegendsHorizontal )
+    if ( fieldNeedingOptions == &m_plotLegendsHorizontal )
     {
         options.push_back( caf::PdmOptionItemInfo( "Vertical", QVariant::fromValue( false ) ) );
         options.push_back( caf::PdmOptionItemInfo( "Horizontal", QVariant::fromValue( true ) ) );
     }
+    else if ( fieldNeedingOptions == &m_titleFontSize || fieldNeedingOptions == &m_legendFontSize )
+    {
+        options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultPlotFontSize() );
+    }
+
     return options;
 }
 
@@ -256,6 +289,7 @@ void RimPlotWindow::uiOrderingForPlotLayout( QString uiConfigName, caf::PdmUiOrd
 {
     uiOrdering.add( &m_showPlotLegends );
     uiOrdering.add( &m_plotLegendsHorizontal );
+    uiOrdering.add( &m_titleFontSize );
     uiOrdering.add( &m_legendFontSize );
 }
 
@@ -299,6 +333,6 @@ void RimPlotWindow::assignIdIfNecessary()
 {
     if ( m_id == -1 && isMdiWindow() )
     {
-        RiaApplication::instance()->project()->assignPlotIdToPlotWindow( this );
+        RimProject::current()->assignPlotIdToPlotWindow( this );
     }
 }

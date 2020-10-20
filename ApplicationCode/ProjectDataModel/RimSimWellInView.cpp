@@ -47,7 +47,7 @@
 
 #include "RivReservoirViewPartMgr.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include "cvfMath.h"
@@ -71,7 +71,7 @@ RimSimWellInView::RimSimWellInView()
                                                     "SimulationWell",
                                                     "An Eclipse Simulation Well" );
 
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &name, "Name", "Name", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &name, "Name", "Name", "", "", "" );
     name.registerKeywordAlias( "WellName" );
 
     CAF_PDM_InitField( &showWell, "ShowWell", true, "Show well ", "", "", "" );
@@ -214,6 +214,11 @@ void RimSimWellInView::wellHeadTopBottomPosition( int frameIndex, cvf::Vec3d* to
 {
     RimEclipseView* m_rimReservoirView;
     firstAncestorOrThisOfTypeAsserted( m_rimReservoirView );
+
+    if ( !m_rimReservoirView->eclipseCase() || !m_rimReservoirView->eclipseCase()->eclipseCaseData() )
+    {
+        return;
+    }
 
     RigEclipseCaseData* rigReservoir = m_rimReservoirView->eclipseCase()->eclipseCaseData();
 
@@ -852,4 +857,19 @@ Rim2dIntersectionView* corresponding2dIntersectionView( RimSimWellInView* simWel
         }
     }
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSimWellInView::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                       std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    RimEclipseView* view = nullptr;
+    this->firstAncestorOrThisOfType( view );
+
+    if ( view )
+    {
+        view->scheduleCreateDisplayModelAndRedraw();
+    }
 }

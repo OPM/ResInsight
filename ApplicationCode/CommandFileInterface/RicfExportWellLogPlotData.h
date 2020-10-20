@@ -49,7 +49,7 @@ class RicfExportWellLogPlotData : public RicfCommandObject
 
 public:
     // Values are exposed in gRPC .proto. Do not change without also changing .proto
-    enum ExportFormat
+    enum class ExportFormat
     {
         LAS,
         ASCII

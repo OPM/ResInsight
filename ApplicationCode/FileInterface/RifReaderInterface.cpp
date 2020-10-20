@@ -19,7 +19,6 @@
 
 #include "RifReaderInterface.h"
 
-#include "RiaApplication.h"
 #include "RiaPreferences.h"
 
 #include "RifReaderSettings.h"
@@ -116,7 +115,7 @@ size_t RifReaderInterface::timeStepIndexOnFile( size_t timeStepIndex ) const
 //--------------------------------------------------------------------------------------------------
 const RifReaderSettings* RifReaderInterface::readerSettings() const
 {
-    RiaPreferences* prefs = RiaApplication::instance()->preferences();
+    RiaPreferences* prefs = RiaPreferences::current();
 
     CVF_ASSERT( prefs->readerSettings() );
 

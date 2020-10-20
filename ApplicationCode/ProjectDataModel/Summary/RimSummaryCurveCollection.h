@@ -30,6 +30,8 @@ class QwtPlot;
 class QwtPlotCurve;
 class RimSummaryCase;
 class RimSummaryCurve;
+class RimSummaryCrossPlot;
+class RimSummaryPlot;
 class QKeyEvent;
 
 //==================================================================================================
@@ -39,13 +41,30 @@ class RimSummaryCurveCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
+private:
+    caf::Signal<> curvesChanged;
+
 public:
     RimSummaryCurveCollection();
     ~RimSummaryCurveCollection() override;
 
     bool isCurvesVisible();
 
+    void             setCurveForSourceStepping( RimSummaryCurve* curve );
+    RimSummaryCurve* curveForSourceStepping() const;
+
+    RimSummaryPlotSourceStepping*
+        sourceSteppingObject( RimSummaryPlotSourceStepping::SourceSteppingType sourceSteppingType ) const;
+
+    std::vector<RimSummaryCurve*> curves() const;
+    std::vector<RimSummaryCurve*>
+        curvesForSourceStepping( RimSummaryPlotSourceStepping::SourceSteppingType steppingType ) const;
+
+    void setCurveAsTopZWithinCategory( RimSummaryCurve* curve );
+
     void loadDataAndUpdate( bool updateParentPlot );
+
+private:
     void setParentQwtPlotAndReplot( QwtPlot* plot );
     void detachQwtCurves();
     void reattachQwtCurves();
@@ -53,11 +72,9 @@ public:
     RimSummaryCurve* findRimCurveFromQwtCurve( const QwtPlotCurve* qwtCurve ) const;
 
     void addCurve( RimSummaryCurve* curve );
+    void insertCurve( RimSummaryCurve* curve, size_t index );
     void deleteCurve( RimSummaryCurve* curve );
-
-    std::vector<RimSummaryCurve*> curves() const;
-    std::vector<RimSummaryCurve*>
-        curvesForSourceStepping( RimSummaryPlotSourceStepping::SourceSteppingType steppingType ) const;
+    void removeCurve( RimSummaryCurve* curve );
 
     void deleteCurvesAssosiatedWithCase( RimSummaryCase* summaryCase );
     void deleteAllCurves();
@@ -66,14 +83,6 @@ public:
     void setCurrentSummaryCurve( RimSummaryCurve* curve );
 
     std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
-
-    void setCurveAsTopZWithinCategory( RimSummaryCurve* curve );
-
-    void             setCurveForSourceStepping( RimSummaryCurve* curve );
-    RimSummaryCurve* curveForSourceStepping() const;
-
-    RimSummaryPlotSourceStepping*
-        sourceSteppingObject( RimSummaryPlotSourceStepping::SourceSteppingType sourceSteppingType ) const;
 
 private:
     caf::PdmFieldHandle* objectToggleField() override;
@@ -87,7 +96,14 @@ private:
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
 
+    void onCurvesReordered( const SignalEmitter* emitter );
+    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+
 private:
+    friend class RimSummaryCrossPlot;
+    friend class RimSummaryPlot;
+
     caf::PdmField<bool>                       m_showCurves;
     caf::PdmChildArrayField<RimSummaryCurve*> m_curves;
     caf::PdmField<bool>                       m_editPlot;

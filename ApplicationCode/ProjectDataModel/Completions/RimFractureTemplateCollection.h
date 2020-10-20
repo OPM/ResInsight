@@ -62,6 +62,9 @@ public:
 
     void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath );
 
+    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+
 protected:
     void initAfterRead() override;
 

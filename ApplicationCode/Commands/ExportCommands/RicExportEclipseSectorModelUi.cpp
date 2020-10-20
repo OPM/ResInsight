@@ -165,8 +165,9 @@ void RicExportEclipseSectorModelUi::setCaseData( RigEclipseCaseData* caseData /*
     {
         for ( QString keyword : mainKeywords() )
         {
-            if ( caseData && caseData->results( RiaDefines::MATRIX_MODEL )
-                                 ->hasResultEntry( RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, keyword ) ) )
+            if ( caseData &&
+                 caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
+                     ->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, keyword ) ) )
             {
                 selectedKeywords.v().push_back( keyword );
             }
@@ -177,8 +178,9 @@ void RicExportEclipseSectorModelUi::setCaseData( RigEclipseCaseData* caseData /*
         std::vector<QString> validSelectedKeywords;
         for ( QString keyword : selectedKeywords() )
         {
-            if ( caseData && caseData->results( RiaDefines::MATRIX_MODEL )
-                                 ->hasResultEntry( RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, keyword ) ) )
+            if ( caseData &&
+                 caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
+                     ->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, keyword ) ) )
             {
                 validSelectedKeywords.push_back( keyword );
             }
@@ -437,9 +439,10 @@ QList<caf::PdmOptionItemInfo>
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &selectedKeywords )
     {
-        RigCaseCellResultsData*       resultData = m_caseData->results( RiaDefines::MATRIX_MODEL );
+        RigCaseCellResultsData*       resultData = m_caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
         QList<caf::PdmOptionItemInfo> allOptions =
-            RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard( RiaDefines::STATIC_NATIVE, resultData );
+            RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                                               resultData );
 
         std::set<QString> mainKeywords = this->mainKeywords();
         for ( caf::PdmOptionItemInfo option : allOptions )
@@ -447,7 +450,7 @@ QList<caf::PdmOptionItemInfo>
             if ( mainKeywords.count( option.optionUiText() ) )
             {
                 if ( resultData->hasResultEntry(
-                         RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, option.optionUiText() ) ) )
+                         RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, option.optionUiText() ) ) )
                 {
                     options.push_back( option );
                 }
@@ -458,7 +461,7 @@ QList<caf::PdmOptionItemInfo>
             if ( !mainKeywords.count( option.optionUiText() ) && option.optionUiText() != "None" )
             {
                 if ( resultData->hasResultEntry(
-                         RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, option.optionUiText() ) ) )
+                         RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, option.optionUiText() ) ) )
                 {
                     if ( option.optionUiText() == "ACTNUM" && exportGrid() )
                     {
@@ -558,7 +561,7 @@ void RicExportEclipseSectorModelUi::applyBoundaryDefaults()
     if ( exportGridBox == ACTIVE_CELLS_BOX )
     {
         cvf::Vec3st minActive, maxActive;
-        m_caseData->activeCellInfo( RiaDefines::MATRIX_MODEL )->IJKBoundingBox( minActive, maxActive );
+        m_caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->IJKBoundingBox( minActive, maxActive );
         setMin( cvf::Vec3i( minActive ) );
         setMax( cvf::Vec3i( maxActive ) );
     }
@@ -601,12 +604,12 @@ void RicExportEclipseSectorModelUi::applyBoundaryDefaults()
 //--------------------------------------------------------------------------------------------------
 void RicExportEclipseSectorModelUi::removeInvalidKeywords()
 {
-    RigCaseCellResultsData* resultData = m_caseData->results( RiaDefines::MATRIX_MODEL );
+    RigCaseCellResultsData* resultData = m_caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
     std::vector<QString> validKeywords;
     for ( QString keyword : selectedKeywords() )
     {
-        if ( resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, keyword ) ) )
+        if ( resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, keyword ) ) )
         {
             validKeywords.push_back( keyword );
         }

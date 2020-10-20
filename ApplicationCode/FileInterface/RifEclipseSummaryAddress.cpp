@@ -584,72 +584,89 @@ std::string RifEclipseSummaryAddress::uiText() const
     if ( m_isErrorResult ) text += "ERR:";
 
     text += m_quantityName;
+
+    std::string itemText = itemUiText();
+    if ( !itemText.empty() )
+    {
+        text += ":" + itemText;
+    }
+
+    return text;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RifEclipseSummaryAddress::itemUiText() const
+{
+    std::string text;
+
     switch ( this->category() )
     {
         case SUMMARY_REGION:
         {
-            text += ":" + std::to_string( this->regionNumber() );
+            text += std::to_string( this->regionNumber() );
         }
         break;
         case SUMMARY_REGION_2_REGION:
         {
-            text += ":" + formatUiTextRegionToRegion();
+            text += formatUiTextRegionToRegion();
         }
         break;
         case SUMMARY_WELL_GROUP:
         {
-            text += ":" + this->wellGroupName();
+            text += this->wellGroupName();
         }
         break;
         case SUMMARY_WELL:
         {
-            text += ":" + this->wellName();
+            text += this->wellName();
         }
         break;
         case SUMMARY_WELL_COMPLETION:
         {
-            text += ":" + this->wellName();
+            text += this->wellName();
             text += ":" + blockAsString();
         }
         break;
         case SUMMARY_WELL_LGR:
         {
-            text += ":" + this->lgrName();
+            text += this->lgrName();
             text += ":" + this->wellName();
         }
         break;
         case SUMMARY_WELL_COMPLETION_LGR:
         {
-            text += ":" + this->lgrName();
+            text += this->lgrName();
             text += ":" + this->wellName();
             text += ":" + blockAsString();
         }
         break;
         case SUMMARY_WELL_SEGMENT:
         {
-            text += ":" + this->wellName();
+            text += this->wellName();
             text += ":" + std::to_string( this->wellSegmentNumber() );
         }
         break;
         case SUMMARY_BLOCK:
         {
-            text += ":" + blockAsString();
+            text += blockAsString();
         }
         break;
         case SUMMARY_BLOCK_LGR:
         {
-            text += ":" + this->lgrName();
+            text += this->lgrName();
             text += ":" + blockAsString();
         }
         break;
         case SUMMARY_AQUIFER:
         {
-            text += ":" + std::to_string( this->aquiferNumber() );
+            text += std::to_string( this->aquiferNumber() );
         }
         break;
         case SUMMARY_CALCULATED:
         {
-            text += ":" + std::to_string( this->id() );
+            text += std::to_string( this->id() );
         }
         break;
     }
@@ -658,9 +675,10 @@ std::string RifEclipseSummaryAddress::uiText() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Returns the stringified value for the specified identifier type
+/// Returns the stringified address component requested
 //--------------------------------------------------------------------------------------------------
-std::string RifEclipseSummaryAddress::uiText( RifEclipseSummaryAddress::SummaryIdentifierType identifierType ) const
+std::string
+    RifEclipseSummaryAddress::addressComponentUiText( RifEclipseSummaryAddress::SummaryIdentifierType identifierType ) const
 {
     switch ( identifierType )
     {
@@ -853,9 +871,15 @@ bool RifEclipseSummaryAddress::isValidEclipseCategory() const
 QString RifEclipseSummaryAddress::baseQuantityName( const QString& quantityName )
 {
     QString qBaseName = quantityName;
+
     if ( qBaseName.size() == 8 ) qBaseName.chop( 3 );
-    while ( qBaseName.endsWith( "_" ) )
-        qBaseName.chop( 1 );
+
+    auto indexToUnderScore = qBaseName.indexOf( "_" );
+    if ( indexToUnderScore > 0 )
+    {
+        qBaseName = qBaseName.left( indexToUnderScore );
+    }
+
     return qBaseName;
 }
 

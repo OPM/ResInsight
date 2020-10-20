@@ -34,13 +34,12 @@
 //
 //##################################################################################################
 
-
 #include "cafCmdUiCommandSystemImpl.h"
 
 #include "cafCmdExecCommandManager.h"
 #include "cafCmdExecuteCommand.h"
-#include "cafCmdFieldChangeExec.h"
 #include "cafCmdFeatureManager.h"
+#include "cafCmdFieldChangeExec.h"
 
 #include "cafPdmFieldHandle.h"
 #include "cafPdmUiObjectHandle.h"
@@ -53,72 +52,73 @@
 
 namespace caf
 {
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 CmdUiCommandSystemImpl::CmdUiCommandSystemImpl()
 {
-    m_undoFeatureEnabled = false;
+    m_undoFeatureEnabled        = false;
     m_disableUndoForFieldChange = false;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void CmdUiCommandSystemImpl::fieldChangedCommand( const std::vector<PdmFieldHandle*>& fieldsToUpdate, const QVariant& newUiValue)
+void CmdUiCommandSystemImpl::fieldChangedCommand( const std::vector<PdmFieldHandle*>& fieldsToUpdate,
+                                                  const QVariant&                     newUiValue )
 {
     if ( fieldsToUpdate.empty() ) return;
 
     std::vector<CmdExecuteCommand*> commands;
 
-    for (size_t i = 0; i < fieldsToUpdate.size(); i++)
+    for ( size_t i = 0; i < fieldsToUpdate.size(); i++ )
     {
-        PdmFieldHandle* field = fieldsToUpdate[i];
+        PdmFieldHandle*   field         = fieldsToUpdate[i];
         PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
-        if (uiFieldHandle)
+        if ( uiFieldHandle )
         {
             QVariant fieldCurrentUiValue = uiFieldHandle->uiValue();
 
-            if (fieldCurrentUiValue != newUiValue)
+            if ( fieldCurrentUiValue != newUiValue )
             {
-                PdmObjectHandle* rootObjHandle = PdmReferenceHelper::findRoot(field);
+                PdmObjectHandle* rootObjHandle = PdmReferenceHelper::findRoot( field );
 
-                QString reference = PdmReferenceHelper::referenceFromRootToField(rootObjHandle, field);
-                if (reference.isEmpty())
+                QString reference = PdmReferenceHelper::referenceFromRootToField( rootObjHandle, field );
+                if ( reference.isEmpty() )
                 {
-                    CAF_ASSERT(false);
+                    CAF_ASSERT( false );
                     return;
                 }
 
-                CmdFieldChangeExec* fieldChangeExec = new CmdFieldChangeExec(SelectionManager::instance()->notificationCenter());
+                CmdFieldChangeExec* fieldChangeExec =
+                    new CmdFieldChangeExec( SelectionManager::instance()->notificationCenter() );
 
-                fieldChangeExec->commandData()->m_newUiValue = newUiValue;
+                fieldChangeExec->commandData()->m_newUiValue  = newUiValue;
                 fieldChangeExec->commandData()->m_pathToField = reference;
-                fieldChangeExec->commandData()->m_rootObject = rootObjHandle;
+                fieldChangeExec->commandData()->m_rootObject  = rootObjHandle;
 
-                commands.push_back(fieldChangeExec);
+                commands.push_back( fieldChangeExec );
             }
         }
     }
 
-    caf::PdmUiObjectHandle* uiOwnerObjectHandle = uiObj(fieldsToUpdate[0]->ownerObject());
-    if (uiOwnerObjectHandle && !uiOwnerObjectHandle->useUndoRedoForFieldChanged())
+    caf::PdmUiObjectHandle* uiOwnerObjectHandle = uiObj( fieldsToUpdate[0]->ownerObject() );
+    if ( uiOwnerObjectHandle && !uiOwnerObjectHandle->useUndoRedoForFieldChanged() )
     {
         // Temporarily disable undo framework as requested by the PdmUiObjectHandle
         m_disableUndoForFieldChange = true;
     }
 
-    if (commands.size() == 1)
+    if ( commands.size() == 1 )
     {
-        CmdExecCommandManager::instance()->processExecuteCommand(commands[0]);
+        CmdExecCommandManager::instance()->processExecuteCommand( commands[0] );
     }
     else
     {
-        CmdExecCommandManager::instance()->processExecuteCommandsAsMacro("Multiple Field Change", commands);
+        CmdExecCommandManager::instance()->processExecuteCommandsAsMacro( "Multiple Field Change", commands );
     }
 
-    if (uiOwnerObjectHandle && !uiOwnerObjectHandle->useUndoRedoForFieldChanged())
+    if ( uiOwnerObjectHandle && !uiOwnerObjectHandle->useUndoRedoForFieldChanged() )
     {
         // Restore undo feature to normal operation
         m_disableUndoForFieldChange = false;
@@ -126,26 +126,26 @@ void CmdUiCommandSystemImpl::fieldChangedCommand( const std::vector<PdmFieldHand
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void CmdUiCommandSystemImpl::populateMenuWithDefaultCommands(const QString& uiConfigName, QMenu* menu)
+void CmdUiCommandSystemImpl::populateMenuWithDefaultCommands( const QString& uiConfigName, QMenu* menu )
 {
-    if (uiConfigName == "PdmUiTreeViewEditor" ||
-        uiConfigName == "PdmUiTableViewEditor")
+    if ( uiConfigName == "PdmUiTreeViewEditor" || uiConfigName == "PdmUiTableViewEditor" )
     {
         caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
 
-        menu->addAction(commandManager->action("PdmListField_AddItem"));
-        menu->addAction(commandManager->action("PdmListField_DeleteItem"));
+        menu->addAction( commandManager->action( "PdmListField_AddItem" ) );
+        menu->addAction( commandManager->action( "PdmListField_DeleteItem" ) );
 
         QStringList commandIdList;
-        commandIdList << "PdmListField_AddItem" << "PdmListField_DeleteItem";
-        commandManager->refreshStates(commandIdList);
+        commandIdList << "PdmListField_AddItem"
+                      << "PdmListField_DeleteItem";
+        commandManager->refreshStates( commandIdList );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool CmdUiCommandSystemImpl::isUndoEnabled()
 {
@@ -153,15 +153,15 @@ bool CmdUiCommandSystemImpl::isUndoEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void CmdUiCommandSystemImpl::enableUndoFeature(bool enable)
+void CmdUiCommandSystemImpl::enableUndoFeature( bool enable )
 {
     m_undoFeatureEnabled = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool CmdUiCommandSystemImpl::disableUndoForFieldChange()
 {
@@ -169,11 +169,11 @@ bool CmdUiCommandSystemImpl::disableUndoForFieldChange()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void CmdUiCommandSystemImpl::setCurrentContextMenuTargetWidget(QWidget* targetWidget)
+void CmdUiCommandSystemImpl::setCurrentContextMenuTargetWidget( QWidget* targetWidget )
 {
-    caf::CmdFeatureManager::instance()->setCurrentContextMenuTargetWidget(targetWidget);
+    caf::CmdFeatureManager::instance()->setCurrentContextMenuTargetWidget( targetWidget );
 }
 
 } // end namespace caf

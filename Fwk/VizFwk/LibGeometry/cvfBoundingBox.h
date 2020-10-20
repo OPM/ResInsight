@@ -68,6 +68,7 @@ public:
     void add(const Vec3fArray& vertices);
     void add(const Vec3dArray& vertices);
     void add(const BoundingBox& bb);
+    void addValid(const BoundingBox& bb);
 
     const Vec3d& min() const;
     const Vec3d& max() const;

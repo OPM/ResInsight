@@ -19,7 +19,6 @@
 
 #include "RimGeoMechView.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaRegressionTestRunner.h"
@@ -77,8 +76,6 @@
 #include "cvfViewport.h"
 #include "cvfqtUtils.h"
 
-#include <QMessageBox>
-
 CAF_PDM_SOURCE_INIT( RimGeoMechView, "GeoMechView" );
 //--------------------------------------------------------------------------------------------------
 ///
@@ -108,6 +105,8 @@ RimGeoMechView::RimGeoMechView( void )
     nameConfig()->hideAggregationTypeField( true );
     nameConfig()->hidePropertyField( false );
     nameConfig()->hideSampleSpacingField( true );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -151,11 +150,7 @@ void RimGeoMechView::onLoadDataAndUpdate()
                                              ? "Could not open the Odb file: \n" + m_geomechCase->gridFileName()
                                              : QString::fromStdString( errorMessage );
 
-                if ( RiaGuiApplication::isRunning() )
-                {
-                    QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(), "File open error", displayMessage );
-                }
-                RiaLogging::error( displayMessage );
+                RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "File open error", displayMessage );
             }
 
             m_geomechCase = nullptr;
@@ -179,6 +174,8 @@ void RimGeoMechView::onLoadDataAndUpdate()
 
     this->geoMechPropertyFilterCollection()->loadAndInitializePropertyFilters();
     m_wellMeasurementCollection->syncWithChangesInWellMeasurementCollection();
+
+    if ( this->m_surfaceCollection ) this->m_surfaceCollection->loadData();
 
     this->scheduleCreateDisplayModelAndRedraw();
 
@@ -444,25 +441,12 @@ void RimGeoMechView::setGeoMechCase( RimGeoMechCase* gmCase )
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::onResetLegendsInViewer()
 {
-    this->cellResult()->legendConfig->recreateLegend();
-
-    for ( RimIntersectionResultDefinition* sepInterResDef :
-          this->separateIntersectionResultsCollection()->intersectionResultsDefinitions() )
+    for ( auto legendConfig : legendConfigs() )
     {
-        sepInterResDef->regularLegendConfig()->recreateLegend();
-        sepInterResDef->ternaryLegendConfig()->recreateLegend();
-    }
-
-    for ( RimIntersectionResultDefinition* sepInterResDef :
-          this->separateSurfaceResultsCollection()->intersectionResultsDefinitions() )
-    {
-        sepInterResDef->regularLegendConfig()->recreateLegend();
-        sepInterResDef->ternaryLegendConfig()->recreateLegend();
-    }
-
-    for ( RimWellMeasurementInView* wellMeasurement : m_wellMeasurementCollection->measurements() )
-    {
-        wellMeasurement->legendConfig()->recreateLegend();
+        if ( legendConfig )
+        {
+            legendConfig->recreateLegend();
+        }
     }
 
     nativeOrOverrideViewer()->removeAllColorLegends();
@@ -536,6 +520,11 @@ void RimGeoMechView::onUpdateLegends()
                                                                           isUsingOverrideViewer() );
                 }
             }
+        }
+
+        if ( m_surfaceCollection && m_surfaceCollection->isChecked() )
+        {
+            m_surfaceCollection->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
         }
     }
 }
@@ -645,6 +634,17 @@ std::vector<RimLegendConfig*> RimGeoMechView::legendConfigs() const
     {
         absLegendConfigs.push_back( wellMeasurement->legendConfig() );
     }
+
+    if ( m_surfaceCollection )
+    {
+        for ( auto legendConfig : m_surfaceCollection->legendConfigs() )
+        {
+            absLegendConfigs.push_back( legendConfig );
+        }
+    }
+
+    absLegendConfigs.erase( std::remove( absLegendConfigs.begin(), absLegendConfigs.end(), nullptr ),
+                            absLegendConfigs.end() );
 
     return absLegendConfigs;
 }

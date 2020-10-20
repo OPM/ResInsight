@@ -26,7 +26,7 @@
 
 namespace RiaDefines
 {
-enum ResultCatType
+enum class ResultCatType
 {
     DYNAMIC_NATIVE,
     STATIC_NATIVE,
@@ -44,7 +44,7 @@ enum ResultCatType
 
 // WARNING: DO NOT CHANGE THE ORDER WITHOUT KNOWING WHAT YOU ARE DOING!
 //          You may well change the behaviour of property filters.
-enum WellPathComponentType
+enum class WellPathComponentType
 {
     // Production Tube
     WELL_PATH,
@@ -62,7 +62,7 @@ enum WellPathComponentType
     UNDEFINED_COMPONENT
 };
 
-enum MeshModeType
+enum class MeshModeType
 {
     FULL_MESH,
     FAULTS_MESH,
@@ -135,7 +135,7 @@ std::vector<QString> wbsAngleResultNames();
 std::vector<QString> wbsDerivedResultNames();
 
 // Units and conversions
-enum DepthUnitType
+enum class DepthUnitType
 {
     UNIT_METER,
     UNIT_FEET,
@@ -143,7 +143,7 @@ enum DepthUnitType
 };
 
 // Depth types used for well log plots
-enum DepthTypeEnum
+enum class DepthTypeEnum
 {
     MEASURED_DEPTH,
     TRUE_VERTICAL_DEPTH,
@@ -153,7 +153,7 @@ enum DepthTypeEnum
 };
 
 // Defines relate to plotting
-enum PlotAxis
+enum class PlotAxis
 {
     PLOT_AXIS_LEFT,
     PLOT_AXIS_RIGHT,
@@ -164,14 +164,15 @@ double minimumDefaultValuePlot();
 double minimumDefaultLogValuePlot();
 double maximumDefaultValuePlot();
 
-enum PhaseType
+enum class PhaseType
 {
     OIL_PHASE,
     GAS_PHASE,
-    WATER_PHASE
+    WATER_PHASE,
+    PHASE_NOT_APPLICABLE
 };
 
-enum ImportFileType
+enum class ImportFileType
 {
     NOT_A_VALID_IMPORT_FILE = 0x00,
     ECLIPSE_GRID_FILE       = 0x01,
@@ -188,7 +189,7 @@ enum ImportFileType
 ImportFileType obtainFileTypeFromFileName( const QString& fileName );
 QString        defaultDirectoryLabel( ImportFileType fileTypes );
 
-enum CaseType
+enum class CaseType
 {
     UNDEFINED_CASE      = -1,
     ECLIPSE_RESULT_CASE = 1,
@@ -198,12 +199,28 @@ enum CaseType
     GEOMECH_ODB_CASE    = 5
 };
 
-enum FontSettingType
+enum class FontSettingType
 {
     SCENE_FONT,
     ANNOTATION_FONT,
     WELL_LABEL_FONT,
     PLOT_FONT
+};
+
+enum class GridCaseAxis
+{
+    AXIS_I,
+    AXIS_J,
+    AXIS_K,
+    UNDEFINED_AXIS
+};
+
+enum class ThemeEnum
+{
+    DEFAULT,
+    DARK,
+    LIGHT,
+    UNDEFINED
 };
 
 }; // namespace RiaDefines

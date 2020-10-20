@@ -18,7 +18,6 @@
 
 #include "RiuSummaryVectorSelectionUi.h"
 
-#include "RiaApplication.h"
 #include "RiaCurveSetDefinition.h"
 #include "RiaStdStringTools.h"
 #include "RiaSummaryCurveDefinition.h"
@@ -43,6 +42,8 @@
 #include "cafPdmPointer.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiTreeSelectionEditor.h"
+
+#include <QDebug>
 
 #include <algorithm>
 
@@ -133,6 +134,7 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
           {RifEclipseSummaryAddress::SUMMARY_IMPORTED,
            {{new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME )}}},
       } )
+    , m_showIndividualEnsembleCases( false )
 {
     CAF_PDM_InitFieldNoDefault( &m_selectedSources, "SummaryCases", "Cases", "", "", "" );
     m_selectedSources.uiCapability()->setAutoAddingOptionFromValue( false );
@@ -442,7 +444,8 @@ std::vector<RiaSummaryCurveDefinition> RiuSummaryVectorSelectionUi::allCurveDefi
                 {
                     if ( selectedAddressesFromUi.count( addressFromSource ) > 0 )
                     {
-                        curveDefinitions.insert( RiaSummaryCurveDefinition( caseFromSource, addressFromSource, ensemble ) );
+                        curveDefinitions.insert(
+                            RiaSummaryCurveDefinition( caseFromSource, addressFromSource, ensemble != nullptr ) );
                     }
                 }
             }
@@ -488,7 +491,10 @@ std::vector<RiaCurveSetDefinition> RiuSummaryVectorSelectionUi::allCurveSetDefin
 }
 
 //--------------------------------------------------------------------------------------------------
-/// One CurveDefinition pr ensemble curve set
+/// One CurveDefinition pr ensemble curve set,
+/// but if enableIndividualEnsembleCaseSelection has been enabled,
+/// the ensembles are never available for direct selection, and this method will always return the
+/// "expanded" set of curvedefinitions
 //--------------------------------------------------------------------------------------------------
 std::vector<RiaSummaryCurveDefinition> RiuSummaryVectorSelectionUi::selection() const
 {
@@ -506,7 +512,7 @@ std::vector<RiaSummaryCurveDefinition> RiuSummaryVectorSelectionUi::selection() 
             {
                 if ( addressUnion.count( addr ) )
                 {
-                    curveDefSelection.push_back( RiaSummaryCurveDefinition( nullptr, addr, ensemble ) );
+                    curveDefSelection.push_back( RiaSummaryCurveDefinition( ensemble, addr ) );
                 }
             }
         }
@@ -519,7 +525,7 @@ std::vector<RiaSummaryCurveDefinition> RiuSummaryVectorSelectionUi::selection() 
             {
                 if ( readerAddresses.count( addr ) )
                 {
-                    curveDefSelection.push_back( RiaSummaryCurveDefinition( sourceCase, addr, nullptr ) );
+                    curveDefSelection.push_back( RiaSummaryCurveDefinition( sourceCase, addr, false ) );
                 }
             }
         }
@@ -555,6 +561,14 @@ void RiuSummaryVectorSelectionUi::hideSummaryCases( bool hide )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuSummaryVectorSelectionUi::enableIndividualEnsembleCaseSelection( bool enable )
+{
+    m_showIndividualEnsembleCases = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuSummaryVectorSelectionUi::setFieldChangedHandler( const std::function<void()>& handlerFunc )
 {
     m_toggleChangedHandler = handlerFunc;
@@ -565,7 +579,7 @@ void RiuSummaryVectorSelectionUi::setFieldChangedHandler( const std::function<vo
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryVectorSelectionUi::setDefaultSelection( const std::vector<SummarySource*>& defaultSources )
 {
-    RimProject* proj        = RiaApplication::instance()->project();
+    RimProject* proj        = RimProject::current();
     auto        allSumCases = proj->allSummaryCases();
 
     if ( allSumCases.size() > 0 )
@@ -580,9 +594,14 @@ void RiuSummaryVectorSelectionUi::setDefaultSelection( const std::vector<Summary
         {
             RimSummaryCase*           sumCase  = dynamic_cast<RimSummaryCase*>( s );
             RimSummaryCaseCollection* ensemble = dynamic_cast<RimSummaryCaseCollection*>( s );
-
-            RiaSummaryCurveDefinition curveDef( sumCase, defaultAddress, ensemble );
-            curveDefs.push_back( curveDef );
+            if ( ensemble )
+            {
+                curveDefs.push_back( RiaSummaryCurveDefinition( ensemble, defaultAddress ) );
+            }
+            else
+            {
+                curveDefs.push_back( RiaSummaryCurveDefinition( sumCase, defaultAddress, false ) );
+            }
         }
 
         setSelectedCurveDefinitions( curveDefs );
@@ -626,13 +645,28 @@ void RiuSummaryVectorSelectionUi::setSelectedCurveDefinitions( const std::vector
         }
 
         // Select case if not already selected
-        SummarySource* summSource = curveDef.isEnsembleCurve() ? static_cast<SummarySource*>( curveDef.ensemble() )
-                                                               : summaryCase;
-        if ( std::find( m_selectedSources.begin(), m_selectedSources.end(), summSource ) == m_selectedSources.end() )
+        if ( curveDef.isEnsembleCurve() )
         {
-            if ( summaryCase != calculatedSummaryCase() )
+            if ( curveDef.ensemble() && !m_hideEnsembles )
             {
-                m_selectedSources.push_back( summSource );
+                if ( std::find( m_selectedSources.begin(), m_selectedSources.end(), curveDef.ensemble() ) ==
+                     m_selectedSources.end() )
+                {
+                    m_selectedSources.push_back( curveDef.ensemble() );
+                    handleAddedSource( curveDef.ensemble() );
+                }
+            }
+        }
+        else
+        {
+            if ( curveDef.summaryCase() && ( !curveDef.ensemble() || m_showIndividualEnsembleCases ) )
+            {
+                if ( std::find( m_selectedSources.begin(), m_selectedSources.end(), curveDef.summaryCase() ) ==
+                     m_selectedSources.end() )
+                {
+                    m_selectedSources.push_back( curveDef.summaryCase() );
+                    handleAddedSource( curveDef.summaryCase() );
+                }
             }
         }
 
@@ -642,7 +676,8 @@ void RiuSummaryVectorSelectionUi::setSelectedCurveDefinitions( const std::vector
         for ( const auto& identifierAndField : identifierAndFieldList )
         {
             bool isVectorField = identifierAndField->summaryIdentifier() == RifEclipseSummaryAddress::INPUT_VECTOR_NAME;
-            QString avalue = QString::fromStdString( summaryAddress.uiText( identifierAndField->summaryIdentifier() ) );
+            QString avalue =
+                QString::fromStdString( summaryAddress.addressComponentUiText( identifierAndField->summaryIdentifier() ) );
             if ( isVectorField && isObservedDataCase )
             {
                 avalue = avalue + QString( OBSERVED_DATA_AVALUE_POSTFIX );
@@ -672,6 +707,11 @@ void RiuSummaryVectorSelectionUi::setSelectedCurveDefinitions( const std::vector
         RifEclipseSummaryAddress::SummaryVarCategory cat = *( categories.begin() );
         m_currentSummaryCategory.setValue( cat );
     }
+
+    m_previouslySelectedSources = m_selectedSources.ptrReferencedObjects();
+
+    m_prevCurveCount    = allCurveDefinitionsFromSelection().size();
+    m_prevCurveSetCount = allCurveSetDefinitionsFromSelections().size();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -702,6 +742,35 @@ void RiuSummaryVectorSelectionUi::fieldChangedByUi( const caf::PdmFieldHandle* c
                                                     const QVariant&            oldValue,
                                                     const QVariant&            newValue )
 {
+    if ( changedField == &m_selectedSources )
+    {
+        caf::PdmObject* objectAdded = nullptr;
+        for ( caf::PdmObject* selectedObject : m_selectedSources() )
+        {
+            auto it = std::find( m_previouslySelectedSources.begin(), m_previouslySelectedSources.end(), selectedObject );
+            if ( it == m_previouslySelectedSources.end() )
+            {
+                objectAdded = selectedObject;
+                handleAddedSource( objectAdded );
+                break;
+            }
+        }
+        if ( !objectAdded )
+        {
+            caf::PdmObject* objectRemoved = nullptr;
+            for ( caf::PdmObject* previouslySelectedObject : m_previouslySelectedSources )
+            {
+                auto it = std::find( m_selectedSources.begin(), m_selectedSources.end(), previouslySelectedObject );
+                if ( it == m_selectedSources.end() )
+                {
+                    objectRemoved = previouslySelectedObject;
+                    handleRemovedSource( objectRemoved );
+                    break;
+                }
+            }
+        }
+        m_previouslySelectedSources = m_selectedSources.ptrReferencedObjects();
+    }
     if ( changedField != &m_selectedSources && changedField != &m_selectedSummaryCategories &&
          changedField != &m_currentSummaryCategory )
     {
@@ -1131,7 +1200,8 @@ bool RiuSummaryVectorSelectionUi::isAddressCompatibleWithControllingFieldSelecti
         bool match = false;
         for ( const auto& selectedText : identifierAndField->pdmField()->v() )
         {
-            if ( QString::compare( QString::fromStdString( address.uiText( identifierAndField->summaryIdentifier() ) ),
+            if ( QString::compare( QString::fromStdString(
+                                       address.addressComponentUiText( identifierAndField->summaryIdentifier() ) ),
                                    selectedText ) == 0 )
             {
                 match = true;
@@ -1249,6 +1319,7 @@ void RiuSummaryVectorSelectionUi::defineEditorAttribute( const caf::PdmFieldHand
 void RiuSummaryVectorSelectionUi::resetAllFields()
 {
     m_selectedSources.clear();
+    m_previouslySelectedSources.clear();
     m_selectedSummaryCategories = std::vector<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>>();
 
     // clear all state in fields
@@ -1295,7 +1366,7 @@ std::vector<SummarySource*> RiuSummaryVectorSelectionUi::selectedSummarySources(
 //--------------------------------------------------------------------------------------------------
 RimSummaryCase* RiuSummaryVectorSelectionUi::calculatedSummaryCase()
 {
-    RimSummaryCalculationCollection* calcColl = RiaApplication::instance()->project()->calculationCollection();
+    RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
 
     return calcColl->calculationSummaryCase();
 }
@@ -1305,7 +1376,7 @@ RimSummaryCase* RiuSummaryVectorSelectionUi::calculatedSummaryCase()
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryVectorSelectionUi::appendOptionItemsForSources( QList<caf::PdmOptionItemInfo>& options ) const
 {
-    RimProject*               proj = RiaApplication::instance()->project();
+    RimProject*               proj = RimProject::current();
     std::vector<RimOilField*> oilFields;
 
     proj->allOilFields( oilFields );
@@ -1336,10 +1407,21 @@ void RiuSummaryVectorSelectionUi::appendOptionItemsForSources( QList<caf::PdmOpt
                         options.push_back( caf::PdmOptionItemInfo::createHeader( "Ensembles", true ) );
                         ensembleHeaderCreated = true;
                     }
-
-                    auto optionItem = caf::PdmOptionItemInfo( sumCaseColl->name(), sumCaseColl );
-                    optionItem.setLevel( 1 );
-                    options.push_back( optionItem );
+                    // Ensemble level
+                    {
+                        auto optionItem = caf::PdmOptionItemInfo( sumCaseColl->name(), sumCaseColl );
+                        optionItem.setLevel( 1 );
+                        options.push_back( optionItem );
+                    }
+                    if ( m_showIndividualEnsembleCases )
+                    {
+                        for ( const auto& sumCase : sumCaseColl->allSummaryCases() )
+                        {
+                            auto optionItem = caf::PdmOptionItemInfo( sumCase->displayCaseName(), sumCase );
+                            optionItem.setLevel( 2 );
+                            options.push_back( optionItem );
+                        }
+                    }
                 }
             }
 
@@ -1440,7 +1522,7 @@ void RiuSummaryVectorSelectionUi::appendOptionItemsForSubCategoriesAndVectors( Q
         {
             if ( address.isErrorResult() ) continue;
 
-            auto name = address.uiText( identifierAndField->summaryIdentifier() );
+            auto name = address.addressComponentUiText( identifierAndField->summaryIdentifier() );
             if ( name.size() > 0 )
             {
                 if ( i == CALCULATED_CURVES )
@@ -1544,6 +1626,94 @@ void RiuSummaryVectorSelectionUi::appendOptionItemsForSubCategoriesAndVectors( Q
             auto optionItem = caf::PdmOptionItemInfo( displayName, QString::fromStdString( itemName ) + itemPostfix );
             if ( groupItems ) optionItem.setLevel( 1 );
             options.push_back( optionItem );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryVectorSelectionUi::handleAddedSource( SummarySource* sourceAdded )
+{
+    CAF_ASSERT( sourceAdded );
+    auto caseCollection = dynamic_cast<RimSummaryCaseCollection*>( sourceAdded );
+    if ( caseCollection && m_showIndividualEnsembleCases )
+    {
+        // Select all children
+        for ( auto summaryCase : caseCollection->allSummaryCases() )
+        {
+            auto it = std::find( m_selectedSources.begin(), m_selectedSources.end(), summaryCase );
+            if ( it == m_selectedSources.end() )
+            {
+                m_selectedSources.push_back( summaryCase );
+            }
+        }
+    }
+    else
+    {
+        auto summaryCase = dynamic_cast<RimSummaryCase*>( sourceAdded );
+        if ( summaryCase )
+        {
+            auto caseCollection = summaryCase->ensemble();
+            if ( caseCollection )
+            {
+                auto it = std::find( m_selectedSources.begin(), m_selectedSources.end(), caseCollection );
+                if ( it == m_selectedSources.end() )
+                {
+                    // Check if all children have been selected.
+                    bool allChildrenSelected = true;
+                    for ( auto summaryChild : caseCollection->allSummaryCases() )
+                    {
+                        auto it = std::find( m_selectedSources.begin(), m_selectedSources.end(), summaryChild );
+                        if ( it == m_selectedSources.end() )
+                        {
+                            allChildrenSelected = false;
+                            break;
+                        }
+                    }
+                    if ( allChildrenSelected ) // Add collection if all children have been selected
+                    {
+                        m_selectedSources.push_back( caseCollection );
+                    }
+                }
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryVectorSelectionUi::handleRemovedSource( SummarySource* sourceRemoved )
+{
+    CAF_ASSERT( sourceRemoved );
+    auto caseCollection = dynamic_cast<RimSummaryCaseCollection*>( sourceRemoved );
+    if ( caseCollection )
+    {
+        // Select all children
+        for ( auto summaryCase : caseCollection->allSummaryCases() )
+        {
+            auto it = std::find( m_selectedSources.begin(), m_selectedSources.end(), summaryCase );
+            if ( it != m_selectedSources.end() )
+            {
+                m_selectedSources.removePtr( *it );
+            }
+        }
+    }
+    else
+    {
+        auto summaryCase = dynamic_cast<RimSummaryCase*>( sourceRemoved );
+        if ( summaryCase )
+        {
+            auto caseCollection = summaryCase->ensemble();
+            if ( caseCollection )
+            {
+                auto it = std::find( m_selectedSources.begin(), m_selectedSources.end(), caseCollection );
+                if ( it != m_selectedSources.end() )
+                {
+                    m_selectedSources.removePtr( *it );
+                }
+            }
         }
     }
 }

@@ -18,40 +18,30 @@
 
 #include "RicFractureNameGenerator.h"
 
-#include "RiaApplication.h"
-
 #include "RimFracture.h"
-#include "RimOilField.h"
-#include "RimProject.h"
+#include "RimFractureModel.h"
+#include "RimFractureModelTemplate.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 QString RicFractureNameGenerator::nameForNewFracture()
 {
-    std::vector<RimFracture*> oldFractures;
-    RiaApplication::instance()->project()->activeOilField()->descendantsIncludingThisOfType( oldFractures );
+    return RicFractureNameGenerator::nameForNewObject<RimFracture>( "Fracture_%1" );
+}
 
-    size_t fractureNum = oldFractures.size();
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicFractureNameGenerator::nameForNewFractureModel()
+{
+    return RicFractureNameGenerator::nameForNewObject<RimFractureModel>( "Fracture Model_%1" );
+}
 
-    bool    found;
-    QString name;
-
-    do
-    {
-        found = false;
-        name  = QString( "Fracture_%1" ).arg( fractureNum, 2, 10, QChar( '0' ) );
-        for ( RimFracture* fracture : oldFractures )
-        {
-            if ( fracture->name() == name )
-            {
-                found = true;
-                break;
-            }
-        }
-
-        fractureNum++;
-    } while ( found );
-
-    return name;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicFractureNameGenerator::nameForNewFractureModelTemplate()
+{
+    return RicFractureNameGenerator::nameForNewObject<RimFractureModelTemplate>( "Fracture Model Template_%1" );
 }

@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include <QPointer>
@@ -44,45 +43,44 @@
 class QUndoStack;
 class QString;
 
-namespace caf 
+namespace caf
 {
-
 class CmdExecuteCommand;
 class CmdUiCommandSystemImpl;
 
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class CmdExecCommandManager
 {
 public:
     static CmdExecCommandManager* instance();
 
-    CmdExecCommandManager(const CmdExecCommandManager&) = delete;
-    CmdExecCommandManager& operator=(const CmdExecCommandManager&) = delete;
+    CmdExecCommandManager( const CmdExecCommandManager& ) = delete;
+    CmdExecCommandManager& operator=( const CmdExecCommandManager& ) = delete;
 
     // When the undoFeature is enabled, execute commands are inserted in the undo stack
     // The application can use the QUndoStack to display/modify execute commands wrapped in QUndoCommand objects
-    void        enableUndoCommandSystem(bool enable);
+    void        enableUndoCommandSystem( bool enable );
     QUndoStack* undoStack();
 
     // If undo system is enabled, the PdmExecuteCommand is wrapped in a QUndoCommand and inserted in the QUndoStack.
     // If undo is not possible (undo system not enabled, or pdm object has disabled undo),
     // the PdmExecuteCommand is executed and deleted
-    void        processExecuteCommand(CmdExecuteCommand* executeCommand);
-    void        processExecuteCommandsAsMacro(const QString& macroName, std::vector<CmdExecuteCommand*>& commands);
+    void processExecuteCommand( CmdExecuteCommand* executeCommand );
+    void processExecuteCommandsAsMacro( const QString& macroName, std::vector<CmdExecuteCommand*>& commands );
 
 private:
     CmdExecCommandManager();
 
-    // Creates the object (CmdUiCommandSystemImpl) used to communicate from UI editors to advanced parts of the command system 
-    // This includes support for undo system and default command features for add/delete of items in PdmChildArrayFieldHandle
-    // and creation of field changed commands so a change in an editor can be put into undo/redo
-    // CmdUiCommandSystemImpl is a requirement for using the undo system
+    // Creates the object (CmdUiCommandSystemImpl) used to communicate from UI editors to advanced parts of the command
+    // system This includes support for undo system and default command features for add/delete of items in
+    // PdmChildArrayFieldHandle and creation of field changed commands so a change in an editor can be put into
+    // undo/redo CmdUiCommandSystemImpl is a requirement for using the undo system
     void activateCommandSystem();
     void deactivateCommandSystem();
 
-    bool isUndoEnabledForCurrentCommand(CmdExecuteCommand* command);
+    bool isUndoEnabledForCurrentCommand( CmdExecuteCommand* command );
 
     friend class CmdExecCommandSystemActivator;
     friend class CmdExecCommandSystemDeactivator;
@@ -99,15 +97,9 @@ private:
 class CmdExecCommandSystemDeactivator
 {
 public:
-    CmdExecCommandSystemDeactivator()
-    {
-        CmdExecCommandManager::instance()->deactivateCommandSystem();
-    }
+    CmdExecCommandSystemDeactivator() { CmdExecCommandManager::instance()->deactivateCommandSystem(); }
 
-    ~CmdExecCommandSystemDeactivator()
-    {
-        CmdExecCommandManager::instance()->activateCommandSystem();
-    }
+    ~CmdExecCommandSystemDeactivator() { CmdExecCommandManager::instance()->activateCommandSystem(); }
 };
 
 //==================================================================================================
@@ -116,15 +108,9 @@ public:
 class CmdExecCommandSystemActivator
 {
 public:
-    CmdExecCommandSystemActivator()
-    {
-        CmdExecCommandManager::instance()->activateCommandSystem();
-    }
+    CmdExecCommandSystemActivator() { CmdExecCommandManager::instance()->activateCommandSystem(); }
 
-    ~CmdExecCommandSystemActivator()
-    {
-        CmdExecCommandManager::instance()->deactivateCommandSystem();
-    }
+    ~CmdExecCommandSystemActivator() { CmdExecCommandManager::instance()->deactivateCommandSystem(); }
 };
 
 } // end namespace caf

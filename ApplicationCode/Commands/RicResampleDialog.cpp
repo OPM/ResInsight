@@ -18,15 +18,12 @@
 
 #include "RicResampleDialog.h"
 
-#include "RiaApplication.h"
-
 #include "RiuTools.h"
 
 #include <QAbstractItemView>
 #include <QAction>
 #include <QComboBox>
 #include <QDialogButtonBox>
-#include <QFileDialog>
 #include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>
@@ -37,10 +34,6 @@
 #include <QTime>
 #include <QToolBar>
 #include <QVBoxLayout>
-
-#define DEFAULT_DIALOG_WIDTH 250
-#define DEFAULT_DIALOG_HEIGHT 100
-#define DEFAULT_DIALOG_TITLE "Export Plot Data"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -91,11 +84,11 @@ RicResampleDialogResult RicResampleDialog::openDialog( QWidget* parent /*= 0*/, 
     if ( !caption.isEmpty() )
         dialog.setWindowTitle( caption );
     else
-        dialog.setWindowTitle( DEFAULT_DIALOG_TITLE );
+        dialog.setWindowTitle( "Export Plot Data" );
 
     dialog.setPeriodOptions( RiaQDateTimeTools::dateTimePeriods() );
 
-    dialog.resize( DEFAULT_DIALOG_WIDTH, DEFAULT_DIALOG_HEIGHT );
+    dialog.resize( 250, 100 );
     dialog.exec();
 
     return RicResampleDialogResult( dialog.result() == QDialog::Accepted, dialog.selectedDateTimePeriod() );

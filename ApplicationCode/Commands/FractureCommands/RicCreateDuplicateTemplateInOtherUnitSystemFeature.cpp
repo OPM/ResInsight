@@ -18,7 +18,6 @@
 
 #include "RicCreateDuplicateTemplateInOtherUnitSystemFeature.h"
 
-#include "RiaApplication.h"
 #include "RiaEclipseUnitTools.h"
 
 #include "RicNewEllipseFractureTemplateFeature.h"
@@ -67,13 +66,13 @@ void RicCreateDuplicateTemplateInOtherUnitSystemFeature::onActionTriggered( bool
     fractureTemplateCollection->addFractureTemplate( copyOfTemplate );
 
     auto currentUnit = copyOfTemplate->fractureTemplateUnit();
-    if ( currentUnit == RiaEclipseUnitTools::UNITS_METRIC )
+    if ( currentUnit == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
     {
-        copyOfTemplate->convertToUnitSystem( RiaEclipseUnitTools::UNITS_FIELD );
+        copyOfTemplate->convertToUnitSystem( RiaEclipseUnitTools::UnitSystem::UNITS_FIELD );
     }
     else
     {
-        copyOfTemplate->convertToUnitSystem( RiaEclipseUnitTools::UNITS_METRIC );
+        copyOfTemplate->convertToUnitSystem( RiaEclipseUnitTools::UnitSystem::UNITS_METRIC );
     }
 
     QString name = copyOfTemplate->name();
@@ -99,11 +98,11 @@ void RicCreateDuplicateTemplateInOtherUnitSystemFeature::setupActionLook( QActio
     if ( !fractureTemplate ) return;
 
     QString destinationUnit;
-    if ( fractureTemplate->fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_METRIC )
+    if ( fractureTemplate->fractureTemplateUnit() == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
     {
         destinationUnit += "Field";
     }
-    else if ( fractureTemplate->fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_FIELD )
+    else if ( fractureTemplate->fractureTemplateUnit() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
     {
         destinationUnit += "Metric";
     }

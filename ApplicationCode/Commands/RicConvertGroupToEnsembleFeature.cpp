@@ -18,7 +18,6 @@
 
 #include "RicConvertGroupToEnsembleFeature.h"
 
-#include "RiaApplication.h"
 #include "RiaPreferences.h"
 
 #include "RicCreateSummaryCaseCollectionFeature.h"
@@ -43,9 +42,7 @@
 #include "cafSelectionManagerTools.h"
 
 #include <QAction>
-#include <QFileDialog>
 #include <QInputDialog>
-#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT( RicConvertGroupToEnsembleFeature, "RicConvertGroupToEnsembleFeature" );
 
@@ -84,6 +81,6 @@ void RicConvertGroupToEnsembleFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicConvertGroupToEnsembleFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/SummaryEnsemble16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/SummaryEnsemble.svg" ) );
     actionToSetup->setText( "Convert to Ensemble" );
 }

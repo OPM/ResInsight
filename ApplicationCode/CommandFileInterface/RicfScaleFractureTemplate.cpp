@@ -19,14 +19,13 @@
 
 #include "RicfScaleFractureTemplate.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "RimFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimProject.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
 CAF_PDM_SOURCE_INIT( RicfScaleFractureTemplate, "scaleFractureTemplate" );
 
@@ -37,13 +36,13 @@ RicfScaleFractureTemplate::RicfScaleFractureTemplate()
 {
     // clang-format off
 
-    CAF_PDM_InitScriptableFieldWithIO(&m_id,                       "id",            -1, "Id",  "", "", "");
-    CAF_PDM_InitScriptableFieldWithIO(&m_halfLengthScaleFactor,    "halfLength",   1.0, "HalfLengthScaleFactor", "", "", "");
-    CAF_PDM_InitScriptableFieldWithIO(&m_heightScaleFactor,        "height",       1.0, "HeightScaleFactor", "", "", "");
-    CAF_PDM_InitScriptableFieldWithIO(&m_dFactorScaleFactor,       "dFactor",      1.0, "DFactorScaleFactor", "", "", "");
-    CAF_PDM_InitScriptableFieldWithIO(&m_conductivityScaleFactor,  "conductivity", 1.0, "ConductivityScaleFactor", "", "", "");
+    CAF_PDM_InitScriptableField(&m_id,                       "id",            -1, "Id",  "", "", "");
+    CAF_PDM_InitScriptableField(&m_halfLengthScaleFactor,    "halfLength",   1.0, "HalfLengthScaleFactor", "", "", "");
+    CAF_PDM_InitScriptableField(&m_heightScaleFactor,        "height",       1.0, "HeightScaleFactor", "", "", "");
+    CAF_PDM_InitScriptableField(&m_dFactorScaleFactor,       "dFactor",      1.0, "DFactorScaleFactor", "", "", "");
+    CAF_PDM_InitScriptableField(&m_conductivityScaleFactor,  "conductivity", 1.0, "ConductivityScaleFactor", "", "", "");
     
-    CAF_PDM_InitScriptableFieldWithIO(&m_OBSOLETE_widthScaleFactor, "width",       1.0, "WidthScaleFactor", "", "", "");
+    CAF_PDM_InitScriptableField(&m_OBSOLETE_widthScaleFactor, "width",       1.0, "WidthScaleFactor", "", "", "");
 
     // clang-format on
 }
@@ -60,7 +59,7 @@ caf::PdmScriptResponse RicfScaleFractureTemplate::execute()
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
 
     if ( !project )
     {

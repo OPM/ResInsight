@@ -1,11 +1,11 @@
 """
 ResInsight 3d contour map module
 """
-import rips.generated.Commands_pb2 as Cmd
+import Commands_pb2
 
-from rips.pdmobject import PdmObject, add_method
-from rips.view import View
-from rips.generated.pdm_objects import EclipseContourMap, GeoMechContourMap
+from .pdmobject import add_method
+from .view import View
+from resinsight_classes import EclipseContourMap, GeoMechContourMap
 
 
 @add_method(EclipseContourMap)
@@ -19,7 +19,7 @@ def export_to_text(self, export_file_name='', export_local_coordinates=False, un
         exclude_undefined_values(bool): Skip undefined values.
     """
     return self._execute_command(
-        exportContourMapToText=Cmd.ExportContourMapToTextRequest(
+        exportContourMapToText=Commands_pb2.ExportContourMapToTextRequest(
             exportFileName=export_file_name,
             exportLocalCoordinates=export_local_coordinates,
             undefinedValueLabel=undefined_value_label,
@@ -38,7 +38,7 @@ def export_to_text(self, export_file_name='', export_local_coordinates=False, un
         exclude_undefined_values(bool): Skip undefined values.
     """
     return self._execute_command(
-        exportContourMapToText=Cmd.ExportContourMapToTextRequest(
+        exportContourMapToText=Commands_pb2.ExportContourMapToTextRequest(
             exportFileName=export_file_name,
             exportLocalCoordinates=export_local_coordinates,
             undefinedValueLabel=undefined_value_label,

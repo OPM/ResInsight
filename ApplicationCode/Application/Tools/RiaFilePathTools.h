@@ -22,6 +22,8 @@
 
 #include <QByteArray>
 #include <QString>
+#include <QStringList>
+#include <map>
 #include <string>
 
 //==================================================================================================
@@ -41,4 +43,9 @@ public:
     static std::pair<QString, QString> toFolderAndFileName( const QString& absFileName );
     static QString                     removeDuplicatePathSeparators( const QString& path );
     static QString                     rootSearchPathFromSearchFilter( const QString& searchFilter );
+    static QString                     commonRootOfFileNames( const QStringList& filePaths );
+
+    static QStringList splitPathIntoComponents( const QString& path, bool splitExtensionIntoSeparateEntry = false );
+
+    static std::map<QString, QStringList> keyPathComponentsForEachFilePath( const QStringList& filePaths );
 };

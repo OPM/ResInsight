@@ -1,7 +1,5 @@
 #include "RicExportContourMapToTextUi.h"
 
-#include "RiaApplication.h"
-
 #include "cafPdmUiFilePathEditor.h"
 
 CAF_PDM_SOURCE_INIT( RicExportContourMapToTextUi, "RicExportContourMapToTextUi" );

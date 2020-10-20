@@ -21,6 +21,8 @@
 #include "cvfBoundingBox.h"
 #include "cvfVector3.h"
 
+#include <QString>
+
 #include <array>
 
 class RigWellPath;
@@ -28,6 +30,11 @@ class RigMainGrid;
 class RigEclipseCaseData;
 struct HexIntersectionInfo;
 struct WellPathCellIntersectionInfo;
+
+namespace cvf
+{
+class StructGridInterface;
+};
 
 //==================================================================================================
 ///
@@ -37,6 +44,7 @@ class RigWellPathIntersectionTools
 public:
     static std::vector<WellPathCellIntersectionInfo>
         findCellIntersectionInfosAlongPath( const RigEclipseCaseData*      caseData,
+                                            const QString&                 wellPathName,
                                             const std::vector<cvf::Vec3d>& pathCoords,
                                             const std::vector<double>&     pathMds );
 
@@ -55,4 +63,9 @@ public:
                                              size_t             cellIndex,
                                              const cvf::Vec3d&  startPoint,
                                              const cvf::Vec3d&  endPoint );
+
+    // Insert dummy intersections used to represent gap in grid
+    static std::vector<WellPathCellIntersectionInfo>
+        buildContinuousIntersections( const std::vector<WellPathCellIntersectionInfo>& originalIntersections,
+                                      const cvf::StructGridInterface*                  grid );
 };

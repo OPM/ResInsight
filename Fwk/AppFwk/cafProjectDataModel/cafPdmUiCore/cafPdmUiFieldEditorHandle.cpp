@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #include "cafPdmUiFieldEditorHandle.h"
 
 #include "cafPdmObjectHandle.h"
@@ -49,40 +48,38 @@
 
 namespace caf
 {
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmUiFieldEditorHandle::PdmUiFieldEditorHandle()
 {
     m_combinedWidget = QPointer<QWidget>();
-    m_editorWidget = QPointer<QWidget>();
-    m_labelWidget = QPointer<QWidget>();
+    m_editorWidget   = QPointer<QWidget>();
+    m_labelWidget    = QPointer<QWidget>();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmUiFieldEditorHandle::~PdmUiFieldEditorHandle()
 {
-    // Note : deleteLater will not work unless you are actually inside an event loop. 
-    // See https://doc.qt.io/qt-5/qobject.html#deleteLater 
+    // Note : deleteLater will not work unless you are actually inside an event loop.
+    // See https://doc.qt.io/qt-5/qobject.html#deleteLater
     // Although it states that they will be deleted at startup of the event loop, it seems as that is not happening.
 
-    if (!m_combinedWidget.isNull()) m_combinedWidget->deleteLater(); 
-    if (!m_editorWidget.isNull())   m_editorWidget->deleteLater();
-    if (!m_labelWidget.isNull())    m_labelWidget->deleteLater();
+    if ( !m_combinedWidget.isNull() ) m_combinedWidget->deleteLater();
+    if ( !m_editorWidget.isNull() ) m_editorWidget->deleteLater();
+    if ( !m_labelWidget.isNull() ) m_labelWidget->deleteLater();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiFieldEditorHandle::setUiField(PdmUiFieldHandle * field)
+void PdmUiFieldEditorHandle::setUiField( PdmUiFieldHandle* field )
 {
-    this->bindToPdmItem(field);
+    this->bindToPdmItem( field );
 
-    if (m_editorWidget)
+    if ( m_editorWidget )
     {
         // Required to be called here to be able to handle different context menu
         // policy when switching between objects of same type. In this case, the
@@ -94,49 +91,49 @@ void PdmUiFieldEditorHandle::setUiField(PdmUiFieldHandle * field)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmUiFieldEditorHandle::updateContextMenuPolicy()
 {
-    if (m_editorWidget.isNull()) return;
+    if ( m_editorWidget.isNull() ) return;
 
     PdmUiFieldHandle* field = uiField();
-    if (field && field->isCustomContextMenuEnabled())
+    if ( field && field->isCustomContextMenuEnabled() )
     {
-        m_editorWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+        m_editorWidget->setContextMenuPolicy( Qt::CustomContextMenu );
     }
     else
     {
-        m_editorWidget->setContextMenuPolicy(Qt::DefaultContextMenu);
+        m_editorWidget->setContextMenuPolicy( Qt::DefaultContextMenu );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmUiFieldHandle* PdmUiFieldEditorHandle::uiField()
 {
-    return dynamic_cast<PdmUiFieldHandle*>(pdmItem());
+    return dynamic_cast<PdmUiFieldHandle*>( pdmItem() );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiFieldEditorHandle::createWidgets(QWidget * parent)
+void PdmUiFieldEditorHandle::createWidgets( QWidget* parent )
 {
-    if (m_combinedWidget.isNull()) m_combinedWidget = createCombinedWidget(parent);
-    if (m_editorWidget.isNull()) m_editorWidget = createEditorWidget(parent);
-    if (m_labelWidget.isNull()) m_labelWidget = createLabelWidget(parent);
+    if ( m_combinedWidget.isNull() ) m_combinedWidget = createCombinedWidget( parent );
+    if ( m_editorWidget.isNull() ) m_editorWidget = createEditorWidget( parent );
+    if ( m_labelWidget.isNull() ) m_labelWidget = createLabelWidget( parent );
 
-    if (m_editorWidget)
+    if ( m_editorWidget )
     {
         updateContextMenuPolicy();
 
-        connect(m_editorWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(customMenuRequested(QPoint)));
+        connect( m_editorWidget, SIGNAL( customContextMenuRequested( QPoint ) ), this, SLOT( customMenuRequested( QPoint ) ) );
     }
-    if (m_labelWidget)
+    if ( m_labelWidget )
     {
-        m_labelWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+        m_labelWidget->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
     }
 }
 
@@ -157,36 +154,36 @@ int PdmUiFieldEditorHandle::rowStretchFactor() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiFieldEditorHandle::setValueToField(const QVariant& newUiValue)
+void PdmUiFieldEditorHandle::setValueToField( const QVariant& newUiValue )
 {
-    PdmUiCommandSystemProxy::instance()->setUiValueToField(uiField(), newUiValue);
+    PdmUiCommandSystemProxy::instance()->setUiValueToField( uiField(), newUiValue );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiFieldEditorHandle::updateLabelFromField(QShortenedLabel* label, const QString& uiConfigName /*= ""*/) const
+void PdmUiFieldEditorHandle::updateLabelFromField( QShortenedLabel* label, const QString& uiConfigName /*= ""*/ ) const
 {
-    CAF_ASSERT(label);
-    
-    const PdmUiFieldHandle* fieldHandle = dynamic_cast<const PdmUiFieldHandle*>(pdmItem());
-    if (fieldHandle)
+    CAF_ASSERT( label );
+
+    const PdmUiFieldHandle* fieldHandle = dynamic_cast<const PdmUiFieldHandle*>( pdmItem() );
+    if ( fieldHandle )
     {
-        QIcon ic = fieldHandle->uiIcon(uiConfigName);
-        if (!ic.isNull())
+        auto ic = fieldHandle->uiIcon( uiConfigName );
+        if ( ic )
         {
-            label->setPixmap(ic.pixmap(ic.actualSize(QSize(64, 64))));
+            label->setPixmap( ic->pixmap( ic->actualSize( QSize( 64, 64 ) ) ) );
         }
         else
         {
-            QString uiName = fieldHandle->uiName(uiConfigName);
-            label->setText(uiName);
+            QString uiName = fieldHandle->uiName( uiConfigName );
+            label->setText( uiName );
         }
 
-        label->setEnabled(!fieldHandle->isUiReadOnly(uiConfigName));
-        label->setToolTip(fieldHandle->uiToolTip(uiConfigName));
+        label->setEnabled( !fieldHandle->isUiReadOnly( uiConfigName ) );
+        label->setToolTip( fieldHandle->uiToolTip( uiConfigName ) );
     }
 }
 
@@ -210,46 +207,46 @@ bool PdmUiFieldEditorHandle::isMultiRowEditor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiFieldEditorHandle::customMenuRequested(QPoint pos)
+void PdmUiFieldEditorHandle::customMenuRequested( QPoint pos )
 {
     PdmObjectHandle* objectHandle = nullptr;
-    if (uiField() && uiField()->fieldHandle())
+    if ( uiField() && uiField()->fieldHandle() )
     {
         objectHandle = uiField()->fieldHandle()->ownerObject();
     }
 
-    if (!objectHandle)
+    if ( !objectHandle )
     {
         return;
     }
 
     auto widget = editorWidget();
-    if (widget)
+    if ( widget )
     {
         QPoint globalPos;
 
-        auto abstractScrollAreaWidget = dynamic_cast<QAbstractScrollArea*>(widget);
+        auto abstractScrollAreaWidget = dynamic_cast<QAbstractScrollArea*>( widget );
 
-        if (abstractScrollAreaWidget)
+        if ( abstractScrollAreaWidget )
         {
-            // Qt doc: QAbstractScrollArea and its subclasses that map the context menu event to coordinates of the viewport().
-            globalPos = abstractScrollAreaWidget->viewport()->mapToGlobal(pos);
+            // Qt doc: QAbstractScrollArea and its subclasses that map the context menu event to coordinates of the
+            // viewport().
+            globalPos = abstractScrollAreaWidget->viewport()->mapToGlobal( pos );
         }
         else
         {
-            globalPos = widget->mapToGlobal(pos);
+            globalPos = widget->mapToGlobal( pos );
         }
 
         QMenu menu;
-        PdmUiCommandSystemProxy::instance()->setCurrentContextMenuTargetWidget(widget);
-        objectHandle->uiCapability()->defineCustomContextMenu(uiField()->fieldHandle(), &menu, widget);
+        PdmUiCommandSystemProxy::instance()->setCurrentContextMenuTargetWidget( widget );
+        objectHandle->uiCapability()->defineCustomContextMenu( uiField()->fieldHandle(), &menu, widget );
 
-        if (!menu.actions().empty())
+        if ( !menu.actions().empty() )
         {
-            menu.exec(globalPos);
+            menu.exec( globalPos );
         }
-        PdmUiCommandSystemProxy::instance()->setCurrentContextMenuTargetWidget(nullptr);
-
+        PdmUiCommandSystemProxy::instance()->setCurrentContextMenuTargetWidget( nullptr );
     }
 }
 

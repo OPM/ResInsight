@@ -18,7 +18,6 @@
 
 #include "RicExportVisibleWellPathsFeature.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "CompletionExportCommands/RicExportCompletionsForVisibleWellPathsFeature.h"
@@ -35,44 +34,11 @@
 #include "cafSelectionManagerTools.h"
 
 #include <QAction>
-#include <QFileDialog>
 #include <QFileInfo>
-#include <QMessageBox>
 
 #include <memory>
 
 CAF_CMD_SOURCE_INIT( RicExportVisibleWellPathsFeature, "RicExportVisibleWellPathsFeature" );
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicExportVisibleWellPathsFeature::exportWellPath( const RimWellPath* wellPath, double mdStepSize, const QString& folder )
-{
-    auto   geom   = wellPath->wellPathGeometry();
-    double currMd = geom->measureDepths().front() - mdStepSize;
-    double endMd  = geom->measureDepths().back();
-
-    auto        fileName = wellPath->name() + ".dev";
-    auto        filePtr  = RicExportSelectedWellPathsFeature::openFileForExport( folder, fileName );
-    QTextStream stream( filePtr.get() );
-    stream.setRealNumberNotation( QTextStream::FixedNotation );
-
-    stream << "WELLNAME: " << wellPath->name() << endl;
-
-    while ( currMd < endMd )
-    {
-        currMd += mdStepSize;
-        if ( currMd > endMd ) currMd = endMd;
-
-        auto   pt  = geom->interpolatedPointAlongWellPath( currMd );
-        double tvd = -pt.z();
-
-        // Write to file
-        stream << pt.x() << " " << pt.y() << " " << tvd << " " << currMd << endl;
-    }
-
-    filePtr->close();
-}
 
 //--------------------------------------------------------------------------------------------------
 ///

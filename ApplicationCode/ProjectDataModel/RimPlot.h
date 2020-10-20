@@ -32,6 +32,7 @@
 class RiuQwtPlotWidget;
 class RimPlotCurve;
 class QwtPlotCurve;
+class QwtPlotItem;
 
 class QPaintDevice;
 class QWheelEvent;
@@ -87,6 +88,17 @@ public:
     virtual void            detachAllCurves()                                            = 0;
     virtual caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const = 0;
 
+    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+
+    template <typename PlotWindowType = RimPlotWindow>
+    bool isSubPlot() const
+    {
+        PlotWindowType* parentPlotWindow = nullptr;
+        firstAncestorOfType( parentPlotWindow );
+        return parentPlotWindow != nullptr;
+    }
+
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -94,17 +106,18 @@ protected:
     static void attachPlotWidgetSignals( RimPlot* plot, RiuQwtPlotWidget* plotWidget );
     QWidget*    createViewWidget( QWidget* parent = nullptr ) final;
 
+    void updateFonts() override;
+
 private:
-    virtual void              doRemoveFromCollection() = 0;
-    virtual void              doRenderWindowContent( QPaintDevice* paintDevice );
+    virtual void              doRenderWindowContent( QPaintDevice* paintDevice ) override;
     virtual void              handleKeyPressEvent( QKeyEvent* event ) {}
     virtual void              handleWheelEvent( QWheelEvent* event ) {}
     virtual RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* parent ) = 0;
 
 private slots:
     void         onPlotSelected( bool toggle );
-    virtual void onAxisSelected( int axis, bool toggle ) = 0;
-    void         onCurveSelected( QwtPlotCurve* curve, bool toggle );
+    virtual void onAxisSelected( int axis, bool toggle ) {}
+    virtual void onPlotItemSelected( QwtPlotItem* plotItem, bool toggle, int sampleIndex );
     void         onViewerDestroyed();
     void         onKeyPressEvent( QKeyEvent* event );
     void         onWheelEvent( QWheelEvent* event );

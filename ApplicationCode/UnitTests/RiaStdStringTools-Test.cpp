@@ -23,3 +23,21 @@ TEST( RiaStdStringToolsTest, ParseNumbers )
         EXPECT_TRUE( RiaStdStringTools::isNumber( text, decimalPoint ) );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RiaStdStringToolsTest, EditDistance )
+{
+    // Equal string needs zero edits
+    EXPECT_EQ( 0, RiaStdStringTools::computeEditDistance( "same", "same" ) );
+
+    // Empty strings are also zero edits
+    EXPECT_EQ( 0, RiaStdStringTools::computeEditDistance( "", "" ) );
+
+    // Examples from wikipedia
+    EXPECT_EQ( 3, RiaStdStringTools::computeEditDistance( "kitten", "sitting" ) );
+    EXPECT_EQ( 3, RiaStdStringTools::computeEditDistance( "sitting", "kitten" ) );
+    EXPECT_EQ( 3, RiaStdStringTools::computeEditDistance( "Saturday", "Sunday" ) );
+    EXPECT_EQ( 3, RiaStdStringTools::computeEditDistance( "Sunday", "Saturday" ) );
+}

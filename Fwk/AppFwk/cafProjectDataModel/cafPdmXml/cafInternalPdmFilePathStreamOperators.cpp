@@ -3,26 +3,26 @@
 #include <QStringList>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QTextStream& operator<<(QTextStream& str, const std::vector<caf::FilePath>& filePathObjects)
+QTextStream& operator<<( QTextStream& str, const std::vector<caf::FilePath>& filePathObjects )
 {
     QStringList trimmedEntries;
 
-    for (const auto& filePath : filePathObjects)
+    for ( const auto& filePath : filePathObjects )
     {
         QString text = filePath.path().trimmed();
 
-        if (text.isEmpty()) continue;
+        if ( text.isEmpty() ) continue;
 
-        trimmedEntries.push_back(text);
+        trimmedEntries.push_back( text );
     }
 
-    for (int i = 0; i < trimmedEntries.size(); i++)
+    for ( int i = 0; i < trimmedEntries.size(); i++ )
     {
         str << trimmedEntries[i];
 
-        if (i < trimmedEntries.size() - 1)
+        if ( i < trimmedEntries.size() - 1 )
         {
             str << ";";
         }
@@ -32,34 +32,33 @@ QTextStream& operator<<(QTextStream& str, const std::vector<caf::FilePath>& file
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QTextStream& operator>>(QTextStream& str, std::vector<caf::FilePath>& filePathObjects)
+QTextStream& operator>>( QTextStream& str, std::vector<caf::FilePath>& filePathObjects )
 {
     QString stringSeparatedBySemicolon;
 
-    while (str.status() == QTextStream::Ok)
+    while ( str.status() == QTextStream::Ok )
     {
         // Read QChar to avoid white space trimming when reading QString
         QChar singleChar;
         str >> singleChar;
 
-        if (!singleChar.isNull())
+        if ( !singleChar.isNull() )
         {
             stringSeparatedBySemicolon += singleChar;
         }
     }
 
-    QStringList splitBySemicolon = stringSeparatedBySemicolon.split(";");
-    for (const auto& s : splitBySemicolon)
+    QStringList splitBySemicolon = stringSeparatedBySemicolon.split( ";" );
+    for ( const auto& s : splitBySemicolon )
     {
         QString trimmed = s.trimmed();
-        if (!trimmed.isEmpty())
+        if ( !trimmed.isEmpty() )
         {
-            filePathObjects.push_back(trimmed);
+            filePathObjects.push_back( trimmed );
         }
     }
 
     return str;
 }
-

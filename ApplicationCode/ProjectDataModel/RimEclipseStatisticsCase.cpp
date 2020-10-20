@@ -38,7 +38,7 @@
 
 #include "RiuMainWindow.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTextEditor.h"
 #include "cafProgressInfo.h"
@@ -77,50 +77,40 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     m_selectionSummary.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     m_selectionSummary.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_resultType, "ResultType", "Result Type", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_resultType, "ResultType", "Result Type", "", "", "" );
     m_resultType.xmlCapability()->setIOWritable( false );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_porosityModel, "PorosityModel", "Porosity Model", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_porosityModel, "PorosityModel", "Porosity Model", "", "", "" );
     m_porosityModel.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_selectedDynamicProperties,
-                                                "DynamicPropertiesToCalculate",
-                                                "Dyn Prop",
-                                                "",
-                                                "",
-                                                "" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_selectedStaticProperties,
-                                                "StaticPropertiesToCalculate",
-                                                "Stat Prop",
-                                                "",
-                                                "",
-                                                "" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_selectedGeneratedProperties, "GeneratedPropertiesToCalculate", "", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_selectedInputProperties, "InputPropertiesToCalculate", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedDynamicProperties, "DynamicPropertiesToCalculate", "Dyn Prop", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedStaticProperties, "StaticPropertiesToCalculate", "Stat Prop", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedGeneratedProperties, "GeneratedPropertiesToCalculate", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedInputProperties, "InputPropertiesToCalculate", "", "", "", "" );
 
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_selectedFractureDynamicProperties,
-                                                "FractureDynamicPropertiesToCalculate",
-                                                "",
-                                                "",
-                                                "",
-                                                "" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_selectedFractureStaticProperties,
-                                                "FractureStaticPropertiesToCalculate",
-                                                "",
-                                                "",
-                                                "",
-                                                "" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_selectedFractureGeneratedProperties,
-                                                "FractureGeneratedPropertiesToCalculate",
-                                                "",
-                                                "",
-                                                "",
-                                                "" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_selectedFractureInputProperties,
-                                                "FractureInputPropertiesToCalculate",
-                                                "",
-                                                "",
-                                                "",
-                                                "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedFractureDynamicProperties,
+                                          "FractureDynamicPropertiesToCalculate",
+                                          "",
+                                          "",
+                                          "",
+                                          "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedFractureStaticProperties,
+                                          "FractureStaticPropertiesToCalculate",
+                                          "",
+                                          "",
+                                          "",
+                                          "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedFractureGeneratedProperties,
+                                          "FractureGeneratedPropertiesToCalculate",
+                                          "",
+                                          "",
+                                          "",
+                                          "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedFractureInputProperties,
+                                          "FractureInputPropertiesToCalculate",
+                                          "",
+                                          "",
+                                          "",
+                                          "" );
 
     m_selectedDynamicProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_selectedStaticProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
@@ -132,28 +122,28 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     m_selectedFractureGeneratedProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_selectedFractureInputProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitScriptableFieldWithIO( &m_calculatePercentiles, "CalculatePercentiles", true, "Calculate Percentiles", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_percentileCalculationType, "PercentileCalculationType", "Method", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_calculatePercentiles, "CalculatePercentiles", true, "Calculate Percentiles", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_percentileCalculationType, "PercentileCalculationType", "Method", "", "", "" );
 
-    CAF_PDM_InitScriptableFieldWithIO( &m_lowPercentile, "LowPercentile", 10.0, "Low", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_midPercentile, "MidPercentile", 50.0, "Mid", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_highPercentile, "HighPercentile", 90.0, "High", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_lowPercentile, "LowPercentile", 10.0, "Low", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_midPercentile, "MidPercentile", 50.0, "Mid", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_highPercentile, "HighPercentile", 90.0, "High", "", "", "" );
 
-    CAF_PDM_InitScriptableFieldWithIO( &m_wellDataSourceCase,
-                                       "WellDataSourceCase",
-                                       RiaDefines::undefinedResultName(),
-                                       "Well Data Source Case",
-                                       "",
-                                       "",
-                                       "" );
+    CAF_PDM_InitScriptableField( &m_wellDataSourceCase,
+                                 "WellDataSourceCase",
+                                 RiaDefines::undefinedResultName(),
+                                 "Well Data Source Case",
+                                 "",
+                                 "",
+                                 "" );
 
-    CAF_PDM_InitScriptableFieldWithIO( &m_useZeroAsInactiveCellValue,
-                                       "UseZeroAsInactiveCellValue",
-                                       false,
-                                       "Use Zero as Inactive Cell Value",
-                                       "",
-                                       "",
-                                       "" );
+    CAF_PDM_InitScriptableField( &m_useZeroAsInactiveCellValue,
+                                 "UseZeroAsInactiveCellValue",
+                                 false,
+                                 "Use Zero as Inactive Cell Value",
+                                 "",
+                                 "",
+                                 "" );
 
     m_populateSelectionAfterLoadingGrid = false;
 
@@ -199,10 +189,10 @@ bool RimEclipseStatisticsCase::openEclipseGridFile()
 
     eclipseCase->setMainGrid( mainGrid );
 
-    eclipseCase->setActiveCellInfo( RiaDefines::MATRIX_MODEL,
-                                    gridCaseGroup->unionOfActiveCells( RiaDefines::MATRIX_MODEL ) );
-    eclipseCase->setActiveCellInfo( RiaDefines::FRACTURE_MODEL,
-                                    gridCaseGroup->unionOfActiveCells( RiaDefines::FRACTURE_MODEL ) );
+    eclipseCase->setActiveCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                    gridCaseGroup->unionOfActiveCells( RiaDefines::PorosityModelType::MATRIX_MODEL ) );
+    eclipseCase->setActiveCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL,
+                                    gridCaseGroup->unionOfActiveCells( RiaDefines::PorosityModelType::FRACTURE_MODEL ) );
 
     this->setReservoirData( eclipseCase.p() );
 
@@ -259,14 +249,14 @@ void RimEclipseStatisticsCase::computeStatistics()
 
     std::vector<RimEclipseCase*> sourceCases = getSourceCases();
 
-    if ( sourceCases.size() == 0 || !sourceCases.at( 0 )->results( RiaDefines::MATRIX_MODEL ) )
+    if ( sourceCases.size() == 0 || !sourceCases.at( 0 )->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) )
     {
         return;
     }
 
     // The first source has been read completely from disk, and contains grid and meta data
     // Use this information for all cases in the case group
-    size_t timeStepCount = sourceCases.at( 0 )->results( RiaDefines::MATRIX_MODEL )->maxTimeStepCount();
+    size_t timeStepCount = sourceCases.at( 0 )->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->maxTimeStepCount();
 
     RimStatisticsConfig statisticsConfig;
 
@@ -294,61 +284,61 @@ void RimEclipseStatisticsCase::computeStatistics()
 
     for ( size_t pIdx = 0; pIdx < m_selectedDynamicProperties().size(); ++pIdx )
     {
-        resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::MATRIX_MODEL,
-                                                                                RiaDefines::DYNAMIC_NATIVE,
+        resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                                RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                                                 m_selectedDynamicProperties()[pIdx] ) );
     }
 
     for ( size_t pIdx = 0; pIdx < m_selectedStaticProperties().size(); ++pIdx )
     {
-        resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::MATRIX_MODEL,
-                                                                                RiaDefines::STATIC_NATIVE,
+        resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                                RiaDefines::ResultCatType::STATIC_NATIVE,
                                                                                 m_selectedStaticProperties()[pIdx] ) );
     }
 
     for ( size_t pIdx = 0; pIdx < m_selectedGeneratedProperties().size(); ++pIdx )
     {
-        resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::MATRIX_MODEL,
-                                                                                RiaDefines::GENERATED,
+        resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                                RiaDefines::ResultCatType::GENERATED,
                                                                                 m_selectedGeneratedProperties()[pIdx] ) );
     }
 
     for ( size_t pIdx = 0; pIdx < m_selectedInputProperties().size(); ++pIdx )
     {
-        resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::MATRIX_MODEL,
-                                                                                RiaDefines::INPUT_PROPERTY,
+        resultSpecification.append( RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                                RiaDefines::ResultCatType::INPUT_PROPERTY,
                                                                                 m_selectedInputProperties()[pIdx] ) );
     }
 
     for ( size_t pIdx = 0; pIdx < m_selectedFractureDynamicProperties().size(); ++pIdx )
     {
         resultSpecification.append(
-            RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::FRACTURE_MODEL,
-                                                        RiaDefines::DYNAMIC_NATIVE,
+            RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::FRACTURE_MODEL,
+                                                        RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                         m_selectedFractureDynamicProperties()[pIdx] ) );
     }
 
     for ( size_t pIdx = 0; pIdx < m_selectedFractureStaticProperties().size(); ++pIdx )
     {
         resultSpecification.append(
-            RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::FRACTURE_MODEL,
-                                                        RiaDefines::STATIC_NATIVE,
+            RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::FRACTURE_MODEL,
+                                                        RiaDefines::ResultCatType::STATIC_NATIVE,
                                                         m_selectedFractureStaticProperties()[pIdx] ) );
     }
 
     for ( size_t pIdx = 0; pIdx < m_selectedFractureGeneratedProperties().size(); ++pIdx )
     {
         resultSpecification.append(
-            RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::FRACTURE_MODEL,
-                                                        RiaDefines::GENERATED,
+            RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::FRACTURE_MODEL,
+                                                        RiaDefines::ResultCatType::GENERATED,
                                                         m_selectedFractureGeneratedProperties()[pIdx] ) );
     }
 
     for ( size_t pIdx = 0; pIdx < m_selectedFractureInputProperties().size(); ++pIdx )
     {
         resultSpecification.append(
-            RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::FRACTURE_MODEL,
-                                                        RiaDefines::INPUT_PROPERTY,
+            RimEclipseStatisticsCaseEvaluator::ResSpec( RiaDefines::PorosityModelType::FRACTURE_MODEL,
+                                                        RiaDefines::ResultCatType::INPUT_PROPERTY,
                                                         m_selectedFractureInputProperties()[pIdx] ) );
     }
 
@@ -489,42 +479,50 @@ QList<caf::PdmOptionItemInfo>
 
     if ( &m_selectedDynamicProperties == fieldNeedingOptions )
     {
-        QStringList varList = caseData->results( RiaDefines::MATRIX_MODEL )->resultNames( RiaDefines::DYNAMIC_NATIVE );
+        QStringList varList = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
+                                  ->resultNames( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
         return toOptionList( varList );
     }
     else if ( &m_selectedStaticProperties == fieldNeedingOptions )
     {
-        QStringList varList = caseData->results( RiaDefines::MATRIX_MODEL )->resultNames( RiaDefines::STATIC_NATIVE );
+        QStringList varList = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
+                                  ->resultNames( RiaDefines::ResultCatType::STATIC_NATIVE );
         return toOptionList( varList );
     }
     else if ( &m_selectedGeneratedProperties == fieldNeedingOptions )
     {
-        QStringList varList = caseData->results( RiaDefines::MATRIX_MODEL )->resultNames( RiaDefines::GENERATED );
+        QStringList varList =
+            caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->resultNames( RiaDefines::ResultCatType::GENERATED );
         return toOptionList( varList );
     }
     else if ( &m_selectedInputProperties == fieldNeedingOptions )
     {
-        QStringList varList = caseData->results( RiaDefines::MATRIX_MODEL )->resultNames( RiaDefines::INPUT_PROPERTY );
+        QStringList varList = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
+                                  ->resultNames( RiaDefines::ResultCatType::INPUT_PROPERTY );
         return toOptionList( varList );
     }
     else if ( &m_selectedFractureDynamicProperties == fieldNeedingOptions )
     {
-        QStringList varList = caseData->results( RiaDefines::FRACTURE_MODEL )->resultNames( RiaDefines::DYNAMIC_NATIVE );
+        QStringList varList = caseData->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )
+                                  ->resultNames( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
         return toOptionList( varList );
     }
     else if ( &m_selectedFractureStaticProperties == fieldNeedingOptions )
     {
-        QStringList varList = caseData->results( RiaDefines::FRACTURE_MODEL )->resultNames( RiaDefines::STATIC_NATIVE );
+        QStringList varList = caseData->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )
+                                  ->resultNames( RiaDefines::ResultCatType::STATIC_NATIVE );
         return toOptionList( varList );
     }
     else if ( &m_selectedFractureGeneratedProperties == fieldNeedingOptions )
     {
-        QStringList varList = caseData->results( RiaDefines::FRACTURE_MODEL )->resultNames( RiaDefines::GENERATED );
+        QStringList varList = caseData->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )
+                                  ->resultNames( RiaDefines::ResultCatType::GENERATED );
         return toOptionList( varList );
     }
     else if ( &m_selectedFractureInputProperties == fieldNeedingOptions )
     {
-        QStringList varList = caseData->results( RiaDefines::FRACTURE_MODEL )->resultNames( RiaDefines::INPUT_PROPERTY );
+        QStringList varList = caseData->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )
+                                  ->resultNames( RiaDefines::ResultCatType::INPUT_PROPERTY );
         return toOptionList( varList );
     }
 
@@ -717,22 +715,30 @@ void RimEclipseStatisticsCase::updateSelectionListVisibilities()
                     // !caseGroup()->mainCase()->reservoirData()->results(RiaDefines::FRACTURE_MODEL)->resultCount()
 
     m_selectedDynamicProperties.uiCapability()->setUiHidden(
-        isLocked || !( m_porosityModel() == RiaDefines::MATRIX_MODEL && m_resultType() == RiaDefines::DYNAMIC_NATIVE ) );
+        isLocked || !( m_porosityModel() == RiaDefines::PorosityModelType::MATRIX_MODEL &&
+                       m_resultType() == RiaDefines::ResultCatType::DYNAMIC_NATIVE ) );
     m_selectedStaticProperties.uiCapability()->setUiHidden(
-        isLocked || !( m_porosityModel() == RiaDefines::MATRIX_MODEL && m_resultType() == RiaDefines::STATIC_NATIVE ) );
+        isLocked || !( m_porosityModel() == RiaDefines::PorosityModelType::MATRIX_MODEL &&
+                       m_resultType() == RiaDefines::ResultCatType::STATIC_NATIVE ) );
     m_selectedGeneratedProperties.uiCapability()->setUiHidden(
-        isLocked || !( m_porosityModel() == RiaDefines::MATRIX_MODEL && m_resultType() == RiaDefines::GENERATED ) );
+        isLocked || !( m_porosityModel() == RiaDefines::PorosityModelType::MATRIX_MODEL &&
+                       m_resultType() == RiaDefines::ResultCatType::GENERATED ) );
     m_selectedInputProperties.uiCapability()->setUiHidden(
-        isLocked || !( m_porosityModel() == RiaDefines::MATRIX_MODEL && m_resultType() == RiaDefines::INPUT_PROPERTY ) );
+        isLocked || !( m_porosityModel() == RiaDefines::PorosityModelType::MATRIX_MODEL &&
+                       m_resultType() == RiaDefines::ResultCatType::INPUT_PROPERTY ) );
 
     m_selectedFractureDynamicProperties.uiCapability()->setUiHidden(
-        isLocked || !( m_porosityModel() == RiaDefines::FRACTURE_MODEL && m_resultType() == RiaDefines::DYNAMIC_NATIVE ) );
+        isLocked || !( m_porosityModel() == RiaDefines::PorosityModelType::FRACTURE_MODEL &&
+                       m_resultType() == RiaDefines::ResultCatType::DYNAMIC_NATIVE ) );
     m_selectedFractureStaticProperties.uiCapability()->setUiHidden(
-        isLocked || !( m_porosityModel() == RiaDefines::FRACTURE_MODEL && m_resultType() == RiaDefines::STATIC_NATIVE ) );
+        isLocked || !( m_porosityModel() == RiaDefines::PorosityModelType::FRACTURE_MODEL &&
+                       m_resultType() == RiaDefines::ResultCatType::STATIC_NATIVE ) );
     m_selectedFractureGeneratedProperties.uiCapability()->setUiHidden(
-        isLocked || !( m_porosityModel() == RiaDefines::FRACTURE_MODEL && m_resultType() == RiaDefines::GENERATED ) );
+        isLocked || !( m_porosityModel() == RiaDefines::PorosityModelType::FRACTURE_MODEL &&
+                       m_resultType() == RiaDefines::ResultCatType::GENERATED ) );
     m_selectedFractureInputProperties.uiCapability()->setUiHidden(
-        isLocked || !( m_porosityModel() == RiaDefines::FRACTURE_MODEL && m_resultType() == RiaDefines::INPUT_PROPERTY ) );
+        isLocked || !( m_porosityModel() == RiaDefines::PorosityModelType::FRACTURE_MODEL &&
+                       m_resultType() == RiaDefines::ResultCatType::INPUT_PROPERTY ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -753,8 +759,9 @@ void RimEclipseStatisticsCase::updatePercentileUiVisibility()
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseStatisticsCase::hasComputedStatistics() const
 {
-    if ( eclipseCaseData() && ( eclipseCaseData()->results( RiaDefines::MATRIX_MODEL )->existingResults().size() ||
-                                eclipseCaseData()->results( RiaDefines::FRACTURE_MODEL )->existingResults().size() ) )
+    if ( eclipseCaseData() &&
+         ( eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->existingResults().size() ||
+           eclipseCaseData()->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->existingResults().size() ) )
     {
         return true;
     }
@@ -792,14 +799,14 @@ void RimEclipseStatisticsCase::updateConnectedEditorsAndReservoirViews()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseStatisticsCase::clearComputedStatistics()
 {
-    if ( eclipseCaseData() && eclipseCaseData()->results( RiaDefines::MATRIX_MODEL ) )
+    if ( eclipseCaseData() && eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) )
     {
-        eclipseCaseData()->results( RiaDefines::MATRIX_MODEL )->clearAllResults();
+        eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->clearAllResults();
     }
 
-    if ( eclipseCaseData() && eclipseCaseData()->results( RiaDefines::FRACTURE_MODEL ) )
+    if ( eclipseCaseData() && eclipseCaseData()->results( RiaDefines::PorosityModelType::FRACTURE_MODEL ) )
     {
-        eclipseCaseData()->results( RiaDefines::FRACTURE_MODEL )->clearAllResults();
+        eclipseCaseData()->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->clearAllResults();
     }
 
     updateConnectedEditorsAndReservoirViews();
@@ -837,28 +844,32 @@ void RimEclipseStatisticsCase::populateResultSelection()
 
     if ( m_selectedDynamicProperties().size() == 0 )
     {
-        QStringList varList = caseData->results( RiaDefines::MATRIX_MODEL )->resultNames( RiaDefines::DYNAMIC_NATIVE );
+        QStringList varList = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
+                                  ->resultNames( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
         if ( varList.contains( "SOIL" ) ) m_selectedDynamicProperties.v().push_back( "SOIL" );
         if ( varList.contains( "PRESSURE" ) ) m_selectedDynamicProperties.v().push_back( "PRESSURE" );
     }
 
     if ( m_selectedStaticProperties().size() == 0 )
     {
-        QStringList varList = caseData->results( RiaDefines::MATRIX_MODEL )->resultNames( RiaDefines::STATIC_NATIVE );
+        QStringList varList = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
+                                  ->resultNames( RiaDefines::ResultCatType::STATIC_NATIVE );
         if ( varList.contains( "PERMX" ) ) m_selectedStaticProperties.v().push_back( "PERMX" );
         if ( varList.contains( "PORO" ) ) m_selectedStaticProperties.v().push_back( "PORO" );
     }
 
     if ( m_selectedFractureDynamicProperties().size() == 0 )
     {
-        QStringList varList = caseData->results( RiaDefines::FRACTURE_MODEL )->resultNames( RiaDefines::DYNAMIC_NATIVE );
+        QStringList varList = caseData->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )
+                                  ->resultNames( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
         if ( varList.contains( "SOIL" ) ) m_selectedFractureDynamicProperties.v().push_back( "SOIL" );
         if ( varList.contains( "PRESSURE" ) ) m_selectedFractureDynamicProperties.v().push_back( "PRESSURE" );
     }
 
     if ( m_selectedFractureStaticProperties().size() == 0 )
     {
-        QStringList varList = caseData->results( RiaDefines::FRACTURE_MODEL )->resultNames( RiaDefines::STATIC_NATIVE );
+        QStringList varList = caseData->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )
+                                  ->resultNames( RiaDefines::ResultCatType::STATIC_NATIVE );
         if ( varList.contains( "PERMX" ) ) m_selectedFractureStaticProperties.v().push_back( "PERMX" );
         if ( varList.contains( "PORO" ) ) m_selectedFractureStaticProperties.v().push_back( "PORO" );
     }

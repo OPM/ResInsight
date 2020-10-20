@@ -18,7 +18,6 @@
 
 #include "RiaMemoryCleanup.h"
 
-#include "RiaApplication.h"
 #include "RigCaseCellResultsData.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigFemResultAddress.h"
@@ -79,7 +78,7 @@ void RiaMemoryCleanup::clearSelectedResultsFromMemory()
     RimGeoMechCase* geoMechCase = dynamic_cast<RimGeoMechCase*>( m_case() );
     if ( eclipseCase )
     {
-        RigCaseCellResultsData* caseData = eclipseCase->results( RiaDefines::MATRIX_MODEL );
+        RigCaseCellResultsData* caseData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
         if ( caseData )
         {
             std::vector<RigEclipseResultAddress> resultsToDelete = selectedEclipseResults();
@@ -217,7 +216,7 @@ QList<caf::PdmOptionItemInfo> RiaMemoryCleanup::calculateValueOptions( const caf
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_case )
     {
-        RimProject* proj = RiaApplication::instance()->project();
+        RimProject* proj = RimProject::current();
         if ( proj )
         {
             std::vector<RimEclipseCase*> eclipseCases = proj->eclipseCases();
@@ -240,7 +239,7 @@ QList<caf::PdmOptionItemInfo> RiaMemoryCleanup::calculateValueOptions( const caf
         if ( eclipseCase )
         {
             std::set<RigEclipseResultAddress> resultsInUse = findEclipseResultsInUse();
-            RigCaseCellResultsData*           caseData     = eclipseCase->results( RiaDefines::MATRIX_MODEL );
+            RigCaseCellResultsData* caseData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
             if ( caseData )
             {
                 m_eclipseResultAddresses = caseData->existingResults();
@@ -254,7 +253,7 @@ QList<caf::PdmOptionItemInfo> RiaMemoryCleanup::calculateValueOptions( const caf
 
                         const RigEclipseResultInfo* resInfo = caseData->resultInfo( resultAddr );
 
-                        QString posText = caf::AppEnum<RiaDefines::ResultCatType>::uiTextFromIndex( resInfo->resultType() );
+                        QString posText     = caf::AppEnum<RiaDefines::ResultCatType>::uiText( resInfo->resultType() );
                         QString resultsText = QString( "%1, %2" ).arg( posText ).arg( resInfo->resultName() );
                         if ( inUse )
                         {

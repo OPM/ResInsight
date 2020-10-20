@@ -45,10 +45,12 @@ const double RigStimPlanFractureDefinition::THRESHOLD_VALUE = 1e-5;
 ///
 //--------------------------------------------------------------------------------------------------
 RigStimPlanFractureDefinition::RigStimPlanFractureDefinition()
-    : m_unitSet( RiaEclipseUnitTools::UNITS_UNKNOWN )
+    : m_unitSet( RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN )
+    , m_xMirrorMode( false )
     , m_topPerfTvd( HUGE_VAL )
     , m_bottomPerfTvd( HUGE_VAL )
-    , m_xMirrorMode( false )
+    , m_topPerfMd( HUGE_VAL )
+    , m_bottomPerfMd( HUGE_VAL )
 {
 }
 
@@ -169,6 +171,38 @@ void RigStimPlanFractureDefinition::setTvdToTopPerf( double topPerfTvd )
 void RigStimPlanFractureDefinition::setTvdToBottomPerf( double bottomPerfTvd )
 {
     m_bottomPerfTvd = bottomPerfTvd;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigStimPlanFractureDefinition::topPerfMd() const
+{
+    return m_topPerfMd;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigStimPlanFractureDefinition::bottomPerfMd() const
+{
+    return m_bottomPerfMd;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigStimPlanFractureDefinition::setMdToTopPerf( double topPerfMd )
+{
+    m_topPerfMd = topPerfMd;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigStimPlanFractureDefinition::setMdToBottomPerf( double bottomPerfMd )
+{
+    m_bottomPerfMd = bottomPerfMd;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -316,11 +350,11 @@ std::vector<std::vector<double>>
     {
         for ( auto& xVal : yValues )
         {
-            if ( requiredUnitSet == RiaEclipseUnitTools::UNITS_FIELD )
+            if ( requiredUnitSet == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
             {
                 xVal = RiaEclipseUnitTools::convertToFeet( xVal, conductivityUnitTextOnFile );
             }
-            else if ( requiredUnitSet == RiaEclipseUnitTools::UNITS_METRIC )
+            else if ( requiredUnitSet == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
             {
                 xVal = RiaEclipseUnitTools::convertToMeter( xVal, conductivityUnitTextOnFile );
             }

@@ -183,7 +183,8 @@ public:
     // Derived properties
 
     std::string uiText() const;
-    std::string uiText( RifEclipseSummaryAddress::SummaryIdentifierType itemTypeInput ) const;
+    std::string itemUiText() const;
+    std::string addressComponentUiText( RifEclipseSummaryAddress::SummaryIdentifierType itemTypeInput ) const;
     bool        isUiTextMatchingFilterText( const QString& filterString ) const;
 
     bool isValid() const;
@@ -202,9 +203,10 @@ public:
 
     bool hasAccumulatedData() const;
 
+    static QString baseQuantityName( const QString& quantityName );
+
 private:
     bool                                         isValidEclipseCategory() const;
-    static QString                               baseQuantityName( const QString& quantityName );
     static std::tuple<int32_t, int32_t, int32_t> ijkTupleFromUiText( const std::string& s );
     std::string                                  formatUiTextRegionToRegion() const;
     std::pair<int16_t, int16_t>                  regionToRegionPairFromUiText( const std::string& s );

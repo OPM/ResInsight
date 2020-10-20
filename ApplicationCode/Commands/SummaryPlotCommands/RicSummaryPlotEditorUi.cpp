@@ -266,7 +266,7 @@ QList<caf::PdmOptionItemInfo>
 
     if ( fieldNeedingOptions == &m_targetPlot )
     {
-        RimProject* proj = RiaApplication::instance()->project();
+        RimProject* proj = RimProject::current();
 
         RimSummaryPlotCollection* summaryPlotColl = proj->mainPlotCollection()->summaryPlotCollection();
 
@@ -354,9 +354,7 @@ void RicSummaryPlotEditorUi::syncPreviewCurvesFromUiSelection()
 
         for ( const auto& curve : currentCurvesInPreviewPlot )
         {
-            RimSummaryCase* sumCase = curve->summaryCaseY();
-            currentCurveDefs.insert(
-                RiaSummaryCurveDefinition( sumCase, curve->summaryAddressY(), sumCase ? sumCase->ensemble() : nullptr ) );
+            currentCurveDefs.insert( curve->curveDefinitionY() );
         }
 
         {
@@ -370,10 +368,7 @@ void RicSummaryPlotEditorUi::syncPreviewCurvesFromUiSelection()
 
             for ( const auto& curve : currentCurvesInPreviewPlot )
             {
-                RimSummaryCase* sumCase = curve->summaryCaseY();
-                if ( sumCase && sumCase->ensemble() ) continue;
-
-                RiaSummaryCurveDefinition curveDef = RiaSummaryCurveDefinition( sumCase, curve->summaryAddressY() );
+                RiaSummaryCurveDefinition curveDef = curve->curveDefinitionY();
                 if ( deleteCurveDefs.count( curveDef ) > 0 ) curvesToDelete.insert( curve );
             }
         }
@@ -460,11 +455,24 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions(
 
     size_t ensembleCurveCnt = ensembleCurveCount( allCurveDefsToDisplay );
 
+    bool speedCheatsRequired = ensembleCurveCnt > ENSEMBLE_CURVE_COUNT_THRESHOLD;
+    bool legendsVisible      = m_previewPlot->legendsVisible();
+
+    // Disable legends when adding curves
+    if ( speedCheatsRequired ) m_previewPlot->setLegendsVisible( false );
+
     // Add new curves
+    std::map<RimSummaryCurve*, std::pair<bool, bool>> stashedErrorBarsAndLegendVisibility;
     for ( const auto& curveDef : curveDefsToAdd )
     {
         RimSummaryCase*  currentCase = curveDef.summaryCase();
         RimSummaryCurve* curve       = new RimSummaryCurve();
+        if ( speedCheatsRequired )
+        {
+            stashedErrorBarsAndLegendVisibility[curve] = std::make_pair( curve->errorBarsVisible(), curve->showInLegend() );
+            curve->setErrorBarsVisible( false );
+            curve->setShowInLegend( false );
+        }
         curve->setSummaryCaseY( currentCase );
         curve->setSummaryAddressYAndApplyInterpolation( curveDef.summaryAddress() );
         curve->applyCurveAutoNameSettings( *m_curveNameConfig() );
@@ -527,6 +535,19 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions(
         }
     }
 
+    // Enable legends if there is not too many curves
+    if ( speedCheatsRequired && !warningDisplayed )
+    {
+        m_previewPlot->setLegendsVisible( legendsVisible );
+
+        for ( const auto& curveAndVisibilityPair : stashedErrorBarsAndLegendVisibility )
+        {
+            auto curve                        = curveAndVisibilityPair.first;
+            auto errorBarsAndLegendVisibility = curveAndVisibilityPair.second;
+            curve->setErrorBarsVisible( errorBarsAndLegendVisibility.first );
+            curve->setShowInLegend( errorBarsAndLegendVisibility.second );
+        }
+    }
     m_previewPlot->loadDataAndUpdate();
     m_previewPlot->zoomAll();
     m_previewPlot->updateConnectedEditors();
@@ -594,7 +615,7 @@ void RicSummaryPlotEditorUi::populateCurveCreator( const RimSummaryPlot& sourceS
 
     for ( const auto& curve : sourceSummaryPlot.summaryCurves() )
     {
-        curveDefs.push_back( RiaSummaryCurveDefinition( curve->summaryCaseY(), curve->summaryAddressY() ) );
+        curveDefs.push_back( curve->curveDefinitionY() );
 
         // Copy curve object to the preview plot
         copyCurveAndAddToPlot( curve, m_previewPlot.get(), true );
@@ -610,7 +631,7 @@ void RicSummaryPlotEditorUi::populateCurveCreator( const RimSummaryPlot& sourceS
         RimSummaryCaseCollection* ensemble = curveSet->summaryCaseCollection();
         for ( const auto& curve : curveSet->curves() )
         {
-            curveDefs.push_back( RiaSummaryCurveDefinition( curve->summaryCaseY(), curve->summaryAddressY(), ensemble ) );
+            curveDefs.push_back( curve->curveDefinitionY() );
         }
     }
 
@@ -680,7 +701,7 @@ void RicSummaryPlotEditorUi::copyCurveAndAddToPlot( const RimSummaryCurve* curve
 
     if ( forceVisible )
     {
-        curveCopy->setCurveVisiblity( true );
+        curveCopy->setCurveVisibility( true );
     }
 
     plot->addCurveNoUpdate( curveCopy );
@@ -704,7 +725,7 @@ void RicSummaryPlotEditorUi::copyEnsembleCurveAndAddToCurveSet( const RimSummary
 
     if ( forceVisible )
     {
-        curveCopy->setCurveVisiblity( true );
+        curveCopy->setCurveVisibility( true );
     }
 
     curveSet->addCurve( curveCopy );
@@ -808,7 +829,7 @@ void RicSummaryPlotEditorUi::updateAppearanceEditor()
 //--------------------------------------------------------------------------------------------------
 void RicSummaryPlotEditorUi::createNewPlot()
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
 
     RimSummaryPlotCollection* summaryPlotColl = proj->mainPlotCollection()->summaryPlotCollection();
     if ( summaryPlotColl )
@@ -886,7 +907,7 @@ bool RicSummaryPlotEditorUi::isObservedData( RimSummaryCase* sumCase ) const
 //--------------------------------------------------------------------------------------------------
 RimSummaryCase* RicSummaryPlotEditorUi::calculatedSummaryCase()
 {
-    RimSummaryCalculationCollection* calcColl = RiaApplication::instance()->project()->calculationCollection();
+    RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
 
     return calcColl->calculationSummaryCase();
 }
@@ -905,7 +926,7 @@ void RicSummaryPlotEditorUi::selectionEditorFieldChanged()
 void RicSummaryPlotEditorUi::proxyEnablePlotAutoTitle( const bool& enable )
 {
     m_previewPlot->enableAutoPlotTitle( enable );
-    m_previewPlot->setShowPlotTitle( enable );
+    m_previewPlot->setPlotTitleVisible( enable );
     m_previewPlot->updateCurveNames();
     m_previewPlot->loadDataAndUpdate();
 }
@@ -935,7 +956,7 @@ void RicSummaryPlotEditorUi::setInitialCurveVisibility( const RimSummaryPlot* ta
         auto curveDef = std::make_pair( curve->summaryCaseY(), curve->summaryAddressY() );
         if ( sourceCurveDefs.count( curveDef ) == 0 )
         {
-            curve->setCurveVisiblity( false );
+            curve->setCurveVisibility( false );
         }
     }
 

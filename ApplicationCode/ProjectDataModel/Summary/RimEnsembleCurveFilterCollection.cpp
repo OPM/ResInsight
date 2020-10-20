@@ -18,10 +18,9 @@
 
 #include "RimEnsembleCurveFilterCollection.h"
 
-#include "RiaApplication.h"
-
 #include "RimEnsembleCurveFilter.h"
 #include "RimEnsembleCurveSet.h"
+#include "RimSummaryPlot.h"
 
 #include <cafPdmUiPushButtonEditor.h>
 #include <cafPdmUiTableViewEditor.h>
@@ -241,6 +240,17 @@ void RimEnsembleCurveFilterCollection::loadDataAndUpdate()
 caf::PdmFieldHandle* RimEnsembleCurveFilterCollection::objectToggleField()
 {
     return &m_active;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveFilterCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                                       std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    RimSummaryPlot* plot = nullptr;
+    firstAncestorOrThisOfType( plot );
+    if ( plot ) plot->loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -34,30 +34,29 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafDisplayCoordTransform.h"
 #include "cafTitledOverlayFrame.h"
-#include "cvfOverlayItem.h"
 #include "cvfArray.h"
 #include "cvfCamera.h"
-#include "cvfString.h"
+#include "cvfOverlayItem.h"
 #include "cvfRect.h"
+#include "cvfString.h"
 
 #include <array>
 
-namespace cvf {
+namespace cvf
+{
 class Font;
 class ShaderProgram;
 class MatrixState;
 class TextDrawer;
 class ScalarMapper;
-}
+} // namespace cvf
 
-namespace caf {
-
-
+namespace caf
+{
 //==================================================================================================
 //
 // Overlay color legend
@@ -65,61 +64,72 @@ namespace caf {
 //==================================================================================================
 class OverlayScaleLegend : public caf::TitledOverlayFrame
 {
-    using Font = cvf::Font;
+    using Font          = cvf::Font;
     using OpenGLContext = cvf::OpenGLContext;
-    using Vec2i = cvf::Vec2i;
-    using Vec2ui = cvf::Vec2ui;
-    using String = cvf::String;
-    using MatrixState = cvf::MatrixState;
-    using Vec2f = cvf::Vec2f;
-    using TextDrawer = cvf::TextDrawer;
-    using Camera = cvf::Camera;
+    using Vec2i         = cvf::Vec2i;
+    using Vec2ui        = cvf::Vec2ui;
+    using String        = cvf::String;
+    using MatrixState   = cvf::MatrixState;
+    using Vec2f         = cvf::Vec2f;
+    using TextDrawer    = cvf::TextDrawer;
+    using Camera        = cvf::Camera;
 
 public:
-    enum Orientation {HORIZONTAL, VERTICAL};
+    enum Orientation
+    {
+        HORIZONTAL,
+        VERTICAL
+    };
 
 public:
-    OverlayScaleLegend(Font* font);
+    OverlayScaleLegend( Font* font );
     ~OverlayScaleLegend() override;
 
-    void            setTickPrecision(int precision);
-    enum            NumberFormat { AUTO, SCIENTIFIC, FIXED};
-    void            setTickFormat(NumberFormat format);
-    void            setOrientation(Orientation orientation);
-    Orientation     orientation() const;
+    void setTickPrecision( int precision );
+    enum NumberFormat
+    {
+        AUTO,
+        SCIENTIFIC,
+        FIXED
+    };
+    void        setTickFormat( NumberFormat format );
+    void        setOrientation( Orientation orientation );
+    Orientation orientation() const;
 
     cvf::Vec2ui preferredSize() override;
-    
-    void setDisplayCoordTransform(const caf::DisplayCoordTransform* displayCoordTransform);
-    void updateFromCamera(const Camera* camera);
+
+    void setDisplayCoordTransform( const caf::DisplayCoordTransform* displayCoordTransform );
+    void updateFromCamera( const Camera* camera );
 
 protected:
-    void            render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size) override;
-    void            renderSoftware(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size) override;
+    void render( OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size ) override;
+    void renderSoftware( OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size ) override;
 
     struct LayoutInfo
     {
         struct Tick
         {
-            Tick(double displayValue, double domainValue, bool isMajor)
-                : displayValue(displayValue)
-                , domainValue(domainValue)
-                , isMajor(isMajor) {}
+            Tick( double displayValue, double domainValue, bool isMajor )
+                : displayValue( displayValue )
+                , domainValue( domainValue )
+                , isMajor( isMajor )
+            {
+            }
             double displayValue;
             double domainValue;
-            bool isMajor;
+            bool   isMajor;
         };
 
-        LayoutInfo(const Vec2ui& setSize)
+        LayoutInfo( const Vec2ui& setSize )
         {
-            charWidth = 0.0f;
-            charHeight = 0.0f;
-            lineSpacing = 0.0f;
-            margins = cvf::Vec2f::ZERO;
+            charWidth         = 0.0f;
+            charHeight        = 0.0f;
+            lineSpacing       = 0.0f;
+            margins           = cvf::Vec2f::ZERO;
             tickTextLeadSpace = 0.0f;
-            
-            axisStartPt = cvf::Vec2f::ZERO;
-            axisLength = 0.0f;
+
+            axisStartPt   = cvf::Vec2f::ZERO;
+            axisLength    = 0.0f;
             majorTickSize = 0.0f;
             minorTickSize = 0.0f;
 
@@ -132,7 +142,7 @@ protected:
         Vec2f margins;
         float tickTextLeadSpace;
 
-        //Rectf colorBarRect;
+        // Rectf colorBarRect;
         Vec2f axisStartPt;
         float axisLength;
         float majorTickSize;
@@ -143,34 +153,28 @@ protected:
         Vec2ui overallLegendSize;
     };
 
-    void         layoutInfo(LayoutInfo* layout);
+    void layoutInfo( LayoutInfo* layout );
 
-    void         renderGeneric(OpenGLContext* oglContext,
-                               const Vec2i& position,
-                               const Vec2ui& size,
-                               bool software);
-    void         renderLegendUsingShaders(OpenGLContext* oglContext,
-                                          LayoutInfo* layout,
-                                          const MatrixState& matrixState);
-    void         renderLegendImmediateMode(OpenGLContext* oglContext,
-                                           LayoutInfo* layout);
-    void         setupHorizontalTextDrawer(TextDrawer* textDrawer, const LayoutInfo* layout);
-    void         setupVerticalTextDrawer(TextDrawer* textDrawer, const LayoutInfo* layout);
+    void renderGeneric( OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software );
+    void renderLegendUsingShaders( OpenGLContext* oglContext, LayoutInfo* layout, const MatrixState& matrixState );
+    void renderLegendImmediateMode( OpenGLContext* oglContext, LayoutInfo* layout );
+    void setupHorizontalTextDrawer( TextDrawer* textDrawer, const LayoutInfo* layout );
+    void setupVerticalTextDrawer( TextDrawer* textDrawer, const LayoutInfo* layout );
 
 protected:
-    std::vector<bool>   m_visibleTickLabels;    // Skip tick labels ending up on top of previous visible label
-    int                 m_tickNumberPrecision;
-    NumberFormat        m_numberFormat;
+    std::vector<bool> m_visibleTickLabels; // Skip tick labels ending up on top of previous visible label
+    int               m_tickNumberPrecision;
+    NumberFormat      m_numberFormat;
 
-    Orientation                 m_orientation;
-    LayoutInfo                  m_Layout;
-    cvf::ref<TextDrawer>        m_textDrawer;
+    Orientation          m_orientation;
+    LayoutInfo           m_Layout;
+    cvf::ref<TextDrawer> m_textDrawer;
 
-    cvf::ref<Font>              m_font;
+    cvf::ref<Font> m_font;
 
-    cvf::cref<caf::DisplayCoordTransform>   m_dispalyCoordsTransform;
-    double                                  m_currentScale;    // [pixels/length]
-    std::vector<double>                     m_ticksInDomain;
+    cvf::cref<caf::DisplayCoordTransform> m_dispalyCoordsTransform;
+    double                                m_currentScale; // [pixels/length]
+    std::vector<double>                   m_ticksInDomain;
 };
 
-}
+} // namespace caf

@@ -27,6 +27,9 @@
 #include "RimPlotWindow.h"
 #include "RimProject.h"
 #include "RimViewWindow.h"
+
+#include "RiuFileDialogTools.h"
+#include "RiuGuiTheme.h"
 #include "RiuPlotMainWindow.h"
 
 #include "RicSnapshotFilenameGenerator.h"
@@ -37,7 +40,6 @@
 #include <QClipboard>
 #include <QDebug>
 #include <QDesktopWidget>
-#include <QFileDialog>
 #include <QFileInfo>
 #include <QMdiSubWindow>
 #include <QPageLayout>
@@ -85,6 +87,9 @@ void RicSnapshotViewToFileFeature::saveSnapshotAs( const QString& fileName, cons
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotViewToFileFeature::savePlotPdfReportAs( const QString& fileName, RimPlotWindow* plot )
 {
+    auto currentTheme = RiuGuiTheme::currentGuiTheme();
+
+    RiuGuiTheme::updateGuiTheme( RiaDefines::ThemeEnum::LIGHT );
     RiaPlotWindowRedrawScheduler::instance()->performScheduledUpdatesAndReplots();
     QCoreApplication::processEvents();
     QFile pdfFile( fileName );
@@ -131,6 +136,7 @@ void RicSnapshotViewToFileFeature::savePlotPdfReportAs( const QString& fileName,
     {
         RiaLogging::error( QString( "Could not write PDF to %1" ).arg( fileName ) );
     }
+    RiuGuiTheme::updateGuiTheme( currentTheme );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -210,11 +216,11 @@ QString RicSnapshotViewToFileFeature::generateSaveFileName( const QString& defau
     {
         selectedExtension = pdfFilter;
     }
-    QString fileName = QFileDialog::getSaveFileName( nullptr,
-                                                     tr( "Export to File" ),
-                                                     defaultAbsFileName,
-                                                     fileExtensionFilter,
-                                                     &selectedExtension );
+    QString fileName = RiuFileDialogTools::getSaveFileName( nullptr,
+                                                            tr( "Export to File" ),
+                                                            defaultAbsFileName,
+                                                            fileExtensionFilter,
+                                                            &selectedExtension );
     if ( !fileName.isEmpty() )
     {
         // Remember the directory to next time
@@ -228,7 +234,7 @@ QString RicSnapshotViewToFileFeature::generateSaveFileName( const QString& defau
 //--------------------------------------------------------------------------------------------------
 QIcon RicSnapshotViewToFileFeature::icon()
 {
-    return QIcon( ":/SnapShotSave.png" );
+    return QIcon( ":/SnapShotSave.svg" );
 }
 
 //--------------------------------------------------------------------------------------------------

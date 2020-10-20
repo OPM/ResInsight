@@ -20,7 +20,6 @@
 
 #include "RivMeasurementPartMgr.h"
 
-#include "RiaApplication.h"
 #include "RiaBoundingBoxTools.h"
 #include "RiaColorTools.h"
 #include "RiaFontCache.h"
@@ -32,6 +31,8 @@
 #include "RimPolylinesFromFileAnnotationInView.h"
 #include "RimProject.h"
 #include "RimUserDefinedPolylinesAnnotationInView.h"
+
+#include "RiuGuiTheme.h"
 
 #include "RivPartPriority.h"
 #include "RivPolylineAnnotationPartMgr.h"
@@ -79,7 +80,7 @@ void RivMeasurementPartMgr::appendGeometryPartsToModel( const cvf::Camera*      
 {
     if ( m_measurement.isNull() )
     {
-        m_measurement = RiaApplication::instance()->project()->measurement();
+        m_measurement = RimProject::current()->measurement();
     }
 
     if ( m_measurement.isNull() ) return;
@@ -192,7 +193,7 @@ void RivMeasurementPartMgr::buildPolyLineParts( const cvf::Camera*              
         RiaGuiApplication* app = RiaGuiApplication::instance();
 
         auto    backgroundColor = app->preferences()->defaultViewerBackgroundColor;
-        auto    fontColor       = cvf::Color3f::BLACK;
+        auto    fontColor       = RiuGuiTheme::getColorByVariableName( "textColor" );
         QString text            = m_measurement->label();
         auto    labelPosition   = pointsInDisplay.back();
         auto    font            = app->defaultWellLabelFont();
@@ -205,7 +206,7 @@ void RivMeasurementPartMgr::buildPolyLineParts( const cvf::Camera*              
         drawableText->setVerticalAlignment( cvf::TextDrawer::BASELINE );
         drawableText->setBackgroundColor( backgroundColor );
         drawableText->setBorderColor( RiaColorTools::computeOffsetColor( backgroundColor, 0.3f ) );
-        drawableText->setTextColor( fontColor );
+        drawableText->setTextColor( RiaColorTools::fromQColorTo3f( fontColor ) );
 
         cvf::String cvfString = cvfqt::Utils::toString( text );
 

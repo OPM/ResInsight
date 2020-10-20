@@ -34,38 +34,31 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include <QString>
 
-namespace caf 
+namespace caf
 {
-
 class NotificationCenter;
 class PdmObjectHandle;
 
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class CmdExecuteCommand
 {
 public:
-    explicit CmdExecuteCommand(NotificationCenter* notificationCenter)
-    {
-        m_notificationCenter = notificationCenter;
-    }
+    explicit CmdExecuteCommand( NotificationCenter* notificationCenter ) { m_notificationCenter = notificationCenter; }
 
-    virtual ~CmdExecuteCommand() { };
+    virtual ~CmdExecuteCommand(){};
 
     virtual QString name() = 0;
-    virtual void redo() = 0;
-    virtual void undo() = 0;
+    virtual void    redo() = 0;
+    virtual void    undo() = 0;
 
 protected:
     NotificationCenter* m_notificationCenter;
 };
-
-
 
 } // end namespace caf

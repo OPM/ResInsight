@@ -2,12 +2,12 @@
 Grid Case Group statistics module
 """
 
-from rips.pdmobject import PdmObject, add_method
-from rips.view import View
-from rips.case import Case
+from .pdmobject import add_method
+from .view import View
+from .case import Case
 
-import rips.generated.Commands_pb2 as Cmd
-from rips.generated.pdm_objects import GridCaseGroup
+import Commands_pb2
+from resinsight_classes import GridCaseGroup
 
 
 @add_method(GridCaseGroup)
@@ -15,10 +15,10 @@ def create_statistics_case(self):
     """Create a Statistics case in the Grid Case Group
 
     Returns:
-        :class:`rips.generated.pdm_objects.EclipseCase`
+        :class:`rips.generated.resinsight_classes.EclipseCase`
     """
     command_reply = self._execute_command(
-        createStatisticsCase=Cmd.CreateStatisticsCaseRequest(
+        createStatisticsCase=Commands_pb2.CreateStatisticsCaseRequest(
             caseGroupId=self.group_id))
     return Case(self.channel,
                 command_reply.createStatisticsCaseResult.caseId)
@@ -29,7 +29,7 @@ def statistics_cases(self):
     """Get a list of all statistics cases in the Grid Case Group
 
     Returns: 
-        List of :class:`rips.generated.pdm_objects.EclipseCase`
+        List of :class:`rips.generated.resinsight_classes.EclipseCase`
 
     """
     stat_case_collection = self.children("StatisticsCaseCollection")[0]
@@ -41,12 +41,12 @@ def views(self):
     """Get a list of views belonging to a grid case group
 
     Returns: 
-        List of :class:`rips.generated.pdm_objects.EclipseView`
+        List of :class:`rips.generated.resinsight_classes.EclipseView`
 
     """
-    pdm_objects = self.descendants(EclipseView)
+    resinsight_classes = self.descendants(EclipseView)
     view_list = []
-    for pdm_object in pdm_objects:
+    for pdm_object in resinsight_classes:
         view_list.append(pdm_object)
     return view_list
 
@@ -58,7 +58,7 @@ def view(self, view_id):
         id(int): view id
 
     Returns:
-        List of :class:`rips.generated.pdm_objects.EclipseView`
+        List of :class:`rips.generated.resinsight_classes.EclipseView`
 
     """
     views = self.views()
@@ -79,5 +79,5 @@ def compute_statistics(self, case_ids=None):
     if case_ids is None:
         case_ids = []
     return self._execute_command(
-        computeCaseGroupStatistics=Cmd.ComputeCaseGroupStatRequest(
+        computeCaseGroupStatistics=Commands_pb2.ComputeCaseGroupStatRequest(
             caseIds=case_ids, caseGroupId=self.group_id))

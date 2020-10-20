@@ -1,6 +1,5 @@
 #include "RicfCreateView.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "Rim3dView.h"
@@ -12,7 +11,7 @@
 
 #include "Riu3DMainWindowTools.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 #include "cafSelectionManager.h"
 
 #include <QAction>
@@ -35,7 +34,7 @@ CAF_PDM_SOURCE_INIT( RicfCreateView, "createView" );
 //--------------------------------------------------------------------------------------------------
 RicfCreateView::RicfCreateView()
 {
-    CAF_PDM_InitScriptableFieldWithIO( &m_caseId, "caseId", -1, "Case Id", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_caseId, "caseId", -1, "Case Id", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -43,7 +42,7 @@ RicfCreateView::RicfCreateView()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfCreateView::execute()
 {
-    RimProject*           project = RiaApplication::instance()->project();
+    RimProject*           project = RimProject::current();
     std::vector<RimCase*> allCases;
     project->allCases( allCases );
 

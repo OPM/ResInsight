@@ -43,8 +43,6 @@ class RimSummaryCase;
 class EnsembleParameter
 {
 public:
-    typedef std::pair<QString, EnsembleParameter> NameParameterPair;
-
     enum Type
     {
         TYPE_NONE,
@@ -53,11 +51,13 @@ public:
     };
     enum Bins
     {
-        LOW_VARIATION,
+        NO_VARIATION  = -1,
+        LOW_VARIATION = 0,
         MEDIUM_VARIATION,
         HIGH_VARIATION,
         NR_OF_VARIATION_BINS
     };
+    QString               uiName() const;
     QString               name;
     Type                  type;
     std::vector<QVariant> values;
@@ -78,9 +78,7 @@ public:
     bool   isText() const { return type == TYPE_TEXT; }
     double normalizedStdDeviation() const;
 
-    static void sortByBinnedVariation( std::vector<NameParameterPair>& parameterVector );
-
-    static QString uiName( const NameParameterPair& paramPair );
+    bool operator<( const EnsembleParameter& other ) const;
 
 private:
     double stdDeviation() const;
@@ -94,22 +92,43 @@ class RimSummaryCaseCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    caf::Signal<>                caseNameChanged;
+    caf::Signal<RimSummaryCase*> caseRemoved;
+
+public:
     RimSummaryCaseCollection();
     ~RimSummaryCaseCollection() override;
 
     void                                       removeCase( RimSummaryCase* summaryCase );
-    void                                       addCase( RimSummaryCase* summaryCase, bool updateCurveSets = true );
+    void                                       addCase( RimSummaryCase* summaryCase );
     virtual std::vector<RimSummaryCase*>       allSummaryCases() const;
     void                                       setName( const QString& name );
     QString                                    name() const;
     bool                                       isEnsemble() const;
     void                                       setAsEnsemble( bool isEnsemble );
     virtual std::set<RifEclipseSummaryAddress> ensembleSummaryAddresses() const;
+    virtual std::set<time_t>                   ensembleTimeSteps() const;
     std::set<QString>                          wellsWithRftData() const;
     std::set<QDateTime>                        rftTimeStepsForWell( const QString& wellName ) const;
     RifReaderRftInterface*                     rftStatisticsReader();
     void                                       setEnsembleId( int ensembleId );
     int                                        ensembleId() const;
+    bool                                       hasEnsembleParameters() const;
+
+    const std::vector<EnsembleParameter>& variationSortedEnsembleParameters( bool excludeNoVariation = false ) const;
+    std::vector<std::pair<EnsembleParameter, double>>
+        correlationSortedEnsembleParameters( const RifEclipseSummaryAddress& address ) const;
+    std::vector<std::pair<EnsembleParameter, double>>
+        correlationSortedEnsembleParameters( const RifEclipseSummaryAddress& address, time_t selectedTimeStep ) const;
+    std::vector<std::pair<EnsembleParameter, double>>
+        parameterCorrelations( const RifEclipseSummaryAddress& address,
+                               time_t                          selectedTimeStep,
+                               const std::vector<QString>&     selectedParameters = {} ) const;
+    std::vector<std::pair<EnsembleParameter, double>>
+        parameterCorrelationsAllTimeSteps( const RifEclipseSummaryAddress& address,
+                                           const std::vector<QString>&     selectedParameters = {} ) const;
+
+    std::vector<EnsembleParameter> alphabeticEnsembleParameters() const;
 
     EnsembleParameter ensembleParameter( const QString& paramName ) const;
     void              calculateEnsembleParametersIntersectionHash();
@@ -123,12 +142,18 @@ public:
     RiaEclipseUnitTools::UnitSystem unitSystem() const;
 
 private:
+    EnsembleParameter createEnsembleParameter( const QString& paramName ) const;
+    static void       sortByBinnedVariation( std::vector<EnsembleParameter>& parameterVector );
+    friend class RimSummaryCaseCollection_TESTER;
+
     caf::PdmFieldHandle* userDescriptionField() override;
     QString              nameAndItemCount() const;
     void                 updateIcon();
 
     void initAfterRead() override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+
+    void onCaseNameChanged( const SignalEmitter* emitter );
 
 protected:
     virtual void onLoadDataAndUpdate();
@@ -139,11 +164,14 @@ protected:
     caf::PdmChildArrayField<RimSummaryCase*> m_cases;
 
 private:
-    caf::PdmField<QString>                   m_name;
-    caf::PdmProxyValueField<QString>         m_nameAndItemCount;
-    caf::PdmField<bool>                      m_isEnsemble;
+    caf::PdmField<QString>           m_name;
+    caf::PdmProxyValueField<QString> m_nameAndItemCount;
+    caf::PdmField<bool>              m_isEnsemble;
+
     cvf::ref<RifReaderEnsembleStatisticsRft> m_statisticsEclipseRftReader;
     caf::PdmField<int>                       m_ensembleId;
 
     size_t m_commonAddressCount; // if different address count among cases, set to 0
+
+    mutable std::vector<EnsembleParameter> m_cachedSortedEnsembleParameters;
 };

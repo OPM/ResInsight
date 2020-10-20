@@ -74,6 +74,7 @@ RimCellRangeFilter::RimCellRangeFilter()
                                 "" );
 
     updateIconState();
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

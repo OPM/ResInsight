@@ -36,7 +36,6 @@
 
 #include "RigWellLogFile.h"
 
-#include "RiaApplication.h"
 #include "RiuQwtPlotWidget.h"
 
 #include "cafSelectionManager.h"
@@ -105,7 +104,7 @@ void RicAddWellLogToPlotFeature::onActionTriggered( bool isChecked )
     }
     plot->updateLayout();
 
-    RiaApplication::instance()->project()->updateConnectedEditors();
+    RimProject::current()->updateConnectedEditors();
 
     RiuPlotMainWindowTools::showPlotMainWindow();
     RiuPlotMainWindowTools::selectAsCurrentItem( plot );

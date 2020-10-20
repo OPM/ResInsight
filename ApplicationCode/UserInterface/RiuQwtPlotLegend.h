@@ -24,7 +24,7 @@ class RiuQwtPlotLegend : public QwtLegend
     Q_OBJECT
 public:
     RiuQwtPlotLegend( QWidget* parent = nullptr );
-    void  resizeEvent( QResizeEvent* event );
+    void  resizeEvent( QResizeEvent* event ) override;
     QSize sizeHint() const override;
 public slots:
     void updateLegend( const QVariant&, const QList<QwtLegendData>& ) override;

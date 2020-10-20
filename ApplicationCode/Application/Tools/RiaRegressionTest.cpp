@@ -83,6 +83,14 @@ RiaRegressionTest::RiaRegressionTest( void )
                        "",
                        "",
                        "" );
+
+    CAF_PDM_InitField( &invalidateExternalFilePaths,
+                       "invalidateExternalFilePaths",
+                       false,
+                       "Invalidate External File Paths",
+                       "",
+                       "",
+                       "" );
 }
 
 //--------------------------------------------------------------------------------------------------

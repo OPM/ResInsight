@@ -34,15 +34,13 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cvfBase.h"
 #include "cvfVector3.h"
 
-namespace cvf {
-
-
+namespace cvf
+{
 //==================================================================================================
 //
 //==================================================================================================
@@ -50,20 +48,19 @@ class CellRange
 {
 public:
     CellRange();
-    CellRange(cvf::Vec3st min, cvf::Vec3st max);
-    CellRange(size_t minI, size_t minJ, size_t minK, size_t maxI, size_t maxJ, size_t maxK);
-    
-    void setRange(const cvf::Vec3st& min, const cvf::Vec3st& max);
-    void range(cvf::Vec3st& min, cvf::Vec3st& max) const;
+    CellRange( cvf::Vec3st min, cvf::Vec3st max );
+    CellRange( size_t minI, size_t minJ, size_t minK, size_t maxI, size_t maxJ, size_t maxK );
+
+    void setRange( const cvf::Vec3st& min, const cvf::Vec3st& max );
+    void range( cvf::Vec3st& min, cvf::Vec3st& max ) const;
 
     bool normalize();
 
-    bool isInRange(size_t i, size_t j, size_t k) const;
+    bool isInRange( size_t i, size_t j, size_t k ) const;
 
 private:
     cvf::Vec3st m_min;
     cvf::Vec3st m_max;
 };
-
 
 } // End namespace cvf

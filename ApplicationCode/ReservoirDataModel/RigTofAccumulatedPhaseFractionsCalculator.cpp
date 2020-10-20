@@ -44,14 +44,22 @@ RigTofAccumulatedPhaseFractionsCalculator::RigTofAccumulatedPhaseFractionsCalcul
     RigEclipseCaseData* eclipseCaseData = caseToApply->eclipseCaseData();
     if ( !eclipseCaseData ) return;
 
-    const std::vector<double>* swatResults =
-        eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE, "SWAT", timestep );
-    const std::vector<double>* soilResults =
-        eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE, "SOIL", timestep );
-    const std::vector<double>* sgasResults =
-        eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE, "SGAS", timestep );
-    const std::vector<double>* porvResults =
-        eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL, RiaDefines::STATIC_NATIVE, "PORV", 0 );
+    const std::vector<double>* swatResults = eclipseCaseData->resultValues( RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                            RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                                            "SWAT",
+                                                                            timestep );
+    const std::vector<double>* soilResults = eclipseCaseData->resultValues( RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                            RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                                            "SOIL",
+                                                                            timestep );
+    const std::vector<double>* sgasResults = eclipseCaseData->resultValues( RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                            RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                                            "SGAS",
+                                                                            timestep );
+    const std::vector<double>* porvResults = eclipseCaseData->resultValues( RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                            RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                                            "PORV",
+                                                                            0 );
 
     RimFlowDiagSolution* flowDiagSolution = caseToApply->defaultFlowDiagSolution();
 

@@ -18,9 +18,9 @@
 
 #include "RimFormationNamesCollection.h"
 
+#include "RiaLogging.h"
+#include "RimCase.h"
 #include "RimFormationNames.h"
-
-#include <QMessageBox>
 
 CAF_PDM_SOURCE_INIT( RimFormationNamesCollection, "FormationNamesCollectionObject" );
 
@@ -33,6 +33,8 @@ RimFormationNamesCollection::RimFormationNamesCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_formationNamesList, "FormationNamesList", "Formations", "", "", "" );
     m_formationNamesList.uiCapability()->setUiHidden( true );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -57,11 +59,10 @@ void RimFormationNamesCollection::readAllFormationNames()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFormationNames* RimFormationNamesCollection::importFiles( const QStringList& fileNames )
+std::vector<RimFormationNames*> RimFormationNamesCollection::importFiles( const QStringList& fileNames )
 {
     QStringList                     newFileNames;
     std::vector<RimFormationNames*> formNamesObjsToReload;
-    size_t                          formationListBeforeImportCount = m_formationNamesList.size();
 
     for ( const QString& newFileName : fileNames )
     {
@@ -105,17 +106,10 @@ RimFormationNames* RimFormationNamesCollection::importFiles( const QStringList& 
 
     if ( !totalErrorMessage.isEmpty() )
     {
-        QMessageBox::warning( nullptr, "Import Formation Names", totalErrorMessage );
+        RiaLogging::errorInMessageBox( nullptr, "Import Formation Names", totalErrorMessage );
     }
 
-    if ( m_formationNamesList.size() > formationListBeforeImportCount )
-    {
-        return m_formationNamesList[m_formationNamesList.size() - 1];
-    }
-    else
-    {
-        return nullptr;
-    }
+    return m_formationNamesList.childObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,5 +121,18 @@ void RimFormationNamesCollection::updateFilePathsFromProjectPath( const QString&
     for ( RimFormationNames* fmNames : m_formationNamesList )
     {
         fmNames->updateFilePathsFromProjectPath( newProjectPath, oldProjectPath );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFormationNamesCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                                  std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    for ( caf::PdmObjectHandle* reffingObj : referringObjects )
+    {
+        RimCase* aCase = dynamic_cast<RimCase*>( reffingObj );
+        if ( aCase ) aCase->updateFormationNamesData();
     }
 }

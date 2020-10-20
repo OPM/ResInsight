@@ -34,10 +34,8 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafPdmCoreColor3f.h"
-#include "cafPdmXmlColor3f.h"
 #include "cafPdmUiCoreColor3f.h"
-
+#include "cafPdmXmlColor3f.h"

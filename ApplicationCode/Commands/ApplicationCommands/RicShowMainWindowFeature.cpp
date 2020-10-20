@@ -18,8 +18,6 @@
 
 #include "RicShowMainWindowFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RiuMainWindow.h"
 
 #include <QAction>
@@ -73,6 +71,6 @@ void RicShowMainWindowFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Open 3D Window" );
     actionToSetup->setToolTip( "Open 3D Window (Ctrl+Shift+3)" );
-    actionToSetup->setIcon( QIcon( ":/3DWindow24x24.png" ) );
+    actionToSetup->setIcon( QIcon( ":/3DWindow.svg" ) );
     applyShortcutWithHintToAction( actionToSetup, QKeySequence( tr( "Ctrl+Shift+3" ) ) );
 }

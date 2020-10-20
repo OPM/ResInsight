@@ -34,23 +34,19 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cvfBase.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
-
-namespace cvf {
-
-
+namespace cvf
+{
 class StructGridScalarDataAccess : public Object
 {
 public:
-    virtual double cellScalar(size_t cellIndex) const = 0;
-    virtual void   setCellScalar(size_t cellIndex, double value) = 0;
+    virtual double cellScalar( size_t cellIndex ) const            = 0;
+    virtual void   setCellScalar( size_t cellIndex, double value ) = 0;
 };
-
 
 } // namespace cvf

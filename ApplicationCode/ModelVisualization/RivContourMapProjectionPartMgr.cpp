@@ -25,10 +25,12 @@
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfRay.h"
 #include "cvfScalarMapper.h"
+#include "cvfqtUtils.h"
 
 #include <cmath>
 
 #include <QDebug>
+#include <QString>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -93,8 +95,6 @@ void RivContourMapProjectionPartMgr::appendPickPointVisToModel( cvf::ModelBasicL
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::Vec2fArray> RivContourMapProjectionPartMgr::createTextureCoords( const std::vector<double>& values ) const
 {
-    cvf::Vec2ui patchSize = m_contourMapProjection->numberOfVerticesIJ();
-
     cvf::ref<cvf::Vec2fArray> textureCoords = new cvf::Vec2fArray( values.size() );
 
 #pragma omp parallel for
@@ -181,7 +181,7 @@ void RivContourMapProjectionPartMgr::appendContourLinesToModel( const cvf::Camer
 cvf::ref<cvf::DrawableText> RivContourMapProjectionPartMgr::createTextLabel( const cvf::Color3f& textColor,
                                                                              const cvf::Color3f& backgroundColor )
 {
-    auto font = RiaFontCache::getFont( RiaFontCache::FONT_SIZE_10 );
+    auto font = RiaFontCache::getFont( RiaFontCache::FontSize::FONT_SIZE_10 );
 
     cvf::ref<cvf::DrawableText> labelDrawable = new cvf::DrawableText();
     labelDrawable->setFont( font.p() );
@@ -269,7 +269,9 @@ std::vector<std::vector<cvf::ref<cvf::Drawable>>>
         {
             if ( m_contourLinePolygons[i][j].vertices.empty() ) continue;
 
-            cvf::String labelText( m_contourLinePolygons[i][j].value );
+            // cvf::String::number does not allow precision on 'g' formats, so use Qt.
+            QString     qLabelText = QString::number( m_contourLinePolygons[i][j].value, 'g', 2 );
+            cvf::String labelText  = cvfqt::Utils::toString( qLabelText );
 
             size_t nVertices = m_contourLinePolygons[i][j].vertices.size();
 
@@ -404,7 +406,9 @@ std::vector<cvf::ref<cvf::Drawable>>
         {
             if ( m_contourLinePolygons[i][j].vertices.empty() ) continue;
 
-            cvf::String labelText( m_contourLinePolygons[i][j].value );
+            // cvf::String::number does not allow precision on 'g' formats, so use Qt.
+            QString     qLabelText = QString::number( m_contourLinePolygons[i][j].value, 'g', 2 );
+            cvf::String labelText  = cvfqt::Utils::toString( qLabelText );
 
             size_t nVertices              = m_contourLinePolygons[i][j].vertices.size();
             size_t nLabels                = nVertices;

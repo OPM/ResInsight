@@ -18,8 +18,7 @@
 
 #include "RiaSummaryTools.h"
 
-#include "RiaApplication.h"
-
+#include "RiaFilePathTools.h"
 #include "RifEclipseSummaryAddress.h"
 
 #include "RimMainPlotCollection.h"
@@ -38,12 +37,14 @@
 
 #include "cafPdmObject.h"
 
+#include <QRegularExpression>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlotCollection* RiaSummaryTools::summaryPlotCollection()
 {
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
 
     return project->mainPlotCollection()->summaryPlotCollection();
 }
@@ -53,7 +54,7 @@ RimSummaryPlotCollection* RiaSummaryTools::summaryPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RimSummaryCrossPlotCollection* RiaSummaryTools::summaryCrossPlotCollection()
 {
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
 
     return project->mainPlotCollection()->summaryCrossPlotCollection();
 }
@@ -63,7 +64,7 @@ RimSummaryCrossPlotCollection* RiaSummaryTools::summaryCrossPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RimSummaryCaseMainCollection* RiaSummaryTools::summaryCaseMainCollection()
 {
-    RimProject*                   project                   = RiaApplication::instance()->project();
+    RimProject*                   project                   = RimProject::current();
     RimSummaryCaseMainCollection* summaryCaseMainCollection = project->activeOilField()->summaryCaseMainCollection();
     CVF_ASSERT( summaryCaseMainCollection );
     return summaryCaseMainCollection;
@@ -76,7 +77,7 @@ void RiaSummaryTools::notifyCalculatedCurveNameHasChanged( int calculationId, co
 {
     RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
 
-    for ( RimSummaryPlot* plot : summaryPlotColl->summaryPlots() )
+    for ( RimSummaryPlot* plot : summaryPlotColl->plots() )
     {
         for ( RimSummaryCurve* curve : plot->summaryCurves() )
         {
@@ -197,7 +198,7 @@ void RiaSummaryTools::getSummaryCasesAndAddressesForCalculation( int            
                                                                  std::vector<RimSummaryCase*>&          cases,
                                                                  std::vector<RifEclipseSummaryAddress>& addresses )
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
 
     RimSummaryCalculationCollection* calculationColl = proj->calculationCollection();
     if ( !calculationColl ) return;
@@ -210,4 +211,57 @@ void RiaSummaryTools::getSummaryCasesAndAddressesForCalculation( int            
         cases.push_back( v->summaryCase() );
         addresses.push_back( v->summaryAddress()->address() );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaSummaryTools::findSuitableEnsembleName( const QStringList& summaryCaseFileNames )
+{
+    std::vector<QStringList> componentsForAllFilePaths;
+
+    for ( auto filePath : summaryCaseFileNames )
+    {
+        QStringList components = RiaFilePathTools::splitPathIntoComponents( filePath );
+        componentsForAllFilePaths.push_back( components );
+    }
+
+    // Find list of all folders inside a folder matching realization-*
+    QRegularExpression realizationRe( "realization\\-\\d+" );
+
+    QStringList iterations;
+    for ( const auto& fileComponents : componentsForAllFilePaths )
+    {
+        QString lastComponent = "";
+        for ( auto it = fileComponents.rbegin(); it != fileComponents.rend(); ++it )
+        {
+            if ( realizationRe.match( *it ).hasMatch() )
+            {
+                iterations.push_back( lastComponent );
+            }
+            lastComponent = *it;
+        }
+    }
+
+    iterations.removeDuplicates();
+
+    if ( iterations.size() == 1u )
+    {
+        return iterations.front();
+    }
+    else if ( !iterations.empty() )
+    {
+        return QString( "Multiple iterations: %1" ).arg( iterations.join( ", " ) );
+    }
+
+    QString root = RiaFilePathTools::commonRootOfFileNames( summaryCaseFileNames );
+
+    QRegularExpression trimRe( "[^a-zA-Z0-9]+$" );
+    QString            trimmedRoot = root.replace( trimRe, "" );
+    if ( trimmedRoot.length() >= 4 )
+    {
+        return trimmedRoot;
+    }
+
+    return "Ensemble";
 }

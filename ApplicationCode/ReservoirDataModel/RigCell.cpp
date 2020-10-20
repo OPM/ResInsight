@@ -47,13 +47,6 @@ RigCell::RigCell()
     , m_isInvalid( false )
 {
     memcpy( m_cornerIndices.data(), undefinedCornersArray, 8 * sizeof( size_t ) );
-
-    m_cellFaceFaults[0] = false;
-    m_cellFaceFaults[1] = false;
-    m_cellFaceFaults[2] = false;
-    m_cellFaceFaults[3] = false;
-    m_cellFaceFaults[4] = false;
-    m_cellFaceFaults[5] = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -207,19 +200,19 @@ bool RigCell::isLongPyramidCell( double maxHeightFactor, double nodeNearToleranc
 
         // Check the ratio of the length of opposite edges.
         // both ratios have to be above threshold to detect a pyramid-ish cell
-        // Only test this if we have all nonzero edge lenghts.
+        // Only test this if we have all nonzero edge lengths.
         else if ( zeroLengthEdgeCount == 0 ) // If the four first faces are ok, the two last must be as well
         {
-            double e0SquareLenght = ( c1 - c0 ).lengthSquared();
-            double e2SquareLenght = ( c3 - c2 ).lengthSquared();
-            if ( e0SquareLenght / e2SquareLenght > squaredMaxHeightFactor ||
-                 e2SquareLenght / e0SquareLenght > squaredMaxHeightFactor )
+            double e0SquareLength = ( c1 - c0 ).lengthSquared();
+            double e2SquareLength = ( c3 - c2 ).lengthSquared();
+            if ( e0SquareLength / e2SquareLength > squaredMaxHeightFactor ||
+                 e2SquareLength / e0SquareLength > squaredMaxHeightFactor )
             {
-                double e1SquareLenght = ( c2 - c1 ).lengthSquared();
-                double e3SquareLenght = ( c0 - c3 ).lengthSquared();
+                double e1SquareLength = ( c2 - c1 ).lengthSquared();
+                double e3SquareLength = ( c0 - c3 ).lengthSquared();
 
-                if ( e1SquareLenght / e3SquareLenght > squaredMaxHeightFactor ||
-                     e3SquareLenght / e1SquareLenght > squaredMaxHeightFactor )
+                if ( e1SquareLength / e3SquareLength > squaredMaxHeightFactor ||
+                     e3SquareLength / e1SquareLength > squaredMaxHeightFactor )
                 {
                     return true;
                 }
@@ -316,7 +309,7 @@ cvf::Vec3d RigCell::faceCenter( cvf::StructGridInterface::FaceType face ) const
 /// the corresponding plane.
 /// See http://geomalgorithms.com/a01-_area.html
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RigCell::faceNormalWithAreaLenght( cvf::StructGridInterface::FaceType face ) const
+cvf::Vec3d RigCell::faceNormalWithAreaLength( cvf::StructGridInterface::FaceType face ) const
 {
     cvf::ubyte faceVertexIndices[4];
     cvf::StructGridInterface::cellFaceVertexIndices( face, faceVertexIndices );

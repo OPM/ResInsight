@@ -36,7 +36,7 @@ class RicfExportVisibleCells : public RicfCommandObject
 {
     CAF_PDM_HEADER_INIT;
 
-    enum ExportKeyword
+    enum class ExportKeyword
     {
         FLUXNUM,
         MULTNUM

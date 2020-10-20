@@ -36,9 +36,9 @@
 
 #include "cafCmdDeleteItemFeature.h"
 
-#include "cafCmdExecCommandManager.h"
 #include "cafCmdDeleteItemExec.h"
 #include "cafCmdDeleteItemExecData.h"
+#include "cafCmdExecCommandManager.h"
 #include "cafCmdSelectionHelper.h"
 #include "cafPdmReferenceHelper.h"
 #include "cafSelectionManager.h"
@@ -50,97 +50,100 @@
 
 namespace caf
 {
-    CAF_CMD_SOURCE_INIT(CmdDeleteItemFeature, "PdmListField_DeleteItem");
+CAF_CMD_SOURCE_INIT( CmdDeleteItemFeature, "PdmListField_DeleteItem" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 CmdExecuteCommand* CmdDeleteItemFeature::createExecuteCommand()
 {
     std::vector<PdmUiItem*> items;
-    SelectionManager::instance()->selectedItems(items, SelectionManager::FIRST_LEVEL);
+    SelectionManager::instance()->selectedItems( items, SelectionManager::FIRST_LEVEL );
 
-    caf::PdmChildArrayFieldHandle* childArrayFieldHandle = caf::SelectionManager::instance()->activeChildArrayFieldHandle();
-    if (!childArrayFieldHandle) return nullptr;
+    caf::PdmChildArrayFieldHandle* childArrayFieldHandle =
+        caf::SelectionManager::instance()->activeChildArrayFieldHandle();
+    if ( !childArrayFieldHandle ) return nullptr;
 
     caf::PdmObjectHandle* currentPdmObject = nullptr;
 
-    for (size_t i = 0; i < items.size(); i++)
+    for ( size_t i = 0; i < items.size(); i++ )
     {
-        if (dynamic_cast<caf::PdmUiObjectHandle*>(items[i]))
+        if ( dynamic_cast<caf::PdmUiObjectHandle*>( items[i] ) )
         {
-            currentPdmObject = dynamic_cast<caf::PdmUiObjectHandle*>(items[i])->objectHandle();
+            currentPdmObject = dynamic_cast<caf::PdmUiObjectHandle*>( items[i] )->objectHandle();
         }
     }
 
-    if (!currentPdmObject) return nullptr;
+    if ( !currentPdmObject ) return nullptr;
 
     int indexAfter = -1;
 
     std::vector<PdmObjectHandle*> childObjects;
-    childArrayFieldHandle->childObjects(&childObjects);
+    childArrayFieldHandle->childObjects( &childObjects );
 
-    for (size_t i = 0; i < childObjects.size(); i++)
+    for ( size_t i = 0; i < childObjects.size(); i++ )
     {
-        if (childObjects[i] == currentPdmObject)
+        if ( childObjects[i] == currentPdmObject )
         {
-            indexAfter = static_cast<int>(i);
+            indexAfter = static_cast<int>( i );
         }
     }
 
     // Did not find currently selected pdm object in the current list field
-    CAF_ASSERT(indexAfter != -1);
+    CAF_ASSERT( indexAfter != -1 );
 
-    CmdDeleteItemExec* executeCmd = new CmdDeleteItemExec(SelectionManager::instance()->notificationCenter());
-        
+    CmdDeleteItemExec* executeCmd = new CmdDeleteItemExec( SelectionManager::instance()->notificationCenter() );
+
     CmdDeleteItemExecData* data = executeCmd->commandData();
-    data->m_rootObject = PdmReferenceHelper::findRoot(childArrayFieldHandle);
-    data->m_pathToField = PdmReferenceHelper::referenceFromRootToField(data->m_rootObject, childArrayFieldHandle);
+    data->m_rootObject          = PdmReferenceHelper::findRoot( childArrayFieldHandle );
+    data->m_pathToField   = PdmReferenceHelper::referenceFromRootToField( data->m_rootObject, childArrayFieldHandle );
     data->m_indexToObject = indexAfter;
 
     return executeCmd;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool CmdDeleteItemFeature::isCommandEnabled() 
+bool CmdDeleteItemFeature::isCommandEnabled()
 {
-    caf::PdmObject* currentPdmObject = dynamic_cast<caf::PdmObject*>(caf::SelectionManager::instance()->selectedItem(caf::SelectionManager::FIRST_LEVEL));
-    if (!currentPdmObject) return false;
+    caf::PdmObject* currentPdmObject = dynamic_cast<caf::PdmObject*>(
+        caf::SelectionManager::instance()->selectedItem( caf::SelectionManager::FIRST_LEVEL ) );
+    if ( !currentPdmObject ) return false;
 
-    caf::PdmChildArrayFieldHandle* childArrayFieldHandle = caf::SelectionManager::instance()->activeChildArrayFieldHandle();
-    if (!childArrayFieldHandle) return false;
+    caf::PdmChildArrayFieldHandle* childArrayFieldHandle =
+        caf::SelectionManager::instance()->activeChildArrayFieldHandle();
+    if ( !childArrayFieldHandle ) return false;
 
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void CmdDeleteItemFeature::onActionTriggered(bool isChecked)
+void CmdDeleteItemFeature::onActionTriggered( bool isChecked )
 {
-    if (isCommandEnabled())
+    if ( isCommandEnabled() )
     {
         CmdExecuteCommand* exeCmd = createExecuteCommand();
-        if (exeCmd)
+        if ( exeCmd )
         {
-            CmdExecCommandManager::instance()->processExecuteCommand(exeCmd);
+            CmdExecCommandManager::instance()->processExecuteCommand( exeCmd );
         }
         else
         {
-            CAF_ASSERT(0);
+            CAF_ASSERT( 0 );
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void CmdDeleteItemFeature::setupActionLook(QAction* actionToSetup)
+void CmdDeleteItemFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Delete object");
-    applyShortcutWithHintToAction(actionToSetup, QKeySequence::Delete);
+    actionToSetup->setText( "Delete object" );
+    applyShortcutWithHintToAction( actionToSetup, QKeySequence::Delete );
 }
 
 } // end namespace caf

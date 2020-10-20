@@ -17,13 +17,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicReloadFormationNamesFeature.h"
+
+#include "RiaLogging.h"
+
 #include "RimFormationNames.h"
 #include "RimFormationNamesCollection.h"
 
 #include "cafSelectionManager.h"
 
 #include <QAction>
-#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT( RicReloadFormationNamesFeature, "RicReloadFormationNamesFeature" );
 
@@ -67,7 +69,7 @@ void RicReloadFormationNamesFeature::onActionTriggered( bool isChecked )
         fnames->readFormationNamesFile( &errorMessage );
         if ( !errorMessage.isEmpty() )
         {
-            QMessageBox::warning( nullptr, "Reload Formation Names", errorMessage );
+            RiaLogging::errorInMessageBox( nullptr, "Reload Formation Names", errorMessage );
         }
 
         fnames->updateConnectedViews();
@@ -80,5 +82,5 @@ void RicReloadFormationNamesFeature::onActionTriggered( bool isChecked )
 void RicReloadFormationNamesFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Reload" );
-    actionToSetup->setIcon( QIcon( ":/Refresh-32.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Refresh.svg" ) );
 }

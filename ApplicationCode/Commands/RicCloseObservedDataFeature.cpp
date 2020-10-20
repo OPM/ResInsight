@@ -18,7 +18,6 @@
 
 #include "RicCloseObservedDataFeature.h"
 
-#include "RiaApplication.h"
 #include "RiaSummaryTools.h"
 
 #include "RimMainPlotCollection.h"
@@ -45,7 +44,7 @@ CAF_CMD_SOURCE_INIT( RicCloseObservedDataFeature, "RicCloseObservedDataFeature" 
 void RicCloseObservedDataFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Close" );
-    actionToSetup->setIcon( QIcon( ":/Erase.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Close.svg" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -57,7 +56,7 @@ void RicCloseObservedDataFeature::deleteObservedSummaryData( const std::vector<R
 
     for ( RimObservedSummaryData* observedData : data )
     {
-        for ( RimSummaryPlot* summaryPlot : summaryPlotColl->summaryPlots )
+        for ( RimSummaryPlot* summaryPlot : summaryPlotColl->plots() )
         {
             summaryPlot->deleteCurvesAssosiatedWithCase( observedData );
         }
@@ -77,7 +76,7 @@ void RicCloseObservedDataFeature::deleteObservedSummaryData( const std::vector<R
 //--------------------------------------------------------------------------------------------------
 void RicCloseObservedDataFeature::deleteObservedRmuRftData( const std::vector<RimObservedFmuRftData*>& data )
 {
-    RimProject*           proj        = RiaApplication::instance()->project();
+    RimProject*           proj        = RimProject::current();
     RimRftPlotCollection* rftPlotColl = proj->mainPlotCollection()->rftPlotCollection();
 
     for ( RimObservedFmuRftData* observedData : data )

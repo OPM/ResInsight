@@ -18,8 +18,6 @@
 
 #include "RicCreateSummaryCaseCollectionFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"

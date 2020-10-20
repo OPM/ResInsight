@@ -82,12 +82,15 @@ void RiuSummaryVectorSelectionDialog::setCaseAndAddress( RimSummaryCase*        
     if ( summaryCase )
     {
         std::vector<RiaSummaryCurveDefinition> curveDefs;
-        curveDefs.push_back( RiaSummaryCurveDefinition( summaryCase, address ) );
-        summaryAddressSelection()->setSelectedCurveDefinitions( curveDefs );
+        curveDefs.push_back( RiaSummaryCurveDefinition( summaryCase, address, false ) );
+        setCurveSelection( curveDefs );
     }
-
-    summaryAddressSelection()->updateConnectedEditors();
-    updateLabel();
+    else
+    {
+        //  Still need to update the editors
+        summaryAddressSelection()->updateConnectedEditors();
+        updateLabel();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -99,10 +102,23 @@ void RiuSummaryVectorSelectionDialog::setEnsembleAndAddress( RimSummaryCaseColle
     if ( ensemble )
     {
         std::vector<RiaSummaryCurveDefinition> curveDefs;
-        curveDefs.push_back( RiaSummaryCurveDefinition( nullptr, address, ensemble ) );
-        summaryAddressSelection()->setSelectedCurveDefinitions( curveDefs );
+        curveDefs.push_back( RiaSummaryCurveDefinition( ensemble, address ) );
+        setCurveSelection( curveDefs );
     }
+    else
+    {
+        //  Still need to update the editors
+        summaryAddressSelection()->updateConnectedEditors();
+        updateLabel();
+    }
+}
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryVectorSelectionDialog::setCurveSelection( const std::vector<RiaSummaryCurveDefinition>& selection )
+{
+    summaryAddressSelection()->setSelectedCurveDefinitions( selection );
     summaryAddressSelection()->updateConnectedEditors();
     updateLabel();
 }
@@ -129,6 +145,22 @@ void RiuSummaryVectorSelectionDialog::hideEnsembles()
 void RiuSummaryVectorSelectionDialog::hideSummaryCases()
 {
     summaryAddressSelection()->hideSummaryCases( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryVectorSelectionDialog::enableMultiSelect( bool enable )
+{
+    summaryAddressSelection()->setMultiSelectionMode( enable );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryVectorSelectionDialog::enableIndividualEnsembleCaseSelection( bool enable )
+{
+    summaryAddressSelection()->enableIndividualEnsembleCaseSelection( enable );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -73,6 +73,9 @@ public:
     QString               tracerName();
     size_t                timeStep();
 
+    int  fontSize() const override;
+    void updateFonts() override;
+
 protected:
     // RimViewWindow overrides
     void   assignIdIfNecessary() final;

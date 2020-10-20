@@ -20,7 +20,6 @@
 
 #include "RiaSocketCommand.h"
 
-#include "RiaApplication.h"
 #include "RiaPreferences.h"
 #include "RiaSocketServer.h"
 #include "RiaSocketTools.h"
@@ -101,14 +100,14 @@ public:
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs( server, args );
         if ( !rimCase ) return true;
 
-        RiaDefines::PorosityModelType porosityModel = RiaDefines::MATRIX_MODEL;
+        RiaDefines::PorosityModelType porosityModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
 
         if ( args.size() > 2 )
         {
             QString prorosityModelString = args[2];
             if ( prorosityModelString.toUpper() == "FRACTURE" )
             {
-                porosityModel = RiaDefines::FRACTURE_MODEL;
+                porosityModel = RiaDefines::PorosityModelType::FRACTURE_MODEL;
             }
         }
 
@@ -428,7 +427,9 @@ public:
         RigEclipseResultAddress addrToMaxTimeStepCountResult;
         if ( rimCase && rimCase->eclipseCaseData() )
         {
-            rimCase->eclipseCaseData()->results( RiaDefines::MATRIX_MODEL )->maxTimeStepCount( &addrToMaxTimeStepCountResult );
+            rimCase->eclipseCaseData()
+                ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
+                ->maxTimeStepCount( &addrToMaxTimeStepCountResult );
             if ( !addrToMaxTimeStepCountResult.isValid() )
             {
                 canFetchData = false;
@@ -449,7 +450,7 @@ public:
 
         std::vector<QDateTime> timeStepDates =
             rimCase->eclipseCaseData()
-                ->results( RiaDefines::MATRIX_MODEL )
+                ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
                 ->timeStepDates( RigEclipseResultAddress( addrToMaxTimeStepCountResult ) );
 
         quint64 timeStepCount = timeStepDates.size();
@@ -516,7 +517,9 @@ public:
         RigEclipseResultAddress addrToMaxTimeStepCountResult;
         if ( rimCase && rimCase->eclipseCaseData() )
         {
-            rimCase->eclipseCaseData()->results( RiaDefines::MATRIX_MODEL )->maxTimeStepCount( &addrToMaxTimeStepCountResult );
+            rimCase->eclipseCaseData()
+                ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
+                ->maxTimeStepCount( &addrToMaxTimeStepCountResult );
             if ( !addrToMaxTimeStepCountResult.isValid() )
             {
                 canFetchData = false;
@@ -535,8 +538,9 @@ public:
             return true;
         }
 
-        std::vector<double> daysSinceSimulationStart =
-            rimCase->eclipseCaseData()->results( RiaDefines::MATRIX_MODEL )->daysSinceSimulationStart( addrToMaxTimeStepCountResult );
+        std::vector<double> daysSinceSimulationStart = rimCase->eclipseCaseData()
+                                                           ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
+                                                           ->daysSinceSimulationStart( addrToMaxTimeStepCountResult );
 
         quint64 timeStepCount = daysSinceSimulationStart.size();
         quint64 byteCount     = sizeof( quint64 ) + timeStepCount * sizeof( qint32 );

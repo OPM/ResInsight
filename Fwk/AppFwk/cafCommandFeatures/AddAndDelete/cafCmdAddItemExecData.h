@@ -34,18 +34,15 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
-#include "cafPdmObject.h"
 #include "cafPdmField.h"
+#include "cafPdmObject.h"
 
-namespace caf 
+namespace caf
 {
-
-
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class CmdAddItemExecData : public PdmObject
 {
@@ -54,20 +51,24 @@ class CmdAddItemExecData : public PdmObject
 public:
     CmdAddItemExecData()
     {
-        CAF_PDM_InitObject("CmdAddItemExecData uiName", "", "CmdAddItemExecData tooltip", "CmdAddItemExecData whatsthis");
+        CAF_PDM_InitObject( "CmdAddItemExecData uiName", "", "CmdAddItemExecData tooltip", "CmdAddItemExecData whatsthis" );
 
-        CAF_PDM_InitField(&m_pathToField, "PathToField", QString(), "PathToField", "", "PathToField tooltip", "PathToField whatsthis");
-        CAF_PDM_InitField(&m_indexAfter, "indexAfter", -1, "indexAfter", "", "indexAfter tooltip", "indexAfter whatsthis");
-        CAF_PDM_InitField(&m_createdItemIndex, "createdItemIndex", -1, "createdItemIndex", "", "createdItemIndex tooltip", "createdItemIndex whatsthis");
+        CAF_PDM_InitField( &m_pathToField, "PathToField", QString(), "PathToField", "", "PathToField tooltip", "PathToField whatsthis" );
+        CAF_PDM_InitField( &m_indexAfter, "indexAfter", -1, "indexAfter", "", "indexAfter tooltip", "indexAfter whatsthis" );
+        CAF_PDM_InitField( &m_createdItemIndex,
+                           "createdItemIndex",
+                           -1,
+                           "createdItemIndex",
+                           "",
+                           "createdItemIndex tooltip",
+                           "createdItemIndex whatsthis" );
     }
 
     caf::PdmPointer<PdmObjectHandle> m_rootObject;
 
-    caf::PdmField<QString>  m_pathToField;
-    caf::PdmField<int>      m_indexAfter;
-    caf::PdmField<int>      m_createdItemIndex;
+    caf::PdmField<QString> m_pathToField;
+    caf::PdmField<int>     m_indexAfter;
+    caf::PdmField<int>     m_createdItemIndex;
 };
-
-
 
 } // end namespace caf

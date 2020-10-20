@@ -89,7 +89,7 @@ public:
     void cleanupGuiBeforeProjectClose();
 
     void removeViewer( QWidget* viewer ) override;
-    void addViewer( QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry ) override;
+    void initializeViewer( QMdiSubWindow* subWindow, QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry ) override;
     void setActiveViewer( QWidget* subWindow ) override;
 
     void setResultInfo( const QString& info ) const;
@@ -210,7 +210,7 @@ private slots:
     void slotDrawStyleChanged( QAction* activatedAction );
     void slotToggleHideGridCellsAction( bool );
     void slotToggleFaultLabelsAction( bool );
-    void slotDisableLightingAction( bool );
+    void slotToggleLightingAction( bool );
 
     void slotShowWellCellsAction( bool doAdd );
 
@@ -236,6 +236,8 @@ private slots:
     void selectedObjectsChanged();
     void customMenuRequested( const QPoint& pos );
 
+    void slotWorkaroundForQwtDockWidgets();
+
 private:
     void selectViewInProjectTreePreservingSubItemSelection( const Rim3dView* previousActiveReservoirView,
                                                             Rim3dView*       activatedView );
@@ -255,7 +257,7 @@ private:
     QSpinBox* m_scaleFactor;
 
     QActionGroup* m_dsActionGroup;
-    QAction*      m_disableLightingAction;
+    QAction*      m_enableLightingAction;
     QAction*      m_drawStyleHideGridCellsAction;
     QAction*      m_toggleFaultsLabelAction;
     QAction*      m_drawStyleLinesAction;

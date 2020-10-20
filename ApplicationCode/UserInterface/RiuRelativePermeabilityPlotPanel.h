@@ -34,6 +34,7 @@ class QCheckBox;
 class QwtPlot;
 class QwtPlotMarker;
 class QPointF;
+class QGroupBox;
 
 //==================================================================================================
 //
@@ -123,6 +124,7 @@ private slots:
     void slotButtonInButtonGroupClicked( int );
     void slotSomeCheckBoxStateChanged( int );
     void slotCurrentPlotDataInTextDialog();
+    void slotShowCurveSelectionWidgets( int state );
 
 private:
     RiaEclipseUnitTools::UnitSystem                       m_unitSystem;
@@ -134,6 +136,7 @@ private:
     QPointer<RiuDockedQwtPlot>                            m_qwtPlot;
     std::vector<QwtPlotMarker*>                           m_myPlotMarkers;
 
+    QGroupBox*    m_groupBox;
     QButtonGroup* m_selectedCurvesButtonGroup;
     QCheckBox*    m_showUnscaledCheckBox;
     QCheckBox*    m_logarithmicScaleKrAxisCheckBox;

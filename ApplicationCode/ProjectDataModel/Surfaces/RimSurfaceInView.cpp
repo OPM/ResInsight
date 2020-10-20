@@ -18,12 +18,18 @@
 
 #include "RimSurfaceInView.h"
 
-#include "RimGridView.h"
-#include "RimSurface.h"
-
 #include "RigFemPartCollection.h"
+#include "RigSurface.h"
+
 #include "RimEclipseView.h"
 #include "RimGeoMechView.h"
+#include "RimGridView.h"
+#include "RimRegularLegendConfig.h"
+#include "RimSurface.h"
+#include "RimSurfaceResultDefinition.h"
+
+#include "RiuViewer.h"
+
 #include "RivHexGridIntersectionTools.h"
 #include "RivSurfacePartMgr.h"
 
@@ -45,8 +51,12 @@ RimSurfaceInView::RimSurfaceInView()
     CAF_PDM_InitFieldNoDefault( &m_surface, "SurfaceRef", "Surface", "", "", "" );
     m_surface.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_depthOffset, "DepthOffset", 0.0, "Depth Offset", "", "", "" );
-    m_depthOffset.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    CAF_PDM_InitFieldNoDefault( &m_resultDefinition, "ResultDefinition", "Result Definition", "", "", "" );
+    m_resultDefinition.uiCapability()->setUiHidden( true );
+    m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
+    m_resultDefinition = new RimSurfaceResultDefinition;
+    m_resultDefinition->setCheckState( false );
+    m_resultDefinition->setSurfaceInView( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -61,7 +71,7 @@ RimSurfaceInView::~RimSurfaceInView()
 //--------------------------------------------------------------------------------------------------
 QString RimSurfaceInView::name() const
 {
-    if ( m_surface ) return m_surface->userDescription();
+    if ( m_surface ) return m_surface->fullName();
 
     return "";
 }
@@ -80,14 +90,37 @@ RimSurface* RimSurfaceInView::surface() const
 void RimSurfaceInView::setSurface( RimSurface* surf )
 {
     m_surface = surf;
+
+    if ( surface()->surfaceData() && surface()->surfaceData()->propertyNames().empty() )
+    {
+        m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
+        m_resultDefinition->setCheckState( false );
+    }
+    else
+    {
+        m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( false );
+        m_resultDefinition->setCheckState( true );
+
+        m_resultDefinition->assignDefaultProperty();
+    }
+
+    m_resultDefinition->updateMinMaxValues();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimSurfaceInView::depthOffset() const
+bool RimSurfaceInView::isNativeSurfaceResultsActive() const
 {
-    return m_depthOffset;
+    return m_resultDefinition->isChecked();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSurfaceResultDefinition* RimSurfaceInView::surfaceResultDefinition()
+{
+    return m_resultDefinition();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -111,10 +144,56 @@ RivSurfacePartMgr* RimSurfaceInView::surfacePartMgr()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSurfaceInView::loadDataAndUpdate()
+{
+    if ( surface() )
+    {
+        surface()->loadDataIfRequired();
+
+        if ( surface()->surfaceData() && surface()->surfaceData()->propertyNames().empty() )
+        {
+            m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
+            m_resultDefinition->setCheckState( false );
+        }
+        else
+        {
+            m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( false );
+            m_resultDefinition->setCheckState( true );
+        }
+
+        m_resultDefinition->updateMinMaxValues();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceInView::updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer )
+{
+    if ( m_resultDefinition->legendConfig() )
+    {
+        RimRegularLegendConfig* legendConfig = m_resultDefinition->legendConfig();
+
+        legendConfig->setTitle(
+            QString( "Surface : \n%1\n%2" ).arg( this->name() ).arg( m_resultDefinition->propertyName() ) );
+
+        if ( this->isActive() && m_resultDefinition->isChecked() && legendConfig->showLegend() )
+        {
+            nativeOrOverrideViewer->addColorLegendToBottomLeftCorner( legendConfig->titledOverlayFrame(),
+                                                                      isUsingOverrideViewer );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSurfaceInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                          const QVariant&            oldValue,
                                          const QVariant&            newValue )
 {
+    this->updateUiIconFromToggleField();
+
     bool scheduleRedraw = false;
 
     if ( changedField == &m_isActive || changedField == &m_useSeparateDataSource || changedField == &m_separateDataSource )
@@ -122,11 +201,6 @@ void RimSurfaceInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         scheduleRedraw = true;
     }
     else if ( changedField == &m_showInactiveCells )
-    {
-        clearGeometry();
-        scheduleRedraw = true;
-    }
-    else if ( changedField == &m_depthOffset )
     {
         clearGeometry();
         scheduleRedraw = true;
@@ -147,27 +221,8 @@ void RimSurfaceInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 {
     uiOrdering.add( &m_name );
     uiOrdering.add( &m_showInactiveCells );
-    uiOrdering.add( &m_depthOffset );
 
     this->defineSeparateDataSourceUi( uiConfigName, uiOrdering );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSurfaceInView::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                              QString                    uiConfigName,
-                                              caf::PdmUiEditorAttribute* attribute )
-{
-    auto doubleSliderAttrib = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-    if ( doubleSliderAttrib )
-    {
-        if ( field == &m_depthOffset )
-        {
-            doubleSliderAttrib->m_minimum = -2000;
-            doubleSliderAttrib->m_maximum = 2000;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -186,4 +241,12 @@ RimIntersectionResultsDefinitionCollection* RimSurfaceInView::findSeparateResult
 caf::PdmFieldHandle* RimSurfaceInView::userDescriptionField()
 {
     return &m_name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceInView::initAfterRead()
+{
+    this->updateUiIconFromToggleField();
 }

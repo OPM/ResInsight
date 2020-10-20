@@ -18,7 +18,6 @@
 
 #include "RimSimWellInViewTools.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 #include "RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
@@ -44,7 +43,7 @@
 //--------------------------------------------------------------------------------------------------
 RimGridSummaryCase* RimSimWellInViewTools::gridSummaryCaseForWell( RimSimWellInView* well )
 {
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
     if ( !project ) return nullptr;
 
     RimSummaryCaseMainCollection* sumCaseColl =
@@ -73,7 +72,7 @@ std::vector<RimSummaryCase*> RimSimWellInViewTools::summaryCases()
 {
     std::vector<RimSummaryCase*> cases;
 
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
     if ( project )
     {
         RimSummaryCaseMainCollection* sumCaseColl =

@@ -18,7 +18,6 @@
 
 #include "RivWellConnectionFactorPartMgr.h"
 
-#include "RiaApplication.h"
 #include "RiaExtractionTools.h"
 
 #include "RigEclipseWellLogExtractor.h"

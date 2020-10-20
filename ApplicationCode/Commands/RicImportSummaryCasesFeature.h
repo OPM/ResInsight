@@ -43,7 +43,8 @@ public:
                                                    std::vector<RimSummaryCase*>* newCases = nullptr );
     static bool createSummaryCasesFromFiles( const QStringList&            fileName,
                                              std::vector<RimSummaryCase*>* newCases,
-                                             bool                          ensembleOrGroup = false );
+                                             bool                          ensembleOrGroup = false,
+                                             bool                          allowDialogs    = true );
     static void addSummaryCases( const std::vector<RimSummaryCase*>& cases );
     static void addCasesToGroupIfRelevant( const std::vector<RimSummaryCase*>& cases );
 

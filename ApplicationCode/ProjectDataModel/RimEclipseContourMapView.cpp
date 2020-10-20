@@ -33,7 +33,6 @@
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimFaultInViewCollection.h"
 #include "RimGridCollection.h"
-#include "RimScaleLegendConfig.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimViewNameConfig.h"
 
@@ -162,7 +161,7 @@ void RimEclipseContourMapView::initAfterRead()
 
     disablePerspectiveProjectionField();
     setShowGridBox( false );
-    meshMode.setValue( RiaDefines::NO_MESH );
+    meshMode.setValue( RiaDefines::MeshModeType::NO_MESH );
     surfaceMode.setValue( FAULTS );
     setFaultVisParameters();
     scheduleCreateDisplayModelAndRedraw();

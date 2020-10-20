@@ -18,8 +18,6 @@
 
 #include "RiaWellNameComparer.h"
 
-#include "RiaApplication.h"
-
 #include "RimProject.h"
 #include "RimWellPath.h"
 
@@ -30,7 +28,7 @@
 //==================================================================================================
 QString RiaWellNameComparer::tryFindMatchingSimWellName( QString searchName )
 {
-    RimProject*                 proj         = RiaApplication::instance()->project();
+    RimProject*                 proj         = RimProject::current();
     const std::vector<QString>& simWellNames = proj->simulationWellNames();
 
     if ( searchName.isEmpty() || simWellNames.empty() ) return QString();
@@ -44,7 +42,7 @@ QString RiaWellNameComparer::tryFindMatchingSimWellName( QString searchName )
 //--------------------------------------------------------------------------------------------------
 QString RiaWellNameComparer::tryFindMatchingWellPath( QString wellName )
 {
-    RimProject*                      proj      = RiaApplication::instance()->project();
+    RimProject*                      proj      = RimProject::current();
     const std::vector<RimWellPath*>& wellPaths = proj->allWellPaths();
 
     if ( wellName.isEmpty() || wellPaths.empty() ) return QString();

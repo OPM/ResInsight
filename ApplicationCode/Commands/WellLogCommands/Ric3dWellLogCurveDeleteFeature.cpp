@@ -19,8 +19,6 @@
 
 #include "Ric3dWellLogCurveDeleteFeature.h"
 
-#include "RiaApplication.h"
-
 #include "Rim3dWellLogCurve.h"
 #include "Rim3dWellLogCurveCollection.h"
 #include "RimProject.h"
@@ -77,6 +75,6 @@ void Ric3dWellLogCurveDeleteFeature::onActionTriggered( bool isChecked )
 void Ric3dWellLogCurveDeleteFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Delete 3D Well Log Curve(s)" );
-    actionToSetup->setIcon( QIcon( ":/Erase.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Erase.svg" ) );
     applyShortcutWithHintToAction( actionToSetup, QKeySequence::Delete );
 }

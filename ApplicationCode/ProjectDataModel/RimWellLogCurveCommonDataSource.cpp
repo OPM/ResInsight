@@ -37,7 +37,6 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
-#include "RiaApplication.h"
 #include "RiaSimWellBranchTools.h"
 
 #include "cafPdmUiCheckBoxTristateEditor.h"
@@ -69,7 +68,7 @@ bool RimWellLogCurveCommonDataSource::DoubleComparator::operator()( const double
 ///
 //--------------------------------------------------------------------------------------------------
 RimWellLogCurveCommonDataSource::RimWellLogCurveCommonDataSource()
-    : m_caseType( RiaDefines::UNDEFINED_CASE )
+    : m_caseType( RiaDefines::CaseType::UNDEFINED_CASE )
 {
     CAF_PDM_InitObject( "Change Data Source", "", "", "" );
 
@@ -758,12 +757,14 @@ QList<caf::PdmOptionItemInfo>
 
     if ( fieldNeedingOptions == &m_case )
     {
-        if ( m_caseType == RiaDefines::GEOMECH_ODB_CASE )
+        if ( m_caseType == RiaDefines::CaseType::GEOMECH_ODB_CASE )
         {
             RimTools::geoMechCaseOptionItems( &options );
         }
-        else if ( m_caseType == RiaDefines::ECLIPSE_RESULT_CASE || m_caseType == RiaDefines::ECLIPSE_INPUT_CASE ||
-                  m_caseType == RiaDefines::ECLIPSE_SOURCE_CASE || m_caseType == RiaDefines::ECLIPSE_STAT_CASE )
+        else if ( m_caseType == RiaDefines::CaseType::ECLIPSE_RESULT_CASE ||
+                  m_caseType == RiaDefines::CaseType::ECLIPSE_INPUT_CASE ||
+                  m_caseType == RiaDefines::CaseType::ECLIPSE_SOURCE_CASE ||
+                  m_caseType == RiaDefines::CaseType::ECLIPSE_STAT_CASE )
         {
             RimTools::eclipseCaseOptionItems( &options );
         }
@@ -844,7 +845,7 @@ QList<caf::PdmOptionItemInfo>
         {
             std::set<QString> sortedWellNames = eclipseCase->sortedSimWellNames();
 
-            caf::QIconProvider simWellIcon( ":/Well.png" );
+            caf::IconProvider simWellIcon( ":/Well.png" );
             for ( const QString& wname : sortedWellNames )
             {
                 options.push_back( caf::PdmOptionItemInfo( wname, wname, false, simWellIcon ) );

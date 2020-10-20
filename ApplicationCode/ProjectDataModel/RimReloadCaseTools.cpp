@@ -18,7 +18,6 @@
 
 #include "RimReloadCaseTools.h"
 
-#include "RiaApplication.h"
 #include "RiaFractureDefines.h"
 #include "RiaSummaryTools.h"
 
@@ -95,13 +94,14 @@ void RimReloadCaseTools::clearAllGridData( RigEclipseCaseData* eclipseCaseData )
 {
     if ( !eclipseCaseData ) return;
 
-    RigCaseCellResultsData* matrixModelResults = eclipseCaseData->results( RiaDefines::MATRIX_MODEL );
+    RigCaseCellResultsData* matrixModelResults = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     if ( matrixModelResults )
     {
         matrixModelResults->clearAllResults();
     }
 
-    RigCaseCellResultsData* fractureModelResults = eclipseCaseData->results( RiaDefines::FRACTURE_MODEL );
+    RigCaseCellResultsData* fractureModelResults =
+        eclipseCaseData->results( RiaDefines::PorosityModelType::FRACTURE_MODEL );
     if ( fractureModelResults )
     {
         fractureModelResults->clearAllResults();
@@ -143,7 +143,7 @@ void RimReloadCaseTools::updateAll3dViews( RimEclipseCase* eclipseCase )
 //--------------------------------------------------------------------------------------------------
 void RimReloadCaseTools::updateAllPlots()
 {
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
     if ( project && project->mainPlotCollection() )
     {
         RimWellLogPlotCollection* wellPlotCollection = project->mainPlotCollection()->wellLogPlotCollection();
@@ -159,7 +159,7 @@ void RimReloadCaseTools::updateAllPlots()
         RimSummaryPlotCollection* summaryPlotCollection = project->mainPlotCollection()->summaryPlotCollection();
         if ( summaryPlotCollection )
         {
-            for ( RimSummaryPlot* summaryPlot : summaryPlotCollection->summaryPlots() )
+            for ( RimSummaryPlot* summaryPlot : summaryPlotCollection->plots() )
             {
                 summaryPlot->loadDataAndUpdate();
             }
@@ -168,7 +168,7 @@ void RimReloadCaseTools::updateAllPlots()
         RimGridCrossPlotCollection* gridCrossPlotCollection = project->mainPlotCollection()->gridCrossPlotCollection();
         if ( gridCrossPlotCollection )
         {
-            for ( RimGridCrossPlot* crossPlot : gridCrossPlotCollection->gridCrossPlots() )
+            for ( RimGridCrossPlot* crossPlot : gridCrossPlotCollection->plots() )
             {
                 crossPlot->loadDataAndUpdate();
             }

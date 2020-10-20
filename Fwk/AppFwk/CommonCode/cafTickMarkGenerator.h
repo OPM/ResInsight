@@ -35,61 +35,60 @@
 //##################################################################################################
 #pragma once
 
-
-#include <vector>
-#include <cmath>
 #include "cafAssert.h"
+#include <cmath>
+#include <vector>
 
 namespace caf
 {
 class TickMarkGenerator
 {
 public:
-    TickMarkGenerator(double min, double max, double minAllowedStepSize)
+    TickMarkGenerator( double min, double max, double minAllowedStepSize )
     {
-        if (minAllowedStepSize < 0.0) minAllowedStepSize = -minAllowedStepSize;
+        if ( minAllowedStepSize < 0.0 ) minAllowedStepSize = -minAllowedStepSize;
 
-        double step = roundUpToLog_1_2_5_10(minAllowedStepSize);
+        double step = roundUpToLog_1_2_5_10( minAllowedStepSize );
 
-        double startStepCount = ceil(min / step);
-        
-        if ( startStepCount*step < (min + 0.5*minAllowedStepSize) )
+        double startStepCount = ceil( min / step );
+
+        if ( startStepCount * step < ( min + 0.5 * minAllowedStepSize ) )
         {
             ++startStepCount;
         }
 
-        double tick = startStepCount*step;
+        double tick             = startStepCount * step;
         double currentStepCount = startStepCount;
-        while ( tick < (max - 0.5*minAllowedStepSize) )
+        while ( tick < ( max - 0.5 * minAllowedStepSize ) )
         {
-            m_tickMarkValues.push_back(tick);
+            m_tickMarkValues.push_back( tick );
             ++currentStepCount;
-            tick = currentStepCount*step;
-        } 
+            tick = currentStepCount * step;
+        }
     }
 
-    const std::vector<double>& tickMarkValues() {  return m_tickMarkValues; }
+    const std::vector<double>& tickMarkValues() { return m_tickMarkValues; }
 
-    static double roundUpToLog_1_2_5_10(double val)
+    static double roundUpToLog_1_2_5_10( double val )
     {
-        CAF_ASSERT(val >= 0.0);
+        CAF_ASSERT( val >= 0.0 );
 
-        const static double logOf5   = log10(5.0);
-        const static double logOf2   = log10(2.0);
-        const static double logOf0_5 = log10(0.5);
-        const static double logOf0_2 = log10(0.2);
+        const static double logOf5   = log10( 5.0 );
+        const static double logOf2   = log10( 2.0 );
+        const static double logOf0_5 = log10( 0.5 );
+        const static double logOf0_2 = log10( 0.2 );
 
-        double logValue = log10(val);
-        double intPart = 0.0;
-        double fraction = modf(logValue, &intPart);
+        double logValue = log10( val );
+        double intPart  = 0.0;
+        double fraction = modf( logValue, &intPart );
 
         double factor = 1.0;
 
-        if (fraction == 0.0)
+        if ( fraction == 0.0 )
         {
             factor = 1.0;
         }
-        else if (fraction > 0.0)
+        else if ( fraction > 0.0 )
         {
             if ( fraction > logOf5 )
             {
@@ -106,7 +105,7 @@ public:
         }
         else
         {
-            if (fraction > logOf0_5)
+            if ( fraction > logOf0_5 )
             {
                 factor = 1;
             }
@@ -119,8 +118,8 @@ public:
                 factor = 0.2;
             }
         }
-        
-        double roundedValue = pow(10.0, intPart) * factor;
+
+        double roundedValue = pow( 10.0, intPart ) * factor;
 
         return roundedValue;
     }
@@ -129,6 +128,4 @@ private:
     std::vector<double> m_tickMarkValues;
 };
 
-}
-
-
+} // namespace caf

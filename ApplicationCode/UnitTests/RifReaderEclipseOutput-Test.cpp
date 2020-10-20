@@ -58,13 +58,13 @@ TEST( RigReservoirTest, BasicTest10k )
     cvf::ref<RigEclipseCaseData>          reservoir = new RigEclipseCaseData( resultCase.get() );
 
     {
-        RigCaseCellResultsData* cellData = reservoir->results( MATRIX_MODEL );
+        RigCaseCellResultsData* cellData = reservoir->results( PorosityModelType::MATRIX_MODEL );
 
-        QStringList staticResults = cellData->resultNames( STATIC_NATIVE );
+        QStringList staticResults = cellData->resultNames( ResultCatType::STATIC_NATIVE );
         EXPECT_EQ( 0, staticResults.size() );
         // qDebug() << "Static results\n" << staticResults;
 
-        QStringList dynamicResults = cellData->resultNames( DYNAMIC_NATIVE );
+        QStringList dynamicResults = cellData->resultNames( ResultCatType::DYNAMIC_NATIVE );
         EXPECT_EQ( 0, dynamicResults.size() );
         // qDebug() << "Dynamic results\n" << dynamicResults;
 
@@ -81,13 +81,13 @@ TEST( RigReservoirTest, BasicTest10k )
     }
 
     {
-        RigCaseCellResultsData* cellData = reservoir->results( MATRIX_MODEL );
+        RigCaseCellResultsData* cellData = reservoir->results( PorosityModelType::MATRIX_MODEL );
 
-        QStringList staticResults = cellData->resultNames( STATIC_NATIVE );
+        QStringList staticResults = cellData->resultNames( ResultCatType::STATIC_NATIVE );
         EXPECT_EQ( 44, staticResults.size() );
         // qDebug() << "Static results\n" << staticResults;
 
-        QStringList dynamicResults = cellData->resultNames( DYNAMIC_NATIVE );
+        QStringList dynamicResults = cellData->resultNames( ResultCatType::DYNAMIC_NATIVE );
         EXPECT_EQ( 23, dynamicResults.size() );
         // qDebug() << "Dynamic results\n" << dynamicResults;
 

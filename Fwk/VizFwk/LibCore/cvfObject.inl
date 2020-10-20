@@ -81,15 +81,9 @@ inline int Object::addRef() const
 /// \return  The new reference count.
 /// 
 /// If the new reference count is zero, the object (this) is deleted.\n
-/// Legal to call on NULL objects, will then return zero.
 //--------------------------------------------------------------------------------------------------
 inline int Object::release() const
 {
-    // Release on a NULL object ok, just return 0
-    // This is symmetric with being able to call delete on a NULL pointer
-#ifndef __clang__
-    if (!this) return 0;
-#endif
     CVF_TIGHT_ASSERT(m_refCount > 0);
 
     if (--m_refCount == 0)

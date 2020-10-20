@@ -31,14 +31,14 @@ namespace caf
 template <>
 void RicfCommandFileExecutor::ExportTypeEnum::setUp()
 {
-    addItem( RicfCommandFileExecutor::COMPLETIONS, "COMPLETIONS", "Completions" );
-    addItem( RicfCommandFileExecutor::PROPERTIES, "PROPERTIES", "Properties" );
-    addItem( RicfCommandFileExecutor::SNAPSHOTS, "SNAPSHOTS", "Snapshots" );
-    addItem( RicfCommandFileExecutor::STATISTICS, "STATISTICS", "Statistics" );
-    addItem( RicfCommandFileExecutor::WELLPATHS, "WELLPATHS", "Well Path" );
-    addItem( RicfCommandFileExecutor::CELLS, "CELLS", "Cells" );
-    addItem( RicfCommandFileExecutor::LGRS, "LGRS", "Lgrs" );
-    setDefault( RicfCommandFileExecutor::COMPLETIONS );
+    addItem( RicfCommandFileExecutor::ExportType::COMPLETIONS, "COMPLETIONS", "Completions" );
+    addItem( RicfCommandFileExecutor::ExportType::PROPERTIES, "PROPERTIES", "Properties" );
+    addItem( RicfCommandFileExecutor::ExportType::SNAPSHOTS, "SNAPSHOTS", "Snapshots" );
+    addItem( RicfCommandFileExecutor::ExportType::STATISTICS, "STATISTICS", "Statistics" );
+    addItem( RicfCommandFileExecutor::ExportType::WELLPATHS, "WELLPATHS", "Well Path" );
+    addItem( RicfCommandFileExecutor::ExportType::CELLS, "CELLS", "Cells" );
+    addItem( RicfCommandFileExecutor::ExportType::LGRS, "LGRS", "Lgrs" );
+    setDefault( RicfCommandFileExecutor::ExportType::COMPLETIONS );
 }
 } // namespace caf
 

@@ -96,12 +96,6 @@ public:
     bool isYAxisLogarithmic() const;
     void setYAxisInverted( bool inverted );
 
-    bool hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const override;
-    bool applyFontSize( RiaDefines::FontSettingType fontSettingType,
-                        int                         oldFontSize,
-                        int                         fontSize,
-                        bool                        forceChange = false ) override;
-
     void updateLegend() override;
 
     void updateZoomInQwt() override;
@@ -111,6 +105,8 @@ public:
     void            setAutoScaleYEnabled( bool enabled ) override;
     caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const override;
     void            onAxisSelected( int axis, bool toggle ) override;
+
+    bool isDeletable() const override;
 
 protected:
     void deleteViewWidget() override;
@@ -145,8 +141,11 @@ private:
     void doUpdateLayout() override;
     void cleanupBeforeClose();
 
-    void    doRemoveFromCollection() override;
     QString generateInfoBoxText() const;
+
+    void connectAxisSignals( RimPlotAxisProperties* axis );
+    void axisSettingsChanged( const caf::SignalEmitter* emitter );
+    void axisLogarithmicChanged( const caf::SignalEmitter* emitter, bool isLogarithmic );
 
 private slots:
     void onPlotZoomed();

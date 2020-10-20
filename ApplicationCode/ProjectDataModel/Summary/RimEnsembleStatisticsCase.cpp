@@ -105,6 +105,10 @@ void RimEnsembleStatisticsCase::createSummaryReaderInterface()
 //--------------------------------------------------------------------------------------------------
 RifSummaryReaderInterface* RimEnsembleStatisticsCase::summaryReader()
 {
+    if ( !m_statisticsReader )
+    {
+        createSummaryReaderInterface();
+    }
     return m_statisticsReader.get();
 }
 
@@ -205,7 +209,7 @@ RiaEclipseUnitTools::UnitSystem RimEnsembleStatisticsCase::unitSystem() const
     {
         return m_curveSet->summaryCaseCollection()->unitSystem();
     }
-    return RiaEclipseUnitTools::UNITS_UNKNOWN;
+    return RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
 }
 
 //--------------------------------------------------------------------------------------------------

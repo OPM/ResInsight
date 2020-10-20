@@ -49,6 +49,8 @@ public:
 
     void ensureIdIsAssigned();
 
+    RiaDefines::PhaseType addressPhaseType() const;
+
 private:
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>> m_category;
     caf::PdmField<QString>                                                    m_quantityName;

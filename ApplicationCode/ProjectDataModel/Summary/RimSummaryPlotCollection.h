@@ -18,9 +18,11 @@
 
 #pragma once
 
+#include "RimAbstractPlotCollection.h"
+#include "RimSummaryPlot.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
-#include "cafPdmObjectMethod.h"
 #include "cafPdmPtrArrayField.h"
 
 class RimSummaryPlot;
@@ -29,7 +31,7 @@ class RimSummaryPlot;
 ///
 ///
 //==================================================================================================
-class RimSummaryPlotCollection : public caf::PdmObject
+class RimSummaryPlotCollection : public caf::PdmObject, public RimTypedPlotCollection<RimSummaryPlot>
 {
     CAF_PDM_HEADER_INIT;
 
@@ -37,13 +39,19 @@ public:
     RimSummaryPlotCollection();
     ~RimSummaryPlotCollection() override;
 
-    caf::PdmChildArrayField<RimSummaryPlot*> summaryPlots;
-
     RimSummaryPlot* createSummaryPlotWithAutoTitle();
     RimSummaryPlot* createNamedSummaryPlot( const QString& name );
 
     void updateSummaryNameHasChanged();
     void summaryPlotItemInfos( QList<caf::PdmOptionItemInfo>* optionInfos ) const;
+    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
-    void removeSummaryPlot( RimSummaryPlot* summaryPlot );
+    std::vector<RimSummaryPlot*> plots() const final;
+    size_t                       plotCount() const final;
+    void                         insertPlot( RimSummaryPlot* summaryPlot, size_t index ) final;
+    void                         removePlot( RimSummaryPlot* summaryPlot ) final;
+
+private:
+    caf::PdmChildArrayField<RimSummaryPlot*> m_summaryPlots;
 };

@@ -20,7 +20,6 @@
 #include "RiuTextDialog.h"
 #include "RiuTools.h"
 
-#include "RiaApplication.h"
 #include "RiaQDateTimeTools.h"
 
 #include "SummaryPlotCommands/RicAsciiExportSummaryPlotFeature.h"
@@ -164,7 +163,7 @@ void RiuTextDialog::contextMenuEvent( QContextMenuEvent* event )
         QAction* actionToSetup = new QAction( this );
 
         actionToSetup->setText( "Copy" );
-        actionToSetup->setIcon( QIcon( ":/Copy.png" ) );
+        actionToSetup->setIcon( QIcon( ":/Copy.svg" ) );
         caf::CmdFeature::applyShortcutWithHintToAction( actionToSetup, QKeySequence::Copy );
 
         connect( actionToSetup, SIGNAL( triggered() ), m_textEdit, SLOT( slotCopyContentToClipboard() ) );
@@ -212,7 +211,11 @@ RiuTabbedTextDialog::RiuTabbedTextDialog( RiuTabbedTextProvider* textProvider, Q
         textEdit->setContextMenuPolicy( Qt::NoContextMenu );
 
         auto fontWidth = QFontMetrics( font ).boundingRect( "m" ).width();
+#if QT_VERSION >= QT_VERSION_CHECK( 5, 10, 0 )
+        textEdit->setTabStopDistance( fontWidth * 4 );
+#else
         textEdit->setTabStopWidth( fontWidth * 4 );
+#endif
 
         m_tabWidget->addTab( textEdit, tabTitle );
     }
@@ -307,7 +310,7 @@ void RiuTabbedTextDialog::contextMenuEvent( QContextMenuEvent* event )
         QAction* actionToSetup = new QAction( this );
 
         actionToSetup->setText( "Copy" );
-        actionToSetup->setIcon( QIcon( ":/Copy.png" ) );
+        actionToSetup->setIcon( QIcon( ":/Copy.svg" ) );
         caf::CmdFeature::applyShortcutWithHintToAction( actionToSetup, QKeySequence::Copy );
 
         connect( actionToSetup, SIGNAL( triggered() ), textEdit, SLOT( slotCopyContentToClipboard() ) );

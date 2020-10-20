@@ -18,8 +18,6 @@
 
 #include "RicNewDerivedSummaryFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RimDerivedSummaryCase.h"
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -73,7 +71,7 @@ void RicNewDerivedSummaryFeature::onActionTriggered( bool isChecked )
 void RicNewDerivedSummaryFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "New Delta Summary Case" );
-    actionToSetup->setIcon( QIcon( ":/SummaryCase16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/SummaryCase.svg" ) );
 }
 
 //--------------------------------------------------------------------------------------------------

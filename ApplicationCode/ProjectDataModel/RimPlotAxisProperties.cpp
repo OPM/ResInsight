@@ -56,7 +56,10 @@ CAF_PDM_SOURCE_INIT(RimPlotAxisProperties, "SummaryYAxisProperties");
 ///
 //--------------------------------------------------------------------------------------------------
 RimPlotAxisProperties::RimPlotAxisProperties()
-    : m_enableTitleTextSettings(true)
+    : settingsChanged(this)
+    , logarithmicChanged(this)
+    , m_enableTitleTextSettings(true)
+    , m_isRangeSettingsEnabled(true)
 {
     CAF_PDM_InitObject("Axis Properties", ":/LeftAxis16x16.png", "", "");
 
@@ -88,10 +91,9 @@ RimPlotAxisProperties::RimPlotAxisProperties()
     CAF_PDM_InitField(&m_isAxisInverted, "AxisInverted", false, "Invert Axis", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_titlePositionEnum, "TitlePosition", "Title Position", "", "", "");
-    CAF_PDM_InitField(&m_titleFontSize, "FontSize", 10, "Font Size", "", "", "");
-    m_titleFontSize = RiaApplication::instance()->preferences()->defaultPlotFontSize();
-    CAF_PDM_InitField(&m_valuesFontSize, "ValuesFontSize", 10, "Font Size", "", "", "");
-    m_valuesFontSize = RiaApplication::instance()->preferences()->defaultPlotFontSize();
+
+    CAF_PDM_InitFieldNoDefault(&m_titleFontSize, "TitleDeltaFontSize", "Font Size", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_valuesFontSize, "ValueDeltaFontSize", "Font Size", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_annotations, "Annotations", "", "", "", "");
 
@@ -113,6 +115,14 @@ void RimPlotAxisProperties::setEnableTitleTextSettings( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::enableRangeSettings( bool enable )
+{
+    m_isRangeSettingsEnabled = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimPlotAxisProperties::userDescriptionField()
 {
     return &m_name;
@@ -127,26 +137,7 @@ QList<caf::PdmOptionItemInfo>
     QList<caf::PdmOptionItemInfo> options;
     *useOptionsOnly = true;
 
-    if ( &m_titleFontSize == fieldNeedingOptions || &m_valuesFontSize == fieldNeedingOptions )
-    {
-        std::vector<int> fontSizes;
-        fontSizes.push_back( 8 );
-        fontSizes.push_back( 9 );
-        fontSizes.push_back( 10 );
-        fontSizes.push_back( 11 );
-        fontSizes.push_back( 12 );
-        fontSizes.push_back( 14 );
-        fontSizes.push_back( 16 );
-        fontSizes.push_back( 18 );
-        fontSizes.push_back( 24 );
-
-        for ( int value : fontSizes )
-        {
-            QString text = QString( "%1" ).arg( value );
-            options.push_back( caf::PdmOptionItemInfo( text, value ) );
-        }
-    }
-    else if ( fieldNeedingOptions == &scaleFactor )
+    if ( fieldNeedingOptions == &scaleFactor )
     {
         for ( int exp = -12; exp <= 12; exp += 3 )
         {
@@ -155,6 +146,10 @@ QList<caf::PdmOptionItemInfo>
 
             options.push_back( caf::PdmOptionItemInfo( uiText, value ) );
         }
+    }
+    else if ( fieldNeedingOptions == &m_titleFontSize || fieldNeedingOptions == &m_valuesFontSize )
+    {
+        options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultPlotFontSize() );
     }
 
     return options;
@@ -193,8 +188,11 @@ void RimPlotAxisProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     }
 
     caf::PdmUiGroup& scaleGroup = *( uiOrdering.addNewGroup( "Axis Values" ) );
-    scaleGroup.add( &isLogarithmicScaleEnabled );
-    scaleGroup.add( &m_isAxisInverted );
+    if ( m_isRangeSettingsEnabled )
+    {
+        scaleGroup.add( &isLogarithmicScaleEnabled );
+        scaleGroup.add( &m_isAxisInverted );
+    }
     scaleGroup.add( &numberFormat );
 
     if ( numberFormat() != NUMBER_FORMAT_AUTO )
@@ -202,8 +200,11 @@ void RimPlotAxisProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
         scaleGroup.add( &numberOfDecimals );
     }
     scaleGroup.add( &scaleFactor );
-    scaleGroup.add( &visibleRangeMin );
-    scaleGroup.add( &visibleRangeMax );
+    if ( m_isRangeSettingsEnabled )
+    {
+        scaleGroup.add( &visibleRangeMin );
+        scaleGroup.add( &visibleRangeMax );
+    }
     scaleGroup.add( &m_valuesFontSize );
 
     uiOrdering.skipRemainingFields( true );
@@ -234,15 +235,7 @@ RimPlotAxisPropertiesInterface::AxisTitlePositionType RimPlotAxisProperties::tit
 //--------------------------------------------------------------------------------------------------
 int RimPlotAxisProperties::titleFontSize() const
 {
-    return m_titleFontSize;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPlotAxisProperties::setTitleFontSize( int fontSize )
-{
-    m_titleFontSize = fontSize;
+    return caf::FontTools::absolutePointSize( plotFontSize(), m_titleFontSize() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -250,15 +243,7 @@ void RimPlotAxisProperties::setTitleFontSize( int fontSize )
 //--------------------------------------------------------------------------------------------------
 int RimPlotAxisProperties::valuesFontSize() const
 {
-    return m_valuesFontSize;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPlotAxisProperties::setValuesFontSize( int fontSize )
-{
-    m_valuesFontSize = fontSize;
+    return caf::FontTools::absolutePointSize( plotFontSize(), m_valuesFontSize() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -282,10 +267,10 @@ QString RimPlotAxisProperties::name() const
 //--------------------------------------------------------------------------------------------------
 RiaDefines::PlotAxis RimPlotAxisProperties::plotAxisType() const
 {
-    if ( m_axis == QwtPlot::yRight ) return RiaDefines::PLOT_AXIS_RIGHT;
-    if ( m_axis == QwtPlot::xBottom ) return RiaDefines::PLOT_AXIS_BOTTOM;
+    if ( m_axis == QwtPlot::yRight ) return RiaDefines::PlotAxis::PLOT_AXIS_RIGHT;
+    if ( m_axis == QwtPlot::xBottom ) return RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM;
 
-    return RiaDefines::PLOT_AXIS_LEFT;
+    return RiaDefines::PlotAxis::PLOT_AXIS_LEFT;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -416,18 +401,13 @@ void RimPlotAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* changed
         m_isAutoZoom = false;
     }
 
-    RimPlot* parentPlot = nullptr;
-    this->firstAncestorOrThisOfType( parentPlot );
-    if ( parentPlot )
+    if ( changedField == &isLogarithmicScaleEnabled )
     {
-        if ( changedField == &isLogarithmicScaleEnabled )
-        {
-            parentPlot->loadDataAndUpdate();
-        }
-        else
-        {
-            parentPlot->updateAxes();
-        }
+        logarithmicChanged.send( isLogarithmicScaleEnabled() );
+    }
+    else
+    {
+        settingsChanged.send();
     }
 }
 
@@ -437,6 +417,14 @@ void RimPlotAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* changed
 void RimPlotAxisProperties::updateOptionSensitivity()
 {
     customTitle.uiCapability()->setUiReadOnly( isAutoTitle );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::FontTools::FontSize RimPlotAxisProperties::plotFontSize() const
+{
+    return RiaPreferences::current()->defaultPlotFontSize();
 }
 
 //--------------------------------------------------------------------------------------------------

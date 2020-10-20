@@ -24,7 +24,7 @@
 #include "RiaLogging.h"
 #include "RiaProjectModifier.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
 CAF_PDM_SOURCE_INIT( RicfExportMultiCaseSnapshots, "exportMultiCaseSnapshots" );
 
@@ -33,7 +33,7 @@ CAF_PDM_SOURCE_INIT( RicfExportMultiCaseSnapshots, "exportMultiCaseSnapshots" );
 //--------------------------------------------------------------------------------------------------
 RicfExportMultiCaseSnapshots::RicfExportMultiCaseSnapshots()
 {
-    CAF_PDM_InitScriptableFieldWithIO( &m_gridListFile, "gridListFile", QString(), "Grid List File", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_gridListFile, "gridListFile", QString(), "Grid List File", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,7 +67,8 @@ caf::PdmScriptResponse RicfExportMultiCaseSnapshots::execute()
     std::vector<QString> listFileNames = RiaApplication::readFileListFromTextFile( m_gridListFile() );
     app->runMultiCaseSnapshots( lastProjectPath,
                                 listFileNames,
-                                RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::SNAPSHOTS ) );
+                                RicfCommandFileExecutor::instance()->getExportPath(
+                                    RicfCommandFileExecutor::ExportType::SNAPSHOTS ) );
 
     return caf::PdmScriptResponse();
 }

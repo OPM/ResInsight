@@ -60,22 +60,26 @@ RigTofWellDistributionCalculator::RigTofWellDistributionCalculator( RimEclipseRe
     RigFlowDiagResults* flowDiagResults = flowDiagSolution->flowDiagResults();
     CVF_ASSERT( flowDiagResults );
 
-    const std::vector<double>* porvResults =
-        eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL, RiaDefines::STATIC_NATIVE, "PORV", 0 );
+    const std::vector<double>* porvResults = eclipseCaseData->resultValues( RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                            RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                                            "PORV",
+                                                                            0 );
     if ( !porvResults )
     {
         return;
     }
 
     QString phaseResultName;
-    if ( phase == RiaDefines::WATER_PHASE )
+    if ( phase == RiaDefines::PhaseType::WATER_PHASE )
         phaseResultName = "SWAT";
-    else if ( phase == RiaDefines::OIL_PHASE )
+    else if ( phase == RiaDefines::PhaseType::OIL_PHASE )
         phaseResultName = "SOIL";
-    else if ( phase == RiaDefines::GAS_PHASE )
+    else if ( phase == RiaDefines::PhaseType::GAS_PHASE )
         phaseResultName = "SGAS";
-    const std::vector<double>* phaseResults =
-        eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE, phaseResultName, timeStepIndex );
+    const std::vector<double>* phaseResults = eclipseCaseData->resultValues( RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                             RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                                             phaseResultName,
+                                                                             timeStepIndex );
     if ( !phaseResults )
     {
         return;
@@ -122,7 +126,6 @@ RigTofWellDistributionCalculator::RigTofWellDistributionCalculator( RimEclipseRe
 
         for ( const auto& mapElement : tofToCellIndicesMap )
         {
-            const double               tofValue       = mapElement.first;
             const std::vector<size_t>& cellIndicesArr = mapElement.second;
 
             for ( size_t cellIndex : cellIndicesArr )

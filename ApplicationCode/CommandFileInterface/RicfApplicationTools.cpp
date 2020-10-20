@@ -18,7 +18,6 @@
 
 #include "RicfApplicationTools.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 #include "RiaWellNameComparer.h"
 
@@ -39,7 +38,7 @@ std::vector<RimWellPath*> RicfApplicationTools::wellPathsFromNames( const QStrin
                                                                     QStringList*       wellsNotFound )
 {
     std::vector<RimWellPath*> wellPaths;
-    auto                      allWellPaths = RiaApplication::instance()->project()->allWellPaths();
+    auto                      allWellPaths = RimProject::current()->allWellPaths();
 
     if ( !wellPathNames.empty() )
     {
@@ -98,7 +97,7 @@ QStringList RicfApplicationTools::toQStringList( const std::vector<QString>& v )
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase* RicfApplicationTools::caseFromId( int caseId )
 {
-    auto eclipseCases = RiaApplication::instance()->project()->eclipseCases();
+    auto eclipseCases = RimProject::current()->eclipseCases();
     if ( caseId < 0 )
     {
         if ( !eclipseCases.empty() ) return eclipseCases.front();
@@ -118,7 +117,7 @@ RimEclipseCase* RicfApplicationTools::caseFromId( int caseId )
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RicfApplicationTools::viewFromCaseIdAndViewName( int caseId, const QString& viewName )
 {
-    for ( RimEclipseCase* c : RiaApplication::instance()->project()->eclipseCases() )
+    for ( RimEclipseCase* c : RimProject::current()->eclipseCases() )
     {
         if ( c->caseId() == caseId )
         {
@@ -140,7 +139,7 @@ RimEclipseView* RicfApplicationTools::viewFromCaseIdAndViewName( int caseId, con
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RicfApplicationTools::viewFromCaseIdAndViewId( int caseId, int viewId )
 {
-    for ( RimEclipseCase* c : RiaApplication::instance()->project()->eclipseCases() )
+    for ( RimEclipseCase* c : RimProject::current()->eclipseCases() )
     {
         if ( c->caseId() == caseId )
         {

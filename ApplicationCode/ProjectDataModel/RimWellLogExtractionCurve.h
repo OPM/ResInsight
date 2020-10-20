@@ -77,7 +77,9 @@ public:
     int  currentTimeStep() const;
     void setCurrentTimeStep( int timeStep );
 
-    void setEclipseResultVariable( const QString& resVarname );
+    void    setEclipseResultVariable( const QString& resVarname );
+    QString eclipseResultVariable() const;
+
     void setGeoMechResultAddress( const RigFemResultAddress& resAddr );
 
     void setTrajectoryType( TrajectoryType trajectoryType );
@@ -89,10 +91,14 @@ public:
                                                       RigGeoMechWellLogExtractor* geomExtractor );
 
     void setAutoNameComponents( bool addCaseName, bool addProperty, bool addWellname, bool addTimeStep, bool addDate );
+    RiaDefines::PhaseType phaseType() const override;
 
 protected:
-    QString      createCurveAutoName() override;
-    void         onLoadDataAndUpdate( bool updateParentPlot ) override;
+    QString createCurveAutoName() override;
+    void    onLoadDataAndUpdate( bool updateParentPlot ) override;
+    void    onCaseSettingsChanged( const caf::SignalEmitter* emitter );
+    void    connectCaseSignals( RimCase* rimCase );
+
     virtual void performDataExtraction( bool* isUsingPseudoLength );
     void extractData( bool* isUsingPseudoLength, bool performDataSmoothing = false, double smoothingThreshold = -1.0 );
 
@@ -105,14 +111,12 @@ protected:
 
     static QString dataSourceGroupKeyword();
 
-private:
     void              setLogScaleFromSelectedResult();
     void              clampTimestep();
     void              clampBranchIndex();
     std::set<QString> sortedSimWellNames();
     void              clearGeneratedSimWellPaths();
 
-private:
     caf::PdmPtrField<RimCase*>                  m_case;
     caf::PdmField<caf::AppEnum<TrajectoryType>> m_trajectoryType;
     caf::PdmPtrField<RimWellPath*>              m_wellPath;

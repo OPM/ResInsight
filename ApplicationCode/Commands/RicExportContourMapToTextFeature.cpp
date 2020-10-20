@@ -36,13 +36,13 @@
 #include "RiuViewer.h"
 
 #include "cafCmdFeatureManager.h"
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManager.h"
 #include "cafUtils.h"
 
 #include <QAction>
-#include <QFileDialog>
+#include <QFileInfo>
 
 #include <cmath>
 
@@ -50,11 +50,11 @@ RICF_SOURCE_INIT( RicExportContourMapToTextFeature, "RicExportContourMapToTextFe
 
 RicExportContourMapToTextFeature::RicExportContourMapToTextFeature()
 {
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_exportFileName, "exportFileName", "", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_exportLocalCoordinates, "exportLocalCoordinates", "", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_undefinedValueLabel, "undefinedValueLabel", "", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_excludeUndefinedValues, "excludeUndefinedValues", "", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_viewId, "viewId", -1, "View Id", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_exportFileName, "exportFileName", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_exportLocalCoordinates, "exportLocalCoordinates", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_undefinedValueLabel, "undefinedValueLabel", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_excludeUndefinedValues, "excludeUndefinedValues", "", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_viewId, "viewId", -1, "View Id", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

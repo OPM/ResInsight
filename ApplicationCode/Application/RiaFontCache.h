@@ -19,6 +19,7 @@
 #pragma once
 
 #include "cafFixedAtlasFont.h"
+#include "cafFontTools.h"
 
 #include "cvfObject.h"
 
@@ -38,30 +39,14 @@ class RimSummaryCaseCollection;
 class RiaFontCache
 {
 public:
-    enum FontSize
-    {
-        INVALID       = -1,
-        MIN_FONT_SIZE = 8,
-        FONT_SIZE_8   = 8,
-        FONT_SIZE_10  = 10,
-        FONT_SIZE_12  = 12,
-        FONT_SIZE_14  = 14,
-        FONT_SIZE_16  = 16,
-        FONT_SIZE_24  = 24,
-        FONT_SIZE_32  = 32,
-        MAX_FONT_SIZE = FONT_SIZE_32
-    };
-
-    typedef caf::AppEnum<FontSize> FontSizeType;
+    using FontSize     = caf::FontTools::FontSize;
+    using FontSizeEnum = caf::FontTools::FontSizeEnum;
 
     static cvf::ref<caf::FixedAtlasFont> getFont( FontSize fontSize );
+    static cvf::ref<caf::FixedAtlasFont> getFont( int pointSize );
     static FontSize                      legacyEnumToPointSize( int enumValue );
-    static FontSize                      fontSizeEnumFromPointSize( int pointSize );
-    static int                           pointSizeToPixelSize( int pointSize );
-    static int                           pixelSizeToPointSize( int pixelSize );
-
-    static void clear();
+    static void                          clear();
 
 private:
-    static std::map<FontSize, cvf::ref<caf::FixedAtlasFont>> ms_fonts;
+    static std::map<caf::FixedAtlasFont::FontSize, cvf::ref<caf::FixedAtlasFont>> ms_fonts;
 };

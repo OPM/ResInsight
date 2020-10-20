@@ -19,7 +19,6 @@
 
 #include "RicDeleteAllLinkedViewsFeature.h"
 
-#include "RiaApplication.h"
 #include "RimGridView.h"
 #include "RimProject.h"
 #include "RimViewLinker.h"
@@ -36,7 +35,7 @@ class DeleteAllLinkedViewsImpl
 public:
     static void execute()
     {
-        RimProject* proj = RiaApplication::instance()->project();
+        RimProject* proj = RimProject::current();
 
         RimViewLinker* viewLinker = proj->viewLinkerCollection()->viewLinker();
         if ( viewLinker )
@@ -76,5 +75,5 @@ void RicDeleteAllLinkedViewsFeature::onActionTriggered( bool isChecked )
 void RicDeleteAllLinkedViewsFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Unlink All Views" );
-    actionToSetup->setIcon( QIcon( ":/UnLinkView16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/UnLinkView.svg" ) );
 }

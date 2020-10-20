@@ -285,14 +285,6 @@ void RimWellDistributionPlot::zoomAll()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellDistributionPlot::doRemoveFromCollection()
-{
-    // cvf::Trace::show("RimWellDistributionPlot::doRemoveFromCollection()");
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RiuQwtPlotWidget* RimWellDistributionPlot::doCreatePlotViewWidget( QWidget* mainWindowParent )
 {
     // cvf::Trace::show("RimWellDistributionPlot::createViewWidget()");
@@ -374,11 +366,11 @@ void RimWellDistributionPlot::onLoadDataAndUpdate()
     }
 
     QString phaseString = "N/A";
-    if ( m_phase == RiaDefines::OIL_PHASE )
+    if ( m_phase == RiaDefines::PhaseType::OIL_PHASE )
         phaseString = "Oil";
-    else if ( m_phase == RiaDefines::GAS_PHASE )
+    else if ( m_phase == RiaDefines::PhaseType::GAS_PHASE )
         phaseString = "Gas";
-    else if ( m_phase == RiaDefines::WATER_PHASE )
+    else if ( m_phase == RiaDefines::PhaseType::WATER_PHASE )
         phaseString = "Water";
 
     const QString timeStepName = m_case ? m_case->timeStepName( m_timeStepIndex ) : "N/A";
@@ -519,7 +511,7 @@ QList<caf::PdmOptionItemInfo>
     {
         if ( m_case && m_case->eclipseCaseData() )
         {
-            caf::QIconProvider      simWellIcon( ":/Well.png" );
+            caf::IconProvider       simWellIcon( ":/Well.png" );
             const std::set<QString> sortedWellNameSet = m_case->eclipseCaseData()->findSortedWellNames();
             for ( const QString& name : sortedWellNameSet )
             {

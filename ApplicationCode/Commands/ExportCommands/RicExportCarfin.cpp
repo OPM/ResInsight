@@ -18,7 +18,6 @@
 
 #include "RicExportCarfin.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "RicCellRangeUi.h"
@@ -60,9 +59,9 @@ void RicExportCarfin::onActionTriggered( bool isChecked )
     RimEclipseCase* rimCase = RicExportCarfin::selectedCase();
     CVF_ASSERT( rimCase );
 
-    QString exportCarfinDataAsString = RiaApplication::instance()->project()->dialogData()->exportCarfinDataAsString();
+    QString exportCarfinDataAsString = RimProject::current()->dialogData()->exportCarfinDataAsString();
 
-    RicExportCarfinUi* exportCarfinObject = RiaApplication::instance()->project()->dialogData()->exportCarfin();
+    RicExportCarfinUi* exportCarfinObject = RimProject::current()->dialogData()->exportCarfin();
 
     exportCarfinObject->setCase( rimCase );
 
@@ -122,7 +121,7 @@ void RicExportCarfin::onActionTriggered( bool isChecked )
     }
     else
     {
-        RiaApplication::instance()->project()->dialogData()->setExportCarfinDataFromString( exportCarfinDataAsString );
+        RimProject::current()->dialogData()->setExportCarfinDataFromString( exportCarfinDataAsString );
     }
 }
 
@@ -132,7 +131,7 @@ void RicExportCarfin::onActionTriggered( bool isChecked )
 void RicExportCarfin::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Export CARFIN ..." );
-    actionToSetup->setIcon( QIcon( ":/Save.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Save.svg" ) );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -33,6 +33,7 @@
 #include "RimWellPathValve.h"
 
 #include "RigWellPath.h"
+#include "RiuQwtPlotTools.h"
 
 #include "qwt_plot.h"
 #include "qwt_plot_marker.h"
@@ -46,9 +47,9 @@
 //--------------------------------------------------------------------------------------------------
 RiuWellPathComponentPlotItem::RiuWellPathComponentPlotItem( const RimWellPath* wellPath )
     : m_wellPath( wellPath )
-    , m_componentType( RiaDefines::WELL_PATH )
+    , m_componentType( RiaDefines::WellPathComponentType::WELL_PATH )
     , m_columnOffset( 0.0 )
-    , m_depthType( RiaDefines::MEASURED_DEPTH )
+    , m_depthType( RiaDefines::DepthTypeEnum::MEASURED_DEPTH )
     , m_maxColumnOffset( 0.0 )
     , m_showLabel( false )
 {
@@ -68,7 +69,7 @@ RiuWellPathComponentPlotItem::RiuWellPathComponentPlotItem( const RimWellPath*  
                                                             const RimWellPathComponentInterface* component )
     : m_wellPath( wellPath )
     , m_columnOffset( 0.0 )
-    , m_depthType( RiaDefines::MEASURED_DEPTH )
+    , m_depthType( RiaDefines::DepthTypeEnum::MEASURED_DEPTH )
     , m_maxColumnOffset( 0.0 )
     , m_showLabel( false )
 {
@@ -136,7 +137,7 @@ void RiuWellPathComponentPlotItem::calculateColumnOffsets( const RimWellPathComp
     m_wellPath->descendantsIncludingThisOfType( attributeCollection );
     for ( const RimWellPathAttribute* otherAttribute : attributeCollection.front()->attributes() )
     {
-        if ( otherAttribute->componentType() == RiaDefines::CASING )
+        if ( otherAttribute->componentType() == RiaDefines::WellPathComponentType::CASING )
         {
             uniqueCasingDiameters.insert( otherAttribute->diameterInInches() );
         }
@@ -147,7 +148,7 @@ void RiuWellPathComponentPlotItem::calculateColumnOffsets( const RimWellPathComp
         m_maxColumnOffset = ( uniqueCasingDiameters.size() - 1 ) * 0.25;
 
         const RimWellPathAttribute* myAttribute = dynamic_cast<const RimWellPathAttribute*>( component );
-        if ( myAttribute && myAttribute->componentType() == RiaDefines::CASING )
+        if ( myAttribute && myAttribute->componentType() == RiaDefines::WellPathComponentType::CASING )
         {
             int nNarrowerCasings = std::count_if( uniqueCasingDiameters.begin(),
                                                   uniqueCasingDiameters.end(),
@@ -171,11 +172,11 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
 
     double casingTrackEnd = 0.75 + m_maxColumnOffset;
 
-    if ( m_componentType == RiaDefines::WELL_PATH )
+    if ( m_componentType == RiaDefines::WellPathComponentType::WELL_PATH )
     {
         addColumnFeature( -0.25, 0.25, startDepth, endDepth, componentColor() );
     }
-    else if ( m_componentType == RiaDefines::CASING )
+    else if ( m_componentType == RiaDefines::WellPathComponentType::CASING )
     {
         double posMin = 0.5 + m_columnOffset;
         double posMax = 0.75 + m_columnOffset;
@@ -185,13 +186,13 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
         addMarker( posMax, endDepth, 12, RiuQwtSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE, componentColor() );
         addMarker( casingTrackEnd, endDepth, 12, RiuQwtSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE, componentColor( 0.0 ), label() );
     }
-    else if ( m_componentType == RiaDefines::LINER )
+    else if ( m_componentType == RiaDefines::WellPathComponentType::LINER )
     {
         addColumnFeature( -0.5, -0.25, startDepth, endDepth, componentColor() );
         addColumnFeature( 0.25, 0.5, startDepth, endDepth, componentColor() );
         addMarker( casingTrackEnd, endDepth, 10, RiuQwtSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE, componentColor( 0.0 ), label() );
     }
-    else if ( m_componentType == RiaDefines::PERFORATION_INTERVAL )
+    else if ( m_componentType == RiaDefines::WellPathComponentType::PERFORATION_INTERVAL )
     {
         addColumnFeature( -casingTrackEnd, -0.25, startDepth, endDepth, componentColor(), Qt::Dense6Pattern );
         addColumnFeature( 0.25, casingTrackEnd, startDepth, endDepth, componentColor(), Qt::Dense6Pattern );
@@ -217,13 +218,13 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
         m_combinedComponentGroup.addLegendItem( legendItem1 );
         m_combinedComponentGroup.addLegendItem( legendItem2 );
     }
-    else if ( m_componentType == RiaDefines::FISHBONES )
+    else if ( m_componentType == RiaDefines::WellPathComponentType::FISHBONES )
     {
         addColumnFeature( -casingTrackEnd, -0.25, startDepth, endDepth, componentColor(), Qt::BDiagPattern );
         addColumnFeature( 0.25, casingTrackEnd, startDepth, endDepth, componentColor(), Qt::FDiagPattern );
         addMarker( casingTrackEnd, midDepth, 10, RiuQwtSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE, componentColor( 0.0 ), label() );
     }
-    else if ( m_componentType == RiaDefines::FRACTURE )
+    else if ( m_componentType == RiaDefines::WellPathComponentType::FRACTURE )
     {
         addColumnFeature( -casingTrackEnd, -0.25, startDepth, endDepth, componentColor(), Qt::SolidPattern );
         addColumnFeature( 0.25, casingTrackEnd, startDepth, endDepth, componentColor(), Qt::SolidPattern );
@@ -253,7 +254,7 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
                    label(),
                    Qt::AlignTop | Qt::AlignRight );
     }
-    else if ( m_componentType == RiaDefines::ICD )
+    else if ( m_componentType == RiaDefines::WellPathComponentType::ICD )
     {
         for ( double md : m_subMDs )
         {
@@ -262,7 +263,7 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
         m_combinedComponentGroup.addLegendItem(
             createMarker( 0.0, 0.0, 12.0, RiuQwtSymbol::SYMBOL_ELLIPSE, componentColor() ) );
     }
-    else if ( m_componentType == RiaDefines::ICV )
+    else if ( m_componentType == RiaDefines::WellPathComponentType::ICV )
     {
         for ( double md : m_subMDs )
         {
@@ -271,7 +272,7 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
         m_combinedComponentGroup.addLegendItem(
             createMarker( 0.0, 0.0, 12.0, RiuQwtSymbol::SYMBOL_ELLIPSE, componentColor() ) );
     }
-    else if ( m_componentType == RiaDefines::AICD )
+    else if ( m_componentType == RiaDefines::WellPathComponentType::AICD )
     {
         for ( double md : m_subMDs )
         {
@@ -280,7 +281,7 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
         m_combinedComponentGroup.addLegendItem(
             createMarker( 0.0, 0.0, 12.0, RiuQwtSymbol::SYMBOL_ELLIPSE, componentColor() ) );
     }
-    else if ( m_componentType == RiaDefines::PACKER )
+    else if ( m_componentType == RiaDefines::WellPathComponentType::PACKER )
     {
         addColumnFeature( -1.1 * casingTrackEnd, -0.25, startDepth, endDepth, componentColor(), Qt::DiagCrossPattern );
         addColumnFeature( 0.25, 1.1 * casingTrackEnd, startDepth, endDepth, componentColor(), Qt::DiagCrossPattern );
@@ -298,7 +299,8 @@ std::pair<double, double> RiuWellPathComponentPlotItem::depthsOfDepthType() cons
     double startDepth = m_startMD;
     double endDepth   = m_endMD;
 
-    if ( m_depthType == RiaDefines::TRUE_VERTICAL_DEPTH || m_depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB )
+    if ( m_depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH ||
+         m_depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB )
     {
         endDepth       = -m_wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( m_endMD ).z();
         double rkbDiff = m_wellPath->wellPathGeometry()->rkbDiff();
@@ -307,14 +309,14 @@ std::pair<double, double> RiuWellPathComponentPlotItem::depthsOfDepthType() cons
             rkbDiff = 0.0;
         }
 
-        if ( m_componentType == RiaDefines::WELL_PATH )
+        if ( m_componentType == RiaDefines::WellPathComponentType::WELL_PATH )
         {
             startDepth = 0.0;
-            if ( m_depthType == RiaDefines::TRUE_VERTICAL_DEPTH )
+            if ( m_depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH )
             {
                 startDepth -= rkbDiff;
             }
-            else if ( m_depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB )
+            else if ( m_depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB )
             {
                 endDepth += m_wellPath->wellPathGeometry()->rkbDiff();
             }
@@ -322,7 +324,7 @@ std::pair<double, double> RiuWellPathComponentPlotItem::depthsOfDepthType() cons
         else
         {
             startDepth = -m_wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( m_startMD ).z();
-            if ( m_depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB )
+            if ( m_depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB )
             {
                 startDepth += m_wellPath->wellPathGeometry()->rkbDiff();
                 endDepth += m_wellPath->wellPathGeometry()->rkbDiff();
@@ -410,63 +412,43 @@ void RiuWellPathComponentPlotItem::addColumnFeature( double         startX,
                                                      cvf::Color4f   baseColor,
                                                      Qt::BrushStyle brushStyle /*= Qt::SolidPattern*/ )
 {
+    QColor baseQColor = RiaColorTools::toQColor( baseColor );
     if ( brushStyle != Qt::SolidPattern )
     {
         // If we're doing a special pattern, draw the background in white first over the existing pattern
-        cvf::Color4f semiTransparentWhite( cvf::Color3f( cvf::Color3::WHITE ), 0.9f );
+        QColor semiTransparentWhite( Qt::white );
+        semiTransparentWhite.setAlphaF( 0.9f );
         QwtPlotItem* backgroundShape =
-            createColumnShape( startX, endX, startDepth, endDepth, semiTransparentWhite, Qt::SolidPattern );
+            RiuQwtPlotTools::createBoxShape( label(), startX, endX, startDepth, endDepth, semiTransparentWhite, Qt::SolidPattern );
         m_combinedComponentGroup.addPlotItem( backgroundShape );
 
-        QwtPlotItem* patternShape = createColumnShape( startX, endX, startDepth, endDepth, baseColor, brushStyle );
+        QwtPlotItem* patternShape =
+            RiuQwtPlotTools::createBoxShape( label(), startX, endX, startDepth, endDepth, baseQColor, brushStyle );
         m_combinedComponentGroup.addPlotItem( patternShape );
         if ( endX >= 0.0 )
         {
-            QwtPlotItem* legendBGShape = createColumnShape( 0.0, 16.0, 0.0, 16.0, semiTransparentWhite, Qt::SolidPattern );
+            QwtPlotItem* legendBGShape =
+                RiuQwtPlotTools::createBoxShape( label(), 0.0, 16.0, 0.0, 16.0, semiTransparentWhite, Qt::SolidPattern );
             m_combinedComponentGroup.addLegendItem( legendBGShape );
 
-            QwtPlotItem* legendShape = createColumnShape( 0.0, 16.0, 0.0, 16.0, baseColor, brushStyle );
+            QwtPlotItem* legendShape =
+                RiuQwtPlotTools::createBoxShape( label(), 0.0, 16.0, 0.0, 16.0, baseQColor, brushStyle );
             m_combinedComponentGroup.addLegendItem( legendShape );
         }
     }
     else
     {
-        QwtPlotItem* backgroundShape = createColumnShape( startX, endX, startDepth, endDepth, baseColor, Qt::SolidPattern );
+        QwtPlotItem* backgroundShape =
+            RiuQwtPlotTools::createBoxShape( label(), startX, endX, startDepth, endDepth, baseQColor, Qt::SolidPattern );
         m_combinedComponentGroup.addPlotItem( backgroundShape );
 
         if ( endX >= 0.0 )
         {
-            QwtPlotItem* legendShape = createColumnShape( 0.0, 16.0, 0.0, 16.0, baseColor, Qt::SolidPattern );
+            QwtPlotItem* legendShape =
+                RiuQwtPlotTools::createBoxShape( label(), 0.0, 16.0, 0.0, 16.0, baseQColor, Qt::SolidPattern );
             m_combinedComponentGroup.addLegendItem( legendShape );
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QwtPlotItem* RiuWellPathComponentPlotItem::createColumnShape( double         startX,
-                                                              double         endX,
-                                                              double         startDepth,
-                                                              double         endDepth,
-                                                              cvf::Color4f   baseColor,
-                                                              Qt::BrushStyle brushStyle )
-{
-    QwtPlotShapeItem* columnShape = new QwtPlotShapeItem( label() );
-    QPolygonF         polygon;
-    QColor            color = RiaColorTools::toQColor( baseColor );
-
-    polygon.push_back( QPointF( startX, startDepth ) );
-    polygon.push_back( QPointF( endX, startDepth ) );
-    polygon.push_back( QPointF( endX, endDepth ) );
-    polygon.push_back( QPointF( startX, endDepth ) );
-    polygon.push_back( QPointF( startX, startDepth ) );
-    columnShape->setPolygon( polygon );
-    columnShape->setXAxis( QwtPlot::xBottom );
-    columnShape->setBrush( QBrush( color, brushStyle ) );
-    columnShape->setLegendMode( QwtPlotShapeItem::LegendShape );
-    columnShape->setLegendIconSize( QSize( 16, 16 ) );
-    return columnShape;
 }
 
 //--------------------------------------------------------------------------------------------------

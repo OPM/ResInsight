@@ -20,11 +20,11 @@
 
 #include "RiaApplication.h"
 
+#include "RiuFileDialogTools.h"
 #include "RiuTools.h"
 
 #include "ui_RiuMultiCaseImportDialog.h"
 
-#include <QFileDialog>
 #include <QFileIconProvider>
 #include <QFileSystemModel>
 #include <QStringListModel>
@@ -101,11 +101,11 @@ RiuMultiCaseImportDialog::~RiuMultiCaseImportDialog()
 //--------------------------------------------------------------------------------------------------
 void RiuMultiCaseImportDialog::on_m_addSearchFolderButton_clicked()
 {
-    QString selectedFolder =
-        QFileDialog::getExistingDirectory( this,
-                                           "Select an Eclipse case search folder",
-                                           RiaApplication::instance()->lastUsedDialogDirectory( "MULTICASEIMPORT" ) );
-    QStringList folderNames = m_searchFolders->stringList();
+    QString     selectedFolder = RiuFileDialogTools::getExistingDirectory( this,
+                                                                       "Select an Eclipse case search folder",
+                                                                       RiaApplication::instance()->lastUsedDialogDirectory(
+                                                                           "MULTICASEIMPORT" ) );
+    QStringList folderNames    = m_searchFolders->stringList();
 
     if ( !folderNames.contains( selectedFolder ) )
     {

@@ -26,31 +26,30 @@
 #include "cvfRenderState_FF.h"
 #endif
 
-#include "cvfScalarMapper.h"
 #include "cafInternalLegendRenderTools.h"
+#include "cvfScalarMapper.h"
 
-#include <cmath>
 #include <QDebug>
+#include <cmath>
 
 using namespace cvf;
 
-namespace caf {
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-CategoryLegend::CategoryLegend(Font* font, const CategoryMapper* categoryMapper)
-    : TitledOverlayFrame(font, 200, 200)    
-    , m_categoryMapper(categoryMapper)
-    , m_Layout(Vec2ui(200u, 200u))
+namespace caf
 {
-    CVF_ASSERT(font);
-    CVF_ASSERT(!font->isEmpty());
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+CategoryLegend::CategoryLegend( Font* font, const CategoryMapper* categoryMapper )
+    : TitledOverlayFrame( font, 200, 200 )
+    , m_categoryMapper( categoryMapper )
+    , m_Layout( Vec2ui( 200u, 200u ) )
+{
+    CVF_ASSERT( font );
+    CVF_ASSERT( !font->isEmpty() );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 CategoryLegend::~CategoryLegend()
 {
@@ -58,11 +57,11 @@ CategoryLegend::~CategoryLegend()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 size_t CategoryLegend::categoryCount() const
 {
-    if (m_categoryMapper.notNull())
+    if ( m_categoryMapper.notNull() )
     {
         return m_categoryMapper->categoryCount();
     }
@@ -73,37 +72,39 @@ size_t CategoryLegend::categoryCount() const
 //--------------------------------------------------------------------------------------------------
 /// Hardware rendering using shader programs
 //--------------------------------------------------------------------------------------------------
-void CategoryLegend::render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size)
+void CategoryLegend::render( OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size )
 {
-    renderGeneric(oglContext, position, size, false);
+    renderGeneric( oglContext, position, size, false );
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Software rendering using software
 //--------------------------------------------------------------------------------------------------
-void CategoryLegend::renderSoftware(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size)
+void CategoryLegend::renderSoftware( OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size )
 {
-    renderGeneric(oglContext, position, size, true);
+    renderGeneric( oglContext, position, size, true );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool CategoryLegend::pick(int oglXCoord, int oglYCoord, const Vec2i& position, const Vec2ui& size)
+bool CategoryLegend::pick( int oglXCoord, int oglYCoord, const Vec2i& position, const Vec2ui& size )
 {
-    Recti oglRect(position, size.x(), size.y());
+    Recti oglRect( position, size.x(), size.y() );
 
-    OverlayColorLegendLayoutInfo layoutInViewPortCoords( Vec2ui(oglRect.width(), oglRect.height()));
-    layoutInfo(&layoutInViewPortCoords);
+    OverlayColorLegendLayoutInfo layoutInViewPortCoords( Vec2ui( oglRect.width(), oglRect.height() ) );
+    layoutInfo( &layoutInViewPortCoords );
 
     Vec2i legendBarOrigin = oglRect.min();
-    legendBarOrigin.x() += static_cast<uint>(layoutInViewPortCoords.colorBarRect.min().x());
-    legendBarOrigin.y() += static_cast<uint>(layoutInViewPortCoords.colorBarRect.min().y());
+    legendBarOrigin.x() += static_cast<uint>( layoutInViewPortCoords.colorBarRect.min().x() );
+    legendBarOrigin.y() += static_cast<uint>( layoutInViewPortCoords.colorBarRect.min().y() );
 
-    Recti legendBarRect = Recti(legendBarOrigin, static_cast<uint>(layoutInViewPortCoords.colorBarRect.width()), static_cast<uint>(layoutInViewPortCoords.colorBarRect.height()));
+    Recti legendBarRect = Recti( legendBarOrigin,
+                                 static_cast<uint>( layoutInViewPortCoords.colorBarRect.width() ),
+                                 static_cast<uint>( layoutInViewPortCoords.colorBarRect.height() ) );
 
-    if ((oglXCoord > legendBarRect.min().x()) && (oglXCoord < legendBarRect.max().x()) &&
-        (oglYCoord > legendBarRect.min().y()) && (oglYCoord < legendBarRect.max().y()))
+    if ( ( oglXCoord > legendBarRect.min().x() ) && ( oglXCoord < legendBarRect.max().x() ) &&
+         ( oglYCoord > legendBarRect.min().y() ) && ( oglYCoord < legendBarRect.max().y() ) )
     {
         return true;
     }
@@ -114,157 +115,148 @@ bool CategoryLegend::pick(int oglXCoord, int oglYCoord, const Vec2i& position, c
 //--------------------------------------------------------------------------------------------------
 /// Set up camera/viewport and render
 //--------------------------------------------------------------------------------------------------
-void CategoryLegend::renderGeneric(OpenGLContext* oglContext, 
-                                   const Vec2i& position, 
-                                   const Vec2ui& size, 
-                                   bool software)
+void CategoryLegend::renderGeneric( OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software )
 {
-    if (size.x() <= 0 || size.y() <= 0)
+    if ( size.x() <= 0 || size.y() <= 0 )
     {
         return;
     }
 
     Camera camera;
-    camera.setViewport(position.x(), position.y(), size.x(), size.y());
+    camera.setViewport( position.x(), position.y(), size.x(), size.y() );
     camera.setProjectionAsPixelExact2D();
-    camera.setViewMatrix(Mat4d::IDENTITY);
+    camera.setViewMatrix( Mat4d::IDENTITY );
     camera.applyOpenGL();
-    camera.viewport()->applyOpenGL(oglContext, Viewport::CLEAR_DEPTH);
+    camera.viewport()->applyOpenGL( oglContext, Viewport::CLEAR_DEPTH );
 
-    m_Layout = OverlayColorLegendLayoutInfo(size);
-    layoutInfo(&m_Layout);
-    m_textDrawer = new TextDrawer(this->font());
+    m_Layout = OverlayColorLegendLayoutInfo( size );
+    layoutInfo( &m_Layout );
+    m_textDrawer = new TextDrawer( this->font() );
 
     // Set up text drawer
     float maxLegendRightPos = 0;
-    setupTextDrawer(m_textDrawer.p(), &m_Layout);
+    setupTextDrawer( m_textDrawer.p(), &m_Layout );
 
-    Vec2f backgroundSize(size);
+    Vec2f backgroundSize( size );
 
     // Do the actual rendering
-    if (software)
+    if ( software )
     {
-        if (this->backgroundEnabled()) InternalLegendRenderTools::renderBackgroundImmediateMode(oglContext, 
-                                                                                            backgroundSize, 
-                                                                                            this->backgroundColor(), 
-                                                                                            this->backgroundFrameColor());
-        renderLegendImmediateMode(oglContext, &m_Layout);
-        m_textDrawer->renderSoftware(oglContext, camera);
+        if ( this->backgroundEnabled() )
+            InternalLegendRenderTools::renderBackgroundImmediateMode( oglContext,
+                                                                      backgroundSize,
+                                                                      this->backgroundColor(),
+                                                                      this->backgroundFrameColor() );
+        renderLegendImmediateMode( oglContext, &m_Layout );
+        m_textDrawer->renderSoftware( oglContext, camera );
     }
     else
     {
-        const MatrixState matrixState(camera);
-        if (this->backgroundEnabled()) InternalLegendRenderTools::renderBackgroundUsingShaders(oglContext, 
-                                                                                           matrixState, 
-                                                                                           backgroundSize, 
-                                                                                           this->backgroundColor(), 
-                                                                                           this->backgroundFrameColor());
-        renderLegendUsingShaders(oglContext, &m_Layout, matrixState);
-        m_textDrawer->render(oglContext, camera);
+        const MatrixState matrixState( camera );
+        if ( this->backgroundEnabled() )
+            InternalLegendRenderTools::renderBackgroundUsingShaders( oglContext,
+                                                                     matrixState,
+                                                                     backgroundSize,
+                                                                     this->backgroundColor(),
+                                                                     this->backgroundFrameColor() );
+        renderLegendUsingShaders( oglContext, &m_Layout, matrixState );
+        m_textDrawer->render( oglContext, camera );
     }
 
-    CVF_CHECK_OGL(oglContext);
+    CVF_CHECK_OGL( oglContext );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void CategoryLegend::setupTextDrawer(TextDrawer* textDrawer, 
-                                     const OverlayColorLegendLayoutInfo* layout)
+void CategoryLegend::setupTextDrawer( TextDrawer* textDrawer, const OverlayColorLegendLayoutInfo* layout )
 {
-    if (m_categoryMapper.isNull())
+    if ( m_categoryMapper.isNull() )
     {
         return;
     }
 
-    CVF_ASSERT(layout);
+    CVF_ASSERT( layout );
 
-    textDrawer->setVerticalAlignment(TextDrawer::CENTER);
-    textDrawer->setTextColor(this->textColor());
+    textDrawer->setVerticalAlignment( TextDrawer::CENTER );
+    textDrawer->setTextColor( this->textColor() );
 
     m_visibleCategoryLabels.clear();
 
     const float textX = layout->tickEndX + layout->tickTextLeadSpace;
 
     const float overlapTolerance = 1.2f * layout->charHeight;
-    float lastVisibleTextY = 0.0;
+    float       lastVisibleTextY = 0.0;
 
-    CVF_ASSERT(m_categoryMapper.notNull());
+    CVF_ASSERT( m_categoryMapper.notNull() );
     size_t numLabels = m_categoryMapper->categoryCount();
 
-    float categoryHeight = static_cast<float>(layout->colorBarRect.height() / numLabels);
+    float categoryHeight = static_cast<float>( layout->colorBarRect.height() / numLabels );
 
-    for (size_t it = 0; it < numLabels; it++)
+    for ( size_t it = 0; it < numLabels; it++ )
     {
-        float textY = static_cast<float>(layout->colorBarRect.min().y() + it * categoryHeight + categoryHeight / 2);
+        float textY = static_cast<float>( layout->colorBarRect.min().y() + it * categoryHeight + categoryHeight / 2 );
 
         // Always draw first and last tick label. For all others, skip drawing if text ends up
-        // on top of the previous label. 
-        if (it != 0 && it != (numLabels - 1))
+        // on top of the previous label.
+        if ( it != 0 && it != ( numLabels - 1 ) )
         {
-            if (cvf::Math::abs(textY - lastVisibleTextY) < overlapTolerance)
+            if ( cvf::Math::abs( textY - lastVisibleTextY ) < overlapTolerance )
             {
-                m_visibleCategoryLabels.push_back(false);
+                m_visibleCategoryLabels.push_back( false );
                 continue;
             }
             // Make sure it does not overlap the last tick as well
 
-            float lastTickY = static_cast<float>(layout->colorBarRect.max().y());
+            float lastTickY = static_cast<float>( layout->colorBarRect.max().y() );
 
-            if (cvf::Math::abs(textY - lastTickY) < overlapTolerance)
+            if ( cvf::Math::abs( textY - lastTickY ) < overlapTolerance )
             {
-                m_visibleCategoryLabels.push_back(false);
+                m_visibleCategoryLabels.push_back( false );
                 continue;
             }
         }
 
-        String displayText = m_categoryMapper->textForCategoryIndex(it);
+        size_t inverseIndex = numLabels - 1 - it;
+        String displayText  = m_categoryMapper->textForCategoryIndex( inverseIndex );
 
-        Vec2f pos(textX, textY);
-        textDrawer->addText(displayText, pos);
+        Vec2f pos( textX, textY );
+        textDrawer->addText( displayText, pos );
 
         lastVisibleTextY = textY;
-        m_visibleCategoryLabels.push_back(true);
+        m_visibleCategoryLabels.push_back( true );
     }
 
-    float titleY = static_cast<float>(layout->overallLegendSize.y()) - layout->margins.y() - layout->charHeight / 2.0f;
-    for (size_t it = 0; it < this->titleStrings().size(); it++)
+    float titleY = static_cast<float>( layout->overallLegendSize.y() ) - layout->margins.y() - layout->charHeight / 2.0f;
+    for ( size_t it = 0; it < this->titleStrings().size(); it++ )
     {
-        Vec2f pos(layout->margins.x(), titleY);
-        textDrawer->addText(this->titleStrings()[it], pos);
+        Vec2f pos( layout->margins.x(), titleY );
+        textDrawer->addText( this->titleStrings()[it], pos );
 
         titleY -= layout->lineSpacing;
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Draw the legend using shader programs
 //--------------------------------------------------------------------------------------------------
-void CategoryLegend::renderLegendUsingShaders(OpenGLContext* oglContext, 
-                                              OverlayColorLegendLayoutInfo* layout, 
-                                              const MatrixState& matrixState)
+void CategoryLegend::renderLegendUsingShaders( OpenGLContext*                oglContext,
+                                               OverlayColorLegendLayoutInfo* layout,
+                                               const MatrixState&            matrixState )
 {
-    CVF_CALLSITE_OPENGL(oglContext);
+    CVF_CALLSITE_OPENGL( oglContext );
 
-    CVF_TIGHT_ASSERT(layout);
-    CVF_TIGHT_ASSERT(layout->overallLegendSize.x() > 0);
-    CVF_TIGHT_ASSERT(layout->overallLegendSize.y() > 0);
+    CVF_TIGHT_ASSERT( layout );
+    CVF_TIGHT_ASSERT( layout->overallLegendSize.x() > 0 );
+    CVF_TIGHT_ASSERT( layout->overallLegendSize.y() > 0 );
 
-    RenderStateDepth depth(false);
-    depth.applyOpenGL(oglContext);
-    RenderStateLine line(static_cast<float>(this->lineWidth()));
-    line.applyOpenGL(oglContext);
+    RenderStateDepth depth( false );
+    depth.applyOpenGL( oglContext );
+    RenderStateLine line( static_cast<float>( this->lineWidth() ) );
+    line.applyOpenGL( oglContext );
 
     // All vertices. Initialized here to set Z to zero once and for all.
-    static float vertexArray[] =
-    {
-        0.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 0.0f
-    };
+    static float vertexArray[] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 
     // Per vector convenience pointers
     float* v0 = &vertexArray[0];
@@ -278,32 +270,34 @@ void CategoryLegend::renderLegendUsingShaders(OpenGLContext* oglContext,
     v1[0] = v4[0] = layout->tickMidX;
 
     // Connects
-    static const ushort trianglesConnects[] = { 0, 1, 4, 0, 4, 3 };
+    static const ushort trianglesConnects[] = {0, 1, 4, 0, 4, 3};
 
-    ref<ShaderProgram> shaderProgram = oglContext->resourceManager()->getLinkedUnlitColorShaderProgram(oglContext);
-    CVF_TIGHT_ASSERT(shaderProgram.notNull());
+    ref<ShaderProgram> shaderProgram = oglContext->resourceManager()->getLinkedUnlitColorShaderProgram( oglContext );
+    CVF_TIGHT_ASSERT( shaderProgram.notNull() );
 
-    if (shaderProgram->useProgram(oglContext))
+    if ( shaderProgram->useProgram( oglContext ) )
     {
         shaderProgram->clearUniformApplyTracking();
-        shaderProgram->applyFixedUniforms(oglContext, matrixState);
+        shaderProgram->applyFixedUniforms( oglContext, matrixState );
     }
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glEnableVertexAttribArray(ShaderProgram::VERTEX);
-    glVertexAttribPointer(ShaderProgram::VERTEX, 3, GL_FLOAT, GL_FALSE, 0, vertexArray);
+    glBindBuffer( GL_ARRAY_BUFFER, 0 );
+    glEnableVertexAttribArray( ShaderProgram::VERTEX );
+    glVertexAttribPointer( ShaderProgram::VERTEX, 3, GL_FLOAT, GL_FALSE, 0, vertexArray );
 
     // Render color bar as one colored quad per pixel
 
-    int legendHeightPixelCount = static_cast<int>(layout->colorBarRect.height());
-    if (m_categoryMapper.notNull())
+    int legendHeightPixelCount = static_cast<int>( layout->colorBarRect.height() );
+    if ( m_categoryMapper.notNull() )
     {
         int iPx;
-        for (iPx = 0; iPx < legendHeightPixelCount; iPx++)
+        for ( iPx = 0; iPx < legendHeightPixelCount; iPx++ )
         {
-            const Color3ub& clr = m_categoryMapper->mapToColor(m_categoryMapper->domainValue((iPx + 0.5) / legendHeightPixelCount));
-            float y0 = static_cast<float>(layout->colorBarRect.min().y() + iPx);
-            float y1 = static_cast<float>(layout->colorBarRect.min().y() + iPx + 1);
+            double          normalizedValue         = ( iPx + 0.5 ) / legendHeightPixelCount;
+            double          invertedNormalizedValue = 1.0 - normalizedValue;
+            const Color3ub& clr = m_categoryMapper->mapToColor( m_categoryMapper->domainValue( invertedNormalizedValue ) );
+            float           y0 = static_cast<float>( layout->colorBarRect.min().y() + iPx );
+            float           y1 = static_cast<float>( layout->colorBarRect.min().y() + iPx + 1 );
 
             // Dynamic coordinates for rectangle
             v0[1] = v1[1] = y0;
@@ -311,13 +305,13 @@ void CategoryLegend::renderLegendUsingShaders(OpenGLContext* oglContext,
 
             // Draw filled rectangle elements
             {
-                UniformFloat uniformColor("u_color", Color4f(Color3f(clr)));
-                shaderProgram->applyUniform(oglContext, uniformColor);
+                UniformFloat uniformColor( "u_color", Color4f( Color3f( clr ) ) );
+                shaderProgram->applyUniform( oglContext, uniformColor );
 
 #ifdef CVF_OPENGL_ES
-                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, trianglesConnects);
+                glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, trianglesConnects );
 #else
-                glDrawRangeElements(GL_TRIANGLES, 0, 4, 6, GL_UNSIGNED_SHORT, trianglesConnects);
+                glDrawRangeElements( GL_TRIANGLES, 0, 4, 6, GL_UNSIGNED_SHORT, trianglesConnects );
 #endif
             }
         }
@@ -327,67 +321,75 @@ void CategoryLegend::renderLegendUsingShaders(OpenGLContext* oglContext,
 
     // Dynamic coordinates for  tickmarks-lines
     bool isRenderingFrame = true;
-    if (isRenderingFrame)
+    if ( isRenderingFrame )
     {
         v0[0] = v2[0] = layout->colorBarRect.min().x() - 0.5f;
         v1[0] = v3[0] = layout->colorBarRect.max().x() - 0.5f;
         v0[1] = v1[1] = layout->colorBarRect.min().y() - 0.5f;
-        v2[1] = v3[1] = layout->colorBarRect.max().y() - 0.5f;
-        static const ushort frameConnects[] = { 0, 1, 1, 3, 3, 2, 2, 0 };
+        v2[1] = v3[1]                       = layout->colorBarRect.max().y() - 0.5f;
+        static const ushort frameConnects[] = {0, 1, 1, 3, 3, 2, 2, 0};
 
-        UniformFloat uniformColor("u_color", Color4f(this->lineColor()));
-        shaderProgram->applyUniform(oglContext, uniformColor);
+        UniformFloat uniformColor( "u_color", Color4f( this->lineColor() ) );
+        shaderProgram->applyUniform( oglContext, uniformColor );
 
 #ifdef CVF_OPENGL_ES
-        glDrawElements(GL_LINES, 8, GL_UNSIGNED_SHORT, frameConnects);
+        glDrawElements( GL_LINES, 8, GL_UNSIGNED_SHORT, frameConnects );
 #else
-        glDrawRangeElements(GL_LINES, 0, 3, 8, GL_UNSIGNED_SHORT, frameConnects);
+        glDrawRangeElements( GL_LINES, 0, 3, 8, GL_UNSIGNED_SHORT, frameConnects );
 #endif
     }
 
-    glDisableVertexAttribArray(ShaderProgram::VERTEX);
+    glDisableVertexAttribArray( ShaderProgram::VERTEX );
 
-    CVF_TIGHT_ASSERT(shaderProgram.notNull());
-    shaderProgram->useNoProgram(oglContext);
+    CVF_TIGHT_ASSERT( shaderProgram.notNull() );
+    shaderProgram->useNoProgram( oglContext );
 
     // Reset render states
     RenderStateDepth resetDepth;
-    resetDepth.applyOpenGL(oglContext);
+    resetDepth.applyOpenGL( oglContext );
 
     RenderStateLine resetLine;
-    resetLine.applyOpenGL(oglContext);
+    resetLine.applyOpenGL( oglContext );
 
-    CVF_CHECK_OGL(oglContext);
+    CVF_CHECK_OGL( oglContext );
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// Draw the legend using immediate mode OpenGL
 //--------------------------------------------------------------------------------------------------
-void CategoryLegend::renderLegendImmediateMode(OpenGLContext* oglContext, OverlayColorLegendLayoutInfo* layout)
+void CategoryLegend::renderLegendImmediateMode( OpenGLContext* oglContext, OverlayColorLegendLayoutInfo* layout )
 {
 #ifdef CVF_OPENGL_ES
-    CVF_UNUSED(layout);
-    CVF_FAIL_MSG("Not supported on OpenGL ES");
+    CVF_UNUSED( layout );
+    CVF_FAIL_MSG( "Not supported on OpenGL ES" );
 #else
-    CVF_TIGHT_ASSERT(layout);
-    CVF_TIGHT_ASSERT(layout->overallLegendSize.x() > 0);
-    CVF_TIGHT_ASSERT(layout->overallLegendSize.y() > 0);
+    CVF_TIGHT_ASSERT( layout );
+    CVF_TIGHT_ASSERT( layout->overallLegendSize.x() > 0 );
+    CVF_TIGHT_ASSERT( layout->overallLegendSize.y() > 0 );
 
-    RenderStateDepth depth(false);
-    depth.applyOpenGL(oglContext);
+    RenderStateDepth depth( false );
+    depth.applyOpenGL( oglContext );
 
-    RenderStateLighting_FF lighting(false);
-    lighting.applyOpenGL(oglContext);
+    RenderStateLighting_FF lighting( false );
+    lighting.applyOpenGL( oglContext );
 
     // All vertices. Initialized here to set Z to zero once and for all.
-    static float vertexArray[] =
-    {
-        0.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 0.0f,
+    static float vertexArray[] = {
+        0.0f,
+        0.0f,
+        0.0f,
+        0.0f,
+        0.0f,
+        0.0f,
+        0.0f,
+        0.0f,
+        0.0f,
+        0.0f,
+        0.0f,
+        0.0f,
+        0.0f,
+        0.0f,
+        0.0f,
     };
 
     // Per vector convenience pointers
@@ -403,27 +405,29 @@ void CategoryLegend::renderLegendImmediateMode(OpenGLContext* oglContext, Overla
 
     // Render color bar as one colored quad per pixel
 
-    int legendHeightPixelCount = static_cast<int>(layout->colorBarRect.height());
-    if (m_categoryMapper.notNull())
+    int legendHeightPixelCount = static_cast<int>( layout->colorBarRect.height() );
+    if ( m_categoryMapper.notNull() )
     {
         int iPx;
-        for (iPx = 0; iPx < legendHeightPixelCount; iPx++)
+        for ( iPx = 0; iPx < legendHeightPixelCount; iPx++ )
         {
-            const Color3ub& clr = m_categoryMapper->mapToColor(m_categoryMapper->domainValue((iPx + 0.5) / legendHeightPixelCount));
-            float y0 = static_cast<float>(layout->colorBarRect.min().y() + iPx);
-            float y1 = static_cast<float>(layout->colorBarRect.min().y() + iPx + 1);
+            double normalizedValue = ( iPx + 0.5 ) / legendHeightPixelCount;
+            double invertedNormalizedValue = 1.0 - normalizedValue;
+            const Color3ub& clr = m_categoryMapper->mapToColor( m_categoryMapper->domainValue( invertedNormalizedValue ) );
+            float y0 = static_cast<float>( layout->colorBarRect.min().y() + iPx );
+            float y1 = static_cast<float>( layout->colorBarRect.min().y() + iPx + 1 );
 
             // Dynamic coordinates for rectangle
             v0[1] = v1[1] = y0;
             v3[1] = v4[1] = y1;
 
             // Draw filled rectangle elements
-            glColor3ubv(clr.ptr());
-            glBegin(GL_TRIANGLE_FAN);
-            glVertex3fv(v0);
-            glVertex3fv(v1);
-            glVertex3fv(v4);
-            glVertex3fv(v3);
+            glColor3ubv( clr.ptr() );
+            glBegin( GL_TRIANGLE_FAN );
+            glVertex3fv( v0 );
+            glVertex3fv( v1 );
+            glVertex3fv( v4 );
+            glVertex3fv( v3 );
             glEnd();
         }
     }
@@ -432,99 +436,90 @@ void CategoryLegend::renderLegendImmediateMode(OpenGLContext* oglContext, Overla
 
     // Dynamic coordinates for  tickmarks-lines
     bool isRenderingFrame = true;
-    if (isRenderingFrame)
+    if ( isRenderingFrame )
     {
         v0[0] = v2[0] = layout->colorBarRect.min().x() - 0.5f;
         v1[0] = v3[0] = layout->colorBarRect.max().x() - 0.5f;
         v0[1] = v1[1] = layout->colorBarRect.min().y() - 0.5f;
         v2[1] = v3[1] = layout->colorBarRect.max().y() - 0.5f;
 
-        glColor3fv(this->textColor().ptr());
-        glBegin(GL_LINES);
-        glVertex3fv(v0);
-        glVertex3fv(v1);
-        glVertex3fv(v1);
-        glVertex3fv(v3);
-        glVertex3fv(v3);
-        glVertex3fv(v2);
-        glVertex3fv(v2);
-        glVertex3fv(v0);
+        glColor3fv( this->textColor().ptr() );
+        glBegin( GL_LINES );
+        glVertex3fv( v0 );
+        glVertex3fv( v1 );
+        glVertex3fv( v1 );
+        glVertex3fv( v3 );
+        glVertex3fv( v3 );
+        glVertex3fv( v2 );
+        glVertex3fv( v2 );
+        glVertex3fv( v0 );
         glEnd();
-
     }
 
     // Reset render states
     RenderStateLighting_FF resetLighting;
-    resetLighting.applyOpenGL(oglContext);
+    resetLighting.applyOpenGL( oglContext );
     RenderStateDepth resetDepth;
-    resetDepth.applyOpenGL(oglContext);
+    resetDepth.applyOpenGL( oglContext );
 
-    CVF_CHECK_OGL(oglContext);
+    CVF_CHECK_OGL( oglContext );
 #endif // CVF_OPENGL_ES
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Get layout information
 //--------------------------------------------------------------------------------------------------
-void CategoryLegend::layoutInfo(OverlayColorLegendLayoutInfo* layout)
+void CategoryLegend::layoutInfo( OverlayColorLegendLayoutInfo* layout )
 {
-    CVF_TIGHT_ASSERT(layout);
+    CVF_TIGHT_ASSERT( layout );
 
-    ref<Glyph> glyph    = this->font()->getGlyph(L'A');
-    layout->charHeight  = static_cast<float>(glyph->height());
-    layout->lineSpacing = layout->charHeight*1.5f;
-    layout->margins     = Vec2f(8.0f, 8.0f);
+    ref<Glyph> glyph          = this->font()->getGlyph( L'A' );
+    layout->charHeight        = static_cast<float>( glyph->height() );
+    layout->lineSpacing       = layout->charHeight * 1.5f;
+    layout->margins           = Vec2f( 8.0f, 8.0f );
     layout->tickTextLeadSpace = 5.0f;
 
-    float colorBarWidth = 25.0f;
-    float colorBarHeight =   static_cast<float>(layout->overallLegendSize.y()) 
-                           - 2 * layout->margins.y() 
-                           - static_cast<float>(this->titleStrings().size()) * layout->lineSpacing 
-                           - layout->lineSpacing;
-    layout->colorBarRect = Rectf(layout->margins.x(), 
-                                 layout->margins.y() + layout->charHeight / 2.0f, 
-                                 colorBarWidth, 
-                                 colorBarHeight);
+    float colorBarWidth  = 25.0f;
+    float colorBarHeight = static_cast<float>( layout->overallLegendSize.y() ) - 2 * layout->margins.y() -
+                           static_cast<float>( this->titleStrings().size() ) * layout->lineSpacing - layout->lineSpacing;
+    layout->colorBarRect =
+        Rectf( layout->margins.x(), layout->margins.y() + layout->charHeight / 2.0f, colorBarWidth, colorBarHeight );
 
     layout->tickStartX = layout->margins.x();
-    layout->tickMidX = layout->margins.x() + layout->colorBarRect.width();
-    layout->tickEndX = layout->tickMidX + 5;
+    layout->tickMidX   = layout->margins.x() + layout->colorBarRect.width();
+    layout->tickEndX   = layout->tickMidX + 5;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Vec2ui CategoryLegend::preferredSize()
 {
-    OverlayColorLegendLayoutInfo layout({200,200}); // Use default size
-    layoutInfo(&layout);
+    OverlayColorLegendLayoutInfo layout( {200, 200} ); // Use default size
+    layoutInfo( &layout );
 
-    float prefferredYSize = 2 * layout.margins.y() 
-                            + layout.lineSpacing * (this->titleStrings().size()) 
-                            + 1.5f * layout.lineSpacing * (m_categoryMapper->categoryCount() + 1);
+    float prefferredYSize = 2 * layout.margins.y() + layout.lineSpacing * ( this->titleStrings().size() ) +
+                            1.5f * layout.lineSpacing * ( m_categoryMapper->categoryCount() + 1 );
 
     unsigned int maxTickTextWidth = 0;
-    for (size_t cIdx = 0; cIdx <  m_categoryMapper->categoryCount(); ++cIdx )
+    for ( size_t cIdx = 0; cIdx < m_categoryMapper->categoryCount(); ++cIdx )
     {
-        cvf::String cathegoryText = m_categoryMapper->textForCategoryIndex(cIdx);
-        unsigned int textWidth =  this->font()->textExtent(cathegoryText).x();
-        maxTickTextWidth = maxTickTextWidth <  textWidth ?  textWidth : maxTickTextWidth;
+        cvf::String  cathegoryText = m_categoryMapper->textForCategoryIndex( cIdx );
+        unsigned int textWidth     = this->font()->textExtent( cathegoryText ).x();
+        maxTickTextWidth           = maxTickTextWidth < textWidth ? textWidth : maxTickTextWidth;
     }
 
     float prefferredXSize = layout.tickEndX + layout.margins.x() + layout.tickTextLeadSpace + maxTickTextWidth;
 
-    for (const cvf::String& titleLine : titleStrings())
+    for ( const cvf::String& titleLine : titleStrings() )
     {
-        float titleWidth =  this->font()->textExtent(titleLine).x() + 2*layout.margins.x();
-        prefferredXSize = prefferredXSize < titleWidth ? titleWidth : prefferredXSize;
+        float titleWidth = this->font()->textExtent( titleLine ).x() + 2 * layout.margins.x();
+        prefferredXSize  = prefferredXSize < titleWidth ? titleWidth : prefferredXSize;
     }
 
-    prefferredXSize = std::min(prefferredXSize, 400.0f);
+    prefferredXSize = std::min( prefferredXSize, 400.0f );
 
-    return { (unsigned int)(std::ceil(prefferredXSize)), (unsigned int)(std::ceil(prefferredYSize)) };
-
+    return {(unsigned int)( std::ceil( prefferredXSize ) ), (unsigned int)( std::ceil( prefferredYSize ) )};
 }
 
-
-} // namespace cvf
-
+} // namespace caf

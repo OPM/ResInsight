@@ -45,6 +45,8 @@ RimWellPathFractureCollection::RimWellPathFractureCollection( void )
 
     CAF_PDM_InitField( &m_refMDType_OBSOLETE, "RefMDType", std::numeric_limits<int>::max(), "Reference MD", "", "", "" );
     CAF_PDM_InitField( &m_refMD_OBSOLETE, "RefMD", std::numeric_limits<double>::infinity(), "", "", "", "" );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -67,8 +67,6 @@ void RivReachCircleAnnotationPartMgr::buildParts( const caf::DisplayCoordTransfo
 
     cvf::ref<RivReachCircleAnnotationSourceInfo> sourceInfo = new RivReachCircleAnnotationSourceInfo( rimAnnotation );
 
-    Vec3d centerPositionInDomain = rimAnnotation->centerPoint();
-
     auto lineColor     = rimAnnotation->appearance()->color();
     auto isDashedLine  = rimAnnotation->appearance()->isDashed();
     auto lineThickness = rimAnnotation->appearance()->thickness();

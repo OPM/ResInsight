@@ -25,6 +25,8 @@
 #include "cvfArray.h"
 #include "cvfObject.h"
 
+#include "cafPdmPtrField.h"
+
 #include <tuple>
 
 namespace cvf
@@ -49,6 +51,7 @@ class OverlayScalarMapperLegend;
 class Rim3dView;
 class RimEnsembleCurveSet;
 class RiuAbstractLegendFrame;
+class RimColorLegend;
 
 //==================================================================================================
 ///
@@ -64,7 +67,7 @@ public:
 
     caf::PdmField<QString> resultVariableName; // Used internally to describe the variable this legend setup is used for
 
-    enum ColorRangesType
+    enum class ColorRangesType
     {
         NORMAL,
         OPPOSITE_NORMAL,
@@ -76,18 +79,23 @@ public:
         RED_WHITE_BLUE,
         CATEGORY,
         ANGULAR,
+        RAINBOW,
         STIMPLAN,
 
         GREEN_RED,
         BLUE_MAGENTA,
         RED_LIGHT_DARK,
         GREEN_LIGHT_DARK,
-        BLUE_LIGHT_DARK
+        BLUE_LIGHT_DARK,
+
+        CORRELATION,
+
+        UNDEFINED
     };
 
     typedef caf::AppEnum<ColorRangesType> ColorRangeEnum;
 
-    enum MappingType
+    enum class MappingType
     {
         LINEAR_DISCRETE,
         LINEAR_CONTINUOUS,
@@ -95,18 +103,25 @@ public:
         LOG10_DISCRETE,
         CATEGORY_INTEGER
     };
-    enum NumberFormatType
+    enum class NumberFormatType
     {
         AUTO,
         SCIENTIFIC,
         FIXED
     };
-
     typedef caf::AppEnum<MappingType> MappingEnum;
-    void                              recreateLegend();
 
-    void            setColorRange( ColorRangesType colorMode );
-    ColorRangesType colorRange() { return m_colorRangeMode(); }
+    enum class CategoryColorModeType
+    {
+        INTERPOLATE,
+        EXCLUSIVELY_COLORS
+    };
+    typedef caf::AppEnum<CategoryColorModeType> CategoryColorModeEnum;
+
+    void onRecreateLegend() override;
+
+    void            setColorLegend( RimColorLegend* colorLegend );
+    RimColorLegend* colorLegend() const;
     void            setMappingMode( MappingType mappingType );
     MappingType     mappingMode() { return m_mappingMode(); }
     void            setTickNumberFormat( NumberFormatType numberFormat );
@@ -121,7 +136,6 @@ public:
 
     void    setIntegerCategories( const std::vector<int>& categories );
     void    setNamedCategories( const std::vector<QString>& categoryNames );
-    void    setNamedCategoriesInverse( const std::vector<QString>& categoryNames );
     void    setCategoryItems( const std::vector<std::tuple<QString, int, cvf::Color3ub>>& categories );
     QString categoryNameFromCategoryValue( double categoryResultValue ) const;
     double  categoryValueFromCategoryName( const QString& categoryName ) const;
@@ -141,9 +155,11 @@ public:
 
     RangeModeType             rangeMode() const;
     static cvf::Color3ubArray colorArrayFromColorType( ColorRangesType colorType );
+    static RimColorLegend*    mapToColorLegend( ColorRangesType colorType );
+
+    void updateFonts() override;
 
 private:
-    void                 setNamedCategories( const std::vector<QString>& categoryNames, bool inverse );
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void                 initAfterRead() override;
     caf::PdmFieldHandle* objectToggleField() override;
@@ -155,6 +171,9 @@ private:
     void   updateLegend();
     void   updateFieldVisibility();
     double roundToNumSignificantDigits( double value, double precision );
+
+    void updateCategoryItems();
+    void configureCategoryMapper();
 
     friend class RimViewLinker;
 
@@ -187,15 +206,19 @@ private:
     cvf::Color3ubArray       m_categoryColors;
 
     // Fields
-    caf::PdmField<bool>                           m_showLegend;
-    caf::PdmField<int>                            m_numLevels;
-    caf::PdmField<int>                            m_precision;
-    caf::PdmField<caf::AppEnum<NumberFormatType>> m_tickNumberFormat;
-    caf::PdmField<RangeModeEnum>                  m_rangeMode;
-    caf::PdmField<double>                         m_userDefinedMaxValue;
-    caf::PdmField<double>                         m_userDefinedMinValue;
-    caf::PdmField<caf::AppEnum<ColorRangesType>>  m_colorRangeMode;
-    caf::PdmField<caf::AppEnum<MappingType>>      m_mappingMode;
+    caf::PdmField<bool>                                m_showLegend;
+    caf::PdmField<int>                                 m_numLevels;
+    caf::PdmField<int>                                 m_precision;
+    caf::PdmField<caf::AppEnum<NumberFormatType>>      m_tickNumberFormat;
+    caf::PdmField<RangeModeEnum>                       m_rangeMode;
+    caf::PdmField<double>                              m_userDefinedMaxValue;
+    caf::PdmField<double>                              m_userDefinedMinValue;
+    caf::PdmField<caf::AppEnum<ColorRangesType>>       m_colorRangeMode_OBSOLETE;
+    caf::PdmField<caf::AppEnum<MappingType>>           m_mappingMode;
+    caf::PdmField<caf::AppEnum<CategoryColorModeType>> m_categoryColorMode;
+
+    caf::PdmPtrField<RimColorLegend*> m_colorLegend;
+    caf::PdmField<bool>               m_selectColorLegendButton;
 
     QString m_title;
     int     m_significantDigitsInData;

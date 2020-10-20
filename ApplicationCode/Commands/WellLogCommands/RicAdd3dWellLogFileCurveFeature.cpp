@@ -18,8 +18,6 @@
 
 #include "RicAdd3dWellLogFileCurveFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RicWellLogTools.h"
 
 #include "Rim3dWellLogFileCurve.h"
@@ -38,7 +36,7 @@ CAF_CMD_SOURCE_INIT( RicAdd3dWellLogFileCurveFeature, "RicAdd3dWellLogFileCurveF
 bool RicAdd3dWellLogFileCurveFeature::isCommandEnabled()
 {
     std::vector<RimCase*> cases;
-    RiaApplication::instance()->project()->allCases( cases );
+    RimProject::current()->allCases( cases );
     if ( cases.empty() ) return false;
 
     return ( RicWellLogTools::findWellPathWithLogFileFromSelection() != nullptr );
@@ -57,8 +55,8 @@ void RicAdd3dWellLogFileCurveFeature::onActionTriggered( bool isChecked )
 
     rim3dWellLogFileCurve->setDefaultFileCurveDataInfo();
 
-    RiaApplication::instance()->project()->scheduleCreateDisplayModelAndRedrawAllViews();
-    RiaApplication::instance()->project()->updateConnectedEditors();
+    RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
+    RimProject::current()->updateConnectedEditors();
 
     Riu3DMainWindowTools::selectAsCurrentItem( rim3dWellLogFileCurve );
     Riu3DMainWindowTools::setExpanded( selectedWellPath );

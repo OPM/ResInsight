@@ -41,35 +41,38 @@ void RiuDockedQwtPlot::applyFontSizes( bool replot /*= false*/ )
 {
     std::set<QwtPlot::Axis> allAxes = {QwtPlot::xBottom, QwtPlot::yLeft, QwtPlot::xTop, QwtPlot::yRight};
 
-    int fontPointSize = RiaApplication::instance()->preferences()->defaultPlotFontSize() - 1;
+    caf::FontTools::FontSize fontSize = RiaPreferences::current()->defaultPlotFontSize();
+
+    int titleFontSize  = caf::FontTools::absolutePointSize( fontSize, caf::FontTools::RelativeSize::Large );
+    int axisFontSize   = caf::FontTools::absolutePointSize( fontSize, caf::FontTools::RelativeSize::Medium );
+    int legendFontSize = caf::FontTools::absolutePointSize( fontSize, caf::FontTools::RelativeSize::Small );
+
+    QwtText titleText = this->title();
+    QFont   font      = titleText.font();
+
+    font.setPixelSize( caf::FontTools::pointSizeToPixelSize( titleFontSize ) );
+    titleText.setFont( font );
+    this->setTitle( titleText );
 
     for ( QwtPlot::Axis axis : allAxes )
     {
-        QwtText text = this->axisTitle( axis );
-        QFont   font = text.font();
-        font.setPixelSize(
-            RiaFontCache::pointSizeToPixelSize( RiaApplication::instance()->preferences()->defaultPlotFontSize() ) );
-        text.setFont( font );
+        QwtText text          = this->axisTitle( axis );
+        QFont   axisTitleFont = text.font();
+        axisTitleFont.setPixelSize( caf::FontTools::pointSizeToPixelSize( axisFontSize ) );
+        text.setFont( axisTitleFont );
         this->setAxisTitle( axis, text );
 
         QFont valuesFont = this->axisFont( axis );
-        valuesFont.setPixelSize( font.pixelSize() );
+        valuesFont.setPixelSize( axisTitleFont.pixelSize() );
         this->setAxisFont( axis, valuesFont );
     }
 
     if ( legend() )
     {
         auto font = legend()->font();
-        font.setPointSize( fontPointSize );
+        font.setPixelSize( caf::FontTools::pointSizeToPixelSize( legendFontSize ) );
         legend()->setFont( font );
     }
-
-    QwtText titleText = this->title();
-    QFont   font      = titleText.font();
-
-    font.setPointSize( fontPointSize + 3 );
-    titleText.setFont( font );
-    this->setTitle( titleText );
 
     if ( replot )
     {

@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafNavigationPolicy.h"
@@ -45,37 +44,34 @@ class QWheelEvent;
 
 namespace caf
 {
-
 class CeetronNavigation : public NavigationPolicy
 {
 public:
     CeetronNavigation();
     ~CeetronNavigation() override;
+
 protected:
     // General navigation policy reimplememtation
-    void    init() override;
-    bool    handleInputEvent(QInputEvent* inputEvent) override;
-    void    setView( const cvf::Vec3d& alongDirection, const cvf::Vec3d& upDirection ) override;
-    cvf::Vec3d  pointOfInterest() override; 
-    void        setPointOfInterest(cvf::Vec3d poi) override;
+    void       init() override;
+    bool       handleInputEvent( QInputEvent* inputEvent ) override;
+    void       setView( const cvf::Vec3d& alongDirection, const cvf::Vec3d& upDirection ) override;
+    cvf::Vec3d pointOfInterest() override;
+    void       setPointOfInterest( cvf::Vec3d poi ) override;
 
     // Ceetron navigation stuff
-    void            mouseMoveEvent(QMouseEvent* event);
-    void            mousePressEvent(QMouseEvent* event);
-    void            mouseReleaseEvent(QMouseEvent* event);
-    void            wheelEvent(QWheelEvent* event);
+    void mouseMoveEvent( QMouseEvent* event );
+    void mousePressEvent( QMouseEvent* event );
+    void mouseReleaseEvent( QMouseEvent* event );
+    void wheelEvent( QWheelEvent* event );
 
-    cvf::ManipulatorTrackball::NavigationType 
-                    getNavigationTypeFromMouseButtons(Qt::MouseButtons mouseButtons);
-    void            setCursorFromCurrentState();
+    cvf::ManipulatorTrackball::NavigationType getNavigationTypeFromMouseButtons( Qt::MouseButtons mouseButtons );
+    void                                      setCursorFromCurrentState();
 
-    void            initializeRotationCenter();
+    void initializeRotationCenter();
 
-    cvf::ref<cvf::ManipulatorTrackball> 
-                    m_trackball;
-    bool            m_isRotCenterInitialized; 
-    cvf::Vec3d      m_pointOfInterest;
+    cvf::ref<cvf::ManipulatorTrackball> m_trackball;
+    bool                                m_isRotCenterInitialized;
+    cvf::Vec3d                          m_pointOfInterest;
 };
-
 
 } // End namespace caf

@@ -18,7 +18,6 @@
 
 #include "RicReloadSummaryCaseFeature.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 #include "RiaSummaryTools.h"
 
@@ -65,7 +64,7 @@ void RicReloadSummaryCaseFeature::onActionTriggered( bool isChecked )
         RiaLogging::info( QString( "Reloaded data for %1" ).arg( summaryCase->summaryHeaderFilename() ) );
     }
 
-    for ( RimSummaryPlot* summaryPlot : summaryPlotColl->summaryPlots )
+    for ( RimSummaryPlot* summaryPlot : summaryPlotColl->plots() )
     {
         summaryPlot->loadDataAndUpdate();
     }
@@ -77,7 +76,7 @@ void RicReloadSummaryCaseFeature::onActionTriggered( bool isChecked )
 void RicReloadSummaryCaseFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Reload" );
-    actionToSetup->setIcon( QIcon( ":/Refresh-32.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Refresh.svg" ) );
 }
 
 //--------------------------------------------------------------------------------------------------

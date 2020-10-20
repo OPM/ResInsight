@@ -63,10 +63,10 @@ public:
         QString propertyName      = args[2];
         QString porosityModelName = args[3];
 
-        RiaDefines::PorosityModelType porosityModelEnum = RiaDefines::MATRIX_MODEL;
+        RiaDefines::PorosityModelType porosityModelEnum = RiaDefines::PorosityModelType::MATRIX_MODEL;
         if ( porosityModelName == "Fracture" )
         {
-            porosityModelEnum = RiaDefines::FRACTURE_MODEL;
+            porosityModelEnum = RiaDefines::PorosityModelType::FRACTURE_MODEL;
         }
 
         // Find the requested data
@@ -133,7 +133,7 @@ public:
                 {
                     server->showErrorMessage(
                         RiaSocketServer::tr( "ResInsight SocketServer: riGetActiveCellProperty : \n" ) +
-                        RiaSocketServer::tr( "An error occured while interpreting the requested timesteps." ) );
+                        RiaSocketServer::tr( "An error occurred while interpreting the requested timesteps." ) );
                 }
             }
 
@@ -232,7 +232,7 @@ public:
         QString porosityModelName = args[4];
 
         RimEclipseCase* rimCase = server->findReservoir( caseId );
-        if ( rimCase == nullptr )
+        if ( !rimCase || !rimCase->eclipseCaseData() )
         {
             server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
                                       RiaSocketServer::tr( "Could not find the case with ID: \"%1\"" ).arg( caseId ) );
@@ -242,10 +242,10 @@ public:
             return true;
         }
 
-        RiaDefines::PorosityModelType porosityModelEnum = RiaDefines::MATRIX_MODEL;
+        RiaDefines::PorosityModelType porosityModelEnum = RiaDefines::PorosityModelType::MATRIX_MODEL;
         if ( porosityModelName == "Fracture" )
         {
-            porosityModelEnum = RiaDefines::FRACTURE_MODEL;
+            porosityModelEnum = RiaDefines::PorosityModelType::FRACTURE_MODEL;
         }
 
         bool isResultsLoaded = false;
@@ -313,7 +313,7 @@ public:
             {
                 server->showErrorMessage(
                     RiaSocketServer::tr( "ResInsight SocketServer: riGetGridProperty : \n" ) +
-                    RiaSocketServer::tr( "An error occured while interpreting the requested timesteps." ) );
+                    RiaSocketServer::tr( "An error occurred while interpreting the requested timesteps." ) );
             }
         }
 
@@ -403,7 +403,7 @@ public:
         , m_bytesPerTimeStepToRead( 0 )
         , m_currentTimeStepNumberToRead( 0 )
         , m_invalidActiveCellCountDetected( false )
-        , m_porosityModelEnum( RiaDefines::MATRIX_MODEL )
+        , m_porosityModelEnum( RiaDefines::PorosityModelType::MATRIX_MODEL )
     {
     }
 
@@ -418,7 +418,7 @@ public:
 
         if ( porosityModelName == "Fracture" )
         {
-            m_porosityModelEnum = RiaDefines::FRACTURE_MODEL;
+            m_porosityModelEnum = RiaDefines::PorosityModelType::FRACTURE_MODEL;
         }
 
         // Find the requested data, Or create a set if we are setting data and it is not found
@@ -427,7 +427,7 @@ public:
 
         if ( rimCase && rimCase->results( m_porosityModelEnum ) )
         {
-            RigEclipseResultAddress eclResAddr( RiaDefines::GENERATED, propertyName );
+            RigEclipseResultAddress eclResAddr( RiaDefines::ResultCatType::GENERATED, propertyName );
 
             if ( !rimCase->results( m_porosityModelEnum )->ensureKnownResultLoaded( eclResAddr ) )
             {
@@ -505,7 +505,7 @@ public:
             {
                 server->showErrorMessage(
                     RiaSocketServer::tr( "ResInsight SocketServer: riGetActiveCellProperty : \n" ) +
-                    RiaSocketServer::tr( "An error occured while interpreting the requested timesteps." ) );
+                    RiaSocketServer::tr( "An error occurred while interpreting the requested timesteps." ) );
             }
         }
 
@@ -580,7 +580,7 @@ public:
             return true;
         }
 
-        // Make sure the size of the retreiving container is correct.
+        // Make sure the size of the retrieving container is correct.
         // If it is, this is noops
         {
             size_t maxRequestedTimeStepIdx = cvf::UNDEFINED_SIZE_T;
@@ -770,7 +770,7 @@ public:
         , m_bytesPerTimeStepToRead( 0 )
         , m_currentTimeStepNumberToRead( 0 )
         , m_invalidDataDetected( false )
-        , m_porosityModelEnum( RiaDefines::MATRIX_MODEL )
+        , m_porosityModelEnum( RiaDefines::PorosityModelType::MATRIX_MODEL )
     {
     }
 
@@ -794,7 +794,7 @@ public:
 
         if ( porosityModelName == "Fracture" )
         {
-            m_porosityModelEnum = RiaDefines::FRACTURE_MODEL;
+            m_porosityModelEnum = RiaDefines::PorosityModelType::FRACTURE_MODEL;
         }
 
         RigGridBase* grid = rimCase->eclipseCaseData()->grid( m_currentGridIndex );
@@ -844,7 +844,7 @@ public:
 
         if ( rimCase && rimCase->results( m_porosityModelEnum ) )
         {
-            RigEclipseResultAddress resAddr( RiaDefines::GENERATED, propertyName );
+            RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::GENERATED, propertyName );
 
             if ( !rimCase->results( m_porosityModelEnum )->ensureKnownResultLoaded( resAddr ) )
             {
@@ -903,7 +903,7 @@ public:
             {
                 server->showErrorMessage(
                     RiaSocketServer::tr( "ResInsight SocketServer: riGetActiveCellProperty : \n" ) +
-                    RiaSocketServer::tr( "An error occured while interpreting the requested timesteps." ) );
+                    RiaSocketServer::tr( "An error occurred while interpreting the requested timesteps." ) );
                 return true;
             }
         }
@@ -1165,11 +1165,11 @@ public:
         }
 
         QString                       porosityModelName = args[2];
-        RiaDefines::PorosityModelType porosityModelEnum = RiaDefines::MATRIX_MODEL;
+        RiaDefines::PorosityModelType porosityModelEnum = RiaDefines::PorosityModelType::MATRIX_MODEL;
 
         if ( porosityModelName == "Fracture" )
         {
-            porosityModelEnum = RiaDefines::FRACTURE_MODEL;
+            porosityModelEnum = RiaDefines::PorosityModelType::FRACTURE_MODEL;
         }
 
         std::vector<QString> propNames;
@@ -1179,20 +1179,20 @@ public:
 
         std::vector<RiaDefines::ResultCatType> resTypes;
         std::vector<QString>                   resTypeNames;
-        resTypes.push_back( RiaDefines::DYNAMIC_NATIVE );
+        resTypes.push_back( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
         resTypeNames.push_back( "DynamicNative" );
-        resTypes.push_back( RiaDefines::SOURSIMRL );
+        resTypes.push_back( RiaDefines::ResultCatType::SOURSIMRL );
         resTypeNames.push_back( "SourSimRL" );
-        resTypes.push_back( RiaDefines::STATIC_NATIVE );
+        resTypes.push_back( RiaDefines::ResultCatType::STATIC_NATIVE );
         resTypeNames.push_back( "StaticNative" );
-        resTypes.push_back( RiaDefines::GENERATED );
+        resTypes.push_back( RiaDefines::ResultCatType::GENERATED );
         resTypeNames.push_back( "Generated" );
-        resTypes.push_back( RiaDefines::INPUT_PROPERTY );
+        resTypes.push_back( RiaDefines::ResultCatType::INPUT_PROPERTY );
         resTypeNames.push_back( "Input" );
-#ifdef ENABLE_SOURING
-        resTypes.push_back( RiaDefines::INJECTION_FLOODING );
+#ifdef USE_HDF5
+        resTypes.push_back( RiaDefines::ResultCatType::INJECTION_FLOODING );
         resTypeNames.push_back( "Injection Flooding" );
-#endif /* ENABLE_SOURING */
+#endif /* USE_HDF5 */
 
         for ( size_t rtIdx = 0; rtIdx < resTypes.size(); ++rtIdx )
         {
@@ -1246,14 +1246,14 @@ public:
 
         QString propertyName = args[2];
 
-        RiaDefines::PorosityModelType porosityModel = RiaDefines::MATRIX_MODEL;
+        RiaDefines::PorosityModelType porosityModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
 
         if ( args.size() > 1 )
         {
             QString prorosityModelString = args[3];
             if ( prorosityModelString.toUpper() == "FRACTURE" )
             {
-                porosityModel = RiaDefines::FRACTURE_MODEL;
+                porosityModel = RiaDefines::PorosityModelType::FRACTURE_MODEL;
             }
         }
 
@@ -1321,7 +1321,7 @@ public:
 
         for ( size_t timeStep : requestedTimesteps )
         {
-            for ( const std::pair<size_t, size_t> selectedCell : selectedCells )
+            for ( const std::pair<size_t, size_t>& selectedCell : selectedCells )
             {
                 cvf::ref<RigResultAccessor> resultAccessor =
                     RigResultAccessorFactory::createFromResultAddress( rimCase->eclipseCaseData(),

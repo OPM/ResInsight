@@ -18,8 +18,6 @@
 
 #include "RicAdd3dWellLogRftCurveFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RicWellLogTools.h"
 
 #include "Rim3dWellLogRftCurve.h"
@@ -40,7 +38,7 @@ CAF_CMD_SOURCE_INIT( RicAdd3dWellLogRftCurveFeature, "RicAdd3dWellLogRftCurveFea
 bool RicAdd3dWellLogRftCurveFeature::isCommandEnabled()
 {
     std::vector<RimCase*> cases;
-    RiaApplication::instance()->project()->allCases( cases );
+    RimProject::current()->allCases( cases );
     if ( cases.empty() ) return false;
 
     RimWellPath* wellPath = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPath>();
@@ -62,8 +60,8 @@ void RicAdd3dWellLogRftCurveFeature::onActionTriggered( bool isChecked )
     Rim3dWellLogRftCurve* rim3dWellLogRftCurve = new Rim3dWellLogRftCurve();
     selectedWellPath->add3dWellLogCurve( rim3dWellLogRftCurve );
 
-    RiaApplication::instance()->project()->scheduleCreateDisplayModelAndRedrawAllViews();
-    RiaApplication::instance()->project()->updateConnectedEditors();
+    RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
+    RimProject::current()->updateConnectedEditors();
 
     Riu3DMainWindowTools::selectAsCurrentItem( rim3dWellLogRftCurve );
     Riu3DMainWindowTools::setExpanded( selectedWellPath );

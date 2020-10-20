@@ -18,8 +18,6 @@
 
 #include "RicCreateMultipleFracturesOptionItemUi.h"
 
-#include "RiaApplication.h"
-
 #include "RicCreateMultipleFracturesUi.h"
 #include "RimFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
@@ -132,7 +130,7 @@ QList<caf::PdmOptionItemInfo>
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
     CVF_ASSERT( proj );
 
     if ( fieldNeedingOptions == &m_fractureTemplate )

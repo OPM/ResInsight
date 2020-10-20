@@ -18,9 +18,6 @@
 
 #include "RiuPlotAnnotationTool.h"
 
-#include "RiaColorTables.h"
-#include "RiaColorTools.h"
-
 #include "cafCategoryMapper.h"
 #include "cvfMath.h"
 
@@ -196,13 +193,13 @@ Qt::Alignment RiuPlotAnnotationTool::trackTextAlignment( TrackSpan trackSpan )
 {
     switch ( trackSpan )
     {
-        case FULL_WIDTH:
+        case TrackSpan::FULL_WIDTH:
             return Qt::AlignRight;
-        case LEFT_COLUMN:
+        case TrackSpan::LEFT_COLUMN:
             return Qt::AlignLeft;
-        case CENTRE_COLUMN:
+        case TrackSpan::CENTRE_COLUMN:
             return Qt::AlignCenter;
-        case RIGHT_COLUMN:
+        case TrackSpan::RIGHT_COLUMN:
             return Qt::AlignRight;
     }
     return Qt::AlignRight;

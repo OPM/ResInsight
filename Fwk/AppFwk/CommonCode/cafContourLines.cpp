@@ -24,69 +24,66 @@
 #include "cafContourLines.h"
 
 #include <algorithm>
-#include <list>
 #include <cmath>
+#include <list>
 
-const int caf::ContourLines::s_castab[3][3][3] =
-{
-     { {0,0,8},{0,2,5},{7,6,9} },
-     { {0,3,4},{1,3,1},{4,3,0} },
-     { {9,6,7},{5,2,0},{8,0,0} }
-};
-
-
+const int caf::ContourLines::s_castab[3][3][3] = {{{0, 0, 8}, {0, 2, 5}, {7, 6, 9}},
+                                                  {{0, 3, 4}, {1, 3, 1}, {4, 3, 0}},
+                                                  {{9, 6, 7}, {5, 2, 0}, {8, 0, 0}}};
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::ContourLines::create(const std::vector<double>& dataXY, const std::vector<double>& xCoords, const std::vector<double>& yCoords, const std::vector<double>& contourLevels, std::vector<std::vector<cvf::Vec2d>>* polygons)
+void caf::ContourLines::create( const std::vector<double>&            dataXY,
+                                const std::vector<double>&            xCoords,
+                                const std::vector<double>&            yCoords,
+                                const std::vector<double>&            contourLevels,
+                                std::vector<std::vector<cvf::Vec2d>>* polygons )
 {
-    CVF_ASSERT(!contourLevels.empty());
-    int nContourLevels = static_cast<int>(contourLevels.size());
-    std::vector<int> sh(5, 0);
-    std::vector<double> h(5, 0.0), xh(5, 0.0), yh(5, 0.0);
+    CVF_ASSERT( !contourLevels.empty() );
+    int                 nContourLevels = static_cast<int>( contourLevels.size() );
+    std::vector<int>    sh( 5, 0 );
+    std::vector<double> h( 5, 0.0 ), xh( 5, 0.0 ), yh( 5, 0.0 );
 
-    int nx = static_cast<int>(xCoords.size());
-    int ny = static_cast<int>(yCoords.size());
+    int nx = static_cast<int>( xCoords.size() );
+    int ny = static_cast<int>( yCoords.size() );
 
-    CVF_ASSERT(static_cast<int>(dataXY.size()) == nx * ny);
+    CVF_ASSERT( static_cast<int>( dataXY.size() ) == nx * ny );
 
-    polygons->resize(nContourLevels);
+    polygons->resize( nContourLevels );
 
-    int im[4] = { 0,1,1,0 }, jm[4] = { 0,0,1,1 };
+    int im[4] = {0, 1, 1, 0}, jm[4] = {0, 0, 1, 1};
 
-    for (int j = (ny - 2); j >= 0; j--)
+    for ( int j = ( ny - 2 ); j >= 0; j-- )
     {
-        for (int i = 0; i < nx - 1; i++)
+        for ( int i = 0; i < nx - 1; i++ )
         {
             double temp1, temp2;
-            temp1 = std::min(saneValue(gridIndex1d(i, j, nx), dataXY, contourLevels),
-                             saneValue(gridIndex1d(i, j + 1, nx), dataXY, contourLevels));
-            temp2 = std::min(saneValue(gridIndex1d(i + 1, j, nx), dataXY, contourLevels),
-                             saneValue(gridIndex1d(i + 1, j + 1, nx), dataXY, contourLevels));
-            double dmin  = std::min(temp1, temp2);
-            temp1 = std::max(saneValue(gridIndex1d(i, j, nx), dataXY, contourLevels),
-                             saneValue(gridIndex1d(i, j + 1, nx), dataXY, contourLevels));
-            temp2 = std::max(saneValue(gridIndex1d(i + 1, j, nx), dataXY, contourLevels),
-                             saneValue(gridIndex1d(i + 1, j + 1, nx), dataXY, contourLevels));
-            double dmax  = std::max(temp1, temp2);
+            temp1       = std::min( saneValue( gridIndex1d( i, j, nx ), dataXY, contourLevels ),
+                              saneValue( gridIndex1d( i, j + 1, nx ), dataXY, contourLevels ) );
+            temp2       = std::min( saneValue( gridIndex1d( i + 1, j, nx ), dataXY, contourLevels ),
+                              saneValue( gridIndex1d( i + 1, j + 1, nx ), dataXY, contourLevels ) );
+            double dmin = std::min( temp1, temp2 );
+            temp1       = std::max( saneValue( gridIndex1d( i, j, nx ), dataXY, contourLevels ),
+                              saneValue( gridIndex1d( i, j + 1, nx ), dataXY, contourLevels ) );
+            temp2       = std::max( saneValue( gridIndex1d( i + 1, j, nx ), dataXY, contourLevels ),
+                              saneValue( gridIndex1d( i + 1, j + 1, nx ), dataXY, contourLevels ) );
+            double dmax = std::max( temp1, temp2 );
             // Using dmax <= contourLevels[0] as a deviation from Bourke because it empirically
             // Reduces gridding artifacts in our code.
-            if (dmax <= contourLevels[0] || dmin > contourLevels[nContourLevels - 1])
-                continue;
+            if ( dmax <= contourLevels[0] || dmin > contourLevels[nContourLevels - 1] ) continue;
 
-            for (int k = 0; k < nContourLevels; k++)
+            for ( int k = 0; k < nContourLevels; k++ )
             {
-                if (contourLevels[k] < dmin || contourLevels[k] > dmax)
-                    continue;
-                for (int m = 4; m >= 0; m--)
+                if ( contourLevels[k] < dmin || contourLevels[k] > dmax ) continue;
+                for ( int m = 4; m >= 0; m-- )
                 {
-                    if (m > 0)
+                    if ( m > 0 )
                     {
-                        double value = saneValue(gridIndex1d(i + im[m - 1], j + jm[m - 1], nx), dataXY, contourLevels);
-                        if (value == invalidValue(contourLevels))
+                        double value = saneValue( gridIndex1d( i + im[m - 1], j + jm[m - 1], nx ), dataXY, contourLevels );
+                        if ( value == invalidValue( contourLevels ) )
                         {
-                            h[m] = invalidValue(contourLevels);
+                            h[m] = invalidValue( contourLevels );
                         }
                         else
                         {
@@ -97,13 +94,13 @@ void caf::ContourLines::create(const std::vector<double>& dataXY, const std::vec
                     }
                     else
                     {
-                        h[0]  = 0.25 * (h[1] + h[2] + h[3] + h[4]);
-                        xh[0] = 0.5  * (xCoords[i] + xCoords[i + 1]);
-                        yh[0] = 0.5  * (yCoords[j] + yCoords[j + 1]);
+                        h[0]  = 0.25 * ( h[1] + h[2] + h[3] + h[4] );
+                        xh[0] = 0.5 * ( xCoords[i] + xCoords[i + 1] );
+                        yh[0] = 0.5 * ( yCoords[j] + yCoords[j + 1] );
                     }
-                    if (h[m] > 0.0)
+                    if ( h[m] > 0.0 )
                         sh[m] = 1;
-                    else if (h[m] < 0.0)
+                    else if ( h[m] < 0.0 )
                         sh[m] = -1;
                     else
                         sh[m] = 0;
@@ -133,78 +130,79 @@ void caf::ContourLines::create(const std::vector<double>& dataXY, const std::vec
                       vertex 1 +-------------------+ vertex 2
                 */
                 /* Scan each triangle in the box */
-                for (int m = 1; m <= 4; m++) {
+                for ( int m = 1; m <= 4; m++ )
+                {
                     int m1 = m;
                     int m2 = 0;
-                    int m3 = (m != 4) ? m + 1 : 1;
-                    
+                    int m3 = ( m != 4 ) ? m + 1 : 1;
+
                     double x1 = 0.0, x2 = 0.0, y1 = 0.0, y2 = 0.0;
-                    int case_value = s_castab[sh[m1] + 1][sh[m2] + 1][sh[m3] + 1];                    
-                    if (case_value == 0)
-                        continue;
-                    
-                    switch (case_value) {
-                    case 1: /* Line between vertices 1 and 2 */
-                        x1 = xh[m1];
-                        y1 = yh[m1];
-                        x2 = xh[m2];
-                        y2 = yh[m2];
-                        break;
-                    case 2: /* Line between vertices 2 and 3 */
-                        x1 = xh[m2];
-                        y1 = yh[m2];
-                        x2 = xh[m3];
-                        y2 = yh[m3];
-                        break;
-                    case 3: /* Line between vertices 3 and 1 */
-                        x1 = xh[m3];
-                        y1 = yh[m3];
-                        x2 = xh[m1];
-                        y2 = yh[m1];
-                        break;
-                    case 4: /* Line between vertex 1 and side 2-3 */
-                        x1 = xh[m1];
-                        y1 = yh[m1];
-                        x2 = xsect(m2, m3, h, xh, yh);
-                        y2 = ysect(m2, m3, h, xh, yh);
-                        break;
-                    case 5: /* Line between vertex 2 and side 3-1 */
-                        x1 = xh[m2];
-                        y1 = yh[m2];
-                        x2 = xsect(m3, m1, h, xh, yh);
-                        y2 = ysect(m3, m1, h, xh, yh);
-                        break;
-                    case 6: /* Line between vertex 3 and side 1-2 */
-                        x1 = xh[m3];
-                        y1 = yh[m3];
-                        x2 = xsect(m1, m2, h, xh, yh);
-                        y2 = ysect(m1, m2, h, xh, yh);
-                        break;
-                    case 7: /* Line between sides 1-2 and 2-3 */
-                        x1 = xsect(m1, m2, h, xh, yh);
-                        y1 = ysect(m1, m2, h, xh, yh);
-                        x2 = xsect(m2, m3, h, xh, yh);
-                        y2 = ysect(m2, m3, h, xh, yh);
-                        break;
-                    case 8:  /* Line between sides 2-3 and 3-1 */
-                        x1 = xsect(m2, m3, h, xh, yh);
-                        y1 = ysect(m2, m3, h, xh, yh);
-                        x2 = xsect(m3, m1, h, xh, yh);
-                        y2 = ysect(m3, m1, h, xh, yh);
-                        break;
-                    case 9:  /* Line between sides 3-1 and 1-2 */
-                        x1 = xsect(m3, m1, h, xh, yh);
-                        y1 = ysect(m3, m1, h, xh, yh);
-                        x2 = xsect(m1, m2, h, xh, yh);
-                        y2 = ysect(m1, m2, h, xh, yh);
-                        break;
-                    default:
-                        break;
+                    int    case_value = s_castab[sh[m1] + 1][sh[m2] + 1][sh[m3] + 1];
+                    if ( case_value == 0 ) continue;
+
+                    switch ( case_value )
+                    {
+                        case 1: /* Line between vertices 1 and 2 */
+                            x1 = xh[m1];
+                            y1 = yh[m1];
+                            x2 = xh[m2];
+                            y2 = yh[m2];
+                            break;
+                        case 2: /* Line between vertices 2 and 3 */
+                            x1 = xh[m2];
+                            y1 = yh[m2];
+                            x2 = xh[m3];
+                            y2 = yh[m3];
+                            break;
+                        case 3: /* Line between vertices 3 and 1 */
+                            x1 = xh[m3];
+                            y1 = yh[m3];
+                            x2 = xh[m1];
+                            y2 = yh[m1];
+                            break;
+                        case 4: /* Line between vertex 1 and side 2-3 */
+                            x1 = xh[m1];
+                            y1 = yh[m1];
+                            x2 = xsect( m2, m3, h, xh, yh );
+                            y2 = ysect( m2, m3, h, xh, yh );
+                            break;
+                        case 5: /* Line between vertex 2 and side 3-1 */
+                            x1 = xh[m2];
+                            y1 = yh[m2];
+                            x2 = xsect( m3, m1, h, xh, yh );
+                            y2 = ysect( m3, m1, h, xh, yh );
+                            break;
+                        case 6: /* Line between vertex 3 and side 1-2 */
+                            x1 = xh[m3];
+                            y1 = yh[m3];
+                            x2 = xsect( m1, m2, h, xh, yh );
+                            y2 = ysect( m1, m2, h, xh, yh );
+                            break;
+                        case 7: /* Line between sides 1-2 and 2-3 */
+                            x1 = xsect( m1, m2, h, xh, yh );
+                            y1 = ysect( m1, m2, h, xh, yh );
+                            x2 = xsect( m2, m3, h, xh, yh );
+                            y2 = ysect( m2, m3, h, xh, yh );
+                            break;
+                        case 8: /* Line between sides 2-3 and 3-1 */
+                            x1 = xsect( m2, m3, h, xh, yh );
+                            y1 = ysect( m2, m3, h, xh, yh );
+                            x2 = xsect( m3, m1, h, xh, yh );
+                            y2 = ysect( m3, m1, h, xh, yh );
+                            break;
+                        case 9: /* Line between sides 3-1 and 1-2 */
+                            x1 = xsect( m3, m1, h, xh, yh );
+                            y1 = ysect( m3, m1, h, xh, yh );
+                            x2 = xsect( m1, m2, h, xh, yh );
+                            y2 = ysect( m1, m2, h, xh, yh );
+                            break;
+                        default:
+                            break;
                     }
-                    
+
                     /* Finally draw the line */
-                    polygons->at(k).push_back(cvf::Vec2d(x1, y1));
-                    polygons->at(k).push_back(cvf::Vec2d(x2, y2));
+                    polygons->at( k ).push_back( cvf::Vec2d( x1, y1 ) );
+                    polygons->at( k ).push_back( cvf::Vec2d( x2, y2 ) );
                 } /* m */
             } /* k - contour */
         } /* i */
@@ -214,27 +212,28 @@ void caf::ContourLines::create(const std::vector<double>& dataXY, const std::vec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<caf::ContourLines::ListOfLineSegments> caf::ContourLines::create(const std::vector<double>& dataXY,
-                                                                             const std::vector<double>& xPositions,
-                                                                             const std::vector<double>& yPositions,
-                                                                             const std::vector<double>& contourLevels)
+std::vector<caf::ContourLines::ListOfLineSegments> caf::ContourLines::create( const std::vector<double>& dataXY,
+                                                                              const std::vector<double>& xPositions,
+                                                                              const std::vector<double>& yPositions,
+                                                                              const std::vector<double>& contourLevels )
 {
-    const double eps = 1.0e-4;
+    const double                         eps = 1.0e-4;
     std::vector<std::vector<cvf::Vec2d>> contourLineSegments;
-    caf::ContourLines::create(dataXY, xPositions, yPositions, contourLevels, &contourLineSegments);
+    caf::ContourLines::create( dataXY, xPositions, yPositions, contourLevels, &contourLineSegments );
 
-    std::vector<ListOfLineSegments> listOfSegmentsPerLevel(contourLevels.size());
+    std::vector<ListOfLineSegments> listOfSegmentsPerLevel( contourLevels.size() );
 
-    for (size_t i = 0; i < contourLevels.size(); ++i)
+    for ( size_t i = 0; i < contourLevels.size(); ++i )
     {
-        size_t nPoints = contourLineSegments[i].size();
+        size_t nPoints   = contourLineSegments[i].size();
         size_t nSegments = nPoints / 2;
-        if (nSegments >= 3u) // Need at least three segments for a closed polygon
+        if ( nSegments >= 3u ) // Need at least three segments for a closed polygon
         {
             ListOfLineSegments unorderedSegments;
-            for (size_t j = 0; j < contourLineSegments[i].size(); j += 2)
+            for ( size_t j = 0; j < contourLineSegments[i].size(); j += 2 )
             {
-                unorderedSegments.push_back(std::make_pair(cvf::Vec3d(contourLineSegments[i][j]), cvf::Vec3d(contourLineSegments[i][j + 1])));
+                unorderedSegments.push_back( std::make_pair( cvf::Vec3d( contourLineSegments[i][j] ),
+                                                             cvf::Vec3d( contourLineSegments[i][j + 1] ) ) );
             }
             listOfSegmentsPerLevel[i] = unorderedSegments;
         }
@@ -246,32 +245,32 @@ std::vector<caf::ContourLines::ListOfLineSegments> caf::ContourLines::create(con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double caf::ContourLines::contourRange(const std::vector<double>& contourLevels)
+double caf::ContourLines::contourRange( const std::vector<double>& contourLevels )
 {
-    CVF_ASSERT(!contourLevels.empty());
-    return std::max(1.0e-6, contourLevels.back() - contourLevels.front());
+    CVF_ASSERT( !contourLevels.empty() );
+    return std::max( 1.0e-6, contourLevels.back() - contourLevels.front() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double caf::ContourLines::invalidValue(const std::vector<double>& contourLevels)
+double caf::ContourLines::invalidValue( const std::vector<double>& contourLevels )
 {
-    return contourLevels.front() - 1000.0*contourRange(contourLevels);
+    return contourLevels.front() - 1000.0 * contourRange( contourLevels );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double caf::ContourLines::saneValue(int index, const std::vector<double>& dataXY, const std::vector<double>& contourLevels)
+double caf::ContourLines::saneValue( int index, const std::vector<double>& dataXY, const std::vector<double>& contourLevels )
 {
-    CVF_ASSERT(index >= 0 && index < static_cast<int>(dataXY.size()));
-    
+    CVF_ASSERT( index >= 0 && index < static_cast<int>( dataXY.size() ) );
+
     // Place all invalid values below the bottom contour level.
-    if (dataXY[index] == -std::numeric_limits<double>::infinity() ||
-        dataXY[index] == std::numeric_limits<double>::infinity())
+    if ( dataXY[index] == -std::numeric_limits<double>::infinity() ||
+         dataXY[index] == std::numeric_limits<double>::infinity() )
     {
-        return invalidValue(contourLevels);
+        return invalidValue( contourLevels );
     }
     return dataXY[index];
 }
@@ -279,23 +278,31 @@ double caf::ContourLines::saneValue(int index, const std::vector<double>& dataXY
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double caf::ContourLines::xsect(int p1, int p2, const std::vector<double>& h, const std::vector<double>& xh, const std::vector<double>& yh)
+double caf::ContourLines::xsect( int                        p1,
+                                 int                        p2,
+                                 const std::vector<double>& h,
+                                 const std::vector<double>& xh,
+                                 const std::vector<double>& yh )
 {
-    return (h[p2] * xh[p1] - h[p1] * xh[p2]) / (h[p2] - h[p1]);
+    return ( h[p2] * xh[p1] - h[p1] * xh[p2] ) / ( h[p2] - h[p1] );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double caf::ContourLines::ysect(int p1, int p2, const std::vector<double>& h, const std::vector<double>& xh, const std::vector<double>& yh)
+double caf::ContourLines::ysect( int                        p1,
+                                 int                        p2,
+                                 const std::vector<double>& h,
+                                 const std::vector<double>& xh,
+                                 const std::vector<double>& yh )
 {
-    return (h[p2] * yh[p1] - h[p1] * yh[p2]) / (h[p2] - h[p1]);
+    return ( h[p2] * yh[p1] - h[p1] * yh[p2] ) / ( h[p2] - h[p1] );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int caf::ContourLines::gridIndex1d(int i, int j, int nx)
+int caf::ContourLines::gridIndex1d( int i, int j, int nx )
 {
     return j * nx + i;
 }

@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "cafFontTools.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
@@ -30,7 +31,7 @@ class TitledOverlayFrame;
 ///
 ///
 //==================================================================================================
-class RimLegendConfig : public caf::PdmObject
+class RimLegendConfig : public caf::PdmObject, public caf::FontHolderInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -38,7 +39,7 @@ public:
     RimLegendConfig();
     ~RimLegendConfig() override;
 
-    enum RangeModeType
+    enum class RangeModeType
     {
         AUTOMATIC_ALLTIMESTEPS,
         AUTOMATIC_CURRENT_TIMESTEP,
@@ -49,4 +50,11 @@ public:
 
     virtual const caf::TitledOverlayFrame* titledOverlayFrame() const = 0;
     virtual caf::TitledOverlayFrame*       titledOverlayFrame()       = 0;
+
+    virtual int fontSize() const override;
+
+    void recreateLegend();
+
+protected:
+    virtual void onRecreateLegend() = 0;
 };

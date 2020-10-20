@@ -18,7 +18,6 @@
 
 #include "RicHoloLensExportToFolderUi.h"
 
-#include "RiaApplication.h"
 #include "RiaOptionItemFactory.h"
 
 #include "RimCase.h"
@@ -78,7 +77,7 @@ QList<caf::PdmOptionItemInfo>
     if ( fieldNeedingOptions == &m_viewForExport )
     {
         std::vector<RimGridView*> visibleViews;
-        RiaApplication::instance()->project()->allVisibleGridViews( visibleViews );
+        RimProject::current()->allVisibleGridViews( visibleViews );
 
         for ( RimGridView* v : visibleViews )
         {

@@ -37,8 +37,12 @@ public:
 
     void readAllFormationNames();
 
-    RimFormationNames* importFiles( const QStringList& fileNames );
-    void               updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath );
+    std::vector<RimFormationNames*> importFiles( const QStringList& fileNames );
+
+    void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath );
+
+    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
 private:
     caf::PdmChildArrayField<RimFormationNames*> m_formationNamesList;

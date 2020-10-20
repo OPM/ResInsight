@@ -18,7 +18,6 @@
 
 #include "RimSummaryPlotFilterTextCurveSetEditor.h"
 
-#include "RiaApplication.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaStringListSerializer.h"
@@ -264,7 +263,7 @@ void RimSummaryPlotFilterTextCurveSetEditor::fieldChangedByUi( const caf::PdmFie
 
             for ( const auto& filteredAddress : filteredAddressesFromSource )
             {
-                curveDefinitions.insert( RiaSummaryCurveDefinition( sumCase, filteredAddress, ensemble ) );
+                curveDefinitions.insert( RiaSummaryCurveDefinition( sumCase, filteredAddress, ensemble != nullptr ) );
             }
         }
 
@@ -345,7 +344,7 @@ void RimSummaryPlotFilterTextCurveSetEditor::fieldChangedByUi( const caf::PdmFie
                     for ( RimEclipseCase* eclCase : gridCasesToPlotFrom )
                     {
                         RigCaseCellResultsData* gridCellResults =
-                            eclCase->eclipseCaseData()->results( RiaDefines::MATRIX_MODEL );
+                            eclCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
                         if ( !( gridCellResults && gridCellResults->resultInfo( cellResAddr.eclipseResultAddress ) ) )
                         {
                             RiaLogging::warning( "Could not find a restart result property with name: \"" +
@@ -492,7 +491,7 @@ void RimSummaryPlotFilterTextCurveSetEditor::appendOptionItemsForSources( QList<
                                                                           bool hideSummaryCases,
                                                                           bool hideEnsembles )
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
 
     std::vector<RimOilField*> oilFields;
 
@@ -579,7 +578,7 @@ std::vector<SummarySource*> RimSummaryPlotFilterTextCurveSetEditor::selectedSumm
     }
 
     // Always add the summary case for calculated curves as this case is not displayed in UI
-    sources.push_back( RiaApplication::instance()->project()->calculationCollection()->calculationSummaryCase() );
+    sources.push_back( RimProject::current()->calculationCollection()->calculationSummaryCase() );
 
     return sources;
 }

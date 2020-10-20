@@ -33,12 +33,11 @@
 #include "RimProject.h"
 #include "RimWellPath.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 #include "RiaWellNameComparer.h"
 
 #include "cafCmdFeatureManager.h"
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
 CAF_PDM_SOURCE_INIT( RicfCreateMultipleFractures, "createMultipleFractures" );
 
@@ -47,10 +46,10 @@ namespace caf
 template <>
 void AppEnum<MultipleFractures::Action>::setUp()
 {
-    addItem( MultipleFractures::APPEND_FRACTURES, "APPEND_FRACTURES", "Append Fractures" );
-    addItem( MultipleFractures::REPLACE_FRACTURES, "REPLACE_FRACTURES", "Replace Fractures" );
+    addItem( MultipleFractures::Action::APPEND_FRACTURES, "APPEND_FRACTURES", "Append Fractures" );
+    addItem( MultipleFractures::Action::REPLACE_FRACTURES, "REPLACE_FRACTURES", "Replace Fractures" );
 
-    setDefault( MultipleFractures::NONE );
+    setDefault( MultipleFractures::Action::NONE );
 }
 } // namespace caf
 
@@ -59,21 +58,21 @@ void AppEnum<MultipleFractures::Action>::setUp()
 //--------------------------------------------------------------------------------------------------
 RicfCreateMultipleFractures::RicfCreateMultipleFractures()
 {
-    CAF_PDM_InitScriptableFieldWithIO( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_wellPathNames, "wellPathNames", std::vector<QString>(), "Well Path Names", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_minDistFromWellTd, "minDistFromWellTd", 100.0, "Min Distance From Well TD", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_maxFracturesPerWell, "maxFracturesPerWell", 100, "Max Fractures per Well", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_templateId, "templateId", -1, "Template ID", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_topLayer, "topLayer", -1, "Top Layer", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_baseLayer, "baseLayer", -1, "Base Layer", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_spacing, "spacing", 300.0, "Spacing", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_action,
-                                       "action",
-                                       caf::AppEnum<MultipleFractures::Action>( MultipleFractures::APPEND_FRACTURES ),
-                                       "Action",
-                                       "",
-                                       "",
-                                       "" );
+    CAF_PDM_InitScriptableField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_wellPathNames, "wellPathNames", std::vector<QString>(), "Well Path Names", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_minDistFromWellTd, "minDistFromWellTd", 100.0, "Min Distance From Well TD", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_maxFracturesPerWell, "maxFracturesPerWell", 100, "Max Fractures per Well", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_templateId, "templateId", -1, "Template ID", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_topLayer, "topLayer", -1, "Top Layer", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_baseLayer, "baseLayer", -1, "Base Layer", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_spacing, "spacing", 300.0, "Spacing", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_action,
+                                 "action",
+                                 caf::AppEnum<MultipleFractures::Action>( MultipleFractures::Action::APPEND_FRACTURES ),
+                                 "Action",
+                                 "",
+                                 "",
+                                 "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,7 +82,7 @@ caf::PdmScriptResponse RicfCreateMultipleFractures::execute()
 {
     using TOOLS = RicfApplicationTools;
 
-    RimProject*                   project  = RiaApplication::instance()->project();
+    RimProject*                   project  = RimProject::current();
     RiuCreateMultipleFractionsUi* settings = project->dialogData()->multipleFractionsData();
 
     // Get case and fracture template
@@ -161,8 +160,8 @@ caf::PdmScriptResponse RicfCreateMultipleFractures::execute()
 
     if ( feature )
     {
-        if ( m_action == MultipleFractures::APPEND_FRACTURES ) feature->appendFractures();
-        if ( m_action == MultipleFractures::REPLACE_FRACTURES ) feature->replaceFractures();
+        if ( m_action == MultipleFractures::Action::APPEND_FRACTURES ) feature->appendFractures();
+        if ( m_action == MultipleFractures::Action::REPLACE_FRACTURES ) feature->replaceFractures();
     }
     return caf::PdmScriptResponse();
 }
@@ -184,7 +183,7 @@ bool RicfCreateMultipleFractures::validateArguments() const
 //--------------------------------------------------------------------------------------------------
 RimFractureTemplate* RicfCreateMultipleFractures::fractureTemplateFromId( int templateId ) const
 {
-    for ( RimFractureTemplate* t : RiaApplication::instance()->project()->allFractureTemplates() )
+    for ( RimFractureTemplate* t : RimProject::current()->allFractureTemplates() )
     {
         if ( t->id() == templateId ) return t;
     }

@@ -31,6 +31,7 @@ set (MOC_HEADER_FILES
     cafPdmUiListViewEditor.h
     cafPdmUiPropertyView.h
     cafPdmUiPushButtonEditor.h
+    cafPdmUiActionPushButtonEditor.h
     cafPdmUiSliderEditor.h
     cafPdmUiTableView.h
     cafPdmUiTableViewDelegate.h
@@ -54,15 +55,9 @@ set (MOC_HEADER_FILES
     cafPdmUiLabelEditor.h
 )
 
-if (CEE_USE_QT5)
-	find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
-	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
-	qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )	
-else()
-    find_package(Qt4 COMPONENTS QtCore QtGui QtMain REQUIRED)
-    include(${QT_USE_FILE})
-	qt4_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
-endif(CEE_USE_QT5)
+find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
+set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
+qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )	
 
 set( PROJECT_FILES
     
@@ -92,6 +87,8 @@ set( PROJECT_FILES
     cafPdmUiListEditor.h
     cafPdmUiPushButtonEditor.cpp
     cafPdmUiPushButtonEditor.h
+    cafPdmUiActionPushButtonEditor.cpp
+    cafPdmUiActionPushButtonEditor.h
     cafPdmUiSliderEditor.cpp
     cafPdmUiSliderEditor.h
     cafPdmUiTextEditor.cpp
@@ -169,15 +166,12 @@ set( PROJECT_FILES
 	cafStyleSheetTools.cpp
     cafPdmUiTabbedPropertyViewDialog.h
     cafPdmUiTabbedPropertyViewDialog.cpp
-	cafUiStyleSheet.h
-	cafUiStyleSheet.cpp
 )
 
 add_library( ${PROJECT_NAME}
-    
- ${PROJECT_FILES}
-
+    ${PROJECT_FILES}
     ${MOC_SOURCE_FILES}
+    ${QRC_FILES_CPP}
 )
 
 if (MSVC) 
@@ -195,8 +189,3 @@ target_link_libraries ( ${PROJECT_NAME}
 )
 
 source_group("" FILES ${PROJECT_FILES})
-
-# cotire
-if (COMMAND caf_apply_cotire)
-  caf_apply_cotire("${PROJECT_NAME}")
-endif()

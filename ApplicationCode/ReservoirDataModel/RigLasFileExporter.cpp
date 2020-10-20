@@ -178,44 +178,53 @@ public:
 
         const RigWellLogCurveData* firstCurveData = curveDataForFirstCurve();
 
-        if ( firstCurveData->depthUnit() == RiaDefines::UNIT_METER )
+        if ( firstCurveData->depthUnit() == RiaDefines::DepthUnitType::UNIT_METER )
         {
-            lasFile->AddLog( "DEPTH", "M", "Depth in meters", firstCurveData->depths( RiaDefines::MEASURED_DEPTH ) );
+            lasFile->AddLog( "DEPTH",
+                             "M",
+                             "Depth in meters",
+                             firstCurveData->depths( RiaDefines::DepthTypeEnum::MEASURED_DEPTH ) );
         }
-        else if ( firstCurveData->depthUnit() == RiaDefines::UNIT_FEET )
+        else if ( firstCurveData->depthUnit() == RiaDefines::DepthUnitType::UNIT_FEET )
         {
-            lasFile->AddLog( "DEPTH", "FT", "Depth in feet", firstCurveData->depths( RiaDefines::MEASURED_DEPTH ) );
+            lasFile->AddLog( "DEPTH",
+                             "FT",
+                             "Depth in feet",
+                             firstCurveData->depths( RiaDefines::DepthTypeEnum::MEASURED_DEPTH ) );
         }
-        else if ( firstCurveData->depthUnit() == RiaDefines::UNIT_NONE )
+        else if ( firstCurveData->depthUnit() == RiaDefines::DepthUnitType::UNIT_NONE )
         {
-            lasFile->AddLog( "DEPTH", "", "Depth in Connection number", firstCurveData->depths( RiaDefines::MEASURED_DEPTH ) );
+            lasFile->AddLog( "DEPTH",
+                             "",
+                             "Depth in Connection number",
+                             firstCurveData->depths( RiaDefines::DepthTypeEnum::MEASURED_DEPTH ) );
         }
 
-        if ( firstCurveData->depths( RiaDefines::TRUE_VERTICAL_DEPTH ).size() )
+        if ( firstCurveData->depths( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH ).size() )
         {
             lasFile->AddLog( "TVDMSL",
                              "M",
                              "True vertical depth in meters",
-                             firstCurveData->depths( RiaDefines::TRUE_VERTICAL_DEPTH ) );
+                             firstCurveData->depths( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH ) );
 
             if ( m_exportTvdrkb && m_rkbDiff != -1.0 )
             {
                 // Export True Vertical Depth Rotary Kelly Bushing - TVDRKB
-                std::vector<double> tvdrkbValues = firstCurveData->depths( RiaDefines::TRUE_VERTICAL_DEPTH );
+                std::vector<double> tvdrkbValues = firstCurveData->depths( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH );
                 for ( auto& value : tvdrkbValues )
                 {
                     value += m_rkbDiff;
                 }
 
-                if ( firstCurveData->depthUnit() == RiaDefines::UNIT_METER )
+                if ( firstCurveData->depthUnit() == RiaDefines::DepthUnitType::UNIT_METER )
                 {
                     lasFile->AddLog( "TVDRKB", "M", "True vertical depth (Rotary Kelly Bushing)", tvdrkbValues );
                 }
-                else if ( firstCurveData->depthUnit() == RiaDefines::UNIT_FEET )
+                else if ( firstCurveData->depthUnit() == RiaDefines::DepthUnitType::UNIT_FEET )
                 {
                     lasFile->AddLog( "TVDRKB", "FT", "True vertical depth (Rotary Kelly Bushing)", tvdrkbValues );
                 }
-                else if ( firstCurveData->depthUnit() == RiaDefines::UNIT_NONE )
+                else if ( firstCurveData->depthUnit() == RiaDefines::DepthUnitType::UNIT_NONE )
                 {
                     CVF_ASSERT( false );
                     lasFile->AddLog( "TVDRKB", "", "", tvdrkbValues );
@@ -225,16 +234,19 @@ public:
 
         double minDepth = 0.0;
         double maxDepth = 0.0;
-        firstCurveData->calculateDepthRange( RiaDefines::MEASURED_DEPTH, firstCurveData->depthUnit(), &minDepth, &maxDepth );
+        firstCurveData->calculateDepthRange( RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
+                                             firstCurveData->depthUnit(),
+                                             &minDepth,
+                                             &maxDepth );
 
         lasFile->setStartDepth( minDepth );
         lasFile->setStopDepth( maxDepth );
 
-        if ( firstCurveData->depthUnit() == RiaDefines::UNIT_METER )
+        if ( firstCurveData->depthUnit() == RiaDefines::DepthUnitType::UNIT_METER )
         {
             lasFile->setDepthUnit( "M" );
         }
-        else if ( firstCurveData->depthUnit() == RiaDefines::UNIT_FEET )
+        else if ( firstCurveData->depthUnit() == RiaDefines::DepthUnitType::UNIT_FEET )
         {
             lasFile->setDepthUnit( "FT" );
         }

@@ -164,6 +164,9 @@ class SummaryCase(PdmObject):
         return self._call_pdm_method("summaryVectorValues", address=address)
 
 
+        return self._call_pdm_method("summaryVectorValues", address=address)
+
+
 class FileSummaryCase(SummaryCase):
     """
     A Summary Case based on SMSPEC files

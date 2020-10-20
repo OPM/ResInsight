@@ -38,9 +38,7 @@ public:
     using LegendTickmarkCountEnum = caf::AppEnum<LegendTickmarkCount>;
 
 public:
-    virtual AxisTitlePositionType titlePosition() const             = 0;
-    virtual int                   titleFontSize() const             = 0;
-    virtual void                  setTitleFontSize( int fontSize )  = 0;
-    virtual int                   valuesFontSize() const            = 0;
-    virtual void                  setValuesFontSize( int fontSize ) = 0;
+    virtual AxisTitlePositionType titlePosition() const  = 0;
+    virtual int                   titleFontSize() const  = 0;
+    virtual int                   valuesFontSize() const = 0;
 };

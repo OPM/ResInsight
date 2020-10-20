@@ -17,11 +17,13 @@ Octave : [http://www.gnu.org/software/octave/](http://www.gnu.org/software/octav
 Equinor/libecl : [https://github.com/Equinor/libecl](https://github.com/Equinor/libecl)
 
 ### Supported Platforms
-ResInsight is designed cross-platform from the start. Efforts have been made to ensure that code will compile and run on Linux and Windows platforms. Tested platforms are currently 64 bit RHEL6 and Windows 7/8/10, and we have also received reports on successful builds on Ubuntu based systems.  
+ResInsight is designed to be cross-platform. Efforts have been made to ensure that code will compile and run on most Linux and Windows platforms. Currently, automated tests are run regularly on Red Hat Enterprise Linux (RHEL) 7, CentOS 7, Ubuntu 16.04, 18.04 and 20.04 as well as Windows 10 and Windows Server 2019.
 
 ### Documentation
 
 See the [ ResInsight ](http://resinsight.org/) website and the [ Users Guide ](http://resinsight.org/docs/home/) for project documentation.
+
+[ ResInsight Tutorials](https://github.com/CeetronSolutions/resinsight-tutorials)
 
 ### Source Code
 
@@ -38,4 +40,4 @@ Release branches that might pop up are dedicated bug fix branches for the releas
 
 ### Building ResInsight
 
-See [ Build Instructions ](http://resinsight.org/docs/buildinstructions/)
+See [ Build Instructions ](https://resinsight.org/getting-started/download-and-install/buildinstructions/)

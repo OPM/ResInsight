@@ -51,17 +51,9 @@ public:
     caf::PdmField<int> timeStepStart;
     caf::PdmField<int> timeStepEnd;
 
-    enum SnapShotDirectionEnum
-    {
-        RANGEFILTER_I,
-        RANGEFILTER_J,
-        RANGEFILTER_K,
-        NO_RANGEFILTER
-    };
-
-    caf::PdmField<caf::AppEnum<SnapShotDirectionEnum>> sliceDirection;
-    caf::PdmField<int>                                 startSliceIndex;
-    caf::PdmField<int>                                 endSliceIndex;
+    caf::PdmField<caf::AppEnum<RiaDefines::GridCaseAxis>> sliceDirection;
+    caf::PdmField<int>                                    startSliceIndex;
+    caf::PdmField<int>                                    endSliceIndex;
 
     caf::PdmPtrArrayField<RimCase*> additionalCases;
 

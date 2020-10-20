@@ -19,12 +19,17 @@
 
 #include "RimWellLogPlotCollection.h"
 
+#include "RiaGuiApplication.h"
+
+#include "RiuPlotMainWindow.h"
+
 #include "RigEclipseWellLogExtractor.h"
 #include "RigGeoMechCaseData.h"
 #include "RigGeoMechWellLogExtractor.h"
 
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
+#include "RimProject.h"
 #include "RimWellLogPlot.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -205,4 +210,21 @@ void RimWellLogPlotCollection::removeExtractors( const RigGeoMechCaseData* caseD
             m_geomExtractors.eraseAt( eIdx );
         }
     }
+}
+
+void RimWellLogPlotCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                               std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    // Make sure the plot collection disappears with the last plot
+    if ( wellLogPlots.empty() )
+    {
+        RimProject* project = RimProject::current();
+        if ( project )
+        {
+            project->updateConnectedEditors();
+        }
+    }
+
+    RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
+    mainPlotWindow->updateWellLogPlotToolBar();
 }

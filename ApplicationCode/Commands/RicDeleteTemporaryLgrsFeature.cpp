@@ -80,6 +80,6 @@ void RicDeleteTemporaryLgrsFeature::onActionTriggered( bool isChecked )
 void RicDeleteTemporaryLgrsFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Delete Temporary LGRs" );
-    actionToSetup->setIcon( QIcon( ":/Erase.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Erase.svg" ) );
     applyShortcutWithHintToAction( actionToSetup, QKeySequence::Delete );
 }

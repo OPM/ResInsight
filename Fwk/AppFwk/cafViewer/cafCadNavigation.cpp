@@ -34,141 +34,136 @@
 //
 //##################################################################################################
 
-
 #include "cafCadNavigation.h"
 #include "cafViewer.h"
 #include "cvfCamera.h"
-#include "cvfViewport.h"
 #include "cvfHitItemCollection.h"
-#include "cvfRay.h"
 #include "cvfManipulatorTrackball.h"
+#include "cvfRay.h"
+#include "cvfViewport.h"
 
 #include <QInputEvent>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::CadNavigation::CadNavigation()
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::CadNavigation::~CadNavigation()
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool caf::CadNavigation::handleInputEvent(QInputEvent* inputEvent)
+bool caf::CadNavigation::handleInputEvent( QInputEvent* inputEvent )
 {
-    if (! inputEvent) return false;
+    if ( !inputEvent ) return false;
     bool isEventHandled = false;
-    switch (inputEvent->type())
+    switch ( inputEvent->type() )
     {
-    case QEvent::MouseButtonPress:
+        case QEvent::MouseButtonPress:
         {
-            QMouseEvent * me = static_cast<QMouseEvent*>( inputEvent);
+            QMouseEvent* me = static_cast<QMouseEvent*>( inputEvent );
 
             int translatedMousePosX, translatedMousePosY;
-            cvfEventPos(me->x(), me->y(), &translatedMousePosX, &translatedMousePosY);
+            cvfEventPos( me->x(), me->y(), &translatedMousePosX, &translatedMousePosY );
 
-           if (me->button() == Qt::MidButton && me->modifiers() == Qt::NoModifier && isRotationEnabled())
+            if ( me->button() == Qt::MidButton && me->modifiers() == Qt::NoModifier && isRotationEnabled() )
             {
-                this->pickAndSetPointOfInterest(me->x(), me->y());
+                this->pickAndSetPointOfInterest( me->x(), me->y() );
 
-                m_trackball->startNavigation(cvf::ManipulatorTrackball::ROTATE, translatedMousePosX, translatedMousePosY);
-                m_roationSensitivityCalculator.init(me);
+                m_trackball->startNavigation( cvf::ManipulatorTrackball::ROTATE, translatedMousePosX, translatedMousePosY );
+                m_roationSensitivityCalculator.init( me );
 
-                m_isNavigating = true;
+                m_isNavigating                  = true;
                 m_hasMovedMouseDuringNavigation = false;
-                isEventHandled = true;
+                isEventHandled                  = true;
             }
-            else if (me->button() == Qt::MidButton && (me->modifiers() & Qt::ShiftModifier))
+            else if ( me->button() == Qt::MidButton && ( me->modifiers() & Qt::ShiftModifier ) )
             {
-                m_trackball->startNavigation(cvf::ManipulatorTrackball::PAN, translatedMousePosX, translatedMousePosY);
-                m_isNavigating = true;
+                m_trackball->startNavigation( cvf::ManipulatorTrackball::PAN, translatedMousePosX, translatedMousePosY );
+                m_isNavigating                  = true;
                 m_hasMovedMouseDuringNavigation = false;
-                isEventHandled = true;
+                isEventHandled                  = true;
             }
-           forcePointOfInterestUpdateDuringNextWheelZoom();
+            forcePointOfInterestUpdateDuringNextWheelZoom();
         }
         break;
-    case QEvent::MouseButtonRelease: 
+        case QEvent::MouseButtonRelease:
         {
-            if (m_isNavigating)
+            if ( m_isNavigating )
             {
-                QMouseEvent * me = static_cast<QMouseEvent*>( inputEvent);
-                if (me->button() == Qt::MidButton)
+                QMouseEvent* me = static_cast<QMouseEvent*>( inputEvent );
+                if ( me->button() == Qt::MidButton )
                 {
                     m_trackball->endNavigation();
 
                     m_isNavigating = false;
-					if (m_hasMovedMouseDuringNavigation) isEventHandled = true;
+                    if ( m_hasMovedMouseDuringNavigation ) isEventHandled = true;
                     m_hasMovedMouseDuringNavigation = false;
-                    
                 }
             }
             forcePointOfInterestUpdateDuringNextWheelZoom();
         }
         break;
-    case QEvent::MouseMove:
+        case QEvent::MouseMove:
         {
             initializeRotationCenter();
-            if (m_isRotCenterInitialized)
+            if ( m_isRotCenterInitialized )
             {
-                QMouseEvent * me = static_cast<QMouseEvent*>(inputEvent);
+                QMouseEvent* me = static_cast<QMouseEvent*>( inputEvent );
 
                 int translatedMousePosX, translatedMousePosY;
-                cvfEventPos(me->x(), me->y(), &translatedMousePosX, &translatedMousePosY);
+                cvfEventPos( me->x(), me->y(), &translatedMousePosX, &translatedMousePosY );
 
-                if (m_isNavigating)
+                if ( m_isNavigating )
                 {
-                    double sensitivity = m_roationSensitivityCalculator.calculateSensitivity(me);
+                    double sensitivity = m_roationSensitivityCalculator.calculateSensitivity( me );
 
-                    m_trackball->setRotationSensitivity(sensitivity);
-                    bool needRedraw = m_trackball->updateNavigation(translatedMousePosX, translatedMousePosY);
-                    if(needRedraw)
+                    m_trackball->setRotationSensitivity( sensitivity );
+                    bool needRedraw = m_trackball->updateNavigation( translatedMousePosX, translatedMousePosY );
+                    if ( needRedraw )
                     {
                         m_viewer->navigationPolicyUpdate();
-
                     }
-                    isEventHandled = true;
+                    isEventHandled                  = true;
                     m_hasMovedMouseDuringNavigation = true;
                 }
             }
         }
         break;
-    case QEvent::Wheel:
+        case QEvent::Wheel:
         {
-            if (inputEvent->modifiers() == Qt::NoModifier)
+            if ( inputEvent->modifiers() == Qt::NoModifier )
             {
-                QWheelEvent* we = static_cast<QWheelEvent*>(inputEvent);
+                QWheelEvent* we = static_cast<QWheelEvent*>( inputEvent );
 
-                updatePointOfInterestDuringZoomIfNecessary(we->x(), we->y());
+                updatePointOfInterestDuringZoomIfNecessary( we->x(), we->y() );
 
-                if (m_isRotCenterInitialized)
+                if ( m_isRotCenterInitialized )
                 {
                     int translatedMousePosX, translatedMousePosY;
-                    cvfEventPos(we->x(), we->y(), &translatedMousePosX, &translatedMousePosY);
+                    cvfEventPos( we->x(), we->y(), &translatedMousePosX, &translatedMousePosY );
 
-                    cvf::ref<cvf::Ray> ray = createZoomRay(translatedMousePosX, translatedMousePosY);
+                    cvf::ref<cvf::Ray> ray = createZoomRay( translatedMousePosX, translatedMousePosY );
 
-                    zoomAlongRay(ray.p(), -we->delta());
+                    zoomAlongRay( ray.p(), -we->delta() );
                 }
                 isEventHandled = true;
             }
         }
         break;
-    default:
-        break;
+        default:
+            break;
     }
 
-    if (isSupposedToConsumeEvents())
+    if ( isSupposedToConsumeEvents() )
         return isEventHandled;
     else
         return false;

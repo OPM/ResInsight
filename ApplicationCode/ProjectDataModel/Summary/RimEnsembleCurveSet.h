@@ -70,8 +70,6 @@ public:
     using ColorMode     = RimEnsembleCurveSetColorManager::ColorMode;
     using ColorModeEnum = RimEnsembleCurveSetColorManager::ColorModeEnum;
 
-    using NameParameterPair = EnsembleParameter::NameParameterPair;
-
 public:
     RimEnsembleCurveSet();
     ~RimEnsembleCurveSet() override;
@@ -120,7 +118,9 @@ public:
     void markCachedDataForPurge();
 
     void                           updateAllTextInPlot();
-    std::vector<NameParameterPair> ensembleParameters() const;
+    std::vector<EnsembleParameter> variationSortedEnsembleParameters() const;
+
+    std::vector<std::pair<EnsembleParameter, double>> correlationSortedEnsembleParameters() const;
 
     std::vector<RimSummaryCase*> filterEnsembleCases( const std::vector<RimSummaryCase*>& sumCases );
     void                         disableStatisticCurves();
@@ -132,6 +132,9 @@ public:
     bool hasMeanData() const;
 
     void appendColorGroup( caf::PdmUiOrdering& uiOrdering );
+
+    static void appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options,
+                                                      RimSummaryCaseCollection*      summaryCaseGroup );
 
 private:
     void updateEnsembleCurves( const std::vector<RimSummaryCase*>& sumCases );
@@ -150,9 +153,6 @@ private:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-
-    void appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options,
-                                               RimSummaryCaseCollection*      summaryCaseGroup );
 
     void updateCurveColors();
     void updateQwtPlotAxis();

@@ -104,7 +104,7 @@ QString RiuPlotMainWindow::mainWindowName()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::initializeGuiNewProjectLoaded()
 {
-    setPdmRoot( RiaApplication::instance()->project() );
+    setPdmRoot( RimProject::current() );
     restoreTreeViewState();
 
     if ( m_pdmUiPropertyView && m_pdmUiPropertyView->currentObject() )
@@ -243,7 +243,7 @@ void RiuPlotMainWindow::createMenus()
 
     QMenu* importMenu = fileMenu->addMenu( "&Import" );
 
-    QMenu* importEclipseMenu = importMenu->addMenu( QIcon( ":/Case48x48.png" ), "Eclipse Cases" );
+    QMenu* importEclipseMenu = importMenu->addMenu( QIcon( ":/Case24x24.png" ), "Eclipse Cases" );
     importEclipseMenu->addAction( cmdFeatureMgr->action( "RicImportEclipseCaseFeature" ) );
     importEclipseMenu->addAction( cmdFeatureMgr->action( "RicImportEclipseCasesFeature" ) );
     importEclipseMenu->addAction( cmdFeatureMgr->action( "RicImportInputEclipseCaseFeature" ) );
@@ -252,13 +252,13 @@ void RiuPlotMainWindow::createMenus()
 
 #ifdef USE_ODB_API
     importMenu->addSeparator();
-    QMenu* importGeoMechMenu = importMenu->addMenu( QIcon( ":/GeoMechCase48x48.png" ), "Geo Mechanical Cases" );
+    QMenu* importGeoMechMenu = importMenu->addMenu( QIcon( ":/GeoMechCase24x24.png" ), "Geo Mechanical Cases" );
     importGeoMechMenu->addAction( cmdFeatureMgr->action( "RicImportGeoMechCaseFeature" ) );
     importGeoMechMenu->addAction( cmdFeatureMgr->action( "RicImportElementPropertyFeature" ) );
 #endif
 
     importMenu->addSeparator();
-    QMenu* importSummaryMenu = importMenu->addMenu( QIcon( ":/SummaryCase48x48.png" ), "Summary Cases" );
+    QMenu* importSummaryMenu = importMenu->addMenu( QIcon( ":/SummaryCase.svg" ), "Summary Cases" );
     importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportSummaryCaseFeature" ) );
     importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportSummaryCasesFeature" ) );
     importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportSummaryGroupFeature" ) );
@@ -506,7 +506,7 @@ QMdiSubWindow* RiuPlotMainWindow::findMdiSubWindow( QWidget* viewer )
 //--------------------------------------------------------------------------------------------------
 RimViewWindow* RiuPlotMainWindow::findViewWindowFromSubWindow( QMdiSubWindow* subWindow )
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
     if ( subWindow && proj )
     {
         return RiuInterfaceToViewWindow::viewWindowFromWidget( subWindow->widget() );
@@ -596,7 +596,9 @@ void RiuPlotMainWindow::updateMultiPlotToolBar()
     RimMultiPlot* plotWindow = dynamic_cast<RimMultiPlot*>( m_activePlotViewWindow.p() );
     if ( plotWindow )
     {
-        std::vector<caf::PdmFieldHandle*> toolBarFields = {plotWindow->columnCountField()};
+        std::vector<caf::PdmFieldHandle*> toolBarFields = {plotWindow->pagePreviewField(),
+                                                           plotWindow->columnCountField(),
+                                                           plotWindow->rowsPerPageField()};
         m_multiPlotToolBarEditor->setFields( toolBarFields );
         m_multiPlotToolBarEditor->updateUi();
         m_multiPlotToolBarEditor->show();
@@ -705,7 +707,7 @@ void RiuPlotMainWindow::removeViewer( QWidget* viewer )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotMainWindow::addViewer( QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry )
+void RiuPlotMainWindow::initializeViewer( QMdiSubWindow* subWindow, QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry )
 {
     QSize  subWindowSize;
     QPoint subWindowPos( -1, -1 );
@@ -720,7 +722,8 @@ void RiuPlotMainWindow::addViewer( QWidget* viewer, const RimMdiWindowGeometry& 
         subWindowSize = QSize( 400, 400 );
     }
 
-    addViewerToMdiArea( m_mdiArea, viewer, subWindowPos, subWindowSize );
+    initializeSubWindow( m_mdiArea, subWindow, subWindowPos, subWindowSize );
+    subWindow->setWidget( viewer );
 
     refreshToolbars();
 }
@@ -757,11 +760,14 @@ void RiuPlotMainWindow::slotSubWindowActivated( QMdiSubWindow* subWindow )
             caf::PdmObject* pdmObject = dynamic_cast<caf::PdmObject*>( uiItem );
             if ( pdmObject )
             {
-                RimViewWindow* owningView = nullptr;
-                pdmObject->firstAncestorOrThisOfType( owningView );
-                if ( owningView && owningView == activatedView )
+                std::vector<RimViewWindow*> ancestralViews;
+                pdmObject->allAncestorsOrThisOfType( ancestralViews );
+                for ( auto ancestralView : ancestralViews )
                 {
-                    childSelected = true;
+                    if ( ancestralView == activatedView )
+                    {
+                        childSelected = true;
+                    }
                 }
             }
         }
@@ -897,14 +903,14 @@ void RiuPlotMainWindow::restoreTreeViewState()
 {
     if ( m_projectTreeView )
     {
-        QString stateString = RiaApplication::instance()->project()->plotWindowTreeViewState;
+        QString stateString = RimProject::current()->plotWindowTreeViewState;
         if ( !stateString.isEmpty() )
         {
             m_projectTreeView->treeView()->collapseAll();
             caf::QTreeViewStateSerializer::applyTreeViewStateFromString( m_projectTreeView->treeView(), stateString );
         }
 
-        QString currentIndexString = RiaApplication::instance()->project()->plotWindowCurrentModelIndexPath;
+        QString currentIndexString = RimProject::current()->plotWindowCurrentModelIndexPath;
         if ( !currentIndexString.isEmpty() )
         {
             QModelIndex mi =
@@ -996,7 +1002,7 @@ void RiuPlotMainWindow::tileSubWindows()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::storeSubWindowTiling( bool tiled )
 {
-    RiaApplication::instance()->project()->setSubWindowsTiledInPlotWindow( tiled );
+    RimProject::current()->setSubWindowsTiledInPlotWindow( tiled );
     refreshToolbars();
 }
 
@@ -1022,9 +1028,9 @@ void RiuPlotMainWindow::clearWindowTiling()
 //--------------------------------------------------------------------------------------------------
 bool RiuPlotMainWindow::subWindowsAreTiled() const
 {
-    if ( RiaApplication::instance()->project() )
+    if ( RimProject::current() )
     {
-        return RiaApplication::instance()->project()->subWindowsTiledPlotWindow();
+        return RimProject::current()->subWindowsTiledPlotWindow();
     }
     return false;
 }

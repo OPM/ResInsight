@@ -63,6 +63,8 @@ RimEnsembleCurveFilter::RimEnsembleCurveFilter()
     m_deleteButton = false;
     m_deleteButton.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_deleteButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -139,11 +141,13 @@ QList<caf::PdmOptionItemInfo>
         auto curveSet = parentCurveSet();
         if ( curveSet )
         {
-            auto nameParameterPairs = curveSet->ensembleParameters();
-            for ( auto& nameParamPair : nameParameterPairs )
+            auto params = curveSet->correlationSortedEnsembleParameters();
+            for ( const auto& paramCorrPair : params )
             {
+                QString name = paramCorrPair.first.name;
+                double  corr = paramCorrPair.second;
                 options.push_back(
-                    caf::PdmOptionItemInfo( EnsembleParameter::uiName( nameParamPair ), nameParamPair.first ) );
+                    caf::PdmOptionItemInfo( QString( "%1 (Avg. correlation: %2)" ).arg( name ).arg( corr ), name ) );
             }
         }
     }
@@ -179,7 +183,7 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
         auto eParam = selectedEnsembleParameter();
         if ( eParam.isNumeric() )
         {
-            setInitialValues( true );
+            updateMaxMinAndDefaultValues( true );
         }
         else if ( eParam.isText() )
         {
@@ -220,7 +224,7 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    setInitialValues( false );
+    updateMaxMinAndDefaultValues( false );
 
     auto eParam = selectedEnsembleParameter();
 
@@ -319,7 +323,7 @@ std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter( const std::vec
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveFilter::loadDataAndUpdate()
 {
-    setInitialValues( false );
+    updateMaxMinAndDefaultValues( false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -353,14 +357,14 @@ RimEnsembleCurveFilterCollection* RimEnsembleCurveFilter::parentCurveFilterColle
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveFilter::setInitialValues( bool forceDefault )
+void RimEnsembleCurveFilter::updateMaxMinAndDefaultValues( bool forceDefault )
 {
     if ( !selectedEnsembleParameter().isValid() )
     {
-        auto parameterNames = parentCurveSet()->ensembleParameters();
-        if ( !parameterNames.empty() )
+        auto ensParams = parentCurveSet()->correlationSortedEnsembleParameters();
+        if ( !ensParams.empty() )
         {
-            m_ensembleParameterName = parameterNames.front().first;
+            m_ensembleParameterName = ensParams.front().first.name;
             updateConnectedEditors();
         }
     }

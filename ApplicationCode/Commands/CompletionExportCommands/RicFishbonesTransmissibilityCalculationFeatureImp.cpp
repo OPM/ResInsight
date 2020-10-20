@@ -98,7 +98,7 @@ std::vector<RigCompletionData>
     findFishboneImportedLateralsWellBoreParts( wellBorePartsInCells, wellPath, settings );
 
     const RigActiveCellInfo* activeCellInfo =
-        settings.caseToApply->eclipseCaseData()->activeCellInfo( RiaDefines::MATRIX_MODEL );
+        settings.caseToApply->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
     for ( const auto& cellAndWellBoreParts : wellBorePartsInCells )
     {
@@ -140,6 +140,7 @@ std::vector<RigCompletionData>
             completion.setSecondOrderingValue( wellBorePart.lateralIndex );
 
             double transmissibility = 0.0;
+            double kh               = RigCompletionData::defaultValue();
             if ( wellBorePart.isMainBore )
             {
                 // No change in transmissibility for main bore
@@ -153,6 +154,7 @@ std::vector<RigCompletionData>
                                                                                                settings.useLateralNTG );
 
                 transmissibility = transmissibilityAndPermeability.connectionFactor();
+                kh               = transmissibilityAndPermeability.kh();
             }
             else
             {
@@ -169,6 +171,7 @@ std::vector<RigCompletionData>
                                                                                                mainBoreDirection );
 
                 transmissibility = transmissibilityAndPermeability.connectionFactor();
+                kh               = transmissibilityAndPermeability.kh();
             }
 
             CellDirection direction =
@@ -179,6 +182,7 @@ std::vector<RigCompletionData>
             completion.setTransAndWPImultBackgroundDataFromFishbone( transmissibility,
                                                                      wellBorePart.skinFactor,
                                                                      wellBorePart.wellRadius * 2,
+                                                                     kh,
                                                                      direction,
                                                                      wellBorePart.isMainBore );
 
@@ -208,7 +212,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
     RiaEclipseUnitTools::UnitSystem unitSystem = caseData->unitsType();
     bool                            isMainBore = false;
 
-    for ( std::shared_ptr<RicMswSegment> location : exportInfo.wellSegmentLocations() )
+    for ( std::shared_ptr<RicMswSegment> location : exportInfo.segments() )
     {
         for ( std::shared_ptr<RicMswCompletion> completion : location->completions() )
         {
@@ -298,6 +302,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneImportedLate
 
         std::vector<WellPathCellIntersectionInfo> intersectedCells =
             RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath( settings.caseToApply->eclipseCaseData(),
+                                                                              wellPath->name(),
                                                                               fishbonesPath->coordinates(),
                                                                               fishbonesPath->measuredDepths() );
 
@@ -331,7 +336,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::appendMainWellBoreParts(
     double                                                   holeRadius,
     double                                                   startMeasuredDepth,
     double                                                   endMeasuredDepth,
-    const RimFishbonesMultipleSubs*                          fishbonesDefintions )
+    const RimFishbonesMultipleSubs*                          fishbonesDefinitions )
 {
     if ( !wellPath ) return;
     if ( !wellPath->wellPathGeometry() ) return;
@@ -344,6 +349,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::appendMainWellBoreParts(
 
     std::vector<WellPathCellIntersectionInfo> intersectedCellsIntersectionInfo =
         RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath( settings.caseToApply->eclipseCaseData(),
+                                                                          wellPath->name(),
                                                                           fishbonePerfWellPathCoords.first,
                                                                           fishbonePerfWellPathCoords.second );
 
@@ -358,7 +364,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::appendMainWellBoreParts(
 
         wellBorePart.intersectionWithWellMeasuredDepth = cellIntersectionInfo.startMD;
 
-        wellBorePart.setSourcePdmObject( fishbonesDefintions );
+        wellBorePart.setSourcePdmObject( fishbonesDefinitions );
         wellBorePartsInCells[cellIntersectionInfo.globCellIndex].push_back( wellBorePart );
     }
 }

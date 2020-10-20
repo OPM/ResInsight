@@ -74,5 +74,5 @@ void RicDeletePltPlotFeature::onActionTriggered( bool isChecked )
 void RicDeletePltPlotFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Delete PLT Plot" );
-    actionToSetup->setIcon( QIcon( ":/Erase.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Erase.svg" ) );
 }

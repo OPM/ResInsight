@@ -57,7 +57,6 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
-#include <QMessageBox>
 #include <QTextStream>
 
 #include <cafPdmUiPropertyViewDialog.h>
@@ -83,9 +82,10 @@ void RicCreateTemporaryLgrFeature::createLgrsForWellPaths( std::vector<RimWellPa
                                                            const std::set<RigCompletionData::CompletionType>& completionTypes,
                                                            QStringList* wellsIntersectingOtherLgrs )
 {
-    auto               eclipseCaseData        = eclipseCase->eclipseCaseData();
-    RigActiveCellInfo* activeCellInfo         = eclipseCaseData->activeCellInfo( RiaDefines::MATRIX_MODEL );
-    RigActiveCellInfo* fractureActiveCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::FRACTURE_MODEL );
+    auto               eclipseCaseData = eclipseCase->eclipseCaseData();
+    RigActiveCellInfo* activeCellInfo  = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    RigActiveCellInfo* fractureActiveCellInfo =
+        eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
 
     auto lgrs = RicExportLgrFeature::buildLgrsForWellPaths( wellPaths,
                                                             eclipseCase,
@@ -119,10 +119,10 @@ void RicCreateTemporaryLgrFeature::updateViews( RimEclipseCase* eclipseCase )
     app->clearAllSelections();
 
     deleteAllCachedData( eclipseCase );
-    RiaApplication::instance()->project()->mainPlotCollection()->deleteAllCachedData();
+    RimProject::current()->mainPlotCollection()->deleteAllCachedData();
     computeCachedData( eclipseCase );
 
-    RiaApplication::instance()->project()->mainPlotCollection()->wellLogPlotCollection()->reloadAllPlots();
+    RimProject::current()->mainPlotCollection()->wellLogPlotCollection()->reloadAllPlots();
 
     eclipseCase->createDisplayModelAndUpdateAllViews();
 }
@@ -182,10 +182,10 @@ void RicCreateTemporaryLgrFeature::onActionTriggered( bool isChecked )
 
         if ( !wellsIntersectingOtherLgrs.empty() )
         {
-            QMessageBox::warning( nullptr,
-                                  "LGR cells intersected",
-                                  "At least one completion intersects with an LGR. No LGR(s) for those cells are "
-                                  "produced" );
+            RiaLogging::errorInMessageBox( nullptr,
+                                           "LGR cells intersected",
+                                           "At least one completion intersects with an LGR. No LGR(s) for those cells "
+                                           "are produced" );
         }
     }
 }
@@ -293,13 +293,14 @@ void RicCreateTemporaryLgrFeature::deleteAllCachedData( RimEclipseCase* eclipseC
 {
     if ( eclipseCase )
     {
-        RigCaseCellResultsData* cellResultsDataMatrix = eclipseCase->results( RiaDefines::MATRIX_MODEL );
+        RigCaseCellResultsData* cellResultsDataMatrix = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
         if ( cellResultsDataMatrix )
         {
             cellResultsDataMatrix->freeAllocatedResultsData();
         }
 
-        RigCaseCellResultsData* cellResultsDataFracture = eclipseCase->results( RiaDefines::FRACTURE_MODEL );
+        RigCaseCellResultsData* cellResultsDataFracture =
+            eclipseCase->results( RiaDefines::PorosityModelType::FRACTURE_MODEL );
         if ( cellResultsDataFracture )
         {
             cellResultsDataFracture->freeAllocatedResultsData();
@@ -321,8 +322,9 @@ void RicCreateTemporaryLgrFeature::computeCachedData( RimEclipseCase* eclipseCas
 {
     if ( eclipseCase )
     {
-        RigCaseCellResultsData* cellResultsDataMatrix   = eclipseCase->results( RiaDefines::MATRIX_MODEL );
-        RigCaseCellResultsData* cellResultsDataFracture = eclipseCase->results( RiaDefines::FRACTURE_MODEL );
+        RigCaseCellResultsData* cellResultsDataMatrix = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+        RigCaseCellResultsData* cellResultsDataFracture =
+            eclipseCase->results( RiaDefines::PorosityModelType::FRACTURE_MODEL );
 
         RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
         if ( eclipseCaseData )

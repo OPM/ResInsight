@@ -18,8 +18,6 @@
 
 #include "RimFlowPlotCollection.h"
 
-#include "RiaApplication.h"
-
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimProject.h"
 #include "RimWellAllocationPlot.h"

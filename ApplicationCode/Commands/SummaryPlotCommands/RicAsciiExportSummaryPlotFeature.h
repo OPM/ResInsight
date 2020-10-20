@@ -42,8 +42,8 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    static bool exportAsciiForSummaryPlot( const QString&        fileName,
-                                           const RimSummaryPlot* selectedSummaryPlots,
-                                           RiaQDateTimeTools::DateTimePeriod        resamplingPeriod,
-                                           bool                  showTimeAsLongString );
+    static bool exportAsciiForSummaryPlot( const QString&                    fileName,
+                                           const RimSummaryPlot*             selectedSummaryPlots,
+                                           RiaQDateTimeTools::DateTimePeriod resamplingPeriod,
+                                           bool                              showTimeAsLongString );
 };

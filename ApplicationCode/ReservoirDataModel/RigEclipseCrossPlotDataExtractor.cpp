@@ -43,7 +43,7 @@ RigEclipseCrossPlotResult RigEclipseCrossPlotDataExtractor::extract( RigEclipseC
 {
     RigEclipseCrossPlotResult result;
 
-    RigCaseCellResultsData* resultData = caseData->results( RiaDefines::MATRIX_MODEL );
+    RigCaseCellResultsData* resultData = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     if ( !resultData ) return result;
 
     const std::vector<std::vector<double>>* catValuesForAllSteps = nullptr;

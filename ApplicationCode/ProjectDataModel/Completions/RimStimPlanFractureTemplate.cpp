@@ -88,6 +88,7 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate()
     m_readError    = false;
 
     // clang-format on
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -270,7 +271,7 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
     {
         setDefaultConductivityResultIfEmpty();
 
-        if ( fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_UNKNOWN )
+        if ( fractureTemplateUnit() == RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN )
         {
             setUnitSystem( m_stimPlanFractureDefinitionData->unitSet() );
         }
@@ -279,7 +280,7 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
     }
     else
     {
-        setUnitSystem( RiaEclipseUnitTools::UNITS_UNKNOWN );
+        setUnitSystem( RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN );
         m_readError = true;
     }
 
@@ -405,11 +406,11 @@ void RimStimPlanFractureTemplate::computePerforationLength()
         }
     }
 
-    if ( fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_METRIC && m_perforationLength < 10 )
+    if ( fractureTemplateUnit() == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC && m_perforationLength < 10 )
     {
         m_perforationLength = 10;
     }
-    else if ( fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_FIELD &&
+    else if ( fractureTemplateUnit() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD &&
               m_perforationLength < RiaEclipseUnitTools::meterToFeet( 10 ) )
     {
         m_perforationLength = std::round( RiaEclipseUnitTools::meterToFeet( 10 ) );
@@ -428,14 +429,14 @@ std::vector<double>
     auto resultValues =
         m_stimPlanFractureDefinitionData->fractureGridResults( resultName, unitName, m_activeTimeStepIndex );
 
-    if ( fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_METRIC )
+    if ( fractureTemplateUnit() == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
     {
         for ( auto& v : resultValues )
         {
             v = RiaEclipseUnitTools::convertToMeter( v, unitName );
         }
     }
-    else if ( fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_FIELD )
+    else if ( fractureTemplateUnit() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
     {
         for ( auto& v : resultValues )
         {
@@ -782,11 +783,11 @@ void RimStimPlanFractureTemplate::convertToUnitSystem( RiaEclipseUnitTools::Unit
 
     if ( m_stimPlanFractureDefinitionData.isNull() ) return;
 
-    if ( neededUnit == RiaEclipseUnitTools::UNITS_FIELD )
+    if ( neededUnit == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
     {
         m_wellPathDepthAtFracture = RiaEclipseUnitTools::meterToFeet( m_wellPathDepthAtFracture );
     }
-    else if ( neededUnit == RiaEclipseUnitTools::UNITS_METRIC )
+    else if ( neededUnit == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
     {
         m_wellPathDepthAtFracture = RiaEclipseUnitTools::feetToMeter( m_wellPathDepthAtFracture );
     }

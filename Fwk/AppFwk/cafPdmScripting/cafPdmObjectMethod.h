@@ -52,8 +52,12 @@ namespace caf
 {
 //==================================================================================================
 /// PdmObject script method
-/// Sub-class and register to the PdmObject
-/// Store arguments as member fields and set a return values in the return value for execute
+/// Sub-class and register to the PdmObject to assign methods to a PdmObject that is accessible from
+/// ... scripting engines such as Python.
+/// Store arguments as member fields and assign return values in a PdmObject for execute.
+/// Return value can be a storage class based on PdmObject returning resultIsPersistent() == false.
+/// Or it can be a PdmObject in the project tree returning resultIsPersistent() == true.
+///
 //==================================================================================================
 class PdmObjectMethod : public PdmObject
 {
@@ -72,8 +76,11 @@ public:
     virtual QString selfClassKeyword() const { return m_self->xmlCapability()->classKeyword(); }
 
     // True if object is a persistent project tree item. False if the object is to be deleted on completion.
-    virtual bool                             resultIsPersistent() const = 0;
-    virtual std::unique_ptr<PdmObjectHandle> defaultResult() const      = 0;
+    virtual bool resultIsPersistent() const = 0;
+
+    // In order for the code generators to inspect the fields in the result object any PdmObjectMethod
+    // ... need to provide an implementation that returns the same object type as the execute method.
+    virtual std::unique_ptr<PdmObjectHandle> defaultResult() const = 0;
 
 protected:
     // Basically the "this" pointer to the object the method belongs to
@@ -86,7 +93,7 @@ protected:
     }
 
 private:
-    friend class PdmObjectScriptability;
+    friend class PdmObjectScriptingCapability;
     PdmPointer<PdmObjectHandle> m_self;
 };
 

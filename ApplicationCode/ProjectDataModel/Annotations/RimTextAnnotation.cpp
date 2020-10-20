@@ -77,6 +77,8 @@ RimTextAnnotation::RimTextAnnotation()
 
     m_anchorPointPickEventHandler.reset( new RicVec3dPickEventHandler( &m_anchorPointXyd ) );
     m_labelPointPickEventHandler.reset( new RicVec3dPickEventHandler( &m_labelPointXyd, 0.1 ) );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

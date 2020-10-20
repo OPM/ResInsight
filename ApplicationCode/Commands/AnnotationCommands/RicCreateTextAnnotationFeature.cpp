@@ -18,8 +18,6 @@
 
 #include "RicCreateTextAnnotationFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationGroupCollection.h"
 #include "RimAnnotationInViewCollection.h"

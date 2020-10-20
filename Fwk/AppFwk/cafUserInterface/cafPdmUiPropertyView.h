@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include <QPointer>
@@ -45,46 +44,43 @@
 class QVBoxLayout;
 class QTimer;
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 class QVerticalScrollArea : public QScrollArea
 {
     Q_OBJECT
 public:
-    explicit QVerticalScrollArea(QWidget* parent = nullptr);
+    explicit QVerticalScrollArea( QWidget* parent = nullptr );
 
     virtual QSize sizeHint() const override;
     virtual QSize minimumSizeHint() const override;
 };
 
-
 namespace caf
 {
-
 class PdmObjectHandle;
 class PdmUiDefaultObjectEditor;
 
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 
 class PdmUiPropertyView : public QWidget
 {
     Q_OBJECT
 public:
-    PdmUiPropertyView(QWidget* parent = nullptr, Qt::WindowFlags f = nullptr);
+    PdmUiPropertyView( QWidget* parent = nullptr, Qt::WindowFlags f = nullptr );
     ~PdmUiPropertyView() override;
 
-    void                setUiConfigurationName(QString uiConfigName);
-    PdmObjectHandle*    currentObject();
+    void             setUiConfigurationName( QString uiConfigName );
+    PdmObjectHandle* currentObject();
 
-    QSize               sizeHint() const override;
-    QSize               minimumSizeHint() const override;
+    QSize sizeHint() const override;
+    QSize minimumSizeHint() const override;
 
 public slots:
-    void                showProperties(caf::PdmObjectHandle* object); // Signal/Slot system needs caf:: prefix in some cases
+    void showProperties( caf::PdmObjectHandle* object ); // Signal/Slot system needs caf:: prefix in some cases
 
 private:
     PdmUiDefaultObjectEditor*     m_defaultObjectEditor;
@@ -95,4 +91,3 @@ private:
 };
 
 } // End of namespace caf
-

@@ -33,19 +33,23 @@
 
 #include "PlotTemplates/RimPlotTemplateFolderItem.h"
 #include "RimAdvancedSnapshotExportDefinition.h"
+#include "RimAnalysisPlotCollection.h"
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimCalcScript.h"
 #include "RimCase.h"
 #include "RimCaseCollection.h"
+#include "RimColorLegendCollection.h"
 #include "RimCommandObject.h"
 #include "RimCompletionTemplateCollection.h"
 #include "RimContextCommandBuilder.h"
+#include "RimCorrelationPlotCollection.h"
 #include "RimDialogData.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimFlowPlotCollection.h"
 #include "RimFormationNamesCollection.h"
+#include "RimFractureModelPlotCollection.h"
 #include "RimFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
@@ -126,6 +130,10 @@ RimProject::RimProject( void )
 
     CAF_PDM_InitFieldNoDefault( &oilFields, "OilFields", "Oil Fields", "", "", "" );
     oilFields.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &colorLegendCollection, "ColorLegendCollection", "Color Legend Collection", "", "", "" );
+    colorLegendCollection = new RimColorLegendCollection();
+    colorLegendCollection->createStandardColorLegends();
 
     CAF_PDM_InitFieldNoDefault( &scriptCollection, "ScriptCollection", "Octave Scripts", ":/octave.png", "", "" );
     scriptCollection.uiCapability()->setUiHidden( true );
@@ -219,6 +227,14 @@ RimProject::~RimProject( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimProject* RimProject::current()
+{
+    return RiaApplication::instance()->project();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimProject::close()
 {
     if ( mainPlotCollection() )
@@ -241,6 +257,7 @@ void RimProject::close()
     m_dialogData->clearProjectSpecificData();
 
     calculationCollection->deleteAllContainedObjects();
+    colorLegendCollection->deleteCustomColorLegends();
 
     delete viewLinkerCollection->viewLinker();
     viewLinkerCollection->viewLinker = nullptr;
@@ -428,9 +445,7 @@ void RimProject::setProjectFileNameAndUpdateDependencies( const QString& project
     QFileInfo fileInfoOld( oldProjectFileName );
     QString   oldProjectPath = fileInfoOld.path();
 
-    std::vector<caf::FilePath*> filePaths;
-    fieldContentsByType( this, filePaths );
-
+    std::vector<caf::FilePath*> filePaths = allFilePaths();
     for ( caf::FilePath* filePath : filePaths )
     {
         bool                 foundFile = false;
@@ -526,6 +541,19 @@ void RimProject::assignIdToEnsemble( RimSummaryCaseCollection* summaryCaseCollec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimCase*> RimProject::allGridCases() const
+{
+    std::vector<RimCase*> cases;
+
+    // TODO: Move code from allCases here
+    allCases( cases );
+
+    return cases;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimProject::assignCaseIdToCase( RimCase* reservoirCase )
 {
     if ( reservoirCase )
@@ -616,7 +644,7 @@ void RimProject::assignCalculationIdToCalculation( RimSummaryCalculation* calcul
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// TODO: This function is deprecated, use allGridCases()
 //--------------------------------------------------------------------------------------------------
 void RimProject::allCases( std::vector<RimCase*>& cases ) const
 {
@@ -658,9 +686,9 @@ void RimProject::allCases( std::vector<RimCase*>& cases ) const
         RimGeoMechModels* geomModels = oilField->geoMechModels();
         if ( geomModels )
         {
-            for ( size_t caseIdx = 0; caseIdx < geomModels->cases.size(); caseIdx++ )
+            for ( auto acase : geomModels->cases() )
             {
-                cases.push_back( geomModels->cases[caseIdx] );
+                cases.push_back( acase );
             }
         }
     }
@@ -1193,9 +1221,9 @@ std::vector<RimGeoMechCase*> RimProject::geoMechCases() const
         RimGeoMechModels* geomModels = oilField->geoMechModels();
         if ( geomModels )
         {
-            for ( size_t caseIdx = 0; caseIdx < geomModels->cases.size(); caseIdx++ )
+            for ( auto acase : geomModels->cases() )
             {
-                cases.push_back( geomModels->cases[caseIdx] );
+                cases.push_back( acase );
             }
         }
     }
@@ -1274,20 +1302,20 @@ RiaEclipseUnitTools::UnitSystemType RimProject::commonUnitSystemForAllCases() co
     std::vector<RimCase*> rimCases;
     allCases( rimCases );
 
-    RiaEclipseUnitTools::UnitSystem commonUnitSystem = RiaEclipseUnitTools::UNITS_UNKNOWN;
+    RiaEclipseUnitTools::UnitSystem commonUnitSystem = RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
 
     for ( const auto& c : rimCases )
     {
         auto eclipseCase = dynamic_cast<RimEclipseCase*>( c );
         if ( eclipseCase && eclipseCase->eclipseCaseData() )
         {
-            if ( commonUnitSystem == RiaEclipseUnitTools::UNITS_UNKNOWN )
+            if ( commonUnitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN )
             {
                 commonUnitSystem = eclipseCase->eclipseCaseData()->unitsType();
             }
             else if ( commonUnitSystem != eclipseCase->eclipseCaseData()->unitsType() )
             {
-                commonUnitSystem = RiaEclipseUnitTools::UNITS_UNKNOWN;
+                commonUnitSystem = RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
                 break;
             }
         }
@@ -1310,6 +1338,17 @@ RimMeasurement* RimProject::measurement() const
 RimPlotTemplateFolderItem* RimProject::rootPlotTemlateItem() const
 {
     return m_plotTemplateFolderItem;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::FilePath*> RimProject::allFilePaths() const
+{
+    std::vector<caf::FilePath*> filePaths;
+    fieldContentsByType( this, filePaths );
+
+    return filePaths;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1359,6 +1398,16 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
                 itemCollection->add( mainPlotCollection->summaryPlotCollection() );
             }
 
+            if ( mainPlotCollection->analysisPlotCollection() )
+            {
+                itemCollection->add( mainPlotCollection->analysisPlotCollection() );
+            }
+
+            if ( mainPlotCollection->correlationPlotCollection() )
+            {
+                itemCollection->add( mainPlotCollection->correlationPlotCollection() );
+            }
+
             if ( mainPlotCollection->summaryCrossPlotCollection() )
             {
                 itemCollection->add( mainPlotCollection->summaryCrossPlotCollection() );
@@ -1399,6 +1448,14 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
             {
                 itemCollection->add( mainPlotCollection->multiPlotCollection() );
             }
+
+            if ( mainPlotCollection->fractureModelPlotCollection() )
+            {
+                if ( RiaApplication::enableDevelopmentFeatures() )
+                {
+                    itemCollection->add( mainPlotCollection->fractureModelPlotCollection() );
+                }
+            }
         }
 
         uiTreeOrdering.add( scriptCollection() );
@@ -1424,6 +1481,7 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
             if ( oilField->annotationCollection() ) uiTreeOrdering.add( oilField->annotationCollection() );
         }
 
+        uiTreeOrdering.add( colorLegendCollection() );
         uiTreeOrdering.add( scriptCollection() );
     }
 
@@ -1580,9 +1638,7 @@ void RimProject::transferPathsToGlobalPathList()
 {
     GlobalPathListMapper pathListMapper( m_globalPathList() );
 
-    std::vector<caf::FilePath*> filePaths;
-    fieldContentsByType( this, filePaths );
-
+    std::vector<caf::FilePath*> filePaths = allFilePaths();
     for ( caf::FilePath* filePath : filePaths )
     {
         QString path = filePath->path();
@@ -1603,9 +1659,7 @@ void RimProject::distributePathsFromGlobalPathList()
 {
     GlobalPathListMapper pathListMapper( m_globalPathList() );
 
-    std::vector<caf::FilePath*> filePaths;
-    fieldContentsByType( this, filePaths );
-
+    std::vector<caf::FilePath*> filePaths = allFilePaths();
     for ( caf::FilePath* filePath : filePaths )
     {
         QString     pathIdCandidate  = filePath->path().trimmed();

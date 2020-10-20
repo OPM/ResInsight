@@ -18,8 +18,6 @@
 
 #include "RicExportCompletionsForTemporaryLgrsFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RicWellPathExportCompletionDataFeature.h"
 
 #include "RigMainGrid.h"
@@ -102,7 +100,7 @@ std::vector<RimWellPath*> RicExportCompletionsForTemporaryLgrsFeature::wellPaths
             }
         }
 
-        auto project = RiaApplication::instance()->project();
+        auto project = RimProject::current();
         for ( const auto& wellPathName : wellPathNames )
         {
             auto wellPath = project->wellPathByName( wellPathName );

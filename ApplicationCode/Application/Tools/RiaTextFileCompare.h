@@ -28,7 +28,7 @@
 class RiaTextFileCompare
 {
 public:
-    enum ErrorType
+    enum class ErrorType
     {
         IC_NO_ERROR, // No error occurred
         IC_ERROR, // An error occurred

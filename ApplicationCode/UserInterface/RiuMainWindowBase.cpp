@@ -18,7 +18,6 @@
 
 #include "RiuMainWindowBase.h"
 
-#include "RiaApplication.h"
 #include "RiaVersionInfo.h"
 
 #include "RiuDockWidgetTools.h"
@@ -47,6 +46,19 @@ RiuMainWindowBase::RiuMainWindowBase()
     , m_blockSubWindowProjectTreeSelection( false )
 {
     setDockNestingEnabled( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QMdiSubWindow* RiuMainWindowBase::createViewWindow()
+{
+    RiuMdiSubWindow* subWin =
+        new RiuMdiSubWindow( nullptr, Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint | Qt::WindowMaximizeButtonHint );
+    subWin->setAttribute( Qt::WA_DeleteOnClose ); // Make sure the contained widget is destroyed when the MDI window is
+                                                  // closed
+
+    return subWin;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -294,6 +306,12 @@ void RiuMainWindowBase::removeViewerFromMdiArea( QMdiArea* mdiArea, QWidget* vie
     }
     mdiArea->removeSubWindow( subWindowBeingClosed );
 
+    // These two lines had to be introduced after themes was used
+    // Probably related to polish/unpolish of widgets in an MDI setting
+    // https://github.com/OPM/ResInsight/issues/6676
+    subWindowBeingClosed->hide();
+    subWindowBeingClosed->deleteLater();
+
     QList<QMdiSubWindow*> subWindowList = mdiArea->subWindowList( QMdiArea::ActivationHistoryOrder );
     if ( !subWindowList.empty() )
     {
@@ -344,17 +362,11 @@ void RiuMainWindowBase::slotDockWidgetToggleViewActionTriggered()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindowBase::addViewerToMdiArea( QMdiArea*     mdiArea,
-                                            QWidget*      viewer,
-                                            const QPoint& subWindowPos,
-                                            const QSize&  subWindowSize )
+void RiuMainWindowBase::initializeSubWindow( QMdiArea*      mdiArea,
+                                             QMdiSubWindow* mdiSubWindow,
+                                             const QPoint&  subWindowPos,
+                                             const QSize&   subWindowSize )
 {
-    RiuMdiSubWindow* subWin =
-        new RiuMdiSubWindow( nullptr, Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint | Qt::WindowMaximizeButtonHint );
-    subWin->setAttribute( Qt::WA_DeleteOnClose ); // Make sure the contained widget is destroyed when the MDI window is
-                                                  // closed
-    subWin->setWidget( viewer );
-
     bool initialStateTiled     = subWindowsAreTiled();
     bool initialStateMaximized = false;
 
@@ -369,21 +381,21 @@ void RiuMainWindowBase::addViewerToMdiArea( QMdiArea*     mdiArea,
         initialStateMaximized = true;
     }
 
-    mdiArea->addSubWindow( subWin );
+    mdiArea->addSubWindow( mdiSubWindow );
 
     if ( subWindowPos.x() > -1 )
     {
-        subWin->move( subWindowPos );
+        mdiSubWindow->move( subWindowPos );
     }
-    subWin->resize( subWindowSize );
+    mdiSubWindow->resize( subWindowSize );
 
     if ( initialStateMaximized )
     {
-        subWin->showMaximized();
+        mdiSubWindow->showMaximized();
     }
     else
     {
-        subWin->showNormal();
+        mdiSubWindow->showNormal();
         if ( initialStateTiled )
         {
             tileSubWindows();

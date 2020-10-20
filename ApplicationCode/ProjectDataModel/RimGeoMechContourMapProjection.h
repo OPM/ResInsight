@@ -56,6 +56,8 @@ public:
     RimRegularLegendConfig* legendConfig() const override;
     void                    updateLegend() override;
 
+    double sampleSpacing() const override;
+
 protected:
     typedef RimContourMapProjection::CellIndexAndResult CellIndexAndResult;
 

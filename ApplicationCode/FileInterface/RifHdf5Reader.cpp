@@ -381,8 +381,6 @@ std::vector<std::string> RifHdf5Reader::getSubGroupNames( H5::H5File file, std::
 //--------------------------------------------------------------------------------------------------
 std::vector<std::string> RifHdf5Reader::getResultNames( H5::H5File file, std::string baseGroupName ) const
 {
-    H5::Group baseGroup = file.openGroup( baseGroupName.c_str() );
-
     std::vector<std::string> subGroupNames = getSubGroupNames( file, baseGroupName );
 
     std::vector<std::string> resultNames;

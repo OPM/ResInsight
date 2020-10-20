@@ -14,13 +14,12 @@ class FilePath
 {
 public:
     FilePath();
-    FilePath(const QString& filePath);
+    FilePath( const QString& filePath );
 
     QString path() const;
-    void    setPath(const QString& valueText);
+    void    setPath( const QString& valueText );
 
-    void operator=(const FilePath& other);
-    bool operator==(const FilePath& other) const;
+    bool operator==( const FilePath& other ) const;
 
 private:
     QString m_filePath;
@@ -31,7 +30,7 @@ private:
 //==================================================================================================
 // Overload of QTextStream
 //==================================================================================================
-QTextStream& operator>>(QTextStream& str, caf::FilePath& filePath);
-QTextStream& operator<<(QTextStream& str, const caf::FilePath& filePath);
+QTextStream& operator>>( QTextStream& str, caf::FilePath& filePath );
+QTextStream& operator<<( QTextStream& str, const caf::FilePath& filePath );
 
-Q_DECLARE_METATYPE(caf::FilePath);
+Q_DECLARE_METATYPE( caf::FilePath );

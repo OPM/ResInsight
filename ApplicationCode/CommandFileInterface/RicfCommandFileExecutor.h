@@ -34,7 +34,7 @@ class RicfCommandObject;
 class RicfCommandFileExecutor
 {
 public:
-    enum ExportType
+    enum class ExportType
     {
         COMPLETIONS,
         SNAPSHOTS,

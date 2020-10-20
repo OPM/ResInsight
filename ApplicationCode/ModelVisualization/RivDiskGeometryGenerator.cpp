@@ -136,6 +136,5 @@ void createDisc( double radius, size_t numSlices, cvf::GeometryBuilder* builder 
 //--------------------------------------------------------------------------------------------------
 void RivDiskGeometryGenerator::generate( cvf::GeometryBuilder* builder )
 {
-    const unsigned int numPolysZDir = 1;
     createDisc( m_relativeRadius, m_numSlices, builder );
 }

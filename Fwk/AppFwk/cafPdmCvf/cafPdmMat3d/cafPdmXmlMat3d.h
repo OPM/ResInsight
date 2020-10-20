@@ -41,5 +41,5 @@
 
 class QTextStream;
 
-QTextStream& operator >> (QTextStream& str, cvf::Mat3d& value);
-QTextStream& operator << (QTextStream& str, const cvf::Mat3d& value);
+QTextStream& operator>>( QTextStream& str, cvf::Mat3d& value );
+QTextStream& operator<<( QTextStream& str, const cvf::Mat3d& value );

@@ -45,41 +45,37 @@
 #include "cvfBase.h"
 #include "cvfMatrix3.h"
 
-namespace caf 
+namespace caf
 {
-
 template <>
-class PdmUiFieldSpecialization < cvf::Mat3d >
+class PdmUiFieldSpecialization<cvf::Mat3d>
 {
 public:
     /// Convert the field value into a QVariant
-    static QVariant convert(const cvf::Mat3d& value)
+    static QVariant convert( const cvf::Mat3d& value )
     {
-        return PdmValueFieldSpecialization< cvf::Mat3d >::convert(value);
+        return PdmValueFieldSpecialization<cvf::Mat3d>::convert( value );
     }
 
     /// Set the field value from a QVariant
-    static void setFromVariant(const QVariant& variantValue, cvf::Mat3d& value)
+    static void setFromVariant( const QVariant& variantValue, cvf::Mat3d& value )
     {
-        PdmValueFieldSpecialization< cvf::Mat3d >::setFromVariant(variantValue, value);
+        PdmValueFieldSpecialization<cvf::Mat3d>::setFromVariant( variantValue, value );
     }
 
-    static bool isDataElementEqual(const QVariant& variantValue, const QVariant& variantValue2)
+    static bool isDataElementEqual( const QVariant& variantValue, const QVariant& variantValue2 )
     {
-        return PdmValueFieldSpecialization< cvf::Mat3d >::isEqual(variantValue, variantValue2);
+        return PdmValueFieldSpecialization<cvf::Mat3d>::isEqual( variantValue, variantValue2 );
     }
 
     /// Methods to get a list of options for a field, specialized for AppEnum
-    static QList<PdmOptionItemInfo> valueOptions(bool* useOptionsOnly, const cvf::Mat3d&)
+    static QList<PdmOptionItemInfo> valueOptions( bool* useOptionsOnly, const cvf::Mat3d& )
     {
         return QList<PdmOptionItemInfo>();
     }
 
     /// Methods to retrieve the possible PdmObject pointed to by a field
-    static void childObjects(const PdmDataValueField< cvf::Mat3d >&, std::vector<PdmObjectHandle*>*)
-    { }
-
+    static void childObjects( const PdmDataValueField<cvf::Mat3d>&, std::vector<PdmObjectHandle*>* ) {}
 };
 
 } // end namespace caf
-

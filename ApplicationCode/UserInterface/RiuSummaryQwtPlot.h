@@ -45,21 +45,14 @@ public:
     RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent = nullptr );
     ~RiuSummaryQwtPlot() override;
 
-    void useDateBasedTimeAxis(
-        const QString&                          dateFormat,
-        const QString&                          timeFormat,
-        RiaQDateTimeTools::DateFormatComponents dateComponents = RiaQDateTimeTools::DATE_FORMAT_UNSPECIFIED,
-        RiaQDateTimeTools::TimeFormatComponents timeComponents = RiaQDateTimeTools::TIME_FORMAT_UNSPECIFIED );
+    void useDateBasedTimeAxis( const QString&                          dateFormat,
+                               const QString&                          timeFormat,
+                               RiaQDateTimeTools::DateFormatComponents dateComponents = RiaQDateTimeTools::DATE_FORMAT_UNSPECIFIED,
+                               RiaQDateTimeTools::TimeFormatComponents timeComponents =
+                                   RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED );
 
     void useTimeBasedTimeAxis();
-
-    void setLegendFontSize( int fontSize );
-    void setLegendVisible( bool visible );
-
     void setAxisIsLogarithmic( QwtPlot::Axis axis, bool logarithmic );
-
-signals:
-    void plotZoomed();
 
 protected:
     void contextMenuEvent( QContextMenuEvent* ) override;

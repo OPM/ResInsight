@@ -21,10 +21,10 @@
 #include "RigWellLogCurveData.h"
 #include "RigWellPath.h"
 
+#include "RimDepthTrackPlot.h"
 #include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellLogFile.h"
-#include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 #include "RimWellMeasurement.h"
 #include "RimWellMeasurementCollection.h"
@@ -37,13 +37,11 @@
 #include "RiuQwtPlotCurve.h"
 #include "RiuQwtPlotWidget.h"
 
-#include "RiaApplication.h"
 #include "RiaPreferences.h"
 
 #include "cafPdmUiTreeOrdering.h"
 
 #include <QFileInfo>
-#include <QMessageBox>
 
 CAF_PDM_SOURCE_INIT( RimWellMeasurementCurve, "WellMeasurementCurve" );
 
@@ -52,14 +50,13 @@ CAF_PDM_SOURCE_INIT( RimWellMeasurementCurve, "WellMeasurementCurve" );
 //--------------------------------------------------------------------------------------------------
 RimWellMeasurementCurve::RimWellMeasurementCurve()
 {
-    CAF_PDM_InitObject( "Well Measurement Curve", "", "", "" );
+    CAF_PDM_InitObject( "Well Measurement Curve", RimWellLogCurve::wellLogCurveIconName(), "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_wellPath, "CurveWellPath", "Well Path", "", "", "" );
     m_wellPath.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_measurementKind, "CurveMeasurementKind", "Measurement Kind", "", "", "" );
     m_measurementKind.uiCapability()->setUiTreeChildrenHidden( true );
-    m_measurementKind.uiCapability()->setUiHidden( true );
 
     m_wellPath = nullptr;
 }
@@ -76,108 +73,105 @@ RimWellMeasurementCurve::~RimWellMeasurementCurve()
 //--------------------------------------------------------------------------------------------------
 void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
+    RimDepthTrackPlot* wellLogPlot;
+    firstAncestorOrThisOfType( wellLogPlot );
+    CVF_ASSERT( wellLogPlot );
+
+    RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
+    if ( m_wellPath && !m_measurementKind().isEmpty() && wellPathCollection )
+    {
+        const RimWellMeasurementCollection* measurementCollection = wellPathCollection->measurementCollection();
+
+        std::vector<QString> measurementKinds;
+        measurementKinds.push_back( measurementKind() );
+
+        std::vector<RimWellMeasurement*> measurements =
+            RimWellMeasurementFilter::filterMeasurements( measurementCollection->measurements(),
+                                                          *wellPathCollection,
+                                                          *m_wellPath,
+                                                          measurementKinds );
+
+        // Extract the values for this measurement kind
+        std::vector<double> values;
+        std::vector<double> measuredDepthValues;
+        for ( auto& measurement : measurements )
+        {
+            if ( measurement->kind() == measurementKind() )
+            {
+                values.push_back( measurement->value() );
+                measuredDepthValues.push_back( measurement->MD() );
+            }
+        }
+
+        if ( values.size() == measuredDepthValues.size() )
+        {
+            RigWellPath* rigWellPath = m_wellPath->wellPathGeometry();
+            if ( rigWellPath )
+            {
+                std::vector<double> trueVerticalDepthValues;
+
+                for ( double measuredDepthValue : measuredDepthValues )
+                {
+                    trueVerticalDepthValues.push_back(
+                        -rigWellPath->interpolatedPointAlongWellPath( measuredDepthValue ).z() );
+                }
+
+                this->setValuesWithMdAndTVD( values,
+                                             measuredDepthValues,
+                                             trueVerticalDepthValues,
+                                             m_wellPath->wellPathGeometry()->rkbDiff(),
+                                             RiaDefines::DepthUnitType::UNIT_METER,
+                                             false );
+            }
+            else
+            {
+                this->setValuesAndDepths( values,
+                                          measuredDepthValues,
+                                          RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
+                                          0.0,
+                                          RiaDefines::DepthUnitType::UNIT_METER,
+                                          false );
+            }
+        }
+
+        if ( m_isUsingAutoName )
+        {
+            m_qwtPlotCurve->setTitle( createCurveAutoName() );
+        }
+
+        setSymbol( getSymbolForMeasurementKind( m_measurementKind() ) );
+        setColor( getColorForMeasurementKind( measurementKind() ) );
+        setSymbolEdgeColor( getColorForMeasurementKind( measurementKind() ) );
+        setLineStyle( RiuQwtPlotCurve::STYLE_NONE );
+
+        RiaDefines::DepthUnitType displayUnit = RiaDefines::DepthUnitType::UNIT_METER;
+        if ( wellLogPlot )
+        {
+            displayUnit = wellLogPlot->depthUnit();
+        }
+
+        RiaDefines::DepthTypeEnum depthType = RiaDefines::DepthTypeEnum::MEASURED_DEPTH;
+        if ( wellLogPlot && this->curveData()->availableDepthTypes().count( wellLogPlot->depthType() ) )
+        {
+            depthType = wellLogPlot->depthType();
+        }
+
+        m_qwtPlotCurve->setSamples( this->curveData()->xPlotValues().data(),
+                                    this->curveData()->depthPlotValues( depthType, displayUnit ).data(),
+                                    static_cast<int>( this->curveData()->xPlotValues().size() ) );
+        m_qwtPlotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
+    }
+
     this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
 
-    if ( isCurveVisible() )
+    if ( updateParentPlot )
     {
-        RimWellLogPlot* wellLogPlot;
-        firstAncestorOrThisOfType( wellLogPlot );
-        CVF_ASSERT( wellLogPlot );
+        updateZoomInParentPlot();
+    }
 
-        RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
-        if ( m_wellPath && !m_measurementKind().isEmpty() && wellPathCollection )
-        {
-            const RimWellMeasurementCollection* measurementCollection = wellPathCollection->measurementCollection();
-
-            std::vector<QString> measurementKinds;
-            measurementKinds.push_back( measurementKind() );
-
-            std::vector<RimWellMeasurement*> measurements =
-                RimWellMeasurementFilter::filterMeasurements( measurementCollection->measurements(),
-                                                              *wellPathCollection,
-                                                              *m_wellPath,
-                                                              measurementKinds );
-
-            // Extract the values for this measurement kind
-            std::vector<double> values;
-            std::vector<double> measuredDepthValues;
-            for ( auto& measurement : measurements )
-            {
-                if ( measurement->kind() == measurementKind() )
-                {
-                    values.push_back( measurement->value() );
-                    measuredDepthValues.push_back( measurement->MD() );
-                }
-            }
-
-            if ( values.size() == measuredDepthValues.size() )
-            {
-                RigWellPath* rigWellPath = m_wellPath->wellPathGeometry();
-                if ( rigWellPath )
-                {
-                    std::vector<double> trueVerticalDepthValues;
-
-                    for ( double measuredDepthValue : measuredDepthValues )
-                    {
-                        trueVerticalDepthValues.push_back(
-                            -rigWellPath->interpolatedPointAlongWellPath( measuredDepthValue ).z() );
-                    }
-
-                    this->setValuesWithMdAndTVD( values,
-                                                 measuredDepthValues,
-                                                 trueVerticalDepthValues,
-                                                 m_wellPath->wellPathGeometry()->rkbDiff(),
-                                                 RiaDefines::UNIT_METER,
-                                                 false );
-                }
-                else
-                {
-                    this->setValuesAndDepths( values,
-                                              measuredDepthValues,
-                                              RiaDefines::MEASURED_DEPTH,
-                                              0.0,
-                                              RiaDefines::UNIT_METER,
-                                              false );
-                }
-            }
-
-            if ( m_isUsingAutoName )
-            {
-                m_qwtPlotCurve->setTitle( createCurveAutoName() );
-            }
-
-            setSymbol( getSymbolForMeasurementKind( m_measurementKind() ) );
-            setColor( getColorForMeasurementKind( measurementKind() ) );
-            setSymbolEdgeColor( getColorForMeasurementKind( measurementKind() ) );
-            setLineStyle( RiuQwtPlotCurve::STYLE_NONE );
-
-            RiaDefines::DepthUnitType displayUnit = RiaDefines::UNIT_METER;
-            if ( wellLogPlot )
-            {
-                displayUnit = wellLogPlot->depthUnit();
-            }
-
-            RiaDefines::DepthTypeEnum depthType = RiaDefines::MEASURED_DEPTH;
-            if ( wellLogPlot && this->curveData()->availableDepthTypes().count( wellLogPlot->depthType() ) )
-            {
-                depthType = wellLogPlot->depthType();
-            }
-
-            m_qwtPlotCurve->setSamples( this->curveData()->xPlotValues().data(),
-                                        this->curveData()->depthPlotValues( depthType, displayUnit ).data(),
-                                        static_cast<int>( this->curveData()->xPlotValues().size() ) );
-            m_qwtPlotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
-        }
-
-        if ( updateParentPlot )
-        {
-            updateZoomInParentPlot();
-        }
-
-        if ( m_parentQwtPlot )
-        {
-            m_parentQwtPlot->replot();
-        }
+    if ( m_parentQwtPlot )
+    {
+        m_parentQwtPlot->replot();
     }
 }
 
@@ -210,6 +204,7 @@ void RimWellMeasurementCurve::fieldChangedByUi( const caf::PdmFieldHandle* chang
     {
         this->loadDataAndUpdate( true );
     }
+
     if ( m_parentQwtPlot ) m_parentQwtPlot->replot();
 }
 
@@ -222,6 +217,7 @@ void RimWellMeasurementCurve::defineUiOrdering( QString uiConfigName, caf::PdmUi
 
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Curve Data" );
     curveDataGroup->add( &m_wellPath );
+    curveDataGroup->add( &m_measurementKind );
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup( "Appearance" );
     RimPlotCurve::appearanceUiOrdering( *appearanceGroup );
@@ -253,6 +249,35 @@ QList<caf::PdmOptionItemInfo>
     if ( fieldNeedingOptions == &m_wellPath )
     {
         RimTools::wellPathOptionItems( &options );
+    }
+    else if ( fieldNeedingOptions == &m_measurementKind )
+    {
+        RimWellPathCollection* wellPathCollection = nullptr;
+        if ( m_wellPath )
+        {
+            m_wellPath->firstAncestorOrThisOfTypeAsserted( wellPathCollection );
+        }
+
+        std::set<QString> kindNames;
+
+        if ( wellPathCollection )
+        {
+            const RimWellMeasurementCollection* measurementCollection = wellPathCollection->measurementCollection();
+            for ( RimWellMeasurement* measurement : measurementCollection->measurements() )
+            {
+                if ( measurement->wellName() == m_wellPath->name() )
+                {
+                    kindNames.insert( measurement->kind() );
+                }
+            }
+        }
+
+        options.push_back( caf::PdmOptionItemInfo( "None", "None" ) );
+
+        for ( const auto& kind : kindNames )
+        {
+            options.push_back( caf::PdmOptionItemInfo( kind, kind ) );
+        }
     }
 
     return options;

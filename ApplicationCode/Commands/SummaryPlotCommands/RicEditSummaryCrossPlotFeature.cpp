@@ -18,7 +18,6 @@
 
 #include "RicEditSummaryCrossPlotFeature.h"
 
-#include "RiaApplication.h"
 #include "RiaPreferences.h"
 
 #include "RicSummaryPlotEditorDialog.h"

@@ -50,38 +50,36 @@
 
 #include <QModelIndex>
 
-#include <vector>
 #include "cafCmdFeatureManager.h"
+#include <vector>
 
 namespace caf
 {
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool ToggleItemsFeatureImpl::isToggleCommandsAvailable()
 {
     std::vector<caf::PdmUiItem*> selectedItems;
-    caf::SelectionManager::instance()->selectedItems(selectedItems);
+    caf::SelectionManager::instance()->selectedItems( selectedItems );
 
-    if (selectedItems.size() == 1)
+    if ( selectedItems.size() == 1 )
     {
-        caf::PdmUiTreeOrdering* treeItem = findTreeItemFromSelectedUiItem(selectedItems[0]);
+        caf::PdmUiTreeOrdering* treeItem = findTreeItemFromSelectedUiItem( selectedItems[0] );
 
-        if (!treeItem) return false;
+        if ( !treeItem ) return false;
 
-        for (int cIdx = 0; cIdx < treeItem->childCount(); ++ cIdx)
+        for ( int cIdx = 0; cIdx < treeItem->childCount(); ++cIdx )
         {
-            caf::PdmUiTreeOrdering*  child = treeItem->child(cIdx);
-            if (!child) continue;
-            if (!child->isRepresentingObject()) continue;
+            caf::PdmUiTreeOrdering* child = treeItem->child( cIdx );
+            if ( !child ) continue;
+            if ( !child->isRepresentingObject() ) continue;
 
-            caf::PdmObjectHandle* childObj = child->object();
-            caf::PdmUiObjectHandle* uiObjectHandleChild = uiObj(childObj);
+            caf::PdmObjectHandle*   childObj            = child->object();
+            caf::PdmUiObjectHandle* uiObjectHandleChild = uiObj( childObj );
 
-            if (uiObjectHandleChild &&
-                uiObjectHandleChild->objectToggleField() &&
-                !uiObjectHandleChild->objectToggleField()->uiCapability()->isUiReadOnly())
+            if ( uiObjectHandleChild && uiObjectHandleChild->objectToggleField() &&
+                 !uiObjectHandleChild->objectToggleField()->uiCapability()->isUiReadOnly() )
             {
                 return true;
             }
@@ -89,11 +87,11 @@ bool ToggleItemsFeatureImpl::isToggleCommandsAvailable()
     }
     else
     {
-        for (size_t i = 0; i < selectedItems.size(); ++i)
+        for ( size_t i = 0; i < selectedItems.size(); ++i )
         {
-            caf::PdmUiObjectHandle* uiObjectHandle = dynamic_cast<caf::PdmUiObjectHandle*>(selectedItems[i]);
+            caf::PdmUiObjectHandle* uiObjectHandle = dynamic_cast<caf::PdmUiObjectHandle*>( selectedItems[i] );
 
-            if (uiObjectHandle && uiObjectHandle->objectToggleField())
+            if ( uiObjectHandle && uiObjectHandle->objectToggleField() )
             {
                 return true;
             }
@@ -104,73 +102,73 @@ bool ToggleItemsFeatureImpl::isToggleCommandsAvailable()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool ToggleItemsFeatureImpl::isToggleCommandsForSubItems()
 {
     std::vector<caf::PdmUiItem*> selectedItems;
-    caf::SelectionManager::instance()->selectedItems(selectedItems);
-    if (isToggleCommandsAvailable() && selectedItems.size() == 1)
-    { 
+    caf::SelectionManager::instance()->selectedItems( selectedItems );
+    if ( isToggleCommandsAvailable() && selectedItems.size() == 1 )
+    {
         return true;
     }
     return false;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Set toggle state for list of model indices. 
+/// Set toggle state for list of model indices.
 //--------------------------------------------------------------------------------------------------
-void ToggleItemsFeatureImpl::setObjectToggleStateForSelection(SelectionToggleType state)
+void ToggleItemsFeatureImpl::setObjectToggleStateForSelection( SelectionToggleType state )
 {
     std::vector<caf::PdmUiItem*> selectedItems;
-    caf::SelectionManager::instance()->selectedItems(selectedItems);
-    if (state != TOGGLE && selectedItems.size() == 1)
+    caf::SelectionManager::instance()->selectedItems( selectedItems );
+    if ( state != TOGGLE && selectedItems.size() == 1 )
     {
-        // If only one item is selected, loop over its children, and toggle them instead of the 
+        // If only one item is selected, loop over its children, and toggle them instead of the
         // selected item directly
 
-        // We need to get the children through the tree view, because that is where the actually shown children is 
-        
-        caf::PdmUiTreeOrdering* treeItem = findTreeItemFromSelectedUiItem(selectedItems[0]);
-        
-        if (!treeItem) return;
+        // We need to get the children through the tree view, because that is where the actually shown children is
 
-        for (int cIdx = 0; cIdx < treeItem->childCount(); ++ cIdx)
+        caf::PdmUiTreeOrdering* treeItem = findTreeItemFromSelectedUiItem( selectedItems[0] );
+
+        if ( !treeItem ) return;
+
+        for ( int cIdx = 0; cIdx < treeItem->childCount(); ++cIdx )
         {
-            caf::PdmUiTreeOrdering*  child = treeItem->child(cIdx);
-            if (!child) continue;
-            if (!child->isRepresentingObject()) continue;
+            caf::PdmUiTreeOrdering* child = treeItem->child( cIdx );
+            if ( !child ) continue;
+            if ( !child->isRepresentingObject() ) continue;
 
-            caf::PdmObjectHandle* childObj = child->object();
-            caf::PdmUiObjectHandle* uiObjectHandleChild = uiObj(childObj);
+            caf::PdmObjectHandle*   childObj            = child->object();
+            caf::PdmUiObjectHandle* uiObjectHandleChild = uiObj( childObj );
 
-            if (uiObjectHandleChild && uiObjectHandleChild->objectToggleField())
+            if ( uiObjectHandleChild && uiObjectHandleChild->objectToggleField() )
             {
-                caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>*>(uiObjectHandleChild->objectToggleField());
+                caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>*>( uiObjectHandleChild->objectToggleField() );
 
-                if (state == TOGGLE_ON)         field->setValueWithFieldChanged(true);
-                if (state == TOGGLE_OFF)        field->setValueWithFieldChanged(false);
-                if (state == TOGGLE_SUBITEMS)   field->setValueWithFieldChanged(!(field->v()));
+                if ( state == TOGGLE_ON ) field->setValueWithFieldChanged( true );
+                if ( state == TOGGLE_OFF ) field->setValueWithFieldChanged( false );
+                if ( state == TOGGLE_SUBITEMS ) field->setValueWithFieldChanged( !( field->v() ) );
             }
         }
     }
     else
     {
-        for (size_t i = 0; i < selectedItems.size(); ++i)
+        for ( size_t i = 0; i < selectedItems.size(); ++i )
         {
-            caf::PdmUiObjectHandle* uiObjectHandle = dynamic_cast< caf::PdmUiObjectHandle*>(selectedItems[i]);
+            caf::PdmUiObjectHandle* uiObjectHandle = dynamic_cast<caf::PdmUiObjectHandle*>( selectedItems[i] );
 
-            if (uiObjectHandle && uiObjectHandle->objectToggleField())
+            if ( uiObjectHandle && uiObjectHandle->objectToggleField() )
             {
-                caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>* >(uiObjectHandle->objectToggleField());
+                caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>*>( uiObjectHandle->objectToggleField() );
 
-                if (state == TOGGLE_ON)  field->setValueWithFieldChanged(true);
-                if (state == TOGGLE_OFF) field->setValueWithFieldChanged(false);
-                if (state == TOGGLE_SUBITEMS || state == TOGGLE)
+                if ( state == TOGGLE_ON ) field->setValueWithFieldChanged( true );
+                if ( state == TOGGLE_OFF ) field->setValueWithFieldChanged( false );
+                if ( state == TOGGLE_SUBITEMS || state == TOGGLE )
                 {
-                    field->setValueWithFieldChanged(!(field->v()));
+                    field->setValueWithFieldChanged( !( field->v() ) );
                 }
-            } 
+            }
         }
     }
 }
@@ -178,27 +176,28 @@ void ToggleItemsFeatureImpl::setObjectToggleStateForSelection(SelectionToggleTyp
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiTreeView* ToggleItemsFeatureImpl::findTreeView(const caf::PdmUiItem* uiItem)
+caf::PdmUiTreeView* ToggleItemsFeatureImpl::findTreeView( const caf::PdmUiItem* uiItem )
 {
-    caf::PdmUiTreeView* customActiveTreeView = dynamic_cast<caf::PdmUiTreeView*>(CmdFeatureManager::instance()->currentContextMenuTargetWidget());
-    
+    caf::PdmUiTreeView* customActiveTreeView =
+        dynamic_cast<caf::PdmUiTreeView*>( CmdFeatureManager::instance()->currentContextMenuTargetWidget() );
+
     return customActiveTreeView;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Finds the tree item in either the 3D main window or plot main window project tree view
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiTreeOrdering* ToggleItemsFeatureImpl::findTreeItemFromSelectedUiItem(const caf::PdmUiItem* uiItem)
+caf::PdmUiTreeOrdering* ToggleItemsFeatureImpl::findTreeItemFromSelectedUiItem( const caf::PdmUiItem* uiItem )
 {
-    caf::PdmUiTreeView* pdmUiTreeView = findTreeView(uiItem);
+    caf::PdmUiTreeView* pdmUiTreeView = findTreeView( uiItem );
 
-    if (pdmUiTreeView)
+    if ( pdmUiTreeView )
     {
-        QModelIndex modIndex = pdmUiTreeView->findModelIndex(uiItem);
-        return static_cast<caf::PdmUiTreeOrdering*>(modIndex.internalPointer());
+        QModelIndex modIndex = pdmUiTreeView->findModelIndex( uiItem );
+        return static_cast<caf::PdmUiTreeOrdering*>( modIndex.internalPointer() );
     }
 
     return nullptr;
 }
 
-}
+} // namespace caf

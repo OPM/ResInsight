@@ -165,39 +165,44 @@ bool RiuPvtPlotUpdater::queryDataAndUpdatePlot( const RimEclipseResultDefinition
                                                                                   activeCellIndex );
 
             // The following calls will read results from file in preparation for the queries below
-            RigCaseCellResultsData* cellResultsData = eclipseCaseData->results( RiaDefines::MATRIX_MODEL );
-            cellResultsData->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "RS" ) );
-            cellResultsData->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "RV" ) );
-            cellResultsData->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "PRESSURE" ) );
-            cellResultsData->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "PVTNUM" ) );
+            RigCaseCellResultsData* cellResultsData =
+                eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+            cellResultsData->ensureKnownResultLoaded(
+                RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "RS" ) );
+            cellResultsData->ensureKnownResultLoaded(
+                RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "RV" ) );
+            cellResultsData->ensureKnownResultLoaded(
+                RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" ) );
+            cellResultsData->ensureKnownResultLoaded(
+                RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PVTNUM" ) );
 
             cvf::ref<RigResultAccessor> rsAccessor =
                 RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                                    gridIndex,
-                                                                   RiaDefines::MATRIX_MODEL,
+                                                                   RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                                    timeStepIndex,
-                                                                   RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE,
+                                                                   RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                                                             "RS" ) );
             cvf::ref<RigResultAccessor> rvAccessor =
                 RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                                    gridIndex,
-                                                                   RiaDefines::MATRIX_MODEL,
+                                                                   RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                                    timeStepIndex,
-                                                                   RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE,
+                                                                   RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                                                             "RV" ) );
             cvf::ref<RigResultAccessor> pressureAccessor =
                 RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                                    gridIndex,
-                                                                   RiaDefines::MATRIX_MODEL,
+                                                                   RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                                    timeStepIndex,
-                                                                   RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE,
+                                                                   RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                                                             "PRESSURE" ) );
             cvf::ref<RigResultAccessor> pvtnumAccessor =
                 RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                                    gridIndex,
-                                                                   RiaDefines::MATRIX_MODEL,
+                                                                   RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                                    timeStepIndex,
-                                                                   RigEclipseResultAddress( RiaDefines::STATIC_NATIVE,
+                                                                   RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
                                                                                             "PVTNUM" ) );
 
             RiuPvtPlotPanel::CellValues cellValues;

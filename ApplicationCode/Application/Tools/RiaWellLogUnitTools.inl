@@ -22,14 +22,13 @@
 
 #include <limits>
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FloatType>
 const FloatType RiaWellLogUnitTools<FloatType>::gravityAcceleration()
 {
-    return (FloatType) 9.81;
+    return (FloatType)9.81;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -136,16 +135,16 @@ QString RiaWellLogUnitTools<FloatType>::pascalUnitStringShort()
 //--------------------------------------------------------------------------------------------------
 template <typename FloatType>
 std::vector<FloatType> RiaWellLogUnitTools<FloatType>::convertDepths( const std::vector<FloatType>& depthsIn,
-                                                        RiaDefines::DepthUnitType  unitsIn,
-                                                        RiaDefines::DepthUnitType  unitsOut )
+                                                                      RiaDefines::DepthUnitType     unitsIn,
+                                                                      RiaDefines::DepthUnitType     unitsOut )
 {
-    if ( unitsOut == RiaDefines::UNIT_METER && unitsIn == RiaDefines::UNIT_FEET )
-    {
-        return multiply( depthsIn, RiaEclipseUnitTools::feetPerMeter() );
-    }
-    else if ( unitsOut == RiaDefines::UNIT_FEET && unitsIn == RiaDefines::UNIT_METER )
+    if ( unitsOut == RiaDefines::DepthUnitType::UNIT_METER && unitsIn == RiaDefines::DepthUnitType::UNIT_FEET )
     {
         return multiply( depthsIn, RiaEclipseUnitTools::meterPerFeet() );
+    }
+    else if ( unitsOut == RiaDefines::DepthUnitType::UNIT_FEET && unitsIn == RiaDefines::DepthUnitType::UNIT_METER )
+    {
+        return multiply( depthsIn, RiaEclipseUnitTools::feetPerMeter() );
     }
     return depthsIn;
 }
@@ -154,11 +153,60 @@ std::vector<FloatType> RiaWellLogUnitTools<FloatType>::convertDepths( const std:
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FloatType>
+FloatType RiaWellLogUnitTools<FloatType>::convertDepth( FloatType                 depthIn,
+                                                        RiaDefines::DepthUnitType unitsIn,
+                                                        RiaDefines::DepthUnitType unitsOut )
+{
+    FloatType factor = 1.0;
+    if ( unitsOut == RiaDefines::DepthUnitType::UNIT_METER && unitsIn == RiaDefines::DepthUnitType::UNIT_FEET )
+    {
+        factor = RiaEclipseUnitTools::meterPerFeet();
+    }
+    else if ( unitsOut == RiaDefines::DepthUnitType::UNIT_FEET && unitsIn == RiaDefines::DepthUnitType::UNIT_METER )
+    {
+        factor = RiaEclipseUnitTools::feetPerMeter();
+    }
+    return depthIn * factor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename FloatType>
+std::vector<std::pair<FloatType, FloatType>>
+    RiaWellLogUnitTools<FloatType>::convertDepths( const std::vector<std::pair<FloatType, FloatType>>& depthsIn,
+                                                   RiaDefines::DepthUnitType                           unitsIn,
+                                                   RiaDefines::DepthUnitType                           unitsOut )
+{
+    std::vector<std::pair<FloatType, FloatType>> convertedDepths( depthsIn.size() );
+    double                                       factor = 1.0;
+    if ( unitsOut == RiaDefines::DepthUnitType::UNIT_METER && unitsIn == RiaDefines::DepthUnitType::UNIT_FEET )
+    {
+        factor = RiaEclipseUnitTools::meterPerFeet();
+    }
+    else if ( unitsOut == RiaDefines::DepthUnitType::UNIT_FEET && unitsIn == RiaDefines::DepthUnitType::UNIT_METER )
+    {
+        factor = RiaEclipseUnitTools::feetPerMeter();
+    }
+
+    int i = 0;
+    for ( auto& p : depthsIn )
+    {
+        convertedDepths[i++] = std::make_pair( factor * p.first, factor * p.second );
+    }
+
+    return convertedDepths;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename FloatType>
 bool RiaWellLogUnitTools<FloatType>::convertValues( const std::vector<FloatType>& tvdRKBs,
-                                         const std::vector<FloatType>& valuesIn,
-                                         std::vector<FloatType>*       valuesOut,
-                                         const QString&             unitsIn,
-                                         const QString&             unitsOut )
+                                                    const std::vector<FloatType>& valuesIn,
+                                                    std::vector<FloatType>*       valuesOut,
+                                                    const QString&                unitsIn,
+                                                    const QString&                unitsOut )
 {
     CAF_ASSERT( valuesOut );
 
@@ -215,7 +263,7 @@ bool RiaWellLogUnitTools<FloatType>::convertValues( const std::vector<FloatType>
     }
     else if ( stringsMatch( unitsIn, barUnitString() ) && stringsMatch( unitsOut, barX100UnitString() ) )
     {
-        *valuesOut = multiply( valuesIn, (FloatType) 0.01 );
+        *valuesOut = multiply( valuesIn, (FloatType)0.01 );
         return true;
     }
     else if ( ( stringsMatch( unitsIn, noUnitString() ) || stringsMatch( unitsIn, sg_emwUnitString() ) ) &&
@@ -230,12 +278,14 @@ bool RiaWellLogUnitTools<FloatType>::convertValues( const std::vector<FloatType>
         *valuesOut = convertBarToNormalizedByPP( tvdRKBs, valuesIn );
         return true;
     }
-    else if ( (stringsMatch( unitsIn, pascalUnitString()) || stringsMatch( unitsIn, pascalUnitString() ) && stringsMatch( unitsOut, barUnitString() ) ))
+    else if ( ( stringsMatch( unitsIn, pascalUnitString() ) ||
+                stringsMatch( unitsIn, pascalUnitString() ) && stringsMatch( unitsOut, barUnitString() ) ) )
     {
         *valuesOut = multiply( valuesIn, 1.0 / pascalPerBar() );
         return true;
     }
-    else if ( stringsMatch( unitsIn, barUnitString() ) && (stringsMatch( unitsIn, pascalUnitString()) || stringsMatch( unitsIn, pascalUnitString() )) )
+    else if ( stringsMatch( unitsIn, barUnitString() ) &&
+              ( stringsMatch( unitsIn, pascalUnitString() ) || stringsMatch( unitsIn, pascalUnitString() ) ) )
     {
         *valuesOut = multiply( valuesIn, pascalPerBar() );
         return true;
@@ -248,9 +298,9 @@ bool RiaWellLogUnitTools<FloatType>::convertValues( const std::vector<FloatType>
 //--------------------------------------------------------------------------------------------------
 template <typename FloatType>
 bool RiaWellLogUnitTools<FloatType>::convertValues( std::vector<std::pair<FloatType, FloatType>>* measuredDepthsAndValues,
-                                         const QString&                          unitsIn,
-                                         const QString&                          unitsOut,
-                                         const RigWellPath*                      wellPath )
+                                                    const QString&                                unitsIn,
+                                                    const QString&                                unitsOut,
+                                                    const RigWellPath*                            wellPath )
 {
     CAF_ASSERT( measuredDepthsAndValues );
     if ( unitsIn == unitsOut ) return true;
@@ -282,7 +332,8 @@ bool RiaWellLogUnitTools<FloatType>::convertValues( std::vector<std::pair<FloatT
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FloatType>
-std::vector<FloatType> RiaWellLogUnitTools<FloatType>::tvdRKBs( const std::vector<FloatType>& measuredDepths, const RigWellPath* wellPath )
+std::vector<FloatType>
+    RiaWellLogUnitTools<FloatType>::tvdRKBs( const std::vector<FloatType>& measuredDepths, const RigWellPath* wellPath )
 {
     std::vector<double> tvdRKBs( measuredDepths.size(), 0.0 );
     for ( size_t i = 0; i < measuredDepths.size(); ++i )
@@ -290,7 +341,7 @@ std::vector<FloatType> RiaWellLogUnitTools<FloatType>::tvdRKBs( const std::vecto
         cvf::Vec3d point = wellPath->interpolatedPointAlongWellPath( measuredDepths[i] );
         tvdRKBs[i]       = -point.z() + wellPath->rkbDiff();
     }
-    return std::vector<FloatType>(tvdRKBs.begin(), tvdRKBs.end());
+    return std::vector<FloatType>( tvdRKBs.begin(), tvdRKBs.end() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -298,7 +349,7 @@ std::vector<FloatType> RiaWellLogUnitTools<FloatType>::tvdRKBs( const std::vecto
 //--------------------------------------------------------------------------------------------------
 template <typename FloatType>
 std::vector<FloatType> RiaWellLogUnitTools<FloatType>::convertGpcm3ToBar( const std::vector<FloatType>& tvdRKBs,
-                                                            const std::vector<FloatType>& valuesInGpcm3 )
+                                                                          const std::vector<FloatType>& valuesInGpcm3 )
 {
     CAF_ASSERT( tvdRKBs.size() == valuesInGpcm3.size() );
 
@@ -325,7 +376,7 @@ std::vector<FloatType> RiaWellLogUnitTools<FloatType>::convertGpcm3ToBar( const 
 //--------------------------------------------------------------------------------------------------
 template <typename FloatType>
 std::vector<FloatType> RiaWellLogUnitTools<FloatType>::convertBarToGpcm3( const std::vector<FloatType>& tvdRKBs,
-                                                            const std::vector<FloatType>& valuesInBar )
+                                                                          const std::vector<FloatType>& valuesInBar )
 {
     CAF_ASSERT( tvdRKBs.size() == valuesInBar.size() );
 
@@ -350,9 +401,10 @@ std::vector<FloatType> RiaWellLogUnitTools<FloatType>::convertBarToGpcm3( const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-template<typename FloatType>
-std::vector<FloatType> RiaWellLogUnitTools<FloatType>::convertNormalizedByPPToBar( const std::vector<FloatType>& tvdRKBs,
-                                                                     const std::vector<FloatType>& normalizedValues )
+template <typename FloatType>
+std::vector<FloatType>
+    RiaWellLogUnitTools<FloatType>::convertNormalizedByPPToBar( const std::vector<FloatType>& tvdRKBs,
+                                                                const std::vector<FloatType>& normalizedValues )
 {
     CAF_ASSERT( tvdRKBs.size() == normalizedValues.size() );
 
@@ -368,8 +420,9 @@ std::vector<FloatType> RiaWellLogUnitTools<FloatType>::convertNormalizedByPPToBa
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FloatType>
-std::vector<FloatType> RiaWellLogUnitTools<FloatType>::convertBarToNormalizedByPP( const std::vector<FloatType>& tvdRKBs,
-                                                                     const std::vector<FloatType>& valuesInBar )
+std::vector<FloatType>
+    RiaWellLogUnitTools<FloatType>::convertBarToNormalizedByPP( const std::vector<FloatType>& tvdRKBs,
+                                                                const std::vector<FloatType>& valuesInBar )
 {
     CAF_ASSERT( tvdRKBs.size() == valuesInBar.size() );
 
@@ -410,7 +463,7 @@ FloatType RiaWellLogUnitTools<FloatType>::pascalPerBar()
 template <typename FloatType>
 FloatType RiaWellLogUnitTools<FloatType>::MPaPerBar()
 {
-    return (FloatType) 1.0e-1;
+    return (FloatType)1.0e-1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -419,5 +472,5 @@ FloatType RiaWellLogUnitTools<FloatType>::MPaPerBar()
 template <typename FloatType>
 FloatType RiaWellLogUnitTools<FloatType>::hydrostaticPorePressureBar( FloatType depth )
 {
-    return (FloatType) 1.0 / pascalPerBar() * depth * unitWeightOfWater();
+    return (FloatType)1.0 / pascalPerBar() * depth * unitWeightOfWater();
 }

@@ -20,9 +20,9 @@
 
 #include "RimTools.h"
 
-#include "RiaApplication.h"
-
 #include "RimCase.h"
+#include "RimColorLegend.h"
+#include "RimColorLegendCollection.h"
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
 #include "RimOilField.h"
@@ -43,12 +43,12 @@
 //--------------------------------------------------------------------------------------------------
 QString RimTools::getCacheRootDirectoryPathFromProject()
 {
-    if ( !RiaApplication::instance()->project() )
+    if ( !RimProject::current() )
     {
         return QString();
     }
 
-    QString projectFileName = RiaApplication::instance()->project()->fileName();
+    QString projectFileName = RimProject::current()->fileName();
 
     QString   cacheRootFolderPath;
     QFileInfo fileInfo( projectFileName );
@@ -244,7 +244,7 @@ void RimTools::wellPathOptionItems( QList<caf::PdmOptionItemInfo>* options )
     {
         caf::PdmChildArrayField<RimWellPath*>& wellPaths = wellPathColl->wellPaths;
 
-        caf::QIconProvider wellIcon( ":/Well.png" );
+        caf::IconProvider wellIcon( ":/Well.png" );
         for ( RimWellPath* wellPath : wellPaths )
         {
             options->push_back( caf::PdmOptionItemInfo( wellPath->name(), wellPath, false, wellIcon ) );
@@ -263,7 +263,7 @@ void RimTools::wellPathWithFormationsOptionItems( QList<caf::PdmOptionItemInfo>*
     std::vector<RimWellPath*> wellPaths;
     RimTools::wellPathWithFormations( &wellPaths );
 
-    caf::QIconProvider wellIcon( ":/Well.png" );
+    caf::IconProvider wellIcon( ":/Well.png" );
     for ( RimWellPath* wellPath : wellPaths )
     {
         options->push_back( caf::PdmOptionItemInfo( wellPath->name(), wellPath, false, wellIcon ) );
@@ -298,7 +298,7 @@ void RimTools::caseOptionItems( QList<caf::PdmOptionItemInfo>* options )
     CVF_ASSERT( options );
     if ( !options ) return;
 
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
     if ( proj )
     {
         std::vector<RimCase*> cases;
@@ -319,7 +319,7 @@ void RimTools::eclipseCaseOptionItems( QList<caf::PdmOptionItemInfo>* options )
     CVF_ASSERT( options );
     if ( !options ) return;
 
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
     if ( proj )
     {
         std::vector<RimCase*> cases;
@@ -344,7 +344,7 @@ void RimTools::geoMechCaseOptionItems( QList<caf::PdmOptionItemInfo>* options )
     CVF_ASSERT( options );
     if ( !options ) return;
 
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
     if ( proj )
     {
         std::vector<RimCase*> cases;
@@ -364,9 +364,28 @@ void RimTools::geoMechCaseOptionItems( QList<caf::PdmOptionItemInfo>* options )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimTools::colorLegendOptionItems( QList<caf::PdmOptionItemInfo>* options )
+{
+    CVF_ASSERT( options );
+    if ( !options ) return;
+
+    RimProject*                  project               = RimProject::current();
+    RimColorLegendCollection*    colorLegendCollection = project->colorLegendCollection();
+    std::vector<RimColorLegend*> colorLegends          = colorLegendCollection->allColorLegends();
+
+    for ( RimColorLegend* colorLegend : colorLegends )
+    {
+        options->push_back(
+            caf::PdmOptionItemInfo( colorLegend->colorLegendName(), colorLegend, false, colorLegend->paletteIconProvider() ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWellPathCollection* RimTools::wellPathCollection()
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
     if ( proj && proj->activeOilField() )
     {
         return proj->activeOilField()->wellPathCollection();

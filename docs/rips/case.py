@@ -68,7 +68,6 @@ from rips.view import View
 from rips.generated.pdm_objects import WellBoreStabilityPlot, WbsParameters
 from rips.simulation_well import SimulationWell
 
-
 @add_method(Case)
 def __custom_init__(self, pb2_object, channel):
     self.__case_stub = Case_pb2_grpc.CaseStub(self._channel)

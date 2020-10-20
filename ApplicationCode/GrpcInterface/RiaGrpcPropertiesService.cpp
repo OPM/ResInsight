@@ -60,7 +60,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     RiaCellResultsStateHandler( bool clientStreamer = false )
         : m_eclipseCase( nullptr )
-        , m_porosityModel( RiaDefines::MATRIX_MODEL )
+        , m_porosityModel( RiaDefines::PorosityModelType::MATRIX_MODEL )
         , m_streamedValueCount( 0u )
         , m_cellCount( 0u )
         , m_clientStreamer( clientStreamer )

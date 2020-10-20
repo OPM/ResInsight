@@ -18,7 +18,6 @@
 
 #include "RiaSocketCommand.h"
 
-#include "RiaApplication.h"
 #include "RiaPreferences.h"
 #include "RiaSocketDataTransfer.h"
 #include "RiaSocketServer.h"
@@ -318,7 +317,7 @@ public:
         , m_bytesPerTimeStepToRead( 0 )
         , m_currentTimeStepNumberToRead( 0 )
         , m_invalidConnectionCountDetected( false )
-        , m_porosityModelEnum( RiaDefines::MATRIX_MODEL )
+        , m_porosityModelEnum( RiaDefines::PorosityModelType::MATRIX_MODEL )
     {
     }
 
@@ -446,7 +445,7 @@ private:
 
     static bool scalarResultExistsOrCreate( RigCaseCellResultsData* results, QString propertyName )
     {
-        RigEclipseResultAddress resAddr( RiaDefines::GENERATED, propertyName );
+        RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::GENERATED, propertyName );
 
         if ( !results->ensureKnownResultLoaded( resAddr ) )
         {

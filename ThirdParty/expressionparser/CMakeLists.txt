@@ -8,13 +8,8 @@ if(MSVC)
  endif() 
 
  
-if (RESINSIGHT_BUILD_WITH_QT5)
-	find_package(Qt5 COMPONENTS REQUIRED Core)
-	set(QT_LIBRARIES Qt5::Core)
-else()
-    find_package(Qt4 COMPONENTS QtCore REQUIRED)
-    include(${QT_USE_FILE})
-endif(RESINSIGHT_BUILD_WITH_QT5)
+find_package(Qt5 COMPONENTS REQUIRED Core)
+set(QT_LIBRARIES Qt5::Core)
 
 list (APPEND MAIN_SOURCE_FILES
     ExpressionParser.h

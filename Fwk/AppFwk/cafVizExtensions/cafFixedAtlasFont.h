@@ -34,25 +34,24 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cvfBase.h"
-#include "cvfObject.h"
 #include "cvfFont.h"
 #include "cvfGlyph.h"
+#include "cvfObject.h"
 #include "cvfString.h"
 #include <map>
 
-namespace cvf {
-
+namespace cvf
+{
 class TextureImage;
 class Glyph;
 
-}
+} // namespace cvf
 
-namespace caf {
-
+namespace caf
+{
 //==================================================================================================
 //
 // Fixed atlas font class used to generate glyphs for a given character
@@ -63,47 +62,54 @@ class FixedAtlasFont : public cvf::Font
 public:
     enum FontSize
     {
-        POINT_SIZE_8,           // 8pt
+        POINT_SIZE_6, // 6pt
+        POINT_SIZE_8, // 8pt
         POINT_SIZE_10,
         POINT_SIZE_12,
         POINT_SIZE_14,
-        POINT_SIZE_16,              // 16pt
+        POINT_SIZE_16, // 16pt
         POINT_SIZE_24,
         POINT_SIZE_32
     };
 
 public:
-    explicit FixedAtlasFont(FontSize size);
+    explicit FixedAtlasFont( FontSize size );
     ~FixedAtlasFont() override;
 
-    const cvf::String& name() const override;
-    cvf::ref<cvf::Glyph> getGlyph(wchar_t character) override;
-    cvf::uint advance(wchar_t character, wchar_t nextCharacter) override;
-	bool isEmpty() override;
+    const cvf::String&   name() const override;
+    cvf::ref<cvf::Glyph> getGlyph( wchar_t character ) override;
+    cvf::uint            advance( wchar_t character, wchar_t nextCharacter ) override;
+    bool                 isEmpty() override;
 
 private:
     // Load/unload font
-    bool load(const char* name, size_t numGlyphs, 
-        const short* horizontalBearingsX, const short* horizontalBearingsY, 
-        const cvf::uint* horizontalAdvances, const cvf::uint* characterWidths, const cvf::uint* characterHeightss,
-        const size_t textureImageWidth, const size_t textureImageHeight,
-        const size_t numTextureImageDataBlockCount, const char** textureImageData);
+    bool load( const char*      name,
+               size_t           numGlyphs,
+               const short*     horizontalBearingsX,
+               const short*     horizontalBearingsY,
+               const cvf::uint* horizontalAdvances,
+               const cvf::uint* characterWidths,
+               const cvf::uint* characterHeightss,
+               const size_t     textureImageWidth,
+               const size_t     textureImageHeight,
+               const size_t     numTextureImageDataBlockCount,
+               const char**     textureImageData );
     void unload();
 
 private:
-    cvf::String             m_name;
-    size_t             m_numGlyphs;
-    std::vector<short> m_horizontalBearingsX;
-    std::vector<short> m_horizontalBearingsY;
-    std::vector<cvf::uint>  m_horizontalAdvances;
-    std::vector<cvf::uint>  m_characterWidths;
-    std::vector<cvf::uint>  m_characterHeights;
+    cvf::String            m_name;
+    size_t                 m_numGlyphs;
+    std::vector<short>     m_horizontalBearingsX;
+    std::vector<short>     m_horizontalBearingsY;
+    std::vector<cvf::uint> m_horizontalAdvances;
+    std::vector<cvf::uint> m_characterWidths;
+    std::vector<cvf::uint> m_characterHeights;
 
-    cvf::ref<cvf::TextureImage>  m_textureImage;
+    cvf::ref<cvf::TextureImage> m_textureImage;
 
     // Glyph cache
-    typedef std::map<size_t, cvf::ref<cvf::Glyph> > MapType;
-    MapType m_atlasMap;
+    typedef std::map<size_t, cvf::ref<cvf::Glyph>> MapType;
+    MapType                                        m_atlasMap;
 };
 
-} // namespace cvf
+} // namespace caf

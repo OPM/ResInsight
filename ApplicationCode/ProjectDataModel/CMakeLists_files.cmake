@@ -80,6 +80,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotWindow.h
 ${CMAKE_CURRENT_LIST_DIR}/RimMultiPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlot.h
+${CMAKE_CURRENT_LIST_DIR}/RimDepthTrackPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogTrack.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellBoreStabilityPlot.h
@@ -100,6 +101,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionResultsDefinitionCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimContextCommandBuilder.h
 ${CMAKE_CURRENT_LIST_DIR}/RimGridCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotCurve.h
+${CMAKE_CURRENT_LIST_DIR}/RimStackablePlotCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimBoxIntersection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimAdvancedSnapshotExportDefinition.h
 ${CMAKE_CURRENT_LIST_DIR}/RimMdiWindowController.h
@@ -137,8 +139,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapViewCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapProjection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapView.h
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapViewCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimMudWeightWindowParameters.h
 ${CMAKE_CURRENT_LIST_DIR}/RimViewNameConfig.h
-${CMAKE_CURRENT_LIST_DIR}/RimScaleLegendConfig.h
 ${CMAKE_CURRENT_LIST_DIR}/RimReloadCaseTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisPropertiesInterface.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisProperties.h
@@ -151,6 +153,20 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementFilter.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementInViewCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementInView.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellDiskConfig.h
+${CMAKE_CURRENT_LIST_DIR}/RimElementVectorResult.h
+${CMAKE_CURRENT_LIST_DIR}/RimColorLegendCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimColorLegend.h
+${CMAKE_CURRENT_LIST_DIR}/RimColorLegendItem.h
+${CMAKE_CURRENT_LIST_DIR}/RimFractureModelPlot.h
+${CMAKE_CURRENT_LIST_DIR}/RimFractureModelPlotCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimFractureModelCurve.h
+${CMAKE_CURRENT_LIST_DIR}/RimElasticProperties.h
+${CMAKE_CURRENT_LIST_DIR}/RimElasticPropertiesCurve.h
+${CMAKE_CURRENT_LIST_DIR}/RimLayerCurve.h
+${CMAKE_CURRENT_LIST_DIR}/RimFractureModelStressCurve.h
+${CMAKE_CURRENT_LIST_DIR}/RimAbstractPlotCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimFractureModelPropertyCurve.h
+${CMAKE_CURRENT_LIST_DIR}/RimFaciesProperties.h
 )
 
 
@@ -219,6 +235,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechPropertyFilter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechPropertyFilterCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechResultDefinition.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechCellColors.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimMudWeightWindowParameters.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimViewWindow.cpp
 ${CMAKE_CURRENT_LIST_DIR}/Rim3dView.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimGridView.cpp
@@ -235,6 +252,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotWindow.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimMultiPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlot.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimDepthTrackPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellBoreStabilityPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWbsParameters.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogTrack.cpp
@@ -255,6 +273,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionResultsDefinitionCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimContextCommandBuilder.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimGridCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotCurve.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimStackablePlotCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimBoxIntersection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimAdvancedSnapshotExportDefinition.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimMdiWindowController.cpp
@@ -293,7 +312,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapProjection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapView.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapViewCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimViewNameConfig.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimScaleLegendConfig.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimReloadCaseTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisPropertiesInterface.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisProperties.cpp
@@ -306,6 +324,18 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementFilter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementInViewCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementInView.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellDiskConfig.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimElementVectorResult.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimColorLegendCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimColorLegend.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimColorLegendItem.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimFractureModelPlot.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimFractureModelPlotCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimFractureModelCurve.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimElasticProperties.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimElasticPropertiesCurve.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimLayerCurve.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimFractureModelStressCurve.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimFaciesProperties.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

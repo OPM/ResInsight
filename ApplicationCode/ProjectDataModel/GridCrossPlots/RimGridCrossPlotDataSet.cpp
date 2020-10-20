@@ -18,7 +18,6 @@
 
 #include "RimGridCrossPlotDataSet.h"
 
-#include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaLogging.h"
 
@@ -113,7 +112,7 @@ RimGridCrossPlotDataSet::RimGridCrossPlotDataSet()
     m_groupingProperty = new RimEclipseCellColors;
     m_groupingProperty.uiCapability()->setUiHidden( true );
     CVF_ASSERT( m_groupingProperty->legendConfig() );
-    m_groupingProperty->legendConfig()->setMappingMode( RimRegularLegendConfig::CATEGORY_INTEGER );
+    m_groupingProperty->legendConfig()->setMappingMode( RimRegularLegendConfig::MappingType::CATEGORY_INTEGER );
     m_groupingProperty->setTernaryEnabled( false );
 
     CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "Name", "", "", "" );
@@ -134,6 +133,7 @@ RimGridCrossPlotDataSet::RimGridCrossPlotDataSet()
     m_plotCellFilterCollection = new RimPlotCellFilterCollection;
 
     setDefaults();
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -164,14 +164,15 @@ void RimGridCrossPlotDataSet::setCellFilterView( RimGridView* cellFilterView )
         {
             m_xAxisProperty->setResultType( resAddr.m_resultCatType );
             m_xAxisProperty->setResultVariable( resAddr.m_resultName );
-            m_yAxisProperty->setResultType( RiaDefines::STATIC_NATIVE );
+            m_yAxisProperty->setResultType( RiaDefines::ResultCatType::STATIC_NATIVE );
             m_yAxisProperty->setResultVariable( "DEPTH" );
             m_timeStep = eclipseView->currentTimeStep();
             m_grouping = NO_GROUPING;
             if ( eclipseView->eclipseCase() && eclipseView->eclipseCase()->activeFormationNames() )
             {
                 m_grouping = GROUP_BY_FORMATION;
-                m_groupingProperty->legendConfig()->setColorRange( RimRegularLegendConfig::CATEGORY );
+                m_groupingProperty->legendConfig()->setColorLegend(
+                    RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) );
             }
 
             RimGridCrossPlot* parentPlot = nullptr;
@@ -617,7 +618,7 @@ void RimGridCrossPlotDataSet::createCurves( const RigEclipseCrossPlotResult& res
             }
             curve->setSymbolEdgeColor( curve->color() );
             curve->setSamples( it->second.xValues, it->second.yValues );
-            curve->showLegend( m_crossPlotCurves.empty() );
+            curve->setShowInLegend( m_crossPlotCurves.empty() );
             curve->setLegendEntryText( createAutoName() );
             curve->setCurveAutoAppearance();
             curve->updateUiIconFromPlotSymbol();
@@ -758,7 +759,7 @@ std::map<int, cvf::UByteArray> RimGridCrossPlotDataSet::calculateCellVisibility(
         RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
         if ( eclipseCaseData )
         {
-            RiaDefines::PorosityModelType porosityModel = RiaDefines::MATRIX_MODEL;
+            RiaDefines::PorosityModelType porosityModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
 
             RigCaseCellResultsData* cellResultsData = eclipseCaseData->results( porosityModel );
             if ( cellResultsData )
@@ -867,18 +868,21 @@ void RimGridCrossPlotDataSet::fieldChangedByUi( const caf::PdmFieldHandle* chang
     {
         if ( m_grouping == GROUP_BY_TIME )
         {
-            legendConfig()->setColorRange( RimRegularLegendConfig::NORMAL );
-            legendConfig()->setMappingMode( RimRegularLegendConfig::CATEGORY_INTEGER );
+            legendConfig()->setColorLegend(
+                RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL ) );
+            legendConfig()->setMappingMode( RimRegularLegendConfig::MappingType::CATEGORY_INTEGER );
         }
         else if ( groupingByCategoryResult() )
         {
-            legendConfig()->setColorRange( RimRegularLegendConfig::CATEGORY );
-            legendConfig()->setMappingMode( RimRegularLegendConfig::CATEGORY_INTEGER );
+            legendConfig()->setColorLegend(
+                RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) );
+            legendConfig()->setMappingMode( RimRegularLegendConfig::MappingType::CATEGORY_INTEGER );
         }
         else
         {
-            legendConfig()->setColorRange( RimRegularLegendConfig::NORMAL );
-            legendConfig()->setMappingMode( RimRegularLegendConfig::LINEAR_DISCRETE );
+            legendConfig()->setColorLegend(
+                RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL ) );
+            legendConfig()->setMappingMode( RimRegularLegendConfig::MappingType::LINEAR_DISCRETE );
         }
 
         destroyCurves();
@@ -994,7 +998,7 @@ void RimGridCrossPlotDataSet::updateLegendRange()
                     const std::vector<QString> categoryNames = eclipseCase->eclipseCaseData()->formationNames();
                     if ( !categoryNames.empty() )
                     {
-                        legendConfig()->setNamedCategoriesInverse( categoryNames );
+                        legendConfig()->setNamedCategories( categoryNames );
                         legendConfig()->setAutomaticRanges( 0, categoryNames.size() - 1, 0, categoryNames.size() - 1 );
                     }
                 }
@@ -1183,11 +1187,11 @@ void RimGridCrossPlotDataSet::configureForPressureSaturationCurves( RimEclipseRe
     m_case = eclipseCase;
 
     m_xAxisProperty->setEclipseCase( eclipseCase );
-    m_xAxisProperty->setResultType( RiaDefines::DYNAMIC_NATIVE );
+    m_xAxisProperty->setResultType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
     m_xAxisProperty->setResultVariable( dynamicResultName );
 
     m_yAxisProperty->setEclipseCase( eclipseCase );
-    m_yAxisProperty->setResultType( RiaDefines::STATIC_NATIVE );
+    m_yAxisProperty->setResultType( RiaDefines::ResultCatType::STATIC_NATIVE );
     m_yAxisProperty->setResultVariable( "DEPTH" );
 
     m_grouping = NO_GROUPING;
@@ -1287,7 +1291,7 @@ void RimGridCrossPlotDataSet::performAutoNameUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotDataSet::setDefaults()
 {
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
     if ( project )
     {
         if ( !project->eclipseCases().empty() )
@@ -1298,17 +1302,18 @@ void RimGridCrossPlotDataSet::setDefaults()
             m_yAxisProperty->setEclipseCase( eclipseCase );
             m_groupingProperty->setEclipseCase( eclipseCase );
 
-            m_xAxisProperty->setResultType( RiaDefines::STATIC_NATIVE );
+            m_xAxisProperty->setResultType( RiaDefines::ResultCatType::STATIC_NATIVE );
             m_xAxisProperty->setResultVariable( "PORO" );
 
-            m_yAxisProperty->setResultType( RiaDefines::STATIC_NATIVE );
+            m_yAxisProperty->setResultType( RiaDefines::ResultCatType::STATIC_NATIVE );
             m_yAxisProperty->setResultVariable( "PERMX" );
 
             m_grouping = NO_GROUPING;
             if ( eclipseCase->activeFormationNames() )
             {
                 m_grouping = GROUP_BY_FORMATION;
-                m_groupingProperty->legendConfig()->setColorRange( RimRegularLegendConfig::CATEGORY );
+                m_groupingProperty->legendConfig()->setColorLegend(
+                    RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) );
             }
         }
     }

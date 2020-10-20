@@ -68,18 +68,12 @@ public:
 
     bool isGridVisualizationMode() const override;
 
-    bool hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const override;
-    bool applyFontSize( RiaDefines::FontSettingType fontSettingType,
-                        int                         oldFontSize,
-                        int                         fontSize,
-                        bool                        forceChange = false ) override;
-
     void updateWellMeasurements();
     void updateSurfacesInViewTreeItems();
 
 protected:
     virtual void       updateViewFollowingRangeFilterUpdates();
-    void               onClearReservoirCellVisibilitiesIfNeccessary() override;
+    void               onClearReservoirCellVisibilitiesIfNecessary() override;
     virtual void       calculateCurrentTotalCellVisibility( cvf::UByteArray* totalVisibility, int timeStep ) = 0;
     void               selectOverlayInfoConfig() override;
     RimGridCollection* gridCollection() const;

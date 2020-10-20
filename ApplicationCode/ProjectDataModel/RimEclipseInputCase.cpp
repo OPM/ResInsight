@@ -91,11 +91,11 @@ bool RimEclipseInputCase::openDataFileSet( const QStringList& fileNames )
     if ( fileNames.contains( RiaDefines::mockModelBasicInputCase() ) )
     {
         cvf::ref<RifReaderInterface> readerInterface = this->createMockModel( fileNames[0] );
-        results( RiaDefines::MATRIX_MODEL )->setReaderInterface( readerInterface.p() );
-        results( RiaDefines::FRACTURE_MODEL )->setReaderInterface( readerInterface.p() );
+        results( RiaDefines::PorosityModelType::MATRIX_MODEL )->setReaderInterface( readerInterface.p() );
+        results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->setReaderInterface( readerInterface.p() );
 
-        eclipseCaseData()->activeCellInfo( RiaDefines::MATRIX_MODEL )->computeDerivedData();
-        eclipseCaseData()->activeCellInfo( RiaDefines::FRACTURE_MODEL )->computeDerivedData();
+        eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->computeDerivedData();
+        eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL )->computeDerivedData();
 
         QFileInfo gridFileName( fileNames[0] );
         QString   caseName        = gridFileName.completeBaseName();
@@ -210,8 +210,8 @@ bool RimEclipseInputCase::openEclipseGridFile()
         CVF_ASSERT( this->eclipseCaseData() );
         CVF_ASSERT( readerInterface.notNull() );
 
-        results( RiaDefines::MATRIX_MODEL )->setReaderInterface( readerInterface.p() );
-        results( RiaDefines::FRACTURE_MODEL )->setReaderInterface( readerInterface.p() );
+        results( RiaDefines::PorosityModelType::MATRIX_MODEL )->setReaderInterface( readerInterface.p() );
+        results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->setReaderInterface( readerInterface.p() );
 
         this->eclipseCaseData()->mainGrid()->setFlipAxis( m_flipXAxis, m_flipYAxis );
 
@@ -222,11 +222,11 @@ bool RimEclipseInputCase::openEclipseGridFile()
     RiaApplication* app = RiaApplication::instance();
     if ( app->preferences()->autocomputeDepthRelatedProperties )
     {
-        results( RiaDefines::MATRIX_MODEL )->computeDepthRelatedResults();
-        results( RiaDefines::FRACTURE_MODEL )->computeDepthRelatedResults();
+        results( RiaDefines::PorosityModelType::MATRIX_MODEL )->computeDepthRelatedResults();
+        results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->computeDepthRelatedResults();
     }
 
-    results( RiaDefines::MATRIX_MODEL )->computeCellVolumes();
+    results( RiaDefines::PorosityModelType::MATRIX_MODEL )->computeCellVolumes();
 
     return true;
 }

@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #include "cafAnimationToolBar.h"
 
 #include "cafPopupMenuButton.h"
@@ -47,102 +46,102 @@
 
 namespace caf
 {
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-AnimationToolBar::AnimationToolBar(QWidget *parent /*= 0*/)
-    : QToolBar (parent)    
+AnimationToolBar::AnimationToolBar( QWidget* parent /*= 0*/ )
+    : QToolBar( parent )
 {
-    setObjectName("AnimationToolBar");
+    setObjectName( "AnimationToolBar" );
     init();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-AnimationToolBar::AnimationToolBar(const QString &title, QWidget *parent /*= 0*/)
-    : QToolBar(title, parent)
+AnimationToolBar::AnimationToolBar( const QString& title, QWidget* parent /*= 0*/ )
+    : QToolBar( title, parent )
 {
-    setObjectName(title);
+    setObjectName( title );
     init();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void AnimationToolBar::init()
 {
     m_hasAutoTimeStepStrings = true;
-    m_slowFrameRate = 0.25;
-    m_fastFrameRate = 20;
+    m_slowFrameRate          = 0.25;
+    m_fastFrameRate          = 20;
 
     // Create actions and widgets
-    m_animSkipToStartAction  = new QAction(QIcon(":/cafAnimControl/SkipToStart.png"),    tr("Skip to Start"), this);
-    m_animStepBackwardAction = new QAction(QIcon(":/cafAnimControl/StepBwd.png"),        tr("Step Backward"), this);
-    m_animPauseAction        = new QAction(QIcon(":/cafAnimControl/Pause.png"),          tr("Pause"), this);
-    m_animPlayAction         = new QAction(QIcon(":/cafAnimControl/Play.png"),           tr("Play"), this);
-    m_animPlayPauseButton    = new QToolButton(this);
-    m_animPlayPauseButton->setIcon(m_animPlayAction->icon());
-    m_animPlayPauseButton->setToolTip(m_animPlayAction->toolTip());
-    QObject::connect(m_animPlayPauseButton, SIGNAL(clicked()), this, SLOT(playPauseChanged()));
+    m_animSkipToStartAction  = new QAction( QIcon( ":/cafAnimControl/SkipToStart.svg" ), tr( "Skip to Start" ), this );
+    m_animStepBackwardAction = new QAction( QIcon( ":/cafAnimControl/StepBwd.svg" ), tr( "Step Backward" ), this );
+    m_animPauseAction        = new QAction( QIcon( ":/cafAnimControl/Pause.svg" ), tr( "Pause" ), this );
+    m_animPlayAction         = new QAction( QIcon( ":/cafAnimControl/Play.svg" ), tr( "Play" ), this );
+    m_animPlayPauseButton    = new QToolButton( this );
+    m_animPlayPauseButton->setIcon( m_animPlayAction->icon() );
+    m_animPlayPauseButton->setToolTip( m_animPlayAction->toolTip() );
+    QObject::connect( m_animPlayPauseButton, SIGNAL( clicked() ), this, SLOT( playPauseChanged() ) );
 
-    m_animStepForwardAction  = new QAction(QIcon(":/cafAnimControl/StepFwd.png"),        tr("Step Forward"), this);
-    m_animSkipToEndAction    = new QAction(QIcon(":/cafAnimControl/SkipToEnd.png"),      tr("Skip to End"), this);
-    
-    m_animRepeatFromStartAction = new QAction(QIcon(":/cafAnimControl/RepeatFromStart.png"),      tr("Repeat From start"), this);
-    m_animRepeatFromStartAction->setCheckable(true);
-   
-    m_animSpeedButton = new PopupMenuButton(this);
-    m_animSpeedButton->setIcon(QIcon(":/cafAnimControl/Speed.png"));
-    m_animSpeedButton->setToolTip("Adjust Animation Speed");
+    m_animStepForwardAction = new QAction( QIcon( ":/cafAnimControl/StepFwd.svg" ), tr( "Step Forward" ), this );
+    m_animSkipToEndAction   = new QAction( QIcon( ":/cafAnimControl/SkipToEnd.svg" ), tr( "Skip to End" ), this );
 
-    m_frameRateSlowLabel = new QLabel(this);
-    m_frameRateSlowLabel->setPixmap(QPixmap(":/cafAnimControl/SlowHorizontal.png"));
-    m_frameRateSlowLabel->setToolTip(tr("Slow"));
+    m_animRepeatFromStartAction =
+        new QAction( QIcon( ":/cafAnimControl/RepeatFromStart.svg" ), tr( "Repeat From start" ), this );
+    m_animRepeatFromStartAction->setCheckable( true );
 
-    m_frameRateFastLabel = new QLabel(this);
-    m_frameRateFastLabel->setPixmap(QPixmap(":/cafAnimControl/FastHorizontal.png"));
-    m_frameRateFastLabel->setToolTip(tr("Fast"));
-    m_frameRateFastLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    m_animSpeedButton = new PopupMenuButton( this );
+    m_animSpeedButton->setIcon( QIcon( ":/cafAnimControl/Speed.svg" ) );
+    m_animSpeedButton->setToolTip( "Adjust Animation Speed" );
 
-    m_frameRateSlider = new QSlider(Qt::Horizontal, this);
-    m_frameRateSlider->setToolTip(tr("Animation speed"));
-    m_frameRateSlider->setMinimumWidth(100);
-        
-    m_animSpeedButton->addWidget(m_frameRateSlowLabel);
-    m_animSpeedButton->addWidget(m_frameRateSlider);
-    m_animSpeedButton->addWidget(m_frameRateFastLabel);
-    
-    m_timestepCombo = new QComboBox(this);
-    m_timestepCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    m_timestepCombo->setToolTip(tr("Current Time Step"));
+    m_frameRateSlowLabel = new QLabel( this );
+    m_frameRateSlowLabel->setPixmap( QPixmap( ":/cafAnimControl/Slow.svg" ) );
+    m_frameRateSlowLabel->setToolTip( tr( "Slow" ) );
 
-    QAction* separator1 = new QAction(this);
-    separator1->setSeparator(true);
-    QAction* separator2 = new QAction(this);
-    separator2->setSeparator(true);
-    QAction* separator3 = new QAction(this);
-    separator3->setSeparator(true);
-    
+    m_frameRateFastLabel = new QLabel( this );
+    m_frameRateFastLabel->setPixmap( QPixmap( ":/cafAnimControl/Fast.svg" ) );
+    m_frameRateFastLabel->setToolTip( tr( "Fast" ) );
+    m_frameRateFastLabel->setAlignment( Qt::AlignRight | Qt::AlignVCenter );
+
+    m_frameRateSlider = new QSlider( Qt::Horizontal, this );
+    m_frameRateSlider->setToolTip( tr( "Animation speed" ) );
+    m_frameRateSlider->setMinimumWidth( 100 );
+
+    m_animSpeedButton->addWidget( m_frameRateSlowLabel );
+    m_animSpeedButton->addWidget( m_frameRateSlider );
+    m_animSpeedButton->addWidget( m_frameRateFastLabel );
+
+    m_timestepCombo = new QComboBox( this );
+    m_timestepCombo->setSizeAdjustPolicy( QComboBox::AdjustToContents );
+    m_timestepCombo->setToolTip( tr( "Current Time Step" ) );
+
+    QAction* separator1 = new QAction( this );
+    separator1->setSeparator( true );
+    QAction* separator2 = new QAction( this );
+    separator2->setSeparator( true );
+    QAction* separator3 = new QAction( this );
+    separator3->setSeparator( true );
+
     // Add actions and widgets to animation toolbar
-    addAction(m_animSkipToStartAction);
-    addAction(m_animStepBackwardAction);
-    addWidget(m_animPlayPauseButton);
-    addAction(m_animStepForwardAction);
-    addAction(m_animSkipToEndAction);
+    addAction( m_animSkipToStartAction );
+    addAction( m_animStepBackwardAction );
+    addWidget( m_animPlayPauseButton );
+    addAction( m_animStepForwardAction );
+    addAction( m_animSkipToEndAction );
 
-    addAction(separator1);
+    addAction( separator1 );
 
-    addAction(m_animRepeatFromStartAction );
+    addAction( m_animRepeatFromStartAction );
 
-    addAction(separator2);
-    
-    addWidget(m_animSpeedButton);
+    addAction( separator2 );
 
-    addAction(separator3);
+    addWidget( m_animSpeedButton );
 
-    addWidget(m_timestepCombo);
+    addAction( separator3 );
+
+    addWidget( m_timestepCombo );
 
     updateAnimationButtons();
 }
@@ -153,52 +152,51 @@ void AnimationToolBar::init()
 void AnimationToolBar::updateAnimationButtons()
 {
     bool isPlaying = m_activeAnimationControl && m_activeAnimationControl->isActive();
-    
-    if (isPlaying)
+
+    if ( isPlaying )
     {
-        m_animPlayPauseButton->setIcon(m_animPauseAction->icon());
-        m_animPlayPauseButton->setToolTip(m_animPauseAction->toolTip());
+        m_animPlayPauseButton->setIcon( m_animPauseAction->icon() );
+        m_animPlayPauseButton->setToolTip( m_animPauseAction->toolTip() );
     }
     else
     {
-        m_animPlayPauseButton->setIcon(m_animPlayAction->icon());
-        m_animPlayPauseButton->setToolTip(m_animPlayAction->toolTip());
+        m_animPlayPauseButton->setIcon( m_animPlayAction->icon() );
+        m_animPlayPauseButton->setToolTip( m_animPlayAction->toolTip() );
     }
 
     bool isAtStart = m_timestepCombo->count() == 0 || m_timestepCombo->currentIndex() == 0;
     bool isAtEnd   = m_timestepCombo->count() > 0 && m_timestepCombo->currentIndex() == m_timestepCombo->count() - 1;
 
     // Going backwards actions disabled when we're stopped at the start
-    m_animSkipToStartAction->setEnabled(isPlaying || !isAtStart);
-    m_animStepBackwardAction->setEnabled(isPlaying || !isAtStart);
+    m_animSkipToStartAction->setEnabled( isPlaying || !isAtStart );
+    m_animStepBackwardAction->setEnabled( isPlaying || !isAtStart );
 
-    bool isRepeat = m_activeAnimationControl &&
-                    m_activeAnimationControl->isRepeatingFromStart();
+    bool isRepeat = m_activeAnimationControl && m_activeAnimationControl->isRepeatingFromStart();
 
     // Going forwards actions disabled when we're stopped at the end
-    m_animStepForwardAction->setEnabled(isPlaying || !isAtEnd);
-    m_animSkipToEndAction->setEnabled(isPlaying || !isAtEnd);
+    m_animStepForwardAction->setEnabled( isPlaying || !isAtEnd );
+    m_animSkipToEndAction->setEnabled( isPlaying || !isAtEnd );
     // ... however we allow playing if we have repeat on
-    m_animPlayPauseButton->setEnabled(isPlaying || isRepeat || !isAtEnd);
+    m_animPlayPauseButton->setEnabled( isPlaying || isRepeat || !isAtEnd );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void AnimationToolBar::connectAnimationControl(caf::FrameAnimationControl* animationControl)
+void AnimationToolBar::connectAnimationControl( caf::FrameAnimationControl* animationControl )
 {
     // Animation action connections
-    if (m_activeAnimationControl)
+    if ( m_activeAnimationControl )
     {
-        m_activeAnimationControl->disconnect(this, SLOT(slotUpdateAnimationGuiFromFrameIndex(int)));
-        m_activeAnimationControl->disconnect(this, SLOT(slotUpdateTimestepList(int)));
+        m_activeAnimationControl->disconnect( this, SLOT( slotUpdateAnimationGuiFromFrameIndex( int ) ) );
+        m_activeAnimationControl->disconnect( this, SLOT( slotUpdateTimestepList( int ) ) );
     }
 
     m_activeAnimationControl = animationControl;
 
     m_animSkipToStartAction->disconnect();
     m_animStepBackwardAction->disconnect();
-    m_animPauseAction->disconnect();  
+    m_animPauseAction->disconnect();
     m_animPlayAction->disconnect();
     m_animStepForwardAction->disconnect();
     m_animSkipToEndAction->disconnect();
@@ -208,55 +206,57 @@ void AnimationToolBar::connectAnimationControl(caf::FrameAnimationControl* anima
     m_timestepCombo->disconnect();
     m_frameRateSlider->disconnect();
 
-    if (animationControl)
+    if ( animationControl )
     {
-        connect(m_animSkipToStartAction,    SIGNAL(triggered()),        animationControl, SLOT(slotSkipToStart()));
-        connect(m_animStepBackwardAction,   SIGNAL(triggered()),        animationControl, SLOT(slotStepBackward()));
-        connect(m_animPauseAction,          SIGNAL(triggered()),        animationControl, SLOT(slotPause()));
-        connect(m_animPlayAction,           SIGNAL(triggered()),        animationControl, SLOT(slotPlayFwd()));
-        connect(m_animStepForwardAction,    SIGNAL(triggered()),        animationControl, SLOT(slotStepForward()));
-        connect(m_animSkipToEndAction,      SIGNAL(triggered()),        animationControl, SLOT(slotSkipToEnd()));
+        connect( m_animSkipToStartAction, SIGNAL( triggered() ), animationControl, SLOT( slotSkipToStart() ) );
+        connect( m_animStepBackwardAction, SIGNAL( triggered() ), animationControl, SLOT( slotStepBackward() ) );
+        connect( m_animPauseAction, SIGNAL( triggered() ), animationControl, SLOT( slotPause() ) );
+        connect( m_animPlayAction, SIGNAL( triggered() ), animationControl, SLOT( slotPlayFwd() ) );
+        connect( m_animStepForwardAction, SIGNAL( triggered() ), animationControl, SLOT( slotStepForward() ) );
+        connect( m_animSkipToEndAction, SIGNAL( triggered() ), animationControl, SLOT( slotSkipToEnd() ) );
 
-        m_animRepeatFromStartAction->setChecked(animationControl->isRepeatingFromStart());
+        m_animRepeatFromStartAction->setChecked( animationControl->isRepeatingFromStart() );
 
-        connect(m_animRepeatFromStartAction,SIGNAL(triggered(bool)),    animationControl, SLOT(slotRepeatFromStart(bool)));
-        
-        connect(m_timestepCombo,            SIGNAL(currentIndexChanged(int)), animationControl, SLOT(setCurrentFrame(int)));
-        connect(m_frameRateSlider,          SIGNAL(valueChanged(int)),  this,             SLOT(slotFrameRateSliderChanged(int)));
+        connect( m_animRepeatFromStartAction,
+                 SIGNAL( triggered( bool ) ),
+                 animationControl,
+                 SLOT( slotRepeatFromStart( bool ) ) );
 
-        connect(animationControl,           SIGNAL(changeFrame(int)),       this,         SLOT(slotUpdateAnimationGuiFromFrameIndex(int)));
-        connect(animationControl,           SIGNAL(frameCountChanged(int)), this,         SLOT(slotUpdateTimestepList(int)));
+        connect( m_timestepCombo, SIGNAL( currentIndexChanged( int ) ), animationControl, SLOT( setCurrentFrame( int ) ) );
+        connect( m_frameRateSlider, SIGNAL( valueChanged( int ) ), this, SLOT( slotFrameRateSliderChanged( int ) ) );
 
-        int timeout = animationControl->timeout();
+        connect( animationControl, SIGNAL( changeFrame( int ) ), this, SLOT( slotUpdateAnimationGuiFromFrameIndex( int ) ) );
+        connect( animationControl, SIGNAL( frameCountChanged( int ) ), this, SLOT( slotUpdateTimestepList( int ) ) );
+
+        int    timeout          = animationControl->timeout();
         double initialFrameRate = 1000;
-        if (timeout > 0) initialFrameRate = 1000.0/timeout;
-        setFrameRate(initialFrameRate);        
+        if ( timeout > 0 ) initialFrameRate = 1000.0 / timeout;
+        setFrameRate( initialFrameRate );
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void AnimationToolBar::setFrameRate(double frameRate)
+void AnimationToolBar::setFrameRate( double frameRate )
 {
     float sliderRange = m_frameRateSlider->maximum() - m_frameRateSlider->minimum();
 
-    float frameRateRange = m_fastFrameRate - m_slowFrameRate;
-    float normalizedSliderPosition = (frameRate - m_slowFrameRate )/ frameRateRange ;
-    float sliderTickValue = sliderRange* normalizedSliderPosition ;
+    float frameRateRange           = m_fastFrameRate - m_slowFrameRate;
+    float normalizedSliderPosition = ( frameRate - m_slowFrameRate ) / frameRateRange;
+    float sliderTickValue          = sliderRange * normalizedSliderPosition;
 
-    m_frameRateSlider->blockSignals(true);
-    m_frameRateSlider->setValue(static_cast<int>(sliderTickValue));
-    m_frameRateSlider->blockSignals(false);
+    m_frameRateSlider->blockSignals( true );
+    m_frameRateSlider->setValue( static_cast<int>( sliderTickValue ) );
+    m_frameRateSlider->blockSignals( false );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void AnimationToolBar::setTimeStepStrings(const QStringList& timeStepStrings)
+void AnimationToolBar::setTimeStepStrings( const QStringList& timeStepStrings )
 {
-    if (timeStepStrings.empty())
+    if ( timeStepStrings.empty() )
     {
         m_hasAutoTimeStepStrings = true;
     }
@@ -265,85 +265,84 @@ void AnimationToolBar::setTimeStepStrings(const QStringList& timeStepStrings)
         m_hasAutoTimeStepStrings = false;
     }
 
-    m_timestepCombo->blockSignals(true);
+    m_timestepCombo->blockSignals( true );
     m_timestepCombo->clear();
 
-    m_timestepCombo->addItems(timeStepStrings);
+    m_timestepCombo->addItems( timeStepStrings );
 
-    m_timestepCombo->blockSignals(false);
+    m_timestepCombo->blockSignals( false );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void AnimationToolBar::setCurrentTimeStepIndex(int index)
+void AnimationToolBar::setCurrentTimeStepIndex( int index )
 {
-    m_timestepCombo->blockSignals(true);
-    m_timestepCombo->setCurrentIndex(index);
+    m_timestepCombo->blockSignals( true );
+    m_timestepCombo->setCurrentIndex( index );
     updateAnimationButtons();
-    m_timestepCombo->blockSignals(false);
+    m_timestepCombo->blockSignals( false );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void AnimationToolBar::slotFrameRateSliderChanged(int sliderTickValue)
+void AnimationToolBar::slotFrameRateSliderChanged( int sliderTickValue )
 {
-    float sliderRange = m_frameRateSlider->maximum() - m_frameRateSlider->minimum();
+    float sliderRange              = m_frameRateSlider->maximum() - m_frameRateSlider->minimum();
     float normalizedSliderPosition = sliderTickValue / sliderRange;
 
     float frameRateRange = m_fastFrameRate - m_slowFrameRate;
-    float newFrameRate = m_slowFrameRate + frameRateRange * normalizedSliderPosition;
+    float newFrameRate   = m_slowFrameRate + frameRateRange * normalizedSliderPosition;
 
-    if (newFrameRate > m_fastFrameRate)
+    if ( newFrameRate > m_fastFrameRate )
     {
         newFrameRate = m_fastFrameRate;
     }
 
-    if (newFrameRate < m_slowFrameRate)
+    if ( newFrameRate < m_slowFrameRate )
     {
         newFrameRate = m_slowFrameRate;
     }
 
-    setFrameRate(newFrameRate);
+    setFrameRate( newFrameRate );
 
-
-    if(!m_activeAnimationControl.isNull()) m_activeAnimationControl->setTimeout((int)(1.0/newFrameRate * 1000));
+    if ( !m_activeAnimationControl.isNull() )
+        m_activeAnimationControl->setTimeout( (int)( 1.0 / newFrameRate * 1000 ) );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void AnimationToolBar::setSlowFrameRate(float frameRate)
+void AnimationToolBar::setSlowFrameRate( float frameRate )
 {
     m_slowFrameRate = frameRate;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void AnimationToolBar::setFastFrameRate(float frameRate)
+void AnimationToolBar::setFastFrameRate( float frameRate )
 {
     m_fastFrameRate = frameRate;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void AnimationToolBar::slotUpdateTimestepList(int frameCount)
+void AnimationToolBar::slotUpdateTimestepList( int frameCount )
 {
     QStringList timeStepNames;
-    for (int vIdx = 0; vIdx < frameCount; ++vIdx)
+    for ( int vIdx = 0; vIdx < frameCount; ++vIdx )
     {
-        timeStepNames.append(QString().setNum(vIdx));
+        timeStepNames.append( QString().setNum( vIdx ) );
     }
-    m_timestepCombo->blockSignals(true);
+    m_timestepCombo->blockSignals( true );
 
     m_timestepCombo->clear();
-    m_timestepCombo->addItems(timeStepNames);
+    m_timestepCombo->addItems( timeStepNames );
     updateAnimationButtons();
-    m_timestepCombo->blockSignals(false);
+    m_timestepCombo->blockSignals( false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -351,7 +350,7 @@ void AnimationToolBar::slotUpdateTimestepList(int frameCount)
 //--------------------------------------------------------------------------------------------------
 void AnimationToolBar::playPauseChanged()
 {
-    if (m_activeAnimationControl->isActive())
+    if ( m_activeAnimationControl->isActive() )
     {
         m_animPauseAction->trigger();
         updateAnimationButtons();
@@ -364,17 +363,20 @@ void AnimationToolBar::playPauseChanged()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void AnimationToolBar::slotUpdateAnimationGuiFromFrameIndex(int value)
+void AnimationToolBar::slotUpdateAnimationGuiFromFrameIndex( int value )
 {
-    // Update only the combo box index, but do not set current frame 
+    // Update only the combo box index, but do not set current frame
     // Disconnect the signal temporarily when updating UI
 
-    disconnect(m_timestepCombo, SIGNAL(currentIndexChanged(int)), m_activeAnimationControl, SLOT(setCurrentFrame(int)));
-    m_timestepCombo->setCurrentIndex(value);
+    disconnect( m_timestepCombo,
+                SIGNAL( currentIndexChanged( int ) ),
+                m_activeAnimationControl,
+                SLOT( setCurrentFrame( int ) ) );
+    m_timestepCombo->setCurrentIndex( value );
     updateAnimationButtons();
-    connect(m_timestepCombo, SIGNAL(currentIndexChanged(int)), m_activeAnimationControl, SLOT(setCurrentFrame(int)));
+    connect( m_timestepCombo, SIGNAL( currentIndexChanged( int ) ), m_activeAnimationControl, SLOT( setCurrentFrame( int ) ) );
 }
 
 } // End namespace caf

@@ -107,13 +107,6 @@ private:
                                    cvf::Color4f   baseColor,
                                    Qt::BrushStyle brushStyle = Qt::SolidPattern );
 
-    QwtPlotItem* createColumnShape( double         startX,
-                                    double         endX,
-                                    double         startDepth,
-                                    double         endDepth,
-                                    cvf::Color4f   baseColor,
-                                    Qt::BrushStyle brushStyle = Qt::SolidPattern );
-
     cvf::Color4f componentColor( float alpha = 1.0 ) const;
 
 private:

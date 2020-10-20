@@ -52,6 +52,7 @@ class RimMeasurement;
 class RimAdvancedSnapshotExportDefinition;
 class RimObservedSummaryData;
 class RimOilField;
+class RimColorLegendCollection;
 class RimScriptCollection;
 class RimSummaryCase;
 class RimSummaryCaseCollection;
@@ -90,8 +91,10 @@ class RimProject : public caf::PdmDocument
 public:
     RimProject( void );
     ~RimProject( void ) override;
+    static RimProject* current();
 
     caf::PdmChildArrayField<RimOilField*>                oilFields;
+    caf::PdmChildField<RimColorLegendCollection*>        colorLegendCollection;
     caf::PdmChildField<RimScriptCollection*>             scriptCollection;
     caf::PdmChildField<RimWellPathImport*>               wellPathImport;
     caf::PdmChildField<RimMainPlotCollection*>           mainPlotCollection;
@@ -126,7 +129,8 @@ public:
     void assignCaseIdToSummaryCase( RimSummaryCase* summaryCase );
     void assignIdToEnsemble( RimSummaryCaseCollection* summaryCaseCollection );
 
-    void allCases( std::vector<RimCase*>& cases ) const;
+    std::vector<RimCase*> allGridCases() const;
+    void                  allCases( std::vector<RimCase*>& cases ) const; // Deprecated, use allGridCases()
 
     std::vector<RimSummaryCase*>           allSummaryCases() const;
     std::vector<RimSummaryCaseCollection*> summaryGroups() const;
@@ -186,6 +190,8 @@ public:
 
     RimPlotTemplateFolderItem* rootPlotTemlateItem() const;
 
+    std::vector<caf::FilePath*> allFilePaths() const;
+
 protected:
     // Overridden methods
     void initAfterRead() override;
@@ -195,7 +201,7 @@ protected:
 
 private:
     template <typename T>
-    void fieldContentsByType( caf::PdmObjectHandle* object, std::vector<T*>& fieldContents );
+    static void fieldContentsByType( const caf::PdmObjectHandle* object, std::vector<T*>& fieldContents );
 
     void transferPathsToGlobalPathList();
     void distributePathsFromGlobalPathList();
@@ -229,7 +235,7 @@ private:
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-void RimProject::fieldContentsByType( caf::PdmObjectHandle* object, std::vector<T*>& fieldContents )
+void RimProject::fieldContentsByType( const caf::PdmObjectHandle* object, std::vector<T*>& fieldContents )
 {
     if ( !object ) return;
 

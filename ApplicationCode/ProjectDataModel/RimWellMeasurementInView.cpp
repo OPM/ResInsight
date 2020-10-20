@@ -232,7 +232,7 @@ bool RimWellMeasurementInView::updateLegendData()
         categories.push_back( std::make_tuple( measurementKind(), 0, color ) );
         m_legendConfig->setCategoryItems( categories );
         m_legendConfig->setTitle( QString( "Well Measurement: \n" ) + measurementKind() );
-        m_legendConfig->setMappingMode( RimRegularLegendConfig::CATEGORY_INTEGER );
+        m_legendConfig->setMappingMode( RimRegularLegendConfig::MappingType::CATEGORY_INTEGER );
         return true;
     }
     else
@@ -460,7 +460,11 @@ void RimWellMeasurementInView::setAllQualitiesSelected()
 //--------------------------------------------------------------------------------------------------
 QString RimWellMeasurementInView::convertToSerializableString( const std::vector<QString>& strings )
 {
-    QStringList stringList = QVector<QString>::fromStdVector( strings ).toList();
+    QStringList stringList;
+    for ( const auto& string : strings )
+    {
+        stringList.push_back( string );
+    }
     return stringList.join( '|' );
 }
 
@@ -470,7 +474,7 @@ QString RimWellMeasurementInView::convertToSerializableString( const std::vector
 std::vector<QString> RimWellMeasurementInView::convertFromSerializableString( const QString& string )
 {
     QStringList stringList = string.split( '|' );
-    return stringList.toVector().toStdVector();
+    return std::vector<QString>( stringList.begin(), stringList.end() );
 }
 
 //--------------------------------------------------------------------------------------------------

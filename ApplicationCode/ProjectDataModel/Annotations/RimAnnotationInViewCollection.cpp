@@ -18,6 +18,8 @@
 
 #include "RimAnnotationInViewCollection.h"
 
+#include "RiaPreferences.h"
+
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationGroupCollection.h"
 #include "RimAnnotationTextAppearance.h"
@@ -103,6 +105,8 @@ RimAnnotationInViewCollection::RimAnnotationInViewCollection()
                                 "",
                                 "",
                                 "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_annotationFontSize, "AnnotationFontSize", "Default Font Size", "", "", "" );
 
     m_globalTextAnnotations.uiCapability()->setUiHidden( true );
     m_globalReachCircleAnnotations.uiCapability()->setUiHidden( true );
@@ -244,55 +248,16 @@ void RimAnnotationInViewCollection::onGlobalCollectionChanged( const RimAnnotati
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimAnnotationInViewCollection::hasTextAnnotationsWithCustomFontSize( RiaFontCache::FontSize defaultFontSize ) const
+int RimAnnotationInViewCollection::fontSize() const
 {
-    for ( auto annotation : textAnnotations() )
-    {
-        if ( annotation->appearance()->fontSize() != defaultFontSize )
-        {
-            return true;
-        }
-    }
-
-    for ( auto annotationInView : globalTextAnnotations() )
-    {
-        if ( annotationInView->sourceAnnotation()->appearance()->fontSize() != defaultFontSize )
-        {
-            return true;
-        }
-    }
-
-    return false;
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultSceneFontSize(), m_annotationFontSize() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimAnnotationInViewCollection::applyFontSizeToAllTextAnnotations( RiaFontCache::FontSize oldFontSize,
-                                                                       RiaFontCache::FontSize fontSize,
-                                                                       bool                   forceChange )
+void RimAnnotationInViewCollection::updateFonts()
 {
-    bool anyChange = false;
-    for ( auto annotation : textAnnotations() )
-    {
-        if ( forceChange || annotation->appearance()->fontSize() == oldFontSize )
-        {
-            annotation->appearance()->setFontSize( fontSize );
-            annotation->updateConnectedEditors();
-            anyChange = true;
-        }
-    }
-
-    for ( auto annotationInView : globalTextAnnotations() )
-    {
-        if ( forceChange || annotationInView->sourceAnnotation()->appearance()->fontSize() == oldFontSize )
-        {
-            annotationInView->sourceAnnotation()->appearance()->setFontSize( fontSize );
-            annotationInView->updateConnectedEditors();
-            anyChange = true;
-        }
-    }
-    return anyChange;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -301,6 +266,7 @@ bool RimAnnotationInViewCollection::applyFontSizeToAllTextAnnotations( RiaFontCa
 void RimAnnotationInViewCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_snapAnnotations );
+    uiOrdering.add( &m_annotationFontSize );
     if ( m_snapAnnotations() ) uiOrdering.add( &m_annotationPlaneDepth );
 
     uiOrdering.skipRemainingFields( true );
@@ -444,4 +410,13 @@ void RimAnnotationInViewCollection::deleteGlobalAnnotation( const caf::PdmObject
             return;
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnnotationInViewCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                                    std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    onAnnotationDeleted();
 }

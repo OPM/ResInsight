@@ -45,6 +45,7 @@ public:
     static const caf::ColorTable& tensorOrangeBlueWhitePaletteColors();
     static const caf::ColorTable& tensorsMagentaBrownGrayPaletteColors();
     static const caf::ColorTable& angularPaletteColors();
+    static const caf::ColorTable& rainbowPaletteColors();
     static const caf::ColorTable& stimPlanPaletteColors();
     static const caf::ColorTable& faultsPaletteColors();
     static const caf::ColorTable& wellsPaletteColors();
@@ -60,6 +61,7 @@ public:
     static const caf::ColorTable& editableWellPathsPaletteColors();
     static const caf::ColorTable& wellPathsPaletteColors();
     static const caf::ColorTable& waterAndRockPaletteColors();
+    static const caf::ColorTable& correlationPaletteColors();
 
     static cvf::Color3f undefinedCellColor();
 
@@ -72,6 +74,8 @@ public:
     static cvf::Color3f defaultViewerBackgroundColor();
 
     static caf::ColorTable createBrightnessBasedColorTable( cvf::Color3ub baseColor, int brightnessLevelCount );
+
+    static std::map<RiaDefines::PhaseType, caf::ColorTable> phaseColors();
 
 private:
     static std::vector<cvf::Color3ub> categoryColors();

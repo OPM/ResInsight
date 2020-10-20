@@ -42,7 +42,7 @@ CAF_CMD_SOURCE_INIT( RicAdd3dWellLogCurveFeature, "RicAdd3dWellLogCurveFeature" 
 bool RicAdd3dWellLogCurveFeature::isCommandEnabled()
 {
     std::vector<RimCase*> cases;
-    RiaApplication::instance()->project()->allCases( cases );
+    RimProject::current()->allCases( cases );
     if ( cases.empty() ) return false;
 
     return caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPath>();
@@ -66,9 +66,9 @@ void RicAdd3dWellLogCurveFeature::onActionTriggered( bool isChecked )
 
     selectedWellPath->add3dWellLogCurve( rim3dWellLogExtractionCurve );
 
-    RiaApplication::instance()->project()->scheduleCreateDisplayModelAndRedrawAllViews();
+    RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
 
-    RiaApplication::instance()->project()->updateConnectedEditors();
+    RimProject::current()->updateConnectedEditors();
 
     Riu3DMainWindowTools::selectAsCurrentItem( rim3dWellLogExtractionCurve );
     Riu3DMainWindowTools::setExpanded( selectedWellPath );

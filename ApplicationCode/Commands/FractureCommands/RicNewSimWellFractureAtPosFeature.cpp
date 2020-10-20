@@ -51,7 +51,7 @@ CAF_CMD_SOURCE_INIT( RicNewSimWellFractureAtPosFeature, "RicNewSimWellFractureAt
 //--------------------------------------------------------------------------------------------------
 void RicNewSimWellFractureAtPosFeature::onActionTriggered( bool isChecked )
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
     if ( proj->allFractureTemplates().empty() ) return;
 
     Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
@@ -93,7 +93,7 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered( bool isChecked )
 
     fracture->setName( QString( "Fracture_" ) + fracNum );
 
-    auto unitSet = RiaEclipseUnitTools::UNITS_UNKNOWN;
+    auto unitSet = RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
     {
         RimEclipseResultCase* eclipseCase = nullptr;
         simWell->firstAncestorOrThisOfType( eclipseCase );
@@ -136,7 +136,7 @@ void RicNewSimWellFractureAtPosFeature::setupActionLook( QAction* actionToSetup 
 //--------------------------------------------------------------------------------------------------
 bool RicNewSimWellFractureAtPosFeature::isCommandEnabled()
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
     if ( proj->allFractureTemplates().empty() ) return false;
 
     auto objHandle = caf::SelectionManager::instance()->selectedItemOfType<caf::PdmObjectHandle>();

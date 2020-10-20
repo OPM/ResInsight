@@ -49,16 +49,16 @@ class PdmDoubleStringValidator : public QDoubleValidator
 {
     Q_OBJECT
 public:
-    PdmDoubleStringValidator(const QString& defaultString)
-        : QDoubleValidator(nullptr), m_defaultString(defaultString)
+    PdmDoubleStringValidator( const QString& defaultString )
+        : QDoubleValidator( nullptr )
+        , m_defaultString( defaultString )
     {
     }
 
-    State validate(QString& inputString, int& position) const override;
-    void  fixup(QString& inputString) const override;
+    State validate( QString& inputString, int& position ) const override;
+    void  fixup( QString& inputString ) const override;
 
 private:
     QString m_defaultString;
 };
-}
-
+} // namespace caf

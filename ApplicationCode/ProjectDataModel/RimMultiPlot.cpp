@@ -18,7 +18,8 @@
 
 #include "RimMultiPlot.h"
 
-#include "RiaApplication.h"
+#include "RiaPreferences.h"
+
 #include "RimPlot.h"
 #include "RimProject.h"
 #include "RimSummaryTimeAxisProperties.h"
@@ -26,6 +27,10 @@
 #include "RiuMultiPlotBook.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
+
+#include "cafPdmFieldReorderCapability.h"
+#include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiToolButtonEditor.h"
 
 #include <QPaintDevice>
 #include <QRegularExpression>
@@ -70,6 +75,8 @@ RimMultiPlot::RimMultiPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_plots, "Plots", "", "", "", "" );
     m_plots.uiCapability()->setUiHidden( true );
+    auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_plots );
+    reorderability->orderChanged.connect( this, &RimMultiPlot::onPlotsReordered );
 
     CAF_PDM_InitFieldNoDefault( &m_columnCount, "NumberOfColumns", "Number of Columns", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_rowsPerPage, "RowsPerPage", "Rows per Page", "", "", "" );
@@ -77,7 +84,15 @@ RimMultiPlot::RimMultiPlot()
     CAF_PDM_InitField( &m_showIndividualPlotTitles, "ShowPlotTitles", true, "Show Sub Plot Titles", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_majorTickmarkCount, "MajorTickmarkCount", "Major Tickmark Count", "", "", "" );
 
+    CAF_PDM_InitFieldNoDefault( &m_subTitleFontSize, "SubTitleFontSize", "Sub Plot Title Font Size", "", "", "" );
+    m_subTitleFontSize = caf::FontTools::RelativeSize::Large;
+
+    CAF_PDM_InitField( &m_pagePreviewMode, "PagePreviewMode", false, "Page Preview Mode", "", "", "" );
+    m_pagePreviewMode.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
+    m_pagePreviewMode.uiCapability()->setUiIconFromResourceString( ":/PagePreview16x16.png" );
     m_viewer = nullptr;
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,6 +129,8 @@ RimMultiPlot& RimMultiPlot::operator=( RimMultiPlot&& rhs )
     m_columnCount              = rhs.m_columnCount;
     m_rowsPerPage              = rhs.m_rowsPerPage;
     m_showIndividualPlotTitles = rhs.m_showIndividualPlotTitles;
+    m_subTitleFontSize         = rhs.m_subTitleFontSize;
+    m_pagePreviewMode          = rhs.m_pagePreviewMode;
 
     return *this;
 }
@@ -169,14 +186,6 @@ void RimMultiPlot::setMultiPlotTitle( const QString& title )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiPlot::addPlot( RimPlot* plot )
-{
-    insertPlot( plot, m_plots.size() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimMultiPlot::insertPlot( RimPlot* plot, size_t index )
 {
     if ( plot )
@@ -215,7 +224,7 @@ void RimMultiPlot::removePlot( RimPlot* plot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiPlot::movePlotsToThis( const std::vector<RimPlot*>& plotsToMove, RimPlot* plotToInsertAfter )
+void RimMultiPlot::movePlotsToThis( const std::vector<RimPlot*>& plotsToMove, int insertAtPosition )
 {
     for ( size_t tIdx = 0; tIdx < plotsToMove.size(); tIdx++ )
     {
@@ -231,12 +240,16 @@ void RimMultiPlot::movePlotsToThis( const std::vector<RimPlot*>& plotsToMove, Ri
         }
     }
 
-    size_t insertionStartIndex = 0;
-    if ( plotToInsertAfter ) insertionStartIndex = this->plotIndex( plotToInsertAfter ) + 1;
-
     for ( size_t tIdx = 0; tIdx < plotsToMove.size(); tIdx++ )
     {
-        this->insertPlot( plotsToMove[tIdx], insertionStartIndex + tIdx );
+        if ( insertAtPosition >= 0 )
+        {
+            this->insertPlot( plotsToMove[tIdx], (size_t)insertAtPosition + tIdx );
+        }
+        else
+        {
+            this->addPlot( plotsToMove[tIdx] );
+        }
     }
 
     this->updateLayout();
@@ -301,6 +314,12 @@ void RimMultiPlot::doUpdateLayout()
         m_viewer->setPlotTitle( description() );
         m_viewer->setTitleVisible( m_showPlotWindowTitle );
         m_viewer->setSubTitlesVisible( m_showIndividualPlotTitles );
+
+        m_viewer->setTitleFontSizes( titleFontSize(), subTitleFontSize() );
+        m_viewer->setLegendFontSize( legendFontSize() );
+        m_viewer->setAxisFontSizes( axisTitleFontSize(), axisValueFontSize() );
+        m_viewer->setPagePreviewModeEnabled( m_pagePreviewMode() );
+
         m_viewer->scheduleUpdate();
         m_viewer->adjustSize();
     }
@@ -406,6 +425,14 @@ caf::PdmFieldHandle* RimMultiPlot::rowsPerPageField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimMultiPlot::pagePreviewField()
+{
+    return &m_pagePreviewMode;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimMultiPlot::showPlotTitles() const
 {
     return m_showIndividualPlotTitles;
@@ -447,9 +474,30 @@ void RimMultiPlot::onPlotAdditionOrRemoval()
     updateSubPlotNames();
     updatePlotWindowTitle();
     applyPlotWindowTitleToWidgets();
-    updateConnectedEditors();
+    updateAllRequiredEditors();
     updateLayout();
     RiuPlotMainWindowTools::refreshToolbars();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMultiPlot::onPlotsReordered( const caf::SignalEmitter* emitter )
+{
+    updateSubPlotNames();
+    recreatePlotWidgets();
+    loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMultiPlot::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                   std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    updateSubPlotNames();
+    recreatePlotWidgets();
+    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -459,9 +507,33 @@ bool RimMultiPlot::previewModeEnabled() const
 {
     if ( m_viewer )
     {
-        return m_viewer->previewModeEnabled();
+        return m_viewer->pagePreviewModeEnabled();
     }
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimMultiPlot::subTitleFontSize() const
+{
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_subTitleFontSize() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimMultiPlot::axisTitleFontSize() const
+{
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisTitleFontSize() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimMultiPlot::axisValueFontSize() const
+{
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisValueFontSize() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -527,12 +599,16 @@ void RimMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, co
         updatePlotWindowTitle();
         applyPlotWindowTitleToWidgets();
     }
-    else if ( changedField == &m_columnCount || changedField == &m_rowsPerPage )
+    else if ( changedField == &m_subTitleFontSize )
+    {
+        updateFonts();
+    }
+    else if ( changedField == &m_columnCount || changedField == &m_rowsPerPage || changedField == &m_pagePreviewMode )
     {
         updateLayout();
         RiuPlotMainWindowTools::refreshToolbars();
     }
-    else if ( changedField = &m_majorTickmarkCount )
+    else if ( changedField == &m_majorTickmarkCount )
     {
         for ( RimPlot* plot : plots() )
         {
@@ -556,6 +632,24 @@ void RimMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& u
 {
     caf::PdmUiGroup* titleAndLegendsGroup = uiOrdering.addNewGroup( "Plot Layout" );
     uiOrderingForMultiPlotLayout( uiConfigName, *titleAndLegendsGroup );
+    uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMultiPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                          QString                    uiConfigName,
+                                          caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_rowsPerPage || field == &m_columnCount )
+    {
+        auto myattr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
+        if ( myattr )
+        {
+            myattr->iconSize = QSize( 24, 16 );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -567,6 +661,7 @@ void RimMultiPlot::uiOrderingForMultiPlotLayout( QString uiConfigName, caf::PdmU
     uiOrdering.add( &m_plotWindowTitle );
     uiOrdering.add( &m_showIndividualPlotTitles );
     RimPlotWindow::uiOrderingForPlotLayout( uiConfigName, uiOrdering );
+    uiOrdering.add( &m_subTitleFontSize );
     uiOrdering.add( &m_columnCount );
     uiOrdering.add( &m_rowsPerPage );
     uiOrdering.add( &m_majorTickmarkCount );
@@ -584,24 +679,33 @@ QList<caf::PdmOptionItemInfo> RimMultiPlot::calculateValueOptions( const caf::Pd
     {
         for ( size_t i = 0; i < ColumnCountEnum::size(); ++i )
         {
-            ColumnCount enumVal = ColumnCountEnum::fromIndex( i );
-            if ( enumVal == ColumnCount::COLUMNS_UNLIMITED )
-            {
-                QString iconPath( ":/ColumnsUnlimited.png" );
-                options.push_back( caf::PdmOptionItemInfo( ColumnCountEnum::uiText( enumVal ),
-                                                           enumVal,
-                                                           false,
-                                                           caf::QIconProvider( iconPath ) ) );
-            }
-            else
-            {
-                QString iconPath = QString( ":/Columns%1.png" ).arg( static_cast<int>( enumVal ) );
-                options.push_back( caf::PdmOptionItemInfo( ColumnCountEnum::uiText( enumVal ),
-                                                           enumVal,
-                                                           false,
-                                                           caf::QIconProvider( iconPath ) ) );
-            }
+            ColumnCount enumVal           = ColumnCountEnum::fromIndex( i );
+            QString     columnCountString = ( enumVal == ColumnCount::COLUMNS_UNLIMITED )
+                                            ? "Unlimited"
+                                            : QString( "%1" ).arg( static_cast<int>( enumVal ) );
+            QString iconPath = QString( ":/Columns%1.png" ).arg( columnCountString );
+            options.push_back( caf::PdmOptionItemInfo( ColumnCountEnum::uiText( enumVal ),
+                                                       enumVal,
+                                                       false,
+                                                       caf::IconProvider( iconPath, QSize( 24, 16 ) ) ) );
         }
+    }
+    if ( fieldNeedingOptions == &m_rowsPerPage )
+    {
+        for ( size_t i = 0; i < RowCountEnum::size(); ++i )
+        {
+            RowCount enumVal  = RowCountEnum::fromIndex( i );
+            QString  iconPath = QString( ":/Rows%1.png" ).arg( static_cast<int>( enumVal ) );
+            options.push_back( caf::PdmOptionItemInfo( RowCountEnum::uiText( enumVal ),
+                                                       enumVal,
+                                                       false,
+                                                       caf::IconProvider( iconPath, QSize( 24, 16 ) ) ) );
+        }
+    }
+    else if ( fieldNeedingOptions == &m_subTitleFontSize || fieldNeedingOptions == &m_axisTitleFontSize ||
+              fieldNeedingOptions == &m_axisValueFontSize )
+    {
+        return caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultPlotFontSize() );
     }
     return options;
 }
@@ -616,6 +720,7 @@ void RimMultiPlot::onLoadDataAndUpdate()
     applyPlotWindowTitleToWidgets();
     updatePlots();
     updateLayout();
+    RiuPlotMainWindowTools::refreshToolbars();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -672,6 +777,8 @@ void RimMultiPlot::recreatePlotWidgets()
 {
     CVF_ASSERT( m_viewer );
 
+    m_viewer->removeAllPlots();
+
     auto plotVector = plots();
 
     for ( size_t tIdx = 0; tIdx < plotVector.size(); ++tIdx )
@@ -679,70 +786,6 @@ void RimMultiPlot::recreatePlotWidgets()
         plotVector[tIdx]->createPlotWidget();
         m_viewer->addPlot( plotVector[tIdx]->viewer() );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimMultiPlot::hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const
-{
-    if ( fontSettingType == RiaDefines::PLOT_FONT && m_viewer )
-    {
-        if ( m_viewer->fontSize() != defaultFontSize )
-        {
-            return true;
-        }
-        if ( m_legendFontSize() != defaultFontSize )
-        {
-            return true;
-        }
-        for ( const RimPlot* plot : plots() )
-        {
-            if ( plot->hasCustomFontSizes( fontSettingType, defaultFontSize ) )
-            {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimMultiPlot::applyFontSize( RiaDefines::FontSettingType fontSettingType,
-                                  int                         oldFontSize,
-                                  int                         fontSize,
-                                  bool                        forceChange /*= false */ )
-{
-    bool somethingChanged = false;
-    if ( fontSettingType == RiaDefines::PLOT_FONT && m_viewer )
-    {
-        if ( oldFontSize == m_viewer->fontSize() || forceChange )
-        {
-            m_viewer->setFontSize( fontSize );
-            somethingChanged = true;
-        }
-
-        if ( oldFontSize == m_legendFontSize() || forceChange )
-        {
-            m_legendFontSize = fontSize;
-            somethingChanged = true;
-        }
-
-        for ( RimPlot* plot : plots() )
-        {
-            if ( plot->applyFontSize( fontSettingType, oldFontSize, fontSize, forceChange ) )
-            {
-                somethingChanged = true;
-            }
-        }
-        if ( somethingChanged )
-        {
-            m_viewer->scheduleUpdate();
-        }
-    }
-    return somethingChanged;
 }
 
 //--------------------------------------------------------------------------------------------------

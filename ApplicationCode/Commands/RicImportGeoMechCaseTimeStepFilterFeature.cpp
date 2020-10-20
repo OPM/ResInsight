@@ -22,9 +22,9 @@
 #include "RiaImportEclipseCaseTools.h"
 
 #include "Riu3DMainWindowTools.h"
+#include "RiuFileDialogTools.h"
 
 #include <QAction>
-#include <QFileDialog>
 #include <QFileInfo>
 
 CAF_CMD_SOURCE_INIT( RicImportGeoMechCaseTimeStepFilterFeature, "RicImportGeoMechCaseTimeStepFilterFeature" );
@@ -38,7 +38,7 @@ void RicImportGeoMechCaseTimeStepFilterFeature::onActionTriggered( bool isChecke
 
     QString     defaultDir = app->lastUsedDialogDirectory( "GEOMECH_MODEL" );
     QStringList fileNames =
-        QFileDialog::getOpenFileNames( nullptr, "Import Geo-Mechanical Model", defaultDir, "Abaqus results (*.odb)" );
+        RiuFileDialogTools::getOpenFileNames( nullptr, "Import Geo-Mechanical Model", defaultDir, "Abaqus results (*.odb)" );
     if ( fileNames.size() ) defaultDir = QFileInfo( fileNames.last() ).absolutePath();
     for ( QString fileName : fileNames )
     {

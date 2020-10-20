@@ -21,7 +21,7 @@
 #pragma once
 
 #include "RivCellSetEnum.h"
-#include "RivReservoirPartMgr.h" // Must include here because of caf::FixedArray<RivReservoirPartMgr, PROPERTY_FILTERED>
+#include "RivReservoirPartMgr.h"
 
 #include "cvfArray.h"
 
@@ -89,6 +89,11 @@ public:
     void appendFaultLabelsDynamicGeometryPartsToModel( cvf::ModelBasicList* model,
                                                        RivCellSetEnum       geometryType,
                                                        size_t               frameIndex );
+
+    // Element Vector Result
+    void appendElementVectorResultDynamicGeometryPartsToModel( cvf::ModelBasicList* model,
+                                                               RivCellSetEnum       geometryType,
+                                                               size_t               frameIndex );
 
     void forceWatertightGeometryOnForType( RivCellSetEnum geometryType );
     void clearWatertightGeometryFlags();

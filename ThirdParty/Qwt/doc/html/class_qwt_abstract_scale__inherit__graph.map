@@ -1,9 +1,0 @@
-<map id="QwtAbstractScale" name="QwtAbstractScale">
-<area shape="rect" id="node3" href="$class_qwt_abstract_slider.html" title="An abstract base class for slider widgets with a scale. " alt="" coords="168,155,296,181"/>
-<area shape="rect" id="node9" href="$class_qwt_thermo.html" title="The Thermometer Widget. " alt="" coords="320,155,413,181"/>
-<area shape="rect" id="node4" href="$class_qwt_dial.html" title="QwtDial class provides a rounded range control. " alt="" coords="100,229,169,256"/>
-<area shape="rect" id="node7" href="$class_qwt_knob.html" title="The Knob Widget. " alt="" coords="194,229,270,256"/>
-<area shape="rect" id="node8" href="$class_qwt_slider.html" title="The Slider Widget. " alt="" coords="295,229,375,256"/>
-<area shape="rect" id="node5" href="$class_qwt_analog_clock.html" title="An analog clock. " alt="" coords="5,304,128,331"/>
-<area shape="rect" id="node6" href="$class_qwt_compass.html" title="A Compass Widget. " alt="" coords="153,304,255,331"/>
-</map>

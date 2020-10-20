@@ -20,7 +20,6 @@
 
 #include "RivWellPathPartMgr.h"
 
-#include "RiaColorTables.h"
 #include "RiaGuiApplication.h"
 
 #include "RigEclipseCaseData.h"
@@ -132,6 +131,26 @@ bool RivWellPathPartMgr::isWellPathWithinBoundingBox( const cvf::BoundingBox& we
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RivWellPathPartMgr::isWellPathEnabled( const cvf::BoundingBox& wellPathClipBoundingBox ) const
+{
+    RimWellPathCollection* wellPathCollection = this->wellPathCollection();
+    if ( !wellPathCollection ) return false;
+
+    if ( !wellPathCollection->isActive() ) return false;
+
+    if ( wellPathCollection->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF ) return false;
+
+    if ( wellPathCollection->wellPathVisibility() == RimWellPathCollection::ALL_ON && m_rimWellPath->showWellPath() == false )
+        return false;
+
+    if ( !isWellPathWithinBoundingBox( wellPathClipBoundingBox ) ) return false;
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RivWellPathPartMgr::appendStaticFracturePartsToModel( cvf::ModelBasicList*    model,
                                                            const cvf::BoundingBox& wellPathClipBoundingBox )
 {
@@ -184,7 +203,7 @@ void RivWellPathPartMgr::appendWellPathAttributesToModel( cvf::ModelBasicList*  
     {
         if ( attribute->isEnabled() )
         {
-            if ( attribute->componentType() == RiaDefines::CASING )
+            if ( attribute->componentType() == RiaDefines::WellPathComponentType::CASING )
             {
                 double wellPathRadius = this->wellPathRadius( characteristicCellSize, this->wellPathCollection() );
                 double endMD          = attribute->endMD();
@@ -217,7 +236,7 @@ void RivWellPathPartMgr::appendWellPathAttributesToModel( cvf::ModelBasicList*  
                     model->addPart( part.p() );
                 }
             }
-            else if ( attribute->componentType() == RiaDefines::PACKER )
+            else if ( attribute->componentType() == RiaDefines::WellPathComponentType::PACKER )
             {
                 double wellPathRadius = this->wellPathRadius( characteristicCellSize, this->wellPathCollection() );
                 double startMD        = attribute->startMD();
@@ -499,7 +518,7 @@ void RivWellPathPartMgr::appendPerforationValvesToModel( cvf::ModelBasicList*   
             std::vector<double> measuredDepthsRelativeToStartMD;
             std::vector<double> radii;
             cvf::Color3f        valveColor = valve->defaultComponentColor();
-            if ( valve->componentType() == RiaDefines::ICV )
+            if ( valve->componentType() == RiaDefines::WellPathComponentType::ICV )
             {
                 measuredDepthsRelativeToStartMD = {0.0, 1.0, 1.5, 4.0, 5.0, 5.5, 8.0, 9.0};
                 radii                           = {wellPathRadius,
@@ -530,7 +549,8 @@ void RivWellPathPartMgr::appendPerforationValvesToModel( cvf::ModelBasicList*   
                     model->addPart( part.p() );
                 }
             }
-            else if ( valve->componentType() == RiaDefines::ICD || valve->componentType() == RiaDefines::AICD )
+            else if ( valve->componentType() == RiaDefines::WellPathComponentType::ICD ||
+                      valve->componentType() == RiaDefines::WellPathComponentType::AICD )
             {
                 std::vector<double> valveLocations = valve->valveLocations();
                 for ( double startMD : valveLocations )
@@ -549,7 +569,7 @@ void RivWellPathPartMgr::appendPerforationValvesToModel( cvf::ModelBasicList*   
                     int  nInners = 0;
                     for ( int i = 1; i < size - 1; i += 2 )
                     {
-                        if ( inner && valve->componentType() == RiaDefines::AICD && nInners > 0 )
+                        if ( inner && valve->componentType() == RiaDefines::WellPathComponentType::AICD && nInners > 0 )
                         {
                             radii[i + 1] = radii[i] = wellPathRadius * 1.7;
                             nInners                 = 0;
@@ -770,16 +790,7 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel( cvf::ModelBasicList* 
                                                            double                            characteristicCellSize,
                                                            const cvf::BoundingBox&           wellPathClipBoundingBox )
 {
-    RimWellPathCollection* wellPathCollection = this->wellPathCollection();
-    if ( !wellPathCollection ) return;
-
-    if ( wellPathCollection->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF ) return;
-
-    if ( wellPathCollection->wellPathVisibility() != RimWellPathCollection::FORCE_ALL_ON &&
-         m_rimWellPath->showWellPath() == false )
-        return;
-
-    if ( !isWellPathWithinBoundingBox( wellPathClipBoundingBox ) ) return;
+    if ( !isWellPathEnabled( wellPathClipBoundingBox ) ) return;
 
     // The pipe geometry needs to be rebuilt on scale change to keep the pipes round
     buildWellPathParts( displayCoordTransform, characteristicCellSize, wellPathClipBoundingBox, false );
@@ -804,9 +815,11 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel( cvf::ModelBasicList* 
     appendWellPathAttributesToModel( model, displayCoordTransform, characteristicCellSize );
 
     RimGridView* gridView = dynamic_cast<RimGridView*>( m_rimView.p() );
-    if ( !gridView ) return;
-    m_3dWellLogPlanePartMgr = new Riv3dWellLogPlanePartMgr( m_rimWellPath, gridView );
-    m_3dWellLogPlanePartMgr->appendPlaneToModel( model, displayCoordTransform, wellPathClipBoundingBox, true );
+    if ( gridView )
+    {
+        m_3dWellLogPlanePartMgr = new Riv3dWellLogPlanePartMgr( m_rimWellPath, gridView );
+        m_3dWellLogPlanePartMgr->appendPlaneToModel( model, displayCoordTransform, wellPathClipBoundingBox, true );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -849,17 +862,7 @@ void RivWellPathPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicList*
 {
     CVF_ASSERT( model );
 
-    RimWellPathCollection* wellPathCollection = this->wellPathCollection();
-    if ( !wellPathCollection ) return;
-
-    if ( m_rimWellPath.isNull() ) return;
-
-    bool showWellPath = ( wellPathCollection->isActive() &&
-                          ( ( wellPathCollection->wellPathVisibility() != RimWellPathCollection::FORCE_ALL_OFF ) ||
-                            ( wellPathCollection->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_ON &&
-                              m_rimWellPath->showWellPath() ) ) );
-
-    if ( !isWellPathWithinBoundingBox( wellPathClipBoundingBox ) ) return;
+    bool showWellPath = isWellPathEnabled( wellPathClipBoundingBox );
 
     if ( showWellPath )
     {
@@ -874,13 +877,14 @@ void RivWellPathPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicList*
     if ( showWellPath )
     {
         RimGridView* gridView = dynamic_cast<RimGridView*>( m_rimView.p() );
-        if ( !gridView ) return;
-
-        if ( m_3dWellLogPlanePartMgr.isNull() )
+        if ( gridView )
         {
-            m_3dWellLogPlanePartMgr = new Riv3dWellLogPlanePartMgr( m_rimWellPath, gridView );
+            if ( m_3dWellLogPlanePartMgr.isNull() )
+            {
+                m_3dWellLogPlanePartMgr = new Riv3dWellLogPlanePartMgr( m_rimWellPath, gridView );
+            }
+            m_3dWellLogPlanePartMgr->appendPlaneToModel( model, displayCoordTransform, wellPathClipBoundingBox, false );
         }
-        m_3dWellLogPlanePartMgr->appendPlaneToModel( model, displayCoordTransform, wellPathClipBoundingBox, false );
     }
 }
 

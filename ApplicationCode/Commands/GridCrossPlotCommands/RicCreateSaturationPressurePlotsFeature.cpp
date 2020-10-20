@@ -41,7 +41,6 @@
 #include "cafSelectionManager.h"
 
 #include <QAction>
-#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT( RicCreateSaturationPressurePlotsFeature, "RicCreateSaturationPressurePlotsFeature" );
 
@@ -59,7 +58,7 @@ std::vector<RimSaturationPressurePlot*>
         return plots;
     }
 
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
 
     RimSaturationPressurePlotCollection* collection = project->mainPlotCollection()->saturationPressurePlotCollection();
 
@@ -75,23 +74,24 @@ std::vector<RimSaturationPressurePlot*>
             return plots;
         }
 
-        if ( eclipseCaseData && eclipseCaseData->results( RiaDefines::MATRIX_MODEL ) )
+        if ( eclipseCaseData && eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) )
         {
-            RigCaseCellResultsData* resultData = eclipseCaseData->results( RiaDefines::MATRIX_MODEL );
+            RigCaseCellResultsData* resultData = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
-            if ( !resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "PRESSURE" ) ) )
+            if ( !resultData->hasResultEntry(
+                     RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" ) ) )
             {
                 RiaLogging::error( "CreateSaturationPressurePlots : PRESSURE is not available " );
                 return plots;
             }
 
-            if ( !resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "PDEW" ) ) )
+            if ( !resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PDEW" ) ) )
             {
                 RiaLogging::error( "CreateSaturationPressurePlots : PDEW is not available " );
                 return plots;
             }
 
-            if ( !resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "PBUB" ) ) )
+            if ( !resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PBUB" ) ) )
             {
                 RiaLogging::error( "CreateSaturationPressurePlots : PBUB is not available " );
                 return plots;
@@ -123,7 +123,7 @@ bool RicCreateSaturationPressurePlotsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCreateSaturationPressurePlotsFeature::onActionTriggered( bool isChecked )
 {
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
 
     RimSaturationPressurePlotCollection* collection = project->mainPlotCollection()->saturationPressurePlotCollection();
 
@@ -187,9 +187,7 @@ void RicCreateSaturationPressurePlotsFeature::onActionTriggered( bool isChecked 
         text += "and DISGAS are disabled, saturation pressure are not valid.\n\n";
         text += "See error log for more details.";
 
-        QMessageBox::warning( nullptr, "Saturation Pressure Plots", text );
-
-        RiaLogging::warning( text );
+        RiaLogging::errorInMessageBox( nullptr, "Saturation Pressure Plots", text );
     }
     else
     {

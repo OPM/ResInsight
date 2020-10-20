@@ -30,6 +30,7 @@
 #include <QDateTime>
 
 #include <cmath>
+#include <map>
 #include <vector>
 
 class RifReaderInterface;
@@ -200,8 +201,9 @@ private:
 
     std::vector<std::vector<std::vector<double>>> m_cellScalarResults; ///< Scalar results on the complete reservoir for
                                                                        ///< each Result index (ResultVariable) and timestep
-    cvf::Collection<RigStatisticsDataCache> m_statisticsDataCache;
-    std::vector<RigEclipseResultInfo>       m_resultInfos;
+    cvf::Collection<RigStatisticsDataCache>   m_statisticsDataCache;
+    std::vector<RigEclipseResultInfo>         m_resultInfos;
+    std::map<RigEclipseResultAddress, size_t> m_addressToResultIndexMap;
 
     RigMainGrid*                  m_ownerMainGrid;
     RigEclipseCaseData*           m_ownerCaseData;

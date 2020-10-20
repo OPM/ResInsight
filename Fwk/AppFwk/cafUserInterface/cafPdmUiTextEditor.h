@@ -34,28 +34,27 @@
 //
 //##################################################################################################
 
-
 #pragma once
 #include "cafPdmUiFieldEditorHandle.h"
-#include <QString>
-#include <QWidget>
+#include <QLabel>
 #include <QPointer>
 #include <QPushButton>
+#include <QString>
 #include <QTextEdit>
-#include <QLabel>
+#include <QWidget>
 
 class QGridLayout;
 
-namespace caf 
+namespace caf
 {
-
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class PdmUiTextEditorAttribute : public PdmUiEditorAttribute
 {
 public:
-    enum WrapMode {
+    enum WrapMode
+    {
         NoWrap,
         WordWrap,
         ManualWrap,
@@ -65,24 +64,24 @@ public:
 
     PdmUiTextEditorAttribute()
     {
-        textMode = PLAIN;
+        textMode       = PLAIN;
         showSaveButton = false;
-        wrapMode = WrapAtWordBoundaryOrAnywhere;
-        heightHint = 2000;
+        wrapMode       = WrapAtWordBoundaryOrAnywhere;
+        heightHint     = 2000;
     }
 
-    enum TextMode 
+    enum TextMode
     {
-        PLAIN, 
+        PLAIN,
         HTML
     };
 
 public:
-    TextMode    textMode;
-    bool        showSaveButton;
-    WrapMode    wrapMode;
-    QFont       font;
-    int         heightHint;
+    TextMode textMode;
+    bool     showSaveButton;
+    WrapMode wrapMode;
+    QFont    font;
+    int      heightHint;
 };
 
 //==================================================================================================
@@ -92,21 +91,20 @@ class TextEdit : public QTextEdit
 {
     Q_OBJECT
 public:
-    explicit TextEdit(QWidget *parent = nullptr);
+    explicit TextEdit( QWidget* parent = nullptr );
 
     QSize sizeHint() const override;
-    void          setHeightHint(int heightHint);
+    void  setHeightHint( int heightHint );
 
 protected:
-    void focusOutEvent(QFocusEvent *e) override;
+    void focusOutEvent( QFocusEvent* e ) override;
 
-signals: 
-    void editingFinished(); 
+signals:
+    void editingFinished();
 
 private:
     int m_heightHint;
 };
-
 
 //==================================================================================================
 /// An editor to show (and possibly edit?) formatted larger portions of text
@@ -117,28 +115,27 @@ class PdmUiTextEditor : public PdmUiFieldEditorHandle
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiTextEditor()          { m_textMode = PdmUiTextEditorAttribute::PLAIN; } 
-    ~PdmUiTextEditor() override {} 
+    PdmUiTextEditor() { m_textMode = PdmUiTextEditorAttribute::PLAIN; }
+    ~PdmUiTextEditor() override {}
 
 protected:
-    QWidget*    createEditorWidget(QWidget * parent) override;
-    QWidget*    createLabelWidget(QWidget * parent) override;
-    void        configureAndUpdateUi(const QString& uiConfigName) override;
-    bool        isMultiRowEditor() const override;
+    QWidget* createEditorWidget( QWidget* parent ) override;
+    QWidget* createLabelWidget( QWidget* parent ) override;
+    void     configureAndUpdateUi( const QString& uiConfigName ) override;
+    bool     isMultiRowEditor() const override;
 
 protected slots:
-    void        slotSetValueToField();
+    void slotSetValueToField();
 
 private:
-    QTextOption::WrapMode   toQTextOptionWrapMode(PdmUiTextEditorAttribute::WrapMode wrapMode);
+    QTextOption::WrapMode toQTextOptionWrapMode( PdmUiTextEditorAttribute::WrapMode wrapMode );
 
 private:
     QPointer<TextEdit>        m_textEdit;
     QPointer<QPushButton>     m_saveButton;
     QPointer<QShortenedLabel> m_label;
 
-    PdmUiTextEditorAttribute::TextMode m_textMode; 
+    PdmUiTextEditorAttribute::TextMode m_textMode;
 };
-
 
 } // end namespace caf

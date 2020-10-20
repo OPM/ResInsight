@@ -18,15 +18,19 @@
 
 #include "RimcProject.h"
 
-#include "RiaApplication.h"
 #include "RicImportSummaryCasesFeature.h"
 
 #include "RimFileSummaryCase.h"
+#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
+#include "RimSurfaceCollection.h"
 #include "RiuPlotMainWindow.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
+
+#include <QDir>
+#include <QFileInfo>
 
 #include <memory>
 
@@ -39,7 +43,7 @@ RimProject_importSummaryCase::RimProject_importSummaryCase( caf::PdmObjectHandle
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Import Summary Case", "", "", "Import Summary Case" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_fileName, "FileName", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_fileName, "FileName", "", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -47,10 +51,20 @@ RimProject_importSummaryCase::RimProject_importSummaryCase( caf::PdmObjectHandle
 //--------------------------------------------------------------------------------------------------
 caf::PdmObjectHandle* RimProject_importSummaryCase::execute()
 {
-    QStringList                  summaryFileNames{m_fileName};
-    std::vector<RimSummaryCase*> newCases;
+    QString   absolutePath = m_fileName;
+    QFileInfo projectPathInfo( absolutePath );
+    if ( !projectPathInfo.exists() )
+    {
+        QDir startDir( RiaApplication::instance()->startDir() );
+        absolutePath = startDir.absoluteFilePath( m_fileName );
+    }
 
-    if ( RicImportSummaryCasesFeature::createSummaryCasesFromFiles( summaryFileNames, &newCases ) )
+    QStringList                  summaryFileNames{absolutePath};
+    std::vector<RimSummaryCase*> newCases;
+    bool                         ensembleOrGroup = false;
+    bool                         allowDialogs    = false;
+
+    if ( RicImportSummaryCasesFeature::createSummaryCasesFromFiles( summaryFileNames, &newCases, ensembleOrGroup, allowDialogs ) )
     {
         RicImportSummaryCasesFeature::addSummaryCases( newCases );
 
@@ -97,7 +111,7 @@ RimProject_summaryCase::RimProject_summaryCase( caf::PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Find Summary Case", "", "", "Find Summary Case" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_caseId, "CaseId", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_caseId, "CaseId", "", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -105,7 +119,7 @@ RimProject_summaryCase::RimProject_summaryCase( caf::PdmObjectHandle* self )
 //--------------------------------------------------------------------------------------------------
 caf::PdmObjectHandle* RimProject_summaryCase::execute()
 {
-    auto proj     = RiaApplication::instance()->project();
+    auto proj     = RimProject::current();
     auto sumCases = proj->allSummaryCases();
 
     for ( auto s : sumCases )
@@ -136,6 +150,61 @@ std::unique_ptr<caf::PdmObjectHandle> RimProject_summaryCase::defaultResult() co
 ///
 //--------------------------------------------------------------------------------------------------
 bool RimProject_summaryCase::isNullptrValidResult() const
+{
+    return true;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_surfaceFolder, "surfaceFolder" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimProject_surfaceFolder::RimProject_surfaceFolder( caf::PdmObjectHandle* self )
+    : caf::PdmObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Get Surface Folder", "", "", "Get Surface Folder" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_folderName, "FolderName", "", "", "", "" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmObjectHandle* RimProject_surfaceFolder::execute()
+{
+    auto                  proj     = RimProject::current();
+    RimSurfaceCollection* surfcoll = proj->activeOilField()->surfaceCollection();
+
+    // Blank foldername parameter should return the topmost folder
+    if ( m_folderName().isEmpty() ) return surfcoll;
+
+    for ( auto s : surfcoll->subCollections() )
+    {
+        if ( s->collectionName() == m_folderName() ) return s;
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimProject_surfaceFolder::resultIsPersistent() const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<caf::PdmObjectHandle> RimProject_surfaceFolder::defaultResult() const
+{
+    return std::unique_ptr<caf::PdmObjectHandle>( new RimSurfaceCollection );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimProject_surfaceFolder::isNullptrValidResult() const
 {
     return true;
 }

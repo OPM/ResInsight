@@ -38,15 +38,25 @@
 #include "RicfCommandObject.h"
 
 #include "Rim2dIntersectionViewCollection.h"
+#include "RimAnalysisPlot.h"
+#include "RimAnalysisPlotCollection.h"
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimAnnotationTextAppearance.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimCommandObject.h"
+#include "RimCompletionTemplateCollection.h"
+#include "RimCorrelationPlot.h"
+#include "RimCorrelationPlotCollection.h"
+#include "RimCorrelationReportPlot.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseView.h"
 #include "RimFlowPlotCollection.h"
 #include "RimFormationNamesCollection.h"
+#include "RimFractureModel.h"
+#include "RimFractureModelCollection.h"
+#include "RimFractureModelPlot.h"
+#include "RimFractureModelPlotCollection.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
@@ -84,12 +94,14 @@
 #include "RimWellLogFile.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
+#include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPltPlot.h"
 #include "RimWellRftPlot.h"
 
 #include "Riu3DMainWindowTools.h"
+#include "RiuGuiTheme.h"
 #include "RiuViewer.h"
 #include "RiuViewerCommands.h"
 
@@ -318,16 +330,16 @@ bool RiaApplication::openFile( const QString& fileName )
 
     RiaDefines::ImportFileType fileType = RiaDefines::obtainFileTypeFromFileName( fileName );
 
-    if ( fileType == RiaDefines::RESINSIGHT_PROJECT_FILE )
+    if ( fileType == RiaDefines::ImportFileType::RESINSIGHT_PROJECT_FILE )
     {
         loadingSucceded = loadProject( fileName );
     }
-    else if ( fileType == RiaDefines::GEOMECH_ODB_FILE )
+    else if ( fileType == RiaDefines::ImportFileType::GEOMECH_ODB_FILE )
     {
         loadingSucceded   = openOdbCaseFromFile( fileName );
         lastUsedDialogTag = "GEOMECH_MODEL";
     }
-    else if ( fileType & RiaDefines::ANY_ECLIPSE_FILE )
+    else if ( int( fileType ) & int( RiaDefines::ImportFileType::ANY_ECLIPSE_FILE ) )
     {
         loadingSucceded   = RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{fileName}, true );
         lastUsedDialogTag = RiaDefines::defaultDirectoryLabel( fileType );
@@ -501,15 +513,10 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
         if ( oilField == nullptr ) continue;
         if ( oilField->wellPathCollection == nullptr )
         {
-            // printf("Create well path collection for oil field %i in loadProject.\n", oilFieldIdx);
             oilField->wellPathCollection = new RimWellPathCollection();
         }
 
-        if ( oilField->wellPathCollection )
-        {
-            oilField->wellPathCollection->loadDataAndUpdate();
-            oilField->wellPathCollection->readWellPathFormationFiles();
-        }
+        oilField->wellPathCollection->loadDataAndUpdate();
     }
 
     {
@@ -544,7 +551,7 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
             observedFmuData->createRftReaderInterface();
         }
 
-        oilField->fractureDefinitionCollection()->loadAndUpdateData();
+        oilField->completionTemplateCollection()->loadAndUpdateData();
         oilField->fractureDefinitionCollection()->createAndAssignTemplateCopyForNonMatchingUnit();
 
         {
@@ -563,7 +570,7 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
     // If load action is specified to recalculate statistics, do it now.
     // Apparently this needs to be done before the views are loaded, lest the number of time steps for statistics will
     // be clamped
-    if ( loadAction & PLA_CALCULATE_STATISTICS )
+    if ( loadAction == ProjectLoadAction::PLA_CALCULATE_STATISTICS )
     {
         for ( size_t oilFieldIdx = 0; oilFieldIdx < m_project->oilFields().size(); oilFieldIdx++ )
         {
@@ -692,7 +699,7 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
 //--------------------------------------------------------------------------------------------------
 bool RiaApplication::loadProject( const QString& projectFileName )
 {
-    return loadProject( projectFileName, PLA_NONE, nullptr );
+    return loadProject( projectFileName, ProjectLoadAction::PLA_NONE, nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -832,21 +839,30 @@ bool RiaApplication::openOdbCaseFromFile( const QString& fileName, bool applyTim
     QFileInfo gridFileName( fileName );
     QString   caseName = gridFileName.completeBaseName();
 
-    RimGeoMechCase* geoMechCase = new RimGeoMechCase();
-    geoMechCase->setGridFileName( fileName );
-    geoMechCase->caseUserDescription = caseName;
-    geoMechCase->setApplyTimeFilter( applyTimeStepFilter );
-    m_project->assignCaseIdToCase( geoMechCase );
-
     RimGeoMechModels* geoMechModelCollection = m_project->activeOilField() ? m_project->activeOilField()->geoMechModels()
                                                                            : nullptr;
-
     // Create the geoMech model container if it is not there already
     if ( geoMechModelCollection == nullptr )
     {
         geoMechModelCollection                     = new RimGeoMechModels();
         m_project->activeOilField()->geoMechModels = geoMechModelCollection;
     }
+
+    // Check if the file is already open, the odb reader does not support opening the same file twice very well
+    for ( auto gmcase : geoMechModelCollection->cases() )
+    {
+        if ( gmcase->gridFileName() == fileName )
+        {
+            RiaLogging::warning( "File has already been opened. Cannot open the file twice! - " + fileName );
+            return false;
+        }
+    }
+
+    RimGeoMechCase* geoMechCase = new RimGeoMechCase();
+    geoMechCase->setGridFileName( fileName );
+    geoMechCase->caseUserDescription = caseName;
+    geoMechCase->setApplyTimeFilter( applyTimeStepFilter );
+    m_project->assignCaseIdToCase( geoMechCase );
 
     RimGeoMechView*   riv = geoMechCase->createAndAddReservoirView();
     caf::ProgressInfo progress( 11, "Loading Case" );
@@ -859,7 +875,7 @@ bool RiaApplication::openOdbCaseFromFile( const QString& fileName, bool applyTim
         delete geoMechCase;
         return false;
     }
-    geoMechModelCollection->cases.push_back( geoMechCase );
+    geoMechModelCollection->addCase( geoMechCase );
 
     progress.incrementProgress();
     progress.setProgressDescription( "Loading results information" );
@@ -1123,9 +1139,6 @@ bool RiaApplication::launchProcess( const QString&             program,
 
             stopMonitoringWorkProgress();
 
-            //            QMessageBox::warning(m_mainWindow, "Script execution", "Failed to start script executable
-            //            located at\n" + program);
-
             return false;
         }
 
@@ -1133,9 +1146,6 @@ bool RiaApplication::launchProcess( const QString&             program,
     }
     else
     {
-        // QMessageBox::warning(nullptr,
-        //                   "Script execution",
-        //                 "An Octave process is still running. Please stop this process before executing a new script.");
         return false;
     }
 }
@@ -1204,9 +1214,9 @@ void RiaApplication::applyPreferences()
     // instead of using the application font
     std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> fontSizes = m_preferences->defaultFontSizes();
 
-    m_defaultSceneFont      = RiaFontCache::getFont( fontSizes[RiaDefines::SCENE_FONT] );
-    m_defaultAnnotationFont = RiaFontCache::getFont( fontSizes[RiaDefines::ANNOTATION_FONT] );
-    m_defaultWellLabelFont  = RiaFontCache::getFont( fontSizes[RiaDefines::WELL_LABEL_FONT] );
+    m_defaultSceneFont      = RiaFontCache::getFont( fontSizes[RiaDefines::FontSettingType::SCENE_FONT] );
+    m_defaultAnnotationFont = RiaFontCache::getFont( fontSizes[RiaDefines::FontSettingType::ANNOTATION_FONT] );
+    m_defaultWellLabelFont  = RiaFontCache::getFont( fontSizes[RiaDefines::FontSettingType::WELL_LABEL_FONT] );
 
     if ( this->project() )
     {
@@ -1350,12 +1360,8 @@ int RiaApplication::launchUnitTests()
     caf::ProgressInfoBlocker progressBlocker;
     cvf::Assert::setReportMode( cvf::Assert::CONSOLE );
 
-#if QT_VERSION < 0x050000
-    int    argc = QCoreApplication::argc();
-    char** argv = QCoreApplication::argv();
-#else
-    int argc = QCoreApplication::arguments().size();
-    QStringList arguments = QCoreApplication::arguments();
+    int                      argc      = QCoreApplication::arguments().size();
+    QStringList              arguments = QCoreApplication::arguments();
     std::vector<std::string> argumentsStd;
     for ( QString qstring : arguments )
     {
@@ -1367,15 +1373,19 @@ int RiaApplication::launchUnitTests()
         argVector.push_back( &string.front() );
     }
     char** argv = argVector.data();
-#endif
 
     testing::InitGoogleTest( &argc, argv );
 
     //
     // Use the gtest filter to execute a subset of tests
-    //::testing::GTEST_FLAG( filter ) = "*RifCaseRealizationParametersReaderTest*";
-    //
-    //
+    QString filterText = RiaPreferences::current()->gtestFilter();
+    if ( !filterText.isEmpty() )
+    {
+        ::testing::GTEST_FLAG( filter ) = filterText.toStdString();
+
+        // Example on filter syntax
+        //::testing::GTEST_FLAG( filter ) = "*RifCaseRealizationParametersReaderTest*";
+    }
 
     // Use this macro in main() to run all tests.  It returns 0 if all
     // tests are successful, or 1 otherwise.
@@ -1454,6 +1464,19 @@ cvf::Font* RiaApplication::defaultSceneFont()
     // instead of using the application font
 
     return m_defaultSceneFont.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Font* RiaApplication::sceneFont( int fontSize )
+{
+    if ( fontSize != caf::FontTools::absolutePointSize( m_preferences->defaultSceneFontSize() ) )
+    {
+        auto font = RiaFontCache::getFont( fontSize );
+        return font.p();
+    }
+    return defaultSceneFont();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1543,7 +1566,10 @@ void RiaApplication::loadAndUpdatePlotData()
     RimPltPlotCollection*                pltColl  = nullptr;
     RimGridCrossPlotCollection*          gcpColl  = nullptr;
     RimSaturationPressurePlotCollection* sppColl  = nullptr;
+    RimAnalysisPlotCollection*           alsColl  = nullptr;
+    RimCorrelationPlotCollection*        corrColl = nullptr;
     RimMultiPlotCollection*              gpwColl  = nullptr;
+    RimFractureModelPlotCollection*      frmColl  = nullptr;
 
     if ( m_project->mainPlotCollection() )
     {
@@ -1579,22 +1605,37 @@ void RiaApplication::loadAndUpdatePlotData()
         {
             sppColl = m_project->mainPlotCollection()->saturationPressurePlotCollection();
         }
+        if ( m_project->mainPlotCollection()->analysisPlotCollection() )
+        {
+            alsColl = m_project->mainPlotCollection()->analysisPlotCollection();
+        }
+        if ( m_project->mainPlotCollection->correlationPlotCollection() )
+        {
+            corrColl = m_project->mainPlotCollection()->correlationPlotCollection();
+        }
         if ( m_project->mainPlotCollection()->multiPlotCollection() )
         {
             gpwColl = m_project->mainPlotCollection()->multiPlotCollection();
+        }
+        if ( m_project->mainPlotCollection()->fractureModelPlotCollection() )
+        {
+            frmColl = m_project->mainPlotCollection()->fractureModelPlotCollection();
         }
     }
 
     size_t plotCount = 0;
     plotCount += wlpColl ? wlpColl->wellLogPlots().size() : 0;
-    plotCount += spColl ? spColl->summaryPlots().size() : 0;
-    plotCount += scpColl ? scpColl->summaryPlots().size() : 0;
+    plotCount += spColl ? spColl->plots().size() : 0;
+    plotCount += scpColl ? scpColl->plots().size() : 0;
     plotCount += flowColl ? flowColl->plotCount() : 0;
     plotCount += rftColl ? rftColl->rftPlots().size() : 0;
     plotCount += pltColl ? pltColl->pltPlots().size() : 0;
-    plotCount += gcpColl ? gcpColl->gridCrossPlots().size() : 0;
-    plotCount += sppColl ? sppColl->plots().size() : 0;
+    plotCount += gcpColl ? gcpColl->plotCount() : 0;
+    plotCount += sppColl ? sppColl->plotCount() : 0;
+    plotCount += alsColl ? alsColl->plotCount() : 0;
+    plotCount += corrColl ? corrColl->plotCount() + corrColl->reports().size() : 0;
     plotCount += gpwColl ? gpwColl->multiPlots().size() : 0;
+    plotCount += frmColl ? frmColl->fractureModelPlots().size() : 0;
 
     if ( plotCount > 0 )
     {
@@ -1610,16 +1651,16 @@ void RiaApplication::loadAndUpdatePlotData()
 
         if ( spColl )
         {
-            for ( size_t wlpIdx = 0; wlpIdx < spColl->summaryPlots().size(); ++wlpIdx )
+            for ( auto plot : spColl->plots() )
             {
-                spColl->summaryPlots[wlpIdx]->loadDataAndUpdate();
+                plot->loadDataAndUpdate();
                 plotProgress.incrementProgress();
             }
         }
 
         if ( scpColl )
         {
-            for ( auto plot : scpColl->summaryPlots() )
+            for ( auto plot : scpColl->plots() )
             {
                 plot->loadDataAndUpdate();
                 plotProgress.incrementProgress();
@@ -1653,7 +1694,7 @@ void RiaApplication::loadAndUpdatePlotData()
 
         if ( gcpColl )
         {
-            for ( const auto& gcpPlot : gcpColl->gridCrossPlots() )
+            for ( const auto& gcpPlot : gcpColl->plots() )
             {
                 gcpPlot->loadDataAndUpdate();
                 plotProgress.incrementProgress();
@@ -1669,11 +1710,43 @@ void RiaApplication::loadAndUpdatePlotData()
             }
         }
 
+        if ( alsColl )
+        {
+            for ( const auto& alsPlot : alsColl->plots() )
+            {
+                alsPlot->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
+        if ( corrColl )
+        {
+            for ( const auto& corrPlot : corrColl->plots() )
+            {
+                corrPlot->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+            for ( const auto& reports : corrColl->reports() )
+            {
+                reports->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
         if ( gpwColl )
         {
             for ( const auto& multiPlot : gpwColl->multiPlots() )
             {
                 multiPlot->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
+        if ( frmColl )
+        {
+            for ( const auto& fractureModelPlot : frmColl->fractureModelPlots() )
+            {
+                fractureModelPlot->loadDataAndUpdate();
                 plotProgress.incrementProgress();
             }
         }
@@ -1777,8 +1850,10 @@ bool RiaApplication::generateCode( const QString& fileName, QString* errMsg )
                 out << "+++ \n";
 
                 out << "# Introduction\n\n";
-                out << "As the Python interface is growing release by release, we are investigating how to automate "
-                       "the building of reference documentation. This document is not complete, but will improve as "
+                out << "As the Python interface is growing release by release, we are investigating how to "
+                       "automate "
+                       "the building of reference documentation. This document is not complete, but will improve "
+                       "as "
                        "the automation "
                        "moves forward.\n";
 

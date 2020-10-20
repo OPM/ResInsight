@@ -43,7 +43,6 @@
 
 namespace caf
 {
-
 class PdmObjectHandle;
 class PdmUiItem;
 class PdmUiTreeViewEditor;
@@ -60,64 +59,63 @@ class PdmUiTreeViewQModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    explicit PdmUiTreeViewQModel(PdmUiTreeViewEditor* treeViewEditor);
+    explicit PdmUiTreeViewQModel( PdmUiTreeViewEditor* treeViewEditor );
 
-    void                    setPdmItemRoot(PdmUiItem* rootItem);
-    void                    updateSubTree(PdmUiItem* subTreeRoot);
+    void setPdmItemRoot( PdmUiItem* rootItem );
+    void updateSubTree( PdmUiItem* subTreeRoot );
 
-    void                    setColumnHeaders(const QStringList& columnHeaders);
-    void                    setUiConfigName(const QString& uiConfigName) { m_uiConfigName = uiConfigName; }
- 
+    void setColumnHeaders( const QStringList& columnHeaders );
+    void setUiConfigName( const QString& uiConfigName ) { m_uiConfigName = uiConfigName; }
+
     // These are supposed to be used from the Editor only, and to implement selection support.
- 
-    PdmUiItem*              uiItemFromModelIndex(const QModelIndex& index) const;
-    QModelIndex             findModelIndex(const PdmUiItem* object) const;
 
-    void                    setDragDropInterface(PdmUiDragDropInterface* dragDropInterface);
+    PdmUiItem*  uiItemFromModelIndex( const QModelIndex& index ) const;
+    QModelIndex findModelIndex( const PdmUiItem* object ) const;
+
+    void                    setDragDropInterface( PdmUiDragDropInterface* dragDropInterface );
     PdmUiDragDropInterface* dragDropInterface();
 
-    std::list<QModelIndex>  allIndicesRecursive(const QModelIndex& current = QModelIndex()) const;
-    
+    std::list<QModelIndex> allIndicesRecursive( const QModelIndex& current = QModelIndex() ) const;
+
 private:
-    void                    updateSubTreeRecursive(const QModelIndex& uiSubTreeRootModelIdx, PdmUiTreeOrdering* uiModelSubTreeRoot, PdmUiTreeOrdering* updatedPdmSubTreeRoot);
+    void updateSubTreeRecursive( const QModelIndex& uiSubTreeRootModelIdx,
+                                 PdmUiTreeOrdering* uiModelSubTreeRoot,
+                                 PdmUiTreeOrdering* updatedPdmSubTreeRoot );
 
-    PdmUiTreeOrdering*      treeItemFromIndex(const QModelIndex& index) const;
-    QModelIndex             findModelIndexRecursive(const QModelIndex& currentIndex, const PdmUiItem * object) const;
+    PdmUiTreeOrdering* treeItemFromIndex( const QModelIndex& index ) const;
+    QModelIndex        findModelIndexRecursive( const QModelIndex& currentIndex, const PdmUiItem* object ) const;
 
-    void                    resetTree(PdmUiTreeOrdering* root);
-    void                    emitDataChanged(const QModelIndex& index);
-    void                    updateEditorsForSubTree(PdmUiTreeOrdering* root);
+    void resetTree( PdmUiTreeOrdering* root );
+    void emitDataChanged( const QModelIndex& index );
+    void updateEditorsForSubTree( PdmUiTreeOrdering* root );
 
-    PdmUiTreeOrdering*      m_treeOrderingRoot;
-    QStringList             m_columnHeaders;
-    QString                 m_uiConfigName;
+    PdmUiTreeOrdering* m_treeOrderingRoot;
+    QStringList        m_columnHeaders;
+    QString            m_uiConfigName;
 
-    PdmUiTreeViewEditor*    m_treeViewEditor;
+    PdmUiTreeViewEditor* m_treeViewEditor;
 
     PdmUiDragDropInterface* m_dragDropInterface;
 
 private:
-
     // Overrides from QAbstractItemModel
 
-    QModelIndex     index(int row, int column, const QModelIndex &parentIndex = QModelIndex( )) const override;
-    QModelIndex     parent(const QModelIndex &index) const override;
+    QModelIndex index( int row, int column, const QModelIndex& parentIndex = QModelIndex() ) const override;
+    QModelIndex parent( const QModelIndex& index ) const override;
 
-    int             rowCount(const QModelIndex &parentIndex = QModelIndex( ) ) const override;
-    int             columnCount(const QModelIndex &parentIndex = QModelIndex( ) ) const override;
+    int rowCount( const QModelIndex& parentIndex = QModelIndex() ) const override;
+    int columnCount( const QModelIndex& parentIndex = QModelIndex() ) const override;
 
-    QVariant        data(const QModelIndex &index, int role = Qt::DisplayRole ) const override;
-    bool            setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
-    QVariant        headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const override;
+    QVariant data( const QModelIndex& index, int role = Qt::DisplayRole ) const override;
+    bool     setData( const QModelIndex& index, const QVariant& value, int role = Qt::EditRole ) override;
+    QVariant headerData( int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const override;
 
-    Qt::ItemFlags   flags(const QModelIndex &index) const override;
+    Qt::ItemFlags flags( const QModelIndex& index ) const override;
 
-    QStringList     mimeTypes() const override;
-    QMimeData*      mimeData(const QModelIndexList &indexes) const override;
-    bool            dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override;
+    QStringList mimeTypes() const override;
+    QMimeData*  mimeData( const QModelIndexList& indexes ) const override;
+    bool dropMimeData( const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent ) override;
     Qt::DropActions supportedDropActions() const override;
 };
-
-
 
 } // End of namespace caf

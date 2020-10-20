@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafFactory.h"
@@ -50,17 +49,19 @@ class QKeySequence;
 class QString;
 
 #define CAF_CMD_HEADER_INIT \
-    public: \
+public:                     \
     static const std::string& idNameStatic()
 
-#define CAF_CMD_SOURCE_INIT(ClassName, CommandIdName)\
-    const std::string& ClassName::idNameStatic() { static std::string id = CommandIdName; return id;} \
-    CAF_FACTORY_REGISTER(caf::CmdFeature, ClassName, std::string, ClassName::idNameStatic())
+#define CAF_CMD_SOURCE_INIT( ClassName, CommandIdName ) \
+    const std::string& ClassName::idNameStatic()        \
+    {                                                   \
+        static std::string id = CommandIdName;          \
+        return id;                                      \
+    }                                                   \
+    CAF_FACTORY_REGISTER( caf::CmdFeature, ClassName, std::string, ClassName::idNameStatic() )
 
-
-namespace caf 
+namespace caf
 {
-
 class CmdExecuteCommand;
 
 //==================================================================================================
@@ -77,33 +78,31 @@ public:
     CmdFeature();
     ~CmdFeature() override;
 
-    QAction*        action();
-    QAction*        actionWithCustomText(const QString& customText);
-    QAction*        actionWithUserData(const QString& customText, const QVariant& userData);
-    void            refreshEnabledState();
-    void            refreshCheckedState();
+    QAction* action();
+    QAction* actionWithCustomText( const QString& customText );
+    QAction* actionWithUserData( const QString& customText, const QVariant& userData );
+    void     refreshEnabledState();
+    void     refreshCheckedState();
 
-    bool            canFeatureBeExecuted();
+    bool canFeatureBeExecuted();
 
-    static void     applyShortcutWithHintToAction(QAction* action, const QKeySequence& keySequence);
+    static void applyShortcutWithHintToAction( QAction* action, const QKeySequence& keySequence );
 
 public slots:
-    void            actionTriggered(bool isChecked);
+    void actionTriggered( bool isChecked );
 
 protected:
-    virtual void    onActionTriggered(bool isChecked) = 0;
-    virtual void    setupActionLook(QAction* actionToSetup) =  0;
-    virtual bool    isCommandEnabled() = 0;
-    virtual bool    isCommandChecked();
-    
-    void            disableModelChangeContribution();
-    const QVariant  userData() const;
+    virtual void onActionTriggered( bool isChecked )       = 0;
+    virtual void setupActionLook( QAction* actionToSetup ) = 0;
+    virtual bool isCommandEnabled()                        = 0;
+    virtual bool isCommandChecked();
+
+    void           disableModelChangeContribution();
+    const QVariant userData() const;
 
 private:
     std::map<QString, QAction*> m_customTextToActionMap;
     bool                        m_triggerModelChange;
 };
-
-
 
 } // end namespace caf

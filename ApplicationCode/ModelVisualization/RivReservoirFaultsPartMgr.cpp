@@ -169,7 +169,7 @@ void RivReservoirFaultsPartMgr::appendPartsToModel( cvf::ModelBasicList* model )
                     eclipseResultAddress = cellResultColors->eclipseResultAddress();
                 }
 
-                if ( eclipseResultAddress.m_resultCatType == RiaDefines::ALLAN_DIAGRAMS )
+                if ( eclipseResultAddress.m_resultCatType == RiaDefines::ResultCatType::ALLAN_DIAGRAMS )
                 {
                     showCompleteNncGeo = true;
                 }

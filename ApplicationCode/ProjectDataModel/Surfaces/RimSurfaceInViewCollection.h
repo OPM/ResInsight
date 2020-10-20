@@ -17,9 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RimCheckableNamedObject.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmProxyValueField.h"
+#include "cafPdmPtrField.h"
 
 namespace cvf
 {
@@ -30,8 +34,11 @@ class ScalarMapper;
 
 class RimSurfaceInView;
 class RimSurface;
+class RimSurfaceCollection;
+class RimRegularLegendConfig;
+class RiuViewer;
 
-class RimSurfaceInViewCollection : public caf::PdmObject
+class RimSurfaceInViewCollection : public RimCheckableNamedObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -39,20 +46,40 @@ public:
     RimSurfaceInViewCollection();
     ~RimSurfaceInViewCollection() override;
 
+    QString name() const override;
+
+    RimSurfaceCollection* surfaceCollection() const;
+    void                  setSurfaceCollection( RimSurfaceCollection* surfcoll );
+
     void updateFromSurfaceCollection();
+    void loadData();
+    void clearGeometry();
 
     void appendPartsToModel( cvf::ModelBasicList* surfaceVizModel, cvf::Transform* scaleTransform );
     void updateCellResultColor( bool hasGeneralCellResult, size_t timeStepIndex );
     void applySingleColorEffect();
 
     bool hasAnyActiveSeparateResults();
+    void updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer );
+
+    std::vector<RimRegularLegendConfig*> legendConfigs();
+
+protected:
+    virtual void         initAfterRead() override;
+    caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
-    caf::PdmFieldHandle* objectToggleField() override;
-    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    bool hasSurfaceInViewForSurface( const RimSurface* surf ) const;
+    RimSurfaceInView*           getSurfaceInViewForSurface( const RimSurface* surf ) const;
+    RimSurfaceInViewCollection* getCollectionInViewForCollection( const RimSurfaceCollection* coll ) const;
 
-    caf::PdmField<bool>                        m_isActive;
-    caf::PdmChildArrayField<RimSurfaceInView*> m_surfacesInView;
+    void updateAllViewItems();
+    void syncCollectionsWithView();
+    void syncSurfacesWithView();
+
+    caf::PdmProxyValueField<QString>                     m_collectionName;
+    caf::PdmChildArrayField<RimSurfaceInViewCollection*> m_collectionsInView;
+    caf::PdmChildArrayField<RimSurfaceInView*>           m_surfacesInView;
+    caf::PdmPtrField<RimSurfaceCollection*>              m_surfaceCollection;
 };

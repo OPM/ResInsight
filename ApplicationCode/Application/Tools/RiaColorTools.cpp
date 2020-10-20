@@ -18,12 +18,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaColorTools.h"
+#include "RiuGuiTheme.h"
 
 #include "cvfAssert.h"
 #include "cvfMath.h"
 
 #include <algorithm>
 #include <cmath>
+
+#include <QPalette>
 
 //--------------------------------------------------------------------------------------------------
 /// Uses W3.org relative luminance calculation taking into account the different luminance of the different colors
@@ -139,6 +142,22 @@ QColor RiaColorTools::toQColor( cvf::Color4f color )
 cvf::Color3f RiaColorTools::fromQColorTo3f( QColor color )
 {
     return cvf::Color3f( color.redF(), color.greenF(), color.blueF() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QColor RiaColorTools::textColor()
+{
+    return RiuGuiTheme::getColorByVariableName( "textColor" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RiaColorTools::textColor3f()
+{
+    return fromQColorTo3f( textColor() );
 }
 
 //--------------------------------------------------------------------------------------------------

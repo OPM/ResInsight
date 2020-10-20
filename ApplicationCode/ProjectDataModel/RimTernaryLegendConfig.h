@@ -57,12 +57,13 @@ public:
     void setUiValuesFromLegendConfig( const RimTernaryLegendConfig* otherLegendConfig );
     void setAutomaticRanges( TernaryArrayIndex ternaryIndex, double globalMin, double globalMax, double localMin, double localMax );
 
-    void                           recreateLegend();
+    void                           onRecreateLegend() override;
     bool                           showLegend() const;
     void                           setTitle( const QString& title );
     const RivTernaryScalarMapper*  scalarMapper() const;
     const caf::TitledOverlayFrame* titledOverlayFrame() const override;
     caf::TitledOverlayFrame*       titledOverlayFrame() override;
+    void                           updateFonts() override;
 
 private:
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

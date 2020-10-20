@@ -104,7 +104,7 @@ void RiaConsoleApplication::initialize()
     RiaApplication::initialize();
 
     RiaLogging::setLoggerInstance( new RiaStdOutLogger );
-    RiaLogging::loggerInstance()->setLevel( RI_LL_DEBUG );
+    RiaLogging::loggerInstance()->setLevel( int( RILogLevel::RI_LL_DEBUG ) );
 
     m_socketServer = new RiaSocketServer( this );
 }
@@ -120,14 +120,14 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( cvf::P
     // --------------------------------------------------------
     if ( cvf::Option o = progOpt->option( "ignoreArgs" ) )
     {
-        return KEEP_GOING;
+        return ApplicationStatus::KEEP_GOING;
     }
 
     if ( progOpt->option( "help" ) || progOpt->option( "?" ) )
     {
         this->showFormattedTextInMessageBoxOrConsole( "\nThe current command line options in ResInsight are:\n" +
                                                       this->commandLineParameterHelp() );
-        return RiaApplication::EXIT_COMPLETED;
+        return RiaApplication::ApplicationStatus::EXIT_COMPLETED;
     }
 
     // Code generation
@@ -141,10 +141,10 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( cvf::P
         if ( !RiaApplication::generateCode( outputFile, &errMsg ) )
         {
             RiaLogging::error( QString( "Error: %1" ).arg( errMsg ) );
-            return RiaApplication::EXIT_WITH_ERROR;
+            return RiaApplication::ApplicationStatus::EXIT_WITH_ERROR;
         }
 
-        return RiaApplication::EXIT_COMPLETED;
+        return RiaApplication::ApplicationStatus::EXIT_COMPLETED;
     }
 
     // Unit testing
@@ -154,12 +154,12 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( cvf::P
         int testReturnValue = launchUnitTestsWithConsole();
         if ( testReturnValue == 0 )
         {
-            return RiaApplication::EXIT_COMPLETED;
+            return RiaApplication::ApplicationStatus::EXIT_COMPLETED;
         }
         else
         {
             RiaLogging::error( "Error running unit tests" );
-            return RiaApplication::EXIT_WITH_ERROR;
+            return RiaApplication::ApplicationStatus::EXIT_WITH_ERROR;
         }
     }
 
@@ -185,7 +185,7 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( cvf::P
     if ( !projectFileName.isEmpty() )
     {
         cvf::ref<RiaProjectModifier>      projectModifier;
-        RiaApplication::ProjectLoadAction projectLoadAction = RiaApplication::PLA_NONE;
+        RiaApplication::ProjectLoadAction projectLoadAction = RiaApplication::ProjectLoadAction::PLA_NONE;
 
         if ( cvf::Option o = progOpt->option( "replaceCase" ) )
         {
@@ -242,7 +242,7 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( cvf::P
                 }
             }
 
-            projectLoadAction = RiaApplication::PLA_CALCULATE_STATISTICS;
+            projectLoadAction = RiaApplication::ProjectLoadAction::PLA_CALCULATE_STATISTICS;
         }
 
         if ( cvf::Option o = progOpt->option( "replacePropertiesFolder" ) )
@@ -328,7 +328,7 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( cvf::P
                 {
                     RiaProjectModifier projectModifier;
                     projectModifier.setReplaceCaseFirstOccurrence( caseFile );
-                    loadProject( projectFileName, RiaApplication::PLA_NONE, &projectModifier );
+                    loadProject( projectFileName, RiaApplication::ProjectLoadAction::PLA_NONE, &projectModifier );
                     executeCommandFile( commandFile );
                 }
             }
@@ -357,7 +357,7 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( cvf::P
                         }
                     }
 
-                    loadProject( projectFileName, RiaApplication::PLA_NONE, &projectModifier );
+                    loadProject( projectFileName, RiaApplication::ProjectLoadAction::PLA_NONE, &projectModifier );
                     executeCommandFile( commandFile );
                 }
             }
@@ -366,10 +366,10 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( cvf::P
         {
             executeCommandFile( commandFile );
         }
-        return EXIT_COMPLETED;
+        return ApplicationStatus::EXIT_COMPLETED;
     }
 
-    return KEEP_GOING;
+    return ApplicationStatus::KEEP_GOING;
 }
 
 //--------------------------------------------------------------------------------------------------

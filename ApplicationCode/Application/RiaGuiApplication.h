@@ -66,6 +66,11 @@ class RiuPlotMainWindow;
 class RiuRecentFileActionProvider;
 class RiaArgumentParser;
 
+namespace caf
+{
+class FontHolderInterface;
+}
+
 //==================================================================================================
 //
 //
@@ -76,7 +81,7 @@ class RiaGuiApplication : public QApplication, public RiaApplication
     Q_OBJECT
 
 public:
-    enum RINavigationPolicy
+    enum class RINavigationPolicy
     {
         NAVIGATION_POLICY_CEETRON,
         NAVIGATION_POLICY_CAD,
@@ -112,7 +117,8 @@ public:
     RiuPlotMainWindow* mainPlotWindow();
     RiuMainWindowBase* mainWindowByID( int mainWindowID );
 
-    static RimViewWindow* activeViewWindow();
+    static RimViewWindow*     activeViewWindow();
+    static RiuMainWindowBase* activeMainWindow();
 
     bool isMain3dWindowVisible() const;
     bool isMainPlotWindowVisible() const;
@@ -123,7 +129,8 @@ public:
     std::vector<QAction*> recentFileActions() const;
 
     static void clearAllSelections();
-    void        applyGuiPreferences( const RiaPreferences* oldPreferences = nullptr );
+    void        applyGuiPreferences( const RiaPreferences*                         oldPreferences     = nullptr,
+                                     const std::vector<caf::FontHolderInterface*>& defaultFontObjects = {} );
     void        updateGrpcServer();
     static int  applicationResolution();
 

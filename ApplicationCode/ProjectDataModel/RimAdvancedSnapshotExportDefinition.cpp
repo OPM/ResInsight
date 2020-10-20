@@ -18,7 +18,6 @@
 
 #include "RimAdvancedSnapshotExportDefinition.h"
 
-#include "RiaApplication.h"
 #include "RiaOptionItemFactory.h"
 
 #include "RigActiveCellInfo.h"
@@ -34,50 +33,39 @@
 
 #include "cafPdmPointer.h"
 
-// clang-format off
-
-namespace caf
-{
-    template<>
-    void caf::AppEnum< RimAdvancedSnapshotExportDefinition::SnapShotDirectionEnum >::setUp()
-    {
-        addItem(RimAdvancedSnapshotExportDefinition::NO_RANGEFILTER, "None", "None");
-        addItem(RimAdvancedSnapshotExportDefinition::RANGEFILTER_I, "I", "I");
-        addItem(RimAdvancedSnapshotExportDefinition::RANGEFILTER_J, "J", "J");
-        addItem(RimAdvancedSnapshotExportDefinition::RANGEFILTER_K, "K", "K");
-
-        setDefault(RimAdvancedSnapshotExportDefinition::RANGEFILTER_K);
-    }
-}
-
-CAF_PDM_SOURCE_INIT(RimAdvancedSnapshotExportDefinition, "MultiSnapshotDefinition");
+CAF_PDM_SOURCE_INIT( RimAdvancedSnapshotExportDefinition, "MultiSnapshotDefinition" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimAdvancedSnapshotExportDefinition::RimAdvancedSnapshotExportDefinition()
 {
-    //CAF_PDM_InitObject("MultiSnapshotDefinition", ":/Well.png", "", "");
-    CAF_PDM_InitObject("MultiSnapshotDefinition", "", "", "");
+    // CAF_PDM_InitObject("MultiSnapshotDefinition", ":/Well.png", "", "");
+    CAF_PDM_InitObject( "MultiSnapshotDefinition", "", "", "" );
 
-    CAF_PDM_InitField(&isActive,                        "IsActive", true,           "Active", "", "", "");
-    
-    CAF_PDM_InitFieldNoDefault(&view,                   "View",                     "View", "", "", "");
+    CAF_PDM_InitField( &isActive, "IsActive", true, "Active", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&eclipseResultType,      "EclipseResultType",        "Result Type", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&selectedEclipseResults, "SelectedEclipseResults",   "Properties", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &view, "View", "View", "", "", "" );
 
-    CAF_PDM_InitField(&timeStepStart,                   "TimeStepStart", 0,         "Start Time", "", "", "");
-    CAF_PDM_InitField(&timeStepEnd,                     "TimeStepEnd", 0,           "End Time", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &eclipseResultType, "EclipseResultType", "Result Type", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &selectedEclipseResults, "SelectedEclipseResults", "Properties", "", "", "" );
 
-    CAF_PDM_InitField(&sliceDirection,                  "SnapShotDirection",    caf::AppEnum<SnapShotDirectionEnum>(NO_RANGEFILTER), "Range Filter Slice", "", "", "");
-    CAF_PDM_InitField(&startSliceIndex,                 "RangeFilterStart", 1,      "Range Start", "", "", "");
-    CAF_PDM_InitField(&endSliceIndex,                   "RangeFilterEnd", 1,        "Range End", "", "", "");
+    CAF_PDM_InitField( &timeStepStart, "TimeStepStart", 0, "Start Time", "", "", "" );
+    CAF_PDM_InitField( &timeStepEnd, "TimeStepEnd", 0, "End Time", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&additionalCases,        "AdditionalCases",          "Cases", "", "", "");
+    CAF_PDM_InitField( &sliceDirection,
+                       "SnapShotDirection",
+                       caf::AppEnum<RiaDefines::GridCaseAxis>( RiaDefines::GridCaseAxis::UNDEFINED_AXIS ),
+                       "Range Filter Slice",
+                       "",
+                       "",
+                       "" );
+
+    CAF_PDM_InitField( &startSliceIndex, "RangeFilterStart", 1, "Range Start", "", "", "" );
+    CAF_PDM_InitField( &endSliceIndex, "RangeFilterEnd", 1, "Range End", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &additionalCases, "AdditionalCases", "Cases", "", "", "" );
 }
-
-// clang-format on
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -101,7 +89,7 @@ QList<caf::PdmOptionItemInfo>
 
         std::vector<Rim3dView*> views;
 
-        RimProject*           proj = RiaApplication::instance()->project();
+        RimProject*           proj = RimProject::current();
         std::vector<RimCase*> cases;
         proj->allCases( cases );
 
@@ -121,11 +109,11 @@ QList<caf::PdmOptionItemInfo>
     else if ( fieldNeedingOptions == &eclipseResultType )
     {
         options.push_back(
-            caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ResultCatType>( RiaDefines::DYNAMIC_NATIVE ).uiText(),
-                                    RiaDefines::DYNAMIC_NATIVE ) );
+            caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ResultCatType>( RiaDefines::ResultCatType::DYNAMIC_NATIVE ).uiText(),
+                                    RiaDefines::ResultCatType::DYNAMIC_NATIVE ) );
         options.push_back(
-            caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ResultCatType>( RiaDefines::STATIC_NATIVE ).uiText(),
-                                    RiaDefines::STATIC_NATIVE ) );
+            caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ResultCatType>( RiaDefines::ResultCatType::STATIC_NATIVE ).uiText(),
+                                    RiaDefines::ResultCatType::STATIC_NATIVE ) );
     }
     else if ( fieldNeedingOptions == &selectedEclipseResults )
     {
@@ -216,17 +204,17 @@ void RimAdvancedSnapshotExportDefinition::fieldChangedByUi( const caf::PdmFieldH
             int maxInt = 0;
             int minInt = 0;
 
-            if ( newValue == RimAdvancedSnapshotExportDefinition::RANGEFILTER_I )
+            if ( sliceDirection == RiaDefines::GridCaseAxis::AXIS_I )
             {
                 maxInt = static_cast<int>( max.x() );
                 minInt = static_cast<int>( min.x() );
             }
-            else if ( newValue == RimAdvancedSnapshotExportDefinition::RANGEFILTER_J )
+            else if ( sliceDirection == RiaDefines::GridCaseAxis::AXIS_J )
             {
                 maxInt = static_cast<int>( max.y() );
                 minInt = static_cast<int>( min.y() );
             }
-            else if ( newValue == RimAdvancedSnapshotExportDefinition::RANGEFILTER_K )
+            else if ( sliceDirection == RiaDefines::GridCaseAxis::AXIS_K )
             {
                 maxInt = static_cast<int>( max.z() );
                 minInt = static_cast<int>( min.z() );
@@ -297,7 +285,7 @@ void RimAdvancedSnapshotExportDefinition::defineUiOrdering( QString uiConfigName
             additionalCases.uiCapability()->setUiReadOnly( false );
 
             bool rangeReadOnly = false;
-            if ( sliceDirection() == NO_RANGEFILTER )
+            if ( sliceDirection() == RiaDefines::GridCaseAxis::UNDEFINED_AXIS )
             {
                 rangeReadOnly = true;
             }

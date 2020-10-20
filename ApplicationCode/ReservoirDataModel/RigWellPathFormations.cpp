@@ -55,7 +55,7 @@ void RigWellPathFormations::depthAndFormationNamesWithoutDuplicatesOnDepth( std:
 {
     std::map<double, bool, DepthComp> tempMakeVectorUniqueOnMeasuredDepth;
 
-    if ( depthType == RiaDefines::MEASURED_DEPTH )
+    if ( depthType == RiaDefines::DepthTypeEnum::MEASURED_DEPTH )
     {
         for ( const std::pair<RigWellPathFormation, FormationLevel>& formation : m_formations )
         {
@@ -77,7 +77,7 @@ void RigWellPathFormations::depthAndFormationNamesWithoutDuplicatesOnDepth( std:
             }
         }
     }
-    else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH )
+    else if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH )
     {
         for ( const std::pair<RigWellPathFormation, FormationLevel>& formation : m_formations )
         {
@@ -169,7 +169,7 @@ void RigWellPathFormations::evaluateFormationsForOnePosition(
     {
         double depth;
 
-        if ( depthType == RiaDefines::MEASURED_DEPTH )
+        if ( depthType == RiaDefines::DepthTypeEnum::MEASURED_DEPTH )
         {
             if ( position == TOP )
             {
@@ -180,7 +180,7 @@ void RigWellPathFormations::evaluateFormationsForOnePosition(
                 depth = formation.first.mdBase;
             }
         }
-        else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH )
+        else if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH )
         {
             if ( position == TOP )
             {
@@ -217,7 +217,7 @@ void RigWellPathFormations::evaluateFormations( const std::vector<std::pair<RigW
     evaluateFormationsForOnePosition( formations, maxLevel, PickPosition::TOP, &tempMakeVectorUniqueOnDepth, depthType );
     evaluateFormationsForOnePosition( formations, maxLevel, PickPosition::BASE, &tempMakeVectorUniqueOnDepth, depthType );
 
-    for ( const std::pair<double, LevelAndName>& uniqueDepth : tempMakeVectorUniqueOnDepth )
+    for ( const std::pair<const double, LevelAndName>& uniqueDepth : tempMakeVectorUniqueOnDepth )
     {
         depths->push_back( uniqueDepth.first );
         names->push_back( uniqueDepth.second.name );
@@ -237,11 +237,11 @@ void RigWellPathFormations::evaluateFluids( const std::vector<RigWellPathFormati
     for ( const RigWellPathFormation& formation : fluidFormations )
     {
         double depthBase;
-        if ( depthType == RiaDefines::MEASURED_DEPTH )
+        if ( depthType == RiaDefines::DepthTypeEnum::MEASURED_DEPTH )
         {
             depthBase = formation.mdBase;
         }
-        else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH )
+        else if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH )
         {
             depthBase = formation.tvdBase;
         }
@@ -254,11 +254,11 @@ void RigWellPathFormations::evaluateFluids( const std::vector<RigWellPathFormati
     for ( const RigWellPathFormation& formation : fluidFormations )
     {
         double depthTop;
-        if ( depthType == RiaDefines::MEASURED_DEPTH )
+        if ( depthType == RiaDefines::DepthTypeEnum::MEASURED_DEPTH )
         {
             depthTop = formation.mdTop;
         }
-        else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH )
+        else if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH )
         {
             depthTop = formation.tvdTop;
         }
@@ -268,7 +268,7 @@ void RigWellPathFormations::evaluateFluids( const std::vector<RigWellPathFormati
         uniqueListMaker[depthTop] = formation.formationName + " Top";
     }
 
-    for ( const std::pair<double, QString>& depthAndFormation : uniqueListMaker )
+    for ( const std::pair<const double, QString>& depthAndFormation : uniqueListMaker )
     {
         depths->push_back( depthAndFormation.first );
         names->push_back( depthAndFormation.second );
@@ -313,7 +313,7 @@ std::vector<RigWellPathFormations::FormationLevel> RigWellPathFormations::format
 {
     std::vector<RigWellPathFormations::FormationLevel> formationLevels;
 
-    for ( const std::pair<RigWellPathFormations::FormationLevel, bool>& formationLevel : m_formationsLevelsPresent )
+    for ( const std::pair<const RigWellPathFormations::FormationLevel, bool>& formationLevel : m_formationsLevelsPresent )
     {
         formationLevels.push_back( formationLevel.first );
     }

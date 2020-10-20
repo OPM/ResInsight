@@ -34,7 +34,7 @@ RimValveTemplate::RimValveTemplate()
 
     CAF_PDM_InitField( &m_valveTemplateUnit,
                        "UnitSystem",
-                       caf::AppEnum<RiaEclipseUnitTools::UnitSystem>( RiaEclipseUnitTools::UNITS_UNKNOWN ),
+                       caf::AppEnum<RiaEclipseUnitTools::UnitSystem>( RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN ),
                        "Units System",
                        "",
                        "",
@@ -42,7 +42,7 @@ RimValveTemplate::RimValveTemplate()
     m_valveTemplateUnit.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_type, "CompletionType", "Type", "", "", "" );
-    m_type = RiaDefines::ICD;
+    m_type = RiaDefines::WellPathComponentType::ICD;
     CAF_PDM_InitField( &m_userLabel, "UserLabel", QString( "Template" ), "Name", "", "", "" );
 
     this->setName( fullLabel() );
@@ -83,11 +83,11 @@ void RimValveTemplate::setUnitSystem( RiaEclipseUnitTools::UnitSystemType unitSy
 //--------------------------------------------------------------------------------------------------
 void RimValveTemplate::setDefaultValuesFromUnits()
 {
-    if ( m_valveTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC )
+    if ( m_valveTemplateUnit == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
     {
         m_orificeDiameter = 8;
     }
-    else if ( m_valveTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD )
+    else if ( m_valveTemplateUnit == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
     {
         m_orificeDiameter = 0.315;
     }
@@ -106,7 +106,8 @@ RiaDefines::WellPathComponentType RimValveTemplate::type() const
 //--------------------------------------------------------------------------------------------------
 void RimValveTemplate::setType( RiaDefines::WellPathComponentType type )
 {
-    CAF_ASSERT( type == RiaDefines::ICD || type == RiaDefines::AICD || RiaDefines::ICV );
+    CAF_ASSERT( type == RiaDefines::WellPathComponentType::ICD || type == RiaDefines::WellPathComponentType::AICD ||
+                type == RiaDefines::WellPathComponentType::ICV );
 
     m_type = type;
 }
@@ -178,7 +179,9 @@ QList<caf::PdmOptionItemInfo> RimValveTemplate::calculateValueOptions( const caf
 
     if ( fieldNeedingOptions == &m_type )
     {
-        std::set<RiaDefines::WellPathComponentType> supportedTypes = {RiaDefines::ICD, RiaDefines::AICD, RiaDefines::ICV};
+        std::set<RiaDefines::WellPathComponentType> supportedTypes = {RiaDefines::WellPathComponentType::ICD,
+                                                                      RiaDefines::WellPathComponentType::AICD,
+                                                                      RiaDefines::WellPathComponentType::ICV};
         for ( RiaDefines::WellPathComponentType type : supportedTypes )
         {
             options.push_back( caf::PdmOptionItemInfo( CompletionTypeEnum::uiText( type ), type ) );
@@ -195,19 +198,19 @@ void RimValveTemplate::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     uiOrdering.add( &m_type );
     uiOrdering.add( &m_userLabel );
     uiOrdering.add( &m_valveTemplateUnit );
-    if ( m_type() == RiaDefines::ICV || m_type() == RiaDefines::ICD )
+    if ( m_type() == RiaDefines::WellPathComponentType::ICV || m_type() == RiaDefines::WellPathComponentType::ICD )
     {
-        if ( m_valveTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC )
+        if ( m_valveTemplateUnit == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
         {
             m_orificeDiameter.uiCapability()->setUiName( "Orifice Diameter [mm]" );
         }
-        else if ( m_valveTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD )
+        else if ( m_valveTemplateUnit == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
         {
             m_orificeDiameter.uiCapability()->setUiName( "Orifice Diameter [in]" );
         }
     }
 
-    if ( m_type() == RiaDefines::ICV || m_type() == RiaDefines::ICD )
+    if ( m_type() == RiaDefines::WellPathComponentType::ICV || m_type() == RiaDefines::WellPathComponentType::ICD )
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "MSW Valve Parameters" );
         group->add( &m_orificeDiameter );
@@ -257,15 +260,15 @@ void RimValveTemplate::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 void RimValveTemplate::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
     this->setName( fullLabel() );
-    if ( m_type() == RiaDefines::ICV )
+    if ( m_type() == RiaDefines::WellPathComponentType::ICV )
     {
         this->setUiIconFromResourceString( ":/ICVValve16x16.png" );
     }
-    else if ( m_type() == RiaDefines::ICD )
+    else if ( m_type() == RiaDefines::WellPathComponentType::ICD )
     {
         this->setUiIconFromResourceString( ":/ICDValve16x16.png" );
     }
-    else if ( m_type() == RiaDefines::AICD )
+    else if ( m_type() == RiaDefines::WellPathComponentType::AICD )
     {
         this->setUiIconFromResourceString( ":/AICDValve16x16.png" );
     }

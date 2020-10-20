@@ -17,7 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimGridCrossPlot.h"
 
-#include "RiaApplication.h"
 #include "RiaFontCache.h"
 #include "RiaPreferences.h"
 
@@ -75,8 +74,13 @@ RimGridCrossPlot::RimGridCrossPlot()
     m_yAxisProperties->setNameAndAxis( "Y-Axis", QwtPlot::yLeft );
     m_yAxisProperties->setEnableTitleTextSettings( false );
 
+    connectAxisSignals( m_xAxisProperties() );
+    connectAxisSignals( m_yAxisProperties() );
+
     CAF_PDM_InitFieldNoDefault( &m_crossPlotDataSets, "CrossPlotCurve", "Cross Plot Data Set", "", "", "" );
     m_crossPlotDataSets.uiCapability()->setUiHidden( true );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -390,20 +394,6 @@ void RimGridCrossPlot::onAxisSelected( int axis, bool toggle )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlot::doRemoveFromCollection()
-{
-    RimGridCrossPlotCollection* crossPlotCollection = nullptr;
-    this->firstAncestorOrThisOfType( crossPlotCollection );
-    if ( crossPlotCollection )
-    {
-        crossPlotCollection->removeGridCrossPlot( this );
-        crossPlotCollection->updateAllRequiredEditors();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RimGridCrossPlot::generateInfoBoxText() const
 {
     QStringList curveInfoTexts;
@@ -431,6 +421,31 @@ QString RimGridCrossPlot::generateInfoBoxText() const
         infoText += curveInfoTexts.front();
     }
     return infoText.join( "\n" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlot::connectAxisSignals( RimPlotAxisProperties* axis )
+{
+    axis->settingsChanged.connect( this, &RimGridCrossPlot::axisSettingsChanged );
+    axis->logarithmicChanged.connect( this, &RimGridCrossPlot::axisLogarithmicChanged );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlot::axisSettingsChanged( const caf::SignalEmitter* emitter )
+{
+    updateAxes();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlot::axisLogarithmicChanged( const caf::SignalEmitter* emitter, bool isLogarithmic )
+{
+    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -573,8 +588,8 @@ void RimGridCrossPlot::updateAxes()
 {
     if ( !m_plotWidget ) return;
 
-    updateAxisInQwt( RiaDefines::PLOT_AXIS_BOTTOM );
-    updateAxisInQwt( RiaDefines::PLOT_AXIS_LEFT );
+    updateAxisInQwt( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
+    updateAxisInQwt( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
 
     m_plotWidget->updateAnnotationObjects( m_xAxisProperties );
     m_plotWidget->updateAnnotationObjects( m_yAxisProperties );
@@ -592,6 +607,7 @@ void RimGridCrossPlot::updatePlot()
         RiuQwtPlotTools::setCommonPlotBehaviour( m_plotWidget );
         RiuQwtPlotTools::setDefaultAxes( m_plotWidget );
 
+        updateFonts();
         updateAxes();
 
         for ( auto dataSet : m_crossPlotDataSets )
@@ -618,7 +634,7 @@ void RimGridCrossPlot::updateCurveNamesAndPlotTitle()
     {
         QString plotTitle = this->createAutoName();
         m_plotWidget->setPlotTitle( plotTitle );
-        m_plotWidget->setPlotTitleEnabled( isMdiWindow() );
+        m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && !isSubPlot() );
     }
     updateMdiWindowTitle();
 }
@@ -731,65 +747,6 @@ void RimGridCrossPlot::setYAxisInverted( bool inverted )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimGridCrossPlot::hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const
-{
-    if ( fontSettingType != RiaDefines::PLOT_FONT ) return false;
-
-    for ( auto plotAxis : allPlotAxes() )
-    {
-        if ( plotAxis->titleFontSize() != defaultFontSize || plotAxis->valuesFontSize() != defaultFontSize )
-        {
-            return true;
-        }
-    }
-
-    if ( legendFontSize() != defaultFontSize )
-    {
-        return true;
-    }
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimGridCrossPlot::applyFontSize( RiaDefines::FontSettingType fontSettingType,
-                                      int                         oldFontSize,
-                                      int                         fontSize,
-                                      bool                        forceChange /*= false*/ )
-{
-    bool anyChange = false;
-    if ( fontSettingType == RiaDefines::PLOT_FONT && m_plotWidget )
-    {
-        for ( auto plotAxis : allPlotAxes() )
-        {
-            if ( forceChange || plotAxis->titleFontSize() == oldFontSize )
-            {
-                plotAxis->setTitleFontSize( fontSize );
-                anyChange = true;
-            }
-            if ( forceChange || plotAxis->valuesFontSize() == oldFontSize )
-            {
-                plotAxis->setValuesFontSize( fontSize );
-                anyChange = true;
-            }
-        }
-
-        if ( forceChange || legendFontSize() == oldFontSize )
-        {
-            setLegendFontSize( fontSize );
-
-            anyChange = true;
-        }
-
-        if ( anyChange ) loadDataAndUpdate();
-    }
-    return anyChange;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::doUpdateLayout()
 {
     updateLegend();
@@ -803,7 +760,7 @@ void RimGridCrossPlot::updateLegend()
 {
     if ( m_plotWidget )
     {
-        m_plotWidget->setInternalQwtLegendVisible( legendsVisible() && isMdiWindow() );
+        m_plotWidget->setInternalQwtLegendVisible( legendsVisible() );
         m_plotWidget->setLegendFontSize( legendFontSize() );
         for ( auto dataSet : m_crossPlotDataSets )
         {
@@ -819,8 +776,8 @@ void RimGridCrossPlot::updateZoomInQwt()
 {
     if ( m_plotWidget )
     {
-        updateAxisInQwt( RiaDefines::PLOT_AXIS_LEFT );
-        updateAxisInQwt( RiaDefines::PLOT_AXIS_BOTTOM );
+        updateAxisInQwt( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
+        updateAxisInQwt( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
         m_plotWidget->updateAxes();
         updateZoomFromQwt();
         m_plotWidget->scheduleReplot();
@@ -832,8 +789,8 @@ void RimGridCrossPlot::updateZoomInQwt()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::updateZoomFromQwt()
 {
-    updateAxisFromQwt( RiaDefines::PLOT_AXIS_LEFT );
-    updateAxisFromQwt( RiaDefines::PLOT_AXIS_BOTTOM );
+    updateAxisFromQwt( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
+    updateAxisFromQwt( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -894,7 +851,7 @@ void RimGridCrossPlot::updateAxisInQwt( RiaDefines::PlotAxis axisType )
     RimPlotAxisProperties* axisProperties      = m_xAxisProperties();
     QString                axisParameterString = xAxisParameterString();
 
-    if ( axisType == RiaDefines::PLOT_AXIS_LEFT )
+    if ( axisType == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
     {
         axisProperties      = m_yAxisProperties();
         axisParameterString = yAxisParameterString();
@@ -912,8 +869,8 @@ void RimGridCrossPlot::updateAxisInQwt( RiaDefines::PlotAxis axisType )
             alignment = Qt::AlignRight;
         }
         m_plotWidget->setAxisFontsAndAlignment( qwtAxisId,
-                                                axisProperties->titleFontSize(),
-                                                axisProperties->valuesFontSize(),
+                                                caf::FontTools::pointSizeToPixelSize( axisProperties->titleFontSize() ),
+                                                caf::FontTools::pointSizeToPixelSize( axisProperties->valuesFontSize() ),
                                                 true,
                                                 alignment );
         m_plotWidget->setAxisTitleText( qwtAxisId, axisParameterString );
@@ -989,7 +946,7 @@ void RimGridCrossPlot::updateAxisFromQwt( RiaDefines::PlotAxis axisType )
     RimPlotAxisProperties* axisProperties = m_xAxisProperties();
     QwtInterval            axisRange      = xAxisRange;
 
-    if ( axisType == RiaDefines::PLOT_AXIS_LEFT )
+    if ( axisType == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
     {
         axisProperties = m_yAxisProperties();
         axisRange      = yAxisRange;
@@ -1079,6 +1036,16 @@ void RimGridCrossPlot::cleanupBeforeClose()
         delete m_plotWidget;
         m_plotWidget = nullptr;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGridCrossPlot::isDeletable() const
+{
+    RimMultiPlot* plotWindow = nullptr;
+    firstAncestorOrThisOfType( plotWindow );
+    return plotWindow == nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

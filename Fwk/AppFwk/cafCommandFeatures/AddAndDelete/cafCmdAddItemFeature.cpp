@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #include "cafCmdAddItemFeature.h"
 
 #include "cafCmdAddItemExec.h"
@@ -52,40 +51,37 @@
 
 #include <QAction>
 
-
-
 namespace caf
 {
-
-    CAF_CMD_SOURCE_INIT(CmdAddItemFeature, "PdmListField_AddItem");
+CAF_CMD_SOURCE_INIT( CmdAddItemFeature, "PdmListField_AddItem" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 CmdExecuteCommand* CmdAddItemFeature::createExecuteCommand()
 {
     caf::PdmChildArrayFieldHandle* childArrayFieldHandle = SelectionManager::instance()->activeChildArrayFieldHandle();
-    if (!childArrayFieldHandle) return nullptr;
-    
-    int indexAfter = -1;
-    CmdAddItemExec* addItemExec = new CmdAddItemExec(SelectionManager::instance()->notificationCenter());
+    if ( !childArrayFieldHandle ) return nullptr;
+
+    int             indexAfter  = -1;
+    CmdAddItemExec* addItemExec = new CmdAddItemExec( SelectionManager::instance()->notificationCenter() );
 
     CmdAddItemExecData* data = addItemExec->commandData();
-    data->m_rootObject = PdmReferenceHelper::findRoot(childArrayFieldHandle);
-    data->m_pathToField = PdmReferenceHelper::referenceFromRootToField(data->m_rootObject, childArrayFieldHandle);
-    data->m_indexAfter = indexAfter;
+    data->m_rootObject       = PdmReferenceHelper::findRoot( childArrayFieldHandle );
+    data->m_pathToField = PdmReferenceHelper::referenceFromRootToField( data->m_rootObject, childArrayFieldHandle );
+    data->m_indexAfter  = indexAfter;
 
     return addItemExec;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool CmdAddItemFeature::isCommandEnabled() 
+bool CmdAddItemFeature::isCommandEnabled()
 {
     caf::PdmChildArrayFieldHandle* childArrayFieldHandle = SelectionManager::instance()->activeChildArrayFieldHandle();
 
-    if (childArrayFieldHandle)
+    if ( childArrayFieldHandle )
     {
         return true;
     }
@@ -96,30 +92,30 @@ bool CmdAddItemFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void CmdAddItemFeature::onActionTriggered(bool isChecked)
+void CmdAddItemFeature::onActionTriggered( bool isChecked )
 {
-    if (isCommandEnabled())
+    if ( isCommandEnabled() )
     {
         CmdExecuteCommand* exeCmd = createExecuteCommand();
-        if (exeCmd)
+        if ( exeCmd )
         {
-            CmdExecCommandManager::instance()->processExecuteCommand(exeCmd);
+            CmdExecCommandManager::instance()->processExecuteCommand( exeCmd );
         }
         else
         {
-            CAF_ASSERT(0);
+            CAF_ASSERT( 0 );
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void CmdAddItemFeature::setupActionLook(QAction* actionToSetup)
+void CmdAddItemFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Add new object");
+    actionToSetup->setText( "Add new object" );
 }
 
 } // end namespace caf

@@ -41,10 +41,13 @@ public:
 
     void setCaseAndAddress( RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& address );
     void setEnsembleAndAddress( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& address );
+    void setCurveSelection( const std::vector<RiaSummaryCurveDefinition>& selection );
     std::vector<RiaSummaryCurveDefinition> curveSelection() const;
 
     void hideEnsembles();
     void hideSummaryCases();
+    void enableMultiSelect( bool enable );
+    void enableIndividualEnsembleCaseSelection( bool enable );
 
 private:
     RiuSummaryVectorSelectionUi* summaryAddressSelection() const;

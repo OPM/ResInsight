@@ -47,7 +47,7 @@ RiaImageFileCompare::~RiaImageFileCompare()
 void RiaImageFileCompare::reset()
 {
     m_imagesEqual  = false;
-    m_lastError    = IC_NO_ERROR;
+    m_lastError    = ErrorType::IC_NO_ERROR;
     m_errorMsg     = "";
     m_errorDetails = "";
 }
@@ -61,7 +61,7 @@ bool RiaImageFileCompare::runComparison( const QString& imgFileName, const QStri
 
     if ( m_compareExecutable.isEmpty() )
     {
-        m_lastError = SEVERE_ERROR;
+        m_lastError = ErrorType::SEVERE_ERROR;
         m_errorMsg  = "Cannot compare images, no compare executable set";
         return false;
     }
@@ -89,7 +89,7 @@ bool RiaImageFileCompare::runComparison( const QString& imgFileName, const QStri
     QProcess::ProcessError procError = proc.error();
     if ( procError != QProcess::UnknownError )
     {
-        m_lastError    = SEVERE_ERROR;
+        m_lastError    = ErrorType::SEVERE_ERROR;
         m_errorMsg     = "Error running compare tool process";
         m_errorDetails = completeCommand;
         return false;
@@ -111,7 +111,7 @@ bool RiaImageFileCompare::runComparison( const QString& imgFileName, const QStri
     else
     {
         // Report non-severe error
-        m_lastError    = IC_ERROR;
+        m_lastError    = ErrorType::IC_ERROR;
         m_errorMsg     = "Error running compare tool process";
         m_errorDetails = stdErr;
 

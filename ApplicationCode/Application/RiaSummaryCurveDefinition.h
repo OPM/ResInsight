@@ -37,7 +37,8 @@ public:
     RiaSummaryCurveDefinition();
     explicit RiaSummaryCurveDefinition( RimSummaryCase*                 summaryCase,
                                         const RifEclipseSummaryAddress& summaryAddress,
-                                        RimSummaryCaseCollection*       ensemble = nullptr );
+                                        bool                            isEnsembleCurve );
+    explicit RiaSummaryCurveDefinition( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& summaryAddress );
 
     RimSummaryCase*                 summaryCase() const;
     const RifEclipseSummaryAddress& summaryAddress() const;
@@ -55,8 +56,21 @@ public:
     static QString curveDefinitionText( const QString& caseName, const RifEclipseSummaryAddress& summaryAddress );
 
 private:
-private:
     RimSummaryCase*           m_summaryCase;
     RifEclipseSummaryAddress  m_summaryAddress;
     RimSummaryCaseCollection* m_ensemble;
+    bool                      m_isEnsembleCurve;
+};
+
+class RiaSummaryCurveDefinitionAnalyser
+{
+public:
+    RiaSummaryCurveDefinitionAnalyser() = default;
+    void setCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefs );
+
+    std::set<RimSummaryCase*>           m_singleSummaryCases; // All summary cases used
+    std::set<RimSummaryCaseCollection*> m_ensembles; // All the ensembles referenced by the summary cases
+
+    std::set<RifEclipseSummaryAddress> m_summaryItems; // Quantity name set to "", stores only the identifiers
+    std::set<std::string>              m_quantityNames; // Quantity names from the addresses
 };

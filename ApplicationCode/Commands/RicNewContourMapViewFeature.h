@@ -54,4 +54,6 @@ protected:
     static RimGeoMechContourMapView* createGeoMechContourMapFrom3dView( RimGeoMechCase*       geoMechCase,
                                                                         const RimGeoMechView* sourceView );
     static RimGeoMechContourMapView* createGeoMechContourMap( RimGeoMechCase* geoMechCase );
+
+    static void assignDefaultResultAndLegend( RimEclipseContourMapView* contourMap );
 };

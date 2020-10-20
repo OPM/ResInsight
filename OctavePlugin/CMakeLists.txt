@@ -108,21 +108,6 @@ else()
     SET(OCTAVE_QT_QTCORE_LIB            Qt5Core)
     SET(OCTAVE_QT_QTNETWORK_LIB         Qt5Network)
 
-  else()
-    message(STATUS "Compiling Octave plugins using system Qt4 - include path located at ${QT_QMAKE_EXECUTABLE}")
-
-    SET(OCTAVE_QT_QTCORE_INCLUDE_DIR    ${QT_QTCORE_INCLUDE_DIR})
-    SET(OCTAVE_QT_QTNETWORK_INCLUDE_DIR ${QT_QTNETWORK_INCLUDE_DIR})
-    SET(OCTAVE_QT_LIBRARY_DIR           ${QT_LIBRARY_DIR})
-
-   if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-     SET(OCTAVE_QT_QTCORE_LIB            QtCore4)
-     SET(OCTAVE_QT_QTNETWORK_LIB         QtNetwork4)
-   else()
-     SET(OCTAVE_QT_QTCORE_LIB            QtCore)
-     SET(OCTAVE_QT_QTNETWORK_LIB         QtNetwork)
-   endif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-
   endif(Qt5Core_FOUND)
 
 endif(RESINSIGHT_OCTAVE_PLUGIN_QT)

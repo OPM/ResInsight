@@ -19,7 +19,6 @@
 
 #include "RiuInterfaceToViewWindow.h"
 #include "RiuMultiPlotPage.h"
-#include "cafUiStyleSheet.h"
 
 #include "cafPdmPointer.h"
 #include "cafSelectionChangedReceiver.h"
@@ -67,19 +66,21 @@ public:
     void addPlot( RiuQwtPlotWidget* plotWidget );
     void insertPlot( RiuQwtPlotWidget* plotWidget, size_t index );
     void removePlot( RiuQwtPlotWidget* plotWidget );
+    void removeAllPlots();
 
     void setPlotTitle( const QString& plotTitle );
 
     void setTitleVisible( bool visible );
     void setSubTitlesVisible( bool visible );
 
-    void setFontSize( int fontSize );
-    int  fontSize() const;
+    void setTitleFontSizes( int titleFontSize, int subTitleFontSize );
+    void setLegendFontSize( int legendFontSize );
+    void setAxisFontSizes( int axisTitleFontSize, int axisValueFontSize );
 
     int indexOfPlotWidget( RiuQwtPlotWidget* plotWidget );
 
-    bool previewModeEnabled() const;
-    void setPreviewModeEnabled( bool previewMode );
+    bool pagePreviewModeEnabled() const;
+    void setPagePreviewModeEnabled( bool previewMode );
 
     void scheduleUpdate();
     void scheduleReplotOfAllPlots();
@@ -92,7 +93,8 @@ protected:
     void showEvent( QShowEvent* event ) override;
     void resizeEvent( QResizeEvent* event ) override;
 
-    void setBookSize( int frameWidth );
+    void applyPagePreviewBookSize( int frameWidth );
+    void applyBookSize( int frameWidth, int frameHeight );
 
     std::pair<int, int> rowAndColumnCount( int plotWidgetCount ) const;
 
@@ -105,7 +107,7 @@ private:
     void                                     createPages();
     const QList<QPointer<RiuMultiPlotPage>>& pages() const;
     RiuMultiPlotPage*                        createPage();
-
+    void                                     applyLook();
 private slots:
     virtual void performUpdate();
 

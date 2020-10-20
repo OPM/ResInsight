@@ -21,10 +21,10 @@
 
 #pragma once
 
-#include "RiaApplication.h"
 #include "RiaDefines.h"
 #include "RiaFontCache.h"
 #include "RiaGuiApplication.h"
+#include "RiaQDateTimeTools.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
@@ -50,16 +50,19 @@ class RiaPreferences : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum SummaryRestartFilesImportMode
+    using DateFormatComponents = RiaQDateTimeTools::DateFormatComponents;
+    using TimeFormatComponents = RiaQDateTimeTools::TimeFormatComponents;
+
+    enum class SummaryRestartFilesImportMode
     {
         IMPORT,
         NOT_IMPORT,
         SEPARATE_CASES
     };
     typedef caf::AppEnum<SummaryRestartFilesImportMode> SummaryRestartFilesImportModeType;
-    typedef RiaFontCache::FontSizeType                  FontSizeType;
+    typedef RiaFontCache::FontSizeEnum                  FontSizeEnum;
 
-    enum SummaryHistoryCurveStyleMode
+    enum class SummaryHistoryCurveStyleMode
     {
         SYMBOLS,
         LINES,
@@ -76,6 +79,8 @@ public:
     RiaPreferences( void );
     ~RiaPreferences( void ) override;
 
+    static RiaPreferences* current();
+
     QStringList tabNames();
 
     const RifReaderSettings* readerSettings() const;
@@ -90,9 +95,12 @@ public:
     QString holoLensExportFolder() const;
     bool    useShaders() const;
     bool    show3dInformation() const;
+    QString gtestFilter() const;
 
     const QString& dateFormat() const;
     const QString& timeFormat() const;
+    QString dateTimeFormat( DateFormatComponents dateComponents = DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY,
+                            TimeFormatComponents timeComponents = TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND ) const;
 
     bool        searchPlotTemplateFoldersRecursively() const;
     QStringList plotTemplateFolders() const;
@@ -104,17 +112,23 @@ public:
     bool        showProgressBar() const;
     bool        openExportedPdfInViewer() const;
 
+    RiaDefines::ThemeEnum guiTheme() const;
+
     std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> defaultFontSizes() const;
 
     void        writePreferencesToApplicationStore();
     QPageLayout defaultPageLayout() const;
     QMarginsF   margins() const;
 
+    double surfaceImportResamplingDistance() const;
+
     // 3D view
     RiaDefines::MeshModeType              defaultMeshModeType() const;
     RiaGuiApplication::RINavigationPolicy navigationPolicy() const;
     int                                   defaultScaleFactorZ() const;
     bool                                  showLegendBackground() const;
+    bool                                  showInfoBox() const;
+    bool                                  showGridBox() const;
 
 public: // Pdm Fields
     caf::PdmField<bool> enableGrpcServer;
@@ -137,10 +151,10 @@ public: // Pdm Fields
     caf::PdmField<cvf::Color3f> defaultWellLabelColor;
     caf::PdmField<bool>         showLasCurveWithoutTvdWarning;
 
-    caf::PdmField<FontSizeType> defaultSceneFontSize;
-    caf::PdmField<FontSizeType> defaultWellLabelFontSize;
-    caf::PdmField<FontSizeType> defaultAnnotationFontSize;
-    caf::PdmField<FontSizeType> defaultPlotFontSize;
+    caf::PdmField<FontSizeEnum> defaultSceneFontSize;
+    caf::PdmField<FontSizeEnum> defaultWellLabelFontSize;
+    caf::PdmField<FontSizeEnum> defaultAnnotationFontSize;
+    caf::PdmField<FontSizeEnum> defaultPlotFontSize;
 
     caf::PdmField<QString> lastUsedProjectFileName;
 
@@ -175,6 +189,7 @@ private:
     static QString tabNameScripting();
     static QString tabNameExport();
     static QString tabNameSystem();
+    static QString tabNameImport();
 
     static double defaultMarginSize( QPageSize::PageSizeId pageSizeId );
 
@@ -197,6 +212,9 @@ private:
     caf::PdmField<bool>    m_showSummaryTimeAsLongString;
     caf::PdmField<bool>    m_useMultipleThreadsWhenLoadingSummaryData;
     caf::PdmField<bool>    m_showProgressBar;
+    caf::PdmField<QString> m_gtestFilter;
+
+    caf::PdmField<caf::AppEnum<RiaDefines::ThemeEnum>> m_guiTheme;
 
     caf::PdmField<PageSizeEnum>        m_pageSize;
     caf::PdmField<PageOrientationEnum> m_pageOrientation;
@@ -210,17 +228,17 @@ private:
     caf::PdmField<bool>          m_searchPlotTemplateFoldersRecursively;
     caf::PdmField<caf::FilePath> m_defaultPlotTemplate;
 
+    // Surface Import
+    caf::PdmField<double> m_surfaceImportResamplingDistance;
+
     // 3d view
     caf::PdmField<caf::AppEnum<RiaDefines::MeshModeType>>              m_defaultMeshModeType;
     caf::PdmField<caf::AppEnum<RiaGuiApplication::RINavigationPolicy>> m_navigationPolicy;
     caf::PdmField<int>                                                 m_defaultScaleFactorZ;
     caf::PdmField<bool>                                                m_showLegendBackground;
     caf::PdmField<bool>                                                m_enableFaultsByDefault;
+    caf::PdmField<bool>                                                m_showInfoBox;
+    caf::PdmField<bool>                                                m_showGridBox;
 
     QStringList m_tabNames;
-
-    caf::PdmField<FontSizeType> m_defaultSceneFontSize_OBSOLETE;
-    caf::PdmField<FontSizeType> m_defaultWellLabelFontSize_OBSOLETE;
-    caf::PdmField<FontSizeType> m_defaultAnnotationFontSize_OBSOLETE;
-    caf::PdmField<FontSizeType> m_defaultPlotFontSize_OBSOLETE;
 };

@@ -39,6 +39,7 @@
 #include "RiuCadNavigation.h"
 #include "RiuComparisonViewMover.h"
 #include "RiuGeoQuestNavigation.h"
+#include "RiuGuiTheme.h"
 #include "RiuRmsNavigation.h"
 #include "RiuSimpleHistogramWidget.h"
 #include "RiuViewerCommands.h"
@@ -97,7 +98,9 @@ RiuViewer::RiuViewer( const QGLFormat& format, QWidget* parent )
 {
     cvf::Font* standardFont = RiaGuiApplication::instance()->defaultSceneFont();
     QFont      font         = RiaGuiApplication::instance()->font();
-    font.setPointSize( RiaGuiApplication::instance()->preferences()->defaultSceneFontSize() );
+
+    auto viewFontSize = RiaPreferences::current()->defaultSceneFontSize();
+    font.setPointSize( caf::FontTools::absolutePointSize( viewFontSize ) );
 
     m_axisCross = new cvf::OverlayAxisCross( m_mainCamera.p(), standardFont );
     m_axisCross->setAxisLabels( "X", "Y", "Z" );
@@ -135,6 +138,7 @@ RiuViewer::RiuViewer( const QGLFormat& format, QWidget* parent )
     m_versionInfoLabel = new QLabel();
     m_versionInfoLabel->setFrameShape( QFrame::NoFrame );
     m_versionInfoLabel->setAlignment( Qt::AlignRight );
+    m_versionInfoLabel->setObjectName( "VersionInfo" );
     m_versionInfoLabel->setText(
         QString( "%1 v%2" ).arg( RI_APPLICATION_NAME, RiaApplication::getVersionStringApp( false ) ) );
     m_versionInfoLabel->setFont( font );
@@ -144,6 +148,7 @@ RiuViewer::RiuViewer( const QGLFormat& format, QWidget* parent )
     m_zScaleLabel = new QLabel();
     m_zScaleLabel->setFrameShape( QFrame::NoFrame );
     m_zScaleLabel->setAlignment( Qt::AlignLeft );
+    m_zScaleLabel->setObjectName( "ZScaleLabel" );
     m_zScaleLabel->setText( QString( "Z: " ) );
     m_zScaleLabel->setFont( font );
     m_showZScaleLabel    = true;
@@ -199,6 +204,11 @@ RiuViewer::RiuViewer( const QGLFormat& format, QWidget* parent )
     m_windowEdgeAxisOverlay      = new RivWindowEdgeAxesOverlayItem( standardFont );
     m_showWindowEdgeAxes         = false;
 
+    auto backgroundColor = RiuGuiTheme::getColorByVariableName( "backgroundColor1" );
+    auto textColor       = RiuGuiTheme::getColorByVariableName( "textColor" );
+    m_windowEdgeAxisOverlay->setFrameColor( cvf::Color4f( RiaColorTools::fromQColorTo3f( backgroundColor ) ) );
+    m_windowEdgeAxisOverlay->setTextColor( RiaColorTools::fromQColorTo3f( textColor ) );
+
     m_selectionVisualizerManager = new caf::PdmUiSelection3dEditorVisualizer( this );
 
     m_scaleLegend = new caf::OverlayScaleLegend( standardFont );
@@ -206,6 +216,8 @@ RiuViewer::RiuViewer( const QGLFormat& format, QWidget* parent )
 
     m_comparisonWindowMover = new RiuComparisonViewMover( this );
     this->setComparisonViewToFollowAnimation( false );
+
+    m_fontPointSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultSceneFontSize() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -410,7 +422,7 @@ void RiuViewer::paintOverlayItems( QPainter* painter )
     bool showAnimBar = false;
     if ( isAnimationActive() && frameCount() > 1 ) showAnimBar = true;
 
-    if ( m_showInfoText ) columnWidth = CVF_MAX( columnWidth, m_infoLabel->sizeHint().width() );
+    if ( m_showInfoText ) columnWidth = std::max( columnWidth, m_infoLabel->sizeHint().width() );
 
     int columnPos = this->width() - columnWidth - margin - edgeAxisFrameBorderWidth;
 
@@ -715,7 +727,7 @@ void RiuViewer::addColorLegendToBottomLeftCorner( caf::TitledOverlayFrame* added
     addedLegend->enableBackground( preferences->showLegendBackground() );
     addedLegend->setBackgroundColor( backgroundColor );
     addedLegend->setBackgroundFrameColor( frameColor );
-    addedLegend->setFont( app->defaultSceneFont() );
+    addedLegend->setFont( app->sceneFont( m_fontPointSize ) );
 
     overlayRendering->addOverlayItem( addedLegend );
 
@@ -930,19 +942,19 @@ void RiuViewer::updateNavigationPolicy()
 {
     switch ( RiaGuiApplication::instance()->navigationPolicy() )
     {
-        case RiaGuiApplication::NAVIGATION_POLICY_CAD:
+        case RiaGuiApplication::RINavigationPolicy::NAVIGATION_POLICY_CAD:
             setNavigationPolicy( new RiuCadNavigation );
             break;
 
-        case RiaGuiApplication::NAVIGATION_POLICY_CEETRON:
+        case RiaGuiApplication::RINavigationPolicy::NAVIGATION_POLICY_CEETRON:
             setNavigationPolicy( new caf::CeetronPlusNavigation );
             break;
 
-        case RiaGuiApplication::NAVIGATION_POLICY_GEOQUEST:
+        case RiaGuiApplication::RINavigationPolicy::NAVIGATION_POLICY_GEOQUEST:
             setNavigationPolicy( new RiuGeoQuestNavigation );
             break;
 
-        case RiaGuiApplication::NAVIGATION_POLICY_RMS:
+        case RiaGuiApplication::RINavigationPolicy::NAVIGATION_POLICY_RMS:
             setNavigationPolicy( new RiuRmsNavigation );
             break;
 
@@ -1114,12 +1126,14 @@ void RiuViewer::leaveEvent( QEvent* )
 void RiuViewer::updateGridBoxData( double                  scaleZ,
                                    const cvf::Vec3d&       displayModelOffset,
                                    const cvf::Color3f&     backgroundColor,
-                                   const cvf::BoundingBox& domainCoordBoundingBox )
+                                   const cvf::BoundingBox& domainCoordBoundingBox,
+                                   int                     fontPointSize )
 {
     m_gridBoxGenerator->setScaleZ( scaleZ );
     m_gridBoxGenerator->setDisplayModelOffset( displayModelOffset );
     m_gridBoxGenerator->updateFromBackgroundColor( backgroundColor );
     m_gridBoxGenerator->setGridBoxDomainCoordBoundingBox( domainCoordBoundingBox );
+    m_gridBoxGenerator->setGridLabelFontSize( fontPointSize );
 
     m_gridBoxGenerator->createGridBoxParts();
 
@@ -1316,19 +1330,27 @@ void RiuViewer::clearHoverCursor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::updateFonts()
+void RiuViewer::updateFonts( int fontPointSize )
 {
-    cvf::Font* standardFont = RiaGuiApplication::instance()->defaultSceneFont();
+    m_fontPointSize = fontPointSize;
+
+    auto       defaultFontSize = RiaApplication::instance()->preferences()->defaultSceneFontSize();
+    cvf::Font* axisFont        = RiaGuiApplication::instance()->defaultSceneFont();
+    QFont      font            = QApplication::font();
+    font.setPixelSize( caf::FontTools::pointSizeToPixelSize( m_fontPointSize ) );
+
+    if ( caf::FontTools::absolutePointSize( defaultFontSize ) != m_fontPointSize )
+    {
+        axisFont = RiaFontCache::getFont( m_fontPointSize ).p();
+    }
+
     overlayItemsRendering()->removeOverlayItem( m_axisCross.p() );
 
-    m_axisCross = new cvf::OverlayAxisCross( m_mainCamera.p(), standardFont );
+    m_axisCross = new cvf::OverlayAxisCross( m_mainCamera.p(), axisFont );
     m_axisCross->setAxisLabels( "X", "Y", "Z" );
     m_axisCross->setLayout( cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_RIGHT );
     overlayItemsRendering()->addOverlayItem( m_axisCross.p() );
     m_showAxisCross = true;
-
-    QFont font = QApplication::font();
-    font.setPointSize( RiaApplication::instance()->preferences()->defaultSceneFontSize() );
 
     m_zScaleLabel->setFont( font );
     m_infoLabel->setFont( font );
@@ -1337,6 +1359,8 @@ void RiuViewer::updateFonts()
     m_animationProgress->setFont( font );
     m_animationProgressCompView->setFont( font );
     m_versionInfoLabel->setFont( font );
+
+    m_gridBoxGenerator->setGridLabelFontSize( m_fontPointSize );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1421,19 +1445,6 @@ void RiuViewer::updateOverlayItemsStyle()
         contrastColor        = RiaColorTools::toQColor( cvf_contrastColor );
     }
 
-    QPalette p = QApplication::palette();
-
-    p.setColor( QPalette::Window, backgroundColor );
-    p.setColor( QPalette::Base, backgroundColor );
-
-    p.setColor( QPalette::WindowText, contrastColor );
-
-    p.setColor( QPalette::Shadow, backgroundFrameColor );
-    p.setColor( QPalette::Light, backgroundFrameColor );
-    p.setColor( QPalette::Midlight, backgroundFrameColor );
-    p.setColor( QPalette::Dark, backgroundFrameColor );
-    p.setColor( QPalette::Mid, backgroundFrameColor );
-
     m_infoLabel->setStyleSheet( caf::StyleSheetTools::createFrameStyleSheet( "QLabel",
                                                                              "InfoLabel",
                                                                              contrastColor,
@@ -1449,15 +1460,15 @@ void RiuViewer::updateOverlayItemsStyle()
                                                                                           contrastColor,
                                                                                           backgroundColor,
                                                                                           backgroundFrameColor ) );
-    m_histogramWidget->setStyleSheet( caf::StyleSheetTools::createFrameStyleSheet( "",
+    m_versionInfoLabel->setStyleSheet(
+        caf::StyleSheetTools::createFrameStyleSheet( "QLabel", "VersionInfo", contrastColor, backgroundColor, backgroundColor ) );
+    m_zScaleLabel->setStyleSheet(
+        caf::StyleSheetTools::createFrameStyleSheet( "QLabel", "ZScaleLabel", contrastColor, backgroundColor, backgroundColor ) );
+    m_histogramWidget->setStyleSheet( caf::StyleSheetTools::createFrameStyleSheet( "QWidget",
                                                                                    "HistogramWidget",
                                                                                    contrastColor,
                                                                                    backgroundColor,
                                                                                    backgroundFrameColor ) );
-    m_histogramWidget->setPalette( p );
-
-    m_versionInfoLabel->setPalette( p );
-    m_zScaleLabel->setPalette( p );
 
     QColor progressColor( Qt::green );
     progressColor.setAlphaF( 0.8f );

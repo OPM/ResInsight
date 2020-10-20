@@ -40,43 +40,42 @@
 
 namespace caf
 {
-
 std::set<QPointer<PdmUiObjectEditorHandle>> PdmUiObjectEditorHandle::m_sRegisteredObjectEditors;
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmUiObjectEditorHandle::PdmUiObjectEditorHandle()
 {
-    m_sRegisteredObjectEditors.insert(this);
+    m_sRegisteredObjectEditors.insert( this );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmUiObjectEditorHandle::~PdmUiObjectEditorHandle()
 {
-    m_sRegisteredObjectEditors.erase(this);
+    m_sRegisteredObjectEditors.erase( this );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiObjectEditorHandle::setPdmObject(PdmObjectHandle* object)
+void PdmUiObjectEditorHandle::setPdmObject( PdmObjectHandle* object )
 {
     cleanupBeforeSettingPdmObject();
 
-    caf::PdmUiObjectHandle* uiObject = uiObj(object);
-    this->bindToPdmItem(uiObject);
+    caf::PdmUiObjectHandle* uiObject = uiObj( object );
+    this->bindToPdmItem( uiObject );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmObjectHandle* PdmUiObjectEditorHandle::pdmObject()
 {
-    PdmUiObjectHandle* uiObject = dynamic_cast<PdmUiObjectHandle*>(pdmItem());
-    if (uiObject)
+    PdmUiObjectHandle* uiObject = dynamic_cast<PdmUiObjectHandle*>( pdmItem() );
+    if ( uiObject )
     {
         return uiObject->objectHandle();
     }
@@ -87,14 +86,14 @@ PdmObjectHandle* PdmUiObjectEditorHandle::pdmObject()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const caf::PdmObjectHandle* PdmUiObjectEditorHandle::pdmObject() const
 {
     const PdmUiItem* pdmItem = this->pdmItem();
 
-    const PdmUiObjectHandle* uiObject = dynamic_cast<const PdmUiObjectHandle*>(pdmItem);
-    if (uiObject)
+    const PdmUiObjectHandle* uiObject = dynamic_cast<const PdmUiObjectHandle*>( pdmItem );
+    if ( uiObject )
     {
         return uiObject->objectHandle();
     }
@@ -110,14 +109,13 @@ const caf::PdmObjectHandle* PdmUiObjectEditorHandle::pdmObject() const
 //--------------------------------------------------------------------------------------------------
 void PdmUiObjectEditorHandle::updateUiAllObjectEditors()
 {
-    for (PdmUiObjectEditorHandle* objEditorHandle : m_sRegisteredObjectEditors)
+    for ( PdmUiObjectEditorHandle* objEditorHandle : m_sRegisteredObjectEditors )
     {
-        if (objEditorHandle != nullptr)
+        if ( objEditorHandle != nullptr )
         {
             objEditorHandle->updateUi();
         }
     }
 }
 
-} //End of namespace caf
-
+} // End of namespace caf

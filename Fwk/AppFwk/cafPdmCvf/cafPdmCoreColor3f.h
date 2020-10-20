@@ -44,9 +44,8 @@
 
 #include <QColor>
 
-namespace caf 
+namespace caf
 {
-
 //==================================================================================================
 /// Partial specialization for PdmValueFieldSpecialization< cvf::Color3f >
 //==================================================================================================
@@ -55,26 +54,25 @@ template <>
 class PdmValueFieldSpecialization<cvf::Color3f>
 {
 public:
-    static QVariant convert(const cvf::Color3f& value)
+    static QVariant convert( const cvf::Color3f& value )
     {
         QColor col;
-        col.setRgbF(value.r(), value.g(), value.b());
+        col.setRgbF( value.r(), value.g(), value.b() );
 
         return col;
     }
 
-    static void setFromVariant(const QVariant& variantValue, cvf::Color3f& value)
+    static void setFromVariant( const QVariant& variantValue, cvf::Color3f& value )
     {
         QColor col = variantValue.value<QColor>();
 
-        value.set(col.redF(), col.greenF(), col.blueF());
+        value.set( col.redF(), col.greenF(), col.blueF() );
     }
 
-    static bool isEqual(const QVariant& variantValue, const QVariant& variantValue2)
+    static bool isEqual( const QVariant& variantValue, const QVariant& variantValue2 )
     {
         return variantValue == variantValue2;
     }
 };
-
 
 } // end namespace caf

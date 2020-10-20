@@ -33,7 +33,7 @@ CAF_CMD_SOURCE_INIT( RicReloadPlotTemplatesFeature, "RicReloadPlotTemplatesFeatu
 //--------------------------------------------------------------------------------------------------
 void RicReloadPlotTemplatesFeature::rebuildFromDisc()
 {
-    RimProject*     proj  = RiaApplication::instance()->project();
+    RimProject*     proj  = RimProject::current();
     RiaPreferences* prefs = RiaApplication::instance()->preferences();
 
     proj->setPlotTemplateFolders( prefs->plotTemplateFolders() );

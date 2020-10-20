@@ -19,8 +19,6 @@
 
 #include "RimExtrudedCurveIntersection.h"
 
-#include "RiaApplication.h"
-
 #include "RigEclipseCaseData.h"
 #include "RigWellPath.h"
 
@@ -128,6 +126,8 @@ RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
     inputTwoAzimuthPointsFromViewerEnabled = false;
 
     uiCapability()->setUiTreeChildrenHidden( true );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -348,7 +348,7 @@ QList<caf::PdmOptionItemInfo>
         {
             caf::PdmChildArrayField<RimSimWellInView*>& simWells = coll->wells;
 
-            caf::QIconProvider simWellIcon( ":/Well.png" );
+            caf::IconProvider simWellIcon( ":/Well.png" );
             for ( RimSimWellInView* eclWell : simWells )
             {
                 options.push_back( caf::PdmOptionItemInfo( eclWell->name(), eclWell, false, simWellIcon ) );
@@ -703,9 +703,11 @@ void RimExtrudedCurveIntersection::setPushButtonText( bool buttonEnable, caf::Pd
 //--------------------------------------------------------------------------------------------------
 void RimExtrudedCurveIntersection::setBaseColor( bool enable, caf::PdmUiListEditorAttribute* attribute )
 {
-    if ( attribute && enable )
+    // if ( attribute && enable )
+    if ( attribute )
     {
-        attribute->m_baseColor.setRgb( 255, 220, 255 );
+        attribute->m_qssState = enable ? "ExternalInput" : QString();
+        // attribute->m_baseColor.setRgb( 255, 220, 255 );
     }
 }
 

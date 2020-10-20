@@ -19,6 +19,10 @@
 
 #include "RimWellLogFileCurve.h"
 
+#include "RiaApplication.h"
+#include "RiaLogging.h"
+#include "RiaPreferences.h"
+
 #include "RigWellLogCurveData.h"
 #include "RigWellPath.h"
 
@@ -36,14 +40,9 @@
 #include "RiuQwtPlotCurve.h"
 #include "RiuQwtPlotWidget.h"
 
-#include "RiaApplication.h"
-#include "RiaLogging.h"
-#include "RiaPreferences.h"
-
 #include "cafPdmUiTreeOrdering.h"
 
 #include <QFileInfo>
-#include <QMessageBox>
 
 CAF_PDM_SOURCE_INIT( RimWellLogFileCurve, "WellLogFileCurve" );
 
@@ -52,7 +51,7 @@ CAF_PDM_SOURCE_INIT( RimWellLogFileCurve, "WellLogFileCurve" );
 //--------------------------------------------------------------------------------------------------
 RimWellLogFileCurve::RimWellLogFileCurve()
 {
-    CAF_PDM_InitObject( "Well Log File Curve", "", "", "" );
+    CAF_PDM_InitObject( "Well Log File Curve", RimWellLogCurve::wellLogCurveIconName(), "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_wellPath, "CurveWellPath", "Well Path", "", "", "" );
     m_wellPath.uiCapability()->setUiTreeChildrenHidden( true );
@@ -125,15 +124,15 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 std::map<RiaDefines::DepthTypeEnum, std::vector<double>> validDepths;
                 if ( values.size() == measuredDepthValues.size() )
                 {
-                    validDepths.insert( std::make_pair( RiaDefines::MEASURED_DEPTH, measuredDepthValues ) );
+                    validDepths.insert( std::make_pair( RiaDefines::DepthTypeEnum::MEASURED_DEPTH, measuredDepthValues ) );
                 }
                 if ( values.size() == tvdMslValues.size() )
                 {
-                    validDepths.insert( std::make_pair( RiaDefines::TRUE_VERTICAL_DEPTH, tvdMslValues ) );
+                    validDepths.insert( std::make_pair( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH, tvdMslValues ) );
                 }
                 if ( values.size() == tvdRkbValues.size() )
                 {
-                    validDepths.insert( std::make_pair( RiaDefines::TRUE_VERTICAL_DEPTH_RKB, tvdRkbValues ) );
+                    validDepths.insert( std::make_pair( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB, tvdRkbValues ) );
                 }
 
                 this->setValuesAndDepths( values, validDepths, rkbDiff, wellLogFile->depthUnit(), false );
@@ -155,7 +154,7 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     tmp += "Control display of this warning from \"Preferences->Show LAS curve without TVD "
                            "warning\"";
 
-                    QMessageBox::warning( nullptr, "LAS curve without current depth type", tmp );
+                    RiaLogging::errorInMessageBox( nullptr, "LAS curve without current depth type", tmp );
                 }
             }
 
@@ -165,13 +164,13 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
             }
         }
 
-        RiaDefines::DepthUnitType displayUnit = RiaDefines::UNIT_METER;
+        RiaDefines::DepthUnitType displayUnit = RiaDefines::DepthUnitType::UNIT_METER;
         if ( wellLogPlot )
         {
             displayUnit = wellLogPlot->depthUnit();
         }
 
-        RiaDefines::DepthTypeEnum depthType = RiaDefines::MEASURED_DEPTH;
+        RiaDefines::DepthTypeEnum depthType = RiaDefines::DepthTypeEnum::MEASURED_DEPTH;
         if ( wellLogPlot && this->curveData()->availableDepthTypes().count( wellLogPlot->depthType() ) )
         {
             depthType = wellLogPlot->depthType();
@@ -261,6 +260,9 @@ void RimWellLogFileCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     curveDataGroup->add( &m_wellPath );
     curveDataGroup->add( &m_wellLogFile );
     curveDataGroup->add( &m_wellLogChannelName );
+
+    caf::PdmUiGroup* stackingGroup = uiOrdering.addNewGroup( "Stacking" );
+    RimStackablePlotCurve::stackingUiOrdering( *stackingGroup );
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup( "Appearance" );
     RimPlotCurve::appearanceUiOrdering( *appearanceGroup );

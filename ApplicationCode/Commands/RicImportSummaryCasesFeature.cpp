@@ -51,8 +51,7 @@
 #include "cafSelectionManagerTools.h"
 
 #include <QAction>
-#include <QFileDialog>
-#include <QMessageBox>
+#include <QFileInfo>
 
 CAF_CMD_SOURCE_INIT( RicImportSummaryCasesFeature, "RicImportSummaryCasesFeature" );
 
@@ -171,7 +170,8 @@ bool RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles( const QStr
 //--------------------------------------------------------------------------------------------------
 bool RicImportSummaryCasesFeature::createSummaryCasesFromFiles( const QStringList&            fileNames,
                                                                 std::vector<RimSummaryCase*>* newCases,
-                                                                bool                          ensembleOrGroup )
+                                                                bool                          ensembleOrGroup,
+                                                                bool                          allowDialogs )
 {
     RiaApplication* app  = RiaApplication::instance();
     RimProject*     proj = app->project();
@@ -184,7 +184,7 @@ bool RicImportSummaryCasesFeature::createSummaryCasesFromFiles( const QStringLis
 
     RifSummaryCaseRestartSelector fileSelector;
 
-    if ( !RiaGuiApplication::isRunning() )
+    if ( !RiaGuiApplication::isRunning() || !allowDialogs )
     {
         fileSelector.showDialog( false );
     }

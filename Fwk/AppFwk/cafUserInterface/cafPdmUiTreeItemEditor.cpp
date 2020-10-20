@@ -34,32 +34,29 @@
 //
 //##################################################################################################
 
-
 #include "cafPdmUiTreeItemEditor.h"
 #include "cafPdmUiTreeEditorHandle.h"
 
 namespace caf
 {
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmUiTreeItemEditor::PdmUiTreeItemEditor( PdmUiItem* uiItem )
+{
+    m_treeViewEditor = nullptr;
+    this->bindToPdmItem( uiItem );
+}
 
-    //--------------------------------------------------------------------------------------------------
-    /// 
-    //--------------------------------------------------------------------------------------------------
-    PdmUiTreeItemEditor::PdmUiTreeItemEditor(PdmUiItem* uiItem) 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeItemEditor::configureAndUpdateUi( const QString& uiConfigName )
+{
+    if ( m_treeViewEditor )
     {
-        m_treeViewEditor = nullptr; 
-        this->bindToPdmItem(uiItem);
+        m_treeViewEditor->updateSubTree( this->pdmItem() );
     }
+}
 
-    //--------------------------------------------------------------------------------------------------
-    /// 
-    //--------------------------------------------------------------------------------------------------
-    void PdmUiTreeItemEditor::configureAndUpdateUi(const QString& uiConfigName)
-    {
-        if (m_treeViewEditor)
-        {
-            m_treeViewEditor->updateSubTree(this->pdmItem());
-        }
-    }
-
-} //End of namespace caf
-
+} // End of namespace caf

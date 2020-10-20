@@ -33,11 +33,12 @@ class QwtPlot;
 class RiuPlotAnnotationTool
 {
 public:
-    enum RegionAnnotationType
+    enum class RegionAnnotationType
     {
         NO_ANNOTATIONS        = 0,
         FORMATION_ANNOTATIONS = 1,
         // Used to have Wbs-parameter coding as 2
+        RESULT_PROPERTY_ANNOTATIONS = 3
     };
     enum RegionDisplay
     {
@@ -47,7 +48,7 @@ public:
         COLOR_SHADING_AND_LINES = 0x05,
         LIGHT_LINES             = 0x08,
     };
-    enum TrackSpan
+    enum class TrackSpan
     {
         FULL_WIDTH,
         LEFT_COLUMN,
@@ -67,7 +68,7 @@ public:
                              const caf::ColorTable&                        colorTable,
                              int                                           shadingAlphaByte,
                              bool                                          showNames   = true,
-                             TrackSpan                                     trackSpan   = FULL_WIDTH,
+                             TrackSpan                                     trackSpan   = TrackSpan::FULL_WIDTH,
                              const std::vector<Qt::BrushStyle>&            brushStyles = {} );
     void attachWellPicks( QwtPlot* plot, const std::vector<QString>& names, const std::vector<double>& yPositions );
 

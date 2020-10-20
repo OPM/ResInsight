@@ -35,6 +35,7 @@
 //--------------------------------------------------------------------------------------------------
 std::vector<WellPathCellIntersectionInfo>
     RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath( const RigEclipseCaseData*      caseData,
+                                                                      const QString&                 wellPathName,
                                                                       const std::vector<cvf::Vec3d>& pathCoords,
                                                                       const std::vector<double>&     pathMds )
 {
@@ -46,10 +47,10 @@ std::vector<WellPathCellIntersectionInfo>
     dummyWellPath->m_wellPathPoints     = pathCoords;
     dummyWellPath->m_measuredDepths     = pathMds;
 
+    std::string errorIdName = ( wellPathName + " " + caseData->ownerCase()->caseUserDescription() ).toStdString();
+
     cvf::ref<RigEclipseWellLogExtractor> extractor =
-        new RigEclipseWellLogExtractor( caseData,
-                                        dummyWellPath.p(),
-                                        caseData->ownerCase()->caseUserDescription().toStdString() );
+        new RigEclipseWellLogExtractor( caseData, dummyWellPath.p(), errorIdName );
 
     return extractor->cellIntersectionInfosAlongWellPath();
 }
@@ -149,4 +150,84 @@ cvf::Vec3d RigWellPathIntersectionTools::calculateLengthInCell( const RigMainGri
     grid->cellCornerVertices( cellIndex, hexCorners.data() );
 
     return calculateLengthInCell( hexCorners, startPoint, endPoint );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<WellPathCellIntersectionInfo> RigWellPathIntersectionTools::buildContinuousIntersections(
+    const std::vector<WellPathCellIntersectionInfo>& originalIntersections,
+    const cvf::StructGridInterface*                  grid )
+{
+    std::vector<WellPathCellIntersectionInfo> intersectionsNoGap;
+
+    for ( size_t i = 0; i < originalIntersections.size() - 1; i++ )
+    {
+        const WellPathCellIntersectionInfo& current = originalIntersections[i];
+        const WellPathCellIntersectionInfo& next    = originalIntersections[i + 1];
+
+        double distance           = std::fabs( current.endMD - next.startMD );
+        double gapInGridThreshold = 0.1;
+        if ( distance > gapInGridThreshold )
+        {
+            WellPathCellIntersectionInfo extraIntersection;
+
+            bool showDebugInfo = false;
+            if ( showDebugInfo )
+            {
+                QString ijkTextCurrent;
+                {
+                    size_t i = 0, j = 0, k = 0;
+                    if ( grid )
+                    {
+                        grid->ijkFromCellIndex( current.globCellIndex, &i, &j, &k );
+                    }
+                    ijkTextCurrent = QString( "(%1 %2 %3)" ).arg( i + 1 ).arg( j + 1 ).arg( k + 1 );
+                }
+                QString ijkTextNext;
+                {
+                    size_t i = 0, j = 0, k = 0;
+                    if ( grid )
+                    {
+                        grid->ijkFromCellIndex( next.globCellIndex, &i, &j, &k );
+                    }
+                    ijkTextNext = QString( "(%1 %2 %3)" ).arg( i + 1 ).arg( j + 1 ).arg( k + 1 );
+                }
+
+                QString text = QString( "Gap detected : Distance diff : %1, epsilon = %2\n Global Cell Index 1 : %3, "
+                                        "IJK=%4, endMD : %5\n Global Cell Index 2 : %6, IJK=%7, startMD : %8" )
+                                   .arg( distance )
+                                   .arg( gapInGridThreshold )
+                                   .arg( current.globCellIndex )
+                                   .arg( ijkTextCurrent )
+                                   .arg( current.endMD )
+                                   .arg( next.globCellIndex )
+                                   .arg( ijkTextNext )
+                                   .arg( next.startMD );
+
+                RiaLogging::info( text );
+            }
+
+            extraIntersection.globCellIndex = std::numeric_limits<size_t>::max();
+            extraIntersection.startPoint    = current.endPoint;
+            extraIntersection.endPoint      = next.startPoint;
+            extraIntersection.startMD       = current.endMD;
+            extraIntersection.endMD         = next.startMD;
+            extraIntersection.intersectedCellFaceIn =
+                cvf::StructGridInterface::oppositeFace( current.intersectedCellFaceOut );
+            extraIntersection.intersectedCellFaceOut = cvf::StructGridInterface::oppositeFace( next.intersectedCellFaceIn );
+            extraIntersection.intersectionLengthsInCellCS = cvf::Vec3d::ZERO;
+
+            intersectionsNoGap.push_back( extraIntersection );
+        }
+
+        intersectionsNoGap.push_back( current );
+    }
+
+    if ( !originalIntersections.empty() )
+    {
+        intersectionsNoGap.push_back( originalIntersections.back() );
+    }
+
+    return intersectionsNoGap;
 }

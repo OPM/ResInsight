@@ -18,7 +18,6 @@
 
 #include "RimFractureTemplateCollection.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "RigStatisticsMath.h"
@@ -55,7 +54,7 @@ RimFractureTemplateCollection::RimFractureTemplateCollection()
 
     CAF_PDM_InitField( &m_defaultUnitsForFracTemplates,
                        "DefaultUnitForTemplates",
-                       caf::AppEnum<RiaEclipseUnitTools::UnitSystem>( RiaEclipseUnitTools::UNITS_METRIC ),
+                       caf::AppEnum<RiaEclipseUnitTools::UnitSystem>( RiaEclipseUnitTools::UnitSystem::UNITS_METRIC ),
                        "Default unit system for fracture templates",
                        "",
                        "",
@@ -139,10 +138,10 @@ RiaEclipseUnitTools::UnitSystemType RimFractureTemplateCollection::defaultUnitSy
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplateCollection::setDefaultUnitSystemBasedOnLoadedCases()
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
 
     auto commonUnitSystem = proj->commonUnitSystemForAllCases();
-    if ( commonUnitSystem != RiaEclipseUnitTools::UNITS_UNKNOWN )
+    if ( commonUnitSystem != RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN )
     {
         m_defaultUnitsForFracTemplates = commonUnitSystem;
     }
@@ -242,14 +241,14 @@ void RimFractureTemplateCollection::createAndAssignTemplateCopyForNonMatchingUni
                                 caf::PdmDefaultObjectFactory::instance() ) );
 
                         auto currentUnit = fractureTemplate->fractureTemplateUnit();
-                        auto neededUnit  = RiaEclipseUnitTools::UNITS_UNKNOWN;
-                        if ( currentUnit == RiaEclipseUnitTools::UNITS_METRIC )
+                        auto neededUnit  = RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
+                        if ( currentUnit == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
                         {
-                            neededUnit = RiaEclipseUnitTools::UNITS_FIELD;
+                            neededUnit = RiaEclipseUnitTools::UnitSystem::UNITS_FIELD;
                         }
-                        else if ( currentUnit == RiaEclipseUnitTools::UNITS_FIELD )
+                        else if ( currentUnit == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
                         {
-                            neededUnit = RiaEclipseUnitTools::UNITS_METRIC;
+                            neededUnit = RiaEclipseUnitTools::UnitSystem::UNITS_METRIC;
                         }
 
                         templateWithMatchingUnit->convertToUnitSystem( neededUnit );
@@ -406,7 +405,7 @@ void RimFractureTemplateCollection::initAfterRead()
             else
             {
                 bool anySetShowStimPlanMeshIsSetToFalse = false;
-                for ( templateIt; templateIt != stimPlanFractureTemplatesInView.end(); templateIt++ )
+                for ( ; templateIt != stimPlanFractureTemplatesInView.end(); templateIt++ )
                 {
                     if ( templateIt->first->showStimPlanMesh() == false )
                     {
@@ -436,4 +435,28 @@ int RimFractureTemplateCollection::nextFractureTemplateId()
     m_nextValidFractureTemplateId = m_nextValidFractureTemplateId + 1;
 
     return newId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureTemplateCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                                    std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    RimProject* proj = nullptr;
+    firstAncestorOrThisOfType( proj );
+    if ( proj )
+    {
+        proj->scheduleCreateDisplayModelAndRedrawAllViews();
+    }
+
+    std::vector<Rim3dView*> views;
+    proj->allVisibleViews( views );
+    for ( Rim3dView* visibleView : views )
+    {
+        if ( dynamic_cast<RimEclipseView*>( visibleView ) )
+        {
+            visibleView->updateConnectedEditors();
+        }
+    }
 }

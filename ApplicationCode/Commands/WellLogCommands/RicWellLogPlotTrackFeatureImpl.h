@@ -21,6 +21,7 @@
 
 #include <vector>
 
+class RimWellLogPlot;
 class RimWellLogTrack;
 class RimWellLogCurve;
 
@@ -32,5 +33,8 @@ class RicWellLogPlotTrackFeatureImpl
 public:
     static void moveCurvesToWellLogPlotTrack( RimWellLogTrack*                     dstTrack,
                                               const std::vector<RimWellLogCurve*>& curves,
-                                              RimWellLogCurve*                     insertAfterCurve );
+                                              int                                  insertAtPosition );
+    static void moveTracksToWellLogPlot( RimWellLogPlot*                      wellLogPlot,
+                                         const std::vector<RimWellLogTrack*>& tracks,
+                                         int                                  insertAtPosition );
 };

@@ -66,6 +66,18 @@ void RimPropertyFilterCollection::updateDisplayModelNotifyManagedViews( RimPrope
     view->scheduleCreateDisplayModelAndRedraw();
 }
 
+void RimPropertyFilterCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                                  std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    Rim3dView* view = nullptr;
+    this->firstAncestorOrThisOfType( view );
+    CVF_ASSERT( view );
+    if ( !view ) return;
+
+    view->scheduleGeometryRegen( PROPERTY_FILTERED );
+    view->scheduleCreateDisplayModelAndRedraw();
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------

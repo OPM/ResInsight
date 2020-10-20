@@ -80,6 +80,9 @@ public:
 
     void markForCachePurge( const RifEclipseSummaryAddress& address ) override;
 
+    static std::string       differenceIdentifier() { return "_DIFF"; }
+    static const std::string historyIdentifier() { return "H"; }
+
 private:
     int                timeStepCount() const;
     int                indexFromAddress( const RifEclipseSummaryAddress& resultAddress ) const;
@@ -100,6 +103,8 @@ private:
     std::map<RifEclipseSummaryAddress, int> m_resultAddressToErtNodeIdx;
 
     QStringList m_warnings;
+
+    std::set<RifEclipseSummaryAddress> m_differenceAddresses;
 
     //==================================================================================================
     //

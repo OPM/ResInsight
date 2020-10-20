@@ -51,8 +51,8 @@
 
 #include "cafDisplayCoordTransform.h"
 #include "cafFrameAnimationControl.h"
-#include "cafPdmFieldIOScriptability.h"
-#include "cafPdmFieldIOScriptabilityCvfColor3.h"
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmFieldScriptingCapabilityCvfColor3.h"
 
 #include "cvfCamera.h"
 #include "cvfModelBasicList.h"
@@ -90,11 +90,11 @@ Rim3dView::Rim3dView( void )
 
     CAF_PDM_InitObject( "3d View", "", "", "" );
 
-    CAF_PDM_InitScriptableFieldWithIO( &m_id, "Id", -1, "View ID", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_id, "Id", -1, "View ID", "", "", "" );
     m_id.registerKeywordAlias( "ViewId" );
     m_id.uiCapability()->setUiReadOnly( true );
     m_id.uiCapability()->setUiHidden( true );
-    m_id.capability<caf::PdmFieldScriptability>()->setIOWriteable( false );
+    m_id.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
     m_id.xmlCapability()->setCopyable( false );
 
     CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "", "", "", "" );
@@ -109,19 +109,19 @@ Rim3dView::Rim3dView( void )
     CAF_PDM_InitField( &m_cameraPointOfInterest, "CameraPointOfInterest", cvf::Vec3d::ZERO, "", "", "", "" );
     m_cameraPointOfInterest.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitScriptableFieldWithIO( &isPerspectiveView, "PerspectiveProjection", true, "Perspective Projection", "", "", "" );
+    CAF_PDM_InitScriptableField( &isPerspectiveView, "PerspectiveProjection", true, "Perspective Projection", "", "", "" );
 
     double defaultScaleFactor = preferences->defaultScaleFactorZ();
-    CAF_PDM_InitScriptableFieldWithIO( &scaleZ,
-                                       "GridZScale",
-                                       defaultScaleFactor,
-                                       "Z Scale",
-                                       "",
-                                       "Scales the scene in the Z direction",
-                                       "" );
+    CAF_PDM_InitScriptableField( &scaleZ,
+                                 "GridZScale",
+                                 defaultScaleFactor,
+                                 "Z Scale",
+                                 "",
+                                 "Scales the scene in the Z direction",
+                                 "" );
 
     cvf::Color3f defBackgColor = preferences->defaultViewerBackgroundColor();
-    CAF_PDM_InitScriptableFieldWithIO( &m_backgroundColor, "BackgroundColor", defBackgColor, "Background", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_backgroundColor, "BackgroundColor", defBackgColor, "Background", "", "", "" );
     m_backgroundColor.registerKeywordAlias( "ViewBackgroundColor" );
 
     CAF_PDM_InitField( &maximumFrameRate, "MaximumFrameRate", 10, "Maximum Frame Rate", "", "", "" );
@@ -129,26 +129,34 @@ Rim3dView::Rim3dView( void )
     CAF_PDM_InitField( &hasUserRequestedAnimation, "AnimationMode", false, "Animation Mode", "", "", "" );
     hasUserRequestedAnimation.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitScriptableFieldWithIO( &m_currentTimeStep, "CurrentTimeStep", 0, "Current Time Step", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_currentTimeStep, "CurrentTimeStep", 0, "Current Time Step", "", "", "" );
     m_currentTimeStep.uiCapability()->setUiHidden( true );
 
     caf::AppEnum<RiaDefines::MeshModeType> defaultMeshType = preferences->defaultMeshModeType();
     CAF_PDM_InitField( &meshMode, "MeshMode", defaultMeshType, "Grid Lines", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &surfaceMode, "SurfaceMode", "Grid Surface", "", "", "" );
 
-    CAF_PDM_InitScriptableFieldWithIO( &m_showGridBox, "ShowGridBox", true, "Show Grid Box", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_showGridBox,
+                                 "ShowGridBox",
+                                 RiaPreferences::current()->showGridBox(),
+                                 "Show Grid Box",
+                                 "",
+                                 "",
+                                 "" );
 
-    CAF_PDM_InitScriptableFieldWithIO( &m_disableLighting,
-                                       "DisableLighting",
-                                       false,
-                                       "Disable Results Lighting",
-                                       "",
-                                       "Disable light model for scalar result colors",
-                                       "" );
+    CAF_PDM_InitScriptableField( &m_disableLighting,
+                                 "DisableLighting",
+                                 false,
+                                 "Disable Results Lighting",
+                                 "",
+                                 "Disable light model for scalar result colors",
+                                 "" );
 
-    CAF_PDM_InitScriptableFieldWithIO( &m_showZScaleLabel, "ShowZScale", true, "Show Z Scale Label", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_showZScaleLabel, "ShowZScale", true, "Show Z Scale Label", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_comparisonView, "ComparisonView", "Comparison View", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_fontSize, "FontSize", "Font Size", "", "", "" );
 
     m_intersectionVizModel = new cvf::ModelBasicList;
     m_intersectionVizModel->setName( "CrossSectionModel" );
@@ -349,7 +357,7 @@ void Rim3dView::assignIdIfNecessary()
 {
     if ( m_id == -1 )
     {
-        RiaApplication::instance()->project()->assignViewIdToView( this );
+        RimProject::current()->assignViewIdToView( this );
     }
 }
 
@@ -385,6 +393,7 @@ void Rim3dView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOr
 {
     caf::PdmUiGroup* viewGroup = uiOrdering.addNewGroupWithKeyword( "Viewer", "ViewGroup" );
 
+    viewGroup->add( &m_fontSize );
     viewGroup->add( &m_backgroundColor );
     viewGroup->add( &m_showZScaleLabel );
     viewGroup->add( &m_showGridBox );
@@ -513,7 +522,11 @@ size_t Rim3dView::timeStepCount()
 //--------------------------------------------------------------------------------------------------
 QString Rim3dView::timeStepName( int frameIdx ) const
 {
-    return this->ownerCase()->timeStepName( frameIdx );
+    if ( this->ownerCase() )
+    {
+        return this->ownerCase()->timeStepName( frameIdx );
+    }
+    return QString( "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -529,7 +542,7 @@ void Rim3dView::setCurrentTimeStep( int frameIndex )
     if ( m_currentTimeStep != oldTimeStep )
     {
         RiuTimeStepChangedHandler::instance()->handleTimeStepChanged( this );
-        this->onClearReservoirCellVisibilitiesIfNeccessary();
+        this->onClearReservoirCellVisibilitiesIfNecessary();
     }
 
     this->hasUserRequestedAnimation = true;
@@ -737,7 +750,7 @@ void Rim3dView::setupBeforeSave()
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::setMeshOnlyDrawstyle()
 {
-    meshMode.setValueWithFieldChanged( RiaDefines::FULL_MESH );
+    meshMode.setValueWithFieldChanged( RiaDefines::MeshModeType::FULL_MESH );
     surfaceMode.setValueWithFieldChanged( NO_SURFACE );
 }
 
@@ -747,7 +760,7 @@ void Rim3dView::setMeshOnlyDrawstyle()
 void Rim3dView::setMeshSurfDrawstyle()
 {
     surfaceMode.setValueWithFieldChanged( SURFACE );
-    meshMode.setValueWithFieldChanged( RiaDefines::FULL_MESH );
+    meshMode.setValueWithFieldChanged( RiaDefines::MeshModeType::FULL_MESH );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -756,7 +769,7 @@ void Rim3dView::setMeshSurfDrawstyle()
 void Rim3dView::setFaultMeshSurfDrawstyle()
 {
     surfaceMode.setValueWithFieldChanged( SURFACE );
-    meshMode.setValueWithFieldChanged( RiaDefines::FAULTS_MESH );
+    meshMode.setValueWithFieldChanged( RiaDefines::MeshModeType::FAULTS_MESH );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -765,7 +778,7 @@ void Rim3dView::setFaultMeshSurfDrawstyle()
 void Rim3dView::setSurfOnlyDrawstyle()
 {
     surfaceMode.setValueWithFieldChanged( SURFACE );
-    meshMode.setValueWithFieldChanged( RiaDefines::NO_MESH );
+    meshMode.setValueWithFieldChanged( RiaDefines::MeshModeType::NO_MESH );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -876,9 +889,19 @@ void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const
             m_viewer->update();
         }
     }
-    else if ( changedField == &m_backgroundColor )
+    else if ( changedField == &m_backgroundColor || changedField == &m_fontSize )
     {
+        if ( changedField == &m_fontSize )
+        {
+            std::vector<caf::FontHolderInterface*> fontHolderChildren;
+            descendantsOfType( fontHolderChildren );
+            for ( auto fontHolder : fontHolderChildren )
+            {
+                fontHolder->updateFonts();
+            }
+        }
         this->applyBackgroundColorAndFontChanges();
+        this->updateConnectedEditors();
     }
     else if ( changedField == &maximumFrameRate )
     {
@@ -974,7 +997,7 @@ void Rim3dView::addMeasurementToModel( cvf::ModelBasicList* measureModel )
 {
     if ( !this->ownerCase() ) return;
 
-    RimMeasurement* measurement = RiaApplication::instance()->project()->measurement();
+    RimMeasurement* measurement = RimProject::current()->measurement();
 
     if ( !measurement || measurement->pointsInDomainCoords().empty() )
     {
@@ -996,7 +1019,7 @@ void Rim3dView::addMeasurementToModel( cvf::ModelBasicList* measureModel )
 
 //--------------------------------------------------------------------------------------------------
 ///
-//--------------------------------------------------------------------------------------------------
+//---------------------------------------------------- ----------------------------------------------
 bool Rim3dView::isMasterView() const
 {
     RimViewLinker* viewLinker = this->assosiatedViewLinker();
@@ -1040,7 +1063,11 @@ void Rim3dView::updateGridBoxData()
             }
         }
 
-        viewer()->updateGridBoxData( scaleZ(), ownerCase()->displayModelOffset(), backgroundColor(), combinedDomainBBox );
+        viewer()->updateGridBoxData( scaleZ(),
+                                     ownerCase()->displayModelOffset(),
+                                     backgroundColor(),
+                                     combinedDomainBBox,
+                                     fontSize() );
     }
 }
 
@@ -1053,6 +1080,14 @@ void Rim3dView::updateAnnotationItems()
     {
         nativeOrOverrideViewer()->updateAnnotationItems();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::resetLegends()
+{
+    onResetLegendsInViewer();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1204,11 +1239,30 @@ void Rim3dView::applyBackgroundColorAndFontChanges()
     if ( viewer() != nullptr )
     {
         viewer()->mainCamera()->viewport()->setClearColor( cvf::Color4f( backgroundColor() ) );
-        viewer()->updateFonts();
+        viewer()->updateFonts( fontSize() );
     }
     updateGridBoxData();
     updateAnnotationItems();
+    updateConnectedEditors();
+
     onUpdateLegends();
+    this->scheduleCreateDisplayModelAndRedraw();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int Rim3dView::fontSize() const
+{
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultSceneFontSize(), m_fontSize() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::updateFonts()
+{
+    applyBackgroundColorAndFontChanges();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1236,7 +1290,7 @@ void Rim3dView::updateDisplayModelVisibility()
 
     // Initialize the mask to show everything except the the bits controlled here
     unsigned int mask = 0xffffffff & ~uintSurfaceBit & ~uintFaultBit & ~uintMeshSurfaceBit & ~uintMeshFaultBit &
-                        ~intersectionCellFaceBit & ~intersectionCellMeshBit & ~intersectionFaultMeshBit;
+                        ~uintIntersectionCellFaceBit & ~uintIntersectionCellMeshBit & ~uintIntersectionFaultMeshBit;
 
     // Then turn the appropriate bits on according to the user settings
 
@@ -1252,14 +1306,14 @@ void Rim3dView::updateDisplayModelVisibility()
         mask |= intersectionCellFaceBit;
     }
 
-    if ( meshMode == RiaDefines::FULL_MESH )
+    if ( meshMode == RiaDefines::MeshModeType::FULL_MESH )
     {
         mask |= uintMeshSurfaceBit;
         mask |= uintMeshFaultBit;
         mask |= intersectionCellMeshBit;
         mask |= intersectionFaultMeshBit;
     }
-    else if ( meshMode == RiaDefines::FAULTS_MESH )
+    else if ( meshMode == RiaDefines::MeshModeType::FAULTS_MESH )
     {
         mask |= uintMeshFaultBit;
         mask |= intersectionFaultMeshBit;
@@ -1314,30 +1368,6 @@ cvf::ref<caf::DisplayCoordTransform> Rim3dView::displayCoordTransform() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool Rim3dView::hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const
-{
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool Rim3dView::applyFontSize( RiaDefines::FontSettingType fontSettingType,
-                               int                         oldFontSize,
-                               int                         fontSize,
-                               bool                        forceChange /*= false*/ )
-{
-    if ( fontSettingType == RiaDefines::SCENE_FONT )
-    {
-        applyBackgroundColorAndFontChanges();
-        return true;
-    }
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> Rim3dView::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                 bool*                      useOptionsOnly )
 {
@@ -1364,6 +1394,10 @@ QList<caf::PdmOptionItemInfo> Rim3dView::calculateValueOptions( const caf::PdmFi
                 options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
             }
         }
+    }
+    else if ( fieldNeedingOptions == &m_fontSize )
+    {
+        options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultSceneFontSize() );
     }
 
     return options;

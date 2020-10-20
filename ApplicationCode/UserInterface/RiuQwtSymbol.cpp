@@ -19,11 +19,13 @@
 
 #include "RiuQwtSymbol.h"
 
+#include "RiaColorTools.h"
 #include "RiaFontCache.h"
 
 #include "cvfAssert.h"
 
 #include <QPainter>
+#include <QPainterPath>
 
 //--------------------------------------------------------------------------------------------------
 /// Internal class to support labels on symbols
@@ -32,7 +34,7 @@ RiuQwtSymbol::RiuQwtSymbol( PointSymbolEnum riuStyle, const QString& label, Labe
     : QwtSymbol( QwtSymbol::NoSymbol )
     , m_globalLabel( label )
     , m_labelPosition( labelPosition )
-    , m_labelFontSizePx( RiaFontCache::pointSizeToPixelSize( labelFontSizePt ) )
+    , m_labelFontSizePx( caf::FontTools::pointSizeToPixelSize( labelFontSizePt ) )
 {
     QwtSymbol::Style style = QwtSymbol::NoSymbol;
 
@@ -156,6 +158,7 @@ void RiuQwtSymbol::renderSymbolLabel( QPainter* painter, const QPointF& position
     QFont font = painter->font();
     font.setPixelSize( m_labelFontSizePx );
     painter->setFont( font );
+    painter->setPen( RiaColorTools::textColor() );
 
     QSize symbolSize = QwtSymbol::size();
     QRect symbolRect( position.x(), position.y(), symbolSize.width(), symbolSize.height() );

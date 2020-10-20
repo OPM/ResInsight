@@ -241,15 +241,15 @@ QString RigWellLogFile::wellLogChannelUnitString( const QString&            well
     {
         if ( displayDepthUnit != depthUnit() )
         {
-            if ( displayDepthUnit == RiaDefines::UNIT_METER )
+            if ( displayDepthUnit == RiaDefines::DepthUnitType::UNIT_METER )
             {
                 return "M";
             }
-            else if ( displayDepthUnit == RiaDefines::UNIT_FEET )
+            else if ( displayDepthUnit == RiaDefines::DepthUnitType::UNIT_FEET )
             {
                 return "FT";
             }
-            else if ( displayDepthUnit == RiaDefines::UNIT_NONE )
+            else if ( displayDepthUnit == RiaDefines::DepthUnitType::UNIT_NONE )
             {
                 CVF_ASSERT( false );
                 return "";
@@ -296,11 +296,11 @@ bool RigWellLogFile::hasTvdRkbChannel() const
 //--------------------------------------------------------------------------------------------------
 RiaDefines::DepthUnitType RigWellLogFile::depthUnit() const
 {
-    RiaDefines::DepthUnitType unitType = RiaDefines::UNIT_METER;
+    RiaDefines::DepthUnitType unitType = RiaDefines::DepthUnitType::UNIT_METER;
 
     if ( depthUnitString().toUpper() == "F" || depthUnitString().toUpper() == "FT" )
     {
-        unitType = RiaDefines::UNIT_FEET;
+        unitType = RiaDefines::DepthUnitType::UNIT_FEET;
     }
 
     return unitType;

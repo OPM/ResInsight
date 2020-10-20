@@ -54,9 +54,11 @@ private:
 
 private:
     RiuSummaryQuantityNameInfoProvider();
-    void populateFieldToInfoMap();
 
     RiuSummaryQuantityInfo quantityInfo( const std::string& quantity ) const;
+
+    static std::map<std::string, RiuSummaryQuantityInfo> createInfoForEclipseKeywords();
+    static std::map<std::string, RiuSummaryQuantityInfo> createInfoFor6xKeywords();
 
 private:
     std::map<std::string, RiuSummaryQuantityInfo> m_summaryToDescMap;

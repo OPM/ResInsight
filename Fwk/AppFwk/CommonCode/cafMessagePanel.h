@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include <QWidget>
@@ -42,12 +41,11 @@
 class QDockWidget;
 class QTextEdit;
 
-namespace caf {
-
-
+namespace caf
+{
 //==================================================================================================
 //
-// 
+//
 //
 //==================================================================================================
 class MessagePanel : public QWidget
@@ -55,24 +53,24 @@ class MessagePanel : public QWidget
     Q_OBJECT
 
 public:
-    explicit MessagePanel(QDockWidget* parent);
-    
+    explicit MessagePanel( QDockWidget* parent );
+
     static MessagePanel* instance();
 
-    void            showInfo(QString info);
-    void            showWarning(QString warn);
-    void            showError(QString error);
+    void showInfo( QString info );
+    void showWarning( QString warn );
+    void showError( QString error );
 
-    QSize    sizeHint () const override;
-    bool            isVisibleToUser();
-
-private:
-    static void            convertStringToHTML(QString* str);
+    QSize sizeHint() const override;
+    bool  isVisibleToUser();
 
 private:
-    static MessagePanel*    sm_messagePanelInstance;
-    
-    QTextEdit*        m_textEdit;
+    static void convertStringToHTML( QString* str );
+
+private:
+    static MessagePanel* sm_messagePanelInstance;
+
+    QTextEdit* m_textEdit;
 };
 
-}
+} // namespace caf

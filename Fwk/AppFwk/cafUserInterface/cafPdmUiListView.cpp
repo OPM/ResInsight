@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #include "cafPdmUiListView.h"
 
 #include "cafPdmObjectGroup.h"
@@ -43,50 +42,45 @@
 
 #include <QHBoxLayout>
 
-
 namespace caf
 {
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-PdmUiListView::PdmUiListView(QWidget* parent, Qt::WindowFlags f)
-    : QWidget (parent, f)
+PdmUiListView::PdmUiListView( QWidget* parent, Qt::WindowFlags f )
+    : QWidget( parent, f )
 {
-    m_layout = new QVBoxLayout(this);
-    m_layout->insertStretch(1, 1);
-    m_layout->setContentsMargins(0, 0, 0, 0);
-    m_layout->setSpacing(0);
+    m_layout = new QVBoxLayout( this );
+    m_layout->insertStretch( 1, 1 );
+    m_layout->setContentsMargins( 0, 0, 0, 0 );
+    m_layout->setSpacing( 0 );
 
-    setLayout(m_layout);
+    setLayout( m_layout );
 
     m_listViewEditor = new PdmUiListViewEditor();
 
-    QWidget* widget = m_listViewEditor->getOrCreateWidget(this);
-    m_layout->addWidget(widget);
+    QWidget* widget = m_listViewEditor->getOrCreateWidget( this );
+    m_layout->addWidget( widget );
 
-    this->m_layout->setStretchFactor(widget, 10);
+    this->m_layout->setStretchFactor( widget, 10 );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmUiListView::~PdmUiListView()
 {
-    if (m_listViewEditor) delete m_listViewEditor;
+    if ( m_listViewEditor ) delete m_listViewEditor;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiListView::setPdmObject(caf::PdmObjectCollection* object)
+void PdmUiListView::setPdmObject( caf::PdmObjectCollection* object )
 {
-    CAF_ASSERT(m_listViewEditor);
+    CAF_ASSERT( m_listViewEditor );
 
-    m_listViewEditor->setPdmObject(object);
+    m_listViewEditor->setPdmObject( object );
 }
 
-
-} //End of namespace caf
-
+} // End of namespace caf

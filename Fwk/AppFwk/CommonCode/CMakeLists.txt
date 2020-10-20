@@ -18,15 +18,9 @@ set( MOC_HEADER_FILES
     cafMessagePanel.h
     )
 
-if (CEE_USE_QT5)
-	find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets OpenGL)
-	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)
-	qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )	
-else()
-    find_package(Qt4 COMPONENTS QtCore QtGui QtMain QtOpenGl REQUIRED)
-    include(${QT_USE_FILE})
-	qt4_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
-endif(CEE_USE_QT5)
+find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets OpenGL)
+set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)
+qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )	
 
 add_library( ${PROJECT_NAME}
 	cafEffectCache.cpp
@@ -81,11 +75,3 @@ if (MSVC)
 endif() 
 
 source_group("" FILES ${PROJECT_FILES})
-
-# cotire
-if (COMMAND caf_apply_cotire)
-  list(APPEND CAF_COTIRE_EXCLUDE_FILES
-      cafEffectGenerator.cpp
-  )
-  caf_apply_cotire("${PROJECT_NAME}")
-endif()

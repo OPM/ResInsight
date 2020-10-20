@@ -34,63 +34,60 @@
 //
 //##################################################################################################
 
-
 #include "cafPdmUiEditorHandle.h"
 
 namespace caf
 {
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-PdmUiEditorHandle::PdmUiEditorHandle() 
-    : m_pdmItem(nullptr)
-    , m_isConfiguringUi(false)
+PdmUiEditorHandle::PdmUiEditorHandle()
+    : m_pdmItem( nullptr )
+    , m_isConfiguringUi( false )
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmUiEditorHandle::~PdmUiEditorHandle()
 {
-    if (m_pdmItem) m_pdmItem->removeFieldEditor(this);
+    if ( m_pdmItem ) m_pdmItem->removeFieldEditor( this );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiEditorHandle::updateUi(const QString& uiConfigName)
+void PdmUiEditorHandle::updateUi( const QString& uiConfigName )
 {
-    CAF_ASSERT(!m_isConfiguringUi);
-    m_isConfiguringUi = true;
+    CAF_ASSERT( !m_isConfiguringUi );
+    m_isConfiguringUi   = true;
     m_currentConfigName = uiConfigName;
-    this->configureAndUpdateUi(uiConfigName);
+    this->configureAndUpdateUi( uiConfigName );
     m_isConfiguringUi = false;
 
     emit uiUpdated();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmUiEditorHandle::updateUi()
 {
-    CAF_ASSERT(!m_isConfiguringUi);
+    CAF_ASSERT( !m_isConfiguringUi );
     m_isConfiguringUi = true;
-    this->configureAndUpdateUi(m_currentConfigName);
+    this->configureAndUpdateUi( m_currentConfigName );
     m_isConfiguringUi = false;
 
     emit uiUpdated();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmUiEditorHandle* PdmUiEditorHandle::topMostContainingEditor()
 {
-    if (m_containingEditor)
+    if ( m_containingEditor )
     {
         return m_containingEditor->topMostContainingEditor();
     }
@@ -99,15 +96,13 @@ PdmUiEditorHandle* PdmUiEditorHandle::topMostContainingEditor()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiEditorHandle::bindToPdmItem(PdmUiItem* item)
+void PdmUiEditorHandle::bindToPdmItem( PdmUiItem* item )
 {
-    if (m_pdmItem) m_pdmItem->removeFieldEditor(this);
-    m_pdmItem = item; 
-    if (m_pdmItem) m_pdmItem->addFieldEditor(this);
+    if ( m_pdmItem ) m_pdmItem->removeFieldEditor( this );
+    m_pdmItem = item;
+    if ( m_pdmItem ) m_pdmItem->addFieldEditor( this );
 }
 
-
-} //End of namespace caf
-
+} // End of namespace caf

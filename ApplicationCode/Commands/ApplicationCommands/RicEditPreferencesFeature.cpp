@@ -20,6 +20,7 @@
 
 #include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
+#include "RimProject.h"
 
 #include "RiuPropertyViewTabWidget.h"
 
@@ -38,6 +39,20 @@ bool RicEditPreferencesFeature::isCommandEnabled()
     return true;
 }
 
+std::vector<caf::FontHolderInterface*> findFontObjects()
+{
+    auto                                   project = RimProject::current();
+    std::vector<caf::FontHolderInterface*> allFontObjects;
+    project->descendantsIncludingThisOfType( allFontObjects );
+
+    std::vector<caf::FontHolderInterface*> defaultFontObjects;
+    for ( auto fontObject : allFontObjects )
+    {
+        defaultFontObjects.push_back( fontObject );
+    }
+    return defaultFontObjects;
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -49,6 +64,8 @@ void RicEditPreferencesFeature::onActionTriggered( bool isChecked )
 
     QStringList tabNames = app->preferences()->tabNames();
 
+    auto defaultFontObjects = findFontObjects();
+
     std::unique_ptr<RiaPreferences> oldPreferences = clonePreferences( app->preferences() );
 
     RiuPropertyViewTabWidget propertyDialog( nullptr, app->preferences(), "Preferences", tabNames );
@@ -57,7 +74,7 @@ void RicEditPreferencesFeature::onActionTriggered( bool isChecked )
     {
         // Write preferences using QSettings  and apply them to the application
         app->applyPreferences();
-        app->applyGuiPreferences( oldPreferences.get() );
+        app->applyGuiPreferences( oldPreferences.get(), defaultFontObjects );
         app->updateGrpcServer();
     }
     else

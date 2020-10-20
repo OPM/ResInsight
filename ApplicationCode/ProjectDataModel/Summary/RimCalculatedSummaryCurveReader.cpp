@@ -108,5 +108,5 @@ RimSummaryCalculation*
 //--------------------------------------------------------------------------------------------------
 RiaEclipseUnitTools::UnitSystem RifCalculatedSummaryCurveReader::unitSystem() const
 {
-    return RiaEclipseUnitTools::UNITS_UNKNOWN;
+    return RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
 }

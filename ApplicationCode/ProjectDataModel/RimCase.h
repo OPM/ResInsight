@@ -81,6 +81,8 @@ public:
 
     Rim2dIntersectionViewCollection* intersectionViewCollection();
 
+    caf::Signal<> settingsChanged;
+
 protected:
     QList<caf::PdmOptionItemInfo>   calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                            bool*                      useOptionsOnly ) override;

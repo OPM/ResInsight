@@ -18,6 +18,6 @@ setup(
     url='http://www.resinsight.org',
     license=license,
     packages=['rips'],
-    package_data={'rips': ['*.py', 'generated/*.py', 'PythonExamples/*.py', 'tests/*.py']}
+    package_data={'rips': ['*.py', 'generated/*.py', 'PythonExamples/*.py', 'tests/*.py']},
     install_requires=['grpcio>=1.20.0']
 )

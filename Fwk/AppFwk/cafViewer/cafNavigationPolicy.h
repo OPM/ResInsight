@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cvfAssert.h"
@@ -44,34 +43,34 @@
 
 #include <QPointer>
 
-namespace caf {
-    class Viewer;
+namespace caf
+{
+class Viewer;
 }
 
 class QInputEvent;
 
 namespace caf
 {
-
-class NavigationPolicy : public cvf::Object  
+class NavigationPolicy : public cvf::Object
 {
 public:
     NavigationPolicy();
     ~NavigationPolicy() override;
-    
-    friend class Viewer;
-public: // protected: // Should be protected but this friending does not work on gcc 4.1.2
 
+    friend class Viewer;
+
+public: // protected: // Should be protected but this friending does not work on gcc 4.1.2
     // Interface to be implement by subclass
-    virtual void         init() {};
-    virtual bool         handleInputEvent(QInputEvent* inputEvent) = 0;
-    virtual void         setView( const cvf::Vec3d& alongDirection, const cvf::Vec3d& upDirection ) = 0;
-    virtual cvf::Vec3d   pointOfInterest(); 
-    virtual void         setPointOfInterest(cvf::Vec3d poi) = 0;
+    virtual void       init(){};
+    virtual bool       handleInputEvent( QInputEvent* inputEvent )                                = 0;
+    virtual void       setView( const cvf::Vec3d& alongDirection, const cvf::Vec3d& upDirection ) = 0;
+    virtual cvf::Vec3d pointOfInterest();
+    virtual void       setPointOfInterest( cvf::Vec3d poi ) = 0;
 
     // Interface used by caf::ViewerBase
-    void                 setViewer(Viewer* viewer);
-    QPointer<Viewer>     m_viewer;
+    void             setViewer( Viewer* viewer );
+    QPointer<Viewer> m_viewer;
 };
 
 } // End namespace caf

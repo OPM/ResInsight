@@ -33,6 +33,7 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 
+#include "RiuFileDialogTools.h"
 #include "RiuPlotMainWindowTools.h"
 
 #include "cafPdmObject.h"
@@ -40,9 +41,7 @@
 
 #include <QAction>
 #include <QDir>
-#include <QFileDialog>
 #include <QFileInfo>
-#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT( RicImportObservedFmuDataFeature, "RicImportObservedFmuDataFeature" );
 
@@ -53,10 +52,9 @@ void RicImportObservedFmuDataFeature::selectObservedDataPathInDialog()
 {
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( "SUMMARY_CASE_DIR" );
-    QString         directory  = QFileDialog::getExistingDirectory( nullptr,
-                                                           "Import Observed FMU Data Recursively from Directory",
-                                                           defaultDir,
-                                                           QFileDialog::ShowDirsOnly );
+    QString         directory  = RiuFileDialogTools::getExistingDirectory( nullptr,
+                                                                  "Import Observed FMU Data Recursively from Directory",
+                                                                  defaultDir );
 
     QStringList subDirsWithFmuData = RifReaderFmuRft::findSubDirectoriesWithFmuRftData( directory );
     if ( subDirsWithFmuData.empty() )
@@ -66,13 +64,7 @@ void RicImportObservedFmuDataFeature::selectObservedDataPathInDialog()
                               .arg( RifReaderFmuRft::wellPathFileName() )
                               .arg( directory );
 
-        RiaGuiApplication* guiApp = RiaGuiApplication::instance();
-        if ( guiApp )
-        {
-            QMessageBox::warning( nullptr, "Import of Observed FMU Data", message );
-        }
-
-        RiaLogging::warning( message );
+        RiaLogging::errorInMessageBox( nullptr, "Import of Observed FMU Data", message );
 
         return;
     }

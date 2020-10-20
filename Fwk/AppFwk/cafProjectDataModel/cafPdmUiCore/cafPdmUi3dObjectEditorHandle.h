@@ -39,14 +39,13 @@
 
 #include "cafFactory.h"
 
-#include <QWidget>
 #include <QPointer>
+#include <QWidget>
 
-// PdmUiObjectEditorHandle -<| PdmUiWidgetObjectEditorHandle --<| PdmUiFormLayoutObjectEditor 
+// PdmUiObjectEditorHandle -<| PdmUiWidgetObjectEditorHandle --<| PdmUiFormLayoutObjectEditor
 //                         -<| PdmUi3dObjectEditorHandle
 namespace caf
 {
-
 //==================================================================================================
 /// Macros helping in development of PDM UI 3d editors
 //==================================================================================================
@@ -55,15 +54,15 @@ namespace caf
 /// Place this in the header file inside the class definition of your PdmUiEditor
 
 #define CAF_PDM_UI_3D_OBJECT_EDITOR_HEADER_INIT \
-public: \
+public:                                         \
     static QString uiEditorTypeName()
 
-/// CAF_PDM_UI_3D_OBJECT_EDITOR_SOURCE_INIT  implements editorTypeName() and registers the field editor in the field editor factory
-/// Place this in the cpp file, preferably above the constructor
+/// CAF_PDM_UI_3D_OBJECT_EDITOR_SOURCE_INIT  implements editorTypeName() and registers the field editor in the field
+/// editor factory Place this in the cpp file, preferably above the constructor
 
-#define CAF_PDM_UI_3D_OBJECT_EDITOR_SOURCE_INIT(EditorClassName) \
+#define CAF_PDM_UI_3D_OBJECT_EDITOR_SOURCE_INIT( EditorClassName )           \
     QString EditorClassName::uiEditorTypeName() { return #EditorClassName; } \
-    CAF_FACTORY_REGISTER(caf::PdmUi3dObjectEditorHandle, EditorClassName, QString, EditorClassName::uiEditorTypeName())
+    CAF_FACTORY_REGISTER( caf::PdmUi3dObjectEditorHandle, EditorClassName, QString, EditorClassName::uiEditorTypeName() )
 
 //==================================================================================================
 /// Abstract class for 3D editors editing complete PdmObjects
@@ -75,16 +74,15 @@ public:
     PdmUi3dObjectEditorHandle();
     ~PdmUi3dObjectEditorHandle() override;
 
-    void setViewer(QWidget* ownerViewer, bool isInComparisonView);
+    void setViewer( QWidget* ownerViewer, bool isInComparisonView );
 
 protected:
-    QWidget* ownerViewer() const { return m_ownerViewer;}
+    QWidget* ownerViewer() const { return m_ownerViewer; }
     bool     isInComparisonView() const { return m_isInComparisonView; }
 
 private:
-    QPointer<QWidget>  m_ownerViewer;
-    bool               m_isInComparisonView;
+    QPointer<QWidget> m_ownerViewer;
+    bool              m_isInComparisonView;
 };
 
-}
-
+} // namespace caf

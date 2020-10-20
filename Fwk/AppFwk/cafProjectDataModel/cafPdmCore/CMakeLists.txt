@@ -8,16 +8,8 @@ if (CAF_ENABLE_UNITY_BUILD)
   set(CMAKE_UNITY_BUILD true)
 endif()
 
-# Qt
-option(CEE_USE_QT5 "Use Qt 5 instead of Qt 4" true) 
-
-if (CEE_USE_QT5)
-	find_package(Qt5 COMPONENTS REQUIRED Core)
-	set(QT_LIBRARIES Qt5::Core)
-else()
-    find_package(Qt4 COMPONENTS QtCore REQUIRED)
-    include(${QT_USE_FILE})
-endif(CEE_USE_QT5)
+find_package(Qt5 COMPONENTS REQUIRED Core)
+set(QT_LIBRARIES Qt5::Core)
 
 set( PROJECT_FILES
 
@@ -36,6 +28,8 @@ set( PROJECT_FILES
     cafPdmFieldHandle.cpp
     cafPdmFieldHandle.h
     cafPdmObjectCapability.h
+    cafPdmFieldReorderCapability.cpp
+    cafPdmFieldReorderCapability.h
     cafPdmObjectHandle.cpp
     cafPdmObjectHandle.h
     cafPdmPointer.cpp
@@ -54,6 +48,9 @@ set( PROJECT_FILES
 
     cafNotificationCenter.cpp
     cafNotificationCenter.h
+
+    cafSignal.h
+    cafSignal.cpp
 
     cafTristate.cpp
     cafTristate.h
@@ -81,8 +78,3 @@ if (MSVC)
 endif()
 
 source_group("" FILES ${PROJECT_FILES})
-
-# cotire
-if (COMMAND caf_apply_cotire)
-  caf_apply_cotire("${PROJECT_NAME}")
-endif()

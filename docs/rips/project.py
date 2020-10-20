@@ -384,3 +384,4 @@ def import_formation_names(self, formation_files=None):
 
     self._execute_command(importFormationNames=Cmd.ImportFormationNamesRequest(formationFiles=formation_files,
                                                                                applyToCaseId=-1))
+

@@ -42,7 +42,6 @@ public:
                                     RiaDefines::DepthTypeEnum  depthType,
                                     const std::vector<double>& depthValues,
                                     const std::vector<double>& flowRates );
-    void updateStackedPlotData();
 
     RimEclipseResultCase* rimCase();
     int                   timeStep();
@@ -61,6 +60,7 @@ protected:
     void    updateCurveAppearance() override;
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
     bool                   isUsingConnectionNumberDepthType() const;

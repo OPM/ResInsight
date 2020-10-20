@@ -36,7 +36,7 @@ class RimSummaryCase_summaryVectorValues : public caf::PdmObjectMethod
 public:
     RimSummaryCase_summaryVectorValues( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute();
+    caf::PdmObjectHandle*            execute() override;
     bool                             resultIsPersistent() const override;
     std::unique_ptr<PdmObjectHandle> defaultResult() const override;
 
@@ -54,7 +54,7 @@ class RimSummaryCase_availableAddresses : public caf::PdmObjectMethod
 public:
     RimSummaryCase_availableAddresses( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute();
+    caf::PdmObjectHandle*            execute() override;
     bool                             resultIsPersistent() const override;
     std::unique_ptr<PdmObjectHandle> defaultResult() const override;
 };
@@ -69,7 +69,7 @@ class RimSummaryCase_availableTimeSteps : public caf::PdmObjectMethod
 public:
     RimSummaryCase_availableTimeSteps( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute();
+    caf::PdmObjectHandle*            execute() override;
     bool                             resultIsPersistent() const override;
     std::unique_ptr<PdmObjectHandle> defaultResult() const override;
 };
@@ -84,7 +84,7 @@ class RimSummaryCase_resampleValues : public caf::PdmObjectMethod
 public:
     RimSummaryCase_resampleValues( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute();
+    caf::PdmObjectHandle*            execute() override;
     bool                             resultIsPersistent() const override;
     std::unique_ptr<PdmObjectHandle> defaultResult() const override;
 

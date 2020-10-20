@@ -34,38 +34,37 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafPdmUiFieldEditorHandle.h"
 
-#include <QString>
-#include <QWidget>
-#include <QPointer>
-#include <QLineEdit>
-#include <QToolButton>
 #include <QLabel>
+#include <QLineEdit>
+#include <QPointer>
+#include <QString>
+#include <QToolButton>
+#include <QWidget>
 
 class QGridLayout;
 
-namespace caf 
+namespace caf
 {
-
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class PdmUiFilePathEditorAttribute : public PdmUiEditorAttribute
 {
 public:
     PdmUiFilePathEditorAttribute()
     {
-        m_selectSaveFileName = false;
-        m_fileSelectionFilter = "All files (*.*)";
-        m_defaultPath = QString();
-        m_selectDirectory = false;
+        m_selectSaveFileName           = false;
+        m_fileSelectionFilter          = "All files (*.*)";
+        m_defaultPath                  = QString();
+        m_selectDirectory              = false;
         m_appendUiSelectedFolderToText = false;
-        m_multipleItemSeparator = ';';
+        m_multipleItemSeparator        = ';';
     }
+
 public:
     bool    m_selectSaveFileName;
     QString m_fileSelectionFilter;
@@ -76,9 +75,8 @@ public:
     QChar   m_multipleItemSeparator;
 };
 
-
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class PdmUiFilePathEditor : public PdmUiFieldEditorHandle
 {
@@ -86,17 +84,17 @@ class PdmUiFilePathEditor : public PdmUiFieldEditorHandle
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiFilePathEditor()          {} 
-    ~PdmUiFilePathEditor() override {} 
+    PdmUiFilePathEditor() {}
+    ~PdmUiFilePathEditor() override {}
 
 protected:
-    QWidget*    createEditorWidget(QWidget * parent) override;
-    QWidget*    createLabelWidget(QWidget * parent) override;
-    void        configureAndUpdateUi(const QString& uiConfigName) override;
+    QWidget* createEditorWidget( QWidget* parent ) override;
+    QWidget* createLabelWidget( QWidget* parent ) override;
+    void     configureAndUpdateUi( const QString& uiConfigName ) override;
 
 protected slots:
-    void        slotEditingFinished();
-    void        fileSelectionClicked();
+    void slotEditingFinished();
+    void fileSelectionClicked();
 
 private:
     QPointer<QLineEdit>       m_lineEdit;
@@ -105,6 +103,5 @@ private:
 
     PdmUiFilePathEditorAttribute m_attributes;
 };
-
 
 } // end namespace caf

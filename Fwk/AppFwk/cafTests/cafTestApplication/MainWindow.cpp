@@ -25,6 +25,7 @@
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 #include "cafPdmReferenceHelper.h"
+#include "cafPdmUiColorEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiItem.h"
@@ -64,6 +65,30 @@ public:
 };
 
 CAF_PDM_SOURCE_INIT(DemoPdmObjectGroup, "DemoPdmObjectGroup");
+
+class ColorTriplet : public caf::PdmObject
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    ColorTriplet()
+    {
+        CAF_PDM_InitObject("ColorTriplet", "", "", "");
+
+        CAF_PDM_InitFieldNoDefault(&m_colorField, "Color", "color", "", "", "");
+        m_colorField.uiCapability()->setUiEditorTypeName(caf::PdmUiColorEditor::uiEditorTypeName());
+
+        CAF_PDM_InitFieldNoDefault(&m_categoryValue, "category", "category value", "", "", "");
+        CAF_PDM_InitFieldNoDefault(&m_categoryText, "text", "category text", "", "", "");
+    }
+
+private:
+    caf::PdmField<QString> m_colorField;
+    caf::PdmField<int>     m_categoryValue;
+    caf::PdmField<QString> m_categoryText;
+};
+
+CAF_PDM_SOURCE_INIT(ColorTriplet, "ColorTriplet");
 
 class SmallDemoPdmObject : public caf::PdmObject
 {
@@ -107,6 +132,8 @@ public:
         m_proxyDoubleField.registerGetMethod(this, &SmallDemoPdmObject::doubleMember);
         CAF_PDM_InitFieldNoDefault(&m_proxyDoubleField, "ProxyDouble", "Proxy Double", "", "", "");
 
+        CAF_PDM_InitFieldNoDefault(&m_colorTriplets, "colorTriplets", "color Triplets", "", "", "");
+
         CAF_PDM_InitField(&m_fileName, "FileName", caf::FilePath("filename"), "File Name", "", "", "");
 
         CAF_PDM_InitFieldNoDefault(&m_fileNameList, "FileNameList", "File Name List", "", "", "");
@@ -126,11 +153,17 @@ public:
         m_multiSelectList.v().push_back("First");
         m_multiSelectList.v().push_back("Second");
         m_multiSelectList.v().push_back("Third");
+
+        m_colorTriplets.push_back(new ColorTriplet);
+        m_colorTriplets.push_back(new ColorTriplet);
+        m_colorTriplets.push_back(new ColorTriplet);
     }
 
     caf::PdmField<double>  m_doubleField;
     caf::PdmField<int>     m_intField;
     caf::PdmField<QString> m_textField;
+
+    caf::PdmChildArrayField<ColorTriplet*> m_colorTriplets;
 
     caf::PdmProxyValueField<double>           m_proxyDoubleField;
     caf::PdmField<caf::FilePath>              m_fileName;
@@ -179,7 +212,7 @@ public:
             options.push_back(caf::PdmOptionItemInfo(text, text));
 
             text = "Second";
-            options.push_back(caf::PdmOptionItemInfo::createHeader(text, false, caf::QIconProvider(":/images/win/textbold.png")));
+            options.push_back(caf::PdmOptionItemInfo::createHeader(text, false, caf::IconProvider(":/images/win/textbold.png")));
 
             {
                 text                            = "Second_a";
@@ -191,7 +224,7 @@ public:
             {
                 text = "Second_b";
                 caf::PdmOptionItemInfo itemInfo =
-                    caf::PdmOptionItemInfo(text, text, false, caf::QIconProvider(":/images/win/filenew.png"));
+                    caf::PdmOptionItemInfo(text, text, false, caf::IconProvider(":/images/win/filenew.png"));
                 itemInfo.setLevel(1);
                 options.push_back(itemInfo);
             }

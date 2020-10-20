@@ -33,6 +33,7 @@ public:
     static void saveAllPlots();
 
     static void exportSnapshotOfPlotsIntoFolder( const QString& snapshotFolderName,
+                                                 bool           activateWidget      = false,
                                                  const QString& prefix              = "",
                                                  int            viewId              = -1,
                                                  const QString& preferredFileSuffix = ".png" );

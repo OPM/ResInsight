@@ -20,7 +20,6 @@
 
 #include "RimEclipseCellColors.h"
 
-#include "RiaColorTables.h"
 #include "RicfCommandObject.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
@@ -41,8 +40,6 @@
 #include "RiuMainWindow.h"
 
 #include "cafPdmUiTreeOrdering.h"
-
-#include <QMessageBox>
 
 CAF_PDM_SOURCE_INIT( RimEclipseCellColors, "ResultSlot" );
 
@@ -170,8 +167,15 @@ void RimEclipseCellColors::changeLegendConfig( QString resultVarNameOfNewLegend 
 
                 if ( useLog )
                 {
-                    newLegend->setMappingMode( RimRegularLegendConfig::LOG10_CONTINUOUS );
-                    newLegend->setTickNumberFormat( RimRegularLegendConfig::AUTO );
+                    newLegend->setMappingMode( RimRegularLegendConfig::MappingType::LOG10_CONTINUOUS );
+                    newLegend->setTickNumberFormat( RimRegularLegendConfig::NumberFormatType::AUTO );
+                }
+
+                if ( this->hasCategoryResult() )
+                {
+                    newLegend->setMappingMode( RimRegularLegendConfig::MappingType::CATEGORY_INTEGER );
+                    newLegend->setColorLegend(
+                        RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) );
                 }
 
                 m_legendConfigData.push_back( newLegend );
@@ -247,24 +251,6 @@ void RimEclipseCellColors::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeO
 void RimEclipseCellColors::updateLegendCategorySettings()
 {
     changeLegendConfig( this->resultVariable() );
-
-    if ( this->hasCategoryResult() )
-    {
-        legendConfig()->setMappingMode( RimRegularLegendConfig::CATEGORY_INTEGER );
-        legendConfig()->setColorRange( RimRegularLegendConfig::CATEGORY );
-    }
-    else
-    {
-        if ( legendConfig()->mappingMode() == RimRegularLegendConfig::CATEGORY_INTEGER )
-        {
-            legendConfig()->setMappingMode( RimRegularLegendConfig::LINEAR_CONTINUOUS );
-        }
-
-        if ( legendConfig()->colorRange() == RimRegularLegendConfig::CATEGORY )
-        {
-            legendConfig()->setColorRange( RimRegularLegendConfig::NORMAL );
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

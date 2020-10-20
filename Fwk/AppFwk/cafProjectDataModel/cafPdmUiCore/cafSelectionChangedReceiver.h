@@ -51,4 +51,4 @@ protected:
     virtual void onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels ) = 0;
 };
 
-}
+} // namespace caf

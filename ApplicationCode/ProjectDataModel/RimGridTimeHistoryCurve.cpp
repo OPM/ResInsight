@@ -18,8 +18,6 @@
 
 #include "RimGridTimeHistoryCurve.h"
 
-#include "RiaApplication.h"
-
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigFemResultAddress.h"
@@ -74,11 +72,13 @@ RimGridTimeHistoryCurve::RimGridTimeHistoryCurve()
 
     CAF_PDM_InitField( &m_plotAxis,
                        "PlotAxis",
-                       caf::AppEnum<RiaDefines::PlotAxis>( RiaDefines::PLOT_AXIS_LEFT ),
+                       caf::AppEnum<RiaDefines::PlotAxis>( RiaDefines::PlotAxis::PLOT_AXIS_LEFT ),
                        "Axis",
                        "",
                        "",
                        "" );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -711,7 +711,7 @@ void RimGridTimeHistoryCurve::updateQwtPlotAxis()
 {
     if ( m_qwtPlotCurve )
     {
-        if ( this->yAxis() == RiaDefines::PLOT_AXIS_LEFT )
+        if ( this->yAxis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
         {
             m_qwtPlotCurve->setYAxis( QwtPlot::yLeft );
         }

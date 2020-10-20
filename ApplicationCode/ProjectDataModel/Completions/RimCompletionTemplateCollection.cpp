@@ -18,6 +18,9 @@
 
 #include "RimCompletionTemplateCollection.h"
 
+#include "RiaApplication.h"
+
+#include "RimFractureModelTemplateCollection.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimValveTemplateCollection.h"
 
@@ -37,6 +40,10 @@ RimCompletionTemplateCollection::RimCompletionTemplateCollection()
     CAF_PDM_InitFieldNoDefault( &m_fractureTemplates, "FractureTemplates", "", "", "", "" );
     m_fractureTemplates = new RimFractureTemplateCollection;
     m_fractureTemplates->addDefaultEllipseTemplate();
+
+    CAF_PDM_InitFieldNoDefault( &m_fractureModelTemplates, "FractureModelTemplates", "", "", "", "" );
+    m_fractureModelTemplates = new RimFractureModelTemplateCollection;
+
     CAF_PDM_InitFieldNoDefault( &m_valveTemplates, "ValveTemplates", "", "", "", "" );
     m_valveTemplates = new RimValveTemplateCollection;
 }
@@ -101,10 +108,39 @@ void RimCompletionTemplateCollection::setFractureTemplateCollection( RimFracture
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimFractureModelTemplateCollection* RimCompletionTemplateCollection::fractureModelTemplateCollection()
+{
+    return m_fractureModelTemplates;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RimFractureModelTemplateCollection* RimCompletionTemplateCollection::fractureModelTemplateCollection() const
+{
+    return m_fractureModelTemplates;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimCompletionTemplateCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
                                                             QString                 uiConfigName /*= ""*/ )
 {
     uiTreeOrdering.add( m_fractureTemplates );
+    if ( RiaApplication::enableDevelopmentFeatures() )
+    {
+        uiTreeOrdering.add( m_fractureModelTemplates );
+    }
     uiTreeOrdering.add( m_valveTemplates );
     uiTreeOrdering.skipRemainingChildren( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCompletionTemplateCollection::loadAndUpdateData()
+{
+    m_fractureTemplates->loadAndUpdateData();
+    m_fractureModelTemplates->loadAndUpdateData();
 }

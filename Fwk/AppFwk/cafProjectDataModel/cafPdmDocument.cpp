@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #include "cafPdmDocument.h"
 
 #include <QFile>
@@ -42,53 +41,49 @@
 
 namespace caf
 {
-
-CAF_PDM_SOURCE_INIT(PdmDocument, "PdmDocument");
+CAF_PDM_SOURCE_INIT( PdmDocument, "PdmDocument" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-PdmDocument::PdmDocument() 
+PdmDocument::PdmDocument()
 {
-    CAF_PDM_InitFieldNoDefault(&fileName, "DocumentFileName", "File Name", "", "", "");
-
+    CAF_PDM_InitFieldNoDefault( &fileName, "DocumentFileName", "File Name", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmDocument::readFile()
 {
-    QFile xmlFile(fileName);
-    if (!xmlFile.open(QIODevice::ReadOnly | QIODevice::Text))
-        return;
+    QFile xmlFile( fileName );
+    if ( !xmlFile.open( QIODevice::ReadOnly | QIODevice::Text ) ) return;
 
-    readFile(&xmlFile);
- 
+    readFile( &xmlFile );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmDocument::readFile(QIODevice* xmlFile)
+void PdmDocument::readFile( QIODevice* xmlFile )
 {
-    QXmlStreamReader xmlStream(xmlFile);
+    QXmlStreamReader xmlStream( xmlFile );
 
-    while (!xmlStream.atEnd())
+    while ( !xmlStream.atEnd() )
     {
         xmlStream.readNext();
-        if (xmlStream.isStartElement())
+        if ( xmlStream.isStartElement() )
         {
-            if (!matchesClassKeyword(xmlStream.name().toString()))
+            if ( !matchesClassKeyword( xmlStream.name().toString() ) )
             {
                 // Error: This is not a Ceetron Pdm based xml document
                 return;
             }
-            readFields(xmlStream, PdmDefaultObjectFactory::instance(), false);
+            readFields( xmlStream, PdmDefaultObjectFactory::instance(), false );
         }
     }
 
-    // Ask all objects to initialize and set up internal datastructure and pointers 
+    // Ask all objects to initialize and set up internal datastructure and pointers
     // after everything is read from file
 
     resolveReferencesRecursively();
@@ -96,69 +91,66 @@ void PdmDocument::readFile(QIODevice* xmlFile)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool PdmDocument::writeFile()
 {
-    QFile xmlFile(fileName);
-    if (!xmlFile.open(QIODevice::WriteOnly | QIODevice::Text))
-        return false;
+    QFile xmlFile( fileName );
+    if ( !xmlFile.open( QIODevice::WriteOnly | QIODevice::Text ) ) return false;
 
-    writeFile(&xmlFile);
+    writeFile( &xmlFile );
 
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmDocument::writeFile(QIODevice* xmlFile)
+void PdmDocument::writeFile( QIODevice* xmlFile )
 {
     // Ask all objects to make them ready to write themselves to file
     setupBeforeSaveRecursively();
 
-    QXmlStreamWriter xmlStream(xmlFile);
-    xmlStream.setAutoFormatting(true);
+    QXmlStreamWriter xmlStream( xmlFile );
+    xmlStream.setAutoFormatting( true );
 
     xmlStream.writeStartDocument();
-    QString className = classKeyword(); 
+    QString className = classKeyword();
 
-    xmlStream.writeStartElement("", className);
-    writeFields(xmlStream);
-    xmlStream.writeEndElement();  
+    xmlStream.writeStartElement( "", className );
+    writeFields( xmlStream );
+    xmlStream.writeEndElement();
 
     xmlStream.writeEndDocument();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmDocument::updateUiIconStateRecursively(PdmObjectHandle* object)
+void PdmDocument::updateUiIconStateRecursively( PdmObjectHandle* object )
 {
-    if (object == nullptr) return;
+    if ( object == nullptr ) return;
     std::vector<PdmFieldHandle*> fields;
-    object->fields(fields);
-    
+    object->fields( fields );
+
     std::vector<PdmObjectHandle*> children;
-    size_t fIdx;
-    for (fIdx = 0; fIdx < fields.size(); ++fIdx)
+    size_t                        fIdx;
+    for ( fIdx = 0; fIdx < fields.size(); ++fIdx )
     {
-        if (fields[fIdx]) fields[fIdx]->childObjects(&children);
+        if ( fields[fIdx] ) fields[fIdx]->childObjects( &children );
     }
 
     size_t cIdx;
-    for (cIdx = 0; cIdx < children.size(); ++cIdx)
+    for ( cIdx = 0; cIdx < children.size(); ++cIdx )
     {
-        PdmDocument::updateUiIconStateRecursively(children[cIdx]);
+        PdmDocument::updateUiIconStateRecursively( children[cIdx] );
     }
 
-    PdmUiObjectHandle* uiObjectHandle = uiObj(object);
-    if (uiObjectHandle)
+    PdmUiObjectHandle* uiObjectHandle = uiObj( object );
+    if ( uiObjectHandle )
     {
         uiObjectHandle->updateUiIconFromToggleField();
     }
 }
 
-
-} //End of namespace caf
-
+} // End of namespace caf

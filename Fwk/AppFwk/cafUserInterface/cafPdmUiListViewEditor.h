@@ -34,74 +34,65 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiWidgetObjectEditorHandle.h"
 
-#include <QWidget>
-#include <QPointer>
 #include <QAbstractItemModel>
+#include <QPointer>
+#include <QWidget>
 
 class QTableView;
 
-namespace caf 
+namespace caf
 {
 class PdmUiFieldEditorHandle;
 class PdmUiItem;
 class PdmObjectCollection;
 
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 class PdmUiListViewEditorAttribute : public PdmUiEditorAttribute
 {
 public:
-    PdmUiListViewEditorAttribute()
-    {
-    }
+    PdmUiListViewEditorAttribute() {}
 
 public:
     QStringList fieldNames;
 };
 
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 class UiListViewModelPdm : public QAbstractTableModel
 {
     Q_OBJECT
 
 public:
-    explicit UiListViewModelPdm(QObject* parent);
-    
-    void        setPdmData(PdmObjectCollection* objectGroup, const QString& configName);
+    explicit UiListViewModelPdm( QObject* parent );
+
+    void setPdmData( PdmObjectCollection* objectGroup, const QString& configName );
 
     // Qt overrides
-    int         rowCount( const QModelIndex &parent = QModelIndex( ) ) const override;
-    int         columnCount( const QModelIndex &parent = QModelIndex( ) ) const override;
-    QVariant    data( const QModelIndex &index, int role = Qt::DisplayRole ) const override;
-    QVariant    headerData( int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const override;
+    int      rowCount( const QModelIndex& parent = QModelIndex() ) const override;
+    int      columnCount( const QModelIndex& parent = QModelIndex() ) const override;
+    QVariant data( const QModelIndex& index, int role = Qt::DisplayRole ) const override;
+    QVariant headerData( int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const override;
 
 private:
-    void        computeColumnCount();
+    void computeColumnCount();
 
 private:
-    PdmObjectCollection*              m_pdmObjectGroup;
-    QString                         m_configName;
-    PdmUiListViewEditorAttribute    m_editorAttribute;
-    int                             m_columnCount;
+    PdmObjectCollection*         m_pdmObjectGroup;
+    QString                      m_configName;
+    PdmUiListViewEditorAttribute m_editorAttribute;
+    int                          m_columnCount;
 };
 
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 class PdmUiListViewEditor : public PdmUiWidgetObjectEditorHandle
 {
@@ -110,14 +101,12 @@ public:
     ~PdmUiListViewEditor() override;
 
 protected:
-    QWidget*    createWidget(QWidget* parent) override;
-    void        configureAndUpdateUi(const QString& uiConfigName) override;
+    QWidget* createWidget( QWidget* parent ) override;
+    void     configureAndUpdateUi( const QString& uiConfigName ) override;
 
 private:
-    QPointer<QTableView>    m_tableView;
-    UiListViewModelPdm*     m_tableModelPdm;
+    QPointer<QTableView> m_tableView;
+    UiListViewModelPdm*  m_tableModelPdm;
 };
-
-
 
 } // end namespace caf

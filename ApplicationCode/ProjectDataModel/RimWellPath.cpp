@@ -20,7 +20,6 @@
 
 #include "RimWellPath.h"
 
-#include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaSimWellBranchTools.h"
@@ -36,6 +35,7 @@
 #include "Rim3dWellLogCurve.h"
 #include "Rim3dWellLogCurveCollection.h"
 #include "RimFishbonesMultipleSubs.h"
+#include "RimFractureModelCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimTools.h"
@@ -50,14 +50,13 @@
 
 #include "RiuMainWindow.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafUtils.h"
 
 #include <QDateTime>
 #include <QDir>
 #include <QFileInfo>
-#include <QMessageBox>
 #include <QString>
 
 #include <regex>
@@ -76,7 +75,7 @@ RimWellPath::RimWellPath()
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "WellPath", ":/Well.png", "", "", "WellPath", "The Base class for Well Paths" );
 
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_name, "Name", "Name", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_name, "Name", "Name", "", "", "" );
     m_name.registerKeywordAlias( "WellPathName" );
     m_name.uiCapability()->setUiReadOnly( true );
     m_name.uiCapability()->setUiHidden( true );
@@ -207,7 +206,7 @@ bool RimWellPath::isEnabled() const
 //--------------------------------------------------------------------------------------------------
 RiaDefines::WellPathComponentType RimWellPath::componentType() const
 {
-    return RiaDefines::WELL_PATH;
+    return RiaDefines::WellPathComponentType::WELL_PATH;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -329,6 +328,26 @@ const RimWellPathFractureCollection* RimWellPath::fractureCollection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimFractureModelCollection* RimWellPath::fractureModelCollection()
+{
+    CVF_ASSERT( m_completions );
+
+    return m_completions->fractureModelCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RimFractureModelCollection* RimWellPath::fractureModelCollection() const
+{
+    CVF_ASSERT( m_completions );
+
+    return m_completions->fractureModelCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RigWellPath* RimWellPath::wellPathGeometry()
 {
     return m_wellPath.p();
@@ -375,7 +394,7 @@ QList<caf::PdmOptionItemInfo> RimWellPath::calculateValueOptions( const caf::Pdm
 
     if ( fieldNeedingOptions == &m_simWellName )
     {
-        RimProject* proj = RiaApplication::instance()->project();
+        RimProject* proj = RimProject::current();
 
         // Find simulation wells already assigned to a well path
         std::set<QString> associatedSimWells;
@@ -891,4 +910,13 @@ bool RimWellPath::tryAssociateWithSimulationWell()
 bool RimWellPath::isAssociatedWithSimulationWell() const
 {
     return !m_simWellName().isEmpty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPath::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                  std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    updateConnectedEditors();
 }

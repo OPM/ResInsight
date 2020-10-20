@@ -400,7 +400,7 @@ void RimEclipsePropertyFilter::computeResultValueRange()
 
                 if ( m_resultDefinition->hasCategoryResult() )
                 {
-                    if ( m_resultDefinition->resultType() == RiaDefines::FORMATION_NAMES )
+                    if ( m_resultDefinition->resultType() == RiaDefines::ResultCatType::FORMATION_NAMES )
                     {
                         CVF_ASSERT( parentContainer()->reservoirView()->eclipseCase()->eclipseCaseData() );
 
@@ -411,15 +411,17 @@ void RimEclipsePropertyFilter::computeResultValueRange()
                     }
                     else if ( m_resultDefinition->resultVariable() == RiaDefines::completionTypeResultName() )
                     {
-                        std::vector<RiaDefines::WellPathComponentType> componentTypes = {RiaDefines::WELL_PATH,
-                                                                                         RiaDefines::PERFORATION_INTERVAL,
-                                                                                         RiaDefines::FISHBONES,
-                                                                                         RiaDefines::FRACTURE};
-                        std::vector<std::pair<QString, int>>           ctNamesAndValues;
+                        std::vector<RiaDefines::WellPathComponentType> componentTypes =
+                            {RiaDefines::WellPathComponentType::WELL_PATH,
+                             RiaDefines::WellPathComponentType::PERFORATION_INTERVAL,
+                             RiaDefines::WellPathComponentType::FISHBONES,
+                             RiaDefines::WellPathComponentType::FRACTURE};
+                        std::vector<std::pair<QString, int>> ctNamesAndValues;
                         for ( RiaDefines::WellPathComponentType type : componentTypes )
                         {
                             ctNamesAndValues.push_back(
-                                std::make_pair( caf::AppEnum<RiaDefines::WellPathComponentType>::uiText( type ), type ) );
+                                std::make_pair( caf::AppEnum<RiaDefines::WellPathComponentType>::uiText( type ),
+                                                static_cast<int>( type ) ) );
                         }
                         setCategoryNamesAndValues( ctNamesAndValues );
                     }

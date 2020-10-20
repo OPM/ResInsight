@@ -40,8 +40,8 @@
 
 class QTextStream;
 
-namespace caf {
-
+namespace caf
+{
 class PdmScriptIOMessages
 {
 public:
@@ -73,4 +73,4 @@ private:
     int m_currentLineNumber;
 };
 
-}
+} // namespace caf

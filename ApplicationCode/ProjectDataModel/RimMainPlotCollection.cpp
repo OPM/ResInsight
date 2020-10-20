@@ -19,8 +19,11 @@
 
 #include "RimMainPlotCollection.h"
 
+#include "RimCorrelationPlotCollection.h"
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowPlotCollection.h"
+#include "RimFractureModelPlot.h"
+#include "RimFractureModelPlotCollection.h"
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCollection.h"
 #include "RimMultiPlot.h"
@@ -38,6 +41,7 @@
 #include "RimWellPltPlot.h"
 #include "RimWellRftPlot.h"
 
+#include "RimAnalysisPlotCollection.h"
 #include "RiuMainWindow.h"
 #include "RiuProjectPropertyView.h"
 
@@ -65,6 +69,12 @@ RimMainPlotCollection::RimMainPlotCollection()
     CAF_PDM_InitFieldNoDefault( &m_summaryPlotCollection, "SummaryPlotCollection", "Summary Plots", "", "", "" );
     m_summaryPlotCollection.uiCapability()->setUiHidden( true );
 
+    CAF_PDM_InitFieldNoDefault( &m_analysisPlotCollection, "AnalysisPlotCollection", "Analysis Plots", "", "", "" );
+    m_analysisPlotCollection.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_correlationPlotCollection, "CorrelationPlotCollection", "Correlation Plots", "", "", "" );
+    m_correlationPlotCollection.uiCapability()->setUiHidden( true );
+
     CAF_PDM_InitFieldNoDefault( &m_summaryCrossPlotCollection, "SummaryCrossPlotCollection", "Summary Cross Plots", "", "", "" );
     m_summaryCrossPlotCollection.uiCapability()->setUiHidden( true );
 
@@ -85,6 +95,9 @@ RimMainPlotCollection::RimMainPlotCollection()
     CAF_PDM_InitFieldNoDefault( &m_multiPlotCollection, "RimMultiPlotCollection", "Multi Plots", "", "", "" );
     m_multiPlotCollection.uiCapability()->setUiHidden( true );
 
+    CAF_PDM_InitFieldNoDefault( &m_fractureModelPlotCollection, "FractureModelPlotCollection", "", "", "", "" );
+    m_fractureModelPlotCollection.uiCapability()->setUiHidden( true );
+
     m_wellLogPlotCollection            = new RimWellLogPlotCollection();
     m_rftPlotCollection                = new RimRftPlotCollection();
     m_pltPlotCollection                = new RimPltPlotCollection();
@@ -94,6 +107,9 @@ RimMainPlotCollection::RimMainPlotCollection()
     m_gridCrossPlotCollection          = new RimGridCrossPlotCollection;
     m_saturationPressurePlotCollection = new RimSaturationPressurePlotCollection;
     m_multiPlotCollection              = new RimMultiPlotCollection;
+    m_analysisPlotCollection           = new RimAnalysisPlotCollection;
+    m_correlationPlotCollection        = new RimCorrelationPlotCollection;
+    m_fractureModelPlotCollection      = new RimFractureModelPlotCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -195,17 +211,44 @@ RimMultiPlotCollection* RimMainPlotCollection::multiPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimAnalysisPlotCollection* RimMainPlotCollection::analysisPlotCollection()
+{
+    return m_analysisPlotCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimCorrelationPlotCollection* RimMainPlotCollection::correlationPlotCollection()
+{
+    return m_correlationPlotCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimFractureModelPlotCollection* RimMainPlotCollection::fractureModelPlotCollection()
+{
+    return m_fractureModelPlotCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimMainPlotCollection::deleteAllContainedObjects()
 {
     m_wellLogPlotCollection()->wellLogPlots.deleteAllChildObjects();
     m_rftPlotCollection()->deleteAllPlots();
     m_pltPlotCollection()->deleteAllPlots();
-    m_summaryPlotCollection()->summaryPlots.deleteAllChildObjects();
-    m_summaryCrossPlotCollection()->deleteAllChildObjects();
-    m_gridCrossPlotCollection->deleteAllChildObjects();
+    m_summaryPlotCollection()->deleteAllPlots();
+    m_summaryCrossPlotCollection()->deleteAllPlots();
+    m_gridCrossPlotCollection->deleteAllPlots();
     m_flowPlotCollection()->closeDefaultPlotWindowAndDeletePlots();
     m_saturationPressurePlotCollection()->deleteAllChildObjects();
     m_multiPlotCollection()->deleteAllChildObjects();
+    m_analysisPlotCollection()->deleteAllPlots();
+    m_correlationPlotCollection()->deleteAllPlots();
+    m_fractureModelPlotCollection()->deleteAllPlots();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -252,7 +295,7 @@ void RimMainPlotCollection::updatePlotsWithFormations()
 
     if ( m_gridCrossPlotCollection )
     {
-        for ( RimGridCrossPlot* crossPlot : m_gridCrossPlotCollection->gridCrossPlots() )
+        for ( RimGridCrossPlot* crossPlot : m_gridCrossPlotCollection->plots() )
         {
             crossPlot->loadDataAndUpdate();
         }
@@ -263,6 +306,14 @@ void RimMainPlotCollection::updatePlotsWithFormations()
         for ( RimMultiPlot* plotWindow : m_multiPlotCollection->multiPlots() )
         {
             plotWindow->loadDataAndUpdate();
+        }
+    }
+
+    if ( m_fractureModelPlotCollection )
+    {
+        for ( RimFractureModelPlot* fractureModelPlot : m_fractureModelPlotCollection->fractureModelPlots() )
+        {
+            fractureModelPlot->loadDataAndUpdate();
         }
     }
 }

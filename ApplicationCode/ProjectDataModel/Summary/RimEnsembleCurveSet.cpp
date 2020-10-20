@@ -18,10 +18,9 @@
 
 #include "RimEnsembleCurveSet.h"
 
-#include "RiaColorTables.h"
+#include "RiaColorTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaStatisticsTools.h"
-#include "RiuAbstractLegendFrame.h"
 
 #include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 
@@ -47,6 +46,7 @@
 #include "RimSummaryFilter.h"
 #include "RimSummaryPlot.h"
 
+#include "RiuAbstractLegendFrame.h"
 #include "RiuCvfOverlayItemWidget.h"
 #include "RiuDraggableOverlayFrame.h"
 #include "RiuPlotMainWindow.h"
@@ -116,7 +116,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     CAF_PDM_InitField( &m_colorMode, "ColorMode", caf::AppEnum<ColorMode>( ColorMode::SINGLE_COLOR ), "Coloring Mode", "", "", "" );
 
-    CAF_PDM_InitField( &m_color, "Color", cvf::Color3f( cvf::Color3::BLACK ), "Color", "", "", "" );
+    CAF_PDM_InitField( &m_color, "Color", RiaColorTools::textColor3f(), "Color", "", "", "" );
 
     CAF_PDM_InitField( &m_ensembleParameter, "EnsembleParameter", QString( "" ), "Ensemble Parameter", "", "", "" );
     m_ensembleParameter.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
@@ -125,7 +125,8 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendConfig", "", "", "", "" );
     m_legendConfig = new RimRegularLegendConfig();
-    m_legendConfig->setColorRange( RimEnsembleCurveSetColorManager::DEFAULT_ENSEMBLE_COLOR_RANGE );
+    m_legendConfig->setColorLegend(
+        RimRegularLegendConfig::mapToColorLegend( RimEnsembleCurveSetColorManager::DEFAULT_ENSEMBLE_COLOR_RANGE ) );
 
     CAF_PDM_InitFieldNoDefault( &m_curveFilters, "CurveFilters", "Curve Filters", "", "", "" );
     m_curveFilters = new RimEnsembleCurveFilterCollection();
@@ -165,6 +166,8 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     m_yValuesSummaryFilter_OBSOLETE.uiCapability()->setUiHidden( true );
     m_yValuesSummaryFilter_OBSOLETE.xmlCapability()->setIOWritable( false );
     m_yValuesSummaryFilter_OBSOLETE = new RimSummaryFilter_OBSOLETE;
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -538,8 +541,8 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     {
         if ( m_ensembleParameter().isEmpty() )
         {
-            auto params         = ensembleParameters();
-            m_ensembleParameter = !params.empty() ? params.front().first : "";
+            auto params         = variationSortedEnsembleParameters();
+            m_ensembleParameter = !params.empty() ? params.front().name : "";
         }
         updateCurveColors();
 
@@ -680,24 +683,14 @@ void RimEnsembleCurveSet::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOr
 
     uiTreeOrdering.skipRemainingChildren( true );
 
-    // Reset dynamic icon
-    this->setUiIcon( caf::QIconProvider() );
-    // Get static one
-    caf::QIconProvider iconProvider = this->uiIconProvider();
-
-    if ( iconProvider.isNull() ) return;
-
-    QIcon icon = iconProvider.icon();
+    caf::IconProvider iconProvider = this->uiIconProvider();
+    if ( !iconProvider.valid() ) return;
 
     RimEnsembleCurveSetCollection* coll = nullptr;
     this->firstAncestorOrThisOfType( coll );
     if ( coll && coll->curveSetForSourceStepping() == this )
     {
-        QPixmap  combined = icon.pixmap( 16, 16 );
-        QPainter painter( &combined );
-        QPixmap  updownpixmap( ":/StepUpDownCorner16x16.png" );
-        painter.drawPixmap( 0, 0, updownpixmap );
-        iconProvider.setPixmap( combined );
+        iconProvider.setOverlayResourceString( ":/StepUpDownCorner16x16.png" );
     }
 
     this->setUiIcon( iconProvider );
@@ -750,7 +743,7 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
 
     if ( fieldNeedingOptions == &m_yValuesSummaryCaseCollection )
     {
-        RimProject*                            proj   = RiaApplication::instance()->project();
+        RimProject*                            proj   = RimProject::current();
         std::vector<RimSummaryCaseCollection*> groups = proj->summaryGroups();
 
         for ( RimSummaryCaseCollection* group : groups )
@@ -766,16 +759,22 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
         auto byEnsParamOption  = ColorModeEnum( ColorMode::BY_ENSEMBLE_PARAM );
 
         options.push_back( caf::PdmOptionItemInfo( singleColorOption.uiText(), ColorMode::SINGLE_COLOR ) );
-        if ( !ensembleParameters().empty() )
+
+        RimSummaryCaseCollection* group = m_yValuesSummaryCaseCollection();
+        if ( group && group->hasEnsembleParameters() )
         {
             options.push_back( caf::PdmOptionItemInfo( byEnsParamOption.uiText(), ColorMode::BY_ENSEMBLE_PARAM ) );
         }
     }
     else if ( fieldNeedingOptions == &m_ensembleParameter )
     {
-        for ( const auto& paramPair : ensembleParameters() )
+        auto params = correlationSortedEnsembleParameters();
+        for ( const auto& paramCorrPair : params )
         {
-            options.push_back( caf::PdmOptionItemInfo( EnsembleParameter::uiName( paramPair ), paramPair.first ) );
+            QString name = paramCorrPair.first.name;
+            double  corr = paramCorrPair.second;
+            options.push_back(
+                caf::PdmOptionItemInfo( QString( "%1 (Avg. correlation: %2)" ).arg( name ).arg( corr, 5, 'f', 2 ), name ) );
         }
     }
     else if ( fieldNeedingOptions == &m_yValuesSummaryAddressUiField )
@@ -934,6 +933,8 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
     {
         if ( isCurvesVisible() )
         {
+            std::vector<RimSummaryCurve*> newSummaryCurves;
+
             for ( auto& sumCase : sumCases )
             {
                 RimSummaryCurve* curve = new RimSummaryCurve();
@@ -944,12 +945,23 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
                 addCurve( curve );
 
                 curve->updateCurveVisibility();
-                curve->loadDataAndUpdate( false );
-                curve->updateQwtPlotAxis();
 
-                if ( curve->qwtPlotCurve() )
+                newSummaryCurves.push_back( curve );
+            }
+
+#pragma omp parallel for
+            for ( int i = 0; i < (int)newSummaryCurves.size(); ++i )
+            {
+                newSummaryCurves[i]->valuesX();
+            }
+
+            for ( int i = 0; i < (int)newSummaryCurves.size(); ++i )
+            {
+                newSummaryCurves[i]->loadDataAndUpdate( false );
+                newSummaryCurves[i]->updateQwtPlotAxis();
+                if ( newSummaryCurves[i]->qwtPlotCurve() )
                 {
-                    curve->qwtPlotCurve()->setItemAttribute( QwtPlotItem::Legend, false );
+                    newSummaryCurves[i]->qwtPlotCurve()->setItemAttribute( QwtPlotItem::Legend, false );
                 }
             }
 
@@ -958,7 +970,7 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
 
         if ( plot->viewer() )
         {
-            plot->viewer()->updateLegend();
+            if ( plot->legendsVisible() ) plot->viewer()->updateLegend();
             plot->viewer()->scheduleReplot();
             plot->updateAxes();
             plot->updatePlotInfoLabel();
@@ -1023,7 +1035,6 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
         auto curve = new RimSummaryCurve();
         curve->setParentQwtPlotNoReplot( plot->viewer() );
         m_curves.push_back( curve );
-        curve->setColor( m_statistics->color() );
         curve->setColor( m_statistics->color() );
 
         auto symbol = statisticsCurveSymbolFromAddress( address );
@@ -1090,7 +1101,7 @@ void RimEnsembleCurveSet::showCurves( bool show )
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::markCachedDataForPurge()
 {
-    for ( const auto curve : m_curves )
+    for ( const auto& curve : m_curves )
     {
         curve->markCachedDataForPurge();
     }
@@ -1114,32 +1125,33 @@ void RimEnsembleCurveSet::updateAllTextInPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimEnsembleCurveSet::NameParameterPair> RimEnsembleCurveSet::ensembleParameters() const
+std::vector<EnsembleParameter> RimEnsembleCurveSet::variationSortedEnsembleParameters() const
 {
-    RimSummaryCaseCollection* group = m_yValuesSummaryCaseCollection;
-
-    std::set<QString> paramSet;
-    if ( group )
+    RimSummaryCaseCollection* ensemble = m_yValuesSummaryCaseCollection;
+    if ( ensemble )
     {
-        for ( RimSummaryCase* rimCase : group->allSummaryCases() )
-        {
-            if ( rimCase->caseRealizationParameters() != nullptr )
-            {
-                auto ps = rimCase->caseRealizationParameters()->parameters();
-                for ( auto p : ps )
-                    paramSet.insert( p.first );
-            }
-        }
+        return ensemble->variationSortedEnsembleParameters();
     }
-
-    std::vector<NameParameterPair> parameterVector;
-    parameterVector.reserve( paramSet.size() );
-    for ( const QString& parameterName : paramSet )
+    else
     {
-        parameterVector.push_back( std::make_pair( parameterName, group->ensembleParameter( parameterName ) ) );
+        return std::vector<EnsembleParameter>();
     }
-    EnsembleParameter::sortByBinnedVariation( parameterVector );
-    return parameterVector;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<EnsembleParameter, double>> RimEnsembleCurveSet::correlationSortedEnsembleParameters() const
+{
+    RimSummaryCaseCollection* ensemble = m_yValuesSummaryCaseCollection;
+    if ( ensemble )
+    {
+        return ensemble->correlationSortedEnsembleParameters( summaryAddress() );
+    }
+    else
+    {
+        return std::vector<std::pair<EnsembleParameter, double>>();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

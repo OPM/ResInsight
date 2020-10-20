@@ -85,7 +85,7 @@ RimTensorResults::RimTensorResults()
     CAF_PDM_InitField( &m_sizeScale, "SizeScale", 1.0f, "Size Scale", "", "", "" );
     CAF_PDM_InitField( &m_rangeMode,
                        "RangeType",
-                       RimRegularLegendConfig::RangeModeEnum( RimRegularLegendConfig::AUTOMATIC_ALLTIMESTEPS ),
+                       RimRegularLegendConfig::RangeModeEnum( RimRegularLegendConfig::RangeModeType::AUTOMATIC_ALLTIMESTEPS ),
                        "Range Type",
                        "",
                        "Switches between automatic and user defined range",
@@ -204,11 +204,11 @@ void RimTensorResults::mappingRange( double* min, double* max ) const
         RigFemPartResultsCollection* resultCollection = geoMechView->geoMechCase()->geoMechData()->femPartResults();
         if ( !resultCollection ) return;
 
-        if ( m_rangeMode == RimRegularLegendConfig::AUTOMATIC_ALLTIMESTEPS )
+        if ( m_rangeMode == RimRegularLegendConfig::RangeModeType::AUTOMATIC_ALLTIMESTEPS )
         {
             resultCollection->minMaxScalarValuesOverAllTensorComponents( selectedTensorResult(), min, max );
         }
-        else if ( m_rangeMode == RimRegularLegendConfig::AUTOMATIC_CURRENT_TIMESTEP )
+        else if ( m_rangeMode == RimRegularLegendConfig::RangeModeType::AUTOMATIC_CURRENT_TIMESTEP )
         {
             resultCollection->minMaxScalarValuesOverAllTensorComponents( selectedTensorResult(), currentTimeStep, min, max );
         }
@@ -308,11 +308,11 @@ QList<caf::PdmOptionItemInfo> RimTensorResults::calculateValueOptions( const caf
     else if ( fieldNeedingOptions == &m_rangeMode )
     {
         options.push_back( caf::PdmOptionItemInfo( RimRegularLegendConfig::RangeModeEnum::uiText(
-                                                       RimRegularLegendConfig::AUTOMATIC_ALLTIMESTEPS ),
-                                                   RimRegularLegendConfig::AUTOMATIC_ALLTIMESTEPS ) );
+                                                       RimRegularLegendConfig::RangeModeType::AUTOMATIC_ALLTIMESTEPS ),
+                                                   RimRegularLegendConfig::RangeModeType::AUTOMATIC_ALLTIMESTEPS ) );
         options.push_back( caf::PdmOptionItemInfo( RimRegularLegendConfig::RangeModeEnum::uiText(
-                                                       RimRegularLegendConfig::AUTOMATIC_CURRENT_TIMESTEP ),
-                                                   RimRegularLegendConfig::AUTOMATIC_CURRENT_TIMESTEP ) );
+                                                       RimRegularLegendConfig::RangeModeType::AUTOMATIC_CURRENT_TIMESTEP ),
+                                                   RimRegularLegendConfig::RangeModeType::AUTOMATIC_CURRENT_TIMESTEP ) );
     }
 
     return options;

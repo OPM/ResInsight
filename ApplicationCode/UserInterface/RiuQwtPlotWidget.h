@@ -23,7 +23,6 @@
 
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
-#include "cafUiStyleSheet.h"
 
 #include "qwt_plot.h"
 
@@ -39,6 +38,7 @@ class QwtLegend;
 class QwtPicker;
 class QwtPlotCurve;
 class QwtPlotGrid;
+class QwtPlotItem;
 class QwtPlotMarker;
 class QwtPlotPicker;
 
@@ -71,10 +71,14 @@ public:
     int  axisTitleFontSize( QwtPlot::Axis axis ) const;
     int  axisValueFontSize( QwtPlot::Axis axis ) const;
     void setAxisFontsAndAlignment( QwtPlot::Axis,
-                                   int               titleFontSize,
-                                   int               valueFontSize,
-                                   bool              titleBold = false,
-                                   Qt::AlignmentFlag alignment = Qt::AlignRight );
+                                   int  titleFontSize,
+                                   int  valueFontSize,
+                                   bool titleBold = false,
+                                   int  alignment = (int)Qt::AlignCenter );
+    void setAxesFontsAndAlignment( int  titleFontSize,
+                                   int  valueFontSize,
+                                   bool titleBold = false,
+                                   int  alignment = (int)Qt::AlignCenter );
 
     void setAxisTitleText( QwtPlot::Axis axis, const QString& title );
     void setAxisTitleEnabled( QwtPlot::Axis axis, bool enable );
@@ -83,12 +87,16 @@ public:
     const QString& plotTitle() const;
     void           setPlotTitleEnabled( bool enabled );
     bool           plotTitleEnabled() const;
+    void           setPlotTitleFontSize( int titleFontSize );
 
-    QwtInterval axisRange( QwtPlot::Axis axis );
+    void setLegendFontSize( int fontSize );
+    void setInternalLegendVisible( bool visible );
+
+    QwtInterval axisRange( QwtPlot::Axis axis ) const;
     void        setAxisRange( QwtPlot::Axis axis, double min, double max );
 
     void setAxisInverted( QwtPlot::Axis axis );
-    void setAxisLabelsAndTicksEnabled( QwtPlot::Axis axis, bool enable );
+    void setAxisLabelsAndTicksEnabled( QwtPlot::Axis axis, bool enableLabels, bool enableTicks );
 
     void enableGridLines( QwtPlot::Axis axis, bool majorGridLines, bool minorGridLines );
 
@@ -97,6 +105,13 @@ public:
                                         double        minorTickInterval,
                                         double        minValue,
                                         double        maxValue );
+    void setMajorAndMinorTickIntervalsAndRange( QwtPlot::Axis axis,
+                                                double        majorTickInterval,
+                                                double        minorTickInterval,
+                                                double        minTickValue,
+                                                double        maxTickValue,
+                                                double        rangeMin,
+                                                double        rangeMax );
     void setAutoTickIntervalCounts( QwtPlot::Axis axis, int maxMajorTickIntervalCount, int maxMinorTickIntervalCount );
     double majorTickInterval( QwtPlot::Axis axis ) const;
     double minorTickInterval( QwtPlot::Axis axis ) const;
@@ -107,9 +122,6 @@ public:
     QPoint dragStartPosition() const;
 
     void scheduleReplot();
-    void stashWidgetStates();
-    void restoreWidgetStates();
-    void setWidgetState( const QString& widgetState );
 
     void addOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
     void removeOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
@@ -124,9 +136,10 @@ public:
 signals:
     void plotSelected( bool toggleSelection );
     void axisSelected( int axisId, bool toggleSelection );
-    void curveSelected( QwtPlotCurve* curve, bool toggleSelection );
+    void plotItemSelected( QwtPlotItem* plotItem, bool toggleSelection, int sampleIndex );
     void onKeyPressEvent( QKeyEvent* event );
     void onWheelEvent( QWheelEvent* event );
+    void plotZoomed();
 
 protected:
     bool eventFilter( QObject* watched, QEvent* event ) override;
@@ -141,23 +154,23 @@ protected:
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
 
-    virtual void selectPoint( QwtPlotCurve* curve, int pointNumber );
-    virtual void clearPointSelection();
     virtual bool isZoomerActive() const;
     virtual void endZoomOperations();
 
+    void findClosestPlotItem( const QPoint& pos,
+                              QwtPlotItem** closestItem,
+                              int*          closestCurvePoint,
+                              double*       distanceFromClick ) const;
+
 private:
-    void       selectClosestCurve( const QPoint& pos, bool toggleItemInSelection = false );
+    void       selectClosestPlotItem( const QPoint& pos, bool toggleItemInSelection = false );
     static int defaultMinimumWidth();
     void       replot() override;
 
-    void highlightCurve( const QwtPlotCurve* closestCurve );
-    void resetCurveHighlighting();
+    void highlightPlotItem( const QwtPlotItem* closestItem );
+    void resetPlotItemHighlighting();
     void onAxisSelected( QwtScaleWidget* scale, bool toggleItemInSelection );
     void recalculateAxisExtents( QwtPlot::Axis axis );
-
-    caf::UiStyleSheet createPlotStyleSheet() const;
-    caf::UiStyleSheet createCanvasStyleSheet() const;
 
     void updateOverlayFrameLayout();
 
@@ -182,9 +195,6 @@ private:
 
     std::map<QwtPlotCurve*, CurveColors> m_originalCurveColors;
     std::map<QwtPlotCurve*, double>      m_originalZValues;
-
-    caf::UiStyleSheet m_plotStyleSheet;
-    caf::UiStyleSheet m_canvasStyleSheet;
 
     friend class RiaPlotWindowRedrawScheduler;
 };

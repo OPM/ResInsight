@@ -1,3 +1,6 @@
 [submodule "vcpkg"]
 	path = vcpkg
 	url = https://github.com/microsoft/vcpkg
+[submodule "ThirdParty/qwt"]
+	path = ThirdParty/qwt
+	url = https://github.com/CeetronSolutions/qwt.git

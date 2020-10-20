@@ -23,51 +23,51 @@ cvf::Mat4d createMatrix()
     double m32 = 0.32;
     double m33 = 0.33;
 
-    cvf::Mat4d myVector(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
+    cvf::Mat4d myVector( m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33 );
 
     return myVector;
 }
 
-TEST(SerializeTest, PdmCoreMat4d)
+TEST( SerializeTest, PdmCoreMat4d )
 {
     cvf::Mat4d myMatrix = createMatrix();
 
     QString textString;
     {
-        QTextStream out(&textString);
+        QTextStream out( &textString );
         out << myMatrix;
 
-        EXPECT_EQ(0, textString.compare("0 0.01 0.02 0.03 0.1 0.11 0.12 0.13 0.2 0.21 0.22 0.23 0.3 0.31 0.32 0.33"));
+        EXPECT_EQ( 0, textString.compare( "0 0.01 0.02 0.03 0.1 0.11 0.12 0.13 0.2 0.21 0.22 0.23 0.3 0.31 0.32 0.33" ) );
     }
 
     {
-        cvf::Mat4d decoded;
-        QTextStream out(&textString);
+        cvf::Mat4d  decoded;
+        QTextStream out( &textString );
         out >> decoded;
-        
-        EXPECT_TRUE(decoded.equals(myMatrix));
+
+        EXPECT_TRUE( decoded.equals( myMatrix ) );
     }
 }
 
-TEST(VariantTest, PdmCoreMat4d)
+TEST( VariantTest, PdmCoreMat4d )
 {
     cvf::Mat4d myMatrix = createMatrix();
 
-    QVariant myVariant = caf::PdmValueFieldSpecialization<cvf::Mat4d>::convert(myMatrix);
+    QVariant myVariant = caf::PdmValueFieldSpecialization<cvf::Mat4d>::convert( myMatrix );
 
     cvf::Mat4d decoded;
-    caf::PdmValueFieldSpecialization<cvf::Mat4d>::setFromVariant(myVariant, decoded);
+    caf::PdmValueFieldSpecialization<cvf::Mat4d>::setFromVariant( myVariant, decoded );
 
-    EXPECT_TRUE(decoded.equals(myMatrix));
+    EXPECT_TRUE( decoded.equals( myMatrix ) );
 }
 
-TEST(SerializeSeveralTest, PdmCoreMat4d)
+TEST( SerializeSeveralTest, PdmCoreMat4d )
 {
     cvf::Mat4d myMatrix = createMatrix();
 
     QString textString;
     {
-        QTextStream out(&textString);
+        QTextStream out( &textString );
         out << myMatrix << " " << myMatrix;
     }
 }

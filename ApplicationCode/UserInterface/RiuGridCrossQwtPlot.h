@@ -61,20 +61,16 @@ public:
     void setLegendFontSize( int fontSize );
     void setInternalQwtLegendVisible( bool visible );
 
-signals:
-    void plotZoomed();
-
 protected:
     void contextMenuEvent( QContextMenuEvent* ) override;
 
-    void selectPoint( QwtPlotCurve* curve, int pointNumber ) override;
-    void clearPointSelection() override;
     bool curveText( const QwtPlotCurve* curve, QString* curveTitle, QString* xParamName, QString* yParamName ) const;
     bool isZoomerActive() const override;
     void endZoomOperations() override;
 
 private slots:
     void onZoomedSlot();
+    void onPlotItemSelected( QwtPlotItem* selectedItem, bool toggleItem, int sampleIndex );
 
 private:
     std::unique_ptr<RiuPlotAnnotationTool> m_annotationTool;

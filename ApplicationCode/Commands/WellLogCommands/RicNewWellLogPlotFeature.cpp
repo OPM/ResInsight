@@ -31,8 +31,6 @@
 
 #include "RicWellLogTools.h"
 
-#include "RiaApplication.h"
-
 #include <QAction>
 
 #include "cvfAssert.h"

@@ -18,8 +18,6 @@
 
 #include "RimEnsembleCurveSetCollection.h"
 
-#include "RiaApplication.h"
-#include "RiaColorTables.h"
 #include "RiaStdStringTools.h"
 
 #include "RifReaderEclipseSummary.h"
@@ -337,4 +335,15 @@ void RimEnsembleCurveSetCollection::defineUiOrdering( QString uiConfigName, caf:
 caf::PdmFieldHandle* RimEnsembleCurveSetCollection::objectToggleField()
 {
     return &m_showCurves;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSetCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                                    std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    RimSummaryPlot* plot = nullptr;
+    this->firstAncestorOrThisOfType( plot );
+    if ( plot ) plot->updateConnectedEditors();
 }

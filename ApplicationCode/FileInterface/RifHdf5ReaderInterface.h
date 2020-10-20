@@ -32,6 +32,8 @@ class QStringList;
 class RifHdf5ReaderInterface
 {
 public:
+    virtual ~RifHdf5ReaderInterface() = default;
+
     virtual std::vector<QDateTime> timeSteps() const                                                         = 0;
     virtual QStringList            propertyNames() const                                                     = 0;
     virtual bool dynamicResult( const QString& result, size_t stepIndex, std::vector<double>* values ) const = 0;

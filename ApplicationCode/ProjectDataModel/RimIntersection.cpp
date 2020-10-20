@@ -135,13 +135,6 @@ caf::PdmFieldHandle* RimIntersection::objectToggleField()
 {
     return &m_isActive;
 }
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimIntersection::initAfterRead()
-{
-    updateDefaultSeparateDataSource();
-}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -171,12 +164,16 @@ void RimIntersection::updateDefaultSeparateDataSource()
 {
     if ( m_separateDataSource() == nullptr )
     {
-        std::vector<RimIntersectionResultDefinition*> iResDefs =
-            findSeparateResultsCollection()->intersectionResultsDefinitions();
+        RimIntersectionResultsDefinitionCollection* defcoll = findSeparateResultsCollection();
 
-        if ( iResDefs.size() )
+        if ( defcoll )
         {
-            m_separateDataSource = iResDefs[0];
+            std::vector<RimIntersectionResultDefinition*> iResDefs = defcoll->intersectionResultsDefinitions();
+
+            if ( iResDefs.size() )
+            {
+                m_separateDataSource = iResDefs[0];
+            }
         }
     }
 }
@@ -213,9 +210,10 @@ cvf::ref<RivIntersectionHexGridInterface> RimIntersection::createHexGridInterfac
 
     RimEclipseView* eclipseView;
     this->firstAncestorOrThisOfType( eclipseView );
-    if ( eclipseView )
+    if ( eclipseView && eclipseView->mainGrid() )
     {
         RigMainGrid* grid = eclipseView->mainGrid();
+
         return new RivEclipseIntersectionGrid( grid, eclipseView->currentActiveCellInfo(), this->isInactiveCellsVisible() );
     }
 

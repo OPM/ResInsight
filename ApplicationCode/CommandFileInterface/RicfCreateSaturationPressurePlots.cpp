@@ -29,7 +29,7 @@
 #include "RimProject.h"
 #include "RimSaturationPressurePlotCollection.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
 CAF_PDM_SOURCE_INIT( RicfCreateSaturationPressurePlots, "createSaturationPressurePlots" );
 
@@ -38,7 +38,7 @@ CAF_PDM_SOURCE_INIT( RicfCreateSaturationPressurePlots, "createSaturationPressur
 //--------------------------------------------------------------------------------------------------
 RicfCreateSaturationPressurePlots::RicfCreateSaturationPressurePlots()
 {
-    CAF_PDM_InitScriptableFieldWithIO( &m_caseIds, "caseIds", std::vector<int>(), "Case IDs", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_caseIds, "caseIds", std::vector<int>(), "Case IDs", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,7 +49,7 @@ caf::PdmScriptResponse RicfCreateSaturationPressurePlots::execute()
     std::vector<int> caseIds = m_caseIds();
     if ( caseIds.empty() )
     {
-        RimProject* project = RiaApplication::instance()->project();
+        RimProject* project = RimProject::current();
         if ( project )
         {
             auto eclipeCases = project->eclipseCases();
@@ -67,7 +67,7 @@ caf::PdmScriptResponse RicfCreateSaturationPressurePlots::execute()
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
     if ( !project )
     {
         QString error( "No project loaded" );

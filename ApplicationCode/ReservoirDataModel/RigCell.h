@@ -65,12 +65,9 @@ public:
     size_t coarseningBoxIndex() const { return m_coarseningBoxIndex; }
     void   setCoarseningBoxIndex( size_t coarseningBoxIndex ) { m_coarseningBoxIndex = coarseningBoxIndex; }
 
-    void setCellFaceFault( cvf::StructGridInterface::FaceType face ) { m_cellFaceFaults[face] = true; }
-    bool isCellFaceFault( cvf::StructGridInterface::FaceType face ) const { return m_cellFaceFaults[face]; }
-
     cvf::Vec3d center() const;
     cvf::Vec3d faceCenter( cvf::StructGridInterface::FaceType face ) const;
-    cvf::Vec3d faceNormalWithAreaLenght( cvf::StructGridInterface::FaceType face ) const;
+    cvf::Vec3d faceNormalWithAreaLength( cvf::StructGridInterface::FaceType face ) const;
     double     volume() const;
 
     int  firstIntersectionPoint( const cvf::Ray& ray, cvf::Vec3d* intersectionPoint ) const;
@@ -88,8 +85,6 @@ private:
     size_t m_mainGridCellIndex;
 
     size_t m_coarseningBoxIndex; ///< If defined, index into list of coarsening boxes in RigGridBase
-
-    bool m_cellFaceFaults[6];
 
     bool m_isInvalid;
 };

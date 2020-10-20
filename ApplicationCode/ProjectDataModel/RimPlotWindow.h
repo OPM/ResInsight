@@ -50,13 +50,22 @@ public:
 
     RimPlotWindow& operator=( RimPlotWindow&& rhs );
 
+    bool plotTitleVisible() const;
+    void setPlotTitleVisible( bool showPlotTitle );
+
     virtual QString description() const = 0;
     bool            legendsVisible() const;
     void            setLegendsVisible( bool doShow );
     bool            legendsHorizontal() const;
     void            setLegendsHorizontal( bool horizontal );
-    int             legendFontSize() const;
-    void            setLegendFontSize( int fontSize );
+
+    void updateFonts() override;
+
+    int fontSize() const override;
+    int titleFontSize() const;
+    int legendFontSize() const;
+
+    void setLegendFontSize( caf::FontTools::RelativeSize fontSize );
 
     void updateLayout();
     void updateParentLayout();
@@ -88,7 +97,10 @@ private:
 
 protected:
     caf::PdmField<int>  m_id;
+    caf::PdmField<bool> m_showPlotTitle;
     caf::PdmField<bool> m_showPlotLegends;
     caf::PdmField<bool> m_plotLegendsHorizontal;
-    caf::PdmField<int>  m_legendFontSize;
+
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_titleFontSize;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_legendFontSize;
 };

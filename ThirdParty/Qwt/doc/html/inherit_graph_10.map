@@ -1,6 +1,0 @@
-<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$class_qwt_dial_needle.html" title="Base class for needles that can be used in a QwtDial. " alt="" coords="5,56,119,83"/>
-<area shape="rect" id="node2" href="$class_qwt_compass_magnet_needle.html" title="A magnet needle for compass widgets. " alt="" coords="167,5,359,32"/>
-<area shape="rect" id="node3" href="$class_qwt_compass_wind_arrow.html" title="An indicator for the wind direction. " alt="" coords="178,56,347,83"/>
-<area shape="rect" id="node4" href="$class_qwt_dial_simple_needle.html" title="A needle for dial widgets. " alt="" coords="185,107,340,133"/>
-</map>

@@ -17,17 +17,16 @@
 //////////////////////////////////////////////////////////////////////////////////
 #include "RiaGrpcPdmObjectService.h"
 
-#include "RiaApplication.h"
 #include "RiaGrpcCallbacks.h"
 #include "Rim3dView.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimProject.h"
 
-#include "cafPdmFieldScriptability.h"
+#include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmObject.h"
 #include "cafPdmObjectMethod.h"
-#include "cafPdmObjectScriptability.h"
-#include "cafPdmObjectScriptabilityRegister.h"
+#include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmObjectScriptingCapabilityRegister.h"
 
 using namespace rips;
 
@@ -42,10 +41,10 @@ struct DataHolder : public AbstractDataHolder
     size_t dataCount() const override { return data.size(); }
     size_t dataSizeOf() const override { return sizeof( typename DataType::value_type ); }
 
-    void   reserveReplyStorage( rips::PdmObjectGetterReply* reply ) const;
-    void   addValueToReply( size_t valueIndex, rips::PdmObjectGetterReply* reply ) const;
-    size_t getValuesFromChunk( size_t startIndex, const rips::PdmObjectSetterChunk* chunk );
-    void   applyValuesToProxyField( caf::PdmProxyFieldHandle* proxyField );
+    void   reserveReplyStorage( rips::PdmObjectGetterReply* reply ) const override;
+    void   addValueToReply( size_t valueIndex, rips::PdmObjectGetterReply* reply ) const override;
+    size_t getValuesFromChunk( size_t startIndex, const rips::PdmObjectSetterChunk* chunk ) override;
+    void   applyValuesToProxyField( caf::PdmProxyFieldHandle* proxyField ) override;
 
     DataType data;
 };
@@ -173,7 +172,7 @@ Status RiaPdmObjectMethodStateHandler::init( const rips::PdmObjectGetterRequest*
     m_fieldOwner->fields( fields );
     for ( auto field : fields )
     {
-        auto scriptability = field->capability<caf::PdmFieldScriptability>();
+        auto scriptability = field->capability<caf::PdmAbstractFieldScriptingCapability>();
         if ( scriptability && scriptability->scriptFieldName() == fieldName )
         {
             caf::PdmProxyFieldHandle* proxyField = dynamic_cast<caf::PdmProxyFieldHandle*>( field );
@@ -227,7 +226,7 @@ Status RiaPdmObjectMethodStateHandler::init( const rips::PdmObjectSetterChunk* c
     m_fieldOwner->fields( fields );
     for ( auto field : fields )
     {
-        auto scriptability = field->capability<caf::PdmFieldScriptability>();
+        auto scriptability = field->capability<caf::PdmAbstractFieldScriptingCapability>();
         if ( scriptability && scriptability->scriptFieldName() == fieldName )
         {
             caf::PdmProxyFieldHandle* proxyField = dynamic_cast<caf::PdmProxyFieldHandle*>( field );
@@ -337,11 +336,11 @@ grpc::Status RiaGrpcPdmObjectService::GetAncestorPdmObject( grpc::ServerContext*
                                                             const rips::PdmParentObjectRequest* request,
                                                             rips::PdmObject*                    reply )
 {
-    RimProject*                  project = RiaApplication::instance()->project();
+    RimProject*                  project = RimProject::current();
     std::vector<caf::PdmObject*> objectsOfCurrentClass;
 
     QString scriptClassName = QString::fromStdString( request->object().class_keyword() );
-    QString classKeyword    = caf::PdmObjectScriptabilityRegister::classKeywordFromScriptClassName( scriptClassName );
+    QString classKeyword = caf::PdmObjectScriptingCapabilityRegister::classKeywordFromScriptClassName( scriptClassName );
 
     project->descendantsIncludingThisFromClassKeyword( classKeyword, objectsOfCurrentClass );
 
@@ -359,7 +358,7 @@ grpc::Status RiaGrpcPdmObjectService::GetAncestorPdmObject( grpc::ServerContext*
         caf::PdmObject* parentObject       = nullptr;
         QString         ancestorScriptName = QString::fromStdString( request->parent_keyword() );
         QString         ancestorClassKeyword =
-            caf::PdmObjectScriptabilityRegister::classKeywordFromScriptClassName( ancestorScriptName );
+            caf::PdmObjectScriptingCapabilityRegister::classKeywordFromScriptClassName( ancestorScriptName );
         matchingObject->firstAncestorOrThisFromClassKeyword( ancestorClassKeyword, parentObject );
         if ( parentObject )
         {
@@ -382,7 +381,7 @@ grpc::Status RiaGrpcPdmObjectService::GetDescendantPdmObjects( grpc::ServerConte
     if ( matchingObject )
     {
         std::vector<caf::PdmObject*> childObjects;
-        QString childClassKeyword = caf::PdmObjectScriptabilityRegister::classKeywordFromScriptClassName(
+        QString childClassKeyword = caf::PdmObjectScriptingCapabilityRegister::classKeywordFromScriptClassName(
             QString::fromStdString( request->child_keyword() ) );
         matchingObject->descendantsIncludingThisFromClassKeyword( childClassKeyword, childObjects );
         for ( auto pdmChild : childObjects )
@@ -410,7 +409,7 @@ grpc::Status RiaGrpcPdmObjectService::GetChildPdmObjects( grpc::ServerContext*  
         matchingObject->fields( fields );
         for ( auto field : fields )
         {
-            auto scriptability = field->capability<caf::PdmFieldScriptability>();
+            auto scriptability = field->capability<caf::PdmAbstractFieldScriptingCapability>();
             if ( scriptability && scriptability->scriptFieldName() == fieldName )
             {
                 std::vector<caf::PdmObjectHandle*> childObjects;
@@ -449,7 +448,7 @@ grpc::Status RiaGrpcPdmObjectService::UpdateExistingPdmObject( grpc::ServerConte
         }
 
         matchingObject->updateAllRequiredEditors();
-        RiaApplication::instance()->project()->scheduleCreateDisplayModelAndRedrawAllViews();
+        RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
 
         Rim3dView* view = dynamic_cast<Rim3dView*>( matchingObject );
         if ( view )
@@ -610,10 +609,10 @@ caf::PdmObject* RiaGrpcPdmObjectService::findCafObjectFromRipsObject( const rips
 caf::PdmObject* RiaGrpcPdmObjectService::findCafObjectFromScriptNameAndAddress( const QString& scriptClassName,
                                                                                 uint64_t       address )
 {
-    RimProject*                  project = RiaApplication::instance()->project();
+    RimProject*                  project = RimProject::current();
     std::vector<caf::PdmObject*> objectsOfCurrentClass;
 
-    QString classKeyword = caf::PdmObjectScriptabilityRegister::classKeywordFromScriptClassName( scriptClassName );
+    QString classKeyword = caf::PdmObjectScriptingCapabilityRegister::classKeywordFromScriptClassName( scriptClassName );
 
     project->descendantsIncludingThisFromClassKeyword( classKeyword, objectsOfCurrentClass );
 

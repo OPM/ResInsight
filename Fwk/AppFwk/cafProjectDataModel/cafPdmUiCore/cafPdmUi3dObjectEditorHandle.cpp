@@ -37,38 +37,36 @@
 #include "cafPdmUi3dObjectEditorHandle.h"
 
 //==================================================================================================
-/// 
+///
 ///
 ///
 //==================================================================================================
-namespace caf 
+namespace caf
 {
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmUi3dObjectEditorHandle::PdmUi3dObjectEditorHandle()
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmUi3dObjectEditorHandle::~PdmUi3dObjectEditorHandle()
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// The viewer widget set here is provided by the PdmUiSelection3dEditorVisualizer and is expected 
+/// The viewer widget set here is provided by the PdmUiSelection3dEditorVisualizer and is expected
 /// to be cast able to whatever is needed in subclasses.
 /// Not allowed to change. Should be constructor argument, but makes factory stuff difficult.
 //--------------------------------------------------------------------------------------------------
-void PdmUi3dObjectEditorHandle::setViewer(QWidget* ownerViewer, bool inComparisonView)
+void PdmUi3dObjectEditorHandle::setViewer( QWidget* ownerViewer, bool inComparisonView )
 {
-    CAF_ASSERT(m_ownerViewer.isNull()); 
-    m_ownerViewer = ownerViewer;
+    CAF_ASSERT( m_ownerViewer.isNull() );
+    m_ownerViewer        = ownerViewer;
     m_isInComparisonView = inComparisonView;
 }
 
-}
+} // namespace caf

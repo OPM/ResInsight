@@ -62,7 +62,7 @@ void RicSetMasterViewFeature::onActionTriggered( bool isChecked )
     RimGridView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
     if ( !activeView ) return;
 
-    RimProject*    proj       = RiaApplication::instance()->project();
+    RimProject*    proj       = RimProject::current();
     RimViewLinker* viewLinker = proj->viewLinkerCollection()->viewLinker();
 
     viewLinker->applyRangeFilterCollectionByUserChoice();

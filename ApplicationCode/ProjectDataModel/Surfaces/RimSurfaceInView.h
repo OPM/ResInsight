@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
@@ -27,10 +28,14 @@
 #include "RimIntersection.h"
 
 class RimSurface;
-
+class RimSurfaceResultDefinition;
 class RivSurfacePartMgr;
 class RivIntersectionHexGridInterface;
+class RiuViewer;
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 class RimSurfaceInView : public RimIntersection
 {
     CAF_PDM_HEADER_INIT;
@@ -43,15 +48,18 @@ public:
     RimSurface* surface() const;
     void        setSurface( RimSurface* surf );
 
-    double depthOffset() const;
+    bool                        isNativeSurfaceResultsActive() const;
+    RimSurfaceResultDefinition* surfaceResultDefinition();
 
     void               clearGeometry();
     RivSurfacePartMgr* surfacePartMgr();
 
+    void loadDataAndUpdate();
+
+    void updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer );
+
 protected:
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
+    virtual void initAfterRead() override;
 
 private:
     virtual RimIntersectionResultsDefinitionCollection* findSeparateResultsCollection() override;
@@ -63,7 +71,7 @@ private:
     caf::PdmProxyValueField<QString> m_name;
     caf::PdmPtrField<RimSurface*>    m_surface;
 
-    caf::PdmField<double> m_depthOffset;
+    caf::PdmChildField<RimSurfaceResultDefinition*> m_resultDefinition;
 
     cvf::ref<RivSurfacePartMgr> m_surfacePartMgr;
 };

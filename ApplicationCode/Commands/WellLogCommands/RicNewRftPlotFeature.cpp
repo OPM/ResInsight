@@ -18,8 +18,6 @@
 
 #include "RicNewRftPlotFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimRftPlotCollection.h"
@@ -60,7 +58,7 @@ bool RicNewRftPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewRftPlotFeature::onActionTriggered( bool isChecked )
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
 
     RimRftPlotCollection* rftPlotColl = proj->mainPlotCollection()->rftPlotCollection();
     if ( rftPlotColl )

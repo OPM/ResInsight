@@ -29,8 +29,6 @@
 
 #include <QDebug>
 
-#include <omp.h>
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -243,7 +241,7 @@ void RigCellFaceGeometryTools::extractConnectionsForFace( const RigFault::FaultF
         size_t i;
         size_t j;
         size_t k;
-        mainGrid->ijkFromCellIndex( sourceReservoirCellIndex, &i, &j, &k );
+        mainGrid->ijkFromCellIndexUnguarded( sourceReservoirCellIndex, &i, &j, &k );
 
         mainGrid->neighborIJKAtCellFace( i, j, k, sourceCellFace, &ni, &nj, &nk );
 
@@ -261,14 +259,14 @@ void RigCellFaceGeometryTools::extractConnectionsForFace( const RigFault::FaultF
             continue;
         }
 
-        if ( candidateCellIndex == neighborCellIndex )
+        if ( candidateCellIndex >= mainGrid->cellCount() )
         {
-            // Exclude direct neighbor
             continue;
         }
 
-        if ( candidateCellIndex >= mainGrid->cellCount() )
+        if ( candidateCellIndex == neighborCellIndex )
         {
+            // Exclude direct neighbor
             continue;
         }
 
@@ -280,7 +278,7 @@ void RigCellFaceGeometryTools::extractConnectionsForFace( const RigFault::FaultF
             size_t ci = std::numeric_limits<size_t>::max();
             size_t cj = std::numeric_limits<size_t>::max();
             size_t ck = std::numeric_limits<size_t>::max();
-            mainGrid->ijkFromCellIndex( candidateCellIndex, &ci, &cj, &ck );
+            mainGrid->ijkFromCellIndexUnguarded( candidateCellIndex, &ci, &cj, &ck );
 
             auto gridAxis = cvf::StructGridInterface::gridAxisFromFace( sourceCellFace );
             if ( gridAxis == cvf::StructGridInterface::GridAxisType::AXIS_I )

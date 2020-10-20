@@ -144,13 +144,11 @@ void RigReservoirBuilderMock::appendCells( size_t                nodeStartIndex,
                                            RigGridBase*          hostGrid,
                                            std::vector<RigCell>& cells )
 {
-    long long i;
-
     size_t cellIndexStart = cells.size();
     cells.resize( cells.size() + cellCount );
 
 #pragma omp parallel for
-    for ( i = 0; i < static_cast<long long>( cellCount ); i++ )
+    for ( long long i = 0; i < static_cast<long long>( cellCount ); i++ )
     {
         RigCell& riCell = cells[cellIndexStart + i];
 
@@ -261,7 +259,7 @@ void RigReservoirBuilderMock::populateReservoir( RigEclipseCaseData* eclipseCase
     addFaults( eclipseCase );
 
     // Set all cells active
-    RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo( RiaDefines::MATRIX_MODEL );
+    RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
     activeCellInfo->setReservoirCellCount( eclipseCase->mainGrid()->globalCellArray().size() );
     for ( size_t i = 0; i < eclipseCase->mainGrid()->globalCellArray().size(); i++ )
     {
@@ -409,7 +407,7 @@ void RigReservoirBuilderMock::addWellData( RigEclipseCaseData* eclipseCase, RigG
             wellCells.m_wellHead.m_gridCellIndex = grid->cellIndexFromIJK( 1, 0, 0 );
 
             // Connections
-            //            int connectionCount = CVF_MIN(dim.x(), CVF_MIN(dim.y(), dim.z())) - 2;
+            //            int connectionCount = std::min(dim.x(), std::min(dim.y(), dim.z())) - 2;
             size_t connectionCount = dim.z() - 2;
             if ( connectionCount > 0 )
             {

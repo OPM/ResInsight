@@ -25,9 +25,9 @@ namespace caf
 template <>
 void caf::AppEnum<RiaDefines::PorosityModelType>::setUp()
 {
-    addItem( RiaDefines::MATRIX_MODEL, "MATRIX_MODEL", "Matrix" );
-    addItem( RiaDefines::FRACTURE_MODEL, "FRACTURE_MODEL", "Fracture" );
+    addItem( RiaDefines::PorosityModelType::MATRIX_MODEL, "MATRIX_MODEL", "Matrix" );
+    addItem( RiaDefines::PorosityModelType::FRACTURE_MODEL, "FRACTURE_MODEL", "Fracture" );
 
-    setDefault( RiaDefines::MATRIX_MODEL );
+    setDefault( RiaDefines::PorosityModelType::MATRIX_MODEL );
 }
 } // namespace caf

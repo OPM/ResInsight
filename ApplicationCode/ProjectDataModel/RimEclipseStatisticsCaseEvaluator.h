@@ -62,8 +62,8 @@ public:
     struct ResSpec
     {
         ResSpec()
-            : m_resType( RiaDefines::DYNAMIC_NATIVE )
-            , m_poroModel( RiaDefines::MATRIX_MODEL )
+            : m_resType( RiaDefines::ResultCatType::DYNAMIC_NATIVE )
+            , m_poroModel( RiaDefines::PorosityModelType::MATRIX_MODEL )
         {
         }
         ResSpec( RiaDefines::PorosityModelType poroModel, RiaDefines::ResultCatType resType, QString resVarName )

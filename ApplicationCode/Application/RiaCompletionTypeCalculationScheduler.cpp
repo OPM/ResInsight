@@ -56,7 +56,7 @@ RiaCompletionTypeCalculationScheduler* RiaCompletionTypeCalculationScheduler::in
 void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAndRedrawAllViews()
 {
     std::vector<RimEclipseCase*> eclipseCases =
-        RiaApplication::instance()->project()->activeOilField()->analysisModels->cases().childObjects();
+        RimProject::current()->activeOilField()->analysisModels->cases().childObjects();
 
     scheduleRecalculateCompletionTypeAndRedrawAllViews( eclipseCases );
 }
@@ -85,8 +85,8 @@ void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAnd
         if ( eclipseCase->eclipseCaseData() )
         {
             eclipseCase->eclipseCaseData()
-                ->results( RiaDefines::MATRIX_MODEL )
-                ->clearScalarResult( RiaDefines::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName() );
+                ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
+                ->clearScalarResult( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName() );
 
             // Delete virtual perforation transmissibilities, as these are the basis for the computation of completion type
             eclipseCase->eclipseCaseData()->setVirtualPerforationTransmissibilities( nullptr );

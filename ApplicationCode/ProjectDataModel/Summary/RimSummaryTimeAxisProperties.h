@@ -22,6 +22,7 @@
 #include "RimPlotAxisPropertiesInterface.h"
 
 #include "cafAppEnum.h"
+#include "cafFontTools.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -65,9 +66,7 @@ public:
 
     AxisTitlePositionType titlePosition() const override;
     int                   titleFontSize() const override;
-    void                  setTitleFontSize( int fontSize ) override;
     int                   valuesFontSize() const override;
-    void                  setValuesFontSize( int fontSize ) override;
     TimeModeType          timeMode() const;
     void                  setTimeMode( TimeModeType val );
     double                fromTimeTToDisplayUnitScale();
@@ -76,7 +75,8 @@ public:
     RiaQDateTimeTools::DateFormatComponents
         dateComponents( RiaQDateTimeTools::DateFormatComponents fallback = RiaQDateTimeTools::DATE_FORMAT_UNSPECIFIED ) const;
     RiaQDateTimeTools::TimeFormatComponents
-        timeComponents( RiaQDateTimeTools::TimeFormatComponents fallback = RiaQDateTimeTools::TIME_FORMAT_UNSPECIFIED ) const;
+        timeComponents( RiaQDateTimeTools::TimeFormatComponents fallback =
+                            RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED ) const;
 
     const QString& dateFormat() const;
     const QString& timeFormat() const;
@@ -112,10 +112,11 @@ protected:
                                                          QString                    uiConfigName,
                                                          caf::PdmUiEditorAttribute* attribute ) override;
 
-    double    fromDateToDisplayTime( const QDateTime& displayTime );
-    QDateTime fromDisplayTimeToDate( double displayTime );
-    void      updateTimeVisibleRange();
-    void      updateDateVisibleRange();
+    double                   fromDateToDisplayTime( const QDateTime& displayTime );
+    QDateTime                fromDisplayTimeToDate( double displayTime );
+    void                     updateTimeVisibleRange();
+    void                     updateDateVisibleRange();
+    caf::FontTools::FontSize plotFontSize() const;
 
 private:
     caf::PdmField<caf::AppEnum<TimeModeType>> m_timeMode;
@@ -131,9 +132,10 @@ private:
     caf::PdmField<double> m_visibleTimeSinceStartRangeMax;
     caf::PdmField<bool>   m_isAutoZoom;
 
-    caf::PdmField<int>                                 m_titleFontSize;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_titleFontSize;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_valuesFontSize;
+
     caf::PdmField<caf::AppEnum<AxisTitlePositionType>> m_titlePositionEnum;
-    caf::PdmField<int>                                 m_valuesFontSize;
     caf::PdmField<bool>                                m_automaticDateComponents;
     caf::PdmField<DateFormatEnum>                      m_dateComponents;
     caf::PdmField<TimeFormatEnum>                      m_timeComponents;

@@ -40,16 +40,19 @@
 #include <QString>
 
 #define CAF_PDM_CODE_GENERATOR_HEADER_INIT \
-    public: \
+public:                                    \
     static const std::string& fileExtension();
 
-#define CAF_PDM_CODE_GENERATOR_SOURCE_INIT(ClassName, FileExtension)\
-    const std::string& ClassName::fileExtension() { static std::string ext = FileExtension; return ext;} \
-    CAF_FACTORY_REGISTER(caf::PdmCodeGenerator, ClassName, std::string, ClassName::fileExtension())
+#define CAF_PDM_CODE_GENERATOR_SOURCE_INIT( ClassName, FileExtension ) \
+    const std::string& ClassName::fileExtension()                      \
+    {                                                                  \
+        static std::string ext = FileExtension;                        \
+        return ext;                                                    \
+    }                                                                  \
+    CAF_FACTORY_REGISTER( caf::PdmCodeGenerator, ClassName, std::string, ClassName::fileExtension() )
 
-
-namespace caf {
-
+namespace caf
+{
 class PdmObjectFactory;
 
 //==================================================================================================
@@ -58,10 +61,9 @@ class PdmObjectFactory;
 class PdmCodeGenerator
 {
 public:
-    virtual QString generate(PdmObjectFactory* factory) const = 0;
+    virtual QString generate( PdmObjectFactory* factory ) const = 0;
 };
-
 
 typedef Factory<PdmCodeGenerator, std::string> PdmCodeGeneratorFactory;
 
-}
+} // namespace caf

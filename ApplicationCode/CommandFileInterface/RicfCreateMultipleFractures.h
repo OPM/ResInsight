@@ -25,7 +25,7 @@
 
 namespace MultipleFractures
 {
-enum Action
+enum class Action
 {
     NONE,
     APPEND_FRACTURES,

@@ -129,7 +129,7 @@ void RicSummaryPlotFeatureImpl::ensureAtLeastOnePlot( RimSummaryPlotCollection* 
 {
     if ( summaryPlotCollection && summaryCase )
     {
-        if ( summaryPlotCollection->summaryPlots.empty() )
+        if ( summaryPlotCollection->plots().empty() )
         {
             auto objectToSelect = createDefaultSummaryPlot( summaryCase );
             if ( objectToSelect )
@@ -146,8 +146,7 @@ void RicSummaryPlotFeatureImpl::ensureAtLeastOnePlot( RimSummaryPlotCollection* 
 //--------------------------------------------------------------------------------------------------
 caf::PdmObject* RicSummaryPlotFeatureImpl::createDefaultSummaryPlot( RimSummaryCase* summaryCase )
 {
-    RimSummaryPlotCollection* summaryPlotCollection =
-        RiaApplication::instance()->project()->mainPlotCollection->summaryPlotCollection();
+    RimSummaryPlotCollection* summaryPlotCollection = RimProject::current()->mainPlotCollection->summaryPlotCollection();
 
     caf::PdmObject* itemToSelect = nullptr;
 
@@ -381,7 +380,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
         RicImportSummaryCasesFeature::addSummaryCases( summaryCasesToUse );
 
         RiaApplication::instance()->setLastUsedDialogDirectory( RiaDefines::defaultDirectoryLabel(
-                                                                    RiaDefines::ECLIPSE_SUMMARY_FILE ),
+                                                                    RiaDefines::ImportFileType::ECLIPSE_SUMMARY_FILE ),
                                                                 QFileInfo( summaryFileNames[0] ).absolutePath() );
     }
 
@@ -393,8 +392,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
 
         RimSummaryPlot* lastPlotCreated = nullptr;
 
-        RimSummaryPlotCollection* sumPlotColl =
-            RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
+        RimSummaryPlotCollection* sumPlotColl = RimProject::current()->mainPlotCollection()->summaryPlotCollection();
 
         splitAddressFiltersInGridAndSummary( summaryCasesToUse[0],
                                              allCurveAddressFilters,
@@ -469,9 +467,9 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                     {
                         for ( RimEclipseCase* eclCase : gridCasesToPlotFrom )
                         {
-                            if ( !( eclCase->eclipseCaseData()->results( RiaDefines::MATRIX_MODEL ) &&
+                            if ( !( eclCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) &&
                                     eclCase->eclipseCaseData()
-                                        ->results( RiaDefines::MATRIX_MODEL )
+                                        ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
                                         ->resultInfo( cellResAddr.eclipseResultAddress ) ) )
                             {
                                 RiaLogging::warning( "Could not find a restart result property with name: \"" +
@@ -525,9 +523,9 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                         std::vector<RimGridTimeHistoryCurve*> createdCurves;
                         for ( RimEclipseCase* eclCase : gridCasesToPlotFrom )
                         {
-                            if ( !( eclCase->eclipseCaseData()->results( RiaDefines::MATRIX_MODEL ) &&
+                            if ( !( eclCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) &&
                                     eclCase->eclipseCaseData()
-                                        ->results( RiaDefines::MATRIX_MODEL )
+                                        ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
                                         ->resultInfo( cellResAddr.eclipseResultAddress ) ) )
                             {
                                 RiaLogging::warning( "Could not find a restart result property with name: \"" +
@@ -573,7 +571,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
             sumPlotColl->updateConnectedEditors();
 
             RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
-            // Needed to avoid unneccessary activation of sub windows (plots)
+            // Needed to avoid unnecessary activation of sub windows (plots)
             // which results in population of property editor, and missing deleteLater because we are outside any event
             // loop when switching object. Results in stray widgets.
             mpw->setBlockViewSelectionOnSubWindowActivated( true );
@@ -621,7 +619,7 @@ RimSummaryPlot*
 
                 if ( ensembleColoringStyle == EnsembleColoringType::LOG_PARAMETER )
                 {
-                    curveSet->legendConfig()->setMappingMode( RimRegularLegendConfig::LOG10_CONTINUOUS );
+                    curveSet->legendConfig()->setMappingMode( RimRegularLegendConfig::MappingType::LOG10_CONTINUOUS );
                 }
             }
 
@@ -686,7 +684,7 @@ std::vector<RimSummaryPlot*> RicSummaryPlotFeatureImpl::createMultipleSummaryPlo
                 curveSet->setEnsembleParameter( ensembleColoringParameter );
                 if ( ensembleColoringStyle == EnsembleColoringType::LOG_PARAMETER )
                 {
-                    curveSet->legendConfig()->setMappingMode( RimRegularLegendConfig::LOG10_CONTINUOUS );
+                    curveSet->legendConfig()->setMappingMode( RimRegularLegendConfig::MappingType::LOG10_CONTINUOUS );
                 }
             }
             createdEnsembleCurveSets.push_back( curveSet );

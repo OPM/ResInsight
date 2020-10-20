@@ -23,6 +23,7 @@
 #include "RiuInterfaceToViewWindow.h"
 #include "RiuViewerToViewInterface.h"
 
+#include "cafFontTools.h"
 #include "cafMouseState.h"
 #include "cafPdmInterfacePointer.h"
 #include "cafPdmObject.h"
@@ -101,7 +102,8 @@ public:
     void updateGridBoxData( double                  scaleZ,
                             const cvf::Vec3d&       displayModelOffset,
                             const cvf::Color3f&     backgroundColor,
-                            const cvf::BoundingBox& domainCoordBoundingBox );
+                            const cvf::BoundingBox& domainCoordBoundingBox,
+                            int                     fontPointSize );
     void showEdgeTickMarksXY( bool enable, bool showAxisLines = false );
     void showEdgeTickMarksXZ( bool enable, bool showAxisLines = false );
 
@@ -136,7 +138,7 @@ public:
     static void setHoverCursor( const QCursor& cursor );
     static void clearHoverCursor();
 
-    void updateFonts();
+    void updateFonts( int fontPointSize );
 
 public slots:
     void slotSetCurrentFrame( int frameIndex ) override;
@@ -180,6 +182,7 @@ private:
     bool    m_showZScaleLabel;
     bool    m_hideZScaleCheckbox;
     double  m_zScale;
+    int     m_fontPointSize;
 
     caf::QStyledProgressBar*  m_animationProgress;
     caf::QStyledProgressBar*  m_animationProgressCompView;

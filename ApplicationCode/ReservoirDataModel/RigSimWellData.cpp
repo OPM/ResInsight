@@ -223,7 +223,7 @@ void RigSimWellData::computeStaticWellCellPath() const
             // Now find all result cells in ranges between pairs in the static path
             // If the result has items that "compete" with those in the static path,
             // those items are inserted after the ones in the static path. This
-            // is not neccesarily correct. They could be in front, and also merged in
+            // is not necessarily correct. They could be in front, and also merged in
             // strange ways. A geometric test could make this more robust, but we will
             // not solve before we see that it actually ends up as a problem
 

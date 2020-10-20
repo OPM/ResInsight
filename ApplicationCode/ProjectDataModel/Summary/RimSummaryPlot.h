@@ -73,8 +73,6 @@ public:
     RimSummaryPlot();
     ~RimSummaryPlot() override;
 
-    bool    showPlotTitle() const;
-    void    setShowPlotTitle( bool showTitle );
     void    setDescription( const QString& description );
     QString description() const override;
 
@@ -83,6 +81,10 @@ public:
 
     void addCurveAndUpdate( RimSummaryCurve* curve );
     void addCurveNoUpdate( RimSummaryCurve* curve );
+
+    void insertCurve( RimSummaryCurve* curve, size_t insertAtPosition );
+
+    void removeCurve( RimSummaryCurve* curve );
 
     void deleteCurve( RimSummaryCurve* curve );
     void deleteCurves( const std::vector<RimSummaryCurve*>& curves );
@@ -147,12 +149,6 @@ public:
     size_t singleColorCurveCount() const;
     void   applyDefaultCurveAppearances();
 
-    bool hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const override;
-    bool applyFontSize( RiaDefines::FontSettingType fontSettingType,
-                        int                         oldFontSize,
-                        int                         fontSize,
-                        bool                        forceChange = false ) override;
-
     void setNormalizationEnabled( bool enable );
     bool isNormalizationEnabled();
 
@@ -176,10 +172,14 @@ public:
         return 8;
     }
 
+    static void moveCurvesToPlot( RimSummaryPlot* plot, const std::vector<RimSummaryCurve*> curves, int insertAtPosition );
+
 public:
     // RimViewWindow overrides
     void deleteViewWidget() override;
     void initAfterRead() override;
+
+    bool isDeletable() const override;
 
 private:
     RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
@@ -190,13 +190,18 @@ private:
 
     void detachAllPlotItems();
 
-    void doRemoveFromCollection() override;
     void handleKeyPressEvent( QKeyEvent* keyEvent ) override;
+
+    void onCurveCollectionChanged( const SignalEmitter* emitter );
 
 protected:
     // Overridden PDM methods
     caf::PdmFieldHandle* userDescriptionField() override;
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void                 childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
+    void                 updateStackedCurveData();
+    void                 updateStackedCurveDataForAxis( RiaDefines::PlotAxis plotAxis );
+
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void onLoadDataAndUpdate() override;
@@ -213,6 +218,7 @@ private:
     std::vector<RimGridTimeHistoryCurve*> visibleTimeHistoryCurvesForAxis( RiaDefines::PlotAxis plotAxis ) const;
     std::vector<RimAsciiDataCurve*>       visibleAsciiDataCurvesForAxis( RiaDefines::PlotAxis plotAxis ) const;
     bool                                  hasVisibleCurvesForAxis( RiaDefines::PlotAxis plotAxis ) const;
+    std::vector<RimSummaryCurve*>         visibleStackedSummaryCurvesForAxis( RiaDefines::PlotAxis plotAxis );
 
     RimPlotAxisProperties* yAxisPropertiesLeftOrRight( RiaDefines::PlotAxis leftOrRightPlotAxis ) const;
     void                   updateYAxis( RiaDefines::PlotAxis plotAxis );
@@ -226,10 +232,22 @@ private:
 
     void cleanupBeforeClose();
 
+    void connectCurveSignals( RimSummaryCurve* curve );
+    void disconnectCurveSignals( RimSummaryCurve* curve );
+
+    void curveDataChanged( const caf::SignalEmitter* emitter );
+    void curveVisibilityChanged( const caf::SignalEmitter* emitter, bool visible );
+    void curveAppearanceChanged( const caf::SignalEmitter* emitter );
+    void curveStackingChanged( const caf::SignalEmitter* emitter, bool stacked );
+    void curveStackingColorsChanged( const caf::SignalEmitter* emitter, bool stackWithPhaseColors );
+
+    void connectAxisSignals( RimPlotAxisProperties* axis );
+    void axisSettingsChanged( const caf::SignalEmitter* emitter );
+    void axisLogarithmicChanged( const caf::SignalEmitter* emitter, bool isLogarithmic );
+
 private:
     caf::PdmField<bool> m_normalizeCurveYValues;
 
-    caf::PdmField<bool>    m_showPlotTitle;
     caf::PdmField<bool>    m_useAutoPlotTitle;
     caf::PdmField<QString> m_description;
 

@@ -34,10 +34,9 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include <typeinfo>
 
 /// Create a QString based on a typename
-#define qStringTypeName(TypeName) QString(typeid(TypeName).name())
+#define qStringTypeName( TypeName ) QString( typeid( TypeName ).name() )

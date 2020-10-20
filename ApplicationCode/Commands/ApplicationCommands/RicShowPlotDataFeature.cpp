@@ -106,7 +106,9 @@ private:
     static std::vector<RiaQDateTimeTools::DateTimePeriod> tabs()
     {
         std::vector<RiaQDateTimeTools::DateTimePeriod> dateTimePeriods = RiaQDateTimeTools::dateTimePeriods();
-        dateTimePeriods.erase( std::remove( dateTimePeriods.begin(), dateTimePeriods.end(), RiaQDateTimeTools::DateTimePeriod::DECADE ),
+        dateTimePeriods.erase( std::remove( dateTimePeriods.begin(),
+                                            dateTimePeriods.end(),
+                                            RiaQDateTimeTools::DateTimePeriod::DECADE ),
                                dateTimePeriods.end() );
         return dateTimePeriods;
     }
@@ -254,7 +256,7 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
 void RicShowPlotDataFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Show Plot Data" );
-    actionToSetup->setIcon( QIcon( ":/PlotWindow24x24.png" ) );
+    actionToSetup->setIcon( QIcon( ":/PlotWindow.svg" ) );
 }
 
 //--------------------------------------------------------------------------------------------------

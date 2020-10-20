@@ -26,6 +26,8 @@
 
 #include "cvfAssert.h"
 
+#include <cstdlib>
+
 RigGridBase::RigGridBase( RigMainGrid* mainGrid )
     : m_gridPointDimensions( 0, 0, 0 )
     , m_indexToStartOfCells( 0 )
@@ -145,7 +147,7 @@ void RigGridBase::initSubCellsMainGridCellIndex()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// For main grid, this will work with reservoirCellIndices retreiving the correct lgr cells as well.
+/// For main grid, this will work with reservoirCellIndices retrieving the correct lgr cells as well.
 /// the cell() call retreives correct cell, because main grid has offset of 0, and we access the global
 /// cell array in main grid.
 //--------------------------------------------------------------------------------------------------
@@ -202,18 +204,37 @@ bool RigGridBase::ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size
 
     size_t index = cellIndex;
 
-    if ( cellCountI() <= 0 || cellCountJ() <= 0 )
+    if ( m_gridPointDimensions[0] <= 1u || m_gridPointDimensions[1] <= 1u )
     {
         return false;
     }
 
-    *k = index / ( cellCountI() * cellCountJ() );
-    index -= ( *k ) * ( cellCountI() * cellCountJ() );
-    *j = index / cellCountI();
-    index -= ( *j ) * cellCountI();
-    *i = index;
+    const size_t cellCountI = m_gridPointDimensions[0] - 1u;
+    const size_t cellCountJ = m_gridPointDimensions[1] - 1u;
+
+    *i = index % cellCountI;
+    index /= cellCountI;
+    *j = index % cellCountJ;
+    *k = index / cellCountJ;
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// This version does no if-guarding. Check that all dimensions of the grid are non-zero before using.
+/// Useful for running in a loop after doing the sanity check once.
+//--------------------------------------------------------------------------------------------------
+void RigGridBase::ijkFromCellIndexUnguarded( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const
+{
+    size_t index = cellIndex;
+
+    const size_t cellCountI = m_gridPointDimensions[0] - 1u;
+    const size_t cellCountJ = m_gridPointDimensions[1] - 1u;
+
+    *i = index % cellCountI;
+    index /= cellCountI;
+    *j = index % cellCountJ;
+    *k = index / cellCountJ;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -330,6 +351,17 @@ bool RigGridBase::cellIJKNeighbor( size_t i, size_t j, size_t k, FaceType face, 
     }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigGridBase::cellIJKNeighborUnguarded( size_t i, size_t j, size_t k, FaceType face, size_t* neighborCellIndex ) const
+{
+    size_t ni, nj, nk;
+    neighborIJKAtCellFace( i, j, k, face, &ni, &nj, &nk );
+
+    *neighborCellIndex = cellIndexFromIJK( ni, nj, nk );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -43,6 +43,7 @@
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 
+#include "RivElementVectorResultPartMgr.h"
 #include "RivGridPartMgr.h"
 #include "RivReservoirFaultsPartMgr.h"
 
@@ -1161,6 +1162,24 @@ void RivReservoirViewPartMgr::appendFaultLabelsDynamicGeometryPartsToModel( cvf:
                                                                             size_t               frameIndex )
 {
     m_propFilteredGeometryFrames[frameIndex]->appendFaultLabelPartsToModel( model );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivReservoirViewPartMgr::appendElementVectorResultDynamicGeometryPartsToModel( cvf::ModelBasicList* model,
+                                                                                    RivCellSetEnum       geometryType,
+                                                                                    size_t               frameIndex )
+{
+    ensureDynamicGeometryPartsCreated( geometryType, frameIndex );
+    if ( geometryType == PROPERTY_FILTERED )
+    {
+        m_propFilteredGeometryFrames[frameIndex]->appendElementVectorResultPartsToModel( model, frameIndex );
+    }
+    else if ( geometryType == PROPERTY_FILTERED_WELL_CELLS )
+    {
+        m_propFilteredWellGeometryFrames[frameIndex]->appendElementVectorResultPartsToModel( model, frameIndex );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

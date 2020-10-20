@@ -103,8 +103,6 @@ void RigGeoMechWellLogExtractor::performCurveDataSmoothing( int                 
 
     if ( !mds->empty() && !values->empty() )
     {
-        std::vector<std::vector<double>*> dependentValues = {tvds, &interfaceShValuesDbl, &interfacePorePressuresDbl};
-
         std::vector<unsigned char> smoothOrFilterSegments = determineFilteringOrSmoothing( interfacePorePressuresDbl );
 
         smoothSegments( mds, tvds, values, interfaceShValuesDbl, smoothOrFilterSegments, smoothingTreshold );
@@ -315,16 +313,16 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
             {
                 if ( !lasFileValues.empty() )
                 {
-                    double lasValue         = getWellLogIntersectionValue( intersectionIdx, lasFileValues );
-		            // Only accept las-values for PP_reservoir if the grid result is valid
-                    bool   validLasRegion = true;
-                    if (isPPResResult)
+                    double lasValue = getWellLogIntersectionValue( intersectionIdx, lasFileValues );
+                    // Only accept las-values for PP_reservoir if the grid result is valid
+                    bool validLasRegion = true;
+                    if ( isPPResResult )
                     {
-                        validLasRegion = intersectionIdx < (int64_t) gridValues.size() &&
+                        validLasRegion = intersectionIdx < static_cast<int64_t>( gridValues.size() ) &&
                                          gridValues[intersectionIdx] != std::numeric_limits<double>::infinity();
                     }
 
-                    if ( validLasRegion && lasValue != std::numeric_limits<double>::infinity())
+                    if ( validLasRegion && lasValue != std::numeric_limits<double>::infinity() )
                     {
                         unscaledValues[intersectionIdx]         = lasValue;
                         finalSourcesPerSegment[intersectionIdx] = RigWbsParameter::LAS_FILE;
@@ -576,14 +574,6 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData( const RigFemResultAddres
     // The result addresses needed
     RigFemResultAddress stressResAddr( RIG_ELEMENT_NODAL, "ST", "" );
     RigFemResultAddress porBarResAddr( RIG_ELEMENT_NODAL, "POR-Bar", "" );
-
-    // Allow POR as an element property value
-    RigFemResultAddress ppSandElementPropertyAddr =
-        RigWbsParameter::PP_Reservoir().femAddress( RigWbsParameter::ELEMENT_PROPERTY_TABLE );
-
-    RigFemResultAddress poissonResAddr =
-        RigWbsParameter::poissonRatio().femAddress( RigWbsParameter::ELEMENT_PROPERTY_TABLE );
-    RigFemResultAddress ucsResAddr = RigWbsParameter::UCS().femAddress( RigWbsParameter::ELEMENT_PROPERTY_TABLE );
 
     RigFemPartResultsCollection* resultCollection = m_caseData->femPartResults();
 
@@ -1123,7 +1113,7 @@ cvf::Vec3f RigGeoMechWellLogExtractor::cellCentroid( size_t intersectionIdx ) co
 
     size_t         elmIdx           = m_intersectedCellsGlobIdx[intersectionIdx];
     RigElementType elmType          = femPart->elementType( elmIdx );
-    int            elementNodeCount = RigFemTypes::elmentNodeCount( elmType );
+    int            elementNodeCount = RigFemTypes::elementNodeCount( elmType );
 
     const int* elmNodeIndices = femPart->connectivities( elmIdx );
 
@@ -1383,11 +1373,9 @@ std::vector<unsigned char>
 double RigGeoMechWellLogExtractor::hydroStaticPorePressureForIntersection( size_t intersectionIdx,
                                                                            double waterDensityGCM3 ) const
 {
-    double trueVerticalDepth             = m_intersectionTVDs[intersectionIdx];
-    double effectiveDepthMeters          = trueVerticalDepth + wellPathData()->rkbDiff();
-    double hydroStaticPorePressurePascal = effectiveDepthMeters * GRAVITY_ACCEL * waterDensityGCM3 * 1000;
-    double hydroStaticPorePressureBar    = pascalToBar( hydroStaticPorePressurePascal );
-    return hydroStaticPorePressureBar;
+    double trueVerticalDepth    = m_intersectionTVDs[intersectionIdx];
+    double effectiveDepthMeters = trueVerticalDepth + wellPathData()->rkbDiff();
+    return hydroStaticPorePressureAtDepth( effectiveDepthMeters, waterDensityGCM3 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1395,11 +1383,19 @@ double RigGeoMechWellLogExtractor::hydroStaticPorePressureForIntersection( size_
 //--------------------------------------------------------------------------------------------------
 double RigGeoMechWellLogExtractor::hydroStaticPorePressureForSegment( size_t intersectionIdx, double waterDensityGCM3 ) const
 {
-    cvf::Vec3f centroid                      = cellCentroid( intersectionIdx );
-    double     trueVerticalDepth             = -centroid.z();
-    double     effectiveDepthMeters          = trueVerticalDepth + wellPathData()->rkbDiff();
-    double     hydroStaticPorePressurePascal = effectiveDepthMeters * GRAVITY_ACCEL * waterDensityGCM3 * 1000;
-    double     hydroStaticPorePressureBar    = pascalToBar( hydroStaticPorePressurePascal );
+    cvf::Vec3f centroid             = cellCentroid( intersectionIdx );
+    double     trueVerticalDepth    = -centroid.z();
+    double     effectiveDepthMeters = trueVerticalDepth + wellPathData()->rkbDiff();
+    return hydroStaticPorePressureAtDepth( effectiveDepthMeters, waterDensityGCM3 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigGeoMechWellLogExtractor::hydroStaticPorePressureAtDepth( double effectiveDepthMeters, double waterDensityGCM3 )
+{
+    double hydroStaticPorePressurePascal = effectiveDepthMeters * GRAVITY_ACCEL * waterDensityGCM3 * 1000;
+    double hydroStaticPorePressureBar    = pascalToBar( hydroStaticPorePressurePascal );
     return hydroStaticPorePressureBar;
 }
 

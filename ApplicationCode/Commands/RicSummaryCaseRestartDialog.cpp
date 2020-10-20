@@ -41,7 +41,8 @@
 #include <QClipboard>
 #include <QDateTime>
 #include <QDialogButtonBox>
-#include <QFileDialog>
+#include <QDir>
+#include <QFileInfo>
 #include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>
@@ -58,9 +59,6 @@
 #include <ctime>
 #include <thread>
 #include <vector>
-
-#define DEFAULT_DIALOG_WIDTH 550
-#define DEFAULT_DIALOG_INIT_HEIGHT 150
 
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
@@ -376,7 +374,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
         // Set properties and show dialog
         dialog.setWindowTitle( "Origin Files" );
         dialog.m_buttons->button( QDialogButtonBox::Apply )->setVisible( !useFirstSummaryCaseAsTemplate && showApplyToAllWidget );
-        dialog.resize( DEFAULT_DIALOG_WIDTH, DEFAULT_DIALOG_INIT_HEIGHT );
+        dialog.resize( 550, 150 );
 
         QApplication::setOverrideCursor( QCursor( Qt::ArrowCursor ) );
         dialog.exec();

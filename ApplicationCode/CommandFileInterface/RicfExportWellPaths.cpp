@@ -36,7 +36,7 @@
 #include "RiaWellNameComparer.h"
 
 #include "cafCmdFeatureManager.h"
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
 CAF_PDM_SOURCE_INIT( RicfExportWellPaths, "exportWellPaths" );
 
@@ -45,8 +45,8 @@ CAF_PDM_SOURCE_INIT( RicfExportWellPaths, "exportWellPaths" );
 //--------------------------------------------------------------------------------------------------
 RicfExportWellPaths::RicfExportWellPaths()
 {
-    CAF_PDM_InitScriptableFieldWithIO( &m_wellPathNames, "wellPathNames", std::vector<QString>(), "Well Path Names", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_mdStepSize, "mdStepSize", 5.0, "MD Step Size", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_wellPathNames, "wellPathNames", std::vector<QString>(), "Well Path Names", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_mdStepSize, "mdStepSize", 5.0, "MD Step Size", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,7 +78,8 @@ caf::PdmScriptResponse RicfExportWellPaths::execute()
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
-    QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::WELLPATHS );
+    QString exportFolder =
+        RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::WELLPATHS );
     if ( exportFolder.isNull() )
     {
         exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath( "wellpaths" );

@@ -38,7 +38,9 @@
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
+#include "cafPdmFieldReorderCapability.h"
 #include "cafPdmObject.h"
+#include "cafPdmPtrArrayFieldHandle.h"
 #include "cafPdmUiCommandSystemProxy.h"
 #include "cafPdmUiDragDropInterface.h"
 #include "cafPdmUiEditorHandle.h"
@@ -46,12 +48,15 @@
 #include "cafPdmUiTreeViewQModel.h"
 #include "cafSelectionManager.h"
 
+#include <QDebug>
 #include <QDragMoveEvent>
 #include <QEvent>
 #include <QGridLayout>
+#include <QIcon>
 #include <QMenu>
 #include <QModelIndexList>
 #include <QPainter>
+#include <QProxyStyle>
 #include <QSortFilterProxyModel>
 #include <QStyleOptionViewItem>
 #include <QTreeView>
@@ -59,90 +64,125 @@
 
 namespace caf
 {
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-class PdmUiTreeViewWidget : public QTreeView
+void PdmUiTreeViewStyle::drawPrimitive( QStyle::PrimitiveElement element,
+                                        const QStyleOption*      option,
+                                        QPainter*                painter,
+                                        const QWidget*           widget ) const
 {
-public:
-    explicit PdmUiTreeViewWidget(QWidget* parent = nullptr) : QTreeView(parent) {};
-    ~PdmUiTreeViewWidget() override {};
-
-    bool isTreeItemEditWidgetActive() const
+    if ( element == QStyle::PE_IndicatorItemViewItemDrop )
     {
-        return state() == QAbstractItemView::EditingState;
-    }
+        painter->setRenderHint( QPainter::Antialiasing, true );
 
-protected:
-    void dragMoveEvent(QDragMoveEvent* event) override
-    {
-        caf::PdmUiTreeViewQModel* treeViewModel = dynamic_cast<caf::PdmUiTreeViewQModel*>(model());
-        if (treeViewModel && treeViewModel->dragDropInterface())
+        if ( option->rect.height() == 0 )
         {
-            treeViewModel->dragDropInterface()->onProposedDropActionUpdated(event->proposedAction());
+            QPalette palette;
+            QColor   c = QApplication::palette().color( QPalette::Highlight ).darker( 150 );
+            QPen     pen( c );
+            pen.setWidth( 2 );
+            QBrush brush( c );
+
+            painter->setPen( pen );
+            painter->setBrush( brush );
+
+            painter->drawEllipse( option->rect.topLeft(), 3, 3 );
+            painter->drawLine( QPoint( option->rect.topLeft().x() + 3, option->rect.topLeft().y() ),
+                               option->rect.topRight() );
         }
-
-        QTreeView::dragMoveEvent(event);
-    }
-
-    void dragLeaveEvent(QDragLeaveEvent* event) override
-    {
-        caf::PdmUiTreeViewQModel* treeViewModel = dynamic_cast<caf::PdmUiTreeViewQModel*>(model());
-        if (treeViewModel && treeViewModel->dragDropInterface())
+        else
         {
-            treeViewModel->dragDropInterface()->onDragCanceled();
+            QPalette palette;
+            QColor   c = QApplication::palette().color( QPalette::Highlight ).darker( 150 );
+            QPen     pen( c );
+            pen.setWidth( 2 );
+
+            painter->setPen( pen );
+
+            painter->drawRoundedRect( option->rect, 4, 4 );
         }
-
-        QTreeView::dragLeaveEvent(event);
     }
-};
-
+    else
+    {
+        QProxyStyle::drawPrimitive( element, option, painter, widget );
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeViewWidget::dragMoveEvent( QDragMoveEvent* event )
+{
+    caf::PdmUiTreeViewQModel* treeViewModel = dynamic_cast<caf::PdmUiTreeViewQModel*>( model() );
+    if ( treeViewModel && treeViewModel->dragDropInterface() )
+    {
+        treeViewModel->dragDropInterface()->onProposedDropActionUpdated( event->proposedAction() );
+    }
+
+    QTreeView::dragMoveEvent( event );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeViewWidget::dragLeaveEvent( QDragLeaveEvent* event )
+{
+    caf::PdmUiTreeViewQModel* treeViewModel = dynamic_cast<caf::PdmUiTreeViewQModel*>( model() );
+    if ( treeViewModel && treeViewModel->dragDropInterface() )
+    {
+        treeViewModel->dragDropInterface()->onDragCanceled();
+    }
+
+    QTreeView::dragLeaveEvent( event );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 PdmUiTreeViewEditor::PdmUiTreeViewEditor()
 {
-    m_useDefaultContextMenu = false;
-    m_updateSelectionManager = false;
+    m_useDefaultContextMenu       = false;
+    m_updateSelectionManager      = false;
     m_appendClassNameToUiItemText = false;
-    m_layout = nullptr;
-    m_treeView = nullptr;
-    m_treeViewModel = nullptr;
-    m_delegate = nullptr;
+    m_layout                      = nullptr;
+    m_treeView                    = nullptr;
+    m_treeViewModel               = nullptr;
+    m_delegate                    = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmUiTreeViewEditor::~PdmUiTreeViewEditor()
 {
-    m_treeViewModel->setPdmItemRoot(nullptr);
+    m_treeViewModel->setPdmItemRoot( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiTreeViewEditor::createWidget(QWidget* parent)
+QWidget* PdmUiTreeViewEditor::createWidget( QWidget* parent )
 {
-    m_mainWidget = new QWidget(parent);
+    m_mainWidget = new QWidget( parent );
     m_layout     = new QVBoxLayout();
-    m_layout->setContentsMargins(0, 0, 0, 0);
-    m_mainWidget->setLayout(m_layout);
+    m_layout->setContentsMargins( 0, 0, 0, 0 );
+    m_mainWidget->setLayout( m_layout );
 
-    m_treeViewModel = new caf::PdmUiTreeViewQModel(this);
-    m_treeView = new PdmUiTreeViewWidget(m_mainWidget);
-    m_treeView->setModel(m_treeViewModel);
-    m_treeView->installEventFilter(this);
+    m_treeViewModel = new caf::PdmUiTreeViewQModel( this );
+    m_treeView      = new PdmUiTreeViewWidget( m_mainWidget );
+    m_treeView->setModel( m_treeViewModel );
+    m_treeView->installEventFilter( this );
 
-    m_delegate = new PdmUiTreeViewItemDelegate(m_treeView, m_treeViewModel);
+    m_delegate = new PdmUiTreeViewItemDelegate( this, m_treeViewModel );
 
-    m_treeView->setItemDelegate(m_delegate);
+    m_treeView->setItemDelegate( m_delegate );
 
-    connect(treeView()->selectionModel(), SIGNAL(selectionChanged( const QItemSelection & , const QItemSelection & )), SLOT(slotOnSelectionChanged( const QItemSelection & , const QItemSelection & )));
+    connect( treeView()->selectionModel(),
+             SIGNAL( selectionChanged( const QItemSelection&, const QItemSelection& ) ),
+             SLOT( slotOnSelectionChanged( const QItemSelection&, const QItemSelection& ) ) );
 
-    m_layout->addWidget(m_treeView);
+    m_layout->addWidget( m_treeView );
 
     updateContextMenuSignals();
 
@@ -152,49 +192,56 @@ QWidget* PdmUiTreeViewEditor::createWidget(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewEditor::configureAndUpdateUi(const QString& uiConfigName)
+void PdmUiTreeViewEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
     PdmUiTreeViewEditorAttribute editorAttributes;
 
     {
-        PdmUiObjectHandle* uiObjectHandle = dynamic_cast<PdmUiObjectHandle*>(this->pdmItemRoot());
-        if (uiObjectHandle)
+        PdmUiObjectHandle* uiObjectHandle = dynamic_cast<PdmUiObjectHandle*>( this->pdmItemRoot() );
+        if ( uiObjectHandle )
         {
-            uiObjectHandle->objectEditorAttribute(uiConfigName, &editorAttributes);            
+            uiObjectHandle->objectEditorAttribute( uiConfigName, &editorAttributes );
         }
     }
 
-    m_treeViewModel->setColumnHeaders(editorAttributes.columnHeaders);
-    m_treeViewModel->setUiConfigName(uiConfigName);
-    m_treeViewModel->setPdmItemRoot(this->pdmItemRoot());
+    m_treeViewModel->setColumnHeaders( editorAttributes.columnHeaders );
+    m_treeViewModel->setUiConfigName( uiConfigName );
+    m_treeViewModel->setPdmItemRoot( this->pdmItemRoot() );
 
-    if (editorAttributes.currentObject)
+    if ( editorAttributes.currentObject )
     {
         PdmUiObjectHandle* uiObjectHandle = editorAttributes.currentObject->uiCapability();
-        if (uiObjectHandle)
+        if ( uiObjectHandle )
         {
-            selectAsCurrentItem(uiObjectHandle);
+            selectAsCurrentItem( uiObjectHandle );
         }
     }
 
-    if (m_delegate)
+    if ( m_delegate )
     {
-        m_delegate->clearAttributes();
+        m_delegate->clearAllTags();
         updateItemDelegateForSubTree();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QTreeView* PdmUiTreeViewEditor::treeView()
 {
     return m_treeView;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const QTreeView* PdmUiTreeViewEditor::treeView() const
+{
+    return m_treeView;
+}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool PdmUiTreeViewEditor::isTreeItemEditWidgetActive() const
 {
@@ -202,42 +249,41 @@ bool PdmUiTreeViewEditor::isTreeItemEditWidgetActive() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewEditor::selectedUiItems(std::vector<PdmUiItem*>& objects)
+void PdmUiTreeViewEditor::selectedUiItems( std::vector<PdmUiItem*>& objects )
 {
-    if (!this->treeView()) return;
+    if ( !this->treeView() ) return;
 
     QModelIndexList idxList = this->treeView()->selectionModel()->selectedIndexes();
 
-    for (int i = 0; i < idxList.size(); i++)
+    for ( int i = 0; i < idxList.size(); i++ )
     {
-        caf::PdmUiItem* item = this->m_treeViewModel->uiItemFromModelIndex(idxList[i]);
-        if (item)
+        caf::PdmUiItem* item = this->m_treeViewModel->uiItemFromModelIndex( idxList[i] );
+        if ( item )
         {
-            objects.push_back(item);
+            objects.push_back( item );
         }
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewEditor::updateMySubTree(PdmUiItem* uiItem)
+void PdmUiTreeViewEditor::updateMySubTree( PdmUiItem* uiItem )
 {
-    if (m_treeViewModel)
+    if ( m_treeViewModel )
     {
-        m_treeViewModel->updateSubTree(uiItem);
-        QModelIndex index = m_treeViewModel->findModelIndex(uiItem);
-        updateItemDelegateForSubTree(index);
+        m_treeViewModel->updateSubTree( uiItem );
+        QModelIndex index = m_treeViewModel->findModelIndex( uiItem );
+        updateItemDelegateForSubTree( index );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewEditor::enableDefaultContextMenu(bool enable)
+void PdmUiTreeViewEditor::enableDefaultContextMenu( bool enable )
 {
     m_useDefaultContextMenu = enable;
 
@@ -245,81 +291,80 @@ void PdmUiTreeViewEditor::enableDefaultContextMenu(bool enable)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewEditor::enableSelectionManagerUpdating(bool enable)
+void PdmUiTreeViewEditor::enableSelectionManagerUpdating( bool enable )
 {
     m_updateSelectionManager = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeViewEditor::updateContextMenuSignals()
 {
-    if (!m_treeView) return;
+    if ( !m_treeView ) return;
 
-    if (m_useDefaultContextMenu)
+    if ( m_useDefaultContextMenu )
     {
-        m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
-        connect(m_treeView, SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
+        m_treeView->setContextMenuPolicy( Qt::CustomContextMenu );
+        connect( m_treeView, SIGNAL( customContextMenuRequested( QPoint ) ), SLOT( customMenuRequested( QPoint ) ) );
     }
     else
     {
-        m_treeView->setContextMenuPolicy(Qt::DefaultContextMenu);
-        disconnect(m_treeView, nullptr, this, nullptr);
+        m_treeView->setContextMenuPolicy( Qt::DefaultContextMenu );
+        disconnect( m_treeView, nullptr, this, nullptr );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewEditor::customMenuRequested(QPoint pos)
+void PdmUiTreeViewEditor::customMenuRequested( QPoint pos )
 {
     // This seems a bit strange. Why ?
-    SelectionManager::instance()->setActiveChildArrayFieldHandle(this->currentChildArrayFieldHandle());
+    SelectionManager::instance()->setActiveChildArrayFieldHandle( this->currentChildArrayFieldHandle() );
 
     QMenu menu;
-    PdmUiCommandSystemProxy::instance()->setCurrentContextMenuTargetWidget(m_mainWidget->parentWidget());
+    PdmUiCommandSystemProxy::instance()->setCurrentContextMenuTargetWidget( m_mainWidget->parentWidget() );
 
-    caf::PdmUiCommandSystemProxy::instance()->populateMenuWithDefaultCommands("PdmUiTreeViewEditor", &menu);
+    caf::PdmUiCommandSystemProxy::instance()->populateMenuWithDefaultCommands( "PdmUiTreeViewEditor", &menu );
 
-    if (menu.actions().size() > 0)
+    if ( menu.actions().size() > 0 )
     {
         // Qt doc: QAbstractScrollArea and its subclasses that map the context menu event to coordinates of the viewport().
-        QPoint globalPos = m_treeView->viewport()->mapToGlobal(pos);
+        QPoint globalPos = m_treeView->viewport()->mapToGlobal( pos );
 
-        menu.exec(globalPos);
+        menu.exec( globalPos );
     }
 
-    PdmUiCommandSystemProxy::instance()->setCurrentContextMenuTargetWidget(nullptr);
+    PdmUiCommandSystemProxy::instance()->setCurrentContextMenuTargetWidget( nullptr );
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmChildArrayFieldHandle* PdmUiTreeViewEditor::currentChildArrayFieldHandle()
 {
-    PdmUiItem* currentSelectedItem = SelectionManager::instance()->selectedItem(SelectionManager::FIRST_LEVEL);
+    PdmUiItem* currentSelectedItem = SelectionManager::instance()->selectedItem( SelectionManager::FIRST_LEVEL );
 
-    PdmUiFieldHandle* uiFieldHandle = dynamic_cast<PdmUiFieldHandle*>(currentSelectedItem);
-    if (uiFieldHandle)
+    PdmUiFieldHandle* uiFieldHandle = dynamic_cast<PdmUiFieldHandle*>( currentSelectedItem );
+    if ( uiFieldHandle )
     {
         PdmFieldHandle* fieldHandle = uiFieldHandle->fieldHandle();
 
-        if (dynamic_cast<PdmChildArrayFieldHandle*>(fieldHandle))
+        if ( dynamic_cast<PdmChildArrayFieldHandle*>( fieldHandle ) )
         {
-            return dynamic_cast<PdmChildArrayFieldHandle*>(fieldHandle);
+            return dynamic_cast<PdmChildArrayFieldHandle*>( fieldHandle );
         }
     }
 
-    PdmObjectHandle* pdmObject = dynamic_cast<caf::PdmObjectHandle*>(currentSelectedItem);
-    if (pdmObject)
+    PdmObjectHandle* pdmObject = dynamic_cast<caf::PdmObjectHandle*>( currentSelectedItem );
+    if ( pdmObject )
     {
-        PdmChildArrayFieldHandle* parentChildArray = dynamic_cast<PdmChildArrayFieldHandle*>(pdmObject->parentField());
+        PdmChildArrayFieldHandle* parentChildArray = dynamic_cast<PdmChildArrayFieldHandle*>( pdmObject->parentField() );
 
-        if (parentChildArray)
+        if ( parentChildArray )
         {
             return parentChildArray;
         }
@@ -329,250 +374,458 @@ PdmChildArrayFieldHandle* PdmUiTreeViewEditor::currentChildArrayFieldHandle()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewEditor::selectAsCurrentItem(const PdmUiItem* uiItem)
+void PdmUiTreeViewEditor::selectAsCurrentItem( const PdmUiItem* uiItem )
 {
-    QModelIndex index = m_treeViewModel->findModelIndex(uiItem);
+    QModelIndex index        = m_treeViewModel->findModelIndex( uiItem );
     QModelIndex currentIndex = m_treeView->currentIndex();
 
     m_treeView->clearSelection();
 
-    m_treeView->setCurrentIndex(index);
+    m_treeView->setCurrentIndex( index );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewEditor::selectItems(std::vector<const PdmUiItem*> uiItems)
+void PdmUiTreeViewEditor::selectItems( std::vector<const PdmUiItem*> uiItems )
 {
     m_treeView->clearSelection();
 
-    if (uiItems.empty())
+    if ( uiItems.empty() )
     {
         return;
     }
 
-    QModelIndex index = findModelIndex(uiItems.back());
-    m_treeView->setCurrentIndex(index);
+    QModelIndex index = findModelIndex( uiItems.back() );
+    m_treeView->setCurrentIndex( index );
 
-    for (const PdmUiItem* uiItem : uiItems)
+    for ( const PdmUiItem* uiItem : uiItems )
     {
-        QModelIndex itemIndex = findModelIndex(uiItem);
-        m_treeView->selectionModel()->select(itemIndex, QItemSelectionModel::Select);
+        QModelIndex itemIndex = findModelIndex( uiItem );
+        m_treeView->selectionModel()->select( itemIndex, QItemSelectionModel::Select );
     }
-    m_treeView->setFocus(Qt::MouseFocusReason);
+    m_treeView->setFocus( Qt::MouseFocusReason );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewEditor::slotOnSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected)
+void PdmUiTreeViewEditor::slotOnSelectionChanged( const QItemSelection& selected, const QItemSelection& deselected )
 {
     this->updateSelectionManager();
-
+    this->updateItemDelegateForSubTree();
     emit selectionChanged();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewEditor::setExpanded(const PdmUiItem* uiItem, bool doExpand) const
+void PdmUiTreeViewEditor::setExpanded( const PdmUiItem* uiItem, bool doExpand ) const
 {
-    QModelIndex index = m_treeViewModel->findModelIndex(uiItem);
-    m_treeView->setExpanded(index, doExpand);
+    QModelIndex index = m_treeViewModel->findModelIndex( uiItem );
+    m_treeView->setExpanded( index, doExpand );
 
-    if (doExpand)
+    if ( doExpand )
     {
-        m_treeView->scrollTo(index);
+        m_treeView->scrollTo( index );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-PdmUiItem* PdmUiTreeViewEditor::uiItemFromModelIndex(const QModelIndex& index) const
+PdmUiItem* PdmUiTreeViewEditor::uiItemFromModelIndex( const QModelIndex& index ) const
 {
-    return m_treeViewModel->uiItemFromModelIndex(index);
+    return m_treeViewModel->uiItemFromModelIndex( index );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QModelIndex PdmUiTreeViewEditor::findModelIndex(const PdmUiItem* object) const
+QModelIndex PdmUiTreeViewEditor::findModelIndex( const PdmUiItem* object ) const
 {
-    return m_treeViewModel->findModelIndex(object);
+    return m_treeViewModel->findModelIndex( object );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewEditor::setDragDropInterface(PdmUiDragDropInterface* dragDropInterface)
+void PdmUiTreeViewEditor::setDragDropInterface( PdmUiDragDropInterface* dragDropInterface )
 {
-    m_treeViewModel->setDragDropInterface(dragDropInterface);
+    m_treeViewModel->setDragDropInterface( dragDropInterface );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiTreeViewEditor::eventFilter(QObject *obj, QEvent *event)
+bool PdmUiTreeViewEditor::eventFilter( QObject* obj, QEvent* event )
 {
-    if (event->type() == QEvent::FocusIn)
+    if ( event->type() == QEvent::FocusIn )
     {
         this->updateSelectionManager();
     }
 
     // standard event processing
-    return QObject::eventFilter(obj, event);
+    return QObject::eventFilter( obj, event );
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeViewEditor::updateSelectionManager()
 {
-    if (m_updateSelectionManager)
+    if ( m_updateSelectionManager )
     {
         std::vector<PdmUiItem*> items;
-        this->selectedUiItems(items);
-        SelectionManager::instance()->setSelectedItems(items);
+        this->selectedUiItems( items );
+        SelectionManager::instance()->setSelectedItems( items );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewEditor::updateItemDelegateForSubTree(const QModelIndex& modelIndex /*= QModelIndex()*/)
+void PdmUiTreeViewEditor::updateItemDelegateForSubTree( const QModelIndex& modelIndex /*= QModelIndex()*/ )
 {
-
     auto allIndices = m_treeViewModel->allIndicesRecursive();
-    for (QModelIndex index : allIndices)
+    for ( QModelIndex index : allIndices )
     {
-        PdmUiItem* uiItem = m_treeViewModel->uiItemFromModelIndex(index);
-        PdmUiObjectHandle* uiObjectHandle = dynamic_cast<PdmUiObjectHandle*>(uiItem);
-        if (uiObjectHandle)
+        m_delegate->clearTags( index );
+
+        PdmUiItem*         uiItem         = m_treeViewModel->uiItemFromModelIndex( index );
+        PdmUiObjectHandle* uiObjectHandle = dynamic_cast<PdmUiObjectHandle*>( uiItem );
+
+        if ( uiObjectHandle )
         {
-            PdmUiTreeViewItemAttribute attribute;
-            uiObjectHandle->objectEditorAttribute("", &attribute);
-            if (!attribute.tag.isEmpty())
+            PdmObjectHandle* pdmObject = uiObjectHandle->objectHandle();
+            if ( pdmObject )
             {
-                m_delegate->addAttribute(index, attribute);
+                PdmFieldReorderCapability* reorderability =
+                    PdmFieldReorderCapability::reorderCapabilityOfParentContainer( pdmObject );
+
+                std::vector<PdmUiItem*> selection;
+                selectedUiItems( selection );
+
+                if ( reorderability && index.row() >= 0 && selection.size() == 1u && selection.front() == uiItem )
+                {
+                    size_t indexInParent = static_cast<size_t>( index.row() );
+                    {
+                        auto tag          = PdmUiTreeViewItemAttribute::Tag::create();
+                        tag->icon         = caf::IconProvider( ":/caf/Up16x16.png" );
+                        tag->selectedOnly = true;
+                        if ( reorderability->canItemBeMovedUp( indexInParent ) )
+                        {
+                            tag->clicked.connect( reorderability, &PdmFieldReorderCapability::onMoveItemUp );
+                        }
+                        else
+                        {
+                            tag->icon.setActive( false );
+                        }
+
+                        m_delegate->addTag( index, std::move( tag ) );
+                    }
+                    {
+                        auto tag          = PdmUiTreeViewItemAttribute::Tag::create();
+                        tag->icon         = IconProvider( ":/caf/Down16x16.png" );
+                        tag->selectedOnly = true;
+                        if ( reorderability->canItemBeMovedDown( indexInParent ) )
+                        {
+                            tag->clicked.connect( reorderability, &PdmFieldReorderCapability::onMoveItemDown );
+                        }
+                        else
+                        {
+                            tag->icon.setActive( false );
+                        }
+                        m_delegate->addTag( index, std::move( tag ) );
+                    }
+                }
+            }
+
+            PdmUiTreeViewItemAttribute attribute;
+            uiObjectHandle->objectEditorAttribute( "", &attribute );
+            for ( auto& tag : attribute.tags )
+            {
+                if ( !tag->text.isEmpty() || tag->icon.valid() )
+                {
+                    m_delegate->addTag( index, std::move( tag ) );
+                }
             }
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewEditor::enableAppendOfClassNameToUiItemText(bool enable)
+void PdmUiTreeViewEditor::enableAppendOfClassNameToUiItemText( bool enable )
 {
     m_appendClassNameToUiItemText = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool PdmUiTreeViewEditor::isAppendOfClassNameToUiItemTextEnabled()
 {
     return m_appendClassNameToUiItemText;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiTreeViewItemDelegate::PdmUiTreeViewItemDelegate(QObject* parent, PdmUiTreeViewQModel* model)
-    : QStyledItemDelegate(parent)
-    , m_model(model)
+PdmUiTreeViewItemDelegate::PdmUiTreeViewItemDelegate( PdmUiTreeViewEditor* parent, PdmUiTreeViewQModel* model )
+    : QStyledItemDelegate( parent->treeView() )
+    , m_treeView( parent )
+    , m_model( model )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewItemDelegate::clearAttributes()
+void PdmUiTreeViewItemDelegate::clearTags( QModelIndex index )
 {
-    m_attributes.clear();
+    m_tags.erase( index );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewItemDelegate::addAttribute(QModelIndex index, const PdmUiTreeViewItemAttribute& attribute)
+void PdmUiTreeViewItemDelegate::clearAllTags()
 {
-    m_attributes[index] = attribute;
+    m_tags.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+void PdmUiTreeViewItemDelegate::addTag( QModelIndex index, std::unique_ptr<PdmUiTreeViewItemAttribute::Tag> tag )
 {
-    QStyledItemDelegate::paint(painter, option, index);
+    std::vector<std::unique_ptr<PdmUiTreeViewItemAttribute::Tag>>& tagList = m_tags[index];
+    tagList.push_back( std::move( tag ) );
+}
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QRect PdmUiTreeViewItemDelegate::tagRect( const QRect& itemRect, QModelIndex index, size_t tagIndex ) const
+{
+    auto it = m_tags.find( index );
+    if ( it == m_tags.end() ) return QRect();
 
-    auto it = m_attributes.find(index);
-    if (it == m_attributes.end()) return;
+    QSize fullSize = itemRect.size();
+
+    QPoint offset( 0, 0 );
+
+    for ( size_t i = 0; i < it->second.size(); ++i )
+    {
+        const PdmUiTreeViewItemAttribute::Tag* tag = it->second[i].get();
+        if ( tag->icon.valid() )
+        {
+            auto  icon     = tag->icon.icon();
+            QSize iconSize = icon->actualSize( fullSize );
+            QRect iconRect;
+            if ( tag->position == PdmUiTreeViewItemAttribute::Tag::AT_END )
+            {
+                QPoint bottomRight = itemRect.bottomRight() - offset;
+                QPoint topLeft     = bottomRight - QPoint( iconSize.width(), iconSize.height() );
+                iconRect           = QRect( topLeft, bottomRight );
+            }
+            else
+            {
+                QPoint topLeft     = itemRect.topLeft() + offset;
+                QPoint bottomRight = topLeft + QPoint( iconSize.width(), iconSize.height() );
+                iconRect           = QRect( topLeft, bottomRight );
+            }
+            offset += QPoint( iconSize.width() + 2, 0 );
+
+            if ( i == tagIndex ) return iconRect;
+        }
+    }
+    return QRect();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeViewItemDelegate::paint( QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index ) const
+{
+    QStyledItemDelegate::paint( painter, option, index );
+
+    auto it = m_tags.find( index );
+    if ( it == m_tags.end() ) return;
 
     // Save painter so we can restore it
     painter->save();
 
-    const int insideTopBottomMargins  = 1;
-    const int insideleftRightMargins  = 6;
-    const int outsideLeftRightMargins = 4;
+    QRect  rect   = option.rect;
+    QPoint center = rect.center();
 
-    QFont font = QApplication::font();
-    if (font.pixelSize() > 0)
-    {
-        font.setPixelSize(std::max(1, font.pixelSize() - 1));
-    }
-    else
-    {
-        font.setPointSize(std::max(1, font.pointSize() - 1));
-    }
-    painter->setFont(font);
-
-    QString text = it->second.tag;
-    QColor bgColor = it->second.bgColor;
-    QColor fgColor = it->second.fgColor;
-    
-    QSize textSize(QFontMetrics(font).size(Qt::TextSingleLine, text));
-    QRect rect = option.rect;
     QSize fullSize = rect.size();
-    int textDiff = (fullSize.height() - textSize.height());
 
-    QRect textRect;
-    if (it->second.position == PdmUiTreeViewItemAttribute::AT_END)
+    QPoint offset( 0, 0 );
+
+    for ( const std::unique_ptr<PdmUiTreeViewItemAttribute::Tag>& tag : it->second )
     {
-        QPoint bottomRight = rect.bottomRight() - QPoint(outsideLeftRightMargins, 0);
-        QPoint textBottomRight = bottomRight - QPoint(insideleftRightMargins, textDiff / 2);
-        QPoint textTopLeft = textBottomRight - QPoint(textSize.width(), textSize.height());
-        textRect = QRect(textTopLeft, textBottomRight);
+        if ( tag->selectedOnly && !( option.state & QStyle::State_Selected ) ) continue;
+
+        if ( tag->icon.valid() )
+        {
+            auto  icon     = tag->icon.icon();
+            QSize iconSize = icon->actualSize( fullSize );
+            QRect iconRect;
+            if ( tag->position == PdmUiTreeViewItemAttribute::Tag::AT_END )
+            {
+                QPoint bottomRight( rect.bottomRight().x() - offset.x(), center.y() + iconSize.height() / 2 );
+                QPoint topLeft( bottomRight.x() - iconSize.width(), bottomRight.y() - iconSize.height() );
+                iconRect = QRect( topLeft, bottomRight );
+            }
+            else
+            {
+                QPoint topLeft( rect.topLeft().x() + offset.x(), center.y() - iconSize.height() / 2 );
+                QPoint bottomRight( topLeft.x() + iconSize.width(), topLeft.y() + iconSize.height() );
+                iconRect = QRect( topLeft, bottomRight );
+            }
+            offset += QPoint( iconSize.width() + 2, 0 );
+            icon->paint( painter, iconRect );
+        }
+        else
+        {
+            const int insideTopBottomMargins  = 1;
+            const int insideleftRightMargins  = 6;
+            const int outsideLeftRightMargins = 4;
+
+            QFont font = QApplication::font();
+            if ( font.pixelSize() > 0 )
+            {
+                font.setPixelSize( std::max( 1, font.pixelSize() - 1 ) );
+            }
+            else
+            {
+                font.setPointSize( std::max( 1, font.pointSize() - 1 ) );
+            }
+            painter->setFont( font );
+
+            QString text    = tag->text;
+            QColor  bgColor = tag->bgColor;
+            QColor  fgColor = tag->fgColor;
+
+            QSize textSize( QFontMetrics( font ).size( Qt::TextSingleLine, text ) );
+            int   textDiff = ( fullSize.height() - textSize.height() );
+
+            QRect textRect;
+            if ( tag->position == PdmUiTreeViewItemAttribute::Tag::AT_END )
+            {
+                QPoint bottomRight     = rect.bottomRight() - QPoint( outsideLeftRightMargins, 0 ) - offset;
+                QPoint textBottomRight = bottomRight - QPoint( insideleftRightMargins, textDiff / 2 );
+                QPoint textTopLeft     = textBottomRight - QPoint( textSize.width(), textSize.height() );
+                textRect               = QRect( textTopLeft, textBottomRight );
+            }
+            else
+            {
+                QPoint textTopLeft = QPoint( 0, rect.topLeft().y() ) + offset +
+                                     QPoint( outsideLeftRightMargins + insideleftRightMargins, +textDiff / 2 );
+                QPoint textBottomRight = textTopLeft + QPoint( textSize.width(), textSize.height() );
+                textRect               = QRect( textTopLeft, textBottomRight );
+            }
+
+            QRect tagRect = textRect.marginsAdded(
+                QMargins( insideleftRightMargins, insideTopBottomMargins, insideleftRightMargins, insideTopBottomMargins ) );
+
+            offset += QPoint( tagRect.width() + 2, 0 );
+
+            QBrush brush( bgColor );
+
+            painter->setBrush( brush );
+            painter->setPen( bgColor );
+            painter->setRenderHint( QPainter::Antialiasing );
+            const double xRoundingRadiusPercent = 50.0;
+            const double yRoundingRadiusPercent = 25.0;
+            painter->drawRoundedRect( tagRect, xRoundingRadiusPercent, yRoundingRadiusPercent, Qt::RelativeSize );
+
+            painter->setPen( fgColor );
+            painter->drawText( textRect, Qt::AlignCenter, text );
+        }
     }
-    else
-    {
-        QPoint textTopLeft = QPoint(0, rect.topLeft().y()) + QPoint(outsideLeftRightMargins + insideleftRightMargins, + textDiff / 2);
-        QPoint textBottomRight = textTopLeft + QPoint(textSize.width(), textSize.height());
-        textRect = QRect(textTopLeft, textBottomRight);
-    }
-    QRect tagRect = textRect.marginsAdded(QMargins(insideleftRightMargins, insideTopBottomMargins, insideleftRightMargins, insideTopBottomMargins));
-
-    QBrush brush(bgColor);
-
-    painter->setBrush(brush);
-    painter->setPen(bgColor);
-    painter->setRenderHint(QPainter::Antialiasing);
-    const double xRoundingRadiusPercent = 50.0;
-    const double yRoundingRadiusPercent = 25.0;
-    painter->drawRoundedRect(tagRect, xRoundingRadiusPercent, yRoundingRadiusPercent, Qt::RelativeSize);
- 
-    painter->setPen(fgColor);
-    painter->drawText(textRect, Qt::AlignCenter, text);
-
     // Restore painter
     painter->restore();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<const caf::PdmUiTreeViewItemAttribute::Tag*> PdmUiTreeViewItemDelegate::tags( QModelIndex index ) const
+{
+    std::vector<const caf::PdmUiTreeViewItemAttribute::Tag*> tagPtrVector;
+
+    auto it = m_tags.find( index );
+    if ( it != m_tags.end() )
+    {
+        for ( const auto& tag : it->second )
+        {
+            tagPtrVector.push_back( tag.get() );
+        }
+    }
+    return tagPtrVector;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmUiTreeViewItemDelegate::editorEvent( QEvent*                     event,
+                                             QAbstractItemModel*         model,
+                                             const QStyleOptionViewItem& option,
+                                             const QModelIndex&          itemIndex )
+{
+    if ( event->type() == QEvent::MouseButtonPress )
+    {
+        QMouseEvent* mouseEvent = static_cast<QMouseEvent*>( event );
+
+        if ( mouseEvent->button() == Qt::LeftButton && mouseEvent->modifiers() == Qt::NoModifier )
+        {
+            const PdmUiTreeViewItemAttribute::Tag* tag;
+            if ( tagClicked( mouseEvent->pos(), option.rect, itemIndex, &tag ) )
+            {
+                QModelIndex parentIndex = itemIndex.parent();
+
+                auto uiItem       = m_treeView->uiItemFromModelIndex( itemIndex );
+                auto parentUiItem = m_treeView->uiItemFromModelIndex( parentIndex );
+
+                tag->clicked.send( (size_t)itemIndex.row() );
+
+                m_treeView->updateSubTree( parentUiItem );
+                m_treeView->selectAsCurrentItem( uiItem );
+            }
+        }
+    }
+
+    return QStyledItemDelegate::editorEvent( event, model, option, itemIndex );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmUiTreeViewItemDelegate::tagClicked( const QPoint&                           pos,
+                                            const QRect&                            itemRect,
+                                            const QModelIndex&                      itemIndex,
+                                            const PdmUiTreeViewItemAttribute::Tag** tag ) const
+{
+    if ( itemIndex.isValid() )
+    {
+        auto itemTags = tags( itemIndex );
+
+        for ( size_t i = 0; i < itemTags.size(); ++i )
+        {
+            QRect rect = tagRect( itemRect, itemIndex, i );
+            if ( rect.contains( pos ) )
+            {
+                *tag = itemTags[i];
+                return true;
+            }
+        }
+    }
+    return false;
+}
 } // end namespace caf

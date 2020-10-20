@@ -223,8 +223,8 @@ void RimPltPlotCollection::addPlot( RimWellPltPlot* newPlot )
 //--------------------------------------------------------------------------------------------------
 void RimPltPlotCollection::removePlot( RimWellPltPlot* plot )
 {
-    size_t index = m_pltPlots.index( plot );
-    if ( index < m_pltPlots.size() ) m_pltPlots.erase( index );
+    m_pltPlots.removeChildObject( plot );
+    updateAllRequiredEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

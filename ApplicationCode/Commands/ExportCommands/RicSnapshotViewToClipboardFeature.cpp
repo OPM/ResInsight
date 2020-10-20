@@ -32,7 +32,6 @@
 #include <QAction>
 #include <QClipboard>
 #include <QDebug>
-#include <QFileDialog>
 #include <QFileInfo>
 #include <QMdiSubWindow>
 
@@ -55,7 +54,7 @@ void RicSnapshotViewToClipboardFeature::copyToClipboard( const QImage& image )
 //--------------------------------------------------------------------------------------------------
 QIcon RicSnapshotViewToClipboardFeature::icon()
 {
-    return QIcon( ":/SnapShot.png" );
+    return QIcon( ":/SnapShot.svg" );
 }
 
 //--------------------------------------------------------------------------------------------------

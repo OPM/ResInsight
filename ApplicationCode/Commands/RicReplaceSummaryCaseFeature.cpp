@@ -18,7 +18,6 @@
 
 #include "RicReplaceSummaryCaseFeature.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 #include "RiaSummaryTools.h"
 
@@ -65,17 +64,17 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
     if ( !summaryCase ) return;
 
     const QStringList fileNames =
-        RicImportGeneralDataFeature::getEclipseFileNamesWithDialog( RiaDefines::ECLIPSE_SUMMARY_FILE );
+        RicImportGeneralDataFeature::getEclipseFileNamesWithDialog( RiaDefines::ImportFileType::ECLIPSE_SUMMARY_FILE );
     if ( fileNames.isEmpty() ) return;
 
     QString oldSummaryHeaderFilename = summaryCase->summaryHeaderFilename();
     summaryCase->setSummaryHeaderFileName( fileNames[0] );
-    summaryCase->resetAutoShortName();
+    summaryCase->updateAutoShortName();
     summaryCase->createSummaryReaderInterface();
     summaryCase->createRftReaderInterface();
     RiaLogging::info( QString( "Replaced summary data for %1" ).arg( oldSummaryHeaderFilename ) );
 
-    RimSummaryCalculationCollection* calcColl = RiaApplication::instance()->project()->calculationCollection();
+    RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
 
     // Find and update all changed calculations
     std::set<int> ids;
@@ -92,7 +91,7 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
     }
 
     RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
-    for ( RimSummaryPlot* summaryPlot : summaryPlotColl->summaryPlots )
+    for ( RimSummaryPlot* summaryPlot : summaryPlotColl->plots() )
     {
         // Update summary curves on calculated data
         std::vector<RimSummaryCurve*> summaryCurves = summaryPlot->summaryCurves();
@@ -119,7 +118,7 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
     }
 
     RimSummaryCrossPlotCollection* summaryCrossPlotColl = RiaSummaryTools::summaryCrossPlotCollection();
-    for ( RimSummaryPlot* summaryPlot : summaryCrossPlotColl->summaryPlots() )
+    for ( RimSummaryPlot* summaryPlot : summaryCrossPlotColl->plots() )
     {
         // Update summary curves on calculated data
         std::vector<RimSummaryCurve*> summaryCurves = summaryPlot->summaryCurves();

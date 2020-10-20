@@ -459,7 +459,7 @@ void RivIntersectionResultsColoringTools::calculatePlaneAngleTextureCoords( cvf:
             cvf::GeometryTools::computePlaneHorizontalRotationMx( triangle[1] - triangle[0], triangle[2] - triangle[0] );
 
         RiaOffshoreSphericalCoords sphCoord(
-            cvf::Vec3f( rotMx.rowCol( 0, 2 ), rotMx.rowCol( 1, 2 ), rotMx.rowCol( 2, 2 ) ) ); // Use Ez from the matrix
+            cvf::Vec3f( rotMx.rowCol( 2, 0 ), rotMx.rowCol( 2, 1 ), rotMx.rowCol( 2, 2 ) ) ); // Use Ez from the matrix
                                                                                               // as plane normal
 
         float      angle    = cvf::Math::toDegrees( operation( sphCoord ) );

@@ -17,8 +17,11 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RifReaderEclipseSummary.h"
+
 #include "RiaFilePathTools.h"
+#include "RiaStdStringTools.h"
 #include "RiaStringEncodingTools.h"
+
 #include "RifEclipseSummaryTools.h"
 #include "RifReaderEclipseOutput.h"
 
@@ -63,13 +66,13 @@ RiaEclipseUnitTools::UnitSystem readUnitSystem( ecl_sum_type* ecl_sum )
     switch ( eclUnitEnum )
     {
         case ECL_METRIC_UNITS:
-            return RiaEclipseUnitTools::UNITS_METRIC;
+            return RiaEclipseUnitTools::UnitSystem::UNITS_METRIC;
         case ECL_FIELD_UNITS:
-            return RiaEclipseUnitTools::UNITS_FIELD;
+            return RiaEclipseUnitTools::UnitSystem::UNITS_FIELD;
         case ECL_LAB_UNITS:
-            return RiaEclipseUnitTools::UNITS_LAB;
+            return RiaEclipseUnitTools::UnitSystem::UNITS_LAB;
         default:
-            return RiaEclipseUnitTools::UNITS_UNKNOWN;
+            return RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
     }
 }
 
@@ -121,7 +124,7 @@ void closeEclSum( ecl_sum_type* ecl_sum )
 RifReaderEclipseSummary::RifReaderEclipseSummary()
     : m_ecl_sum( nullptr )
     , m_ecl_SmSpec( nullptr )
-    , m_unitSystem( RiaEclipseUnitTools::UNITS_METRIC )
+    , m_unitSystem( RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
 {
     m_valuesCache.reset( new ValuesCache() );
 }
@@ -425,10 +428,6 @@ bool RifReaderEclipseSummary::values( const RifEclipseSummaryAddress& resultAddr
 {
     assert( m_ecl_sum != nullptr );
 
-    int variableIndex = indexFromAddress( resultAddress );
-
-    if ( variableIndex < 0 ) return false;
-
     values->clear();
     values->reserve( timeStepCount() );
 
@@ -439,6 +438,40 @@ bool RifReaderEclipseSummary::values( const RifEclipseSummaryAddress& resultAddr
     }
     else if ( m_ecl_SmSpec )
     {
+        if ( m_differenceAddresses.count( resultAddress ) )
+        {
+            std::string quantityName = resultAddress.quantityName();
+            auto historyQuantity     = quantityName.substr( 0, quantityName.size() - differenceIdentifier().size() ) +
+                                   historyIdentifier();
+
+            RifEclipseSummaryAddress nativeAdrNoHistory = resultAddress;
+            nativeAdrNoHistory.setQuantityName( historyQuantity );
+            auto quantityNoHistory = quantityName.substr( 0, historyQuantity.size() - 1 );
+
+            RifEclipseSummaryAddress nativeAdrHistory = resultAddress;
+            nativeAdrHistory.setQuantityName( quantityNoHistory );
+
+            std::vector<double> nativeValues;
+            std::vector<double> historyValues;
+
+            if ( !this->values( nativeAdrHistory, &nativeValues ) ) return false;
+            if ( !this->values( nativeAdrNoHistory, &historyValues ) ) return false;
+
+            if ( nativeValues.size() != historyValues.size() ) return false;
+
+            for ( size_t i = 0; i < nativeValues.size(); i++ )
+            {
+                double diff = nativeValues[i] - historyValues[i];
+                values->push_back( diff );
+                m_valuesCache->insertValues( resultAddress, *values );
+            }
+
+            return true;
+        }
+
+        int variableIndex = indexFromAddress( resultAddress );
+        if ( variableIndex < 0 ) return false;
+
         const ecl::smspec_node& ertSumVarNode = ecl_smspec_iget_node_w_node_index( m_ecl_SmSpec, variableIndex );
         int                     paramsIndex   = ertSumVarNode.get_params_index();
 
@@ -511,6 +544,41 @@ void RifReaderEclipseSummary::buildMetaData()
             RifEclipseSummaryAddress addr          = addressFromErtSmSpecNode( ertSumVarNode );
             m_allResultAddresses.insert( addr );
             m_resultAddressToErtNodeIdx[addr] = i;
+        }
+    }
+
+    bool addDifferenceVectors = true;
+    if ( addDifferenceVectors )
+    {
+        for ( const auto& adr : m_allResultAddresses )
+        {
+            RifEclipseSummaryAddress adrWithHistory;
+            RifEclipseSummaryAddress adrWithoutHistory;
+
+            {
+                std::string s = adr.quantityName();
+                if ( !RiaStdStringTools::endsWith( s, historyIdentifier() ) )
+                {
+                    RifEclipseSummaryAddress candidate = adr;
+                    candidate.setQuantityName( s + historyIdentifier() );
+                    if ( m_allResultAddresses.count( candidate ) )
+                    {
+                        adrWithHistory    = candidate;
+                        adrWithoutHistory = adr;
+                    }
+                }
+            }
+
+            if ( adrWithoutHistory.isValid() && adrWithHistory.isValid() )
+            {
+                RifEclipseSummaryAddress candidate = adr;
+
+                std::string s = candidate.quantityName() + differenceIdentifier();
+                candidate.setQuantityName( s );
+
+                m_allResultAddresses.insert( candidate );
+                m_differenceAddresses.insert( candidate );
+            }
         }
     }
 }
@@ -648,7 +716,7 @@ void RifReaderEclipseSummary::ValuesCache::markAddressForPurge( const RifEclipse
 //--------------------------------------------------------------------------------------------------
 void RifReaderEclipseSummary::ValuesCache::purgeData()
 {
-    for ( const auto purgeAddr : m_purgeList )
+    for ( const auto& purgeAddr : m_purgeList )
     {
         m_cachedValues.erase( purgeAddr );
     }

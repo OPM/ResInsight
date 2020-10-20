@@ -18,8 +18,8 @@
 
 #include "RimAnnotationCollection.h"
 
-#include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaLogging.h"
 
 #include "RimAnnotationGroupCollection.h"
 #include "RimAnnotationLineAppearance.h"
@@ -32,8 +32,6 @@
 #include "RimGridView.h"
 #include "RimProject.h"
 
-#include "QMessageBox"
-#include "RiaColorTables.h"
 #include <QString>
 
 CAF_PDM_SOURCE_INIT( RimAnnotationCollection, "RimAnnotationCollection" );
@@ -275,7 +273,7 @@ void RimAnnotationCollection::reloadPolylinesFromFile( const std::vector<RimPoly
 
     if ( !totalErrorMessage.isEmpty() )
     {
-        QMessageBox::warning( nullptr, "Import Polylines", totalErrorMessage );
+        RiaLogging::errorInMessageBox( nullptr, "Import Polylines", totalErrorMessage );
     }
 }
 
@@ -285,4 +283,13 @@ void RimAnnotationCollection::reloadPolylinesFromFile( const std::vector<RimPoly
 void RimAnnotationCollection::loadDataAndUpdate()
 {
     reloadPolylinesFromFile( polylinesFromFileAnnotations() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnnotationCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                              std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    onAnnotationDeleted();
 }

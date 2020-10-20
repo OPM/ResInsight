@@ -251,7 +251,7 @@ bool Riv3dWellLogCurveGeometryGenerator::findClosestPointOnCurve( const cvf::Vec
     *closestPoint          = cvf::Vec3d::UNDEFINED;
     *measuredDepthAtPoint  = cvf::UNDEFINED_DOUBLE;
     *valueAtClosestPoint   = cvf::UNDEFINED_DOUBLE;
-    if ( m_curveVertices.size() < 2u ) false;
+    if ( m_curveVertices.size() < 2u ) return false;
     CVF_ASSERT( m_curveVertices.size() == m_curveValues.size() );
     for ( size_t i = 1; i < m_curveVertices.size(); ++i )
     {
@@ -347,7 +347,6 @@ void Riv3dWellLogCurveGeometryGenerator::createNewVerticesAlongSegment( const cv
                                                                         const std::vector<cvf::Vec3d>& drawSurfaceVertices,
                                                                         std::vector<cvf::Vec3d>*       extraVertices )
 {
-    cvf::Vec3d fullSegmentVector = ptEnd - ptStart;
     extraVertices->push_back( ptStart );
 
     // Find segments that intersects the triangle edges

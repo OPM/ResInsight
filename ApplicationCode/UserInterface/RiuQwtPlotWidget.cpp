@@ -26,6 +26,7 @@
 #include "RimPlot.h"
 
 #include "RiuDraggableOverlayFrame.h"
+#include "RiuGuiTheme.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtCurvePointTracker.h"
 #include "RiuQwtLinearScaleEngine.h"
@@ -35,6 +36,8 @@
 #include "cafAssert.h"
 
 #include "qwt_legend.h"
+#include "qwt_legend_label.h"
+#include "qwt_plot_barchart.h"
 #include "qwt_plot_canvas.h"
 #include "qwt_plot_curve.h"
 #include "qwt_plot_grid.h"
@@ -42,6 +45,7 @@
 #include "qwt_plot_marker.h"
 #include "qwt_plot_picker.h"
 #include "qwt_plot_renderer.h"
+#include "qwt_plot_shapeitem.h"
 #include "qwt_scale_draw.h"
 #include "qwt_scale_widget.h"
 #include "qwt_symbol.h"
@@ -60,7 +64,7 @@
 #include <QWheelEvent>
 
 #include <algorithm>
-#include <cfloat>
+#include <limits>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -69,6 +73,8 @@ RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlot* plotDefinition, QWidget* parent )
     : QwtPlot( parent )
     , m_plotDefinition( plotDefinition )
     , m_overlayMargins( 5 )
+    , m_plotTitle( "" )
+    , m_plotTitleEnabled( true )
 {
     CAF_ASSERT( m_plotDefinition );
     RiuQwtPlotTools::setCommonPlotBehaviour( this );
@@ -161,28 +167,42 @@ int RiuQwtPlotWidget::axisValueFontSize( QwtPlot::Axis axis ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::setAxisFontsAndAlignment( QwtPlot::Axis     axis,
-                                                 int               titleFontSize,
-                                                 int               valueFontSize,
-                                                 bool              titleBold,
-                                                 Qt::AlignmentFlag alignment )
+void RiuQwtPlotWidget::setAxisFontsAndAlignment( QwtPlot::Axis axis,
+                                                 int           titleFontSize,
+                                                 int           valueFontSize,
+                                                 bool          titleBold,
+                                                 int           alignment )
 {
+    int titleFontPixelSize = caf::FontTools::pointSizeToPixelSize( titleFontSize );
+    int valueFontPixelSize = caf::FontTools::pointSizeToPixelSize( valueFontSize );
+
     // Axis number font
     QFont axisFont = this->axisFont( axis );
-    axisFont.setPixelSize( RiaFontCache::pointSizeToPixelSize( valueFontSize ) );
+    axisFont.setPixelSize( valueFontPixelSize );
     axisFont.setBold( false );
     this->setAxisFont( axis, axisFont );
 
     // Axis title font
     QwtText axisTitle     = this->axisTitle( axis );
     QFont   axisTitleFont = axisTitle.font();
-    axisTitleFont.setPixelSize( RiaFontCache::pointSizeToPixelSize( titleFontSize ) );
+    axisTitleFont.setPixelSize( titleFontPixelSize );
     axisTitleFont.setBold( titleBold );
     axisTitle.setFont( axisTitleFont );
     axisTitle.setRenderFlags( alignment | Qt::TextWordWrap );
 
     setAxisTitle( axis, axisTitle );
     applyAxisTitleToQwt( axis );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::setAxesFontsAndAlignment( int titleFontSize, int valueFontSize, bool titleBold, int alignment )
+{
+    for ( auto axisTitlePair : m_axisTitles )
+    {
+        setAxisFontsAndAlignment( axisTitlePair.first, titleFontSize, valueFontSize, titleBold, alignment );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -240,7 +260,54 @@ bool RiuQwtPlotWidget::plotTitleEnabled() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QwtInterval RiuQwtPlotWidget::axisRange( QwtPlot::Axis axis )
+void RiuQwtPlotWidget::setPlotTitleFontSize( int titleFontSize )
+{
+    auto  title = this->title();
+    QFont font  = title.font();
+    font.setPixelSize( caf::FontTools::pointSizeToPixelSize( titleFontSize ) );
+    title.setFont( font );
+    setTitle( title );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::setLegendFontSize( int fontSize )
+{
+    if ( legend() )
+    {
+        QFont font = legend()->font();
+        font.setPixelSize( caf::FontTools::pointSizeToPixelSize( fontSize ) );
+        legend()->setFont( font );
+        // Set font size for all existing labels
+        QList<QwtLegendLabel*> labels = legend()->findChildren<QwtLegendLabel*>();
+        for ( QwtLegendLabel* label : labels )
+        {
+            label->setFont( font );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::setInternalLegendVisible( bool visible )
+{
+    if ( visible )
+    {
+        QwtLegend* legend = new QwtLegend( this );
+        this->insertLegend( legend, BottomLegend );
+    }
+    else
+    {
+        this->insertLegend( nullptr );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QwtInterval RiuQwtPlotWidget::axisRange( QwtPlot::Axis axis ) const
 {
     return axisScaleDiv( axis ).interval();
 }
@@ -272,10 +339,10 @@ void RiuQwtPlotWidget::setAxisInverted( QwtPlot::Axis axis )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::setAxisLabelsAndTicksEnabled( QwtPlot::Axis axis, bool enable )
+void RiuQwtPlotWidget::setAxisLabelsAndTicksEnabled( QwtPlot::Axis axis, bool enableLabels, bool enableTicks )
 {
-    this->axisScaleDraw( axis )->enableComponent( QwtAbstractScaleDraw::Ticks, enable );
-    this->axisScaleDraw( axis )->enableComponent( QwtAbstractScaleDraw::Labels, enable );
+    this->axisScaleDraw( axis )->enableComponent( QwtAbstractScaleDraw::Ticks, enableTicks );
+    this->axisScaleDraw( axis )->enableComponent( QwtAbstractScaleDraw::Labels, enableLabels );
     recalculateAxisExtents( axis );
 }
 
@@ -327,6 +394,31 @@ void RiuQwtPlotWidget::setMajorAndMinorTickIntervals( QwtPlot::Axis axis,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::setMajorAndMinorTickIntervalsAndRange( QwtPlot::Axis axis,
+                                                              double        majorTickInterval,
+                                                              double        minorTickInterval,
+                                                              double        minTickValue,
+                                                              double        maxTickValue,
+                                                              double        rangeMin,
+                                                              double        rangeMax )
+{
+    RiuQwtLinearScaleEngine* scaleEngine = dynamic_cast<RiuQwtLinearScaleEngine*>( this->axisScaleEngine( axis ) );
+    if ( scaleEngine )
+    {
+        QwtScaleDiv scaleDiv = scaleEngine->divideScaleWithExplicitIntervalsAndRange( minTickValue,
+                                                                                      maxTickValue,
+                                                                                      majorTickInterval,
+                                                                                      minorTickInterval,
+                                                                                      rangeMin,
+                                                                                      rangeMax );
+
+        this->setAxisScaleDiv( axis, scaleDiv );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::setAutoTickIntervalCounts( QwtPlot::Axis axis,
                                                   int           maxMajorTickIntervalCount,
                                                   int           maxMinorTickIntervalCount )
@@ -367,6 +459,8 @@ double RiuQwtPlotWidget::minorTickInterval( QwtPlot::Axis axis ) const
 //--------------------------------------------------------------------------------------------------
 int RiuQwtPlotWidget::axisExtent( QwtPlot::Axis axis ) const
 {
+    if ( std::abs( axisRange( axis ).maxValue() - axisRange( axis ).minValue() ) < 1.0e-14 ) return 0;
+
     int lineExtent = 0;
 
     if ( this->axisScaleDraw( axis )->hasComponent( QwtAbstractScaleDraw::Ticks ) )
@@ -451,31 +545,6 @@ QPoint RiuQwtPlotWidget::dragStartPosition() const
 void RiuQwtPlotWidget::scheduleReplot()
 {
     RiaPlotWindowRedrawScheduler::instance()->schedulePlotWidgetReplot( this );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::stashWidgetStates()
-{
-    m_plotStyleSheet.stashWidgetStates();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::restoreWidgetStates()
-{
-    m_plotStyleSheet.restoreWidgetStates();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::setWidgetState( const QString& widgetState )
-{
-    caf::UiStyleSheet::clearWidgetStates( this );
-    m_plotStyleSheet.setWidgetState( this, widgetState );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -569,7 +638,7 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
                  !m_clickPosition.isNull() )
             {
                 endZoomOperations();
-                selectClosestCurve( mouseEvent->pos(), toggleItemInSelection );
+                selectClosestPlotItem( mouseEvent->pos(), toggleItemInSelection );
                 m_clickPosition = QPoint();
                 return true;
             }
@@ -583,7 +652,7 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::hideEvent( QHideEvent* event )
 {
-    resetCurveHighlighting();
+    resetPlotItemHighlighting();
     QwtPlot::hideEvent( event );
 }
 
@@ -592,12 +661,6 @@ void RiuQwtPlotWidget::hideEvent( QHideEvent* event )
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::showEvent( QShowEvent* event )
 {
-    m_plotStyleSheet = createPlotStyleSheet();
-    m_plotStyleSheet.applyToWidget( this );
-
-    m_canvasStyleSheet = createCanvasStyleSheet();
-    m_canvasStyleSheet.applyToWidget( canvas() );
-
     QwtPlot::showEvent( event );
 }
 
@@ -663,20 +726,6 @@ QSize RiuQwtPlotWidget::sizeHint() const
 QSize RiuQwtPlotWidget::minimumSizeHint() const
 {
     return QSize( 0, 0 );
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Empty default implementation
-//--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::selectPoint( QwtPlotCurve* curve, int pointNumber )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Empty default implementation
-//--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::clearPointSelection()
-{
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -802,36 +851,6 @@ void RiuQwtPlotWidget::recalculateAxisExtents( QwtPlot::Axis axis )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::UiStyleSheet RiuQwtPlotWidget::createPlotStyleSheet() const
-{
-    QColor backgroundColor       = QColor( "white" );
-    QColor highlightColor        = QApplication::palette().highlight().color();
-    QColor blendedHighlightColor = RiaColorTools::blendQColors( highlightColor, backgroundColor, 1, 20 );
-    QColor nearlyBackgroundColor = RiaColorTools::blendQColors( highlightColor, backgroundColor, 1, 40 );
-
-    caf::UiStyleSheet styleSheet;
-    styleSheet.set( "background-color", backgroundColor.name() );
-    styleSheet.set( "border", "1 px solid transparent" );
-
-    styleSheet.property( "selected" ).set( "border", QString( "1px solid %1" ).arg( highlightColor.name() ) );
-
-    return styleSheet;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::UiStyleSheet RiuQwtPlotWidget::createCanvasStyleSheet() const
-{
-    caf::UiStyleSheet styleSheet;
-    styleSheet.set( "background-color", "#FAFAFA" );
-    styleSheet.set( "border", "1px solid LightGray" );
-    return styleSheet;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::updateOverlayFrameLayout()
 {
     const int spacing = 5;
@@ -880,14 +899,20 @@ void RiuQwtPlotWidget::updateOverlayFrameLayout()
     }
 }
 
-//--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::selectClosestCurve( const QPoint& pos, bool toggleItemInSelection /*= false*/ )
+void RiuQwtPlotWidget::findClosestPlotItem( const QPoint& pos,
+                                            QwtPlotItem** closestItem,
+                                            int*          closestCurvePoint,
+                                            double*       distanceFromClick ) const
 {
-    QwtPlotCurve* closestCurve      = nullptr;
-    double        distMin           = DBL_MAX;
-    int           closestCurvePoint = -1;
+    CAF_ASSERT( closestItem && closestCurvePoint && distanceFromClick );
+
+    // Force empty defaults
+    *closestItem       = nullptr;
+    *closestCurvePoint = -1;
+    *distanceFromClick = std::numeric_limits<double>::infinity();
 
     const QwtPlotItemList& itmList = itemList();
     for ( QwtPlotItemIterator it = itmList.begin(); it != itmList.end(); it++ )
@@ -895,33 +920,66 @@ void RiuQwtPlotWidget::selectClosestCurve( const QPoint& pos, bool toggleItemInS
         if ( ( *it )->rtti() == QwtPlotItem::Rtti_PlotCurve )
         {
             QwtPlotCurve* candidateCurve = static_cast<QwtPlotCurve*>( *it );
-            double        dist           = DBL_MAX;
+            double        dist           = std::numeric_limits<double>::infinity();
             int           curvePoint     = candidateCurve->closestPoint( pos, &dist );
-            if ( dist < distMin )
+            if ( dist < *distanceFromClick )
             {
-                closestCurve      = candidateCurve;
-                distMin           = dist;
-                closestCurvePoint = curvePoint;
+                *closestItem       = candidateCurve;
+                *distanceFromClick = dist;
+                *closestCurvePoint = curvePoint;
+            }
+        }
+        else if ( ( *it )->rtti() == QwtPlotItem::Rtti_PlotShape )
+        {
+            QwtPlotShapeItem* shapeItem = static_cast<QwtPlotShapeItem*>( *it );
+            QPointF           scalePos( invTransform( xBottom, pos.x() ), invTransform( yLeft, pos.y() ) );
+            if ( shapeItem->shape().boundingRect().contains( scalePos ) )
+            {
+                *closestItem       = *it;
+                *distanceFromClick = 0.0;
+            }
+        }
+        else if ( ( *it )->rtti() == QwtPlotItem::Rtti_PlotBarChart )
+        {
+            QwtPlotBarChart* barChart = static_cast<QwtPlotBarChart*>( *it );
+            QPointF          scalePos( invTransform( xBottom, pos.x() ), invTransform( yLeft, pos.y() ) );
+
+            bool horizontal = barChart->orientation() == Qt::Horizontal;
+            for ( size_t i = 0; i < barChart->dataSize(); ++i )
+            {
+                QPointF samplePoint = barChart->sample( (int)i );
+                double  dist        = horizontal ? std::abs( samplePoint.x() - scalePos.y() )
+                                         : std::abs( samplePoint.x() - scalePos.x() );
+                if ( dist < *distanceFromClick )
+                {
+                    *closestItem       = *it;
+                    *closestCurvePoint = (int)i;
+                    *distanceFromClick = dist;
+                }
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::selectClosestPlotItem( const QPoint& pos, bool toggleItemInSelection /*= false*/ )
+{
+    QwtPlotItem* closestItem       = nullptr;
+    double       distanceFromClick = std::numeric_limits<double>::infinity();
+    int          closestCurvePoint = -1;
+
+    findClosestPlotItem( pos, &closestItem, &closestCurvePoint, &distanceFromClick );
 
     RiuPlotMainWindowTools::showPlotMainWindow();
-    resetCurveHighlighting();
-    if ( closestCurve && distMin < 20 )
+    resetPlotItemHighlighting();
+    if ( closestItem && distanceFromClick < 20 )
     {
         // TODO: highlight all selected curves
-        highlightCurve( closestCurve );
-        emit curveSelected( closestCurve, toggleItemInSelection );
+        highlightPlotItem( closestItem );
+        emit plotItemSelected( closestItem, toggleItemInSelection, distanceFromClick < 10 ? closestCurvePoint : -1 );
 
-        if ( distMin < 10 )
-        {
-            selectPoint( closestCurve, closestCurvePoint );
-        }
-        else
-        {
-            clearPointSelection();
-        }
         scheduleReplot();
     }
     else
@@ -949,14 +1007,15 @@ void RiuQwtPlotWidget::replot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::highlightCurve( const QwtPlotCurve* closestCurve )
+void RiuQwtPlotWidget::highlightPlotItem( const QwtPlotItem* closestItem )
 {
     // NB! Create a copy of the item list before the loop to avoid invalidated iterators when iterating the list
     // plotCurve->setZ() causes the ordering of items in the list to change
     auto plotItemList = this->itemList();
     for ( QwtPlotItem* plotItem : plotItemList )
     {
-        QwtPlotCurve* plotCurve = dynamic_cast<QwtPlotCurve*>( plotItem );
+        QwtPlotCurve*     plotCurve     = dynamic_cast<QwtPlotCurve*>( plotItem );
+        QwtPlotShapeItem* plotShapeItem = dynamic_cast<QwtPlotShapeItem*>( plotItem );
         if ( plotCurve )
         {
             QPen   existingPen = plotCurve->pen();
@@ -974,7 +1033,7 @@ void RiuQwtPlotWidget::highlightCurve( const QwtPlotCurve* closestCurve )
             }
 
             double zValue = plotCurve->z();
-            if ( plotCurve == closestCurve )
+            if ( plotCurve == closestItem )
             {
                 plotCurve->setZ( zValue + 100.0 );
             }
@@ -996,20 +1055,29 @@ void RiuQwtPlotWidget::highlightCurve( const QwtPlotCurve* closestCurve )
             m_originalCurveColors.insert( std::make_pair( plotCurve, curveColors ) );
             m_originalZValues.insert( std::make_pair( plotCurve, zValue ) );
         }
+        else if ( plotShapeItem && plotItem == closestItem )
+        {
+            QPen pen = plotShapeItem->pen();
+            pen.setColor( QColor( Qt::green ) );
+            pen.setWidth( 3 );
+            plotShapeItem->setPen( pen );
+            plotShapeItem->setZ( plotShapeItem->z() + 100.0 );
+        }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::resetCurveHighlighting()
+void RiuQwtPlotWidget::resetPlotItemHighlighting()
 {
     // NB! Create a copy of the item list before the loop to avoid invalidated iterators when iterating the list
     // plotCurve->setZ() causes the ordering of items in the list to change
     auto plotItemList = this->itemList();
     for ( QwtPlotItem* plotItem : plotItemList )
     {
-        QwtPlotCurve* plotCurve = dynamic_cast<QwtPlotCurve*>( plotItem );
+        QwtPlotCurve*     plotCurve     = dynamic_cast<QwtPlotCurve*>( plotItem );
+        QwtPlotShapeItem* plotShapeItem = dynamic_cast<QwtPlotShapeItem*>( plotItem );
         if ( plotCurve && m_originalCurveColors.count( plotCurve ) )
         {
             const QPen& existingPen = plotCurve->pen();
@@ -1024,6 +1092,17 @@ void RiuQwtPlotWidget::resetCurveHighlighting()
                 symbol->setColor( colors.symbolColor );
                 symbol->setPen( colors.symbolLineColor, symbol->pen().width(), symbol->pen().style() );
             }
+        }
+        else if ( plotShapeItem )
+        {
+            QPen pen = plotShapeItem->pen();
+
+            auto color = RiuGuiTheme::getColorByVariableName( "markerColor" );
+
+            pen.setColor( color );
+            pen.setWidth( 1 );
+            plotShapeItem->setPen( pen );
+            plotShapeItem->setZ( plotShapeItem->z() - 100.0 );
         }
     }
     m_originalCurveColors.clear();

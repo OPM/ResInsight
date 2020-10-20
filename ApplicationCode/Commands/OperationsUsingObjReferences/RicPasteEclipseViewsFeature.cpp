@@ -19,8 +19,6 @@
 
 #include "RicPasteEclipseViewsFeature.h"
 
-#include "RiaApplication.h"
-
 #include "Riu3DMainWindowTools.h"
 
 #include "RicPasteFeatureImpl.h"

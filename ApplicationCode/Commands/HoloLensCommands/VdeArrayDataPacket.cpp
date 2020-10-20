@@ -248,9 +248,7 @@ VdeArrayDataPacket
 
     const char*  payloadPtr         = rawPacketBuffer + VDE_HEADER_SIZE;
     const size_t payloadSizeInBytes = bufferSize - VDE_HEADER_SIZE;
-
-    const size_t payloadSizeInBytesFromPacketFields = elementCount * sizeOfElement( elementType );
-    assert( payloadSizeInBytes == payloadSizeInBytesFromPacketFields );
+    assert( payloadSizeInBytes == elementCount * sizeOfElement( elementType ) );
 
     VdeArrayDataPacket packet;
     packet.assign( packetId, elementType, elementCount, imageWidth, imageHeight, imageCompCount, payloadPtr, payloadSizeInBytes );
@@ -284,8 +282,7 @@ bool VdeArrayDataPacket::assign( int            arrayId,
     bufferWriter.setUint16( VDE_BYTEOFFSET_IMAGE_WIDTH, imageWidth );
     bufferWriter.setUint16( VDE_BYTEOFFSET_IMAGE_HEIGHT, imageHeight );
 
-    const size_t calcArraySizeInBytes = elementCount * sizeOfElement( elementType );
-    assert( arrayDataSizeInBytes == calcArraySizeInBytes );
+    assert( arrayDataSizeInBytes == elementCount * sizeOfElement( elementType ) );
 
     std::copy( arrayDataPtr, arrayDataPtr + arrayDataSizeInBytes, m_packetBytes.begin() + VDE_HEADER_SIZE );
     assert( m_packetBytes.size() == totalSizeBytes );

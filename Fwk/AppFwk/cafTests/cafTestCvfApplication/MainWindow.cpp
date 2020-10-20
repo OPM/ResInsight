@@ -1,3 +1,5 @@
+// clang-format off
+
 #include "MainWindow.h"
 
 #include "WidgetLayoutTest.h"
@@ -102,8 +104,6 @@ void MainWindow::createDockPanels()
         dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
         m_pdmUiTableView = new caf::PdmUiTableView(dockWidget);
-        m_pdmUiTableView->setSelectionRole(caf::SelectionManager::CURRENT);
-        m_pdmUiTableView->enableDefaultContextMenu(true);
 
         dockWidget->setWidget(m_pdmUiTableView);
 
@@ -175,7 +175,7 @@ MainWindow::~MainWindow()
     m_pdmUiTreeView->setPdmItem(NULL);
     m_pdmUiTreeView2->setPdmItem(NULL);
     m_pdmUiPropertyView->showProperties(NULL);
-    m_pdmUiTableView->setListField(NULL);
+    m_pdmUiTableView->setChildArrayField(NULL);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -233,7 +233,16 @@ void MainWindow::slotInsert()
             caf::PdmChildArrayField< caf::PdmObjectHandle*> * field = NULL;
 
             if (uiFh) field = dynamic_cast<caf::PdmChildArrayField< caf::PdmObjectHandle*> *>(uiFh->fieldHandle());
-            
+            
+
+
+
+
+
+
+
+
+
             if (field)
             {
                 field->push_back(new DemoPdmObject);
@@ -337,10 +346,12 @@ void MainWindow::slotShowTableView()
         }
     }
 
-    m_pdmUiTableView->setListField(listField);
+    m_pdmUiTableView->setChildArrayField(listField);
 
     if (listField)
     {
         listField->uiCapability()->updateConnectedEditors();
     }
 }
+
+// clang-format on

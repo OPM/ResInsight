@@ -142,3 +142,51 @@ size_t RiaStdStringTools::findCharMatchCount( const std::string& s, char c )
     }
     return count;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Function to find Levenshtein Distance between two strings (x and y).
+/// Adapted from pseudocode from wikipedia: https://en.wikipedia.org/wiki/Levenshtein_distance
+/// Implementation is the Wagner-Fischer variant: https://en.wikipedia.org/wiki/Wagner-Fischer_algorithm
+///
+/// Return value is higher when strings are more "different", and zero when strings are equal.
+//--------------------------------------------------------------------------------------------------
+int RiaStdStringTools::computeEditDistance( const std::string& x, const std::string& y )
+{
+    // for all i and j, T[i,j] will hold the Levenshtein distance between
+    // the first i characters of x and the first j characters of y
+    int m = static_cast<int>( x.length() );
+    int n = static_cast<int>( y.length() );
+
+    std::vector<std::vector<int>> T( m + 1, std::vector<int>( n + 1, 0 ) );
+
+    // source prefixes can be transformed into empty string by
+    // dropping all characters
+    for ( int i = 1; i <= m; i++ )
+        T[i][0] = i;
+
+    // target prefixes can be reached from empty source prefix
+    // by inserting every character
+    for ( int j = 1; j <= n; j++ )
+        T[0][j] = j;
+
+    // fill the lookup table in bottom-up manner
+    for ( int i = 1; i <= m; i++ )
+    {
+        for ( int j = 1; j <= n; j++ )
+        {
+            int substitutionCost;
+            if ( x[i - 1] == y[j - 1] )
+                substitutionCost = 0;
+            else
+                substitutionCost = 1;
+
+            int deletion    = T[i - 1][j] + 1;
+            int insertion   = T[i][j - 1] + 1;
+            int replacement = T[i - 1][j - 1] + substitutionCost;
+            T[i][j]         = std::min( std::min( deletion, insertion ), replacement );
+        }
+    }
+
+    // The distance between the two full strings as the last value computed.
+    return T[m][n];
+}

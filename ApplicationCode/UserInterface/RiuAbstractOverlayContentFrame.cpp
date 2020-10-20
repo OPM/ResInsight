@@ -53,7 +53,7 @@ RiuTextOverlayContentFrame::RiuTextOverlayContentFrame( QWidget* parent /*= null
     layout->addWidget( m_textLabel );
 
     QFont font = m_textLabel->font();
-    RiaFontCache::pointSizeToPixelSize( RiaApplication::instance()->preferences()->defaultPlotFontSize() );
+    caf::FontTools::pointSizeToPixelSize( RiaPreferences::current()->defaultPlotFontSize() );
     m_textLabel->setFont( font );
 }
 

@@ -87,15 +87,15 @@ void RicUnLinkViewFeature::onActionTriggered( bool isChecked )
         {
             // Remove the view linker object from the view linker collection
             // viewLinkerCollection->viewLinker is a PdmChildField containing one RimViewLinker child object
-            RiaApplication::instance()->project()->viewLinkerCollection->viewLinker.removeChildObject( viewLinker );
+            RimProject::current()->viewLinkerCollection->viewLinker.removeChildObject( viewLinker );
 
             delete viewLinker;
         }
         activeView->updateAutoName();
     }
 
-    RiaApplication::instance()->project()->viewLinkerCollection.uiCapability()->updateConnectedEditors();
-    RiaApplication::instance()->project()->uiCapability()->updateConnectedEditors();
+    RimProject::current()->viewLinkerCollection.uiCapability()->updateConnectedEditors();
+    RimProject::current()->uiCapability()->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -104,5 +104,5 @@ void RicUnLinkViewFeature::onActionTriggered( bool isChecked )
 void RicUnLinkViewFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Unlink View" );
-    actionToSetup->setIcon( QIcon( ":/UnLinkView16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/UnLinkView.svg" ) );
 }

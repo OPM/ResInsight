@@ -20,6 +20,8 @@
 
 #include "Rim3dOverlayInfoConfig.h"
 
+#include "RiaLogging.h"
+#include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
 
 #include "RicGridStatisticsDialog.h"
@@ -64,7 +66,6 @@
 
 #include <QApplication>
 #include <QLocale>
-#include <QMessageBox>
 
 CAF_PDM_SOURCE_INIT( Rim3dOverlayInfoConfig, "View3dOverlayInfoConfig" );
 //--------------------------------------------------------------------------------------------------
@@ -105,6 +106,7 @@ Rim3dOverlayInfoConfig::Rim3dOverlayInfoConfig()
 
     CAF_PDM_InitField( &m_active, "Active", true, "Active", "", "", "" );
     m_active.uiCapability()->setUiHidden( true );
+    m_active = RiaPreferences::current()->showInfoBox();
 
     CAF_PDM_InitField( &m_showAnimProgress, "ShowAnimProgress", true, "Animation progress", "", "", "" );
     CAF_PDM_InitField( &m_showCaseInfo, "ShowInfoText", true, "Case Info", "", "", "" );
@@ -192,6 +194,30 @@ Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData()
     else if ( geoMechView )
         return histogramData( geoMechView );
     return HistogramData();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool Rim3dOverlayInfoConfig::HistogramData::isMinMaxValid() const
+{
+    return isValid( min ) && isValid( max );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool Rim3dOverlayInfoConfig::HistogramData::isValid( double parameter ) const
+{
+    return parameter != HUGE_VAL && parameter != -HUGE_VAL;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool Rim3dOverlayInfoConfig::HistogramData::isHistogramVectorValid() const
+{
+    return histogram && histogram->size() > 0 && isMinMaxValid();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -591,11 +617,11 @@ QString Rim3dOverlayInfoConfig::caseInfoText( RimEclipseView* eclipseView )
 
             size_t mxActCellCount = eclipseView->eclipseCase()
                                         ->eclipseCaseData()
-                                        ->activeCellInfo( RiaDefines::MATRIX_MODEL )
+                                        ->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )
                                         ->reservoirActiveCellCount();
             size_t frActCellCount = eclipseView->eclipseCase()
                                         ->eclipseCaseData()
-                                        ->activeCellInfo( RiaDefines::FRACTURE_MODEL )
+                                        ->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL )
                                         ->reservoirActiveCellCount();
 
             QString activeCellCountText;
@@ -690,14 +716,17 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const HistogramData& histData,
             {
                 infoText += QString( "%1<br>" ).arg( diffResString );
             }
-            infoText += QString( "<br><b>Statistics:</b> Current Time Step and Visible Cells" );
-            infoText += QString( "<table border=0 cellspacing=5 >"
-                                 "<tr> <td>Min</td> <td>Mean</td> <td>Max</td> </tr>"
-                                 "<tr> <td>%1</td>  <td> %2</td> <td>  %3</td> </tr>"
-                                 "</table>" )
-                            .arg( histData.min )
-                            .arg( histData.mean )
-                            .arg( histData.max );
+            if ( histData.isMinMaxValid() )
+            {
+                infoText += QString( "<br><b>Statistics:</b> Current Time Step and Visible Cells" );
+                infoText += QString( "<table border=0 cellspacing=5 >"
+                                     "<tr> <td>Min</td> <td>Mean</td> <td>Max</td> </tr>"
+                                     "<tr> <td>%1</td>  <td> %2</td> <td>  %3</td> </tr>"
+                                     "</table>" )
+                                .arg( histData.min )
+                                .arg( histData.mean )
+                                .arg( histData.max );
+            }
         }
     }
     else if ( eclipseView )
@@ -740,19 +769,22 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const HistogramData& histData,
                 infoText += QString( "<b>Dual Porosity Type:</b> %1<br>" ).arg( porosityModelText );
             }
 
-            infoText += QString( "<br><b>Statistics:</b> " ) + timeRangeText + " and " + m_statisticsCellRange().uiText();
-            infoText +=
-                QString( "<table border=0 cellspacing=5 >"
-                         "<tr> <td>Min</td> <td>P90</td> <td>Mean</td> <td>P10</td> <td>Max</td> <td>Sum</td> </tr>"
-                         "<tr> <td>%1</td>  <td> %2</td> <td>  %3</td> <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
-                         "</table>" )
-                    .arg( histData.min )
-                    .arg( histData.p10 )
-                    .arg( histData.mean )
-                    .arg( histData.p90 )
-                    .arg( histData.max )
-                    .arg( histData.sum );
-
+            if ( histData.isMinMaxValid() )
+            {
+                infoText += QString( "<br><b>Statistics:</b> " ) + timeRangeText + " and " +
+                            m_statisticsCellRange().uiText();
+                infoText +=
+                    QString( "<table border=0 cellspacing=5 >"
+                             "<tr> <td>Min</td> <td>P90</td> <td>Mean</td> <td>P10</td> <td>Max</td> <td>Sum</td> </tr>"
+                             "<tr> <td>%1</td>  <td> %2</td> <td>  %3</td> <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
+                             "</table>" )
+                        .arg( histData.min )
+                        .arg( histData.p10 )
+                        .arg( histData.mean )
+                        .arg( histData.p90 )
+                        .arg( histData.max )
+                        .arg( histData.sum );
+            }
             if ( eclipseView->faultResultSettings()->hasValidCustomResult() )
             {
                 QString faultMapping;
@@ -861,6 +893,24 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const HistogramData& histData, R
                     QString( "<b>Cell result:</b> %1, %2, %3<br>" ).arg( resultPos ).arg( fieldName ).arg( compName );
             }
 
+            if ( geoMechView->cellResultResultDefinition()->isBiotCoefficientDependent() )
+            {
+                if ( geoMechCase->biotCoefficientType() == RimGeoMechCase::BiotCoefficientType::BIOT_NONE )
+                {
+                    infoText += QString( "<b>Biot Coefficient</b>: 1.0 (None)<br>" );
+                }
+                else if ( geoMechCase->biotCoefficientType() == RimGeoMechCase::BiotCoefficientType::BIOT_FIXED )
+                {
+                    infoText +=
+                        QString( "<b>Biot Coefficient</b>: %1 (Fixed)<br>" ).arg( geoMechCase->biotFixedCoefficient() );
+                }
+                else if ( geoMechCase->biotCoefficientType() == RimGeoMechCase::BiotCoefficientType::BIOT_PER_ELEMENT )
+                {
+                    infoText += QString( "<b>Biot Coefficient</b>: %1 (From element property)<br>" )
+                                    .arg( geoMechCase->biotResultAddress() );
+                }
+            }
+
             const RimGeoMechContourMapView* contourMapView = dynamic_cast<const RimGeoMechContourMapView*>( geoMechView );
             if ( contourMapView )
             {
@@ -868,15 +918,19 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const HistogramData& histData, R
                 {
                     infoText += QString( "%1<br>" ).arg( diffResString );
                 }
-                infoText += QString( "<br><b>Statistics:</b> " ) + m_statisticsTimeRange().uiText() + " and " +
-                            m_statisticsCellRange().uiText();
-                infoText += QString( "<table border=0 cellspacing=5 >"
-                                     "<tr> <td>Min</td> <td>Mean</td> <td>Max</td> </tr>"
-                                     "<tr> <td>%1</td>  <td> %2</td> <td> %3</td> </tr>"
-                                     "</table>" )
-                                .arg( histData.min )
-                                .arg( histData.mean )
-                                .arg( histData.max );
+
+                if ( histData.isMinMaxValid() )
+                {
+                    infoText += QString( "<br><b>Statistics:</b> " ) + m_statisticsTimeRange().uiText() + " and " +
+                                m_statisticsCellRange().uiText();
+                    infoText += QString( "<table border=0 cellspacing=5 >"
+                                         "<tr> <td>Min</td> <td>Mean</td> <td>Max</td> </tr>"
+                                         "<tr> <td>%1</td>  <td> %2</td> <td> %3</td> </tr>"
+                                         "</table>" )
+                                    .arg( histData.min )
+                                    .arg( histData.mean )
+                                    .arg( histData.max );
+                }
             }
             else
             {
@@ -884,19 +938,24 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const HistogramData& histData, R
                 {
                     infoText += QString( "%1<br>" ).arg( diffResString );
                 }
-                infoText += QString( "<br><b>Statistics:</b> " ) + m_statisticsTimeRange().uiText() + " and " +
-                            m_statisticsCellRange().uiText();
-                infoText +=
-                    QString( "<table border=0 cellspacing=5 >"
-                             "<tr> <td>Min</td> <td>P90</td> <td>Mean</td> <td>P10</td> <td>Max</td> <td>Sum</td> </tr>"
-                             "<tr> <td>%1</td>  <td> %2</td> <td> %3</td>  <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
-                             "</table>" )
-                        .arg( histData.min )
-                        .arg( histData.p10 )
-                        .arg( histData.mean )
-                        .arg( histData.p90 )
-                        .arg( histData.max )
-                        .arg( histData.sum );
+
+                if ( histData.isMinMaxValid() )
+                {
+                    infoText += QString( "<br><b>Statistics:</b> " ) + m_statisticsTimeRange().uiText() + " and " +
+                                m_statisticsCellRange().uiText();
+                    infoText +=
+                        QString(
+                            "<table border=0 cellspacing=5 >"
+                            "<tr> <td>Min</td> <td>P90</td> <td>Mean</td> <td>P10</td> <td>Max</td> <td>Sum</td> </tr>"
+                            "<tr> <td>%1</td>  <td> %2</td> <td> %3</td>  <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
+                            "</table>" )
+                            .arg( histData.min )
+                            .arg( histData.p10 )
+                            .arg( histData.mean )
+                            .arg( histData.p90 )
+                            .arg( histData.max )
+                            .arg( histData.sum );
+                }
             }
         }
         else
@@ -1098,7 +1157,7 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo( RimEclipseView* eclipseView )
     {
         bool isResultsInfoRelevant = eclipseView->hasUserRequestedAnimation() && eclipseView->cellResult()->hasResult();
 
-        if ( isResultsInfoRelevant && histData.histogram )
+        if ( isResultsInfoRelevant && histData.isHistogramVectorValid() )
         {
             eclipseView->viewer()->showHistogram( true );
             eclipseView->viewer()->setHistogram( histData.min, histData.max, *histData.histogram );
@@ -1147,7 +1206,7 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo( RimGeoMechView* geoMechView )
         bool                isResultsInfoRelevant = caseData && geoMechView->hasUserRequestedAnimation() &&
                                      geoMechView->cellResultResultDefinition()->hasResult();
 
-        if ( isResultsInfoRelevant )
+        if ( isResultsInfoRelevant && histData.isHistogramVectorValid() )
         {
             geoMechView->viewer()->showHistogram( true );
             geoMechView->viewer()->setHistogram( histData.min, histData.max, *histData.histogram );
@@ -1228,40 +1287,40 @@ std::vector<RigEclipseResultAddress> sourcesForMultiPropertyResults( const QStri
 {
     static const std::map<QString, std::vector<RigEclipseResultAddress>> resultsWithMultiPropertySource =
         {{RiaDefines::combinedTransmissibilityResultName(),
-          {RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "TRANX" ),
-           RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "TRANY" ),
-           RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "TRANZ" )}},
+          {RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANX" ),
+           RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANY" ),
+           RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANZ" )}},
          {RiaDefines::combinedMultResultName(),
-          {RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "MULTX" ),
-           RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "MULTX-" ),
-           RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "MULTY" ),
-           RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "MULTY-" ),
-           RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "MULTZ" ),
-           RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "MULTZ-" )}},
+          {RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "MULTX" ),
+           RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "MULTX-" ),
+           RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "MULTY" ),
+           RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "MULTY-" ),
+           RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "MULTZ" ),
+           RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "MULTZ-" )}},
          {RiaDefines::combinedRiTranResultName(),
-          {RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, RiaDefines::riTranXResultName() ),
-           RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, RiaDefines::riTranYResultName() ),
-           RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, RiaDefines::riTranZResultName() )}},
+          {RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riTranXResultName() ),
+           RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riTranYResultName() ),
+           RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riTranZResultName() )}},
          {RiaDefines::combinedRiMultResultName(),
-          {RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, RiaDefines::riMultXResultName() ),
-           RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, RiaDefines::riMultYResultName() ),
-           RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, RiaDefines::riMultZResultName() )}},
+          {RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riMultXResultName() ),
+           RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riMultYResultName() ),
+           RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riMultZResultName() )}},
          {RiaDefines::combinedRiAreaNormTranResultName(),
-          {RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, RiaDefines::riAreaNormTranXResultName() ),
-           RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, RiaDefines::riAreaNormTranYResultName() ),
-           RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, RiaDefines::riAreaNormTranZResultName() )}},
+          {RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riAreaNormTranXResultName() ),
+           RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riAreaNormTranYResultName() ),
+           RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riAreaNormTranZResultName() )}},
          {RiaDefines::combinedWaterFluxResultName(),
-          {RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "FLRWATI+" ),
-           RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "FLRWATJ+" ),
-           RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "FLRWATK+" )}},
+          {RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRWATI+" ),
+           RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRWATJ+" ),
+           RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRWATK+" )}},
          {RiaDefines::combinedOilFluxResultName(),
-          {RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "FLROILI+" ),
-           RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "FLROILJ+" ),
-           RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "FLROILK+" )}},
+          {RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLROILI+" ),
+           RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLROILJ+" ),
+           RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLROILK+" )}},
          {RiaDefines::combinedGasFluxResultName(),
-          {RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "FLRGASI+" ),
-           RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "FLRGASJ+" ),
-           RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "FLRGASK+" )}}};
+          {RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRGASI+" ),
+           RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRGASJ+" ),
+           RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRGASK+" )}}};
 
     auto resNameResultAddrsPairIt = resultsWithMultiPropertySource.find( resultName );
 
@@ -1278,7 +1337,7 @@ std::vector<RigEclipseResultAddress> sourcesForMultiPropertyResults( const QStri
 
         for ( QString ending : endings )
         {
-            resultAddrs.emplace_back( RigEclipseResultAddress( RiaDefines::GENERATED, baseName + ending ) );
+            resultAddrs.emplace_back( RigEclipseResultAddress( RiaDefines::ResultCatType::GENERATED, baseName + ending ) );
         }
 
         return resultAddrs;
@@ -1370,14 +1429,15 @@ void Rim3dOverlayInfoConfig::displayPropertyFilteredStatisticsMessage( bool show
     if ( !isShowing )
     {
         isShowing = true;
-        QMessageBox::information( m_viewDef->viewer()->layoutWidget(),
-                                  QString( "ResInsight" ),
-                                  QString( "Statistics not available<br>"
+        RiaLogging::errorInMessageBox( m_viewDef->viewer()->layoutWidget(),
+                                       QString( "ResInsight" ),
+                                       QString(
+                                           "Statistics not available<br>"
                                            "<br>"
                                            "Statistics calculations of <b>Visible Cells</b> for <b>All Time Steps</b> "
                                            "is not supported<br>"
                                            "when you have an active Property filter on a time varying result.<br>" ) +
-                                      switchString );
+                                           switchString );
         isShowing = false;
     }
 }

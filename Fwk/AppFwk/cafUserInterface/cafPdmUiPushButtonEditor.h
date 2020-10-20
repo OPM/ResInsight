@@ -34,21 +34,19 @@
 //
 //##################################################################################################
 
-
 #pragma once
 #include "cafPdmUiFieldEditorHandle.h"
 
-#include <QWidget>
+#include <QLabel>
 #include <QPointer>
 #include <QPushButton>
-#include <QLabel>
+#include <QWidget>
 class QHBoxLayout;
 
-namespace caf 
+namespace caf
 {
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 class PdmUiPushButtonEditorAttribute : public PdmUiEditorAttribute
 {
@@ -58,7 +56,7 @@ public:
 };
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 class PdmUiPushButtonEditor : public PdmUiFieldEditorHandle
 {
@@ -66,24 +64,23 @@ class PdmUiPushButtonEditor : public PdmUiFieldEditorHandle
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiPushButtonEditor()          {} 
-    ~PdmUiPushButtonEditor() override {} 
+    PdmUiPushButtonEditor() {}
+    ~PdmUiPushButtonEditor() override {}
 
-    static void configureEditorForField(PdmFieldHandle* fieldHandle);
+    static void configureEditorForField( PdmFieldHandle* fieldHandle );
 
 protected:
-    QWidget*    createEditorWidget(QWidget * parent) override;
-    QWidget*    createLabelWidget(QWidget * parent) override;
-    void        configureAndUpdateUi(const QString& uiConfigName) override;
+    QWidget* createEditorWidget( QWidget* parent ) override;
+    QWidget* createLabelWidget( QWidget* parent ) override;
+    void     configureAndUpdateUi( const QString& uiConfigName ) override;
 
 protected slots:
-    void        slotClicked(bool checked);
+    void slotClicked( bool checked );
 
 private:
     QPointer<QPushButton>     m_pushButton;
     QPointer<QShortenedLabel> m_label;
     QPointer<QHBoxLayout>     m_buttonLayout;
 };
-
 
 } // end namespace caf

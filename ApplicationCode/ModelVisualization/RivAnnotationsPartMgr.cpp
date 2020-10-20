@@ -20,8 +20,6 @@
 
 #include "RivAnnotationsPartMgr.h"
 
-#include "RiaApplication.h"
-
 #include "Rim3dView.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimProject.h"

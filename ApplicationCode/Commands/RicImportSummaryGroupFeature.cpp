@@ -40,9 +40,7 @@
 #include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
 
 #include <QAction>
-#include <QFileDialog>
 #include <QInputDialog>
-#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT( RicImportSummaryGroupFeature, "RicImportSummaryGroupFeature" );
 

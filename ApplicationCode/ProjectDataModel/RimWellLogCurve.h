@@ -21,8 +21,9 @@
 
 #include "RiaDefines.h"
 #include "RiaWellLogUnitTools.h"
-#include "RimPlotCurve.h"
+#include "RimStackablePlotCurve.h"
 
+#include "cafSignal.h"
 #include "cvfObject.h"
 
 class RigWellLogCurveData;
@@ -31,11 +32,10 @@ class RigWellLogCurveData;
 ///
 ///
 //==================================================================================================
-class RimWellLogCurve : public RimPlotCurve
+class RimWellLogCurve : public RimStackablePlotCurve
 {
     CAF_PDM_HEADER_INIT;
 
-public:
 public:
     RimWellLogCurve();
     ~RimWellLogCurve() override;
@@ -66,18 +66,28 @@ public:
 
     const RigWellLogCurveData* curveData() const;
 
+    void updateCurveAppearance() override;
+
     virtual QString wellName() const             = 0;
     virtual QString wellLogChannelUiName() const = 0;
     virtual QString wellLogChannelName() const;
     virtual QString wellLogChannelUnits() const = 0;
     virtual QString wellDate() const { return ""; };
 
+    static QString wellLogCurveIconName();
+
+    void setOverrideCurveData( const std::vector<double>&               xValues,
+                               const std::vector<double>&               depthValues,
+                               const RiaCurveDataTools::CurveIntervals& curveIntervals );
+
+    virtual RiaDefines::PhaseType resultPhase() const;
+
 protected:
     void updateZoomInParentPlot() override;
     void updateLegendsInPlot() override;
     void setOverrideCurveDataXRange( double minimumValue, double maximumValue );
     void calculateCurveDataXRange();
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
     cvf::ref<RigWellLogCurveData> m_curveData;

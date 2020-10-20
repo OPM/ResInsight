@@ -19,6 +19,7 @@
 #include "RicImportObservedDataFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 
 #include "RimObservedDataCollection.h"
 #include "RimObservedSummaryData.h"
@@ -26,13 +27,13 @@
 #include "RimProject.h"
 #include "RimSummaryObservedDataFile.h"
 
+#include "RiuFileDialogTools.h"
 #include "RiuPlotMainWindowTools.h"
 
 #include "cafSelectionManager.h"
 
 #include <QAction>
-#include <QFileDialog>
-#include <QMessageBox>
+#include <QFileInfo>
 
 CAF_CMD_SOURCE_INIT( RicImportObservedDataFeature, "RicImportObservedDataFeature" );
 
@@ -43,10 +44,11 @@ void RicImportObservedDataFeature::selectObservedDataFileInDialog()
 {
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( "INPUT_FILES" );
-    QStringList     fileNames  = QFileDialog::getOpenFileNames( nullptr,
-                                                           "Import Observed Data",
-                                                           defaultDir,
-                                                           "Observed Data (*.RSM *.txt *.csv);;All Files (*.*)" );
+    QStringList     fileNames =
+        RiuFileDialogTools::getOpenFileNames( nullptr,
+                                              "Import Observed Data",
+                                              defaultDir,
+                                              "Observed Data (*.RSM *.txt *.csv);;All Files (*.*)" );
 
     if ( fileNames.isEmpty() ) return;
 
@@ -91,11 +93,7 @@ void RicImportObservedDataFeature::selectObservedDataFileInDialog()
 
             if ( !errorText.isEmpty() )
             {
-                QMessageBox msgBox;
-                msgBox.setIcon( QMessageBox::Warning );
-                msgBox.setText( "Errors detected during import                                                 " );
-                msgBox.setDetailedText( errorText );
-                msgBox.exec();
+                RiaLogging::errorInMessageBox( nullptr, "Errors detected during import", errorText );
             }
         } while ( retryImport );
     }

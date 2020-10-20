@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/caf">
+        <file>Down16x16.png</file>
+        <file>Up16x16.png</file>
+    </qresource>
+</RCC>

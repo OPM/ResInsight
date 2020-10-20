@@ -21,7 +21,7 @@
 #include "ExportCommands/RicSnapshotViewToClipboardFeature.h"
 #include "ExportCommands/RicSnapshotViewToFileFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaPreferences.h"
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimEclipseView.h"
@@ -70,6 +70,7 @@ RicGridStatisticsDialog::RicGridStatisticsDialog( QWidget* parent )
 
     // Set widget properties
     m_textEdit->setReadOnly( true );
+
     RiuQwtPlotTools::setCommonPlotBehaviour( m_historgramPlot );
     RiuQwtPlotTools::setCommonPlotBehaviour( m_aggregatedPlot );
 
@@ -173,7 +174,7 @@ void RicGridStatisticsDialog::setHistogramData( RimGridView* view )
 
         Rim3dOverlayInfoConfig::HistogramData histogramData = overlayInfo->histogramData();
 
-        if ( histogramData.isValid() )
+        if ( histogramData.isHistogramVectorValid() )
         {
             QVector<QwtIntervalSample> histSamples;
             QVector<QPointF>           aggrSamples;
@@ -258,8 +259,6 @@ void RicGridStatisticsDialog::deletePlotItems( QwtPlot* plot )
 //--------------------------------------------------------------------------------------------------
 void RicGridStatisticsDialog::setMarkers( const Rim3dOverlayInfoConfig::HistogramData& histData, QwtPlot* plot )
 {
-    auto scale = plot->axisScaleDiv( QwtPlot::yLeft );
-
     QwtPlotMarker* marker;
 
     if ( histData.p10 != HUGE_VAL )

@@ -20,6 +20,8 @@
 
 #include "RiaRegressionTestRunner.h"
 
+#include "RiuGuiTheme.h"
+
 #include <QDockWidget>
 #include <QMenu>
 #include <QPlainTextEdit>
@@ -55,18 +57,18 @@ RiuMessagePanel::RiuMessagePanel( QDockWidget* parent )
 //--------------------------------------------------------------------------------------------------
 void RiuMessagePanel::addMessage( RILogLevel messageLevel, const QString& msg )
 {
-    QColor clr( Qt::black );
-    if ( messageLevel == RI_LL_ERROR )
+    QColor clr = RiuGuiTheme::getColorByVariableName( "textColor" );
+    if ( messageLevel == RILogLevel::RI_LL_ERROR )
         clr = Qt::red;
-    else if ( messageLevel == RI_LL_WARNING )
+    else if ( messageLevel == RILogLevel::RI_LL_WARNING )
         clr = QColor( 220, 100, 10 );
-    else if ( messageLevel == RI_LL_DEBUG )
+    else if ( messageLevel == RILogLevel::RI_LL_DEBUG )
         clr = QColor( 100, 100, 200 );
 
     QTextCharFormat form = m_textEdit->currentCharFormat();
     form.setForeground( clr );
-    form.setFontWeight( messageLevel == RI_LL_ERROR ? QFont::DemiBold : QFont::Normal );
-    form.setFontItalic( messageLevel == RI_LL_DEBUG ? true : false );
+    form.setFontWeight( messageLevel == RILogLevel::RI_LL_ERROR ? QFont::DemiBold : QFont::Normal );
+    form.setFontItalic( messageLevel == RILogLevel::RI_LL_DEBUG ? true : false );
     m_textEdit->setCurrentCharFormat( form );
     m_textEdit->appendPlainText( msg );
 
@@ -75,7 +77,7 @@ void RiuMessagePanel::addMessage( RILogLevel messageLevel, const QString& msg )
 
     if ( !RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
     {
-        if ( messageLevel == RI_LL_ERROR || messageLevel == RI_LL_WARNING )
+        if ( messageLevel == RILogLevel::RI_LL_ERROR || messageLevel == RILogLevel::RI_LL_WARNING )
         {
             QDockWidget* parentDockWidget = dynamic_cast<QDockWidget*>( this->parent() );
             if ( parentDockWidget && !parentDockWidget->isVisible() )
@@ -138,7 +140,7 @@ void RiuMessagePanel::slotClearMessages()
 ///
 //--------------------------------------------------------------------------------------------------
 RiuMessagePanelLogger::RiuMessagePanelLogger()
-    : m_logLevel( RI_LL_WARNING )
+    : m_logLevel( int( RILogLevel::RI_LL_WARNING ) )
 {
 }
 
@@ -171,7 +173,7 @@ void RiuMessagePanelLogger::setLevel( int logLevel )
 //--------------------------------------------------------------------------------------------------
 void RiuMessagePanelLogger::error( const char* message )
 {
-    writeToMessagePanel( RI_LL_ERROR, message );
+    writeToMessagePanel( RILogLevel::RI_LL_ERROR, message );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -179,7 +181,7 @@ void RiuMessagePanelLogger::error( const char* message )
 //--------------------------------------------------------------------------------------------------
 void RiuMessagePanelLogger::warning( const char* message )
 {
-    writeToMessagePanel( RI_LL_WARNING, message );
+    writeToMessagePanel( RILogLevel::RI_LL_WARNING, message );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -187,7 +189,7 @@ void RiuMessagePanelLogger::warning( const char* message )
 //--------------------------------------------------------------------------------------------------
 void RiuMessagePanelLogger::info( const char* message )
 {
-    writeToMessagePanel( RI_LL_INFO, message );
+    writeToMessagePanel( RILogLevel::RI_LL_INFO, message );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -195,7 +197,7 @@ void RiuMessagePanelLogger::info( const char* message )
 //--------------------------------------------------------------------------------------------------
 void RiuMessagePanelLogger::debug( const char* message )
 {
-    writeToMessagePanel( RI_LL_DEBUG, message );
+    writeToMessagePanel( RILogLevel::RI_LL_DEBUG, message );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -203,7 +205,7 @@ void RiuMessagePanelLogger::debug( const char* message )
 //--------------------------------------------------------------------------------------------------
 void RiuMessagePanelLogger::writeToMessagePanel( RILogLevel messageLevel, const char* message )
 {
-    if ( messageLevel > m_logLevel )
+    if ( int( messageLevel ) > m_logLevel )
     {
         return;
     }

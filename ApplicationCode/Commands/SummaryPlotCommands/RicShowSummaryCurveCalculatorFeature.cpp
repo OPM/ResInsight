@@ -20,7 +20,6 @@
 
 #include "RicSummaryCurveCalculatorDialog.h"
 
-#include "RiaApplication.h"
 #include "RiaGuiApplication.h"
 
 #include "RimProject.h"
@@ -62,7 +61,7 @@ void RicShowSummaryCurveCalculatorFeature::hideCurveCalculatorDialog()
 //--------------------------------------------------------------------------------------------------
 bool RicShowSummaryCurveCalculatorFeature::isCommandEnabled()
 {
-    RimProject* proj        = RiaApplication::instance()->project();
+    RimProject* proj        = RimProject::current();
     const auto& allSumCases = proj->allSummaryCases();
 
     return !allSumCases.empty();
@@ -75,7 +74,7 @@ void RicShowSummaryCurveCalculatorFeature::onActionTriggered( bool isChecked )
 {
     RicSummaryCurveCalculatorDialog* dialog = RicShowSummaryCurveCalculatorFeature::curveCalculatorDialog();
 
-    RimProject*                      proj     = RiaApplication::instance()->project();
+    RimProject*                      proj     = RimProject::current();
     RimSummaryCalculationCollection* calcColl = proj->calculationCollection();
     if ( calcColl->calculations().size() == 0 )
     {
@@ -94,5 +93,5 @@ void RicShowSummaryCurveCalculatorFeature::onActionTriggered( bool isChecked )
 void RicShowSummaryCurveCalculatorFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Curve Calculator" );
-    actionToSetup->setIcon( QIcon( ":/calculator.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Calculator.svg" ) );
 }

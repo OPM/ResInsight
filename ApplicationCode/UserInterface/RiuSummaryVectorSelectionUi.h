@@ -61,6 +61,8 @@ public:
     void setMultiSelectionMode( bool multiSelectionMode );
     void hideEnsembles( bool hide );
     void hideSummaryCases( bool hide );
+    void enableIndividualEnsembleCaseSelection( bool enable );
+
     void setFieldChangedHandler( const std::function<void()>& handlerFunc );
 
     void setDefaultSelection( const std::vector<SummarySource*>& defaultCases );
@@ -109,8 +111,12 @@ private:
     void appendOptionItemsForSubCategoriesAndVectors( QList<caf::PdmOptionItemInfo>& options,
                                                       SummaryIdentifierAndField*     identifierAndField ) const;
 
+    void handleAddedSource( SummarySource* sourceAdded );
+    void handleRemovedSource( SummarySource* sourceRemoved );
+
 private:
     caf::PdmPtrArrayField<SummarySource*> m_selectedSources;
+    std::vector<SummarySource*>           m_previouslySelectedSources;
 
     caf::PdmField<std::vector<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>>> m_selectedSummaryCategories;
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>>              m_currentSummaryCategory;
@@ -121,6 +127,7 @@ private:
 
     bool m_hideEnsembles;
     bool m_hideSummaryCases;
+    bool m_showIndividualEnsembleCases;
 
     std::function<void()> m_toggleChangedHandler;
 

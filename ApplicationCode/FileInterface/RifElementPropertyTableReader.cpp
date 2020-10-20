@@ -23,7 +23,6 @@
 #include "RiuMainWindow.h"
 
 #include <QFile>
-#include <QMessageBox>
 #include <QStringList>
 #include <QTextStream>
 
@@ -66,17 +65,20 @@ RifElementPropertyMetadata RifElementPropertyTableReader::readMetadata( const QS
                     metadataBlockFound = true;
                     continue;
                 }
+                else if ( line.toUpper().startsWith( "*DISTRIBUTION" ) )
+                {
+                    metadata.fileName = fileName;
+                    break;
+                }
 
-                if ( !metadataBlockFound ) continue;
+                if ( !metadataBlockFound || line.startsWith( "*" ) ) continue;
 
-                QStringList cols = RifFileParseTools::splitLineAndTrim( line, "," );
+                QStringList cols = RifFileParseTools::splitLineAndTrim( line, ",", true );
 
-                metadata.fileName = fileName;
                 for ( QString s : cols )
                 {
                     metadata.dataColumns.push_back( s );
                 }
-                break;
             }
 
             closeFile( file );
@@ -108,8 +110,10 @@ void RifElementPropertyTableReader::readData( const RifElementPropertyMetadata* 
         if ( file && expectedColumnCount > 0 )
         {
             QTextStream stream( file );
-            bool        dataBlockFound = false;
-            int         lineNo         = 0;
+            bool        dataBlockFound        = false;
+            bool        completeDataLineFound = false;
+            int         lineNo                = 0;
+            QStringList collectedCols;
 
             // Init data vectors
             table->elementIds.clear();
@@ -117,23 +121,46 @@ void RifElementPropertyTableReader::readData( const RifElementPropertyMetadata* 
 
             while ( !stream.atEnd() )
             {
-                QString     line = stream.readLine();
-                QStringList cols = RifFileParseTools::splitLineAndTrim( line, "," );
+                QString line = stream.readLine();
+                if ( !line.startsWith( "*" ) )
+                {
+                    if ( collectedCols.size() > 0 && collectedCols.size() != 8 )
+                    {
+                        if ( dataBlockFound )
+                        {
+                            throw FileParseException(
+                                QString( "Number of columns mismatch at %1:%2" ).arg( metadata->fileName ).arg( lineNo ) );
+                        }
+                        collectedCols.clear();
+                    }
+
+                    collectedCols << RifFileParseTools::splitLineAndTrim( line, ",", true );
+                }
+                else
+                {
+                    collectedCols.clear();
+                }
                 lineNo++;
 
-                if ( !dataBlockFound )
+                if ( !completeDataLineFound )
                 {
-                    if ( !line.startsWith( "*" ) && !line.startsWith( "," ) && cols.size() == expectedColumnCount )
-                        dataBlockFound = true;
+                    if ( !line.startsWith( "*" ) && !line.startsWith( "," ) && collectedCols.size() == expectedColumnCount )
+                    {
+                        completeDataLineFound = true;
+                        dataBlockFound        = true;
+                    }
+                    else if ( collectedCols.size() > expectedColumnCount )
+                    {
+                        throw FileParseException(
+                            QString( "Number of columns mismatch at %1:%2" ).arg( metadata->fileName ).arg( lineNo ) );
+                    }
                     else
+                    {
                         continue;
+                    }
                 }
 
-                if ( cols.size() != expectedColumnCount )
-                {
-                    throw FileParseException(
-                        QString( "Number of columns mismatch at %1:%2" ).arg( metadata->fileName ).arg( lineNo ) );
-                }
+                QStringList cols = collectedCols;
 
                 for ( int c = 0; c < expectedColumnCount; c++ )
                 {
@@ -163,6 +190,8 @@ void RifElementPropertyTableReader::readData( const RifElementPropertyMetadata* 
                         table->data[c - 1].push_back( value );
                     }
                 }
+                collectedCols.clear();
+                completeDataLineFound = false;
             }
 
             table->hasData = true;

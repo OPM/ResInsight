@@ -17,12 +17,12 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RifElementPropertyReader.h"
+#include "RiaLogging.h"
 
 #include "cvfAssert.h"
 
 #include <cmath>
 
-#include <QMessageBox>
 #include <QString>
 
 //--------------------------------------------------------------------------------------------------
@@ -77,7 +77,7 @@ std::vector<std::string> RifElementPropertyReader::scalarElementFields() const
 {
     std::vector<std::string> fields;
 
-    for ( const std::pair<std::string, RifElementPropertyMetadata>& field : m_fieldsMetaData )
+    for ( const std::pair<const std::string, RifElementPropertyMetadata>& field : m_fieldsMetaData )
     {
         fields.push_back( field.first );
     }
@@ -233,11 +233,7 @@ void RifElementPropertyReader::makeElementIdToIdxMap()
 //--------------------------------------------------------------------------------------------------
 void RifElementPropertyReader::outputWarningAboutWrongFileData()
 {
-    QMessageBox msgBox;
-    msgBox.setIcon( QMessageBox::Warning );
-    QString warningText;
-    warningText = QString( "The chosen result property does not fit the model" );
-    msgBox.setText( warningText );
-    msgBox.setStandardButtons( QMessageBox::Ok );
-    msgBox.exec();
+    QString warningText = QString( "The chosen result property does not fit the model" );
+
+    RiaLogging::errorInMessageBox( nullptr, "Element Property Reader", warningText );
 }

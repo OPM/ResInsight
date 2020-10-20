@@ -19,9 +19,24 @@
 
 #include <cmath>
 
-#pragma warning( disable : 4503 )
 namespace cvf
 {
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename Vec3Type>
+Vec3Type GeometryTools::computePolygonCenter( const std::vector<Vec3Type>& polygon )
+{
+    Vec3Type s;
+
+    for ( size_t i = 0; i < polygon.size(); i++ )
+    {
+        s += polygon[i];
+    }
+    s /= polygon.size();
+    return s;
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -846,10 +861,9 @@ void GeometryTools::calculatePartiallyFreeCubeFacePolygon(
 
     // Check for holes
 
-    bool hasHoles = false;
     for ( size_t i = 0; i < isConnectionPolygonMerged.size(); ++i )
     {
-        hasHoles = !isConnectionPolygonMerged[i];
+        bool hasHoles = !isConnectionPolygonMerged[i];
         if ( hasHoles )
         {
             *m_partiallyFreeCubeFaceHasHoles = true;

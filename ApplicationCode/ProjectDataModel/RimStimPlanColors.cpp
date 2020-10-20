@@ -18,7 +18,6 @@
 
 #include "RimStimPlanColors.h"
 
-#include "RiaApplication.h"
 #include "RiaFractureDefines.h"
 
 #include "RimEclipseView.h"
@@ -97,6 +96,7 @@ void RimStimPlanColors::setShowStimPlanMesh( bool showStimPlanMesh )
 void RimStimPlanColors::loadDataAndUpdate()
 {
     RimFractureTemplateCollection* fractureTemplates = fractureTemplateCollection();
+    if ( !fractureTemplates ) return;
 
     std::vector<std::pair<QString, QString>> resultNameAndUnits = fractureTemplates->resultNamesAndUnits();
 
@@ -148,8 +148,9 @@ void RimStimPlanColors::loadDataAndUpdate()
         {
             RimRegularLegendConfig* legendConfig = new RimRegularLegendConfig();
             legendConfig->resultVariableName     = resultNameUnitString;
-            legendConfig->setMappingMode( RimRegularLegendConfig::LINEAR_DISCRETE );
-            legendConfig->setColorRange( RimRegularLegendConfig::STIMPLAN );
+            legendConfig->setMappingMode( RimRegularLegendConfig::MappingType::LINEAR_DISCRETE );
+            legendConfig->setColorLegend(
+                RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::STIMPLAN ) );
 
             m_legendConfigurations.push_back( legendConfig );
         }
@@ -352,6 +353,8 @@ RimFractureTemplateCollection* RimStimPlanColors::fractureTemplateCollection() c
     RimProject* proj = nullptr;
     this->firstAncestorOrThisOfType( proj );
 
+    if ( !proj ) return nullptr;
+
     return proj->activeOilField()->fractureDefinitionCollection();
 }
 
@@ -449,7 +452,7 @@ QString toString( const std::pair<QString, QString>& resultNameAndUnit )
 //--------------------------------------------------------------------------------------------------
 void setDefaultFractureResult( caf::PdmField<QString>& field )
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
 
     std::vector<RimFractureTemplate*> stimPlanFracTemplates = proj->allFractureTemplates();
 

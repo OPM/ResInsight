@@ -34,15 +34,14 @@
 //
 //##################################################################################################
 
-
 #include "cafCeetronNavigation.h"
 #include "cafViewer.h"
 #include "cvfCamera.h"
-#include "cvfScene.h"
-#include "cvfModel.h"
-#include "cvfViewport.h"
 #include "cvfHitItemCollection.h"
+#include "cvfModel.h"
 #include "cvfRay.h"
+#include "cvfScene.h"
+#include "cvfViewport.h"
 
 #include <QInputEvent>
 
@@ -53,35 +52,33 @@ using cvf::ManipulatorTrackball;
 /// \class CeetronNavigationPolicy
 /// \ingroup Caf
 ///
-/// 
+///
 ///
 //==================================================================================================
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::CeetronNavigation::CeetronNavigation()
-    : m_isRotCenterInitialized(false)
+    : m_isRotCenterInitialized( false )
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::CeetronNavigation::~CeetronNavigation()
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Repositions and orients the camera to view the rotation point along the 
+/// Repositions and orients the camera to view the rotation point along the
 /// direction "alongDirection". The distance to the rotation point is maintained.
 ///
 //--------------------------------------------------------------------------------------------------
 void caf::CeetronNavigation::setView( const cvf::Vec3d& alongDirection, const cvf::Vec3d& upDirection )
 {
-    m_trackball->setView(alongDirection, upDirection);
+    m_trackball->setView( alongDirection, upDirection );
     /*
     if (m_camera.isNull()) return;
 
@@ -99,65 +96,62 @@ void caf::CeetronNavigation::setView( const cvf::Vec3d& alongDirection, const cv
     */
 }
 
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void caf::CeetronNavigation::init()
 {
     m_trackball = new cvf::ManipulatorTrackball;
-    m_trackball->setCamera(m_viewer->mainCamera());
+    m_trackball->setCamera( m_viewer->mainCamera() );
     m_isRotCenterInitialized = false;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool caf::CeetronNavigation::handleInputEvent(QInputEvent* inputEvent)
+bool caf::CeetronNavigation::handleInputEvent( QInputEvent* inputEvent )
 {
-    if (! inputEvent) return false;
+    if ( !inputEvent ) return false;
 
-    switch (inputEvent->type())
+    switch ( inputEvent->type() )
     {
-    case QEvent::MouseButtonPress:
-        mouseMoveEvent(static_cast<QMouseEvent*>( inputEvent));
-        break;
-    case QEvent::MouseButtonRelease:
-        mouseReleaseEvent(static_cast<QMouseEvent*>( inputEvent));
-        break;
-    case QEvent::MouseMove:
-        mouseMoveEvent(static_cast<QMouseEvent*>( inputEvent));
-        break;
-    case QEvent::Wheel:
-        wheelEvent(static_cast<QWheelEvent*> ( inputEvent));
-        break;
-    default:
-        break;
+        case QEvent::MouseButtonPress:
+            mouseMoveEvent( static_cast<QMouseEvent*>( inputEvent ) );
+            break;
+        case QEvent::MouseButtonRelease:
+            mouseReleaseEvent( static_cast<QMouseEvent*>( inputEvent ) );
+            break;
+        case QEvent::MouseMove:
+            mouseMoveEvent( static_cast<QMouseEvent*>( inputEvent ) );
+            break;
+        case QEvent::Wheel:
+            wheelEvent( static_cast<QWheelEvent*>( inputEvent ) );
+            break;
+        default:
+            break;
     }
 
     return false;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void caf::CeetronNavigation::mouseMoveEvent(QMouseEvent* event)
+void caf::CeetronNavigation::mouseMoveEvent( QMouseEvent* event )
 {
-    if (!m_viewer->canRender()) return;
+    if ( !m_viewer->canRender() ) return;
     initializeRotationCenter();
     int posX = event->x();
     int posY = m_viewer->height() - event->y();
 
-    ManipulatorTrackball::NavigationType navType = getNavigationTypeFromMouseButtons(event->buttons());
-    if (navType != m_trackball->activeNavigation())
+    ManipulatorTrackball::NavigationType navType = getNavigationTypeFromMouseButtons( event->buttons() );
+    if ( navType != m_trackball->activeNavigation() )
     {
-        m_trackball->startNavigation(navType, posX, posY);
+        m_trackball->startNavigation( navType, posX, posY );
     }
 
-    bool needRedraw = m_trackball->updateNavigation(posX, posY);
-    if (needRedraw)
+    bool needRedraw = m_trackball->updateNavigation( posX, posY );
+    if ( needRedraw )
     {
         m_viewer->navigationPolicyUpdate();
     }
@@ -165,83 +159,77 @@ void caf::CeetronNavigation::mouseMoveEvent(QMouseEvent* event)
     setCursorFromCurrentState();
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void caf::CeetronNavigation::mousePressEvent(QMouseEvent* event)
+void caf::CeetronNavigation::mousePressEvent( QMouseEvent* event )
 {
-    if (!m_viewer->canRender()) return;
+    if ( !m_viewer->canRender() ) return;
     initializeRotationCenter();
     int posX = event->x();
     int posY = m_viewer->height() - event->y();
 
-    ManipulatorTrackball::NavigationType navType = getNavigationTypeFromMouseButtons(event->buttons());
-    m_trackball->startNavigation(navType, posX, posY);
+    ManipulatorTrackball::NavigationType navType = getNavigationTypeFromMouseButtons( event->buttons() );
+    m_trackball->startNavigation( navType, posX, posY );
 
     setCursorFromCurrentState();
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void caf::CeetronNavigation::mouseReleaseEvent(QMouseEvent* event)
+void caf::CeetronNavigation::mouseReleaseEvent( QMouseEvent* event )
 {
-
-    if (!m_viewer->canRender()) return;
+    if ( !m_viewer->canRender() ) return;
     initializeRotationCenter();
-    ManipulatorTrackball::NavigationType navType = getNavigationTypeFromMouseButtons(event->buttons());
-    m_trackball->startNavigation(navType, event->x(), event->y());
+    ManipulatorTrackball::NavigationType navType = getNavigationTypeFromMouseButtons( event->buttons() );
+    m_trackball->startNavigation( navType, event->x(), event->y() );
 
     setCursorFromCurrentState();
 }
 
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void caf::CeetronNavigation::wheelEvent(QWheelEvent* event)
+void caf::CeetronNavigation::wheelEvent( QWheelEvent* event )
 {
-    if (!m_viewer->canRender()) return;
-    if (!m_viewer->mainCamera()) return;
+    if ( !m_viewer->canRender() ) return;
+    if ( !m_viewer->mainCamera() ) return;
     initializeRotationCenter();
     int vpHeight = m_viewer->mainCamera()->viewport()->height();
-    if (vpHeight <= 0) return;
+    if ( vpHeight <= 0 ) return;
 
-    int navDelta = vpHeight/5;
-    if (event->delta() < 0) navDelta *= -1;
+    int navDelta = vpHeight / 5;
+    if ( event->delta() < 0 ) navDelta *= -1;
 
     int posY = m_viewer->height() - event->y();
 
-    m_trackball->startNavigation(ManipulatorTrackball::WALK, event->x(), posY);
+    m_trackball->startNavigation( ManipulatorTrackball::WALK, event->x(), posY );
 
-    m_trackball->updateNavigation(event->x(), posY + navDelta);
+    m_trackball->updateNavigation( event->x(), posY + navDelta );
     m_trackball->endNavigation();
 
-    m_viewer->updateParallelProjectionHeightFromMoveZoom( m_pointOfInterest);
+    m_viewer->updateParallelProjectionHeightFromMoveZoom( m_pointOfInterest );
 
     m_viewer->navigationPolicyUpdate();
 
     event->accept();
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-ManipulatorTrackball::NavigationType caf::CeetronNavigation::getNavigationTypeFromMouseButtons(Qt::MouseButtons mouseButtons)
+ManipulatorTrackball::NavigationType caf::CeetronNavigation::getNavigationTypeFromMouseButtons( Qt::MouseButtons mouseButtons )
 {
-    if (mouseButtons == Qt::LeftButton)
+    if ( mouseButtons == Qt::LeftButton )
     {
         return ManipulatorTrackball::PAN;
     }
-    else if (mouseButtons == Qt::RightButton)
+    else if ( mouseButtons == Qt::RightButton )
     {
         return ManipulatorTrackball::ROTATE;
     }
-    else if (mouseButtons == Qt::MidButton || mouseButtons == (Qt::LeftButton | Qt::RightButton))
+    else if ( mouseButtons == Qt::MidButton || mouseButtons == ( Qt::LeftButton | Qt::RightButton ) )
     {
         return ManipulatorTrackball::WALK;
     }
@@ -251,51 +239,47 @@ ManipulatorTrackball::NavigationType caf::CeetronNavigation::getNavigationTypeFr
     }
 }
 
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void caf::CeetronNavigation::setCursorFromCurrentState()
 {
     ManipulatorTrackball::NavigationType navType = m_trackball->activeNavigation();
-    switch (navType)
+    switch ( navType )
     {
-    case ManipulatorTrackball::PAN:         
-        //m_viewer->setCursor(RiuCursors::get(RiuCursors::PAN));
-        return;
-    case ManipulatorTrackball::WALK:     
-        //m_viewer->setCursor(RiuCursors::get(RiuCursors::WALK));        
-        return;
-    case ManipulatorTrackball::ROTATE:     
-        //m_viewer->setCursor(RiuCursors::get(RiuCursors::ROTATE));    
-        return;
-    default:
-        break;
+        case ManipulatorTrackball::PAN:
+            // m_viewer->setCursor(RiuCursors::get(RiuCursors::PAN));
+            return;
+        case ManipulatorTrackball::WALK:
+            // m_viewer->setCursor(RiuCursors::get(RiuCursors::WALK));
+            return;
+        case ManipulatorTrackball::ROTATE:
+            // m_viewer->setCursor(RiuCursors::get(RiuCursors::ROTATE));
+            return;
+        default:
+            break;
     }
 
     // m_viewer->setCursor(RiuCursors::get(RiuCursors::PICK));
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void caf::CeetronNavigation::initializeRotationCenter()
 {
-    if (m_isRotCenterInitialized
-        || m_trackball.isNull()
-        || !m_viewer->currentScene()->boundingBox().isValid())
+    if ( m_isRotCenterInitialized || m_trackball.isNull() || !m_viewer->currentScene()->boundingBox().isValid() )
     {
         return;
     }
 
-   cvf::Vec3d pointOfInterest = m_viewer->currentScene()->boundingBox().center();
+    cvf::Vec3d pointOfInterest = m_viewer->currentScene()->boundingBox().center();
 
-   this->setPointOfInterest(pointOfInterest);
+    this->setPointOfInterest( pointOfInterest );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d caf::CeetronNavigation::pointOfInterest()
 {
@@ -304,15 +288,12 @@ cvf::Vec3d caf::CeetronNavigation::pointOfInterest()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void caf::CeetronNavigation::setPointOfInterest(cvf::Vec3d poi)
+void caf::CeetronNavigation::setPointOfInterest( cvf::Vec3d poi )
 {
     m_pointOfInterest = poi;
-    m_trackball->setRotationPoint(poi);
+    m_trackball->setRotationPoint( poi );
     m_isRotCenterInitialized = true;
-    m_viewer->updateParallelProjectionCameraPosFromPointOfInterestMove(m_pointOfInterest);
-
+    m_viewer->updateParallelProjectionCameraPosFromPointOfInterestMove( m_pointOfInterest );
 }
-
-

@@ -148,7 +148,7 @@ std::vector<RigCompletionData>
         return fractureCompletions;
     }
 
-    auto cellResultsData = caseToApply->results( RiaDefines::MATRIX_MODEL );
+    auto cellResultsData = caseToApply->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     if ( !cellResultsData )
     {
         return fractureCompletions;
@@ -191,8 +191,8 @@ std::vector<RigCompletionData>
 
     if ( pdParams.performScaling )
     {
-        RigCaseCellResultsData* results = caseToApply->results( RiaDefines::MATRIX_MODEL );
-        results->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "PRESSURE" ) );
+        RigCaseCellResultsData* results = caseToApply->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+        results->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" ) );
     }
 
     return generateCompdatValuesConst( caseToApply,
@@ -226,8 +226,9 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
     double cDarcyInCorrectUnit  = RiaEclipseUnitTools::darcysConstant( caseToApply->eclipseCaseData()->unitsType() );
     const RigMainGrid* mainGrid = caseToApply->eclipseCaseData()->mainGrid();
 
-    const RigCaseCellResultsData* results = caseToApply->results( RiaDefines::MATRIX_MODEL );
-    const RigActiveCellInfo* actCellInfo  = caseToApply->eclipseCaseData()->activeCellInfo( RiaDefines::MATRIX_MODEL );
+    const RigCaseCellResultsData* results = caseToApply->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    const RigActiveCellInfo*      actCellInfo =
+        caseToApply->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
     bool performPressureDepletionScaling = pdParams.performScaling;
 
@@ -266,8 +267,8 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
     const std::vector<double>*              currentMatrixPressures = nullptr;
     if ( performPressureDepletionScaling )
     {
-        pressureResultVector =
-            &results->cellScalarResults( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "PRESSURE" ) );
+        pressureResultVector = &results->cellScalarResults(
+            RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" ) );
         CVF_ASSERT( !pressureResultVector->empty() );
 
         if ( pdParams.pressureScalingTimeStep < static_cast<int>( pressureResultVector->size() ) )
@@ -832,9 +833,9 @@ void RicExportFractureCompletionsImpl::outputIntermediateResultsText( QTextStrea
 bool RicExportFractureCompletionsImpl::loadResultsByName( RigCaseCellResultsData*     cellResultsData,
                                                           const std::vector<QString>& resultNames )
 {
-    const std::vector<RiaDefines::ResultCatType> resultCategorySearchOrder = {RiaDefines::STATIC_NATIVE,
-                                                                              RiaDefines::INPUT_PROPERTY,
-                                                                              RiaDefines::GENERATED};
+    const std::vector<RiaDefines::ResultCatType> resultCategorySearchOrder = {RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                                              RiaDefines::ResultCatType::INPUT_PROPERTY,
+                                                                              RiaDefines::ResultCatType::GENERATED};
 
     bool foundDataForAllResults = true;
 

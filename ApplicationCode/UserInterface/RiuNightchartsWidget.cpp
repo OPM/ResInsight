@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiuNightchartsWidget.h"
+#include "RiuGuiTheme.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -88,6 +89,9 @@ void RiuNightchartsWidget::clear()
     m_chart.setType( Nightcharts::Pie );
     m_chart.setLegendType( Nightcharts::Vertical );
     m_chart.setShadows( false );
+
+    auto col = RiuGuiTheme::getColorByVariableName( "textColor" );
+    m_chart.setTextColor( col );
 
     m_marginLeft   = 10;
     m_marginTop    = 10;
@@ -180,7 +184,7 @@ void RiuNightchartsWidget::paintEvent( QPaintEvent* e )
 void RiuNightchartsWidget::addItem( const QString& name, const QColor& color, float value )
 {
     m_chart.addPiece( name, color, value );
-    int textWidth = this->fontMetrics().width( name + " (00 %)" );
+    int textWidth = this->fontMetrics().boundingRect( name + " (00 %)" ).width();
 
     m_maxNameWidth = textWidth > m_maxNameWidth ? textWidth : m_maxNameWidth;
 }

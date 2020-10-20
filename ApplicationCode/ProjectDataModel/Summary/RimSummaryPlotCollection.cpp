@@ -18,12 +18,17 @@
 
 #include "RimSummaryPlotCollection.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
+#include "RiuPlotMainWindow.h"
+
 #include "RimProject.h"
 #include "RimSummaryPlot.h"
 
-#include "cafPdmFieldScriptability.h"
-#include "cafPdmObjectScriptability.h"
+#include "cafPdmFieldReorderCapability.h"
+
+#include "cafPdmAbstractFieldScriptingCapability.h"
+#include "cafPdmObjectMethod.h"
+#include "cafPdmObjectScriptingCapability.h"
 
 CAF_PDM_SOURCE_INIT( RimSummaryPlotCollection, "SummaryPlotCollection" );
 
@@ -34,8 +39,9 @@ RimSummaryPlotCollection::RimSummaryPlotCollection()
 {
     CAF_PDM_InitScriptableObject( "Summary Plots", ":/SummaryPlotsLight16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &summaryPlots, "SummaryPlots", "Summary Plots", "", "", "" );
-    summaryPlots.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_summaryPlots, "SummaryPlots", "Summary Plots", "", "", "" );
+    m_summaryPlots.uiCapability()->setUiHidden( true );
+    caf::PdmFieldReorderCapability::addToField( &m_summaryPlots );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -43,7 +49,6 @@ RimSummaryPlotCollection::RimSummaryPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlotCollection::~RimSummaryPlotCollection()
 {
-    summaryPlots.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,7 +60,8 @@ RimSummaryPlot* RimSummaryPlotCollection::createSummaryPlotWithAutoTitle()
     plot->setAsPlotMdiWindow();
 
     plot->enableAutoPlotTitle( true );
-    summaryPlots.push_back( plot );
+
+    addPlot( plot );
 
     return plot;
 }
@@ -68,7 +74,8 @@ RimSummaryPlot* RimSummaryPlotCollection::createNamedSummaryPlot( const QString&
     RimSummaryPlot* plot = new RimSummaryPlot();
     plot->setAsPlotMdiWindow();
 
-    summaryPlots.push_back( plot );
+    addPlot( plot );
+
     plot->setDescription( name );
 
     return plot;
@@ -79,7 +86,7 @@ RimSummaryPlot* RimSummaryPlotCollection::createNamedSummaryPlot( const QString&
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotCollection::updateSummaryNameHasChanged()
 {
-    for ( RimSummaryPlot* plot : summaryPlots )
+    for ( RimSummaryPlot* plot : plots() )
     {
         plot->updateCaseNameHasChanged();
     }
@@ -90,7 +97,7 @@ void RimSummaryPlotCollection::updateSummaryNameHasChanged()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotCollection::summaryPlotItemInfos( QList<caf::PdmOptionItemInfo>* optionInfos ) const
 {
-    for ( RimSummaryPlot* plot : summaryPlots() )
+    for ( RimSummaryPlot* plot : plots() )
     {
         QString displayName = plot->description();
         optionInfos->push_back( caf::PdmOptionItemInfo( displayName, plot, false, plot->uiCapability()->uiIconProvider() ) );
@@ -100,7 +107,43 @@ void RimSummaryPlotCollection::summaryPlotItemInfos( QList<caf::PdmOptionItemInf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlotCollection::removeSummaryPlot( RimSummaryPlot* summaryPlot )
+void RimSummaryPlotCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                               std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
-    summaryPlots.removeChildObject( summaryPlot );
+    updateSummaryNameHasChanged();
+    RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
+    mainPlotWindow->updateSummaryPlotToolBar();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryPlot*> RimSummaryPlotCollection::plots() const
+{
+    return m_summaryPlots.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RimSummaryPlotCollection::plotCount() const
+{
+    return m_summaryPlots.size();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotCollection::insertPlot( RimSummaryPlot* summaryPlot, size_t index )
+{
+    m_summaryPlots.insert( index, summaryPlot );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotCollection::removePlot( RimSummaryPlot* summaryPlot )
+{
+    m_summaryPlots.removeChildObject( summaryPlot );
+    updateAllRequiredEditors();
 }

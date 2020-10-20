@@ -44,7 +44,7 @@ RiaGitDiff::~RiaGitDiff()
 //--------------------------------------------------------------------------------------------------
 void RiaGitDiff::reset()
 {
-    m_lastError = IC_NO_ERROR;
+    m_lastError = ErrorType::IC_NO_ERROR;
     m_errorMsg.clear();
     m_errorDetails.clear();
     m_diffOutput.clear();
@@ -80,7 +80,7 @@ bool RiaGitDiff::executeDiff( const QString& baseFolder )
     QProcess::ProcessError procError = proc.error();
     if ( procError != QProcess::UnknownError )
     {
-        m_lastError    = SEVERE_ERROR;
+        m_lastError    = ErrorType::SEVERE_ERROR;
         m_errorMsg     = "Error running 'git' tool process";
         m_errorDetails = completeCommand;
         return false;

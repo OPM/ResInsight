@@ -58,50 +58,50 @@
 
 namespace caf
 {
-CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiTimeEditor);
+CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiTimeEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTimeEditor::configureAndUpdateUi(const QString& uiConfigName)
+void PdmUiTimeEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
-    CAF_ASSERT(!m_timeEdit.isNull());
+    CAF_ASSERT( !m_timeEdit.isNull() );
 
-    PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
+    PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
 
-    m_timeEdit->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
+    m_timeEdit->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
 
-    caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
-    if (uiObject)
+    caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    if ( uiObject )
     {
-        uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &m_attributes);
+        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
     }
 
-    if (!m_attributes.timeFormat.isEmpty())
+    if ( !m_attributes.timeFormat.isEmpty() )
     {
-        m_timeEdit->setDisplayFormat(m_attributes.timeFormat);
+        m_timeEdit->setDisplayFormat( m_attributes.timeFormat );
     }
 
-    m_timeEdit->setTime(uiField()->uiValue().toTime());
+    m_timeEdit->setTime( uiField()->uiValue().toTime() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiTimeEditor::createEditorWidget(QWidget* parent)
+QWidget* PdmUiTimeEditor::createEditorWidget( QWidget* parent )
 {
-    m_timeEdit = new QTimeEdit(parent);
-    connect(m_timeEdit, SIGNAL(editingFinished()), this, SLOT(slotEditingFinished()));
-    connect(m_timeEdit, SIGNAL(timeChanged(QTime)), this, SLOT(slotTimeChanged(QTime)));
+    m_timeEdit = new QTimeEdit( parent );
+    connect( m_timeEdit, SIGNAL( editingFinished() ), this, SLOT( slotEditingFinished() ) );
+    connect( m_timeEdit, SIGNAL( timeChanged( QTime ) ), this, SLOT( slotTimeChanged( QTime ) ) );
     return m_timeEdit;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiTimeEditor::createLabelWidget(QWidget* parent)
+QWidget* PdmUiTimeEditor::createLabelWidget( QWidget* parent )
 {
-    m_label = new QShortenedLabel(parent);
+    m_label = new QShortenedLabel( parent );
     return m_label;
 }
 
@@ -110,15 +110,15 @@ QWidget* PdmUiTimeEditor::createLabelWidget(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 void PdmUiTimeEditor::slotEditingFinished()
 {
-    this->setValueToField(m_timeEdit->time());
+    this->setValueToField( m_timeEdit->time() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTimeEditor::slotTimeChanged(const QTime& time)
+void PdmUiTimeEditor::slotTimeChanged( const QTime& time )
 {
-    this->setValueToField(m_timeEdit->time());
+    this->setValueToField( m_timeEdit->time() );
 }
 
 } // end namespace caf

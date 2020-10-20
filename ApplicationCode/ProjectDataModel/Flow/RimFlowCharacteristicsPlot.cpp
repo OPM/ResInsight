@@ -18,7 +18,6 @@
 
 #include "RimFlowCharacteristicsPlot.h"
 
-#include "RiaApplication.h"
 #include "RiaPreferences.h"
 
 #include "RifCsvDataTableFormatter.h"
@@ -107,6 +106,7 @@ RimFlowCharacteristicsPlot::RimFlowCharacteristicsPlot()
 
     this->m_showWindow = false;
     setAsPlotMdiWindow();
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -241,6 +241,21 @@ void RimFlowCharacteristicsPlot::setMinimumCommunication( double minimumCommunic
 void RimFlowCharacteristicsPlot::setAquiferCellThreshold( double aquiferCellThreshold )
 {
     m_maxPvFraction = aquiferCellThreshold;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimFlowCharacteristicsPlot::fontSize() const
+{
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFlowCharacteristicsPlot::updateFonts()
+{
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -546,7 +561,7 @@ void RimFlowCharacteristicsPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
                 if ( view != nullptr )
                 {
                     view->faultCollection()->showFaultCollection = false;
-                    view->cellResult()->setResultType( RiaDefines::FLOW_DIAGNOSTICS );
+                    view->cellResult()->setResultType( RiaDefines::ResultCatType::FLOW_DIAGNOSTICS );
                     view->cellResult()->setFlowDiagTracerSelectionType( RimEclipseResultDefinition::FLOW_TR_BY_SELECTION );
                     view->cellResult()->setSelectedTracers( m_selectedTracerNames );
 
@@ -635,6 +650,7 @@ void RimFlowCharacteristicsPlot::onLoadDataAndUpdate()
     if ( m_flowDiagSolution && m_flowCharPlotWidget )
     {
         RigFlowDiagResults* flowResult = m_flowDiagSolution->flowDiagResults();
+        if ( !flowResult ) return;
 
         {
             std::vector<int> calculatedTimesteps = flowResult->calculatedTimeSteps( RigFlowDiagResultAddress::PHASE_ALL );
@@ -673,14 +689,15 @@ void RimFlowCharacteristicsPlot::onLoadDataAndUpdate()
             if ( m_cellFilter() == RigFlowDiagResults::CELLS_VISIBLE )
             {
                 cvf::UByteArray visibleCells;
-                m_case()->eclipseCaseData()->activeCellInfo( RiaDefines::MATRIX_MODEL );
+                m_case()->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
                 if ( m_cellFilterView )
                 {
                     m_cellFilterView()->calculateCurrentTotalCellVisibility( &visibleCells, timeStepIdx );
                 }
 
-                RigActiveCellInfo* activeCellInfo = m_case()->eclipseCaseData()->activeCellInfo( RiaDefines::MATRIX_MODEL );
+                RigActiveCellInfo* activeCellInfo =
+                    m_case()->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
                 std::vector<char> visibleActiveCells( activeCellInfo->reservoirActiveCellCount(), 0 );
 
                 for ( size_t i = 0; i < visibleCells.size(); ++i )
@@ -786,7 +803,7 @@ double interpolate( const std::vector<double>& xData, const std::vector<double>&
 //--------------------------------------------------------------------------------------------------
 QString RimFlowCharacteristicsPlot::curveDataAsText() const
 {
-    QString fieldSeparator = RiaApplication::instance()->preferences()->csvTextExportFieldSeparator;
+    QString fieldSeparator = RiaPreferences::current()->csvTextExportFieldSeparator;
     QString tableText;
 
     QTextStream              stream( &tableText );

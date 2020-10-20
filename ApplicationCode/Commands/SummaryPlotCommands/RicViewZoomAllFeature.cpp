@@ -80,6 +80,6 @@ void RicViewZoomAllFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Zoom All" );
     actionToSetup->setToolTip( "Zoom All (Ctrl+Alt+A)" );
-    actionToSetup->setIcon( QIcon( ":/ZoomAll16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/ZoomAll.svg" ) );
     applyShortcutWithHintToAction( actionToSetup, QKeySequence( tr( "Ctrl+Alt+A" ) ) );
 }

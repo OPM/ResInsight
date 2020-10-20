@@ -35,13 +35,13 @@
 //##################################################################################################
 #include "cafPdmPythonGenerator.h"
 
+#include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
-#include "cafPdmFieldScriptability.h"
 #include "cafPdmObject.h"
 #include "cafPdmObjectFactory.h"
 #include "cafPdmObjectMethod.h"
-#include "cafPdmObjectScriptabilityRegister.h"
+#include "cafPdmObjectScriptingCapabilityRegister.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmXmlFieldHandle.h"
 
@@ -74,7 +74,7 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
         CAF_ASSERT( object );
 
         std::shared_ptr<PdmObject> sharedObject( object );
-        if ( PdmObjectScriptabilityRegister::isScriptable( sharedObject.get() ) )
+        if ( PdmObjectScriptingCapabilityRegister::isScriptable( sharedObject.get() ) )
         {
             dummyObjects.push_back( sharedObject );
         }
@@ -100,8 +100,8 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
 
         for ( auto it = classInheritanceStack.begin(); it != classInheritanceStack.end(); ++it )
         {
-            const QString& classKeyword       = *it;
-            QString        scriptClassComment = PdmObjectScriptabilityRegister::scriptClassComment( classKeyword );
+            const QString& classKeyword = *it;
+            QString scriptClassComment  = PdmObjectScriptingCapabilityRegister::scriptClassComment( classKeyword );
 
             std::map<QString, QString> attributesGenerated;
 
@@ -113,7 +113,7 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
                 object->fields( fields );
                 for ( auto field : fields )
                 {
-                    auto scriptability = field->template capability<PdmFieldScriptability>();
+                    auto scriptability = field->template capability<PdmAbstractFieldScriptingCapability>();
                     if ( scriptability != nullptr )
                     {
                         QString snake_field_name = camelToSnakeCase( scriptability->scriptFieldName() );
@@ -201,7 +201,7 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
                         {
                             QString dataType = PdmPythonGenerator::dataTypeString( field, false );
                             QString scriptDataType =
-                                PdmObjectScriptabilityRegister::scriptClassNameFromClassKeyword( dataType );
+                                PdmObjectScriptingCapabilityRegister::scriptClassNameFromClassKeyword( dataType );
 
                             QString commentDataType = field->xmlCapability()->isVectorField()
                                                           ? QString( "List of %1" ).arg( scriptDataType )
@@ -262,7 +262,7 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
                 {
                     bool    isList        = field->xmlCapability()->isVectorField();
                     QString defaultValue  = isList ? "[]" : "None";
-                    auto    scriptability = field->capability<PdmFieldScriptability>();
+                    auto    scriptability = field->capability<PdmAbstractFieldScriptingCapability>();
                     auto    argumentName  = camelToSnakeCase( scriptability->scriptFieldName() );
                     auto    dataType      = dataTypeString( field, false );
                     if ( isList ) dataType = "List of " + dataType;
@@ -291,6 +291,10 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
 
     // Write out classes
     std::set<QString> classesWritten;
+    classesWritten.insert( "PdmObjectBase" );
+
+    out << "from rips.pdmobject import PdmObjectBase\n";
+
     for ( std::shared_ptr<PdmObject> object : dummyObjects )
     {
         const std::list<QString>& classInheritanceStack = object->classInheritanceStack();
@@ -299,7 +303,7 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
         for ( auto it = classInheritanceStack.begin(); it != classInheritanceStack.end(); ++it )
         {
             const QString& classKeyword = *it;
-            QString scriptClassName = PdmObjectScriptabilityRegister::scriptClassNameFromClassKeyword( classKeyword );
+            QString scriptClassName = PdmObjectScriptingCapabilityRegister::scriptClassNameFromClassKeyword( classKeyword );
             if ( scriptClassName.isEmpty() ) scriptClassName = classKeyword;
 
             if ( !classesWritten.count( scriptClassName ) )

@@ -28,11 +28,11 @@ namespace caf
 template <>
 void RiaEclipseUnitTools::UnitSystemType::setUp()
 {
-    addItem( RiaEclipseUnitTools::UNITS_METRIC, "UNITS_METRIC", "Metric" );
-    addItem( RiaEclipseUnitTools::UNITS_FIELD, "UNITS_FIELD", "Field" );
-    addItem( RiaEclipseUnitTools::UNITS_UNKNOWN, "UNITS_UNKNOWN", "Unknown" );
+    addItem( RiaEclipseUnitTools::UnitSystem::UNITS_METRIC, "UNITS_METRIC", "Metric" );
+    addItem( RiaEclipseUnitTools::UnitSystem::UNITS_FIELD, "UNITS_FIELD", "Field" );
+    addItem( RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN, "UNITS_UNKNOWN", "Unknown" );
 
-    setDefault( RiaEclipseUnitTools::UNITS_METRIC );
+    setDefault( RiaEclipseUnitTools::UnitSystem::UNITS_METRIC );
 }
 } // namespace caf
 
@@ -49,9 +49,9 @@ double RiaEclipseUnitTools::darcysConstant( UnitSystem unitSystem )
     //         = 0.00864 (PVT - M)
     switch ( unitSystem )
     {
-        case UNITS_FIELD:
+        case UnitSystem::UNITS_FIELD:
             return 0.001127;
-        case UNITS_METRIC:
+        case UnitSystem::UNITS_METRIC:
             return 0.008527;
         default:
             CVF_ASSERT( false );
@@ -66,20 +66,20 @@ RiaDefines::DepthUnitType RiaEclipseUnitTools::depthUnit( UnitSystem unit )
 {
     switch ( unit )
     {
-        case RiaEclipseUnitTools::UNITS_METRIC:
-            return RiaDefines::UNIT_METER;
+        case RiaEclipseUnitTools::UnitSystem::UNITS_METRIC:
+            return RiaDefines::DepthUnitType::UNIT_METER;
             break;
-        case RiaEclipseUnitTools::UNITS_FIELD:
-            return RiaDefines::UNIT_FEET;
+        case RiaEclipseUnitTools::UnitSystem::UNITS_FIELD:
+            return RiaDefines::DepthUnitType::UNIT_FEET;
             break;
-        case RiaEclipseUnitTools::UNITS_LAB:
-            return RiaDefines::UNIT_NONE;
+        case RiaEclipseUnitTools::UnitSystem::UNITS_LAB:
+            return RiaDefines::DepthUnitType::UNIT_NONE;
             break;
-        case RiaEclipseUnitTools::UNITS_UNKNOWN:
-            return RiaDefines::UNIT_NONE;
+        case RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN:
+            return RiaDefines::DepthUnitType::UNIT_NONE;
             break;
         default:
-            return RiaDefines::UNIT_NONE;
+            return RiaDefines::DepthUnitType::UNIT_NONE;
             break;
     }
 }
@@ -102,9 +102,9 @@ double RiaEclipseUnitTools::convertSurfaceGasFlowRateToOilEquivalents( UnitSyste
 
     double oilEquivalentGasRate = HUGE_VAL;
 
-    if ( caseUnitSystem == RiaEclipseUnitTools::UNITS_FIELD )
+    if ( caseUnitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
         oilEquivalentGasRate = fieldGasToOilEquivalent * eclGasFlowRate;
-    if ( caseUnitSystem == RiaEclipseUnitTools::UNITS_METRIC )
+    if ( caseUnitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
         oilEquivalentGasRate = metricGasToOilEquivalent * eclGasFlowRate;
 
     return oilEquivalentGasRate;
@@ -117,13 +117,13 @@ QString RiaEclipseUnitTools::unitStringPressure( UnitSystem unitSystem )
 {
     switch ( unitSystem )
     {
-        case RiaEclipseUnitTools::UNITS_METRIC:
+        case RiaEclipseUnitTools::UnitSystem::UNITS_METRIC:
             return "barsa";
-        case RiaEclipseUnitTools::UNITS_FIELD:
+        case RiaEclipseUnitTools::UnitSystem::UNITS_FIELD:
             return "psia";
-        case RiaEclipseUnitTools::UNITS_LAB:
+        case RiaEclipseUnitTools::UnitSystem::UNITS_LAB:
             return "atma";
-        case RiaEclipseUnitTools::UNITS_UNKNOWN:
+        case RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN:
             return "";
         default:
             return "";

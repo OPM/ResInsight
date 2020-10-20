@@ -156,7 +156,7 @@ void RiuProcessMonitor::addStringToLog( const QString& sTxt )
     RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
     if ( mainPlotWindow && mainPlotWindow->messagePanel() )
     {
-        mainPlotWindow->messagePanel()->addMessage( RI_LL_INFO, sTxt );
+        mainPlotWindow->messagePanel()->addMessage( RILogLevel::RI_LL_INFO, sTxt );
     }
 }
 

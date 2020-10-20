@@ -169,6 +169,7 @@ void RigCompletionData::setTransmissibility( double transmissibility )
 void RigCompletionData::setTransAndWPImultBackgroundDataFromFishbone( double        transmissibility,
                                                                       double        skinFactor,
                                                                       double        diameter,
+                                                                      double        kh,
                                                                       CellDirection direction,
                                                                       bool          isMainBore )
 {
@@ -176,6 +177,7 @@ void RigCompletionData::setTransAndWPImultBackgroundDataFromFishbone( double    
     m_transmissibility = transmissibility;
     m_skinFactor       = skinFactor;
     m_diameter         = diameter;
+    m_kh               = kh;
     m_direction        = direction;
     m_isMainBore       = isMainBore;
 }

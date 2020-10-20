@@ -18,7 +18,7 @@
 
 #include "RimWellAllocationPlot.h"
 
-#include "RiaApplication.h"
+#include "RiaPreferences.h"
 
 #include "RigAccWellFlowCalculator.h"
 #include "RigEclipseCaseData.h"
@@ -100,8 +100,8 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     CAF_PDM_InitFieldNoDefault( &m_accumulatedWellFlowPlot, "AccumulatedWellFlowPlot", "Accumulated Well Flow", "", "", "" );
     m_accumulatedWellFlowPlot.uiCapability()->setUiHidden( true );
     m_accumulatedWellFlowPlot = new RimWellLogPlot;
-    m_accumulatedWellFlowPlot->setDepthUnit( RiaDefines::UNIT_NONE );
-    m_accumulatedWellFlowPlot->setDepthType( RiaDefines::CONNECTION_NUMBER );
+    m_accumulatedWellFlowPlot->setDepthUnit( RiaDefines::DepthUnitType::UNIT_NONE );
+    m_accumulatedWellFlowPlot->setDepthType( RiaDefines::DepthTypeEnum::CONNECTION_NUMBER );
     m_accumulatedWellFlowPlot->setLegendsVisible( false );
     m_accumulatedWellFlowPlot->uiCapability()->setUiIconFromResourceString( ":/WellFlowPlot16x16.png" );
 
@@ -125,12 +125,14 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     this->setAsPlotMdiWindow();
 
     m_accumulatedWellFlowPlot->setAvailableDepthUnits( {} );
-    m_accumulatedWellFlowPlot->setAvailableDepthTypes(
-        {RiaDefines::CONNECTION_NUMBER, RiaDefines::TRUE_VERTICAL_DEPTH, RiaDefines::PSEUDO_LENGTH} );
+    m_accumulatedWellFlowPlot->setAvailableDepthTypes( {RiaDefines::DepthTypeEnum::CONNECTION_NUMBER,
+                                                        RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH,
+                                                        RiaDefines::DepthTypeEnum::PSEUDO_LENGTH} );
 
     m_accumulatedWellFlowPlot->setCommonDataSourceEnabled( false );
 
     m_showWindow = false;
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -262,7 +264,8 @@ void RimWellAllocationPlot::updateFromWell()
             ( simWellData->wellProductionType( m_timeStep ) == RigWellResultFrame::PRODUCER ||
               simWellData->wellProductionType( m_timeStep ) == RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE );
         RigEclCellIndexCalculator cellIdxCalc( m_case->eclipseCaseData()->mainGrid(),
-                                               m_case->eclipseCaseData()->activeCellInfo( RiaDefines::MATRIX_MODEL ) );
+                                               m_case->eclipseCaseData()->activeCellInfo(
+                                                   RiaDefines::PorosityModelType::MATRIX_MODEL ) );
         wfCalculator.reset( new RigAccWellFlowCalculator( pipeBranchesCLCoords,
                                                           pipeBranchesCellIds,
                                                           tracerFractionCellValues,
@@ -281,7 +284,7 @@ void RimWellAllocationPlot::updateFromWell()
 
     auto depthType = accumulatedWellFlowPlot()->depthType();
 
-    if ( depthType == RiaDefines::MEASURED_DEPTH ) return;
+    if ( depthType == RiaDefines::DepthTypeEnum::MEASURED_DEPTH ) return;
 
     // Create tracks and curves from the calculated data
 
@@ -299,11 +302,11 @@ void RimWellAllocationPlot::updateFromWell()
 
         accumulatedWellFlowPlot()->addPlot( plotTrack );
 
-        const std::vector<double>& depthValues = depthType == RiaDefines::CONNECTION_NUMBER
+        const std::vector<double>& depthValues = depthType == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER
                                                      ? wfCalculator->connectionNumbersFromTop( brIdx )
-                                                     : depthType == RiaDefines::PSEUDO_LENGTH
+                                                     : depthType == RiaDefines::DepthTypeEnum::PSEUDO_LENGTH
                                                            ? wfCalculator->pseudoLengthFromTop( brIdx )
-                                                           : depthType == RiaDefines::TRUE_VERTICAL_DEPTH
+                                                           : depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH
                                                                  ? wfCalculator->trueVerticalDepth( brIdx )
                                                                  : std::vector<double>();
 
@@ -313,7 +316,7 @@ void RimWellAllocationPlot::updateFromWell()
             {
                 std::vector<double> curveDepthValues = depthValues;
                 std::vector<double> accFlow;
-                if ( depthType == RiaDefines::CONNECTION_NUMBER )
+                if ( depthType == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER )
                 {
                     accFlow = ( m_flowType == ACCUMULATED
                                     ? wfCalculator->accumulatedTracerFlowPrConnection( tracerName, brIdx )
@@ -340,7 +343,8 @@ void RimWellAllocationPlot::updateFromWell()
                         }
                     }
                 }
-                else if ( depthType == RiaDefines::PSEUDO_LENGTH || depthType == RiaDefines::TRUE_VERTICAL_DEPTH )
+                else if ( depthType == RiaDefines::DepthTypeEnum::PSEUDO_LENGTH ||
+                          depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH )
                 {
                     accFlow = ( m_flowType == ACCUMULATED
                                     ? wfCalculator->accumulatedTracerFlowPrPseudoLength( tracerName, brIdx )
@@ -707,7 +711,7 @@ QList<caf::PdmOptionItemInfo>
     {
         std::set<QString> sortedWellNames = this->findSortedWellNames();
 
-        caf::QIconProvider simWellIcon( ":/Well.png" );
+        caf::IconProvider simWellIcon( ":/Well.png" );
         for ( const QString& wname : sortedWellNames )
         {
             options.push_back( caf::PdmOptionItemInfo( wname, wname, false, simWellIcon ) );
@@ -789,6 +793,21 @@ void RimWellAllocationPlot::removeFromMdiAreaAndDeleteViewWidget()
 void RimWellAllocationPlot::showPlotLegend( bool doShow )
 {
     if ( m_wellAllocationPlotWidget ) m_wellAllocationPlotWidget->showLegend( doShow );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimWellAllocationPlot::fontSize() const
+{
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellAllocationPlot::updateFonts()
+{
 }
 
 //--------------------------------------------------------------------------------------------------

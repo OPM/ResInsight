@@ -49,6 +49,8 @@ RimPolylinesAnnotation::RimPolylinesAnnotation()
     m_appearance = new RimPolylineAppearance();
     m_appearance.uiCapability()->setUiTreeHidden( true );
     m_appearance.uiCapability()->setUiTreeChildrenHidden( true );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

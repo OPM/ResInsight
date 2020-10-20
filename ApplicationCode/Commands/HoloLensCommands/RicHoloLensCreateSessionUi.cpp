@@ -18,7 +18,6 @@
 
 #include "RicHoloLensCreateSessionUi.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 #include "RiaOptionItemFactory.h"
 
@@ -26,6 +25,8 @@
 
 #include "cafPdmSettings.h"
 #include "cafPdmUiOrdering.h"
+
+#include "cvfAssert.h"
 
 CAF_PDM_SOURCE_INIT( RicHoloLensCreateSessionUi, "RicHoloLensCreateSessionUi" );
 

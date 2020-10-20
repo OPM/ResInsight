@@ -18,7 +18,6 @@
 
 #include "RimWellLogRftCurve.h"
 
-#include "RiaApplication.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaSimWellBranchTools.h"
@@ -35,6 +34,7 @@
 #include "RigWellPathGeometryTools.h"
 #include "RigWellPathIntersectionTools.h"
 
+#include "RimDepthTrackPlot.h"
 #include "RimEclipseResultCase.h"
 #include "RimMainPlotCollection.h"
 #include "RimObservedFmuRftData.h"
@@ -94,7 +94,7 @@ CAF_PDM_SOURCE_INIT( RimWellLogRftCurve, "WellLogRftCurve" );
 //--------------------------------------------------------------------------------------------------
 RimWellLogRftCurve::RimWellLogRftCurve()
 {
-    CAF_PDM_InitObject( "Well Log RFT Curve", "", "", "" );
+    CAF_PDM_InitObject( "Well Log RFT Curve", RimWellLogCurve::wellLogCurveIconName(), "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_eclipseResultCase, "CurveEclipseResultCase", "Eclipse Result Case", "", "", "" );
     m_eclipseResultCase.uiCapability()->setUiTreeChildrenHidden( true );
@@ -376,16 +376,13 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
     this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
 
-    RiaDefines::DepthTypeEnum depthType       = RiaDefines::TRUE_VERTICAL_DEPTH;
-    DerivedMDSource           derivedMDSource = NO_SOURCE;
+    DerivedMDSource derivedMDSource = NO_SOURCE;
 
     if ( isCurveVisible() )
     {
-        RimWellLogPlot* wellLogPlot;
+        RimDepthTrackPlot* wellLogPlot;
         firstAncestorOrThisOfType( wellLogPlot );
         CVF_ASSERT( wellLogPlot );
-
-        depthType = wellLogPlot->depthType();
 
         RimWellRftPlot* rftPlot                     = dynamic_cast<RimWellRftPlot*>( wellLogPlot );
         bool            showErrorBarsInObservedData = rftPlot ? rftPlot->showErrorBarsForObservedData() : false;
@@ -403,7 +400,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
             return;
         }
 
-        RiaEclipseUnitTools::UnitSystem unitSystem = RiaEclipseUnitTools::UNITS_METRIC;
+        RiaEclipseUnitTools::UnitSystem unitSystem = RiaEclipseUnitTools::UnitSystem::UNITS_METRIC;
         if ( m_eclipseResultCase )
         {
             unitSystem = m_eclipseResultCase->eclipseCaseData()->unitsType();
@@ -419,7 +416,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         else if ( m_observedFmuRftData )
         {
             // TODO: Read unit system somewhere for FMU RFT Data
-            unitSystem     = RiaEclipseUnitTools::UNITS_METRIC;
+            unitSystem     = RiaEclipseUnitTools::UnitSystem::UNITS_METRIC;
             perPointLabels = this->perPointLabels();
         }
         else
@@ -445,7 +442,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
             measuredDepthVector = tvDepthVector;
         }
 
-        RimProject*  proj     = RiaApplication::instance()->project();
+        RimProject*  proj     = RimProject::current();
         RimWellPath* wellPath = proj->wellPathByName( m_wellName );
 
         double rkbDiff = 0.0;
@@ -461,18 +458,18 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
                                      RiaEclipseUnitTools::depthUnit( unitSystem ),
                                      false );
 
-        RiaDefines::DepthUnitType displayUnit = RiaDefines::UNIT_METER;
+        RiaDefines::DepthUnitType displayUnit = RiaDefines::DepthUnitType::UNIT_METER;
         if ( wellLogPlot )
         {
             displayUnit = wellLogPlot->depthUnit();
         }
 
-        if ( wellLogPlot->depthType() == RiaDefines::MEASURED_DEPTH )
+        if ( wellLogPlot->depthType() == RiaDefines::DepthTypeEnum::MEASURED_DEPTH )
         {
             m_qwtPlotCurve->setPerPointLabels( perPointLabels );
 
-            auto xValues                = this->curveData()->xPlotValues();
-            auto yValues                = this->curveData()->depthPlotValues( RiaDefines::MEASURED_DEPTH, displayUnit );
+            auto xValues = this->curveData()->xPlotValues();
+            auto yValues = this->curveData()->depthPlotValues( RiaDefines::DepthTypeEnum::MEASURED_DEPTH, displayUnit );
             bool keepOnlyPositiveValues = false;
 
             if ( !errors.empty() )
@@ -481,7 +478,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
                                                    yValues,
                                                    errors,
                                                    keepOnlyPositiveValues,
-                                                   RiaCurveDataTools::ERROR_ALONG_X_AXIS );
+                                                   RiaCurveDataTools::ErrorAxis::ERROR_ALONG_X_AXIS );
             }
             else
             {
@@ -516,13 +513,18 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         {
             m_qwtPlotCurve->setPerPointLabels( perPointLabels );
 
-            auto xValues    = this->curveData()->xPlotValues();
-            auto yValues    = this->curveData()->depthPlotValues( RiaDefines::TRUE_VERTICAL_DEPTH, displayUnit );
+            auto xValues = this->curveData()->xPlotValues();
+            auto yValues =
+                this->curveData()->depthPlotValues( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH, displayUnit );
             bool isLogCurve = false;
 
             if ( !errors.empty() )
             {
-                this->setSamplesFromXYErrorValues( xValues, yValues, errors, isLogCurve, RiaCurveDataTools::ERROR_ALONG_X_AXIS );
+                this->setSamplesFromXYErrorValues( xValues,
+                                                   yValues,
+                                                   errors,
+                                                   isLogCurve,
+                                                   RiaCurveDataTools::ErrorAxis::ERROR_ALONG_X_AXIS );
             }
             else
             {
@@ -563,6 +565,9 @@ void RimWellLogRftCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     curveDataGroup->add( &m_wellLogChannelName );
     curveDataGroup->add( &m_timeStep );
 
+    caf::PdmUiGroup* stackingGroup = uiOrdering.addNewGroup( "Stacking" );
+    RimStackablePlotCurve::stackingUiOrdering( *stackingGroup );
+
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup( "Appearance" );
     RimPlotCurve::appearanceUiOrdering( *appearanceGroup );
 
@@ -600,7 +605,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions( const c
             std::set<QString> wellNames = reader->wellNames();
             for ( const QString& name : wellNames )
             {
-                options.push_back( caf::PdmOptionItemInfo( name, name, false, caf::QIconProvider( ":/Well.png" ) ) );
+                options.push_back( caf::PdmOptionItemInfo( name, name, false, caf::IconProvider( ":/Well.png" ) ) );
             }
         }
     }
@@ -753,7 +758,7 @@ RigEclipseWellLogExtractor* RimWellLogRftCurve::extractor()
 
     RigEclipseWellLogExtractor* eclExtractor = nullptr;
 
-    RimProject*  proj     = RiaApplication::instance()->project();
+    RimProject*  proj     = RimProject::current();
     RimWellPath* wellPath = proj->wellPathFromSimWellName( m_wellName() );
     eclExtractor          = wellLogCollection->findOrCreateExtractor( wellPath, m_eclipseResultCase );
 
@@ -1006,18 +1011,17 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues()
 bool RimWellLogRftCurve::deriveMeasuredDepthValuesFromWellPath( const std::vector<double>& tvDepthValues,
                                                                 std::vector<double>&       derivedMDValues )
 {
-    RimProject*  proj     = RiaApplication::instance()->project();
+    RimProject*  proj     = RimProject::current();
     RimWellPath* wellPath = proj->wellPathByName( m_wellName );
 
-    std::vector<double> derivedMdValues;
     if ( wellPath )
     {
         const std::vector<double>& mdValuesOfWellPath  = wellPath->wellPathGeometry()->measureDepths();
-        std::vector<double>        tvdValuesOfWellPath = wellPath->wellPathGeometry()->trueVerticalDepths();
+        const std::vector<double>& tvdValuesOfWellPath = wellPath->wellPathGeometry()->trueVerticalDepths();
 
-        derivedMdValues =
+        derivedMDValues =
             RigWellPathGeometryTools::interpolateMdFromTvd( mdValuesOfWellPath, tvdValuesOfWellPath, tvDepthValues );
-        CVF_ASSERT( derivedMdValues.size() == tvDepthValues.size() );
+        CVF_ASSERT( derivedMDValues.size() == tvDepthValues.size() );
         return true;
     }
     return false;

@@ -26,6 +26,8 @@
 #include <QDockWidget>
 #include <QPointer>
 
+class RimAnalysisPlotCollection;
+class RimCorrelationPlotCollection;
 class RimWellLogPlotCollection;
 class RimRftPlotCollection;
 class RimPltPlotCollection;
@@ -38,6 +40,7 @@ class RifReaderEclipseSummary;
 class RimEclipseResultCase;
 class RimFlowPlotCollection;
 class RimSaturationPressurePlotCollection;
+class RimFractureModelPlotCollection;
 
 //==================================================================================================
 ///
@@ -56,10 +59,13 @@ public:
     RimPltPlotCollection*                pltPlotCollection();
     RimSummaryPlotCollection*            summaryPlotCollection();
     RimSummaryCrossPlotCollection*       summaryCrossPlotCollection();
+    RimAnalysisPlotCollection*           analysisPlotCollection();
+    RimCorrelationPlotCollection*        correlationPlotCollection();
     RimFlowPlotCollection*               flowPlotCollection();
     RimGridCrossPlotCollection*          gridCrossPlotCollection();
     RimSaturationPressurePlotCollection* saturationPressurePlotCollection();
     RimMultiPlotCollection*              multiPlotCollection();
+    RimFractureModelPlotCollection*      fractureModelPlotCollection();
 
     void deleteAllContainedObjects();
     void updateCurrentTimeStepInPlots();
@@ -80,10 +86,13 @@ private:
     caf::PdmChildField<RimPltPlotCollection*>                m_pltPlotCollection;
     caf::PdmChildField<RimSummaryPlotCollection*>            m_summaryPlotCollection;
     caf::PdmChildField<RimSummaryCrossPlotCollection*>       m_summaryCrossPlotCollection;
+    caf::PdmChildField<RimAnalysisPlotCollection*>           m_analysisPlotCollection;
+    caf::PdmChildField<RimCorrelationPlotCollection*>        m_correlationPlotCollection;
     caf::PdmChildField<RimFlowPlotCollection*>               m_flowPlotCollection;
     caf::PdmChildField<RimGridCrossPlotCollection*>          m_gridCrossPlotCollection;
     caf::PdmChildField<RimSaturationPressurePlotCollection*> m_saturationPressurePlotCollection;
     caf::PdmChildField<RimMultiPlotCollection*>              m_multiPlotCollection;
+    caf::PdmChildField<RimFractureModelPlotCollection*>      m_fractureModelPlotCollection;
 
     caf::PdmField<bool> m_show;
 };

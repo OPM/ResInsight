@@ -323,7 +323,7 @@ QString RiuResultTextBuilder::faultResultDetails()
             if ( m_viewWithFaultsSettings && m_viewWithFaultsSettings->faultResultSettings()->hasValidCustomResult() )
             {
                 if ( m_viewWithFaultsSettings->faultResultSettings()->customFaultResult()->resultType() !=
-                     RiaDefines::ALLAN_DIAGRAMS )
+                     RiaDefines::ResultCatType::ALLAN_DIAGRAMS )
                 {
                     text += "Fault result data:\n";
                     this->appendTextFromResultColors( eclipseCaseData,
@@ -457,11 +457,11 @@ QString RiuResultTextBuilder::nncResultText()
 
                     const std::vector<double>* nncValues = nullptr;
 
-                    if ( resultType == RiaDefines::STATIC_NATIVE )
+                    if ( resultType == RiaDefines::ResultCatType::STATIC_NATIVE )
                     {
                         nncValues = nncData->staticConnectionScalarResult( eclipseResultAddress );
                     }
-                    else if ( resultType == RiaDefines::DYNAMIC_NATIVE )
+                    else if ( resultType == RiaDefines::ResultCatType::DYNAMIC_NATIVE )
                     {
                         if ( m_eclResDef.notNull() && m_eclResDef->eclipseCase() )
                         {
@@ -478,7 +478,7 @@ QString RiuResultTextBuilder::nncResultText()
                         text = QString( "%1 : %2" ).arg( resultVar ).arg( scalarValue );
                     }
 
-                    if ( resultType == RiaDefines::ALLAN_DIAGRAMS )
+                    if ( resultType == RiaDefines::ResultCatType::ALLAN_DIAGRAMS )
                     {
                         nncValues = nncData->staticConnectionScalarResult( eclipseResultAddress );
                         QString resultValueText;
@@ -540,30 +540,33 @@ void RiuResultTextBuilder::appendTextFromResultColors( RigEclipseCaseData*      
         RigCaseCellResultsData* gridCellResults = resultColors->currentGridCellResults();
         if ( gridCellResults )
         {
-            gridCellResults->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "SOIL" ) );
-            gridCellResults->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "SGAS" ) );
-            gridCellResults->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "SWAT" ) );
+            gridCellResults->ensureKnownResultLoaded(
+                RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SOIL" ) );
+            gridCellResults->ensureKnownResultLoaded(
+                RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SGAS" ) );
+            gridCellResults->ensureKnownResultLoaded(
+                RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SWAT" ) );
 
             cvf::ref<RigResultAccessor> dataAccessObjectX =
                 RigResultAccessorFactory::createFromResultAddress( eclipseCase,
                                                                    gridIndex,
                                                                    porosityModel,
                                                                    timeStepIndex,
-                                                                   RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE,
+                                                                   RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                                                             "SOIL" ) );
             cvf::ref<RigResultAccessor> dataAccessObjectY =
                 RigResultAccessorFactory::createFromResultAddress( eclipseCase,
                                                                    gridIndex,
                                                                    porosityModel,
                                                                    timeStepIndex,
-                                                                   RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE,
+                                                                   RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                                                             "SGAS" ) );
             cvf::ref<RigResultAccessor> dataAccessObjectZ =
                 RigResultAccessorFactory::createFromResultAddress( eclipseCase,
                                                                    gridIndex,
                                                                    porosityModel,
                                                                    timeStepIndex,
-                                                                   RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE,
+                                                                   RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                                                             "SWAT" ) );
 
             double scalarValue = 0.0;
@@ -894,9 +897,12 @@ QString RiuResultTextBuilder::cellResultText( RimEclipseResultDefinition* eclRes
             RigCaseCellResultsData* gridCellResults = m_eclResDef->currentGridCellResults();
             if ( gridCellResults )
             {
-                gridCellResults->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "SOIL" ) );
-                gridCellResults->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "SGAS" ) );
-                gridCellResults->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "SWAT" ) );
+                gridCellResults->ensureKnownResultLoaded(
+                    RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SOIL" ) );
+                gridCellResults->ensureKnownResultLoaded(
+                    RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SGAS" ) );
+                gridCellResults->ensureKnownResultLoaded(
+                    RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SWAT" ) );
 
                 RiaDefines::PorosityModelType porosityModel = eclResDef->porosityModel();
 
@@ -905,21 +911,21 @@ QString RiuResultTextBuilder::cellResultText( RimEclipseResultDefinition* eclRes
                                                                        m_gridIndex,
                                                                        porosityModel,
                                                                        m_timeStepIndex,
-                                                                       RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE,
+                                                                       RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                                                                 "SOIL" ) );
                 cvf::ref<RigResultAccessor> dataAccessObjectY =
                     RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                                        m_gridIndex,
                                                                        porosityModel,
                                                                        m_timeStepIndex,
-                                                                       RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE,
+                                                                       RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                                                                 "SGAS" ) );
                 cvf::ref<RigResultAccessor> dataAccessObjectZ =
                     RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                                        m_gridIndex,
                                                                        porosityModel,
                                                                        m_timeStepIndex,
-                                                                       RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE,
+                                                                       RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                                                                 "SWAT" ) );
 
                 double scalarValue = 0.0;

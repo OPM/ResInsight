@@ -18,7 +18,6 @@
 
 #include "RicWellPathExportCompletionsFileTools.h"
 
-#include "RiaApplication.h"
 #include "RiaFilePathTools.h"
 #include "RiaLogging.h"
 
@@ -85,7 +84,7 @@ std::shared_ptr<QFile> RicWellPathExportCompletionsFileTools::openFileForExport(
 //--------------------------------------------------------------------------------------------------
 const RimWellPath* RicWellPathExportCompletionsFileTools::findWellPathFromExportName( const QString& wellNameForExport )
 {
-    auto allWellPaths = RiaApplication::instance()->project()->allWellPaths();
+    auto allWellPaths = RimProject::current()->allWellPaths();
 
     for ( const auto wellPath : allWellPaths )
     {

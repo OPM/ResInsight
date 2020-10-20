@@ -93,6 +93,7 @@ void RimViewWindow::loadDataAndUpdate()
 {
     assignIdIfNecessary();
     onLoadDataAndUpdate();
+    updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -335,10 +336,13 @@ void RimViewWindow::defineObjectEditorAttribute( QString uiConfigName, caf::PdmU
     caf::PdmUiTreeViewItemAttribute* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute );
     if ( treeItemAttribute && RiaApplication::instance()->preferences()->showViewIdInProjectTree() && id() >= 0 )
     {
-        treeItemAttribute->tag     = QString( "%1" ).arg( id() );
+        treeItemAttribute->tags.clear();
+        auto tag                   = caf::PdmUiTreeViewItemAttribute::Tag::create();
+        tag->text                  = QString( "%1" ).arg( id() );
         cvf::Color3f viewColor     = RiaColorTables::contrastCategoryPaletteColors().cycledColor3f( (size_t)id() );
         cvf::Color3f viewTextColor = RiaColorTools::contrastColor( viewColor );
-        treeItemAttribute->bgColor = QColor( RiaColorTools::toQColor( viewColor ) );
-        treeItemAttribute->fgColor = QColor( RiaColorTools::toQColor( viewTextColor ) );
+        tag->bgColor               = QColor( RiaColorTools::toQColor( viewColor ) );
+        tag->fgColor               = QColor( RiaColorTools::toQColor( viewTextColor ) );
+        treeItemAttribute->tags.push_back( std::move( tag ) );
     }
 }

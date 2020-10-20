@@ -19,7 +19,6 @@
 
 #include "RicImportInputEclipseCaseFeature.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 #include "RiaPorosityModel.h"
 
@@ -35,7 +34,6 @@
 #include "cafSelectionManager.h"
 
 #include <QAction>
-#include <QFileDialog>
 
 CAF_CMD_SOURCE_INIT( RicImportInputEclipseCaseFeature, "RicImportInputEclipseCaseFeature" );
 
@@ -52,7 +50,7 @@ bool RicImportInputEclipseCaseFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicImportInputEclipseCaseFeature::onActionTriggered( bool isChecked )
 {
-    RicImportGeneralDataFeature::openFileDialog( RiaDefines::ECLIPSE_INPUT_FILE );
+    RicImportGeneralDataFeature::openFileDialog( RiaDefines::ImportFileType::ECLIPSE_INPUT_FILE );
 }
 
 //--------------------------------------------------------------------------------------------------

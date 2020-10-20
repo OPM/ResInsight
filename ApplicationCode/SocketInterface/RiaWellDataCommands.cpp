@@ -161,7 +161,7 @@ public:
             {
                 server->showErrorMessage(
                     RiaSocketServer::tr( "ResInsight SocketServer: riGetGridProperty : \n" ) +
-                    RiaSocketServer::tr( "An error occured while interpreting the requested timesteps." ) );
+                    RiaSocketServer::tr( "An error occurred while interpreting the requested timesteps." ) );
             }
         }
 

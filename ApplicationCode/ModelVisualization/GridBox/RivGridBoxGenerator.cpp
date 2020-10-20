@@ -20,7 +20,9 @@
 #include "RivGridBoxGenerator.h"
 
 #include "RiaColorTools.h"
+#include "RiaFontCache.h"
 #include "RiaGuiApplication.h"
+#include "RiaPreferences.h"
 
 #include "RivPartPriority.h"
 #include "RivPatchGenerator.h"
@@ -49,6 +51,8 @@ RivGridBoxGenerator::RivGridBoxGenerator()
 
     m_scaleZ             = 1.0;
     m_displayModelOffset = cvf::Vec3d::ZERO;
+
+    m_fontPointSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultSceneFontSize() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -215,11 +219,23 @@ void RivGridBoxGenerator::createGridBoxParts()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RivGridBoxGenerator::setGridLabelFontSize( int fontSize )
+{
+    if ( m_fontPointSize != fontSize )
+    {
+        m_fontPointSize     = fontSize;
+        m_needsRegeneration = true;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RivGridBoxGenerator::updateFromCamera( const cvf::Camera* camera )
 {
     m_gridBoxModel->removeAllParts();
 
-    if ( m_gridBoxFaceParts.size() == 0 ) return;
+    if ( m_gridBoxFaceParts.empty() ) return;
 
     std::vector<bool> faceVisibility( 6, false );
     for ( size_t i = POS_X; i <= NEG_Z; i++ )
@@ -247,17 +263,20 @@ void RivGridBoxGenerator::updateFromCamera( const cvf::Camera* camera )
         }
     }
 
-    std::vector<bool> edgeVisibility( 12, false );
-    computeEdgeVisibility( faceVisibility, edgeVisibility );
-
-    CVF_ASSERT( m_gridBoxLegendParts.size() == ( NEG_X_NEG_Y + 1 ) * 2 );
-    for ( size_t i = POS_Z_POS_X; i <= NEG_X_NEG_Y; i++ )
+    if ( !m_gridBoxLegendParts.empty() )
     {
-        if ( edgeVisibility[i] )
+        std::vector<bool> edgeVisibility( 12, false );
+        computeEdgeVisibility( faceVisibility, edgeVisibility );
+
+        CVF_ASSERT( m_gridBoxLegendParts.size() == ( NEG_X_NEG_Y + 1 ) * 2 );
+        for ( size_t i = POS_Z_POS_X; i <= NEG_X_NEG_Y; i++ )
         {
-            // We have two parts for each edge - line and text
-            m_gridBoxModel->addPart( m_gridBoxLegendParts[2 * i].p() );
-            m_gridBoxModel->addPart( m_gridBoxLegendParts[2 * i + 1].p() );
+            if ( edgeVisibility[i] )
+            {
+                // We have two parts for each edge - line and text
+                m_gridBoxModel->addPart( m_gridBoxLegendParts[2 * i].p() );
+                m_gridBoxModel->addPart( m_gridBoxLegendParts[2 * i + 1].p() );
+            }
         }
     }
 
@@ -476,6 +495,11 @@ void RivGridBoxGenerator::createLegend( EdgeType edge, cvf::Collection<cvf::Part
     cvf::Vec3d min = m_displayCoordsBoundingBox.min();
     cvf::Vec3d max = m_displayCoordsBoundingBox.max();
 
+    if ( min == max )
+    {
+        return;
+    }
+
     AxisType axis = X_AXIS;
 
     cvf::Vec3f tickMarkDir = cvf::Vec3f::X_AXIS;
@@ -653,9 +677,12 @@ void RivGridBoxGenerator::createLegend( EdgeType edge, cvf::Collection<cvf::Part
 
         cvf::ref<cvf::DrawableText> geo = new cvf::DrawableText;
 
-        cvf::Font* standardFont = RiaGuiApplication::instance()->defaultSceneFont();
-
-        geo->setFont( standardFont );
+        cvf::ref<cvf::Font> font = RiaGuiApplication::instance()->defaultSceneFont();
+        if ( caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultSceneFontSize() ) != m_fontPointSize )
+        {
+            font = RiaFontCache::getFont( m_fontPointSize );
+        }
+        geo->setFont( font.p() );
         geo->setTextColor( m_gridLegendColor );
         geo->setCheckPosVisible( false );
         geo->setDrawBackground( false );

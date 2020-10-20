@@ -93,6 +93,7 @@ public:
     size_t cellIndexFromIJK( size_t i, size_t j, size_t k ) const override;
     size_t cellIndexFromIJKUnguarded( size_t i, size_t j, size_t k ) const;
     bool   ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const override;
+    void   ijkFromCellIndexUnguarded( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const;
 
     bool       cellIJKFromCoordinate( const cvf::Vec3d& coord, size_t* i, size_t* j, size_t* k ) const override;
     void       cellCornerVertices( size_t cellIndex, cvf::Vec3d vertices[8] ) const override;
@@ -105,6 +106,7 @@ public:
 
     bool isCellValid( size_t i, size_t j, size_t k ) const override;
     bool cellIJKNeighbor( size_t i, size_t j, size_t k, FaceType face, size_t* neighborCellIndex ) const override;
+    void cellIJKNeighborUnguarded( size_t i, size_t j, size_t k, FaceType face, size_t* neighborCellIndex ) const;
 
 private:
     std::string m_gridName;

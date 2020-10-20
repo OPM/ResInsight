@@ -154,6 +154,11 @@ RiuMainWindow::RiuMainWindow()
     m_memoryRefreshTimer = new QTimer( this );
     connect( m_memoryRefreshTimer, SIGNAL( timeout() ), this, SLOT( updateMemoryUsage() ) );
     m_memoryRefreshTimer->start( 1000 );
+
+    auto dockTimer = new QTimer( this );
+    dockTimer->setSingleShot( true );
+    connect( dockTimer, SIGNAL( timeout() ), this, SLOT( slotWorkaroundForQwtDockWidgets() ) );
+    dockTimer->start( 1000 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -181,7 +186,7 @@ QString RiuMainWindow::mainWindowName()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::initializeGuiNewProjectLoaded()
 {
-    setPdmRoot( RiaApplication::instance()->project() );
+    setPdmRoot( RimProject::current() );
     restoreTreeViewState();
 
     if ( subWindowsAreTiled() )
@@ -306,7 +311,7 @@ void RiuMainWindow::createActions()
     m_mockModelCustomizedAction   = new QAction( "Customized Mock Model", this );
     m_mockInputModelAction        = new QAction( "Input Mock Model", this );
 
-    m_snapshotAllViewsToFile = new QAction( QIcon( ":/SnapShotSaveViews.png" ), "Snapshot All Views To File", this );
+    m_snapshotAllViewsToFile = new QAction( QIcon( ":/SnapShotSaveViews.svg" ), "Snapshot All Views To File", this );
 
     m_createCommandObject              = new QAction( "Create Command Object", this );
     m_showRegressionTestDialog         = new QAction( "Regression Test Dialog", this );
@@ -325,27 +330,27 @@ void RiuMainWindow::createActions()
     connect( m_executePaintEventPerformanceTest, SIGNAL( triggered() ), SLOT( slotExecutePaintEventPerformanceTest() ) );
 
     // View actions
-    m_viewFromNorth = new QAction( QIcon( ":/SouthViewArrow.png" ), "Look South", this );
+    m_viewFromNorth = new QAction( QIcon( ":/SouthView.svg" ), "Look South", this );
     m_viewFromNorth->setToolTip( "Look South (Ctrl+Alt+S)" );
     caf::CmdFeature::applyShortcutWithHintToAction( m_viewFromNorth, QKeySequence( tr( "Ctrl+Alt+S" ) ) );
 
-    m_viewFromSouth = new QAction( QIcon( ":/NorthViewArrow.png" ), "Look North", this );
+    m_viewFromSouth = new QAction( QIcon( ":/NorthView.svg" ), "Look North", this );
     m_viewFromSouth->setToolTip( "Look North (Ctrl+Alt+N)" );
     caf::CmdFeature::applyShortcutWithHintToAction( m_viewFromSouth, QKeySequence( tr( "Ctrl+Alt+N" ) ) );
 
-    m_viewFromEast = new QAction( QIcon( ":/WestViewArrow.png" ), "Look West", this );
+    m_viewFromEast = new QAction( QIcon( ":/WestView.svg" ), "Look West", this );
     m_viewFromEast->setToolTip( "Look West (Ctrl+Alt+W)" );
     caf::CmdFeature::applyShortcutWithHintToAction( m_viewFromEast, QKeySequence( tr( "Ctrl+Alt+W" ) ) );
 
-    m_viewFromWest = new QAction( QIcon( ":/EastViewArrow.png" ), "Look East", this );
+    m_viewFromWest = new QAction( QIcon( ":/EastView.svg" ), "Look East", this );
     m_viewFromWest->setToolTip( "Look East (Ctrl+Alt+E)" );
     caf::CmdFeature::applyShortcutWithHintToAction( m_viewFromWest, QKeySequence( tr( "Ctrl+Alt+E" ) ) );
 
-    m_viewFromAbove = new QAction( QIcon( ":/DownViewArrow.png" ), "Look Down", this );
+    m_viewFromAbove = new QAction( QIcon( ":/DownView.svg" ), "Look Down", this );
     m_viewFromAbove->setToolTip( "Look Down (Ctrl+Alt+D)" );
     caf::CmdFeature::applyShortcutWithHintToAction( m_viewFromAbove, QKeySequence( tr( "Ctrl+Alt+D" ) ) );
 
-    m_viewFromBelow = new QAction( QIcon( ":/UpViewArrow.png" ), "Look Up", this );
+    m_viewFromBelow = new QAction( QIcon( ":/UpView.svg" ), "Look Up", this );
     m_viewFromBelow->setToolTip( "Look Up (Ctrl+Alt+U)" );
     caf::CmdFeature::applyShortcutWithHintToAction( m_viewFromBelow, QKeySequence( tr( "Ctrl+Alt+U" ) ) );
 
@@ -363,27 +368,24 @@ void RiuMainWindow::createActions()
     // Draw style actions
     m_dsActionGroup = new QActionGroup( this );
 
-    m_drawStyleLinesAction = new QAction( QIcon( ":/draw_style_lines_24x24.png" ), "&Mesh Only", this );
+    m_drawStyleLinesAction = new QAction( QIcon( ":/DrawStyleLines.svg" ), "&Mesh Only", this );
     // connect(m_drawStyleLinesAction,        SIGNAL(triggered()), SLOT(slotDrawStyleLines()));
     m_dsActionGroup->addAction( m_drawStyleLinesAction );
 
-    m_drawStyleLinesSolidAction = new QAction( QIcon( ":/draw_style_meshlines_24x24.png" ), "Mesh And Surfaces", this );
+    m_drawStyleLinesSolidAction = new QAction( QIcon( ":/DrawStyleMeshLines.svg" ), "Mesh And Surfaces", this );
     // connect(m_drawStyleLinesSolidAction,    SIGNAL(triggered()), SLOT(slotDrawStyleLinesSolid()));
     m_dsActionGroup->addAction( m_drawStyleLinesSolidAction );
 
-    m_drawStyleFaultLinesSolidAction =
-        new QAction( QIcon( ":/draw_style_surface_w_fault_mesh_24x24.png" ), "Fault Mesh And Surfaces", this );
-    m_dsActionGroup->addAction( m_drawStyleFaultLinesSolidAction );
-
-    m_drawStyleSurfOnlyAction = new QAction( QIcon( ":/draw_style_surface_24x24.png" ), "&Surface Only", this );
+    m_drawStyleSurfOnlyAction = new QAction( QIcon( ":/DrawStyleSurface.svg" ), "&Surface Only", this );
+    new QAction( QIcon( ":/draw_style_surface_w_fault_mesh_24x24.png" ), "Fault Mesh And Surfaces", this );
     // connect(m_drawStyleSurfOnlyAction,    SIGNAL(triggered()), SLOT(slotDrawStyleSurfOnly()));
     m_dsActionGroup->addAction( m_drawStyleSurfOnlyAction );
 
     connect( m_dsActionGroup, SIGNAL( triggered( QAction* ) ), SLOT( slotDrawStyleChanged( QAction* ) ) );
 
-    m_disableLightingAction = new QAction( QIcon( ":/disable_lighting_24x24.png" ), "&Disable Results Lighting", this );
-    m_disableLightingAction->setCheckable( true );
-    connect( m_disableLightingAction, SIGNAL( toggled( bool ) ), SLOT( slotDisableLightingAction( bool ) ) );
+    m_drawStyleFaultLinesSolidAction =
+        new QAction( QIcon( ":/draw_style_surface_w_fault_mesh_24x24.png" ), "Fault Mesh And Surfaces", this );
+    m_dsActionGroup->addAction( m_drawStyleFaultLinesSolidAction );
 
     m_drawStyleHideGridCellsAction = new QAction( QIcon( ":/draw_style_faults_24x24.png" ), "&Hide Grid Cells", this );
     m_drawStyleHideGridCellsAction->setCheckable( true );
@@ -398,6 +400,11 @@ void RiuMainWindow::createActions()
     m_showWellCellsAction->setCheckable( true );
     m_showWellCellsAction->setToolTip( "Show Well Cells" );
     connect( m_showWellCellsAction, SIGNAL( toggled( bool ) ), SLOT( slotShowWellCellsAction( bool ) ) );
+
+    m_enableLightingAction = new QAction( QIcon( ":/DrawLightingEnabled.svg" ), "&Enable Results Lighting", this );
+    m_enableLightingAction->setCheckable( true );
+    connect( m_enableLightingAction, SIGNAL( toggled( bool ) ), SLOT( slotToggleLightingAction( bool ) ) );
+    // m_dsActionGroup->addAction( m_enableLightingAction );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -429,7 +436,7 @@ void RiuMainWindow::createMenus()
     importEclipseMenu->addAction( cmdFeatureMgr->action( "RicCreateGridCaseGroupFromFilesFeature" ) );
 
     importMenu->addSeparator();
-    QMenu* importSummaryMenu = importMenu->addMenu( QIcon( ":/SummaryCase48x48.png" ), "Summary Cases" );
+    QMenu* importSummaryMenu = importMenu->addMenu( QIcon( ":/SummaryCase.svg" ), "Summary Cases" );
     importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportSummaryCaseFeature" ) );
     importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportSummaryCasesFeature" ) );
     importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportSummaryGroupFeature" ) );
@@ -530,6 +537,10 @@ void RiuMainWindow::createMenus()
     testMenu->addAction( cmdFeatureMgr->action( "RicHoloLensExportToFolderFeature" ) );
     testMenu->addAction( cmdFeatureMgr->action( "RicHoloLensCreateDummyFiledBackedSessionFeature" ) );
 
+    testMenu->addSeparator();
+
+    testMenu->addAction( cmdFeatureMgr->action( "RicThemeColorEditorFeature" ) );
+
     // Windows menu
     m_windowMenu = menuBar()->addMenu( "&Windows" );
     connect( m_windowMenu, SIGNAL( aboutToShow() ), SLOT( slotBuildWindowActions() ) );
@@ -629,8 +640,8 @@ void RiuMainWindow::createToolBars()
         dsToolBar->addAction( m_drawStyleLinesAction );
         dsToolBar->addAction( m_drawStyleLinesSolidAction );
         dsToolBar->addAction( m_drawStyleSurfOnlyAction );
+        dsToolBar->addAction( m_enableLightingAction );
         dsToolBar->addAction( m_drawStyleFaultLinesSolidAction );
-        dsToolBar->addAction( m_disableLightingAction );
         dsToolBar->addAction( m_drawStyleHideGridCellsAction );
         dsToolBar->addAction( m_toggleFaultsLabelAction );
         dsToolBar->addAction( m_showWellCellsAction );
@@ -933,7 +944,7 @@ void RiuMainWindow::refreshAnimationActions()
     int currentTimeStepIndex = 0;
 
     bool enableAnimControls = false;
-    if ( activeView && activeView->viewer() && activeView->viewer()->frameCount() )
+    if ( activeView && activeView->ownerCase() && activeView->viewer() && activeView->viewer()->frameCount() )
     {
         enableAnimControls = true;
 
@@ -1039,7 +1050,7 @@ RimViewWindow* RiuMainWindow::findViewWindowFromSubWindow( QMdiSubWindow* subWin
     if ( subWindow )
     {
         std::vector<RimViewWindow*> allViewWindows;
-        RiaApplication::instance()->project()->descendantsIncludingThisOfType( allViewWindows );
+        RimProject::current()->descendantsIncludingThisOfType( allViewWindows );
 
         for ( RimViewWindow* viewWindow : allViewWindows )
         {
@@ -1112,7 +1123,7 @@ void RiuMainWindow::removeViewer( QWidget* viewer )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::addViewer( QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry )
+void RiuMainWindow::initializeViewer( QMdiSubWindow* subWindow, QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry )
 {
     QSize  subWindowSize;
     QPoint subWindowPos( -1, -1 );
@@ -1127,7 +1138,8 @@ void RiuMainWindow::addViewer( QWidget* viewer, const RimMdiWindowGeometry& wind
         subWindowSize = QSize( 400, 400 );
     }
 
-    addViewerToMdiArea( m_mdiArea, viewer, subWindowPos, subWindowSize );
+    initializeSubWindow( m_mdiArea, subWindow, subWindowPos, subWindowSize );
+    subWindow->setWidget( viewer );
 
     slotRefreshViewActions();
 }
@@ -1386,6 +1398,7 @@ void RiuMainWindow::slotBuildWindowActions()
 
     m_windowMenu->addSeparator();
     QAction* cascadeWindowsAction = new QAction( "Cascade Windows", this );
+    cascadeWindowsAction->setIcon( QIcon( ":/CascadeWindows.svg" ) );
     connect( cascadeWindowsAction, SIGNAL( triggered() ), m_mdiArea, SLOT( cascadeSubWindows() ) );
 
     QAction* closeAllSubWindowsAction = new QAction( "Close All Windows", this );
@@ -1577,14 +1590,23 @@ void RiuMainWindow::refreshDrawStyleActions()
     m_drawStyleLinesSolidAction->setEnabled( is3dView );
     m_drawStyleSurfOnlyAction->setEnabled( is3dView );
     m_drawStyleFaultLinesSolidAction->setEnabled( is3dView );
-    m_disableLightingAction->setEnabled( is3dView );
+    m_enableLightingAction->setEnabled( is3dView );
 
-    bool lightingDisabledInView = view ? view->isLightingDisabled() : false;
+    bool lightingEnabled = view ? !view->isLightingDisabled() : true;
 
-    m_disableLightingAction->blockSignals( true );
-    m_disableLightingAction->setChecked( lightingDisabledInView );
-    m_disableLightingAction->blockSignals( false );
+    m_enableLightingAction->blockSignals( true );
+    m_enableLightingAction->setChecked( lightingEnabled );
 
+    if ( lightingEnabled )
+    {
+        m_enableLightingAction->setIcon( QIcon( ":/DrawLightingEnabled.svg" ) );
+    }
+    else
+    {
+        m_enableLightingAction->setIcon( QIcon( ":/DrawLightingDisabled.svg" ) );
+    }
+
+    m_enableLightingAction->blockSignals( false );
     m_drawStyleHideGridCellsAction->setEnabled( is3dGridView );
     if ( is3dGridView )
     {
@@ -1628,13 +1650,14 @@ void RiuMainWindow::refreshDrawStyleActions()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotDisableLightingAction( bool disable )
+void RiuMainWindow::slotToggleLightingAction( bool enable )
 {
     Rim3dView* view = RiaApplication::instance()->activeReservoirView();
     if ( view )
     {
-        view->disableLighting( disable );
+        view->disableLighting( !enable );
     }
+    refreshDrawStyleActions();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1644,14 +1667,14 @@ void RiuMainWindow::restoreTreeViewState()
 {
     if ( m_projectTreeView )
     {
-        QString stateString = RiaApplication::instance()->project()->mainWindowTreeViewState;
+        QString stateString = RimProject::current()->mainWindowTreeViewState;
         if ( !stateString.isEmpty() )
         {
             m_projectTreeView->treeView()->collapseAll();
             caf::QTreeViewStateSerializer::applyTreeViewStateFromString( m_projectTreeView->treeView(), stateString );
         }
 
-        QString currentIndexString = RiaApplication::instance()->project()->mainWindowCurrentModelIndexPath;
+        QString currentIndexString = RimProject::current()->mainWindowCurrentModelIndexPath;
         if ( !currentIndexString.isEmpty() )
         {
             QModelIndex mi =
@@ -1730,8 +1753,7 @@ void RiuMainWindow::updateMemoryUsage()
     if ( availVirtualFraction < caf::MemoryInspector::getRemainingMemoryCriticalThresholdFraction() )
     {
         m_memoryCriticalWarning->setText( QString( "Available System Memory Critically Low!" ) );
-        m_memoryCriticalWarning->setStyleSheet(
-            QString( "QLabel {color: %1; padding: 0px 5px 0px 0px;}" ).arg( criticalColor.name() ) );
+        m_memoryCriticalWarning->setProperty( "styleRole", "memoryCriticalWarning" );
     }
     else
     {
@@ -1739,10 +1761,11 @@ void RiuMainWindow::updateMemoryUsage()
     }
 
     m_memoryUsedButton->setText( QString( "Memory Used: %1 MiB" ).arg( currentUsage ) );
+    m_memoryUsedButton->setProperty( "styleRole", "memoryUsedButton" );
     m_memoryTotalStatus->setText( QString( "Total Physical Memory: %1 MiB" ).arg( totalPhysicalMemory ) );
+    m_memoryTotalStatus->setProperty( "styleRole", "memoryTotalStatus" );
 
-    m_memoryUsedButton->setStyleSheet( QString( "QLabel {color: %1; padding: 0px 5px 0px 0px;}" ).arg( usageColor.name() ) );
-    m_memoryTotalStatus->setStyleSheet( QString( "QLabel {padding: 0px 5px 0px 0px; }" ) );
+    m_memoryUsedButton->setStyleSheet( QString( "QLabel {color: %1;}" ).arg( usageColor.name() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1953,6 +1976,14 @@ void RiuMainWindow::customMenuRequested( const QPoint& pos )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotWorkaroundForQwtDockWidgets()
+{
+    RiuDockWidgetTools::workaroundForQwtDockWidgets();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMainWindow::tileSubWindows()
 {
     QMdiArea::WindowOrder currentActivationOrder = m_mdiArea->activationOrder();
@@ -1965,7 +1996,7 @@ void RiuMainWindow::tileSubWindows()
     }
 
     // Get the active view linker if there is one
-    RimProject*              proj                 = RiaApplication::instance()->project();
+    RimProject*              proj                 = RimProject::current();
     RimViewLinkerCollection* viewLinkerCollection = proj->viewLinkerCollection();
     RimViewLinker*           viewLinker           = nullptr;
     if ( viewLinkerCollection && viewLinkerCollection->isActive() )
@@ -2031,7 +2062,7 @@ void RiuMainWindow::tileSubWindows()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::storeSubWindowTiling( bool tiled )
 {
-    RiaApplication::instance()->project()->setSubWindowsTiledIn3DWindow( tiled );
+    RimProject::current()->setSubWindowsTiledIn3DWindow( tiled );
     refreshViewActions();
 }
 
@@ -2057,9 +2088,9 @@ void RiuMainWindow::clearWindowTiling()
 //--------------------------------------------------------------------------------------------------
 bool RiuMainWindow::subWindowsAreTiled() const
 {
-    if ( RiaApplication::instance()->project() )
+    if ( RimProject::current() )
     {
-        return RiaApplication::instance()->project()->subWindowsTiled3DWindow();
+        return RimProject::current()->subWindowsTiled3DWindow();
     }
     return false;
 }

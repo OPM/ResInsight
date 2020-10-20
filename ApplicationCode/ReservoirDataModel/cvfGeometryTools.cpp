@@ -19,7 +19,6 @@
 
 #include "cvfGeometryTools.h"
 
-#pragma warning( disable : 4503 )
 namespace cvf
 {
 //--------------------------------------------------------------------------------------------------
@@ -33,6 +32,19 @@ cvf::Vec3d
     centerCoord += v2;
     centerCoord += v3;
     centerCoord *= 0.25;
+
+    return centerCoord;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d GeometryTools::computeTriangleCenter( const cvf::Vec3d& v0, const cvf::Vec3d& v1, const cvf::Vec3d& v2 )
+{
+    cvf::Vec3d centerCoord = v0;
+    centerCoord += v1;
+    centerCoord += v2;
+    centerCoord /= 3.0;
 
     return centerCoord;
 }
@@ -54,11 +66,11 @@ cvf::Mat3f GeometryTools::computePlaneHorizontalRotationMx( const cvf::Vec3f& in
 
     if ( Ey[2] < 0.0f ) // Semi vertical is down
     {
-        return cvf::Mat3f( -Ex[0], -Ey[0], Ez[0], -Ex[1], -Ey[1], Ez[1], -Ex[2], -Ey[2], Ez[2] );
+        return cvf::Mat3f( -Ex[0], -Ex[1], -Ex[2], -Ey[0], -Ey[1], -Ey[2], Ez[0], Ez[1], Ez[2] );
     }
     else
     {
-        return cvf::Mat3f( Ex[0], Ey[0], Ez[0], Ex[1], Ey[1], Ez[1], Ex[2], Ey[2], Ez[2] );
+        return cvf::Mat3f( Ex[0], Ex[1], Ex[2], Ey[0], Ey[1], Ey[2], Ez[0], Ez[1], Ez[2] );
     }
 }
 
@@ -607,7 +619,7 @@ cvf::Vec3d
     GeometryTools::barycentricCoords( const cvf::Vec3d& t0, const cvf::Vec3d& t1, const cvf::Vec3d& t2, const cvf::Vec3d& p )
 {
     // Unnormalized triangle normal
-    cvf::Vec3d m = ( t1 - t0 ^ t2 - t0 );
+    cvf::Vec3d m = ( ( t1 - t0 ) ^ ( t2 - t0 ) );
 
     // Absolute components for determining projection plane
     int X = 0, Y = 1;

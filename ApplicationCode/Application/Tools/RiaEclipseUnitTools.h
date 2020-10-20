@@ -24,7 +24,7 @@
 class RiaEclipseUnitTools
 {
 public:
-    enum UnitSystem
+    enum class UnitSystem
     {
         UNITS_METRIC,
         UNITS_FIELD,
@@ -44,6 +44,11 @@ public:
     static double inchToFeet( double inch ) { return ( inch / 12.0 ); }
     static double mmToMeter( double mm ) { return mm / 1000.0; }
     static double meterToMm( double meter ) { return 1000.0 * meter; }
+
+    static double barToPascal( double bar ) { return bar * 100000.0; }
+    static double barToPsi( double bar ) { return bar * 14.5038; }
+    static double barPerMeterToPsiPerFeet( double barPerMeter ) { return barPerMeter * 4.42075; }
+    static double gigaPascalToPascal( double gigaPascal ) { return gigaPascal * 1.0e9; }
 
     static double darcysConstant( UnitSystem unitSystem );
 

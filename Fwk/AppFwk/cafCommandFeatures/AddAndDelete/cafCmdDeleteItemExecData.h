@@ -34,18 +34,15 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
-#include "cafPdmObject.h"
 #include "cafPdmField.h"
+#include "cafPdmObject.h"
 
-namespace caf 
+namespace caf
 {
-
-
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class CmdDeleteItemExecData : public PdmObject
 {
@@ -54,20 +51,33 @@ class CmdDeleteItemExecData : public PdmObject
 public:
     CmdDeleteItemExecData()
     {
-        CAF_PDM_InitObject("CmdDeleteItemExecData uiName", "", "CmdDeleteItemExecData tooltip", "CmdDeleteItemExecData whatsthis");
+        CAF_PDM_InitObject( "CmdDeleteItemExecData uiName",
+                            "",
+                            "CmdDeleteItemExecData tooltip",
+                            "CmdDeleteItemExecData whatsthis" );
 
-        CAF_PDM_InitField(&m_pathToField, "PathToField", QString(), "PathToField", "", "PathToField tooltip", "PathToField whatsthis");
-        CAF_PDM_InitField(&m_indexToObject, "indexToObject", -1, "indexToObject", "", "indexToObject tooltip", "indexToObject whatsthis");
-        CAF_PDM_InitField(&m_deletedObjectAsXml, "deletedObjectAsXml", QString(), "deletedObjectAsXml", "", "deletedObjectAsXml tooltip", "deletedObjectAsXml whatsthis");
+        CAF_PDM_InitField( &m_pathToField, "PathToField", QString(), "PathToField", "", "PathToField tooltip", "PathToField whatsthis" );
+        CAF_PDM_InitField( &m_indexToObject,
+                           "indexToObject",
+                           -1,
+                           "indexToObject",
+                           "",
+                           "indexToObject tooltip",
+                           "indexToObject whatsthis" );
+        CAF_PDM_InitField( &m_deletedObjectAsXml,
+                           "deletedObjectAsXml",
+                           QString(),
+                           "deletedObjectAsXml",
+                           "",
+                           "deletedObjectAsXml tooltip",
+                           "deletedObjectAsXml whatsthis" );
     }
 
     caf::PdmPointer<PdmObjectHandle> m_rootObject;
 
-    caf::PdmField<QString>  m_pathToField;
-    caf::PdmField<int>      m_indexToObject;
-    caf::PdmField<QString>  m_deletedObjectAsXml;
+    caf::PdmField<QString> m_pathToField;
+    caf::PdmField<int>     m_indexToObject;
+    caf::PdmField<QString> m_deletedObjectAsXml;
 };
-
-
 
 } // end namespace caf

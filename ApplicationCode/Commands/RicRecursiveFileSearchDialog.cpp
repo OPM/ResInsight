@@ -21,13 +21,14 @@
 #include "RiaFilePathTools.h"
 #include "RiaGuiApplication.h"
 
+#include "RiuFileDialogTools.h"
 #include "RiuTools.h"
 
 #include <QAbstractItemView>
 #include <QAction>
 #include <QClipboard>
 #include <QDialogButtonBox>
-#include <QFileDialog>
+#include <QDir>
 #include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>
@@ -296,12 +297,12 @@ void RicRecursiveFileSearchDialog::updateFileListWidget()
 {
     m_fileListWidget->clear();
 
-    int rootSearchPathLenght = rootDirWithEndSeparator().size();
+    int rootSearchPathLength = rootDirWithEndSeparator().size();
 
     for ( const auto& fileName : m_foundFiles )
     {
         QString itemText = fileName;
-        itemText.remove( 0, rootSearchPathLenght );
+        itemText.remove( 0, rootSearchPathLength );
         QListWidgetItem* item = new QListWidgetItem( QDir::toNativeSeparators( itemText ), m_fileListWidget );
         item->setFlags( item->flags() | Qt::ItemIsUserCheckable );
         item->setCheckState( Qt::Checked );
@@ -553,7 +554,7 @@ void RicRecursiveFileSearchDialog::slotFileListCustomMenuRequested( const QPoint
     QMenu    menu;
     QAction* action;
 
-    action = new QAction( QIcon( ":/Copy.png" ), "&Copy", this );
+    action = new QAction( QIcon( ":/Copy.svg" ), "&Copy", this );
     connect( action, SIGNAL( triggered() ), SLOT( slotCopyFileItemText() ) );
     menu.addAction( action );
     menu.addSeparator();
@@ -711,7 +712,7 @@ void RicRecursiveFileSearchDialog::slotDialogCancelClicked()
 //--------------------------------------------------------------------------------------------------
 void RicRecursiveFileSearchDialog::slotBrowseButtonClicked()
 {
-    QString folder = QFileDialog::getExistingDirectory( this, "Select folder", rootDirWithEndSeparator() );
+    QString folder = RiuFileDialogTools::getExistingDirectory( this, "Select folder", rootDirWithEndSeparator() );
     RiaFilePathTools::appendSeparatorIfNo( folder );
     folder += "*";
     if ( !folder.isEmpty() ) m_pathFilterField->setText( QDir::toNativeSeparators( folder ) );

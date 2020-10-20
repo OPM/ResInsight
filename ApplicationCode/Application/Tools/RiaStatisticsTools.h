@@ -21,6 +21,8 @@
 #pragma once
 
 #include <cmath>
+#include <numeric>
+#include <vector>
 
 class QString;
 
@@ -48,4 +50,6 @@ public:
 
         return true;
     }
+
+    static double pearsonCorrelation( const std::vector<double>& xValues, const std::vector<double>& yValues );
 };

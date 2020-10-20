@@ -677,6 +677,14 @@ const Color3f& RivWindowEdgeAxesOverlayItem::lineColor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RivWindowEdgeAxesOverlayItem::setFrameColor( const Color4f& frameColor )
+{
+    m_frameColor = frameColor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RivWindowEdgeAxesOverlayItem::setDomainAxes( DomainAxes axes )
 {
     m_domainAxes = axes;

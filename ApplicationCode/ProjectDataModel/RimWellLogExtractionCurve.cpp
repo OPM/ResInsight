@@ -19,7 +19,7 @@
 
 #include "RimWellLogExtractionCurve.h"
 
-#include "RiaApplication.h"
+#include "RiaColorTables.h"
 #include "RiaLogging.h"
 #include "RiaSimWellBranchTools.h"
 
@@ -91,7 +91,7 @@ void AppEnum<RimWellLogExtractionCurve::TrajectoryType>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimWellLogExtractionCurve::RimWellLogExtractionCurve()
 {
-    CAF_PDM_InitObject( "Well Log Curve", "", "", "" );
+    CAF_PDM_InitObject( "Well Log Curve", RimWellLogCurve::wellLogCurveIconName(), "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_trajectoryType, "TrajectoryType", "Trajectory Type", "", "", "" );
 
@@ -179,6 +179,8 @@ void RimWellLogExtractionCurve::setFromSimulationWellName( const QString& simWel
 void RimWellLogExtractionCurve::setCase( RimCase* rimCase )
 {
     m_case = rimCase;
+
+    connectCaseSignals( rimCase );
     clearGeneratedSimWellPaths();
 }
 
@@ -198,6 +200,7 @@ void RimWellLogExtractionCurve::setPropertiesFromView( Rim3dView* view )
     if ( view )
     {
         m_case = view->ownerCase();
+        connectCaseSignals( m_case );
     }
 
     RimGeoMechCase* geomCase    = dynamic_cast<RimGeoMechCase*>( m_case.value() );
@@ -214,7 +217,7 @@ void RimWellLogExtractionCurve::setPropertiesFromView( Rim3dView* view )
     }
     else if ( eclipseCase )
     {
-        m_eclipseResultDefinition->setResultType( RiaDefines::STATIC_NATIVE );
+        m_eclipseResultDefinition->setResultType( RiaDefines::ResultCatType::STATIC_NATIVE );
         m_eclipseResultDefinition->setResultVariable( "PORO" );
     }
 
@@ -339,13 +342,14 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
         bool isUsingPseudoLength = false;
         performDataExtraction( &isUsingPseudoLength );
 
-        RimWellLogPlot* wellLogPlot;
+        RimDepthTrackPlot* wellLogPlot;
         firstAncestorOrThisOfType( wellLogPlot );
         if ( !wellLogPlot ) return;
 
         RiaDefines::DepthTypeEnum depthType   = wellLogPlot->depthType();
         RiaDefines::DepthUnitType displayUnit = wellLogPlot->depthUnit();
-        if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH || depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB )
+        if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH ||
+             depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB )
         {
             isUsingPseudoLength = false;
         }
@@ -451,7 +455,7 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
     std::vector<double> tvDepthValues;
     double              rkbDiff = 0.0;
 
-    RiaDefines::DepthUnitType depthUnit = RiaDefines::UNIT_METER;
+    RiaDefines::DepthUnitType depthUnit = RiaDefines::DepthUnitType::UNIT_METER;
     QString                   xUnits    = RiaWellLogUnitTools<double>::noUnitString();
 
     if ( eclExtractor.notNull() && eclipseCase )
@@ -474,11 +478,11 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
         }
 
         RiaEclipseUnitTools::UnitSystem eclipseUnitsType = eclipseCase->eclipseCaseData()->unitsType();
-        if ( eclipseUnitsType == RiaEclipseUnitTools::UNITS_FIELD )
+        if ( eclipseUnitsType == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
         {
             // See https://github.com/OPM/ResInsight/issues/538
 
-            depthUnit = RiaDefines::UNIT_FEET;
+            depthUnit = RiaDefines::DepthUnitType::UNIT_FEET;
         }
     }
     else if ( geomExtractor.notNull() ) // geomExtractor
@@ -518,7 +522,7 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
         {
             this->setValuesAndDepths( values,
                                       measuredDepthValues,
-                                      RiaDefines::MEASURED_DEPTH,
+                                      RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
                                       0.0,
                                       depthUnit,
                                       !performDataSmoothing,
@@ -593,6 +597,20 @@ void RimWellLogExtractionCurve::setAutoNameComponents( bool addCaseName,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaDefines::PhaseType RimWellLogExtractionCurve::phaseType() const
+{
+    auto phase = RiaDefines::PhaseType::PHASE_NOT_APPLICABLE;
+
+    if ( m_eclipseResultDefinition )
+    {
+        phase = m_eclipseResultDefinition->resultPhaseType();
+    }
+    return phase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::set<QString> RimWellLogExtractionCurve::sortedSimWellNames()
 {
     std::set<QString> sortedWellNames;
@@ -614,7 +632,7 @@ void RimWellLogExtractionCurve::clearGeneratedSimWellPaths()
 
     // Need to use this approach, and not firstAnchestor because the curve might not be inside the hierarchy when deleted.
 
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
     if ( proj && proj->mainPlotCollection() ) wellLogCollection = proj->mainPlotCollection()->wellLogPlotCollection();
 
     if ( !wellLogCollection ) return;
@@ -654,7 +672,7 @@ QList<caf::PdmOptionItemInfo>
     {
         std::set<QString> sortedWellNames = this->sortedSimWellNames();
 
-        caf::QIconProvider simWellIcon( ":/Well.png" );
+        caf::IconProvider simWellIcon( ":/Well.png" );
         for ( const QString& wname : sortedWellNames )
         {
             options.push_back( caf::PdmOptionItemInfo( wname, wname, false, simWellIcon ) );
@@ -713,6 +731,9 @@ void RimWellLogExtractionCurve::defineUiOrdering( QString uiConfigName, caf::Pdm
         curveDataGroup->add( &m_timeStep );
     }
 
+    caf::PdmUiGroup* stackingGroup = uiOrdering.addNewGroup( "Stacking" );
+    RimStackablePlotCurve::stackingUiOrdering( *stackingGroup );
+
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup( "Appearance" );
     RimPlotCurve::appearanceUiOrdering( *appearanceGroup );
 
@@ -745,6 +766,8 @@ void RimWellLogExtractionCurve::initAfterRead()
 
     m_eclipseResultDefinition->setEclipseCase( eclipseCase );
     m_geomResultDefinition->setGeoMechCase( geomCase );
+
+    connectCaseSignals( m_case.value() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1039,6 +1062,14 @@ void RimWellLogExtractionCurve::setEclipseResultVariable( const QString& resVarn
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimWellLogExtractionCurve::eclipseResultVariable() const
+{
+    return m_eclipseResultDefinition->resultVariable();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::setGeoMechResultAddress( const RigFemResultAddress& resAddr )
 {
     m_geomResultDefinition->setResultAddress( resAddr );
@@ -1074,4 +1105,23 @@ void RimWellLogExtractionCurve::setBranchDetection( bool branchDetection )
 void RimWellLogExtractionCurve::setBranchIndex( int index )
 {
     m_branchIndex = index;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::connectCaseSignals( RimCase* rimCase )
+{
+    if ( rimCase )
+    {
+        rimCase->settingsChanged.connect( this, &RimWellLogExtractionCurve::onCaseSettingsChanged );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::onCaseSettingsChanged( const caf::SignalEmitter* emitter )
+{
+    loadDataAndUpdate( true );
 }

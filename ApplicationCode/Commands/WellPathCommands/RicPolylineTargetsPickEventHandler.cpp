@@ -18,7 +18,6 @@
 
 #include "RicPolylineTargetsPickEventHandler.h"
 
-#include "RiaApplication.h"
 #include "RiaOffshoreSphericalCoords.h"
 
 #include "RigWellPath.h"

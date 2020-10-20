@@ -20,9 +20,13 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include "cvfObject.h"
-
 #include "cafPdmFieldCvfColor.h"
+#include "cafPdmProxyValueField.h"
+
+#include "cvfObject.h"
+#include "cvfVector3.h"
+
+#include <vector>
 
 class RigSurface;
 
@@ -34,24 +38,44 @@ public:
     RimSurface();
     ~RimSurface() override;
 
-    void    setSurfaceFilePath( const QString& filePath );
-    QString surfaceFilePath();
-
     void         setColor( const cvf::Color3f& color );
     cvf::Color3f color() const;
 
-    bool        updateSurfaceDataFromFile();
     RigSurface* surfaceData();
+    QString     userDescription();
+    void        setUserDescription( const QString& description );
 
-    QString userDescription();
+    virtual QString     fullName() const;
+    virtual bool        onLoadData() = 0;
+    virtual RimSurface* createCopy() = 0;
+
+    void loadDataIfRequired();
+    void reloadData();
+
+protected:
+    void setSurfaceData( RigSurface* surface );
+
+    void   applyDepthOffsetIfNeeded( std::vector<cvf::Vec3d>* vertices ) const;
+    double depthOffset() const;
+    void   setDepthOffset( double depthoffset );
+
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
+
+    static void applyDepthOffset( const cvf::Vec3d& offset, std::vector<cvf::Vec3d>* vertices );
+
+    caf::PdmFieldHandle* userDescriptionField() override;
+
+    virtual bool updateSurfaceData()     = 0;
+    virtual void clearCachedNativeData() = 0;
 
 private:
-    caf::PdmFieldHandle* userDescriptionField() override;
-    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-
-    caf::PdmField<caf::FilePath> m_surfaceDefinitionFilePath;
-    caf::PdmField<QString>       m_userDescription;
-    caf::PdmField<cvf::Color3f>  m_color;
+    caf::PdmField<QString>           m_userDescription;
+    caf::PdmField<cvf::Color3f>      m_color;
+    caf::PdmField<double>            m_depthOffset;
+    caf::PdmProxyValueField<QString> m_nameProxy;
 
     cvf::ref<RigSurface> m_surfaceData;
 };

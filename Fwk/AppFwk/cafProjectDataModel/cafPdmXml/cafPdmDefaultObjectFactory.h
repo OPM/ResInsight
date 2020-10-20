@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafPdmObjectFactory.h"
@@ -57,27 +56,27 @@ namespace caf
 class PdmDefaultObjectFactory : public PdmObjectFactory
 {
 public:
-    static PdmDefaultObjectFactory * instance();
+    static PdmDefaultObjectFactory* instance();
 
-    PdmObjectHandle* create(const QString& classNameKeyword) override;
+    PdmObjectHandle* create( const QString& classNameKeyword ) override;
 
-    template< typename PdmObjectBaseDerivative >
-    bool                registerCreator()
+    template <typename PdmObjectBaseDerivative>
+    bool registerCreator()
     {
         std::vector<QString> classNameKeywords = PdmObjectBaseDerivative::classKeywordAliases();
 
-        for (QString classNameKeyword : classNameKeywords)
+        for ( QString classNameKeyword : classNameKeywords )
         {
-            auto entryIt = m_factoryMap.find(classNameKeyword);
-            if (entryIt != m_factoryMap.end())
+            auto entryIt = m_factoryMap.find( classNameKeyword );
+            if ( entryIt != m_factoryMap.end() )
             {
-                CAF_ASSERT(classNameKeyword != entryIt->first); // classNameKeyword has already been used
-                CAF_ASSERT(false); // To be sure ..
-                return false;  // never hit;
+                CAF_ASSERT( classNameKeyword != entryIt->first ); // classNameKeyword has already been used
+                CAF_ASSERT( false ); // To be sure ..
+                return false; // never hit;
             }
         }
         auto object = new PdmObjectCreator<PdmObjectBaseDerivative>();
-        for (QString classNameKeyword : classNameKeywords)
+        for ( QString classNameKeyword : classNameKeywords )
         {
             m_factoryMap[classNameKeyword] = object;
         }
@@ -87,8 +86,10 @@ public:
     std::vector<QString> classKeywords() const override;
 
 private:
-    PdmDefaultObjectFactory()  {}
-    ~PdmDefaultObjectFactory() override { /* Could clean up, but ... */ }
+    PdmDefaultObjectFactory() {}
+    ~PdmDefaultObjectFactory() override
+    { /* Could clean up, but ... */
+    }
 
     // Internal helper classes
 
@@ -97,19 +98,18 @@ private:
     public:
         PdmObjectCreatorBase() {}
         virtual ~PdmObjectCreatorBase() {}
-        virtual PdmObjectHandle * create() = 0;
+        virtual PdmObjectHandle* create() = 0;
     };
 
-    template< typename PdmObjectBaseDerivative >
+    template <typename PdmObjectBaseDerivative>
     class PdmObjectCreator : public PdmObjectCreatorBase
     {
     public:
-        PdmObjectHandle * create() override { return new PdmObjectBaseDerivative(); }
+        PdmObjectHandle* create() override { return new PdmObjectBaseDerivative(); }
     };
 
     // Map to store factory
     std::map<QString, PdmObjectCreatorBase*> m_factoryMap;
 };
 
-
-} //End of namespace caf
+} // End of namespace caf

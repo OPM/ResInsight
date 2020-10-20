@@ -17,9 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimMultiPlotCollection.h"
 
-#include "RiaApplication.h"
 #include "RimMultiPlot.h"
 #include "RimProject.h"
+
+#include "cafPdmFieldReorderCapability.h"
 
 CAF_PDM_SOURCE_INIT( RimMultiPlotCollection, "RimMultiPlotCollection" );
 
@@ -32,6 +33,7 @@ RimMultiPlotCollection::RimMultiPlotCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_multiPlots, "MultiPlots", "Plots Reports", "", "", "" );
     m_multiPlots.uiCapability()->setUiHidden( true );
+    caf::PdmFieldReorderCapability::addToField( &m_multiPlots );
 }
 
 //--------------------------------------------------------------------------------------------------

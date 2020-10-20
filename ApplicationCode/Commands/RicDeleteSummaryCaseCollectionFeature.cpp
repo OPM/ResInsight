@@ -18,8 +18,6 @@
 
 #include "RicDeleteSummaryCaseCollectionFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RiaSummaryTools.h"
 
 #include "RimDerivedEnsembleCaseCollection.h"
@@ -50,7 +48,7 @@ void RicDeleteSummaryCaseCollectionFeature::deleteSummaryCaseCollection( RimSumm
 
     for ( RimSummaryCase* summaryCase : caseCollection->allSummaryCases() )
     {
-        for ( RimSummaryPlot* summaryPlot : summaryPlotColl->summaryPlots )
+        for ( RimSummaryPlot* summaryPlot : summaryPlotColl->plots() )
         {
             summaryPlot->deleteCurvesAssosiatedWithCase( summaryCase );
         }
@@ -134,7 +132,7 @@ void RicDeleteSummaryCaseCollectionFeature::onActionTriggered( bool isChecked )
 void RicDeleteSummaryCaseCollectionFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Delete Summary Case Group/Ensemble" );
-    actionToSetup->setIcon( QIcon( ":/Erase.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Erase.svg" ) );
     applyShortcutWithHintToAction( actionToSetup, QKeySequence::Delete );
 }
 

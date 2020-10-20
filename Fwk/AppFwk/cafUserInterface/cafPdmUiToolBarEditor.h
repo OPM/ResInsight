@@ -58,25 +58,25 @@ class PdmFieldHandle;
 class PdmUiToolBarEditor : public PdmUiEditorHandle
 {
 public:
-    PdmUiToolBarEditor(const QString& title, QMainWindow* mainWindow);
+    PdmUiToolBarEditor( const QString& title, QMainWindow* mainWindow );
     ~PdmUiToolBarEditor() override;
 
-    bool isEditorDataValid(const std::vector<caf::PdmFieldHandle*>& fields) const;
-    void setFields(std::vector<caf::PdmFieldHandle*>& fields);
+    bool isEditorDataValid( const std::vector<caf::PdmFieldHandle*>& fields ) const;
+    void setFields( std::vector<caf::PdmFieldHandle*>& fields );
     void clear();
 
-    void    setFocusWidgetFromKeyword(const QString& fieldKeyword);
+    void    setFocusWidgetFromKeyword( const QString& fieldKeyword );
     QString keywordForFocusWidget();
-    
+
     void show();
     void hide();
 
     static QString uiEditorConfigName();
 
 private:
-    void configureAndUpdateUi(const QString& uiConfigName) override;
-    
-    static QWidget* focusWidget(PdmUiFieldEditorHandle* uiFieldEditorHandle);
+    void configureAndUpdateUi( const QString& uiConfigName ) override;
+
+    static QWidget* focusWidget( PdmUiFieldEditorHandle* uiFieldEditorHandle );
 
 private:
     QPointer<QToolBar> m_toolbar;

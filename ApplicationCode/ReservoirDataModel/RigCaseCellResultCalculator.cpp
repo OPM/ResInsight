@@ -18,7 +18,6 @@
 
 #include "RigCaseCellResultCalculator.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "RigCaseCellResultsData.h"
@@ -54,7 +53,7 @@ bool RigCaseCellResultCalculator::computeDifference( RigEclipseCaseData*        
     if ( address.hasDifferenceCase() )
     {
         {
-            auto eclipseCases = RiaApplication::instance()->project()->eclipseCases();
+            auto eclipseCases = RimProject::current()->eclipseCases();
             for ( RimEclipseCase* c : eclipseCases )
             {
                 if ( c && c->caseId() == address.m_differenceCaseId && c->eclipseCaseData() )

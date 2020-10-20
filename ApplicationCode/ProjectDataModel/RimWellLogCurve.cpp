@@ -22,7 +22,7 @@
 #include "RiaCurveDataTools.h"
 #include "RigWellLogCurveData.h"
 
-#include "RimWellLogPlot.h"
+#include "RimDepthTrackPlot.h"
 #include "RimWellLogTrack.h"
 
 #include "RiuQwtPlotCurve.h"
@@ -53,6 +53,8 @@ RimWellLogCurve::RimWellLogCurve()
     m_curveData = new RigWellLogCurveData;
 
     m_curveDataXRange = std::make_pair( std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity() );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -98,7 +100,7 @@ bool RimWellLogCurve::yValueRangeInData( double* minimumValue, double* maximumVa
         return false;
     }
 
-    RimWellLogPlot* wellLogPlot = nullptr;
+    RimDepthTrackPlot* wellLogPlot = nullptr;
     firstAncestorOrThisOfTypeAsserted( wellLogPlot );
     auto depthType   = wellLogPlot->depthType();
     auto displayUnit = wellLogPlot->depthUnit();
@@ -148,8 +150,10 @@ void RimWellLogCurve::setValuesWithMdAndTVD( const std::vector<double>& xValues,
                                              bool                       isExtractionCurve,
                                              const QString&             xUnits )
 {
-    std::map<RiaDefines::DepthTypeEnum, std::vector<double>> depths = { { RiaDefines::MEASURED_DEPTH, measuredDepths },
-                                                                        { RiaDefines::TRUE_VERTICAL_DEPTH, tvdMSL } };
+    std::map<RiaDefines::DepthTypeEnum, std::vector<double>> depths = {{RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
+                                                                        measuredDepths},
+                                                                       {RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH,
+                                                                        tvdMSL}};
     setValuesAndDepths( xValues, depths, rkbDiff, depthUnit, isExtractionCurve, xUnits );
 }
 
@@ -164,9 +168,55 @@ const RigWellLogCurveData* RimWellLogCurve::curveData() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogCurve::updateCurveAppearance()
+{
+    RimPlotCurve::updateCurveAppearance();
+    if ( m_fillStyle != Qt::BrushStyle::NoBrush )
+    {
+        m_qwtPlotCurve->setOrientation( Qt::Horizontal );
+        m_qwtPlotCurve->setBaseline( -std::numeric_limits<double>::infinity() );
+        m_qwtPlotCurve->setCurveAttribute( QwtPlotCurve::Inverted, true );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWellLogCurve::wellLogChannelName() const
 {
     return wellLogChannelUiName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogCurve::wellLogCurveIconName()
+{
+    return ":/WellLogCurve16x16.png";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogCurve::setOverrideCurveData( const std::vector<double>&               xValues,
+                                            const std::vector<double>&               depthValues,
+                                            const RiaCurveDataTools::CurveIntervals& curveIntervals )
+{
+    auto minmax_it = std::minmax_element( xValues.begin(), xValues.end() );
+    this->setOverrideCurveDataXRange( *( minmax_it.first ), *( minmax_it.second ) );
+    if ( m_qwtPlotCurve )
+    {
+        m_qwtPlotCurve->setSamples( xValues.data(), depthValues.data(), static_cast<int>( depthValues.size() ) );
+        m_qwtPlotCurve->setLineSegmentStartStopIndices( curveIntervals );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::PhaseType RimWellLogCurve::resultPhase() const
+{
+    return RiaDefines::PhaseType::PHASE_NOT_APPLICABLE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -183,7 +233,7 @@ void RimWellLogCurve::updateZoomInParentPlot()
     {
         wellLogTrack->setAutoScaleXIfNecessary();
 
-        RimWellLogPlot* wellLogPlot;
+        RimDepthTrackPlot* wellLogPlot;
         wellLogTrack->firstAncestorOrThisOfType( wellLogPlot );
 
         if ( wellLogPlot )

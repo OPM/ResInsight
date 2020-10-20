@@ -18,8 +18,6 @@
 
 #include "RicEditSummaryCurveCalculationFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RicShowSummaryCurveCalculatorFeature.h"
 #include "RicSummaryCurveCalculatorDialog.h"
 #include "RicSummaryCurveCalculatorUi.h"
@@ -63,7 +61,7 @@ void RicEditSummaryCurveCalculationFeature::onActionTriggered( bool isChecked )
     {
         RifEclipseSummaryAddress selectedAddress = selectedCurves.front()->summaryAddressY();
 
-        RimProject*                      proj            = RiaApplication::instance()->project();
+        RimProject*                      proj            = RimProject::current();
         RimSummaryCalculationCollection* calculationColl = proj->calculationCollection();
 
         if ( calculationColl )
@@ -84,5 +82,5 @@ void RicEditSummaryCurveCalculationFeature::onActionTriggered( bool isChecked )
 void RicEditSummaryCurveCalculationFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Edit Curve Calculation" );
-    actionToSetup->setIcon( QIcon( ":/calculator.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Calculator.svg" ) );
 }

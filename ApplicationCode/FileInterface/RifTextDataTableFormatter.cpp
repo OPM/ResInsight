@@ -48,6 +48,7 @@ RifTextDataTableFormatter::RifTextDataTableFormatter( const RifTextDataTableForm
     , m_tableRowPrependText( rhs.m_tableRowPrependText )
     , m_tableRowAppendText( rhs.m_tableRowAppendText )
     , m_commentPrefix( rhs.m_commentPrefix )
+    , m_headerPrefix( rhs.m_headerPrefix )
     , m_maxDataRowWidth( rhs.m_maxDataRowWidth )
     , m_defaultMarker( rhs.m_defaultMarker )
 {

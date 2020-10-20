@@ -18,6 +18,9 @@
 
 #pragma once
 
+#include "RimOilField.h"
+#include "RimProject.h"
+
 #include <QString>
 
 //==================================================================================================
@@ -27,4 +30,37 @@ class RicFractureNameGenerator
 {
 public:
     static QString nameForNewFracture();
+    static QString nameForNewFractureModel();
+    static QString nameForNewFractureModelTemplate();
+
+private:
+    template <typename T>
+    static QString nameForNewObject( const QString& namePattern )
+    {
+        std::vector<T*> oldObjects;
+        RimProject::current()->activeOilField()->descendantsIncludingThisOfType( oldObjects );
+
+        size_t objectNum = oldObjects.size();
+
+        bool    found;
+        QString name;
+
+        do
+        {
+            found = false;
+            name  = QString( namePattern ).arg( objectNum, 2, 10, QChar( '0' ) );
+            for ( T* object : oldObjects )
+            {
+                if ( object->name() == name )
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            objectNum++;
+        } while ( found );
+
+        return name;
+    }
 };

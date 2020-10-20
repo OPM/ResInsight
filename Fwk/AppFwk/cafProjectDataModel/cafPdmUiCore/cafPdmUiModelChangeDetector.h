@@ -35,9 +35,8 @@
 
 #pragma once
 
-namespace caf 
+namespace caf
 {
-
 class PdmUiModelChangeDetector
 {
 public:
@@ -55,4 +54,3 @@ private:
 };
 
 } // End of namespace caf
-

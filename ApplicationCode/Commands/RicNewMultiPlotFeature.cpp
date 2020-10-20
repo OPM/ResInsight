@@ -19,14 +19,13 @@
 
 #include "RicNewMultiPlotFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RimMainPlotCollection.h"
 #include "RimMultiPlot.h"
 #include "RimMultiPlotCollection.h"
 #include "RimPlot.h"
 #include "RimProject.h"
 #include "RimSaturationPressurePlot.h"
+#include "RimWellLogTrack.h"
 
 #include "RiuPlotMainWindowTools.h"
 #include <QAction>
@@ -50,7 +49,7 @@ RicNewMultiPlotFeature::RicNewMultiPlotFeature()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicNewMultiPlotFeature::execute()
 {
-    RimProject*             project        = RiaApplication::instance()->project();
+    RimProject*             project        = RimProject::current();
     RimMultiPlotCollection* plotCollection = project->mainPlotCollection()->multiPlotCollection();
 
     RimMultiPlot* plotWindow = new RimMultiPlot;
@@ -151,7 +150,11 @@ std::vector<RimPlot*> RicNewMultiPlotFeature::selectedPlots()
     for ( caf::PdmUiItem* uiItem : uiItems )
     {
         RimPlot* plotInterface = dynamic_cast<RimPlot*>( uiItem );
-        if ( plotInterface )
+        // Special case for all well log tracks which currently need to be in Well Log Plot for
+        // depth information and cannot be moved into multiplots.
+        // TODO: copy depth information into well log tracks to allow their use separately.
+        RimWellLogTrack* wellLogTrack = dynamic_cast<RimWellLogTrack*>( plotInterface );
+        if ( plotInterface && !wellLogTrack )
         {
             plots.push_back( plotInterface );
         }

@@ -16,7 +16,6 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaFractureDefines.h"
 
@@ -979,7 +978,7 @@ void RivWellFracturePartMgr::appendFracturePerforationLengthParts( const RimEcli
         RivPipeGeometryGenerator geoGenerator;
         geoGenerator.cylinderWithCenterLineParts( &parts,
                                                   displayCoords,
-                                                  RiaColorTables::wellPathComponentColors()[RiaDefines::PERFORATION_INTERVAL],
+                                                  RiaColorTables::wellPathComponentColors()[RiaDefines::WellPathComponentType::PERFORATION_INTERVAL],
                                                   perforationRadius );
 
         for ( auto part : parts )

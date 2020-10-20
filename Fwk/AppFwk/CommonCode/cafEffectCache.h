@@ -34,18 +34,16 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cvfBase.h"
-#include "cvfObject.h"
 #include "cvfEffect.h"
+#include "cvfObject.h"
 
 #include "cafEffectGenerator.h"
 
-
-namespace caf {
-
+namespace caf
+{
 //==================================================================================================
 //
 // Private class. Used only by caf::EffectGenerator to cache effects (with GPU resources)
@@ -58,18 +56,16 @@ private:
     EffectCache();
 
     static EffectCache* instance();
-   
-    cvf::Effect*        findEffect(const EffectGenerator* generator);
-    void                addEffect(const EffectGenerator* generator, cvf::Effect* effect);
 
-    void                releaseUnreferencedEffects();
-    void                clear();
+    cvf::Effect* findEffect( const EffectGenerator* generator );
+    void         addEffect( const EffectGenerator* generator, cvf::Effect* effect );
+
+    void releaseUnreferencedEffects();
+    void clear();
 
 private:
-    EffectGenerator::RenderingModeType                                m_effectType;
-    std::vector<std::pair<EffectGenerator*, cvf::ref<cvf::Effect> > > m_effectCache;
+    EffectGenerator::RenderingModeType                              m_effectType;
+    std::vector<std::pair<EffectGenerator*, cvf::ref<cvf::Effect>>> m_effectCache;
 };
-    
 
-
-}
+} // namespace caf

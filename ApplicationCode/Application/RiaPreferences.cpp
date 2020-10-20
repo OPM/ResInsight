@@ -22,8 +22,8 @@
 #include "RiaPreferences.h"
 
 #include "RiaColorTables.h"
-#include "RiaQDateTimeTools.h"
 #include "RifReaderSettings.h"
+#include "RiuGuiTheme.h"
 
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmSettings.h"
@@ -35,29 +35,26 @@
 #include <QDate>
 #include <QDir>
 #include <QLocale>
-
-#if QT_VERSION >= QT_VERSION_CHECK( 5, 0, 0 )
 #include <QStandardPaths>
-#endif
 
 namespace caf
 {
 template <>
 void RiaPreferences::SummaryRestartFilesImportModeType::setUp()
 {
-    addItem( RiaPreferences::IMPORT, "IMPORT", "Unified" );
-    addItem( RiaPreferences::SEPARATE_CASES, "SEPARATE_CASES", "Separate Cases" );
-    addItem( RiaPreferences::NOT_IMPORT, "NOT_IMPORT", "Skip" );
-    setDefault( RiaPreferences::IMPORT );
+    addItem( RiaPreferences::SummaryRestartFilesImportMode::IMPORT, "IMPORT", "Unified" );
+    addItem( RiaPreferences::SummaryRestartFilesImportMode::SEPARATE_CASES, "SEPARATE_CASES", "Separate Cases" );
+    addItem( RiaPreferences::SummaryRestartFilesImportMode::NOT_IMPORT, "NOT_IMPORT", "Skip" );
+    setDefault( RiaPreferences::SummaryRestartFilesImportMode::IMPORT );
 }
 
 template <>
 void RiaPreferences::SummaryHistoryCurveStyleModeType::setUp()
 {
-    addItem( RiaPreferences::SYMBOLS, "SYMBOLS", "Symbols" );
-    addItem( RiaPreferences::LINES, "LINES", "Lines" );
-    addItem( RiaPreferences::SYMBOLS_AND_LINES, "SYMBOLS_AND_LINES", "Symbols and Lines" );
-    setDefault( RiaPreferences::SYMBOLS );
+    addItem( RiaPreferences::SummaryHistoryCurveStyleMode::SYMBOLS, "SYMBOLS", "Symbols" );
+    addItem( RiaPreferences::SummaryHistoryCurveStyleMode::LINES, "LINES", "Lines" );
+    addItem( RiaPreferences::SummaryHistoryCurveStyleMode::SYMBOLS_AND_LINES, "SYMBOLS_AND_LINES", "Symbols and Lines" );
+    setDefault( RiaPreferences::SummaryHistoryCurveStyleMode::SYMBOLS );
 }
 
 template <>
@@ -92,7 +89,8 @@ RiaPreferences::RiaPreferences( void )
 {
     CAF_PDM_InitField( &m_navigationPolicy,
                        "navigationPolicy",
-                       caf::AppEnum<RiaGuiApplication::RINavigationPolicy>( RiaGuiApplication::NAVIGATION_POLICY_RMS ),
+                       caf::AppEnum<RiaGuiApplication::RINavigationPolicy>(
+                           RiaGuiApplication::RINavigationPolicy::NAVIGATION_POLICY_RMS ),
                        "Navigation Mode",
                        "",
                        "",
@@ -117,14 +115,11 @@ RiaPreferences::RiaPreferences( void )
 #ifdef WIN32
     defaultTextEditor = QString( "notepad.exe" );
 #else
-    defaultTextEditor = QString( "kate" );
-#if QT_VERSION >= QT_VERSION_CHECK( 5, 0, 0 )
     defaultTextEditor = QStandardPaths::findExecutable( "kate" );
     if ( defaultTextEditor.isEmpty() )
     {
         defaultTextEditor = QStandardPaths::findExecutable( "gedit" );
     }
-#endif
 #endif
 
     CAF_PDM_InitField( &scriptEditorExecutable, "scriptEditorExecutable", defaultTextEditor, "Script Editor", "", "", "" );
@@ -184,12 +179,10 @@ RiaPreferences::RiaPreferences( void )
 
     CAF_PDM_InitField( &m_defaultScaleFactorZ, "defaultScaleFactorZ", 5, "Default Z Scale Factor", "", "", "" );
 
-    caf::AppEnum<RiaFontCache::FontSize> fontSize     = RiaFontCache::FONT_SIZE_8;
-    caf::AppEnum<RiaFontCache::FontSize> plotFontSize = RiaFontCache::FONT_SIZE_10;
-    CAF_PDM_InitField( &defaultSceneFontSize, "defaultSceneFontSizePt", fontSize, "Viewer Font Size", "", "", "" );
-    CAF_PDM_InitField( &defaultAnnotationFontSize, "defaultAnnotationFontSizePt", fontSize, "Annotation Font Size", "", "", "" );
-    CAF_PDM_InitField( &defaultWellLabelFontSize, "defaultWellLabelFontSizePt", fontSize, "Well Label Font Size", "", "", "" );
-    CAF_PDM_InitField( &defaultPlotFontSize, "defaultPlotFontSizePt", plotFontSize, "Plot Font Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &defaultSceneFontSize, "defaultSceneFontSizePt", "Viewer Font Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &defaultAnnotationFontSize, "defaultAnnotationFontSizePt", "Annotation Font Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &defaultWellLabelFontSize, "defaultWellLabelFontSizePt", "Well Label Font Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &defaultPlotFontSize, "defaultPlotFontSizePt", "Plot Font Size", "", "", "" );
 
     CAF_PDM_InitField( &showLasCurveWithoutTvdWarning,
                        "showLasCurveWithoutTvdWarning",
@@ -234,6 +227,12 @@ RiaPreferences::RiaPreferences( void )
     CAF_PDM_InitField( &m_enableFaultsByDefault, "enableFaultsByDefault", true, "Enable Faults By Default", "", "", "" );
     m_enableFaultsByDefault.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
+    CAF_PDM_InitField( &m_showInfoBox, "showInfoBox", true, "Show Info Box in New Projects", "", "", "" );
+    m_showInfoBox.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    CAF_PDM_InitField( &m_showGridBox, "showGridBox", true, "Show Grid Box in New Projects", "", "", "" );
+    m_showGridBox.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
     CAF_PDM_InitFieldNoDefault( &lastUsedProjectFileName, "lastUsedProjectFileName", "Last Used Project File", "", "", "" );
     lastUsedProjectFileName.uiCapability()->setUiHidden( true );
 
@@ -257,21 +256,21 @@ RiaPreferences::RiaPreferences( void )
                                 "" );
     CAF_PDM_InitField( &summaryImportMode,
                        "summaryImportMode",
-                       SummaryRestartFilesImportModeType( RiaPreferences::IMPORT ),
+                       SummaryRestartFilesImportModeType( RiaPreferences::SummaryRestartFilesImportMode::IMPORT ),
                        "Default Summary Import Option",
                        "",
                        "",
                        "" );
     CAF_PDM_InitField( &gridImportMode,
                        "gridImportMode",
-                       SummaryRestartFilesImportModeType( RiaPreferences::NOT_IMPORT ),
+                       SummaryRestartFilesImportModeType( RiaPreferences::SummaryRestartFilesImportMode::NOT_IMPORT ),
                        "Default Grid Import Option",
                        "",
                        "",
                        "" );
     CAF_PDM_InitField( &summaryEnsembleImportMode,
                        "summaryEnsembleImportMode",
-                       SummaryRestartFilesImportModeType( RiaPreferences::IMPORT ),
+                       SummaryRestartFilesImportModeType( RiaPreferences::SummaryRestartFilesImportMode::IMPORT ),
                        "Default Ensemble Summary Import Option",
                        "",
                        "",
@@ -279,7 +278,7 @@ RiaPreferences::RiaPreferences( void )
 
     CAF_PDM_InitField( &defaultSummaryHistoryCurveStyle,
                        "defaultSummaryHistoryCurveStyle",
-                       SummaryHistoryCurveStyleModeType( RiaPreferences::SYMBOLS ),
+                       SummaryHistoryCurveStyleModeType( RiaPreferences::SummaryHistoryCurveStyleMode::SYMBOLS ),
                        "Default Curve Style for History Vectors",
                        "",
                        "",
@@ -374,33 +373,20 @@ RiaPreferences::RiaPreferences( void )
     CAF_PDM_InitField( &m_pageRightMargin, "pageRightMargin", defaultMarginSize( m_pageSize() ), "Right Margin", "", "", "" );
     CAF_PDM_InitField( &m_pageBottomMargin, "pageBottomMargin", defaultMarginSize( m_pageSize() ), "Bottom Margin", "", "", "" );
 
-    caf::AppEnum<RiaFontCache::FontSize> invalidFontSize = RiaFontCache::INVALID;
-    CAF_PDM_InitField( &m_defaultSceneFontSize_OBSOLETE, "fontSizeInScene", invalidFontSize, "Viewer Font Size", "", "", "" );
-    m_defaultSceneFontSize_OBSOLETE.xmlCapability()->setIOWritable( false );
-
-    CAF_PDM_InitField( &m_defaultAnnotationFontSize_OBSOLETE,
-                       "defaultAnnotationFontSize",
-                       invalidFontSize,
-                       "Annotation Font Size",
-                       "",
-                       "",
-                       "" );
-    m_defaultAnnotationFontSize_OBSOLETE.xmlCapability()->setIOWritable( false );
-
-    CAF_PDM_InitField( &m_defaultWellLabelFontSize_OBSOLETE,
-                       "wellLabelFontSize",
-                       invalidFontSize,
-                       "Well Label Font Size",
-                       "",
-                       "",
-                       "" );
-    m_defaultWellLabelFontSize_OBSOLETE.xmlCapability()->setIOWritable( false );
-
-    CAF_PDM_InitField( &m_defaultPlotFontSize_OBSOLETE, "defaultPlotFontSize", invalidFontSize, "Plot Font Size", "", "", "" );
-    m_defaultPlotFontSize_OBSOLETE.xmlCapability()->setIOWritable( false );
-
     CAF_PDM_InitField( &m_openExportedPdfInViewer, "openExportedPdfInViewer", false, "Open Exported PDF in Viewer", "", "", "" );
     m_openExportedPdfInViewer.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    CAF_PDM_InitField( &m_gtestFilter, "gtestFilter", QString(), "Unit Test Filter (gtest)", "", "", "" );
+
+    CAF_PDM_InitField( &m_surfaceImportResamplingDistance,
+                       "SurfaceImportResamplingDistance",
+                       100.0,
+                       "Surface Import Coarsening",
+                       "",
+                       "Defines preferred minimum distance between surface points in XY-plane",
+                       "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_guiTheme, "guiTheme", "GUI theme", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -409,6 +395,14 @@ RiaPreferences::RiaPreferences( void )
 RiaPreferences::~RiaPreferences( void )
 {
     delete m_readerSettings;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaPreferences* RiaPreferences::current()
+{
+    return RiaApplication::instance()->preferences();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -440,7 +434,8 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
          field == &m_showProjectChangedDialog || field == &m_searchPlotTemplateFoldersRecursively ||
          field == &m_showLegendBackground || field == &m_showSummaryTimeAsLongString ||
          field == &m_showViewIdInProjectTree || field == &m_useMultipleThreadsWhenLoadingSummaryData ||
-         field == &m_enableFaultsByDefault || field == &m_showProgressBar || field == &m_openExportedPdfInViewer )
+         field == &m_enableFaultsByDefault || field == &m_showProgressBar || field == &m_openExportedPdfInViewer ||
+         field == &m_showInfoBox || field == &m_showGridBox )
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
         if ( myAttr )
@@ -476,6 +471,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         colorGroup->add( &defaultGridLineColors, false );
         colorGroup->add( &defaultFaultGridLineColors );
         colorGroup->add( &defaultWellLabelColor, false );
+        colorGroup->add( &m_guiTheme, {true, 2} );
 
         caf::PdmUiGroup* fontGroup = uiOrdering.addNewGroup( "Default Font Sizes" );
         fontGroup->add( &defaultSceneFontSize );
@@ -487,8 +483,11 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         viewsGroup->add( &m_defaultMeshModeType );
         viewsGroup->add( &m_navigationPolicy );
         viewsGroup->add( &m_defaultScaleFactorZ );
+
         viewsGroup->add( &m_showLegendBackground );
-        viewsGroup->add( &m_enableFaultsByDefault );
+        viewsGroup->add( &m_enableFaultsByDefault, {false, 1} );
+        viewsGroup->add( &m_showInfoBox );
+        viewsGroup->add( &m_showGridBox, {false, 1} );
 
         caf::PdmUiGroup* otherGroup = uiOrdering.addNewGroup( "Other" );
         otherGroup->add( &ssihubAddress );
@@ -575,6 +574,10 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         uiOrdering.add( &csvTextExportFieldSeparator );
         uiOrdering.add( &m_openExportedPdfInViewer );
     }
+    else if ( uiConfigName == RiaPreferences::tabNameImport() )
+    {
+        uiOrdering.add( &m_surfaceImportResamplingDistance );
+    }
     else if ( RiaApplication::enableDevelopmentFeatures() && uiConfigName == RiaPreferences::tabNameSystem() )
     {
         {
@@ -590,6 +593,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
             group->add( &m_showHud );
         }
 
+        uiOrdering.add( &m_gtestFilter );
         uiOrdering.add( &m_showProgressBar );
         uiOrdering.add( &m_showProjectChangedDialog );
         uiOrdering.add( &m_showTestToolbar );
@@ -612,20 +616,24 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions( const caf::
     if ( fieldNeedingOptions == &gridImportMode )
     {
         // Manual option handling in order to one only a subset of the enum values
-        SummaryRestartFilesImportModeType skip( RiaPreferences::NOT_IMPORT );
-        SummaryRestartFilesImportModeType separate( RiaPreferences::SEPARATE_CASES );
+        SummaryRestartFilesImportModeType skip( RiaPreferences::SummaryRestartFilesImportMode::NOT_IMPORT );
+        SummaryRestartFilesImportModeType separate( RiaPreferences::SummaryRestartFilesImportMode::SEPARATE_CASES );
 
-        options.push_back( caf::PdmOptionItemInfo( skip.uiText(), RiaPreferences::NOT_IMPORT ) );
-        options.push_back( caf::PdmOptionItemInfo( separate.uiText(), RiaPreferences::SEPARATE_CASES ) );
+        options.push_back(
+            caf::PdmOptionItemInfo( skip.uiText(), RiaPreferences::SummaryRestartFilesImportMode::NOT_IMPORT ) );
+        options.push_back( caf::PdmOptionItemInfo( separate.uiText(),
+                                                   RiaPreferences::SummaryRestartFilesImportMode::SEPARATE_CASES ) );
     }
     else if ( fieldNeedingOptions == &summaryEnsembleImportMode )
     {
         // Manual option handling in order to one only a subset of the enum values
-        SummaryRestartFilesImportModeType skip( RiaPreferences::NOT_IMPORT );
-        SummaryRestartFilesImportModeType allowImport( RiaPreferences::IMPORT );
+        SummaryRestartFilesImportModeType skip( RiaPreferences::SummaryRestartFilesImportMode::NOT_IMPORT );
+        SummaryRestartFilesImportModeType allowImport( RiaPreferences::SummaryRestartFilesImportMode::IMPORT );
 
-        options.push_back( caf::PdmOptionItemInfo( skip.uiText(), RiaPreferences::NOT_IMPORT ) );
-        options.push_back( caf::PdmOptionItemInfo( allowImport.uiText(), RiaPreferences::IMPORT ) );
+        options.push_back(
+            caf::PdmOptionItemInfo( skip.uiText(), RiaPreferences::SummaryRestartFilesImportMode::NOT_IMPORT ) );
+        options.push_back(
+            caf::PdmOptionItemInfo( allowImport.uiText(), RiaPreferences::SummaryRestartFilesImportMode::IMPORT ) );
     }
     else if ( fieldNeedingOptions == &m_dateFormat )
     {
@@ -645,7 +653,8 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions( const caf::
         {
             QTime   exampleTime = QTime( 15, 48, 22 );
             QString timeFormatString =
-                RiaQDateTimeTools::timeFormatString( timeFormat, RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND );
+                RiaQDateTimeTools::timeFormatString( timeFormat,
+                                                     RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND );
             QString uiText = QString( "%1 (%2)" ).arg( timeFormatString ).arg( exampleTime.toString( timeFormatString ) );
             uiText.replace( "AP", "AM/PM" );
             options.push_back( caf::PdmOptionItemInfo( uiText, QVariant::fromValue( timeFormat ) ) );
@@ -660,27 +669,6 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions( const caf::
 //--------------------------------------------------------------------------------------------------
 void RiaPreferences::initAfterRead()
 {
-    // If the stored font size is smaller than the minimum enum value, the stored font size is actually just an enum value
-    int defaultSceneFontEnumValue = static_cast<int>( m_defaultSceneFontSize_OBSOLETE.v() );
-    if ( defaultSceneFontEnumValue >= (int)RiaFontCache::MIN_FONT_SIZE )
-    {
-        defaultSceneFontSize = RiaFontCache::legacyEnumToPointSize( defaultSceneFontEnumValue );
-    }
-    int defaultWellLabelFontEnumValue = static_cast<int>( m_defaultWellLabelFontSize_OBSOLETE.v() );
-    if ( defaultWellLabelFontEnumValue >= (int)RiaFontCache::MIN_FONT_SIZE )
-    {
-        defaultWellLabelFontSize = RiaFontCache::legacyEnumToPointSize( defaultWellLabelFontEnumValue );
-    }
-    int defaultAnnotationFontEnumValue = static_cast<int>( m_defaultAnnotationFontSize_OBSOLETE.v() );
-    if ( defaultAnnotationFontEnumValue >= (int)RiaFontCache::MIN_FONT_SIZE )
-    {
-        defaultAnnotationFontSize = RiaFontCache::legacyEnumToPointSize( defaultAnnotationFontEnumValue );
-    }
-    int defaultPlotFontEnumValue = static_cast<int>( m_defaultPlotFontSize_OBSOLETE.v() );
-    if ( defaultPlotFontEnumValue >= (int)RiaFontCache::MIN_FONT_SIZE )
-    {
-        defaultPlotFontSize = RiaFontCache::legacyEnumToPointSize( defaultPlotFontEnumValue );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -696,6 +684,11 @@ void RiaPreferences::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         m_pageRightMargin  = defaultMarginSize( m_pageSize() );
         m_pageTopMargin    = defaultMarginSize( m_pageSize() );
         m_pageBottomMargin = defaultMarginSize( m_pageSize() );
+    }
+
+    if ( changedField == &m_guiTheme )
+    {
+        RiuGuiTheme::updateGuiTheme( m_guiTheme() );
     }
 }
 //--------------------------------------------------------------------------------------------------
@@ -749,6 +742,14 @@ QString RiaPreferences::tabNameSystem()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiaPreferences::tabNameImport()
+{
+    return "Import";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RiaPreferences::defaultMarginSize( QPageSize::PageSizeId pageSizeId )
 {
     QPageSize::Unit unit = QPageSize( pageSizeId ).definitionUnits();
@@ -774,6 +775,7 @@ QStringList RiaPreferences::tabNames()
     names << tabNamePlotting();
     names << tabNameScripting();
     names << tabNameExport();
+    names << tabNameImport();
 
     if ( RiaApplication::enableDevelopmentFeatures() )
     {
@@ -876,6 +878,14 @@ bool RiaPreferences::show3dInformation() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiaPreferences::gtestFilter() const
+{
+    return m_gtestFilter();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const QString& RiaPreferences::dateFormat() const
 {
     return m_dateFormat();
@@ -887,6 +897,16 @@ const QString& RiaPreferences::dateFormat() const
 const QString& RiaPreferences::timeFormat() const
 {
     return m_timeFormat();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::dateTimeFormat( DateFormatComponents dateComponents, TimeFormatComponents timeComponents ) const
+{
+    return QString( "%1 %2" )
+        .arg( RiaQDateTimeTools::dateFormatString( m_dateFormat(), dateComponents ) )
+        .arg( RiaQDateTimeTools::timeFormatString( m_timeFormat(), timeComponents ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -983,13 +1003,21 @@ bool RiaPreferences::openExportedPdfInViewer() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaDefines::ThemeEnum RiaPreferences::guiTheme() const
+{
+    return m_guiTheme();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> RiaPreferences::defaultFontSizes() const
 {
     std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> fontSizes;
-    fontSizes[RiaDefines::SCENE_FONT]      = defaultSceneFontSize();
-    fontSizes[RiaDefines::ANNOTATION_FONT] = defaultAnnotationFontSize();
-    fontSizes[RiaDefines::WELL_LABEL_FONT] = defaultWellLabelFontSize();
-    fontSizes[RiaDefines::PLOT_FONT]       = defaultPlotFontSize();
+    fontSizes[RiaDefines::FontSettingType::SCENE_FONT]      = defaultSceneFontSize();
+    fontSizes[RiaDefines::FontSettingType::ANNOTATION_FONT] = defaultAnnotationFontSize();
+    fontSizes[RiaDefines::FontSettingType::WELL_LABEL_FONT] = defaultWellLabelFontSize();
+    fontSizes[RiaDefines::FontSettingType::PLOT_FONT]       = defaultPlotFontSize();
     return fontSizes;
 }
 
@@ -1023,6 +1051,14 @@ QMarginsF RiaPreferences::margins() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RiaPreferences::surfaceImportResamplingDistance() const
+{
+    return m_surfaceImportResamplingDistance;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiaDefines::MeshModeType RiaPreferences::defaultMeshModeType() const
 {
     return m_defaultMeshModeType();
@@ -1050,6 +1086,22 @@ int RiaPreferences::defaultScaleFactorZ() const
 bool RiaPreferences::showLegendBackground() const
 {
     return m_showLegendBackground();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::showInfoBox() const
+{
+    return m_showInfoBox();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::showGridBox() const
+{
+    return m_showGridBox();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -20,7 +20,6 @@
 
 #include "ExportCommands/RicEclipseCellResultToFileImpl.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "RicfApplicationTools.h"
@@ -34,7 +33,7 @@
 #include "RimEclipseView.h"
 #include "RimProject.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 #include "cafUtils.h"
 
 #include <limits>
@@ -48,10 +47,10 @@ CAF_PDM_SOURCE_INIT( RicfExportPropertyInViews, "exportPropertyInViews" );
 //--------------------------------------------------------------------------------------------------
 RicfExportPropertyInViews::RicfExportPropertyInViews()
 {
-    CAF_PDM_InitScriptableFieldWithIO( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_viewIds, "viewIds", std::vector<int>(), "View IDs", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_viewNames, "viewNames", std::vector<QString>(), "View Names", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_undefinedValue, "undefinedValue", 0.0, "Undefined Value", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_viewIds, "viewIds", std::vector<int>(), "View IDs", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_viewNames, "viewNames", std::vector<QString>(), "View Names", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_undefinedValue, "undefinedValue", 0.0, "Undefined Value", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -139,7 +138,8 @@ caf::PdmScriptResponse RicfExportPropertyInViews::execute()
             continue;
         }
 
-        QDir propertiesDir( RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::PROPERTIES ) );
+        QDir propertiesDir(
+            RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::PROPERTIES ) );
 
         QString fileName = QString( "%1-%2-T%3-%4" )
                                .arg( eclipseCase->caseUserDescription() )

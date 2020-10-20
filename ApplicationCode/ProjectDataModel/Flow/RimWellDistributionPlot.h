@@ -40,7 +40,7 @@ class RimWellDistributionPlot : public RimPlot
     CAF_PDM_HEADER_INIT;
 
 public:
-    explicit RimWellDistributionPlot( RiaDefines::PhaseType phase = RiaDefines::OIL_PHASE );
+    explicit RimWellDistributionPlot( RiaDefines::PhaseType phase = RiaDefines::PhaseType::OIL_PHASE );
     ~RimWellDistributionPlot() override;
 
     void setDataSourceParameters( RimEclipseResultCase* eclipseResultCase, int timeStepIndex, QString targetWellName );
@@ -71,9 +71,6 @@ public:
     void     zoomAll() override;
 
 private:
-    // RimPlot implementations
-    void doRemoveFromCollection() override;
-
     // RimViewWindow implementations
     void deleteViewWidget() override;
     void onLoadDataAndUpdate() override;

@@ -87,5 +87,5 @@ void RicSnapshotViewToPdfFeature::onActionTriggered( bool isChecked )
 void RicSnapshotViewToPdfFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Export View To PDF" );
-    actionToSetup->setIcon( QIcon( ":/PdfSave.png" ) );
+    actionToSetup->setIcon( QIcon( ":/PdfSave.svg" ) );
 }

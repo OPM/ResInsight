@@ -18,8 +18,6 @@
 
 #include "RicNewEnsembleCurveFilterFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RimEnsembleCurveFilter.h"
 #include "RimEnsembleCurveFilterCollection.h"
 #include "RimEnsembleCurveSet.h"

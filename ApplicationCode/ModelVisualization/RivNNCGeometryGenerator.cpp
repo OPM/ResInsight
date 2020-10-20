@@ -163,16 +163,17 @@ void RivNNCGeometryGenerator::textureCoordinates( cvf::Vec2fArray*              
     textureCoords->resize( numVertices );
     cvf::Vec2f*                rawPtr        = textureCoords->ptr();
     const std::vector<double>* nncResultVals = nullptr;
-    if ( resultType == RiaDefines::STATIC_NATIVE || resultType == RiaDefines::FORMATION_NAMES ||
-         resultType == RiaDefines::ALLAN_DIAGRAMS )
+    if ( resultType == RiaDefines::ResultCatType::STATIC_NATIVE ||
+         resultType == RiaDefines::ResultCatType::FORMATION_NAMES ||
+         resultType == RiaDefines::ResultCatType::ALLAN_DIAGRAMS )
     {
         nncResultVals = m_nncData->staticConnectionScalarResult( resVarAddr );
     }
-    else if ( resultType == RiaDefines::DYNAMIC_NATIVE )
+    else if ( resultType == RiaDefines::ResultCatType::DYNAMIC_NATIVE )
     {
         nncResultVals = m_nncData->dynamicConnectionScalarResult( resVarAddr, nativeTimeStepIndex );
     }
-    else if ( resultType == RiaDefines::GENERATED )
+    else if ( resultType == RiaDefines::ResultCatType::GENERATED )
     {
         nncResultVals = m_nncData->generatedConnectionScalarResult( resVarAddr, nativeTimeStepIndex );
     }

@@ -19,8 +19,6 @@
 
 #include "RicPasteFeatureImpl.h"
 
-#include "RiaApplication.h"
-
 #include "RimCaseCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
@@ -44,7 +42,7 @@
 void RicPasteFeatureImpl::populateObjectGroupFromReferences( const std::vector<QString>& referenceList,
                                                              caf::PdmObjectGroup*        objectGroup )
 {
-    caf::PdmObjectHandle* referenceRoot = RiaApplication::instance()->project();
+    caf::PdmObjectHandle* referenceRoot = RimProject::current();
 
     for ( size_t i = 0; i < referenceList.size(); i++ )
     {

@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #include "cafCmdExecCommandManager.h"
 
 #include "cafCmdExecuteCommand.h"
@@ -50,55 +49,43 @@
 class UndoRedoWrapper : public QUndoCommand
 {
 public:
-    explicit UndoRedoWrapper(caf::CmdExecuteCommand* executeCommand)
+    explicit UndoRedoWrapper( caf::CmdExecuteCommand* executeCommand )
     {
         m_executeCommand = executeCommand;
 
-        setText(m_executeCommand->name());
+        setText( m_executeCommand->name() );
     }
 
-    ~UndoRedoWrapper() override
-    {
-        delete m_executeCommand;
-    }
+    ~UndoRedoWrapper() override { delete m_executeCommand; }
 
     //--------------------------------------------------------------------------------------------------
-    /// 
+    ///
     //--------------------------------------------------------------------------------------------------
-    void undo() override
-    {
-        m_executeCommand->undo();
-    }
+    void undo() override { m_executeCommand->undo(); }
 
     //--------------------------------------------------------------------------------------------------
-    /// 
+    ///
     //--------------------------------------------------------------------------------------------------
-    void redo() override
-    {
-        m_executeCommand->redo();
-    }
-
+    void redo() override { m_executeCommand->redo(); }
 
 private:
     caf::CmdExecuteCommand* m_executeCommand;
 };
 
-
 namespace caf
 {
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 CmdExecCommandManager::CmdExecCommandManager()
 {
     m_commandFeatureInterface = nullptr;
-    
+
     m_undoStack = new QUndoStack();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 CmdExecCommandManager* CmdExecCommandManager::instance()
 {
@@ -107,38 +94,38 @@ CmdExecCommandManager* CmdExecCommandManager::instance()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void CmdExecCommandManager::activateCommandSystem()
 {
-    if (!m_commandFeatureInterface)
+    if ( !m_commandFeatureInterface )
     {
         m_commandFeatureInterface = new CmdUiCommandSystemImpl;
     }
 
-    PdmUiCommandSystemProxy::instance()->setCommandInterface(m_commandFeatureInterface);
+    PdmUiCommandSystemProxy::instance()->setCommandInterface( m_commandFeatureInterface );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void CmdExecCommandManager::deactivateCommandSystem()
 {
-    PdmUiCommandSystemProxy::instance()->setCommandInterface(nullptr);
+    PdmUiCommandSystemProxy::instance()->setCommandInterface( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void CmdExecCommandManager::enableUndoCommandSystem(bool enable)
+void CmdExecCommandManager::enableUndoCommandSystem( bool enable )
 {
     this->activateCommandSystem();
 
-    m_commandFeatureInterface->enableUndoFeature(enable);
+    m_commandFeatureInterface->enableUndoFeature( enable );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QUndoStack* CmdExecCommandManager::undoStack()
 {
@@ -146,52 +133,53 @@ QUndoStack* CmdExecCommandManager::undoStack()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void CmdExecCommandManager::processExecuteCommand(CmdExecuteCommand* executeCommand)
+void CmdExecCommandManager::processExecuteCommand( CmdExecuteCommand* executeCommand )
 {
-    if (isUndoEnabledForCurrentCommand(executeCommand))
+    if ( isUndoEnabledForCurrentCommand( executeCommand ) )
     {
         // Transfer ownership of execute command to wrapper object
-        UndoRedoWrapper* undoRedoWrapper = new UndoRedoWrapper(executeCommand);
+        UndoRedoWrapper* undoRedoWrapper = new UndoRedoWrapper( executeCommand );
 
-        m_undoStack->push(undoRedoWrapper);
+        m_undoStack->push( undoRedoWrapper );
     }
     else
     {
         // Execute command and delete the execute command
-        
+
         executeCommand->redo();
         delete executeCommand;
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void CmdExecCommandManager::processExecuteCommandsAsMacro(const QString& macroName, std::vector<CmdExecuteCommand*>& commands)
+void CmdExecCommandManager::processExecuteCommandsAsMacro( const QString&                   macroName,
+                                                           std::vector<CmdExecuteCommand*>& commands )
 {
-    if (commands.size() == 0)
+    if ( commands.size() == 0 )
     {
         return;
     }
 
-    if (isUndoEnabledForCurrentCommand(commands[0]))
+    if ( isUndoEnabledForCurrentCommand( commands[0] ) )
     {
-        m_undoStack->beginMacro(macroName);
-        for (size_t i = 0; i < commands.size(); i++)
+        m_undoStack->beginMacro( macroName );
+        for ( size_t i = 0; i < commands.size(); i++ )
         {
-            UndoRedoWrapper* undoRedoWrapper = new UndoRedoWrapper(commands[i]);
-            m_undoStack->push(undoRedoWrapper);
+            UndoRedoWrapper* undoRedoWrapper = new UndoRedoWrapper( commands[i] );
+            m_undoStack->push( undoRedoWrapper );
         }
         m_undoStack->endMacro();
     }
     else
     {
-        for (size_t i = 0; i < commands.size(); i++)
+        for ( size_t i = 0; i < commands.size(); i++ )
         {
             CmdExecuteCommand* executeCommand = commands[i];
-            if (executeCommand)
+            if ( executeCommand )
             {
                 executeCommand->redo();
                 delete executeCommand;
@@ -201,23 +189,22 @@ void CmdExecCommandManager::processExecuteCommandsAsMacro(const QString& macroNa
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool CmdExecCommandManager::isUndoEnabledForCurrentCommand(CmdExecuteCommand* command)
+bool CmdExecCommandManager::isUndoEnabledForCurrentCommand( CmdExecuteCommand* command )
 {
     bool useUndo = false;
 
-    if (dynamic_cast<CmdFieldChangeExec*>(command) && m_commandFeatureInterface->disableUndoForFieldChange())
+    if ( dynamic_cast<CmdFieldChangeExec*>( command ) && m_commandFeatureInterface->disableUndoForFieldChange() )
     {
         useUndo = false;
     }
-    else if (m_commandFeatureInterface && m_commandFeatureInterface->isUndoEnabled())
+    else if ( m_commandFeatureInterface && m_commandFeatureInterface->isUndoEnabled() )
     {
         useUndo = true;
     }
 
     return useUndo;
 }
-
 
 } // end namespace caf

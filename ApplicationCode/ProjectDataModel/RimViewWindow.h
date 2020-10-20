@@ -20,6 +20,7 @@
 
 #include "RiaDefines.h"
 
+#include "cafFontTools.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -50,7 +51,7 @@ struct RimMdiWindowGeometry
     bool isMaximized;
 };
 
-class RimViewWindow : public caf::PdmObject
+class RimViewWindow : public caf::PdmObject, public caf::FontHolderInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -82,16 +83,6 @@ public:
     virtual void   zoomAll()               = 0;
 
     void viewNavigationChanged();
-
-    virtual bool hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const
-    {
-        return false;
-    }
-    virtual bool
-        applyFontSize( RiaDefines::FontSettingType fontSettingType, int oldFontSize, int fontSize, bool forceChange = false )
-    {
-        return false;
-    }
 
 protected:
     void removeMdiWindowFromMdiArea();

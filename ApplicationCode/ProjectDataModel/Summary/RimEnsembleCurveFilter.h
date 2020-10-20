@@ -64,7 +64,7 @@ protected:
 private:
     RimEnsembleCurveSet*              parentCurveSet() const;
     RimEnsembleCurveFilterCollection* parentCurveFilterCollection() const;
-    void                              setInitialValues( bool forceDefault );
+    void                              updateMaxMinAndDefaultValues( bool forceDefault );
 
 private:
     caf::PdmField<bool>                 m_active;

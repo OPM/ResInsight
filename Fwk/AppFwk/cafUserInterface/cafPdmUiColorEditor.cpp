@@ -34,15 +34,14 @@
 //
 //##################################################################################################
 
-
 #include "cafPdmUiColorEditor.h"
 
 #include "cafPdmUiDefaultObjectEditor.h"
 
+#include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
-#include "cafPdmField.h"
 #include "cafQShortenedLabel.h"
 
 #include "cafFactory.h"
@@ -55,14 +54,12 @@
 #include <QLineEdit>
 #include <QToolButton>
 
-
 namespace caf
 {
-
-CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiColorEditor);
+CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiColorEditor );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmUiColorEditor::PdmUiColorEditor()
 {
@@ -70,20 +67,20 @@ PdmUiColorEditor::PdmUiColorEditor()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiColorEditor::configureAndUpdateUi(const QString& uiConfigName)
+void PdmUiColorEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
-    CAF_ASSERT(!m_label.isNull());
+    CAF_ASSERT( !m_label.isNull() );
 
-    PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
+    PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
 
-    caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
-    if (uiObject)
+    caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    if ( uiObject )
     {
-        uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &m_attributes);
+        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
 
-        if (m_attributes.showLabel)
+        if ( m_attributes.showLabel )
         {
             m_colorTextLabel->show();
         }
@@ -93,13 +90,13 @@ void PdmUiColorEditor::configureAndUpdateUi(const QString& uiConfigName)
         }
     }
 
-    bool isReadOnly = uiField()->isUiReadOnly(uiConfigName);
-    m_colorTextLabel->setEnabled(!isReadOnly);
-    m_colorSelectionButton->setEnabled(!isReadOnly);
-    m_colorPreviewLabel->setEnabled(!isReadOnly);
+    bool isReadOnly = uiField()->isUiReadOnly( uiConfigName );
+    m_colorTextLabel->setEnabled( !isReadOnly );
+    m_colorSelectionButton->setEnabled( !isReadOnly );
+    m_colorPreviewLabel->setEnabled( !isReadOnly );
 
     QColor col = uiField()->uiValue().value<QColor>();
-    setColorOnWidget(col);
+    setColorOnWidget( col );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -112,129 +109,136 @@ QMargins PdmUiColorEditor::calculateLabelContentMargins() const
     int   heightDiff = editorSize.height() - labelSize.height();
 
     QMargins contentMargins = m_label->contentsMargins();
-    if (heightDiff > 0)
+    if ( heightDiff > 0 )
     {
-        contentMargins.setTop(contentMargins.top() + heightDiff / 2);
-        contentMargins.setBottom(contentMargins.bottom() + heightDiff / 2);
+        contentMargins.setTop( contentMargins.top() + heightDiff / 2 );
+        contentMargins.setBottom( contentMargins.bottom() + heightDiff / 2 );
     }
     return contentMargins;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiColorEditor::createEditorWidget(QWidget * parent)
-{    
-    QWidget* placeholder = new QWidget(parent);
-    QHBoxLayout* layout = new QHBoxLayout(placeholder);
-    layout->setContentsMargins(0,0,0,0);
-    layout->setSpacing(0);
+QWidget* PdmUiColorEditor::createEditorWidget( QWidget* parent )
+{
+    QWidget*     placeholder = new QWidget( parent );
+    QHBoxLayout* layout      = new QHBoxLayout( placeholder );
+    layout->setContentsMargins( 0, 0, 0, 0 );
+    layout->setSpacing( 0 );
 
-    m_colorTextLabel = new QLabel(parent);
+    m_colorTextLabel = new QLabel( parent );
 
-    m_colorSelectionButton = new QToolButton(parent);
-    m_colorSelectionButton->setObjectName("ColorSelectionButton");
-    m_colorSelectionButton->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
+    m_colorSelectionButton = new QToolButton( parent );
+    m_colorSelectionButton->setObjectName( "ColorSelectionButton" );
+    m_colorSelectionButton->setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
     QHBoxLayout* buttonLayout = new QHBoxLayout;
-    m_colorSelectionButton->setLayout(buttonLayout);
-    QMargins buttonMargins(3, 3, 3, 3);
-    buttonLayout->setContentsMargins(buttonMargins);
+    m_colorSelectionButton->setLayout( buttonLayout );
+    QMargins buttonMargins( 3, 3, 3, 3 );
+    buttonLayout->setContentsMargins( buttonMargins );
 
-    m_colorPreviewLabel = new QLabel(m_colorSelectionButton);
-    m_colorPreviewLabel->setObjectName("ColorPreviewLabel");
-    m_colorPreviewLabel->setText(QLatin1String("..."));
-    m_colorPreviewLabel->setAlignment(Qt::AlignCenter);
+    m_colorPreviewLabel = new QLabel( m_colorSelectionButton );
+    m_colorPreviewLabel->setObjectName( "ColorPreviewLabel" );
+    m_colorPreviewLabel->setText( QLatin1String( "..." ) );
+    m_colorPreviewLabel->setAlignment( Qt::AlignCenter );
 
     QFontMetrics fontMetrics = QApplication::fontMetrics();
 
-    buttonLayout->addWidget(m_colorPreviewLabel);
-    m_colorSelectionButton->setMinimumWidth(fontMetrics.boundingRect(m_colorPreviewLabel->text()).width() + 15);
+    buttonLayout->addWidget( m_colorPreviewLabel );
+    m_colorSelectionButton->setMinimumWidth( fontMetrics.boundingRect( m_colorPreviewLabel->text() ).width() + 15 );
 
-    layout->addWidget(m_colorTextLabel);
-    layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
-    layout->addWidget(m_colorSelectionButton);
-    
-    connect(m_colorSelectionButton, SIGNAL(clicked()), this, SLOT(colorSelectionClicked()));
+    layout->addWidget( m_colorTextLabel );
+    layout->addItem( new QSpacerItem( 0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored ) );
+    layout->addWidget( m_colorSelectionButton );
+
+    connect( m_colorSelectionButton, SIGNAL( clicked() ), this, SLOT( colorSelectionClicked() ) );
 
     return placeholder;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiColorEditor::createLabelWidget(QWidget * parent)
+QWidget* PdmUiColorEditor::createLabelWidget( QWidget* parent )
 {
-    m_label = new QShortenedLabel(parent);
+    m_label = new QShortenedLabel( parent );
     return m_label;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmUiColorEditor::colorSelectionClicked()
 {
     QColorDialog::ColorDialogOptions flags;
-    if (m_attributes.showAlpha)
+#ifndef WIN32
+    flags = QColorDialog::DontUseNativeDialog;
+#endif
+
+    if ( m_attributes.showAlpha )
     {
         flags |= QColorDialog::ShowAlphaChannel;
     }
 
-    QColor newColor = QColorDialog::getColor(m_color, m_colorSelectionButton, "Select color", flags);
-    if (newColor.isValid() && newColor != m_color)
+    QColor newColor = QColorDialog::getColor( m_color, m_colorSelectionButton, "Select color", flags );
+    if ( newColor.isValid() && newColor != m_color )
     {
-        setColorOnWidget(newColor);
+        setColorOnWidget( newColor );
         QVariant v;
         v = newColor;
-        this->setValueToField(v);
+        this->setValueToField( v );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiColorEditor::setColorOnWidget(const QColor& color)
+void PdmUiColorEditor::setColorOnWidget( const QColor& color )
 {
-    if (m_color != color)
+    if ( m_color != color )
     {
         m_color = color;
 
         QString colorString;
-        if (!color.isValid())
+        if ( !color.isValid() )
         {
             colorString = "Undefined";
-            m_colorSelectionButton->setStyleSheet("");
+            m_colorSelectionButton->setStyleSheet( "" );
         }
         else
         {
-            QColor fontColor      = getFontColor(m_color);
-            QString styleTemplate = "QLabel#ColorPreviewLabel { background-color: %1; color: %2; border: 1px solid black; }";
-            QString styleSheet    = QString(styleTemplate).arg(m_color.name()).arg(fontColor.name());
+            QColor  fontColor = getFontColor( m_color );
+            QString styleTemplate =
+                "QLabel#ColorPreviewLabel { background-color: %1; color: %2; border: 1px solid black; }";
+            QString styleSheet = QString( styleTemplate ).arg( m_color.name() ).arg( fontColor.name() );
 
-            m_colorPreviewLabel->setStyleSheet(styleSheet);
-            colorString = QString("[%1, %2, %3]").arg(QString::number(color.red())).arg(QString::number(color.green())).arg(QString::number(color.blue()));
-            
-            if (m_attributes.showAlpha)
+            m_colorPreviewLabel->setStyleSheet( styleSheet );
+            colorString = QString( "[%1, %2, %3]" )
+                              .arg( QString::number( color.red() ) )
+                              .arg( QString::number( color.green() ) )
+                              .arg( QString::number( color.blue() ) );
+
+            if ( m_attributes.showAlpha )
             {
-                colorString += QString(" (%4)").arg(QString::number(color.alpha()));
+                colorString += QString( " (%4)" ).arg( QString::number( color.alpha() ) );
             }
         }
-        if (m_attributes.showLabel)
+        if ( m_attributes.showLabel )
         {
-            m_colorTextLabel->setText(colorString);
+            m_colorTextLabel->setText( colorString );
         }
     }
-    
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// Based on http://www.codeproject.com/cs/media/IdealTextColor.asp
 //--------------------------------------------------------------------------------------------------
-QColor PdmUiColorEditor::getFontColor(const QColor& backgroundColor) const
+QColor PdmUiColorEditor::getFontColor( const QColor& backgroundColor ) const
 {
-    const int THRESHOLD = 105;
-    int backgroundDelta = (backgroundColor.red() * 0.299) + (backgroundColor.green() * 0.587) + (backgroundColor.blue() * 0.114);
-    return QColor((255 - backgroundDelta < THRESHOLD) ? Qt::black : Qt::white);
+    const int THRESHOLD       = 105;
+    int       backgroundDelta = ( backgroundColor.red() * 0.299 ) + ( backgroundColor.green() * 0.587 ) +
+                          ( backgroundColor.blue() * 0.114 );
+    return QColor( ( 255 - backgroundDelta < THRESHOLD ) ? Qt::black : Qt::white );
 }
 
 } // end namespace caf

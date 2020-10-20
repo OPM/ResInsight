@@ -18,7 +18,6 @@
 
 #include "RimSummaryCurveCollection.h"
 
-#include "RiaApplication.h"
 #include "RiaStdStringTools.h"
 
 #include "SummaryPlotCommands/RicEditSummaryPlotFeature.h"
@@ -35,6 +34,7 @@
 #include "RiuQwtPlotCurve.h"
 #include "RiuSummaryQwtPlot.h"
 
+#include "cafPdmFieldReorderCapability.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeViewEditor.h"
 
@@ -48,12 +48,14 @@ CAF_PDM_SOURCE_INIT( RimSummaryCurveCollection, "RimSummaryCurveCollection" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurveCollection::RimSummaryCurveCollection()
+    : curvesChanged( this )
 {
     CAF_PDM_InitObject( "Summary Curves", ":/SummaryCurveFilter16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_curves, "CollectionCurves", "Collection Curves", "", "", "" );
     m_curves.uiCapability()->setUiHidden( true );
     m_curves.uiCapability()->setUiTreeChildrenHidden( false );
+    caf::PdmFieldReorderCapability::addToFieldWithCallback( &m_curves, this, &RimSummaryCurveCollection::onCurvesReordered );
 
     CAF_PDM_InitField( &m_showCurves, "IsActive", true, "Show Curves", "", "", "" );
     m_showCurves.uiCapability()->setUiHidden( true );
@@ -184,13 +186,39 @@ void RimSummaryCurveCollection::addCurve( RimSummaryCurve* curve )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::insertCurve( RimSummaryCurve* curve, size_t index )
+{
+    if ( index >= m_curves.size() )
+    {
+        m_curves.push_back( curve );
+    }
+    else
+    {
+        m_curves.insert( index, curve );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::deleteCurve( RimSummaryCurve* curve )
+{
+    removeCurve( curve );
+    if ( curve )
+    {
+        curve->markCachedDataForPurge();
+        delete curve;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::removeCurve( RimSummaryCurve* curve )
 {
     if ( curve )
     {
         m_curves.removeChildObject( curve );
-        curve->markCachedDataForPurge();
-        delete curve;
     }
 }
 
@@ -441,6 +469,23 @@ void RimSummaryCurveCollection::defineEditorAttribute( const caf::PdmFieldHandle
             attrib->m_buttonText = "Edit Plot";
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::onCurvesReordered( const SignalEmitter* emitter )
+{
+    curvesChanged.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                                std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    curvesChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------

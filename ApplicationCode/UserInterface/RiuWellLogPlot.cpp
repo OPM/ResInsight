@@ -1,7 +1,7 @@
 #include "RiuWellLogPlot.h"
 
+#include "RimDepthTrackPlot.h"
 #include "RimPlotWindow.h"
-#include "RimWellLogPlot.h"
 
 #include "RiuQwtPlotWidget.h"
 #include "RiuWellLogTrack.h"
@@ -14,7 +14,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuWellLogPlot::RiuWellLogPlot( RimWellLogPlot* plotDefinition, QWidget* parent )
+RiuWellLogPlot::RiuWellLogPlot( RimDepthTrackPlot* plotDefinition, QWidget* parent )
     : RiuMultiPlotPage( plotDefinition, parent )
 {
     m_trackScrollBar = new QScrollBar( nullptr );
@@ -30,9 +30,9 @@ RiuWellLogPlot::RiuWellLogPlot( RimWellLogPlot* plotDefinition, QWidget* parent 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogPlot* RiuWellLogPlot::wellLogPlotDefinition()
+RimDepthTrackPlot* RiuWellLogPlot::wellLogPlotDefinition()
 {
-    RimWellLogPlot* wellLogPlot = dynamic_cast<RimWellLogPlot*>( m_plotDefinition.p() );
+    RimDepthTrackPlot* wellLogPlot = dynamic_cast<RimDepthTrackPlot*>( m_plotDefinition.p() );
     CAF_ASSERT( wellLogPlot );
     return wellLogPlot;
 }

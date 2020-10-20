@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #pragma once
 #include <QString>
 #include <QWidget>
@@ -43,28 +42,24 @@ class QVBoxLayout;
 
 namespace caf
 {
-
 class PdmObjectCollection;
 class PdmUiListViewEditor;
 
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class PdmUiListView : public QWidget
 {
     Q_OBJECT
 public:
-    PdmUiListView(QWidget* parent = nullptr, Qt::WindowFlags f = nullptr);
+    PdmUiListView( QWidget* parent = nullptr, Qt::WindowFlags f = nullptr );
     ~PdmUiListView() override;
 
-    void setPdmObject(caf::PdmObjectCollection* object);
+    void setPdmObject( caf::PdmObjectCollection* object );
 
 private:
-    PdmUiListViewEditor*    m_listViewEditor; 
-    QVBoxLayout*            m_layout;
+    PdmUiListViewEditor* m_listViewEditor;
+    QVBoxLayout*         m_layout;
 };
 
-
-
 } // End of namespace caf
-

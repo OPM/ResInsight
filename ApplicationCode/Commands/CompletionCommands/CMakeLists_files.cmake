@@ -12,6 +12,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicNewValveAtMeasuredDepthFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteValveTemplateFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathImportCompletionsFileFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathImportPerforationIntervalsFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicNewFractureModelPlotFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -27,18 +28,16 @@ ${CMAKE_CURRENT_LIST_DIR}/RicNewValveAtMeasuredDepthFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteValveTemplateFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathImportCompletionsFileFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathImportPerforationIntervalsFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicNewFractureModelPlotFeature.cpp
 )
 
 
-list(APPEND CODE_HEADER_FILES
+list(APPEND COMMAND_CODE_HEADER_FILES
 ${SOURCE_GROUP_HEADER_FILES}
 )
 
-list(APPEND CODE_SOURCE_FILES
+list(APPEND COMMAND_CODE_SOURCE_FILES
 ${SOURCE_GROUP_SOURCE_FILES}
 )
 
 source_group( "CommandFeature\\Completion" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake )
-
-# cotire
-caf_cotire_start_unity_at_first_item(SOURCE_GROUP_SOURCE_FILES)

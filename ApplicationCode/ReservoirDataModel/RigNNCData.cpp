@@ -63,7 +63,8 @@ void RigNNCData::processNativeConnections( const RigMainGrid& mainGrid )
 {
     // cvf::Trace::show("NNC: Total number: " + cvf::String((int)m_connections.size()));
 
-    for ( size_t cnIdx = 0; cnIdx < m_connections.size(); ++cnIdx )
+#pragma omp parallel for
+    for ( int cnIdx = 0; cnIdx < (int)m_connections.size(); ++cnIdx )
     {
         const RigCell& c1 = mainGrid.globalCellArray()[m_connections[cnIdx].c1GlobIdx()];
         const RigCell& c2 = mainGrid.globalCellArray()[m_connections[cnIdx].c2GlobIdx()];
@@ -124,7 +125,7 @@ size_t RigNNCData::connectionsWithNoCommonArea( QStringList& connectionTextFirst
         {
             connectionWithNoCommonAreaCount++;
 
-            if ( connectionTextFirstItems.size() < maxItemCount )
+            if ( connectionTextFirstItems.size() < static_cast<int>( maxItemCount ) )
             {
                 QString firstConnectionText;
                 QString secondConnectionText;

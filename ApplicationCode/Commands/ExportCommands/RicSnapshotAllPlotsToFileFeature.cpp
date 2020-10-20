@@ -35,7 +35,7 @@
 #include <QAction>
 #include <QClipboard>
 #include <QDebug>
-#include <QFileDialog>
+#include <QDir>
 #include <QFileInfo>
 #include <QMdiSubWindow>
 
@@ -57,7 +57,8 @@ void RicSnapshotAllPlotsToFileFeature::saveAllPlots()
     // Save images in snapshot catalog relative to project directory
     QString snapshotFolderName = app->createAbsolutePathFromProjectRelativePath( "snapshots" );
 
-    exportSnapshotOfPlotsIntoFolder( snapshotFolderName );
+    bool activateWidget = true;
+    exportSnapshotOfPlotsIntoFolder( snapshotFolderName, activateWidget );
 
     QString text = QString( "Exported snapshots to folder : \n%1" ).arg( snapshotFolderName );
     RiaLogging::info( text );
@@ -67,6 +68,7 @@ void RicSnapshotAllPlotsToFileFeature::saveAllPlots()
 ///
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( const QString& snapshotFolderName,
+                                                                        bool           activateWidget,
                                                                         const QString& prefix,
                                                                         int            viewId,
                                                                         const QString& preferredFileSuffix /*=".png"*/ )
@@ -98,6 +100,15 @@ void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( const QS
             }
 
             fileName.replace( " ", "_" );
+
+            if ( activateWidget )
+            {
+                // If the active MDI widget is maximized, all widgets will be maximized in the MDI area before taking
+                // snapshots
+
+                RiuPlotMainWindowTools::selectAsCurrentItem( viewWindow );
+                QApplication::processEvents();
+            }
 
             QString absoluteFileName = caf::Utils::constructFullFileName( absSnapshotPath, fileName, preferredFileSuffix );
 
@@ -139,5 +150,5 @@ void RicSnapshotAllPlotsToFileFeature::onActionTriggered( bool isChecked )
 void RicSnapshotAllPlotsToFileFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Snapshot All Plots To File" );
-    actionToSetup->setIcon( QIcon( ":/SnapShotSaveViews.png" ) );
+    actionToSetup->setIcon( QIcon( ":/SnapShotSaveViews.svg" ) );
 }

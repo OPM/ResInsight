@@ -18,8 +18,6 @@
 
 #include "RimAnnotationCollectionBase.h"
 
-#include "RiaApplication.h"
-
 #include "RimPolylinesAnnotation.h"
 #include "RimReachCircleAnnotation.h"
 #include "RimTextAnnotation.h"
@@ -29,8 +27,6 @@
 #include "RimGridView.h"
 #include "RimProject.h"
 
-#include "QMessageBox"
-#include "RiaColorTables.h"
 #include <QString>
 
 CAF_PDM_SOURCE_INIT( RimAnnotationCollectionBase, "RimAnnotationCollectionBase" );

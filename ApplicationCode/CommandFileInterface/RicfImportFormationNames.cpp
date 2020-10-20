@@ -17,14 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RicfImportFormationNames.h"
 
-#include "RiaApplication.h"
 #include "RicImportFormationNamesFeature.h"
 
 #include "RimCase.h"
 #include "RimFormationNames.h"
 #include "RimProject.h"
 
-#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldScriptingCapability.h"
 
 #include <QFileInfo>
 
@@ -35,8 +34,8 @@ CAF_PDM_SOURCE_INIT( RicfImportFormationNames, "importFormationNames" );
 //--------------------------------------------------------------------------------------------------
 RicfImportFormationNames::RicfImportFormationNames()
 {
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_formationFiles, "formationFiles", "", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIO( &m_applyToCaseId, "applyToCaseId", -1, "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_formationFiles, "formationFiles", "", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_applyToCaseId, "applyToCaseId", -1, "", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -68,7 +67,7 @@ caf::PdmScriptResponse RicfImportFormationNames::execute()
             {
                 bool                  foundCase = false;
                 std::vector<RimCase*> cases;
-                RiaApplication::instance()->project()->allCases( cases );
+                RimProject::current()->allCases( cases );
                 for ( RimCase* rimCase : cases )
                 {
                     if ( rimCase->caseId() == m_applyToCaseId() )
