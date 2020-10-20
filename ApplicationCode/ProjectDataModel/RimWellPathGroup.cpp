@@ -22,6 +22,8 @@
 #include "RiaTextStringTools.h"
 #include "RigWellPath.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include <QStringList>
@@ -32,9 +34,15 @@ CAF_PDM_SOURCE_INIT( RimWellPathGroup, "WellPathGroup" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimWellPathGroup::RimWellPathGroup()
+    : wellPathAddedOrRemoved( this )
 {
-    CAF_PDM_InitScriptableObjectWithNameAndComment( "Well Path Group", ":/Well.png", "", "", "WellPathGroup", "A Group of Well Paths" );
-    CAF_PDM_InitFieldNoDefault( &m_childWellPaths, "ChildWellPaths", "Child Well Paths", "", "", "" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Well Path Group",
+                                                    ":/WellPathGroup.svg",
+                                                    "",
+                                                    "",
+                                                    "WellPathGroup",
+                                                    "A Group of Well Paths" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_childWellPaths, "ChildWellPaths", "Child Well Paths", "", "", "" );
     setWellPathGeometry( new RigWellPath );
 }
 
@@ -56,6 +64,8 @@ void RimWellPathGroup::addChildWellPath( RimWellPath* wellPath )
         setWellPathGeometry( geometryCopy.p() );
         m_childWellPaths.push_back( wellPath );
     }
+    wellPath->nameChanged.connect( this, &RimWellPathGroup::onChildNameChanged );
+
     updateWellPathName();
 }
 
@@ -115,6 +125,8 @@ void RimWellPathGroup::createWellPathGeometry()
             group->createWellPathGeometry();
         }
     }
+    if ( wellPathGeometries().empty() ) return;
+
     auto commonGeometry = RigWellPath::commonGeometry( wellPathGeometries() );
     for ( auto wellPath : m_childWellPaths )
     {
@@ -124,33 +136,6 @@ void RimWellPathGroup::createWellPathGeometry()
         wellPath->wellPathGeometry()->setUniqueStartIndex( startIndex );
     }
     setWellPathGeometry( commonGeometry.p() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellPathGroup::fixBranchNames()
-{
-    const auto& measuredDepths = this->wellPathGeometry()->measuredDepths();
-
-    int index = 1;
-    for ( auto wellPath : m_childWellPaths )
-    {
-        auto group = dynamic_cast<RimWellPathGroup*>( wellPath.p() );
-        if ( group )
-        {
-            group->fixBranchNames();
-            if ( group->name() == this->name() )
-            {
-                QString groupName = QString( "%1 branch #%2" ).arg( this->name() ).arg( index++ );
-                if ( !measuredDepths.empty() )
-                {
-                    groupName += QString( " at md=%1" ).arg( measuredDepths.back() );
-                }
-                group->setName( groupName );
-            }
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -195,15 +180,41 @@ void RimWellPathGroup::updateWellPathName()
 //--------------------------------------------------------------------------------------------------
 QString RimWellPathGroup::createWellPathName() const
 {
-    QStringList allNames;
-    for ( auto wellPath : m_childWellPaths )
+    QStringList               allNames;
+    std::vector<RimWellPath*> descendantWellPaths;
+    this->descendantsOfType( descendantWellPaths );
+    for ( auto wellPath : descendantWellPaths )
     {
-        allNames.push_back( wellPath->name() );
+        if ( !dynamic_cast<RimWellPathGroup*>( wellPath ) )
+        {
+            allNames.push_back( wellPath->name() );
+        }
     }
 
-    QString commonName        = RiaTextStringTools::commonRoot( allNames );
-    QString trimmedCommonName = RiaTextStringTools::trimNonAlphaNumericCharacters( commonName );
-    return trimmedCommonName;
+    QString     commonName        = RiaTextStringTools::commonRoot( allNames );
+    QString     trimmedCommonName = RiaTextStringTools::trimNonAlphaNumericCharacters( commonName );
+    QStringList branchNames;
+    for ( auto& name : allNames )
+    {
+        name.remove( commonName );
+        name = RiaTextStringTools::trimNonAlphaNumericCharacters( name );
+        name = name.simplified();
+        if ( !name.isEmpty() ) branchNames.push_back( name );
+    }
+    QString fullName = trimmedCommonName;
+    if ( !branchNames.isEmpty() )
+    {
+        fullName += QString( "(%1)" ).arg( branchNames.join( ", " ) );
+    }
+    return fullName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathGroup::onChildNameChanged( const caf::SignalEmitter* emitter )
+{
+    updateWellPathName();
 }
 
 //--------------------------------------------------------------------------------------------------

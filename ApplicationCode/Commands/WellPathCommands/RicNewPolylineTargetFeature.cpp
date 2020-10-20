@@ -166,5 +166,5 @@ void RicNewPolylineTargetFeature::onActionTriggered( bool isChecked )
 void RicNewPolylineTargetFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "New Target" );
-    actionToSetup->setIcon( QIcon( ":/Well.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Well.svg" ) );
 }

@@ -99,5 +99,5 @@ void RicNewEditableWellPathFeature::onActionTriggered( bool isChecked )
 void RicNewEditableWellPathFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Create Well Path" );
-    actionToSetup->setIcon( QIcon( ":/Well.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Well.svg" ) );
 }

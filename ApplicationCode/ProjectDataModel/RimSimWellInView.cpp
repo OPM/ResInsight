@@ -65,7 +65,7 @@ CAF_PDM_SOURCE_INIT( RimSimWellInView, "Well" );
 RimSimWellInView::RimSimWellInView()
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Simulation Well",
-                                                    ":/Well.png",
+                                                    ":/Well.svg",
                                                     "",
                                                     "",
                                                     "SimulationWell",

@@ -65,5 +65,5 @@ void RicImportGroupedWellPaths::onActionTriggered( bool isChecked )
 void RicImportGroupedWellPaths::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Import &Grouped Well Paths from File" );
-    actionToSetup->setIcon( QIcon( ":/Well.png" ) );
+    actionToSetup->setIcon( QIcon( ":/WellPathGroup.svg" ) );
 }

@@ -70,6 +70,9 @@ class RimWellPath : public caf::PdmObject, public RimWellPathComponentInterface
     static const char SIM_WELL_NONE_UI_TEXT[];
 
 public:
+    caf::Signal<> nameChanged;
+
+public:
     RimWellPath();
     ~RimWellPath() override;
 

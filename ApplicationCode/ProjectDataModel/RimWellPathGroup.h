@@ -24,6 +24,7 @@
 class RimWellPathGroup : public RimWellPath
 {
     CAF_PDM_HEADER_INIT;
+    caf::Signal<> wellPathAddedOrRemoved;
 
 public:
     RimWellPathGroup();
@@ -37,7 +38,6 @@ public:
 
     void createWellPathGeometry();
     void updateWellPathName();
-    void fixBranchNames();
     void makeMoreLevelsIfNecessary();
 
 protected:
@@ -46,6 +46,8 @@ protected:
 private:
     std::vector<const RigWellPath*> wellPathGeometries() const;
     QString                         createWellPathName() const;
+
+    void onChildNameChanged( const caf::SignalEmitter* emitter );
 
 private:
     caf::PdmChildArrayField<RimWellPath*> m_childWellPaths;

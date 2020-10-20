@@ -293,7 +293,7 @@ QList<caf::PdmOptionItemInfo>
     {
         if ( m_case && m_case->eclipseCaseData() )
         {
-            caf::IconProvider       simWellIcon( ":/Well.png" );
+            caf::IconProvider       simWellIcon( ":/Well.svg" );
             const std::set<QString> sortedWellNameSet = m_case->eclipseCaseData()->findSortedWellNames();
             for ( const QString& name : sortedWellNameSet )
             {

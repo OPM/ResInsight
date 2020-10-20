@@ -45,7 +45,7 @@ bool RicNewOptionItemFeature::isCommandEnabled()
 void RicNewOptionItemFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "New Option Item" );
-    // actionToSetup->setIcon(QIcon(":/Well.png"));
+    // actionToSetup->setIcon(QIcon(":/Well.svg"));
 }
 
 //--------------------------------------------------------------------------------------------------

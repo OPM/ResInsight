@@ -50,6 +50,6 @@ protected:
     static bool containsUngroupedWellPathsWithCommonGeometry( const std::vector<RimWellPath*>& wellPaths );
 
 protected:
-    caf::PdmField<bool>                 m_groupeWellPaths;
+    caf::PdmField<bool>                 m_groupWellPaths;
     caf::PdmPtrArrayField<RimWellPath*> m_wellPaths;
 };

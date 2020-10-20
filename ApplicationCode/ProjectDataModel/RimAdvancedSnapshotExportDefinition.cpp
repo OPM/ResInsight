@@ -40,7 +40,7 @@ CAF_PDM_SOURCE_INIT( RimAdvancedSnapshotExportDefinition, "MultiSnapshotDefiniti
 //--------------------------------------------------------------------------------------------------
 RimAdvancedSnapshotExportDefinition::RimAdvancedSnapshotExportDefinition()
 {
-    // CAF_PDM_InitObject("MultiSnapshotDefinition", ":/Well.png", "", "");
+    // CAF_PDM_InitObject("MultiSnapshotDefinition", ":/Well.svg", "", "");
     CAF_PDM_InitObject( "MultiSnapshotDefinition", "", "", "" );
 
     CAF_PDM_InitField( &isActive, "IsActive", true, "Active", "", "", "" );

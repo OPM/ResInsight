@@ -16,7 +16,7 @@ CAF_PDM_SOURCE_INIT( RimFileWellPath, "WellPath" );
 RimFileWellPath::RimFileWellPath()
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "File Well Path",
-                                                    ":/Well.png",
+                                                    ":/Well.svg",
                                                     "",
                                                     "",
                                                     "FileWellPath",
