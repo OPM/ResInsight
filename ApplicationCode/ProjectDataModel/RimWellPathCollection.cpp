@@ -163,13 +163,15 @@ std::vector<RimWellPath*> RimWellPathCollection::detachWellPaths( const std::vec
     std::vector<RimWellPath*> detachedWellPaths;
     for ( auto wellPath : regularWellPathsToDetach )
     {
-        removeWellPath( wellPath );
-        detachedWellPaths.push_back( wellPath );
+        if ( detachWellPath( wellPath ) )
+        {
+            detachedWellPaths.push_back( wellPath );
+        }
     }
 
     for ( auto group : wellPathGroupsToRemove )
     {
-        removeWellPath( group );
+        detachWellPath( group );
     }
 
     for ( auto group : wellPathGroupsToRemove )
@@ -177,6 +179,29 @@ std::vector<RimWellPath*> RimWellPathCollection::detachWellPaths( const std::vec
         delete group;
     }
     return detachedWellPaths;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellPathCollection::detachWellPath( gsl::not_null<RimWellPath*> wellPath )
+{
+    if ( m_wellPaths.count( wellPath ) != 0u )
+    {
+        m_wellPaths.removeChildObject( wellPath );
+        return true;
+    }
+    else
+    {
+        RimWellPathGroup* group = nullptr;
+        wellPath->firstAncestorOfType( group );
+        if ( group )
+        {
+            group->removeChildWellPath( wellPath );
+            return true;
+        }
+    }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -324,7 +349,7 @@ void RimWellPathCollection::addWellPath( gsl::not_null<RimWellPath*> wellPath, b
     RimWellPathGroup* parentWellPathGroup = nullptr;
     if ( importGrouped )
     {
-        parentWellPathGroup = findOrCreateWellPathGroup( wellPath );
+        parentWellPathGroup = findOrCreateWellPathGroup( wellPath, allWellPaths() );
     }
 
     if ( !parentWellPathGroup )
@@ -628,10 +653,13 @@ void RimWellPathCollection::deleteAllWellPaths()
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::groupWellPaths( const std::vector<RimWellPath*>& wellPaths )
 {
-    auto detachedWellPaths = detachWellPaths( wellPaths );
+    auto                      detachedWellPaths       = detachWellPaths( wellPaths );
+    std::vector<RimWellPath*> allWellPathsToGroupWith = detachedWellPaths;
+
     for ( auto wellPath : detachedWellPaths )
     {
-        addWellPath( wellPath, true );
+        auto parentWellPathGroup = findOrCreateWellPathGroup( wellPath, allWellPathsToGroupWith );
+        allWellPathsToGroupWith.push_back( parentWellPathGroup );
     }
     this->sortWellsByName();
     this->updateAllRequiredEditors();
@@ -645,7 +673,7 @@ void RimWellPathCollection::ungroupWellPaths( const std::vector<RimWellPath*>& w
     auto detachedWellPaths = detachWellPaths( wellPaths );
     for ( auto wellPath : detachedWellPaths )
     {
-        addWellPath( wellPath, false );
+        m_wellPaths.push_back( wellPath );
     }
 
     this->sortWellsByName();
@@ -705,33 +733,7 @@ void RimWellPathCollection::reloadAllWellPathFormations()
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::removeWellPath( gsl::not_null<RimWellPath*> wellPath )
 {
-    if ( auto group = dynamic_cast<RimWellPathGroup*>( wellPath.get() ); group )
-    {
-        group->removeAllChildWellPaths();
-    }
-
-    bool removed = false;
-    if ( m_wellPaths.count( wellPath ) != 0u )
-    {
-        m_wellPaths.removeChildObject( wellPath );
-        removed = true;
-    }
-    else
-    {
-        for ( auto possibleParentWellPath : allWellPaths() )
-        {
-            if ( auto wellPathGroup = dynamic_cast<RimWellPathGroup*>( possibleParentWellPath ); wellPathGroup )
-            {
-                if ( wellPathGroup->hasChildWellPath( wellPath ) )
-                {
-                    wellPathGroup->removeChildWellPath( wellPath );
-                    removed = true;
-                    break;
-                }
-            }
-        }
-    }
-    if ( !removed ) return;
+    bool removed = detachWellPath( wellPath );
 
     RimFileWellPath* fileWellPath = dynamic_cast<RimFileWellPath*>( wellPath.get() );
     if ( fileWellPath )
@@ -797,7 +799,8 @@ std::vector<RimWellPathGroup*> RimWellPathCollection::topLevelGroups() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellPathGroup* RimWellPathCollection::findOrCreateWellPathGroup( gsl::not_null<RimWellPath*> wellPath )
+RimWellPathGroup* RimWellPathCollection::findOrCreateWellPathGroup( gsl::not_null<RimWellPath*>      wellPath,
+                                                                    const std::vector<RimWellPath*>& wellPathsToGroupWith )
 {
     auto wellPathGeometry = wellPath->wellPathGeometry();
     if ( !wellPathGeometry ) return nullptr;
@@ -805,7 +808,7 @@ RimWellPathGroup* RimWellPathCollection::findOrCreateWellPathGroup( gsl::not_nul
     const double                   eps = 1.0e-4;
     std::map<RimWellPath*, double> wellPathsWithCommonGeometry;
 
-    for ( auto existingWellPath : allWellPaths() )
+    for ( auto existingWellPath : wellPathsToGroupWith )
     {
         double identicalTubeLength = existingWellPath->wellPathGeometry()->identicalTubeLength( *wellPathGeometry );
         if ( identicalTubeLength > eps )
@@ -829,6 +832,7 @@ RimWellPathGroup* RimWellPathCollection::findOrCreateWellPathGroup( gsl::not_nul
 
     if ( mostSimilarWellPathGroup )
     {
+        detachWellPath( wellPath );
         mostSimilarWellPathGroup->addChildWellPath( wellPath.get() );
     }
     else if ( !wellPathsWithCommonGeometry.empty() )
@@ -838,10 +842,9 @@ RimWellPathGroup* RimWellPathCollection::findOrCreateWellPathGroup( gsl::not_nul
 
         for ( auto [existingWellPath, identicalTubeLength] : wellPathsWithCommonGeometry )
         {
-            removeWellPath( existingWellPath );
+            detachWellPath( existingWellPath );
             group->addChildWellPath( existingWellPath );
         }
-        group->addChildWellPath( wellPath );
 
         mostSimilarWellPathGroup = group;
     }

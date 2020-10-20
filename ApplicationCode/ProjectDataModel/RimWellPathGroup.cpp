@@ -99,6 +99,10 @@ bool RimWellPathGroup::hasChildWellPath( RimWellPath* wellPath )
 void RimWellPathGroup::removeChildWellPath( RimWellPath* wellPath )
 {
     m_childWellPaths.removeChildObject( wellPath );
+    if ( auto geometry = wellPath->wellPathGeometry(); geometry )
+    {
+        geometry->setUniqueStartIndex( 0u );
+    }
     createWellPathGeometry();
     updateWellPathName();
 }
@@ -108,7 +112,11 @@ void RimWellPathGroup::removeChildWellPath( RimWellPath* wellPath )
 //--------------------------------------------------------------------------------------------------
 void RimWellPathGroup::removeAllChildWellPaths()
 {
-    m_childWellPaths.clear();
+    auto childWellPaths = m_childWellPaths.childObjects();
+    for ( auto wellPath : childWellPaths )
+    {
+        removeChildWellPath( wellPath );
+    }
     setWellPathGeometry( cvf::ref<RigWellPath>( new RigWellPath ).p() );
     updateWellPathName();
 }
