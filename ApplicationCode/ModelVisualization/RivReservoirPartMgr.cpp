@@ -27,6 +27,7 @@
 #include "RivElementVectorResultPartMgr.h"
 #include "RivGridPartMgr.h"
 #include "RivReservoirFaultsPartMgr.h"
+#include "RivStreamlinePartMgr.h"
 
 #include "cvfModelBasicList.h"
 #include "cvfStructGrid.h"
@@ -55,6 +56,7 @@ void RivReservoirPartMgr::clearAndSetReservoir( RivCellSetEnum  cellSetType,
             // Faults read from file are present only on main grid
             m_faultsPartMgr          = new RivReservoirFaultsPartMgr( eclipseCase->mainGrid(), reservoirView );
             m_elementVectorResultMgr = new RivElementVectorResultPartMgr( reservoirView );
+            m_streamlinePartMgr      = new RivStreamlinePartMgr( reservoirView );
         }
     }
 }
@@ -178,6 +180,17 @@ void RivReservoirPartMgr::appendElementVectorResultPartsToModel( cvf::ModelBasic
     if ( m_elementVectorResultMgr.notNull() )
     {
         m_elementVectorResultMgr->appendDynamicGeometryPartsToModel( model, timeStepIndex );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivReservoirPartMgr::appendStreamlinePartsToModel( cvf::ModelBasicList* model, size_t timeStepIndex )
+{
+    if ( m_streamlinePartMgr.notNull() )
+    {
+        m_streamlinePartMgr->appendDynamicGeometryPartsToModel( model, timeStepIndex );
     }
 }
 

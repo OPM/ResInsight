@@ -19,6 +19,11 @@
 
 #include "cvfObject.h"
 
+#include "cafPdmPointer.h"
+#include "cafSignal.h"
+
+#include "cvfVector3.h"
+
 #include <vector>
 
 namespace cvf
@@ -31,8 +36,9 @@ class ScalarMapperDiscreteLinear;
 
 class RimEclipseView;
 class RimStreamlineInViewCollection;
+class Rim3dView;
 
-class RivStreamlinePartMgr : public cvf::Object
+class RivStreamlinePartMgr : public cvf::Object, public caf::SignalObserver
 {
 public:
     RivStreamlinePartMgr( RimEclipseView* reservoirView );
@@ -43,8 +49,13 @@ public:
 private:
     struct StreamlineVisualization
     {
-        StreamlineVisualization();
+        StreamlineVisualization(){};
+
+        std::vector<cvf::Vec3d> tracerPoints;
     };
+
+private:
+    void onUpdateAnimation( const caf::SignalEmitter* emitter, Rim3dView* view );
 
 private:
     cvf::ref<cvf::Part> createPart( const RimStreamlineInViewCollection&        streamlineCollection,
@@ -52,4 +63,6 @@ private:
 
 private:
     caf::PdmPointer<RimEclipseView> m_rimReservoirView;
+    cvf::ref<cvf::Part>             m_part;
+    uint                            m_count;
 };

@@ -166,6 +166,7 @@ protected:
     void updateVisibleGeometriesAndCellColors();
     void appendWellsAndFracturesToModel();
     void appendElementVectorResultToModel();
+    void appendStreamlinesToModel();
 
     void                             onCreateDisplayModel() override;
     RimPropertyFilterCollection*     nativePropertyFilterCollection();
