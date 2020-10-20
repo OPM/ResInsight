@@ -131,6 +131,7 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     std::vector<RimWellPath*> detachWellPaths( const std::vector<RimWellPath*> wellPathsToDetach );
+    bool                      detachWellPath( gsl::not_null<RimWellPath*> wellPath );
 
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -142,7 +143,8 @@ private:
     void sortWellsByName();
 
     std::vector<RimWellPathGroup*> topLevelGroups() const;
-    RimWellPathGroup*              findOrCreateWellPathGroup( gsl::not_null<RimWellPath*> wellPath );
+    RimWellPathGroup*              findOrCreateWellPathGroup( gsl::not_null<RimWellPath*>      wellPath,
+                                                              const std::vector<RimWellPath*>& wellPathsToGroupWith );
 
     RiaEclipseUnitTools::UnitSystemType findUnitSystemForWellPath( const RimWellPath* wellPath );
 
