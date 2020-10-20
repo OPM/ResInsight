@@ -88,6 +88,16 @@ Most important fixes
     </item>
     
     <item>
+      <title>What&#39;s New in 2020.10</title>
+      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2020_10/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2020_10/</guid>
+      <description>ResInsight 2020.10 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for reservoir models and simulations. Version 2020.10 is a major update bringing a range of significant new and enhanced features.
+Surfaces ResInsight supports import of 3D Surfaces , and allows mapping properties and simulation results onto these surfaces. In addition, it is now possible to create a surface from the top of a K-layer in a grid model.</description>
+    </item>
+    
+    <item>
       <title>What&#39;s New in 2018.11</title>
       <link>https://resinsight.org/getting-started/whats-new/releasenotes_2018_11/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

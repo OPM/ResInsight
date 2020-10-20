@@ -47,5 +47,18 @@ source /opt/rh/devtoolset-3/enable Qt5 Qt Qt5 version 5.6.0 or later is support
 On some configurations you will be asked to specify the location of Qt5.</description>
     </item>
     
+    <item>
+      <title>Build Instructions CentOS 7</title>
+      <link>https://resinsight.org/getting-started/download-and-install/build-instructions-centos7/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/download-and-install/build-instructions-centos7/</guid>
+      <description>Dependencies and Prerequisites vcpkg can be used to install grpc for C++. This method is cross platform, and can be easier to use than directly installing grpc and dependencies directly from grpc source code. The source code for vcpkg is avaialable as a Git sub module in the folder &amp;lsquo;vcpkg&amp;rsquo;. Python3 is required.
+vcpkg requires relatively new versions of git and compiler.
+vcpkg
+grpc quickstart
+Reference project A test project for CentOS7 is configured using GitHub actions.</description>
+    </item>
+    
   </channel>
 </rss>

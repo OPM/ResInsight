@@ -38,8 +38,19 @@ Cell Results are used in several operations and settings:
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/3d-main-window/resultcolorlegend/</guid>
-      <description>The color mapping of the displayed cell result is controlled by the Color Legend located below a result node in the Project Tree. The legend can be shown or hidden by checking or unchecking the box in front of the Legend Definition.
- Number of levels &amp;ndash; Defines the number of tick marks displayed next to the color legend Significant digits &amp;ndash; Defines the number of significant digits in the number formatting Number format &amp;ndash; Defines how the numbers are formatted Colors &amp;ndash; Defines the color palette Mapping &amp;ndash; This option defines how the values are mapped onto the color distribution  Discrete Linear &amp;ndash; Legend divided into linear levels defined by Number of levels Continuous Linear &amp;ndash; Continuous linear legend with tick mark count defined by Number of levels Continuous Logarithmic &amp;ndash; Continuous logarithmic legend with tick mark count defined by Number of levels Discrete Logarithmic &amp;ndash; Logarithmic legend divided into levels defined by Number of levels Category &amp;ndash; Special legend with one level for each category, either integer values or formation names.</description>
+      <description>The color mapping of the displayed cell result is controlled by the Color Legend item in Project Tree. The legend can be shown or hidden by checking or unchecking the box in front of the Color Legend item.
+Legend configuration As shown above, the Legend configuration for cell results allows the following settings:
+ Number of levels &amp;ndash; Defines the number of tick marks displayed next to the color legend Significant digits &amp;ndash; Defines the number of significant digits in the number formatting Number format &amp;ndash; Defines how the numbers are formatted Colors &amp;ndash; Defines the color palette for the legend by selecting from Color Legends Mapping &amp;ndash; Defines the mapping of numerical values to legend colors:  Discrete Linear &amp;ndash; Legend divided into linear levels defined by Number of levels Continuous Linear &amp;ndash; Continuous linear legend with tick mark count defined by Number of levels Continuous Logarithmic &amp;ndash; Continuous logarithmic legend with tick mark count defined by Number of levels Discrete Logarithmic &amp;ndash; Logarithmic legend divided into levels defined by Number of levels Category &amp;ndash; Legend with one level per category for formation names and discrete data (e.</description>
+    </item>
+    
+    <item>
+      <title>Color Legends</title>
+      <link>https://resinsight.org/3d-main-window/colorlegends/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/3d-main-window/colorlegends/</guid>
+      <description>ResInsight offers both a rich set of built-in color legends and functionality for import and customizing color legends. All color legends are available from the Color Legends item in Project Tree.
+Standard Color Legends ResInsight offers an extensive set of built-in color legends as listed by Standard Color Legends. As Standard Color Legends cannot be modified, you must create a Custom Color Legend when needing a legend that is not covered by Standard Color Legends.</description>
     </item>
     
     <item>
@@ -59,6 +70,17 @@ The figure above exemplifies a Comparison View for comparison of two different s
       
       <guid>https://resinsight.org/3d-main-window/contourmaps/</guid>
       <description>ResInsight can create contour maps based on different forms of aggregation of 3D Eclipse data onto a 2D Plane. Any 3D result value can be aggregated, in addition to specialised results, such as Oil, Gas and Hydrocarbon columns. A Contour Map is a specialised 2D view with many of the same features as the 3D views, including property filters, range filters and display of faults and wells. ResInsight is able to export a contour map to a text file.</description>
+    </item>
+    
+    <item>
+      <title>Flow Vector Result</title>
+      <link>https://resinsight.org/3d-main-window/flowvectorresult/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/3d-main-window/flowvectorresult/</guid>
+      <description>The Flow Vector Result View lets the user investigate fluxes by visualizing flow vectors in the reservoir. It allows for selecting and combining different fluids and directions. Selected vectors can be combined and scaled.
+The flow vectors are based on the Eclipse properties FLRGASI/J/K FLRWATI/J/K FLROILI/J/K
+Open the Flow Vector Result View In order to show Flow Vector Results, select and check the checkbox next to Flow Vector Result in the Project Tree.</description>
     </item>
     
     <item>
@@ -112,8 +134,7 @@ There are two main types of intersections. The first one which simply is called 
       <guid>https://resinsight.org/3d-main-window/surfaces/</guid>
       <description>ResInsight is capable of mapping properties and simulation results onto 3D surfaces imported from GOCAD and Petrel as specified below.
 Import and appearance of surfaces 3D surfaces from GOCAD and Petrel are imported into ResInsight by the menu option File-&amp;gt;Import-&amp;gt;Import Surfaces in the 3D Main Window.
-Imported surfaces are listed under the entry in Project Tree allowing for change of name, file, and color.
-Surface Results Per default, ResInsight maps current Cell Result on a given surface.</description>
+Imported surfaces are listed under the entry in the Project Tree. You can click on a surface to change i.e. the name or color of the surface, or change the file to read the surface data from.</description>
     </item>
     
     <item>
@@ -205,7 +226,7 @@ When ResInsight is in measurement mode, clicking on an surface in the 3D view wi
     </item>
     
     <item>
-      <title>Derived Results</title>
+      <title>Derived Results - Eclipse</title>
       <link>https://resinsight.org/3d-main-window/derivedresults/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
@@ -213,6 +234,18 @@ When ResInsight is in measurement mode, clicking on an surface in the 3D view wi
       <description>ResInsight computes several derived results. In this section we will explain what they are, and briefly how they are calculated.
 Derived Results for Eclipse Cases ResInsight calculates several derived cell properties that is made available as Static or Dynamic cell properties. The derived results listed at the bottom of the Static result properties, are shown below.
 Transmissibility Normalized by Area The transmissibility for cells and Non-Neighbor Connections (NNCs) are dependent on both cell properties and geometry.</description>
+    </item>
+    
+    <item>
+      <title>Derived Results - Geomechanical</title>
+      <link>https://resinsight.org/3d-main-window/derivedresultsgeomech/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/3d-main-window/derivedresultsgeomech/</guid>
+      <description>ResInsight computes several derived results. In this section we will explain what they are, and briefly how they are calculated.
+Derived Geomechanical results ResInsight calculates several of the presented geomechanical results based on the native results present in the odb-files.
+Relative Results (Time Lapse Results) ResInsight can calculate and display relative results, sometimes also referred to as Time Lapse results. When enabled, every result variable is calculated as:
+$Value_{[t-b]} = Value_{[t]} - Value_{[b]}$</description>
     </item>
     
   </channel>

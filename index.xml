@@ -164,6 +164,16 @@ Most important fixes
     </item>
     
     <item>
+      <title>What&#39;s New in 2020.10</title>
+      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2020_10/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2020_10/</guid>
+      <description>ResInsight 2020.10 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for reservoir models and simulations. Version 2020.10 is a major update bringing a range of significant new and enhanced features.
+Surfaces ResInsight supports import of 3D Surfaces , and allows mapping properties and simulation results onto these surfaces. In addition, it is now possible to create a surface from the top of a K-layer in a grid model.</description>
+    </item>
+    
+    <item>
       <title>Log ASCII Standard File</title>
       <link>https://resinsight.org/import/lasfile/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -329,6 +339,19 @@ On some configurations you will be asked to specify the location of Qt5.</descri
     </item>
     
     <item>
+      <title>Build Instructions CentOS 7</title>
+      <link>https://resinsight.org/getting-started/download-and-install/build-instructions-centos7/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/download-and-install/build-instructions-centos7/</guid>
+      <description>Dependencies and Prerequisites vcpkg can be used to install grpc for C++. This method is cross platform, and can be easier to use than directly installing grpc and dependencies directly from grpc source code. The source code for vcpkg is avaialable as a Git sub module in the folder &amp;lsquo;vcpkg&amp;rsquo;. Python3 is required.
+vcpkg requires relatively new versions of git and compiler.
+vcpkg
+grpc quickstart
+Reference project A test project for CentOS7 is configured using GitHub actions.</description>
+    </item>
+    
+    <item>
       <title>Command File</title>
       <link>https://resinsight.org/scripting/commandfile/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -413,8 +436,9 @@ Import Observed Time History Data Importing observed time history data to ResIns
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/3d-main-window/resultcolorlegend/</guid>
-      <description>The color mapping of the displayed cell result is controlled by the Color Legend located below a result node in the Project Tree. The legend can be shown or hidden by checking or unchecking the box in front of the Legend Definition.
- Number of levels &amp;ndash; Defines the number of tick marks displayed next to the color legend Significant digits &amp;ndash; Defines the number of significant digits in the number formatting Number format &amp;ndash; Defines how the numbers are formatted Colors &amp;ndash; Defines the color palette Mapping &amp;ndash; This option defines how the values are mapped onto the color distribution  Discrete Linear &amp;ndash; Legend divided into linear levels defined by Number of levels Continuous Linear &amp;ndash; Continuous linear legend with tick mark count defined by Number of levels Continuous Logarithmic &amp;ndash; Continuous logarithmic legend with tick mark count defined by Number of levels Discrete Logarithmic &amp;ndash; Logarithmic legend divided into levels defined by Number of levels Category &amp;ndash; Special legend with one level for each category, either integer values or formation names.</description>
+      <description>The color mapping of the displayed cell result is controlled by the Color Legend item in Project Tree. The legend can be shown or hidden by checking or unchecking the box in front of the Color Legend item.
+Legend configuration As shown above, the Legend configuration for cell results allows the following settings:
+ Number of levels &amp;ndash; Defines the number of tick marks displayed next to the color legend Significant digits &amp;ndash; Defines the number of significant digits in the number formatting Number format &amp;ndash; Defines how the numbers are formatted Colors &amp;ndash; Defines the color palette for the legend by selecting from Color Legends Mapping &amp;ndash; Defines the mapping of numerical values to legend colors:  Discrete Linear &amp;ndash; Legend divided into linear levels defined by Number of levels Continuous Linear &amp;ndash; Continuous linear legend with tick mark count defined by Number of levels Continuous Logarithmic &amp;ndash; Continuous logarithmic legend with tick mark count defined by Number of levels Discrete Logarithmic &amp;ndash; Logarithmic legend divided into levels defined by Number of levels Category &amp;ndash; Legend with one level per category for formation names and discrete data (e.</description>
     </item>
     
     <item>
@@ -426,6 +450,16 @@ Import Observed Time History Data Importing observed time history data to ResIns
       <description>The plot editor is a separate ResInsight dialog window where the user can select which vectors to display in a summary plot. It is also possible to edit an existing plot in this editor.
 The upper part of the editor contains editors for selecting which vectors/summaries to display in the plot. The number of fields vary from 3 to 6 depending on the Summary Type currently highlighted.
 In this context highlighted means the marked item with a different background color, while selected means an item or items that have a ticked check box.</description>
+    </item>
+    
+    <item>
+      <title>Color Legends</title>
+      <link>https://resinsight.org/3d-main-window/colorlegends/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/3d-main-window/colorlegends/</guid>
+      <description>ResInsight offers both a rich set of built-in color legends and functionality for import and customizing color legends. All color legends are available from the Color Legends item in Project Tree.
+Standard Color Legends ResInsight offers an extensive set of built-in color legends as listed by Standard Color Legends. As Standard Color Legends cannot be modified, you must create a Custom Color Legend when needing a legend that is not covered by Standard Color Legends.</description>
     </item>
     
     <item>
@@ -550,6 +584,17 @@ Import There are several ways to import an ensemble:
     </item>
     
     <item>
+      <title>Flow Vector Result</title>
+      <link>https://resinsight.org/3d-main-window/flowvectorresult/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/3d-main-window/flowvectorresult/</guid>
+      <description>The Flow Vector Result View lets the user investigate fluxes by visualizing flow vectors in the reservoir. It allows for selecting and combining different fluids and directions. Selected vectors can be combined and scaled.
+The flow vectors are based on the Eclipse properties FLRGASI/J/K FLRWATI/J/K FLROILI/J/K
+Open the Flow Vector Result View In order to show Flow Vector Results, select and check the checkbox next to Flow Vector Result in the Project Tree.</description>
+    </item>
+    
+    <item>
       <title>Octave Interface</title>
       <link>https://resinsight.org/scripting/octaveinterface/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -581,6 +626,29 @@ Visualization The tensor arrows visualize the principal vectors in three directi
       <description>In order to export well paths to dev files, select the menu item File -&amp;gt; Export -&amp;gt; Export Visible Well Paths or select one or more well paths and then select one of the items in the sub menu Export Well Paths.
 A dialog appears after selecting an export well path command.
  Export Folder - Folder for the exported well path file(s). The folder will be created when performing the export and the names of the exported file(s) will be on the format &amp;lt;well name&amp;gt;.</description>
+    </item>
+    
+    <item>
+      <title>Analysis Plots</title>
+      <link>https://resinsight.org/plot-window/analysisplots/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/plot-window/analysisplots/</guid>
+      <description>Analysis Plots are bar charts used to compare summary data at specific timesteps across Ensembles and Summary Cases.
+Creating an Analysis Plot The most convenient way to create an Analysis Plot at a given time step is often to right-click an Ensemble Plot and invoke New Analysis Plot as shown below.
+Alternatively, Analysis Plots can be created by right-clicking the Analysis Plots item in Plot Project Tree.
+Having created an Analysis Plot, subitems Value Axis and Plot Data Filters emerges in Plot Project Tree.</description>
+    </item>
+    
+    <item>
+      <title>Correlation Plots</title>
+      <link>https://resinsight.org/plot-window/correlationplots/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/plot-window/correlationplots/</guid>
+      <description>Correlation Plots are plots used to visualize correlations between ensemble parameters and summary result vectors. Several visualizations can be created, including tornado plots, correlation matrices, and cross plots.
+Creating a Correlation Plot The most convenient way to create a Correlation Plot at a given time step is often to right-click an Ensemble Plot and invoke the submenu shown below.
+Alternatively, Correlation Plots can be created by right-clicking the Correlation Plots item in Plot Project Tree.</description>
     </item>
     
     <item>
@@ -714,8 +782,7 @@ In the figure above, the first track contains Formations and an indication of se
       <guid>https://resinsight.org/3d-main-window/surfaces/</guid>
       <description>ResInsight is capable of mapping properties and simulation results onto 3D surfaces imported from GOCAD and Petrel as specified below.
 Import and appearance of surfaces 3D surfaces from GOCAD and Petrel are imported into ResInsight by the menu option File-&amp;gt;Import-&amp;gt;Import Surfaces in the 3D Main Window.
-Imported surfaces are listed under the entry in Project Tree allowing for change of name, file, and color.
-Surface Results Per default, ResInsight maps current Cell Result on a given surface.</description>
+Imported surfaces are listed under the entry in the Project Tree. You can click on a surface to change i.e. the name or color of the surface, or change the file to read the surface data from.</description>
     </item>
     
     <item>
@@ -727,6 +794,18 @@ Surface Results Per default, ResInsight maps current Cell Result on a given surf
       <description>Allan Diagrams displays the overlap of formations and layers across fault faces.
 Separate Fault Result The Allan Diagram is dispayed by selecting the Separate Fault Result in the project tree. See Faults  for more details.
 Property Editor Settings  Binary Formation Allan One color for all NNC areas with same formation on across fault, and one color for NNC with different formations across fault Formation Allan Formation colors are used, and a mix of the two formation colors are displayed if we have different formations across fault  Mouse interaction When clicking on an NNC area multiple times, the highlighted cell switched from the cell in front of the formation and behind the fault.</description>
+    </item>
+    
+    <item>
+      <title>Biot Coefficient</title>
+      <link>https://resinsight.org/workflows/biotcoefficient/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/workflows/biotcoefficient/</guid>
+      <description>Background
+The Biot porelastic coefficient defines the compressibility of sand grains, and will influence some of the calculations in ResInsight.
+Description The Biot coefficient can be defined in three ways:
+ Default (Constant value of 1.0) User defined constant for all element One value for each element based on imported values from an element property table  These settings are controlled from the Property Editor when a Geomechanical Case is selected.</description>
     </item>
     
     <item>
@@ -878,7 +957,7 @@ When ResInsight is in measurement mode, clicking on an surface in the 3D view wi
     </item>
     
     <item>
-      <title>Derived Results</title>
+      <title>Derived Results - Eclipse</title>
       <link>https://resinsight.org/3d-main-window/derivedresults/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
@@ -886,6 +965,18 @@ When ResInsight is in measurement mode, clicking on an surface in the 3D view wi
       <description>ResInsight computes several derived results. In this section we will explain what they are, and briefly how they are calculated.
 Derived Results for Eclipse Cases ResInsight calculates several derived cell properties that is made available as Static or Dynamic cell properties. The derived results listed at the bottom of the Static result properties, are shown below.
 Transmissibility Normalized by Area The transmissibility for cells and Non-Neighbor Connections (NNCs) are dependent on both cell properties and geometry.</description>
+    </item>
+    
+    <item>
+      <title>Derived Results - Geomechanical</title>
+      <link>https://resinsight.org/3d-main-window/derivedresultsgeomech/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/3d-main-window/derivedresultsgeomech/</guid>
+      <description>ResInsight computes several derived results. In this section we will explain what they are, and briefly how they are calculated.
+Derived Geomechanical results ResInsight calculates several of the presented geomechanical results based on the native results present in the odb-files.
+Relative Results (Time Lapse Results) ResInsight can calculate and display relative results, sometimes also referred to as Time Lapse results. When enabled, every result variable is calculated as:
+$Value_{[t-b]} = Value_{[t]} - Value_{[b]}$</description>
     </item>
     
     <item>

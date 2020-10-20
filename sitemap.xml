@@ -67,6 +67,10 @@
   </url>
   
   <url>
+    <loc>https://resinsight.org/getting-started/whats-new/releasenotes_2020_10/</loc>
+  </url>
+  
+  <url>
     <loc>https://resinsight.org/import/lasfile/</loc>
   </url>
   
@@ -131,6 +135,10 @@
   </url>
   
   <url>
+    <loc>https://resinsight.org/getting-started/download-and-install/build-instructions-centos7/</loc>
+  </url>
+  
+  <url>
     <loc>https://resinsight.org/scripting/commandfile/</loc>
   </url>
   
@@ -168,6 +176,14 @@
   
   <url>
     <loc>https://resinsight.org/plot-window/summaryploteditor/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/3d-main-window/colorlegends/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/workflows/</loc>
   </url>
   
   <url>
@@ -223,6 +239,10 @@
   </url>
   
   <url>
+    <loc>https://resinsight.org/3d-main-window/flowvectorresult/</loc>
+  </url>
+  
+  <url>
     <loc>https://resinsight.org/import/</loc>
   </url>
   
@@ -236,6 +256,14 @@
   
   <url>
     <loc>https://resinsight.org/export/exportwellpaths/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/plot-window/analysisplots/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/plot-window/correlationplots/</loc>
   </url>
   
   <url>
@@ -303,6 +331,10 @@
   </url>
   
   <url>
+    <loc>https://resinsight.org/workflows/biotcoefficient/</loc>
+  </url>
+  
+  <url>
     <loc>https://resinsight.org/3d-main-window/faults/</loc>
   </url>
   
@@ -364,6 +396,10 @@
   
   <url>
     <loc>https://resinsight.org/3d-main-window/derivedresults/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/3d-main-window/derivedresultsgeomech/</loc>
   </url>
   
   <url>

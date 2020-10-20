@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Workflows on ResInsight</title>
+    <link>https://resinsight.org/workflows/</link>
+    <description>Recent content in Workflows on ResInsight</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    
+	<atom:link href="https://resinsight.org/workflows/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Biot Coefficient</title>
+      <link>https://resinsight.org/workflows/biotcoefficient/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/workflows/biotcoefficient/</guid>
+      <description>Background
+The Biot porelastic coefficient defines the compressibility of sand grains, and will influence some of the calculations in ResInsight.
+Description The Biot coefficient can be defined in three ways:
+ Default (Constant value of 1.0) User defined constant for all element One value for each element based on imported values from an element property table  These settings are controlled from the Property Editor when a Geomechanical Case is selected.</description>
+    </item>
+    
+  </channel>
+</rss>
