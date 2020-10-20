@@ -380,7 +380,7 @@ double RigWellPath::identicalTubeLength( const RigWellPath& other ) const
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RigWellPath> RigWellPath::commonGeometry( const std::vector<const RigWellPath*>& allGeometries )
 {
-    const double eps = 1.0e-8;
+    const double eps = 1.0e-3;
 
     if ( allGeometries.empty() )
         return nullptr;

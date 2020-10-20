@@ -658,8 +658,12 @@ void RimWellPathCollection::groupWellPaths( const std::vector<RimWellPath*>& wel
 
     for ( auto wellPath : detachedWellPaths )
     {
-        auto parentWellPathGroup = findOrCreateWellPathGroup( wellPath, allWellPathsToGroupWith );
-        allWellPathsToGroupWith.push_back( parentWellPathGroup );
+        auto parentGroup = findOrCreateWellPathGroup( wellPath, allWellPathsToGroupWith );
+        if ( parentGroup && std::find( allWellPathsToGroupWith.begin(), allWellPathsToGroupWith.end(), parentGroup ) ==
+                                allWellPathsToGroupWith.end() )
+        {
+            allWellPathsToGroupWith.push_back( parentGroup );
+        }
     }
     this->sortWellsByName();
     this->updateAllRequiredEditors();
@@ -802,10 +806,14 @@ std::vector<RimWellPathGroup*> RimWellPathCollection::topLevelGroups() const
 RimWellPathGroup* RimWellPathCollection::findOrCreateWellPathGroup( gsl::not_null<RimWellPath*>      wellPath,
                                                                     const std::vector<RimWellPath*>& wellPathsToGroupWith )
 {
+    RimWellPathGroup* existingParent = nullptr;
+    wellPath->firstAncestorOfType( existingParent );
+    if ( existingParent ) return existingParent;
+
     auto wellPathGeometry = wellPath->wellPathGeometry();
     if ( !wellPathGeometry ) return nullptr;
 
-    const double                   eps = 1.0e-4;
+    const double                   eps = 1.0e-3;
     std::map<RimWellPath*, double> wellPathsWithCommonGeometry;
 
     for ( auto existingWellPath : wellPathsToGroupWith )

@@ -263,22 +263,34 @@ void RimWellPathGroup::makeMoreLevelsIfNecessary()
 
     if ( branches.size() <= 1u ) return;
 
-    size_t startIndex = 0u;
-    size_t commonSize = wellPathGeometry()->wellPathPoints().size();
-    if ( commonSize > 0u ) startIndex = commonSize - 1u;
-
+    bool anyNonTrivialBranches = false;
     for ( const auto& [firstDeviation, wellPaths] : branches )
     {
         if ( wellPaths.size() > 1u )
         {
-            RimWellPathGroup* newGroup = new RimWellPathGroup;
-            for ( auto wellPath : wellPaths )
+            anyNonTrivialBranches = true;
+            break;
+        }
+    }
+    if ( anyNonTrivialBranches )
+    {
+        size_t startIndex = 0u;
+        size_t commonSize = wellPathGeometry()->wellPathPoints().size();
+        if ( commonSize > 0u ) startIndex = commonSize - 1u;
+
+        for ( const auto& [firstDeviation, wellPaths] : branches )
+        {
+            if ( wellPaths.size() > 1u )
             {
-                m_childWellPaths().removeChildObject( wellPath );
-                newGroup->addChildWellPath( wellPath );
-                newGroup->wellPathGeometry()->setUniqueStartIndex( startIndex );
+                RimWellPathGroup* newGroup = new RimWellPathGroup;
+                for ( auto wellPath : wellPaths )
+                {
+                    m_childWellPaths().removeChildObject( wellPath );
+                    newGroup->addChildWellPath( wellPath );
+                    newGroup->wellPathGeometry()->setUniqueStartIndex( startIndex );
+                }
+                m_childWellPaths().push_back( newGroup );
             }
-            m_childWellPaths().push_back( newGroup );
         }
     }
 }
