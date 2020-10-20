@@ -96,10 +96,11 @@ public:
     std::vector<RimWellPath*> addWellPaths( QStringList filePaths, bool importGrouped, QStringList* errorMessages );
     std::vector<RimWellPath*> topLevelWellPaths() const;
     std::vector<RimWellPath*> allWellPaths() const;
-    void                      removeWellPath( RimWellPath* wellPath );
-    void                      deleteAllWellPaths();
-    void                      groupWellPaths( const std::vector<RimWellPath*> wellPaths );
-    void                      ungroupWellPaths( const std::vector<RimWellPath*> wellPaths );
+    void                      removeWellPath( gsl::not_null<RimWellPath*> wellPath );
+
+    void deleteAllWellPaths();
+    void groupWellPaths( const std::vector<RimWellPath*>& wellPaths );
+    void ungroupWellPaths( const std::vector<RimWellPath*>& wellPaths );
 
     RimWellPath* mostRecentlyUpdatedWellPath();
 
@@ -129,13 +130,14 @@ public:
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
+    std::vector<RimWellPath*> detachWellPaths( const std::vector<RimWellPath*> wellPathsToDetach );
+
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
 
     caf::PdmFieldHandle* objectToggleField() override;
 
-    void checkAndFixBranchNames();
     void readAndAddWellPaths( std::vector<RimFileWellPath*>& wellPathArray, bool importGrouped );
     void sortWellsByName();
 

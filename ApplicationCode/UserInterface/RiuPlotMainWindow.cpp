@@ -265,7 +265,7 @@ void RiuPlotMainWindow::createMenus()
     importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportEnsembleFeature" ) );
 
     importMenu->addSeparator();
-    QMenu* importWellMenu = importMenu->addMenu( QIcon( ":/Well.png" ), "Well Data" );
+    QMenu* importWellMenu = importMenu->addMenu( QIcon( ":/Well.svg" ), "Well Data" );
     importWellMenu->addAction( cmdFeatureMgr->action( "RicWellPathsImportFileFeature" ) );
     importWellMenu->addAction( cmdFeatureMgr->action( "RicWellPathsImportFileFeature" ) );
     importWellMenu->addAction( cmdFeatureMgr->action( "RicWellPathsImportSsihubFeature" ) );

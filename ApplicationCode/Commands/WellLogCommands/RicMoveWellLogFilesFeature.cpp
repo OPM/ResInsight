@@ -75,5 +75,5 @@ void RicMoveWellLogFilesFeature::onActionTriggered( bool isChecked )
 void RicMoveWellLogFilesFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Move Well Log File(s)" );
-    actionToSetup->setIcon( QIcon( ":/Well.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Well.svg" ) );
 }

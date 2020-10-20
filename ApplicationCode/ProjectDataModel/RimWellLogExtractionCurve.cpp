@@ -676,7 +676,7 @@ QList<caf::PdmOptionItemInfo>
     {
         std::set<QString> sortedWellNames = this->sortedSimWellNames();
 
-        caf::IconProvider simWellIcon( ":/Well.png" );
+        caf::IconProvider simWellIcon( ":/Well.svg" );
         for ( const QString& wname : sortedWellNames )
         {
             options.push_back( caf::PdmOptionItemInfo( wname, wname, false, simWellIcon ) );

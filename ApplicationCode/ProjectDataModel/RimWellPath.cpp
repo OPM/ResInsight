@@ -72,8 +72,9 @@ const char RimWellPath::SIM_WELL_NONE_UI_TEXT[] = "None";
 ///
 //--------------------------------------------------------------------------------------------------
 RimWellPath::RimWellPath()
+    : nameChanged( this )
 {
-    CAF_PDM_InitScriptableObjectWithNameAndComment( "WellPath", ":/Well.png", "", "", "WellPath", "A ResInsight Well Path" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "WellPath", ":/Well.svg", "", "", "WellPath", "A ResInsight Well Path" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_name, "Name", "Name", "", "", "" );
     m_name.registerKeywordAlias( "WellPathName" );
@@ -471,6 +472,7 @@ void RimWellPath::setNameNoUpdateOfExportName( const QString& name )
 {
     m_name = name;
     tryAssociateWithSimulationWell();
+    nameChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------

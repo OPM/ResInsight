@@ -135,6 +135,51 @@ void RimWellPathCollection::fieldChangedByUi( const caf::PdmFieldHandle* changed
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellPath*> RimWellPathCollection::detachWellPaths( const std::vector<RimWellPath*> wellPathsToDetach )
+{
+    std::set<RimWellPath*>      regularWellPathsToDetach;
+    std::set<RimWellPathGroup*> wellPathGroupsToRemove;
+
+    for ( auto wellPath : wellPathsToDetach )
+    {
+        std::vector<RimWellPath*> descendants;
+        wellPath->descendantsIncludingThisOfType( descendants );
+        for ( auto descendant : descendants )
+        {
+            auto group = dynamic_cast<RimWellPathGroup*>( descendant );
+            if ( group )
+            {
+                wellPathGroupsToRemove.insert( group );
+            }
+            else
+            {
+                regularWellPathsToDetach.insert( descendant );
+            }
+        }
+    }
+
+    std::vector<RimWellPath*> detachedWellPaths;
+    for ( auto wellPath : regularWellPathsToDetach )
+    {
+        removeWellPath( wellPath );
+        detachedWellPaths.push_back( wellPath );
+    }
+
+    for ( auto group : wellPathGroupsToRemove )
+    {
+        removeWellPath( group );
+    }
+
+    for ( auto group : wellPathGroupsToRemove )
+    {
+        delete group;
+    }
+    return detachedWellPaths;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Read files containing well path data, or create geometry based on the targets
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::loadDataAndUpdate()
@@ -199,7 +244,6 @@ void RimWellPathCollection::loadDataAndUpdate()
     {
         group->createWellPathGeometry();
     }
-    this->checkAndFixBranchNames();
     this->sortWellsByName();
 }
 
@@ -277,13 +321,13 @@ std::vector<RimWellPath*>
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::addWellPath( gsl::not_null<RimWellPath*> wellPath, bool importGrouped )
 {
-    RimWellPathGroup* wellPathGroup = nullptr;
+    RimWellPathGroup* parentWellPathGroup = nullptr;
     if ( importGrouped )
     {
-        wellPathGroup = findOrCreateWellPathGroup( wellPath );
+        parentWellPathGroup = findOrCreateWellPathGroup( wellPath );
     }
 
-    if ( !wellPathGroup )
+    if ( !parentWellPathGroup )
     {
         m_wellPaths.push_back( wellPath );
     }
@@ -346,22 +390,7 @@ void RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& 
         progress.incrementProgress();
     }
     wellPathArray.clear(); // This should not be used again. We may have deleted items
-    this->checkAndFixBranchNames();
     this->sortWellsByName();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::checkAndFixBranchNames()
-{
-    for ( auto wellPath : m_wellPaths )
-    {
-        if ( auto group = dynamic_cast<RimWellPathGroup*>( wellPath.p() ); group )
-        {
-            group->fixBranchNames();
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -373,7 +402,6 @@ void RimWellPathCollection::addWellPaths( const std::vector<RimWellPath*> incomi
     {
         addWellPath( wellPath, importGrouped );
     }
-    this->checkAndFixBranchNames();
     this->sortWellsByName();
 
     updateAllRequiredEditors();
@@ -410,7 +438,6 @@ std::vector<RimWellLogFile*> RimWellPathCollection::addWellLogs( const QStringLi
         }
     }
 
-    this->checkAndFixBranchNames();
     this->sortWellsByName();
     updateAllRequiredEditors();
 
@@ -463,7 +490,6 @@ void RimWellPathCollection::addWellPathFormations( const QStringList& filePaths 
         RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "Well Picks Import", outputMessage );
     }
 
-    this->checkAndFixBranchNames();
     this->sortWellsByName();
     updateAllRequiredEditors();
 }
@@ -600,17 +626,30 @@ void RimWellPathCollection::deleteAllWellPaths()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::groupWellPaths( const std::vector<RimWellPath*> wellPaths )
+void RimWellPathCollection::groupWellPaths( const std::vector<RimWellPath*>& wellPaths )
 {
-    // TODO: implement
+    auto detachedWellPaths = detachWellPaths( wellPaths );
+    for ( auto wellPath : detachedWellPaths )
+    {
+        addWellPath( wellPath, true );
+    }
+    this->sortWellsByName();
+    this->updateAllRequiredEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::ungroupWellPaths( const std::vector<RimWellPath*> wellPaths )
+void RimWellPathCollection::ungroupWellPaths( const std::vector<RimWellPath*>& wellPaths )
 {
-    // TODO: implement
+    auto detachedWellPaths = detachWellPaths( wellPaths );
+    for ( auto wellPath : detachedWellPaths )
+    {
+        addWellPath( wellPath, false );
+    }
+
+    this->sortWellsByName();
+    this->updateAllRequiredEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -664,8 +703,13 @@ void RimWellPathCollection::reloadAllWellPathFormations()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::removeWellPath( RimWellPath* wellPath )
+void RimWellPathCollection::removeWellPath( gsl::not_null<RimWellPath*> wellPath )
 {
+    if ( auto group = dynamic_cast<RimWellPathGroup*>( wellPath.get() ); group )
+    {
+        group->removeAllChildWellPaths();
+    }
+
     bool removed = false;
     if ( m_wellPaths.count( wellPath ) != 0u )
     {
@@ -687,10 +731,9 @@ void RimWellPathCollection::removeWellPath( RimWellPath* wellPath )
             }
         }
     }
-    CAF_ASSERT( removed );
     if ( !removed ) return;
 
-    RimFileWellPath* fileWellPath = dynamic_cast<RimFileWellPath*>( wellPath );
+    RimFileWellPath* fileWellPath = dynamic_cast<RimFileWellPath*>( wellPath.get() );
     if ( fileWellPath )
     {
         bool isFilePathUsed = false;

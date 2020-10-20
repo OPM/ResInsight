@@ -23,6 +23,7 @@
 #include "RimProject.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPathGroup.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafSelectionManager.h"
@@ -36,7 +37,7 @@ RICF_SOURCE_INIT( RicToggleWellPathGrouping, "RicToggleWellPathGroupingFeature",
 //--------------------------------------------------------------------------------------------------
 RicToggleWellPathGrouping::RicToggleWellPathGrouping()
 {
-    CAF_PDM_InitScriptableField( &m_groupeWellPaths, "group", false, "", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_groupWellPaths, "group", false, "", "", "", "" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_wellPaths, "wellPaths", "", "", "", "" );
 }
 
@@ -62,7 +63,7 @@ caf::PdmScriptResponse RicToggleWellPathGrouping::execute()
 
         if ( oilField )
         {
-            if ( m_groupeWellPaths() )
+            if ( m_groupWellPaths() )
             {
                 oilField->wellPathCollection->groupWellPaths( wellPaths );
                 return caf::PdmScriptResponse();
@@ -83,7 +84,16 @@ caf::PdmScriptResponse RicToggleWellPathGrouping::execute()
 bool RicToggleWellPathGrouping::isCommandEnabled()
 {
     auto wellPaths = selectedWellPaths();
-    return wellPaths.size() > 1u && containsUngroupedWellPathsWithCommonGeometry( wellPaths );
+    if ( wellPaths.size() > 1u && containsUngroupedWellPathsWithCommonGeometry( wellPaths ) )
+    {
+        return true;
+    }
+    else if ( !wellPaths.empty() && containsGroupedWellPaths( wellPaths ) )
+    {
+        return true;
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,11 +105,11 @@ void RicToggleWellPathGrouping::onActionTriggered( bool isChecked )
 
     if ( containsUngroupedWellPathsWithCommonGeometry( wellPaths ) )
     {
-        m_groupeWellPaths = true;
+        m_groupWellPaths = true;
     }
     else if ( containsGroupedWellPaths( wellPaths ) )
     {
-        m_groupeWellPaths = false;
+        m_groupWellPaths = false;
     }
     else
     {
@@ -119,12 +129,12 @@ void RicToggleWellPathGrouping::setupActionLook( QAction* actionToSetup )
     if ( containsUngroupedWellPathsWithCommonGeometry( wellPaths ) )
     {
         actionToSetup->setText( "Group the selected well paths into a Well Tree" );
-        actionToSetup->setIcon( QIcon( ":/Well.png" ) );
+        actionToSetup->setIcon( QIcon( ":/WellPathGroup.svg" ) );
     }
     else if ( containsGroupedWellPaths( wellPaths ) )
     {
         actionToSetup->setText( "Ungroup the selected well paths" );
-        actionToSetup->setIcon( QIcon( ":/Well.png" ) );
+        actionToSetup->setIcon( QIcon( ":/Well.svg" ) );
     }
 }
 
@@ -143,8 +153,11 @@ std::vector<RimWellPath*> RicToggleWellPathGrouping::selectedWellPaths()
 //--------------------------------------------------------------------------------------------------
 bool RicToggleWellPathGrouping::containsGroupedWellPaths( const std::vector<RimWellPath*>& wellPaths )
 {
-    // TODO: add real check
-    return std::any_of( wellPaths.begin(), wellPaths.end(), []( RimWellPath* wellPath ) { return true; } );
+    return std::any_of( wellPaths.begin(), wellPaths.end(), []( RimWellPath* wellPath ) {
+        RimWellPathGroup* group = nullptr;
+        wellPath->firstAncestorOrThisOfType( group );
+        return group != nullptr;
+    } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -152,12 +165,18 @@ bool RicToggleWellPathGrouping::containsGroupedWellPaths( const std::vector<RimW
 //--------------------------------------------------------------------------------------------------
 bool RicToggleWellPathGrouping::containsUngroupedWellPathsWithCommonGeometry( const std::vector<RimWellPath*>& wellPaths )
 {
-    // TODO: add check for whether the well paths are grouped.
     std::vector<const RigWellPath*> geometries;
     for ( auto wellPath : wellPaths )
     {
-        geometries.push_back( wellPath->wellPathGeometry() );
+        RimWellPathGroup* group = nullptr;
+        wellPath->firstAncestorOrThisOfType( group );
+        if ( !group )
+        {
+            geometries.push_back( wellPath->wellPathGeometry() );
+        }
     }
-    RigWellPath commonGeometry = RigWellPath::commonGeometry( geometries );
-    return !commonGeometry.wellPathPoints().empty();
+    if ( geometries.empty() ) return false;
+
+    cvf::ref<RigWellPath> commonGeometry = RigWellPath::commonGeometry( geometries );
+    return commonGeometry.notNull() && !commonGeometry->wellPathPoints().empty();
 }

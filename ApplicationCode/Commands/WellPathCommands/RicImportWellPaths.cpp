@@ -243,5 +243,5 @@ void RicImportWellPaths::onActionTriggered( bool isChecked )
 void RicImportWellPaths::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Import &Well Paths from File" );
-    actionToSetup->setIcon( QIcon( ":/Well.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Well.svg" ) );
 }
