@@ -35,6 +35,16 @@ eclipse_result.result_type = "INPUT_PROPERTY"
 eclipse_result.result_variable = "OPERNUM_1"
 eclipse_result.update()
 
+# Set eclipse result for non-net layers
+non_net_layers = fracture_model_template.non_net_layers()
+non_net_layers_result = non_net_layers.facies_definition()
+non_net_layers_result.result_type = "STATIC_NATIVE"
+non_net_layers_result.result_variable = "NTG"
+non_net_layers_result.update()
+non_net_layers.formation = "Not"
+non_net_layers.facies = "Shale"
+non_net_layers.update()
+
 
 # Add some scaling factors
 elastic_properties = fracture_model_template.elastic_properties()
