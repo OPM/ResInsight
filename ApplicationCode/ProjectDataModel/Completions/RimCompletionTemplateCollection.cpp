@@ -18,8 +18,6 @@
 
 #include "RimCompletionTemplateCollection.h"
 
-#include "RiaApplication.h"
-
 #include "RimFractureModelTemplateCollection.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimValveTemplateCollection.h"
@@ -128,10 +126,7 @@ void RimCompletionTemplateCollection::defineUiTreeOrdering( caf::PdmUiTreeOrderi
                                                             QString                 uiConfigName /*= ""*/ )
 {
     uiTreeOrdering.add( m_fractureTemplates );
-    if ( RiaApplication::enableDevelopmentFeatures() )
-    {
-        uiTreeOrdering.add( m_fractureModelTemplates );
-    }
+    uiTreeOrdering.add( m_fractureModelTemplates );
     uiTreeOrdering.add( m_valveTemplates );
     uiTreeOrdering.skipRemainingChildren( true );
 }
