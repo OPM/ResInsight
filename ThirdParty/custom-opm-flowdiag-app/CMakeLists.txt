@@ -28,9 +28,12 @@ add_library(custom-opm-flowdiag-app
     ${project_source_files_complete_path1} 
 )
 
+find_package(Boost REQUIRED filesystem system)
+include_directories(${Boost_INCLUDE_DIR})
+
 target_link_libraries(custom-opm-flowdiag-app 
   ecl
-  boost-Subset
+  ${Boost_LIBRARIES}
 )
 
 if (MSVC)
