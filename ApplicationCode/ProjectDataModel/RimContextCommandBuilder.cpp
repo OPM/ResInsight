@@ -403,10 +403,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewPerforationIntervalFeature";
             menuBuilder << "RicNewFishbonesSubsFeature";
             menuBuilder << "RicNewWellPathFractureFeature";
-            if ( RiaApplication::enableDevelopmentFeatures() )
-            {
-                menuBuilder << "RicNewFractureModelFeature";
-            }
+            menuBuilder << "RicNewFractureModelFeature";
             menuBuilder.subMenuEnd();
             menuBuilder << "RicCreateTemporaryLgrFeature";
             menuBuilder.addSeparator();
@@ -441,19 +438,13 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimFractureModel*>( firstUiItem ) )
         {
-            if ( RiaApplication::enableDevelopmentFeatures() )
-            {
-                menuBuilder << "RicNewFractureModelFeature";
-                menuBuilder << "RicNewFractureModelPlotFeature";
-                menuBuilder << "RicExportFractureModelToFileFeature";
-            }
+            menuBuilder << "RicNewFractureModelFeature";
+            menuBuilder << "RicNewFractureModelPlotFeature";
+            menuBuilder << "RicExportFractureModelToFileFeature";
         }
         else if ( dynamic_cast<RimFractureModelCollection*>( firstUiItem ) )
         {
-            if ( RiaApplication::enableDevelopmentFeatures() )
-            {
-                menuBuilder << "RicNewFractureModelFeature";
-            }
+            menuBuilder << "RicNewFractureModelFeature";
         }
         else if ( dynamic_cast<Rim3dWellLogCurveCollection*>( firstUiItem ) ||
                   dynamic_cast<Rim3dWellLogExtractionCurve*>( firstUiItem ) ||
@@ -1312,10 +1303,7 @@ int RimContextCommandBuilder::appendCreateCompletions( caf::CmdFeatureMenuBuilde
     candidates << "RicNewValveFeature";
     candidates << "RicNewFishbonesSubsFeature";
     candidates << "RicNewWellPathFractureFeature";
-    if ( RiaApplication::enableDevelopmentFeatures() )
-    {
-        candidates << "RicNewFractureModelFeature";
-    }
+    candidates << "RicNewFractureModelFeature";
     candidates << "Separator";
     candidates << "RicCreateMultipleFracturesFeature";
     candidates << "RicNewWellPathAttributeFeature";
