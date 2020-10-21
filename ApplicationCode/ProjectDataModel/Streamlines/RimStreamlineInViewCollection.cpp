@@ -49,8 +49,8 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
     CAF_PDM_InitField( &m_isActive, "isActive", false, "Active", "", "", "" );
     m_isActive.uiCapability()->setUiHidden( true );
 
-    // CAF_PDM_InitScriptableFieldNoDefault( &m_streamlines, "Streamlines", "Streamlines", "", "", "" );
-    // m_streamlines.uiCapability()->setUiTreeHidden( true );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_streamlines, "Streamlines", "Streamlines", "", "", "" );
+    m_streamlines.uiCapability()->setUiTreeHidden( true );
 
     m_eclipseCase = nullptr;
 
@@ -99,8 +99,10 @@ void RimStreamlineInViewCollection::goForIt()
     this->firstAncestorOrThisOfType( eclView );
     if ( !eclView ) return;
 
+    // get current simulation timestep
     int timeIdx = eclView->currentTimeStep();
 
+    // get the simulation wells
     const cvf::Collection<RigSimWellData>& simWellData = eclipseCase()->eclipseCaseData()->wellResults();
 
     std::vector<RigCell> seedCells;
@@ -108,6 +110,7 @@ void RimStreamlineInViewCollection::goForIt()
     std::vector<const RigGridBase*> grids;
     eclipseCase()->eclipseCaseData()->allGrids( &grids );
 
+    // TODO - add filter to select subset of simwells
     for ( auto swdata : simWellData )
     {
         if ( !swdata->hasWellResult( timeIdx ) || !swdata->hasAnyValidCells( timeIdx ) ) continue;

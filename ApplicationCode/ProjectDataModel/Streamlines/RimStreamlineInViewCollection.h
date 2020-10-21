@@ -22,7 +22,7 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 
-// class RimStreamline;
+class RimStreamline;
 class RimEclipseCase;
 
 class RimStreamlineInViewCollection : public caf::PdmObject
@@ -47,5 +47,5 @@ private:
 
     caf::PdmPointer<RimEclipseCase> m_eclipseCase;
 
-    // caf::PdmChildArrayField<RimStreamline*> m_streamlines;
+    caf::PdmChildArrayField<RimStreamline*> m_streamlines;
 };

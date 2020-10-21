@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020-     Equinor ASA
+//  Copyright (C) 2020 - Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,46 +16,45 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimStreamline.h"
-
-#include "cafPdmFieldScriptingCapability.h"
-#include "cafPdmObjectScriptingCapability.h"
-
-#include <algorithm>
-#include <cmath>
-
-CAF_PDM_ABSTRACT_SOURCE_INIT( RimStreamline, "Streamline" );
+#include "RigTracerPoint.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimStreamline::RimStreamline( QString simWellName )
-    : m_simWellName( simWellName )
+RigTracerPoint::RigTracerPoint( cvf::Vec3d position, cvf::Vec3d direction )
+    : m_position( position )
+    , m_direction( direction )
 {
-    CAF_PDM_InitScriptableObject( "Streamline", ":/Erase.png", "", "" );
-
-    setDeletable( true );
+    m_absValue = m_direction.length();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimStreamline::~RimStreamline()
+RigTracerPoint::~RigTracerPoint()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RigTracer& RimStreamline::tracer() const
+const cvf::Vec3d& RigTracerPoint::position() const
 {
-    return m_tracer;
+    return m_position;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStreamline::addTracerPoint( cvf::Vec3d position, cvf::Vec3d direction )
+const cvf::Vec3d& RigTracerPoint::direction() const
 {
-    m_tracer.appendPoint( position, direction );
+    return m_direction;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigTracerPoint::absValue() const
+{
+    return m_absValue;
 }
