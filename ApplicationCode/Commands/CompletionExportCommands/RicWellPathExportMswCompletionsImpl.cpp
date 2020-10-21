@@ -799,13 +799,12 @@ std::vector<std::pair<double, double>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicWellPathExportMswCompletionsImpl::calculateLengthThroughActiveCells(
+std::pair<double, double> RicWellPathExportMswCompletionsImpl::calculateOverlapWithActiveCells(
     double                                           startMD,
     double                                           endMD,
     const std::vector<WellPathCellIntersectionInfo>& wellPathIntersections,
     const RigActiveCellInfo*                         activeCellInfo )
 {
-    double totalOverlap = 0.0;
     for ( const WellPathCellIntersectionInfo& intersection : wellPathIntersections )
     {
         if ( intersection.globCellIndex < activeCellInfo->reservoirCellCount() &&
@@ -813,11 +812,13 @@ double RicWellPathExportMswCompletionsImpl::calculateLengthThroughActiveCells(
         {
             double overlapStart = std::max( startMD, intersection.startMD );
             double overlapEnd   = std::min( endMD, intersection.endMD );
-            double overlap      = std::max( 0.0, overlapEnd - overlapStart );
-            totalOverlap += overlap;
+            if ( overlapEnd > overlapStart )
+            {
+                return std::make_pair( overlapStart, overlapEnd );
+            }
         }
     }
-    return totalOverlap;
+    return std::make_pair( 0.0, 0.0 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1473,6 +1474,9 @@ void RicWellPathExportMswCompletionsImpl::assignValveContributionsToSuperICDsOrA
     RiaEclipseUnitTools::UnitSystem                    unitSystem )
 {
     ValveContributionMap assignedRegularValves;
+
+    std::map<std::shared_ptr<RicMswSegment>, std::shared_ptr<RicMswValveAccumulator>> accumulators;
+
     for ( std::shared_ptr<RicMswSegment> segment : mainBoreSegments )
     {
         std::shared_ptr<RicMswValve> superValve;
@@ -1485,66 +1489,73 @@ void RicWellPathExportMswCompletionsImpl::assignValveContributionsToSuperICDsOrA
                 break;
             }
         }
-
-        std::shared_ptr<RicMswValveAccumulator> accumulator;
         if ( std::dynamic_pointer_cast<const RicMswPerforationICD>( superValve ) )
         {
-            accumulator = std::make_shared<RicMswICDAccumulator>( unitSystem );
+            accumulators[segment] = std::make_shared<RicMswICDAccumulator>( superValve, unitSystem );
         }
         else if ( std::dynamic_pointer_cast<const RicMswPerforationAICD>( superValve ) )
         {
-            accumulator = std::make_shared<RicMswAICDAccumulator>( unitSystem );
+            accumulators[segment] = std::make_shared<RicMswAICDAccumulator>( superValve, unitSystem );
+        }
+    }
+
+    for ( const RimPerforationInterval* interval : perforationIntervals )
+    {
+        if ( !interval->isChecked() ) continue;
+
+        std::vector<const RimWellPathValve*> perforationValves;
+        interval->descendantsIncludingThisOfType( perforationValves );
+
+        double totalPerforationLength = 0.0;
+        for ( const RimWellPathValve* valve : perforationValves )
+        {
+            if ( !valve->isChecked() ) continue;
+
+            for ( std::shared_ptr<RicMswSegment> segment : mainBoreSegments )
+            {
+                double intervalOverlapStart           = std::max( interval->startMD(), segment->startMD() );
+                double intervalOverlapEnd             = std::min( interval->endMD(), segment->endMD() );
+                auto   intervalOverlapWithActiveCells = calculateOverlapWithActiveCells( intervalOverlapStart,
+                                                                                       intervalOverlapEnd,
+                                                                                       wellPathIntersections,
+                                                                                       activeCellInfo );
+
+                totalPerforationLength += intervalOverlapWithActiveCells.second - intervalOverlapWithActiveCells.first;
+            }
         }
 
-        if ( !accumulator ) continue;
-
-        for ( const RimPerforationInterval* interval : perforationIntervals )
+        for ( const RimWellPathValve* valve : perforationValves )
         {
-            if ( !interval->isChecked() ) continue;
+            if ( !valve->isChecked() ) continue;
 
-            std::vector<const RimWellPathValve*> perforationValves;
-            interval->descendantsIncludingThisOfType( perforationValves );
-            for ( const RimWellPathValve* valve : perforationValves )
+            for ( std::shared_ptr<RicMswSegment> segment : mainBoreSegments )
             {
-                if ( !valve->isChecked() ) continue;
+                double intervalOverlapStart = std::max( interval->startMD(), segment->startMD() );
+                double intervalOverlapEnd   = std::min( interval->endMD(), segment->endMD() );
 
-                double totalValveLength = calculateLengthThroughActiveCells( valve->startMD(),
-                                                                             valve->endMD(),
-                                                                             wellPathIntersections,
-                                                                             activeCellInfo );
+                auto intervalOverlapWithActiveCells = calculateOverlapWithActiveCells( intervalOverlapStart,
+                                                                                       intervalOverlapEnd,
+                                                                                       wellPathIntersections,
+                                                                                       activeCellInfo );
 
-                for ( size_t nSubValve = 0u; nSubValve < valve->valveSegments().size(); ++nSubValve )
+                double overlapLength = intervalOverlapWithActiveCells.second - intervalOverlapWithActiveCells.first;
+                if ( overlapLength > 0.0 )
                 {
-                    std::pair<double, double> valveSegment = valve->valveSegments()[nSubValve];
+                    auto it = accumulators.find( segment );
 
-                    double valveSegmentLength = calculateLengthThroughActiveCells( valveSegment.first,
-                                                                                   valveSegment.second,
-                                                                                   wellPathIntersections,
-                                                                                   activeCellInfo );
-
-                    double overlapStart = std::max( valveSegment.first, segment->startMD() );
-                    double overlapEnd   = std::min( valveSegment.second, segment->endMD() );
-
-                    double overlapLength =
-                        calculateLengthThroughActiveCells( overlapStart, overlapEnd, wellPathIntersections, activeCellInfo );
-
-                    if ( overlapLength > 0.0 && valveSegmentLength > 0.0 && accumulator )
+                    if ( it != accumulators.end() )
                     {
-                        if ( accumulator->accumulateValveParameters( valve,
-                                                                     nSubValve,
-                                                                     overlapLength / valveSegmentLength,
-                                                                     totalValveLength ) )
-                        {
-                            assignedRegularValves[superValve].insert( std::make_pair( valve, nSubValve ) );
-                        }
+                        it->second->accumulateValveParameters( valve, overlapLength, totalPerforationLength );
+                        assignedRegularValves[it->second->superValve()].push_back( valve );
                     }
                 }
             }
         }
-        if ( superValve && accumulator )
-        {
-            accumulator->applyToSuperValve( superValve );
-        }
+    }
+
+    for ( auto accumulator : accumulators )
+    {
+        accumulator.second->applyToSuperValve();
     }
 
     for ( auto regularValvePair : assignedRegularValves )
@@ -1552,9 +1563,9 @@ void RicWellPathExportMswCompletionsImpl::assignValveContributionsToSuperICDsOrA
         if ( !regularValvePair.second.empty() )
         {
             QStringList valveLabels;
-            for ( std::pair<const RimWellPathValve*, size_t> regularValve : regularValvePair.second )
+            for ( const RimWellPathValve* regularValve : regularValvePair.second )
             {
-                QString valveLabel = QString( "%1 #%2" ).arg( regularValve.first->name() ).arg( regularValve.second + 1 );
+                QString valveLabel = QString( "%1" ).arg( regularValve->name() );
                 valveLabels.push_back( valveLabel );
             }
             QString valveContribLabel = QString( " with contribution from: %1" ).arg( valveLabels.join( ", " ) );

@@ -260,6 +260,10 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeColors::calculateValueOptions( const ca
 
             options.push_front( caf::PdmOptionItemInfo( RiaDefines::undefinedResultName(), "" ) );
 
+            // TODO - investigate this further for issue #6798
+            // options.push_back( caf::PdmOptionItemInfo( "FLROILIJK (FLROILI+, FLROILJ+, FLROILK+)",
+            //                                           RiaDefines::combinedOilFluxResultName() ) );
+
             if ( useOptionsOnly ) *useOptionsOnly = true;
 
             return options;
@@ -312,6 +316,7 @@ QStringList RimCellEdgeColors::findResultVariableNames()
     {
         QStringList varList;
         varList = m_reservoirView->currentGridCellResults()->resultNames( RiaDefines::ResultCatType::STATIC_NATIVE );
+        varList += m_reservoirView->currentGridCellResults()->resultNames( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
         // TODO: Must handle Input properties
 
         int i;

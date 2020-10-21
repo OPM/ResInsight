@@ -68,8 +68,8 @@ void AppEnum<RimElementVectorResult::VectorView>::setUp()
 template <>
 void AppEnum<RimElementVectorResult::VectorSurfaceCrossingLocation>::setUp()
 {
-    addItem( RimElementVectorResult::VectorSurfaceCrossingLocation::VECTOR_ANCHOR, "VECTOR_ANCHOR", "At vector anchor" );
-    addItem( RimElementVectorResult::VectorSurfaceCrossingLocation::VECTOR_CENTER, "VECTOR_CENTER", "At vector center" );
+    addItem( RimElementVectorResult::VectorSurfaceCrossingLocation::VECTOR_ANCHOR, "VECTOR_ANCHOR", "At Vector Anchor" );
+    addItem( RimElementVectorResult::VectorSurfaceCrossingLocation::VECTOR_CENTER, "VECTOR_CENTER", "At Vector Center" );
 
     setDefault( RimElementVectorResult::VectorSurfaceCrossingLocation::VECTOR_ANCHOR );
 }
@@ -92,11 +92,11 @@ RimElementVectorResult::RimElementVectorResult()
 
     CAF_PDM_InitField( &m_showResult, "ShowResult", false, "", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_vectorView, "VectorView", "View vectors", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_vectorView, "VectorView", "View Vectors", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_vectorSurfaceCrossingLocation,
                                 "VectorSurfaceCrossingLocation",
-                                "Vectors touching surface",
+                                "Vectors Touching Surface",
                                 "",
                                 "",
                                 "" );
@@ -106,7 +106,7 @@ RimElementVectorResult::RimElementVectorResult()
     CAF_PDM_InitField( &m_showVectorI, "ShowVectorI", true, "I", "", "", "" );
     CAF_PDM_InitField( &m_showVectorJ, "ShowVectorJ", true, "J", "", "", "" );
     CAF_PDM_InitField( &m_showVectorK, "ShowVectorK", true, "K", "", "", "" );
-    CAF_PDM_InitField( &m_showNncData, "ShowNncData", true, "Show NNC data", "", "", "" );
+    CAF_PDM_InitField( &m_showNncData, "ShowNncData", true, "Show NNC Data", "", "", "" );
     CAF_PDM_InitField( &m_threshold, "Threshold", 0.0f, "Threshold", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_vectorColor, "VectorColor", "Color", "", "", "" );
@@ -333,6 +333,7 @@ void RimElementVectorResult::mappingRange( double& min, double& max ) const
                     eclipseView->eclipseCase()->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
                 resultsData->ensureKnownResultLoaded( resVarAddr );
+                if ( !resultsData->hasResultEntry( resVarAddr ) ) return;
 
                 if ( m_legendConfig->rangeMode() == RimRegularLegendConfig::RangeModeType::AUTOMATIC_ALLTIMESTEPS )
                 {
@@ -414,6 +415,8 @@ void RimElementVectorResult::mappingRange( double& min, double& max ) const
             }
         }
     }
+    max = std::max<double>( std::abs( min ), std::abs( max ) );
+    min = 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------

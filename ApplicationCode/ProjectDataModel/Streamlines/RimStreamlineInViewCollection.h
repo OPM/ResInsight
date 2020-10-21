@@ -22,8 +22,12 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 
-// class RimStreamline;
+#include <list>
+
+class RimStreamline;
 class RimEclipseCase;
+class RigTracer;
+class RigCell;
 
 class RimStreamlineInViewCollection : public caf::PdmObject
 {
@@ -38,14 +42,20 @@ public:
 
     void goForIt();
 
+    const std::list<RigTracer>& tracers();
+
 protected:
     caf::PdmFieldHandle* objectToggleField() override;
 
 private:
+    void generateTracer( RigCell cell, int faceIdx, double direction );
+
     caf::PdmField<bool>    m_isActive;
     caf::PdmField<QString> m_collectionName;
 
     caf::PdmPointer<RimEclipseCase> m_eclipseCase;
 
-    // caf::PdmChildArrayField<RimStreamline*> m_streamlines;
+    caf::PdmChildArrayField<RimStreamline*> m_streamlines;
+
+    std::list<RigTracer> m_activeTracers;
 };

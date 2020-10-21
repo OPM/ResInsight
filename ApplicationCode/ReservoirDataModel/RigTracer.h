@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020-     Equinor ASA
+//  Copyright (C) 2020 - Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,34 +15,31 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
-
-#include "RigTracer.h"
-
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-
-#include "cafPdmFieldCvfColor.h"
-#include "cafPdmProxyValueField.h"
 
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
 #include <vector>
 
-class RimStreamline : public caf::PdmObject
+class RigTracerPoint;
+
+//==================================================================================================
+/// Class representing one streamline tracer line, with position and direction given for each
+///  time increment.
+//==================================================================================================
+class RigTracer : public cvf::Object
 {
-    CAF_PDM_HEADER_INIT;
-
 public:
-    RimStreamline( QString simwellname );
-    ~RimStreamline() override;
+    RigTracer();
+    RigTracer( const RigTracer& other );
+    ~RigTracer() override;
 
-    const RigTracer& tracer() const;
+    void appendPoint( cvf::Vec3d position, cvf::Vec3d direction );
 
-    void addTracerPoint( cvf::Vec3d position, cvf::Vec3d direction );
+    const std::vector<RigTracerPoint>& tracerPoints() const;
 
 private:
-    RigTracer m_tracer;
-    QString   m_simWellName;
+    std::vector<RigTracerPoint> m_points;
 };

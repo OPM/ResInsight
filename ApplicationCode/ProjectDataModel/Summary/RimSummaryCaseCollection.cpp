@@ -859,62 +859,53 @@ void RimSummaryCaseCollection::loadDataAndUpdate()
 bool RimSummaryCaseCollection::validateEnsembleCases( const std::vector<RimSummaryCase*> cases )
 {
     // Validate ensemble parameters
-    try
+    QString                errors;
+    std::hash<std::string> paramsHasher;
+    size_t                 paramsHash        = 0;
+    RimSummaryCase*        parameterBaseCase = nullptr;
+
+    for ( RimSummaryCase* rimCase : cases )
     {
-        QString                errors;
-        std::hash<std::string> paramsHasher;
-        size_t                 paramsHash = 0;
-
-        for ( RimSummaryCase* rimCase : cases )
+        if ( rimCase->caseRealizationParameters() == nullptr || rimCase->caseRealizationParameters()->parameters().empty() )
         {
-            if ( rimCase->caseRealizationParameters() == nullptr ||
-                 rimCase->caseRealizationParameters()->parameters().empty() )
+            errors.append( QString( "The case %1 has no ensemble parameters\n" )
+                               .arg( QFileInfo( rimCase->summaryHeaderFilename() ).fileName() ) );
+        }
+        else
+        {
+            QString paramNames;
+            for ( std::pair<QString, RigCaseRealizationParameters::Value> paramPair :
+                  rimCase->caseRealizationParameters()->parameters() )
             {
-                errors.append( QString( "The case %1 has no ensemble parameters\n" )
-                                   .arg( QFileInfo( rimCase->summaryHeaderFilename() ).fileName() ) );
+                paramNames.append( paramPair.first );
             }
-            else
-            {
-                QString paramNames;
-                for ( std::pair<QString, RigCaseRealizationParameters::Value> paramPair :
-                      rimCase->caseRealizationParameters()->parameters() )
-                {
-                    paramNames.append( paramPair.first );
-                }
 
-                size_t currHash = paramsHasher( paramNames.toStdString() );
-                if ( paramsHash == 0 )
-                {
-                    paramsHash = currHash;
-                }
-                else if ( paramsHash != currHash )
-                {
-                    throw QString( "Ensemble parameters differ between cases" );
-                }
+            size_t currHash = paramsHasher( paramNames.toStdString() );
+            if ( paramsHash == 0 )
+            {
+                paramsHash        = currHash;
+                parameterBaseCase = rimCase;
+            }
+            else if ( paramsHash != currHash )
+            {
+                errors.append( QString( "The parameters in case %1 is not matching base parameters in %2\n" )
+                                   .arg( QFileInfo( rimCase->summaryHeaderFilename() ).fileName() )
+                                   .arg( QFileInfo( parameterBaseCase->summaryHeaderFilename() ).fileName() ) );
             }
         }
-
-        if ( !errors.isEmpty() )
-        {
-            QString textToDisplay = errors.left( 500 );
-
-            textToDisplay.prepend( "Missing ensemble parameters\n\n" );
-
-            textToDisplay.append( "\n" );
-            textToDisplay.append( "No parameters file (parameters.txt or runspecification.xml) was found in \n" );
-            textToDisplay.append( "the searched folders. ResInsight searches the home folder of the summary \n" );
-            textToDisplay.append( "case file and the three folder levels above that.\n" );
-
-            throw textToDisplay;
-        }
-        return true;
     }
-    catch ( QString errorMessage )
+
+    if ( !errors.isEmpty() )
     {
-        RiaLogging::errorInMessageBox( nullptr, "", errorMessage );
+        const int maxNumberOfCharactersToDisplaye = 1000;
+        QString   textToDisplay                   = errors.left( maxNumberOfCharactersToDisplaye );
+
+        RiaLogging::errorInMessageBox( nullptr, "", textToDisplay );
 
         return false;
     }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

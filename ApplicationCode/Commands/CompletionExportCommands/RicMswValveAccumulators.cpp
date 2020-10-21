@@ -27,8 +27,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswICDAccumulator::RicMswICDAccumulator( RiaEclipseUnitTools::UnitSystem unitSystem )
-    : RicMswValveAccumulator( unitSystem )
+RicMswICDAccumulator::RicMswICDAccumulator( std::shared_ptr<RicMswValve> valve, RiaEclipseUnitTools::UnitSystem unitSystem )
+    : RicMswValveAccumulator( valve, unitSystem )
     , m_areaSum( 0.0 )
 {
 }
@@ -37,34 +37,29 @@ RicMswICDAccumulator::RicMswICDAccumulator( RiaEclipseUnitTools::UnitSystem unit
 ///
 //--------------------------------------------------------------------------------------------------
 bool RicMswICDAccumulator::accumulateValveParameters( const RimWellPathValve* wellPathValve,
-                                                      size_t                  subValve,
-                                                      double                  contributionFraction,
-                                                      double                  totalValveLengthOpenForFlow )
+                                                      double                  overlapLength,
+                                                      double                  perforationCompsegsLength )
 {
+    const double eps = 1.0e-8;
+
     CVF_ASSERT( wellPathValve );
     if ( wellPathValve->componentType() == RiaDefines::WellPathComponentType::ICV ||
          wellPathValve->componentType() == RiaDefines::WellPathComponentType::ICD )
     {
-        double lengthFraction = 1.0;
-
-        if ( wellPathValve->componentType() == RiaDefines::WellPathComponentType::ICD )
-        {
-            std::pair<double, double> valveSegment       = wellPathValve->valveSegments()[subValve];
-            double                    valveSegmentLength = std::fabs( valveSegment.second - valveSegment.first );
-            if ( totalValveLengthOpenForFlow > 1.0e-8 )
-            {
-                lengthFraction = valveSegmentLength / totalValveLengthOpenForFlow;
-            }
-        }
-
-        double combinedFraction = contributionFraction * lengthFraction;
-
+        size_t nICDs            = wellPathValve->valveLocations().size();
         double icdOrificeRadius = wellPathValve->orificeDiameter( m_unitSystem ) / 2;
         double icdArea          = icdOrificeRadius * icdOrificeRadius * cvf::PI_D;
+        double totalIcdArea     = static_cast<double>( nICDs ) * icdArea;
 
-        m_areaSum += icdArea;
-        m_coefficientCalculator.addValueAndWeight( wellPathValve->flowCoefficient(), icdArea * combinedFraction );
-        return true;
+        double icdAreaFactor = totalIcdArea * overlapLength / perforationCompsegsLength;
+
+        m_areaSum += icdAreaFactor;
+
+        if ( icdAreaFactor > eps )
+        {
+            m_coefficientCalculator.addValueAndWeight( wellPathValve->flowCoefficient(), icdAreaFactor );
+            return true;
+        }
     }
     return false;
 }
@@ -72,10 +67,11 @@ bool RicMswICDAccumulator::accumulateValveParameters( const RimWellPathValve* we
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswICDAccumulator::applyToSuperValve( std::shared_ptr<RicMswValve> valve )
+void RicMswICDAccumulator::applyToSuperValve()
 {
-    std::shared_ptr<RicMswWsegValve> icd = std::dynamic_pointer_cast<RicMswWsegValve>( valve );
+    std::shared_ptr<RicMswWsegValve> icd = std::dynamic_pointer_cast<RicMswWsegValve>( m_valve );
     CVF_ASSERT( icd );
+
     icd->setArea( m_areaSum );
     if ( m_coefficientCalculator.validAggregatedWeight() )
     {
@@ -86,8 +82,8 @@ void RicMswICDAccumulator::applyToSuperValve( std::shared_ptr<RicMswValve> valve
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswAICDAccumulator::RicMswAICDAccumulator( RiaEclipseUnitTools::UnitSystem unitSystem )
-    : RicMswValveAccumulator( unitSystem )
+RicMswAICDAccumulator::RicMswAICDAccumulator( std::shared_ptr<RicMswValve> valve, RiaEclipseUnitTools::UnitSystem unitSystem )
+    : RicMswValveAccumulator( valve, unitSystem )
     , m_valid( false )
     , m_deviceOpen( false )
     , m_accumulatedLength( 0.0 )
@@ -99,12 +95,13 @@ RicMswAICDAccumulator::RicMswAICDAccumulator( RiaEclipseUnitTools::UnitSystem un
 ///
 //--------------------------------------------------------------------------------------------------
 bool RicMswAICDAccumulator::accumulateValveParameters( const RimWellPathValve* wellPathValve,
-                                                       size_t                  subValve,
-                                                       double                  contributionFraction,
-                                                       double                  totalValveCompsegsLength )
+                                                       double                  overlapLength,
+                                                       double                  perforationCompsegsLength )
 {
+    const double eps = 1.0e-8;
+
     CVF_ASSERT( wellPathValve );
-    if ( wellPathValve->componentType() == RiaDefines::WellPathComponentType::AICD )
+    if ( wellPathValve->componentType() == RiaDefines::WellPathComponentType::AICD && overlapLength > eps )
     {
         const RimWellPathAicdParameters* params = wellPathValve->aicdParameters();
         if ( params->isValid() )
@@ -113,24 +110,16 @@ bool RicMswAICDAccumulator::accumulateValveParameters( const RimWellPathValve* w
             m_deviceOpen = m_deviceOpen || params->isOpen();
             if ( params->isOpen() )
             {
-                std::pair<double, double> valveSegment       = wellPathValve->valveSegments()[subValve];
-                double                    valveSegmentLength = std::fabs( valveSegment.second - valveSegment.first );
-                double                    lengthFraction     = 1.0;
-                if ( totalValveCompsegsLength > 1.0e-8 )
-                {
-                    lengthFraction = valveSegmentLength / totalValveCompsegsLength;
-                }
-
-                double combinedFraction = contributionFraction * lengthFraction;
-
                 std::array<double, AICD_NUM_PARAMS> values = params->doubleValues();
                 for ( size_t i = 0; i < (size_t)AICD_NUM_PARAMS; ++i )
                 {
                     if ( RiaStatisticsTools::isValidNumber( values[i] ) )
                     {
-                        m_meanCalculators[i].addValueAndWeight( values[i], combinedFraction );
+                        m_meanCalculators[i].addValueAndWeight( values[i], overlapLength );
                     }
                 }
+
+                m_accumulatedLength += overlapLength / perforationCompsegsLength;
 
                 // https://github.com/OPM/ResInsight/issues/6126
                 //
@@ -138,15 +127,14 @@ bool RicMswAICDAccumulator::accumulateValveParameters( const RimWellPathValve* w
                 // where:
                 // lengthFraction = length_COMPSEGS / Sum_length_COMPSEGS_for_valve
                 // N_AICDs = number of AICDs in perforation interval
-                size_t aicdCount = wellPathValve->valveLocations().size();
-                double divisor   = aicdCount * combinedFraction;
-
+                size_t aicdCount      = wellPathValve->valveLocations().size();
+                double lengthFraction = overlapLength / perforationCompsegsLength;
+                double divisor        = lengthFraction * aicdCount;
                 m_accumulatedFlowScalingFactorDivisor += divisor;
 
-                m_accumulatedLength += combinedFraction;
+                return true;
             }
         }
-        return true;
     }
     return false;
 }
@@ -154,9 +142,9 @@ bool RicMswAICDAccumulator::accumulateValveParameters( const RimWellPathValve* w
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswAICDAccumulator::applyToSuperValve( std::shared_ptr<RicMswValve> valve )
+void RicMswAICDAccumulator::applyToSuperValve()
 {
-    std::shared_ptr<RicMswPerforationAICD> aicd = std::dynamic_pointer_cast<RicMswPerforationAICD>( valve );
+    std::shared_ptr<RicMswPerforationAICD> aicd = std::dynamic_pointer_cast<RicMswPerforationAICD>( m_valve );
 
     if ( aicd )
     {
