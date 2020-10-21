@@ -163,6 +163,7 @@ jobs:
               -D CMAKE_INSTALL_PREFIX=cmakebuild/install
               -D GSL_ENABLE=true
               -D RESINSIGHT_ENABLE_UNITY_BUILD=true
+              -D RESINSIGHT_BUNDLE_OPENSSL=true
               -D RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
               -D RESINSIGHT_TREAT_WARNINGS_AS_ERRORS=true
               -D RESINSIGHT_ENABLE_GRPC=true

@@ -679,7 +679,7 @@ if (RESINSIGHT_PRIVATE_INSTALL)
 
         # install GRPC-related DLLs
         if (RESINSIGHT_ENABLE_GRPC)
-            set (GRPC_DLL_NAMES libprotobuf cares zlib1)
+            set (GRPC_DLL_NAMES libprotobuf cares zlib1 abseil_dll)
             foreach (dllname ${GRPC_DLL_NAMES})		  
               list(APPEND RESINSIGHT_FILES $<TARGET_FILE_DIR:ResInsight>/${dllname}.dll)
             endforeach(dllname ${GRPC_DLL_NAMES})
@@ -697,8 +697,8 @@ if (RESINSIGHT_PRIVATE_INSTALL)
             string(REPLACE "include" "bin" OPENSSL_BIN_DIR ${OPENSSL_BIN_DIR})
             message("OpenSSL binary dir: ${OPENSSL_BIN_DIR}")
   
-            install(FILES ${OPENSSL_BIN_DIR}/libeay32.dll DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
-            install(FILES ${OPENSSL_BIN_DIR}/ssleay32.dll DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
+            install(FILES ${OPENSSL_BIN_DIR}/libcrypto-1_1-x64.dll DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
+            install(FILES ${OPENSSL_BIN_DIR}/libssl-1_1-x64.dll DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
           endif(OPENSSL_FOUND)
         endif(RESINSIGHT_BUNDLE_OPENSSL)
 
