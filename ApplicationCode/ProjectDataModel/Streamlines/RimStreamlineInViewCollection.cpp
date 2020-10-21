@@ -92,8 +92,26 @@ RimEclipseCase* RimStreamlineInViewCollection::eclipseCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const std::list<RigTracer>& RimStreamlineInViewCollection::tracers()
+{
+    m_activeTracers.clear();
+
+    for ( auto streamline : m_streamlines() )
+    {
+        // TODO - add filter for active simulation wells here?
+        m_activeTracers.push_back( streamline->tracer() );
+    }
+    return m_activeTracers;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimStreamlineInViewCollection::goForIt()
 {
+    // reset generated streamlines
+    m_streamlines().clear();
+
     // get the view
     RimEclipseView* eclView = nullptr;
     this->firstAncestorOrThisOfType( eclView );
@@ -110,7 +128,7 @@ void RimStreamlineInViewCollection::goForIt()
     std::vector<const RigGridBase*> grids;
     eclipseCase()->eclipseCaseData()->allGrids( &grids );
 
-    // TODO - add filter to select subset of simwells
+    // TODO - add filter to select subset of simwells here? Depends on speed - use a view filter or a calculation filter?
     for ( auto swdata : simWellData )
     {
         if ( !swdata->hasWellResult( timeIdx ) || !swdata->hasAnyValidCells( timeIdx ) ) continue;
@@ -132,4 +150,18 @@ void RimStreamlineInViewCollection::goForIt()
     }
 
     qDebug() << "Found " << seedCells.size() << " producing cells";
+
+    const int reverseDirection = -1.0;
+
+    for ( auto cell : seedCells )
+    {
+        for ( int cubeFaceIdx = 0; cubeFaceIdx < 6; cubeFaceIdx++ )
+        {
+            generateTracer( cell, cubeFaceIdx, reverseDirection );
+        }
+    }
+}
+
+void RimStreamlineInViewCollection::generateTracer( RigCell cell, int faceIdx, double direction )
+{
 }

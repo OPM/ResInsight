@@ -29,11 +29,12 @@ class RigTracerPoint;
 /// Class representing one streamline tracer line, with position and direction given for each
 ///  time increment.
 //==================================================================================================
-class RigTracer : cvf::Object
+class RigTracer : public cvf::Object
 {
 public:
     RigTracer();
-    ~RigTracer();
+    RigTracer( const RigTracer& other );
+    ~RigTracer() override;
 
     void appendPoint( cvf::Vec3d position, cvf::Vec3d direction );
 
