@@ -87,7 +87,7 @@ void RicMoveItemsToTopFeature::onActionTriggered( bool isChecked )
                 if ( currentObject )
                 {
                     size_t indexToMove = arrayField->size() + 1;
-                    for ( auto i = 0; i < arrayField->size(); i++ )
+                    for ( auto i = 0u; i < arrayField->size(); i++ )
                     {
                         if ( arrayField->at( i ) == currentObject )
                         {
