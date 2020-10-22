@@ -142,6 +142,7 @@ void RigWellLogExtractor::insertIntersectionsInMap( const std::vector<HexInterse
 //--------------------------------------------------------------------------------------------------
 void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo>& uniqueIntersections )
 {
+    QStringList errorMessages;
     // For same MD and same cell, remove enter/leave pairs, as they only touches the wellpath, and should not contribute.
     {
         std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo>::iterator it1 = uniqueIntersections.begin();
@@ -245,9 +246,9 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
 
             if ( RigMDEnterLeaveCellIdxKey::isProperCellEnterLeavePair( it1->first, it2->first ) )
             {
-                appendIntersectionToArrays( it1->first.measuredDepth, it1->second );
+                appendIntersectionToArrays( it1->first.measuredDepth, it1->second, &errorMessages );
                 ++it1;
-                appendIntersectionToArrays( it1->first.measuredDepth, it1->second );
+                appendIntersectionToArrays( it1->first.measuredDepth, it1->second, &errorMessages );
                 ++it1;
             }
             else
@@ -267,8 +268,8 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
                      RigMDEnterLeaveCellIdxKey::isProperCellEnterLeavePair( it11->first, it21->first ) )
                 {
                     // Found 3 to 5 connection
-                    appendIntersectionToArrays( it11->first.measuredDepth, it11->second );
-                    appendIntersectionToArrays( it21->first.measuredDepth, it21->second );
+                    appendIntersectionToArrays( it11->first.measuredDepth, it11->second, &errorMessages );
+                    appendIntersectionToArrays( it21->first.measuredDepth, it21->second, &errorMessages );
 
                     ++it11;
                     ++it21;
@@ -276,8 +277,8 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
                          RigMDEnterLeaveCellIdxKey::isProperCellEnterLeavePair( it11->first, it21->first ) )
                     {
                         // Found a 4 to 6 connection
-                        appendIntersectionToArrays( it11->first.measuredDepth, it11->second );
-                        appendIntersectionToArrays( it21->first.measuredDepth, it21->second );
+                        appendIntersectionToArrays( it11->first.measuredDepth, it11->second, &errorMessages );
+                        appendIntersectionToArrays( it21->first.measuredDepth, it21->second, &errorMessages );
 
                         it1 = it21;
                         ++it1;
@@ -285,9 +286,9 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
                     }
                     else
                     {
-                        RiaLogging::warning(
+                        errorMessages +=
                             QString( "Well Log Extraction : " ) + QString::fromStdString( m_wellCaseErrorMsgName ) +
-                            ( " Discards a point at MD:  " ) + QString::number( (double)( it1->first.measuredDepth ) ) );
+                            ( " Discards a point at MD:  " ) + QString::number( (double)( it1->first.measuredDepth ) );
 
                         // Found that 8 to 10 is not connected, after finding 7 to 9
                         it1 = it21; // Discard 8 by Jumping to 10
@@ -296,9 +297,9 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
                 }
                 else
                 {
-                    RiaLogging::warning(
-                        QString( "Well Log Extraction : " ) + QString::fromStdString( m_wellCaseErrorMsgName ) +
-                        ( " Discards a point at MD:  " ) + QString::number( (double)( it1->first.measuredDepth ) ) );
+                    errorMessages += QString( "Well Log Extraction : " ) +
+                                     QString::fromStdString( m_wellCaseErrorMsgName ) + ( " Discards a point at MD:  " ) +
+                                     QString::number( (double)( it1->first.measuredDepth ) );
 
                     // Found that 10 to 11 is not connected, and not 10 to 12 either
                     ++it1; // Discard 10 and jump to 11 and hope that recovers us
@@ -307,20 +308,29 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
             }
         }
     }
+    errorMessages.removeDuplicates();
+    for ( auto message : errorMessages )
+    {
+        RiaLogging::warning( message );
+    }
 }
 
-void RigWellLogExtractor::appendIntersectionToArrays( double measuredDepth, const HexIntersectionInfo& intersection )
+void RigWellLogExtractor::appendIntersectionToArrays( double                     measuredDepth,
+                                                      const HexIntersectionInfo& intersection,
+                                                      QStringList*               errorMessages )
 {
+    CVF_ASSERT( errorMessages );
+
+    QString errorMessage;
     if ( !m_intersectionMeasuredDepths.empty() && measuredDepth < m_intersectionMeasuredDepths.back() )
     {
-        RiaLogging::warning(
-            QString( "Well Log Extraction : %1 does not have a monotonously increasing measured depth." )
-                .arg( QString::fromStdString( m_wellCaseErrorMsgName ) ) );
+        errorMessage += QString( "Well Log Extraction : %1 does not have a monotonously increasing measured depth." )
+                            .arg( QString::fromStdString( m_wellCaseErrorMsgName ) );
         // Allow alterations of up to 0.1 percent as long as we keep the measured depth monotonously increasing.
         const double tolerance = std::max( 1.0, measuredDepth ) * 1.0e-3;
         if ( RigWellLogExtractionTools::isEqualDepth( measuredDepth, m_intersectionMeasuredDepths.back(), tolerance ) )
         {
-            RiaLogging::warning( "The well path has been slightly adjusted" );
+            errorMessage += "The well path has been slightly adjusted";
             measuredDepth = m_intersectionMeasuredDepths.back();
         }
     }
@@ -330,4 +340,6 @@ void RigWellLogExtractor::appendIntersectionToArrays( double measuredDepth, cons
     m_intersections.push_back( intersection.m_intersectionPoint );
     m_intersectedCellsGlobIdx.push_back( intersection.m_hexIndex );
     m_intersectedCellFaces.push_back( intersection.m_face );
+
+    errorMessages->push_back( errorMessage );
 }
