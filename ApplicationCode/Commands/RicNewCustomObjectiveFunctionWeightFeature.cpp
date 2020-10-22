@@ -52,7 +52,7 @@ void RicNewCustomObjectiveFunctionWeightFeature::onActionTriggered( bool isCheck
         RimCustomObjectiveFunctionWeight* newWeight = func[0]->addWeight();
         if ( func[0]->weights().size() > 1 )
         {
-            newWeight->setSummaryAddress( func[0]->weights()[0]->summaryAddress() );
+            newWeight->setSummaryAddress( func[0]->weights()[0]->summaryAddresses().front() );
         }
         else
         {

@@ -180,6 +180,7 @@ private:
     void updateMaxMinAndDefaultValues();
     void updateCurveColors();
     void updateTimeAnnotations();
+    void updateAddressesUiField();
 
     void onObjectiveFunctionChanged( const caf::SignalEmitter* emitter, RimCustomObjectiveFunction* objectiveFunction );
     void onObjectiveFunctionAboutToBeDeleted( const caf::SignalEmitter*   emitter,
@@ -200,8 +201,8 @@ private:
     caf::PdmField<cvf::Color3f>  m_color;
     caf::PdmField<QString>       m_ensembleParameter;
 
-    caf::PdmChildField<RimSummaryAddress*>                          m_objectiveValuesSummaryAddress;
-    caf::PdmField<RifEclipseSummaryAddress>                         m_objectiveValuesSummaryAddressUiField;
+    caf::PdmChildArrayField<RimSummaryAddress*>                     m_objectiveValuesSummaryAddresses;
+    caf::PdmField<QString>                                          m_objectiveValuesSummaryAddressesUiField;
     caf::PdmField<bool>                                             m_objectiveValuesSelectSummaryAddressPushButton;
     caf::PdmField<caf::AppEnum<RimObjectiveFunction::FunctionType>> m_objectiveFunction;
     caf::PdmPtrField<RimCustomObjectiveFunction*>                   m_customObjectiveFunction;

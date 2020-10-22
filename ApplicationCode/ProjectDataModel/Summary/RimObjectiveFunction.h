@@ -51,19 +51,21 @@ public:
 
     RimObjectiveFunction( const RimSummaryCaseCollection* summaryCaseCollection, FunctionType type );
 
-    double value( size_t caseIndex, const RifEclipseSummaryAddress& vectorSummaryAddress, bool* hasWarning = nullptr ) const;
+    double value( size_t                                       caseIndex,
+                  std::vector<const RifEclipseSummaryAddress&> vectorSummaryAddresses,
+                  bool*                                        hasWarning = nullptr ) const;
 
-    double value( RimSummaryCase*                 summaryCase,
-                  const RifEclipseSummaryAddress& vectorSummaryAddress,
-                  bool*                           hasWarning = nullptr ) const;
+    double value( RimSummaryCase*                              summaryCase,
+                  std::vector<const RifEclipseSummaryAddress&> vectorSummaryAddresses,
+                  bool*                                        hasWarning = nullptr ) const;
 
-    std::pair<double, double> minMaxValues( const RifEclipseSummaryAddress& vectorSummaryAddress ) const;
+    std::pair<double, double> minMaxValues( std::vector<const RifEclipseSummaryAddress&> vectorSummaryAddresses ) const;
 
     std::pair<time_t, time_t> range() const;
 
-    std::vector<double> values( const RifEclipseSummaryAddress& vectorSummaryAddress ) const;
+    std::vector<double> values( std::vector<const RifEclipseSummaryAddress&> vectorSummaryAddresses ) const;
 
-    bool isValid( const RifEclipseSummaryAddress& vectorSummaryAddress ) const;
+    bool isValid( std::vector<const RifEclipseSummaryAddress&> vectorSummaryAddresses ) const;
 
     bool operator<( const RimObjectiveFunction& other ) const;
 

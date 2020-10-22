@@ -24,6 +24,7 @@
 #include "RifEclipseSummaryAddressQMetaType.h"
 #include "RifSummaryReaderInterface.h"
 
+#include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -46,11 +47,11 @@ class RimCustomObjectiveFunctionWeight : public caf::PdmObject
 public:
     RimCustomObjectiveFunctionWeight();
 
-    QString                            title() const;
-    void                               setSummaryAddress( RifEclipseSummaryAddress address );
-    RifEclipseSummaryAddress           summaryAddress() const;
-    RimObjectiveFunction::FunctionType objectiveFunction() const;
-    double                             weightValue() const;
+    QString                                      title() const;
+    void                                         setSummaryAddress( RifEclipseSummaryAddress address );
+    std::vector<const RifEclipseSummaryAddress&> summaryAddresses() const;
+    RimObjectiveFunction::FunctionType           objectiveFunction() const;
+    double                                       weightValue() const;
 
     RimEnsembleCurveSet* parentCurveSet() const;
 
@@ -69,8 +70,8 @@ private:
 
 private:
     caf::PdmProxyValueField<QString>                                m_title;
-    caf::PdmChildField<RimSummaryAddress*>                          m_objectiveValuesSummaryAddress;
-    caf::PdmField<RifEclipseSummaryAddress>                         m_objectiveValuesSummaryAddressUiField;
+    caf::PdmChildArrayField<RimSummaryAddress*>                     m_objectiveValuesSummaryAddresses;
+    caf::PdmField<QString>                                          m_objectiveValuesSummaryAddressesUiField;
     caf::PdmField<bool>                                             m_objectiveValuesSelectSummaryAddressPushButton;
     caf::PdmField<caf::AppEnum<RimObjectiveFunction::FunctionType>> m_objectiveFunction;
     caf::PdmField<double>                                           m_weightValue;

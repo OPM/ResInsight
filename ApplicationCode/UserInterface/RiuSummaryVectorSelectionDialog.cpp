@@ -116,6 +116,29 @@ void RiuSummaryVectorSelectionDialog::setEnsembleAndAddress( RimSummaryCaseColle
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuSummaryVectorSelectionDialog::setEnsembleAndAddresses( RimSummaryCaseCollection*                    ensemble,
+                                                               std::vector<const RifEclipseSummaryAddress&> addresses )
+{
+    if ( ensemble )
+    {
+        std::vector<RiaSummaryCurveDefinition> curveDefs;
+        for ( auto address : addresses )
+        {
+            curveDefs.push_back( RiaSummaryCurveDefinition( ensemble, address ) );
+        }
+        setCurveSelection( curveDefs );
+    }
+    else
+    {
+        //  Still need to update the editors
+        summaryAddressSelection()->updateConnectedEditors();
+        updateLabel();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuSummaryVectorSelectionDialog::setCurveSelection( const std::vector<RiaSummaryCurveDefinition>& selection )
 {
     summaryAddressSelection()->setSelectedCurveDefinitions( selection );

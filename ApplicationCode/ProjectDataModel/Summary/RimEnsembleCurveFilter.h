@@ -23,7 +23,7 @@
 
 #include "RimObjectiveFunction.h"
 
-#include "cafPdmChildField.h"
+#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
@@ -55,18 +55,19 @@ public:
     RimEnsembleCurveFilter();
     RimEnsembleCurveFilter( const QString& ensembleParameterName );
 
-    bool                     isActive() const;
-    double                   minValue() const;
-    double                   maxValue() const;
-    std::set<QString>        categories() const;
-    QString                  ensembleParameterName() const;
-    QString                  filterId() const;
-    QString                  description() const;
-    RifEclipseSummaryAddress summaryAddress() const;
-    void                     setSummaryAddress( RifEclipseSummaryAddress address );
+    bool                                  isActive() const;
+    double                                minValue() const;
+    double                                maxValue() const;
+    std::set<QString>                     categories() const;
+    QString                               ensembleParameterName() const;
+    QString                               filterId() const;
+    QString                               description() const;
+    std::vector<RifEclipseSummaryAddress> summaryAddresses() const;
+    void                                  setSummaryAddress( RifEclipseSummaryAddress address );
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
+    void                          updateAddressesUiField();
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     caf::PdmFieldHandle*          userDescriptionField() override;
     void                          updateIcon();
@@ -95,8 +96,8 @@ private:
     caf::PdmField<bool>                                             m_deleteButton;
     caf::PdmField<caf::AppEnum<FilterMode>>                         m_filterMode;
     caf::PdmField<QString>                                          m_ensembleParameterName;
-    caf::PdmChildField<RimSummaryAddress*>                          m_objectiveValuesSummaryAddress;
-    caf::PdmField<RifEclipseSummaryAddress>                         m_objectiveValuesSummaryAddressUiField;
+    caf::PdmChildArrayField<RimSummaryAddress*>                     m_objectiveValuesSummaryAddresses;
+    caf::PdmField<QString>                                          m_objectiveValuesSummaryAddressesUiField;
     caf::PdmField<bool>                                             m_objectiveValuesSelectSummaryAddressPushButton;
     caf::PdmField<caf::AppEnum<RimObjectiveFunction::FunctionType>> m_objectiveFunction;
     caf::PdmPtrField<RimCustomObjectiveFunction*>                   m_customObjectiveFunction;

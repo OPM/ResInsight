@@ -43,14 +43,13 @@ RimCustomObjectiveFunctionWeight::RimCustomObjectiveFunctionWeight()
     CAF_PDM_InitFieldNoDefault( &m_title, "WeightTitle", "Title", "", "", "" );
     m_title.registerGetMethod( this, &RimCustomObjectiveFunctionWeight::title );
 
-    CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSummaryAddressUiField, "SelectedObjectiveSummaryVar", "Vector", "", "", "" );
-    m_objectiveValuesSummaryAddressUiField.xmlCapability()->disableIO();
-    m_objectiveValuesSummaryAddressUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
+    CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSummaryAddressesUiField, "SelectedObjectiveSummaryVar", "Vector", "", "", "" );
+    m_objectiveValuesSummaryAddressesUiField.xmlCapability()->disableIO();
+    m_objectiveValuesSummaryAddressesUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSummaryAddress, "ObjectiveSummaryAddress", "Summary Address", "", "", "" );
-    m_objectiveValuesSummaryAddress.uiCapability()->setUiHidden( true );
-    m_objectiveValuesSummaryAddress.uiCapability()->setUiTreeChildrenHidden( true );
-    m_objectiveValuesSummaryAddress = new RimSummaryAddress;
+    CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSummaryAddresses, "ObjectiveSummaryAddress", "Summary Address", "", "", "" );
+    m_objectiveValuesSummaryAddresses.uiCapability()->setUiHidden( true );
+    m_objectiveValuesSummaryAddresses.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSelectSummaryAddressPushButton,
                                 "SelectObjectiveSummaryAddress",
@@ -76,10 +75,17 @@ RimCustomObjectiveFunctionWeight::RimCustomObjectiveFunctionWeight()
 //--------------------------------------------------------------------------------------------------
 QString RimCustomObjectiveFunctionWeight::title() const
 {
-    return QString( "%0 * %1::%2" )
+    QStringList addresses;
+    for ( auto address : m_objectiveValuesSummaryAddresses )
+    {
+        addresses << QString::fromStdString( address->address().quantityName() );
+    }
+    return QString( "%0 * %1::%2%3%4" )
         .arg( m_weightValue, 0, 'f', 2 )
         .arg( caf::AppEnum<RimObjectiveFunction::FunctionType>( m_objectiveFunction() ).uiText() )
-        .arg( QString::fromStdString( m_objectiveValuesSummaryAddress->address().quantityName() ) );
+        .arg( addresses.size() > 1 ? "(" : "" )
+        .arg( addresses.join( " + " ) )
+        .arg( addresses.size() > 1 ? ")" : "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,16 +93,23 @@ QString RimCustomObjectiveFunctionWeight::title() const
 //--------------------------------------------------------------------------------------------------
 void RimCustomObjectiveFunctionWeight::setSummaryAddress( RifEclipseSummaryAddress address )
 {
-    m_objectiveValuesSummaryAddress->setAddress( address );
+    std::unique_ptr<RimSummaryAddress> summaryAddress = std::make_unique<RimSummaryAddress>( new RimSummaryAddress );
+    summaryAddress->setAddress( address );
+    m_objectiveValuesSummaryAddresses.push_back( summaryAddress.get() );
     parentObjectiveFunction()->onWeightChanged();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RimCustomObjectiveFunctionWeight::summaryAddress() const
+std::vector<const RifEclipseSummaryAddress&> RimCustomObjectiveFunctionWeight::summaryAddresses() const
 {
-    return m_objectiveValuesSummaryAddress->address();
+    std::vector<const RifEclipseSummaryAddress&> addresses;
+    for ( auto address : m_objectiveValuesSummaryAddresses )
+    {
+        addresses.push_back( address->address() );
+    }
+    return addresses;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -124,12 +137,6 @@ QList<caf::PdmOptionItemInfo>
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if ( fieldNeedingOptions == &m_objectiveValuesSummaryAddressUiField )
-    {
-        parentCurveSet()->appendOptionItemsForSummaryAddresses( &options, parentCurveSet()->summaryCaseCollection() );
-        m_objectiveValuesSummaryAddressUiField.setValue( m_objectiveValuesSummaryAddress->address() );
-    }
-
     return options;
 }
 
@@ -140,25 +147,42 @@ void RimCustomObjectiveFunctionWeight::fieldChangedByUi( const caf::PdmFieldHand
                                                          const QVariant&            oldValue,
                                                          const QVariant&            newValue )
 {
-    if ( changedField == &m_objectiveValuesSummaryAddressUiField )
+    if ( changedField == &m_objectiveValuesSummaryAddressesUiField )
     {
-        m_objectiveValuesSummaryAddress->setAddress( m_objectiveValuesSummaryAddressUiField() );
+        QStringList addressesCombined;
+        for ( RimSummaryAddress* address : m_objectiveValuesSummaryAddresses )
+        {
+            addressesCombined << QString::fromStdString( address->address().quantityName() );
+        }
+        m_objectiveValuesSummaryAddressesUiField = addressesCombined.join( "; " );
     }
     else if ( changedField == &m_objectiveValuesSelectSummaryAddressPushButton )
     {
         RiuSummaryVectorSelectionDialog dlg( nullptr );
-        RimSummaryCaseCollection*       candidateEnsemble = parentCurveSet()->summaryCaseCollection();
-        RifEclipseSummaryAddress        candicateAddress  = m_objectiveValuesSummaryAddress->address();
+        dlg.enableMultiSelect( true );
+        RimSummaryCaseCollection* candidateEnsemble = parentCurveSet()->summaryCaseCollection();
+
+        std::vector<const RifEclipseSummaryAddress&> candidateAddresses;
+        for ( auto address : m_objectiveValuesSummaryAddresses().childObjects() )
+        {
+            candidateAddresses.push_back( address->address() );
+        }
 
         dlg.hideSummaryCases();
-        dlg.setEnsembleAndAddress( candidateEnsemble, candicateAddress );
+        dlg.setEnsembleAndAddresses( candidateEnsemble, candidateAddresses );
 
         if ( dlg.exec() == QDialog::Accepted )
         {
             auto curveSelection = dlg.curveSelection();
             if ( !curveSelection.empty() )
             {
-                m_objectiveValuesSummaryAddress->setAddress( curveSelection[0].summaryAddress() );
+                for ( auto address : curveSelection )
+                {
+                    std::unique_ptr<RimSummaryAddress> summaryAddress =
+                        std::make_unique<RimSummaryAddress>( new RimSummaryAddress );
+                    summaryAddress->setAddress( address.summaryAddress() );
+                    m_objectiveValuesSummaryAddresses.push_back( summaryAddress.get() );
+                }
             }
         }
 
@@ -180,7 +204,7 @@ void RimCustomObjectiveFunctionWeight::fieldChangedByUi( const caf::PdmFieldHand
 //--------------------------------------------------------------------------------------------------
 void RimCustomObjectiveFunctionWeight::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_objectiveValuesSummaryAddressUiField );
+    uiOrdering.add( &m_objectiveValuesSummaryAddressesUiField );
     uiOrdering.add( &m_objectiveValuesSelectSummaryAddressPushButton, {false, 1, 0} );
     uiOrdering.add( &m_weightValue );
     uiOrdering.add( &m_objectiveFunction );
