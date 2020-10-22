@@ -931,10 +931,16 @@ void RimEnsembleCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrdering )
         {
             colorsGroup->add( &m_customObjectiveFunction );
         }
-        colorsGroup->add( &m_minDateRange );
-        colorsGroup->add( &m_minTimeStep );
-        colorsGroup->add( &m_maxDateRange );
-        colorsGroup->add( &m_maxTimeStep );
+        if ( ( m_colorMode == ColorMode::BY_OBJECTIVE_FUNCTION &&
+               m_objectiveFunction() == RimObjectiveFunction::FunctionType::M1 ) ||
+             ( m_colorMode == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION && m_customObjectiveFunction() &&
+               m_customObjectiveFunction()->weightContainsFunctionType( RimObjectiveFunction::FunctionType::M1 ) ) )
+        {
+            colorsGroup->add( &m_minDateRange );
+            colorsGroup->add( &m_minTimeStep );
+            colorsGroup->add( &m_maxDateRange );
+            colorsGroup->add( &m_maxTimeStep );
+        }
         if ( m_objectiveFunction() == RimObjectiveFunction::FunctionType::M2 ||
              ( m_customObjectiveFunction() &&
                m_customObjectiveFunction()->weightContainsFunctionType( RimObjectiveFunction::FunctionType::M2 ) ) )
