@@ -198,7 +198,7 @@ void RiaRegressionTestRunner::runRegressionTest()
                 cvf::ref<RiaProjectModifier> projectModifier;
                 if ( regressionTestConfig.invalidateExternalFilePaths )
                 {
-                    projectModifier = new RiaProjectModifier;
+                    projectModifier = cvf::make_ref<RiaProjectModifier>();
                     projectModifier->setInvalidateExternalFilePaths();
                 }
                 logInfoTextWithTimeInSeconds( timeStamp, "Initializing test :" + testCaseFolder.absolutePath() );

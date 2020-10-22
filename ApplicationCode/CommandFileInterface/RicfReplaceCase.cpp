@@ -76,7 +76,7 @@ caf::PdmScriptResponse RicfSingleCaseReplace::execute()
         projectPath = lastProjectPath;
     }
 
-    cvf::ref<RiaProjectModifier> projectModifier = new RiaProjectModifier;
+    cvf::ref<RiaProjectModifier> projectModifier = cvf::make_ref<RiaProjectModifier>();
 
     QString   filePath = m_newGridFile();
     QFileInfo casePathInfo( filePath );
@@ -145,7 +145,7 @@ caf::PdmScriptResponse RicfMultiCaseReplace::execute()
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, errMsg );
     }
 
-    cvf::ref<RiaProjectModifier> projectModifier = new RiaProjectModifier;
+    cvf::ref<RiaProjectModifier> projectModifier = cvf::make_ref<RiaProjectModifier>();
     for ( const auto& a : m_caseIdToGridFileNameMap )
     {
         const int caseId   = a.first;

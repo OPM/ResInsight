@@ -600,7 +600,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
 
         if ( cvf::Option o = progOpt->option( "replaceCase" ) )
         {
-            if ( projectModifier.isNull() ) projectModifier = new RiaProjectModifier;
+            if ( projectModifier.isNull() ) projectModifier = cvf::make_ref<RiaProjectModifier>();
 
             if ( o.valueCount() == 1 )
             {
