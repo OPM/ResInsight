@@ -137,8 +137,6 @@ template<typename T> inline void swap(ref<T>& a, ref<T>& b)   { a.swap(b); }
 
 /// @}
 
-
-
 //==================================================================================================
 //
 // Smart pointer class for const pointers
@@ -180,6 +178,17 @@ template<typename T1, typename T2> inline bool operator==(const cref<T1>& a, T2*
 template<typename T1, typename T2> inline bool operator!=(const cref<T1>& a, T2* b)              { return a.p() != b; }      ///< Returns true if the internal pointer of ref \a a is different from the naked pointer \a b.
 template<typename T1, typename T2> inline bool operator==(T1* a, const cref<T2>& b)              { return a == b.p(); }      ///< Returns true if the naked pointer \a a is equal to the internal pointer of ref \a b.
 template<typename T1, typename T2> inline bool operator!=(T1* a, const cref<T2>& b)              { return a != b.p(); }      ///< Returns true if the naked pointer \a a is different from the internal pointer of ref \a b.
+
+//==================================================================================================
+//
+// Creation of smart pointers.
+//
+//==================================================================================================
+template<typename T, class... Args>
+ref<T> make_ref(Args&&... args);
+
+template<typename T, class... Args>
+cref<T> make_cref(Args&&... args);
 
 /// @}
 
