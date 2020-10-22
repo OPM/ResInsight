@@ -30,8 +30,8 @@
 #include "cvfFont.h"
 #include "cvfObject.h"
 
-#include <QApplication>
 #include <QMutex>
+#include <QPointer>
 #include <QProcess>
 #include <QProcessEnvironment>
 #include <QString>
@@ -241,21 +241,21 @@ protected:
     cvf::ref<cvf::Font> m_defaultWellLabelFont;
 
     caf::PdmPointer<Rim3dView>  m_activeReservoirView;
-    caf::PdmPointer<RimProject> m_project;
+    std::unique_ptr<RimProject> m_project;
 
-    RiaSocketServer* m_socketServer;
-    caf::UiProcess*  m_workerProcess;
+    QPointer<RiaSocketServer>       m_socketServer;
+    std::unique_ptr<caf::UiProcess> m_workerProcess;
 
 #ifdef ENABLE_GRPC
     std::unique_ptr<RiaGrpcServer> m_grpcServer;
 #endif
 
     // Execute for all settings
-    std::list<int>  m_scriptCaseIds;
-    int             m_currentScriptCaseId;
-    QString         m_currentProgram;
-    QStringList     m_currentArguments;
-    RiaPreferences* m_preferences;
+    std::list<int>                  m_scriptCaseIds;
+    int                             m_currentScriptCaseId;
+    QString                         m_currentProgram;
+    QStringList                     m_currentArguments;
+    std::unique_ptr<RiaPreferences> m_preferences;
 
     std::map<QString, QString> m_fileDialogDefaultDirectories;
     QString                    m_startupDefaultDirectory;

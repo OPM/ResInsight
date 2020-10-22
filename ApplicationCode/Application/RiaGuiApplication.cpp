@@ -189,7 +189,7 @@ RiaGuiApplication::RiaGuiApplication( int& argc, char** argv )
 {
     setWindowIcon( QIcon( ":/AppLogo48x48.png" ) );
 
-    m_recentFileActionProvider = std::unique_ptr<RiuRecentFileActionProvider>( new RiuRecentFileActionProvider );
+    m_recentFileActionProvider = std::make_unique<RiuRecentFileActionProvider>();
 
     connect( this, SIGNAL( aboutToQuit() ), this, SLOT( onProgramExit() ) );
 }
@@ -201,8 +201,6 @@ RiaGuiApplication::~RiaGuiApplication()
 {
     deleteMainPlotWindow();
     deleteMainWindow();
-
-    RiaLogging::deleteLoggerInstance();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -210,7 +208,7 @@ RiaGuiApplication::~RiaGuiApplication()
 //--------------------------------------------------------------------------------------------------
 bool RiaGuiApplication::saveProject()
 {
-    CVF_ASSERT( m_project.notNull() );
+    CVF_ASSERT( m_project );
 
     QString fileName;
     if ( !isProjectSavedToDisc() )
@@ -429,10 +427,10 @@ void RiaGuiApplication::initialize()
     RiuGuiTheme::updateGuiTheme( m_preferences->guiTheme() );
 
     {
-        auto logger = new RiuMessagePanelLogger;
+        auto logger = std::make_unique<RiuMessagePanelLogger>();
         logger->addMessagePanel( m_mainWindow->messagePanel() );
         logger->addMessagePanel( m_mainPlotWindow->messagePanel() );
-        RiaLogging::setLoggerInstance( logger );
+        RiaLogging::setLoggerInstance( std::move( logger ) );
         RiaLogging::loggerInstance()->setLevel( int( RILogLevel::RI_LL_DEBUG ) );
     }
     m_socketServer = new RiaSocketServer( this );
@@ -498,10 +496,10 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
         // Use a logger writing to stdout instead of message panel
         // This is useful when executing regression tests on a build server, and this is the reason for creating the
         // logger when parsing the command line options
-        auto stdLogger = new RiaStdOutLogger;
+        auto stdLogger = std::make_unique<RiaStdOutLogger>();
         stdLogger->setLevel( int( RILogLevel::RI_LL_DEBUG ) );
 
-        RiaLogging::setLoggerInstance( stdLogger );
+        RiaLogging::setLoggerInstance( std::move( stdLogger ) );
 
         RiaRegressionTestRunner::instance()->executeRegressionTests( regressionTestPath, QStringList() );
         return ApplicationStatus::EXIT_COMPLETED;
@@ -627,7 +625,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
 
         if ( cvf::Option o = progOpt->option( "replaceSourceCases" ) )
         {
-            if ( projectModifier.isNull() ) projectModifier = new RiaProjectModifier;
+            if ( projectModifier.isNull() ) projectModifier = cvf::make_ref<RiaProjectModifier>();
 
             if ( o.valueCount() == 1 )
             {
@@ -658,7 +656,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
 
         if ( cvf::Option o = progOpt->option( "replacePropertiesFolder" ) )
         {
-            if ( projectModifier.isNull() ) projectModifier = new RiaProjectModifier;
+            if ( projectModifier.isNull() ) projectModifier = cvf::make_ref<RiaProjectModifier>();
 
             if ( o.valueCount() == 1 )
             {
@@ -1266,7 +1264,7 @@ void RiaGuiApplication::onFileSuccessfullyLoaded( const QString& fileName, RiaDe
 void RiaGuiApplication::onProjectBeingOpened()
 {
     // When importing a project, do not maximize the first MDI window to be created
-    m_maximizeWindowGuard.reset( new RiuMdiMaximizeWindowGuard );
+    m_maximizeWindowGuard = std::make_unique<RiuMdiMaximizeWindowGuard>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1614,7 +1612,7 @@ void RiaGuiApplication::updateGrpcServer()
     else if ( !isGrpcRunning && shouldItBeRunning )
     {
         int portNumber = RiaGrpcServer::findAvailablePortNumber( m_preferences->defaultGrpcPortNumber() );
-        m_grpcServer.reset( new RiaGrpcServer( portNumber ) );
+        m_grpcServer   = std::make_unique<RiaGrpcServer>( portNumber );
         m_grpcServer->runInThread();
     }
 #endif

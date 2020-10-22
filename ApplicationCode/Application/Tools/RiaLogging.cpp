@@ -169,37 +169,22 @@ void RiaDefaultConsoleLogger::writeToConsole( const std::string& str )
 //
 //==================================================================================================
 
-RiaLogger* RiaLogging::sm_logger = new RiaDefaultConsoleLogger;
+std::unique_ptr<RiaLogger> RiaLogging::sm_logger = std::make_unique<RiaDefaultConsoleLogger>();
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RiaLogger* RiaLogging::loggerInstance()
 {
-    return sm_logger;
+    return sm_logger.get();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaLogging::setLoggerInstance( RiaLogger* loggerInstance )
+void RiaLogging::setLoggerInstance( std::unique_ptr<RiaLogger> loggerInstance )
 {
-    // Only delete if we're currently using our own default impl
-    if ( dynamic_cast<RiaDefaultConsoleLogger*>( sm_logger ) )
-    {
-        delete sm_logger;
-    }
-
-    sm_logger = loggerInstance;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaLogging::deleteLoggerInstance()
-{
-    delete sm_logger;
-    sm_logger = nullptr;
+    sm_logger = std::move( loggerInstance );
 }
 
 //--------------------------------------------------------------------------------------------------

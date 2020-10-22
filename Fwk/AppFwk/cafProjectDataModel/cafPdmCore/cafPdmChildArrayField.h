@@ -6,6 +6,8 @@
 #include "cafPdmFieldHandle.h"
 #include "cafPdmPointer.h"
 
+#include <memory>
+
 namespace caf
 {
 template <typename T>
@@ -47,7 +49,8 @@ public:
 template <typename DataType>
 class PdmChildArrayField<DataType*> : public PdmChildArrayFieldHandle
 {
-    typedef DataType* DataTypePtr;
+    typedef DataType*                 DataTypePtr;
+    typedef std::unique_ptr<DataType> DataTypeUniquePtr;
 
 public:
     PdmChildArrayField() {}
@@ -63,6 +66,7 @@ public:
     void             clear() override;
     void             deleteAllChildObjects() override;
     void             insertAt( int indexAfter, PdmObjectHandle* obj ) override;
+    void             insertAt( int indexAfter, std::unique_ptr<PdmObjectHandle> obj );
     PdmObjectHandle* at( size_t index ) override;
     void             setValue( const std::vector<DataType*>& objects );
 
@@ -72,9 +76,12 @@ public:
 
     DataType* operator[]( size_t index ) const;
 
-    void   push_back( DataType* pointer );
-    void   set( size_t index, DataType* pointer );
-    void   insert( size_t indexAfter, DataType* pointer );
+    void   push_back( DataTypePtr pointer );
+    void   push_back( DataTypeUniquePtr pointer );
+    void   set( size_t index, DataTypePtr pointer );
+    void   set( size_t index, DataTypeUniquePtr pointer );
+    void   insert( size_t indexAfter, DataTypePtr pointer );
+    void   insert( size_t indexAfter, DataTypeUniquePtr pointer );
     void   insert( size_t indexAfter, const std::vector<PdmPointer<DataType>>& objects );
     size_t count( const DataType* pointer ) const;
 
