@@ -706,11 +706,8 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     }
     else if ( changedField == &m_selectedTimeSteps )
     {
-        if ( selectedTimeSteps().size() > 0 )
-        {
-            summaryCaseCollection()->objectiveFunction( m_objectiveFunction() )->setTimeStepList( selectedTimeSteps() );
-            updateCurveColors();
-        }
+        summaryCaseCollection()->objectiveFunction( m_objectiveFunction() )->setTimeStepList( selectedTimeSteps() );
+        updateCurveColors();
         updateTimeAnnotations();
     }
     else if ( changedField == &m_minTimeStep || changedField == &m_maxTimeStep )
@@ -1492,15 +1489,25 @@ void RimEnsembleCurveSet::updateTimeAnnotations()
 
     plot->removeAllTimeAnnotations();
 
-    if ( m_colorMode() == ColorMode::BY_OBJECTIVE_FUNCTION || m_colorMode() == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION )
+    if ( ( m_colorMode() == ColorMode::BY_OBJECTIVE_FUNCTION &&
+           m_objectiveFunction() == RimObjectiveFunction::FunctionType::M1 ) ||
+         ( m_colorMode() == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION && m_customObjectiveFunction() &&
+           m_customObjectiveFunction()->weightContainsFunctionType( RimObjectiveFunction::FunctionType::M1 ) ) )
+    {
+        plot->addTimeRangeAnnotation( m_minTimeStep, m_maxTimeStep );
+    }
+
+    if ( ( m_colorMode() == ColorMode::BY_OBJECTIVE_FUNCTION &&
+           m_objectiveFunction() == RimObjectiveFunction::FunctionType::M2 ) ||
+         ( m_colorMode() == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION && m_customObjectiveFunction() &&
+           m_customObjectiveFunction()->weightContainsFunctionType( RimObjectiveFunction::FunctionType::M2 ) ) )
     {
         for ( QDateTime timeStep : m_selectedTimeSteps() )
         {
             plot->addTimeAnnotation( RiaTimeTTools::fromQDateTime( timeStep ) );
         }
-        plot->addTimeRangeAnnotation( m_minTimeStep, m_maxTimeStep );
-        plot->updateAxes();
     }
+    plot->updateAxes();
 }
 
 //--------------------------------------------------------------------------------------------------
