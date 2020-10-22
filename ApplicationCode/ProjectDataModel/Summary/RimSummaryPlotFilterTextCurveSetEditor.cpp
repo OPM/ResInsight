@@ -263,7 +263,14 @@ void RimSummaryPlotFilterTextCurveSetEditor::fieldChangedByUi( const caf::PdmFie
 
             for ( const auto& filteredAddress : filteredAddressesFromSource )
             {
-                curveDefinitions.insert( RiaSummaryCurveDefinition( sumCase, filteredAddress, ensemble != nullptr ) );
+                if ( sumCase )
+                {
+                    curveDefinitions.insert( RiaSummaryCurveDefinition( sumCase, filteredAddress, ensemble != nullptr ) );
+                }
+                else if ( ensemble )
+                {
+                    curveDefinitions.insert( RiaSummaryCurveDefinition( ensemble, filteredAddress ) );
+                }
             }
         }
 
