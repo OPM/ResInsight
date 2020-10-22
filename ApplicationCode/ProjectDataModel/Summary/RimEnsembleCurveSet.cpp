@@ -293,6 +293,7 @@ void RimEnsembleCurveSet::loadDataAndUpdate( bool updateParentPlot )
     m_objectiveValuesSummaryAddressUiField = m_objectiveValuesSummaryAddress->address();
 
     updateAllCurves();
+    updateFilterLegend();
 
     if ( updateParentPlot )
     {
