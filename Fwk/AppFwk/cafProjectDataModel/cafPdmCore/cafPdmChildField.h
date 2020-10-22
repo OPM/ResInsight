@@ -5,6 +5,8 @@
 #include "cafAssert.h"
 #include "cafPdmPointer.h"
 
+#include <memory>
+
 namespace caf
 {
 template <typename T>
@@ -37,21 +39,24 @@ public:
 template <typename DataType>
 class PdmChildField<DataType*> : public PdmChildFieldHandle
 {
-    typedef DataType* DataTypePtr;
+    typedef DataType*                 DataTypePtr;
+    typedef std::unique_ptr<DataType> DataTypeUniquePtr;
 
 public:
     PdmChildField() {}
     explicit PdmChildField( const DataTypePtr& fieldValue );
+    explicit PdmChildField( DataTypeUniquePtr fieldValue );
     virtual ~PdmChildField();
 
     // Assignment
 
     PdmChildField& operator=( const DataTypePtr& fieldValue );
-
+    PdmChildField& operator=( DataTypeUniquePtr fieldValue );
     // Basic access
 
     DataType* value() const { return m_fieldValue; }
     void      setValue( const DataTypePtr& fieldValue );
+    void      setValue( DataTypeUniquePtr fieldValue );
 
     // Access operators
 

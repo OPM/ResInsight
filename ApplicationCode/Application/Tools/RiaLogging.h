@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <memory>
 #include <string>
 
 class QString;
@@ -59,8 +60,7 @@ class RiaLogging
 {
 public:
     static RiaLogger* loggerInstance();
-    static void       setLoggerInstance( RiaLogger* loggerInstance );
-    static void       deleteLoggerInstance();
+    static void       setLoggerInstance( std::unique_ptr<RiaLogger> loggerInstance );
 
     static void error( const QString& message );
     static void warning( const QString& message );
@@ -70,7 +70,7 @@ public:
     static void errorInMessageBox( QWidget* parent, const QString& title, const QString& text );
 
 private:
-    static RiaLogger* sm_logger;
+    static std::unique_ptr<RiaLogger> sm_logger;
 };
 
 //==================================================================================================

@@ -59,7 +59,6 @@ RiaConsoleApplication::RiaConsoleApplication( int& argc, char** argv )
 //--------------------------------------------------------------------------------------------------
 RiaConsoleApplication::~RiaConsoleApplication()
 {
-    RiaLogging::deleteLoggerInstance();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -103,7 +102,7 @@ void RiaConsoleApplication::initialize()
 
     RiaApplication::initialize();
 
-    RiaLogging::setLoggerInstance( new RiaStdOutLogger );
+    RiaLogging::setLoggerInstance( std::make_unique<RiaStdOutLogger>() );
     RiaLogging::loggerInstance()->setLevel( int( RILogLevel::RI_LL_DEBUG ) );
 
     m_socketServer = new RiaSocketServer( this );
