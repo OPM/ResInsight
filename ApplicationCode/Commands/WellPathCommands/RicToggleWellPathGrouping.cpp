@@ -128,7 +128,7 @@ void RicToggleWellPathGrouping::setupActionLook( QAction* actionToSetup )
     auto wellPaths = selectedWellPaths();
     if ( containsUngroupedWellPathsWithCommonGeometry( wellPaths ) )
     {
-        actionToSetup->setText( "Group the selected well paths into a Well Tree" );
+        actionToSetup->setText( "Group the selected well paths" );
         actionToSetup->setIcon( QIcon( ":/WellPathGroup.svg" ) );
     }
     else if ( containsGroupedWellPaths( wellPaths ) )

@@ -409,11 +409,13 @@ void RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& 
         {
             wellPath->setWellPathColor( RiaColorTables::wellPathsPaletteColors().cycledColor3f( m_wellPaths.size() ) );
             wellPath->setUnitSystem( findUnitSystemForWellPath( wellPath ) );
-            addWellPath( wellPath, importGrouped );
+            addWellPath( wellPath, false );
         }
 
         progress.incrementProgress();
     }
+    groupWellPaths( allWellPaths(), true );
+
     wellPathArray.clear(); // This should not be used again. We may have deleted items
     this->sortWellsByName();
 }
@@ -651,18 +653,39 @@ void RimWellPathCollection::deleteAllWellPaths()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::groupWellPaths( const std::vector<RimWellPath*>& wellPaths )
+void RimWellPathCollection::groupWellPaths( const std::vector<RimWellPath*>& wellPaths, bool allowAddingToExistingGroups )
 {
-    auto                      detachedWellPaths       = detachWellPaths( wellPaths );
-    std::vector<RimWellPath*> allWellPathsToGroupWith = detachedWellPaths;
+    auto detachedWellPaths = detachWellPaths( wellPaths );
+
+    if ( allowAddingToExistingGroups )
+    {
+        for ( auto wellPath : allWellPaths() )
+        {
+            if ( dynamic_cast<RimWellPathGroup*>( wellPath ) )
+            {
+                auto existingGroupPaths = detachWellPaths( {wellPath} );
+                detachedWellPaths.insert( detachedWellPaths.end(), existingGroupPaths.begin(), existingGroupPaths.end() );
+            }
+        }
+    }
+
+    auto wellPathsToGroupWith = detachedWellPaths;
 
     for ( auto wellPath : detachedWellPaths )
     {
-        auto parentGroup = findOrCreateWellPathGroup( wellPath, allWellPathsToGroupWith );
-        if ( parentGroup && std::find( allWellPathsToGroupWith.begin(), allWellPathsToGroupWith.end(), parentGroup ) ==
-                                allWellPathsToGroupWith.end() )
+        auto parentGroup = findOrCreateWellPathGroup( wellPath, wellPathsToGroupWith );
+        if ( parentGroup )
         {
-            allWellPathsToGroupWith.push_back( parentGroup );
+            auto groupIsNew = std::find( wellPathsToGroupWith.begin(), wellPathsToGroupWith.end(), parentGroup ) ==
+                              wellPathsToGroupWith.end();
+            if ( groupIsNew )
+            {
+                wellPathsToGroupWith.push_back( parentGroup );
+            }
+        }
+        else
+        {
+            m_wellPaths.push_back( wellPath );
         }
     }
     this->sortWellsByName();
@@ -737,7 +760,7 @@ void RimWellPathCollection::reloadAllWellPathFormations()
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::removeWellPath( gsl::not_null<RimWellPath*> wellPath )
 {
-    bool removed = detachWellPath( wellPath );
+    detachWellPath( wellPath );
 
     RimFileWellPath* fileWellPath = dynamic_cast<RimFileWellPath*>( wellPath.get() );
     if ( fileWellPath )
@@ -843,7 +866,7 @@ RimWellPathGroup* RimWellPathCollection::findOrCreateWellPathGroup( gsl::not_nul
         detachWellPath( wellPath );
         mostSimilarWellPathGroup->addChildWellPath( wellPath.get() );
     }
-    else if ( !wellPathsWithCommonGeometry.empty() )
+    else if ( wellPathsWithCommonGeometry.size() > 1u )
     {
         RimWellPathGroup* group = new RimWellPathGroup;
         m_wellPaths.push_back( group );
