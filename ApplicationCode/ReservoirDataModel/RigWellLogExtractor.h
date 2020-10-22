@@ -19,17 +19,18 @@
 
 #pragma once
 
+#include "RigHexIntersectionTools.h"
+#include "RigWellLogExtractionTools.h"
+
 #include "cvfMath.h"
 #include "cvfObject.h"
+#include "cvfStructGrid.h"
 #include "cvfVector3.h"
+
+#include <gsl/gsl>
 
 #include <map>
 #include <vector>
-
-#include "cvfStructGrid.h"
-
-#include "RigHexIntersectionTools.h"
-#include "RigWellLogExtractionTools.h"
 
 //==================================================================================================
 ///
@@ -78,9 +79,9 @@ protected:
                                           std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo>* uniqueIntersections );
 
     void populateReturnArrays( std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo>& uniqueIntersections );
-    void appendIntersectionToArrays( double                     measuredDepth,
-                                     const HexIntersectionInfo& intersection,
-                                     QStringList*               errorMessages );
+    void appendIntersectionToArrays( double                      measuredDepth,
+                                     const HexIntersectionInfo&  intersection,
+                                     gsl::not_null<QStringList*> errorMessages );
 
     virtual cvf::Vec3d
         calculateLengthInCell( size_t cellIndex, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint ) const = 0;

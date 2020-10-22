@@ -315,12 +315,10 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
     }
 }
 
-void RigWellLogExtractor::appendIntersectionToArrays( double                     measuredDepth,
-                                                      const HexIntersectionInfo& intersection,
-                                                      QStringList*               errorMessages )
+void RigWellLogExtractor::appendIntersectionToArrays( double                      measuredDepth,
+                                                      const HexIntersectionInfo&  intersection,
+                                                      gsl::not_null<QStringList*> errorMessages )
 {
-    CVF_ASSERT( errorMessages );
-
     QString errorMessage;
     if ( !m_intersectionMeasuredDepths.empty() && measuredDepth < m_intersectionMeasuredDepths.back() )
     {
