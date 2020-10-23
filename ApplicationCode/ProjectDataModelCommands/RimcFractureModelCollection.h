@@ -31,6 +31,7 @@
 class RimFractureModelCollection;
 class RimFractureModelTemplate;
 class RimWellPath;
+class RimEclipseCase;
 
 //==================================================================================================
 ///
@@ -47,7 +48,9 @@ public:
     std::unique_ptr<PdmObjectHandle> defaultResult() const override;
 
 private:
-    caf::PdmPtrField<RimWellPath*> m_wellPath;
-    caf::PdmField<double>          m_md;
+    caf::PdmPtrField<RimEclipseCase*>           m_eclipseCase;
+    caf::PdmField<int>                          m_timeStep;
+    caf::PdmPtrField<RimWellPath*>              m_wellPath;
+    caf::PdmField<double>                       m_md;
     caf::PdmPtrField<RimFractureModelTemplate*> m_fractureModelTemplate;
 };

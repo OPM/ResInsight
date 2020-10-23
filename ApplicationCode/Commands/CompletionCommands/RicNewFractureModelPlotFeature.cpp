@@ -67,10 +67,12 @@ CAF_CMD_SOURCE_INIT( RicNewFractureModelPlotFeature, "RicNewFractureModelPlotFea
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFractureModelPlot*
-    RicNewFractureModelPlotFeature::createPlot( RimEclipseCase* eclipseCase, RimFractureModel* fractureModel, int timeStep )
+RimFractureModelPlot* RicNewFractureModelPlotFeature::createPlot( RimFractureModel* fractureModel )
 
 {
+    RimEclipseCase* eclipseCase = fractureModel->eclipseCase();
+    int             timeStep    = fractureModel->timeStep();
+
     caf::ProgressInfo progInfo( 100, "Creating Fracture Model Plot" );
 
     RimFractureModelPlot* plot = createFractureModelPlot( true, "Fracture Model" );
@@ -193,16 +195,7 @@ void RicNewFractureModelPlotFeature::onActionTriggered( bool isChecked )
     RimFractureModel* fractureModel = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimFractureModel>();
     if ( !fractureModel ) return;
 
-    Rim3dView* view = RiaApplication::instance()->activeReservoirView();
-    if ( !view ) return;
-
-    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( view );
-    if ( !eclipseView ) return;
-
-    RimEclipseCase* eclipseCase = eclipseView->eclipseCase();
-    if ( !eclipseCase ) return;
-
-    createPlot( eclipseCase, fractureModel, view->currentTimeStep() );
+    createPlot( fractureModel );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -39,7 +39,7 @@ class RicNewFractureModelPlotFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static RimFractureModelPlot* createPlot( RimEclipseCase* eclipseCase, RimFractureModel* fractureModel, int timeStep );
+    static RimFractureModelPlot* createPlot( RimFractureModel* fractureModel );
 
 protected:
     // Overrides

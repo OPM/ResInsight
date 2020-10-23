@@ -118,6 +118,8 @@ void RimFractureModelCalculator::calculateLayers( std::vector<std::pair<double, 
                       depths,
                       rkbDiff );
 
+    if ( layerValues.size() != depths.size() ) return;
+
     size_t startIndex = 0;
     for ( size_t i = 0; i < depths.size(); i++ )
     {

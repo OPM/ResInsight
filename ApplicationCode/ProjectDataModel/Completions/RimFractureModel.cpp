@@ -44,6 +44,7 @@
 #include "RimFaciesProperties.h"
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
+#include "RimFracture.h"
 #include "RimFractureModelCalculator.h"
 #include "RimFractureModelPlot.h"
 #include "RimFractureModelTemplate.h"
@@ -136,6 +137,7 @@ RimFractureModel::RimFractureModel()
     m_editFractureModelTemplate.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     m_editFractureModelTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
+    CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "EclipseCase", "Case", "", "", "" );
     CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step", "", "", "" );
 
     CAF_PDM_InitScriptableField( &m_MD, "MeasuredDepth", 0.0, "Measured Depth", "", "", "" );
@@ -290,10 +292,20 @@ void RimFractureModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField
     if ( changedField == &m_MD || changedField == &m_extractionType || changedField == &m_boundingBoxVertical ||
          changedField == &m_boundingBoxHorizontal || changedField == &m_fractureOrientation ||
          changedField == &m_autoComputeBarrier || changedField == &m_azimuthAngle ||
-         changedField == &m_showOnlyBarrierFault )
+         changedField == &m_showOnlyBarrierFault || changedField == &m_eclipseCase )
     {
         updateThicknessDirection();
         updateBarrierProperties();
+    }
+
+    if ( changedField == &m_eclipseCase )
+    {
+        // Set a valid default time step
+        const int timeStepCount = m_eclipseCase->timeStepStrings().size();
+        if ( timeStepCount > 0 )
+        {
+            m_timeStep = timeStepCount - 1;
+        }
     }
 
     if ( changedField == &m_showAllFaults )
@@ -323,6 +335,11 @@ void RimFractureModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         m_thermalExpansionCoeffientDefault.uiCapability()->setUiReadOnly( !m_useDetailedFluidLoss );
     }
 
+    if ( changedField == &m_fractureModelTemplate )
+    {
+        setFractureModelTemplate( m_fractureModelTemplate() );
+    }
+
     if ( changedField == &m_editFractureModelTemplate )
     {
         m_editFractureModelTemplate = false;
@@ -331,13 +348,10 @@ void RimFractureModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField
             Riu3DMainWindowTools::selectAsCurrentItem( m_fractureModelTemplate() );
         }
     }
-
-    if ( changedField == &m_fractureModelTemplate )
+    else
     {
-        setFractureModelTemplate( m_fractureModelTemplate() );
+        updateViewsAndPlots();
     }
-
-    updateViewsAndPlots();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -362,6 +376,14 @@ QList<caf::PdmOptionItemInfo> RimFractureModel::calculateValueOptions( const caf
                 options.push_back( caf::PdmOptionItemInfo( displayText, fracDef ) );
             }
         }
+    }
+    else if ( fieldNeedingOptions == &m_eclipseCase )
+    {
+        RimTools::eclipseCaseOptionItems( &options );
+    }
+    else if ( fieldNeedingOptions == &m_timeStep )
+    {
+        RimTools::timeStepsForCase( m_eclipseCase(), &options );
     }
 
     return options;
@@ -810,6 +832,7 @@ void RimFractureModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     uiOrdering.add( &m_fractureModelTemplate, {true, 2, 1} );
     uiOrdering.add( &m_editFractureModelTemplate, {false, 1, 0} );
 
+    uiOrdering.add( &m_eclipseCase );
     uiOrdering.add( &m_timeStep );
     uiOrdering.add( &m_MD );
     uiOrdering.add( &m_extractionType );
@@ -1345,6 +1368,14 @@ int RimFractureModel::timeStep() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimFractureModel::setTimeStep( int timeStep )
+{
+    m_timeStep = timeStep;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RimFractureModel::referenceTemperature() const
 {
     return m_fractureModelTemplate() ? m_fractureModelTemplate()->referenceTemperature() : 0.0;
@@ -1369,25 +1400,29 @@ double RimFractureModel::referenceTemperatureDepth() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseCase* RimFractureModel::getEclipseCase()
+RimEclipseCase* RimFractureModel::eclipseCase() const
 {
-    // Find an eclipse case
-    RimProject* proj = RimProject::current();
-    if ( proj->eclipseCases().empty() ) return nullptr;
-
-    return proj->eclipseCases()[0];
+    return m_eclipseCase;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigEclipseCaseData* RimFractureModel::getEclipseCaseData()
+void RimFractureModel::setEclipseCase( RimEclipseCase* eclipseCase )
+{
+    m_eclipseCase = eclipseCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigEclipseCaseData* RimFractureModel::getEclipseCaseData() const
 {
     // Find an eclipse case
-    RimEclipseCase* eclipseCase = getEclipseCase();
-    if ( !eclipseCase ) return nullptr;
+    RimEclipseCase* eclCase = eclipseCase();
+    if ( !eclCase ) return nullptr;
 
-    return eclipseCase->eclipseCaseData();
+    return eclCase->eclipseCaseData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1541,17 +1576,6 @@ void RimFractureModel::showAllFaults()
 std::shared_ptr<RimFractureModelCalculator> RimFractureModel::calculator() const
 {
     return m_calculator;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimEclipseCase* RimFractureModel::eclipseCase() const
-{
-    RimProject* proj = RimProject::current();
-    if ( proj->eclipseCases().empty() ) return nullptr;
-
-    return proj->eclipseCases()[0];
 }
 
 //--------------------------------------------------------------------------------------------------

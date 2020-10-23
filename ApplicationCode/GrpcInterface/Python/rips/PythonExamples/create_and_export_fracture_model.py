@@ -56,10 +56,7 @@ well_path = project.well_path_by_name("B-2 H")
 print("well path:", well_path)
 fracture_model_collection = project.descendants(rips.FractureModelCollection)[0]
 
-# Create fracture model at a give measured depth
-measured_depth = 3200.0
-fracture_model = fracture_model_collection.new_fracture_model(well_path=well_path, measured_depth=measured_depth, fracture_model_template=fracture_model_template)
-
+# Find a case
 cases = resinsight.project.cases()
 case = cases[0]
 
@@ -67,9 +64,17 @@ case = cases[0]
 time_steps = case.time_steps()
 time_step = time_steps[len(time_steps) - 1]
 
+# Create fracture model at a give measured depth
+measured_depth = 3200.0
+fracture_model = fracture_model_collection.new_fracture_model(eclipse_case=case,
+                                                              time_step=time_step,
+                                                              well_path=well_path,
+                                                              measured_depth=measured_depth,
+                                                              fracture_model_template=fracture_model_template)
 
+# Create a fracture mode plot
 fracture_model_plot_collection = project.descendants(rips.FractureModelPlotCollection)[0]
-fracture_model_plot = fracture_model_plot_collection.new_fracture_model_plot(eclipse_case=case, fracture_model=fracture_model, time_step=time_step)
+fracture_model_plot = fracture_model_plot_collection.new_fracture_model_plot(fracture_model=fracture_model)
 
 export_folder = tempfile.gettempdir()
 
