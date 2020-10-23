@@ -15,22 +15,21 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-#include "RimcFractureModelPlot.h"
+#include "RimcFractureModel.h"
 
 #include "RifFractureModelExporter.h"
 
 #include "RimFractureModel.h"
-#include "RimFractureModelPlot.h"
 
 #include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmFieldScriptingCapability.h"
 
-CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimFractureModelPlot, RimcFractureModelPlot_exportToFile, "ExportToFile" );
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimFractureModel, RimcFractureModel_exportToFile, "ExportToFile" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimcFractureModelPlot_exportToFile::RimcFractureModelPlot_exportToFile( caf::PdmObjectHandle* self )
+RimcFractureModel_exportToFile::RimcFractureModel_exportToFile( caf::PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Export Fracture Model Plot", "", "", "Export Fracture Model Plot to File" );
@@ -40,13 +39,11 @@ RimcFractureModelPlot_exportToFile::RimcFractureModelPlot_exportToFile( caf::Pdm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcFractureModelPlot_exportToFile::execute()
+caf::PdmObjectHandle* RimcFractureModel_exportToFile::execute()
 {
-    RimFractureModelPlot* fractureModelPlot = self<RimFractureModelPlot>();
+    RimFractureModel* fractureModel = self<RimFractureModel>();
 
-    RifFractureModelExporter::writeToDirectory( fractureModelPlot->fractureModel(),
-                                                fractureModelPlot->fractureModel()->useDetailedFluidLoss(),
-                                                m_directoryPath() );
+    RifFractureModelExporter::writeToDirectory( fractureModel, fractureModel->useDetailedFluidLoss(), m_directoryPath() );
 
     return nullptr;
 }
@@ -54,7 +51,7 @@ caf::PdmObjectHandle* RimcFractureModelPlot_exportToFile::execute()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcFractureModelPlot_exportToFile::resultIsPersistent() const
+bool RimcFractureModel_exportToFile::resultIsPersistent() const
 {
     return false;
 }
@@ -62,15 +59,15 @@ bool RimcFractureModelPlot_exportToFile::resultIsPersistent() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcFractureModelPlot_exportToFile::defaultResult() const
+std::unique_ptr<caf::PdmObjectHandle> RimcFractureModel_exportToFile::defaultResult() const
 {
-    return std::unique_ptr<caf::PdmObjectHandle>( new RimFractureModelPlot );
+    return std::unique_ptr<caf::PdmObjectHandle>( new RimFractureModel );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcFractureModelPlot_exportToFile::isNullptrValidResult() const
+bool RimcFractureModel_exportToFile::isNullptrValidResult() const
 {
     return true;
 }
