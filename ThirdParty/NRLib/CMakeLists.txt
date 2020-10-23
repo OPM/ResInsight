@@ -39,13 +39,8 @@ target_include_directories(${PROJECT_NAME}
     ${CMAKE_CURRENT_SOURCE_DIR}/nrlib/well
 )
 
-find_package(Boost REQUIRED filesystem)
-include_directories(${Boost_INCLUDE_DIR})
+find_package(Boost REQUIRED filesystem system)
 
 target_link_libraries(${PROJECT_NAME} 
     ${Boost_LIBRARIES}
 )
-
-#target_link_libraries ( ${PROJECT_NAME}
-#  boost-Subset
-#)

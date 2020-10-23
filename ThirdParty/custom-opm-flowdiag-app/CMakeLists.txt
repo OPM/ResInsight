@@ -29,7 +29,6 @@ add_library(custom-opm-flowdiag-app
 )
 
 find_package(Boost REQUIRED filesystem system)
-include_directories(${Boost_INCLUDE_DIR})
 
 target_link_libraries(custom-opm-flowdiag-app 
   ecl

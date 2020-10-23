@@ -258,17 +258,8 @@ endif() # MSVC
 ################################################################################ 
 # Subset of Boost, used by NRLib and flow diagnostics application 
 ################################################################################ 
- 
-#if(MSVC)
-#    # stop MSVC from trying to auto-link libs
-#    add_definitions("-DBOOST_ALL_NO_LIB") 
-#endif() 
- 
-#add_subdirectory(ThirdParty/boost-Subset) 
-
-#list(APPEND THIRD_PARTY_LIBRARIES
-#    boost-Subset
-#)
+find_package(Boost REQUIRED filesystem system)
+include_directories(${Boost_INCLUDE_DIRS})
 
 ################################################################################
 # Opm
