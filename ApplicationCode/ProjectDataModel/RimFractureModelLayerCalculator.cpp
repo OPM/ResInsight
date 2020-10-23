@@ -78,7 +78,7 @@ bool RimFractureModelLayerCalculator::calculate( RiaDefines::CurveProperty curve
                                              fractureModel->thicknessDirectionWellPath()->wellPathGeometry(),
                                              "fracture model" );
 
-    rkbDiff = eclExtractor.wellPathData()->rkbDiff();
+    rkbDiff = eclExtractor.wellPathGeometry()->rkbDiff();
 
     // Extract formation data
     cvf::ref<RigResultAccessor> formationResultAccessor =

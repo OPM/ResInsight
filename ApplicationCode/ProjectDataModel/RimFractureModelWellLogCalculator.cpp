@@ -97,7 +97,7 @@ bool RimFractureModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
 
     measuredDepthValues = eclExtractor.cellIntersectionMDs();
     tvDepthValues       = eclExtractor.cellIntersectionTVDs();
-    rkbDiff             = eclExtractor.wellPathData()->rkbDiff();
+    rkbDiff             = eclExtractor.wellPathGeometry()->rkbDiff();
 
     RimEclipseResultDefinition eclipseResultDefinition;
     eclipseResultDefinition.setEclipseCase( eclipseCase );
