@@ -72,14 +72,16 @@ fracture_model = fracture_model_collection.new_fracture_model(eclipse_case=case,
                                                               measured_depth=measured_depth,
                                                               fracture_model_template=fracture_model_template)
 
+export_folder = tempfile.gettempdir()
+
+print("Exporting fracture model to: ", export_folder)
+fracture_model.export_to_file(directory_path=export_folder)
+
 # Create a fracture mode plot
 fracture_model_plot_collection = project.descendants(rips.FractureModelPlotCollection)[0]
 fracture_model_plot = fracture_model_plot_collection.new_fracture_model_plot(fracture_model=fracture_model)
 
-export_folder = tempfile.gettempdir()
-
-print("Exporting fracture model to: ", export_folder)
-fracture_model_plot.export_to_file(directory_path=export_folder)
+print("Exporting fracture model plot to: ", export_folder)
 fracture_model_plot.export_snapshot(export_folder=export_folder)
 
 print("Setting measured depth and perforation length.")

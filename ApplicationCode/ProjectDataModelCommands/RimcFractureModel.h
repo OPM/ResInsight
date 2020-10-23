@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "RimFractureModelPlot.h"
-
 #include "cafPdmField.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmObjectMethod.h"
@@ -28,18 +26,17 @@
 
 #include <QString>
 
-class RimFractureModelPlot;
-class RimWellPath;
+class RimFractureModel;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcFractureModelPlot_exportToFile : public caf::PdmObjectMethod
+class RimcFractureModel_exportToFile : public caf::PdmObjectMethod
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimcFractureModelPlot_exportToFile( caf::PdmObjectHandle* self );
+    RimcFractureModel_exportToFile( caf::PdmObjectHandle* self );
 
     caf::PdmObjectHandle*            execute() override;
     bool                             resultIsPersistent() const override;
