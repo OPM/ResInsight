@@ -262,8 +262,8 @@ protected:
     QString                    m_commandLineHelpText;
     QMap<QString, QVariant>    m_sessionCache; // Session cache used to store username/passwords per session
 
-    std::list<RimCommandObject*> m_commandQueue;
-    QMutex                       m_commandQueueLock;
+    std::list<caf::PdmPointer<RimCommandObject>> m_commandQueue;
+    QMutex                                       m_commandQueueLock;
 
     bool m_runningWorkerProcess;
 
