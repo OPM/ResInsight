@@ -22,6 +22,7 @@
 
 #include "RicFractureNameGenerator.h"
 
+#include "RimEclipseView.h"
 #include "RimFractureModel.h"
 #include "RimFractureModelCollection.h"
 #include "RimModeledWellPath.h"
@@ -48,6 +49,8 @@ CAF_CMD_SOURCE_INIT( RicNewFractureModelFeature, "RicNewFractureModelFeature" );
 //--------------------------------------------------------------------------------------------------
 RimFractureModel* RicNewFractureModelFeature::addFractureModel( RimWellPath*           wellPath,
                                                                 RimWellPathCollection* wellPathCollection,
+                                                                RimEclipseCase*        eclipseCase,
+                                                                int                    timeStep,
                                                                 double                 measuredDepth )
 {
     CVF_ASSERT( wellPath );
@@ -63,6 +66,9 @@ RimFractureModel* RicNewFractureModelFeature::addFractureModel( RimWellPath*    
 
     RimFractureModel* fractureModel = new RimFractureModel();
     fractureModelCollection->addFractureModel( fractureModel );
+
+    fractureModel->setEclipseCase( eclipseCase );
+    fractureModel->setTimeStep( timeStep );
 
     QString fractureModelName = RicFractureNameGenerator::nameForNewFractureModel();
     fractureModel->setName( fractureModelName );
@@ -106,7 +112,16 @@ void RicNewFractureModelFeature::onActionTriggered( bool isChecked )
     RimWellPathCollection* wellPathCollection = nullptr;
     fractureColl->firstAncestorOrThisOfTypeAsserted( wellPathCollection );
 
-    RicNewFractureModelFeature::addFractureModel( wellPath, wellPathCollection );
+    RimEclipseView* activeView  = dynamic_cast<RimEclipseView*>( RiaApplication::instance()->activeGridView() );
+    RimEclipseCase* eclipseCase = nullptr;
+    int             timeStep    = 0;
+    if ( activeView )
+    {
+        eclipseCase = activeView->eclipseCase();
+        timeStep    = activeView->currentTimeStep();
+    }
+
+    RicNewFractureModelFeature::addFractureModel( wellPath, wellPathCollection, eclipseCase, timeStep );
 }
 
 //--------------------------------------------------------------------------------------------------

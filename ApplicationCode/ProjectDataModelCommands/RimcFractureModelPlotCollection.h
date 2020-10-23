@@ -26,10 +26,7 @@
 #include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
 
-class RimFractureModelPlotCollection;
-class RimWellPath;
 class RimFractureModel;
-class RimEclipseCase;
 
 //==================================================================================================
 ///
@@ -46,7 +43,5 @@ public:
     std::unique_ptr<PdmObjectHandle> defaultResult() const override;
 
 private:
-    caf::PdmPtrField<RimEclipseCase*>   m_eclipseCase;
     caf::PdmPtrField<RimFractureModel*> m_fractureModel;
-    caf::PdmField<int>                  m_timeStep;
 };

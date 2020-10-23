@@ -18,8 +18,11 @@
 
 #include "RicNewWellPathFractureModelAtPosFeature.h"
 
+#include "RiaApplication.h"
+
 #include "RicNewFractureModelFeature.h"
 
+#include "RimEclipseView.h"
 #include "RimTools.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -47,7 +50,20 @@ void RicNewWellPathFractureModelAtPosFeature::onActionTriggered( bool isChecked 
     RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
     if ( !wellPathCollection ) return;
 
-    RicNewFractureModelFeature::addFractureModel( wellPath, wellPathCollection, wellPathItem->m_measuredDepth );
+    RimEclipseView* activeView  = dynamic_cast<RimEclipseView*>( RiaApplication::instance()->activeGridView() );
+    RimEclipseCase* eclipseCase = nullptr;
+    int             timeStep    = 0;
+    if ( activeView )
+    {
+        eclipseCase = activeView->eclipseCase();
+        timeStep    = activeView->currentTimeStep();
+    }
+
+    RicNewFractureModelFeature::addFractureModel( wellPath,
+                                                  wellPathCollection,
+                                                  eclipseCase,
+                                                  timeStep,
+                                                  wellPathItem->m_measuredDepth );
 }
 
 //--------------------------------------------------------------------------------------------------

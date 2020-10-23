@@ -39,9 +39,7 @@ RimcFractureModelPlotCollection_newFractureModelPlot::RimcFractureModelPlotColle
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Create Fracture Model", "", "", "Create a new Fracture Model" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "EclipseCase", "", "", "", "Eclipse Case" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_fractureModel, "FractureModel", "", "", "", "Fracture Model" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_timeStep, "TimeStep", "", "", "", "Time Step" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -52,9 +50,9 @@ caf::PdmObjectHandle* RimcFractureModelPlotCollection_newFractureModelPlot::exec
     RimFractureModelPlot*           newFractureModelPlot        = nullptr;
     RimFractureModelPlotCollection* fractureModelPlotCollection = self<RimFractureModelPlotCollection>();
 
-    if ( m_eclipseCase && m_fractureModel && fractureModelPlotCollection )
+    if ( m_fractureModel && fractureModelPlotCollection )
     {
-        newFractureModelPlot = RicNewFractureModelPlotFeature::createPlot( m_eclipseCase, m_fractureModel, m_timeStep );
+        newFractureModelPlot = RicNewFractureModelPlotFeature::createPlot( m_fractureModel );
     }
 
     return newFractureModelPlot;

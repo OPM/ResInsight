@@ -24,6 +24,7 @@ class RimFractureModel;
 class RimFractureModelCollection;
 class RimWellPath;
 class RimWellPathCollection;
+class RimEclipseCase;
 
 //==================================================================================================
 ///
@@ -33,8 +34,11 @@ class RicNewFractureModelFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static RimFractureModel*
-        addFractureModel( RimWellPath* wellPath, RimWellPathCollection* wellPathCollection, double measuredDepth = -1.0 );
+    static RimFractureModel* addFractureModel( RimWellPath*           wellPath,
+                                               RimWellPathCollection* wellPathCollection,
+                                               RimEclipseCase*        eclipseCase   = nullptr,
+                                               int                    timeStep      = 0,
+                                               double                 measuredDepth = -1.0 );
 
 protected:
     void onActionTriggered( bool isChecked ) override;

@@ -21,6 +21,7 @@
 
 #include "FractureCommands/RicNewFractureModelFeature.h"
 
+#include "RimEclipseCase.h"
 #include "RimFractureModel.h"
 #include "RimFractureModelCollection.h"
 #include "RimFractureModelTemplate.h"
@@ -41,6 +42,8 @@ RimcFractureModelCollection_newFractureModel::RimcFractureModelCollection_newFra
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Create Fracture Model", "", "", "Create a new Fracture Model" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "EclipseCase", "", "", "", "Eclipse Case" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_timeStep, "TimeStep", "", "", "", "Time Step" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "", "", "", "Well Path" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_md, "MeasuredDepth", "", "", "", "Measured Depth" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_fractureModelTemplate, "FractureModelTemplate", "", "", "", "Fracture Model Template" );
@@ -53,12 +56,13 @@ caf::PdmObjectHandle* RimcFractureModelCollection_newFractureModel::execute()
 {
     RimFractureModel*           newFractureModel        = nullptr;
     RimFractureModelCollection* fractureModelCollection = self<RimFractureModelCollection>();
-    if ( m_wellPath )
+    if ( m_wellPath && m_eclipseCase )
     {
         RimWellPathCollection* wellPathCollection = nullptr;
         fractureModelCollection->firstAncestorOrThisOfTypeAsserted( wellPathCollection );
 
-        newFractureModel = RicNewFractureModelFeature::addFractureModel( m_wellPath, wellPathCollection );
+        newFractureModel =
+            RicNewFractureModelFeature::addFractureModel( m_wellPath, wellPathCollection, m_eclipseCase, m_timeStep );
     }
 
     if ( newFractureModel )

@@ -83,7 +83,11 @@ public:
 
     void setMD( double md );
 
-    int timeStep() const;
+    int  timeStep() const;
+    void setTimeStep( int timeStep );
+
+    RimEclipseCase* eclipseCase() const;
+    void            setEclipseCase( RimEclipseCase* eclipseCase );
 
     cvf::Vec3d anchorPosition() const;
     cvf::Vec3d thicknessDirection() const;
@@ -163,7 +167,6 @@ public:
 
     RimFractureModel::MissingValueStrategy missingValueStrategy( RiaDefines::CurveProperty curveProperty ) const;
     RimFractureModel::BurdenStrategy       burdenStrategy( RiaDefines::CurveProperty curveProperty ) const;
-    RimEclipseCase*                        eclipseCase() const;
     RiaDefines::ResultCatType              eclipseResultCategory( RiaDefines::CurveProperty curveProperty ) const;
     QString                                eclipseResultVariable( RiaDefines::CurveProperty curveProperty ) const;
 
@@ -191,8 +194,7 @@ private:
     static QString vecToString( const cvf::Vec3d& vec );
     void           updateThicknessDirectionWellPathName();
 
-    static RigEclipseCaseData* getEclipseCaseData();
-    static RimEclipseCase*     getEclipseCase();
+    RigEclipseCaseData* getEclipseCaseData() const;
 
     void updateBarrierProperties();
     void addBarrierAnnotation( const cvf::Vec3d& startPosition, const cvf::Vec3d& endPosition, const QString& barrierText );
@@ -218,6 +220,7 @@ private:
 
 protected:
     caf::PdmField<double>                       m_MD;
+    caf::PdmPtrField<RimEclipseCase*>           m_eclipseCase;
     caf::PdmField<int>                          m_timeStep;
     caf::PdmField<caf::AppEnum<ExtractionType>> m_extractionType;
     caf::PdmField<cvf::Vec3d>                   m_anchorPosition;
