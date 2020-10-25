@@ -54,7 +54,7 @@ jobs:
         python -m pip install grpcio-tools
 
         ThirdParty/vcpkg/bootstrap-vcpkg.sh 
-        ThirdParty/vcpkg/vcpkg install grpc
+        ThirdParty/vcpkg/vcpkg install grpc boost-filesystem eigen3
         
         mkdir cmakebuild
         cd cmakebuild
