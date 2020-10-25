@@ -32,7 +32,7 @@ find_package(Boost REQUIRED filesystem system)
 
 target_link_libraries(custom-opm-flowdiag-app 
   ecl
-  ${Boost_LIBRARIES}
+  Boost::filesystem
 )
 
 if (MSVC)

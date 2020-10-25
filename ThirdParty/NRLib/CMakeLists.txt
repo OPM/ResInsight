@@ -42,5 +42,5 @@ target_include_directories(${PROJECT_NAME}
 find_package(Boost REQUIRED filesystem system)
 
 target_link_libraries(${PROJECT_NAME} 
-    ${Boost_LIBRARIES}
+  Boost::filesystem
 )
