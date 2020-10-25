@@ -102,7 +102,7 @@ include_directories(
 ################################################################################
 # Eigen
 ################################################################################
-include_directories(SYSTEM ${ResInsight_SOURCE_DIR}/ThirdParty/Eigen-Subset)
+find_package(Eigen3 REQUIRED)
 
 #############################################################################
 # Defining all the source (and header) files

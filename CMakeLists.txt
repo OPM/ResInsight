@@ -157,6 +157,8 @@ endif(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 # restore buildcache when libecl has been configured
 set(CMAKE_CXX_COMPILER_LAUNCHER ${TEMP_CMAKE_CXX_COMPILER_LAUNCHER})
 
+#####################################
+
 ######################################
 # Go through required git submodules #
 ######################################
@@ -252,21 +254,6 @@ else()
     endif() # HDF5_FOUND
 endif() # MSVC
 
-
-################################################################################ 
-# Subset of Boost, used by NRLib and flow diagnostics application 
-################################################################################ 
- 
-if(MSVC)
-    # stop MSVC from trying to auto-link libs
-    add_definitions("-DBOOST_ALL_NO_LIB") 
-endif() 
- 
-add_subdirectory(ThirdParty/boost-Subset) 
-
-list(APPEND THIRD_PARTY_LIBRARIES
-    boost-Subset
-)
 
 ################################################################################
 # Opm
