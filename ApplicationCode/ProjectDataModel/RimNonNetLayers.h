@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RimCheckableObject.h"
+
 #include "cafFilePath.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
@@ -30,12 +32,11 @@
 class RimEclipseResultDefinition;
 class RimEclipseCase;
 class RimColorLegend;
-class RigEclipseCaseData;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RimNonNetLayers : public caf::PdmObject
+class RimNonNetLayers : public RimCheckableObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -49,7 +50,6 @@ public:
 
     const RimEclipseResultDefinition* resultDefinition() const;
     double                            cutOff() const;
-    const QString&                    formation() const;
     const QString&                    facies() const;
 
 protected:
@@ -57,15 +57,14 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                         QString                    uiConfigName,
+                                                         caf::PdmUiEditorAttribute* attribute ) override;
 
-    RimColorLegend*             getFaciesColorLegend();
-    static std::vector<QString> getFormationNames();
-    static RimEclipseCase*      getEclipseCase();
-    static RigEclipseCaseData*  getEclipseCaseData();
+    RimColorLegend* getFaciesColorLegend();
 
 private:
     caf::PdmField<double>                           m_cutOff;
     caf::PdmChildField<RimEclipseResultDefinition*> m_resultDefinition;
-    caf::PdmField<QString>                          m_formation;
     caf::PdmField<QString>                          m_facies;
 };
