@@ -111,9 +111,6 @@ bool RimFractureModelLayerCalculator::calculate( RiaDefines::CurveProperty curve
         RimWellLogTrack::addUnderburden( formationNamesVector, curveData, underburdenHeight );
     }
 
-    measuredDepthValues = curveData.md;
-    tvDepthValues       = curveData.tvd;
-
     // Extract facies data
     std::vector<double> faciesValues =
         m_fractureModelCalculator->extractValues( RiaDefines::CurveProperty::FACIES, timeStep );
@@ -130,6 +127,9 @@ bool RimFractureModelLayerCalculator::calculate( RiaDefines::CurveProperty curve
         RiaLogging::warning( QString( "Empty net-to-gross data found for layer curve." ) );
     }
 
+    measuredDepthValues = curveData.md;
+    tvDepthValues       = curveData.tvd;
+
     CAF_ASSERT( faciesValues.size() == curveData.data.size() );
 
     values.resize( faciesValues.size() );
@@ -139,11 +139,14 @@ bool RimFractureModelLayerCalculator::calculate( RiaDefines::CurveProperty curve
     double previousFacies     = -1.0;
     double previousNetToGross = -1.0;
     double netToGrossCutoff   = 1.0;
+    bool   useNetToGross      = false;
+
     if ( fractureModel->fractureModelTemplate() && fractureModel->fractureModelTemplate()->nonNetLayers() )
     {
         netToGrossCutoff = fractureModel->fractureModelTemplate()->nonNetLayers()->cutOff();
+        useNetToGross = !netToGrossValues.empty() && fractureModel->fractureModelTemplate()->nonNetLayers()->isChecked();
     }
-    bool useNetToGross = !netToGrossValues.empty();
+
     for ( size_t i = 0; i < faciesValues.size(); i++ )
     {
         if ( previousFormation != curveData.data[i] || previousFacies != faciesValues[i] ||

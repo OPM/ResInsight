@@ -195,18 +195,17 @@ bool RimFractureModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
     CAF_ASSERT( tvDepthValues.size() == poroValues.size() );
     CAF_ASSERT( tvDepthValues.size() == formationValues.size() );
 
-    bool    isScaledByNetToGross    = fractureModel->isScaledByNetToGross( curveProperty ) && !netToGrossValues.empty();
+    bool    isScaledByNetToGross    = false;
     double  netToGrossCutoff        = 1.0;
     QString netToGrossFaciesName    = "";
     QString netToGrossFormationName = "";
     if ( fractureModel->fractureModelTemplate() && fractureModel->fractureModelTemplate()->nonNetLayers() )
     {
-        netToGrossCutoff        = fractureModel->fractureModelTemplate()->nonNetLayers()->cutOff();
-        netToGrossFaciesName    = fractureModel->fractureModelTemplate()->nonNetLayers()->facies();
-        netToGrossFormationName = fractureModel->fractureModelTemplate()->nonNetLayers()->formation();
+        isScaledByNetToGross = fractureModel->isScaledByNetToGross( curveProperty ) && !netToGrossValues.empty() &&
+                               fractureModel->fractureModelTemplate()->nonNetLayers()->isChecked();
+        netToGrossCutoff     = fractureModel->fractureModelTemplate()->nonNetLayers()->cutOff();
+        netToGrossFaciesName = fractureModel->fractureModelTemplate()->nonNetLayers()->facies();
     }
-
-    FaciesKey ntgFaciesKey = std::make_tuple( "", netToGrossFormationName, netToGrossFaciesName );
 
     for ( size_t i = 0; i < tvDepthValues.size(); i++ )
     {
@@ -232,10 +231,12 @@ bool RimFractureModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
                     double netToGross = netToGrossValues[i];
                     if ( netToGross < netToGrossCutoff )
                     {
-                        double ntgScale = elasticProperties->getPropertyScaling( netToGrossFormationName,
-                                                                                 netToGrossFaciesName,
-                                                                                 curveProperty );
-                        double ntgValue = rigElasticProperties.getValueForPorosity( curveProperty, porosity, ntgScale );
+                        FaciesKey ntgFaciesKey = std::make_tuple( "", formationName, netToGrossFaciesName );
+                        const RigElasticProperties& rigNtgElasticProperties =
+                            elasticProperties->propertiesForFacies( ntgFaciesKey );
+                        double ntgScale =
+                            elasticProperties->getPropertyScaling( formationName, netToGrossFaciesName, curveProperty );
+                        double ntgValue = rigNtgElasticProperties.getValueForPorosity( curveProperty, porosity, ntgScale );
                         val             = val * netToGross + ( 1.0 - netToGross ) * ntgValue;
                     }
                 }

@@ -419,7 +419,8 @@ void RimFractureModelWellLogCalculator::scaleByNetToGross( const RimFractureMode
     }
 
     double cutoff = 1.0;
-    if ( fractureModel->fractureModelTemplate() && fractureModel->fractureModelTemplate()->nonNetLayers() )
+    if ( fractureModel->fractureModelTemplate() && fractureModel->fractureModelTemplate()->nonNetLayers() &&
+         fractureModel->fractureModelTemplate()->nonNetLayers()->isChecked() )
     {
         cutoff = fractureModel->fractureModelTemplate()->nonNetLayers()->cutOff();
     }

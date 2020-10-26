@@ -18,7 +18,6 @@
 
 #include "RimNonNetLayers.h"
 
-#include "RigFormationNames.h"
 #include "RimColorLegend.h"
 #include "RimColorLegendItem.h"
 #include "RimEclipseCase.h"
@@ -26,15 +25,14 @@
 #include "RimFaciesProperties.h"
 #include "RimFractureModelTemplate.h"
 #include "RimProject.h"
-#include "RimRegularLegendConfig.h"
-#include "RimTools.h"
-
-#include "RigEclipseCaseData.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTextEditor.h"
+
+#include <QDoubleValidator>
 
 CAF_PDM_SOURCE_INIT( RimNonNetLayers, "NonNetLayers" );
 
@@ -46,8 +44,9 @@ RimNonNetLayers::RimNonNetLayers()
 {
     CAF_PDM_InitScriptableObject( "RimNonNetLayers", "", "", "" );
 
-    CAF_PDM_InitScriptableField( &m_cutOff, "Cutoff", 0.5, "Cutoff", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_formation, "Formation", "Formation", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_cutOff, "Cutoff", 1.0, "Cutoff", "", "", "" );
+    m_cutOff.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_facies, "Facies", "Facies", "", "", "" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_resultDefinition, "FaciesDefinition", "", "", "", "" );
@@ -73,15 +72,7 @@ QList<caf::PdmOptionItemInfo> RimNonNetLayers::calculateValueOptions( const caf:
                                                                       bool*                      useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
-    if ( fieldNeedingOptions == &m_formation )
-    {
-        std::vector<QString> formationNames = getFormationNames();
-        for ( const QString& formationName : formationNames )
-        {
-            options.push_back( caf::PdmOptionItemInfo( formationName, formationName ) );
-        }
-    }
-    else if ( fieldNeedingOptions == &m_facies )
+    if ( fieldNeedingOptions == &m_facies )
     {
         RimColorLegend* faciesColors = getFaciesColorLegend();
         if ( !faciesColors ) return options;
@@ -93,6 +84,23 @@ QList<caf::PdmOptionItemInfo> RimNonNetLayers::calculateValueOptions( const caf:
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimNonNetLayers::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                             QString                    uiConfigName,
+                                             caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_cutOff )
+    {
+        auto uiDoubleValueEditorAttr = dynamic_cast<caf::PdmUiDoubleValueEditorAttribute*>( attribute );
+        if ( uiDoubleValueEditorAttr )
+        {
+            uiDoubleValueEditorAttr->m_validator = new QDoubleValidator( 0.0, 1.0, 2 );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -141,14 +149,6 @@ double RimNonNetLayers::cutOff() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QString& RimNonNetLayers::formation() const
-{
-    return m_formation();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 const QString& RimNonNetLayers::facies() const
 {
     return m_facies();
@@ -167,39 +167,4 @@ RimColorLegend* RimNonNetLayers::getFaciesColorLegend()
     if ( !faciesProperties ) return nullptr;
 
     return faciesProperties->colorLegend();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<QString> RimNonNetLayers::getFormationNames()
-{
-    RigEclipseCaseData* eclipseCaseData = getEclipseCaseData();
-    if ( !eclipseCaseData ) return std::vector<QString>();
-
-    return eclipseCaseData->formationNames();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimEclipseCase* RimNonNetLayers::getEclipseCase()
-{
-    // Find an eclipse case
-    RimProject* proj = RimProject::current();
-    if ( proj->eclipseCases().empty() ) return nullptr;
-
-    return proj->eclipseCases()[0];
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RigEclipseCaseData* RimNonNetLayers::getEclipseCaseData()
-{
-    // Find an eclipse case
-    RimEclipseCase* eclipseCase = getEclipseCase();
-    if ( !eclipseCase ) return nullptr;
-
-    return eclipseCase->eclipseCaseData();
 }
