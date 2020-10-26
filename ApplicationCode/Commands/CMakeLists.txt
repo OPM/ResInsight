@@ -46,6 +46,8 @@ foreach (referencedfile ${COMMAND_REFERENCED_CMAKE_FILES})
 endforeach (referencedfile)
 
 
+find_package(Eigen3 REQUIRED)
+
 # Prefix files with COMMAND_ to avoid clash with application global lists
 qt5_wrap_cpp(COMMAND_MOC_SOURCE_FILES ${COMMAND_QT_MOC_HEADERS} )
 
@@ -79,6 +81,7 @@ set( LINK_LIBRARIES
   qwt
 
   ${QT_LIBRARIES}
+  Eigen3::Eigen
 )
 
 target_link_libraries( ${PROJECT_NAME}
