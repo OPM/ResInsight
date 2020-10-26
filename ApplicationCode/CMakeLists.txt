@@ -417,6 +417,7 @@ endif ()
 #############################################################################
 
 set( LINK_LIBRARIES
+    Eigen3::Eigen
     ${OPM_LIBRARIES}
         
     ${RI_LIBRARIES}
