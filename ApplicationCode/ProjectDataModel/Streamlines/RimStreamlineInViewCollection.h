@@ -23,12 +23,15 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 
+#include "cvfObject.h"
+
 #include <list>
 
 class RimStreamline;
 class RimEclipseCase;
 class RigTracer;
 class RigCell;
+class RigResultAccessor;
 
 class RimStreamlineInViewCollection : public caf::PdmObject
 {
@@ -51,9 +54,12 @@ protected:
     caf::PdmFieldHandle* objectToggleField() override;
 
 private:
-    void generateTracer( RigCell cell, int faceIdx, double direction, RiaDefines::PhaseType phase );
+    void generateTracer( RigCell cell, int faceIdx, double direction, RiaDefines::PhaseType phase, int timeIdx );
+    void loadDataIfMissing( RiaDefines::PhaseType phase, int timeIdx );
 
-    QString gridResultNameFromPhase() const;
+    cvf::ref<RigResultAccessor> getDataAccessor( int faceIdx, RiaDefines::PhaseType phase, int timeIdx );
+
+    QString gridResultNameFromPhase( RiaDefines::PhaseType phase, int faceIdx ) const;
 
     caf::PdmField<bool>                                m_isActive;
     caf::PdmField<QString>                             m_collectionName;

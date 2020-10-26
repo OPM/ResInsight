@@ -17,9 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimStreamlineInViewCollection.h"
+#include "RigCaseCellResultsData.h"
 #include "RigCell.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigGridBase.h"
+#include "RigResultAccessor.h"
+#include "RigResultAccessorFactory.h"
 #include "RigSimWellData.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
@@ -105,21 +109,42 @@ RiaDefines::PhaseType RimStreamlineInViewCollection::phase() const
     return m_phase();
 }
 
-QString RimStreamlineInViewCollection::gridResultNameFromPhase() const
+QString RimStreamlineInViewCollection::gridResultNameFromPhase( RiaDefines::PhaseType phase, int faceIdx ) const
 {
-    switch ( phase() )
+    QString retval = "";
+    switch ( phase )
     {
         case RiaDefines::PhaseType::GAS_PHASE:
-            return "FLRGAS";
+            retval += "FLRGAS";
+            break;
         case RiaDefines::PhaseType::OIL_PHASE:
-            return "FLROIL";
+            retval += "FLROIL";
+            break;
         case RiaDefines::PhaseType::WATER_PHASE:
-            return "FLRWAT";
+            retval += "FLRWAT";
+            break;
         default:
+            CAF_ASSERT( false );
             break;
     }
-    CAF_ASSERT( false );
-    return "";
+
+    switch ( faceIdx )
+    {
+        case 0:
+            retval += "I+";
+            break;
+        case 2:
+            retval += "J+";
+            break;
+        case 4:
+            retval += "K+";
+            break;
+        default:
+            CAF_ASSERT( false );
+            break;
+    }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -192,6 +217,8 @@ void RimStreamlineInViewCollection::goForIt()
     qDebug() << "Found " << seedCellsProducer.size() << " producing cells";
     qDebug() << "Found " << seedCellsInjector.size() << " injector cells";
 
+    loadDataIfMissing( phase(), timeIdx );
+
     const int reverseDirection = -1.0;
     const int normalDirection  = 1.0;
 
@@ -199,15 +226,85 @@ void RimStreamlineInViewCollection::goForIt()
     {
         for ( auto cell : seedCellsInjector )
         {
-            generateTracer( cell, cubeFaceIdx, normalDirection, m_phase() );
+            generateTracer( cell, cubeFaceIdx, normalDirection, m_phase(), timeIdx );
         }
         for ( auto cell : seedCellsProducer )
         {
-            generateTracer( cell, cubeFaceIdx, reverseDirection, m_phase() );
+            generateTracer( cell, cubeFaceIdx, reverseDirection, m_phase(), timeIdx );
         }
+        cubeFaceIdx++; // skip negative face directions for now
     }
 }
 
-void RimStreamlineInViewCollection::generateTracer( RigCell cell, int faceIdx, double direction, RiaDefines::PhaseType phase )
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStreamlineInViewCollection::loadDataIfMissing( RiaDefines::PhaseType phase, int timeIdx )
 {
+    RigCaseCellResultsData* data = m_eclipseCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+
+    for ( int cubeFaceIdx = 0; cubeFaceIdx < 6; cubeFaceIdx += 2 )
+    {
+        QString                 resultname = gridResultNameFromPhase( phase, cubeFaceIdx );
+        RigEclipseResultAddress address( RiaDefines::ResultCatType::DYNAMIC_NATIVE, resultname );
+
+        data->ensureKnownResultLoadedForTimeStep( address, timeIdx );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RigResultAccessor>
+    RimStreamlineInViewCollection::getDataAccessor( int faceIdx, RiaDefines::PhaseType phase, int timeIdx )
+{
+    QString resultname = gridResultNameFromPhase( phase, faceIdx );
+
+    // TODO - should probably get these from somewhere
+    RiaDefines::PorosityModelType porModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
+    int                           gridIdx  = 0;
+
+    RigEclipseResultAddress address( RiaDefines::ResultCatType::DYNAMIC_NATIVE, resultname );
+    RigCaseCellResultsData* data = m_eclipseCase->eclipseCaseData()->results( porModel );
+
+    return RigResultAccessorFactory::createFromResultAddress( eclipseCase()->eclipseCaseData(),
+                                                              gridIdx,
+                                                              porModel,
+                                                              timeIdx,
+                                                              address );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStreamlineInViewCollection::generateTracer( RigCell               cell,
+                                                    int                   faceIdx,
+                                                    double                direction,
+                                                    RiaDefines::PhaseType phase,
+                                                    int                   timeIdx )
+{
+    QString                       resultname = gridResultNameFromPhase( phase, faceIdx );
+    RiaDefines::PorosityModelType porModel   = RiaDefines::PorosityModelType::MATRIX_MODEL;
+
+    RigEclipseResultAddress address( RiaDefines::ResultCatType::DYNAMIC_NATIVE, resultname );
+
+    RigCaseCellResultsData* data = m_eclipseCase->eclipseCaseData()->results( porModel );
+
+    cvf::ref<RigResultAccessor> accessI = getDataAccessor( 0, phase, timeIdx );
+    cvf::ref<RigResultAccessor> accessJ = getDataAccessor( 2, phase, timeIdx );
+    cvf::ref<RigResultAccessor> accessK = getDataAccessor( 4, phase, timeIdx );
+
+    double val1 = accessI->cellScalar( cell.gridLocalCellIndex() );
+    double val2 = accessJ->cellScalar( cell.gridLocalCellIndex() );
+    double val3 = accessK->cellScalar( cell.gridLocalCellIndex() );
+
+    if ( ( val1 == 0.0 ) && ( val2 == 0.0 ) && ( val3 == 0.0 ) )
+    {
+        qDebug() << "Skipping cell " << cell.gridLocalCellIndex();
+        return;
+    }
+
+    qDebug() << cell.gridLocalCellIndex() << val1 << val2 << val3;
+
+    return;
 }
