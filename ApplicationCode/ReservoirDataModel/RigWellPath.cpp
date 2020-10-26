@@ -28,7 +28,8 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RigWellPath::RigWellPath()
-    : m_hasDatumElevation( false )
+    : cvf::Object()
+    , m_hasDatumElevation( false )
     , m_datumElevation( 0.0 )
     , m_startIndex( 0u )
     , objectBeingDeleted( this )
@@ -39,7 +40,8 @@ RigWellPath::RigWellPath()
 ///
 //--------------------------------------------------------------------------------------------------
 RigWellPath::RigWellPath( const RigWellPath& rhs )
-    : m_wellPathPoints( rhs.m_wellPathPoints )
+    : cvf::Object()
+    , m_wellPathPoints( rhs.m_wellPathPoints )
     , m_measuredDepths( rhs.m_measuredDepths )
     , m_hasDatumElevation( rhs.m_hasDatumElevation )
     , m_datumElevation( rhs.m_datumElevation )
@@ -52,7 +54,8 @@ RigWellPath::RigWellPath( const RigWellPath& rhs )
 ///
 //--------------------------------------------------------------------------------------------------
 RigWellPath::RigWellPath( const std::vector<cvf::Vec3d>& wellPathPoints, const std::vector<double>& measuredDepths )
-    : m_wellPathPoints( wellPathPoints )
+    : cvf::Object()
+    , m_wellPathPoints( wellPathPoints )
     , m_measuredDepths( measuredDepths )
     , m_startIndex( 0u )
     , objectBeingDeleted( this )
