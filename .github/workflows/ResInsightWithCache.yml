@@ -162,7 +162,7 @@ jobs:
               -D RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
               -D RESINSIGHT_TREAT_WARNINGS_AS_ERRORS=true
               -D RESINSIGHT_ENABLE_GRPC=true
-              -D RESINSIGHT_GRPC_DOWNLOAD_MODULE=true
+              -D RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE=true
               -D VCPKG_TARGET_TRIPLET=${{ matrix.config.vcpkg-triplet }}
               -D CMAKE_TOOLCHAIN_FILE=${{ matrix.config.cmake-toolchain }}
               -G Ninja
