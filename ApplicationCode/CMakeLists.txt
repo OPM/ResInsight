@@ -523,19 +523,14 @@ endforeach()
 
 # Generate Python code in a target that is part of ALL_BUILD and depends on ResInsight
 if (RESINSIGHT_ENABLE_GRPC)	
-    set(RESINSIGHT_GRPC_PYTHON_EXECUTABLE "" CACHE FILEPATH "gRPC : Path to Python 3 executable, required to build the Python client library")
-    if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
-        add_custom_command(OUTPUT ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/resinsight_classes.py
-				    COMMAND ResInsight ARGS --console --generate ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/resinsight_classes.py
-                    DEPENDS ResInsight
-                    COMMENT "Generating ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/resinsight_classes.py"
-	    )   
-        list(APPEND GRPC_GENERATED_PYTHON_SOURCES ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/resinsight_classes.py)
-		add_custom_target(GeneratedPythonSources ALL DEPENDS ${GRPC_GENERATED_PYTHON_SOURCES})
-		add_dependencies(GeneratedPythonSources ResInsight)
-	else()
-		message(STATUS "RESINSIGHT_GRPC_PYTHON_EXECUTABLE not specified. Will not install GRPC Python code.")
-	endif(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)	
+    add_custom_command(OUTPUT ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/resinsight_classes.py
+				COMMAND ResInsight ARGS --console --generate ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/resinsight_classes.py
+                DEPENDS ResInsight
+                COMMENT "Generating ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/resinsight_classes.py"
+	)
+    list(APPEND GRPC_GENERATED_PYTHON_SOURCES ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/resinsight_classes.py)
+	add_custom_target(GeneratedPythonSources ALL DEPENDS ${GRPC_GENERATED_PYTHON_SOURCES})
+	add_dependencies(GeneratedPythonSources ResInsight)
 endif(RESINSIGHT_ENABLE_GRPC)
 
 #############################################################################
@@ -713,19 +708,16 @@ if (RESINSIGHT_PRIVATE_INSTALL)
     # install gRPC Python files
     if (RESINSIGHT_ENABLE_GRPC)
 		message(STATUS "GRPC enabled")
-		if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
-			message(STATUS "Python found")
-			if (RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE)	
-				message(STATUS "Bundling Python GRPC modules")
-				add_custom_command(
-					TARGET ResInsight
-					POST_BUILD
-					COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} -m pip install --target=${GRPC_PYTHON_SOURCE_PATH} grpcio-tools
-				)
-			endif()
-			install(DIRECTORY ${GRPC_PYTHON_SOURCE_PATH}/ DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python)
-            install(FILES ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/resinsight_classes.py DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python/rips/generated)
+		if (RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE)
+			message(STATUS "Bundling Python GRPC modules")
+			add_custom_command(
+				TARGET ResInsight
+				POST_BUILD
+				COMMAND ${Python3_EXECUTABLE} -m pip install --target=${GRPC_PYTHON_SOURCE_PATH} grpcio-tools
+			)
 		endif()
+		install(DIRECTORY ${GRPC_PYTHON_SOURCE_PATH}/ DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python)
+        install(FILES ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/resinsight_classes.py DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python/rips/generated)
 	endif()
 
     set (RESINSIGHT_FILES ${RESINSIGHT_FILES} ${RESINSIGHT_LICENSE_FILES})
