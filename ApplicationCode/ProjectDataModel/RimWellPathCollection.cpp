@@ -871,8 +871,9 @@ RimWellPathGroup* RimWellPathCollection::findOrCreateWellPathGroup( gsl::not_nul
         RimWellPathGroup* group = new RimWellPathGroup;
         m_wellPaths.push_back( group );
 
-        for ( auto [existingWellPath, identicalTubeLength] : wellPathsWithCommonGeometry )
+        for ( auto wellPathAndTubeLength : wellPathsWithCommonGeometry )
         {
+            auto existingWellPath = wellPathAndTubeLength.first;
             detachWellPath( existingWellPath );
             group->addChildWellPath( existingWellPath );
         }

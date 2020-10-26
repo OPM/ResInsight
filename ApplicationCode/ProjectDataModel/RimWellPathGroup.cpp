@@ -264,8 +264,9 @@ void RimWellPathGroup::makeMoreLevelsIfNecessary()
     if ( branches.size() <= 1u ) return;
 
     bool anyNonTrivialBranches = false;
-    for ( const auto& [firstDeviation, wellPaths] : branches )
+    for ( const auto& firstDeviationAndWellPaths : branches )
     {
+        const auto& wellPaths = firstDeviationAndWellPaths.second;
         if ( wellPaths.size() > 1u )
         {
             anyNonTrivialBranches = true;
@@ -278,8 +279,9 @@ void RimWellPathGroup::makeMoreLevelsIfNecessary()
         size_t commonSize = wellPathGeometry()->wellPathPoints().size();
         if ( commonSize > 0u ) startIndex = commonSize - 1u;
 
-        for ( const auto& [firstDeviation, wellPaths] : branches )
+        for ( const auto& firstDeviationAndWellPaths : branches )
         {
+            const auto& wellPaths = firstDeviationAndWellPaths.second;
             if ( wellPaths.size() > 1u )
             {
                 RimWellPathGroup* newGroup = new RimWellPathGroup;
