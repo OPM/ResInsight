@@ -6,6 +6,8 @@ project (ResInsight)
 set (VIZ_MODULES_FOLDER_NAME Fwk/VizFwk)
 
 cmake_policy(SET CMP0020 NEW)
+cmake_policy(SET CMP0077 OLD)
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 SET(BUILD_SHARED_LIBS OFF CACHE BOOL "ERT: Build shared libraries")
