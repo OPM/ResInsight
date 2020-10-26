@@ -21,7 +21,11 @@ endif()
 find_package( OpenGL )
 
 option(RESINSIGHT_ENABLE_GRPC "Enable the gRPC scripting framework" OFF)
-option(RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE "Bundle the gRPC python modules into the install folder" OFF)
+if (RESINSIGHT_ENABLE_GRPC)
+    option(RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE "Download the gRPC python modules to enable generation of Python interface" ON)
+    option(RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE "Bundle the gRPC python modules into the install folder" OFF)
+endif()
+
 option(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS "Treat warnings as errors (stops build)" OFF)
 
 find_package(Qt5 COMPONENTS Core QUIET)
@@ -704,6 +708,14 @@ if (RESINSIGHT_PRIVATE_INSTALL)
     # install gRPC Python files
     if (RESINSIGHT_ENABLE_GRPC)
 		message(STATUS "GRPC enabled")
+        if (RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE)
+            add_custom_command(
+                TARGET ResInsight
+			    PRE_BUILD
+			    COMMAND ${Python3_EXECUTABLE} -m pip install grpcio-tools pytest
+            )
+        endif()
+
 		if (RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE)
 			message(STATUS "Bundling Python GRPC modules")
 			add_custom_command(
