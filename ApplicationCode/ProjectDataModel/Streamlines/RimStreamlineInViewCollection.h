@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RiaDefines.h"
 #include "cafPdmField.h"
 
 #include "cafPdmChildArrayField.h"
@@ -40,6 +41,8 @@ public:
     void            setEclipseCase( RimEclipseCase* reservoir );
     RimEclipseCase* eclipseCase() const;
 
+    RiaDefines::PhaseType phase() const;
+
     void goForIt();
 
     const std::list<RigTracer>& tracers();
@@ -48,14 +51,15 @@ protected:
     caf::PdmFieldHandle* objectToggleField() override;
 
 private:
-    void generateTracer( RigCell cell, int faceIdx, double direction );
+    void generateTracer( RigCell cell, int faceIdx, double direction, RiaDefines::PhaseType phase );
 
-    caf::PdmField<bool>    m_isActive;
-    caf::PdmField<QString> m_collectionName;
+    QString gridResultNameFromPhase() const;
 
-    caf::PdmPointer<RimEclipseCase> m_eclipseCase;
-
-    caf::PdmChildArrayField<RimStreamline*> m_streamlines;
+    caf::PdmField<bool>                                m_isActive;
+    caf::PdmField<QString>                             m_collectionName;
+    caf::PdmPointer<RimEclipseCase>                    m_eclipseCase;
+    caf::PdmChildArrayField<RimStreamline*>            m_streamlines;
+    caf::PdmField<caf::AppEnum<RiaDefines::PhaseType>> m_phase;
 
     std::list<RigTracer> m_activeTracers;
 };
