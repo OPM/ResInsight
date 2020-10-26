@@ -1,5 +1,21 @@
 cmake_minimum_required (VERSION 3.12)
 
+project (GrpcInterface)
+
+message(STATUS "GRPC enabled")
+add_definitions(-DENABLE_GRPC)
+
+# Unity Build
+if (RESINSIGHT_ENABLE_UNITY_BUILD)
+  message("Cmake Unity build is enabled on : ${PROJECT_NAME}")
+  set(CMAKE_UNITY_BUILD true)
+endif()
+
+
+if (MSVC)
+    add_definitions(-D_WIN32_WINNT=0x600)
+endif()
+
 set ( SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcServer.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcHelper.h
@@ -32,13 +48,6 @@ set ( SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcPdmObjectService.cpp
 )
 
-add_definitions(-DENABLE_GRPC)
-
-if (MSVC)
-    add_definitions(-D_WIN32_WINNT=0x600)		
-
-endif()
-
 # Find Protobuf installation
 # Looks for protobuf-config.cmake file installed by Protobuf's cmake installation.
 set(protobuf_MODULE_COMPATIBLE ON)
@@ -68,6 +77,21 @@ set_target_properties(${GRPC_LIBRARIES} PROPERTIES
 
 find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
 
+set( LINK_LIBRARIES
+  ${QT_LIBRARIES}
+  ${GRPC_LIBRARIES}
+  LibCore 
+  cafCommand
+  cafPdmCvf
+  cafPdmScripting
+  cafTensor
+  cafViewer
+  cafVizExtensions
+  ecl
+  nightcharts
+  qwt
+)
+
 # Proto files
 set(PROTO_FILES
     "Definitions"
@@ -83,6 +107,8 @@ set(PROTO_FILES
 )
 
 set(GRPC_PYTHON_SOURCE_PATH "${CMAKE_CURRENT_LIST_DIR}/Python")
+
+add_custom_target(PipInstall)
 
 foreach(proto_file ${PROTO_FILES})
     get_filename_component(rips_proto "${CMAKE_CURRENT_LIST_DIR}/GrpcProtos/${proto_file}.proto" ABSOLUTE)
@@ -202,12 +228,46 @@ foreach(PYTHON_SCRIPT ${GRPC_PYTHON_SOURCES})
     list(APPEND GRPC_PYTHON_SOURCES_FULL_PATH "${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}")
 endforeach()
 
-if (MSVC)
-    source_group(TREE ${GRPC_PYTHON_SOURCE_PATH} FILES ${GRPC_PYTHON_SOURCES_FULL_PATH} PREFIX "GrpcInterface\\Python")
-endif(MSVC)
+add_library( ${PROJECT_NAME} OBJECT
+    ${SOURCE_GROUP_HEADER_FILES}
+    ${SOURCE_GROUP_SOURCE_FILES}
+    ${GRPC_HEADER_FILES}
+    ${GRPC_CPP_SOURCES}
+)
 
-list ( APPEND GRPC_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
-list ( APPEND GRPC_CPP_SOURCES ${SOURCE_GROUP_SOURCE_FILES})
+target_link_libraries( ${PROJECT_NAME}
+  ${LINK_LIBRARIES}
+)
+
+if (MSVC)
+  # GRPC generates a lot of harmless warnings on MSVC
+  set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/wd4251 /wd4702 /wd4005 /wd4244 /wd4125 /wd4267")
+else()
+	set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-Wno-overloaded-virtual")
+endif()
+
+
+# install gRPC Python files
+if (RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE)
+  add_custom_command(
+    TARGET PipInstall
+    COMMAND ${Python3_EXECUTABLE} -m pip install grpcio-tools pytest
+  )
+endif()
+
+if (RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE)
+  message(STATUS "Bundling Python GRPC modules")
+  add_custom_command(
+    TARGET PipInstall
+    COMMAND ${Python3_EXECUTABLE} -m pip install --target=${GRPC_PYTHON_SOURCE_PATH} grpcio-tools
+  )
+endif()
+
+add_dependencies(${PROJECT_NAME} PipInstall)
+
+install(DIRECTORY ${GRPC_PYTHON_SOURCE_PATH}/ DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python)
+install(FILES ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/resinsight_classes.py DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python/rips/generated)
 
 source_group( "GrpcInterface" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.cmake )
 source_group( "GrpcInterface\\GrpcProtos" FILES ${GRPC_PROTO_FILES_FULL_PATH} )
+source_group(TREE ${GRPC_PYTHON_SOURCE_PATH} FILES ${GRPC_PYTHON_SOURCES_FULL_PATH} PREFIX "GrpcInterface\\Python")
