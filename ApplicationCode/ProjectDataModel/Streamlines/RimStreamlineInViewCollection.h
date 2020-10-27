@@ -27,6 +27,7 @@
 #include "cvfStructGrid.h"
 
 #include <list>
+#include <vector>
 
 class RimStreamline;
 class RimEclipseCase;
@@ -59,11 +60,12 @@ private:
     void generateTracer( RigCell cell, double direction );
     void loadDataIfMissing( RiaDefines::PhaseType phase, int timeIdx );
 
-    cvf::ref<RigResultAccessor> getDataAccessor( int faceIdx, RiaDefines::PhaseType phase, int timeIdx );
+    cvf::ref<RigResultAccessor>
+        getDataAccessor( cvf::StructGridInterface::FaceType faceIdx, RiaDefines::PhaseType phase, int timeIdx );
 
     bool setupDataAccessors( RiaDefines::PhaseType phase, int timeIdx );
 
-    QString gridResultNameFromPhase( RiaDefines::PhaseType phase, int faceIdx ) const;
+    QString gridResultNameFromPhase( RiaDefines::PhaseType phase, cvf::StructGridInterface::FaceType faceIdx ) const;
 
     std::vector<double> getFaceValues( RigCell cell, RigGridBase* grid );
 
@@ -80,7 +82,9 @@ private:
 
     std::list<RigTracer> m_activeTracers;
 
-    cvf::ref<RigResultAccessor> m_dataI;
-    cvf::ref<RigResultAccessor> m_dataJ;
-    cvf::ref<RigResultAccessor> m_dataK;
+    std::vector<cvf::ref<RigResultAccessor>> m_dataAccess;
+
+    // cvf::ref<RigResultAccessor> m_dataI;
+    // cvf::ref<RigResultAccessor> m_dataJ;
+    // cvf::ref<RigResultAccessor> m_dataK;
 };

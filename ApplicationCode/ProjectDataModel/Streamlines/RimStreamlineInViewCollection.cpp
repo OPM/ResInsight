@@ -22,6 +22,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
 #include "RigGridBase.h"
+#include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 #include "RigSimWellData.h"
@@ -118,7 +119,8 @@ RiaDefines::PhaseType RimStreamlineInViewCollection::phase() const
     return m_phase();
 }
 
-QString RimStreamlineInViewCollection::gridResultNameFromPhase( RiaDefines::PhaseType phase, int faceIdx ) const
+QString RimStreamlineInViewCollection::gridResultNameFromPhase( RiaDefines::PhaseType              phase,
+                                                                cvf::StructGridInterface::FaceType faceIdx ) const
 {
     QString retval = "";
     switch ( phase )
@@ -139,13 +141,13 @@ QString RimStreamlineInViewCollection::gridResultNameFromPhase( RiaDefines::Phas
 
     switch ( faceIdx )
     {
-        case 0:
+        case cvf::StructGridInterface::FaceType::POS_I:
             retval += "I+";
             break;
-        case 2:
+        case cvf::StructGridInterface::FaceType::POS_J:
             retval += "J+";
             break;
-        case 4:
+        case cvf::StructGridInterface::FaceType::POS_K:
             retval += "K+";
             break;
         default:
@@ -249,7 +251,13 @@ void RimStreamlineInViewCollection::loadDataIfMissing( RiaDefines::PhaseType pha
 {
     RigCaseCellResultsData* data = m_eclipseCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
-    for ( int cubeFaceIdx = 0; cubeFaceIdx < 6; cubeFaceIdx += 2 )
+    std::vector<cvf::StructGridInterface::FaceType> faces = {
+        cvf::StructGridInterface::FaceType::POS_I,
+        cvf::StructGridInterface::FaceType::POS_J,
+        cvf::StructGridInterface::FaceType::POS_K,
+    };
+
+    for ( auto cubeFaceIdx : faces )
     {
         QString                 resultname = gridResultNameFromPhase( phase, cubeFaceIdx );
         RigEclipseResultAddress address( RiaDefines::ResultCatType::DYNAMIC_NATIVE, resultname );
@@ -261,8 +269,9 @@ void RimStreamlineInViewCollection::loadDataIfMissing( RiaDefines::PhaseType pha
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor>
-    RimStreamlineInViewCollection::getDataAccessor( int faceIdx, RiaDefines::PhaseType phase, int timeIdx )
+cvf::ref<RigResultAccessor> RimStreamlineInViewCollection::getDataAccessor( cvf::StructGridInterface::FaceType faceIdx,
+                                                                            RiaDefines::PhaseType              phase,
+                                                                            int                                timeIdx )
 {
     QString resultname = gridResultNameFromPhase( phase, faceIdx );
 
@@ -285,11 +294,22 @@ cvf::ref<RigResultAccessor>
 //--------------------------------------------------------------------------------------------------
 bool RimStreamlineInViewCollection::setupDataAccessors( RiaDefines::PhaseType phase, int timeIdx )
 {
-    m_dataI = getDataAccessor( 0, phase, timeIdx );
-    m_dataJ = getDataAccessor( 2, phase, timeIdx );
-    m_dataK = getDataAccessor( 4, phase, timeIdx );
+    // m_dataAccess.clear();
 
-    return ( m_dataI.notNull() && m_dataJ.notNull() && m_dataK.notNull() );
+    // NEG_? accessors are set to POS_? accessors, but using the neighbor cell
+    m_dataAccess.push_back( getDataAccessor( cvf::StructGridInterface::FaceType::POS_I, phase, timeIdx ) );
+    m_dataAccess.push_back( getDataAccessor( cvf::StructGridInterface::FaceType::POS_I, phase, timeIdx ) );
+    m_dataAccess.push_back( getDataAccessor( cvf::StructGridInterface::FaceType::POS_J, phase, timeIdx ) );
+    m_dataAccess.push_back( getDataAccessor( cvf::StructGridInterface::FaceType::POS_J, phase, timeIdx ) );
+    m_dataAccess.push_back( getDataAccessor( cvf::StructGridInterface::FaceType::POS_K, phase, timeIdx ) );
+    m_dataAccess.push_back( getDataAccessor( cvf::StructGridInterface::FaceType::POS_K, phase, timeIdx ) );
+
+    for ( auto access : m_dataAccess )
+    {
+        if ( access.isNull() ) return false;
+    }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -319,13 +339,13 @@ std::vector<double> RimStreamlineInViewCollection::getFaceValues( RigCell cell, 
 {
     const size_t cellIdx = cell.gridLocalCellIndex();
 
-    double valPosI = m_dataI->cellScalar( cellIdx );
+    double valPosI = m_dataAccess[cvf::StructGridInterface::FaceType::POS_I]->cellScalar( cellIdx );
     valPosI /= cell.faceNormalWithAreaLength( cvf::StructGridInterface::FaceType::POS_I ).length();
 
-    double valPosJ = m_dataJ->cellScalar( cellIdx );
+    double valPosJ = m_dataAccess[cvf::StructGridInterface::FaceType::POS_J]->cellScalar( cellIdx );
     valPosJ /= cell.faceNormalWithAreaLength( cvf::StructGridInterface::FaceType::POS_J ).length();
 
-    double valPosK = m_dataK->cellScalar( cellIdx );
+    double valPosK = m_dataAccess[cvf::StructGridInterface::FaceType::POS_K]->cellScalar( cellIdx );
     valPosK /= cell.faceNormalWithAreaLength( cvf::StructGridInterface::FaceType::POS_K ).length();
 
     double valNegI = 0.0;
@@ -336,8 +356,8 @@ std::vector<double> RimStreamlineInViewCollection::getFaceValues( RigCell cell, 
     RigCell* neighborCell = findNeighborCell( cell, grid, cvf::StructGridInterface::FaceType::NEG_I );
     if ( neighborCell )
     {
-        valNegI = m_dataI->cellScalar( neighborCell->gridLocalCellIndex() );
-        area    = neighborCell->faceNormalWithAreaLength( cvf::StructGridInterface::FaceType::POS_I ).length();
+        valNegI = m_dataAccess[cvf::StructGridInterface::FaceType::NEG_I]->cellScalar( neighborCell->gridLocalCellIndex() );
+        area = cell.faceNormalWithAreaLength( cvf::StructGridInterface::FaceType::NEG_I ).length();
         if ( area != 0.0 )
             valNegI /= area;
         else
@@ -347,8 +367,8 @@ std::vector<double> RimStreamlineInViewCollection::getFaceValues( RigCell cell, 
     neighborCell = findNeighborCell( cell, grid, cvf::StructGridInterface::FaceType::NEG_J );
     if ( neighborCell )
     {
-        valNegJ = m_dataI->cellScalar( neighborCell->gridLocalCellIndex() );
-        area    = neighborCell->faceNormalWithAreaLength( cvf::StructGridInterface::FaceType::POS_J ).length();
+        valNegJ = m_dataAccess[cvf::StructGridInterface::FaceType::NEG_J]->cellScalar( neighborCell->gridLocalCellIndex() );
+        area = cell.faceNormalWithAreaLength( cvf::StructGridInterface::FaceType::NEG_J ).length();
         if ( area != 0.0 )
             valNegJ /= area;
         else
@@ -358,8 +378,8 @@ std::vector<double> RimStreamlineInViewCollection::getFaceValues( RigCell cell, 
     neighborCell = findNeighborCell( cell, grid, cvf::StructGridInterface::FaceType::NEG_K );
     if ( neighborCell )
     {
-        valNegK = m_dataI->cellScalar( neighborCell->gridLocalCellIndex() );
-        area    = neighborCell->faceNormalWithAreaLength( cvf::StructGridInterface::FaceType::POS_K ).length();
+        valNegK = m_dataAccess[cvf::StructGridInterface::FaceType::NEG_K]->cellScalar( neighborCell->gridLocalCellIndex() );
+        area = cell.faceNormalWithAreaLength( cvf::StructGridInterface::FaceType::NEG_K ).length();
         if ( area != 0.0 )
             valNegK /= area;
         else
@@ -375,10 +395,17 @@ std::vector<double> RimStreamlineInViewCollection::getFaceValues( RigCell cell, 
 //--------------------------------------------------------------------------------------------------
 void RimStreamlineInViewCollection::generateTracer( RigCell cell, double direction )
 {
-    RigGridBase*        grid       = eclipseCase()->eclipseCaseData()->grid( 0 );
+    RigMainGrid*        grid       = eclipseCase()->eclipseCaseData()->mainGrid();
     std::vector<double> faceValues = getFaceValues( cell, grid );
 
-    for ( int faceIdx = 0; faceIdx < 6; faceIdx++ )
+    std::vector<cvf::StructGridInterface::FaceType> faces = {cvf::StructGridInterface::FaceType::POS_I,
+                                                             cvf::StructGridInterface::FaceType::NEG_I,
+                                                             cvf::StructGridInterface::FaceType::POS_J,
+                                                             cvf::StructGridInterface::FaceType::NEG_J,
+                                                             cvf::StructGridInterface::FaceType::POS_K,
+                                                             cvf::StructGridInterface::FaceType::NEG_K};
+
+    for ( auto faceIdx : faces )
     {
         if ( faceValues[faceIdx] <= m_flowThreshold )
         {
@@ -386,7 +413,18 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
             continue;
         }
 
-        qDebug() << "Starting tracer " << cell.gridLocalCellIndex() << faceValues;
+        cvf::Vec3d startDirection = cell.faceNormalWithAreaLength( faceIdx );
+        startDirection.normalize();
+        startDirection *= faceValues[faceIdx];
+        // TODO - skip vectors with inf values
+
+        cvf::Vec3d startPosition = cell.faceCenter( faceIdx );
+
+        RigCell* startCell = findNeighborCell( cell, grid, faceIdx );
+        if ( startCell == nullptr ) continue;
+
+        qDebug() << "Starting tracer from cell" << startCell->gridLocalCellIndex() << "in direction"
+                 << startDirection.x() << startDirection.y() << startDirection.z();
     }
     return;
 }
