@@ -251,7 +251,7 @@ endif()
 if (RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE)
   add_custom_command(
     TARGET PipInstall
-    COMMAND ${Python3_EXECUTABLE} -m pip install grpcio-tools pytest
+    COMMAND ${Python3_EXECUTABLE} -m pip install --user wheel setuptools grpcio-tools pytest
   )
 endif()
 
@@ -259,7 +259,7 @@ if (RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE)
   message(STATUS "Bundling Python GRPC modules")
   add_custom_command(
     TARGET PipInstall
-    COMMAND ${Python3_EXECUTABLE} -m pip install --target=${GRPC_PYTHON_SOURCE_PATH} grpcio-tools
+    COMMAND ${Python3_EXECUTABLE} -m pip install --user --target=${GRPC_PYTHON_SOURCE_PATH} grpcio-tools
   )
 endif()
 
