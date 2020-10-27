@@ -59,12 +59,13 @@ RimWellLogPlotCollection::~RimWellLogPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigEclipseWellLogExtractor*
-    RimWellLogPlotCollection::findOrCreateSimWellExtractor( const QString&                    simWellName,
-                                                            const QString&                    caseUserDescription,
-                                                            gsl::not_null<const RigWellPath*> wellPathGeometry,
-                                                            gsl::not_null<const RigEclipseCaseData*> eclCaseData )
+RigEclipseWellLogExtractor* RimWellLogPlotCollection::findOrCreateSimWellExtractor( const QString& simWellName,
+                                                                                    const QString& caseUserDescription,
+                                                                                    const RigWellPath* wellPathGeometry,
+                                                                                    const RigEclipseCaseData* eclCaseData )
 {
+    if ( !( wellPathGeometry && eclCaseData ) ) return nullptr;
+
     for ( size_t exIdx = 0; exIdx < m_extractors.size(); ++exIdx )
     {
         if ( m_extractors[exIdx]->caseData() == eclCaseData && m_extractors[exIdx]->wellPathGeometry() == wellPathGeometry )
@@ -84,9 +85,10 @@ RigEclipseWellLogExtractor*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigEclipseWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor( gsl::not_null<RimWellPath*>    wellPath,
-                                                                             gsl::not_null<RimEclipseCase*> eclCase )
+RigEclipseWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor( RimWellPath* wellPath, RimEclipseCase* eclCase )
 {
+    if ( !( wellPath && eclCase ) ) return nullptr;
+
     RigEclipseCaseData* eclCaseData      = eclCase->eclipseCaseData();
     auto                wellPathGeometry = wellPath->wellPathGeometry();
 
@@ -111,9 +113,11 @@ RigEclipseWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor( gsl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigGeoMechWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor( gsl::not_null<RimWellPath*>    wellPath,
-                                                                             gsl::not_null<RimGeoMechCase*> geoMechCase )
+RigGeoMechWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor( RimWellPath*    wellPath,
+                                                                             RimGeoMechCase* geoMechCase )
 {
+    if ( !( wellPath && geoMechCase ) ) return nullptr;
+
     RigGeoMechCaseData* caseData         = geoMechCase->geoMechData();
     auto                wellPathGeometry = wellPath->wellPathGeometry();
     if ( !( caseData && wellPathGeometry ) ) return nullptr;

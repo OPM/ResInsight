@@ -48,15 +48,13 @@ public:
     RimWellLogPlotCollection();
     ~RimWellLogPlotCollection() override;
 
-    RigEclipseWellLogExtractor* findOrCreateSimWellExtractor( const QString&                    simWellName,
-                                                              const QString&                    caseUserDescription,
-                                                              gsl::not_null<const RigWellPath*> wellPathGeometry,
-                                                              gsl::not_null<const RigEclipseCaseData*> eclCaseData );
+    RigEclipseWellLogExtractor* findOrCreateSimWellExtractor( const QString&            simWellName,
+                                                              const QString&            caseUserDescription,
+                                                              const RigWellPath*        wellPathGeometry,
+                                                              const RigEclipseCaseData* eclCaseData );
 
-    RigEclipseWellLogExtractor* findOrCreateExtractor( gsl::not_null<RimWellPath*>    wellPath,
-                                                       gsl::not_null<RimEclipseCase*> eclCase );
-    RigGeoMechWellLogExtractor* findOrCreateExtractor( gsl::not_null<RimWellPath*>    wellPath,
-                                                       gsl::not_null<RimGeoMechCase*> geoMechCase );
+    RigEclipseWellLogExtractor* findOrCreateExtractor( RimWellPath* wellPath, RimEclipseCase* eclCase );
+    RigGeoMechWellLogExtractor* findOrCreateExtractor( RimWellPath* wellPath, RimGeoMechCase* geoMechCase );
 
     std::vector<RimWellLogPlot*> wellLogPlots() const;
     void                         addWellLogPlot( gsl::not_null<RimWellLogPlot*> wellLogPlot );
