@@ -5,13 +5,6 @@ project (GrpcInterface)
 message(STATUS "GRPC enabled")
 add_definitions(-DENABLE_GRPC)
 
-# Unity Build
-if (RESINSIGHT_ENABLE_UNITY_BUILD)
-  message("Cmake Unity build is enabled on : ${PROJECT_NAME}")
-  set(CMAKE_UNITY_BUILD true)
-endif()
-
-
 if (MSVC)
     add_definitions(-D_WIN32_WINNT=0x600)
 endif()
