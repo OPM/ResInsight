@@ -116,8 +116,8 @@ void RiuSummaryVectorSelectionDialog::setEnsembleAndAddress( RimSummaryCaseColle
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryVectorSelectionDialog::setEnsembleAndAddresses( RimSummaryCaseCollection*                    ensemble,
-                                                               std::vector<const RifEclipseSummaryAddress&> addresses )
+void RiuSummaryVectorSelectionDialog::setEnsembleAndAddresses( RimSummaryCaseCollection*             ensemble,
+                                                               std::vector<RifEclipseSummaryAddress> addresses )
 {
     if ( ensemble )
     {

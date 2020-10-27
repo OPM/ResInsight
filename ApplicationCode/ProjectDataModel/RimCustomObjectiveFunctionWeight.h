@@ -47,11 +47,11 @@ class RimCustomObjectiveFunctionWeight : public caf::PdmObject
 public:
     RimCustomObjectiveFunctionWeight();
 
-    QString                                      title() const;
-    void                                         setSummaryAddress( RifEclipseSummaryAddress address );
-    std::vector<const RifEclipseSummaryAddress&> summaryAddresses() const;
-    RimObjectiveFunction::FunctionType           objectiveFunction() const;
-    double                                       weightValue() const;
+    QString                               title() const;
+    void                                  setSummaryAddress( RifEclipseSummaryAddress address );
+    std::vector<RifEclipseSummaryAddress> summaryAddresses() const;
+    RimObjectiveFunction::FunctionType    objectiveFunction() const;
+    double                                weightValue() const;
 
     RimEnsembleCurveSet* parentCurveSet() const;
 
@@ -67,6 +67,8 @@ private:
                                                          caf::PdmUiEditorAttribute* attribute ) override;
 
     RimCustomObjectiveFunction* parentObjectiveFunction() const;
+
+    void updateAddressesUiField();
 
 private:
     caf::PdmProxyValueField<QString>                                m_title;

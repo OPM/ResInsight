@@ -29,6 +29,8 @@
 
 #include <cmath>
 
+//#include <mathml/qwt_mathml_text_engine.h>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -49,15 +51,15 @@ QSize RiuTextContentFrame::sizeHint() const
     layoutInfo( &layout );
 
     QFontMetrics fontMetrics( this->font() );
-    QRect titleRect = fontMetrics.boundingRect( QRect( 0, 0, 300, 200 ), Qt::AlignLeft | Qt::TextWordWrap, m_title );
-    QRect textRect  = fontMetrics.boundingRect( QRect( 0, 0, 300, 200 ), Qt::AlignLeft | Qt::TextWordWrap, m_text );
+    QRect titleRect = fontMetrics.boundingRect( QRect( 0, 0, 2000, 200 ), Qt::AlignLeft | Qt::TextWordWrap, m_title );
+    QRect textRect  = fontMetrics.boundingRect( QRect( 0, 0, 2000, 200 ), Qt::AlignLeft | Qt::TextWordWrap, m_text );
 
     int preferredContentHeight = titleRect.height() + layout.lineSpacing + textRect.height();
     int preferredHeight        = preferredContentHeight + layout.margins.top() + layout.margins.bottom();
 
     int preferredWidth = std::max( titleRect.width(), textRect.width() ) + layout.margins.left() + layout.margins.right();
 
-    preferredWidth = std::min( preferredWidth, 300 );
+    preferredWidth = std::min( preferredWidth, 2000 );
 
     return QSize( preferredWidth, preferredHeight );
 }
@@ -72,15 +74,15 @@ QSize RiuTextContentFrame::minimumSizeHint() const
     QFont titleFont = this->font();
     titleFont.setBold( true );
     QFontMetrics fontMetrics( titleFont );
-    QRect titleRect = fontMetrics.boundingRect( QRect( 0, 0, 300, 200 ), Qt::AlignLeft | Qt::TextWordWrap, m_title );
+    QRect titleRect = fontMetrics.boundingRect( QRect( 0, 0, 2000, 200 ), Qt::AlignLeft | Qt::TextWordWrap, m_title );
     fontMetrics     = QFontMetrics( this->font() );
-    QRect textRect  = fontMetrics.boundingRect( QRect( 0, 0, 300, 200 ), Qt::AlignLeft | Qt::TextWordWrap, m_text );
+    QRect textRect  = fontMetrics.boundingRect( QRect( 0, 0, 2000, 200 ), Qt::AlignLeft | Qt::TextWordWrap, m_text );
 
     int preferredContentHeight = titleRect.height() + layout.lineSpacing + textRect.height();
     int preferredHeight        = preferredContentHeight + layout.margins.top() + layout.margins.bottom();
     int preferredWidth = std::max( titleRect.width(), textRect.width() ) + layout.margins.left() + layout.margins.right();
 
-    preferredWidth = std::min( preferredWidth, 300 );
+    preferredWidth = std::min( preferredWidth, 2000 );
 
     return QSize( preferredWidth, preferredHeight );
 }
@@ -124,6 +126,19 @@ void RiuTextContentFrame::renderTo( QPainter* painter, const QRect& targetRect )
         painter->save();
         painter->translate( QPoint( layout.margins.left(), layout.margins.top() + layout.lineSpacing * 2 ) );
         painter->setPen( QPen( textColor ) );
+
+        /*
+        QwtMathMLTextEngine textEngine = QwtMathMLTextEngine();
+        textEngine.draw( painter,
+                         QRect( targetRect.left() + layout.margins.left(),
+                                targetRect.top() + layout.margins.top() + layout.lineSpacing * 2,
+                                targetRect.width() - layout.margins.left() - layout.margins.right(),
+                                targetRect.height() - layout.margins.top() - layout.margins.bottom() -
+                                    layout.margins.top() + layout.lineSpacing * 2 ),
+                         Qt::AlignLeft,
+                         m_text );
+
+        */
         QTextDocument td;
         td.setDocumentMargin( 0.0 );
         td.setDefaultFont( this->font() );
@@ -132,6 +147,7 @@ void RiuTextContentFrame::renderTo( QPainter* painter, const QRect& targetRect )
                         .arg( textColor.name() )
                         .arg( formattedTitle.replace( "\n", "<br />" ) ) );
         td.drawContents( painter );
+
         painter->restore();
     }
 

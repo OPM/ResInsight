@@ -41,8 +41,7 @@ public:
 
     void setCaseAndAddress( RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& address );
     void setEnsembleAndAddress( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& address );
-    void setEnsembleAndAddresses( RimSummaryCaseCollection*                    ensemble,
-                                  std::vector<const RifEclipseSummaryAddress&> addresses );
+    void setEnsembleAndAddresses( RimSummaryCaseCollection* ensemble, std::vector<RifEclipseSummaryAddress> addresses );
     void setCurveSelection( const std::vector<RiaSummaryCurveDefinition>& selection );
     std::vector<RiaSummaryCurveDefinition> curveSelection() const;
 

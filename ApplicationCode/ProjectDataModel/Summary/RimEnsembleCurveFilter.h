@@ -63,7 +63,7 @@ public:
     QString                               filterId() const;
     QString                               description() const;
     std::vector<RifEclipseSummaryAddress> summaryAddresses() const;
-    void                                  setSummaryAddress( RifEclipseSummaryAddress address );
+    void                                  setSummaryAddresses( std::vector<RifEclipseSummaryAddress> addresses );
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;

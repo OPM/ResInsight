@@ -52,11 +52,13 @@ void RicNewEnsembleCurveFilterFeature::onActionTriggered( bool isChecked )
         RimEnsembleCurveFilter* newFilter = filterColls[0]->addFilter();
         if ( filterColls[0]->filters().size() > 1 )
         {
-            newFilter->setSummaryAddress( filterColls[0]->filters()[0]->summaryAddress() );
+            newFilter->setSummaryAddresses( filterColls[0]->filters()[0]->summaryAddresses() );
         }
         else
         {
-            newFilter->setSummaryAddress( newFilter->parentCurveSet()->summaryAddress() );
+            std::vector<RifEclipseSummaryAddress> addresses;
+            addresses.push_back( newFilter->parentCurveSet()->summaryAddress() );
+            newFilter->setSummaryAddresses( addresses );
         }
         filterColls[0]->updateConnectedEditors();
         RiuPlotMainWindowTools::selectAsCurrentItem( filterColls.front() );

@@ -39,8 +39,7 @@ public:
         M2
     };
 
-    QString                            uiName() const { return name; };
-    QString                            name;
+    QString                            uiName() const;
     RimObjectiveFunction::FunctionType functionType();
 
     void setTimeStepRange( time_t startTime, time_t endTime );
@@ -51,21 +50,23 @@ public:
 
     RimObjectiveFunction( const RimSummaryCaseCollection* summaryCaseCollection, FunctionType type );
 
-    double value( size_t                                       caseIndex,
-                  std::vector<const RifEclipseSummaryAddress&> vectorSummaryAddresses,
-                  bool*                                        hasWarning = nullptr ) const;
+    double value( size_t                                caseIndex,
+                  std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses,
+                  bool*                                 hasWarning = nullptr ) const;
 
-    double value( RimSummaryCase*                              summaryCase,
-                  std::vector<const RifEclipseSummaryAddress&> vectorSummaryAddresses,
-                  bool*                                        hasWarning = nullptr ) const;
+    double value( RimSummaryCase*                       summaryCase,
+                  std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses,
+                  bool*                                 hasWarning = nullptr ) const;
 
-    std::pair<double, double> minMaxValues( std::vector<const RifEclipseSummaryAddress&> vectorSummaryAddresses ) const;
+    std::pair<double, double> minMaxValues( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses ) const;
 
     std::pair<time_t, time_t> range() const;
 
-    std::vector<double> values( std::vector<const RifEclipseSummaryAddress&> vectorSummaryAddresses ) const;
+    std::vector<double> values( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses ) const;
 
-    bool isValid( std::vector<const RifEclipseSummaryAddress&> vectorSummaryAddresses ) const;
+    bool isValid( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses ) const;
+
+    QString formulaString( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses );
 
     bool operator<( const RimObjectiveFunction& other ) const;
 

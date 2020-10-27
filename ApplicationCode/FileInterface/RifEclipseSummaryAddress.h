@@ -156,6 +156,9 @@ public:
     static RifEclipseSummaryAddress ensembleStatisticsAddress( const std::string& quantityName,
                                                                const std::string& dataQuantityName );
 
+    static std::string generateStringFromAddresses( const std::vector<RifEclipseSummaryAddress>& addressVector,
+                                                    const std::string                            jointString = "; " );
+
     static bool isDependentOnWellName( SummaryVarCategory category );
 
     // Access methods

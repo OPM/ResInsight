@@ -148,6 +148,7 @@ public:
                                                       RimSummaryCaseCollection*      summaryCaseGroup );
 
     void updateFilterLegend();
+    void updateObjectiveFunctionLegend();
 
 private:
     void updateEnsembleCurves( const std::vector<RimSummaryCase*>& sumCases );
@@ -219,6 +220,7 @@ private:
     caf::PdmChildField<RimEnsembleCurveFilterCollection*>     m_curveFilters;
     caf::PdmChildField<RimEnsembleStatistics*>                m_statistics;
     caf::PdmChildField<RimCustomObjectiveFunctionCollection*> m_customObjectiveFunctions;
+    caf::PdmField<bool>                                       m_showObjectiveFunctionFormula;
 
     caf::PdmField<bool>                          m_isUsingAutoName;
     caf::PdmField<QString>                       m_userDefinedName;
@@ -228,6 +230,7 @@ private:
     QwtPlotCurve*                      m_qwtPlotCurveForLegendText;
     QPointer<RiuDraggableOverlayFrame> m_legendOverlayFrame;
     QPointer<RiuDraggableOverlayFrame> m_filterOverlayFrame;
+    QPointer<RiuDraggableOverlayFrame> m_objectiveFunctionOverlayFrame;
 
     std::unique_ptr<RimEnsembleStatisticsCase> m_ensembleStatCase;
 

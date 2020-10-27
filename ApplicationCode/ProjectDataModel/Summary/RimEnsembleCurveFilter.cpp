@@ -190,16 +190,17 @@ QString RimEnsembleCurveFilter::description() const
     }
     else if ( m_filterMode() == FilterMode::BY_OBJECTIVE_FUNCTION )
     {
-        QStringList addresses;
-        for ( auto address : m_objectiveValuesSummaryAddresses )
+        std::vector<RifEclipseSummaryAddress> addressVector;
+        for ( RimSummaryAddress* address : m_objectiveValuesSummaryAddresses )
         {
-            addresses << QString::fromStdString( address->address().quantityName() );
+            addressVector.push_back( address->address() );
         }
-        descriptor = QString( "%1::%2%3%4" )
-                         .arg( caf::AppEnum<RimObjectiveFunction::FunctionType>( m_objectiveFunction() ).text() )
-                         .arg( addresses.size() > 1 ? "(" : "" )
-                         .arg( addresses.join( " + " ) )
-                         .arg( addresses.size() > 1 ? ")" : "" );
+        descriptor =
+            QString( "%1::%2%3%4" )
+                .arg( caf::AppEnum<RimObjectiveFunction::FunctionType>( m_objectiveFunction() ).uiText() )
+                .arg( addressVector.size() > 1 ? "(" : "" )
+                .arg( QString::fromStdString( RifEclipseSummaryAddress::generateStringFromAddresses( addressVector, "+" ) ) )
+                .arg( addressVector.size() > 1 ? ")" : "" );
     }
     else if ( m_filterMode() == FilterMode::BY_CUSTOM_OBJECTIVE_FUNCTION )
     {
@@ -231,11 +232,15 @@ std::vector<RifEclipseSummaryAddress> RimEnsembleCurveFilter::summaryAddresses()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveFilter::setSummaryAddress( RifEclipseSummaryAddress address )
+void RimEnsembleCurveFilter::setSummaryAddresses( std::vector<RifEclipseSummaryAddress> addresses )
 {
-    std::unique_ptr<RimSummaryAddress> summaryAddress = std::make_unique<RimSummaryAddress>( new RimSummaryAddress );
-    summaryAddress->setAddress( address );
-    m_objectiveValuesSummaryAddresses.push_back( summaryAddress.get() );
+    m_objectiveValuesSummaryAddresses.clear();
+    for ( auto address : addresses )
+    {
+        RimSummaryAddress* summaryAddress = new RimSummaryAddress();
+        summaryAddress->setAddress( address );
+        m_objectiveValuesSummaryAddresses.push_back( summaryAddress );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -291,12 +296,13 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveFilter::updateAddressesUiField()
 {
-    QStringList addressesCombined;
+    std::vector<RifEclipseSummaryAddress> addressVector;
     for ( RimSummaryAddress* address : m_objectiveValuesSummaryAddresses )
     {
-        addressesCombined << QString::fromStdString( address->address().quantityName() );
+        addressVector.push_back( address->address() );
     }
-    m_objectiveValuesSummaryAddressesUiField = addressesCombined.join( "; " );
+    m_objectiveValuesSummaryAddressesUiField =
+        QString::fromStdString( RifEclipseSummaryAddress::generateStringFromAddresses( addressVector ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -348,10 +354,9 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
     {
         if ( m_objectiveValuesSummaryAddresses.size() == 0 )
         {
-            std::unique_ptr<RimSummaryAddress> summaryAddress =
-                std::make_unique<RimSummaryAddress>( new RimSummaryAddress );
+            RimSummaryAddress* summaryAddress = new RimSummaryAddress();
             summaryAddress->setAddress( parentCurveSet()->summaryAddress() );
-            m_objectiveValuesSummaryAddresses.push_back( summaryAddress.get() );
+            m_objectiveValuesSummaryAddresses.push_back( summaryAddress );
             updateAddressesUiField();
         }
         updateMaxMinAndDefaultValues( true );
@@ -381,7 +386,7 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
         dlg.enableMultiSelect( true );
         RimSummaryCaseCollection* candidateEnsemble = parentCurveSet()->summaryCaseCollection();
 
-        std::vector<const RifEclipseSummaryAddress&> candidateAddresses;
+        std::vector<RifEclipseSummaryAddress> candidateAddresses;
         for ( auto address : m_objectiveValuesSummaryAddresses().childObjects() )
         {
             candidateAddresses.push_back( address->address() );
@@ -397,10 +402,9 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
             {
                 for ( auto address : curveSelection )
                 {
-                    std::unique_ptr<RimSummaryAddress> summaryAddress =
-                        std::make_unique<RimSummaryAddress>( new RimSummaryAddress );
-                    summaryAddress->setAddress( address.summaryAddress() );
-                    m_objectiveValuesSummaryAddresses.push_back( summaryAddress.get() );
+                    RimSummaryAddress* summaryAddress = new RimSummaryAddress();
+                    summaryAddress->setAddress( parentCurveSet()->summaryAddress() );
+                    m_objectiveValuesSummaryAddresses.push_back( summaryAddress );
                 }
                 this->loadDataAndUpdate();
             }
@@ -558,7 +562,7 @@ std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter( const std::vec
             auto objectiveFunction = ensemble->objectiveFunction( m_objectiveFunction() );
             bool hasWarning        = false;
 
-            std::vector<const RifEclipseSummaryAddress&> addresses;
+            std::vector<RifEclipseSummaryAddress> addresses;
             for ( auto address : m_objectiveValuesSummaryAddresses() )
             {
                 addresses.push_back( address->address() );
@@ -667,7 +671,7 @@ void RimEnsembleCurveFilter::updateMaxMinAndDefaultValues( bool forceDefault )
     else if ( m_filterMode() == FilterMode::BY_OBJECTIVE_FUNCTION )
     {
         auto objectiveFunction = parentCurveSet()->summaryCaseCollection()->objectiveFunction( m_objectiveFunction() );
-        std::vector<const RifEclipseSummaryAddress&> addresses;
+        std::vector<RifEclipseSummaryAddress> addresses;
         for ( auto address : m_objectiveValuesSummaryAddresses() )
         {
             addresses.push_back( address->address() );

@@ -59,9 +59,9 @@ public:
     }
 
     static void initializeLegendConfig( RimRegularLegendConfig* legendConfig, const EnsembleParameter& parameter );
-    static void initializeLegendConfig( RimRegularLegendConfig*                      legendConfig,
-                                        std::shared_ptr<RimObjectiveFunction>        objectiveFunction,
-                                        std::vector<const RifEclipseSummaryAddress&> vectorSummaryAddresses );
+    static void initializeLegendConfig( RimRegularLegendConfig*               legendConfig,
+                                        std::shared_ptr<RimObjectiveFunction> objectiveFunction,
+                                        std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses );
 
     static void initializeLegendConfig( RimRegularLegendConfig*                     legendConfig,
                                         caf::PdmPointer<RimCustomObjectiveFunction> customObjectiveFunction );
@@ -70,10 +70,10 @@ public:
                                    const RimSummaryCase*         summaryCase,
                                    const EnsembleParameter&      parameter );
 
-    static cvf::Color3f caseColor( const RimRegularLegendConfig*                legendConfig,
-                                   RimSummaryCase*                              summaryCase,
-                                   std::shared_ptr<RimObjectiveFunction>        objectiveFunction,
-                                   std::vector<const RifEclipseSummaryAddress&> vectorSummaryAddresses );
+    static cvf::Color3f caseColor( const RimRegularLegendConfig*         legendConfig,
+                                   RimSummaryCase*                       summaryCase,
+                                   std::shared_ptr<RimObjectiveFunction> objectiveFunction,
+                                   std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses );
 
     static cvf::Color3f caseColor( const RimRegularLegendConfig*               legendConfig,
                                    RimSummaryCase*                             summaryCase,

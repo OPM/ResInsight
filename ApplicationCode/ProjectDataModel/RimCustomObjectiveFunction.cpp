@@ -83,7 +83,7 @@ void RimCustomObjectiveFunction::removeWeight( RimCustomObjectiveFunctionWeight*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimCustomObjectiveFunctionWeight*> RimCustomObjectiveFunction::weights()
+std::vector<RimCustomObjectiveFunctionWeight*> RimCustomObjectiveFunction::weights() const
 {
     return m_weights.childObjects();
 }
@@ -98,7 +98,7 @@ std::vector<double> RimCustomObjectiveFunction::values() const
     for ( auto weight : m_weights )
     {
         std::vector<double> functionValues =
-            caseCollection->objectiveFunction( weight->objectiveFunction() )->values( weight->summaryAddress() );
+            caseCollection->objectiveFunction( weight->objectiveFunction() )->values( weight->summaryAddresses() );
         if ( values.size() == 0 )
         {
             for ( size_t i = 0; i < functionValues.size(); i++ )
@@ -130,7 +130,7 @@ double RimCustomObjectiveFunction::value( RimSummaryCase* summaryCase ) const
     for ( auto weight : m_weights )
     {
         double functionValue =
-            caseCollection->objectiveFunction( weight->objectiveFunction() )->value( summaryCase, weight->summaryAddress() );
+            caseCollection->objectiveFunction( weight->objectiveFunction() )->value( summaryCase, weight->summaryAddresses() );
 
         value += weight->weightValue() * functionValue;
     }
@@ -140,7 +140,7 @@ double RimCustomObjectiveFunction::value( RimSummaryCase* summaryCase ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, double> RimCustomObjectiveFunction::minMaxValues()
+std::pair<double, double> RimCustomObjectiveFunction::minMaxValues() const
 {
     double minValue = std::numeric_limits<double>::infinity();
     double maxValue = -std::numeric_limits<double>::infinity();
@@ -225,6 +225,30 @@ void RimCustomObjectiveFunction::onWeightChanged()
 void RimCustomObjectiveFunction::invalidate()
 {
     m_isValid = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimCustomObjectiveFunction::formulaString( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses ) const
+{
+    QString formula = "Custom Objective Function = ";
+    if ( !m_customFunctionTitle().isEmpty() )
+    {
+        formula = m_customFunctionTitle();
+    }
+    QStringList weightFormulae;
+    for ( auto weight : weights() )
+    {
+        weightFormulae << QString( "%0 * %1" )
+                              .arg( weight->weightValue() )
+                              .arg( parentCurveSet()
+                                        ->summaryCaseCollection()
+                                        ->objectiveFunction( weight->objectiveFunction() )
+                                        ->formulaString( vectorSummaryAddresses ) );
+    }
+    formula += weightFormulae.join( " + " );
+    return formula;
 }
 
 //--------------------------------------------------------------------------------------------------

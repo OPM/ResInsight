@@ -135,7 +135,7 @@ void RimEnsembleCurveSetColorManager::initializeLegendConfig( RimRegularLegendCo
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSetColorManager::initializeLegendConfig( RimRegularLegendConfig*               legendConfig,
                                                               std::shared_ptr<RimObjectiveFunction> objectiveFunction,
-                                                              std::vector<const RifEclipseSummaryAddress&> vectorSummaryAddresses )
+                                                              std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses )
 {
     double minValue = std::numeric_limits<double>::infinity();
     double maxValue = -std::numeric_limits<double>::infinity();
@@ -208,10 +208,10 @@ cvf::Color3f RimEnsembleCurveSetColorManager::caseColor( const RimRegularLegendC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Color3f RimEnsembleCurveSetColorManager::caseColor( const RimRegularLegendConfig*                legendConfig,
-                                                         RimSummaryCase*                              summaryCase,
-                                                         std::shared_ptr<RimObjectiveFunction>        objectiveFunction,
-                                                         std::vector<const RifEclipseSummaryAddress&> vectorSummaryAddresses )
+cvf::Color3f RimEnsembleCurveSetColorManager::caseColor( const RimRegularLegendConfig*         legendConfig,
+                                                         RimSummaryCase*                       summaryCase,
+                                                         std::shared_ptr<RimObjectiveFunction> objectiveFunction,
+                                                         std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses )
 {
     double value = objectiveFunction->value( summaryCase, vectorSummaryAddresses );
     if ( value != std::numeric_limits<double>::infinity() )

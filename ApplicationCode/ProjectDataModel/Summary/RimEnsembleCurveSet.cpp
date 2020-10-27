@@ -158,6 +158,8 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     CAF_PDM_InitFieldNoDefault( &m_customObjectiveFunction, "CustomObjectiveFunction", "Objective Function", "", "", "" );
     m_customObjectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
+    CAF_PDM_InitField( &m_showObjectiveFunctionFormula, "ShowObjectiveFunctionFormula", true, "Show Formula in Plot", "", "", "" );
+
     CAF_PDM_InitFieldNoDefault( &m_minDateRange, "MinDateRange", "From", "", "", "" );
     m_minDateRange.uiCapability()->setUiEditorTypeName( caf::PdmUiDateEditor::uiEditorTypeName() );
 
@@ -260,6 +262,16 @@ RimEnsembleCurveSet::~RimEnsembleCurveSet()
         m_legendOverlayFrame->setParent( nullptr );
         delete m_legendOverlayFrame;
     }
+    if ( m_filterOverlayFrame )
+    {
+        m_filterOverlayFrame->setParent( nullptr );
+        delete m_filterOverlayFrame;
+    }
+    if ( m_objectiveFunctionOverlayFrame )
+    {
+        m_objectiveFunctionOverlayFrame->setParent( nullptr );
+        delete m_objectiveFunctionOverlayFrame;
+    }
 
     delete m_qwtPlotCurveForLegendText;
 }
@@ -293,6 +305,7 @@ void RimEnsembleCurveSet::loadDataAndUpdate( bool updateParentPlot )
 
     updateAllCurves();
     updateFilterLegend();
+    updateObjectiveFunctionLegend();
 
     if ( updateParentPlot )
     {
@@ -383,9 +396,9 @@ void RimEnsembleCurveSet::deleteCurve( RimSummaryCurve* curve )
 void RimEnsembleCurveSet::setSummaryAddress( RifEclipseSummaryAddress address )
 {
     m_yValuesSummaryAddress->setAddress( address );
-    std::unique_ptr<RimSummaryAddress> summaryAddress = std::make_unique<RimSummaryAddress>( new RimSummaryAddress );
+    RimSummaryAddress* summaryAddress = new RimSummaryAddress();
     summaryAddress->setAddress( address );
-    m_objectiveValuesSummaryAddresses.push_back( summaryAddress.get() );
+    m_objectiveValuesSummaryAddresses.push_back( summaryAddress );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -655,6 +668,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         updateLegendMappingMode();
         updateCurveColors();
         updateTimeAnnotations();
+        updateObjectiveFunctionLegend();
     }
     else if ( changedField == &m_objectiveValuesSummaryAddressesUiField )
     {
@@ -666,8 +680,13 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 
         updateMaxMinAndDefaultValues();
         updateCurveColors();
+        updateObjectiveFunctionLegend();
 
         updateTextInPlot = true;
+    }
+    else if ( changedField == &m_showObjectiveFunctionFormula )
+    {
+        updateObjectiveFunctionLegend();
     }
     else if ( changedField == &m_colorMode )
     {
@@ -687,10 +706,9 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         {
             if ( m_objectiveValuesSummaryAddresses.size() == 0 )
             {
-                std::unique_ptr<RimSummaryAddress> summaryAddress =
-                    std::make_unique<RimSummaryAddress>( new RimSummaryAddress );
+                RimSummaryAddress* summaryAddress = new RimSummaryAddress();
                 summaryAddress->setAddress( m_yValuesSummaryAddress->address() );
-                m_objectiveValuesSummaryAddresses.push_back( summaryAddress.get() );
+                m_objectiveValuesSummaryAddresses.push_back( summaryAddress );
                 updateAddressesUiField();
                 m_minTimeStep = *allAvailableTimeSteps().begin();
                 m_maxTimeStep = *allAvailableTimeSteps().rbegin();
@@ -700,6 +718,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 
         updateCurveColors();
         updateTimeAnnotations();
+        updateObjectiveFunctionLegend();
 
         updateTextInPlot = true;
     }
@@ -714,6 +733,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         summaryCaseCollection()->objectiveFunction( m_objectiveFunction() )->setTimeStepList( selectedTimeSteps() );
         updateCurveColors();
         updateTimeAnnotations();
+        updateObjectiveFunctionLegend();
     }
     else if ( changedField == &m_minTimeStep || changedField == &m_maxTimeStep )
     {
@@ -789,7 +809,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         dlg.enableMultiSelect( true );
         RimSummaryCaseCollection* candidateEnsemble = m_yValuesSummaryCaseCollection();
 
-        std::vector<const RifEclipseSummaryAddress&> candidateAddresses;
+        std::vector<RifEclipseSummaryAddress> candidateAddresses;
         for ( auto address : m_objectiveValuesSummaryAddresses().childObjects() )
         {
             candidateAddresses.push_back( address->address() );
@@ -803,12 +823,12 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
             auto curveSelection = dlg.curveSelection();
             if ( !curveSelection.empty() )
             {
+                m_objectiveValuesSummaryAddresses.clear();
                 for ( auto address : curveSelection )
                 {
-                    std::unique_ptr<RimSummaryAddress> summaryAddress =
-                        std::make_unique<RimSummaryAddress>( new RimSummaryAddress );
+                    RimSummaryAddress* summaryAddress = new RimSummaryAddress();
                     summaryAddress->setAddress( address.summaryAddress() );
-                    m_objectiveValuesSummaryAddresses.push_back( summaryAddress.get() );
+                    m_objectiveValuesSummaryAddresses.push_back( summaryAddress );
                 }
                 this->loadDataAndUpdate( true );
             }
@@ -834,6 +854,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
             updateLegendMappingMode();
             updateCurveColors();
             updateTimeAnnotations();
+            updateObjectiveFunctionLegend();
         }
     }
 
@@ -945,6 +966,7 @@ void RimEnsembleCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrdering )
         {
             colorsGroup->add( &m_customObjectiveFunction );
         }
+        colorsGroup->add( &m_showObjectiveFunctionFormula );
         if ( ( m_colorMode == ColorMode::BY_OBJECTIVE_FUNCTION &&
                m_objectiveFunction() == RimObjectiveFunction::FunctionType::M1 ) ||
              ( m_colorMode == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION && m_customObjectiveFunction() &&
@@ -1313,6 +1335,70 @@ void RimEnsembleCurveSet::updateFilterLegend()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::updateObjectiveFunctionLegend()
+{
+    RimSummaryPlot* plot;
+    firstAncestorOrThisOfType( plot );
+    if ( plot && plot->viewer() )
+    {
+        if ( ( m_colorMode == ColorMode::BY_OBJECTIVE_FUNCTION || m_colorMode == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION ) &&
+             m_showObjectiveFunctionFormula() )
+        {
+            if ( !m_objectiveFunctionOverlayFrame )
+            {
+                m_objectiveFunctionOverlayFrame =
+                    new RiuDraggableOverlayFrame( plot->viewer()->canvas(), plot->viewer()->overlayMargins() );
+            }
+            QString title;
+            QString description;
+            if ( m_colorMode() == ColorMode::BY_OBJECTIVE_FUNCTION )
+            {
+                std::vector<RifEclipseSummaryAddress> addresses;
+                for ( auto address : m_objectiveValuesSummaryAddresses().childObjects() )
+                {
+                    addresses.push_back( address->address() );
+                }
+
+                title = "Objective Function";
+                description =
+                    QString( "%0 = %1" )
+                        .arg( m_yValuesSummaryCaseCollection()->objectiveFunction( m_objectiveFunction() )->uiName() )
+                        .arg( m_yValuesSummaryCaseCollection()
+                                  ->objectiveFunction( m_objectiveFunction() )
+                                  ->formulaString( addresses ) );
+            }
+            else if ( m_colorMode() == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION && m_customObjectiveFunction() )
+            {
+                std::vector<RifEclipseSummaryAddress> addresses;
+                for ( auto address : m_objectiveValuesSummaryAddresses().childObjects() )
+                {
+                    addresses.push_back( address->address() );
+                }
+
+                title       = "Custom Objective Function";
+                description = m_customObjectiveFunction()->formulaString( addresses );
+            }
+            if ( !title.isEmpty() && !description.isEmpty() )
+            {
+                m_objectiveFunctionOverlayFrame->setContentFrame( new RiuTextContentFrame( nullptr, title, description ) );
+                m_objectiveFunctionOverlayFrame->setMaximumWidth( 10000 );
+                plot->viewer()->addOverlayFrame( m_objectiveFunctionOverlayFrame );
+            }
+        }
+        else
+        {
+            if ( m_objectiveFunctionOverlayFrame )
+            {
+                plot->viewer()->removeOverlayFrame( m_objectiveFunctionOverlayFrame );
+            }
+        }
+    }
+    plot->viewer()->scheduleReplot();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::updateCurveColors()
 {
     if ( m_colorMode == ColorMode::BY_ENSEMBLE_PARAM )
@@ -1383,10 +1469,6 @@ void RimEnsembleCurveSet::updateCurveColors()
                 legendTitle += m_userDefinedName();
             }
 
-            for ( auto address : m_objectiveValuesSummaryAddresses() )
-            {
-                legendTitle += "\n" + QString::fromStdString( address->address().quantityName() );
-            }
             legendTitle += "\n";
             legendTitle += caf::AppEnum<RimObjectiveFunction::FunctionType>( m_objectiveFunction() ).uiText();
 
@@ -1395,8 +1477,8 @@ void RimEnsembleCurveSet::updateCurveColors()
 
         if ( group && !group->allSummaryCases().empty() )
         {
-            auto objectiveFunction = group->objectiveFunction( m_objectiveFunction() );
-            std::vector<const RifEclipseSummaryAddress&> summaryAddresses;
+            auto                                  objectiveFunction = group->objectiveFunction( m_objectiveFunction() );
+            std::vector<RifEclipseSummaryAddress> summaryAddresses;
             for ( auto address : m_objectiveValuesSummaryAddresses() )
             {
                 summaryAddresses.push_back( address->address() );
@@ -1442,8 +1524,12 @@ void RimEnsembleCurveSet::updateCurveColors()
             if ( m_customObjectiveFunction() && m_customObjectiveFunction()->isValid() )
             {
                 QString descriptions = m_customObjectiveFunction()->title();
-                descriptions.replace( "+", "\n+" );
+                descriptions.truncate( 30 );
                 legendTitle += descriptions;
+                if ( m_customObjectiveFunction()->title().length() > descriptions.length() )
+                {
+                    legendTitle += "...";
+                }
             }
             else
             {
@@ -1533,12 +1619,13 @@ void RimEnsembleCurveSet::updateTimeAnnotations()
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::updateAddressesUiField()
 {
-    QStringList addressesCombined;
+    std::vector<RifEclipseSummaryAddress> addressVector;
     for ( RimSummaryAddress* address : m_objectiveValuesSummaryAddresses )
     {
-        addressesCombined << QString::fromStdString( address->address().quantityName() );
+        addressVector.push_back( address->address() );
     }
-    m_objectiveValuesSummaryAddressesUiField = addressesCombined.join( "; " );
+    m_objectiveValuesSummaryAddressesUiField =
+        QString::fromStdString( RifEclipseSummaryAddress::generateStringFromAddresses( addressVector ) );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -47,6 +47,22 @@ void caf::AppEnum<RimObjectiveFunction::FunctionType>::setUp()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimObjectiveFunction::uiName() const
+{
+    if ( m_functionType == FunctionType::M1 )
+    {
+        return QString( "M1" );
+    }
+    else if ( m_functionType == FunctionType::M2 )
+    {
+        return QString( "M2" );
+    }
+    return QString();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimObjectiveFunction::FunctionType RimObjectiveFunction::functionType()
 {
     return m_functionType;
@@ -83,9 +99,9 @@ RimObjectiveFunction::RimObjectiveFunction( const RimSummaryCaseCollection* summ
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimObjectiveFunction::value( size_t                                       caseIndex,
-                                    std::vector<const RifEclipseSummaryAddress&> vectorSummaryAddresses,
-                                    bool*                                        hasWarning ) const
+double RimObjectiveFunction::value( size_t                                caseIndex,
+                                    std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses,
+                                    bool*                                 hasWarning ) const
 {
     auto summaryCases = m_summaryCaseCollection->allSummaryCases();
 
@@ -99,9 +115,9 @@ double RimObjectiveFunction::value( size_t                                      
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimObjectiveFunction::value( RimSummaryCase*                              summaryCase,
-                                    std::vector<const RifEclipseSummaryAddress&> vectorSummaryAddresses,
-                                    bool*                                        hasWarning ) const
+double RimObjectiveFunction::value( RimSummaryCase*                       summaryCase,
+                                    std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses,
+                                    bool*                                 hasWarning ) const
 {
     RifSummaryReaderInterface* readerInterface = summaryCase->summaryReader();
     if ( readerInterface )
@@ -268,7 +284,7 @@ double RimObjectiveFunction::value( RimSummaryCase*                             
 ///
 //--------------------------------------------------------------------------------------------------
 std::pair<double, double>
-    RimObjectiveFunction::minMaxValues( std::vector<const RifEclipseSummaryAddress&> vectorSummaryAddresses ) const
+    RimObjectiveFunction::minMaxValues( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses ) const
 {
     double minValue = std::numeric_limits<double>::infinity();
     double maxValue = -std::numeric_limits<double>::infinity();
@@ -295,7 +311,7 @@ std::pair<time_t, time_t> RimObjectiveFunction::range() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimObjectiveFunction::values( std::vector<const RifEclipseSummaryAddress&> vectorSummaryAddresses ) const
+std::vector<double> RimObjectiveFunction::values( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses ) const
 {
     std::vector<double> values;
     auto                summaryCases = m_summaryCaseCollection->allSummaryCases();
@@ -317,7 +333,7 @@ std::vector<double> RimObjectiveFunction::values( std::vector<const RifEclipseSu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimObjectiveFunction::isValid( std::vector<const RifEclipseSummaryAddress&> vectorSummaryAddresses ) const
+bool RimObjectiveFunction::isValid( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses ) const
 {
     bool hasWarning = false;
     if ( m_summaryCaseCollection && m_summaryCaseCollection->allSummaryCases().size() > 0 &&
@@ -339,7 +355,38 @@ bool RimObjectiveFunction::isValid( std::vector<const RifEclipseSummaryAddress&>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimObjectiveFunction::formulaString( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses )
+{
+    QString formula;
+    if ( m_functionType == FunctionType::M1 )
+    {
+        formula += "(" + QString::fromWCharArray( L"\u03A3" ) + "(|";
+        QStringList addresses;
+        for ( RifEclipseSummaryAddress address : vectorSummaryAddresses )
+        {
+            addresses << QString::fromStdString( address.uiText() );
+        }
+        formula += addresses.join( "| + |" );
+        formula += "|))/(stdv)";
+    }
+    else if ( m_functionType == FunctionType::M2 )
+    {
+        formula += QString::fromWCharArray( L"\u03A3" ) + "(|";
+        QStringList addresses;
+        for ( RifEclipseSummaryAddress address : vectorSummaryAddresses )
+        {
+            addresses << QString::fromStdString( address.uiText() );
+        }
+        formula += addresses.join( "| + |" );
+        formula += "|)";
+    }
+    return formula;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimObjectiveFunction::operator<( const RimObjectiveFunction& other ) const
 {
-    return this->name < other.name;
+    return this->uiName() < other.uiName();
 }
