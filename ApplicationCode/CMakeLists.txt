@@ -391,8 +391,8 @@ endif()
 if(MSVC)
   # The following warnings are supposed to be used in ResInsight, but
   # temporarily disabled to avoid too much noise warning C4245: 'return':
-  # conversion from 'int' to 'size_t', signed/unsigned mismatch
-  # warning C4005: Macro redefinition for math constants (M_PI, M_SQRT2 etc)
+  # conversion from 'int' to 'size_t', signed/unsigned mismatch warning C4005:
+  # Macro redefinition for math constants (M_PI, M_SQRT2 etc)
 
   # If possible, the following command is supposed to be the final target
   # set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "/W3 /wd4190
