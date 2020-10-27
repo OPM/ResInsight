@@ -490,14 +490,15 @@ endforeach()
 
 # Generate Python code in a target that is part of ALL_BUILD and depends on ResInsight
 if (RESINSIGHT_ENABLE_GRPC)	
-    add_custom_command(OUTPUT ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/resinsight_classes.py
-				COMMAND ResInsight ARGS --console --generate ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/resinsight_classes.py
+    add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/GrpcInterface/Python/rips/generated/resinsight_classes.py
+				COMMAND ResInsight ARGS --console --generate ${CMAKE_CURRENT_SOURCE_DIR}/GrpcInterface/Python/rips/generated/resinsight_classes.py
                 DEPENDS ResInsight
-                COMMENT "Generating ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/resinsight_classes.py"
+                COMMENT "Generating ${CMAKE_CURRENT_SOURCE_DIR}/GrpcInterface/Python/rips/generated/resinsight_classes.py"
 	)
-    list(APPEND GRPC_GENERATED_PYTHON_SOURCES ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/resinsight_classes.py)
+    list(APPEND GRPC_GENERATED_PYTHON_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/GrpcInterface/Python/rips/generated/resinsight_classes.py)
 	add_custom_target(GeneratedPythonSources ALL DEPENDS ${GRPC_GENERATED_PYTHON_SOURCES})
 	add_dependencies(GeneratedPythonSources ResInsight)
+
 endif(RESINSIGHT_ENABLE_GRPC)
 
 #############################################################################
@@ -639,12 +640,13 @@ if (RESINSIGHT_PRIVATE_INSTALL)
           )
         endif()
 
-        # install GRPC-related DLLs
+        # install GRPC-related DLLs and resinsight_classes.py
         if (RESINSIGHT_ENABLE_GRPC)
             set (GRPC_DLL_NAMES libprotobuf cares zlib1 abseil_dll)
             foreach (dllname ${GRPC_DLL_NAMES})		  
               list(APPEND RESINSIGHT_FILES $<TARGET_FILE_DIR:ResInsight>/${dllname}.dll)
             endforeach(dllname ${GRPC_DLL_NAMES})
+            install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/GrpcInterface/Python/rips/generated/resinsight_classes.py DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python/rips/generated)
 	    endif()
 
         # OpenSSL
