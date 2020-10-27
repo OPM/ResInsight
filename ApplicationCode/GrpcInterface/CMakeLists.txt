@@ -5,6 +5,9 @@ project (GrpcInterface)
 message(STATUS "GRPC enabled")
 add_definitions(-DENABLE_GRPC)
 
+set(CMAKE_UNITY_BUILD false)
+set(RESINSIGHT_GRPC_PYTHON_EXECUTABLE "" CACHE FILEPATH "gRPC : Path to Python 3 executable, required to build the Python client library")
+
 if (MSVC)
     add_definitions(-D_WIN32_WINNT=0x600)
 endif()
@@ -68,8 +71,6 @@ set_target_properties(${GRPC_LIBRARIES} PROPERTIES
     MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE
     )
 
-find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
-
 set( LINK_LIBRARIES
   ${QT_LIBRARIES}
   ${GRPC_LIBRARIES}
@@ -128,22 +129,26 @@ foreach(proto_file ${PROTO_FILES})
     set(rips_proto_python "rips/generated/${proto_file}_pb2.py")
     set(rips_grpc_python "rips/generated/${proto_file}_pb2_grpc.py")
 
-    add_custom_command(
-        OUTPUT "${GRPC_PYTHON_SOURCE_PATH}/${rips_proto_python}" "${GRPC_PYTHON_SOURCE_PATH}/${rips_grpc_python}"
-        COMMAND ${Python3_EXECUTABLE}
-        ARGS -m grpc_tools.protoc
-            -I "${rips_proto_path}"
-            --python_out "${GRPC_PYTHON_SOURCE_PATH}/rips/generated"
-            --grpc_python_out "${GRPC_PYTHON_SOURCE_PATH}/rips/generated"
-            "${rips_proto}"
-        DEPENDS "${rips_proto}"
-        COMMENT "Generating ${rips_proto_python} and ${rips_grpc_python}"
-        VERBATIM
-    )
-    list (APPEND GRPC_PYTHON_GENERATED_SOURCES
-        ${rips_proto_python}
-        ${rips_grpc_python}
-    )
+    if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
+        add_custom_command(
+            OUTPUT "${GRPC_PYTHON_SOURCE_PATH}/${rips_proto_python}" "${GRPC_PYTHON_SOURCE_PATH}/${rips_grpc_python}"
+            COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE}
+            ARGS -m grpc_tools.protoc
+                -I "${rips_proto_path}"
+                --python_out "${GRPC_PYTHON_SOURCE_PATH}/rips/generated"
+                --grpc_python_out "${GRPC_PYTHON_SOURCE_PATH}/rips/generated"
+                "${rips_proto}"
+            DEPENDS "${rips_proto}"
+            COMMENT "Generating ${rips_proto_python} and ${rips_grpc_python}"
+            VERBATIM
+        )
+        list (APPEND GRPC_PYTHON_GENERATED_SOURCES
+            ${rips_proto_python}
+            ${rips_grpc_python}
+        )
+    else()
+        message(STATUS "RESINSIGHT_GRPC_PYTHON_EXECUTABLE not specified. Will not install Python client code")
+    endif()
 
     list( APPEND GRPC_HEADER_FILES
           ${rips_proto_hdrs}
@@ -157,10 +162,12 @@ foreach(proto_file ${PROTO_FILES})
 
 endforeach(proto_file)
 
-CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.py.cmake
-                ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/RiaVersionInfo.py)
-CONFIGURE_FILE( ${GRPC_PYTHON_SOURCE_PATH}/setup.py.cmake
-                ${GRPC_PYTHON_SOURCE_PATH}/setup.py)
+if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
+    CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.py.cmake
+                    ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/RiaVersionInfo.py)
+    CONFIGURE_FILE( ${GRPC_PYTHON_SOURCE_PATH}/setup.py.cmake
+                    ${GRPC_PYTHON_SOURCE_PATH}/setup.py)
+endif()
 
 list(APPEND GRPC_PYTHON_SOURCES
     "rips/generated/RiaVersionInfo.py"
@@ -217,9 +224,11 @@ list(APPEND GRPC_PYTHON_SOURCES
         
 list(APPEND GRPC_PYTHON_SOURCES ${GRPC_PYTHON_GENERATED_SOURCES})
 
-foreach(PYTHON_SCRIPT ${GRPC_PYTHON_SOURCES})
-    list(APPEND GRPC_PYTHON_SOURCES_FULL_PATH "${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}")
-endforeach()
+if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
+    foreach(PYTHON_SCRIPT ${GRPC_PYTHON_SOURCES})
+        list(APPEND GRPC_PYTHON_SOURCES_FULL_PATH "${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}")
+    endforeach()
+endif()
 
 add_library( ${PROJECT_NAME} OBJECT
     ${SOURCE_GROUP_HEADER_FILES}
@@ -236,31 +245,36 @@ if (MSVC)
   # GRPC generates a lot of harmless warnings on MSVC
   set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/wd4251 /wd4702 /wd4005 /wd4244 /wd4125 /wd4267")
 else()
-	set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-Wno-overloaded-virtual")
+  set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-Wno-overloaded-virtual")
 endif()
 
 
 # install gRPC Python files
-if (RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE)
+if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE AND RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE)
   add_custom_command(
     TARGET PipInstall
-    COMMAND ${Python3_EXECUTABLE} ARGS -m pip install --user wheel setuptools pytest
-    COMMAND ${Python3_EXECUTABLE} ARGS -m pip install --user grpcio-tools
+    COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} ARGS -m pip install --upgrade pip
+    COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} ARGS -m pip install --user wheel setuptools pytest
+    COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} ARGS -m pip install --user grpcio-tools
   )
 endif()
 
-if (RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE)
+if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE AND RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE)
   message(STATUS "Bundling Python GRPC modules")
   add_custom_command(
     TARGET PipInstall
-    COMMAND ${Python3_EXECUTABLE} ARGS -m pip install --user --target=${GRPC_PYTHON_SOURCE_PATH} grpcio-tools
+    COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} ARGS -m pip install --user --target=${GRPC_PYTHON_SOURCE_PATH} grpcio-tools
   )
 endif()
 
 add_dependencies(${PROJECT_NAME} PipInstall)
 
-install(DIRECTORY ${GRPC_PYTHON_SOURCE_PATH}/ DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python)
+if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
+  install(DIRECTORY ${GRPC_PYTHON_SOURCE_PATH}/ DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python)
+endif()
 
 source_group( "GrpcInterface" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.cmake )
 source_group( "GrpcInterface\\GrpcProtos" FILES ${GRPC_PROTO_FILES_FULL_PATH} )
-source_group(TREE ${GRPC_PYTHON_SOURCE_PATH} FILES ${GRPC_PYTHON_SOURCES_FULL_PATH} PREFIX "GrpcInterface\\Python")
+if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
+    source_group(TREE ${GRPC_PYTHON_SOURCE_PATH} FILES ${GRPC_PYTHON_SOURCES_FULL_PATH} PREFIX "GrpcInterface\\Python")
+endif()
