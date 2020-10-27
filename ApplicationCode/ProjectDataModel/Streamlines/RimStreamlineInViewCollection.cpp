@@ -50,13 +50,22 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
     CAF_PDM_InitScriptableFieldNoDefault( &m_collectionName, "Name", "Name", "", "", "" );
     m_collectionName = "Streamlines";
 
-    CAF_PDM_InitField( &m_phase,
-                       "Phase",
-                       caf::AppEnum<RiaDefines::PhaseType>( RiaDefines::PhaseType::OIL_PHASE ),
-                       "Phase",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_flowThreshold, "FlowThreshold", "Flow Threshold [m/day]", "", "", "" );
+    m_flowThreshold = 0.001;
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_resolution, "Resolution", "Resolution [days]", "", "", "" );
+    m_resolution = 0.1;
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_maxDays, "MaxDays", "Max. days ", "", "", "" );
+    m_maxDays = 100;
+
+    CAF_PDM_InitScriptableField( &m_phase,
+                                 "Phase",
+                                 caf::AppEnum<RiaDefines::PhaseType>( RiaDefines::PhaseType::OIL_PHASE ),
+                                 "Phase",
+                                 "",
+                                 "",
+                                 "" );
 
     CAF_PDM_InitField( &m_isActive, "isActive", false, "Active", "", "", "" );
     m_isActive.uiCapability()->setUiHidden( true );
@@ -218,21 +227,18 @@ void RimStreamlineInViewCollection::goForIt()
     qDebug() << "Found " << seedCellsInjector.size() << " injector cells";
 
     loadDataIfMissing( phase(), timeIdx );
+    if ( !setupDataAccessors( m_phase(), timeIdx ) ) return;
 
     const int reverseDirection = -1.0;
     const int normalDirection  = 1.0;
 
-    for ( int cubeFaceIdx = 0; cubeFaceIdx < 6; cubeFaceIdx++ )
+    for ( auto cell : seedCellsInjector )
     {
-        for ( auto cell : seedCellsInjector )
-        {
-            generateTracer( cell, cubeFaceIdx, normalDirection, m_phase(), timeIdx );
-        }
-        for ( auto cell : seedCellsProducer )
-        {
-            generateTracer( cell, cubeFaceIdx, reverseDirection, m_phase(), timeIdx );
-        }
-        cubeFaceIdx++; // skip negative face directions for now
+        generateTracer( cell, normalDirection );
+    }
+    for ( auto cell : seedCellsProducer )
+    {
+        generateTracer( cell, reverseDirection );
     }
 }
 
@@ -277,34 +283,110 @@ cvf::ref<RigResultAccessor>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStreamlineInViewCollection::generateTracer( RigCell               cell,
-                                                    int                   faceIdx,
-                                                    double                direction,
-                                                    RiaDefines::PhaseType phase,
-                                                    int                   timeIdx )
+bool RimStreamlineInViewCollection::setupDataAccessors( RiaDefines::PhaseType phase, int timeIdx )
 {
-    QString                       resultname = gridResultNameFromPhase( phase, faceIdx );
-    RiaDefines::PorosityModelType porModel   = RiaDefines::PorosityModelType::MATRIX_MODEL;
+    m_dataI = getDataAccessor( 0, phase, timeIdx );
+    m_dataJ = getDataAccessor( 2, phase, timeIdx );
+    m_dataK = getDataAccessor( 4, phase, timeIdx );
 
-    RigEclipseResultAddress address( RiaDefines::ResultCatType::DYNAMIC_NATIVE, resultname );
+    return ( m_dataI.notNull() && m_dataJ.notNull() && m_dataK.notNull() );
+}
 
-    RigCaseCellResultsData* data = m_eclipseCase->eclipseCaseData()->results( porModel );
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigCell* RimStreamlineInViewCollection::findNeighborCell( RigCell                            cell,
+                                                          RigGridBase*                       grid,
+                                                          cvf::StructGridInterface::FaceType face )
+{
+    size_t i, j, k;
 
-    cvf::ref<RigResultAccessor> accessI = getDataAccessor( 0, phase, timeIdx );
-    cvf::ref<RigResultAccessor> accessJ = getDataAccessor( 2, phase, timeIdx );
-    cvf::ref<RigResultAccessor> accessK = getDataAccessor( 4, phase, timeIdx );
+    grid->ijkFromCellIndexUnguarded( cell.gridLocalCellIndex(), &i, &j, &k );
 
-    double val1 = accessI->cellScalar( cell.gridLocalCellIndex() );
-    double val2 = accessJ->cellScalar( cell.gridLocalCellIndex() );
-    double val3 = accessK->cellScalar( cell.gridLocalCellIndex() );
-
-    if ( ( val1 == 0.0 ) && ( val2 == 0.0 ) && ( val3 == 0.0 ) )
+    size_t neighborIdx;
+    if ( grid->cellIJKNeighbor( i, j, k, face, &neighborIdx ) )
     {
-        qDebug() << "Skipping cell " << cell.gridLocalCellIndex();
-        return;
+        return &grid->cell( neighborIdx );
     }
 
-    qDebug() << cell.gridLocalCellIndex() << val1 << val2 << val3;
+    return nullptr;
+}
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimStreamlineInViewCollection::getFaceValues( RigCell cell, RigGridBase* grid )
+{
+    const size_t cellIdx = cell.gridLocalCellIndex();
+
+    double valPosI = m_dataI->cellScalar( cellIdx );
+    valPosI /= cell.faceNormalWithAreaLength( cvf::StructGridInterface::FaceType::POS_I ).length();
+
+    double valPosJ = m_dataJ->cellScalar( cellIdx );
+    valPosJ /= cell.faceNormalWithAreaLength( cvf::StructGridInterface::FaceType::POS_J ).length();
+
+    double valPosK = m_dataK->cellScalar( cellIdx );
+    valPosK /= cell.faceNormalWithAreaLength( cvf::StructGridInterface::FaceType::POS_K ).length();
+
+    double valNegI = 0.0;
+    double valNegJ = 0.0;
+    double valNegK = 0.0;
+    double area    = 1.0;
+
+    RigCell* neighborCell = findNeighborCell( cell, grid, cvf::StructGridInterface::FaceType::NEG_I );
+    if ( neighborCell )
+    {
+        valNegI = m_dataI->cellScalar( neighborCell->gridLocalCellIndex() );
+        area    = neighborCell->faceNormalWithAreaLength( cvf::StructGridInterface::FaceType::POS_I ).length();
+        if ( area != 0.0 )
+            valNegI /= area;
+        else
+            valNegI = 0.0;
+    }
+
+    neighborCell = findNeighborCell( cell, grid, cvf::StructGridInterface::FaceType::NEG_J );
+    if ( neighborCell )
+    {
+        valNegJ = m_dataI->cellScalar( neighborCell->gridLocalCellIndex() );
+        area    = neighborCell->faceNormalWithAreaLength( cvf::StructGridInterface::FaceType::POS_J ).length();
+        if ( area != 0.0 )
+            valNegJ /= area;
+        else
+            valNegJ = 0.0;
+    }
+
+    neighborCell = findNeighborCell( cell, grid, cvf::StructGridInterface::FaceType::NEG_K );
+    if ( neighborCell )
+    {
+        valNegK = m_dataI->cellScalar( neighborCell->gridLocalCellIndex() );
+        area    = neighborCell->faceNormalWithAreaLength( cvf::StructGridInterface::FaceType::POS_K ).length();
+        if ( area != 0.0 )
+            valNegK /= area;
+        else
+            valNegK = 0.0;
+    }
+
+    std::vector<double> retval = {valPosI, valNegI, valPosJ, valNegJ, valPosK, valNegK};
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStreamlineInViewCollection::generateTracer( RigCell cell, double direction )
+{
+    RigGridBase*        grid       = eclipseCase()->eclipseCaseData()->grid( 0 );
+    std::vector<double> faceValues = getFaceValues( cell, grid );
+
+    for ( int faceIdx = 0; faceIdx < 6; faceIdx++ )
+    {
+        if ( faceValues[faceIdx] <= m_flowThreshold )
+        {
+            qDebug() << "Skipping cell " << cell.gridLocalCellIndex() << "for face direction " << faceIdx;
+            continue;
+        }
+
+        qDebug() << "Starting tracer " << cell.gridLocalCellIndex() << faceValues;
+    }
     return;
 }

@@ -24,6 +24,7 @@
 #include "cafPdmObject.h"
 
 #include "cvfObject.h"
+#include "cvfStructGrid.h"
 
 #include <list>
 
@@ -32,6 +33,7 @@ class RimEclipseCase;
 class RigTracer;
 class RigCell;
 class RigResultAccessor;
+class RigGridBase;
 
 class RimStreamlineInViewCollection : public caf::PdmObject
 {
@@ -54,18 +56,31 @@ protected:
     caf::PdmFieldHandle* objectToggleField() override;
 
 private:
-    void generateTracer( RigCell cell, int faceIdx, double direction, RiaDefines::PhaseType phase, int timeIdx );
+    void generateTracer( RigCell cell, double direction );
     void loadDataIfMissing( RiaDefines::PhaseType phase, int timeIdx );
 
     cvf::ref<RigResultAccessor> getDataAccessor( int faceIdx, RiaDefines::PhaseType phase, int timeIdx );
 
+    bool setupDataAccessors( RiaDefines::PhaseType phase, int timeIdx );
+
     QString gridResultNameFromPhase( RiaDefines::PhaseType phase, int faceIdx ) const;
+
+    std::vector<double> getFaceValues( RigCell cell, RigGridBase* grid );
+
+    RigCell* findNeighborCell( RigCell cell, RigGridBase* grid, cvf::StructGridInterface::FaceType face );
 
     caf::PdmField<bool>                                m_isActive;
     caf::PdmField<QString>                             m_collectionName;
+    caf::PdmField<double>                              m_flowThreshold;
+    caf::PdmField<double>                              m_resolution;
+    caf::PdmField<double>                              m_maxDays;
     caf::PdmPointer<RimEclipseCase>                    m_eclipseCase;
     caf::PdmChildArrayField<RimStreamline*>            m_streamlines;
     caf::PdmField<caf::AppEnum<RiaDefines::PhaseType>> m_phase;
 
     std::list<RigTracer> m_activeTracers;
+
+    cvf::ref<RigResultAccessor> m_dataI;
+    cvf::ref<RigResultAccessor> m_dataJ;
+    cvf::ref<RigResultAccessor> m_dataK;
 };
