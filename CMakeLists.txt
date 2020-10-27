@@ -6,6 +6,15 @@ project (ResInsight)
 set (VIZ_MODULES_FOLDER_NAME Fwk/VizFwk)
 
 cmake_policy(SET CMP0020 NEW)
+
+# The new GLVND OpenGL-libraries may cause issues in some virtualized environments
+if (UNIX)
+    option(RESINSIGHT_PREFER_LEGACY_OPENGL "Link with Legacy OpenGL libraries. This may be necessary in some virtualization environments" ON)
+    if (RESINSIGHT_PREFER_LEGACY_OPENGL)
+        set(OpenGL_GL_PREFERENCE LEGACY)
+    endif()
+endif()
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 SET(BUILD_SHARED_LIBS OFF CACHE BOOL "ERT: Build shared libraries")
