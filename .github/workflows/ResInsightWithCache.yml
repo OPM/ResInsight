@@ -18,6 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        python-version: [3.5, 3.6, 3.7, 3.8]
         config:
         - {
             name: "Windows Latest MSVC",
@@ -57,6 +58,10 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: true
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+            python-version: ${{ matrix.python-version }}
       - name: Download Ninja
         uses: seanmiddleditch/gha-setup-ninja@master
         with:
