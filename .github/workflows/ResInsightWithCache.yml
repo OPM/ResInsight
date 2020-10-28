@@ -170,7 +170,6 @@ jobs:
               -D RESINSIGHT_ENABLE_GRPC=true
               -D RESINSIGHT_GRPC_PYTHON_EXECUTABLE=${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
               -D RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE=true
-              -D RESINSIGHT_QT5_BUNDLE_LIBRARIES=true
               -D VCPKG_TARGET_TRIPLET=${{ matrix.config.vcpkg-triplet }}
               -D CMAKE_TOOLCHAIN_FILE=${{ matrix.config.cmake-toolchain }}
               -G Ninja
@@ -223,14 +222,6 @@ jobs:
         run: |
           cd ApplicationCode/GrpcInterface/Python/rips
           pytest --console
-      - name: (Linux) Run pytest
-        if: "!contains( matrix.config.os, 'windows')"
-        shell: bash
-        env:
-          RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/install/ResInsight
-        run: |
-          cd ApplicationCode/GrpcInterface/Python/rips
-          python -m pytest --console
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
