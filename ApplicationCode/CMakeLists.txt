@@ -24,6 +24,7 @@ option(RESINSIGHT_ENABLE_GRPC "Enable the gRPC scripting framework" OFF)
 if (RESINSIGHT_ENABLE_GRPC)
     option(RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE "Download the gRPC python modules to enable generation of Python interface" ON)
     option(RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE "Bundle the gRPC python modules into the install folder" OFF)
+    add_definitions(-DENABLE_GRPC)
 endif()
 
 option(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS "Treat warnings as errors (stops build)" OFF)
