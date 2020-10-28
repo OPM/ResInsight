@@ -129,7 +129,10 @@ jobs:
           # Ensure the cache is invalidated any time vcpkg version changes, or a different set of packages is being used.
           key: ${{ hashFiles( format('{0}/{1}', github.workspace, matrix.config.vcpkg-response-file )) }}-${{ hashFiles('.git/modules/ThirdParty/vcpkg/HEAD') }}-${{ runner.os }}-v02
       - name: Get Python executable path
-        run: echo "PYTHON_EXECUTABLE=$(python -c 'import sys;print (sys.executable)')" >> $GITHUB_ENV
+        id: python-path
+        run: echo "::set-output name=PYTHON_EXECUTABLE::$(python -c 'import sys;print (sys.executable)')"
+      - name: Print Python path
+        run: echo ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
       - name: Configure
         shell: cmake -P {0}
         run: |
@@ -165,7 +168,7 @@ jobs:
               -D RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
               -D RESINSIGHT_TREAT_WARNINGS_AS_ERRORS=true
               -D RESINSIGHT_ENABLE_GRPC=true
-              -D RESINSIGHT_GRPC_PYTHON_EXECUTABLE=${{ env.PYTHON_EXECUTABLE }}
+              -D RESINSIGHT_GRPC_PYTHON_EXECUTABLE=${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
               -D RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE=true
               -D VCPKG_TARGET_TRIPLET=${{ matrix.config.vcpkg-triplet }}
               -D CMAKE_TOOLCHAIN_FILE=${{ matrix.config.cmake-toolchain }}
@@ -212,10 +215,18 @@ jobs:
         shell: bash
         run: |
           cmakebuild/ApplicationCode/ResInsight --unittest
-      - name: Run pytest
+      - name: (Windows) Run pytest
         if: contains( matrix.config.os, 'windows')  
         env:
           RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ApplicationCode/ResInsight.exe
+        run: |
+          cd ApplicationCode/GrpcInterface/Python/rips
+          pytest --console
+      - name: (Linux) Run pytest
+        if: "!contains( matrix.config.os, 'windows')"
+        shell: bash
+        env:
+          RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ApplicationCode/ResInsight
         run: |
           cd ApplicationCode/GrpcInterface/Python/rips
           pytest --console
