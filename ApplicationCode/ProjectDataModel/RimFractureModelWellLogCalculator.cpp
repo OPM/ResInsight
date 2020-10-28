@@ -85,15 +85,19 @@ bool RimFractureModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
         return false;
     }
 
-    // TODO: improve this..
-    if ( curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
+    if ( !fractureModel->thicknessDirectionWellPath() )
     {
-        timeStep = 0;
+        return false;
     }
 
-    RigEclipseWellLogExtractor eclExtractor( eclipseCase->eclipseCaseData(),
-                                             fractureModel->thicknessDirectionWellPath()->wellPathGeometry(),
-                                             "fracture model" );
+    RigWellPath* wellPathGeometry = fractureModel->thicknessDirectionWellPath()->wellPathGeometry();
+    if ( !wellPathGeometry )
+    {
+        RiaLogging::error( "No well path geometry found for well log exctration" );
+        return false;
+    }
+
+    RigEclipseWellLogExtractor eclExtractor( eclipseCase->eclipseCaseData(), wellPathGeometry, "fracture model" );
 
     measuredDepthValues = eclExtractor.cellIntersectionMDs();
     tvDepthValues       = eclExtractor.cellIntersectionTVDs();
@@ -106,6 +110,12 @@ bool RimFractureModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
     eclipseResultDefinition.setResultVariable( fractureModel->eclipseResultVariable( curveProperty ) );
 
     eclipseResultDefinition.loadResult();
+
+    // TODO: improve this..
+    if ( curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
+    {
+        timeStep = 0;
+    }
 
     cvf::ref<RigResultAccessor> resAcc =
         RigResultAccessorFactory::createFromResultDefinition( eclipseCase->eclipseCaseData(),

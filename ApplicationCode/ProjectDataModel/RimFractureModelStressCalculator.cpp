@@ -19,6 +19,7 @@
 
 #include "RiaDefines.h"
 #include "RiaFractureModelDefines.h"
+#include "RiaLogging.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigEclipseWellLogExtractor.h"
@@ -70,6 +71,18 @@ bool RimFractureModelStressCalculator::calculate( RiaDefines::CurveProperty curv
         return false;
     }
 
+    if ( !fractureModel->thicknessDirectionWellPath() )
+    {
+        return false;
+    }
+
+    RigWellPath* wellPathGeometry = fractureModel->thicknessDirectionWellPath()->wellPathGeometry();
+    if ( !wellPathGeometry )
+    {
+        RiaLogging::error( "No well path geometry found for stress data exctration." );
+        return false;
+    }
+
     std::vector<double> tvDepthInFeet = m_fractureModelCalculator->calculateTrueVerticalDepth();
     for ( double f : tvDepthInFeet )
     {
@@ -99,7 +112,6 @@ bool RimFractureModelStressCalculator::calculate( RiaDefines::CurveProperty curv
 
     if ( eclipseCase )
     {
-        RigWellPath*               wellPathGeometry = fractureModel->thicknessDirectionWellPath()->wellPathGeometry();
         RigEclipseWellLogExtractor eclExtractor( eclipseCase->eclipseCaseData(), wellPathGeometry, "fracture model" );
 
         rkbDiff = wellPathGeometry->rkbDiff();

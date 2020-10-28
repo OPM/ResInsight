@@ -102,9 +102,19 @@ bool RimFractureModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
         return false;
     }
 
-    RigEclipseWellLogExtractor eclExtractor( eclipseCase->eclipseCaseData(),
-                                             fractureModel->thicknessDirectionWellPath()->wellPathGeometry(),
-                                             "fracture model" );
+    if ( !fractureModel->thicknessDirectionWellPath() )
+    {
+        return false;
+    }
+
+    RigWellPath* wellPathGeometry = fractureModel->thicknessDirectionWellPath()->wellPathGeometry();
+    if ( !wellPathGeometry )
+    {
+        RiaLogging::error( "No well path geometry found for layer data exctration." );
+        return false;
+    }
+
+    RigEclipseWellLogExtractor eclExtractor( eclipseCase->eclipseCaseData(), wellPathGeometry, "fracture model" );
 
     measuredDepthValues = eclExtractor.cellIntersectionMDs();
     tvDepthValues       = eclExtractor.cellIntersectionTVDs();
@@ -161,6 +171,13 @@ bool RimFractureModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
 
     std::vector<double> faciesValues =
         m_fractureModelCalculator->extractValues( RiaDefines::CurveProperty::FACIES, timeStep );
+
+    if ( faciesValues.empty() )
+    {
+        RiaLogging::error( QString( "No facies values found." ) );
+        return false;
+    }
+
     std::vector<double> poroValues =
         m_fractureModelCalculator->extractValues( RiaDefines::CurveProperty::POROSITY, timeStep );
 
