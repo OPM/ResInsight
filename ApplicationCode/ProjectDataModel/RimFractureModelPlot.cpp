@@ -20,9 +20,11 @@
 #include "RiaDefines.h"
 #include "RiaFractureModelDefines.h"
 
+#include "RimEclipseCase.h"
 #include "RimFractureModel.h"
 #include "RimFractureModelCurve.h"
 #include "RimFractureModelPropertyCurve.h"
+#include "RimTools.h"
 #include "RimWellLogTrack.h"
 
 #include "cafPdmBase.h"
@@ -44,6 +46,9 @@ RimFractureModelPlot::RimFractureModelPlot()
     m_fractureModel.uiCapability()->setUiTreeChildrenHidden( true );
     m_fractureModel.uiCapability()->setUiHidden( true );
 
+    CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "EclipseCase", "Case", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step", "", "", "" );
+
     setLegendsVisible( true );
     setDeletable( true );
 }
@@ -54,6 +59,8 @@ RimFractureModelPlot::RimFractureModelPlot()
 void RimFractureModelPlot::setFractureModel( RimFractureModel* fractureModel )
 {
     m_fractureModel = fractureModel;
+    m_eclipseCase   = fractureModel->eclipseCase();
+    m_timeStep      = fractureModel->timeStep();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -69,6 +76,9 @@ RimFractureModel* RimFractureModelPlot::fractureModel()
 //--------------------------------------------------------------------------------------------------
 void RimFractureModelPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    uiOrdering.add( &m_eclipseCase );
+    uiOrdering.add( &m_timeStep );
+
     caf::PdmUiGroup* depthGroup = uiOrdering.addNewGroup( "Depth Axis" );
     RimDepthTrackPlot::uiOrderingForDepthAxis( uiConfigName, *depthGroup );
 
@@ -79,6 +89,42 @@ void RimFractureModelPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     RimPlotWindow::uiOrderingForPlotLayout( uiConfigName, *plotLayoutGroup );
 
     uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo>
+    RimFractureModelPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_eclipseCase )
+    {
+        RimTools::eclipseCaseOptionItems( &options );
+    }
+    else if ( fieldNeedingOptions == &m_timeStep )
+    {
+        RimTools::timeStepsForCase( m_eclipseCase(), &options );
+    }
+
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModelPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                             const QVariant&            oldValue,
+                                             const QVariant&            newValue )
+{
+    if ( m_fractureModel )
+    {
+        if ( changedField == &m_eclipseCase || changedField == &m_timeStep )
+        {
+            m_fractureModel->setEclipseCaseAndTimeStep( m_eclipseCase(), m_timeStep() );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
