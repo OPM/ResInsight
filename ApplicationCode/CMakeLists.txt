@@ -495,9 +495,8 @@ if (RESINSIGHT_ENABLE_GRPC)
                 DEPENDS ResInsight
                 COMMENT "Generating ${CMAKE_CURRENT_SOURCE_DIR}/GrpcInterface/Python/rips/generated/resinsight_classes.py"
 	)
-    list(APPEND GRPC_GENERATED_PYTHON_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/GrpcInterface/Python/rips/generated/resinsight_classes.py)
-	add_custom_target(GeneratedPythonSources ALL DEPENDS ${GRPC_GENERATED_PYTHON_SOURCES})
-	add_dependencies(GeneratedPythonSources ResInsight)
+	add_custom_target(ResInsightClassesPy ALL DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/GrpcInterface/Python/rips/generated/resinsight_classes.py)
+	add_dependencies(ResInsightClassesPy ResInsight)
 
 endif(RESINSIGHT_ENABLE_GRPC)
 
