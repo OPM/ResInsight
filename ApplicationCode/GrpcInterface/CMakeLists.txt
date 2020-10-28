@@ -12,6 +12,8 @@ if (MSVC)
     add_definitions(-D_WIN32_WINNT=0x600)
 endif()
 
+add_definitions(_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
+
 set ( SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcServer.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcHelper.h
