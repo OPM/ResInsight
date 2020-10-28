@@ -218,7 +218,7 @@ jobs:
       - name: (Windows) Run pytest
         if: contains( matrix.config.os, 'windows')  
         env:
-          RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ApplicationCode/ResInsight.exe
+          RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/install/ResInsight.exe
         run: |
           cd ApplicationCode/GrpcInterface/Python/rips
           pytest --console
@@ -226,7 +226,7 @@ jobs:
         if: "!contains( matrix.config.os, 'windows')"
         shell: bash
         env:
-          RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ApplicationCode/ResInsight
+          RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/install/ResInsight
         run: |
           cd ApplicationCode/GrpcInterface/Python/rips
           python -m pytest --console
