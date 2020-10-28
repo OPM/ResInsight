@@ -57,6 +57,12 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: true
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      - name: Display Python version
+        run: python -c "import sys; print(sys.version)"
       - name: Download Ninja
         uses: seanmiddleditch/gha-setup-ninja@master
         with:
@@ -122,7 +128,7 @@ jobs:
           path: ${{ github.workspace }}/ThirdParty/vcpkg/
           # Ensure the cache is invalidated any time vcpkg version changes, or a different set of packages is being used.
           key: ${{ hashFiles( format('{0}/{1}', github.workspace, matrix.config.vcpkg-response-file )) }}-${{ hashFiles('.git/modules/ThirdParty/vcpkg/HEAD') }}-${{ runner.os }}-v02
-      - name: Get Python Executable PATH
+      - name: Get Python executable path
         run: echo "PYTHON_EXECUTABLE=$(python -c 'import sys;print (sys.executable)')" >> $GITHUB_ENV
       - name: Configure
         shell: cmake -P {0}
