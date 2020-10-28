@@ -74,9 +74,19 @@ bool RimFractureModelLayerCalculator::calculate( RiaDefines::CurveProperty curve
         return false;
     }
 
-    RigEclipseWellLogExtractor eclExtractor( eclipseCase->eclipseCaseData(),
-                                             fractureModel->thicknessDirectionWellPath()->wellPathGeometry(),
-                                             "fracture model" );
+    if ( !fractureModel->thicknessDirectionWellPath() )
+    {
+        return false;
+    }
+
+    RigWellPath* wellPathGeometry = fractureModel->thicknessDirectionWellPath()->wellPathGeometry();
+    if ( !wellPathGeometry )
+    {
+        RiaLogging::error( "No well path geometry found for layer data exctration." );
+        return false;
+    }
+
+    RigEclipseWellLogExtractor eclExtractor( eclipseCase->eclipseCaseData(), wellPathGeometry, "fracture model" );
 
     rkbDiff = eclExtractor.wellPathGeometry()->rkbDiff();
 
