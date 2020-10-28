@@ -87,14 +87,15 @@ public:
     RimEclipseView();
     ~RimEclipseView() override;
 
-    RimEclipseCellColors*         cellResult() const;
-    RimCellEdgeColors*            cellEdgeResult() const;
-    RimElementVectorResult*       elementVectorResult() const;
-    RimEclipseFaultColors*        faultResultSettings() const;
-    RimStimPlanColors*            fractureColors() const;
-    RimSimWellInViewCollection*   wellCollection() const;
-    RimFaultInViewCollection*     faultCollection() const;
-    RimVirtualPerforationResults* virtualPerforationResult() const;
+    RimEclipseCellColors*          cellResult() const;
+    RimCellEdgeColors*             cellEdgeResult() const;
+    RimElementVectorResult*        elementVectorResult() const;
+    RimEclipseFaultColors*         faultResultSettings() const;
+    RimStimPlanColors*             fractureColors() const;
+    RimSimWellInViewCollection*    wellCollection() const;
+    RimFaultInViewCollection*      faultCollection() const;
+    RimStreamlineInViewCollection* streamlineCollection() const;
+    RimVirtualPerforationResults*  virtualPerforationResult() const;
 
     bool showInvalidCells() const;
     bool showInactiveCells() const;

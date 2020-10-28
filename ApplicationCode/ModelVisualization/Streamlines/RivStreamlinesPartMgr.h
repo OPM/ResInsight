@@ -56,11 +56,11 @@ private:
     };
 
 private:
-    cvf::ref<cvf::Part> createPart( const RimStreamlineInViewCollection&        streamlineCollection,
-                                    const std::vector<StreamlineVisualization>& streamlineVisualizations ) const;
+    cvf::ref<cvf::Part> createPart( const RimStreamlineInViewCollection& streamlineCollection,
+                                    const StreamlineVisualization&       streamlineVisualizations ) const;
 
 private:
-    caf::PdmPointer<RimEclipseView> m_rimReservoirView;
-    cvf::ref<cvf::Part>             m_part;
-    uint                            m_count;
+    caf::PdmPointer<RimEclipseView>  m_rimReservoirView;
+    std::vector<cvf::ref<cvf::Part>> m_parts;
+    uint                             m_count;
 };

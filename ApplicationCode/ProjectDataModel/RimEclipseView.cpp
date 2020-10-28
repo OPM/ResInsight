@@ -1640,6 +1640,14 @@ void RimEclipseView::syncronizeLocalAnnotationsFromGlobal()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimStreamlineInViewCollection* RimEclipseView::streamlineCollection() const
+{
+    return m_streamlineCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const RivReservoirViewPartMgr* RimEclipseView::reservoirGridPartManager() const
 {
     return m_reservoirGridPartManager.p();

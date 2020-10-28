@@ -21,6 +21,8 @@
 #include "Rim3dView.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
+#include "RimSimWellInView.h"
+#include "RimSimWellInViewCollection.h"
 #include "RimStreamlineInViewCollection.h"
 
 #include "RigActiveCellInfo.h"
@@ -28,6 +30,10 @@
 #include "RigCell.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
+#include "RigSimulationWellCenterLineCalculator.h"
+#include "RigTracer.h"
+#include "RigTracerPoint.h"
+#include "RigWellResultPoint.h"
 
 #include "RiuViewer.h"
 
@@ -63,6 +69,7 @@ RivStreamlinesPartMgr::~RivStreamlinesPartMgr()
 //--------------------------------------------------------------------------------------------------
 void RivStreamlinesPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicList* model, size_t timeStepIndex )
 {
+    m_parts.clear();
     CVF_ASSERT( model );
     if ( m_rimReservoirView.isNull() ) return;
 
@@ -76,25 +83,48 @@ void RivStreamlinesPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicLi
 
     std::vector<StreamlineVisualization> streamlineVisualizations;
 
-    RimStreamlineInViewCollection* streamlineCollection = nullptr;
-    // m_rimReservoirView->streamlineCollection();
+    RimSimWellInViewCollection* wellCollection = m_rimReservoirView->wellCollection();
 
-    const std::vector<RigCell>& cells = eclipseCase->mainGrid()->globalCellArray();
-    std::vector<cvf::Vec3d>     tracerPoints;
-    StreamlineVisualization     visualization;
-    for ( size_t gcIdx = 0; gcIdx < std::max<size_t>( cells.size(), 10 ); ++gcIdx )
+    RimStreamlineInViewCollection* streamlineCollection = m_rimReservoirView->streamlineCollection();
+    for ( RimSimWellInView* well : wellCollection->wells() )
     {
-        cvf::Vec3d cellCenter = cells[gcIdx].center();
-        tracerPoints.push_back( displayCordXf->transformToDisplayCoord( cellCenter ) );
+        std::vector<std::vector<cvf::Vec3d>>         pipeBranchesCLCoords;
+        std::vector<std::vector<RigWellResultPoint>> pipeBranchesCellIds;
+
+        auto noConst = const_cast<RimSimWellInView*>( well );
+        RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( noConst,
+                                                                                  pipeBranchesCLCoords,
+                                                                                  pipeBranchesCellIds );
+        for ( size_t i = 0; i < pipeBranchesCLCoords.size(); i++ )
+        {
+            std::vector<cvf::Vec3d> tracerPoints;
+            StreamlineVisualization visualization;
+            for ( size_t j = 0; j < pipeBranchesCLCoords[i].size(); j++ )
+            {
+                tracerPoints.push_back( displayCordXf->transformToDisplayCoord( pipeBranchesCLCoords[i][j] ) );
+            }
+            visualization.tracerPoints = tracerPoints;
+            streamlineVisualizations.push_back( visualization );
+        }
     }
-    visualization.tracerPoints = tracerPoints;
-    streamlineVisualizations.push_back( visualization );
 
-    if ( !streamlineVisualizations.empty() )
+    for ( const RigTracer& tracer : streamlineCollection->tracers() )
     {
-        m_part = createPart( *streamlineCollection, streamlineVisualizations );
-        m_part->updateBoundingBox();
-        model->addPart( m_part.p() );
+        std::vector<cvf::Vec3d> tracerPoints;
+        StreamlineVisualization visualization;
+        for ( RigTracerPoint tracerPoint : tracer.tracerPoints() )
+        {
+            tracerPoints.push_back( displayCordXf->transformToDisplayCoord( tracerPoint.position() ) );
+        }
+        visualization.tracerPoints = tracerPoints;
+        streamlineVisualizations.push_back( visualization );
+    }
+    for ( StreamlineVisualization visualization : streamlineVisualizations )
+    {
+        cvf::ref<cvf::Part> partIdx = createPart( *streamlineCollection, visualization );
+        m_parts.push_back( partIdx );
+        partIdx->updateBoundingBox();
+        model->addPart( partIdx.p() );
     }
 }
 
@@ -103,51 +133,54 @@ void RivStreamlinesPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicLi
 //--------------------------------------------------------------------------------------------------
 void RivStreamlinesPartMgr::updateAnimation()
 {
-    if ( m_part.notNull() )
+    for ( cvf::ref<cvf::Part> part : m_parts )
     {
-        if ( m_count == 1 )
+        if ( part.notNull() )
         {
-            cvf::ref<cvf::Effect>       effect;
-            caf::SurfaceEffectGenerator surfaceGen( cvf::Color4f( 1, 0, 0, 1 ), caf::PO_1 );
-            surfaceGen.enableLighting( !m_rimReservoirView->isLightingDisabled() );
-            effect = surfaceGen.generateCachedEffect();
-            m_part->setEffect( effect.p() );
+            if ( m_count == 1 )
+            {
+                cvf::ref<cvf::Effect>       effect;
+                caf::SurfaceEffectGenerator surfaceGen( cvf::Color4f( 1, 0, 0, 1 ), caf::PO_1 );
+                surfaceGen.enableLighting( !m_rimReservoirView->isLightingDisabled() );
+                effect = surfaceGen.generateCachedEffect();
+                part->setEffect( effect.p() );
+            }
+            else if ( m_count == 50 )
+            {
+                cvf::ref<cvf::Effect>       effect;
+                caf::SurfaceEffectGenerator surfaceGen( cvf::Color4f( 0, 1, 0, 1 ), caf::PO_1 );
+                surfaceGen.enableLighting( !m_rimReservoirView->isLightingDisabled() );
+                effect = surfaceGen.generateCachedEffect();
+                part->setEffect( effect.p() );
+            }
+            else if ( m_count > 100 )
+            {
+                m_count = 0;
+            }
+            m_count++;
         }
-        else if ( m_count == 50 )
-        {
-            cvf::ref<cvf::Effect>       effect;
-            caf::SurfaceEffectGenerator surfaceGen( cvf::Color4f( 0, 1, 0, 1 ), caf::PO_1 );
-            surfaceGen.enableLighting( !m_rimReservoirView->isLightingDisabled() );
-            effect = surfaceGen.generateCachedEffect();
-            m_part->setEffect( effect.p() );
-        }
-        else if ( m_count > 100 )
-        {
-            m_count = 0;
-        }
-        m_count++;
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Part>
-    RivStreamlinesPartMgr::createPart( const RimStreamlineInViewCollection&        streamlineCollection,
-                                       const std::vector<StreamlineVisualization>& streamlineVisualizations ) const
+cvf::ref<cvf::Part> RivStreamlinesPartMgr::createPart( const RimStreamlineInViewCollection& streamlineCollection,
+                                                       const StreamlineVisualization& streamlineVisualization ) const
 {
-    std::vector<uint>       tracerIndices;
+    std::vector<uint> tracerIndices;
+    tracerIndices.reserve( streamlineVisualization.tracerPoints.size() );
+
     std::vector<cvf::Vec3f> vertices;
+    vertices.reserve( streamlineVisualization.tracerPoints.size() );
 
     // Better to reserve space already? - this would mean we need two for loops
     uint counter = 0;
-    for ( StreamlineVisualization visualization : streamlineVisualizations )
+
+    for ( cvf::Vec3d tracerPoint : streamlineVisualization.tracerPoints )
     {
-        for ( cvf::Vec3d tracerPoint : visualization.tracerPoints )
-        {
-            vertices.push_back( cvf::Vec3f( tracerPoint.x(), tracerPoint.y(), tracerPoint.z() ) );
-            tracerIndices.push_back( counter++ );
-        }
+        vertices.push_back( cvf::Vec3f( tracerPoint.x(), tracerPoint.y(), tracerPoint.z() ) );
+        tracerIndices.push_back( counter++ );
     }
 
     cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUIntTracer =
