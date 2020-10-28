@@ -82,7 +82,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( Rim3dView, "View", "GenericView" ); // Do not 
 ///
 //--------------------------------------------------------------------------------------------------
 Rim3dView::Rim3dView( void )
-    : updateAnimation( this )
+    : updateAnimations( this )
     , m_isCallingUpdateDisplayModelForCurrentTimestepAndRedraw( false )
 {
     RiaApplication* app         = RiaApplication::instance();
@@ -179,7 +179,7 @@ Rim3dView::Rim3dView( void )
     // in order to having only one central animation driver.
     m_animationTimer = std::make_unique<QTimer>( new QTimer() );
     m_animationTimer->setInterval( 100 );
-    QObject::connect( m_animationTimer.get(), &QTimer::timeout, [this]() { updateAnimation.send( this ); } );
+    QObject::connect( m_animationTimer.get(), &QTimer::timeout, [this]() { updateAnimations.send(); } );
     m_animationTimer->start();
 }
 

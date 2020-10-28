@@ -46,7 +46,7 @@
 #include "RivElementVectorResultPartMgr.h"
 #include "RivGridPartMgr.h"
 #include "RivReservoirFaultsPartMgr.h"
-#include "RivStreamlinePartMgr.h"
+#include "RivStreamlinesPartMgr.h"
 
 #include <QDebug>
 
@@ -1180,24 +1180,6 @@ void RivReservoirViewPartMgr::appendElementVectorResultDynamicGeometryPartsToMod
     else if ( geometryType == PROPERTY_FILTERED_WELL_CELLS )
     {
         m_propFilteredWellGeometryFrames[frameIndex]->appendElementVectorResultPartsToModel( model, frameIndex );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::appendStreamlineDynamicGeometryPartsToModel( cvf::ModelBasicList* model,
-                                                                           RivCellSetEnum       geometryType,
-                                                                           size_t               frameIndex )
-{
-    ensureDynamicGeometryPartsCreated( geometryType, frameIndex );
-    if ( geometryType == PROPERTY_FILTERED )
-    {
-        m_propFilteredGeometryFrames[frameIndex]->appendStreamlinePartsToModel( model, frameIndex );
-    }
-    else if ( geometryType == PROPERTY_FILTERED_WELL_CELLS )
-    {
-        m_propFilteredWellGeometryFrames[frameIndex]->appendStreamlinePartsToModel( model, frameIndex );
     }
 }
 

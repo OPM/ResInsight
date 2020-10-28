@@ -91,6 +91,7 @@
 #include "RivReservoirSimWellsPartMgr.h"
 #include "RivReservoirViewPartMgr.h"
 #include "RivSingleCellPartGenerator.h"
+#include "RivStreamlinesPartMgr.h"
 #include "RivTernarySaturationOverlayItem.h"
 #include "RivWellFracturePartMgr.h"
 #include "RivWellPathsPartMgr.h"
@@ -206,6 +207,7 @@ RimEclipseView::RimEclipseView()
 
     m_reservoirGridPartManager = new RivReservoirViewPartMgr( this );
     m_simWellsPartManager      = new RivReservoirSimWellsPartMgr( this );
+    m_streamlinesPartManager   = new RivStreamlinesPartMgr( this );
     m_eclipseCase              = nullptr;
 
     nameConfig()->setCustomName( "3D View" );
@@ -215,6 +217,8 @@ RimEclipseView::RimEclipseView()
     nameConfig()->hideSampleSpacingField( true );
 
     setDeletable( true );
+
+    this->updateAnimations.connect( this, &RimEclipseView::onAnimationsUpdate );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -672,6 +676,19 @@ void RimEclipseView::onCreateDisplayModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEclipseView::onAnimationsUpdate( const caf::SignalEmitter* emitter )
+{
+    m_streamlinesPartManager->updateAnimation();
+
+    if ( viewer() )
+    {
+        viewer()->update();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
 {
     clearReservoirCellVisibilities();
@@ -986,20 +1003,13 @@ void RimEclipseView::appendStreamlinesToModel()
         cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
         if ( frameScene )
         {
-            cvf::String name = "StreamlinesModelMod";
+            cvf::String name = "StreamlinesModel";
             this->removeModelByName( frameScene, name );
 
             cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
             frameParts->setName( name );
 
-            m_reservoirGridPartManager->appendStreamlineDynamicGeometryPartsToModel( frameParts.p(),
-                                                                                     PROPERTY_FILTERED,
-                                                                                     m_currentTimeStep );
-
-            // TODO: should this be ACTIVE?
-            m_reservoirGridPartManager->appendStreamlineDynamicGeometryPartsToModel( frameParts.p(),
-                                                                                     PROPERTY_FILTERED_WELL_CELLS,
-                                                                                     m_currentTimeStep );
+            m_streamlinesPartManager->appendDynamicGeometryPartsToModel( frameParts.p(), m_currentTimeStep );
 
             frameScene->addModel( frameParts.p() );
         }

@@ -95,11 +95,6 @@ public:
                                                                RivCellSetEnum       geometryType,
                                                                size_t               frameIndex );
 
-    // Streamlines
-    void appendStreamlineDynamicGeometryPartsToModel( cvf::ModelBasicList* model,
-                                                      RivCellSetEnum       geometryType,
-                                                      size_t               frameIndex );
-
     void forceWatertightGeometryOnForType( RivCellSetEnum geometryType );
     void clearWatertightGeometryFlags();
 

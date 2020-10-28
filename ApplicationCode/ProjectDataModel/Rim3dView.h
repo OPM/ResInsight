@@ -85,7 +85,7 @@ class Rim3dView : public RimViewWindow, public RiuViewerToViewInterface, public 
     CAF_PDM_HEADER_INIT;
 
 public:
-    caf::Signal<Rim3dView*> updateAnimation;
+    caf::Signal<> updateAnimations;
 
 public:
     Rim3dView( void );

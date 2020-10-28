@@ -38,13 +38,14 @@ class RimEclipseView;
 class RimStreamlineInViewCollection;
 class Rim3dView;
 
-class RivStreamlinePartMgr : public cvf::Object, public caf::SignalObserver
+class RivStreamlinesPartMgr : public cvf::Object, public caf::SignalObserver
 {
 public:
-    RivStreamlinePartMgr( RimEclipseView* reservoirView );
-    ~RivStreamlinePartMgr() override;
+    RivStreamlinesPartMgr( RimEclipseView* reservoirView );
+    ~RivStreamlinesPartMgr() override;
 
     void appendDynamicGeometryPartsToModel( cvf::ModelBasicList* model, size_t timeStepIndex );
+    void updateAnimation();
 
 private:
     struct StreamlineVisualization
@@ -53,9 +54,6 @@ private:
 
         std::vector<cvf::Vec3d> tracerPoints;
     };
-
-private:
-    void onUpdateAnimation( const caf::SignalEmitter* emitter, Rim3dView* view );
 
 private:
     cvf::ref<cvf::Part> createPart( const RimStreamlineInViewCollection&        streamlineCollection,

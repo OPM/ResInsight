@@ -39,7 +39,6 @@ class RimEclipseView;
 class RivReservoirFaultsPartMgr;
 class RivGridPartMgr;
 class RivElementVectorResultPartMgr;
-class RivStreamlinePartMgr;
 
 //==================================================================================================
 ///
@@ -81,14 +80,10 @@ public:
     // Element Vector Result
     void appendElementVectorResultPartsToModel( cvf::ModelBasicList* model, size_t timeStepIndex );
 
-    // Streamlines
-    void appendStreamlinePartsToModel( cvf::ModelBasicList* model, size_t timeStepIndex );
-
 private:
     cvf::Collection<RivGridPartMgr>         m_allGrids; // Main grid and all LGR's
     cvf::ref<RivElementVectorResultPartMgr> m_elementVectorResultMgr;
     cvf::ref<RivReservoirFaultsPartMgr>     m_faultsPartMgr;
-    cvf::ref<RivStreamlinePartMgr>          m_streamlinePartMgr;
 
     RivCellSetEnum m_cellSetType;
 };

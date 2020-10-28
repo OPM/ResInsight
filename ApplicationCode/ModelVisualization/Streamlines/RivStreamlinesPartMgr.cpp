@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RivStreamlinePartMgr.h"
+#include "RivStreamlinesPartMgr.h"
 
 #include "Rim3dView.h"
 #include "RimEclipseCase.h"
@@ -45,24 +45,23 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivStreamlinePartMgr::RivStreamlinePartMgr( RimEclipseView* reservoirView )
+RivStreamlinesPartMgr::RivStreamlinesPartMgr( RimEclipseView* reservoirView )
 {
     m_rimReservoirView = reservoirView;
-    reservoirView->updateAnimation.connect( this, &RivStreamlinePartMgr::onUpdateAnimation );
-    m_count = 0;
+    m_count            = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivStreamlinePartMgr::~RivStreamlinePartMgr()
+RivStreamlinesPartMgr::~RivStreamlinesPartMgr()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivStreamlinePartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicList* model, size_t timeStepIndex )
+void RivStreamlinesPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicList* model, size_t timeStepIndex )
 {
     CVF_ASSERT( model );
     if ( m_rimReservoirView.isNull() ) return;
@@ -102,7 +101,7 @@ void RivStreamlinePartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicLis
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivStreamlinePartMgr::onUpdateAnimation( const caf::SignalEmitter* emitter, Rim3dView* view )
+void RivStreamlinesPartMgr::updateAnimation()
 {
     if ( m_part.notNull() )
     {
@@ -134,8 +133,8 @@ void RivStreamlinePartMgr::onUpdateAnimation( const caf::SignalEmitter* emitter,
 ///
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::Part>
-    RivStreamlinePartMgr::createPart( const RimStreamlineInViewCollection&        streamlineCollection,
-                                      const std::vector<StreamlineVisualization>& streamlineVisualizations ) const
+    RivStreamlinesPartMgr::createPart( const RimStreamlineInViewCollection&        streamlineCollection,
+                                       const std::vector<StreamlineVisualization>& streamlineVisualizations ) const
 {
     std::vector<uint>       tracerIndices;
     std::vector<cvf::Vec3f> vertices;
