@@ -251,6 +251,7 @@ endif()
 
 # install gRPC Python files
 if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE AND RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE)
+  message(STATUS "Installing Python modules")
   add_custom_command(
     TARGET PipInstall
     COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} ARGS -m pip install --upgrade pip
