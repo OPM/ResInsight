@@ -270,12 +270,13 @@ if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE AND RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE)
 endif()
 
 if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
-  if (RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE)
-    add_dependencies(${PROJECT_NAME} PipInstall)
-  endif()
-  
   add_custom_target(GeneratedPythonSources ALL DEPENDS ${GRPC_PYTHON_SOURCES_FULL_PATH})
   add_dependencies(${PROJECT_NAME} GeneratedPythonSources)
+
+  if (RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE)
+    add_dependencies(${PROJECT_NAME} PipInstall)
+    add_dependencies(GeneratedPythonSources PipInstall)
+  endif() 
 endif()
 
 if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
