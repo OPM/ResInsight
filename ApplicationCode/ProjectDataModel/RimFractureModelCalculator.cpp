@@ -342,6 +342,14 @@ bool RimFractureModelCalculator::calculateStressWithGradients( std::vector<doubl
         return false;
     }
 
+    if ( biotData.size() < layerBoundaryIndexes.size() || k0Data.size() < layerBoundaryIndexes.size() ||
+         timeStepPressureData.size() < layerBoundaryIndexes.size() ||
+         initialPressureData.size() < layerBoundaryIndexes.size() ||
+         poissonsRatioData.size() < layerBoundaryIndexes.size() )
+    {
+        return false;
+    }
+
     std::vector<double> stressForGradients;
     std::vector<double> pressureForGradients;
     std::vector<double> depthForGradients;
