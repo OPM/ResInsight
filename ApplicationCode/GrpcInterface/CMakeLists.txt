@@ -130,6 +130,7 @@ foreach(proto_file ${PROTO_FILES})
     set(rips_grpc_python "rips/generated/${proto_file}_pb2_grpc.py")
 
     if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
+        message(STATUS "Using Python Executable: ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE}")
         add_custom_command(
             OUTPUT "${GRPC_PYTHON_SOURCE_PATH}/${rips_proto_python}" "${GRPC_PYTHON_SOURCE_PATH}/${rips_grpc_python}"
             COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE}
@@ -268,7 +269,9 @@ if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE AND RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE)
   )
 endif()
 
-add_dependencies(${PROJECT_NAME} PipInstall)
+if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE AND RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE)
+  add_dependencies(${PROJECT_NAME} PipInstall)
+endif()
 
 if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
   install(DIRECTORY ${GRPC_PYTHON_SOURCE_PATH}/ DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python)
