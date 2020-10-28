@@ -108,16 +108,19 @@ void RimFractureModelStressCurve::performDataExtraction( bool* isUsingPseudoLeng
 
     *isUsingPseudoLength = false;
 
-    bool isOk = m_fractureModel->calculator()
-                    ->extractCurveData( curveProperty(), m_timeStep, values, measuredDepthValues, tvDepthValues, rkbDiff );
+    bool isOk = m_fractureModel->calculator()->extractCurveData( curveProperty(),
+                                                                 m_fractureModel->timeStep(),
+                                                                 values,
+                                                                 measuredDepthValues,
+                                                                 tvDepthValues,
+                                                                 rkbDiff );
     if ( !isOk )
     {
         return;
     }
 
-    RimEclipseCase*                 eclipseCase      = dynamic_cast<RimEclipseCase*>( m_case.value() );
-    RiaEclipseUnitTools::UnitSystem eclipseUnitsType = eclipseCase->eclipseCaseData()->unitsType();
-    if ( eclipseUnitsType == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+    RimEclipseCase* eclipseCase = m_fractureModel->eclipseCase();
+    if ( eclipseCase && eclipseCase->eclipseCaseData()->unitsType() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
     {
         // See https://github.com/OPM/ResInsight/issues/538
 

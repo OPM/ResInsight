@@ -272,6 +272,7 @@ bool RimFractureModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
                                    .arg( fieldName )
                                    .arg( formationName )
                                    .arg( faciesName ) );
+            values.clear();
             return false;
         }
     }

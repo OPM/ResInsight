@@ -111,8 +111,8 @@ bool RimFractureModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
 
     eclipseResultDefinition.loadResult();
 
-    // TODO: improve this..
-    if ( curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
+    if ( fractureModel->eclipseResultCategory( curveProperty ) != RiaDefines::ResultCatType::DYNAMIC_NATIVE ||
+         curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
     {
         timeStep = 0;
     }
