@@ -108,8 +108,12 @@ void RimFractureModelStressCurve::performDataExtraction( bool* isUsingPseudoLeng
 
     *isUsingPseudoLength = false;
 
-    bool isOk = m_fractureModel->calculator()
-                    ->extractCurveData( curveProperty(), m_fractureModel->timeStep(), values, measuredDepthValues, tvDepthValues, rkbDiff );
+    bool isOk = m_fractureModel->calculator()->extractCurveData( curveProperty(),
+                                                                 m_fractureModel->timeStep(),
+                                                                 values,
+                                                                 measuredDepthValues,
+                                                                 tvDepthValues,
+                                                                 rkbDiff );
     if ( !isOk )
     {
         return;
