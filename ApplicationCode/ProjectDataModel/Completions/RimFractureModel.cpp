@@ -1360,6 +1360,18 @@ void RimFractureModel::setMD( double md )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimFractureModel::setEclipseCaseAndTimeStep( RimEclipseCase* eclipseCase, int timeStep )
+{
+    setEclipseCase( eclipseCase );
+    setTimeStep( timeStep );
+    updateThicknessDirection();
+    updateBarrierProperties();
+    updateViewsAndPlots();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 int RimFractureModel::timeStep() const
 {
     return m_timeStep;

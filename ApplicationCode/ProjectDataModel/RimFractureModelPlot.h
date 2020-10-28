@@ -25,6 +25,7 @@
 
 class RimFractureModel;
 class RimWellLogExtractionCurve;
+class RimEclipseCase;
 
 class RimFractureModelPlot : public RimDepthTrackPlot
 {
@@ -39,7 +40,10 @@ public:
 protected:
     RimWellLogExtractionCurve* findCurveByProperty( RiaDefines::CurveProperty curveProperty ) const;
 
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     void onLoadDataAndUpdate() override;
 
@@ -47,4 +51,6 @@ private:
     void applyDataSource();
 
     caf::PdmPtrField<RimFractureModel*> m_fractureModel;
+    caf::PdmPtrField<RimEclipseCase*>   m_eclipseCase;
+    caf::PdmField<int>                  m_timeStep;
 };

@@ -89,6 +89,8 @@ public:
     RimEclipseCase* eclipseCase() const;
     void            setEclipseCase( RimEclipseCase* eclipseCase );
 
+    void setEclipseCaseAndTimeStep( RimEclipseCase* eclipseCase, int timeStep );
+
     cvf::Vec3d anchorPosition() const;
     cvf::Vec3d thicknessDirection() const;
 
