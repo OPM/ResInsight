@@ -33,7 +33,7 @@ class RigTracer : public cvf::Object
 {
 public:
     RigTracer();
-    RigTracer( const RigTracer& other );
+    explicit RigTracer( const RigTracer& other );
     ~RigTracer() override;
 
     void appendPoint( cvf::Vec3d position, cvf::Vec3d direction );
