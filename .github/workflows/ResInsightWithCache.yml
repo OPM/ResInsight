@@ -220,7 +220,7 @@ jobs:
           RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/install/ResInsight.exe
         run: |
           cd ApplicationCode/GrpcInterface/Python/rips
-          pytest --console
+          ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pytest --console
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
