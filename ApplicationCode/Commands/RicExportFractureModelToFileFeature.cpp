@@ -48,6 +48,7 @@ void RicExportFractureModelToFileFeature::onActionTriggered( bool isChecked )
 {
     RimFractureModel* fractureModel = caf::SelectionManager::instance()->selectedItemOfType<RimFractureModel>();
     if ( !fractureModel ) return;
+    if ( !fractureModel->fractureModelTemplate() ) return;
 
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( "FRACTURE_MODEL_EXPORT" );
