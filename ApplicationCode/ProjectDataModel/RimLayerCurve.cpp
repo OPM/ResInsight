@@ -74,9 +74,10 @@ void RimLayerCurve::performDataExtraction( bool* isUsingPseudoLength )
 
     *isUsingPseudoLength = false;
 
-    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case.value() );
-    if ( eclipseCase && m_fractureModel )
+    if ( m_fractureModel && m_fractureModel->eclipseCase() )
     {
+        RimEclipseCase* eclipseCase = m_fractureModel->eclipseCase();
+
         bool isOk = m_fractureModel->calculator()->extractCurveData( curveProperty(),
                                                                      m_timeStep,
                                                                      values,

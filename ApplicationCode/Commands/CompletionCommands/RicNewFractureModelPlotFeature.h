@@ -21,10 +21,7 @@
 #include "cafCmdFeature.h"
 
 #include "RiaDefines.h"
-
-#include "RimElasticPropertiesCurve.h"
-#include "RimFractureModelCurve.h"
-#include "RimFractureModelStressCurve.h"
+#include "RiaFractureModelDefines.h"
 
 class RimEclipseCase;
 class RimFractureModelPlot;
@@ -61,20 +58,7 @@ private:
                                        int                                           timeStep,
                                        const QString&                                trackTitle,
                                        const std::vector<RiaDefines::CurveProperty>& propertyTypes,
-                                       bool                                          isPlotLogarithmic );
-
-    static void createElasticPropertiesTrack( RimFractureModelPlot*     plot,
-                                              RimFractureModel*         fractureModel,
-                                              RimEclipseCase*           eclipseCase,
-                                              int                       timeStep,
-                                              RiaDefines::CurveProperty propertyType );
-
-    static void createStressTrack( RimFractureModelPlot*                         plot,
-                                   RimFractureModel*                             fractureModel,
-                                   RimEclipseCase*                               eclipseCase,
-                                   int                                           timeStep,
-                                   const QString&                                trackName,
-                                   const std::vector<RiaDefines::CurveProperty>& propertyTypes );
+                                       bool                                          isPlotLogarithmic = false );
 
     static RimFractureModelPlot* createFractureModelPlot( bool showAfterCreation, const QString& plotDescription );
 
