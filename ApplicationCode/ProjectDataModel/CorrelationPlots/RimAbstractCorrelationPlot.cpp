@@ -309,18 +309,9 @@ std::set<RifEclipseSummaryAddress> RimAbstractCorrelationPlot::addresses()
 {
     std::set<RifEclipseSummaryAddress> addresses;
 
-    RiaSummaryCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = getOrCreateSelectedCurveDefAnalyser();
-
-    for ( RimSummaryCaseCollection* ensemble : analyserOfSelectedCurveDefs->m_ensembles )
+    for ( auto dataEntry : m_analysisPlotDataSelection )
     {
-        const std::set<RifEclipseSummaryAddress>& caseAddrs = ensemble->ensembleSummaryAddresses();
-        for ( auto addr : caseAddrs )
-        {
-            if ( analyserOfSelectedCurveDefs->m_quantityNames.count( addr.quantityName() ) )
-            {
-                addresses.insert( addr );
-            }
-        }
+        addresses.insert( dataEntry->summaryAddress() );
     }
 
     return addresses;
