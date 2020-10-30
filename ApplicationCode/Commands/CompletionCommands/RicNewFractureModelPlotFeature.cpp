@@ -20,7 +20,6 @@
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
-#include "RiaFractureDefines.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 
@@ -33,7 +32,6 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
-#include "RimElasticPropertiesCurve.h"
 #include "RimFaciesProperties.h"
 #include "RimFractureModel.h"
 #include "RimFractureModelCurve.h"
@@ -114,18 +112,18 @@ RimFractureModelPlot* RicNewFractureModelPlotFeature::createPlot( RimFractureMod
 
     {
         auto task = progInfo.task( "Creating stress track", 2 );
-        createStressTrack( plot,
-                           fractureModel,
-                           eclipseCase,
-                           timeStep,
-                           "Stress",
-                           {RiaDefines::CurveProperty::STRESS, RiaDefines::CurveProperty::INITIAL_STRESS} );
-        createStressTrack( plot,
-                           fractureModel,
-                           eclipseCase,
-                           timeStep,
-                           "Stress Gradient",
-                           {RiaDefines::CurveProperty::STRESS_GRADIENT} );
+        createParametersTrack( plot,
+                               fractureModel,
+                               eclipseCase,
+                               timeStep,
+                               "Stress",
+                               {RiaDefines::CurveProperty::STRESS, RiaDefines::CurveProperty::INITIAL_STRESS} );
+        createParametersTrack( plot,
+                               fractureModel,
+                               eclipseCase,
+                               timeStep,
+                               "Stress Gradient",
+                               {RiaDefines::CurveProperty::STRESS_GRADIENT} );
     }
 
     {
@@ -146,13 +144,14 @@ RimFractureModelPlot* RicNewFractureModelPlotFeature::createPlot( RimFractureMod
 
         for ( auto result : results )
         {
-            createElasticPropertiesTrack( plot, fractureModel, eclipseCase, timeStep, result );
+            QString trackName = caf::AppEnum<RiaDefines::CurveProperty>::uiText( result );
+            createParametersTrack( plot, fractureModel, eclipseCase, timeStep, trackName, {result} );
         }
     }
 
     {
         auto task = progInfo.task( "Creating temperature track", 2 );
-        createStressTrack( plot, fractureModel, eclipseCase, timeStep, "Temperature", {RiaDefines::CurveProperty::TEMPERATURE} );
+        createParametersTrack( plot, fractureModel, eclipseCase, timeStep, "Temperature", {RiaDefines::CurveProperty::TEMPERATURE} );
     }
 
     {
@@ -374,10 +373,14 @@ void RicNewFractureModelPlotFeature::createParametersTrack( RimFractureModelPlot
         curve->setLineStyle( RiuQwtPlotCurve::STYLE_SOLID );
         curve->setLineThickness( 2 );
 
+        if ( propertyType == RiaDefines::CurveProperty::STRESS_GRADIENT )
+        {
+            curve->setInterpolation( RiuQwtPlotCurve::INTERPOLATION_STEP_LEFT );
+        }
+
         if ( fixedInitialTimeStep )
         {
             curve->setAutoNameComponents( false, false, false, false, false );
-            curve->setCustomName( QString( "INITIAL %1" ).arg( resultVariable ) );
             curve->setCurrentTimeStep( 0 );
         }
         else
@@ -405,109 +408,6 @@ void RicNewFractureModelPlotFeature::createParametersTrack( RimFractureModelPlot
 
     RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
     // RiuPlotMainWindowTools::selectAsCurrentItem( curve );
-    RiuPlotMainWindowTools::showPlotMainWindow();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicNewFractureModelPlotFeature::createElasticPropertiesTrack( RimFractureModelPlot*     plot,
-                                                                   RimFractureModel*         fractureModel,
-                                                                   RimEclipseCase*           eclipseCase,
-                                                                   int                       timeStep,
-                                                                   RiaDefines::CurveProperty propertyType )
-{
-    QString          trackName = caf::AppEnum<RiaDefines::CurveProperty>::uiText( propertyType );
-    RimWellLogTrack* plotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, trackName, plot );
-    plotTrack->setFormationWellPath( fractureModel->thicknessDirectionWellPath() );
-    plotTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR );
-    plotTrack->setLogarithmicScale( false );
-    plotTrack->setShowRegionLabels( true );
-    plotTrack->setShowWindow( true );
-    plotTrack->setColSpan( RimPlot::TWO );
-    plotTrack->setLegendsVisible( true );
-    plotTrack->setPlotTitleVisible( true );
-
-    caf::ColorTable colors = RiaColorTables::wellLogPlotPaletteColors();
-
-    RimElasticPropertiesCurve* curve = new RimElasticPropertiesCurve;
-    curve->setCurveProperty( propertyType );
-    curve->setFractureModel( fractureModel );
-    curve->setCase( eclipseCase );
-    curve->setColor( colors.cycledColor3f( 0 ) );
-    curve->setLineStyle( RiuQwtPlotCurve::STYLE_SOLID );
-    curve->setLineThickness( 2 );
-    curve->setUiName( trackName );
-    curve->setAutoNameComponents( false, false, false, false, false );
-
-    plotTrack->addCurve( curve );
-    plotTrack->setAutoScaleXEnabled( true );
-    curve->loadDataAndUpdate( true );
-
-    curve->updateConnectedEditors();
-    plotTrack->updateConnectedEditors();
-    plot->updateConnectedEditors();
-
-    RiaApplication::instance()->project()->updateConnectedEditors();
-
-    RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
-    RiuPlotMainWindowTools::selectAsCurrentItem( curve );
-    RiuPlotMainWindowTools::showPlotMainWindow();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicNewFractureModelPlotFeature::createStressTrack( RimFractureModelPlot*                         plot,
-                                                        RimFractureModel*                             fractureModel,
-                                                        RimEclipseCase*                               eclipseCase,
-                                                        int                                           timeStep,
-                                                        const QString&                                trackName,
-                                                        const std::vector<RiaDefines::CurveProperty>& propertyTypes )
-{
-    RimWellLogTrack* plotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, trackName, plot );
-    plotTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR );
-    plotTrack->setLogarithmicScale( false );
-    plotTrack->setShowRegionLabels( true );
-    plotTrack->setShowWindow( true );
-    plotTrack->setColSpan( RimPlot::TWO );
-    plotTrack->setLegendsVisible( true );
-    plotTrack->setPlotTitleVisible( true );
-
-    caf::ColorTable colors     = RiaColorTables::wellLogPlotPaletteColors();
-    int             colorIndex = 0;
-
-    for ( const RiaDefines::CurveProperty& propertyType : propertyTypes )
-    {
-        RimFractureModelStressCurve* curve = new RimFractureModelStressCurve;
-        curve->setCurveProperty( propertyType );
-        curve->setFractureModel( fractureModel );
-        curve->setCase( eclipseCase );
-        curve->setColor( colors.cycledColor3f( colorIndex ) );
-        curve->setLineStyle( RiuQwtPlotCurve::STYLE_SOLID );
-        curve->setLineThickness( 2 );
-        curve->setUiName( trackName );
-        curve->setAutoNameComponents( false, false, false, false, false );
-        if ( propertyType == RiaDefines::CurveProperty::STRESS_GRADIENT )
-        {
-            curve->setInterpolation( RiuQwtPlotCurve::INTERPOLATION_STEP_LEFT );
-        }
-
-        plotTrack->addCurve( curve );
-        plotTrack->setAutoScaleXEnabled( true );
-        curve->loadDataAndUpdate( true );
-
-        curve->updateConnectedEditors();
-
-        colorIndex++;
-    }
-
-    plotTrack->updateConnectedEditors();
-    plot->updateConnectedEditors();
-
-    RiaApplication::instance()->project()->updateConnectedEditors();
-
-    RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
     RiuPlotMainWindowTools::showPlotMainWindow();
 }
 
