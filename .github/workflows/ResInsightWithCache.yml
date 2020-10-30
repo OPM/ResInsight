@@ -57,6 +57,12 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: true
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      - name: Display Python version
+        run: python -c "import sys; print(sys.version)"
       - name: Download Ninja
         uses: seanmiddleditch/gha-setup-ninja@master
         with:
@@ -113,11 +119,6 @@ jobs:
           modules: qtscript 
           dir: '${{ github.workspace }}/Qt/'
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install grpcio-tools
-          pip install pytest
       - name: Install Linux dependencies
         if: "contains( matrix.config.os, 'ubuntu')"
         run: sudo apt-get install libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev libhdf5-dev
@@ -127,12 +128,11 @@ jobs:
           path: ${{ github.workspace }}/ThirdParty/vcpkg/
           # Ensure the cache is invalidated any time vcpkg version changes, or a different set of packages is being used.
           key: ${{ hashFiles( format('{0}/{1}', github.workspace, matrix.config.vcpkg-response-file )) }}-${{ hashFiles('.git/modules/ThirdParty/vcpkg/HEAD') }}-${{ runner.os }}-v02
-      - name: Run vcpkg
-        uses: lukka/run-vcpkg@v1
-        id: runvcpkg
-        with:
-          vcpkgArguments: '@${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}'
-          vcpkgDirectory: '${{ github.workspace }}/ThirdParty/vcpkg'
+      - name: Get Python executable path
+        id: python-path
+        run: echo "::set-output name=PYTHON_EXECUTABLE::$(python -c 'import sys; import pathlib; print (pathlib.PurePath(sys.executable).as_posix())')"
+      - name: Print Python path
+        run: echo ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
       - name: Configure
         shell: cmake -P {0}
         run: |
@@ -155,19 +155,20 @@ jobs:
             set(path_separator ";")
           endif()
           set(ENV{PATH} "$ENV{GITHUB_WORKSPACE}${path_separator}$ENV{PATH}")
+          
           execute_process(
             COMMAND cmake
               -S .
               -B cmakebuild
               -D CMAKE_BUILD_TYPE=$ENV{BUILD_TYPE}
               -D CMAKE_INSTALL_PREFIX=cmakebuild/install
-              -D GSL_ENABLE=true
               -D RESINSIGHT_ENABLE_UNITY_BUILD=true
               -D RESINSIGHT_BUNDLE_OPENSSL=true
               -D RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
               -D RESINSIGHT_TREAT_WARNINGS_AS_ERRORS=true
               -D RESINSIGHT_ENABLE_GRPC=true
-              -D RESINSIGHT_GRPC_PYTHON_EXECUTABLE=python
+              -D RESINSIGHT_GRPC_PYTHON_EXECUTABLE=${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
+              -D RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE=true
               -D VCPKG_TARGET_TRIPLET=${{ matrix.config.vcpkg-triplet }}
               -D CMAKE_TOOLCHAIN_FILE=${{ matrix.config.cmake-toolchain }}
               -G Ninja
@@ -213,13 +214,13 @@ jobs:
         shell: bash
         run: |
           cmakebuild/ApplicationCode/ResInsight --unittest
-      - name: Run pytest
+      - name: (Windows) Run pytest
         if: contains( matrix.config.os, 'windows')  
         env:
           RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ApplicationCode/ResInsight.exe
         run: |
           cd ApplicationCode/GrpcInterface/Python/rips
-          pytest --console
+          ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pytest --console
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:

@@ -21,7 +21,12 @@ endif()
 find_package( OpenGL )
 
 option(RESINSIGHT_ENABLE_GRPC "Enable the gRPC scripting framework" OFF)
-option(RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE "Bundle the gRPC python modules into the install folder" OFF)
+if (RESINSIGHT_ENABLE_GRPC)
+    option(RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE "Download the gRPC python modules to enable generation of Python interface" ON)
+    option(RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE "Bundle the gRPC python modules into the install folder" OFF)
+    add_definitions(-DENABLE_GRPC)
+endif()
+
 option(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS "Treat warnings as errors (stops build)" OFF)
 
 find_package(Qt5 COMPONENTS Core QUIET)
@@ -123,12 +128,6 @@ list( APPEND CPP_SOURCES
      ${UNIT_TEST_FILES}
 )
 
-if (RESINSIGHT_ENABLE_GRPC)
-    list( APPEND REFERENCED_CMAKE_FILES
-        GrpcInterface/CMakeLists.cmake
-    )
-endif(RESINSIGHT_ENABLE_GRPC)
-
 list( APPEND REFERENCED_CMAKE_FILES
     Application/CMakeLists_files.cmake
     Application/Tools/CMakeLists_files.cmake 
@@ -201,7 +200,14 @@ add_subdirectory(Commands)
 
 set( RI_LIBRARIES
     ResultStatisticsCache
+    Commands
 )
+
+if (RESINSIGHT_ENABLE_GRPC)
+    add_subdirectory(GrpcInterface)
+    list(APPEND RI_LIBRARIES GrpcInterface)
+endif()
+
 
 #
 # Odb api
@@ -313,14 +319,8 @@ source_group( "UnitTests"           FILES ${UNIT_TEST_FILES} )
 
 if (MSVC)
     set( EXE_FILES WIN32)
-    if (RESINSIGHT_ENABLE_GRPC)
-        # GRPC generates a lot of harmless warnings on MSVC
-        set_source_files_properties(${GRPC_CPP_SOURCES} ${GRPC_UNIT_TEST_SOURCE_FILES} PROPERTIES COMPILE_FLAGS "/wd4251 /wd4702 /wd4005 /wd4244 /wd4125 /wd4267")
-    endif(RESINSIGHT_ENABLE_GRPC)
 elseif (APPLE)
     set( EXE_FILES MACOSX_BUNDLE)
-else()
-	set_source_files_properties(${GRPC_CPP_SOURCES} ${GRPC_UNIT_TESTS_SOURCE_FILES} PROPERTIES COMPILE_FLAGS "-Wno-overloaded-virtual")
 endif()
 set( EXE_FILES
     ${EXE_FILES}
@@ -335,23 +335,7 @@ set( EXE_FILES
     .clang-format
     .clang-tidy
     Adm/RiaVersionInfo.h.cmake
-    $<TARGET_OBJECTS:cafCommandFeatures> # Needed for cmake version < 3.12. Remove when we can use target_link_libraries with OBJECT libraries
-    $<TARGET_OBJECTS:Commands> # Needed for cmake version < 3.12. Remove when we can use target_link_libraries with OBJECT libraries
 )
-
-if (RESINSIGHT_ENABLE_GRPC)
-    list(APPEND EXE_FILES
-         ${GRPC_CPP_SOURCES}
-         ${GRPC_HEADER_FILES}
-         ${GRPC_PYTHON_SOURCES_FULL_PATH}
-		 ${GRPC_PROTO_FILES_FULL_PATH}
-         Adm/RiaVersionInfo.py.cmake
-    )
-    if (DEFINED GRPC_LIBRARY_DIRS)
-        message(STATUS "Using GRPC Library Dir: ${GRPC_LIBRARY_DIRS}")
-        link_directories(${GRPC_LIBRARY_DIRS})
-    endif(DEFINED GRPC_LIBRARY_DIRS)
-endif(RESINSIGHT_ENABLE_GRPC)
 
 add_executable( ResInsight ${EXE_FILES})
 
@@ -431,18 +415,6 @@ set( LINK_LIBRARIES
     ${QT_LIBRARIES}
 )
 
-if (RESINSIGHT_ENABLE_GRPC)
-	if (UNIX)
-		foreach(GRPC_LIBRARY ${GRPC_LIBRARIES})
-			list(APPEND LINK_LIBRARIES "${GRPC_LIBRARY_DIRS}/lib${GRPC_LIBRARY}.a")
-		endforeach()
-		list(APPEND LINK_LIBRARIES ${GRPC_PACKAGE_LIBRARIES})
-	else()		
-		list(APPEND LINK_LIBRARIES ${GRPC_LIBRARIES})
-		set_target_properties(ResInsight PROPERTIES LINK_FLAGS_RELWITHDEBINFO "/NODEFAULTLIB:MSVCRTD.lib")
-	endif()
-endif()
-
 # According to ivarun this is needed on OpenSuse, and Fedora. See: https://github.com/OPM/ResInsight/pull/7
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     list(APPEND EXTERNAL_LINK_LIBRARIES
@@ -519,19 +491,14 @@ endforeach()
 
 # Generate Python code in a target that is part of ALL_BUILD and depends on ResInsight
 if (RESINSIGHT_ENABLE_GRPC)	
-    set(RESINSIGHT_GRPC_PYTHON_EXECUTABLE "" CACHE FILEPATH "gRPC : Path to Python 3 executable, required to build the Python client library")
-    if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
-        add_custom_command(OUTPUT ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/resinsight_classes.py
-				    COMMAND ResInsight ARGS --console --generate ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/resinsight_classes.py
-                    DEPENDS ResInsight
-                    COMMENT "Generating ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/resinsight_classes.py"
-	    )   
-        list(APPEND GRPC_GENERATED_PYTHON_SOURCES ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/resinsight_classes.py)
-		add_custom_target(GeneratedPythonSources ALL DEPENDS ${GRPC_GENERATED_PYTHON_SOURCES})
-		add_dependencies(GeneratedPythonSources ResInsight)
-	else()
-		message(STATUS "RESINSIGHT_GRPC_PYTHON_EXECUTABLE not specified. Will not install GRPC Python code.")
-	endif(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)	
+    add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/GrpcInterface/Python/rips/generated/resinsight_classes.py
+				COMMAND ResInsight ARGS --console --generate ${CMAKE_CURRENT_SOURCE_DIR}/GrpcInterface/Python/rips/generated/resinsight_classes.py
+                DEPENDS ResInsight
+                COMMENT "Generating ${CMAKE_CURRENT_SOURCE_DIR}/GrpcInterface/Python/rips/generated/resinsight_classes.py"
+	)
+	add_custom_target(ResInsightClassesPy ALL DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/GrpcInterface/Python/rips/generated/resinsight_classes.py)
+	add_dependencies(ResInsightClassesPy ResInsight)
+
 endif(RESINSIGHT_ENABLE_GRPC)
 
 #############################################################################
@@ -673,12 +640,13 @@ if (RESINSIGHT_PRIVATE_INSTALL)
           )
         endif()
 
-        # install GRPC-related DLLs
+        # install GRPC-related DLLs and resinsight_classes.py
         if (RESINSIGHT_ENABLE_GRPC)
             set (GRPC_DLL_NAMES libprotobuf cares zlib1 abseil_dll)
             foreach (dllname ${GRPC_DLL_NAMES})		  
               list(APPEND RESINSIGHT_FILES $<TARGET_FILE_DIR:ResInsight>/${dllname}.dll)
             endforeach(dllname ${GRPC_DLL_NAMES})
+            install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/GrpcInterface/Python/rips/generated/resinsight_classes.py DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python/rips/generated)
 	    endif()
 
         # OpenSSL
@@ -705,24 +673,6 @@ if (RESINSIGHT_PRIVATE_INSTALL)
         install(PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
 
     endif()
-
-    # install gRPC Python files
-    if (RESINSIGHT_ENABLE_GRPC)
-		message(STATUS "GRPC enabled")
-		if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
-			message(STATUS "Python found")
-			if (RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE)	
-				message(STATUS "Bundling Python GRPC modules")
-				add_custom_command(
-					TARGET ResInsight
-					POST_BUILD
-					COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} -m pip install --target=${GRPC_PYTHON_SOURCE_PATH} grpcio-tools
-				)
-			endif()
-			install(DIRECTORY ${GRPC_PYTHON_SOURCE_PATH}/ DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python)
-            install(FILES ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/resinsight_classes.py DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python/rips/generated)
-		endif()
-	endif()
 
     set (RESINSIGHT_FILES ${RESINSIGHT_FILES} ${RESINSIGHT_LICENSE_FILES})
         
