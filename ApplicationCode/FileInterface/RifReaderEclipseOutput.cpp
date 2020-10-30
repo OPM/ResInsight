@@ -2466,16 +2466,18 @@ void RifReaderEclipseOutput::transferCoarseningInfo( const ecl_grid_type* eclGri
     for ( int i = 0; i < coarseGroupCount; i++ )
     {
         ecl_coarse_cell_type* coarse_cell = ecl_grid_iget_coarse_group( eclGrid, i );
-        CVF_ASSERT( coarse_cell );
 
-        size_t i1 = static_cast<size_t>( ecl_coarse_cell_get_i1( coarse_cell ) );
-        size_t i2 = static_cast<size_t>( ecl_coarse_cell_get_i2( coarse_cell ) );
-        size_t j1 = static_cast<size_t>( ecl_coarse_cell_get_j1( coarse_cell ) );
-        size_t j2 = static_cast<size_t>( ecl_coarse_cell_get_j2( coarse_cell ) );
-        size_t k1 = static_cast<size_t>( ecl_coarse_cell_get_k1( coarse_cell ) );
-        size_t k2 = static_cast<size_t>( ecl_coarse_cell_get_k2( coarse_cell ) );
+        if ( coarse_cell )
+        {
+            size_t i1 = static_cast<size_t>( ecl_coarse_cell_get_i1( coarse_cell ) );
+            size_t i2 = static_cast<size_t>( ecl_coarse_cell_get_i2( coarse_cell ) );
+            size_t j1 = static_cast<size_t>( ecl_coarse_cell_get_j1( coarse_cell ) );
+            size_t j2 = static_cast<size_t>( ecl_coarse_cell_get_j2( coarse_cell ) );
+            size_t k1 = static_cast<size_t>( ecl_coarse_cell_get_k1( coarse_cell ) );
+            size_t k2 = static_cast<size_t>( ecl_coarse_cell_get_k2( coarse_cell ) );
 
-        grid->addCoarseningBox( i1, i2, j1, j2, k1, k2 );
+            grid->addCoarseningBox( i1, i2, j1, j2, k1, k2 );
+        }
     }
 }
 
