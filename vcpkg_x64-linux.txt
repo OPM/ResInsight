@@ -1,5 +1,0 @@
-grpc
-boost-filesystem
-eigen3
---triplet
-x64-linux
