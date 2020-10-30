@@ -18,6 +18,8 @@
 
 #include "RiuSummaryQuantityNameInfoProvider.h"
 
+#include <sstream>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -1208,10 +1210,10 @@ std::map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQuantityInfo
     info.insert( {"WGLRH", {A::SUMMARY_WELL, "Gas-Liquid Ratio History"}} );
     info.insert( {"WBGLR", {A::SUMMARY_WELL, "Bottom hole Gas-Liquid Ratio"}} );
     info.insert( {"WBHP", {A::SUMMARY_WELL, "Bottom Hole Pressure"}} );
-    info.insert( {"WBHPH", {A::SUMMARY_WELL, "Bottom Hole Pressure History,"}} );
+    info.insert( {"WBHPH", {A::SUMMARY_WELL, "Bottom Hole Pressure History"}} );
     info.insert( {"WBHPT", {A::SUMMARY_WELL, "Bottom Hole Pressure Target/Limit"}} );
     info.insert( {"WTHP", {A::SUMMARY_WELL, "Tubing Head Pressure"}} );
-    info.insert( {"WTHPH", {A::SUMMARY_WELL, "Tubing Head Pressure History,"}} );
+    info.insert( {"WTHPH", {A::SUMMARY_WELL, "Tubing Head Pressure History"}} );
     info.insert( {"WPI", {A::SUMMARY_WELL, "Productivity Index of well's preferred phase"}} );
     info.insert( {"WPIO", {A::SUMMARY_WELL, "Oil phase PI"}} );
     info.insert( {"WPIG", {A::SUMMARY_WELL, "Gas phase PI"}} );
@@ -1710,7 +1712,7 @@ std::map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQuantityInfo
     info.insert( {"BKROG", {A::SUMMARY_BLOCK, "Two-phase oil relative permeability to gas"}} );
     info.insert( {"BKROW", {A::SUMMARY_BLOCK, "Two-phase oil relative permeability to water"}} );
     info.insert( {"BKRG", {A::SUMMARY_BLOCK, "Gas relative permeability"}} );
-    info.insert( {"BKRGO", {A::SUMMARY_BLOCK, "Two-phase gas relative permeability to oil "}} );
+    info.insert( {"BKRGO", {A::SUMMARY_BLOCK, "Two-phase gas relative permeability to oil"}} );
     info.insert( {"BKRGW", {A::SUMMARY_BLOCK, "Two-phase gas relative permeability to water"}} );
     info.insert( {"BKRW", {A::SUMMARY_BLOCK, "Water relative permeability"}} );
     info.insert( {"BKRWG", {A::SUMMARY_BLOCK, "Two-phase water relative permeability to gas"}} );
@@ -2127,172 +2129,188 @@ std::map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQuantityInfo
 
     std::map<std::string, RiuSummaryQuantityInfo> info;
 
-    info.insert( {"BAPIp", {A::SUMMARY_BLOCK, "Oil API"}} );
-    info.insert( {"BCCP", {A::SUMMARY_BLOCK, "Pore Volume Compressibility"}} );
-    info.insert( {"BCCPp", {A::SUMMARY_BLOCK, "Pore Volume Compressibility"}} );
-    info.insert( {"BDENGAS", {A::SUMMARY_BLOCK, "Gas Density"}} );
-    info.insert( {"BDENGASp", {A::SUMMARY_BLOCK, "Gas Density"}} );
-    info.insert( {"BDENOIL", {A::SUMMARY_BLOCK, "Oil Density"}} );
-    info.insert( {"BDENOILp", {A::SUMMARY_BLOCK, "Oil Density"}} );
-    info.insert( {"BDENWAT", {A::SUMMARY_BLOCK, "Water Density"}} );
-    info.insert( {"BDENWATp", {A::SUMMARY_BLOCK, "Water Density"}} );
-    info.insert( {"BDP", {A::SUMMARY_BLOCK, "Oil Density"}} );
-    info.insert( {"BDPp", {A::SUMMARY_BLOCK, "Oil Density"}} );
-    info.insert( {"BDYNBRST", {A::SUMMARY_BLOCK, "Water Density"}} );
-    info.insert( {"BDYNBRSTp", {A::SUMMARY_BLOCK, "Water Density"}} );
-    info.insert( {"BDYNKX", {A::SUMMARY_BLOCK, "Change In Pressure Since Initial State"}} );
-    info.insert( {"BDYNKXp", {A::SUMMARY_BLOCK, "Change In Pressure Since Initial State"}} );
-    info.insert( {"BDYNKY", {A::SUMMARY_BLOCK, "Dynamic Breaking Stress"}} );
-    info.insert( {"BDYNKYp", {A::SUMMARY_BLOCK, "Dynamic Breaking Stress"}} );
-    info.insert( {"BDYNKZ", {A::SUMMARY_BLOCK, "Dynamic Permeability In X-Direction"}} );
-    info.insert( {"BDYNKZp", {A::SUMMARY_BLOCK, "Dynamic Permeability In X-Direction"}} );
-    info.insert( {"BDYNPV", {A::SUMMARY_BLOCK, "Dynamic Permeability In Y-Direction"}} );
-    info.insert( {"BDYNPVp", {A::SUMMARY_BLOCK, "Dynamic Permeability In Y-Direction"}} );
-    info.insert( {"BDYNSIG", {A::SUMMARY_BLOCK, "Dynamic Permeability In Z-Direction"}} );
-    info.insert( {"BDYNSIGp", {A::SUMMARY_BLOCK, "Dynamic Permeability In Z-Direction"}} );
-    info.insert( {"BKRGAS", {A::SUMMARY_BLOCK, "Dynamic Pore Volume"}} );
-    info.insert( {"BKRGASp", {A::SUMMARY_BLOCK, "Dynamic Pore Volume"}} );
-    info.insert( {"BKROIL", {A::SUMMARY_BLOCK, "Dynamic Sigma Permeability"}} );
-    info.insert( {"BKROILp", {A::SUMMARY_BLOCK, "Dynamic Sigma Permeability"}} );
-    info.insert( {"BKRWAT", {A::SUMMARY_BLOCK, "Gas Relative Permeability"}} );
-    info.insert( {"BKRWATp", {A::SUMMARY_BLOCK, "Gas Relative Permeability"}} );
-    info.insert( {"BPCOG", {A::SUMMARY_BLOCK, "Oil Relative Permeability"}} );
-    info.insert( {"BPCOGp", {A::SUMMARY_BLOCK, "Oil Relative Permeability"}} );
-    info.insert( {"BPCOIL", {A::SUMMARY_BLOCK, "Water Relative Permeability"}} );
-    info.insert( {"BPCOILp", {A::SUMMARY_BLOCK, "Water Relative Permeability"}} );
-    info.insert( {"BPCOW", {A::SUMMARY_BLOCK, "Oil-Gas Capillary Pressure"}} );
-    info.insert( {"BPCOWp", {A::SUMMARY_BLOCK, "Oil-Gas Capillary Pressure"}} );
-    info.insert( {"BPCWAT", {A::SUMMARY_BLOCK, "Oil Capillary Pressure"}} );
-    info.insert( {"BPCWATp", {A::SUMMARY_BLOCK, "Oil Capillary Pressure"}} );
-    info.insert( {"BPMODHYS", {A::SUMMARY_BLOCK, "Oil-Water Capillary Pressure"}} );
-    info.insert( {"BPMODHYSp", {A::SUMMARY_BLOCK, "Oil-Water Capillary Pressure"}} );
-    info.insert( {"BPRp", {A::SUMMARY_BLOCK, "Water Capillary Pressure"}} );
-    info.insert( {"BRSp", {A::SUMMARY_BLOCK, "Water Capillary Pressure"}} );
-    info.insert( {"BSGASp", {A::SUMMARY_BLOCK, "Dynamic Pmod Hysteresis Curve Type (1/2/3=B/S/P)"}} );
-    info.insert( {"BSOILp", {A::SUMMARY_BLOCK, "Dynamic Pmod Hysteresis Curve Type (1/2/3=B/S/P)"}} );
-    info.insert( {"BSRVSTAT", {A::SUMMARY_BLOCK, "Pressure"}} );
-    info.insert( {"BSRVSTATp", {A::SUMMARY_BLOCK, "Pressure"}} );
-    info.insert( {"BSTRAIN", {A::SUMMARY_BLOCK, "Gas Rs"}} );
-    info.insert( {"BSTRAINp", {A::SUMMARY_BLOCK, "Gas Rs"}} );
-    info.insert( {"BSTRESS", {A::SUMMARY_BLOCK, "Gas Rv"}} );
-    info.insert( {"BSTRESSp", {A::SUMMARY_BLOCK, "Gas Rv"}} );
-    info.insert( {"BSTRESSA", {A::SUMMARY_BLOCK, "Gas Saturation"}} );
-    info.insert( {"BSTRESSAp", {A::SUMMARY_BLOCK, "Gas Saturation"}} );
-    info.insert( {"BSTRESSN", {A::SUMMARY_BLOCK, "Oil Saturation"}} );
-    info.insert( {"BSTRESSNp", {A::SUMMARY_BLOCK, "Oil Saturation"}} );
-    info.insert( {"BVISCGAS", {A::SUMMARY_BLOCK, "Srv Status (1/2/3=Stim/Sigprop/Propprop)"}} );
-    info.insert( {"BVISCGASp", {A::SUMMARY_BLOCK, "Srv Status (1/2/3=Stim/Sigprop/Propprop)"}} );
-    info.insert( {"BVISCOIL", {A::SUMMARY_BLOCK, "Volumetric Strain"}} );
-    info.insert( {"BVISCOILp", {A::SUMMARY_BLOCK, "Volumetric Strain"}} );
-    info.insert( {"BVISCWAT", {A::SUMMARY_BLOCK, "Mean Normal Stress"}} );
-    info.insert( {"BVISCWATp", {A::SUMMARY_BLOCK, "Mean Normal Stress"}} );
-    info.insert( {"BXi", {A::SUMMARY_BLOCK, "Mean Normal Stress Idealised Analytic Solution"}} );
-    info.insert( {"BXip", {A::SUMMARY_BLOCK, "Mean Normal Stress Idealised Analytic Solution"}} );
-    info.insert( {"BYi", {A::SUMMARY_BLOCK, "Net Stress"}} );
-    info.insert( {"BYip", {A::SUMMARY_BLOCK, "Net Stress"}} );
-    info.insert( {"BZi", {A::SUMMARY_BLOCK, "Water Saturation"}} );
-    info.insert( {"BZip", {A::SUMMARY_BLOCK, "Water Saturation"}} );
-    info.insert( {"FDG", {A::SUMMARY_FIELD, "Lock Gas Viscosity"}} );
-    info.insert( {"FDO", {A::SUMMARY_FIELD, "Lock Gas Viscosity"}} );
-    info.insert( {"FDW", {A::SUMMARY_FIELD, "Lock Oil Viscosity"}} );
-    info.insert( {"FLIR", {A::SUMMARY_FIELD, "Lock Oil Viscosity"}} );
-    info.insert( {"FLIRH", {A::SUMMARY_FIELD, "Lock Water Viscosity"}} );
-    info.insert( {"FLIT", {A::SUMMARY_FIELD, "Lock Water Viscosity"}} );
-    info.insert( {"FMBG", {A::SUMMARY_FIELD, "Lock Liquid Phase Mole Fraction"}} );
-    info.insert( {"FMBO", {A::SUMMARY_FIELD, "Lock Liquid Phase Mole Fraction"}} );
-    info.insert( {"FMBW", {A::SUMMARY_FIELD, "Lock Vapor Phase Mole Fraction"}} );
-    info.insert( {"FMSTR", {A::SUMMARY_FIELD, "Lock Vapor Phase Mole Fraction"}} );
-    info.insert( {"FMWIR", {A::SUMMARY_FIELD, "Grid Block Total Mole Fraction"}} );
-    info.insert( {"FMWSH", {A::SUMMARY_FIELD, "Grid Block Total Mole Fraction"}} );
-    info.insert( {"FMWST", {A::SUMMARY_FIELD, "Completion Gas Flow"}} );
-    info.insert( {"CHOPS", {A::SUMMARY_MISC, "Completion Oil Flow"}} );
-    info.insert( {"CPDIAM", {A::SUMMARY_MISC, "Completion Water Flow"}} );
-    info.insert( {"MLINEART", {A::SUMMARY_MISC, "Number Of Time-Step Chops At The Current Time-Step"}} );
-    info.insert( {"MSUMCHOP", {A::SUMMARY_MISC, "Perforation Diameter"}} );
-    info.insert( {"MSUMLINT", {A::SUMMARY_MISC, "Field Aquifer Influx Rate"}} );
-    info.insert( {"TS", {A::SUMMARY_MISC, "Field Cumulative Aquifer Influx"}} );
-    info.insert( {"NGIR", {A::SUMMARY_NETWORK, "S In Place Difference From Initial Conditions"}} );
-    info.insert( {"NGIRH", {A::SUMMARY_NETWORK, "S In Place Difference From Initial Conditions History"}} );
-    info.insert( {"NGIT", {A::SUMMARY_NETWORK, "Ter In Place Difference From Initial Conditions"}} );
-    info.insert( {"NGOR", {A::SUMMARY_NETWORK, "S In Place"}} );
-    info.insert( {"NGORH", {A::SUMMARY_NETWORK, "S In Place History"}} );
-    info.insert( {"NGPR", {A::SUMMARY_NETWORK, "Served Liquid Injection Rate"}} );
-    info.insert( {"NGPRH", {A::SUMMARY_NETWORK, "Served Liquid Injection Rate History"}} );
-    info.insert( {"NGPT", {A::SUMMARY_NETWORK, "S Phase Material Balance Error"}} );
-    info.insert( {"NLINEARS", {A::SUMMARY_NETWORK, "L Phase Material Balance Error"}} );
-    info.insert( {"NLIR", {A::SUMMARY_NETWORK, "Ter Phase Material Balance Error"}} );
-    info.insert( {"NLIRH", {A::SUMMARY_NETWORK, "Ter Phase Material Balance Error History"}} );
-    info.insert( {"NLIT", {A::SUMMARY_NETWORK, "Mber Of Injecting Wells"}} );
-    info.insert( {"NLPR", {A::SUMMARY_NETWORK, "Mber Of Stopped Wells"}} );
-    info.insert( {"NLPRH", {A::SUMMARY_NETWORK, "Mber Of Stopped Wells History"}} );
-    info.insert( {"NLPT", {A::SUMMARY_NETWORK, "L In Place"}} );
-    info.insert( {"NOIR", {A::SUMMARY_NETWORK, "Ter In Place"}} );
-    info.insert( {"NOIRH", {A::SUMMARY_NETWORK, "Ter In Place History"}} );
-    info.insert( {"NOIT", {A::SUMMARY_NETWORK, "Served Gas Injection Rate"}} );
-    info.insert( {"NOPR", {A::SUMMARY_NETWORK, "Mulative Gas Injection"}} );
-    info.insert( {"NOPRH", {A::SUMMARY_NETWORK, "Mulative Gas Injection History"}} );
-    info.insert( {"NOPT", {A::SUMMARY_NETWORK, "Served Gas-Oil Ratio"}} );
-    info.insert( {"NWCT", {A::SUMMARY_NETWORK, "Quid Injection Rate"}} );
-    info.insert( {"NWCTH", {A::SUMMARY_NETWORK, "Served Liquid Injection Rate"}} );
-    info.insert( {"NWIR", {A::SUMMARY_NETWORK, "Mulative Liquid Injection"}} );
-    info.insert( {"NWIRH", {A::SUMMARY_NETWORK, "Mulative Liquid Injection History"}} );
-    info.insert( {"NWIT", {A::SUMMARY_NETWORK, "Served Water Cut"}} );
-    info.insert( {"NWPR", {A::SUMMARY_NETWORK, "Or A Well Completion"}} );
-    info.insert( {"NWPRH", {A::SUMMARY_NETWORK, " History"}} );
-    info.insert( {"NWPT", {A::SUMMARY_NETWORK, "F Tracer Linear Iterations At The Current Time-Step"}} );
-    info.insert( {"RDG", {A::SUMMARY_REGION, "F Well Completion"}} );
-    info.insert( {"RDG_dfname", {A::SUMMARY_REGION, "Total Number Of Time-Step Chops"}} );
-    info.insert( {"RDO", {A::SUMMARY_REGION, "Umber Of Tracer Linear Iterations"}} );
-    info.insert( {"RDO_dfname", {A::SUMMARY_REGION, "Network Gas Injection Rate"}} );
-    info.insert( {"RDW", {A::SUMMARY_REGION, " Observed Gas Injection Rate"}} );
-    info.insert( {"RDW_dfname", {A::SUMMARY_REGION, "Network Cumulative Gas Injection"}} );
-    info.insert( {"REPT", {A::SUMMARY_REGION, "Network Gas-Oil Ratio"}} );
-    info.insert( {"RGIP_dfname", {A::SUMMARY_REGION, "Network Observed Gas-Oil Ratio"}} );
-    info.insert( {"RGIR_dfname", {A::SUMMARY_REGION, "Network Gas Production Rate"}} );
-    info.insert( {"RGIT_dfname", {A::SUMMARY_REGION, "Network Observed Gas Production Rate"}} );
-    info.insert( {"RGPR_dfname", {A::SUMMARY_REGION, "Network Cumulative Gas Production"}} );
-    info.insert( {"RGPT_dfname", {A::SUMMARY_REGION, "Average Linear Iterations Per Newton Iteration"}} );
-    info.insert( {"RLIR", {A::SUMMARY_REGION, " Liquid Injection Rate"}} );
-    info.insert( {"RLIR_dfname", {A::SUMMARY_REGION, "Network Observed Liquid Injection Rate"}} );
-    info.insert( {"RLIT", {A::SUMMARY_REGION, " Cumulative Liquid Injection"}} );
-    info.insert( {"RLIT_dfname", {A::SUMMARY_REGION, "Network Liquid Production Rate"}} );
-    info.insert( {"RLPR", {A::SUMMARY_REGION, " Observed Liquid Production Rate"}} );
-    info.insert( {"RLPR_dfname", {A::SUMMARY_REGION, "Network Cumulative Liquid Production"}} );
-    info.insert( {"RLPT", {A::SUMMARY_REGION, " Oil Injection Rate"}} );
-    info.insert( {"RLPT_dfname", {A::SUMMARY_REGION, "Network Observed Oil Injection Rate"}} );
-    info.insert( {"RMSTR", {A::SUMMARY_REGION, " Cumulative Oil Injection"}} );
-    info.insert( {"RMSTR_dfname", {A::SUMMARY_REGION, "Network Oil Production Rate"}} );
-    info.insert( {"ROIP_dfname", {A::SUMMARY_REGION, "Network Observed Oil Production Rate"}} );
-    info.insert( {"ROIR_dfname", {A::SUMMARY_REGION, "Network Cumulative Oil Production"}} );
-    info.insert( {"ROIT_dfname", {A::SUMMARY_REGION, "Network Water Cut"}} );
-    info.insert( {"ROPR_dfname", {A::SUMMARY_REGION, "Network Observed Water Cut"}} );
-    info.insert( {"ROPT_dfname", {A::SUMMARY_REGION, "Network Water Injection Rate"}} );
-    info.insert( {"RPRP_dfname", {A::SUMMARY_REGION, "Network Observed Water Injection Rate"}} );
-    info.insert( {"RPR_dfname", {A::SUMMARY_REGION, "Network Cumulative Water Injection"}} );
-    info.insert( {"RWIP_dfname", {A::SUMMARY_REGION, "Network Water Production Rate"}} );
-    info.insert( {"RWIR_dfname", {A::SUMMARY_REGION, "Network Observed Water Production Rate"}} );
-    info.insert( {"RWIT_dfname", {A::SUMMARY_REGION, "Network Cumulative Water Production"}} );
-    info.insert( {"RWPR_dfname", {A::SUMMARY_REGION, "Region Gas In Place Difference From Initial Conditions"}} );
-    info.insert( {"RWPT_dfname", {A::SUMMARY_REGION, "Dynamic Region Gas In Place Difference From Initial Conditions"}} );
-    info.insert( {"WADEN", {A::SUMMARY_WELL, "N Oil In Place Difference From Initial Conditions"}} );
-    info.insert( {"WLIR", {A::SUMMARY_WELL, "Ic Region Oil In Place Difference From Initial Conditions"}} );
-    info.insert( {"WLIRH", {A::SUMMARY_WELL, "Ic Region Oil In Place Difference From Initial Conditions History"}} );
-    info.insert( {"WLIT", {A::SUMMARY_WELL, "Ic Region Water In Place Difference From Initial Conditions"}} );
-    info.insert( {"WLPV", {A::SUMMARY_WELL, "Nt Report Step Number"}} );
-    info.insert( {"WSBULKV", {A::SUMMARY_WELL, "N Gas In Place"}} );
-    info.insert( {"WSBVPROP", {A::SUMMARY_WELL, "Ic Region Gas In Place"}} );
-    info.insert( {"WSBVUNPR", {A::SUMMARY_WELL, "N Gas Injection Rate"}} );
-    info.insert( {"WSMFSA", {A::SUMMARY_WELL, "Ic Region Gas Injection Rate"}} );
-    info.insert( {"WSMFSAP", {A::SUMMARY_WELL, "N Cumulative Gas Injection Rate"}} );
-    info.insert( {"WSMFSAU", {A::SUMMARY_WELL, "Ic Region Cumulative Gas Injection Rate"}} );
-    info.insert( {"WSPORVF", {A::SUMMARY_WELL, "N Gas Production Rate"}} );
-    info.insert( {"WSPORVM", {A::SUMMARY_WELL, "Ic Region Gas Production Rate"}} );
+    int nporo = 6;
+    for ( int iporo = 0; iporo < nporo; ++iporo )
+    {
+        std::string suffix( "" );
+        std::string descadd( "" );
+        if ( iporo == 1 )
+        {
+            suffix  = "F";
+            descadd = " (Fracture)";
+        }
+        else if ( iporo == 2 )
+        {
+            suffix  = "M";
+            descadd = " (Matrix)";
+        }
+        else
+        {
+            std::stringstream ss;
+            ss << iporo - 1;
+            suffix  = "M" + ss.str();
+            descadd = " (Matrix " + ss.str() + ")";
+        }
+
+        info.insert( {"BAPI" + suffix, {A::SUMMARY_BLOCK, "Oil API" + descadd}} );
+        info.insert( {"BCCP" + suffix, {A::SUMMARY_BLOCK, "Pore Volume Compressibility" + descadd}} );
+        info.insert( {"BDENGAS" + suffix, {A::SUMMARY_BLOCK, "Gas Density" + descadd}} );
+        info.insert( {"BDENOIL" + suffix, {A::SUMMARY_BLOCK, "Oil Density" + descadd}} );
+        info.insert( {"BDENWAT" + suffix, {A::SUMMARY_BLOCK, "Water Density" + descadd}} );
+        info.insert( {"BDP" + suffix, {A::SUMMARY_BLOCK, "Change in Pressure Since Initial State" + descadd}} );
+        info.insert( {"BDYNBRST" + suffix, {A::SUMMARY_BLOCK, "Dynamic Breaking Stress" + descadd}} );
+        info.insert( {"BDYNKX" + suffix, {A::SUMMARY_BLOCK, "Dynamic Permeability in X-Direction" + descadd}} );
+        info.insert( {"BDYNKY" + suffix, {A::SUMMARY_BLOCK, "Dynamic Permeability in Y-Direction" + descadd}} );
+        info.insert( {"BDYNKZ" + suffix, {A::SUMMARY_BLOCK, "Dynamic Permeability in Z-Direction" + descadd}} );
+        info.insert( {"BDYNPV" + suffix, {A::SUMMARY_BLOCK, "Dynamic Pore Volume" + descadd}} );
+        info.insert( {"BDYNSIG" + suffix, {A::SUMMARY_BLOCK, "Dynamic Sigma Permeability" + descadd}} );
+        info.insert( {"BKRGAS" + suffix, {A::SUMMARY_BLOCK, "Gas Relative Permeability" + descadd}} );
+        info.insert( {"BKROIL" + suffix, {A::SUMMARY_BLOCK, "Oil Relative Permeability" + descadd}} );
+        info.insert( {"BKRWAT" + suffix, {A::SUMMARY_BLOCK, "Water Relative Permeability" + descadd}} );
+        info.insert( {"BPCOG" + suffix, {A::SUMMARY_BLOCK, "Oil-Gas Capillary Pressure" + descadd}} );
+        info.insert( {"BPCOIL" + suffix, {A::SUMMARY_BLOCK, "Oil Capillary Pressure" + descadd}} );
+        info.insert( {"BPCOW" + suffix, {A::SUMMARY_BLOCK, "Oil-Water Capillary Pressure" + descadd}} );
+        info.insert( {"BPCWAT" + suffix, {A::SUMMARY_BLOCK, "Water Capillary Pressure" + descadd}} );
+        info.insert(
+            {"BPMODHYS" + suffix, {A::SUMMARY_BLOCK, "Dynamic Pmod Hysteresis Curve Type (1/2/3=B/S/P)" + descadd}} );
+        info.insert( {"BPR" + suffix, {A::SUMMARY_BLOCK, "Pressure" + descadd}} );
+        info.insert( {"BRS" + suffix, {A::SUMMARY_BLOCK, "Gas Rs" + descadd}} );
+        info.insert( {"BRV" + suffix, {A::SUMMARY_BLOCK, "Gas Rv" + descadd}} );
+        info.insert( {"BSGAS" + suffix, {A::SUMMARY_BLOCK, "Gas Saturation" + descadd}} );
+        info.insert( {"BSOIL" + suffix, {A::SUMMARY_BLOCK, "Oil Saturation" + descadd}} );
+        info.insert( {"BSWAT" + suffix, {A::SUMMARY_BLOCK, "Water Saturation" + descadd}} );
+        info.insert( {"BSRVSTAT" + suffix, {A::SUMMARY_BLOCK, "Srv Status (1/2/3=Stim/Sigprop/Propprop)" + descadd}} );
+        info.insert( {"BSTRAIN" + suffix, {A::SUMMARY_BLOCK, "Volumetric Strain" + descadd}} );
+        info.insert( {"BSTRESS" + suffix, {A::SUMMARY_BLOCK, "Mean Normal Stress" + descadd}} );
+        info.insert( {"BSTRESSA" + suffix, {A::SUMMARY_BLOCK, "Mean Normal Stress Idealised Analytic Solution" + descadd}} );
+        info.insert( {"BSTRESSN" + suffix, {A::SUMMARY_BLOCK, "Net Stress" + descadd}} );
+        info.insert( {"BVISCGAS" + suffix, {A::SUMMARY_BLOCK, "Gas Viscosity" + descadd}} );
+        info.insert( {"BVISCOIL" + suffix, {A::SUMMARY_BLOCK, "Oil Viscosity" + descadd}} );
+        info.insert( {"BVISCWAT" + suffix, {A::SUMMARY_BLOCK, "Water Viscosity" + descadd}} );
+        info.insert( {"BX0" + suffix, {A::SUMMARY_BLOCK, "Liquid Phase Mole Fraction (Component 0)" + descadd}} );
+        info.insert( {"BX1" + suffix, {A::SUMMARY_BLOCK, "Liquid Phase Mole Fraction (Component 1)" + descadd}} );
+        info.insert( {"BX2" + suffix, {A::SUMMARY_BLOCK, "Liquid Phase Mole Fraction (Component 2)" + descadd}} );
+        info.insert( {"BY0" + suffix, {A::SUMMARY_BLOCK, "Vapor Phase Mole Fraction (Component 0)" + descadd}} );
+        info.insert( {"BY1" + suffix, {A::SUMMARY_BLOCK, "Vapor Phase Mole Fraction (Component 1)" + descadd}} );
+        info.insert( {"BY2" + suffix, {A::SUMMARY_BLOCK, "Vapor Phase Mole Fraction (Component 2)" + descadd}} );
+        info.insert( {"BZ0" + suffix, {A::SUMMARY_BLOCK, "Total Mole Fraction (Component 0)" + descadd}} );
+        info.insert( {"BZ1" + suffix, {A::SUMMARY_BLOCK, "Total Mole Fraction (Component 1)" + descadd}} );
+        info.insert( {"BZ2" + suffix, {A::SUMMARY_BLOCK, "Total Mole Fraction (Component 2)" + descadd}} );
+    }
+
+    info.insert( {"FDG", {A::SUMMARY_FIELD, "Gas in Place Difference from Initial Conditions"}} );
+    info.insert( {"FDO", {A::SUMMARY_FIELD, "Oil in Place Difference from Initial Conditions"}} );
+    info.insert( {"FDW", {A::SUMMARY_FIELD, "Water in Place Difference from Initial Conditions"}} );
+    info.insert( {"FLIR", {A::SUMMARY_FIELD, "Liquid Injection Rate"}} );
+    info.insert( {"FLIRH", {A::SUMMARY_FIELD, "Liquid Injection Rate History"}} );
+    info.insert( {"FLIT", {A::SUMMARY_FIELD, "Liquid Injection Total"}} );
+    info.insert( {"FMBG", {A::SUMMARY_FIELD, "Gas Phase Material Balance Error"}} );
+    info.insert( {"FMBO", {A::SUMMARY_FIELD, "Oil Phase Material Balance Error"}} );
+    info.insert( {"FMBW", {A::SUMMARY_FIELD, "Water Phase Material Balance Error"}} );
+    info.insert( {"FMSTR", {A::SUMMARY_FIELD, "Average Mean Stress"}} );
+    info.insert( {"FMWIR", {A::SUMMARY_FIELD, "Number of Injecting Wells"}} );
+    info.insert( {"FMWSH", {A::SUMMARY_FIELD, "Number of Stopped Wells"}} );
+    info.insert( {"FMWST", {A::SUMMARY_FIELD, "Number of Shut Wells"}} );
+    info.insert( {"FGIP", {A::SUMMARY_FIELD, "Gas in Place"}} );
+    info.insert( {"FOIP", {A::SUMMARY_FIELD, "Oil in Place"}} );
+    info.insert( {"FWIP", {A::SUMMARY_FIELD, "Water in Place"}} );
+
+    info.insert( {"RDG", {A::SUMMARY_REGION, "Gas in Place Difference from Initial Conditions"}} );
+    info.insert( {"RDO", {A::SUMMARY_REGION, "Oil in Place Difference from Initial Conditions"}} );
+    info.insert( {"RDW", {A::SUMMARY_REGION, "Water in Place Difference from Initial Conditions"}} );
+    info.insert( {"RGIP", {A::SUMMARY_REGION, "Gas in Place"}} );
+    info.insert( {"RGIR", {A::SUMMARY_REGION, "Gas Injection Rate"}} );
+    info.insert( {"RGIT", {A::SUMMARY_REGION, "Gas Injection Total"}} );
+    info.insert( {"RGPR", {A::SUMMARY_REGION, "Gas Production Rate"}} );
+    info.insert( {"RGPT", {A::SUMMARY_REGION, "Gas Production Total"}} );
+    info.insert( {"RLIR", {A::SUMMARY_REGION, "Liquid Injection Rate"}} );
+    info.insert( {"RLIT", {A::SUMMARY_REGION, "Liquid Injection Total"}} );
+    info.insert( {"RLPR", {A::SUMMARY_REGION, "Liquid Production Rate"}} );
+    info.insert( {"RLPT", {A::SUMMARY_REGION, "Liquid Production Total"}} );
+    info.insert( {"RMSTR", {A::SUMMARY_REGION, "Averaged Mean Normal Stress"}} );
+    info.insert( {"ROIP", {A::SUMMARY_REGION, "Oil in Place"}} );
+    info.insert( {"ROIR", {A::SUMMARY_REGION, "Oil Injection Rate"}} );
+    info.insert( {"ROIT", {A::SUMMARY_REGION, "Oil Injection Total"}} );
+    info.insert( {"ROPR", {A::SUMMARY_REGION, "Oil Production Rate"}} );
+    info.insert( {"ROPT", {A::SUMMARY_REGION, "Oil Production Total"}} );
+    info.insert( {"RPRP", {A::SUMMARY_REGION, "Averaged Pore-Volume Weighted Pressure"}} );
+    info.insert( {"RPR", {A::SUMMARY_REGION, "Averaged Pressure"}} );
+    info.insert( {"RWIP", {A::SUMMARY_REGION, "Water in Place"}} );
+    info.insert( {"RWIR", {A::SUMMARY_REGION, "Water Injection Rate"}} );
+    info.insert( {"RWIT", {A::SUMMARY_REGION, "Water Injection Total"}} );
+    info.insert( {"RWPR", {A::SUMMARY_REGION, "Water Production Rate"}} );
+    info.insert( {"RWPT", {A::SUMMARY_REGION, "Water Production Total"}} );
+
+    info.insert( {"WADEN", {A::SUMMARY_WELL, "Average Density"}} );
+    info.insert( {"WCNTL", {A::SUMMARY_WELL, "Control Mode"}} );
+    info.insert( {"WLIR", {A::SUMMARY_WELL, "Liquid Injection Rate"}} );
+    info.insert( {"WLIRH", {A::SUMMARY_WELL, "Liquid Injection Rate History"}} );
+    info.insert( {"WLIT", {A::SUMMARY_WELL, "Liquid Injection Total"}} );
+    info.insert( {"WLPV", {A::SUMMARY_WELL, "Liquid Production Volume"}} );
+    info.insert( {"WSBULKV", {A::SUMMARY_WELL, "Stimulated Bulk Volume Associated with SRV"}} );
+    info.insert( {"WSBVPROP", {A::SUMMARY_WELL, "Stimulated Propped Bulk Volume Associated with SRV"}} );
+    info.insert( {"WSBVUNPR", {A::SUMMARY_WELL, "Stimulated Unpropped Bulk Volume Associated with SRV"}} );
+    info.insert( {"WSMFSA", {A::SUMMARY_WELL, "Stimulated Surface Area Associated with SRV"}} );
+    info.insert( {"WSMFSAP", {A::SUMMARY_WELL, "Stimulated Propped Surface Area Associated with SRV"}} );
+    info.insert( {"WSMFSAU", {A::SUMMARY_WELL, "Stimulated Unpropped Surface Area Associated with SRV"}} );
+    info.insert( {"WSPORVF", {A::SUMMARY_WELL, "Stimulated Pore Volume Associated with SRV (Fracture)"}} );
+    info.insert( {"WSPORVM", {A::SUMMARY_WELL, "Stimulated Pore Volume Associated with SRV (Matrix)"}} );
+
+    info.insert( {"WTIC", {A::SUMMARY_WELL, "Well Tracer Injection Concentration"}} );
+    info.insert( {"WTIR", {A::SUMMARY_WELL, "Well Tracer Injection Rate"}} );
+    info.insert( {"WTIT", {A::SUMMARY_WELL, "Well Tracer Cumulative Injection"}} );
+    info.insert( {"WTPC", {A::SUMMARY_WELL, "Well Tracer Production Concentration"}} );
+    info.insert( {"WTPR", {A::SUMMARY_WELL, "Well Tracer Production Rate"}} );
+    info.insert( {"WTPT", {A::SUMMARY_WELL, "Well Tracer Cumulative Production"}} );
+
+    info.insert( {"GLIR", {A::SUMMARY_WELL_GROUP, "Liquid Injection Rate"}} );
+    info.insert( {"GLIRH", {A::SUMMARY_WELL_GROUP, "Liquid Injection Rate History"}} );
+    info.insert( {"GLIT", {A::SUMMARY_WELL_GROUP, "Liquid Injection Total"}} );
+
+    info.insert( {"CPDIAM", {A::SUMMARY_WELL_COMPLETION, "Perforation Diameter"}} );
+    info.insert( {"MSDEPTH", {A::SUMMARY_WELL_COMPLETION, "Depth of Well Completion"}} );
     info.insert( {"CFGAS", {A::SUMMARY_WELL_COMPLETION, "Gas Flow Rate"}} );
-    info.insert( {"INFLOWi", {A::SUMMARY_WELL_COMPLETION, "Inflow Rate"}} );
-    info.insert( {"MSDEPTH", {A::SUMMARY_WELL_COMPLETION, "Region Liquid Injection Rate"}} );
-    info.insert( {"GLIR", {A::SUMMARY_WELL_GROUP, "C Region Liquid Injection Rate"}} );
-    info.insert( {"GLIRH", {A::SUMMARY_WELL_GROUP, "C Region Liquid Injection Rate History"}} );
-    info.insert( {"GLIT", {A::SUMMARY_WELL_GROUP, "C Region Cumulative Liquid Injection Rate"}} );
+    info.insert( {"INFLOW0", {A::SUMMARY_WELL_COMPLETION, "Inflow Rate (Component 0)"}} );
+    info.insert( {"INFLOW1", {A::SUMMARY_WELL_COMPLETION, "Inflow Rate (Component 1)"}} );
+    info.insert( {"INFLOW2", {A::SUMMARY_WELL_COMPLETION, "Inflow Rate (Component 2)"}} );
+
+    info.insert( {"NGIR", {A::SUMMARY_NETWORK, "Gas Injection Rate"}} );
+    info.insert( {"NGIRH", {A::SUMMARY_NETWORK, "Gas Injection Rate History"}} );
+    info.insert( {"NGIT", {A::SUMMARY_NETWORK, "Gas Injection Total"}} );
+    info.insert( {"NGOR", {A::SUMMARY_NETWORK, "Gas Oil Ratio"}} );
+    info.insert( {"NGORH", {A::SUMMARY_NETWORK, "Gas Oil Ratio History"}} );
+    info.insert( {"NGPR", {A::SUMMARY_NETWORK, "Gas Production Rate"}} );
+    info.insert( {"NGPRH", {A::SUMMARY_NETWORK, "Gas Production History"}} );
+    info.insert( {"NGPT", {A::SUMMARY_NETWORK, "Gas Production Total"}} );
+    info.insert( {"NLIR", {A::SUMMARY_NETWORK, "Liquid Injection Rate"}} );
+    info.insert( {"NLIRH", {A::SUMMARY_NETWORK, "Liquid Injection Rate History"}} );
+    info.insert( {"NLIT", {A::SUMMARY_NETWORK, "Liquid Injection Total"}} );
+    info.insert( {"NLPR", {A::SUMMARY_NETWORK, "Liquid Production Rate"}} );
+    info.insert( {"NLPRH", {A::SUMMARY_NETWORK, "Liquid Production Rate History"}} );
+    info.insert( {"NLPT", {A::SUMMARY_NETWORK, "Liquid Production Total"}} );
+    info.insert( {"NOIR", {A::SUMMARY_NETWORK, "Oil Injection Rate"}} );
+    info.insert( {"NOIRH", {A::SUMMARY_NETWORK, "Oil Injection Rate History"}} );
+    info.insert( {"NOIT", {A::SUMMARY_NETWORK, "Oil Injection Total"}} );
+    info.insert( {"NOPR", {A::SUMMARY_NETWORK, "Oil Production Rate"}} );
+    info.insert( {"NOPRH", {A::SUMMARY_NETWORK, "Oil Production Rate History"}} );
+    info.insert( {"NOPT", {A::SUMMARY_NETWORK, "Oil Production Total"}} );
+    info.insert( {"NWCT", {A::SUMMARY_NETWORK, "Water Cut"}} );
+    info.insert( {"NWCTH", {A::SUMMARY_NETWORK, "Water Cut History"}} );
+    info.insert( {"NWIR", {A::SUMMARY_NETWORK, "Water Injection Rate"}} );
+    info.insert( {"NWIRH", {A::SUMMARY_NETWORK, "Water Injection Rate History"}} );
+    info.insert( {"NWIT", {A::SUMMARY_NETWORK, "Water Injection Total"}} );
+    info.insert( {"NWPR", {A::SUMMARY_NETWORK, "Water Production Rate"}} );
+    info.insert( {"NWPRH", {A::SUMMARY_NETWORK, "Water Production Rate History"}} );
+    info.insert( {"NWPT", {A::SUMMARY_NETWORK, "Water Production Total"}} );
+
+    info.insert( {"NLINEARS", {A::SUMMARY_MISC, "Average Linear Iterations per Newton Iteration"}} );
+    info.insert( {"MLINEART", {A::SUMMARY_MISC, "Number of Tracer Linear Iterations at the Current Time-Step"}} );
+    info.insert( {"MSUMCHOP", {A::SUMMARY_MISC, "Total Number of Time-Step Chops"}} );
+    info.insert( {"MSUMLINT", {A::SUMMARY_MISC, "Total Number of Tracer Linear Iterations"}} );
+    info.insert( {"TS", {A::SUMMARY_MISC, "Current Time-Step Number"}} );
+    info.insert( {"TNREPT", {A::SUMMARY_MISC, "Total Number of Report Steps"}} );
+    info.insert( {"MEMORYTS", {A::SUMMARY_MISC, "Maximum Current Memory Usage Across Processors"}} );
+    info.insert( {"TSCHOPS", {A::SUMMARY_MISC, "Number of Time Step Chops at Current Time Step"}} );
 
     return info;
 }

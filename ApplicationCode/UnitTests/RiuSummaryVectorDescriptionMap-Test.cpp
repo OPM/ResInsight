@@ -82,8 +82,8 @@ TEST( RiuSummaryQuantityNameInfoProvider, Test6x )
     }
 
     {
-        std::string s( "BDYNKZp" );
+        std::string s( "WSBVPROP" );
         auto        cat = RiuSummaryQuantityNameInfoProvider::instance()->categoryFromQuantityName( s );
-        EXPECT_TRUE( cat == RifEclipseSummaryAddress::SUMMARY_BLOCK );
+        EXPECT_TRUE( cat == RifEclipseSummaryAddress::SUMMARY_WELL );
     }
 }
