@@ -1,27 +1,27 @@
-cmake_minimum_required (VERSION 3.12)
+cmake_minimum_required(VERSION 3.12)
 
-project (cafUserInterface)
+project(cafUserInterface)
 
 # Unity Build
-if (CAF_ENABLE_UNITY_BUILD)
+if(CAF_ENABLE_UNITY_BUILD)
   message("Cmake Unity build is enabled on : ${PROJECT_NAME}")
   set(CMAKE_UNITY_BUILD true)
 endif()
 
-if (MSVC)
-    # Define this one to tell windows.h to not define min() and max() as macros
-    add_definitions(-DNOMINMAX)
-endif (MSVC)
+if(MSVC)
+  # Define this one to tell windows.h to not define min() and max() as macros
+  add_definitions(-DNOMINMAX)
+endif(MSVC)
 
 # These headers need to go through Qt's MOC compiler
-set (MOC_HEADER_FILES    
+set(MOC_HEADER_FILES
     cafPdmUiCheckBoxDelegate.h
     cafPdmUiCheckBoxEditor.h
     cafPdmUiCheckBoxTristateEditor.h
     cafPdmUiColorEditor.h
     cafPdmUiComboBoxEditor.h
     cafPdmUiDateEditor.h
-	cafPdmUiTimeEditor.h
+    cafPdmUiTimeEditor.h
     cafPdmUiDefaultObjectEditor.h
     cafPdmUiDoubleSliderEditor.h
     cafPdmUiFilePathEditor.h
@@ -44,7 +44,7 @@ set (MOC_HEADER_FILES
     cafPdmUiTreeViewEditor.h
     cafUiProcess.h
     QMinimizePanel.h
-	cafQStyledProgressBar.h
+    cafQStyledProgressBar.h
     cafPdmUiTreeSelectionEditor.h
     cafPdmUiTreeSelectionQModel.h
     cafPdmUiFormLayoutObjectEditor.h
@@ -52,15 +52,16 @@ set (MOC_HEADER_FILES
     cafPdmUniqueIdValidator.h
     cafPdmDoubleStringValidator.h
     cafPdmUiPickableLineEditor.h
-    cafPdmUiLabelEditor.h
-)
+    cafPdmUiLabelEditor.h)
 
-find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
+find_package(
+  Qt5
+  COMPONENTS
+  REQUIRED Core Gui Widgets)
 set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
-qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )	
+qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
 
-set( PROJECT_FILES
-    
+set(PROJECT_FILES
     # field editors
     cafPdmUiCheckBoxDelegate.cpp
     cafPdmUiCheckBoxDelegate.h
@@ -74,8 +75,8 @@ set( PROJECT_FILES
     cafPdmUiComboBoxEditor.h
     cafPdmUiDateEditor.cpp
     cafPdmUiDateEditor.h
-	cafPdmUiTimeEditor.cpp
-    cafPdmUiTimeEditor.h   
+    cafPdmUiTimeEditor.cpp
+    cafPdmUiTimeEditor.h
     cafPdmUiDoubleSliderEditor.cpp
     cafPdmUiDoubleSliderEditor.h
     cafPdmUiDragDropInterface.h
@@ -104,8 +105,6 @@ set( PROJECT_FILES
     cafPdmUiFieldEditorHelper.h
     cafPdmUiFieldEditorHelper.cpp
     cafPdmUiLabelEditor.cpp
-
-
     # object editors
     cafPdmUiDefaultObjectEditor.cpp
     cafPdmUiDefaultObjectEditor.h
@@ -141,8 +140,6 @@ set( PROJECT_FILES
     cafPdmUiFormLayoutObjectEditor.h
     cafPdmUiDoubleValueEditor.cpp
     cafPdmUiDoubleValueEditor.h
-
-
     # div
     cafAboutDialog.cpp
     cafAboutDialog.h
@@ -152,8 +149,8 @@ set( PROJECT_FILES
     cafUiProcess.h
     QMinimizePanel.cpp
     QMinimizePanel.h
-	cafQStyledProgressBar.cpp
-	cafQStyledProgressBar.h
+    cafQStyledProgressBar.cpp
+    cafQStyledProgressBar.h
     cafQTreeViewStateSerializer.h
     cafQTreeViewStateSerializer.cpp
     cafMemoryInspector.h
@@ -162,30 +159,21 @@ set( PROJECT_FILES
     cafPdmDoubleStringValidator.cpp
     cafPickEventHandler.h
     cafPdmUiPickableLineEditor.cpp
-	cafStyleSheetTools.h
-	cafStyleSheetTools.cpp
+    cafStyleSheetTools.h
+    cafStyleSheetTools.cpp
     cafPdmUiTabbedPropertyViewDialog.h
-    cafPdmUiTabbedPropertyViewDialog.cpp
-)
+    cafPdmUiTabbedPropertyViewDialog.cpp)
 
-add_library( ${PROJECT_NAME}
-    ${PROJECT_FILES}
-    ${MOC_SOURCE_FILES}
-    ${QRC_FILES_CPP}
-)
+add_library(${PROJECT_NAME} ${PROJECT_FILES} ${MOC_SOURCE_FILES}
+                            ${QRC_FILES_CPP})
 
-if (MSVC) 
-    set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127")
-endif() 
+if(MSVC)
+  set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS
+                                                   "/W4 /wd4100 /wd4127")
+endif()
 
-target_include_directories(${PROJECT_NAME}
-  PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}
-)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries ( ${PROJECT_NAME}
-    cafProjectDataModel
-    ${QT_LIBRARIES}
-)
+target_link_libraries(${PROJECT_NAME} cafProjectDataModel ${QT_LIBRARIES})
 
 source_group("" FILES ${PROJECT_FILES})

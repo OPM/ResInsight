@@ -1,14 +1,14 @@
-cmake_minimum_required (VERSION 3.12)
+cmake_minimum_required(VERSION 3.12)
 
-project (Commands)
+project(Commands)
 
 # Unity Build
-if (RESINSIGHT_ENABLE_UNITY_BUILD)
+if(RESINSIGHT_ENABLE_UNITY_BUILD)
   message("Cmake Unity build is enabled on : ${PROJECT_NAME}")
   set(CMAKE_UNITY_BUILD true)
 endif()
 
-set( COMMAND_REFERENCED_CMAKE_FILES
+set(COMMAND_REFERENCED_CMAKE_FILES
     CMakeLists_files.cmake
     AnalysisPlotCommands/CMakeLists_files.cmake
     ApplicationCommands/CMakeLists_files.cmake
@@ -37,55 +37,46 @@ set( COMMAND_REFERENCED_CMAKE_FILES
     WellLogCommands/CMakeLists_files.cmake
     WellPathCommands/CMakeLists_files.cmake
     PlotTemplateCommands/CMakeLists_files.cmake
-    FractureCommands/CMakeLists_files.cmake
-)
+    FractureCommands/CMakeLists_files.cmake)
 
 # Include source file lists from *.cmake files
-foreach (referencedfile ${COMMAND_REFERENCED_CMAKE_FILES})
-    include (${referencedfile})
-endforeach (referencedfile)
-
+foreach(referencedfile ${COMMAND_REFERENCED_CMAKE_FILES})
+  include(${referencedfile})
+endforeach(referencedfile)
 
 find_package(Eigen3 REQUIRED)
 
 # Prefix files with COMMAND_ to avoid clash with application global lists
-qt5_wrap_cpp(COMMAND_MOC_SOURCE_FILES ${COMMAND_QT_MOC_HEADERS} )
+qt5_wrap_cpp(COMMAND_MOC_SOURCE_FILES ${COMMAND_QT_MOC_HEADERS})
 
-add_library( ${PROJECT_NAME} OBJECT
-    ${COMMAND_CODE_SOURCE_FILES}
-    ${COMMAND_CODE_HEADER_FILES}
-    ${COMMAND_MOC_SOURCE_FILES}
-)
+add_library(
+  ${PROJECT_NAME} OBJECT
+  ${COMMAND_CODE_SOURCE_FILES} ${COMMAND_CODE_HEADER_FILES}
+  ${COMMAND_MOC_SOURCE_FILES})
 
-target_include_directories(${PROJECT_NAME}
-  PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_SOURCE_DIR}/ThirdParty
-)
+target_include_directories(
+  ${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+                         ${CMAKE_SOURCE_DIR}/ThirdParty)
 
-#  Before cmake 3.12 OBJECT libraries could not use the target_link_libraries command, 
-#  So we need to set the POSITION_INDEPENDENT_CODE option  manually
+# Before cmake 3.12 OBJECT libraries could not use the target_link_libraries
+# command, So we need to set the POSITION_INDEPENDENT_CODE option  manually
 set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-#  Use this code when 3.12 can be used as minimum version of cmake
-set( LINK_LIBRARIES
-  LibCore 
-  cafCommand
-  cafPdmCvf
-  cafPdmScripting
-  cafTensor
-  cafViewer
-  cafVizExtensions
-  ecl
-  nightcharts
-  qwt
+# Use this code when 3.12 can be used as minimum version of cmake
+set(LINK_LIBRARIES
+    LibCore
+    cafCommand
+    cafPdmCvf
+    cafPdmScripting
+    cafTensor
+    cafViewer
+    cafVizExtensions
+    ecl
+    nightcharts
+    qwt
+    ${QT_LIBRARIES}
+    Eigen3::Eigen)
 
-  ${QT_LIBRARIES}
-  Eigen3::Eigen
-)
-
-target_link_libraries( ${PROJECT_NAME}
-  ${LINK_LIBRARIES}
-)
+target_link_libraries(${PROJECT_NAME} ${LINK_LIBRARIES})
 
 source_group("" FILES ${PROJECT_FILES})
