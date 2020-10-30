@@ -21,7 +21,7 @@ SET(BUILD_SHARED_LIBS OFF CACHE BOOL "ERT: Build shared libraries")
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
-option(VCPKG_AUTO_INSTALL "Automatically download build pre-requisites with VCPKG" ON)
+option(VCPKG_AUTO_INSTALL "Automatically download build pre-requisites with VCPKG" OFF)
 if (VCPKG_AUTO_INSTALL)
     include (AutoVcpkg)
     set (AUTO_VCPKG_ROOT "${CMAKE_SOURCE_DIR}/ThirdParty/vcpkg")
