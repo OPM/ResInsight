@@ -1811,6 +1811,12 @@ static void ecl_grid_realloc_index_map(ecl_grid_type * ecl_grid) {
   int size = ecl_grid_get_num_coarse_groups(ecl_grid);
   for (int coarse_group = 0; coarse_group < size; coarse_group++) {
     ecl_coarse_cell_type * coarse_cell = ecl_grid_iget_coarse_group(ecl_grid, coarse_group);
+
+    // Coarse cell group numbering is not necessarily in consecutive order
+    if(coarse_cell == NULL) {
+      continue;
+    }
+
     if (ecl_coarse_cell_get_num_active(coarse_cell) > 0) {
       int global_index          = ecl_coarse_cell_iget_active_cell_index(coarse_cell, 0);
       int active_value          = ecl_coarse_cell_iget_active_value(coarse_cell, 0);
@@ -1879,8 +1885,12 @@ static void ecl_grid_set_active_index(ecl_grid_type * ecl_grid) {
           In the involved path ecl_coarse_cell_update_index() only updates
           the coarse cells' active_index if it is -1. */
     for (int coarse_index = 0; coarse_index < vector_get_size(ecl_grid->coarse_cells); coarse_index++) {
-        ecl_coarse_cell_type * coarse_cell = (ecl_coarse_cell_type*)vector_iget_const(ecl_grid->coarse_cells, coarse_index);
+      ecl_coarse_cell_type * coarse_cell = (ecl_coarse_cell_type*)vector_iget_const(ecl_grid->coarse_cells, coarse_index);
+
+      // Coarse cell group numbering is not necessarily in consecutive order
+      if(coarse_cell != NULL) {
         ecl_coarse_cell_reset_active_index(coarse_cell);
+      }
     }
 
     /* 2: Go through all the cells and set the active index. In the
@@ -1923,6 +1933,12 @@ static void ecl_grid_set_active_index(ecl_grid_type * ecl_grid) {
     int size = ecl_grid_get_num_coarse_groups(ecl_grid);
     for (int coarse_group = 0; coarse_group < size; coarse_group++) {
       ecl_coarse_cell_type * coarse_cell = ecl_grid_iget_coarse_group( ecl_grid , coarse_group );
+
+      // Coarse cell group numbering is not necessarily in consecutive order
+      if (coarse_cell == NULL) {
+        continue;
+      }
+
       if (ecl_coarse_cell_get_num_active(coarse_cell) > 0) {
         int cell_active_index          = ecl_coarse_cell_get_active_index( coarse_cell );
         int cell_active_value          = ecl_coarse_cell_iget_active_value( coarse_cell , 0);
