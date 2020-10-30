@@ -55,7 +55,7 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
     m_flowThreshold = 0.001;
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_resolution, "Resolution", "Resolution [days]", "", "", "" );
-    m_resolution = 0.1;
+    m_resolution = 0.2;
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_maxDays, "MaxDays", "Max. days ", "", "", "" );
     m_maxDays = 100;
@@ -238,10 +238,12 @@ void RimStreamlineInViewCollection::goForIt()
     {
         generateTracer( cell, normalDirection );
     }
-    for ( auto cell : seedCellsProducer )
-    {
-        generateTracer( cell, reverseDirection );
-    }
+    // for ( auto cell : seedCellsProducer )
+    //{
+    //    generateTracer( cell, reverseDirection );
+    //}
+
+    qDebug() << "Generated" << m_streamlines.childObjects().size() << " tracers";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -296,7 +298,7 @@ bool RimStreamlineInViewCollection::setupDataAccessors( RiaDefines::PhaseType ph
 {
     // m_dataAccess.clear();
 
-    // NEG_? accessors are set to POS_? accessors, but using the neighbor cell
+    // NEG_? accessors are set to POS_? accessors, but will be referring the neighbor cell when used
     m_dataAccess.push_back( getDataAccessor( cvf::StructGridInterface::FaceType::POS_I, phase, timeIdx ) );
     m_dataAccess.push_back( getDataAccessor( cvf::StructGridInterface::FaceType::POS_I, phase, timeIdx ) );
     m_dataAccess.push_back( getDataAccessor( cvf::StructGridInterface::FaceType::POS_J, phase, timeIdx ) );
@@ -317,7 +319,7 @@ bool RimStreamlineInViewCollection::setupDataAccessors( RiaDefines::PhaseType ph
 //--------------------------------------------------------------------------------------------------
 RigCell* RimStreamlineInViewCollection::findNeighborCell( RigCell                            cell,
                                                           RigGridBase*                       grid,
-                                                          cvf::StructGridInterface::FaceType face )
+                                                          cvf::StructGridInterface::FaceType face ) const
 {
     size_t i, j, k;
 
@@ -335,56 +337,89 @@ RigCell* RimStreamlineInViewCollection::findNeighborCell( RigCell               
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimStreamlineInViewCollection::getFaceValues( RigCell cell, RigGridBase* grid )
+std::vector<RigCell*> RimStreamlineInViewCollection::findNeighborCells( RigCell* cell, RigGridBase* grid ) const
 {
-    const size_t cellIdx = cell.gridLocalCellIndex();
+    std::vector<RigCell*> neighbors;
 
-    double valPosI = m_dataAccess[cvf::StructGridInterface::FaceType::POS_I]->cellScalar( cellIdx );
-    valPosI /= cell.faceNormalWithAreaLength( cvf::StructGridInterface::FaceType::POS_I ).length();
+    size_t ni, nj, nk;
 
-    double valPosJ = m_dataAccess[cvf::StructGridInterface::FaceType::POS_J]->cellScalar( cellIdx );
-    valPosJ /= cell.faceNormalWithAreaLength( cvf::StructGridInterface::FaceType::POS_J ).length();
+    grid->ijkFromCellIndexUnguarded( cell->gridLocalCellIndex(), &ni, &nj, &nk );
 
-    double valPosK = m_dataAccess[cvf::StructGridInterface::FaceType::POS_K]->cellScalar( cellIdx );
-    valPosK /= cell.faceNormalWithAreaLength( cvf::StructGridInterface::FaceType::POS_K ).length();
+    for ( size_t i = ni - 1; i <= ni + 1; i++ )
+        for ( size_t j = nj - 1; j <= nj + 1; j++ )
+            for ( size_t k = nk - 1; k <= nk + 1; k++ )
+            {
+                if ( grid->isCellValid( i, j, k ) )
+                {
+                    RigCell cell = grid->cell( grid->cellIndexFromIJK( i, j, k ) );
+                    if ( ( ni != i ) && ( nj != j ) && ( nk != k ) ) neighbors.push_back( &cell );
+                }
+            }
 
-    double valNegI = 0.0;
-    double valNegJ = 0.0;
-    double valNegK = 0.0;
-    double area    = 1.0;
+    return neighbors;
+}
 
-    RigCell* neighborCell = findNeighborCell( cell, grid, cvf::StructGridInterface::FaceType::NEG_I );
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimStreamlineInViewCollection::negFaceValue( RigCell                            cell,
+                                                    cvf::StructGridInterface::FaceType faceIdx,
+                                                    RigGridBase*                       grid ) const
+{
+    double retval = 0.0;
+
+    RigCell* neighborCell = findNeighborCell( cell, grid, faceIdx );
     if ( neighborCell )
     {
-        valNegI = m_dataAccess[cvf::StructGridInterface::FaceType::NEG_I]->cellScalar( neighborCell->gridLocalCellIndex() );
-        area = cell.faceNormalWithAreaLength( cvf::StructGridInterface::FaceType::NEG_I ).length();
+        retval      = m_dataAccess[faceIdx]->cellScalar( neighborCell->gridLocalCellIndex() );
+        double area = cell.faceNormalWithAreaLength( faceIdx ).length();
         if ( area != 0.0 )
-            valNegI /= area;
+            retval /= area;
         else
-            valNegI = 0.0;
+            retval = 0.0;
     }
 
-    neighborCell = findNeighborCell( cell, grid, cvf::StructGridInterface::FaceType::NEG_J );
-    if ( neighborCell )
-    {
-        valNegJ = m_dataAccess[cvf::StructGridInterface::FaceType::NEG_J]->cellScalar( neighborCell->gridLocalCellIndex() );
-        area = cell.faceNormalWithAreaLength( cvf::StructGridInterface::FaceType::NEG_J ).length();
-        if ( area != 0.0 )
-            valNegJ /= area;
-        else
-            valNegJ = 0.0;
-    }
+    return retval;
+}
 
-    neighborCell = findNeighborCell( cell, grid, cvf::StructGridInterface::FaceType::NEG_K );
-    if ( neighborCell )
-    {
-        valNegK = m_dataAccess[cvf::StructGridInterface::FaceType::NEG_K]->cellScalar( neighborCell->gridLocalCellIndex() );
-        area = cell.faceNormalWithAreaLength( cvf::StructGridInterface::FaceType::NEG_K ).length();
-        if ( area != 0.0 )
-            valNegK /= area;
-        else
-            valNegK = 0.0;
-    }
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimStreamlineInViewCollection::posFaceValue( RigCell cell, cvf::StructGridInterface::FaceType faceIdx ) const
+{
+    double retval = m_dataAccess[faceIdx]->cellScalar( cell.gridLocalCellIndex() );
+    double length = cell.faceNormalWithAreaLength( faceIdx ).length();
+    if ( length != 0.0 )
+        retval /= length;
+    else
+        retval = 0.0;
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimStreamlineInViewCollection::faceValue( RigCell                            cell,
+                                                 cvf::StructGridInterface::FaceType faceIdx,
+                                                 RigGridBase*                       grid ) const
+{
+    if ( faceIdx % 2 == 0 ) return posFaceValue( cell, faceIdx );
+
+    return negFaceValue( cell, faceIdx, grid );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimStreamlineInViewCollection::faceValues( RigCell cell, RigGridBase* grid )
+{
+    double valPosI = posFaceValue( cell, cvf::StructGridInterface::FaceType::POS_I );
+    double valPosJ = posFaceValue( cell, cvf::StructGridInterface::FaceType::POS_J );
+    double valPosK = posFaceValue( cell, cvf::StructGridInterface::FaceType::POS_K );
+    double valNegI = negFaceValue( cell, cvf::StructGridInterface::FaceType::NEG_I, grid );
+    double valNegJ = negFaceValue( cell, cvf::StructGridInterface::FaceType::NEG_J, grid );
+    double valNegK = negFaceValue( cell, cvf::StructGridInterface::FaceType::NEG_K, grid );
 
     std::vector<double> retval = {valPosI, valNegI, valPosJ, valNegJ, valPosK, valNegK};
     return retval;
@@ -393,10 +428,47 @@ std::vector<double> RimStreamlineInViewCollection::getFaceValues( RigCell cell, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+cvf::Vec3d RimStreamlineInViewCollection::cellDirection( RigCell cell, RigGridBase* grid ) const
+{
+    cvf::Vec3d direction( 0, 0, 0 );
+
+    std::vector<cvf::StructGridInterface::FaceType> faces = {cvf::StructGridInterface::FaceType::POS_I,
+                                                             cvf::StructGridInterface::FaceType::NEG_I,
+                                                             cvf::StructGridInterface::FaceType::POS_J,
+                                                             cvf::StructGridInterface::FaceType::NEG_J,
+                                                             cvf::StructGridInterface::FaceType::POS_K,
+                                                             cvf::StructGridInterface::FaceType::NEG_K};
+
+    for ( auto face : faces )
+    {
+        cvf::Vec3d faceNorm = cell.faceNormalWithAreaLength( face );
+        faceNorm.normalize();
+        faceNorm *= faceValue( cell, face, grid );
+
+        direction += faceNorm;
+    }
+    return direction;
+}
+
+cvf::BoundingBox RimStreamlineInViewCollection::cellBoundingBox( RigCell* cell, RigGridBase* grid ) const
+{
+    std::array<cvf::Vec3d, 8> hexCorners;
+    grid->cellCornerVertices( cell->gridLocalCellIndex(), hexCorners.data() );
+    cvf::BoundingBox bb;
+    for ( const auto& corner : hexCorners )
+    {
+        bb.add( corner );
+    }
+    return bb;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimStreamlineInViewCollection::generateTracer( RigCell cell, double direction )
 {
-    RigMainGrid*        grid       = eclipseCase()->eclipseCaseData()->mainGrid();
-    std::vector<double> faceValues = getFaceValues( cell, grid );
+    RigMainGrid*        grid     = eclipseCase()->eclipseCaseData()->mainGrid();
+    std::vector<double> faceVals = faceValues( cell, grid );
 
     std::vector<cvf::StructGridInterface::FaceType> faces = {cvf::StructGridInterface::FaceType::POS_I,
                                                              cvf::StructGridInterface::FaceType::NEG_I,
@@ -407,7 +479,7 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
 
     for ( auto faceIdx : faces )
     {
-        if ( faceValues[faceIdx] <= m_flowThreshold )
+        if ( faceVals[faceIdx] <= m_flowThreshold )
         {
             qDebug() << "Skipping cell " << cell.gridLocalCellIndex() << "for face direction " << faceIdx;
             continue;
@@ -415,16 +487,62 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
 
         cvf::Vec3d startDirection = cell.faceNormalWithAreaLength( faceIdx );
         startDirection.normalize();
-        startDirection *= faceValues[faceIdx];
-        // TODO - skip vectors with inf values
+        startDirection *= faceVals[faceIdx];
+        // skip vectors with inf values
+        if ( startDirection.isUndefined() ) continue;
 
         cvf::Vec3d startPosition = cell.faceCenter( faceIdx );
+        if ( startPosition.isUndefined() ) continue;
 
         RigCell* startCell = findNeighborCell( cell, grid, faceIdx );
         if ( startCell == nullptr ) continue;
 
         qDebug() << "Starting tracer from cell" << startCell->gridLocalCellIndex() << "in direction"
                  << startDirection.x() << startDirection.y() << startDirection.z();
+
+        RigCell*   curCell = startCell;
+        cvf::Vec3d curPos  = startPosition;
+
+        RimStreamline* streamLine = new RimStreamline( "" );
+        m_streamlines.childObjects().push_back( streamLine );
+
+        int maxSteps = (int)( m_maxDays / m_resolution );
+        int curStep  = 0;
+
+        cvf::BoundingBox bb = cellBoundingBox( curCell, grid );
+
+        while ( curStep < maxSteps )
+        {
+            cvf::Vec3d curDirection = cellDirection( *curCell, grid );
+
+            while ( bb.contains( curPos ) )
+            {
+                streamLine->addTracerPoint( curPos, curDirection );
+                curPos += curDirection * m_resolution;
+                curStep++;
+                if ( curStep >= maxSteps ) break;
+            }
+
+            if ( curStep >= maxSteps ) break;
+
+            RigCell*              nextCell  = nullptr;
+            std::vector<RigCell*> neighbors = findNeighborCells( curCell, grid );
+            for ( auto cell : neighbors )
+            {
+                bb = cellBoundingBox( cell, grid );
+                if ( bb.contains( curPos ) )
+                {
+                    nextCell = cell;
+                    break;
+                }
+            }
+
+            if ( nextCell == nullptr ) break;
+
+            curCell = nextCell;
+
+            if ( curDirection.length() < m_flowThreshold ) break;
+        }
     }
     return;
 }
