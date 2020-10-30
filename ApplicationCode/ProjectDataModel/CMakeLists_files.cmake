@@ -164,9 +164,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimFractureModelCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimElasticProperties.h
 ${CMAKE_CURRENT_LIST_DIR}/RimElasticPropertyScaling.h
 ${CMAKE_CURRENT_LIST_DIR}/RimElasticPropertyScalingCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimElasticPropertiesCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimLayerCurve.h
-${CMAKE_CURRENT_LIST_DIR}/RimFractureModelStressCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimAbstractPlotCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureModelPropertyCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimFaciesProperties.h
@@ -345,9 +343,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimFractureModelCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimElasticProperties.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimElasticPropertyScaling.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimElasticPropertyScalingCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimElasticPropertiesCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimLayerCurve.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimFractureModelStressCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimFaciesProperties.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimNonNetLayers.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureModelCalculator.cpp
