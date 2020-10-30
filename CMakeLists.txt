@@ -23,8 +23,8 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 option(VCPKG_AUTO_INSTALL "Automatically download build pre-requisites with VCPKG" ON)
 if (VCPKG_AUTO_INSTALL)
-    set (AUTO_VCPKG_ROOT "${CMAKE_SOURCE_DIR}/ThirdParty/vcpkg")
     include (AutoVcpkg)
+    set (AUTO_VCPKG_ROOT "${CMAKE_SOURCE_DIR}/ThirdParty/vcpkg")
 endif()
 
 # Use CMake to enforce C++17
