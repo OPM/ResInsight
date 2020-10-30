@@ -21,6 +21,12 @@ SET(BUILD_SHARED_LIBS OFF CACHE BOOL "ERT: Build shared libraries")
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
+option(VCPKG_AUTO_INSTALL "Automatically download build pre-requisites with VCPKG" ON)
+if (VCPKG_AUTO_INSTALL)
+    include (AutoVcpkg)
+    set (AUTO_VCPKG_ROOT "${CMAKE_SOURCE_DIR}/ThirdParty/vcpkg")
+endif()
+
 # Use CMake to enforce C++17
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -267,6 +273,10 @@ endif() # MSVC
 ################################################################################
 # Opm
 ################################################################################
+
+if (VCPKG_AUTO_INSTALL)
+    vcpkg_install(boost-filesystem)
+endif()
 
 add_subdirectory(ThirdParty/custom-opm-flowdiagnostics)
 add_subdirectory(ThirdParty/custom-opm-flowdiag-app)

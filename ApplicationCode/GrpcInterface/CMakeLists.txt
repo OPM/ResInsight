@@ -5,6 +5,10 @@ project (GrpcInterface)
 message(STATUS "GRPC enabled")
 add_definitions(-DENABLE_GRPC)
 
+if (VCPKG_AUTO_INSTALL)
+    vcpkg_install(grpc)
+endif()
+
 set(CMAKE_UNITY_BUILD false)
 set(RESINSIGHT_GRPC_PYTHON_EXECUTABLE "" CACHE FILEPATH "gRPC : Path to Python 3 executable, required to build the Python client library")
 

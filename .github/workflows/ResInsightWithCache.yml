@@ -24,7 +24,6 @@ jobs:
             os: windows-latest,
             cc: "cl", cxx: "cl",
             environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
-            vcpkg-response-file: vcpkg_x64-windows.txt,
             vcpkg-triplet: x64-windows,
             cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake'
           }
@@ -32,7 +31,6 @@ jobs:
             name: "Ubuntu Latest GCC",
             os: ubuntu-latest,
             cc: "gcc", cxx: "g++",
-            vcpkg-response-file: vcpkg_x64-linux.txt,
             vcpkg-triplet: x64-linux,
             cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake'
           }
@@ -40,7 +38,6 @@ jobs:
             name: "Ubuntu 20.04",
             os: ubuntu-20.04,
             cc: "gcc", cxx: "g++",
-            vcpkg-response-file: vcpkg_x64-linux.txt,
             vcpkg-triplet: x64-linux,
             cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake'
           }
@@ -48,7 +45,6 @@ jobs:
             name: "Ubuntu 20.04 clang",
             os: ubuntu-20.04,
             cc: "clang", cxx: "clang++",
-            vcpkg-response-file: vcpkg_x64-linux.txt,
             vcpkg-triplet: x64-linux,
             cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake'
           }
@@ -127,12 +123,18 @@ jobs:
         with:
           path: ${{ github.workspace }}/ThirdParty/vcpkg/
           # Ensure the cache is invalidated any time vcpkg version changes, or a different set of packages is being used.
-          key: ${{ hashFiles( format('{0}/{1}', github.workspace, matrix.config.vcpkg-response-file )) }}-${{ hashFiles('.git/modules/ThirdParty/vcpkg/HEAD') }}-${{ runner.os }}-v02
+          key: ${{ hashFiles('.git/modules/ThirdParty/vcpkg/HEAD') }}-${{ runner.os }}-vcpkg-v03
       - name: Get Python executable path
         id: python-path
         run: echo "::set-output name=PYTHON_EXECUTABLE::$(python -c 'import sys; import pathlib; print (pathlib.PurePath(sys.executable).as_posix())')"
       - name: Print Python path
         run: echo ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
+      - name: Run vcpkg
+        uses: lukka/run-vcpkg@v4
+        id: runvcpkg
+        with:
+          setupOnly: true
+          vcpkgDirectory: '${{ github.workspace }}/ThirdParty/vcpkg'
       - name: Configure
         shell: cmake -P {0}
         run: |
