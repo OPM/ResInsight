@@ -123,7 +123,7 @@ jobs:
         with:
           path: ${{ github.workspace }}/ThirdParty/vcpkg/
           # Ensure the cache is invalidated any time vcpkg version changes, or a different set of packages is being used.
-          key: ${{ hashFiles('.git/modules/ThirdParty/vcpkg/HEAD') }}-${{ runner.os }}-vcpkg-v03
+          key: ${{ hashFiles('.git/modules/ThirdParty/vcpkg/HEAD') }}-${{ runner.os }}-vcpkg-v04
       - name: Get Python executable path
         id: python-path
         run: echo "::set-output name=PYTHON_EXECUTABLE::$(python -c 'import sys; import pathlib; print (pathlib.PurePath(sys.executable).as_posix())')"
@@ -171,7 +171,7 @@ jobs:
               -D RESINSIGHT_ENABLE_GRPC=true
               -D RESINSIGHT_GRPC_PYTHON_EXECUTABLE=${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
               -D RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE=true
-              -D VCPKG_TARGET_TRIPLET=${{ matrix.config.vcpkg-triplet }}
+              -D VCPKG_AUTO_INSTALL=true
               -D CMAKE_TOOLCHAIN_FILE=${{ matrix.config.cmake-toolchain }}
               -G Ninja
             RESULT_VARIABLE result
