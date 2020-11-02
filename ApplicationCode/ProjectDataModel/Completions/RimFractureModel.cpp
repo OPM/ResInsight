@@ -1614,6 +1614,8 @@ RiaDefines::ResultCatType RimFractureModel::eclipseResultCategory( RiaDefines::C
     }
     else if ( curveProperty == RiaDefines::CurveProperty::FACIES )
     {
+        if ( !m_fractureModelTemplate ) return RiaDefines::ResultCatType::STATIC_NATIVE;
+
         RimFaciesProperties* faciesProperties = m_fractureModelTemplate->faciesProperties();
         if ( !faciesProperties ) return RiaDefines::ResultCatType::STATIC_NATIVE;
 
