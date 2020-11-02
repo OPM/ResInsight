@@ -173,7 +173,7 @@ cvf::ref<RigWellPath> RimWellPathGeometryDef::createWellPathGeometry()
 
     RiaPolyArcLineSampler arcLineSampler( wellPathCalculator.startTangent(), wellPathCalculator.lineArcEndpoints() );
 
-    auto[wellPathPoints, measuredDepths] = arcLineSampler.sampledPointsAndMDs( 30, false );
+    auto [wellPathPoints, measuredDepths] = arcLineSampler.sampledPointsAndMDs( 30, false );
 
     wellPathGeometry->setWellPathPoints( wellPathPoints );
     wellPathGeometry->setMeasuredDepths( measuredDepths );
