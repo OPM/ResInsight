@@ -158,26 +158,7 @@ void RimFractureModelCurve::performDataExtraction( bool* isUsingPseudoLength )
     bool performDataSmoothing = false;
     if ( !values.empty() && !measuredDepthValues.empty() && measuredDepthValues.size() == values.size() )
     {
-        if ( tvDepthValues.empty() )
-        {
-            this->setValuesAndDepths( values,
-                                      measuredDepthValues,
-                                      RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
-                                      0.0,
-                                      depthUnit,
-                                      !performDataSmoothing,
-                                      xUnits );
-        }
-        else
-        {
-            this->setValuesWithMdAndTVD( values,
-                                         measuredDepthValues,
-                                         tvDepthValues,
-                                         rkbDiff,
-                                         depthUnit,
-                                         !performDataSmoothing,
-                                         xUnits );
-        }
+        this->setValuesWithMdAndTVD( values, measuredDepthValues, tvDepthValues, rkbDiff, depthUnit, !performDataSmoothing, xUnits );
     }
 }
 
