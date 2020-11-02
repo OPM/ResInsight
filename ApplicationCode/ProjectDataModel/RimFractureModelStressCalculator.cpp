@@ -119,6 +119,11 @@ bool RimFractureModelStressCalculator::calculate( RiaDefines::CurveProperty curv
         // Generate MD data by interpolation
         const std::vector<double>& mdValuesOfWellPath  = wellPathGeometry->measuredDepths();
         std::vector<double>        tvdValuesOfWellPath = wellPathGeometry->trueVerticalDepths();
+        if ( mdValuesOfWellPath.empty() )
+        {
+            RiaLogging::error( "Well path geometry had no MD values." );
+            return false;
+        }
 
         measuredDepthValues =
             RigWellPathGeometryTools::interpolateMdFromTvd( mdValuesOfWellPath, tvdValuesOfWellPath, tvDepthValues );
