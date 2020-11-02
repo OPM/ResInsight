@@ -59,3 +59,11 @@ const std::vector<RigTracerPoint>& RigTracer::tracerPoints() const
 {
     return m_points;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigTracer::length() const
+{
+    return m_points.size();
+}

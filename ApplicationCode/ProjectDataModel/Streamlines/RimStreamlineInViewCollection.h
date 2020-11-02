@@ -28,6 +28,7 @@
 #include "cvfStructGrid.h"
 
 #include <list>
+#include <set>
 #include <vector>
 
 class RimStreamline;
@@ -77,7 +78,7 @@ private:
     std::vector<double> faceValues( RigCell cell, RigGridBase* grid );
 
     RigCell* findNeighborCell( RigCell cell, RigGridBase* grid, cvf::StructGridInterface::FaceType face ) const;
-    std::vector<RigCell*> findNeighborCells( RigCell* cell, RigGridBase* grid ) const;
+    std::vector<size_t> findNeighborCellIndexes( RigCell* cell, RigGridBase* grid ) const;
 
     cvf::BoundingBox cellBoundingBox( RigCell* cell, RigGridBase* grid ) const;
 
@@ -91,6 +92,8 @@ private:
     caf::PdmField<caf::AppEnum<RiaDefines::PhaseType>> m_phase;
 
     std::list<RigTracer> m_activeTracers;
+
+    std::set<size_t> m_wellCellIds;
 
     std::vector<cvf::ref<RigResultAccessor>> m_dataAccess;
 };
