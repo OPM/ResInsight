@@ -30,7 +30,7 @@ CAF_PDM_SOURCE_INIT( RimFractureModelPlotCollection, "FractureModelPlotCollectio
 //--------------------------------------------------------------------------------------------------
 RimFractureModelPlotCollection::RimFractureModelPlotCollection()
 {
-    CAF_PDM_InitScriptableObject( "FractureModelPlots", ":/WellLogPlots16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Fracture Model Plots", ":/WellLogPlots16x16.png", "", "" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_fractureModelPlots, "FractureModelPlots", "", "", "", "" );
     m_fractureModelPlots.uiCapability()->setUiHidden( true );
