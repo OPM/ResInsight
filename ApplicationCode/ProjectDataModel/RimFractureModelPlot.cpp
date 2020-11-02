@@ -67,7 +67,8 @@ void RimFractureModelPlot::setFractureModel( RimFractureModel* fractureModel )
     m_fractureModel = fractureModel;
     m_eclipseCase   = fractureModel->eclipseCase();
     m_timeStep      = fractureModel->timeStep();
-    setName( fractureModel->name() );
+
+    m_nameConfig->setCustomName( fractureModel->name() );
 }
 
 //--------------------------------------------------------------------------------------------------
