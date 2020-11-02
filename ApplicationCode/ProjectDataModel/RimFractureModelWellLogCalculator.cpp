@@ -37,7 +37,6 @@
 #include "RimFractureModel.h"
 #include "RimFractureModelCalculator.h"
 #include "RimFractureModelTemplate.h"
-#include "RimLayerCurve.h"
 #include "RimModeledWellPath.h"
 #include "RimNonNetLayers.h"
 #include "RimWellPath.h"
