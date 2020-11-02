@@ -190,7 +190,7 @@ private:
     void          updateThicknessDirection();
     void          updateDistanceToBarrierAndDip();
     cvf::Vec3d    calculateTSTDirection() const;
-    void          findThicknessTargetPoints( cvf::Vec3d& topPosition, cvf::Vec3d& bottomPosition );
+    bool          findThicknessTargetPoints( cvf::Vec3d& topPosition, cvf::Vec3d& bottomPosition );
     static double calculateFormationDip( const cvf::Vec3d& direction );
 
     static QString vecToString( const cvf::Vec3d& vec );
