@@ -20,6 +20,8 @@
 #include "RiaDefines.h"
 #include "RiaFractureModelDefines.h"
 
+#include "Riu3DMainWindowTools.h"
+
 #include "RimEclipseCase.h"
 #include "RimFractureModel.h"
 #include "RimFractureModelCurve.h"
@@ -32,6 +34,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiGroup.h"
+#include "cafPdmUiToolButtonEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimFractureModelPlot, "FractureModelPlot" );
 
@@ -43,8 +46,11 @@ RimFractureModelPlot::RimFractureModelPlot()
     CAF_PDM_InitScriptableObject( "Fracture Model Plot", "", "", "A fracture model plot" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_fractureModel, "FractureModel", "Fracture Model", "", "", "" );
-    m_fractureModel.uiCapability()->setUiTreeChildrenHidden( true );
-    m_fractureModel.uiCapability()->setUiHidden( true );
+    m_fractureModel.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitField( &m_editFractureModel, "EditModel", false, "Edit", "", "", "" );
+    m_editFractureModel.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
+    m_editFractureModel.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "EclipseCase", "Case", "", "", "" );
     CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step", "", "", "" );
@@ -61,6 +67,7 @@ void RimFractureModelPlot::setFractureModel( RimFractureModel* fractureModel )
     m_fractureModel = fractureModel;
     m_eclipseCase   = fractureModel->eclipseCase();
     m_timeStep      = fractureModel->timeStep();
+    setName( fractureModel->name() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -76,6 +83,8 @@ RimFractureModel* RimFractureModelPlot::fractureModel()
 //--------------------------------------------------------------------------------------------------
 void RimFractureModelPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    uiOrdering.add( &m_fractureModel, {true, 2, 1} );
+    uiOrdering.add( &m_editFractureModel, {false, 1, 0} );
     uiOrdering.add( &m_eclipseCase );
     uiOrdering.add( &m_timeStep );
 
@@ -99,7 +108,12 @@ QList<caf::PdmOptionItemInfo>
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if ( fieldNeedingOptions == &m_eclipseCase )
+    if ( fieldNeedingOptions == &m_fractureModel )
+    {
+        // The user is not allowed to change this field, but option box looks good
+        options.push_back( caf::PdmOptionItemInfo( m_fractureModel->name(), m_fractureModel ) );
+    }
+    else if ( fieldNeedingOptions == &m_eclipseCase )
     {
         RimTools::eclipseCaseOptionItems( &options );
     }
@@ -123,6 +137,14 @@ void RimFractureModelPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedF
         if ( changedField == &m_eclipseCase || changedField == &m_timeStep )
         {
             m_fractureModel->setEclipseCaseAndTimeStep( m_eclipseCase(), m_timeStep() );
+        }
+        else if ( changedField == &m_editFractureModel )
+        {
+            m_editFractureModel = false;
+            if ( m_fractureModel != nullptr )
+            {
+                Riu3DMainWindowTools::selectAsCurrentItem( m_fractureModel() );
+            }
         }
     }
 }
