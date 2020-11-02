@@ -86,8 +86,7 @@ void RicElasticPropertiesImportTools::importElasticPropertiesFromFile( const QSt
     }
 
     RimElasticProperties* rimElasticProperties = fractureModelTemplate->elasticProperties();
-    if (!rimElasticProperties)
-        rimElasticProperties = new RimElasticProperties;
+    if ( !rimElasticProperties ) rimElasticProperties = new RimElasticProperties;
     for ( FaciesKey key : faciesKeys )
     {
         std::vector<RifElasticProperties> matchingFacies;
