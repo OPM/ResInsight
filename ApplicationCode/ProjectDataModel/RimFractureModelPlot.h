@@ -51,6 +51,7 @@ private:
     void applyDataSource();
 
     caf::PdmPtrField<RimFractureModel*> m_fractureModel;
+    caf::PdmField<bool>                 m_editFractureModel;
     caf::PdmPtrField<RimEclipseCase*>   m_eclipseCase;
     caf::PdmField<int>                  m_timeStep;
 };
