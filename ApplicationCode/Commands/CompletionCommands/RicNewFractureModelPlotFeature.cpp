@@ -38,7 +38,6 @@
 #include "RimFractureModelPlot.h"
 #include "RimFractureModelPlotCollection.h"
 #include "RimFractureModelTemplate.h"
-#include "RimLayerCurve.h"
 #include "RimMainPlotCollection.h"
 #include "RimModeledWellPath.h"
 #include "RimProject.h"
@@ -311,7 +310,7 @@ void RicNewFractureModelPlotFeature::createLayersTrack( RimFractureModelPlot* pl
 
     caf::ColorTable colors = RiaColorTables::wellLogPlotPaletteColors();
 
-    RimLayerCurve* curve = new RimLayerCurve;
+    RimFractureModelCurve* curve = new RimFractureModelCurve;
     curve->setCurveProperty( RiaDefines::CurveProperty::LAYERS );
     curve->setFractureModel( fractureModel );
     curve->setCase( eclipseCase );
