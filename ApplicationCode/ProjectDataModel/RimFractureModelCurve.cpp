@@ -70,6 +70,8 @@ RimFractureModelCurve::~RimFractureModelCurve()
 void RimFractureModelCurve::setFractureModel( RimFractureModel* fractureModel )
 {
     m_fractureModel = fractureModel;
+    m_case          = fractureModel->eclipseCase();
+    m_timeStep      = fractureModel->timeStep();
     m_wellPath      = fractureModel->thicknessDirectionWellPath();
 }
 
@@ -129,11 +131,12 @@ void RimFractureModelCurve::performDataExtraction( bool* isUsingPseudoLength )
 
     *isUsingPseudoLength = false;
 
-    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case.value() );
-    if ( eclipseCase && m_fractureModel )
+    if ( m_fractureModel && m_fractureModel->eclipseCase() )
     {
+        RimEclipseCase* eclipseCase = m_fractureModel->eclipseCase();
+
         bool isOk = m_fractureModel->calculator()->extractCurveData( curveProperty(),
-                                                                     m_timeStep,
+                                                                     m_fractureModel->timeStep(),
                                                                      values,
                                                                      measuredDepthValues,
                                                                      tvDepthValues,
