@@ -22,6 +22,7 @@
 #include "cafPdmPointer.h"
 #include "cafSignal.h"
 
+#include "cvfCollection.h"
 #include "cvfVector3.h"
 
 #include <vector>
@@ -48,19 +49,72 @@ public:
     void updateAnimation();
 
 private:
+    struct StreamlineSegment
+    {
+        /*
+        x_ij(t) = a_ij + b_ij * t + c_ij * t^2 + d_ij * t^3
+        */
+
+        StreamlineSegment(){};
+        StreamlineSegment( cvf::Vec3d startPoint, cvf::Vec3d endPoint, cvf::Vec3d startDirection, cvf::Vec3d endDirection )
+            : startPoint( startPoint )
+            , endPoint( endPoint )
+            , startDirection( startDirection )
+            , endDirection( endDirection )
+        {
+            computeSegments();
+        };
+
+        void computeSegments();
+
+        cvf::Vec3f getPointAt( double t ) const;
+        cvf::Vec3f getDirectionAt( double t ) const;
+        double     getChordLength() const;
+
+        cvf::Vec3f startPoint;
+        cvf::Vec3f endPoint;
+        cvf::Vec3f startDirection;
+        cvf::Vec3f endDirection;
+        double     t;
+
+    private:
+        cvf::Vec3f a;
+        cvf::Vec3f b;
+        cvf::Vec3f c;
+        cvf::Vec3f d;
+    };
     struct StreamlineVisualization
     {
-        StreamlineVisualization(){};
+        StreamlineVisualization() { areTValuesComputed = false; };
 
-        std::vector<cvf::Vec3d> tracerPoints;
+        void                           computeTValues();
+        void                           appendSegment( StreamlineSegment segment );
+        size_t                         segmentsSize() const;
+        std::vector<StreamlineSegment> getSegments() const;
+
+        cvf::Vec3f getPointAt( double t ) const;
+        cvf::Vec3f getDirectionAt( double t ) const;
+
+    private:
+        bool                           areTValuesComputed;
+        std::vector<StreamlineSegment> segments;
     };
 
 private:
     cvf::ref<cvf::Part> createPart( const RimStreamlineInViewCollection& streamlineCollection,
-                                    const StreamlineVisualization&       streamlineVisualizations ) const;
+                                    const StreamlineVisualization&       streamlineVisualization,
+                                    const double                         t ) const;
+
+    std::array<cvf::Vec3f, 7> createArrowVertices( const cvf::Vec3f anchorPoint, const cvf::Vec3f direction ) const;
+    std::array<uint, 2>       createArrowShaftIndices( uint startIndex ) const;
+    std::array<uint, 6>       createArrowHeadIndices( uint startIndex ) const;
+    std::array<uint, 2>       createLineIndices( uint startIndex ) const;
+    void                      createExampleStreamline( std::vector<StreamlineVisualization>& streamlineVisualizations );
 
 private:
-    caf::PdmPointer<RimEclipseView>  m_rimReservoirView;
-    std::vector<cvf::ref<cvf::Part>> m_parts;
-    uint                             m_count;
+    caf::PdmPointer<RimEclipseView> m_rimReservoirView;
+    cvf::Collection<cvf::Part>      m_parts;
+    uint                            m_count;
+    size_t                          m_numSegments;
+    size_t                          m_currentT;
 };
