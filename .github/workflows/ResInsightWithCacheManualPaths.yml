@@ -101,6 +101,11 @@ jobs:
         run: echo "::set-output name=PYTHON_EXECUTABLE::$(python -c 'import sys; import pathlib; print (pathlib.PurePath(sys.executable).as_posix())')"
       - name: Print Python path
         run: echo ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
+      - name: Install Python dependencies
+        run: |
+          ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pip install --upgrade pip
+          ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pip install grpcio-tools
+          ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pip install pytest
       - name: Setup vcpkg
         uses: lukka/run-vcpkg@v5
         id: runvcpkg
