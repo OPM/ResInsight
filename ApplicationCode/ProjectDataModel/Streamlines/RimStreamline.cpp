@@ -20,6 +20,8 @@
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmUiLineEditor.h"
+#include "cafPdmUiTextEditor.h"
 
 #include <algorithm>
 #include <cmath>
@@ -30,11 +32,20 @@ CAF_PDM_ABSTRACT_SOURCE_INIT( RimStreamline, "Streamline" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimStreamline::RimStreamline( QString simWellName )
-    : m_simWellName( simWellName )
 {
     CAF_PDM_InitScriptableObject( "Streamline", ":/Erase.png", "", "" );
 
-    setDeletable( true );
+    CAF_PDM_InitScriptableField( &m_simWellName, "Name", simWellName, "Name", "", "", "" );
+    m_simWellName.uiCapability()->setUiReadOnly( true );
+    m_simWellName.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_propertiesTable, "PropertiesTable", "Properties Table", "", "", "" );
+    m_propertiesTable.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
+    m_propertiesTable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_propertiesTable.uiCapability()->setUiReadOnly( true );
+    m_propertiesTable.xmlCapability()->disableIO();
+
+    setDeletable( false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -42,6 +53,14 @@ RimStreamline::RimStreamline( QString simWellName )
 //--------------------------------------------------------------------------------------------------
 RimStreamline::~RimStreamline()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimStreamline::userDescriptionField()
+{
+    return &m_simWellName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,7 +74,42 @@ const RigTracer& RimStreamline::tracer() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const QString RimStreamline::simWellName() const
+{
+    return m_simWellName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimStreamline::addTracerPoint( cvf::Vec3d position, cvf::Vec3d direction )
 {
     m_tracer.appendPoint( position, direction );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStreamline::reverse()
+{
+    m_tracer.reverse();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStreamline::generateStatistics()
+{
+    QString stats;
+
+    stats += "Total distance: ";
+    stats += QString::number( m_tracer.totalDistance(), 'f', 2 );
+    stats += " meters\n";
+    stats += "\n";
+    stats += "Number of points: ";
+    stats += QString::number( m_tracer.size() );
+    stats += "\n";
+    stats += "\n";
+
+    m_propertiesTable = stats;
 }

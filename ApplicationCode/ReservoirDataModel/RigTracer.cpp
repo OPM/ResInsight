@@ -63,7 +63,39 @@ const std::vector<RigTracerPoint>& RigTracer::tracerPoints() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigTracer::length() const
+size_t RigTracer::size() const
 {
     return m_points.size();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigTracer::totalDistance() const
+{
+    if ( m_points.size() < 2 ) return 0.0;
+
+    cvf::Vec3d sp = m_points.front().position();
+
+    double distance = 0.0;
+    for ( size_t i = 1; i < m_points.size(); i++ )
+    {
+        distance += sp.pointDistance( m_points[i].position() );
+        sp = m_points[i].position();
+    }
+
+    return distance;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigTracer::reverse()
+{
+    std::reverse( m_points.begin(), m_points.end() );
+
+    for ( auto p : m_points )
+    {
+        p.reverse();
+    }
 }

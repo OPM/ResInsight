@@ -39,10 +39,18 @@ public:
     ~RimStreamline() override;
 
     const RigTracer& tracer() const;
+    const QString    simWellName() const;
 
     void addTracerPoint( cvf::Vec3d position, cvf::Vec3d direction );
+    void reverse();
+    void generateStatistics();
+
+protected:
+    caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
-    RigTracer m_tracer;
-    QString   m_simWellName;
+    RigTracer              m_tracer;
+    caf::PdmField<QString> m_simWellName;
+
+    caf::PdmField<QString> m_propertiesTable;
 };

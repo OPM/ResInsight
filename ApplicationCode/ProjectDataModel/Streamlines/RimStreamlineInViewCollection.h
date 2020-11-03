@@ -59,7 +59,7 @@ protected:
     caf::PdmFieldHandle* objectToggleField() override;
 
 private:
-    void generateTracer( RigCell cell, double direction );
+    void generateTracer( RigCell cell, double direction, QString simWellName );
     void loadDataIfMissing( RiaDefines::PhaseType phase, int timeIdx );
 
     cvf::ref<RigResultAccessor>
@@ -82,8 +82,11 @@ private:
 
     cvf::BoundingBox cellBoundingBox( RigCell* cell, RigGridBase* grid ) const;
 
+    void outputSummary() const;
+
     caf::PdmField<bool>                                m_isActive;
     caf::PdmField<QString>                             m_collectionName;
+    caf::PdmField<double>                              m_lengthThreshold;
     caf::PdmField<double>                              m_flowThreshold;
     caf::PdmField<double>                              m_resolution;
     caf::PdmField<double>                              m_maxDays;

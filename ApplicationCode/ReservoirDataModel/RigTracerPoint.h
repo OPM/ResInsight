@@ -35,6 +35,8 @@ public:
     const cvf::Vec3d& direction() const;
     double            absValue() const;
 
+    void reverse();
+
 private:
     cvf::Vec3d m_position;
     cvf::Vec3d m_direction;
