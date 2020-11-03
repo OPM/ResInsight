@@ -429,6 +429,10 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   list(APPEND EXTERNAL_LINK_LIBRARIES rt)
 endif()
 
+if (DEFINED GRPC_LIBRARY_DIRS) 
+  target_link_directories(ResInsight PRIVATE ${GRPC_LIBRARY_DIRS})
+endif()
+
 target_link_libraries(ResInsight ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
 
 # ##############################################################################
