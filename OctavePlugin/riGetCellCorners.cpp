@@ -19,7 +19,7 @@ void getCellCorners(NDArray& cellCornerValues, const QString &hostName, quint16 
 
     if (!socket.waitForConnected(riOctavePlugin::connectTimeOutMilliSecs))
     {
-        error((("Connection: ") + socket.errorString()).toLatin1().data());
+        error("Connection: %s",socket.errorString().toLatin1().data());
         return;
     }
 
@@ -40,7 +40,7 @@ void getCellCorners(NDArray& cellCornerValues, const QString &hostName, quint16 
     {
         if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
         {
-            error((("Waiting for header: ") + socket.errorString()).toLatin1().data());
+            error("Waiting for header: %s",socket.errorString().toLatin1().data());
             return;
         }
     }
@@ -78,7 +78,7 @@ void getCellCorners(NDArray& cellCornerValues, const QString &hostName, quint16 
     {
         for (int i = 0; i < errorMessages.size(); i++)
         {
-            error(errorMessages[i].toLatin1().data());
+            error("%s",errorMessages[i].toLatin1().data());
         }
 
         OCTAVE_QUIT;

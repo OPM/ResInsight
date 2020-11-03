@@ -14,7 +14,7 @@ void getGridDimensions(int32NDArray& gridDimensions, const QString &hostName, qu
 
     if (!socket.waitForConnected(riOctavePlugin::connectTimeOutMilliSecs))
     {
-        error((("Connection: ") + socket.errorString()).toLatin1().data());
+        error("Connection: %s",socket.errorString().toLatin1().data());
         return;
     }
 
@@ -35,7 +35,7 @@ void getGridDimensions(int32NDArray& gridDimensions, const QString &hostName, qu
     {
         if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
         {
-            error((("Waiting for header: ") + socket.errorString()).toLatin1().data());
+            error("Waiting for header: %s",socket.errorString().toLatin1().data());
             return;
         }
     }
