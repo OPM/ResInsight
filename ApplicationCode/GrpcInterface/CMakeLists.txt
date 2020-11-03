@@ -260,7 +260,6 @@ add_library(
 if(RESINSIGHT_GRPC_INSTALL_PREFIX)
   target_include_directories(${PROJECT_NAME} PRIVATE ${GRPC_INCLUDE_DIRS})
 endif()
-
 target_link_libraries(${PROJECT_NAME} ${LINK_LIBRARIES})
 
 if(MSVC)
