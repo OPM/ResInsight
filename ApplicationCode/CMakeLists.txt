@@ -421,12 +421,18 @@ set(LINK_LIBRARIES
     ${VIZ_FWK_LIBRARIES}
     ${THIRD_PARTY_LIBRARIES}
     ${OPENGL_LIBRARIES}
-    ${QT_LIBRARIES})
+    ${QT_LIBRARIES}
+    ${GRPC_LIBRARIES}
+    )
 
 # According to ivarun this is needed on OpenSuse, and Fedora. See:
 # https://github.com/OPM/ResInsight/pull/7
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   list(APPEND EXTERNAL_LINK_LIBRARIES rt)
+endif()
+
+if (DEFINED GRPC_LIBRARY_DIRS) 
+  target_link_directories(ResInsight PRIVATE ${GRPC_LIBRARY_DIRS})
 endif()
 
 target_link_libraries(ResInsight ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
