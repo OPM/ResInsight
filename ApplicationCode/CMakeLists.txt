@@ -424,25 +424,42 @@ if(APPLE)
                           ${CMAKE_CURRENT_BINARY_DIR}/Resources/ResInsight.icns)
 endif()
 
+if (RESINSIGHT_ENABLE_GRPC)
+	list(APPEND THIRD_PARTY_LIBRARIES ${RESINSIGHT_GRPC_LIBRARIES})
+
+	if (MSVC)
+		set_target_properties(ResInsight PROPERTIES LINK_FLAGS_RELWITHDEBINFO "/NODEFAULTLIB:MSVCRTD.lib")
+	endif()
+endif()
+
 # ##############################################################################
 # Set up libraries and dependent projects to link with
 # ##############################################################################
 
 set(LINK_LIBRARIES
     Eigen3::Eigen
-    ${OPM_LIBRARIES}
-    ${RI_LIBRARIES}
-    ${APP_FWK_LIBRARIES}
-    ${VIZ_FWK_LIBRARIES}
     ${THIRD_PARTY_LIBRARIES}
     ${OPENGL_LIBRARIES}
-    ${QT_LIBRARIES})
+    ${QT_LIBRARIES}
+    ${OPM_LIBRARIES}
+    ${APP_FWK_LIBRARIES}
+    ${VIZ_FWK_LIBRARIES}
+    ${RI_LIBRARIES}
+    )
 
 # According to ivarun this is needed on OpenSuse, and Fedora. See:
 # https://github.com/OPM/ResInsight/pull/7
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   list(APPEND EXTERNAL_LINK_LIBRARIES rt)
 endif()
+
+if (DEFINED GRPC_LIBRARY_DIRS) 
+  target_link_directories(ResInsight PRIVATE ${GRPC_LIBRARY_DIRS})
+endif()
+
+foreach(LIBRARY ${LINK_LIBRARIES})
+  message (STATUS "LIB: ${LIBRARY}")
+endforeach()
 
 target_link_libraries(ResInsight ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
 
