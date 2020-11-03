@@ -76,7 +76,9 @@ if(Protobuf_FOUND)
   set_target_properties(
     ${GRPC_LIBRARIES} PROPERTIES MAP_IMPORTED_CONFIG_MINSIZEREL RELEASE
                                  MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE)
+  set(RESINSIGHT_GRPC_LIBRARIES ${GRPC_LIBRARIES} PARENT_SCOPE)
 else()
+  message(STATUS "Using RESINSIGHT_GRPC_INSTALL_PREFIX=${RESINSIGHT_GRPC_INSTALL_PREFIX}")
   set(RESINSIGHT_GRPC_INSTALL_PREFIX
       ""
       CACHE PATH "gRPC : Install prefix for gRPC")
@@ -89,8 +91,8 @@ else()
   endif()
   set(ENV{PKG_CONFIG_PATH} "${RESINSIGHT_GRPC_INSTALL_PREFIX}/lib/pkgconfig")
   find_package(PkgConfig REQUIRED)
-  pkg_check_modules(GRPC REQUIRED grpc++_unsecure>=1.20 grpc_unsecure gpr
-                    protobuf)
+  pkg_check_modules(GRPC REQUIRED grpc grpc++_unsecure>=1.20 grpc_unsecure gpr
+                    protobuf libcares)
   if(EXISTS "${RESINSIGHT_GRPC_INSTALL_PREFIX}/bin/protoc")
     set(_PROTOBUF_PROTOC "${RESINSIGHT_GRPC_INSTALL_PREFIX}/bin/protoc")
   elseif(EXISTS "${RESINSIGHT_GRPC_INSTALL_PREFIX}/tools/protobuf/protoc")
@@ -108,11 +110,12 @@ else()
         "${RESINSIGHT_GRPC_INSTALL_PREFIX}/tools/grpc/grpc_cpp_plugin")
   endif()
   include_directories(AFTER ${GRPC_INCLUDE_DIRS})
+  set(RESINSIGHT_GRPC_LIBRARIES ${GRPC_LINK_LIBRARIES} PARENT_SCOPE)
+  #list(APPEND RESINSIGHT_GRPC_LIBRARIES upb)
 endif()
 
-set(LINK_LIBRARIES
+set(_LINK_LIBRARIES
     ${QT_LIBRARIES}
-    ${GRPC_LIBRARIES}
     LibCore
     cafCommand
     cafPdmCvf
@@ -270,10 +273,9 @@ add_library(
   ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
   ${GRPC_HEADER_FILES} ${GRPC_CPP_SOURCES})
 
-if(RESINSIGHT_GRPC_INSTALL_PREFIX)
-  target_include_directories(${PROJECT_NAME} PRIVATE ${GRPC_INCLUDE_DIRS})
-endif()
-target_link_libraries(${PROJECT_NAME} ${LINK_LIBRARIES})
+target_include_directories(${PROJECT_NAME} PUBLIC ${GRPC_INCLUDE_DIRS})
+target_link_directories(${PROJECT_NAME} PUBLIC ${GRPC_LIBRARY_DIRS})
+target_link_libraries(${PROJECT_NAME} PUBLIC ${_LINK_LIBRARIES})
 
 if(MSVC)
   # GRPC generates a lot of harmless warnings on MSVC
