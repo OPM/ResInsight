@@ -43,7 +43,7 @@ jobs:
       run: |
         source /opt/rh/rh-python36/enable
         python -c "import sys; print(sys.version)"
-        run: echo "::set-output name=PYTHON_EXECUTABLE::$(python -c 'import sys; import pathlib; print (pathlib.PurePath(sys.executable).as_posix())')"
+        echo "::set-output name=PYTHON_EXECUTABLE::$(python -c 'import sys; import pathlib; print (pathlib.PurePath(sys.executable).as_posix())')"
     - name: Build ResInsight
       run: |
         source /opt/rh/devtoolset-7/enable
