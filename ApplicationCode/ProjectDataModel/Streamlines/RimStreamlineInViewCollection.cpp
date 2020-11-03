@@ -651,10 +651,12 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
             // make sure the streamline points with the flow towards the producer
             if ( direction < 0.0 ) streamLine->reverse();
 
-            auto firstPos = streamLine->tracer().tracerPoints().front();
-            auto lastPos  = streamLine->tracer().tracerPoints().back();
+            double distance = streamLine->tracer().totalDistance();
 
-            double distance = lastPos.position().pointDistance( firstPos.position() );
+            // auto firstPos = streamLine->tracer().tracerPoints().front();
+            // auto lastPos  = streamLine->tracer().tracerPoints().back();
+
+            // double distance = lastPos.position().pointDistance( firstPos.position() );
 
             // qDebug() << "Tracer distance:" << distance << "meters";
 
