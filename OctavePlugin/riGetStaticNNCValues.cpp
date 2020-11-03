@@ -15,7 +15,7 @@ void getStaticNNCValues(std::vector<double>& propertyValues, const QString &serv
 
     if (!socket.waitForConnected(riOctavePlugin::connectTimeOutMilliSecs))
     {
-        error((("Connection: ") + socket.errorString()).toLatin1().data());
+        error("Connection: %s",socket.errorString().toLatin1().data());
         return;
     }
 
@@ -37,7 +37,7 @@ void getStaticNNCValues(std::vector<double>& propertyValues, const QString &serv
     {
         if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
         {
-            error((("Waiting for header: ") + socket.errorString()).toLatin1().data());
+            error("Waiting for header: %s",socket.errorString().toLatin1().data());
             return;
         }
     }

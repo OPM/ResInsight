@@ -14,7 +14,7 @@ void getCaseGroups(std::vector<QString>& groupNames, std::vector<int>& groupIds,
 
     if (!socket.waitForConnected(riOctavePlugin::connectTimeOutMilliSecs))
     {
-        error((("Connection: ") + socket.errorString()).toLatin1().data());
+        error("Connection: %s",socket.errorString().toLatin1().data());
         return;
     }
 
@@ -33,7 +33,7 @@ void getCaseGroups(std::vector<QString>& groupNames, std::vector<int>& groupIds,
     {
         if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
         {
-            error((("Waiting for data: ") + socket.errorString()).toLatin1().data());
+            error("Waiting for data: %s",socket.errorString().toLatin1().data());
             return;
         }
         OCTAVE_QUIT;
@@ -51,7 +51,7 @@ void getCaseGroups(std::vector<QString>& groupNames, std::vector<int>& groupIds,
     {
         if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
         {
-            error((("Waiting for data: ") + socket.errorString()).toLatin1().data());
+            error("Waiting for data: %s",socket.errorString().toLatin1().data());
             return;
         }
         OCTAVE_QUIT;

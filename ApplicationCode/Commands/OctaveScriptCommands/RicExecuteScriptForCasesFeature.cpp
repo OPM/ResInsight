@@ -20,6 +20,7 @@
 #include "RicExecuteScriptForCasesFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 
 #include "RimCalcScript.h"
 #include "RimCase.h"
@@ -61,30 +62,51 @@ void RicExecuteScriptForCasesFeature::onActionTriggered( bool isChecked )
     RiuMainWindow* mainWindow = RiuMainWindow::instance();
     mainWindow->showProcessMonitorDockPanel();
 
-    RiaApplication* app        = RiaApplication::instance();
-    QString         octavePath = app->octavePath();
-    if ( !octavePath.isEmpty() )
+    RiaApplication* app = RiaApplication::instance();
+
+    QString             pathToScriptExecutable;
+    QProcessEnvironment processEnvironment;
+
+    if ( scriptAbsolutePath.endsWith( ".py" ) )
     {
-        QStringList arguments = RimCalcScript::createCommandLineArguments( scriptAbsolutePath );
+        processEnvironment     = app->pythonProcessEnvironment();
+        pathToScriptExecutable = app->pythonPath();
 
-        std::vector<RimCase*> selection;
-        caf::SelectionManager::instance()->objectsByType( &selection );
+        if ( pathToScriptExecutable.isEmpty() )
+        {
+            RiaLogging::warning( "Path to Python executable is empty, not able to execute script" );
+        }
+    }
+    else
+    {
+        processEnvironment     = app->octaveProcessEnvironment();
+        pathToScriptExecutable = app->octavePath();
+        if ( pathToScriptExecutable.isEmpty() )
+        {
+            RiaLogging::warning( "Path to Octave executable is empty, not able to execute script" );
+        }
+    }
 
-        // Get case ID from selected cases in selection model
+    if ( !pathToScriptExecutable.isEmpty() )
+    {
+        QStringList      arguments = RimCalcScript::createCommandLineArguments( scriptAbsolutePath );
         std::vector<int> caseIdsInSelection;
-        for ( size_t i = 0; i < selection.size(); i++ )
         {
-            RimCase* casePtr = selection[i];
-            caseIdsInSelection.push_back( casePtr->caseId );
+            std::vector<RimCase*> selection;
+            caf::SelectionManager::instance()->objectsByType( &selection );
+
+            // Get case ID from selected cases in selection model
+            for ( size_t i = 0; i < selection.size(); i++ )
+            {
+                RimCase* casePtr = selection[i];
+                caseIdsInSelection.push_back( casePtr->caseId );
+            }
         }
 
-        if ( caseIdsInSelection.size() > 0 )
-        {
-            RiaApplication::instance()->launchProcessForMultipleCases( octavePath,
-                                                                       arguments,
-                                                                       caseIdsInSelection,
-                                                                       app->octaveProcessEnvironment() );
-        }
+        RiaApplication::instance()->launchProcessForMultipleCases( pathToScriptExecutable,
+                                                                   arguments,
+                                                                   caseIdsInSelection,
+                                                                   processEnvironment );
     }
 }
 

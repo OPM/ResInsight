@@ -115,6 +115,7 @@ public:
     const Rim3dView* activeReservoirView() const;
     RimGridView*     activeGridView();
     RimGridView*     activeMainOrComparisonGridView();
+    int              currentScriptCaseId() const;
 
     RimProject* project();
 
@@ -250,7 +251,8 @@ protected:
 #endif
 
     // Execute for all settings
-    std::list<int>  m_currentCaseIds;
+    std::list<int>  m_scriptCaseIds;
+    int             m_currentScriptCaseId;
     QString         m_currentProgram;
     QStringList     m_currentArguments;
     RiaPreferences* m_preferences;

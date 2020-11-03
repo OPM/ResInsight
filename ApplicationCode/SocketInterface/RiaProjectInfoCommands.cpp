@@ -20,6 +20,7 @@
 
 #include "RiaSocketCommand.h"
 
+#include "RiaApplication.h"
 #include "RiaSocketServer.h"
 #include "RiaSocketTools.h"
 
@@ -78,7 +79,7 @@ public:
     static QString commandName() { return QString( "GetCurrentCase" ); }
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
-        qint64  caseId = server->currentCaseId();
+        qint64  caseId = RiaApplication::instance()->currentScriptCaseId();
         QString caseName;
         QString caseType;
         qint64  caseGroupId = -1;
