@@ -59,42 +59,42 @@ set(protobuf_MODULE_COMPATIBLE ON)
 find_package(Protobuf CONFIG 3.0 QUIET)
 
 if(Protobuf_FOUND)
-    message(STATUS "Using protobuf ${protobuf_VERSION}")
+  message(STATUS "Using protobuf ${protobuf_VERSION}")
 
-    # Find gRPC installation Looks for gRPCConfig.cmake file installed by gRPC's
-    # cmake installation.
-    find_package(gRPC CONFIG REQUIRED)
-    message(STATUS "Using gRPC ${gRPC_VERSION}")
+  # Find gRPC installation Looks for gRPCConfig.cmake file installed by gRPC's
+  # cmake installation.
+  find_package(gRPC CONFIG REQUIRED)
+  message(STATUS "Using gRPC ${gRPC_VERSION}")
 
-    set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
-    set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
+  set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
+  set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
 
-    set(_GRPC_GRPCPP_UNSECURE gRPC::grpc++_unsecure gRPC::grpc_unsecure gRPC::gpr)
-    set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
-    set(GRPC_LIBRARIES ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF})
+  set(_GRPC_GRPCPP_UNSECURE gRPC::grpc++_unsecure gRPC::grpc_unsecure gRPC::gpr)
+  set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
+  set(GRPC_LIBRARIES ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF})
 
-    set_target_properties(
+  set_target_properties(
     ${GRPC_LIBRARIES} PROPERTIES MAP_IMPORTED_CONFIG_MINSIZEREL RELEASE
                                  MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE)
 else()
-    set(RESINSIGHT_GRPC_INSTALL_PREFIX
-        ""
-        CACHE PATH "gRPC : Install prefix for gRPC")
-    if(NOT DEFINED RESINSIGHT_GRPC_INSTALL_PREFIX
-        OR NOT EXISTS ${RESINSIGHT_GRPC_INSTALL_PREFIX})
-        message(
-        FATAL_ERROR
-            "You need a valid RESINSIGHT_GRPC_INSTALL_PREFIX set to build with gRPC"
-        )
-    endif()
-    set(ENV{PKG_CONFIG_PATH} "${RESINSIGHT_GRPC_INSTALL_PREFIX}/lib/pkgconfig")
-    find_package(PkgConfig REQUIRED)
-    pkg_check_modules(GRPC REQUIRED grpc++_unsecure>=1.20 grpc_unsecure gpr
-                        protobuf)
-    set(_PROTOBUF_PROTOC "${RESINSIGHT_GRPC_INSTALL_PREFIX}/bin/protoc")
-    set(_GRPC_CPP_PLUGIN_EXECUTABLE
-        "${RESINSIGHT_GRPC_INSTALL_PREFIX}/bin/grpc_cpp_plugin")
-    include_directories(AFTER ${GRPC_INCLUDE_DIRS})
+  set(RESINSIGHT_GRPC_INSTALL_PREFIX
+      ""
+      CACHE PATH "gRPC : Install prefix for gRPC")
+  if(NOT DEFINED RESINSIGHT_GRPC_INSTALL_PREFIX
+     OR NOT EXISTS ${RESINSIGHT_GRPC_INSTALL_PREFIX})
+    message(
+      FATAL_ERROR
+        "You need a valid RESINSIGHT_GRPC_INSTALL_PREFIX set to build with gRPC"
+    )
+  endif()
+  set(ENV{PKG_CONFIG_PATH} "${RESINSIGHT_GRPC_INSTALL_PREFIX}/lib/pkgconfig")
+  find_package(PkgConfig REQUIRED)
+  pkg_check_modules(GRPC REQUIRED grpc++_unsecure>=1.20 grpc_unsecure gpr
+                    protobuf)
+  set(_PROTOBUF_PROTOC "${RESINSIGHT_GRPC_INSTALL_PREFIX}/bin/protoc")
+  set(_GRPC_CPP_PLUGIN_EXECUTABLE
+      "${RESINSIGHT_GRPC_INSTALL_PREFIX}/bin/grpc_cpp_plugin")
+  include_directories(AFTER ${GRPC_INCLUDE_DIRS})
 endif()
 
 set(LINK_LIBRARIES
@@ -257,8 +257,8 @@ add_library(
   ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
   ${GRPC_HEADER_FILES} ${GRPC_CPP_SOURCES})
 
-if (RESINSIGHT_GRPC_INSTALL_PREFIX)
-    target_include_directories(${PROJECT_NAME} PRIVATE ${GRPC_INCLUDE_DIRS})
+if(RESINSIGHT_GRPC_INSTALL_PREFIX)
+  target_include_directories(${PROJECT_NAME} PRIVATE ${GRPC_INCLUDE_DIRS})
 endif()
 
 target_link_libraries(${PROJECT_NAME} ${LINK_LIBRARIES})
