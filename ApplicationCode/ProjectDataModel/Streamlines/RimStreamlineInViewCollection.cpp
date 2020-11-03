@@ -38,6 +38,7 @@
 
 #include "cvfCollection.h"
 
+#include <math.h>
 #include <qdebug.h>
 
 CAF_PDM_SOURCE_INIT( RimStreamlineInViewCollection, "StreamlineInViewCollection" );
@@ -316,7 +317,7 @@ cvf::ref<RigResultAccessor> RimStreamlineInViewCollection::getDataAccessor( cvf:
     int                           gridIdx  = 0;
 
     RigEclipseResultAddress address( RiaDefines::ResultCatType::DYNAMIC_NATIVE, resultname );
-    RigCaseCellResultsData* data = m_eclipseCase->eclipseCaseData()->results( porModel );
+    // RigCaseCellResultsData* data = m_eclipseCase->eclipseCaseData()->results( porModel );
 
     return RigResultAccessorFactory::createFromResultAddress( eclipseCase()->eclipseCaseData(),
                                                               gridIdx,
@@ -554,9 +555,9 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
         RigCell* startCell = findNeighborCell( cell, grid, faceIdx );
         if ( startCell == nullptr ) continue;
 
-        RigCell*   curCell  = startCell;
-        cvf::Vec3d curPos   = startPosition;
-        size_t     startIdx = startCell->mainGridCellIndex();
+        RigCell*   curCell = startCell;
+        cvf::Vec3d curPos  = startPosition;
+        // size_t     startIdx = startCell->mainGridCellIndex();
         // if ( startIdx != 43717 ) continue;
 
         std::set<size_t> visitedCellsIdx;
