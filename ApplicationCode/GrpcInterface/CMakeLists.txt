@@ -91,9 +91,22 @@ else()
   find_package(PkgConfig REQUIRED)
   pkg_check_modules(GRPC REQUIRED grpc++_unsecure>=1.20 grpc_unsecure gpr
                     protobuf)
-  set(_PROTOBUF_PROTOC "${RESINSIGHT_GRPC_INSTALL_PREFIX}/bin/protoc")
-  set(_GRPC_CPP_PLUGIN_EXECUTABLE
-      "${RESINSIGHT_GRPC_INSTALL_PREFIX}/bin/grpc_cpp_plugin")
+  if(EXISTS "${RESINSIGHT_GRPC_INSTALL_PREFIX}/bin/protoc")
+    set(_PROTOBUF_PROTOC "${RESINSIGHT_GRPC_INSTALL_PREFIX}/bin/protoc")
+  elseif(EXISTS "${RESINSIGHT_GRPC_INSTALL_PREFIX}/tools/protobuf/protoc")
+    set(_PROTOBUF_PROTOC
+        "${RESINSIGHT_GRPC_INSTALL_PREFIX}/tools/protobuf/protoc")
+  else()
+    message(FATAL_ERROR "Could not find the protobuf compiler (protoc)")
+  endif()
+
+  if(EXISTS "${RESINSIGHT_GRPC_INSTALL_PREFIX}/bin/grpc_cpp_plugin")
+    set(_GRPC_CPP_PLUGIN_EXECUTABLE
+        "${RESINSIGHT_GRPC_INSTALL_PREFIX}/bin/grpc_cpp_plugin")
+  elseif(EXISTS "${RESINSIGHT_GRPC_INSTALL_PREFIX}/tools/grpc/grpc_cpp_plugin")
+    set(_GRPC_CPP_PLUGIN_EXECUTABLE
+        "${RESINSIGHT_GRPC_INSTALL_PREFIX}/tools/grpc/grpc_cpp_plugin")
+  endif()
   include_directories(AFTER ${GRPC_INCLUDE_DIRS})
 endif()
 
