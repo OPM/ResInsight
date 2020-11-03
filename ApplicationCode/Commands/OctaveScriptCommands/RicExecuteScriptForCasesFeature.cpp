@@ -95,11 +95,9 @@ void RicExecuteScriptForCasesFeature::onActionTriggered( bool isChecked )
             std::vector<RimCase*> selection;
             caf::SelectionManager::instance()->objectsByType( &selection );
 
-            // Get case ID from selected cases in selection model
-            for ( size_t i = 0; i < selection.size(); i++ )
+            for ( RimCase* rimCase : selection )
             {
-                RimCase* casePtr = selection[i];
-                caseIdsInSelection.push_back( casePtr->caseId );
+                caseIdsInSelection.push_back( rimCase->caseId );
             }
         }
 

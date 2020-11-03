@@ -57,9 +57,6 @@ public:
     RimEclipseCase* findReservoir( int caseId );
     QTcpSocket*     currentClient() { return m_currentClient; }
 
-    void setCurrentCaseId( int caseId );
-    int  currentCaseId() const;
-
     void showErrorMessage( const QString& message ) const;
 
 private slots:
@@ -81,6 +78,4 @@ private:
     RiaSocketCommand* m_currentCommand;
 
     QTimer* m_nextPendingConnectionTimer;
-
-    int m_currentCaseId; // Set to -1 to use default server behavior
 };

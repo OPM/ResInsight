@@ -49,10 +49,7 @@ RiaSocketServer::RiaSocketServer( QObject* parent )
     , m_currentClient( nullptr )
     , m_currentCommandSize( 0 )
     , m_currentCommand( nullptr )
-    , m_currentCaseId( -1 )
 {
-    // TCP server setup
-
     m_tcpServer = new QTcpServer( this );
 
     m_nextPendingConnectionTimer = new QTimer( this );
@@ -131,7 +128,7 @@ RimEclipseCase* RiaSocketServer::findReservoir( int caseId )
     int currCaseId = caseId;
     if ( caseId < 0 )
     {
-        currCaseId = this->currentCaseId();
+        currCaseId = RiaApplication::instance()->currentScriptCaseId();
     }
 
     if ( currCaseId < 0 )
@@ -280,22 +277,6 @@ void RiaSocketServer::slotReadyRead()
             handleNextPendingConnection();
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSocketServer::setCurrentCaseId( int caseId )
-{
-    m_currentCaseId = caseId;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int RiaSocketServer::currentCaseId() const
-{
-    return m_currentCaseId;
 }
 
 //--------------------------------------------------------------------------------------------------
