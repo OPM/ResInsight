@@ -53,33 +53,69 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcNNCPropertiesService.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcPdmObjectService.cpp)
 
-# Find Protobuf installation Looks for protobuf-config.cmake file installed by
-# Protobuf's cmake installation.
-set(protobuf_MODULE_COMPATIBLE ON)
-find_package(Protobuf CONFIG 3.0 QUIET)
-if(Protobuf_FOUND)
-  message(STATUS "Using protobuf ${protobuf_VERSION}")
+if(MSVC)
+  # Find Protobuf installation Looks for protobuf-config.cmake file installed by
+  # Protobuf's cmake installation.
+  set(protobuf_MODULE_COMPATIBLE ON)
+  find_package(Protobuf CONFIG 3.0 QUIET)
+  if(Protobuf_FOUND)
+    message(STATUS "Using protobuf ${protobuf_VERSION}")
+  else()
+    message(
+      FATAL_ERROR
+        "Protocol Buffers not found. This is required to build with gRPC")
+  endif()
+
+  # Find gRPC installation Looks for gRPCConfig.cmake file installed by gRPC's
+  # cmake installation.
+  find_package(gRPC CONFIG REQUIRED)
+  message(STATUS "Using gRPC ${gRPC_VERSION}")
+
+  set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
+  set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
+
+  set(_GRPC_GRPCPP_UNSECURE gRPC::grpc++_unsecure gRPC::grpc_unsecure gRPC::gpr)
+  set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
+  set(GRPC_LIBRARIES ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF})
+
+  set_target_properties(
+    ${GRPC_LIBRARIES} PROPERTIES MAP_IMPORTED_CONFIG_MINSIZEREL RELEASE
+                                 MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE)
 else()
-  message(
-    FATAL_ERROR
-      "Protocol Buffers not found. This is required to build with gRPC")
+  find_package(gRPC CONFIG)
+  if(gRPC_FOUND)
+    message(STATUS "Found GRPC using find_package(gRPC CONFIG) ")
+    message(STATUS "Using gRPC ${gRPC_VERSION}")
+    set(GRPC_PACKAGE_LIBRARIES gRPC::gpr gRPC::grpc_unsecure
+                               gRPC::grpc++_unsecure)
+
+    set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
+    message(STATUS "_PROTOBUF_PROTOC : ${_PROTOBUF_PROTOC}")
+
+    set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
+    message(
+      STATUS "_GRPC_CPP_PLUGIN_EXECUTABLE : ${_GRPC_CPP_PLUGIN_EXECUTABLE}")
+  else()
+    set(RESINSIGHT_GRPC_INSTALL_PREFIX
+        ""
+        CACHE PATH "gRPC : Install prefix for gRPC")
+    if(NOT DEFINED RESINSIGHT_GRPC_INSTALL_PREFIX
+       OR NOT EXISTS ${RESINSIGHT_GRPC_INSTALL_PREFIX})
+      message(
+        FATAL_ERROR
+          "You need a valid RESINSIGHT_GRPC_INSTALL_PREFIX set to build with gRPC"
+      )
+    endif()
+    set(ENV{PKG_CONFIG_PATH} "${RESINSIGHT_GRPC_INSTALL_PREFIX}/lib/pkgconfig")
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(GRPC REQUIRED grpc++_unsecure>=1.20 grpc_unsecure gpr
+                      protobuf)
+    set(_PROTOBUF_PROTOC "${RESINSIGHT_GRPC_INSTALL_PREFIX}/bin/protoc")
+    set(_GRPC_CPP_PLUGIN_EXECUTABLE
+        "${RESINSIGHT_GRPC_INSTALL_PREFIX}/bin/grpc_cpp_plugin")
+    include_directories(AFTER ${GRPC_INCLUDE_DIRS})
+  endif()
 endif()
-
-# Find gRPC installation Looks for gRPCConfig.cmake file installed by gRPC's
-# cmake installation.
-find_package(gRPC CONFIG REQUIRED)
-message(STATUS "Using gRPC ${gRPC_VERSION}")
-
-set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
-set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
-
-set(_GRPC_GRPCPP_UNSECURE gRPC::grpc++_unsecure gRPC::grpc_unsecure gRPC::gpr)
-set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
-set(GRPC_LIBRARIES ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF})
-
-set_target_properties(
-  ${GRPC_LIBRARIES} PROPERTIES MAP_IMPORTED_CONFIG_MINSIZEREL RELEASE
-                               MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE)
 
 set(LINK_LIBRARIES
     ${QT_LIBRARIES}
