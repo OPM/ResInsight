@@ -19,7 +19,7 @@ void setNNCProperty(const Matrix& propertyFrames, const QString &hostName, quint
 
     if (!socket.waitForConnected(riOctavePlugin::connectTimeOutMilliSecs))
     {
-        error((("Connection: ") + socket.errorString()).toLatin1().data());
+        error("Connection: %s",socket.errorString().toLatin1().data());
         return;
     }
 

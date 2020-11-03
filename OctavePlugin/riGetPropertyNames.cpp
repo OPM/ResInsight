@@ -15,7 +15,7 @@ void getPropertyNames(std::vector<QString>& propNames, std::vector<QString>& pro
 
     if (!socket.waitForConnected(riOctavePlugin::connectTimeOutMilliSecs))
     {
-        error((("Connection: ") + socket.errorString()).toLatin1().data());
+        error("Connection: %s",socket.errorString().toLatin1().data());
         return;
     }
 
@@ -37,7 +37,7 @@ void getPropertyNames(std::vector<QString>& propNames, std::vector<QString>& pro
     {
         if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
         {
-            error((("Waiting for header: ") + socket.errorString()).toLatin1().data());
+            error("Waiting for header: %s",socket.errorString().toLatin1().data());
             return;
         }
     }
@@ -52,7 +52,7 @@ void getPropertyNames(std::vector<QString>& propNames, std::vector<QString>& pro
     {
         if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
         {
-            error((("Waiting for data: ") + socket.errorString()).toLatin1().data());
+            error("Waiting for data: %s",socket.errorString().toLatin1().data());
             return;
         }
         OCTAVE_QUIT;

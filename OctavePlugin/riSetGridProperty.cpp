@@ -19,7 +19,7 @@ void setEclipseProperty(const NDArray& propertyFrames, const QString &hostName, 
 
     if (!socket.waitForConnected(riOctavePlugin::connectTimeOutMilliSecs))
     {
-        error((("Connection: ") + socket.errorString()).toLatin1().data());
+        error("Connection: %s",socket.errorString().toLatin1().data());
         return;
     }
 
