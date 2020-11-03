@@ -1680,14 +1680,14 @@ void RiaGuiApplication::slotWorkerProcessFinished( int exitCode, QProcess::ExitS
     }
 
     // If multiple cases are present, invoke launchProcess() which will set next current case, and run script on this case
-    if ( !m_currentCaseIds.empty() )
+    if ( !m_scriptCaseIds.empty() )
     {
         launchProcess( m_currentProgram, m_currentArguments, processEnvironment );
     }
     else
     {
         // Disable concept of current case
-        m_socketServer->setCurrentCaseId( -1 );
+        m_currentScriptCaseId  = -1;
         m_runningWorkerProcess = false;
     }
 }
