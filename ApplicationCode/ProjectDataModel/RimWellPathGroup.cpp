@@ -15,8 +15,6 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-#pragma once
-
 #include "RimWellPathGroup.h"
 
 #include "RiaTextStringTools.h"
