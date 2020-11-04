@@ -23,8 +23,8 @@
 #include "RimFishboneWellPathCollection.h"
 #include "RimFishbonesCollection.h"
 #include "RimFishbonesMultipleSubs.h"
-#include "RimFractureModel.h"
-#include "RimFractureModelCollection.h"
+#include "RimStimPlanModel.h"
+#include "RimStimPlanModelCollection.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
 #include "RimWellPathComponentInterface.h"
@@ -112,9 +112,9 @@ RimWellPathCompletions::RimWellPathCompletions()
     m_fractureCollection = new RimWellPathFractureCollection;
     m_fractureCollection.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_fractureModelCollection, "FractureModels", "Fracture Models", "", "", "" );
-    m_fractureModelCollection = new RimFractureModelCollection;
-    m_fractureModelCollection.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_stimPlanModelCollection, "StimPlanModels", "StimPlan Models", "", "", "" );
+    m_stimPlanModelCollection = new RimStimPlanModelCollection;
+    m_stimPlanModelCollection.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitField( &m_wellNameForExport, "WellNameForExport", QString(), "Well Name", "", "", "" );
     m_wellNameForExport.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
@@ -233,11 +233,11 @@ RimWellPathFractureCollection* RimWellPathCompletions::fractureCollection() cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFractureModelCollection* RimWellPathCompletions::fractureModelCollection() const
+RimStimPlanModelCollection* RimWellPathCompletions::stimPlanModelCollection() const
 {
-    CVF_ASSERT( m_fractureModelCollection );
+    CVF_ASSERT( m_stimPlanModelCollection );
 
-    return m_fractureModelCollection;
+    return m_stimPlanModelCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -284,7 +284,7 @@ std::vector<const RimWellPathComponentInterface*> RimWellPathCompletions::allCom
 //--------------------------------------------------------------------------------------------------
 bool RimWellPathCompletions::hasCompletions() const
 {
-    if ( !fractureCollection()->allFractures().empty() || !fractureModelCollection()->allFractureModels().empty() )
+    if ( !fractureCollection()->allFractures().empty() || !stimPlanModelCollection()->allStimPlanModels().empty() )
     {
         return true;
     }
@@ -411,9 +411,9 @@ void RimWellPathCompletions::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTre
         uiTreeOrdering.add( &m_fractureCollection );
     }
 
-    if ( !fractureModelCollection()->allFractureModels().empty() )
+    if ( !stimPlanModelCollection()->allStimPlanModels().empty() )
     {
-        uiTreeOrdering.add( &m_fractureModelCollection );
+        uiTreeOrdering.add( &m_stimPlanModelCollection );
     }
 }
 

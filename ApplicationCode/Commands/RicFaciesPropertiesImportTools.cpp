@@ -28,7 +28,7 @@
 #include "RimColorLegendCollection.h"
 #include "RimColorLegendItem.h"
 #include "RimFaciesProperties.h"
-#include "RimFractureModelTemplate.h"
+#include "RimStimPlanModelTemplate.h"
 #include "RimProject.h"
 
 #include "RifColorLegendData.h"
@@ -40,7 +40,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 void RicFaciesPropertiesImportTools::importFaciesPropertiesFromFile( const QString&            filePath,
-                                                                     RimFractureModelTemplate* fractureModelTemplate,
+                                                                     RimStimPlanModelTemplate* stimPlanModelTemplate,
                                                                      bool                      createColorLegend )
 {
     if ( filePath.isEmpty() ) return;
@@ -56,7 +56,7 @@ void RicFaciesPropertiesImportTools::importFaciesPropertiesFromFile( const QStri
         return;
     }
 
-    RimFaciesProperties* faciesProperties = fractureModelTemplate->faciesProperties();
+    RimFaciesProperties* faciesProperties = stimPlanModelTemplate->faciesProperties();
     if ( !faciesProperties )
     {
         faciesProperties = new RimFaciesProperties;
@@ -101,8 +101,8 @@ void RicFaciesPropertiesImportTools::importFaciesPropertiesFromFile( const QStri
 
     faciesProperties->setFilePath( filePath );
 
-    fractureModelTemplate->setFaciesProperties( faciesProperties );
-    fractureModelTemplate->updateConnectedEditors();
+    stimPlanModelTemplate->setFaciesProperties( faciesProperties );
+    stimPlanModelTemplate->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

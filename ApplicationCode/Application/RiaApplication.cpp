@@ -53,10 +53,10 @@
 #include "RimEclipseView.h"
 #include "RimFlowPlotCollection.h"
 #include "RimFormationNamesCollection.h"
-#include "RimFractureModel.h"
-#include "RimFractureModelCollection.h"
-#include "RimFractureModelPlot.h"
-#include "RimFractureModelPlotCollection.h"
+#include "RimStimPlanModel.h"
+#include "RimStimPlanModelCollection.h"
+#include "RimStimPlanModelPlot.h"
+#include "RimStimPlanModelPlotCollection.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
@@ -1575,7 +1575,7 @@ void RiaApplication::loadAndUpdatePlotData()
     RimAnalysisPlotCollection*           alsColl  = nullptr;
     RimCorrelationPlotCollection*        corrColl = nullptr;
     RimMultiPlotCollection*              gpwColl  = nullptr;
-    RimFractureModelPlotCollection*      frmColl  = nullptr;
+    RimStimPlanModelPlotCollection*      frmColl  = nullptr;
 
     if ( m_project->mainPlotCollection() )
     {
@@ -1623,9 +1623,9 @@ void RiaApplication::loadAndUpdatePlotData()
         {
             gpwColl = m_project->mainPlotCollection()->multiPlotCollection();
         }
-        if ( m_project->mainPlotCollection()->fractureModelPlotCollection() )
+        if ( m_project->mainPlotCollection()->stimPlanModelPlotCollection() )
         {
-            frmColl = m_project->mainPlotCollection()->fractureModelPlotCollection();
+            frmColl = m_project->mainPlotCollection()->stimPlanModelPlotCollection();
         }
     }
 
@@ -1641,7 +1641,7 @@ void RiaApplication::loadAndUpdatePlotData()
     plotCount += alsColl ? alsColl->plotCount() : 0;
     plotCount += corrColl ? corrColl->plotCount() + corrColl->reports().size() : 0;
     plotCount += gpwColl ? gpwColl->multiPlots().size() : 0;
-    plotCount += frmColl ? frmColl->fractureModelPlots().size() : 0;
+    plotCount += frmColl ? frmColl->stimPlanModelPlots().size() : 0;
 
     if ( plotCount > 0 )
     {
@@ -1750,9 +1750,9 @@ void RiaApplication::loadAndUpdatePlotData()
 
         if ( frmColl )
         {
-            for ( const auto& fractureModelPlot : frmColl->fractureModelPlots() )
+            for ( const auto& stimPlanModelPlot : frmColl->stimPlanModelPlots() )
             {
-                fractureModelPlot->loadDataAndUpdate();
+                stimPlanModelPlot->loadDataAndUpdate();
                 plotProgress.incrementProgress();
             }
         }

@@ -20,7 +20,7 @@
 
 #include "RimColorLegend.h"
 #include "RimEclipseResultDefinition.h"
-#include "RimFractureModelTemplate.h"
+#include "RimStimPlanModelTemplate.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimTools.h"
@@ -193,9 +193,9 @@ void RimFaciesProperties::loadDataAndUpdate()
 {
     if ( !m_filePath().path().isEmpty() )
     {
-        RimFractureModelTemplate* fractureModelTemplate;
-        firstAncestorOrThisOfType( fractureModelTemplate );
-        RicFaciesPropertiesImportTools::importFaciesPropertiesFromFile( m_filePath().path(), fractureModelTemplate );
+        RimStimPlanModelTemplate* stimPlanModelTemplate;
+        firstAncestorOrThisOfType( stimPlanModelTemplate );
+        RicFaciesPropertiesImportTools::importFaciesPropertiesFromFile( m_filePath().path(), stimPlanModelTemplate );
     }
 }
 

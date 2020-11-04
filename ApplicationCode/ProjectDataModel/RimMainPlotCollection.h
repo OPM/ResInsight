@@ -40,7 +40,7 @@ class RifReaderEclipseSummary;
 class RimEclipseResultCase;
 class RimFlowPlotCollection;
 class RimSaturationPressurePlotCollection;
-class RimFractureModelPlotCollection;
+class RimStimPlanModelPlotCollection;
 
 //==================================================================================================
 ///
@@ -65,7 +65,7 @@ public:
     RimGridCrossPlotCollection*          gridCrossPlotCollection();
     RimSaturationPressurePlotCollection* saturationPressurePlotCollection();
     RimMultiPlotCollection*              multiPlotCollection();
-    RimFractureModelPlotCollection*      fractureModelPlotCollection();
+    RimStimPlanModelPlotCollection*      stimPlanModelPlotCollection();
 
     void deleteAllContainedObjects();
     void updateCurrentTimeStepInPlots();
@@ -92,7 +92,7 @@ private:
     caf::PdmChildField<RimGridCrossPlotCollection*>          m_gridCrossPlotCollection;
     caf::PdmChildField<RimSaturationPressurePlotCollection*> m_saturationPressurePlotCollection;
     caf::PdmChildField<RimMultiPlotCollection*>              m_multiPlotCollection;
-    caf::PdmChildField<RimFractureModelPlotCollection*>      m_fractureModelPlotCollection;
+    caf::PdmChildField<RimStimPlanModelPlotCollection*>      m_stimPlanModelPlotCollection;
 
     caf::PdmField<bool> m_show;
 };

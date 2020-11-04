@@ -22,7 +22,7 @@
 
 #include "RicElasticPropertiesImportTools.h"
 
-#include "RimFractureModelTemplate.h"
+#include "RimStimPlanModelTemplate.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuFileDialogTools.h"
@@ -47,9 +47,9 @@ bool RicImportElasticPropertiesFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicImportElasticPropertiesFeature::onActionTriggered( bool isChecked )
 {
-    RimFractureModelTemplate* fractureModelTemplate =
-        caf::SelectionManager::instance()->selectedItemAncestorOfType<RimFractureModelTemplate>();
-    if ( !fractureModelTemplate ) return;
+    RimStimPlanModelTemplate* stimPlanModelTemplate =
+        caf::SelectionManager::instance()->selectedItemAncestorOfType<RimStimPlanModelTemplate>();
+    if ( !stimPlanModelTemplate ) return;
 
     // Open dialog box to select files
     RiaApplication* app        = RiaApplication::instance();
@@ -64,7 +64,7 @@ void RicImportElasticPropertiesFeature::onActionTriggered( bool isChecked )
     // Remember the path to next time
     app->setLastUsedDialogDirectory( "STIMPLAN_DIR", QFileInfo( filePath ).absolutePath() );
 
-    RicElasticPropertiesImportTools::importElasticPropertiesFromFile( filePath, fractureModelTemplate );
+    RicElasticPropertiesImportTools::importElasticPropertiesFromFile( filePath, stimPlanModelTemplate );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -22,8 +22,8 @@
 #include "RimCorrelationPlotCollection.h"
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowPlotCollection.h"
-#include "RimFractureModelPlot.h"
-#include "RimFractureModelPlotCollection.h"
+#include "RimStimPlanModelPlot.h"
+#include "RimStimPlanModelPlotCollection.h"
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCollection.h"
 #include "RimMultiPlot.h"
@@ -95,8 +95,8 @@ RimMainPlotCollection::RimMainPlotCollection()
     CAF_PDM_InitFieldNoDefault( &m_multiPlotCollection, "RimMultiPlotCollection", "Multi Plots", "", "", "" );
     m_multiPlotCollection.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_fractureModelPlotCollection, "FractureModelPlotCollection", "", "", "", "" );
-    m_fractureModelPlotCollection.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_stimPlanModelPlotCollection, "StimPlanModelPlotCollection", "", "", "", "" );
+    m_stimPlanModelPlotCollection.uiCapability()->setUiHidden( true );
 
     m_wellLogPlotCollection            = new RimWellLogPlotCollection();
     m_rftPlotCollection                = new RimRftPlotCollection();
@@ -109,7 +109,7 @@ RimMainPlotCollection::RimMainPlotCollection()
     m_multiPlotCollection              = new RimMultiPlotCollection;
     m_analysisPlotCollection           = new RimAnalysisPlotCollection;
     m_correlationPlotCollection        = new RimCorrelationPlotCollection;
-    m_fractureModelPlotCollection      = new RimFractureModelPlotCollection;
+    m_stimPlanModelPlotCollection      = new RimStimPlanModelPlotCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -227,9 +227,9 @@ RimCorrelationPlotCollection* RimMainPlotCollection::correlationPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFractureModelPlotCollection* RimMainPlotCollection::fractureModelPlotCollection()
+RimStimPlanModelPlotCollection* RimMainPlotCollection::stimPlanModelPlotCollection()
 {
-    return m_fractureModelPlotCollection();
+    return m_stimPlanModelPlotCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -248,7 +248,7 @@ void RimMainPlotCollection::deleteAllContainedObjects()
     m_multiPlotCollection()->deleteAllChildObjects();
     m_analysisPlotCollection()->deleteAllPlots();
     m_correlationPlotCollection()->deleteAllPlots();
-    m_fractureModelPlotCollection()->deleteAllPlots();
+    m_stimPlanModelPlotCollection()->deleteAllPlots();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -309,11 +309,11 @@ void RimMainPlotCollection::updatePlotsWithFormations()
         }
     }
 
-    if ( m_fractureModelPlotCollection )
+    if ( m_stimPlanModelPlotCollection )
     {
-        for ( RimFractureModelPlot* fractureModelPlot : m_fractureModelPlotCollection->fractureModelPlots() )
+        for ( RimStimPlanModelPlot* stimPlanModelPlot : m_stimPlanModelPlotCollection->stimPlanModelPlots() )
         {
-            fractureModelPlot->loadDataAndUpdate();
+            stimPlanModelPlot->loadDataAndUpdate();
         }
     }
 }

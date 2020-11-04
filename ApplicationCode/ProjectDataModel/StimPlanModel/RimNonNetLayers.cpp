@@ -23,7 +23,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimFaciesProperties.h"
-#include "RimFractureModelTemplate.h"
+#include "RimStimPlanModelTemplate.h"
 #include "RimProject.h"
 
 #include "cafPdmFieldScriptingCapability.h"
@@ -159,11 +159,11 @@ const QString& RimNonNetLayers::facies() const
 //--------------------------------------------------------------------------------------------------
 RimColorLegend* RimNonNetLayers::getFaciesColorLegend()
 {
-    RimFractureModelTemplate* fractureModelTemplate;
-    firstAncestorOrThisOfType( fractureModelTemplate );
-    if ( !fractureModelTemplate ) return nullptr;
+    RimStimPlanModelTemplate* stimPlanModelTemplate;
+    firstAncestorOrThisOfType( stimPlanModelTemplate );
+    if ( !stimPlanModelTemplate ) return nullptr;
 
-    RimFaciesProperties* faciesProperties = fractureModelTemplate->faciesProperties();
+    RimFaciesProperties* faciesProperties = stimPlanModelTemplate->faciesProperties();
     if ( !faciesProperties ) return nullptr;
 
     return faciesProperties->colorLegend();

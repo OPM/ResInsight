@@ -30,8 +30,8 @@ class RicFractureNameGenerator
 {
 public:
     static QString nameForNewFracture();
-    static QString nameForNewFractureModel();
-    static QString nameForNewFractureModelTemplate();
+    static QString nameForNewStimPlanModel();
+    static QString nameForNewStimPlanModelTemplate();
 
 private:
     template <typename T>

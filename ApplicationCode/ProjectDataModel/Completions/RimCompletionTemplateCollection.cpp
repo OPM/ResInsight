@@ -18,7 +18,7 @@
 
 #include "RimCompletionTemplateCollection.h"
 
-#include "RimFractureModelTemplateCollection.h"
+#include "RimStimPlanModelTemplateCollection.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimValveTemplateCollection.h"
 
@@ -39,8 +39,8 @@ RimCompletionTemplateCollection::RimCompletionTemplateCollection()
     m_fractureTemplates = new RimFractureTemplateCollection;
     m_fractureTemplates->addDefaultEllipseTemplate();
 
-    CAF_PDM_InitFieldNoDefault( &m_fractureModelTemplates, "FractureModelTemplates", "", "", "", "" );
-    m_fractureModelTemplates = new RimFractureModelTemplateCollection;
+    CAF_PDM_InitFieldNoDefault( &m_stimPlanModelTemplates, "StimPlanModelTemplates", "", "", "", "" );
+    m_stimPlanModelTemplates = new RimStimPlanModelTemplateCollection;
 
     CAF_PDM_InitFieldNoDefault( &m_valveTemplates, "ValveTemplates", "", "", "", "" );
     m_valveTemplates = new RimValveTemplateCollection;
@@ -106,17 +106,17 @@ void RimCompletionTemplateCollection::setFractureTemplateCollection( RimFracture
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFractureModelTemplateCollection* RimCompletionTemplateCollection::fractureModelTemplateCollection()
+RimStimPlanModelTemplateCollection* RimCompletionTemplateCollection::stimPlanModelTemplateCollection()
 {
-    return m_fractureModelTemplates;
+    return m_stimPlanModelTemplates;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RimFractureModelTemplateCollection* RimCompletionTemplateCollection::fractureModelTemplateCollection() const
+const RimStimPlanModelTemplateCollection* RimCompletionTemplateCollection::stimPlanModelTemplateCollection() const
 {
-    return m_fractureModelTemplates;
+    return m_stimPlanModelTemplates;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -126,7 +126,7 @@ void RimCompletionTemplateCollection::defineUiTreeOrdering( caf::PdmUiTreeOrderi
                                                             QString                 uiConfigName /*= ""*/ )
 {
     uiTreeOrdering.add( m_fractureTemplates );
-    uiTreeOrdering.add( m_fractureModelTemplates );
+    uiTreeOrdering.add( m_stimPlanModelTemplates );
     uiTreeOrdering.add( m_valveTemplates );
     uiTreeOrdering.skipRemainingChildren( true );
 }
@@ -137,5 +137,5 @@ void RimCompletionTemplateCollection::defineUiTreeOrdering( caf::PdmUiTreeOrderi
 void RimCompletionTemplateCollection::loadAndUpdateData()
 {
     m_fractureTemplates->loadAndUpdateData();
-    m_fractureModelTemplates->loadAndUpdateData();
+    m_stimPlanModelTemplates->loadAndUpdateData();
 }
