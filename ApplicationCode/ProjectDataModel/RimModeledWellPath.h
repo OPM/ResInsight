@@ -41,6 +41,7 @@ public:
 
 private:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     caf::PdmChildField<RimWellPathGeometryDef*> m_geometryDefinition;
 };
