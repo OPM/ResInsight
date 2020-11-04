@@ -101,15 +101,17 @@ private:
     };
 
 private:
-    cvf::ref<cvf::Part> createPart( const RimStreamlineInViewCollection& streamlineCollection,
-                                    const StreamlineVisualization&       streamlineVisualization,
-                                    const double                         t ) const;
+    void createPart( const RimStreamlineInViewCollection& streamlineCollection,
+                     const StreamlineVisualization&       streamlineVisualization,
+                     const double                         t );
 
-    std::array<cvf::Vec3f, 7> createArrowVertices( const cvf::Vec3f anchorPoint, const cvf::Vec3f direction ) const;
-    std::array<uint, 2>       createArrowShaftIndices( uint startIndex ) const;
-    std::array<uint, 6>       createArrowHeadIndices( uint startIndex ) const;
-    std::array<uint, 2>       createLineIndices( uint startIndex ) const;
-    void                      createExampleStreamline( std::vector<StreamlineVisualization>& streamlineVisualizations );
+    std::array<cvf::Vec3f, 8>
+                        createArrowVertices( const cvf::Vec3f anchorPoint, const cvf::Vec3f endPoint, const cvf::Vec3f direction ) const;
+    std::array<uint, 2> createArrowShaftIndices( uint startIndex ) const;
+    std::array<uint, 6> createArrowHeadIndices( uint startIndex ) const;
+    std::array<uint, 2> createLineIndices( uint startIndex ) const;
+    void                createExampleStreamline( std::vector<StreamlineVisualization>& streamlineVisualizations );
+    void                setAlpha( cvf::ref<cvf::Part> part, float alpha );
 
 private:
     caf::PdmPointer<RimEclipseView> m_rimReservoirView;

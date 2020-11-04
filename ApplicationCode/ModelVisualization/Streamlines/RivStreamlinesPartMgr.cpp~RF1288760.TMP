@@ -111,25 +111,23 @@ void RivStreamlinesPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicLi
             streamlineVisualizations.push_back( visualization );
         }
     }
-    */
-    /*
+
     for ( const RigTracer& tracer : streamlineCollection->tracers() )
     {
+        std::vector<cvf::Vec3d> tracerPoints;
         StreamlineVisualization visualization;
-        for ( size_t i = 0; i < tracer.tracerPoints().size() - 1; i++ )
+        for ( RigTracerPoint tracerPoint : tracer.tracerPoints() )
         {
-            StreamlineSegment segment( tracer.tracerPoints()[i].position(),
-                                       tracer.tracerPoints()[i + 1].position(),
-                                       tracer.tracerPoints()[i].direction(),
-                                       tracer.tracerPoints()[i + 1].direction() );
+            tracerPoints.push_back( displayCordXf->transformToDisplayCoord( tracerPoint.position() ) );
         }
+        visualization.tracerPoints = tracerPoints;
         streamlineVisualizations.push_back( visualization );
     }
     */
 
-    // createExampleStreamline( streamlineVisualizations );
+    createExampleStreamline( streamlineVisualizations );
 
-    for ( const StreamlineVisualization visualization : streamlineVisualizations )
+    for ( StreamlineVisualization visualization : streamlineVisualizations )
     {
         for ( size_t i = 0; i < m_numSegments; i++ )
         {
@@ -149,39 +147,43 @@ void RivStreamlinesPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicLi
 //--------------------------------------------------------------------------------------------------
 void RivStreamlinesPartMgr::updateAnimation()
 {
+    return;
     if ( m_parts.size() > 0 )
     {
         if ( m_count == 1 )
         {
-            cvf::ref<cvf::Part> part = nullptr;
-            if ( m_currentT >= 5 )
+            cvf::ref<cvf::Part> part;
+            if ( m_currentT > 0 )
             {
-                part = m_parts[m_currentT - 5];
+                part = m_parts[m_currentT - 1];
             }
             else
             {
-                part = m_parts[m_parts.size() - ( 5 - m_currentT )];
+                part = m_parts[m_parts.size() - 1];
             }
-
-            setAlpha( part, 0 );
-
-            float alpha = 1.0;
-            for ( int i = m_currentT; i >= std::max<int>( static_cast<int>( m_currentT ) - 5, 0 ); i-- )
+            if ( part.notNull() )
             {
-                setAlpha( m_parts[i], alpha );
-                alpha -= 1.0f / 5;
+                caf::SurfaceEffectGenerator surfaceGen( cvf::Color4f( 1, 1, 1, 0 ), caf::PO_1 );
+                surfaceGen.enableLighting( false );
+                // surfaceGen.enableLighting( !m_rimReservoirView->isLightingDisabled() );
+                cvf::ref<cvf::Effect> effect = surfaceGen.generateCachedEffect();
+                part->setEffect( effect.p() );
             }
-            if ( m_currentT < 5 )
+            part = m_parts[m_currentT];
+            if ( part.notNull() )
             {
-                for ( size_t i = m_parts.size() - 1; i >= std::max<size_t>( m_parts.size() - ( 5 - m_currentT ), 0 ); i-- )
-                {
-                    setAlpha( m_parts[i], alpha );
-                    alpha -= 1.0f / 5;
-                }
+                caf::SurfaceEffectGenerator surfaceGen( cvf::Color4f( 1, 1, 1, 1 ), caf::PO_1 );
+                surfaceGen.enableLighting( false );
+                // surfaceGen.enableLighting( !m_rimReservoirView->isLightingDisabled() );
+                cvf::ref<cvf::Effect> effect = surfaceGen.generateCachedEffect();
+                part->setEffect( effect.p() );
             }
-            m_currentT++;
-            if ( m_currentT >= m_parts.size() ) m_currentT = 0;
             m_count = 0;
+            m_currentT++;
+            if ( m_currentT >= m_parts.size() )
+            {
+                m_currentT = 0;
+            }
             /*
             for ( size_t i = 0; i < m_parts.size(); i++ )
             {
@@ -303,7 +305,7 @@ void RivStreamlinesPartMgr::createPart( const RimStreamlineInViewCollection& str
 
     cvf::ref<cvf::Effect> effect;
 
-    caf::SurfaceEffectGenerator surfaceGen( cvf::Color4f( 1, 1, 1, 0 ), caf::PO_1 );
+    caf::SurfaceEffectGenerator surfaceGen( cvf::Color4f( 1, 1, 1, 1 ), caf::PO_1 );
     surfaceGen.enableLighting( false );
     effect = surfaceGen.generateCachedEffect();
 
@@ -428,20 +430,6 @@ void RivStreamlinesPartMgr::createExampleStreamline( std::vector<StreamlineVisua
     streamline.computeTValues();
 
     streamlineVisualizations.push_back( streamline );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RivStreamlinesPartMgr::setAlpha( cvf::ref<cvf::Part> part, float alpha )
-{
-    if ( part.notNull() )
-    {
-        caf::SurfaceEffectGenerator surfaceGen( cvf::Color4f( 1, 1, 1, alpha ), caf::PO_1 );
-        surfaceGen.enableLighting( false );
-        cvf::ref<cvf::Effect> effect = surfaceGen.generateCachedEffect();
-        part->setEffect( effect.p() );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -265,6 +265,8 @@ void RimStreamlineInViewCollection::goForIt()
         }
         i++;
     }
+
+    eclView->loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------

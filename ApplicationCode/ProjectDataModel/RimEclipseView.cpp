@@ -678,7 +678,7 @@ void RimEclipseView::onCreateDisplayModel()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::onAnimationsUpdate( const caf::SignalEmitter* emitter )
 {
-    m_streamlinesPartManager->updateAnimation();
+    // m_streamlinesPartManager->updateAnimation();
 
     if ( viewer() )
     {
