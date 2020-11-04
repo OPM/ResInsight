@@ -49,7 +49,6 @@
 #include "RimEclipseCaseCollection.h"
 #include "RimFlowPlotCollection.h"
 #include "RimFormationNamesCollection.h"
-#include "RimFractureModelPlotCollection.h"
 #include "RimFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
@@ -70,6 +69,7 @@
 #include "RimRftPlotCollection.h"
 #include "RimSaturationPressurePlotCollection.h"
 #include "RimScriptCollection.h"
+#include "RimStimPlanModelPlotCollection.h"
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCaseCollection.h"
@@ -1449,9 +1449,9 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
                 itemCollection->add( mainPlotCollection->multiPlotCollection() );
             }
 
-            if ( mainPlotCollection->fractureModelPlotCollection() )
+            if ( mainPlotCollection->stimPlanModelPlotCollection() )
             {
-                itemCollection->add( mainPlotCollection->fractureModelPlotCollection() );
+                itemCollection->add( mainPlotCollection->stimPlanModelPlotCollection() );
             }
         }
 

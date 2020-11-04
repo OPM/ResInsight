@@ -30,9 +30,9 @@
 #include "RimElasticProperties.h"
 #include "RimFormationNames.h"
 #include "RimFormationNamesCollection.h"
-#include "RimFractureModelTemplate.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimStimPlanModelTemplate.h"
 
 #include <set>
 #include <vector>
@@ -41,7 +41,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 void RicElasticPropertiesImportTools::importElasticPropertiesFromFile( const QString&            filePath,
-                                                                       RimFractureModelTemplate* fractureModelTemplate,
+                                                                       RimStimPlanModelTemplate* stimPlanModelTemplate,
                                                                        const QString&            formationWildCard )
 {
     RifCsvUserDataFileParser csvParser( filePath );
@@ -85,7 +85,7 @@ void RicElasticPropertiesImportTools::importElasticPropertiesFromFile( const QSt
         }
     }
 
-    RimElasticProperties* rimElasticProperties = fractureModelTemplate->elasticProperties();
+    RimElasticProperties* rimElasticProperties = stimPlanModelTemplate->elasticProperties();
     if ( !rimElasticProperties ) rimElasticProperties = new RimElasticProperties;
     for ( FaciesKey key : faciesKeys )
     {
@@ -147,8 +147,8 @@ void RicElasticPropertiesImportTools::importElasticPropertiesFromFile( const QSt
     }
 
     rimElasticProperties->setFilePath( filePath );
-    fractureModelTemplate->setElasticProperties( rimElasticProperties );
-    fractureModelTemplate->updateConnectedEditors();
+    stimPlanModelTemplate->setElasticProperties( rimElasticProperties );
+    stimPlanModelTemplate->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

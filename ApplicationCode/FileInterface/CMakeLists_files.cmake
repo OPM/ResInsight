@@ -54,11 +54,11 @@ ${CMAKE_CURRENT_LIST_DIR}/RifSurfaceImporter.h
 ${CMAKE_CURRENT_LIST_DIR}/RifRoffReader.h
 ${CMAKE_CURRENT_LIST_DIR}/RifColorLegendData.h
 ${CMAKE_CURRENT_LIST_DIR}/RifElasticPropertiesReader.h
-${CMAKE_CURRENT_LIST_DIR}/RifFractureModelExporter.h
-${CMAKE_CURRENT_LIST_DIR}/RifFractureModelGeologicalFrkExporter.h
-${CMAKE_CURRENT_LIST_DIR}/RifFractureModelDeviationFrkExporter.h
-${CMAKE_CURRENT_LIST_DIR}/RifFractureModelPerfsFrkExporter.h
-${CMAKE_CURRENT_LIST_DIR}/RifFractureModelAsymmetricFrkExporter.h
+${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelExporter.h
+${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelGeologicalFrkExporter.h
+${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelDeviationFrkExporter.h
+${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelPerfsFrkExporter.h
+${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelAsymmetricFrkExporter.h
 ${CMAKE_CURRENT_LIST_DIR}/RifSurfaceExporter.h
 
 
@@ -119,11 +119,11 @@ ${CMAKE_CURRENT_LIST_DIR}/RifSurfaceImporter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifRoffReader.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifColorLegendData.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifElasticPropertiesReader.cpp
-${CMAKE_CURRENT_LIST_DIR}/RifFractureModelExporter.cpp
-${CMAKE_CURRENT_LIST_DIR}/RifFractureModelGeologicalFrkExporter.cpp
-${CMAKE_CURRENT_LIST_DIR}/RifFractureModelDeviationFrkExporter.cpp
-${CMAKE_CURRENT_LIST_DIR}/RifFractureModelPerfsFrkExporter.cpp
-${CMAKE_CURRENT_LIST_DIR}/RifFractureModelAsymmetricFrkExporter.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelExporter.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelGeologicalFrkExporter.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelDeviationFrkExporter.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelPerfsFrkExporter.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelAsymmetricFrkExporter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifSurfaceExporter.cpp
 
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt

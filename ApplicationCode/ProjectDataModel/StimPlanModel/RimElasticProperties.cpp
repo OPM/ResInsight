@@ -19,7 +19,7 @@
 #include "RimElasticProperties.h"
 
 #include "RimElasticPropertyScalingCollection.h"
-#include "RimFractureModelTemplate.h"
+#include "RimStimPlanModelTemplate.h"
 
 #include "RicElasticPropertiesImportTools.h"
 
@@ -228,9 +228,9 @@ void RimElasticProperties::loadDataAndUpdate()
 {
     if ( !m_filePath().path().isEmpty() )
     {
-        RimFractureModelTemplate* fractureModelTemplate;
-        firstAncestorOrThisOfType( fractureModelTemplate );
-        RicElasticPropertiesImportTools::importElasticPropertiesFromFile( m_filePath().path(), fractureModelTemplate );
+        RimStimPlanModelTemplate* stimPlanModelTemplate;
+        firstAncestorOrThisOfType( stimPlanModelTemplate );
+        RicElasticPropertiesImportTools::importElasticPropertiesFromFile( m_filePath().path(), stimPlanModelTemplate );
     }
 }
 

@@ -88,7 +88,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicDeleteTemporaryLgrsFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportContourMapToTextFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportContourMapToTextUi.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewMultiPlotFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicExportFractureModelToFileFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicExportStimPlanModelToFileFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicStackSelectedCurvesFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicUnstackSelectedCurvesFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicThemeColorEditorFeature.h
@@ -184,7 +184,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicDeleteTemporaryLgrsFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportContourMapToTextFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportContourMapToTextUi.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewMultiPlotFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicExportFractureModelToFileFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicExportStimPlanModelToFileFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicStackSelectedCurvesFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicUnstackSelectedCurvesFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicThemeColorEditorFeature.cpp

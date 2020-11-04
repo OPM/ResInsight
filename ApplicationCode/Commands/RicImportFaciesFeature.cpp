@@ -25,7 +25,7 @@
 
 #include "RicFaciesPropertiesImportTools.h"
 
-#include "RimFractureModelTemplate.h"
+#include "RimStimPlanModelTemplate.h"
 
 #include "cafSelectionManager.h"
 
@@ -47,9 +47,9 @@ bool RicImportFaciesFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicImportFaciesFeature::onActionTriggered( bool isChecked )
 {
-    RimFractureModelTemplate* fractureModelTemplate =
-        caf::SelectionManager::instance()->selectedItemAncestorOfType<RimFractureModelTemplate>();
-    if ( !fractureModelTemplate ) return;
+    RimStimPlanModelTemplate* stimPlanModelTemplate =
+        caf::SelectionManager::instance()->selectedItemAncestorOfType<RimStimPlanModelTemplate>();
+    if ( !stimPlanModelTemplate ) return;
 
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectoryWithFallbackToProjectFolder( "STIMPLAN_DIR" );
@@ -67,7 +67,7 @@ void RicImportFaciesFeature::onActionTriggered( bool isChecked )
     app->setLastUsedDialogDirectory( "STIMPLAN_DIR", QFileInfo( fileName ).absolutePath() );
 
     bool createColorLegend = true;
-    RicFaciesPropertiesImportTools::importFaciesPropertiesFromFile( fileName, fractureModelTemplate, createColorLegend );
+    RicFaciesPropertiesImportTools::importFaciesPropertiesFromFile( fileName, stimPlanModelTemplate, createColorLegend );
 }
 
 //--------------------------------------------------------------------------------------------------

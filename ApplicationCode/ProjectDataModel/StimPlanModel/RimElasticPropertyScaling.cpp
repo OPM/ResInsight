@@ -24,8 +24,8 @@
 #include "RimEclipseCase.h"
 #include "RimElasticProperties.h"
 #include "RimFaciesProperties.h"
-#include "RimFractureModelTemplate.h"
 #include "RimProject.h"
+#include "RimStimPlanModelTemplate.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
@@ -154,11 +154,11 @@ void RimElasticPropertyScaling::updateAutoName()
 //--------------------------------------------------------------------------------------------------
 RimColorLegend* RimElasticPropertyScaling::getFaciesColorLegend()
 {
-    RimFractureModelTemplate* fractureModelTemplate;
-    firstAncestorOrThisOfType( fractureModelTemplate );
-    if ( !fractureModelTemplate ) return nullptr;
+    RimStimPlanModelTemplate* stimPlanModelTemplate;
+    firstAncestorOrThisOfType( stimPlanModelTemplate );
+    if ( !stimPlanModelTemplate ) return nullptr;
 
-    RimFaciesProperties* faciesProperties = fractureModelTemplate->faciesProperties();
+    RimFaciesProperties* faciesProperties = stimPlanModelTemplate->faciesProperties();
     if ( !faciesProperties ) return nullptr;
 
     return faciesProperties->colorLegend();

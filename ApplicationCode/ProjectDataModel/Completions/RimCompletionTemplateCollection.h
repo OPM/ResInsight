@@ -24,7 +24,7 @@
 class RimOilField;
 class RimValveTemplateCollection;
 class RimFractureTemplateCollection;
-class RimFractureModelTemplateCollection;
+class RimStimPlanModelTemplateCollection;
 
 class RimCompletionTemplateCollection : public caf::PdmObject
 {
@@ -36,8 +36,8 @@ public:
 
     RimFractureTemplateCollection*            fractureTemplateCollection();
     const RimFractureTemplateCollection*      fractureTemplateCollection() const;
-    RimFractureModelTemplateCollection*       fractureModelTemplateCollection();
-    const RimFractureModelTemplateCollection* fractureModelTemplateCollection() const;
+    RimStimPlanModelTemplateCollection*       stimPlanModelTemplateCollection();
+    const RimStimPlanModelTemplateCollection* stimPlanModelTemplateCollection() const;
     RimValveTemplateCollection*               valveTemplateCollection();
     const RimValveTemplateCollection*         valveTemplateCollection() const;
     void                                      setDefaultUnitSystemBasedOnLoadedCases();
@@ -50,7 +50,7 @@ private:
 
     caf::PdmChildField<RimFractureTemplateCollection*>      m_fractureTemplates;
     caf::PdmChildField<RimValveTemplateCollection*>         m_valveTemplates;
-    caf::PdmChildField<RimFractureModelTemplateCollection*> m_fractureModelTemplates;
+    caf::PdmChildField<RimStimPlanModelTemplateCollection*> m_stimPlanModelTemplates;
 
 protected:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;

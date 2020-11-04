@@ -22,7 +22,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include "RiaFractureModelDefines.h"
+#include "RiaStimPlanModelDefines.h"
 
 class RimElasticPropertyScaling;
 

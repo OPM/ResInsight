@@ -12,9 +12,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RicNewSimWellFractureFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewStimPlanFractureTemplateFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathFractureAtPosFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathFractureFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicNewFractureModelFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathFractureModelAtPosFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicNewFractureModelTemplateFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicNewStimPlanModelFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathStimPlanModelAtPosFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicNewStimPlanModelTemplateFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewElasticPropertyScalingFeature.h
 
 ${CMAKE_CURRENT_LIST_DIR}/RicCreateMultipleFracturesFeature.h
@@ -37,9 +37,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RicNewSimWellFractureFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewStimPlanFractureTemplateFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathFractureAtPosFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathFractureFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicNewFractureModelFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathFractureModelAtPosFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicNewFractureModelTemplateFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicNewStimPlanModelFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathStimPlanModelAtPosFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicNewStimPlanModelTemplateFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewElasticPropertyScalingFeature.cpp
 
 ${CMAKE_CURRENT_LIST_DIR}/RicCreateMultipleFracturesFeature.cpp
