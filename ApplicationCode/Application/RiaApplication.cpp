@@ -155,6 +155,7 @@ RiaApplication::RiaApplication()
     , m_workerProcess( nullptr )
     , m_preferences( nullptr )
     , m_runningWorkerProcess( false )
+    , m_currentScriptCaseId( -1 )
 {
     CAF_ASSERT( s_riaApplication == nullptr );
     s_riaApplication = this;
@@ -307,6 +308,14 @@ RimGridView* RiaApplication::activeMainOrComparisonGridView()
     }
 
     return viewOrComparisonView;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaApplication::currentScriptCaseId() const
+{
+    return m_currentScriptCaseId;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1099,17 +1108,17 @@ bool RiaApplication::launchProcess( const QString&             program,
     if ( m_workerProcess == nullptr )
     {
         // If multiple cases are present, pop the first case ID from the list and set as current case
-        if ( !m_currentCaseIds.empty() )
+        if ( !m_scriptCaseIds.empty() )
         {
-            int nextCaseId = m_currentCaseIds.front();
-            m_currentCaseIds.pop_front();
+            int nextCaseId = m_scriptCaseIds.front();
+            m_scriptCaseIds.pop_front();
 
-            m_socketServer->setCurrentCaseId( nextCaseId );
+            m_currentScriptCaseId = nextCaseId;
         }
         else
         {
             // Disable current case concept
-            m_socketServer->setCurrentCaseId( -1 );
+            m_currentScriptCaseId = -1;
         }
 
         m_runningWorkerProcess = true;
@@ -1155,8 +1164,8 @@ bool RiaApplication::launchProcessForMultipleCases( const QString&             p
                                                     const std::vector<int>&    caseIds,
                                                     const QProcessEnvironment& processEnvironment )
 {
-    m_currentCaseIds.clear();
-    std::copy( caseIds.begin(), caseIds.end(), std::back_inserter( m_currentCaseIds ) );
+    m_scriptCaseIds.clear();
+    std::copy( caseIds.begin(), caseIds.end(), std::back_inserter( m_scriptCaseIds ) );
 
     m_currentProgram   = program;
     m_currentArguments = arguments;

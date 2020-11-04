@@ -29,16 +29,26 @@ using namespace rips;
 //--------------------------------------------------------------------------------------------------
 Status RiaGrpcProjectService::GetCurrentCase( ServerContext* context, const rips::Empty* request, rips::CaseRequest* reply )
 {
-    RimGridView* view = RiaApplication::instance()->activeGridView();
-    if ( view )
+    int scriptCaseId = RiaApplication::instance()->currentScriptCaseId();
+    if ( scriptCaseId != -1 )
     {
-        RimCase* currentCase = view->ownerCase();
-        if ( currentCase )
+        reply->set_id( scriptCaseId );
+        return Status::OK;
+    }
+    else
+    {
+        RimGridView* view = RiaApplication::instance()->activeGridView();
+        if ( view )
         {
-            reply->set_id( currentCase->caseId() );
-            return Status::OK;
+            RimCase* currentCase = view->ownerCase();
+            if ( currentCase )
+            {
+                reply->set_id( currentCase->caseId() );
+                return Status::OK;
+            }
         }
     }
+
     return Status( grpc::NOT_FOUND, "No current case found" );
 }
 
