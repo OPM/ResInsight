@@ -158,22 +158,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimElementVectorResult.h
 ${CMAKE_CURRENT_LIST_DIR}/RimColorLegendCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimColorLegend.h
 ${CMAKE_CURRENT_LIST_DIR}/RimColorLegendItem.h
-${CMAKE_CURRENT_LIST_DIR}/RimFractureModelPlot.h
-${CMAKE_CURRENT_LIST_DIR}/RimFractureModelPlotCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimFractureModelCurve.h
-${CMAKE_CURRENT_LIST_DIR}/RimElasticProperties.h
-${CMAKE_CURRENT_LIST_DIR}/RimElasticPropertyScaling.h
-${CMAKE_CURRENT_LIST_DIR}/RimElasticPropertyScalingCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimAbstractPlotCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimFractureModelPropertyCurve.h
-${CMAKE_CURRENT_LIST_DIR}/RimFaciesProperties.h
-${CMAKE_CURRENT_LIST_DIR}/RimNonNetLayers.h
-${CMAKE_CURRENT_LIST_DIR}/RimFractureModelCalculator.h
-${CMAKE_CURRENT_LIST_DIR}/RimFractureModelPropertyCalculator.h
-${CMAKE_CURRENT_LIST_DIR}/RimFractureModelWellLogCalculator.h
-${CMAKE_CURRENT_LIST_DIR}/RimFractureModelElasticPropertyCalculator.h
-${CMAKE_CURRENT_LIST_DIR}/RimFractureModelLayerCalculator.h
-${CMAKE_CURRENT_LIST_DIR}/RimFractureModelStressCalculator.h
 )
 
 
@@ -336,19 +321,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RimElementVectorResult.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimColorLegendCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimColorLegend.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimColorLegendItem.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimFractureModelPlot.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimFractureModelPlotCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimFractureModelCurve.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimElasticProperties.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimElasticPropertyScaling.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimElasticPropertyScalingCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimFaciesProperties.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimNonNetLayers.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimFractureModelCalculator.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimFractureModelWellLogCalculator.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimFractureModelElasticPropertyCalculator.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimFractureModelLayerCalculator.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimFractureModelStressCalculator.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
