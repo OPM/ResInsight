@@ -6,7 +6,9 @@ project (ResInsight)
 set (VIZ_MODULES_FOLDER_NAME Fwk/VizFwk)
 
 cmake_policy(SET CMP0020 NEW)
-cmake_policy(SET CMP0077 OLD)
+if (POLICY CMP0077)
+    cmake_policy(SET CMP0077 OLD)
+endif()
 
 if (UNIX)
     option(RESINSIGHT_PREFER_LEGACY_OPENGL "Link with Legacy OpenGL libraries. This may be necessary in some virtualization environments" ON)
