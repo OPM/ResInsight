@@ -109,6 +109,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Flow
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/GridCrossPlots
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Measurement
+  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/StimPlanModel
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Summary
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Surfaces
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModelCommands
@@ -171,6 +172,7 @@ list(
   ProjectDataModel/Completions/CMakeLists_files.cmake
   ProjectDataModel/Measurement/CMakeLists_files.cmake
   ProjectDataModel/PlotTemplates/CMakeLists_files.cmake
+  ProjectDataModel/StimPlanModel/CMakeLists_files.cmake
   ProjectDataModel/Surfaces/CMakeLists_files.cmake
   ProjectDataModelCommands/CMakeLists_files.cmake
   GeoMech/GeoMechVisualization/CMakeLists_files.cmake
