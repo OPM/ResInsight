@@ -579,6 +579,8 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
         cvf::BoundingBox bb           = cellBoundingBox( curCell, grid );
         cvf::Vec3d       curDirection = cellDirection( *curCell, grid ) * direction;
 
+        RigCell cell;
+
         while ( curStep < maxSteps )
         {
             // keep track of where we have been to avoid loops
@@ -614,8 +616,8 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
             std::vector<size_t> neighbors = findNeighborCellIndexes( curCell, grid );
             for ( auto cellIdx : neighbors )
             {
-                RigCell cell = grid->cell( cellIdx );
-                bb           = cellBoundingBox( &cell, grid );
+                cell = grid->cell( cellIdx );
+                bb   = cellBoundingBox( &cell, grid );
                 if ( bb.contains( curPos ) )
                 {
                     nextCell = &cell;
