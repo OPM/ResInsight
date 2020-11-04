@@ -89,6 +89,7 @@ public:
     double sampleSpacingFactor() const;
     void   setSampleSpacingFactor( double spacingFactor );
     bool   showContourLines() const;
+    bool   showContourLabels() const;
 
     QString resultAggregationText() const;
 
