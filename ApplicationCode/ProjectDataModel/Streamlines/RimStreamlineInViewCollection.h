@@ -23,10 +23,12 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 
+#include "cvfBoundingBox.h"
 #include "cvfObject.h"
 #include "cvfStructGrid.h"
 
 #include <list>
+#include <set>
 #include <vector>
 
 class RimStreamline;
@@ -67,9 +69,18 @@ private:
 
     QString gridResultNameFromPhase( RiaDefines::PhaseType phase, cvf::StructGridInterface::FaceType faceIdx ) const;
 
-    std::vector<double> getFaceValues( RigCell cell, RigGridBase* grid );
+    double faceValue( RigCell cell, cvf::StructGridInterface::FaceType faceIdx, RigGridBase* grid ) const;
+    double posFaceValue( RigCell cell, cvf::StructGridInterface::FaceType faceIdx ) const;
+    double negFaceValue( RigCell cell, cvf::StructGridInterface::FaceType faceIdx, RigGridBase* grid ) const;
 
-    RigCell* findNeighborCell( RigCell cell, RigGridBase* grid, cvf::StructGridInterface::FaceType face );
+    cvf::Vec3d cellDirection( RigCell cell, RigGridBase* grid ) const;
+
+    std::vector<double> faceValues( RigCell cell, RigGridBase* grid );
+
+    RigCell* findNeighborCell( RigCell cell, RigGridBase* grid, cvf::StructGridInterface::FaceType face ) const;
+    std::vector<size_t> findNeighborCellIndexes( RigCell* cell, RigGridBase* grid ) const;
+
+    cvf::BoundingBox cellBoundingBox( RigCell* cell, RigGridBase* grid ) const;
 
     caf::PdmField<bool>                                m_isActive;
     caf::PdmField<QString>                             m_collectionName;
@@ -82,9 +93,7 @@ private:
 
     std::list<RigTracer> m_activeTracers;
 
-    std::vector<cvf::ref<RigResultAccessor>> m_dataAccess;
+    std::set<size_t> m_wellCellIds;
 
-    // cvf::ref<RigResultAccessor> m_dataI;
-    // cvf::ref<RigResultAccessor> m_dataJ;
-    // cvf::ref<RigResultAccessor> m_dataK;
+    std::vector<cvf::ref<RigResultAccessor>> m_dataAccess;
 };

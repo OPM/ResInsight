@@ -36,7 +36,8 @@ public:
     explicit RigTracer( const RigTracer& other );
     ~RigTracer() override;
 
-    void appendPoint( cvf::Vec3d position, cvf::Vec3d direction );
+    void   appendPoint( cvf::Vec3d position, cvf::Vec3d direction );
+    size_t length() const;
 
     const std::vector<RigTracerPoint>& tracerPoints() const;
 
