@@ -30,6 +30,7 @@ RigTracer::RigTracer()
 ///
 //--------------------------------------------------------------------------------------------------
 RigTracer::RigTracer( const RigTracer& other )
+    : cvf::Object()
 {
     for ( auto p : other.m_points )
     {
