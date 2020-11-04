@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RimFractureModelCollection.h"
+#include "RimStimPlanModelCollection.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObjectHandle.h"
@@ -28,8 +28,8 @@
 
 #include <QString>
 
-class RimFractureModelCollection;
-class RimFractureModelTemplate;
+class RimStimPlanModelCollection;
+class RimStimPlanModelTemplate;
 class RimWellPath;
 
 //==================================================================================================

@@ -35,11 +35,11 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseView.h"
-#include "RimFractureModel.h"
-#include "RimFractureModelCollection.h"
 #include "RimOilField.h"
 #include "RimPerforationCollection.h"
 #include "RimProject.h"
+#include "RimStimPlanModel.h"
+#include "RimStimPlanModelCollection.h"
 #include "RimWellLogFile.h"
 #include "RimWellMeasurementCollection.h"
 #include "RimWellPath.h"
@@ -254,12 +254,12 @@ void RimWellPathCollection::loadDataAndUpdate()
                 }
             }
 
-            RimFractureModelCollection* fractureModelCollection = wellPath->fractureModelCollection();
-            if ( fractureModelCollection )
+            RimStimPlanModelCollection* stimPlanModelCollection = wellPath->stimPlanModelCollection();
+            if ( stimPlanModelCollection )
             {
-                for ( RimFractureModel* fractureModel : fractureModelCollection->allFractureModels() )
+                for ( RimStimPlanModel* stimPlanModel : stimPlanModelCollection->allStimPlanModels() )
                 {
-                    fractureModel->loadDataAndUpdate();
+                    stimPlanModel->loadDataAndUpdate();
                 }
             }
         }

@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RiaFractureModelDefines.h"
+#include "RiaStimPlanModelDefines.h"
 
 #include <QString>
 

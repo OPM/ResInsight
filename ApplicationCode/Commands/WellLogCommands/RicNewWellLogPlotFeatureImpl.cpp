@@ -21,10 +21,10 @@
 
 #include "RimCase.h"
 #include "RimEclipseCase.h"
-#include "RimFractureModelPlot.h"
-#include "RimFractureModelPlotCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
+#include "RimStimPlanModelPlot.h"
+#include "RimStimPlanModelPlotCollection.h"
 #include "RimWellBoreStabilityPlot.h"
 #include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogPlot.h"

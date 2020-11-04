@@ -21,7 +21,7 @@
 #include <QString>
 #include <vector>
 
-class RimFractureModelTemplate;
+class RimStimPlanModelTemplate;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -30,7 +30,7 @@ class RicElasticPropertiesImportTools
 {
 public:
     static void importElasticPropertiesFromFile( const QString&            filePath,
-                                                 RimFractureModelTemplate* fractureModelTemplate,
+                                                 RimStimPlanModelTemplate* stimPlanModelTemplate,
                                                  const QString&            formationWildCard = "1*" );
 
 private:

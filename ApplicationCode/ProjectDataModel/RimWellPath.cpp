@@ -35,9 +35,9 @@
 #include "Rim3dWellLogCurve.h"
 #include "Rim3dWellLogCurveCollection.h"
 #include "RimFishbonesMultipleSubs.h"
-#include "RimFractureModelCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
+#include "RimStimPlanModelCollection.h"
 #include "RimTools.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
@@ -305,21 +305,21 @@ const RimWellPathFractureCollection* RimWellPath::fractureCollection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFractureModelCollection* RimWellPath::fractureModelCollection()
+RimStimPlanModelCollection* RimWellPath::stimPlanModelCollection()
 {
     CVF_ASSERT( m_completions );
 
-    return m_completions->fractureModelCollection();
+    return m_completions->stimPlanModelCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RimFractureModelCollection* RimWellPath::fractureModelCollection() const
+const RimStimPlanModelCollection* RimWellPath::stimPlanModelCollection() const
 {
     CVF_ASSERT( m_completions );
 
-    return m_completions->fractureModelCollection();
+    return m_completions->stimPlanModelCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
