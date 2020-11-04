@@ -71,11 +71,6 @@
 #include "RimFlowPlotCollection.h"
 #include "RimFormationNames.h"
 #include "RimFormationNamesCollection.h"
-#include "RimFractureModel.h"
-#include "RimFractureModelCollection.h"
-#include "RimFractureModelPlot.h"
-#include "RimFractureModelTemplate.h"
-#include "RimFractureModelTemplateCollection.h"
 #include "RimFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
@@ -112,6 +107,11 @@
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimStimPlanFractureTemplate.h"
+#include "RimStimPlanModel.h"
+#include "RimStimPlanModelCollection.h"
+#include "RimStimPlanModelPlot.h"
+#include "RimStimPlanModelTemplate.h"
+#include "RimStimPlanModelTemplateCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -404,7 +404,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewPerforationIntervalFeature";
             menuBuilder << "RicNewFishbonesSubsFeature";
             menuBuilder << "RicNewWellPathFractureFeature";
-            menuBuilder << "RicNewFractureModelFeature";
+            menuBuilder << "RicNewStimPlanModelFeature";
             menuBuilder.subMenuEnd();
             menuBuilder << "RicCreateTemporaryLgrFeature";
             menuBuilder.addSeparator();
@@ -437,15 +437,15 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicDeleteWellPathAttributeFeature";
         }
-        else if ( dynamic_cast<RimFractureModel*>( firstUiItem ) )
+        else if ( dynamic_cast<RimStimPlanModel*>( firstUiItem ) )
         {
-            menuBuilder << "RicNewFractureModelFeature";
-            menuBuilder << "RicNewFractureModelPlotFeature";
-            menuBuilder << "RicExportFractureModelToFileFeature";
+            menuBuilder << "RicNewStimPlanModelFeature";
+            menuBuilder << "RicNewStimPlanModelPlotFeature";
+            menuBuilder << "RicExportStimPlanModelToFileFeature";
         }
-        else if ( dynamic_cast<RimFractureModelCollection*>( firstUiItem ) )
+        else if ( dynamic_cast<RimStimPlanModelCollection*>( firstUiItem ) )
         {
-            menuBuilder << "RicNewFractureModelFeature";
+            menuBuilder << "RicNewStimPlanModelFeature";
         }
         else if ( dynamic_cast<Rim3dWellLogCurveCollection*>( firstUiItem ) ||
                   dynamic_cast<Rim3dWellLogExtractionCurve*>( firstUiItem ) ||
@@ -874,14 +874,14 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicDeleteValveTemplateFeature";
         }
-        else if ( dynamic_cast<RimFractureModelTemplate*>( firstUiItem ) )
+        else if ( dynamic_cast<RimStimPlanModelTemplate*>( firstUiItem ) )
         {
             menuBuilder << "RicImportFaciesFeature";
             menuBuilder << "RicImportElasticPropertiesFeature";
         }
-        else if ( dynamic_cast<RimFractureModelTemplateCollection*>( firstUiItem ) )
+        else if ( dynamic_cast<RimStimPlanModelTemplateCollection*>( firstUiItem ) )
         {
-            menuBuilder << "RicNewFractureModelTemplateFeature";
+            menuBuilder << "RicNewStimPlanModelTemplateFeature";
         }
         else if ( dynamic_cast<RimFractureTemplateCollection*>( firstUiItem ) )
         {
@@ -1313,7 +1313,7 @@ int RimContextCommandBuilder::appendCreateCompletions( caf::CmdFeatureMenuBuilde
     candidates << "RicNewValveFeature";
     candidates << "RicNewFishbonesSubsFeature";
     candidates << "RicNewWellPathFractureFeature";
-    candidates << "RicNewFractureModelFeature";
+    candidates << "RicNewStimPlanModelFeature";
     candidates << "Separator";
     candidates << "RicCreateMultipleFracturesFeature";
     candidates << "RicNewWellPathAttributeFeature";

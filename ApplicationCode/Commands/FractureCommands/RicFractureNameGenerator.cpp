@@ -19,8 +19,8 @@
 #include "RicFractureNameGenerator.h"
 
 #include "RimFracture.h"
-#include "RimFractureModel.h"
-#include "RimFractureModelTemplate.h"
+#include "RimStimPlanModel.h"
+#include "RimStimPlanModelTemplate.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -33,15 +33,15 @@ QString RicFractureNameGenerator::nameForNewFracture()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicFractureNameGenerator::nameForNewFractureModel()
+QString RicFractureNameGenerator::nameForNewStimPlanModel()
 {
-    return RicFractureNameGenerator::nameForNewObject<RimFractureModel>( "Fracture Model_%1" );
+    return RicFractureNameGenerator::nameForNewObject<RimStimPlanModel>( "StimPlan Model_%1" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicFractureNameGenerator::nameForNewFractureModelTemplate()
+QString RicFractureNameGenerator::nameForNewStimPlanModelTemplate()
 {
-    return RicFractureNameGenerator::nameForNewObject<RimFractureModelTemplate>( "Fracture Model Template_%1" );
+    return RicFractureNameGenerator::nameForNewObject<RimStimPlanModelTemplate>( "StimPlan Model Template_%1" );
 }

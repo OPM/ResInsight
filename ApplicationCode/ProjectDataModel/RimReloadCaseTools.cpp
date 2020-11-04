@@ -100,11 +100,11 @@ void RimReloadCaseTools::clearAllGridData( RigEclipseCaseData* eclipseCaseData )
         matrixModelResults->clearAllResults();
     }
 
-    RigCaseCellResultsData* fractureModelResults =
+    RigCaseCellResultsData* stimPlanModelResults =
         eclipseCaseData->results( RiaDefines::PorosityModelType::FRACTURE_MODEL );
-    if ( fractureModelResults )
+    if ( stimPlanModelResults )
     {
-        fractureModelResults->clearAllResults();
+        stimPlanModelResults->clearAllResults();
     }
 }
 

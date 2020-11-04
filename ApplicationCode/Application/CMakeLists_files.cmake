@@ -19,7 +19,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaEclipseFileNameTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaFeatureCommandContext.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaStringListSerializer.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaNncDefines.h
-${CMAKE_CURRENT_LIST_DIR}/RiaFractureModelDefines.h
+${CMAKE_CURRENT_LIST_DIR}/RiaStimPlanModelDefines.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -43,7 +43,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaEclipseFileNameTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaFeatureCommandContext.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaStringListSerializer.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaNncDefines.cpp
-${CMAKE_CURRENT_LIST_DIR}/RiaFractureModelDefines.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaStimPlanModelDefines.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
