@@ -38,6 +38,7 @@
 
 #include "cvfCollection.h"
 
+#include <math.h>
 #include <qdebug.h>
 
 CAF_PDM_SOURCE_INIT( RimStreamlineInViewCollection, "StreamlineInViewCollection" );
@@ -55,11 +56,14 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
     CAF_PDM_InitScriptableFieldNoDefault( &m_flowThreshold, "FlowThreshold", "Flow Threshold [m/day]", "", "", "" );
     m_flowThreshold = 0.000001;
 
+    CAF_PDM_InitScriptableFieldNoDefault( &m_lengthThreshold, "LengthThreshold", "Minimum length [m]", "", "", "" );
+    m_lengthThreshold = 20.0;
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_resolution, "Resolution", "Resolution [days]", "", "", "" );
     m_resolution = 1.0;
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_maxDays, "MaxDays", "Max. days ", "", "", "" );
-    m_maxDays = 1000;
+    m_maxDays = 50000;
 
     CAF_PDM_InitScriptableField( &m_phase,
                                  "Phase",
@@ -74,6 +78,9 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_streamlines, "Streamlines", "Streamlines", "", "", "" );
     m_streamlines.uiCapability()->setUiTreeHidden( true );
+    m_streamlines.xmlCapability()->disableIO();
+
+    uiCapability()->setUiTreeChildrenHidden( true );
 
     m_eclipseCase = nullptr;
 
@@ -197,8 +204,8 @@ void RimStreamlineInViewCollection::goForIt()
     // get the simulation wells
     const cvf::Collection<RigSimWellData>& simWellData = eclipseCase()->eclipseCaseData()->wellResults();
 
-    std::vector<RigCell> seedCellsInjector;
-    std::vector<RigCell> seedCellsProducer;
+    std::vector<std::pair<QString, RigCell>> seedCellsInjector;
+    std::vector<std::pair<QString, RigCell>> seedCellsProducer;
 
     std::vector<const RigGridBase*> grids;
     eclipseCase()->eclipseCaseData()->allGrids( &grids );
@@ -207,8 +214,6 @@ void RimStreamlineInViewCollection::goForIt()
     for ( auto swdata : simWellData )
     {
         if ( !swdata->hasWellResult( timeIdx ) || !swdata->hasAnyValidCells( timeIdx ) ) continue;
-
-        if ( swdata->m_wellName != "F-2H" ) continue;
 
         RigWellResultFrame frame = swdata->wellResultFrame( timeIdx );
 
@@ -221,11 +226,11 @@ void RimStreamlineInViewCollection::goForIt()
                     RigCell cell = grids[point.m_gridIndex]->cell( point.m_gridCellIndex );
                     if ( frame.m_productionType == RigWellResultFrame::WellProductionType::PRODUCER )
                     {
-                        seedCellsProducer.push_back( cell );
+                        seedCellsProducer.push_back( std::pair<QString, RigCell>( swdata->m_wellName, cell ) );
                     }
                     else if ( frame.m_productionType != RigWellResultFrame::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
                     {
-                        seedCellsInjector.push_back( cell );
+                        seedCellsInjector.push_back( std::pair<QString, RigCell>( swdata->m_wellName, cell ) );
                     }
                     m_wellCellIds.insert( cell.mainGridCellIndex() );
                 }
@@ -246,24 +251,34 @@ void RimStreamlineInViewCollection::goForIt()
     // generate tracers for all injectors
     for ( auto cell : seedCellsInjector )
     {
-        generateTracer( cell, normalDirection );
+        generateTracer( cell.second, normalDirection, cell.first );
     }
     // generate tracers for all producers, make sure to invert the direction to backtrack the traces
     for ( auto cell : seedCellsProducer )
     {
-        generateTracer( cell, reverseDirection );
+        generateTracer( cell.second, reverseDirection, cell.first );
     }
 
+    outputSummary();
+}
+
+//--------------------------------------------------------------------------------------------------
+// debug output
+//--------------------------------------------------------------------------------------------------
+void RimStreamlineInViewCollection::outputSummary() const
+{
     qDebug() << "Generated" << m_streamlines.size() << " tracers";
 
-    int i = 0;
-    for ( auto sl : m_streamlines() )
+    for ( auto s : m_streamlines )
     {
-        for ( RigTracerPoint point : sl->tracer().tracerPoints() )
-        {
-            // qDebug() << point.absValue();
-        }
-        i++;
+        QString debStr( "Tracer for well " );
+        debStr += s->simWellName();
+        debStr += " of length ";
+        debStr += QString::number( s->tracer().totalDistance(), 'f', 2 );
+        debStr += " meters and ";
+        debStr += QString::number( s->tracer().size() );
+        debStr += " points.";
+        qDebug() << debStr;
     }
 
     eclView->loadDataAndUpdate();
@@ -300,12 +315,11 @@ cvf::ref<RigResultAccessor> RimStreamlineInViewCollection::getDataAccessor( cvf:
 {
     QString resultname = gridResultNameFromPhase( phase, faceIdx );
 
-    // TODO - should probably get these from somewhere
     RiaDefines::PorosityModelType porModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
     int                           gridIdx  = 0;
 
     RigEclipseResultAddress address( RiaDefines::ResultCatType::DYNAMIC_NATIVE, resultname );
-    RigCaseCellResultsData* data = m_eclipseCase->eclipseCaseData()->results( porModel );
+    // RigCaseCellResultsData* data = m_eclipseCase->eclipseCaseData()->results( porModel );
 
     return RigResultAccessorFactory::createFromResultAddress( eclipseCase()->eclipseCaseData(),
                                                               gridIdx,
@@ -319,7 +333,7 @@ cvf::ref<RigResultAccessor> RimStreamlineInViewCollection::getDataAccessor( cvf:
 //--------------------------------------------------------------------------------------------------
 bool RimStreamlineInViewCollection::setupDataAccessors( RiaDefines::PhaseType phase, int timeIdx )
 {
-    // m_dataAccess.clear();
+    m_dataAccess.clear();
 
     // NEG_? accessors are set to POS_? accessors, but will be referring the neighbor cell when used
     m_dataAccess.push_back( getDataAccessor( cvf::StructGridInterface::FaceType::POS_I, phase, timeIdx ) );
@@ -473,7 +487,7 @@ cvf::Vec3d RimStreamlineInViewCollection::cellDirection( RigCell cell, RigGridBa
         cvf::Vec3d faceNorm = cell.faceNormalWithAreaLength( face );
         faceNorm.normalize();
         faceNorm *= faceValue( cell, face, grid );
-        if ( face % 2 == 1 ) faceNorm *= -1.0;
+        if ( face % 2 != 0 ) faceNorm *= -1.0;
 
         direction += faceNorm;
     }
@@ -496,9 +510,9 @@ cvf::BoundingBox RimStreamlineInViewCollection::cellBoundingBox( RigCell* cell, 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Grow tracers for all faces of the input cell, possibly reversing the direction
+/// Grow tracers for all faces of the input cell, possibly reversing the direction for producers
 //--------------------------------------------------------------------------------------------------
-void RimStreamlineInViewCollection::generateTracer( RigCell cell, double direction )
+void RimStreamlineInViewCollection::generateTracer( RigCell cell, double direction, QString simWellName )
 {
     RigMainGrid*        grid     = eclipseCase()->eclipseCaseData()->mainGrid();
     std::vector<double> faceVals = faceValues( cell, grid );
@@ -510,12 +524,12 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
                                                              cvf::StructGridInterface::FaceType::POS_K,
                                                              cvf::StructGridInterface::FaceType::NEG_K};
 
-    if ( cell.mainGridCellIndex() != 65613 ) return;
+    // if ( cell.mainGridCellIndex() != 65613 ) return;
     size_t ni, nj, nk;
-
-    qDebug() << "Tracing from cell " << cell.mainGridCellIndex();
     grid->ijkFromCellIndexUnguarded( cell.mainGridCellIndex(), &ni, &nj, &nk );
-    qDebug() << "Simwell cell IJK: " << ni << nj << nk;
+
+    // qDebug() << "Tracing from cell " << cell.mainGridCellIndex();
+    // qDebug() << "Simwell cell IJK: " << ni << nj << nk;
 
     // try to generate a tracer for all faces in the selected cell
     for ( auto faceIdx : faces )
@@ -523,7 +537,7 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
         // if too little flow, skip making tracer for this face
         if ( faceVals[faceIdx] <= m_flowThreshold )
         {
-            qDebug() << "Skipping cell " << cell.mainGridCellIndex() << "for face direction " << faceIdx;
+            // qDebug() << "Skipping cell " << cell.mainGridCellIndex() << "for face direction " << faceIdx;
             continue;
         }
 
@@ -531,6 +545,7 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
         cvf::Vec3d startDirection = cell.faceNormalWithAreaLength( faceIdx );
         startDirection.normalize();
         startDirection *= faceVals[faceIdx];
+        startDirection *= direction;
         // skip vectors with inf values
         if ( startDirection.isUndefined() ) continue;
 
@@ -542,20 +557,21 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
         RigCell* startCell = findNeighborCell( cell, grid, faceIdx );
         if ( startCell == nullptr ) continue;
 
-        RigCell*   curCell  = startCell;
-        cvf::Vec3d curPos   = startPosition;
-        size_t     startIdx = startCell->mainGridCellIndex();
+        RigCell*   curCell = startCell;
+        cvf::Vec3d curPos  = startPosition;
+        // size_t     startIdx = startCell->mainGridCellIndex();
         // if ( startIdx != 43717 ) continue;
+
+        std::set<size_t> visitedCellsIdx;
 
         grid->ijkFromCellIndexUnguarded( curCell->mainGridCellIndex(), &ni, &nj, &nk );
 
-        qDebug() << "Starting tracer from cell" << startCell->mainGridCellIndex() << "in direction"
-                 << startDirection.x() << startDirection.y() << startDirection.z() << "for face" << faceIdx;
-        qDebug() << "Start cell IJK: " << ni << nj << nk;
+        // qDebug() << "Starting tracer from cell" << startCell->mainGridCellIndex() << "in direction"
+        //         << startDirection.x() << startDirection.y() << startDirection.z() << "for face" << faceIdx;
+        // qDebug() << "Start cell IJK: " << ni << nj << nk;
 
         // create the streamline we should store the tracer points in
-        RimStreamline* streamLine = new RimStreamline( "" );
-        m_streamlines.push_back( streamLine );
+        RimStreamline* streamLine = new RimStreamline( simWellName );
 
         // calculate the max number of steps based on user settings for length and resolution
         int maxSteps = (int)( m_maxDays / m_resolution );
@@ -565,29 +581,23 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
         cvf::BoundingBox bb           = cellBoundingBox( curCell, grid );
         cvf::Vec3d       curDirection = cellDirection( *curCell, grid ) * direction;
 
+        RigCell cell;
+
         while ( curStep < maxSteps )
         {
+            // keep track of where we have been to avoid loops
+            visitedCellsIdx.insert( curCell->mainGridCellIndex() );
+
             bool stop = false;
 
-            qDebug() << "In cell " << curCell->mainGridCellIndex() << "with direction " << curDirection.x()
-                     << curDirection.y() << curDirection.z() << "for face" << faceIdx;
-
             grid->ijkFromCellIndexUnguarded( curCell->mainGridCellIndex(), &ni, &nj, &nk );
-            qDebug() << "Cell IJK: " << ni << nj << nk;
-
-            QString debStr( "Face values: " );
-
-            for ( double d : faceValues( *curCell, grid ) )
-            {
-                debStr += QString::number( d );
-                debStr += " ";
-            }
-            qDebug() << debStr;
+            // qDebug() << "In cell " << curCell->mainGridCellIndex() << "(" << ni << nj << nk << ") with direction "
+            //         << curDirection.x() << curDirection.y() << curDirection.z();
 
             // is this a well cell, if so, stop growing
             if ( m_wellCellIds.count( curCell->mainGridCellIndex() ) > 0 )
             {
-                qDebug() << "Found well, stopping tracer in cell " << curCell->mainGridCellIndex();
+                // qDebug() << "Tracer stopped. Found well in cell " << curCell->mainGridCellIndex();
                 break;
             }
 
@@ -608,8 +618,8 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
             std::vector<size_t> neighbors = findNeighborCellIndexes( curCell, grid );
             for ( auto cellIdx : neighbors )
             {
-                RigCell cell = grid->cell( cellIdx );
-                bb           = cellBoundingBox( &cell, grid );
+                cell = grid->cell( cellIdx );
+                bb   = cellBoundingBox( &cell, grid );
                 if ( bb.contains( curPos ) )
                 {
                     nextCell = &cell;
@@ -618,7 +628,17 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
             }
 
             // no neighbour found, stop this tracer
-            if ( nextCell == nullptr ) break;
+            if ( nextCell == nullptr )
+            {
+                // qDebug() << "Tracer stopped. No neighbor found.";
+                break;
+            }
+
+            if ( visitedCellsIdx.count( nextCell->mainGridCellIndex() ) > 0 )
+            {
+                // qDebug() << "Tracer stopped. Loop detected.";
+                break;
+            }
 
             // update our current cell and direction
             curCell      = nextCell;
@@ -628,12 +648,34 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
             if ( curDirection.length() < m_flowThreshold ) break;
         }
 
-        qDebug() << "Tracer length: " << streamLine->tracer().length();
+        // qDebug() << "Tracer length: " << streamLine->tracer().size() << "points";
 
-        for ( auto pos : streamLine->tracer().tracerPoints() )
+        if ( streamLine->tracer().size() > 1 )
         {
-            qDebug() << pos.position().x() << pos.position().y() << pos.position().z();
+            // make sure the streamline points with the flow towards the producer
+            if ( direction < 0.0 ) streamLine->reverse();
+
+            double distance = streamLine->tracer().totalDistance();
+
+            // auto firstPos = streamLine->tracer().tracerPoints().front();
+            // auto lastPos  = streamLine->tracer().tracerPoints().back();
+
+            // double distance = lastPos.position().pointDistance( firstPos.position() );
+
+            // qDebug() << "Tracer distance:" << distance << "meters";
+
+            if ( distance >= m_lengthThreshold )
+            {
+                streamLine->generateStatistics();
+                m_streamlines.push_back( streamLine );
+                streamLine = nullptr;
+            }
+            // else
+            //{
+            //    qDebug() << "Skipping too short tracer";
+            //}
         }
+        if ( streamLine ) delete streamLine;
     }
     return;
 }
