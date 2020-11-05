@@ -702,30 +702,29 @@ if(RESINSIGHT_PRIVATE_INSTALL)
       endif(OPENSSL_FOUND)
     endif(RESINSIGHT_BUNDLE_OPENSSL)
 
-
     # Boost
     find_package(Boost REQUIRED filesystem system)
 
-      get_property(
-        _filepath
-        TARGET "Boost::filesystem"
-        PROPERTY LOCATION_RELEASE)
+    get_property(
+      _filepath
+      TARGET "Boost::filesystem"
+      PROPERTY LOCATION_RELEASE)
     message("_filepath: ${_filepath}")
 
     # The location of Boost is based on the file structure as installed by vcpkg
     # The DLLs are located in the /bin folder
     get_filename_component(_dir ${_filepath} PATH)
     string(REPLACE "/lib" "/bin" _dir ${_dir})
-    
+
     # Use file clobbing, as the dlls are decorated with local compiler info
     file(GLOB RI_BOOST_DLLS ${_dir}/boost_filesystem*.dll)
 
     message("RI_BOOST_DLLS : ${RI_BOOST_DLLS}")
-     
-    install(FILES ${RI_BOOST_DLLS}
-          DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
-          CONFIGURATIONS Release RelWithDebInfo
-        )
+
+    install(
+      FILES ${RI_BOOST_DLLS}
+      DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+      CONFIGURATIONS Release RelWithDebInfo)
 
     # CRT
     set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP ON)
