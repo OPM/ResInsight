@@ -23,11 +23,11 @@
 #include "RicFractureNameGenerator.h"
 
 #include "RimEclipseView.h"
-#include "RimStimPlanModel.h"
-#include "RimStimPlanModelCollection.h"
 #include "RimModeledWellPath.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimStimPlanModel.h"
+#include "RimStimPlanModelCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathCompletions.h"

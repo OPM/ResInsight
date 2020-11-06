@@ -18,8 +18,8 @@
 #include "RimStimPlanModelStressCalculator.h"
 
 #include "RiaDefines.h"
-#include "RiaStimPlanModelDefines.h"
 #include "RiaLogging.h"
+#include "RiaStimPlanModelDefines.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigEclipseWellLogExtractor.h"
@@ -28,10 +28,10 @@
 #include "RigWellPathGeometryTools.h"
 #include "RimCase.h"
 #include "RimEclipseCase.h"
+#include "RimModeledWellPath.h"
 #include "RimStimPlanModel.h"
 #include "RimStimPlanModelCalculator.h"
 #include "RimStimPlanModelStressCalculator.h"
-#include "RimModeledWellPath.h"
 
 //--------------------------------------------------------------------------------------------------
 ///

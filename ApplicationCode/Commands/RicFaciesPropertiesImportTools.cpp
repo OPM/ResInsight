@@ -28,8 +28,8 @@
 #include "RimColorLegendCollection.h"
 #include "RimColorLegendItem.h"
 #include "RimFaciesProperties.h"
-#include "RimStimPlanModelTemplate.h"
 #include "RimProject.h"
+#include "RimStimPlanModelTemplate.h"
 
 #include "RifColorLegendData.h"
 #include "RifRoffReader.h"

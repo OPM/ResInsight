@@ -19,10 +19,10 @@
 #include "RicNewStimPlanModelTemplateFeature.h"
 
 #include "RimCompletionTemplateCollection.h"
-#include "RimStimPlanModelTemplate.h"
-#include "RimStimPlanModelTemplateCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimStimPlanModelTemplate.h"
+#include "RimStimPlanModelTemplateCollection.h"
 
 #include "RicFractureNameGenerator.h"
 

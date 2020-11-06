@@ -18,8 +18,8 @@
 
 #include "RimCompletionTemplateCollection.h"
 
-#include "RimStimPlanModelTemplateCollection.h"
 #include "RimFractureTemplateCollection.h"
+#include "RimStimPlanModelTemplateCollection.h"
 #include "RimValveTemplateCollection.h"
 
 #include "cafPdmUiTreeOrdering.h"

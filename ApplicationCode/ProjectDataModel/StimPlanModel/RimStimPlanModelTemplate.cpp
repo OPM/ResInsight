@@ -22,8 +22,8 @@
 #include "RiaCompletionTypeCalculationScheduler.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaFractureDefines.h"
-#include "RiaStimPlanModelDefines.h"
 #include "RiaLogging.h"
+#include "RiaStimPlanModelDefines.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -41,10 +41,10 @@
 #include "RimElasticProperties.h"
 #include "RimEllipseFractureTemplate.h"
 #include "RimFaciesProperties.h"
-#include "RimStimPlanModelPlot.h"
 #include "RimNonNetLayers.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimStimPlanModelPlot.h"
 #include "RimTools.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"

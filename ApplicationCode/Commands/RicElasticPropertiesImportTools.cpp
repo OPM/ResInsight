@@ -30,9 +30,9 @@
 #include "RimElasticProperties.h"
 #include "RimFormationNames.h"
 #include "RimFormationNamesCollection.h"
-#include "RimStimPlanModelTemplate.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimStimPlanModelTemplate.h"
 
 #include <set>
 #include <vector>

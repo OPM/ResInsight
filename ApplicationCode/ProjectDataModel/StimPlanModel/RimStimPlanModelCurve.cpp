@@ -19,19 +19,19 @@
 #include "RimStimPlanModelCurve.h"
 
 #include "RiaApplication.h"
-#include "RiaStimPlanModelDefines.h"
 #include "RiaInterpolationTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
+#include "RiaStimPlanModelDefines.h"
 
 #include "RigEclipseCaseData.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimModeledWellPath.h"
 #include "RimStimPlanModel.h"
 #include "RimStimPlanModelCalculator.h"
 #include "RimStimPlanModelPlot.h"
-#include "RimModeledWellPath.h"
 
 #include "RiuQwtPlotCurve.h"
 #include "RiuQwtPlotWidget.h"

@@ -23,8 +23,8 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimFaciesProperties.h"
-#include "RimStimPlanModelTemplate.h"
 #include "RimProject.h"
+#include "RimStimPlanModelTemplate.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"

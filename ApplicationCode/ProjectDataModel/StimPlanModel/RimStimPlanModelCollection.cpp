@@ -18,8 +18,8 @@
 
 #include "RimStimPlanModelCollection.h"
 
-#include "RimStimPlanModel.h"
 #include "RimProject.h"
+#include "RimStimPlanModel.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObject.h"

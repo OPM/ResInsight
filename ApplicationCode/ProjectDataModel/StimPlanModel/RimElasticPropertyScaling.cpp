@@ -24,8 +24,8 @@
 #include "RimEclipseCase.h"
 #include "RimElasticProperties.h"
 #include "RimFaciesProperties.h"
-#include "RimStimPlanModelTemplate.h"
 #include "RimProject.h"
+#include "RimStimPlanModelTemplate.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"

@@ -18,8 +18,8 @@
 #include "RimStimPlanModelCalculator.h"
 
 #include "RiaDefines.h"
-#include "RiaStimPlanModelDefines.h"
 #include "RiaLogging.h"
+#include "RiaStimPlanModelDefines.h"
 
 #include "RigEclipseCaseData.h"
 

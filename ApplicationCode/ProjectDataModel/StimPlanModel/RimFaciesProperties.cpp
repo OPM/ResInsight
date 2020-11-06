@@ -20,9 +20,9 @@
 
 #include "RimColorLegend.h"
 #include "RimEclipseResultDefinition.h"
-#include "RimStimPlanModelTemplate.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
+#include "RimStimPlanModelTemplate.h"
 #include "RimTools.h"
 
 #include "RicFaciesPropertiesImportTools.h"

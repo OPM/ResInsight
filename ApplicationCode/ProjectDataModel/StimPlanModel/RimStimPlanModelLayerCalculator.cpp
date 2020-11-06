@@ -18,8 +18,8 @@
 #include "RimStimPlanModelLayerCalculator.h"
 
 #include "RiaDefines.h"
-#include "RiaStimPlanModelDefines.h"
 #include "RiaLogging.h"
+#include "RiaStimPlanModelDefines.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigEclipseWellLogExtractor.h"
@@ -30,12 +30,12 @@
 #include "RimCase.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimModeledWellPath.h"
+#include "RimNonNetLayers.h"
 #include "RimStimPlanModel.h"
 #include "RimStimPlanModelCalculator.h"
 #include "RimStimPlanModelLayerCalculator.h"
 #include "RimStimPlanModelTemplate.h"
-#include "RimModeledWellPath.h"
-#include "RimNonNetLayers.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 

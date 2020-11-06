@@ -22,8 +22,8 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimFracture.h"
-#include "RimStimPlanModelTemplate.h"
 #include "RimProject.h"
+#include "RimStimPlanModelTemplate.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObject.h"
