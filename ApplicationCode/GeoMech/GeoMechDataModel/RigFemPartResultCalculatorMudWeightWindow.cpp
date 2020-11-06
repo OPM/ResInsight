@@ -70,12 +70,12 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
     CVF_ASSERT( isMatching( resVarAddr ) );
 
     const std::vector<RimMudWeightWindowParameters::ParameterType> parameterTypes =
-        {RimMudWeightWindowParameters::ParameterType::WELL_DEVIATION,
-         RimMudWeightWindowParameters::ParameterType::WELL_AZIMUTH,
-         RimMudWeightWindowParameters::ParameterType::UCS,
-         RimMudWeightWindowParameters::ParameterType::POISSONS_RATIO,
-         RimMudWeightWindowParameters::ParameterType::K0_FG,
-         RimMudWeightWindowParameters::ParameterType::OBG0};
+        { RimMudWeightWindowParameters::ParameterType::WELL_DEVIATION,
+          RimMudWeightWindowParameters::ParameterType::WELL_AZIMUTH,
+          RimMudWeightWindowParameters::ParameterType::UCS,
+          RimMudWeightWindowParameters::ParameterType::POISSONS_RATIO,
+          RimMudWeightWindowParameters::ParameterType::K0_FG,
+          RimMudWeightWindowParameters::ParameterType::OBG0 };
 
     caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * ( 5 + parameterTypes.size() ), "" );
     frameCountProgress.setProgressDescription( "Calculating Mud Weight Window" );

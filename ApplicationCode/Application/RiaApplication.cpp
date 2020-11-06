@@ -350,7 +350,7 @@ bool RiaApplication::openFile( const QString& fileName )
     }
     else if ( int( fileType ) & int( RiaDefines::ImportFileType::ANY_ECLIPSE_FILE ) )
     {
-        loadingSucceded   = RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{fileName}, true );
+        loadingSucceded   = RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{ fileName }, true );
         lastUsedDialogTag = RiaDefines::defaultDirectoryLabel( fileType );
     }
 
@@ -1869,7 +1869,7 @@ bool RiaApplication::generateCode( const QString& fileName, gsl::not_null<QStrin
 
             std::vector<std::shared_ptr<const caf::PdmObject>> commandObjects;
 
-            QStringList excludedClassNames{"TestCommand1", "TC2"}; // See RifCommandCore-Text.cpp
+            QStringList excludedClassNames{ "TestCommand1", "TC2" }; // See RifCommandCore-Text.cpp
 
             auto allObjects = caf::PdmMarkdownBuilder::createAllObjects( caf::PdmDefaultObjectFactory::instance() );
             for ( auto classObject : allObjects )

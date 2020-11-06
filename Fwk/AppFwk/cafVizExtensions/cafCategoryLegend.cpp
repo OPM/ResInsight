@@ -256,7 +256,7 @@ void CategoryLegend::renderLegendUsingShaders( OpenGLContext*                ogl
     line.applyOpenGL( oglContext );
 
     // All vertices. Initialized here to set Z to zero once and for all.
-    static float vertexArray[] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+    static float vertexArray[] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 
     // Per vector convenience pointers
     float* v0 = &vertexArray[0];
@@ -270,7 +270,7 @@ void CategoryLegend::renderLegendUsingShaders( OpenGLContext*                ogl
     v1[0] = v4[0] = layout->tickMidX;
 
     // Connects
-    static const ushort trianglesConnects[] = {0, 1, 4, 0, 4, 3};
+    static const ushort trianglesConnects[] = { 0, 1, 4, 0, 4, 3 };
 
     ref<ShaderProgram> shaderProgram = oglContext->resourceManager()->getLinkedUnlitColorShaderProgram( oglContext );
     CVF_TIGHT_ASSERT( shaderProgram.notNull() );
@@ -327,7 +327,7 @@ void CategoryLegend::renderLegendUsingShaders( OpenGLContext*                ogl
         v1[0] = v3[0] = layout->colorBarRect.max().x() - 0.5f;
         v0[1] = v1[1] = layout->colorBarRect.min().y() - 0.5f;
         v2[1] = v3[1]                       = layout->colorBarRect.max().y() - 0.5f;
-        static const ushort frameConnects[] = {0, 1, 1, 3, 3, 2, 2, 0};
+        static const ushort frameConnects[] = { 0, 1, 1, 3, 3, 2, 2, 0 };
 
         UniformFloat uniformColor( "u_color", Color4f( this->lineColor() ) );
         shaderProgram->applyUniform( oglContext, uniformColor );
@@ -495,7 +495,7 @@ void CategoryLegend::layoutInfo( OverlayColorLegendLayoutInfo* layout )
 //--------------------------------------------------------------------------------------------------
 cvf::Vec2ui CategoryLegend::preferredSize()
 {
-    OverlayColorLegendLayoutInfo layout( {200, 200} ); // Use default size
+    OverlayColorLegendLayoutInfo layout( { 200, 200 } ); // Use default size
     layoutInfo( &layout );
 
     float prefferredYSize = 2 * layout.margins.y() + layout.lineSpacing * ( this->titleStrings().size() ) +
@@ -519,7 +519,7 @@ cvf::Vec2ui CategoryLegend::preferredSize()
 
     prefferredXSize = std::min( prefferredXSize, 400.0f );
 
-    return {(unsigned int)( std::ceil( prefferredXSize ) ), (unsigned int)( std::ceil( prefferredYSize ) )};
+    return { (unsigned int)( std::ceil( prefferredXSize ) ), (unsigned int)( std::ceil( prefferredYSize ) ) };
 }
 
 } // namespace caf

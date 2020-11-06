@@ -183,9 +183,9 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
 
     cvf::ref<cvf::Effect> effectToUse = RiaGuiApplication::instance()->useShaders() ? m_shaderEffect : m_fixedFuncEffect;
 
-    const cvf::Color3ub colorTable[] = {cvf::Color3ub( 0, 177, 89 ), // Green
-                                        cvf::Color3ub( 255, 66, 66 ), // Red
-                                        cvf::Color3ub( 66, 66, 255 )}; // Blue
+    const cvf::Color3ub colorTable[] = { cvf::Color3ub( 0, 177, 89 ), // Green
+                                         cvf::Color3ub( 255, 66, 66 ), // Red
+                                         cvf::Color3ub( 66, 66, 255 ) }; // Blue
 
     size_t                       vertexCount = geo1->vertexCount();
     cvf::ref<cvf::Color3ubArray> colorArray  = new cvf::Color3ubArray;

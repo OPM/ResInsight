@@ -118,8 +118,8 @@ void RigStatisticsMath::calculateStatisticsCurves( const std::vector<double>& va
     }
 
     int    valueCount    = (int)sortedValues.size();
-    double percentiles[] = {0.1, 0.5, 0.9};
-    double pValues[]     = {HUGE_VAL, HUGE_VAL, HUGE_VAL};
+    double percentiles[] = { 0.1, 0.5, 0.9 };
+    double pValues[]     = { HUGE_VAL, HUGE_VAL, HUGE_VAL };
 
     for ( int i = P10; i <= P90; i++ )
     {

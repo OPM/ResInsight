@@ -268,7 +268,7 @@ void RimSummaryCaseCollection::addCase( RimSummaryCase* summaryCase )
 
     if ( m_isEnsemble )
     {
-        validateEnsembleCases( {summaryCase} );
+        validateEnsembleCases( { summaryCase } );
         calculateEnsembleParametersIntersectionHash();
     }
 

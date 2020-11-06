@@ -1077,8 +1077,8 @@ void RimRegularLegendConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiO
         formatGr->add( &m_precision );
         formatGr->add( &m_tickNumberFormat );
 
-        formatGr->add( &m_colorLegend, {true, 2, 1} );
-        formatGr->add( &m_selectColorLegendButton, {false, 1, 0} );
+        formatGr->add( &m_colorLegend, { true, 2, 1 } );
+        formatGr->add( &m_selectColorLegendButton, { false, 1, 0 } );
 
         caf::PdmUiOrdering* mappingGr = uiOrdering.addNewGroup( "Mapping" );
         mappingGr->add( &m_mappingMode );

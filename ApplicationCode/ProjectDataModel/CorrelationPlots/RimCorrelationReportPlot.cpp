@@ -402,9 +402,9 @@ void RimCorrelationReportPlot::onDataSelection( const caf::SignalEmitter*       
     auto paramName = parameterAndCurveDef.first;
     auto curveDef  = parameterAndCurveDef.second;
 
-    m_correlationPlot->setCurveDefinitions( {curveDef} );
+    m_correlationPlot->setCurveDefinitions( { curveDef } );
     m_correlationPlot->loadDataAndUpdate();
-    m_parameterResultCrossPlot->setCurveDefinitions( {curveDef} );
+    m_parameterResultCrossPlot->setCurveDefinitions( { curveDef } );
     m_parameterResultCrossPlot->setEnsembleParameter( paramName );
     m_parameterResultCrossPlot->loadDataAndUpdate();
     if ( m_viewer )

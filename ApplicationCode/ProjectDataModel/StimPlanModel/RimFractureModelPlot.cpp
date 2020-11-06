@@ -84,8 +84,8 @@ RimFractureModel* RimFractureModelPlot::fractureModel()
 //--------------------------------------------------------------------------------------------------
 void RimFractureModelPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_fractureModel, {true, 2, 1} );
-    uiOrdering.add( &m_editFractureModel, {false, 1, 0} );
+    uiOrdering.add( &m_fractureModel, { true, 2, 1 } );
+    uiOrdering.add( &m_editFractureModel, { false, 1, 0 } );
     uiOrdering.add( &m_eclipseCase );
     uiOrdering.add( &m_timeStep );
 
@@ -158,10 +158,10 @@ void RimFractureModelPlot::onLoadDataAndUpdate()
     // Enable and disable detailed fluid loss curves
     if ( fractureModel() != nullptr )
     {
-        std::vector<RiaDefines::CurveProperty> fluidLossCurves = {RiaDefines::CurveProperty::PORO_ELASTIC_CONSTANT,
-                                                                  RiaDefines::CurveProperty::RELATIVE_PERMEABILITY_FACTOR,
-                                                                  RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFICIENT,
-                                                                  RiaDefines::CurveProperty::IMMOBILE_FLUID_SATURATION};
+        std::vector<RiaDefines::CurveProperty> fluidLossCurves = { RiaDefines::CurveProperty::PORO_ELASTIC_CONSTANT,
+                                                                   RiaDefines::CurveProperty::RELATIVE_PERMEABILITY_FACTOR,
+                                                                   RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFICIENT,
+                                                                   RiaDefines::CurveProperty::IMMOBILE_FLUID_SATURATION };
 
         bool detailedFluidLoss = fractureModel()->useDetailedFluidLoss();
 

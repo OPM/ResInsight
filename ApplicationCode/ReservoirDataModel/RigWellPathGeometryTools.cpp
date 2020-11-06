@@ -90,7 +90,7 @@ std::vector<double> RigWellPathGeometryTools::interpolateMdFromTvd( const std::v
     CVF_ASSERT( !originalMdValues.empty() );
     if ( originalMdValues.size() < 2u )
     {
-        return {originalMdValues};
+        return { originalMdValues };
     }
 
     std::vector<double> interpolatedMdValues;

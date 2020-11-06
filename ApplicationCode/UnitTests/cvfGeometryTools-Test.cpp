@@ -128,10 +128,10 @@ std::vector<std::array<cvf::uint, 4>> getCubeFaces()
     std::vector<std::array<cvf::uint, 4>> cubeFaces;
 
     cubeFaces.resize( 4 );
-    cubeFaces[0] = {0, 1, 2, 3};
-    cubeFaces[1] = {4, 5, 6, 7};
-    cubeFaces[2] = {5, 8, 9, 6};
-    cubeFaces[3] = {10, 11, 12, 13};
+    cubeFaces[0] = { 0, 1, 2, 3 };
+    cubeFaces[1] = { 4, 5, 6, 7 };
+    cubeFaces[2] = { 5, 8, 9, 6 };
+    cubeFaces[3] = { 10, 11, 12, 13 };
 
     return cubeFaces;
 }
@@ -308,8 +308,8 @@ TEST( CellFaceIntersectionTst, Intersection )
     std::vector<size_t>     polygon;
 
     cvf::Array<size_t> ids;
-    size_t             cv1CubeFaceIndices[4] = {0, 1, 2, 3};
-    size_t             cv2CubeFaceIndices[4] = {4, 5, 6, 7};
+    size_t             cv1CubeFaceIndices[4] = { 0, 1, 2, 3 };
+    size_t             cv2CubeFaceIndices[4] = { 4, 5, 6, 7 };
 
     nodes.resize( 8 );
     nodes.setAll( cvf::Vec3d( 0, 0, 0 ) );
@@ -372,8 +372,8 @@ TEST( CellFaceIntersectionTst, FreeFacePolygon )
     std::vector<size_t>     polygon;
 
     cvf::Array<size_t> ids;
-    size_t             cv1CubeFaceIndices[4] = {0, 1, 2, 3};
-    size_t             cv2CubeFaceIndices[4] = {4, 5, 6, 7};
+    size_t             cv1CubeFaceIndices[4] = { 0, 1, 2, 3 };
+    size_t             cv2CubeFaceIndices[4] = { 4, 5, 6, 7 };
 
     nodes.resize( 8 );
     nodes.setAll( cvf::Vec3d( 0, 0, 0 ) );
@@ -457,7 +457,7 @@ TEST( CellFaceIntersectionTst, PolygonAreaNormal3D )
 
     {
         std::vector<cvf::Vec3d> vxs;
-        vxs.push_back( {0, 0, 0} );
+        vxs.push_back( { 0, 0, 0 } );
 
         cvf::Vec3d area = GeometryTools::polygonAreaNormal3D( vxs );
         EXPECT_TRUE( area == cvf::Vec3d::ZERO );
@@ -465,8 +465,8 @@ TEST( CellFaceIntersectionTst, PolygonAreaNormal3D )
 
     {
         std::vector<cvf::Vec3d> vxs;
-        vxs.push_back( {0, 0, 0} );
-        vxs.push_back( {0, 0, 1} );
+        vxs.push_back( { 0, 0, 0 } );
+        vxs.push_back( { 0, 0, 1 } );
 
         cvf::Vec3d area = GeometryTools::polygonAreaNormal3D( vxs );
         EXPECT_TRUE( area == cvf::Vec3d::ZERO );
@@ -476,9 +476,9 @@ TEST( CellFaceIntersectionTst, PolygonAreaNormal3D )
 
     {
         std::vector<cvf::Vec3d> vxs;
-        vxs.push_back( {0, 0, 0} );
-        vxs.push_back( {0, 0, 1} );
-        vxs.push_back( {0, 1, 1} );
+        vxs.push_back( { 0, 0, 0 } );
+        vxs.push_back( { 0, 0, 1 } );
+        vxs.push_back( { 0, 1, 1 } );
 
         cvf::Vec3d area = GeometryTools::polygonAreaNormal3D( vxs );
         EXPECT_DOUBLE_EQ( -0.5, area.x() );
@@ -490,10 +490,10 @@ TEST( CellFaceIntersectionTst, PolygonAreaNormal3D )
 
     {
         std::vector<cvf::Vec3d> vxs;
-        vxs.push_back( {0, 0, 0} );
-        vxs.push_back( {0, 0, 0} );
-        vxs.push_back( {0, 0, 0} );
-        vxs.push_back( {0, 0, 0} );
+        vxs.push_back( { 0, 0, 0 } );
+        vxs.push_back( { 0, 0, 0 } );
+        vxs.push_back( { 0, 0, 0 } );
+        vxs.push_back( { 0, 0, 0 } );
 
         cvf::Vec3d area = GeometryTools::polygonAreaNormal3D( vxs );
         EXPECT_TRUE( area == cvf::Vec3d::ZERO );
@@ -503,10 +503,10 @@ TEST( CellFaceIntersectionTst, PolygonAreaNormal3D )
 
     {
         std::vector<cvf::Vec3d> vxs;
-        vxs.push_back( {0, 0, 0} );
-        vxs.push_back( {0, 0, 1} );
-        vxs.push_back( {0, 1, 1} );
-        vxs.push_back( {0, 1, 0} );
+        vxs.push_back( { 0, 0, 0 } );
+        vxs.push_back( { 0, 0, 1 } );
+        vxs.push_back( { 0, 1, 1 } );
+        vxs.push_back( { 0, 1, 0 } );
 
         cvf::Vec3d area = GeometryTools::polygonAreaNormal3D( vxs );
         EXPECT_DOUBLE_EQ( -1.0, area.x() );
@@ -518,12 +518,12 @@ TEST( CellFaceIntersectionTst, PolygonAreaNormal3D )
 
     {
         std::vector<cvf::Vec3d> vxs;
-        vxs.push_back( {0, 0, 0} );
-        vxs.push_back( {0, 0, 1} );
-        vxs.push_back( {0, 1, 1} );
-        vxs.push_back( {0, 1, 0} );
+        vxs.push_back( { 0, 0, 0 } );
+        vxs.push_back( { 0, 0, 1 } );
+        vxs.push_back( { 0, 1, 1 } );
+        vxs.push_back( { 0, 1, 0 } );
 
-        vxs.push_back( {0, 0.5, 0.5} ); // center of square
+        vxs.push_back( { 0, 0.5, 0.5 } ); // center of square
 
         cvf::Vec3d area = GeometryTools::polygonAreaNormal3D( vxs );
         EXPECT_DOUBLE_EQ( -0.75, area.x() );

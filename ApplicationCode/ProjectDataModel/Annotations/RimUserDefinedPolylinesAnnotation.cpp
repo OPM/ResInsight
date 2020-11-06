@@ -80,7 +80,7 @@ cvf::ref<RigPolyLinesData> RimUserDefinedPolylinesAnnotation::polyLinesData()
     {
         line.push_back( target->targetPointXYZ() );
     }
-    pld->setPolyLines( {line} );
+    pld->setPolyLines( { line } );
 
     return pld;
 }
@@ -170,7 +170,7 @@ std::pair<RimPolylineTarget*, RimPolylineTarget*>
         if ( wt->isEnabled() && !foundTarget ) before = wt;
     }
 
-    return {before, after};
+    return { before, after };
 }
 
 //--------------------------------------------------------------------------------------------------

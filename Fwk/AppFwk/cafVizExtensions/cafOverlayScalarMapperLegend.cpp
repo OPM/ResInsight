@@ -317,7 +317,7 @@ void OverlayScalarMapperLegend::renderLegendUsingShaders( OpenGLContext*        
     line.applyOpenGL( oglContext );
 
     // All vertices. Initialized here to set Z to zero once and for all.
-    static float vertexArray[] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+    static float vertexArray[] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 
     // Per vector convenience pointers
     float* v0 = &vertexArray[0];
@@ -331,7 +331,7 @@ void OverlayScalarMapperLegend::renderLegendUsingShaders( OpenGLContext*        
     v1[0] = v4[0] = layout->tickMidX;
 
     // Connects
-    static const ushort trianglesConnects[] = {0, 1, 4, 0, 4, 3};
+    static const ushort trianglesConnects[] = { 0, 1, 4, 0, 4, 3 };
 
     ref<ShaderProgram> shaderProgram = oglContext->resourceManager()->getLinkedUnlitColorShaderProgram( oglContext );
     CVF_TIGHT_ASSERT( shaderProgram.notNull() );
@@ -388,7 +388,7 @@ void OverlayScalarMapperLegend::renderLegendUsingShaders( OpenGLContext*        
         v1[0] = v3[0] = layout->colorBarRect.max().x() - 0.5f;
         v0[1] = v1[1] = layout->colorBarRect.min().y() - 0.5f;
         v2[1] = v3[1]                       = layout->colorBarRect.max().y() - 0.5f;
-        static const ushort frameConnects[] = {0, 1, 1, 3, 3, 2, 2, 0};
+        static const ushort frameConnects[] = { 0, 1, 1, 3, 3, 2, 2, 0 };
 
         UniformFloat uniformColor( "u_color", Color4f( this->lineColor() ) );
         shaderProgram->applyUniform( oglContext, uniformColor );
@@ -412,8 +412,8 @@ void OverlayScalarMapperLegend::renderLegendUsingShaders( OpenGLContext*        
         v3[0] = layout->tickEndX - 0.5f * ( layout->tickEndX - layout->tickMidX ) - 0.5f;
         v4[0] = layout->tickEndX;
 
-        static const ushort tickLinesWithLabel[] = {0, 4};
-        static const ushort tickLinesWoLabel[]   = {2, 3};
+        static const ushort tickLinesWithLabel[] = { 0, 4 };
+        static const ushort tickLinesWoLabel[]   = { 2, 3 };
 
         size_t ic;
         for ( ic = 0; ic < m_tickValues.size(); ic++ )
@@ -676,7 +676,7 @@ void OverlayScalarMapperLegend::setTickFormat( NumberFormat format )
 //--------------------------------------------------------------------------------------------------
 cvf::Vec2ui OverlayScalarMapperLegend::preferredSize()
 {
-    OverlayColorLegendLayoutInfo layout( {200, 200} ); // Use default size
+    OverlayColorLegendLayoutInfo layout( { 200, 200 } ); // Use default size
     layoutInfo( &layout );
 
     float preferredYSize = 2 * layout.margins.y() + layout.lineSpacing * this->titleStrings().size() +
@@ -712,7 +712,7 @@ cvf::Vec2ui OverlayScalarMapperLegend::preferredSize()
 
     preferredXSize = std::min( preferredXSize, 400.0f );
 
-    return {(unsigned int)( std::ceil( preferredXSize ) ), (unsigned int)( std::ceil( preferredYSize ) )};
+    return { (unsigned int)( std::ceil( preferredXSize ) ), (unsigned int)( std::ceil( preferredYSize ) ) };
 }
 
 } // namespace caf

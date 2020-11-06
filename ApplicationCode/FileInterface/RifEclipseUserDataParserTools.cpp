@@ -99,7 +99,7 @@ bool RifEclipseUserDataParserTools::isAComment( const std::string& word )
 std::vector<std::string> RifEclipseUserDataParserTools::splitLineAndRemoveComments( const std::string& line )
 {
     std::istringstream       iss( line );
-    std::vector<std::string> words{std::istream_iterator<std::string>{iss}, std::istream_iterator<std::string>{}};
+    std::vector<std::string> words{ std::istream_iterator<std::string>{ iss }, std::istream_iterator<std::string>{} };
 
     for ( auto wordsIterator = words.begin(); wordsIterator != words.end(); ++wordsIterator )
     {

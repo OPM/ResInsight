@@ -135,7 +135,7 @@ RigElementType toRigElementType( const odb_String& odbTypeName )
 
 const int* localElmNodeToIntegrationPointMapping( RigElementType elmType )
 {
-    static const int HEX8_Mapping[8] = {0, 1, 3, 2, 4, 5, 7, 6};
+    static const int HEX8_Mapping[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
 
     switch ( elmType )
     {

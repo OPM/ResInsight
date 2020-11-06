@@ -179,7 +179,7 @@ std::vector<RigCompletionData>
     {
         // Load the data required by fracture summary header
 
-        std::vector<QString> resultNames{"TRANX", "TRANY", "TRANZ"};
+        std::vector<QString> resultNames{ "TRANX", "TRANY", "TRANZ" };
         RicExportFractureCompletionsImpl::loadResultsByName( cellResultsData, resultNames );
     }
 
@@ -560,12 +560,12 @@ void RicExportFractureCompletionsImpl::calculateInternalFractureTransmissibiliti
                                                      fractureCellNeighbourX.cellSizeZ(),
                                                      cDarcyInCorrectUnit );
 
-                transCondenser.addNeighborTransmissibility( {false,
-                                                             RigTransmissibilityCondenser::CellAddress::STIMPLAN,
-                                                             fractureCellIndex},
-                                                            {false,
-                                                             RigTransmissibilityCondenser::CellAddress::STIMPLAN,
-                                                             fractureCellNeighbourXIndex},
+                transCondenser.addNeighborTransmissibility( { false,
+                                                              RigTransmissibilityCondenser::CellAddress::STIMPLAN,
+                                                              fractureCellIndex },
+                                                            { false,
+                                                              RigTransmissibilityCondenser::CellAddress::STIMPLAN,
+                                                              fractureCellNeighbourXIndex },
                                                             horizontalTransToXneigbour );
             }
 
@@ -583,12 +583,12 @@ void RicExportFractureCompletionsImpl::calculateInternalFractureTransmissibiliti
                                                      fractureCellNeighbourZ.cellSizeX(),
                                                      cDarcyInCorrectUnit );
 
-                transCondenser.addNeighborTransmissibility( {false,
-                                                             RigTransmissibilityCondenser::CellAddress::STIMPLAN,
-                                                             fractureCellIndex},
-                                                            {false,
-                                                             RigTransmissibilityCondenser::CellAddress::STIMPLAN,
-                                                             fractureCellNeighbourZIndex},
+                transCondenser.addNeighborTransmissibility( { false,
+                                                              RigTransmissibilityCondenser::CellAddress::STIMPLAN,
+                                                              fractureCellIndex },
+                                                            { false,
+                                                              RigTransmissibilityCondenser::CellAddress::STIMPLAN,
+                                                              fractureCellNeighbourZIndex },
                                                             verticalTransToZneigbour );
             }
         }
@@ -625,8 +625,8 @@ void RicExportFractureCompletionsImpl::calculateFractureToWellTransmissibilities
                                                                                  fracTemplate->skinFactor(),
                                                                                  cDarcyInCorrectUnit );
 
-        transCondenser.addNeighborTransmissibility( {true, RigTransmissibilityCondenser::CellAddress::WELL, 1},
-                                                    {false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, wellCellIndex},
+        transCondenser.addNeighborTransmissibility( { true, RigTransmissibilityCondenser::CellAddress::WELL, 1 },
+                                                    { false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, wellCellIndex },
                                                     radialTrans );
     }
     else if ( fracTemplate->orientationType() == RimFractureTemplate::ALONG_WELL_PATH )
@@ -661,10 +661,10 @@ void RicExportFractureCompletionsImpl::calculateFractureToWellTransmissibilities
                                                                                          fracture->wellRadius() );
             }
 
-            transCondenser.addNeighborTransmissibility( {true, RigTransmissibilityCondenser::CellAddress::WELL, 1},
-                                                        {false,
-                                                         RigTransmissibilityCondenser::CellAddress::STIMPLAN,
-                                                         fracWellCellIdx},
+            transCondenser.addNeighborTransmissibility( { true, RigTransmissibilityCondenser::CellAddress::WELL, 1 },
+                                                        { false,
+                                                          RigTransmissibilityCondenser::CellAddress::STIMPLAN,
+                                                          fracWellCellIdx },
                                                         linearTrans );
         }
     }
@@ -685,7 +685,7 @@ std::map<size_t, double>
         {
             double trans =
                 transCondenser.condensedTransmissibility( externalCell,
-                                                          {true, RigTransmissibilityCondenser::CellAddress::WELL, 1} );
+                                                          { true, RigTransmissibilityCondenser::CellAddress::WELL, 1 } );
 
             if ( trans > transCondenser.transmissibilityThreshold() )
             {
@@ -834,9 +834,9 @@ void RicExportFractureCompletionsImpl::outputIntermediateResultsText( QTextStrea
 bool RicExportFractureCompletionsImpl::loadResultsByName( RigCaseCellResultsData*     cellResultsData,
                                                           const std::vector<QString>& resultNames )
 {
-    const std::vector<RiaDefines::ResultCatType> resultCategorySearchOrder = {RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                              RiaDefines::ResultCatType::INPUT_PROPERTY,
-                                                                              RiaDefines::ResultCatType::GENERATED};
+    const std::vector<RiaDefines::ResultCatType> resultCategorySearchOrder = { RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                                               RiaDefines::ResultCatType::INPUT_PROPERTY,
+                                                                               RiaDefines::ResultCatType::GENERATED };
 
     bool foundDataForAllResults = true;
 

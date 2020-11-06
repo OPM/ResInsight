@@ -188,7 +188,7 @@ public:
             {
                 cvf::Vec3d highestVx = p0.z() > p1.z() ? p0 : p1;
 
-                auto itIsInsertedPair = faultToHighestFaultMeshVxMap.insert( {fault, highestVx} );
+                auto itIsInsertedPair = faultToHighestFaultMeshVxMap.insert( { fault, highestVx } );
                 if ( !itIsInsertedPair.second )
                 {
                     if ( itIsInsertedPair.first->second.z() < highestVx.z() )
@@ -430,7 +430,7 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
 
     for ( const auto& it : meshAcc.faultToHighestFaultMeshVxMap )
     {
-        m_faultMeshLabelAndAnchorPositions.push_back( {it.first->name(), it.second} );
+        m_faultMeshLabelAndAnchorPositions.push_back( { it.first->name(), it.second } );
     }
 }
 
@@ -508,7 +508,8 @@ cvf::ref<cvf::DrawableGeo> RivExtrudedCurveIntersectionGeometryGenerator::create
         displayCoords.push_back( transform->translateToDisplayCoord( pt ) );
     }
 
-    return RivPolylineGenerator::createLineAlongPolylineDrawable( std::vector<std::vector<cvf::Vec3d>>( {displayCoords} ) );
+    return RivPolylineGenerator::createLineAlongPolylineDrawable(
+        std::vector<std::vector<cvf::Vec3d>>( { displayCoords } ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -533,7 +534,8 @@ cvf::ref<cvf::DrawableGeo> RivExtrudedCurveIntersectionGeometryGenerator::create
         displayCoords.push_back( transform->translateToDisplayCoord( pt ) );
     }
 
-    return RivPolylineGenerator::createPointsFromPolylineDrawable( std::vector<std::vector<cvf::Vec3d>>( {displayCoords} ) );
+    return RivPolylineGenerator::createPointsFromPolylineDrawable(
+        std::vector<std::vector<cvf::Vec3d>>( { displayCoords } ) );
 }
 
 //--------------------------------------------------------------------------------------------------

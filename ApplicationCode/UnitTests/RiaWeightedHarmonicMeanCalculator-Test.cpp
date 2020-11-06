@@ -20,8 +20,8 @@ TEST( RiaWeightedHarmonicMeanCalculator, BasicUsage )
     {
         RiaWeightedHarmonicMeanCalculator calc;
 
-        std::vector<double> values{1, 4, 4};
-        std::vector<double> weights{1, 1, 1};
+        std::vector<double> values{ 1, 4, 4 };
+        std::vector<double> weights{ 1, 1, 1 };
 
         for ( size_t i = 0; i < values.size(); i++ )
         {
@@ -43,8 +43,8 @@ TEST( RiaWeightedHarmonicMeanCalculator, WeightedValues )
     {
         RiaWeightedHarmonicMeanCalculator calc;
 
-        std::vector<double> values{10, 5, 4, 3};
-        std::vector<double> weights{10, 5, 4, 3};
+        std::vector<double> values{ 10, 5, 4, 3 };
+        std::vector<double> weights{ 10, 5, 4, 3 };
 
         for ( size_t i = 0; i < values.size(); i++ )
         {
@@ -59,8 +59,8 @@ TEST( RiaWeightedHarmonicMeanCalculator, WeightedValues )
     {
         RiaWeightedHarmonicMeanCalculator calc;
 
-        std::vector<double> values{2.0, 3.0, 1.0, 4.0};
-        std::vector<double> weights{1.0, 2.0, 7.0, 3.0};
+        std::vector<double> values{ 2.0, 3.0, 1.0, 4.0 };
+        std::vector<double> weights{ 1.0, 2.0, 7.0, 3.0 };
         for ( size_t i = 0; i < values.size(); i++ )
         {
             calc.addValueAndWeight( values[i], weights[i] );

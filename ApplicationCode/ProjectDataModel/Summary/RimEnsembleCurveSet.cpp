@@ -619,7 +619,7 @@ void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
         caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector Y" );
         curveDataGroup->add( &m_yValuesSummaryCaseCollection );
         curveDataGroup->add( &m_yValuesSummaryAddressUiField );
-        curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, {false, 1, 0} );
+        curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, { false, 1, 0 } );
         curveDataGroup->add( &m_plotAxis );
     }
 

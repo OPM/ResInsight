@@ -266,9 +266,9 @@ void RicNewWellBoreStabilityPlotFeature::createParametersTrack( RimWellBoreStabi
     std::set<RigWbsParameter> parameters = RigWbsParameter::allParameters();
 
     caf::ColorTable                             colors     = RiaColorTables::contrastCategoryPaletteColors();
-    std::vector<RiuQwtPlotCurve::LineStyleEnum> lineStyles = {RiuQwtPlotCurve::STYLE_SOLID,
-                                                              RiuQwtPlotCurve::STYLE_DASH,
-                                                              RiuQwtPlotCurve::STYLE_DASH_DOT};
+    std::vector<RiuQwtPlotCurve::LineStyleEnum> lineStyles = { RiuQwtPlotCurve::STYLE_SOLID,
+                                                               RiuQwtPlotCurve::STYLE_DASH,
+                                                               RiuQwtPlotCurve::STYLE_DASH_DOT };
 
     size_t i = 0;
     for ( const RigWbsParameter& param : parameters )
@@ -315,12 +315,12 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
 
     std::vector<QString> resultNames = RiaDefines::wbsDerivedResultNames();
 
-    std::vector<cvf::Color3f> colors = {cvf::Color3f::BLUE,
-                                        cvf::Color3f::BROWN,
-                                        cvf::Color3f::RED,
-                                        cvf::Color3f::PURPLE,
-                                        cvf::Color3f::DARK_GREEN,
-                                        cvf::Color3f::OLIVE};
+    std::vector<cvf::Color3f> colors = { cvf::Color3f::BLUE,
+                                         cvf::Color3f::BROWN,
+                                         cvf::Color3f::RED,
+                                         cvf::Color3f::PURPLE,
+                                         cvf::Color3f::DARK_GREEN,
+                                         cvf::Color3f::OLIVE };
 
     std::vector<RiuQwtPlotCurve::LineStyleEnum> lineStyles( resultNames.size(), RiuQwtPlotCurve::STYLE_SOLID );
     lineStyles.back() = RiuQwtPlotCurve::STYLE_DASH;
@@ -381,9 +381,9 @@ void RicNewWellBoreStabilityPlotFeature::createAnglesTrack( RimWellBoreStability
     const double         angleIncrement = 90.0;
     std::vector<QString> resultNames    = RiaDefines::wbsAngleResultNames();
 
-    std::vector<cvf::Color3f> colors = {cvf::Color3f::GREEN, cvf::Color3f::DARK_ORANGE};
+    std::vector<cvf::Color3f> colors = { cvf::Color3f::GREEN, cvf::Color3f::DARK_ORANGE };
 
-    std::vector<RiuQwtPlotCurve::LineStyleEnum> lineStyles = {RiuQwtPlotCurve::STYLE_DASH, RiuQwtPlotCurve::STYLE_SOLID};
+    std::vector<RiuQwtPlotCurve::LineStyleEnum> lineStyles = { RiuQwtPlotCurve::STYLE_DASH, RiuQwtPlotCurve::STYLE_SOLID };
 
     for ( size_t i = 0; i < resultNames.size(); ++i )
     {

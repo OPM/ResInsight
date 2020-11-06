@@ -407,7 +407,7 @@ void RivTensorResultPartMgr::createOneColorPerPrincipalScalarMapper( const RimTe
 
     // Using a linear color mapper to set colors for three discrete principal numbers (1, 2, 3)
     // by setting the 3 + 1 interval levels so the principal numbers match the center of the intervals.
-    std::set<double> levelValues = {0.5, 1.5, 2.5, 3.5};
+    std::set<double> levelValues = { 0.5, 1.5, 2.5, 3.5 };
     scalarMapper->setLevelsFromValues( levelValues );
 }
 

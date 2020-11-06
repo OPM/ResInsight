@@ -67,18 +67,18 @@ RimFractureModelElasticPropertyCalculator::RimFractureModelElasticPropertyCalcul
 //--------------------------------------------------------------------------------------------------
 bool RimFractureModelElasticPropertyCalculator::isMatching( RiaDefines::CurveProperty curveProperty ) const
 {
-    std::vector<RiaDefines::CurveProperty> matching = {RiaDefines::CurveProperty::YOUNGS_MODULUS,
-                                                       RiaDefines::CurveProperty::POISSONS_RATIO,
-                                                       RiaDefines::CurveProperty::BIOT_COEFFICIENT,
-                                                       RiaDefines::CurveProperty::K0,
-                                                       RiaDefines::CurveProperty::K_IC,
-                                                       RiaDefines::CurveProperty::PROPPANT_EMBEDMENT,
-                                                       RiaDefines::CurveProperty::FLUID_LOSS_COEFFICIENT,
-                                                       RiaDefines::CurveProperty::SPURT_LOSS,
-                                                       RiaDefines::CurveProperty::RELATIVE_PERMEABILITY_FACTOR,
-                                                       RiaDefines::CurveProperty::PORO_ELASTIC_CONSTANT,
-                                                       RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFICIENT,
-                                                       RiaDefines::CurveProperty::IMMOBILE_FLUID_SATURATION};
+    std::vector<RiaDefines::CurveProperty> matching = { RiaDefines::CurveProperty::YOUNGS_MODULUS,
+                                                        RiaDefines::CurveProperty::POISSONS_RATIO,
+                                                        RiaDefines::CurveProperty::BIOT_COEFFICIENT,
+                                                        RiaDefines::CurveProperty::K0,
+                                                        RiaDefines::CurveProperty::K_IC,
+                                                        RiaDefines::CurveProperty::PROPPANT_EMBEDMENT,
+                                                        RiaDefines::CurveProperty::FLUID_LOSS_COEFFICIENT,
+                                                        RiaDefines::CurveProperty::SPURT_LOSS,
+                                                        RiaDefines::CurveProperty::RELATIVE_PERMEABILITY_FACTOR,
+                                                        RiaDefines::CurveProperty::PORO_ELASTIC_CONSTANT,
+                                                        RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFICIENT,
+                                                        RiaDefines::CurveProperty::IMMOBILE_FLUID_SATURATION };
 
     return std::find( matching.begin(), matching.end(), curveProperty ) != matching.end();
 }

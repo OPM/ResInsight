@@ -132,8 +132,8 @@ class IjkBoundingBox
 
 public:
     IjkBoundingBox()
-        : m_min( {MAX_SIZE_T, MAX_SIZE_T, MAX_SIZE_T} )
-        , m_max( {MAX_SIZE_T, MAX_SIZE_T, MAX_SIZE_T} )
+        : m_min( { MAX_SIZE_T, MAX_SIZE_T, MAX_SIZE_T } )
+        , m_max( { MAX_SIZE_T, MAX_SIZE_T, MAX_SIZE_T } )
     {
     }
 
@@ -168,7 +168,7 @@ public:
     {
         if ( !isValid() )
         {
-            m_min = m_max = {i, j, k};
+            m_min = m_max = { i, j, k };
         }
         else
         {
@@ -360,16 +360,16 @@ void RicExportLgrFeature::writeLgrs( QTextStream& stream, const std::vector<LgrI
             RifTextDataTableFormatter formatter( stream );
             formatter.comment( QString( "LGR: " ) + lgrInfo.name );
             formatter.keyword( "CARFIN" );
-            formatter.header( {RifTextDataTableColumn( "Name" ),
-                               RifTextDataTableColumn( "I1" ),
-                               RifTextDataTableColumn( "I2" ),
-                               RifTextDataTableColumn( "J1" ),
-                               RifTextDataTableColumn( "J2" ),
-                               RifTextDataTableColumn( "K1" ),
-                               RifTextDataTableColumn( "K2" ),
-                               RifTextDataTableColumn( "NX" ),
-                               RifTextDataTableColumn( "NY" ),
-                               RifTextDataTableColumn( "NZ" )} );
+            formatter.header( { RifTextDataTableColumn( "Name" ),
+                                RifTextDataTableColumn( "I1" ),
+                                RifTextDataTableColumn( "I2" ),
+                                RifTextDataTableColumn( "J1" ),
+                                RifTextDataTableColumn( "J2" ),
+                                RifTextDataTableColumn( "K1" ),
+                                RifTextDataTableColumn( "K2" ),
+                                RifTextDataTableColumn( "NX" ),
+                                RifTextDataTableColumn( "NY" ),
+                                RifTextDataTableColumn( "NZ" ) } );
 
             formatter.add( lgrInfo.name );
             formatter.addOneBasedCellIndex( lgrInfo.mainGridStartCell.i() );
@@ -535,7 +535,7 @@ std::vector<LgrInfo>
     for ( const auto& intersectionCell : intersectingCells )
     {
         auto lgrName = lgrNameFactory.newName( "", lgrId );
-        lgrs.push_back( buildLgr( lgrId++, lgrName, eclipseCase, wellPath->name(), {intersectionCell}, lgrSizes ) );
+        lgrs.push_back( buildLgr( lgrId++, lgrName, eclipseCase, wellPath->name(), { intersectionCell }, lgrSizes ) );
     }
     return lgrs;
 }
@@ -922,9 +922,9 @@ const RigGridBase* RicExportLgrFeature::hostGrid( const RigMainGrid* mainGrid, s
 //--------------------------------------------------------------------------------------------------
 LgrNameFactory::LgrNameFactory()
 {
-    m_counters = {{RigCompletionData::FRACTURE, {"FRAC", 1}},
-                  {RigCompletionData::FISHBONES, {"FB", 1}},
-                  {RigCompletionData::PERFORATION, {"PERF", 1}}};
+    m_counters = { { RigCompletionData::FRACTURE, { "FRAC", 1 } },
+                   { RigCompletionData::FISHBONES, { "FB", 1 } },
+                   { RigCompletionData::PERFORATION, { "PERF", 1 } } };
 }
 
 //--------------------------------------------------------------------------------------------------

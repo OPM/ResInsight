@@ -149,10 +149,10 @@ TEST( RigCellGeometryTools, createPolygonTest )
     cvf::Vec3d d  = cvf::Vec3d( -2, 8, 1 );
 
     std::list<std::pair<cvf::Vec3d, cvf::Vec3d>> intersectionLineSegments;
-    intersectionLineSegments.push_back( {a, b} );
-    intersectionLineSegments.push_back( {b2, c} );
-    intersectionLineSegments.push_back( {c, d} );
-    intersectionLineSegments.push_back( {a, d} );
+    intersectionLineSegments.push_back( { a, b } );
+    intersectionLineSegments.push_back( { b2, c } );
+    intersectionLineSegments.push_back( { c, d } );
+    intersectionLineSegments.push_back( { a, d } );
 
     std::vector<std::vector<cvf::Vec3d>> polygons;
 
@@ -176,11 +176,11 @@ TEST( RigCellGeometryTools, createMultiplePolygonTest )
     cvf::Vec3d c2 = cvf::Vec3d( 1, 5, 1 );
 
     std::list<std::pair<cvf::Vec3d, cvf::Vec3d>> intersectionLineSegments;
-    intersectionLineSegments.push_back( {a1, b1} );
-    intersectionLineSegments.push_back( {b1, c1} );
+    intersectionLineSegments.push_back( { a1, b1 } );
+    intersectionLineSegments.push_back( { b1, c1 } );
 
-    intersectionLineSegments.push_back( {a2, b2} );
-    intersectionLineSegments.push_back( {b2, c2} );
+    intersectionLineSegments.push_back( { a2, b2 } );
+    intersectionLineSegments.push_back( { b2, c2 } );
 
     std::vector<std::vector<cvf::Vec3d>> polygons;
 
@@ -196,30 +196,30 @@ TEST( RigCellGeometryTools, createPolygonTestRealCase )
 {
     std::list<std::pair<cvf::Vec3d, cvf::Vec3d>> intersectionLineSegments;
 
-    intersectionLineSegments.push_back( {cvf::Vec3d( 13.498900632511830, 20.000000000000000, -0.011799300447865143 ),
-                                         cvf::Vec3d( 13.498900632515129, 20.000000000000000, -0.011874744050458887 )} );
-    intersectionLineSegments.push_back( {cvf::Vec3d( 13.498900633056895, 20.000000000000000, -0.024268930302180504 ),
-                                         cvf::Vec3d( 13.498900632515127, 20.000000000000000, -0.011874744050458887 )} );
-    intersectionLineSegments.push_back( {cvf::Vec3d( 13.498900632511830, 20.000000000000000, -0.011799300447865143 ),
-                                         cvf::Vec3d( 13.498900631970063, 20.000000000000000, 0.00059488709383226715 )} );
-    intersectionLineSegments.push_back( {cvf::Vec3d( 13.498900195597713, 10.000000000000000, -0.016369358494277231 ),
-                                         cvf::Vec3d( 13.498900195056242, 10.000000000000000, -0.0039819325234285293 )} );
-    intersectionLineSegments.push_back( {cvf::Vec3d( 13.498900195597711, 10.000000000000000, -0.016369358494277241 ),
-                                         cvf::Vec3d( 13.498900195600806, 10.000000000000000, -0.016440172032184591 )} );
-    intersectionLineSegments.push_back( {cvf::Vec3d( 13.498900196142280, 10.000000000000000, -0.028827609381707260 ),
-                                         cvf::Vec3d( 13.498900195600807, 10.000000000000000, -0.016440172032184591 )} );
-    intersectionLineSegments.push_back( {cvf::Vec3d( 13.498900196142280, 10.000000000000000, -0.028827609381707260 ),
-                                         cvf::Vec3d( 13.498900414562046, 14.999139949621291, -0.026549475935230070 )} );
-    intersectionLineSegments.push_back( {cvf::Vec3d( 13.498900414637365, 15.000863944878075, -0.026548599914369600 ),
-                                         cvf::Vec3d( 13.498900633056895, 20.000000000000000, -0.024268930302180504 )} );
-    intersectionLineSegments.push_back( {cvf::Vec3d( 13.498900414637365, 15.000863944878075, -0.026548599914369600 ),
-                                         cvf::Vec3d( 13.498900414562046, 14.999139949621291, -0.026549475935230073 )} );
-    intersectionLineSegments.push_back( {cvf::Vec3d( 13.498900413511738, 14.999966890459870, -0.0016942968682188385 ),
-                                         cvf::Vec3d( 13.498900413514638, 15.000033259475705, -0.0016942630763332898 )} );
-    intersectionLineSegments.push_back( {cvf::Vec3d( 13.498900631970063, 20.000000000000000, 0.00059488709383226715 ),
-                                         cvf::Vec3d( 13.498900413514637, 15.000033259475705, -0.0016942630763332901 )} );
-    intersectionLineSegments.push_back( {cvf::Vec3d( 13.498900413511738, 14.999966890459870, -0.0016942968682188385 ),
-                                         cvf::Vec3d( 13.498900195056240, 10.000000000000000, -0.0039819325234285319 )} );
+    intersectionLineSegments.push_back( { cvf::Vec3d( 13.498900632511830, 20.000000000000000, -0.011799300447865143 ),
+                                          cvf::Vec3d( 13.498900632515129, 20.000000000000000, -0.011874744050458887 ) } );
+    intersectionLineSegments.push_back( { cvf::Vec3d( 13.498900633056895, 20.000000000000000, -0.024268930302180504 ),
+                                          cvf::Vec3d( 13.498900632515127, 20.000000000000000, -0.011874744050458887 ) } );
+    intersectionLineSegments.push_back( { cvf::Vec3d( 13.498900632511830, 20.000000000000000, -0.011799300447865143 ),
+                                          cvf::Vec3d( 13.498900631970063, 20.000000000000000, 0.00059488709383226715 ) } );
+    intersectionLineSegments.push_back( { cvf::Vec3d( 13.498900195597713, 10.000000000000000, -0.016369358494277231 ),
+                                          cvf::Vec3d( 13.498900195056242, 10.000000000000000, -0.0039819325234285293 ) } );
+    intersectionLineSegments.push_back( { cvf::Vec3d( 13.498900195597711, 10.000000000000000, -0.016369358494277241 ),
+                                          cvf::Vec3d( 13.498900195600806, 10.000000000000000, -0.016440172032184591 ) } );
+    intersectionLineSegments.push_back( { cvf::Vec3d( 13.498900196142280, 10.000000000000000, -0.028827609381707260 ),
+                                          cvf::Vec3d( 13.498900195600807, 10.000000000000000, -0.016440172032184591 ) } );
+    intersectionLineSegments.push_back( { cvf::Vec3d( 13.498900196142280, 10.000000000000000, -0.028827609381707260 ),
+                                          cvf::Vec3d( 13.498900414562046, 14.999139949621291, -0.026549475935230070 ) } );
+    intersectionLineSegments.push_back( { cvf::Vec3d( 13.498900414637365, 15.000863944878075, -0.026548599914369600 ),
+                                          cvf::Vec3d( 13.498900633056895, 20.000000000000000, -0.024268930302180504 ) } );
+    intersectionLineSegments.push_back( { cvf::Vec3d( 13.498900414637365, 15.000863944878075, -0.026548599914369600 ),
+                                          cvf::Vec3d( 13.498900414562046, 14.999139949621291, -0.026549475935230073 ) } );
+    intersectionLineSegments.push_back( { cvf::Vec3d( 13.498900413511738, 14.999966890459870, -0.0016942968682188385 ),
+                                          cvf::Vec3d( 13.498900413514638, 15.000033259475705, -0.0016942630763332898 ) } );
+    intersectionLineSegments.push_back( { cvf::Vec3d( 13.498900631970063, 20.000000000000000, 0.00059488709383226715 ),
+                                          cvf::Vec3d( 13.498900413514637, 15.000033259475705, -0.0016942630763332901 ) } );
+    intersectionLineSegments.push_back( { cvf::Vec3d( 13.498900413511738, 14.999966890459870, -0.0016942968682188385 ),
+                                          cvf::Vec3d( 13.498900195056240, 10.000000000000000, -0.0039819325234285319 ) } );
 
     std::vector<std::vector<cvf::Vec3d>> polygons;
 
@@ -350,7 +350,7 @@ TEST( RigCellGeometryTools, polylinePolygonIntersectionTest )
         EXPECT_EQ( HUGE_VAL, clippedLines.front()[2].z() );
     }
 
-    polyLine.push_back( {-0.5, 1.5, 0.0} );
+    polyLine.push_back( { -0.5, 1.5, 0.0 } );
 
     {
         std::vector<std::vector<cvf::Vec3d>> clippedLines =
@@ -415,19 +415,19 @@ TEST( RigWellPathStimplanIntersector, intersection )
 {
     {
         cvf::Mat4d fractureXf = cvf::Mat4d::IDENTITY;
-        fractureXf.setTranslation( {50.0f, 0.0f, 0.0f} );
+        fractureXf.setTranslation( { 50.0f, 0.0f, 0.0f } );
 
         // std::vector<cvf::Vec3f> fracturePolygon ={ {0.0f, 0.0f, 0.0f},  {5.0f, 10.0f, 0.0f}, {10.0f, 0.0f, 0.0f} };
         double                               perforationLength = 25.0;
-        std::vector<cvf::Vec3d>              wellPathPoints    = {{50.0f - 4.0f, 6.0f, 10.0f},
-                                                  {50.0f + 6.0f, 6.0f, 0.0f},
-                                                  {50.0f + 10.0f, 10.0f, -100.0f}};
+        std::vector<cvf::Vec3d>              wellPathPoints    = { { 50.0f - 4.0f, 6.0f, 10.0f },
+                                                   { 50.0f + 6.0f, 6.0f, 0.0f },
+                                                   { 50.0f + 10.0f, 10.0f, -100.0f } };
         double                               wellRadius        = 1.5;
         std::vector<std::vector<cvf::Vec3d>> stpCellPolygons   = {
-            {{0.0f, 0.0f, 0.0f}, {0.0f, 5.0f, 0.0f}, {5.0f, 5.0f, 0.0f}, {5.0f, 0.0f, 0.0f}},
-            {{0.5f, 0.0f, 0.0f}, {0.5f, 5.0f, 0.0f}, {10.0f, 5.0f, 0.0f}, {10.0f, 0.0f, 0.0f}},
-            {{0.0f, 5.0f, 0.0f}, {0.0f, 10.0f, 0.0f}, {5.0f, 10.0f, 0.0f}, {5.0f, 5.0f, 0.0f}},
-            {{5.0f, 5.0f, 0.0f}, {5.0f, 10.0f, 0.0f}, {10.0f, 10.0f, 0.0f}, {10.0f, 5.0f, 0.0f}},
+            { { 0.0f, 0.0f, 0.0f }, { 0.0f, 5.0f, 0.0f }, { 5.0f, 5.0f, 0.0f }, { 5.0f, 0.0f, 0.0f } },
+            { { 0.5f, 0.0f, 0.0f }, { 0.5f, 5.0f, 0.0f }, { 10.0f, 5.0f, 0.0f }, { 10.0f, 0.0f, 0.0f } },
+            { { 0.0f, 5.0f, 0.0f }, { 0.0f, 10.0f, 0.0f }, { 5.0f, 10.0f, 0.0f }, { 5.0f, 5.0f, 0.0f } },
+            { { 5.0f, 5.0f, 0.0f }, { 5.0f, 10.0f, 0.0f }, { 10.0f, 10.0f, 0.0f }, { 10.0f, 5.0f, 0.0f } },
         };
 
         std::map<size_t, RigWellPathStimplanIntersector::WellCellIntersection> stimPlanCellIdxToIntersectionInfoMap;
@@ -456,15 +456,15 @@ TEST( RigWellPathStimplanIntersector, intersection )
         double                               perforationLength = 10;
         double                               wellRadius        = 1.5;
         std::vector<std::vector<cvf::Vec3d>> stpCellPolygons   = {
-            {{0.0f, 0.0f, 0.0f}, {0.0f, 5.0f, 0.0f}, {5.0f, 5.0f, 0.0f}, {5.0f, 0.0f, 0.0f}},
-            {{5.0f, 0.0f, 0.0f}, {5.0f, 5.0f, 0.0f}, {10.0f, 5.0f, 0.0f}, {10.0f, 0.0f, 0.0f}},
-            {{0.0f, 5.0f, 0.0f}, {0.0f, 10.0f, 0.0f}, {5.0f, 10.0f, 0.0f}, {5.0f, 5.0f, 0.0f}},
-            {{5.0f, 5.0f, 0.0f}, {5.0f, 10.0f, 0.0f}, {10.0f, 10.0f, 0.0f}, {10.0f, 5.0f, 0.0f}},
+            { { 0.0f, 0.0f, 0.0f }, { 0.0f, 5.0f, 0.0f }, { 5.0f, 5.0f, 0.0f }, { 5.0f, 0.0f, 0.0f } },
+            { { 5.0f, 0.0f, 0.0f }, { 5.0f, 5.0f, 0.0f }, { 10.0f, 5.0f, 0.0f }, { 10.0f, 0.0f, 0.0f } },
+            { { 0.0f, 5.0f, 0.0f }, { 0.0f, 10.0f, 0.0f }, { 5.0f, 10.0f, 0.0f }, { 5.0f, 5.0f, 0.0f } },
+            { { 5.0f, 5.0f, 0.0f }, { 5.0f, 10.0f, 0.0f }, { 10.0f, 10.0f, 0.0f }, { 10.0f, 5.0f, 0.0f } },
         };
 
         {
             std::map<size_t, RigWellPathStimplanIntersector::WellCellIntersection> stimPlanCellIdxToIntersectionInfoMap;
-            std::vector<cvf::Vec3d> wellPathPoints = {{1.0f, 0.5f, 10.0f}, {1.0f, 1.5f, -10.0f}};
+            std::vector<cvf::Vec3d> wellPathPoints = { { 1.0f, 0.5f, 10.0f }, { 1.0f, 1.5f, -10.0f } };
 
             RigWellPathStimplanIntersectorTester::testCalculate( fractureXf,
                                                                  wellPathPoints,
@@ -481,7 +481,7 @@ TEST( RigWellPathStimplanIntersector, intersection )
 
         {
             std::map<size_t, RigWellPathStimplanIntersector::WellCellIntersection> stimPlanCellIdxToIntersectionInfoMap;
-            std::vector<cvf::Vec3d> wellPathPoints = {{1.0f, 0.5f, 10.0f}, {1.0f, 1.0f, 0.5f}};
+            std::vector<cvf::Vec3d> wellPathPoints = { { 1.0f, 0.5f, 10.0f }, { 1.0f, 1.0f, 0.5f } };
 
             RigWellPathStimplanIntersectorTester::testCalculate( fractureXf,
                                                                  wellPathPoints,
@@ -498,10 +498,10 @@ TEST( RigWellPathStimplanIntersector, intersection )
 
         {
             std::map<size_t, RigWellPathStimplanIntersector::WellCellIntersection> stimPlanCellIdxToIntersectionInfoMap;
-            std::vector<cvf::Vec3d> wellPathPoints = {{1.0f, 0.5f, 10.0f},
-                                                      {1.0f, 1.0f, 0.5f},
-                                                      {1.0f, 1.5f, -0.5f},
-                                                      {1.0f, 2.0f, -10.0f}};
+            std::vector<cvf::Vec3d> wellPathPoints = { { 1.0f, 0.5f, 10.0f },
+                                                       { 1.0f, 1.0f, 0.5f },
+                                                       { 1.0f, 1.5f, -0.5f },
+                                                       { 1.0f, 2.0f, -10.0f } };
 
             RigWellPathStimplanIntersectorTester::testCalculate( fractureXf,
                                                                  wellPathPoints,
@@ -602,8 +602,8 @@ TEST( RigCellGeometryTools, ClipperEdgeTracking )
     // If the first edges of the polygons are horizontal, the edge tracking will fail.
     // Encode polygon and edge into Z coordinate of the vertex
 
-    std::vector<cvf::Vec3d> polygon1 = {{0.0, 0.51, 1002.0}, {1.0, 0.5, 1000.0}, {0.0, 1.0, 1001.0}};
-    std::vector<cvf::Vec3d> polygon2 = {{0.5, 0.01, 2002.0}, {1.0, 0.0, 2000.0}, {0.5, 1.0, 2001.0}};
+    std::vector<cvf::Vec3d> polygon1 = { { 0.0, 0.51, 1002.0 }, { 1.0, 0.5, 1000.0 }, { 0.0, 1.0, 1001.0 } };
+    std::vector<cvf::Vec3d> polygon2 = { { 0.5, 0.01, 2002.0 }, { 1.0, 0.0, 2000.0 }, { 0.5, 1.0, 2001.0 } };
 
     std::vector<std::vector<cvf::Vec3d>> clippedPolygons;
 

@@ -267,14 +267,14 @@ cvf::ref<cvf::DrawableGeo> RivWellConnectionsPartMgr::createArrowGeometry( const
     // :  flat  : : : :  :  :  :  : end        18         18
     // 1        3 5 7 9 11 19 13 15        17                 17
 
-    static const cvf::uint producerArrowFaceList[8 * 5 + 4] = {4, 0,  1,  3,  2,  4, 2,  3,  5,  4,  4, 4,  5,  7,  6,
-                                                               4, 6,  7,  9,  8,  4, 8,  9,  11, 10, 4, 10, 11, 20, 19,
-                                                               4, 19, 20, 13, 12, 4, 12, 13, 15, 14, 3, 16, 17, 18};
+    static const cvf::uint producerArrowFaceList[8 * 5 + 4] = { 4, 0,  1,  3,  2,  4, 2,  3,  5,  4,  4, 4,  5,  7,  6,
+                                                                4, 6,  7,  9,  8,  4, 8,  9,  11, 10, 4, 10, 11, 20, 19,
+                                                                4, 19, 20, 13, 12, 4, 12, 13, 15, 14, 3, 16, 17, 18 };
 
-    static const cvf::uint injectorArrowFaceList[8 * 5 + 8] = {4,  0,  1,  3,  2,  4,  2,  3,  5,  4,  4,  4,
-                                                               5,  7,  6,  4,  6,  7,  9,  8,  4,  8,  9,  11,
-                                                               10, 4,  10, 11, 20, 19, 4,  19, 20, 13, 12, 4,
-                                                               12, 13, 15, 14, 3,  14, 18, 16, 3,  18, 15, 17};
+    static const cvf::uint injectorArrowFaceList[8 * 5 + 8] = { 4,  0,  1,  3,  2,  4,  2,  3,  5,  4,  4,  4,
+                                                                5,  7,  6,  4,  6,  7,  9,  8,  4,  8,  9,  11,
+                                                                10, 4,  10, 11, 20, 19, 4,  19, 20, 13, 12, 4,
+                                                                12, 13, 15, 14, 3,  14, 18, 16, 3,  18, 15, 17 };
 
     cvf::Vec3f endPointInTopPlane = endPoint;
     if ( m_useCurvedArrows ) endPointInTopPlane.z() = startPoint.z();

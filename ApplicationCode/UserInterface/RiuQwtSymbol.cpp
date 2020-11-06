@@ -197,11 +197,11 @@ void RiuQwtSymbol::setLabelPosition( LabelPosition labelPosition )
 RiuQwtSymbol::PointSymbolEnum RiuQwtSymbol::cycledSymbolStyle( int indexLevel1, int indexLevel2 )
 {
     std::vector<std::vector<PointSymbolEnum>> categorisedStyles = {
-        {SYMBOL_ELLIPSE, SYMBOL_RECT, SYMBOL_DIAMOND},
-        {SYMBOL_DOWN_TRIANGLE, SYMBOL_UP_TRIANGLE},
-        {SYMBOL_LEFT_TRIANGLE, SYMBOL_RIGHT_TRIANGLE},
-        {SYMBOL_CROSS, SYMBOL_XCROSS},
-        {SYMBOL_STAR1, SYMBOL_STAR2},
+        { SYMBOL_ELLIPSE, SYMBOL_RECT, SYMBOL_DIAMOND },
+        { SYMBOL_DOWN_TRIANGLE, SYMBOL_UP_TRIANGLE },
+        { SYMBOL_LEFT_TRIANGLE, SYMBOL_RIGHT_TRIANGLE },
+        { SYMBOL_CROSS, SYMBOL_XCROSS },
+        { SYMBOL_STAR1, SYMBOL_STAR2 },
     };
 
     int level1Category = indexLevel1 % int( categorisedStyles.size() );
@@ -215,16 +215,16 @@ RiuQwtSymbol::PointSymbolEnum RiuQwtSymbol::cycledSymbolStyle( int indexLevel1, 
 //--------------------------------------------------------------------------------------------------
 RiuQwtSymbol::PointSymbolEnum RiuQwtSymbol::cycledSymbolStyle( int indexLevel )
 {
-    std::vector<PointSymbolEnum> contrastingSymbols = {SYMBOL_ELLIPSE,
-                                                       SYMBOL_CROSS,
-                                                       SYMBOL_RECT,
-                                                       SYMBOL_DOWN_TRIANGLE,
-                                                       SYMBOL_UP_TRIANGLE,
-                                                       SYMBOL_LEFT_TRIANGLE,
-                                                       SYMBOL_RIGHT_TRIANGLE,
-                                                       SYMBOL_STAR2,
-                                                       SYMBOL_DIAMOND,
-                                                       SYMBOL_STAR1};
+    std::vector<PointSymbolEnum> contrastingSymbols = { SYMBOL_ELLIPSE,
+                                                        SYMBOL_CROSS,
+                                                        SYMBOL_RECT,
+                                                        SYMBOL_DOWN_TRIANGLE,
+                                                        SYMBOL_UP_TRIANGLE,
+                                                        SYMBOL_LEFT_TRIANGLE,
+                                                        SYMBOL_RIGHT_TRIANGLE,
+                                                        SYMBOL_STAR2,
+                                                        SYMBOL_DIAMOND,
+                                                        SYMBOL_STAR1 };
 
     return contrastingSymbols[indexLevel % (int)contrastingSymbols.size()];
 }

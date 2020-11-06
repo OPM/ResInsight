@@ -955,7 +955,10 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &m_grouping )
     {
-        std::set<RigGridCrossPlotCurveGrouping> validOptions = {NO_GROUPING, GROUP_BY_TIME, GROUP_BY_FORMATION, GROUP_BY_RESULT};
+        std::set<RigGridCrossPlotCurveGrouping> validOptions = { NO_GROUPING,
+                                                                 GROUP_BY_TIME,
+                                                                 GROUP_BY_FORMATION,
+                                                                 GROUP_BY_RESULT };
         if ( !hasMultipleTimeSteps() )
         {
             validOptions.erase( GROUP_BY_TIME );
@@ -1116,16 +1119,16 @@ void RimGridCrossPlotDataSet::exportFormattedData( RifTextDataTableFormatter& fo
 
     if ( m_grouping != NO_GROUPING )
     {
-        std::vector<RifTextDataTableColumn> header = {RifTextDataTableColumn( xTitle ),
-                                                      RifTextDataTableColumn( yTitle ),
-                                                      RifTextDataTableColumn( "Group Index" ),
-                                                      RifTextDataTableColumn( "Group Description" )};
+        std::vector<RifTextDataTableColumn> header = { RifTextDataTableColumn( xTitle ),
+                                                       RifTextDataTableColumn( yTitle ),
+                                                       RifTextDataTableColumn( "Group Index" ),
+                                                       RifTextDataTableColumn( "Group Description" ) };
 
         formatter.header( header );
     }
     else
     {
-        std::vector<RifTextDataTableColumn> header = {RifTextDataTableColumn( xTitle ), RifTextDataTableColumn( yTitle )};
+        std::vector<RifTextDataTableColumn> header = { RifTextDataTableColumn( xTitle ), RifTextDataTableColumn( yTitle ) };
         formatter.header( header );
     }
 

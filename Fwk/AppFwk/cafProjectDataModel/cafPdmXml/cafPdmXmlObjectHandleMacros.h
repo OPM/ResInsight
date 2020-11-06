@@ -45,7 +45,7 @@ public:                                                                         
     std::vector<QString> ClassName::classKeywordAliases()                                                                                      \
     {                                                                                                                                          \
         CAF_PDM_VERIFY_XML_KEYWORD( keyword )                                                                                                  \
-        return {keyword, ##__VA_ARGS__};                                                                                                       \
+        return { keyword, ##__VA_ARGS__ };                                                                                                     \
     }                                                                                                                                          \
     bool ClassName::matchesClassKeyword( const QString& matchKeyword ) const                                                                   \
     {                                                                                                                                          \

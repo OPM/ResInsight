@@ -372,19 +372,19 @@ private:
         // could use as optimization ... >> double onk = 1 - k;
         // could use as optimization ... >> double opk = 1 + k;
 
-        return {k_1_8 * ( 1 - i ) * ( 1 - j ) * ( 1 - k ),
-                k_1_8 * ( 1 + i ) * ( 1 - j ) * ( 1 - k ),
-                k_1_8 * ( 1 + i ) * ( 1 + j ) * ( 1 - k ),
-                k_1_8 * ( 1 - i ) * ( 1 + j ) * ( 1 - k ),
-                k_1_8 * ( 1 - i ) * ( 1 - j ) * ( 1 + k ),
-                k_1_8 * ( 1 + i ) * ( 1 - j ) * ( 1 + k ),
-                k_1_8 * ( 1 + i ) * ( 1 + j ) * ( 1 + k ),
-                k_1_8 * ( 1 - i ) * ( 1 + j ) * ( 1 + k )};
+        return { k_1_8 * ( 1 - i ) * ( 1 - j ) * ( 1 - k ),
+                 k_1_8 * ( 1 + i ) * ( 1 - j ) * ( 1 - k ),
+                 k_1_8 * ( 1 + i ) * ( 1 + j ) * ( 1 - k ),
+                 k_1_8 * ( 1 - i ) * ( 1 + j ) * ( 1 - k ),
+                 k_1_8 * ( 1 - i ) * ( 1 - j ) * ( 1 + k ),
+                 k_1_8 * ( 1 + i ) * ( 1 - j ) * ( 1 + k ),
+                 k_1_8 * ( 1 + i ) * ( 1 + j ) * ( 1 + k ),
+                 k_1_8 * ( 1 - i ) * ( 1 + j ) * ( 1 + k ) };
     }
 
     static cvf::Vec3d findNormalizedCoords( const std::array<cvf::Vec3d, 8>& hexCorners, const cvf::Vec3d& P )
     {
-        cvf::Vec3d normPoint = {0.0, 0.0, 0.0}; // Start value
+        cvf::Vec3d normPoint = { 0.0, 0.0, 0.0 }; // Start value
         int        m         = 0;
         while ( m < 5 )
         {
