@@ -266,7 +266,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
                                                   defaultSummaryImportOption,
                                                   defaultGridImportOption,
                                                   {},
-                                                  QStringList( {initialGridFile} ),
+                                                  QStringList( { initialGridFile } ),
                                                   useFirstSummaryCaseAsTemplate ||
                                                       ( lastResult && lastResult->applyToAll ) );
     }
@@ -281,8 +281,8 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
         return RicSummaryCaseRestartDialogResult( RicSummaryCaseRestartDialogResult::SUMMARY_OK,
                                                   NOT_IMPORT,
                                                   NOT_IMPORT,
-                                                  QStringList( {initialSummaryFile} ),
-                                                  QStringList( {initialGridFile} ),
+                                                  QStringList( { initialSummaryFile } ),
+                                                  QStringList( { initialGridFile } ),
                                                   useFirstSummaryCaseAsTemplate || lastResult->applyToAll );
     }
 
@@ -356,7 +356,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
 
         // Remove common root path
         std::vector<std::vector<std::pair<RifRestartFileInfo, QString>>> fileInfosNoRoot =
-            makeShortPath( {currentFileInfos, originSummaryFileInfos, originGridFileInfos} );
+            makeShortPath( { currentFileInfos, originSummaryFileInfos, originGridFileInfos } );
 
         // Populate file list backing lists
         dialog.m_fileLists.push_back( fileInfosNoRoot[CURRENT_FILES_LIST_INDEX] );

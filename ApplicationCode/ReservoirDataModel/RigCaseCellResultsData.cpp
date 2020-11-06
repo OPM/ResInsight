@@ -1190,12 +1190,12 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
     }
     else if ( resVarAddr.m_resultCatType == RiaDefines::ResultCatType::UNDEFINED )
     {
-        std::vector<RiaDefines::ResultCatType> searchOrder = {RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                              RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                              RiaDefines::ResultCatType::SOURSIMRL,
-                                                              RiaDefines::ResultCatType::GENERATED,
-                                                              RiaDefines::ResultCatType::INPUT_PROPERTY,
-                                                              RiaDefines::ResultCatType::FORMATION_NAMES};
+        std::vector<RiaDefines::ResultCatType> searchOrder = { RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                               RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                               RiaDefines::ResultCatType::SOURSIMRL,
+                                                               RiaDefines::ResultCatType::GENERATED,
+                                                               RiaDefines::ResultCatType::INPUT_PROPERTY,
+                                                               RiaDefines::ResultCatType::FORMATION_NAMES };
 
         size_t scalarResultIndex = this->findOrLoadKnownScalarResultByResultTypeOrder( resVarAddr, searchOrder );
 
@@ -1467,12 +1467,12 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResultByResultTypeOrder(
     const RigEclipseResultAddress&                resVarAddr,
     const std::vector<RiaDefines::ResultCatType>& resultCategorySearchOrder )
 {
-    std::set<RiaDefines::ResultCatType> otherResultTypesToSearch = {RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                    RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                                    RiaDefines::ResultCatType::SOURSIMRL,
-                                                                    RiaDefines::ResultCatType::INPUT_PROPERTY,
-                                                                    RiaDefines::ResultCatType::GENERATED,
-                                                                    RiaDefines::ResultCatType::FORMATION_NAMES};
+    std::set<RiaDefines::ResultCatType> otherResultTypesToSearch = { RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                                     RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                                     RiaDefines::ResultCatType::SOURSIMRL,
+                                                                     RiaDefines::ResultCatType::INPUT_PROPERTY,
+                                                                     RiaDefines::ResultCatType::GENERATED,
+                                                                     RiaDefines::ResultCatType::FORMATION_NAMES };
 
     for ( const auto& resultType : resultCategorySearchOrder )
     {

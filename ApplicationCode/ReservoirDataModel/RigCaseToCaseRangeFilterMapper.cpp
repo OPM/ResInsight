@@ -281,12 +281,12 @@ void RigCaseToCaseRangeFilterMapper::convertRangeFilterEndPoints( const RigRange
         {
             // Look at the matches for each "face" of the range filter cube,
             // and use first exact match to determine the position of that "face"
-            size_t faceIJKs[6] = {cvf::UNDEFINED_SIZE_T,
-                                  cvf::UNDEFINED_SIZE_T,
-                                  cvf::UNDEFINED_SIZE_T,
-                                  cvf::UNDEFINED_SIZE_T,
-                                  cvf::UNDEFINED_SIZE_T,
-                                  cvf::UNDEFINED_SIZE_T};
+            size_t faceIJKs[6] = { cvf::UNDEFINED_SIZE_T,
+                                   cvf::UNDEFINED_SIZE_T,
+                                   cvf::UNDEFINED_SIZE_T,
+                                   cvf::UNDEFINED_SIZE_T,
+                                   cvf::UNDEFINED_SIZE_T,
+                                   cvf::UNDEFINED_SIZE_T };
             for ( int faceIdx = 0; faceIdx < 6; ++faceIdx )
             {
                 auto gridAxis = cvf::StructGridInterface::gridAxisFromFace( cvf::StructGridInterface::FaceType( faceIdx ) );

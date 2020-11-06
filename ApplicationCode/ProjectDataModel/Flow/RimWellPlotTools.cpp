@@ -48,12 +48,12 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::set<QString> RimWellPlotTools::PRESSURE_DATA_NAMES = {"PRESSURE", "PRES_FORM"};
+const std::set<QString> RimWellPlotTools::PRESSURE_DATA_NAMES = { "PRESSURE", "PRES_FORM" };
 
-const std::set<QString> RimWellPlotTools::OIL_CHANNEL_NAMES   = {"QOZT", "QOIL", "^.*\\D_QOIL"};
-const std::set<QString> RimWellPlotTools::GAS_CHANNEL_NAMES   = {"QGZT", "QGAS", "^.*\\D_QGAS"};
-const std::set<QString> RimWellPlotTools::WATER_CHANNEL_NAMES = {"QWZT", "QWAT", "^.*\\D_QWAT"};
-const std::set<QString> RimWellPlotTools::TOTAL_CHANNEL_NAMES = {"QTZT", "QTOT", "^.*\\D_QTOT"};
+const std::set<QString> RimWellPlotTools::OIL_CHANNEL_NAMES   = { "QOZT", "QOIL", "^.*\\D_QOIL" };
+const std::set<QString> RimWellPlotTools::GAS_CHANNEL_NAMES   = { "QGZT", "QGAS", "^.*\\D_QGAS" };
+const std::set<QString> RimWellPlotTools::WATER_CHANNEL_NAMES = { "QWZT", "QWAT", "^.*\\D_QWAT" };
+const std::set<QString> RimWellPlotTools::TOTAL_CHANNEL_NAMES = { "QTZT", "QTOT", "^.*\\D_QTOT" };
 
 std::set<QString> RimWellPlotTools::FLOW_DATA_NAMES = {};
 

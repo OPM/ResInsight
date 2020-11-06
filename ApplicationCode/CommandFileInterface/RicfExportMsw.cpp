@@ -97,7 +97,7 @@ caf::PdmScriptResponse RicfExportMsw::execute()
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
-    RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions( exportSettings, {wellPath} );
+    RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions( exportSettings, { wellPath } );
 
     return caf::PdmScriptResponse();
 }

@@ -308,8 +308,8 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( 
     if ( isTVDAvailable )
     {
         std::map<RiaDefines::DepthTypeEnum, std::vector<double>> resampledDepths =
-            {{RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH, tvDepths},
-             {RiaDefines::DepthTypeEnum::MEASURED_DEPTH, measuredDepths}};
+            { { RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH, tvDepths },
+              { RiaDefines::DepthTypeEnum::MEASURED_DEPTH, measuredDepths } };
         reSampledData->setValuesAndDepths( xValues, resampledDepths, m_rkbDiff, m_depthUnit, true );
     }
     else

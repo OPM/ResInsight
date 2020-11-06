@@ -105,9 +105,9 @@ void RivReachCircleAnnotationPartMgr::buildParts( const caf::DisplayCoordTransfo
         double                          yMin       = centerPos.y() - symbolSize / 2.0;
         double                          yMax       = yMin + symbolSize;
         double                          z          = centerPos.z();
-        std::vector<Vec3d>              line1      = {{xMin, yMin, z}, {xMax, yMax, z}};
-        std::vector<Vec3d>              line2      = {{xMax, yMin, z}, {xMin, yMax, z}};
-        std::vector<std::vector<Vec3d>> symbol     = {line1, line2};
+        std::vector<Vec3d>              line1      = { { xMin, yMin, z }, { xMax, yMax, z } };
+        std::vector<Vec3d>              line2      = { { xMax, yMin, z }, { xMin, yMax, z } };
+        std::vector<std::vector<Vec3d>> symbol     = { line1, line2 };
         cvf::ref<cvf::DrawableGeo>      drawableGeo = RivPolylineGenerator::createLineAlongPolylineDrawable( symbol );
 
         cvf::ref<cvf::Part> part = new cvf::Part;

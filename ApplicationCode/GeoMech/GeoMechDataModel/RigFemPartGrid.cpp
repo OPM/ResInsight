@@ -284,7 +284,7 @@ cvf::Vec3i RigFemPartGrid::findMainIJKFaces( int elementIndex ) const
     // Find the Z (for K) first. Then select among the other two the Y (for J),
     // and select the remaining for I
 
-    int mainElmDirectionIdxForIJK[3] = {-1, -1, -1};
+    int mainElmDirectionIdxForIJK[3] = { -1, -1, -1 };
     for ( int cIdx = 2; cIdx >= 0; --cIdx ) // Check Z first as it is more important
     {
         double maxAbsComp = -1.0;

@@ -150,10 +150,10 @@ void RimWellLogCurve::setValuesWithMdAndTVD( const std::vector<double>& xValues,
                                              bool                       isExtractionCurve,
                                              const QString&             xUnits )
 {
-    std::map<RiaDefines::DepthTypeEnum, std::vector<double>> depths = {{RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
-                                                                        measuredDepths},
-                                                                       {RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH,
-                                                                        tvdMSL}};
+    std::map<RiaDefines::DepthTypeEnum, std::vector<double>> depths = { { RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
+                                                                          measuredDepths },
+                                                                        { RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH,
+                                                                          tvdMSL } };
     setValuesAndDepths( xValues, depths, rkbDiff, depthUnit, isExtractionCurve, xUnits );
 }
 

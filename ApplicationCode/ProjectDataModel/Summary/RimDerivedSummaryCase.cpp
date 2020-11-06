@@ -391,7 +391,7 @@ void RimDerivedSummaryCase::updateDisplayNameFromCases()
                 {
                     time_t    selectedTime = timeSteps[m_fixedTimeStepIndex];
                     QDateTime dt           = RiaQDateTimeTools::fromTime_t( selectedTime );
-                    QString   formatString = RiaQDateTimeTools::createTimeFormatStringFromDates( {dt} );
+                    QString   formatString = RiaQDateTimeTools::createTimeFormatStringFromDates( { dt } );
 
                     timeStepString = RiaQDateTimeTools::toStringUsingApplicationLocale( dt, formatString );
                 }

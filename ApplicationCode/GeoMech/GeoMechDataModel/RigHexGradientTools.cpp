@@ -38,14 +38,14 @@ std::array<cvf::Vec3d, 8> RigHexGradientTools::gradients( const std::array<cvf::
     gradientsUVW[7] = cvf::Vec3d( forwardFD( values, 7, 6 ), forwardFD( values, 4, 7 ), forwardFD( values, 3, 7 ) );
 
     std::array<cvf::Vec3d, 8> NC;
-    NC[0] = {-1, -1, -1};
-    NC[1] = {1, -1, -1};
-    NC[2] = {1, 1, -1};
-    NC[3] = {-1, 1, -1};
-    NC[4] = {-1, -1, 1};
-    NC[5] = {1, -1, 1};
-    NC[6] = {1, 1, 1};
-    NC[7] = {-1, 1, 1};
+    NC[0] = { -1, -1, -1 };
+    NC[1] = { 1, -1, -1 };
+    NC[2] = { 1, 1, -1 };
+    NC[3] = { -1, 1, -1 };
+    NC[4] = { -1, -1, 1 };
+    NC[5] = { 1, -1, 1 };
+    NC[6] = { 1, 1, 1 };
+    NC[7] = { -1, 1, 1 };
 
     std::array<cvf::Vec3d, 8> gradientsXYZ;
 

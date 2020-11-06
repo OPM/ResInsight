@@ -35,7 +35,7 @@ TEST( RigWellPathGeometryExporter, VerticalPath )
     // Make a vertical well
     RigWellPath rigWellPath;
 
-    std::vector<double> inputMds = {0.0, 1032.14, 1548.2, 2580.34, 2619.82, 2777.73, 2790.57, 2810.34};
+    std::vector<double> inputMds = { 0.0, 1032.14, 1548.2, 2580.34, 2619.82, 2777.73, 2790.57, 2810.34 };
 
     for ( double md : inputMds )
     {

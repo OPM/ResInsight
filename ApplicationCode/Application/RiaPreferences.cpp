@@ -471,7 +471,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         colorGroup->add( &defaultGridLineColors, false );
         colorGroup->add( &defaultFaultGridLineColors );
         colorGroup->add( &defaultWellLabelColor, false );
-        colorGroup->add( &m_guiTheme, {true, 2} );
+        colorGroup->add( &m_guiTheme, { true, 2 } );
 
         caf::PdmUiGroup* fontGroup = uiOrdering.addNewGroup( "Default Font Sizes" );
         fontGroup->add( &defaultSceneFontSize );
@@ -485,9 +485,9 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         viewsGroup->add( &m_defaultScaleFactorZ );
 
         viewsGroup->add( &m_showLegendBackground );
-        viewsGroup->add( &m_enableFaultsByDefault, {false, 1} );
+        viewsGroup->add( &m_enableFaultsByDefault, { false, 1 } );
         viewsGroup->add( &m_showInfoBox );
-        viewsGroup->add( &m_showGridBox, {false, 1} );
+        viewsGroup->add( &m_showGridBox, { false, 1 } );
 
         caf::PdmUiGroup* otherGroup = uiOrdering.addNewGroup( "Other" );
         otherGroup->add( &ssihubAddress );

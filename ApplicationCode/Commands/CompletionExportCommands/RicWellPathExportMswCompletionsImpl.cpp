@@ -293,16 +293,15 @@ void RicWellPathExportMswCompletionsImpl::generateWelsegsTable( RifTextDataTable
     }
 
     {
-        std::vector<RifTextDataTableColumn> header = {RifTextDataTableColumn( "First Seg" ),
-                                                      RifTextDataTableColumn( "Last Seg" ),
-                                                      RifTextDataTableColumn( "Branch Num" ),
-                                                      RifTextDataTableColumn( "Outlet Seg" ),
-                                                      RifTextDataTableColumn( "Length" ),
-                                                      RifTextDataTableColumn( "Depth Change" ),
-                                                      RifTextDataTableColumn( "Diam" ),
-                                                      RifTextDataTableColumn( "Rough",
-                                                                              RifTextDataTableDoubleFormatting( RIF_FLOAT,
-                                                                                                                7 ) )};
+        std::vector<RifTextDataTableColumn> header =
+            { RifTextDataTableColumn( "First Seg" ),
+              RifTextDataTableColumn( "Last Seg" ),
+              RifTextDataTableColumn( "Branch Num" ),
+              RifTextDataTableColumn( "Outlet Seg" ),
+              RifTextDataTableColumn( "Length" ),
+              RifTextDataTableColumn( "Depth Change" ),
+              RifTextDataTableColumn( "Diam" ),
+              RifTextDataTableColumn( "Rough", RifTextDataTableDoubleFormatting( RIF_FLOAT, 7 ) ) };
         formatter.header( header );
     }
 
@@ -328,15 +327,15 @@ void RicWellPathExportMswCompletionsImpl::generateWelsegsTable( RifTextDataTable
     {
         generateWelsegsSegments( formatter,
                                  exportInfo,
-                                 {RigCompletionData::FISHBONES_ICD, RigCompletionData::FISHBONES},
+                                 { RigCompletionData::FISHBONES_ICD, RigCompletionData::FISHBONES },
                                  maxSegmentLength,
                                  &segmentNumber );
-        generateWelsegsSegments( formatter, exportInfo, {RigCompletionData::FRACTURE}, maxSegmentLength, &segmentNumber );
+        generateWelsegsSegments( formatter, exportInfo, { RigCompletionData::FRACTURE }, maxSegmentLength, &segmentNumber );
         generateWelsegsSegments( formatter,
                                  exportInfo,
-                                 {RigCompletionData::PERFORATION_ICD,
-                                  RigCompletionData::PERFORATION_ICV,
-                                  RigCompletionData::PERFORATION_AICD},
+                                 { RigCompletionData::PERFORATION_ICD,
+                                   RigCompletionData::PERFORATION_ICV,
+                                   RigCompletionData::PERFORATION_AICD },
                                  maxSegmentLength,
                                  &segmentNumber );
     }
@@ -429,8 +428,8 @@ void RicWellPathExportMswCompletionsImpl::generateCompsegTables( RifTextDataTabl
      */
 
     {
-        std::set<RigCompletionData::CompletionType> fishbonesTypes = {RigCompletionData::FISHBONES_ICD,
-                                                                      RigCompletionData::FISHBONES};
+        std::set<RigCompletionData::CompletionType> fishbonesTypes = { RigCompletionData::FISHBONES_ICD,
+                                                                       RigCompletionData::FISHBONES };
         generateCompsegTable( formatter, exportInfo, false, fishbonesTypes );
         if ( exportInfo.hasSubGridIntersections() )
         {
@@ -439,7 +438,7 @@ void RicWellPathExportMswCompletionsImpl::generateCompsegTables( RifTextDataTabl
     }
 
     {
-        std::set<RigCompletionData::CompletionType> fractureTypes = {RigCompletionData::FRACTURE};
+        std::set<RigCompletionData::CompletionType> fractureTypes = { RigCompletionData::FRACTURE };
         generateCompsegTable( formatter, exportInfo, false, fractureTypes );
         if ( exportInfo.hasSubGridIntersections() )
         {
@@ -448,10 +447,10 @@ void RicWellPathExportMswCompletionsImpl::generateCompsegTables( RifTextDataTabl
     }
 
     {
-        std::set<RigCompletionData::CompletionType> perforationTypes = {RigCompletionData::PERFORATION,
-                                                                        RigCompletionData::PERFORATION_ICD,
-                                                                        RigCompletionData::PERFORATION_ICV,
-                                                                        RigCompletionData::PERFORATION_AICD};
+        std::set<RigCompletionData::CompletionType> perforationTypes = { RigCompletionData::PERFORATION,
+                                                                         RigCompletionData::PERFORATION_ICD,
+                                                                         RigCompletionData::PERFORATION_ICV,
+                                                                         RigCompletionData::PERFORATION_AICD };
         generateCompsegTable( formatter, exportInfo, false, perforationTypes );
         if ( exportInfo.hasSubGridIntersections() )
         {
@@ -562,7 +561,7 @@ void RicWellPathExportMswCompletionsImpl::generateCompsegHeader( RifTextDataTabl
     }
 
     {
-        std::vector<RifTextDataTableColumn> header = {RifTextDataTableColumn( "Name" )};
+        std::vector<RifTextDataTableColumn> header = { RifTextDataTableColumn( "Name" ) };
         formatter.header( header );
         formatter.add( exportInfo.wellPath()->completions()->wellNameForExport() );
         formatter.rowCompleted();
@@ -575,15 +574,15 @@ void RicWellPathExportMswCompletionsImpl::generateCompsegHeader( RifTextDataTabl
             allHeaders.push_back( RifTextDataTableColumn( "Grid" ) );
         }
 
-        std::vector<RifTextDataTableColumn> commonHeaders = {RifTextDataTableColumn( "I" ),
-                                                             RifTextDataTableColumn( "J" ),
-                                                             RifTextDataTableColumn( "K" ),
-                                                             RifTextDataTableColumn( "Branch no" ),
-                                                             RifTextDataTableColumn( "Start Length" ),
-                                                             RifTextDataTableColumn( "End Length" ),
-                                                             RifTextDataTableColumn( "Dir Pen" ),
-                                                             RifTextDataTableColumn( "End Range" ),
-                                                             RifTextDataTableColumn( "Connection Depth" )};
+        std::vector<RifTextDataTableColumn> commonHeaders = { RifTextDataTableColumn( "I" ),
+                                                              RifTextDataTableColumn( "J" ),
+                                                              RifTextDataTableColumn( "K" ),
+                                                              RifTextDataTableColumn( "Branch no" ),
+                                                              RifTextDataTableColumn( "Start Length" ),
+                                                              RifTextDataTableColumn( "End Length" ),
+                                                              RifTextDataTableColumn( "Dir Pen" ),
+                                                              RifTextDataTableColumn( "End Range" ),
+                                                              RifTextDataTableColumn( "Connection Depth" ) };
         allHeaders.insert( allHeaders.end(), commonHeaders.begin(), commonHeaders.end() );
         formatter.header( allHeaders );
     }
@@ -670,27 +669,27 @@ void RicWellPathExportMswCompletionsImpl::generateWsegAicdTable( RifTextDataTabl
                     if ( !foundValve )
                     {
                         std::vector<QString> columnDescriptions =
-                            {"Well Name",
-                             "Segment Number",
-                             "Segment Number",
-                             "Strength of AICD",
-                             "Flow Scaling Factor for AICD",
-                             "Density of Calibration Fluid",
-                             "Viscosity of Calibration Fluid",
-                             "Critical water in liquid fraction for emulsions viscosity model",
-                             "Emulsion viscosity transition region",
-                             "Max ratio of emulsion viscosity to continuous phase viscosity",
-                             "Flow scaling factor method",
-                             "Maximum flowrate for AICD device",
-                             "Volume flow rate exponent, x",
-                             "Viscosity function exponent, y",
-                             "Device OPEN/SHUT",
-                             "Exponent of the oil flowing fraction in the density mixture calculation",
-                             "Exponent of the water flowing fraction in the density mixture calculation",
-                             "Exponent of the gas flowing fraction in the density mixture calculation",
-                             "Exponent of the oil flowing fraction in the density viscosity calculation",
-                             "Exponent of the water flowing fraction in the density viscosity calculation",
-                             "Exponent of the gas flowing fraction in the density viscosity calculation"};
+                            { "Well Name",
+                              "Segment Number",
+                              "Segment Number",
+                              "Strength of AICD",
+                              "Flow Scaling Factor for AICD",
+                              "Density of Calibration Fluid",
+                              "Viscosity of Calibration Fluid",
+                              "Critical water in liquid fraction for emulsions viscosity model",
+                              "Emulsion viscosity transition region",
+                              "Max ratio of emulsion viscosity to continuous phase viscosity",
+                              "Flow scaling factor method",
+                              "Maximum flowrate for AICD device",
+                              "Volume flow rate exponent, x",
+                              "Viscosity function exponent, y",
+                              "Device OPEN/SHUT",
+                              "Exponent of the oil flowing fraction in the density mixture calculation",
+                              "Exponent of the water flowing fraction in the density mixture calculation",
+                              "Exponent of the gas flowing fraction in the density mixture calculation",
+                              "Exponent of the oil flowing fraction in the density viscosity calculation",
+                              "Exponent of the water flowing fraction in the density viscosity calculation",
+                              "Exponent of the gas flowing fraction in the density viscosity calculation" };
 
                         tighterFormatter.keyword( "WSEGAICD" );
                         tighterFormatter.comment( "Column Overview:" );
@@ -1033,7 +1032,7 @@ RicMswExportInfo
                     RicExportFractureCompletionsImpl::generateCompdatValues( caseToApply,
                                                                              wellPath->completions()->wellNameForExport(),
                                                                              wellPath->wellPathGeometry(),
-                                                                             {fracture},
+                                                                             { fracture },
                                                                              nullptr,
                                                                              nullptr );
 
