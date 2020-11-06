@@ -111,14 +111,18 @@ void RigEclipseToStimPlanCalculator::appendDataToTransmissibilityCondenser( bool
         {
             if ( useFiniteConductivityInFracture )
             {
-                condenser->addNeighborTransmissibility( {true, CellIdxSpace::ECLIPSE, fractureCellContributingEclipseCells[i]},
-                                                        {false, CellIdxSpace::STIMPLAN, stimPlanCellIndex},
+                condenser->addNeighborTransmissibility( { true,
+                                                          CellIdxSpace::ECLIPSE,
+                                                          fractureCellContributingEclipseCells[i] },
+                                                        { false, CellIdxSpace::STIMPLAN, stimPlanCellIndex },
                                                         fractureCellContributingEclipseCellTransmissibilities[i] );
             }
             else
             {
-                condenser->addNeighborTransmissibility( {true, CellIdxSpace::ECLIPSE, fractureCellContributingEclipseCells[i]},
-                                                        {true, CellIdxSpace::WELL, 1},
+                condenser->addNeighborTransmissibility( { true,
+                                                          CellIdxSpace::ECLIPSE,
+                                                          fractureCellContributingEclipseCells[i] },
+                                                        { true, CellIdxSpace::WELL, 1 },
                                                         fractureCellContributingEclipseCellTransmissibilities[i] );
             }
         }

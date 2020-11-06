@@ -307,7 +307,7 @@ void RiuCreateMultipleFractionsUi::defineEditorAttribute( const caf::PdmFieldHan
         if ( attr )
         {
             attr->minimumHeight = 130;
-            attr->columnWidths  = {90, 90, 400, 70};
+            attr->columnWidths  = { 90, 90, 400, 70 };
         }
     }
 }

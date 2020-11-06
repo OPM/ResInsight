@@ -486,8 +486,8 @@ void RimAnalysisPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
 {
     caf::PdmUiGroup* selVectorsGrp = uiOrdering.addNewGroup( "Selected Vectors" );
     selVectorsGrp->add( &m_selectedVarsUiField );
-    selVectorsGrp->add( &m_selectVariablesButtonField, {false} );
-    selVectorsGrp->add( &m_referenceCase, {true, 3, 2} );
+    selVectorsGrp->add( &m_selectVariablesButtonField, { false } );
+    selVectorsGrp->add( &m_referenceCase, { true, 3, 2 } );
 
     QString vectorNames;
     if ( getOrCreateSelectedCurveDefAnalyser() )
@@ -518,22 +518,22 @@ void RimAnalysisPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
 
     caf::PdmUiGroup* titleGrp = uiOrdering.addNewGroup( "Title and Legend" );
     titleGrp->add( &m_showPlotTitle );
-    titleGrp->add( &m_useAutoPlotTitle, {false} );
-    titleGrp->add( &m_description, {false} );
+    titleGrp->add( &m_useAutoPlotTitle, { false } );
+    titleGrp->add( &m_description, { false } );
     m_description.uiCapability()->setUiReadOnly( m_useAutoPlotTitle() );
     titleGrp->add( &m_showPlotLegends );
     titleGrp->add( &m_legendFontSize );
     m_legendFontSize.uiCapability()->setUiReadOnly( !m_showPlotLegends() );
 
     caf::PdmUiGroup* chartSettings = uiOrdering.addNewGroup( "Bar Settings" );
-    chartSettings->add( &m_barOrientation, {true, 3, 2} );
+    chartSettings->add( &m_barOrientation, { true, 3, 2 } );
 
     chartSettings->add( &m_majorGroupType );
     chartSettings->add( &m_mediumGroupType );
     chartSettings->add( &m_minorGroupType );
     chartSettings->add( &m_valueSortOperation );
     chartSettings->add( &m_useTopBarsFilter );
-    chartSettings->add( &m_maxBarCount, {false} );
+    chartSettings->add( &m_maxBarCount, { false } );
     m_maxBarCount.uiCapability()->setUiReadOnly( !m_useTopBarsFilter() );
     chartSettings->add( &m_sortGroupForColors );
 
@@ -690,7 +690,7 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
     {
         std::vector<RimSummaryCase*> allSummaryCases = RimProject::current()->allSummaryCases();
 
-        options.push_back( {"None", nullptr} );
+        options.push_back( { "None", nullptr } );
 
         for ( auto sumCase : allSummaryCases )
         {
@@ -701,7 +701,7 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
                 displayName = caseColl->name() + "/" + displayName;
             }
 
-            options.push_back( {displayName, sumCase} );
+            options.push_back( { displayName, sumCase } );
         }
     }
     else if ( fieldNeedingOptions == &m_barTextFontSize )
@@ -1139,7 +1139,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
                     {
                         bool useLargest = filter->filterOperation() == RimPlotDataFilterItem::TOP_N;
 
-                        auto itIsInsertedPair = casesToKeepWithValue.insert( {sumCase, value} );
+                        auto itIsInsertedPair = casesToKeepWithValue.insert( { sumCase, value } );
                         if ( !itIsInsertedPair.second ) // Already exists in map
                         {
                             double& insertedValue = itIsInsertedPair.first->second;
@@ -1239,7 +1239,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
                             if ( historyTimesteps.size() )
                             {
                                 selectedTimestepIndices =
-                                    RimAnalysisPlot::findTimestepIndices( {historyTimesteps.back()}, timesteps );
+                                    RimAnalysisPlot::findTimestepIndices( { historyTimesteps.back() }, timesteps );
                             }
                         }
                         else if ( filter->consideredTimeStepsType() == RimPlotDataFilterItem::SELECT_TIMESTEP_RANGE )
@@ -1294,7 +1294,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
                 {
                     bool useLargest = filter->filterOperation() == RimPlotDataFilterItem::TOP_N;
 
-                    auto itIsInsertedPair = casesToKeepWithValue.insert( {sumCaseInEvaluation, value} );
+                    auto itIsInsertedPair = casesToKeepWithValue.insert( { sumCaseInEvaluation, value } );
                     if ( !itIsInsertedPair.second ) // Already exists in map
                     {
                         double& insertedValue = itIsInsertedPair.first->second;
@@ -1345,7 +1345,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
                     {
                         bool useLargest = filter->filterOperation() == RimPlotDataFilterItem::TOP_N;
 
-                        auto itIsInsertedPair = sumItemsToKeepWithValue.insert( {sumItem, value} );
+                        auto itIsInsertedPair = sumItemsToKeepWithValue.insert( { sumItem, value } );
                         if ( !itIsInsertedPair.second ) // Already exists in map
                         {
                             double& insertedValue = itIsInsertedPair.first->second;
@@ -1373,7 +1373,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
             std::multimap<double, RifEclipseSummaryAddress> valueSortedSumItems;
             for ( const auto& itemValPair : sumItemsToKeepWithValue )
             {
-                valueSortedSumItems.insert( {itemValPair.second, itemValPair.first} );
+                valueSortedSumItems.insert( { itemValPair.second, itemValPair.first } );
             }
 
             if ( filter->filterOperation() == RimPlotDataFilterItem::TOP_N )
@@ -1404,7 +1404,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
             std::multimap<double, RimSummaryCase*> valueSortedSumCases;
             for ( const auto& caseValPair : casesToKeepWithValue )
             {
-                valueSortedSumCases.insert( {caseValPair.second, caseValPair.first} );
+                valueSortedSumCases.insert( { caseValPair.second, caseValPair.first } );
             }
 
             if ( filter->filterOperation() == RimPlotDataFilterItem::TOP_N )
@@ -1700,7 +1700,7 @@ std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::curveDefinitions() const
 //--------------------------------------------------------------------------------------------------
 std::set<RimPlotAxisPropertiesInterface*> RimAnalysisPlot::allPlotAxes() const
 {
-    return {m_valueAxisProperties};
+    return { m_valueAxisProperties };
 }
 
 //--------------------------------------------------------------------------------------------------

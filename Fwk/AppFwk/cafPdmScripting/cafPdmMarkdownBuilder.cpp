@@ -383,11 +383,11 @@ QString caf::PdmMarkdownBuilder::generateDocCommandObjects( std::vector<std::sha
                 comment = commentComponents.join( ". " );
             }
 
-            attributes.push_back( {snake_field_name, comment, pythonDataType} );
+            attributes.push_back( { snake_field_name, comment, pythonDataType } );
         }
 
         QString comment = caf::PdmObjectScriptingCapabilityRegister::scriptClassComment( object->classKeyword() );
-        objs.push_back( {snakeCommandName, comment, attributes} );
+        objs.push_back( { snakeCommandName, comment, attributes } );
         //        objectsAndAttributes[snakeCommandName] = attributes;
     }
 

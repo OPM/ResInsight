@@ -663,7 +663,7 @@ void RimWellPathCollection::groupWellPaths( const std::vector<RimWellPath*>& wel
         {
             if ( dynamic_cast<RimWellPathGroup*>( wellPath ) )
             {
-                auto existingGroupPaths = detachWellPaths( {wellPath} );
+                auto existingGroupPaths = detachWellPaths( { wellPath } );
                 detachedWellPaths.insert( detachedWellPaths.end(), existingGroupPaths.begin(), existingGroupPaths.end() );
             }
         }

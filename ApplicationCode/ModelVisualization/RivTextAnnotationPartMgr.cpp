@@ -98,7 +98,7 @@ void RivTextAnnotationPartMgr::buildParts( const caf::DisplayCoordTransform* dis
 
     // Line part
     {
-        std::vector<cvf::Vec3d> points = {anchorPosition, labelPosition};
+        std::vector<cvf::Vec3d> points = { anchorPosition, labelPosition };
 
         cvf::ref<cvf::DrawableGeo> drawableGeo = RivPolylineGenerator::createLineAlongPolylineDrawable( points );
 

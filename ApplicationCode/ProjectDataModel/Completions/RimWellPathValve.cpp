@@ -499,7 +499,7 @@ void RimWellPathValve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 {
     uiOrdering.skipRemainingFields( true );
 
-    uiOrdering.add( &m_valveTemplate, {true, 2, 1} );
+    uiOrdering.add( &m_valveTemplate, { true, 2, 1 } );
 
     {
         if ( m_valveTemplate() != nullptr )
@@ -527,7 +527,7 @@ void RimWellPathValve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
                     m_measuredDepth.uiCapability()->setUiName( "Measured Depth [ft]" );
                 }
             }
-            uiOrdering.add( &m_measuredDepth, {true, 3, 1} );
+            uiOrdering.add( &m_measuredDepth, { true, 3, 1 } );
         }
     }
 

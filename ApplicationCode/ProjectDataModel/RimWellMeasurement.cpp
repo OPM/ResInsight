@@ -229,6 +229,6 @@ bool RimWellMeasurement::kindHasValue( const QString& measurementKind )
 
 std::vector<QString> RimWellMeasurement::measurementKindsForWellBoreStability()
 {
-    std::vector<QString> wbsMeasurementKinds = {"XLOT", "LOT", "FIT"};
+    std::vector<QString> wbsMeasurementKinds = { "XLOT", "LOT", "FIT" };
     return wbsMeasurementKinds;
 }

@@ -62,7 +62,7 @@ bool RiuComparisonViewMover::eventFilter( QObject* watched, QEvent* event )
                 if ( m_dragState == LEFT_EDGE )
                 {
                     QPointF    mousePos     = mEv->windowPos();
-                    QPointF    normMousePos = {mousePos.x() / m_viewer->width(), mousePos.y() / m_viewer->height()};
+                    QPointF    normMousePos = { mousePos.x() / m_viewer->width(), mousePos.y() / m_viewer->height() };
                     cvf::Rectf orgCompViewWindow = m_viewer->comparisonViewVisibleNormalizedRect();
 
                     float minx   = normMousePos.x();

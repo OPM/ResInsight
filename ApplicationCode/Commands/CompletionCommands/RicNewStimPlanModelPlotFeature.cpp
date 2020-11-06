@@ -94,10 +94,10 @@ RimStimPlanModelPlot* RicNewStimPlanModelPlotFeature::createPlot( RimStimPlanMod
         auto task = progInfo.task( "Creating parameters track", 15 );
 
         std::map<QString, std::vector<RiaDefines::CurveProperty>> plots;
-        plots["Porosity"]     = {RiaDefines::CurveProperty::POROSITY};
-        plots["Pressure"]     = {RiaDefines::CurveProperty::INITIAL_PRESSURE, RiaDefines::CurveProperty::PRESSURE};
-        plots["Permeability"] = {RiaDefines::CurveProperty::PERMEABILITY_X, RiaDefines::CurveProperty::PERMEABILITY_Z};
-        plots["Net-To-Gross"] = {RiaDefines::CurveProperty::NET_TO_GROSS};
+        plots["Porosity"]     = { RiaDefines::CurveProperty::POROSITY };
+        plots["Pressure"]     = { RiaDefines::CurveProperty::INITIAL_PRESSURE, RiaDefines::CurveProperty::PRESSURE };
+        plots["Permeability"] = { RiaDefines::CurveProperty::PERMEABILITY_X, RiaDefines::CurveProperty::PERMEABILITY_Z };
+        plots["Net-To-Gross"] = { RiaDefines::CurveProperty::NET_TO_GROSS };
 
         std::set<QString> logarithmicPlots;
         logarithmicPlots.insert( "Permeability" );
@@ -116,41 +116,46 @@ RimStimPlanModelPlot* RicNewStimPlanModelPlotFeature::createPlot( RimStimPlanMod
                                eclipseCase,
                                timeStep,
                                "Stress",
-                               {RiaDefines::CurveProperty::STRESS, RiaDefines::CurveProperty::INITIAL_STRESS} );
+                               { RiaDefines::CurveProperty::STRESS, RiaDefines::CurveProperty::INITIAL_STRESS } );
         createParametersTrack( plot,
                                stimPlanModel,
                                eclipseCase,
                                timeStep,
                                "Stress Gradient",
-                               {RiaDefines::CurveProperty::STRESS_GRADIENT} );
+                               { RiaDefines::CurveProperty::STRESS_GRADIENT } );
     }
 
     {
         auto task = progInfo.task( "Creating facies properties track", 15 );
 
-        std::vector<RiaDefines::CurveProperty> results = {RiaDefines::CurveProperty::YOUNGS_MODULUS,
-                                                          RiaDefines::CurveProperty::POISSONS_RATIO,
-                                                          RiaDefines::CurveProperty::BIOT_COEFFICIENT,
-                                                          RiaDefines::CurveProperty::K0,
-                                                          RiaDefines::CurveProperty::K_IC,
-                                                          RiaDefines::CurveProperty::PROPPANT_EMBEDMENT,
-                                                          RiaDefines::CurveProperty::FLUID_LOSS_COEFFICIENT,
-                                                          RiaDefines::CurveProperty::SPURT_LOSS,
-                                                          RiaDefines::CurveProperty::RELATIVE_PERMEABILITY_FACTOR,
-                                                          RiaDefines::CurveProperty::PORO_ELASTIC_CONSTANT,
-                                                          RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFICIENT,
-                                                          RiaDefines::CurveProperty::IMMOBILE_FLUID_SATURATION};
+        std::vector<RiaDefines::CurveProperty> results = { RiaDefines::CurveProperty::YOUNGS_MODULUS,
+                                                           RiaDefines::CurveProperty::POISSONS_RATIO,
+                                                           RiaDefines::CurveProperty::BIOT_COEFFICIENT,
+                                                           RiaDefines::CurveProperty::K0,
+                                                           RiaDefines::CurveProperty::K_IC,
+                                                           RiaDefines::CurveProperty::PROPPANT_EMBEDMENT,
+                                                           RiaDefines::CurveProperty::FLUID_LOSS_COEFFICIENT,
+                                                           RiaDefines::CurveProperty::SPURT_LOSS,
+                                                           RiaDefines::CurveProperty::RELATIVE_PERMEABILITY_FACTOR,
+                                                           RiaDefines::CurveProperty::PORO_ELASTIC_CONSTANT,
+                                                           RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFICIENT,
+                                                           RiaDefines::CurveProperty::IMMOBILE_FLUID_SATURATION };
 
         for ( auto result : results )
         {
             QString trackName = caf::AppEnum<RiaDefines::CurveProperty>::uiText( result );
-            createParametersTrack( plot, stimPlanModel, eclipseCase, timeStep, trackName, {result} );
+            createParametersTrack( plot, stimPlanModel, eclipseCase, timeStep, trackName, { result } );
         }
     }
 
     {
         auto task = progInfo.task( "Creating temperature track", 2 );
-        createParametersTrack( plot, stimPlanModel, eclipseCase, timeStep, "Temperature", {RiaDefines::CurveProperty::TEMPERATURE} );
+        createParametersTrack( plot,
+                               stimPlanModel,
+                               eclipseCase,
+                               timeStep,
+                               "Temperature",
+                               { RiaDefines::CurveProperty::TEMPERATURE } );
     }
 
     {

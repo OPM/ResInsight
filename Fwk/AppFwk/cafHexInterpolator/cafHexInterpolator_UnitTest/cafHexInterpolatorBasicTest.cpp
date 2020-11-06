@@ -50,42 +50,42 @@ class HexInterpolatorTester
 void testHex( const std::array<cvf::Vec3d, 8>& hexCorners, double tolerance = 1e-4 )
 {
     double result = 0.0;
-    result = caf::HexInterpolator::interpolateHex( hexCorners, {0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0}, hexCorners[0] );
+    result = caf::HexInterpolator::interpolateHex( hexCorners, { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0 }, hexCorners[0] );
     EXPECT_NEAR( result, 0.0, tolerance );
-    result = caf::HexInterpolator::interpolateHex( hexCorners, {0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0}, hexCorners[1] );
+    result = caf::HexInterpolator::interpolateHex( hexCorners, { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0 }, hexCorners[1] );
     EXPECT_NEAR( result, 1.0, tolerance );
-    result = caf::HexInterpolator::interpolateHex( hexCorners, {0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0}, hexCorners[2] );
+    result = caf::HexInterpolator::interpolateHex( hexCorners, { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0 }, hexCorners[2] );
     EXPECT_NEAR( result, 2.0, tolerance );
-    result = caf::HexInterpolator::interpolateHex( hexCorners, {0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0}, hexCorners[3] );
+    result = caf::HexInterpolator::interpolateHex( hexCorners, { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0 }, hexCorners[3] );
     EXPECT_NEAR( result, 3.0, tolerance );
-    result = caf::HexInterpolator::interpolateHex( hexCorners, {0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0}, hexCorners[4] );
+    result = caf::HexInterpolator::interpolateHex( hexCorners, { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0 }, hexCorners[4] );
     EXPECT_NEAR( result, 4.0, tolerance );
-    result = caf::HexInterpolator::interpolateHex( hexCorners, {0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0}, hexCorners[5] );
+    result = caf::HexInterpolator::interpolateHex( hexCorners, { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0 }, hexCorners[5] );
     EXPECT_NEAR( result, 5.0, tolerance );
-    result = caf::HexInterpolator::interpolateHex( hexCorners, {0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0}, hexCorners[6] );
+    result = caf::HexInterpolator::interpolateHex( hexCorners, { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0 }, hexCorners[6] );
     EXPECT_NEAR( result, 6.0, tolerance );
-    result = caf::HexInterpolator::interpolateHex( hexCorners, {0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0}, hexCorners[7] );
+    result = caf::HexInterpolator::interpolateHex( hexCorners, { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0 }, hexCorners[7] );
     EXPECT_NEAR( result, 7.0, tolerance );
 
     cvf::Vec3d avg = cvf::Vec3d::ZERO;
     for ( const auto& v : hexCorners )
         avg += v;
     avg *= 0.125;
-    result = caf::HexInterpolator::interpolateHex( hexCorners, {0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0}, avg );
+    result = caf::HexInterpolator::interpolateHex( hexCorners, { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0 }, avg );
     EXPECT_NEAR( result, 3.5, tolerance );
 }
 
 TEST( InterpolationTest, UnitElement )
 {
     // Identity element
-    std::array<cvf::Vec3d, 8> hexCorners = {cvf::Vec3d( -1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, 1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, 1.0 )};
+    std::array<cvf::Vec3d, 8> hexCorners = { cvf::Vec3d( -1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, 1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, 1.0 ) };
 
     testHex( hexCorners );
 }
@@ -93,14 +93,14 @@ TEST( InterpolationTest, UnitElement )
 TEST( InterpolationTest, ScaledElement )
 {
     // Identity element
-    std::array<cvf::Vec3d, 8> hexCorners = {cvf::Vec3d( -1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, 1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, 1.0 )};
+    std::array<cvf::Vec3d, 8> hexCorners = { cvf::Vec3d( -1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, 1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, 1.0 ) };
 
     for ( auto& v : hexCorners )
         v *= 2;
@@ -111,17 +111,17 @@ TEST( InterpolationTest, ScaledElement )
 TEST( InterpolationTest, TranslatedElement )
 {
     // Identity element
-    std::array<cvf::Vec3d, 8> hexCorners = {cvf::Vec3d( -1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, 1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, 1.0 )};
+    std::array<cvf::Vec3d, 8> hexCorners = { cvf::Vec3d( -1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, 1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, 1.0 ) };
 
     for ( auto& v : hexCorners )
-        v += {2.2, 4.4, -7.6};
+        v += { 2.2, 4.4, -7.6 };
 
     testHex( hexCorners );
 }
@@ -129,16 +129,16 @@ TEST( InterpolationTest, TranslatedElement )
 TEST( InterpolationTest, RotatedElement )
 {
     // Identity element
-    std::array<cvf::Vec3d, 8> hexCorners = {cvf::Vec3d( -1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, 1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, 1.0 )};
+    std::array<cvf::Vec3d, 8> hexCorners = { cvf::Vec3d( -1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, 1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, 1.0 ) };
 
-    cvf::Mat4d rot = cvf::Mat4d::fromRotation( {1, 1, 0}, 3.14159 );
+    cvf::Mat4d rot = cvf::Mat4d::fromRotation( { 1, 1, 0 }, 3.14159 );
 
     for ( auto& v : hexCorners )
         v.transformPoint( rot );
@@ -149,22 +149,22 @@ TEST( InterpolationTest, RotatedElement )
 TEST( InterpolationTest, CombinedUndeformed )
 {
     // Identity element
-    std::array<cvf::Vec3d, 8> hexCorners = {cvf::Vec3d( -1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, 1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, 1.0 )};
+    std::array<cvf::Vec3d, 8> hexCorners = { cvf::Vec3d( -1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, 1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, 1.0 ) };
 
     for ( auto& v : hexCorners )
         v *= 2;
 
     for ( auto& v : hexCorners )
-        v += {2.2, 4.4, -7.6};
+        v += { 2.2, 4.4, -7.6 };
 
-    cvf::Mat4d rot = cvf::Mat4d::fromRotation( {1, 1, 0}, 3.14159 );
+    cvf::Mat4d rot = cvf::Mat4d::fromRotation( { 1, 1, 0 }, 3.14159 );
 
     for ( auto& v : hexCorners )
         v.transformPoint( rot );
@@ -175,14 +175,14 @@ TEST( InterpolationTest, CombinedUndeformed )
 TEST( InterpolationTest, Compressed )
 {
     // Identity element
-    std::array<cvf::Vec3d, 8> hexCorners = {cvf::Vec3d( -1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, 1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, 1.0 )};
+    std::array<cvf::Vec3d, 8> hexCorners = { cvf::Vec3d( -1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, 1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, 1.0 ) };
 
     for ( auto& v : hexCorners )
         v[0] *= 0.1;
@@ -207,17 +207,17 @@ TEST( InterpolationTest, Compressed )
 TEST( InterpolationTest, Scewed )
 {
     // Identity element
-    std::array<cvf::Vec3d, 8> hexCorners = {cvf::Vec3d( -1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, 1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, 1.0 )};
+    std::array<cvf::Vec3d, 8> hexCorners = { cvf::Vec3d( -1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, 1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, 1.0 ) };
 
     for ( int i = 4; i < 8; ++i )
-        hexCorners[i] += {1.0, 0.0, 0.0};
+        hexCorners[i] += { 1.0, 0.0, 0.0 };
 
     testHex( hexCorners );
 }
@@ -225,16 +225,16 @@ TEST( InterpolationTest, Scewed )
 TEST( InterpolationTest, Screwed )
 {
     // Identity element
-    std::array<cvf::Vec3d, 8> hexCorners = {cvf::Vec3d( -1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, 1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, 1.0 )};
+    std::array<cvf::Vec3d, 8> hexCorners = { cvf::Vec3d( -1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, 1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, 1.0 ) };
 
-    cvf::Mat4d rot = cvf::Mat4d::fromRotation( {0, 0, 1}, 1.0 * 0.25 * 3.14159 );
+    cvf::Mat4d rot = cvf::Mat4d::fromRotation( { 0, 0, 1 }, 1.0 * 0.25 * 3.14159 );
 
     for ( int i = 4; i < 8; ++i )
         hexCorners[i].transformPoint( rot );
@@ -245,14 +245,14 @@ TEST( InterpolationTest, Screwed )
 TEST( InterpolationTest, Warp )
 {
     // Identity element
-    std::array<cvf::Vec3d, 8> hexCorners = {cvf::Vec3d( -1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, 1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, 1.0 )};
+    std::array<cvf::Vec3d, 8> hexCorners = { cvf::Vec3d( -1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, 1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, 1.0 ) };
 
     {
         std::array<cvf::Vec3d, 8> cornerCopy = hexCorners;
@@ -286,22 +286,22 @@ TEST( InterpolationTest, Warp )
 TEST( InterpolationTest, TotalCombined )
 {
     // Identity element
-    std::array<cvf::Vec3d, 8> hexCorners = {cvf::Vec3d( -1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, 1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, 1.0 )};
+    std::array<cvf::Vec3d, 8> hexCorners = { cvf::Vec3d( -1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, 1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, 1.0 ) };
 
-    cvf::Mat4d rot = cvf::Mat4d::fromRotation( {0, 0, 1}, 1.0 * 0.25 * 3.14159 );
+    cvf::Mat4d rot = cvf::Mat4d::fromRotation( { 0, 0, 1 }, 1.0 * 0.25 * 3.14159 );
 
     for ( int i = 4; i < 8; ++i )
         hexCorners[i].transformPoint( rot );
 
     for ( int i = 4; i < 8; ++i )
-        hexCorners[i] += {0.2, 0.0, 0.0};
+        hexCorners[i] += { 0.2, 0.0, 0.0 };
 
     {
         std::array<cvf::Vec3d, 8> cornerCopy = hexCorners;
@@ -319,9 +319,9 @@ TEST( InterpolationTest, TotalCombined )
         v *= 200;
 
     for ( auto& v : hexCorners )
-        v += {2.3e5, 4.7e6, -2000};
+        v += { 2.3e5, 4.7e6, -2000 };
 
-    cvf::Mat4d rot2 = cvf::Mat4d::fromRotation( {1, 1, 0}, 3.14159 );
+    cvf::Mat4d rot2 = cvf::Mat4d::fromRotation( { 1, 1, 0 }, 3.14159 );
 
     for ( auto& v : hexCorners )
         v.transformPoint( rot2 );

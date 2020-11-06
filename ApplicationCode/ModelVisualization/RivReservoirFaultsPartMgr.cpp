@@ -175,11 +175,11 @@ void RivReservoirFaultsPartMgr::appendPartsToModel( cvf::ModelBasicList* model )
                 }
 
                 {
-                    QStringList stringsToMatch{RiaDefines::combinedRiTranResultName(),
-                                               RiaDefines::combinedRiMultResultName(),
-                                               RiaDefines::combinedRiAreaNormTranResultName(),
-                                               RiaDefines::combinedTransmissibilityResultName(),
-                                               RiaDefines::combinedMultResultName()};
+                    QStringList stringsToMatch{ RiaDefines::combinedRiTranResultName(),
+                                                RiaDefines::combinedRiMultResultName(),
+                                                RiaDefines::combinedRiAreaNormTranResultName(),
+                                                RiaDefines::combinedTransmissibilityResultName(),
+                                                RiaDefines::combinedMultResultName() };
 
                     for ( const auto& s : stringsToMatch )
                     {

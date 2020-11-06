@@ -32,9 +32,9 @@
 //--------------------------------------------------------------------------------------------------
 TEST( RigWellPathGeometryTools, VerticalPath )
 {
-    std::vector<double> mdValues      = {100, 500, 1000};
-    std::vector<double> tvdValues     = {100, 500, 1000};
-    std::vector<double> fullTVDValues = {100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
+    std::vector<double> mdValues      = { 100, 500, 1000 };
+    std::vector<double> tvdValues     = { 100, 500, 1000 };
+    std::vector<double> fullTVDValues = { 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000 };
     std::vector<double> fullMDValues = RigWellPathGeometryTools::interpolateMdFromTvd( mdValues, tvdValues, fullTVDValues );
 
     EXPECT_EQ( fullTVDValues.size(), fullMDValues.size() );
@@ -46,9 +46,9 @@ TEST( RigWellPathGeometryTools, VerticalPath )
 
 TEST( RigWellPathGeometryTools, LinearPath )
 {
-    std::vector<double> mdValues      = {100, 500, 1000};
-    std::vector<double> tvdValues     = {50, 250, 500};
-    std::vector<double> fullTVDValues = {50, 100, 150, 200, 250, 300, 350, 400, 450, 500};
+    std::vector<double> mdValues      = { 100, 500, 1000 };
+    std::vector<double> tvdValues     = { 50, 250, 500 };
+    std::vector<double> fullTVDValues = { 50, 100, 150, 200, 250, 300, 350, 400, 450, 500 };
 
     std::vector<double> fullMDValues = RigWellPathGeometryTools::interpolateMdFromTvd( mdValues, tvdValues, fullTVDValues );
 
@@ -61,9 +61,9 @@ TEST( RigWellPathGeometryTools, LinearPath )
 
 TEST( RigWellPathGeometryTools, LinearPathStartingAtZero )
 {
-    std::vector<double> mdValues      = {0, 100, 500, 1000};
-    std::vector<double> tvdValues     = {0, 50, 250, 500};
-    std::vector<double> fullTVDValues = {0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500};
+    std::vector<double> mdValues      = { 0, 100, 500, 1000 };
+    std::vector<double> tvdValues     = { 0, 50, 250, 500 };
+    std::vector<double> fullTVDValues = { 0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500 };
 
     std::vector<double> fullMDValues = RigWellPathGeometryTools::interpolateMdFromTvd( mdValues, tvdValues, fullTVDValues );
 
@@ -81,13 +81,13 @@ double quadraticFunction( double x )
 
 TEST( RigWellPathGeometryTools, QuadraticPath )
 {
-    std::vector<double> mdValues = {100, 300, 600, 1000};
+    std::vector<double> mdValues = { 100, 300, 600, 1000 };
     std::vector<double> tvdValues;
     for ( double md : mdValues )
     {
         tvdValues.push_back( quadraticFunction( md ) );
     }
-    std::vector<double> fullMDValues = {100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
+    std::vector<double> fullMDValues = { 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000 };
     std::vector<double> fullTvdValues;
     for ( double md : fullMDValues )
     {
@@ -113,13 +113,13 @@ double cubicFunction( double x )
 
 TEST( RigWellPathGeometryTools, CubicPath )
 {
-    std::vector<double> mdValues = {100, 300, 700, 1000};
+    std::vector<double> mdValues = { 100, 300, 700, 1000 };
     std::vector<double> tvdValues;
     for ( double md : mdValues )
     {
         tvdValues.push_back( cubicFunction( md ) );
     }
-    std::vector<double> fullMDValues = {100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
+    std::vector<double> fullMDValues = { 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000 };
     std::vector<double> fullTvdValues;
     for ( double md : fullMDValues )
     {
@@ -140,13 +140,13 @@ TEST( RigWellPathGeometryTools, CubicPath )
 
 TEST( RigWellPathGeometryTools, CubicPathPoorSampling )
 {
-    std::vector<double> mdValues = {100, 300, 600, 1000};
+    std::vector<double> mdValues = { 100, 300, 600, 1000 };
     std::vector<double> tvdValues;
     for ( double md : mdValues )
     {
         tvdValues.push_back( cubicFunction( md ) );
     }
-    std::vector<double> fullMDValues = {100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
+    std::vector<double> fullMDValues = { 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000 };
     std::vector<double> fullTvdValues;
     for ( double md : fullMDValues )
     {

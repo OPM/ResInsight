@@ -64,7 +64,7 @@ caf::PdmScriptResponse RicfLoadCase::execute()
     }
 
     RiaImportEclipseCaseTools::FileCaseIdMap fileCaseIdMap;
-    bool ok = RiaImportEclipseCaseTools::openEclipseCasesFromFile( QStringList( {absolutePath} ), &fileCaseIdMap, true );
+    bool ok = RiaImportEclipseCaseTools::openEclipseCasesFromFile( QStringList( { absolutePath } ), &fileCaseIdMap, true );
     if ( !ok )
     {
         QString error = QString( "loadCase: Unable to load case from %1" ).arg( absolutePath );
