@@ -177,7 +177,7 @@ bool RimStimPlanModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
     }
 
     std::vector<double> poroValues =
-        m_stimPlanModelCalculator->extractValues( RiaDefines::CurveProperty::POROSITY, timeStep );
+        m_stimPlanModelCalculator->extractValues( RiaDefines::CurveProperty::POROSITY_UNSCALED, timeStep );
 
     double overburdenHeight = stimPlanModel->overburdenHeight();
     if ( overburdenHeight > 0.0 )

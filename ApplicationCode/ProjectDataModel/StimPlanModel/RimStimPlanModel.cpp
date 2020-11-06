@@ -1036,7 +1036,8 @@ double RimStimPlanModel::defaultPermeability() const
 //--------------------------------------------------------------------------------------------------
 double RimStimPlanModel::getDefaultForMissingValue( RiaDefines::CurveProperty curveProperty ) const
 {
-    if ( curveProperty == RiaDefines::CurveProperty::POROSITY )
+    if ( curveProperty == RiaDefines::CurveProperty::POROSITY ||
+         curveProperty == RiaDefines::CurveProperty::POROSITY_UNSCALED )
     {
         return defaultPorosity();
     }
@@ -1075,7 +1076,8 @@ RiaDefines::CurveProperty RimStimPlanModel::getDefaultPropertyForMissingValues( 
 //--------------------------------------------------------------------------------------------------
 double RimStimPlanModel::getDefaultForMissingOverburdenValue( RiaDefines::CurveProperty curveProperty ) const
 {
-    if ( curveProperty == RiaDefines::CurveProperty::POROSITY )
+    if ( curveProperty == RiaDefines::CurveProperty::POROSITY ||
+         curveProperty == RiaDefines::CurveProperty::POROSITY_UNSCALED )
     {
         return defaultOverburdenPorosity();
     }
@@ -1107,7 +1109,8 @@ double RimStimPlanModel::getDefaultForMissingOverburdenValue( RiaDefines::CurveP
 //--------------------------------------------------------------------------------------------------
 double RimStimPlanModel::getDefaultForMissingUnderburdenValue( RiaDefines::CurveProperty curveProperty ) const
 {
-    if ( curveProperty == RiaDefines::CurveProperty::POROSITY )
+    if ( curveProperty == RiaDefines::CurveProperty::POROSITY ||
+         curveProperty == RiaDefines::CurveProperty::POROSITY_UNSCALED )
     {
         return defaultUnderburdenPorosity();
     }
@@ -1654,7 +1657,8 @@ QString RimStimPlanModel::eclipseResultVariable( RiaDefines::CurveProperty curve
         return "PERMX";
     else if ( curveProperty == RiaDefines::CurveProperty::PERMEABILITY_Z )
         return "PERMZ";
-    else if ( curveProperty == RiaDefines::CurveProperty::POROSITY )
+    else if ( curveProperty == RiaDefines::CurveProperty::POROSITY ||
+              curveProperty == RiaDefines::CurveProperty::POROSITY_UNSCALED )
         return "PORO";
     else if ( curveProperty == RiaDefines::CurveProperty::FACIES )
     {

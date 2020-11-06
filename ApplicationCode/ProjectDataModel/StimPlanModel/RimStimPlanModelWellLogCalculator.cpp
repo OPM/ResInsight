@@ -57,6 +57,7 @@ bool RimStimPlanModelWellLogCalculator::isMatching( RiaDefines::CurveProperty cu
     std::vector<RiaDefines::CurveProperty> matching = {
         RiaDefines::CurveProperty::FACIES,
         RiaDefines::CurveProperty::POROSITY,
+        RiaDefines::CurveProperty::POROSITY_UNSCALED,
         RiaDefines::CurveProperty::PERMEABILITY_X,
         RiaDefines::CurveProperty::PERMEABILITY_Z,
         RiaDefines::CurveProperty::INITIAL_PRESSURE,
