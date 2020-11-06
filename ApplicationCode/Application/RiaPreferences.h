@@ -130,17 +130,17 @@ public:
     bool                                  showInfoBox() const;
     bool                                  showGridBox() const;
 
+    // Script paths
+    QString pythonExecutable() const;
+    QString octaveExecutable() const;
+
 public: // Pdm Fields
     caf::PdmField<bool> enableGrpcServer;
     caf::PdmField<int>  defaultGrpcPortNumber;
 
     caf::PdmField<QString> scriptDirectories;
     caf::PdmField<QString> scriptEditorExecutable;
-
-    caf::PdmField<QString> octaveExecutable;
     caf::PdmField<bool>    octaveShowHeaderInfoWhenExecutingScripts;
-
-    caf::PdmField<QString> pythonExecutable;
     caf::PdmField<bool>    showPythonDebugInfo;
 
     caf::PdmField<QString> ssihubAddress;
@@ -227,6 +227,10 @@ private:
     caf::PdmField<QString>       m_plotTemplateFolders;
     caf::PdmField<bool>          m_searchPlotTemplateFoldersRecursively;
     caf::PdmField<caf::FilePath> m_defaultPlotTemplate;
+
+    // Script paths
+    caf::PdmField<QString> m_octaveExecutable;
+    caf::PdmField<QString> m_pythonExecutable;
 
     // Surface Import
     caf::PdmField<double> m_surfaceImportResamplingDistance;
