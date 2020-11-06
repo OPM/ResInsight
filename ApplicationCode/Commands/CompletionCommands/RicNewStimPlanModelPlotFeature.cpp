@@ -116,7 +116,7 @@ RimStimPlanModelPlot* RicNewStimPlanModelPlotFeature::createPlot( RimStimPlanMod
                                eclipseCase,
                                timeStep,
                                "Stress",
-                               { RiaDefines::CurveProperty::STRESS, RiaDefines::CurveProperty::INITIAL_STRESS } );
+                               { RiaDefines::CurveProperty::INITIAL_STRESS, RiaDefines::CurveProperty::STRESS } );
         createParametersTrack( plot,
                                stimPlanModel,
                                eclipseCase,
