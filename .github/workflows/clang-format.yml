@@ -4,22 +4,22 @@ on: [push]
 
 jobs:
   clang-format-job:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
-    - name: Install clang-format 6.0
+    - name: Install clang-format 10.0
       run: |
-        sudo apt install clang-format-6.0
-        clang-format-6.0 --version
+        sudo apt install clang-format
+        clang-format --version
     - uses: actions/checkout@v2
     - name: Check format - ApplicationCode
       run: |
         cd ApplicationCode
-        find -name *.h -o -name *.cpp -o -name *.inl | xargs clang-format-6.0 -i
+        find -name *.h -o -name *.cpp -o -name *.inl | xargs clang-format -i
         git diff
     - name: Check format - AppFwk
       run: |
         cd Fwk/AppFwk
-        find -name *.h -o -name *.cpp -o -name *.inl | grep -v gtest | xargs clang-format-6.0 -i
+        find -name *.h -o -name *.cpp -o -name *.inl | grep -v gtest | xargs clang-format -i
         git diff
     - uses: peter-evans/create-pull-request@v2
       with:
