@@ -125,9 +125,9 @@ RiaPreferences::RiaPreferences( void )
     CAF_PDM_InitField( &scriptEditorExecutable, "scriptEditorExecutable", defaultTextEditor, "Script Editor", "", "", "" );
     scriptEditorExecutable.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &octaveExecutable, "octaveExecutable", QString( "octave" ), "Octave Executable Location", "", "", "" );
-    octaveExecutable.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
-    octaveExecutable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    CAF_PDM_InitField( &m_octaveExecutable, "octaveExecutable", QString( "octave" ), "Octave Executable Location", "", "", "" );
+    m_octaveExecutable.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    m_octaveExecutable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
     CAF_PDM_InitField( &octaveShowHeaderInfoWhenExecutingScripts,
                        "octaveShowHeaderInfoWhenExecutingScripts",
@@ -138,9 +138,9 @@ RiaPreferences::RiaPreferences( void )
                        "" );
     octaveShowHeaderInfoWhenExecutingScripts.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitField( &pythonExecutable, "pythonExecutable", QString( "python" ), "Python Executable Location", "", "", "" );
-    pythonExecutable.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
-    pythonExecutable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    CAF_PDM_InitField( &m_pythonExecutable, "pythonExecutable", QString( "python" ), "Python Executable Location", "", "", "" );
+    m_pythonExecutable.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    m_pythonExecutable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     CAF_PDM_InitField( &showPythonDebugInfo, "pythonDebugInfo", false, "Show Python Debug Info", "", "", "" );
 
     CAF_PDM_InitField( &ssihubAddress, "ssihubAddress", QString( "http://" ), "SSIHUB Address", "", "", "" );
@@ -555,7 +555,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     else if ( uiConfigName == RiaPreferences::tabNameScripting() )
     {
         caf::PdmUiGroup* octaveGroup = uiOrdering.addNewGroup( "Octave" );
-        octaveGroup->add( &octaveExecutable );
+        octaveGroup->add( &m_octaveExecutable );
         octaveGroup->add( &octaveShowHeaderInfoWhenExecutingScripts );
 
 #ifdef ENABLE_GRPC
@@ -563,7 +563,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         pythonGroup->add( &enableGrpcServer );
         pythonGroup->add( &showPythonDebugInfo );
         pythonGroup->add( &defaultGrpcPortNumber );
-        pythonGroup->add( &pythonExecutable );
+        pythonGroup->add( &m_pythonExecutable );
 #endif
         caf::PdmUiGroup* scriptGroup = uiOrdering.addNewGroup( "Script files" );
         scriptGroup->add( &scriptDirectories );
@@ -1102,6 +1102,22 @@ bool RiaPreferences::showInfoBox() const
 bool RiaPreferences::showGridBox() const
 {
     return m_showGridBox();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::pythonExecutable() const
+{
+    return m_pythonExecutable().trimmed();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::octaveExecutable() const
+{
+    return m_octaveExecutable().trimmed();
 }
 
 //--------------------------------------------------------------------------------------------------
