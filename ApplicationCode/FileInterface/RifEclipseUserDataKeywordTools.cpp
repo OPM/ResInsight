@@ -36,27 +36,27 @@ std::vector<size_t> RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeywo
     switch ( firstLetter )
     {
         case 'B':
-            return {3}; // Block triplet
+            return { 3 }; // Block triplet
         case 'C':
-            return {1, 3}; // Well Name and completion triplet
+            return { 1, 3 }; // Well Name and completion triplet
         case 'G':
-            return {1}; // Group
+            return { 1 }; // Group
         case 'R':
-            return {1}; // Region number
+            return { 1 }; // Region number
         case 'S':
-            return {1, 1}; // Well name and segment number
+            return { 1, 1 }; // Well name and segment number
         case 'W':
-            return {1}; // Well Name
+            return { 1 }; // Well Name
     }
 
     std::string firstTwoLetters = identifier.substr( 0, 2 );
 
     if ( firstTwoLetters == "LB" )
-        return {1, 3}; // LGR name and block triplet
+        return { 1, 3 }; // LGR name and block triplet
     else if ( firstTwoLetters == "LC" )
-        return {1, 1, 3}; // LGR name, well name and block triplet
+        return { 1, 1, 3 }; // LGR name, well name and block triplet
     else if ( firstTwoLetters == "LW" )
-        return {1, 1}; // LGR name and well name
+        return { 1, 1 }; // LGR name and well name
 
     return {};
 }

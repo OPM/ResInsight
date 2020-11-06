@@ -1286,41 +1286,41 @@ QString Rim3dOverlayInfoConfig::timeStepText( RimGeoMechView* geoMechView )
 std::vector<RigEclipseResultAddress> sourcesForMultiPropertyResults( const QString& resultName )
 {
     static const std::map<QString, std::vector<RigEclipseResultAddress>> resultsWithMultiPropertySource =
-        {{RiaDefines::combinedTransmissibilityResultName(),
-          {RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANX" ),
-           RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANY" ),
-           RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANZ" )}},
-         {RiaDefines::combinedMultResultName(),
-          {RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "MULTX" ),
-           RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "MULTX-" ),
-           RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "MULTY" ),
-           RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "MULTY-" ),
-           RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "MULTZ" ),
-           RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "MULTZ-" )}},
-         {RiaDefines::combinedRiTranResultName(),
-          {RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riTranXResultName() ),
-           RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riTranYResultName() ),
-           RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riTranZResultName() )}},
-         {RiaDefines::combinedRiMultResultName(),
-          {RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riMultXResultName() ),
-           RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riMultYResultName() ),
-           RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riMultZResultName() )}},
-         {RiaDefines::combinedRiAreaNormTranResultName(),
-          {RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riAreaNormTranXResultName() ),
-           RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riAreaNormTranYResultName() ),
-           RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riAreaNormTranZResultName() )}},
-         {RiaDefines::combinedWaterFluxResultName(),
-          {RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRWATI+" ),
-           RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRWATJ+" ),
-           RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRWATK+" )}},
-         {RiaDefines::combinedOilFluxResultName(),
-          {RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLROILI+" ),
-           RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLROILJ+" ),
-           RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLROILK+" )}},
-         {RiaDefines::combinedGasFluxResultName(),
-          {RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRGASI+" ),
-           RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRGASJ+" ),
-           RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRGASK+" )}}};
+        { { RiaDefines::combinedTransmissibilityResultName(),
+            { RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANX" ),
+              RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANY" ),
+              RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANZ" ) } },
+          { RiaDefines::combinedMultResultName(),
+            { RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "MULTX" ),
+              RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "MULTX-" ),
+              RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "MULTY" ),
+              RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "MULTY-" ),
+              RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "MULTZ" ),
+              RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "MULTZ-" ) } },
+          { RiaDefines::combinedRiTranResultName(),
+            { RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riTranXResultName() ),
+              RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riTranYResultName() ),
+              RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riTranZResultName() ) } },
+          { RiaDefines::combinedRiMultResultName(),
+            { RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riMultXResultName() ),
+              RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riMultYResultName() ),
+              RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riMultZResultName() ) } },
+          { RiaDefines::combinedRiAreaNormTranResultName(),
+            { RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riAreaNormTranXResultName() ),
+              RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riAreaNormTranYResultName() ),
+              RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riAreaNormTranZResultName() ) } },
+          { RiaDefines::combinedWaterFluxResultName(),
+            { RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRWATI+" ),
+              RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRWATJ+" ),
+              RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRWATK+" ) } },
+          { RiaDefines::combinedOilFluxResultName(),
+            { RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLROILI+" ),
+              RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLROILJ+" ),
+              RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLROILK+" ) } },
+          { RiaDefines::combinedGasFluxResultName(),
+            { RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRGASI+" ),
+              RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRGASJ+" ),
+              RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRGASK+" ) } } };
 
     auto resNameResultAddrsPairIt = resultsWithMultiPropertySource.find( resultName );
 
@@ -1333,7 +1333,7 @@ std::vector<RigEclipseResultAddress> sourcesForMultiPropertyResults( const QStri
         std::vector<RigEclipseResultAddress> resultAddrs;
 
         QString     baseName = resultName.left( resultName.size() - 3 );
-        QStringList endings  = {"I", "J", "K"};
+        QStringList endings  = { "I", "J", "K" };
 
         for ( QString ending : endings )
         {

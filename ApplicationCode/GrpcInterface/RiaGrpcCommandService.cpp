@@ -106,7 +106,7 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcCommandService::createCallbacks()
 {
     typedef RiaGrpcCommandService Self;
 
-    return {new RiaGrpcUnaryCallback<Self, CommandParams, CommandReply>( this, &Self::Execute, &Self::RequestExecute )};
+    return { new RiaGrpcUnaryCallback<Self, CommandParams, CommandReply>( this, &Self::Execute, &Self::RequestExecute ) };
 }
 
 //--------------------------------------------------------------------------------------------------

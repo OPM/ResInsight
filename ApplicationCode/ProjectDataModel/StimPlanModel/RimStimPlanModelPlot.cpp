@@ -84,8 +84,8 @@ RimStimPlanModel* RimStimPlanModelPlot::stimPlanModel()
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanModelPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_stimPlanModel, {true, 2, 1} );
-    uiOrdering.add( &m_editStimPlanModel, {false, 1, 0} );
+    uiOrdering.add( &m_stimPlanModel, { true, 2, 1 } );
+    uiOrdering.add( &m_editStimPlanModel, { false, 1, 0 } );
     uiOrdering.add( &m_eclipseCase );
     uiOrdering.add( &m_timeStep );
 
@@ -158,10 +158,10 @@ void RimStimPlanModelPlot::onLoadDataAndUpdate()
     // Enable and disable detailed fluid loss curves
     if ( stimPlanModel() != nullptr )
     {
-        std::vector<RiaDefines::CurveProperty> fluidLossCurves = {RiaDefines::CurveProperty::PORO_ELASTIC_CONSTANT,
-                                                                  RiaDefines::CurveProperty::RELATIVE_PERMEABILITY_FACTOR,
-                                                                  RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFICIENT,
-                                                                  RiaDefines::CurveProperty::IMMOBILE_FLUID_SATURATION};
+        std::vector<RiaDefines::CurveProperty> fluidLossCurves = { RiaDefines::CurveProperty::PORO_ELASTIC_CONSTANT,
+                                                                   RiaDefines::CurveProperty::RELATIVE_PERMEABILITY_FACTOR,
+                                                                   RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFICIENT,
+                                                                   RiaDefines::CurveProperty::IMMOBILE_FLUID_SATURATION };
 
         bool detailedFluidLoss = stimPlanModel()->useDetailedFluidLoss();
 

@@ -832,8 +832,8 @@ void RimStimPlanModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     m_azimuthAngle.uiCapability()->setUiHidden( m_fractureOrientation() != RimStimPlanModel::FractureOrientation::AZIMUTH );
 
     uiOrdering.add( nameField(), caf::PdmUiOrdering::LayoutOptions( true, 3, 1 ) );
-    uiOrdering.add( &m_stimPlanModelTemplate, {true, 2, 1} );
-    uiOrdering.add( &m_editStimPlanModelTemplate, {false, 1, 0} );
+    uiOrdering.add( &m_stimPlanModelTemplate, { true, 2, 1 } );
+    uiOrdering.add( &m_editStimPlanModelTemplate, { false, 1, 0 } );
 
     uiOrdering.add( &m_eclipseCase );
     uiOrdering.add( &m_timeStep );
@@ -866,7 +866,7 @@ void RimStimPlanModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     asymmetricGroup->add( &m_barrierFaultName );
 
     asymmetricGroup->add( &m_showOnlyBarrierFault, caf::PdmUiOrdering::LayoutOptions( true, 2, 1 ) );
-    asymmetricGroup->add( &m_showAllFaults, {false, 1, 0} );
+    asymmetricGroup->add( &m_showAllFaults, { false, 1, 0 } );
 
     asymmetricGroup->add( &m_wellPenetrationLayer );
 }
@@ -1233,9 +1233,9 @@ RimStimPlanModel::BurdenStrategy RimStimPlanModel::burdenStrategy( RiaDefines::C
 //--------------------------------------------------------------------------------------------------
 bool RimStimPlanModel::hasDefaultValueForProperty( RiaDefines::CurveProperty curveProperty ) const
 {
-    auto withDefaults = {RiaDefines::CurveProperty::RELATIVE_PERMEABILITY_FACTOR,
-                         RiaDefines::CurveProperty::PORO_ELASTIC_CONSTANT,
-                         RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFICIENT};
+    auto withDefaults = { RiaDefines::CurveProperty::RELATIVE_PERMEABILITY_FACTOR,
+                          RiaDefines::CurveProperty::PORO_ELASTIC_CONSTANT,
+                          RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFICIENT };
     return std::find( withDefaults.begin(), withDefaults.end(), curveProperty ) != withDefaults.end();
 }
 
@@ -1715,21 +1715,21 @@ double RimStimPlanModel::findFaciesValue( const RimColorLegend& colorLegend, con
 //--------------------------------------------------------------------------------------------------
 bool RimStimPlanModel::isScaledByNetToGross( RiaDefines::CurveProperty curveProperty ) const
 {
-    std::vector<RiaDefines::CurveProperty> matching = {RiaDefines::CurveProperty::POROSITY,
-                                                       RiaDefines::CurveProperty::PERMEABILITY_X,
-                                                       RiaDefines::CurveProperty::PERMEABILITY_Z,
-                                                       RiaDefines::CurveProperty::YOUNGS_MODULUS,
-                                                       RiaDefines::CurveProperty::POISSONS_RATIO,
-                                                       RiaDefines::CurveProperty::BIOT_COEFFICIENT,
-                                                       RiaDefines::CurveProperty::K0,
-                                                       RiaDefines::CurveProperty::K_IC,
-                                                       RiaDefines::CurveProperty::PROPPANT_EMBEDMENT,
-                                                       RiaDefines::CurveProperty::FLUID_LOSS_COEFFICIENT,
-                                                       RiaDefines::CurveProperty::SPURT_LOSS,
-                                                       RiaDefines::CurveProperty::RELATIVE_PERMEABILITY_FACTOR,
-                                                       RiaDefines::CurveProperty::PORO_ELASTIC_CONSTANT,
-                                                       RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFICIENT,
-                                                       RiaDefines::CurveProperty::IMMOBILE_FLUID_SATURATION};
+    std::vector<RiaDefines::CurveProperty> matching = { RiaDefines::CurveProperty::POROSITY,
+                                                        RiaDefines::CurveProperty::PERMEABILITY_X,
+                                                        RiaDefines::CurveProperty::PERMEABILITY_Z,
+                                                        RiaDefines::CurveProperty::YOUNGS_MODULUS,
+                                                        RiaDefines::CurveProperty::POISSONS_RATIO,
+                                                        RiaDefines::CurveProperty::BIOT_COEFFICIENT,
+                                                        RiaDefines::CurveProperty::K0,
+                                                        RiaDefines::CurveProperty::K_IC,
+                                                        RiaDefines::CurveProperty::PROPPANT_EMBEDMENT,
+                                                        RiaDefines::CurveProperty::FLUID_LOSS_COEFFICIENT,
+                                                        RiaDefines::CurveProperty::SPURT_LOSS,
+                                                        RiaDefines::CurveProperty::RELATIVE_PERMEABILITY_FACTOR,
+                                                        RiaDefines::CurveProperty::PORO_ELASTIC_CONSTANT,
+                                                        RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFICIENT,
+                                                        RiaDefines::CurveProperty::IMMOBILE_FLUID_SATURATION };
 
     return std::find( matching.begin(), matching.end(), curveProperty ) != matching.end();
 }

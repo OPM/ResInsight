@@ -136,25 +136,25 @@ RimWbsParameters::RimWbsParameters()
     CAF_PDM_InitField( &m_timeStep, "TimeStep", -1, "TimeStep", "", "", "" );
     m_timeStep.uiCapability()->setUiHidden( true );
 
-    m_parameterSourceFields = {{RigWbsParameter::PP_Reservoir(), &m_porePressureSource},
-                               {RigWbsParameter::PP_NonReservoir(), &m_porePressureNonReservoirSource},
-                               {RigWbsParameter::poissonRatio(), &m_poissonRatioSource},
-                               {RigWbsParameter::UCS(), &m_ucsSource},
-                               {RigWbsParameter::OBG0(), &m_OBG0Source},
-                               {RigWbsParameter::DF(), &m_DFSource},
-                               {RigWbsParameter::K0_FG(), &m_K0FGSource},
-                               {RigWbsParameter::K0_SH(), &m_K0SHSource},
-                               {RigWbsParameter::FG_Shale(), &m_FGShaleSource},
-                               {RigWbsParameter::waterDensity(), &m_waterDensitySource}};
+    m_parameterSourceFields = { { RigWbsParameter::PP_Reservoir(), &m_porePressureSource },
+                                { RigWbsParameter::PP_NonReservoir(), &m_porePressureNonReservoirSource },
+                                { RigWbsParameter::poissonRatio(), &m_poissonRatioSource },
+                                { RigWbsParameter::UCS(), &m_ucsSource },
+                                { RigWbsParameter::OBG0(), &m_OBG0Source },
+                                { RigWbsParameter::DF(), &m_DFSource },
+                                { RigWbsParameter::K0_FG(), &m_K0FGSource },
+                                { RigWbsParameter::K0_SH(), &m_K0SHSource },
+                                { RigWbsParameter::FG_Shale(), &m_FGShaleSource },
+                                { RigWbsParameter::waterDensity(), &m_waterDensitySource } };
 
-    m_userDefinedValueFields = {{RigWbsParameter::PP_NonReservoir(), &m_userDefinedPPShale},
-                                {RigWbsParameter::poissonRatio(), &m_userDefinedPoissionRatio},
-                                {RigWbsParameter::UCS(), &m_userDefinedUcs},
-                                {RigWbsParameter::DF(), &m_userDefinedDF},
-                                {RigWbsParameter::K0_FG(), &m_userDefinedK0FG},
-                                {RigWbsParameter::K0_SH(), &m_userDefinedK0SH},
-                                {RigWbsParameter::FG_Shale(), &m_FGShaleMultiplier},
-                                {RigWbsParameter::waterDensity(), &m_userDefinedDensity}};
+    m_userDefinedValueFields = { { RigWbsParameter::PP_NonReservoir(), &m_userDefinedPPShale },
+                                 { RigWbsParameter::poissonRatio(), &m_userDefinedPoissionRatio },
+                                 { RigWbsParameter::UCS(), &m_userDefinedUcs },
+                                 { RigWbsParameter::DF(), &m_userDefinedDF },
+                                 { RigWbsParameter::K0_FG(), &m_userDefinedK0FG },
+                                 { RigWbsParameter::K0_SH(), &m_userDefinedK0SH },
+                                 { RigWbsParameter::FG_Shale(), &m_FGShaleMultiplier },
+                                 { RigWbsParameter::waterDensity(), &m_userDefinedDensity } };
 
     for ( auto parameterFieldPair : m_parameterSourceFields )
     {

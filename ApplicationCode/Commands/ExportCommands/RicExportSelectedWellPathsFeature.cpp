@@ -117,10 +117,10 @@ void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream( QTextStre
     stream << "WELLNAME: '" << caf::Utils::makeValidFileBasename( exportName ) << "'" << endl;
 
     auto numberFormat = RifTextDataTableDoubleFormatting( RIF_FLOAT, 2 );
-    formatter.header( {{"X", numberFormat, RIGHT},
-                       {"Y", numberFormat, RIGHT},
-                       {"TVDMSL", numberFormat, RIGHT},
-                       {useMdRkb ? "MDRKB" : "MDMSL", numberFormat, RIGHT}} );
+    formatter.header( { { "X", numberFormat, RIGHT },
+                        { "Y", numberFormat, RIGHT },
+                        { "TVDMSL", numberFormat, RIGHT },
+                        { useMdRkb ? "MDRKB" : "MDMSL", numberFormat, RIGHT } } );
 
     for ( size_t i = 0; i < xValues.size(); i++ )
     {

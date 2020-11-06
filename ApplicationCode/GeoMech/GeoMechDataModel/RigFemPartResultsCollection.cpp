@@ -352,7 +352,7 @@ void RigFemPartResultsCollection::setBiotCoefficientParameters( double biotFixed
     m_biotResultAddress = biotResultAddress;
 
     // Invalidate all results which depends on biot coefficient (directly or indirectly)
-    for ( auto elementType : {RIG_ELEMENT_NODAL, RIG_INTEGRATION_POINT} )
+    for ( auto elementType : { RIG_ELEMENT_NODAL, RIG_INTEGRATION_POINT } )
     {
         deleteResult(
             RigFemResultAddress( elementType, "COMPRESSIBILITY", "PORE", RigFemResultAddress::allTimeLapsesValue() ) );
@@ -1246,8 +1246,8 @@ bool RigFemPartResultsCollection::isResultInSet( const RigFemResultAddress&     
 //--------------------------------------------------------------------------------------------------
 std::set<RigFemResultAddress> RigFemPartResultsCollection::normalizedResults()
 {
-    std::set<std::string> validFields     = {"SE", "ST"};
-    std::set<std::string> validComponents = {"S11", "S22", "S33", "S12", "S13", "S23", "S1", "S2", "S3", "SM"};
+    std::set<std::string> validFields     = { "SE", "ST" };
+    std::set<std::string> validComponents = { "S11", "S22", "S33", "S12", "S13", "S23", "S1", "S2", "S3", "SM" };
 
     std::set<RigFemResultAddress> results;
     for ( auto field : validFields )
@@ -1282,7 +1282,7 @@ bool RigFemPartResultsCollection::isNormalizableResult( const RigFemResultAddres
 std::set<RigFemResultAddress> RigFemPartResultsCollection::referenceCaseDependentResults()
 {
     std::set<RigFemResultAddress> results;
-    for ( auto elementType : {RIG_ELEMENT_NODAL, RIG_INTEGRATION_POINT} )
+    for ( auto elementType : { RIG_ELEMENT_NODAL, RIG_INTEGRATION_POINT } )
     {
         results.insert(
             RigFemResultAddress( elementType, "COMPRESSIBILITY", "PORE", RigFemResultAddress::allTimeLapsesValue() ) );
@@ -1306,7 +1306,7 @@ std::set<RigFemResultAddress> RigFemPartResultsCollection::referenceCaseDependen
 std::set<RigFemResultAddress> RigFemPartResultsCollection::mudWeightWindowResults()
 {
     std::set<RigFemResultAddress> results;
-    for ( auto elmType : {RIG_ELEMENT_NODAL, RIG_INTEGRATION_POINT} )
+    for ( auto elmType : { RIG_ELEMENT_NODAL, RIG_INTEGRATION_POINT } )
     {
         results.insert( RigFemResultAddress( elmType, "MUD-WEIGHT", "MWW", RigFemResultAddress::allTimeLapsesValue() ) );
         results.insert( RigFemResultAddress( elmType, "MUD-WEIGHT", "MWM", RigFemResultAddress::allTimeLapsesValue() ) );
@@ -1323,7 +1323,7 @@ std::set<RigFemResultAddress> RigFemPartResultsCollection::mudWeightWindowResult
 std::set<RigFemResultAddress> RigFemPartResultsCollection::initialPermeabilityDependentResults()
 {
     std::set<RigFemResultAddress> results;
-    for ( auto elementType : {RIG_ELEMENT_NODAL, RIG_INTEGRATION_POINT} )
+    for ( auto elementType : { RIG_ELEMENT_NODAL, RIG_INTEGRATION_POINT } )
     {
         results.insert( RigFemResultAddress( elementType, "PORO-PERM", "PHI", RigFemResultAddress::allTimeLapsesValue() ) );
         results.insert( RigFemResultAddress( elementType, "PORO-PERM", "DPHI", RigFemResultAddress::allTimeLapsesValue() ) );
@@ -1534,7 +1534,7 @@ const RigFemPartCollection* RigFemPartResultsCollection::parts() const
 //--------------------------------------------------------------------------------------------------
 std::vector<std::string> RigFemPartResultsCollection::getStressComponentNames( bool includeShear )
 {
-    std::vector<std::string> componentNames = {"S11", "S22", "S33", "S1", "S2", "S3"};
+    std::vector<std::string> componentNames = { "S11", "S22", "S33", "S1", "S2", "S3" };
     if ( includeShear )
     {
         componentNames.push_back( "S12" );
@@ -1550,7 +1550,7 @@ std::vector<std::string> RigFemPartResultsCollection::getStressComponentNames( b
 //--------------------------------------------------------------------------------------------------
 std::vector<std::string> RigFemPartResultsCollection::getStressAnisotropyComponentNames()
 {
-    return {"SA12", "SA13", "SA23"};
+    return { "SA12", "SA13", "SA23" };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1558,7 +1558,7 @@ std::vector<std::string> RigFemPartResultsCollection::getStressAnisotropyCompone
 //--------------------------------------------------------------------------------------------------
 std::vector<std::string> RigFemPartResultsCollection::getStressGradientComponentNames( bool includeShear )
 {
-    std::vector<std::string> directions           = {"X", "Y", "Z"};
+    std::vector<std::string> directions           = { "X", "Y", "Z" };
     std::vector<std::string> stressComponentNames = getStressComponentNames( includeShear );
 
     std::vector<std::string> stressGradientComponentNames;
@@ -1769,7 +1769,7 @@ void RigFemPartResultsCollection::setWaterDensityShearSlipIndicator( double wate
 {
     m_waterDensityShearSlipIndicator = waterDensity;
 
-    for ( auto elementType : {RIG_ELEMENT_NODAL, RIG_INTEGRATION_POINT} )
+    for ( auto elementType : { RIG_ELEMENT_NODAL, RIG_INTEGRATION_POINT } )
     {
         deleteResult( RigFemResultAddress( elementType, "ST", "DPN", RigFemResultAddress::allTimeLapsesValue() ) );
     }

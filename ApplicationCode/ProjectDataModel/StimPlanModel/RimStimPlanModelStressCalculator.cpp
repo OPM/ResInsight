@@ -46,10 +46,10 @@ RimStimPlanModelStressCalculator::RimStimPlanModelStressCalculator( RimStimPlanM
 //--------------------------------------------------------------------------------------------------
 bool RimStimPlanModelStressCalculator::isMatching( RiaDefines::CurveProperty curveProperty ) const
 {
-    std::vector<RiaDefines::CurveProperty> matching = {RiaDefines::CurveProperty::INITIAL_STRESS,
-                                                       RiaDefines::CurveProperty::STRESS,
-                                                       RiaDefines::CurveProperty::STRESS_GRADIENT,
-                                                       RiaDefines::CurveProperty::TEMPERATURE};
+    std::vector<RiaDefines::CurveProperty> matching = { RiaDefines::CurveProperty::INITIAL_STRESS,
+                                                        RiaDefines::CurveProperty::STRESS,
+                                                        RiaDefines::CurveProperty::STRESS_GRADIENT,
+                                                        RiaDefines::CurveProperty::TEMPERATURE };
 
     return std::find( matching.begin(), matching.end(), curveProperty ) != matching.end();
 }

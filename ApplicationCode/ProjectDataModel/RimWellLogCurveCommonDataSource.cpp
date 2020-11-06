@@ -798,8 +798,8 @@ QList<caf::PdmOptionItemInfo>
                 options.push_back( caf::PdmOptionItemInfo( "No Trajectory Types", -1 ) );
             }
         }
-        std::vector<RimWellLogExtractionCurve::TrajectoryType> trajectoryTypes = {RimWellLogExtractionCurve::WELL_PATH,
-                                                                                  RimWellLogExtractionCurve::SIMULATION_WELL};
+        std::vector<RimWellLogExtractionCurve::TrajectoryType> trajectoryTypes = { RimWellLogExtractionCurve::WELL_PATH,
+                                                                                   RimWellLogExtractionCurve::SIMULATION_WELL };
         for ( RimWellLogExtractionCurve::TrajectoryType trajectoryType : trajectoryTypes )
         {
             caf::PdmOptionItemInfo item( caf::AppEnum<RimWellLogExtractionCurve::TrajectoryType>::uiText( trajectoryType ),

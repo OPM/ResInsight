@@ -27,7 +27,7 @@ TEST( RiaMedianCalculator, TwoValues )
 {
     RiaMedianCalculator<double> calc;
 
-    std::vector<double> values{3.0, 6.0};
+    std::vector<double> values{ 3.0, 6.0 };
 
     for ( size_t i = 0; i < values.size(); i++ )
     {
@@ -41,7 +41,7 @@ TEST( RiaMedianCalculator, ThreeValues )
 {
     RiaMedianCalculator<double> calc;
 
-    std::vector<double> values{3.0, 6.0, 2.0};
+    std::vector<double> values{ 3.0, 6.0, 2.0 };
 
     for ( size_t i = 0; i < values.size(); i++ )
     {

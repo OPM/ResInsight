@@ -8,8 +8,8 @@
 //--------------------------------------------------------------------------------------------------
 TEST( RimWellPathCompletions, WellNameRegExp )
 {
-    std::vector<QString> validNames   = {"RASASD", "gf0sdf", "sd-ASD12", "1-AA_b"};
-    std::vector<QString> invalidNames = {".AdSD", "+gf0sdf", "sd ASD12", "ABCDEFGHIJKL"};
+    std::vector<QString> validNames   = { "RASASD", "gf0sdf", "sd-ASD12", "1-AA_b" };
+    std::vector<QString> invalidNames = { ".AdSD", "+gf0sdf", "sd ASD12", "ABCDEFGHIJKL" };
 
     QRegExp rx = RimWellPathCompletions::wellNameForExportRegExp();
     EXPECT_TRUE( rx.isValid() );
@@ -26,8 +26,8 @@ TEST( RimWellPathCompletions, WellNameRegExp )
 
 TEST( RimWellPathCompletions, WellNameRegExpValidator )
 {
-    std::vector<QString> validNames   = {"RASASD", "gf0sdf", "sd-ASD12", "1-AA_b"};
-    std::vector<QString> invalidNames = {".AdSD", "+gf0sdf", "sd ASD12", "ABCDEFGHIJKL"};
+    std::vector<QString> validNames   = { "RASASD", "gf0sdf", "sd-ASD12", "1-AA_b" };
+    std::vector<QString> invalidNames = { ".AdSD", "+gf0sdf", "sd ASD12", "ABCDEFGHIJKL" };
     QString              emptyString  = "";
 
     QRegExp          rx = RimWellPathCompletions::wellNameForExportRegExp();

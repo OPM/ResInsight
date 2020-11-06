@@ -265,22 +265,22 @@ cvf::ref<cvf::DrawableGeo> RicPointTangentManipulatorPartMgr::createHorizontalPl
     float cos_5pi_12 = cvf::Math::cos( 5.5 * cvf::PI_F / 12 );
     float sin_5pi_12 = cvf::Math::sin( 5.5 * cvf::PI_F / 12 );
 
-    vertexArray->set( 0, {1.25, 0, 0} );
-    vertexArray->set( 1, {cos_pi_12, sin_pi_12, 0} );
-    vertexArray->set( 2, {cos_3pi_12, sin_3pi_12, 0} );
-    vertexArray->set( 3, {cos_5pi_12, sin_5pi_12, 0} );
-    vertexArray->set( 4, {0, 1.25, 0} );
-    vertexArray->set( 5, {-cos_5pi_12, sin_5pi_12, 0} );
-    vertexArray->set( 6, {-cos_3pi_12, sin_3pi_12, 0} );
-    vertexArray->set( 7, {-cos_pi_12, sin_pi_12, 0} );
-    vertexArray->set( 8, {-1.25, 0, 0} );
-    vertexArray->set( 9, {-cos_pi_12, -sin_pi_12, 0} );
-    vertexArray->set( 10, {-cos_3pi_12, -sin_3pi_12, 0} );
-    vertexArray->set( 11, {-cos_5pi_12, -sin_5pi_12, 0} );
-    vertexArray->set( 12, {0, -1.25, 0} );
-    vertexArray->set( 13, {cos_5pi_12, -sin_5pi_12, 0} );
-    vertexArray->set( 14, {cos_3pi_12, -sin_3pi_12, 0} );
-    vertexArray->set( 15, {cos_pi_12, -sin_pi_12, 0} );
+    vertexArray->set( 0, { 1.25, 0, 0 } );
+    vertexArray->set( 1, { cos_pi_12, sin_pi_12, 0 } );
+    vertexArray->set( 2, { cos_3pi_12, sin_3pi_12, 0 } );
+    vertexArray->set( 3, { cos_5pi_12, sin_5pi_12, 0 } );
+    vertexArray->set( 4, { 0, 1.25, 0 } );
+    vertexArray->set( 5, { -cos_5pi_12, sin_5pi_12, 0 } );
+    vertexArray->set( 6, { -cos_3pi_12, sin_3pi_12, 0 } );
+    vertexArray->set( 7, { -cos_pi_12, sin_pi_12, 0 } );
+    vertexArray->set( 8, { -1.25, 0, 0 } );
+    vertexArray->set( 9, { -cos_pi_12, -sin_pi_12, 0 } );
+    vertexArray->set( 10, { -cos_3pi_12, -sin_3pi_12, 0 } );
+    vertexArray->set( 11, { -cos_5pi_12, -sin_5pi_12, 0 } );
+    vertexArray->set( 12, { 0, -1.25, 0 } );
+    vertexArray->set( 13, { cos_5pi_12, -sin_5pi_12, 0 } );
+    vertexArray->set( 14, { cos_3pi_12, -sin_3pi_12, 0 } );
+    vertexArray->set( 15, { cos_pi_12, -sin_pi_12, 0 } );
 
     Vec3f origin( m_origin );
     for ( cvf::Vec3f& vx : *vertexArray )
@@ -339,7 +339,7 @@ cvf::ref<cvf::DrawableGeo> RicPointTangentManipulatorPartMgr::createVerticalAxis
     float s = 0.5 * m_handleSize;
     Vec3f origin( m_origin );
 
-    geomBuilder->transformVertexRange( 0, geomBuilder->vertexCount() - 1, cvf::Mat4f::fromScaling( {s, s, s} ) );
+    geomBuilder->transformVertexRange( 0, geomBuilder->vertexCount() - 1, cvf::Mat4f::fromScaling( { s, s, s } ) );
     geomBuilder->transformVertexRange( 0, geomBuilder->vertexCount() - 1, cvf::Mat4f::fromTranslation( origin ) );
 
     unsigned vxArraySizeFirstCylinder = geomBuilder->vertexCount();
@@ -348,10 +348,10 @@ cvf::ref<cvf::DrawableGeo> RicPointTangentManipulatorPartMgr::createVerticalAxis
 
     geomBuilder->transformVertexRange( vxArraySizeFirstCylinder,
                                        geomBuilder->vertexCount() - 1,
-                                       cvf::Mat4f::fromTranslation( {0.0f, 0.0f, -1.0f} ) );
+                                       cvf::Mat4f::fromTranslation( { 0.0f, 0.0f, -1.0f } ) );
     geomBuilder->transformVertexRange( vxArraySizeFirstCylinder,
                                        geomBuilder->vertexCount() - 1,
-                                       cvf::Mat4f::fromScaling( {s, s, s} ) );
+                                       cvf::Mat4f::fromScaling( { s, s, s } ) );
     geomBuilder->transformVertexRange( vxArraySizeFirstCylinder,
                                        geomBuilder->vertexCount() - 1,
                                        cvf::Mat4f::fromTranslation( origin ) );

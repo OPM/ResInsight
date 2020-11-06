@@ -286,7 +286,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
     QStringList gridFileNames;
     QString     ensembleColoringParameter;
 
-    std::set<QString> validOptions = {"-help", "-h", "-nl", "-s", "-n", "-e", "-c", "-cl"};
+    std::set<QString> validOptions = { "-help", "-h", "-nl", "-s", "-n", "-e", "-c", "-cl" };
 
     for ( int optionIdx = 0; optionIdx < arguments.size(); ++optionIdx )
     {

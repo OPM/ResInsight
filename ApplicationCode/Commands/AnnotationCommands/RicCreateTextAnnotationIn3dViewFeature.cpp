@@ -88,7 +88,7 @@ void RicCreateTextAnnotationIn3dViewFeature::onActionTriggered( bool isChecked )
             cvf::Vec3d horizontalUp = viewCamera->up() - ( cvf::Vec3d::Z_AXIS * ( viewCamera->up() * cvf::Vec3d::Z_AXIS ) );
 
             bool isOk = horizontalRight.normalize();
-            if ( !isOk ) horizontalRight = {1.0, 0.0, 0.0};
+            if ( !isOk ) horizontalRight = { 1.0, 0.0, 0.0 };
 
             double height = fabs( labelPos.z() - domainCoord.z() );
             newAnnotation->setLabelPoint( labelPos + 2.0 * height * ( horizontalRight + horizontalUp ) );

@@ -140,7 +140,7 @@ QString RimModeledWellPath::wellPlanText()
     formatter.setTableRowLineAppendText( "" );
 
     std::vector<RifTextDataTableColumn> tableHeader;
-    std::vector<QString> columns = {"MDRKB", "CL", "Inc", "Azi", "TVDMSL", "NS", "EW", "Dogleg", "Build", "Turn"};
+    std::vector<QString> columns = { "MDRKB", "CL", "Inc", "Azi", "TVDMSL", "NS", "EW", "Dogleg", "Build", "Turn" };
     for ( QString column : columns )
     {
         tableHeader.push_back(

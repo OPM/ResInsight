@@ -132,8 +132,8 @@ int RiaInterpolationTools::extrapolateRange( int                        start,
                                              const std::vector<double>& x,
                                              std::vector<double>&       y )
 {
-    std::vector<double> xs = {x[firstPoint], x[lastPoint]};
-    std::vector<double> ys = {y[firstPoint], y[lastPoint]};
+    std::vector<double> xs = { x[firstPoint], x[lastPoint] };
+    std::vector<double> ys = { y[firstPoint], y[lastPoint] };
     for ( int index = start; index < end; index++ )
     {
         y[index] = extrapolate( xs, ys, x[index] );
@@ -154,8 +154,8 @@ int RiaInterpolationTools::interpolateRange( int                        start,
 {
     assert( start <= end );
 
-    std::vector<double> xs = {x[firstPoint], x[lastPoint]};
-    std::vector<double> ys = {y[firstPoint], y[lastPoint]};
+    std::vector<double> xs = { x[firstPoint], x[lastPoint] };
+    std::vector<double> ys = { y[firstPoint], y[lastPoint] };
     for ( int index = start; index < end; index++ )
     {
         y[index] = RiaInterpolationTools::linear( xs, ys, x[index] );

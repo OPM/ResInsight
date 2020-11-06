@@ -71,7 +71,7 @@ std::vector<cvf::Vec3d>
         std::make_pair( 2, 6 ), // Z
     };
 
-    std::array<size_t, 3>                   nxyz = {nx, ny, nz};
+    std::array<size_t, 3>                   nxyz = { nx, ny, nz };
     std::array<std::vector<cvf::Vec3d>, 12> edgePoints;
 
     for ( int i = 0; i < 12; i++ )
@@ -167,7 +167,7 @@ double RiaCellDividingTools::computeFlowDistance( const std::array<cvf::Vec3d, 8
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d> splitLine( cvf::Vec3d ptStart, cvf::Vec3d ptEnd, size_t partCount )
 {
-    std::vector<cvf::Vec3d> pts = {ptStart};
+    std::vector<cvf::Vec3d> pts = { ptStart };
 
     for ( size_t i = 1; i < partCount; i++ )
     {

@@ -881,9 +881,10 @@ private:
                     }
                     else // if ( endToGrow > 1 )
                     {
-                        m_branchLines.push_back(
-                            std::make_pair( false,
-                                            std::deque<size_t>{branchList.front(), cellWithNeighborsPair.first, neighbour} ) );
+                        m_branchLines.push_back( std::make_pair( false,
+                                                                 std::deque<size_t>{ branchList.front(),
+                                                                                     cellWithNeighborsPair.first,
+                                                                                     neighbour } ) );
                         auto newBranchLineIt = std::prev( m_branchLines.end() );
                         growBranchListEnd( newBranchLineIt );
                         if ( newBranchLineIt->second.size() == 3 )
@@ -981,11 +982,11 @@ private:
         {
             if ( prevCell == cvf::UNDEFINED_SIZE_T )
             {
-                m_branchLines.push_back( std::make_pair( false, std::deque<size_t>{startCell, nb} ) );
+                m_branchLines.push_back( std::make_pair( false, std::deque<size_t>{ startCell, nb } ) );
             }
             else
             {
-                m_branchLines.push_back( std::make_pair( false, std::deque<size_t>{prevCell, startCell, nb} ) );
+                m_branchLines.push_back( std::make_pair( false, std::deque<size_t>{ prevCell, startCell, nb } ) );
             }
 
             m_unusedWellCellIndices.erase( nb );
