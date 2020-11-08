@@ -4,7 +4,7 @@ on:
   push:
   schedule:
     # Every day at 1am to make sure we have a build cache for the current date
-    # build cache is 
+    # build cache is at
     - cron: '0 1 * * * '
 env:
   NINJA_VERSION: 1.9.0
