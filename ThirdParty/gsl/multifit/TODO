@@ -1,0 +1,19 @@
+# -*- org -*-
+#+CATEGORY: multifit
+
+The following would also be nice additions to the multifit function suite
+(see MS Excel regression output for example):
+
+1. Produce the correlation coefficient (r) and other statistics.
+2. Allow fit variable weighting (not observation weighting).
+3. Allow for principal factor computations.
+
+The following features should be added to the nonlinear least squares routines:
+
+1. Support for constraints
+
+2. robust nonlinear least squares and robust ridge regression
+
+3. covariance matrices for ridge regression
+
+4. min_workspace_p is dynamically allocated in gsl_multifit_linear_gcv_min - fix

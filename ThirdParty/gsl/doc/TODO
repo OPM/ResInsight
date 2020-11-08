@@ -1,0 +1,2 @@
+1. in fft.rst, we reference doc/fftalgorithms.tex - make sure this file
+   is in the right place in the final dir structure
