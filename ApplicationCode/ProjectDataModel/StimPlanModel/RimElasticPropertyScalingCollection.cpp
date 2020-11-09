@@ -111,3 +111,15 @@ double RimElasticPropertyScalingCollection::getScaling( const QString&          
     // No scaling found. Default is not scaling (1.0).
     return 1.0;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimElasticPropertyScalingCollection::initAfterRead()
+{
+    std::vector<RimElasticPropertyScaling*> templates;
+    for ( auto& scaling : m_elasticPropertyScalings )
+    {
+        scaling->changed.connect( this, &RimElasticPropertyScalingCollection::elasticPropertyScalingChanged );
+    }
+}
