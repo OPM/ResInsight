@@ -2722,10 +2722,19 @@ void RimWellLogTrack::updateResultPropertyNamesOnPlot()
         // Need to map colors to names (since a category can be used several times)
         for ( QString nameToPlot : namesToPlot )
         {
+            bool isFound = false;
             for ( RimColorLegendItem* legendItem : m_colorShadingLegend()->colorLegendItems() )
             {
                 if ( legendItem->categoryName() == nameToPlot )
+                {
                     colors.push_back( cvf::Color3ub( legendItem->color() ) );
+                    isFound = true;
+                }
+            }
+
+            if ( !isFound )
+            {
+                colors.push_back( cvf::Color3ub( RiaColorTables::undefinedCellColor() ) );
             }
         }
 
