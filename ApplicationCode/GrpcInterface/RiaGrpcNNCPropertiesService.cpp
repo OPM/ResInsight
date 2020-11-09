@@ -496,31 +496,32 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcNNCPropertiesService::createCallba
 
     std::vector<RiaGrpcCallbackInterface*> callbacks;
     callbacks =
-        {new RiaGrpcUnaryCallback<Self, CaseRequest, AvailableNNCProperties>( this,
-                                                                              &Self::GetAvailableNNCProperties,
-                                                                              &Self::RequestGetAvailableNNCProperties ),
-         new RiaGrpcServerToClientStreamCallback<Self,
-                                                 CaseRequest,
-                                                 rips::NNCConnections,
-                                                 RiaNNCConnectionsStateHandler>( this,
-                                                                                 &Self::GetNNCConnections,
-                                                                                 &Self::RequestGetNNCConnections,
-                                                                                 new RiaNNCConnectionsStateHandler ),
-         new RiaGrpcServerToClientStreamCallback<Self,
-                                                 NNCValuesRequest,
-                                                 rips::NNCValues,
-                                                 RiaNNCValuesStateHandler>( this,
-                                                                            &Self::GetNNCValues,
-                                                                            &Self::RequestGetNNCValues,
-                                                                            new RiaNNCValuesStateHandler ),
+        { new RiaGrpcUnaryCallback<Self, CaseRequest, AvailableNNCProperties>( this,
+                                                                               &Self::GetAvailableNNCProperties,
+                                                                               &Self::RequestGetAvailableNNCProperties ),
+          new RiaGrpcServerToClientStreamCallback<Self,
+                                                  CaseRequest,
+                                                  rips::NNCConnections,
+                                                  RiaNNCConnectionsStateHandler>( this,
+                                                                                  &Self::GetNNCConnections,
+                                                                                  &Self::RequestGetNNCConnections,
+                                                                                  new RiaNNCConnectionsStateHandler ),
+          new RiaGrpcServerToClientStreamCallback<Self,
+                                                  NNCValuesRequest,
+                                                  rips::NNCValues,
+                                                  RiaNNCValuesStateHandler>( this,
+                                                                             &Self::GetNNCValues,
+                                                                             &Self::RequestGetNNCValues,
+                                                                             new RiaNNCValuesStateHandler ),
 
-         new RiaGrpcClientToServerStreamCallback<Self,
-                                                 NNCValuesChunk,
-                                                 ClientToServerStreamReply,
-                                                 RiaNNCInputValuesStateHandler>( this,
-                                                                                 &Self::SetNNCValues,
-                                                                                 &Self::RequestSetNNCValues,
-                                                                                 new RiaNNCInputValuesStateHandler( true ) )};
+          new RiaGrpcClientToServerStreamCallback<Self,
+                                                  NNCValuesChunk,
+                                                  ClientToServerStreamReply,
+                                                  RiaNNCInputValuesStateHandler>( this,
+                                                                                  &Self::SetNNCValues,
+                                                                                  &Self::RequestSetNNCValues,
+                                                                                  new RiaNNCInputValuesStateHandler(
+                                                                                      true ) ) };
 
     return callbacks;
 }

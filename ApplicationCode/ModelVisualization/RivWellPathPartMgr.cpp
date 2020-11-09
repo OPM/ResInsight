@@ -466,9 +466,9 @@ void RivWellPathPartMgr::appendPerforationsToModel( cvf::ModelBasicList*        
             vector<cvf::Mat4d> flatningCSs =
                 RivSectionFlattner::calculateFlatteningCSsForPolyline( perfIntervalCL,
                                                                        cvf::Vec3d::Z_AXIS,
-                                                                       {horizontalLengthAlongWellPath,
-                                                                        0.0,
-                                                                        perfIntervalCL[0].z()},
+                                                                       { horizontalLengthAlongWellPath,
+                                                                         0.0,
+                                                                         perfIntervalCL[0].z() },
                                                                        &dummy );
 
             for ( size_t cIdx = 0; cIdx < perfIntervalCL.size(); ++cIdx )
@@ -520,15 +520,15 @@ void RivWellPathPartMgr::appendPerforationValvesToModel( cvf::ModelBasicList*   
             cvf::Color3f        valveColor = valve->defaultComponentColor();
             if ( valve->componentType() == RiaDefines::WellPathComponentType::ICV )
             {
-                measuredDepthsRelativeToStartMD = {0.0, 1.0, 1.5, 4.0, 5.0, 5.5, 8.0, 9.0};
-                radii                           = {wellPathRadius,
-                         wellPathRadius * 1.8,
-                         wellPathRadius * 2.0,
-                         wellPathRadius * 2.0,
-                         wellPathRadius * 1.8,
-                         wellPathRadius * 1.7,
-                         wellPathRadius * 1.7,
-                         wellPathRadius};
+                measuredDepthsRelativeToStartMD = { 0.0, 1.0, 1.5, 4.0, 5.0, 5.5, 8.0, 9.0 };
+                radii                           = { wellPathRadius,
+                          wellPathRadius * 1.8,
+                          wellPathRadius * 2.0,
+                          wellPathRadius * 2.0,
+                          wellPathRadius * 1.8,
+                          wellPathRadius * 1.7,
+                          wellPathRadius * 1.7,
+                          wellPathRadius };
 
                 double                  startMD = valve->startMD();
                 std::vector<cvf::Vec3d> displayCoords;
@@ -696,9 +696,9 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
         std::vector<cvf::Mat4d> flatningCSs =
             RivSectionFlattner::calculateFlatteningCSsForPolyline( clippedWellPathCenterLine,
                                                                    cvf::Vec3d::Z_AXIS,
-                                                                   {horizontalLengthAlongWellToClipPoint,
-                                                                    0.0,
-                                                                    clippedWellPathCenterLine[0].z()},
+                                                                   { horizontalLengthAlongWellToClipPoint,
+                                                                     0.0,
+                                                                     clippedWellPathCenterLine[0].z() },
                                                                    &dummy );
 
         for ( size_t cIdx = 0; cIdx < cvfCoords->size(); ++cIdx )

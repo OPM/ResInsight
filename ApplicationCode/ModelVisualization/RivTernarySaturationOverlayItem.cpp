@@ -254,5 +254,5 @@ void RivTernarySaturationOverlayItem::setRangeText( const cvf::String& soilRange
 //--------------------------------------------------------------------------------------------------
 cvf::Vec2ui RivTernarySaturationOverlayItem::preferredSize()
 {
-    return {140, 180}; // Could do more elaborate text width checks.
+    return { 140, 180 }; // Could do more elaborate text width checks.
 }

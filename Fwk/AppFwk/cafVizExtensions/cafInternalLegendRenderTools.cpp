@@ -100,7 +100,7 @@ void InternalLegendRenderTools::renderBackgroundUsingShaders( OpenGLContext*    
 
     // Triangle indices for the frame background
 
-    static const ushort backgroundTriangleIndices[] = {0, 1, 2, 2, 3, 0};
+    static const ushort backgroundTriangleIndices[] = { 0, 1, 2, 2, 3, 0 };
 
     glDrawRangeElements( GL_TRIANGLES, 0, 3, 6, GL_UNSIGNED_SHORT, backgroundTriangleIndices );
 
@@ -109,7 +109,7 @@ void InternalLegendRenderTools::renderBackgroundUsingShaders( OpenGLContext*    
     UniformFloat uniformColor( "u_color", backgroundFrameColor );
     shaderProgram->applyUniform( oglContext, uniformColor );
 
-    static const ushort frameLineIndices[] = {0, 1, 1, 2, 2, 3, 3, 0};
+    static const ushort frameLineIndices[] = { 0, 1, 1, 2, 2, 3, 3, 0 };
 
     glDrawRangeElements( GL_LINES, 0, 3, 8, GL_UNSIGNED_SHORT, frameLineIndices );
 

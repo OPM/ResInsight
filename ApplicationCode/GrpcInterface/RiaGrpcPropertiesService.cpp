@@ -461,25 +461,25 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcPropertiesService::createCallbacks
 
     std::vector<RiaGrpcCallbackInterface*> callbacks;
     callbacks =
-        {new RiaGrpcUnaryCallback<Self, AvailablePropertiesRequest, AvailableProperties>( this,
-                                                                                          &Self::GetAvailableProperties,
-                                                                                          &Self::RequestGetAvailableProperties ),
-         new RiaGrpcClientToServerStreamCallback<Self,
-                                                 PropertyInputChunk,
-                                                 ClientToServerStreamReply,
-                                                 RiaActiveCellResultsStateHandler>( this,
-                                                                                    &Self::SetActiveCellProperty,
-                                                                                    &Self::RequestSetActiveCellProperty,
-                                                                                    new RiaActiveCellResultsStateHandler(
-                                                                                        true ) ),
-         new RiaGrpcClientToServerStreamCallback<Self,
-                                                 PropertyInputChunk,
-                                                 ClientToServerStreamReply,
-                                                 RiaGridCellResultsStateHandler>( this,
-                                                                                  &Self::SetGridProperty,
-                                                                                  &Self::RequestSetGridProperty,
-                                                                                  new RiaGridCellResultsStateHandler(
-                                                                                      true ) )};
+        { new RiaGrpcUnaryCallback<Self, AvailablePropertiesRequest, AvailableProperties>( this,
+                                                                                           &Self::GetAvailableProperties,
+                                                                                           &Self::RequestGetAvailableProperties ),
+          new RiaGrpcClientToServerStreamCallback<Self,
+                                                  PropertyInputChunk,
+                                                  ClientToServerStreamReply,
+                                                  RiaActiveCellResultsStateHandler>( this,
+                                                                                     &Self::SetActiveCellProperty,
+                                                                                     &Self::RequestSetActiveCellProperty,
+                                                                                     new RiaActiveCellResultsStateHandler(
+                                                                                         true ) ),
+          new RiaGrpcClientToServerStreamCallback<Self,
+                                                  PropertyInputChunk,
+                                                  ClientToServerStreamReply,
+                                                  RiaGridCellResultsStateHandler>( this,
+                                                                                   &Self::SetGridProperty,
+                                                                                   &Self::RequestSetGridProperty,
+                                                                                   new RiaGridCellResultsStateHandler(
+                                                                                       true ) ) };
 
     for ( int i = 0; i < NUM_CONCURRENT_CLIENT_TO_SERVER_STREAMS; ++i )
     {

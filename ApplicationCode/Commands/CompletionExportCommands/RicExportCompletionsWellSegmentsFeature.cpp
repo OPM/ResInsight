@@ -113,7 +113,7 @@ void RicExportCompletionsWellSegmentsFeature::onActionTriggered( bool isChecked 
         completionExportSettings.includePerforations = perforationCollection != nullptr &&
                                                        !perforationCollection->activePerforations().empty();
 
-        RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions( completionExportSettings, {wellPath} );
+        RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions( completionExportSettings, { wellPath } );
     }
 }
 

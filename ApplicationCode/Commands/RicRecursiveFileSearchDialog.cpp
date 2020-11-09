@@ -267,7 +267,7 @@ QStringList RicRecursiveFileSearchDialog::fileExtensions() const
     QString extFromFilter = extensionFromFileNameFilter();
     if ( !extFromFilter.isEmpty() )
     {
-        return QStringList( {extFromFilter} );
+        return QStringList( { extFromFilter } );
     }
 
     QStringList exts = m_fileExtensions;

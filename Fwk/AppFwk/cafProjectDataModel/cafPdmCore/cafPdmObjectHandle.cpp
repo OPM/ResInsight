@@ -38,7 +38,7 @@ QString PdmObjectHandle::classKeywordStatic()
 //--------------------------------------------------------------------------------------------------
 std::vector<QString> PdmObjectHandle::classKeywordAliases()
 {
-    return {QString( "PdmObjectHandle" )};
+    return { QString( "PdmObjectHandle" ) };
 }
 
 //--------------------------------------------------------------------------------------------------

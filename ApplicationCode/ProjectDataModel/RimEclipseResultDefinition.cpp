@@ -2001,10 +2001,10 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                         cellResultsData->uniqueCellScalarValues( this->eclipseResultAddress() );
 
                     std::vector<RiaDefines::WellPathComponentType> supportedCompletionTypes =
-                        {RiaDefines::WellPathComponentType::WELL_PATH,
-                         RiaDefines::WellPathComponentType::FISHBONES,
-                         RiaDefines::WellPathComponentType::PERFORATION_INTERVAL,
-                         RiaDefines::WellPathComponentType::FRACTURE};
+                        { RiaDefines::WellPathComponentType::WELL_PATH,
+                          RiaDefines::WellPathComponentType::FISHBONES,
+                          RiaDefines::WellPathComponentType::PERFORATION_INTERVAL,
+                          RiaDefines::WellPathComponentType::FRACTURE };
 
                     RiaColorTables::WellPathComponentColors colors = RiaColorTables::wellPathComponentColors();
 

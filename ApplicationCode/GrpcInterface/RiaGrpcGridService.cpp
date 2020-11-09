@@ -201,7 +201,7 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcGridService::createCallbacks()
                                                                                                                  &Self::RequestGetCellCorners,
                                                                                                                  new RiaCellCenterStateHandler ),
 
-        new RiaGrpcUnaryCallback<Self, GridRequest, GridDimensions>( this, &Self::GetDimensions, &Self::RequestGetDimensions )};
+        new RiaGrpcUnaryCallback<Self, GridRequest, GridDimensions>( this, &Self::GetDimensions, &Self::RequestGetDimensions ) };
 }
 
 static bool RiaGrpcGridService_init =

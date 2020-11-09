@@ -63,7 +63,7 @@ enum class CsvLineBasedColumnType
     ERROR_VALUE,
     COMMENTS
 };
-const std::vector<QString> CSV_LINE_BASED_COL_NAMES = {"DATE", "VECTOR", "VALUE", "ERROR", "COMMENTS"};
+const std::vector<QString> CSV_LINE_BASED_COL_NAMES = { "DATE", "VECTOR", "VALUE", "ERROR", "COMMENTS" };
 
 //--------------------------------------------------------------------------------------------------
 ///

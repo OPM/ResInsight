@@ -188,7 +188,7 @@ std::vector<std::pair<QRect, QString>> RiuAbstractLegendFrame::visibleLabels( co
 
         QString valueString = label( i );
         lastRect            = rect;
-        visibleTickLabels.push_back( {rect, valueString} );
+        visibleTickLabels.push_back( { rect, valueString } );
     }
     return visibleTickLabels;
 }

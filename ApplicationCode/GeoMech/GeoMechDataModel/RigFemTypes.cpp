@@ -28,7 +28,7 @@
 //--------------------------------------------------------------------------------------------------
 int RigFemTypes::elementNodeCount( RigElementType elmType )
 {
-    static int elementTypeCounts[3] = {8, 8, 4};
+    static int elementTypeCounts[3] = { 8, 8, 4 };
 
     return elementTypeCounts[elmType];
 }
@@ -38,7 +38,7 @@ int RigFemTypes::elementNodeCount( RigElementType elmType )
 //--------------------------------------------------------------------------------------------------
 int RigFemTypes::elementFaceCount( RigElementType elmType )
 {
-    const static int elementFaceCounts[3] = {6, 6, 1};
+    const static int elementFaceCounts[3] = { 6, 6, 1 };
 
     return elementFaceCounts[elmType];
 }
@@ -58,8 +58,9 @@ int RigFemTypes::elementFaceCount( RigElementType elmType )
 
 const int* RigFemTypes::localElmNodeIndicesForFace( RigElementType elmType, int faceIdx, int* faceNodeCount )
 {
-    static const int HEX8_Faces[6][4] = {{1, 2, 6, 5}, {0, 4, 7, 3}, {3, 7, 6, 2}, {0, 1, 5, 4}, {4, 5, 6, 7}, {0, 3, 2, 1}};
-    static const int CAX4_Faces[4] = {0, 1, 2, 3};
+    static const int HEX8_Faces[6][4] =
+        { { 1, 2, 6, 5 }, { 0, 4, 7, 3 }, { 3, 7, 6, 2 }, { 0, 1, 5, 4 }, { 4, 5, 6, 7 }, { 0, 3, 2, 1 } };
+    static const int CAX4_Faces[4] = { 0, 1, 2, 3 };
 
     switch ( elmType )
     {
@@ -82,7 +83,7 @@ const int* RigFemTypes::localElmNodeIndicesForFace( RigElementType elmType, int 
 
 int RigFemTypes::oppositeFace( RigElementType elmType, int faceIdx )
 {
-    static const int HEX8_OppositeFaces[6] = {1, 0, 3, 2, 5, 4};
+    static const int HEX8_OppositeFaces[6] = { 1, 0, 3, 2, 5, 4 };
 
     switch ( elmType )
     {
@@ -107,7 +108,7 @@ int RigFemTypes::oppositeFace( RigElementType elmType, int faceIdx )
 
 const int* RigFemTypes::localElmNodeToIntegrationPointMapping( RigElementType elmType )
 {
-    static const int HEX8_Mapping[8] = {0, 1, 3, 2, 4, 5, 7, 6};
+    static const int HEX8_Mapping[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
 
     switch ( elmType )
     {

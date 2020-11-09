@@ -83,9 +83,9 @@ void RifSurfaceImporter::readGocadFile( const QString& filename, RigGocadData* g
                 if ( firstToken.compare( "VRTX" ) == 0 )
                 {
                     int         vertexId = -1;
-                    double      x{std::numeric_limits<double>::infinity()};
-                    double      y{std::numeric_limits<double>::infinity()};
-                    double      z{std::numeric_limits<double>::infinity()};
+                    double      x{ std::numeric_limits<double>::infinity() };
+                    double      y{ std::numeric_limits<double>::infinity() };
+                    double      z{ std::numeric_limits<double>::infinity() };
                     std::string endVertex;
 
                     lineStream >> vertexId >> x >> y >> z >> endVertex;
@@ -104,9 +104,9 @@ void RifSurfaceImporter::readGocadFile( const QString& filename, RigGocadData* g
                 else if ( firstToken.compare( "PVRTX" ) == 0 )
                 {
                     int    vertexId = -1;
-                    double x{std::numeric_limits<double>::infinity()};
-                    double y{std::numeric_limits<double>::infinity()};
-                    double z{std::numeric_limits<double>::infinity()};
+                    double x{ std::numeric_limits<double>::infinity() };
+                    double y{ std::numeric_limits<double>::infinity() };
+                    double z{ std::numeric_limits<double>::infinity() };
 
                     lineStream >> vertexId >> x >> y >> z;
 
@@ -129,9 +129,9 @@ void RifSurfaceImporter::readGocadFile( const QString& filename, RigGocadData* g
                 }
                 else if ( firstToken.compare( "TRGL" ) == 0 )
                 {
-                    int id1{-1};
-                    int id2{-1};
-                    int id3{-1};
+                    int id1{ -1 };
+                    int id2{ -1 };
+                    int id3{ -1 };
 
                     lineStream >> id1 >> id2 >> id3;
 
@@ -261,7 +261,7 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceImporter::re
 
                 // Add point
 
-                surfaceDataPoints.push_back( {i, j, {x, y, z}, values} );
+                surfaceDataPoints.push_back( { i, j, { x, y, z }, values } );
 
                 minI = std::min( minI, i );
                 minJ = std::min( minJ, j );
@@ -440,7 +440,7 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>>
                 if ( z > 0.0 ) z = -z;
 
                 // Add point
-                surfacePoints.push_back( {x, y, z} );
+                surfacePoints.push_back( { x, y, z } );
 
                 if ( surfacePoints.size() > 1 )
                 {

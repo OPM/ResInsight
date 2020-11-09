@@ -260,9 +260,9 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressIjkParsing )
 {
     RifEclipseSummaryAddress::SummaryVarCategory cat = RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION;
     std::map<RifEclipseSummaryAddress::SummaryIdentifierType, std::string> identifiers( {
-        {RifEclipseSummaryAddress::INPUT_WELL_NAME, "1-BH"},
-        {RifEclipseSummaryAddress::INPUT_CELL_IJK, "6, 7, 8"},
-        {RifEclipseSummaryAddress::INPUT_VECTOR_NAME, "WOPR"},
+        { RifEclipseSummaryAddress::INPUT_WELL_NAME, "1-BH" },
+        { RifEclipseSummaryAddress::INPUT_CELL_IJK, "6, 7, 8" },
+        { RifEclipseSummaryAddress::INPUT_VECTOR_NAME, "WOPR" },
     } );
 
     RifEclipseSummaryAddress addr( cat, identifiers );
@@ -281,8 +281,8 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressRegToRegParsing )
 {
     RifEclipseSummaryAddress::SummaryVarCategory cat = RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION;
     std::map<RifEclipseSummaryAddress::SummaryIdentifierType, std::string> identifiers( {
-        {RifEclipseSummaryAddress::INPUT_REGION_2_REGION, "123 - 456"},
-        {RifEclipseSummaryAddress::INPUT_VECTOR_NAME, "ROFR"},
+        { RifEclipseSummaryAddress::INPUT_REGION_2_REGION, "123 - 456" },
+        { RifEclipseSummaryAddress::INPUT_VECTOR_NAME, "ROFR" },
     } );
 
     RifEclipseSummaryAddress addr( cat, identifiers );

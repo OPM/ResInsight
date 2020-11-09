@@ -537,7 +537,7 @@ RiuQwtSymbol::PointSymbolEnum RimSummaryCurveAppearanceCalculator::cycledSymbol(
 int RimSummaryCurveAppearanceCalculator::cycledLineThickness( int index )
 {
     static const int thicknessCount = 3;
-    static const int thicknesses[]  = {1, 3, 5};
+    static const int thicknesses[]  = { 1, 3, 5 };
 
     if ( index < 0 ) return 1;
     return ( thicknesses[( index ) % thicknessCount] );

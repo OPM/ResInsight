@@ -95,7 +95,7 @@ void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
 
     if ( ensemble )
     {
-        RicNewSummaryEnsembleCurveSetFeature::createPlotForCurveSetsAndUpdate( {ensemble} );
+        RicNewSummaryEnsembleCurveSetFeature::createPlotForCurveSetsAndUpdate( { ensemble } );
     }
 
     std::vector<RimCase*> allCases;

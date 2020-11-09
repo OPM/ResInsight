@@ -81,17 +81,17 @@ void RicExportCarfin::onActionTriggered( bool isChecked )
         QTextStream               stream( &exportFile );
         RifTextDataTableFormatter formatter( stream );
 
-        std::vector<RifTextDataTableColumn> header = {RifTextDataTableColumn( "I1" ),
-                                                      RifTextDataTableColumn( "I2" ),
-                                                      RifTextDataTableColumn( "J1" ),
-                                                      RifTextDataTableColumn( "J2" ),
-                                                      RifTextDataTableColumn( "K1" ),
-                                                      RifTextDataTableColumn( "K2" ),
-                                                      RifTextDataTableColumn( "NX" ),
-                                                      RifTextDataTableColumn( "NY" ),
-                                                      RifTextDataTableColumn( "NZ" ),
-                                                      RifTextDataTableColumn( "NWMAX" ),
-                                                      RifTextDataTableColumn( "Parent LGR" )};
+        std::vector<RifTextDataTableColumn> header = { RifTextDataTableColumn( "I1" ),
+                                                       RifTextDataTableColumn( "I2" ),
+                                                       RifTextDataTableColumn( "J1" ),
+                                                       RifTextDataTableColumn( "J2" ),
+                                                       RifTextDataTableColumn( "K1" ),
+                                                       RifTextDataTableColumn( "K2" ),
+                                                       RifTextDataTableColumn( "NX" ),
+                                                       RifTextDataTableColumn( "NY" ),
+                                                       RifTextDataTableColumn( "NZ" ),
+                                                       RifTextDataTableColumn( "NWMAX" ),
+                                                       RifTextDataTableColumn( "Parent LGR" ) };
 
         formatter.keyword( "CARFIN" );
         formatter.header( header );

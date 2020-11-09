@@ -301,16 +301,16 @@ void RicExportEclipseSectorModelUi::defineUiOrdering( QString uiConfigName, caf:
         exportInLocalCoordinates.uiCapability()->setUiReadOnly( !exportGrid() );
 
         caf::PdmUiGroup* gridBoxGroup = uiOrdering.addNewGroup( "Grid Box Selection" );
-        gridBoxGroup->add( &exportGridBox, {true, 4, 1} );
+        gridBoxGroup->add( &exportGridBox, { true, 4, 1 } );
 
-        gridBoxGroup->add( &minI, {true, 2, 1} );
+        gridBoxGroup->add( &minI, { true, 2, 1 } );
         gridBoxGroup->add( &minJ, false );
         gridBoxGroup->add( &minK, false );
 
-        gridBoxGroup->add( &maxI, {true, 2, 1} );
+        gridBoxGroup->add( &maxI, { true, 2, 1 } );
         gridBoxGroup->add( &maxJ, false );
         gridBoxGroup->add( &maxK, false );
-        gridBoxGroup->add( &makeInvisibleCellsInactive, {true, 2, 1} );
+        gridBoxGroup->add( &makeInvisibleCellsInactive, { true, 2, 1 } );
 
         minI.uiCapability()->setUiReadOnly( exportGridBox() != MANUAL_SELECTION );
         minJ.uiCapability()->setUiReadOnly( exportGridBox() != MANUAL_SELECTION );
@@ -320,9 +320,9 @@ void RicExportEclipseSectorModelUi::defineUiOrdering( QString uiConfigName, caf:
         maxK.uiCapability()->setUiReadOnly( exportGridBox() != MANUAL_SELECTION );
 
         caf::PdmUiGroup* gridRefinement = uiOrdering.addNewGroup( "Grid Refinement" );
-        gridRefinement->add( &refinementCountI, {true, 2, 1} );
-        gridRefinement->add( &refinementCountJ, {false} );
-        gridRefinement->add( &refinementCountK, {false} );
+        gridRefinement->add( &refinementCountI, { true, 2, 1 } );
+        gridRefinement->add( &refinementCountJ, { false } );
+        gridRefinement->add( &refinementCountK, { false } );
         refinementCountI.uiCapability()->setUiReadOnly( !exportGrid() );
         refinementCountJ.uiCapability()->setUiReadOnly( !exportGrid() );
         refinementCountK.uiCapability()->setUiReadOnly( !exportGrid() );
@@ -478,9 +478,9 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &exportFaults )
     {
-        std::set<ResultExportOptions> validFaultOptions = {EXPORT_NO_RESULTS,
-                                                           EXPORT_TO_GRID_FILE,
-                                                           EXPORT_TO_SINGLE_SEPARATE_FILE};
+        std::set<ResultExportOptions> validFaultOptions = { EXPORT_NO_RESULTS,
+                                                            EXPORT_TO_GRID_FILE,
+                                                            EXPORT_TO_SINGLE_SEPARATE_FILE };
         if ( !exportGrid() ) validFaultOptions.erase( EXPORT_TO_GRID_FILE );
         for ( ResultExportOptions option : validFaultOptions )
         {
@@ -489,10 +489,10 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &exportParameters )
     {
-        std::set<ResultExportOptions> validFaultOptions = {EXPORT_NO_RESULTS,
-                                                           EXPORT_TO_GRID_FILE,
-                                                           EXPORT_TO_SINGLE_SEPARATE_FILE,
-                                                           EXPORT_TO_SEPARATE_FILE_PER_RESULT};
+        std::set<ResultExportOptions> validFaultOptions = { EXPORT_NO_RESULTS,
+                                                            EXPORT_TO_GRID_FILE,
+                                                            EXPORT_TO_SINGLE_SEPARATE_FILE,
+                                                            EXPORT_TO_SEPARATE_FILE_PER_RESULT };
         if ( !exportGrid() ) validFaultOptions.erase( EXPORT_TO_GRID_FILE );
         for ( ResultExportOptions option : validFaultOptions )
         {
@@ -507,7 +507,7 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 std::set<QString> RicExportEclipseSectorModelUi::mainKeywords()
 {
-    return {RiaDefines::eqlnumResultName(), "FIPNUM", "NTG", "PERMX", "PERMY", "PERMZ", "PORO", "PVTNUM", "SATNUM", "SWATINIT"};
+    return { RiaDefines::eqlnumResultName(), "FIPNUM", "NTG", "PERMX", "PERMY", "PERMZ", "PORO", "PVTNUM", "SATNUM", "SWATINIT" };
 }
 
 //--------------------------------------------------------------------------------------------------

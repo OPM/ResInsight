@@ -725,11 +725,11 @@ QString RicWellPathFractureTextReportFeatureImpl::createFracturePressureDepletio
     RifTextDataTableFormatter formatter( stream );
     configureFormatter( &formatter );
 
-    std::vector<RifTextDataTableColumn> header = {RifTextDataTableColumn( "Well" ),
-                                                  RifTextDataTableColumn( "Fracture" ),
-                                                  RifTextDataTableColumn( "Actual WBHP" ),
-                                                  RifTextDataTableColumn( "Min Pressure Drop" ),
-                                                  RifTextDataTableColumn( "Max Pressure Drop" )};
+    std::vector<RifTextDataTableColumn> header = { RifTextDataTableColumn( "Well" ),
+                                                   RifTextDataTableColumn( "Fracture" ),
+                                                   RifTextDataTableColumn( "Actual WBHP" ),
+                                                   RifTextDataTableColumn( "Min Pressure Drop" ),
+                                                   RifTextDataTableColumn( "Max Pressure Drop" ) };
 
     bool createdTable = false;
 
@@ -776,7 +776,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createConnectionsPerWellText(
     RifTextDataTableFormatter formatter( stream );
     configureFormatter( &formatter );
 
-    std::vector<RifTextDataTableColumn> header = {RifTextDataTableColumn( "Well" ), floatNumberColumn( "ConnCount" )};
+    std::vector<RifTextDataTableColumn> header = { RifTextDataTableColumn( "Well" ), floatNumberColumn( "ConnCount" ) };
 
     formatter.header( header );
     formatter.addHorizontalLine( '-' );
