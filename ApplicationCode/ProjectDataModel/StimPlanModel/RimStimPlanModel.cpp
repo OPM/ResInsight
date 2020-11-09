@@ -1444,6 +1444,7 @@ void RimStimPlanModel::setEclipseCaseAndTimeStep( RimEclipseCase* eclipseCase, i
     updateThicknessDirection();
     updateBarrierProperties();
     updateViewsAndPlots();
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
