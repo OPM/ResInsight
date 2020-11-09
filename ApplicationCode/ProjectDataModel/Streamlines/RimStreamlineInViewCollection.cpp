@@ -35,11 +35,26 @@
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmUiDoubleSliderEditor.h"
 
 #include "cvfCollection.h"
 
 #include <math.h>
 #include <qdebug.h>
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+namespace caf
+{
+template <>
+void AppEnum<RimStreamlineInViewCollection::VisualizationMode>::setUp()
+{
+    addItem( RimStreamlineInViewCollection::VisualizationMode::CURVES, "CURVES", "Curves" );
+    addItem( RimStreamlineInViewCollection::VisualizationMode::VECTORS, "VECTORS", "Vectors" );
+    setDefault( RimStreamlineInViewCollection::VisualizationMode::CURVES );
+}
+} // namespace caf
 
 CAF_PDM_SOURCE_INIT( RimStreamlineInViewCollection, "StreamlineInViewCollection" );
 
@@ -56,13 +71,13 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
     CAF_PDM_InitScriptableFieldNoDefault( &m_flowThreshold, "FlowThreshold", "Flow Threshold [m/day]", "", "", "" );
     m_flowThreshold = 0.000001;
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_lengthThreshold, "LengthThreshold", "Minimum length [m]", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_lengthThreshold, "LengthThreshold", "Minimum Length [m]", "", "", "" );
     m_lengthThreshold = 20.0;
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_resolution, "Resolution", "Resolution [days]", "", "", "" );
     m_resolution = 1.0;
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_maxDays, "MaxDays", "Max. days ", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_maxDays, "MaxDays", "Max Days ", "", "", "" );
     m_maxDays = 50000;
 
     CAF_PDM_InitScriptableField( &m_phase,
@@ -75,6 +90,24 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
 
     CAF_PDM_InitField( &m_isActive, "isActive", false, "Active", "", "", "" );
     m_isActive.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_visualizationMode, "VisualizationMode", "Visualization Mode", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_distanceBetweenTracerPoints,
+                                "DistanceBetweenTracerPoints",
+                                "Distance Between Tracer Points",
+                                "",
+                                "",
+                                "" );
+    m_distanceBetweenTracerPoints = 10.0;
+
+    CAF_PDM_InitFieldNoDefault( &m_animationSpeed, "AnimationSpeed", "Animation Speed", "", "", "" );
+    m_animationSpeed.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    m_animationSpeed = 1.0;
+
+    CAF_PDM_InitFieldNoDefault( &m_scaleFactor, "ScaleFactor", "Scale Factor", "", "", "" );
+    m_scaleFactor.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    m_scaleFactor = 1.0;
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_streamlines, "Streamlines", "Streamlines", "", "", "" );
     m_streamlines.uiCapability()->setUiTreeHidden( true );
@@ -125,6 +158,14 @@ RimEclipseCase* RimStreamlineInViewCollection::eclipseCase() const
 RiaDefines::PhaseType RimStreamlineInViewCollection::phase() const
 {
     return m_phase();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimStreamlineInViewCollection::VisualizationMode RimStreamlineInViewCollection::visualizationMode() const
+{
+    return m_visualizationMode();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -182,6 +223,30 @@ const std::list<RigTracer>& RimStreamlineInViewCollection::tracers()
         m_activeTracers.push_back( streamline->tracer() );
     }
     return m_activeTracers;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimStreamlineInViewCollection::distanceBetweenTracerPoints() const
+{
+    return m_distanceBetweenTracerPoints();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimStreamlineInViewCollection::animationSpeed() const
+{
+    return m_animationSpeed();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimStreamlineInViewCollection::scaleFactor() const
+{
+    return m_scaleFactor();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -260,6 +325,8 @@ void RimStreamlineInViewCollection::goForIt()
     }
 
     outputSummary();
+
+    eclView->loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -280,8 +347,6 @@ void RimStreamlineInViewCollection::outputSummary() const
         debStr += " points.";
         qDebug() << debStr;
     }
-
-    eclView->loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -303,6 +368,73 @@ void RimStreamlineInViewCollection::loadDataIfMissing( RiaDefines::PhaseType pha
         RigEclipseResultAddress address( RiaDefines::ResultCatType::DYNAMIC_NATIVE, resultname );
 
         data->ensureKnownResultLoadedForTimeStep( address, timeIdx );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStreamlineInViewCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    {
+        caf::PdmUiGroup* dataGroup = uiOrdering.addNewGroup( "Data Selection" );
+        dataGroup->add( &m_collectionName );
+        dataGroup->add( &m_phase );
+        dataGroup->add( &m_flowThreshold );
+        dataGroup->add( &m_lengthThreshold );
+        dataGroup->add( &m_resolution );
+        dataGroup->add( &m_maxDays );
+    }
+    {
+        caf::PdmUiGroup* visualizationGroup = uiOrdering.addNewGroup( "Visualization Settings" );
+        visualizationGroup->add( &m_visualizationMode );
+        visualizationGroup->add( &m_distanceBetweenTracerPoints );
+        visualizationGroup->add( &m_animationSpeed );
+        visualizationGroup->add( &m_scaleFactor );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStreamlineInViewCollection::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                           QString                    uiConfigName,
+                                                           caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_animationSpeed )
+    {
+        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
+        if ( !myAttr )
+        {
+            return;
+        }
+
+        myAttr->m_minimum = 0.1;
+        myAttr->m_maximum = 100.0;
+    }
+    else if ( field == &m_scaleFactor )
+    {
+        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
+        if ( !myAttr )
+        {
+            return;
+        }
+
+        myAttr->m_minimum = 0.1;
+        myAttr->m_maximum = 1000.0;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStreamlineInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                      const QVariant&            oldValue,
+                                                      const QVariant&            newValue )
+{
+    if ( changedField != &m_animationSpeed )
+    {
+        goForIt();
     }
 }
 

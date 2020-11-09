@@ -43,6 +43,14 @@ class RimStreamlineInViewCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class VisualizationMode
+    {
+        CURVES = 0,
+        VECTORS
+    };
+    using VisualizationModeEnum = caf::AppEnum<VisualizationMode>;
+
+public:
     RimStreamlineInViewCollection();
     ~RimStreamlineInViewCollection() override;
 
@@ -50,6 +58,11 @@ public:
     RimEclipseCase* eclipseCase() const;
 
     RiaDefines::PhaseType phase() const;
+
+    VisualizationMode visualizationMode() const;
+    double            distanceBetweenTracerPoints() const;
+    double            animationSpeed() const;
+    double            scaleFactor() const;
 
     void goForIt();
 
@@ -61,6 +74,12 @@ protected:
 private:
     void generateTracer( RigCell cell, double direction, QString simWellName );
     void loadDataIfMissing( RiaDefines::PhaseType phase, int timeIdx );
+
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     cvf::ref<RigResultAccessor>
         getDataAccessor( cvf::StructGridInterface::FaceType faceIdx, RiaDefines::PhaseType phase, int timeIdx );
@@ -93,6 +112,10 @@ private:
     caf::PdmPointer<RimEclipseCase>                    m_eclipseCase;
     caf::PdmChildArrayField<RimStreamline*>            m_streamlines;
     caf::PdmField<caf::AppEnum<RiaDefines::PhaseType>> m_phase;
+    caf::PdmField<VisualizationModeEnum>               m_visualizationMode;
+    caf::PdmField<double>                              m_distanceBetweenTracerPoints;
+    caf::PdmField<double>                              m_animationSpeed;
+    caf::PdmField<double>                              m_scaleFactor;
 
     std::list<RigTracer> m_activeTracers;
 
