@@ -18,8 +18,8 @@ TEST( RiaWeightedGeometricMeanCalculator, BasicUsage )
     {
         RiaWeightedGeometricMeanCalculator calc;
 
-        std::vector<double> values{30.0, 60.0};
-        std::vector<double> weights{1.5, 3.5};
+        std::vector<double> values{ 30.0, 60.0 };
+        std::vector<double> weights{ 1.5, 3.5 };
 
         for ( size_t i = 0; i < values.size(); i++ )
         {
@@ -40,8 +40,8 @@ TEST( RiaWeightedGeometricMeanCalculator, BigValues )
 {
     RiaWeightedGeometricMeanCalculator calc;
 
-    std::vector<double> values{3000000.0, 6000000.0, 1250000, 2200000};
-    std::vector<double> weights{1.5, 3.5, 7, 5};
+    std::vector<double> values{ 3000000.0, 6000000.0, 1250000, 2200000 };
+    std::vector<double> weights{ 1.5, 3.5, 7, 5 };
 
     for ( size_t i = 0; i < values.size(); i++ )
     {

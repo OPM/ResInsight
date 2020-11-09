@@ -182,7 +182,7 @@ void RimEnsembleCurveSetCollection::addCurveSet( RimEnsembleCurveSet* curveSet )
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSetCollection::deleteCurveSet( RimEnsembleCurveSet* curveSet )
 {
-    deleteCurveSets( {curveSet} );
+    deleteCurveSets( { curveSet } );
 }
 
 //--------------------------------------------------------------------------------------------------

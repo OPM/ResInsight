@@ -226,7 +226,7 @@ std::map<double, std::vector<size_t>>
             continue;
         }
 
-        std::vector<size_t> vectorOfIndexes{i};
+        std::vector<size_t> vectorOfIndexes{ i };
         auto iteratorBoolFromInsertToMap = tofToCellIndicesMap.insert( std::make_pair( tofValue, vectorOfIndexes ) );
         if ( !iteratorBoolFromInsertToMap.second )
         {

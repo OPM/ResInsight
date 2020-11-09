@@ -371,7 +371,7 @@ std::vector<cvf::Vec3d> RigWellPath::clipPolylineStartAboveZ( const std::vector<
     if ( firstVisiblePointIndex > 0 )
     {
         cvf::Plane topPlane;
-        topPlane.setFromPointAndNormal( {0.0, 0.0, maxZ}, cvf::Vec3d::Z_AXIS );
+        topPlane.setFromPointAndNormal( { 0.0, 0.0, maxZ }, cvf::Vec3d::Z_AXIS );
         cvf::Vec3d intersection;
 
         if ( topPlane.intersect( polyLine[firstVisiblePointIndex - 1], polyLine[firstVisiblePointIndex], &intersection ) )

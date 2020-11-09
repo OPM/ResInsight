@@ -97,14 +97,14 @@ bool RigCellGeometryTools::estimateHexOverlapWithBoundingBox( const std::array<c
 
     std::array<cvf::Vec3d, 8> overlapCorners = hexCorners;
 
-    std::vector<cvf::Vec3d> uniqueTopPoints = {hexCorners[0], hexCorners[1], hexCorners[2], hexCorners[3]};
+    std::vector<cvf::Vec3d> uniqueTopPoints = { hexCorners[0], hexCorners[1], hexCorners[2], hexCorners[3] };
     uniqueTopPoints.erase( std::unique( uniqueTopPoints.begin(), uniqueTopPoints.end() ), uniqueTopPoints.end() );
     if ( uniqueTopPoints.size() < 3 ) return false;
 
     cvf::Plane topPlane;
     if ( !topPlane.setFromPoints( uniqueTopPoints[0], uniqueTopPoints[1], uniqueTopPoints[2] ) ) return false;
 
-    std::vector<cvf::Vec3d> uniqueBottomPoints = {hexCorners[4], hexCorners[5], hexCorners[6], hexCorners[7]};
+    std::vector<cvf::Vec3d> uniqueBottomPoints = { hexCorners[4], hexCorners[5], hexCorners[6], hexCorners[7] };
     uniqueBottomPoints.erase( std::unique( uniqueBottomPoints.begin(), uniqueBottomPoints.end() ),
                               uniqueBottomPoints.end() );
     if ( uniqueBottomPoints.size() < 3 ) return false;
@@ -255,7 +255,7 @@ void RigCellGeometryTools::simplifyPolygon( std::vector<cvf::Vec3d>* vertices, d
     }
     else
     {
-        std::vector<cvf::Vec3d> newVertices = {vertices->front(), vertices->back()};
+        std::vector<cvf::Vec3d> newVertices = { vertices->front(), vertices->back() };
         *vertices                           = newVertices;
     }
 }
@@ -654,7 +654,7 @@ std::pair<cvf::Vec3d, cvf::Vec3d> RigCellGeometryTools::getLineThroughBoundingBo
     }
 
     std::pair<cvf::Vec3d, cvf::Vec3d> line;
-    line = {startPoint, endPoint};
+    line = { startPoint, endPoint };
     return line;
 }
 

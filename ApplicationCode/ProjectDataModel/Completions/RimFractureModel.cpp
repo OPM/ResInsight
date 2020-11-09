@@ -778,8 +778,8 @@ void RimFractureModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     m_azimuthAngle.uiCapability()->setUiHidden( m_fractureOrientation() != RimFractureModel::FractureOrientation::AZIMUTH );
 
     uiOrdering.add( nameField(), caf::PdmUiOrdering::LayoutOptions( true, 3, 1 ) );
-    uiOrdering.add( &m_fractureModelTemplate, {true, 2, 1} );
-    uiOrdering.add( &m_editFractureModelTemplate, {false, 1, 0} );
+    uiOrdering.add( &m_fractureModelTemplate, { true, 2, 1 } );
+    uiOrdering.add( &m_editFractureModelTemplate, { false, 1, 0 } );
 
     uiOrdering.add( &m_MD );
     uiOrdering.add( &m_extractionType );
@@ -810,7 +810,7 @@ void RimFractureModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     asymmetricGroup->add( &m_barrierFaultName );
 
     asymmetricGroup->add( &m_showOnlyBarrierFault, caf::PdmUiOrdering::LayoutOptions( true, 2, 1 ) );
-    asymmetricGroup->add( &m_showAllFaults, {false, 1, 0} );
+    asymmetricGroup->add( &m_showAllFaults, { false, 1, 0 } );
 
     asymmetricGroup->add( &m_wellPenetrationLayer );
 }
@@ -1116,9 +1116,9 @@ double RimFractureModel::getDefaultValueForProperty( RiaDefines::CurveProperty c
 //--------------------------------------------------------------------------------------------------
 bool RimFractureModel::hasDefaultValueForProperty( RiaDefines::CurveProperty curveProperty ) const
 {
-    auto withDefaults = {RiaDefines::CurveProperty::RELATIVE_PERMEABILITY_FACTOR,
-                         RiaDefines::CurveProperty::PORO_ELASTIC_CONSTANT,
-                         RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFICIENT};
+    auto withDefaults = { RiaDefines::CurveProperty::RELATIVE_PERMEABILITY_FACTOR,
+                          RiaDefines::CurveProperty::PORO_ELASTIC_CONSTANT,
+                          RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFICIENT };
     return std::find( withDefaults.begin(), withDefaults.end(), curveProperty ) != withDefaults.end();
 }
 

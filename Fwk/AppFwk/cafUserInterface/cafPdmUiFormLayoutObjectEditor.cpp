@@ -123,7 +123,7 @@ int caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInG
         int nrOfExpandingItemsInRow      = uiOrdering.nrOfExpandingItemsInRow( uiItemsInRow );
         int spareColumnsInRow            = totalColumns - columnsRequiredForCurrentRow;
 
-        std::div_t columnsDiv = {0, 0};
+        std::div_t columnsDiv = { 0, 0 };
         if ( spareColumnsInRow && nrOfExpandingItemsInRow )
         {
             columnsDiv = std::div( spareColumnsInRow, nrOfExpandingItemsInRow );

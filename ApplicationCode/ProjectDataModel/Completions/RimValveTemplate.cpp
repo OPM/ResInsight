@@ -179,9 +179,9 @@ QList<caf::PdmOptionItemInfo> RimValveTemplate::calculateValueOptions( const caf
 
     if ( fieldNeedingOptions == &m_type )
     {
-        std::set<RiaDefines::WellPathComponentType> supportedTypes = {RiaDefines::WellPathComponentType::ICD,
-                                                                      RiaDefines::WellPathComponentType::AICD,
-                                                                      RiaDefines::WellPathComponentType::ICV};
+        std::set<RiaDefines::WellPathComponentType> supportedTypes = { RiaDefines::WellPathComponentType::ICD,
+                                                                       RiaDefines::WellPathComponentType::AICD,
+                                                                       RiaDefines::WellPathComponentType::ICV };
         for ( RiaDefines::WellPathComponentType type : supportedTypes )
         {
             options.push_back( caf::PdmOptionItemInfo( CompletionTypeEnum::uiText( type ), type ) );

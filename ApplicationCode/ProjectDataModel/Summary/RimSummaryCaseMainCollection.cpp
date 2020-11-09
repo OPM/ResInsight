@@ -193,7 +193,7 @@ void RimSummaryCaseMainCollection::convertGridSummaryCasesToFileSummaryCases( Ri
         this->updateConnectedEditors();
     }
 
-    loadSummaryCaseData( {fileSummaryCase} );
+    loadSummaryCaseData( { fileSummaryCase } );
     reassignSummaryCurves( gridSummaryCase, fileSummaryCase );
 
     removeCase( gridSummaryCase );

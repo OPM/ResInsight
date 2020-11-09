@@ -414,15 +414,15 @@ QString RiaDefines::formationAllanResultName()
 //--------------------------------------------------------------------------------------------------
 std::set<QString> RiaDefines::nncResultNames()
 {
-    return {combinedTransmissibilityResultName(),
-            formationAllanResultName(),
-            formationBinaryAllanResultName(),
-            combinedWaterFluxResultName(),
-            combinedGasFluxResultName(),
-            combinedOilFluxResultName(),
-            combinedRiAreaNormTranResultName(),
-            combinedRiMultResultName(),
-            combinedRiTranResultName()};
+    return { combinedTransmissibilityResultName(),
+             formationAllanResultName(),
+             formationBinaryAllanResultName(),
+             combinedWaterFluxResultName(),
+             combinedGasFluxResultName(),
+             combinedOilFluxResultName(),
+             combinedRiAreaNormTranResultName(),
+             combinedRiMultResultName(),
+             combinedRiTranResultName() };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -542,7 +542,7 @@ QString RiaDefines::wbsSFGResult()
 //--------------------------------------------------------------------------------------------------
 std::vector<QString> RiaDefines::wbsAngleResultNames()
 {
-    return {wbsAzimuthResult(), wbsInclinationResult()};
+    return { wbsAzimuthResult(), wbsInclinationResult() };
 }
 
 //--------------------------------------------------------------------------------------------------

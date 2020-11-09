@@ -230,12 +230,12 @@ void RicExportLgrUi::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     uiOrdering.add( &m_includeFractures, layout );
     uiOrdering.add( &m_includeFishbones, layout );
     uiOrdering.add( &m_includePerforations, layout );
-    uiOrdering.add( &m_splitType, {true, 6, 1} );
+    uiOrdering.add( &m_splitType, { true, 6, 1 } );
 
     caf::PdmUiGroup* gridRefinement = uiOrdering.addNewGroup( "Grid Refinement" );
-    gridRefinement->add( &m_cellCountI, {true, 2, 1} );
-    gridRefinement->add( &m_cellCountJ, {false} );
-    gridRefinement->add( &m_cellCountK, {false} );
+    gridRefinement->add( &m_cellCountI, { true, 2, 1 } );
+    gridRefinement->add( &m_cellCountJ, { false } );
+    gridRefinement->add( &m_cellCountK, { false } );
 
     //    uiOrdering.add(&m_wellPathsInfo);
     uiOrdering.skipRemainingFields( true );

@@ -43,30 +43,30 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
         {
             m_lineArcEndpoints.push_back( activeWellPathTargets[0].targetPointXYZ + referencePointXyz );
             m_targetStatuses.resize( activeWellPathTargets.size(),
-                                     {!activeWellPathTargets[0].isTangentConstrained,
-                                      0.0,
-                                      0.0,
-                                      false,
-                                      true,
-                                      std::numeric_limits<double>::infinity(),
-                                      false,
-                                      true,
-                                      std::numeric_limits<double>::infinity()} );
+                                     { !activeWellPathTargets[0].isTangentConstrained,
+                                       0.0,
+                                       0.0,
+                                       false,
+                                       true,
+                                       std::numeric_limits<double>::infinity(),
+                                       false,
+                                       true,
+                                       std::numeric_limits<double>::infinity() } );
         }
 
         return;
     }
 
     m_targetStatuses.resize( activeWellPathTargets.size(),
-                             {false,
-                              0.0,
-                              0.0,
-                              false,
-                              false,
-                              std::numeric_limits<double>::infinity(),
-                              false,
-                              false,
-                              std::numeric_limits<double>::infinity()} );
+                             { false,
+                               0.0,
+                               0.0,
+                               false,
+                               false,
+                               std::numeric_limits<double>::infinity(),
+                               false,
+                               false,
+                               std::numeric_limits<double>::infinity() } );
 
     std::vector<WellTarget> adjustedWellPathTargets = activeWellPathTargets;
 

@@ -43,7 +43,7 @@ void CompletionDataFrame::setCompletionData( const std::vector<RigCompletionData
         {
             m_multipleCompletionsPerEclipseCell.insert(
                 std::pair<size_t, std::vector<RigCompletionData>>( completion.completionDataGridCell().globalCellIndex(),
-                                                                   std::vector<RigCompletionData>{completion} ) );
+                                                                   std::vector<RigCompletionData>{ completion } ) );
         }
     }
 }

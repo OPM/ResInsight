@@ -247,7 +247,7 @@ void IconProvider::setOverlayResourceString( const QString& overlayResourceStrin
 //--------------------------------------------------------------------------------------------------
 void IconProvider::setBackgroundColorString( const QString& colorName )
 {
-    m_backgroundColorStrings = {colorName};
+    m_backgroundColorStrings = { colorName };
 }
 
 //--------------------------------------------------------------------------------------------------

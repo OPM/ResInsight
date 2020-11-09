@@ -118,7 +118,7 @@ void RimParameterResultCrossPlot::defineUiOrdering( QString uiConfigName, caf::P
 
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector" );
     curveDataGroup->add( &m_selectedVarsUiField );
-    curveDataGroup->add( &m_pushButtonSelectSummaryAddress, {false, 1, 0} );
+    curveDataGroup->add( &m_pushButtonSelectSummaryAddress, { false, 1, 0 } );
     curveDataGroup->add( &m_timeStepFilter );
     curveDataGroup->add( &m_timeStep );
 

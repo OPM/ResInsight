@@ -41,14 +41,18 @@
 
 TEST( cafHexIntersectionTools, basic )
 {
-    std::vector<cvf::Vec3d> triangleVxes =
-        {{0.0, 0.5, 0.0}, {1.0, 0.5, 0.0}, {0.0, 1.0, 0.0}, {1.0, 0.5, 0.0}, {1.0, 0.8, 0.0}, {0.0, 1.0, 0.0}};
-    std::vector<cvf::Vec3d> polygon2 = {{0.5, 0.0, 2002.0}, {1.0, 0.0, 2000.0}, {0.5, 1.0, 2001.0}};
+    std::vector<cvf::Vec3d> triangleVxes = { { 0.0, 0.5, 0.0 },
+                                             { 1.0, 0.5, 0.0 },
+                                             { 0.0, 1.0, 0.0 },
+                                             { 1.0, 0.5, 0.0 },
+                                             { 1.0, 0.8, 0.0 },
+                                             { 0.0, 1.0, 0.0 } };
+    std::vector<cvf::Vec3d> polygon2     = { { 0.5, 0.0, 2002.0 }, { 1.0, 0.0, 2000.0 }, { 0.5, 1.0, 2001.0 } };
 
-    const std::vector<int>  cellFaceForEachTriangleEdge = {1, 6, 4, 2, 3, 6};
-    const cvf::Vec3d        tp1                         = {0.5, 0.01, 0.0};
-    const cvf::Vec3d        tp2                         = {1.0, 0.0, 0.0};
-    const cvf::Vec3d        tp3                         = {0.5, 1.0, 0.0};
+    const std::vector<int>  cellFaceForEachTriangleEdge = { 1, 6, 4, 2, 3, 6 };
+    const cvf::Vec3d        tp1                         = { 0.5, 0.01, 0.0 };
+    const cvf::Vec3d        tp2                         = { 1.0, 0.0, 0.0 };
+    const cvf::Vec3d        tp3                         = { 0.5, 1.0, 0.0 };
     std::vector<cvf::Vec3d> clippedTriangleVxes;
     std::vector<int>        cellFaceForEachClippedTriangleEdge;
 

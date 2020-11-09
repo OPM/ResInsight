@@ -59,7 +59,7 @@ caf::PdmObjectHandle* RimProject_importSummaryCase::execute()
         absolutePath = startDir.absoluteFilePath( m_fileName );
     }
 
-    QStringList                  summaryFileNames{absolutePath};
+    QStringList                  summaryFileNames{ absolutePath };
     std::vector<RimSummaryCase*> newCases;
     bool                         ensembleOrGroup = false;
     bool                         allowDialogs    = false;

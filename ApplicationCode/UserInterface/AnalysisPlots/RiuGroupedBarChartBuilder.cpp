@@ -620,7 +620,7 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
             barPoints = &( legendToBarPointsPair->second );
         }
 
-        barPoints->push_back( {currentBarPosition, barDef.m_value} );
+        barPoints->push_back( { currentBarPosition, barDef.m_value } );
         if ( !barDef.m_barText.isEmpty() )
         {
             positionedBarLabels[currentBarPosition] =

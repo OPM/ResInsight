@@ -250,15 +250,15 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
 
         CVF_ASSERT( m_opmFlowDiagStaticData.notNull() );
         const Opm::FlowDiagnostics::ConnectivityGraph connGraph =
-            Opm::FlowDiagnostics::ConnectivityGraph{static_cast<int>( m_opmFlowDiagStaticData->m_eclGraph->numCells() ),
-                                                    m_opmFlowDiagStaticData->m_eclGraph->neighbours()};
+            Opm::FlowDiagnostics::ConnectivityGraph{ static_cast<int>( m_opmFlowDiagStaticData->m_eclGraph->numCells() ),
+                                                     m_opmFlowDiagStaticData->m_eclGraph->neighbours() };
 
         progressInfo.incrementProgress();
         progressInfo.setProgressDescription( "Initialize Solver" );
 
         // Create the Toolbox.
 
-        m_opmFlowDiagStaticData->m_fldToolbox.reset( new Opm::FlowDiagnostics::Toolbox{connGraph} );
+        m_opmFlowDiagStaticData->m_fldToolbox.reset( new Opm::FlowDiagnostics::Toolbox{ connGraph } );
 
         // Look for unified restart file
         QStringList m_filesWithSameBaseName;
@@ -374,7 +374,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
 
         progressInfo.incrementProgress();
 
-        Opm::ECLWellSolution wsol = Opm::ECLWellSolution{-1.0, false};
+        Opm::ECLWellSolution wsol = Opm::ECLWellSolution{ -1.0, false };
 
         std::vector<std::string> gridNames = m_opmFlowDiagStaticData->m_eclGraph->activeGrids();
 
@@ -688,26 +688,26 @@ std::vector<RigFlowDiagSolverInterface::RelPermCurve>
         return retCurveArr;
     }
 
-    const Opm::ECLSaturationFunc::RawCurve krw{Opm::ECLSaturationFunc::RawCurve::Function::RelPerm,
-                                               Opm::ECLSaturationFunc::RawCurve::SubSystem::OilWater,
-                                               Opm::ECLPhaseIndex::Aqua}; // water rel-perm in oil-water system
-    const Opm::ECLSaturationFunc::RawCurve krg{Opm::ECLSaturationFunc::RawCurve::Function::RelPerm,
-                                               Opm::ECLSaturationFunc::RawCurve::SubSystem::OilGas,
-                                               Opm::ECLPhaseIndex::Vapour}; // gas rel-perm in oil-gas system
-    const Opm::ECLSaturationFunc::RawCurve krow{Opm::ECLSaturationFunc::RawCurve::Function::RelPerm,
+    const Opm::ECLSaturationFunc::RawCurve krw{ Opm::ECLSaturationFunc::RawCurve::Function::RelPerm,
                                                 Opm::ECLSaturationFunc::RawCurve::SubSystem::OilWater,
-                                                Opm::ECLPhaseIndex::Liquid}; // oil rel-perm in oil-water system
-    const Opm::ECLSaturationFunc::RawCurve krog{Opm::ECLSaturationFunc::RawCurve::Function::RelPerm,
+                                                Opm::ECLPhaseIndex::Aqua }; // water rel-perm in oil-water system
+    const Opm::ECLSaturationFunc::RawCurve krg{ Opm::ECLSaturationFunc::RawCurve::Function::RelPerm,
                                                 Opm::ECLSaturationFunc::RawCurve::SubSystem::OilGas,
-                                                Opm::ECLPhaseIndex::Liquid}; // oil rel-perm in oil-gas system
-    const Opm::ECLSaturationFunc::RawCurve pcgo{Opm::ECLSaturationFunc::RawCurve::Function::CapPress,
-                                                Opm::ECLSaturationFunc::RawCurve::SubSystem::OilGas,
-                                                Opm::ECLPhaseIndex::Vapour}; // gas/oil capillary pressure (Pg-Po) in
-                                                                             // G/O system
-    const Opm::ECLSaturationFunc::RawCurve pcow{Opm::ECLSaturationFunc::RawCurve::Function::CapPress,
-                                                Opm::ECLSaturationFunc::RawCurve::SubSystem::OilWater,
-                                                Opm::ECLPhaseIndex::Aqua}; // oil/water capillary pressure (Po-Pw) in
-                                                                           // O/W system
+                                                Opm::ECLPhaseIndex::Vapour }; // gas rel-perm in oil-gas system
+    const Opm::ECLSaturationFunc::RawCurve krow{ Opm::ECLSaturationFunc::RawCurve::Function::RelPerm,
+                                                 Opm::ECLSaturationFunc::RawCurve::SubSystem::OilWater,
+                                                 Opm::ECLPhaseIndex::Liquid }; // oil rel-perm in oil-water system
+    const Opm::ECLSaturationFunc::RawCurve krog{ Opm::ECLSaturationFunc::RawCurve::Function::RelPerm,
+                                                 Opm::ECLSaturationFunc::RawCurve::SubSystem::OilGas,
+                                                 Opm::ECLPhaseIndex::Liquid }; // oil rel-perm in oil-gas system
+    const Opm::ECLSaturationFunc::RawCurve pcgo{ Opm::ECLSaturationFunc::RawCurve::Function::CapPress,
+                                                 Opm::ECLSaturationFunc::RawCurve::SubSystem::OilGas,
+                                                 Opm::ECLPhaseIndex::Vapour }; // gas/oil capillary pressure (Pg-Po) in
+                                                                               // G/O system
+    const Opm::ECLSaturationFunc::RawCurve pcow{ Opm::ECLSaturationFunc::RawCurve::Function::CapPress,
+                                                 Opm::ECLSaturationFunc::RawCurve::SubSystem::OilWater,
+                                                 Opm::ECLPhaseIndex::Aqua }; // oil/water capillary pressure (Po-Pw) in
+                                                                             // O/W system
 
     std::vector<std::pair<RelPermCurve::Ident, std::string>> curveIdentNameArr;
     std::vector<Opm::ECLSaturationFunc::RawCurve>            satFuncRequests;
@@ -728,7 +728,7 @@ std::vector<RigFlowDiagSolverInterface::RelPermCurve>
     {
         // Calculate and return curves both with and without endpoint scaling and tag them accordingly
         // Must use two calls to achieve this
-        const std::array<RelPermCurve::EpsMode, 2> epsModeArr = {{RelPermCurve::EPS_ON, RelPermCurve::EPS_OFF}};
+        const std::array<RelPermCurve::EpsMode, 2> epsModeArr = { { RelPermCurve::EPS_ON, RelPermCurve::EPS_OFF } };
         for ( RelPermCurve::EpsMode epsMode : epsModeArr )
         {
             const bool useEps = epsMode == RelPermCurve::EPS_ON ? true : false;
@@ -751,7 +751,7 @@ std::vector<RigFlowDiagSolverInterface::RelPermCurve>
                 {
                     const std::vector<double>& xVals = srcGraph.first;
                     const std::vector<double>& yVals = srcGraph.second;
-                    retCurveArr.push_back( {curveIdent, curveName, epsMode, xVals, yVals} );
+                    retCurveArr.push_back( { curveIdent, curveName, epsMode, xVals, yVals } );
                 }
             }
         }
@@ -800,7 +800,7 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve>
                     if ( srcGraph.press.size() > 0 )
                     {
                         retCurveArr.push_back(
-                            {PvtCurve::Bo, PvtCurve::OIL, srcGraph.press, srcGraph.value, srcGraph.mixRat} );
+                            { PvtCurve::Bo, PvtCurve::OIL, srcGraph.press, srcGraph.value, srcGraph.mixRat } );
                     }
                 }
             }
@@ -816,7 +816,7 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve>
                     if ( srcGraph.press.size() > 0 )
                     {
                         retCurveArr.push_back(
-                            {PvtCurve::Bg, PvtCurve::GAS, srcGraph.press, srcGraph.value, srcGraph.mixRat} );
+                            { PvtCurve::Bg, PvtCurve::GAS, srcGraph.press, srcGraph.value, srcGraph.mixRat } );
                     }
                 }
             }
@@ -835,7 +835,7 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve>
                     if ( srcGraph.press.size() > 0 )
                     {
                         retCurveArr.push_back(
-                            {PvtCurve::Visc_o, PvtCurve::OIL, srcGraph.press, srcGraph.value, srcGraph.mixRat} );
+                            { PvtCurve::Visc_o, PvtCurve::OIL, srcGraph.press, srcGraph.value, srcGraph.mixRat } );
                     }
                 }
             }
@@ -851,7 +851,7 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve>
                     if ( srcGraph.press.size() > 0 )
                     {
                         retCurveArr.push_back(
-                            {PvtCurve::Visc_g, PvtCurve::GAS, srcGraph.press, srcGraph.value, srcGraph.mixRat} );
+                            { PvtCurve::Visc_g, PvtCurve::GAS, srcGraph.press, srcGraph.value, srcGraph.mixRat } );
                     }
                 }
             }
@@ -894,8 +894,8 @@ bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesFvf( size_t  activ
     {
         // Bo
         {
-            std::vector<double> phasePress = {pressure};
-            std::vector<double> mixRatio   = {rs};
+            std::vector<double> phasePress = { pressure };
+            std::vector<double> mixRatio   = { rs };
             std::vector<double> valArr =
                 m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getDynamicPropertyNative( Opm::ECLPVT::RawCurve::FVF,
                                                                                             Opm::ECLPhaseIndex::Liquid,
@@ -911,8 +911,8 @@ bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesFvf( size_t  activ
 
         // Bg
         {
-            std::vector<double> phasePress = {pressure};
-            std::vector<double> mixRatio   = {rv};
+            std::vector<double> phasePress = { pressure };
+            std::vector<double> mixRatio   = { rv };
             std::vector<double> valArr =
                 m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getDynamicPropertyNative( Opm::ECLPVT::RawCurve::FVF,
                                                                                             Opm::ECLPhaseIndex::Vapour,
@@ -963,8 +963,8 @@ bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesViscosity( size_t 
     {
         // mu_o
         {
-            std::vector<double> phasePress = {pressure};
-            std::vector<double> mixRatio   = {rs};
+            std::vector<double> phasePress = { pressure };
+            std::vector<double> mixRatio   = { rs };
             std::vector<double> valArr     = m_opmFlowDiagStaticData->m_eclPvtCurveCollection
                                              ->getDynamicPropertyNative( Opm::ECLPVT::RawCurve::Viscosity,
                                                                          Opm::ECLPhaseIndex::Liquid,
@@ -979,8 +979,8 @@ bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesViscosity( size_t 
 
         // mu_o
         {
-            std::vector<double> phasePress = {pressure};
-            std::vector<double> mixRatio   = {rv};
+            std::vector<double> phasePress = { pressure };
+            std::vector<double> mixRatio   = { rv };
             std::vector<double> valArr     = m_opmFlowDiagStaticData->m_eclPvtCurveCollection
                                              ->getDynamicPropertyNative( Opm::ECLPVT::RawCurve::Viscosity,
                                                                          Opm::ECLPhaseIndex::Vapour,
