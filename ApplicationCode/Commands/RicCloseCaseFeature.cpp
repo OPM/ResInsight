@@ -198,6 +198,7 @@ void RicCloseCaseFeature::deleteEclipseCase( RimEclipseCase* eclipseCase )
             {
                 RimGridSummaryCase* gridSummaryCase = dynamic_cast<RimGridSummaryCase*>( summaryCase );
                 sumCaseColl->convertGridSummaryCasesToFileSummaryCases( gridSummaryCase );
+                sumCaseColl->updateConnectedEditors();
             }
         }
     }
