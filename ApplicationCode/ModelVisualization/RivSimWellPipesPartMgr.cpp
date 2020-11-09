@@ -175,7 +175,7 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
     cvf::Vec3d flattenedStartOffset = cvf::Vec3d::ZERO;
     if ( m_pipeBranchesCLCoords.size() > branchIdxStart && m_pipeBranchesCLCoords[branchIdxStart].size() )
     {
-        flattenedStartOffset = {0.0, 0.0, m_pipeBranchesCLCoords[branchIdxStart][0].z()};
+        flattenedStartOffset = { 0.0, 0.0, m_pipeBranchesCLCoords[branchIdxStart][0].z() };
     }
 
     for ( size_t brIdx = branchIdxStart; brIdx < branchIdxStop; ++brIdx )
@@ -351,7 +351,7 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
             }
         }
 
-        if ( doFlatten ) flattenedStartOffset += {2 * flattenedIntersectionExtentLength, 0.0, 0.0};
+        if ( doFlatten ) flattenedStartOffset += { 2 * flattenedIntersectionExtentLength, 0.0, 0.0 };
     }
 }
 

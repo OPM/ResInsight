@@ -56,7 +56,7 @@ RimCorrelationPlot* RimCorrelationPlotCollection::createCorrelationPlot( bool de
     RimCorrelationPlot* plot = new RimCorrelationPlot();
     plot->setAsPlotMdiWindow();
 
-    if ( defaultToFirstEnsembleFopt ) applyFirstEnsembleFieldAddressesToPlot( plot, {"FOPT"} );
+    if ( defaultToFirstEnsembleFopt ) applyFirstEnsembleFieldAddressesToPlot( plot, { "FOPT" } );
     plot->selectAllParameters();
 
     addPlot( plot );
@@ -74,7 +74,7 @@ RimCorrelationPlot* RimCorrelationPlotCollection::createCorrelationPlot( RimSumm
     RimCorrelationPlot* plot = new RimCorrelationPlot();
     plot->setAsPlotMdiWindow();
 
-    applyEnsembleFieldAndTimeStepToPlot( plot, ensemble, {quantityName}, timeStep );
+    applyEnsembleFieldAndTimeStepToPlot( plot, ensemble, { quantityName }, timeStep );
     plot->selectAllParameters();
 
     addPlot( plot );
@@ -89,7 +89,7 @@ RimCorrelationMatrixPlot* RimCorrelationPlotCollection::createCorrelationMatrixP
 {
     RimCorrelationMatrixPlot* plot = new RimCorrelationMatrixPlot();
     plot->setAsPlotMdiWindow();
-    if ( defaultToFirstEnsembleField ) applyFirstEnsembleFieldAddressesToPlot( plot, {"FOPT", "FWPT", "FGPT"} );
+    if ( defaultToFirstEnsembleField ) applyFirstEnsembleFieldAddressesToPlot( plot, { "FOPT", "FWPT", "FGPT" } );
     plot->selectAllParameters();
 
     addPlot( plot );
@@ -121,7 +121,7 @@ RimParameterResultCrossPlot* RimCorrelationPlotCollection::createParameterResult
 {
     RimParameterResultCrossPlot* plot = new RimParameterResultCrossPlot;
     plot->setAsPlotMdiWindow();
-    if ( defaultToFirstEnsembleFopt ) applyFirstEnsembleFieldAddressesToPlot( plot, {"FOPT"} );
+    if ( defaultToFirstEnsembleFopt ) applyFirstEnsembleFieldAddressesToPlot( plot, { "FOPT" } );
 
     addPlot( plot );
     return plot;
@@ -137,7 +137,7 @@ RimParameterResultCrossPlot* RimCorrelationPlotCollection::createParameterResult
 {
     RimParameterResultCrossPlot* plot = new RimParameterResultCrossPlot;
     plot->setAsPlotMdiWindow();
-    applyEnsembleFieldAndTimeStepToPlot( plot, ensemble, {quantityName}, timeStep );
+    applyEnsembleFieldAndTimeStepToPlot( plot, ensemble, { quantityName }, timeStep );
     plot->setEnsembleParameter( paramName );
 
     addPlot( plot );
@@ -153,7 +153,7 @@ RimCorrelationReportPlot*
     RimCorrelationReportPlot* report = new RimCorrelationReportPlot;
     report->setAsPlotMdiWindow();
     if ( defaultToFirstEnsembleField )
-        applyFirstEnsembleFieldAddressesToReport( report, {"FOPT", "FWPT", "FGPT"}, "FOPT" );
+        applyFirstEnsembleFieldAddressesToReport( report, { "FOPT", "FWPT", "FGPT" }, "FOPT" );
     report->matrixPlot()->selectAllParameters();
     report->correlationPlot()->selectAllParameters();
     m_correlationReports.push_back( report );

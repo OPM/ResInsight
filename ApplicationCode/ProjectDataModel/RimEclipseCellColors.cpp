@@ -154,7 +154,7 @@ void RimEclipseCellColors::changeLegendConfig( QString resultVarNameOfNewLegend 
 
                 bool useLog = false;
                 {
-                    QStringList subStringsToMatch{"TRAN", "MULT", "PERM"};
+                    QStringList subStringsToMatch{ "TRAN", "MULT", "PERM" };
 
                     for ( const auto& s : subStringsToMatch )
                     {

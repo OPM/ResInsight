@@ -30,16 +30,16 @@
 TEST( RigHexGradientTools, GradientsForIdentityElement )
 {
     // Identity element
-    std::array<cvf::Vec3d, 8> hexCorners = {cvf::Vec3d( -1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, 1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, 1.0 )};
+    std::array<cvf::Vec3d, 8> hexCorners = { cvf::Vec3d( -1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, 1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, 1.0 ) };
 
-    std::array<double, 8> cornerValues = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+    std::array<double, 8> cornerValues = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
 
     std::array<cvf::Vec3d, 8> gradients = RigHexGradientTools::gradients( hexCorners, cornerValues );
 
@@ -57,19 +57,19 @@ TEST( RigHexGradientTools, GradientsForIdentityElement )
 TEST( RigHexGradientTools, GradientsForScaledIdentityElement )
 {
     // Identity element
-    std::array<cvf::Vec3d, 8> hexCorners = {cvf::Vec3d( -1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, 1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, 1.0 )};
+    std::array<cvf::Vec3d, 8> hexCorners = { cvf::Vec3d( -1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, 1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, 1.0 ) };
 
     for ( auto& v : hexCorners )
         v *= 2.5;
 
-    std::array<double, 8> cornerValues = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+    std::array<double, 8> cornerValues = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
 
     std::array<cvf::Vec3d, 8> gradients = RigHexGradientTools::gradients( hexCorners, cornerValues );
 
@@ -87,19 +87,19 @@ TEST( RigHexGradientTools, GradientsForScaledIdentityElement )
 TEST( RigHexGradientTools, GradientsForTranslatedIdentityElement )
 {
     // Identity element
-    std::array<cvf::Vec3d, 8> hexCorners = {cvf::Vec3d( -1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, 1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, 1.0 )};
+    std::array<cvf::Vec3d, 8> hexCorners = { cvf::Vec3d( -1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, 1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, 1.0 ) };
 
     for ( auto& v : hexCorners )
-        v += {3.2, 9.5, -20.3};
+        v += { 3.2, 9.5, -20.3 };
 
-    std::array<double, 8> cornerValues = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+    std::array<double, 8> cornerValues = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
 
     std::array<cvf::Vec3d, 8> gradients = RigHexGradientTools::gradients( hexCorners, cornerValues );
 
@@ -117,20 +117,20 @@ TEST( RigHexGradientTools, GradientsForTranslatedIdentityElement )
 TEST( RigHexGradientTools, GradientsForRotatedIdentityElement )
 {
     // Identity element
-    std::array<cvf::Vec3d, 8> hexCorners = {cvf::Vec3d( -1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, 1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, 1.0 )};
+    std::array<cvf::Vec3d, 8> hexCorners = { cvf::Vec3d( -1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, 1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, 1.0 ) };
 
-    cvf::Mat4d rot = cvf::Mat4d::fromRotation( {1, 1, 0}, 3.0 );
+    cvf::Mat4d rot = cvf::Mat4d::fromRotation( { 1, 1, 0 }, 3.0 );
     for ( auto& v : hexCorners )
         v.transformPoint( rot );
 
-    std::array<double, 8> cornerValues = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+    std::array<double, 8> cornerValues = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
 
     std::array<cvf::Vec3d, 8> gradients = RigHexGradientTools::gradients( hexCorners, cornerValues );
 
@@ -148,17 +148,17 @@ TEST( RigHexGradientTools, GradientsForRotatedIdentityElement )
 TEST( RigHexGradientTools, GradientsForElement )
 {
     // Identity element
-    std::array<cvf::Vec3d, 8> hexCorners = {cvf::Vec3d( -1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, 1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, 1.0 )};
+    std::array<cvf::Vec3d, 8> hexCorners = { cvf::Vec3d( -1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, 1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, 1.0 ) };
 
     // Set a higher value in the first corner
-    std::array<double, 8> cornerValues = {2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+    std::array<double, 8> cornerValues = { 2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
 
     std::array<cvf::Vec3d, 8> gradients = RigHexGradientTools::gradients( hexCorners, cornerValues );
 
@@ -181,7 +181,7 @@ TEST( RigHexGradientTools, GradientsForElement )
     EXPECT_DOUBLE_EQ( -0.5, gradients[4].z() );
 
     // Non-adjacent should be unaffected
-    std::array<int, 4> independentCorners = {2, 5, 7, 6};
+    std::array<int, 4> independentCorners = { 2, 5, 7, 6 };
     for ( auto c : independentCorners )
     {
         EXPECT_DOUBLE_EQ( 0.0, gradients[c].x() );
@@ -196,17 +196,17 @@ TEST( RigHexGradientTools, GradientsForElement )
 TEST( RigHexGradientTools, GradientsForLongElement )
 {
     // Identity element
-    std::array<cvf::Vec3d, 8> hexCorners = {cvf::Vec3d( -1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 2.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 2.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 2.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 2.0, 1.0, 1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, 1.0 )};
+    std::array<cvf::Vec3d, 8> hexCorners = { cvf::Vec3d( -1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 2.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 2.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 2.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 2.0, 1.0, 1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, 1.0 ) };
 
     // Set a higher value in the first corner
-    std::array<double, 8> cornerValues = {2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+    std::array<double, 8> cornerValues = { 2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
 
     std::array<cvf::Vec3d, 8> gradients = RigHexGradientTools::gradients( hexCorners, cornerValues );
 
@@ -229,7 +229,7 @@ TEST( RigHexGradientTools, GradientsForLongElement )
     EXPECT_DOUBLE_EQ( -0.5, gradients[4].z() );
 
     // Non-adjacent should be unaffected
-    std::array<int, 4> independentCorners = {2, 5, 7, 6};
+    std::array<int, 4> independentCorners = { 2, 5, 7, 6 };
     for ( auto c : independentCorners )
     {
         EXPECT_DOUBLE_EQ( 0.0, gradients[c].x() );
@@ -244,14 +244,14 @@ TEST( RigHexGradientTools, GradientsForLongElement )
 TEST( RigHexGradientTools, GenerateJacobianForIdentity )
 {
     // Identity element
-    std::array<cvf::Vec3d, 8> hexCorners = {cvf::Vec3d( -1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, 1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, 1.0 )};
+    std::array<cvf::Vec3d, 8> hexCorners = { cvf::Vec3d( -1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, 1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, 1.0 ) };
 
     for ( int i = 0; i < 8; i++ )
     {
@@ -287,14 +287,14 @@ TEST( RigHexGradientTools, GenerateJacobianForIdentity )
 TEST( RigHexGradientTools, GenerateJacobianForIdentityScaled )
 {
     // Identity element
-    std::array<cvf::Vec3d, 8> normalizedCorners = {cvf::Vec3d( -1.0, -1.0, -1.0 ),
-                                                   cvf::Vec3d( 1.0, -1.0, -1.0 ),
-                                                   cvf::Vec3d( 1.0, 1.0, -1.0 ),
-                                                   cvf::Vec3d( -1.0, 1.0, -1.0 ),
-                                                   cvf::Vec3d( -1.0, -1.0, 1.0 ),
-                                                   cvf::Vec3d( 1.0, -1.0, 1.0 ),
-                                                   cvf::Vec3d( 1.0, 1.0, 1.0 ),
-                                                   cvf::Vec3d( -1.0, 1.0, 1.0 )};
+    std::array<cvf::Vec3d, 8> normalizedCorners = { cvf::Vec3d( -1.0, -1.0, -1.0 ),
+                                                    cvf::Vec3d( 1.0, -1.0, -1.0 ),
+                                                    cvf::Vec3d( 1.0, 1.0, -1.0 ),
+                                                    cvf::Vec3d( -1.0, 1.0, -1.0 ),
+                                                    cvf::Vec3d( -1.0, -1.0, 1.0 ),
+                                                    cvf::Vec3d( 1.0, -1.0, 1.0 ),
+                                                    cvf::Vec3d( 1.0, 1.0, 1.0 ),
+                                                    cvf::Vec3d( -1.0, 1.0, 1.0 ) };
 
     double scale = 2.5;
 
@@ -338,14 +338,14 @@ TEST( RigHexGradientTools, GenerateJacobianForIdentityScaled )
 TEST( RigHexGradientTools, GenerateJacobianForLongElement )
 {
     // Try a more complex element
-    std::array<cvf::Vec3d, 8> hexCorners = {cvf::Vec3d( -1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 2.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 2.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 2.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 2.0, 1.0, 1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, 1.0 )};
+    std::array<cvf::Vec3d, 8> hexCorners = { cvf::Vec3d( -1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 2.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 2.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 2.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 2.0, 1.0, 1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, 1.0 ) };
 
     cvf::Vec3d corner0( -1.0, -1.0, -1.0 );
 
@@ -377,18 +377,18 @@ TEST( RigHexGradientTools, GenerateJacobianForLongElement )
 TEST( RigHexGradientTools, GradientsForRotatedElement )
 {
     // Try a more complex element
-    std::array<cvf::Vec3d, 8> hexCorners = {cvf::Vec3d( -1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, 1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, 1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, 1.0 )};
+    std::array<cvf::Vec3d, 8> hexCorners = { cvf::Vec3d( -1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, 1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, 1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, 1.0 ) };
 
     cvf::Vec3d corner0( -1.0, -1.0, -1.0 );
 
-    cvf::Mat4d rot = cvf::Mat4d::fromRotation( {1, 0, 0}, cvf::PI_D / 2.0 );
+    cvf::Mat4d rot = cvf::Mat4d::fromRotation( { 1, 0, 0 }, cvf::PI_D / 2.0 );
     for ( auto& v : hexCorners )
         v.transformPoint( rot );
 
@@ -396,7 +396,7 @@ TEST( RigHexGradientTools, GradientsForRotatedElement )
     EXPECT_DOUBLE_EQ( -1.0, hexCorners[4].z() );
 
     // Set a higher value in the first corner
-    std::array<double, 8> cornerValues = {2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+    std::array<double, 8> cornerValues = { 2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
 
     std::array<cvf::Vec3d, 8> gradients = RigHexGradientTools::gradients( hexCorners, cornerValues );
 
@@ -439,18 +439,18 @@ TEST( RigHexGradientTools, GradientsForRotatedElement )
 TEST( RigHexGradientTools, GradientsForRotatedAndStretchedElement )
 {
     // Try a more complex element
-    std::array<cvf::Vec3d, 8> hexCorners = {cvf::Vec3d( -1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, -1.0, 3.0 ),
-                                            cvf::Vec3d( 1.0, -1.0, 3.0 ),
-                                            cvf::Vec3d( 1.0, 1.0, 3.0 ),
-                                            cvf::Vec3d( -1.0, 1.0, 3.0 )};
+    std::array<cvf::Vec3d, 8> hexCorners = { cvf::Vec3d( -1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, -1.0, 3.0 ),
+                                             cvf::Vec3d( 1.0, -1.0, 3.0 ),
+                                             cvf::Vec3d( 1.0, 1.0, 3.0 ),
+                                             cvf::Vec3d( -1.0, 1.0, 3.0 ) };
 
     cvf::Vec3d corner0( -1.0, -1.0, -1.0 );
 
-    cvf::Mat4d rot = cvf::Mat4d::fromRotation( {1, 0, 0}, cvf::PI_D / 2.0 );
+    cvf::Mat4d rot = cvf::Mat4d::fromRotation( { 1, 0, 0 }, cvf::PI_D / 2.0 );
     for ( auto& v : hexCorners )
         v.transformPoint( rot );
 
@@ -458,7 +458,7 @@ TEST( RigHexGradientTools, GradientsForRotatedAndStretchedElement )
     EXPECT_DOUBLE_EQ( -1.0, hexCorners[4].z() );
 
     // Set a higher value in the first corner
-    std::array<double, 8> cornerValues = {2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+    std::array<double, 8> cornerValues = { 2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
 
     std::array<cvf::Vec3d, 8> gradients = RigHexGradientTools::gradients( hexCorners, cornerValues );
 
@@ -501,18 +501,18 @@ TEST( RigHexGradientTools, GradientsForRotatedAndStretchedElement )
 TEST( RigHexGradientTools, GenerateJacobianForRotatedElement )
 {
     // Try a more complex element
-    std::array<cvf::Vec3d, 8> hexCorners = {cvf::Vec3d( -1.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 2.0, -1.0, -1.0 ),
-                                            cvf::Vec3d( 2.0, 3.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, 3.0, -1.0 ),
-                                            cvf::Vec3d( -1.0, -1.0, 4.0 ),
-                                            cvf::Vec3d( 2.0, -1.0, 4.0 ),
-                                            cvf::Vec3d( 2.0, 3.0, 4.0 ),
-                                            cvf::Vec3d( -1.0, 3.0, 4.0 )};
+    std::array<cvf::Vec3d, 8> hexCorners = { cvf::Vec3d( -1.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 2.0, -1.0, -1.0 ),
+                                             cvf::Vec3d( 2.0, 3.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, 3.0, -1.0 ),
+                                             cvf::Vec3d( -1.0, -1.0, 4.0 ),
+                                             cvf::Vec3d( 2.0, -1.0, 4.0 ),
+                                             cvf::Vec3d( 2.0, 3.0, 4.0 ),
+                                             cvf::Vec3d( -1.0, 3.0, 4.0 ) };
 
     cvf::Vec3d corner0( -1.0, -1.0, -1.0 );
 
-    cvf::Mat4d rot = cvf::Mat4d::fromRotation( {1, 0, 0}, cvf::PI_D / 2.0 );
+    cvf::Mat4d rot = cvf::Mat4d::fromRotation( { 1, 0, 0 }, cvf::PI_D / 2.0 );
     for ( auto& v : hexCorners )
         v.transformPoint( rot );
 

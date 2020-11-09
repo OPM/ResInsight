@@ -825,7 +825,7 @@ void RigAccWellFlowCalculator::sortTracers()
         if ( mainBranchAccFlow.size() )
             totalFlow = -fabs( mainBranchAccFlow.back() ); // Based on size in reverse order (biggest to least)
 
-        sortedTracers.insert( {totalFlow, tracerName} );
+        sortedTracers.insert( { totalFlow, tracerName } );
     }
 
     m_tracerNames.clear();

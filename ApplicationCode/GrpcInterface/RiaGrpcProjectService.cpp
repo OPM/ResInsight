@@ -204,14 +204,16 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcProjectService::createCallbacks()
 {
     typedef RiaGrpcProjectService Self;
 
-    return {new RiaGrpcUnaryCallback<Self, Empty, CaseRequest>( this, &Self::GetCurrentCase, &Self::RequestGetCurrentCase ),
-            new RiaGrpcUnaryCallback<Self, Empty, CaseInfoArray>( this, &Self::GetSelectedCases, &Self::RequestGetSelectedCases ),
-            new RiaGrpcUnaryCallback<Self, Empty, CaseGroups>( this, &Self::GetAllCaseGroups, &Self::RequestGetAllCaseGroups ),
-            new RiaGrpcUnaryCallback<Self, Empty, CaseInfoArray>( this, &Self::GetAllCases, &Self::RequestGetAllCases ),
-            new RiaGrpcUnaryCallback<Self, CaseGroup, CaseInfoArray>( this,
-                                                                      &Self::GetCasesInGroup,
-                                                                      &Self::RequestGetCasesInGroup ),
-            new RiaGrpcUnaryCallback<Self, Empty, PdmObject>( this, &Self::GetPdmObject, &Self::RequestGetPdmObject )};
+    return { new RiaGrpcUnaryCallback<Self, Empty, CaseRequest>( this, &Self::GetCurrentCase, &Self::RequestGetCurrentCase ),
+             new RiaGrpcUnaryCallback<Self, Empty, CaseInfoArray>( this,
+                                                                   &Self::GetSelectedCases,
+                                                                   &Self::RequestGetSelectedCases ),
+             new RiaGrpcUnaryCallback<Self, Empty, CaseGroups>( this, &Self::GetAllCaseGroups, &Self::RequestGetAllCaseGroups ),
+             new RiaGrpcUnaryCallback<Self, Empty, CaseInfoArray>( this, &Self::GetAllCases, &Self::RequestGetAllCases ),
+             new RiaGrpcUnaryCallback<Self, CaseGroup, CaseInfoArray>( this,
+                                                                       &Self::GetCasesInGroup,
+                                                                       &Self::RequestGetCasesInGroup ),
+             new RiaGrpcUnaryCallback<Self, Empty, PdmObject>( this, &Self::GetPdmObject, &Self::RequestGetPdmObject ) };
 }
 
 static bool RiaGrpcProjectService_init = RiaGrpcServiceFactory::instance()->registerCreator<RiaGrpcProjectService>(

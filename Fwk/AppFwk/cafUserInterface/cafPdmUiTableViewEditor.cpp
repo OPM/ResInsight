@@ -391,13 +391,13 @@ void PdmUiTableViewEditor::updateSelectionManagerFromTableSelection()
 
         for ( auto item : selectedRowObjects )
         {
-            newCompleteSelection.push_back( {item, m_rowSelectionLevel} );
+            newCompleteSelection.push_back( { item, m_rowSelectionLevel } );
         }
 
         if ( childArrayFieldHandle() && childArrayFieldHandle()->ownerObject() )
         {
             newCompleteSelection.push_back(
-                {childArrayFieldHandle()->ownerObject()->uiCapability(), m_tableSelectionLevel} );
+                { childArrayFieldHandle()->ownerObject()->uiCapability(), m_tableSelectionLevel } );
         }
 
         m_isBlockingSelectionManagerChanged = true;

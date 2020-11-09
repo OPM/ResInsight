@@ -28,13 +28,13 @@
 //--------------------------------------------------------------------------------------------------
 const caf::ColorTable& RiaColorTables::normalPaletteColors()
 {
-    static std::vector<cvf::Color3ub> colors{cvf::Color3ub( 0, 0, 255 ),
-                                             cvf::Color3ub( 0, 127, 255 ),
-                                             cvf::Color3ub( 0, 255, 255 ),
-                                             cvf::Color3ub( 0, 255, 0 ),
-                                             cvf::Color3ub( 255, 255, 0 ),
-                                             cvf::Color3ub( 255, 127, 0 ),
-                                             cvf::Color3ub( 255, 0, 0 )};
+    static std::vector<cvf::Color3ub> colors{ cvf::Color3ub( 0, 0, 255 ),
+                                              cvf::Color3ub( 0, 127, 255 ),
+                                              cvf::Color3ub( 0, 255, 255 ),
+                                              cvf::Color3ub( 0, 255, 0 ),
+                                              cvf::Color3ub( 255, 255, 0 ),
+                                              cvf::Color3ub( 255, 127, 0 ),
+                                              cvf::Color3ub( 255, 0, 0 ) };
 
     static caf::ColorTable colorTable = caf::ColorTable( colors );
 
@@ -46,13 +46,13 @@ const caf::ColorTable& RiaColorTables::normalPaletteColors()
 //--------------------------------------------------------------------------------------------------
 const caf::ColorTable& RiaColorTables::normalPaletteOppositeOrderingColors()
 {
-    static std::vector<cvf::Color3ub> colors{cvf::Color3ub( 255, 0, 0 ),
-                                             cvf::Color3ub( 255, 127, 0 ),
-                                             cvf::Color3ub( 255, 255, 0 ),
-                                             cvf::Color3ub( 0, 255, 0 ),
-                                             cvf::Color3ub( 0, 255, 255 ),
-                                             cvf::Color3ub( 0, 127, 255 ),
-                                             cvf::Color3ub( 0, 0, 255 )};
+    static std::vector<cvf::Color3ub> colors{ cvf::Color3ub( 255, 0, 0 ),
+                                              cvf::Color3ub( 255, 127, 0 ),
+                                              cvf::Color3ub( 255, 255, 0 ),
+                                              cvf::Color3ub( 0, 255, 0 ),
+                                              cvf::Color3ub( 0, 255, 255 ),
+                                              cvf::Color3ub( 0, 127, 255 ),
+                                              cvf::Color3ub( 0, 0, 255 ) };
 
     static caf::ColorTable colorTable = caf::ColorTable( colors );
 
@@ -64,7 +64,7 @@ const caf::ColorTable& RiaColorTables::normalPaletteOppositeOrderingColors()
 //--------------------------------------------------------------------------------------------------
 const caf::ColorTable& RiaColorTables::blackWhitePaletteColors()
 {
-    static std::vector<cvf::Color3ub> colors{cvf::Color3ub::BLACK, cvf::Color3ub::WHITE};
+    static std::vector<cvf::Color3ub> colors{ cvf::Color3ub::BLACK, cvf::Color3ub::WHITE };
 
     static caf::ColorTable colorTable = caf::ColorTable( colors );
 
@@ -76,7 +76,7 @@ const caf::ColorTable& RiaColorTables::blackWhitePaletteColors()
 //--------------------------------------------------------------------------------------------------
 const caf::ColorTable& RiaColorTables::whiteBlackPaletteColors()
 {
-    static std::vector<cvf::Color3ub> colors{cvf::Color3ub::WHITE, cvf::Color3ub::BLACK};
+    static std::vector<cvf::Color3ub> colors{ cvf::Color3ub::WHITE, cvf::Color3ub::BLACK };
 
     static caf::ColorTable colorTable = caf::ColorTable( colors );
 
@@ -88,7 +88,7 @@ const caf::ColorTable& RiaColorTables::whiteBlackPaletteColors()
 //--------------------------------------------------------------------------------------------------
 const caf::ColorTable& RiaColorTables::pinkWhitePaletteColors()
 {
-    static std::vector<cvf::Color3ub> colors{cvf::Color3ub::DEEP_PINK, cvf::Color3ub::WHITE};
+    static std::vector<cvf::Color3ub> colors{ cvf::Color3ub::DEEP_PINK, cvf::Color3ub::WHITE };
 
     static caf::ColorTable colorTable = caf::ColorTable( colors );
 
@@ -100,7 +100,7 @@ const caf::ColorTable& RiaColorTables::pinkWhitePaletteColors()
 //--------------------------------------------------------------------------------------------------
 const caf::ColorTable& RiaColorTables::whitePinkPaletteColors()
 {
-    static std::vector<cvf::Color3ub> colors{cvf::Color3ub::WHITE, cvf::Color3ub::DEEP_PINK};
+    static std::vector<cvf::Color3ub> colors{ cvf::Color3ub::WHITE, cvf::Color3ub::DEEP_PINK };
 
     static caf::ColorTable colorTable = caf::ColorTable( colors );
 
@@ -112,7 +112,7 @@ const caf::ColorTable& RiaColorTables::whitePinkPaletteColors()
 //--------------------------------------------------------------------------------------------------
 const caf::ColorTable& RiaColorTables::blueWhiteRedPaletteColors()
 {
-    static std::vector<cvf::Color3ub> colors{cvf::Color3ub::BLUE, cvf::Color3ub::WHITE, cvf::Color3ub::RED};
+    static std::vector<cvf::Color3ub> colors{ cvf::Color3ub::BLUE, cvf::Color3ub::WHITE, cvf::Color3ub::RED };
 
     static caf::ColorTable colorTable = caf::ColorTable( colors );
 
@@ -124,7 +124,7 @@ const caf::ColorTable& RiaColorTables::blueWhiteRedPaletteColors()
 //--------------------------------------------------------------------------------------------------
 const caf::ColorTable& RiaColorTables::redWhiteBluePaletteColors()
 {
-    static std::vector<cvf::Color3ub> colors{cvf::Color3ub::RED, cvf::Color3ub::WHITE, cvf::Color3ub::BLUE};
+    static std::vector<cvf::Color3ub> colors{ cvf::Color3ub::RED, cvf::Color3ub::WHITE, cvf::Color3ub::BLUE };
 
     static caf::ColorTable colorTable = caf::ColorTable( colors );
 
@@ -201,15 +201,15 @@ const caf::ColorTable& RiaColorTables::tensorsMagentaBrownGrayPaletteColors()
 //--------------------------------------------------------------------------------------------------
 const caf::ColorTable& RiaColorTables::angularPaletteColors()
 {
-    static std::vector<cvf::Color3ub> colors{cvf::Color3ub( 255, 0, 255 ),
-                                             cvf::Color3ub( 0, 0, 255 ),
-                                             cvf::Color3ub( 0, 127, 255 ),
-                                             cvf::Color3ub( 0, 255, 255 ),
-                                             cvf::Color3ub( 0, 255, 0 ),
-                                             cvf::Color3ub( 255, 255, 0 ),
-                                             cvf::Color3ub( 255, 127, 0 ),
-                                             cvf::Color3ub( 255, 0, 0 ),
-                                             cvf::Color3ub( 255, 0, 255 )};
+    static std::vector<cvf::Color3ub> colors{ cvf::Color3ub( 255, 0, 255 ),
+                                              cvf::Color3ub( 0, 0, 255 ),
+                                              cvf::Color3ub( 0, 127, 255 ),
+                                              cvf::Color3ub( 0, 255, 255 ),
+                                              cvf::Color3ub( 0, 255, 0 ),
+                                              cvf::Color3ub( 255, 255, 0 ),
+                                              cvf::Color3ub( 255, 127, 0 ),
+                                              cvf::Color3ub( 255, 0, 0 ),
+                                              cvf::Color3ub( 255, 0, 255 ) };
 
     static caf::ColorTable colorTable = caf::ColorTable( colors );
 
@@ -221,14 +221,14 @@ const caf::ColorTable& RiaColorTables::angularPaletteColors()
 //--------------------------------------------------------------------------------------------------
 const caf::ColorTable& RiaColorTables::rainbowPaletteColors()
 {
-    static std::vector<cvf::Color3ub> colors{cvf::Color3ub::BLACK,
-                                             cvf::Color3ub::MAGENTA,
-                                             cvf::Color3ub::BLUE,
-                                             cvf::Color3ub::CYAN,
-                                             cvf::Color3ub::GREEN,
-                                             cvf::Color3ub::RED,
-                                             cvf::Color3ub::YELLOW,
-                                             cvf::Color3ub::WHITE};
+    static std::vector<cvf::Color3ub> colors{ cvf::Color3ub::BLACK,
+                                              cvf::Color3ub::MAGENTA,
+                                              cvf::Color3ub::BLUE,
+                                              cvf::Color3ub::CYAN,
+                                              cvf::Color3ub::GREEN,
+                                              cvf::Color3ub::RED,
+                                              cvf::Color3ub::YELLOW,
+                                              cvf::Color3ub::WHITE };
 
     static caf::ColorTable colorTable = caf::ColorTable( colors );
     return colorTable;
@@ -404,18 +404,18 @@ const caf::ColorTable& RiaColorTables::summaryCurveNoneRedGreenBlueBrownPaletteC
 //--------------------------------------------------------------------------------------------------
 const caf::ColorTable& RiaColorTables::wellLogPlotPaletteColors()
 {
-    static std::vector<cvf::Color3ub> colors{caf::ColorTable::fromQColor( QColor( "peru" ) ),
-                                             caf::ColorTable::fromQColor( QColor( "blueviolet" ) ),
-                                             caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::darkYellow ) ),
-                                             caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::darkCyan ) ),
-                                             caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::darkMagenta ) ),
-                                             caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::darkGray ) ),
-                                             caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::yellow ) ),
-                                             caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::magenta ) ),
-                                             caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::cyan ) ),
-                                             caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::gray ) ),
-                                             caf::ColorTable::fromQColor( QColor( "yellowgreen" ) ),
-                                             caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::black ) )};
+    static std::vector<cvf::Color3ub> colors{ caf::ColorTable::fromQColor( QColor( "peru" ) ),
+                                              caf::ColorTable::fromQColor( QColor( "blueviolet" ) ),
+                                              caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::darkYellow ) ),
+                                              caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::darkCyan ) ),
+                                              caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::darkMagenta ) ),
+                                              caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::darkGray ) ),
+                                              caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::yellow ) ),
+                                              caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::magenta ) ),
+                                              caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::cyan ) ),
+                                              caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::gray ) ),
+                                              caf::ColorTable::fromQColor( QColor( "yellowgreen" ) ),
+                                              caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::black ) ) };
 
     static caf::ColorTable colorTable = caf::ColorTable( colors );
 
@@ -427,13 +427,13 @@ const caf::ColorTable& RiaColorTables::wellLogPlotPaletteColors()
 //--------------------------------------------------------------------------------------------------
 const caf::ColorTable& RiaColorTables::selectionPaletteColors()
 {
-    static std::vector<cvf::Color3ub> colors{caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::magenta ) ),
-                                             caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::cyan ) ),
-                                             caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::blue ) ),
-                                             caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::red ) ),
-                                             caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::green ) ),
-                                             caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::yellow ) ),
-                                             caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::gray ) )};
+    static std::vector<cvf::Color3ub> colors{ caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::magenta ) ),
+                                              caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::cyan ) ),
+                                              caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::blue ) ),
+                                              caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::red ) ),
+                                              caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::green ) ),
+                                              caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::yellow ) ),
+                                              caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::gray ) ) };
 
     static caf::ColorTable colorTable = caf::ColorTable( colors );
 
@@ -542,17 +542,17 @@ cvf::Color3f RiaColorTables::undefinedCellColor()
 //--------------------------------------------------------------------------------------------------
 RiaColorTables::WellPathComponentColors RiaColorTables::wellPathComponentColors()
 {
-    return {{RiaDefines::WellPathComponentType::WELL_PATH, cvf::Color3::CEETRON},
-            {RiaDefines::WellPathComponentType::PERFORATION_INTERVAL, cvf::Color3::DARK_MAGENTA},
-            {RiaDefines::WellPathComponentType::FISHBONES, cvf::Color3::DARK_GREEN},
-            {RiaDefines::WellPathComponentType::FRACTURE, cvf::Color3::CRIMSON},
-            {RiaDefines::WellPathComponentType::ICD, cvf::Color3::DARK_ORANGE},
-            {RiaDefines::WellPathComponentType::AICD, cvf::Color3::INDIGO},
-            {RiaDefines::WellPathComponentType::ICV, cvf::Color3::ORCHID},
-            {RiaDefines::WellPathComponentType::CASING, cvf::Color3::SEA_GREEN},
-            {RiaDefines::WellPathComponentType::LINER, cvf::Color3::OLIVE},
-            {RiaDefines::WellPathComponentType::PACKER, cvf::Color3::GRAY},
-            {RiaDefines::WellPathComponentType::UNDEFINED_COMPONENT, cvf::Color3::MAGENTA}};
+    return { { RiaDefines::WellPathComponentType::WELL_PATH, cvf::Color3::CEETRON },
+             { RiaDefines::WellPathComponentType::PERFORATION_INTERVAL, cvf::Color3::DARK_MAGENTA },
+             { RiaDefines::WellPathComponentType::FISHBONES, cvf::Color3::DARK_GREEN },
+             { RiaDefines::WellPathComponentType::FRACTURE, cvf::Color3::CRIMSON },
+             { RiaDefines::WellPathComponentType::ICD, cvf::Color3::DARK_ORANGE },
+             { RiaDefines::WellPathComponentType::AICD, cvf::Color3::INDIGO },
+             { RiaDefines::WellPathComponentType::ICV, cvf::Color3::ORCHID },
+             { RiaDefines::WellPathComponentType::CASING, cvf::Color3::SEA_GREEN },
+             { RiaDefines::WellPathComponentType::LINER, cvf::Color3::OLIVE },
+             { RiaDefines::WellPathComponentType::PACKER, cvf::Color3::GRAY },
+             { RiaDefines::WellPathComponentType::UNDEFINED_COMPONENT, cvf::Color3::MAGENTA } };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -618,15 +618,16 @@ caf::ColorTable RiaColorTables::createBrightnessBasedColorTable( cvf::Color3ub b
 //--------------------------------------------------------------------------------------------------
 std::map<RiaDefines::PhaseType, caf::ColorTable> RiaColorTables::phaseColors()
 {
-    static std::vector<cvf::Color3ub> waterColors{cvf::Color3ub( cvf::Color3::DARK_BLUE ),
-                                                  cvf::Color3ub( cvf::Color3::SKY_BLUE )};
-    static std::vector<cvf::Color3ub> gasColors{cvf::Color3ub( cvf::Color3::DARK_RED ), cvf::Color3ub( cvf::Color3::PINK )};
-    static std::vector<cvf::Color3ub> oilColors{cvf::Color3ub( cvf::Color3::DARK_GREEN ),
-                                                cvf::Color3ub( cvf::Color3::YELLOW_GREEN )};
+    static std::vector<cvf::Color3ub> waterColors{ cvf::Color3ub( cvf::Color3::DARK_BLUE ),
+                                                   cvf::Color3ub( cvf::Color3::SKY_BLUE ) };
+    static std::vector<cvf::Color3ub> gasColors{ cvf::Color3ub( cvf::Color3::DARK_RED ),
+                                                 cvf::Color3ub( cvf::Color3::PINK ) };
+    static std::vector<cvf::Color3ub> oilColors{ cvf::Color3ub( cvf::Color3::DARK_GREEN ),
+                                                 cvf::Color3ub( cvf::Color3::YELLOW_GREEN ) };
 
-    return {{RiaDefines::PhaseType::WATER_PHASE, caf::ColorTable( waterColors )},
-            {RiaDefines::PhaseType::GAS_PHASE, caf::ColorTable( gasColors )},
-            {RiaDefines::PhaseType::OIL_PHASE, caf::ColorTable( oilColors )}};
+    return { { RiaDefines::PhaseType::WATER_PHASE, caf::ColorTable( waterColors ) },
+             { RiaDefines::PhaseType::GAS_PHASE, caf::ColorTable( gasColors ) },
+             { RiaDefines::PhaseType::OIL_PHASE, caf::ColorTable( oilColors ) } };
 }
 
 //--------------------------------------------------------------------------------------------------

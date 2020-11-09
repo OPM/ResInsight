@@ -309,7 +309,7 @@ bool RifEclipseInputFileTools::exportGrid( const QString&         fileName,
         cvf::Vec2f origin( mapAxes[2] - minPoint2f.x(), mapAxes[3] - minPoint2f.y() );
         cvf::Vec2f xPoint = cvf::Vec2f( mapAxes[4], mapAxes[5] ) - minPoint2f;
         cvf::Vec2f yPoint = cvf::Vec2f( mapAxes[0], mapAxes[1] ) - minPoint2f;
-        mapAxes           = {yPoint.x(), yPoint.y(), origin.x(), origin.y(), xPoint.x(), xPoint.y()};
+        mapAxes           = { yPoint.x(), yPoint.y(), origin.x(), origin.y(), xPoint.x(), xPoint.y() };
 
         mapAxisTrans.setTranslation( mapAxisTrans.translation() - minPoint3d );
     }

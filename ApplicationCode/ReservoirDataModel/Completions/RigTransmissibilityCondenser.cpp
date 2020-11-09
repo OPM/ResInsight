@@ -249,7 +249,7 @@ std::map<size_t, double> RigTransmissibilityCondenser::calculateFicticiousFractu
             double scaledMatrixToFractureTrans = matrixToAllFracturesTrans[globalMatrixCellIdx];
             // T'mw
             double scaledMatrixToWellTrans =
-                condensedTransmissibility( externalCell, {true, RigTransmissibilityCondenser::CellAddress::WELL, 1} );
+                condensedTransmissibility( externalCell, { true, RigTransmissibilityCondenser::CellAddress::WELL, 1 } );
             // T'_fjw
             fictitiousFractureToWellTrans[globalMatrixCellIdx] =
                 RigFractureTransmissibilityEquations::effectiveInternalFractureToWellTransPDDHC( scaledMatrixToFractureTrans,
@@ -304,7 +304,8 @@ void RigTransmissibilityCondenser::calculateCondensedTransmissibilities()
 
     // Find all equations, and their total ordering
 
-    union {
+    union
+    {
         int idxToFirstExternalEquation;
         int internalEquationCount;
     };
@@ -316,10 +317,10 @@ void RigTransmissibilityCondenser::calculateCondensedTransmissibilities()
     {
         for ( const auto& adrEqIdxPair : m_neighborTransmissibilities )
         {
-            cellAddressToEqIdxMap.insert( {adrEqIdxPair.first, -1} );
+            cellAddressToEqIdxMap.insert( { adrEqIdxPair.first, -1 } );
             for ( const auto& adrTranspair : adrEqIdxPair.second )
             {
-                cellAddressToEqIdxMap.insert( {adrTranspair.first, -1} );
+                cellAddressToEqIdxMap.insert( { adrTranspair.first, -1 } );
             }
         }
 

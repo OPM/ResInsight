@@ -89,7 +89,7 @@ RimAnalysisPlot* RimAnalysisPlotCollection::createAnalysisPlot( RimSummaryCaseCo
     plot->setAsPlotMdiWindow();
 
     applySummaryCaseCollectionAndFieldAddressToPlot( plot, ensemble, quantityName.toStdString() );
-    plot->setTimeSteps( {timeStep} );
+    plot->setTimeSteps( { timeStep } );
 
     // plot->enableAutoPlotTitle( true );
     addPlot( plot );

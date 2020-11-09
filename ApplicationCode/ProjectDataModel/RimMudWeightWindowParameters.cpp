@@ -579,7 +579,7 @@ QList<caf::PdmOptionItemInfo>
     {
         if ( fieldNeedingOptions == &m_obg0Type )
         {
-            std::vector<SourceType> sourceTypes = {SourceType::GRID, SourceType::PER_ELEMENT};
+            std::vector<SourceType> sourceTypes = { SourceType::GRID, SourceType::PER_ELEMENT };
             for ( auto sourceType : sourceTypes )
             {
                 options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<SourceType>::uiText( sourceType ), sourceType ) );
@@ -589,7 +589,7 @@ QList<caf::PdmOptionItemInfo>
                   fieldNeedingOptions == &m_UCSType || fieldNeedingOptions == &m_poissonsRatioType ||
                   fieldNeedingOptions == &m_K0_FGType )
         {
-            std::vector<SourceType> sourceTypes = {SourceType::FIXED, SourceType::PER_ELEMENT};
+            std::vector<SourceType> sourceTypes = { SourceType::FIXED, SourceType::PER_ELEMENT };
             for ( auto sourceType : sourceTypes )
             {
                 options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<SourceType>::uiText( sourceType ), sourceType ) );
