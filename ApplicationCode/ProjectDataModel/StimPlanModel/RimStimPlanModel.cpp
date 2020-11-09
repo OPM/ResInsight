@@ -143,6 +143,12 @@ RimStimPlanModel::RimStimPlanModel()
     CAF_PDM_InitScriptableField( &m_MD, "MeasuredDepth", 0.0, "Measured Depth", "", "", "" );
     m_MD.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
+    CAF_PDM_InitScriptableField( &m_extractionDepthTop, "ExtractionDepthTop", -1.0, "Top", "", "", "" );
+    m_extractionDepthTop.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitScriptableField( &m_extractionDepthBottom, "ExtractionDepthBottom", -1.0, "Bottom", "", "", "" );
+    m_extractionDepthBottom.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+
     CAF_PDM_InitScriptableField( &m_extractionType,
                                  "ExtractionType",
                                  caf::AppEnum<ExtractionType>( ExtractionType::TRUE_STRATIGRAPHIC_THICKNESS ),
@@ -273,6 +279,11 @@ void RimStimPlanModel::initAfterRead()
     {
         m_stimPlanModelTemplate->changed.connect( this, &RimStimPlanModel::stimPlanModelTemplateChanged );
     }
+
+    if ( m_extractionDepthTop() < 0.0 || m_extractionDepthBottom < 0.0 )
+    {
+        updateExtractionDepthBoundaries();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -290,7 +301,8 @@ void RimStimPlanModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField
     if ( changedField == &m_MD || changedField == &m_extractionType || changedField == &m_boundingBoxVertical ||
          changedField == &m_boundingBoxHorizontal || changedField == &m_fractureOrientation ||
          changedField == &m_autoComputeBarrier || changedField == &m_azimuthAngle ||
-         changedField == &m_showOnlyBarrierFault || changedField == &m_eclipseCase )
+         changedField == &m_showOnlyBarrierFault || changedField == &m_eclipseCase ||
+         changedField == &m_extractionDepthTop || changedField == &m_extractionDepthBottom )
     {
         updateThicknessDirection();
         updateBarrierProperties();
@@ -304,6 +316,8 @@ void RimStimPlanModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         {
             m_timeStep = timeStepCount - 1;
         }
+
+        updateExtractionDepthBoundaries();
     }
 
     if ( changedField == &m_showAllFaults )
@@ -586,6 +600,20 @@ cvf::Vec3d RimStimPlanModel::calculateTSTDirection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimStimPlanModel::updateExtractionDepthBoundaries()
+{
+    RigEclipseCaseData* eclipseCaseData = getEclipseCaseData();
+    if ( eclipseCaseData )
+    {
+        const cvf::BoundingBox& boundingBox = eclipseCaseData->mainGrid()->boundingBox();
+        m_extractionDepthTop                = -boundingBox.max().z();
+        m_extractionDepthBottom             = -boundingBox.min().z();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimStimPlanModel::updateBarrierProperties()
 {
     if ( m_autoComputeBarrier )
@@ -851,6 +879,10 @@ void RimStimPlanModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     uiOrdering.add( &m_anchorPosition );
     uiOrdering.add( &m_thicknessDirection );
 
+    caf::PdmUiOrdering* extractionBoundariesGroup = uiOrdering.addNewGroup( "Extraction Depth Boundaries" );
+    extractionBoundariesGroup->add( &m_extractionDepthTop );
+    extractionBoundariesGroup->add( &m_extractionDepthBottom );
+
     caf::PdmUiOrdering* boundingBoxGroup = uiOrdering.addNewGroup( "Bounding Box" );
     boundingBoxGroup->add( &m_boundingBoxHorizontal );
     boundingBoxGroup->add( &m_boundingBoxVertical );
@@ -971,16 +1003,26 @@ bool RimStimPlanModel::findThicknessTargetPoints( cvf::Vec3d& topPosition, cvf::
     const cvf::Vec3d& position  = anchorPosition();
     const cvf::Vec3d& direction = thicknessDirection();
 
+    RiaLogging::info( QString( "Position:  %1" ).arg( RimStimPlanModel::vecToString( position ) ) );
+    RiaLogging::info( QString( "Direction: %1" ).arg( RimStimPlanModel::vecToString( direction ) ) );
+
     // Create a "fake" well path which from top to bottom of formation
     // passing through the point and with the given direction
 
-    const cvf::BoundingBox& geometryBoundingBox = eclipseCaseData->mainGrid()->boundingBox();
+    const cvf::BoundingBox& allCellsBoundingBox = eclipseCaseData->mainGrid()->boundingBox();
 
     RiaLogging::info( QString( "All cells bounding box: %1 %2" )
-                          .arg( RimStimPlanModel::vecToString( geometryBoundingBox.min() ) )
-                          .arg( RimStimPlanModel::vecToString( geometryBoundingBox.max() ) ) );
-    RiaLogging::info( QString( "Position:  %1" ).arg( RimStimPlanModel::vecToString( position ) ) );
-    RiaLogging::info( QString( "Direction: %1" ).arg( RimStimPlanModel::vecToString( direction ) ) );
+                          .arg( RimStimPlanModel::vecToString( allCellsBoundingBox.min() ) )
+                          .arg( RimStimPlanModel::vecToString( allCellsBoundingBox.max() ) ) );
+    cvf::BoundingBox geometryBoundingBox( allCellsBoundingBox );
+
+    // Use smaller depth bounding box for extraction if configured
+    if ( m_extractionDepthTop > 0.0 && m_extractionDepthBottom > 0.0 && m_extractionDepthTop > m_extractionDepthBottom )
+    {
+        cvf::Vec3d bbMin( allCellsBoundingBox.min().x(), allCellsBoundingBox.min().y(), -m_extractionDepthBottom );
+        cvf::Vec3d bbMax( allCellsBoundingBox.max().x(), allCellsBoundingBox.max().y(), -m_extractionDepthTop );
+        geometryBoundingBox = cvf::BoundingBox( bbMin, bbMax );
+    }
 
     if ( !geometryBoundingBox.contains( position ) )
     {
@@ -1458,6 +1500,7 @@ RimEclipseCase* RimStimPlanModel::eclipseCase() const
 void RimStimPlanModel::setEclipseCase( RimEclipseCase* eclipseCase )
 {
     m_eclipseCase = eclipseCase;
+    updateExtractionDepthBoundaries();
 }
 
 //--------------------------------------------------------------------------------------------------
