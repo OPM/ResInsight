@@ -571,7 +571,16 @@ cvf::Vec3d RimStimPlanModel::calculateTSTDirection() const
         return defaultDirection;
     }
 
-    return ( direction / static_cast<double>( numContributingCells ) ).getNormalized();
+    direction = ( direction / static_cast<double>( numContributingCells ) ).getNormalized();
+
+    // A surface has normals in both directions: if the normal points upwards we flip it to
+    // make it point downwards. This necessary when finding the TST start and end points later.
+    if ( direction.z() > 0.0 )
+    {
+        direction *= -1.0;
+    }
+
+    return direction;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -983,17 +992,28 @@ bool RimStimPlanModel::findThicknessTargetPoints( cvf::Vec3d& topPosition, cvf::
     // Create plane on top and bottom of formation
     cvf::Plane topPlane;
     topPlane.setFromPointAndNormal( geometryBoundingBox.max(), cvf::Vec3d::Z_AXIS );
+
     cvf::Plane bottomPlane;
     bottomPlane.setFromPointAndNormal( geometryBoundingBox.min(), cvf::Vec3d::Z_AXIS );
 
     // Find and add point on top plane
     cvf::Vec3d abovePlane = position + ( direction * -10000.0 );
-    topPlane.intersect( position, abovePlane, &topPosition );
+    if ( !topPlane.intersect( position, abovePlane, &topPosition ) )
+    {
+        RiaLogging::error( "Unable to compute top position of thickness direction vector." );
+        return false;
+    }
+
     RiaLogging::info( QString( "Top: %1" ).arg( RimStimPlanModel::vecToString( topPosition ) ) );
 
     // Find and add point on bottom plane
     cvf::Vec3d belowPlane = position + ( direction * 10000.0 );
-    bottomPlane.intersect( position, belowPlane, &bottomPosition );
+    if ( !bottomPlane.intersect( position, belowPlane, &bottomPosition ) )
+    {
+        RiaLogging::error( "Unable to compute bottom position of thickness direction vector." );
+        return false;
+    }
+
     RiaLogging::info( QString( "Bottom: %1" ).arg( RimStimPlanModel::vecToString( bottomPosition ) ) );
 
     return true;
