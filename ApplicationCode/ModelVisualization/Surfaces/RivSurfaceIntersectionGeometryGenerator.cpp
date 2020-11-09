@@ -110,7 +110,7 @@ public:
             {
                 cvf::Vec3d highestVx = p0.z() > p1.z() ? p0 : p1;
 
-                auto itIsInsertedPair = faultToHighestFaultMeshVxMap.insert( {fault, highestVx} );
+                auto itIsInsertedPair = faultToHighestFaultMeshVxMap.insert( { fault, highestVx } );
                 if ( !itIsInsertedPair.second )
                 {
                     if ( itIsInsertedPair.first->second.z() < highestVx.z() )
@@ -309,7 +309,7 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
 
     for ( const auto& it : meshAcc.faultToHighestFaultMeshVxMap )
     {
-        m_faultMeshLabelAndAnchorPositions.push_back( {it.first->name(), it.second} );
+        m_faultMeshLabelAndAnchorPositions.push_back( { it.first->name(), it.second } );
     }
 }
 

@@ -339,7 +339,7 @@ void OverlayScaleLegend::renderLegendUsingShaders( OpenGLContext* oglContext, La
     line.applyOpenGL( oglContext );
 
     // All vertices. Initialized here to set Z to zero once and for all.
-    static float vertexArray[] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+    static float vertexArray[] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 
     // Per vector convenience pointers
     float* v0 = &vertexArray[0];
@@ -349,7 +349,7 @@ void OverlayScaleLegend::renderLegendUsingShaders( OpenGLContext* oglContext, La
     float* v4 = &vertexArray[12];
 
     // Connects
-    static const ushort trianglesConnects[] = {0, 1, 4, 0, 4, 3};
+    static const ushort trianglesConnects[] = { 0, 1, 4, 0, 4, 3 };
 
     ref<ShaderProgram> shaderProgram = oglContext->resourceManager()->getLinkedUnlitColorShaderProgram( oglContext );
     CVF_TIGHT_ASSERT( shaderProgram.notNull() );
@@ -380,7 +380,7 @@ void OverlayScaleLegend::renderLegendUsingShaders( OpenGLContext* oglContext, La
             v1[1] = v0[1] + layout->axisLength;
         }
 
-        static const ushort axisConnects[] = {0, 1};
+        static const ushort axisConnects[] = { 0, 1 };
 
         UniformFloat uniformColor( "u_color", Color4f( this->lineColor() ) );
         shaderProgram->applyUniform( oglContext, uniformColor );
@@ -412,7 +412,7 @@ void OverlayScaleLegend::renderLegendUsingShaders( OpenGLContext* oglContext, La
             v1[1] = v0[1];
         }
 
-        static const ushort tickConnects[] = {0, 1};
+        static const ushort tickConnects[] = { 0, 1 };
 
         UniformFloat uniformColor( "u_color", Color4f( this->lineColor() ) );
         shaderProgram->applyUniform( oglContext, uniformColor );
@@ -609,16 +609,16 @@ void OverlayScaleLegend::layoutInfo( LayoutInfo* layout )
         layout->margins     = Vec2f( marginAlongAxis, marginAcrossAxis );
         overallSizeValue    = layout->overallLegendSize.x();
         marginValue         = layout->margins.x();
-        layout->axisStartPt = {layout->margins.x() + layout->charWidth / 2.0f,
-                               layout->margins.y() + layout->majorTickSize / 2.0f};
+        layout->axisStartPt = { layout->margins.x() + layout->charWidth / 2.0f,
+                                layout->margins.y() + layout->majorTickSize / 2.0f };
     }
     else
     {
         layout->margins     = Vec2f( marginAcrossAxis, marginAlongAxis );
         overallSizeValue    = layout->overallLegendSize.y();
         marginValue         = layout->margins.y();
-        layout->axisStartPt = {layout->margins.x() + layout->majorTickSize / 2.0f,
-                               layout->margins.y() + layout->charHeight / 2.0f};
+        layout->axisStartPt = { layout->margins.x() + layout->majorTickSize / 2.0f,
+                                layout->margins.y() + layout->charHeight / 2.0f };
     }
 
     layout->axisLength = static_cast<float>( overallSizeValue ) - 2 * marginValue -
@@ -702,7 +702,7 @@ cvf::Vec2ui OverlayScaleLegend::preferredSize()
 {
     uint preferredXSize = 100;
     uint preferredYSize = 100;
-    return {(unsigned int)( std::ceil( preferredXSize ) ), (unsigned int)( std::ceil( preferredYSize ) )};
+    return { (unsigned int)( std::ceil( preferredXSize ) ), (unsigned int)( std::ceil( preferredYSize ) ) };
 }
 
 //--------------------------------------------------------------------------------------------------

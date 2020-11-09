@@ -125,9 +125,9 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     this->setAsPlotMdiWindow();
 
     m_accumulatedWellFlowPlot->setAvailableDepthUnits( {} );
-    m_accumulatedWellFlowPlot->setAvailableDepthTypes( {RiaDefines::DepthTypeEnum::CONNECTION_NUMBER,
-                                                        RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH,
-                                                        RiaDefines::DepthTypeEnum::PSEUDO_LENGTH} );
+    m_accumulatedWellFlowPlot->setAvailableDepthTypes( { RiaDefines::DepthTypeEnum::CONNECTION_NUMBER,
+                                                         RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH,
+                                                         RiaDefines::DepthTypeEnum::PSEUDO_LENGTH } );
 
     m_accumulatedWellFlowPlot->setCommonDataSourceEnabled( false );
 

@@ -265,10 +265,10 @@ bool GeometryTools::calculateOverlapPolygonOfTwoQuads( std::vector<IndexType>*  
 
     IndexType newVertexIndex = static_cast<IndexType>( nodes.size() + createdVertexes->size() );
 
-    bool cv1VxTouchCv2[4]     = {false, false, false, false};
-    bool cv2VxTouchCv1[4]     = {false, false, false, false};
-    int  cv1VxTouchCv2Edge[4] = {-1, -1, -1, -1};
-    int  cv2VxTouchCv1Edge[4] = {-1, -1, -1, -1};
+    bool cv1VxTouchCv2[4]     = { false, false, false, false };
+    bool cv2VxTouchCv1[4]     = { false, false, false, false };
+    int  cv1VxTouchCv2Edge[4] = { -1, -1, -1, -1 };
+    int  cv2VxTouchCv1Edge[4] = { -1, -1, -1, -1 };
 
     int cv1Idx, cv2Idx;
     int numMatchedNodes = 0;

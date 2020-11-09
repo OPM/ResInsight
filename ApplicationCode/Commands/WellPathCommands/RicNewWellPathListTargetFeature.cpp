@@ -120,11 +120,11 @@ void RicNewWellPathListTargetFeature::onActionTriggered( bool isChecked )
         RimWellPathTarget* newTarget = new RimWellPathTarget;
         if ( isSeaLevelTarget )
         {
-            newTarget->setAsPointXYZAndTangentTarget( {newPos[0], newPos[1], newPos[2]}, 0, 0 );
+            newTarget->setAsPointXYZAndTangentTarget( { newPos[0], newPos[1], newPos[2] }, 0, 0 );
         }
         else
         {
-            newTarget->setAsPointTargetXYD( {newPos[0], newPos[1], -newPos[2]} );
+            newTarget->setAsPointTargetXYD( { newPos[0], newPos[1], -newPos[2] } );
         }
 
         wellGeomDef->insertTarget( firstTarget, newTarget );
@@ -163,7 +163,7 @@ void RicNewWellPathListTargetFeature::onActionTriggered( bool isChecked )
             }
 
             RimWellPathTarget* newTarget = new RimWellPathTarget;
-            newTarget->setAsPointTargetXYD( {newPos[0], newPos[1], -newPos[2]} );
+            newTarget->setAsPointTargetXYD( { newPos[0], newPos[1], -newPos[2] } );
             wellGeomDef->insertTarget( nullptr, newTarget );
         }
 

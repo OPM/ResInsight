@@ -44,16 +44,16 @@ void AppEnum<RimEnsembleCurveSetColorManager::ColorMode>::setUp()
 //--------------------------------------------------------------------------------------------------
 const std::map<RimRegularLegendConfig::ColorRangesType, cvf::Color3ubArray>
     RimEnsembleCurveSetColorManager::m_ensembleColorRanges(
-        {{RimRegularLegendConfig::ColorRangesType::GREEN_RED,
-          cvf::Color3ubArray( {cvf::Color3ub( 0x00, 0xff, 0x00 ), cvf::Color3ub( 0xff, 0x00, 0x00 )} )},
-         {RimRegularLegendConfig::ColorRangesType::BLUE_MAGENTA,
-          cvf::Color3ubArray( {cvf::Color3ub( 0x00, 0x00, 0xff ), cvf::Color3ub( 0xff, 0x00, 0xff )} )},
-         {RimRegularLegendConfig::ColorRangesType::RED_LIGHT_DARK,
-          cvf::Color3ubArray( {cvf::Color3ub( 0xff, 0xcc, 0xcc ), cvf::Color3ub( 0x99, 0x00, 0x00 )} )},
-         {RimRegularLegendConfig::ColorRangesType::GREEN_LIGHT_DARK,
-          cvf::Color3ubArray( {cvf::Color3ub( 0xcc, 0xff, 0xcc ), cvf::Color3ub( 0x00, 0x99, 0x00 )} )},
-         {RimRegularLegendConfig::ColorRangesType::BLUE_LIGHT_DARK,
-          cvf::Color3ubArray( {cvf::Color3ub( 0xcc, 0xcc, 0xff ), cvf::Color3ub( 0x00, 0x00, 0x99 )} )}} );
+        { { RimRegularLegendConfig::ColorRangesType::GREEN_RED,
+            cvf::Color3ubArray( { cvf::Color3ub( 0x00, 0xff, 0x00 ), cvf::Color3ub( 0xff, 0x00, 0x00 ) } ) },
+          { RimRegularLegendConfig::ColorRangesType::BLUE_MAGENTA,
+            cvf::Color3ubArray( { cvf::Color3ub( 0x00, 0x00, 0xff ), cvf::Color3ub( 0xff, 0x00, 0xff ) } ) },
+          { RimRegularLegendConfig::ColorRangesType::RED_LIGHT_DARK,
+            cvf::Color3ubArray( { cvf::Color3ub( 0xff, 0xcc, 0xcc ), cvf::Color3ub( 0x99, 0x00, 0x00 ) } ) },
+          { RimRegularLegendConfig::ColorRangesType::GREEN_LIGHT_DARK,
+            cvf::Color3ubArray( { cvf::Color3ub( 0xcc, 0xff, 0xcc ), cvf::Color3ub( 0x00, 0x99, 0x00 ) } ) },
+          { RimRegularLegendConfig::ColorRangesType::BLUE_LIGHT_DARK,
+            cvf::Color3ubArray( { cvf::Color3ub( 0xcc, 0xcc, 0xff ), cvf::Color3ub( 0x00, 0x00, 0x99 ) } ) } } );
 
 //--------------------------------------------------------------------------------------------------
 ///

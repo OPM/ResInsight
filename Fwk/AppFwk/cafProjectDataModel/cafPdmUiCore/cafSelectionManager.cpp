@@ -138,7 +138,7 @@ void SelectionManager::setSelectedItemsAtLevel( const std::vector<PdmUiItem*>& i
     if ( newSelection != selection )
     {
         selection = newSelection;
-        notifySelectionChanged( {selectionLevel} );
+        notifySelectionChanged( { selectionLevel } );
     }
 }
 
@@ -374,7 +374,7 @@ void SelectionManager::clear( int selectionLevel )
     {
         m_selectionPrLevel[selectionLevel].clear();
 
-        notifySelectionChanged( {selectionLevel} );
+        notifySelectionChanged( { selectionLevel } );
     }
 }
 

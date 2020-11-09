@@ -102,7 +102,7 @@ void RicNewPolylineTargetFeature::onActionTriggered( bool isChecked )
         }
 
         auto* newTarget = new RimPolylineTarget;
-        newTarget->setAsPointTargetXYD( {newPos[0], newPos[1], -newPos[2]} );
+        newTarget->setAsPointTargetXYD( { newPos[0], newPos[1], -newPos[2] } );
 
         polylineDef->insertTarget( firstTarget, newTarget );
         polylineDef->updateConnectedEditors();
@@ -151,7 +151,7 @@ void RicNewPolylineTargetFeature::onActionTriggered( bool isChecked )
             }
 
             auto* newTarget = new RimPolylineTarget;
-            newTarget->setAsPointTargetXYD( {newPos[0], newPos[1], -newPos[2]} );
+            newTarget->setAsPointTargetXYD( { newPos[0], newPos[1], -newPos[2] } );
             polylineDef->insertTarget( nullptr, newTarget );
         }
 

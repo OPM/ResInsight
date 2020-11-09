@@ -52,306 +52,309 @@ QMap<RiaDefines::ThemeEnum, QMap<QString, QString>>                 RiuGuiTheme:
 QMap<RiaDefines::ThemeEnum, QMap<QString, QString>>                 RiuGuiTheme::s_variableGuiTextMap       = {};
 QMap<QString, QMap<QString, QMap<QString, QMap<QString, QString>>>> RiuGuiTheme::s_qwtPlotItemPropertiesMap = {};
 QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme::s_customStyleSheetApplicators =
-    {{QString( "QwtPlot\\[\"(?<plotName>[a-zA-Z0-9-_\\*]+)\"\\]::curve\\[\"(?<itemName>[a-zA-Z0-9-_\\*]+)\"\\]\\s*\\{("
-               "?<properties>([\\n\\r]*\\s*((line-color|symbol-color):"
-               "\\s*([a-zA-Z0-9#]+)\\s*;))*)[\\n\\r]*\\s*\\}" ),
-      []( QRegularExpressionMatch& match ) {
-          QRegExp plotNameRegExp( match.captured( "plotName" ) );
-          QRegExp itemNameRegExp( match.captured( "itemName" ) );
+    { { QString(
+            "QwtPlot\\[\"(?<plotName>[a-zA-Z0-9-_\\*]+)\"\\]::curve\\[\"(?<itemName>[a-zA-Z0-9-_\\*]+)\"\\]\\s*\\{("
+            "?<properties>([\\n\\r]*\\s*((line-color|symbol-color):"
+            "\\s*([a-zA-Z0-9#]+)\\s*;))*)[\\n\\r]*\\s*\\}" ),
+        []( QRegularExpressionMatch& match ) {
+            QRegExp plotNameRegExp( match.captured( "plotName" ) );
+            QRegExp itemNameRegExp( match.captured( "itemName" ) );
 
-          QRegularExpression lineColorRegExp( "line-color:\\s*([#0-9a-zA-Z]+)" );
-          QString            lineColor = lineColorRegExp.match( match.captured( "properties" ) ).captured( 1 );
-          QRegularExpression symbolColorRegExp( "symbol-color:\\s*([#0-9a-zA-Z]+)" );
-          QString            symbolColor = symbolColorRegExp.match( match.captured( "properties" ) ).captured( 1 );
-          if ( !lineColor.isEmpty() )
-          {
-              storeQwtStyleSheetProperty( match.captured( "plotName" ),
-                                          QString( "curve" ),
-                                          match.captured( "itemName" ),
-                                          "line-color",
-                                          lineColor );
-          }
-          if ( !symbolColor.isEmpty() )
-          {
-              // Symbols get the same color assigned as curves.
-              storeQwtStyleSheetProperty( match.captured( "plotName" ),
-                                          QString( "curve" ),
-                                          match.captured( "itemName" ),
-                                          "symbol-color",
-                                          symbolColor );
-          }
-          if ( lineColor.isEmpty() && symbolColor.isEmpty() ) return;
+            QRegularExpression lineColorRegExp( "line-color:\\s*([#0-9a-zA-Z]+)" );
+            QString            lineColor = lineColorRegExp.match( match.captured( "properties" ) ).captured( 1 );
+            QRegularExpression symbolColorRegExp( "symbol-color:\\s*([#0-9a-zA-Z]+)" );
+            QString            symbolColor = symbolColorRegExp.match( match.captured( "properties" ) ).captured( 1 );
+            if ( !lineColor.isEmpty() )
+            {
+                storeQwtStyleSheetProperty( match.captured( "plotName" ),
+                                            QString( "curve" ),
+                                            match.captured( "itemName" ),
+                                            "line-color",
+                                            lineColor );
+            }
+            if ( !symbolColor.isEmpty() )
+            {
+                // Symbols get the same color assigned as curves.
+                storeQwtStyleSheetProperty( match.captured( "plotName" ),
+                                            QString( "curve" ),
+                                            match.captured( "itemName" ),
+                                            "symbol-color",
+                                            symbolColor );
+            }
+            if ( lineColor.isEmpty() && symbolColor.isEmpty() ) return;
 
-          const QWidgetList topLevelWidgets = RiaGuiApplication::instance()->topLevelWidgets();
-          for ( QWidget* widget : topLevelWidgets )
-          {
-              for ( QwtPlot* plotWidget : widget->findChildren<QwtPlot*>() )
-              {
-                  if ( plotNameRegExp.exactMatch( plotWidget->property( "qss-class" ).toString() ) )
-                  {
-                      for ( QwtPlotItem* item : plotWidget->itemList() )
-                      {
-                          if ( QwtPlotCurve* curve = dynamic_cast<QwtPlotCurve*>( item ) )
-                          {
-                              if ( itemNameRegExp.exactMatch( item->title().text() ) || match.captured( "itemName" ) == "*" )
-                              {
-                                  QPen pen = curve->pen();
-                                  pen.setColor( QColor( lineColor ) );
-                                  curve->setPen( pen );
+            const QWidgetList topLevelWidgets = RiaGuiApplication::instance()->topLevelWidgets();
+            for ( QWidget* widget : topLevelWidgets )
+            {
+                for ( QwtPlot* plotWidget : widget->findChildren<QwtPlot*>() )
+                {
+                    if ( plotNameRegExp.exactMatch( plotWidget->property( "qss-class" ).toString() ) )
+                    {
+                        for ( QwtPlotItem* item : plotWidget->itemList() )
+                        {
+                            if ( QwtPlotCurve* curve = dynamic_cast<QwtPlotCurve*>( item ) )
+                            {
+                                if ( itemNameRegExp.exactMatch( item->title().text() ) ||
+                                     match.captured( "itemName" ) == "*" )
+                                {
+                                    QPen pen = curve->pen();
+                                    pen.setColor( QColor( lineColor ) );
+                                    curve->setPen( pen );
 
-                                  if ( curve->symbol() && curve->symbol()->style() != QwtSymbol::NoSymbol )
-                                  {
-                                      QPen pen = curve->symbol()->pen();
-                                      pen.setColor( QColor( symbolColor ) );
-                                      QwtSymbol* symbol = cloneCurveSymbol( curve );
-                                      symbol->setPen( pen );
-                                      curve->setSymbol( symbol );
-                                  }
-                              }
-                          }
-                      }
-                  }
-                  plotWidget->replot();
-              }
-          }
-      }},
-     {QString( "QwtPlot\\[\"(?<plotName>[a-zA-Z0-9-_\\*]+)\"\\]::grid\\[\"(?<itemName>[a-zA-Z0-9-_\\*]+)\"\\]\\s*\\{("
-               "?<properties>([\\n\\r]*\\s*((color):"
-               "\\s*([a-zA-Z0-9#]+)\\s*;))*)[\\n\\r]*\\s*\\}" ),
-      []( QRegularExpressionMatch& match ) {
-          QRegExp            plotNameRegExp( match.captured( "plotName" ) );
-          QRegExp            itemNameRegExp( match.captured( "itemName" ) );
-          QRegularExpression colorRegExp( "color:\\s*([#0-9a-zA-Z]+)" );
-          QString            color           = colorRegExp.match( match.captured( "properties" ) ).captured( 1 );
-          const QWidgetList  topLevelWidgets = RiaGuiApplication::instance()->topLevelWidgets();
+                                    if ( curve->symbol() && curve->symbol()->style() != QwtSymbol::NoSymbol )
+                                    {
+                                        QPen pen = curve->symbol()->pen();
+                                        pen.setColor( QColor( symbolColor ) );
+                                        QwtSymbol* symbol = cloneCurveSymbol( curve );
+                                        symbol->setPen( pen );
+                                        curve->setSymbol( symbol );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    plotWidget->replot();
+                }
+            }
+        } },
+      { QString( "QwtPlot\\[\"(?<plotName>[a-zA-Z0-9-_\\*]+)\"\\]::grid\\[\"(?<itemName>[a-zA-Z0-9-_\\*]+)\"\\]\\s*\\{("
+                 "?<properties>([\\n\\r]*\\s*((color):"
+                 "\\s*([a-zA-Z0-9#]+)\\s*;))*)[\\n\\r]*\\s*\\}" ),
+        []( QRegularExpressionMatch& match ) {
+            QRegExp            plotNameRegExp( match.captured( "plotName" ) );
+            QRegExp            itemNameRegExp( match.captured( "itemName" ) );
+            QRegularExpression colorRegExp( "color:\\s*([#0-9a-zA-Z]+)" );
+            QString            color           = colorRegExp.match( match.captured( "properties" ) ).captured( 1 );
+            const QWidgetList  topLevelWidgets = RiaGuiApplication::instance()->topLevelWidgets();
 
-          if ( !color.isEmpty() )
-          {
-              storeQwtStyleSheetProperty( match.captured( "plotName" ),
-                                          QString( "grid" ),
-                                          match.captured( "itemName" ),
-                                          "color",
-                                          color );
-          }
-          for ( QWidget* widget : topLevelWidgets )
-          {
-              for ( QwtPlot* plotWidget : widget->findChildren<QwtPlot*>() )
-              {
-                  if ( plotNameRegExp.exactMatch( plotWidget->property( "qss-class" ).toString() ) ||
-                       match.captured( "plotName" ) == "*" )
-                  {
-                      for ( QwtPlotItem* item : plotWidget->itemList() )
-                      {
-                          if ( QwtPlotGrid* grid = dynamic_cast<QwtPlotGrid*>( item ) )
-                          {
-                              if ( itemNameRegExp.exactMatch( item->title().text() ) || match.captured( "itemName" ) == "*" )
-                              {
-                                  QPen pen = grid->majorPen();
-                                  pen.setColor( QColor( color ) );
-                                  grid->setPen( pen );
-                              }
-                          }
-                      }
-                  }
-                  plotWidget->replot();
-              }
-          }
-      }},
-     {QString( "QwtPlot\\[\"(?<plotName>[a-zA-Z0-9-_\\*]+)\"\\]::legend\\s*\\{("
-               "?<properties>([\\n\\r]*\\s*((text-color):"
-               "\\s*([a-zA-Z0-9#]+)\\s*;))*)[\\n\\r]*\\s*\\}" ),
-      []( QRegularExpressionMatch& match ) {
-          QRegExp            plotNameRegExp( match.captured( "plotName" ) );
-          QRegExp            itemNameRegExp( match.captured( "itemName" ) );
-          QRegularExpression colorRegExp( "text-color:\\s*([#0-9a-zA-Z]+)" );
-          QString            color           = colorRegExp.match( match.captured( "properties" ) ).captured( 1 );
-          const QWidgetList  topLevelWidgets = RiaGuiApplication::instance()->topLevelWidgets();
+            if ( !color.isEmpty() )
+            {
+                storeQwtStyleSheetProperty( match.captured( "plotName" ),
+                                            QString( "grid" ),
+                                            match.captured( "itemName" ),
+                                            "color",
+                                            color );
+            }
+            for ( QWidget* widget : topLevelWidgets )
+            {
+                for ( QwtPlot* plotWidget : widget->findChildren<QwtPlot*>() )
+                {
+                    if ( plotNameRegExp.exactMatch( plotWidget->property( "qss-class" ).toString() ) ||
+                         match.captured( "plotName" ) == "*" )
+                    {
+                        for ( QwtPlotItem* item : plotWidget->itemList() )
+                        {
+                            if ( QwtPlotGrid* grid = dynamic_cast<QwtPlotGrid*>( item ) )
+                            {
+                                if ( itemNameRegExp.exactMatch( item->title().text() ) ||
+                                     match.captured( "itemName" ) == "*" )
+                                {
+                                    QPen pen = grid->majorPen();
+                                    pen.setColor( QColor( color ) );
+                                    grid->setPen( pen );
+                                }
+                            }
+                        }
+                    }
+                    plotWidget->replot();
+                }
+            }
+        } },
+      { QString( "QwtPlot\\[\"(?<plotName>[a-zA-Z0-9-_\\*]+)\"\\]::legend\\s*\\{("
+                 "?<properties>([\\n\\r]*\\s*((text-color):"
+                 "\\s*([a-zA-Z0-9#]+)\\s*;))*)[\\n\\r]*\\s*\\}" ),
+        []( QRegularExpressionMatch& match ) {
+            QRegExp            plotNameRegExp( match.captured( "plotName" ) );
+            QRegExp            itemNameRegExp( match.captured( "itemName" ) );
+            QRegularExpression colorRegExp( "text-color:\\s*([#0-9a-zA-Z]+)" );
+            QString            color           = colorRegExp.match( match.captured( "properties" ) ).captured( 1 );
+            const QWidgetList  topLevelWidgets = RiaGuiApplication::instance()->topLevelWidgets();
 
-          if ( !color.isEmpty() )
-          {
-              storeQwtStyleSheetProperty( match.captured( "plotName" ),
-                                          QString( "legend" ),
-                                          match.captured( "itemName" ),
-                                          "text-color",
-                                          color );
-          }
-          for ( QWidget* widget : topLevelWidgets )
-          {
-              for ( QwtPlot* plotWidget : widget->findChildren<QwtPlot*>() )
-              {
-                  if ( plotNameRegExp.exactMatch( plotWidget->property( "qss-class" ).toString() ) ||
-                       match.captured( "plotName" ) == "*" )
-                  {
-                      for ( QwtLegendLabel* label : plotWidget->findChildren<QwtLegendLabel*>() )
-                      {
-                          QwtText text = label->text();
-                          text.setColor( QColor( color ) );
-                          label->setText( text );
-                          label->repaint();
-                      }
-                  }
-                  plotWidget->replot();
-              }
-          }
-      }},
-     {QString( "QwtPlot\\[\"(?<plotName>[a-zA-Z0-9-_\\*]+)\"\\]::lineMarker\\[\"(?<itemName>[a-zA-Z0-9-_\\*]+)\"\\]"
-               "\\s*\\{("
-               "?<properties>([\\n\\r]*\\s*((color|text-color):"
-               "\\s*([a-zA-Z0-9#]+)\\s*;))*)[\\n\\r]*\\s*\\}" ),
-      []( QRegularExpressionMatch& match ) {
-          QRegExp            plotNameRegExp( match.captured( "plotName" ) );
-          QRegExp            itemNameRegExp( match.captured( "itemName" ) );
-          QRegularExpression colorRegExp( "color:\\s*([#0-9a-zA-Z]+)" );
-          QString            color = colorRegExp.match( match.captured( "properties" ) ).captured( 1 );
-          QRegularExpression textColorRegExp( "text-color:\\s*([#0-9a-zA-Z]+)" );
-          QString            textColor = textColorRegExp.match( match.captured( "properties" ) ).captured( 1 );
+            if ( !color.isEmpty() )
+            {
+                storeQwtStyleSheetProperty( match.captured( "plotName" ),
+                                            QString( "legend" ),
+                                            match.captured( "itemName" ),
+                                            "text-color",
+                                            color );
+            }
+            for ( QWidget* widget : topLevelWidgets )
+            {
+                for ( QwtPlot* plotWidget : widget->findChildren<QwtPlot*>() )
+                {
+                    if ( plotNameRegExp.exactMatch( plotWidget->property( "qss-class" ).toString() ) ||
+                         match.captured( "plotName" ) == "*" )
+                    {
+                        for ( QwtLegendLabel* label : plotWidget->findChildren<QwtLegendLabel*>() )
+                        {
+                            QwtText text = label->text();
+                            text.setColor( QColor( color ) );
+                            label->setText( text );
+                            label->repaint();
+                        }
+                    }
+                    plotWidget->replot();
+                }
+            }
+        } },
+      { QString( "QwtPlot\\[\"(?<plotName>[a-zA-Z0-9-_\\*]+)\"\\]::lineMarker\\[\"(?<itemName>[a-zA-Z0-9-_\\*]+)\"\\]"
+                 "\\s*\\{("
+                 "?<properties>([\\n\\r]*\\s*((color|text-color):"
+                 "\\s*([a-zA-Z0-9#]+)\\s*;))*)[\\n\\r]*\\s*\\}" ),
+        []( QRegularExpressionMatch& match ) {
+            QRegExp            plotNameRegExp( match.captured( "plotName" ) );
+            QRegExp            itemNameRegExp( match.captured( "itemName" ) );
+            QRegularExpression colorRegExp( "color:\\s*([#0-9a-zA-Z]+)" );
+            QString            color = colorRegExp.match( match.captured( "properties" ) ).captured( 1 );
+            QRegularExpression textColorRegExp( "text-color:\\s*([#0-9a-zA-Z]+)" );
+            QString            textColor = textColorRegExp.match( match.captured( "properties" ) ).captured( 1 );
 
-          const QWidgetList topLevelWidgets = RiaGuiApplication::instance()->topLevelWidgets();
+            const QWidgetList topLevelWidgets = RiaGuiApplication::instance()->topLevelWidgets();
 
-          if ( !color.isEmpty() )
-          {
-              storeQwtStyleSheetProperty( match.captured( "plotName" ),
-                                          QString( "lineMarker" ),
-                                          match.captured( "itemName" ),
-                                          "color",
-                                          color );
-          }
-          if ( !textColor.isEmpty() )
-          {
-              storeQwtStyleSheetProperty( match.captured( "plotName" ),
-                                          QString( "lineMarker" ),
-                                          match.captured( "itemName" ),
-                                          "text-color",
-                                          textColor );
-          }
-          for ( QWidget* widget : topLevelWidgets )
-          {
-              for ( QwtPlot* plotWidget : widget->findChildren<QwtPlot*>() )
-              {
-                  if ( plotNameRegExp.exactMatch( plotWidget->property( "qss-class" ).toString() ) ||
-                       match.captured( "plotName" ) == "*" )
-                  {
-                      for ( QwtPlotItem* item : plotWidget->itemList() )
-                      {
-                          if ( QwtPlotMarker* marker = dynamic_cast<QwtPlotMarker*>( item ) )
-                          {
-                              if ( marker->symbol() == nullptr || marker->symbol()->style() == QwtSymbol::NoSymbol )
-                              {
-                                  if ( itemNameRegExp.exactMatch( item->title().text() ) ||
-                                       match.captured( "itemName" ) == "*" )
-                                  {
-                                      QPen pen = marker->linePen();
-                                      pen.setColor( QColor( color ) );
-                                      marker->setLinePen( pen );
-                                      marker->label().setColor( QColor( textColor ) );
-                                  }
-                              }
-                          }
-                      }
-                  }
-                  plotWidget->replot();
-              }
-          }
-      }},
-     {QString( "QwtPlot\\[\"(?<plotName>[a-zA-Z0-9-_\\*]+)\"\\]::pointMarker\\[\"(?<itemName>[a-zA-Z0-9-_\\*]+)\"\\]"
-               "\\s*\\{("
-               "?<properties>([\\n\\r]*\\s*((color|text-color):"
-               "\\s*([a-zA-Z0-9#]+)\\s*;))*)[\\n\\r]*\\s*\\}" ),
-      []( QRegularExpressionMatch& match ) {
-          QRegExp            plotNameRegExp( match.captured( "plotName" ) );
-          QRegExp            itemNameRegExp( match.captured( "itemName" ) );
-          QRegularExpression colorRegExp( "color:\\s*([#0-9a-zA-Z]+)" );
-          QString            color = colorRegExp.match( match.captured( "properties" ) ).captured( 1 );
-          QRegularExpression textColorRegExp( "text-color:\\s*([#0-9a-zA-Z]+)" );
-          QString            textColor = textColorRegExp.match( match.captured( "properties" ) ).captured( 1 );
+            if ( !color.isEmpty() )
+            {
+                storeQwtStyleSheetProperty( match.captured( "plotName" ),
+                                            QString( "lineMarker" ),
+                                            match.captured( "itemName" ),
+                                            "color",
+                                            color );
+            }
+            if ( !textColor.isEmpty() )
+            {
+                storeQwtStyleSheetProperty( match.captured( "plotName" ),
+                                            QString( "lineMarker" ),
+                                            match.captured( "itemName" ),
+                                            "text-color",
+                                            textColor );
+            }
+            for ( QWidget* widget : topLevelWidgets )
+            {
+                for ( QwtPlot* plotWidget : widget->findChildren<QwtPlot*>() )
+                {
+                    if ( plotNameRegExp.exactMatch( plotWidget->property( "qss-class" ).toString() ) ||
+                         match.captured( "plotName" ) == "*" )
+                    {
+                        for ( QwtPlotItem* item : plotWidget->itemList() )
+                        {
+                            if ( QwtPlotMarker* marker = dynamic_cast<QwtPlotMarker*>( item ) )
+                            {
+                                if ( marker->symbol() == nullptr || marker->symbol()->style() == QwtSymbol::NoSymbol )
+                                {
+                                    if ( itemNameRegExp.exactMatch( item->title().text() ) ||
+                                         match.captured( "itemName" ) == "*" )
+                                    {
+                                        QPen pen = marker->linePen();
+                                        pen.setColor( QColor( color ) );
+                                        marker->setLinePen( pen );
+                                        marker->label().setColor( QColor( textColor ) );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    plotWidget->replot();
+                }
+            }
+        } },
+      { QString( "QwtPlot\\[\"(?<plotName>[a-zA-Z0-9-_\\*]+)\"\\]::pointMarker\\[\"(?<itemName>[a-zA-Z0-9-_\\*]+)\"\\]"
+                 "\\s*\\{("
+                 "?<properties>([\\n\\r]*\\s*((color|text-color):"
+                 "\\s*([a-zA-Z0-9#]+)\\s*;))*)[\\n\\r]*\\s*\\}" ),
+        []( QRegularExpressionMatch& match ) {
+            QRegExp            plotNameRegExp( match.captured( "plotName" ) );
+            QRegExp            itemNameRegExp( match.captured( "itemName" ) );
+            QRegularExpression colorRegExp( "color:\\s*([#0-9a-zA-Z]+)" );
+            QString            color = colorRegExp.match( match.captured( "properties" ) ).captured( 1 );
+            QRegularExpression textColorRegExp( "text-color:\\s*([#0-9a-zA-Z]+)" );
+            QString            textColor = textColorRegExp.match( match.captured( "properties" ) ).captured( 1 );
 
-          const QWidgetList topLevelWidgets = RiaGuiApplication::instance()->topLevelWidgets();
+            const QWidgetList topLevelWidgets = RiaGuiApplication::instance()->topLevelWidgets();
 
-          if ( !color.isEmpty() )
-          {
-              storeQwtStyleSheetProperty( match.captured( "plotName" ),
-                                          QString( "pointMarker" ),
-                                          match.captured( "itemName" ),
-                                          "color",
-                                          color );
-          }
-          if ( !textColor.isEmpty() )
-          {
-              storeQwtStyleSheetProperty( match.captured( "plotName" ),
-                                          QString( "pointMarker" ),
-                                          match.captured( "itemName" ),
-                                          "text-color",
-                                          textColor );
-          }
-          for ( QWidget* widget : topLevelWidgets )
-          {
-              for ( QwtPlot* plotWidget : widget->findChildren<QwtPlot*>() )
-              {
-                  if ( plotNameRegExp.exactMatch( plotWidget->property( "qss-class" ).toString() ) ||
-                       match.captured( "plotName" ) == "*" )
-                  {
-                      for ( QwtPlotItem* item : plotWidget->itemList() )
-                      {
-                          if ( QwtPlotMarker* marker = dynamic_cast<QwtPlotMarker*>( item ) )
-                          {
-                              if ( marker->symbol() && marker->symbol()->style() != QwtSymbol::NoSymbol )
-                              {
-                                  if ( itemNameRegExp.exactMatch( item->title().text() ) ||
-                                       match.captured( "itemName" ) == "*" )
-                                  {
-                                      QPen pen = marker->symbol()->pen();
-                                      pen.setColor( QColor( color ) );
-                                      QwtSymbol* symbol = cloneMarkerSymbol( marker );
-                                      symbol->setPen( pen );
-                                      marker->setSymbol( symbol );
-                                      marker->label().setColor( QColor( textColor ) );
-                                  }
-                              }
-                          }
-                      }
-                  }
-                  plotWidget->replot();
-              }
-          }
-      }},
-     {QString( "QwtPlot\\[\"(?<plotName>[a-zA-Z0-9-_\\*]+)\"\\]::picker"
-               "\\s*\\{("
-               "?<properties>([\\n\\r]*\\s*((text-color):"
-               "\\s*([a-zA-Z0-9#]+)\\s*;))*)[\\n\\r]*\\s*\\}" ),
-      []( QRegularExpressionMatch& match ) {
-          QRegExp            plotNameRegExp( match.captured( "plotName" ) );
-          QRegExp            itemNameRegExp( match.captured( "itemName" ) );
-          QRegularExpression textColorRegExp( "text-color:\\s*([#a-zA-Z0-9]+)" );
-          QString            textColor = textColorRegExp.match( match.captured( "properties" ) ).captured( 1 );
+            if ( !color.isEmpty() )
+            {
+                storeQwtStyleSheetProperty( match.captured( "plotName" ),
+                                            QString( "pointMarker" ),
+                                            match.captured( "itemName" ),
+                                            "color",
+                                            color );
+            }
+            if ( !textColor.isEmpty() )
+            {
+                storeQwtStyleSheetProperty( match.captured( "plotName" ),
+                                            QString( "pointMarker" ),
+                                            match.captured( "itemName" ),
+                                            "text-color",
+                                            textColor );
+            }
+            for ( QWidget* widget : topLevelWidgets )
+            {
+                for ( QwtPlot* plotWidget : widget->findChildren<QwtPlot*>() )
+                {
+                    if ( plotNameRegExp.exactMatch( plotWidget->property( "qss-class" ).toString() ) ||
+                         match.captured( "plotName" ) == "*" )
+                    {
+                        for ( QwtPlotItem* item : plotWidget->itemList() )
+                        {
+                            if ( QwtPlotMarker* marker = dynamic_cast<QwtPlotMarker*>( item ) )
+                            {
+                                if ( marker->symbol() && marker->symbol()->style() != QwtSymbol::NoSymbol )
+                                {
+                                    if ( itemNameRegExp.exactMatch( item->title().text() ) ||
+                                         match.captured( "itemName" ) == "*" )
+                                    {
+                                        QPen pen = marker->symbol()->pen();
+                                        pen.setColor( QColor( color ) );
+                                        QwtSymbol* symbol = cloneMarkerSymbol( marker );
+                                        symbol->setPen( pen );
+                                        marker->setSymbol( symbol );
+                                        marker->label().setColor( QColor( textColor ) );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    plotWidget->replot();
+                }
+            }
+        } },
+      { QString( "QwtPlot\\[\"(?<plotName>[a-zA-Z0-9-_\\*]+)\"\\]::picker"
+                 "\\s*\\{("
+                 "?<properties>([\\n\\r]*\\s*((text-color):"
+                 "\\s*([a-zA-Z0-9#]+)\\s*;))*)[\\n\\r]*\\s*\\}" ),
+        []( QRegularExpressionMatch& match ) {
+            QRegExp            plotNameRegExp( match.captured( "plotName" ) );
+            QRegExp            itemNameRegExp( match.captured( "itemName" ) );
+            QRegularExpression textColorRegExp( "text-color:\\s*([#a-zA-Z0-9]+)" );
+            QString            textColor = textColorRegExp.match( match.captured( "properties" ) ).captured( 1 );
 
-          const QWidgetList topLevelWidgets = RiaGuiApplication::instance()->topLevelWidgets();
+            const QWidgetList topLevelWidgets = RiaGuiApplication::instance()->topLevelWidgets();
 
-          if ( !textColor.isEmpty() )
-          {
-              storeQwtStyleSheetProperty( match.captured( "plotName" ), QString( "picker" ), "*", "text-color", textColor );
-          }
-          for ( QWidget* widget : topLevelWidgets )
-          {
-              for ( QwtPlot* plotWidget : widget->findChildren<QwtPlot*>() )
-              {
-                  if ( plotNameRegExp.exactMatch( plotWidget->property( "qss-class" ).toString() ) ||
-                       match.captured( "plotName" ) == "*" )
-                  {
-                      QWidget* canvas = plotWidget->canvas();
-                      if ( canvas )
-                      {
-                          for ( QwtPicker* picker : canvas->findChildren<QwtPicker*>() )
-                          {
-                              QPen pen = picker->trackerPen();
-                              pen.setColor( QColor( textColor ) );
-                              picker->setTrackerPen( pen );
-                          }
-                      }
-                  }
-                  plotWidget->replot();
-              }
-          }
-      }}};
+            if ( !textColor.isEmpty() )
+            {
+                storeQwtStyleSheetProperty( match.captured( "plotName" ), QString( "picker" ), "*", "text-color", textColor );
+            }
+            for ( QWidget* widget : topLevelWidgets )
+            {
+                for ( QwtPlot* plotWidget : widget->findChildren<QwtPlot*>() )
+                {
+                    if ( plotNameRegExp.exactMatch( plotWidget->property( "qss-class" ).toString() ) ||
+                         match.captured( "plotName" ) == "*" )
+                    {
+                        QWidget* canvas = plotWidget->canvas();
+                        if ( canvas )
+                        {
+                            for ( QwtPicker* picker : canvas->findChildren<QwtPicker*>() )
+                            {
+                                QPen pen = picker->trackerPen();
+                                pen.setColor( QColor( textColor ) );
+                                picker->setTrackerPen( pen );
+                            }
+                        }
+                    }
+                    plotWidget->replot();
+                }
+            }
+        } } };
 
 //--------------------------------------------------------------------------------------------------
 ///

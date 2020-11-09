@@ -41,7 +41,7 @@ cvf::StructGridInterface::FaceType
 {
     // Try to find the shared face
 
-    bool isPossibleNeighborInDirection[6] = {true, true, true, true, true, true};
+    bool isPossibleNeighborInDirection[6] = { true, true, true, true, true, true };
 
     if ( c1.hostGrid() == c2.hostGrid() )
     {

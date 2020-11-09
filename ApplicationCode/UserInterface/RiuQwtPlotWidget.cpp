@@ -1050,7 +1050,7 @@ void RiuQwtPlotWidget::highlightPlotItem( const QwtPlotItem* closestItem )
                     symbol->setPen( blendedSymbolLineColor, symbol->pen().width(), symbol->pen().style() );
                 }
             }
-            CurveColors curveColors = {curveColor, symbolColor, symbolLineColor};
+            CurveColors curveColors = { curveColor, symbolColor, symbolLineColor };
             m_originalCurveColors.insert( std::make_pair( plotCurve, curveColors ) );
             m_originalCurveColors.insert( std::make_pair( plotCurve, curveColors ) );
             m_originalZValues.insert( std::make_pair( plotCurve, zValue ) );

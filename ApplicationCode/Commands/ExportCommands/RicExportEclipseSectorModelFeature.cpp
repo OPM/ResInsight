@@ -163,7 +163,7 @@ void RicExportEclipseSectorModelFeature::executeCommand( RimEclipseView*        
                 QString fileName = dirPath.absoluteFilePath( keyword + ".GRDECL" );
                 bool    worked   = RifEclipseInputFileTools::exportKeywords( fileName,
                                                                         view->eclipseCase()->eclipseCaseData(),
-                                                                        {keyword},
+                                                                        { keyword },
                                                                         fileWriteMode,
                                                                         min,
                                                                         max,

@@ -87,11 +87,11 @@ void RiuCvfOverlayItemWidget::renderTo( QPainter* painter, const QRect& paintRec
     // Create a rendering
 
     cvf::ref<cvf::Rendering> rendering = new cvf::Rendering;
-    m_overlayItem->setLayoutFixedPosition( {0, 0} );
+    m_overlayItem->setLayoutFixedPosition( { 0, 0 } );
     rendering->addOverlayItem( m_overlayItem.p() );
 
     rendering->camera()->setViewport( 0, 0, width, height );
-    rendering->camera()->viewport()->setClearColor( {1, 1, 1, 0} );
+    rendering->camera()->viewport()->setClearColor( { 1, 1, 1, 0 } );
 
     cvf::ref<cvf::RenderSequence> renderingSequence = new cvf::RenderSequence;
     renderingSequence->addRendering( rendering.p() );

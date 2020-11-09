@@ -118,7 +118,9 @@ caf::PdmScriptResponse RicfCreateLgrForCompletions::execute()
                                      m_timeStep,
                                      lgrCellCounts,
                                      m_splitType(),
-                                     {RigCompletionData::PERFORATION, RigCompletionData::FRACTURE, RigCompletionData::FISHBONES},
+                                     { RigCompletionData::PERFORATION,
+                                       RigCompletionData::FRACTURE,
+                                       RigCompletionData::FISHBONES },
                                      &wellsIntersectingOtherLgrs );
 
     feature->updateViews( eclipseCase );

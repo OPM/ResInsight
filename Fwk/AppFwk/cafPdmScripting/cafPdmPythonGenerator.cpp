@@ -411,11 +411,11 @@ QString PdmPythonGenerator::dataTypeString( const PdmFieldHandle* field, bool us
 
     QString dataType = xmlObj->dataTypeName();
 
-    std::map<QString, QString> builtins = {{QString::fromStdString( typeid( double ).name() ), "float"},
-                                           {QString::fromStdString( typeid( float ).name() ), "float"},
-                                           {QString::fromStdString( typeid( int ).name() ), "int"},
-                                           {QString::fromStdString( typeid( time_t ).name() ), "time"},
-                                           {QString::fromStdString( typeid( QString ).name() ), "str"}};
+    std::map<QString, QString> builtins = { { QString::fromStdString( typeid( double ).name() ), "float" },
+                                            { QString::fromStdString( typeid( float ).name() ), "float" },
+                                            { QString::fromStdString( typeid( int ).name() ), "int" },
+                                            { QString::fromStdString( typeid( time_t ).name() ), "time" },
+                                            { QString::fromStdString( typeid( QString ).name() ), "str" } };
 
     bool foundBuiltin = false;
     for ( auto builtin : builtins )

@@ -32,10 +32,10 @@ RifEnsembleStatisticsReader::RifEnsembleStatisticsReader( RimEnsembleStatisticsC
     m_ensembleStatCase = ensStatCase;
 
     m_allResultAddresses = std::set<RifEclipseSummaryAddress>(
-        {RifEclipseSummaryAddress::ensembleStatisticsAddress( ENSEMBLE_STAT_P10_QUANTITY_NAME, "" ),
-         RifEclipseSummaryAddress::ensembleStatisticsAddress( ENSEMBLE_STAT_P50_QUANTITY_NAME, "" ),
-         RifEclipseSummaryAddress::ensembleStatisticsAddress( ENSEMBLE_STAT_P90_QUANTITY_NAME, "" ),
-         RifEclipseSummaryAddress::ensembleStatisticsAddress( ENSEMBLE_STAT_MEAN_QUANTITY_NAME, "" )} );
+        { RifEclipseSummaryAddress::ensembleStatisticsAddress( ENSEMBLE_STAT_P10_QUANTITY_NAME, "" ),
+          RifEclipseSummaryAddress::ensembleStatisticsAddress( ENSEMBLE_STAT_P50_QUANTITY_NAME, "" ),
+          RifEclipseSummaryAddress::ensembleStatisticsAddress( ENSEMBLE_STAT_P90_QUANTITY_NAME, "" ),
+          RifEclipseSummaryAddress::ensembleStatisticsAddress( ENSEMBLE_STAT_MEAN_QUANTITY_NAME, "" ) } );
 }
 
 //--------------------------------------------------------------------------------------------------

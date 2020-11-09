@@ -68,7 +68,7 @@ caf::PdmObjectHandle* RimcSummaryPlotCollection_newSummaryPlot::execute()
         }
         else
         {
-            newPlot = RicNewSummaryEnsembleCurveSetFeature::createPlotForCurveSetsAndUpdate( {m_ensemble} );
+            newPlot = RicNewSummaryEnsembleCurveSetFeature::createPlotForCurveSetsAndUpdate( { m_ensemble } );
         }
     }
     if ( !m_summaryCases.empty() )
