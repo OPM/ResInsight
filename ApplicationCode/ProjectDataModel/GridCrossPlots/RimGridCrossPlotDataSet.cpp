@@ -467,6 +467,13 @@ void RimGridCrossPlotDataSet::onLoadDataAndUpdate( bool updateParentPlot )
         return;
     }
 
+    if ( legendConfig()->mappingMode() == RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS ||
+         legendConfig()->mappingMode() == RimRegularLegendConfig::MappingType::LOG10_CONTINUOUS )
+    {
+        // Avoid continuous modes
+        legendConfig()->setMappingMode( RimRegularLegendConfig::MappingType::LINEAR_DISCRETE );
+    }
+
     RigEclipseResultAddress xAddress( m_xAxisProperty->resultType(), m_xAxisProperty->resultVariable() );
     RigEclipseResultAddress yAddress( m_yAxisProperty->resultType(), m_yAxisProperty->resultVariable() );
     RigEclipseResultAddress groupAddress( m_groupingProperty->resultType(), m_groupingProperty->resultVariable() );
