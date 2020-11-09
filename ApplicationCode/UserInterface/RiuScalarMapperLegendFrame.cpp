@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RiuScalarMapperLegendFrame.h"
 
+#include "cvfScalarMapperDiscreteLinear.h"
+#include "cvfScalarMapperDiscreteLog.h"
 #include "cvfString.h"
 #include "cvfqtUtils.h"
 
@@ -162,8 +164,16 @@ void RiuScalarMapperLegendFrame::renderRect( QPainter* painter, const LayoutInfo
     int           rectIndexFromBottom = rectCount() - rectIndex - 1;
     cvf::Color3ub startColor          = m_scalarMapper->mapToColor( m_tickValues[rectIndexFromBottom] );
     cvf::Color3ub endColor            = m_scalarMapper->mapToColor( m_tickValues[rectIndexFromBottom + 1] );
-    QColor        startQColor( startColor.r(), startColor.g(), startColor.b() );
-    QColor        endQColor( endColor.r(), endColor.g(), endColor.b() );
+
+    if ( dynamic_cast<const cvf::ScalarMapperDiscreteLog*>( m_scalarMapper.p() ) ||
+         dynamic_cast<const cvf::ScalarMapperDiscreteLinear*>( m_scalarMapper.p() ) )
+    {
+        // Do not draw gradient for discrete legends
+        endColor = startColor;
+    }
+
+    QColor startQColor( startColor.r(), startColor.g(), startColor.b() );
+    QColor endQColor( endColor.r(), endColor.g(), endColor.b() );
 
     QRectF gradientRect( QPointF( layout.tickStartX,
                                   layout.colorBarRect.bottom() - layout.tickYPixelPos[rectIndexFromBottom] + 1 ),
