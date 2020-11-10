@@ -20,6 +20,7 @@
 
 #include "RiaFilePathTools.h"
 #include "RiaGuiApplication.h"
+#include "RiaStringListSerializer.h"
 
 #include "RiuFileDialogTools.h"
 #include "RiuTools.h"
@@ -27,6 +28,7 @@
 #include <QAbstractItemView>
 #include <QAction>
 #include <QClipboard>
+#include <QComboBox>
 #include <QDialogButtonBox>
 #include <QDir>
 #include <QGroupBox>
@@ -41,6 +43,7 @@
 #include <QToolTip>
 #include <QVBoxLayout>
 
+#include <algorithm>
 #include <vector>
 
 #define RECURSIVE_FILESEARCH_DEFAULT_DIALOG_HEIGHT 350
@@ -70,7 +73,25 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
     QString pathFilterText = dir;
     RiaFilePathTools::appendSeparatorIfNo( pathFilterText );
     pathFilterText += pathFilter;
-    dialog.m_pathFilterField->setText( QDir::toNativeSeparators( pathFilterText ) );
+
+    const QString completeRegistryKey = QString( "RicRecursiveFileSearchDialog %1" ).arg( caption ).replace( " ", "_" );
+    const int     maxItemsInRegistry  = 10;
+
+    {
+        RiaStringListSerializer stringListSerializer( completeRegistryKey );
+        QStringList             files = stringListSerializer.textStrings();
+
+        int numRecentFiles = std::min( files.size(), maxItemsInRegistry );
+        for ( int i = 0; i < numRecentFiles; i++ )
+        {
+            dialog.m_pathFilterField->addItem( files[i] );
+        }
+    }
+
+    dialog.m_pathFilterField->addItem( QDir::toNativeSeparators( pathFilterText ) );
+    dialog.m_pathFilterField->setCurrentText( QDir::toNativeSeparators( pathFilterText ) );
+
+    dialog.m_pathFilterField->setEditable( true );
     dialog.m_fileFilterField->setText( fileNameFilter );
     dialog.m_fileExtensions = trimLeftStrings( fileExtensions, "." );
 
@@ -80,6 +101,12 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
 
     dialog.resize( 800, 150 );
     dialog.exec();
+
+    if ( dialog.result() == QDialog::Accepted )
+    {
+        RiaStringListSerializer stringListSerializer( completeRegistryKey );
+        stringListSerializer.addString( dialog.m_pathFilterField->currentText(), maxItemsInRegistry );
+    }
 
     return RicRecursiveFileSearchDialogResult( dialog.result() == QDialog::Accepted,
                                                dialog.m_foundFiles,
@@ -97,7 +124,7 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent )
     // Create widgets
     m_browseButton                = new QPushButton();
     m_pathFilterLabel             = new QLabel();
-    m_pathFilterField             = new QLineEdit();
+    m_pathFilterField             = new QComboBox();
     m_fileFilterLabel             = new QLabel();
     m_fileFilterField             = new QLineEdit();
     m_effectiveFilterLabel        = new QLabel();
@@ -110,7 +137,15 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent )
     m_buttons = new QDialogButtonBox( QDialogButtonBox::Ok | QDialogButtonBox::Cancel );
 
     // Connect to signals
-    connect( m_pathFilterField, SIGNAL( textChanged( const QString& ) ), this, SLOT( slotFilterChanged( const QString& ) ) );
+    connect( m_pathFilterField,
+             SIGNAL( currentTextChanged( const QString& ) ),
+             this,
+             SLOT( slotFilterChanged( const QString& ) ) );
+    connect( m_pathFilterField,
+             SIGNAL( editTextChanged( const QString& ) ),
+             this,
+             SLOT( slotFilterChanged( const QString& ) ) );
+
     connect( m_fileFilterField, SIGNAL( textChanged( const QString& ) ), this, SLOT( slotFilterChanged( const QString& ) ) );
 
     connect( m_fileListWidget,
@@ -221,7 +256,7 @@ RicRecursiveFileSearchDialog::~RicRecursiveFileSearchDialog()
 //--------------------------------------------------------------------------------------------------
 QString RicRecursiveFileSearchDialog::cleanTextFromPathFilterField() const
 {
-    QString pathFilterText = m_pathFilterField->text().trimmed();
+    QString pathFilterText = m_pathFilterField->currentText().trimmed();
     pathFilterText         = RiaFilePathTools::toInternalSeparator( pathFilterText );
     pathFilterText         = RiaFilePathTools::removeDuplicatePathSeparators( pathFilterText );
     pathFilterText.replace( QString( "**" ), QString( "*" ) );
@@ -715,7 +750,11 @@ void RicRecursiveFileSearchDialog::slotBrowseButtonClicked()
     QString folder = RiuFileDialogTools::getExistingDirectory( this, "Select folder", rootDirWithEndSeparator() );
     RiaFilePathTools::appendSeparatorIfNo( folder );
     folder += "*";
-    if ( !folder.isEmpty() ) m_pathFilterField->setText( QDir::toNativeSeparators( folder ) );
+    if ( !folder.isEmpty() )
+    {
+        m_pathFilterField->addItem( QDir::toNativeSeparators( folder ) );
+        m_pathFilterField->setCurrentText( QDir::toNativeSeparators( folder ) );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
