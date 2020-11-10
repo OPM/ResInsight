@@ -71,6 +71,7 @@ RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping()
     CAF_PDM_InitFieldNoDefault( &m_cellBlock, "CellBlock", "Block", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_segment, "Segment", "Segment", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_completion, "Completion", "Completion", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_aquifer, "Aquifer", "Aquifer", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_ensemble, "Ensemble", "Ensemble", "", "", "" );
 
@@ -312,6 +313,10 @@ QList<caf::PdmOptionItemInfo>
                 secondaryIdentifier = m_wellName().toStdString();
                 category            = RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION;
             }
+            else if ( fieldNeedingOptions == &m_aquifer )
+            {
+                category = RifEclipseSummaryAddress::SUMMARY_AQUIFER;
+            }
 
             std::vector<QString> identifierTexts;
 
@@ -495,6 +500,10 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
         else if ( changedField == &m_completion )
         {
             summaryCategoryToModify = RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION;
+        }
+        else if ( changedField == &m_aquifer )
+        {
+            summaryCategoryToModify = RifEclipseSummaryAddress::SUMMARY_AQUIFER;
         }
 
         if ( summaryCategoryToModify != RifEclipseSummaryAddress::SUMMARY_INVALID )
@@ -737,6 +746,7 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::computeVisibleFi
     m_cellBlock.uiCapability()->setUiHidden( true );
     m_segment.uiCapability()->setUiHidden( true );
     m_completion.uiCapability()->setUiHidden( true );
+    m_aquifer.uiCapability()->setUiHidden( true );
 
     std::vector<caf::PdmFieldHandle*> fields;
 
@@ -858,6 +868,14 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::computeVisibleFi
                 fieldsCommonForAllCurves.push_back( &m_completion );
             }
 
+            if ( analyzer.aquifers().size() == 1 )
+            {
+                m_aquifer = *( analyzer.aquifers().begin() );
+                m_aquifer.uiCapability()->setUiHidden( false );
+
+                fieldsCommonForAllCurves.push_back( &m_aquifer );
+            }
+
             if ( !analyzer.quantityNameForTitle().empty() )
             {
                 QString txt = QString::fromStdString( analyzer.quantityNameForTitle() );
@@ -968,6 +986,18 @@ bool RimSummaryPlotSourceStepping::updateAddressIfMatching( const QVariant&     
         if ( adr->regionNumber() == oldInt )
         {
             adr->setRegion( newInt );
+
+            return true;
+        }
+    }
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_AQUIFER )
+    {
+        int oldInt = oldValue.toInt();
+        int newInt = newValue.toInt();
+
+        if ( adr->aquiferNumber() == oldInt )
+        {
+            adr->setAquiferNumber( newInt );
 
             return true;
         }
