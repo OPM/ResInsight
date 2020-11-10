@@ -32,6 +32,7 @@ class QPushButton;
 class QMainWindow;
 class QListWidget;
 class QGroupBox;
+class QComboBox;
 
 class RicRecursiveFileSearchDialogResult;
 
@@ -102,7 +103,7 @@ private slots:
 
 private:
     QLabel*      m_pathFilterLabel;
-    QLineEdit*   m_pathFilterField;
+    QComboBox*   m_pathFilterField;
     QPushButton* m_browseButton;
 
     QLabel*    m_fileFilterLabel;
