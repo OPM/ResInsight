@@ -55,6 +55,7 @@ public:
     std::set<std::string> wellCompletions( const std::string& wellName ) const;
     std::set<int>         wellSegmentNumbers( const std::string& wellName ) const;
     std::set<std::string> blocks() const;
+    std::set<int>         aquifers() const;
 
     std::set<RifEclipseSummaryAddress::SummaryVarCategory> categories() const;
 
@@ -84,6 +85,7 @@ private:
     std::set<std::pair<std::string, std::string>> m_wellCompletions;
     std::set<std::pair<std::string, int>>         m_wellSegmentNumbers;
     std::set<std::string>                         m_blocks;
+    std::set<int>                                 m_aquifers;
 
     std::set<RifEclipseSummaryAddress::SummaryVarCategory> m_categories;
 };
