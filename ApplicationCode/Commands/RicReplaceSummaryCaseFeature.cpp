@@ -49,6 +49,26 @@ CAF_CMD_SOURCE_INIT( RicReplaceSummaryCaseFeature, "RicReplaceSummaryCaseFeature
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RicReplaceSummaryCaseFeature::updateRequredCalculatedCurves( RimSummaryCase* sourceSummaryCase )
+{
+    RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
+
+    for ( RimSummaryCalculation* summaryCalculation : calcColl->calculations() )
+    {
+        bool needsUpdate =
+            RicReplaceSummaryCaseFeature::checkIfCalculationNeedsUpdate( summaryCalculation, sourceSummaryCase );
+        if ( needsUpdate )
+        {
+            summaryCalculation->parseExpression();
+            summaryCalculation->calculate();
+            summaryCalculation->updateDependentCurvesAndPlots();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RicReplaceSummaryCaseFeature::isCommandEnabled()
 {
     RimSummaryCase* rimSummaryCase = caf::SelectionManager::instance()->selectedItemOfType<RimFileSummaryCase>();
@@ -74,19 +94,17 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
     summaryCase->createRftReaderInterface();
     RiaLogging::info( QString( "Replaced summary data for %1" ).arg( oldSummaryHeaderFilename ) );
 
-    RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
+    RicReplaceSummaryCaseFeature::updateRequredCalculatedCurves( summaryCase );
 
     // Find and update all changed calculations
-    std::set<int> ids;
+    std::set<int>                    ids;
+    RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
     for ( RimSummaryCalculation* summaryCalculation : calcColl->calculations() )
     {
         bool needsUpdate = checkIfCalculationNeedsUpdate( summaryCalculation, summaryCase );
         if ( needsUpdate )
         {
             ids.insert( summaryCalculation->id() );
-            summaryCalculation->parseExpression();
-            summaryCalculation->calculate();
-            summaryCalculation->updateDependentCurvesAndPlots();
         }
     }
 
@@ -174,7 +192,7 @@ void RicReplaceSummaryCaseFeature::setupActionLook( QAction* actionToSetup )
 ///
 //--------------------------------------------------------------------------------------------------
 bool RicReplaceSummaryCaseFeature::checkIfCalculationNeedsUpdate( const RimSummaryCalculation* summaryCalculation,
-                                                                  const RimFileSummaryCase*    summaryCase )
+                                                                  const RimSummaryCase*        summaryCase )
 {
     std::vector<RimSummaryCalculationVariable*> variables = summaryCalculation->allVariables();
     for ( RimSummaryCalculationVariable* variable : variables )

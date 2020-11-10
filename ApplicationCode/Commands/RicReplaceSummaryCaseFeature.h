@@ -21,17 +21,20 @@
 #include "cafCmdFeature.h"
 
 class RimSummaryCalculation;
-class RimFileSummaryCase;
+class RimSummaryCase;
 
 class RicReplaceSummaryCaseFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
+
+public:
+    static void updateRequredCalculatedCurves( RimSummaryCase* sourceSummaryCase );
 
 protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
-    bool checkIfCalculationNeedsUpdate( const RimSummaryCalculation* summaryCalculation,
-                                        const RimFileSummaryCase*    summaryCase );
+    static bool checkIfCalculationNeedsUpdate( const RimSummaryCalculation* summaryCalculation,
+                                               const RimSummaryCase*        summaryCase );
 };
