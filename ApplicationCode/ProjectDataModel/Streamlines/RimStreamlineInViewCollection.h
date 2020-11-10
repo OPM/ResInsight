@@ -63,6 +63,7 @@ public:
     double            distanceBetweenTracerPoints() const;
     double            animationSpeed() const;
     double            scaleFactor() const;
+    double            tracerLength() const;
 
     void goForIt();
 
@@ -116,6 +117,7 @@ private:
     caf::PdmField<double>                              m_distanceBetweenTracerPoints;
     caf::PdmField<double>                              m_animationSpeed;
     caf::PdmField<double>                              m_scaleFactor;
+    caf::PdmField<double>                              m_tracerLength;
 
     std::list<RigTracer> m_activeTracers;
 

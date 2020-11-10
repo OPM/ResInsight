@@ -109,6 +109,10 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
     m_scaleFactor.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
     m_scaleFactor = 1.0;
 
+    CAF_PDM_InitFieldNoDefault( &m_tracerLength, "TracerLength", "Tracer Length", "", "", "" );
+    m_tracerLength.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    m_tracerLength = 1.0;
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_streamlines, "Streamlines", "Streamlines", "", "", "" );
     m_streamlines.uiCapability()->setUiTreeHidden( true );
     m_streamlines.xmlCapability()->disableIO();
@@ -247,6 +251,14 @@ double RimStreamlineInViewCollection::animationSpeed() const
 double RimStreamlineInViewCollection::scaleFactor() const
 {
     return m_scaleFactor();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimStreamlineInViewCollection::tracerLength() const
+{
+    return m_tracerLength();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -391,6 +403,7 @@ void RimStreamlineInViewCollection::defineUiOrdering( QString uiConfigName, caf:
         visualizationGroup->add( &m_distanceBetweenTracerPoints );
         visualizationGroup->add( &m_animationSpeed );
         visualizationGroup->add( &m_scaleFactor );
+        visualizationGroup->add( &m_tracerLength );
     }
 }
 
