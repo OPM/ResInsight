@@ -27,6 +27,7 @@
 
 #include <QAbstractItemView>
 #include <QAction>
+#include <QCheckBox>
 #include <QClipboard>
 #include <QComboBox>
 #include <QDialogButtonBox>
@@ -37,6 +38,7 @@
 #include <QListWidget>
 #include <QMenu>
 #include <QPushButton>
+#include <QSettings>
 #include <QTextEdit>
 #include <QTime>
 #include <QToolBar>
@@ -74,11 +76,11 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
     RiaFilePathTools::appendSeparatorIfNo( pathFilterText );
     pathFilterText += pathFilter;
 
-    const QString completeRegistryKey = QString( "RicRecursiveFileSearchDialog %1" ).arg( caption ).replace( " ", "_" );
-    const int     maxItemsInRegistry  = 10;
-
+    const QString searchHistoryStringsRegistryKey =
+        QString( "RicRecursiveFileSearchDialog %1" ).arg( caption ).replace( " ", "_" );
+    const int maxItemsInRegistry = 10;
     {
-        RiaStringListSerializer stringListSerializer( completeRegistryKey );
+        RiaStringListSerializer stringListSerializer( searchHistoryStringsRegistryKey );
         QStringList             files = stringListSerializer.textStrings();
 
         int numRecentFiles = std::min( files.size(), maxItemsInRegistry );
@@ -87,6 +89,12 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
             dialog.m_pathFilterField->addItem( files[i] );
         }
     }
+
+    QSettings     settings;
+    const QString useRealizationStarRegistryKey = "RecursiveFileSearchDialog_use_realization";
+
+    bool isChecked = settings.value( useRealizationStarRegistryKey, true ).toBool();
+    dialog.m_useRealizationStarCheckBox->setChecked( isChecked );
 
     dialog.m_pathFilterField->addItem( QDir::toNativeSeparators( pathFilterText ) );
     dialog.m_pathFilterField->setCurrentText( QDir::toNativeSeparators( pathFilterText ) );
@@ -104,8 +112,10 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
 
     if ( dialog.result() == QDialog::Accepted )
     {
-        RiaStringListSerializer stringListSerializer( completeRegistryKey );
+        RiaStringListSerializer stringListSerializer( searchHistoryStringsRegistryKey );
         stringListSerializer.addString( dialog.m_pathFilterField->currentText(), maxItemsInRegistry );
+
+        settings.setValue( useRealizationStarRegistryKey, dialog.m_useRealizationStarCheckBox->isChecked() );
     }
 
     return RicRecursiveFileSearchDialogResult( dialog.result() == QDialog::Accepted,
@@ -122,7 +132,11 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent )
     : QDialog( parent, RiuTools::defaultDialogFlags() )
 {
     // Create widgets
-    m_browseButton                = new QPushButton();
+    m_browseButton = new QPushButton();
+
+    m_useRealizationStarCheckBox = new QCheckBox( "Use 'realization-*' in filter" );
+    connect( m_useRealizationStarCheckBox, SIGNAL( clicked() ), this, SLOT( slotUseRealizationStarClicked() ) );
+
     m_pathFilterLabel             = new QLabel();
     m_pathFilterField             = new QComboBox();
     m_fileFilterLabel             = new QLabel();
@@ -194,9 +208,10 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent )
     inputGridLayout->addWidget( m_browseButton, 0, 3 );
     inputGridLayout->addWidget( m_fileFilterLabel, 1, 0 );
     inputGridLayout->addWidget( m_fileFilterField, 1, 1, 1, 2 );
-    inputGridLayout->addWidget( m_effectiveFilterLabel, 2, 0 );
-    inputGridLayout->addWidget( m_effectiveFilterContentLabel, 2, 1 );
-    inputGridLayout->addWidget( m_findOrCancelButton, 2, 2, 1, 2 );
+    inputGridLayout->addWidget( m_useRealizationStarCheckBox, 2, 1 );
+    inputGridLayout->addWidget( m_effectiveFilterLabel, 3, 0 );
+    inputGridLayout->addWidget( m_effectiveFilterContentLabel, 3, 1 );
+    inputGridLayout->addWidget( m_findOrCancelButton, 3, 2, 1, 2 );
 
     inputGroup->setLayout( inputGridLayout );
 
@@ -260,6 +275,12 @@ QString RicRecursiveFileSearchDialog::cleanTextFromPathFilterField() const
     pathFilterText         = RiaFilePathTools::toInternalSeparator( pathFilterText );
     pathFilterText         = RiaFilePathTools::removeDuplicatePathSeparators( pathFilterText );
     pathFilterText.replace( QString( "**" ), QString( "*" ) );
+
+    if ( m_useRealizationStarCheckBox->isChecked() )
+    {
+        pathFilterText = replaceWithRealizationStar( pathFilterText );
+    }
+
     return pathFilterText;
 }
 
@@ -527,6 +548,20 @@ QStringList RicRecursiveFileSearchDialog::createFileNameFilterList()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RicRecursiveFileSearchDialog::replaceWithRealizationStar( const QString& text )
+{
+    const QString pattern = "realization-\\d+";
+    QRegExp       regexp( pattern, Qt::CaseInsensitive );
+
+    QString textWithStar = text;
+    textWithStar.replace( regexp, "realization-*" );
+
+    return textWithStar;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicRecursiveFileSearchDialog::updateEffectiveFilter()
 {
     QString pathFilterText = pathFilterWithoutStartSeparator();
@@ -755,6 +790,14 @@ void RicRecursiveFileSearchDialog::slotBrowseButtonClicked()
         m_pathFilterField->addItem( QDir::toNativeSeparators( folder ) );
         m_pathFilterField->setCurrentText( QDir::toNativeSeparators( folder ) );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicRecursiveFileSearchDialog::slotUseRealizationStarClicked()
+{
+    updateEffectiveFilter();
 }
 
 //--------------------------------------------------------------------------------------------------
