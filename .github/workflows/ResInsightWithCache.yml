@@ -129,7 +129,7 @@ jobs:
           # Ensure the cache is invalidated any time vcpkg version changes, or a different set of packages is being used.
           key: ${{ hashFiles( format('{0}/{1}', github.workspace, matrix.config.vcpkg-response-file )) }}-${{ hashFiles('.git/modules/vcpkg/HEAD') }}-${{ runner.os }}-v02
       - name: Run vcpkg
-        uses: lukka/run-vcpkg@v1
+        uses: lukka/run-vcpkg@v4
         id: runvcpkg
         with:
           vcpkgArguments: '@${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}'
