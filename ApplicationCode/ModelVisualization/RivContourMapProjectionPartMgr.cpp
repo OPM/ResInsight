@@ -417,9 +417,18 @@ std::vector<cvf::ref<cvf::Drawable>>
         {
             if ( m_contourLinePolygons[i][j].vertices.empty() ) continue;
 
-            // cvf::String::number does not allow precision on 'g' formats, so use Qt.
-            QString     qLabelText = QString::number( m_contourLinePolygons[i][j].value, 'g', 2 );
-            cvf::String labelText  = cvfqt::Utils::toString( qLabelText );
+            cvf::String labelText;
+            double      value = m_contourLinePolygons[i][j].value;
+            if ( ( abs( value ) < 0.0001 ) || ( abs( value ) >= 1000000.0 ) )
+            {
+                // cvf::String::number does not allow precision on 'g' formats, so use Qt.
+                QString qLabelText = QString::number( value, 'g', 2 );
+                labelText          = cvfqt::Utils::toString( qLabelText );
+            }
+            else
+            {
+                labelText = cvf::String::number( value, 'g' );
+            }
 
             size_t nVertices              = m_contourLinePolygons[i][j].vertices.size();
             size_t nLabels                = nVertices;
