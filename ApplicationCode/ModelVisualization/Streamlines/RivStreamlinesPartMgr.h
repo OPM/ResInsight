@@ -129,13 +129,18 @@ private:
     };
 
 private:
-    void createCurvePart( const RimStreamlineInViewCollection& streamlineCollection,
-                          StreamlineVisualization&             streamlineVisualization,
-                          const double                         t1,
-                          const double                         t2 );
+    cvf::ref<cvf::Part> createCurvePart( const RimStreamlineInViewCollection& streamlineCollection,
+                                         StreamlineVisualization&             streamlineVisualization,
+                                         const double                         t1,
+                                         const double                         t2 );
 
     cvf::ref<cvf::Part> createVectorPart( const RimStreamlineInViewCollection& streamlineCollection,
-                                          StreamlineSegment&                   streamlineSegment );
+                                          StreamlineSegment&                   segment );
+
+    cvf::ref<cvf::Part> createPointsPart( const RimStreamlineInViewCollection& streamlineCollection,
+                                          StreamlineVisualization&             streamlineVisualization,
+                                          const double                         t1,
+                                          const double                         t2 );
 
     std::array<cvf::Vec3f, 7> createArrowVertices( const cvf::Vec3f anchorPoint, const cvf::Vec3f direction ) const;
     std::array<uint, 2>       createArrowShaftIndices( uint startIndex ) const;

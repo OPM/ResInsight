@@ -46,7 +46,8 @@ public:
     enum class VisualizationMode
     {
         CURVES = 0,
-        VECTORS
+        VECTORS,
+        DEBUG
     };
     using VisualizationModeEnum = caf::AppEnum<VisualizationMode>;
 

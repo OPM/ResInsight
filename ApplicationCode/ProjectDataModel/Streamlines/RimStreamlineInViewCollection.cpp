@@ -52,6 +52,7 @@ void AppEnum<RimStreamlineInViewCollection::VisualizationMode>::setUp()
 {
     addItem( RimStreamlineInViewCollection::VisualizationMode::CURVES, "CURVES", "Curves" );
     addItem( RimStreamlineInViewCollection::VisualizationMode::VECTORS, "VECTORS", "Vectors" );
+    addItem( RimStreamlineInViewCollection::VisualizationMode::DEBUG, "DEBUG", "Debug" );
     setDefault( RimStreamlineInViewCollection::VisualizationMode::CURVES );
 }
 } // namespace caf

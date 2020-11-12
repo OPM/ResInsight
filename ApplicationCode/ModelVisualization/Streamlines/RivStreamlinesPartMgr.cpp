@@ -174,25 +174,23 @@ void RivStreamlinesPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicLi
                 model->addPart( createVectorPart( *streamlineCollection, segment ).p() );
             }
         }
-        else
+        else if ( visualization.getApproximatedTotalLength() >= streamlineCollection->tracerLength() )
         {
-            size_t numSegments =
-                static_cast<size_t>( visualization.getApproximatedTotalLength() / streamlineCollection->tracerLength() );
-            for ( size_t i = 0; i < numSegments; i++ )
+            double currentPos = 0.0;
+            while ( currentPos < 1.0 )
             {
-                double t1 = static_cast<double>( i ) / static_cast<double>( numSegments );
-                double t2 = static_cast<double>( i + 1 ) / static_cast<double>( numSegments );
-                if ( numSegments == 1 )
-                {
-                    t1 = 0.0;
-                    t2 = 1.0;
-                }
+                double t1 = currentPos;
+                currentPos += streamlineCollection->tracerLength() / visualization.getApproximatedTotalLength();
+                double t2 = std::min<double>( currentPos, 1.0 );
                 CVF_ASSERT( t1 >= 0.0 && t1 <= 1.0 && t2 >= 0.0 && t2 <= 1.0 );
-                createCurvePart( *streamlineCollection, visualization, t1, t2 );
-            }
-            for ( auto segmentPart : visualization.getParts() )
-            {
-                model->addPart( segmentPart.p() );
+                if ( streamlineCollection->visualizationMode() == RimStreamlineInViewCollection::VisualizationMode::CURVES )
+                {
+                    model->addPart( createCurvePart( *streamlineCollection, visualization, t1, t2 ).p() );
+                }
+                else
+                {
+                    model->addPart( createPointsPart( *streamlineCollection, visualization, t1, t2 ).p() );
+                }
             }
         }
     }
@@ -225,10 +223,10 @@ void RivStreamlinesPartMgr::updateAnimation()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivStreamlinesPartMgr::createCurvePart( const RimStreamlineInViewCollection& streamlineCollection,
-                                             StreamlineVisualization&             streamlineVisualization,
-                                             const double                         t1,
-                                             const double                         t2 )
+cvf::ref<cvf::Part> RivStreamlinesPartMgr::createCurvePart( const RimStreamlineInViewCollection& streamlineCollection,
+                                                            StreamlineVisualization& streamlineVisualization,
+                                                            const double             t1,
+                                                            const double             t2 )
 {
     cvf::ref<caf::DisplayCoordTransform> displayCordXf = m_rimReservoirView->displayCoordTransform();
 
@@ -271,6 +269,7 @@ void RivStreamlinesPartMgr::createCurvePart( const RimStreamlineInViewCollection
     part->setEffect( effect.p() );
     part->updateBoundingBox();
     streamlineVisualization.appendPart( part.p(), t1 );
+    return part;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -323,6 +322,79 @@ cvf::ref<cvf::Part> RivStreamlinesPartMgr::createVectorPart( const RimStreamline
 
     indexedUIntHead->setIndices( indexArrayHead.p() );
     drawable->addPrimitiveSet( indexedUIntHead.p() );
+
+    cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray( vertices );
+    drawable->setVertexArray( vertexArray.p() );
+
+    cvf::ref<cvf::Effect> effect;
+
+    caf::SurfaceEffectGenerator surfaceGen( cvf::Color4f( 1, 1, 1, 1 ), caf::PO_1 );
+    surfaceGen.enableLighting( false );
+    effect = surfaceGen.generateCachedEffect();
+
+    cvf::ref<cvf::Part> part = new cvf::Part;
+    part->setDrawable( drawable.p() );
+    part->setEffect( effect.p() );
+    part->updateBoundingBox();
+    return part;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::Part> RivStreamlinesPartMgr::createPointsPart( const RimStreamlineInViewCollection& streamlineCollection,
+                                                             StreamlineVisualization& streamlineVisualization,
+                                                             const double             t1,
+                                                             const double             t2 )
+{
+    cvf::ref<caf::DisplayCoordTransform> displayCordXf = m_rimReservoirView->displayCoordTransform();
+
+    std::vector<uint> lineIndices;
+    lineIndices.reserve( 2 );
+
+    std::vector<uint> pointIndices;
+    pointIndices.reserve( 4 );
+
+    std::vector<cvf::Vec3f> vertices;
+    vertices.reserve( 6 );
+
+    cvf::Vec3f anchorPoint =
+        cvf::Vec3f( displayCordXf->transformToDisplayCoord( streamlineVisualization.getPointAt( t1 ) ) );
+    cvf::Vec3f endPoint = cvf::Vec3f( displayCordXf->transformToDisplayCoord( streamlineVisualization.getPointAt( t2 ) ) );
+
+    vertices.push_back( anchorPoint );
+    vertices.push_back( endPoint );
+
+    cvf::Vec3f lineDirection = cvf::Vec3f( streamlineVisualization.getDirectionAt( t1 ) ) ^ anchorPoint;
+
+    vertices.push_back( anchorPoint + lineDirection.getNormalized() * 1.5 );
+    vertices.push_back( anchorPoint - lineDirection.getNormalized() * 1.5 );
+    vertices.push_back( endPoint + lineDirection.getNormalized() * 1.5 );
+    vertices.push_back( endPoint - lineDirection.getNormalized() * 1.5 );
+
+    lineIndices.push_back( 0 );
+    lineIndices.push_back( 1 );
+
+    pointIndices.push_back( 2 );
+    pointIndices.push_back( 3 );
+    pointIndices.push_back( 4 );
+    pointIndices.push_back( 5 );
+
+    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUIntLine =
+        new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_LINES );
+    cvf::ref<cvf::UIntArray> indexedArrayLine = new cvf::UIntArray( lineIndices );
+
+    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUIntPoints =
+        new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_LINES );
+    cvf::ref<cvf::UIntArray> indexedArrayPoints = new cvf::UIntArray( pointIndices );
+
+    cvf::ref<cvf::DrawableGeo> drawable = new cvf::DrawableGeo();
+
+    indexedUIntLine->setIndices( indexedArrayLine.p() );
+    drawable->addPrimitiveSet( indexedUIntLine.p() );
+
+    indexedUIntPoints->setIndices( indexedArrayPoints.p() );
+    drawable->addPrimitiveSet( indexedUIntPoints.p() );
 
     cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray( vertices );
     drawable->setVertexArray( vertexArray.p() );
