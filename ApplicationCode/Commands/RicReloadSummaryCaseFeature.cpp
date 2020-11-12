@@ -20,6 +20,7 @@
 
 #include "RiaLogging.h"
 #include "RiaSummaryTools.h"
+#include "RicReplaceSummaryCaseFeature.h"
 
 #include "RimMainPlotCollection.h"
 #include "RimObservedDataCollection.h"
@@ -60,6 +61,8 @@ void RicReloadSummaryCaseFeature::onActionTriggered( bool isChecked )
     {
         summaryCase->createSummaryReaderInterface();
         summaryCase->createRftReaderInterface();
+
+        RicReplaceSummaryCaseFeature::updateRequredCalculatedCurves( summaryCase );
 
         RiaLogging::info( QString( "Reloaded data for %1" ).arg( summaryCase->summaryHeaderFilename() ) );
     }

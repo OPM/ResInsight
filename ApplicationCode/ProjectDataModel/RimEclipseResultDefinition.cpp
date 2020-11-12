@@ -1890,6 +1890,7 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
             if ( !eclipseCaseData ) return;
 
             RigCaseCellResultsData* cellResultsData = eclipseCaseData->results( this->porosityModel() );
+            cellResultsData->ensureKnownResultLoaded( this->eclipseResultAddress() );
 
             double globalMin, globalMax;
             double globalPosClosestToZero, globalNegClosestToZero;

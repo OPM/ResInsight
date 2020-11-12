@@ -172,6 +172,14 @@ std::set<std::string> RiaSummaryCurveAnalyzer::blocks() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::set<int> RiaSummaryCurveAnalyzer::aquifers() const
+{
+    return m_aquifers;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::set<RifEclipseSummaryAddress::SummaryVarCategory> RiaSummaryCurveAnalyzer::categories() const
 {
     return m_categories;
@@ -229,6 +237,13 @@ std::vector<QString> RiaSummaryCurveAnalyzer::identifierTexts( RifEclipseSummary
             identifierStrings.push_back( QString::fromStdString( conn ) );
         }
     }
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_AQUIFER )
+    {
+        for ( const auto& aquifer : m_aquifers )
+        {
+            identifierStrings.push_back( QString::number( aquifer ) );
+        }
+    }
 
     return identifierStrings;
 }
@@ -284,6 +299,7 @@ void RiaSummaryCurveAnalyzer::clear()
     m_wellCompletions.clear();
     m_wellSegmentNumbers.clear();
     m_blocks.clear();
+    m_aquifers.clear();
 
     m_quantitiesNoMatchingHistory.clear();
     m_quantitiesWithMatchingHistory.clear();
@@ -377,6 +393,10 @@ void RiaSummaryCurveAnalyzer::analyzeSingleAddress( const RifEclipseSummaryAddre
     {
         auto text = address.blockAsString();
         m_blocks.insert( text );
+    }
+    else if ( address.category() == RifEclipseSummaryAddress::SUMMARY_AQUIFER )
+    {
+        m_aquifers.insert( address.aquiferNumber() );
     }
 
     if ( address.category() != RifEclipseSummaryAddress::SUMMARY_INVALID )
