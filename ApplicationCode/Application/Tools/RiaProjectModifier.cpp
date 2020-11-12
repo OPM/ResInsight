@@ -279,14 +279,9 @@ QString RiaProjectModifier::makeFilePathAbsolute( const QString& relOrAbsolutePa
 //--------------------------------------------------------------------------------------------------
 QString RiaProjectModifier::caseNameFromGridFileName( const QString& fullGridFilePathName )
 {
-    QString fn = QDir::fromNativeSeparators( fullGridFilePathName );
+    QFileInfo fi( fullGridFilePathName );
 
-    // Extract file name plus the 'deepest' directory
-    QString deepestDirPlusFileName = fn.section( '/', -2, -1 );
-
-    deepestDirPlusFileName.replace( "/", "--" );
-
-    return deepestDirPlusFileName;
+    return fi.baseName();
 }
 
 //--------------------------------------------------------------------------------------------------

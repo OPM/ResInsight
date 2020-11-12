@@ -242,6 +242,14 @@ bool RimContourMapProjection::showContourLines() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimContourMapProjection::showContourLabels() const
+{
+    return m_showContourLabels();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimContourMapProjection::resultAggregationText() const
 {
     return m_resultAggregation().uiText();
