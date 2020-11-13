@@ -24,6 +24,8 @@
 
 #include <QPointer>
 
+#include "opm/parser/eclipse/EclipseState/Schedule/VFPInjTable.hpp"
+
 class RimEclipseResultCase;
 class RimFlowDiagSolution;
 class RigTofWellDistributionCalculator;
@@ -79,7 +81,7 @@ private:
     RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent ) override;
 
     void        fixupDependentFieldsAfterCaseChange();
-    static void populatePlotWidgetWithCurveData( RiuQwtPlotWidget* plotWidget );
+    static void populatePlotWidgetWithCurveData( RiuQwtPlotWidget* plotWidget, const std::vector<Opm::VFPInjTable>& tables );
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

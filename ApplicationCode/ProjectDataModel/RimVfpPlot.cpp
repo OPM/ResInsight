@@ -22,6 +22,7 @@
 #include "RimFlowDiagSolution.h"
 #include "RimProject.h"
 #include "RimTools.h"
+#include "RimVfpTableExtractor.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigTofWellDistributionCalculator.h"
@@ -34,6 +35,7 @@
 #include "qwt_legend_label.h"
 #include "qwt_plot.h"
 #include "qwt_plot_curve.h"
+#include "qwt_symbol.h"
 
 #include <QGridLayout>
 #include <QTextBrowser>
@@ -43,6 +45,10 @@
 
 #include "cvfDebugTimer.h"
 #include "cvfTrace.h"
+
+#include <QFileInfo>
+
+#include "opm/parser/eclipse/EclipseState/Schedule/VFPInjTable.hpp"
 
 //==================================================================================================
 //
@@ -322,17 +328,31 @@ void RimVfpPlot::onLoadDataAndUpdate()
     if ( m_case && m_case->ensureReservoirCaseIsOpen() )
     {
         // TODO: extract data from data file
+        //
 
-        // TODO: populate with real data
-        populatePlotWidgetWithCurveData( m_plotWidget );
+        std::set<std::string> wells            = {"F2H", "C1H", "C2H", "C3H", "C4AH", "C4H", "F1H", "F3H", "F4H"};
+        std::string           strippedWellName = QString( m_wellName() ).remove( "-" ).toStdString();
 
-        // TODO: Maybe display the phase?
-        // if ( m_phase == RiaDefines::OIL_PHASE )
-        //     phaseString = "Oil";
-        // else if ( m_phase == RiaDefines::GAS_PHASE )
-        //     phaseString = "Gas";
-        // else if ( m_phase == RiaDefines::WATER_PHASE )
-        //     phaseString = "Water";
+        if ( wells.find( strippedWellName ) != wells.end() )
+        {
+            QString gridFileName = m_case->gridFileName();
+            std::cout << "Grid file name: " << gridFileName.toStdString() << std::endl;
+            QFileInfo fi( gridFileName );
+
+            std::string filename = fi.canonicalPath().toStdString() + "/INCLUDE/VFP/" + strippedWellName + ".Ecl";
+            const std::vector<Opm::VFPInjTable> tables = RimVfpTableExtractor::extractVfpInjectionTables( filename );
+
+            // TODO: populate with real data
+            populatePlotWidgetWithCurveData( m_plotWidget, tables );
+
+            // TODO: Maybe display the phase?
+            // if ( m_phase == RiaDefines::OIL_PHASE )
+            //     phaseString = "Oil";
+            // else if ( m_phase == RiaDefines::GAS_PHASE )
+            //     phaseString = "Gas";
+            // else if ( m_phase == RiaDefines::WATER_PHASE )
+            //     phaseString = "Water";
+        }
     }
 
     const QString plotTitleStr = QString( "%1 Vertical Flow Performance Plot" ).arg( m_wellName );
@@ -349,7 +369,7 @@ void RimVfpPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::populatePlotWidgetWithCurveData( RiuQwtPlotWidget* plotWidget )
+void RimVfpPlot::populatePlotWidgetWithCurveData( RiuQwtPlotWidget* plotWidget, const std::vector<Opm::VFPInjTable>& tables )
 {
     cvf::Trace::show( "RimVfpPlot::populatePlotWidgetWithCurves()" );
 
@@ -359,25 +379,59 @@ void RimVfpPlot::populatePlotWidgetWithCurveData( RiuQwtPlotWidget* plotWidget )
     plotWidget->setAxisAutoScale( QwtPlot::xBottom, true );
     plotWidget->setAxisAutoScale( QwtPlot::yLeft, true );
 
-    size_t numTables = 4;
+    size_t numTables = tables.size();
 
     for ( size_t i = 0; i < numTables; i++ )
     {
-        // Just create some dummy values for now
-        int                 numDummyValues = 100;
-        std::vector<double> xVals( numDummyValues, 10 * i );
-        std::vector<double> yVals( numDummyValues, 100 * i );
+        const Opm::VFPInjTable table = tables[i];
+        std::cout << "Datum depth: " << table.getDatumDepth() << std::endl;
+        std::cout << "Table number: " << table.getTableNum() << std::endl;
+        std::cout << "Flow type: " << static_cast<int>( table.getFloType() ) << std::endl;
+        std::cout << "Flo axis: " << table.getFloAxis().size() << std::endl;
+        std::cout << "THP axis: " << table.getTHPAxis().size() << std::endl;
 
-        cvf::Color3f cvfClr = cvf::Color3::BLUE;
-        QColor       qtClr  = RiaColorTools::toQColor( cvfClr );
+        std::cout << "THP Axis:\n";
+        for ( size_t x = 0; x < table.getTHPAxis().size(); x++ )
+        {
+            std::cout << " " << table.getTHPAxis()[x];
+        }
+        std::cout << "\n";
 
-        QwtPlotCurve* curve = new QwtPlotCurve;
-        curve->setTitle( QString( "Table: %1" ).arg( i ) );
-        curve->setBrush( qtClr );
+        for ( size_t y = 0; y < table.getFloAxis().size(); y++ )
+        {
+            for ( size_t x = 0; x < table.getTHPAxis().size(); x++ )
+            {
+                std::cout << " " << table( x, y );
+            }
+            std::cout << std::endl;
+        }
 
-        curve->setSamples( xVals.data(), yVals.data(), numDummyValues );
-        curve->attach( plotWidget );
-        curve->show();
+        for ( size_t thp = 0; thp < table.getTHPAxis().size(); thp++ )
+        {
+            // Just create some dummy values for now
+            size_t              numValues = table.getFloAxis().size();
+            std::vector<double> xVals     = table.getFloAxis();
+            std::vector<double> yVals( numValues, 0.0 );
+            for ( size_t y = 0; y < numValues; y++ )
+            {
+                // Convert from Pascal to Bar
+                yVals[y] = table( thp, y ) / 100000.0;
+            }
+
+            cvf::Color3f cvfClr = cvf::Color3::BLUE;
+            QColor       qtClr  = RiaColorTools::toQColor( cvfClr );
+
+            QwtPlotCurve* curve = new QwtPlotCurve;
+            // Convert from Pascal to Bar
+            curve->setTitle( QString( "THP: %1 Bar" ).arg( table.getTHPAxis()[thp] / 100000.0 ) );
+            // curve->setBrush( qtClr );
+            QwtSymbol* symbol = new QwtSymbol( QwtSymbol::Ellipse, QBrush( qtClr ), QPen( Qt::red, 2 ), QSize( 8, 8 ) );
+            curve->setSymbol( symbol );
+
+            curve->setSamples( xVals.data(), yVals.data(), numValues );
+            curve->attach( plotWidget );
+            curve->show();
+        }
     }
 }
 
