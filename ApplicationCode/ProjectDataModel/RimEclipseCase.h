@@ -113,7 +113,7 @@ public:
 
     std::set<QString> sortedSimWellNames() const;
 
-    void loadAndSyncronizeInputProperties( bool includeGridFileName );
+    void loadAndSyncronizeInputProperties( bool importGridOrFaultData );
 
     void ensureFaultDataIsComputed();
     bool ensureNncDataIsComputed();
