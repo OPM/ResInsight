@@ -42,12 +42,15 @@ class RifEclipseInputPropertyLoader
 public:
     static void loadAndSyncronizeInputProperties( RimEclipseInputPropertyCollection* inputPropertyCollection,
                                                   RigEclipseCaseData*                eclipseCaseData,
-                                                  const std::vector<QString>&        filenames );
+                                                  const std::vector<QString>&        filenames,
+                                                  bool                               allowImportOfFaults );
 
     static bool readInputPropertiesFromFiles( RimEclipseInputPropertyCollection* inputPropertyCollection,
                                               RigEclipseCaseData*                eclipseCaseData,
                                               bool                               importFaults,
                                               const std::vector<QString>&        filenames );
+
+    static bool importFaultsFromFile( RigEclipseCaseData* eclipseCase, const QString& fileName );
 
 private:
     // Hide constructor to prevent instantiation
@@ -63,6 +66,7 @@ private:
                                               RigEclipseCaseData*                eclipseCaseData,
                                               const QString&                     filename,
                                               bool                               isExistingFile,
+                                              bool                               allowImportOfFaults,
                                               std::set<QString>*                 fileKeywordSet,
                                               caf::ProgressInfo*                 progressInfo,
                                               int                                progressOffset );
