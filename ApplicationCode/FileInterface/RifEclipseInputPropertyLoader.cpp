@@ -40,7 +40,8 @@
 //--------------------------------------------------------------------------------------------------
 void RifEclipseInputPropertyLoader::loadAndSyncronizeInputProperties( RimEclipseInputPropertyCollection* inputPropertyCollection,
                                                                       RigEclipseCaseData*         eclipseCaseData,
-                                                                      const std::vector<QString>& filenames )
+                                                                      const std::vector<QString>& filenames,
+                                                                      bool                        allowImportOfFaults )
 {
     CVF_ASSERT( inputPropertyCollection );
     CVF_ASSERT( eclipseCaseData );
@@ -65,6 +66,7 @@ void RifEclipseInputPropertyLoader::loadAndSyncronizeInputProperties( RimEclipse
                                       eclipseCaseData,
                                       filename,
                                       isExistingFile,
+                                      allowImportOfFaults,
                                       &fileKeywordSet,
                                       &progInfo,
                                       progress );
@@ -105,22 +107,75 @@ bool RifEclipseInputPropertyLoader::readInputPropertiesFromFiles( RimEclipseInpu
             inputPropertyCollection->inputProperties.push_back( inputProperty );
         }
 
-        // Avoid importing faults from the input property files when faults already exists in
-        // the eclipse case. Faults can theoretically appear in any of the files, but reading
-        // and appending them to the existing fault collection is not currently supported.
-        if ( importFaults && eclipseCaseData->mainGrid()->faults().empty() )
+        if ( importFaults )
         {
-            cvf::Collection<RigFault> faultCollection;
-            RifEclipseInputFileTools::parseAndReadFaults( propertyFileName, &faultCollection );
-
-            if ( !faultCollection.empty() )
+            bool anyFaultsImported = importFaultsFromFile( eclipseCaseData, propertyFileName );
+            if ( anyFaultsImported )
             {
-                eclipseCaseData->mainGrid()->setFaults( faultCollection );
+                RimEclipseInputProperty* inputProperty = new RimEclipseInputProperty;
+                inputProperty->resultName              = "FAULTS";
+                inputProperty->eclipseKeyword          = "FAULTS";
+                inputProperty->fileName                = propertyFileName;
+                inputProperty->resolvedState           = RimEclipseInputProperty::RESOLVED;
+                inputPropertyCollection->inputProperties.push_back( inputProperty );
             }
         }
     }
 
-    // TODO: seems a bit optimistic?
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseInputPropertyLoader::importFaultsFromFile( RigEclipseCaseData* eclipseCaseData, const QString& fileName )
+{
+    cvf::Collection<RigFault> faultCollectionFromFile;
+    RifEclipseInputFileTools::parseAndReadFaults( fileName, &faultCollectionFromFile );
+    if ( faultCollectionFromFile.empty() )
+    {
+        return false;
+    }
+
+    cvf::Collection<RigFault> faults;
+    {
+        cvf::Collection<RigFault> faultCollection = eclipseCaseData->mainGrid()->faults();
+        for ( size_t i = 0; i < faultCollection.size(); i++ )
+        {
+            RigFault* f = faultCollection.at( i );
+            if ( f->name() == RiaDefines::undefinedGridFaultName() || f->name() == RiaDefines::undefinedGridFaultName() )
+            {
+                // Do not include undefined grid faults, as these are recomputed based on the imported faults from filesa
+                continue;
+            }
+
+            faults.push_back( f );
+        }
+    }
+
+    for ( size_t i = 0; i < faultCollectionFromFile.size(); i++ )
+    {
+        RigFault* faultFromFile = faultCollectionFromFile.at( i );
+
+        bool existFaultWithSameName = false;
+        for ( size_t j = 0; j < faults.size(); j++ )
+        {
+            RigFault* existingFault = faults.at( j );
+
+            if ( existingFault->name() == faultFromFile->name() )
+            {
+                existFaultWithSameName = true;
+            }
+        }
+
+        if ( !existFaultWithSameName )
+        {
+            faults.push_back( faultFromFile );
+        }
+    }
+
+    eclipseCaseData->mainGrid()->setFaults( faults );
+
     return true;
 }
 
@@ -166,9 +221,10 @@ void RifEclipseInputPropertyLoader::readDataForEachInputProperty( RimEclipseInpu
                                                                   RigEclipseCaseData*                eclipseCaseData,
                                                                   const QString&                     filename,
                                                                   bool                               isExistingFile,
-                                                                  std::set<QString>*                 fileKeywordSet,
-                                                                  caf::ProgressInfo*                 progressInfo,
-                                                                  int                                progressOffset )
+                                                                  bool               allowImportOfFaults,
+                                                                  std::set<QString>* fileKeywordSet,
+                                                                  caf::ProgressInfo* progressInfo,
+                                                                  int                progressOffset )
 {
     // Find the input property objects referring to the file
     std::vector<RimEclipseInputProperty*> ipsUsingThisFile = inputPropertyCollection->findInputProperties( filename );
@@ -186,14 +242,24 @@ void RifEclipseInputPropertyLoader::readDataForEachInputProperty( RimEclipseInpu
             inputProperty->resolvedState = RimEclipseInputProperty::KEYWORD_NOT_IN_FILE;
 
             QString kw = inputProperty->eclipseKeyword();
-            if ( fileKeywordSet->count( kw ) )
+            if ( kw == "FAULTS" )
             {
-                if ( RifEclipseInputFileTools::readProperty( filename, eclipseCaseData, kw, inputProperty->resultName ) )
+                if ( allowImportOfFaults )
                 {
-                    inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED;
+                    importFaultsFromFile( eclipseCaseData, filename );
                 }
             }
-            fileKeywordSet->erase( kw );
+            else
+            {
+                if ( fileKeywordSet->count( kw ) )
+                {
+                    if ( RifEclipseInputFileTools::readProperty( filename, eclipseCaseData, kw, inputProperty->resultName ) )
+                    {
+                        inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED;
+                    }
+                }
+                fileKeywordSet->erase( kw );
+            }
         }
 
         progressInfo->setProgress( static_cast<int>( progressOffset + progress ) );

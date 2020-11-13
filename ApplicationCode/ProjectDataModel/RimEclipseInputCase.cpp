@@ -177,6 +177,12 @@ bool RimEclipseInputCase::openDataFileSet( const QStringList& fileNames )
                                                                  this->eclipseCaseData(),
                                                                  importFaults,
                                                                  filesToRead );
+
+    if ( importFaults )
+    {
+        this->ensureFaultDataIsComputed();
+    }
+
     return true;
 }
 
@@ -215,8 +221,8 @@ bool RimEclipseInputCase::openEclipseGridFile()
 
         this->eclipseCaseData()->mainGrid()->setFlipAxis( m_flipXAxis, m_flipYAxis );
 
-        computeCachedData();
         loadAndSyncronizeInputProperties( true );
+        computeCachedData();
     }
 
     RiaApplication* app = RiaApplication::instance();
