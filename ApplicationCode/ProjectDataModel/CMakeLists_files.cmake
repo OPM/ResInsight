@@ -77,6 +77,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RimMainPlotCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlotCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimRftPlotCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPltPlotCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimVfpPlotCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimVfpPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotWindow.h
 ${CMAKE_CURRENT_LIST_DIR}/RimMultiPlot.h
@@ -241,6 +243,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RimMainPlotCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlotCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimRftPlotCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPltPlotCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimVfpPlotCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimVfpPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotWindow.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimMultiPlot.cpp
