@@ -617,7 +617,7 @@ QList<caf::PdmOptionItemInfo> RimVfpPlot::calculateValueOptions( const caf::PdmF
     {
         if ( m_case && m_case->eclipseCaseData() )
         {
-            caf::QIconProvider      simWellIcon( ":/Well.png" );
+            caf::IconProvider       simWellIcon( ":/Well.png" );
             const std::set<QString> sortedWellNameSet = m_case->eclipseCaseData()->findSortedWellNames();
             for ( const QString& name : sortedWellNameSet )
             {
