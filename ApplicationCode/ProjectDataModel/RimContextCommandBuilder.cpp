@@ -147,6 +147,10 @@
 #include "RimWellPltPlot.h"
 #include "RimWellRftPlot.h"
 
+#ifdef USE_QTCHARTS
+#include "RimGridStatisticsPlotCollection.h"
+#endif
+
 #include "RiuMainWindow.h"
 
 #include "OctaveScriptCommands/RicExecuteScriptForCasesFeature.h"
@@ -618,6 +622,12 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicCreateSaturationPressurePlotsFeature";
         }
+#ifdef USE_QTCHARTS
+        else if ( dynamic_cast<RimGridStatisticsPlotCollection*>( firstUiItem ) )
+        {
+            menuBuilder << "RicCreateGridStatisticsPlotFeature";
+        }
+#endif
         else if ( dynamic_cast<RimGridCrossPlot*>( firstUiItem ) )
         {
             menuBuilder << "RicPasteGridCrossPlotDataSetFeature";

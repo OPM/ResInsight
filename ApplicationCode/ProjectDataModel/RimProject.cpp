@@ -89,6 +89,11 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
+#ifdef USE_QTCHARTS
+#include "RimGridStatisticsPlot.h"
+#include "RimGridStatisticsPlotCollection.h"
+#endif
+
 #include "SsiHubImportCommands/RimWellPathImport.h"
 
 #include "RiuMainWindow.h"
@@ -1453,6 +1458,13 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
             {
                 itemCollection->add( mainPlotCollection->stimPlanModelPlotCollection() );
             }
+
+#ifdef USE_QTCHARTS
+            if ( mainPlotCollection->gridStatisticsPlotCollection() )
+            {
+                itemCollection->add( mainPlotCollection->gridStatisticsPlotCollection() );
+            }
+#endif
         }
 
         uiTreeOrdering.add( scriptCollection() );
