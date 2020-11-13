@@ -19,6 +19,7 @@
 
 #include "RimMainPlotCollection.h"
 
+#include "RimAnalysisPlotCollection.h"
 #include "RimCorrelationPlotCollection.h"
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowPlotCollection.h"
@@ -42,7 +43,11 @@
 #include "RimWellPltPlot.h"
 #include "RimWellRftPlot.h"
 
-#include "RimAnalysisPlotCollection.h"
+#ifdef USE_QTCHARTS
+#include "RimGridStatisticsPlot.h"
+#include "RimGridStatisticsPlotCollection.h"
+#endif
+
 #include "RiuMainWindow.h"
 #include "RiuProjectPropertyView.h"
 
@@ -101,6 +106,10 @@ RimMainPlotCollection::RimMainPlotCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_vfpPlotCollection, "VfpPlotCollection", "", "", "", "" );
     m_vfpPlotCollection.uiCapability()->setUiHidden( true );
+#ifdef USE_QTCHARTS
+    CAF_PDM_InitFieldNoDefault( &m_gridStatisticsPlotCollection, "GridStatisticsPlotCollection", "", "", "", "" );
+    m_gridStatisticsPlotCollection.uiCapability()->setUiHidden( true );
+#endif
 
     m_wellLogPlotCollection            = new RimWellLogPlotCollection();
     m_rftPlotCollection                = new RimRftPlotCollection();
@@ -115,6 +124,9 @@ RimMainPlotCollection::RimMainPlotCollection()
     m_correlationPlotCollection        = new RimCorrelationPlotCollection;
     m_stimPlanModelPlotCollection      = new RimStimPlanModelPlotCollection;
     m_vfpPlotCollection                = new RimVfpPlotCollection();
+#ifdef USE_QTCHARTS
+    m_gridStatisticsPlotCollection = new RimGridStatisticsPlotCollection;
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -245,6 +257,16 @@ RimStimPlanModelPlotCollection* RimMainPlotCollection::stimPlanModelPlotCollecti
     return m_stimPlanModelPlotCollection();
 }
 
+#ifdef USE_QTCHARTS
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimGridStatisticsPlotCollection* RimMainPlotCollection::gridStatisticsPlotCollection()
+{
+    return m_gridStatisticsPlotCollection();
+}
+#endif
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -263,6 +285,9 @@ void RimMainPlotCollection::deleteAllContainedObjects()
     m_analysisPlotCollection()->deleteAllPlots();
     m_correlationPlotCollection()->deleteAllPlots();
     m_stimPlanModelPlotCollection()->deleteAllPlots();
+#ifdef USE_QTCHARTS
+    m_gridStatisticsPlotCollection()->deleteAllPlots();
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -330,6 +355,16 @@ void RimMainPlotCollection::updatePlotsWithFormations()
             stimPlanModelPlot->loadDataAndUpdate();
         }
     }
+
+#ifdef USE_QTCHARTS
+    if ( m_gridStatisticsPlotCollection )
+    {
+        for ( RimGridStatisticsPlot* gridStatisticsPlot : m_gridStatisticsPlotCollection->gridStatisticsPlots() )
+        {
+            gridStatisticsPlot->loadDataAndUpdate();
+        }
+    }
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------

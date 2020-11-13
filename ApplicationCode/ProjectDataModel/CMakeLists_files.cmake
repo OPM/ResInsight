@@ -314,6 +314,18 @@ ${CMAKE_CURRENT_LIST_DIR}/RimVfpTableExtractor.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimCaseDisplayNameTools.cpp
 )
 
+if(Qt5Charts_FOUND)
+  list(APPEND SOURCE_GROUP_HEADER_FILES
+       ${CMAKE_CURRENT_LIST_DIR}/RimGridStatisticsPlotCollection.h
+       ${CMAKE_CURRENT_LIST_DIR}/RimGridStatisticsPlot.h)
+
+
+  list(APPEND SOURCE_GROUP_SOURCE_FILES
+       ${CMAKE_CURRENT_LIST_DIR}/RimGridStatisticsPlotCollection.cpp
+       ${CMAKE_CURRENT_LIST_DIR}/RimGridStatisticsPlot.cpp)
+endif()
+
+
 list(APPEND CODE_HEADER_FILES
 ${SOURCE_GROUP_HEADER_FILES}
 )
