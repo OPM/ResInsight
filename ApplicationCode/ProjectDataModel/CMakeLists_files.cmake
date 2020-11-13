@@ -161,6 +161,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimColorLegendCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimColorLegend.h
 ${CMAKE_CURRENT_LIST_DIR}/RimColorLegendItem.h
 ${CMAKE_CURRENT_LIST_DIR}/RimAbstractPlotCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimVfpTableExtractor.h
 )
 
 
@@ -325,6 +326,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimElementVectorResult.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimColorLegendCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimColorLegend.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimColorLegendItem.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimVfpTableExtractor.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
