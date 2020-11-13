@@ -86,7 +86,7 @@ public:
 
 private:
     // RimPlot implementations
-    void doRemoveFromCollection() override;
+    void doRemoveFromCollection();
 
     // RimViewWindow implementations
     void deleteViewWidget() override;
