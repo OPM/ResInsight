@@ -92,6 +92,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicExportStimPlanModelToFileFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicStackSelectedCurvesFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicUnstackSelectedCurvesFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicThemeColorEditorFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicNewVfpPlotFeature.h
 )
 
 
@@ -188,6 +189,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicExportStimPlanModelToFileFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicStackSelectedCurvesFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicUnstackSelectedCurvesFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicThemeColorEditorFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicNewVfpPlotFeature.cpp
 )
 
 
