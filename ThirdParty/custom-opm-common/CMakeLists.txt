@@ -81,12 +81,16 @@ add_library(${PROJECT_NAME}
     opm-common/src/opm/io/eclipse/rst/header.cpp
 )
 
+find_path(BOOST_SPIRIT_INCLUDE_DIRS "boost/spirit.hpp")
+
 target_link_libraries(custom-opm-common 
-  boost-Subset
   ${ADDITIONAL_LINK_LIBRARIES}
 )
 target_include_directories(custom-opm-common 
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/opm-common
     ${CMAKE_CURRENT_SOURCE_DIR}/generated-opm-common/include
+  PRIVATE
+    ${BOOST_SPIRIT_INCLUDE_DIRS}
+    
 )
