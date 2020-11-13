@@ -278,6 +278,7 @@ endif() # MSVC
 
 if (VCPKG_AUTO_INSTALL)
     vcpkg_install(boost-filesystem)
+    vcpkg_install(boost-spirit)
 endif()
 
 add_subdirectory(ThirdParty/custom-opm-flowdiagnostics)
