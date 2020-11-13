@@ -310,7 +310,13 @@ list(APPEND THIRD_PARTY_LIBRARIES
 ################################################################################
 # Qt
 ################################################################################
-find_package(Qt5 COMPONENTS REQUIRED Core Gui OpenGL Network Script ScriptTools Widgets)
+find_package(Qt5 COMPONENTS Core Gui OpenGL Network Script ScriptTools Widgets OPTIONAL_COMPONENTS Charts)
+if (Qt5Charts_FOUND)
+   message(STATUS "QtCharts found: ${Qt5Charts_LIBRARIES}")
+   add_definitions(-DUSE_QTCHARTS)
+else()
+   message(STATUS "QtCharts missing.")
+endif()
 
 # Open GL
 find_package( OpenGL )

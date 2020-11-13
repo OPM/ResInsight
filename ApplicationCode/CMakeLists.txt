@@ -42,18 +42,17 @@ find_package(
 if(Qt5Core_FOUND)
   find_package(
     Qt5
-    CONFIG
-    REQUIRED
-    Core
-    Gui
-    OpenGL
-    Network
-    Script
-    Widgets
-    Xml
-    Concurrent
-    PrintSupport
-    Svg)
+    COMPONENTS Core
+               Gui
+               OpenGL
+               Network
+               Script
+               Widgets
+               Xml
+               Concurrent
+               PrintSupport
+               Svg
+    OPTIONAL_COMPONENTS Charts)
   set(QT_LIBRARIES
       Qt5::Core
       Qt5::Gui
@@ -65,6 +64,9 @@ if(Qt5Core_FOUND)
       Qt5::Concurrent
       Qt5::PrintSupport
       Qt5::Svg)
+  if(Qt5Charts_FOUND)
+    list(APPEND QT_LIBRARIES Qt5::Charts)
+  endif(Qt5Charts_FOUND)
 endif(Qt5Core_FOUND)
 
 # NB: The generated file is written to Cmake binary folder to avoid source tree

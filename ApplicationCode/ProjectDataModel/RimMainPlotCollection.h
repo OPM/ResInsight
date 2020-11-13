@@ -43,6 +43,10 @@ class RimSaturationPressurePlotCollection;
 class RimStimPlanModelPlotCollection;
 class RimVfpPlotCollection;
 
+#ifdef USE_QTCHARTS
+class RimGridStatisticsPlotCollection;
+#endif
+
 //==================================================================================================
 ///
 ///
@@ -68,6 +72,10 @@ public:
     RimMultiPlotCollection*              multiPlotCollection();
     RimStimPlanModelPlotCollection*      stimPlanModelPlotCollection();
     RimVfpPlotCollection*                vfpPlotCollection();
+
+#ifdef USE_QTCHARTS
+    RimGridStatisticsPlotCollection* gridStatisticsPlotCollection();
+#endif
 
     void deleteAllContainedObjects();
     void updateCurrentTimeStepInPlots();
@@ -96,6 +104,9 @@ private:
     caf::PdmChildField<RimMultiPlotCollection*>              m_multiPlotCollection;
     caf::PdmChildField<RimStimPlanModelPlotCollection*>      m_stimPlanModelPlotCollection;
     caf::PdmChildField<RimVfpPlotCollection*>                m_vfpPlotCollection;
+#ifdef USE_QTCHARTS
+    caf::PdmChildField<RimGridStatisticsPlotCollection*> m_gridStatisticsPlotCollection;
+#endif
 
     caf::PdmField<bool> m_show;
 };
