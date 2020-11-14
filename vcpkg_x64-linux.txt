@@ -1,3 +1,4 @@
 grpc
+boost-filesystem
 --triplet
 x64-linux
