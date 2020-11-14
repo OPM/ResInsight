@@ -48,6 +48,9 @@ public:
 
     double getScaling( const QString& formationName, const QString& faciesName, RiaDefines::CurveProperty property ) const;
 
+protected:
+    void initAfterRead() override;
+
 private:
     void elasticPropertyScalingChanged( const caf::SignalEmitter* emitter );
     caf::PdmChildArrayField<RimElasticPropertyScaling*> m_elasticPropertyScalings;

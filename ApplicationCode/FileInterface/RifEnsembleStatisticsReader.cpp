@@ -18,7 +18,9 @@
 
 #include "RifEnsembleStatisticsReader.h"
 
+#include "RimEnsembleCurveSet.h"
 #include "RimEnsembleStatisticsCase.h"
+#include "RimSummaryCaseCollection.h"
 
 static const std::vector<time_t> EMPTY_TIME_STEPS_VECTOR;
 
@@ -80,7 +82,23 @@ bool RifEnsembleStatisticsReader::values( const RifEclipseSummaryAddress& result
 //--------------------------------------------------------------------------------------------------
 std::string RifEnsembleStatisticsReader::unitName( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    return "";
+    std::string retval;
+
+    // The stat case does not have a unit set, so pick up the unit from one of the input cases, if possible
+    auto cases = m_ensembleStatCase->curveSet()->summaryCaseCollection()->allSummaryCases();
+    if ( cases.size() > 0 )
+    {
+        // get rid of the stats part of the quantity name
+        QString     qName    = QString::fromStdString( resultAddress.quantityName() );
+        std::string orgQName = qName.split( ":" )[1].toStdString();
+
+        RifEclipseSummaryAddress address = RifEclipseSummaryAddress( resultAddress );
+        address.setQuantityName( orgQName );
+
+        retval = cases[0]->summaryReader()->unitName( address );
+    }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------------

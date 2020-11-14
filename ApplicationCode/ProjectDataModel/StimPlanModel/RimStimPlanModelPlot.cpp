@@ -155,9 +155,14 @@ void RimStimPlanModelPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedF
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanModelPlot::onLoadDataAndUpdate()
 {
-    // Enable and disable detailed fluid loss curves
     if ( stimPlanModel() != nullptr )
     {
+        // Update eclipse case and time step
+        m_eclipseCase = stimPlanModel()->eclipseCase();
+        m_timeStep    = stimPlanModel()->timeStep();
+        updateConnectedEditors();
+
+        // Enable and disable detailed fluid loss curves
         std::vector<RiaDefines::CurveProperty> fluidLossCurves = { RiaDefines::CurveProperty::PORO_ELASTIC_CONSTANT,
                                                                    RiaDefines::CurveProperty::RELATIVE_PERMEABILITY_FACTOR,
                                                                    RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFICIENT,

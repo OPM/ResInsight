@@ -127,8 +127,12 @@ void RivContourMapProjectionPartMgr::appendContourLinesToModel( const cvf::Camer
         cvf::ScalarMapper* mapper = m_contourMapProjection->legendConfig()->scalarMapper();
 
         std::vector<std::vector<cvf::BoundingBox>> labelBBoxes;
-        std::vector<cvf::ref<cvf::Drawable>>       labelDrawables =
-            createContourLabels( camera, displayCoordTransform, &labelBBoxes );
+        std::vector<cvf::ref<cvf::Drawable>>       labelDrawables;
+
+        if ( m_contourMapProjection->showContourLabels() )
+        {
+            labelDrawables = createContourLabels( camera, displayCoordTransform, &labelBBoxes );
+        }
 
         std::vector<std::vector<cvf::ref<cvf::Drawable>>> contourDrawablesForAllLevels =
             createContourPolygons( displayCoordTransform, labelBBoxes );
@@ -163,14 +167,18 @@ void RivContourMapProjectionPartMgr::appendContourLinesToModel( const cvf::Camer
                 }
             }
         }
-        for ( auto labelDrawableRef : labelDrawables )
+
+        if ( m_contourMapProjection->showContourLabels() )
         {
-            cvf::ref<cvf::Part> part = new cvf::Part;
-            part->setDrawable( labelDrawableRef.p() );
-            part->setEffect( m_labelEffect.p() );
-            part->setPriority( RivPartPriority::Text );
-            part->setSourceInfo( new RivMeshLinesSourceInfo( m_contourMapProjection.p() ) );
-            model->addPart( part.p() );
+            for ( auto labelDrawableRef : labelDrawables )
+            {
+                cvf::ref<cvf::Part> part = new cvf::Part;
+                part->setDrawable( labelDrawableRef.p() );
+                part->setEffect( m_labelEffect.p() );
+                part->setPriority( RivPartPriority::Text );
+                part->setSourceInfo( new RivMeshLinesSourceInfo( m_contourMapProjection.p() ) );
+                model->addPart( part.p() );
+            }
         }
     }
 }
@@ -295,46 +303,49 @@ std::vector<std::vector<cvf::ref<cvf::Drawable>>>
                 lineBBox.add( displayVertex2 );
 
                 bool addOriginalSegment = true;
-                for ( const cvf::BoundingBox& existingBBox : labelBBoxes[i] )
+                if ( labelBBoxes.size() > 0 )
                 {
-                    if ( lineBBox.intersects( existingBBox ) )
+                    for ( const cvf::BoundingBox& existingBBox : labelBBoxes[i] )
                     {
-                        if ( existingBBox.contains( displayVertex1 ) && existingBBox.contains( displayVertex2 ) )
+                        if ( lineBBox.intersects( existingBBox ) )
                         {
-                            addOriginalSegment = false;
-                        }
-                        else
-                        {
-                            cvf::Vec3d dir = displayVertex2 - displayVertex1;
-
-                            cvf::Ray ray;
-                            ray.setOrigin( displayVertex1 );
-                            ray.setDirection( dir.getNormalized() );
-                            ray.setMaximumDistance( dir.length() );
-
-                            if ( !existingBBox.contains( displayVertex1 ) )
+                            if ( existingBBox.contains( displayVertex1 ) && existingBBox.contains( displayVertex2 ) )
                             {
-                                cvf::Vec3d intersection;
-                                bool       hit = ray.boxIntersect( existingBBox, &intersection );
-                                if ( hit )
-                                {
-                                    displayLines.push_back( cvf::Vec3f( displayVertex1 ) );
-                                    displayLines.push_back( cvf::Vec3f( intersection ) );
-                                    addOriginalSegment = false;
-                                }
+                                addOriginalSegment = false;
                             }
-
-                            if ( !existingBBox.contains( displayVertex2 ) )
+                            else
                             {
-                                ray.setOrigin( displayVertex2 );
-                                ray.setDirection( -ray.direction() );
-                                cvf::Vec3d intersection;
-                                bool       hit = ray.boxIntersect( existingBBox, &intersection );
-                                if ( hit )
+                                cvf::Vec3d dir = displayVertex2 - displayVertex1;
+
+                                cvf::Ray ray;
+                                ray.setOrigin( displayVertex1 );
+                                ray.setDirection( dir.getNormalized() );
+                                ray.setMaximumDistance( dir.length() );
+
+                                if ( !existingBBox.contains( displayVertex1 ) )
                                 {
-                                    displayLines.push_back( cvf::Vec3f( intersection ) );
-                                    displayLines.push_back( cvf::Vec3f( displayVertex2 ) );
-                                    addOriginalSegment = false;
+                                    cvf::Vec3d intersection;
+                                    bool       hit = ray.boxIntersect( existingBBox, &intersection );
+                                    if ( hit )
+                                    {
+                                        displayLines.push_back( cvf::Vec3f( displayVertex1 ) );
+                                        displayLines.push_back( cvf::Vec3f( intersection ) );
+                                        addOriginalSegment = false;
+                                    }
+                                }
+
+                                if ( !existingBBox.contains( displayVertex2 ) )
+                                {
+                                    ray.setOrigin( displayVertex2 );
+                                    ray.setDirection( -ray.direction() );
+                                    cvf::Vec3d intersection;
+                                    bool       hit = ray.boxIntersect( existingBBox, &intersection );
+                                    if ( hit )
+                                    {
+                                        displayLines.push_back( cvf::Vec3f( intersection ) );
+                                        displayLines.push_back( cvf::Vec3f( displayVertex2 ) );
+                                        addOriginalSegment = false;
+                                    }
                                 }
                             }
                         }

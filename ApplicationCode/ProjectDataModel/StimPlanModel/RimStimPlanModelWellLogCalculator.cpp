@@ -57,6 +57,7 @@ bool RimStimPlanModelWellLogCalculator::isMatching( RiaDefines::CurveProperty cu
     std::vector<RiaDefines::CurveProperty> matching = {
         RiaDefines::CurveProperty::FACIES,
         RiaDefines::CurveProperty::POROSITY,
+        RiaDefines::CurveProperty::POROSITY_UNSCALED,
         RiaDefines::CurveProperty::PERMEABILITY_X,
         RiaDefines::CurveProperty::PERMEABILITY_Z,
         RiaDefines::CurveProperty::INITIAL_PRESSURE,
@@ -427,17 +428,19 @@ void RimStimPlanModelWellLogCalculator::scaleByNetToGross( const RimStimPlanMode
         return;
     }
 
-    double cutoff = 1.0;
-    if ( stimPlanModel->stimPlanModelTemplate() && stimPlanModel->stimPlanModelTemplate()->nonNetLayers() &&
-         stimPlanModel->stimPlanModelTemplate()->nonNetLayers()->isChecked() )
+    double netToGrossCutoff = 1.0;
+    bool   useNetToGross    = false;
+
+    if ( stimPlanModel->stimPlanModelTemplate() && stimPlanModel->stimPlanModelTemplate()->nonNetLayers() )
     {
-        cutoff = stimPlanModel->stimPlanModelTemplate()->nonNetLayers()->cutOff();
+        netToGrossCutoff = stimPlanModel->stimPlanModelTemplate()->nonNetLayers()->cutOff();
+        useNetToGross    = !netToGross.empty() && stimPlanModel->stimPlanModelTemplate()->nonNetLayers()->isChecked();
     }
 
     for ( size_t i = 0; i < values.size(); i++ )
     {
         double ntg = netToGross[i];
-        if ( ntg <= cutoff )
+        if ( useNetToGross && ntg <= netToGrossCutoff )
         {
             values[i] = ntg * values[i];
         }

@@ -163,14 +163,14 @@ def test_replaceCase(rips_instance, initialize_test):
 
     case.replace(new_grid_file=case_path)
     # Check that the case object has been changed
-    assert(case.name == "Real0--BRUGGE_0000.EGRID")
+    assert(case.name == "BRUGGE_0000")
     assert(case.id == 0)
 
     cases = rips_instance.project.cases()
     assert(len(cases) is 1)
     # Check that retrieving the case object again will yield the changed object
     case = project.case(case_id=0)
-    assert(case.name == "Real0--BRUGGE_0000.EGRID")
+    assert(case.name == "BRUGGE_0000")
     assert(case.id == 0)
 
 

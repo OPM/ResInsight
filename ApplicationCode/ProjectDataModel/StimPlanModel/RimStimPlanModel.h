@@ -219,12 +219,15 @@ private:
     void showAllFaults();
 
     RimColorLegend* getFaciesColorLegend() const;
+    void            updateExtractionDepthBoundaries();
 
 protected:
     caf::PdmField<double>                       m_MD;
     caf::PdmPtrField<RimEclipseCase*>           m_eclipseCase;
     caf::PdmField<int>                          m_timeStep;
     caf::PdmField<caf::AppEnum<ExtractionType>> m_extractionType;
+    caf::PdmField<double>                       m_extractionDepthTop;
+    caf::PdmField<double>                       m_extractionDepthBottom;
     caf::PdmField<cvf::Vec3d>                   m_anchorPosition;
     caf::PdmField<cvf::Vec3d>                   m_thicknessDirection;
     caf::PdmField<double>                       m_boundingBoxVertical;

@@ -55,15 +55,12 @@ RiuSummaryQuantityNameInfoProvider::RiuSummaryQuantityInfo
     else if ( quantity.size() > 1 && quantity[1] == 'U' )
     {
         // User defined vector name
+        // The summary type is given by the first letter, and U defines user-defined
+        // FU : field user defined name
+        // WU : well user defined name
+        // .....
 
-        std::string key = quantity.substr( 0, 2 );
-
-        it = m_summaryToDescMap.find( key );
-
-        if ( it != m_summaryToDescMap.end() )
-        {
-            return it->second;
-        }
+        return RiuSummaryQuantityInfo();
     }
     else if ( quantity.size() > 5 )
     {

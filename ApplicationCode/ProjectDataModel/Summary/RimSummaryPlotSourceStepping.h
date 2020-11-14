@@ -120,6 +120,8 @@ private:
     caf::PdmField<QString> m_segment;
     caf::PdmField<QString> m_completion;
 
+    caf::PdmField<int> m_aquifer;
+
     caf::PdmField<bool> m_includeEnsembleCasesForCaseStepping;
 
     SourceSteppingType m_sourceSteppingType;

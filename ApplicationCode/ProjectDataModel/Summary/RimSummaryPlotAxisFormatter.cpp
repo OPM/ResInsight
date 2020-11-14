@@ -184,8 +184,12 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
     auto addToUnitToQuantityMap =[&]( const std::string& unitText, 
                                       const RifEclipseSummaryAddress& sumAddress ) 
     {
+        // remove any stats prefix from the quantity name
+        size_t cutPos = sumAddress.quantityName().find(':');
+        if (cutPos == std::string::npos) cutPos = -1;
+
         std::string        quantityNameForDisplay;
-        const std::string& quantityName = sumAddress.quantityName();
+        const std::string& quantityName = sumAddress.quantityName().substr(cutPos+1);
 
         if ( sumAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
         {
@@ -225,11 +229,7 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
         RifEclipseSummaryAddress sumAddress;
         std::string              unitText;
 
-        if ( rimCurve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS )
-        {
-            continue;
-        }
-        else if ( m_axisProperties->plotAxisType() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
+        if ( m_axisProperties->plotAxisType() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
         {
             sumAddress = rimCurve->summaryAddressX();
             unitText   = rimCurve->unitNameX();

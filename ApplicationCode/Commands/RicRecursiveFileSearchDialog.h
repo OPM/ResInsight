@@ -32,6 +32,8 @@ class QPushButton;
 class QMainWindow;
 class QListWidget;
 class QGroupBox;
+class QComboBox;
+class QCheckBox;
 
 class RicRecursiveFileSearchDialogResult;
 
@@ -79,16 +81,18 @@ private:
 
     // File search methods
 
-    QStringList findMatchingFiles();
-    void        buildDirectoryListRecursiveSimple( const QString& currentDir,
-                                                   const QString& currentPathFilter,
-                                                   QStringList*   accumulatedDirs );
-    QStringList findFilesInDirs( const QStringList& dirs );
-    QStringList createFileNameFilterList();
+    QStringList    findMatchingFiles();
+    void           buildDirectoryListRecursiveSimple( const QString& currentDir,
+                                                      const QString& currentPathFilter,
+                                                      QStringList*   accumulatedDirs );
+    QStringList    findFilesInDirs( const QStringList& dirs );
+    QStringList    createFileNameFilterList();
+    static QString replaceWithRealizationStar( const QString& text );
 
 private slots:
     void slotFilterChanged( const QString& text );
     void slotBrowseButtonClicked();
+    void slotUseRealizationStarClicked();
     void slotFindOrCancelButtonClicked();
 
     void slotFileListCustomMenuRequested( const QPoint& point );
@@ -102,8 +106,9 @@ private slots:
 
 private:
     QLabel*      m_pathFilterLabel;
-    QLineEdit*   m_pathFilterField;
+    QComboBox*   m_pathFilterField;
     QPushButton* m_browseButton;
+    QCheckBox*   m_useRealizationStarCheckBox;
 
     QLabel*    m_fileFilterLabel;
     QLineEdit* m_fileFilterField;
