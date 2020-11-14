@@ -140,7 +140,7 @@ jobs:
         if: contains( matrix.config.os, 'windows')  
         uses: microsoft/setup-msbuild@v1.0.2
 
-        - name: Configure
+      - name: Configure
         shell: cmake -P {0}
         run: |
           set(ENV{CC} ${{ matrix.config.cc }})
