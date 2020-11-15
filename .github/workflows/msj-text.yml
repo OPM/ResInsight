@@ -141,8 +141,8 @@ jobs:
 
       - name: Configure
         env:
-          CXX: ${{ matrix.cxx }}
-          CC: ${{ matrix.cc }}
+          CXX: ${{ matrix.config.cxx }}
+          CC: ${{ matrix.config.cc }}
         run: |
           cmake \
           -S . \
