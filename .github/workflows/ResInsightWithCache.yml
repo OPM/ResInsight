@@ -4,7 +4,7 @@ on:
   push:
   schedule:
     # Every day at 1am to make sure we have a build cache for the current date
-    # build cache is 
+    # build cache is at
     - cron: '0 1 * * * '
 env:
   NINJA_VERSION: 1.9.0
@@ -100,9 +100,8 @@ jobs:
         run: New-Item ${{ env.BUILDCACHE_DIR }} -ItemType "directory" -Force 
         shell: pwsh
       - name: Add buildcache to system path
-        run: echo "${{github.workspace}}/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
-        shell: pwsh
-        
+        run: echo "::add-path::${{ github.workspace }}/bin"
+
       - name: Cache Qt        
         id: cache-qt
         uses: actions/cache@v2
@@ -124,18 +123,12 @@ jobs:
         with:
           path: ${{ github.workspace }}/ThirdParty/vcpkg/
           # Ensure the cache is invalidated any time vcpkg version changes, or a different set of packages is being used.
-          key: ${{ hashFiles('.git/modules/ThirdParty/vcpkg/HEAD') }}-${{ runner.os }}-vcpkg-v04
+          key: ${{ hashFiles('.git/modules/ThirdParty/vcpkg/HEAD') }}-${{ runner.os }}-vcpkg-v05
       - name: Get Python executable path
         id: python-path
         run: echo "::set-output name=PYTHON_EXECUTABLE::$(python -c 'import sys; import pathlib; print (pathlib.PurePath(sys.executable).as_posix())')"
       - name: Print Python path
         run: echo ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
-      - name: Run vcpkg
-        uses: lukka/run-vcpkg@v4
-        id: runvcpkg
-        with:
-          setupOnly: true
-          vcpkgDirectory: '${{ github.workspace }}/ThirdParty/vcpkg'
       - name: Configure
         shell: cmake -P {0}
         run: |
