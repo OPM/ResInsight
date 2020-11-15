@@ -24,6 +24,7 @@ jobs:
             os: windows-latest,
             cc: "cl", cxx: "cl",
             environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
+            vcpkg-response-file: vcpkg_x64-windows.txt,
             vcpkg-triplet: x64-windows,
             cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake'
           }
@@ -31,6 +32,7 @@ jobs:
             name: "Ubuntu Latest GCC",
             os: ubuntu-latest,
             cc: "gcc", cxx: "g++",
+            vcpkg-response-file: vcpkg_x64-linux.txt,
             vcpkg-triplet: x64-linux,
             cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake'
           }
@@ -38,6 +40,7 @@ jobs:
             name: "Ubuntu 20.04",
             os: ubuntu-20.04,
             cc: "gcc", cxx: "g++",
+            vcpkg-response-file: vcpkg_x64-linux.txt,
             vcpkg-triplet: x64-linux,
             cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake'
           }
@@ -45,6 +48,7 @@ jobs:
             name: "Ubuntu 20.04 clang",
             os: ubuntu-20.04,
             cc: "clang", cxx: "clang++",
+            vcpkg-response-file: vcpkg_x64-linux.txt,
             vcpkg-triplet: x64-linux,
             cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake'
           }
@@ -119,23 +123,19 @@ jobs:
       - name: Install Linux dependencies
         if: "contains( matrix.config.os, 'ubuntu')"
         run: sudo apt-get install libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev libhdf5-dev
-      - name: Cache vcpkg artifacts
-        uses: actions/cache@v2
-        with:
-          path: ${{ github.workspace }}/ThirdParty/vcpkg/
-          # Ensure the cache is invalidated any time vcpkg version changes, or a different set of packages is being used.
-          key: ${{ hashFiles('.git/modules/ThirdParty/vcpkg/HEAD') }}-${{ runner.os }}-vcpkg-v04
       - name: Get Python executable path
         id: python-path
         run: echo "::set-output name=PYTHON_EXECUTABLE::$(python -c 'import sys; import pathlib; print (pathlib.PurePath(sys.executable).as_posix())')"
       - name: Print Python path
         run: echo ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
+
       - name: Run vcpkg
-        uses: lukka/run-vcpkg@v4
+        uses: lukka/run-vcpkg@v5
         id: runvcpkg
         with:
-          setupOnly: true
+          vcpkgArguments: '@${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}'
           vcpkgDirectory: '${{ github.workspace }}/ThirdParty/vcpkg'
+
       - name: Configure
         shell: cmake -P {0}
         run: |
@@ -172,7 +172,6 @@ jobs:
               -D RESINSIGHT_ENABLE_GRPC=true
               -D RESINSIGHT_GRPC_PYTHON_EXECUTABLE=${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
               -D RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE=true
-              -D VCPKG_AUTO_INSTALL=true
               -D CMAKE_TOOLCHAIN_FILE=${{ matrix.config.cmake-toolchain }}
               -G Ninja
             RESULT_VARIABLE result
