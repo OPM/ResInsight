@@ -1,4 +1,4 @@
-name: ResInsight Build With Cache
+name: msj - ResInsight Build With Cache
 
 on:
   push:
