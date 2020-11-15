@@ -130,7 +130,7 @@ jobs:
         run: echo ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
 
       - name: Run vcpkg
-        uses: lukka/run-vcpkg@v4
+        uses: lukka/run-vcpkg@v5
         id: runvcpkg
         with:
           vcpkgArguments: '@${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}'
