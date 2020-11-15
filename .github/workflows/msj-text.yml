@@ -160,8 +160,21 @@ jobs:
           -G Ninja
       
       - name: Build
-        run: cmake --build cmakebuild --target install
-      
+        shell: cmake -P {0}
+        run: |
+          set(ENV{NINJA_STATUS} "[%f/%t %o/sec] ")
+          set(path_separator ":")
+          if ("${{ runner.os }}" STREQUAL "Windows")
+            set(path_separator ";")
+          endif()
+          execute_process(
+            COMMAND cmake --build cmakebuild --target install
+            RESULT_VARIABLE result
+          )
+          if (NOT result EQUAL 0)
+            message(FATAL_ERROR "Bad exit status")
+          endif()
+          
       - name: Stats for buildcache
         run: ${{ github.workspace }}/bin/buildcache -s
 
