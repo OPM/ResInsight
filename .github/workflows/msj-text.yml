@@ -143,7 +143,8 @@ jobs:
         env:
           CXX: ${{ matrix.cxx }}
           CC: ${{ matrix.cc }}
-        run: cmake \
+        run: |
+          cmake \
           -S . \
           -B cmakebuild \
           -D CMAKE_BUILD_TYPE=$ENV{BUILD_TYPE} \
@@ -156,7 +157,7 @@ jobs:
           -D RESINSIGHT_GRPC_PYTHON_EXECUTABLE=${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} \
           -D RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE=true \
           -D CMAKE_TOOLCHAIN_FILE=${{ matrix.config.cmake-toolchain }} \
-          -G Ninja \
+          -G Ninja
       
       - name: Build
         shell: cmake -P {0}
