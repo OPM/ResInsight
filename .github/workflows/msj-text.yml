@@ -140,18 +140,11 @@ jobs:
         uses: seanmiddleditch/gha-setup-vsdevenv@master
 
       - name: Configure
-        shell: cmake -P {0}
+        env:
+          CXX: ${{ matrix.cxx }}
+          CC: ${{ matrix.cc }}
         run: |
-          set(ENV{CC} ${{ matrix.config.cc }})
-          set(ENV{CXX} ${{ matrix.config.cxx }})
-          set(path_separator ":")
-          if ("${{ runner.os }}" STREQUAL "Windows")
-            set(path_separator ";")
-          endif()
-          set(ENV{PATH} "$ENV{GITHUB_WORKSPACE}${path_separator}$ENV{PATH}")
-          
-          execute_process(
-            COMMAND cmake
+          cmake
               -S .
               -B cmakebuild
               -D CMAKE_BUILD_TYPE=$ENV{BUILD_TYPE}
@@ -165,26 +158,8 @@ jobs:
               -D RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE=true
               -D CMAKE_TOOLCHAIN_FILE=${{ matrix.config.cmake-toolchain }}
               -G Ninja
-            RESULT_VARIABLE result
-          )
-          if (NOT result EQUAL 0)
-            message(FATAL_ERROR "Bad exit status")
-          endif()
       - name: Build
-        shell: cmake -P {0}
-        run: |
-          set(ENV{NINJA_STATUS} "[%f/%t %o/sec] ")
-          set(path_separator ":")
-          if ("${{ runner.os }}" STREQUAL "Windows")
-            set(path_separator ";")
-          endif()
-          execute_process(
-            COMMAND cmake --build cmakebuild --target install
-            RESULT_VARIABLE result
-          )
-          if (NOT result EQUAL 0)
-            message(FATAL_ERROR "Bad exit status")
-          endif()
+        run: cmake --build cmakebuild --target install
 
       - name: Stats for buildcache
         run: ${{ github.workspace }}/bin/buildcache -s
