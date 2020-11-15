@@ -158,9 +158,10 @@ jobs:
           -D RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE=true
           -D CMAKE_TOOLCHAIN_FILE=${{ matrix.config.cmake-toolchain }}
           -G Ninja
+      
       - name: Build
         run: cmake --build cmakebuild --target install
-
+      
       - name: Stats for buildcache
         run: ${{ github.workspace }}/bin/buildcache -s
 
