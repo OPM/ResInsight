@@ -1,5 +1,6 @@
 grpc
 boost-filesystem
+boost-spirit
 eigen3
 --triplet
 x64-windows
