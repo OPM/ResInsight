@@ -143,21 +143,21 @@ jobs:
         env:
           CXX: ${{ matrix.cxx }}
           CC: ${{ matrix.cc }}
-        run: |
+        run: >
           cmake
-              -S .
-              -B cmakebuild
-              -D CMAKE_BUILD_TYPE=$ENV{BUILD_TYPE}
-              -D CMAKE_INSTALL_PREFIX=cmakebuild/install
-              -D RESINSIGHT_ENABLE_UNITY_BUILD=true
-              -D RESINSIGHT_BUNDLE_OPENSSL=true
-              -D RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
-              -D RESINSIGHT_TREAT_WARNINGS_AS_ERRORS=true
-              -D RESINSIGHT_ENABLE_GRPC=true
-              -D RESINSIGHT_GRPC_PYTHON_EXECUTABLE=${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
-              -D RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE=true
-              -D CMAKE_TOOLCHAIN_FILE=${{ matrix.config.cmake-toolchain }}
-              -G Ninja
+          -S .
+          -B cmakebuild
+          -D CMAKE_BUILD_TYPE=$ENV{BUILD_TYPE}
+          -D CMAKE_INSTALL_PREFIX=cmakebuild/install
+          -D RESINSIGHT_ENABLE_UNITY_BUILD=true
+          -D RESINSIGHT_BUNDLE_OPENSSL=true
+          -D RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
+          -D RESINSIGHT_TREAT_WARNINGS_AS_ERRORS=true
+          -D RESINSIGHT_ENABLE_GRPC=true
+          -D RESINSIGHT_GRPC_PYTHON_EXECUTABLE=${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
+          -D RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE=true
+          -D CMAKE_TOOLCHAIN_FILE=${{ matrix.config.cmake-toolchain }}
+          -G Ninja
       - name: Build
         run: cmake --build cmakebuild --target install
 
