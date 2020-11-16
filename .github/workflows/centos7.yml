@@ -33,7 +33,16 @@ jobs:
         yum install -y devtoolset-7
         
         yum install -y rh-python36
-     
+    - name: Build QtCharts
+      run: |
+        source /opt/rh/devtoolset-7/enable
+        git clone git://code.qt.io/qt/qtcharts.git
+        cd qtcharts/
+        git checkout v5.9.7
+        qmake-qt5 --version
+        qmake-qt5 -makefile
+        make -j 4
+        make install
     - name: Checkout
       uses: actions/checkout@v2
       with:
