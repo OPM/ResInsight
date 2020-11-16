@@ -362,7 +362,7 @@ void RimVfpPlot::onLoadDataAndUpdate()
     {
         if ( isInjector )
         {
-            std::set<std::string> wells            = {"F2H", "C1H", "C2H", "C3H", "C4AH", "C4H", "F1H", "F3H", "F4H"};
+            std::set<std::string> wells            = { "F2H", "C1H", "C2H", "C3H", "C4AH", "C4H", "F1H", "F3H", "F4H" };
             std::string           strippedWellName = QString( m_wellName() ).remove( "-" ).toStdString();
 
             if ( wells.find( strippedWellName ) != wells.end() )
@@ -377,7 +377,7 @@ void RimVfpPlot::onLoadDataAndUpdate()
         }
         else
         {
-            std::set<std::string> wells = {"B1BH", "B2H", "B3H", "D1CH", "B4DH", "E1H", "D2H", "D3BH", "E3CH"};
+            std::set<std::string> wells = { "B1BH", "B2H", "B3H", "D1CH", "B4DH", "E1H", "D2H", "D3BH", "E3CH" };
             std::string           strippedWellName = QString( m_wellName() ).remove( "-" ).toStdString();
 
             if ( wells.find( strippedWellName ) != wells.end() )
