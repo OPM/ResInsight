@@ -1,0 +1,24 @@
+{
+  "name": "PINTDIMS",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "NTSKWAT",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "name": "NTSKPOLY",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "name": "NTPMWINJ",
+      "value_type": "INT",
+      "default": 1
+    }
+  ]
+}

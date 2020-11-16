@@ -1,0 +1,35 @@
+{
+  "name": "WSEGSEP",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "SEGMENT1",
+      "value_type": "INT"
+    },
+    {
+      "name": "SEGMENT2",
+      "value_type": "INT"
+    },
+    {
+      "name": "PHASE",
+      "value_type": "STRING",
+      "default": "NONE"
+    },
+    {
+      "name": "EMAX",
+      "value_type": "DOUBLE",
+      "default": 1
+    },
+    {
+      "name": "HOLDUP_FRACTION",
+      "value_type": "DOUBLE",
+      "default": 0.01
+    }
+  ]
+}

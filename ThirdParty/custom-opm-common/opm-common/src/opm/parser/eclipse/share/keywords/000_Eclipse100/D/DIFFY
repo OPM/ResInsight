@@ -1,0 +1,10 @@
+{
+  "name": "DIFFY",
+  "sections": [
+    "EDIT"
+  ],
+  "data": {
+    "value_type": "DOUBLE",
+    "dimension": "Length"
+  }
+}

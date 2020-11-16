@@ -1,0 +1,55 @@
+{
+  "name": "WSEGVALV",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "SEGMENT_NUMBER",
+      "value_type": "INT"
+    },
+    {
+      "name": "CV",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "AREA",
+      "value_type": "DOUBLE",
+      "dimension": "Length*Length"
+    },
+    {
+      "name": "EXTRA_LENGTH",
+      "value_type": "DOUBLE",
+      "dimension": "Length"
+    },
+    {
+      "name": "PIPE_D",
+      "value_type": "DOUBLE",
+      "dimension": "Length"
+    },
+    {
+      "name": "ROUGHNESS",
+      "value_type": "DOUBLE",
+      "dimension": "Length"
+    },
+    {
+      "name": "PIPE_A",
+      "value_type": "DOUBLE",
+      "dimension": "Length*Length"
+    },
+    {
+      "name": "STATUS",
+      "value_type": "STRING",
+      "default": "OPEN"
+    },
+    {
+      "name": "MAX_A",
+      "value_type": "DOUBLE",
+      "dimension": "Length*Length"
+    }
+  ]
+}

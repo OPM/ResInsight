@@ -1,0 +1,26 @@
+{
+  "name": "TRROCK",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "TABDIMS",
+    "item": "NTSFUN"
+  },
+  "items": [
+    {
+      "name": "ADSORPTION_INDEX",
+      "value_type": "INT"
+    },
+    {
+      "name": "MASS_DENSITY",
+      "value_type": "DOUBLE",
+      "dimension": "Mass/Length*Length*Length"
+    },
+    {
+      "name": "INIT_MODEL",
+      "value_type": "INT",
+      "default": 1
+    }
+  ]
+}

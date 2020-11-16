@@ -1,0 +1,39 @@
+{
+  "name": "RPTHMD",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "ITEM1",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "ITEM2",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "ITEM3",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "ITEM4",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "ITEM5",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "ITEM6",
+      "value_type": "INT",
+      "default": 0
+    }
+  ]
+}

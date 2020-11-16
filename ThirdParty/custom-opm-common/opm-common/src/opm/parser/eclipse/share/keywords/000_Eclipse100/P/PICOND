@@ -1,0 +1,73 @@
+{
+  "name": "PICOND",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "MAX_INTERVAL_BELOW_DEWPOINT",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    },
+    {
+      "name": "MAX_INTERVAL_ABOVE_DEWPOINT",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    },
+    {
+      "name": "D_F",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 1
+    },
+    {
+      "name": "INCLUDE",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "name": "F_L",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 0
+    },
+    {
+      "name": "F_U",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 1.1
+    },
+    {
+      "name": "DELTA_WAT_SAT",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "DELTA_PRESSURE",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "DELTA_FRAC_COMP",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 0.01
+    },
+    {
+      "name": "MAX_DELTA_TIME",
+      "value_type": "DOUBLE",
+      "dimension": "Time",
+      "default": -1
+    },
+    {
+      "name": "ADAPTIVE_ORD_CONTROL",
+      "value_type": "DOUBLE",
+      "default": -1
+    },
+    {
+      "name": "ADAPTIVE_ORD_MIN_SPACING",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    }
+  ]
+}

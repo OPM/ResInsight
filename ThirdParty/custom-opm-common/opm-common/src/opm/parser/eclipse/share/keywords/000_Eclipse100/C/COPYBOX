@@ -1,0 +1,62 @@
+{
+  "name": "COPYBOX",
+  "sections": [
+    "GRID",
+    "PROPS",
+    "REGIONS"
+  ],
+  "items": [
+    {
+      "name": "ARRAY",
+      "value_type": "STRING"
+    },
+    {
+      "name": "IX1S",
+      "value_type": "INT"
+    },
+    {
+      "name": "IX2S",
+      "value_type": "INT"
+    },
+    {
+      "name": "JY1S",
+      "value_type": "INT"
+    },
+    {
+      "name": "JY2S",
+      "value_type": "INT"
+    },
+    {
+      "name": "KY1S",
+      "value_type": "INT"
+    },
+    {
+      "name": "KY2S",
+      "value_type": "INT"
+    },
+    {
+      "name": "IX1D",
+      "value_type": "INT"
+    },
+    {
+      "name": "IX2D",
+      "value_type": "INT"
+    },
+    {
+      "name": "JY1D",
+      "value_type": "INT"
+    },
+    {
+      "name": "JY2D",
+      "value_type": "INT"
+    },
+    {
+      "name": "KY1D",
+      "value_type": "INT"
+    },
+    {
+      "name": "KY2D",
+      "value_type": "INT"
+    }
+  ]
+}

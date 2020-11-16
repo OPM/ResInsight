@@ -1,0 +1,69 @@
+{
+  "name": "GASFDECR",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "JAN",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "FEB",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "MAR",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "APR",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "MAY",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "JUN",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "JUL",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "AUG",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "SEP",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "OCT",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "NOV",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "DEC",
+      "value_type": "DOUBLE",
+      "default": 0
+    }
+  ]
+}

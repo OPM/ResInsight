@@ -1,0 +1,113 @@
+{
+  "name": "WSEGAICD",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "SEGMENT1",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "SEGMENT2",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "AICD_STRENGTH",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "ICD_LENGTH",
+      "value_type": "DOUBLE",
+      "dimension": "Length",
+      "default": 12
+    },
+    {
+      "name": "RHO",
+      "value_type": "DOUBLE",
+      "dimension": "Mass/Length*Length*Length",
+      "default": 1000.25
+    },
+    {
+      "name": "VISCOSITY",
+      "value_type": "DOUBLE",
+      "dimension": "Viscosity",
+      "default": 1.45
+    },
+    {
+      "name": "WATER_LIMIT",
+      "value_type": "DOUBLE",
+      "default": 0.5
+    },
+    {
+      "name": "TRANSITION_WIDTH",
+      "value_type": "DOUBLE",
+      "default": 0.05
+    },
+    {
+      "name": "MAX_SOMETHING",
+      "value_type": "DOUBLE",
+      "default": 5
+    },
+    {
+      "name": "SCALING_METHOD",
+      "value_type": "INT",
+      "default": -1
+    },
+    {
+      "name": "MAX_QICD",
+      "value_type": "DOUBLE",
+      "dimension": "ReservoirVolume/Time"
+    },
+    {
+      "name": "FLOW_RATE_EXPONENT",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "VISC_EXPONENT",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "ICD_FLAG",
+      "value_type": "STRING",
+      "default": "OPEN"
+    },
+    {
+      "name": "OIL_FLOW_FRACTION",
+      "value_type": "DOUBLE",
+      "default": 1
+    },
+    {
+      "name": "WATER_FLOW_FRACTION",
+      "value_type": "DOUBLE",
+      "default": 1
+    },
+    {
+      "name": "GAS_FLOW_FRACTION",
+      "value_type": "DOUBLE",
+      "default": 1
+    },
+    {
+      "name": "OIL_VSIC_FRACTION",
+      "value_type": "DOUBLE",
+      "default": 1
+    },
+    {
+      "name": "WATER_VISC_FRACTION",
+      "value_type": "DOUBLE",
+      "default": 1
+    },
+    {
+      "name": "GAS_VISC_FRACTION",
+      "value_type": "DOUBLE",
+      "default": 1
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "DEPTHZ",
+  "sections": [
+    "GRID"
+  ],
+  "data": {
+    "value_type": "DOUBLE",
+    "dimension": "Length"
+  },
+  "comment": "DEPTHZ is not documented in the Eclipse manual, but found in the SPE1 case"
+}

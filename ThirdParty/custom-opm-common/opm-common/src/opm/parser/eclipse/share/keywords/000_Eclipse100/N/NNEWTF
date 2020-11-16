@@ -1,0 +1,17 @@
+{
+  "name": "NNEWTF",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "NTHRBL",
+      "value_type": "INT"
+    },
+    {
+      "name": "NLNHBL",
+      "value_type": "INT"
+    }
+  ]
+}

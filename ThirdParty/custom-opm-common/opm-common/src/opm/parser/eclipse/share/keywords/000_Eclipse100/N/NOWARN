@@ -1,0 +1,14 @@
+{
+  "name": "NOWARN",
+  "sections": [
+    "RUNSPEC",
+    "GRID",
+    "EDIT",
+    "PROPS",
+    "REGIONS",
+    "SOLUTION",
+    "SUMMARY",
+    "SCHEDULE"
+  ],
+  "size": 0
+}

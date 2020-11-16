@@ -1,0 +1,16 @@
+{
+  "name": "RIVDEBUG",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "RIVER",
+      "value_type": "STRING"
+    },
+    {
+      "name": "DEBUG_CONTROL",
+      "value_type": "INT"
+    }
+  ]
+}

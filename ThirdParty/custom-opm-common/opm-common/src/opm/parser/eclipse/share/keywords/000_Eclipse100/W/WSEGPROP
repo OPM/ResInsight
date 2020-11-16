@@ -1,0 +1,53 @@
+{
+  "name": "WSEGPROP",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "SEGMENT1",
+      "value_type": "INT"
+    },
+    {
+      "name": "SEGMENT2",
+      "value_type": "INT"
+    },
+    {
+      "name": "D",
+      "value_type": "DOUBLE",
+      "dimension": "Length"
+    },
+    {
+      "name": "R",
+      "value_type": "DOUBLE",
+      "dimension": "Length"
+    },
+    {
+      "name": "A",
+      "value_type": "DOUBLE",
+      "dimension": "Length*Length"
+    },
+    {
+      "name": "V",
+      "value_type": "DOUBLE",
+      "dimension": "Length*Length*Length"
+    },
+    {
+      "name": "PIPEA",
+      "value_type": "DOUBLE",
+      "dimension": "Length*Length"
+    },
+    {
+      "name": "CV",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "K",
+      "value_type": "DOUBLE"
+    }
+  ]
+}

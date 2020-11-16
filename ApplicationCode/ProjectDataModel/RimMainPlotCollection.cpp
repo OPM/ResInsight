@@ -35,6 +35,7 @@
 #include "RimSummaryAddress.h"
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryPlotCollection.h"
+#include "RimVfpPlotCollection.h"
 #include "RimViewWindow.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
@@ -98,6 +99,9 @@ RimMainPlotCollection::RimMainPlotCollection()
     CAF_PDM_InitFieldNoDefault( &m_stimPlanModelPlotCollection, "StimPlanModelPlotCollection", "", "", "", "" );
     m_stimPlanModelPlotCollection.uiCapability()->setUiHidden( true );
 
+    CAF_PDM_InitFieldNoDefault( &m_vfpPlotCollection, "VfpPlotCollection", "", "", "", "" );
+    m_vfpPlotCollection.uiCapability()->setUiHidden( true );
+
     m_wellLogPlotCollection            = new RimWellLogPlotCollection();
     m_rftPlotCollection                = new RimRftPlotCollection();
     m_pltPlotCollection                = new RimPltPlotCollection();
@@ -110,6 +114,7 @@ RimMainPlotCollection::RimMainPlotCollection()
     m_analysisPlotCollection           = new RimAnalysisPlotCollection;
     m_correlationPlotCollection        = new RimCorrelationPlotCollection;
     m_stimPlanModelPlotCollection      = new RimStimPlanModelPlotCollection;
+    m_vfpPlotCollection                = new RimVfpPlotCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -211,6 +216,14 @@ RimMultiPlotCollection* RimMainPlotCollection::multiPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimVfpPlotCollection* RimMainPlotCollection::vfpPlotCollection()
+{
+    return m_vfpPlotCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimAnalysisPlotCollection* RimMainPlotCollection::analysisPlotCollection()
 {
     return m_analysisPlotCollection();
@@ -246,6 +259,7 @@ void RimMainPlotCollection::deleteAllContainedObjects()
     m_flowPlotCollection()->closeDefaultPlotWindowAndDeletePlots();
     m_saturationPressurePlotCollection()->deleteAllChildObjects();
     m_multiPlotCollection()->deleteAllChildObjects();
+    m_vfpPlotCollection()->deleteAllChildObjects();
     m_analysisPlotCollection()->deleteAllPlots();
     m_correlationPlotCollection()->deleteAllPlots();
     m_stimPlanModelPlotCollection()->deleteAllPlots();

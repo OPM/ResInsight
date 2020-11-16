@@ -1,0 +1,6 @@
+{"name" : "LXFIN",
+"sections" : ["GRID"],
+"size" : 1,
+"items" : [
+{"name" : "CELL_THICKNESS", "value_type" : "DOUBLE", "dimension" : "Length", "default_value" : 1.0},
+{"name" : "SIZE_OPTION", "value_type" : "STRING", "default_value" : "Linear"}]}

@@ -1,0 +1,21 @@
+{
+  "name": "PREF",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "TABDIMS",
+    "item": "NUM_STATE_EQ"
+  },
+  "comment": "Also note that there is no default for this item because the default is specified by STCOND",
+  "items": [
+    {
+      "name": "PRESSURE",
+      "value_type": "DOUBLE",
+      "size_type": "ALL",
+      "dimension": [
+        "Pressure"
+      ]
+    }
+  ]
+}

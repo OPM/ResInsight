@@ -1,0 +1,43 @@
+{
+  "name": "SKPRPOLY",
+  "sections": [
+    "PROPS"
+  ],
+  "records": [
+    [
+      {
+        "name": "TABLE_NUMBER",
+        "value_type": "INT"
+      },
+      {
+        "name": "POLYMERCONCENTRATION",
+        "value_type": "DOUBLE",
+        "dimension": "PolymerDensity"
+      }
+    ],
+    [
+      {
+        "name": "THROUGHPUT",
+        "value_type": "DOUBLE",
+        "dimension": "Length",
+        "size_type": "ALL"
+      }
+    ],
+    [
+      {
+        "name": "VELOCITY",
+        "value_type": "DOUBLE",
+        "dimension": "Length/Time",
+        "size_type": "ALL"
+      }
+    ],
+    [
+      {
+        "name": "SKINPRESSURE",
+        "value_type": "DOUBLE",
+        "dimension": "Pressure",
+        "size_type": "ALL"
+      }
+    ]
+  ]
+}

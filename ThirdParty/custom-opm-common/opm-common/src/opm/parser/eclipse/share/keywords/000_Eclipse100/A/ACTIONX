@@ -1,0 +1,32 @@
+{
+  "name": "ACTIONX",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "records": [
+    [
+      {
+        "name": "NAME",
+        "value_type": "STRING"
+      },
+      {
+        "name": "NUM",
+        "value_type": "INT",
+        "default": 1
+      },
+      {
+        "name": "MIN_WAIT",
+        "value_type": "DOUBLE",
+        "default": 0,
+        "dimension": "Time"
+      }
+    ],
+    [
+      {
+        "name": "CONDITION",
+        "value_type": "RAW_STRING",
+        "size_type": "ALL"
+      }
+    ]
+  ]
+}

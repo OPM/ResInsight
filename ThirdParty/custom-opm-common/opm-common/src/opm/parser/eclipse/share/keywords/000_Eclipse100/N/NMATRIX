@@ -1,0 +1,13 @@
+{
+  "name": "NMATRIX",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "NUM_SUB_CELLS",
+      "value_type": "INT"
+    }
+  ]
+}

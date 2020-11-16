@@ -1,0 +1,49 @@
+{
+  "name": "GSSCPTST",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "name": "CONTROL_MODE",
+      "value_type": "STRING",
+      "default": "GRAT"
+    },
+    {
+      "name": "TARGET_PROD_RATE",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "TARGET_PROD_PERIOD",
+      "value_type": "DOUBLE",
+      "dimension": "Time",
+      "default": 0
+    },
+    {
+      "name": "MAX_PROD_RATE_FLAG",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "name": "CONV_TOLERANCE",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "MAT_IT",
+      "value_type": "INT",
+      "default": 6
+    },
+    {
+      "name": "SUB_GRP_CONTROL_FLAG",
+      "value_type": "INT",
+      "default": 1
+    }
+  ]
+}

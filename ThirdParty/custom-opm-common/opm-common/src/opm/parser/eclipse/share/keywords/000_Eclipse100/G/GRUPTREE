@@ -1,0 +1,17 @@
+{
+  "name": "GRUPTREE",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "CHILD_GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "name": "PARENT_GROUP",
+      "value_type": "STRING",
+      "default": "FIELD"
+    }
+  ]
+}

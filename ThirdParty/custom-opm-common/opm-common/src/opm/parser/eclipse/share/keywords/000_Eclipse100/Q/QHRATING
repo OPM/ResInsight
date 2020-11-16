@@ -1,0 +1,21 @@
+{
+  "name": "QHRATING",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "RIVRDIMS",
+    "item": "NRATTA"
+  },
+  "items": [
+    {
+      "name": "DATA",
+      "value_type": "DOUBLE",
+      "size_type": "ALL",
+      "dimension": [
+        "Length*Length*Length/Time",
+        "Length"
+      ]
+    }
+  ]
+}

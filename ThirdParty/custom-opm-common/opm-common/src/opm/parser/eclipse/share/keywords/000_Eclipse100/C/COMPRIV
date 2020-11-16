@@ -1,0 +1,24 @@
+{
+  "name": "COMPRIV",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "RIVER",
+      "value_type": "STRING"
+    },
+    {
+      "name": "I",
+      "value_type": "INT"
+    },
+    {
+      "name": "J",
+      "value_type": "INT"
+    },
+    {
+      "name": "K",
+      "value_type": "INT"
+    }
+  ]
+}

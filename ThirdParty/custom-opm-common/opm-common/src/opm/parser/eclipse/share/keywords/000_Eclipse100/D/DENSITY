@@ -1,0 +1,30 @@
+{
+  "name": "DENSITY",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "TABDIMS",
+    "item": "NTPVT"
+  },
+  "items": [
+    {
+      "name": "OIL",
+      "value_type": "DOUBLE",
+      "default": 600,
+      "dimension": "Density"
+    },
+    {
+      "name": "WATER",
+      "value_type": "DOUBLE",
+      "default": 999.014,
+      "dimension": "Density"
+    },
+    {
+      "name": "GAS",
+      "value_type": "DOUBLE",
+      "default": 1,
+      "dimension": "Density"
+    }
+  ]
+}

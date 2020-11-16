@@ -1,0 +1,59 @@
+{
+  "name": "AQANCONL",
+  "sections": [
+    "SOLUTION"
+  ],
+  "items": [
+    {
+      "name": "AQUIFER_ID",
+      "value_type": "INT"
+    },
+    {
+      "name": "NAME",
+      "value_type": "STRING"
+    },
+    {
+      "name": "LOWER_I",
+      "value_type": "INT"
+    },
+    {
+      "name": "UPPER_I",
+      "value_type": "INT"
+    },
+    {
+      "name": "LOWER_J",
+      "value_type": "INT"
+    },
+    {
+      "name": "UPPER_J",
+      "value_type": "INT"
+    },
+    {
+      "name": "LOWER_K",
+      "value_type": "INT"
+    },
+    {
+      "name": "UPPER_K",
+      "value_type": "INT"
+    },
+    {
+      "name": "FACE_INDX",
+      "value_type": "STRING"
+    },
+    {
+      "name": "AQUIFER_INFLUX_COEFF",
+      "value_type": "DOUBLE",
+      "dimension": "Length*Length"
+    },
+    {
+      "name": "AQUIFER_INFLUX_MULT",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 1
+    },
+    {
+      "name": "ALLOW",
+      "value_type": "STRING"
+    }
+  ]
+}

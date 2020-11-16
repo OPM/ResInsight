@@ -1,0 +1,16 @@
+{
+  "name": "WAPI",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "API",
+      "value_type": "UDA"
+    }
+  ]
+}

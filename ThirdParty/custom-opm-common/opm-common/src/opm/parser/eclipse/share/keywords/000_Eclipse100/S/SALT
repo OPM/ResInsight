@@ -1,0 +1,15 @@
+{
+  "name": "SALT",
+  "sections": [
+    "SOLUTION"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "SALT_CONCENTRATION",
+      "value_type": "DOUBLE",
+      "size_type": "ALL",
+      "dimension": "Mass/Length*Length*Length"
+    }
+  ]
+}

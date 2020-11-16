@@ -1,0 +1,17 @@
+{
+  "name": "DRVDTR",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": {
+    "keyword": "TABDIMS",
+    "item": "NTPVT"
+  },
+  "items": [
+    {
+      "name": "DRVDT_MAX",
+      "value_type": "DOUBLE",
+      "dimension": "OilDissolutionFactor/Time"
+    }
+  ]
+}

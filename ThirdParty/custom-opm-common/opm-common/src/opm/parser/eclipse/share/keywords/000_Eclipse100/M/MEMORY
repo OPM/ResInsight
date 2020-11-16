@@ -1,0 +1,17 @@
+{
+  "name": "MEMORY",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "UNUSED",
+      "value_type": "INT"
+    },
+    {
+      "name": "THOUSANDS_CHAR8",
+      "value_type": "INT"
+    }
+  ]
+}

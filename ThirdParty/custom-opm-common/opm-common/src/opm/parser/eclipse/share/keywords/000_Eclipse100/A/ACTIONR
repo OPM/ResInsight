@@ -1,0 +1,43 @@
+{
+  "name": "ACTIONR",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "ACTION",
+      "value_type": "STRING"
+    },
+    {
+      "name": "FLUID_IN_PLACE_NR",
+      "value_type": "INT"
+    },
+    {
+      "name": "FLUID_IN_PLACE_REG_FAM",
+      "value_type": "STRING"
+    },
+    {
+      "name": "QUANTITY",
+      "value_type": "STRING"
+    },
+    {
+      "name": "OPERATOR",
+      "value_type": "STRING"
+    },
+    {
+      "name": "TRIGGER_VALUE",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "REPETITIONS",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "name": "INCREMENT",
+      "value_type": "DOUBLE",
+      "default": 0
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "name": "SOF32D",
+  "sections": [
+    "PROPS"
+  ],
+  "records": [
+    [
+      {
+        "name": "SWAT",
+        "value_type": "DOUBLE",
+        "dimension": "1",
+        "size_type": "ALL"
+      }
+    ],
+    [
+      {
+        "name": "SGAS",
+        "value_type": "DOUBLE",
+        "dimension": "1"
+      },
+      {
+        "name": "KRO",
+        "value_type": "DOUBLE",
+        "dimension": "1"
+      }
+    ]
+  ]
+}

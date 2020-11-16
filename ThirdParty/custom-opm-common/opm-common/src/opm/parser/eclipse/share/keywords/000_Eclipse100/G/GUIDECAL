@@ -1,0 +1,17 @@
+{
+  "name": "GUIDECAL",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "COEFF_A",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "COEFF_B",
+      "value_type": "DOUBLE"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "name": "BRANPROP",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "DOWNTREE_NODE",
+      "value_type": "STRING"
+    },
+    {
+      "name": "UPTREE_NODE",
+      "value_type": "STRING"
+    },
+    {
+      "name": "VFP_TABLE",
+      "value_type": "INT"
+    },
+    {
+      "name": "ALQ",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "ALQ_SURFACE_DENSITY",
+      "value_type": "STRING",
+      "default": "NONE"
+    }
+  ]
+}

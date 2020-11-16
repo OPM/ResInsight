@@ -1,0 +1,30 @@
+{
+  "name": "HMMLAQUN",
+  "sections": [
+    "GRID"
+  ],
+  "items": [
+    {
+      "name": "AQUIFER_ID",
+      "value_type": "INT"
+    },
+    {
+      "name": "AQUIFER_PORE_VOL_MULT",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 1
+    },
+    {
+      "name": "AQUIFER_PORE_PERM_MULT",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 1
+    },
+    {
+      "name": "AQUIFER_GRID_CONN_MULT",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 1
+    }
+  ]
+}

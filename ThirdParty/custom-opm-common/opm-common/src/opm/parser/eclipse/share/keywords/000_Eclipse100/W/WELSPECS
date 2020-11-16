@@ -1,0 +1,87 @@
+{
+  "name": "WELSPECS",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "name": "HEAD_I",
+      "value_type": "INT"
+    },
+    {
+      "name": "HEAD_J",
+      "value_type": "INT"
+    },
+    {
+      "name": "REF_DEPTH",
+      "value_type": "DOUBLE",
+      "dimension": "Length"
+    },
+    {
+      "name": "PHASE",
+      "value_type": "STRING"
+    },
+    {
+      "name": "D_RADIUS",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "Length"
+    },
+    {
+      "name": "INFLOW_EQ",
+      "value_type": "STRING",
+      "default": "STD"
+    },
+    {
+      "name": "AUTO_SHUTIN",
+      "value_type": "STRING",
+      "default": "SHUT"
+    },
+    {
+      "name": "CROSSFLOW",
+      "value_type": "STRING",
+      "default": "YES"
+    },
+    {
+      "name": "P_TABLE",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "DENSITY_CALC",
+      "value_type": "STRING",
+      "default": "SEG"
+    },
+    {
+      "name": "FIP_REGION",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "FRONTSIM1",
+      "value_type": "STRING"
+    },
+    {
+      "name": "FRONTSIM2",
+      "value_type": "STRING"
+    },
+    {
+      "name": "well_model",
+      "value_type": "STRING",
+      "default": "STD"
+    },
+    {
+      "name": "POLYMER_TABLE",
+      "value_type": "INT",
+      "default": 0
+    }
+  ]
+}

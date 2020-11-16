@@ -1,0 +1,43 @@
+{
+  "name": "ACTIONS",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "ACTION",
+      "value_type": "STRING"
+    },
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "WELL_SEGMENT",
+      "value_type": "INT"
+    },
+    {
+      "name": "QUANTITY",
+      "value_type": "STRING"
+    },
+    {
+      "name": "OPERATOR",
+      "value_type": "STRING"
+    },
+    {
+      "name": "TRIGGER_VALUE",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "REPETITIONS",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "name": "INCREMENT",
+      "value_type": "DOUBLE",
+      "default": 0
+    }
+  ]
+}

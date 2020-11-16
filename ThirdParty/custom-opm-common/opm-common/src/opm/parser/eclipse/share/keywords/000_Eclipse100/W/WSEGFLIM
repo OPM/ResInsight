@@ -1,0 +1,53 @@
+{
+  "name": "WSEGFLIM",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "SEGMENT1",
+      "value_type": "INT"
+    },
+    {
+      "name": "SEGMENT2",
+      "value_type": "INT"
+    },
+    {
+      "name": "LIMITED_PHASE1",
+      "value_type": "STRING",
+      "default": "NONE"
+    },
+    {
+      "name": "FLOW_LIMIT1",
+      "value_type": "DOUBLE",
+      "dimension": "LiquidSurfaceVolume/Time"
+    },
+    {
+      "name": "A1",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "LIMITED_PHASE2",
+      "value_type": "STRING",
+      "default": "NONE"
+    },
+    {
+      "name": "FLOW_LIMIT2",
+      "value_type": "DOUBLE",
+      "dimension": "LiquidSurfaceVolume/Time"
+    },
+    {
+      "name": "A2",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "STATUS",
+      "value_type": "STRING",
+      "default": "OPEN"
+    }
+  ]
+}

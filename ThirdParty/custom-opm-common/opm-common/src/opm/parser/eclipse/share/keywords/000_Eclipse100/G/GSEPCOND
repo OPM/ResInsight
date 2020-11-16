@@ -1,0 +1,16 @@
+{
+  "name": "GSEPCOND",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "name": "SEPARATOR",
+      "value_type": "STRING"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "name": "SMULTY",
+  "sections": [
+    "GRID"
+  ],
+  "data": {
+    "value_type": "DOUBLE"
+  }
+}

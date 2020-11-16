@@ -1,0 +1,537 @@
+-- Synthetic test deck based on Norne. This data set is meant to be a simple,
+-- well-documented deck for the behaviour of SUMMARY specified output. Data
+-- is mostly entered to *traceable* and does not necessarily make sense from
+-- a simulation point of view.
+
+START
+10 MAI 2007 /
+RUNSPEC
+
+TITLE
+SUMMARYTESTS
+
+-- A simple 10x10x10 cube. Simple to reason about, large enough for all tests
+DIMENS
+ 10 10 10 /
+
+REGDIMS
+  10 /
+
+OIL
+GAS
+WATER
+
+UNIFIN
+UNIFOUT
+
+GRID
+
+DX
+1000*1 /
+DY
+1000*1 /
+DZ
+1000*1 /
+TOPS
+100*1 /
+
+-- Cell 2,1,10 is inactive
+ACTNUM
+  901*1 0 98*1 /
+  
+PORO
+1000*0.2 /
+
+PERMX
+  1000*0.25/
+
+COPY
+  PERMX PERMY /
+  PERMX PERMZ /
+/
+
+
+REGIONS
+
+FIPNUM
+   100*1
+   100*2
+   100*3
+   100*4
+   100*5
+   100*6
+   100*7
+   100*8
+   100*9
+   100*10 /
+   
+
+SUMMARY
+DATE
+PERFORMA
+--
+-- Field Data
+-- Production Rates
+FVPR
+FWPR
+FWPRH
+FOPR
+FOPRH
+FGPR
+FGPRH
+FLPR
+FLPRH
+FGSR
+FGCR
+FNPR -- solvent
+--FTPRSEA
+-- Injection Rates
+FVIR
+FWIR
+FWIRH
+FGIR
+FNIR -- solvent
+FGIRH
+-- Production Cummulatives
+FVPT
+FWPT
+FOPT
+FLPT
+FLPTH
+FGPT
+FNPT
+FOPTH
+FGPTH
+FWPTH
+FGST
+FGCT
+-- Injection Cummulatives
+FVIT
+FWIT
+FWITH
+FGIT
+FNIT
+FGITH
+-- In place
+FWIP
+FOIP
+FGIP
+-- Ratios
+FWCT
+FWCTH
+FGOR
+FGORH
+
+-- From model2
+FMWPR
+FMWIN
+FOE
+
+-- Pressures
+FPR
+
+BPR
+  1  1  1 /
+  1  1  2 /
+  1  1  3 /
+  1  1  4 /
+  1  1  5 /
+  1  1  6 /
+  1  1  7 /
+  1  1  8 /
+  1  1  9 /
+  1  1  10 /    
+  2  1  10 /  -- This cell is not ACTIVE
+/
+
+BSGAS
+  1  1  1 /
+/
+
+
+BSWAT
+  1  1  1 /
+/
+
+
+--  Region data
+RPR
+/
+ROPT
+/
+RGPT
+/
+RWPT
+/
+RGFT
+/
+RWFT
+/
+ROIP
+/
+ROP
+/
+ROPR
+/
+RGPR
+/
+RWPR
+/
+RGIR
+/
+RGIT
+/
+RWIR
+/
+RWIT
+/
+RWPT
+/
+ROIPL
+/
+ROIPG
+/
+RGIP
+/
+RGIPL
+/
+RGIPG
+/
+RWIP
+/
+RPPO
+/
+
+--  Group data --
+GPR
+/
+GLPR
+/
+GOPT
+/
+GGPT
+/
+GWPT
+/
+GNPT
+/
+GOPR
+/
+GGPR
+/
+GWPR
+/
+GWPRH
+/
+GGIR
+/
+GNPR
+/
+
+GNIR
+/
+GGIRH
+/
+GGIT
+/
+GNIT
+/
+GGITH
+/
+GWCT
+/
+GWCTH
+/
+GGOR
+/
+GGORH
+/
+GWIR
+/
+GWIT
+/
+GWIRH
+/
+GWITH
+/
+GOPRH
+/
+GGPRH
+/
+GLPRH
+/
+GWPTH
+/
+GOPTH
+/
+GGPTH
+/
+GLPTH
+/
+GPRG
+/
+GPRW
+/
+GOPTF
+/
+GOPTS
+/
+GOPTH
+/
+GOPRF
+/
+GOPRS
+/
+GOPRH
+/
+GGPTF
+/
+GGPTS
+/
+GGPTH
+/
+GGPTF
+/
+GGPTS
+/
+GGPTH
+/
+GGLR
+/
+GGLIR
+/
+GGLRH
+/
+GVPR
+/
+GVPT
+/
+GMCTP
+/
+GOPP
+/
+GVIR
+/
+GVIT
+/
+GVPRT
+/
+GMWPR
+/
+GMWIN
+/
+-- Well Data
+-- Production Rates
+WWPR
+/
+WWPRH
+/
+WOPR
+/
+WOPRH
+/
+WGPR
+/
+WNPR
+/
+WGPRH
+/
+WLPR
+/
+WLPRH
+/
+
+WLPT
+/
+
+WLPTH
+/
+
+
+-- Production Cummulatives
+WWPT
+/
+WWPTH
+/
+WOPT
+/
+WOPTH
+/
+WGPT
+/
+WGPTH
+/
+WNPT
+/
+
+-- Tracers
+--WTPRSEA
+--/
+--WTPTSEA
+--/
+-- Injection Cummulatives
+-- Ratios
+WWCT
+/
+WWCTH
+/
+WGOR
+/
+WGORH
+/
+WGLR
+/
+WGLRH
+/
+
+
+-- Performance
+WBHP
+/
+WBHPH
+/
+WTHP
+/
+WTHPH
+/
+WPI
+/
+WBP
+/
+WBP4
+/
+
+-- from model2
+WOPTF
+/
+WOPTS
+/
+WOPTH
+/
+WOPRS
+/
+WOPRF
+/
+WGPTF
+/
+WGPTS
+/
+WGPRF
+/
+WTPRS
+/
+WGLIR
+/
+WVPR
+/
+WVPT
+/
+WOPP
+/
+WVIR
+/
+WVIT
+/
+WMCTL
+/
+
+-- Water injection per connection
+CWIR
+  * /
+/
+
+
+CGIT
+* /
+/
+
+-- Production per connection
+-- Using all the different ways of specifying connections here
+-- as an informal test that we still get the data we want
+CWPR
+ 'W_1' 1 1 1 /
+/
+
+COPR
+ 'W_1' /
+ 'W_2' /
+/
+
+CGPR
+ '*' /
+/
+
+CNFR
+ '*' /
+/
+
+CNPT
+ '*' /
+/
+
+CNIT
+ '*' /
+/
+
+CWPT
+ 'W_1' 1 1 1 /
+/
+
+COPT
+ 'W_1' /
+/
+
+CGPT
+ 'W_1' /
+ 'W_2' /
+/
+
+---- Connection production rates
+----CGFR
+----'E-4AH' /
+----/
+----CWFR
+----'E-2H' /
+----/
+
+SCHEDULE
+
+GRUPTREE
+  'G_1'  'G' /
+  'G_2'  'G' /
+/
+
+
+WELSPECS
+     'W_1'        'G_1'   1    1  3.33       'OIL'  7* /
+     'W_2'        'G_2'   2    1  3.33       'OIL'  7* /
+/
+
+-- Completion data.
+COMPDAT
+-- 'Well' I J K1 K2
+-- Passing 0 to I/J means they'll get the well head I/J
+    W_1 0 0 1 1 /   -- Active index: 0
+    W_2 0 0 1 1 /   -- Active index: 1
+    W_2 0 0 2 2 /   -- Active index: 101
+/
+
+WCONHIST
+-- history rates are set so that W_1 produces 1, W_2 produces 2 etc.
+-- index.offset.
+-- organised as oil-water-gas
+    W_1 'OPEN' ORAT 10.1 10 10.2 /
+    W_2 'OPEN' ORAT 20.1 20 20.2 /
+/
+
+
+TSTEP
+-- register time steps (in days). This allows us to write *two* report steps (1
+-- and 2. Without this, totals/accumulations would fail (segfault) when looking
+-- up historical rates and volumes. These volumes however don't change, i.e.
+-- every time step has the same set of values
+10 10 /
+
+
+TSTEP
+10 10 /

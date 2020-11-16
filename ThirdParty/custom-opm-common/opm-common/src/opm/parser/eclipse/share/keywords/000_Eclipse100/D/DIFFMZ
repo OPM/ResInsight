@@ -1,0 +1,11 @@
+{
+  "name": "DIFFMZ",
+  "sections": [
+    "GRID"
+  ],
+  "data": {
+    "value_type": "DOUBLE",
+    "default": 1,
+    "dimension": "1"
+  }
+}

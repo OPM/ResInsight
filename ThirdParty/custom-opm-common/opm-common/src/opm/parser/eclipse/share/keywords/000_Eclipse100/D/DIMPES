@@ -1,0 +1,27 @@
+{
+  "name": "DIMPES",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "DSTARG",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 0.05
+    },
+    {
+      "name": "DSMAX",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 0.1
+    },
+    {
+      "name": "DPMAX",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure",
+      "default": 13.79
+    }
+  ]
+}

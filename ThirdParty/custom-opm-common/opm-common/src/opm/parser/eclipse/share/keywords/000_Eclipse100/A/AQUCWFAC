@@ -1,0 +1,20 @@
+{
+  "name": "AQUCWFAC",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "ADD_TO_DEPTH",
+      "value_type": "DOUBLE",
+      "dimension": "Length",
+      "default": 0
+    },
+    {
+      "name": "MULTIPLY",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 1
+    }
+  ]
+}

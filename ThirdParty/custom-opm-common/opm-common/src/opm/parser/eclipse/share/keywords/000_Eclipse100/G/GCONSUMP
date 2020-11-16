@@ -1,0 +1,26 @@
+{
+  "name": "GCONSUMP",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "name": "GAS_CONSUMP_RATE",
+      "value_type": "UDA",
+      "dimension": "GasSurfaceVolume/Time"
+    },
+    {
+      "name": "GAS_IMPORT_RATE",
+      "value_type": "UDA",
+      "dimension": "GasSurfaceVolume/Time"
+    },
+    {
+      "name": "NETWORK_NODE",
+      "value_type": "STRING"
+    }
+  ]
+}

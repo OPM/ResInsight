@@ -1,0 +1,17 @@
+{
+  "name": "WPOLYRED",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "POLYMER_VISCOSITY_RED",
+      "value_type": "DOUBLE",
+      "default": 1
+    }
+  ]
+}

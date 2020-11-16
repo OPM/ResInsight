@@ -1,0 +1,24 @@
+{
+  "name": "PARTTRAC",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "NPARTT",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "NKPTMX",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "NPKPMX",
+      "value_type": "INT",
+      "default": 0
+    }
+  ]
+}

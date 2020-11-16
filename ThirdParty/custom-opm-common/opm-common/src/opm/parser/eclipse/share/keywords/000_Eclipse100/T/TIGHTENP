@@ -1,0 +1,27 @@
+{
+  "name": "TIGHTEN",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "LINEAR_FACTOR",
+      "value_type": "DOUBLE",
+      "default_value": 1
+    },
+    {
+      "name": "MAX_LINEAR",
+      "value_type": "INT"
+    },
+    {
+      "name": "NONLINEAR_FACTOR",
+      "value_type": "DOUBLE",
+      "default_value": 1
+    },
+    {
+      "name": "MAX_NONLINEAR",
+      "value_type": "INT"
+    }
+  ]
+}

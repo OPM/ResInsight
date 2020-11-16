@@ -1,0 +1,22 @@
+{
+  "name": "NCONSUMP",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "NODE",
+      "value_type": "STRING"
+    },
+    {
+      "name": "GAS_CONSUMPTION_RATE",
+      "value_type": "DOUBLE",
+      "dimension": "GasSurfaceVolume/Time",
+      "default": 0
+    },
+    {
+      "name": "REMOVAL_GROUP",
+      "value_type": "STRING"
+    }
+  ]
+}

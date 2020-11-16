@@ -1,0 +1,22 @@
+{
+  "name": "FOAMROCK",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "TABDIMS",
+    "item": "NTSFUN"
+  },
+  "items": [
+    {
+      "name": "ADSORPTION_INDEX",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "name": "ROCK_DENSITY",
+      "value_type": "DOUBLE",
+      "dimension": "Density"
+    }
+  ]
+}

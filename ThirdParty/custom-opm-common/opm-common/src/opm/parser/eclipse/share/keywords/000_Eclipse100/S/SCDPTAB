@@ -1,0 +1,21 @@
+{
+  "name": "SCDPTAB",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": {
+    "keyword": "SCDPDIMS",
+    "item": "NTSCDP"
+  },
+  "items": [
+    {
+      "name": "DATA",
+      "size_type": "ALL",
+      "value_type": "DOUBLE",
+      "dimension": [
+        "1",
+        "1"
+      ]
+    }
+  ]
+}

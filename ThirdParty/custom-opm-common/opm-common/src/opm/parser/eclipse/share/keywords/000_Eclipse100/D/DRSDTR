@@ -1,0 +1,22 @@
+{
+  "name": "DRSDTR",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": {
+    "keyword": "TABDIMS",
+    "item": "NTPVT"
+  },
+  "items": [
+    {
+      "name": "DRSDT_MAX",
+      "value_type": "DOUBLE",
+      "dimension": "GasDissolutionFactor/Time"
+    },
+    {
+      "name": "Option",
+      "value_type": "STRING",
+      "default": "ALL"
+    }
+  ]
+}

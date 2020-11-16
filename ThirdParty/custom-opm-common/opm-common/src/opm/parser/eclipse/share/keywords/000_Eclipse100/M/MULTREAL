@@ -1,0 +1,18 @@
+{
+  "name": "MULTREAL",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "SESSION_SPEC",
+      "value_type": "STRING"
+    },
+    {
+      "name": "STANDARD_LICENCE",
+      "value_type": "STRING",
+      "default": "YES"
+    }
+  ]
+}

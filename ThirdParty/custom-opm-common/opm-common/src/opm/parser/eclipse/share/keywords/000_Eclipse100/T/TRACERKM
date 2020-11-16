@@ -1,0 +1,38 @@
+{
+  "name": "TRACERKM",
+  "sections": [
+    "PROPS"
+  ],
+  "size": "UNKNOWN",
+  "records": [
+    [
+      {
+        "name": "TRACER_NAME",
+        "value_type": "STRING"
+      },
+      {
+        "name": "PARTITION_FUNCTION_TYPE",
+        "value_type": "STRING",
+        "default": "STANDARD"
+      }
+    ],
+    [
+      {
+        "name": "PHASES",
+        "value_type": "STRING",
+        "size_type": "ALL"
+      }
+    ],
+    [
+      {
+        "name": "TABLE",
+        "value_type": "DOUBLE",
+        "size_type": "ALL",
+        "dimensions": [
+          "Pressure",
+          "1"
+        ]
+      }
+    ]
+  ]
+}

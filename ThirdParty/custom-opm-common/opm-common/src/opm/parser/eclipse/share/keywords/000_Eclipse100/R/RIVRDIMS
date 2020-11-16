@@ -1,0 +1,74 @@
+{
+  "name": "RIVRDIMS",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "MAX_RIVERS",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "MAX_REACHES",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "name": "MAX_BRANCHES",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "name": "MAX_BLOCKS",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "name": "MXTBPR",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "name": "MXDPTB",
+      "value_type": "INT",
+      "default": 2
+    },
+    {
+      "name": "MXTBGR",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "name": "NMDEPT",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "MXDEPT",
+      "value_type": "INT",
+      "default": 2
+    },
+    {
+      "name": "NMMAST",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "MXMAST",
+      "value_type": "INT",
+      "default": 2
+    },
+    {
+      "name": "NRATTA",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "MXRATE",
+      "value_type": "INT",
+      "default": 2
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+#define HAVE_OPENMP 1
+#define HAVE_DYNAMIC_BOOST_TEST 0

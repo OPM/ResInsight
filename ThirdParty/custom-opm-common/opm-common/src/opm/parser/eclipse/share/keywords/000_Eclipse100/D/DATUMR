@@ -1,0 +1,12 @@
+{
+  "name": "DATUMR",
+  "sections": [
+    "SOLUTION"
+  ],
+  "size": 1,
+  "data": {
+    "name": "DEPTH",
+    "value_type": "DOUBLE",
+    "dimension": "Length"
+  }
+}

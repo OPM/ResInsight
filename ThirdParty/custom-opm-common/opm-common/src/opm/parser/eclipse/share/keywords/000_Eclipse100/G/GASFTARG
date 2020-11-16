@@ -1,0 +1,69 @@
+{
+  "name": "GASFTARG",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "JAN",
+      "value_type": "DOUBLE",
+      "dimension": "Length*Length*Length/Time"
+    },
+    {
+      "name": "FEB",
+      "value_type": "DOUBLE",
+      "dimension": "Length*Length*Length/Time"
+    },
+    {
+      "name": "MAR",
+      "value_type": "DOUBLE",
+      "dimension": "Length*Length*Length/Time"
+    },
+    {
+      "name": "APR",
+      "value_type": "DOUBLE",
+      "dimension": "Length*Length*Length/Time"
+    },
+    {
+      "name": "MAY",
+      "value_type": "DOUBLE",
+      "dimension": "Length*Length*Length/Time"
+    },
+    {
+      "name": "JUN",
+      "value_type": "DOUBLE",
+      "dimension": "Length*Length*Length/Time"
+    },
+    {
+      "name": "JUL",
+      "value_type": "DOUBLE",
+      "dimension": "Length*Length*Length/Time"
+    },
+    {
+      "name": "AUG",
+      "value_type": "DOUBLE",
+      "dimension": "Length*Length*Length/Time"
+    },
+    {
+      "name": "SEP",
+      "value_type": "DOUBLE",
+      "dimension": "Length*Length*Length/Time"
+    },
+    {
+      "name": "OCT",
+      "value_type": "DOUBLE",
+      "dimension": "Length*Length*Length/Time"
+    },
+    {
+      "name": "NOV",
+      "value_type": "DOUBLE",
+      "dimension": "Length*Length*Length/Time"
+    },
+    {
+      "name": "DEC",
+      "value_type": "DOUBLE",
+      "dimension": "Length*Length*Length/Time"
+    }
+  ]
+}

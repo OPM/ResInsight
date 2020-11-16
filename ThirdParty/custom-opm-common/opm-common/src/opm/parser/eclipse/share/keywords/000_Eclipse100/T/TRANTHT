@@ -1,0 +1,10 @@
+{
+  "name": "TRANTHT",
+  "sections": [
+    "EDIT"
+  ],
+  "data": {
+    "value_type": "DOUBLE",
+    "dimension": "Transmissibility"
+  }
+}

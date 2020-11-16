@@ -1,0 +1,12 @@
+{
+  "name": "DIFFMMF",
+  "sections": [
+    "GRID",
+    "SCHEDULE"
+  ],
+  "data": {
+    "value_type": "DOUBLE",
+    "default": 1,
+    "dimension": "1"
+  }
+}

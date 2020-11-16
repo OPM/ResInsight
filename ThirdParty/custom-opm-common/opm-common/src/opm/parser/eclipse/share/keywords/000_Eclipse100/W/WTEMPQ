@@ -1,0 +1,16 @@
+{
+  "name": "WTEMPQ",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "LGR",
+      "value_type": "STRING"
+    }
+  ]
+}

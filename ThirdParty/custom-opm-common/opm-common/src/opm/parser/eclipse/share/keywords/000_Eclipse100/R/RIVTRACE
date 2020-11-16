@@ -1,0 +1,33 @@
+{
+  "name": "RIVTRACE",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "RIVER",
+      "value_type": "STRING"
+    },
+    {
+      "name": "TRACER",
+      "value_type": "STRING"
+    },
+    {
+      "name": "TC",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "TCUM",
+      "value_type": "DOUBLE",
+      "dimension": "1/LiquidSurfaceVolume"
+    },
+    {
+      "name": "BRANCH",
+      "value_type": "STRING"
+    },
+    {
+      "name": "REACH",
+      "value_type": "INT"
+    }
+  ]
+}

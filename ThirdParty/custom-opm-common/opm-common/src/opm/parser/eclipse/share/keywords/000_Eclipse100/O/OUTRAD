@@ -1,0 +1,14 @@
+{
+  "name": "OUTRAD",
+  "sections": [
+    "GRID"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "RADIUS",
+      "value_type": "DOUBLE",
+      "dimension": "Length"
+    }
+  ]
+}

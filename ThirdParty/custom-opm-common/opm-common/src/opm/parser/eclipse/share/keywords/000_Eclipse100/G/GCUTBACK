@@ -1,0 +1,41 @@
+{
+  "name": "GCUTBACK",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "GROUP_NAME",
+      "value_type": "STRING"
+    },
+    {
+      "name": "WATER_CUT_UPPER_LIM",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "GAS_OIL_UPPER_LIM",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "GAS_LIQ_UPPER_LIM",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "WAT_GAS_UPPER_LIM",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "RATE_CUTBACK_FACTOR",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "CONTROL_PHASE",
+      "value_type": "STRING"
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "name": "EXTFIN",
+  "sections": [
+    "GRID"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "LOCAL_GRID_REF",
+      "value_type": "STRING"
+    },
+    {
+      "name": "NX",
+      "value_type": "INT"
+    },
+    {
+      "name": "NY",
+      "value_type": "INT"
+    },
+    {
+      "name": "NZ",
+      "value_type": "INT"
+    },
+    {
+      "name": "NREPG",
+      "value_type": "INT"
+    },
+    {
+      "name": "NHALO",
+      "value_type": "INT"
+    },
+    {
+      "name": "NFLOG",
+      "value_type": "INT"
+    },
+    {
+      "name": "NUMINT",
+      "value_type": "INT"
+    },
+    {
+      "name": "NUMCON",
+      "value_type": "INT"
+    },
+    {
+      "name": "NWMAX",
+      "value_type": "INT"
+    }
+  ]
+}

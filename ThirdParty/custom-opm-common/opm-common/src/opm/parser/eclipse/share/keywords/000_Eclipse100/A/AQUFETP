@@ -1,0 +1,54 @@
+{
+  "name": "AQUFETP",
+  "sections": [
+    "SOLUTION",
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "AQUIFER_ID",
+      "value_type": "INT"
+    },
+    {
+      "name": "DAT_DEPTH",
+      "value_type": "DOUBLE",
+      "dimension": "Length"
+    },
+    {
+      "name": "P0",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    },
+    {
+      "name": "V0",
+      "value_type": "DOUBLE",
+      "dimension": "LiquidSurfaceVolume"
+    },
+    {
+      "name": "C_T",
+      "value_type": "DOUBLE",
+      "dimension": "1/Pressure"
+    },
+    {
+      "name": "PI",
+      "value_type": "DOUBLE",
+      "dimension": "LiquidSurfaceVolume/Pressure*Time"
+    },
+    {
+      "name": "TABLE_NUM_WATER_PRESS",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "name": "SALINITY",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "Salinity"
+    },
+    {
+      "name": "TEMP",
+      "value_type": "DOUBLE",
+      "dimension": "Temperature"
+    }
+  ]
+}

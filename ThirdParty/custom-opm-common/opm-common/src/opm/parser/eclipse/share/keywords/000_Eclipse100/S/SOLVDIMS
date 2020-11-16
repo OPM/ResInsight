@@ -1,0 +1,10 @@
+{
+  "name": "SOLVDIMS",
+  "sections": [
+    "RUNSPEC",
+    "GRID"
+  ],
+  "data": {
+    "value_type": "INT"
+  }
+}

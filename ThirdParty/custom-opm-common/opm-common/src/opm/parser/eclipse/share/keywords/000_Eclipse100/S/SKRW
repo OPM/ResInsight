@@ -1,0 +1,9 @@
+{
+  "name": "SKRW",
+  "sections": [
+    "PROPS"
+  ],
+  "data": {
+    "value_type": "DOUBLE"
+  }
+}

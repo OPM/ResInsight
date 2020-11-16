@@ -1,0 +1,66 @@
+{
+  "name": "WCONINJH",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "TYPE",
+      "value_type": "STRING"
+    },
+    {
+      "name": "STATUS",
+      "value_type": "STRING",
+      "default": "OPEN"
+    },
+    {
+      "name": "RATE",
+      "value_type": "DOUBLE",
+      "dimension": "ContextDependent"
+    },
+    {
+      "name": "BHP",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    },
+    {
+      "name": "THP",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    },
+    {
+      "name": "VFP_TABLE",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "VAPOIL_C",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "SURFACE_OIL_FRACTION",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "SURFACE_WATER_FRACTION",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "SURFACE_GAS_FRACTION",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "CMODE",
+      "value_type": "STRING",
+      "default": "RATE"
+    }
+  ]
+}

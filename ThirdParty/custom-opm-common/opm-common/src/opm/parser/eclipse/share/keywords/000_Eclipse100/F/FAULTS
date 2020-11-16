@@ -1,0 +1,40 @@
+{
+  "name": "FAULTS",
+  "sections": [
+    "GRID"
+  ],
+  "items": [
+    {
+      "name": "NAME",
+      "value_type": "STRING"
+    },
+    {
+      "name": "IX1",
+      "value_type": "INT"
+    },
+    {
+      "name": "IX2",
+      "value_type": "INT"
+    },
+    {
+      "name": "IY1",
+      "value_type": "INT"
+    },
+    {
+      "name": "IY2",
+      "value_type": "INT"
+    },
+    {
+      "name": "IZ1",
+      "value_type": "INT"
+    },
+    {
+      "name": "IZ2",
+      "value_type": "INT"
+    },
+    {
+      "name": "FACE",
+      "value_type": "STRING"
+    }
+  ]
+}

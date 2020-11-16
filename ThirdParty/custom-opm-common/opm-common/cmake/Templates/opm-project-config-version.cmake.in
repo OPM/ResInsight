@@ -1,0 +1,28 @@
+# - CMake version file for @opm-project_NAME@
+#
+# Determine if requested version matches exactly or is compatible with
+# the installed package. It sets the following variables:
+#
+#	PACKAGE_VERSION             Full provided version string
+#	PACKAGE_VERSION_COMPATIBLE  True if version is compatible
+#	PACKAGE_VERSION_EXACT       True if version is exact match
+
+# This file is used by find_package to see if the installed version of a
+# package can be used by the client, before the main -config.cmake file
+# is loaded.
+# see <http://www.cmake.org/Wiki/CMake/Tutorials/Packaging#Package_Version_Files>
+
+# this is the version that is installed
+set (PACKAGE_VERSION @opm-project_VERSION@)
+
+# if we wanted this exact version, then everything's fine
+if (PACKAGE_VERSION VERSION_EQUAL PACKAGE_FIND_VERSION)
+  set (PACKAGE_VERSION_EXACT TRUE)
+endif (PACKAGE_VERSION VERSION_EQUAL PACKAGE_FIND_VERSION)
+
+# in general, we assume that there is going to be API breakage between
+# released versions; this will hopefully change in the future
+## compatible versions
+#if (NOT PACKAGE_VERSION VERSION_LESS PACKAGE_FIND_VERSION)
+#  set (PACKAGE_VERSION_COMPATIBLE TRUE)
+#endif (NOT PACKAGE_VERSION VERSION_LESS PACKAGE_FIND_VERSION)

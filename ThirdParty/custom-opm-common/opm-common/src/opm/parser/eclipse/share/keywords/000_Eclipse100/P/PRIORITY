@@ -1,0 +1,94 @@
+{
+  "name": "PRIORITY",
+  "size": 1,
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "MIN_CALC_TIME",
+      "value_type": "DOUBLE",
+      "dimension": "Time"
+    },
+    {
+      "name": "A1",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "B1",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "C1",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "D1",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "E1",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "F1",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "G1",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "H1",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "A2",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "B2",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "C2",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "D2",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "E2",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "F2",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "G2",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "H2",
+      "value_type": "DOUBLE",
+      "default": 0
+    }
+  ]
+}

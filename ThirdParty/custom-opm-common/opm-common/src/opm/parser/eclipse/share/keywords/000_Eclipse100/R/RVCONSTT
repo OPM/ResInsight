@@ -1,0 +1,21 @@
+{
+  "name": "RVCONSTT",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "TABDIMS",
+    "item": "NTPVT"
+  },
+  "items": [
+    {
+      "name": "DATA",
+      "value_type": "DOUBLE",
+      "dimension": [
+        "OilDissolutionFactor",
+        "Pressure"
+      ],
+      "size_type": "ALL"
+    }
+  ]
+}

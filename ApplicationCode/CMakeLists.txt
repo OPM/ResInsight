@@ -443,7 +443,12 @@ set(UNITY_EXCLUDE_FILES
     # forever is used as variable name, and this symbol is defined by Qt and
     # used in precompiled headers
     ${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc
-    qrc_cafAnimControl.cpp qrc_ResInsight.cpp qrc_cafCommandFeatures.cpp)
+    qrc_cafAnimControl.cpp
+    qrc_ResInsight.cpp
+    qrc_cafCommandFeatures.cpp
+    # Exclude files including opm-common
+    ProjectDataModel/RimVfpTableExtractor.cpp
+    ProjectDataModel/RimVfpPlot.cpp)
 
 if(RESINSIGHT_ENABLE_UNITY_BUILD)
   foreach(fileToExclude ${UNITY_EXCLUDE_FILES})

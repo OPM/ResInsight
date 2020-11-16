@@ -1,0 +1,21 @@
+{
+  "name": "REGION2REGION_PROBE",
+  "sections": [
+    "SUMMARY"
+  ],
+  "deck_names": [
+    "ROFT",
+    "RGFT",
+    "RWFT"
+  ],
+  "items": [
+    {
+      "name": "REGION1",
+      "value_type": "INT"
+    },
+    {
+      "name": "REGION2",
+      "value_type": "INT"
+    }
+  ]
+}

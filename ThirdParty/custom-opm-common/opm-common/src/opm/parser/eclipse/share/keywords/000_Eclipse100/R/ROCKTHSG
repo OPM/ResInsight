@@ -1,0 +1,21 @@
+{
+  "name": "ROCKTHSG",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "ROCKCOMP",
+    "item": "NTROCC"
+  },
+  "items": [
+    {
+      "name": "DATA",
+      "value_type": "DOUBLE",
+      "size_type": "ALL",
+      "dimension": [
+        "Pressure",
+        "1"
+      ]
+    }
+  ]
+}

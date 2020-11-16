@@ -1,0 +1,23 @@
+{
+  "name": "PLYVSCST",
+  "sections": [
+    "PROPS",
+    "SCHEDULE"
+  ],
+  "num_tables": {
+    "keyword": "TABDIMS",
+    "item": "NTPVT"
+  },
+  "items": [
+    {
+      "name": "PC1",
+      "value_type": "DOUBLE",
+      "dimension": "Mass/LiquidSurfaceVolume"
+    },
+    {
+      "name": "MULT",
+      "value_type": "DOUBLE",
+      "size_type": "ALL"
+    }
+  ]
+}

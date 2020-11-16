@@ -1,0 +1,33 @@
+{
+  "name": "DELAYACT",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "ACTION_NAME",
+      "value_type": "STRING"
+    },
+    {
+      "name": "ACTION_TRIGGER",
+      "value_type": "STRING"
+    },
+    {
+      "name": "DELAY",
+      "value_type": "DOUBLE",
+      "dimension": "Time"
+    },
+    {
+      "name": "NUM_TIMES",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "name": "INCREMENT",
+      "value_type": "DOUBLE",
+      "dimension": "Time",
+      "default": 0
+    }
+  ]
+}

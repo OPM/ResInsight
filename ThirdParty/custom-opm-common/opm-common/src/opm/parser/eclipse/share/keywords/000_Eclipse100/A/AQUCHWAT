@@ -1,0 +1,84 @@
+{
+  "name": "AQUCHWAT",
+  "sections": [
+    "SOLUTION",
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "AQUIFER_ID",
+      "value_type": "INT"
+    },
+    {
+      "name": "DATUM_DEPTH",
+      "value_type": "DOUBLE",
+      "dimension": "Length"
+    },
+    {
+      "name": "INPUT_4",
+      "value_type": "STRING"
+    },
+    {
+      "name": "ITEM4",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "AQUIFER_PROD_INDEX",
+      "value_type": "DOUBLE",
+      "dimension": "LiquidSurfaceVolume/Time*Pressure"
+    },
+    {
+      "name": "TABLE_NUM",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "name": "INIT_SALT_CONC",
+      "value_type": "DOUBLE",
+      "dimension": "Mass/LiquidSurfaceVolume",
+      "default": 1
+    },
+    {
+      "name": "MINIMUM",
+      "value_type": "DOUBLE",
+      "default": -1e+200
+    },
+    {
+      "name": "MAXIMUM",
+      "value_type": "DOUBLE",
+      "default": 1e+200
+    },
+    {
+      "name": "IGNORE_CAP_PRESSURE",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "name": "MIN_FLOW_PR_CONN",
+      "value_type": "DOUBLE",
+      "dimension": "LiquidSurfaceVolume/Time",
+      "default": -1e+200
+    },
+    {
+      "name": "MAX_FLOW_PR_CONN",
+      "value_type": "DOUBLE",
+      "dimension": "LiquidSurfaceVolume/Time",
+      "default": 1e+200
+    },
+    {
+      "name": "REMOVE_DEPTH_TERM",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "name": "IMPORT_MAX_MIN_FLOW_RATE",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "TEMPERATURE",
+      "value_type": "DOUBLE",
+      "dimension": "Temperature"
+    }
+  ]
+}

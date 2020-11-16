@@ -1,0 +1,14 @@
+{
+  "name": "FAULTDIM",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "MFSEGS",
+      "value_type": "INT",
+      "default": 0
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "name": "GRUPMAST",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "MASTER_GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "name": "SLAVE_RESERVOIR",
+      "value_type": "STRING"
+    },
+    {
+      "name": "SLAVE_GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "name": "LIMITING_FRACTION",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    }
+  ]
+}

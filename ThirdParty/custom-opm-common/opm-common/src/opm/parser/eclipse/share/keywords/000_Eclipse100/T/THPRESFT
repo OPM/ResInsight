@@ -1,0 +1,17 @@
+{
+  "name": "THPRESFT",
+  "sections": [
+    "GRID"
+  ],
+  "items": [
+    {
+      "name": "FAULT_NAME",
+      "value_type": "STRING"
+    },
+    {
+      "name": "VALUE",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    }
+  ]
+}

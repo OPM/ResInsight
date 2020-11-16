@@ -1,0 +1,9 @@
+{
+  "name": "SIGMATH",
+  "sections": [
+    "GRID"
+  ],
+  "data": {
+    "value_type": "DOUBLE"
+  }
+}

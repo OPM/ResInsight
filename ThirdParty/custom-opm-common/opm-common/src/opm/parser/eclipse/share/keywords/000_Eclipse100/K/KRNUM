@@ -1,0 +1,21 @@
+{
+  "name": "KRNUM",
+  "sections": [
+    "REGIONS"
+  ],
+  "deck_name": [
+    "KRNUMX",
+    "KRNUMX-",
+    "KRNUMY",
+    "KRNUMY-",
+    "KRNUMZ",
+    "KRNUMZ-",
+    "KRNUMR",
+    "KRNUMR-",
+    "KRNUMT",
+    "KRNUMT-"
+  ],
+  "data": {
+    "value_type": "INT"
+  }
+}

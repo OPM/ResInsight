@@ -1,0 +1,18 @@
+{
+  "name": "LGROFF",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "LOCAL_GRID_REFINMENT",
+      "value_type": "STRING"
+    },
+    {
+      "name": "ACTIVE_WELLS",
+      "value_type": "INT",
+      "default": 0
+    }
+  ]
+}

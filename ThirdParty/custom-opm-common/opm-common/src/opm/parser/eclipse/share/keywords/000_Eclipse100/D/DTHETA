@@ -1,0 +1,11 @@
+{
+  "name": "DTHETA",
+  "sections": [
+    "GRID"
+  ],
+  "data": {
+    "value_type": "DOUBLE",
+    "dimension": "1"
+  },
+  "comment": "The values are given in degrees - i.e. [0..360)"
+}

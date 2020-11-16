@@ -1,0 +1,17 @@
+{
+  "name": "WNETCTRL",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "CONTROL",
+      "value_type": "STRING",
+      "default": "THP"
+    }
+  ]
+}

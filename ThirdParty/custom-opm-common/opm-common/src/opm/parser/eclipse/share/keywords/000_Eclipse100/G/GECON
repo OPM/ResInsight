@@ -1,0 +1,52 @@
+{
+  "name": "GECON",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "name": "MIN_OIL_RATE",
+      "value_type": "UDA",
+      "default": 0
+    },
+    {
+      "name": "MIN_GAS_RATE",
+      "value_type": "UDA",
+      "default": 0
+    },
+    {
+      "name": "MAX_WCT",
+      "value_type": "UDA",
+      "default": 0
+    },
+    {
+      "name": "MAX_GOR",
+      "value_type": "UDA",
+      "default": 0
+    },
+    {
+      "name": "MAX_WATER_GAS_RATIO",
+      "value_type": "UDA",
+      "default": 0
+    },
+    {
+      "name": "WORKOVER",
+      "value_type": "STRING",
+      "default": "NONE"
+    },
+    {
+      "name": "END_RUN",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "name": "MAX_OPEN_WELLS",
+      "value_type": "INT",
+      "default": 0
+    }
+  ]
+}

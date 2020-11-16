@@ -41,6 +41,7 @@ class RimEclipseResultCase;
 class RimFlowPlotCollection;
 class RimSaturationPressurePlotCollection;
 class RimStimPlanModelPlotCollection;
+class RimVfpPlotCollection;
 
 //==================================================================================================
 ///
@@ -66,6 +67,7 @@ public:
     RimSaturationPressurePlotCollection* saturationPressurePlotCollection();
     RimMultiPlotCollection*              multiPlotCollection();
     RimStimPlanModelPlotCollection*      stimPlanModelPlotCollection();
+    RimVfpPlotCollection*                vfpPlotCollection();
 
     void deleteAllContainedObjects();
     void updateCurrentTimeStepInPlots();
@@ -93,6 +95,7 @@ private:
     caf::PdmChildField<RimSaturationPressurePlotCollection*> m_saturationPressurePlotCollection;
     caf::PdmChildField<RimMultiPlotCollection*>              m_multiPlotCollection;
     caf::PdmChildField<RimStimPlanModelPlotCollection*>      m_stimPlanModelPlotCollection;
+    caf::PdmChildField<RimVfpPlotCollection*>                m_vfpPlotCollection;
 
     caf::PdmField<bool> m_show;
 };

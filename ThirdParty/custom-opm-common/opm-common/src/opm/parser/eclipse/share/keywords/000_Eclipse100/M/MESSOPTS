@@ -1,0 +1,17 @@
+{
+  "name": "MESSOPTS",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "MNEMONIC",
+      "value_type": "STRING"
+    },
+    {
+      "name": "SEVERITY",
+      "value_type": "INT"
+    }
+  ]
+}

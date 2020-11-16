@@ -1,0 +1,3 @@
+The restart file 'MSW.UNRST' contains report step from the reference solution in
+opm-tests/msw_3d_hfa. If the reference solution in opm-tests is updated the
+restart file 'MSW.UNRST' must be updated manually :-(

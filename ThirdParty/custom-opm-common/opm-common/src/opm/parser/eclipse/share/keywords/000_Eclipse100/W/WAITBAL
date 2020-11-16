@@ -1,0 +1,14 @@
+{
+  "name": "WAITBAL",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "WAIT_NETWORK_BALANCE",
+      "value_type": "STRING",
+      "default": "NO"
+    }
+  ]
+}

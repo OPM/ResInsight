@@ -1,0 +1,62 @@
+{
+  "name": "FIPSEP",
+  "sections": [
+    "SOLUTION"
+  ],
+  "items": [
+    {
+      "name": "FLUID_IN_PLACE_REGION",
+      "value_type": "INT"
+    },
+    {
+      "name": "STAGE_INDEX",
+      "value_type": "INT"
+    },
+    {
+      "name": "STAGE_TEMPERATURE",
+      "value_type": "DOUBLE",
+      "dimension": "Temperature",
+      "default": 15.56
+    },
+    {
+      "name": "STAGE_PRESSURE",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure",
+      "default": 1.01325
+    },
+    {
+      "name": "DESTINATION_OUPUT",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "DESTINATION_STAGE",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "K_VAL_TABLE_NUM",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "GAS_PLANT_TABLE_NUM",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "SURF_EQ_STATE_NUM",
+      "value_type": "INT"
+    },
+    {
+      "name": "DENSITY_EVAL_GAS_TEMP",
+      "value_type": "DOUBLE",
+      "dimension": "Temperature"
+    },
+    {
+      "name": "DENSITY_EVAL_PRESSURE_TEMP",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    }
+  ]
+}

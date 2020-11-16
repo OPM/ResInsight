@@ -1,0 +1,61 @@
+{
+  "name": "ROCKPAMA",
+  "sections": [
+    "PROPS"
+  ],
+  "items": [
+    {
+      "name": "K",
+      "value_type": "DOUBLE",
+      "dimensions": "Pressure"
+    },
+    {
+      "name": "M",
+      "value_type": "DOUBLE",
+      "dimensions": "Pressure"
+    },
+    {
+      "name": "G",
+      "value_type": "DOUBLE",
+      "dimensions": "1/Pressure",
+      "default": 0
+    },
+    {
+      "name": "B",
+      "value_type": "DOUBLE",
+      "dimensions": "1/Pressure",
+      "default": 0
+    },
+    {
+      "name": "E1",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "f",
+      "value_type": "DOUBLE",
+      "default": 0.5
+    },
+    {
+      "name": "n",
+      "value_type": "DOUBLE",
+      "default": 3
+    },
+    {
+      "name": "g",
+      "value_type": "DOUBLE",
+      "default": 1
+    },
+    {
+      "name": "Bs",
+      "value_type": "DOUBLE",
+      "dimensions": "1/Pressure",
+      "default": 0
+    },
+    {
+      "name": "Es",
+      "value_type": "DOUBLE",
+      "default": 0
+    }
+  ]
+}

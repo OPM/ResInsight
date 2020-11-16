@@ -1,0 +1,8 @@
+{
+  "name": "UDT",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "comment0": "This is a keyword that is not in use.",
+  "comment1": "If this keyword is in the eclipse file, the parser will parse the file, but the deck will not contain any UDT keyword."
+}

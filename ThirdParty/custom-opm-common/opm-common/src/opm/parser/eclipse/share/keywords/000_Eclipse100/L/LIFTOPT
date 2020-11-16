@@ -1,0 +1,27 @@
+{
+  "name": "LIFTOPT",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "INCREMENT_SIZE",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "MIN_ECONOMIC_GRADIENT",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "MIN_INTERVAL_BETWEEN_GAS_LIFT_OPTIMIZATIONS",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "OPTIMISE_GAS_LIFT",
+      "value_type": "STRING",
+      "default": "YES"
+    }
+  ]
+}

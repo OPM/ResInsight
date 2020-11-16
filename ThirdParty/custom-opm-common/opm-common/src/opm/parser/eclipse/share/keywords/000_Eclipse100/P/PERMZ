@@ -1,0 +1,11 @@
+{
+  "name": "PERMZ",
+  "sections": [
+    "GRID"
+  ],
+  "data": {
+    "value_type": "DOUBLE",
+    "default": 0,
+    "dimension": "Permeability"
+  }
+}

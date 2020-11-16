@@ -1,0 +1,16 @@
+{
+  "name": "RPTHMG",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "name": "INCLUDE",
+      "value_type": "STRING"
+    }
+  ]
+}

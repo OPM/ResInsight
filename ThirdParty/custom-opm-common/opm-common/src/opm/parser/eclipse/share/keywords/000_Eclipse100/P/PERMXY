@@ -1,0 +1,10 @@
+{
+  "name": "PERMXY",
+  "sections": [
+    "GRID"
+  ],
+  "data": {
+    "value_type": "DOUBLE",
+    "dimension": "Permeability"
+  }
+}

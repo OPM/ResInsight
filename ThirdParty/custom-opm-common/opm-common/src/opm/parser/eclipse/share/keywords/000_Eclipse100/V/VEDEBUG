@@ -1,0 +1,43 @@
+{
+  "name": "VEDEBUG",
+  "sections": [
+    "GRID"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "I1",
+      "value_type": "INT"
+    },
+    {
+      "name": "I2",
+      "value_type": "INT"
+    },
+    {
+      "name": "J1",
+      "value_type": "INT"
+    },
+    {
+      "name": "J2",
+      "value_type": "INT"
+    },
+    {
+      "name": "K1",
+      "value_type": "INT"
+    },
+    {
+      "name": "K2",
+      "value_type": "INT"
+    },
+    {
+      "name": "DEBUG_LEVEL",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "LGR",
+      "value_type": "STRING",
+      "default": " "
+    }
+  ]
+}

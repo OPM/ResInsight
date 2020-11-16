@@ -1,0 +1,23 @@
+{
+  "name": "WBOREVOL",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "WELLBORE_VOL",
+      "value_type": "DOUBLE",
+      "default": 1e-05,
+      "dimension": "Length*Length*Length"
+    },
+    {
+      "name": "START_BHP",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "name": "UDQPARAM",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "RANDOM_SEED",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "name": "RANGE",
+      "value_type": "DOUBLE",
+      "default": 1e+20
+    },
+    {
+      "name": "UNDEFINED_VALUE",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "CMP_EPSILON",
+      "value_type": "DOUBLE",
+      "default": 0.0001
+    }
+  ]
+}

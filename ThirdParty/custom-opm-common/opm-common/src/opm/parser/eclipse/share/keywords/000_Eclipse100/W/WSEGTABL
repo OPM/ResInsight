@@ -1,0 +1,49 @@
+{
+  "name": "WSEGTABL",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "SEGMENT1",
+      "value_type": "INT"
+    },
+    {
+      "name": "SEGMENT2",
+      "value_type": "INT"
+    },
+    {
+      "name": "VFP",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "VFP_COMPONENTS",
+      "value_type": "STRING",
+      "default": "FH"
+    },
+    {
+      "name": "VFP_OUTLIER",
+      "value_type": "STRING"
+    },
+    {
+      "name": "DP_SCALING",
+      "value_type": "STRING",
+      "default": "LEN"
+    },
+    {
+      "name": "ALQ_VALUE",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "STATUS",
+      "value_type": "STRING",
+      "default": "OPEN"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "name": "WPLUG",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "LENGTH_TOP",
+      "value_type": "DOUBLE",
+      "dimension": "Length"
+    },
+    {
+      "name": "LENGTH_BOTTOM",
+      "value_type": "DOUBLE",
+      "dimension": "Length"
+    },
+    {
+      "name": "SOURCE",
+      "value_type": "STRING",
+      "default": "WELL"
+    }
+  ]
+}

@@ -278,14 +278,18 @@ endif() # MSVC
 
 if (VCPKG_AUTO_INSTALL)
     vcpkg_install(boost-filesystem)
+    vcpkg_install(boost-spirit)
 endif()
 
 add_subdirectory(ThirdParty/custom-opm-flowdiagnostics)
 add_subdirectory(ThirdParty/custom-opm-flowdiag-app)
+add_subdirectory(ThirdParty/custom-opm-common)
+add_subdirectory(ThirdParty/custom-opm-common/custom-opm-parser-tests)
 
 list(APPEND OPM_LIBRARIES
     custom-opm-flowdiagnostics
     custom-opm-flowdiag-app
+    custom-opm-common
 )
 
 set_property(TARGET  
@@ -320,7 +324,10 @@ add_subdirectory(ThirdParty/qwt)
 if(RESINSIGHT_ENABLE_UNITY_BUILD)
     message("Cmake Unity build is enabled on : qwt")
     set_property(TARGET qwt PROPERTY UNITY_BUILD true)
+    message("Cmake Unity build is enabled on : custom-opm-flowdiagnostics")
     set_property(TARGET custom-opm-flowdiagnostics PROPERTY UNITY_BUILD true)
+    message("Cmake Unity build is enabled on : custom-opm-common")
+    set_property(TARGET custom-opm-common PROPERTY UNITY_BUILD true)
 endif()
 
 list(APPEND THIRD_PARTY_LIBRARIES

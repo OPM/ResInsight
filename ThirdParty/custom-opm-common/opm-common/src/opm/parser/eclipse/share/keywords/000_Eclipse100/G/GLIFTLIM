@@ -1,0 +1,22 @@
+{
+  "name": "GLIFTLIM",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "GROUP_NAME",
+      "value_type": "STRING"
+    },
+    {
+      "name": "MAX_LIFT_CAPACITY",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "MAX_NUM_WELL",
+      "value_type": "INT",
+      "default": 0
+    }
+  ]
+}

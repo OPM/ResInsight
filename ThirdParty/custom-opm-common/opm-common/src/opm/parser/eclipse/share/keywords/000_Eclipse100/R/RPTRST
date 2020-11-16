@@ -1,0 +1,18 @@
+{
+  "name": "RPTRST",
+  "sections": [
+    "SOLUTION",
+    "SCHEDULE"
+  ],
+  "deck_name": [
+    "OUTSOL"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "MNEMONIC_LIST",
+      "size_type": "ALL",
+      "value_type": "STRING"
+    }
+  ]
+}

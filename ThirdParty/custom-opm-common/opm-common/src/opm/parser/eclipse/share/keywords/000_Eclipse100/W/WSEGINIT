@@ -1,0 +1,55 @@
+{
+  "name": "WSEGINIT",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "SEGMENT1",
+      "value_type": "INT"
+    },
+    {
+      "name": "SEGMENT2",
+      "value_type": "INT"
+    },
+    {
+      "name": "P0",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    },
+    {
+      "name": "W0",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "G0",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "RS",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "RV",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "API",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "POLYMER",
+      "value_type": "DOUBLE",
+      "dimension": "Mass/ReservoirVolume"
+    },
+    {
+      "name": "BRINE",
+      "value_type": "DOUBLE",
+      "dimension": "Mass/ReservoirVolume"
+    }
+  ]
+}

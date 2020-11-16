@@ -1,0 +1,19 @@
+{
+  "name": "SURFOPTS",
+  "sections": [
+    "PROPS"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "MIN_SWAT",
+      "value_type": "DOUBLE",
+      "default": 1e-06
+    },
+    {
+      "name": "SMOOTHING",
+      "value_type": "DOUBLE",
+      "default": 1e-06
+    }
+  ]
+}

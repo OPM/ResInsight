@@ -1,0 +1,14 @@
+{
+  "name": "INTPC",
+  "sections": [
+    "PROPS"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "PHASE",
+      "value_type": "STRING",
+      "default": "BOTH"
+    }
+  ]
+}

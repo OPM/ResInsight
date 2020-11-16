@@ -1,0 +1,41 @@
+{
+  "name": "WCYCLE",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "ON_TIME",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "Time"
+    },
+    {
+      "name": "OFF_TIME",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "Time"
+    },
+    {
+      "name": "START_TIME",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "Time"
+    },
+    {
+      "name": "MAX_TIMESTEP",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "Time"
+    },
+    {
+      "name": "CONTROLLED_TIMESTEP",
+      "value_type": "STRING",
+      "default": "NO"
+    }
+  ]
+}

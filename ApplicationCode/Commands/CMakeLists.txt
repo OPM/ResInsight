@@ -55,8 +55,10 @@ add_library(
   ${COMMAND_MOC_SOURCE_FILES})
 
 target_include_directories(
-  ${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
-                         ${CMAKE_SOURCE_DIR}/ThirdParty)
+  ${PROJECT_NAME}
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/ThirdParty
+         ${CMAKE_SOURCE_DIR}/ThirdParty/custom-opm-common/generated-opm-common
+         ${CMAKE_SOURCE_DIR}/ThirdParty/custom-opm-common/opm-common)
 
 # Before cmake 3.12 OBJECT libraries could not use the target_link_libraries
 # command, So we need to set the POSITION_INDEPENDENT_CODE option  manually

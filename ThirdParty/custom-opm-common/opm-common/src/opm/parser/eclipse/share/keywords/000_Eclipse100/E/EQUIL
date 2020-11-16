@@ -1,0 +1,65 @@
+{
+  "name": "EQUIL",
+  "sections": [
+    "SOLUTION"
+  ],
+  "size": {
+    "keyword": "EQLDIMS",
+    "item": "NTEQUL"
+  },
+  "description": "The EQUIL item is used when equilibrationg the model. The item should consist of one record for each PVT region",
+  "items": [
+    {
+      "name": "DATUM_DEPTH",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "Length"
+    },
+    {
+      "name": "DATUM_PRESSURE",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    },
+    {
+      "name": "OWC",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "Length",
+      "description": "The OWC item is depth of the OIL Water contact. This should ..."
+    },
+    {
+      "name": "PC_OWC",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "Pressure"
+    },
+    {
+      "name": "GOC",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "Length"
+    },
+    {
+      "name": "PC_GOC",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "Pressure"
+    },
+    {
+      "name": "BLACK_OIL_INIT",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "BLACK_OIL_INIT_WG",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "OIP_INIT",
+      "value_type": "INT",
+      "default": -5,
+      "comment": "The default is a state variable"
+    }
+  ]
+}

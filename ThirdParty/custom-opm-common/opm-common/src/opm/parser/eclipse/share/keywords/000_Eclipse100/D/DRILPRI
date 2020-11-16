@@ -1,0 +1,66 @@
+{
+  "name": "DRILPRI",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "INTERVAL",
+      "value_type": "DOUBLE",
+      "dimension": "Time",
+      "default": 0
+    },
+    {
+      "name": "A",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "B",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "C",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "D",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "E",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "F",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "G",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "H",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "LOOK_AHEAD",
+      "value_type": "DOUBLE",
+      "dimension": "Time",
+      "default": 0
+    },
+    {
+      "name": "CALCULATION",
+      "value_type": "STRING",
+      "default": "SINGLE"
+    }
+  ]
+}

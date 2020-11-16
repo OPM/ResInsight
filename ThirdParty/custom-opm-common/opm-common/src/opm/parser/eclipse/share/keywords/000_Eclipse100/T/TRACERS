@@ -1,0 +1,67 @@
+{
+  "name": "TRACERS",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "MAX_OIL_TRACERS",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "MAX_WATER_TRACERS",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "MAX_GAS_TRACERS",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "MAX_ENV_TRACERS",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "NUMERIC_DIFF",
+      "value_type": "STRING",
+      "default": "NODIFF"
+    },
+    {
+      "name": "MAX_ITER",
+      "value_type": "INT",
+      "default": 12
+    },
+    {
+      "name": "MIN_ITER",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "name": "PASSIVE_NONLINEAR",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "name": "ONEOFF_LIN_TIGHT",
+      "value_type": "INT"
+    },
+    {
+      "name": "ONEOFF_NLIN_TIGHT",
+      "value_type": "INT"
+    },
+    {
+      "name": "TIGHTENING_FACTORS",
+      "value_type": "DOUBLE",
+      "default": 1
+    },
+    {
+      "name": "NTIGHTFACTORS",
+      "value_type": "INT",
+      "default": 0
+    }
+  ]
+}

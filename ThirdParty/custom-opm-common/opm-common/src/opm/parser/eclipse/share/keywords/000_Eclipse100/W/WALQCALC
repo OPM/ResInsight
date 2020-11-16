@@ -1,0 +1,17 @@
+{
+  "name": "WALQCALC",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "ALQ_DEF",
+      "value_type": "STRING",
+      "default": "NONE"
+    }
+  ]
+}

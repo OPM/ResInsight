@@ -1,0 +1,9 @@
+{
+  "name": "SOCRS",
+  "sections": [
+    "PROPS"
+  ],
+  "data": {
+    "value_type": "DOUBLE"
+  }
+}

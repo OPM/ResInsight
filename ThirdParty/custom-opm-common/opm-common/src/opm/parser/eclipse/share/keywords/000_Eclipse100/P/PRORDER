@@ -1,0 +1,58 @@
+{
+  "name": "PRORDER",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 2,
+  "records": [
+    [
+      {
+        "name": "NO1",
+        "value_type": "STRING"
+      },
+      {
+        "name": "NO2",
+        "value_type": "STRING"
+      },
+      {
+        "name": "NO3",
+        "value_type": "STRING"
+      },
+      {
+        "name": "NO4",
+        "value_type": "STRING"
+      },
+      {
+        "name": "NO5",
+        "value_type": "STRING"
+      }
+    ],
+    [
+      {
+        "name": "OPT1",
+        "value_type": "STRING",
+        "default": "YES"
+      },
+      {
+        "name": "OPT2",
+        "value_type": "STRING",
+        "default": "YES"
+      },
+      {
+        "name": "OPT3",
+        "value_type": "STRING",
+        "default": "YES"
+      },
+      {
+        "name": "OPT4",
+        "value_type": "STRING",
+        "default": "YES"
+      },
+      {
+        "name": "OPT5",
+        "value_type": "STRING",
+        "default": "YES"
+      }
+    ]
+  ]
+}

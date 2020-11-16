@@ -1,0 +1,12 @@
+{
+  "name": "GRADGRUP",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "MNENONIC",
+      "value_type": "STRING"
+    }
+  ]
+}

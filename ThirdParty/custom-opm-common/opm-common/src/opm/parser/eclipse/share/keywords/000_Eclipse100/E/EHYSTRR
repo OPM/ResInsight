@@ -1,0 +1,27 @@
+{
+  "name": "EHYSTRR",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "TABDIMS",
+    "item": "NTSFUN"
+  },
+  "items": [
+    {
+      "name": "curvature_caplillary_pressure_hyst",
+      "value_type": "DOUBLE",
+      "default": 0.1
+    },
+    {
+      "name": "curvature_parameter_wetting_phase_hyst",
+      "value_type": "DOUBLE",
+      "default": 1
+    },
+    {
+      "name": "mod_param_non_wet_phase_sat",
+      "value_type": "DOUBLE",
+      "default": 0.1
+    }
+  ]
+}

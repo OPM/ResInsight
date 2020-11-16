@@ -1,0 +1,41 @@
+{
+  "name": "WINJMULT",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL_NAME",
+      "value_type": "STRING"
+    },
+    {
+      "name": "FRACTURING_PRESSURE",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "MULTIPLIER_GRADIENT",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "MODE",
+      "value_type": "STRING",
+      "default": "WREV"
+    },
+    {
+      "name": "I",
+      "value_type": "INT",
+      "default": -1
+    },
+    {
+      "name": "J",
+      "value_type": "INT",
+      "default": -1
+    },
+    {
+      "name": "K",
+      "value_type": "INT",
+      "default": -1
+    }
+  ]
+}
