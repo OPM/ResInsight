@@ -79,6 +79,7 @@ class RiuMainWindow : public RiuMainWindowBase
 
 public:
     RiuMainWindow();
+    ~RiuMainWindow();
 
     static RiuMainWindow* instance();
 
