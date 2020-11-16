@@ -63,6 +63,10 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   endif()
 endif()
 
+ if(MSVC)
+    list(APPEND opm-common_SOURCES opm-common/cross-platform/windows/Substitutes.cpp )
+endif(MSVC)
+
 add_library(${PROJECT_NAME} 
     STATIC
 	${opm_parser_source_files_long_path}
