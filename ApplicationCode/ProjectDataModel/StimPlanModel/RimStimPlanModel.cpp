@@ -1017,7 +1017,7 @@ bool RimStimPlanModel::findThicknessTargetPoints( cvf::Vec3d& topPosition, cvf::
     cvf::BoundingBox geometryBoundingBox( allCellsBoundingBox );
 
     // Use smaller depth bounding box for extraction if configured
-    if ( m_extractionDepthTop > 0.0 && m_extractionDepthBottom > 0.0 && m_extractionDepthTop > m_extractionDepthBottom )
+    if ( m_extractionDepthTop > 0.0 && m_extractionDepthBottom > 0.0 && m_extractionDepthTop < m_extractionDepthBottom )
     {
         cvf::Vec3d bbMin( allCellsBoundingBox.min().x(), allCellsBoundingBox.min().y(), -m_extractionDepthBottom );
         cvf::Vec3d bbMax( allCellsBoundingBox.max().x(), allCellsBoundingBox.max().y(), -m_extractionDepthTop );
