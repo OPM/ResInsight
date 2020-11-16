@@ -324,7 +324,10 @@ add_subdirectory(ThirdParty/qwt)
 if(RESINSIGHT_ENABLE_UNITY_BUILD)
     message("Cmake Unity build is enabled on : qwt")
     set_property(TARGET qwt PROPERTY UNITY_BUILD true)
+    message("Cmake Unity build is enabled on : custom-opm-flowdiagnostics")
     set_property(TARGET custom-opm-flowdiagnostics PROPERTY UNITY_BUILD true)
+    message("Cmake Unity build is enabled on : custom-opm-common")
+    set_property(TARGET custom-opm-common PROPERTY UNITY_BUILD true)
 endif()
 
 list(APPEND THIRD_PARTY_LIBRARIES

@@ -85,6 +85,24 @@ add_library(${PROJECT_NAME}
     opm-common/src/opm/io/eclipse/rst/header.cpp
 )
 
+if(RESINSIGHT_ENABLE_UNITY_BUILD)
+
+    set(UNITY_EXCLUDE_FILES
+    opm-common/src/opm/parser/eclipse/Deck/UDAValue.cpp
+    opm-common/src/opm/parser/eclipse/EclipseState/Schedule/Well/WellConnections.cpp
+    opm-common/src/opm/parser/eclipse/EclipseState/Schedule/UDQ/UDQFunction.cpp
+    opm-common/src/opm/parser/eclipse/EclipseState/Schedule/Well/WListManager.cpp
+    opm-common/src/opm/parser/eclipse/EclipseState/Schedule/MSW/SpiralICD.cpp
+    opm-common/src/opm/io/eclipse/EclOutput.cpp
+    )
+
+    foreach(fileToExclude ${UNITY_EXCLUDE_FILES})
+      set_source_files_properties(${fileToExclude}
+                                PROPERTIES SKIP_UNITY_BUILD_INCLUSION TRUE)
+    endforeach(fileToExclude)
+endif()
+
+
 find_path(BOOST_SPIRIT_INCLUDE_DIRS "boost/spirit.hpp")
 
 target_link_libraries(custom-opm-common 
