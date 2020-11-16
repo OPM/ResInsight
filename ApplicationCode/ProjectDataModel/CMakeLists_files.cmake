@@ -2,12 +2,6 @@
 set (SOURCE_GROUP_HEADER_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCaseCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimCaseCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimCellFilter.h
-${CMAKE_CURRENT_LIST_DIR}/RimEclipsePropertyFilter.h
-${CMAKE_CURRENT_LIST_DIR}/RimPropertyFilterCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimEclipsePropertyFilterCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimCellRangeFilter.h
-${CMAKE_CURRENT_LIST_DIR}/RimCellRangeFilterCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimRegularLegendConfig.h
 ${CMAKE_CURRENT_LIST_DIR}/RimOilField.h
 ${CMAKE_CURRENT_LIST_DIR}/RimProject.h
@@ -61,8 +55,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RimNoCommonAreaNncCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechModels.h
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechCase.h
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechView.h
-${CMAKE_CURRENT_LIST_DIR}/RimGeoMechPropertyFilter.h
-${CMAKE_CURRENT_LIST_DIR}/RimGeoMechPropertyFilterCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechResultDefinition.h
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechCellColors.h
 ${CMAKE_CURRENT_LIST_DIR}/RimViewWindow.h
@@ -106,7 +98,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RimStackablePlotCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimBoxIntersection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimAdvancedSnapshotExportDefinition.h
 ${CMAKE_CURRENT_LIST_DIR}/RimMdiWindowController.h
-${CMAKE_CURRENT_LIST_DIR}/RimPropertyFilter.h
 ${CMAKE_CURRENT_LIST_DIR}/RimNamedObject.h
 ${CMAKE_CURRENT_LIST_DIR}/RimCheckableNamedObject.h
 ${CMAKE_CURRENT_LIST_DIR}/RimCheckableObject.h
@@ -165,12 +156,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RimAbstractPlotCollection.h
 set (SOURCE_GROUP_SOURCE_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCaseCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimCaseCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimCellFilter.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimEclipsePropertyFilter.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimPropertyFilterCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimEclipsePropertyFilterCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimCellRangeFilter.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimCellRangeFilterCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimRegularLegendConfig.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimOilField.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimProject.cpp
@@ -224,8 +209,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RimNoCommonAreaNncCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechModels.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechCase.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechView.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimGeoMechPropertyFilter.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimGeoMechPropertyFilterCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechResultDefinition.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechCellColors.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimMudWeightWindowParameters.cpp
@@ -270,7 +253,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RimStackablePlotCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimBoxIntersection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimAdvancedSnapshotExportDefinition.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimMdiWindowController.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimPropertyFilter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimNamedObject.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimCheckableNamedObject.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimCheckableObject.cpp
