@@ -1158,6 +1158,10 @@ double RimStimPlanModel::getDefaultForMissingOverburdenValue( RiaDefines::CurveP
     {
         return 1.0;
     }
+    else if ( curveProperty == RiaDefines::CurveProperty::PRESSURE )
+    {
+        return std::numeric_limits<double>::infinity();
+    }
     else
     {
         RiaLogging::error( QString( "Missing default overburden value for %1." )
@@ -1190,6 +1194,10 @@ double RimStimPlanModel::getDefaultForMissingUnderburdenValue( RiaDefines::Curve
     else if ( curveProperty == RiaDefines::CurveProperty::NET_TO_GROSS )
     {
         return 1.0;
+    }
+    else if ( curveProperty == RiaDefines::CurveProperty::PRESSURE )
+    {
+        return std::numeric_limits<double>::infinity();
     }
     else
     {
