@@ -58,7 +58,7 @@ jobs:
         ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pip install grpcio-tools
 
         ThirdParty/vcpkg/bootstrap-vcpkg.sh 
-        ThirdParty/vcpkg/vcpkg install grpc boost-filesystem eigen3
+        ThirdParty/vcpkg/vcpkg install grpc boost-filesystem boost-spirit eigen3
         
         mkdir cmakebuild
         cd cmakebuild
