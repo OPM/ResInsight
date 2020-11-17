@@ -15,6 +15,8 @@
   You should have received a copy of the GNU General Public License along with
   OPM.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+#include <cctype>
 #include <chrono>
 
 #include <opm/parser/eclipse/Deck/Deck.hpp>
