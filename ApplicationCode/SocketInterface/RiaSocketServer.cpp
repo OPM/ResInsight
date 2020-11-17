@@ -60,7 +60,7 @@ RiaSocketServer::RiaSocketServer( QObject* parent )
     {
         QString txt = "Disabled communication with Octave due to another ResInsight process running.";
 
-        RiaLogging::error( txt );
+        RiaLogging::warning( txt );
 
         return;
     }
