@@ -62,6 +62,8 @@ void RicFaciesPropertiesImportTools::importFaciesPropertiesFromFile( const QStri
         faciesProperties = new RimFaciesProperties;
     }
 
+    faciesProperties->clearFaciesCodeNames();
+
     for ( auto it : codeNames )
     {
         faciesProperties->setFaciesCodeName( it.first, it.second );

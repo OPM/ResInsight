@@ -47,6 +47,7 @@ public:
     void    setFilePath( const QString& filePath );
 
     void setFaciesCodeName( int code, const QString& name );
+    void clearFaciesCodeNames();
 
     void setEclipseCase( RimEclipseCase* eclipseCase );
 
