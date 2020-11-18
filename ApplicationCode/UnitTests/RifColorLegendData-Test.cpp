@@ -1,14 +1,15 @@
 #include "gtest/gtest.h"
 
+#include "RiaTestDataDirectory.h"
 #include "RifColorLegendData.h"
 #include "RigFormationNames.h"
-
-#include "QDir"
-#include "RiaTestDataDirectory.h"
-#include <QString>
-#include <QStringList>
+#include "RimRegularLegendConfig.h"
 
 #include "cvfColor3.h"
+
+#include <QDir>
+#include <QString>
+#include <QStringList>
 
 TEST( RifColorLegendData, ReadLYRFileWithoutColor )
 {
@@ -82,4 +83,48 @@ TEST( RifColorLegendData, ReadLYRFileWithColorHTML )
     EXPECT_EQ( 1.0f, formationColor.r() );
     EXPECT_EQ( 0.0f, formationColor.g() );
     EXPECT_EQ( 0.0f, formationColor.b() );
+}
+
+TEST( RimRegularLegendConfig, LogTenFunctions )
+{
+    {
+        // Negative values will return zero
+        double value = -0.0015;
+
+        auto exponentCeil = RimRegularLegendConfig::computeTenExponentCeil( value );
+        EXPECT_EQ( 0.0f, exponentCeil );
+
+        auto exponentFloor = RimRegularLegendConfig::computeTenExponentFloor( value );
+        EXPECT_EQ( 0.0f, exponentFloor );
+    }
+
+    {
+        double value = 0.15;
+
+        auto exponentCeil = RimRegularLegendConfig::computeTenExponentCeil( value );
+        EXPECT_EQ( 0.0f, exponentCeil );
+
+        auto exponentFloor = RimRegularLegendConfig::computeTenExponentFloor( value );
+        EXPECT_EQ( -1.0f, exponentFloor );
+    }
+
+    {
+        double value = 1.5;
+
+        auto exponentCeil = RimRegularLegendConfig::computeTenExponentCeil( value );
+        EXPECT_EQ( 1.0f, exponentCeil );
+
+        auto exponentFloor = RimRegularLegendConfig::computeTenExponentFloor( value );
+        EXPECT_EQ( 0.0f, exponentFloor );
+    }
+
+    {
+        double value = 15;
+
+        auto exponentCeil = RimRegularLegendConfig::computeTenExponentCeil( value );
+        EXPECT_EQ( 2.0f, exponentCeil );
+
+        auto exponentFloor = RimRegularLegendConfig::computeTenExponentFloor( value );
+        EXPECT_EQ( 1.0f, exponentFloor );
+    }
 }
