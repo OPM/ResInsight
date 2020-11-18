@@ -604,6 +604,10 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
             RimCase* cas = casesToLoad[cIdx];
             CVF_ASSERT( cas );
 
+            // Make sure case name is updated. It can be out-of-sync if the
+            // user has updated the project file manually.
+            cas->updateAutoShortName();
+
             caseProgress.setProgressDescription( cas->caseUserDescription() );
             std::vector<Rim3dView*> views = cas->views();
             { // To delete the view progress before incrementing the caseProgress

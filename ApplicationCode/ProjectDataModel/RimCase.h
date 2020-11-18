@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "RimCaseDisplayNameTools.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
@@ -46,6 +48,8 @@ class RimCase : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
+    using DisplayNameEnum = caf::AppEnum<RimCaseDisplayNameTools::DisplayName>;
+
 public:
     RimCase();
     ~RimCase() override;
@@ -55,6 +59,10 @@ public:
 
     void    setGridFileName( const QString& fileName );
     QString gridFileName() const;
+
+    void setDisplayNameOption( RimCaseDisplayNameTools::DisplayName displayNameOption );
+    void updateAutoShortName();
+    void updateOptionSensitivity();
 
     std::vector<Rim3dView*>   views() const;
     std::vector<RimGridView*> gridViews() const;
@@ -84,16 +92,24 @@ public:
     caf::Signal<> settingsChanged;
 
 protected:
-    QList<caf::PdmOptionItemInfo>   calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                           bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+
     virtual std::vector<Rim3dView*> allSpecialViews() const = 0;
     void                            initAfterRead() override;
+    void                            updateTreeItemName();
+
+    virtual QString caseName() const;
+
+    static QString uniqueShortNameCase( RimCase* rimCase, int shortNameLengthLimit );
 
 private:
     caf::PdmFieldHandle* userDescriptionField() override;
 
 protected:
     caf::PdmField<caf::FilePath>                         m_caseFileName;
+    caf::PdmField<DisplayNameEnum>                       m_displayNameOption;
     caf::PdmChildField<RimTimeStepFilter*>               m_timeStepFilter;
     caf::PdmChildField<Rim2dIntersectionViewCollection*> m_2dIntersectionViewCollection;
     caf::PdmPtrField<RimFormationNames*>                 m_activeFormationNames;

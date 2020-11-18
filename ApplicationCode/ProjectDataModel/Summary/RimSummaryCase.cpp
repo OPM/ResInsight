@@ -36,20 +36,7 @@
 #include <QFileInfo>
 #include <QRegularExpression>
 
-#define SUMMARY_CASE_SHORT_NAME_LENGTH 4 // TODO: Could make this a preference if required.
-
 CAF_PDM_ABSTRACT_SOURCE_INIT( RimSummaryCase, "SummaryCase" );
-namespace caf
-{
-template <>
-void AppEnum<RimSummaryCase::DisplayName>::setUp()
-{
-    addItem( RimSummaryCase::DisplayName::FULL_CASE_NAME, "FULL_CASE_NAME", "Full Case Name" );
-    addItem( RimSummaryCase::DisplayName::SHORT_CASE_NAME, "SHORT_CASE_NAME", "Shortened Case Name" );
-    addItem( RimSummaryCase::DisplayName::CUSTOM, "CUSTOM_NAME", "Custom Name" );
-    setDefault( RimSummaryCase::DisplayName::FULL_CASE_NAME );
-}
-} // namespace caf
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -193,7 +180,7 @@ void RimSummaryCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCase::updateOptionSensitivity()
 {
-    m_displayName.uiCapability()->setUiReadOnly( m_displayNameOption != DisplayName::CUSTOM );
+    m_displayName.uiCapability()->setUiReadOnly( m_displayNameOption != RimCaseDisplayNameTools::DisplayName::CUSTOM );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -260,7 +247,7 @@ RiaEclipseUnitTools::UnitSystemType RimSummaryCase::unitsSystem()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCase::setDisplayNameOption( DisplayName displayNameOption )
+void RimSummaryCase::setDisplayNameOption( RimCaseDisplayNameTools::DisplayName displayNameOption )
 {
     m_displayNameOption = displayNameOption;
 }
@@ -277,7 +264,7 @@ void RimSummaryCase::initAfterRead()
 
     if ( m_useAutoShortName_OBSOLETE )
     {
-        m_displayNameOption = DisplayName::SHORT_CASE_NAME;
+        m_displayNameOption = RimCaseDisplayNameTools::DisplayName::SHORT_CASE_NAME;
     }
 
     updateOptionSensitivity();
@@ -333,13 +320,13 @@ QString RimSummaryCase::uniqueShortNameForEnsembleCase( RimSummaryCase* summaryC
         if ( !numberGroup.isEmpty() )
         {
             keyComponent = keyComponent.replace( numberGroup, "" );
-            QString stem = keyComponent.left( SUMMARY_CASE_SHORT_NAME_LENGTH );
+            QString stem = keyComponent.left( RimCaseDisplayNameTools::CASE_SHORT_NAME_LENGTH );
             if ( !stem.isEmpty() ) subComponents.push_back( stem );
             subComponents.push_back( numberGroup );
         }
         else
         {
-            subComponents.push_back( keyComponent.left( SUMMARY_CASE_SHORT_NAME_LENGTH ) );
+            subComponents.push_back( keyComponent.left( RimCaseDisplayNameTools::CASE_SHORT_NAME_LENGTH ) );
         }
 
         shortNameComponents.push_back( subComponents.join( "-" ) );
@@ -365,57 +352,9 @@ QString RimSummaryCase::uniqueShortNameForSummaryCase( RimSummaryCase* summaryCa
         }
     }
 
-    bool foundUnique = false;
-
-    QString caseName = summaryCase->caseName();
-    QString shortName;
-
-    if ( caseName.size() > SUMMARY_CASE_SHORT_NAME_LENGTH )
-    {
-        QString candidate;
-        candidate += caseName[0];
-
-        for ( int i = 1; i < caseName.size(); ++i )
-        {
-            if ( foundUnique && !caseName[i].isLetterOrNumber() )
-            {
-                break;
-            }
-
-            candidate += caseName[i];
-            if ( allAutoShortNames.count( candidate ) == 0 )
-            {
-                shortName   = candidate;
-                foundUnique = true;
-                if ( shortName.length() >= SUMMARY_CASE_SHORT_NAME_LENGTH )
-                {
-                    break;
-                }
-            }
-        }
-    }
-    else
-    {
-        shortName = caseName.left( SUMMARY_CASE_SHORT_NAME_LENGTH );
-        if ( allAutoShortNames.count( shortName ) == 0 )
-        {
-            foundUnique = true;
-        }
-    }
-
-    int autoNumber = 1;
-
-    while ( !foundUnique )
-    {
-        QString candidate = QString( "%1 %2" ).arg( shortName ).arg( autoNumber++ );
-        if ( allAutoShortNames.count( candidate ) == 0 )
-        {
-            shortName   = candidate;
-            foundUnique = true;
-        }
-    }
-
-    return shortName;
+    return RimCaseDisplayNameTools::uniqueShortName( summaryCase->caseName(),
+                                                     allAutoShortNames,
+                                                     RimCaseDisplayNameTools::CASE_SHORT_NAME_LENGTH );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -423,11 +362,11 @@ QString RimSummaryCase::uniqueShortNameForSummaryCase( RimSummaryCase* summaryCa
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCase::updateAutoShortName()
 {
-    if ( m_displayNameOption == DisplayName::FULL_CASE_NAME )
+    if ( m_displayNameOption == RimCaseDisplayNameTools::DisplayName::FULL_CASE_NAME )
     {
         m_displayName = caseName();
     }
-    else if ( m_displayNameOption == DisplayName::SHORT_CASE_NAME )
+    else if ( m_displayNameOption == RimCaseDisplayNameTools::DisplayName::SHORT_CASE_NAME )
     {
         if ( ensemble() )
         {

@@ -24,6 +24,7 @@
 #include "RifEclipseSummaryTools.h"
 #include "RifSummaryCaseRestartSelector.h"
 
+#include "RimCaseDisplayNameTools.h"
 #include "RimDerivedEnsembleCaseCollection.h"
 #include "RimEclipseResultCase.h"
 #include "RimFileSummaryCase.h"
@@ -289,7 +290,7 @@ RimSummaryCaseCollection*
         summaryCaseCollection->addCase( summaryCase );
         if ( isEnsemble )
         {
-            summaryCase->setDisplayNameOption( RimSummaryCase::DisplayName::SHORT_CASE_NAME );
+            summaryCase->setDisplayNameOption( RimCaseDisplayNameTools::DisplayName::SHORT_CASE_NAME );
         }
     }
 

@@ -298,6 +298,7 @@ cvf::ref<RifReaderInterface> RimEclipseInputCase::createMockModel( QString model
 void RimEclipseInputCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &caseUserDescription );
+    uiOrdering.add( &m_displayNameOption );
     uiOrdering.add( &caseId );
     uiOrdering.add( &m_caseFileName );
     uiOrdering.add( &m_additionalFiles );
