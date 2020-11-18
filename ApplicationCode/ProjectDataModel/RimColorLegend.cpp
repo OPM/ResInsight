@@ -147,7 +147,7 @@ cvf::Color3ubArray RimColorLegend::colorArray() const
 {
     std::vector<RimColorLegendItem*> legendItems = colorLegendItems();
 
-    // The the interpolation algorithm requires minimum two levels
+    // The interpolation algorithm requires minimum two levels
     size_t colorCount = std::max( size_t( 2 ), legendItems.size() );
 
     cvf::Color3ubArray colorArray( colorCount );
