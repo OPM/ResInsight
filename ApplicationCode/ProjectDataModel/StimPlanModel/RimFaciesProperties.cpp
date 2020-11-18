@@ -99,6 +99,15 @@ void RimFaciesProperties::setFaciesCodeName( int code, const QString& name )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimFaciesProperties::clearFaciesCodeNames()
+{
+    m_faciesCodeNames.clear();
+    m_propertiesTable = generatePropertiesTable();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimFaciesProperties::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                           bool*                      useOptionsOnly )
 {
