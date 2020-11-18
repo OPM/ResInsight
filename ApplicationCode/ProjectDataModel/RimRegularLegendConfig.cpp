@@ -58,6 +58,7 @@
 #include "cafPdmFieldCvfMat4d.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiLineEditor.h"
+#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
 
 #include "cvfMath.h"
@@ -149,6 +150,7 @@ RimRegularLegendConfig::RimRegularLegendConfig()
     , m_localAutoPosClosestToZero( 0 )
     , m_localAutoNegClosestToZero( 0 )
     , m_isAllTimeStepsRangeDisabled( false )
+    , m_resetUserDefinedValues( false )
 {
     CAF_PDM_InitObject( "Color Legend", ":/Legend.png", "", "" );
     CAF_PDM_InitField( &m_showLegend, "ShowLegend", true, "Show Legend", "", "", "" );
@@ -221,6 +223,10 @@ RimRegularLegendConfig::RimRegularLegendConfig()
     cvf::Font* standardFont = RiaApplication::instance()->defaultSceneFont();
     m_scalarMapperLegend    = new caf::OverlayScalarMapperLegend( standardFont );
     m_categoryLegend        = new caf::CategoryLegend( standardFont, m_categoryMapper.p() );
+
+    CAF_PDM_InitField( &m_resetUserDefinedValuesButton, "ResetDefaultValues", false, "Reset Default Values", "", "", "" );
+    m_resetUserDefinedValuesButton.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+    m_resetUserDefinedValuesButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     updateFieldVisibility();
     updateLegend();
@@ -300,6 +306,13 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
         updateCategoryItems();
     }
 
+    if ( changedField == &m_resetUserDefinedValuesButton )
+    {
+        resetUserDefinedValues();
+
+        m_resetUserDefinedValuesButton = false;
+    }
+
     updateLegend();
 
     RimGridView* view = nullptr;
@@ -358,6 +371,31 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
 void RimRegularLegendConfig::updateLegend()
 {
     m_significantDigitsInData = m_precision;
+
+    if ( m_resetUserDefinedValues && m_globalAutoMax != cvf::UNDEFINED_DOUBLE )
+    {
+        if ( m_mappingMode() == MappingType::LOG10_CONTINUOUS || m_mappingMode() == MappingType::LOG10_DISCRETE )
+        {
+            double exponentMax = computeTenExponentCeil( m_globalAutoMax );
+            double exponentMin = computeTenExponentFloor( m_globalAutoPosClosestToZero );
+
+            m_userDefinedMaxValue = pow( 10, exponentMax );
+            m_userDefinedMinValue = pow( 10, exponentMin );
+
+            int numLevels = exponentMax - exponentMin;
+            if ( numLevels > 0 )
+            {
+                m_numLevels = numLevels;
+            }
+        }
+        else if ( m_mappingMode() == MappingType::LINEAR_CONTINUOUS || m_mappingMode() == MappingType::LINEAR_DISCRETE )
+        {
+            m_userDefinedMaxValue = m_globalAutoMax;
+            m_userDefinedMinValue = m_globalAutoMin;
+        }
+
+        m_resetUserDefinedValues = false;
+    }
 
     double adjustedMin = cvf::UNDEFINED_DOUBLE;
     double adjustedMax = cvf::UNDEFINED_DOUBLE;
@@ -543,6 +581,14 @@ void RimRegularLegendConfig::setTickNumberFormat( NumberFormatType numberFormat 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimRegularLegendConfig::resetUserDefinedValues()
+{
+    m_resetUserDefinedValues = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::disableAllTimeStepsRange( bool doDisable )
 {
     // If we enable AllTimesteps, and we have used current timestep, then "restore" the default
@@ -610,6 +656,23 @@ void RimRegularLegendConfig::initAfterRead()
 caf::PdmFieldHandle* RimRegularLegendConfig::objectToggleField()
 {
     return &m_showLegend;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRegularLegendConfig::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                    QString                    uiConfigName,
+                                                    caf::PdmUiEditorAttribute* attribute )
+{
+    if ( &m_resetUserDefinedValuesButton == field )
+    {
+        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
+        if ( attrib )
+        {
+            attrib->m_buttonText = "Reset User Defined Values";
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -957,6 +1020,14 @@ RiuAbstractLegendFrame* RimRegularLegendConfig::makeLegendFrame()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimRegularLegendConfig::setRangeMode( RangeModeType rangeMode )
+{
+    m_rangeMode = rangeMode;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimLegendConfig::RangeModeType RimRegularLegendConfig::rangeMode() const
 {
     return m_rangeMode();
@@ -1039,6 +1110,32 @@ RimColorLegend* RimRegularLegendConfig::mapToColorLegend( ColorRangesType colorT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RimRegularLegendConfig::computeTenExponentCeil( double value )
+{
+    if ( value < 0.0 ) return 0.0;
+
+    double logDecValueMax = log10( value );
+    logDecValueMax        = cvf::Math::ceil( logDecValueMax );
+
+    return logDecValueMax;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimRegularLegendConfig::computeTenExponentFloor( double value )
+{
+    if ( value < 0.0 ) return 0.0;
+
+    double logDecValueMin = log10( value );
+    logDecValueMin        = cvf::Math::floor( logDecValueMin );
+
+    return logDecValueMin;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::updateFonts()
 {
     int  pointSize = this->fontSize();
@@ -1087,6 +1184,9 @@ void RimRegularLegendConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiO
         mappingGr->add( &m_userDefinedMinValue );
         mappingGr->add( &m_categoryColorMode );
     }
+
+    uiOrdering.add( &m_resetUserDefinedValuesButton );
+
     updateFieldVisibility();
 }
 

@@ -125,6 +125,7 @@ public:
     void            setMappingMode( MappingType mappingType );
     MappingType     mappingMode() { return m_mappingMode(); }
     void            setTickNumberFormat( NumberFormatType numberFormat );
+    void            resetUserDefinedValues();
 
     void disableAllTimeStepsRange( bool doDisable );
 
@@ -153,9 +154,14 @@ public:
     caf::TitledOverlayFrame*       titledOverlayFrame() override;
     RiuAbstractLegendFrame*        makeLegendFrame();
 
-    RangeModeType             rangeMode() const;
+    void          setRangeMode( RangeModeType rangeMode );
+    RangeModeType rangeMode() const;
+
     static cvf::Color3ubArray colorArrayFromColorType( ColorRangesType colorType );
     static RimColorLegend*    mapToColorLegend( ColorRangesType colorType );
+
+    static double computeTenExponentCeil( double value );
+    static double computeTenExponentFloor( double value );
 
     void updateFonts() override;
 
@@ -163,6 +169,9 @@ private:
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void                 initAfterRead() override;
     caf::PdmFieldHandle* objectToggleField() override;
+    void                 defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                QString                    uiConfigName,
+                                                caf::PdmUiEditorAttribute* attribute ) override;
 
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
@@ -216,9 +225,12 @@ private:
     caf::PdmField<caf::AppEnum<ColorRangesType>>       m_colorRangeMode_OBSOLETE;
     caf::PdmField<caf::AppEnum<MappingType>>           m_mappingMode;
     caf::PdmField<caf::AppEnum<CategoryColorModeType>> m_categoryColorMode;
+    caf::PdmField<bool>                                m_resetUserDefinedValuesButton;
 
     caf::PdmPtrField<RimColorLegend*> m_colorLegend;
     caf::PdmField<bool>               m_selectColorLegendButton;
+
+    bool m_resetUserDefinedValues;
 
     QString m_title;
     int     m_significantDigitsInData;
