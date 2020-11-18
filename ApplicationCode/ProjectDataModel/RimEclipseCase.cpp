@@ -459,6 +459,7 @@ void RimEclipseCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                        const QVariant&            oldValue,
                                        const QVariant&            newValue )
 {
+    RimCase::fieldChangedByUi( changedField, oldValue, newValue );
     if ( changedField == &m_releaseResultMemory )
     {
         RimReloadCaseTools::reloadAllEclipseGridData( this );

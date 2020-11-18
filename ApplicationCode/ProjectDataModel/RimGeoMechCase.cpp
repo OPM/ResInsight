@@ -192,6 +192,9 @@ RimGeoMechCase::RimGeoMechCase( void )
                                 "" );
     m_mudWeightWindowParameters = new RimMudWeightWindowParameters;
     m_mudWeightWindowParameters.uiCapability()->setUiTreeHidden( true );
+
+    m_displayNameOption = RimCaseDisplayNameTools::DisplayName::CUSTOM;
+    m_displayNameOption.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------

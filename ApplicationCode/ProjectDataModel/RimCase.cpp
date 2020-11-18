@@ -36,6 +36,8 @@
 #include "cafPdmObjectFactory.h"
 #include "cafPdmObjectScriptingCapability.h"
 
+#include <QFileInfo>
+
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimCase, "Case", "RimCase" );
 
 //--------------------------------------------------------------------------------------------------
@@ -49,6 +51,7 @@ RimCase::RimCase()
 
     CAF_PDM_InitScriptableField( &caseUserDescription, "Name", QString(), "Case Name", "", "", "" );
     caseUserDescription.registerKeywordAlias( "CaseUserDescription" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_displayNameOption, "NameSetting", "Name Setting", "", "", "" );
 
     CAF_PDM_InitScriptableField( &caseId, "Id", -1, "Case ID", "", "", "" );
     caseId.registerKeywordAlias( "CaseId" );
@@ -92,6 +95,9 @@ RimCase::~RimCase()
 void RimCase::setGridFileName( const QString& fileName )
 {
     m_caseFileName.v().setPath( fileName );
+
+    this->updateAutoShortName();
+    this->updateTreeItemName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -185,6 +191,23 @@ Rim2dIntersectionViewCollection* RimCase::intersectionViewCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+{
+    if ( changedField == &m_displayNameOption )
+    {
+        updateAutoShortName();
+    }
+    else if ( changedField == &caseUserDescription )
+    {
+        updateTreeItemName();
+    }
+
+    updateOptionSensitivity();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimCase::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                               bool*                      useOptionsOnly )
 {
@@ -213,12 +236,28 @@ QList<caf::PdmOptionItemInfo> RimCase::calculateValueOptions( const caf::PdmFiel
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimCase::updateOptionSensitivity()
+{
+    caseUserDescription.uiCapability()->setUiReadOnly( m_displayNameOption != RimCaseDisplayNameTools::DisplayName::CUSTOM );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimCase::initAfterRead()
 {
     if ( caseId() == -1 )
     {
         RimProject::current()->assignCaseIdToCase( this );
     }
+
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2020.10.0" ) )
+    {
+        // Don't mess with case names in older projects: the user can have changed the name.
+        m_displayNameOption = RimCaseDisplayNameTools::DisplayName::CUSTOM;
+    }
+
+    updateOptionSensitivity();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -227,4 +266,59 @@ void RimCase::initAfterRead()
 caf::PdmFieldHandle* RimCase::userDescriptionField()
 {
     return &caseUserDescription;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCase::updateAutoShortName()
+{
+    if ( m_displayNameOption == RimCaseDisplayNameTools::DisplayName::FULL_CASE_NAME )
+    {
+        caseUserDescription = caseName();
+    }
+    else if ( m_displayNameOption == RimCaseDisplayNameTools::DisplayName::SHORT_CASE_NAME )
+    {
+        caseUserDescription = RimCase::uniqueShortNameCase( this, RimCaseDisplayNameTools::CASE_SHORT_NAME_LENGTH );
+    }
+    updateTreeItemName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCase::updateTreeItemName()
+{
+    setUiName( caseUserDescription() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimCase::caseName() const
+{
+    QFileInfo fileName( gridFileName() );
+    return fileName.completeBaseName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimCase::uniqueShortNameCase( RimCase* rimCase, int shortNameLengthLimit )
+{
+    std::set<QString> allAutoShortNames;
+
+    std::vector<RimCase*> allCases;
+    RimProject::current()->descendantsOfType( allCases );
+
+    for ( RimCase* rCase : allCases )
+    {
+        if ( rCase && rCase != rimCase )
+        {
+            allAutoShortNames.insert( rimCase->caseName() );
+        }
+    }
+
+    QString caseName = rimCase->caseName();
+    return RimCaseDisplayNameTools::uniqueShortName( caseName, allAutoShortNames, shortNameLengthLimit );
 }

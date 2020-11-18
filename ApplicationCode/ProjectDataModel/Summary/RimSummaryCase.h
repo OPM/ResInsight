@@ -20,6 +20,8 @@
 #include "RiaEclipseUnitTools.h"
 #include "RigCaseRealizationParameters.h"
 
+#include "RimCaseDisplayNameTools.h"
+
 #include "cafFilePath.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -43,13 +45,7 @@ class RimSummaryCase : public caf::PdmObject
 public:
     caf::Signal<> nameChanged;
 
-    enum class DisplayName
-    {
-        FULL_CASE_NAME,
-        SHORT_CASE_NAME,
-        CUSTOM
-    };
-    using DisplayNameEnum = caf::AppEnum<DisplayName>;
+    using DisplayNameEnum = caf::AppEnum<RimCaseDisplayNameTools::DisplayName>;
 
 public:
     RimSummaryCase();
@@ -63,7 +59,7 @@ public:
 
     RiaEclipseUnitTools::UnitSystemType unitsSystem();
 
-    void setDisplayNameOption( DisplayName displayNameOption );
+    void setDisplayNameOption( RimCaseDisplayNameTools::DisplayName displayNameOption );
     void updateAutoShortName();
     void updateOptionSensitivity();
 

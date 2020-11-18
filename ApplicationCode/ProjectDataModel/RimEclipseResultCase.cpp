@@ -613,6 +613,7 @@ void RimEclipseResultCase::initAfterRead()
 void RimEclipseResultCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &caseUserDescription );
+    uiOrdering.add( &m_displayNameOption );
     uiOrdering.add( &caseId );
     uiOrdering.add( &m_caseFileName );
     uiOrdering.add( &m_unitSystem );
