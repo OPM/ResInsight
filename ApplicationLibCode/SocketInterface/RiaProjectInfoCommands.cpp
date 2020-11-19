@@ -27,7 +27,6 @@
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
-#include "RimCellRangeFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCellColors.h"

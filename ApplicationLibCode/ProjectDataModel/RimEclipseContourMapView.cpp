@@ -26,7 +26,7 @@
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimCase.h"
-#include "RimCellRangeFilterCollection.h"
+#include "RimCellFilterCollection.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseContourMapProjection.h"
 #include "RimEclipseFaultColors.h"
@@ -218,7 +218,7 @@ void RimEclipseContourMapView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
     uiTreeOrdering.add( wellCollection() );
     uiTreeOrdering.add( faultCollection() );
     uiTreeOrdering.add( annotationCollection() );
-    uiTreeOrdering.add( m_rangeFilterCollection() );
+    uiTreeOrdering.add( m_cellFilterCollection() );
     uiTreeOrdering.add( nativePropertyFilterCollection() );
 
     uiTreeOrdering.skipRemainingChildren();
@@ -423,7 +423,7 @@ void RimEclipseContourMapView::updateViewWidgetAfterCreation()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::updateViewFollowingRangeFilterUpdates()
+void RimEclipseContourMapView::updateViewFollowingCellFilterUpdates()
 {
     m_contourMapProjection->setCheckState( true );
     scheduleCreateDisplayModelAndRedraw();

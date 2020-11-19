@@ -32,7 +32,7 @@
 #include "RigGeoMechCaseData.h"
 
 #include "Rim3dOverlayInfoConfig.h"
-#include "RimCellRangeFilterCollection.h"
+#include "RimCellFilterCollection.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
@@ -907,8 +907,8 @@ void RimGeoMechView::calculateCurrentTotalCellVisibility( cvf::UByteArray* total
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::updateIconStateForFilterCollections()
 {
-    m_rangeFilterCollection()->updateIconState();
-    m_rangeFilterCollection()->uiCapability()->updateConnectedEditors();
+    m_cellFilterCollection()->updateIconState();
+    m_cellFilterCollection()->uiCapability()->updateConnectedEditors();
 
     // NB - notice that it is the filter collection managed by this view that the icon update applies to
     m_propertyFilterCollection()->updateIconState();
@@ -965,7 +965,7 @@ void RimGeoMechView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     uiTreeOrdering.add( m_intersectionCollection() );
     if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
 
-    uiTreeOrdering.add( m_rangeFilterCollection() );
+    uiTreeOrdering.add( m_cellFilterCollection() );
     uiTreeOrdering.add( m_propertyFilterCollection() );
 
     uiTreeOrdering.skipRemainingChildren( true );

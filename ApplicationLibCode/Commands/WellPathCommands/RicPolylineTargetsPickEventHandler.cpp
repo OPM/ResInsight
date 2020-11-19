@@ -32,6 +32,8 @@
 
 #include "RivPolylinesAnnotationSourceInfo.h"
 
+#include "RimPolylinePickerInterface.h"
+
 #include "cafDisplayCoordTransform.h"
 #include "cafSelectionManager.h"
 
@@ -40,8 +42,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicPolylineTargetsPickEventHandler::RicPolylineTargetsPickEventHandler( RimUserDefinedPolylinesAnnotation* polylineDef )
-    : m_polylineDef( polylineDef )
+RicPolylineTargetsPickEventHandler::RicPolylineTargetsPickEventHandler( RimPolylinePickerInterface* objDef )
+    : m_objectDef( objDef )
 {
 }
 
@@ -74,21 +76,20 @@ void RicPolylineTargetsPickEventHandler::notifyUnregistered()
 //--------------------------------------------------------------------------------------------------
 bool RicPolylineTargetsPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eventObject )
 {
-    if ( m_polylineDef )
+    if ( m_objectDef )
     {
         Rim3dView* rimView = eventObject.m_view;
 
-        auto firstPickItem = eventObject.m_pickItemInfos.front();
-        auto targetPointInDomain =
+        const auto& firstPickItem = eventObject.m_pickItemInfos.front();
+        auto        targetPointInDomain =
             rimView->displayCoordTransform()->transformToDomainCoord( firstPickItem.globalPickedPoint() );
 
         auto* newTarget = new RimPolylineTarget();
         newTarget->setAsPointTargetXYD(
             cvf::Vec3d( targetPointInDomain.x(), targetPointInDomain.y(), -targetPointInDomain.z() ) );
 
-        m_polylineDef->insertTarget( nullptr, newTarget );
-        m_polylineDef->updateConnectedEditors();
-        m_polylineDef->updateVisualization();
+        m_objectDef->insertTarget( nullptr, newTarget );
+        m_objectDef->updateEditorsAndVisualization();
 
         return true;
     }

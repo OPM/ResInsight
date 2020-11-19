@@ -399,3 +399,22 @@ void RigCell::faceIndices( cvf::StructGridInterface::FaceType face, std::array<s
     ( *indices )[2] = m_cornerIndices[faceVertexIndices[2]];
     ( *indices )[3] = m_cornerIndices[faceVertexIndices[3]];
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RigCell::boundingBox() const
+{
+    cvf::BoundingBox          bb;
+    std::array<cvf::Vec3d, 8> hexCorners;
+
+    if ( m_hostGrid && m_hostGrid->mainGrid() )
+    {
+        m_hostGrid->mainGrid()->cellCornerVertices( mainGridCellIndex(), hexCorners.data() );
+        for ( const auto& corner : hexCorners )
+        {
+            bb.add( corner );
+        }
+    }
+    return bb;
+}

@@ -33,7 +33,7 @@ class RimEclipseView;
 class RimGeoMechView;
 class RimViewLinker;
 class RigCaseToCaseCellMapper;
-class RimCellRangeFilter;
+class RimCellFilter;
 class RimPropertyFilter;
 
 //==================================================================================================
@@ -64,7 +64,7 @@ public:
 
     bool isResultColorControlled() const;
     bool isLegendDefinitionsControlled() const;
-    bool isRangeFiltersControlled() const;
+    bool isCellFiltersControlled() const;
 
     bool isVisibleCellsOveridden() const;
     bool isPropertyFilterOveridden() const;
@@ -76,8 +76,8 @@ public:
     void removeOverrides();
     void updateDisplayNameAndIcon();
 
-    void updateRangeFilterOverrides( RimCellRangeFilter* changedRangeFilter );
-    void applyRangeFilterCollectionByUserChoice();
+    void updateCellFilterOverrides( const RimCellFilter* changedFilter );
+    void applyCellFilterCollectionByUserChoice();
     void updatePropertyFilterOverrides( RimPropertyFilter* changedPropertyFilter );
 
 protected: // Pdm overridden methods
@@ -101,16 +101,16 @@ private:
     bool isCameraControlPossible() const;
     bool isMasterAndDepViewDifferentType() const;
     bool isPropertyFilterControlPossible() const;
-    bool isRangeFilterMappingApplicable() const;
+    bool isCellFilterMappingApplicable() const;
     bool isCellResultControlAdvisable() const;
-    bool isRangeFilterControlAdvisable() const;
+    bool isCellFilterControlAdvisable() const;
     bool isPropertyFilterControlAdvisable() const;
 
     RimEclipseView* managedEclipseView() const;
     RimGeoMechView* managedGeoView() const;
 
     static void removeOverrides( RimGridView* view );
-    static bool askUserToRestoreOriginalRangeFilterCollection( const QString& viewName );
+    static bool askUserToRestoreOriginalCellFilterCollection( const QString& viewName );
 
 private:
     caf::PdmField<QString>         m_name;
@@ -125,7 +125,7 @@ private:
     caf::PdmField<bool> m_syncCellResult;
     caf::PdmField<bool> m_syncLegendDefinitions;
 
-    caf::PdmField<bool> m_syncRangeFilters;
+    caf::PdmField<bool> m_syncCellFilters;
     caf::PdmField<bool> m_syncVisibleCells;
     caf::PdmField<bool> m_syncPropertyFilters;
 

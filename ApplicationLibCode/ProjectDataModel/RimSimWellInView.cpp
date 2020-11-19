@@ -30,7 +30,7 @@
 #include "RigSimulationWellCenterLineCalculator.h"
 
 #include "Rim2dIntersectionView.h"
-#include "RimCellRangeFilterCollection.h"
+#include "RimCellFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimExtrudedCurveIntersection.h"
@@ -461,7 +461,7 @@ void RimSimWellInView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrder
     this->firstAncestorOrThisOfType( reservoirView );
     if ( !reservoirView ) return;
 
-    if ( reservoirView->rangeFilterCollection() && !reservoirView->rangeFilterCollection()->hasActiveFilters() )
+    if ( reservoirView->cellFilterCollection() && !reservoirView->cellFilterCollection()->hasActiveFilters() )
     {
         this->uiCapability()->setUiReadOnly( false );
 
@@ -505,7 +505,7 @@ bool RimSimWellInView::isWellCellsVisible() const
     if ( reservoirView->intersectionCollection()->hasActiveIntersectionForSimulationWell( this ) ) return true;
 
     if ( reservoirView->wellCollection()->showWellsIntersectingVisibleCells() &&
-         reservoirView->rangeFilterCollection()->hasActiveFilters() )
+         reservoirView->cellFilterCollection()->hasActiveFilters() )
     {
         return intersectsStaticWellCellsFilteredCells();
     }
@@ -546,7 +546,7 @@ bool RimSimWellInView::isWellPipeVisible( size_t frameIndex ) const
     if ( reservoirView->intersectionCollection()->hasActiveIntersectionForSimulationWell( this ) ) return true;
 
     if ( reservoirView->wellCollection()->showWellsIntersectingVisibleCells() &&
-         ( reservoirView->rangeFilterCollection()->hasActiveFilters() ||
+         ( reservoirView->cellFilterCollection()->hasActiveFilters() ||
            reservoirView->propertyFilterCollection()->hasActiveFilters() ) )
     {
         return intersectsDynamicWellCellsFilteredCells( frameIndex );
@@ -588,7 +588,7 @@ bool RimSimWellInView::isWellSpheresVisible( size_t frameIndex ) const
     if ( reservoirView->intersectionCollection()->hasActiveIntersectionForSimulationWell( this ) ) return true;
 
     if ( reservoirView->wellCollection()->showWellsIntersectingVisibleCells() &&
-         reservoirView->rangeFilterCollection()->hasActiveFilters() )
+         reservoirView->cellFilterCollection()->hasActiveFilters() )
     {
         return intersectsDynamicWellCellsFilteredCells( frameIndex );
     }

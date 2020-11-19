@@ -80,7 +80,11 @@ public:
 
     static std::vector<cvf::Vec3d> unionOfPolygons( const std::vector<std::vector<cvf::Vec3d>>& polygons );
 
+    static bool pointInsidePolygon2D( const cvf::Vec3d point, const std::vector<cvf::Vec3d>& polygon );
+
 private:
     static std::vector<cvf::Vec3d> ajustPolygonToAvoidIntersectionsAtVertex( const std::vector<cvf::Vec3d>& polyLine,
                                                                              const std::vector<cvf::Vec3d>& polygon );
+
+    static double isLeftOfLine2D( const cvf::Vec3d& point1, const cvf::Vec3d& point2, const cvf::Vec3d& point3 );
 };

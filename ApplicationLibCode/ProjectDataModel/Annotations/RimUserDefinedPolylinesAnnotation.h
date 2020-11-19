@@ -19,6 +19,8 @@
 #pragma once
 #include "RimPolylinesAnnotation.h"
 
+#include "RimPolylinePickerInterface.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmFieldCvfVec3d.h"
 
@@ -32,7 +34,7 @@ class RimPolylineTarget;
 ///
 //==================================================================================================
 
-class RimUserDefinedPolylinesAnnotation : public RimPolylinesAnnotation
+class RimUserDefinedPolylinesAnnotation : public RimPolylinesAnnotation, public RimPolylinePickerInterface
 {
     friend class RimUserDefinedPolylinesAnnotationInView;
 
@@ -44,17 +46,22 @@ public:
     RimUserDefinedPolylinesAnnotation();
     ~RimUserDefinedPolylinesAnnotation() override;
 
-    cvf::ref<RigPolyLinesData>      polyLinesData() override;
-    std::vector<RimPolylineTarget*> activeTargets() const;
-    bool                            isEmpty() override;
+    cvf::ref<RigPolyLinesData> polyLinesData() override;
+    bool                       isEmpty() override;
+
+    void insertTarget( const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert ) override;
+    void updateEditorsAndVisualization() override;
+    void updateVisualization() override;
+
+    std::vector<RimPolylineTarget*> activeTargets() const override;
+    bool                            pickingEnabled() const override;
+    caf::PickEventHandler*          pickEventHandler() const override;
 
     void appendTarget( const cvf::Vec3d& defaultPos = cvf::Vec3d::ZERO );
-    void insertTarget( const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert );
     void deleteTarget( RimPolylineTarget* targetTodelete );
 
     std::pair<RimPolylineTarget*, RimPolylineTarget*>
-         findActiveTargetsAroundInsertionPoint( const RimPolylineTarget* targetToInsertBefore );
-    void updateVisualization();
+        findActiveTargetsAroundInsertionPoint( const RimPolylineTarget* targetToInsertBefore );
 
     void enablePicking( bool enable );
 

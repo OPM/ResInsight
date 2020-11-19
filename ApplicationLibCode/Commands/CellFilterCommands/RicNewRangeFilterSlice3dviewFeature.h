@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018 equinor ASA
+//  Copyright (C) 2020-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,25 +18,18 @@
 
 #pragma once
 
-#include "cvfObject.h"
-#include "cvfVector3.h"
-
-#include <vector>
+#include "cafCmdFeature.h"
 
 //==================================================================================================
 ///
-///
 //==================================================================================================
-class RigPolyLinesData : public cvf::Object
+class RicNewRangeFilterSlice3dviewFeature : public caf::CmdFeature
 {
-public:
-    RigPolyLinesData();
-    ~RigPolyLinesData() override;
+    CAF_CMD_HEADER_INIT;
 
-    const std::vector<std::vector<cvf::Vec3d>>& polyLines() const { return m_polylines; }
-    void setPolyLines( const std::vector<std::vector<cvf::Vec3d>>& polyLines ) { m_polylines = polyLines; }
-    void setPolyLine( const std::vector<cvf::Vec3d>& polyline ) { m_polylines = { polyline }; }
-
-private:
-    std::vector<std::vector<cvf::Vec3d>> m_polylines;
+protected:
+    // Overrides
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };

@@ -47,15 +47,7 @@ public:
     RimCellRangeFilter();
     ~RimCellRangeFilter() override;
 
-    void setGridIndex( int gridIndex );
-    int  gridIndex() const;
-
-private:
-    caf::PdmField<int> m_gridIndex; // The index of the grid that this filter applies to
-
 public:
-    caf::PdmField<bool> propagateToSubGrids; // Do propagate the effects to the sub-grids
-
     caf::PdmField<int> startIndexI; // Eclipse indexing, first index is 1
     caf::PdmField<int> startIndexJ; // Eclipse indexing, first index is 1
     caf::PdmField<int> startIndexK; // Eclipse indexing, first index is 1
@@ -63,11 +55,9 @@ public:
     caf::PdmField<int> cellCountJ;
     caf::PdmField<int> cellCountK;
 
-    void setDefaultValues();
-    void updateActiveState();
+    void setDefaultValues( int sliceDirection = -1, int defaultSlice = -1 );
 
-    bool                           useIndividualCellIndices() const;
-    const std::vector<cvf::Vec3d>& individualCellIndices() const;
+    void updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter ) override;
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -77,15 +67,6 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
 
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
-
 private:
-    RimCellRangeFilterCollection*   parentContainer();
-    bool                            isRangeFilterControlled() const;
-    void                            computeAndSetValidValues();
-    const cvf::StructGridInterface* selectedGrid();
-
-    caf::PdmField<bool>                    m_useIndividualCellIndices;
-    caf::PdmField<std::vector<cvf::Vec3d>> m_individualCellIndices;
+    void computeAndSetValidValues();
 };

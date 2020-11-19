@@ -368,7 +368,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
                 RimViewController* viewController = nullptr;
                 if ( mainOrComparisonView ) viewController = mainOrComparisonView->viewController();
 
-                if ( !viewController || !viewController->isRangeFiltersControlled() )
+                if ( !viewController || !viewController->isCellFiltersControlled() )
                 {
                     size_t i, j, k;
                     ijkFromCellIndex( mainOrComparisonView, m_currentGridIdx, m_currentCellIndex, &i, &j, &k );
@@ -390,13 +390,13 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
 
                     menuBuilder.subMenuStart( "Range Filter Slice", QIcon( ":/CellFilter_Range.png" ) );
 
-                    menuBuilder.addCmdFeatureWithUserData( "RicNewSliceRangeFilter3dViewFeature",
+                    menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature",
                                                            "I-slice Range Filter",
                                                            iSliceList );
-                    menuBuilder.addCmdFeatureWithUserData( "RicNewSliceRangeFilter3dViewFeature",
+                    menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature",
                                                            "J-slice Range Filter",
                                                            jSliceList );
-                    menuBuilder.addCmdFeatureWithUserData( "RicNewSliceRangeFilter3dViewFeature",
+                    menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature",
                                                            "K-slice Range Filter",
                                                            kSliceList );
 

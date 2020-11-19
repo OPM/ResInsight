@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2020-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,44 +16,54 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicRangeFilterNewFeature.h"
+#include "RicNewPolylineFilterFeature.h"
 
-#include "RicRangeFilterFeatureImpl.h"
-#include "RicRangeFilterNewExec.h"
+#include "RimCase.h"
+#include "RimCellFilterCollection.h"
+#include "RimPolylineFilter.h"
+#include "Riu3DMainWindowTools.h"
 
-#include "RimCellRangeFilter.h"
-#include "RimCellRangeFilterCollection.h"
-
-#include "cafCmdExecCommandManager.h"
-#include "cafCmdFeatureManager.h"
+#include "cafSelectionManagerTools.h"
+#include "cafUtils.h"
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT( RicRangeFilterNewFeature, "RicRangeFilterNewFeature" );
+CAF_CMD_SOURCE_INIT( RicNewPolylineFilterFeature, "RicNewPolylineFilterFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicRangeFilterNewFeature::isCommandEnabled()
+bool RicNewPolylineFilterFeature::isCommandEnabled()
 {
-    return RicRangeFilterFeatureImpl::isRangeFilterCommandAvailable();
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicRangeFilterNewFeature::onActionTriggered( bool isChecked )
+void RicNewPolylineFilterFeature::onActionTriggered( bool isChecked )
 {
-    RicRangeFilterNewExec* filterExec = RicRangeFilterFeatureImpl::createRangeFilterExecCommand();
+    // Find the selected Cell Filter Collection
+    std::vector<RimCellFilterCollection*> colls = caf::selectedObjectsByTypeStrict<RimCellFilterCollection*>();
+    if ( colls.empty() ) return;
+    RimCellFilterCollection* filtColl = colls[0];
 
-    caf::CmdExecCommandManager::instance()->processExecuteCommand( filterExec );
+    // and the case to use
+    RimCase* sourceCase = nullptr;
+    filtColl->firstAncestorOrThisOfTypeAsserted( sourceCase );
+
+    RimPolylineFilter* lastCreatedOrUpdated = filtColl->addNewPolylineFilter( sourceCase );
+    if ( lastCreatedOrUpdated )
+    {
+        Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicRangeFilterNewFeature::setupActionLook( QAction* actionToSetup )
+void RicNewPolylineFilterFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/CellFilter_Range.png" ) );
-    actionToSetup->setText( "New Range Filter" );
+    actionToSetup->setIcon( QIcon( ":/CellFilter_Polyline.png" ) );
+    actionToSetup->setText( "New Polyline Filter" );
 }

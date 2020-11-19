@@ -13,6 +13,7 @@ set(COMMAND_REFERENCED_CMAKE_FILES
     AnalysisPlotCommands/CMakeLists_files.cmake
     ApplicationCommands/CMakeLists_files.cmake
     AnnotationCommands/CMakeLists_files.cmake
+    CellFilterCommands/CMakeLists_files.cmake
     ColorLegendCommands/CMakeLists_files.cmake
     CompletionCommands/CMakeLists_files.cmake
     CompletionExportCommands/CMakeLists_files.cmake

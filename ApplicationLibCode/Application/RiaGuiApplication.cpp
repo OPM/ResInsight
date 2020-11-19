@@ -45,7 +45,6 @@
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimAnnotationTextAppearance.h"
-#include "RimCellRangeFilterCollection.h"
 #include "RimCommandObject.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseView.h"

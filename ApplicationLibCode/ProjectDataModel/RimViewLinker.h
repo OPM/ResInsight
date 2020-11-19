@@ -41,7 +41,7 @@ class BoundingBox;
 class RimViewController;
 class RiuViewer;
 class RimGridView;
-class RimCellRangeFilter;
+class RimCellFilter;
 class RimPropertyFilter;
 
 //==================================================================================================
@@ -74,8 +74,8 @@ public:
 
     void updateCellResult();
 
-    void updateRangeFilters( RimCellRangeFilter* changedRangeFilter );
-    void applyRangeFilterCollectionByUserChoice();
+    void updateCellFilters( const RimCellFilter* changedFilter );
+    void applyCellFilterCollectionByUserChoice();
 
     void updatePropertyFilters( RimPropertyFilter* changedPropertyFilter );
 

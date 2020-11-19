@@ -24,7 +24,7 @@
 #include "RigGeoMechCaseData.h"
 
 #include "Rim3dView.h"
-#include "RimCellRangeFilterCollection.h"
+#include "RimCellFilterCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechPropertyFilterCollection.h"
@@ -150,7 +150,7 @@ std::vector<RivGeoMechPartMgrCache::Key> RivGeoMechVizLogic::keysToVisiblePartMg
         {
             visiblePartMgrs.push_back( RivGeoMechPartMgrCache::Key( PROPERTY_FILTERED, timeStepIndex ) );
         }
-        else if ( m_geomechView->rangeFilterCollection()->hasActiveFilters() )
+        else if ( m_geomechView->cellFilterCollection()->hasActiveFilters() )
         {
             visiblePartMgrs.push_back( RivGeoMechPartMgrCache::Key( RANGE_FILTERED, -1 ) );
         }
@@ -210,23 +210,23 @@ RivGeoMechPartMgr* RivGeoMechVizLogic::getUpdatedPartMgr( RivGeoMechPartMgrCache
         if ( pMgrKey.geometryType() == RANGE_FILTERED )
         {
             cvf::CellRangeFilter cellRangeFilter;
-            m_geomechView->rangeFilterCollection()->compoundCellRangeFilter( &cellRangeFilter, femPartIdx );
+            m_geomechView->cellFilterCollection()->compoundCellRangeFilter( &cellRangeFilter, femPartIdx );
             RivFemElmVisibilityCalculator::computeRangeVisibility( elmVisibility.p(),
                                                                    caseData->femParts()->part( femPartIdx ),
                                                                    cellRangeFilter );
         }
         else if ( pMgrKey.geometryType() == PROPERTY_FILTERED )
         {
-            RivGeoMechPartMgr* rangefiltered = nullptr;
-            if ( m_geomechView->rangeFilterCollection()->hasActiveFilters() )
+            RivGeoMechPartMgr* cellfiltered = nullptr;
+            if ( m_geomechView->cellFilterCollection()->hasActiveFilters() )
             {
-                rangefiltered = getUpdatedPartMgr( RivGeoMechPartMgrCache::Key( RANGE_FILTERED, -1 ) );
+                cellfiltered = getUpdatedPartMgr( RivGeoMechPartMgrCache::Key( RANGE_FILTERED, -1 ) );
             }
             else
             {
-                rangefiltered = getUpdatedPartMgr( RivGeoMechPartMgrCache::Key( ALL_CELLS, -1 ) );
+                cellfiltered = getUpdatedPartMgr( RivGeoMechPartMgrCache::Key( ALL_CELLS, -1 ) );
             }
-            cvf::ref<cvf::UByteArray> rangeFiltVisibility = rangefiltered->cellVisibility( femPartIdx );
+            cvf::ref<cvf::UByteArray> rangeFiltVisibility = cellfiltered->cellVisibility( femPartIdx );
 
             RivFemElmVisibilityCalculator::computePropertyVisibility( elmVisibility.p(),
                                                                       caseData->femParts()->part( femPartIdx ),
