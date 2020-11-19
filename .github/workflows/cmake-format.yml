@@ -1,6 +1,6 @@
 name: cmake-format
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
   cmake-format-job:
