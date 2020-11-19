@@ -45,6 +45,7 @@ class RimWellPathCollection;
 class RiuViewer;
 class RivAnnotationsPartMgr;
 class RivMeasurementPartMgr;
+class RivPolylineSelectionPartMgr;
 class RivWellPathsPartMgr;
 class RimViewNameConfig;
 
@@ -192,6 +193,7 @@ protected:
                                      const cvf::BoundingBox& wellPathClipBoundingBox );
     void addAnnotationsToModel( cvf::ModelBasicList* annotationsModel );
     void addMeasurementToModel( cvf::ModelBasicList* measureModel );
+    void addPolylineSelectionToModel( cvf::ModelBasicList* model );
 
     // Override viewer
 
@@ -277,6 +279,7 @@ private:
     void createHighlightAndGridBoxDisplayModel();
     void appendAnnotationsToModel();
     void appendMeasurementToModel();
+    void appendPolylineSelectionToModel();
 
     // Pure private methods : Override viewer and comparison view
 
@@ -305,7 +308,8 @@ private:
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_fontSize;
 
     // 3D display model data
-    cvf::ref<cvf::ModelBasicList>   m_highlightVizModel;
-    cvf::ref<RivAnnotationsPartMgr> m_annotationsPartManager;
-    cvf::ref<RivMeasurementPartMgr> m_measurementPartManager;
+    cvf::ref<cvf::ModelBasicList>         m_highlightVizModel;
+    cvf::ref<RivAnnotationsPartMgr>       m_annotationsPartManager;
+    cvf::ref<RivMeasurementPartMgr>       m_measurementPartManager;
+    cvf::ref<RivPolylineSelectionPartMgr> m_polylineSelectionPartManager;
 };

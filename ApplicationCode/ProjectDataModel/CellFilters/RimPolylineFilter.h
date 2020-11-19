@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018 equinor ASA
+//  Copyright (C) 2020 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,25 +18,40 @@
 
 #pragma once
 
-#include "cvfObject.h"
-#include "cvfVector3.h"
+#include "RimCellFilter.h"
 
-#include <vector>
+#include "cafAppEnum.h"
+#include "cafPdmChildArrayField.h"
+#include "cafPdmField.h"
+#include "cafPdmFieldCvfVec3d.h"
+#include "cafPdmObject.h"
+
+#include <memory>
+
+class RicPolylineCellPickEventHandler;
+class RimPolylineTarget;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RigPolyLinesData : public cvf::Object
+class RimPolylineFilter : public RimCellFilter
 {
+    CAF_PDM_HEADER_INIT;
+
 public:
-    RigPolyLinesData();
-    ~RigPolyLinesData() override;
+    RimPolylineFilter();
+    ~RimPolylineFilter() override;
 
-    const std::vector<std::vector<cvf::Vec3d>>& polyLines() const { return m_polylines; }
-    void setPolyLines( const std::vector<std::vector<cvf::Vec3d>>& polyLines ) { m_polylines = polyLines; }
-    void setPolyLine( const std::vector<cvf::Vec3d>& polyline ) { m_polylines = { polyline }; }
+    void updateVisualization();
 
+    void insertTarget( const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert );
+
+protected:
 private:
-    std::vector<std::vector<cvf::Vec3d>> m_polylines;
+    // caf::PdmField<QString>                      m_name;
+    caf::PdmField<bool>                         m_enablePicking;
+    caf::PdmChildArrayField<RimPolylineTarget*> m_targets;
+
+    std::shared_ptr<RicPolylineCellPickEventHandler> m_pickTargetsEventHandler;
 };

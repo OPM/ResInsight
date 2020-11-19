@@ -37,6 +37,7 @@
 #include "RimCalcScript.h"
 #include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
+#include "RimCellFilterCollection.h"
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimColorLegend.h"
@@ -943,6 +944,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicCopySurfaceFeature";
             menuBuilder << "RicReloadSurfaceFeature";
+        }
+        else if ( dynamic_cast<RimCellFilterCollection*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewPolylineFilterFeature";
         }
         else if ( dynamic_cast<RimAnnotationCollection*>( firstUiItem ) ||
                   dynamic_cast<RimAnnotationGroupCollection*>( firstUiItem ) )

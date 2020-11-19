@@ -222,6 +222,8 @@
         <file>Erase.svg</file>
         <file>Close.svg</file>
         <file>Refresh.svg</file>
+        <file>CellFilter.png</file>
+        <file>CellFilter_Polyline.png</file>
     </qresource>
     <qresource prefix="/Shader">
         <file>fs_CellFace.glsl</file>
