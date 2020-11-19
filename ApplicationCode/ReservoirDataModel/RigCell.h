@@ -74,6 +74,8 @@ public:
     bool isLongPyramidCell( double maxHeightFactor = 5, double nodeNearTolerance = 1e-3 ) const;
     bool isCollapsedCell( double nodeNearTolerance = 1e-3 ) const;
 
+    cvf::BoundingBox boundingBox() const;
+
 private:
     std::array<size_t, 8> m_cornerIndices;
 

@@ -207,11 +207,11 @@ void RimViewLinker::updateCellResult()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::updateRangeFilters( RimCellRangeFilter* changedRangeFilter )
+void RimViewLinker::updateCellFilters( const RimCellFilter* changedFilter )
 {
     for ( RimViewController* viewLink : m_viewControllers )
     {
-        viewLink->updateRangeFilterOverrides( changedRangeFilter );
+        viewLink->updateCellFilterOverrides( changedFilter );
     }
 }
 
@@ -649,11 +649,11 @@ void RimViewLinker::addViewControllers( caf::PdmUiTreeOrdering& uiTreeOrdering )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::applyRangeFilterCollectionByUserChoice()
+void RimViewLinker::applyCellFilterCollectionByUserChoice()
 {
     for ( const auto& viewController : m_viewControllers )
     {
-        viewController->applyRangeFilterCollectionByUserChoice();
+        viewController->applyCellFilterCollectionByUserChoice();
     }
 }
 

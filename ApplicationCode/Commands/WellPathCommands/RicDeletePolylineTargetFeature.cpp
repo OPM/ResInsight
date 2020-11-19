@@ -58,8 +58,7 @@ void RicDeletePolylineTargetFeature::onActionTriggered( bool isChecked )
             polylineDef->deleteTarget( target );
         }
 
-        polylineDef->updateConnectedEditors();
-        polylineDef->updateVisualization();
+        polylineDef->updateEditorsAndVisualization();
     }
 }
 

@@ -44,7 +44,7 @@
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimCellEdgeColors.h"
-#include "RimCellRangeFilterCollection.h"
+#include "RimCellFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseFaultColors.h"
@@ -373,7 +373,7 @@ void RimEclipseView::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
         scheduleCreateDisplayModelAndRedraw();
     }
-    else if ( changedField == &m_rangeFilterCollection )
+    else if ( changedField == &m_cellFilterCollection )
     {
         this->scheduleGeometryRegen( RANGE_FILTERED );
         this->scheduleGeometryRegen( RANGE_FILTERED_INACTIVE );
@@ -484,7 +484,7 @@ void RimEclipseView::onCreateDisplayModel()
         {
             geometryTypesToAdd.push_back( OVERRIDDEN_CELL_VISIBILITY );
         }
-        else if ( this->rangeFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells() )
+        else if ( this->cellFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells() )
         {
             geometryTypesToAdd.push_back( RANGE_FILTERED );
             geometryTypesToAdd.push_back( RANGE_FILTERED_WELL_CELLS );
@@ -495,12 +495,12 @@ void RimEclipseView::onCreateDisplayModel()
                 geometryTypesToAdd.push_back( RANGE_FILTERED_INACTIVE );
             }
         }
-        else if ( !this->rangeFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells() )
+        else if ( !this->cellFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells() )
         {
             geometryTypesToAdd.push_back( VISIBLE_WELL_CELLS );
             geometryTypesToAdd.push_back( VISIBLE_WELL_FENCE_CELLS );
         }
-        else if ( this->rangeFilterCollection()->hasActiveFilters() && !this->wellCollection()->hasVisibleWellCells() )
+        else if ( this->cellFilterCollection()->hasActiveFilters() && !this->wellCollection()->hasVisibleWellCells() )
         {
             geometryTypesToAdd.push_back( RANGE_FILTERED );
             geometryTypesToAdd.push_back( RANGE_FILTERED_WELL_CELLS );
@@ -789,8 +789,8 @@ void RimEclipseView::updateVisibleGeometriesAndCellColors()
 
         if ( this->showInactiveCells() )
         {
-            if ( this->rangeFilterCollection()->hasActiveFilters() ) // Wells not considered, because we do not have a
-                                                                     // INACTIVE_WELL_CELLS group yet.
+            if ( this->cellFilterCollection()->hasActiveFilters() ) // Wells not considered, because we do not have a
+                                                                    // INACTIVE_WELL_CELLS group yet.
             {
                 m_reservoirGridPartManager->appendStaticGeometryPartsToModel( frameParts.p(),
                                                                               RANGE_FILTERED_INACTIVE,
@@ -824,19 +824,19 @@ void RimEclipseView::updateVisibleGeometriesAndCellColors()
             }
         }
     }
-    else if ( this->rangeFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells() )
+    else if ( this->cellFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells() )
     {
         geometriesToRecolor.push_back( RANGE_FILTERED );
         geometriesToRecolor.push_back( RANGE_FILTERED_WELL_CELLS );
         geometriesToRecolor.push_back( VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER );
         geometriesToRecolor.push_back( VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER );
     }
-    else if ( !this->rangeFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells() )
+    else if ( !this->cellFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells() )
     {
         geometriesToRecolor.push_back( VISIBLE_WELL_CELLS );
         geometriesToRecolor.push_back( VISIBLE_WELL_FENCE_CELLS );
     }
-    else if ( this->rangeFilterCollection()->hasActiveFilters() && !this->wellCollection()->hasVisibleWellCells() )
+    else if ( this->cellFilterCollection()->hasActiveFilters() && !this->wellCollection()->hasVisibleWellCells() )
     {
         geometriesToRecolor.push_back( RANGE_FILTERED );
         geometriesToRecolor.push_back( RANGE_FILTERED_WELL_CELLS );
@@ -1898,7 +1898,7 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 
     if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
 
-    uiTreeOrdering.add( m_rangeFilterCollection() );
+    uiTreeOrdering.add( cellFilterCollection() );
     uiTreeOrdering.add( m_propertyFilterCollection() );
     uiTreeOrdering.skipRemainingChildren( true );
 }
@@ -2249,8 +2249,8 @@ bool RimEclipseView::isShowingActiveCellsOnly()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::updateIconStateForFilterCollections()
 {
-    m_rangeFilterCollection()->updateIconState();
-    m_rangeFilterCollection()->uiCapability()->updateConnectedEditors();
+    m_cellFilterCollection()->updateIconState();
+    m_cellFilterCollection()->uiCapability()->updateConnectedEditors();
 
     // NB - notice that it is the filter collection managed by this view that the icon update applies to
     m_propertyFilterCollection()->updateIconState();

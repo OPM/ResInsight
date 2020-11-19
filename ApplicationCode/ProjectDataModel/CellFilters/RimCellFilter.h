@@ -21,6 +21,13 @@
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafSignal.h"
+
+namespace cvf
+{
+class StructGridInterface;
+class CellRangeFilter;
+} // namespace cvf
 
 //==================================================================================================
 ///
@@ -37,16 +44,41 @@ public:
         EXCLUDE
     };
 
+    caf::Signal<> filterChanged;
+
     RimCellFilter();
     ~RimCellFilter() override;
 
-    caf::PdmField<QString>                      name;
-    caf::PdmField<bool>                         isActive;
-    caf::PdmField<caf::AppEnum<FilterModeType>> filterMode;
+    QString                      name() const;
+    bool                         isActive() const;
+    caf::AppEnum<FilterModeType> filterMode() const;
+    void                         setName( QString filtername );
+    void                         setActive( bool active );
+    QString                      modeString() const;
+    bool                         propagateToSubGrids() const;
+
+    void setGridIndex( int gridIndex );
+    int  gridIndex() const;
 
     void updateIconState();
+    void updateActiveState( bool isControlled );
+
+    virtual void updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter ) = 0;
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* objectToggleField() override;
+    void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    bool                 isFilterControlled() const;
+
+    const cvf::StructGridInterface* selectedGrid() const;
+
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
+
+    caf::PdmField<QString>                      m_name;
+    caf::PdmField<bool>                         m_isActive;
+    caf::PdmField<caf::AppEnum<FilterModeType>> m_filterMode;
+    caf::PdmField<int>                          m_gridIndex;
+    caf::PdmField<bool>                         m_propagateToSubGrids; // Do propagate the effects to the sub-grids
 };

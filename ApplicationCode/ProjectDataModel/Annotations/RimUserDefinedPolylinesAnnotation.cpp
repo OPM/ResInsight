@@ -176,12 +176,20 @@ std::pair<RimPolylineTarget*, RimPolylineTarget*>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimUserDefinedPolylinesAnnotation::updateEditorsAndVisualization()
+{
+    updateConnectedEditors();
+    updateVisualization();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimUserDefinedPolylinesAnnotation::updateVisualization()
 {
     RimAnnotationCollection* annColl = nullptr;
     this->firstAncestorOrThisOfTypeAsserted( annColl );
-
-    annColl->scheduleRedrawOfRelevantViews();
+    if ( annColl ) annColl->scheduleRedrawOfRelevantViews();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -191,6 +199,22 @@ void RimUserDefinedPolylinesAnnotation::enablePicking( bool enable )
 {
     m_enablePicking = enable;
     updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimUserDefinedPolylinesAnnotation::pickingEnabled() const
+{
+    return m_enablePicking();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PickEventHandler* RimUserDefinedPolylinesAnnotation::pickEventHandler() const
+{
+    return m_pickTargetsEventHandler.get();
 }
 
 //--------------------------------------------------------------------------------------------------

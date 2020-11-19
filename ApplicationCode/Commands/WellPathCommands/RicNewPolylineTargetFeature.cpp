@@ -105,8 +105,7 @@ void RicNewPolylineTargetFeature::onActionTriggered( bool isChecked )
         newTarget->setAsPointTargetXYD( { newPos[0], newPos[1], -newPos[2] } );
 
         polylineDef->insertTarget( firstTarget, newTarget );
-        polylineDef->updateConnectedEditors();
-        polylineDef->updateVisualization();
+        polylineDef->updateEditorsAndVisualization();
 
         return;
     }
@@ -155,8 +154,7 @@ void RicNewPolylineTargetFeature::onActionTriggered( bool isChecked )
             polylineDef->insertTarget( nullptr, newTarget );
         }
 
-        polylineDef->updateConnectedEditors();
-        polylineDef->updateVisualization();
+        polylineDef->updateEditorsAndVisualization();
     }
 }
 

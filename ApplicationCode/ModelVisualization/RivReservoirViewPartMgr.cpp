@@ -30,7 +30,7 @@
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellEdgeColors.h"
-#include "RimCellRangeFilterCollection.h"
+#include "RimCellFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilter.h"
@@ -363,11 +363,11 @@ void RivReservoirViewPartMgr::computeVisibility( cvf::UByteArray* cellVisibility
             ensureStaticGeometryPartsCreated( ACTIVE );
 
             nativeVisibility = m_geometries[ACTIVE].cellVisibility( gridIdx );
-            computeRangeVisibility( geometryType,
-                                    cellVisibility,
-                                    grid,
-                                    nativeVisibility.p(),
-                                    m_reservoirView->rangeFilterCollection() );
+            computeFilterVisibility( geometryType,
+                                     cellVisibility,
+                                     grid,
+                                     nativeVisibility.p(),
+                                     m_reservoirView->cellFilterCollection() );
         }
         break;
         case RANGE_FILTERED_INACTIVE:
@@ -376,11 +376,11 @@ void RivReservoirViewPartMgr::computeVisibility( cvf::UByteArray* cellVisibility
             ensureStaticGeometryPartsCreated( INACTIVE );
 
             nativeVisibility = m_geometries[INACTIVE].cellVisibility( gridIdx );
-            computeRangeVisibility( geometryType,
-                                    cellVisibility,
-                                    grid,
-                                    nativeVisibility.p(),
-                                    m_reservoirView->rangeFilterCollection() );
+            computeFilterVisibility( geometryType,
+                                     cellVisibility,
+                                     grid,
+                                     nativeVisibility.p(),
+                                     m_reservoirView->cellFilterCollection() );
         }
         break;
         case RANGE_FILTERED_WELL_CELLS:
@@ -389,11 +389,11 @@ void RivReservoirViewPartMgr::computeVisibility( cvf::UByteArray* cellVisibility
             ensureStaticGeometryPartsCreated( ALL_WELL_CELLS );
 
             nativeVisibility = m_geometries[ALL_WELL_CELLS].cellVisibility( gridIdx );
-            computeRangeVisibility( geometryType,
-                                    cellVisibility,
-                                    grid,
-                                    nativeVisibility.p(),
-                                    m_reservoirView->rangeFilterCollection() );
+            computeFilterVisibility( geometryType,
+                                     cellVisibility,
+                                     grid,
+                                     nativeVisibility.p(),
+                                     m_reservoirView->cellFilterCollection() );
         }
         break;
         case VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER:
@@ -466,8 +466,8 @@ void RivReservoirViewPartMgr::createPropertyFilteredNoneWellCellGeometry( size_t
     std::vector<RigGridBase*> grids;
     res->allGrids( &grids );
 
-    bool hasActiveRangeFilters = m_reservoirView->rangeFilterCollection()->hasActiveFilters();
-    bool hasVisibleWellCells   = m_reservoirView->wellCollection()->hasVisibleWellCells();
+    bool hasActiveCellFilters = m_reservoirView->cellFilterCollection()->hasActiveFilters();
+    bool hasVisibleWellCells  = m_reservoirView->wellCollection()->hasVisibleWellCells();
 
     for ( size_t gIdx = 0; gIdx < grids.size(); ++gIdx )
     {
@@ -475,7 +475,7 @@ void RivReservoirViewPartMgr::createPropertyFilteredNoneWellCellGeometry( size_t
         cvf::ref<cvf::UByteArray> rangeVisibility;
         cvf::ref<cvf::UByteArray> fenceVisibility;
 
-        if ( hasActiveRangeFilters && hasVisibleWellCells )
+        if ( hasActiveCellFilters && hasVisibleWellCells )
         {
             ensureStaticGeometryPartsCreated( RANGE_FILTERED );
             ensureStaticGeometryPartsCreated( VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER );
@@ -483,21 +483,21 @@ void RivReservoirViewPartMgr::createPropertyFilteredNoneWellCellGeometry( size_t
             rangeVisibility = m_geometries[RANGE_FILTERED].cellVisibility( gIdx );
             fenceVisibility = m_geometries[VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER].cellVisibility( gIdx );
         }
-        else if ( hasActiveRangeFilters && !hasVisibleWellCells )
+        else if ( hasActiveCellFilters && !hasVisibleWellCells )
         {
             ensureStaticGeometryPartsCreated( RANGE_FILTERED );
 
             rangeVisibility = m_geometries[RANGE_FILTERED].cellVisibility( gIdx );
             fenceVisibility = m_geometries[RANGE_FILTERED].cellVisibility( gIdx );
         }
-        else if ( !hasActiveRangeFilters && hasVisibleWellCells )
+        else if ( !hasActiveCellFilters && hasVisibleWellCells )
         {
             ensureStaticGeometryPartsCreated( VISIBLE_WELL_FENCE_CELLS );
 
             rangeVisibility = m_geometries[VISIBLE_WELL_FENCE_CELLS].cellVisibility( gIdx );
             fenceVisibility = m_geometries[VISIBLE_WELL_FENCE_CELLS].cellVisibility( gIdx );
         }
-        else if ( !hasActiveRangeFilters && !hasVisibleWellCells )
+        else if ( !hasActiveCellFilters && !hasVisibleWellCells )
         {
             ensureStaticGeometryPartsCreated( ACTIVE );
 
@@ -549,8 +549,8 @@ void RivReservoirViewPartMgr::createPropertyFilteredWellGeometry( size_t frameIn
     std::vector<RigGridBase*> grids;
     res->allGrids( &grids );
 
-    bool hasActiveRangeFilters = m_reservoirView->rangeFilterCollection()->hasActiveFilters();
-    bool hasVisibleWellCells   = m_reservoirView->wellCollection()->hasVisibleWellCells();
+    bool hasActiveCellFilters = m_reservoirView->cellFilterCollection()->hasActiveFilters();
+    bool hasVisibleWellCells  = m_reservoirView->wellCollection()->hasVisibleWellCells();
 
     for ( size_t gIdx = 0; gIdx < grids.size(); ++gIdx )
     {
@@ -559,7 +559,7 @@ void RivReservoirViewPartMgr::createPropertyFilteredWellGeometry( size_t frameIn
         cvf::ref<cvf::UByteArray> wellCellsOutsideRange;
         cvf::ref<cvf::UByteArray> wellFenceCells;
 
-        if ( hasActiveRangeFilters && hasVisibleWellCells )
+        if ( hasActiveCellFilters && hasVisibleWellCells )
         {
             ensureStaticGeometryPartsCreated( RANGE_FILTERED_WELL_CELLS );
             rangeVisibility = m_geometries[RANGE_FILTERED_WELL_CELLS].cellVisibility( gIdx );
@@ -570,14 +570,14 @@ void RivReservoirViewPartMgr::createPropertyFilteredWellGeometry( size_t frameIn
             ensureStaticGeometryPartsCreated( VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER );
             wellFenceCells = m_geometries[VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER].cellVisibility( gIdx );
         }
-        else if ( hasActiveRangeFilters && !hasVisibleWellCells )
+        else if ( hasActiveCellFilters && !hasVisibleWellCells )
         {
             ensureStaticGeometryPartsCreated( RANGE_FILTERED_WELL_CELLS );
             rangeVisibility       = m_geometries[RANGE_FILTERED_WELL_CELLS].cellVisibility( gIdx );
             wellCellsOutsideRange = rangeVisibility;
             wellFenceCells        = rangeVisibility;
         }
-        else if ( !hasActiveRangeFilters && hasVisibleWellCells )
+        else if ( !hasActiveCellFilters && hasVisibleWellCells )
         {
             ensureStaticGeometryPartsCreated( VISIBLE_WELL_CELLS );
             wellCellsOutsideRange = m_geometries[VISIBLE_WELL_CELLS].cellVisibility( gIdx );
@@ -587,7 +587,7 @@ void RivReservoirViewPartMgr::createPropertyFilteredWellGeometry( size_t frameIn
 
             rangeVisibility = wellCellsOutsideRange;
         }
-        else if ( !hasActiveRangeFilters && !hasVisibleWellCells )
+        else if ( !hasActiveCellFilters && !hasVisibleWellCells )
         {
             ensureStaticGeometryPartsCreated( ALL_WELL_CELLS );
             wellFenceCells        = m_geometries[ALL_WELL_CELLS].cellVisibility( gIdx );
@@ -738,27 +738,27 @@ void RivReservoirViewPartMgr::copyByteArray( cvf::UByteArray* destination, const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::computeRangeVisibility( RivCellSetEnum                      geometryType,
-                                                      cvf::UByteArray*                    cellVisibility,
-                                                      const RigGridBase*                  grid,
-                                                      const cvf::UByteArray*              nativeVisibility,
-                                                      const RimCellRangeFilterCollection* rangeFilterColl )
+void RivReservoirViewPartMgr::computeFilterVisibility( RivCellSetEnum                 geometryType,
+                                                       cvf::UByteArray*               cellVisibility,
+                                                       const RigGridBase*             grid,
+                                                       const cvf::UByteArray*         nativeVisibility,
+                                                       const RimCellFilterCollection* cellFilterColl )
 {
     CVF_ASSERT( cellVisibility != nullptr );
     CVF_ASSERT( nativeVisibility != nullptr );
-    CVF_ASSERT( rangeFilterColl != nullptr );
+    CVF_ASSERT( cellFilterColl != nullptr );
 
     CVF_ASSERT( grid != nullptr );
     CVF_ASSERT( nativeVisibility->size() == grid->cellCount() );
 
-    // Initialize range filter with native visibility
+    // Initialize filter with native visibility
     if ( cellVisibility != nativeVisibility ) ( *cellVisibility ) = ( *nativeVisibility );
 
-    if ( rangeFilterColl->hasActiveFilters() || m_reservoirView->wellCollection()->hasVisibleWellCells() )
+    if ( cellFilterColl->hasActiveFilters() || m_reservoirView->wellCollection()->hasVisibleWellCells() )
     {
-        // Build range filter for current grid
+        // Build cell filter for current grid
         cvf::CellRangeFilter gridCellRangeFilter;
-        rangeFilterColl->compoundCellRangeFilter( &gridCellRangeFilter, grid->gridIndex() );
+        cellFilterColl->compoundCellRangeFilter( &gridCellRangeFilter, grid->gridIndex() );
 
         const RigLocalGrid*       lgr = nullptr;
         cvf::ref<cvf::UByteArray> parentGridVisibilities;
@@ -781,8 +781,8 @@ void RivReservoirViewPartMgr::computeRangeVisibility( RivCellSetEnum            
             parentGridVisibilities = reservoirGridPartMgr->cellVisibility( parentGridIndex );
         }
 
-        bool hasAdditiveRangeFilters = rangeFilterColl->hasActiveIncludeFilters() ||
-                                       m_reservoirView->wellCollection()->hasVisibleWellCells();
+        bool hasAdditiveFilters = cellFilterColl->hasActiveIncludeFilters() ||
+                                  m_reservoirView->wellCollection()->hasVisibleWellCells();
 
 #pragma omp parallel for
         for ( int cellIndex = 0; cellIndex < static_cast<int>( grid->cellCount() ); cellIndex++ )
@@ -807,7 +807,7 @@ void RivReservoirViewPartMgr::computeRangeVisibility( RivCellSetEnum            
 
                 bool nativeRangeVisibility = false;
 
-                if ( hasAdditiveRangeFilters )
+                if ( hasAdditiveFilters )
                 {
                     nativeRangeVisibility =
                         gridCellRangeFilter.isCellVisible( mainGridI, mainGridJ, mainGridK, isInSubGridArea );

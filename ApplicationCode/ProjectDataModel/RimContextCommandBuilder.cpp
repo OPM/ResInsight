@@ -37,8 +37,8 @@
 #include "RimCalcScript.h"
 #include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
+#include "RimCellFilterCollection.h"
 #include "RimCellRangeFilter.h"
-#include "RimCellRangeFilterCollection.h"
 #include "RimColorLegend.h"
 #include "RimColorLegendCollection.h"
 #include "RimColorLegendItem.h"
@@ -303,20 +303,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimEclipseInputProperty*>( firstUiItem ) )
         {
             menuBuilder << "RicSaveEclipseInputPropertyFeature";
-        }
-        else if ( dynamic_cast<RimCellRangeFilterCollection*>( firstUiItem ) )
-        {
-            menuBuilder << "RicRangeFilterNewFeature";
-            menuBuilder << "RicRangeFilterNewSliceIFeature";
-            menuBuilder << "RicRangeFilterNewSliceJFeature";
-            menuBuilder << "RicRangeFilterNewSliceKFeature";
-        }
-        else if ( dynamic_cast<RimCellRangeFilter*>( firstUiItem ) )
-        {
-            menuBuilder << "RicRangeFilterInsertFeature";
-            menuBuilder << "RicRangeFilterNewSliceIFeature";
-            menuBuilder << "RicRangeFilterNewSliceJFeature";
-            menuBuilder << "RicRangeFilterNewSliceKFeature";
         }
         else if ( dynamic_cast<RimEclipsePropertyFilterCollection*>( firstUiItem ) )
         {
@@ -965,6 +951,18 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicCopySurfaceFeature";
             menuBuilder << "RicReloadSurfaceFeature";
+        }
+        else if ( dynamic_cast<RimCellFilterCollection*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewPolylineFilterFeature";
+            menuBuilder << "RicNewUserDefinedFilterFeature";
+            menuBuilder << "Separator";
+            menuBuilder << "RicNewCellRangeFilterFeature";
+            menuBuilder.subMenuStart( "Slice Filters" );
+            menuBuilder << "RicNewRangeFilterSliceIFeature";
+            menuBuilder << "RicNewRangeFilterSliceJFeature";
+            menuBuilder << "RicNewRangeFilterSliceKFeature";
+            menuBuilder.subMenuEnd();
         }
         else if ( dynamic_cast<RimAnnotationCollection*>( firstUiItem ) ||
                   dynamic_cast<RimAnnotationGroupCollection*>( firstUiItem ) )

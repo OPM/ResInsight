@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2020-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,18 +18,15 @@
 
 #pragma once
 
-class RicRangeFilterNewExec;
-class RimCellRangeFilterCollection;
+#include "RicNewRangeFilterSliceFeature.h"
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicRangeFilterFeatureImpl
+class RicNewRangeFilterSliceIFeature : public RicNewRangeFilterSliceFeature
 {
-public:
-    static bool                   isRangeFilterCommandAvailable();
-    static RicRangeFilterNewExec* createRangeFilterExecCommand();
+    CAF_CMD_HEADER_INIT;
 
 public:
-    static RimCellRangeFilterCollection* findRangeFilterCollection();
+    RicNewRangeFilterSliceIFeature();
 };

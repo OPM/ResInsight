@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2020-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,20 +16,16 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#include "RicNewCellRangeFilterFeature.h"
 
-#include "RicRangeFilterExecImpl.h"
+#include "cafUtils.h"
 
-//==================================================================================================
+CAF_CMD_SOURCE_INIT( RicNewCellRangeFilterFeature, "RicNewCellRangeFilterFeature" );
+
+//--------------------------------------------------------------------------------------------------
 ///
-//==================================================================================================
-class RicRangeFilterNewExec : public RicRangeFilterExecImpl
+//--------------------------------------------------------------------------------------------------
+RicNewCellRangeFilterFeature::RicNewCellRangeFilterFeature()
+    : RicNewRangeFilterSliceFeature( "New Range Filter", -1 )
 {
-public:
-    RicRangeFilterNewExec( RimCellRangeFilterCollection* rangeFilterCollection, RimCellRangeFilter* rangeFilter = nullptr );
-    ~RicRangeFilterNewExec() override;
-
-    QString name() override;
-    void    redo() override;
-    void    undo() override;
-};
+}

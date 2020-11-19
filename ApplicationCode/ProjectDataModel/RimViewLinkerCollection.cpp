@@ -76,7 +76,7 @@ void RimViewLinkerCollection::fieldChangedByUi( const caf::PdmFieldHandle* chang
         {
             if ( !isActive )
             {
-                viewLinker()->applyRangeFilterCollectionByUserChoice();
+                viewLinker()->applyCellFilterCollectionByUserChoice();
             }
 
             viewLinker()->updateDependentViews();

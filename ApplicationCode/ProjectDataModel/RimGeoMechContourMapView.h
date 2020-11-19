@@ -56,7 +56,7 @@ protected:
     void appendPickPointVisToModel();
     void onUpdateLegends() override;
     void updateViewWidgetAfterCreation() override;
-    void updateViewFollowingRangeFilterUpdates() override;
+    void updateViewFollowingCellFilterUpdates() override;
     void onLoadDataAndUpdate() override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 

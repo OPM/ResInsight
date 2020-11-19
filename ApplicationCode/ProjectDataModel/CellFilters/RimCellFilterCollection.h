@@ -22,8 +22,12 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-class Rim3dView;
+class RimCellFilter;
 class RimCellRangeFilter;
+class RimPolylineFilter;
+class RimUserDefinedFilter;
+class RimCase;
+class RigPolyLinesData;
 
 namespace cvf
 {
@@ -34,34 +38,48 @@ class CellRangeFilter;
 ///
 ///
 //==================================================================================================
-class RimCellRangeFilterCollection : public caf::PdmObject
+class RimCellFilterCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimCellRangeFilterCollection();
-    ~RimCellRangeFilterCollection() override;
+    RimCellFilterCollection();
+    ~RimCellFilterCollection() override;
 
-    // Fields
-    caf::PdmField<bool>                          isActive;
-    caf::PdmChildArrayField<RimCellRangeFilter*> rangeFilters;
+    RimPolylineFilter*    addNewPolylineFilter( RimCase* srcCase );
+    RimUserDefinedFilter* addNewUserDefinedFilter( RimCase* srcCase );
+    RimCellRangeFilter*   addNewCellRangeFilter( RimCase* srcCase, int sliceDirection = -1, int defaultSlice = -1 );
 
-    // Methods
+    void removeFilter( RimCellFilter* filter );
+
+    bool isEmpty() const;
+    bool isActive() const;
+    void setActive( bool bActive );
+
     void compoundCellRangeFilter( cvf::CellRangeFilter* cellRangeFilter, size_t gridIndex ) const;
+
+    std::vector<RimCellFilter*> filters() const;
+
     bool hasActiveFilters() const;
     bool hasActiveIncludeFilters() const;
 
-    void updateDisplayModeNotifyManagedViews( RimCellRangeFilter* changedRangeFilter );
     void updateIconState();
-
     void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
+    void connectToFilterUpdates( RimCellFilter* filter );
+
 protected:
+    // Overridden methods
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void                 defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
     caf::PdmFieldHandle* objectToggleField() override;
+    void                 initAfterRead() override;
+    void                 onFilterUpdated( const SignalEmitter* emitter );
 
 private:
-    Rim3dView* baseView() const;
+    caf::PdmChildArrayField<RimCellFilter*> m_cellFilters;
+    caf::PdmField<bool>                     m_isActive;
+
+    caf::PdmChildArrayField<RimCellRangeFilter*> m_rangeFilters_OBSOLETE;
 };

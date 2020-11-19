@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017-  Statoil ASA
+//  Copyright (C) 2020-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,31 +16,26 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewSliceRangeFilterFeature.h"
+#include "RicNewRangeFilterSlice3dviewFeature.h"
 
 #include "RiaApplication.h"
-
-#include "RicRangeFilterFeatureImpl.h"
-#include "RicRangeFilterNewExec.h"
-
+#include "RimCellFilterCollection.h"
+#include "RimCellRangeFilter.h"
 #include "RimGridView.h"
 #include "RimViewController.h"
-
-#include "RiuViewer.h"
-#include "RiuViewerCommands.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafCmdExecCommandManager.h"
+#include "cafSelectionManagerTools.h"
 
 #include <QAction>
-#include <QList>
-#include <QVariant>
 
-CAF_CMD_SOURCE_INIT( RicNewSliceRangeFilter3dViewFeature, "RicNewSliceRangeFilter3dViewFeature" );
+CAF_CMD_SOURCE_INIT( RicNewRangeFilterSlice3dviewFeature, "RicNewRangeFilterSlice3dviewFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewSliceRangeFilter3dViewFeature::isCommandEnabled()
+bool RicNewRangeFilterSlice3dviewFeature::isCommandEnabled()
 {
     RimGridView* view = RiaApplication::instance()->activeGridView();
     if ( !view ) return false;
@@ -50,50 +45,38 @@ bool RicNewSliceRangeFilter3dViewFeature::isCommandEnabled()
     RimViewController* vc = viewOrComparisonView->viewController();
     if ( !vc ) return true;
 
-    return ( !vc->isRangeFiltersControlled() );
+    return ( !vc->isCellFiltersControlled() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewSliceRangeFilter3dViewFeature::onActionTriggered( bool isChecked )
+void RicNewRangeFilterSlice3dviewFeature::onActionTriggered( bool isChecked )
 {
     QVariant userData = this->userData();
+    if ( userData.isNull() || userData.type() != QVariant::List ) return;
 
-    if ( !userData.isNull() && userData.type() == QVariant::List )
+    RimGridView* activeView           = RiaApplication::instance()->activeGridView();
+    RimGridView* viewOrComparisonView = RiaApplication::instance()->activeMainOrComparisonGridView();
+
+    RimCase* sourceCase = viewOrComparisonView->ownerCase();
+
+    // Get the selected Cell Filter Collection
+    RimCellFilterCollection* filtColl = viewOrComparisonView->cellFilterCollection();
+
+    // and the parameters from the user choice
+    QVariantList list = userData.toList();
+    CAF_ASSERT( list.size() == 3 );
+
+    int direction  = list[0].toInt();
+    int sliceStart = list[1].toInt();
+    int gridIndex  = list[2].toInt();
+
+    RimCellFilter* newFilter = filtColl->addNewCellRangeFilter( sourceCase, direction, sliceStart );
+    if ( newFilter )
     {
-        RimGridView* activeView           = RiaApplication::instance()->activeGridView();
-        RimGridView* viewOrComparisonView = RiaApplication::instance()->activeMainOrComparisonGridView();
-
-        RimCellRangeFilterCollection* rangeFilterCollection = viewOrComparisonView->rangeFilterCollection();
-
-        RicRangeFilterNewExec* filterExec = new RicRangeFilterNewExec( rangeFilterCollection );
-
-        QVariantList list = userData.toList();
-        CAF_ASSERT( list.size() == 3 );
-
-        int direction  = list[0].toInt();
-        int sliceStart = list[1].toInt();
-        int gridIndex  = list[2].toInt();
-
-        filterExec->m_gridIndex = gridIndex;
-        if ( direction == 0 )
-        {
-            filterExec->m_iSlice      = true;
-            filterExec->m_iSliceStart = sliceStart;
-        }
-        else if ( direction == 1 )
-        {
-            filterExec->m_jSlice      = true;
-            filterExec->m_jSliceStart = sliceStart;
-        }
-        else if ( direction == 2 )
-        {
-            filterExec->m_kSlice      = true;
-            filterExec->m_kSliceStart = sliceStart;
-        }
-
-        caf::CmdExecCommandManager::instance()->processExecuteCommand( filterExec );
+        newFilter->setGridIndex( gridIndex );
+        Riu3DMainWindowTools::selectAsCurrentItem( newFilter );
         activeView->setSurfaceDrawstyle();
     }
 }
@@ -101,7 +84,7 @@ void RicNewSliceRangeFilter3dViewFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewSliceRangeFilter3dViewFeature::setupActionLook( QAction* actionToSetup )
+void RicNewRangeFilterSlice3dviewFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/CellFilter_Range.png" ) );
 }

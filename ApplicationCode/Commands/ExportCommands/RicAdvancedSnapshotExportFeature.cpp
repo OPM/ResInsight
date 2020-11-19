@@ -28,8 +28,8 @@
 #include "Rim3dView.h"
 #include "RimAdvancedSnapshotExportDefinition.h"
 #include "RimCase.h"
+#include "RimCellFilterCollection.h"
 #include "RimCellRangeFilter.h"
-#include "RimCellRangeFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
@@ -261,11 +261,10 @@ void RicAdvancedSnapshotExportFeature::exportViewVariationsToFolder( RimGridView
         }
         else
         {
-            RimCellRangeFilter* rangeFilter = new RimCellRangeFilter;
-            rimView->rangeFilterCollection()->rangeFilters.push_back( rangeFilter );
+            RimCellRangeFilter* rangeFilter = rimView->cellFilterCollection()->addNewCellRangeFilter( rimCase );
 
-            bool rangeFilterInitState                  = rimView->rangeFilterCollection()->isActive();
-            rimView->rangeFilterCollection()->isActive = true;
+            bool rangeFilterInitState = rimView->cellFilterCollection()->isActive();
+            rimView->cellFilterCollection()->setActive( true );
 
             for ( int sliceIndex = msd->startSliceIndex(); sliceIndex <= msd->endSliceIndex(); sliceIndex++ )
             {
@@ -289,7 +288,7 @@ void RicAdvancedSnapshotExportFeature::exportViewVariationsToFolder( RimGridView
                     rangeFilter->startIndexK = sliceIndex;
                 }
 
-                rimView->rangeFilterCollection()->updateDisplayModeNotifyManagedViews( rangeFilter );
+                rangeFilter->filterChanged.send();
                 fileName.replace( " ", "_" );
 
                 QString absoluteFileName = caf::Utils::constructFullFileName( folder, fileName, ".png" );
@@ -297,10 +296,10 @@ void RicAdvancedSnapshotExportFeature::exportViewVariationsToFolder( RimGridView
                 RicSnapshotViewToFileFeature::saveSnapshotAs( absoluteFileName, rimView );
             }
 
-            rimView->rangeFilterCollection()->rangeFilters.removeChildObject( rangeFilter );
+            rimView->cellFilterCollection()->removeFilter( rangeFilter );
             delete rangeFilter;
 
-            rimView->rangeFilterCollection()->isActive = rangeFilterInitState;
+            rimView->cellFilterCollection()->setActive( rangeFilterInitState );
         }
     }
 }

@@ -20,8 +20,8 @@
 
 #include "RicPolylineTarget3dEditor.h"
 
+#include "RimPolylinePickerInterface.h"
 #include "RimPolylineTarget.h"
-#include "RimUserDefinedPolylinesAnnotation.h"
 
 #include "cafPickEventHandler.h"
 
@@ -54,7 +54,7 @@ RicPolyline3dEditor::~RicPolyline3dEditor()
 //--------------------------------------------------------------------------------------------------
 void RicPolyline3dEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
-    auto* geomDef = dynamic_cast<RimUserDefinedPolylinesAnnotation*>( this->pdmObject() );
+    auto* pickerInterface = dynamic_cast<RimPolylinePickerInterface*>( this->pdmObject() );
 
     for ( auto targetEditor : m_targetEditors )
     {
@@ -62,22 +62,18 @@ void RicPolyline3dEditor::configureAndUpdateUi( const QString& uiConfigName )
     }
     m_targetEditors.clear();
 
-    if ( !geomDef ) return;
+    if ( !pickerInterface ) return;
 
-    geomDef->objectEditorAttribute( "", &m_attribute );
-    if ( m_attribute.pickEventHandler != nullptr )
+    if ( pickerInterface->pickingEnabled() )
     {
-        if ( m_attribute.enablePicking )
-        {
-            m_attribute.pickEventHandler->registerAsPickEventHandler();
-        }
-        else
-        {
-            m_attribute.pickEventHandler->unregisterAsPickEventHandler();
-        }
+        pickerInterface->pickEventHandler()->registerAsPickEventHandler();
+    }
+    else
+    {
+        pickerInterface->pickEventHandler()->unregisterAsPickEventHandler();
     }
 
-    std::vector<RimPolylineTarget*> targets = geomDef->activeTargets();
+    std::vector<RimPolylineTarget*> targets = pickerInterface->activeTargets();
 
     for ( auto target : targets )
     {

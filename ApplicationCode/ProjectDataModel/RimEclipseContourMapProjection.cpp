@@ -30,7 +30,6 @@
 #include "RigHexIntersectionTools.h"
 #include "RigMainGrid.h"
 
-#include "RimCellRangeFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseContourMapView.h"

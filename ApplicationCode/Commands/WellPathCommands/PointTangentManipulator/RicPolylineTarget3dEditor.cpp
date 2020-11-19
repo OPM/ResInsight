@@ -82,9 +82,6 @@ void RicPolylineTarget3dEditor::configureAndUpdateUi( const QString& uiConfigNam
         return;
     }
 
-    RimUserDefinedPolylinesAnnotation* polylineDef;
-    target->firstAncestorOrThisOfTypeAsserted( polylineDef );
-
     target->targetPointUiCapability()->addFieldEditor( this );
 
     if ( m_manipulator.isNull() )
@@ -139,9 +136,6 @@ void RicPolylineTarget3dEditor::slotUpdated( const cvf::Vec3d& origin, const cvf
 
     cvf::ref<caf::DisplayCoordTransform> dispXf = view->displayCoordTransform();
 
-    RimUserDefinedPolylinesAnnotation* polylineDef;
-    target->firstAncestorOrThisOfTypeAsserted( polylineDef );
-
     cvf::Vec3d domainOrigin = dispXf->transformToDomainCoord( origin );
     domainOrigin.z()        = -domainOrigin.z();
     QVariant originVariant  = caf::PdmValueFieldSpecialization<cvf::Vec3d>::convert( domainOrigin );
@@ -171,12 +165,8 @@ void RicPolylineTarget3dEditor::slotSelectedIn3D()
 void RicPolylineTarget3dEditor::slotDragFinished()
 {
     RimPolylineTarget* target = dynamic_cast<RimPolylineTarget*>( this->pdmObject() );
-    if ( !target )
+    if ( target )
     {
-        return;
+        target->triggerVisualizationUpdate();
     }
-
-    RimAnnotationCollectionBase* annColl;
-    target->firstAncestorOrThisOfTypeAsserted( annColl );
-    annColl->scheduleRedrawOfRelevantViews();
 }
