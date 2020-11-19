@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018 equinor ASA
+//  Copyright (C) 2020-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,25 +18,27 @@
 
 #pragma once
 
-#include "cvfObject.h"
-#include "cvfVector3.h"
+#include "Ric3dViewPickEventHandler.h"
 
-#include <vector>
+#include "cafPdmPointer.h"
+
+class RimPolylineFilter;
 
 //==================================================================================================
 ///
-///
 //==================================================================================================
-class RigPolyLinesData : public cvf::Object
+class RicPolylineCellPickEventHandler : public Ric3dViewPickEventHandler
 {
 public:
-    RigPolyLinesData();
-    ~RigPolyLinesData() override;
+    RicPolylineCellPickEventHandler( RimPolylineFilter* polylineFilter );
+    ~RicPolylineCellPickEventHandler();
 
-    const std::vector<std::vector<cvf::Vec3d>>& polyLines() const { return m_polylines; }
-    void setPolyLines( const std::vector<std::vector<cvf::Vec3d>>& polyLines ) { m_polylines = polyLines; }
-    void setPolyLine( const std::vector<cvf::Vec3d>& polyline ) { m_polylines = { polyline }; }
+    void registerAsPickEventHandler() override;
+
+protected:
+    bool handle3dPickEvent( const Ric3dPickEvent& eventObject ) override;
+    void notifyUnregistered() override;
 
 private:
-    std::vector<std::vector<cvf::Vec3d>> m_polylines;
+    caf::PdmPointer<RimPolylineFilter> m_filterDef;
 };

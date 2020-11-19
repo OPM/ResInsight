@@ -32,6 +32,7 @@ class RimGridCollection;
 class RimCellRangeFilterCollection;
 class RimWellMeasurementInViewCollection;
 class RimSurfaceInViewCollection;
+class RimCellFilterCollection;
 
 class RimGridView : public Rim3dView
 {
@@ -58,6 +59,7 @@ public:
     void                                       rangeFiltersUpdated();
     RimCellRangeFilterCollection*              rangeFilterCollection();
     const RimCellRangeFilterCollection*        rangeFilterCollection() const;
+    RimCellFilterCollection*                   cellFilterCollection() const;
 
     bool hasOverridenRangeFilterCollection();
     void setOverrideRangeFilterCollection( RimCellRangeFilterCollection* rfc );
@@ -98,6 +100,7 @@ protected:
     caf::PdmChildField<RimAnnotationInViewCollection*>      m_annotationCollection;
     caf::PdmChildField<RimWellMeasurementInViewCollection*> m_wellMeasurementCollection;
     caf::PdmChildField<RimSurfaceInViewCollection*>         m_surfaceCollection;
+    caf::PdmChildField<RimCellFilterCollection*>            m_cellFilterCollection;
 
 private:
     void onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;

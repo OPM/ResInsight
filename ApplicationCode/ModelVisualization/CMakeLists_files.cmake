@@ -58,6 +58,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RivTextLabelSourceInfo.h
 ${CMAKE_CURRENT_LIST_DIR}/RivDiskGeometryGenerator.h
 ${CMAKE_CURRENT_LIST_DIR}/RivWellDiskPartMgr.h
 ${CMAKE_CURRENT_LIST_DIR}/RivElementVectorResultPartMgr.h
+${CMAKE_CURRENT_LIST_DIR}/RivPolylineSelectionPartMgr.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -114,6 +115,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RivTextLabelSourceInfo.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivDiskGeometryGenerator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivWellDiskPartMgr.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivElementVectorResultPartMgr.cpp
+${CMAKE_CURRENT_LIST_DIR}/RivPolylineSelectionPartMgr.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

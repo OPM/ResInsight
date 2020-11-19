@@ -1,0 +1,95 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2020 Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#include "RimPolylineFilter.h"
+
+#include "RimPolylineTarget.h"
+
+#include "WellPathCommands/PointTangentManipulator/RicPolyline3dEditor.h"
+
+#include "CellFilterCommands/RicPolylineCellPickEventHandler.h"
+#include "RimCellFilterCollection.h"
+
+#include "RigPolyLinesData.h"
+
+#include "RiuViewerCommands.h"
+
+#include "cvfBoundingBox.h"
+
+#include "cafCmdFeatureMenuBuilder.h"
+#include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiTableViewEditor.h"
+#include "cafPdmUiTreeOrdering.h"
+
+CAF_PDM_SOURCE_INIT( RimPolylineFilter, "PolyLineFilter" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPolylineFilter::RimPolylineFilter()
+    : m_pickTargetsEventHandler( new RicPolylineCellPickEventHandler( this ) )
+{
+    CAF_PDM_InitObject( "Polyline Filter", ":/CellFilter_Polyline.png", "", "" );
+    // CAF_PDM_InitField( &m_name, "Name", QString( "User Defined Polyline" ), "Name", "", "", "" );
+
+    CAF_PDM_InitField( &m_enablePicking, "EnablePicking", false, "", "", "", "" );
+    caf::PdmUiPushButtonEditor::configureEditorForField( &m_enablePicking );
+    m_enablePicking.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::HIDDEN );
+
+    CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets", "", "", "" );
+    m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
+    // m_targets.uiCapability()->setUiTreeHidden(true);
+    m_targets.uiCapability()->setUiTreeChildrenHidden( true );
+    m_targets.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_targets.uiCapability()->setCustomContextMenuEnabled( true );
+
+    this->setUi3dEditorTypeName( RicPolyline3dEditor::uiEditorTypeName() );
+
+    updateIconState();
+    setDeletable( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPolylineFilter::~RimPolylineFilter()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolylineFilter::updateVisualization()
+{
+    // RimCellFilterCollection* annColl = nullptr;
+    // this->firstAncestorOrThisOfTypeAsserted( annColl );
+
+    // annColl->scheduleRedrawOfRelevantViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolylineFilter::insertTarget( const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert )
+{
+    size_t index = m_targets.index( targetToInsertBefore );
+    if ( index < m_targets.size() )
+        m_targets.insert( index, targetToInsert );
+    else
+        m_targets.push_back( targetToInsert );
+}

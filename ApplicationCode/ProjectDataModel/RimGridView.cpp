@@ -20,6 +20,7 @@
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimAnnotationInViewCollection.h"
+#include "RimCellFilterCollection.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
@@ -113,6 +114,10 @@ RimGridView::RimGridView()
 
     CAF_PDM_InitFieldNoDefault( &m_surfaceCollection, "SurfaceInViewCollection", "Surface Collection Field", "", "", "" );
     m_surfaceCollection.uiCapability()->setUiTreeHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_cellFilterCollection, "CellFilterCollection", "Cell Filter Collection Field", "", "", "" );
+    m_cellFilterCollection = new RimCellFilterCollection();
+    m_cellFilterCollection.uiCapability()->setUiHidden( true );
 
     m_surfaceVizModel = new cvf::ModelBasicList;
     m_surfaceVizModel->setName( "SurfaceModel" );
@@ -261,6 +266,14 @@ const RimCellRangeFilterCollection* RimGridView::rangeFilterCollection() const
 RimAnnotationInViewCollection* RimGridView::annotationCollection() const
 {
     return m_annotationCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimCellFilterCollection* RimGridView::cellFilterCollection() const
+{
+    return m_cellFilterCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
