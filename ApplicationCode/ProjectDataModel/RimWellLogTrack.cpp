@@ -2692,12 +2692,20 @@ void RimWellLogTrack::updateResultPropertyNamesOnPlot()
              m_formationCase == nullptr )
             return;
 
-        // TODO: let the user select the color legend instead of just picking the first one...
         std::vector<cvf::Color3ub> colors;
-        std::vector<QString>       namesVector;
+
+        // Find the largest category number.
+        int maxCategoryValue = std::numeric_limits<int>::min();
         for ( RimColorLegendItem* legendItem : m_colorShadingLegend()->colorLegendItems() )
         {
-            namesVector.push_back( legendItem->categoryName() );
+            maxCategoryValue = std::max( maxCategoryValue, legendItem->categoryValue() );
+        }
+
+        // Insert each name at index matching the category number.
+        std::vector<QString> namesVector( maxCategoryValue + 1 );
+        for ( RimColorLegendItem* legendItem : m_colorShadingLegend()->colorLegendItems() )
+        {
+            namesVector[legendItem->categoryValue()] = legendItem->categoryName();
         }
 
         if ( m_overburdenHeight > 0.0 )
