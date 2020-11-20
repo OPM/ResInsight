@@ -429,60 +429,64 @@ void RiuViewer::paintOverlayItems( QPainter* painter )
     if ( this->isComparisonViewActive() )
     {
         Rim3dView* compView = dynamic_cast<Rim3dView*>( m_rimView.p() )->activeComparisonView();
-        columnWidth         = 200;
-
-        // int sliderPos = this->width() * this->comparisonViewVisibleNormalizedRect().min().x();
-        int sliderPos         = 0.5 * this->width();
-        int compViewItemsXPos = sliderPos + 0.5 * ( this->width() - sliderPos ) - 0.5 * columnWidth;
-        columnPos             = 0.5 * sliderPos - 0.5 * columnWidth;
-
-        if ( m_showInfoText )
+        if ( compView )
         {
-            {
-                Rim3dView* view = dynamic_cast<Rim3dView*>( m_rimView.p() );
-                m_shortInfoLabel->setText( "<center>" + view->ownerCase()->caseUserDescription() + "</center>" );
+            columnWidth = 200;
 
-                QPoint topLeft = QPoint( columnPos, yPos );
-                m_shortInfoLabel->resize( columnWidth, m_shortInfoLabel->sizeHint().height() );
-                m_shortInfoLabel->render( painter, topLeft );
+            // int sliderPos = this->width() * this->comparisonViewVisibleNormalizedRect().min().x();
+            int sliderPos         = 0.5 * this->width();
+            int compViewItemsXPos = sliderPos + 0.5 * ( this->width() - sliderPos ) - 0.5 * columnWidth;
+            columnPos             = 0.5 * sliderPos - 0.5 * columnWidth;
+
+            if ( m_showInfoText )
+            {
+                {
+                    Rim3dView* view = dynamic_cast<Rim3dView*>( m_rimView.p() );
+                    m_shortInfoLabel->setText( "<center>" + view->ownerCase()->caseUserDescription() + "</center>" );
+
+                    QPoint topLeft = QPoint( columnPos, yPos );
+                    m_shortInfoLabel->resize( columnWidth, m_shortInfoLabel->sizeHint().height() );
+                    m_shortInfoLabel->render( painter, topLeft );
+                }
+
+                {
+                    m_shortInfoLabelCompView->setText( "<center>" + compView->ownerCase()->caseUserDescription() +
+                                                       "</center>" );
+                    QPoint topLeft = QPoint( compViewItemsXPos, yPos );
+                    m_shortInfoLabelCompView->resize( columnWidth, m_shortInfoLabelCompView->sizeHint().height() );
+                    m_shortInfoLabelCompView->render( painter, topLeft );
+                }
+
+                yPos += m_shortInfoLabel->height();
             }
 
+            int pickAreaHeight = yPos - startYPos;
+            if ( m_showAnimProgress && isAnimationActive( true ) && compView->timeStepCount() > 1 )
             {
-                m_shortInfoLabelCompView->setText( "<center>" + compView->ownerCase()->caseUserDescription() + "</center>" );
-                QPoint topLeft = QPoint( compViewItemsXPos, yPos );
-                m_shortInfoLabelCompView->resize( columnWidth, m_shortInfoLabelCompView->sizeHint().height() );
-                m_shortInfoLabelCompView->render( painter, topLeft );
+                QString stepName = compView->timeStepName( compView->currentTimeStep() );
+
+                m_animationProgressCompView->setFormat( "Time Step: %v/%m " + stepName );
+                m_animationProgressCompView->setMinimum( 0 );
+                m_animationProgressCompView->setMaximum( static_cast<int>( compView->timeStepCount() ) - 1 );
+                m_animationProgressCompView->setValue( compView->currentTimeStep() );
+
+                m_animationProgressCompView->resize( columnWidth, m_animationProgressCompView->sizeHint().height() );
+
+                m_animationProgressCompView->render( painter, QPoint( compViewItemsXPos, yPos ) );
+
+                pickAreaHeight += m_animationProgressCompView->height();
             }
 
-            yPos += m_shortInfoLabel->height();
+            m_infoPickArea.setLeft( columnPos );
+            m_infoPickArea.setWidth( columnWidth );
+            m_infoPickArea.setHeight( pickAreaHeight );
+            m_infoPickArea.setTop( startYPos );
+
+            m_infoPickAreaCompView.setLeft( compViewItemsXPos );
+            m_infoPickAreaCompView.setWidth( columnWidth );
+            m_infoPickAreaCompView.setHeight( pickAreaHeight );
+            m_infoPickAreaCompView.setTop( startYPos );
         }
-
-        int pickAreaHeight = yPos - startYPos;
-        if ( m_showAnimProgress && isAnimationActive( true ) && compView->timeStepCount() > 1 )
-        {
-            QString stepName = compView->timeStepName( compView->currentTimeStep() );
-
-            m_animationProgressCompView->setFormat( "Time Step: %v/%m " + stepName );
-            m_animationProgressCompView->setMinimum( 0 );
-            m_animationProgressCompView->setMaximum( static_cast<int>( compView->timeStepCount() ) - 1 );
-            m_animationProgressCompView->setValue( compView->currentTimeStep() );
-
-            m_animationProgressCompView->resize( columnWidth, m_animationProgressCompView->sizeHint().height() );
-
-            m_animationProgressCompView->render( painter, QPoint( compViewItemsXPos, yPos ) );
-
-            pickAreaHeight += m_animationProgressCompView->height();
-        }
-
-        m_infoPickArea.setLeft( columnPos );
-        m_infoPickArea.setWidth( columnWidth );
-        m_infoPickArea.setHeight( pickAreaHeight );
-        m_infoPickArea.setTop( startYPos );
-
-        m_infoPickAreaCompView.setLeft( compViewItemsXPos );
-        m_infoPickAreaCompView.setWidth( columnWidth );
-        m_infoPickAreaCompView.setHeight( pickAreaHeight );
-        m_infoPickAreaCompView.setTop( startYPos );
     }
 
     if ( showAnimBar && m_showAnimProgress )

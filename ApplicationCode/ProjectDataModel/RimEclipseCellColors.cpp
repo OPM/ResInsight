@@ -167,8 +167,10 @@ void RimEclipseCellColors::changeLegendConfig( QString resultVarNameOfNewLegend 
 
                 if ( useLog )
                 {
-                    newLegend->setMappingMode( RimRegularLegendConfig::MappingType::LOG10_CONTINUOUS );
+                    newLegend->setMappingMode( RimRegularLegendConfig::MappingType::LOG10_DISCRETE );
                     newLegend->setTickNumberFormat( RimRegularLegendConfig::NumberFormatType::AUTO );
+                    newLegend->setRangeMode( RimLegendConfig::RangeModeType::USER_DEFINED );
+                    newLegend->resetUserDefinedValues();
                 }
 
                 if ( this->hasCategoryResult() )

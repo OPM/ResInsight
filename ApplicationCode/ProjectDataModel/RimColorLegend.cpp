@@ -25,6 +25,8 @@
 
 #include "cafPdmFieldReorderCapability.h"
 
+#include <algorithm>
+
 CAF_PDM_SOURCE_INIT( RimColorLegend, "ColorLegend" );
 
 //--------------------------------------------------------------------------------------------------
@@ -94,6 +96,7 @@ void RimColorLegend::addReorderCapability()
 void RimColorLegend::appendColorLegendItem( RimColorLegendItem* colorLegendItem )
 {
     m_colorLegendItems.push_back( colorLegendItem );
+    onColorLegendItemHasChanged();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -143,11 +146,18 @@ void RimColorLegend::orderChanged( const caf::SignalEmitter* emitter )
 cvf::Color3ubArray RimColorLegend::colorArray() const
 {
     std::vector<RimColorLegendItem*> legendItems = colorLegendItems();
-    cvf::Color3ubArray               colorArray( legendItems.size() );
+
+    // The interpolation algorithm requires minimum two levels
+    size_t colorCount = std::max( size_t( 2 ), legendItems.size() );
+
+    cvf::Color3ubArray colorArray( colorCount );
+    colorArray.setAll( cvf::Color3ub::GRAY );
+
     for ( size_t i = 0; i < legendItems.size(); i++ )
     {
         colorArray.set( i, cvf::Color3ub( legendItems[i]->color() ) );
     }
+
     return colorArray;
 }
 
