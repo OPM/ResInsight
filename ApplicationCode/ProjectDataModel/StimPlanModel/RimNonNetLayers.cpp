@@ -44,7 +44,7 @@ RimNonNetLayers::RimNonNetLayers()
 {
     CAF_PDM_InitScriptableObject( "RimNonNetLayers", "", "", "" );
 
-    CAF_PDM_InitScriptableField( &m_cutOff, "Cutoff", 1.0, "Cutoff", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_cutOff, "Cutoff", 0.0, "Cutoff", "", "", "" );
     m_cutOff.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_facies, "Facies", "Facies", "", "", "" );
@@ -54,6 +54,8 @@ RimNonNetLayers::RimNonNetLayers()
     m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
     m_resultDefinition = new RimEclipseResultDefinition;
     m_resultDefinition->findField( "MResultType" )->uiCapability()->setUiName( "Facies Definiton" );
+    m_resultDefinition->setResultType( RiaDefines::ResultCatType::STATIC_NATIVE );
+    m_resultDefinition->setResultVariable( "NTG" );
 
     setUiName( "Non-Net Layers" );
 }
