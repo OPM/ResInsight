@@ -196,10 +196,7 @@ bool RimStimPlanModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
             // use default value from the fracture model
             if ( !backupResAcc.notNull() || hasMissingValues( values ) )
             {
-                RiaLogging::info( QString( "Using default value for %1" ).arg( eclipseResultDefinition.resultVariable() ) );
-
                 double defaultValue = stimPlanModel->getDefaultForMissingValue( curveProperty );
-
                 replaceMissingValues( values, defaultValue );
             }
         }
