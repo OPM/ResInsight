@@ -30,6 +30,8 @@ class QTextStream;
 class RifStimPlanModelGeologicalFrkExporter
 {
 public:
+    static const int MAX_STIMPLAN_LAYERS = 100;
+
     static bool writeToFile( RimStimPlanModel* plot, bool useDetailedFluidLoss, const QString& filepath );
 
 private:

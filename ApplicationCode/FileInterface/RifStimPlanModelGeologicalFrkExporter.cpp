@@ -18,6 +18,8 @@
 
 #include "RifStimPlanModelGeologicalFrkExporter.h"
 
+#include "RiaLogging.h"
+
 #include "RimStimPlanModel.h"
 #include "RimStimPlanModelCalculator.h"
 
@@ -91,7 +93,9 @@ bool RifStimPlanModelGeologicalFrkExporter::writeToFile( RimStimPlanModel* stimP
     }
 
     std::map<QString, std::vector<double>> values;
-    values["dpthlyr"]        = stimPlanModel->calculator()->calculateTrueVerticalDepth();
+
+    std::vector<double> tvd  = stimPlanModel->calculator()->calculateTrueVerticalDepth();
+    values["dpthlyr"]        = tvd;
     values["strs"]           = stimPlanModel->calculator()->calculateStress();
     values["strsg"]          = stimPlanModel->calculator()->calculateStressGradient();
     values["elyr"]           = stimPlanModel->calculator()->calculateYoungsModulus();
@@ -109,6 +113,15 @@ bool RifStimPlanModelGeologicalFrkExporter::writeToFile( RimStimPlanModel* stimP
     values["zoneRelPerm"]    = stimPlanModel->calculator()->calculateRelativePermeabilityFactor();
     values["zonePoroElas"]   = stimPlanModel->calculator()->calculatePoroElasticConstant();
     values["zoneThermalExp"] = stimPlanModel->calculator()->calculateThermalExpansionCoefficient();
+
+    // Warn if the generated model has too many layers for StimPlan
+    if ( tvd.size() > MAX_STIMPLAN_LAYERS )
+    {
+        RiaLogging::warning(
+            QString( "Exporting model with too many layers: %1. Maximum supported number of layers is %2." )
+                .arg( tvd.size() )
+                .arg( MAX_STIMPLAN_LAYERS ) );
+    }
 
     QFile data( filepath );
     if ( !data.open( QFile::WriteOnly | QFile::Truncate ) )
