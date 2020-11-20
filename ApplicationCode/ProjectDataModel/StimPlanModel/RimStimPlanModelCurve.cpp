@@ -167,5 +167,8 @@ void RimStimPlanModelCurve::performDataExtraction( bool* isUsingPseudoLength )
 //--------------------------------------------------------------------------------------------------
 QString RimStimPlanModelCurve::createCurveAutoName()
 {
-    return caf::AppEnum<RiaDefines::CurveProperty>::uiText( m_curveProperty() );
+    QString textWithLineFeed = caf::AppEnum<RiaDefines::CurveProperty>::uiText( m_curveProperty() ).trimmed();
+    textWithLineFeed.replace( " ", "\n" );
+
+    return textWithLineFeed;
 }
