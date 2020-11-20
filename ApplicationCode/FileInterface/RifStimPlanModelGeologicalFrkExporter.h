@@ -30,7 +30,10 @@ class QTextStream;
 class RifStimPlanModelGeologicalFrkExporter
 {
 public:
-    static const int MAX_STIMPLAN_LAYERS = 100;
+    static const int        MAX_STIMPLAN_LAYERS     = 100;
+    static constexpr double MIN_STRESS_GRADIENT     = 0.3;
+    static constexpr double MAX_STRESS_GRADIENT     = 0.8;
+    static constexpr double DEFAULT_STRESS_GRADIENT = 0.7;
 
     static bool writeToFile( RimStimPlanModel* plot, bool useDetailedFluidLoss, const QString& filepath );
 
@@ -38,4 +41,9 @@ private:
     static void appendHeaderToStream( QTextStream& stream );
     static void appendToStream( QTextStream& stream, const QString& label, const std::vector<double>& values );
     static void appendFooterToStream( QTextStream& stream );
+
+    static void fixupStressGradients( std::vector<double>& stressGradients,
+                                      double               minStressGradient,
+                                      double               maxStressGradient,
+                                      double               defaultStressGradient );
 };

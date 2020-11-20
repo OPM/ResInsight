@@ -92,12 +92,24 @@ bool RifStimPlanModelGeologicalFrkExporter::writeToFile( RimStimPlanModel* stimP
         labels.push_back( "zoneThermalExp" );
     }
 
-    std::map<QString, std::vector<double>> values;
+    std::vector<double> tvd = stimPlanModel->calculator()->calculateTrueVerticalDepth();
+    // Warn if the generated model has too many layers for StimPlan
+    if ( tvd.size() > MAX_STIMPLAN_LAYERS )
+    {
+        RiaLogging::warning(
+            QString( "Exporting model with too many layers: %1. Maximum supported number of layers is %2." )
+                .arg( tvd.size() )
+                .arg( MAX_STIMPLAN_LAYERS ) );
+    }
 
-    std::vector<double> tvd  = stimPlanModel->calculator()->calculateTrueVerticalDepth();
+    // Make sure stress gradients are in the valid interval
+    std::vector<double> stressGradients = stimPlanModel->calculator()->calculateStressGradient();
+    fixupStressGradients( stressGradients, MIN_STRESS_GRADIENT, MAX_STRESS_GRADIENT, DEFAULT_STRESS_GRADIENT );
+
+    std::map<QString, std::vector<double>> values;
     values["dpthlyr"]        = tvd;
     values["strs"]           = stimPlanModel->calculator()->calculateStress();
-    values["strsg"]          = stimPlanModel->calculator()->calculateStressGradient();
+    values["strsg"]          = stressGradients;
     values["elyr"]           = stimPlanModel->calculator()->calculateYoungsModulus();
     values["poissonr"]       = stimPlanModel->calculator()->calculatePoissonsRatio();
     values["tuflyr"]         = stimPlanModel->calculator()->calculateKIc();
@@ -113,15 +125,6 @@ bool RifStimPlanModelGeologicalFrkExporter::writeToFile( RimStimPlanModel* stimP
     values["zoneRelPerm"]    = stimPlanModel->calculator()->calculateRelativePermeabilityFactor();
     values["zonePoroElas"]   = stimPlanModel->calculator()->calculatePoroElasticConstant();
     values["zoneThermalExp"] = stimPlanModel->calculator()->calculateThermalExpansionCoefficient();
-
-    // Warn if the generated model has too many layers for StimPlan
-    if ( tvd.size() > MAX_STIMPLAN_LAYERS )
-    {
-        RiaLogging::warning(
-            QString( "Exporting model with too many layers: %1. Maximum supported number of layers is %2." )
-                .arg( tvd.size() )
-                .arg( MAX_STIMPLAN_LAYERS ) );
-    }
 
     QFile data( filepath );
     if ( !data.open( QFile::WriteOnly | QFile::Truncate ) )
@@ -142,11 +145,17 @@ bool RifStimPlanModelGeologicalFrkExporter::writeToFile( RimStimPlanModel* stimP
     return true;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifStimPlanModelGeologicalFrkExporter::appendHeaderToStream( QTextStream& stream )
 {
     stream << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl << "<geologic>" << endl;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifStimPlanModelGeologicalFrkExporter::appendToStream( QTextStream&               stream,
                                                             const QString&             label,
                                                             const std::vector<double>& values )
@@ -170,7 +179,34 @@ void RifStimPlanModelGeologicalFrkExporter::appendToStream( QTextStream&        
     stream << "</data>" << endl << "</cNamedSet>" << endl;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifStimPlanModelGeologicalFrkExporter::appendFooterToStream( QTextStream& stream )
 {
     stream << "</geologic>" << endl;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifStimPlanModelGeologicalFrkExporter::fixupStressGradients( std::vector<double>& stressGradients,
+                                                                  double               minStressGradient,
+                                                                  double               maxStressGradient,
+                                                                  double               defaultStressGradient )
+{
+    for ( size_t i = 0; i < stressGradients.size(); i++ )
+    {
+        if ( stressGradients[i] < minStressGradient || stressGradients[i] > maxStressGradient )
+        {
+            RiaLogging::warning(
+                QString( "Found stress gradient outside valid range [%1, %2]. Replacing %3 with default value: %4." )
+                    .arg( minStressGradient )
+                    .arg( maxStressGradient )
+                    .arg( stressGradients[i] )
+                    .arg( defaultStressGradient ) );
+
+            stressGradients[i] = defaultStressGradient;
+        }
+    }
 }
