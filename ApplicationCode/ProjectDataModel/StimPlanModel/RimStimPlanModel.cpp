@@ -214,7 +214,7 @@ RimStimPlanModel::RimStimPlanModel()
     CAF_PDM_InitScriptableField( &m_barrierDip, "BarrierDip", 0.0, "Barrier Dip", "", "", "" );
     m_barrierDip.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
     m_barrierDip.uiCapability()->setUiReadOnly( true );
-    CAF_PDM_InitScriptableField( &m_wellPenetrationLayer, "WellPenetrationLayer", 0, "Well Penetration Layer", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_wellPenetrationLayer, "WellPenetrationLayer", 2, "Well Penetration Layer", "", "", "" );
 
     CAF_PDM_InitScriptableField( &m_showOnlyBarrierFault, "ShowOnlyBarrierFault", false, "Show Only Barrier Fault", "", "", "" );
     CAF_PDM_InitScriptableField( &m_showAllFaults, "ShowAllFaults", false, "Show All Faults", "", "", "" );
