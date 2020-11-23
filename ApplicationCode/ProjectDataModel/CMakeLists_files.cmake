@@ -150,6 +150,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimColorLegendCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimColorLegend.h
 ${CMAKE_CURRENT_LIST_DIR}/RimColorLegendItem.h
 ${CMAKE_CURRENT_LIST_DIR}/RimAbstractPlotCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimPolylinePickerInterface.h
 )
 
 

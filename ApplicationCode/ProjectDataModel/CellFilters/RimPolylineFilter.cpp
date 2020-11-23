@@ -18,12 +18,13 @@
 
 #include "RimPolylineFilter.h"
 
+#include "Rim3dView.h"
 #include "RimPolylineTarget.h"
 
 #include "WellPathCommands/PointTangentManipulator/RicPolyline3dEditor.h"
 
-#include "CellFilterCommands/RicPolylineCellPickEventHandler.h"
 #include "RimCellFilterCollection.h"
+#include "WellPathCommands/RicPolylineTargetsPickEventHandler.h"
 
 #include "RigPolyLinesData.h"
 
@@ -42,7 +43,7 @@ CAF_PDM_SOURCE_INIT( RimPolylineFilter, "PolyLineFilter" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimPolylineFilter::RimPolylineFilter()
-    : m_pickTargetsEventHandler( new RicPolylineCellPickEventHandler( this ) )
+    : m_pickTargetsEventHandler( new RicPolylineTargetsPickEventHandler( this ) )
 {
     CAF_PDM_InitObject( "Polyline Filter", ":/CellFilter_Polyline.png", "", "" );
     // CAF_PDM_InitField( &m_name, "Name", QString( "User Defined Polyline" ), "Name", "", "", "" );
@@ -76,10 +77,27 @@ RimPolylineFilter::~RimPolylineFilter()
 //--------------------------------------------------------------------------------------------------
 void RimPolylineFilter::updateVisualization()
 {
-    // RimCellFilterCollection* annColl = nullptr;
-    // this->firstAncestorOrThisOfTypeAsserted( annColl );
+    Rim3dView* view;
+    this->firstAncestorOrThisOfType( view );
 
-    // annColl->scheduleRedrawOfRelevantViews();
+    if ( view ) view->scheduleCreateDisplayModelAndRedraw();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolylineFilter::updateEditorsAndVisualization()
+{
+    updateConnectedEditors();
+    updateVisualization();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPolylineTarget*> RimPolylineFilter::activeTargets() const
+{
+    return m_targets.childObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -92,4 +110,107 @@ void RimPolylineFilter::insertTarget( const RimPolylineTarget* targetToInsertBef
         m_targets.insert( index, targetToInsert );
     else
         m_targets.push_back( targetToInsert );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolylineFilter::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                               QString                    uiConfigName,
+                                               caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_enablePicking )
+    {
+        auto* pbAttribute = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
+        if ( pbAttribute )
+        {
+            if ( !m_enablePicking )
+            {
+                pbAttribute->m_buttonText = "Start Picking Points";
+            }
+            else
+            {
+                pbAttribute->m_buttonText = "Stop Picking Points";
+            }
+        }
+    }
+
+    if ( field == &m_targets )
+    {
+        auto tvAttribute = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute );
+        if ( tvAttribute )
+        {
+            tvAttribute->resizePolicy = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FIT_CONTENT;
+
+            if ( m_enablePicking )
+            {
+                tvAttribute->baseColor.setRgb( 255, 220, 255 );
+                tvAttribute->alwaysEnforceResizePolicy = true;
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolylineFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.add( &m_targets );
+    uiOrdering.add( &m_enablePicking );
+
+    uiOrdering.skipRemainingFields( true );
+}
+
+////--------------------------------------------------------------------------------------------------
+/////
+////--------------------------------------------------------------------------------------------------
+// void RimPolylineFilter::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+//{
+//    RicPolyline3dEditorAttribute* attrib = dynamic_cast<RicPolyline3dEditorAttribute*>( attribute );
+//    if ( attrib )
+//    {
+//        attrib->pickEventHandler = m_pickTargetsEventHandler;
+//        attrib->enablePicking    = m_enablePicking;
+//    }
+//}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolylineFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                          const QVariant&            oldValue,
+                                          const QVariant&            newValue )
+{
+    if ( changedField == &m_enablePicking )
+    {
+        this->updateConnectedEditors();
+    }
+
+    updateVisualization();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolylineFilter::enablePicking( bool enable )
+{
+    m_enablePicking = enable;
+    updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPolylineFilter::pickingEnabled() const
+{
+    return m_enablePicking();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PickEventHandler* RimPolylineFilter::pickEventHandler() const
+{
+    return m_pickTargetsEventHandler.get();
 }

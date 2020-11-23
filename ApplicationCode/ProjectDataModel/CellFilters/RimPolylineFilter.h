@@ -19,23 +19,25 @@
 #pragma once
 
 #include "RimCellFilter.h"
+#include "RimPolylinePickerInterface.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfVec3d.h"
 #include "cafPdmObject.h"
+#include "cafPickEventHandler.h"
 
 #include <memory>
 
-class RicPolylineCellPickEventHandler;
+class RicPolylineTargetsPickEventHandler;
 class RimPolylineTarget;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimPolylineFilter : public RimCellFilter
+class RimPolylineFilter : public RimCellFilter, public RimPolylinePickerInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -45,13 +47,26 @@ public:
 
     void updateVisualization();
 
-    void insertTarget( const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert );
+    void enablePicking( bool enable );
+
+    void insertTarget( const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert ) override;
+    void updateEditorsAndVisualization() override;
+    std::vector<RimPolylineTarget*> activeTargets() const override;
+    bool                            pickingEnabled() const override;
+    caf::PickEventHandler*          pickEventHandler() const override;
 
 protected:
+    // void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
 private:
-    // caf::PdmField<QString>                      m_name;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
+
     caf::PdmField<bool>                         m_enablePicking;
     caf::PdmChildArrayField<RimPolylineTarget*> m_targets;
 
-    std::shared_ptr<RicPolylineCellPickEventHandler> m_pickTargetsEventHandler;
+    std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
 };
