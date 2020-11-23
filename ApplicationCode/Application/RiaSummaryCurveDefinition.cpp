@@ -44,8 +44,6 @@ RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( RimSummaryCase*           
     , m_summaryAddress( summaryAddress )
     , m_isEnsembleCurve( isEnsembleCurve )
 {
-    CAF_ASSERT( summaryCase );
-
     if ( summaryCase )
     {
         RimSummaryCaseCollection* ensemble = nullptr;
