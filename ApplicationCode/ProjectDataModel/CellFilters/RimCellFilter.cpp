@@ -18,9 +18,9 @@
 
 #include "RimCellFilter.h"
 
-#include "RiaGuiApplication.h"
+//#include "RiaGuiApplication.h"
 
-#include <QPainter>
+//#include <QPainter>
 
 namespace caf
 {
@@ -42,11 +42,11 @@ RimCellFilter::RimCellFilter()
 {
     CAF_PDM_InitObject( "Cell Filter", "", "", "" );
 
-    CAF_PDM_InitField( &name, "UserDescription", QString( "Filter Name" ), "Name", "", "", "" );
-    CAF_PDM_InitField( &isActive, "Active", true, "Active", "", "", "" );
-    isActive.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitField( &m_name, "UserDescription", QString( "Filter Name" ), "Name", "", "", "" );
+    CAF_PDM_InitField( &m_isActive, "Active", true, "Active", "", "", "" );
+    m_isActive.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &filterMode, "FilterType", "Filter Type", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_filterMode, "FilterType", "Filter Type", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -61,7 +61,47 @@ RimCellFilter::~RimCellFilter()
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimCellFilter::userDescriptionField()
 {
-    return &name;
+    return &m_name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimCellFilter::name()
+{
+    return m_name();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCellFilter::setName( QString filtername )
+{
+    m_name = filtername;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCellFilter::setActive( bool active )
+{
+    m_isActive = active;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimCellFilter::isActive()
+{
+    return m_isActive();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::AppEnum<RimCellFilter::FilterModeType> RimCellFilter::filterMode()
+{
+    return m_filterMode();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,7 +122,7 @@ void RimCellFilter::updateIconState()
         iconProvider.setOverlayResourceString( ":/Minus.png" );
     }
 
-    iconProvider.setActive( isActive && !isActive.uiCapability()->isUiReadOnly() );
+    iconProvider.setActive( m_isActive && !m_isActive.uiCapability()->isUiReadOnly() );
 
     this->setUiIcon( iconProvider );
 }
@@ -92,5 +132,14 @@ void RimCellFilter::updateIconState()
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimCellFilter::objectToggleField()
 {
-    return &isActive;
+    return &m_isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCellFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.add( &m_name );
+    uiOrdering.add( &m_filterMode );
 }

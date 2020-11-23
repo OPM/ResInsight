@@ -66,21 +66,21 @@ RimCellRangeFilter* RicRangeFilterExecImpl::createRangeFilter()
 
     rangeFilter->setGridIndex( m_gridIndex );
 
-    rangeFilter->name = QString( "New Filter (%1)" ).arg( flterIndex );
+    rangeFilter->setName( QString( "New Filter (%1)" ).arg( flterIndex ) );
 
     if ( m_iSlice )
     {
-        rangeFilter->name = QString( "Slice I (%1)" ).arg( flterIndex );
+        rangeFilter->setName( QString( "Slice I (%1)" ).arg( flterIndex ) );
     }
 
     if ( m_jSlice )
     {
-        rangeFilter->name = QString( "Slice J (%1)" ).arg( flterIndex );
+        rangeFilter->setName( QString( "Slice J (%1)" ).arg( flterIndex ) );
     }
 
     if ( m_kSlice )
     {
-        rangeFilter->name = QString( "Slice K (%1)" ).arg( flterIndex );
+        rangeFilter->setName( QString( "Slice K (%1)" ).arg( flterIndex ) );
     }
 
     return rangeFilter;

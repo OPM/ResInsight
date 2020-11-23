@@ -45,7 +45,6 @@ class RimWellPathCollection;
 class RiuViewer;
 class RivAnnotationsPartMgr;
 class RivMeasurementPartMgr;
-class RivPolylineSelectionPartMgr;
 class RivWellPathsPartMgr;
 class RimViewNameConfig;
 
@@ -308,8 +307,7 @@ private:
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_fontSize;
 
     // 3D display model data
-    cvf::ref<cvf::ModelBasicList>         m_highlightVizModel;
-    cvf::ref<RivAnnotationsPartMgr>       m_annotationsPartManager;
-    cvf::ref<RivMeasurementPartMgr>       m_measurementPartManager;
-    cvf::ref<RivPolylineSelectionPartMgr> m_polylineSelectionPartManager;
+    cvf::ref<cvf::ModelBasicList>   m_highlightVizModel;
+    cvf::ref<RivAnnotationsPartMgr> m_annotationsPartManager;
+    cvf::ref<RivMeasurementPartMgr> m_measurementPartManager;
 };

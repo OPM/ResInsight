@@ -602,7 +602,7 @@ void RimFlowCharacteristicsPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
 
                     for ( RimEclipsePropertyFilter* f : view->eclipsePropertyFilterCollection()->propertyFilters() )
                     {
-                        f->isActive = false;
+                        f->setActive( false );
                     }
                     RicEclipsePropertyFilterFeatureImpl::addPropertyFilter( view->eclipsePropertyFilterCollection() );
 

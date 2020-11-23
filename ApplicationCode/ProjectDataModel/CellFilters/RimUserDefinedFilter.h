@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020-     Equinor ASA
+//  Copyright (C) 2020 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,27 +18,24 @@
 
 #pragma once
 
-#include "Ric3dViewPickEventHandler.h"
+#include "RimCellFilter.h"
 
-#include "cafPdmPointer.h"
-
-class RimPolylineFilter;
+#include "cafAppEnum.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
 
 //==================================================================================================
 ///
+///
 //==================================================================================================
-class RicPolylineCellPickEventHandler : public Ric3dViewPickEventHandler
+class RimUserDefinedFilter : public RimCellFilter
 {
-public:
-    RicPolylineCellPickEventHandler( RimPolylineFilter* polylineFilter );
-    ~RicPolylineCellPickEventHandler();
+    CAF_PDM_HEADER_INIT;
 
-    void registerAsPickEventHandler() override;
+public:
+    RimUserDefinedFilter();
+    ~RimUserDefinedFilter() override;
 
 protected:
-    bool handle3dPickEvent( const Ric3dPickEvent& eventObject ) override;
-    void notifyUnregistered() override;
-
-private:
-    caf::PdmPointer<RimPolylineFilter> m_filterDef;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 };

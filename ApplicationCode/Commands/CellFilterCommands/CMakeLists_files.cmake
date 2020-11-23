@@ -1,12 +1,12 @@
 
 set (SOURCE_GROUP_HEADER_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RicNewPolylineFilterFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicPolylineCellPickEventHandler.h
+${CMAKE_CURRENT_LIST_DIR}/RicNewUserDefinedFilterFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RicNewPolylineFilterFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicPolylineCellPickEventHandler.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicNewUserDefinedFilterFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES

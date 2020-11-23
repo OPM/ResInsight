@@ -151,7 +151,7 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells( Rim
 
     for ( RimEclipsePropertyFilter* f : propertyFilterCollection->propertyFilters() )
     {
-        f->isActive = false;
+        f->setActive( false );
     }
 
     RimEclipsePropertyFilter* propertyFilter = new RimEclipsePropertyFilter();

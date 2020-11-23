@@ -23,6 +23,7 @@
 #include "RimCase.h"
 #include "RimCellFilter.h"
 #include "RimPolylineFilter.h"
+#include "RimUserDefinedFilter.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 
@@ -159,7 +160,15 @@ RimCellFilter* RimCellFilterCollection::addNewPolylineFilter( RimCase* srcCase )
     return pFilter;
 }
 
-RigPolyLinesData* RimCellFilterCollection::selectedPolygon()
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimCellFilter* RimCellFilterCollection::addNewUserDefinedFilter( RimCase* srcCase )
 {
-    return nullptr;
+    RimUserDefinedFilter* pFilter = new RimUserDefinedFilter();
+    m_cellFilters.push_back( pFilter );
+
+    this->updateConnectedEditors();
+
+    return pFilter;
 }

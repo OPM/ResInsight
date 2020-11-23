@@ -224,6 +224,7 @@
         <file>Refresh.svg</file>
         <file>CellFilter.png</file>
         <file>CellFilter_Polyline.png</file>
+        <file>CellFilter_UserDefined.png</file>
     </qresource>
     <qresource prefix="/Shader">
         <file>fs_CellFace.glsl</file>

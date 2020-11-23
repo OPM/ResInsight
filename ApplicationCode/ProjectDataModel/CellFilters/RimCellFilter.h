@@ -40,13 +40,20 @@ public:
     RimCellFilter();
     ~RimCellFilter() override;
 
-    caf::PdmField<QString>                      name;
-    caf::PdmField<bool>                         isActive;
-    caf::PdmField<caf::AppEnum<FilterModeType>> filterMode;
+    QString                      name();
+    bool                         isActive();
+    caf::AppEnum<FilterModeType> filterMode();
+    void                         setName( QString filtername );
+    void                         setActive( bool active );
 
     void updateIconState();
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* objectToggleField() override;
+    void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
+    caf::PdmField<QString>                      m_name;
+    caf::PdmField<bool>                         m_isActive;
+    caf::PdmField<caf::AppEnum<FilterModeType>> m_filterMode;
 };
