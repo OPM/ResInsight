@@ -205,14 +205,22 @@ void RimDerivedEnsembleCaseCollection::createDerivedEnsembleCases()
 //--------------------------------------------------------------------------------------------------
 bool RimDerivedEnsembleCaseCollection::hasCaseReference( const RimSummaryCase* sumCase ) const
 {
-    for ( auto currCase : m_ensemble1->allSummaryCases() )
+    if ( m_ensemble1 )
     {
-        if ( currCase == sumCase ) return true;
+        for ( auto currCase : m_ensemble1->allSummaryCases() )
+        {
+            if ( currCase == sumCase ) return true;
+        }
     }
-    for ( auto currCase : m_ensemble2->allSummaryCases() )
+
+    if ( m_ensemble2 )
     {
-        if ( currCase == sumCase ) return true;
+        for ( auto currCase : m_ensemble2->allSummaryCases() )
+        {
+            if ( currCase == sumCase ) return true;
+        }
     }
+
     return false;
 }
 
