@@ -205,6 +205,7 @@ void RivPolylineSelectionPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelB
 {
     m_cellfilterCollection = cellFilterCollection();
 
+    if ( m_cellfilterCollection.isNull() ) return;
     if ( m_cellfilterCollection->isEmpty() ) return;
     if ( !m_cellfilterCollection->isActive() ) return;
 

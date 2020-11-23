@@ -1,7 +1,24 @@
-#include "RimPolylineTarget.h"
-#include "RimModeledWellPath.h"
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2018 -    Equinor
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
 
-#include "RimUserDefinedPolylinesAnnotation.h"
+#include "RimPolylineTarget.h"
+#include "RimPolylinePickerInterface.h"
+
 #include "cafPdmUiCheckBoxEditor.h"
 #include <cmath>
 
@@ -91,9 +108,9 @@ void RimPolylineTarget::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
                                           const QVariant&            oldValue,
                                           const QVariant&            newValue )
 {
-    RimUserDefinedPolylinesAnnotation* polyline;
+    RimPolylinePickerInterface* polyline;
     firstAncestorOrThisOfTypeAsserted( polyline );
-    polyline->updateVisualization();
+    if ( polyline ) polyline->updateEditorsAndVisualization();
 }
 
 //--------------------------------------------------------------------------------------------------

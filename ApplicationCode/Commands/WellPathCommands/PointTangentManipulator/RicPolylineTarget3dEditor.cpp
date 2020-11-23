@@ -82,8 +82,8 @@ void RicPolylineTarget3dEditor::configureAndUpdateUi( const QString& uiConfigNam
         return;
     }
 
-    RimUserDefinedPolylinesAnnotation* polylineDef;
-    target->firstAncestorOrThisOfTypeAsserted( polylineDef );
+    // RimUserDefinedPolylinesAnnotation* polylineDef;
+    // target->firstAncestorOrThisOfTypeAsserted( polylineDef );
 
     target->targetPointUiCapability()->addFieldEditor( this );
 

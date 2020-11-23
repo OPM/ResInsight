@@ -73,8 +73,8 @@ bool RicPolylineCellPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& e
     {
         Rim3dView* rimView = eventObject.m_view;
 
-        auto firstPickItem = eventObject.m_pickItemInfos.front();
-        auto targetPointInDomain =
+        const auto& firstPickItem = eventObject.m_pickItemInfos.front();
+        auto        targetPointInDomain =
             rimView->displayCoordTransform()->transformToDomainCoord( firstPickItem.globalPickedPoint() );
 
         cvf::Vec3d( targetPointInDomain.x(), targetPointInDomain.y(), -targetPointInDomain.z() );
