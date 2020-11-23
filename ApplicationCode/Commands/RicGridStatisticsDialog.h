@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "Rim3dOverlayInfoConfig.h"
-
 #include "cafPdmPointer.h"
 
 #include <QDialog>
@@ -33,6 +31,7 @@ class QMainWindow;
 class QToolBar;
 class RimEclipseView;
 class RimGridView;
+class RimHistogramData;
 
 //==================================================================================================
 ///
@@ -57,7 +56,7 @@ private:
 private:
     void                  createAndConnectToolbarActions();
     void                  deletePlotItems( QwtPlot* plot );
-    static void           setMarkers( const Rim3dOverlayInfoConfig::HistogramData& histData, QwtPlot* plot );
+    static void           setMarkers( const RimHistogramData& histData, QwtPlot* plot );
     static QwtPlotMarker* createVerticalPlotMarker( const QColor& color, double xValue );
     void                  adjustTextEditHeightToContent();
 
