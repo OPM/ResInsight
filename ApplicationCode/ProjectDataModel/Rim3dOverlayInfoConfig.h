@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RimHistogramData.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -47,37 +49,6 @@ class Rim3dOverlayInfoConfig : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
-    class HistogramData
-    {
-    public:
-        HistogramData()
-            : min( HUGE_VAL )
-            , max( HUGE_VAL )
-            , p10( HUGE_VAL )
-            , p90( HUGE_VAL )
-            , mean( HUGE_VAL )
-            , weightedMean( HUGE_VAL )
-            , sum( 0.0 )
-            , histogram( nullptr )
-        {
-        }
-
-        double                     min;
-        double                     max;
-        double                     p10;
-        double                     p90;
-        double                     mean;
-        double                     sum;
-        double                     weightedMean;
-        const std::vector<size_t>* histogram;
-
-        bool isMinMaxValid() const;
-        bool isHistogramVectorValid() const;
-
-    private:
-        bool isValid( double parameter ) const;
-    };
-
 public:
     Rim3dOverlayInfoConfig();
     ~Rim3dOverlayInfoConfig() override;
@@ -88,10 +59,10 @@ public:
 
     void setPosition( cvf::Vec2ui position );
 
-    HistogramData histogramData();
-    QString       timeStepText();
-    QString       caseInfoText();
-    QString       resultInfoText( const HistogramData& histData );
+    RimHistogramData histogramData();
+    QString          timeStepText();
+    QString          caseInfoText();
+    QString          resultInfoText( const RimHistogramData& histData );
 
     RicGridStatisticsDialog* getOrCreateGridStatisticsDialog();
     void                     showStatisticsInfoDialog( bool raise = true );
@@ -125,14 +96,14 @@ private:
     void                 update3DInfoIn2dViews() const;
     QString              timeStepText( RimEclipseView* eclipseView );
     QString              timeStepText( RimGeoMechView* geoMechView );
-    HistogramData        histogramData( RimEclipseContourMapView* contourMap );
-    HistogramData        histogramData( RimGeoMechContourMapView* contourMap );
-    HistogramData        histogramData( RimEclipseView* eclipseView );
-    HistogramData        histogramData( RimGeoMechView* geoMechView );
+    RimHistogramData     histogramData( RimEclipseContourMapView* contourMap );
+    RimHistogramData     histogramData( RimGeoMechContourMapView* contourMap );
+    RimHistogramData     histogramData( RimEclipseView* eclipseView );
+    RimHistogramData     histogramData( RimGeoMechView* geoMechView );
     QString              caseInfoText( RimEclipseView* eclipseView );
     QString              caseInfoText( RimGeoMechView* geoMechView );
-    QString resultInfoText( const HistogramData& histData, RimEclipseView* eclipseView, bool showVolumeWeightedMean );
-    QString resultInfoText( const HistogramData& histData, RimGeoMechView* geoMechView );
+    QString resultInfoText( const RimHistogramData& histData, RimEclipseView* eclipseView, bool showVolumeWeightedMean );
+    QString resultInfoText( const RimHistogramData& histData, RimGeoMechView* geoMechView );
 
     void updateVisCellStatsIfNeeded();
     void displayPropertyFilteredStatisticsMessage( bool showSwitchToCurrentTimestep );
