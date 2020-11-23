@@ -42,19 +42,17 @@ find_package(
 if(Qt5Core_FOUND)
   find_package(
     Qt5
-    COMPONENTS
-    Core
-    Gui
-    OpenGL
-    Network
-    Script
-    Widgets
-    Xml
-    Concurrent
-    PrintSupport
-    Svg
-    OPTIONAL_COMPONENTS
-    Charts)
+    COMPONENTS Core
+               Gui
+               OpenGL
+               Network
+               Script
+               Widgets
+               Xml
+               Concurrent
+               PrintSupport
+               Svg
+    OPTIONAL_COMPONENTS Charts)
   set(QT_LIBRARIES
       Qt5::Core
       Qt5::Gui
