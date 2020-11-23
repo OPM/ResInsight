@@ -20,6 +20,8 @@
 
 #include "RimHistogramData.h"
 
+#include "RimHistogramCalculator.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -38,7 +40,6 @@ class RimEclipseContourMapView;
 class RimEclipseView;
 class RimGeoMechView;
 class RimGridView;
-class RigStatisticsDataCache;
 class RicGridStatisticsDialog;
 
 //==================================================================================================
@@ -75,18 +76,6 @@ public:
 
     bool showVersionInfo() const;
 
-    enum StatisticsTimeRangeType
-    {
-        ALL_TIMESTEPS,
-        CURRENT_TIMESTEP
-    };
-
-    enum StatisticsCellRangeType
-    {
-        ALL_CELLS,
-        VISIBLE_CELLS
-    };
-
 private:
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     caf::PdmFieldHandle* objectToggleField() override;
@@ -96,16 +85,11 @@ private:
     void                 update3DInfoIn2dViews() const;
     QString              timeStepText( RimEclipseView* eclipseView );
     QString              timeStepText( RimGeoMechView* geoMechView );
-    RimHistogramData     histogramData( RimEclipseContourMapView* contourMap );
-    RimHistogramData     histogramData( RimGeoMechContourMapView* contourMap );
-    RimHistogramData     histogramData( RimEclipseView* eclipseView );
-    RimHistogramData     histogramData( RimGeoMechView* geoMechView );
     QString              caseInfoText( RimEclipseView* eclipseView );
     QString              caseInfoText( RimGeoMechView* geoMechView );
     QString resultInfoText( const RimHistogramData& histData, RimEclipseView* eclipseView, bool showVolumeWeightedMean );
     QString resultInfoText( const RimHistogramData& histData, RimGeoMechView* geoMechView );
 
-    void updateVisCellStatsIfNeeded();
     void displayPropertyFilteredStatisticsMessage( bool showSwitchToCurrentTimestep );
     bool hasInvalidStatisticsCombination();
 
@@ -118,13 +102,13 @@ private:
     caf::PdmField<bool> m_showHistogram;
     caf::PdmField<bool> m_showVersionInfo;
 
-    caf::PdmField<caf::AppEnum<StatisticsTimeRangeType>> m_statisticsTimeRange;
-    caf::PdmField<caf::AppEnum<StatisticsCellRangeType>> m_statisticsCellRange;
+    caf::PdmField<caf::AppEnum<RimHistogramCalculator::StatisticsTimeRangeType>> m_statisticsTimeRange;
+    caf::PdmField<caf::AppEnum<RimHistogramCalculator::StatisticsCellRangeType>> m_statisticsCellRange;
 
-    caf::PdmPointer<RimGridView>     m_viewDef;
-    cvf::Vec2ui                      m_position;
-    bool                             m_isVisCellStatUpToDate;
-    cvf::ref<RigStatisticsDataCache> m_visibleCellStatistics;
+    caf::PdmPointer<RimGridView> m_viewDef;
+    cvf::Vec2ui                  m_position;
+
+    std::unique_ptr<RimHistogramCalculator> m_histogramCalculator;
 
     std::unique_ptr<RicGridStatisticsDialog> m_gridStatisticsDialog;
 };
