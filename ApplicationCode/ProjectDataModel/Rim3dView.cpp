@@ -44,7 +44,6 @@
 
 #include "RivAnnotationsPartMgr.h"
 #include "RivMeasurementPartMgr.h"
-#include "RivPolylineSelectionPartMgr.h"
 #include "RivWellPathsPartMgr.h"
 
 #include "RiuMainWindow.h"
@@ -169,9 +168,8 @@ Rim3dView::Rim3dView( void )
     m_wellPathPipeVizModel = new cvf::ModelBasicList;
     m_wellPathPipeVizModel->setName( "WellPathPipeModel" );
 
-    m_wellPathsPartManager         = new RivWellPathsPartMgr( this );
-    m_annotationsPartManager       = new RivAnnotationsPartMgr( this );
-    m_polylineSelectionPartManager = new RivPolylineSelectionPartMgr( this );
+    m_wellPathsPartManager   = new RivWellPathsPartMgr( this );
+    m_annotationsPartManager = new RivAnnotationsPartMgr( this );
 
     m_measurementPartManager = new RivMeasurementPartMgr( this );
     this->setAs3DViewMdiWindow();
@@ -1006,15 +1004,16 @@ void Rim3dView::addPolylineSelectionToModel( cvf::ModelBasicList* model )
     std::vector<RimCellFilterCollection*> filterCollections;
     descendantsIncludingThisOfType( filterCollections );
 
-    if ( filterCollections.empty() || !filterCollections.front()->isActive() )
-    {
-        m_polylineSelectionPartManager->clearAllGeometry();
-    }
-    else
-    {
-        cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
-        m_annotationsPartManager->appendGeometryPartsToModel( model, transForm.p(), ownerCase()->allCellsBoundingBox() );
-    }
+    // if ( filterCollections.empty() || !filterCollections.front()->isActive() )
+    //{
+    //    //m_polylineSelectionPartManager->clearAllGeometry();
+    //}
+    // else
+    //{
+    //    cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
+    //    m_annotationsPartManager->appendGeometryPartsToModel( model, transForm.p(), ownerCase()->allCellsBoundingBox()
+    //    );
+    //}
 
     model->updateBoundingBoxesRecursive();
 }

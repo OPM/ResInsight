@@ -42,6 +42,12 @@ class RimPolylineFilter : public RimCellFilter, public RimPolylinePickerInterfac
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum PolylineFilterModeType
+    {
+        DEPTH_Z,
+        INDEX_K
+    };
+
     RimPolylineFilter();
     ~RimPolylineFilter() override;
 
@@ -65,8 +71,10 @@ private:
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
 
-    caf::PdmField<bool>                         m_enablePicking;
-    caf::PdmChildArrayField<RimPolylineTarget*> m_targets;
+    caf::PdmField<bool>                                 m_enablePicking;
+    caf::PdmChildArrayField<RimPolylineTarget*>         m_targets;
+    caf::PdmField<bool>                                 m_showPolygon;
+    caf::PdmField<caf::AppEnum<PolylineFilterModeType>> m_polyFilterMode;
 
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
 };

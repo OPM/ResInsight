@@ -39,8 +39,7 @@ public:
     ~RimCellFilterCollection() override;
 
     RimCellFilter* addNewPolylineFilter( RimCase* srcCase );
-
-    RigPolyLinesData* selectedPolygon();
+    RimCellFilter* addNewUserDefinedFilter( RimCase* srcCase );
 
     bool isEmpty();
     bool isActive();

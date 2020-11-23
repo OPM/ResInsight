@@ -128,7 +128,7 @@ void RimCellRangeFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
         return;
     }
 
-    if ( changedField != &name )
+    if ( changedField != &m_name )
     {
         computeAndSetValidValues();
 
@@ -163,7 +163,7 @@ void RimCellRangeFilter::computeAndSetValidValues()
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilter::updateActiveState()
 {
-    isActive.uiCapability()->setUiReadOnly( isRangeFilterControlled() );
+    m_isActive.uiCapability()->setUiReadOnly( isRangeFilterControlled() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -281,6 +281,8 @@ void RimCellRangeFilter::defineEditorAttribute( const caf::PdmFieldHandle* field
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    RimCellFilter::defineUiOrdering( uiConfigName, uiOrdering );
+
     bool readOnlyState = isRangeFilterControlled();
 
     std::vector<caf::PdmFieldHandle*> objFields;
@@ -331,8 +333,6 @@ void RimCellRangeFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
         cellCountK.uiCapability()->setUiName( QString( "  Width" ) );
     }
 
-    uiOrdering.add( &name );
-    uiOrdering.add( &filterMode );
     uiOrdering.add( &m_gridIndex );
     uiOrdering.add( &propagateToSubGrids );
     uiOrdering.add( &startIndexI );

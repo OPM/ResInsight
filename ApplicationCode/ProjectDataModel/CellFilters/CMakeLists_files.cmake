@@ -11,6 +11,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimEclipsePropertyFilterCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechPropertyFilter.h
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechPropertyFilterCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPolylineFilter.h
+${CMAKE_CURRENT_LIST_DIR}/RimUserDefinedFilter.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -25,6 +26,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimEclipsePropertyFilterCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechPropertyFilter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechPropertyFilterCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPolylineFilter.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimUserDefinedFilter.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

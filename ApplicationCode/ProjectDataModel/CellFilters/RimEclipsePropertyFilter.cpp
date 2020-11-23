@@ -150,8 +150,8 @@ void RimEclipsePropertyFilter::fieldChangedByUi( const caf::PdmFieldHandle* chan
     if (   &m_lowerBound == changedField 
         || &m_upperBound == changedField
         || &obsoleteField_evaluationRegion == changedField
-        || &isActive == changedField
-        || &filterMode == changedField
+        || &m_isActive == changedField
+        || &m_filterMode == changedField
         || &m_selectedCategoryValues == changedField
         || &m_useCategorySelection == changedField)
     {
@@ -199,7 +199,7 @@ void RimEclipsePropertyFilter::setToDefaultValues()
 void RimEclipsePropertyFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     // Fields declared in RimCellFilter
-    uiOrdering.add( &name );
+    uiOrdering.add( &m_name );
 
     // Fields declared in Rimm_resultDefinition
     caf::PdmUiGroup* group1 = uiOrdering.addNewGroup( "Result" );
@@ -208,7 +208,7 @@ void RimEclipsePropertyFilter::defineUiOrdering( QString uiConfigName, caf::PdmU
     caf::PdmUiGroup& group2 = *( uiOrdering.addNewGroup( "Filter Settings" ) );
 
     // Fields declared in RimCellFilter
-    group2.add( &filterMode );
+    group2.add( &m_filterMode );
 
     group2.add( &m_rangeLabelText );
 
@@ -329,7 +329,7 @@ void RimEclipsePropertyFilter::setCategoriesFromTracerNames( const std::vector<Q
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::updateActiveState()
 {
-    isActive.uiCapability()->setUiReadOnly( isPropertyFilterControlled() );
+    m_isActive.uiCapability()->setUiReadOnly( isPropertyFilterControlled() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -519,7 +519,7 @@ void RimEclipsePropertyFilter::updateFromCurrentTimeStep()
     m_upperBound.uiCapability()->updateConnectedEditors();
 
     updateFilterName();
-    this->name.uiCapability()->updateConnectedEditors();
+    m_name.uiCapability()->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -563,7 +563,7 @@ void RimEclipsePropertyFilter::updateFilterName()
         newFiltername += " (" + QString::number( m_lowerBound ) + " .. " + QString::number( m_upperBound ) + ")";
     }
 
-    this->name = newFiltername;
+    m_name = newFiltername;
 }
 
 //--------------------------------------------------------------------------------------------------

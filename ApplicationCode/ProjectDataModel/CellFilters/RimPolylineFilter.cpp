@@ -37,6 +37,17 @@
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
+namespace caf
+{
+template <>
+void caf::AppEnum<RimPolylineFilter::PolylineFilterModeType>::setUp()
+{
+    addItem( RimPolylineFilter::DEPTH_Z, "DEPTH_Z", "Depth" );
+    addItem( RimPolylineFilter::INDEX_K, "INDEX_K", "K index" );
+    setDefault( RimPolylineFilter::DEPTH_Z );
+}
+} // namespace caf
+
 CAF_PDM_SOURCE_INIT( RimPolylineFilter, "PolyLineFilter" );
 
 //--------------------------------------------------------------------------------------------------
@@ -46,7 +57,10 @@ RimPolylineFilter::RimPolylineFilter()
     : m_pickTargetsEventHandler( new RicPolylineTargetsPickEventHandler( this ) )
 {
     CAF_PDM_InitObject( "Polyline Filter", ":/CellFilter_Polyline.png", "", "" );
-    // CAF_PDM_InitField( &m_name, "Name", QString( "User Defined Polyline" ), "Name", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_polyFilterMode, "PolylineFilterType", "Depth Type", "", "", "" );
+
+    CAF_PDM_InitField( &m_showPolygon, "ShowPolygon", true, "Show Polygon", "", "", "" );
 
     CAF_PDM_InitField( &m_enablePicking, "EnablePicking", false, "", "", "", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_enablePicking );
@@ -156,24 +170,15 @@ void RimPolylineFilter::defineEditorAttribute( const caf::PdmFieldHandle* field,
 //--------------------------------------------------------------------------------------------------
 void RimPolylineFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    RimCellFilter::defineUiOrdering( uiConfigName, uiOrdering );
+
+    uiOrdering.add( &m_polyFilterMode );
     uiOrdering.add( &m_targets );
     uiOrdering.add( &m_enablePicking );
+    uiOrdering.add( &m_showPolygon );
 
     uiOrdering.skipRemainingFields( true );
 }
-
-////--------------------------------------------------------------------------------------------------
-/////
-////--------------------------------------------------------------------------------------------------
-// void RimPolylineFilter::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-//{
-//    RicPolyline3dEditorAttribute* attrib = dynamic_cast<RicPolyline3dEditorAttribute*>( attribute );
-//    if ( attrib )
-//    {
-//        attrib->pickEventHandler = m_pickTargetsEventHandler;
-//        attrib->enablePicking    = m_enablePicking;
-//    }
-//}
 
 //--------------------------------------------------------------------------------------------------
 ///

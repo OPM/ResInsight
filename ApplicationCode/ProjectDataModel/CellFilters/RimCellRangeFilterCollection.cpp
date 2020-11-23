@@ -67,7 +67,7 @@ void RimCellRangeFilterCollection::compoundCellRangeFilter( cvf::CellRangeFilter
 
         if ( rangeFilter && rangeFilter->isActive() && static_cast<size_t>( rangeFilter->gridIndex() ) == gridIndex )
         {
-            if ( rangeFilter->filterMode == RimCellFilter::INCLUDE )
+            if ( rangeFilter->filterMode() == RimCellFilter::INCLUDE )
             {
                 if ( rangeFilter->useIndividualCellIndices() )
                 {
