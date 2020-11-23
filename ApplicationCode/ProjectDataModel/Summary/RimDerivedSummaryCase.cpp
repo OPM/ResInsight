@@ -111,7 +111,6 @@ bool RimDerivedSummaryCase::isInUse() const
 //--------------------------------------------------------------------------------------------------
 void RimDerivedSummaryCase::setSummaryCases( RimSummaryCase* sumCase1, RimSummaryCase* sumCase2 )
 {
-    if ( !sumCase1 || !sumCase2 ) return;
     m_summaryCase1 = sumCase1;
     m_summaryCase2 = sumCase2;
 }
@@ -421,7 +420,8 @@ void RimDerivedSummaryCase::updateDisplayNameFromCases()
         operatorText = "Sum";
 
     QString name;
-    if ( case1Name == case2Name && m_summaryCase1->ensemble() && m_summaryCase2->ensemble() )
+    if ( case1Name == case2Name && m_summaryCase1 && m_summaryCase2 && m_summaryCase1->ensemble() &&
+         m_summaryCase2->ensemble() )
     {
         QString ensembleName1 = m_summaryCase1->ensemble()->name();
         QString ensembleName2 = m_summaryCase2->ensemble()->name();
