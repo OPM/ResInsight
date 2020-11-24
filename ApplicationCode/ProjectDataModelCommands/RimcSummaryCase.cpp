@@ -55,17 +55,20 @@ caf::PdmObjectHandle* RimSummaryCase_summaryVectorValues::execute()
     auto adr = RifEclipseSummaryAddress::fromEclipseTextAddress( m_addressString().toStdString() );
 
     std::vector<double> values;
-    bool                isOk = sumReader->values( adr, &values );
 
-    if ( isOk )
+    if ( sumReader )
     {
-        auto dataObject            = new RimcDataContainerDouble();
-        dataObject->m_doubleValues = values;
-
-        return dataObject;
+        bool isOk = sumReader->values( adr, &values );
+        if ( !isOk )
+        {
+            // Error message
+        }
     }
 
-    return nullptr;
+    auto dataObject            = new RimcDataContainerDouble();
+    dataObject->m_doubleValues = values;
+
+    return dataObject;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,16 +103,18 @@ RimSummaryCase_availableAddresses::RimSummaryCase_availableAddresses( caf::PdmOb
 //--------------------------------------------------------------------------------------------------
 caf::PdmObjectHandle* RimSummaryCase_availableAddresses::execute()
 {
-    auto*                      summaryCase = self<RimSummaryCase>();
-    RifSummaryReaderInterface* sumReader   = summaryCase->summaryReader();
-    CAF_ASSERT( sumReader );
-
-    const std::set<RifEclipseSummaryAddress>& addresses = sumReader->allResultAddresses();
+    auto* summaryCase = self<RimSummaryCase>();
 
     std::vector<QString> adr;
-    for ( const auto& a : addresses )
+
+    RifSummaryReaderInterface* sumReader = summaryCase->summaryReader();
+    if ( sumReader )
     {
-        adr.push_back( QString::fromStdString( a.uiText() ) );
+        const std::set<RifEclipseSummaryAddress>& addresses = sumReader->allResultAddresses();
+        for ( const auto& a : addresses )
+        {
+            adr.push_back( QString::fromStdString( a.uiText() ) );
+        }
     }
 
     auto dataObject            = new RimcDataContainerString();
@@ -152,13 +157,13 @@ caf::PdmObjectHandle* RimSummaryCase_availableTimeSteps::execute()
 {
     auto*                      summaryCase = self<RimSummaryCase>();
     RifSummaryReaderInterface* sumReader   = summaryCase->summaryReader();
-    CAF_ASSERT( sumReader );
 
-    RifEclipseSummaryAddress adr;
-    auto                     timeValues = sumReader->timeSteps( adr );
-
-    auto dataObject          = new RimcDataContainerTime();
-    dataObject->m_timeValues = timeValues;
+    auto dataObject = new RimcDataContainerTime();
+    if ( sumReader )
+    {
+        RifEclipseSummaryAddress adr;
+        dataObject->m_timeValues = sumReader->timeSteps( adr );
+    }
 
     return dataObject;
 }
@@ -203,39 +208,45 @@ caf::PdmObjectHandle* RimSummaryCase_resampleValues::execute()
 
     auto adr = RifEclipseSummaryAddress::fromEclipseTextAddress( m_addressString().toStdString() );
 
-    std::vector<double> values;
-
-    bool isOk = sumReader->values( adr, &values );
-    if ( !isOk ) return nullptr;
-
-    auto timeValues = sumReader->timeSteps( adr );
-
-    QString                           periodString = m_resamplingPeriod().trimmed();
-    RiaQDateTimeTools::DateTimePeriod period       = RiaQDateTimeTools::DateTimePeriodEnum::fromText( periodString );
-
     auto dataObject = new RimcSummaryResampleData();
 
-    if ( period != RiaQDateTimeTools::DateTimePeriod::NONE )
+    if ( sumReader )
     {
-        RiaTimeHistoryCurveResampler resampler;
-        resampler.setCurveData( values, timeValues );
+        std::vector<double> values;
 
-        if ( RiaSummaryTools::hasAccumulatedData( adr ) )
+        bool isOk = sumReader->values( adr, &values );
+        if ( !isOk )
         {
-            resampler.resampleAndComputePeriodEndValues( period );
+            // Error message
+        }
+
+        auto timeValues = sumReader->timeSteps( adr );
+
+        QString                           periodString = m_resamplingPeriod().trimmed();
+        RiaQDateTimeTools::DateTimePeriod period = RiaQDateTimeTools::DateTimePeriodEnum::fromText( periodString );
+
+        if ( period != RiaQDateTimeTools::DateTimePeriod::NONE )
+        {
+            RiaTimeHistoryCurveResampler resampler;
+            resampler.setCurveData( values, timeValues );
+
+            if ( RiaSummaryTools::hasAccumulatedData( adr ) )
+            {
+                resampler.resampleAndComputePeriodEndValues( period );
+            }
+            else
+            {
+                resampler.resampleAndComputeWeightedMeanValues( period );
+            }
+
+            dataObject->m_timeValues   = resampler.resampledTimeSteps();
+            dataObject->m_doubleValues = resampler.resampledValues();
         }
         else
         {
-            resampler.resampleAndComputeWeightedMeanValues( period );
+            dataObject->m_timeValues   = timeValues;
+            dataObject->m_doubleValues = values;
         }
-
-        dataObject->m_timeValues   = resampler.resampledTimeSteps();
-        dataObject->m_doubleValues = resampler.resampledValues();
-    }
-    else
-    {
-        dataObject->m_timeValues   = timeValues;
-        dataObject->m_doubleValues = values;
     }
 
     return dataObject;
