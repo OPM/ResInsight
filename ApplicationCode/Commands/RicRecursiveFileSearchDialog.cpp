@@ -29,6 +29,7 @@
 #include <QAction>
 #include <QCheckBox>
 #include <QClipboard>
+#include <QCollator>
 #include <QComboBox>
 #include <QDialogButtonBox>
 #include <QDir>
@@ -188,7 +189,6 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent )
     m_fileListWidget->setSelectionMode( QAbstractItemView::ExtendedSelection );
     m_fileListWidget->setVisible( false );
     m_fileListWidget->setContextMenuPolicy( Qt::CustomContextMenu );
-    m_fileListWidget->setSortingEnabled( true );
     m_fileListWidget->setMinimumHeight( 350 );
 
     m_browseButton->setText( "..." );
@@ -721,7 +721,16 @@ void RicRecursiveFileSearchDialog::slotFindOrCancelButtonClicked()
         m_findOrCancelButton->setText( "Cancel" );
 
         m_isCancelPressed = false;
-        m_foundFiles      = findMatchingFiles();
+
+        QStringList candidates = findMatchingFiles();
+
+        // Sort by numbers instead of alphabetically
+        QCollator collator;
+        collator.setNumericMode( true );
+        std::sort( candidates.begin(), candidates.end(), collator );
+
+        m_foundFiles = candidates;
+
         this->updateFileListWidget();
 
         m_findOrCancelButton->setText( FIND_BUTTON_FIND_TEXT );
