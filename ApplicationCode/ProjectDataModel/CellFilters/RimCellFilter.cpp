@@ -143,3 +143,9 @@ void RimCellFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
     uiOrdering.add( &m_name );
     uiOrdering.add( &m_filterMode );
 }
+
+QString RimCellFilter::modeString() const
+{
+    if ( m_filterMode == RimCellFilter::FilterModeType::INCLUDE ) return "include";
+    return "exclude";
+}

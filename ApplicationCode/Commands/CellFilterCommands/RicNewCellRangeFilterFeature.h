@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020 Equinor ASA
+//  Copyright (C) 2020-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,31 +18,18 @@
 
 #pragma once
 
-#include "RimCellFilter.h"
-
-#include "cafAppEnum.h"
-#include "cafPdmField.h"
-#include "cafPdmFieldCvfVec3d.h"
-#include "cafPdmObject.h"
+#include "cafCmdFeature.h"
 
 //==================================================================================================
 ///
-///
 //==================================================================================================
-class RimUserDefinedFilter : public RimCellFilter
+class RicNewCellRangeFilterFeature : public caf::CmdFeature
 {
-    CAF_PDM_HEADER_INIT;
-
-public:
-    RimUserDefinedFilter();
-    ~RimUserDefinedFilter() override;
-
-    const std::vector<cvf::Vec3d>& individualCellIndices() const;
+    CAF_CMD_HEADER_INIT;
 
 protected:
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-
-private:
-    caf::PdmField<std::vector<cvf::Vec3d>> m_individualCellIndices;
+    // Overrides
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };

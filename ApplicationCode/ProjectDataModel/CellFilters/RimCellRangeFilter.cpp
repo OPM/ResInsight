@@ -187,7 +187,7 @@ const std::vector<cvf::Vec3d>& RimCellRangeFilter::individualCellIndices() const
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilter::setDefaultValues()
 {
-    CVF_ASSERT( parentContainer() );
+    // CVF_ASSERT( parentContainer() );
 
     const cvf::StructGridInterface* grid = selectedGrid();
 
@@ -333,25 +333,27 @@ void RimCellRangeFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
         cellCountK.uiCapability()->setUiName( QString( "  Width" ) );
     }
 
-    uiOrdering.add( &m_gridIndex );
-    uiOrdering.add( &propagateToSubGrids );
-    uiOrdering.add( &startIndexI );
-    uiOrdering.add( &cellCountI );
-    uiOrdering.add( &startIndexJ );
-    uiOrdering.add( &cellCountJ );
-    uiOrdering.add( &startIndexK );
-    uiOrdering.add( &cellCountK );
+    auto group = uiOrdering.addNewGroup( "Grid Settings" );
 
-    if ( RiaApplication::enableDevelopmentFeatures() )
-    {
-        auto group = uiOrdering.addNewGroup( "Single Cell Filtering (TEST)" );
-        group->setCollapsedByDefault( true );
+    group->add( &m_gridIndex );
+    group->add( &propagateToSubGrids );
+    group->add( &startIndexI );
+    group->add( &cellCountI );
+    group->add( &startIndexJ );
+    group->add( &cellCountJ );
+    group->add( &startIndexK );
+    group->add( &cellCountK );
 
-        group->add( &m_useIndividualCellIndices );
-        group->add( &m_individualCellIndices );
+    // if ( RiaApplication::enableDevelopmentFeatures() )
+    //{
+    //    auto group = uiOrdering.addNewGroup( "Single Cell Filtering (TEST)" );
+    //    group->setCollapsedByDefault( true );
 
-        m_individualCellIndices.uiCapability()->setUiReadOnly( !m_useIndividualCellIndices );
-    }
+    //    group->add( &m_useIndividualCellIndices );
+    //    group->add( &m_individualCellIndices );
+
+    //    m_individualCellIndices.uiCapability()->setUiReadOnly( !m_useIndividualCellIndices );
+    //}
     uiOrdering.skipRemainingFields( true );
 }
 
