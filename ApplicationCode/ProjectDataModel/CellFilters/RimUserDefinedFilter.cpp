@@ -26,6 +26,12 @@ CAF_PDM_SOURCE_INIT( RimUserDefinedFilter, "UserDefinedFilter" );
 RimUserDefinedFilter::RimUserDefinedFilter()
 {
     CAF_PDM_InitObject( "User Defined Filter", ":/CellFilter_UserDefined.png", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_individualCellIndices,
+                                "IndividualCellIndices",
+                                "Cells",
+                                "",
+                                "Use Ctrl-C for copy and Ctrl-V for paste",
+                                "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -42,5 +48,23 @@ void RimUserDefinedFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
 {
     RimCellFilter::defineUiOrdering( uiConfigName, uiOrdering );
 
+    auto group = uiOrdering.addNewGroup( QString( "Cell Indexes (I J K) to " ) + modeString() );
+    group->setCollapsedByDefault( false );
+    group->add( &m_individualCellIndices );
+
     uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<cvf::Vec3d>& RimUserDefinedFilter::individualCellIndices() const
+{
+    return m_individualCellIndices.v();
+}
+
+void RimUserDefinedFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                             const QVariant&            oldValue,
+                                             const QVariant&            newValue )
+{
 }

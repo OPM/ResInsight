@@ -74,6 +74,7 @@ RimPolylineFilter::RimPolylineFilter()
     m_targets.uiCapability()->setCustomContextMenuEnabled( true );
 
     this->setUi3dEditorTypeName( RicPolyline3dEditor::uiEditorTypeName() );
+    this->uiCapability()->setUiTreeChildrenHidden( true );
 
     updateIconState();
     setDeletable( true );

@@ -45,6 +45,7 @@ public:
     caf::AppEnum<FilterModeType> filterMode();
     void                         setName( QString filtername );
     void                         setActive( bool active );
+    QString                      modeString() const;
 
     void updateIconState();
 

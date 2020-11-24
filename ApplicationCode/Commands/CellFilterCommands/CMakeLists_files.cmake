@@ -2,11 +2,13 @@
 set (SOURCE_GROUP_HEADER_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RicNewPolylineFilterFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewUserDefinedFilterFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicNewCellRangeFilterFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RicNewPolylineFilterFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewUserDefinedFilterFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicNewCellRangeFilterFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES

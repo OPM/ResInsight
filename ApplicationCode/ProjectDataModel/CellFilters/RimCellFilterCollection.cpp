@@ -22,6 +22,7 @@
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimCellFilter.h"
+#include "RimCellRangeFilter.h"
 #include "RimPolylineFilter.h"
 #include "RimUserDefinedFilter.h"
 #include "RimViewController.h"
@@ -167,6 +168,20 @@ RimCellFilter* RimCellFilterCollection::addNewUserDefinedFilter( RimCase* srcCas
 {
     RimUserDefinedFilter* pFilter = new RimUserDefinedFilter();
     m_cellFilters.push_back( pFilter );
+
+    this->updateConnectedEditors();
+
+    return pFilter;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimCellFilter* RimCellFilterCollection::addNewCellRangeFilter( RimCase* srcCase )
+{
+    RimCellRangeFilter* pFilter = new RimCellRangeFilter();
+    m_cellFilters.push_back( pFilter );
+    pFilter->setDefaultValues();
 
     this->updateConnectedEditors();
 

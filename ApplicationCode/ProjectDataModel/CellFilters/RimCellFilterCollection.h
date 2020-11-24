@@ -40,6 +40,7 @@ public:
 
     RimCellFilter* addNewPolylineFilter( RimCase* srcCase );
     RimCellFilter* addNewUserDefinedFilter( RimCase* srcCase );
+    RimCellFilter* addNewCellRangeFilter( RimCase* srcCase );
 
     bool isEmpty();
     bool isActive();
