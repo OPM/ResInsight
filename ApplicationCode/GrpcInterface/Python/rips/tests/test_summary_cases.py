@@ -1,6 +1,10 @@
 import sys
 import os
 import math
+import contextlib
+import os
+import shutil
+import tempfile
 
 sys.path.insert(1, os.path.join(sys.path[0], '../../'))
 import rips
@@ -63,3 +67,49 @@ def test_summary_resample(rips_instance, initialize_test):
     summary_data_sampled = summary_case.resample_values("FOPT", "YEAR")
     assert(len(summary_data_sampled.values) == 3)
     assert(len(summary_data_sampled.time_steps) == 3)
+
+
+@contextlib.contextmanager
+def cd(newdir, cleanup=lambda: True):
+    prevdir = os.getcwd()
+    os.chdir(os.path.expanduser(newdir))
+    try:
+        yield
+    finally:
+        os.chdir(prevdir)
+        cleanup()
+
+@contextlib.contextmanager
+def tempdir():
+    dirpath = tempfile.mkdtemp()
+    def cleanup():
+        shutil.rmtree(dirpath)
+    with cd(dirpath, cleanup):
+        yield dirpath
+
+# This test ensures that missing unsmry file is handeled gracefully
+def test_summary_no_unsmry(rips_instance, initialize_test):
+    casePathRelative = dataroot.PATH + "/flow_diagnostics_test/SIMPLE_SUMMARY2.SMSPEC"
+
+    # create an absolute path, as the helper functions used to create a temporary folder does not work
+    # with the relative (..\..\) part of the file path
+    casePath = os.path.abspath(casePathRelative)
+
+    with tempdir() as dirpath:
+        base_path = os.path.basename(casePath)
+        temp_path = os.path.join(dirpath, base_path)
+        shutil.copy2(casePath, temp_path)
+
+        summary_case = rips_instance.project.import_summary_case(temp_path)
+
+        values = summary_case.summary_vector_values()
+        assert(len(values.values) == 1)
+
+        time_steps = summary_case.available_time_steps()
+        assert(len(time_steps.values) == 1)
+
+        addresses = summary_case.available_addresses()
+        assert(len(addresses.values) == 1)
+
+        summary_case.resample_values()
+
