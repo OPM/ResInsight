@@ -119,6 +119,7 @@ public:
                 if ( timeStep < resultData->timeStepCount( m_resultAddress ) )
                 {
                     initResultAccess( caseData, request->grid_index(), m_porosityModel, timeStep, m_resultAddress );
+
                     return grpc::Status::OK;
                 }
                 return grpc::Status( grpc::NOT_FOUND, "No such time step" );
@@ -348,11 +349,17 @@ protected:
                            size_t                        timeStepIndex,
                            RigEclipseResultAddress       resVarAddr ) override
     {
+        m_cellCount       = caseData->grid( gridIndex )->cellCount();
+        auto resultValues = caseData->results( porosityModel )->modifiableCellScalarResult( resVarAddr, timeStepIndex );
+        if ( resultValues && m_cellCount > 0 )
+        {
+            resultValues->resize( m_cellCount );
+        }
+
         m_resultAccessor =
             RigResultAccessorFactory::createFromResultAddress( caseData, gridIndex, porosityModel, timeStepIndex, resVarAddr );
         m_resultModifier =
             RigResultModifierFactory::createResultModifier( caseData, gridIndex, porosityModel, timeStepIndex, resVarAddr );
-        m_cellCount = caseData->grid( gridIndex )->cellCount();
     }
 
     double cellResult( size_t currentCellIndex ) const override
