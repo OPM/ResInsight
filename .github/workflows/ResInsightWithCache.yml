@@ -130,12 +130,18 @@ jobs:
       - name: Print Python path
         run: echo ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
 
+      - name: Set vcpkg's response file path used as part of cache's key.
+        uses: lukka/set-shell-env@master
+        with:
+          VCPKGRESPONSEFILE: ${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}
       - name: Run vcpkg
         uses: lukka/run-vcpkg@v5
         id: runvcpkg
         with:
           vcpkgArguments: '@${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}'
           vcpkgDirectory: '${{ github.workspace }}/ThirdParty/vcpkg'
+           # Ensure the cache key changes any time the content of the response file changes.
+          appendedCacheKey: ${{ hashFiles(env.VCPKGRESPONSEFILE) }}
 
       - name: Configure
         shell: cmake -P {0}
