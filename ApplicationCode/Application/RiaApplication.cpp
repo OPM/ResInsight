@@ -768,7 +768,6 @@ void RiaApplication::closeProject()
 {
     onProjectBeingClosed();
 
-    terminateProcess();
     m_project->close();
     m_commandQueue.clear();
 

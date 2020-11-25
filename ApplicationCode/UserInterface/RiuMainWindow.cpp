@@ -205,8 +205,6 @@ void RiuMainWindow::initializeGuiNewProjectLoaded()
         m_pdmUiPropertyView->currentObject()->uiCapability()->updateConnectedEditors();
     }
 
-    m_processMonitor->slotClearTextEdit();
-
     if ( statusBar() && !RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
     {
         statusBar()->showMessage( "Ready ..." );
@@ -251,7 +249,6 @@ void RiuMainWindow::cleanupGuiCaseClose()
             projPropView->showProperties( nullptr );
         }
     }
-    m_processMonitor->startMonitorWorkProcess( nullptr );
 
     RicEditSummaryPlotFeature* editSumCurves = dynamic_cast<RicEditSummaryPlotFeature*>(
         caf::CmdFeatureManager::instance()->getCommandFeature( "RicEditSummaryPlotFeature" ) );
