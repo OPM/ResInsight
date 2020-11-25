@@ -1153,13 +1153,18 @@ void RimContourMapProjection::generateContourPolygons()
                     }
                 }
 
+                // The clipping of contour polygons is intended to detect and fix a smoothed contour polygons
+                // crossing into an outer contour line. The current implementation has some side effects causing
+                // several contour lines to disappear. Disable this clipping for now
+                /*
                 if ( m_smoothContourLines() )
                 {
                     for ( size_t i = 1; i < contourPolygons.size(); ++i )
                     {
-                        clipContourPolygons( &contourPolygons[i], &contourPolygons[i - 1] );
+                        clipContourPolygons(&contourPolygons[i], &contourPolygons[i - 1] );
                     }
                 }
+                */
 
                 m_contourLevelCumulativeAreas.resize( contourPolygons.size(), 0.0 );
                 for ( int64_t i = (int64_t)contourPolygons.size() - 1; i >= 0; --i )
