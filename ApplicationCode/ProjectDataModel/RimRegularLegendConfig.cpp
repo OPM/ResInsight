@@ -351,7 +351,11 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
     firstAncestorOrThisOfType( crossPlotCurveSet );
     if ( crossPlotCurveSet )
     {
-        crossPlotCurveSet->destroyCurves();
+        if ( changedField != &m_showLegend )
+        {
+            crossPlotCurveSet->destroyCurves();
+        }
+
         crossPlotCurveSet->loadDataAndUpdate( true );
     }
 
