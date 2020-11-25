@@ -24,6 +24,7 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
+#include "cafPdmPtrField.h"
 #include "cafPdmFieldHandle.h"
 #include "cafPdmObject.h"
 
@@ -31,7 +32,10 @@
 
 #include <QtCharts/QChartView>
 
+class RimCase;
 class RimPlot;
+class RimGridView;
+class RimEclipseResultDefinition;
 
 //==================================================================================================
 ///
@@ -76,6 +80,8 @@ protected:
     void                 updatePlots();
     caf::PdmFieldHandle* userDescriptionField() override;
 
+    void setDefaults();
+
 private:
     void cleanupBeforeClose();
     void onPlotAdditionOrRemoval();
@@ -83,10 +89,17 @@ private:
     void doUpdateLayout() override;
 
 protected:
-    QPointer<QtCharts::QChartView> m_viewer; 
+    QPointer<QtCharts::QChartView> m_viewer;
 
     caf::PdmField<QString>                          m_plotWindowTitle;
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_subTitleFontSize;
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisTitleFontSize;
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisValueFontSize;
+
+    caf::PdmPtrField<RimCase*>     m_case;
+    caf::PdmField<int>             m_timeStep;
+    caf::PdmPtrField<RimGridView*> m_cellFilterView;
+    //   caf::PdmField<CurveGroupingEnum>                m_grouping;
+    caf::PdmChildField<RimEclipseResultDefinition*> m_property;
+    //    caf::PdmChildField<RimEclipseCellColors*>       m_groupingProperty;
 };
