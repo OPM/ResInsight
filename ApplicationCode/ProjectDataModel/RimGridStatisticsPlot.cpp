@@ -21,20 +21,20 @@
 #include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
 
+#include "RimCase.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseResultCase.h"
+#include "RimEclipseResultDefinition.h"
+#include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
-#include "RimOilField.h"
+#include "RimGridView.h"
+#include "RimHistogramCalculator.h"
+#include "RimHistogramData.h"
 #include "RimPlot.h"
 #include "RimProject.h"
-#include "RimWellAllocationPlot.h"
-
-// #include "RiuMultiPlotPage.h"
+#include "RimTools.h"
 #include "RiuPlotMainWindow.h"
-// #include "RiuPlotMainWindowTools.h"
-// //#include "RiuQwtPlotWidget.h"
-// #include "RiuWellLogPlot.h"
 
 #include "cafPdmFieldReorderCapability.h"
 #include "cafPdmFieldScriptingCapability.h"
@@ -43,13 +43,15 @@
 #include "cafPdmUiDoubleValueEditor.h"
 #include "cvfAssert.h"
 
-#include <QKeyEvent>
-
+#include <QtCharts/QBarSeries>
+#include <QtCharts/QBarSet>
 #include <QtCharts/QCategoryAxis>
 #include <QtCharts/QSplineSeries>
 #include <QtCharts/QValueAxis>
 
 #include <cmath>
+
+using namespace QtCharts;
 
 CAF_PDM_SOURCE_INIT( RimGridStatisticsPlot, "GridStatisticsPlot" );
 
@@ -67,6 +69,21 @@ RimGridStatisticsPlot::RimGridStatisticsPlot()
     CAF_PDM_InitScriptableFieldNoDefault( &m_axisTitleFontSize, "AxisTitleFontSize", "Axis Title Font Size", "", "", "" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_axisValueFontSize, "AxisValueFontSize", "Axis Value Font Size", "", "", "" );
 
+    CAF_PDM_InitFieldNoDefault( &m_case, "Case", "Case", "", "", "" );
+    m_case.uiCapability()->setUiTreeChildrenHidden( true );
+    CAF_PDM_InitField( &m_timeStep, "TimeStep", -1, "Time Step", "", "", "" );
+    m_timeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_cellFilterView, "VisibleCellView", "Filter by 3d View Visibility", "", "", "" );
+
+    // CAF_PDM_InitFieldNoDefault( &m_grouping, "Grouping", "Group Data by", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_property, "Property", "Property", "", "", "" );
+    m_property = new RimEclipseResultDefinition( caf::PdmUiItemInfo::TOP );
+    m_property.uiCapability()->setUiHidden( true );
+    m_property.uiCapability()->setUiTreeChildrenHidden( true );
+    m_property->setTernaryEnabled( false );
+
     // m_plotLegendsHorizontal = false;
     // setPlotTitleVisible( false );
 }
@@ -78,6 +95,34 @@ RimGridStatisticsPlot::~RimGridStatisticsPlot()
 {
     removeMdiWindowFromMdiArea();
     cleanupBeforeClose();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridStatisticsPlot::setDefaults()
+{
+    RimProject* project = RimProject::current();
+    if ( project )
+    {
+        if ( !project->eclipseCases().empty() )
+        {
+            RimEclipseCase* eclipseCase = project->eclipseCases().front();
+            m_case                      = eclipseCase;
+            m_property->setEclipseCase( eclipseCase );
+
+            m_property->setResultType( RiaDefines::ResultCatType::STATIC_NATIVE );
+            m_property->setResultVariable( "PORO" );
+
+            // m_grouping = NO_GROUPING;
+            // if ( eclipseCase->activeFormationNames() )
+            // {
+            //     m_grouping = GROUP_BY_FORMATION;
+            //     m_groupingProperty->legendConfig()->setColorLegend(
+            //         RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) );
+            // }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -118,12 +163,11 @@ QImage RimGridStatisticsPlot::snapshotWindowContent()
 {
     QImage image;
 
-    // if ( m_viewer )
-    // {
-    //     QPixmap pix( m_viewer->size() );
-    //     m_viewer->renderTo( &pix );
-    //     image = pix.toImage();
-    // }
+    if ( m_viewer )
+    {
+        QPixmap pix = m_viewer->grab();
+        image       = pix.toImage();
+    }
 
     return image;
 }
@@ -133,46 +177,7 @@ QImage RimGridStatisticsPlot::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 QWidget* RimGridStatisticsPlot::createViewWidget( QWidget* mainWindowParent )
 {
-    std::cout << "Creating view widget!!" << std::endl;
-
-    using namespace QtCharts;
-
-    //
-    QChart* chart = new QChart();
-    chart->setTitle( "Multiaxis chart example" );
-
-    QValueAxis* axisX = new QValueAxis;
-    axisX->setTickCount( 10 );
-    chart->addAxis( axisX, Qt::AlignBottom );
-
-    QSplineSeries* series = new QSplineSeries;
-    *series << QPointF( 1, 5 ) << QPointF( 3.5, 18 ) << QPointF( 4.8, 7.5 ) << QPointF( 10, 2.5 );
-    chart->addSeries( series );
-
-    QValueAxis* axisY = new QValueAxis;
-    axisY->setLinePenColor( series->pen().color() );
-
-    chart->addAxis( axisY, Qt::AlignLeft );
-    series->attachAxis( axisX );
-    series->attachAxis( axisY );
-
-    series = new QSplineSeries;
-    *series << QPointF( 1, 0.5 ) << QPointF( 1.5, 4.5 ) << QPointF( 2.4, 2.5 ) << QPointF( 4.3, 12.5 )
-            << QPointF( 5.2, 3.5 ) << QPointF( 7.4, 16.5 ) << QPointF( 8.3, 7.5 ) << QPointF( 10, 17 );
-    chart->addSeries( series );
-
-    QCategoryAxis* axisY3 = new QCategoryAxis;
-    axisY3->append( "Low", 5 );
-    axisY3->append( "Medium", 12 );
-    axisY3->append( "High", 17 );
-    axisY3->setLinePenColor( series->pen().color() );
-    axisY3->setGridLinePen( ( series->pen() ) );
-
-    chart->addAxis( axisY3, Qt::AlignRight );
-    series->attachAxis( axisX );
-    series->attachAxis( axisY3 );
-
-    m_viewer = new QChartView( chart );
+    m_viewer = new QChartView();
     recreatePlotWidgets();
     return m_viewer;
 }
@@ -257,6 +262,38 @@ void RimGridStatisticsPlot::fieldChangedByUi( const caf::PdmFieldHandle* changed
                                               const QVariant&            newValue )
 {
     RimPlotWindow::fieldChangedByUi( changedField, oldValue, newValue );
+
+    if ( changedField == &m_case )
+    {
+        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case.value() );
+        if ( eclipseCase )
+        {
+            m_property->setEclipseCase( eclipseCase );
+            // m_groupingProperty->setEclipseCase( eclipseCase );
+            // TODO: Do we need all these??
+            m_property->updateConnectedEditors();
+            // m_groupingProperty->updateConnectedEditors();
+
+            // if ( m_grouping == GROUP_BY_FORMATION && !eclipseCase->activeFormationNames() )
+            // {
+            //     m_grouping = NO_GROUPING;
+            // }
+
+            // destroyCurves();
+            loadDataAndUpdate();
+        }
+    }
+    else if ( changedField == &m_timeStep )
+    {
+        // if ( m_timeStep != -1 && m_grouping == GROUP_BY_TIME )
+        // {
+        //     m_grouping = NO_GROUPING;
+        // }
+
+        // destroyCurves();
+        loadDataAndUpdate();
+    }
+
     updateConnectedEditors();
 }
 
@@ -265,8 +302,15 @@ void RimGridStatisticsPlot::fieldChangedByUi( const caf::PdmFieldHandle* changed
 //--------------------------------------------------------------------------------------------------
 void RimGridStatisticsPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    // caf::PdmUiGroup* titleGroup = uiOrdering.addNewGroup( "Plot Title" );
-    // uiOrderingForAutoName( uiConfigName, *titleGroup );
+    uiOrdering.add( &m_case );
+    if ( m_case )
+    {
+        uiOrdering.add( &m_timeStep );
+        uiOrdering.add( &m_cellFilterView );
+        //        m_plotCellFilterCollection->setCase( eclipseCase );
+        caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup( "Property" );
+        m_property->uiOrdering( uiConfigName, *propertyGroup );
+    }
 
     caf::PdmUiGroup* plotLayoutGroup = uiOrdering.addNewGroup( "Plot Layout" );
     RimPlotWindow::uiOrderingForPlotLayout( uiConfigName, *plotLayoutGroup );
@@ -290,6 +334,33 @@ QList<caf::PdmOptionItemInfo>
     {
         options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultPlotFontSize() );
     }
+    else if ( fieldNeedingOptions == &m_case )
+    {
+        RimTools::eclipseCaseOptionItems( &options );
+        if ( options.empty() )
+        {
+            options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
+        }
+    }
+    else if ( fieldNeedingOptions == &m_timeStep )
+    {
+        options.push_back( caf::PdmOptionItemInfo( "All Time Steps", -1 ) );
+
+        RimTools::timeStepsForCase( m_case, &options );
+    }
+    else if ( fieldNeedingOptions == &m_cellFilterView )
+    {
+        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() );
+        if ( eclipseCase )
+        {
+            options.push_back( caf::PdmOptionItemInfo( "Disabled", nullptr ) );
+            for ( RimEclipseView* view : eclipseCase->reservoirViews.childObjects() )
+            {
+                CVF_ASSERT( view && "Really always should have a valid view pointer in ReservoirViews" );
+                options.push_back( caf::PdmOptionItemInfo( view->name(), view, false, view->uiIconProvider() ) );
+            }
+        }
+    }
 
     ( *useOptionsOnly ) = true;
     return options;
@@ -301,6 +372,13 @@ QList<caf::PdmOptionItemInfo>
 void RimGridStatisticsPlot::initAfterRead()
 {
     RimPlotWindow::initAfterRead();
+
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() );
+    if ( eclipseCase )
+    {
+        m_property->setEclipseCase( eclipseCase );
+        // m_groupingProperty->setEclipseCase( eclipseCase );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -319,14 +397,82 @@ void RimGridStatisticsPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimGridStatisticsPlot::updatePlots()
 {
-    // if ( m_showWindow )
-    // {
-    //     for ( RimPlot* plot : plots() )
-    //     {
-    //         plot->loadDataAndUpdate();
-    //     }
-    //     this->updateZoom();
-    // }
+    std::cout << "Update plots!" << std::endl;
+
+    if ( m_viewer )
+    {
+        if ( m_cellFilterView.value() )
+        {
+            RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( m_cellFilterView.value() );
+            RimHistogramCalculator::StatisticsCellRangeType cellRange =
+                RimHistogramCalculator::StatisticsCellRangeType::ALL_CELLS;
+            RimHistogramCalculator::StatisticsTimeRangeType timeRange =
+                RimHistogramCalculator::StatisticsTimeRangeType::CURRENT_TIMESTEP;
+
+            std::unique_ptr<RimHistogramCalculator> histogramCalculator;
+            histogramCalculator.reset( new RimHistogramCalculator );
+
+            RimHistogramData histogramData = histogramCalculator->histogramData( eclipseView, cellRange, timeRange );
+            if ( histogramData.isHistogramVectorValid() )
+            {
+                QBarSet* set0     = new QBarSet( "data" );
+                double   minValue = std::numeric_limits<double>::max();
+                double   maxValue = std::numeric_limits<double>::min();
+                for ( double value : *histogramData.histogram )
+                {
+                    *set0 << value;
+                    minValue = std::min( minValue, value );
+                    maxValue = std::max( maxValue, value );
+                }
+
+                QBarSeries* series = new QBarSeries();
+                series->append( set0 );
+
+                QChart* chart = new QChart();
+                chart->addSeries( series );
+                chart->setTitle( "Simple barchart example" );
+                chart->setAnimationOptions( QChart::SeriesAnimations );
+
+                // Axis
+                double xAxisSize      = histogramData.max - histogramData.min;
+                double xAxisExtension = xAxisSize * 0.02;
+
+                QValueAxis* axisX = new QValueAxis();
+                axisX->setRange( histogramData.min - xAxisExtension, histogramData.max + xAxisExtension );
+                chart->addAxis( axisX, Qt::AlignBottom );
+
+                QValueAxis* axisY = new QValueAxis();
+                axisY->setRange( minValue, maxValue );
+                chart->addAxis( axisY, Qt::AlignLeft );
+
+                QLineSeries* p10series = new QLineSeries();
+                chart->addSeries( p10series );
+                p10series->setName( "P10" );
+                p10series->append( histogramData.p10, minValue );
+                p10series->append( histogramData.p10, maxValue );
+                p10series->attachAxis( axisX );
+                p10series->attachAxis( axisY );
+
+                QLineSeries* p90series = new QLineSeries();
+                chart->addSeries( p90series );
+                p90series->setName( "P90" );
+                p90series->append( histogramData.p90, minValue );
+                p90series->append( histogramData.p90, maxValue );
+                p90series->attachAxis( axisX );
+                p90series->attachAxis( axisY );
+
+                QLineSeries* meanSeries = new QLineSeries();
+                chart->addSeries( meanSeries );
+                meanSeries->setName( "Mean" );
+                meanSeries->append( histogramData.mean, minValue );
+                meanSeries->append( histogramData.mean, maxValue );
+                meanSeries->attachAxis( axisX );
+                meanSeries->attachAxis( axisY );
+
+                m_viewer->setChart( chart );
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
