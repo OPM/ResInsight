@@ -18,9 +18,10 @@
 
 #include "RimCellFilter.h"
 
-//#include "RiaGuiApplication.h"
+#include "RigReservoirGridTools.h"
+#include "RimCase.h"
 
-//#include <QPainter>
+#include "cvfStructGridGeometryGenerator.h"
 
 namespace caf
 {
@@ -33,12 +34,14 @@ void caf::AppEnum<RimCellFilter::FilterModeType>::setUp()
 }
 } // namespace caf
 
-CAF_PDM_SOURCE_INIT( RimCellFilter, "CellFilter" );
+// CAF_PDM_SOURCE_INIT( RimCellFilter, "CellFilter" );
+CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimCellFilter, "CellFilter", "CellFilter" ); // Do not use. Abstract class
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimCellFilter::RimCellFilter()
+    : filterChanged( this )
 {
     CAF_PDM_InitObject( "Cell Filter", "", "", "" );
 
@@ -47,6 +50,9 @@ RimCellFilter::RimCellFilter()
     m_isActive.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_filterMode, "FilterType", "Filter Type", "", "", "" );
+
+    CAF_PDM_InitField( &m_gridIndex, "GridIndex", 0, "Grid", "", "", "" );
+    CAF_PDM_InitField( &m_propagateToSubGrids, "PropagateToSubGrids", true, "Apply to Subgrids", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,7 +73,7 @@ caf::PdmFieldHandle* RimCellFilter::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimCellFilter::name()
+QString RimCellFilter::name() const
 {
     return m_name();
 }
@@ -91,7 +97,7 @@ void RimCellFilter::setActive( bool active )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimCellFilter::isActive()
+bool RimCellFilter::isActive() const
 {
     return m_isActive();
 }
@@ -99,9 +105,33 @@ bool RimCellFilter::isActive()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::AppEnum<RimCellFilter::FilterModeType> RimCellFilter::filterMode()
+caf::AppEnum<RimCellFilter::FilterModeType> RimCellFilter::filterMode() const
 {
     return m_filterMode();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCellFilter::setGridIndex( int gridIndex )
+{
+    m_gridIndex = gridIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimCellFilter::gridIndex() const
+{
+    return m_gridIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimCellFilter::propagateToSubGrids() const
+{
+    return m_propagateToSubGrids();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -141,11 +171,34 @@ caf::PdmFieldHandle* RimCellFilter::objectToggleField()
 void RimCellFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_name );
-    uiOrdering.add( &m_filterMode );
+    auto group = uiOrdering.addNewGroup( "General" );
+    group->add( &m_filterMode );
+    group->add( &m_gridIndex );
+    group->add( &m_propagateToSubGrids );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimCellFilter::modeString() const
 {
     if ( m_filterMode == RimCellFilter::FilterModeType::INCLUDE ) return "include";
     return "exclude";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const cvf::StructGridInterface* RimCellFilter::selectedGrid()
+{
+    RimCase* rimCase = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted( rimCase );
+
+    int clampedIndex = gridIndex();
+    if ( clampedIndex >= RigReservoirGridTools::gridCount( rimCase ) )
+    {
+        clampedIndex = 0;
+    }
+
+    return RigReservoirGridTools::gridByIndex( rimCase, clampedIndex );
 }

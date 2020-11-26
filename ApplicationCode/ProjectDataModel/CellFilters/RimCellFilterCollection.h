@@ -26,6 +26,11 @@ class RimCellFilter;
 class RimCase;
 class RigPolyLinesData;
 
+namespace cvf
+{
+class CellRangeFilter;
+};
+
 //==================================================================================================
 ///
 ///
@@ -45,6 +50,8 @@ public:
     bool isEmpty();
     bool isActive();
 
+    void compoundCellRangeFilter( cvf::CellRangeFilter* cellRangeFilter, size_t gridIndex ) const;
+
     // Methods
     // virtual bool hasActiveFilters() const        = 0;
     // virtual bool hasActiveDynamicFilters() const = 0;
@@ -61,6 +68,8 @@ protected:
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void                 defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
     caf::PdmFieldHandle* objectToggleField() override;
+
+    void onFilterUpdated( const SignalEmitter* emitter );
 
 private:
     caf::PdmChildArrayField<RimCellFilter*> m_cellFilters;

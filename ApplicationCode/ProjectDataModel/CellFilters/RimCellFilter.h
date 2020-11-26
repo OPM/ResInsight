@@ -22,6 +22,12 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+namespace cvf
+{
+class StructGridInterface;
+class CellRangeFilter;
+} // namespace cvf
+
 //==================================================================================================
 ///
 ///
@@ -37,24 +43,35 @@ public:
         EXCLUDE
     };
 
+    caf::Signal<> filterChanged;
+
     RimCellFilter();
     ~RimCellFilter() override;
 
-    QString                      name();
-    bool                         isActive();
-    caf::AppEnum<FilterModeType> filterMode();
+    QString                      name() const;
+    bool                         isActive() const;
+    caf::AppEnum<FilterModeType> filterMode() const;
     void                         setName( QString filtername );
     void                         setActive( bool active );
     QString                      modeString() const;
+    bool                         propagateToSubGrids() const;
+
+    void setGridIndex( int gridIndex );
+    int  gridIndex() const;
 
     void updateIconState();
 
+    virtual void updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter ) const = 0;
+
 protected:
-    caf::PdmFieldHandle* userDescriptionField() override;
-    caf::PdmFieldHandle* objectToggleField() override;
-    void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    caf::PdmFieldHandle*            userDescriptionField() override;
+    caf::PdmFieldHandle*            objectToggleField() override;
+    void                            defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    const cvf::StructGridInterface* selectedGrid();
 
     caf::PdmField<QString>                      m_name;
     caf::PdmField<bool>                         m_isActive;
     caf::PdmField<caf::AppEnum<FilterModeType>> m_filterMode;
+    caf::PdmField<int>                          m_gridIndex;
+    caf::PdmField<bool>                         m_propagateToSubGrids; // Do propagate the effects to the sub-grids
 };

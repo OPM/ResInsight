@@ -220,3 +220,27 @@ caf::PickEventHandler* RimPolylineFilter::pickEventHandler() const
 {
     return m_pickTargetsEventHandler.get();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolylineFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter ) const
+{
+    CVF_ASSERT( cellRangeFilter );
+
+    if ( this->filterMode() == RimCellFilter::INCLUDE )
+    {
+        //for ( const auto& cellIndex : m_individualCellIndices() )
+        //{
+        //    cellRangeFilter->addCellInclude( cellIndex.x() - 1, cellIndex.y() - 1, cellIndex.z() - 1, propagateToSubGrids() );
+        //}
+    }
+    else
+    {
+        // for ( const auto& cellIndex : m_individualCellIndices() )
+        //{
+        //    cellRangeFilter->addCellExclude( cellIndex.x() - 1, cellIndex.y() - 1, cellIndex.z() - 1,
+        //    propagateToSubGrids() );
+        //}
+    }
+}

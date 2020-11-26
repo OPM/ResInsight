@@ -61,60 +61,60 @@ void RimCellRangeFilterCollection::compoundCellRangeFilter( cvf::CellRangeFilter
 {
     CVF_ASSERT( cellRangeFilter );
 
-    for ( size_t i = 0; i < rangeFilters.size(); i++ )
-    {
-        RimCellRangeFilter* rangeFilter = rangeFilters[i];
+    // for ( size_t i = 0; i < rangeFilters.size(); i++ )
+    //{
+    //    RimCellRangeFilter* rangeFilter = rangeFilters[i];
 
-        if ( rangeFilter && rangeFilter->isActive() && static_cast<size_t>( rangeFilter->gridIndex() ) == gridIndex )
-        {
-            if ( rangeFilter->filterMode() == RimCellFilter::INCLUDE )
-            {
-                if ( rangeFilter->useIndividualCellIndices() )
-                {
-                    for ( const auto& cellIndex : rangeFilter->individualCellIndices() )
-                    {
-                        cellRangeFilter->addCellInclude( cellIndex.x() - 1,
-                                                         cellIndex.y() - 1,
-                                                         cellIndex.z() - 1,
-                                                         rangeFilter->propagateToSubGrids() );
-                    }
-                }
-                else
-                {
-                    cellRangeFilter->addCellIncludeRange( rangeFilter->startIndexI - 1,
-                                                          rangeFilter->startIndexJ - 1,
-                                                          rangeFilter->startIndexK - 1,
-                                                          rangeFilter->startIndexI - 1 + rangeFilter->cellCountI,
-                                                          rangeFilter->startIndexJ - 1 + rangeFilter->cellCountJ,
-                                                          rangeFilter->startIndexK - 1 + rangeFilter->cellCountK,
-                                                          rangeFilter->propagateToSubGrids() );
-                }
-            }
-            else
-            {
-                if ( rangeFilter->useIndividualCellIndices() )
-                {
-                    for ( const auto& cellIndex : rangeFilter->individualCellIndices() )
-                    {
-                        cellRangeFilter->addCellExclude( cellIndex.x() - 1,
-                                                         cellIndex.y() - 1,
-                                                         cellIndex.z() - 1,
-                                                         rangeFilter->propagateToSubGrids() );
-                    }
-                }
-                else
-                {
-                    cellRangeFilter->addCellExcludeRange( rangeFilter->startIndexI - 1,
-                                                          rangeFilter->startIndexJ - 1,
-                                                          rangeFilter->startIndexK - 1,
-                                                          rangeFilter->startIndexI - 1 + rangeFilter->cellCountI,
-                                                          rangeFilter->startIndexJ - 1 + rangeFilter->cellCountJ,
-                                                          rangeFilter->startIndexK - 1 + rangeFilter->cellCountK,
-                                                          rangeFilter->propagateToSubGrids() );
-                }
-            }
-        }
-    }
+    //    if ( rangeFilter && rangeFilter->isActive() && static_cast<size_t>( rangeFilter->gridIndex() ) == gridIndex )
+    //    {
+    //        if ( rangeFilter->filterMode() == RimCellFilter::INCLUDE )
+    //        {
+    //            if ( rangeFilter->is() )
+    //            {
+    //                for ( const auto& cellIndex : rangeFilter->individualCellIndices() )
+    //                {
+    //                    cellRangeFilter->addCellInclude( cellIndex.x() - 1,
+    //                                                     cellIndex.y() - 1,
+    //                                                     cellIndex.z() - 1,
+    //                                                     rangeFilter->propagateToSubGrids() );
+    //                }
+    //            }
+    //            else
+    //            {
+    //                cellRangeFilter->addCellIncludeRange( rangeFilter->startIndexI - 1,
+    //                                                      rangeFilter->startIndexJ - 1,
+    //                                                      rangeFilter->startIndexK - 1,
+    //                                                      rangeFilter->startIndexI - 1 + rangeFilter->cellCountI,
+    //                                                      rangeFilter->startIndexJ - 1 + rangeFilter->cellCountJ,
+    //                                                      rangeFilter->startIndexK - 1 + rangeFilter->cellCountK,
+    //                                                      rangeFilter->propagateToSubGrids() );
+    //            }
+    //        }
+    //        else
+    //        {
+    //            if ( rangeFilter->useIndividualCellIndices() )
+    //            {
+    //                for ( const auto& cellIndex : rangeFilter->individualCellIndices() )
+    //                {
+    //                    cellRangeFilter->addCellExclude( cellIndex.x() - 1,
+    //                                                     cellIndex.y() - 1,
+    //                                                     cellIndex.z() - 1,
+    //                                                     rangeFilter->propagateToSubGrids() );
+    //                }
+    //            }
+    //            else
+    //            {
+    //                cellRangeFilter->addCellExcludeRange( rangeFilter->startIndexI - 1,
+    //                                                      rangeFilter->startIndexJ - 1,
+    //                                                      rangeFilter->startIndexK - 1,
+    //                                                      rangeFilter->startIndexI - 1 + rangeFilter->cellCountI,
+    //                                                      rangeFilter->startIndexJ - 1 + rangeFilter->cellCountJ,
+    //                                                      rangeFilter->startIndexK - 1 + rangeFilter->cellCountK,
+    //                                                      rangeFilter->propagateToSubGrids() );
+    //            }
+    //        }
+    //    }
+    //}
 }
 
 //--------------------------------------------------------------------------------------------------

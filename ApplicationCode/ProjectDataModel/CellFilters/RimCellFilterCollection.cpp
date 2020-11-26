@@ -31,6 +31,7 @@
 #include "cafPdmFieldReorderCapability.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
+#include "cvfStructGridGeometryGenerator.h"
 
 CAF_PDM_SOURCE_INIT( RimCellFilterCollection, "RimCellFilterCollection" );
 
@@ -82,7 +83,7 @@ void RimCellFilterCollection::fieldChangedByUi( const caf::PdmFieldHandle* chang
     updateIconState();
     uiCapability()->updateConnectedEditors();
 
-    //    updateDisplayModelNotifyManagedViews( nullptr );
+    onFilterUpdated( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -155,6 +156,7 @@ RimCellFilter* RimCellFilterCollection::addNewPolylineFilter( RimCase* srcCase )
 {
     RimPolylineFilter* pFilter = new RimPolylineFilter();
     m_cellFilters.push_back( pFilter );
+    pFilter->filterChanged.connect( this, &RimCellFilterCollection::onFilterUpdated );
 
     this->updateConnectedEditors();
 
@@ -168,6 +170,7 @@ RimCellFilter* RimCellFilterCollection::addNewUserDefinedFilter( RimCase* srcCas
 {
     RimUserDefinedFilter* pFilter = new RimUserDefinedFilter();
     m_cellFilters.push_back( pFilter );
+    pFilter->filterChanged.connect( this, &RimCellFilterCollection::onFilterUpdated );
 
     this->updateConnectedEditors();
 
@@ -181,9 +184,52 @@ RimCellFilter* RimCellFilterCollection::addNewCellRangeFilter( RimCase* srcCase 
 {
     RimCellRangeFilter* pFilter = new RimCellRangeFilter();
     m_cellFilters.push_back( pFilter );
+    pFilter->filterChanged.connect( this, &RimCellFilterCollection::onFilterUpdated );
     pFilter->setDefaultValues();
 
     this->updateConnectedEditors();
 
     return pFilter;
+}
+
+void RimCellFilterCollection::onFilterUpdated( const SignalEmitter* emitter )
+{
+    Rim3dView* view = nullptr;
+    firstAncestorOrThisOfType( view );
+    if ( !view ) return;
+
+    if ( view->isMasterView() )
+    {
+        RimViewLinker* viewLinker = view->assosiatedViewLinker();
+        if ( viewLinker )
+        {
+            // TODO - more generic update here!?
+            // Update data for range filter
+            // Update of display model is handled by view->scheduleGeometryRegen, also for managed views
+            viewLinker->updateRangeFilters( nullptr );
+        }
+    }
+
+    view->scheduleGeometryRegen( VISIBLE_WELL_CELLS );
+    view->scheduleGeometryRegen( RANGE_FILTERED );
+    view->scheduleGeometryRegen( RANGE_FILTERED_INACTIVE );
+
+    view->scheduleCreateDisplayModelAndRedraw();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// RimCellRangeFilter is using Eclipse 1-based indexing, adjust filter values before
+//  populating cvf::CellRangeFilter (which is 0-based)
+//--------------------------------------------------------------------------------------------------
+void RimCellFilterCollection::compoundCellRangeFilter( cvf::CellRangeFilter* cellRangeFilter, size_t gridIndex ) const
+{
+    CVF_ASSERT( cellRangeFilter );
+
+    for ( RimCellFilter* filter : m_cellFilters )
+    {
+        if ( filter->isActive() && static_cast<size_t>( filter->gridIndex() ) == gridIndex )
+        {
+            filter->updateCompundFilter( cellRangeFilter );
+        }
+    }
 }
