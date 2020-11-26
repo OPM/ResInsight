@@ -230,17 +230,8 @@ void RimPolylineFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeFilt
 
     if ( this->filterMode() == RimCellFilter::INCLUDE )
     {
-        //for ( const auto& cellIndex : m_individualCellIndices() )
-        //{
-        //    cellRangeFilter->addCellInclude( cellIndex.x() - 1, cellIndex.y() - 1, cellIndex.z() - 1, propagateToSubGrids() );
-        //}
     }
     else
     {
-        // for ( const auto& cellIndex : m_individualCellIndices() )
-        //{
-        //    cellRangeFilter->addCellExclude( cellIndex.x() - 1, cellIndex.y() - 1, cellIndex.z() - 1,
-        //    propagateToSubGrids() );
-        //}
     }
 }
