@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimUserDefinedFilter.h"
+#include "cvfStructGridGeometryGenerator.h"
 
 CAF_PDM_SOURCE_INIT( RimUserDefinedFilter, "UserDefinedFilter" );
 
@@ -58,13 +59,32 @@ void RimUserDefinedFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<cvf::Vec3d>& RimUserDefinedFilter::individualCellIndices() const
-{
-    return m_individualCellIndices.v();
-}
-
 void RimUserDefinedFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                              const QVariant&            oldValue,
                                              const QVariant&            newValue )
 {
+    if ( changedField != &m_name ) filterChanged.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimUserDefinedFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter ) const
+{
+    CVF_ASSERT( cellRangeFilter );
+
+    if ( this->filterMode() == RimCellFilter::INCLUDE )
+    {
+        for ( const auto& cellIndex : m_individualCellIndices() )
+        {
+            cellRangeFilter->addCellInclude( cellIndex.x() - 1, cellIndex.y() - 1, cellIndex.z() - 1, propagateToSubGrids() );
+        }
+    }
+    else
+    {
+        for ( const auto& cellIndex : m_individualCellIndices() )
+        {
+            cellRangeFilter->addCellExclude( cellIndex.x() - 1, cellIndex.y() - 1, cellIndex.z() - 1, propagateToSubGrids() );
+        }
+    }
 }

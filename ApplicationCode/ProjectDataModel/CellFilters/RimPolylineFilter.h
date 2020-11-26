@@ -61,6 +61,8 @@ public:
     bool                            pickingEnabled() const override;
     caf::PickEventHandler*          pickEventHandler() const override;
 
+    void updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter ) const override;
+
 protected:
     // void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
