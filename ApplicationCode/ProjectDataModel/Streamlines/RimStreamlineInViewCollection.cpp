@@ -27,15 +27,19 @@
 #include "RigResultAccessorFactory.h"
 #include "RigSimWellData.h"
 #include "RigTracerPoint.h"
+
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimStreamline.h"
 
 #include "RiaLogging.h"
 
+#include "RiuViewer.h"
+
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDoubleSliderEditor.h"
+#include "cafPdmUiTreeOrdering.h"
 
 #include "cvfCollection.h"
 
@@ -65,6 +69,10 @@ CAF_PDM_SOURCE_INIT( RimStreamlineInViewCollection, "StreamlineInViewCollection"
 RimStreamlineInViewCollection::RimStreamlineInViewCollection()
 {
     CAF_PDM_InitScriptableObject( "Streamlines", ":/Erase.png", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend", "", "", "" );
+    m_legendConfig = new RimRegularLegendConfig();
+    m_legendConfig.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_collectionName, "Name", "Name", "", "", "" );
     m_collectionName = "Streamlines";
@@ -131,6 +139,7 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
 //--------------------------------------------------------------------------------------------------
 RimStreamlineInViewCollection::~RimStreamlineInViewCollection()
 {
+    delete m_legendConfig;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -228,6 +237,53 @@ const std::list<RigTracer>& RimStreamlineInViewCollection::tracers()
         m_activeTracers.push_back( streamline->tracer() );
     }
     return m_activeTracers;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RimRegularLegendConfig* RimStreamlineInViewCollection::legendConfig() const
+{
+    return m_legendConfig();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStreamlineInViewCollection::mappingRange( double& min, double& max ) const
+{
+    min = HUGE_VAL;
+    max = -HUGE_VAL;
+
+    for ( auto streamline : m_streamlines() )
+    {
+        const RigTracer& tracer = streamline->tracer();
+        for ( size_t i = 0; i < tracer.tracerPoints().size() - 1; i++ )
+        {
+            min = std::min( min, tracer.tracerPoints()[i].absValue() );
+            max = std::max( max, tracer.tracerPoints()[i].absValue() );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStreamlineInViewCollection::updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer,
+                                                                         bool       isUsingOverrideViewer )
+{
+    goForIt();
+    m_legendConfig->setTitle( QString( "Streamlines: \n" ) );
+    double minResultValue;
+    double maxResultValue;
+    mappingRange( minResultValue, maxResultValue );
+    m_legendConfig->setAutomaticRanges( minResultValue, maxResultValue, minResultValue, maxResultValue );
+    m_legendConfig->setMappingMode( RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS );
+
+    double posClosestToZero = HUGE_VAL;
+    double negClosestToZero = -HUGE_VAL;
+    m_legendConfig->setClosestToZeroValues( posClosestToZero, negClosestToZero, posClosestToZero, negClosestToZero );
+    nativeOrOverrideViewer->addColorLegendToBottomLeftCorner( m_legendConfig->titledOverlayFrame(), isUsingOverrideViewer );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -406,6 +462,16 @@ void RimStreamlineInViewCollection::defineUiOrdering( QString uiConfigName, caf:
         visualizationGroup->add( &m_scaleFactor );
         visualizationGroup->add( &m_tracerLength );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStreamlineInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
+                                                          QString                 uiConfigName /*= "" */ )
+{
+    uiTreeOrdering.add( &m_legendConfig );
+    uiTreeOrdering.skipRemainingChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

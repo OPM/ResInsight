@@ -38,6 +38,10 @@ class RigCell;
 class RigResultAccessor;
 class RigGridBase;
 
+class RimRegularLegendConfig;
+
+class RiuViewer;
+
 class RimStreamlineInViewCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
@@ -70,6 +74,10 @@ public:
 
     const std::list<RigTracer>& tracers();
 
+    const RimRegularLegendConfig* legendConfig() const;
+    void                          mappingRange( double& min, double& max ) const;
+    void updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer );
+
 protected:
     caf::PdmFieldHandle* objectToggleField() override;
 
@@ -78,6 +86,7 @@ private:
     void loadDataIfMissing( RiaDefines::PhaseType phase, int timeIdx );
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
@@ -125,4 +134,6 @@ private:
     std::set<size_t> m_wellCellIds;
 
     std::vector<cvf::ref<RigResultAccessor>> m_dataAccess;
+
+    caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
 };

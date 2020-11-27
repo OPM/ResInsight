@@ -1491,6 +1491,11 @@ void RimEclipseView::onUpdateLegends()
     {
         m_surfaceCollection->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
     }
+
+    if ( m_streamlineCollection )
+    {
+        m_streamlineCollection->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -128,7 +128,35 @@ private:
         std::vector<double>          partTValues;
     };
 
+    struct Streamline
+    {
+        Streamline() { animIndex = 0; };
+
+        void                    appendTracerPoint( cvf::Vec3d point );
+        void                    appendAbsVelocity( double velocity );
+        void                    clear();
+        cvf::ref<cvf::Part>     getPart();
+        std::vector<cvf::Vec3d> getTracerPoints() const;
+        double                  getAbsVelocity( size_t index ) const;
+        size_t                  countTracerPoints() const;
+        void                    setPart( cvf::ref<cvf::Part> part );
+        size_t                  getAnimationIndex() const;
+        void                    incrementAnimationIndex();
+
+    private:
+        std::vector<cvf::Vec3d> tracerPoints;
+        std::vector<double>     absVelocities;
+        cvf::ref<cvf::Part>     part;
+        size_t                  animIndex;
+    };
+
 private:
+    cvf::ref<cvf::Part> createPart( const RimStreamlineInViewCollection& streamlineCollection,
+                                    Streamline&                          streamlineVisualization );
+
+    void                createResultColorTextureCoords( cvf::Vec2fArray*         textureCoords,
+                                                        const Streamline&        streamline,
+                                                        const cvf::ScalarMapper* mapper );
     cvf::ref<cvf::Part> createCurvePart( const RimStreamlineInViewCollection& streamlineCollection,
                                          StreamlineVisualization&             streamlineVisualization,
                                          const double                         t1,
@@ -149,9 +177,10 @@ private:
     void setAlpha( cvf::ref<cvf::Part> part, float alpha );
 
 private:
-    std::list<StreamlineVisualization> m_streamlines;
-    caf::PdmPointer<RimEclipseView>    m_rimReservoirView;
-    uint                               m_count;
-    size_t                             m_currentT;
-    bool                               m_showAsVectors;
+    // std::list<StreamlineVisualization> m_streamlines;
+    std::list<Streamline>           m_streamlines;
+    caf::PdmPointer<RimEclipseView> m_rimReservoirView;
+    uint                            m_count;
+    size_t                          m_currentT;
+    bool                            m_showAsVectors;
 };
