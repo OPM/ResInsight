@@ -10,7 +10,7 @@ on:
 env:
   NINJA_VERSION: 1.9.0
   BUILD_TYPE: Release
-  BUILDCACHE_VERSION: 0.18.0
+  BUILDCACHE_VERSION: 0.23.0
   BUILDCACHE_DIR: ${{ github.workspace }}/buildcache_dir
 
 jobs:
@@ -27,14 +27,6 @@ jobs:
             environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
             vcpkg-response-file: vcpkg_x64-windows.txt,
             vcpkg-triplet: x64-windows,
-            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake'
-          }
-        - {
-            name: "Ubuntu Latest GCC",
-            os: ubuntu-latest,
-            cc: "gcc", cxx: "g++",
-            vcpkg-response-file: vcpkg_x64-linux.txt,
-            vcpkg-triplet: x64-linux,
             cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake'
           }
         - {
@@ -75,7 +67,7 @@ jobs:
           if ("${{ runner.os }}" STREQUAL "Windows")
             set(buildcache_suffix "win-msvc.zip")
           elseif ("${{ runner.os }}" STREQUAL "Linux")
-            set(buildcache_suffix "linux.zip")
+            set(buildcache_suffix "linux.tar.gz")
           endif()
 
           set(buildcache_version $ENV{BUILDCACHE_VERSION})
@@ -85,7 +77,7 @@ jobs:
 
           if (NOT "${{ runner.os }}" STREQUAL "Windows")
             execute_process(
-              COMMAND chmod +x bin/buildcache
+              COMMAND chmod +x buildcache/bin/buildcache
             )
           endif()
           
@@ -105,7 +97,7 @@ jobs:
         run: New-Item ${{ env.BUILDCACHE_DIR }} -ItemType "directory" -Force 
         shell: pwsh
       - name: Add buildcache to system path
-        run: echo "${{github.workspace}}/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
+        run: echo "${{github.workspace}}/buildcache/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
         shell: pwsh
         
       - name: Cache Qt        
@@ -211,7 +203,7 @@ jobs:
           endif()
 
       - name: Stats for buildcache
-        run: ${{ github.workspace }}/bin/buildcache -s
+        run: ${{ github.workspace }}/buildcache/bin/buildcache -s
 
       - name: (Windows) Run Unit Tests
         if: contains( matrix.config.os, 'windows')  
