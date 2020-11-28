@@ -240,10 +240,10 @@ void AnimationToolBar::connectAnimationControl( caf::FrameAnimationControl* anim
 //--------------------------------------------------------------------------------------------------
 void AnimationToolBar::setFrameRate( double frameRate )
 {
-    float sliderRange = m_frameRateSlider->maximum() - m_frameRateSlider->minimum();
+    float sliderRange = static_cast<float>(m_frameRateSlider->maximum() - m_frameRateSlider->minimum());
 
     float frameRateRange           = m_fastFrameRate - m_slowFrameRate;
-    float normalizedSliderPosition = ( frameRate - m_slowFrameRate ) / frameRateRange;
+    float normalizedSliderPosition = ( ((float)frameRate) - m_slowFrameRate ) / frameRateRange;
     float sliderTickValue          = sliderRange * normalizedSliderPosition;
 
     m_frameRateSlider->blockSignals( true );
@@ -289,8 +289,8 @@ void AnimationToolBar::setCurrentTimeStepIndex( int index )
 //--------------------------------------------------------------------------------------------------
 void AnimationToolBar::slotFrameRateSliderChanged( int sliderTickValue )
 {
-    float sliderRange              = m_frameRateSlider->maximum() - m_frameRateSlider->minimum();
-    float normalizedSliderPosition = sliderTickValue / sliderRange;
+    float sliderRange              = static_cast<float>(m_frameRateSlider->maximum() - m_frameRateSlider->minimum());
+    float normalizedSliderPosition = ((float)sliderTickValue) / sliderRange;
 
     float frameRateRange = m_fastFrameRate - m_slowFrameRate;
     float newFrameRate   = m_slowFrameRate + frameRateRange * normalizedSliderPosition;

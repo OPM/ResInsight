@@ -57,10 +57,10 @@ public:
     struct LayoutOptions
     {
         static const int MAX_COLUMN_SPAN = -1;
-        LayoutOptions( bool newRow = true, int totalColumnSpan = MAX_COLUMN_SPAN, int leftLabelColumnSpan = MAX_COLUMN_SPAN )
-            : newRow( newRow )
-            , totalColumnSpan( totalColumnSpan )
-            , leftLabelColumnSpan( leftLabelColumnSpan )
+        LayoutOptions( bool anewRow = true, int atotalColumnSpan = MAX_COLUMN_SPAN, int aleftLabelColumnSpan = MAX_COLUMN_SPAN )
+            : newRow( anewRow )
+            , totalColumnSpan( atotalColumnSpan )
+            , leftLabelColumnSpan( aleftLabelColumnSpan )
         {
         }
 

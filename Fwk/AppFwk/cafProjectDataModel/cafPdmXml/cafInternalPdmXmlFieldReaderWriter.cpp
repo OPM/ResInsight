@@ -18,6 +18,7 @@ void PdmFieldReader<QString>::readFieldData( QString& field, QXmlStreamReader& x
     // Make stream point to end of element
     QXmlStreamReader::TokenType type;
     type = xmlStream.readNext();
+    Q_UNUSED( type );
     PdmFieldIOHelper::skipCharactersAndComments( xmlStream );
 }
 

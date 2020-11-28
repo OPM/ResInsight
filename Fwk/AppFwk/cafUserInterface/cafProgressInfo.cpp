@@ -209,7 +209,7 @@ QString createMemoryLabelText()
     float currentUsageFraction = 0.0f;
     if ( currentUsage > 0u && totalPhysicalMemory > 0u )
     {
-        currentUsageFraction = std::min( 1.0f, static_cast<float>( currentUsage ) / totalPhysicalMemory );
+        currentUsageFraction = std::min( 1.0f, static_cast<float>( currentUsage ) / static_cast<float>(totalPhysicalMemory) );
     }
 
     QString labelText( "\n" );
@@ -320,10 +320,10 @@ static size_t currentTotalProgress()
     for ( int i = static_cast<int>( progressStack_v.size() ) - 1; i >= 0; --i )
     {
         size_t span = ( i < 1 ) ? 1 : progressSpanStack_v[i - 1];
-        progress    = span * ( progress + progressStack_v[i] ) / (double)maxProgressStack_v[i];
+        progress    = (double)span * ( progress + (double)progressStack_v[i] ) / (double)maxProgressStack_v[i];
     }
 
-    size_t totalIntProgress = static_cast<size_t>( currentTotalMaxProgressValue() * progress );
+    size_t totalIntProgress = static_cast<size_t>( (double)currentTotalMaxProgressValue() * progress );
 
     return totalIntProgress;
 }

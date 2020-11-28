@@ -48,6 +48,9 @@ void PdmXmlObjectHandle::readFields( QXmlStreamReader& xmlStream, PdmObjectFacto
     {
         type = xmlStream.readNext();
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-enum"
+
         switch ( type )
         {
             case QXmlStreamReader::StartElement:
@@ -70,6 +73,7 @@ void PdmXmlObjectHandle::readFields( QXmlStreamReader& xmlStream, PdmObjectFacto
                         // (typically an "endElement")
                         QXmlStreamReader::TokenType tt;
                         tt = xmlStream.readNext();
+                        Q_UNUSED( tt );
                         xmlFieldHandle->readFieldData( xmlStream, objectFactory );
                     }
                     else
@@ -111,6 +115,7 @@ void PdmXmlObjectHandle::readFields( QXmlStreamReader& xmlStream, PdmObjectFacto
             }
             break;
         }
+#pragma GCC diagnostic pop
     }
 }
 //--------------------------------------------------------------------------------------------------
@@ -154,6 +159,7 @@ void PdmXmlObjectHandle::readObjectFromXmlString( const QString& xmlString, PdmO
     QXmlStreamReader::TokenType tt;
     tt                   = inputStream.readNext(); // Start of document
     tt                   = inputStream.readNext();
+    Q_UNUSED( tt );
     QString classKeyword = inputStream.name().toString();
     CAF_ASSERT( classKeyword == this->classKeyword() );
 
@@ -172,6 +178,7 @@ PdmObjectHandle* PdmXmlObjectHandle::readUnknownObjectFromXmlString( const QStri
     QXmlStreamReader::TokenType tt;
     tt                            = inputStream.readNext(); // Start of document
     tt                            = inputStream.readNext();
+    Q_UNUSED( tt );
     QString          classKeyword = inputStream.name().toString();
     PdmObjectHandle* newObject    = objectFactory->create( classKeyword );
 
@@ -218,6 +225,7 @@ caf::PdmObjectHandle* PdmXmlObjectHandle::copyAndCastByXmlSerialization( const Q
     QXmlStreamReader::TokenType tt;
     tt                   = inputStream.readNext(); // Start of document
     tt                   = inputStream.readNext();
+    Q_UNUSED( tt );
     QString classKeyword = inputStream.name().toString();
     CAF_ASSERT( classKeyword == sourceClassKeyword );
 

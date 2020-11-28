@@ -38,7 +38,10 @@
 
 #include <QString>
 #include <QStringList>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
 #include <QTextStream>
+#pragma GCC diagnostic pop
 #include <vector>
 
 namespace caf

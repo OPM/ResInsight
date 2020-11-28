@@ -65,8 +65,8 @@ IconProvider::IconProvider( const QString& iconResourceString, const QSize& pref
 //--------------------------------------------------------------------------------------------------
 caf::IconProvider::IconProvider( const QPixmap& pixmap )
     : m_active( true )
-    , m_pixmap( new QPixmap( pixmap ) )
     , m_preferredSize( pixmap.size() )
+    , m_pixmap( new QPixmap( pixmap ) )
 {
 }
 
@@ -181,7 +181,7 @@ std::unique_ptr<QIcon> IconProvider::icon( const QSize& size ) const
                     break;
                 }
                 QColor color( m_backgroundColorStrings[i] );
-                float  frac = i / ( (float)m_backgroundColorStrings.size() - 1.0 );
+                float  frac = (float)i / ( (float)m_backgroundColorStrings.size() - 1.0f );
                 gradient.setColorAt( frac, color );
             }
             QBrush   gradientBrush( gradient );

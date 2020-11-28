@@ -67,7 +67,7 @@ std::map<QString, uint64_t> readMemInfoLinuxMiB()
             lineLength = procMemInfo.readLine(buf, sizeof(buf));
             if (lineLength > 0)
             {
-                QString     line  = QString::fromLatin1(buf, lineLength);
+                QString     line  = QString::fromLatin1(buf, (int)lineLength);
                 QStringList words = line.split(QRegExp(":*\\s+"), QString::SkipEmptyParts);
                 if (words.size() > 1)
                 {

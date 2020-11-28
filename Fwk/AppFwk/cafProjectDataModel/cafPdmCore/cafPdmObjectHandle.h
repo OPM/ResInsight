@@ -80,9 +80,9 @@ public:
     void prepareForDelete();
 
     // Object capabilities
-    void addCapability( PdmObjectCapability* capability, bool takeOwnership )
+    void addCapability( PdmObjectCapability* acapability, bool takeOwnership )
     {
-        m_capabilities.push_back( std::make_pair( capability, takeOwnership ) );
+        m_capabilities.push_back( std::make_pair( acapability, takeOwnership ) );
     }
 
     template <typename CapabilityType>
@@ -90,8 +90,8 @@ public:
     {
         for ( size_t i = 0; i < m_capabilities.size(); ++i )
         {
-            CapabilityType* capability = dynamic_cast<CapabilityType*>( m_capabilities[i].first );
-            if ( capability ) return capability;
+            CapabilityType* acapability = dynamic_cast<CapabilityType*>( m_capabilities[i].first );
+            if ( acapability ) return acapability;
         }
         return nullptr;
     }

@@ -84,7 +84,7 @@ QSize QShortenedLabel::minimumSizeHint() const
     QFontMetrics fontMetrics   = QApplication::fontMetrics();
     QString      fullLabelText = fullText();
     QString      shortenedText = fullLabelText.left( minimumNumberOfCharacters );
-    int          minimumWidth  = fontMetrics.width( shortenedText );
+    int          minimumWidth  = fontMetrics.horizontalAdvance( shortenedText );
 
     if ( !fullLabelText.isEmpty() )
     {
@@ -94,12 +94,12 @@ QSize QShortenedLabel::minimumSizeHint() const
         QStringList labelLines = fullLabelText.split( "\n" );
         for ( QString line : labelLines )
         {
-            int lineWidth     = fontMetrics.width( line );
+            int lineWidth     = fontMetrics.horizontalAdvance( line );
             maxLineWidth      = std::max( maxLineWidth, lineWidth );
             QStringList words = line.split( " " );
             if ( !words.empty() )
             {
-                int wordWidth     = fontMetrics.width( words.front() + "..." );
+                int wordWidth     = fontMetrics.horizontalAdvance( words.front() + "..." );
                 maxFirstWordWidth = std::max( maxFirstWordWidth, wordWidth );
             }
         }
@@ -127,7 +127,7 @@ QSize QShortenedLabel::sizeHint() const
     int         maxLineWidth = 0;
     for ( const QString& line : labelLines )
     {
-        maxLineWidth = std::max( maxLineWidth, fontMetrics.width( line ) );
+        maxLineWidth = std::max( maxLineWidth, fontMetrics.horizontalAdvance( line ) );
     }
 
     return QSize( maxLineWidth, QLabel::sizeHint().height() );
@@ -155,7 +155,7 @@ void caf::QShortenedLabel::resizeText( QSize paintSize )
     int         maxLineWidth = 0;
     for ( const QString& line : labelLines )
     {
-        maxLineWidth += fontMetrics.width( line );
+        maxLineWidth += fontMetrics.horizontalAdvance( line );
     }
 
     if ( maxLineWidth < paintSize.width() )

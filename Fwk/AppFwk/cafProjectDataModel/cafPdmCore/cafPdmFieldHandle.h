@@ -41,9 +41,9 @@ public:
     virtual void ptrReferencedObjects( std::vector<PdmObjectHandle*>* ) {}
 
     // Capabilities
-    void addCapability( PdmFieldCapability* capability, bool takeOwnership )
+    void addCapability( PdmFieldCapability* acapability, bool takeOwnership )
     {
-        m_capabilities.push_back( std::make_pair( capability, takeOwnership ) );
+        m_capabilities.push_back( std::make_pair( acapability, takeOwnership ) );
     }
 
     template <typename CapabilityType>
@@ -79,8 +79,8 @@ CapabilityType* PdmFieldHandle::capability()
 {
     for ( size_t i = 0; i < m_capabilities.size(); ++i )
     {
-        CapabilityType* capability = dynamic_cast<CapabilityType*>( m_capabilities[i].first );
-        if ( capability ) return capability;
+        CapabilityType* acapability = dynamic_cast<CapabilityType*>( m_capabilities[i].first );
+        if ( acapability ) return acapability;
     }
     return NULL;
 }
@@ -93,8 +93,8 @@ const CapabilityType* PdmFieldHandle::capability() const
 {
     for ( size_t i = 0; i < m_capabilities.size(); ++i )
     {
-        const CapabilityType* capability = dynamic_cast<CapabilityType*>( m_capabilities[i].first );
-        if ( capability ) return capability;
+        const CapabilityType* acapability = dynamic_cast<CapabilityType*>( m_capabilities[i].first );
+        if ( acapability ) return acapability;
     }
     return NULL;
 }

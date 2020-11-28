@@ -36,7 +36,11 @@
 
 #pragma once
 #include <QString>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
 #include <QWidget>
+#pragma GCC diagnostic pop
 
 class QVBoxLayout;
 class QTreeView;

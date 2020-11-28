@@ -40,7 +40,10 @@
 
 #include "cafSelectionManager.h"
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
 #include <QAction>
+#pragma GCC diagnostic pop
 
 namespace caf
 {

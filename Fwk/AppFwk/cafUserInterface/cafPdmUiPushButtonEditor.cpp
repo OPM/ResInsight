@@ -101,7 +101,7 @@ void PdmUiPushButtonEditor::configureAndUpdateUi( const QString& uiConfigName )
     if ( uiField()->uiLabelPosition( uiConfigName ) != PdmUiItemInfo::HIDDEN )
     {
         QSize defaultSize = m_pushButton->sizeHint();
-        m_pushButton->setMinimumWidth( 10 * std::round( 0.1 * ( defaultSize.width() + 10 ) ) );
+        m_pushButton->setMinimumWidth( static_cast<int>(10.0 * std::round( 0.1 * ( defaultSize.width() + 10.0 ) ) ) );
         m_buttonLayout->setAlignment( m_pushButton, Qt::AlignRight );
     }
 

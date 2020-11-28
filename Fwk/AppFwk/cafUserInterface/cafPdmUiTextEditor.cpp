@@ -138,6 +138,8 @@ void PdmUiTextEditor::configureAndUpdateUi( const QString& uiConfigName )
         case PdmUiTextEditorAttribute::HTML:
             m_textEdit->setHtml( uiField()->uiValue().toString() );
             break;
+        default:
+            break;
     }
     m_textEdit->blockSignals( false );
 
@@ -209,6 +211,8 @@ void PdmUiTextEditor::slotSetValueToField()
             break;
         case PdmUiTextEditorAttribute::HTML:
             textValue = m_textEdit->toHtml();
+            break;
+        default:
             break;
     }
 

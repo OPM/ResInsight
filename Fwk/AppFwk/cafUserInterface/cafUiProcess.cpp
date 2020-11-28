@@ -112,6 +112,8 @@ void UiProcess::slotProcError( QProcess::ProcessError error )
         case QProcess::UnknownError:
             msg = "Unknown error";
             break;
+        default:
+            break;
     }
 
     doEmitStatusMsg( msg, PROCESS_STATE_ERROR );
@@ -163,6 +165,8 @@ void UiProcess::slotProcStateChanged( QProcess::ProcessState newState )
             msg           = "Running";
             statusMsgType = PROCESS_STATE_RUNNING;
             break;
+        default:
+            break;
     }
 
     doEmitStatusMsg( msg, statusMsgType );
@@ -177,7 +181,7 @@ void UiProcess::slotUpdateStatusMessage()
     {
         // Use this as a sign that the process is alive and kicking
         // Emit a message with the current run time to signify progress
-        double timeRunning = m_timer.elapsed() / 1000.0;
+        double timeRunning = (double)m_timer.elapsed() / 1000.0;
 
         QString msg = QString( "Running (%1 s)" ).arg( timeRunning, 0, 'f', 1 );
 

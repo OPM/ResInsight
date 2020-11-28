@@ -210,6 +210,7 @@ void CmdFieldChangeExec::readFieldValueFromValidXmlDocument( QXmlStreamReader& x
     for ( int i = 0; i < tokenCount; i++ )
     {
         tt = xmlStream.readNext();
+        Q_UNUSED( tt );
     }
     xmlFieldHandle->readFieldData( xmlStream, PdmDefaultObjectFactory::instance() );
 }

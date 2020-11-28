@@ -236,8 +236,8 @@ void PdmUiColorEditor::setColorOnWidget( const QColor& color )
 QColor PdmUiColorEditor::getFontColor( const QColor& backgroundColor ) const
 {
     const int THRESHOLD       = 105;
-    int       backgroundDelta = ( backgroundColor.red() * 0.299 ) + ( backgroundColor.green() * 0.587 ) +
-                          ( backgroundColor.blue() * 0.114 );
+    int       backgroundDelta = static_cast<int>(( backgroundColor.red() * 0.299 ) + ( backgroundColor.green() * 0.587 ) +
+                          ( backgroundColor.blue() * 0.114 ));
     return QColor( ( 255 - backgroundDelta < THRESHOLD ) ? Qt::black : Qt::white );
 }
 

@@ -1,6 +1,9 @@
 #pragma once
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
 #include <QVariant>
+#pragma GCC diagnostic pop
 
 namespace caf
 {

@@ -35,7 +35,11 @@
 //##################################################################################################
 #pragma once
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
 #include <QIcon>
+#pragma GCC diagnostic pop
+
 #include <QPixmap>
 #include <QSize>
 #include <QString>

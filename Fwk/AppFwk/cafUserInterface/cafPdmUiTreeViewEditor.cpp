@@ -380,6 +380,7 @@ void PdmUiTreeViewEditor::selectAsCurrentItem( const PdmUiItem* uiItem )
 {
     QModelIndex index        = m_treeViewModel->findModelIndex( uiItem );
     QModelIndex currentIndex = m_treeView->currentIndex();
+    Q_UNUSED( currentIndex );
 
     m_treeView->clearSelection();
 
