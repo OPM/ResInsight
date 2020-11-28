@@ -85,7 +85,7 @@ jobs:
 
           if (NOT "${{ runner.os }}" STREQUAL "Windows")
             execute_process(
-              COMMAND chmod +x bin/buildcache
+              COMMAND chmod +x buildcache/bin/buildcache
             )
           endif()
           
@@ -105,7 +105,7 @@ jobs:
         run: New-Item ${{ env.BUILDCACHE_DIR }} -ItemType "directory" -Force 
         shell: pwsh
       - name: Add buildcache to system path
-        run: echo "${{github.workspace}}/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
+        run: echo "${{github.workspace}}/buildcache/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
         shell: pwsh
         
       - name: Cache Qt        
@@ -211,7 +211,7 @@ jobs:
           endif()
 
       - name: Stats for buildcache
-        run: ${{ github.workspace }}/bin/buildcache -s
+        run: ${{ github.workspace }}/buildcache/bin/buildcache -s
 
       - name: (Windows) Run Unit Tests
         if: contains( matrix.config.os, 'windows')  
