@@ -75,7 +75,7 @@ jobs:
           if ("${{ runner.os }}" STREQUAL "Windows")
             set(buildcache_suffix "win-msvc.zip")
           elseif ("${{ runner.os }}" STREQUAL "Linux")
-            set(buildcache_suffix "linux.zip")
+            set(buildcache_suffix "linux.tar.gz")
           endif()
 
           set(buildcache_version $ENV{BUILDCACHE_VERSION})
