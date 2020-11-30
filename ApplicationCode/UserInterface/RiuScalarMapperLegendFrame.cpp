@@ -123,21 +123,8 @@ void RiuScalarMapperLegendFrame::layoutInfo( LayoutInfo* layout ) const
 //--------------------------------------------------------------------------------------------------
 QString RiuScalarMapperLegendFrame::label( int index ) const
 {
-    double  tickValue = m_tickValues[index];
-    QString valueString;
-    switch ( m_numberFormat )
-    {
-        case RimRegularLegendConfig::NumberFormatType::FIXED:
-            valueString = QString::number( tickValue, 'f', m_tickNumberPrecision );
-            break;
-        case RimRegularLegendConfig::NumberFormatType::SCIENTIFIC:
-            valueString = QString::number( tickValue, 'e', m_tickNumberPrecision );
-            break;
-        default:
-            valueString = QString::number( tickValue );
-            break;
-    }
-    return valueString;
+    double tickValue = m_tickValues[index];
+    return RimRegularLegendConfig::valueToText( tickValue, m_numberFormat, m_tickNumberPrecision );
 }
 
 //--------------------------------------------------------------------------------------------------
