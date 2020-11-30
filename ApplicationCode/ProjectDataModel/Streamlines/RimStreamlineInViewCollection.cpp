@@ -39,6 +39,7 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDoubleSliderEditor.h"
+#include "cafPdmUiSliderEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include "cvfCollection.h"
@@ -54,10 +55,10 @@ namespace caf
 template <>
 void AppEnum<RimStreamlineInViewCollection::VisualizationMode>::setUp()
 {
-    addItem( RimStreamlineInViewCollection::VisualizationMode::CURVES, "CURVES", "Curves" );
+    addItem( RimStreamlineInViewCollection::VisualizationMode::ANIMATION, "ANIMATION", "Animation" );
+    addItem( RimStreamlineInViewCollection::VisualizationMode::MANUAL, "MANUAL", "Manual control" );
     addItem( RimStreamlineInViewCollection::VisualizationMode::VECTORS, "VECTORS", "Vectors" );
-    addItem( RimStreamlineInViewCollection::VisualizationMode::DEBUG, "DEBUG", "Debug" );
-    setDefault( RimStreamlineInViewCollection::VisualizationMode::CURVES );
+    setDefault( RimStreamlineInViewCollection::VisualizationMode::ANIMATION );
 }
 } // namespace caf
 
@@ -111,8 +112,13 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
     m_distanceBetweenTracerPoints = 10.0;
 
     CAF_PDM_InitFieldNoDefault( &m_animationSpeed, "AnimationSpeed", "Animation Speed", "", "", "" );
-    m_animationSpeed.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
-    m_animationSpeed = 1.0;
+    m_animationSpeed.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+    m_animationSpeed = 1;
+
+    CAF_PDM_InitFieldNoDefault( &m_animationIndex, "AnimationIndex", "Animation Index", "", "", "" );
+    m_animationIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+    m_animationIndex    = 0;
+    m_maxAnimationIndex = 0;
 
     CAF_PDM_InitFieldNoDefault( &m_scaleFactor, "ScaleFactor", "Scale Factor", "", "", "" );
     m_scaleFactor.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -297,9 +303,17 @@ double RimStreamlineInViewCollection::distanceBetweenTracerPoints() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimStreamlineInViewCollection::animationSpeed() const
+size_t RimStreamlineInViewCollection::animationSpeed() const
 {
     return m_animationSpeed();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RimStreamlineInViewCollection::animationIndex() const
+{
+    return m_animationIndex();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -395,6 +409,25 @@ void RimStreamlineInViewCollection::goForIt()
 
     outputSummary();
 
+    m_maxAnimationIndex = 0;
+    for ( auto s : m_streamlines )
+    {
+        if ( s->tracer().tracerPoints().size() > 0 )
+        {
+            cvf::Vec3d lastPoint   = s->tracer().tracerPoints()[0].position();
+            size_t     countPoints = 1;
+            for ( size_t i = 1; i < s->tracer().tracerPoints().size(); i++ )
+            {
+                if ( s->tracer().tracerPoints()[i].position().pointDistance( lastPoint ) >= distanceBetweenTracerPoints() )
+                {
+                    lastPoint = s->tracer().tracerPoints()[i].position();
+                    countPoints++;
+                }
+            }
+            countPoints++;
+            m_maxAnimationIndex = std::max( countPoints, m_maxAnimationIndex );
+        }
+    }
     eclView->loadDataAndUpdate();
 }
 
@@ -459,6 +492,7 @@ void RimStreamlineInViewCollection::defineUiOrdering( QString uiConfigName, caf:
         visualizationGroup->add( &m_visualizationMode );
         visualizationGroup->add( &m_distanceBetweenTracerPoints );
         visualizationGroup->add( &m_animationSpeed );
+        visualizationGroup->add( &m_animationIndex );
         visualizationGroup->add( &m_scaleFactor );
         visualizationGroup->add( &m_tracerLength );
     }
@@ -483,14 +517,25 @@ void RimStreamlineInViewCollection::defineEditorAttribute( const caf::PdmFieldHa
 {
     if ( field == &m_animationSpeed )
     {
-        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
+        caf::PdmUiSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
         if ( !myAttr )
         {
             return;
         }
 
-        myAttr->m_minimum = 0.1;
-        myAttr->m_maximum = 100.0;
+        myAttr->m_minimum = 1.0;
+        myAttr->m_maximum = 10.0;
+    }
+    else if ( field == &m_animationIndex )
+    {
+        caf::PdmUiSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
+        if ( !myAttr )
+        {
+            return;
+        }
+
+        myAttr->m_minimum = 0.0;
+        myAttr->m_maximum = m_maxAnimationIndex;
     }
     else if ( field == &m_scaleFactor )
     {
@@ -512,10 +557,19 @@ void RimStreamlineInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle*
                                                       const QVariant&            oldValue,
                                                       const QVariant&            newValue )
 {
-    if ( changedField != &m_animationSpeed )
+    if ( changedField == &m_animationSpeed || changedField == &m_animationIndex )
     {
-        goForIt();
+        return;
     }
+
+    if ( changedField == &m_visualizationMode &&
+         qvariant_cast<int>( newValue ) != static_cast<int>( VisualizationMode::VECTORS ) &&
+         qvariant_cast<int>( newValue ) != static_cast<int>( VisualizationMode::VECTORS ) )
+    {
+        return;
+    }
+
+    goForIt();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -803,7 +857,8 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
             bool stop = false;
 
             grid->ijkFromCellIndexUnguarded( curCell->mainGridCellIndex(), &ni, &nj, &nk );
-            // qDebug() << "In cell " << curCell->mainGridCellIndex() << "(" << ni << nj << nk << ") with direction "
+            // qDebug() << "In cell " << curCell->mainGridCellIndex() << "(" << ni << nj << nk << ") with
+            // direction "
             //         << curDirection.x() << curDirection.y() << curDirection.z();
 
             // is this a well cell, if so, stop growing
@@ -889,5 +944,6 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
         }
         if ( streamLine ) delete streamLine;
     }
+
     return;
 }

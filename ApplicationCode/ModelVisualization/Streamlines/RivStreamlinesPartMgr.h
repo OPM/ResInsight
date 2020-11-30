@@ -134,18 +134,22 @@ private:
 
         void                    appendTracerPoint( cvf::Vec3d point );
         void                    appendAbsVelocity( double velocity );
+        void                    appendDirection( cvf::Vec3d direction );
         void                    clear();
         cvf::ref<cvf::Part>     getPart();
         std::vector<cvf::Vec3d> getTracerPoints() const;
         double                  getAbsVelocity( size_t index ) const;
+        cvf::Vec3d              getDirection( size_t index ) const;
         size_t                  countTracerPoints() const;
         void                    setPart( cvf::ref<cvf::Part> part );
         size_t                  getAnimationIndex() const;
-        void                    incrementAnimationIndex();
+        void                    incrementAnimationIndex( size_t increment = 1.0 );
+        void                    setAnimationIndex( size_t index );
 
     private:
         std::vector<cvf::Vec3d> tracerPoints;
         std::vector<double>     absVelocities;
+        std::vector<cvf::Vec3d> directions;
         cvf::ref<cvf::Part>     part;
         size_t                  animIndex;
     };
@@ -162,8 +166,7 @@ private:
                                          const double                         t1,
                                          const double                         t2 );
 
-    cvf::ref<cvf::Part> createVectorPart( const RimStreamlineInViewCollection& streamlineCollection,
-                                          StreamlineSegment&                   segment );
+    cvf::ref<cvf::Part> createVectorPart( const RimStreamlineInViewCollection& streamlineCollection, Streamline& segment );
 
     cvf::ref<cvf::Part> createPointsPart( const RimStreamlineInViewCollection& streamlineCollection,
                                           StreamlineVisualization&             streamlineVisualization,

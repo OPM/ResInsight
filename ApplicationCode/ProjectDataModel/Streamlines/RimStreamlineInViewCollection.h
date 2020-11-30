@@ -49,9 +49,9 @@ class RimStreamlineInViewCollection : public caf::PdmObject
 public:
     enum class VisualizationMode
     {
-        CURVES = 0,
-        VECTORS,
-        DEBUG
+        ANIMATION = 0,
+        MANUAL,
+        VECTORS
     };
     using VisualizationModeEnum = caf::AppEnum<VisualizationMode>;
 
@@ -66,7 +66,8 @@ public:
 
     VisualizationMode visualizationMode() const;
     double            distanceBetweenTracerPoints() const;
-    double            animationSpeed() const;
+    size_t            animationSpeed() const;
+    size_t            animationIndex() const;
     double            scaleFactor() const;
     double            tracerLength() const;
 
@@ -125,9 +126,12 @@ private:
     caf::PdmField<caf::AppEnum<RiaDefines::PhaseType>> m_phase;
     caf::PdmField<VisualizationModeEnum>               m_visualizationMode;
     caf::PdmField<double>                              m_distanceBetweenTracerPoints;
-    caf::PdmField<double>                              m_animationSpeed;
+    caf::PdmField<size_t>                              m_animationSpeed;
+    caf::PdmField<size_t>                              m_animationIndex;
     caf::PdmField<double>                              m_scaleFactor;
     caf::PdmField<double>                              m_tracerLength;
+
+    size_t m_maxAnimationIndex;
 
     std::list<RigTracer> m_activeTracers;
 

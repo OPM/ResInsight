@@ -209,18 +209,28 @@ void RivStreamlinesPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicLi
             {
                 streamline.appendTracerPoint( tracer.tracerPoints()[i].position() );
                 streamline.appendAbsVelocity( tracer.tracerPoints()[i].absValue() );
+                streamline.appendDirection( tracer.tracerPoints()[i].direction() );
             }
             else if ( i == 0 )
             {
                 streamline.appendTracerPoint( tracer.tracerPoints()[i].position() );
                 streamline.appendAbsVelocity( tracer.tracerPoints()[i].absValue() );
+                streamline.appendDirection( tracer.tracerPoints()[i].direction() );
             }
         }
         m_streamlines.push_back( streamline );
     }
     for ( Streamline& streamline : m_streamlines )
     {
-        model->addPart( createPart( *streamlineCollection, streamline ).p() );
+        if ( streamlineCollection->visualizationMode() == RimStreamlineInViewCollection::VisualizationMode::ANIMATION ||
+             streamlineCollection->visualizationMode() == RimStreamlineInViewCollection::VisualizationMode::MANUAL )
+        {
+            model->addPart( createPart( *streamlineCollection, streamline ).p() );
+        }
+        else if ( streamlineCollection->visualizationMode() == RimStreamlineInViewCollection::VisualizationMode::VECTORS )
+        {
+            model->addPart( createVectorPart( *streamlineCollection, streamline ).p() );
+        }
     }
 }
 
@@ -248,13 +258,34 @@ void RivStreamlinesPartMgr::updateAnimation()
         }
     }
     */
-    for ( Streamline& streamline : m_streamlines )
+    RimStreamlineInViewCollection* streamlineCollection = m_rimReservoirView->streamlineCollection();
+    if ( streamlineCollection &&
+         ( streamlineCollection->visualizationMode() == RimStreamlineInViewCollection::VisualizationMode::ANIMATION ||
+           streamlineCollection->visualizationMode() == RimStreamlineInViewCollection::VisualizationMode::MANUAL ) )
     {
-        streamline.incrementAnimationIndex();
-        // Each part should have exactly one primitive set.
-        static_cast<PrimitiveSetIndexedUIntScoped*>(
-            static_cast<DrawableGeo*>( streamline.getPart()->drawable() )->primitiveSet( 0 ) )
-            ->setScope( 0, streamline.getAnimationIndex() );
+        for ( Streamline& streamline : m_streamlines )
+        {
+            if ( streamline.getPart().notNull() && dynamic_cast<DrawableGeo*>( streamline.getPart()->drawable() ) )
+            {
+                if ( dynamic_cast<PrimitiveSetIndexedUIntScoped*>(
+                         static_cast<DrawableGeo*>( streamline.getPart()->drawable() )->primitiveSet( 0 ) ) )
+                {
+                    if ( streamlineCollection->visualizationMode() ==
+                         RimStreamlineInViewCollection::VisualizationMode::ANIMATION )
+                    {
+                        streamline.incrementAnimationIndex( streamlineCollection->animationSpeed() );
+                    }
+                    else
+                    {
+                        streamline.setAnimationIndex( streamlineCollection->animationIndex() * 2 );
+                    }
+                    // Each part should have exactly one primitive set.
+                    static_cast<PrimitiveSetIndexedUIntScoped*>(
+                        static_cast<DrawableGeo*>( streamline.getPart()->drawable() )->primitiveSet( 0 ) )
+                        ->setScope( 0, streamline.getAnimationIndex() );
+                }
+            }
+        }
     }
 }
 
@@ -333,18 +364,35 @@ void RivStreamlinesPartMgr::createResultColorTextureCoords( cvf::Vec2fArray*    
     CVF_ASSERT( textureCoords );
     CVF_ASSERT( mapper );
 
+    RimStreamlineInViewCollection* streamlineCollection = m_rimReservoirView->streamlineCollection();
+
     size_t vertexCount = streamline.countTracerPoints() * 2 - 2;
+    if ( streamlineCollection &&
+         streamlineCollection->visualizationMode() == RimStreamlineInViewCollection::VisualizationMode::VECTORS )
+    {
+        vertexCount = streamline.countTracerPoints() * 7;
+    }
     if ( textureCoords->size() != vertexCount ) textureCoords->reserve( vertexCount );
 
     size_t count = 0;
     for ( size_t i = 0; i < streamline.countTracerPoints(); i++ )
     {
         cvf::Vec2f texCoord = mapper->mapToTextureCoord( streamline.getAbsVelocity( i ) );
-        textureCoords->add( texCoord );
-        if ( i > 0 && i < streamline.countTracerPoints() - 1 )
+        if ( streamlineCollection &&
+             streamlineCollection->visualizationMode() == RimStreamlineInViewCollection::VisualizationMode::VECTORS )
         {
-            texCoord = mapper->mapToTextureCoord( streamline.getAbsVelocity( i ) );
+            for ( size_t vxIdx = 0; vxIdx < 7; ++vxIdx )
+            {
+                textureCoords->add( texCoord );
+            }
+        }
+        else
+        {
             textureCoords->add( texCoord );
+            if ( i > 0 && i < streamline.countTracerPoints() - 1 )
+            {
+                textureCoords->add( texCoord );
+            }
         }
     }
 }
@@ -405,35 +453,39 @@ cvf::ref<cvf::Part> RivStreamlinesPartMgr::createCurvePart( const RimStreamlineI
 ///
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::Part> RivStreamlinesPartMgr::createVectorPart( const RimStreamlineInViewCollection& streamlineCollection,
-                                                             StreamlineSegment&                   streamlineSegment )
+                                                             Streamline&                          streamline )
 {
     cvf::ref<caf::DisplayCoordTransform> displayCordXf = m_rimReservoirView->displayCoordTransform();
 
     std::vector<uint> shaftIndices;
-    shaftIndices.reserve( 2 );
+    shaftIndices.reserve( 2 * streamline.countTracerPoints() );
 
     std::vector<uint> headIndices;
-    headIndices.reserve( 6 );
+    headIndices.reserve( 6 * streamline.countTracerPoints() );
 
     std::vector<cvf::Vec3f> vertices;
-    vertices.reserve( 7 );
+    vertices.reserve( 7 * streamline.countTracerPoints() );
 
-    cvf::Vec3f anchorPoint = cvf::Vec3f( displayCordXf->transformToDisplayCoord( streamlineSegment.startPoint ) );
-    cvf::Vec3f direction   = cvf::Vec3f( streamlineSegment.startDirection ) * streamlineCollection.scaleFactor();
-
-    for ( const cvf::Vec3f& vertex : createArrowVertices( anchorPoint, direction ) )
+    uint count = 0;
+    for ( size_t i = 0; i < streamline.countTracerPoints(); i++ )
     {
-        vertices.push_back( vertex );
-    }
+        cvf::Vec3f anchorPoint = cvf::Vec3f( displayCordXf->transformToDisplayCoord( streamline.getTracerPoints()[i] ) );
+        cvf::Vec3f direction   = cvf::Vec3f( streamline.getDirection( i ) ) * streamlineCollection.scaleFactor();
 
-    for ( const uint& index : createArrowShaftIndices( 0 ) )
-    {
-        shaftIndices.push_back( index );
-    }
+        for ( const cvf::Vec3f& vertex : createArrowVertices( anchorPoint, direction ) )
+        {
+            vertices.push_back( vertex );
+        }
 
-    for ( const uint& index : createArrowHeadIndices( 0 ) )
-    {
-        headIndices.push_back( index );
+        for ( const uint& index : createArrowShaftIndices( 0 ) )
+        {
+            shaftIndices.push_back( index );
+        }
+
+        for ( const uint& index : createArrowHeadIndices( 0 ) )
+        {
+            headIndices.push_back( index );
+        }
     }
 
     cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUIntShaft =
@@ -455,11 +507,22 @@ cvf::ref<cvf::Part> RivStreamlinesPartMgr::createVectorPart( const RimStreamline
     cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray( vertices );
     drawable->setVertexArray( vertexArray.p() );
 
+    cvf::ref<cvf::Vec2fArray> lineTexCoords = const_cast<cvf::Vec2fArray*>( drawable->textureCoordArray() );
+
+    if ( lineTexCoords.isNull() )
+    {
+        lineTexCoords = new cvf::Vec2fArray;
+    }
+
     cvf::ref<cvf::Effect> effect;
 
-    caf::SurfaceEffectGenerator surfaceGen( cvf::Color4f( 1, 1, 1, 1 ), caf::PO_1 );
-    surfaceGen.enableLighting( false );
-    effect = surfaceGen.generateCachedEffect();
+    const cvf::ScalarMapper* activeScalarMapper = streamlineCollection.legendConfig()->scalarMapper();
+    createResultColorTextureCoords( lineTexCoords.p(), streamline, activeScalarMapper );
+
+    caf::ScalarMapperMeshEffectGenerator meshEffGen( activeScalarMapper );
+    effect = meshEffGen.generateCachedEffect();
+
+    drawable->setTextureCoordArray( lineTexCoords.p() );
 
     cvf::ref<cvf::Part> part = new cvf::Part;
     part->setDrawable( drawable.p() );
@@ -898,6 +961,14 @@ void RivStreamlinesPartMgr::Streamline::appendAbsVelocity( double velocity )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RivStreamlinesPartMgr::Streamline::appendDirection( cvf::Vec3d direction )
+{
+    directions.push_back( direction );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RivStreamlinesPartMgr::Streamline::clear()
 {
     tracerPoints.clear();
@@ -930,6 +1001,14 @@ double RivStreamlinesPartMgr::Streamline::getAbsVelocity( size_t index ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+cvf::Vec3d RivStreamlinesPartMgr::Streamline::getDirection( size_t index ) const
+{
+    return directions[index];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 size_t RivStreamlinesPartMgr::Streamline::countTracerPoints() const
 {
     return tracerPoints.size();
@@ -954,11 +1033,23 @@ size_t RivStreamlinesPartMgr::Streamline::getAnimationIndex() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivStreamlinesPartMgr::Streamline::incrementAnimationIndex()
+void RivStreamlinesPartMgr::Streamline::incrementAnimationIndex( size_t increment )
 {
-    animIndex++;
+    animIndex += increment;
     if ( animIndex >= tracerPoints.size() * 2 - 2 )
     {
-        animIndex = 0;
+        animIndex = 0.0;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivStreamlinesPartMgr::Streamline::setAnimationIndex( size_t index )
+{
+    animIndex = index;
+    if ( animIndex >= tracerPoints.size() * 2 - 2 )
+    {
+        animIndex = tracerPoints.size() * 2 - 2;
     }
 }
