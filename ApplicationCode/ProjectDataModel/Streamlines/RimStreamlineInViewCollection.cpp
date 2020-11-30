@@ -280,17 +280,22 @@ void RimStreamlineInViewCollection::updateLegendRangesTextAndVisibility( RiuView
                                                                          bool       isUsingOverrideViewer )
 {
     goForIt();
-    m_legendConfig->setTitle( QString( "Streamlines: \n" ) );
-    double minResultValue;
-    double maxResultValue;
-    mappingRange( minResultValue, maxResultValue );
-    m_legendConfig->setAutomaticRanges( minResultValue, maxResultValue, minResultValue, maxResultValue );
-    m_legendConfig->setMappingMode( RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS );
 
-    double posClosestToZero = HUGE_VAL;
-    double negClosestToZero = -HUGE_VAL;
-    m_legendConfig->setClosestToZeroValues( posClosestToZero, negClosestToZero, posClosestToZero, negClosestToZero );
-    nativeOrOverrideViewer->addColorLegendToBottomLeftCorner( m_legendConfig->titledOverlayFrame(), isUsingOverrideViewer );
+    if ( m_isActive() )
+    {
+        m_legendConfig->setTitle( QString( "Streamlines: \n" ) );
+        double minResultValue;
+        double maxResultValue;
+        mappingRange( minResultValue, maxResultValue );
+        m_legendConfig->setAutomaticRanges( minResultValue, maxResultValue, minResultValue, maxResultValue );
+        m_legendConfig->setMappingMode( RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS );
+
+        double posClosestToZero = HUGE_VAL;
+        double negClosestToZero = -HUGE_VAL;
+        m_legendConfig->setClosestToZeroValues( posClosestToZero, negClosestToZero, posClosestToZero, negClosestToZero );
+        nativeOrOverrideViewer->addColorLegendToBottomLeftCorner( m_legendConfig->titledOverlayFrame(),
+                                                                  isUsingOverrideViewer );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -346,6 +351,12 @@ void RimStreamlineInViewCollection::goForIt()
     RimEclipseView* eclView = nullptr;
     this->firstAncestorOrThisOfType( eclView );
     if ( !eclView ) return;
+
+    if ( !m_isActive() )
+    {
+        eclView->loadDataAndUpdate();
+        return;
+    }
 
     // get current simulation timestep
     int timeIdx = eclView->currentTimeStep();
