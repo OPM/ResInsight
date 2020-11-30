@@ -105,12 +105,12 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ github.workspace }}/Qt/
-          key: ${{ matrix.config.os }}-QtCache-v02
+          key: ${{ matrix.config.os }}-QtCache-v03
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
         with:
           version: 5.9.9
-          modules: qtscript 
+          modules: qtscript qtcharts
           dir: '${{ github.workspace }}/Qt/'
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
       - name: Install Linux dependencies
