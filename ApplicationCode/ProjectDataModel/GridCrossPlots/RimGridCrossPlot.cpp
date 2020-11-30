@@ -886,24 +886,21 @@ void RimGridCrossPlot::updateAxisInQwt( RiaDefines::PlotAxis axisType )
                 m_plotWidget->setAxisMaxMinor( axisProperties->qwtPlotAxisType(), 5 );
             }
 
+            double min = axisProperties->visibleRangeMin;
+            double max = axisProperties->visibleRangeMax;
             if ( axisProperties->isAutoZoom() )
             {
                 std::vector<const QwtPlotCurve*> plotCurves = visibleQwtCurves();
 
-                double                        min, max;
                 RimPlotAxisLogRangeCalculator logRangeCalculator( qwtAxisId, plotCurves );
                 logRangeCalculator.computeAxisRange( &min, &max );
-                if ( axisProperties->isAxisInverted() )
-                {
-                    std::swap( min, max );
-                }
+            }
 
-                m_plotWidget->setAxisScale( qwtAxisId, min, max );
-            }
-            else
+            if ( axisProperties->isAxisInverted() )
             {
-                m_plotWidget->setAxisScale( qwtAxisId, axisProperties->visibleRangeMin, axisProperties->visibleRangeMax );
+                std::swap( min, max );
             }
+            m_plotWidget->setAxisScale( qwtAxisId, min, max );
         }
         else
         {
@@ -918,14 +915,21 @@ void RimGridCrossPlot::updateAxisInQwt( RiaDefines::PlotAxis axisType )
             if ( axisProperties->isAutoZoom() )
             {
                 m_plotWidget->setAxisAutoScale( qwtAxisId );
+                m_plotWidget->axisScaleEngine( axisProperties->qwtPlotAxisType() )
+                    ->setAttribute( QwtScaleEngine::Inverted, axisProperties->isAxisInverted() );
             }
             else
             {
-                m_plotWidget->setAxisScale( qwtAxisId, axisProperties->visibleRangeMin, axisProperties->visibleRangeMax );
+                double min = axisProperties->visibleRangeMin;
+                double max = axisProperties->visibleRangeMax;
+                if ( axisProperties->isAxisInverted() )
+                {
+                    std::swap( min, max );
+                }
+
+                m_plotWidget->setAxisScale( qwtAxisId, min, max );
             }
         }
-        m_plotWidget->axisScaleEngine( axisProperties->qwtPlotAxisType() )
-            ->setAttribute( QwtScaleEngine::Inverted, axisProperties->isAxisInverted() );
     }
     else
     {
