@@ -65,10 +65,6 @@ RimGridStatisticsPlot::RimGridStatisticsPlot()
     CAF_PDM_InitField( &m_plotWindowTitle, "PlotDescription", QString( "" ), "Name", "", "", "" );
     m_plotWindowTitle.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_subTitleFontSize, "SubTitleFontSize", "Track Title Font Size", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_axisTitleFontSize, "AxisTitleFontSize", "Axis Title Font Size", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_axisValueFontSize, "AxisValueFontSize", "Axis Value Font Size", "", "", "" );
-
     CAF_PDM_InitFieldNoDefault( &m_case, "Case", "Case", "", "", "" );
     m_case.uiCapability()->setUiTreeChildrenHidden( true );
     CAF_PDM_InitField( &m_timeStep, "TimeStep", -1, "Time Step", "", "", "" );
@@ -84,8 +80,9 @@ RimGridStatisticsPlot::RimGridStatisticsPlot()
     m_property.uiCapability()->setUiTreeChildrenHidden( true );
     m_property->setTernaryEnabled( false );
 
-    // m_plotLegendsHorizontal = false;
-    // setPlotTitleVisible( false );
+    m_plotLegendsHorizontal.uiCapability()->setUiHidden( true );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -177,7 +174,7 @@ QImage RimGridStatisticsPlot::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 QWidget* RimGridStatisticsPlot::createViewWidget( QWidget* mainWindowParent )
 {
-    m_viewer = new QChartView();
+    m_viewer = new RiuQtChartView( this, mainWindowParent );
     recreatePlotWidgets();
     return m_viewer;
 }
@@ -221,10 +218,11 @@ void RimGridStatisticsPlot::onPlotAdditionOrRemoval()
 //--------------------------------------------------------------------------------------------------
 void RimGridStatisticsPlot::doRenderWindowContent( QPaintDevice* paintDevice )
 {
-    // if ( m_viewer )
-    // {
-    //     m_viewer->renderTo( paintDevice );
-    // }
+    if ( m_viewer )
+    {
+        QPainter painter( paintDevice );
+        m_viewer->render( &painter );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -291,9 +289,11 @@ void RimGridStatisticsPlot::fieldChangedByUi( const caf::PdmFieldHandle* changed
         // }
 
         // destroyCurves();
+    }
+    else
+    {
         loadDataAndUpdate();
     }
-
     updateConnectedEditors();
 }
 
@@ -314,9 +314,6 @@ void RimGridStatisticsPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 
     caf::PdmUiGroup* plotLayoutGroup = uiOrdering.addNewGroup( "Plot Layout" );
     RimPlotWindow::uiOrderingForPlotLayout( uiConfigName, *plotLayoutGroup );
-    plotLayoutGroup->add( &m_subTitleFontSize );
-    plotLayoutGroup->add( &m_axisTitleFontSize );
-    plotLayoutGroup->add( &m_axisValueFontSize );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -329,12 +326,7 @@ QList<caf::PdmOptionItemInfo>
 {
     QList<caf::PdmOptionItemInfo> options = RimPlotWindow::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
 
-    if ( fieldNeedingOptions == &m_subTitleFontSize || fieldNeedingOptions == &m_axisTitleFontSize ||
-         fieldNeedingOptions == &m_axisValueFontSize )
-    {
-        options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultPlotFontSize() );
-    }
-    else if ( fieldNeedingOptions == &m_case )
+    if ( fieldNeedingOptions == &m_case )
     {
         RimTools::eclipseCaseOptionItems( &options );
         if ( options.empty() )
@@ -387,7 +379,7 @@ void RimGridStatisticsPlot::initAfterRead()
 void RimGridStatisticsPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
-    //    performAutoNameUpdate();
+    performAutoNameUpdate();
     updatePlots();
     updateLayout();
 }
@@ -397,8 +389,6 @@ void RimGridStatisticsPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimGridStatisticsPlot::updatePlots()
 {
-    std::cout << "Update plots!" << std::endl;
-
     if ( m_viewer )
     {
         if ( m_cellFilterView.value() )
@@ -430,8 +420,7 @@ void RimGridStatisticsPlot::updatePlots()
 
                 QChart* chart = new QChart();
                 chart->addSeries( series );
-                chart->setTitle( "Simple barchart example" );
-                chart->setAnimationOptions( QChart::SeriesAnimations );
+                chart->setTitle( uiName() );
 
                 // Axis
                 double xAxisSize      = histogramData.max - histogramData.min;
@@ -469,6 +458,20 @@ void RimGridStatisticsPlot::updatePlots()
                 meanSeries->attachAxis( axisX );
                 meanSeries->attachAxis( axisY );
 
+                // Set font sizes
+                QFont titleFont = chart->titleFont();
+                titleFont.setPixelSize( titleFontSize() );
+                chart->setTitleFont( titleFont );
+
+                QLegend* legend = chart->legend();
+                if ( legend )
+                {
+                    QFont legendFont = legend->font();
+                    legendFont.setPixelSize( legendFontSize() );
+                    legend->setFont( legendFont );
+                    legend->setVisible( legendsVisible() );
+                }
+
                 m_viewer->setChart( chart );
             }
         }
@@ -486,35 +489,48 @@ caf::PdmFieldHandle* RimGridStatisticsPlot::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridStatisticsPlot::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                                            std::vector<caf::PdmObjectHandle*>& referringObjects )
+QString RimGridStatisticsPlot::createAutoName() const
 {
-    // calculateAvailableDepthRange();
-    // updateZoom();
-    // RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
-    // mainPlotWindow->updateWellLogPlotToolBar();
+    if ( m_case() == nullptr )
+    {
+        return "Undefined";
+    }
+
+    QStringList nameTags;
+    nameTags += m_case()->caseUserDescription();
+
+    QString timeStepStr = timeStepString();
+    if ( !timeStepStr.isEmpty() )
+    {
+        nameTags += timeStepStr;
+    }
+
+    return nameTags.join( "," );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimGridStatisticsPlot::subTitleFontSize() const
+void RimGridStatisticsPlot::performAutoNameUpdate()
 {
-    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_subTitleFontSize() );
+    QString name      = createAutoName();
+    m_plotWindowTitle = name;
+    setUiName( name );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimGridStatisticsPlot::axisTitleFontSize() const
+QString RimGridStatisticsPlot::timeStepString() const
 {
-    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisTitleFontSize() );
-}
+    if ( m_case() && m_property->hasDynamicResult() )
+    {
+        if ( m_timeStep == -1 )
+        {
+            return "All Time Steps";
+        }
+        return m_case->timeStepStrings()[m_timeStep];
+    }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int RimGridStatisticsPlot::axisValueFontSize() const
-{
-    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisValueFontSize() );
+    return "";
 }

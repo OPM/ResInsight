@@ -21,12 +21,14 @@
 #include "RiaDefines.h"
 #include "RimPlotWindow.h"
 
+#include "RiuQtChartView.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
-#include "cafPdmPtrField.h"
 #include "cafPdmFieldHandle.h"
 #include "cafPdmObject.h"
+#include "cafPdmPtrField.h"
 
 #include <QPointer>
 
@@ -55,13 +57,6 @@ public:
 
     void zoomAll() override;
 
-    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
-
-    int subTitleFontSize() const;
-    int axisTitleFontSize() const;
-    int axisValueFontSize() const;
-
 protected:
     QImage snapshotWindowContent() override;
 
@@ -80,6 +75,10 @@ protected:
     void                 updatePlots();
     caf::PdmFieldHandle* userDescriptionField() override;
 
+    void    performAutoNameUpdate();
+    QString createAutoName() const;
+    QString timeStepString() const;
+
     void setDefaults();
 
 private:
@@ -89,12 +88,9 @@ private:
     void doUpdateLayout() override;
 
 protected:
-    QPointer<QtCharts::QChartView> m_viewer;
+    QPointer<RiuQtChartView> m_viewer;
 
-    caf::PdmField<QString>                          m_plotWindowTitle;
-    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_subTitleFontSize;
-    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisTitleFontSize;
-    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisValueFontSize;
+    caf::PdmField<QString> m_plotWindowTitle;
 
     caf::PdmPtrField<RimCase*>     m_case;
     caf::PdmField<int>             m_timeStep;
