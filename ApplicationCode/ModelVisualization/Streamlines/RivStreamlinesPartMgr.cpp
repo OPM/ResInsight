@@ -252,8 +252,8 @@ void RivStreamlinesPartMgr::updateAnimation()
     {
         streamline.incrementAnimationIndex();
         // Each part should have exactly one primitive set.
-        static_cast<PrimitiveSetIndexedUIntScoped*>(
-            static_cast<DrawableGeo*>( streamline.getPart()->drawable() )->primitiveSet( 0 ) )
+        static_cast<cvf::PrimitiveSetIndexedUIntScoped*>(
+            static_cast<cvf::DrawableGeo*>( streamline.getPart()->drawable() )->primitiveSet( 0 ) )
             ->setScope( 0, streamline.getAnimationIndex() );
     }
 }

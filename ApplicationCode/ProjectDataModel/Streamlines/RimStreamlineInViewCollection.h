@@ -21,6 +21,7 @@
 #include "cafPdmField.h"
 
 #include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
 #include "cafPdmObject.h"
 
 #include "cvfBoundingBox.h"

@@ -23,6 +23,7 @@
 #include "cafSignal.h"
 
 #include "cvfCollection.h"
+#include "cvfPart.h"
 #include "cvfVector3.h"
 
 #include <vector>
@@ -30,7 +31,6 @@
 namespace cvf
 {
 class ModelBasicList;
-class Part;
 class ScalarMapper;
 class ScalarMapperDiscreteLinear;
 } // namespace cvf
