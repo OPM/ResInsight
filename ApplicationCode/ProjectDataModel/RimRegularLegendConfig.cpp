@@ -1153,6 +1153,37 @@ void RimRegularLegendConfig::updateFonts()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimRegularLegendConfig::valueToText( double value, NumberFormatType numberFormat, int precision )
+{
+    QString valueString;
+
+    switch ( numberFormat )
+    {
+        case RimRegularLegendConfig::NumberFormatType::FIXED:
+            valueString = QString::number( value, 'f', precision );
+            break;
+        case RimRegularLegendConfig::NumberFormatType::SCIENTIFIC:
+            valueString = QString::number( value, 'e', precision );
+            break;
+        default:
+            valueString = QString::number( value );
+            break;
+    }
+
+    return valueString;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimRegularLegendConfig::valueToText( double value ) const
+{
+    return RimRegularLegendConfig::valueToText( value, m_tickNumberFormat(), m_precision() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     if ( uiConfigName == "NumLevelsOnly" )
