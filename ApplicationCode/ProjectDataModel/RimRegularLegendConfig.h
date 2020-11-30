@@ -165,6 +165,9 @@ public:
 
     void updateFonts() override;
 
+    QString        valueToText( double value ) const;
+    static QString valueToText( double value, NumberFormatType numberFormat, int precision );
+
 private:
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void                 initAfterRead() override;
