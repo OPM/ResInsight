@@ -226,7 +226,10 @@ void RivStreamlinesPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicLi
         if ( streamlineCollection->visualizationMode() == RimStreamlineInViewCollection::VisualizationMode::ANIMATION ||
              streamlineCollection->visualizationMode() == RimStreamlineInViewCollection::VisualizationMode::MANUAL )
         {
-            model->addPart( createPart( *streamlineCollection, streamline ).p() );
+            if ( streamline.countTracerPoints() > 1 )
+            {
+                model->addPart( createPart( *streamlineCollection, streamline ).p() );
+            }
         }
         else if ( streamlineCollection->visualizationMode() == RimStreamlineInViewCollection::VisualizationMode::VECTORS )
         {
@@ -373,7 +376,7 @@ void RivStreamlinesPartMgr::createResultColorTextureCoords( cvf::Vec2fArray*    
     {
         vertexCount = streamline.countTracerPoints() * 7;
     }
-    if ( textureCoords->size() != vertexCount ) textureCoords->reserve( vertexCount );
+    if ( textureCoords->capacity() != vertexCount ) textureCoords->reserve( vertexCount );
 
     size_t count = 0;
     for ( size_t i = 0; i < streamline.countTracerPoints(); i++ )
