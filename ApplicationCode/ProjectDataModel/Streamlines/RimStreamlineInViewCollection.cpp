@@ -117,7 +117,7 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_animationSpeed, "AnimationSpeed", "Animation Speed", "", "", "" );
     m_animationSpeed.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
-    m_animationSpeed = 1;
+    m_animationSpeed = 10;
 
     CAF_PDM_InitFieldNoDefault( &m_animationIndex, "AnimationIndex", "Animation Index", "", "", "" );
     m_animationIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
@@ -431,16 +431,20 @@ void RimStreamlineInViewCollection::goForIt()
         {
             cvf::Vec3d lastPoint   = s->tracer().tracerPoints()[0].position();
             size_t     countPoints = 1;
+            /*
             for ( size_t i = 1; i < s->tracer().tracerPoints().size(); i++ )
             {
-                if ( s->tracer().tracerPoints()[i].position().pointDistance( lastPoint ) >= distanceBetweenTracerPoints() )
+                if ( s->tracer().tracerPoints()[i].position().pointDistance( lastPoint ) >=
+                distanceBetweenTracerPoints() )
                 {
                     lastPoint = s->tracer().tracerPoints()[i].position();
                     countPoints++;
                 }
+
             }
             countPoints++;
-            m_maxAnimationIndex = std::max( countPoints, m_maxAnimationIndex );
+            */
+            m_maxAnimationIndex = std::max( s->tracer().tracerPoints().size(), m_maxAnimationIndex );
         }
     }
     eclView->loadDataAndUpdate();
@@ -504,7 +508,7 @@ void RimStreamlineInViewCollection::defineUiOrdering( QString uiConfigName, caf:
 
     caf::PdmUiGroup* visualizationGroup = uiOrdering.addNewGroup( "Visualization Settings" );
     visualizationGroup->add( &m_visualizationMode );
-    visualizationGroup->add( &m_distanceBetweenTracerPoints );
+    // visualizationGroup->add( &m_distanceBetweenTracerPoints );
     if ( m_visualizationMode() == VisualizationMode::ANIMATION )
     {
         visualizationGroup->add( &m_animationSpeed );
@@ -517,7 +521,7 @@ void RimStreamlineInViewCollection::defineUiOrdering( QString uiConfigName, caf:
     {
         visualizationGroup->add( &m_scaleFactor );
     }
-    visualizationGroup->add( &m_tracerLength );
+    // visualizationGroup->add( &m_tracerLength );
 
     uiOrdering.skipRemainingFields();
 }
@@ -548,7 +552,7 @@ void RimStreamlineInViewCollection::defineEditorAttribute( const caf::PdmFieldHa
         }
 
         myAttr->m_minimum = 1.0;
-        myAttr->m_maximum = 10.0;
+        myAttr->m_maximum = 100.0;
     }
     else if ( field == &m_animationIndex )
     {

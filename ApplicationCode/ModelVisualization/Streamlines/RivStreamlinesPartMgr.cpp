@@ -204,6 +204,7 @@ void RivStreamlinesPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicLi
         Streamline streamline;
         for ( size_t i = 0; i < tracer.tracerPoints().size() - 1; i++ )
         {
+            /*
             if ( i > 0 && tracer.tracerPoints()[i].position().pointDistance(
                               streamline.getTracerPoint( streamline.countTracerPoints() - 1 ) ) >=
                               streamlineCollection->distanceBetweenTracerPoints() )
@@ -218,6 +219,10 @@ void RivStreamlinesPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicLi
                 streamline.appendAbsVelocity( tracer.tracerPoints()[i].absValue() );
                 streamline.appendDirection( tracer.tracerPoints()[i].direction() );
             }
+            */
+            streamline.appendTracerPoint( tracer.tracerPoints()[i].position() );
+            streamline.appendAbsVelocity( tracer.tracerPoints()[i].absValue() );
+            streamline.appendDirection( tracer.tracerPoints()[i].direction() );
         }
         m_streamlines.push_back( streamline );
     }
