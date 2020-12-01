@@ -806,7 +806,15 @@ void RimStreamlineInViewCollection::generateStartPositions( RigCell             
                                                             cvf::StructGridInterface::FaceType faceIdx,
                                                             std::list<cvf::Vec3d>&             positions )
 {
+    cvf::Vec3d center = cell.faceCenter( faceIdx );
+
+    std::array<cvf::Vec3d, 4> corners;
+    cell.faceCorners( faceIdx, &corners );
+
     positions.push_back( cell.faceCenter( faceIdx ) );
+
+    for ( auto pos : corners )
+        positions.push_back( pos );
 }
 
 //--------------------------------------------------------------------------------------------------

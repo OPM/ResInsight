@@ -26,14 +26,14 @@
 
 #include <cmath>
 
-static size_t undefinedCornersArray[8] = {cvf::UNDEFINED_SIZE_T,
-                                          cvf::UNDEFINED_SIZE_T,
-                                          cvf::UNDEFINED_SIZE_T,
-                                          cvf::UNDEFINED_SIZE_T,
-                                          cvf::UNDEFINED_SIZE_T,
-                                          cvf::UNDEFINED_SIZE_T,
-                                          cvf::UNDEFINED_SIZE_T,
-                                          cvf::UNDEFINED_SIZE_T};
+static size_t undefinedCornersArray[8] = { cvf::UNDEFINED_SIZE_T,
+                                           cvf::UNDEFINED_SIZE_T,
+                                           cvf::UNDEFINED_SIZE_T,
+                                           cvf::UNDEFINED_SIZE_T,
+                                           cvf::UNDEFINED_SIZE_T,
+                                           cvf::UNDEFINED_SIZE_T,
+                                           cvf::UNDEFINED_SIZE_T,
+                                           cvf::UNDEFINED_SIZE_T };
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -398,4 +398,17 @@ void RigCell::faceIndices( cvf::StructGridInterface::FaceType face, std::array<s
     ( *indices )[1] = m_cornerIndices[faceVertexIndices[1]];
     ( *indices )[2] = m_cornerIndices[faceVertexIndices[2]];
     ( *indices )[3] = m_cornerIndices[faceVertexIndices[3]];
+}
+
+void RigCell::faceCorners( cvf::StructGridInterface::FaceType face, std::array<cvf::Vec3d, 4>* corners ) const
+{
+    cvf::ubyte faceVertexIndices[4];
+    cvf::StructGridInterface::cellFaceVertexIndices( face, faceVertexIndices );
+
+    const std::vector<cvf::Vec3d>& nodeCoords = m_hostGrid->mainGrid()->nodes();
+
+    for ( size_t i = 0; i < 4; i++ )
+    {
+        ( *corners )[i] = nodeCoords[m_cornerIndices[faceVertexIndices[i]]];
+    }
 }
