@@ -813,7 +813,7 @@ void RimStreamlineInViewCollection::generateStartPositions( RigCell             
 
     positions.push_back( cell.faceCenter( faceIdx ) );
 
-    for ( auto pos : corners )
+    for ( const auto& pos : corners )
         positions.push_back( pos );
 }
 
@@ -858,7 +858,7 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
 
         //                               cvf::Vec3d startPosition = cell.faceCenter( faceIdx ); );
 
-        for ( cvf::Vec3d startPosition : positions )
+        for ( const cvf::Vec3d& startPosition : positions )
         {
             if ( startPosition.isUndefined() ) continue;
 
