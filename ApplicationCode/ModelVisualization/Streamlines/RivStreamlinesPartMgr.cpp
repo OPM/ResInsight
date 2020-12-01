@@ -204,7 +204,8 @@ void RivStreamlinesPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicLi
         Streamline streamline;
         for ( size_t i = 0; i < tracer.tracerPoints().size() - 1; i++ )
         {
-            if ( i > 0 && tracer.tracerPoints()[i].position().pointDistance( streamline.getTracerPoints().back() ) >=
+            if ( i > 0 && tracer.tracerPoints()[i].position().pointDistance(
+                              streamline.getTracerPoint( streamline.countTracerPoints() - 1 ) ) >=
                               streamlineCollection->distanceBetweenTracerPoints() )
             {
                 streamline.appendTracerPoint( tracer.tracerPoints()[i].position() );
@@ -307,11 +308,11 @@ cvf::ref<cvf::Part> RivStreamlinesPartMgr::createPart( const RimStreamlineInView
     uint count = 0;
     for ( size_t i = 0; i < streamline.countTracerPoints(); i++ )
     {
-        vertices.push_back( cvf::Vec3f( displayCordXf->transformToDisplayCoord( streamline.getTracerPoints()[i] ) ) );
+        vertices.push_back( cvf::Vec3f( displayCordXf->transformToDisplayCoord( streamline.getTracerPoint( i ) ) ) );
         indices.push_back( count++ );
         if ( i > 0 && i < streamline.countTracerPoints() - 1 )
         {
-            vertices.push_back( cvf::Vec3f( displayCordXf->transformToDisplayCoord( streamline.getTracerPoints()[i] ) ) );
+            vertices.push_back( cvf::Vec3f( displayCordXf->transformToDisplayCoord( streamline.getTracerPoint( i ) ) ) );
             indices.push_back( count++ );
         }
     }
@@ -469,7 +470,7 @@ cvf::ref<cvf::Part> RivStreamlinesPartMgr::createVectorPart( const RimStreamline
     uint count = 0;
     for ( size_t i = 0; i < streamline.countTracerPoints(); i++ )
     {
-        cvf::Vec3f anchorPoint = cvf::Vec3f( displayCordXf->transformToDisplayCoord( streamline.getTracerPoints()[i] ) );
+        cvf::Vec3f anchorPoint = cvf::Vec3f( displayCordXf->transformToDisplayCoord( streamline.getTracerPoint( i ) ) );
         cvf::Vec3f direction   = cvf::Vec3f( streamline.getDirection( i ) ) * streamlineCollection.scaleFactor();
 
         for ( const cvf::Vec3f& vertex : createArrowVertices( anchorPoint, direction ) )
@@ -985,9 +986,9 @@ cvf::ref<cvf::Part> RivStreamlinesPartMgr::Streamline::getPart()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RivStreamlinesPartMgr::Streamline::getTracerPoints() const
+cvf::Vec3d RivStreamlinesPartMgr::Streamline::getTracerPoint( size_t index ) const
 {
-    return tracerPoints;
+    return tracerPoints[index];
 }
 
 //--------------------------------------------------------------------------------------------------

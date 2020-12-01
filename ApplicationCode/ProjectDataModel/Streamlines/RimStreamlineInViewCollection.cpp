@@ -126,7 +126,7 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_scaleFactor, "ScaleFactor", "Scale Factor", "", "", "" );
     m_scaleFactor.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
-    m_scaleFactor = 1.0;
+    m_scaleFactor = 100.0;
 
     CAF_PDM_InitFieldNoDefault( &m_tracerLength, "TracerLength", "Tracer Length", "", "", "" );
     m_tracerLength.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -493,22 +493,33 @@ void RimStreamlineInViewCollection::loadDataIfMissing( RiaDefines::PhaseType pha
 //--------------------------------------------------------------------------------------------------
 void RimStreamlineInViewCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiGroup* dataGroup = uiOrdering.addNewGroup( "Data Selection" );
-    dataGroup->add( &m_collectionName );
-    dataGroup->add( &m_phase );
-    dataGroup->add( &m_flowThreshold );
-    dataGroup->add( &m_lengthThreshold );
-    dataGroup->add( &m_resolution );
-    dataGroup->add( &m_maxDays );
-    dataGroup->add( &m_density );
+    caf::PdmUiGroup* dataGroup = uiOrdering.addNewGroup("Data Selection");
+    dataGroup->add(&m_collectionName);
+    dataGroup->add(&m_phase);
+    dataGroup->add(&m_flowThreshold);
+    dataGroup->add(&m_lengthThreshold);
+    dataGroup->add(&m_resolution);
+    dataGroup->add(&m_maxDays);
+    dataGroup->add(&m_density);
 
-    caf::PdmUiGroup* visualizationGroup = uiOrdering.addNewGroup( "Visualization Settings" );
-    visualizationGroup->add( &m_visualizationMode );
-    visualizationGroup->add( &m_distanceBetweenTracerPoints );
-    visualizationGroup->add( &m_animationSpeed );
-    visualizationGroup->add( &m_animationIndex );
-    visualizationGroup->add( &m_scaleFactor );
-    visualizationGroup->add( &m_tracerLength );
+    caf::PdmUiGroup* visualizationGroup = uiOrdering.addNewGroup("Visualization Settings");
+    visualizationGroup->add(&m_visualizationMode);
+    visualizationGroup->add(&m_distanceBetweenTracerPoints);
+    if (m_visualizationMode() == VisualizationMode::ANIMATION)
+    {
+        visualizationGroup->add(&m_animationSpeed);
+    }
+    if (m_visualizationMode() == VisualizationMode::MANUAL)
+    {
+        visualizationGroup->add(&m_animationIndex);
+    }
+    if (m_visualizationMode() == VisualizationMode::VECTORS)
+    {
+        visualizationGroup->add(&m_scaleFactor);
+    }
+    visualizationGroup->add(&m_tracerLength);
+
+    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -559,7 +570,7 @@ void RimStreamlineInViewCollection::defineEditorAttribute( const caf::PdmFieldHa
         }
 
         myAttr->m_minimum = 0.1;
-        myAttr->m_maximum = 1000.0;
+        myAttr->m_maximum = 10000.0;
     }
 }
 
