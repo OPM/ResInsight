@@ -437,7 +437,7 @@ cvf::ref<cvf::Part> RivStreamlinesPartMgr::createCurvePart( const RimStreamlineI
 
     cvf::ref<cvf::Effect> effect;
 
-    caf::SurfaceEffectGenerator surfaceGen( cvf::Color4f( 0.2, 0.2, 0.2, 1 ), caf::PO_1 );
+    caf::SurfaceEffectGenerator surfaceGen( cvf::Color4f( 0.2f, 0.2f, 0.2f, 1 ), caf::PO_1 );
     surfaceGen.enableLighting( false );
     effect = surfaceGen.generateCachedEffect();
 

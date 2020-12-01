@@ -87,6 +87,8 @@ private:
     void generateTracer( RigCell cell, double direction, QString simWellName );
     void loadDataIfMissing( RiaDefines::PhaseType phase, int timeIdx );
 
+    void generateStartPositions( RigCell cell, cvf::StructGridInterface::FaceType faceIdx, std::list<cvf::Vec3d>& positions );
+
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
@@ -122,6 +124,7 @@ private:
     caf::PdmField<double>                              m_flowThreshold;
     caf::PdmField<double>                              m_resolution;
     caf::PdmField<double>                              m_maxDays;
+    caf::PdmField<double>                              m_density;
     caf::PdmPointer<RimEclipseCase>                    m_eclipseCase;
     caf::PdmChildArrayField<RimStreamline*>            m_streamlines;
     caf::PdmField<caf::AppEnum<RiaDefines::PhaseType>> m_phase;
