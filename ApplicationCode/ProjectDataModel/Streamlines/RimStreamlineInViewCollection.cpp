@@ -493,31 +493,31 @@ void RimStreamlineInViewCollection::loadDataIfMissing( RiaDefines::PhaseType pha
 //--------------------------------------------------------------------------------------------------
 void RimStreamlineInViewCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiGroup* dataGroup = uiOrdering.addNewGroup("Data Selection");
-    dataGroup->add(&m_collectionName);
-    dataGroup->add(&m_phase);
-    dataGroup->add(&m_flowThreshold);
-    dataGroup->add(&m_lengthThreshold);
-    dataGroup->add(&m_resolution);
-    dataGroup->add(&m_maxDays);
-    dataGroup->add(&m_density);
+    caf::PdmUiGroup* dataGroup = uiOrdering.addNewGroup( "Data Selection" );
+    dataGroup->add( &m_collectionName );
+    dataGroup->add( &m_phase );
+    dataGroup->add( &m_flowThreshold );
+    dataGroup->add( &m_lengthThreshold );
+    dataGroup->add( &m_resolution );
+    dataGroup->add( &m_maxDays );
+    dataGroup->add( &m_density );
 
-    caf::PdmUiGroup* visualizationGroup = uiOrdering.addNewGroup("Visualization Settings");
-    visualizationGroup->add(&m_visualizationMode);
-    visualizationGroup->add(&m_distanceBetweenTracerPoints);
-    if (m_visualizationMode() == VisualizationMode::ANIMATION)
+    caf::PdmUiGroup* visualizationGroup = uiOrdering.addNewGroup( "Visualization Settings" );
+    visualizationGroup->add( &m_visualizationMode );
+    visualizationGroup->add( &m_distanceBetweenTracerPoints );
+    if ( m_visualizationMode() == VisualizationMode::ANIMATION )
     {
-        visualizationGroup->add(&m_animationSpeed);
+        visualizationGroup->add( &m_animationSpeed );
     }
-    if (m_visualizationMode() == VisualizationMode::MANUAL)
+    if ( m_visualizationMode() == VisualizationMode::MANUAL )
     {
-        visualizationGroup->add(&m_animationIndex);
+        visualizationGroup->add( &m_animationIndex );
     }
-    if (m_visualizationMode() == VisualizationMode::VECTORS)
+    if ( m_visualizationMode() == VisualizationMode::VECTORS )
     {
-        visualizationGroup->add(&m_scaleFactor);
+        visualizationGroup->add( &m_scaleFactor );
     }
-    visualizationGroup->add(&m_tracerLength);
+    visualizationGroup->add( &m_tracerLength );
 
     uiOrdering.skipRemainingFields();
 }
