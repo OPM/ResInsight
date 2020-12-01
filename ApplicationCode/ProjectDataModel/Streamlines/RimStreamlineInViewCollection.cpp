@@ -588,7 +588,7 @@ void RimStreamlineInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle*
 
     if ( changedField == &m_visualizationMode &&
          qvariant_cast<int>( newValue ) != static_cast<int>( VisualizationMode::VECTORS ) &&
-         qvariant_cast<int>( newValue ) != static_cast<int>( VisualizationMode::VECTORS ) )
+         qvariant_cast<int>( oldValue ) != static_cast<int>( VisualizationMode::VECTORS ) )
     {
         return;
     }
