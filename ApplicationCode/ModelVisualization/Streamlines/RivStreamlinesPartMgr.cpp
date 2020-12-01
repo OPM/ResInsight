@@ -973,6 +973,9 @@ void RivStreamlinesPartMgr::Streamline::appendDirection( cvf::Vec3d direction )
 void RivStreamlinesPartMgr::Streamline::clear()
 {
     tracerPoints.clear();
+    absVelocities.clear();
+    directions.clear();
+    delete part.p();
 }
 
 //--------------------------------------------------------------------------------------------------
