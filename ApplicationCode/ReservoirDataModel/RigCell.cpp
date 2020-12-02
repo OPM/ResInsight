@@ -400,6 +400,9 @@ void RigCell::faceIndices( cvf::StructGridInterface::FaceType face, std::array<s
     ( *indices )[3] = m_cornerIndices[faceVertexIndices[3]];
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Get the coordinates of the 4 corners of the given face
+//--------------------------------------------------------------------------------------------------
 void RigCell::faceCorners( cvf::StructGridInterface::FaceType face, std::array<cvf::Vec3d, 4>* corners ) const
 {
     cvf::ubyte faceVertexIndices[4];

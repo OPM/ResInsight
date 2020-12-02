@@ -88,8 +88,9 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
     CAF_PDM_InitScriptableFieldNoDefault( &m_resolution, "Resolution", "Resolution [days]", "", "", "" );
     m_resolution = 10.0;
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_density, "Density", "Tracer Density [m]", "", "", "" );
-    m_density = 10.0;
+    CAF_PDM_InitScriptableFieldNoDefault( &m_density, "Density", "Density", "", "", "" );
+    m_density.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+    m_density = 2;
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_maxDays, "MaxDays", "Max Days ", "", "", "" );
     m_maxDays = 50000;
@@ -104,6 +105,7 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
 
     CAF_PDM_InitField( &m_isActive, "isActive", false, "Active", "", "", "" );
     m_isActive.uiCapability()->setUiHidden( true );
+    m_isActive.xmlCapability()->setIOReadable( false );
 
     CAF_PDM_InitFieldNoDefault( &m_visualizationMode, "VisualizationMode", "Visualization Mode", "", "", "" );
 
@@ -241,10 +243,13 @@ const std::list<RigTracer>& RimStreamlineInViewCollection::tracers()
 {
     m_activeTracers.clear();
 
-    for ( auto streamline : m_streamlines() )
+    for ( auto& streamline : m_streamlines() )
     {
-        // TODO - add filter for active simulation wells here
-        m_activeTracers.push_back( streamline->tracer() );
+        if ( streamline->tracer().size() > 1 )
+        {
+            // TODO - add filter for active simulation wells here
+            m_activeTracers.push_back( streamline->tracer() );
+        }
     }
     return m_activeTracers;
 }
@@ -265,7 +270,7 @@ void RimStreamlineInViewCollection::mappingRange( double& min, double& max ) con
     min = HUGE_VAL;
     max = -HUGE_VAL;
 
-    for ( auto streamline : m_streamlines() )
+    for ( auto& streamline : m_streamlines() )
     {
         const RigTracer& tracer = streamline->tracer();
         for ( size_t i = 0; i < tracer.tracerPoints().size() - 1; i++ )
@@ -282,8 +287,6 @@ void RimStreamlineInViewCollection::mappingRange( double& min, double& max ) con
 void RimStreamlineInViewCollection::updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer,
                                                                          bool       isUsingOverrideViewer )
 {
-    goForIt();
-
     if ( m_isActive() )
     {
         m_legendConfig->setTitle( QString( "Streamlines: \n" ) );
@@ -299,6 +302,11 @@ void RimStreamlineInViewCollection::updateLegendRangesTextAndVisibility( RiuView
         nativeOrOverrideViewer->addColorLegendToBottomLeftCorner( m_legendConfig->titledOverlayFrame(),
                                                                   isUsingOverrideViewer );
     }
+}
+
+void RimStreamlineInViewCollection::updateFromCurrentTimeStep()
+{
+    goForIt();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -374,13 +382,13 @@ void RimStreamlineInViewCollection::goForIt()
     eclipseCase()->eclipseCaseData()->allGrids( &grids );
 
     // go through all sim wells and find all open producer and injector cells for the selected phase
-    for ( auto swdata : simWellData )
+    for ( auto& swdata : simWellData )
     {
         if ( !swdata->hasWellResult( timeIdx ) || !swdata->hasAnyValidCells( timeIdx ) ) continue;
 
         RigWellResultFrame frame = swdata->wellResultFrame( timeIdx );
 
-        for ( auto branch : frame.m_wellResultBranches )
+        for ( auto& branch : frame.m_wellResultBranches )
         {
             for ( const auto& point : branch.m_branchResultPoints )
             {
@@ -412,12 +420,12 @@ void RimStreamlineInViewCollection::goForIt()
     const int normalDirection  = 1.0;
 
     // generate tracers for all injectors
-    for ( auto cell : seedCellsInjector )
+    for ( auto& cell : seedCellsInjector )
     {
         generateTracer( cell.second, normalDirection, cell.first );
     }
     // generate tracers for all producers, make sure to invert the direction to backtrack the traces
-    for ( auto cell : seedCellsProducer )
+    for ( auto& cell : seedCellsProducer )
     {
         generateTracer( cell.second, reverseDirection, cell.first );
     }
@@ -425,13 +433,13 @@ void RimStreamlineInViewCollection::goForIt()
     outputSummary();
 
     m_maxAnimationIndex = 0;
-    for ( auto s : m_streamlines )
+    for ( auto& s : m_streamlines )
     {
         if ( s->tracer().tracerPoints().size() > 0 )
         {
+            /*
             cvf::Vec3d lastPoint   = s->tracer().tracerPoints()[0].position();
             size_t     countPoints = 1;
-            /*
             for ( size_t i = 1; i < s->tracer().tracerPoints().size(); i++ )
             {
                 if ( s->tracer().tracerPoints()[i].position().pointDistance( lastPoint ) >=
@@ -546,35 +554,38 @@ void RimStreamlineInViewCollection::defineEditorAttribute( const caf::PdmFieldHa
     if ( field == &m_animationSpeed )
     {
         caf::PdmUiSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
-        if ( !myAttr )
+        if ( myAttr )
         {
-            return;
+            myAttr->m_minimum = 1;
+            myAttr->m_maximum = 100;
         }
-
-        myAttr->m_minimum = 1.0;
-        myAttr->m_maximum = 100.0;
     }
     else if ( field == &m_animationIndex )
     {
         caf::PdmUiSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
-        if ( !myAttr )
+        if ( myAttr )
         {
-            return;
+            myAttr->m_minimum = 0;
+            myAttr->m_maximum = static_cast<int>( m_maxAnimationIndex );
         }
-
-        myAttr->m_minimum = 0.0;
-        myAttr->m_maximum = static_cast<int>( m_maxAnimationIndex );
     }
     else if ( field == &m_scaleFactor )
     {
         caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-        if ( !myAttr )
+        if ( myAttr )
         {
-            return;
+            myAttr->m_minimum = 0.1;
+            myAttr->m_maximum = 10000.0;
         }
-
-        myAttr->m_minimum = 0.1;
-        myAttr->m_maximum = 10000.0;
+    }
+    else if ( field == &m_density )
+    {
+        caf::PdmUiSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
+        if ( myAttr )
+        {
+            myAttr->m_minimum = 0;
+            myAttr->m_maximum = 2;
+        }
     }
 }
 
@@ -613,7 +624,6 @@ cvf::ref<RigResultAccessor> RimStreamlineInViewCollection::getDataAccessor( cvf:
     int                           gridIdx  = 0;
 
     RigEclipseResultAddress address( RiaDefines::ResultCatType::DYNAMIC_NATIVE, resultname );
-    // RigCaseCellResultsData* data = m_eclipseCase->eclipseCaseData()->results( porModel );
 
     return RigResultAccessorFactory::createFromResultAddress( eclipseCase()->eclipseCaseData(),
                                                               gridIdx,
@@ -815,10 +825,34 @@ void RimStreamlineInViewCollection::generateStartPositions( RigCell             
     std::array<cvf::Vec3d, 4> corners;
     cell.faceCorners( faceIdx, &corners );
 
-    positions.push_back( cell.faceCenter( faceIdx ) );
+    positions.push_back( center );
+
+    // if density is zero, just return face center
+    if ( m_density() == 0 )
+    {
+        return;
+    }
 
     for ( const auto& pos : corners )
         positions.push_back( pos );
+
+    // if density is 1, return face center and corners
+    if ( m_density() == 1 )
+    {
+        return;
+    }
+
+    // if density is 2, add some more points in-between
+    for ( size_t cornerIdx = 0; cornerIdx < 4; cornerIdx++ )
+    {
+        cvf::Vec3d xa = corners[cornerIdx] - center;
+        positions.push_back( center + xa / 2.0 );
+        cvf::Vec3d xab  = corners[( cornerIdx + 1 ) % 4] - corners[cornerIdx];
+        cvf::Vec3d ab_2 = corners[cornerIdx] + xab / 2.0;
+        positions.push_back( ab_2 );
+        cvf::Vec3d xab_2 = ab_2 - center;
+        positions.push_back( center + xab_2 / 2.0 );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -839,14 +873,13 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
     size_t ni, nj, nk;
     grid->ijkFromCellIndexUnguarded( cell.mainGridCellIndex(), &ni, &nj, &nk );
 
+    cvf::Vec3d cellCenter = cell.center();
+
     // try to generate a tracer for all faces in the selected cell
     for ( auto faceIdx : faces )
     {
         // if too little flow, skip making tracer for this face
-        if ( faceVals[faceIdx] <= m_flowThreshold )
-        {
-            continue;
-        }
+        if ( faceVals[faceIdx] <= m_flowThreshold ) continue;
 
         // get the face normal for the current face, scale it with the flow, and check that it is still valid
         cvf::Vec3d startDirection = cell.faceNormalWithAreaLength( faceIdx );
@@ -856,11 +889,9 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
         // skip vectors with inf values
         if ( startDirection.isUndefined() ) continue;
 
-        // generate a grid of start positions starting in the face center
+        // generate a set of start positions starting in the face
         std::list<cvf::Vec3d> positions;
         generateStartPositions( cell, faceIdx, positions );
-
-        //                               cvf::Vec3d startPosition = cell.faceCenter( faceIdx ); );
 
         for ( const cvf::Vec3d& startPosition : positions )
         {
@@ -879,6 +910,7 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
 
             // create the streamline we should store the tracer points in
             RimStreamline* streamLine = new RimStreamline( simWellName );
+            streamLine->addTracerPoint( cellCenter, startDirection );
 
             // calculate the max number of steps based on user settings for length and resolution
             int maxSteps = (int)( m_maxDays / m_resolution );
@@ -895,26 +927,24 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
                 // keep track of where we have been to avoid loops
                 visitedCellsIdx.insert( curCell->mainGridCellIndex() );
 
-                bool stop = false;
-
                 grid->ijkFromCellIndexUnguarded( curCell->mainGridCellIndex(), &ni, &nj, &nk );
 
                 // is this a well cell, if so, stop growing
-                if ( m_wellCellIds.count( curCell->mainGridCellIndex() ) > 0 )
-                {
-                    break;
-                }
+                if ( m_wellCellIds.count( curCell->mainGridCellIndex() ) > 0 ) break;
 
                 // while we stay in the cell, keep moving in the same direction
+                bool stop = false;
                 while ( bb.contains( curPos ) )
                 {
                     streamLine->addTracerPoint( curPos, curDirection );
                     curPos += curDirection * m_resolution;
                     curStep++;
+                    // TODO - calculate new direction here based on how close we are to the various cell faces
+                    //        To simplify things - keep size of direction the same as the cell direction, just update
+                    //        where we are heading
                     stop = ( curStep >= maxSteps ) || ( curDirection.length() < m_flowThreshold );
                     if ( stop ) break;
                 }
-
                 if ( stop ) break;
 
                 // we have exited the cell we were in, find the next cell (should be one of our neighbours)
@@ -932,16 +962,10 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
                 }
 
                 // no neighbour found, stop this tracer
-                if ( nextCell == nullptr )
-                {
-                    break;
-                }
+                if ( nextCell == nullptr ) break;
 
                 // have we been here, if so stop?
-                if ( visitedCellsIdx.count( nextCell->mainGridCellIndex() ) > 0 )
-                {
-                    break;
-                }
+                if ( visitedCellsIdx.count( nextCell->mainGridCellIndex() ) > 0 ) break;
 
                 // update our current cell and direction
                 curCell      = nextCell;

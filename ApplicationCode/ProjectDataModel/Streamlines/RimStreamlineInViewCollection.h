@@ -79,6 +79,7 @@ public:
     const RimRegularLegendConfig* legendConfig() const;
     void                          mappingRange( double& min, double& max ) const;
     void updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer );
+    void updateFromCurrentTimeStep();
 
 protected:
     caf::PdmFieldHandle* objectToggleField() override;
@@ -124,7 +125,7 @@ private:
     caf::PdmField<double>                              m_flowThreshold;
     caf::PdmField<double>                              m_resolution;
     caf::PdmField<double>                              m_maxDays;
-    caf::PdmField<double>                              m_density;
+    caf::PdmField<int>                                 m_density;
     caf::PdmPointer<RimEclipseCase>                    m_eclipseCase;
     caf::PdmChildArrayField<RimStreamline*>            m_streamlines;
     caf::PdmField<caf::AppEnum<RiaDefines::PhaseType>> m_phase;

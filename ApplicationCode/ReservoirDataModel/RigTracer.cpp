@@ -95,7 +95,7 @@ void RigTracer::reverse()
 {
     std::reverse( m_points.begin(), m_points.end() );
 
-    for ( auto p : m_points )
+    for ( auto& p : m_points )
     {
         p.reverse();
     }

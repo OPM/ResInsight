@@ -707,6 +707,7 @@ void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
 
     appendElementVectorResultToModel();
 
+    m_streamlineCollection()->updateFromCurrentTimeStep();
     appendStreamlinesToModel();
 
     m_overlayInfoConfig()->update3DInfo();
