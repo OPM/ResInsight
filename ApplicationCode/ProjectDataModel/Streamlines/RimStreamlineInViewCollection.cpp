@@ -893,16 +893,20 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
         std::list<cvf::Vec3d> positions;
         generateStartPositions( cell, faceIdx, positions );
 
+        // calculate the max number of steps based on user settings for length and resolution
+        const int maxSteps = (int)( m_maxDays / m_resolution );
+
+        // get the neighbour cell for this face, this is where the tracer should start growing
+        RigCell* startCell = findNeighborCell( cell, grid, faceIdx );
+        if ( startCell == nullptr ) continue;
+
         for ( const cvf::Vec3d& startPosition : positions )
         {
             if ( startPosition.isUndefined() ) continue;
 
-            // get the neighbour cell for this face, this is where the tracer should start growing
-            RigCell* startCell = findNeighborCell( cell, grid, faceIdx );
-            if ( startCell == nullptr ) continue;
-
             RigCell*   curCell = startCell;
             cvf::Vec3d curPos  = startPosition;
+            int        curStep = 0;
 
             std::set<size_t> visitedCellsIdx;
 
@@ -912,15 +916,9 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
             RimStreamline* streamLine = new RimStreamline( simWellName );
             streamLine->addTracerPoint( cellCenter, startDirection );
 
-            // calculate the max number of steps based on user settings for length and resolution
-            int maxSteps = (int)( m_maxDays / m_resolution );
-            int curStep  = 0;
-
             // get the current cell bounding box and average direction movement vector
             cvf::BoundingBox bb           = cellBoundingBox( curCell, grid );
             cvf::Vec3d       curDirection = cellDirection( *curCell, grid ) * direction;
-
-            RigCell cell;
 
             while ( curStep < maxSteps )
             {
@@ -952,8 +950,9 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
                 std::vector<size_t> neighbors = findNeighborCellIndexes( curCell, grid );
                 for ( auto cellIdx : neighbors )
                 {
-                    cell = grid->cell( cellIdx );
-                    bb   = cellBoundingBox( &cell, grid );
+                    RigCell cell = grid->cell( cellIdx );
+
+                    bb = cellBoundingBox( &cell, grid );
                     if ( bb.contains( curPos ) )
                     {
                         nextCell = &cell;
