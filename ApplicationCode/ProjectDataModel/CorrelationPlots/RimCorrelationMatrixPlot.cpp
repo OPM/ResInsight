@@ -254,6 +254,9 @@ void RimCorrelationMatrixPlot::fieldChangedByUi( const caf::PdmFieldHandle* chan
                                                  const QVariant&            newValue )
 {
     RimAbstractCorrelationPlot::fieldChangedByUi( changedField, oldValue, newValue );
+
+    bool sendSelectedSignal = false;
+
     if ( changedField == &m_showAbsoluteValues || changedField == &m_sortByValues ||
          changedField == &m_sortByAbsoluteValues || changedField == &m_showOnlyTopNCorrelations ||
          changedField == &m_topNFilterCount || changedField == &m_excludeParametersWithoutVariation ||
@@ -266,6 +269,25 @@ void RimCorrelationMatrixPlot::fieldChangedByUi( const caf::PdmFieldHandle* chan
         updateLegend();
         loadDataAndUpdate();
         updateConnectedEditors();
+        sendSelectedSignal = true;
+    }
+
+    if ( changedField == &m_pushButtonSelectSummaryAddress )
+    {
+        sendSelectedSignal = true;
+    }
+
+    if ( sendSelectedSignal )
+    {
+        auto curves     = curveDefinitions();
+        auto parameters = m_selectedParametersList();
+        if ( !curves.empty() && !parameters.empty() )
+        {
+            auto firstCurve     = curves.front();
+            auto firstParameter = parameters.front();
+
+            matrixCellSelected.send( { firstParameter, firstCurve } );
+        }
     }
 }
 
