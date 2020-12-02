@@ -411,43 +411,40 @@ RiaLineArcWellPathCalculator RimWellPathGeometryDef::lineArcWellPathCalculator()
 {
     std::vector<RiaLineArcWellPathCalculator::WellTarget> targetDatas;
 
-    std::vector<RimWellPathTarget*> wellTargets = activeWellTargets();
+    std::vector<RimWellPathTarget*> activeTargets = activeWellTargets();
 
-    for ( auto wellTarget : wellTargets )
+    for ( auto wellTarget : activeTargets )
     {
-        if ( wellTarget->isEnabled() )
-        {
-            targetDatas.push_back( wellTarget->wellTargetData() );
-        }
+        targetDatas.push_back( wellTarget->wellTargetData() );
     }
 
     RiaLineArcWellPathCalculator wellPathCalculator( referencePointXyz(), targetDatas );
     const std::vector<RiaLineArcWellPathCalculator::WellTargetStatus>& targetStatuses =
         wellPathCalculator.targetStatuses();
 
-    for ( size_t tIdx = 0; tIdx < m_wellTargets.size(); ++tIdx )
+    for ( size_t tIdx = 0; tIdx < activeTargets.size(); ++tIdx )
     {
-        wellTargets[tIdx]->flagRadius1AsIncorrect( targetStatuses[tIdx].isRadius1Editable, false, 0 );
-        wellTargets[tIdx]->flagRadius2AsIncorrect( targetStatuses[tIdx].isRadius2Editable, false, 0 );
+        activeTargets[tIdx]->flagRadius1AsIncorrect( targetStatuses[tIdx].isRadius1Editable, false, 0 );
+        activeTargets[tIdx]->flagRadius2AsIncorrect( targetStatuses[tIdx].isRadius2Editable, false, 0 );
 
         if ( targetStatuses[tIdx].hasDerivedTangent )
         {
-            wellTargets[tIdx]->setDerivedTangent( targetStatuses[tIdx].resultAzimuth,
-                                                  targetStatuses[tIdx].resultInclination );
+            activeTargets[tIdx]->setDerivedTangent( targetStatuses[tIdx].resultAzimuth,
+                                                    targetStatuses[tIdx].resultInclination );
         }
 
         if ( targetStatuses[tIdx].hasOverriddenRadius1 )
         {
-            wellTargets[tIdx]->flagRadius1AsIncorrect( targetStatuses[tIdx].isRadius1Editable,
-                                                       true,
-                                                       targetStatuses[tIdx].resultRadius1 );
+            activeTargets[tIdx]->flagRadius1AsIncorrect( targetStatuses[tIdx].isRadius1Editable,
+                                                         true,
+                                                         targetStatuses[tIdx].resultRadius1 );
         }
 
         if ( targetStatuses[tIdx].hasOverriddenRadius2 )
         {
-            wellTargets[tIdx]->flagRadius2AsIncorrect( targetStatuses[tIdx].isRadius2Editable,
-                                                       true,
-                                                       targetStatuses[tIdx].resultRadius2 );
+            activeTargets[tIdx]->flagRadius2AsIncorrect( targetStatuses[tIdx].isRadius2Editable,
+                                                         true,
+                                                         targetStatuses[tIdx].resultRadius2 );
         }
     }
 
