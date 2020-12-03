@@ -768,7 +768,7 @@ std::vector<double> RimStreamlineInViewCollection::faceValues( RigCell cell, Rig
     double valNegJ = negFaceValue( cell, cvf::StructGridInterface::FaceType::NEG_J, grid );
     double valNegK = negFaceValue( cell, cvf::StructGridInterface::FaceType::NEG_K, grid );
 
-    std::vector<double> retval = { valPosI, valNegI, valPosJ, valNegJ, valPosK, valNegK };
+    std::vector<double> retval = {valPosI, valNegI, valPosJ, valNegJ, valPosK, valNegK};
     return retval;
 }
 
@@ -779,12 +779,12 @@ cvf::Vec3d RimStreamlineInViewCollection::cellDirection( RigCell cell, RigGridBa
 {
     cvf::Vec3d direction( 0, 0, 0 );
 
-    std::vector<cvf::StructGridInterface::FaceType> faces = { cvf::StructGridInterface::FaceType::POS_I,
-                                                              cvf::StructGridInterface::FaceType::NEG_I,
-                                                              cvf::StructGridInterface::FaceType::POS_J,
-                                                              cvf::StructGridInterface::FaceType::NEG_J,
-                                                              cvf::StructGridInterface::FaceType::POS_K,
-                                                              cvf::StructGridInterface::FaceType::NEG_K };
+    std::vector<cvf::StructGridInterface::FaceType> faces = {cvf::StructGridInterface::FaceType::POS_I,
+                                                             cvf::StructGridInterface::FaceType::NEG_I,
+                                                             cvf::StructGridInterface::FaceType::POS_J,
+                                                             cvf::StructGridInterface::FaceType::NEG_J,
+                                                             cvf::StructGridInterface::FaceType::POS_K,
+                                                             cvf::StructGridInterface::FaceType::NEG_K};
 
     for ( auto face : faces )
     {
@@ -863,12 +863,12 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
     RigMainGrid*        grid     = eclipseCase()->eclipseCaseData()->mainGrid();
     std::vector<double> faceVals = faceValues( cell, grid );
 
-    std::vector<cvf::StructGridInterface::FaceType> faces = { cvf::StructGridInterface::FaceType::POS_I,
-                                                              cvf::StructGridInterface::FaceType::NEG_I,
-                                                              cvf::StructGridInterface::FaceType::POS_J,
-                                                              cvf::StructGridInterface::FaceType::NEG_J,
-                                                              cvf::StructGridInterface::FaceType::POS_K,
-                                                              cvf::StructGridInterface::FaceType::NEG_K };
+    std::vector<cvf::StructGridInterface::FaceType> faces = {cvf::StructGridInterface::FaceType::POS_I,
+                                                             cvf::StructGridInterface::FaceType::NEG_I,
+                                                             cvf::StructGridInterface::FaceType::POS_J,
+                                                             cvf::StructGridInterface::FaceType::NEG_J,
+                                                             cvf::StructGridInterface::FaceType::POS_K,
+                                                             cvf::StructGridInterface::FaceType::NEG_K};
 
     size_t ni, nj, nk;
     grid->ijkFromCellIndexUnguarded( cell.mainGridCellIndex(), &ni, &nj, &nk );
