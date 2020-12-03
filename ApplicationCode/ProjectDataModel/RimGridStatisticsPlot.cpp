@@ -82,6 +82,8 @@ RimGridStatisticsPlot::RimGridStatisticsPlot()
 
     m_plotLegendsHorizontal.uiCapability()->setUiHidden( true );
 
+    setDefaults();
+
     setDeletable( true );
 }
 
@@ -281,19 +283,11 @@ void RimGridStatisticsPlot::fieldChangedByUi( const caf::PdmFieldHandle* changed
             loadDataAndUpdate();
         }
     }
-    else if ( changedField == &m_timeStep )
-    {
-        // if ( m_timeStep != -1 && m_grouping == GROUP_BY_TIME )
-        // {
-        //     m_grouping = NO_GROUPING;
-        // }
-
-        // destroyCurves();
-    }
     else
     {
         loadDataAndUpdate();
     }
+
     updateConnectedEditors();
 }
 
@@ -376,6 +370,14 @@ void RimGridStatisticsPlot::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGridStatisticsPlot::cellFilterViewUpdated()
+{
+    loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGridStatisticsPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
@@ -389,91 +391,110 @@ void RimGridStatisticsPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimGridStatisticsPlot::updatePlots()
 {
-    if ( m_viewer )
+    if ( m_viewer && m_case() && m_property() )
     {
+        std::unique_ptr<RimHistogramCalculator> histogramCalculator;
+        histogramCalculator.reset( new RimHistogramCalculator );
+
+        RimHistogramData histogramData;
+
+        RimHistogramCalculator::StatisticsCellRangeType cellRange =
+            RimHistogramCalculator::StatisticsCellRangeType::ALL_CELLS;
+
+        RimHistogramCalculator::StatisticsTimeRangeType timeRange =
+            RimHistogramCalculator::StatisticsTimeRangeType::ALL_TIMESTEPS;
+        int timeStep = 0;
+        if ( m_timeStep() != -1 && !m_property()->hasStaticResult() )
+        {
+            timeStep  = m_timeStep();
+            timeRange = RimHistogramCalculator::StatisticsTimeRangeType::CURRENT_TIMESTEP;
+        }
+
         if ( m_cellFilterView.value() )
         {
+            // Filter by visible cells of the view
+            cellRange                   = RimHistogramCalculator::StatisticsCellRangeType::VISIBLE_CELLS;
             RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( m_cellFilterView.value() );
-            RimHistogramCalculator::StatisticsCellRangeType cellRange =
-                RimHistogramCalculator::StatisticsCellRangeType::ALL_CELLS;
-            RimHistogramCalculator::StatisticsTimeRangeType timeRange =
-                RimHistogramCalculator::StatisticsTimeRangeType::CURRENT_TIMESTEP;
+            histogramData =
+                histogramCalculator->histogramData( eclipseView, m_property.value(), cellRange, timeRange, timeStep );
+        }
+        else
+        {
+            RimEclipseView* eclipseView = nullptr;
+            histogramData =
+                histogramCalculator->histogramData( eclipseView, m_property.value(), cellRange, timeRange, timeStep );
+        }
 
-            std::unique_ptr<RimHistogramCalculator> histogramCalculator;
-            histogramCalculator.reset( new RimHistogramCalculator );
-
-            RimHistogramData histogramData = histogramCalculator->histogramData( eclipseView, cellRange, timeRange );
-            if ( histogramData.isHistogramVectorValid() )
+        if ( histogramData.isHistogramVectorValid() )
+        {
+            QBarSet* set0     = new QBarSet( m_plotWindowTitle );
+            double   minValue = std::numeric_limits<double>::max();
+            double   maxValue = -std::numeric_limits<double>::max();
+            for ( double value : *histogramData.histogram )
             {
-                QBarSet* set0     = new QBarSet( "data" );
-                double   minValue = std::numeric_limits<double>::max();
-                double   maxValue = std::numeric_limits<double>::min();
-                for ( double value : *histogramData.histogram )
-                {
-                    *set0 << value;
-                    minValue = std::min( minValue, value );
-                    maxValue = std::max( maxValue, value );
-                }
-
-                QBarSeries* series = new QBarSeries();
-                series->append( set0 );
-
-                QChart* chart = new QChart();
-                chart->addSeries( series );
-                chart->setTitle( uiName() );
-
-                // Axis
-                double xAxisSize      = histogramData.max - histogramData.min;
-                double xAxisExtension = xAxisSize * 0.02;
-
-                QValueAxis* axisX = new QValueAxis();
-                axisX->setRange( histogramData.min - xAxisExtension, histogramData.max + xAxisExtension );
-                chart->addAxis( axisX, Qt::AlignBottom );
-
-                QValueAxis* axisY = new QValueAxis();
-                axisY->setRange( minValue, maxValue );
-                chart->addAxis( axisY, Qt::AlignLeft );
-
-                QLineSeries* p10series = new QLineSeries();
-                chart->addSeries( p10series );
-                p10series->setName( "P10" );
-                p10series->append( histogramData.p10, minValue );
-                p10series->append( histogramData.p10, maxValue );
-                p10series->attachAxis( axisX );
-                p10series->attachAxis( axisY );
-
-                QLineSeries* p90series = new QLineSeries();
-                chart->addSeries( p90series );
-                p90series->setName( "P90" );
-                p90series->append( histogramData.p90, minValue );
-                p90series->append( histogramData.p90, maxValue );
-                p90series->attachAxis( axisX );
-                p90series->attachAxis( axisY );
-
-                QLineSeries* meanSeries = new QLineSeries();
-                chart->addSeries( meanSeries );
-                meanSeries->setName( "Mean" );
-                meanSeries->append( histogramData.mean, minValue );
-                meanSeries->append( histogramData.mean, maxValue );
-                meanSeries->attachAxis( axisX );
-                meanSeries->attachAxis( axisY );
-
-                // Set font sizes
-                QFont titleFont = chart->titleFont();
-                titleFont.setPixelSize( titleFontSize() );
-                chart->setTitleFont( titleFont );
-
-                QLegend* legend = chart->legend();
-                if ( legend )
-                {
-                    QFont legendFont = legend->font();
-                    legendFont.setPixelSize( legendFontSize() );
-                    legend->setFont( legendFont );
-                    legend->setVisible( legendsVisible() );
-                }
-
-                m_viewer->setChart( chart );
+                *set0 << value;
+                minValue = std::min( minValue, value );
+                maxValue = std::max( maxValue, value );
             }
+
+            QBarSeries* series = new QBarSeries();
+            series->append( set0 );
+
+            QChart* chart = new QChart();
+            chart->addSeries( series );
+            chart->setTitle( uiName() );
+
+            // Axis
+            double xAxisSize      = histogramData.max - histogramData.min;
+            double xAxisExtension = xAxisSize * 0.02;
+
+            QValueAxis* axisX = new QValueAxis();
+            axisX->setRange( histogramData.min - xAxisExtension, histogramData.max + xAxisExtension );
+            chart->addAxis( axisX, Qt::AlignBottom );
+
+            QValueAxis* axisY = new QValueAxis();
+            axisY->setRange( minValue, maxValue );
+            chart->addAxis( axisY, Qt::AlignLeft );
+
+            QLineSeries* p10series = new QLineSeries();
+            chart->addSeries( p10series );
+            p10series->setName( "P10" );
+            p10series->append( histogramData.p10, minValue );
+            p10series->append( histogramData.p10, maxValue );
+            p10series->attachAxis( axisX );
+            p10series->attachAxis( axisY );
+
+            QLineSeries* p90series = new QLineSeries();
+            chart->addSeries( p90series );
+            p90series->setName( "P90" );
+            p90series->append( histogramData.p90, minValue );
+            p90series->append( histogramData.p90, maxValue );
+            p90series->attachAxis( axisX );
+            p90series->attachAxis( axisY );
+
+            QLineSeries* meanSeries = new QLineSeries();
+            chart->addSeries( meanSeries );
+            meanSeries->setName( "Mean" );
+            meanSeries->append( histogramData.mean, minValue );
+            meanSeries->append( histogramData.mean, maxValue );
+            meanSeries->attachAxis( axisX );
+            meanSeries->attachAxis( axisY );
+
+            // Set font sizes
+            QFont titleFont = chart->titleFont();
+            titleFont.setPixelSize( titleFontSize() );
+            chart->setTitleFont( titleFont );
+
+            QLegend* legend = chart->legend();
+            if ( legend )
+            {
+                QFont legendFont = legend->font();
+                legendFont.setPixelSize( legendFontSize() );
+                legend->setFont( legendFont );
+                legend->setVisible( legendsVisible() );
+            }
+
+            m_viewer->setChart( chart );
         }
     }
 }
@@ -497,6 +518,7 @@ QString RimGridStatisticsPlot::createAutoName() const
     }
 
     QStringList nameTags;
+    nameTags += m_property()->resultVariable();
     nameTags += m_case()->caseUserDescription();
 
     QString timeStepStr = timeStepString();
@@ -505,7 +527,7 @@ QString RimGridStatisticsPlot::createAutoName() const
         nameTags += timeStepStr;
     }
 
-    return nameTags.join( "," );
+    return nameTags.join( ", " );
 }
 
 //--------------------------------------------------------------------------------------------------

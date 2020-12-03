@@ -17,18 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicCreateGridStatisticsPlotFeature.h"
-//#include "RicGridStatisticsUi.h"
 
 #include "RiaGuiApplication.h"
-// #include "RiaLogging.h"
-// #include "RiaPorosityModel.h"
 
-// #include "RigCaseCellResultsData.h"
-// #include "RigEclipseCaseData.h"
-// #include "RigEclipseResultAddress.h"
-// #include "RigEquil.h"
-
-// #include "RimEclipseResultCase.h"
 #include "RimGridStatisticsPlot.h"
 #include "RimGridStatisticsPlotCollection.h"
 #include "RimMainPlotCollection.h"
@@ -36,8 +27,6 @@
 
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
-
-#include "cafSelectionManager.h"
 
 #include <QAction>
 
@@ -61,10 +50,10 @@ void RicCreateGridStatisticsPlotFeature::onActionTriggered( bool isChecked )
     RimGridStatisticsPlotCollection* collection = project->mainPlotCollection()->gridStatisticsPlotCollection();
 
     RimGridStatisticsPlot* plot = new RimGridStatisticsPlot();
-    plot->loadDataAndUpdate();
     plot->zoomAll();
     plot->updateConnectedEditors();
     plot->setAsPlotMdiWindow();
+    plot->loadDataAndUpdate();
 
     collection->addGridStatisticsPlot( plot );
     collection->updateAllRequiredEditors();

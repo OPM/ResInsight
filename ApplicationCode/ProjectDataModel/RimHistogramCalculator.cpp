@@ -129,136 +129,129 @@ RimHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
                                                         StatisticsCellRangeType cellRange,
                                                         StatisticsTimeRangeType timeRange )
 {
-    RimHistogramData histData;
-
     if ( eclipseView )
     {
-        bool isResultsInfoRelevant = eclipseView->hasUserRequestedAnimation() && eclipseView->cellResult()->hasResult();
+        RimEclipseResultDefinition* eclResultDefinition = eclipseView->cellResult();
+        bool isResultsInfoRelevant = eclipseView->hasUserRequestedAnimation() && eclResultDefinition->hasResult();
 
         if ( isResultsInfoRelevant )
         {
-            RigEclipseResultAddress eclResAddr = eclipseView->cellResult()->eclipseResultAddress();
+            RigEclipseResultAddress eclResAddr = eclResultDefinition->eclipseResultAddress();
 
             if ( eclResAddr.isValid() )
             {
-                if ( cellRange == StatisticsCellRangeType::ALL_CELLS )
+                int currentTimeStep = eclipseView->currentTimeStep();
+                if ( eclipseView->cellResult()->hasStaticResult() )
                 {
-                    if ( timeRange == StatisticsTimeRangeType::ALL_TIMESTEPS )
-                    {
-                        eclipseView->currentGridCellResults()->minMaxCellScalarValues( eclResAddr,
-                                                                                       histData.min,
-                                                                                       histData.max );
-                        eclipseView->currentGridCellResults()->p10p90CellScalarValues( eclResAddr,
-                                                                                       histData.p10,
-                                                                                       histData.p90 );
-                        eclipseView->currentGridCellResults()->meanCellScalarValues( eclResAddr, histData.mean );
-                        eclipseView->currentGridCellResults()->sumCellScalarValues( eclResAddr, histData.sum );
-                        eclipseView->currentGridCellResults()->mobileVolumeWeightedMean( eclResAddr, histData.weightedMean );
-                        histData.histogram =
-                            &( eclipseView->currentGridCellResults()->cellScalarValuesHistogram( eclResAddr ) );
-                    }
-                    else if ( timeRange == StatisticsTimeRangeType::CURRENT_TIMESTEP )
-                    {
-                        int currentTimeStep = eclipseView->currentTimeStep();
-                        if ( eclipseView->cellResult()->hasStaticResult() )
-                        {
-                            currentTimeStep = 0;
-                        }
-
-                        eclipseView->currentGridCellResults()->minMaxCellScalarValues( eclResAddr,
-                                                                                       currentTimeStep,
-                                                                                       histData.min,
-                                                                                       histData.max );
-                        eclipseView->currentGridCellResults()->p10p90CellScalarValues( eclResAddr,
-                                                                                       currentTimeStep,
-                                                                                       histData.p10,
-                                                                                       histData.p90 );
-                        eclipseView->currentGridCellResults()->meanCellScalarValues( eclResAddr,
-                                                                                     currentTimeStep,
-                                                                                     histData.mean );
-                        eclipseView->currentGridCellResults()->sumCellScalarValues( eclResAddr,
-                                                                                    currentTimeStep,
-                                                                                    histData.sum );
-                        eclipseView->currentGridCellResults()->mobileVolumeWeightedMean( eclResAddr,
-                                                                                         currentTimeStep,
-                                                                                         histData.weightedMean );
-
-                        histData.histogram =
-                            &( eclipseView->currentGridCellResults()->cellScalarValuesHistogram( eclResAddr,
-                                                                                                 currentTimeStep ) );
-                    }
-                    else
-                    {
-                        CVF_ASSERT( false );
-                    }
+                    currentTimeStep = 0;
                 }
-                else if ( cellRange == StatisticsCellRangeType::VISIBLE_CELLS )
-                {
-                    updateVisCellStatsIfNeeded( eclipseView );
-                    if ( timeRange == StatisticsTimeRangeType::ALL_TIMESTEPS )
-                    {
-                        // TODO: Only valid if we have no dynamic property filter
-                        m_visibleCellStatistics->meanCellScalarValues( histData.mean );
-                        m_visibleCellStatistics->minMaxCellScalarValues( histData.min, histData.max );
-                        m_visibleCellStatistics->p10p90CellScalarValues( histData.p10, histData.p90 );
-                        m_visibleCellStatistics->sumCellScalarValues( histData.sum );
-                        m_visibleCellStatistics->mobileVolumeWeightedMean( histData.weightedMean );
 
-                        histData.histogram = &( m_visibleCellStatistics->cellScalarValuesHistogram() );
-                    }
-                    else if ( timeRange == StatisticsTimeRangeType::CURRENT_TIMESTEP )
-                    {
-                        int currentTimeStep = eclipseView->currentTimeStep();
-                        if ( eclipseView->cellResult()->hasStaticResult() )
-                        {
-                            currentTimeStep = 0;
-                        }
-
-                        m_visibleCellStatistics->meanCellScalarValues( currentTimeStep, histData.mean );
-                        m_visibleCellStatistics->minMaxCellScalarValues( currentTimeStep, histData.min, histData.max );
-                        m_visibleCellStatistics->p10p90CellScalarValues( currentTimeStep, histData.p10, histData.p90 );
-                        m_visibleCellStatistics->sumCellScalarValues( currentTimeStep, histData.sum );
-                        m_visibleCellStatistics->mobileVolumeWeightedMean( currentTimeStep, histData.weightedMean );
-
-                        histData.histogram = &( m_visibleCellStatistics->cellScalarValuesHistogram( currentTimeStep ) );
-                    }
-                }
+                return histogramData( eclipseView, eclResultDefinition, cellRange, timeRange, currentTimeStep );
             }
-            else if ( eclipseView->cellResult()->isFlowDiagOrInjectionFlooding() )
+        }
+    }
+
+    //
+    RimHistogramData data;
+    return data;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimHistogramData RimHistogramCalculator::histogramData( RimEclipseView*             eclipseView,
+                                                        RimEclipseResultDefinition* eclResultDefinition,
+                                                        StatisticsCellRangeType     cellRange,
+                                                        StatisticsTimeRangeType     timeRange,
+                                                        int                         timeStep )
+{
+    CVF_ASSERT( eclResultDefinition );
+
+    RimHistogramData histData;
+
+    eclResultDefinition->loadResult();
+
+    if ( eclResultDefinition->isFlowDiagOrInjectionFlooding() )
+    {
+        // All timesteps is ignored
+        if ( timeRange == StatisticsTimeRangeType::CURRENT_TIMESTEP || timeRange == StatisticsTimeRangeType::ALL_TIMESTEPS )
+        {
+            if ( cellRange == StatisticsCellRangeType::ALL_CELLS )
             {
-                // All timesteps is ignored
-                if ( timeRange == StatisticsTimeRangeType::CURRENT_TIMESTEP ||
-                     timeRange == StatisticsTimeRangeType::ALL_TIMESTEPS )
-                {
-                    int currentTimeStep = eclipseView->currentTimeStep();
+                RigFlowDiagResults*      fldResults = eclResultDefinition->flowDiagSolution()->flowDiagResults();
+                RigFlowDiagResultAddress resAddr    = eclResultDefinition->flowDiagResAddress();
 
-                    if ( cellRange == StatisticsCellRangeType::ALL_CELLS )
-                    {
-                        RigFlowDiagResults* fldResults = eclipseView->cellResult()->flowDiagSolution()->flowDiagResults();
-                        RigFlowDiagResultAddress resAddr = eclipseView->cellResult()->flowDiagResAddress();
+                fldResults->minMaxScalarValues( resAddr, timeStep, &histData.min, &histData.max );
+                fldResults->p10p90ScalarValues( resAddr, timeStep, &histData.p10, &histData.p90 );
+                fldResults->meanScalarValue( resAddr, timeStep, &histData.mean );
+                fldResults->sumScalarValue( resAddr, timeStep, &histData.sum );
+                fldResults->mobileVolumeWeightedMean( resAddr, timeStep, &histData.weightedMean );
 
-                        fldResults->minMaxScalarValues( resAddr, currentTimeStep, &histData.min, &histData.max );
-                        fldResults->p10p90ScalarValues( resAddr, currentTimeStep, &histData.p10, &histData.p90 );
-                        fldResults->meanScalarValue( resAddr, currentTimeStep, &histData.mean );
-                        fldResults->sumScalarValue( resAddr, currentTimeStep, &histData.sum );
-                        fldResults->mobileVolumeWeightedMean( resAddr, currentTimeStep, &histData.weightedMean );
-
-                        histData.histogram = &( fldResults->scalarValuesHistogram( resAddr, currentTimeStep ) );
-                    }
-                    else if ( cellRange == StatisticsCellRangeType::VISIBLE_CELLS )
-                    {
-                        updateVisCellStatsIfNeeded( eclipseView );
-
-                        m_visibleCellStatistics->meanCellScalarValues( currentTimeStep, histData.mean );
-                        m_visibleCellStatistics->minMaxCellScalarValues( currentTimeStep, histData.min, histData.max );
-                        m_visibleCellStatistics->p10p90CellScalarValues( currentTimeStep, histData.p10, histData.p90 );
-                        m_visibleCellStatistics->sumCellScalarValues( currentTimeStep, histData.sum );
-                        m_visibleCellStatistics->mobileVolumeWeightedMean( currentTimeStep, histData.weightedMean );
-
-                        histData.histogram = &( m_visibleCellStatistics->cellScalarValuesHistogram( currentTimeStep ) );
-                    }
-                }
+                histData.histogram = &( fldResults->scalarValuesHistogram( resAddr, timeStep ) );
             }
+            else if ( cellRange == StatisticsCellRangeType::VISIBLE_CELLS )
+            {
+                CVF_ASSERT( eclipseView );
+
+                updateVisCellStatsIfNeeded( eclipseView, eclResultDefinition );
+
+                m_visibleCellStatistics->meanCellScalarValues( timeStep, histData.mean );
+                m_visibleCellStatistics->minMaxCellScalarValues( timeStep, histData.min, histData.max );
+                m_visibleCellStatistics->p10p90CellScalarValues( timeStep, histData.p10, histData.p90 );
+                m_visibleCellStatistics->sumCellScalarValues( timeStep, histData.sum );
+                m_visibleCellStatistics->mobileVolumeWeightedMean( timeStep, histData.weightedMean );
+
+                histData.histogram = &( m_visibleCellStatistics->cellScalarValuesHistogram( timeStep ) );
+            }
+        }
+    }
+    else if ( cellRange == StatisticsCellRangeType::ALL_CELLS )
+    {
+        RigEclipseResultAddress eclResAddr  = eclResultDefinition->eclipseResultAddress();
+        RigCaseCellResultsData* cellResults = eclResultDefinition->currentGridCellResults();
+        if ( timeRange == StatisticsTimeRangeType::ALL_TIMESTEPS )
+        {
+            cellResults->minMaxCellScalarValues( eclResAddr, histData.min, histData.max );
+            cellResults->p10p90CellScalarValues( eclResAddr, histData.p10, histData.p90 );
+            cellResults->meanCellScalarValues( eclResAddr, histData.mean );
+            cellResults->sumCellScalarValues( eclResAddr, histData.sum );
+            cellResults->mobileVolumeWeightedMean( eclResAddr, histData.weightedMean );
+            histData.histogram = &( cellResults->cellScalarValuesHistogram( eclResAddr ) );
+        }
+        else if ( timeRange == StatisticsTimeRangeType::CURRENT_TIMESTEP )
+        {
+            cellResults->minMaxCellScalarValues( eclResAddr, timeStep, histData.min, histData.max );
+            cellResults->p10p90CellScalarValues( eclResAddr, timeStep, histData.p10, histData.p90 );
+            cellResults->meanCellScalarValues( eclResAddr, timeStep, histData.mean );
+            cellResults->sumCellScalarValues( eclResAddr, timeStep, histData.sum );
+            cellResults->mobileVolumeWeightedMean( eclResAddr, timeStep, histData.weightedMean );
+            histData.histogram = &( cellResults->cellScalarValuesHistogram( eclResAddr, timeStep ) );
+        }
+    }
+    else if ( cellRange == StatisticsCellRangeType::VISIBLE_CELLS )
+    {
+        CVF_ASSERT( eclipseView );
+        updateVisCellStatsIfNeeded( eclipseView, eclResultDefinition );
+        if ( timeRange == StatisticsTimeRangeType::ALL_TIMESTEPS )
+        {
+            // TODO: Only valid if we have no dynamic property filter
+            m_visibleCellStatistics->meanCellScalarValues( histData.mean );
+            m_visibleCellStatistics->minMaxCellScalarValues( histData.min, histData.max );
+            m_visibleCellStatistics->p10p90CellScalarValues( histData.p10, histData.p90 );
+            m_visibleCellStatistics->sumCellScalarValues( histData.sum );
+            m_visibleCellStatistics->mobileVolumeWeightedMean( histData.weightedMean );
+
+            histData.histogram = &( m_visibleCellStatistics->cellScalarValuesHistogram() );
+        }
+        else if ( timeRange == StatisticsTimeRangeType::CURRENT_TIMESTEP )
+        {
+            m_visibleCellStatistics->meanCellScalarValues( timeStep, histData.mean );
+            m_visibleCellStatistics->minMaxCellScalarValues( timeStep, histData.min, histData.max );
+            m_visibleCellStatistics->p10p90CellScalarValues( timeStep, histData.p10, histData.p90 );
+            m_visibleCellStatistics->sumCellScalarValues( timeStep, histData.sum );
+            m_visibleCellStatistics->mobileVolumeWeightedMean( timeStep, histData.weightedMean );
+
+            histData.histogram = &( m_visibleCellStatistics->cellScalarValuesHistogram( timeStep ) );
         }
     }
     return histData;
@@ -358,21 +351,27 @@ void RimHistogramCalculator::updateVisCellStatsIfNeeded( RimGeoMechView* geoMech
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimHistogramCalculator::updateVisCellStatsIfNeeded( RimEclipseView* eclipseView )
+void RimHistogramCalculator::updateVisCellStatsIfNeeded( RimEclipseView*             eclipseView,
+                                                         RimEclipseResultDefinition* eclResultDefinition )
 {
+    CVF_ASSERT( eclipseView );
+    CVF_ASSERT( eclResultDefinition );
+
     if ( m_isVisCellStatUpToDate ) return;
+
+    eclipseView->cellResult()->loadResult();
 
     cvf::ref<RigStatisticsCalculator> calc;
 
-    if ( eclipseView->cellResult()->isFlowDiagOrInjectionFlooding() )
+    if ( eclResultDefinition->isFlowDiagOrInjectionFlooding() )
     {
-        RigFlowDiagResultAddress resAddr    = eclipseView->cellResult()->flowDiagResAddress();
-        RigFlowDiagResults*      fldResults = eclipseView->cellResult()->flowDiagSolution()->flowDiagResults();
+        RigFlowDiagResultAddress resAddr    = eclResultDefinition->flowDiagResAddress();
+        RigFlowDiagResults*      fldResults = eclResultDefinition->flowDiagSolution()->flowDiagResults();
         calc = new RigFlowDiagVisibleCellsStatCalc( fldResults, resAddr, eclipseView->currentTotalCellVisibility().p() );
     }
     else
     {
-        RigEclipseResultAddress resAddr = eclipseView->cellResult()->eclipseResultAddress();
+        RigEclipseResultAddress resAddr = eclResultDefinition->eclipseResultAddress();
 
         QString resultName = resAddr.m_resultName;
 
@@ -384,7 +383,7 @@ void RimHistogramCalculator::updateVisCellStatsIfNeeded( RimEclipseView* eclipse
             for ( RigEclipseResultAddress& compResAddr : addresses )
             {
                 cvf::ref<RigEclipseNativeVisibleCellsStatCalc> singleCalc =
-                    new RigEclipseNativeVisibleCellsStatCalc( eclipseView->currentGridCellResults(),
+                    new RigEclipseNativeVisibleCellsStatCalc( eclResultDefinition->currentGridCellResults(),
                                                               compResAddr,
                                                               eclipseView->currentTotalCellVisibility().p() );
                 multicalc->addStatisticsCalculator( singleCalc.p() );
@@ -394,7 +393,7 @@ void RimHistogramCalculator::updateVisCellStatsIfNeeded( RimEclipseView* eclipse
         }
         else
         {
-            calc = new RigEclipseNativeVisibleCellsStatCalc( eclipseView->currentGridCellResults(),
+            calc = new RigEclipseNativeVisibleCellsStatCalc( eclResultDefinition->currentGridCellResults(),
                                                              resAddr,
                                                              eclipseView->currentTotalCellVisibility().p() );
         }
