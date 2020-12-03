@@ -48,12 +48,18 @@ public:
 
     static double polygonLengthInLocalXdirWeightedByArea( const std::vector<cvf::Vec3d>& polygon2d );
 
-    static std::vector<std::vector<cvf::Vec3d>> intersectPolygons( const std::vector<cvf::Vec3d>& polygon1,
-                                                                   const std::vector<cvf::Vec3d>& polygon2 );
+    static std::vector<std::vector<cvf::Vec3d>>
+        intersectionWithPolygons( const std::vector<cvf::Vec3d>&              polygon1,
+                                  const std::vector<std::vector<cvf::Vec3d>>& polygonToIntersectWith );
+
+    static std::vector<std::vector<cvf::Vec3d>> intersectionWithPolygon( const std::vector<cvf::Vec3d>& polygon1,
+                                                                         const std::vector<cvf::Vec3d>& polygon2 );
 
     static std::vector<std::vector<cvf::Vec3d>>
-        subtractPolygons( const std::vector<cvf::Vec3d>&              sourcePolygon,
-                          const std::vector<std::vector<cvf::Vec3d>>& polygonsToSubtract );
+                                                subtractPolygons( const std::vector<cvf::Vec3d>&              sourcePolygon,
+                                                                  const std::vector<std::vector<cvf::Vec3d>>& polygonsToSubtract );
+    static std::vector<std::vector<cvf::Vec3d>> subtractPolygon( const std::vector<cvf::Vec3d>& sourcePolygon,
+                                                                 const std::vector<cvf::Vec3d>& polygonToSubtract );
 
     enum ZInterpolationType
     {

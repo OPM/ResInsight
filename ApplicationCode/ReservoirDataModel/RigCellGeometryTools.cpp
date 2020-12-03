@@ -95,50 +95,68 @@ bool RigCellGeometryTools::estimateHexOverlapWithBoundingBox( const std::array<c
     CVF_ASSERT( overlapElement && overlapBoundingBox );
     *overlapBoundingBox = cvf::BoundingBox();
 
-    std::array<cvf::Vec3d, 8> overlapCorners = hexCorners;
-
     std::vector<cvf::Vec3d> uniqueTopPoints = { hexCorners[0], hexCorners[1], hexCorners[2], hexCorners[3] };
-    uniqueTopPoints.erase( std::unique( uniqueTopPoints.begin(), uniqueTopPoints.end() ), uniqueTopPoints.end() );
-    if ( uniqueTopPoints.size() < 3 ) return false;
+    auto                    uniqueTopEnd    = std::unique( uniqueTopPoints.begin(), uniqueTopPoints.end() );
+
+    if ( uniqueTopEnd - uniqueTopPoints.begin() < 3u ) return false;
 
     cvf::Plane topPlane;
     if ( !topPlane.setFromPoints( uniqueTopPoints[0], uniqueTopPoints[1], uniqueTopPoints[2] ) ) return false;
 
     std::vector<cvf::Vec3d> uniqueBottomPoints = { hexCorners[4], hexCorners[5], hexCorners[6], hexCorners[7] };
-    uniqueBottomPoints.erase( std::unique( uniqueBottomPoints.begin(), uniqueBottomPoints.end() ),
-                              uniqueBottomPoints.end() );
-    if ( uniqueBottomPoints.size() < 3 ) return false;
+    auto                    uniqueBottomEnd    = std::unique( uniqueBottomPoints.begin(), uniqueBottomPoints.end() );
+    if ( uniqueBottomEnd - uniqueBottomPoints.begin() < 3u ) return false;
 
     cvf::Plane bottomPlane;
     if ( !bottomPlane.setFromPoints( uniqueBottomPoints[0], uniqueBottomPoints[1], uniqueBottomPoints[2] ) )
         return false;
 
+    const cvf::Vec3d& boundingMin = boundingBox.min();
+    const cvf::Vec3d& boundingMax = boundingBox.max();
+
     for ( size_t i = 0; i < 4; ++i )
     {
-        cvf::Vec3d& corner    = overlapCorners[i];
-        corner.x()            = cvf::Math::clamp( corner.x(), boundingBox.min().x(), boundingBox.max().x() );
-        corner.y()            = cvf::Math::clamp( corner.y(), boundingBox.min().y(), boundingBox.max().y() );
-        corner.z()            = cvf::Math::clamp( corner.z(), boundingBox.min().z(), boundingBox.max().z() );
-        cvf::Vec3d maxZCorner = corner;
-        maxZCorner.z()        = boundingBox.max().z();
-        cvf::Vec3d minZCorner = corner;
-        minZCorner.z()        = boundingBox.min().z();
-        if ( topPlane.intersect( minZCorner, maxZCorner, &corner ) ) overlapBoundingBox->add( corner );
+        const cvf::Vec3d& hexCorner = hexCorners[i];
+        double            x         = cvf::Math::clamp( hexCorner.x(), boundingMin.x(), boundingMax.x() );
+        double            y         = cvf::Math::clamp( hexCorner.y(), boundingMin.y(), boundingMax.y() );
+        cvf::Vec3d        corner;
+        cvf::Vec3d        maxZCorner( x, y, boundingMax.z() );
+        cvf::Vec3d        minZCorner( x, y, boundingMin.z() );
+        if ( topPlane.intersect( minZCorner, maxZCorner, &corner ) )
+        {
+            overlapBoundingBox->add( corner );
+            std::swap( ( *overlapElement )[i], corner );
+        }
+        else
+        {
+            double     z = cvf::Math::clamp( hexCorner.z(), boundingMin.z(), boundingMax.z() );
+            cvf::Vec3d clampedCorner( x, y, z );
+            overlapBoundingBox->add( clampedCorner );
+            ( *overlapElement )[i] = clampedCorner;
+        }
     }
     for ( size_t i = 4; i < 8; ++i )
     {
-        cvf::Vec3d& corner    = overlapCorners[i];
-        corner.x()            = cvf::Math::clamp( corner.x(), boundingBox.min().x(), boundingBox.max().x() );
-        corner.y()            = cvf::Math::clamp( corner.y(), boundingBox.min().y(), boundingBox.max().y() );
-        corner.z()            = cvf::Math::clamp( corner.z(), boundingBox.min().z(), boundingBox.max().z() );
-        cvf::Vec3d maxZCorner = corner;
-        maxZCorner.z()        = boundingBox.max().z();
-        cvf::Vec3d minZCorner = corner;
-        minZCorner.z()        = boundingBox.min().z();
-        if ( bottomPlane.intersect( minZCorner, maxZCorner, &corner ) ) overlapBoundingBox->add( corner );
+        const cvf::Vec3d& hexCorner = hexCorners[i];
+        double            x         = cvf::Math::clamp( hexCorner.x(), boundingMin.x(), boundingMax.x() );
+        double            y         = cvf::Math::clamp( hexCorner.y(), boundingMin.y(), boundingMax.y() );
+        cvf::Vec3d        corner;
+        cvf::Vec3d        maxZCorner( x, y, boundingMax.z() );
+        cvf::Vec3d        minZCorner( x, y, boundingMin.z() );
+        if ( bottomPlane.intersect( minZCorner, maxZCorner, &corner ) )
+        {
+            overlapBoundingBox->add( corner );
+            std::swap( ( *overlapElement )[i], corner );
+        }
+        else
+        {
+            double     z = cvf::Math::clamp( hexCorner.z(), boundingMin.z(), boundingMax.z() );
+            cvf::Vec3d clampedCorner( x, y, z );
+            overlapBoundingBox->add( clampedCorner );
+            ( *overlapElement )[i] = clampedCorner;
+        }
     }
 
-    *overlapElement = overlapCorners;
     return true;
 }
 
@@ -355,7 +373,7 @@ double RigCellGeometryTools::polygonLengthInLocalXdirWeightedByArea( const std::
         polygon.push_back( line2.first );
 
         // Use clipper to find overlap between bbpolygon and fracture
-        std::vector<std::vector<cvf::Vec3d>> clippedPolygons = intersectPolygons( polygonToCalcLengthOf, polygon );
+        std::vector<std::vector<cvf::Vec3d>> clippedPolygons = intersectionWithPolygon( polygonToCalcLengthOf, polygon );
 
         double     area       = 0;
         double     length     = 0;
@@ -417,27 +435,33 @@ cvf::Vec3d fromClipperPoint( const ClipperLib::IntPoint& clipPoint )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<cvf::Vec3d>> RigCellGeometryTools::intersectPolygons( const std::vector<cvf::Vec3d>& polygon1,
-                                                                              const std::vector<cvf::Vec3d>& polygon2 )
+std::vector<std::vector<cvf::Vec3d>>
+    RigCellGeometryTools::intersectionWithPolygons( const std::vector<cvf::Vec3d>&              polygon1,
+                                                    const std::vector<std::vector<cvf::Vec3d>>& polygonToIntersectWith )
 {
     std::vector<std::vector<cvf::Vec3d>> clippedPolygons;
 
     // Convert to int for clipper library and store as clipper "path"
-    ClipperLib::Path polygon1path;
-    for ( const cvf::Vec3d& v : polygon1 )
-    {
-        polygon1path.push_back( toClipperPoint( v ) );
-    }
-
-    ClipperLib::Path polygon2path;
-    for ( const cvf::Vec3d& v : polygon2 )
-    {
-        polygon2path.push_back( toClipperPoint( v ) );
-    }
-
     ClipperLib::Clipper clpr;
-    clpr.AddPath( polygon1path, ClipperLib::ptSubject, true );
-    clpr.AddPath( polygon2path, ClipperLib::ptClip, true );
+    {
+        ClipperLib::Path polygon1path;
+        for ( const cvf::Vec3d& v : polygon1 )
+        {
+            polygon1path.push_back( toClipperPoint( v ) );
+        }
+        clpr.AddPath( polygon1path, ClipperLib::ptSubject, true );
+    }
+
+    for ( const auto& path : polygonToIntersectWith )
+    {
+        ClipperLib::Path polygon2path;
+        for ( const auto& v : path )
+        {
+            polygon2path.push_back( toClipperPoint( v ) );
+        }
+
+        clpr.AddPath( polygon2path, ClipperLib::ptClip, true );
+    }
 
     ClipperLib::Paths solution;
     clpr.Execute( ClipperLib::ctIntersection, solution, ClipperLib::pftEvenOdd, ClipperLib::pftEvenOdd );
@@ -454,6 +478,16 @@ std::vector<std::vector<cvf::Vec3d>> RigCellGeometryTools::intersectPolygons( co
     }
 
     return clippedPolygons;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<cvf::Vec3d>>
+    RigCellGeometryTools::intersectionWithPolygon( const std::vector<cvf::Vec3d>& polygon1,
+                                                   const std::vector<cvf::Vec3d>& polygon2 )
+{
+    return intersectionWithPolygons( polygon1, { polygon2 } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -504,6 +538,12 @@ std::vector<std::vector<cvf::Vec3d>>
     }
 
     return clippedPolygons;
+}
+
+std::vector<std::vector<cvf::Vec3d>> RigCellGeometryTools::subtractPolygon( const std::vector<cvf::Vec3d>& sourcePolygon,
+                                                                            const std::vector<cvf::Vec3d>& polygonToSubtract )
+{
+    return subtractPolygons( sourcePolygon, { polygonToSubtract } );
 }
 
 //--------------------------------------------------------------------------------------------------
