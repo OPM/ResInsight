@@ -85,33 +85,8 @@ void RivStreamlinesPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicLi
 
     cvf::ref<caf::DisplayCoordTransform> displayCordXf = m_rimReservoirView->displayCoordTransform();
 
-    RimSimWellInViewCollection* wellCollection = m_rimReservoirView->wellCollection();
-
     RimStreamlineInViewCollection* streamlineCollection = m_rimReservoirView->streamlineCollection();
 
-    /*
-    for ( RimSimWellInView* well : wellCollection->wells() )
-    {
-        std::vector<std::vector<cvf::Vec3d>>         pipeBranchesCLCoords;
-        std::vector<std::vector<RigWellResultPoint>> pipeBranchesCellIds;
-
-        auto noConst = const_cast<RimSimWellInView*>( well );
-        RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( noConst,
-                                                                                  pipeBranchesCLCoords,
-                                                                                  pipeBranchesCellIds );
-        for ( size_t i = 0; i < pipeBranchesCLCoords.size(); i++ )
-        {
-            std::vector<cvf::Vec3d> tracerPoints;
-            StreamlineVisualization visualization;
-            for ( size_t j = 0; j < pipeBranchesCLCoords[i].size(); j++ )
-            {
-                tracerPoints.push_back( displayCordXf->transformToDisplayCoord( pipeBranchesCLCoords[i][j] ) );
-            }
-            visualization.tracerPoints = tracerPoints;
-            streamlineVisualizations.push_back( visualization );
-        }
-    }
-    */
     /*
     for ( const RigTracer& tracer : streamlineCollection->tracers() )
     {
@@ -383,7 +358,6 @@ void RivStreamlinesPartMgr::createResultColorTextureCoords( cvf::Vec2fArray*    
     }
     if ( textureCoords->capacity() != vertexCount ) textureCoords->reserve( vertexCount );
 
-    size_t count = 0;
     for ( size_t i = 0; i < streamline.countTracerPoints(); i++ )
     {
         cvf::Vec2f texCoord = mapper->mapToTextureCoord( streamline.getAbsVelocity( i ) );
@@ -475,7 +449,6 @@ cvf::ref<cvf::Part> RivStreamlinesPartMgr::createVectorPart( const RimStreamline
     std::vector<cvf::Vec3f> vertices;
     vertices.reserve( 7 * streamline.countTracerPoints() );
 
-    uint count = 0;
     for ( size_t i = 0; i < streamline.countTracerPoints(); i++ )
     {
         cvf::Vec3f anchorPoint = cvf::Vec3f( displayCordXf->transformToDisplayCoord( streamline.getTracerPoint( i ) ) );
