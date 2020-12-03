@@ -23,7 +23,6 @@
 
 #include "RiuQtChartView.h"
 
-#include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmFieldHandle.h"
@@ -31,8 +30,6 @@
 #include "cafPdmPtrField.h"
 
 #include <QPointer>
-
-#include <QtCharts/QChartView>
 
 class RimCase;
 class RimPlot;
@@ -64,7 +61,6 @@ protected:
 
     QWidget* createViewWidget( QWidget* mainWindowParent ) override;
     void     deleteViewWidget() override;
-    void     recreatePlotWidgets();
 
     // Overridden PDM methods
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -94,10 +90,8 @@ protected:
 
     caf::PdmField<QString> m_plotWindowTitle;
 
-    caf::PdmPtrField<RimCase*>     m_case;
-    caf::PdmField<int>             m_timeStep;
-    caf::PdmPtrField<RimGridView*> m_cellFilterView;
-    //   caf::PdmField<CurveGroupingEnum>                m_grouping;
+    caf::PdmPtrField<RimCase*>                      m_case;
+    caf::PdmField<int>                              m_timeStep;
+    caf::PdmPtrField<RimGridView*>                  m_cellFilterView;
     caf::PdmChildField<RimEclipseResultDefinition*> m_property;
-    //    caf::PdmChildField<RimEclipseCellColors*>       m_groupingProperty;
 };

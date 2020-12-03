@@ -27,7 +27,6 @@
 #include "RimEclipseResultCase.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
-#include "RimGeoMechCase.h"
 #include "RimGridView.h"
 #include "RimHistogramCalculator.h"
 #include "RimHistogramData.h"
@@ -36,17 +35,15 @@
 #include "RimTools.h"
 #include "RiuPlotMainWindow.h"
 
-#include "cafPdmFieldReorderCapability.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiComboBoxEditor.h"
-#include "cafPdmUiDoubleValueEditor.h"
 #include "cvfAssert.h"
 
 #include <QtCharts/QBarSeries>
 #include <QtCharts/QBarSet>
 #include <QtCharts/QCategoryAxis>
-#include <QtCharts/QSplineSeries>
+#include <QtCharts/QLineSeries>
 #include <QtCharts/QValueAxis>
 
 #include <cmath>
@@ -71,8 +68,6 @@ RimGridStatisticsPlot::RimGridStatisticsPlot()
     m_timeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_cellFilterView, "VisibleCellView", "Filter by 3d View Visibility", "", "", "" );
-
-    // CAF_PDM_InitFieldNoDefault( &m_grouping, "Grouping", "Group Data by", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_property, "Property", "Property", "", "", "" );
     m_property = new RimEclipseResultDefinition( caf::PdmUiItemInfo::TOP );
@@ -112,14 +107,6 @@ void RimGridStatisticsPlot::setDefaults()
 
             m_property->setResultType( RiaDefines::ResultCatType::STATIC_NATIVE );
             m_property->setResultVariable( "PORO" );
-
-            // m_grouping = NO_GROUPING;
-            // if ( eclipseCase->activeFormationNames() )
-            // {
-            //     m_grouping = GROUP_BY_FORMATION;
-            //     m_groupingProperty->legendConfig()->setColorLegend(
-            //         RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) );
-            // }
         }
     }
 }
@@ -177,7 +164,6 @@ QImage RimGridStatisticsPlot::snapshotWindowContent()
 QWidget* RimGridStatisticsPlot::createViewWidget( QWidget* mainWindowParent )
 {
     m_viewer = new RiuQtChartView( this, mainWindowParent );
-    recreatePlotWidgets();
     return m_viewer;
 }
 
@@ -187,24 +173,6 @@ QWidget* RimGridStatisticsPlot::createViewWidget( QWidget* mainWindowParent )
 void RimGridStatisticsPlot::deleteViewWidget()
 {
     cleanupBeforeClose();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGridStatisticsPlot::recreatePlotWidgets()
-{
-    // CVF_ASSERT( m_viewer );
-
-    // auto plotVector = plots();
-
-    // m_viewer->removeAllPlots();
-
-    // for ( size_t tIdx = 0; tIdx < plotVector.size(); ++tIdx )
-    // {
-    //     plotVector[tIdx]->createPlotWidget();
-    //     m_viewer->addPlot( plotVector[tIdx]->viewer() );
-    // }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -232,13 +200,6 @@ void RimGridStatisticsPlot::doRenderWindowContent( QPaintDevice* paintDevice )
 //--------------------------------------------------------------------------------------------------
 void RimGridStatisticsPlot::doUpdateLayout()
 {
-    if ( m_viewer )
-    {
-        // m_viewer->setTitleFontSizes( titleFontSize(), subTitleFontSize() );
-        // m_viewer->setLegendFontSize( legendFontSize() );
-        // m_viewer->setAxisFontSizes( axisTitleFontSize(), axisValueFontSize() );
-        // m_viewer->scheduleUpdate();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -269,17 +230,7 @@ void RimGridStatisticsPlot::fieldChangedByUi( const caf::PdmFieldHandle* changed
         if ( eclipseCase )
         {
             m_property->setEclipseCase( eclipseCase );
-            // m_groupingProperty->setEclipseCase( eclipseCase );
-            // TODO: Do we need all these??
             m_property->updateConnectedEditors();
-            // m_groupingProperty->updateConnectedEditors();
-
-            // if ( m_grouping == GROUP_BY_FORMATION && !eclipseCase->activeFormationNames() )
-            // {
-            //     m_grouping = NO_GROUPING;
-            // }
-
-            // destroyCurves();
             loadDataAndUpdate();
         }
     }
@@ -301,7 +252,6 @@ void RimGridStatisticsPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     {
         uiOrdering.add( &m_timeStep );
         uiOrdering.add( &m_cellFilterView );
-        //        m_plotCellFilterCollection->setCase( eclipseCase );
         caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup( "Property" );
         m_property->uiOrdering( uiConfigName, *propertyGroup );
     }
@@ -363,7 +313,6 @@ void RimGridStatisticsPlot::initAfterRead()
     if ( eclipseCase )
     {
         m_property->setEclipseCase( eclipseCase );
-        // m_groupingProperty->setEclipseCase( eclipseCase );
     }
 }
 
