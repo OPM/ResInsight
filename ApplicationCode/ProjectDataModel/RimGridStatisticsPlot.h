@@ -57,6 +57,8 @@ public:
 
     void zoomAll() override;
 
+    void cellFilterViewUpdated();
+
 protected:
     QImage snapshotWindowContent() override;
 

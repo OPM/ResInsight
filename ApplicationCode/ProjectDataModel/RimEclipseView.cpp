@@ -83,6 +83,10 @@
 #include "RimWellMeasurementInViewCollection.h"
 #include "RimWellPathCollection.h"
 
+#ifdef USE_QTCHARTS
+#include "RimGridStatisticsPlot.h"
+#endif
+
 #include "Riu3dSelectionManager.h"
 #include "RiuMainWindow.h"
 #include "RiuViewer.h"
@@ -660,6 +664,18 @@ void RimEclipseView::onCreateDisplayModel()
             curveSet->cellFilterViewUpdated();
         }
     }
+
+#ifdef USE_QTCHARTS
+    std::vector<RimGridStatisticsPlot*> gridStatisticsPlots;
+    this->objectsWithReferringPtrFieldsOfType( gridStatisticsPlots );
+    for ( auto gridStatisticsPlot : gridStatisticsPlots )
+    {
+        if ( gridStatisticsPlot != nullptr )
+        {
+            gridStatisticsPlot->cellFilterViewUpdated();
+        }
+    }
+#endif
 
     RicExportToSharingServerScheduler::instance()->scheduleUpdateSession();
 }

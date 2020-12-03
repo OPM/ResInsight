@@ -26,6 +26,7 @@
 
 #include "cvfObject.h"
 
+class RimEclipseResultDefinition;
 class RimGeoMechContourMapView;
 class RimEclipseContourMapView;
 class RimEclipseView;
@@ -60,10 +61,17 @@ public:
     RimHistogramData
         histogramData( RimGeoMechView* geoMechView, StatisticsCellRangeType cellRange, StatisticsTimeRangeType timeRange );
 
+    RimHistogramData histogramData( RimEclipseView*             eclipseView,
+                                    RimEclipseResultDefinition* eclResultDefinition,
+                                    StatisticsCellRangeType     cellRange,
+                                    StatisticsTimeRangeType     timeRange,
+                                    int                         timeStep );
+
     void invalidateVisibleCellsCache();
 
 private:
-    void updateVisCellStatsIfNeeded( RimEclipseView* eclipseView );
+    void updateVisCellStatsIfNeeded( RimEclipseView* eclipseView, RimEclipseResultDefinition* eclResultDefinition );
+
     void updateVisCellStatsIfNeeded( RimGeoMechView* geoMechView );
 
     std::vector<RigEclipseResultAddress> sourcesForMultiPropertyResults( const QString& resultName );

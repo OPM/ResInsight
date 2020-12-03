@@ -67,6 +67,10 @@
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogTrack.h"
 
+#ifdef USE_QTCHARTS
+#include "RimGridStatisticsPlot.h"
+#endif
+
 #include "cafCategoryMapper.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmUiListEditor.h"
@@ -616,6 +620,15 @@ void RimEclipseResultDefinition::loadDataAndUpdate()
     {
         rim3dWellLogCurve->updateCurveIn3dView();
     }
+
+#ifdef USE_QTCHARTS
+    RimGridStatisticsPlot* gridStatisticsPlot = nullptr;
+    this->firstAncestorOrThisOfType( gridStatisticsPlot );
+    if ( gridStatisticsPlot )
+    {
+        gridStatisticsPlot->loadDataAndUpdate();
+    }
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------
