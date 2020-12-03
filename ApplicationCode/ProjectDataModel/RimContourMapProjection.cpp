@@ -1128,6 +1128,10 @@ void RimContourMapProjection::generateContourPolygons()
                 {
                     simplifyEpsilon *= 2.0;
                 }
+                else if ( numberOfCells() > 1000000 )
+                {
+                    simplifyEpsilon *= 4.0;
+                }
 
                 std::vector<caf::ContourLines::ListOfLineSegments> unorderedLineSegmentsPerLevel =
                     caf::ContourLines::create( m_aggregatedVertexResults, xVertexPositions(), yVertexPositions(), contourLevels );
