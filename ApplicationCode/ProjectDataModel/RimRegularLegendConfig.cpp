@@ -1178,7 +1178,7 @@ QString RimRegularLegendConfig::valueToText( double value, NumberFormatType numb
 //--------------------------------------------------------------------------------------------------
 QString RimRegularLegendConfig::valueToText( double value ) const
 {
-    return RimRegularLegendConfig::valueToText( value, m_tickNumberFormat(), m_precision() );
+    return RimRegularLegendConfig::valueToText( value, m_tickNumberFormat(), m_significantDigitsInData );
 }
 
 //--------------------------------------------------------------------------------------------------
