@@ -107,6 +107,7 @@
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimStimPlanFractureTemplate.h"
+#include "RimStreamlineInViewCollection.h"
 #include "RimStimPlanModel.h"
 #include "RimStimPlanModelCollection.h"
 #include "RimStimPlanModelPlot.h"
@@ -964,6 +965,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimMultiPlot*>( firstUiItem ) )
         {
             menuBuilder << "RicSnapshotViewToPdfFeature";
+        }
+        else if ( dynamic_cast<RimStreamlineInViewCollection*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewStreamlineFeature";
         }
         if ( dynamic_cast<Rim3dView*>( firstUiItem ) )
         {

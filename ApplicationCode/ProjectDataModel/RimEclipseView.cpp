@@ -73,6 +73,7 @@
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimStimPlanColors.h"
+#include "RimStreamlineInViewCollection.h"
 #include "RimSurfaceInViewCollection.h"
 #include "RimTernaryLegendConfig.h"
 #include "RimViewController.h"
@@ -175,6 +176,10 @@ RimEclipseView::RimEclipseView()
     CAF_PDM_InitFieldNoDefault( &m_annotationCollection, "AnnotationCollection", "Annotations", "", "", "" );
     m_annotationCollection = new RimAnnotationInViewCollection;
     m_annotationCollection.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_streamlineCollection, "StreamlineCollection", "Streamlines", "", "", "" );
+    m_streamlineCollection = new RimStreamlineInViewCollection();
+    m_streamlineCollection.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_propertyFilterCollection, "PropertyFilters", "Property Filters", "", "", "" );
     m_propertyFilterCollection = new RimEclipsePropertyFilterCollection();
@@ -684,6 +689,9 @@ void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
     appendWellsAndFracturesToModel();
 
     appendElementVectorResultToModel();
+
+    m_streamlineCollection()->updateFromCurrentTimeStep();
+    appendStreamlinesToModel();
 
     m_overlayInfoConfig()->update3DInfo();
 
@@ -1444,6 +1452,11 @@ void RimEclipseView::onUpdateLegends()
     {
         m_surfaceCollection->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
     }
+
+    if ( m_streamlineCollection )
+    {
+        m_streamlineCollection->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1485,6 +1498,7 @@ void RimEclipseView::setEclipseCase( RimEclipseCase* reservoir )
     m_eclipseCase = reservoir;
     cellResult()->setEclipseCase( reservoir );
     faultResultSettings()->customFaultResult()->setEclipseCase( reservoir );
+    m_streamlineCollection->setEclipseCase( reservoir );
 
     cellEdgeResult()->setEclipseCase( reservoir );
 }
@@ -1587,6 +1601,14 @@ void RimEclipseView::syncronizeLocalAnnotationsFromGlobal()
             annotationCollection()->onGlobalCollectionChanged( annotColl );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimStreamlineInViewCollection* RimEclipseView::streamlineCollection() const
+{
+    return m_streamlineCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1853,6 +1875,8 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     uiTreeOrdering.add( faultResultSettings() );
     uiTreeOrdering.add( &m_intersectionResultDefCollection );
     uiTreeOrdering.add( &m_surfaceResultDefCollection );
+
+    uiTreeOrdering.add( &m_streamlineCollection );
 
     uiTreeOrdering.add( wellCollection() );
     uiTreeOrdering.add( &m_wellMeasurementCollection );

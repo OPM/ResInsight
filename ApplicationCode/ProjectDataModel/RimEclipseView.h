@@ -64,6 +64,7 @@ class RimRegularLegendConfig;
 class RimTernaryLegendConfig;
 class RimEclipseResultDefinition;
 class RimElementVectorResult;
+class RimStreamlineInViewCollection;
 
 namespace cvf
 {
@@ -85,14 +86,15 @@ public:
     RimEclipseView();
     ~RimEclipseView() override;
 
-    RimEclipseCellColors*         cellResult() const;
-    RimCellEdgeColors*            cellEdgeResult() const;
-    RimElementVectorResult*       elementVectorResult() const;
-    RimEclipseFaultColors*        faultResultSettings() const;
-    RimStimPlanColors*            fractureColors() const;
-    RimSimWellInViewCollection*   wellCollection() const;
-    RimFaultInViewCollection*     faultCollection() const;
-    RimVirtualPerforationResults* virtualPerforationResult() const;
+    RimEclipseCellColors*          cellResult() const;
+    RimCellEdgeColors*             cellEdgeResult() const;
+    RimElementVectorResult*        elementVectorResult() const;
+    RimEclipseFaultColors*         faultResultSettings() const;
+    RimStimPlanColors*             fractureColors() const;
+    RimSimWellInViewCollection*    wellCollection() const;
+    RimFaultInViewCollection*      faultCollection() const;
+    RimStreamlineInViewCollection* streamlineCollection() const;
+    RimVirtualPerforationResults*  virtualPerforationResult() const;
 
     bool showInvalidCells() const;
     bool showInactiveCells() const;
@@ -216,8 +218,9 @@ private:
 
     caf::PdmProxyValueField<std::vector<double>> m_cellResultData;
 
-    caf::PdmChildField<RimSimWellInViewCollection*> m_wellCollection;
-    caf::PdmChildField<RimFaultInViewCollection*>   m_faultCollection;
+    caf::PdmChildField<RimSimWellInViewCollection*>    m_wellCollection;
+    caf::PdmChildField<RimFaultInViewCollection*>      m_faultCollection;
+    caf::PdmChildField<RimStreamlineInViewCollection*> m_streamlineCollection;
 
     caf::PdmChildField<RimEclipsePropertyFilterCollection*> m_propertyFilterCollection;
     caf::PdmPointer<RimEclipsePropertyFilterCollection>     m_overridePropertyFilterCollection;
