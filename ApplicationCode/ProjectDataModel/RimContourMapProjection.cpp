@@ -120,7 +120,7 @@ void RimContourMapProjection::generateResultsIfNecessary( int timeStep )
         clearResults();
         clearTimeStepRange();
 
-        m_projected3dGridIndices = generateGridMapping();
+        if ( gridMappingNeedsUpdating() ) m_projected3dGridIndices = generateGridMapping();
         progress.setProgress( 20 );
         m_mapCellVisibility = getMapCellVisibility();
         progress.setProgress( 30 );
