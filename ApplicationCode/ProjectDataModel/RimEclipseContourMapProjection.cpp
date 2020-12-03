@@ -336,9 +336,11 @@ std::vector<double> RimEclipseContourMapProjection::calculateColumnResult( Resul
 //--------------------------------------------------------------------------------------------------
 void RimEclipseContourMapProjection::updateGridInformation()
 {
-    m_mainGrid = eclipseCase()->eclipseCaseData()->mainGrid();
+    auto eclipseCase = this->eclipseCase();
+    m_mainGrid       = eclipseCase->eclipseCaseData()->mainGrid();
+    m_activeCellInfo = eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
-    m_gridBoundingBox           = eclipseCase()->activeCellsBoundingBox();
+    m_gridBoundingBox           = eclipseCase->activeCellsBoundingBox();
     cvf::Vec3d minExpandedPoint = m_gridBoundingBox.min() - cvf::Vec3d( gridEdgeOffset(), gridEdgeOffset(), 0.0 );
     cvf::Vec3d maxExpandedPoint = m_gridBoundingBox.max() + cvf::Vec3d( gridEdgeOffset(), gridEdgeOffset(), 0.0 );
     m_expandedBoundingBox       = cvf::BoundingBox( minExpandedPoint, maxExpandedPoint );
@@ -487,9 +489,7 @@ double RimEclipseContourMapProjection::getParameterWeightForCell( size_t        
 //--------------------------------------------------------------------------------------------------
 size_t RimEclipseContourMapProjection::gridResultIndex( size_t globalCellIdx ) const
 {
-    const RigActiveCellInfo* activeCellInfo =
-        eclipseCase()->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    return activeCellInfo->cellResultIndex( globalCellIdx );
+    return m_activeCellInfo->cellResultIndex( globalCellIdx );
 }
 
 //--------------------------------------------------------------------------------------------------

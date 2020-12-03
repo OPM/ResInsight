@@ -32,6 +32,7 @@
 #include "cvfString.h"
 #include "cvfVector2.h"
 
+class RigActiveCellInfo;
 class RigMainGrid;
 class RigResultAccessor;
 class RimEclipseContourMapView;
@@ -94,6 +95,8 @@ protected:
     caf::PdmField<bool>                             m_weightByParameter;
     caf::PdmChildField<RimEclipseResultDefinition*> m_weightingResult;
 
-    cvf::ref<RigMainGrid> m_mainGrid;
-    QString               m_currentResultName;
+    cvf::ref<RigMainGrid>       m_mainGrid;
+    cvf::ref<RigActiveCellInfo> m_activeCellInfo;
+
+    QString m_currentResultName;
 };
