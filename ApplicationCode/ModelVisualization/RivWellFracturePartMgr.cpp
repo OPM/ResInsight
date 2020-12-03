@@ -708,7 +708,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createContainmentMaskPart( const Rim
                 // Clip Eclipse cell polygon with fracture border
 
                 std::vector<std::vector<cvf::Vec3d>> clippedPolygons =
-                    RigCellGeometryTools::intersectPolygons( eclCellPolygon, borderPolygonLocalCsd );
+                    RigCellGeometryTools::intersectionWithPolygon( eclCellPolygon, borderPolygonLocalCsd );
                 for ( auto& clippedPolygon : clippedPolygons )
                 {
                     for ( auto& v : clippedPolygon )

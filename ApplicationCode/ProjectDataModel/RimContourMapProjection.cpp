@@ -930,7 +930,7 @@ void RimContourMapProjection::generateTrianglesWithVertexValues()
                     if ( containsAtLeastOne )
                     {
                         std::vector<std::vector<cvf::Vec3d>> clippedPolygons =
-                            RigCellGeometryTools::intersectPolygons( triangle, m_contourPolygons[c][j].vertices );
+                            RigCellGeometryTools::intersectionWithPolygon( triangle, m_contourPolygons[c][j].vertices );
                         intersectPolygons.insert( intersectPolygons.end(), clippedPolygons.begin(), clippedPolygons.end() );
                     }
                 }
@@ -1276,7 +1276,7 @@ void RimContourMapProjection::clipContourPolygons( ContourPolygons* contourPolyg
         for ( size_t j = 0; j < clipBy->size(); ++j )
         {
             std::vector<std::vector<cvf::Vec3d>> intersections =
-                RigCellGeometryTools::intersectPolygons( polygon.vertices, clipBy->at( j ).vertices );
+                RigCellGeometryTools::intersectionWithPolygon( polygon.vertices, clipBy->at( j ).vertices );
             if ( !intersections.empty() )
             {
                 polygon.vertices = intersections.front();

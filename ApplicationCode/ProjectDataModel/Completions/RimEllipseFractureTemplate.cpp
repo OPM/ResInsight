@@ -196,7 +196,7 @@ void RimEllipseFractureTemplate::createFractureGridAndAssignConductivities()
             for ( const auto& v : ellipseFracPolygon )
                 ellipseFracPolygonDouble.push_back( static_cast<cvf::Vec3d>( v ) );
             std::vector<std::vector<cvf::Vec3d>> clippedFracturePolygons =
-                RigCellGeometryTools::intersectPolygons( cellPolygon, ellipseFracPolygonDouble );
+                RigCellGeometryTools::intersectionWithPolygon( cellPolygon, ellipseFracPolygonDouble );
             if ( !clippedFracturePolygons.empty() )
             {
                 for ( const auto& clippedFracturePolygon : clippedFracturePolygons )
