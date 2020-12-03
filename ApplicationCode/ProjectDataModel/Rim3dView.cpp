@@ -82,7 +82,8 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( Rim3dView, "View", "GenericView" ); // Do not 
 ///
 //--------------------------------------------------------------------------------------------------
 Rim3dView::Rim3dView( void )
-    : m_isCallingUpdateDisplayModelForCurrentTimestepAndRedraw( false )
+    : updateAnimations( this )
+    , m_isCallingUpdateDisplayModelForCurrentTimestepAndRedraw( false )
 {
     RiaApplication* app         = RiaApplication::instance();
     RiaPreferences* preferences = app->preferences();
@@ -172,6 +173,14 @@ Rim3dView::Rim3dView( void )
 
     m_measurementPartManager = new RivMeasurementPartMgr( this );
     this->setAs3DViewMdiWindow();
+
+    // Every 50ms, send a signal for updating animations.
+    // Any animation is supposed to connect to this signal
+    // in order to having only one central animation driver.
+    m_animationTimer = std::make_unique<QTimer>( new QTimer() );
+    m_animationTimer->setInterval( 50 );
+    QObject::connect( m_animationTimer.get(), &QTimer::timeout, [this]() { updateAnimations.send(); } );
+    m_animationTimer->start();
 }
 
 //--------------------------------------------------------------------------------------------------

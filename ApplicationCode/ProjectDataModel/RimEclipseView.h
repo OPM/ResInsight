@@ -60,6 +60,7 @@ class RiuViewer;
 class RivReservoirSimWellsPartMgr;
 class RivExtrudedCurveIntersectionPartMgr;
 class RivReservoirViewPartMgr;
+class RivStreamlinesPartMgr;
 class RimRegularLegendConfig;
 class RimTernaryLegendConfig;
 class RimEclipseResultDefinition;
@@ -167,6 +168,7 @@ protected:
     void updateVisibleGeometriesAndCellColors();
     void appendWellsAndFracturesToModel();
     void appendElementVectorResultToModel();
+    void appendStreamlinesToModel();
 
     void                             onCreateDisplayModel() override;
     RimPropertyFilterCollection*     nativePropertyFilterCollection();
@@ -192,6 +194,7 @@ private:
                                               int                         timeStepIndex );
 
     void onResetLegendsInViewer() override;
+    void onAnimationsUpdate( const caf::SignalEmitter* emitter );
     void updateVirtualConnectionLegendRanges();
 
     void updateFaultColors();
@@ -229,6 +232,7 @@ private:
 
     cvf::ref<RivReservoirViewPartMgr>     m_reservoirGridPartManager;
     cvf::ref<RivReservoirSimWellsPartMgr> m_simWellsPartManager;
+    cvf::ref<RivStreamlinesPartMgr>       m_streamlinesPartManager;
 
     std::vector<RivCellSetEnum> m_visibleGridParts;
 };

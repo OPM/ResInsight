@@ -29,6 +29,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
+#include "cafSignal.h"
 
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
@@ -38,6 +39,7 @@
 #include "cvfObject.h"
 
 #include <QPointer>
+#include <QTimer>
 
 class RimCase;
 class RimLegendConfig;
@@ -81,6 +83,9 @@ enum PartRenderMaskEnum
 class Rim3dView : public RimViewWindow, public RiuViewerToViewInterface, public RimNameConfigHolderInterface
 {
     CAF_PDM_HEADER_INIT;
+
+public:
+    caf::Signal<> updateAnimations;
 
 public:
     Rim3dView( void );
@@ -308,4 +313,7 @@ private:
     cvf::ref<cvf::ModelBasicList>   m_highlightVizModel;
     cvf::ref<RivAnnotationsPartMgr> m_annotationsPartManager;
     cvf::ref<RivMeasurementPartMgr> m_measurementPartManager;
+
+    // Timer for animations
+    std::unique_ptr<QTimer> m_animationTimer;
 };

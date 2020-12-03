@@ -46,6 +46,7 @@
 #include "RivElementVectorResultPartMgr.h"
 #include "RivGridPartMgr.h"
 #include "RivReservoirFaultsPartMgr.h"
+#include "RivStreamlinesPartMgr.h"
 
 #include <QDebug>
 
