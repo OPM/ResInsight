@@ -130,7 +130,7 @@ private:
 
     struct Streamline
     {
-        Streamline() { animIndex = 0; };
+        Streamline(){};
 
         void                appendTracerPoint( cvf::Vec3d point );
         void                appendAbsVelocity( double velocity );
@@ -142,16 +142,17 @@ private:
         cvf::Vec3d          getDirection( size_t index ) const;
         size_t              countTracerPoints() const;
         void                setPart( cvf::ref<cvf::Part> part );
-        size_t              getAnimationIndex() const;
-        void                incrementAnimationIndex( size_t increment = 1.0 );
-        void                setAnimationIndex( size_t index );
+        std::vector<size_t> getAnimationIndices() const;
+        void                incrementAnimationIndices( size_t increment = 1.0 );
+        void                resetAnimationIndex( size_t index );
+        void                addAnimationIndex();
 
     private:
         std::vector<cvf::Vec3d> tracerPoints;
         std::vector<double>     absVelocities;
         std::vector<cvf::Vec3d> directions;
         cvf::ref<cvf::Part>     part;
-        size_t                  animIndex;
+        std::vector<size_t>     animIndices;
     };
 
 private:

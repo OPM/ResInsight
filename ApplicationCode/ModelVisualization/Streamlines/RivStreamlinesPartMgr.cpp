@@ -257,20 +257,32 @@ void RivStreamlinesPartMgr::updateAnimation()
                     if ( streamlineCollection->visualizationMode() ==
                          RimStreamlineInViewCollection::VisualizationMode::ANIMATION )
                     {
-                        streamline.incrementAnimationIndex( streamlineCollection->animationSpeed() );
+                        streamline.incrementAnimationIndices( streamlineCollection->animationSpeed() );
                     }
                     else
                     {
-                        streamline.setAnimationIndex( streamlineCollection->animationIndex() * 2 );
+                        streamline.resetAnimationIndex( streamlineCollection->animationIndex() * 2 );
                     }
                     // Each part should have exactly one primitive set.
-                    static_cast<cvf::PrimitiveSetIndexedUIntScoped*>(
-                        static_cast<cvf::DrawableGeo*>( streamline.getPart()->drawable() )->primitiveSet( 0 ) )
-                        ->setScope( 0, streamline.getAnimationIndex() );
+                    for ( size_t index : streamline.getAnimationIndices() )
+                    {
+                        static_cast<cvf::PrimitiveSetIndexedUIntScoped*>(
+                            static_cast<cvf::DrawableGeo*>( streamline.getPart()->drawable() )->primitiveSet( 0 ) )
+                            ->setScope( std::max<size_t>( 0, index - 5 ), index );
+                    }
+                    if ( m_count == 0 )
+                    {
+                        streamline.addAnimationIndex();
+                    }
                 }
             }
         }
     }
+    if ( m_count == 20 )
+    {
+        m_count = 0;
+    }
+    m_count++;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1010,31 +1022,48 @@ void RivStreamlinesPartMgr::Streamline::setPart( cvf::ref<cvf::Part> part )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RivStreamlinesPartMgr::Streamline::getAnimationIndex() const
+std::vector<size_t> RivStreamlinesPartMgr::Streamline::getAnimationIndices() const
 {
-    return animIndex;
+    return animIndices;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivStreamlinesPartMgr::Streamline::incrementAnimationIndex( size_t increment )
+void RivStreamlinesPartMgr::Streamline::incrementAnimationIndices( size_t increment )
 {
-    animIndex += increment;
-    if ( animIndex >= tracerPoints.size() * 2 - 2 )
+    std::vector<size_t>::iterator i = animIndices.begin();
+    while ( i != animIndices.end() )
     {
-        animIndex = 0.0;
+        ( *i ) += increment;
+        if ( ( *i ) >= tracerPoints.size() * 2 - 2 )
+        {
+            animIndices.erase( i++ );
+        }
+        else
+        {
+            ++i;
+        }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivStreamlinesPartMgr::Streamline::setAnimationIndex( size_t index )
+void RivStreamlinesPartMgr::Streamline::resetAnimationIndex( size_t index )
 {
-    animIndex = index;
-    if ( animIndex >= tracerPoints.size() * 2 - 2 )
+    animIndices.clear();
+    if ( index >= tracerPoints.size() * 2 - 2 )
     {
-        animIndex = tracerPoints.size() * 2 - 2;
+        index = tracerPoints.size() * 2 - 2;
     }
+    animIndices.push_back( index );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivStreamlinesPartMgr::Streamline::addAnimationIndex()
+{
+    animIndices.push_back( 0 );
 }
