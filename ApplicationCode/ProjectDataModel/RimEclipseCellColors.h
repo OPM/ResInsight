@@ -39,6 +39,9 @@ class RimEclipseCellColors : public RimEclipseResultDefinition
     CAF_PDM_HEADER_INIT;
 
 public:
+    caf::Signal<> legendConfigChanged;
+
+public:
     RimEclipseCellColors();
     ~RimEclipseCellColors() override;
 
@@ -69,6 +72,7 @@ protected:
 
 private:
     void changeLegendConfig( QString resultVarNameOfNewLegend );
+    void onLegendConfigChanged( const caf::SignalEmitter* emitter );
 
     caf::PdmChildArrayField<RimRegularLegendConfig*> m_legendConfigData;
     caf::PdmPtrField<RimRegularLegendConfig*>        m_legendConfigPtrField;

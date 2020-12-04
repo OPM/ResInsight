@@ -67,6 +67,8 @@ protected:
     bool zoomChangeAboveTreshold( const cvf::Vec3d& currentCameraPosition ) const;
     void scheduleGeometryRegen( RivCellSetEnum geometryType ) override;
 
+    void onLegendConfigChanged( const caf::SignalEmitter* emitter );
+
 private:
     cvf::ref<RivContourMapProjectionPartMgr>            m_contourMapProjectionPartMgr;
     caf::PdmChildField<RimEclipseContourMapProjection*> m_contourMapProjection;
