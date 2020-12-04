@@ -1346,19 +1346,20 @@ std::vector<RimContourMapProjection::CellIndexAndResult>
 
     std::vector<size_t> allCellIndices = findIntersectingCells( bbox2dElement );
 
-    std::map<size_t, std::vector<size_t>> kLayerIndexMap;
+    std::vector<std::vector<size_t>> kLayerCellIndexVector;
+    kLayerCellIndexVector.resize( kLayers() );
 
     for ( size_t globalCellIdx : allCellIndices )
     {
         if ( ( *m_cellGridIdxVisibility )[globalCellIdx] )
         {
-            kLayerIndexMap[kLayer( globalCellIdx )].push_back( globalCellIdx );
+            kLayerCellIndexVector[kLayer( globalCellIdx )].push_back( globalCellIdx );
         }
     }
 
-    for ( const auto& kLayerIndexPair : kLayerIndexMap )
+    for ( const auto& kLayerIndices : kLayerCellIndexVector )
     {
-        for ( size_t globalCellIdx : kLayerIndexPair.second )
+        for ( size_t globalCellIdx : kLayerIndices )
         {
             double overlapVolume = calculateOverlapVolume( globalCellIdx, bbox2dElement );
             if ( overlapVolume > 0.0 )

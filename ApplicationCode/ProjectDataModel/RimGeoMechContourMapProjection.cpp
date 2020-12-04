@@ -57,6 +57,7 @@ CAF_PDM_SOURCE_INIT( RimGeoMechContourMapProjection, "RimGeoMechContourMapProjec
 ///
 //--------------------------------------------------------------------------------------------------
 RimGeoMechContourMapProjection::RimGeoMechContourMapProjection()
+    : m_kLayers( 0u )
 {
     CAF_PDM_InitObject( "RimContourMapProjection", ":/2DMapProjection16x16.png", "", "" );
     CAF_PDM_InitField( &m_limitToPorePressureRegions, "LimitToPorRegion", true, "Limit to Pore Pressure regions", "", "", "" );
@@ -218,6 +219,7 @@ void RimGeoMechContourMapProjection::updateGridInformation()
     RimGeoMechCase* geoMechCase = this->geoMechCase();
     m_femPart                   = geoMechCase->geoMechData()->femParts()->part( 0 );
     m_femPartGrid               = m_femPart->getOrCreateStructGrid();
+    m_kLayers                   = m_femPartGrid->cellCountK();
     m_femPart->ensureIntersectionSearchTreeIsBuilt();
 
     m_gridBoundingBox = geoMechCase->activeCellsBoundingBox();
@@ -443,6 +445,14 @@ size_t RimGeoMechContourMapProjection::kLayer( size_t globalCellIdx ) const
     size_t i, j, k;
     m_femPartGrid->ijkFromCellIndex( globalCellIdx, &i, &j, &k );
     return k;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RimGeoMechContourMapProjection::kLayers() const
+{
+    return m_kLayers;
 }
 
 //--------------------------------------------------------------------------------------------------
