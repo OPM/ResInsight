@@ -594,11 +594,14 @@ if(RESINSIGHT_PRIVATE_INSTALL)
 
       # include platform files
       install(FILES ${_dir}/qt5/plugins/platforms/libqxcb.so
-              DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/platforms/)
+              DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/platforms/
+              OPTIONAL)
       install(FILES ${_dir}/qt5/plugins/imageformats/libqsvg.so
-              DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/imageformats/)
+              DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/imageformats/
+              OPTIONAL)
       install(FILES ${_dir}/qt5/plugins/iconengines/libqsvgicon.so
-              DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/iconengines/)
+              DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/iconengines/
+              OPTIONAL)
 
     endif(RESINSIGHT_QT5_BUNDLE_LIBRARIES)
 
