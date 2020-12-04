@@ -76,6 +76,7 @@ protected:
     RimGridView*              baseView() const override;
     std::vector<size_t>       findIntersectingCells( const cvf::BoundingBox& bbox ) const override;
     size_t                    kLayer( size_t globalCellIdx ) const override;
+    size_t                    kLayers() const override;
     double calculateOverlapVolume( size_t globalCellIdx, const cvf::BoundingBox& bbox ) const override;
     double calculateRayLengthInCell( size_t            globalCellIdx,
                                      const cvf::Vec3d& highestPoint,
@@ -102,4 +103,5 @@ protected:
     cvf::ref<RigFemPart>      m_femPart;
     cvf::cref<RigFemPartGrid> m_femPartGrid;
     RigFemResultAddress       m_currentResultAddr;
+    size_t                    m_kLayers;
 };

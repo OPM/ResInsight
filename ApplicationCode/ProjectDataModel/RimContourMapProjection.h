@@ -134,6 +134,7 @@ protected:
     virtual void                clearResultVariable()                                                              = 0;
     virtual RimGridView*        baseView() const                                                                   = 0;
     virtual size_t              kLayer( size_t globalCellIdx ) const                                               = 0;
+    virtual size_t              kLayers() const                                                                    = 0;
     virtual std::vector<size_t> findIntersectingCells( const cvf::BoundingBox& bbox ) const                        = 0;
     virtual double              calculateOverlapVolume( size_t globalCellIdx, const cvf::BoundingBox& bbox ) const = 0;
     virtual double              calculateRayLengthInCell( size_t            globalCellIdx,

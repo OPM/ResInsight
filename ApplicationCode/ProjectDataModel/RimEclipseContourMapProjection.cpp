@@ -60,6 +60,7 @@ CAF_PDM_SOURCE_INIT( RimEclipseContourMapProjection, "RimEclipseContourMapProjec
 //--------------------------------------------------------------------------------------------------
 RimEclipseContourMapProjection::RimEclipseContourMapProjection()
     : RimContourMapProjection()
+    , m_kLayers( 0u )
 {
     CAF_PDM_InitObject( "RimEclipseContourMapProjection", ":/2DMapProjection16x16.png", "", "" );
 
@@ -339,6 +340,7 @@ void RimEclipseContourMapProjection::updateGridInformation()
     auto eclipseCase = this->eclipseCase();
     m_mainGrid       = eclipseCase->eclipseCaseData()->mainGrid();
     m_activeCellInfo = eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    m_kLayers        = m_mainGrid->cellCountK();
 
     m_gridBoundingBox           = eclipseCase->activeCellsBoundingBox();
     cvf::Vec3d minExpandedPoint = m_gridBoundingBox.min() - cvf::Vec3d( gridEdgeOffset(), gridEdgeOffset(), 0.0 );
@@ -416,6 +418,14 @@ size_t RimEclipseContourMapProjection::kLayer( size_t globalCellIdx ) const
     size_t         i, j, k;
     m_mainGrid->ijkFromCellIndex( mainGridCellIdx, &i, &j, &k );
     return k;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RimEclipseContourMapProjection::kLayers() const
+{
+    return m_kLayers;
 }
 
 //--------------------------------------------------------------------------------------------------
