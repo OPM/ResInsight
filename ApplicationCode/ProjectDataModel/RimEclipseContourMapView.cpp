@@ -74,6 +74,7 @@ RimEclipseContourMapView::RimEclipseContourMapView()
     ( (RiuViewerToViewInterface*)this )->setCameraPosition( sm_defaultViewMatrix );
 
     cellResult()->setTernaryEnabled( false );
+    cellResult()->legendConfigChanged.connect( this, &RimEclipseContourMapView::onLegendConfigChanged );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -378,9 +379,9 @@ void RimEclipseContourMapView::onUpdateLegends()
         {
             nativeOrOverrideViewer()->removeAllColorLegends();
         }
-        else if ( m_contourMapProjection && m_contourMapProjection->legendConfig() )
+        else if ( cellResult() && cellResult()->legendConfig() )
         {
-            nativeOrOverrideViewer()->removeColorLegend( m_contourMapProjection->legendConfig()->titledOverlayFrame() );
+            nativeOrOverrideViewer()->removeColorLegend( cellResult()->legendConfig()->titledOverlayFrame() );
         }
 
         if ( m_contourMapProjection && m_contourMapProjection->isChecked() )
@@ -532,4 +533,12 @@ void RimEclipseContourMapView::scheduleGeometryRegen( RivCellSetEnum geometryTyp
     {
         m_contourMapProjection->clearGeometry();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseContourMapView::onLegendConfigChanged( const caf::SignalEmitter* emitter )
+{
+    m_contourMapProjection->clearGeometry();
 }

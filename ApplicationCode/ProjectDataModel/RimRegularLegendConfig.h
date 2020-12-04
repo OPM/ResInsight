@@ -62,6 +62,9 @@ class RimRegularLegendConfig : public RimLegendConfig
     CAF_PDM_HEADER_INIT;
 
 public:
+    caf::Signal<> changed;
+
+public:
     RimRegularLegendConfig();
     ~RimRegularLegendConfig() override;
 

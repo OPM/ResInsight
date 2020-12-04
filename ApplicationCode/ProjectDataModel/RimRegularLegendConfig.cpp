@@ -141,7 +141,8 @@ void AppEnum<RimRegularLegendConfig::CategoryColorModeType>::setUp()
 ///
 //--------------------------------------------------------------------------------------------------
 RimRegularLegendConfig::RimRegularLegendConfig()
-    : m_globalAutoMax( cvf::UNDEFINED_DOUBLE )
+    : changed( this )
+    , m_globalAutoMax( cvf::UNDEFINED_DOUBLE )
     , m_globalAutoMin( cvf::UNDEFINED_DOUBLE )
     , m_localAutoMax( cvf::UNDEFINED_DOUBLE )
     , m_localAutoMin( cvf::UNDEFINED_DOUBLE )
@@ -313,6 +314,7 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
         m_resetUserDefinedValuesButton = false;
     }
 
+    changed.send();
     updateLegend();
 
     RimGridView* view = nullptr;
