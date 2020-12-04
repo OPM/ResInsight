@@ -70,7 +70,8 @@ public:
     size_t            animationSpeed() const;
     size_t            animationIndex() const;
     double            scaleFactor() const;
-    double            tracerLength() const;
+    size_t            tracerLength() const;
+    size_t            injectionDeltaTime() const;
 
     void goForIt();
 
@@ -134,7 +135,8 @@ private:
     caf::PdmField<size_t>                              m_animationSpeed;
     caf::PdmField<size_t>                              m_animationIndex;
     caf::PdmField<double>                              m_scaleFactor;
-    caf::PdmField<double>                              m_tracerLength;
+    caf::PdmField<size_t>                              m_tracerLength;
+    caf::PdmField<size_t>                              m_injectionDeltaTime;
 
     size_t m_maxAnimationIndex;
 
