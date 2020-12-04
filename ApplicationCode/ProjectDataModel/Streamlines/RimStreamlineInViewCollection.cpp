@@ -78,6 +78,7 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_collectionName, "Name", "Name", "", "", "" );
     m_collectionName = "Streamlines";
+    m_collectionName.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_flowThreshold, "FlowThreshold", "Flow Threshold [m/day]", "", "", "" );
     m_flowThreshold = 0.000001;
@@ -306,7 +307,7 @@ void RimStreamlineInViewCollection::updateLegendRangesTextAndVisibility( RiuView
 
 void RimStreamlineInViewCollection::updateFromCurrentTimeStep()
 {
-    goForIt();
+    updateStreamlines();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -352,7 +353,7 @@ double RimStreamlineInViewCollection::tracerLength() const
 //--------------------------------------------------------------------------------------------------
 /// Main entry point for generating streamlines/tracers
 //--------------------------------------------------------------------------------------------------
-void RimStreamlineInViewCollection::goForIt()
+void RimStreamlineInViewCollection::updateStreamlines()
 {
     // reset generated streamlines
     m_streamlines().clear();
@@ -505,8 +506,9 @@ void RimStreamlineInViewCollection::loadDataIfMissing( RiaDefines::PhaseType pha
 //--------------------------------------------------------------------------------------------------
 void RimStreamlineInViewCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    uiOrdering.add( &m_collectionName );
+
     caf::PdmUiGroup* dataGroup = uiOrdering.addNewGroup( "Data Selection" );
-    dataGroup->add( &m_collectionName );
     dataGroup->add( &m_phase );
     dataGroup->add( &m_flowThreshold );
     dataGroup->add( &m_lengthThreshold );
@@ -608,7 +610,7 @@ void RimStreamlineInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle*
         return;
     }
 
-    goForIt();
+    updateStreamlines();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -946,16 +948,17 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
                 if ( stop ) break;
 
                 // we have exited the cell we were in, find the next cell (should be one of our neighbours)
+                RigCell             tmpCell;
                 RigCell*            nextCell  = nullptr;
                 std::vector<size_t> neighbors = findNeighborCellIndexes( curCell, grid );
                 for ( auto cellIdx : neighbors )
                 {
-                    RigCell cell = grid->cell( cellIdx );
+                    tmpCell = grid->cell( cellIdx );
 
-                    bb = cellBoundingBox( &cell, grid );
+                    bb = cellBoundingBox( &tmpCell, grid );
                     if ( bb.contains( curPos ) )
                     {
-                        nextCell = &cell;
+                        nextCell = &tmpCell;
                         break;
                     }
                 }

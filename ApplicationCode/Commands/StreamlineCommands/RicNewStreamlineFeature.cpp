@@ -48,7 +48,7 @@ void RicNewStreamlineFeature::onActionTriggered( bool isChecked )
 
     if ( streamColl )
     {
-        streamColl->goForIt();
+        streamColl->updateStreamlines();
     }
 }
 
@@ -57,6 +57,6 @@ void RicNewStreamlineFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewStreamlineFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/Erase.png" ) );
-    actionToSetup->setText( "Test It" );
+    actionToSetup->setIcon( QIcon( ":/Refresh-32.png" ) );
+    actionToSetup->setText( "Refresh" );
 }

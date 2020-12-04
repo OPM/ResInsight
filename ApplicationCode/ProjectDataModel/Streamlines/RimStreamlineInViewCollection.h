@@ -72,7 +72,7 @@ public:
     double            scaleFactor() const;
     double            tracerLength() const;
 
-    void goForIt();
+    void updateStreamlines();
 
     const std::list<RigTracer>& tracers();
 
