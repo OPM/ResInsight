@@ -229,7 +229,6 @@ void RimEclipseContourMapView::onUpdateDisplayModelForCurrentTimeStep()
 {
     static_cast<RimEclipsePropertyFilterCollection*>( nativePropertyFilterCollection() )->updateFromCurrentTimeStep();
 
-    m_contourMapProjection->clearGeometry();
     updateGeometry();
 }
 
@@ -521,4 +520,16 @@ bool RimEclipseContourMapView::zoomChangeAboveTreshold( const cvf::Vec3d& curren
     double distance = std::max( std::fabs( m_cameraPositionLastUpdate.z() ), std::fabs( currentCameraPosition.z() ) );
     const double threshold = 0.05 * distance;
     return std::fabs( m_cameraPositionLastUpdate.z() - currentCameraPosition.z() ) > threshold;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseContourMapView::scheduleGeometryRegen( RivCellSetEnum geometryType )
+{
+    RimEclipseView::scheduleGeometryRegen( geometryType );
+    if ( geometryType != VISIBLE_WELL_CELLS )
+    {
+        m_contourMapProjection->clearGeometry();
+    }
 }
