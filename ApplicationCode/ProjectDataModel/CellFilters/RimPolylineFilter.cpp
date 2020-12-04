@@ -18,24 +18,22 @@
 
 #include "RimPolylineFilter.h"
 
-#include "Rim3dView.h"
-#include "RimPolylineTarget.h"
-
-#include "WellPathCommands/PointTangentManipulator/RicPolyline3dEditor.h"
-
-#include "RimCellFilterCollection.h"
-#include "WellPathCommands/RicPolylineTargetsPickEventHandler.h"
-
+#include "RigCellGeometryTools.h"
+#include "RigMainGrid.h"
 #include "RigPolyLinesData.h"
-
+#include "Rim3dView.h"
+#include "RimCellFilterCollection.h"
+#include "RimPolylineTarget.h"
 #include "RiuViewerCommands.h"
-
-#include "cvfBoundingBox.h"
+#include "WellPathCommands/PointTangentManipulator/RicPolyline3dEditor.h"
+#include "WellPathCommands/RicPolylineTargetsPickEventHandler.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cvfBoundingBox.h"
+#include "cvfStructGrid.h"
 
 namespace caf
 {
@@ -46,6 +44,16 @@ void caf::AppEnum<RimPolylineFilter::PolylineFilterModeType>::setUp()
     addItem( RimPolylineFilter::INDEX_K, "INDEX_K", "K index" );
     setDefault( RimPolylineFilter::DEPTH_Z );
 }
+
+template <>
+void caf::AppEnum<RimPolylineFilter::PolylineIncludeType>::setUp()
+{
+    addItem( RimPolylineFilter::FULL_CELL, "FULL_CELL", "Whole cell inside" );
+    addItem( RimPolylineFilter::CENTER, "CENTER", "Cell center inside" );
+    addItem( RimPolylineFilter::ANY, "ANY", "Any part inside" );
+    setDefault( RimPolylineFilter::CENTER );
+}
+
 } // namespace caf
 
 CAF_PDM_SOURCE_INIT( RimPolylineFilter, "PolyLineFilter" );
@@ -59,6 +67,8 @@ RimPolylineFilter::RimPolylineFilter()
     CAF_PDM_InitObject( "Polyline Filter", ":/CellFilter_Polyline.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_polyFilterMode, "PolylineFilterType", "Depth Type", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_polyIncludeType, "PolyIncludeType", "Cells to include", "", "", "" );
 
     CAF_PDM_InitField( &m_showPolygon, "ShowPolygon", true, "Show Polygon", "", "", "" );
 
@@ -125,6 +135,8 @@ void RimPolylineFilter::insertTarget( const RimPolylineTarget* targetToInsertBef
         m_targets.insert( index, targetToInsert );
     else
         m_targets.push_back( targetToInsert );
+
+    updateCells();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -174,6 +186,7 @@ void RimPolylineFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     RimCellFilter::defineUiOrdering( uiConfigName, uiOrdering );
 
     uiOrdering.add( &m_polyFilterMode );
+    uiOrdering.add( &m_polyIncludeType );
     uiOrdering.add( &m_targets );
     uiOrdering.add( &m_enablePicking );
     uiOrdering.add( &m_showPolygon );
@@ -191,6 +204,17 @@ void RimPolylineFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     if ( changedField == &m_enablePicking )
     {
         this->updateConnectedEditors();
+
+        if ( !m_enablePicking() )
+        {
+            updateCells();
+            filterChanged.send();
+        }
+    }
+    else if ( ( changedField == &m_polyFilterMode ) || ( changedField == &m_polyIncludeType ) )
+    {
+        updateCells();
+        filterChanged.send();
     }
 
     updateVisualization();
@@ -228,10 +252,112 @@ void RimPolylineFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeFilt
 {
     CVF_ASSERT( cellRangeFilter );
 
-    if ( this->filterMode() == RimCellFilter::INCLUDE )
+    const auto grid = selectedGrid();
+    size_t     i, j, k;
+
+    for ( size_t cellidx : m_cells )
     {
+        grid->ijkFromCellIndex( cellidx, &i, &j, &k );
+        if ( this->filterMode() == RimCellFilter::INCLUDE )
+        {
+            cellRangeFilter->addCellInclude( i - 1, j - 1, k - 1, propagateToSubGrids() );
+        }
+        else
+        {
+            cellRangeFilter->addCellExclude( i - 1, j - 1, k - 1, propagateToSubGrids() );
+        }
     }
-    else
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPolylineFilter::cellInsidePolygon( cvf::Vec3d                 center,
+                                           std::array<cvf::Vec3d, 8>& corners,
+                                           std::vector<cvf::Vec3d>    polygon )
+{
+    bool bInside = false;
+    switch ( m_polyIncludeType() )
     {
+        case PolylineIncludeType::ANY:
+            // any part of the cell is inside
+            for ( const auto& point : corners )
+            {
+                if ( RigCellGeometryTools::pointInsidePolygon2D( point, polygon ) ) return true;
+            }
+            break;
+
+        case PolylineIncludeType::CENTER:
+            // cell center is inside
+            return RigCellGeometryTools::pointInsidePolygon2D( center, polygon );
+
+        case PolylineIncludeType::FULL_CELL:
+            // entire cell is inside
+            bInside = true;
+            for ( const auto& point : corners )
+            {
+                bInside = bInside && RigCellGeometryTools::pointInsidePolygon2D( point, polygon );
+            }
+            break;
+
+        default:
+            break;
+    }
+
+    return bInside;
+}
+
+//--------------------------------------------------------------------------------------------------
+///  Update the cell index list with the cells that are inside our polygon, if any
+//--------------------------------------------------------------------------------------------------
+void RimPolylineFilter::updateCells()
+{
+    // reset
+    m_cells.clear();
+
+    // need at least 3 points
+    if ( m_targets.size() < 3 ) return;
+
+    // get polyline as vector
+    size_t                  count = m_targets.size() + 1;
+    std::vector<cvf::Vec3d> points( count );
+    int                     i = 0;
+    for ( auto& target : m_targets )
+    {
+        points[i++] = target->targetPointXYZ();
+    }
+    // make sure first and last point is the same (req. by polygon methods later)
+    points[i] = m_targets[0]->targetPointXYZ();
+
+    // TODO : get our grid - need to use the case, then find the grid here!
+    RigMainGrid* grid = nullptr;
+    this->firstAncestorOrThisOfType( grid );
+    if ( !grid ) return;
+
+    if ( m_polyFilterMode == PolylineFilterModeType::DEPTH_Z )
+    {
+        // we should look in depth using Z coordinate
+        // loop over all cells
+        for ( size_t i = 0; i < grid->cellCount(); i++ )
+        {
+            // valid cell?
+            RigCell cell = grid->cellByGridAndGridLocalCellIdx( gridIndex(), i );
+            if ( !cell.isInvalid() ) continue;
+
+            // get corner coordinates
+            std::array<cvf::Vec3d, 8> hexCorners;
+            grid->cellCornerVertices( i, hexCorners.data() );
+
+            // check if the polygon includes the cell
+            if ( cellInsidePolygon( cell.center(), hexCorners, points ) )
+            {
+                m_cells.push_back( i );
+            }
+        }
+    }
+    else if ( m_polyFilterMode == PolylineFilterModeType::INDEX_K )
+    {
+        // we should look in depth using the K coordinate
+        // not yet supported
     }
 }

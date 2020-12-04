@@ -67,7 +67,7 @@ protected:
     caf::PdmFieldHandle*            userDescriptionField() override;
     caf::PdmFieldHandle*            objectToggleField() override;
     void                            defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    const cvf::StructGridInterface* selectedGrid();
+    const cvf::StructGridInterface* selectedGrid() const;
 
     caf::PdmField<QString>                      m_name;
     caf::PdmField<bool>                         m_isActive;

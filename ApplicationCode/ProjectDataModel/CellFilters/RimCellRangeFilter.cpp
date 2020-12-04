@@ -360,22 +360,22 @@ void RimCellRangeFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeFil
 
     if ( filterMode() == RimCellFilter::INCLUDE )
     {
-        cellRangeFilter->addCellIncludeRange( startIndexI - 1,
-                                              startIndexJ - 1,
-                                              startIndexK - 1,
-                                              startIndexI - 1 + cellCountI,
-                                              startIndexJ - 1 + cellCountJ,
-                                              startIndexK - 1 + cellCountK,
+        cellRangeFilter->addCellIncludeRange( static_cast<size_t>( startIndexI ) - 1,
+                                              static_cast<size_t>( startIndexJ ) - 1,
+                                              static_cast<size_t>( startIndexK ) - 1,
+                                              static_cast<size_t>( startIndexI ) + cellCountI - 1,
+                                              static_cast<size_t>( startIndexJ ) + cellCountJ - 1,
+                                              static_cast<size_t>( startIndexK ) + cellCountK - 1,
                                               propagateToSubGrids() );
     }
     else
     {
-        cellRangeFilter->addCellExcludeRange( startIndexI - 1,
-                                              startIndexJ - 1,
-                                              startIndexK - 1,
-                                              startIndexI - 1 + cellCountI,
-                                              startIndexJ - 1 + cellCountJ,
-                                              startIndexK - 1 + cellCountK,
+        cellRangeFilter->addCellExcludeRange( static_cast<size_t>( startIndexI ) - 1,
+                                              static_cast<size_t>( startIndexJ ) - 1,
+                                              static_cast<size_t>( startIndexK ) - 1,
+                                              static_cast<size_t>( startIndexI ) + cellCountI - 1,
+                                              static_cast<size_t>( startIndexJ ) + cellCountJ - 1,
+                                              static_cast<size_t>( startIndexK ) + cellCountK - 1,
                                               propagateToSubGrids() );
     }
 }

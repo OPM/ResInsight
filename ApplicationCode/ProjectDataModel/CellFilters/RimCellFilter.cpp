@@ -189,7 +189,7 @@ QString RimCellFilter::modeString() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const cvf::StructGridInterface* RimCellFilter::selectedGrid()
+const cvf::StructGridInterface* RimCellFilter::selectedGrid() const
 {
     RimCase* rimCase = nullptr;
     this->firstAncestorOrThisOfTypeAsserted( rimCase );

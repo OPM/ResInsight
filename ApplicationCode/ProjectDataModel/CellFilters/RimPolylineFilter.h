@@ -28,6 +28,7 @@
 #include "cafPdmObject.h"
 #include "cafPickEventHandler.h"
 
+#include <list>
 #include <memory>
 
 class RicPolylineTargetsPickEventHandler;
@@ -46,6 +47,13 @@ public:
     {
         DEPTH_Z,
         INDEX_K
+    };
+
+    enum PolylineIncludeType
+    {
+        FULL_CELL,
+        CENTER,
+        ANY
     };
 
     RimPolylineFilter();
@@ -73,10 +81,17 @@ private:
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
 
+    void updateCells();
+
+    bool cellInsidePolygon( cvf::Vec3d center, std::array<cvf::Vec3d, 8>& corners, std::vector<cvf::Vec3d> polygon );
+
     caf::PdmField<bool>                                 m_enablePicking;
     caf::PdmChildArrayField<RimPolylineTarget*>         m_targets;
     caf::PdmField<bool>                                 m_showPolygon;
     caf::PdmField<caf::AppEnum<PolylineFilterModeType>> m_polyFilterMode;
+    caf::PdmField<caf::AppEnum<PolylineIncludeType>>    m_polyIncludeType;
 
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
+
+    std::list<size_t> m_cells;
 };
