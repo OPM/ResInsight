@@ -132,8 +132,12 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
     m_scaleFactor = 100.0;
 
     CAF_PDM_InitFieldNoDefault( &m_tracerLength, "TracerLength", "Tracer Length", "", "", "" );
-    m_tracerLength.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
-    m_tracerLength = 1.0;
+    m_tracerLength.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+    m_tracerLength = 100;
+
+    CAF_PDM_InitFieldNoDefault( &m_injectionDeltaTime, "InjectionDeltaTime", "Pause between injections", "", "", "" );
+    m_injectionDeltaTime.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+    m_injectionDeltaTime = 500;
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_streamlines, "Streamlines", "Streamlines", "", "", "" );
     m_streamlines.uiCapability()->setUiTreeHidden( true );
@@ -345,9 +349,17 @@ double RimStreamlineInViewCollection::scaleFactor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimStreamlineInViewCollection::tracerLength() const
+size_t RimStreamlineInViewCollection::tracerLength() const
 {
     return m_tracerLength();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RimStreamlineInViewCollection::injectionDeltaTime() const
+{
+    return m_injectionDeltaTime();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -522,6 +534,8 @@ void RimStreamlineInViewCollection::defineUiOrdering( QString uiConfigName, caf:
     if ( m_visualizationMode() == VisualizationMode::ANIMATION )
     {
         visualizationGroup->add( &m_animationSpeed );
+        visualizationGroup->add( &m_tracerLength );
+        visualizationGroup->add( &m_injectionDeltaTime );
     }
     if ( m_visualizationMode() == VisualizationMode::MANUAL )
     {
@@ -531,7 +545,6 @@ void RimStreamlineInViewCollection::defineUiOrdering( QString uiConfigName, caf:
     {
         visualizationGroup->add( &m_scaleFactor );
     }
-    // visualizationGroup->add( &m_tracerLength );
 
     uiOrdering.skipRemainingFields();
 }
@@ -571,6 +584,24 @@ void RimStreamlineInViewCollection::defineEditorAttribute( const caf::PdmFieldHa
             myAttr->m_maximum = static_cast<int>( m_maxAnimationIndex );
         }
     }
+    else if ( field == &m_tracerLength )
+    {
+        caf::PdmUiSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
+        if ( myAttr )
+        {
+            myAttr->m_minimum = 1;
+            myAttr->m_maximum = static_cast<int>( 1000 );
+        }
+    }
+    else if ( field == &m_injectionDeltaTime )
+    {
+        caf::PdmUiSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
+        if ( myAttr )
+        {
+            myAttr->m_minimum = 1;
+            myAttr->m_maximum = static_cast<int>( 1000 );
+        }
+    }
     else if ( field == &m_scaleFactor )
     {
         caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
@@ -598,7 +629,8 @@ void RimStreamlineInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle*
                                                       const QVariant&            oldValue,
                                                       const QVariant&            newValue )
 {
-    if ( changedField == &m_animationSpeed || changedField == &m_animationIndex )
+    if ( changedField == &m_animationSpeed || changedField == &m_animationIndex ||
+         changedField == &m_injectionDeltaTime || changedField == &m_tracerLength )
     {
         return;
     }
