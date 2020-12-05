@@ -586,10 +586,14 @@ if(RESINSIGHT_PRIVATE_INSTALL)
       # XcbQpa is used by libXcb.so required by platform plugin xcb
       list(APPEND QT_INSTALL_FILES_WITHOUT_EXTENSION libQt5XcbQpa libQt5DBus)
 
+      # append icu 
+      list(APPEND QT_INSTALL_FILES_WITHOUT_EXTENSION libicu*)
+
       foreach(installfile ${QT_INSTALL_FILES_WITHOUT_EXTENSION})
         file(GLOB FILE_AND_SYMLINKS ${_dir}/${installfile}.so*)
         install(FILES ${FILE_AND_SYMLINKS}
-                DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
+                DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+                OPTIONAL)
       endforeach()
 
       # include platform files
