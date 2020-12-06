@@ -596,16 +596,16 @@ if(RESINSIGHT_PRIVATE_INSTALL)
                 OPTIONAL)
       endforeach()
 
+      set(QT_PLUGIN_PATH "$ENV{QT_PLUGIN_PATH}")
+      message (STATUS "QT_PLUGIN_PATH from environment variable - ${QT_PLUGIN_PATH}")
+      if ("QT_PLUGIN_PATH" STREQUAL "")
+        set(QT_PLUGIN_PATH "${_dir}/qt5/plugins/")
+      endif()
+
       # include platform files
-      install(FILES ${_dir}/qt5/plugins/platforms/libqxcb.so
-              DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/platforms/
-              OPTIONAL)
-      install(FILES ${_dir}/qt5/plugins/imageformats/libqsvg.so
-              DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/imageformats/
-              OPTIONAL)
-      install(FILES ${_dir}/qt5/plugins/iconengines/libqsvgicon.so
-              DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/iconengines/
-              OPTIONAL)
+      install(FILES ${QT_PLUGIN_PATH}/platforms/libqxcb.so DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/platforms/)
+      install(FILES ${QT_PLUGIN_PATH}/imageformats/libqsvg.so DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/imageformats/ )
+      install(FILES ${QT_PLUGIN_PATH}/iconengines/libqsvgicon.so DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/iconengines/ )
 
     endif(RESINSIGHT_QT5_BUNDLE_LIBRARIES)
 
