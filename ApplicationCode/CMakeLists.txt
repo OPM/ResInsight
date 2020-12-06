@@ -607,6 +607,10 @@ if(RESINSIGHT_PRIVATE_INSTALL)
       install(FILES ${QT_PLUGIN_PATH}/imageformats/libqsvg.so DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/imageformats/ )
       install(FILES ${QT_PLUGIN_PATH}/iconengines/libqsvgicon.so DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/iconengines/ )
 
+      install(FILES ${QT_PLUGIN_PATH}/xcbglintegrations/libqxcb-egl-integration.so DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/plugins/xcbglintegrations/ )
+      install(FILES ${QT_PLUGIN_PATH}/xcbglintegrations/libqxcb-glx-integration.so DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/plugins/xcbglintegrations/ )
+
+
     endif(RESINSIGHT_QT5_BUNDLE_LIBRARIES)
 
   endif()
