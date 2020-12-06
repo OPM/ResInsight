@@ -611,7 +611,7 @@ if(RESINSIGHT_PRIVATE_INSTALL)
               DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/imageformats/)
       install(FILES ${QT_PLUGIN_PATH}/iconengines/libqsvgicon.so
               DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/iconengines/)
-      
+
       # Required by xcb module used to create OpenGL widgets
       install(
         FILES ${QT_PLUGIN_PATH}/xcbglintegrations/libqxcb-egl-integration.so
