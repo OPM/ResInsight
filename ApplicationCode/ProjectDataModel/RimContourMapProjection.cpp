@@ -138,7 +138,7 @@ void RimContourMapProjection::generateResultsIfNecessary( int timeStep )
         generateVertexResults();
     }
     progress.setProgress( 100 );
-    m_currentResultTimestep = timeStep;
+    updateAfterResultGeneration( timeStep );
 }
 
 //--------------------------------------------------------------------------------------------------

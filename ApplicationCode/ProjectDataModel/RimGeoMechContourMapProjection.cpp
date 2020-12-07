@@ -363,8 +363,10 @@ std::vector<double> RimGeoMechContourMapProjection::generateResultsFromAddress( 
         resultAddress.resultPosType = RIG_ELEMENT_NODAL; // formation indices are stored per element node result.
     }
 
-    std::vector<float>  resultValuesF = resultCollection->resultValues( resultAddress, 0, timeStep );
-    std::vector<double> resultValues  = gridCellValues( resultAddress, resultValuesF );
+    std::vector<float> resultValuesF = resultCollection->resultValues( resultAddress, 0, timeStep );
+    if ( resultValuesF.empty() ) return aggregatedResults;
+
+    std::vector<double> resultValues = gridCellValues( resultAddress, resultValuesF );
 
     if ( wasInvalid )
     {
@@ -400,13 +402,7 @@ bool RimGeoMechContourMapProjection::resultVariableChanged() const
     RimGeoMechCellColors* cellColors = view()->cellResult();
     RigFemResultAddress   resAddr    = cellColors->resultAddress();
 
-    if ( resAddr.fieldName == "PP" )
-    {
-        resAddr.fieldName = "POR-Bar"; // More likely to be in memory than POR
-    }
-    if ( resAddr.fieldName == "POR-Bar" ) resAddr.resultPosType = RIG_ELEMENT_NODAL;
-
-    return !( m_currentResultAddr == resAddr );
+    return !m_currentResultAddr.isValid() || !( m_currentResultAddr == resAddr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -567,6 +563,18 @@ RimGeoMechContourMapView* RimGeoMechContourMapProjection::view() const
     RimGeoMechContourMapView* view = nullptr;
     firstAncestorOrThisOfTypeAsserted( view );
     return view;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechContourMapProjection::updateAfterResultGeneration( int timeStep )
+{
+    m_currentResultTimestep = timeStep;
+
+    RimGeoMechCellColors* cellColors = view()->cellResult();
+    RigFemResultAddress   resAddr    = cellColors->resultAddress();
+    m_currentResultAddr              = resAddr;
 }
 
 //--------------------------------------------------------------------------------------------------

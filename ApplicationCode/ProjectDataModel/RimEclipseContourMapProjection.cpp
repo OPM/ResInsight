@@ -505,6 +505,17 @@ RimEclipseContourMapView* RimEclipseContourMapProjection::view() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEclipseContourMapProjection::updateAfterResultGeneration( int timeStep )
+{
+    m_currentResultTimestep = timeStep;
+
+    RimEclipseCellColors* cellColors = view()->cellResult();
+    m_currentResultName              = cellColors->resultVariable();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipseContourMapProjection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                                        const QVariant&            oldValue,
                                                        const QVariant&            newValue )

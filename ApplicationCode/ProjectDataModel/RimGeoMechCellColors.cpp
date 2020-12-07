@@ -30,10 +30,12 @@ CAF_PDM_SOURCE_INIT( RimGeoMechCellColors, "GeoMechResultSlot" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimGeoMechCellColors::RimGeoMechCellColors( void )
+    : legendConfigChanged( this )
 {
     CAF_PDM_InitFieldNoDefault( &legendConfig, "LegendDefinition", "Color Legend", "", "", "" );
     this->legendConfig = new RimRegularLegendConfig();
     legendConfig.uiCapability()->setUiHidden( true );
+    legendConfig->changed.connect( this, &RimGeoMechCellColors::onLegendConfigChanged );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -103,4 +105,12 @@ void RimGeoMechCellColors::updateLegendCategorySettings()
                 RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL ) );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechCellColors::onLegendConfigChanged( const caf::SignalEmitter* emitter, RimLegendConfigChangeType changeType )
+{
+    legendConfigChanged.send( changeType );
 }

@@ -21,7 +21,9 @@
 #include "RimGeoMechView.h"
 #include "RimNameConfig.h"
 
+enum class RimLegendConfigChangeType;
 class RimGeoMechContourMapProjection;
+class RimRegularLegendConfig;
 class RimViewNameConfig;
 class RimScaleLegendConfig;
 class RivContourMapProjectionPartMgr;
@@ -65,6 +67,9 @@ protected:
     void onViewNavigationChanged() override;
 
     bool zoomChangeAboveTreshold( const cvf::Vec3d& currentCameraPosition ) const;
+
+    void scheduleGeometryRegen( RivCellSetEnum geometryType ) override;
+    void onLegendConfigChanged( const caf::SignalEmitter* emitter, RimLegendConfigChangeType changeType );
 
 private:
     cvf::ref<RivContourMapProjectionPartMgr>            m_contourMapProjectionPartMgr;

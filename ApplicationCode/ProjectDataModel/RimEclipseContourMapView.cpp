@@ -33,6 +33,7 @@
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimFaultInViewCollection.h"
 #include "RimGridCollection.h"
+#include "RimRegularLegendConfig.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimViewNameConfig.h"
 
@@ -251,7 +252,6 @@ void RimEclipseContourMapView::updateGeometry()
     }
 
     onUpdateLegends(); // To make sure the scalar mappers are set up correctly
-    appendWellsAndFracturesToModel();
 
     { // Step 2: generate geometry. Takes about 60% of the time.
         createContourMapGeometry();
@@ -264,6 +264,9 @@ void RimEclipseContourMapView::updateGeometry()
         appendPickPointVisToModel();
         progress.setProgress( 100 );
     }
+
+    appendWellsAndFracturesToModel();
+
     m_overlayInfoConfig()->update3DInfo();
 }
 
@@ -528,17 +531,23 @@ bool RimEclipseContourMapView::zoomChangeAboveTreshold( const cvf::Vec3d& curren
 //--------------------------------------------------------------------------------------------------
 void RimEclipseContourMapView::scheduleGeometryRegen( RivCellSetEnum geometryType )
 {
-    RimEclipseView::scheduleGeometryRegen( geometryType );
     if ( geometryType != VISIBLE_WELL_CELLS )
     {
         m_contourMapProjection->clearGeometry();
     }
+    RimEclipseView::scheduleGeometryRegen( geometryType );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::onLegendConfigChanged( const caf::SignalEmitter* emitter )
+void RimEclipseContourMapView::onLegendConfigChanged( const caf::SignalEmitter* emitter,
+                                                      RimLegendConfigChangeType changeType )
 {
-    m_contourMapProjection->clearGeometry();
+    using ChangeType = RimLegendConfigChangeType;
+    if ( changeType == ChangeType::LEVELS || changeType == ChangeType::COLOR_MODE || changeType == ChangeType::RANGE ||
+         changeType == ChangeType::ALL )
+    {
+        m_contourMapProjection->clearGeometry();
+    }
 }
