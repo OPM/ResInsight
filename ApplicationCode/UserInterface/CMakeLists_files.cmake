@@ -190,6 +190,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuFileDialogTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuGuiTheme.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuQssSyntaxHighlighter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuTextEditWithCompletion.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuTextContentFrame.cpp
 )
 
 
@@ -261,6 +262,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuAbstractLegendFrame.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuCategoryLegendFrame.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuScalarMapperLegendFrame.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuTextEditWithCompletion.h
+${CMAKE_CURRENT_LIST_DIR}/RiuTextContentFrame.h
 )
 
 list(APPEND QT_UI_FILES
