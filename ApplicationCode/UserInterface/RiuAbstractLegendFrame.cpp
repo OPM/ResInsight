@@ -50,7 +50,7 @@ QSize RiuAbstractLegendFrame::sizeHint() const
     QFontMetrics fontMetrics( this->font() );
     QRect titleRect = fontMetrics.boundingRect( QRect( 0, 0, 200, 200 ), Qt::AlignLeft | Qt::TextWordWrap, m_title );
 
-    int preferredContentHeight = titleRect.height() + labelCount() * layout.lineSpacing + 0.5 * layout.lineSpacing;
+    int preferredContentHeight = titleRect.height() + labelCount() * layout.lineSpacing + 1.0 * layout.lineSpacing;
     int preferredHeight        = preferredContentHeight + layout.margins.top() + layout.margins.bottom();
 
     int titleWidth = titleRect.width() + layout.margins.left() + layout.margins.right();
@@ -83,7 +83,7 @@ QSize RiuAbstractLegendFrame::minimumSizeHint() const
     QFontMetrics fontMetrics( this->font() );
     QRect titleRect = fontMetrics.boundingRect( QRect( 0, 0, 200, 200 ), Qt::AlignLeft | Qt::TextWordWrap, m_title );
 
-    int preferredContentHeight = titleRect.height() + 2 * layout.lineSpacing + 0.5 * layout.lineSpacing;
+    int preferredContentHeight = titleRect.height() + 2 * layout.lineSpacing + 1.0 * layout.lineSpacing;
     int preferredHeight        = preferredContentHeight + layout.margins.top() + layout.margins.bottom();
     int titleWidth             = titleRect.width() + layout.margins.left() + layout.margins.right();
 
