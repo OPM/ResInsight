@@ -44,6 +44,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaFieldHandleTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaBoundingBoxTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaWellLogUnitTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaWellLogUnitTools.inl
+${CMAKE_CURRENT_LIST_DIR}/RiaTimeTTools.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -84,6 +85,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaGitDiff.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaCellDividingTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaFieldHandleTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaBoundingBoxTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaTimeTTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
