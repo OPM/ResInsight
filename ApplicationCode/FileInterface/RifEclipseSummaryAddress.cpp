@@ -538,6 +538,29 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::ensembleStatisticsAddress( co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::string RifEclipseSummaryAddress::generateStringFromAddresses( const std::vector<RifEclipseSummaryAddress>& addressVector,
+                                                                   const std::string jointString )
+{
+    std::string addrString;
+    for ( RifEclipseSummaryAddress address : addressVector )
+    {
+        if ( addrString.length() > 0 )
+        {
+            addrString += jointString;
+        }
+        addrString += address.uiText();
+        if ( addrString.length() > 50 )
+        {
+            addrString = addrString.substr( 0, 50 ) + "...";
+            break;
+        }
+    }
+    return addrString;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RifEclipseSummaryAddress::isDependentOnWellName( SummaryVarCategory category )
 {
     // clang-format off
