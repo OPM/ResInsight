@@ -35,22 +35,24 @@ public:
     const QString& formationName() const;
     const QString& faciesName() const;
 
-    void   appendValues( double porosity,
-                         double youngsModulus,
-                         double poissonsRatio,
-                         double m_K_Ic,
-                         double proppantEmbedment,
-                         double biotCoefficient,
-                         double k0,
-                         double fluidLossCoefficient,
-                         double spurtLoss,
-                         double immobileFluidSaturation );
+    void appendValues( double porosity,
+                       double youngsModulus,
+                       double poissonsRatio,
+                       double m_K_Ic,
+                       double proppantEmbedment,
+                       double biotCoefficient,
+                       double k0,
+                       double fluidLossCoefficient,
+                       double spurtLoss,
+                       double immobileFluidSaturation );
 
     size_t numValues() const;
     double getValue( RiaDefines::CurveProperty property, size_t index, double scale = 1.0 ) const;
     double getValueForPorosity( RiaDefines::CurveProperty property, double porosity, double scale = 1.0 ) const;
 
     const std::vector<double>& porosity() const;
+    double                     porosityMin() const;
+    double                     porosityMax() const;
 
 private:
     const std::vector<double>& getVector( RiaDefines::CurveProperty property ) const;

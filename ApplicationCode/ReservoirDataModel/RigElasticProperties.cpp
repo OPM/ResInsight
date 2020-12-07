@@ -67,6 +67,24 @@ const std::vector<double>& RigElasticProperties::porosity() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RigElasticProperties::porosityMin() const
+{
+    if ( m_porosity.empty() ) return 0.0;
+    return m_porosity[0];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigElasticProperties::porosityMax() const
+{
+    if ( m_porosity.empty() ) return 0.0;
+    return m_porosity[m_porosity.size() - 1];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigElasticProperties::appendValues( double porosity,
                                          double youngsModulus,
                                          double poissonsRatio,

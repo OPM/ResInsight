@@ -239,9 +239,21 @@ bool RimStimPlanModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
                 const RigElasticProperties& rigElasticProperties = elasticProperties->propertiesForFacies( faciesKey );
                 double scale = elasticProperties->getPropertyScaling( formationName, faciesName, curveProperty );
                 double val   = rigElasticProperties.getValueForPorosity( curveProperty, porosity, scale );
+                if ( std::isinf( val ) )
+                {
+                    RiaLogging::error(
+                        QString( "Elastic property interpolation failed. Formation='%1', "
+                                 "facies='%2', depth=%3, porosity=%4. Property defined for porosity range: [%5, %6]" )
+                            .arg( formationName )
+                            .arg( faciesName )
+                            .arg( tvDepthValues[i] )
+                            .arg( porosity )
+                            .arg( rigElasticProperties.porosityMin() )
+                            .arg( rigElasticProperties.porosityMax() ) );
+                }
 
                 //
-                if ( isScaledByNetToGross )
+                if ( isScaledByNetToGross && !std::isinf( val ) )
                 {
                     double netToGross = netToGrossValues[i];
                     if ( netToGross < netToGrossCutoff )
@@ -253,6 +265,18 @@ bool RimStimPlanModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
                             elasticProperties->getPropertyScaling( formationName, netToGrossFaciesName, curveProperty );
                         double ntgValue = rigNtgElasticProperties.getValueForPorosity( curveProperty, porosity, ntgScale );
                         val             = val * netToGross + ( 1.0 - netToGross ) * ntgValue;
+                        if ( std::isinf( val ) )
+                        {
+                            RiaLogging::error( QString( "Elastic property (NTG) interpolation failed. Formation='%1', "
+                                                        "facies='%2', depth=%3, porosity=%4.  Property defined for "
+                                                        "porosity range: [%5, %6]" )
+                                                   .arg( formationName )
+                                                   .arg( netToGrossFaciesName )
+                                                   .arg( tvDepthValues[i] )
+                                                   .arg( porosity )
+                                                   .arg( rigNtgElasticProperties.porosityMin() )
+                                                   .arg( rigNtgElasticProperties.porosityMax() ) );
+                        }
                     }
                 }
 

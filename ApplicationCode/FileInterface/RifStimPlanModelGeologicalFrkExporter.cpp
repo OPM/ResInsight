@@ -137,6 +137,7 @@ bool RifStimPlanModelGeologicalFrkExporter::writeToFile( RimStimPlanModel* stimP
 
     for ( QString label : labels )
     {
+        warnOnInvalidData( label, values[label] );
         appendToStream( stream, label, values[label] );
     }
 
@@ -209,4 +210,31 @@ void RifStimPlanModelGeologicalFrkExporter::fixupStressGradients( std::vector<do
             stressGradients[i] = defaultStressGradient;
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifStimPlanModelGeologicalFrkExporter::warnOnInvalidData( const QString& label, const std::vector<double>& values )
+{
+    bool isInvalid = hasInvalidData( values );
+    if ( isInvalid )
+    {
+        RiaLogging::warning( QString( "Found invalid data in Geological.FRK export of property '%1'." ).arg( label ) );
+    }
+
+    return isInvalid;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifStimPlanModelGeologicalFrkExporter::hasInvalidData( const std::vector<double>& values )
+{
+    for ( auto v : values )
+    {
+        if ( std::isinf( v ) || std::isnan( v ) ) return true;
+    }
+
+    return false;
 }
