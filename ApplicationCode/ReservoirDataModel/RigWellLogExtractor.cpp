@@ -326,13 +326,23 @@ void RigWellLogExtractor::appendIntersectionToArrays( double                    
     QString errorMessage;
     if ( !m_intersectionMeasuredDepths.empty() && measuredDepth < m_intersectionMeasuredDepths.back() )
     {
-        errorMessage += QString( "Well Log Extraction : %1 does not have a monotonously increasing measured depth." )
-                            .arg( QString::fromStdString( m_wellCaseErrorMsgName ) );
+        const double warningLimit = 0.01;
+        double       diff         = std::fabs( measuredDepth - m_intersectionMeasuredDepths.back() );
+        if ( diff > warningLimit )
+        {
+            errorMessage +=
+                QString( "Well Log Extraction : %1 does not have a monotonously increasing measured depth." )
+                    .arg( QString::fromStdString( m_wellCaseErrorMsgName ) );
+        }
+
         // Allow alterations of up to 0.1 percent as long as we keep the measured depth monotonously increasing.
         const double tolerance = std::max( 1.0, measuredDepth ) * 1.0e-3;
         if ( RigWellLogExtractionTools::isEqualDepth( measuredDepth, m_intersectionMeasuredDepths.back(), tolerance ) )
         {
-            errorMessage += "The well path has been slightly adjusted";
+            if ( diff > warningLimit )
+            {
+                errorMessage += "The well path has been slightly adjusted";
+            }
             measuredDepth = m_intersectionMeasuredDepths.back();
         }
     }
@@ -343,5 +353,5 @@ void RigWellLogExtractor::appendIntersectionToArrays( double                    
     m_intersectedCellsGlobIdx.push_back( intersection.m_hexIndex );
     m_intersectedCellFaces.push_back( intersection.m_face );
 
-    errorMessages->push_back( errorMessage );
+    if ( !errorMessage.isEmpty() ) errorMessages->push_back( errorMessage );
 }
