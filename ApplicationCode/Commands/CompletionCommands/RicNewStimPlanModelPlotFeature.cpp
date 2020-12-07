@@ -356,6 +356,7 @@ void RicNewStimPlanModelPlotFeature::createParametersTrack( RimStimPlanModelPlot
     plotTrack->setColSpan( RimPlot::TWO );
     plotTrack->setLegendsVisible( true );
     plotTrack->setPlotTitleVisible( true );
+    plotTrack->setShowWindow( shouldShowByDefault( propertyTypes ) );
 
     caf::ColorTable colors = RiaColorTables::wellLogPlotPaletteColors();
 
@@ -466,4 +467,32 @@ RimStimPlanModelPlotCollection* RicNewStimPlanModelPlotFeature::stimPlanModelPlo
     CVF_ASSERT( stimPlanModelPlotColl );
 
     return mainPlotColl->stimPlanModelPlotCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicNewStimPlanModelPlotFeature::shouldShowByDefault( const std::vector<RiaDefines::CurveProperty>& propertyTypes )
+{
+    std::vector<RiaDefines::CurveProperty> defaultPropertyTypes = {
+        RiaDefines::CurveProperty::INITIAL_PRESSURE,
+        RiaDefines::CurveProperty::PRESSURE,
+        RiaDefines::CurveProperty::STRESS,
+        RiaDefines::CurveProperty::INITIAL_STRESS,
+        RiaDefines::CurveProperty::STRESS_GRADIENT,
+        RiaDefines::CurveProperty::YOUNGS_MODULUS,
+        RiaDefines::CurveProperty::POISSONS_RATIO,
+        RiaDefines::CurveProperty::K_IC,
+        RiaDefines::CurveProperty::PROPPANT_EMBEDMENT,
+        RiaDefines::CurveProperty::FLUID_LOSS_COEFFICIENT,
+    };
+
+    for ( auto propertyType : propertyTypes )
+    {
+        for ( auto defaultPropertyType : defaultPropertyTypes )
+        {
+            if ( propertyType == defaultPropertyType ) return true;
+        }
+    }
+    return false;
 }
