@@ -156,6 +156,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RimColorLegendItem.h
 ${CMAKE_CURRENT_LIST_DIR}/RimAbstractPlotCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimVfpTableExtractor.h
 ${CMAKE_CURRENT_LIST_DIR}/RimCaseDisplayNameTools.h
+${CMAKE_CURRENT_LIST_DIR}/RimEquilibriumAxisAnnotation.h
+${CMAKE_CURRENT_LIST_DIR}/RimTimeAxisAnnotation.h
 )
 
 
@@ -314,6 +316,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RimColorLegend.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimColorLegendItem.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimVfpTableExtractor.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimCaseDisplayNameTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimEquilibriumAxisAnnotation.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimTimeAxisAnnotation.cpp
 )
 
 if(Qt5Charts_FOUND)

@@ -412,6 +412,14 @@ void RimSummaryCurve::setOverrideCurveDataY( const std::vector<time_t>& dateTime
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaSummaryCurveDefinition RimSummaryCurve::curveDefinitionX() const
+{
+    return RiaSummaryCurveDefinition( summaryCaseX(), summaryAddressX(), isEnsembleCurve() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setSummaryCaseX( RimSummaryCase* sumCase )
 {
     m_xValuesSummaryCase = sumCase;

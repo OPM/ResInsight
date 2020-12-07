@@ -107,6 +107,10 @@ public:
     void reattachAllCurves() override;
     void updateCaseNameHasChanged();
 
+    void addTimeAnnotation( time_t time );
+    void addTimeRangeAnnotation( time_t startTime, time_t endTime );
+    void removeAllTimeAnnotations();
+
     void updateAxes() override;
 
     bool isLogarithmicScaleEnabled( RiaDefines::PlotAxis plotAxis ) const;

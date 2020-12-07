@@ -27,6 +27,9 @@
 #include "RimEnsembleStatisticsCase.h"
 #include "RimMainPlotCollection.h"
 #include "RimPlot.h"
+#include "RimPlotAxisAnnotation.h"
+#include "RimPlotAxisProperties.h"
+#include "RimPlotAxisPropertiesInterface.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
@@ -36,6 +39,7 @@
 #include "RimSummaryPlotCollection.h"
 
 #include "RiuCvfOverlayItemWidget.h"
+#include "RiuPlotAnnotationTool.h"
 #include "RiuQwtCurvePointTracker.h"
 #include "RiuQwtPlotWheelZoomer.h"
 #include "RiuRimQwtPlotCurve.h"
@@ -130,6 +134,8 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent /*= 
     RiuQwtPlotTools::setDefaultAxes( this );
 
     setInternalLegendVisible( true );
+
+    m_annotationTool = std::unique_ptr<RiuPlotAnnotationTool>( new RiuPlotAnnotationTool() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -165,6 +171,40 @@ void RiuSummaryQwtPlot::useTimeBasedTimeAxis()
 void RiuSummaryQwtPlot::setAxisIsLogarithmic( QwtPlot::Axis axis, bool logarithmic )
 {
     if ( m_wheelZoomer ) m_wheelZoomer->setAxisIsLogarithmic( axis, logarithmic );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::updateAnnotationObjects( RimPlotAxisPropertiesInterface* axisProperties )
+{
+    RiuPlotAnnotationTool::Orientation orientation = RiuPlotAnnotationTool::Orientation::HORIZONTAL;
+    if ( axisProperties->plotAxisType() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
+    {
+        orientation = RiuPlotAnnotationTool::Orientation::VERTICAL;
+    }
+    m_annotationTool->detachAllAnnotations( orientation );
+
+    for ( auto annotation : axisProperties->annotations() )
+    {
+        if ( annotation->annotationType() == RimPlotAxisAnnotation::AnnotationType::LINE )
+        {
+            m_annotationTool->attachAnnotationLine( this,
+                                                    annotation->color(),
+                                                    annotation->name(),
+                                                    annotation->value(),
+                                                    orientation );
+        }
+        else if ( annotation->annotationType() == RimPlotAxisAnnotation::AnnotationType::RANGE )
+        {
+            m_annotationTool->attachAnnotationRange( this,
+                                                     annotation->color(),
+                                                     annotation->name(),
+                                                     annotation->rangeStart(),
+                                                     annotation->rangeEnd(),
+                                                     orientation );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
