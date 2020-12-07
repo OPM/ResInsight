@@ -200,8 +200,9 @@ protected:
     cvf::Vec2d                      cellCenterPosition( uint i, uint j ) const;
     cvf::Vec2d                      origin2d() const;
 
-    cvf::Vec2ui calculateMapSize() const;
-    double      gridEdgeOffset() const;
+    cvf::Vec2ui  calculateMapSize() const;
+    double       gridEdgeOffset() const;
+    virtual void updateAfterResultGeneration( int timeStep ) = 0;
 
 protected:
     // Framework overrides

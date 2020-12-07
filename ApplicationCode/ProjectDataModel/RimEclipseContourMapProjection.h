@@ -86,6 +86,8 @@ protected:
     RimEclipseCase*           eclipseCase() const;
     RimEclipseContourMapView* view() const;
 
+    void updateAfterResultGeneration( int timeStep ) override;
+
 protected:
     // Framework overrides
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

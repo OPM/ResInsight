@@ -21,14 +21,15 @@
 #pragma once
 
 #include "RimEclipseResultDefinition.h"
+#include "RimLegendConfigChangeType.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmPtrField.h"
 
 class RimEclipseCase;
-class RimTernaryLegendConfig;
 class RimRegularLegendConfig;
+class RimTernaryLegendConfig;
 
 //==================================================================================================
 ///
@@ -39,7 +40,7 @@ class RimEclipseCellColors : public RimEclipseResultDefinition
     CAF_PDM_HEADER_INIT;
 
 public:
-    caf::Signal<> legendConfigChanged;
+    caf::Signal<RimLegendConfigChangeType> legendConfigChanged;
 
 public:
     RimEclipseCellColors();
@@ -72,7 +73,7 @@ protected:
 
 private:
     void changeLegendConfig( QString resultVarNameOfNewLegend );
-    void onLegendConfigChanged( const caf::SignalEmitter* emitter );
+    void onLegendConfigChanged( const caf::SignalEmitter* emitter, RimLegendConfigChangeType changeType );
 
     caf::PdmChildArrayField<RimRegularLegendConfig*> m_legendConfigData;
     caf::PdmPtrField<RimRegularLegendConfig*>        m_legendConfigPtrField;

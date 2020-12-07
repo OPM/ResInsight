@@ -196,9 +196,9 @@ void RimEclipseCellColors::changeLegendConfig( QString resultVarNameOfNewLegend 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseCellColors::onLegendConfigChanged( const caf::SignalEmitter* emitter )
+void RimEclipseCellColors::onLegendConfigChanged( const caf::SignalEmitter* emitter, RimLegendConfigChangeType changeType )
 {
-    legendConfigChanged.send();
+    legendConfigChanged.send( changeType );
 }
 
 //--------------------------------------------------------------------------------------------------
