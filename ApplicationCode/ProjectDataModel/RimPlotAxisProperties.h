@@ -67,7 +67,7 @@ public:
 
     QwtPlot::Axis        qwtPlotAxisType() const;
     QString              name() const;
-    RiaDefines::PlotAxis plotAxisType() const;
+    RiaDefines::PlotAxis plotAxisType() const override;
     bool                 useAutoTitle() const;
     bool                 showDescription() const;
     bool                 showAcronym() const;
@@ -79,6 +79,7 @@ public:
 
     std::vector<RimPlotAxisAnnotation*> annotations() const;
     void                                appendAnnotation( RimPlotAxisAnnotation* annotation );
+    void                                removeAllAnnotations() override;
 
     caf::PdmField<QString> customTitle;
 

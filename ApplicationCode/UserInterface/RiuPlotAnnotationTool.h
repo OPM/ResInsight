@@ -55,6 +55,11 @@ public:
         CENTRE_COLUMN,
         RIGHT_COLUMN
     };
+    enum class Orientation
+    {
+        HORIZONTAL = 0,
+        VERTICAL
+    };
 
 public:
     RiuPlotAnnotationTool(){};
@@ -72,9 +77,33 @@ public:
                              const std::vector<Qt::BrushStyle>&            brushStyles = {} );
     void attachWellPicks( QwtPlot* plot, const std::vector<QString>& names, const std::vector<double>& yPositions );
 
-    void attachAnnotationLine( QwtPlot* plot, const QColor& color, const QString& annotationText, const double yPosition );
+    void attachAnnotationLine( QwtPlot*       plot,
+                               const QColor&  color,
+                               const QString& annotationText,
+                               const double   position,
+                               Orientation    orientation );
+
+    void attachAnnotationRange( QwtPlot*       plot,
+                                const QColor&  color,
+                                const QString& annotationText,
+                                const double   rangeStart,
+                                const double   rangeEnd,
+                                Orientation    orientation );
+
+    void horizontalRange( const QString&                  name,
+                          const std::pair<double, double> yRange,
+                          const QColor&                   color               = QColor( 0, 0, 100 ),
+                          const QColor&                   textColor           = QColor( 0, 0, 100 ),
+                          Qt::Alignment                   horizontalAlignment = Qt::AlignRight );
+
+    void verticalRange( const QString&                  name,
+                        const std::pair<double, double> xRange,
+                        const QColor&                   color               = QColor( 0, 0, 100 ),
+                        const QColor&                   textColor           = QColor( 0, 0, 100 ),
+                        Qt::Alignment                   horizontalAlignment = Qt::AlignRight );
 
     void detachAllAnnotations();
+    void detachAllAnnotations( Orientation orientation );
 
 private:
     static Qt::Alignment trackTextAlignment( TrackSpan trackSpan );
@@ -85,7 +114,16 @@ private:
                                                const QColor&  textColor           = QColor( 0, 0, 100 ),
                                                Qt::Alignment  horizontalAlignment = Qt::AlignRight );
 
+    void verticalLine( QwtPlotMarker* line,
+                       const QString& name,
+                       double         xValue,
+                       const QColor&  color               = QColor( 0, 0, 100 ),
+                       const QColor&  textColor           = QColor( 0, 0, 100 ),
+                       Qt::PenStyle   lineStyle           = Qt::DashLine,
+                       Qt::Alignment  horizontalAlignment = Qt::AlignRight | Qt::AlignBottom );
+
 private:
     QPointer<QwtPlot>         m_plot;
-    std::vector<QwtPlotItem*> m_markers;
+    std::vector<QwtPlotItem*> m_horizontalMarkers;
+    std::vector<QwtPlotItem*> m_verticalMarkers;
 };

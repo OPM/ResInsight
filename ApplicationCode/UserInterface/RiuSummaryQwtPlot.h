@@ -31,6 +31,8 @@ class RimSummaryPlot;
 class RiuCvfOverlayItemWidget;
 class RiuQwtPlotZoomer;
 class RiuQwtPlotWheelZoomer;
+class RimPlotAxisPropertiesInterface;
+class RiuPlotAnnotationTool;
 
 //==================================================================================================
 //
@@ -54,6 +56,8 @@ public:
     void useTimeBasedTimeAxis();
     void setAxisIsLogarithmic( QwtPlot::Axis axis, bool logarithmic );
 
+    void updateAnnotationObjects( RimPlotAxisPropertiesInterface* axisProperties );
+
 protected:
     void contextMenuEvent( QContextMenuEvent* ) override;
     void setDefaults();
@@ -64,6 +68,8 @@ private slots:
     void onZoomedSlot();
 
 private:
+    std::unique_ptr<RiuPlotAnnotationTool> m_annotationTool;
+
     QPointer<RiuQwtPlotZoomer>      m_zoomerLeft;
     QPointer<RiuQwtPlotZoomer>      m_zoomerRight;
     QPointer<RiuQwtPlotWheelZoomer> m_wheelZoomer;

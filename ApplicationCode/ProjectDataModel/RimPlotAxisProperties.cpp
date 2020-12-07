@@ -348,6 +348,14 @@ void RimPlotAxisProperties::appendAnnotation( RimPlotAxisAnnotation* annotation 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::removeAllAnnotations()
+{
+    m_annotations.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlotAxisProperties::setAxisInverted( bool inverted )
 {
     m_isAxisInverted = inverted;

@@ -29,7 +29,7 @@
 
 class RimGridCrossPlot;
 class RimGridCrossPlotDataSet;
-class RimPlotAxisProperties;
+class RimPlotAxisPropertiesInterface;
 class RimPlot;
 class RiuCvfOverlayItemWidget;
 class RiuDraggableOverlayFrame;
@@ -56,7 +56,7 @@ public:
 
     RiuGridCrossQwtPlot( const RiuGridCrossQwtPlot& ) = delete;
 
-    void updateAnnotationObjects( RimPlotAxisProperties* axisProperties );
+    void updateAnnotationObjects( RimPlotAxisPropertiesInterface* axisProperties );
 
     void setLegendFontSize( int fontSize );
     void setInternalQwtLegendVisible( bool visible );

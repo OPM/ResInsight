@@ -18,7 +18,11 @@
 
 #pragma once
 
+#include "RiaDefines.h"
+
 #include "cafAppEnum.h"
+
+class RimPlotAxisAnnotation;
 
 class RimPlotAxisPropertiesInterface
 {
@@ -36,6 +40,11 @@ public:
         TICKMARK_MANY,
     };
     using LegendTickmarkCountEnum = caf::AppEnum<LegendTickmarkCount>;
+
+    virtual std::vector<RimPlotAxisAnnotation*> annotations() const                                   = 0;
+    virtual void                                appendAnnotation( RimPlotAxisAnnotation* annotation ) = 0;
+    virtual void                                removeAllAnnotations()                                = 0;
+    virtual RiaDefines::PlotAxis                plotAxisType() const                                  = 0;
 
 public:
     virtual AxisTitlePositionType titlePosition() const  = 0;
