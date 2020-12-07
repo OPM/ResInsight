@@ -8,6 +8,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimPropertyFilterCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipsePropertyFilterCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimCellRangeFilter.h
 ${CMAKE_CURRENT_LIST_DIR}/RimCellRangeFilterCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimLegendConfigChangeType.h
 ${CMAKE_CURRENT_LIST_DIR}/RimRegularLegendConfig.h
 ${CMAKE_CURRENT_LIST_DIR}/RimOilField.h
 ${CMAKE_CURRENT_LIST_DIR}/RimProject.h
