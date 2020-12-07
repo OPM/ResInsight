@@ -46,4 +46,7 @@ private:
                                       double               minStressGradient,
                                       double               maxStressGradient,
                                       double               defaultStressGradient );
+
+    static bool warnOnInvalidData( const QString& label, const std::vector<double>& values );
+    static bool hasInvalidData( const std::vector<double>& values );
 };
