@@ -21,6 +21,7 @@
 #include "RiaFieldHandleTools.h"
 #include "RiaLogging.h"
 #include "RiaStatisticsTools.h"
+#include "RiaStdStringTools.h"
 #include "RiaWeightedMeanCalculator.h"
 
 #include "RicfCommandObject.h"
@@ -33,6 +34,7 @@
 #include "RimSummaryCase.h"
 
 #include "RifReaderEclipseRft.h"
+#include "RifReaderEclipseSummary.h"
 #include "RifReaderEnsembleStatisticsRft.h"
 #include "RifSummaryReaderInterface.h"
 
@@ -212,6 +214,9 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
     m_statisticsEclipseRftReader = new RifReaderEnsembleStatisticsRft( this );
 
     m_commonAddressCount = 0;
+
+    m_objectiveFunctions.push_back( std::make_shared<RimObjectiveFunction>( this, RimObjectiveFunction::FunctionType::M1 ) );
+    m_objectiveFunctions.push_back( std::make_shared<RimObjectiveFunction>( this, RimObjectiveFunction::FunctionType::M2 ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -843,6 +848,30 @@ void RimSummaryCaseCollection::clearEnsembleParametersHashes()
         auto crp = sumCase->caseRealizationParameters();
         if ( crp ) crp->clearParametersHash();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::shared_ptr<RimObjectiveFunction>> RimSummaryCaseCollection::objectiveFunctions() const
+{
+    return m_objectiveFunctions;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::shared_ptr<RimObjectiveFunction>
+    RimSummaryCaseCollection::objectiveFunction( RimObjectiveFunction::FunctionType functionType )
+{
+    for ( auto objectiveFunc : m_objectiveFunctions )
+    {
+        if ( objectiveFunc->functionType() == functionType )
+        {
+            return objectiveFunc;
+        }
+    }
+    return m_objectiveFunctions.front();
 }
 
 //--------------------------------------------------------------------------------------------------
