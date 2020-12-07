@@ -20,6 +20,7 @@
 #pragma once
 
 #include "RimGeoMechResultDefinition.h"
+#include "RimLegendConfigChangeType.h"
 
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
@@ -35,6 +36,9 @@ class RimGeoMechCellColors : public RimGeoMechResultDefinition
     CAF_PDM_HEADER_INIT;
 
 public:
+    caf::Signal<RimLegendConfigChangeType> legendConfigChanged;
+
+public:
     RimGeoMechCellColors( void );
     ~RimGeoMechCellColors( void ) override;
 
@@ -45,4 +49,5 @@ public:
 
 protected:
     void updateLegendCategorySettings() override;
+    void onLegendConfigChanged( const caf::SignalEmitter* emitter, RimLegendConfigChangeType changeType );
 };
