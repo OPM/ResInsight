@@ -91,6 +91,9 @@ public:
 
     void convertToUnitSystem( RiaEclipseUnitTools::UnitSystem neededUnit ) override;
 
+protected:
+    void initAfterRead() override;
+
 private:
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
@@ -125,6 +128,7 @@ private:
     caf::PdmField<QString> m_conductivityResultNameOnFile;
 
     caf::PdmField<double>  m_wellPathDepthAtFracture;
+    caf::PdmField<bool>    m_useUserDefinedWellPathDepthAtFracture;
     caf::PdmField<QString> m_borderPolygonResultName;
 
     caf::PdmField<caf::FilePath>            m_stimPlanFileName;

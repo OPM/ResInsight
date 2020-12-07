@@ -75,6 +75,9 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate()
     CAF_PDM_InitField(&m_wellPathDepthAtFracture,   "WellPathDepthAtFracture", 0.0, "Well/Fracture Intersection Depth", "", "", "");
     m_wellPathDepthAtFracture.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
+    CAF_PDM_InitField(&m_useUserDefinedWellPathDepthAtFracture, "UseUserDefinedWellPathDepthAtFracture", false,
+                      "Use User-Defined Well/Fracture Intersection Depth", "", "", "");
+
     CAF_PDM_InitField(&m_borderPolygonResultName,   "BorderPolygonResultName", QString(""), "Parameter", "", "", "");
     m_borderPolygonResultName.uiCapability()->setUiHidden(true);
 
@@ -120,6 +123,16 @@ void RimStimPlanFractureTemplate::fieldChangedByUi( const caf::PdmFieldHandle* c
         m_readError = false;
         loadDataAndUpdate();
         setDefaultsBasedOnXMLfile();
+    }
+
+    if ( &m_useUserDefinedWellPathDepthAtFracture == changedField )
+    {
+        if ( m_useUserDefinedWellPathDepthAtFracture )
+        {
+            m_readError = false;
+            loadDataAndUpdate();
+            RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
+        }
     }
 
     if ( &m_activeTimeStepIndex == changedField )
@@ -274,6 +287,11 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
         if ( fractureTemplateUnit() == RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN )
         {
             setUnitSystem( m_stimPlanFractureDefinitionData->unitSet() );
+        }
+
+        if ( m_useUserDefinedWellPathDepthAtFracture )
+        {
+            computeDepthOfWellPathAtFracture();
         }
 
         m_readError = false;
@@ -1036,7 +1054,10 @@ void RimStimPlanFractureTemplate::defineUiOrdering( QString uiConfigName, caf::P
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Input" );
         group->add( &m_stimPlanFileName );
         group->add( &m_activeTimeStepIndex );
+        group->add( &m_useUserDefinedWellPathDepthAtFracture );
         group->add( &m_wellPathDepthAtFracture );
+
+        m_wellPathDepthAtFracture.uiCapability()->setUiReadOnly( m_useUserDefinedWellPathDepthAtFracture() );
     }
 
     {
@@ -1099,5 +1120,16 @@ void RimStimPlanFractureTemplate::defineEditorAttribute( const caf::PdmFieldHand
                 myAttr->m_maximum = m_stimPlanFractureDefinitionData->maxDepth();
             }
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStimPlanFractureTemplate::initAfterRead()
+{
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2020.10.0" ) )
+    {
+        m_useUserDefinedWellPathDepthAtFracture = true;
     }
 }
