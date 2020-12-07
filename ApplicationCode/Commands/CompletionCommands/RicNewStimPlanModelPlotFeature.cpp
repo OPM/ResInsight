@@ -184,10 +184,7 @@ RimStimPlanModelPlot* RicNewStimPlanModelPlotFeature::createPlot( RimStimPlanMod
 //--------------------------------------------------------------------------------------------------
 bool RicNewStimPlanModelPlotFeature::isCommandEnabled()
 {
-    Rim3dView* view = RiaApplication::instance()->activeReservoirView();
-    if ( !view ) return false;
-    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( view );
-    return eclipseView != nullptr;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
