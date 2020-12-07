@@ -21,11 +21,13 @@
 #pragma once
 
 #include "RimLegendConfig.h"
+#include "RimLegendConfigChangeType.h"
 
 #include "cvfArray.h"
 #include "cvfObject.h"
 
 #include "cafPdmPtrField.h"
+#include "cafSignal.h"
 
 #include <tuple>
 
@@ -62,7 +64,7 @@ class RimRegularLegendConfig : public RimLegendConfig
     CAF_PDM_HEADER_INIT;
 
 public:
-    caf::Signal<> changed;
+    caf::Signal<RimLegendConfigChangeType> changed;
 
 public:
     RimRegularLegendConfig();
@@ -173,6 +175,7 @@ public:
 
 private:
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void                 sendChangedSignal( const caf::PdmFieldHandle* changedField );
     void                 initAfterRead() override;
     caf::PdmFieldHandle* objectToggleField() override;
     void                 defineEditorAttribute( const caf::PdmFieldHandle* field,

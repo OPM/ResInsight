@@ -2,6 +2,7 @@
 set (SOURCE_GROUP_HEADER_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCaseCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimCaseCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimLegendConfigChangeType.h
 ${CMAKE_CURRENT_LIST_DIR}/RimRegularLegendConfig.h
 ${CMAKE_CURRENT_LIST_DIR}/RimOilField.h
 ${CMAKE_CURRENT_LIST_DIR}/RimProject.h

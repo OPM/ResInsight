@@ -269,16 +269,7 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
                                                const QVariant&            oldValue,
                                                const QVariant&            newValue )
 {
-    if ( changedField == &m_selectColorLegendButton )
-    {
-        m_selectColorLegendButton = false;
-        if ( m_colorLegend != nullptr )
-        {
-            Riu3DMainWindowTools::selectAsCurrentItem( m_colorLegend() );
-        }
-        return;
-    }
-
+    sendChangedSignal( changedField );
     if ( changedField == &m_numLevels )
     {
         int upperLimit = std::numeric_limits<int>::max();
@@ -297,8 +288,16 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
                 m_userDefinedMinValue = roundToNumSignificantDigits( m_globalAutoMin, m_precision );
             }
         }
-
         updateFieldVisibility();
+    }
+    else if ( changedField == &m_selectColorLegendButton )
+    {
+        m_selectColorLegendButton = false;
+        if ( m_colorLegend != nullptr )
+        {
+            Riu3DMainWindowTools::selectAsCurrentItem( m_colorLegend() );
+        }
+        return;
     }
 
     if ( ( changedField == &m_colorLegend || changedField == &m_mappingMode ) &&
@@ -314,7 +313,6 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
         m_resetUserDefinedValuesButton = false;
     }
 
-    changed.send();
     updateLegend();
 
     RimGridView* view = nullptr;
@@ -369,6 +367,47 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
     }
 
     this->updateUiIconFromToggleField();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRegularLegendConfig::sendChangedSignal( const caf::PdmFieldHandle* changedField )
+{
+    using ChangeType = RimLegendConfigChangeType;
+
+    if ( changedField == &m_showLegend )
+    {
+        changed.send( ChangeType::VISIBILITY );
+    }
+    else if ( changedField == &m_numLevels )
+    {
+        changed.send( ChangeType::LEVELS );
+    }
+    else if ( changedField == &m_precision || changedField == &m_tickNumberFormat )
+    {
+        changed.send( ChangeType::NUMBER_FORMAT );
+    }
+    else if ( changedField == &m_userDefinedMinValue || changedField == &m_userDefinedMaxValue )
+    {
+        changed.send( ChangeType::RANGE );
+    }
+    else if ( changedField == &m_rangeMode || changedField == &m_mappingMode )
+    {
+        changed.send( ChangeType::COLOR_MODE );
+    }
+    else if ( changedField == &m_categoryColorMode )
+    {
+        changed.send( ChangeType::COLOR_MODE );
+    }
+    else if ( changedField == &m_colorLegend )
+    {
+        changed.send( ChangeType::COLORS );
+    }
+    else if ( changedField == &m_resetUserDefinedValuesButton )
+    {
+        changed.send( ChangeType::ALL );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1220,9 +1259,8 @@ void RimRegularLegendConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiO
         mappingGr->add( &m_userDefinedMaxValue );
         mappingGr->add( &m_userDefinedMinValue );
         mappingGr->add( &m_categoryColorMode );
+        uiOrdering.add( &m_resetUserDefinedValuesButton );
     }
-
-    uiOrdering.add( &m_resetUserDefinedValuesButton );
 
     updateFieldVisibility();
 }

@@ -28,6 +28,7 @@
 #include "RimGeoMechContourMapProjection.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGridCollection.h"
+#include "RimRegularLegendConfig.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimViewNameConfig.h"
 
@@ -70,6 +71,8 @@ RimGeoMechContourMapView::RimGeoMechContourMapView()
     m_contourMapProjectionPartMgr = new RivContourMapProjectionPartMgr( contourMapProjection(), this );
 
     ( (RiuViewerToViewInterface*)this )->setCameraPosition( sm_defaultViewMatrix );
+
+    cellResult()->legendConfigChanged.connect( this, &RimGeoMechContourMapView::onLegendConfigChanged );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -236,8 +239,6 @@ void RimGeoMechContourMapView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechContourMapView::onUpdateDisplayModelForCurrentTimeStep()
 {
-    m_contourMapProjection->clearGeometry();
-
     updateGeometry();
 }
 
@@ -500,4 +501,27 @@ bool RimGeoMechContourMapView::zoomChangeAboveTreshold( const cvf::Vec3d& curren
     double distance = std::max( std::fabs( m_cameraPositionLastUpdate.z() ), std::fabs( currentCameraPosition.z() ) );
     const double threshold = 0.05 * distance;
     return std::fabs( m_cameraPositionLastUpdate.z() - currentCameraPosition.z() ) > threshold;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechContourMapView::scheduleGeometryRegen( RivCellSetEnum geometryType )
+{
+    m_contourMapProjection->clearGeometry();
+    RimGeoMechView::scheduleGeometryRegen( geometryType );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechContourMapView::onLegendConfigChanged( const caf::SignalEmitter* emitter,
+                                                      RimLegendConfigChangeType changeType )
+{
+    using ChangeType = RimLegendConfigChangeType;
+    if ( changeType == ChangeType::LEVELS || changeType == ChangeType::COLOR_MODE || changeType == ChangeType::RANGE ||
+         changeType == ChangeType::ALL )
+    {
+        m_contourMapProjection->clearGeometry();
+    }
 }
