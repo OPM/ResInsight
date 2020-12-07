@@ -45,6 +45,8 @@
 #include "RimCorrelationMatrixPlot.h"
 #include "RimCorrelationPlot.h"
 #include "RimCorrelationPlotCollection.h"
+#include "RimCustomObjectiveFunction.h"
+#include "RimCustomObjectiveFunctionCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCellColors.h"
@@ -716,6 +718,18 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicSetSourceSteppingEnsembleCurveSetFeature";
             menuBuilder << "RicClearSourceSteppingEnsembleCurveSetFeature";
+            menuBuilder << "Separator";
+            menuBuilder << "RicNewEnsembleCurveFilterFeature";
+        }
+        else if ( dynamic_cast<RimCustomObjectiveFunctionCollection*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewCustomObjectiveFunctionFeature";
+        }
+        else if ( dynamic_cast<RimCustomObjectiveFunction*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewCustomObjectiveFunctionWeightFeature";
+            menuBuilder << "Separator";
+            menuBuilder << "RicDeleteCustomObjectiveFunctionFeature";
         }
         else if ( dynamic_cast<RimEnsembleCurveFilterCollection*>( firstUiItem ) )
         {

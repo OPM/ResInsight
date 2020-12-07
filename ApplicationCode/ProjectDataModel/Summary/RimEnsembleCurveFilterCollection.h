@@ -22,7 +22,10 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include <QString>
+
 class RimEnsembleCurveFilter;
+class RiuTextContentFrame;
 
 //==================================================================================================
 ///
@@ -39,7 +42,11 @@ public:
     std::vector<RimEnsembleCurveFilter*> filters() const;
 
     bool isActive() const;
+    int  countActiveFilters() const;
     void loadDataAndUpdate();
+
+    QString              filterDescriptions() const;
+    RiuTextContentFrame* makeFilterDescriptionFrame() const;
 
 private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,

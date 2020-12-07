@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2020 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,10 +16,11 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewEnsembleCurveFilterFeature.h"
+#include "RicNewCustomObjectiveFunctionFeature.h"
 
-#include "RimEnsembleCurveFilter.h"
-#include "RimEnsembleCurveFilterCollection.h"
+#include "RimCustomObjectiveFunction.h"
+#include "RimCustomObjectiveFunctionCollection.h"
+#include "RimCustomObjectiveFunctionWeight.h"
 #include "RimEnsembleCurveSet.h"
 
 #include "RiuPlotMainWindowTools.h"
@@ -28,12 +29,12 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT( RicNewEnsembleCurveFilterFeature, "RicNewEnsembleCurveFilterFeature" );
+CAF_CMD_SOURCE_INIT( RicNewCustomObjectiveFunctionFeature, "RicNewCustomObjectiveFunctionFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewEnsembleCurveFilterFeature::isCommandEnabled()
+bool RicNewCustomObjectiveFunctionFeature::isCommandEnabled()
 {
     return true;
 }
@@ -41,27 +42,21 @@ bool RicNewEnsembleCurveFilterFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewEnsembleCurveFilterFeature::onActionTriggered( bool isChecked )
+void RicNewCustomObjectiveFunctionFeature::onActionTriggered( bool isChecked )
 {
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
-    std::vector<RimEnsembleCurveFilterCollection*> filterColls;
-    selObj->descendantsIncludingThisOfType( filterColls );
+    std::vector<RimCustomObjectiveFunctionCollection*> coll;
+    selObj->descendantsIncludingThisOfType( coll );
 
-    if ( filterColls.size() == 1 )
+    if ( coll.size() == 1 )
     {
-        RimEnsembleCurveFilter* newFilter = filterColls[0]->addFilter();
-        if ( filterColls[0]->filters().size() > 1 )
-        {
-            newFilter->setSummaryAddresses( filterColls[0]->filters()[0]->summaryAddresses() );
-        }
-        else
-        {
-            std::vector<RifEclipseSummaryAddress> addresses;
-            addresses.push_back( newFilter->parentCurveSet()->summaryAddress() );
-            newFilter->setSummaryAddresses( addresses );
-        }
-        filterColls[0]->updateConnectedEditors();
-        RiuPlotMainWindowTools::selectAsCurrentItem( filterColls.front() );
+        RimCustomObjectiveFunction*       newFunc   = coll[0]->addObjectiveFunction();
+        RimCustomObjectiveFunctionWeight* newWeight = newFunc->addWeight();
+        newWeight->setSummaryAddress( newWeight->parentCurveSet()->summaryAddress() );
+        coll[0]->updateConnectedEditors();
+        RiuPlotMainWindowTools::selectAsCurrentItem( newFunc );
+        RiuPlotMainWindowTools::setExpanded( coll.front() );
+        RiuPlotMainWindowTools::setExpanded( newFunc );
     }
 
     selObj->updateConnectedEditors();
@@ -70,8 +65,8 @@ void RicNewEnsembleCurveFilterFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewEnsembleCurveFilterFeature::setupActionLook( QAction* actionToSetup )
+void RicNewCustomObjectiveFunctionFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "New Ensemble Curve Filter" );
-    actionToSetup->setIcon( QIcon( ":/SummaryCurveFilter16x16.png" ) );
+    actionToSetup->setText( "New Custom Objective Function" );
+    actionToSetup->setIcon( QIcon( ":/ObjectiveFunction.svg" ) );
 }

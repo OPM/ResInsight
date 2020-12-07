@@ -22,6 +22,8 @@
 #include "RimEnsembleCurveSet.h"
 #include "RimSummaryPlot.h"
 
+#include "RiuTextContentFrame.h"
+
 #include <cafPdmUiPushButtonEditor.h>
 #include <cafPdmUiTableViewEditor.h>
 #include <cafPdmUiTreeOrdering.h>
@@ -42,7 +44,7 @@ static void garbageCollectFilters();
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveFilterCollection::RimEnsembleCurveFilterCollection()
 {
-    CAF_PDM_InitObject( "Curve Filters", ":/SummaryCurveFilter16x16.png", "", "" );
+    CAF_PDM_InitObject( "Curve Filters", ":/FilterCollection.svg", "", "" );
 
     CAF_PDM_InitField( &m_active, "Active", true, "Active", "", "", "" );
 
@@ -97,6 +99,22 @@ std::vector<RimEnsembleCurveFilter*> RimEnsembleCurveFilterCollection::filters()
 bool RimEnsembleCurveFilterCollection::isActive() const
 {
     return m_active;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimEnsembleCurveFilterCollection::countActiveFilters() const
+{
+    int activeFilters = 0;
+    for ( auto& filter : m_filters )
+    {
+        if ( filter->isActive() )
+        {
+            activeFilters++;
+        }
+    }
+    return activeFilters;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -206,6 +224,10 @@ void RimEnsembleCurveFilterCollection::defineUiOrdering( QString uiConfigName, c
 void RimEnsembleCurveFilterCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
                                                              QString                 uiConfigName /* = "" */ )
 {
+    for ( auto filter : filters() )
+    {
+        uiTreeOrdering.add( filter );
+    }
     uiTreeOrdering.skipRemainingChildren( true );
 }
 
@@ -232,6 +254,32 @@ void RimEnsembleCurveFilterCollection::loadDataAndUpdate()
 {
     for ( auto& filter : m_filters )
         filter->loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimEnsembleCurveFilterCollection::filterDescriptions() const
+{
+    QStringList descriptions;
+    for ( auto filter : m_filters )
+    {
+        if ( filter->isActive() )
+        {
+            descriptions << filter->description();
+        }
+    }
+    return descriptions.join( "\n" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuTextContentFrame* RimEnsembleCurveFilterCollection::makeFilterDescriptionFrame() const
+{
+    QString descriptions = filterDescriptions();
+    descriptions.replace( "+", "\n+" );
+    return new RiuTextContentFrame( nullptr, QString( "Active curve filters:" ), descriptions );
 }
 
 //--------------------------------------------------------------------------------------------------

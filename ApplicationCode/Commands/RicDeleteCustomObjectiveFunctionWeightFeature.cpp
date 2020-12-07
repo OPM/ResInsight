@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2020 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,11 +16,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewEnsembleCurveFilterFeature.h"
+#include "RicDeleteCustomObjectiveFunctionWeightFeature.h"
 
-#include "RimEnsembleCurveFilter.h"
-#include "RimEnsembleCurveFilterCollection.h"
-#include "RimEnsembleCurveSet.h"
+#include "RimCustomObjectiveFunction.h"
+#include "RimCustomObjectiveFunctionWeight.h"
 
 #include "RiuPlotMainWindowTools.h"
 
@@ -28,12 +27,12 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT( RicNewEnsembleCurveFilterFeature, "RicNewEnsembleCurveFilterFeature" );
+CAF_CMD_SOURCE_INIT( RicDeleteCustomObjectiveFunctionWeightFeature, "RicDeleteCustomObjectiveFunctionWeightFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewEnsembleCurveFilterFeature::isCommandEnabled()
+bool RicDeleteCustomObjectiveFunctionWeightFeature::isCommandEnabled()
 {
     return true;
 }
@@ -41,27 +40,19 @@ bool RicNewEnsembleCurveFilterFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewEnsembleCurveFilterFeature::onActionTriggered( bool isChecked )
+void RicDeleteCustomObjectiveFunctionWeightFeature::onActionTriggered( bool isChecked )
 {
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
-    std::vector<RimEnsembleCurveFilterCollection*> filterColls;
-    selObj->descendantsIncludingThisOfType( filterColls );
+    std::vector<RimCustomObjectiveFunction*> func;
+    selObj->descendantsIncludingThisOfType( func );
+    std::vector<RimCustomObjectiveFunctionWeight*> weight;
+    selObj->descendantsIncludingThisOfType( weight );
 
-    if ( filterColls.size() == 1 )
+    if ( func.size() == 1 && weight.size() == 1 )
     {
-        RimEnsembleCurveFilter* newFilter = filterColls[0]->addFilter();
-        if ( filterColls[0]->filters().size() > 1 )
-        {
-            newFilter->setSummaryAddresses( filterColls[0]->filters()[0]->summaryAddresses() );
-        }
-        else
-        {
-            std::vector<RifEclipseSummaryAddress> addresses;
-            addresses.push_back( newFilter->parentCurveSet()->summaryAddress() );
-            newFilter->setSummaryAddresses( addresses );
-        }
-        filterColls[0]->updateConnectedEditors();
-        RiuPlotMainWindowTools::selectAsCurrentItem( filterColls.front() );
+        func[0]->removeWeight( weight[0] );
+        func[0]->updateConnectedEditors();
+        RiuPlotMainWindowTools::selectAsCurrentItem( func.front() );
     }
 
     selObj->updateConnectedEditors();
@@ -70,8 +61,8 @@ void RicNewEnsembleCurveFilterFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewEnsembleCurveFilterFeature::setupActionLook( QAction* actionToSetup )
+void RicDeleteCustomObjectiveFunctionWeightFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "New Ensemble Curve Filter" );
-    actionToSetup->setIcon( QIcon( ":/SummaryCurveFilter16x16.png" ) );
+    actionToSetup->setText( "Delete" );
+    actionToSetup->setIcon( QIcon( ":/Erase.svg" ) );
 }
