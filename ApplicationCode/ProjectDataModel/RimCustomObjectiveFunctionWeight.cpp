@@ -200,7 +200,7 @@ void RimCustomObjectiveFunctionWeight::fieldChangedByUi( const caf::PdmFieldHand
 void RimCustomObjectiveFunctionWeight::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_objectiveValuesSummaryAddressesUiField );
-    uiOrdering.add( &m_objectiveValuesSelectSummaryAddressPushButton, {false, 1, 0} );
+    uiOrdering.add( &m_objectiveValuesSelectSummaryAddressPushButton, { false, 1, 0 } );
     uiOrdering.add( &m_weightValue );
     uiOrdering.add( &m_objectiveFunction );
 
