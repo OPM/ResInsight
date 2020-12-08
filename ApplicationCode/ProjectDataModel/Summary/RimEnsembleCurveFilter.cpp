@@ -461,7 +461,7 @@ void RimEnsembleCurveFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     else if ( m_filterMode() == FilterMode::BY_OBJECTIVE_FUNCTION )
     {
         uiOrdering.add( &m_objectiveValuesSummaryAddressesUiField );
-        uiOrdering.add( &m_objectiveValuesSelectSummaryAddressPushButton, {false, 1, 0} );
+        uiOrdering.add( &m_objectiveValuesSelectSummaryAddressPushButton, { false, 1, 0 } );
         uiOrdering.add( &m_objectiveFunction );
     }
     else if ( m_filterMode() == FilterMode::BY_CUSTOM_OBJECTIVE_FUNCTION )

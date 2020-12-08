@@ -959,7 +959,7 @@ void RimEnsembleCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrdering )
         {
             m_objectiveFunction.uiCapability()->setUiReadOnly( !m_yValuesSummaryCaseCollection() );
             colorsGroup->add( &m_objectiveValuesSummaryAddressesUiField );
-            colorsGroup->add( &m_objectiveValuesSelectSummaryAddressPushButton, {false, 1, 0} );
+            colorsGroup->add( &m_objectiveValuesSelectSummaryAddressPushButton, { false, 1, 0 } );
             colorsGroup->add( &m_objectiveFunction );
         }
         else
