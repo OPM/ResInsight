@@ -18,18 +18,18 @@
 
 #include "RimHistogramData.h"
 
-#include <cmath>
+#include <limits>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimHistogramData::RimHistogramData()
-    : min( HUGE_VAL )
-    , max( HUGE_VAL )
-    , p10( HUGE_VAL )
-    , p90( HUGE_VAL )
-    , mean( HUGE_VAL )
-    , weightedMean( HUGE_VAL )
+    : min( std::numeric_limits<double>::max() )
+    , max( std::numeric_limits<double>::max() )
+    , p10( std::numeric_limits<double>::max() )
+    , p90( std::numeric_limits<double>::max() )
+    , mean( std::numeric_limits<double>::max() )
+    , weightedMean( std::numeric_limits<double>::max() )
     , sum( 0.0 )
     , histogram( nullptr )
 {
@@ -48,7 +48,7 @@ bool RimHistogramData::isMinMaxValid() const
 //--------------------------------------------------------------------------------------------------
 bool RimHistogramData::isValid( double parameter ) const
 {
-    return parameter != HUGE_VAL && parameter != -HUGE_VAL;
+    return parameter != std::numeric_limits<double>::max() && parameter != -std::numeric_limits<double>::max();
 }
 
 //--------------------------------------------------------------------------------------------------
