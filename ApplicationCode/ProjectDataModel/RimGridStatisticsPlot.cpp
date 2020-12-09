@@ -29,11 +29,13 @@
 #include "RimEclipseView.h"
 #include "RimGridView.h"
 #include "RimHistogramCalculator.h"
-#include "RimHistogramData.h"
 #include "RimPlot.h"
 #include "RimProject.h"
 #include "RimTools.h"
+
 #include "RiuPlotMainWindow.h"
+
+#include "RigHistogramData.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
@@ -345,7 +347,7 @@ void RimGridStatisticsPlot::updatePlots()
         std::unique_ptr<RimHistogramCalculator> histogramCalculator;
         histogramCalculator.reset( new RimHistogramCalculator );
 
-        RimHistogramData histogramData;
+        RigHistogramData histogramData;
 
         RimHistogramCalculator::StatisticsCellRangeType cellRange =
             RimHistogramCalculator::StatisticsCellRangeType::ALL_CELLS;

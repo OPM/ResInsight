@@ -16,14 +16,14 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimHistogramData.h"
+#include "RigHistogramData.h"
 
 #include <limits>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimHistogramData::RimHistogramData()
+RigHistogramData::RigHistogramData()
     : min( std::numeric_limits<double>::max() )
     , max( std::numeric_limits<double>::max() )
     , p10( std::numeric_limits<double>::max() )
@@ -38,7 +38,7 @@ RimHistogramData::RimHistogramData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimHistogramData::isMinMaxValid() const
+bool RigHistogramData::isMinMaxValid() const
 {
     return isValid( min ) && isValid( max );
 }
@@ -46,7 +46,7 @@ bool RimHistogramData::isMinMaxValid() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimHistogramData::isValid( double parameter ) const
+bool RigHistogramData::isValid( double parameter ) const
 {
     return parameter != std::numeric_limits<double>::max() && parameter != -std::numeric_limits<double>::max();
 }
@@ -54,7 +54,7 @@ bool RimHistogramData::isValid( double parameter ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimHistogramData::isHistogramVectorValid() const
+bool RigHistogramData::isHistogramVectorValid() const
 {
     return histogram && histogram->size() > 0 && isMinMaxValid();
 }

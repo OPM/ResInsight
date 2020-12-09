@@ -20,7 +20,7 @@
 
 #include "RigEclipseResultAddress.h"
 
-#include "RimHistogramData.h"
+#include "RigHistogramData.h"
 
 #include "RigStatisticsDataCache.h"
 
@@ -53,15 +53,15 @@ public:
 
     RimHistogramCalculator();
 
-    RimHistogramData histogramData( RimEclipseContourMapView* contourMap );
-    RimHistogramData histogramData( RimGeoMechContourMapView* contourMap );
-    RimHistogramData
+    RigHistogramData histogramData( RimEclipseContourMapView* contourMap );
+    RigHistogramData histogramData( RimGeoMechContourMapView* contourMap );
+    RigHistogramData
         histogramData( RimEclipseView* eclipseView, StatisticsCellRangeType cellRange, StatisticsTimeRangeType timeRange );
 
-    RimHistogramData
+    RigHistogramData
         histogramData( RimGeoMechView* geoMechView, StatisticsCellRangeType cellRange, StatisticsTimeRangeType timeRange );
 
-    RimHistogramData histogramData( RimEclipseView*             eclipseView,
+    RigHistogramData histogramData( RimEclipseView*             eclipseView,
                                     RimEclipseResultDefinition* eclResultDefinition,
                                     StatisticsCellRangeType     cellRange,
                                     StatisticsTimeRangeType     timeRange,

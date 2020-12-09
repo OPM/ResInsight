@@ -81,9 +81,9 @@ void RimHistogramCalculator::invalidateVisibleCellsCache()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimHistogramData RimHistogramCalculator::histogramData( RimEclipseContourMapView* contourMap )
+RigHistogramData RimHistogramCalculator::histogramData( RimEclipseContourMapView* contourMap )
 {
-    RimHistogramData histData;
+    RigHistogramData histData;
 
     if ( contourMap )
     {
@@ -103,9 +103,9 @@ RimHistogramData RimHistogramCalculator::histogramData( RimEclipseContourMapView
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimHistogramData RimHistogramCalculator::histogramData( RimGeoMechContourMapView* contourMap )
+RigHistogramData RimHistogramCalculator::histogramData( RimGeoMechContourMapView* contourMap )
 {
-    RimHistogramData histData;
+    RigHistogramData histData;
 
     if ( contourMap )
     {
@@ -125,7 +125,7 @@ RimHistogramData RimHistogramCalculator::histogramData( RimGeoMechContourMapView
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         eclipseView,
+RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         eclipseView,
                                                         StatisticsCellRangeType cellRange,
                                                         StatisticsTimeRangeType timeRange )
 {
@@ -152,14 +152,14 @@ RimHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
     }
 
     //
-    RimHistogramData data;
+    RigHistogramData data;
     return data;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimHistogramData RimHistogramCalculator::histogramData( RimEclipseView*             eclipseView,
+RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*             eclipseView,
                                                         RimEclipseResultDefinition* eclResultDefinition,
                                                         StatisticsCellRangeType     cellRange,
                                                         StatisticsTimeRangeType     timeRange,
@@ -167,7 +167,7 @@ RimHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
 {
     CVF_ASSERT( eclResultDefinition );
 
-    RimHistogramData histData;
+    RigHistogramData histData;
 
     eclResultDefinition->loadResult();
 
@@ -260,11 +260,11 @@ RimHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimHistogramData RimHistogramCalculator::histogramData( RimGeoMechView*         geoMechView,
+RigHistogramData RimHistogramCalculator::histogramData( RimGeoMechView*         geoMechView,
                                                         StatisticsCellRangeType cellRange,
                                                         StatisticsTimeRangeType timeRange )
 {
-    RimHistogramData histData;
+    RigHistogramData histData;
 
     if ( geoMechView )
     {

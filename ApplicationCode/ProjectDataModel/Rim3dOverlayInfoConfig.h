@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RimHistogramData.h"
+#include "RigHistogramData.h"
 
 #include "RimHistogramCalculator.h"
 
@@ -60,10 +60,10 @@ public:
 
     void setPosition( cvf::Vec2ui position );
 
-    RimHistogramData histogramData();
+    RigHistogramData histogramData();
     QString          timeStepText();
     QString          caseInfoText();
-    QString          resultInfoText( const RimHistogramData& histData );
+    QString          resultInfoText( const RigHistogramData& histData );
 
     RicGridStatisticsDialog* getOrCreateGridStatisticsDialog();
     void                     showStatisticsInfoDialog( bool raise = true );
@@ -87,8 +87,8 @@ private:
     QString              timeStepText( RimGeoMechView* geoMechView );
     QString              caseInfoText( RimEclipseView* eclipseView );
     QString              caseInfoText( RimGeoMechView* geoMechView );
-    QString resultInfoText( const RimHistogramData& histData, RimEclipseView* eclipseView, bool showVolumeWeightedMean );
-    QString resultInfoText( const RimHistogramData& histData, RimGeoMechView* geoMechView );
+    QString resultInfoText( const RigHistogramData& histData, RimEclipseView* eclipseView, bool showVolumeWeightedMean );
+    QString resultInfoText( const RigHistogramData& histData, RimGeoMechView* geoMechView );
 
     void displayPropertyFilteredStatisticsMessage( bool showSwitchToCurrentTimestep );
     bool hasInvalidStatisticsCombination();

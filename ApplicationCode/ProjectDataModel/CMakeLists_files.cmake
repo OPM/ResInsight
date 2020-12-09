@@ -38,7 +38,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RimCalcScript.h
 ${CMAKE_CURRENT_LIST_DIR}/RimExportInputPropertySettings.h
 ${CMAKE_CURRENT_LIST_DIR}/RimBinaryExportSettings.h
 ${CMAKE_CURRENT_LIST_DIR}/Rim3dOverlayInfoConfig.h
-${CMAKE_CURRENT_LIST_DIR}/RimHistogramData.h
 ${CMAKE_CURRENT_LIST_DIR}/RimHistogramCalculator.h
 ${CMAKE_CURRENT_LIST_DIR}/RimTensorResults.h
 ${CMAKE_CURRENT_LIST_DIR}/RimReservoirCellResultsStorage.h
@@ -198,7 +197,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RimCalcScript.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimExportInputPropertySettings.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimBinaryExportSettings.cpp
 ${CMAKE_CURRENT_LIST_DIR}/Rim3dOverlayInfoConfig.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimHistogramData.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimHistogramCalculator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimTensorResults.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimReservoirCellResultsStorage.cpp

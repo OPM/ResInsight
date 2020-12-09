@@ -172,7 +172,7 @@ void RicGridStatisticsDialog::setHistogramData( RimGridView* view )
         aggr->setStyle( QwtPlotCurve::Steps );
         aggr->setCurveAttribute( QwtPlotCurve::Inverted );
 
-        RimHistogramData histogramData = overlayInfo->histogramData();
+        RigHistogramData histogramData = overlayInfo->histogramData();
 
         if ( histogramData.isHistogramVectorValid() )
         {
@@ -257,7 +257,7 @@ void RicGridStatisticsDialog::deletePlotItems( QwtPlot* plot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicGridStatisticsDialog::setMarkers( const RimHistogramData& histData, QwtPlot* plot )
+void RicGridStatisticsDialog::setMarkers( const RigHistogramData& histData, QwtPlot* plot )
 {
     QwtPlotMarker* marker;
 

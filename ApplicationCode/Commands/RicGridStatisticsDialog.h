@@ -31,7 +31,7 @@ class QMainWindow;
 class QToolBar;
 class RimEclipseView;
 class RimGridView;
-class RimHistogramData;
+class RigHistogramData;
 
 //==================================================================================================
 ///
@@ -56,7 +56,7 @@ private:
 private:
     void                  createAndConnectToolbarActions();
     void                  deletePlotItems( QwtPlot* plot );
-    static void           setMarkers( const RimHistogramData& histData, QwtPlot* plot );
+    static void           setMarkers( const RigHistogramData& histData, QwtPlot* plot );
     static QwtPlotMarker* createVerticalPlotMarker( const QColor& color, double xValue );
     void                  adjustTextEditHeightToContent();
 
