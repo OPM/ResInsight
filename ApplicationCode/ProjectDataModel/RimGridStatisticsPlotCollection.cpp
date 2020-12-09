@@ -39,14 +39,6 @@ RimGridStatisticsPlotCollection::RimGridStatisticsPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGridStatisticsPlotCollection::~RimGridStatisticsPlotCollection()
-{
-    m_gridStatisticsPlots.deleteAllChildObjects();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimGridStatisticsPlotCollection::reloadAllPlots()
 {
     for ( const auto& w : m_gridStatisticsPlots() )

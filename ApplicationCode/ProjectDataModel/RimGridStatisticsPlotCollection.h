@@ -34,7 +34,6 @@ class RimGridStatisticsPlotCollection : public caf::PdmObject
 
 public:
     RimGridStatisticsPlotCollection();
-    ~RimGridStatisticsPlotCollection() override;
 
     void addGridStatisticsPlot( RimGridStatisticsPlot* newPlot );
 
