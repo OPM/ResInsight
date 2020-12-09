@@ -30,7 +30,6 @@
 #include "RiaColorTools.h"
 
 #include "RiuQwtPlotWidget.h"
-
 #include "qwt_legend.h"
 #include "qwt_legend_label.h"
 #include "qwt_plot.h"
@@ -45,6 +44,8 @@
 
 #include "cvfDebugTimer.h"
 #include "cvfTrace.h"
+
+#include "cafPdmUiComboBoxEditor.h"
 
 #include <QFileInfo>
 
@@ -67,13 +68,14 @@ void caf::AppEnum<RimVfpPlot::TableType>::setUp()
 }
 
 template <>
-void caf::AppEnum<RimVfpPlot::ProductionTableType>::setUp()
+void caf::AppEnum<RimVfpPlot::ProductionVariableType>::setUp()
 {
-    addItem( RimVfpPlot::ProductionTableType::LIQUID_FLOW_RATE, "LIQUID_FLOW_RATE", "Liquid Flow Rate" );
-    addItem( RimVfpPlot::ProductionTableType::ARTIFICIAL_LIFT_QUANTITY, "ALQ", "Artificial Lift Quantity" );
-    addItem( RimVfpPlot::ProductionTableType::WATER_CUT, "WATER_CUT", "Water Cut" );
-    addItem( RimVfpPlot::ProductionTableType::GAS_LIQUID_RATIO, "GAS_LIQUID_RATIO", "Gas Liquid Ratio" );
-    setDefault( RimVfpPlot::ProductionTableType::LIQUID_FLOW_RATE );
+    addItem( RimVfpPlot::ProductionVariableType::LIQUID_FLOW_RATE, "LIQUID_FLOW_RATE", "Liquid Flow Rate" );
+    addItem( RimVfpPlot::ProductionVariableType::THP, "THP", "THP" );
+    addItem( RimVfpPlot::ProductionVariableType::WATER_CUT, "WATER_CUT", "Water Cut" );
+    addItem( RimVfpPlot::ProductionVariableType::GAS_LIQUID_RATIO, "GAS_LIQUID_RATIO", "Gas Liquid Ratio" );
+    addItem( RimVfpPlot::ProductionVariableType::ARTIFICIAL_LIFT_QUANTITY, "ALQ", "Artificial Lift Quantity" );
+    setDefault( RimVfpPlot::ProductionVariableType::LIQUID_FLOW_RATE );
 }
 } // namespace caf
 
@@ -91,15 +93,27 @@ RimVfpPlot::RimVfpPlot()
     caf::AppEnum<RimVfpPlot::TableType> defaultTableType = RimVfpPlot::TableType::INJECTION;
     CAF_PDM_InitField( &m_tableType, "TableType", defaultTableType, "Table Type", "", "", "" );
 
-    caf::AppEnum<RimVfpPlot::ProductionTableType> defaultProductionTableType =
-        RimVfpPlot::ProductionTableType::LIQUID_FLOW_RATE;
-    CAF_PDM_InitField( &m_productionTableType,
-                       "ProductionTableType",
-                       defaultProductionTableType,
-                       "Production Table Type",
-                       "",
-                       "",
-                       "" );
+    caf::AppEnum<RimVfpPlot::ProductionVariableType> defaultPrimaryVariable =
+        RimVfpPlot::ProductionVariableType::LIQUID_FLOW_RATE;
+    CAF_PDM_InitField( &m_primaryVariable, "PrimaryVariable", defaultPrimaryVariable, "Primary Variable", "", "", "" );
+
+    caf::AppEnum<RimVfpPlot::ProductionVariableType> defaultFamilyVariable = RimVfpPlot::ProductionVariableType::THP;
+    CAF_PDM_InitField( &m_familyVariable, "FamilyVariable", defaultFamilyVariable, "Family Variable", "", "", "" );
+
+    CAF_PDM_InitField( &m_liquidFlowRateIdx, "LiquidFlowRateIdx", 0, "Liquid Flow Rate", "", "", "" );
+    m_liquidFlowRateIdx.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_thpIdx, "THPIdx", 0, "THP", "", "", "" );
+    m_thpIdx.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_articifialLiftQuantityIdx, "ArtificialLiftQuantityIdx", 0, "Artificial Lift Quantity", "", "", "" );
+    m_articifialLiftQuantityIdx.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_waterCutIdx, "WaterCutIdx", 0, "Water Cut", "", "", "" );
+    m_waterCutIdx.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_gasLiquidRatioIdx, "GasLiquidRatioIdx", 0, "Gas Liquid Ratioe", "", "", "" );
+    m_gasLiquidRatioIdx.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
     m_showWindow      = false;
     m_showPlotLegends = true;
@@ -387,7 +401,12 @@ void RimVfpPlot::onLoadDataAndUpdate()
 
                 std::string filename = fi.canonicalPath().toStdString() + "/INCLUDE/VFP/" + strippedWellName + ".Ecl";
                 const std::vector<Opm::VFPProdTable> tables = RimVfpTableExtractor::extractVfpProductionTables( filename );
-                populatePlotWidgetWithCurveData( m_plotWidget, tables, m_productionTableType() );
+                if ( !tables.empty() )
+                {
+                    // populateVariabelWidgets( tables[0] );
+                    m_prodTable.reset( new Opm::VFPProdTable( tables[0] ) );
+                    populatePlotWidgetWithCurveData( m_plotWidget, tables[0], m_primaryVariable(), m_familyVariable() );
+                }
             }
         }
     }
@@ -483,9 +502,10 @@ void RimVfpPlot::populatePlotWidgetWithCurveData( RiuQwtPlotWidget* plotWidget, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::populatePlotWidgetWithCurveData( RiuQwtPlotWidget*                     plotWidget,
-                                                  const std::vector<Opm::VFPProdTable>& tables,
-                                                  RimVfpPlot::ProductionTableType       productionTableType )
+void RimVfpPlot::populatePlotWidgetWithCurveData( RiuQwtPlotWidget*                  plotWidget,
+                                                  const Opm::VFPProdTable&           table,
+                                                  RimVfpPlot::ProductionVariableType primaryVariable,
+                                                  RimVfpPlot::ProductionVariableType familyVariable )
 {
     cvf::Trace::show( "RimVfpPlot::populatePlotWidgetWithCurves()" );
 
@@ -495,83 +515,140 @@ void RimVfpPlot::populatePlotWidgetWithCurveData( RiuQwtPlotWidget*             
     plotWidget->setAxisAutoScale( QwtPlot::xBottom, true );
     plotWidget->setAxisAutoScale( QwtPlot::yLeft, true );
 
-    size_t numTables = tables.size();
+    std::cout << "Datum depth: " << table.getDatumDepth() << std::endl;
+    std::cout << "Table number: " << table.getTableNum() << std::endl;
+    std::cout << "Flow type: " << static_cast<int>( table.getFloType() ) << std::endl;
+    std::cout << "Flo axis: " << table.getFloAxis().size() << std::endl;
+    std::cout << "THP axis: " << table.getTHPAxis().size() << std::endl;
+    std::cout << "WFR axis: " << table.getWFRAxis().size() << std::endl;
+    std::cout << "GFR axis: " << table.getGFRAxis().size() << std::endl;
+    std::cout << "ALQ axis: " << table.getALQAxis().size() << std::endl;
 
-    for ( size_t i = 0; i < numTables; i++ )
+    std::vector<double> primaryAxisValues    = getProductionTableData( table, primaryVariable );
+    std::vector<double> familyVariableValues = getProductionTableData( table, familyVariable );
+
+    for ( size_t familyIdx = 0; familyIdx < familyVariableValues.size(); familyIdx++ )
     {
-        const Opm::VFPProdTable table = tables[i];
-        std::cout << "Datum depth: " << table.getDatumDepth() << std::endl;
-        std::cout << "Table number: " << table.getTableNum() << std::endl;
-        std::cout << "Flow type: " << static_cast<int>( table.getFloType() ) << std::endl;
-        std::cout << "Flo axis: " << table.getFloAxis().size() << std::endl;
-        std::cout << "THP axis: " << table.getTHPAxis().size() << std::endl;
-        std::cout << "WFR axis: " << table.getWFRAxis().size() << std::endl;
-        std::cout << "GFR axis: " << table.getGFRAxis().size() << std::endl;
-        std::cout << "ALQ axis: " << table.getALQAxis().size() << std::endl;
+        size_t              numValues = primaryAxisValues.size();
+        std::vector<double> yVals( numValues, 0.0 );
 
-        std::cout << "THP Axis:\n";
-        for ( size_t x = 0; x < table.getTHPAxis().size(); x++ )
+        for ( size_t y = 0; y < numValues; y++ )
         {
-            std::cout << " " << table.getTHPAxis()[x];
-        }
-        std::cout << "\n";
+            size_t wfr_idx = getVariableIndex( table,
+                                               RimVfpPlot::ProductionVariableType::WATER_CUT,
+                                               primaryVariable,
+                                               y,
+                                               familyVariable,
+                                               familyIdx );
+            size_t gfr_idx = getVariableIndex( table,
+                                               RimVfpPlot::ProductionVariableType::GAS_LIQUID_RATIO,
+                                               primaryVariable,
+                                               y,
+                                               familyVariable,
+                                               familyIdx );
+            size_t alq_idx = getVariableIndex( table,
+                                               RimVfpPlot::ProductionVariableType::ARTIFICIAL_LIFT_QUANTITY,
+                                               primaryVariable,
+                                               y,
+                                               familyVariable,
+                                               familyIdx );
+            size_t flo_idx = getVariableIndex( table,
+                                               RimVfpPlot::ProductionVariableType::LIQUID_FLOW_RATE,
+                                               primaryVariable,
+                                               y,
+                                               familyVariable,
+                                               familyIdx );
+            size_t thp_idx =
+                getVariableIndex( table, RimVfpPlot::ProductionVariableType::THP, primaryVariable, y, familyVariable, familyIdx );
 
-        for ( size_t thp_idx = 0; thp_idx < table.getTHPAxis().size(); thp_idx++ )
-        {
-            size_t wfr_idx = table.getWFRAxis().size() - 1;
-            size_t gfr_idx = table.getGFRAxis().size() - 1;
-            size_t alq_idx = table.getALQAxis().size() - 1;
-            size_t flo_idx = table.getFloAxis().size() - 1;
-
-            std::vector<double> xVals;
-            if ( productionTableType == RimVfpPlot::ProductionTableType::WATER_CUT )
-            {
-                xVals = table.getWFRAxis();
-            }
-            else if ( productionTableType == RimVfpPlot::ProductionTableType::GAS_LIQUID_RATIO )
-            {
-                xVals = table.getGFRAxis();
-            }
-            else if ( productionTableType == RimVfpPlot::ProductionTableType::ARTIFICIAL_LIFT_QUANTITY )
-            {
-                xVals = table.getALQAxis();
-            }
-            else if ( productionTableType == RimVfpPlot::ProductionTableType::LIQUID_FLOW_RATE )
-            {
-                xVals = table.getFloAxis();
-            }
-
-            size_t              numValues = xVals.size();
-            std::vector<double> yVals( numValues, 0.0 );
-
-            for ( size_t y = 0; y < numValues; y++ )
-            {
-                if ( productionTableType == RimVfpPlot::ProductionTableType::WATER_CUT )
-                    wfr_idx = y;
-                else if ( productionTableType == RimVfpPlot::ProductionTableType::GAS_LIQUID_RATIO )
-                    gfr_idx = y;
-                else if ( productionTableType == RimVfpPlot::ProductionTableType::ARTIFICIAL_LIFT_QUANTITY )
-                    alq_idx = y;
-                else if ( productionTableType == RimVfpPlot::ProductionTableType::LIQUID_FLOW_RATE )
-                    flo_idx = y;
-
-                // Convert from Pascal to Bar
-                yVals[y] = table( thp_idx, wfr_idx, gfr_idx, alq_idx, flo_idx ) / 100000.0;
-            }
-
-            cvf::Color3f cvfClr = cvf::Color3::BLUE;
-            QColor       qtClr  = RiaColorTools::toQColor( cvfClr );
-
-            QwtPlotCurve* curve = new QwtPlotCurve;
             // Convert from Pascal to Bar
-            curve->setTitle( QString( "THP: %1 Bar" ).arg( table.getTHPAxis()[thp_idx] / 100000.0 ) );
-            QwtSymbol* symbol = new QwtSymbol( QwtSymbol::Ellipse, QBrush( qtClr ), QPen( Qt::red, 2 ), QSize( 8, 8 ) );
-            curve->setSymbol( symbol );
-
-            curve->setSamples( xVals.data(), yVals.data(), numValues );
-            curve->attach( plotWidget );
-            curve->show();
+            yVals[y] = table( thp_idx, wfr_idx, gfr_idx, alq_idx, flo_idx ) / 100000.0;
         }
+
+        cvf::Color3f cvfClr = cvf::Color3::BLUE;
+        QColor       qtClr  = RiaColorTools::toQColor( cvfClr );
+
+        QwtPlotCurve* curve = new QwtPlotCurve;
+        // Convert from Pascal to Bar
+        curve->setTitle( QString( "family: %1 Bar" ).arg( familyVariableValues[familyIdx] / 100000.0 ) );
+        QwtSymbol* symbol = new QwtSymbol( QwtSymbol::Ellipse, QBrush( qtClr ), QPen( Qt::red, 2 ), QSize( 8, 8 ) );
+        curve->setSymbol( symbol );
+
+        curve->setSamples( primaryAxisValues.data(), yVals.data(), numValues );
+        curve->attach( plotWidget );
+        curve->show();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimVfpPlot::getProductionTableData( const Opm::VFPProdTable&           table,
+                                                        RimVfpPlot::ProductionVariableType variableType ) const
+{
+    std::vector<double> xVals;
+    if ( variableType == RimVfpPlot::ProductionVariableType::WATER_CUT )
+    {
+        xVals = table.getWFRAxis();
+    }
+    else if ( variableType == RimVfpPlot::ProductionVariableType::GAS_LIQUID_RATIO )
+    {
+        xVals = table.getGFRAxis();
+    }
+    else if ( variableType == RimVfpPlot::ProductionVariableType::ARTIFICIAL_LIFT_QUANTITY )
+    {
+        xVals = table.getALQAxis();
+    }
+    else if ( variableType == RimVfpPlot::ProductionVariableType::LIQUID_FLOW_RATE )
+    {
+        xVals = table.getFloAxis();
+    }
+    else if ( variableType == RimVfpPlot::ProductionVariableType::THP )
+    {
+        xVals = table.getTHPAxis();
+    }
+
+    return xVals;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RimVfpPlot::getVariableIndex( const Opm::VFPProdTable&           table,
+                                     RimVfpPlot::ProductionVariableType targetVariable,
+                                     RimVfpPlot::ProductionVariableType primaryVariable,
+                                     size_t                             primaryValue,
+                                     RimVfpPlot::ProductionVariableType familyVariable,
+                                     size_t                             familyValue ) const
+{
+    if ( targetVariable == primaryVariable )
+        return primaryValue;
+    else if ( targetVariable == familyVariable )
+        return familyValue;
+    else
+    {
+        if ( targetVariable == RimVfpPlot::ProductionVariableType::WATER_CUT )
+        {
+            return m_waterCutIdx;
+        }
+        else if ( targetVariable == RimVfpPlot::ProductionVariableType::GAS_LIQUID_RATIO )
+        {
+            return m_gasLiquidRatioIdx;
+        }
+        else if ( targetVariable == RimVfpPlot::ProductionVariableType::ARTIFICIAL_LIFT_QUANTITY )
+        {
+            return m_articifialLiftQuantityIdx;
+        }
+        else if ( targetVariable == RimVfpPlot::ProductionVariableType::LIQUID_FLOW_RATE )
+        {
+            return m_liquidFlowRateIdx;
+        }
+        else if ( targetVariable == RimVfpPlot::ProductionVariableType::THP )
+        {
+            return m_thpIdx;
+        }
+
+        return getProductionTableData( table, targetVariable ).size() - 1;
     }
 }
 
@@ -583,11 +660,15 @@ void RimVfpPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiO
     uiOrdering.add( &m_case );
     uiOrdering.add( &m_wellName );
     uiOrdering.add( &m_tableType );
-    uiOrdering.add( &m_productionTableType );
-    m_productionTableType.uiCapability()->setUiHidden( m_tableType != RimVfpPlot::TableType::PRODUCTION );
+    uiOrdering.add( &m_primaryVariable );
+    uiOrdering.add( &m_familyVariable );
+    uiOrdering.add( &m_liquidFlowRateIdx );
+    uiOrdering.add( &m_thpIdx );
+    uiOrdering.add( &m_articifialLiftQuantityIdx );
+    uiOrdering.add( &m_waterCutIdx );
+    uiOrdering.add( &m_gasLiquidRatioIdx );
 
     uiOrdering.skipRemainingFields( true );
-    // RimPlot::defineUiOrdering( uiConfigName, uiOrdering );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -631,7 +712,49 @@ QList<caf::PdmOptionItemInfo> RimVfpPlot::calculateValueOptions( const caf::PdmF
         }
     }
 
+    else if ( fieldNeedingOptions == &m_liquidFlowRateIdx )
+    {
+        calculateTableValueOptions( RimVfpPlot::ProductionVariableType::LIQUID_FLOW_RATE, options );
+    }
+
+    else if ( fieldNeedingOptions == &m_thpIdx )
+    {
+        calculateTableValueOptions( RimVfpPlot::ProductionVariableType::THP, options );
+    }
+
+    else if ( fieldNeedingOptions == &m_articifialLiftQuantityIdx )
+    {
+        calculateTableValueOptions( RimVfpPlot::ProductionVariableType::ARTIFICIAL_LIFT_QUANTITY, options );
+    }
+
+    else if ( fieldNeedingOptions == &m_waterCutIdx )
+    {
+        calculateTableValueOptions( RimVfpPlot::ProductionVariableType::WATER_CUT, options );
+    }
+
+    else if ( fieldNeedingOptions == &m_gasLiquidRatioIdx )
+    {
+        calculateTableValueOptions( RimVfpPlot::ProductionVariableType::GAS_LIQUID_RATIO, options );
+    }
+
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimVfpPlot::calculateTableValueOptions( RimVfpPlot::ProductionVariableType variableType,
+                                             QList<caf::PdmOptionItemInfo>&     options )
+{
+    if ( m_prodTable )
+    {
+        std::vector<double> values = getProductionTableData( *m_prodTable.get(), variableType );
+
+        for ( size_t i = 0; i < values.size(); i++ )
+        {
+            options.push_back( caf::PdmOptionItemInfo( QString::number( values[i] ), static_cast<int>( i ) ) );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
