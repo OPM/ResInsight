@@ -60,7 +60,7 @@ public:
                                                          bool*                      useOptionsOnly ) override;
 
 protected:
-    virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
     RigEquil              selectedItem() const;
