@@ -24,10 +24,10 @@
 ///
 ///
 //==================================================================================================
-class RimHistogramData
+class RigHistogramData
 {
 public:
-    RimHistogramData();
+    RigHistogramData();
 
     double                     min;
     double                     max;

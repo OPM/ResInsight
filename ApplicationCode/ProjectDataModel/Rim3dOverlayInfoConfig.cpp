@@ -156,7 +156,7 @@ void Rim3dOverlayInfoConfig::setPosition( cvf::Vec2ui position )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimHistogramData Rim3dOverlayInfoConfig::histogramData()
+RigHistogramData Rim3dOverlayInfoConfig::histogramData()
 {
     auto eclipseView       = dynamic_cast<RimEclipseView*>( m_viewDef.p() );
     auto geoMechView       = dynamic_cast<RimGeoMechView*>( m_viewDef.p() );
@@ -171,7 +171,7 @@ RimHistogramData Rim3dOverlayInfoConfig::histogramData()
         return m_histogramCalculator->histogramData( eclipseView, m_statisticsCellRange(), m_statisticsTimeRange() );
     else if ( geoMechView )
         return m_histogramCalculator->histogramData( geoMechView, m_statisticsCellRange(), m_statisticsTimeRange() );
-    return RimHistogramData();
+    return RigHistogramData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -203,7 +203,7 @@ QString Rim3dOverlayInfoConfig::caseInfoText()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString Rim3dOverlayInfoConfig::resultInfoText( const RimHistogramData& histData )
+QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData )
 {
     auto eclipseView = dynamic_cast<RimEclipseView*>( m_viewDef.p() );
     auto geoMechView = dynamic_cast<RimGeoMechView*>( m_viewDef.p() );
@@ -394,7 +394,7 @@ QString Rim3dOverlayInfoConfig::caseInfoText( RimGeoMechView* geoMechView )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString Rim3dOverlayInfoConfig::resultInfoText( const RimHistogramData& histData,
+QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData,
                                                 RimEclipseView*         eclipseView,
                                                 bool                    showVolumeWeightedMean )
 {
@@ -544,7 +544,7 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const RimHistogramData& histData
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString Rim3dOverlayInfoConfig::resultInfoText( const RimHistogramData& histData, RimGeoMechView* geoMechView )
+QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData, RimGeoMechView* geoMechView )
 {
     QString infoText;
 
@@ -831,7 +831,7 @@ void Rim3dOverlayInfoConfig::setReservoirView( RimGridView* ownerReservoirView )
 //--------------------------------------------------------------------------------------------------
 void Rim3dOverlayInfoConfig::updateEclipse3DInfo( RimEclipseView* eclipseView )
 {
-    RimHistogramData histData;
+    RigHistogramData histData;
 
     if ( m_showHistogram() || m_showResultInfo() )
     {
@@ -873,7 +873,7 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo( RimEclipseView* eclipseView )
 //--------------------------------------------------------------------------------------------------
 void Rim3dOverlayInfoConfig::updateGeoMech3DInfo( RimGeoMechView* geoMechView )
 {
-    RimHistogramData histData;
+    RigHistogramData histData;
 
     if ( m_showResultInfo() || m_showHistogram() )
     {
