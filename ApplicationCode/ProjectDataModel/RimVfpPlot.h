@@ -46,9 +46,10 @@ public:
         PRODUCTION
     };
 
-    enum class ProductionTableType
+    enum class ProductionVariableType
     {
         LIQUID_FLOW_RATE,
+        THP,
         ARTIFICIAL_LIFT_QUANTITY,
         WATER_CUT,
         GAS_LIQUID_RATIO
@@ -95,11 +96,20 @@ private:
 private:
     RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent ) override;
 
-    void        fixupDependentFieldsAfterCaseChange();
-    static void populatePlotWidgetWithCurveData( RiuQwtPlotWidget* plotWidget, const std::vector<Opm::VFPInjTable>& tables );
-    static void populatePlotWidgetWithCurveData( RiuQwtPlotWidget*                     plotWidget,
-                                                 const std::vector<Opm::VFPProdTable>& tables,
-                                                 RimVfpPlot::ProductionTableType       productionTableType );
+    void fixupDependentFieldsAfterCaseChange();
+    void populatePlotWidgetWithCurveData( RiuQwtPlotWidget* plotWidget, const std::vector<Opm::VFPInjTable>& tables );
+    void populatePlotWidgetWithCurveData( RiuQwtPlotWidget*                  plotWidget,
+                                          const Opm::VFPProdTable&           table,
+                                          RimVfpPlot::ProductionVariableType primaryVariable,
+                                          RimVfpPlot::ProductionVariableType familyVariable );
+    std::vector<double> getProductionTableData( const Opm::VFPProdTable&           table,
+                                                RimVfpPlot::ProductionVariableType variableType ) const;
+    size_t              getVariableIndex( const Opm::VFPProdTable&           table,
+                                          RimVfpPlot::ProductionVariableType targetVariable,
+                                          RimVfpPlot::ProductionVariableType primaryVariable,
+                                          size_t                             primaryValue,
+                                          RimVfpPlot::ProductionVariableType familyVariable,
+                                          size_t                             familyValue ) const;
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -107,12 +117,23 @@ private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
 
+    void calculateTableValueOptions( RimVfpPlot::ProductionVariableType variableType,
+                                     QList<caf::PdmOptionItemInfo>&     options );
+
 private:
     caf::PdmPtrField<RimEclipseResultCase*> m_case;
     caf::PdmField<QString>                  m_wellName;
 
-    caf::PdmField<caf::AppEnum<RimVfpPlot::TableType>>           m_tableType;
-    caf::PdmField<caf::AppEnum<RimVfpPlot::ProductionTableType>> m_productionTableType;
+    caf::PdmField<caf::AppEnum<RimVfpPlot::TableType>>              m_tableType;
+    caf::PdmField<caf::AppEnum<RimVfpPlot::ProductionVariableType>> m_primaryVariable;
+    caf::PdmField<caf::AppEnum<RimVfpPlot::ProductionVariableType>> m_familyVariable;
 
-    QPointer<RiuQwtPlotWidget> m_plotWidget;
+    caf::PdmField<int> m_liquidFlowRateIdx;
+    caf::PdmField<int> m_thpIdx;
+    caf::PdmField<int> m_articifialLiftQuantityIdx;
+    caf::PdmField<int> m_waterCutIdx;
+    caf::PdmField<int> m_gasLiquidRatioIdx;
+
+    QPointer<RiuQwtPlotWidget>         m_plotWidget;
+    std::unique_ptr<Opm::VFPProdTable> m_prodTable;
 };
