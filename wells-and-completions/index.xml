@@ -2,20 +2,20 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Wells and Completions on ResInsight</title>
-    <link>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/</link>
+    <link>https://resinsight.org/wells-and-completions/</link>
     <description>Recent content in Wells and Completions on ResInsight</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     
-	<atom:link href="https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://resinsight.org/wells-and-completions/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Simulation Wells</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/simulationwells/</link>
+      <link>https://resinsight.org/wells-and-completions/simulationwells/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/simulationwells/</guid>
+      <guid>https://resinsight.org/wells-and-completions/simulationwells/</guid>
       <description>This section describes how wells defined in the simulation are displayed, and how to control the different aspects of their visualization.
 Commands Several commands are available as right-click commands on a simulation well. These commands are available either by right-clicking the well in the 3D View or in the Project Tree.
  New Well Log Extraction Curve &amp;ndash; Creates a new Well Log curve based on the selected simulation well, the current time step and cell property.</description>
@@ -23,10 +23,10 @@ Commands Several commands are available as right-click commands on a simulation 
     
     <item>
       <title>Well Paths</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/wellpaths/</link>
+      <link>https://resinsight.org/wells-and-completions/wellpaths/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/wellpaths/</guid>
+      <guid>https://resinsight.org/wells-and-completions/wellpaths/</guid>
       <description>ResInsight can import well paths from simple Ascii files. In addition, ResInsight is able to retrieve well paths from an Equinor internal web service.
 ResInsight also supports creation of your own user-defined well paths. See Create Well Paths
 Ascii Well Paths The command File -&amp;gt; Import -&amp;gt; Well Data -&amp;gt; Import Well Paths From File will read the well paths in the selected file, and create one entry for each well path under the Wells item in the Project Tree.</description>
@@ -34,40 +34,40 @@ Ascii Well Paths The command File -&amp;gt; Import -&amp;gt; Well Data -&amp;gt;
     
     <item>
       <title>Create Well Paths</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/createnewwellpaths/</link>
+      <link>https://resinsight.org/wells-and-completions/createnewwellpaths/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/createnewwellpaths/</guid>
+      <guid>https://resinsight.org/wells-and-completions/createnewwellpaths/</guid>
       <description>ResInsight lets the user create new/custom well paths by clicking in the 3D view. A self created well path will behave the same way as an ordinary imported well path.
 Building a well path  Right click Wells in the project tree Select Create Well Path in the right-click menu. A new well node and a well targets node are created. Click in the 3D view on locations where the well path will pass (targets).</description>
     </item>
     
     <item>
       <title>3D Well Log Plots</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/3dwelllogcurves/</link>
+      <link>https://resinsight.org/wells-and-completions/3dwelllogcurves/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/3dwelllogcurves/</guid>
+      <guid>https://resinsight.org/wells-and-completions/3dwelllogcurves/</guid>
       <description>ResInsight can display well logs curves directly in the 3D view with a subset of the functionality of the full 2D Well Log Plot Editor. The curves will be drawn in a plane next to or centered on the well trajectory they belong to and can display well log data from a simulation model and from imported LAS-files.
 Creating new 3D Well Log Curves Add a new 3D well log curve by selecting a Well Path in the Project Tree, right-clicking and selecting 3D Well Log Curves and Add 3D Well Log Curve.</description>
     </item>
     
     <item>
       <title>Completions</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/completions/</link>
+      <link>https://resinsight.org/wells-and-completions/completions/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/completions/</guid>
+      <guid>https://resinsight.org/wells-and-completions/completions/</guid>
       <description>Three types of completions are available for modeling and export: Perforation intervals, fishbone wells and fractures. The purpose of modeling these completions, is that it enables ResInsight to export Eclipse keywords for doing more refined simulations.
 Completions can be modeled by adding new perforation intervals, fishbones subs or fractures. Details about the completions must then be specified, such as the length of the perforation interval or number of fishbone subs and laterals.</description>
     </item>
     
     <item>
       <title>Completions LGR</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/completionslgr/</link>
+      <link>https://resinsight.org/wells-and-completions/completionslgr/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/completionslgr/</guid>
+      <guid>https://resinsight.org/wells-and-completions/completionslgr/</guid>
       <description>ResInsight supports creating and exporting LGRs (Local Grid Refinement) in main grid cells intersected by completions.
 Create Temporary LGRs To create temporary LGR(s), first select one or more well paths in the project tree, right click and select &amp;lsquo;Create Temporary LGR&amp;rsquo;. This command brings up the following dialog.
 The dialog contains several input fields
@@ -76,10 +76,10 @@ The dialog contains several input fields
     
     <item>
       <title>Well Measurements</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/wellmeasurements/</link>
+      <link>https://resinsight.org/wells-and-completions/wellmeasurements/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/wellmeasurements/</guid>
+      <guid>https://resinsight.org/wells-and-completions/wellmeasurements/</guid>
       <description>ResInsight can import well measurements from a comma-separated values file.
 Importing Well Measurements The command File -&amp;gt; Import -&amp;gt; Well Data -&amp;gt; Import Measurements will read well measurements from the selected files, and create one entry for each file under the Wells -&amp;gt; Well Measurements item in the Project Tree.
 File Format The format is comma-separated values with one measurement per line. The following requirements have to be met:

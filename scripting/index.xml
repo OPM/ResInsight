@@ -2,30 +2,30 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Scripting on ResInsight</title>
-    <link>https://opm.github.io/ResInsight-UserDocumentation/scripting/</link>
+    <link>https://resinsight.org/scripting/</link>
     <description>Recent content in Scripting on ResInsight</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     
-	<atom:link href="https://opm.github.io/ResInsight-UserDocumentation/scripting/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://resinsight.org/scripting/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Python interface</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/scripting/pythoninterface/</link>
+      <link>https://resinsight.org/scripting/pythoninterface/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/scripting/pythoninterface/</guid>
+      <guid>https://resinsight.org/scripting/pythoninterface/</guid>
       <description>ResInsight offers a powerful programming interface which allows you to interact with a running ResInsight instance from Python 3. This enables you to:
  start ResInsight from Python communicate with an a running ResInsight instance load a ResInsight project file load data files such as Eclipse EGRID files and summary files extract data to Python for further processing and automation export snapshots of graphics  Please refer to the ResInsight Python API for configuration and details.</description>
     </item>
     
     <item>
       <title>Command Line Interface</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/scripting/commandlineinterface/</link>
+      <link>https://resinsight.org/scripting/commandlineinterface/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/scripting/commandlineinterface/</guid>
+      <guid>https://resinsight.org/scripting/commandlineinterface/</guid>
       <description>ResInsight supports several command line parameters that can be used to automate some tasks using shell scripts.
 Command line parameters are prefixed using a double dash. This convention is used on all platforms to make it possible to reuse scripts across different platforms. See GNU Standards for Command Line Interfaces.
 Examples on how command line options are used are given below
@@ -34,10 +34,10 @@ Command line options General    Parameter Description     --help, --?</descripti
     
     <item>
       <title>Command File</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/scripting/commandfile/</link>
+      <link>https://resinsight.org/scripting/commandfile/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/scripting/commandfile/</guid>
+      <guid>https://resinsight.org/scripting/commandfile/</guid>
       <description>The command file interface allows a sequence of specified commands to be run in order from the command line. The interface is used by supplying the command file as a command line parameter. Once the command file is finished executing, ResInsight will exit.
 It is possible to use these commands directly from a Python script. For further details, please see the ResInsight Python API.
 Command List Case Control Commands  openProject closeProject setStartDir loadCase createGridCaseGroup createStatisticsCase replaceCase replaceSourceCases  Export Commands  setExportFolder exportMultiCaseSnapshots exportSnapshots exportProperty exportPropertyInViews exportWellPathCompletions exportSimWellFractureCompletions exportMsw exportWellPaths exportVisibleCells exportFlowCharacteristics  Other Commands  runOctaveScript setMainWindowSize computeCaseGroupStatistics setTimeStep scaleFractureTemplate setFractureContainment createMultipleFractures createLgrForCompletions createSaturationPressurePlots  Syntax The command file is comprised of a set of commands to be executed in order.</description>
@@ -45,10 +45,10 @@ Command List Case Control Commands  openProject closeProject setStartDir loadCas
     
     <item>
       <title>Octave Interface</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/scripting/octaveinterface/</link>
+      <link>https://resinsight.org/scripting/octaveinterface/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/scripting/octaveinterface/</guid>
+      <guid>https://resinsight.org/scripting/octaveinterface/</guid>
       <description>ResInsight provides a flexible interface to Octave including:
  Octave functions that communicates with a running ResInsight session Features to simplify management and editing of Octave scripts from ResInsight Commands to execute scripts using Octave.  The Octave functions are documented in Octave Interface Reference.
 Note: The Octave interface does not support Flow diagnostics and Injection flooding results in addition to Geomechanical cases.
@@ -57,10 +57,10 @@ Note: The Octave interface does not support Flow diagnostics and Injection flood
     
     <item>
       <title>Octave Interface Reference</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/scripting/octaveinterfacereference/</link>
+      <link>https://resinsight.org/scripting/octaveinterfacereference/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/scripting/octaveinterfacereference/</guid>
+      <guid>https://resinsight.org/scripting/octaveinterfacereference/</guid>
       <description>Introduction To identify a ResInsight case uniquely in the Octave script, an integer Id (CaseId) is used. This Id can be retrieved in several ways, but there are two main modes of operation regarding this for a particular octave script: Either the script is designed to work on a single case (the &amp;ldquo;Current Case&amp;rdquo;), or the script is designed to access the selection and traverse the cases by itself.
 Note: The Octave interface does not support Geomechanical cases and flow diagnostic results.</description>
     </item>

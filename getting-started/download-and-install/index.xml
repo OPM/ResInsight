@@ -2,20 +2,20 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Download and Install on ResInsight</title>
-    <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/download-and-install/</link>
+    <link>https://resinsight.org/getting-started/download-and-install/</link>
     <description>Recent content in Download and Install on ResInsight</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     
-	<atom:link href="https://opm.github.io/ResInsight-UserDocumentation/getting-started/download-and-install/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://resinsight.org/getting-started/download-and-install/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Linux Installation</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/download-and-install/linux-installation/</link>
+      <link>https://resinsight.org/getting-started/download-and-install/linux-installation/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/download-and-install/linux-installation/</guid>
+      <guid>https://resinsight.org/getting-started/download-and-install/linux-installation/</guid>
       <description>Install ResInsight From Binary Packages on Linux Please not that the distribution by the OPM Project will updated some time after the release of a new version on GitHub.
 Red Hat Enterprise Linux 6 or 7 Login as root and do:
 yum-config-manager --add-repo https://opm-project.org/package/opm.repoyum install resinsightyum install resinsight-octave Then you are good, and can start ResInsight by typing: ResInsight
@@ -24,10 +24,10 @@ Ubuntu Linux 16.04-64bit On the command line do:</description>
     
     <item>
       <title>Windows Installation</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/download-and-install/windows-installation/</link>
+      <link>https://resinsight.org/getting-started/download-and-install/windows-installation/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/download-and-install/windows-installation/</guid>
+      <guid>https://resinsight.org/getting-started/download-and-install/windows-installation/</guid>
       <description>ResInsight Installation  Download ZIP binary distribution from https://github.com/OPM/ResInsight/releases Extract content from ZIP file Start ResInsight.exe  The binary distribution does not support ABAQUS odb files. For building ResInsight with ABAQUS support, see Build Instructions.
 Octave Installation (optional)  Download Octave-4.0.0 and install it. (Newer versions will not work) Launch ResInsight.exe, open Edit-&amp;gt;Preferences. On the Octave tab, enter the path to the Octave command line interpreter executable.
 ( Usually C:\Your\Path\To\Octave-x.</description>
@@ -35,10 +35,10 @@ Ubuntu Linux 16.04-64bit On the command line do:</description>
     
     <item>
       <title>Build Instructions</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/download-and-install/buildinstructions/</link>
+      <link>https://resinsight.org/getting-started/download-and-install/buildinstructions/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/download-and-install/buildinstructions/</guid>
+      <guid>https://resinsight.org/getting-started/download-and-install/buildinstructions/</guid>
       <description>Source code The source code is hosted at GitHub
 In a git enabled shell do: git clone https://github.com/OPM/ResInsight.git
 Dependencies and Prerequisites Windows Compiler Visual Studio 2015 and later is supported.
@@ -49,10 +49,10 @@ On some configurations you will be asked to specify the location of Qt5.</descri
     
     <item>
       <title>Build Instructions CentOS 7</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/download-and-install/build-instructions-centos7/</link>
+      <link>https://resinsight.org/getting-started/download-and-install/build-instructions-centos7/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/download-and-install/build-instructions-centos7/</guid>
+      <guid>https://resinsight.org/getting-started/download-and-install/build-instructions-centos7/</guid>
       <description>Dependencies and Prerequisites vcpkg can be used to install grpc for C++. This method is cross platform, and can be easier to use than directly installing grpc and dependencies directly from grpc source code. The source code for vcpkg is avaialable as a Git sub module in the folder &amp;lsquo;vcpkg&amp;rsquo;. Python3 is required.
 vcpkg requires relatively new versions of git and compiler.
 vcpkg

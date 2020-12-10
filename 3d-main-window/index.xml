@@ -2,20 +2,20 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>3D Main Window on ResInsight</title>
-    <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/</link>
+    <link>https://resinsight.org/3d-main-window/</link>
     <description>Recent content in 3D Main Window on ResInsight</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     
-	<atom:link href="https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://resinsight.org/3d-main-window/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>3D Views</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/3dviews/</link>
+      <link>https://resinsight.org/3d-main-window/3dviews/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/3dviews/</guid>
+      <guid>https://resinsight.org/3d-main-window/3dviews/</guid>
       <description>3D Views are the windows displaying the Grid Models. The visualization is controlled by the Project Tree item representing the View and their sub items.
 Each item has a set of properties that can be edited in the Property Editor.
 Several views can be added to the same case by right-clicking the case or a view and select New View. You can also Copy and then Paste a view into a Case.</description>
@@ -23,10 +23,10 @@ Several views can be added to the same case by right-clicking the case or a view
     
     <item>
       <title>Cell Results</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/cellresults/</link>
+      <link>https://resinsight.org/3d-main-window/cellresults/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/cellresults/</guid>
+      <guid>https://resinsight.org/3d-main-window/cellresults/</guid>
       <description>The main results to post process in ResInsight are Cell Results. A Cell Result is one value, or a small set of values per cell over a region of the grid. A Cell Result is also referred to as a Property.
 Cell Results are used in several operations and settings:
  Cell Colors Cell Edge Result (Eclipse Only) Separate Fault Result (Eclipse Only) Property Filters Well Log Extraction Curves Cell Result Time History Curves  In the property panel of all those, the same options are used to define the Cell Result of interest.</description>
@@ -34,10 +34,10 @@ Cell Results are used in several operations and settings:
     
     <item>
       <title>Result Color Legend</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/resultcolorlegend/</link>
+      <link>https://resinsight.org/3d-main-window/resultcolorlegend/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/resultcolorlegend/</guid>
+      <guid>https://resinsight.org/3d-main-window/resultcolorlegend/</guid>
       <description>The color mapping of the displayed cell result is controlled by the Color Legend item in Project Tree. The legend can be shown or hidden by checking or unchecking the box in front of the Color Legend item.
 Legend configuration As shown above, the Legend configuration for cell results allows the following settings:
  Number of levels &amp;ndash; Defines the number of tick marks displayed next to the color legend Significant digits &amp;ndash; Defines the number of significant digits in the number formatting Number format &amp;ndash; Defines how the numbers are formatted Colors &amp;ndash; Defines the color palette for the legend by selecting from Color Legends Mapping &amp;ndash; Defines the mapping of numerical values to legend colors:  Discrete Linear &amp;ndash; Legend divided into linear levels defined by Number of levels Continuous Linear &amp;ndash; Continuous linear legend with tick mark count defined by Number of levels Continuous Logarithmic &amp;ndash; Continuous logarithmic legend with tick mark count defined by Number of levels Discrete Logarithmic &amp;ndash; Logarithmic legend divided into levels defined by Number of levels Category &amp;ndash; Legend with one level per category for formation names and discrete data (e.</description>
@@ -45,39 +45,39 @@ Legend configuration As shown above, the Legend configuration for cell results a
     
     <item>
       <title>Color Legends</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/colorlegends/</link>
+      <link>https://resinsight.org/3d-main-window/colorlegends/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/colorlegends/</guid>
+      <guid>https://resinsight.org/3d-main-window/colorlegends/</guid>
       <description>ResInsight offers both a rich set of built-in color legends and functionality for import and customizing color legends. All color legends are available from the Color Legends item in Project Tree.
 Standard Color Legends ResInsight offers an extensive set of built-in color legends as listed by Standard Color Legends. As Standard Color Legends cannot be modified, you must create a Custom Color Legend when needing a legend that is not covered by Standard Color Legends.</description>
     </item>
     
     <item>
       <title>Comparison View</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/comparisonview/</link>
+      <link>https://resinsight.org/3d-main-window/comparisonview/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/comparisonview/</guid>
+      <guid>https://resinsight.org/3d-main-window/comparisonview/</guid>
       <description>ResInsight offers a Comparison View to compare two existing views in terms of grid geometry, results, intersections and more. The Comparison View allows comparison of information of different grids and different solutions on the same grid in a single view. This improves efficiency and simplifies the workflow when working with related but different models.
 The figure above exemplifies a Comparison View for comparison of two different simulations models and results. The left hand side is used to display grid and results of an Eclipse simulation while the right hand side displays an ABAQUS grid and simulation results from geomechanical analysis.</description>
     </item>
     
     <item>
       <title>Contour Maps</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/contourmaps/</link>
+      <link>https://resinsight.org/3d-main-window/contourmaps/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/contourmaps/</guid>
+      <guid>https://resinsight.org/3d-main-window/contourmaps/</guid>
       <description>ResInsight can create contour maps based on different forms of aggregation of 3D Eclipse data onto a 2D Plane. Any 3D result value can be aggregated, in addition to specialised results, such as Oil, Gas and Hydrocarbon columns. A Contour Map is a specialised 2D view with many of the same features as the 3D views, including property filters, range filters and display of faults and wells. ResInsight is able to export a contour map to a text file.</description>
     </item>
     
     <item>
       <title>Flow Vector Result</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/flowvectorresult/</link>
+      <link>https://resinsight.org/3d-main-window/flowvectorresult/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/flowvectorresult/</guid>
+      <guid>https://resinsight.org/3d-main-window/flowvectorresult/</guid>
       <description>The Flow Vector Result View lets the user investigate fluxes by visualizing flow vectors in the reservoir. It allows for selecting and combining different fluids and directions. Selected vectors can be combined and scaled.
 The flow vectors are based on the Eclipse properties FLRGASI/J/K FLRWATI/J/K FLROILI/J/K
 Open the Flow Vector Result View In order to show Flow Vector Results, select and check the checkbox next to Flow Vector Result in the Project Tree.</description>
@@ -85,10 +85,10 @@ Open the Flow Vector Result View In order to show Flow Vector Results, select an
     
     <item>
       <title>Tensor Results</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/tensors/</link>
+      <link>https://resinsight.org/3d-main-window/tensors/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/tensors/</guid>
+      <guid>https://resinsight.org/3d-main-window/tensors/</guid>
       <description>Tensors are arrows showing the average principal vectors in an element, shown on every visible face of the element.
 The tensor results editor is found in a geo mechanical model&amp;rsquo;s View in the project tree as seen below.
 Visualization The tensor arrows visualize the principal vectors in three directions. Each colored pair of arrows represents a principal. In the example above, the orange and blue arrows represent pressures and the white arrows represent a tension.</description>
@@ -96,10 +96,10 @@ Visualization The tensor arrows visualize the principal vectors in three directi
     
     <item>
       <title>Result Inspection</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/resultinspection/</link>
+      <link>https://resinsight.org/3d-main-window/resultinspection/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/resultinspection/</guid>
+      <guid>https://resinsight.org/3d-main-window/resultinspection/</guid>
       <description>The results mapped on the 3D model can be inspected in detail by left clicking cells in the 3D view. The selected cells will be highlighted, text information displayed in the Result Info docking window, and the time-history values plotted in the Result Plot, if available.
 Visibility of the docking widows can be controlled from the Windows menu.
 Result Info Clicking cells will display slightly different information text based on the case type as described in the following tables.</description>
@@ -107,10 +107,10 @@ Visibility of the docking widows can be controlled from the Windows menu.
     
     <item>
       <title>Cell Filters</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/filters/</link>
+      <link>https://resinsight.org/3d-main-window/filters/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/filters/</guid>
+      <guid>https://resinsight.org/3d-main-window/filters/</guid>
       <description>Cell Filters are used to control visibility of the cells in the 3D view. Two types of filters exists:
  Range Filter &amp;ndash; Extracts an IJK subset of the model. Property Filter &amp;ndash; Extracts cells with a property value matching a value range.  The visibilities of cells connection to wells, and fences based on these cells can be controlled from  Simulation Wells .
 (Not applicable for Geomechanical cases)</description>
@@ -118,20 +118,20 @@ Visibility of the docking widows can be controlled from the Windows menu.
     
     <item>
       <title>Intersections</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/intersections/</link>
+      <link>https://resinsight.org/3d-main-window/intersections/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/intersections/</guid>
+      <guid>https://resinsight.org/3d-main-window/intersections/</guid>
       <description>Intersections are cross sections of the grid model that displays the grid cell values on planes that cut through the grid in various ways.
 There are two main types of intersections. The first one which simply is called Intersection, is defined by a piece-wise linear curve and an extrusion direction. The curve can be either a Simulation Well, a Well Path, a user defined polyline, or a user defined line. These intersections can also be shown in their own separate 2D Intersection View</description>
     </item>
     
     <item>
       <title>Surfaces</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/surfaces/</link>
+      <link>https://resinsight.org/3d-main-window/surfaces/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/surfaces/</guid>
+      <guid>https://resinsight.org/3d-main-window/surfaces/</guid>
       <description>ResInsight is capable of mapping properties and simulation results onto 3D surfaces imported from GOCAD and Petrel as specified below.
 Import and appearance of surfaces 3D surfaces from GOCAD and Petrel are imported into ResInsight by the menu option File-&amp;gt;Import-&amp;gt;Import Surfaces in the 3D Main Window.
 Imported surfaces are listed under the entry in the Project Tree. You can click on a surface to change i.e. the name or color of the surface, or change the file to read the surface data from.</description>
@@ -139,10 +139,10 @@ Imported surfaces are listed under the entry in the Project Tree. You can click 
     
     <item>
       <title>Allan Diagram</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/allandiagrams/</link>
+      <link>https://resinsight.org/3d-main-window/allandiagrams/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/allandiagrams/</guid>
+      <guid>https://resinsight.org/3d-main-window/allandiagrams/</guid>
       <description>Allan Diagrams displays the overlap of formations and layers across fault faces.
 Separate Fault Result The Allan Diagram is dispayed by selecting the Separate Fault Result in the project tree. See Faults  for more details.
 Property Editor Settings  Binary Formation Allan One color for all NNC areas with same formation on across fault, and one color for NNC with different formations across fault Formation Allan Formation colors are used, and a mix of the two formation colors are displayed if we have different formations across fault  Mouse interaction When clicking on an NNC area multiple times, the highlighted cell switched from the cell in front of the formation and behind the fault.</description>
@@ -150,10 +150,10 @@ Property Editor Settings  Binary Formation Allan One color for all NNC areas wit
     
     <item>
       <title>Faults</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/faults/</link>
+      <link>https://resinsight.org/3d-main-window/faults/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/faults/</guid>
+      <guid>https://resinsight.org/3d-main-window/faults/</guid>
       <description>This section describes how Faults are detected and visualized. NNC&amp;rsquo;s are a part of the Faults visualization and are thus also mentioned in this section.
 Related pages :
 Allan Diagrams
@@ -164,10 +164,10 @@ All the tagged cell faces are then compared to the faults possibly imported from
     
     <item>
       <title> Zonations/Formations</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/formations/</link>
+      <link>https://resinsight.org/3d-main-window/formations/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/formations/</guid>
+      <guid>https://resinsight.org/3d-main-window/formations/</guid>
       <description>This section will describe how to use formations for different k-layers of a case, and how to use well picks/zonations for ranges of measured depths of a well path.
 Formations for k-layers Formation information can be utilized in ResInsight as cell colors, used in property filters and are displayed in the Result info panel when selecting single cells.
 To use this functionality you will need to :
@@ -176,10 +176,10 @@ To use this functionality you will need to :
     
     <item>
       <title>Grid Statistics Dialog</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/gridstatisticsdialog/</link>
+      <link>https://resinsight.org/3d-main-window/gridstatisticsdialog/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/gridstatisticsdialog/</guid>
+      <guid>https://resinsight.org/3d-main-window/gridstatisticsdialog/</guid>
       <description>ResInsight 3D Views has an info box in the upper right corner displaying statistics for the current view. A more detailed version of this information may also be displayed in a separate dialog window. Right click on the 3D view background and select Grid Statistics to bring up the dialog.
 Grid Statistics Dialog Fields The dialog consist of three information parts.
  Info text Histogram Cumulative Histogram  Info Text The Info Text field shows general info about the case, the selected results, and some statistics.</description>
@@ -187,50 +187,50 @@ Grid Statistics Dialog Fields The dialog consist of three information parts.
     
     <item>
       <title>Grid Case Groups and Statistics</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/casegroupsandstatistics/</link>
+      <link>https://resinsight.org/3d-main-window/casegroupsandstatistics/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/casegroupsandstatistics/</guid>
+      <guid>https://resinsight.org/3d-main-window/casegroupsandstatistics/</guid>
       <description>Grid Case Group&amp;lsquo;s are designed to make it easy to calculate statistics per cell and per time step of a large number of Eclipse simulation Cases with identical Grids (often labeled realizations).
 If you have several Eclipse simulations with different input parameters available, you can put all the realizations into a Grid Case Group and easily calculate each of the cells mean value, range and max/min values at each time step between the realizations.</description>
     </item>
     
     <item>
       <title>Linked Views</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/linkedviews/</link>
+      <link>https://resinsight.org/3d-main-window/linkedviews/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/linkedviews/</guid>
+      <guid>https://resinsight.org/3d-main-window/linkedviews/</guid>
       <description>One or more views can be linked together to allow some settings like camera position and range filters, propagate from one view to another.
 Establish Linked Views To establish a link between views, select Link Visible Views from the View toolbar. This will open a dialog where the Master View is selected. When pressing Ok in this dialog, the Linked Views items are displayed in the top of the Project Tree.</description>
     </item>
     
     <item>
       <title>Measurement</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/measurement/</link>
+      <link>https://resinsight.org/3d-main-window/measurement/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/measurement/</guid>
+      <guid>https://resinsight.org/3d-main-window/measurement/</guid>
       <description>ResInsight supports measurements in the 3D views. To enter measurement mode, press the ruler toolbar button or the keyboard shortcut Ctrl-M. This mode can also be activated from the right-click menu in a 3D view.
 When ResInsight is in measurement mode, clicking on an surface in the 3D view will set the first measurement point. Clicking on a different surface will set the second measurement point, and display a label with measurements.</description>
     </item>
     
     <item>
       <title>Annotations</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/annotations/</link>
+      <link>https://resinsight.org/3d-main-window/annotations/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/annotations/</guid>
+      <guid>https://resinsight.org/3d-main-window/annotations/</guid>
       <description>ResInsight supports displaying a few types of annotations in 3D views and Contour Map view.
  Text annotations Reach circle annotations Polyline annotations  User defined polylines Polylines imported from file    Global scope vs local scope annotations Global annotations may be displayed in all views and are located in the Annotations project tree node right below Grid Models (Global annotations sub tree). Local annotations are associated with a specific view and are located in the Annotations project tree node below the view node (Local annotations sub tree).</description>
     </item>
     
     <item>
       <title>Derived Results - Eclipse</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/derivedresults/</link>
+      <link>https://resinsight.org/3d-main-window/derivedresults/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/derivedresults/</guid>
+      <guid>https://resinsight.org/3d-main-window/derivedresults/</guid>
       <description>ResInsight computes several derived results. In this section we will explain what they are, and briefly how they are calculated.
 Derived Results for Eclipse Cases ResInsight calculates several derived cell properties that is made available as Static or Dynamic cell properties. The derived results listed at the bottom of the Static result properties, are shown below.
 Transmissibility Normalized by Area The transmissibility for cells and Non-Neighbor Connections (NNCs) are dependent on both cell properties and geometry.</description>
@@ -238,10 +238,10 @@ Transmissibility Normalized by Area The transmissibility for cells and Non-Neigh
     
     <item>
       <title>Derived Results - Geomechanical</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/derivedresultsgeomech/</link>
+      <link>https://resinsight.org/3d-main-window/derivedresultsgeomech/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/derivedresultsgeomech/</guid>
+      <guid>https://resinsight.org/3d-main-window/derivedresultsgeomech/</guid>
       <description>ResInsight computes several derived results. In this section we will explain what they are, and briefly how they are calculated.
 Derived Geomechanical results ResInsight calculates several of the presented geomechanical results based on the native results present in the odb-files.
 Relative Results (Time Lapse Results) ResInsight can calculate and display relative results, sometimes also referred to as Time Lapse results. When enabled, every result variable is calculated as:

@@ -2,20 +2,20 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Other on ResInsight</title>
-    <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/other/</link>
+    <link>https://resinsight.org/getting-started/other/</link>
     <description>Recent content in Other on ResInsight</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     
-	<atom:link href="https://opm.github.io/ResInsight-UserDocumentation/getting-started/other/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://resinsight.org/getting-started/other/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Release Notification Subscription</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/other/releasenotification/</link>
+      <link>https://resinsight.org/getting-started/other/releasenotification/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/other/releasenotification/</guid>
+      <guid>https://resinsight.org/getting-started/other/releasenotification/</guid>
       <description>LinkedIn Feel free to join ResInsight on LinkedIn
 Newsletter By subscribing to the Release Notification you will get notified when new releases are available. Please use the button below to send a request for subscription mail.
 Subscribe</description>
@@ -23,10 +23,10 @@ Subscribe</description>
     
     <item>
       <title>Testimonials</title>
-      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/other/testimonials/</link>
+      <link>https://resinsight.org/getting-started/other/testimonials/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/other/testimonials/</guid>
+      <guid>https://resinsight.org/getting-started/other/testimonials/</guid>
       <description>“I have been using ResInsight now for some time and have stopped using the commercial software as ResInsight is much more responsive and easier to use. It really is an excellent piece of software.”
 David Baxendale
 Senior Petroleum Engineering Advisor, RPS Energy
