@@ -97,6 +97,7 @@ void RimCustomObjectiveFunctionWeight::setSummaryAddress( RifEclipseSummaryAddre
     summaryAddress->setAddress( address );
     m_objectiveValuesSummaryAddresses.push_back( summaryAddress );
     parentObjectiveFunction()->onWeightChanged();
+    updateAddressesUiField();
 }
 
 //--------------------------------------------------------------------------------------------------
