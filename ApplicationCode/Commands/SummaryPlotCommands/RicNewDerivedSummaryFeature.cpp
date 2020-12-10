@@ -51,9 +51,31 @@ void RicNewDerivedSummaryFeature::onActionTriggered( bool isChecked )
         auto derivedCase = new RimDerivedSummaryCase;
 
         auto selectedCases = twoSelectedSummaryCases();
+        if ( selectedCases.empty() )
+        {
+            auto allCases = mainColl->allSummaryCases();
+
+            if ( allCases.size() > 0 )
+            {
+                selectedCases.push_back( allCases[0] );
+            }
+            if ( allCases.size() > 1 )
+            {
+                selectedCases.push_back( allCases[1] );
+            }
+        }
+
         if ( !selectedCases.empty() )
         {
-            derivedCase->setSummaryCases( selectedCases[0], selectedCases[1] );
+            RimSummaryCase* sumCase1 = selectedCases[0];
+            RimSummaryCase* sumCase2 = nullptr;
+
+            if ( selectedCases.size() > 1 )
+            {
+                sumCase2 = selectedCases[1];
+            }
+
+            derivedCase->setSummaryCases( sumCase1, sumCase2 );
             derivedCase->createSummaryReaderInterface();
         }
 

@@ -231,6 +231,8 @@ void RifWellPathFormationReader::readFile( const QString&        filePath,
             QString unitName = dataLine[unitNameIndex];
             unitName         = unitName.trimmed();
 
+            if ( wellName.trimmed().isEmpty() && unitName.isEmpty() ) continue;
+
             if ( mdIsPresent )
             {
                 double mdTopValue  = dataLine[measuredDepthTopIndex].toDouble();
