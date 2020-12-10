@@ -2,20 +2,20 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Getting Started on ResInsight</title>
-    <link>https://resinsight.org/getting-started/</link>
+    <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/</link>
     <description>Recent content in Getting Started on ResInsight</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     
-	<atom:link href="https://resinsight.org/getting-started/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://opm.github.io/ResInsight-UserDocumentation/getting-started/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Overview</title>
-      <link>https://resinsight.org/getting-started/overview/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/overview/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/getting-started/overview/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/overview/</guid>
       <description>User Interface ResInsight has two main windows, one for 3D related visualizations and one for 2D graphs and plots.
 3D Main Window Plot Main Window Switching Between the Two Main Windows The two main windows has a toolbar button each, that directly opens and raises the other window. Each of the windows can also be closed freely, but if both are closed, ResInsight exits.
 Docking Windows Each of the main windows has a central area and several docking windows surrounding it.</description>
@@ -23,20 +23,20 @@ Docking Windows Each of the main windows has a central area and several docking 
     
     <item>
       <title>What&#39;s New in 2019.04</title>
-      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2019_04/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2019_04/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2019_04/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2019_04/</guid>
       <description>ResInsight 2019.04 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for Eclipse reservoir models. Version 2019.04 contains a larger number of new and exciting features, some of which are listed below.
 Grid Cross Plots ResInsight supports the creation of cross plots of two results against each other, with each cell in the grid representing one data point in the plot. The data points can be grouped by a third result, by time step or by Formations, giving a separate color and label for each group.</description>
     </item>
     
     <item>
       <title>What&#39;s New in 2019.08</title>
-      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2019_08/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2019_08/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2019_08/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2019_08/</guid>
       <description>ResInsight 2019.08 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for Eclipse reservoir models. Version 2019.08 opens up a range of new and efficient workflows by adding Python script support in ResInsight.
 Python scripting Basic example on how to update views from Python
 import rips# Connect to ResInsight instanceresInsight = rips.Instance.find()# Check if connection workedif resInsight is not None:# Get a list of all casescases = resInsight.</description>
@@ -44,20 +44,20 @@ import rips# Connect to ResInsight instanceresInsight = rips.Instance.find()#
     
     <item>
       <title>What&#39;s New in 2019.12</title>
-      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2019_12/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2019_12/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2019_12/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2019_12/</guid>
       <description>ResInsight 2019.12 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for reservoir models and simulations. Version 2019.12 is a major update bringing a range of significant new and enhanced features. Some of the most important extensions are listed below.
 Comparison View ResInsight offers a Comparison View to compare two existing views in terms of grid geometry, results, intersections and more. The Comparison View allows comparison of information of different grids and different solutions on the same grid in a single view.</description>
     </item>
     
     <item>
       <title>What&#39;s New in 2019.12.1</title>
-      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2019_12_1/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2019_12_1/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2019_12_1/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2019_12_1/</guid>
       <description>ResInsight 2019.12.1 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for reservoir models and simulations. Version 2019.12.1 consists of a few critical issues and minor functionality changes.
 Bugfixes Release info on GitHub
 Changes in behavior WELSEGS Output of segment depth is based on center of segment. Previously the segment end was reported.
@@ -67,10 +67,10 @@ Multiple completions in same cell In previous releases, no connection factor has
     
     <item>
       <title>What&#39;s New in 2020.04</title>
-      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2020_04/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2020_04/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2020_04/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2020_04/</guid>
       <description>ResInsight 2020.04 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for reservoir models and simulations. Version 2020.04 is a major update bringing a range of significant new and enhanced features.
 Surfaces ResInsight supports import of 3D Surfaces , and allows mapping properties and simulation results onto these surfaces.
 Allan Diagrams Allan Diagrams displays the overlap of formations and layers across fault faces.</description>
@@ -78,10 +78,10 @@ Allan Diagrams Allan Diagrams displays the overlap of formations and layers acro
     
     <item>
       <title>What&#39;s New in 2020.04.1</title>
-      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2020_04_1/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2020_04_1/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2020_04_1/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2020_04_1/</guid>
       <description>ResInsight 2020.04.1 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for reservoir models and simulations. Version 2020.04.1 is a patch update with several critical fixes.
 Most important fixes
  Performance improvements related to import and calculations of faults and NNCs Performance related to well disks and import of summary data Adjustments for well bore stability plots Completions : Use well name defined in project for export  Release notes for 2020.</description>
@@ -89,20 +89,31 @@ Most important fixes
     
     <item>
       <title>What&#39;s New in 2020.10</title>
-      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2020_10/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2020_10/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2020_10/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2020_10/</guid>
       <description>ResInsight 2020.10 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for reservoir models and simulations. Version 2020.10 is a major update bringing a range of significant new and enhanced features.
 Surfaces ResInsight supports import of 3D Surfaces , and allows mapping properties and simulation results onto these surfaces. In addition, it is now possible to create a surface from the top of a K-layer in a grid model.</description>
     </item>
     
     <item>
-      <title>What&#39;s New in 2018.11</title>
-      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2018_11/</link>
+      <title>What&#39;s New in 2020.10.1</title>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2020_10_1/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2018_11/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2020_10_1/</guid>
+      <description>ResInsight 2020.10.1 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for reservoir models and simulations. Version 2020.04.1 is a patch update with several critical fixes.
+Most important fixes
+ Using text filter to select summary curves for ensembles now works Summary address selection for analysis and tornado plots can now select single address instead of always all wells Fixed several visualization issues related to contour plots Make sure the color legend is drawn as discrete instead of continuous Recalculate required curves when summary case is replaced Fixed crash when closing combined view Fixed crash for color legends with less than two colors 2D plots : Allow inverted y-axis when user defined min/max is active Well Targets : Fixed crash when toggling target at sea level  Python API fixes</description>
+    </item>
+    
+    <item>
+      <title>What&#39;s New in 2018.11</title>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2018_11/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2018_11/</guid>
       <description>ResInsight 2018.11 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for Eclipse reservoir models. Version 2018.11 contains a larger number of new and exciting features, some of which are listed below.
 Local Grid Refinement (LGR) Local Grid Refinement (LGR) can be created based on Eclipse simulations. The refined grids can also be visualised in 3D.
 See Completions LGR
@@ -111,21 +122,21 @@ Well Path Creation ResInsight lets the user create new/custom well paths by clic
     
     <item>
       <title>Help Menu and Documentation</title>
-      <link>https://resinsight.org/getting-started/helpmenuanddocumentation/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/helpmenuanddocumentation/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/getting-started/helpmenuanddocumentation/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/helpmenuanddocumentation/</guid>
       <description>ResInsight Help Menu ResInsight Help menu options are:
  About &amp;ndash; Opens a dialog with information on ResInsight version, enabled features, and technical information of subsystems. Command Line Help &amp;ndash; Provides an overview of ResInsight Command line parameters and their syntax. Summary Command Line Help &amp;ndash; Provides an overview of ResInsight Summary command line parameters and their syntax. Users Guide &amp;ndash; Opens the ResInsight documentation in your default browser Search Help &amp;ndash; Searches the ResInsight documentation for help on the selected item in Project Tree.</description>
     </item>
     
     <item>
       <title>Model Navigation</title>
-      <link>https://resinsight.org/getting-started/modelnavigation/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/modelnavigation/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/getting-started/modelnavigation/</guid>
-      <description>ResInsight comes with four navigation modes. The active mode can be selected in the [Preferences dialog] (/misc/preferences/).
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/modelnavigation/</guid>
+      <description>ResInsight comes with four navigation modes. The active mode can be selected in the [Preferences dialog] (/ResInsight-UserDocumentation/misc/preferences/).
 Note that changing the navigation mode applies to the currently active view only, and views created after the change.
 These abbreviations are used in the tables below:
    Abbreviation Meaning     LMB Press the left mouse button   MMB Press the middle mouse button or scroll wheel button   RMB Press the right mouse button    The following applies to all navigation modes:</description>

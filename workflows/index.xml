@@ -2,20 +2,20 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Workflows on ResInsight</title>
-    <link>https://resinsight.org/workflows/</link>
+    <link>https://opm.github.io/ResInsight-UserDocumentation/workflows/</link>
     <description>Recent content in Workflows on ResInsight</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     
-	<atom:link href="https://resinsight.org/workflows/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://opm.github.io/ResInsight-UserDocumentation/workflows/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Biot Coefficient</title>
-      <link>https://resinsight.org/workflows/biotcoefficient/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/workflows/biotcoefficient/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/workflows/biotcoefficient/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/workflows/biotcoefficient/</guid>
       <description>Background
 The Biot porelastic coefficient defines the compressibility of sand grains, and will influence some of the calculations in ResInsight.
 Description The Biot coefficient can be defined in three ways:
