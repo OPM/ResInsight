@@ -62,11 +62,22 @@ void RicImportSurfacesFeature::onActionTriggered( bool isChecked )
     app->setLastUsedDialogDirectory( "BINARY_GRID", QFileInfo( fileNames.last() ).absolutePath() );
 
     // Find the selected SurfaceCollection
-    std::vector<RimSurfaceCollection*> colls = caf::selectedObjectsByTypeStrict<RimSurfaceCollection*>();
-    if ( colls.empty() ) return;
-    RimSurfaceCollection* surfColl = colls[0];
+    RimSurfaceCollection* surfColl = nullptr;
+    {
+        std::vector<RimSurfaceCollection*> colls = caf::selectedObjectsByTypeStrict<RimSurfaceCollection*>();
+        if ( !colls.empty() )
+        {
+            surfColl = colls.front();
+        }
+    }
 
-    // For each file,
+    if ( !surfColl )
+    {
+        auto proj = RimProject::current();
+        surfColl  = proj->activeOilField()->surfaceCollection();
+    }
+
+    if ( !surfColl ) return;
 
     RimSurface* lastCreatedOrUpdated = surfColl->importSurfacesFromFiles( fileNames );
 
