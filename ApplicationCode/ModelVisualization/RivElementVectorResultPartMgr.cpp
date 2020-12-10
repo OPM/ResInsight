@@ -115,32 +115,46 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
         arrowScaling = result->sizeScale() * scaleLogarithmically( maxAbsResult );
     }
 
-    std::vector<RigEclipseResultAddress> addresses;
-    result->resultAddressesIJK( addresses );
-
-    std::vector<cvf::StructGridInterface::FaceType> directions;
     std::vector<RigEclipseResultAddress>            resultAddresses;
-
-    for ( size_t fluidIndex = 0; fluidIndex < addresses.size(); fluidIndex += 3 )
+    std::vector<cvf::StructGridInterface::FaceType> directions;
+    RigCaseCellResultsData* resultsData = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     {
-        if ( result->showVectorI() )
+        std::vector<RigEclipseResultAddress> addresses;
+        result->resultAddressesIJK( addresses );
+
+        for ( size_t fluidIndex = 0; fluidIndex < addresses.size(); fluidIndex += 3 )
         {
-            if ( fluidIndex == 0 ) directions.push_back( cvf::StructGridInterface::POS_I );
-            resultAddresses.push_back( addresses[0 + fluidIndex] );
-        }
-        if ( result->showVectorJ() )
-        {
-            if ( fluidIndex == 0 ) directions.push_back( cvf::StructGridInterface::POS_J );
-            resultAddresses.push_back( addresses[1 + fluidIndex] );
-        }
-        if ( result->showVectorK() )
-        {
-            if ( fluidIndex == 0 ) directions.push_back( cvf::StructGridInterface::POS_K );
-            resultAddresses.push_back( addresses[2 + fluidIndex] );
+            if ( result->showVectorI() )
+            {
+                if ( fluidIndex == 0 ) directions.push_back( cvf::StructGridInterface::POS_I );
+
+                auto candidate = addresses[0 + fluidIndex];
+                if ( resultsData->hasResultEntry( candidate ) )
+                {
+                    resultAddresses.push_back( candidate );
+                }
+            }
+            if ( result->showVectorJ() )
+            {
+                if ( fluidIndex == 0 ) directions.push_back( cvf::StructGridInterface::POS_J );
+                auto candidate = addresses[1 + fluidIndex];
+                if ( resultsData->hasResultEntry( candidate ) )
+                {
+                    resultAddresses.push_back( candidate );
+                }
+            }
+            if ( result->showVectorK() )
+            {
+                if ( fluidIndex == 0 ) directions.push_back( cvf::StructGridInterface::POS_K );
+                auto candidate = addresses[2 + fluidIndex];
+                if ( resultsData->hasResultEntry( candidate ) )
+                {
+                    resultAddresses.push_back( candidate );
+                }
+            }
         }
     }
 
-    RigCaseCellResultsData* resultsData = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
     const std::vector<RigCell>& cells = eclipseCase->mainGrid()->globalCellArray();
@@ -250,11 +264,14 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
         std::vector<RigEclipseResultAddress>                 combinedAddresses;
         result->resultAddressesCombined( combinedAddresses );
 
-        for ( size_t flIdx = 0; flIdx < combinedAddresses.size(); flIdx++ )
+        for ( auto candidate : combinedAddresses )
         {
-            if ( combinedAddresses[flIdx].m_resultCatType == RiaDefines::ResultCatType::DYNAMIC_NATIVE )
+            if ( candidate.m_resultCatType == RiaDefines::ResultCatType::DYNAMIC_NATIVE )
             {
-                nncResultVals.push_back( nncData->dynamicConnectionScalarResult( combinedAddresses[flIdx] ) );
+                if ( nncData->hasScalarValues( candidate ) )
+                {
+                    nncResultVals.push_back( nncData->dynamicConnectionScalarResult( candidate ) );
+                }
             }
         }
 

@@ -44,9 +44,12 @@ RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( gsl::not_null<RimSummaryCa
     , m_summaryAddress( summaryAddress )
     , m_isEnsembleCurve( isEnsembleCurve )
 {
-    RimSummaryCaseCollection* ensemble = nullptr;
-    summaryCase->firstAncestorOfType( ensemble );
-    m_ensemble = ensemble;
+    if ( summaryCase )
+    {
+        RimSummaryCaseCollection* ensemble = nullptr;
+        summaryCase->firstAncestorOfType( ensemble );
+        m_ensemble = ensemble;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
