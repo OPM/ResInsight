@@ -2,20 +2,20 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>ResInsight</title>
-    <link>https://resinsight.org/</link>
+    <link>https://opm.github.io/ResInsight-UserDocumentation/</link>
     <description>Recent content on ResInsight</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     
-	<atom:link href="https://resinsight.org/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://opm.github.io/ResInsight-UserDocumentation/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Overview</title>
-      <link>https://resinsight.org/getting-started/overview/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/overview/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/getting-started/overview/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/overview/</guid>
       <description>User Interface ResInsight has two main windows, one for 3D related visualizations and one for 2D graphs and plots.
 3D Main Window Plot Main Window Switching Between the Two Main Windows The two main windows has a toolbar button each, that directly opens and raises the other window. Each of the windows can also be closed freely, but if both are closed, ResInsight exits.
 Docking Windows Each of the main windows has a central area and several docking windows surrounding it.</description>
@@ -23,10 +23,10 @@ Docking Windows Each of the main windows has a central area and several docking 
     
     <item>
       <title>3D Views</title>
-      <link>https://resinsight.org/3d-main-window/3dviews/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/3dviews/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/3d-main-window/3dviews/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/3dviews/</guid>
       <description>3D Views are the windows displaying the Grid Models. The visualization is controlled by the Project Tree item representing the View and their sub items.
 Each item has a set of properties that can be edited in the Property Editor.
 Several views can be added to the same case by right-clicking the case or a view and select New View. You can also Copy and then Paste a view into a Case.</description>
@@ -34,10 +34,10 @@ Several views can be added to the same case by right-clicking the case or a view
     
     <item>
       <title>Eclipse Cases</title>
-      <link>https://resinsight.org/import/eclipsecases/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/import/eclipsecases/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/import/eclipsecases/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/import/eclipsecases/</guid>
       <description>ResInsight supports the following type of Eclipse input data:
  *.GRID and *.EGRID files along with their *.INIT and restart files *.XNNN and *.UNRST. Grid and Property data from *.GRDECL files.  Release 2018.11 supports import of simulations from Intersect. To be able to import into ResInsight, the Intersect simulation must be exported into Eclipse file format.
 Eclipse Results ResInsight offers several ways to import Eclipse (grid) files. Use one of the following commands in the File-&amp;gt;Import-&amp;gt;Eclipse Cases menu:</description>
@@ -45,10 +45,10 @@ Several views can be added to the same case by right-clicking the case or a view
     
     <item>
       <title>Linux Installation</title>
-      <link>https://resinsight.org/getting-started/download-and-install/linux-installation/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/download-and-install/linux-installation/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/getting-started/download-and-install/linux-installation/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/download-and-install/linux-installation/</guid>
       <description>Install ResInsight From Binary Packages on Linux Please not that the distribution by the OPM Project will updated some time after the release of a new version on GitHub.
 Red Hat Enterprise Linux 6 or 7 Login as root and do:
 yum-config-manager --add-repo https://opm-project.org/package/opm.repoyum install resinsightyum install resinsight-octave Then you are good, and can start ResInsight by typing: ResInsight
@@ -57,20 +57,20 @@ Ubuntu Linux 16.04-64bit On the command line do:</description>
     
     <item>
       <title>Preferences</title>
-      <link>https://resinsight.org/misc/preferences/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/misc/preferences/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/misc/preferences/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/misc/preferences/</guid>
       <description>In this section the different settings that controls the default behavior of ResInsight is described. These settings can be controlled using the Preference dialog available from the Edit -&amp;gt; Preferences menu.
 When changing the preferences, any default color, font or Z-scale Factor that has not been changed by the user in the various views, will be applied immediately. If the user has changed font sizes in specific plots or annotations from the default value, ResInsight will ask if the user wants the new defaults applied to all existing views and plots even where custom settings have been set.</description>
     </item>
     
     <item>
       <title>Simulation Wells</title>
-      <link>https://resinsight.org/wells-and-completions/simulationwells/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/simulationwells/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/wells-and-completions/simulationwells/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/simulationwells/</guid>
       <description>This section describes how wells defined in the simulation are displayed, and how to control the different aspects of their visualization.
 Commands Several commands are available as right-click commands on a simulation well. These commands are available either by right-clicking the well in the 3D View or in the Project Tree.
  New Well Log Extraction Curve &amp;ndash; Creates a new Well Log curve based on the selected simulation well, the current time step and cell property.</description>
@@ -78,20 +78,20 @@ Commands Several commands are available as right-click commands on a simulation 
     
     <item>
       <title>Snapshots</title>
-      <link>https://resinsight.org/export/snapshots/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/export/snapshots/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/export/snapshots/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/export/snapshots/</guid>
       <description>ResInsight has several commands to create snapshots conveniently. 3 commands to take snapshots of existing Plot and 3D Views directly, and a more advanced export command that can automatically modify Eclipse 3D Views before snapshotting them.
 Snapshots of Existing Views The commands to snapshot existing views and plots are available from the toolbar and the Edit and File-&amp;gt;Export menus in the main windows Snapshot to Clipboard A snapshot of the active view is copied to the clipboard using Edit -&amp;gt; Copy Snapshot To Clipboard .</description>
     </item>
     
     <item>
       <title>Summary Plots</title>
-      <link>https://resinsight.org/plot-window/summaryplots/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/plot-window/summaryplots/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/plot-window/summaryplots/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/plot-window/summaryplots/</guid>
       <description>A Summary Plot is a window displaying a graph in the main area of the Plot Main Window. As described below, a Summary Plot can contain Summary Curves, Grid time history curves, and pasted ascii curves.
 A new Summary Plot can be created by using the right-click menu of Summary Plots in the Plot Project Tree and activate Open Summary Plot Editor or New Summary Plot.
 If you have many open plots, it can be useful to collapse all other plots by activating Collapse Other Plots from right-click menu of a plot in the Plot Project Tree.</description>
@@ -99,20 +99,20 @@ If you have many open plots, it can be useful to collapse all other plots by act
     
     <item>
       <title>What&#39;s New in 2019.04</title>
-      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2019_04/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2019_04/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2019_04/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2019_04/</guid>
       <description>ResInsight 2019.04 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for Eclipse reservoir models. Version 2019.04 contains a larger number of new and exciting features, some of which are listed below.
 Grid Cross Plots ResInsight supports the creation of cross plots of two results against each other, with each cell in the grid representing one data point in the plot. The data points can be grouped by a third result, by time step or by Formations, giving a separate color and label for each group.</description>
     </item>
     
     <item>
       <title>What&#39;s New in 2019.08</title>
-      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2019_08/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2019_08/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2019_08/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2019_08/</guid>
       <description>ResInsight 2019.08 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for Eclipse reservoir models. Version 2019.08 opens up a range of new and efficient workflows by adding Python script support in ResInsight.
 Python scripting Basic example on how to update views from Python
 import rips# Connect to ResInsight instanceresInsight = rips.Instance.find()# Check if connection workedif resInsight is not None:# Get a list of all casescases = resInsight.</description>
@@ -120,20 +120,20 @@ import rips# Connect to ResInsight instanceresInsight = rips.Instance.find()#
     
     <item>
       <title>What&#39;s New in 2019.12</title>
-      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2019_12/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2019_12/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2019_12/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2019_12/</guid>
       <description>ResInsight 2019.12 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for reservoir models and simulations. Version 2019.12 is a major update bringing a range of significant new and enhanced features. Some of the most important extensions are listed below.
 Comparison View ResInsight offers a Comparison View to compare two existing views in terms of grid geometry, results, intersections and more. The Comparison View allows comparison of information of different grids and different solutions on the same grid in a single view.</description>
     </item>
     
     <item>
       <title>What&#39;s New in 2019.12.1</title>
-      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2019_12_1/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2019_12_1/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2019_12_1/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2019_12_1/</guid>
       <description>ResInsight 2019.12.1 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for reservoir models and simulations. Version 2019.12.1 consists of a few critical issues and minor functionality changes.
 Bugfixes Release info on GitHub
 Changes in behavior WELSEGS Output of segment depth is based on center of segment. Previously the segment end was reported.
@@ -143,10 +143,10 @@ Multiple completions in same cell In previous releases, no connection factor has
     
     <item>
       <title>What&#39;s New in 2020.04</title>
-      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2020_04/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2020_04/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2020_04/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2020_04/</guid>
       <description>ResInsight 2020.04 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for reservoir models and simulations. Version 2020.04 is a major update bringing a range of significant new and enhanced features.
 Surfaces ResInsight supports import of 3D Surfaces , and allows mapping properties and simulation results onto these surfaces.
 Allan Diagrams Allan Diagrams displays the overlap of formations and layers across fault faces.</description>
@@ -154,10 +154,10 @@ Allan Diagrams Allan Diagrams displays the overlap of formations and layers acro
     
     <item>
       <title>What&#39;s New in 2020.04.1</title>
-      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2020_04_1/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2020_04_1/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2020_04_1/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2020_04_1/</guid>
       <description>ResInsight 2020.04.1 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for reservoir models and simulations. Version 2020.04.1 is a patch update with several critical fixes.
 Most important fixes
  Performance improvements related to import and calculations of faults and NNCs Performance related to well disks and import of summary data Adjustments for well bore stability plots Completions : Use well name defined in project for export  Release notes for 2020.</description>
@@ -165,20 +165,31 @@ Most important fixes
     
     <item>
       <title>What&#39;s New in 2020.10</title>
-      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2020_10/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2020_10/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2020_10/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2020_10/</guid>
       <description>ResInsight 2020.10 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for reservoir models and simulations. Version 2020.10 is a major update bringing a range of significant new and enhanced features.
 Surfaces ResInsight supports import of 3D Surfaces , and allows mapping properties and simulation results onto these surfaces. In addition, it is now possible to create a surface from the top of a K-layer in a grid model.</description>
     </item>
     
     <item>
-      <title>Log ASCII Standard File</title>
-      <link>https://resinsight.org/import/lasfile/</link>
+      <title>What&#39;s New in 2020.10.1</title>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2020_10_1/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/import/lasfile/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2020_10_1/</guid>
+      <description>ResInsight 2020.10.1 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for reservoir models and simulations. Version 2020.04.1 is a patch update with several critical fixes.
+Most important fixes
+ Using text filter to select summary curves for ensembles now works Summary address selection for analysis and tornado plots can now select single address instead of always all wells Fixed several visualization issues related to contour plots Make sure the color legend is drawn as discrete instead of continuous Recalculate required curves when summary case is replaced Fixed crash when closing combined view Fixed crash for color legends with less than two colors 2D plots : Allow inverted y-axis when user defined min/max is active Well Targets : Fixed crash when toggling target at sea level  Python API fixes</description>
+    </item>
+    
+    <item>
+      <title>Log ASCII Standard File</title>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/import/lasfile/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/import/lasfile/</guid>
       <description>Log ASCII Standard (LAS) is a standard file format common in the oil-and-gas industry to store well log information.
 Importing a LAS file Log ASCII Standard (LAS) files can be imported using the command: File-&amp;gt;Import-&amp;gt; Well Data-&amp;gt;Import Well Logs from File.
 ResInsight will look for the the well name in the imported LAS-files among the existing Well Paths. If a match is found, the LAS-file is placed as a child of that well path.</description>
@@ -186,30 +197,30 @@ ResInsight will look for the the well name in the imported LAS-files among the e
     
     <item>
       <title>Project File and Caching</title>
-      <link>https://resinsight.org/misc/projectfile/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/misc/projectfile/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/misc/projectfile/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/misc/projectfile/</guid>
       <description>The Project File ResInsight stores all views and settings in a Project File with the extension *.rsp to easily continue work in a subsequent session. This file only contains references to the real data files, and does not in any way copy the data itself. Data files generated by ResInsight are also referenced by the Project File.
 The *.rsp file is an XML file, and can be edited by any text editor.</description>
     </item>
     
     <item>
       <title>Python interface</title>
-      <link>https://resinsight.org/scripting/pythoninterface/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/scripting/pythoninterface/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/scripting/pythoninterface/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/scripting/pythoninterface/</guid>
       <description>ResInsight offers a powerful programming interface which allows you to interact with a running ResInsight instance from Python 3. This enables you to:
  start ResInsight from Python communicate with an a running ResInsight instance load a ResInsight project file load data files such as Eclipse EGRID files and summary files extract data to Python for further processing and automation export snapshots of graphics  Please refer to the ResInsight Python API for configuration and details.</description>
     </item>
     
     <item>
       <title>Cell Results</title>
-      <link>https://resinsight.org/3d-main-window/cellresults/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/cellresults/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/3d-main-window/cellresults/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/cellresults/</guid>
       <description>The main results to post process in ResInsight are Cell Results. A Cell Result is one value, or a small set of values per cell over a region of the grid. A Cell Result is also referred to as a Property.
 Cell Results are used in several operations and settings:
  Cell Colors Cell Edge Result (Eclipse Only) Separate Fault Result (Eclipse Only) Property Filters Well Log Extraction Curves Cell Result Time History Curves  In the property panel of all those, the same options are used to define the Cell Result of interest.</description>
@@ -217,10 +228,10 @@ Cell Results are used in several operations and settings:
     
     <item>
       <title>Command Line Interface</title>
-      <link>https://resinsight.org/scripting/commandlineinterface/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/scripting/commandlineinterface/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/scripting/commandlineinterface/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/scripting/commandlineinterface/</guid>
       <description>ResInsight supports several command line parameters that can be used to automate some tasks using shell scripts.
 Command line parameters are prefixed using a double dash. This convention is used on all platforms to make it possible to reuse scripts across different platforms. See GNU Standards for Command Line Interfaces.
 Examples on how command line options are used are given below
@@ -229,10 +240,10 @@ Command line options General    Parameter Description     --help, --?</descripti
     
     <item>
       <title>Eclipse Properties</title>
-      <link>https://resinsight.org/export/eclipseproperties/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/export/eclipseproperties/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/export/eclipseproperties/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/export/eclipseproperties/</guid>
       <description>Eclipse Properties can be exported to Eclipse ASCII files. This is particularly useful when a new property is generated using Octave. The generated property can be exported for further use in the simulator.
 Export Command To export the property currently active in the 3D View, activate the right-click menu on a Cell Result item in the Project Tree.
 The following dialog will appear:
@@ -241,30 +252,30 @@ The following dialog will appear:
     
     <item>
       <title>Geomechanical Data</title>
-      <link>https://resinsight.org/import/geomechanicaldata/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/import/geomechanicaldata/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/import/geomechanicaldata/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/import/geomechanicaldata/</guid>
       <description>ResInsight can be built with support for reading and displaying geomechanical analysis models produced by ABAQUS in the *.odb format. This is only possible if you or your organization has a copy of the ODB-Api from Simulia, and a valid license to use it.
 If you have, and would like to a use these features, please see Build Instructions  for a description on how to build ResInsight and how to include the support for odb-files.</description>
     </item>
     
     <item>
       <title>Memory Management</title>
-      <link>https://resinsight.org/misc/memorymanagement/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/misc/memorymanagement/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/misc/memorymanagement/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/misc/memorymanagement/</guid>
       <description>ResInsight can require a considerable amount of memory to hold all the grids and necessary result variables. If the requirements starts approaching the available physical memory on the workstation, ResInsight may become unstable and crash, as the operating system starts freeing memory to avoid system failure. To help alleviate this, ResInsight has some built-in memory management tools.
 Memory Indicator The tools are available from the memory indicator in the bottom right corner of the main 3D window.</description>
     </item>
     
     <item>
       <title>Summary Plot Source Stepping</title>
-      <link>https://resinsight.org/plot-window/summarysourcestepping/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/plot-window/summarysourcestepping/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/plot-window/summarysourcestepping/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/plot-window/summarysourcestepping/</guid>
       <description>Summary Plot Source Stepping Summary Source Stepping is a function which enables the user to swiftly step through multiple vectors. The functionality applies both to single summary curves and ensemble curve sets.
 The functionality is available from both the toolbar and the Summary Curves property editor under a Summary Plot item in the Main Plot Window Project Tree.
 The toolbar allows use of vector filters in addition to source stepping:</description>
@@ -272,10 +283,10 @@ The toolbar allows use of vector filters in addition to source stepping:</descri
     
     <item>
       <title>Well Paths</title>
-      <link>https://resinsight.org/wells-and-completions/wellpaths/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/wellpaths/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/wells-and-completions/wellpaths/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/wellpaths/</guid>
       <description>ResInsight can import well paths from simple Ascii files. In addition, ResInsight is able to retrieve well paths from an Equinor internal web service.
 ResInsight also supports creation of your own user-defined well paths. See Create Well Paths
 Ascii Well Paths The command File -&amp;gt; Import -&amp;gt; Well Data -&amp;gt; Import Well Paths From File will read the well paths in the selected file, and create one entry for each well path under the Wells item in the Project Tree.</description>
@@ -283,10 +294,10 @@ Ascii Well Paths The command File -&amp;gt; Import -&amp;gt; Well Data -&amp;gt;
     
     <item>
       <title>What&#39;s New in 2018.11</title>
-      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2018_11/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2018_11/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2018_11/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/whats-new/releasenotes_2018_11/</guid>
       <description>ResInsight 2018.11 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for Eclipse reservoir models. Version 2018.11 contains a larger number of new and exciting features, some of which are listed below.
 Local Grid Refinement (LGR) Local Grid Refinement (LGR) can be created based on Eclipse simulations. The refined grids can also be visualised in 3D.
 See Completions LGR
@@ -295,10 +306,10 @@ Well Path Creation ResInsight lets the user create new/custom well paths by clic
     
     <item>
       <title>Windows Installation</title>
-      <link>https://resinsight.org/getting-started/download-and-install/windows-installation/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/download-and-install/windows-installation/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/getting-started/download-and-install/windows-installation/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/download-and-install/windows-installation/</guid>
       <description>ResInsight Installation  Download ZIP binary distribution from https://github.com/OPM/ResInsight/releases Extract content from ZIP file Start ResInsight.exe  The binary distribution does not support ABAQUS odb files. For building ResInsight with ABAQUS support, see Build Instructions.
 Octave Installation (optional)  Download Octave-4.0.0 and install it. (Newer versions will not work) Launch ResInsight.exe, open Edit-&amp;gt;Preferences. On the Octave tab, enter the path to the Octave command line interpreter executable.
 ( Usually C:\Your\Path\To\Octave-x.</description>
@@ -306,30 +317,30 @@ Well Path Creation ResInsight lets the user create new/custom well paths by clic
     
     <item>
       <title>Help Menu and Documentation</title>
-      <link>https://resinsight.org/getting-started/helpmenuanddocumentation/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/helpmenuanddocumentation/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/getting-started/helpmenuanddocumentation/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/helpmenuanddocumentation/</guid>
       <description>ResInsight Help Menu ResInsight Help menu options are:
  About &amp;ndash; Opens a dialog with information on ResInsight version, enabled features, and technical information of subsystems. Command Line Help &amp;ndash; Provides an overview of ResInsight Command line parameters and their syntax. Summary Command Line Help &amp;ndash; Provides an overview of ResInsight Summary command line parameters and their syntax. Users Guide &amp;ndash; Opens the ResInsight documentation in your default browser Search Help &amp;ndash; Searches the ResInsight documentation for help on the selected item in Project Tree.</description>
     </item>
     
     <item>
       <title>SourSimRL Results</title>
-      <link>https://resinsight.org/import/soursimrlresults/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/import/soursimrlresults/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/import/soursimrlresults/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/import/soursimrlresults/</guid>
       <description>ResInsight is able to import transient results from the simulation software SourSimRL to combine reservoir souring simulation data with an Eclipse case for analysis and visualization. Results from SourSimRL in its sourres binary format can be imported using the SourSim File Name field as shown below:
 Importing such a file will enable result type called SourSimRL as explained in Eclipse Result Types</description>
     </item>
     
     <item>
       <title>Build Instructions</title>
-      <link>https://resinsight.org/getting-started/download-and-install/buildinstructions/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/download-and-install/buildinstructions/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/getting-started/download-and-install/buildinstructions/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/download-and-install/buildinstructions/</guid>
       <description>Source code The source code is hosted at GitHub
 In a git enabled shell do: git clone https://github.com/OPM/ResInsight.git
 Dependencies and Prerequisites Windows Compiler Visual Studio 2015 and later is supported.
@@ -340,10 +351,10 @@ On some configurations you will be asked to specify the location of Qt5.</descri
     
     <item>
       <title>Build Instructions CentOS 7</title>
-      <link>https://resinsight.org/getting-started/download-and-install/build-instructions-centos7/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/download-and-install/build-instructions-centos7/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/getting-started/download-and-install/build-instructions-centos7/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/download-and-install/build-instructions-centos7/</guid>
       <description>Dependencies and Prerequisites vcpkg can be used to install grpc for C++. This method is cross platform, and can be easier to use than directly installing grpc and dependencies directly from grpc source code. The source code for vcpkg is avaialable as a Git sub module in the folder &amp;lsquo;vcpkg&amp;rsquo;. Python3 is required.
 vcpkg requires relatively new versions of git and compiler.
 vcpkg
@@ -353,10 +364,10 @@ Reference project A test project for CentOS7 is configured using GitHub actions.
     
     <item>
       <title>Command File</title>
-      <link>https://resinsight.org/scripting/commandfile/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/scripting/commandfile/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/scripting/commandfile/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/scripting/commandfile/</guid>
       <description>The command file interface allows a sequence of specified commands to be run in order from the command line. The interface is used by supplying the command file as a command line parameter. Once the command file is finished executing, ResInsight will exit.
 It is possible to use these commands directly from a Python script. For further details, please see the ResInsight Python API.
 Command List Case Control Commands  openProject closeProject setStartDir loadCase createGridCaseGroup createStatisticsCase replaceCase replaceSourceCases  Export Commands  setExportFolder exportMultiCaseSnapshots exportSnapshots exportProperty exportPropertyInViews exportWellPathCompletions exportSimWellFractureCompletions exportMsw exportWellPaths exportVisibleCells exportFlowCharacteristics  Other Commands  runOctaveScript setMainWindowSize computeCaseGroupStatistics setTimeStep scaleFractureTemplate setFractureContainment createMultipleFractures createLgrForCompletions createSaturationPressurePlots  Syntax The command file is comprised of a set of commands to be executed in order.</description>
@@ -364,21 +375,20 @@ Command List Case Control Commands  openProject closeProject setStartDir loadCas
     
     <item>
       <title>Create Well Paths</title>
-      <link>https://resinsight.org/wells-and-completions/createnewwellpaths/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/createnewwellpaths/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/wells-and-completions/createnewwellpaths/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/createnewwellpaths/</guid>
       <description>ResInsight lets the user create new/custom well paths by clicking in the 3D view. A self created well path will behave the same way as an ordinary imported well path.
-To create a well path:
- Right click Wells in the project tree Select Create Well Path in the right-click menu. A new well node and a well targets node are created. Click in the 3D view on locations where the well path will pass (targets).</description>
+Building a well path  Right click Wells in the project tree Select Create Well Path in the right-click menu. A new well node and a well targets node are created. Click in the 3D view on locations where the well path will pass (targets).</description>
     </item>
     
     <item>
       <title>Element Property Table</title>
-      <link>https://resinsight.org/import/elementpropertytable/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/import/elementpropertytable/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/import/elementpropertytable/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/import/elementpropertytable/</guid>
       <description>Element property tables in ABQUS input file format can be imported into ResInsight and displayed as Element Results. This can be used to display material properties, or any scalar value on each element.
 To view the data as a Color Result select the Result Position: Element ( See Geomechanical Results )
 A couple of property names are recognized and treated specially:
@@ -387,10 +397,10 @@ A couple of property names are recognized and treated specially:
     
     <item>
       <title>FLUXNUM/MULTNUM</title>
-      <link>https://resinsight.org/export/fluxnummultnum/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/export/fluxnummultnum/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/export/fluxnummultnum/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/export/fluxnummultnum/</guid>
       <description>The visible cells can be exported as a FLUXNUM or MULTNUM keyword that can be used in an Eclipse input data deck.
 You can do this by using the command Export Visible Cells as FLUXNUM/MULTNUM found by right clicking:
  View in the Project Tree. Cell Result in the Project Tree. In any Eclipse 3D View.  The command can also be found in File -&amp;gt; Export. If the command is used in the project tree, the visible cells from the selected view are used for calculation.</description>
@@ -398,10 +408,10 @@ You can do this by using the command Export Visible Cells as FLUXNUM/MULTNUM fou
     
     <item>
       <title>Keyboard Shortcuts</title>
-      <link>https://resinsight.org/misc/keyboardshortcuts/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/misc/keyboardshortcuts/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/misc/keyboardshortcuts/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/misc/keyboardshortcuts/</guid>
       <description>ResInsight supports a selection of Keyboard Shortcuts for convenience. These include Delete for removing deletable items from the project tree, Ctrl-Alt-A for Zoom All and Ctrl-Alt-S/N/W/E/D/U for changing the camera view to South, North, West, East, Down and Up respectively.
 Other available keyboard shortcuts are
  Ctrl-Shift-P for opening up the plot window when you are in the 3d View Ctrl-Shift-3 for opening up the 3d View while you are in the Plot Window Ctrl-X for Cut and Ctrl-V for Paste of project tree items where this functionality is available.</description>
@@ -409,11 +419,11 @@ Other available keyboard shortcuts are
     
     <item>
       <title>Model Navigation</title>
-      <link>https://resinsight.org/getting-started/modelnavigation/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/modelnavigation/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/getting-started/modelnavigation/</guid>
-      <description>ResInsight comes with four navigation modes. The active mode can be selected in the [Preferences dialog] (/misc/preferences/).
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/modelnavigation/</guid>
+      <description>ResInsight comes with four navigation modes. The active mode can be selected in the [Preferences dialog] (/ResInsight-UserDocumentation/misc/preferences/).
 Note that changing the navigation mode applies to the currently active view only, and views created after the change.
 These abbreviations are used in the tables below:
    Abbreviation Meaning     LMB Press the left mouse button   MMB Press the middle mouse button or scroll wheel button   RMB Press the right mouse button    The following applies to all navigation modes:</description>
@@ -421,10 +431,10 @@ These abbreviations are used in the tables below:
     
     <item>
       <title>Observed Time History Data</title>
-      <link>https://resinsight.org/import/observeddata/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/import/observeddata/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/import/observeddata/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/import/observeddata/</guid>
       <description>Observed Time History Data, is data measured in time. On import of observed time history data, ResInsight translates the data to make it similar to summary data. Observed time history data can be plotted along with summary data in Summary Plots.
 Import Observed Time History Data Importing observed time history data to ResInsight may be performed in two different ways:
  By selecting the main menu item File -&amp;gt; Import -&amp;gt; Import Observed Time History Data By using the right-click command Import Observed Time History Data on the Observed Time History Data item in the Plot Main Window Project Tree  The following file types are supported:</description>
@@ -432,10 +442,10 @@ Import Observed Time History Data Importing observed time history data to ResIns
     
     <item>
       <title>Result Color Legend</title>
-      <link>https://resinsight.org/3d-main-window/resultcolorlegend/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/resultcolorlegend/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/3d-main-window/resultcolorlegend/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/resultcolorlegend/</guid>
       <description>The color mapping of the displayed cell result is controlled by the Color Legend item in Project Tree. The legend can be shown or hidden by checking or unchecking the box in front of the Color Legend item.
 Legend configuration As shown above, the Legend configuration for cell results allows the following settings:
  Number of levels &amp;ndash; Defines the number of tick marks displayed next to the color legend Significant digits &amp;ndash; Defines the number of significant digits in the number formatting Number format &amp;ndash; Defines how the numbers are formatted Colors &amp;ndash; Defines the color palette for the legend by selecting from Color Legends Mapping &amp;ndash; Defines the mapping of numerical values to legend colors:  Discrete Linear &amp;ndash; Legend divided into linear levels defined by Number of levels Continuous Linear &amp;ndash; Continuous linear legend with tick mark count defined by Number of levels Continuous Logarithmic &amp;ndash; Continuous logarithmic legend with tick mark count defined by Number of levels Discrete Logarithmic &amp;ndash; Logarithmic legend divided into levels defined by Number of levels Category &amp;ndash; Legend with one level per category for formation names and discrete data (e.</description>
@@ -443,10 +453,10 @@ Legend configuration As shown above, the Legend configuration for cell results a
     
     <item>
       <title>Summary Plot Editor</title>
-      <link>https://resinsight.org/plot-window/summaryploteditor/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/plot-window/summaryploteditor/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/plot-window/summaryploteditor/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/plot-window/summaryploteditor/</guid>
       <description>The plot editor is a separate ResInsight dialog window where the user can select which vectors to display in a summary plot. It is also possible to edit an existing plot in this editor.
 The upper part of the editor contains editors for selecting which vectors/summaries to display in the plot. The number of fields vary from 3 to 6 depending on the Summary Type currently highlighted.
 In this context highlighted means the marked item with a different background color, while selected means an item or items that have a ticked check box.</description>
@@ -454,78 +464,78 @@ In this context highlighted means the marked item with a different background co
     
     <item>
       <title>Color Legends</title>
-      <link>https://resinsight.org/3d-main-window/colorlegends/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/colorlegends/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/3d-main-window/colorlegends/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/colorlegends/</guid>
       <description>ResInsight offers both a rich set of built-in color legends and functionality for import and customizing color legends. All color legends are available from the Color Legends item in Project Tree.
 Standard Color Legends ResInsight offers an extensive set of built-in color legends as listed by Standard Color Legends. As Standard Color Legends cannot be modified, you must create a Custom Color Legend when needing a legend that is not covered by Standard Color Legends.</description>
     </item>
     
     <item>
       <title>Comparison View</title>
-      <link>https://resinsight.org/3d-main-window/comparisonview/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/comparisonview/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/3d-main-window/comparisonview/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/comparisonview/</guid>
       <description>ResInsight offers a Comparison View to compare two existing views in terms of grid geometry, results, intersections and more. The Comparison View allows comparison of information of different grids and different solutions on the same grid in a single view. This improves efficiency and simplifies the workflow when working with related but different models.
 The figure above exemplifies a Comparison View for comparison of two different simulations models and results. The left hand side is used to display grid and results of an Eclipse simulation while the right hand side displays an ABAQUS grid and simulation results from geomechanical analysis.</description>
     </item>
     
     <item>
       <title>3D Well Log Plots</title>
-      <link>https://resinsight.org/wells-and-completions/3dwelllogcurves/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/3dwelllogcurves/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/wells-and-completions/3dwelllogcurves/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/3dwelllogcurves/</guid>
       <description>ResInsight can display well logs curves directly in the 3D view with a subset of the functionality of the full 2D Well Log Plot Editor. The curves will be drawn in a plane next to or centered on the well trajectory they belong to and can display well log data from a simulation model and from imported LAS-files.
 Creating new 3D Well Log Curves Add a new 3D well log curve by selecting a Well Path in the Project Tree, right-clicking and selecting 3D Well Log Curves and Add 3D Well Log Curve.</description>
     </item>
     
     <item>
       <title>Completions</title>
-      <link>https://resinsight.org/export/completionexport/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/export/completionexport/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/export/completionexport/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/export/completionexport/</guid>
       <description>The completions defined in ResInsight can be exported to Eclipse for use in new simulation runs. The commands Export Completion Data For Visible Wells, Export Completion Data For Visible Simulation Wells and Export Completion Data For Selected Wells can be used to invoke the export. The commands are available by right clicking Well Paths or Simulation Wells in the Project Tree. The first command is available from the File-&amp;gt;Import menu as well.</description>
     </item>
     
     <item>
       <title>Contour Maps</title>
-      <link>https://resinsight.org/3d-main-window/contourmaps/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/contourmaps/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/3d-main-window/contourmaps/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/contourmaps/</guid>
       <description>ResInsight can create contour maps based on different forms of aggregation of 3D Eclipse data onto a 2D Plane. Any 3D result value can be aggregated, in addition to specialised results, such as Oil, Gas and Hydrocarbon columns. A Contour Map is a specialised 2D view with many of the same features as the 3D views, including property filters, range filters and display of faults and wells. ResInsight is able to export a contour map to a text file.</description>
     </item>
     
     <item>
       <title>Paste Excel Time History Data</title>
-      <link>https://resinsight.org/import/pasteexceltimedata/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/import/pasteexceltimedata/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/import/pasteexceltimedata/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/import/pasteexceltimedata/</guid>
       <description>When text have been copied to the operating system&amp;rsquo;s clipboard, it will be possible to paste that text into a summary plot. Right click on a summary plot in the Plot Main Window Project Tree and select Paste Excel Data to Summary Plot. Then a paste options dialog will appear.
 Paste Options Dialog Most of the fields in this dialog are the same as in the CSV/txt import options dialog. Please see that section for documentation on those fields.</description>
     </item>
     
     <item>
       <title>Regression Test System</title>
-      <link>https://resinsight.org/misc/regressiontestsystem/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/misc/regressiontestsystem/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/misc/regressiontestsystem/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/misc/regressiontestsystem/</guid>
       <description>A regression tool for QA is build into ResInsight. This tool will do the following:
  Scan a directory for sub directories containing a RegressionTest.rsp files. Each found project file will be opened, and all views in this project will be exported as snapshot images to file. When snapshot images from all projects are completed, difference images based on generated and QA-approved images are computed. Based on these three sets of images, an HTML report is created and automatically displayed.</description>
     </item>
     
     <item>
       <title>Release Notification Subscription</title>
-      <link>https://resinsight.org/getting-started/other/releasenotification/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/other/releasenotification/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/getting-started/other/releasenotification/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/other/releasenotification/</guid>
       <description>LinkedIn Feel free to join ResInsight on LinkedIn
 Newsletter By subscribing to the Release Notification you will get notified when new releases are available. Please use the button below to send a request for subscription mail.
 Subscribe</description>
@@ -533,30 +543,30 @@ Subscribe</description>
     
     <item>
       <title>Summary Cross Plot</title>
-      <link>https://resinsight.org/plot-window/summarycrossplots/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/plot-window/summarycrossplots/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/plot-window/summarycrossplots/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/plot-window/summarycrossplots/</guid>
       <description>A Summary Cross Plot is a window displaying a graph in the main area of the Plot Main Window. It is very similar to an ordinary Summary Plot, but there are some differences:
  Summary Cross Plot displays one vector against another vector, not one vector against time. Not possible to paste Excel/CSV data to a summary cross plot. Summary cross plots have no Plot Editor.  The only way to create a new Summary Cross Plot, is to select the right-click command New Summary Cross Plot on the Plot Main Window -&amp;gt; Project Tree -&amp;gt; Summary Cross Plots item.</description>
     </item>
     
     <item>
       <title>Summary Plot Template</title>
-      <link>https://resinsight.org/plot-window/summaryplottemplate/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/plot-window/summaryplottemplate/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/plot-window/summaryplottemplate/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/plot-window/summaryplottemplate/</guid>
       <description>Template creation A summary plot template is defined by a number of curves with preset appearance and vector names. The parameters that are selected or varied by the user are:
  case(s) item(s), i.e. well(s), group(s), region(s)  Having tailored a plot setup, the user can save the setup as a template via the right-click command Save As Plot Template, c.f. figure above. It is also possible to select a summary plot in the Plot Project Tree and use the right-click menu to save a template.</description>
     </item>
     
     <item>
       <title>Multi Plots</title>
-      <link>https://resinsight.org/plot-window/multiplots/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/plot-window/multiplots/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/plot-window/multiplots/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/plot-window/multiplots/</guid>
       <description>A Multi Plot allows the user to combine multiple plots in a grid layout. Plots from different types can be combined. This plot type is tailored for export to PDF.
 Multi Plot Usage A new Multi Plot can be created by selecting a set of plots and from the right-click menu select Create Multi Plot from Selected Plots
 The currenly supported types of plots to be part of a Multi Plot are:</description>
@@ -564,20 +574,20 @@ The currenly supported types of plots to be part of a Multi Plot are:</descripti
     
     <item>
       <title>Completions</title>
-      <link>https://resinsight.org/wells-and-completions/completions/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/completions/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/wells-and-completions/completions/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/completions/</guid>
       <description>Three types of completions are available for modeling and export: Perforation intervals, fishbone wells and fractures. The purpose of modeling these completions, is that it enables ResInsight to export Eclipse keywords for doing more refined simulations.
 Completions can be modeled by adding new perforation intervals, fishbones subs or fractures. Details about the completions must then be specified, such as the length of the perforation interval or number of fishbone subs and laterals.</description>
     </item>
     
     <item>
       <title>Ensemble Plotting</title>
-      <link>https://resinsight.org/plot-window/ensembleplotting/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/plot-window/ensembleplotting/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/plot-window/ensembleplotting/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/plot-window/ensembleplotting/</guid>
       <description>An ensemble is a group of cases that are tightly coupled, only a set of ensemble input parameters differ between cases. This makes it relevant to perform calculations and statistics analysis on ensembles.
 Import There are several ways to import an ensemble:
  Use menu option File-&amp;gt;Import-&amp;gt;Summary Cases-&amp;gt;Import Ensemble Use menu option File-&amp;gt;Import-&amp;gt;Summary Cases-&amp;gt;Import Summary Case group and then convert the group to an ensemble Import a number of summary cases, move them into a group and then convert the group to an ensemble  During import of a summary case, ResInsight tries to find an associated parameters.</description>
@@ -585,10 +595,10 @@ Import There are several ways to import an ensemble:
     
     <item>
       <title>Flow Vector Result</title>
-      <link>https://resinsight.org/3d-main-window/flowvectorresult/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/flowvectorresult/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/3d-main-window/flowvectorresult/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/flowvectorresult/</guid>
       <description>The Flow Vector Result View lets the user investigate fluxes by visualizing flow vectors in the reservoir. It allows for selecting and combining different fluids and directions. Selected vectors can be combined and scaled.
 The flow vectors are based on the Eclipse properties FLRGASI/J/K FLRWATI/J/K FLROILI/J/K
 Open the Flow Vector Result View In order to show Flow Vector Results, select and check the checkbox next to Flow Vector Result in the Project Tree.</description>
@@ -596,10 +606,10 @@ Open the Flow Vector Result View In order to show Flow Vector Results, select an
     
     <item>
       <title>Octave Interface</title>
-      <link>https://resinsight.org/scripting/octaveinterface/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/scripting/octaveinterface/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/scripting/octaveinterface/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/scripting/octaveinterface/</guid>
       <description>ResInsight provides a flexible interface to Octave including:
  Octave functions that communicates with a running ResInsight session Features to simplify management and editing of Octave scripts from ResInsight Commands to execute scripts using Octave.  The Octave functions are documented in Octave Interface Reference.
 Note: The Octave interface does not support Flow diagnostics and Injection flooding results in addition to Geomechanical cases.
@@ -608,10 +618,10 @@ Note: The Octave interface does not support Flow diagnostics and Injection flood
     
     <item>
       <title>Tensor Results</title>
-      <link>https://resinsight.org/3d-main-window/tensors/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/tensors/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/3d-main-window/tensors/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/tensors/</guid>
       <description>Tensors are arrows showing the average principal vectors in an element, shown on every visible face of the element.
 The tensor results editor is found in a geo mechanical model&amp;rsquo;s View in the project tree as seen below.
 Visualization The tensor arrows visualize the principal vectors in three directions. Each colored pair of arrows represents a principal. In the example above, the orange and blue arrows represent pressures and the white arrows represent a tension.</description>
@@ -619,10 +629,10 @@ Visualization The tensor arrows visualize the principal vectors in three directi
     
     <item>
       <title>Well Paths</title>
-      <link>https://resinsight.org/export/exportwellpaths/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/export/exportwellpaths/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/export/exportwellpaths/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/export/exportwellpaths/</guid>
       <description>In order to export well paths to dev files, select the menu item File -&amp;gt; Export -&amp;gt; Export Visible Well Paths or select one or more well paths and then select one of the items in the sub menu Export Well Paths.
 A dialog appears after selecting an export well path command.
  Export Folder - Folder for the exported well path file(s). The folder will be created when performing the export and the names of the exported file(s) will be on the format &amp;lt;well name&amp;gt;.</description>
@@ -630,10 +640,10 @@ A dialog appears after selecting an export well path command.
     
     <item>
       <title>Analysis Plots</title>
-      <link>https://resinsight.org/plot-window/analysisplots/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/plot-window/analysisplots/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/plot-window/analysisplots/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/plot-window/analysisplots/</guid>
       <description>Analysis Plots are bar charts used to compare summary data at specific timesteps across Ensembles and Summary Cases.
 Creating an Analysis Plot The most convenient way to create an Analysis Plot at a given time step is often to right-click an Ensemble Plot and invoke New Analysis Plot as shown below.
 Alternatively, Analysis Plots can be created by right-clicking the Analysis Plots item in Plot Project Tree.
@@ -642,10 +652,10 @@ Having created an Analysis Plot, subitems Value Axis and Plot Data Filters emerg
     
     <item>
       <title>Correlation Plots</title>
-      <link>https://resinsight.org/plot-window/correlationplots/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/plot-window/correlationplots/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/plot-window/correlationplots/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/plot-window/correlationplots/</guid>
       <description>Correlation Plots are plots used to visualize correlations between ensemble parameters and summary result vectors. Several visualizations can be created, including tornado plots, correlation matrices, and cross plots.
 Creating a Correlation Plot The most convenient way to create a Correlation Plot at a given time step is often to right-click an Ensemble Plot and invoke the submenu shown below.
 Alternatively, Correlation Plots can be created by right-clicking the Correlation Plots item in Plot Project Tree.</description>
@@ -653,10 +663,10 @@ Alternatively, Correlation Plots can be created by right-clicking the Correlatio
     
     <item>
       <title>Completions LGR</title>
-      <link>https://resinsight.org/wells-and-completions/completionslgr/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/completionslgr/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/wells-and-completions/completionslgr/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/completionslgr/</guid>
       <description>ResInsight supports creating and exporting LGRs (Local Grid Refinement) in main grid cells intersected by completions.
 Create Temporary LGRs To create temporary LGR(s), first select one or more well paths in the project tree, right click and select &amp;lsquo;Create Temporary LGR&amp;rsquo;. This command brings up the following dialog.
 The dialog contains several input fields
@@ -665,10 +675,10 @@ The dialog contains several input fields
     
     <item>
       <title>Curve Calculator</title>
-      <link>https://resinsight.org/plot-window/curvecalculator/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/plot-window/curvecalculator/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/plot-window/curvecalculator/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/plot-window/curvecalculator/</guid>
       <description>The summary curve calculator is a tool to do relative simple vector calculations on a set of curves. The created curves can be stored for later use in the project.
 The calculator can be run by pressing the calculator icon in the menu bar, or by right-clicking on either a summary case or the summary plot collection.
 Calculation Settings To make a new calculated curve, click on New Calculation. This will add a new calculation to Calculated Summaries.</description>
@@ -676,20 +686,20 @@ Calculation Settings To make a new calculated curve, click on New Calculation. T
     
     <item>
       <title>Octave Interface Reference</title>
-      <link>https://resinsight.org/scripting/octaveinterfacereference/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/scripting/octaveinterfacereference/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/scripting/octaveinterfacereference/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/scripting/octaveinterfacereference/</guid>
       <description>Introduction To identify a ResInsight case uniquely in the Octave script, an integer Id (CaseId) is used. This Id can be retrieved in several ways, but there are two main modes of operation regarding this for a particular octave script: Either the script is designed to work on a single case (the &amp;ldquo;Current Case&amp;rdquo;), or the script is designed to access the selection and traverse the cases by itself.
 Note: The Octave interface does not support Geomechanical cases and flow diagnostic results.</description>
     </item>
     
     <item>
       <title>Result Inspection</title>
-      <link>https://resinsight.org/3d-main-window/resultinspection/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/resultinspection/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/3d-main-window/resultinspection/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/resultinspection/</guid>
       <description>The results mapped on the 3D model can be inspected in detail by left clicking cells in the 3D view. The selected cells will be highlighted, text information displayed in the Result Info docking window, and the time-history values plotted in the Result Plot, if available.
 Visibility of the docking widows can be controlled from the Windows menu.
 Result Info Clicking cells will display slightly different information text based on the case type as described in the following tables.</description>
@@ -697,10 +707,10 @@ Visibility of the docking widows can be controlled from the Windows menu.
     
     <item>
       <title>Sector Model</title>
-      <link>https://resinsight.org/export/sectormodel/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/export/sectormodel/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/export/sectormodel/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/export/sectormodel/</guid>
       <description>Sub-sections of the Eclipse Grid with Parameters and Faults can be exported to Eclipse ASCII files in order to create new Simulations on the sub-section.
 Exporting an Eclipse Sector Model To launch the export dialog, right-click on either the 3D-view in question or the Cell Result.
 Exporting Grid and Faults Grid Export The Export dialog will allow the user to export grid data as ascii (An Eclipse Input Grid) to a specific file name by checking the Export Grid Data option.</description>
@@ -708,10 +718,10 @@ Exporting Grid and Faults Grid Export The Export dialog will allow the user to e
     
     <item>
       <title>Testimonials</title>
-      <link>https://resinsight.org/getting-started/other/testimonials/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/getting-started/other/testimonials/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/getting-started/other/testimonials/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/getting-started/other/testimonials/</guid>
       <description>“I have been using ResInsight now for some time and have stopped using the commercial software as ResInsight is much more responsive and easier to use. It really is an excellent piece of software.”
 David Baxendale
 Senior Petroleum Engineering Advisor, RPS Energy
@@ -720,10 +730,10 @@ Senior Petroleum Engineering Advisor, RPS Energy
     
     <item>
       <title>Cell Filters</title>
-      <link>https://resinsight.org/3d-main-window/filters/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/filters/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/3d-main-window/filters/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/filters/</guid>
       <description>Cell Filters are used to control visibility of the cells in the 3D view. Two types of filters exists:
  Range Filter &amp;ndash; Extracts an IJK subset of the model. Property Filter &amp;ndash; Extracts cells with a property value matching a value range.  The visibilities of cells connection to wells, and fences based on these cells can be controlled from  Simulation Wells .
 (Not applicable for Geomechanical cases)</description>
@@ -731,10 +741,10 @@ Senior Petroleum Engineering Advisor, RPS Energy
     
     <item>
       <title>Well Log Plots</title>
-      <link>https://resinsight.org/plot-window/welllogsandplots/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/plot-window/welllogsandplots/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/plot-window/welllogsandplots/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/plot-window/welllogsandplots/</guid>
       <description>ResInsight can display well logs by extracting data from a simulation model along a well trajectory and from imported LAS-files. Extracted simulation data can be exported to LAS-files for further processing.
 Well Log Plots Well log plots can be created in several ways:
  Right-click a well path or a simulation well in the 3D-view and select New Well Log Extraction Curve.
@@ -743,10 +753,10 @@ A new plot with a single Track and Curve is created matching active case and sel
     
     <item>
       <title>Well Measurements</title>
-      <link>https://resinsight.org/wells-and-completions/wellmeasurements/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/wellmeasurements/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/wells-and-completions/wellmeasurements/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/wells-and-completions/wellmeasurements/</guid>
       <description>ResInsight can import well measurements from a comma-separated values file.
 Importing Well Measurements The command File -&amp;gt; Import -&amp;gt; Well Data -&amp;gt; Import Measurements will read well measurements from the selected files, and create one entry for each file under the Wells -&amp;gt; Well Measurements item in the Project Tree.
 File Format The format is comma-separated values with one measurement per line. The following requirements have to be met:
@@ -755,20 +765,20 @@ File Format The format is comma-separated values with one measurement per line. 
     
     <item>
       <title>Intersections</title>
-      <link>https://resinsight.org/3d-main-window/intersections/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/intersections/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/3d-main-window/intersections/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/intersections/</guid>
       <description>Intersections are cross sections of the grid model that displays the grid cell values on planes that cut through the grid in various ways.
 There are two main types of intersections. The first one which simply is called Intersection, is defined by a piece-wise linear curve and an extrusion direction. The curve can be either a Simulation Well, a Well Path, a user defined polyline, or a user defined line. These intersections can also be shown in their own separate 2D Intersection View</description>
     </item>
     
     <item>
       <title>Well Bore Stability Plots</title>
-      <link>https://resinsight.org/plot-window/wellborestabilityplots/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/plot-window/wellborestabilityplots/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/plot-window/wellborestabilityplots/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/plot-window/wellborestabilityplots/</guid>
       <description>ResInsight can create Well Bore Stability plots for Geomechanical cases. These plots are specialized Well Log Plots to visualize Formations, Well Measurements, Well Path Attributes as well as a set of well path derived curves in different tracks.
 In the figure above, the first track contains Formations and an indication of sea level.
    Sea Level Formations          The second track contains a visualisation of the well, with well attributes of Casing Design as well Completions</description>
@@ -776,10 +786,10 @@ In the figure above, the first track contains Formations and an indication of se
     
     <item>
       <title>Surfaces</title>
-      <link>https://resinsight.org/3d-main-window/surfaces/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/surfaces/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/3d-main-window/surfaces/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/surfaces/</guid>
       <description>ResInsight is capable of mapping properties and simulation results onto 3D surfaces imported from GOCAD and Petrel as specified below.
 Import and appearance of surfaces 3D surfaces from GOCAD and Petrel are imported into ResInsight by the menu option File-&amp;gt;Import-&amp;gt;Import Surfaces in the 3D Main Window.
 Imported surfaces are listed under the entry in the Project Tree. You can click on a surface to change i.e. the name or color of the surface, or change the file to read the surface data from.</description>
@@ -787,10 +797,10 @@ Imported surfaces are listed under the entry in the Project Tree. You can click 
     
     <item>
       <title>Allan Diagram</title>
-      <link>https://resinsight.org/3d-main-window/allandiagrams/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/allandiagrams/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/3d-main-window/allandiagrams/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/allandiagrams/</guid>
       <description>Allan Diagrams displays the overlap of formations and layers across fault faces.
 Separate Fault Result The Allan Diagram is dispayed by selecting the Separate Fault Result in the project tree. See Faults  for more details.
 Property Editor Settings  Binary Formation Allan One color for all NNC areas with same formation on across fault, and one color for NNC with different formations across fault Formation Allan Formation colors are used, and a mix of the two formation colors are displayed if we have different formations across fault  Mouse interaction When clicking on an NNC area multiple times, the highlighted cell switched from the cell in front of the formation and behind the fault.</description>
@@ -798,10 +808,10 @@ Property Editor Settings  Binary Formation Allan One color for all NNC areas wit
     
     <item>
       <title>Biot Coefficient</title>
-      <link>https://resinsight.org/workflows/biotcoefficient/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/workflows/biotcoefficient/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/workflows/biotcoefficient/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/workflows/biotcoefficient/</guid>
       <description>Background
 The Biot porelastic coefficient defines the compressibility of sand grains, and will influence some of the calculations in ResInsight.
 Description The Biot coefficient can be defined in three ways:
@@ -810,10 +820,10 @@ Description The Biot coefficient can be defined in three ways:
     
     <item>
       <title>Faults</title>
-      <link>https://resinsight.org/3d-main-window/faults/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/faults/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/3d-main-window/faults/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/faults/</guid>
       <description>This section describes how Faults are detected and visualized. NNC&amp;rsquo;s are a part of the Faults visualization and are thus also mentioned in this section.
 Related pages :
 Allan Diagrams
@@ -824,40 +834,40 @@ All the tagged cell faces are then compared to the faults possibly imported from
     
     <item>
       <title>RFT Plot</title>
-      <link>https://resinsight.org/plot-window/rftplot/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/plot-window/rftplot/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/plot-window/rftplot/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/plot-window/rftplot/</guid>
       <description>An RFT (Repeated Formation Tester) plot is a special well plot for comparing observed formation pressure and simulated formation pressure. The curves are plotted as pressure against true vertical depth (TVD) or measured depth (MD). Simulated pressure data is retrieved directly from the grid model or from the corresponding (*.rft) files, while observed pressure data are loaded from well log files (*.las).
 Create New RFT Plot There are several ways to create new RFT Plots.</description>
     </item>
     
     <item>
       <title>Contour Map Export</title>
-      <link>https://resinsight.org/export/contourmapexport/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/export/contourmapexport/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/export/contourmapexport/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/export/contourmapexport/</guid>
       <description>ResInsight can create contour maps based on different forms of aggregation of 3D Eclipse data onto a 2D Plane. Any 3D result value can be aggregated, in addition to specialised results, such as oil, gas and hydrocarbon columns. A Contour Map is a specialised 2D view with many of the same features as the 3D views, including property filters, range filters and display of faults and wells.
 Export of Contour Map Data To export a contour map, invoke one of the following options (c.</description>
     </item>
     
     <item>
       <title>Ensemble RFT Plot</title>
-      <link>https://resinsight.org/plot-window/ensemblerftplot/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/plot-window/ensemblerftplot/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/plot-window/ensemblerftplot/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/plot-window/ensemblerftplot/</guid>
       <description>ResInsight allows the user to create a ensemble RFT plot similar to summary ensemble plots. The functionality also computes statistics, e.g. P10, P90, and mean. When possible, ResInsight avoids loading the grid when reading ensemble RFT data.
 Create New Ensemble RFT Plot When a summary ensemble has been imported, observed FMU data can be imported via right-clicking Observed Data in the Plot Project Tree, and selecting Import Observed FMU Data.</description>
     </item>
     
     <item>
       <title> Zonations/Formations</title>
-      <link>https://resinsight.org/3d-main-window/formations/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/formations/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/3d-main-window/formations/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/formations/</guid>
       <description>This section will describe how to use formations for different k-layers of a case, and how to use well picks/zonations for ranges of measured depths of a well path.
 Formations for k-layers Formation information can be utilized in ResInsight as cell colors, used in property filters and are displayed in the Result info panel when selecting single cells.
 To use this functionality you will need to :
@@ -866,20 +876,20 @@ To use this functionality you will need to :
     
     <item>
       <title>PLT Plot</title>
-      <link>https://resinsight.org/plot-window/pltplot/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/plot-window/pltplot/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/plot-window/pltplot/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/plot-window/pltplot/</guid>
       <description>A PLT (Production Log Tool) plot is a special well plot for comparing observed production (well flow rates) and simulated production. The curves are plotted as production against measured depth (MD). Simulated production data is retrieved directly from the grid model or from the corresponding (*.rft) files, while observed production data are loaded from well log files (*.las).
 Create New PLT Plot There are several ways to create new PLT Plots</description>
     </item>
     
     <item>
       <title>Flow Diagnostics Plots</title>
-      <link>https://resinsight.org/plot-window/flowdiagnosticsplots/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/plot-window/flowdiagnosticsplots/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/plot-window/flowdiagnosticsplots/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/plot-window/flowdiagnosticsplots/</guid>
       <description>Flow Diagnostics Plots can be used to view well allocation, well inflow rates, cumulative saturation along time of flight and flow characteristics.
 They are managed from the folder Flow Diagnostics Plots located in Plot Project Tree in the Plot Main Window.
 This folder contains a default Flow Characteristics Plot and Well Allocation Plot. In addition, two folders with stored well allocation and flow characteristics plots will show up if there are any of those in the model.</description>
@@ -887,10 +897,10 @@ This folder contains a default Flow Characteristics Plot and Well Allocation Plo
     
     <item>
       <title>Grid Statistics Dialog</title>
-      <link>https://resinsight.org/3d-main-window/gridstatisticsdialog/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/gridstatisticsdialog/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/3d-main-window/gridstatisticsdialog/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/gridstatisticsdialog/</guid>
       <description>ResInsight 3D Views has an info box in the upper right corner displaying statistics for the current view. A more detailed version of this information may also be displayed in a separate dialog window. Right click on the 3D view background and select Grid Statistics to bring up the dialog.
 Grid Statistics Dialog Fields The dialog consist of three information parts.
  Info text Histogram Cumulative Histogram  Info Text The Info Text field shows general info about the case, the selected results, and some statistics.</description>
@@ -898,39 +908,39 @@ Grid Statistics Dialog Fields The dialog consist of three information parts.
     
     <item>
       <title>Grid Case Groups and Statistics</title>
-      <link>https://resinsight.org/3d-main-window/casegroupsandstatistics/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/casegroupsandstatistics/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/3d-main-window/casegroupsandstatistics/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/casegroupsandstatistics/</guid>
       <description>Grid Case Group&amp;lsquo;s are designed to make it easy to calculate statistics per cell and per time step of a large number of Eclipse simulation Cases with identical Grids (often labeled realizations).
 If you have several Eclipse simulations with different input parameters available, you can put all the realizations into a Grid Case Group and easily calculate each of the cells mean value, range and max/min values at each time step between the realizations.</description>
     </item>
     
     <item>
       <title>Grid Cross Plots</title>
-      <link>https://resinsight.org/plot-window/gridcrossplots/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/plot-window/gridcrossplots/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/plot-window/gridcrossplots/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/plot-window/gridcrossplots/</guid>
       <description>ResInsight supports the creation of scatter / cross plots of two Eclipse results against each other, with each cell in the grid representing one data point in the plot. The data points can be grouped by a third result, by time step or by Formations. giving a separate color and label for each group. The above example shows a classic Porosity vs Permeability plot, grouped by formations, showing different trends for each formation.</description>
     </item>
     
     <item>
       <title>Linked Views</title>
-      <link>https://resinsight.org/3d-main-window/linkedviews/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/linkedviews/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/3d-main-window/linkedviews/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/linkedviews/</guid>
       <description>One or more views can be linked together to allow some settings like camera position and range filters, propagate from one view to another.
 Establish Linked Views To establish a link between views, select Link Visible Views from the View toolbar. This will open a dialog where the Master View is selected. When pressing Ok in this dialog, the Linked Views items are displayed in the top of the Project Tree.</description>
     </item>
     
     <item>
       <title>Saturation Pressure Plots</title>
-      <link>https://resinsight.org/plot-window/saturationpressureplots/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/plot-window/saturationpressureplots/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/plot-window/saturationpressureplots/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/plot-window/saturationpressureplots/</guid>
       <description>A Saturation Pressure Plot a plot displaying bubble and dew point pressures, together with initial pressure in model, versus depth. Fluid contacts (GOC and/or OWC) are displayed as annotation lines in the generated plots. One Saturation Pressure Plot is created for each equilibrium region.
 To be able to create these plots, output of saturation pressures need to be specified in the SOLUTION section of the Eclipse &amp;ldquo;.DATA&amp;rdquo; file.
 To create these plots, right click on the view in the Property Editor, and select Create Saturation Pressure Plots.</description>
@@ -938,30 +948,30 @@ To create these plots, right click on the view in the Property Editor, and selec
     
     <item>
       <title>Measurement</title>
-      <link>https://resinsight.org/3d-main-window/measurement/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/measurement/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/3d-main-window/measurement/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/measurement/</guid>
       <description>ResInsight supports measurements in the 3D views. To enter measurement mode, press the ruler toolbar button or the keyboard shortcut Ctrl-M. This mode can also be activated from the right-click menu in a 3D view.
 When ResInsight is in measurement mode, clicking on an surface in the 3D view will set the first measurement point. Clicking on a different surface will set the second measurement point, and display a label with measurements.</description>
     </item>
     
     <item>
       <title>Annotations</title>
-      <link>https://resinsight.org/3d-main-window/annotations/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/annotations/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/3d-main-window/annotations/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/annotations/</guid>
       <description>ResInsight supports displaying a few types of annotations in 3D views and Contour Map view.
  Text annotations Reach circle annotations Polyline annotations  User defined polylines Polylines imported from file    Global scope vs local scope annotations Global annotations may be displayed in all views and are located in the Annotations project tree node right below Grid Models (Global annotations sub tree). Local annotations are associated with a specific view and are located in the Annotations project tree node below the view node (Local annotations sub tree).</description>
     </item>
     
     <item>
       <title>Derived Results - Eclipse</title>
-      <link>https://resinsight.org/3d-main-window/derivedresults/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/derivedresults/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/3d-main-window/derivedresults/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/derivedresults/</guid>
       <description>ResInsight computes several derived results. In this section we will explain what they are, and briefly how they are calculated.
 Derived Results for Eclipse Cases ResInsight calculates several derived cell properties that is made available as Static or Dynamic cell properties. The derived results listed at the bottom of the Static result properties, are shown below.
 Transmissibility Normalized by Area The transmissibility for cells and Non-Neighbor Connections (NNCs) are dependent on both cell properties and geometry.</description>
@@ -969,10 +979,10 @@ Transmissibility Normalized by Area The transmissibility for cells and Non-Neigh
     
     <item>
       <title>Derived Results - Geomechanical</title>
-      <link>https://resinsight.org/3d-main-window/derivedresultsgeomech/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/derivedresultsgeomech/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/3d-main-window/derivedresultsgeomech/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/3d-main-window/derivedresultsgeomech/</guid>
       <description>ResInsight computes several derived results. In this section we will explain what they are, and briefly how they are calculated.
 Derived Geomechanical results ResInsight calculates several of the presented geomechanical results based on the native results present in the odb-files.
 Relative Results (Time Lapse Results) ResInsight can calculate and display relative results, sometimes also referred to as Time Lapse results. When enabled, every result variable is calculated as:
@@ -981,28 +991,28 @@ $Value_{[t-b]} = Value_{[t]} - Value_{[b]}$</description>
     
     <item>
       <title></title>
-      <link>https://resinsight.org/_footer/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/_footer/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/_footer/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/_footer/</guid>
       <description>About Ceetron Solutions in collaboration with Equinor ASA Support </description>
     </item>
     
     <item>
       <title></title>
-      <link>https://resinsight.org/_header/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/_header/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/_header/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/_header/</guid>
       <description></description>
     </item>
     
     <item>
       <title>About</title>
-      <link>https://resinsight.org/about/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/about/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/about/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/about/</guid>
       <description>ResInsight is an open source, cross-platform 3D visualization, curve plotting and post processing tool for Eclipse reservoir models and simulations. It can also be configured to visualize geomechanical simulations from ABAQUS.
 The system also constitutes a framework for further development and can be extended to support new data sources and visualization methods, e.g. additional solvers, seismic data, CSEM, and more.
 Efficient User Interface The user interface is tailored for efficient interpretation of reservoir simulation data with specialized visualizations of properties, faults and wells.</description>
@@ -1010,19 +1020,19 @@ Efficient User Interface The user interface is tailored for efficient interpreta
     
     <item>
       <title>Search</title>
-      <link>https://resinsight.org/search/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/search/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/search/</guid>
-      <description>Search for: window.store = [];window.store[&#34;/getting-started/overview/&#34;] = {title: &#34;Overview&#34;,content: &#34;User Interface ResInsight has two main windows, one for 3D related visualizations and one for 2D graphs and plots.\n3D Main Window Plot Main Window Switching Between the Two Main Windows The two main windows has a toolbar button each, that directly opens and raises the other window. Each of the windows can also be closed freely, but if both are closed, ResInsight exits.</description>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/search/</guid>
+      <description>Search for: window.store = [];window.store[&#34;/ResInsight-UserDocumentation/getting-started/overview/&#34;] = {title: &#34;Overview&#34;,content: &#34;User Interface ResInsight has two main windows, one for 3D related visualizations and one for 2D graphs and plots.\n3D Main Window Plot Main Window Switching Between the Two Main Windows The two main windows has a toolbar button each, that directly opens and raises the other window. Each of the windows can also be closed freely, but if both are closed, ResInsight exits.</description>
     </item>
     
     <item>
       <title>Support</title>
-      <link>https://resinsight.org/support/</link>
+      <link>https://opm.github.io/ResInsight-UserDocumentation/support/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/support/</guid>
+      <guid>https://opm.github.io/ResInsight-UserDocumentation/support/</guid>
       <description>For inquiries for new features, enhancements or support and maintenance agreements, please contact us for an offer.
 Phone : +47 73 60 43 00 e-mail : info@ceetronsolutions.com
 Bug reports and general feature requests can be filed directly on GitHub
