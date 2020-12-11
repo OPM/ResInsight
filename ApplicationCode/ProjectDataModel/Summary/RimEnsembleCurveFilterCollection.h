@@ -38,7 +38,6 @@ public:
     RimEnsembleCurveFilterCollection();
 
     RimEnsembleCurveFilter*              addFilter( const QString& ensembleParameterName = "" );
-    void                                 removeFilter( RimEnsembleCurveFilter* filter );
     std::vector<RimEnsembleCurveFilter*> filters() const;
 
     bool isActive() const;

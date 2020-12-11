@@ -93,7 +93,6 @@ private:
 private:
     caf::PdmProxyValueField<QString>                                m_filterTitle;
     caf::PdmField<bool>                                             m_active;
-    caf::PdmField<bool>                                             m_deleteButton;
     caf::PdmField<caf::AppEnum<FilterMode>>                         m_filterMode;
     caf::PdmField<QString>                                          m_ensembleParameterName;
     caf::PdmChildArrayField<RimSummaryAddress*>                     m_objectiveValuesSummaryAddresses;
