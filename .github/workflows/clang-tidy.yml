@@ -1,0 +1,65 @@
+name: ResInsight Build With Cache
+
+on:
+  push:
+  pull_request:
+  schedule:
+    # Every day at 1am to make sure we have a build cache for the current date
+    # build cache is 
+    - cron: '0 1 * * * '
+
+jobs:
+  ResInsight-x64-buildcache:
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+            name: "Ubuntu 20.04",
+            os: ubuntu-20.04,
+            cc: "gcc", cxx: "g++",
+            vcpkg-response-file: vcpkg_x64-linux.txt,
+            vcpkg-triplet: x64-linux,
+            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake'
+          }
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Prepare cache timestamp
+        id: cache_timestamp_string
+        shell: cmake -P {0}
+        run: |
+          string(TIMESTAMP current_date "%Y-%m-%d" UTC)
+          message("::set-output name=timestamp::${current_date}")
+      - name: Cache Qt        
+        id: cache-qt
+        uses: actions/cache@v2
+        with:
+          path: ${{ github.workspace }}/Qt/
+          key: ${{ matrix.config.os }}-QtCache-v03
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: 5.9.9
+          modules: qtscript qtcharts
+          dir: '${{ github.workspace }}/Qt/'
+          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+      - name: Install Linux dependencies
+        if: "contains( matrix.config.os, 'ubuntu')"
+        run: sudo apt-get install libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev libhdf5-dev
+      - name: Set vcpkg's response file path used as part of cache's key.
+        uses: lukka/set-shell-env@master
+        with:
+          VCPKGRESPONSEFILE: ${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}
+      - name: Run vcpkg
+        uses: lukka/run-vcpkg@v5
+        id: runvcpkg
+        with:
+          vcpkgArguments: '@${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}'
+          vcpkgDirectory: '${{ github.workspace }}/ThirdParty/vcpkg'
+           # Ensure the cache key changes any time the content of the response file changes.
+          appendedCacheKey: ${{ hashFiles(env.VCPKGRESPONSEFILE) }}
+
