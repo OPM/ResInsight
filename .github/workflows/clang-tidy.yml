@@ -62,4 +62,10 @@ jobs:
           vcpkgDirectory: '${{ github.workspace }}/ThirdParty/vcpkg'
            # Ensure the cache key changes any time the content of the response file changes.
           appendedCacheKey: ${{ hashFiles(env.VCPKGRESPONSEFILE) }}
+      - name: Run cmake
+        run: |
+          mkdir build
+          cd build
+          cmake -DCMAKE_TOOLCHAIN_FILE=${{ matrix.config.cmake-toolchain }} -D ..
+          
 
