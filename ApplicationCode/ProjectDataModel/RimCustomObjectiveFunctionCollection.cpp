@@ -28,10 +28,7 @@ CAF_PDM_SOURCE_INIT( RimCustomObjectiveFunctionCollection, "RimCustomObjectiveFu
 ///
 //--------------------------------------------------------------------------------------------------
 RimCustomObjectiveFunctionCollection::RimCustomObjectiveFunctionCollection()
-    : objectiveFunctionAdded( this )
-    , objectiveFunctionChanged( this )
-    , objectiveFunctionAboutToBeDeleted( this )
-    , objectiveFunctionDeleted( this )
+    : objectiveFunctionChanged( this )
 {
     CAF_PDM_InitObject( "Custom Objective Functions", ":/ObjectiveFunctionCollection.svg", "", "" );
 
@@ -45,7 +42,6 @@ RimCustomObjectiveFunction* RimCustomObjectiveFunctionCollection::addObjectiveFu
 {
     auto newFunction = new RimCustomObjectiveFunction();
     m_objectiveFunctions.push_back( newFunction );
-    objectiveFunctionAdded.send( newFunction );
     return newFunction;
 }
 
@@ -54,7 +50,7 @@ RimCustomObjectiveFunction* RimCustomObjectiveFunctionCollection::addObjectiveFu
 //--------------------------------------------------------------------------------------------------
 void RimCustomObjectiveFunctionCollection::onObjectiveFunctionChanged( RimCustomObjectiveFunction* objectiveFunction )
 {
-    objectiveFunctionChanged.send( objectiveFunction );
+    objectiveFunctionChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -76,4 +72,13 @@ void RimCustomObjectiveFunctionCollection::defineUiTreeOrdering( caf::PdmUiTreeO
         uiTreeOrdering.add( func );
     }
     uiTreeOrdering.skipRemainingChildren( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCustomObjectiveFunctionCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                                           std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    objectiveFunctionChanged.send();
 }

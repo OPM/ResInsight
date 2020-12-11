@@ -35,10 +35,7 @@ class RimCustomObjectiveFunctionCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    caf::Signal<RimCustomObjectiveFunction*> objectiveFunctionAdded;
-    caf::Signal<RimCustomObjectiveFunction*> objectiveFunctionChanged;
-    caf::Signal<RimCustomObjectiveFunction*> objectiveFunctionAboutToBeDeleted;
-    caf::Signal<>                            objectiveFunctionDeleted;
+    caf::Signal<> objectiveFunctionChanged;
 
 public:
     RimCustomObjectiveFunctionCollection();
@@ -48,7 +45,9 @@ public:
     std::vector<RimCustomObjectiveFunction*> objectiveFunctions() const;
 
 private:
-    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /* = "" */ ) override;
+    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
 
 private:
     caf::PdmChildArrayField<RimCustomObjectiveFunction*> m_objectiveFunctions;
