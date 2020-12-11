@@ -66,6 +66,8 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DCMAKE_TOOLCHAIN_FILE=${{ matrix.config.cmake-toolchain }} ..
+          cmake -DCMAKE_TOOLCHAIN_FILE=${{ matrix.config.cmake-toolchain }}  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+          sudo apt-get install clang-tidy
+          run-clang-tidy
           
 
