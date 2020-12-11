@@ -20,6 +20,7 @@
 
 #include "RimPlot.h"
 
+#include "cafFilePath.h"
 #include "cafPdmPtrField.h"
 
 #include <QPointer>
@@ -40,6 +41,12 @@ class RimVfpPlot : public RimPlot
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class InterpolatedVariableType
+    {
+        BHP,
+        BHP_THP_DIFF
+    };
+
     enum class TableType
     {
         INJECTION,
@@ -57,11 +64,6 @@ public:
 
     RimVfpPlot();
     ~RimVfpPlot() override;
-
-    void setDataSourceParameters( RimEclipseResultCase* eclipseResultCase, QString targetWellName );
-    // void setPlotOptions( bool groupSmallContributions, double smallContributionsRelativeThreshold, double maximumTof );
-
-    RiaDefines::PhaseType phase() const;
 
     // RimPlot implementations
     RiuQwtPlotWidget* viewer() override;
@@ -96,12 +98,11 @@ private:
 private:
     RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent ) override;
 
-    void fixupDependentFieldsAfterCaseChange();
-    void populatePlotWidgetWithCurveData( RiuQwtPlotWidget* plotWidget, const std::vector<Opm::VFPInjTable>& tables );
-    void populatePlotWidgetWithCurveData( RiuQwtPlotWidget*                  plotWidget,
-                                          const Opm::VFPProdTable&           table,
-                                          RimVfpPlot::ProductionVariableType primaryVariable,
-                                          RimVfpPlot::ProductionVariableType familyVariable );
+    void                populatePlotWidgetWithCurveData( RiuQwtPlotWidget* plotWidget, const Opm::VFPInjTable& table );
+    void                populatePlotWidgetWithCurveData( RiuQwtPlotWidget*                  plotWidget,
+                                                         const Opm::VFPProdTable&           table,
+                                                         RimVfpPlot::ProductionVariableType primaryVariable,
+                                                         RimVfpPlot::ProductionVariableType familyVariable );
     std::vector<double> getProductionTableData( const Opm::VFPProdTable&           table,
                                                 RimVfpPlot::ProductionVariableType variableType ) const;
     size_t              getVariableIndex( const Opm::VFPProdTable&           table,
@@ -120,13 +121,16 @@ private:
     void calculateTableValueOptions( RimVfpPlot::ProductionVariableType variableType,
                                      QList<caf::PdmOptionItemInfo>&     options );
 
-private:
-    caf::PdmPtrField<RimEclipseResultCase*> m_case;
-    caf::PdmField<QString>                  m_wellName;
+    void setFixedVariableUiEditability( caf::PdmField<int>& field, RimVfpPlot::ProductionVariableType variableType );
 
-    caf::PdmField<caf::AppEnum<RimVfpPlot::TableType>>              m_tableType;
-    caf::PdmField<caf::AppEnum<RimVfpPlot::ProductionVariableType>> m_primaryVariable;
-    caf::PdmField<caf::AppEnum<RimVfpPlot::ProductionVariableType>> m_familyVariable;
+private:
+    caf::PdmField<caf::FilePath> m_filePath;
+    caf::PdmField<int>           m_tableNumber;
+
+    caf::PdmField<caf::AppEnum<RimVfpPlot::TableType>>                m_tableType;
+    caf::PdmField<caf::AppEnum<RimVfpPlot::InterpolatedVariableType>> m_interpolatedVariable;
+    caf::PdmField<caf::AppEnum<RimVfpPlot::ProductionVariableType>>   m_primaryVariable;
+    caf::PdmField<caf::AppEnum<RimVfpPlot::ProductionVariableType>>   m_familyVariable;
 
     caf::PdmField<int> m_liquidFlowRateIdx;
     caf::PdmField<int> m_thpIdx;
