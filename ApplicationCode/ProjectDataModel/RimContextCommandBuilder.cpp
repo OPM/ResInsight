@@ -728,8 +728,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimCustomObjectiveFunction*>( firstUiItem ) )
         {
             menuBuilder << "RicNewCustomObjectiveFunctionWeightFeature";
-            menuBuilder << "Separator";
-            menuBuilder << "RicDeleteCustomObjectiveFunctionFeature";
         }
         else if ( dynamic_cast<RimEnsembleCurveFilterCollection*>( firstUiItem ) )
         {

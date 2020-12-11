@@ -43,7 +43,6 @@ public:
     RimCustomObjectiveFunction();
 
     RimCustomObjectiveFunctionWeight*              addWeight();
-    void                                           removeWeight( RimCustomObjectiveFunctionWeight* weight );
     std::vector<RimCustomObjectiveFunctionWeight*> weights() const;
     std::vector<double>                            values() const;
     double                                         value( RimSummaryCase* summaryCase ) const;

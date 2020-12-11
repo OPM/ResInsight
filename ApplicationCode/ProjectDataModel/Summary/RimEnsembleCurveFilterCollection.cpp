@@ -33,13 +33,6 @@
 CAF_PDM_SOURCE_INIT( RimEnsembleCurveFilterCollection, "RimEnsembleCurveFilterCollection" );
 
 //--------------------------------------------------------------------------------------------------
-/// Internal variables
-//--------------------------------------------------------------------------------------------------
-static std::vector<RimEnsembleCurveFilter*> _removedFilters;
-
-static void garbageCollectFilters();
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveFilterCollection::RimEnsembleCurveFilterCollection()
@@ -64,8 +57,6 @@ RimEnsembleCurveFilterCollection::RimEnsembleCurveFilterCollection()
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveFilter* RimEnsembleCurveFilterCollection::addFilter( const QString& ensembleParameterName )
 {
-    garbageCollectFilters();
-
     auto newFilter = new RimEnsembleCurveFilter( ensembleParameterName );
     m_filters.push_back( newFilter );
     return newFilter;
@@ -122,7 +113,7 @@ void RimEnsembleCurveFilterCollection::fieldChangedByUi( const caf::PdmFieldHand
                                                          const QVariant&            oldValue,
                                                          const QVariant&            newValue )
 {
-    RimEnsembleCurveSet* curveSet;
+    RimEnsembleCurveSet* curveSet = nullptr;
     firstAncestorOrThisOfType( curveSet );
     if ( !curveSet ) return;
 
@@ -285,16 +276,8 @@ void RimEnsembleCurveFilterCollection::onChildDeleted( caf::PdmChildArrayFieldHa
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfType( plot );
     if ( plot ) plot->loadDataAndUpdate();
-}
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void garbageCollectFilters()
-{
-    for ( auto filter : _removedFilters )
-    {
-        delete filter;
-    }
-    _removedFilters.clear();
+    RimEnsembleCurveSet* curveSet = nullptr;
+    firstAncestorOrThisOfType( curveSet );
+    if ( curveSet ) curveSet->updateConnectedEditors();
 }
