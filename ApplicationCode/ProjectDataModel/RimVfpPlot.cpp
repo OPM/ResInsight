@@ -28,6 +28,7 @@
 #include "RigTofWellDistributionCalculator.h"
 
 #include "RiaColorTools.h"
+#include "RiaColorTables.h "
 
 #include "RiuQwtPlotWidget.h"
 #include "qwt_legend.h"
@@ -140,6 +141,8 @@ RimVfpPlot::RimVfpPlot()
     m_showPlotLegends = true;
 
     setAsPlotMdiWindow();
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -448,8 +451,7 @@ void RimVfpPlot::populatePlotWidgetWithCurveData( RiuQwtPlotWidget* plotWidget, 
             yVals[y] = RiaEclipseUnitTools::pascalToBar( table( thp, y ) );
         }
 
-        cvf::Color3f cvfClr = cvf::Color3::BLUE;
-        QColor       qtClr  = RiaColorTools::toQColor( cvfClr );
+        QColor       qtClr  = RiaColorTables::wellLogPlotPaletteColors().cycledQColor( thp );
 
         QwtPlotCurve* curve = new QwtPlotCurve;
 
@@ -489,8 +491,12 @@ void RimVfpPlot::populatePlotWidgetWithCurveData( RiuQwtPlotWidget*             
     std::cout << "GFR axis: " << table.getGFRAxis().size() << std::endl;
     std::cout << "ALQ axis: " << table.getALQAxis().size() << std::endl;
 
-    plotWidget->setAxisTitleText( QwtPlot::xBottom, "x axis (todo) [x axis unit]" );
-    plotWidget->setAxisTitleText( QwtPlot::yLeft, "y axis [y axis unit]" );
+    QString xAxisTitle =
+        QString( "%1 [%2]" ).arg( caf::AppEnum<RimVfpPlot::ProductionVariableType>::uiText( primaryVariable ), "TODO" );
+    plotWidget->setAxisTitleText( QwtPlot::xBottom, xAxisTitle);
+    QString yAxisTitle =
+        QString( "%1 [%2]" ).arg( caf::AppEnum<RimVfpPlot::InterpolatedVariableType>::uiText( m_interpolatedVariable() ), "Bar" );
+    plotWidget->setAxisTitleText( QwtPlot::yLeft, yAxisTitle );
 
     std::vector<double> primaryAxisValues    = getProductionTableData( table, primaryVariable );
     std::vector<double> familyVariableValues = getProductionTableData( table, familyVariable );
@@ -541,8 +547,7 @@ void RimVfpPlot::populatePlotWidgetWithCurveData( RiuQwtPlotWidget*             
             yVals[y] /= 100000.0;
         }
 
-        cvf::Color3f cvfClr = cvf::Color3::BLUE;
-        QColor       qtClr  = RiaColorTools::toQColor( cvfClr );
+        QColor qtClr = RiaColorTables::wellLogPlotPaletteColors().cycledQColor( familyIdx );
 
         QwtPlotCurve* curve = new QwtPlotCurve;
         // Convert from Pascal to Bar
