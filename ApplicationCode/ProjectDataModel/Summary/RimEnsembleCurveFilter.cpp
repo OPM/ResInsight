@@ -109,11 +109,6 @@ RimEnsembleCurveFilter::RimEnsembleCurveFilter()
 
     CAF_PDM_InitFieldNoDefault( &m_categories, "Categories", "Categories", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_deleteButton, "DeleteEnsembleFilter", "Delete Filter", "", "", "" );
-    m_deleteButton = false;
-    m_deleteButton.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-    m_deleteButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-
     setDeletable( true );
 }
 
@@ -369,16 +364,6 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
             curveSet->filterCollection()->updateConnectedEditors();
         }
     }
-    else if ( changedField == &m_deleteButton )
-    {
-        m_deleteButton = false;
-
-        if ( !curveSet ) return;
-
-        curveSet->filterCollection()->removeFilter( this );
-        curveSet->filterCollection()->updateConnectedEditors();
-        curveSet->updateAllCurves();
-    }
     else if ( changedField == &m_objectiveValuesSelectSummaryAddressPushButton )
     {
         RiuSummaryVectorSelectionDialog dlg( nullptr );
@@ -478,7 +463,6 @@ void RimEnsembleCurveFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     {
         uiOrdering.add( &m_categories );
     }
-    uiOrdering.add( &m_deleteButton );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -500,13 +484,6 @@ void RimEnsembleCurveFilter::defineEditorAttribute( const caf::PdmFieldHandle* f
 
         myAttr->m_minimum = m_lowerLimit;
         myAttr->m_maximum = m_upperLimit;
-    }
-    else if ( field == &m_deleteButton )
-    {
-        caf::PdmUiPushButtonEditorAttribute* attr = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-        if ( !attr ) return;
-
-        attr->m_buttonText = "Delete";
     }
     else if ( field == &m_objectiveValuesSelectSummaryAddressPushButton )
     {

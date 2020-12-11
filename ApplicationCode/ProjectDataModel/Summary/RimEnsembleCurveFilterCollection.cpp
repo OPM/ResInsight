@@ -74,20 +74,6 @@ RimEnsembleCurveFilter* RimEnsembleCurveFilterCollection::addFilter( const QStri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveFilterCollection::removeFilter( RimEnsembleCurveFilter* filter )
-{
-    garbageCollectFilters();
-
-    size_t sizeBefore = m_filters.size();
-    m_filters.removeChildObject( filter );
-    size_t sizeAfter = m_filters.size();
-
-    if ( sizeAfter < sizeBefore ) _removedFilters.push_back( filter );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<RimEnsembleCurveFilter*> RimEnsembleCurveFilterCollection::filters() const
 {
     return m_filters.childObjects();
