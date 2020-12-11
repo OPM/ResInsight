@@ -23,10 +23,10 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewCellRangeFilterFeature : public RicNewRangeFilterSliceFeature
+class RicNewRangeFilterSliceJFeature : public RicNewRangeFilterSliceFeature
 {
     CAF_CMD_HEADER_INIT;
 
 public:
-    RicNewCellRangeFilterFeature();
+    RicNewRangeFilterSliceJFeature();
 };

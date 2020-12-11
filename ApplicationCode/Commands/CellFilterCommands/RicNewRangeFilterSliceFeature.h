@@ -18,15 +18,22 @@
 
 #pragma once
 
-#include "RicNewRangeFilterSliceFeature.h"
+#include "cafCmdFeature.h"
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewCellRangeFilterFeature : public RicNewRangeFilterSliceFeature
+class RicNewRangeFilterSliceFeature : public caf::CmdFeature
 {
-    CAF_CMD_HEADER_INIT;
+protected:
+    RicNewRangeFilterSliceFeature( QString cmdText, int sliceDirection );
 
-public:
-    RicNewCellRangeFilterFeature();
+protected:
+    // Overrides
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
+
+    QString m_sliceText;
+    int     m_sliceDirection;
 };

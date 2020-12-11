@@ -16,17 +16,16 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#include "RicNewRangeFilterSliceIFeature.h"
 
-#include "RicNewRangeFilterSliceFeature.h"
+#include "cafUtils.h"
 
-//==================================================================================================
+CAF_CMD_SOURCE_INIT( RicNewRangeFilterSliceIFeature, "RicNewRangeFilterSliceIFeature" );
+
+//--------------------------------------------------------------------------------------------------
 ///
-//==================================================================================================
-class RicNewCellRangeFilterFeature : public RicNewRangeFilterSliceFeature
+//--------------------------------------------------------------------------------------------------
+RicNewRangeFilterSliceIFeature::RicNewRangeFilterSliceIFeature()
+    : RicNewRangeFilterSliceFeature( "New Range Filter - I slice", 0 )
 {
-    CAF_CMD_HEADER_INIT;
-
-public:
-    RicNewCellRangeFilterFeature();
-};
+}

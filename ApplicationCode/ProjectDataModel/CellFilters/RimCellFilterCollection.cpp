@@ -155,6 +155,7 @@ void RimCellFilterCollection::updateIconState()
 RimCellFilter* RimCellFilterCollection::addNewPolylineFilter( RimCase* srcCase )
 {
     RimPolylineFilter* pFilter = new RimPolylineFilter();
+    pFilter->setCase( srcCase );
     m_cellFilters.push_back( pFilter );
     pFilter->filterChanged.connect( this, &RimCellFilterCollection::onFilterUpdated );
 
@@ -180,12 +181,12 @@ RimCellFilter* RimCellFilterCollection::addNewUserDefinedFilter( RimCase* srcCas
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimCellFilter* RimCellFilterCollection::addNewCellRangeFilter( RimCase* srcCase )
+RimCellFilter* RimCellFilterCollection::addNewCellRangeFilter( RimCase* srcCase, int sliceDirection )
 {
     RimCellRangeFilter* pFilter = new RimCellRangeFilter();
     m_cellFilters.push_back( pFilter );
     pFilter->filterChanged.connect( this, &RimCellFilterCollection::onFilterUpdated );
-    pFilter->setDefaultValues();
+    pFilter->setDefaultValues( sliceDirection );
 
     this->updateConnectedEditors();
 

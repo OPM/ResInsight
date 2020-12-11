@@ -138,7 +138,7 @@ void RimCellRangeFilter::updateActiveState()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCellRangeFilter::setDefaultValues()
+void RimCellRangeFilter::setDefaultValues( int sliceDirection )
 {
     const cvf::StructGridInterface* grid = selectedGrid();
 
@@ -182,6 +182,21 @@ void RimCellRangeFilter::setDefaultValues()
         cellCountI  = static_cast<int>( grid->cellCountI() );
         cellCountJ  = static_cast<int>( grid->cellCountJ() );
         cellCountK  = static_cast<int>( grid->cellCountK() );
+    }
+
+    switch ( sliceDirection )
+    {
+        case 0:
+            cellCountI = 1;
+            break;
+        case 1:
+            cellCountJ = 1;
+            break;
+        case 2:
+            cellCountK = 1;
+
+        default:
+            break;
     }
 }
 
@@ -297,41 +312,6 @@ void RimCellRangeFilter::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrd
 
     updateActiveState();
     updateIconState();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimCellRangeFilter::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                         bool*                      useOptionsOnly )
-{
-    QList<caf::PdmOptionItemInfo> options;
-
-    if ( useOptionsOnly ) ( *useOptionsOnly ) = true;
-
-    if ( &m_gridIndex == fieldNeedingOptions )
-    {
-        RimCase* rimCase = nullptr;
-        this->firstAncestorOrThisOfTypeAsserted( rimCase );
-
-        for ( int gIdx = 0; gIdx < RigReservoirGridTools::gridCount( rimCase ); ++gIdx )
-        {
-            QString gridName;
-
-            gridName += RigReservoirGridTools::gridName( rimCase, gIdx );
-            if ( gIdx == 0 )
-            {
-                if ( gridName.isEmpty() )
-                    gridName += "Main Grid";
-                else
-                    gridName += " (Main Grid)";
-            }
-
-            caf::PdmOptionItemInfo item( gridName, (int)gIdx );
-            options.push_back( item );
-        }
-    }
-    return options;
 }
 
 //--------------------------------------------------------------------------------------------------

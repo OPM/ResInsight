@@ -21,9 +21,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RicRangeFilterInsertFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicRangeFilterNewFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicRangeFilterFeatureImpl.h
 ${CMAKE_CURRENT_LIST_DIR}/RicRangeFilterNewExec.h
-${CMAKE_CURRENT_LIST_DIR}/RicRangeFilterNewSliceIFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicRangeFilterNewSliceJFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicRangeFilterNewSliceKFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportFaciesFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportFormationNamesFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicReloadFormationNamesFeature.h
@@ -118,9 +115,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RicRangeFilterInsertFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicRangeFilterNewFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicRangeFilterFeatureImpl.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicRangeFilterNewExec.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicRangeFilterNewSliceIFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicRangeFilterNewSliceJFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicRangeFilterNewSliceKFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicImportFaciesFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicImportFormationNamesFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicReloadFormationNamesFeature.cpp

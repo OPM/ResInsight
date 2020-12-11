@@ -45,7 +45,7 @@ public:
 
     RimCellFilter* addNewPolylineFilter( RimCase* srcCase );
     RimCellFilter* addNewUserDefinedFilter( RimCase* srcCase );
-    RimCellFilter* addNewCellRangeFilter( RimCase* srcCase );
+    RimCellFilter* addNewCellRangeFilter( RimCase* srcCase, int sliceDirection = -1 );
 
     bool isEmpty();
     bool isActive();

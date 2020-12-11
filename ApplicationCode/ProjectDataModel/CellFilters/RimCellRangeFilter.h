@@ -55,7 +55,7 @@ public:
     caf::PdmField<int> cellCountJ;
     caf::PdmField<int> cellCountK;
 
-    void setDefaultValues();
+    void setDefaultValues( int sliceDirection = -1 );
     void updateActiveState();
 
     void updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter ) const override;
@@ -67,9 +67,6 @@ protected:
                                 caf::PdmUiEditorAttribute* attribute ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
-
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
 
 private:
     bool isRangeFilterControlled() const;

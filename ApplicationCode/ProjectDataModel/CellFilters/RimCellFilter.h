@@ -69,6 +69,9 @@ protected:
     void                            defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     const cvf::StructGridInterface* selectedGrid() const;
 
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
+
     caf::PdmField<QString>                      m_name;
     caf::PdmField<bool>                         m_isActive;
     caf::PdmField<caf::AppEnum<FilterModeType>> m_filterMode;

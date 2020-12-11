@@ -299,20 +299,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicSaveEclipseInputPropertyFeature";
         }
-        else if ( dynamic_cast<RimCellRangeFilterCollection*>( firstUiItem ) )
-        {
-            menuBuilder << "RicRangeFilterNewFeature";
-            menuBuilder << "RicRangeFilterNewSliceIFeature";
-            menuBuilder << "RicRangeFilterNewSliceJFeature";
-            menuBuilder << "RicRangeFilterNewSliceKFeature";
-        }
-        else if ( dynamic_cast<RimCellRangeFilter*>( firstUiItem ) )
-        {
-            menuBuilder << "RicRangeFilterInsertFeature";
-            menuBuilder << "RicRangeFilterNewSliceIFeature";
-            menuBuilder << "RicRangeFilterNewSliceJFeature";
-            menuBuilder << "RicRangeFilterNewSliceKFeature";
-        }
         else if ( dynamic_cast<RimEclipsePropertyFilterCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicEclipsePropertyFilterNewFeature";
@@ -949,7 +935,13 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicNewPolylineFilterFeature";
             menuBuilder << "RicNewUserDefinedFilterFeature";
+            menuBuilder << "Separator";
             menuBuilder << "RicNewCellRangeFilterFeature";
+            menuBuilder.subMenuStart( "Slice Filters" );
+            menuBuilder << "RicNewRangeFilterSliceIFeature";
+            menuBuilder << "RicNewRangeFilterSliceJFeature";
+            menuBuilder << "RicNewRangeFilterSliceKFeature";
+            menuBuilder.subMenuEnd();
         }
         else if ( dynamic_cast<RimAnnotationCollection*>( firstUiItem ) ||
                   dynamic_cast<RimAnnotationGroupCollection*>( firstUiItem ) )

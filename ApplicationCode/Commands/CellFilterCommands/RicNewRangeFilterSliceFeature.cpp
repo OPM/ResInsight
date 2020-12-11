@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2020-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,43 +16,60 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicRangeFilterNewSliceIFeature.h"
+#include "RicNewRangeFilterSliceFeature.h"
 
-#include "RicRangeFilterFeatureImpl.h"
-#include "RicRangeFilterNewExec.h"
-
+#include "RimCellFilterCollection.h"
 #include "RimCellRangeFilter.h"
-#include "RimCellRangeFilterCollection.h"
+#include "RimProject.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafCmdExecCommandManager.h"
+#include "cafSelectionManagerTools.h"
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT( RicRangeFilterNewSliceIFeature, "RicRangeFilterNewSliceIFeature" );
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicRangeFilterNewSliceIFeature::isCommandEnabled()
+RicNewRangeFilterSliceFeature::RicNewRangeFilterSliceFeature( QString cmdText, int sliceDirection )
+    : m_sliceDirection( sliceDirection )
+    , m_sliceText( cmdText )
 {
-    return RicRangeFilterFeatureImpl::isRangeFilterCommandAvailable();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicRangeFilterNewSliceIFeature::onActionTriggered( bool isChecked )
+bool RicNewRangeFilterSliceFeature::isCommandEnabled()
 {
-    RicRangeFilterNewExec* filterExec = RicRangeFilterFeatureImpl::createRangeFilterExecCommand();
-    filterExec->m_iSlice              = true;
-
-    caf::CmdExecCommandManager::instance()->processExecuteCommand( filterExec );
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicRangeFilterNewSliceIFeature::setupActionLook( QAction* actionToSetup )
+void RicNewRangeFilterSliceFeature::onActionTriggered( bool isChecked )
 {
-    actionToSetup->setText( "New I-slice range filter" );
+    RimProject* proj = RimProject::current();
+
+    RimCase* sourceCase = nullptr;
+    auto     allCases   = proj->allGridCases();
+    if ( !allCases.empty() ) sourceCase = allCases.front();
+
+    // Find the selected Cell Filter Collection
+    std::vector<RimCellFilterCollection*> colls = caf::selectedObjectsByTypeStrict<RimCellFilterCollection*>();
+    if ( colls.empty() ) return;
+    RimCellFilterCollection* filtColl = colls[0];
+
+    RimCellFilter* lastCreatedOrUpdated = filtColl->addNewCellRangeFilter( sourceCase, m_sliceDirection );
+    if ( lastCreatedOrUpdated )
+    {
+        Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicNewRangeFilterSliceFeature::setupActionLook( QAction* actionToSetup )
+{
+    actionToSetup->setIcon( QIcon( ":/CellFilter_Range.png" ) );
+    actionToSetup->setText( m_sliceText );
 }

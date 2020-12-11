@@ -45,7 +45,7 @@ RimCellFilter::RimCellFilter()
 {
     CAF_PDM_InitObject( "Cell Filter", "", "", "" );
 
-    CAF_PDM_InitField( &m_name, "UserDescription", QString( "Filter Name" ), "Name", "", "", "" );
+    CAF_PDM_InitField( &m_name, "UserDescription", QString( "New filter" ), "Name", "", "", "" );
     CAF_PDM_InitField( &m_isActive, "Active", true, "Active", "", "", "" );
     m_isActive.uiCapability()->setUiHidden( true );
 
@@ -201,4 +201,39 @@ const cvf::StructGridInterface* RimCellFilter::selectedGrid() const
     }
 
     return RigReservoirGridTools::gridByIndex( rimCase, clampedIndex );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimCellFilter::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                    bool*                      useOptionsOnly )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( useOptionsOnly ) ( *useOptionsOnly ) = true;
+
+    if ( &m_gridIndex == fieldNeedingOptions )
+    {
+        RimCase* rimCase = nullptr;
+        this->firstAncestorOrThisOfTypeAsserted( rimCase );
+
+        for ( int gIdx = 0; gIdx < RigReservoirGridTools::gridCount( rimCase ); ++gIdx )
+        {
+            QString gridName;
+
+            gridName += RigReservoirGridTools::gridName( rimCase, gIdx );
+            if ( gIdx == 0 )
+            {
+                if ( gridName.isEmpty() )
+                    gridName += "Main Grid";
+                else
+                    gridName += " (Main Grid)";
+            }
+
+            caf::PdmOptionItemInfo item( gridName, (int)gIdx );
+            options.push_back( item );
+        }
+    }
+    return options;
 }

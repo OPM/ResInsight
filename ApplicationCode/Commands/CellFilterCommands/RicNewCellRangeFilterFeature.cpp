@@ -18,56 +18,14 @@
 
 #include "RicNewCellRangeFilterFeature.h"
 
-#include "RimCellFilter.h"
-#include "RimCellFilterCollection.h"
-#include "RimOilField.h"
-#include "RimProject.h"
-
-#include "Riu3DMainWindowTools.h"
-
-#include "cafSelectionManagerTools.h"
 #include "cafUtils.h"
-
-#include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicNewCellRangeFilterFeature, "RicNewCellRangeFilterFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewCellRangeFilterFeature::isCommandEnabled()
+RicNewCellRangeFilterFeature::RicNewCellRangeFilterFeature()
+    : RicNewRangeFilterSliceFeature( "New Range Filter", -1 )
 {
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicNewCellRangeFilterFeature::onActionTriggered( bool isChecked )
-{
-    RimProject* proj = RimProject::current();
-
-    RimCase* sourceCase = nullptr;
-    auto     allCases   = proj->allGridCases();
-    if ( !allCases.empty() ) sourceCase = allCases.front();
-
-    // Find the selected Cell Filter Collection
-    std::vector<RimCellFilterCollection*> colls = caf::selectedObjectsByTypeStrict<RimCellFilterCollection*>();
-    if ( colls.empty() ) return;
-    RimCellFilterCollection* filtColl = colls[0];
-
-    RimCellFilter* lastCreatedOrUpdated = filtColl->addNewCellRangeFilter( sourceCase );
-    if ( lastCreatedOrUpdated )
-    {
-        Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicNewCellRangeFilterFeature::setupActionLook( QAction* actionToSetup )
-{
-    actionToSetup->setIcon( QIcon( ":/CellFilter_Range.png" ) );
-    actionToSetup->setText( "New Range Filter" );
 }

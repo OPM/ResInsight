@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2020-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,20 +16,16 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#include "RicNewRangeFilterSliceKFeature.h"
 
-#include "cafCmdFeature.h"
+#include "cafUtils.h"
 
-//==================================================================================================
+CAF_CMD_SOURCE_INIT( RicNewRangeFilterSliceKFeature, "RicNewRangeFilterSliceKFeature" );
+
+//--------------------------------------------------------------------------------------------------
 ///
-//==================================================================================================
-class RicRangeFilterNewSliceKFeature : public caf::CmdFeature
+//--------------------------------------------------------------------------------------------------
+RicNewRangeFilterSliceKFeature::RicNewRangeFilterSliceKFeature()
+    : RicNewRangeFilterSliceFeature( "New Range Filter - K slice", 2 )
 {
-    CAF_CMD_HEADER_INIT;
-
-protected:
-    // Overrides
-    bool isCommandEnabled() override;
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
-};
+}
