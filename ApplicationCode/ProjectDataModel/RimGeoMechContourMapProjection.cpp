@@ -30,7 +30,7 @@
 #include "RigGeoMechCaseData.h"
 #include "RigHexIntersectionTools.h"
 
-#include "RimCellRangeFilterCollection.h"
+#include "RimCellFilterCollection.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechContourMapView.h"
 #include "RimGeoMechPropertyFilterCollection.h"
@@ -151,10 +151,10 @@ cvf::ref<cvf::UByteArray> RimGeoMechContourMapProjection::getCellVisibility() co
     cvf::ref<cvf::UByteArray> cellGridIdxVisibility = new cvf::UByteArray( m_femPart->elementCount() );
     RivFemElmVisibilityCalculator::computeAllVisible( cellGridIdxVisibility.p(), m_femPart.p() );
 
-    if ( view()->rangeFilterCollection()->isActive() )
+    if ( view()->cellFilterCollection()->isActive() )
     {
         cvf::CellRangeFilter cellRangeFilter;
-        view()->rangeFilterCollection()->compoundCellRangeFilter( &cellRangeFilter, 0 );
+        view()->cellFilterCollection()->compoundCellRangeFilter( &cellRangeFilter, 0 );
         RivFemElmVisibilityCalculator::computeRangeVisibility( cellGridIdxVisibility.p(), m_femPart.p(), cellRangeFilter );
     }
     if ( view()->propertyFilterCollection()->isActive() )

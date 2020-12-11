@@ -21,7 +21,6 @@
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimCellFilterCollection.h"
-#include "RimCellRangeFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimGeoMechResultDefinition.h"
@@ -60,18 +59,14 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimGridView, "GenericGridView" ); // Do not us
 //--------------------------------------------------------------------------------------------------
 RimGridView::RimGridView()
 {
-    CAF_PDM_InitFieldNoDefault( &m_rangeFilterCollection, "RangeFilters", "Range Filters", "", "", "" );
-    m_rangeFilterCollection.uiCapability()->setUiHidden( true );
-    m_rangeFilterCollection = new RimCellRangeFilterCollection();
-
-    CAF_PDM_InitFieldNoDefault( &m_overrideRangeFilterCollection,
-                                "RangeFiltersControlled",
-                                "Range Filters (controlled)",
+    CAF_PDM_InitFieldNoDefault( &m_overrideCellFilterCollection,
+                                "CellFiltersControlled",
+                                "Cell Filters (controlled)",
                                 "",
                                 "",
                                 "" );
-    m_overrideRangeFilterCollection.uiCapability()->setUiHidden( true );
-    m_overrideRangeFilterCollection.xmlCapability()->disableIO();
+    m_overrideCellFilterCollection.uiCapability()->setUiHidden( true );
+    m_overrideCellFilterCollection.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_intersectionCollection, "CrossSections", "Intersections", "", "", "" );
     m_intersectionCollection.uiCapability()->setUiHidden( true );
@@ -225,38 +220,38 @@ RimIntersectionResultsDefinitionCollection* RimGridView::separateSurfaceResultsC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridView::rangeFiltersUpdated()
+void RimGridView::cellFiltersUpdated()
 {
-    updateViewFollowingRangeFilterUpdates();
+    updateViewFollowingCellFilterUpdates();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimCellRangeFilterCollection* RimGridView::rangeFilterCollection()
+RimCellFilterCollection* RimGridView::cellFilterCollection()
 {
-    if ( this->viewController() && this->viewController()->isRangeFiltersControlled() && m_overrideRangeFilterCollection )
+    if ( this->viewController() && this->viewController()->isCellFiltersControlled() && m_overrideCellFilterCollection )
     {
-        return m_overrideRangeFilterCollection;
+        return m_overrideCellFilterCollection;
     }
     else
     {
-        return m_rangeFilterCollection;
+        return m_cellFilterCollection;
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RimCellRangeFilterCollection* RimGridView::rangeFilterCollection() const
+const RimCellFilterCollection* RimGridView::cellFilterCollection() const
 {
-    if ( this->viewController() && this->viewController()->isRangeFiltersControlled() && m_overrideRangeFilterCollection )
+    if ( this->viewController() && this->viewController()->isCellFiltersControlled() && m_overrideCellFilterCollection )
     {
-        return m_overrideRangeFilterCollection;
+        return m_overrideCellFilterCollection;
     }
     else
     {
-        return m_rangeFilterCollection;
+        return m_cellFilterCollection;
     }
 }
 
@@ -271,32 +266,24 @@ RimAnnotationInViewCollection* RimGridView::annotationCollection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimCellFilterCollection* RimGridView::cellFilterCollection() const
+bool RimGridView::hasOverriddenCellFilterCollection()
 {
-    return m_cellFilterCollection;
+    return m_overrideCellFilterCollection() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimGridView::hasOverridenRangeFilterCollection()
+void RimGridView::setOverrideCellFilterCollection( RimCellFilterCollection* rfc )
 {
-    return m_overrideRangeFilterCollection() != nullptr;
-}
+    if ( m_overrideCellFilterCollection() ) delete m_overrideCellFilterCollection();
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGridView::setOverrideRangeFilterCollection( RimCellRangeFilterCollection* rfc )
-{
-    if ( m_overrideRangeFilterCollection() ) delete m_overrideRangeFilterCollection();
-
-    m_overrideRangeFilterCollection = rfc;
+    m_overrideCellFilterCollection = rfc;
     // Maintain a link in the active-selection
-    if ( m_overrideRangeFilterCollection )
+    if ( m_overrideCellFilterCollection )
     {
-        m_rangeFilterCollection->isActive = m_overrideRangeFilterCollection->isActive;
-        m_rangeFilterCollection()->uiCapability()->updateConnectedEditors();
+        m_cellFilterCollection->setActive( m_overrideCellFilterCollection->isActive() );
+        m_cellFilterCollection()->uiCapability()->updateConnectedEditors();
     }
 
     this->scheduleGeometryRegen( RANGE_FILTERED );
@@ -307,12 +294,12 @@ void RimGridView::setOverrideRangeFilterCollection( RimCellRangeFilterCollection
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridView::replaceRangeFilterCollectionWithOverride()
+void RimGridView::replaceCellFilterCollectionWithOverride()
 {
-    RimCellRangeFilterCollection* overrideRfc = m_overrideRangeFilterCollection;
+    RimCellFilterCollection* overrideRfc = m_overrideCellFilterCollection;
     CVF_ASSERT( overrideRfc );
 
-    RimCellRangeFilterCollection* currentRfc = m_rangeFilterCollection;
+    RimCellFilterCollection* currentRfc = m_cellFilterCollection;
     if ( currentRfc )
     {
         delete currentRfc;
@@ -320,9 +307,9 @@ void RimGridView::replaceRangeFilterCollectionWithOverride()
 
     // Must call removeChildObject() to make sure the object has no parent
     // No parent is required when assigning a object into a field
-    m_overrideRangeFilterCollection.removeChildObject( overrideRfc );
+    m_overrideCellFilterCollection.removeChildObject( overrideRfc );
 
-    m_rangeFilterCollection = overrideRfc;
+    m_cellFilterCollection = overrideRfc;
 
     this->uiCapability()->updateConnectedEditors();
 }
@@ -383,7 +370,7 @@ Rim3dOverlayInfoConfig* RimGridView::overlayInfoConfig() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridView::updateViewFollowingRangeFilterUpdates()
+void RimGridView::updateViewFollowingCellFilterUpdates()
 {
     showGridCells( true );
 }

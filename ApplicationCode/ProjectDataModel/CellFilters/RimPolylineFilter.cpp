@@ -169,10 +169,12 @@ void RimPolylineFilter::defineEditorAttribute( const caf::PdmFieldHandle* field,
             if ( !m_enablePicking )
             {
                 pbAttribute->m_buttonText = "Start Picking Points";
+                setActive( true );
             }
             else
             {
                 pbAttribute->m_buttonText = "Stop Picking Points";
+                setActive( false );
             }
         }
     }

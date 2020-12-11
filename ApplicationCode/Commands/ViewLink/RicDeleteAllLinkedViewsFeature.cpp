@@ -44,7 +44,7 @@ public:
             // viewLinkerCollection->viewLinker is a PdmChildField containing one RimViewLinker child object
             proj->viewLinkerCollection->viewLinker.removeChildObject( viewLinker );
 
-            viewLinker->applyRangeFilterCollectionByUserChoice();
+            viewLinker->applyCellFilterCollectionByUserChoice();
 
             delete viewLinker;
 

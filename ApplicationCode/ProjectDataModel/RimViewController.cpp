@@ -30,8 +30,8 @@
 
 #include "Rim3dView.h"
 #include "RimCase.h"
-#include "RimCellRangeFilter.h"
-#include "RimCellRangeFilterCollection.h"
+#include "RimCellFilter.h"
+#include "RimCellFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseContourMapView.h"
@@ -83,7 +83,7 @@ RimViewController::RimViewController()
     m_syncVisibleCells.uiCapability()->setUiHidden(true);
     m_syncVisibleCells.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField(&m_syncRangeFilters,    "SyncRangeFilters", false,   "Range Filters", "", "", "");
+    CAF_PDM_InitField(&m_syncCellFilters,    "SyncRangeFilters", false,   "Cell Filters", "", "", "");
     CAF_PDM_InitField(&m_syncPropertyFilters, "SyncPropertyFilters", false,"Property Filters", "", "", "");
     // clang-format on
 
@@ -163,7 +163,7 @@ void RimViewController::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     {
         if ( !m_isActive )
         {
-            applyRangeFilterCollectionByUserChoice();
+            applyCellFilterCollectionByUserChoice();
         }
 
         updateOverrides();
@@ -203,11 +203,11 @@ void RimViewController::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     {
         updateLegendDefinitions();
     }
-    else if ( changedField == &m_syncRangeFilters )
+    else if ( changedField == &m_syncCellFilters )
     {
-        if ( !m_syncRangeFilters )
+        if ( !m_syncCellFilters )
         {
-            applyRangeFilterCollectionByUserChoice();
+            applyCellFilterCollectionByUserChoice();
         }
         updateOverrides();
     }
@@ -313,7 +313,7 @@ void RimViewController::updateOverrides()
             }
         }
 
-        this->updateRangeFilterOverrides( nullptr );
+        this->updateCellFilterOverrides( nullptr );
 
         if ( manGeoView )
         {
@@ -360,7 +360,7 @@ void RimViewController::removeOverrides( RimGridView* view )
         if ( manEclView ) manEclView->setOverridePropertyFilterCollection( nullptr );
         if ( manGeoView ) manGeoView->setOverridePropertyFilterCollection( nullptr );
 
-        view->setOverrideRangeFilterCollection( nullptr );
+        view->setOverrideCellFilterCollection( nullptr );
     }
 }
 
@@ -504,7 +504,7 @@ void RimViewController::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 
     caf::PdmUiGroup* visibleCells = uiOrdering.addNewGroup( "Link Cell Filters" );
     visibleCells->add( &m_syncVisibleCells );
-    visibleCells->add( &m_syncRangeFilters );
+    visibleCells->add( &m_syncCellFilters );
     visibleCells->add( &m_syncPropertyFilters );
 }
 
@@ -577,7 +577,7 @@ void RimViewController::updateLegendDefinitions()
 void RimViewController::updateDefaultOptions()
 {
     m_syncCellResult      = isCellResultControlAdvisable();
-    m_syncRangeFilters    = isRangeFilterControlAdvisable();
+    m_syncCellFilters     = isCellFilterControlAdvisable();
     m_syncPropertyFilters = isPropertyFilterControlAdvisable();
 }
 
@@ -714,7 +714,7 @@ void RimViewController::scheduleCreateDisplayModelAndRedrawForDependentView() co
 {
     if ( !this->isActive() ) return;
 
-    if ( this->isVisibleCellsOveridden() || this->isRangeFiltersControlled() || this->isPropertyFilterOveridden() ||
+    if ( this->isVisibleCellsOveridden() || this->isCellFiltersControlled() || this->isPropertyFilterOveridden() ||
          this->isResultColorControlled() )
     {
         if ( this->managedView() )
@@ -736,7 +736,7 @@ void RimViewController::scheduleGeometryRegenForDepViews( RivCellSetEnum geometr
 {
     if ( !this->isActive() ) return;
 
-    if ( this->isVisibleCellsOveridden() || this->isRangeFiltersControlled() || this->isPropertyFilterOveridden() ||
+    if ( this->isVisibleCellsOveridden() || this->isCellFiltersControlled() || this->isPropertyFilterOveridden() ||
          this->isResultColorControlled() )
     {
         if ( this->managedView() )
@@ -852,7 +852,7 @@ bool RimViewController::isVisibleCellsOveridden() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimViewController::isRangeFilterMappingApplicable() const
+bool RimViewController::isCellFilterMappingApplicable() const
 {
     if ( !isMasterAndDepViewDifferentType() ) return false;
 
@@ -895,7 +895,7 @@ bool RimViewController::isCellResultControlAdvisable() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimViewController::isRangeFilterControlAdvisable() const
+bool RimViewController::isCellFilterControlAdvisable() const
 {
     bool contourMapMasterView  = dynamic_cast<RimEclipseContourMapView*>( masterView() ) != nullptr;
     bool contourMapManagedView = dynamic_cast<RimEclipseContourMapView*>( managedEclipseView() ) != nullptr;
@@ -915,11 +915,11 @@ bool RimViewController::isPropertyFilterControlAdvisable() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimViewController::isRangeFiltersControlled() const
+bool RimViewController::isCellFiltersControlled() const
 {
     if ( ownerViewLinker() && ownerViewLinker()->isActive() && this->m_isActive() )
     {
-        return m_syncRangeFilters;
+        return m_syncCellFilters;
     }
     else
     {
@@ -977,13 +977,13 @@ bool RimViewController::isPropertyFilterOveridden() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewController::updateRangeFilterOverrides( RimCellRangeFilter* changedRangeFilter )
+void RimViewController::updateCellFilterOverrides( const RimCellFilter* changedFilter )
 {
     if ( !m_managedView ) return;
 
-    if ( !isRangeFiltersControlled() )
+    if ( !isCellFiltersControlled() )
     {
-        m_managedView->setOverrideRangeFilterCollection( nullptr );
+        m_managedView->setOverrideCellFilterCollection( nullptr );
 
         return;
     }
@@ -993,21 +993,24 @@ void RimViewController::updateRangeFilterOverrides( RimCellRangeFilter* changedR
     {
         // Copy the rangeFilterCollection
 
-        RimCellRangeFilterCollection* sourceFilterCollection = masterView()->rangeFilterCollection();
-        QString                       xmlRangeFilterCollCopy = sourceFilterCollection->writeObjectToXmlString();
-        PdmObjectHandle*              objectCopy =
-            PdmXmlObjectHandle::readUnknownObjectFromXmlString( xmlRangeFilterCollCopy,
+        RimCellFilterCollection* sourceFilterCollection = masterView()->cellFilterCollection();
+        QString                  xmlFilterCollCopy      = sourceFilterCollection->writeObjectToXmlString();
+        PdmObjectHandle*         objectCopy =
+            PdmXmlObjectHandle::readUnknownObjectFromXmlString( xmlFilterCollCopy,
                                                                 caf::PdmDefaultObjectFactory::instance(),
                                                                 true );
-        RimCellRangeFilterCollection* overrideRangeFilterColl = dynamic_cast<RimCellRangeFilterCollection*>( objectCopy );
+        RimCellFilterCollection* overrideFilterColl = dynamic_cast<RimCellFilterCollection*>( objectCopy );
 
         // Convert the range filter to fit in the managed view if needed
-        if ( isRangeFilterMappingApplicable() )
+        if ( isCellFilterMappingApplicable() )
         {
             RimEclipseView* eclipseMasterView = dynamic_cast<RimEclipseView*>( masterView() );
             RimGeoMechView* geoMasterView     = dynamic_cast<RimGeoMechView*>( masterView() );
             RimEclipseView* depEclView        = managedEclipseView();
             RimGeoMechView* depGeomView       = managedGeoView();
+
+            std::vector<RimCellFilter*> srcFilters = sourceFilterCollection->filters();
+            std::vector<RimCellFilter*> dstFilters = overrideFilterColl->filters();
 
             if ( eclipseMasterView && depGeomView )
             {
@@ -1015,14 +1018,17 @@ void RimViewController::updateRangeFilterOverrides( RimCellRangeFilter* changedR
                 {
                     RigMainGrid* srcEclGrid = eclipseMasterView->mainGrid();
                     RigFemPart*  dstFemPart = depGeomView->femParts()->part( 0 );
-                    for ( size_t rfIdx = 0; rfIdx < sourceFilterCollection->rangeFilters().size(); ++rfIdx )
+
+                    for ( size_t rfIdx = 0; rfIdx < srcFilters.size(); ++rfIdx )
                     {
-                        RimCellRangeFilter* srcRFilter = sourceFilterCollection->rangeFilters[rfIdx];
-                        RimCellRangeFilter* dstRFilter = overrideRangeFilterColl->rangeFilters[rfIdx];
-                        RigCaseToCaseRangeFilterMapper::convertRangeFilterEclToFem( srcRFilter,
-                                                                                    srcEclGrid,
-                                                                                    dstRFilter,
-                                                                                    dstFemPart );
+                        RimCellFilter* srcRFilter = srcFilters[rfIdx];
+                        RimCellFilter* dstRFilter = dstFilters[rfIdx];
+
+                        // TODO: handle conversion of range, poly and userdef filters
+                        // RigCaseToCaseRangeFilterMapper::convertRangeFilterEclToFem( srcRFilter,
+                        //                                                            srcEclGrid,
+                        //                                                            dstRFilter,
+                        //                                                            dstFemPart );
                     }
                 }
             }
@@ -1032,20 +1038,22 @@ void RimViewController::updateRangeFilterOverrides( RimCellRangeFilter* changedR
                 {
                     RigFemPart*  srcFemPart = geoMasterView->femParts()->part( 0 );
                     RigMainGrid* dstEclGrid = depEclView->mainGrid();
-                    for ( size_t rfIdx = 0; rfIdx < sourceFilterCollection->rangeFilters().size(); ++rfIdx )
+                    for ( size_t rfIdx = 0; rfIdx < srcFilters.size(); ++rfIdx )
                     {
-                        RimCellRangeFilter* srcRFilter = sourceFilterCollection->rangeFilters[rfIdx];
-                        RimCellRangeFilter* dstRFilter = overrideRangeFilterColl->rangeFilters[rfIdx];
-                        RigCaseToCaseRangeFilterMapper::convertRangeFilterFemToEcl( srcRFilter,
-                                                                                    srcFemPart,
-                                                                                    dstRFilter,
-                                                                                    dstEclGrid );
+                        RimCellFilter* srcRFilter = srcFilters[rfIdx];
+                        RimCellFilter* dstRFilter = dstFilters[rfIdx];
+
+                        // TODO: handle conversion of range, poly and userdef filters
+                        // RigCaseToCaseRangeFilterMapper::convertRangeFilterFemToEcl( srcRFilter,
+                        //                                                            srcFemPart,
+                        //                                                            dstRFilter,
+                        //                                                            dstEclGrid );
                     }
                 }
             }
         }
 
-        m_managedView->setOverrideRangeFilterCollection( overrideRangeFilterColl );
+        m_managedView->setOverrideCellFilterCollection( overrideFilterColl );
     }
 }
 
@@ -1060,30 +1068,30 @@ void RimViewController::updatePropertyFilterOverrides( RimPropertyFilter* change
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewController::applyRangeFilterCollectionByUserChoice()
+void RimViewController::applyCellFilterCollectionByUserChoice()
 {
     if ( !m_managedView ) return;
 
-    if ( !m_managedView->hasOverridenRangeFilterCollection() )
+    if ( !m_managedView->hasOverriddenCellFilterCollection() )
     {
         return;
     }
 
-    bool restoreOriginal = askUserToRestoreOriginalRangeFilterCollection( m_managedView->name() );
+    bool restoreOriginal = askUserToRestoreOriginalCellFilterCollection( m_managedView->name() );
     if ( restoreOriginal )
     {
-        m_managedView->setOverrideRangeFilterCollection( nullptr );
+        m_managedView->setOverrideCellFilterCollection( nullptr );
     }
     else
     {
-        m_managedView->replaceRangeFilterCollectionWithOverride();
+        m_managedView->replaceCellFilterCollectionWithOverride();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimViewController::askUserToRestoreOriginalRangeFilterCollection( const QString& viewName )
+bool RimViewController::askUserToRestoreOriginalCellFilterCollection( const QString& viewName )
 {
     RimGridView* activeView = RiaApplication::instance()->activeGridView();
 
@@ -1091,10 +1099,10 @@ bool RimViewController::askUserToRestoreOriginalRangeFilterCollection( const QSt
     msgBox.setIcon( QMessageBox::Question );
 
     QString questionText;
-    questionText = QString( "The range filters in the view \"%1\" are about to be unlinked." ).arg( viewName );
+    questionText = QString( "The cell filters in the view \"%1\" are about to be unlinked." ).arg( viewName );
 
     msgBox.setText( questionText );
-    msgBox.setInformativeText( "Do you want to keep the range filters from the primary view?" );
+    msgBox.setInformativeText( "Do you want to keep the cell filters from the primary view?" );
     msgBox.setStandardButtons( QMessageBox::Yes | QMessageBox::No );
 
     int ret = msgBox.exec();

@@ -19,7 +19,9 @@
 #include "RimCellFilter.h"
 
 #include "RigReservoirGridTools.h"
+#include "Rim3dView.h"
 #include "RimCase.h"
+#include "RimViewController.h"
 
 #include "cvfStructGridGeometryGenerator.h"
 
@@ -105,6 +107,14 @@ bool RimCellFilter::isActive() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimCellFilter::updateActiveState( bool isControlled )
+{
+    m_isActive.uiCapability()->setUiReadOnly( isControlled );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 caf::AppEnum<RimCellFilter::FilterModeType> RimCellFilter::filterMode() const
 {
     return m_filterMode();
@@ -175,6 +185,15 @@ void RimCellFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
     group->add( &m_filterMode );
     group->add( &m_gridIndex );
     group->add( &m_propagateToSubGrids );
+
+    bool readOnlyState = isFilterControlled();
+
+    std::vector<caf::PdmFieldHandle*> objFields;
+    this->fields( objFields );
+    for ( auto& objField : objFields )
+    {
+        objField->uiCapability()->setUiReadOnly( readOnlyState );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -236,4 +255,21 @@ QList<caf::PdmOptionItemInfo> RimCellFilter::calculateValueOptions( const caf::P
         }
     }
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimCellFilter::isFilterControlled() const
+{
+    Rim3dView* rimView = nullptr;
+    firstAncestorOrThisOfTypeAsserted( rimView );
+
+    bool isFilterControlled = false;
+    if ( rimView && rimView->viewController() && rimView->viewController()->isCellFiltersControlled() )
+    {
+        isFilterControlled = true;
+    }
+
+    return isFilterControlled;
 }

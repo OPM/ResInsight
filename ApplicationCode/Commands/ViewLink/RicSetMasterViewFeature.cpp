@@ -65,7 +65,7 @@ void RicSetMasterViewFeature::onActionTriggered( bool isChecked )
     RimProject*    proj       = RimProject::current();
     RimViewLinker* viewLinker = proj->viewLinkerCollection()->viewLinker();
 
-    viewLinker->applyRangeFilterCollectionByUserChoice();
+    viewLinker->applyCellFilterCollectionByUserChoice();
 
     RimGridView* previousMasterView = viewLinker->masterView();
 

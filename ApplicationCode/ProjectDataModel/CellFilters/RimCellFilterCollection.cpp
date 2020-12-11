@@ -23,6 +23,7 @@
 #include "RimCase.h"
 #include "RimCellFilter.h"
 #include "RimCellRangeFilter.h"
+#include "RimGeoMechView.h"
 #include "RimPolylineFilter.h"
 #include "RimUserDefinedFilter.h"
 #include "RimViewController.h"
@@ -60,7 +61,7 @@ RimCellFilterCollection::~RimCellFilterCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimCellFilterCollection::isEmpty()
+bool RimCellFilterCollection::isEmpty() const
 {
     return m_cellFilters.size() > 0;
 }
@@ -68,9 +69,26 @@ bool RimCellFilterCollection::isEmpty()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimCellFilterCollection::isActive()
+bool RimCellFilterCollection::isActive() const
 {
     return m_isActive();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCellFilterCollection::setActive( bool bActive )
+{
+    m_isActive = bActive;
+    updateIconState();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimCellFilter*> RimCellFilterCollection::filters() const
+{
+    return m_cellFilters.childObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -123,19 +141,19 @@ void RimCellFilterCollection::updateIconState()
 {
     bool activeIcon = true;
 
-    // RimGeoMechView* view = nullptr;
-    // this->firstAncestorOrThisOfType( view );
-    // if ( view )
-    //{
-    //    RimViewController* viewController = view->viewController();
-    //    if ( viewController && ( viewController->isPropertyFilterOveridden() ||
-    //    viewController->isVisibleCellsOveridden() ) )
-    //    {
-    //        activeIcon = false;
-    //    }
-    //}
+    Rim3dView* rimView = nullptr;
+    this->firstAncestorOrThisOfType( rimView );
+    RimViewController* viewController = rimView->viewController();
 
-    if ( !m_isActive )
+    bool isControlled = viewController &&
+                        ( viewController->isCellFiltersControlled() || viewController->isVisibleCellsOveridden() );
+
+    if ( isControlled )
+    {
+        activeIcon = false;
+    }
+
+    if ( !isActive() )
     {
         activeIcon = false;
     }
@@ -144,7 +162,7 @@ void RimCellFilterCollection::updateIconState()
 
     for ( auto& filter : m_cellFilters )
     {
-        // filter->updateActiveState();
+        filter->updateActiveState( isControlled );
         filter->updateIconState();
     }
 }
@@ -152,7 +170,37 @@ void RimCellFilterCollection::updateIconState()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimCellFilter* RimCellFilterCollection::addNewPolylineFilter( RimCase* srcCase )
+bool RimCellFilterCollection::hasActiveFilters() const
+{
+    if ( !isActive() ) return false;
+
+    for ( const auto& filter : m_cellFilters )
+    {
+        if ( filter->isActive() ) return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimCellFilterCollection::hasActiveIncludeFilters() const
+{
+    if ( !isActive() ) return false;
+
+    for ( const auto& filter : m_cellFilters )
+    {
+        if ( filter->isActive() && filter->filterMode() == RimCellFilter::INCLUDE ) return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPolylineFilter* RimCellFilterCollection::addNewPolylineFilter( RimCase* srcCase )
 {
     RimPolylineFilter* pFilter = new RimPolylineFilter();
     pFilter->setCase( srcCase );
@@ -160,6 +208,7 @@ RimCellFilter* RimCellFilterCollection::addNewPolylineFilter( RimCase* srcCase )
     pFilter->filterChanged.connect( this, &RimCellFilterCollection::onFilterUpdated );
 
     this->updateConnectedEditors();
+    onFilterUpdated( pFilter );
 
     return pFilter;
 }
@@ -167,13 +216,14 @@ RimCellFilter* RimCellFilterCollection::addNewPolylineFilter( RimCase* srcCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimCellFilter* RimCellFilterCollection::addNewUserDefinedFilter( RimCase* srcCase )
+RimUserDefinedFilter* RimCellFilterCollection::addNewUserDefinedFilter( RimCase* srcCase )
 {
     RimUserDefinedFilter* pFilter = new RimUserDefinedFilter();
     m_cellFilters.push_back( pFilter );
     pFilter->filterChanged.connect( this, &RimCellFilterCollection::onFilterUpdated );
 
     this->updateConnectedEditors();
+    onFilterUpdated( pFilter );
 
     return pFilter;
 }
@@ -181,7 +231,7 @@ RimCellFilter* RimCellFilterCollection::addNewUserDefinedFilter( RimCase* srcCas
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimCellFilter* RimCellFilterCollection::addNewCellRangeFilter( RimCase* srcCase, int sliceDirection )
+RimCellRangeFilter* RimCellFilterCollection::addNewCellRangeFilter( RimCase* srcCase, int sliceDirection )
 {
     RimCellRangeFilter* pFilter = new RimCellRangeFilter();
     m_cellFilters.push_back( pFilter );
@@ -189,8 +239,26 @@ RimCellFilter* RimCellFilterCollection::addNewCellRangeFilter( RimCase* srcCase,
     pFilter->setDefaultValues( sliceDirection );
 
     this->updateConnectedEditors();
+    onFilterUpdated( pFilter );
 
     return pFilter;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCellFilterCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                              std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    onFilterUpdated( nullptr );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCellFilterCollection::removeFilter( RimCellFilter* filter )
+{
+    m_cellFilters.removeChildObject( filter );
 }
 
 void RimCellFilterCollection::onFilterUpdated( const SignalEmitter* emitter )
@@ -205,9 +273,9 @@ void RimCellFilterCollection::onFilterUpdated( const SignalEmitter* emitter )
         if ( viewLinker )
         {
             // TODO - more generic update here!?
-            // Update data for range filter
+            // Update data for cell filter
             // Update of display model is handled by view->scheduleGeometryRegen, also for managed views
-            viewLinker->updateRangeFilters( nullptr );
+            viewLinker->updateCellFilters( dynamic_cast<const RimCellFilter*>( emitter ) );
         }
     }
 
@@ -219,8 +287,7 @@ void RimCellFilterCollection::onFilterUpdated( const SignalEmitter* emitter )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// RimCellRangeFilter is using Eclipse 1-based indexing, adjust filter values before
-//  populating cvf::CellRangeFilter (which is 0-based)
+/// Populate the given view filter with info from our filters
 //--------------------------------------------------------------------------------------------------
 void RimCellFilterCollection::compoundCellRangeFilter( cvf::CellRangeFilter* cellRangeFilter, size_t gridIndex ) const
 {

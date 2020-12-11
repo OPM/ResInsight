@@ -33,7 +33,7 @@
 
 class RimEclipseView;
 class RigGridBase;
-class RimCellRangeFilterCollection;
+class RimCellFilterCollection;
 class RimEclipsePropertyFilterCollection;
 class RigActiveCellInfo;
 class RimEclipseCellColors;
@@ -121,11 +121,11 @@ private:
                                          bool                     inactiveCellsIsVisible,
                                          bool                     activeCellsIsVisible );
 
-    void computeRangeVisibility( RivCellSetEnum                      geometryType,
-                                 cvf::UByteArray*                    cellVisibilities,
-                                 const RigGridBase*                  grid,
-                                 const cvf::UByteArray*              nativeVisibility,
-                                 const RimCellRangeFilterCollection* rangeFilterColl );
+    void computeFilterVisibility( RivCellSetEnum                 geometryType,
+                                  cvf::UByteArray*               cellVisibilities,
+                                  const RigGridBase*             grid,
+                                  const cvf::UByteArray*         nativeVisibility,
+                                  const RimCellFilterCollection* rangeFilterColl );
     void computeOverriddenCellVisibility( cvf::UByteArray* cellVisibility, const RigGridBase* grid );
 
     static void copyByteArray( cvf::UByteArray* dest, const cvf::UByteArray* source );

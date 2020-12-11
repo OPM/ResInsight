@@ -60,13 +60,16 @@ public:
     int  gridIndex() const;
 
     void updateIconState();
+    void updateActiveState( bool isControlled );
 
     virtual void updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter ) const = 0;
 
 protected:
-    caf::PdmFieldHandle*            userDescriptionField() override;
-    caf::PdmFieldHandle*            objectToggleField() override;
-    void                            defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    caf::PdmFieldHandle* userDescriptionField() override;
+    caf::PdmFieldHandle* objectToggleField() override;
+    void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    bool                 isFilterControlled() const;
+
     const cvf::StructGridInterface* selectedGrid() const;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,

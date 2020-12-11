@@ -368,7 +368,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
                 RimViewController* viewController = nullptr;
                 if ( mainOrComparisonView ) viewController = mainOrComparisonView->viewController();
 
-                if ( !viewController || !viewController->isRangeFiltersControlled() )
+                if ( !viewController || !viewController->isCellFiltersControlled() )
                 {
                     size_t i, j, k;
                     ijkFromCellIndex( mainOrComparisonView, m_currentGridIdx, m_currentCellIndex, &i, &j, &k );

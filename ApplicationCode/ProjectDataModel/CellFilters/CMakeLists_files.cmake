@@ -3,7 +3,6 @@ set (SOURCE_GROUP_HEADER_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RimCellFilter.h
 ${CMAKE_CURRENT_LIST_DIR}/RimCellFilterCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimCellRangeFilter.h
-${CMAKE_CURRENT_LIST_DIR}/RimCellRangeFilterCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPropertyFilter.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPropertyFilterCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipsePropertyFilter.h
@@ -18,7 +17,6 @@ set (SOURCE_GROUP_SOURCE_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RimCellFilter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimCellFilterCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimCellRangeFilter.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimCellRangeFilterCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPropertyFilter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPropertyFilterCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipsePropertyFilter.cpp

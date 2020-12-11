@@ -18,9 +18,9 @@
 
 #include "RicNewPolylineFilterFeature.h"
 
-#include "RimCellFilter.h"
 #include "RimCellFilterCollection.h"
 #include "RimOilField.h"
+#include "RimPolylineFilter.h"
 #include "RimProject.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -56,7 +56,7 @@ void RicNewPolylineFilterFeature::onActionTriggered( bool isChecked )
     if ( colls.empty() ) return;
     RimCellFilterCollection* filtColl = colls[0];
 
-    RimCellFilter* lastCreatedOrUpdated = filtColl->addNewPolylineFilter( sourceCase );
+    RimPolylineFilter* lastCreatedOrUpdated = filtColl->addNewPolylineFilter( sourceCase );
     if ( lastCreatedOrUpdated )
     {
         Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );

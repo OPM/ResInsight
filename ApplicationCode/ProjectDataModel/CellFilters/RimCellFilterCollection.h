@@ -23,6 +23,9 @@
 #include "cafPdmObject.h"
 
 class RimCellFilter;
+class RimCellRangeFilter;
+class RimPolylineFilter;
+class RimUserDefinedFilter;
 class RimCase;
 class RigPolyLinesData;
 
@@ -43,25 +46,31 @@ public:
     RimCellFilterCollection();
     ~RimCellFilterCollection() override;
 
-    RimCellFilter* addNewPolylineFilter( RimCase* srcCase );
-    RimCellFilter* addNewUserDefinedFilter( RimCase* srcCase );
-    RimCellFilter* addNewCellRangeFilter( RimCase* srcCase, int sliceDirection = -1 );
+    RimPolylineFilter*    addNewPolylineFilter( RimCase* srcCase );
+    RimUserDefinedFilter* addNewUserDefinedFilter( RimCase* srcCase );
+    RimCellRangeFilter*   addNewCellRangeFilter( RimCase* srcCase, int sliceDirection = -1 );
 
-    bool isEmpty();
-    bool isActive();
+    void removeFilter( RimCellFilter* filter );
+
+    bool isEmpty() const;
+    bool isActive() const;
+    void setActive( bool bActive );
 
     void compoundCellRangeFilter( cvf::CellRangeFilter* cellRangeFilter, size_t gridIndex ) const;
 
-    // Methods
-    // virtual bool hasActiveFilters() const        = 0;
+    std::vector<RimCellFilter*> filters() const;
+
+    bool hasActiveFilters() const;
+    bool hasActiveIncludeFilters() const;
+
     // virtual bool hasActiveDynamicFilters() const = 0;
 
     // virtual void loadAndInitializePropertyFilters() = 0;
 
     // void         updateDisplayModelNotifyManagedViews( RimPropertyFilter* changedFilter ) const;
     void updateIconState();
-    // void         onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-    //                             std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
 protected:
     // Overridden methods

@@ -21,13 +21,10 @@
 #include "RimCellRangeFilter.h"
 
 #include "RiaApplication.h"
-
 #include "RigActiveCellInfo.h"
 #include "RigReservoirGridTools.h"
-
 #include "Rim3dView.h"
 #include "RimCase.h"
-#include "RimViewController.h"
 
 #include "cafPdmUiSliderEditor.h"
 
@@ -130,14 +127,6 @@ void RimCellRangeFilter::computeAndSetValidValues()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCellRangeFilter::updateActiveState()
-{
-    m_isActive.uiCapability()->setUiReadOnly( isRangeFilterControlled() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimCellRangeFilter::setDefaultValues( int sliceDirection )
 {
     const cvf::StructGridInterface* grid = selectedGrid();
@@ -194,7 +183,7 @@ void RimCellRangeFilter::setDefaultValues( int sliceDirection )
             break;
         case 2:
             cellCountK = 1;
-
+            break;
         default:
             break;
     }
@@ -240,15 +229,6 @@ void RimCellRangeFilter::defineEditorAttribute( const caf::PdmFieldHandle* field
 void RimCellRangeFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     RimCellFilter::defineUiOrdering( uiConfigName, uiOrdering );
-
-    bool readOnlyState = isRangeFilterControlled();
-
-    std::vector<caf::PdmFieldHandle*> objFields;
-    this->fields( objFields );
-    for ( auto& objField : objFields )
-    {
-        objField->uiCapability()->setUiReadOnly( readOnlyState );
-    }
 
     const cvf::StructGridInterface* grid = selectedGrid();
 
@@ -310,25 +290,8 @@ void RimCellRangeFilter::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrd
 {
     RimCellFilter::defineUiTreeOrdering( uiTreeOrdering, uiConfigName );
 
-    updateActiveState();
+    updateActiveState( isFilterControlled() );
     updateIconState();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimCellRangeFilter::isRangeFilterControlled() const
-{
-    Rim3dView* rimView = nullptr;
-    firstAncestorOrThisOfTypeAsserted( rimView );
-
-    bool isRangeFilterControlled = false;
-    if ( rimView && rimView->viewController() && rimView->viewController()->isRangeFiltersControlled() )
-    {
-        isRangeFilterControlled = true;
-    }
-
-    return isRangeFilterControlled;
 }
 
 //--------------------------------------------------------------------------------------------------

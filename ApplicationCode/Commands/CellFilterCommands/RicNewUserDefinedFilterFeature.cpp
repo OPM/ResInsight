@@ -18,10 +18,10 @@
 
 #include "RicNewUserDefinedFilterFeature.h"
 
-#include "RimCellFilter.h"
 #include "RimCellFilterCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimUserDefinedFilter.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -56,7 +56,7 @@ void RicNewUserDefinedFilterFeature::onActionTriggered( bool isChecked )
     if ( colls.empty() ) return;
     RimCellFilterCollection* filtColl = colls[0];
 
-    RimCellFilter* lastCreatedOrUpdated = filtColl->addNewUserDefinedFilter( sourceCase );
+    RimUserDefinedFilter* lastCreatedOrUpdated = filtColl->addNewUserDefinedFilter( sourceCase );
     if ( lastCreatedOrUpdated )
     {
         Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
