@@ -67,7 +67,7 @@ void PdmFieldScriptingCapabilityIOHandler<QString>::writeToField( QString&      
         while ( !inputStream.atEnd() )
         {
             currentChar = errorMessageContainer->readCharWithLineNumberCount( inputStream );
-            if ( currentChar != QChar( '\\' ) )
+            if ( currentChar > 1 && currentChar != QChar( '\\' ) )
             {
                 if ( currentChar == QChar( '"' ) ) // End Quote
                 {

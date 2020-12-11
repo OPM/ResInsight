@@ -27,7 +27,8 @@ DataType* PdmChildArrayField<DataType*>::operator[]( size_t index ) const
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Assign a regular raw pointer. This method should be considered private.
+/// External use should be considered deprecated.
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
 void PdmChildArrayField<DataType*>::push_back( DataType* pointer )
@@ -39,7 +40,8 @@ void PdmChildArrayField<DataType*>::push_back( DataType* pointer )
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Assign a unique pointer and take ownership.
+/// This should be preferred over the method taking a raw pointer
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
 void PdmChildArrayField<DataType*>::push_back( DataTypeUniquePtr pointer )

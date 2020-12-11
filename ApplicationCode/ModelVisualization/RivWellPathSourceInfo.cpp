@@ -127,5 +127,7 @@ void RivWellPathSourceInfo::normalizedIntersection( size_t            triangleIn
 //--------------------------------------------------------------------------------------------------
 size_t RivWellPathSourceInfo::segmentIndex( size_t triangleIndex ) const
 {
-    return m_pipeGeomGenerator->segmentIndexFromTriangleIndex( triangleIndex );
+    CAF_ASSERT( m_wellPath.notNull() );
+    return m_pipeGeomGenerator->segmentIndexFromTriangleIndex( triangleIndex ) +
+           m_wellPath->wellPathGeometry()->uniqueStartIndex();
 }

@@ -36,19 +36,20 @@ public:
     void                      removeChildWellPath( RimWellPath* wellPath );
     void                      removeAllChildWellPaths();
 
-    void createWellPathGeometry();
-    void updateWellPathName();
-    void makeMoreLevelsIfNecessary();
+    void    createWellPathGeometry();
+    void    makeMoreLevelsIfNecessary();
+    QString createGroupName() const;
 
 protected:
-    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName );
+    void                 defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName );
+    caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
     std::vector<const RigWellPath*> wellPathGeometries() const;
-    QString                         createWellPathName() const;
 
     void onChildNameChanged( const caf::SignalEmitter* emitter );
 
 private:
     caf::PdmChildArrayField<RimWellPath*> m_childWellPaths;
+    caf::PdmProxyValueField<QString>      m_groupName;
 };

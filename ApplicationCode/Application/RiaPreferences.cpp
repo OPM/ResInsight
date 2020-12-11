@@ -31,10 +31,13 @@
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiFilePathEditor.h"
+#include "cafPdmUiLineEditor.h"
 
 #include <QDate>
+#include <QDebug>
 #include <QDir>
 #include <QLocale>
+#include <QRegExp>
 #include <QStandardPaths>
 
 namespace caf
@@ -386,6 +389,16 @@ RiaPreferences::RiaPreferences( void )
                        "Defines preferred minimum distance between surface points in XY-plane",
                        "" );
 
+    CAF_PDM_InitField( &m_multiLateralWellPattern,
+                       "MultiLateralWellPattern",
+                       defaultMultiLateralWellNamePattern(),
+                       "Multi Lateral Well Path Name Pattern",
+                       "",
+                       "Pattern to be used to decide if an imported well is part of a multi-lateral well. Allows use "
+                       "of ? and * as wildcards.",
+                       "" );
+    m_multiLateralWellPattern.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
+
     CAF_PDM_InitFieldNoDefault( &m_guiTheme, "guiTheme", "GUI theme", "", "", "" );
 }
 
@@ -404,6 +417,42 @@ RiaPreferences* RiaPreferences::current()
 {
     return RiaApplication::instance()->preferences();
 }
+
+// Validates a wild card pattern (simpler for user)
+// Has to use the older QRegExp because QRegularExpression didn't add any
+// support for wild cards until Qt 5.12.
+class ValidRegExpValidator : public QValidator
+{
+public:
+    ValidRegExpValidator( const QString& defaultPattern )
+        : QValidator( nullptr )
+        , m_defaultPattern( defaultPattern )
+    {
+    }
+
+    State validate( QString& inputString, int& position ) const override
+    {
+        QRegExp inputRe( inputString, Qt::CaseInsensitive, QRegExp::Wildcard );
+        if ( inputRe.isValid() ) // A valid wildcard pattern is always acceptable
+        {
+            return QValidator::Acceptable;
+        }
+        // Try to decide whether it can be fixed by typing further characters or not.
+        if ( position < inputString.length() &&
+             !( inputString[position].isLetterOrNumber() || inputString[position] == '-' ||
+                inputString[position] == '_' || inputString[position] == '.' || inputString[position] == '[' ) )
+        {
+            // Contains a non-valid character: this is invalid.
+            return QValidator::Invalid;
+        }
+        return QValidator::Intermediate;
+    }
+
+    void fixup( QString& inputString ) const override { inputString = m_defaultPattern; }
+
+private:
+    QString m_defaultPattern;
+};
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -456,6 +505,14 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
     {
         caf::PdmUiComboBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
         myAttr->minimumContentsLength             = 2;
+    }
+    if ( field == &m_multiLateralWellPattern )
+    {
+        caf::PdmUiLineEditorAttribute* myAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
+        if ( myAttr )
+        {
+            myAttr->validator = new ValidRegExpValidator( RiaPreferences::current()->defaultMultiLateralWellNamePattern() );
+        }
     }
 }
 
@@ -577,6 +634,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     else if ( uiConfigName == RiaPreferences::tabNameImport() )
     {
         uiOrdering.add( &m_surfaceImportResamplingDistance );
+        uiOrdering.add( &m_multiLateralWellPattern );
     }
     else if ( RiaApplication::enableDevelopmentFeatures() && uiConfigName == RiaPreferences::tabNameSystem() )
     {
@@ -1054,6 +1112,22 @@ QMarginsF RiaPreferences::margins() const
 double RiaPreferences::surfaceImportResamplingDistance() const
 {
     return m_surfaceImportResamplingDistance;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::multiLateralWellNamePattern() const
+{
+    return m_multiLateralWellPattern;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::defaultMultiLateralWellNamePattern()
+{
+    return "*Y*";
 }
 
 //--------------------------------------------------------------------------------------------------

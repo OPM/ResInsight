@@ -100,6 +100,9 @@ public:
     double startMD() const override;
     double endMD() const override;
 
+    double uniqueStartMD() const;
+    double uniqueEndMD() const;
+
     void                         addWellLogFile( RimWellLogFile* logFileInfo );
     void                         deleteWellLogFile( RimWellLogFile* logFileInfo );
     void                         detachWellLogFile( RimWellLogFile* logFileInfo );

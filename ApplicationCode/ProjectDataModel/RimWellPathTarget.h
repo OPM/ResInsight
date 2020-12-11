@@ -23,11 +23,17 @@
 #include "cafAppEnum.h"
 #include "cafPdmCoreVec3d.h"
 #include "cafPdmField.h"
+#include "cafPdmPtrField.h"
 #include "cvfVector3.h"
+
+class RimWellPath;
 
 class RimWellPathTarget : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
+
+public:
+    caf::Signal<bool> moved;
 
 public:
     RimWellPathTarget();
@@ -37,7 +43,9 @@ public:
     bool isEnabled() const;
 
     void setAsPointTargetXYD( const cvf::Vec3d& point );
+    void setAsPointXYZAndTangentTarget( const cvf::Vec3d& point, const cvf::Vec3d& tangent );
     void setAsPointXYZAndTangentTarget( const cvf::Vec3d& point, double azimuth, double inclination );
+    void setAsLateralMDConnection( RimWellPath* wellPath, double md );
     void setDerivedTangent( double azimuth, double inclination );
 
     RiaLineArcWellPathCalculator::WellTarget wellTargetData();
@@ -45,7 +53,8 @@ public:
     enum TargetTypeEnum
     {
         POINT_AND_TANGENT,
-        POINT
+        POINT,
+        LATERAL_MD_CONNECTION
     };
     TargetTypeEnum targetType() const;
     cvf::Vec3d     targetPointXYZ() const;
@@ -56,6 +65,8 @@ public:
     double         radius2() const;
     void           flagRadius1AsIncorrect( bool isEditable, bool isIncorrect, double actualRadius );
     void           flagRadius2AsIncorrect( bool isEditable, bool isIncorrect, double actualRadius );
+
+    void onMoved();
 
 private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
@@ -78,4 +89,7 @@ private:
     caf::PdmField<double>                       m_dogleg1;
     caf::PdmField<double>                       m_dogleg2;
     caf::PdmField<bool>                         m_hasTangentConstraintUiField;
+
+    caf::PdmField<double>          m_lateralMDConnection;
+    caf::PdmPtrField<RimWellPath*> m_parentWellPath;
 };

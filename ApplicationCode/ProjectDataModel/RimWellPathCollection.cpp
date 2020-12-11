@@ -53,6 +53,7 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
 
+#include <QDebug>
 #include <QFile>
 #include <QFileInfo>
 #include <QString>
@@ -219,7 +220,6 @@ void RimWellPathCollection::loadDataAndUpdate()
 
         RimFileWellPath*    fWPath = dynamic_cast<RimFileWellPath*>( wellPath );
         RimModeledWellPath* mWPath = dynamic_cast<RimModeledWellPath*>( wellPath );
-        RimWellPathGroup*   branch = dynamic_cast<RimWellPathGroup*>( wellPath );
         if ( fWPath )
         {
             if ( !fWPath->filePath().isEmpty() )
@@ -234,10 +234,6 @@ void RimWellPathCollection::loadDataAndUpdate()
         else if ( mWPath )
         {
             mWPath->createWellPathGeometry();
-        }
-        else if ( branch )
-        {
-            branch->updateWellPathName();
         }
 
         if ( wellPath )
@@ -393,6 +389,7 @@ void RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& 
 
         // If a well path with this name exists already, make it read the well path file
         RimFileWellPath* existingWellPath = dynamic_cast<RimFileWellPath*>( tryFindMatchingWellPath( wellPath->name() ) );
+
         if ( existingWellPath )
         {
             existingWellPath->setFilepath( wellPath->filePath() );
@@ -653,11 +650,11 @@ void RimWellPathCollection::deleteAllWellPaths()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::groupWellPaths( const std::vector<RimWellPath*>& wellPaths, bool allowAddingToExistingGroups )
+void RimWellPathCollection::groupWellPaths( const std::vector<RimWellPath*>& wellPaths, bool automaticGrouping )
 {
     auto detachedWellPaths = detachWellPaths( wellPaths );
 
-    if ( allowAddingToExistingGroups )
+    if ( automaticGrouping )
     {
         for ( auto wellPath : allWellPaths() )
         {
@@ -669,11 +666,33 @@ void RimWellPathCollection::groupWellPaths( const std::vector<RimWellPath*>& wel
         }
     }
 
-    auto wellPathsToGroupWith = detachedWellPaths;
+    QString multiLateralWellPathPattern = RiaPreferences::current()->multiLateralWellNamePattern();
+    QRegExp re( multiLateralWellPathPattern, Qt::CaseInsensitive, QRegExp::Wildcard );
+
+    std::vector<RimWellPath*> wellPathsToGroup;
 
     for ( auto wellPath : detachedWellPaths )
     {
-        auto parentGroup = findOrCreateWellPathGroup( wellPath, wellPathsToGroupWith );
+        caf::PdmObject* parent = nullptr;
+        wellPath->firstAncestorOfType( parent );
+        CAF_ASSERT( !parent );
+
+        if ( !automaticGrouping || re.exactMatch( wellPath->name() ) )
+        {
+            wellPathsToGroup.push_back( wellPath );
+        }
+        else
+        {
+            m_wellPaths.push_back( wellPath );
+        }
+    }
+
+    std::vector<RimWellPath*> wellPathsToGroupWith = wellPathsToGroup;
+
+    for ( auto wellPath : wellPathsToGroup )
+    {
+        RimWellPathGroup* parentGroup = findOrCreateWellPathGroup( wellPath, wellPathsToGroupWith );
+
         if ( parentGroup )
         {
             auto groupIsNew = std::find( wellPathsToGroupWith.begin(), wellPathsToGroupWith.end(), parentGroup ) ==
@@ -683,7 +702,7 @@ void RimWellPathCollection::groupWellPaths( const std::vector<RimWellPath*>& wel
                 wellPathsToGroupWith.push_back( parentGroup );
             }
         }
-        else
+        else if ( std::find( m_wellPaths.begin(), m_wellPaths.end(), wellPath ) == m_wellPaths.end() )
         {
             m_wellPaths.push_back( wellPath );
         }
@@ -827,7 +846,7 @@ std::vector<RimWellPathGroup*> RimWellPathCollection::topLevelGroups() const
 ///
 //--------------------------------------------------------------------------------------------------
 RimWellPathGroup* RimWellPathCollection::findOrCreateWellPathGroup( gsl::not_null<RimWellPath*>      wellPath,
-                                                                    const std::vector<RimWellPath*>& wellPathsToGroupWith )
+                                                                    const std::vector<RimWellPath*>& wellPathsToGroup )
 {
     RimWellPathGroup* existingParent = nullptr;
     wellPath->firstAncestorOfType( existingParent );
@@ -839,7 +858,7 @@ RimWellPathGroup* RimWellPathCollection::findOrCreateWellPathGroup( gsl::not_nul
     const double                   eps = 1.0e-3;
     std::map<RimWellPath*, double> wellPathsWithCommonGeometry;
 
-    for ( auto existingWellPath : wellPathsToGroupWith )
+    for ( auto existingWellPath : wellPathsToGroup )
     {
         double identicalTubeLength = existingWellPath->wellPathGeometry()->identicalTubeLength( *wellPathGeometry );
         if ( identicalTubeLength > eps )

@@ -24,6 +24,7 @@
 #include "RimCase.h"
 #include "RimModeledWellPath.h"
 #include "RimWellPathGeometryDef.h"
+#include "RimWellPathLateralGeometryDef.h"
 #include "RimWellPathTarget.h"
 
 #include "RiuViewer.h"
@@ -85,7 +86,7 @@ void RicWellTarget3dEditor::configureAndUpdateUi( const QString& uiConfigName )
         return;
     }
 
-    RimWellPathGeometryDef* geomDef;
+    RimWellPathGeometryDefInterface* geomDef;
     target->firstAncestorOrThisOfTypeAsserted( geomDef );
 
     target->m_targetType.uiCapability()->addFieldEditor( this );
@@ -152,7 +153,7 @@ void RicWellTarget3dEditor::slotUpdated( const cvf::Vec3d& origin, const cvf::Ve
 
     cvf::ref<caf::DisplayCoordTransform> dispXf = view->displayCoordTransform();
 
-    RimWellPathGeometryDef* geomDef;
+    RimWellPathGeometryDefInterface* geomDef;
     target->firstAncestorOrThisOfTypeAsserted( geomDef );
 
     cvf::Vec3d domainOrigin = dispXf->transformToDomainCoord( origin ) - geomDef->referencePointXyz();
@@ -189,7 +190,5 @@ void RicWellTarget3dEditor::slotDragFinished()
         return;
     }
 
-    RimModeledWellPath* wellpath;
-    target->firstAncestorOrThisOfTypeAsserted( wellpath );
-    wellpath->scheduleUpdateOfDependentVisualization();
+    target->onMoved();
 }

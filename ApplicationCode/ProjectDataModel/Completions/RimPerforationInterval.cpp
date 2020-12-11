@@ -401,8 +401,8 @@ void RimPerforationInterval::defineEditorAttribute( const caf::PdmFieldHandle* f
             this->firstAncestorOrThisOfType( wellPath );
             if ( !wellPath ) return;
 
-            myAttr->m_minimum = wellPath->startMD();
-            myAttr->m_maximum = wellPath->endMD();
+            myAttr->m_minimum = wellPath->uniqueStartMD();
+            myAttr->m_maximum = wellPath->uniqueEndMD();
         }
     }
 }

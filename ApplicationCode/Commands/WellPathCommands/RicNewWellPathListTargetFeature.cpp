@@ -129,7 +129,7 @@ void RicNewWellPathListTargetFeature::onActionTriggered( bool isChecked )
 
         wellGeomDef->insertTarget( firstTarget, newTarget );
         wellGeomDef->updateConnectedEditors();
-        wellGeomDef->updateWellPathVisualization();
+        wellGeomDef->updateWellPathVisualization( false );
 
         return;
     }
@@ -168,7 +168,7 @@ void RicNewWellPathListTargetFeature::onActionTriggered( bool isChecked )
         }
 
         wellGeomDef->updateConnectedEditors();
-        wellGeomDef->updateWellPathVisualization();
+        wellGeomDef->updateWellPathVisualization( false );
     }
 }
 

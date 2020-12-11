@@ -39,6 +39,9 @@ public:
     RiaLineArcWellPathCalculator( const cvf::Vec3d&                                            referencePointXyz,
                                   const std::vector<RiaLineArcWellPathCalculator::WellTarget>& targets );
 
+    RiaLineArcWellPathCalculator( const cvf::Vec3d&                                            referencePointXyz,
+                                  const cvf::Vec3d&                                            startTangent,
+                                  const std::vector<RiaLineArcWellPathCalculator::WellTarget>& targets );
     struct WellTargetStatus
     {
         bool   hasDerivedTangent;

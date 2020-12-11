@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RicAutomaticWellPathGrouping.h"
 
+#include "RiaPreferences.h"
 #include "RigWellPath.h"
 
 #include "RimOilField.h"
@@ -29,6 +30,7 @@
 #include "cafSelectionManager.h"
 
 #include <QAction>
+#include <QRegExp>
 
 RICF_SOURCE_INIT( RicAutomaticWellPathGrouping, "RicAutomaticWellPathGroupingFeature", "autoGroupWellPaths" );
 
@@ -94,12 +96,12 @@ void RicAutomaticWellPathGrouping::setupActionLook( QAction* actionToSetup )
     auto wellPathCollection = caf::SelectionManager::instance()->selectedItemOfType<RimWellPathCollection>();
     if ( wellPathCollection )
     {
-        actionToSetup->setText( "Automatically Group All Well Paths" );
+        actionToSetup->setText( "Automatically Create Multi-Lateral Wells" );
         actionToSetup->setIcon( QIcon( ":/WellPathGroup.svg" ) );
     }
     else
     {
-        actionToSetup->setText( "Automatically Group Selected Well Paths" );
+        actionToSetup->setText( "Automatically Create Multi-Lateral Wells from Selected Paths" );
         actionToSetup->setIcon( QIcon( ":/WellPathGroup.svg" ) );
     }
 }
@@ -109,13 +111,29 @@ void RicAutomaticWellPathGrouping::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellPath*> RicAutomaticWellPathGrouping::selectedWellPaths()
 {
+    std::vector<RimWellPath*> wellPaths;
+
     auto wellPathCollection = caf::SelectionManager::instance()->selectedItemOfType<RimWellPathCollection>();
     if ( wellPathCollection )
     {
-        return wellPathCollection->allWellPaths();
+        wellPaths = wellPathCollection->allWellPaths();
+    }
+    else
+    {
+        caf::SelectionManager::instance()->objectsByTypeStrict( &wellPaths );
     }
 
-    std::vector<RimWellPath*> wellPaths;
-    caf::SelectionManager::instance()->objectsByTypeStrict( &wellPaths );
-    return wellPaths;
+    QString multiLateralWellPathPattern = RiaPreferences::current()->multiLateralWellNamePattern();
+    QRegExp re( multiLateralWellPathPattern, Qt::CaseInsensitive, QRegExp::Wildcard );
+
+    std::vector<RimWellPath*> multiLateralWellPaths;
+    for ( auto wellPath : wellPaths )
+    {
+        if ( re.exactMatch( wellPath->name() ) )
+        {
+            multiLateralWellPaths.push_back( wellPath );
+        }
+    }
+
+    return multiLateralWellPaths;
 }

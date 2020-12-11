@@ -365,6 +365,30 @@ double RimWellPath::endMD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RimWellPath::uniqueStartMD() const
+{
+    if ( wellPathGeometry() )
+    {
+        return wellPathGeometry()->uniqueMeasuredDepths().front();
+    }
+    return std::numeric_limits<double>::infinity();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellPath::uniqueEndMD() const
+{
+    if ( wellPathGeometry() )
+    {
+        return wellPathGeometry()->uniqueMeasuredDepths().back();
+    }
+    return std::numeric_limits<double>::infinity();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellPath::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimProject* proj;

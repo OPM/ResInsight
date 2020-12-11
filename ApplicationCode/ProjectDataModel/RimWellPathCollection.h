@@ -99,7 +99,7 @@ public:
     void                      removeWellPath( gsl::not_null<RimWellPath*> wellPath );
 
     void deleteAllWellPaths();
-    void groupWellPaths( const std::vector<RimWellPath*>& wellPaths, bool allowAddingToExistingGroups = false );
+    void groupWellPaths( const std::vector<RimWellPath*>& wellPaths, bool automaticGrouping = false );
     void ungroupWellPaths( const std::vector<RimWellPath*>& wellPaths );
 
     RimWellPath* mostRecentlyUpdatedWellPath();

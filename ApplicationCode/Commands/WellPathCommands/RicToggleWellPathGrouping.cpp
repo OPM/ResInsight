@@ -128,12 +128,12 @@ void RicToggleWellPathGrouping::setupActionLook( QAction* actionToSetup )
     auto wellPaths = selectedWellPaths();
     if ( containsUngroupedWellPathsWithCommonGeometry( wellPaths ) )
     {
-        actionToSetup->setText( "Group the selected well paths" );
+        actionToSetup->setText( "Create Multi-Lateral Wells from Selected Well Paths" );
         actionToSetup->setIcon( QIcon( ":/WellPathGroup.svg" ) );
     }
     else if ( containsGroupedWellPaths( wellPaths ) )
     {
-        actionToSetup->setText( "Ungroup the selected well paths" );
+        actionToSetup->setText( "Detach Selected Well Paths from Multi-Lateral Wells" );
         actionToSetup->setIcon( QIcon( ":/Well.svg" ) );
     }
 }

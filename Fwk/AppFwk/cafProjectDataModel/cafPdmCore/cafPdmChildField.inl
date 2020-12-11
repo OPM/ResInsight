@@ -80,7 +80,8 @@ caf::PdmChildField<DataType*>::~PdmChildField()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Assign a regular raw pointer. This method should be considered private.
+/// External use should be considered deprecated.
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
 caf::PdmChildField<DataType*>& PdmChildField<DataType*>::operator=( const DataTypePtr& fieldValue )
@@ -94,7 +95,8 @@ caf::PdmChildField<DataType*>& PdmChildField<DataType*>::operator=( const DataTy
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Assign a unique pointer and take ownership.
+/// This should be preferred over the method taking a raw pointer
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
 caf::PdmChildField<DataType*>& PdmChildField<DataType*>::operator=( DataTypeUniquePtr fieldValue )
@@ -103,7 +105,8 @@ caf::PdmChildField<DataType*>& PdmChildField<DataType*>::operator=( DataTypeUniq
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Assign a regular raw pointer. This method should be considered private.
+/// External use should be considered deprecated.
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
 void caf::PdmChildField<DataType*>::setValue( const DataTypePtr& fieldValue )
@@ -114,7 +117,8 @@ void caf::PdmChildField<DataType*>::setValue( const DataTypePtr& fieldValue )
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Assign a unique pointer and take ownership.
+/// This should be preferred over the method taking a raw pointer
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
 void caf::PdmChildField<DataType*>::setValue( DataTypeUniquePtr fieldValue )

@@ -66,13 +66,17 @@ public:
     cvf::Vec3d interpolatedPointAlongWellPath( double  measuredDepth,
                                                double* horizontalLengthAlongWellToStartClipPoint = nullptr ) const;
 
+    cvf::Vec3d tangentAlongWellPath( double measuredDepth ) const;
+
     double wellPathAzimuthAngle( const cvf::Vec3d& position ) const;
     void   twoClosestPoints( const cvf::Vec3d& position, cvf::Vec3d* p1, cvf::Vec3d* p2 ) const;
     double identicalTubeLength( const RigWellPath& otherWellPathGeometry ) const;
 
     static cvf::ref<RigWellPath> commonGeometry( const std::vector<const RigWellPath*>& allGeometries );
     void                         setUniqueStartIndex( size_t uniqueStartIndex );
+    size_t                       uniqueStartIndex() const;
     std::vector<cvf::Vec3d>      uniqueWellPathPoints() const;
+    std::vector<double>          uniqueMeasuredDepths() const;
 
     std::pair<std::vector<cvf::Vec3d>, std::vector<double>>
         clippedPointSubset( double startMD, double endMD, double* horizontalLengthAlongWellToStartClipPoint = nullptr ) const;
