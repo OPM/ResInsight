@@ -44,15 +44,25 @@ bool RicNewEnsembleCurveFilterFeature::isCommandEnabled()
 void RicNewEnsembleCurveFilterFeature::onActionTriggered( bool isChecked )
 {
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
-    std::vector<RimEnsembleCurveFilterCollection*> filterColls;
-    selObj->descendantsIncludingThisOfType( filterColls );
+    if ( !selObj ) return;
 
-    if ( filterColls.size() == 1 )
+    RimEnsembleCurveFilterCollection* filterCollection = nullptr;
     {
-        RimEnsembleCurveFilter* newFilter = filterColls[0]->addFilter();
-        if ( filterColls[0]->filters().size() > 1 )
+        std::vector<RimEnsembleCurveFilterCollection*> filterColls;
+        selObj->descendantsIncludingThisOfType( filterColls );
+        if ( filterColls.size() == 1 )
         {
-            newFilter->setSummaryAddresses( filterColls[0]->filters()[0]->summaryAddresses() );
+            filterCollection = filterColls.front();
+        }
+    }
+
+    if ( filterCollection )
+    {
+        RimEnsembleCurveFilter* newFilter = filterCollection->addFilter();
+        if ( !filterCollection->filters().empty() )
+        {
+            auto existingFilter = filterCollection->filters().front();
+            newFilter->setSummaryAddresses( existingFilter->summaryAddresses() );
         }
         else
         {
@@ -60,11 +70,13 @@ void RicNewEnsembleCurveFilterFeature::onActionTriggered( bool isChecked )
             addresses.push_back( newFilter->parentCurveSet()->summaryAddress() );
             newFilter->setSummaryAddresses( addresses );
         }
-        filterColls[0]->updateConnectedEditors();
-        RiuPlotMainWindowTools::selectAsCurrentItem( filterColls.front() );
-    }
+        newFilter->loadDataAndUpdate();
+        filterCollection->updateConnectedEditors();
 
-    selObj->updateConnectedEditors();
+        selObj->updateConnectedEditors();
+
+        RiuPlotMainWindowTools::selectAsCurrentItem( newFilter );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

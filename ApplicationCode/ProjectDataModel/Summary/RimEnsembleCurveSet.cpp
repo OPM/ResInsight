@@ -301,6 +301,8 @@ void RimEnsembleCurveSet::loadDataAndUpdate( bool updateParentPlot )
 {
     m_yValuesSummaryAddressUiField = m_yValuesSummaryAddress->address();
 
+    m_curveFilters->loadDataAndUpdate();
+
     updateAddressesUiField();
 
     updateAllCurves();
@@ -313,8 +315,6 @@ void RimEnsembleCurveSet::loadDataAndUpdate( bool updateParentPlot )
         firstAncestorOrThisOfTypeAsserted( parentPlot );
         parentPlot->updateAll();
     }
-
-    m_curveFilters->loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
