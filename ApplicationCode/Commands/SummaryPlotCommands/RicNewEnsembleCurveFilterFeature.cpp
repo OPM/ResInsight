@@ -62,6 +62,7 @@ void RicNewEnsembleCurveFilterFeature::onActionTriggered( bool isChecked )
         }
         filterColls[0]->updateConnectedEditors();
         RiuPlotMainWindowTools::selectAsCurrentItem( filterColls.front() );
+        newFilter->updateMaxMinAndDefaultValues( true );
     }
 
     selObj->updateConnectedEditors();

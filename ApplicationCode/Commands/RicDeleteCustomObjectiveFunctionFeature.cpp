@@ -55,8 +55,6 @@ void RicDeleteCustomObjectiveFunctionFeature::onActionTriggered( bool isChecked 
         coll[0]->updateConnectedEditors();
         RiuPlotMainWindowTools::selectAsCurrentItem( coll.front() );
     }
-
-    selObj->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

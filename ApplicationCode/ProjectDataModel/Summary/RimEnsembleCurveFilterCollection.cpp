@@ -33,13 +33,6 @@
 CAF_PDM_SOURCE_INIT( RimEnsembleCurveFilterCollection, "RimEnsembleCurveFilterCollection" );
 
 //--------------------------------------------------------------------------------------------------
-/// Internal variables
-//--------------------------------------------------------------------------------------------------
-static std::vector<RimEnsembleCurveFilter*> _removedFilters;
-
-static void garbageCollectFilters();
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveFilterCollection::RimEnsembleCurveFilterCollection()
@@ -64,8 +57,6 @@ RimEnsembleCurveFilterCollection::RimEnsembleCurveFilterCollection()
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveFilter* RimEnsembleCurveFilterCollection::addFilter( const QString& ensembleParameterName )
 {
-    garbageCollectFilters();
-
     auto newFilter = new RimEnsembleCurveFilter( ensembleParameterName );
     m_filters.push_back( newFilter );
     return newFilter;
@@ -76,13 +67,11 @@ RimEnsembleCurveFilter* RimEnsembleCurveFilterCollection::addFilter( const QStri
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveFilterCollection::removeFilter( RimEnsembleCurveFilter* filter )
 {
-    garbageCollectFilters();
-
     size_t sizeBefore = m_filters.size();
     m_filters.removeChildObject( filter );
     size_t sizeAfter = m_filters.size();
 
-    if ( sizeAfter < sizeBefore ) _removedFilters.push_back( filter );
+    if ( sizeAfter < sizeBefore ) delete filter;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -299,16 +288,4 @@ void RimEnsembleCurveFilterCollection::onChildDeleted( caf::PdmChildArrayFieldHa
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfType( plot );
     if ( plot ) plot->loadDataAndUpdate();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void garbageCollectFilters()
-{
-    for ( auto filter : _removedFilters )
-    {
-        delete filter;
-    }
-    _removedFilters.clear();
 }

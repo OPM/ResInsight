@@ -54,8 +54,6 @@ void RicDeleteCustomObjectiveFunctionWeightFeature::onActionTriggered( bool isCh
         func[0]->updateConnectedEditors();
         RiuPlotMainWindowTools::selectAsCurrentItem( func.front() );
     }
-
-    selObj->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

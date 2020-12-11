@@ -446,8 +446,6 @@ void RimEnsembleCurveFilter::updateIcon()
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    updateMaxMinAndDefaultValues( false );
-
     auto eParam = selectedEnsembleParameter();
 
     uiOrdering.add( &m_active );

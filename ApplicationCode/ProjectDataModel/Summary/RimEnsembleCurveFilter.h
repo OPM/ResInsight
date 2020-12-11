@@ -83,12 +83,13 @@ public:
 
     RimEnsembleCurveSet* parentCurveSet() const;
 
+    void updateMaxMinAndDefaultValues( bool forceDefault );
+
 protected:
     caf::PdmFieldHandle* objectToggleField() override;
 
 private:
     RimEnsembleCurveFilterCollection* parentCurveFilterCollection() const;
-    void                              updateMaxMinAndDefaultValues( bool forceDefault );
 
 private:
     caf::PdmProxyValueField<QString>                                m_filterTitle;

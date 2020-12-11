@@ -31,13 +31,6 @@
 CAF_PDM_SOURCE_INIT( RimCustomObjectiveFunction, "RimCustomObjectiveFunction" );
 
 //--------------------------------------------------------------------------------------------------
-/// Internal variables
-//--------------------------------------------------------------------------------------------------
-static std::vector<RimCustomObjectiveFunctionWeight*> _removedWeights;
-
-static void garbageCollectWeights();
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimCustomObjectiveFunction::RimCustomObjectiveFunction()
@@ -60,8 +53,6 @@ RimCustomObjectiveFunction::RimCustomObjectiveFunction()
 //--------------------------------------------------------------------------------------------------
 RimCustomObjectiveFunctionWeight* RimCustomObjectiveFunction::addWeight()
 {
-    garbageCollectWeights();
-
     auto newWeight = new RimCustomObjectiveFunctionWeight();
     m_weights.push_back( newWeight );
     return newWeight;
@@ -72,12 +63,10 @@ RimCustomObjectiveFunctionWeight* RimCustomObjectiveFunction::addWeight()
 //--------------------------------------------------------------------------------------------------
 void RimCustomObjectiveFunction::removeWeight( RimCustomObjectiveFunctionWeight* weight )
 {
-    garbageCollectWeights();
-
     size_t sizeBefore = m_weights.size();
     m_weights.removeChildObject( weight );
     size_t sizeAfter = m_weights.size();
-    if ( sizeAfter < sizeBefore ) _removedWeights.push_back( weight );
+    if ( sizeAfter < sizeBefore ) delete weight;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -307,16 +296,4 @@ RimCustomObjectiveFunctionCollection* RimCustomObjectiveFunction::parentCollecti
     RimCustomObjectiveFunctionCollection* collection;
     firstAncestorOrThisOfType( collection );
     return collection;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void garbageCollectWeights()
-{
-    for ( auto weight : _removedWeights )
-    {
-        delete weight;
-    }
-    _removedWeights.clear();
 }

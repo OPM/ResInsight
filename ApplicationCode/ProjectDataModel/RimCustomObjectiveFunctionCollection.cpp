@@ -25,13 +25,6 @@
 CAF_PDM_SOURCE_INIT( RimCustomObjectiveFunctionCollection, "RimCustomObjectiveFunctionCollection" );
 
 //--------------------------------------------------------------------------------------------------
-/// Internal variables
-//--------------------------------------------------------------------------------------------------
-static std::vector<RimCustomObjectiveFunction*> _removedFunctions;
-
-static void garbageCollectObjectiveFunctions();
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimCustomObjectiveFunctionCollection::RimCustomObjectiveFunctionCollection()
@@ -50,8 +43,6 @@ RimCustomObjectiveFunctionCollection::RimCustomObjectiveFunctionCollection()
 //--------------------------------------------------------------------------------------------------
 RimCustomObjectiveFunction* RimCustomObjectiveFunctionCollection::addObjectiveFunction()
 {
-    garbageCollectObjectiveFunctions();
-
     auto newFunction = new RimCustomObjectiveFunction();
     m_objectiveFunctions.push_back( newFunction );
     objectiveFunctionAdded.send( newFunction );
@@ -74,13 +65,11 @@ void RimCustomObjectiveFunctionCollection::removeObjectiveFunction( RimCustomObj
     objectiveFunction->invalidate();
     objectiveFunctionAboutToBeDeleted.send( objectiveFunction );
 
-    garbageCollectObjectiveFunctions();
-
     size_t sizeBefore = m_objectiveFunctions.size();
     m_objectiveFunctions.removeChildObject( objectiveFunction );
     size_t sizeAfter = m_objectiveFunctions.size();
 
-    if ( sizeAfter < sizeBefore ) _removedFunctions.push_back( objectiveFunction );
+    if ( sizeAfter < sizeBefore ) delete objectiveFunction;
 
     objectiveFunctionDeleted.send();
 }
@@ -104,16 +93,4 @@ void RimCustomObjectiveFunctionCollection::defineUiTreeOrdering( caf::PdmUiTreeO
         uiTreeOrdering.add( func );
     }
     uiTreeOrdering.skipRemainingChildren( true );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void garbageCollectObjectiveFunctions()
-{
-    for ( auto func : _removedFunctions )
-    {
-        delete func;
-    }
-    _removedFunctions.clear();
 }
