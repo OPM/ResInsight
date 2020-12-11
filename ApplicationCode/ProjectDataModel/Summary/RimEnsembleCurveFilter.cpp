@@ -431,8 +431,6 @@ void RimEnsembleCurveFilter::updateIcon()
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    updateMaxMinAndDefaultValues( false );
-
     auto eParam = selectedEnsembleParameter();
 
     uiOrdering.add( &m_active );
@@ -625,7 +623,6 @@ void RimEnsembleCurveFilter::updateMaxMinAndDefaultValues( bool forceDefault )
             if ( !ensParams.empty() )
             {
                 m_ensembleParameterName = ensParams.front().first.name;
-                updateConnectedEditors();
             }
         }
 
