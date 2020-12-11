@@ -28,9 +28,6 @@
 #include "opm/parser/eclipse/EclipseState/Schedule/VFPInjTable.hpp"
 #include "opm/parser/eclipse/EclipseState/Schedule/VFPProdTable.hpp"
 
-class RimEclipseResultCase;
-class RimFlowDiagSolution;
-class RigTofWellDistributionCalculator;
 class RiuQwtPlotWidget;
 
 //--------------------------------------------------------------------------------------------------
@@ -122,6 +119,12 @@ private:
                                      QList<caf::PdmOptionItemInfo>&     options );
 
     void setFixedVariableUiEditability( caf::PdmField<int>& field, RimVfpPlot::ProductionVariableType variableType );
+
+    static QwtPlotCurve* createPlotCurve( const QString title, const QColor& color );
+    static double        convertToDisplayUnit( double value, RimVfpPlot::ProductionVariableType variableType );
+    static void convertToDisplayUnit( std::vector<double>& values, RimVfpPlot::ProductionVariableType variableType );
+
+    static QString getDisplayUnit( RimVfpPlot::ProductionVariableType variableType );
 
 private:
     caf::PdmField<caf::FilePath> m_filePath;
