@@ -60,6 +60,14 @@ CAF_PDM_SOURCE_INIT( RimVfpPlot, "VfpPlot" );
 namespace caf
 {
 template <>
+void caf::AppEnum<RimVfpPlot::InterpolatedVariableType>::setUp()
+{
+    addItem( RimVfpPlot::InterpolatedVariableType::BHP, "BHP", "Bottom Hole Pressure" );
+    addItem( RimVfpPlot::InterpolatedVariableType::BHP_THP_DIFF, "BHP_THP_DIFF", "BHP-THP" );
+    setDefault( RimVfpPlot::InterpolatedVariableType::BHP );
+}
+
+template <>
 void caf::AppEnum<RimVfpPlot::TableType>::setUp()
 {
     addItem( RimVfpPlot::TableType::INJECTION, "INJECTION", "Injection" );
@@ -87,11 +95,24 @@ RimVfpPlot::RimVfpPlot()
     // TODO: add icon
     CAF_PDM_InitObject( "VFP Plot", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_case, "Case", "Case", "", "", "" );
-    CAF_PDM_InitField( &m_wellName, "WellName", QString( "None" ), "Well", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_filePath, "FilePath", "File Path", "", "", "" );
 
     caf::AppEnum<RimVfpPlot::TableType> defaultTableType = RimVfpPlot::TableType::INJECTION;
     CAF_PDM_InitField( &m_tableType, "TableType", defaultTableType, "Table Type", "", "", "" );
+    m_tableType.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitField( &m_tableNumber, "TableNumber", -1, "Table Number", "", "", "" );
+    m_tableNumber.uiCapability()->setUiReadOnly( true );
+
+    caf::AppEnum<RimVfpPlot::InterpolatedVariableType> defaultInterpolatedVariable =
+        RimVfpPlot::InterpolatedVariableType::BHP;
+    CAF_PDM_InitField( &m_interpolatedVariable,
+                       "InterpolatedVariable",
+                       defaultInterpolatedVariable,
+                       "Interpolated Variable",
+                       "",
+                       "",
+                       "" );
 
     caf::AppEnum<RimVfpPlot::ProductionVariableType> defaultPrimaryVariable =
         RimVfpPlot::ProductionVariableType::LIQUID_FLOW_RATE;
@@ -112,7 +133,7 @@ RimVfpPlot::RimVfpPlot()
     CAF_PDM_InitField( &m_waterCutIdx, "WaterCutIdx", 0, "Water Cut", "", "", "" );
     m_waterCutIdx.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_gasLiquidRatioIdx, "GasLiquidRatioIdx", 0, "Gas Liquid Ratioe", "", "", "" );
+    CAF_PDM_InitField( &m_gasLiquidRatioIdx, "GasLiquidRatioIdx", 0, "Gas Liquid Ratio", "", "", "" );
     m_gasLiquidRatioIdx.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
     m_showWindow      = false;
@@ -126,15 +147,6 @@ RimVfpPlot::RimVfpPlot()
 //--------------------------------------------------------------------------------------------------
 RimVfpPlot::~RimVfpPlot()
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimVfpPlot::setDataSourceParameters( RimEclipseResultCase* eclipseResultCase, QString targetWellName )
-{
-    m_case     = eclipseResultCase;
-    m_wellName = targetWellName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -370,63 +382,41 @@ void RimVfpPlot::onLoadDataAndUpdate()
 
     updateLegend();
 
-    QString phaseString = "N/A";
-    bool    isInjector  = m_tableType == RimVfpPlot::TableType::INJECTION;
-    if ( m_case && m_case->ensureReservoirCaseIsOpen() )
+    QString filePath = m_filePath.v().path();
+    if ( !filePath.isEmpty() )
     {
-        if ( isInjector )
+        // Try to read the file as an prod table first (most common)
+        const std::vector<Opm::VFPProdTable> tables =
+            RimVfpTableExtractor::extractVfpProductionTables( filePath.toStdString() );
+        if ( !tables.empty() )
         {
-            std::set<std::string> wells            = { "F2H", "C1H", "C2H", "C3H", "C4AH", "C4H", "F1H", "F3H", "F4H" };
-            std::string           strippedWellName = QString( m_wellName() ).remove( "-" ).toStdString();
-
-            if ( wells.find( strippedWellName ) != wells.end() )
-            {
-                QString   gridFileName = m_case->gridFileName();
-                QFileInfo fi( gridFileName );
-
-                std::string filename = fi.canonicalPath().toStdString() + "/INCLUDE/VFP/" + strippedWellName + ".Ecl";
-                const std::vector<Opm::VFPInjTable> tables = RimVfpTableExtractor::extractVfpInjectionTables( filename );
-                populatePlotWidgetWithCurveData( m_plotWidget, tables );
-            }
+            // populateVariabelWidgets( tables[0] );
+            m_prodTable.reset( new Opm::VFPProdTable( tables[0] ) );
+            m_tableType   = RimVfpPlot::TableType::PRODUCTION;
+            m_tableNumber = tables[0].getTableNum();
+            populatePlotWidgetWithCurveData( m_plotWidget, tables[0], m_primaryVariable(), m_familyVariable() );
         }
         else
         {
-            std::set<std::string> wells = { "B1BH", "B2H", "B3H", "D1CH", "B4DH", "E1H", "D2H", "D3BH", "E3CH" };
-            std::string           strippedWellName = QString( m_wellName() ).remove( "-" ).toStdString();
-
-            if ( wells.find( strippedWellName ) != wells.end() )
+            const std::vector<Opm::VFPInjTable> tables =
+                RimVfpTableExtractor::extractVfpInjectionTables( filePath.toStdString() );
+            if ( !tables.empty() )
             {
-                QString   gridFileName = m_case->gridFileName();
-                QFileInfo fi( gridFileName );
-
-                std::string filename = fi.canonicalPath().toStdString() + "/INCLUDE/VFP/" + strippedWellName + ".Ecl";
-                const std::vector<Opm::VFPProdTable> tables = RimVfpTableExtractor::extractVfpProductionTables( filename );
-                if ( !tables.empty() )
-                {
-                    // populateVariabelWidgets( tables[0] );
-                    m_prodTable.reset( new Opm::VFPProdTable( tables[0] ) );
-                    populatePlotWidgetWithCurveData( m_plotWidget, tables[0], m_primaryVariable(), m_familyVariable() );
-                }
+                m_tableType   = RimVfpPlot::TableType::INJECTION;
+                m_tableNumber = tables[0].getTableNum();
+                populatePlotWidgetWithCurveData( m_plotWidget, tables[0] );
             }
         }
-    }
 
-    const QString plotTitleStr = QString( "%1 Vertical Flow Performance Plot" ).arg( m_wellName );
-    m_plotWidget->setTitle( plotTitleStr );
+        QFileInfo fi( filePath );
+        QString   wellName = fi.baseName();
 
-    if ( isInjector )
-    {
-        m_plotWidget->setAxisTitleText( QwtPlot::xBottom, "Liquid Flow Rate [sm3/d]" );
-        m_plotWidget->setAxisTitleText( QwtPlot::yLeft, "Bottom Hole Pressure [Bar]" );
-    }
-    else
-    {
-        m_plotWidget->setAxisTitleText( QwtPlot::xBottom, "x axis (todo) [x axis unit]" );
-        m_plotWidget->setAxisTitleText( QwtPlot::yLeft, "y axis [y axis unit]" );
-    }
+        const QString plotTitleStr = QString( "%1 Vertical Flow Performance Plot" ).arg( wellName );
+        m_plotWidget->setTitle( plotTitleStr );
 
-    m_plotWidget->setAxisTitleEnabled( QwtPlot::xBottom, true );
-    m_plotWidget->setAxisTitleEnabled( QwtPlot::yLeft, true );
+        m_plotWidget->setAxisTitleEnabled( QwtPlot::xBottom, true );
+        m_plotWidget->setAxisTitleEnabled( QwtPlot::yLeft, true );
+    }
 
     m_plotWidget->scheduleReplot();
 }
@@ -434,7 +424,7 @@ void RimVfpPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::populatePlotWidgetWithCurveData( RiuQwtPlotWidget* plotWidget, const std::vector<Opm::VFPInjTable>& tables )
+void RimVfpPlot::populatePlotWidgetWithCurveData( RiuQwtPlotWidget* plotWidget, const Opm::VFPInjTable& table )
 {
     cvf::Trace::show( "RimVfpPlot::populatePlotWidgetWithCurves()" );
 
@@ -443,59 +433,34 @@ void RimVfpPlot::populatePlotWidgetWithCurveData( RiuQwtPlotWidget* plotWidget, 
     plotWidget->setAxisScale( QwtPlot::yLeft, 0, 1 );
     plotWidget->setAxisAutoScale( QwtPlot::xBottom, true );
     plotWidget->setAxisAutoScale( QwtPlot::yLeft, true );
+    plotWidget->setAxisTitleText( QwtPlot::xBottom, "Liquid Flow Rate [sm3/d]" );
+    plotWidget->setAxisTitleText( QwtPlot::yLeft, "Bottom Hole Pressure [Bar]" );
 
-    size_t numTables = tables.size();
-
-    for ( size_t i = 0; i < numTables; i++ )
+    for ( size_t thp = 0; thp < table.getTHPAxis().size(); thp++ )
     {
-        const Opm::VFPInjTable table = tables[i];
-        std::cout << "Datum depth: " << table.getDatumDepth() << std::endl;
-        std::cout << "Table number: " << table.getTableNum() << std::endl;
-        std::cout << "Flow type: " << static_cast<int>( table.getFloType() ) << std::endl;
-        std::cout << "Flo axis: " << table.getFloAxis().size() << std::endl;
-        std::cout << "THP axis: " << table.getTHPAxis().size() << std::endl;
-
-        std::cout << "THP Axis:\n";
-        for ( size_t x = 0; x < table.getTHPAxis().size(); x++ )
+        // Just create some dummy values for now
+        size_t              numValues = table.getFloAxis().size();
+        std::vector<double> xVals     = table.getFloAxis();
+        std::vector<double> yVals( numValues, 0.0 );
+        for ( size_t y = 0; y < numValues; y++ )
         {
-            std::cout << " " << table.getTHPAxis()[x];
-        }
-        std::cout << "\n";
-
-        for ( size_t y = 0; y < table.getFloAxis().size(); y++ )
-        {
-            for ( size_t x = 0; x < table.getTHPAxis().size(); x++ )
-            {
-                std::cout << " " << table( x, y );
-            }
-            std::cout << std::endl;
-        }
-
-        for ( size_t thp = 0; thp < table.getTHPAxis().size(); thp++ )
-        {
-            // Just create some dummy values for now
-            size_t              numValues = table.getFloAxis().size();
-            std::vector<double> xVals     = table.getFloAxis();
-            std::vector<double> yVals( numValues, 0.0 );
-            for ( size_t y = 0; y < numValues; y++ )
-            {
-                // Convert from Pascal to Bar
-                yVals[y] = table( thp, y ) / 100000.0;
-            }
-
-            cvf::Color3f cvfClr = cvf::Color3::BLUE;
-            QColor       qtClr  = RiaColorTools::toQColor( cvfClr );
-
-            QwtPlotCurve* curve = new QwtPlotCurve;
             // Convert from Pascal to Bar
-            curve->setTitle( QString( "THP: %1 Bar" ).arg( table.getTHPAxis()[thp] / 100000.0 ) );
-            QwtSymbol* symbol = new QwtSymbol( QwtSymbol::Ellipse, QBrush( qtClr ), QPen( Qt::red, 2 ), QSize( 8, 8 ) );
-            curve->setSymbol( symbol );
-
-            curve->setSamples( xVals.data(), yVals.data(), numValues );
-            curve->attach( plotWidget );
-            curve->show();
+            yVals[y] = RiaEclipseUnitTools::pascalToBar( table( thp, y ) );
         }
+
+        cvf::Color3f cvfClr = cvf::Color3::BLUE;
+        QColor       qtClr  = RiaColorTools::toQColor( cvfClr );
+
+        QwtPlotCurve* curve = new QwtPlotCurve;
+
+        // Convert from Pascal to Bar
+        curve->setTitle( QString( "THP: %1 Bar" ).arg( RiaEclipseUnitTools::pascalToBar( table.getTHPAxis()[thp] ) ) );
+        QwtSymbol* symbol = new QwtSymbol( QwtSymbol::Ellipse, QBrush( qtClr ), QPen( Qt::red, 2 ), QSize( 8, 8 ) );
+        curve->setSymbol( symbol );
+
+        curve->setSamples( xVals.data(), yVals.data(), numValues );
+        curve->attach( plotWidget );
+        curve->show();
     }
 }
 
@@ -524,8 +489,12 @@ void RimVfpPlot::populatePlotWidgetWithCurveData( RiuQwtPlotWidget*             
     std::cout << "GFR axis: " << table.getGFRAxis().size() << std::endl;
     std::cout << "ALQ axis: " << table.getALQAxis().size() << std::endl;
 
+    plotWidget->setAxisTitleText( QwtPlot::xBottom, "x axis (todo) [x axis unit]" );
+    plotWidget->setAxisTitleText( QwtPlot::yLeft, "y axis [y axis unit]" );
+
     std::vector<double> primaryAxisValues    = getProductionTableData( table, primaryVariable );
     std::vector<double> familyVariableValues = getProductionTableData( table, familyVariable );
+    std::vector<double> thpValues            = getProductionTableData( table, RimVfpPlot::ProductionVariableType::THP );
 
     for ( size_t familyIdx = 0; familyIdx < familyVariableValues.size(); familyIdx++ )
     {
@@ -561,8 +530,15 @@ void RimVfpPlot::populatePlotWidgetWithCurveData( RiuQwtPlotWidget*             
             size_t thp_idx =
                 getVariableIndex( table, RimVfpPlot::ProductionVariableType::THP, primaryVariable, y, familyVariable, familyIdx );
 
+            yVals[y] = table( thp_idx, wfr_idx, gfr_idx, alq_idx, flo_idx );
+            if ( m_interpolatedVariable == RimVfpPlot::InterpolatedVariableType::BHP_THP_DIFF )
+            {
+                // TODO:
+                yVals[y] -= thpValues[familyIdx];
+            }
+
             // Convert from Pascal to Bar
-            yVals[y] = table( thp_idx, wfr_idx, gfr_idx, alq_idx, flo_idx ) / 100000.0;
+            yVals[y] /= 100000.0;
         }
 
         cvf::Color3f cvfClr = cvf::Color3::BLUE;
@@ -657,18 +633,45 @@ size_t RimVfpPlot::getVariableIndex( const Opm::VFPProdTable&           table,
 //--------------------------------------------------------------------------------------------------
 void RimVfpPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_case );
-    uiOrdering.add( &m_wellName );
-    uiOrdering.add( &m_tableType );
-    uiOrdering.add( &m_primaryVariable );
-    uiOrdering.add( &m_familyVariable );
-    uiOrdering.add( &m_liquidFlowRateIdx );
-    uiOrdering.add( &m_thpIdx );
-    uiOrdering.add( &m_articifialLiftQuantityIdx );
-    uiOrdering.add( &m_waterCutIdx );
-    uiOrdering.add( &m_gasLiquidRatioIdx );
+    uiOrdering.add( &m_filePath );
+
+    if ( !m_filePath.v().path().isEmpty() )
+    {
+        uiOrdering.add( &m_tableType );
+        uiOrdering.add( &m_tableNumber );
+
+        if ( m_tableType == RimVfpPlot::TableType::PRODUCTION )
+        {
+            uiOrdering.add( &m_interpolatedVariable );
+            uiOrdering.add( &m_primaryVariable );
+            uiOrdering.add( &m_familyVariable );
+
+            caf::PdmUiOrdering* fixedVariablesGroup = uiOrdering.addNewGroup( "Fixed Variables" );
+            fixedVariablesGroup->add( &m_liquidFlowRateIdx );
+            fixedVariablesGroup->add( &m_thpIdx );
+            fixedVariablesGroup->add( &m_articifialLiftQuantityIdx );
+            fixedVariablesGroup->add( &m_waterCutIdx );
+            fixedVariablesGroup->add( &m_gasLiquidRatioIdx );
+
+            // Disable the choices for variables as primary or family
+            setFixedVariableUiEditability( m_liquidFlowRateIdx, RimVfpPlot::ProductionVariableType::LIQUID_FLOW_RATE );
+            setFixedVariableUiEditability( m_thpIdx, RimVfpPlot::ProductionVariableType::THP );
+            setFixedVariableUiEditability( m_articifialLiftQuantityIdx,
+                                           RimVfpPlot::ProductionVariableType::ARTIFICIAL_LIFT_QUANTITY );
+            setFixedVariableUiEditability( m_waterCutIdx, RimVfpPlot::ProductionVariableType::WATER_CUT );
+            setFixedVariableUiEditability( m_gasLiquidRatioIdx, RimVfpPlot::ProductionVariableType::GAS_LIQUID_RATIO );
+        }
+    }
 
     uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimVfpPlot::setFixedVariableUiEditability( caf::PdmField<int>& field, RimVfpPlot::ProductionVariableType variableType )
+{
+    field.uiCapability()->setUiReadOnly( variableType == m_primaryVariable.v() || variableType == m_familyVariable.v() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -679,40 +682,7 @@ QList<caf::PdmOptionItemInfo> RimVfpPlot::calculateValueOptions( const caf::PdmF
 {
     QList<caf::PdmOptionItemInfo> options = RimPlot::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
 
-    if ( fieldNeedingOptions == &m_case )
-    {
-        RimProject* ownerProj = nullptr;
-        firstAncestorOrThisOfType( ownerProj );
-        if ( ownerProj )
-        {
-            std::vector<RimEclipseResultCase*> caseArr;
-            ownerProj->descendantsIncludingThisOfType( caseArr );
-            for ( RimEclipseResultCase* c : caseArr )
-            {
-                options.push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, true, c->uiIconProvider() ) );
-            }
-        }
-    }
-
-    else if ( fieldNeedingOptions == &m_wellName )
-    {
-        if ( m_case && m_case->eclipseCaseData() )
-        {
-            caf::IconProvider       simWellIcon( ":/Well.png" );
-            const std::set<QString> sortedWellNameSet = m_case->eclipseCaseData()->findSortedWellNames();
-            for ( const QString& name : sortedWellNameSet )
-            {
-                options.push_back( caf::PdmOptionItemInfo( name, name, true, simWellIcon ) );
-            }
-        }
-
-        if ( options.size() == 0 )
-        {
-            options.push_back( caf::PdmOptionItemInfo( "None", QVariant() ) );
-        }
-    }
-
-    else if ( fieldNeedingOptions == &m_liquidFlowRateIdx )
+    if ( fieldNeedingOptions == &m_liquidFlowRateIdx )
     {
         calculateTableValueOptions( RimVfpPlot::ProductionVariableType::LIQUID_FLOW_RATE, options );
     }
@@ -763,31 +733,6 @@ void RimVfpPlot::calculateTableValueOptions( RimVfpPlot::ProductionVariableType 
 void RimVfpPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimPlot::fieldChangedByUi( changedField, oldValue, newValue );
-
-    if ( changedField == &m_case )
-    {
-        fixupDependentFieldsAfterCaseChange();
-    }
-
     loadDataAndUpdate();
     updateLayout();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimVfpPlot::fixupDependentFieldsAfterCaseChange()
-{
-    QString newWellName;
-
-    if ( m_case )
-    {
-        const std::set<QString> sortedWellNameSet = m_case->eclipseCaseData()->findSortedWellNames();
-        if ( sortedWellNameSet.size() > 0 )
-        {
-            newWellName = *sortedWellNameSet.begin();
-        }
-    }
-
-    m_wellName = newWellName;
 }
