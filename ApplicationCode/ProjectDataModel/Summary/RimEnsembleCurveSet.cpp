@@ -198,8 +198,6 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
                                 "" );
     m_customObjectiveFunctions = new RimCustomObjectiveFunctionCollection();
     m_customObjectiveFunctions->objectiveFunctionChanged.connect( this, &RimEnsembleCurveSet::onObjectiveFunctionChanged );
-    m_customObjectiveFunctions->objectiveFunctionAboutToBeDeleted
-        .connect( this, &RimEnsembleCurveSet::onObjectiveFunctionAboutToBeDeleted );
 
     CAF_PDM_InitFieldNoDefault( &m_statistics, "Statistics", "Statistics", "", "", "" );
     m_statistics = new RimEnsembleStatistics();
@@ -914,23 +912,8 @@ void RimEnsembleCurveSet::updateMaxMinAndDefaultValues()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::onObjectiveFunctionChanged( const caf::SignalEmitter*   emitter,
-                                                      RimCustomObjectiveFunction* objectiveFunction )
+void RimEnsembleCurveSet::onObjectiveFunctionChanged( const caf::SignalEmitter* emitter )
 {
-    updateCurveColors();
-    updateFilterLegend();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::onObjectiveFunctionAboutToBeDeleted( const caf::SignalEmitter*   emitter,
-                                                               RimCustomObjectiveFunction* objectiveFunction )
-{
-    if ( objectiveFunction == m_customObjectiveFunction )
-    {
-        m_customObjectiveFunction = nullptr;
-    }
     updateCurveColors();
     updateFilterLegend();
 }

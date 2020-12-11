@@ -183,9 +183,7 @@ private:
     void updateTimeAnnotations();
     void updateAddressesUiField();
 
-    void onObjectiveFunctionChanged( const caf::SignalEmitter* emitter, RimCustomObjectiveFunction* objectiveFunction );
-    void onObjectiveFunctionAboutToBeDeleted( const caf::SignalEmitter*   emitter,
-                                              RimCustomObjectiveFunction* objectiveFunction );
+    void onObjectiveFunctionChanged( const caf::SignalEmitter* emitter );
 
 private:
     caf::PdmField<bool>                       m_showCurves;
