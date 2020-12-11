@@ -1,4 +1,4 @@
-name: ResInsight Build With Cache
+name: clang-tidy
 
 on:
   push:
