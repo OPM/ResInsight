@@ -95,7 +95,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RicThemeColorEditorFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewVfpPlotFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewCustomObjectiveFunctionFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewCustomObjectiveFunctionWeightFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicDeleteCustomObjectiveFunctionFeature.h
 )
 
 
@@ -195,7 +194,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RicThemeColorEditorFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewVfpPlotFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewCustomObjectiveFunctionFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewCustomObjectiveFunctionWeightFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicDeleteCustomObjectiveFunctionFeature.cpp
 )
 
 if(Qt5Charts_FOUND)

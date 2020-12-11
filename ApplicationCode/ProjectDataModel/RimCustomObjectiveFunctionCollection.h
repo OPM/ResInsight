@@ -45,7 +45,6 @@ public:
 
     RimCustomObjectiveFunction* addObjectiveFunction();
     void                        onObjectiveFunctionChanged( RimCustomObjectiveFunction* objectiveFunction );
-    void                        removeObjectiveFunction( RimCustomObjectiveFunction* objectiveFunction );
     std::vector<RimCustomObjectiveFunction*> objectiveFunctions() const;
 
 private:
