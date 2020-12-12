@@ -85,5 +85,5 @@ void RicNewEnsembleCurveFilterFeature::onActionTriggered( bool isChecked )
 void RicNewEnsembleCurveFilterFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "New Ensemble Curve Filter" );
-    actionToSetup->setIcon( QIcon( ":/SummaryCurveFilter16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Filter.svg" ) );
 }

@@ -68,6 +68,7 @@ RimEnsembleCurveFilter::RimEnsembleCurveFilter()
 
     CAF_PDM_InitFieldNoDefault( &m_filterTitle, "FilterTitle", "Title", "", "", "" );
     m_filterTitle.registerGetMethod( this, &RimEnsembleCurveFilter::description );
+    m_filterTitle.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_active, "Active", "Active", "", "", "" );
     m_active = true;
