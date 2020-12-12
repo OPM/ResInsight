@@ -78,7 +78,19 @@ jobs:
       - name: clang-tidy on ApplicationCode/ProjectDataModel
         run: |
           cd build
-          run-clang-tidy -fix files ApplicationCode/ProjectDataModel
+          run-clang-tidy -fix files ApplicationCode/ProjectDataModel ReservoirDataModel
+      - name: clang-tidy on ApplicationCode/ReservoirDataModel
+        run: |
+          cd build
+          run-clang-tidy -fix files ApplicationCode/ReservoirDataModel
+      - name: clang-tidy on ApplicationCode/Commands
+        run: |
+          cd build
+          run-clang-tidy -fix files ApplicationCode/Commands
+      - name: clang-tidy on ApplicationCode/GeoMech
+        run: |
+          cd build
+          run-clang-tidy -fix files ApplicationCode/GeoMech
       - name: Remove Qt before creating PR
         run: |
           rm -rf Qt
