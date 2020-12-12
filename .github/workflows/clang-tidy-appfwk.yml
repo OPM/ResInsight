@@ -48,7 +48,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DCMAKE_TOOLCHAIN_FILE=${{ matrix.config.cmake-toolchain }}  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+          cmake -DCMAKE_TOOLCHAIN_FILE=${{ matrix.config.cmake-toolchain }}  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ../Fwk/AppFwk
           sudo apt-get install clang-tidy
           mv compile_commands.json compile_commands_original.json
           python ../scripts/fix_json_database.py compile_commands_original.json >> compile_commands.json
