@@ -1,6 +1,3 @@
-#!/usr/bin/env python2
-
-
 # This file is part of the clazy static checker.
 
 # Copyright (C) 2017 Sergio Martins <smartins@kde.org>
@@ -40,7 +37,7 @@ def remove_pch(c_splitted):
 def fix_command(c):
     c_splitted = c.split()
     c_splitted = remove_pch(c_splitted)
-    return string.join(c_splitted)
+    return ' '.join(c_splitted)
 
 
 def fix_arguments(args):
@@ -70,4 +67,4 @@ for cmd in decoded:
         new_decoded.append(cmd)
 
 new_contents = json.dumps(new_decoded)
-print new_contents
+print (new_contents)
