@@ -40,17 +40,17 @@ CAF_CMD_SOURCE_INIT( RicNewCorrelationMatrixPlotFeature, "RicNewCorrelationMatri
 bool RicNewCorrelationMatrixPlotFeature::isCommandEnabled()
 {
     RimCorrelationPlotCollection* correlationPlotColl = nullptr;
+    RimSummaryPlot*               summaryPlot         = nullptr;
 
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
     if ( selObj )
     {
         selObj->firstAncestorOrThisOfType( correlationPlotColl );
+        selObj->firstAncestorOrThisOfType( summaryPlot );
     }
 
     if ( correlationPlotColl ) return true;
 
-    RimSummaryPlot* summaryPlot = nullptr;
-    selObj->firstAncestorOrThisOfType( summaryPlot );
     if ( summaryPlot ) return true;
 
     return false;

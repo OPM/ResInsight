@@ -39,17 +39,17 @@ CAF_CMD_SOURCE_INIT( RicNewAnalysisPlotFeature, "RicNewAnalysisPlotFeature" );
 bool RicNewAnalysisPlotFeature::isCommandEnabled()
 {
     RimAnalysisPlotCollection* analysisPlotColl = nullptr;
+    RimSummaryPlot*            summaryPlot      = nullptr;
 
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
     if ( selObj )
     {
         selObj->firstAncestorOrThisOfType( analysisPlotColl );
+        selObj->firstAncestorOrThisOfType( summaryPlot );
     }
 
     if ( analysisPlotColl ) return true;
 
-    RimSummaryPlot* summaryPlot = nullptr;
-    selObj->firstAncestorOrThisOfType( summaryPlot );
     if ( summaryPlot ) return true;
 
     return false;
