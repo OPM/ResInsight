@@ -55,7 +55,7 @@ decoded = json.loads(contents)
 new_decoded = []
 for cmd in decoded:
     if 'file' in cmd:
-        if cmd['file'].endswith('.moc') or cmd['file'].endswith('.rcc') or cmd['file'].endswith('_moc.cpp'):
+        if cmd['file'].find('moc_') != -1:
             continue
 
     if 'command' in cmd or 'arguments' in cmd:
