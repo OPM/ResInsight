@@ -71,7 +71,7 @@ jobs:
           sudo apt-get install clang-tidy
           mv compile_commands.json compile_commands_original.json
           python ../scripts/fix_json_database.py compile_commands_original.json >> compile_commands.json
-          run-clang-tidy -fix files ApplicationCode/Application
+          run-clang-tidy -fix files ApplicationCode
           cd ..
           rm -rf Qt
       - uses: peter-evans/create-pull-request@v3
