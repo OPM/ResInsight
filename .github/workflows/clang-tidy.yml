@@ -63,12 +63,13 @@ jobs:
            # Ensure the cache key changes any time the content of the response file changes.
           appendedCacheKey: ${{ hashFiles(env.VCPKGRESPONSEFILE) }}
       - name: Create compile commands and run clang-tidy
+        # https://clang.llvm.org/extra/doxygen/run-clang-tidy_8py_source.html
         run: |
           mkdir build
           cd build
           cmake -DCMAKE_TOOLCHAIN_FILE=${{ matrix.config.cmake-toolchain }}  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
           sudo apt-get install clang-tidy
-          run-clang-tidy -fix files ApplicationCode
+          run-clang-tidy -fix files ApplicationCode/Application
       - uses: peter-evans/create-pull-request@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
