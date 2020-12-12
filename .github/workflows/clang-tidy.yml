@@ -70,7 +70,7 @@ jobs:
           cmake -DCMAKE_TOOLCHAIN_FILE=${{ matrix.config.cmake-toolchain }}  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
           sudo apt-get install clang-tidy
           mv compile_commands.json compile_commands_original.json
-          python -m fix_json_database.py compile_commands_original.json >> compile_commands.json
+          python -m ../scripts/fix_json_database.py compile_commands_original.json >> compile_commands.json
           run-clang-tidy -fix files ApplicationCode/Application
       - uses: peter-evans/create-pull-request@v3
         with:
