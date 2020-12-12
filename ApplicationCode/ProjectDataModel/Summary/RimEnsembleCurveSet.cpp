@@ -916,6 +916,7 @@ void RimEnsembleCurveSet::onObjectiveFunctionChanged( const caf::SignalEmitter* 
 {
     updateCurveColors();
     updateFilterLegend();
+    updateObjectiveFunctionLegend();
 }
 
 //--------------------------------------------------------------------------------------------------
