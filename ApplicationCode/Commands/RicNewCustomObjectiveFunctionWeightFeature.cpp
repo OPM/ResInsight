@@ -44,6 +44,8 @@ bool RicNewCustomObjectiveFunctionWeightFeature::isCommandEnabled()
 void RicNewCustomObjectiveFunctionWeightFeature::onActionTriggered( bool isChecked )
 {
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
+    if ( !selObj ) return;
+
     std::vector<RimCustomObjectiveFunction*> func;
     selObj->descendantsIncludingThisOfType( func );
 

@@ -53,20 +53,19 @@ CAF_CMD_SOURCE_INIT( RicNewSummaryPlotFeature, "RicNewSummaryPlotFeature" );
 //--------------------------------------------------------------------------------------------------
 bool RicNewSummaryPlotFeature::isCommandEnabled()
 {
-    RimSummaryPlotCollection* sumPlotColl = nullptr;
+    RimSummaryPlotCollection*             sumPlotColl             = nullptr;
+    RimCustomObjectiveFunctionCollection* customObjFuncCollection = nullptr;
 
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
     if ( selObj )
     {
         sumPlotColl = RiaSummaryTools::parentSummaryPlotCollection( selObj );
+        selObj->firstAncestorOrThisOfType( customObjFuncCollection );
     }
 
     auto ensembleFilter     = dynamic_cast<RimEnsembleCurveFilter*>( selObj );
     auto ensembleFilterColl = dynamic_cast<RimEnsembleCurveFilterCollection*>( selObj );
     auto legendConfig       = dynamic_cast<RimRegularLegendConfig*>( selObj );
-
-    RimCustomObjectiveFunctionCollection* customObjFuncCollection = nullptr;
-    selObj->firstAncestorOrThisOfType( customObjFuncCollection );
 
     if ( ensembleFilter || ensembleFilterColl || legendConfig || customObjFuncCollection ) return false;
     if ( sumPlotColl ) return true;
@@ -243,12 +242,14 @@ bool RicNewDefaultSummaryPlotFeature::isCommandEnabled()
     std::vector<RimSummaryCase*>           selectedIndividualSummaryCases;
     std::vector<RimSummaryCaseCollection*> selectedEnsembles;
 
-    caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
-
     extractPlotObjectsFromSelection( &selectedIndividualSummaryCases, &selectedEnsembles );
 
     RimCustomObjectiveFunctionCollection* customObjFuncCollection = nullptr;
-    selObj->firstAncestorOrThisOfType( customObjFuncCollection );
+    caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
+    if ( selObj )
+    {
+        selObj->firstAncestorOrThisOfType( customObjFuncCollection );
+    }
 
     return selectedIndividualSummaryCases.empty() && selectedEnsembles.empty() && ( customObjFuncCollection == nullptr );
 }
