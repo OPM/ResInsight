@@ -123,6 +123,10 @@ private:
 
     void setFixedVariableUiEditability( caf::PdmField<int>& field, RimVfpPlot::ProductionVariableType variableType );
 
+    static QwtPlotCurve* createPlotCurve( const QString title, const QColor& color );
+    static double        convertToDisplayUnit( double value, RimVfpPlot::ProductionVariableType variableType );
+    static QString       getDisplayUnit( RimVfpPlot::ProductionVariableType variableType );
+
 private:
     caf::PdmField<caf::FilePath> m_filePath;
     caf::PdmField<int>           m_tableNumber;

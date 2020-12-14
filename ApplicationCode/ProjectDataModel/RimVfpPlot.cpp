@@ -27,8 +27,8 @@
 #include "RigEclipseCaseData.h"
 #include "RigTofWellDistributionCalculator.h"
 
+#include "RiaColorTables.h"
 #include "RiaColorTools.h"
-#include "RiaColorTables.h "
 
 #include "RiuQwtPlotWidget.h"
 #include "qwt_legend.h"
@@ -137,7 +137,7 @@ RimVfpPlot::RimVfpPlot()
     CAF_PDM_InitField( &m_gasLiquidRatioIdx, "GasLiquidRatioIdx", 0, "Gas Liquid Ratio", "", "", "" );
     m_gasLiquidRatioIdx.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
-    m_showWindow      = false;
+    m_showWindow      = true;
     m_showPlotLegends = true;
 
     setAsPlotMdiWindow();
@@ -414,7 +414,7 @@ void RimVfpPlot::onLoadDataAndUpdate()
         QFileInfo fi( filePath );
         QString   wellName = fi.baseName();
 
-        const QString plotTitleStr = QString( "%1 Vertical Flow Performance Plot" ).arg( wellName );
+        const QString plotTitleStr = QString( "%1 VFP Plot" ).arg( wellName );
         m_plotWidget->setTitle( plotTitleStr );
 
         m_plotWidget->setAxisTitleEnabled( QwtPlot::xBottom, true );
@@ -451,7 +451,7 @@ void RimVfpPlot::populatePlotWidgetWithCurveData( RiuQwtPlotWidget* plotWidget, 
             yVals[y] = RiaEclipseUnitTools::pascalToBar( table( thp, y ) );
         }
 
-        QColor       qtClr  = RiaColorTables::wellLogPlotPaletteColors().cycledQColor( thp );
+        QColor qtClr = RiaColorTables::wellLogPlotPaletteColors().cycledQColor( thp );
 
         QwtPlotCurve* curve = new QwtPlotCurve;
 
@@ -491,11 +491,13 @@ void RimVfpPlot::populatePlotWidgetWithCurveData( RiuQwtPlotWidget*             
     std::cout << "GFR axis: " << table.getGFRAxis().size() << std::endl;
     std::cout << "ALQ axis: " << table.getALQAxis().size() << std::endl;
 
-    QString xAxisTitle =
-        QString( "%1 [%2]" ).arg( caf::AppEnum<RimVfpPlot::ProductionVariableType>::uiText( primaryVariable ), "TODO" );
-    plotWidget->setAxisTitleText( QwtPlot::xBottom, xAxisTitle);
-    QString yAxisTitle =
-        QString( "%1 [%2]" ).arg( caf::AppEnum<RimVfpPlot::InterpolatedVariableType>::uiText( m_interpolatedVariable() ), "Bar" );
+    QString xAxisTitle = QString( "%1 [%2]" )
+                             .arg( caf::AppEnum<RimVfpPlot::ProductionVariableType>::uiText( primaryVariable ),
+                                   getDisplayUnit( primaryVariable ) );
+    plotWidget->setAxisTitleText( QwtPlot::xBottom, xAxisTitle );
+    QString yAxisTitle = QString( "%1 [%2]" )
+                             .arg( caf::AppEnum<RimVfpPlot::InterpolatedVariableType>::uiText( m_interpolatedVariable() ),
+                                   getDisplayUnit( RimVfpPlot::ProductionVariableType::THP ) );
     plotWidget->setAxisTitleText( QwtPlot::yLeft, yAxisTitle );
 
     std::vector<double> primaryAxisValues    = getProductionTableData( table, primaryVariable );
@@ -539,26 +541,80 @@ void RimVfpPlot::populatePlotWidgetWithCurveData( RiuQwtPlotWidget*             
             yVals[y] = table( thp_idx, wfr_idx, gfr_idx, alq_idx, flo_idx );
             if ( m_interpolatedVariable == RimVfpPlot::InterpolatedVariableType::BHP_THP_DIFF )
             {
-                // TODO:
-                yVals[y] -= thpValues[familyIdx];
+                yVals[y] -= thpValues[thp_idx];
             }
 
             // Convert from Pascal to Bar
-            yVals[y] /= 100000.0;
+            yVals[y] = convertToDisplayUnit( yVals[y], RimVfpPlot::ProductionVariableType::THP );
         }
 
-        QColor qtClr = RiaColorTables::wellLogPlotPaletteColors().cycledQColor( familyIdx );
+        double  familyValue = convertToDisplayUnit( familyVariableValues[familyIdx], familyVariable );
+        QString familyUnit  = getDisplayUnit( familyVariable );
+        QString familyTitle = QString( "%1: %2 %3" )
+                                  .arg( caf::AppEnum<RimVfpPlot::ProductionVariableType>::uiText( familyVariable ) )
+                                  .arg( familyValue )
+                                  .arg( familyUnit );
 
-        QwtPlotCurve* curve = new QwtPlotCurve;
-        // Convert from Pascal to Bar
-        curve->setTitle( QString( "family: %1 Bar" ).arg( familyVariableValues[familyIdx] / 100000.0 ) );
-        QwtSymbol* symbol = new QwtSymbol( QwtSymbol::Ellipse, QBrush( qtClr ), QPen( Qt::red, 2 ), QSize( 8, 8 ) );
-        curve->setSymbol( symbol );
+        QColor        qtClr = RiaColorTables::wellLogPlotPaletteColors().cycledQColor( familyIdx );
+        QwtPlotCurve* curve = createPlotCurve( familyTitle, qtClr );
+
+        for ( size_t i = 0; i < primaryAxisValues.size(); i++ )
+            primaryAxisValues[i] = convertToDisplayUnit( primaryAxisValues[i], primaryVariable );
 
         curve->setSamples( primaryAxisValues.data(), yVals.data(), numValues );
         curve->attach( plotWidget );
         curve->show();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QwtPlotCurve* RimVfpPlot::createPlotCurve( const QString title, const QColor& color )
+{
+    QwtPlotCurve* curve = new QwtPlotCurve;
+    curve->setTitle( title );
+    curve->setPen( QPen( color, 2 ) );
+    curve->setLegendAttribute( QwtPlotCurve::LegendShowLine, true );
+    curve->setLegendAttribute( QwtPlotCurve::LegendShowSymbol, true );
+    curve->setLegendAttribute( QwtPlotCurve::LegendShowBrush, true );
+    curve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
+
+    QwtSymbol* symbol = new QwtSymbol( QwtSymbol::Ellipse );
+    symbol->setSize( 6 );
+    symbol->setColor( color );
+    curve->setSymbol( symbol );
+
+    return curve;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimVfpPlot::convertToDisplayUnit( double value, RimVfpPlot::ProductionVariableType variableType )
+{
+    if ( variableType == RimVfpPlot::ProductionVariableType::THP )
+    {
+        return RiaEclipseUnitTools::pascalToBar( value );
+    }
+
+    return value;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimVfpPlot::getDisplayUnit( RimVfpPlot::ProductionVariableType variableType )
+
+{
+    if ( variableType == RimVfpPlot::ProductionVariableType::THP )
+        return "Bar";
+    else if ( variableType == RimVfpPlot::ProductionVariableType::LIQUID_FLOW_RATE )
+        return "sm3/d";
+    else if ( variableType == RimVfpPlot::ProductionVariableType::WATER_CUT ||
+              variableType == RimVfpPlot::ProductionVariableType::GAS_LIQUID_RATIO )
+        return "sm3/sm3";
+    return "";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -727,7 +783,10 @@ void RimVfpPlot::calculateTableValueOptions( RimVfpPlot::ProductionVariableType 
 
         for ( size_t i = 0; i < values.size(); i++ )
         {
-            options.push_back( caf::PdmOptionItemInfo( QString::number( values[i] ), static_cast<int>( i ) ) );
+            options.push_back( caf::PdmOptionItemInfo( QString( "%1 %2" )
+                                                           .arg( convertToDisplayUnit( values[i], variableType ) )
+                                                           .arg( getDisplayUnit( variableType ) ),
+                                                       static_cast<int>( i ) ) );
         }
     }
 }
