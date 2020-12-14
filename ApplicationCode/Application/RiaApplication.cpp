@@ -1305,7 +1305,7 @@ void RiaApplication::executeCommandObjects()
         auto currentCommandQueue = m_commandQueue;
         for ( auto command : currentCommandQueue )
         {
-            if ( command->isAsyncronous() )
+            if ( !command->isAsyncronous() )
             {
                 command->redo();
                 m_commandQueue.remove( command );
