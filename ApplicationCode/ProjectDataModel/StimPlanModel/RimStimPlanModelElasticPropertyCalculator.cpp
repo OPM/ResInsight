@@ -210,10 +210,9 @@ bool RimStimPlanModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
     CAF_ASSERT( tvDepthValues.size() == poroValues.size() );
     CAF_ASSERT( tvDepthValues.size() == formationValues.size() );
 
-    bool    isScaledByNetToGross    = false;
-    double  netToGrossCutoff        = 1.0;
-    QString netToGrossFaciesName    = "";
-    QString netToGrossFormationName = "";
+    bool    isScaledByNetToGross = false;
+    double  netToGrossCutoff     = 1.0;
+    QString netToGrossFaciesName = "";
     if ( stimPlanModel->stimPlanModelTemplate() && stimPlanModel->stimPlanModelTemplate()->nonNetLayers() )
     {
         isScaledByNetToGross = stimPlanModel->isScaledByNetToGross( curveProperty ) && !netToGrossValues.empty() &&

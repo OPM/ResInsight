@@ -73,7 +73,6 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
     uint             firstPartTriangleIndex = cvf::UNDEFINED_UINT;
 
     cvf::Vec3d localIntersectionPoint( cvf::Vec3d::ZERO );
-    cvf::Vec3d globalIntersectionPoint( cvf::Vec3d::ZERO );
     size_t     nncIndex = cvf::UNDEFINED_SIZE_T;
 
     {
@@ -92,10 +91,9 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
 
             if ( indexToFirstNoneNncItem != cvf::UNDEFINED_SIZE_T )
             {
-                localIntersectionPoint  = pickItemInfos[indexToFirstNoneNncItem].localPickedPoint();
-                globalIntersectionPoint = pickItemInfos[indexToFirstNoneNncItem].globalPickedPoint();
-                firstHitPart            = pickItemInfos[indexToFirstNoneNncItem].pickedPart();
-                firstPartTriangleIndex  = pickItemInfos[indexToFirstNoneNncItem].faceIdx();
+                localIntersectionPoint = pickItemInfos[indexToFirstNoneNncItem].localPickedPoint();
+                firstHitPart           = pickItemInfos[indexToFirstNoneNncItem].pickedPart();
+                firstPartTriangleIndex = pickItemInfos[indexToFirstNoneNncItem].faceIdx();
             }
 
             if ( indexToNncItemNearFirstItem != cvf::UNDEFINED_SIZE_T )
