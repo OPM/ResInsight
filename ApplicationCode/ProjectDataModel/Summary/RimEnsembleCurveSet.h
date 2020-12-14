@@ -126,8 +126,6 @@ public:
     RimEnsembleCurveSet* clone() const;
     void                 showCurves( bool show );
 
-    void markCachedDataForPurge();
-
     void                           updateAllTextInPlot();
     std::vector<EnsembleParameter> variationSortedEnsembleParameters() const;
 

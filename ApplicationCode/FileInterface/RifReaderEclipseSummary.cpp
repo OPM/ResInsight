@@ -641,30 +641,6 @@ RiaEclipseUnitTools::UnitSystem RifReaderEclipseSummary::unitSystem() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifReaderEclipseSummary::markForCachePurge( const RifEclipseSummaryAddress& address )
-{
-    m_valuesCache->markAddressForPurge( address );
-}
-
-#if 0
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RifReaderEclipseSummary::populateVectorFromStringList(stringlist_type* stringList, std::vector<std::string>* strings)
-{
-    assert(stringList && strings);
-
-    for (int i = 0; i < stringlist_get_size(stringList); i++)
-    {
-        strings->push_back(stringlist_iget(stringList, i));
-    }
-}
-
-#endif
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 const std::vector<double> RifReaderEclipseSummary::ValuesCache::EMPTY_VECTOR;
 
 //--------------------------------------------------------------------------------------------------
@@ -688,7 +664,6 @@ void RifReaderEclipseSummary::ValuesCache::insertValues( const RifEclipseSummary
                                                          const std::vector<double>&      values )
 {
     m_cachedValues[address] = values;
-    m_purgeList.erase( address );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -701,24 +676,4 @@ const std::vector<double>& RifReaderEclipseSummary::ValuesCache::getValues( cons
         return m_cachedValues.at( address );
     }
     return EMPTY_VECTOR;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RifReaderEclipseSummary::ValuesCache::markAddressForPurge( const RifEclipseSummaryAddress& address )
-{
-    m_purgeList.insert( address );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RifReaderEclipseSummary::ValuesCache::purgeData()
-{
-    for ( const auto& purgeAddr : m_purgeList )
-    {
-        m_cachedValues.erase( purgeAddr );
-    }
-    m_purgeList.clear();
 }
