@@ -117,7 +117,6 @@ double RimElasticPropertyScalingCollection::getScaling( const QString&          
 //--------------------------------------------------------------------------------------------------
 void RimElasticPropertyScalingCollection::initAfterRead()
 {
-    std::vector<RimElasticPropertyScaling*> templates;
     for ( auto& scaling : m_elasticPropertyScalings )
     {
         scaling->changed.connect( this, &RimElasticPropertyScalingCollection::elasticPropertyScalingChanged );
