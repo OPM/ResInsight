@@ -39,7 +39,6 @@
 #include "RimCellEdgeColors.h"
 #include "RimCellFilterCollection.h"
 #include "RimCellRangeFilter.h"
-#include "RimCellRangeFilterCollection.h"
 #include "RimColorLegend.h"
 #include "RimColorLegendCollection.h"
 #include "RimColorLegendItem.h"

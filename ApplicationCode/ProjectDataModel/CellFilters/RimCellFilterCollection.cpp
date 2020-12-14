@@ -94,6 +94,17 @@ std::vector<RimCellFilter*> RimCellFilterCollection::filters() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimCellFilterCollection::initAfterRead()
+{
+    for ( const auto& filter : m_cellFilters )
+    {
+        filter->filterChanged.connect( this, &RimCellFilterCollection::onFilterUpdated );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimCellFilterCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                                 const QVariant&            oldValue,
                                                 const QVariant&            newValue )

@@ -63,11 +63,6 @@ public:
     bool hasActiveFilters() const;
     bool hasActiveIncludeFilters() const;
 
-    // virtual bool hasActiveDynamicFilters() const = 0;
-
-    // virtual void loadAndInitializePropertyFilters() = 0;
-
-    // void         updateDisplayModelNotifyManagedViews( RimPropertyFilter* changedFilter ) const;
     void updateIconState();
     void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
@@ -77,6 +72,7 @@ protected:
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void                 defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
     caf::PdmFieldHandle* objectToggleField() override;
+    void                 initAfterRead() override;
 
     void onFilterUpdated( const SignalEmitter* emitter );
 
