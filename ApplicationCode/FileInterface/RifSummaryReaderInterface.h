@@ -51,8 +51,6 @@ public:
     virtual std::string                     unitName( const RifEclipseSummaryAddress& resultAddress ) const = 0;
     virtual RiaEclipseUnitTools::UnitSystem unitSystem() const                                              = 0;
 
-    virtual void markForCachePurge( const RifEclipseSummaryAddress& address ) {}
-
 protected:
     std::set<RifEclipseSummaryAddress> m_allResultAddresses; // Result and error addresses
     std::set<RifEclipseSummaryAddress> m_allErrorAddresses; // Error addresses

@@ -78,8 +78,6 @@ public:
     RiaEclipseUnitTools::UnitSystem unitSystem() const override;
     QStringList                     warnings() const { return m_warnings; }
 
-    void markForCachePurge( const RifEclipseSummaryAddress& address ) override;
-
     static std::string       differenceIdentifier() { return "_DIFF"; }
     static const std::string historyIdentifier() { return "H"; }
 
@@ -119,13 +117,9 @@ private:
 
         void insertValues( const RifEclipseSummaryAddress& address, const std::vector<double>& values );
         const std::vector<double>& getValues( const RifEclipseSummaryAddress& address ) const;
-        void                       markAddressForPurge( const RifEclipseSummaryAddress& address );
 
     private:
-        void purgeData();
-
         std::map<const RifEclipseSummaryAddress, std::vector<double>> m_cachedValues;
-        std::set<RifEclipseSummaryAddress>                            m_purgeList;
     };
 
     std::unique_ptr<ValuesCache> m_valuesCache;

@@ -974,15 +974,6 @@ void RimSummaryCurve::setCurveAppearanceFromCaseType()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurve::markCachedDataForPurge()
-{
-    auto reader = valuesSummaryReaderY();
-    if ( reader ) reader->markForCachePurge( m_yValuesSummaryAddress->address() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setAsTopZWithinCategory( bool enable )
 {
     m_isTopZWithinCategory = enable;

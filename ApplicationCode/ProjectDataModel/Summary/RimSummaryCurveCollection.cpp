@@ -206,7 +206,6 @@ void RimSummaryCurveCollection::deleteCurve( RimSummaryCurve* curve )
     removeCurve( curve );
     if ( curve )
     {
-        curve->markCachedDataForPurge();
         delete curve;
     }
 }

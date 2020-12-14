@@ -91,8 +91,6 @@ public:
     QString curveExportDescription( const RifEclipseSummaryAddress& address = RifEclipseSummaryAddress() ) const override;
     void    setCurveAppearanceFromCaseType();
 
-    void markCachedDataForPurge();
-
     void setAsTopZWithinCategory( bool enable );
     void setZIndexFromCurveInfo();
 

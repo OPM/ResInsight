@@ -193,7 +193,6 @@ void RimEnsembleCurveSetCollection::deleteCurveSets( const std::vector<RimEnsemb
     for ( const auto curveSet : curveSets )
     {
         m_curveSets.removeChildObject( curveSet );
-        curveSet->markCachedDataForPurge();
         delete curveSet;
     }
 }
