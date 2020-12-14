@@ -112,7 +112,7 @@ bool RicToggleMeasurementModeFeature::isCommandChecked()
 RimMeasurement* RicToggleMeasurementModeFeature::measurement() const
 {
     RiaGuiApplication* app = RiaGuiApplication::instance();
-    CAF_ASSERT( app && app->project() );
+    if ( !app->project() ) return nullptr;
 
     return app->project()->measurement();
 }
