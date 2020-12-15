@@ -21,9 +21,10 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigTracerPoint::RigTracerPoint( cvf::Vec3d position, cvf::Vec3d direction )
+RigTracerPoint::RigTracerPoint( cvf::Vec3d position, cvf::Vec3d direction, RiaDefines::PhaseType phase )
     : m_position( position )
     , m_direction( direction )
+    , m_phaseType( phase )
 {
     m_absValue = m_direction.length();
 }

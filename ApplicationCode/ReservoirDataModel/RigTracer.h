@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaDefines.h"
+
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
@@ -36,7 +38,7 @@ public:
     explicit RigTracer( const RigTracer& other );
     ~RigTracer() override;
 
-    void   appendPoint( cvf::Vec3d position, cvf::Vec3d direction );
+    void   appendPoint( cvf::Vec3d position, cvf::Vec3d direction, RiaDefines::PhaseType dominantPhase );
     size_t size() const;
     double totalDistance() const;
 

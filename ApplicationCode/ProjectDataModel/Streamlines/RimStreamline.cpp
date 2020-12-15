@@ -82,9 +82,9 @@ const QString RimStreamline::simWellName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStreamline::addTracerPoint( cvf::Vec3d position, cvf::Vec3d direction )
+void RimStreamline::addTracerPoint( cvf::Vec3d position, cvf::Vec3d direction, RiaDefines::PhaseType dominantPhase )
 {
-    m_tracer.appendPoint( position, direction );
+    m_tracer.appendPoint( position, direction, dominantPhase );
 }
 
 //--------------------------------------------------------------------------------------------------

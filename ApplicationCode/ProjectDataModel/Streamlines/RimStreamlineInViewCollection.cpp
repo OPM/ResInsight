@@ -822,7 +822,9 @@ double RimStreamlineInViewCollection::faceValue( RigCell                        
 //--------------------------------------------------------------------------------------------------
 /// Calculate the average direction inside the cell by adding the scaled face normals of all faces
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RimStreamlineInViewCollection::cellDirection( RigCell cell, RigGridBase* grid ) const
+cvf::Vec3d RimStreamlineInViewCollection::cellDirection( RigCell                cell,
+                                                         RigGridBase*           grid,
+                                                         RiaDefines::PhaseType& dominantPhaseOut ) const
 {
     cvf::Vec3d direction( 0, 0, 0 );
 
@@ -833,6 +835,9 @@ cvf::Vec3d RimStreamlineInViewCollection::cellDirection( RigCell cell, RigGridBa
                                                               cvf::StructGridInterface::FaceType::POS_K,
                                                               cvf::StructGridInterface::FaceType::NEG_K };
 
+    double maxval    = 0.0;
+    dominantPhaseOut = phases().front();
+
     for ( auto face : faces )
     {
         cvf::Vec3d faceNorm = cell.faceNormalWithAreaLength( face );
@@ -840,7 +845,13 @@ cvf::Vec3d RimStreamlineInViewCollection::cellDirection( RigCell cell, RigGridBa
         double faceval = 0.0;
         for ( auto phase : phases() )
         {
-            faceval += faceValue( cell, face, grid, phase );
+            double tmpval = faceValue( cell, face, grid, phase );
+            if ( abs( tmpval ) > maxval )
+            {
+                maxval           = abs( tmpval );
+                dominantPhaseOut = phase;
+            }
+            faceval += tmpval;
         }
         faceNorm *= faceval;
         if ( face % 2 != 0 ) faceNorm *= -1.0;
@@ -914,7 +925,6 @@ void RimStreamlineInViewCollection::generateStartPositions( RigCell             
 void RimStreamlineInViewCollection::generateTracer( RigCell cell, double direction, QString simWellName )
 {
     RigMainGrid* grid = eclipseCase()->eclipseCaseData()->mainGrid();
-    //    std::vector<double> faceVals = faceValues( cell, grid );
 
     std::vector<cvf::StructGridInterface::FaceType> faces = { cvf::StructGridInterface::FaceType::POS_I,
                                                               cvf::StructGridInterface::FaceType::NEG_I,
@@ -928,6 +938,8 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
 
     cvf::Vec3d cellCenter = cell.center();
 
+    RiaDefines::PhaseType dominantStartPhase = phases().front();
+
     // try to generate a tracer for all faces in the selected cell
     for ( auto faceIdx : faces )
     {
@@ -935,9 +947,17 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
         cvf::Vec3d startDirection = cell.faceNormalWithAreaLength( faceIdx );
         startDirection.normalize();
         double faceval = 0.0;
+        double maxval  = 0.0;
+
         for ( auto phase : phases() )
         {
-            faceval += faceValue( cell, faceIdx, grid, phase );
+            double tmpval = faceValue( cell, faceIdx, grid, phase );
+            if ( abs( tmpval ) > maxval )
+            {
+                dominantStartPhase = phase;
+                maxval             = abs( tmpval );
+            }
+            faceval += tmpval;
         }
         startDirection *= faceval;
         startDirection *= direction;
@@ -971,11 +991,12 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
 
             // create the streamline we should store the tracer points in
             RimStreamline* streamLine = new RimStreamline( simWellName );
-            streamLine->addTracerPoint( cellCenter, startDirection );
+            streamLine->addTracerPoint( cellCenter, startDirection, dominantStartPhase );
 
             // get the current cell bounding box and average direction movement vector
-            cvf::BoundingBox bb           = cellBoundingBox( curCell, grid );
-            cvf::Vec3d       curDirection = cellDirection( *curCell, grid ) * direction;
+            cvf::BoundingBox      bb            = cellBoundingBox( curCell, grid );
+            RiaDefines::PhaseType dominantPhase = dominantStartPhase;
+            cvf::Vec3d            curDirection  = cellDirection( *curCell, grid, dominantPhase ) * direction;
 
             while ( curStep < maxSteps )
             {
@@ -991,7 +1012,7 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
                 bool stop = false;
                 while ( bb.contains( curPos ) )
                 {
-                    streamLine->addTracerPoint( curPos, curDirection );
+                    streamLine->addTracerPoint( curPos, curDirection, dominantPhase );
                     curPos += curDirection * m_resolution;
                     curStep++;
                     // TODO - calculate new direction here based on how close we are to the various cell faces
@@ -1026,7 +1047,7 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
 
                 // update our current cell and direction
                 curCell      = nextCell;
-                curDirection = cellDirection( *curCell, grid ) * direction;
+                curDirection = cellDirection( *curCell, grid, dominantPhase ) * direction;
 
                 // stop if too little flow
                 if ( curDirection.length() < m_flowThreshold ) break;

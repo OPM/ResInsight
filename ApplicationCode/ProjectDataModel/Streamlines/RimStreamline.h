@@ -19,6 +19,8 @@
 
 #include "RigTracer.h"
 
+#include "RiaDefines.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
@@ -41,7 +43,7 @@ public:
     const RigTracer& tracer() const;
     const QString    simWellName() const;
 
-    void addTracerPoint( cvf::Vec3d position, cvf::Vec3d direction );
+    void addTracerPoint( cvf::Vec3d position, cvf::Vec3d direction, RiaDefines::PhaseType dominantPhase );
     void reverse();
     void generateStatistics();
 

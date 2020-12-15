@@ -124,7 +124,7 @@ private:
                          RigGridBase*                       grid,
                          RiaDefines::PhaseType              phase ) const;
 
-    cvf::Vec3d cellDirection( RigCell cell, RigGridBase* grid ) const;
+    cvf::Vec3d cellDirection( RigCell cell, RigGridBase* grid, RiaDefines::PhaseType& dominantPhase ) const;
 
     RigCell* findNeighborCell( RigCell cell, RigGridBase* grid, cvf::StructGridInterface::FaceType face ) const;
     std::vector<size_t> findNeighborCellIndexes( RigCell* cell, RigGridBase* grid ) const;

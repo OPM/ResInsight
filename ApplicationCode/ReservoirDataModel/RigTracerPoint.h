@@ -30,7 +30,7 @@
 class RigTracerPoint
 {
 public:
-    RigTracerPoint( cvf::Vec3d position, cvf::Vec3d direction );
+    RigTracerPoint( cvf::Vec3d position, cvf::Vec3d direction, RiaDefines::PhaseType phase );
     ~RigTracerPoint();
 
     const cvf::Vec3d&     position() const;

@@ -34,7 +34,7 @@ RigTracer::RigTracer( const RigTracer& other )
 {
     for ( auto p : other.m_points )
     {
-        appendPoint( p.position(), p.direction() );
+        appendPoint( p.position(), p.direction(), p.phaseType() );
     }
 }
 
@@ -48,9 +48,9 @@ RigTracer::~RigTracer()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigTracer::appendPoint( cvf::Vec3d position, cvf::Vec3d direction )
+void RigTracer::appendPoint( cvf::Vec3d position, cvf::Vec3d direction, RiaDefines::PhaseType dominantPhase )
 {
-    m_points.push_back( RigTracerPoint( position, direction ) );
+    m_points.push_back( RigTracerPoint( position, direction, dominantPhase ) );
 }
 
 //--------------------------------------------------------------------------------------------------
