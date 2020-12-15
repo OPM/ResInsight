@@ -77,8 +77,8 @@ public:
     bool                 isAxisInverted() const;
     void                 setAxisInverted( bool inverted );
 
-    std::vector<RimPlotAxisAnnotation*> annotations() const;
-    void                                appendAnnotation( RimPlotAxisAnnotation* annotation );
+    std::vector<RimPlotAxisAnnotation*> annotations() const override;
+    void                                appendAnnotation( RimPlotAxisAnnotation* annotation ) override;
     void                                removeAllAnnotations() override;
 
     caf::PdmField<QString> customTitle;
