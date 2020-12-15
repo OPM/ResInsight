@@ -32,8 +32,6 @@ RiaPolyArcLineSampler::RiaPolyArcLineSampler( const cvf::Vec3d&              sta
     , m_maxSamplingsInterval( 0.15 )
     , m_isResamplingLines( true )
     , m_totalMD( 0.0 )
-    , m_points( nullptr )
-    , m_meshDs( nullptr )
 {
 }
 
@@ -45,26 +43,24 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<double>>
 {
     CVF_ASSERT( sampleInterval > 0.0 );
 
-    std::vector<cvf::Vec3d> points;
-    std::vector<double>     mds;
-
     m_maxSamplingsInterval = sampleInterval;
     m_isResamplingLines    = isResamplingLines;
+
+    m_points.clear();
+    m_meshDs.clear();
 
     double startMD = 0.0;
 
     std::vector<cvf::Vec3d> pointsNoDuplicates = RiaPolyArcLineSampler::pointsWithoutDuplicates( m_lineArcEndPoints );
 
-    if ( pointsNoDuplicates.size() < 2 ) return std::make_pair( points, mds );
+    if ( pointsNoDuplicates.size() < 2 ) return std::make_pair( m_points, m_meshDs );
 
-    m_points  = &points;
-    m_meshDs  = &mds;
     m_totalMD = startMD;
 
     cvf::Vec3d p1 = pointsNoDuplicates[0];
 
-    m_points->push_back( p1 );
-    m_meshDs->push_back( m_totalMD );
+    m_points.push_back( p1 );
+    m_meshDs.push_back( m_totalMD );
 
     cvf::Vec3d t2 = m_startTangent;
 
@@ -73,7 +69,7 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<double>>
         sampleSegment( t2, pointsNoDuplicates[pIdx], pointsNoDuplicates[pIdx + 1], &t2 );
     }
 
-    return std::make_pair( points, mds );
+    return std::make_pair( m_points, m_meshDs );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -132,15 +128,15 @@ void RiaPolyArcLineSampler::sampleLine( cvf::Vec3d p1, cvf::Vec3d p2, cvf::Vec3d
         while ( mdInc < p1p2Length )
         {
             cvf::Vec3d ps = p1 + mdInc * tp1p2;
-            m_points->push_back( ps );
-            m_meshDs->push_back( m_totalMD + mdInc );
+            m_points.push_back( ps );
+            m_meshDs.push_back( m_totalMD + mdInc );
             mdInc += m_maxSamplingsInterval;
         }
     }
 
     m_totalMD += p1p2Length;
-    m_points->push_back( p2 );
-    m_meshDs->push_back( m_totalMD );
+    m_points.push_back( p2 );
+    m_meshDs.push_back( m_totalMD );
 
     ( *endTangent ) = p1p2.getNormalized();
 }
@@ -180,13 +176,13 @@ void RiaPolyArcLineSampler::sampleArc( cvf::Vec3d t1, cvf::Vec3d p1, cvf::Vec3d 
 
         C_to_incP.transformPoint( arcCS );
 
-        m_points->push_back( C_to_incP );
-        m_meshDs->push_back( m_totalMD + angle * radius );
+        m_points.push_back( C_to_incP );
+        m_meshDs.push_back( m_totalMD + angle * radius );
     }
 
     m_totalMD += arcAngle * radius;
-    m_points->push_back( p2 );
-    m_meshDs->push_back( m_totalMD );
+    m_points.push_back( p2 );
+    m_meshDs.push_back( m_totalMD );
 
     ( *endTangent ) = CS_rad.endTangent();
 }
