@@ -35,7 +35,8 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RigNNCData::RigNNCData()
-    : m_connectionsAreProcessed( false )
+    : m_nativeConnectionCount( 0 )
+    , m_connectionsAreProcessed( false )
     , m_mainGrid( nullptr )
     , m_activeCellInfo( nullptr )
     , m_computeNncForInactiveCells( false )

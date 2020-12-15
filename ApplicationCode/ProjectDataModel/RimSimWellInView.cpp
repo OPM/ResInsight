@@ -100,6 +100,10 @@ RimSimWellInView::RimSimWellInView()
     m_resultWellIndex = cvf::UNDEFINED_SIZE_T;
 
     simwellFractureCollection = new RimSimWellFractureCollection();
+
+    m_isInjector  = false;
+    m_isValidDisk = false;
+    m_diskScale   = 1.0;
 }
 
 //--------------------------------------------------------------------------------------------------
