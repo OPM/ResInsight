@@ -37,8 +37,8 @@ private:
     void sampleArc( cvf::Vec3d t1, cvf::Vec3d p1, cvf::Vec3d p2, cvf::Vec3d* endTangent );
     void sampleSegment( cvf::Vec3d t1, cvf::Vec3d p1, cvf::Vec3d p2, cvf::Vec3d* endTangent );
 
-    std::vector<cvf::Vec3d>* m_points; // Internal temporary pointers to collections being filled.
-    std::vector<double>*     m_meshDs;
+    std::vector<cvf::Vec3d> m_points;
+    std::vector<double>     m_meshDs;
 
     double       m_maxSamplingsInterval;
     const double m_maxSamplingArcAngle = 0.07310818; // Angle from 6 deg dogleg on 10 m
