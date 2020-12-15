@@ -47,6 +47,7 @@ protected:
             tickStartX  = 0;
             tickMidX    = 0;
 
+            tickTextLeadSpace = 5;
             overallLegendSize = size;
         }
 

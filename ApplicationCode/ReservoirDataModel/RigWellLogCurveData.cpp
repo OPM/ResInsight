@@ -34,6 +34,7 @@
 RigWellLogCurveData::RigWellLogCurveData()
 {
     m_isExtractionCurve = false;
+    m_rkbDiff           = 0.0;
     m_depthUnit         = RiaDefines::DepthUnitType::UNIT_METER;
     m_xUnitString       = RiaWellLogUnitTools<double>::noUnitString();
 }

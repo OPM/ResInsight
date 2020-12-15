@@ -57,6 +57,8 @@ RigWellPath::RigWellPath( const std::vector<cvf::Vec3d>& wellPathPoints, const s
     : cvf::Object()
     , m_wellPathPoints( wellPathPoints )
     , m_measuredDepths( measuredDepths )
+    , m_hasDatumElevation( false )
+    , m_datumElevation( 0.0 )
     , m_startIndex( 0u )
     , objectBeingDeleted( this )
 {

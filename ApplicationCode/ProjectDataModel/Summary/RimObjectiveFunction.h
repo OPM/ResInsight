@@ -45,9 +45,6 @@ public:
     void setTimeStepRange( time_t startTime, time_t endTime );
     void setTimeStepList( std::vector<time_t> timeSteps );
 
-    double minValue;
-    double maxValue;
-
     RimObjectiveFunction( const RimSummaryCaseCollection* summaryCaseCollection, FunctionType type );
 
     double value( size_t                                caseIndex,

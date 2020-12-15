@@ -89,12 +89,11 @@ public:
     void   finish();
 
 protected:
-    const rips::NNCValuesInputRequest* m_request;
-    RimEclipseCase*                    m_eclipseCase;
-    size_t                             m_cellCount;
-    size_t                             m_streamedValueCount;
-    size_t                             m_timeStep;
-    QString                            m_propertyName;
+    RimEclipseCase* m_eclipseCase;
+    size_t          m_cellCount;
+    size_t          m_streamedValueCount;
+    size_t          m_timeStep;
+    QString         m_propertyName;
 };
 
 //==================================================================================================
