@@ -18,12 +18,14 @@
 
 #pragma once
 
+#include "RiaDefines.h"
 #include "cvfVector3.h"
 
 //==================================================================================================
 ///  Class representing one single point in a streamline tracer. The point has a position and
 ///    and a direction vector. The absolute value of the direction vector is precalculated to save
 ///    some calculation time later on.
+///    A phaseType flag indicates what was the dominant phase at this position.
 //==================================================================================================
 class RigTracerPoint
 {
@@ -31,14 +33,16 @@ public:
     RigTracerPoint( cvf::Vec3d position, cvf::Vec3d direction );
     ~RigTracerPoint();
 
-    const cvf::Vec3d& position() const;
-    const cvf::Vec3d& direction() const;
-    double            absValue() const;
+    const cvf::Vec3d&     position() const;
+    const cvf::Vec3d&     direction() const;
+    double                absValue() const;
+    RiaDefines::PhaseType phaseType() const;
 
     void reverse();
 
 private:
-    cvf::Vec3d m_position;
-    cvf::Vec3d m_direction;
-    double     m_absValue;
+    cvf::Vec3d            m_position;
+    cvf::Vec3d            m_direction;
+    double                m_absValue;
+    RiaDefines::PhaseType m_phaseType;
 };

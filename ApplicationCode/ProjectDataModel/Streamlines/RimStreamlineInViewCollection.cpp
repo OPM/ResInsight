@@ -61,6 +61,17 @@ void AppEnum<RimStreamlineInViewCollection::VisualizationMode>::setUp()
     addItem( RimStreamlineInViewCollection::VisualizationMode::VECTORS, "VECTORS", "Vectors" );
     setDefault( RimStreamlineInViewCollection::VisualizationMode::ANIMATION );
 }
+
+template <>
+void AppEnum<RimStreamlineInViewCollection::StreamlinePhaseType>::setUp()
+{
+    addItem( RimStreamlineInViewCollection::StreamlinePhaseType::OIL, "OIL", "Oil" );
+    addItem( RimStreamlineInViewCollection::StreamlinePhaseType::GAS, "GAS", "Gas" );
+    addItem( RimStreamlineInViewCollection::StreamlinePhaseType::WATER, "WATER", "Water" );
+    addItem( RimStreamlineInViewCollection::StreamlinePhaseType::COMBINED, "COMBINED", "Combined" );
+    setDefault( RimStreamlineInViewCollection::StreamlinePhaseType::OIL );
+}
+
 } // namespace caf
 
 CAF_PDM_SOURCE_INIT( RimStreamlineInViewCollection, "StreamlineInViewCollection" );
@@ -96,13 +107,7 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
     CAF_PDM_InitScriptableFieldNoDefault( &m_maxDays, "MaxDays", "Max Days ", "", "", "" );
     m_maxDays = 50000;
 
-    CAF_PDM_InitScriptableField( &m_phase,
-                                 "Phase",
-                                 caf::AppEnum<RiaDefines::PhaseType>( RiaDefines::PhaseType::OIL_PHASE ),
-                                 "Phase",
-                                 "",
-                                 "",
-                                 "" );
+    CAF_PDM_InitScriptableField( &m_phases, "Phase", StreamlinePhaseTypeEnum( StreamlinePhaseType::OIL ), "Phase", "", "", "" );
 
     CAF_PDM_InitField( &m_isActive, "isActive", false, "Active", "", "", "" );
     m_isActive.uiCapability()->setUiHidden( true );
@@ -186,9 +191,32 @@ RimEclipseCase* RimStreamlineInViewCollection::eclipseCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaDefines::PhaseType RimStreamlineInViewCollection::phase() const
+std::list<RiaDefines::PhaseType> RimStreamlineInViewCollection::phases() const
 {
-    return m_phase();
+    std::list<RiaDefines::PhaseType> retval;
+
+    switch ( m_phases() )
+    {
+        case StreamlinePhaseType::OIL:
+            retval.push_back( RiaDefines::PhaseType::OIL_PHASE );
+            break;
+        case StreamlinePhaseType::GAS:
+            retval.push_back( RiaDefines::PhaseType::GAS_PHASE );
+            break;
+        case StreamlinePhaseType::WATER:
+            retval.push_back( RiaDefines::PhaseType::WATER_PHASE );
+            break;
+
+        case StreamlinePhaseType::COMBINED:
+            retval.push_back( RiaDefines::PhaseType::OIL_PHASE );
+            retval.push_back( RiaDefines::PhaseType::GAS_PHASE );
+            retval.push_back( RiaDefines::PhaseType::WATER_PHASE );
+            break;
+
+        default:
+            break;
+    }
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -426,8 +454,10 @@ void RimStreamlineInViewCollection::updateStreamlines()
     qDebug() << "Found " << seedCellsInjector.size() << " injector cells";
 
     // make sure we have the data we need loaded, and set up data accessors to access the data later
-    loadDataIfMissing( phase(), timeIdx );
-    if ( !setupDataAccessors( m_phase(), timeIdx ) ) return;
+    for ( auto phase : phases() )
+        loadDataIfMissing( phase, timeIdx );
+
+    if ( !setupDataAccessors( timeIdx ) ) return;
 
     const int reverseDirection = -1.0;
     const int normalDirection  = 1.0;
@@ -450,21 +480,6 @@ void RimStreamlineInViewCollection::updateStreamlines()
     {
         if ( s->tracer().tracerPoints().size() > 0 )
         {
-            /*
-            cvf::Vec3d lastPoint   = s->tracer().tracerPoints()[0].position();
-            size_t     countPoints = 1;
-            for ( size_t i = 1; i < s->tracer().tracerPoints().size(); i++ )
-            {
-                if ( s->tracer().tracerPoints()[i].position().pointDistance( lastPoint ) >=
-                distanceBetweenTracerPoints() )
-                {
-                    lastPoint = s->tracer().tracerPoints()[i].position();
-                    countPoints++;
-                }
-
-            }
-            countPoints++;
-            */
             m_maxAnimationIndex = std::max( s->tracer().tracerPoints().size(), m_maxAnimationIndex );
         }
     }
@@ -521,7 +536,7 @@ void RimStreamlineInViewCollection::defineUiOrdering( QString uiConfigName, caf:
     uiOrdering.add( &m_collectionName );
 
     caf::PdmUiGroup* dataGroup = uiOrdering.addNewGroup( "Data Selection" );
-    dataGroup->add( &m_phase );
+    dataGroup->add( &m_phases );
     dataGroup->add( &m_flowThreshold );
     dataGroup->add( &m_lengthThreshold );
     dataGroup->add( &m_resolution );
@@ -669,21 +684,29 @@ cvf::ref<RigResultAccessor> RimStreamlineInViewCollection::getDataAccessor( cvf:
 //--------------------------------------------------------------------------------------------------
 /// Set up data accessors to access the flroil/gas/wat data for all faces
 //--------------------------------------------------------------------------------------------------
-bool RimStreamlineInViewCollection::setupDataAccessors( RiaDefines::PhaseType phase, int timeIdx )
+bool RimStreamlineInViewCollection::setupDataAccessors( int timeIdx )
 {
     m_dataAccess.clear();
 
-    // NEG_? accessors are set to POS_? accessors, but will be referring the neighbor cell when used
-    m_dataAccess.push_back( getDataAccessor( cvf::StructGridInterface::FaceType::POS_I, phase, timeIdx ) );
-    m_dataAccess.push_back( getDataAccessor( cvf::StructGridInterface::FaceType::POS_I, phase, timeIdx ) );
-    m_dataAccess.push_back( getDataAccessor( cvf::StructGridInterface::FaceType::POS_J, phase, timeIdx ) );
-    m_dataAccess.push_back( getDataAccessor( cvf::StructGridInterface::FaceType::POS_J, phase, timeIdx ) );
-    m_dataAccess.push_back( getDataAccessor( cvf::StructGridInterface::FaceType::POS_K, phase, timeIdx ) );
-    m_dataAccess.push_back( getDataAccessor( cvf::StructGridInterface::FaceType::POS_K, phase, timeIdx ) );
-
-    for ( auto access : m_dataAccess )
+    for ( auto phase : phases() )
     {
-        if ( access.isNull() ) return false;
+        m_dataAccess[phase] = std::vector<cvf::ref<RigResultAccessor>>();
+
+        // Note: NEG_? accessors are set to POS_? accessors, but will be referring the neighbor cell when used
+        m_dataAccess[phase].push_back( getDataAccessor( cvf::StructGridInterface::FaceType::POS_I, phase, timeIdx ) );
+        m_dataAccess[phase].push_back( getDataAccessor( cvf::StructGridInterface::FaceType::POS_I, phase, timeIdx ) );
+        m_dataAccess[phase].push_back( getDataAccessor( cvf::StructGridInterface::FaceType::POS_J, phase, timeIdx ) );
+        m_dataAccess[phase].push_back( getDataAccessor( cvf::StructGridInterface::FaceType::POS_J, phase, timeIdx ) );
+        m_dataAccess[phase].push_back( getDataAccessor( cvf::StructGridInterface::FaceType::POS_K, phase, timeIdx ) );
+        m_dataAccess[phase].push_back( getDataAccessor( cvf::StructGridInterface::FaceType::POS_K, phase, timeIdx ) );
+    }
+
+    for ( auto& pair : m_dataAccess )
+    {
+        for ( auto& access : pair.second )
+        {
+            if ( access.isNull() ) return false;
+        }
     }
 
     return true;
@@ -740,14 +763,16 @@ std::vector<size_t> RimStreamlineInViewCollection::findNeighborCellIndexes( RigC
 //--------------------------------------------------------------------------------------------------
 double RimStreamlineInViewCollection::negFaceValue( RigCell                            cell,
                                                     cvf::StructGridInterface::FaceType faceIdx,
-                                                    RigGridBase*                       grid ) const
+                                                    RigGridBase*                       grid,
+                                                    RiaDefines::PhaseType              phase ) const
 {
     double retval = 0.0;
 
     RigCell* neighborCell = findNeighborCell( cell, grid, faceIdx );
     if ( neighborCell && !neighborCell->isInvalid() )
     {
-        retval      = m_dataAccess[faceIdx]->cellScalar( neighborCell->mainGridCellIndex() );
+        std::vector<cvf::ref<RigResultAccessor>> access = m_dataAccess.at( phase );
+        retval      = access[faceIdx]->cellScalar( neighborCell->mainGridCellIndex() );
         double area = cell.faceNormalWithAreaLength( faceIdx ).length();
         if ( area != 0.0 )
             retval /= area;
@@ -763,10 +788,13 @@ double RimStreamlineInViewCollection::negFaceValue( RigCell                     
 //--------------------------------------------------------------------------------------------------
 /// Return the face scalar value for the given cell and POS_? face
 //--------------------------------------------------------------------------------------------------
-double RimStreamlineInViewCollection::posFaceValue( RigCell cell, cvf::StructGridInterface::FaceType faceIdx ) const
+double RimStreamlineInViewCollection::posFaceValue( RigCell                            cell,
+                                                    cvf::StructGridInterface::FaceType faceIdx,
+                                                    RiaDefines::PhaseType              phase ) const
 {
-    double retval = m_dataAccess[faceIdx]->cellScalar( cell.mainGridCellIndex() );
-    double length = cell.faceNormalWithAreaLength( faceIdx ).length();
+    std::vector<cvf::ref<RigResultAccessor>> access = m_dataAccess.at( phase );
+    double                                   retval = access[faceIdx]->cellScalar( cell.mainGridCellIndex() );
+    double                                   length = cell.faceNormalWithAreaLength( faceIdx ).length();
     if ( length != 0.0 )
         retval /= length;
     else
@@ -782,28 +810,13 @@ double RimStreamlineInViewCollection::posFaceValue( RigCell cell, cvf::StructGri
 //--------------------------------------------------------------------------------------------------
 double RimStreamlineInViewCollection::faceValue( RigCell                            cell,
                                                  cvf::StructGridInterface::FaceType faceIdx,
-                                                 RigGridBase*                       grid ) const
+                                                 RigGridBase*                       grid,
+                                                 RiaDefines::PhaseType              phase ) const
 {
-    if ( faceIdx % 2 == 0 ) return posFaceValue( cell, faceIdx );
+    if ( faceIdx % 2 == 0 ) return posFaceValue( cell, faceIdx, phase );
 
     // NEG_? face values must be read from the neighbor cells
-    return negFaceValue( cell, faceIdx, grid );
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Return a vector with the the 6 face scalars of the given cell
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RimStreamlineInViewCollection::faceValues( RigCell cell, RigGridBase* grid )
-{
-    double valPosI = posFaceValue( cell, cvf::StructGridInterface::FaceType::POS_I );
-    double valPosJ = posFaceValue( cell, cvf::StructGridInterface::FaceType::POS_J );
-    double valPosK = posFaceValue( cell, cvf::StructGridInterface::FaceType::POS_K );
-    double valNegI = negFaceValue( cell, cvf::StructGridInterface::FaceType::NEG_I, grid );
-    double valNegJ = negFaceValue( cell, cvf::StructGridInterface::FaceType::NEG_J, grid );
-    double valNegK = negFaceValue( cell, cvf::StructGridInterface::FaceType::NEG_K, grid );
-
-    std::vector<double> retval = { valPosI, valNegI, valPosJ, valNegJ, valPosK, valNegK };
-    return retval;
+    return negFaceValue( cell, faceIdx, grid, phase );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -824,7 +837,12 @@ cvf::Vec3d RimStreamlineInViewCollection::cellDirection( RigCell cell, RigGridBa
     {
         cvf::Vec3d faceNorm = cell.faceNormalWithAreaLength( face );
         faceNorm.normalize();
-        faceNorm *= faceValue( cell, face, grid );
+        double faceval = 0.0;
+        for ( auto phase : phases() )
+        {
+            faceval += faceValue( cell, face, grid, phase );
+        }
+        faceNorm *= faceval;
         if ( face % 2 != 0 ) faceNorm *= -1.0;
 
         direction += faceNorm;
@@ -834,6 +852,7 @@ cvf::Vec3d RimStreamlineInViewCollection::cellDirection( RigCell cell, RigGridBa
 
 //--------------------------------------------------------------------------------------------------
 /// Return the cell bounding box for the given cell
+/// TODO - use the BB feature from RigCell once cell filters have been merged in
 //--------------------------------------------------------------------------------------------------
 cvf::BoundingBox RimStreamlineInViewCollection::cellBoundingBox( RigCell* cell, RigGridBase* grid ) const
 {
@@ -894,8 +913,8 @@ void RimStreamlineInViewCollection::generateStartPositions( RigCell             
 //--------------------------------------------------------------------------------------------------
 void RimStreamlineInViewCollection::generateTracer( RigCell cell, double direction, QString simWellName )
 {
-    RigMainGrid*        grid     = eclipseCase()->eclipseCaseData()->mainGrid();
-    std::vector<double> faceVals = faceValues( cell, grid );
+    RigMainGrid* grid = eclipseCase()->eclipseCaseData()->mainGrid();
+    //    std::vector<double> faceVals = faceValues( cell, grid );
 
     std::vector<cvf::StructGridInterface::FaceType> faces = { cvf::StructGridInterface::FaceType::POS_I,
                                                               cvf::StructGridInterface::FaceType::NEG_I,
@@ -912,16 +931,20 @@ void RimStreamlineInViewCollection::generateTracer( RigCell cell, double directi
     // try to generate a tracer for all faces in the selected cell
     for ( auto faceIdx : faces )
     {
-        // if too little flow, skip making tracer for this face
-        if ( faceVals[faceIdx] <= m_flowThreshold ) continue;
-
         // get the face normal for the current face, scale it with the flow, and check that it is still valid
         cvf::Vec3d startDirection = cell.faceNormalWithAreaLength( faceIdx );
         startDirection.normalize();
-        startDirection *= faceVals[faceIdx];
+        double faceval = 0.0;
+        for ( auto phase : phases() )
+        {
+            faceval += faceValue( cell, faceIdx, grid, phase );
+        }
+        startDirection *= faceval;
         startDirection *= direction;
         // skip vectors with inf values
         if ( startDirection.isUndefined() ) continue;
+        // if too little flow, skip making tracer for this face
+        if ( startDirection.length() <= m_flowThreshold ) continue;
 
         // generate a set of start positions starting in the face
         std::list<cvf::Vec3d> positions;

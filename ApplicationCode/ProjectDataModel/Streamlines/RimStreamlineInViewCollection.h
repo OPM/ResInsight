@@ -56,6 +56,15 @@ public:
     };
     using VisualizationModeEnum = caf::AppEnum<VisualizationMode>;
 
+    enum class StreamlinePhaseType
+    {
+        OIL,
+        GAS,
+        WATER,
+        COMBINED
+    };
+    using StreamlinePhaseTypeEnum = caf::AppEnum<StreamlinePhaseType>;
+
 public:
     RimStreamlineInViewCollection();
     ~RimStreamlineInViewCollection() override;
@@ -63,7 +72,7 @@ public:
     void            setEclipseCase( RimEclipseCase* reservoir );
     RimEclipseCase* eclipseCase() const;
 
-    RiaDefines::PhaseType phase() const;
+    std::list<RiaDefines::PhaseType> phases() const;
 
     VisualizationMode visualizationMode() const;
     double            distanceBetweenTracerPoints() const;
@@ -101,17 +110,21 @@ private:
     cvf::ref<RigResultAccessor>
         getDataAccessor( cvf::StructGridInterface::FaceType faceIdx, RiaDefines::PhaseType phase, int timeIdx );
 
-    bool setupDataAccessors( RiaDefines::PhaseType phase, int timeIdx );
+    bool setupDataAccessors( int timeIdx );
 
     QString gridResultNameFromPhase( RiaDefines::PhaseType phase, cvf::StructGridInterface::FaceType faceIdx ) const;
 
-    double faceValue( RigCell cell, cvf::StructGridInterface::FaceType faceIdx, RigGridBase* grid ) const;
-    double posFaceValue( RigCell cell, cvf::StructGridInterface::FaceType faceIdx ) const;
-    double negFaceValue( RigCell cell, cvf::StructGridInterface::FaceType faceIdx, RigGridBase* grid ) const;
+    double faceValue( RigCell                            cell,
+                      cvf::StructGridInterface::FaceType faceIdx,
+                      RigGridBase*                       grid,
+                      RiaDefines::PhaseType              phase ) const;
+    double posFaceValue( RigCell cell, cvf::StructGridInterface::FaceType faceIdx, RiaDefines::PhaseType phase ) const;
+    double negFaceValue( RigCell                            cell,
+                         cvf::StructGridInterface::FaceType faceIdx,
+                         RigGridBase*                       grid,
+                         RiaDefines::PhaseType              phase ) const;
 
     cvf::Vec3d cellDirection( RigCell cell, RigGridBase* grid ) const;
-
-    std::vector<double> faceValues( RigCell cell, RigGridBase* grid );
 
     RigCell* findNeighborCell( RigCell cell, RigGridBase* grid, cvf::StructGridInterface::FaceType face ) const;
     std::vector<size_t> findNeighborCellIndexes( RigCell* cell, RigGridBase* grid ) const;
@@ -120,23 +133,23 @@ private:
 
     void outputSummary() const;
 
-    caf::PdmField<bool>                                m_isActive;
-    caf::PdmField<QString>                             m_collectionName;
-    caf::PdmField<double>                              m_lengthThreshold;
-    caf::PdmField<double>                              m_flowThreshold;
-    caf::PdmField<double>                              m_resolution;
-    caf::PdmField<double>                              m_maxDays;
-    caf::PdmField<int>                                 m_density;
-    caf::PdmPointer<RimEclipseCase>                    m_eclipseCase;
-    caf::PdmChildArrayField<RimStreamline*>            m_streamlines;
-    caf::PdmField<caf::AppEnum<RiaDefines::PhaseType>> m_phase;
-    caf::PdmField<VisualizationModeEnum>               m_visualizationMode;
-    caf::PdmField<double>                              m_distanceBetweenTracerPoints;
-    caf::PdmField<size_t>                              m_animationSpeed;
-    caf::PdmField<size_t>                              m_animationIndex;
-    caf::PdmField<double>                              m_scaleFactor;
-    caf::PdmField<size_t>                              m_tracerLength;
-    caf::PdmField<size_t>                              m_injectionDeltaTime;
+    caf::PdmField<bool>                     m_isActive;
+    caf::PdmField<QString>                  m_collectionName;
+    caf::PdmField<double>                   m_lengthThreshold;
+    caf::PdmField<double>                   m_flowThreshold;
+    caf::PdmField<double>                   m_resolution;
+    caf::PdmField<double>                   m_maxDays;
+    caf::PdmField<int>                      m_density;
+    caf::PdmPointer<RimEclipseCase>         m_eclipseCase;
+    caf::PdmChildArrayField<RimStreamline*> m_streamlines;
+    caf::PdmField<StreamlinePhaseTypeEnum>  m_phases;
+    caf::PdmField<VisualizationModeEnum>    m_visualizationMode;
+    caf::PdmField<double>                   m_distanceBetweenTracerPoints;
+    caf::PdmField<size_t>                   m_animationSpeed;
+    caf::PdmField<size_t>                   m_animationIndex;
+    caf::PdmField<double>                   m_scaleFactor;
+    caf::PdmField<size_t>                   m_tracerLength;
+    caf::PdmField<size_t>                   m_injectionDeltaTime;
 
     size_t m_maxAnimationIndex;
 
@@ -144,7 +157,7 @@ private:
 
     std::set<size_t> m_wellCellIds;
 
-    std::vector<cvf::ref<RigResultAccessor>> m_dataAccess;
+    std::map<RiaDefines::PhaseType, std::vector<cvf::ref<RigResultAccessor>>> m_dataAccess;
 
     caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
 };
