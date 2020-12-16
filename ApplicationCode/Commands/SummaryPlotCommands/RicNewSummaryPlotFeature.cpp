@@ -245,13 +245,16 @@ bool RicNewDefaultSummaryPlotFeature::isCommandEnabled()
     extractPlotObjectsFromSelection( &selectedIndividualSummaryCases, &selectedEnsembles );
 
     RimCustomObjectiveFunctionCollection* customObjFuncCollection = nullptr;
+    RimEnsembleCurveFilter*               curveFilter             = nullptr;
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
     if ( selObj )
     {
         selObj->firstAncestorOrThisOfType( customObjFuncCollection );
+        selObj->firstAncestorOrThisOfType( curveFilter );
     }
+    if ( customObjFuncCollection || curveFilter ) return false;
 
-    return selectedIndividualSummaryCases.empty() && selectedEnsembles.empty() && ( customObjFuncCollection == nullptr );
+    return !( selectedIndividualSummaryCases.empty() && selectedEnsembles.empty() );
 }
 
 //--------------------------------------------------------------------------------------------------
