@@ -94,7 +94,6 @@ private:
 
     caf::PdmField<bool>                                 m_enablePicking;
     caf::PdmChildArrayField<RimPolylineTarget*>         m_targets;
-    caf::PdmField<bool>                                 m_showPolygon;
     caf::PdmField<caf::AppEnum<PolylineFilterModeType>> m_polyFilterMode;
     caf::PdmField<caf::AppEnum<PolylineIncludeType>>    m_polyIncludeType;
     caf::PdmPtrField<RimCase*>                          m_srcCase;

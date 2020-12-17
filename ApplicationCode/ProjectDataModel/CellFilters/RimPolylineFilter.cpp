@@ -75,8 +75,6 @@ RimPolylineFilter::RimPolylineFilter()
 
     CAF_PDM_InitFieldNoDefault( &m_polyIncludeType, "PolyIncludeType", "Cells to include", "", "", "" );
 
-    CAF_PDM_InitField( &m_showPolygon, "ShowPolygon", true, "Show Polygon", "", "", "" );
-
     CAF_PDM_InitField( &m_enablePicking, "EnablePicking", false, "", "", "", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_enablePicking );
     m_enablePicking.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::HIDDEN );
@@ -111,9 +109,6 @@ void RimPolylineFilter::updateVisualization()
 {
     updateCells();
     filterChanged.send();
-    // Rim3dView* view;
-    // this->firstAncestorOrThisOfType( view );
-    // if ( view ) view->scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -205,7 +200,6 @@ void RimPolylineFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     uiOrdering.add( &m_polyIncludeType );
     uiOrdering.add( &m_targets );
     uiOrdering.add( &m_enablePicking );
-    uiOrdering.add( &m_showPolygon );
 
     m_polyIncludeType.uiCapability()->setUiName( "Cells to " + modeString() );
 
@@ -240,8 +234,6 @@ void RimPolylineFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
         filterChanged.send();
         this->updateIconState();
     }
-
-    // updateVisualization();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -449,6 +441,7 @@ void RimPolylineFilter::updateCellsForEclipse( const std::vector<cvf::Vec3d>& po
 //--------------------------------------------------------------------------------------------------
 void RimPolylineFilter::updateCellsForGeoMech( const std::vector<cvf::Vec3d>& points, RimGeoMechCase* gCase )
 {
+    // TODO - implement this
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -459,9 +452,6 @@ void RimPolylineFilter::updateCells()
     // reset
     m_cells.clear();
 
-    // need at least 3 points
-    if ( m_targets.size() < 3 ) return;
-
     // get polyline as vector
     std::vector<cvf::Vec3d> points;
     for ( auto& target : m_targets )
@@ -470,11 +460,10 @@ void RimPolylineFilter::updateCells()
     }
 
     // We need at least three points to make a sensible polygon
-    // In addition, make sure first and last point is the same (req. by polygon methods later)
-    if ( points.size() > 3 )
-        points.push_back( points.front() );
-    else
-        return;
+    if ( points.size() < 3 ) return;
+
+    // make sure first and last point is the same (req. by polygon methods later)
+    points.push_back( points.front() );
 
     RimEclipseCase* eCase = dynamic_cast<RimEclipseCase*>( m_srcCase() );
     RimGeoMechCase* gCase = dynamic_cast<RimGeoMechCase*>( m_srcCase() );
