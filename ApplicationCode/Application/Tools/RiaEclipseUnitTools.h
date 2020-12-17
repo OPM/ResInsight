@@ -46,6 +46,8 @@ public:
     static double meterToMm( double meter ) { return 1000.0 * meter; }
 
     static double barToPascal( double bar ) { return bar * 100000.0; }
+    static double pascalToBar( double pas ) { return pas / 100000.0; }
+
     static double barToPsi( double bar ) { return bar * 14.5038; }
     static double barPerMeterToPsiPerFeet( double barPerMeter ) { return barPerMeter * 4.42075; }
     static double gigaPascalToPascal( double gigaPascal ) { return gigaPascal * 1.0e9; }
