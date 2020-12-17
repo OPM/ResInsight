@@ -396,16 +396,16 @@ void RimVfpPlot::populatePlotWidgetWithCurveData( RiuQwtPlotWidget* plotWidget, 
     plotWidget->setAxisAutoScale( QwtPlot::xBottom, true );
     plotWidget->setAxisAutoScale( QwtPlot::yLeft, true );
 
-    QString xAxisTitle = QString( "%1 [%2]" )
-                             .arg( caf::AppEnum<RimVfpPlot::ProductionVariableType>::uiText(
-                                       RimVfpPlot::ProductionVariableType::LIQUID_FLOW_RATE ),
-                                   getDisplayUnit( RimVfpPlot::ProductionVariableType::LIQUID_FLOW_RATE ) );
+    QString xAxisTitle =
+        QString( "%1 %2" ).arg( caf::AppEnum<RimVfpPlot::ProductionVariableType>::uiText(
+                                    RimVfpPlot::ProductionVariableType::LIQUID_FLOW_RATE ),
+                                getDisplayUnitWithBracket( RimVfpPlot::ProductionVariableType::LIQUID_FLOW_RATE ) );
 
     plotWidget->setAxisTitleText( QwtPlot::xBottom, xAxisTitle );
 
-    QString yAxisTitle = QString( "%1 [%2]" )
-                             .arg( caf::AppEnum<RimVfpPlot::InterpolatedVariableType>::uiText( m_interpolatedVariable() ),
-                                   getDisplayUnit( RimVfpPlot::ProductionVariableType::THP ) );
+    QString yAxisTitle =
+        QString( "%1 %2" ).arg( caf::AppEnum<RimVfpPlot::InterpolatedVariableType>::uiText( m_interpolatedVariable() ),
+                                getDisplayUnitWithBracket( RimVfpPlot::ProductionVariableType::THP ) );
     plotWidget->setAxisTitleText( QwtPlot::yLeft, yAxisTitle );
 
     std::vector<double> thpValues = table.getTHPAxis();
@@ -458,13 +458,13 @@ void RimVfpPlot::populatePlotWidgetWithCurveData( RiuQwtPlotWidget*             
     plotWidget->setAxisAutoScale( QwtPlot::xBottom, true );
     plotWidget->setAxisAutoScale( QwtPlot::yLeft, true );
 
-    QString xAxisTitle = QString( "%1 [%2]" )
-                             .arg( caf::AppEnum<RimVfpPlot::ProductionVariableType>::uiText( primaryVariable ),
-                                   getDisplayUnit( primaryVariable ) );
+    QString xAxisTitle =
+        QString( "%1 %2" ).arg( caf::AppEnum<RimVfpPlot::ProductionVariableType>::uiText( primaryVariable ),
+                                getDisplayUnitWithBracket( primaryVariable ) );
     plotWidget->setAxisTitleText( QwtPlot::xBottom, xAxisTitle );
-    QString yAxisTitle = QString( "%1 [%2]" )
-                             .arg( caf::AppEnum<RimVfpPlot::InterpolatedVariableType>::uiText( m_interpolatedVariable() ),
-                                   getDisplayUnit( RimVfpPlot::ProductionVariableType::THP ) );
+    QString yAxisTitle =
+        QString( "%1 %2" ).arg( caf::AppEnum<RimVfpPlot::InterpolatedVariableType>::uiText( m_interpolatedVariable() ),
+                                getDisplayUnitWithBracket( RimVfpPlot::ProductionVariableType::THP ) );
     plotWidget->setAxisTitleText( QwtPlot::yLeft, yAxisTitle );
 
     std::vector<double> primaryAxisValues    = getProductionTableData( table, primaryVariable );
@@ -572,6 +572,18 @@ void RimVfpPlot::convertToDisplayUnit( std::vector<double>& values, RimVfpPlot::
 {
     for ( size_t i = 0; i < values.size(); i++ )
         values[i] = convertToDisplayUnit( values[i], variableType );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimVfpPlot::getDisplayUnitWithBracket( RimVfpPlot::ProductionVariableType variableType )
+{
+    QString unit = getDisplayUnit( variableType );
+    if ( !unit.isEmpty() )
+        return QString( "[%1]" ).arg( unit );
+    else
+        return unit;
 }
 
 //--------------------------------------------------------------------------------------------------
