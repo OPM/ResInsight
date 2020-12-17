@@ -390,13 +390,13 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
 
                     menuBuilder.subMenuStart( "Range Filter Slice", QIcon( ":/CellFilter_Range.png" ) );
 
-                    menuBuilder.addCmdFeatureWithUserData( "RicNewSliceRangeFilter3dViewFeature",
+                    menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature",
                                                            "I-slice Range Filter",
                                                            iSliceList );
-                    menuBuilder.addCmdFeatureWithUserData( "RicNewSliceRangeFilter3dViewFeature",
+                    menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature",
                                                            "J-slice Range Filter",
                                                            jSliceList );
-                    menuBuilder.addCmdFeatureWithUserData( "RicNewSliceRangeFilter3dViewFeature",
+                    menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature",
                                                            "K-slice Range Filter",
                                                            kSliceList );
 

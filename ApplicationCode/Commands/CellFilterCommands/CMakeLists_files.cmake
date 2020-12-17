@@ -7,6 +7,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicNewRangeFilterSliceFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewRangeFilterSliceIFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewRangeFilterSliceJFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewRangeFilterSliceKFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicNewRangeFilterSlice3dviewFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -17,6 +18,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicNewRangeFilterSliceFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewRangeFilterSliceIFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewRangeFilterSliceJFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewRangeFilterSliceKFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicNewRangeFilterSlice3dviewFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES

@@ -55,7 +55,7 @@ public:
     caf::PdmField<int> cellCountJ;
     caf::PdmField<int> cellCountK;
 
-    void setDefaultValues( int sliceDirection = -1 );
+    void setDefaultValues( int sliceDirection = -1, int defaultSlice = -1 );
 
     void updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter ) override;
 

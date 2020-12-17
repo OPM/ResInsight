@@ -48,7 +48,7 @@ public:
 
     RimPolylineFilter*    addNewPolylineFilter( RimCase* srcCase );
     RimUserDefinedFilter* addNewUserDefinedFilter( RimCase* srcCase );
-    RimCellRangeFilter*   addNewCellRangeFilter( RimCase* srcCase, int sliceDirection = -1 );
+    RimCellRangeFilter*   addNewCellRangeFilter( RimCase* srcCase, int sliceDirection = -1, int defaultSlice = -1 );
 
     void removeFilter( RimCellFilter* filter );
 

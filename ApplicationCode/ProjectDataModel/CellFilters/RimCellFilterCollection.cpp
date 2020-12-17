@@ -242,12 +242,12 @@ RimUserDefinedFilter* RimCellFilterCollection::addNewUserDefinedFilter( RimCase*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimCellRangeFilter* RimCellFilterCollection::addNewCellRangeFilter( RimCase* srcCase, int sliceDirection )
+RimCellRangeFilter* RimCellFilterCollection::addNewCellRangeFilter( RimCase* srcCase, int sliceDirection, int defaultSlice )
 {
     RimCellRangeFilter* pFilter = new RimCellRangeFilter();
     m_cellFilters.push_back( pFilter );
     pFilter->filterChanged.connect( this, &RimCellFilterCollection::onFilterUpdated );
-    pFilter->setDefaultValues( sliceDirection );
+    pFilter->setDefaultValues( sliceDirection, defaultSlice );
 
     this->updateConnectedEditors();
     onFilterUpdated( pFilter );

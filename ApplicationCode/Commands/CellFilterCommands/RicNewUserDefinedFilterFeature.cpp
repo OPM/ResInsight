@@ -19,7 +19,6 @@
 #include "RicNewUserDefinedFilterFeature.h"
 
 #include "RimCellFilterCollection.h"
-#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimUserDefinedFilter.h"
 

@@ -127,7 +127,7 @@ void RimCellRangeFilter::computeAndSetValidValues()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCellRangeFilter::setDefaultValues( int sliceDirection )
+void RimCellRangeFilter::setDefaultValues( int sliceDirection, int defaultSlice )
 {
     const cvf::StructGridInterface* grid = selectedGrid();
 
@@ -177,12 +177,15 @@ void RimCellRangeFilter::setDefaultValues( int sliceDirection )
     {
         case 0:
             cellCountI = 1;
+            if ( defaultSlice > 0 ) startIndexI = defaultSlice;
             break;
         case 1:
             cellCountJ = 1;
+            if ( defaultSlice > 0 ) startIndexJ = defaultSlice;
             break;
         case 2:
             cellCountK = 1;
+            if ( defaultSlice > 0 ) startIndexK = defaultSlice;
             break;
         default:
             break;
