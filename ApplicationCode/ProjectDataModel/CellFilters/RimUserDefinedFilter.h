@@ -37,7 +37,7 @@ public:
     RimUserDefinedFilter();
     ~RimUserDefinedFilter() override;
 
-    void updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter ) const override;
+    void updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter ) override;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

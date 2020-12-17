@@ -51,11 +51,11 @@ public:
 
     void insertTarget( const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert ) override;
     void updateEditorsAndVisualization() override;
+    void updateVisualization() override;
+
     std::vector<RimPolylineTarget*> activeTargets() const override;
     bool                            pickingEnabled() const override;
     caf::PickEventHandler*          pickEventHandler() const override;
-
-    void updateVisualization();
 
     void appendTarget( const cvf::Vec3d& defaultPos = cvf::Vec3d::ZERO );
     void deleteTarget( RimPolylineTarget* targetTodelete );

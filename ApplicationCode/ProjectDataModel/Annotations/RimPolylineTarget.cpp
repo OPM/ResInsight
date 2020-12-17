@@ -108,9 +108,20 @@ void RimPolylineTarget::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
                                           const QVariant&            oldValue,
                                           const QVariant&            newValue )
 {
-    RimPolylinePickerInterface* polyline;
-    firstAncestorOrThisOfTypeAsserted( polyline );
-    if ( polyline ) polyline->updateEditorsAndVisualization();
+    triggerVisualizationUpdate();
+    // RimPolylinePickerInterface* polyline;
+    // firstAncestorOrThisOfTypeAsserted( polyline );
+    // if ( polyline ) polyline->updateVisualization();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolylineTarget::triggerVisualizationUpdate() const
+{
+    RimPolylinePickerInterface* ppInterface;
+    firstAncestorOrThisOfTypeAsserted( ppInterface );
+    if ( ppInterface ) ppInterface->updateVisualization();
 }
 
 //--------------------------------------------------------------------------------------------------

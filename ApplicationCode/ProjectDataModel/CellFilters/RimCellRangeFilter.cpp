@@ -297,7 +297,7 @@ void RimCellRangeFilter::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCellRangeFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter ) const
+void RimCellRangeFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter )
 {
     CVF_ASSERT( cellRangeFilter );
 

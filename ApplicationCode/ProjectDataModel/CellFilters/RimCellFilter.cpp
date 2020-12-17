@@ -94,6 +94,7 @@ void RimCellFilter::setName( QString filtername )
 void RimCellFilter::setActive( bool active )
 {
     m_isActive = active;
+    updateIconState();
 }
 
 //--------------------------------------------------------------------------------------------------

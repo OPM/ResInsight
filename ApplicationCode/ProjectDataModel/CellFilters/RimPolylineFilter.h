@@ -65,17 +65,16 @@ public:
 
     void setCase( RimCase* srcCase );
 
-    void updateVisualization();
-
-    void enablePicking( bool enable );
-    void insertTarget( const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert ) override;
+    void updateVisualization() override;
     void updateEditorsAndVisualization() override;
+    void insertTarget( const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert ) override;
+    void enablePicking( bool enable );
 
     std::vector<RimPolylineTarget*> activeTargets() const override;
     bool                            pickingEnabled() const override;
     caf::PickEventHandler*          pickEventHandler() const override;
 
-    void updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter ) const override;
+    void updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter ) override;
 
 protected:
     // void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;

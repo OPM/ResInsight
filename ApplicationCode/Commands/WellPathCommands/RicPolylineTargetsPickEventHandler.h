@@ -27,7 +27,7 @@
 class RicPolylineTargetsPickEventHandler : public Ric3dViewPickEventHandler
 {
 public:
-    RicPolylineTargetsPickEventHandler( RimPolylinePickerInterface* polylineDef );
+    RicPolylineTargetsPickEventHandler( RimPolylinePickerInterface* picker );
     ~RicPolylineTargetsPickEventHandler();
 
     void registerAsPickEventHandler() override;

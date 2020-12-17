@@ -69,7 +69,7 @@ void RimUserDefinedFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimUserDefinedFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter ) const
+void RimUserDefinedFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter )
 {
     CVF_ASSERT( cellRangeFilter );
 

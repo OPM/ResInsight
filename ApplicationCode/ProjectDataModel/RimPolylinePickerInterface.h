@@ -28,6 +28,7 @@ class RimPolylinePickerInterface
 public:
     virtual void insertTarget( const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert ) = 0;
     virtual void updateEditorsAndVisualization()                                                                  = 0;
+    virtual void updateVisualization()                                                                            = 0;
     virtual std::vector<RimPolylineTarget*> activeTargets() const                                                 = 0;
     virtual bool                            pickingEnabled() const                                                = 0;
     virtual caf::PickEventHandler*          pickEventHandler() const                                              = 0;

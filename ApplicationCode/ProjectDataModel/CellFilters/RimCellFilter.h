@@ -21,6 +21,7 @@
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafSignal.h"
 
 namespace cvf
 {
@@ -62,7 +63,7 @@ public:
     void updateIconState();
     void updateActiveState( bool isControlled );
 
-    virtual void updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter ) const = 0;
+    virtual void updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter ) = 0;
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;

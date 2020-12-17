@@ -109,10 +109,11 @@ RimPolylineFilter::~RimPolylineFilter()
 //--------------------------------------------------------------------------------------------------
 void RimPolylineFilter::updateVisualization()
 {
-    Rim3dView* view;
-    this->firstAncestorOrThisOfType( view );
-
-    if ( view ) view->scheduleCreateDisplayModelAndRedraw();
+    updateCells();
+    filterChanged.send();
+    // Rim3dView* view;
+    // this->firstAncestorOrThisOfType( view );
+    // if ( view ) view->scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -169,12 +170,10 @@ void RimPolylineFilter::defineEditorAttribute( const caf::PdmFieldHandle* field,
             if ( !m_enablePicking )
             {
                 pbAttribute->m_buttonText = "Start Picking Points";
-                setActive( true );
             }
             else
             {
                 pbAttribute->m_buttonText = "Stop Picking Points";
-                setActive( false );
             }
         }
     }
@@ -224,20 +223,25 @@ void RimPolylineFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     {
         this->updateConnectedEditors();
 
-        if ( !m_enablePicking() )
+        if ( m_enablePicking() )
         {
+            setActive( false );
+        }
+        else
+        {
+            setActive( true );
             updateCells();
             filterChanged.send();
         }
     }
-    else if ( ( changedField == &m_polyFilterMode ) || ( changedField == &m_polyIncludeType ) ||
-              ( changedField == &m_filterMode ) )
+    else if ( changedField != &m_name )
     {
         updateCells();
         filterChanged.send();
+        this->updateIconState();
     }
 
-    updateVisualization();
+    // updateVisualization();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -268,9 +272,11 @@ caf::PickEventHandler* RimPolylineFilter::pickEventHandler() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolylineFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter ) const
+void RimPolylineFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter )
 {
     CVF_ASSERT( cellRangeFilter );
+
+    if ( m_cells.size() == 0 ) updateCells();
 
     const auto grid = selectedGrid();
     size_t     i, j, k;
@@ -457,15 +463,18 @@ void RimPolylineFilter::updateCells()
     if ( m_targets.size() < 3 ) return;
 
     // get polyline as vector
-    size_t                  count = m_targets.size() + 1;
-    std::vector<cvf::Vec3d> points( count );
-    int                     i = 0;
+    std::vector<cvf::Vec3d> points;
     for ( auto& target : m_targets )
     {
-        points[i++] = target->targetPointXYZ();
+        if ( target->isEnabled() ) points.push_back( target->targetPointXYZ() );
     }
-    // make sure first and last point is the same (req. by polygon methods later)
-    points[i] = m_targets[0]->targetPointXYZ();
+
+    // We need at least three points to make a sensible polygon
+    // In addition, make sure first and last point is the same (req. by polygon methods later)
+    if ( points.size() > 3 )
+        points.push_back( points.front() );
+    else
+        return;
 
     RimEclipseCase* eCase = dynamic_cast<RimEclipseCase*>( m_srcCase() );
     RimGeoMechCase* gCase = dynamic_cast<RimGeoMechCase*>( m_srcCase() );
