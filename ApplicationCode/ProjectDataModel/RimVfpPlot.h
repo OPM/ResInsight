@@ -126,6 +126,8 @@ private:
 
     static QString getDisplayUnit( RimVfpPlot::ProductionVariableType variableType );
 
+    static QString getDisplayUnitWithBracket( RimVfpPlot::ProductionVariableType variableType );
+
 private:
     caf::PdmField<caf::FilePath> m_filePath;
     caf::PdmField<int>           m_tableNumber;
