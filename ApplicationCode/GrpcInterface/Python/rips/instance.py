@@ -21,7 +21,7 @@ from Definitions_pb2 import Empty
 import RiaVersionInfo
 
 from .project import Project
-
+from .retry_policy import FixedRetryPolicy
 
 class Instance:
     """The ResInsight Instance class. Use to launch or find existing ResInsight instances
@@ -183,12 +183,13 @@ class Instance:
         connection_ok = False
         version_ok = False
 
+        retry_policy = FixedRetryPolicy()
         if self.launched:
-            for _ in range(0, 10):
+            for num_tries in range(0, retry_policy.num_retries()):
                 connection_ok, version_ok = self.__check_version()
                 if connection_ok:
                     break
-                time.sleep(1.0)
+                retry_policy.sleep(num_tries)
         else:
             connection_ok, version_ok = self.__check_version()
 
@@ -196,7 +197,7 @@ class Instance:
             if self.launched:
                 raise Exception('Error: Could not connect to resinsight at ',
                                 location,
-                                ' after trying 10 times with 1 second apart')
+                                '.', retry_policy.time_out_message())
             raise Exception('Error: Could not connect to resinsight at ', location)
         if not version_ok:
             raise Exception('Error: Wrong Version of ResInsight at ', location,
