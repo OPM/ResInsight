@@ -21,7 +21,7 @@ from Definitions_pb2 import Empty
 import RiaVersionInfo
 
 from .project import Project
-from .retry_policy import FixedRetryPolicy
+from .retry_policy import ExponentialBackoffRetryPolicy
 
 class Instance:
     """The ResInsight Instance class. Use to launch or find existing ResInsight instances
@@ -183,7 +183,7 @@ class Instance:
         connection_ok = False
         version_ok = False
 
-        retry_policy = FixedRetryPolicy()
+        retry_policy = ExponentialBackoffRetryPolicy()
         if self.launched:
             for num_tries in range(0, retry_policy.num_retries()):
                 connection_ok, version_ok = self.__check_version()

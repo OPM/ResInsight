@@ -1,6 +1,7 @@
 import abc
 
 import time
+import random
 
 
 class RetryPolicy(abc.ABC):
@@ -43,6 +44,39 @@ class FixedRetryPolicy(RetryPolicy):
     def time_out_message(self):
         return "Tried {} times with {} milliseconds apart.".format(
             self.max_num_retries, self.sleep_time
+        )
+
+    def num_retries(self):
+        return self.max_num_retries
+
+
+class ExponentialBackoffRetryPolicy(RetryPolicy):
+    def __init__(self, min_backoff=200, max_backoff=10000, max_num_retries=20):
+        """
+        Create a truncated exponential backoff policy.
+        See: https://en.wikipedia.org/wiki/Exponential_backoff
+        :param min_backoff: minimum time to sleep in milliseconds.
+        :param max_backoff: maximum time to sleep in milliseconds.
+        :param max_num_retries: max number of retries.
+        """
+        self.min_backoff = min_backoff
+        self.max_backoff = max_backoff
+        self.max_num_retries = max_num_retries
+        self.multiplier = 2
+
+    def sleep(self, retry_num):
+        # Add a random component to avoid synchronized retries
+        wiggle = random.randint(0, 100)
+        sleep_ms = min(
+            self.min_backoff + self.multiplier ** retry_num + wiggle, self.max_backoff
+        )
+        time.sleep(sleep_ms / 1000)
+
+    def time_out_message(self):
+        return (
+            "Tried {} times with increasing delay (from {} to {} milliseconds).".format(
+                self.max_num_retries, self.min_backoff, self.max_backoff
+            )
         )
 
     def num_retries(self):
