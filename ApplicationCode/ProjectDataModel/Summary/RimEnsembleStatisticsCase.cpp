@@ -196,7 +196,7 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*> su
         if ( p10 != HUGE_VAL ) m_p10Data.push_back( p10 );
         if ( p50 != HUGE_VAL ) m_p50Data.push_back( p50 );
         if ( p90 != HUGE_VAL ) m_p90Data.push_back( p90 );
-        m_meanData.push_back( mean );
+        if ( mean != HUGE_VAL ) m_meanData.push_back( mean );
     }
 }
 

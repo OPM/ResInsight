@@ -244,7 +244,7 @@ void RifReaderEnsembleStatisticsRft::calculateStatistics( const RifEclipseRftAdd
             if ( p10 != HUGE_VAL ) m_cachedValues[p10Address].push_back( p10 );
             if ( p50 != HUGE_VAL ) m_cachedValues[p50Address].push_back( p50 );
             if ( p90 != HUGE_VAL ) m_cachedValues[p90Address].push_back( p90 );
-            m_cachedValues[meanAddress].push_back( mean );
+            if ( mean != HUGE_VAL ) m_cachedValues[meanAddress].push_back( mean );
         }
     }
 }
