@@ -1235,12 +1235,15 @@ void RimWellRftPlot::defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveD
     m_timeStepSymbols.clear();
 
     // Clear all ensemble legends
-    RimWellLogTrack* track = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
+    RiuQwtPlotWidget* viewer = nullptr;
+    RimWellLogTrack*  track  = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
+    if ( track ) viewer = track->viewer();
+
     for ( auto ensembleLegendPair : m_ensembleLegendFrames )
     {
-        if ( track->viewer() && ensembleLegendPair.second )
+        if ( viewer && ensembleLegendPair.second )
         {
-            track->viewer()->removeOverlayFrame( ensembleLegendPair.second );
+            viewer->removeOverlayFrame( ensembleLegendPair.second );
             delete ensembleLegendPair.second;
         }
     }
@@ -1257,18 +1260,18 @@ void RimWellRftPlot::defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveD
         {
             curveSet->initializeLegend();
 
-            if ( curveSet->legendConfig()->showLegend() && curveSet->colorMode() == ColorMode::BY_ENSEMBLE_PARAM &&
-                 !curveSet->currentEnsembleParameter().isEmpty() )
+            if ( viewer && curveSet->legendConfig()->showLegend() &&
+                 curveSet->colorMode() == ColorMode::BY_ENSEMBLE_PARAM && !curveSet->currentEnsembleParameter().isEmpty() )
             {
                 if ( !m_ensembleLegendFrames[curveSet] )
                 {
                     m_ensembleLegendFrames[curveSet] =
                         new RiuCvfOverlayItemWidget( curveSet->legendConfig()->titledOverlayFrame(),
-                                                     track->viewer()->canvas(),
-                                                     track->viewer()->overlayMargins() );
+                                                     viewer->canvas(),
+                                                     viewer->overlayMargins() );
                 }
 
-                track->viewer()->addOverlayFrame( m_ensembleLegendFrames[curveSet] );
+                viewer->addOverlayFrame( m_ensembleLegendFrames[curveSet] );
             }
         }
     }
