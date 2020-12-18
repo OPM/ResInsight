@@ -18,9 +18,9 @@
 
 #include "RicNewRangeFilterSliceFeature.h"
 
+#include "RimCase.h"
 #include "RimCellFilterCollection.h"
 #include "RimCellRangeFilter.h"
-#include "RimProject.h"
 #include "Riu3DMainWindowTools.h"
 
 #include "cafCmdExecCommandManager.h"
@@ -47,16 +47,14 @@ bool RicNewRangeFilterSliceFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewRangeFilterSliceFeature::onActionTriggered( bool isChecked )
 {
-    RimProject* proj = RimProject::current();
-
-    RimCase* sourceCase = nullptr;
-    auto     allCases   = proj->allGridCases();
-    if ( !allCases.empty() ) sourceCase = allCases.front();
-
     // Find the selected Cell Filter Collection
     std::vector<RimCellFilterCollection*> colls = caf::selectedObjectsByTypeStrict<RimCellFilterCollection*>();
     if ( colls.empty() ) return;
     RimCellFilterCollection* filtColl = colls[0];
+
+    // and the case to use
+    RimCase* sourceCase = nullptr;
+    filtColl->firstAncestorOrThisOfTypeAsserted( sourceCase );
 
     RimCellFilter* lastCreatedOrUpdated = filtColl->addNewCellRangeFilter( sourceCase, m_sliceDirection );
     if ( lastCreatedOrUpdated )

@@ -22,7 +22,6 @@
 #include "RimCellFilterCollection.h"
 #include "RimCellRangeFilter.h"
 #include "RimGridView.h"
-#include "RimProject.h"
 #include "RimViewController.h"
 #include "Riu3DMainWindowTools.h"
 
@@ -57,14 +56,10 @@ void RicNewRangeFilterSlice3dviewFeature::onActionTriggered( bool isChecked )
     QVariant userData = this->userData();
     if ( userData.isNull() || userData.type() != QVariant::List ) return;
 
-    RimProject* proj = RimProject::current();
-
-    RimCase* sourceCase = nullptr;
-    auto     allCases   = proj->allGridCases();
-    if ( !allCases.empty() ) sourceCase = allCases.front();
-
     RimGridView* activeView           = RiaApplication::instance()->activeGridView();
     RimGridView* viewOrComparisonView = RiaApplication::instance()->activeMainOrComparisonGridView();
+
+    RimCase* sourceCase = viewOrComparisonView->ownerCase();
 
     // Get the selected Cell Filter Collection
     RimCellFilterCollection* filtColl = viewOrComparisonView->cellFilterCollection();
