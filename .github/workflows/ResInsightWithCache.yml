@@ -205,20 +205,13 @@ jobs:
       - name: Stats for buildcache
         run: ${{ github.workspace }}/buildcache/bin/buildcache -s
 
-      - name: (Windows) Run Unit Tests
-        if: contains( matrix.config.os, 'windows')  
+      - name: Run Unit Tests
         shell: bash
         run: |
           cmakebuild/ApplicationCode/ResInsight --unittest
-      - name: (Linux) Run Unit Tests
-        if: "!contains( matrix.config.os, 'windows')"
-        shell: bash
-        run: |
-          cmakebuild/ApplicationCode/ResInsight --unittest
-      - name: (Windows) Run pytest
-        if: contains( matrix.config.os, 'windows')  
+      - name: Run pytest
         env:
-          RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ApplicationCode/ResInsight.exe
+          RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ApplicationCode/ResInsight
         run: |
           cd ApplicationCode/GrpcInterface/Python/rips
           ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pytest --console
