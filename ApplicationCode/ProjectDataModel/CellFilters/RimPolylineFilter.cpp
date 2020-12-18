@@ -20,6 +20,9 @@
 
 #include "RigCellGeometryTools.h"
 #include "RigEclipseCaseData.h"
+#include "RigFemPart.h"
+#include "RigFemPartCollection.h"
+#include "RigFemPartGrid.h"
 #include "RigGeoMechCaseData.h"
 #include "RigMainGrid.h"
 #include "RigPolyLinesData.h"
@@ -47,7 +50,7 @@ void caf::AppEnum<RimPolylineFilter::PolylineFilterModeType>::setUp()
 {
     addItem( RimPolylineFilter::DEPTH_Z, "DEPTH_Z", "Depth" );
     addItem( RimPolylineFilter::INDEX_K, "INDEX_K", "K index" );
-    setDefault( RimPolylineFilter::DEPTH_Z );
+    setDefault( RimPolylineFilter::INDEX_K );
 }
 
 template <>
@@ -278,11 +281,11 @@ void RimPolylineFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeFilt
         grid->ijkFromCellIndex( cellidx, &i, &j, &k );
         if ( this->filterMode() == RimCellFilter::INCLUDE )
         {
-            cellRangeFilter->addCellInclude( i - 1, j - 1, k - 1, propagateToSubGrids() );
+            cellRangeFilter->addCellInclude( i, j, k, propagateToSubGrids() );
         }
         else
         {
-            cellRangeFilter->addCellExclude( i - 1, j - 1, k - 1, propagateToSubGrids() );
+            cellRangeFilter->addCellExclude( i, j, k, propagateToSubGrids() );
         }
     }
 }
@@ -441,7 +444,127 @@ void RimPolylineFilter::updateCellsForEclipse( const std::vector<cvf::Vec3d>& po
 //--------------------------------------------------------------------------------------------------
 void RimPolylineFilter::updateCellsForGeoMech( const std::vector<cvf::Vec3d>& points, RimGeoMechCase* gCase )
 {
-    // TODO - implement this
+    if ( gCase->geoMechData() && gCase->geoMechData()->femParts()->partCount() > 0 )
+    {
+        const RigFemPartGrid* grid = gCase->geoMechData()->femParts()->part( 0 )->getOrCreateStructGrid();
+
+        if ( m_polyFilterMode == PolylineFilterModeType::DEPTH_Z )
+        {
+            // we should look in depth using Z coordinate
+            // loop over all cells
+            for ( size_t i = 0; i < grid->cellCountI(); i++ )
+            {
+                for ( size_t j = 0; j < grid->cellCountJ(); j++ )
+                {
+                    for ( size_t k = 0; k < grid->cellCountK(); k++ )
+                    {
+                        size_t cellIdx = grid->cellIndexFromIJK( i, j, k );
+
+                        cvf::Vec3d vertices[8];
+                        grid->cellCornerVertices( cellIdx, vertices );
+                        cvf::Vec3d center = grid->cellCentroid( cellIdx );
+
+                        std::array<cvf::Vec3d, 8> corners;
+                        for ( size_t n = 0; n < 8; n++ )
+                            corners[n] = vertices[n];
+
+                        // check if the polygon includes the cell
+                        if ( cellInsidePolygon2D( center, corners, points ) )
+                        {
+                            m_cells.push_back( cellIdx );
+                        }
+                    }
+                }
+            }
+        }
+        else if ( m_polyFilterMode == PolylineFilterModeType::INDEX_K )
+        {
+            // we should look in depth using the K coordinate
+            // 1. find the K layer of the first point
+            // 2. find all cells in this K layer that matches the selection criteria
+            // 3. extend those cells to all K layers
+
+            // we need to find the K layer we hit with the first point
+            size_t ni, nj, nk;
+            // move the point a bit downwards to make sure it is inside something
+            cvf::Vec3d point = points[0];
+            point.z() += 0.2;
+
+            bool cellFound = false;
+            // loop over all cells to find the correct one
+            for ( size_t i = 0; i < grid->cellCountI(); i++ )
+            {
+                for ( size_t j = 0; j < grid->cellCountJ(); j++ )
+                {
+                    for ( size_t k = 0; k < grid->cellCountK(); k++ )
+                    {
+                        // get cell boundig box
+                        size_t           cellIdx = grid->cellIndexFromIJK( i, j, k );
+                        cvf::BoundingBox bb;
+                        cvf::Vec3d       vertices[8];
+                        grid->cellCornerVertices( cellIdx, vertices );
+                        for ( const auto& point : vertices )
+                        {
+                            bb.add( point );
+                        }
+
+                        // is the point inside?
+                        if ( !bb.contains( points[0] ) ) continue;
+
+                        // found the cell, get the IJK
+                        ni = i;
+                        nj = j;
+                        nk = k;
+
+                        cellFound = true;
+                        break;
+                    }
+                    if ( cellFound ) break;
+                }
+                if ( cellFound ) break;
+            }
+
+            // should not really happen, but just to be sure
+            if ( !cellFound ) return;
+
+            size_t            k = nk;
+            std::list<size_t> foundCells;
+
+            // find all cells in this K layer that matches the polygon
+            for ( size_t i = 0; i < grid->cellCountI(); i++ )
+            {
+                for ( size_t j = 0; j < grid->cellCountJ(); j++ )
+                {
+                    size_t cellIdx = grid->cellIndexFromIJK( i, j, k );
+
+                    // get corner coordinates
+                    std::array<cvf::Vec3d, 8> hexCorners;
+                    grid->cellCornerVertices( cellIdx, hexCorners.data() );
+                    cvf::Vec3d center = grid->cellCentroid( cellIdx );
+
+                    // check if the polygon includes the cell
+                    if ( cellInsidePolygon2D( center, hexCorners, points ) )
+                    {
+                        foundCells.push_back( cellIdx );
+                    }
+                }
+            }
+
+            // now extend all these cells in one K layer to all K layers
+            for ( const size_t cellIdx : foundCells )
+            {
+                size_t ci, cj, ck;
+                grid->ijkFromCellIndex( cellIdx, &ci, &cj, &ck );
+
+                for ( k = 0; k < grid->cellCountK(); k++ )
+                {
+                    // get the cell index
+                    size_t newIdx = grid->cellIndexFromIJK( ci, cj, k );
+                    m_cells.push_back( newIdx );
+                }
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -468,7 +591,6 @@ void RimPolylineFilter::updateCells()
     RimEclipseCase* eCase = dynamic_cast<RimEclipseCase*>( m_srcCase() );
     RimGeoMechCase* gCase = dynamic_cast<RimGeoMechCase*>( m_srcCase() );
 
-    RigMainGrid* grid = nullptr;
     if ( eCase )
     {
         updateCellsForEclipse( points, eCase );
