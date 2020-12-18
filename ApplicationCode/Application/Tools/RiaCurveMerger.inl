@@ -66,7 +66,10 @@ void RiaCurveMerger<XValueType>::addCurveData( const std::vector<XValueType>& xV
 {
     CVF_ASSERT( xValues.size() == yValues.size() );
 
-    m_originalValues.push_back( std::make_pair( xValues, yValues ) );
+    if ( !xValues.empty() )
+    {
+        m_originalValues.push_back( std::make_pair( xValues, yValues ) );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -181,6 +184,8 @@ void RiaCurveMerger<XValueType>::computeUnionOfXValues( bool includeValuesForPar
     std::vector<std::pair<XValueType, XValueType>> originalXBounds;
     for ( const auto& curveData : m_originalValues )
     {
+        if ( curveData.first.empty() ) continue;
+
         for ( const auto& x : curveData.first )
         {
             unionOfXValues.insert( x );
