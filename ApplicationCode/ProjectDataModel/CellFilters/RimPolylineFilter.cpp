@@ -485,7 +485,7 @@ void RimPolylineFilter::updateCellsForGeoMech( const std::vector<cvf::Vec3d>& po
             // 3. extend those cells to all K layers
 
             // we need to find the K layer we hit with the first point
-            size_t ni, nj, nk;
+            size_t nk;
             // move the point a bit downwards to make sure it is inside something
             cvf::Vec3d point = points[0];
             point.z() += 0.2;
@@ -511,9 +511,7 @@ void RimPolylineFilter::updateCellsForGeoMech( const std::vector<cvf::Vec3d>& po
                         // is the point inside?
                         if ( !bb.contains( points[0] ) ) continue;
 
-                        // found the cell, get the IJK
-                        ni = i;
-                        nj = j;
+                        // found the cell, store the K
                         nk = k;
 
                         cellFound = true;
