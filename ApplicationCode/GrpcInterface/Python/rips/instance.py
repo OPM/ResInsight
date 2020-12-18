@@ -182,6 +182,28 @@ class Instance:
         # Main version check package
         self.app = App_pb2_grpc.AppStub(self.channel)
 
+        self._check_connection_and_version(self.channel, launched)
+
+        # Intercept UNAVAILABLE errors and retry on failures
+        interceptors = (
+            RetryOnRpcErrorClientInterceptor(
+                retry_policy=ExponentialBackoffRetryPolicy(min_backoff=100, max_backoff=5000, max_num_retries=20),
+                status_for_retry=(grpc.StatusCode.UNAVAILABLE,),
+            ),
+        )
+
+        intercepted_channel = grpc.intercept_channel(self.channel, *interceptors)
+
+        # Recreate ommand stubs with the retry policy
+        self.commands = Commands_pb2_grpc.CommandsStub(intercepted_channel)
+
+        # Service packages
+        self.project = Project.create(intercepted_channel)
+
+        path = os.getcwd()
+        self.set_start_dir(path=path)
+
+    def _check_connection_and_version(self, channel, launched):
         connection_ok = False
         version_ok = False
 
@@ -205,25 +227,6 @@ class Instance:
             raise Exception('Error: Wrong Version of ResInsight at ', location,
                             self.version_string(), " ",
                             self.client_version_string())
-
-        # Intercept UNAVAILABLE errors and retry on failures
-        interceptors = (
-            RetryOnRpcErrorClientInterceptor(
-                retry_policy=ExponentialBackoffRetryPolicy(min_backoff=100, max_backoff=5000, max_num_retries=20),
-                status_for_retry=(grpc.StatusCode.UNAVAILABLE,),
-            ),
-        )
-
-        intercepted_channel = grpc.intercept_channel(self.channel, *interceptors)
-
-        # Recreate ommand stubs with the retry policy
-        self.commands = Commands_pb2_grpc.CommandsStub(intercepted_channel)
-
-        # Service packages
-        self.project = Project.create(intercepted_channel)
-
-        path = os.getcwd()
-        self.set_start_dir(path=path)
 
     def __version_message(self):
         return self.app.GetVersion(Empty())
