@@ -95,6 +95,8 @@ void RigStatisticsMath::calculateStatisticsCurves( const std::vector<double>& va
 {
     CVF_ASSERT( p10 && p50 && p90 && mean );
 
+    if ( values.empty() ) return;
+
     enum PValue
     {
         P10,

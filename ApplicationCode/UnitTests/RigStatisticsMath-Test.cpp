@@ -220,3 +220,74 @@ TEST( RigStatisticsMath, Accumulators )
         EXPECT_EQ( 4u, acc.sampleCount );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigStatisticsMath, calculateStatisticsCurves )
+{
+    {
+        std::vector<double> values;
+
+        double mean = HUGE_VAL;
+        double p10  = HUGE_VAL;
+        double p50  = HUGE_VAL;
+        double p90  = HUGE_VAL;
+
+        RigStatisticsMath::calculateStatisticsCurves( values, &p10, &p50, &p90, &mean );
+        EXPECT_TRUE( std::isinf( p10 ) );
+        EXPECT_TRUE( std::isinf( p50 ) );
+        EXPECT_TRUE( std::isinf( p90 ) );
+        EXPECT_TRUE( std::isinf( mean ) );
+    }
+
+    {
+        std::vector<double> values{
+            1.0,
+            1.0,
+            1.0,
+        };
+
+        double mean = HUGE_VAL;
+        double p10  = HUGE_VAL;
+        double p50  = HUGE_VAL;
+        double p90  = HUGE_VAL;
+
+        // If we have few samples, P10 and P90 cannot be computed
+        RigStatisticsMath::calculateStatisticsCurves( values, &p10, &p50, &p90, &mean );
+        EXPECT_TRUE( std::isinf( p10 ) );
+        EXPECT_TRUE( std::isinf( p90 ) );
+        EXPECT_DOUBLE_EQ( 1.0, p50 );
+        EXPECT_DOUBLE_EQ( 1.0, mean );
+    }
+
+    {
+        std::vector<double> values{ 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 5.0, 10.0 };
+
+        double mean = HUGE_VAL;
+        double p10  = HUGE_VAL;
+        double p50  = HUGE_VAL;
+        double p90  = HUGE_VAL;
+
+        RigStatisticsMath::calculateStatisticsCurves( values, &p10, &p50, &p90, &mean );
+        EXPECT_DOUBLE_EQ( 1.0, p10 );
+        EXPECT_DOUBLE_EQ( 1.0, p50 );
+        EXPECT_FALSE( std::isinf( p90 ) );
+        EXPECT_FALSE( std::isinf( mean ) );
+    }
+
+    {
+        std::vector<double> values{ 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
+
+        double mean = HUGE_VAL;
+        double p10  = HUGE_VAL;
+        double p50  = HUGE_VAL;
+        double p90  = HUGE_VAL;
+
+        RigStatisticsMath::calculateStatisticsCurves( values, &p10, &p50, &p90, &mean );
+        EXPECT_DOUBLE_EQ( 1.0, p10 );
+        EXPECT_DOUBLE_EQ( 1.0, p50 );
+        EXPECT_DOUBLE_EQ( 1.0, p90 );
+        EXPECT_DOUBLE_EQ( 1.0, mean );
+    }
+}
