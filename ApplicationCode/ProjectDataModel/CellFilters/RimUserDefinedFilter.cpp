@@ -63,7 +63,11 @@ void RimUserDefinedFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedF
                                              const QVariant&            oldValue,
                                              const QVariant&            newValue )
 {
-    if ( changedField != &m_name ) filterChanged.send();
+    if ( changedField != &m_name )
+    {
+        filterChanged.send();
+        updateIconState();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
