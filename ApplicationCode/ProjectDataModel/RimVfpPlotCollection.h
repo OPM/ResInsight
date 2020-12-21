@@ -17,16 +17,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RimAbstractPlotCollection.h"
+#include "RimVfpPlot.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 
-class RimVfpPlot;
-
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimVfpPlotCollection : public caf::PdmObject
+class RimVfpPlotCollection : public caf::PdmObject, public RimTypedPlotCollection<RimVfpPlot>
 {
     CAF_PDM_HEADER_INIT;
 
@@ -35,8 +36,12 @@ public:
     ~RimVfpPlotCollection() override;
 
     void                     addPlot( RimVfpPlot* newPlot );
-    std::vector<RimVfpPlot*> plots();
+    std::vector<RimVfpPlot*> plots() const;
     void                     deleteAllChildObjects();
+
+    size_t plotCount() const final;
+    void   insertPlot( RimVfpPlot* vfpPlot, size_t index ) final;
+    void   removePlot( RimVfpPlot* vfpPlot ) final;
 
 private:
     caf::PdmChildArrayField<RimVfpPlot*> m_vfpPlots;
