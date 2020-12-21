@@ -24,12 +24,12 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RigHistogramData::RigHistogramData()
-    : min( std::numeric_limits<double>::max() )
-    , max( std::numeric_limits<double>::max() )
-    , p10( std::numeric_limits<double>::max() )
-    , p90( std::numeric_limits<double>::max() )
-    , mean( std::numeric_limits<double>::max() )
-    , weightedMean( std::numeric_limits<double>::max() )
+    : min( std::numeric_limits<double>::infinity() )
+    , max( std::numeric_limits<double>::infinity() )
+    , p10( std::numeric_limits<double>::infinity() )
+    , p90( std::numeric_limits<double>::infinity() )
+    , mean( std::numeric_limits<double>::infinity() )
+    , weightedMean( std::numeric_limits<double>::infinity() )
     , sum( 0.0 )
     , histogram( nullptr )
 {
@@ -48,7 +48,7 @@ bool RigHistogramData::isMinMaxValid() const
 //--------------------------------------------------------------------------------------------------
 bool RigHistogramData::isValid( double parameter ) const
 {
-    return parameter != std::numeric_limits<double>::max() && parameter != -std::numeric_limits<double>::max();
+    return parameter != std::numeric_limits<double>::infinity() && parameter != -std::numeric_limits<double>::infinity();
 }
 
 //--------------------------------------------------------------------------------------------------
