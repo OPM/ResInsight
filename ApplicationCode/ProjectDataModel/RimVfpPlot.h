@@ -59,6 +59,31 @@ public:
         GAS_LIQUID_RATIO
     };
 
+    enum class FlowingPhaseType
+    {
+        OIL,
+        GAS,
+        WATER,
+        LIQUID,
+        INVALID
+    };
+
+    enum class FlowingWaterFractionType
+    {
+        WOR,
+        WCT,
+        WGR,
+        INVALID
+    };
+
+    enum class FlowingGasFractionType
+    {
+        GOR,
+        GLR,
+        OGR,
+        INVALID
+    };
+
     RimVfpPlot();
     ~RimVfpPlot() override;
 
@@ -128,9 +153,18 @@ private:
 
     static QString getDisplayUnitWithBracket( RimVfpPlot::ProductionVariableType variableType );
 
+    static RimVfpPlot::FlowingPhaseType         getFlowingPhaseType( const Opm::VFPProdTable& table );
+    static RimVfpPlot::FlowingPhaseType         getFlowingPhaseType( const Opm::VFPInjTable& table );
+    static RimVfpPlot::FlowingWaterFractionType getFlowingWaterFractionType( const Opm::VFPProdTable& table );
+    static RimVfpPlot::FlowingGasFractionType   getFlowingGasFractionType( const Opm::VFPProdTable& table );
+
 private:
-    caf::PdmField<caf::FilePath> m_filePath;
-    caf::PdmField<int>           m_tableNumber;
+    caf::PdmField<caf::FilePath>                                      m_filePath;
+    caf::PdmField<int>                                                m_tableNumber;
+    caf::PdmField<double>                                             m_referenceDepth;
+    caf::PdmField<caf::AppEnum<RimVfpPlot::FlowingPhaseType>>         m_flowingPhase;
+    caf::PdmField<caf::AppEnum<RimVfpPlot::FlowingWaterFractionType>> m_flowingWaterFraction;
+    caf::PdmField<caf::AppEnum<RimVfpPlot::FlowingGasFractionType>>   m_flowingGasFraction;
 
     caf::PdmField<caf::AppEnum<RimVfpPlot::TableType>>                m_tableType;
     caf::PdmField<caf::AppEnum<RimVfpPlot::InterpolatedVariableType>> m_interpolatedVariable;

@@ -71,6 +71,37 @@ void caf::AppEnum<RimVfpPlot::ProductionVariableType>::setUp()
     addItem( RimVfpPlot::ProductionVariableType::ARTIFICIAL_LIFT_QUANTITY, "ALQ", "Artificial Lift Quantity" );
     setDefault( RimVfpPlot::ProductionVariableType::LIQUID_FLOW_RATE );
 }
+
+template <>
+void caf::AppEnum<RimVfpPlot::FlowingPhaseType>::setUp()
+{
+    addItem( RimVfpPlot::FlowingPhaseType::OIL, "OIL", "Oil" );
+    addItem( RimVfpPlot::FlowingPhaseType::GAS, "GAS", "Gas" );
+    addItem( RimVfpPlot::FlowingPhaseType::WATER, "WATER", "Water" );
+    addItem( RimVfpPlot::FlowingPhaseType::LIQUID, "LIQUID", "Liquid (Oil and Water)" );
+    addItem( RimVfpPlot::FlowingPhaseType::INVALID, "INVALID", "Invalid" );
+    setDefault( RimVfpPlot::FlowingPhaseType::INVALID );
+}
+
+template <>
+void caf::AppEnum<RimVfpPlot::FlowingWaterFractionType>::setUp()
+{
+    addItem( RimVfpPlot::FlowingWaterFractionType::WOR, "WOR", "Water-Oil Ratio" );
+    addItem( RimVfpPlot::FlowingWaterFractionType::WCT, "WCT", "Water Cut" );
+    addItem( RimVfpPlot::FlowingWaterFractionType::WGR, "WGR", "Water-Gas Ratio" );
+    addItem( RimVfpPlot::FlowingWaterFractionType::INVALID, "INVALID", "Invalid" );
+    setDefault( RimVfpPlot::FlowingWaterFractionType::INVALID );
+}
+
+template <>
+void caf::AppEnum<RimVfpPlot::FlowingGasFractionType>::setUp()
+{
+    addItem( RimVfpPlot::FlowingGasFractionType::GOR, "GOR", "Gas-Oil Ratio" );
+    addItem( RimVfpPlot::FlowingGasFractionType::GLR, "GLR", "Gas-Liquid Ratio" );
+    addItem( RimVfpPlot::FlowingGasFractionType::OGR, "OGR", "Oil-Gas Ratio" );
+    addItem( RimVfpPlot::FlowingGasFractionType::INVALID, "INVALID", "Invalid" );
+    setDefault( RimVfpPlot::FlowingGasFractionType::INVALID );
+}
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------
@@ -89,6 +120,19 @@ RimVfpPlot::RimVfpPlot()
 
     CAF_PDM_InitField( &m_tableNumber, "TableNumber", -1, "Table Number", "", "", "" );
     m_tableNumber.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitField( &m_referenceDepth, "ReferenceDepth", 0.0, "Reference Depth", "", "", "" );
+    m_referenceDepth.uiCapability()->setUiReadOnly( true );
+
+    caf::AppEnum<RimVfpPlot::FlowingPhaseType> defaultFlowingPhase = RimVfpPlot::FlowingPhaseType::WATER;
+    CAF_PDM_InitField( &m_flowingPhase, "FlowingPhase", defaultFlowingPhase, "Flowing Phase", "", "", "" );
+    m_flowingPhase.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_flowingWaterFraction, "FlowingWaterFraction", "Flowing Water Fraction", "", "", "" );
+    m_flowingWaterFraction.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_flowingGasFraction, "FlowingGasFraction", "Flowing Gas Fraction", "", "", "" );
+    m_flowingGasFraction.uiCapability()->setUiReadOnly( true );
 
     caf::AppEnum<RimVfpPlot::InterpolatedVariableType> defaultInterpolatedVariable =
         RimVfpPlot::InterpolatedVariableType::BHP;
@@ -358,8 +402,12 @@ void RimVfpPlot::onLoadDataAndUpdate()
         {
             // populateVariabelWidgets( tables[0] );
             m_prodTable.reset( new Opm::VFPProdTable( tables[0] ) );
-            m_tableType   = RimVfpPlot::TableType::PRODUCTION;
-            m_tableNumber = tables[0].getTableNum();
+            m_tableType            = RimVfpPlot::TableType::PRODUCTION;
+            m_tableNumber          = tables[0].getTableNum();
+            m_referenceDepth       = tables[0].getDatumDepth();
+            m_flowingPhase         = getFlowingPhaseType( tables[0] );
+            m_flowingGasFraction   = getFlowingGasFractionType( tables[0] );
+            m_flowingWaterFraction = getFlowingWaterFractionType( tables[0] );
             populatePlotWidgetWithCurveData( m_plotWidget, tables[0], m_primaryVariable(), m_familyVariable() );
         }
         else
@@ -368,8 +416,10 @@ void RimVfpPlot::onLoadDataAndUpdate()
                 RimVfpTableExtractor::extractVfpInjectionTables( filePath.toStdString() );
             if ( !tables.empty() )
             {
-                m_tableType   = RimVfpPlot::TableType::INJECTION;
-                m_tableNumber = tables[0].getTableNum();
+                m_tableType      = RimVfpPlot::TableType::INJECTION;
+                m_tableNumber    = tables[0].getTableNum();
+                m_referenceDepth = tables[0].getDatumDepth();
+                m_flowingPhase   = getFlowingPhaseType( tables[0] );
                 populatePlotWidgetWithCurveData( m_plotWidget, tables[0] );
             }
         }
@@ -687,10 +737,15 @@ void RimVfpPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiO
     {
         uiOrdering.add( &m_tableType );
         uiOrdering.add( &m_tableNumber );
+        uiOrdering.add( &m_referenceDepth );
         uiOrdering.add( &m_interpolatedVariable );
+        uiOrdering.add( &m_flowingPhase );
 
         if ( m_tableType == RimVfpPlot::TableType::PRODUCTION )
         {
+            uiOrdering.add( &m_flowingWaterFraction );
+            uiOrdering.add( &m_flowingGasFraction );
+
             uiOrdering.add( &m_primaryVariable );
             uiOrdering.add( &m_familyVariable );
 
@@ -756,6 +811,78 @@ QList<caf::PdmOptionItemInfo> RimVfpPlot::calculateValueOptions( const caf::PdmF
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimVfpPlot::FlowingPhaseType RimVfpPlot::getFlowingPhaseType( const Opm::VFPProdTable& table )
+{
+    switch ( table.getFloType() )
+    {
+        case Opm::VFPProdTable::FLO_OIL:
+            return RimVfpPlot::FlowingPhaseType::OIL;
+        case Opm::VFPProdTable::FLO_GAS:
+            return RimVfpPlot::FlowingPhaseType::GAS;
+        case Opm::VFPProdTable::FLO_LIQ:
+            return RimVfpPlot::FlowingPhaseType::LIQUID;
+        default:
+            return FlowingPhaseType::INVALID;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimVfpPlot::FlowingPhaseType RimVfpPlot::getFlowingPhaseType( const Opm::VFPInjTable& table )
+{
+    switch ( table.getFloType() )
+    {
+        case Opm::VFPInjTable::FLO_OIL:
+            return RimVfpPlot::FlowingPhaseType::OIL;
+        case Opm::VFPInjTable::FLO_GAS:
+            return RimVfpPlot::FlowingPhaseType::GAS;
+        case Opm::VFPInjTable::FLO_WAT:
+            return RimVfpPlot::FlowingPhaseType::WATER;
+        default:
+            return RimVfpPlot::FlowingPhaseType::INVALID;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimVfpPlot::FlowingGasFractionType RimVfpPlot::getFlowingGasFractionType( const Opm::VFPProdTable& table )
+{
+    switch ( table.getGFRType() )
+    {
+        case Opm::VFPProdTable::GFR_GOR:
+            return RimVfpPlot::FlowingGasFractionType::GOR;
+        case Opm::VFPProdTable::GFR_GLR:
+            return RimVfpPlot::FlowingGasFractionType::GLR;
+        case Opm::VFPProdTable::GFR_OGR:
+            return RimVfpPlot::FlowingGasFractionType::OGR;
+        default:
+            return RimVfpPlot::FlowingGasFractionType::INVALID;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimVfpPlot::FlowingWaterFractionType RimVfpPlot::getFlowingWaterFractionType( const Opm::VFPProdTable& table )
+{
+    switch ( table.getWFRType() )
+    {
+        case Opm::VFPProdTable::WFR_WOR:
+            return RimVfpPlot::FlowingWaterFractionType::WOR;
+        case Opm::VFPProdTable::WFR_WCT:
+            return RimVfpPlot::FlowingWaterFractionType::WCT;
+        case Opm::VFPProdTable::WFR_WGR:
+            return RimVfpPlot::FlowingWaterFractionType::WGR;
+        default:
+            return RimVfpPlot::FlowingWaterFractionType::INVALID;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
