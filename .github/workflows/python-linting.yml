@@ -1,0 +1,23 @@
+name: Python Linting
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+      - name: (Python) Use black to do linting
+        run: |
+          pip install black
+          cd ApplicationCode/GrpcInterface
+          black .
+      - uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'Python code linting changes detected by black'
+          title: 'Fixes by black (Python)'
+          branch: python-black-patches
+
+        
