@@ -519,12 +519,13 @@ void RimVfpPlot::populatePlotWidgetWithCurveData( RiuQwtPlotWidget*             
                                 getDisplayUnitWithBracket( RimVfpPlot::ProductionVariableType::THP ) );
     plotWidget->setAxisTitleText( QwtPlot::yLeft, yAxisTitle );
 
-    std::vector<double> primaryAxisValues    = getProductionTableData( table, primaryVariable );
-    std::vector<double> familyVariableValues = getProductionTableData( table, familyVariable );
-    std::vector<double> thpValues            = getProductionTableData( table, RimVfpPlot::ProductionVariableType::THP );
-
-    for ( size_t familyIdx = 0; familyIdx < familyVariableValues.size(); familyIdx++ )
+    size_t numFamilyValues = getProductionTableData( table, familyVariable ).size();
+    for ( size_t familyIdx = 0; familyIdx < numFamilyValues; familyIdx++ )
     {
+        std::vector<double> primaryAxisValues    = getProductionTableData( table, primaryVariable );
+        std::vector<double> familyVariableValues = getProductionTableData( table, familyVariable );
+        std::vector<double> thpValues = getProductionTableData( table, RimVfpPlot::ProductionVariableType::THP );
+
         size_t              numValues = primaryAxisValues.size();
         std::vector<double> yVals( numValues, 0.0 );
 
@@ -613,6 +614,11 @@ double RimVfpPlot::convertToDisplayUnit( double value, RimVfpPlot::ProductionVar
     {
         return RiaEclipseUnitTools::pascalToBar( value );
     }
+    else if ( variableType == RimVfpPlot::ProductionVariableType::LIQUID_FLOW_RATE )
+    {
+        // Convert to m3/sec to m3/day
+        return value * static_cast<double>( 24 * 60 * 60 );
+    }
 
     return value;
 }
@@ -647,7 +653,7 @@ QString RimVfpPlot::getDisplayUnit( RimVfpPlot::ProductionVariableType variableT
     if ( variableType == RimVfpPlot::ProductionVariableType::THP )
         return "Bar";
     else if ( variableType == RimVfpPlot::ProductionVariableType::LIQUID_FLOW_RATE )
-        return "m3/s";
+        return "m3/day";
     else if ( variableType == RimVfpPlot::ProductionVariableType::WATER_CUT ||
               variableType == RimVfpPlot::ProductionVariableType::GAS_LIQUID_RATIO )
         return "";
