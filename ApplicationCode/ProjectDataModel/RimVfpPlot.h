@@ -117,6 +117,9 @@ private:
     void deleteViewWidget() override;
     void onLoadDataAndUpdate() override;
 
+    // PDM methods
+    caf::PdmFieldHandle* userDescriptionField() override;
+
 private:
     RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent ) override;
 
@@ -145,6 +148,13 @@ private:
 
     void setFixedVariableUiEditability( caf::PdmField<int>& field, RimVfpPlot::ProductionVariableType variableType );
 
+    void           updatePlotTitle( const QString& plotTitle );
+    static QString generatePlotTitle( const QString&                       wellName,
+                                      RimVfpPlot::TableType                tableType,
+                                      RimVfpPlot::InterpolatedVariableType interpolatedVariable,
+                                      RimVfpPlot::ProductionVariableType   primaryVariable,
+                                      RimVfpPlot::ProductionVariableType   familyVariable );
+
     static QwtPlotCurve* createPlotCurve( const QString title, const QColor& color );
     static double        convertToDisplayUnit( double value, RimVfpPlot::ProductionVariableType variableType );
     static void convertToDisplayUnit( std::vector<double>& values, RimVfpPlot::ProductionVariableType variableType );
@@ -159,6 +169,7 @@ private:
     static RimVfpPlot::FlowingGasFractionType   getFlowingGasFractionType( const Opm::VFPProdTable& table );
 
 private:
+    caf::PdmField<QString>                                            m_plotTitle;
     caf::PdmField<caf::FilePath>                                      m_filePath;
     caf::PdmField<int>                                                m_tableNumber;
     caf::PdmField<double>                                             m_referenceDepth;

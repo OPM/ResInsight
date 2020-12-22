@@ -112,6 +112,9 @@ RimVfpPlot::RimVfpPlot()
     // TODO: add icon
     CAF_PDM_InitObject( "VFP Plot", "", "", "" );
 
+    CAF_PDM_InitField( &m_plotTitle, "PlotTitle", QString( "VFP Plot" ), "Plot Title", "", "", "" );
+    m_plotTitle.uiCapability()->setUiHidden( true );
+
     CAF_PDM_InitFieldNoDefault( &m_filePath, "FilePath", "File Path", "", "", "" );
 
     caf::AppEnum<RimVfpPlot::TableType> defaultTableType = RimVfpPlot::TableType::INJECTION;
@@ -395,6 +398,9 @@ void RimVfpPlot::onLoadDataAndUpdate()
     QString filePath = m_filePath.v().path();
     if ( !filePath.isEmpty() )
     {
+        QFileInfo fi( filePath );
+        QString   wellName = fi.baseName();
+
         // Try to read the file as an prod table first (most common)
         const std::vector<Opm::VFPProdTable> tables =
             RimVfpTableExtractor::extractVfpProductionTables( filePath.toStdString() );
@@ -424,11 +430,8 @@ void RimVfpPlot::onLoadDataAndUpdate()
             }
         }
 
-        QFileInfo fi( filePath );
-        QString   wellName = fi.baseName();
-
-        const QString plotTitleStr = QString( "%1 VFP Plot" ).arg( wellName );
-        m_plotWidget->setTitle( plotTitleStr );
+        updatePlotTitle(
+            generatePlotTitle( wellName, m_tableType(), m_interpolatedVariable(), m_primaryVariable(), m_familyVariable() ) );
 
         m_plotWidget->setAxisTitleEnabled( QwtPlot::xBottom, true );
         m_plotWidget->setAxisTitleEnabled( QwtPlot::yLeft, true );
@@ -919,4 +922,45 @@ void RimVfpPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, cons
     RimPlot::fieldChangedByUi( changedField, oldValue, newValue );
     loadDataAndUpdate();
     updateLayout();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimVfpPlot::updatePlotTitle( const QString& plotTitle )
+{
+    m_plotTitle = plotTitle;
+
+    updateMdiWindowTitle();
+
+    if ( m_plotWidget )
+    {
+        m_plotWidget->setTitle( plotTitle );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimVfpPlot::generatePlotTitle( const QString&                       wellName,
+                                       RimVfpPlot::TableType                tableType,
+                                       RimVfpPlot::InterpolatedVariableType interpolatedVariable,
+                                       RimVfpPlot::ProductionVariableType   primaryVariable,
+                                       RimVfpPlot::ProductionVariableType   familyVariable )
+{
+    QString tableTypeText            = caf::AppEnum<RimVfpPlot::TableType>::uiText( tableType );
+    QString interpolatedVariableText = caf::AppEnum<RimVfpPlot::InterpolatedVariableType>::uiText( interpolatedVariable );
+    QString primaryVariableText      = caf::AppEnum<RimVfpPlot::ProductionVariableType>::uiText( primaryVariable );
+    QString plotTitleStr =
+        QString( "VFP: %1 (%2) - %3 x %4" ).arg( wellName ).arg( tableTypeText ).arg( interpolatedVariableText ).arg( primaryVariableText );
+
+    return plotTitleStr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimVfpPlot::userDescriptionField()
+{
+    return &m_plotTitle;
 }
