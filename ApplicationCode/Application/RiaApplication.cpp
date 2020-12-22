@@ -89,6 +89,8 @@
 #include "RimSurfaceCollection.h"
 #include "RimTextAnnotation.h"
 #include "RimTextAnnotationInView.h"
+#include "RimVfpPlot.h"
+#include "RimVfpPlotCollection.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 #include "RimWellLogFile.h"
@@ -1569,6 +1571,7 @@ void RiaApplication::loadAndUpdatePlotData()
     RimCorrelationPlotCollection*        corrColl = nullptr;
     RimMultiPlotCollection*              gpwColl  = nullptr;
     RimStimPlanModelPlotCollection*      frmColl  = nullptr;
+    RimVfpPlotCollection*                vfpColl  = nullptr;
 
     if ( m_project->mainPlotCollection() )
     {
@@ -1620,6 +1623,10 @@ void RiaApplication::loadAndUpdatePlotData()
         {
             frmColl = m_project->mainPlotCollection()->stimPlanModelPlotCollection();
         }
+        if ( m_project->mainPlotCollection()->vfpPlotCollection() )
+        {
+            vfpColl = m_project->mainPlotCollection()->vfpPlotCollection();
+        }
     }
 
     size_t plotCount = 0;
@@ -1635,6 +1642,7 @@ void RiaApplication::loadAndUpdatePlotData()
     plotCount += corrColl ? corrColl->plotCount() + corrColl->reports().size() : 0;
     plotCount += gpwColl ? gpwColl->multiPlots().size() : 0;
     plotCount += frmColl ? frmColl->stimPlanModelPlots().size() : 0;
+    plotCount += vfpColl ? vfpColl->plotCount() : 0;
 
     if ( plotCount > 0 )
     {
@@ -1746,6 +1754,15 @@ void RiaApplication::loadAndUpdatePlotData()
             for ( const auto& stimPlanModelPlot : frmColl->stimPlanModelPlots() )
             {
                 stimPlanModelPlot->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
+        if ( vfpColl )
+        {
+            for ( const auto& vfpPlot : vfpColl->plots() )
+            {
+                vfpPlot->loadDataAndUpdate();
                 plotProgress.incrementProgress();
             }
         }
