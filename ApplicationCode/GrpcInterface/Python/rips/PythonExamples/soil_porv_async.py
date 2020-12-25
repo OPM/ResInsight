@@ -16,13 +16,14 @@ def create_result(soil_chunks, porv_chunks):
         # Return a Python generator
         yield resultChunk
 
-resinsight   = rips.Instance.find()
-start        = time.time()
-case         = resinsight.project.cases()[0]
+
+resinsight = rips.Instance.find()
+start = time.time()
+case = resinsight.project.cases()[0]
 timeStepInfo = case.time_steps()
 
 # Get a generator for the porv results. The generator will provide a chunk each time it is iterated
-porv_chunks   = case.active_cell_property_async('STATIC_NATIVE', 'PORV', 0)
+porv_chunks = case.active_cell_property_async("STATIC_NATIVE", "PORV", 0)
 
 # Read the static result into an array, so we don't have to transfer it for each iteration
 # Note we use the async method even if we synchronise here, because we need the values chunked
@@ -31,17 +32,19 @@ porv_array = []
 for porv_chunk in porv_chunks:
     porv_array.append(porv_chunk)
 
-for i in range (0, len(timeStepInfo)):
+for i in range(0, len(timeStepInfo)):
     # Get a generator object for the SOIL property for time step i
-    soil_chunks = case.active_cell_property_async('DYNAMIC_NATIVE', 'SOIL', i)
+    soil_chunks = case.active_cell_property_async("DYNAMIC_NATIVE", "SOIL", i)
     # Create the generator object for the SOIL * PORV derived result
     result_generator = create_result(soil_chunks, iter(porv_array))
     # Send back the result asynchronously with a generator object
-    case.set_active_cell_property_async(result_generator, 'GENERATED', 'SOILPORVAsync', i)
+    case.set_active_cell_property_async(
+        result_generator, "GENERATED", "SOILPORVAsync", i
+    )
 
 end = time.time()
 print("Time elapsed: ", end - start)
-        
+
 print("Transferred all results back")
 
-view = case.views()[0].apply_cell_result('GENERATED', 'SOILPORVAsync')
+view = case.views()[0].apply_cell_result("GENERATED", "SOILPORVAsync")

@@ -7,12 +7,12 @@
 import rips
 
 # Connect to ResInsight
-resinsight  = rips.Instance.find()
+resinsight = rips.Instance.find()
 if resinsight is not None:
     # Get a list of all cases
     cases = resinsight.project.cases()
 
-    print ("Got " + str(len(cases)) + " cases: ")
+    print("Got " + str(len(cases)) + " cases: ")
     for case in cases:
         print("Case id: " + str(case.id))
         print("Case name: " + case.name)
@@ -26,11 +26,14 @@ if resinsight is not None:
             print("Month: " + str(t.month))
 
         if isinstance(case, rips.EclipseCase):
-            print ("Getting coarsening info for case: ", case.name, case.id)
+            print("Getting coarsening info for case: ", case.name, case.id)
             coarsening_info = case.coarsening_info()
             if coarsening_info:
                 print("Coarsening information:")
 
             for c in coarsening_info:
-                print("[{}, {}, {}] - [{}, {}, {}]".format(c.min.x, c.min.y, c.min.z,
-                                                           c.max.x, c.max.y, c.max.z))
+                print(
+                    "[{}, {}, {}] - [{}, {}, {}]".format(
+                        c.min.x, c.min.y, c.min.z, c.max.x, c.max.y, c.max.z
+                    )
+                )

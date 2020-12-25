@@ -7,7 +7,7 @@
 import rips
 
 # Connect to ResInsight
-resinsight  = rips.Instance.find()
+resinsight = rips.Instance.find()
 if resinsight is not None:
     # Get a list of all wells
     cases = resinsight.project.cases()
@@ -24,4 +24,13 @@ if resinsight is not None:
             for (tidx, timestep) in enumerate(timesteps):
                 status = sim_well.status(tidx)
                 cells = sim_well.cells(tidx)
-                print("timestep: " + str(tidx) + " type: " + status.well_type + " open: " + str(status.is_open) + " cells:" + str(len(cells)))
+                print(
+                    "timestep: "
+                    + str(tidx)
+                    + " type: "
+                    + status.well_type
+                    + " open: "
+                    + str(status.is_open)
+                    + " cells:"
+                    + str(len(cells))
+                )

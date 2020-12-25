@@ -4,6 +4,7 @@
 # Also clones the first view
 #############################################################
 import rips
+
 # Connect to ResInsight instance
 resinsight = rips.Instance.find()
 
