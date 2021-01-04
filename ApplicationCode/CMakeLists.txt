@@ -609,11 +609,10 @@ if(RESINSIGHT_PRIVATE_INSTALL)
       endforeach()
 
       set(QT_PLUGIN_PATH "$ENV{QT_PLUGIN_PATH}")
-      message(
-        STATUS "QT_PLUGIN_PATH from environment variable - ${QT_PLUGIN_PATH}")
-      if("QT_PLUGIN_PATH" STREQUAL "")
+      if(QT_PLUGIN_PATH STREQUAL "")
         set(QT_PLUGIN_PATH "${_dir}/qt5/plugins/")
       endif()
+      message(STATUS "QT_PLUGIN_PATH : ${QT_PLUGIN_PATH}")
 
       # include platform files
       install(FILES ${QT_PLUGIN_PATH}/platforms/libqxcb.so
