@@ -41,6 +41,41 @@
 //
 //==================================================================================================
 
+class VfpPlotData
+{
+public:
+    void setXAxisTitle( const QString& xAxisTitle ) { m_xAxisTitle = xAxisTitle; }
+
+    void setYAxisTitle( const QString& yAxisTitle ) { m_yAxisTitle = yAxisTitle; }
+
+    const QString& xAxisTitle() const { return m_xAxisTitle; }
+    const QString& yAxisTitle() const { return m_yAxisTitle; }
+
+    void appendCurve( const QString& curveTitle, const std::vector<double>& xData, const std::vector<double>& yData )
+    {
+        m_curveTitles.push_back( curveTitle );
+        m_xData.push_back( xData );
+        m_yData.push_back( yData );
+    }
+
+    const QString& curveTitle( size_t idx ) const { return m_curveTitles[idx]; }
+
+    size_t size() const { return m_xData.size(); }
+
+    size_t curveSize( size_t idx ) const { return m_xData[idx].size(); }
+
+    const std::vector<double>& xData( size_t idx ) const { return m_xData[idx]; }
+
+    const std::vector<double>& yData( size_t idx ) const { return m_yData[idx]; }
+
+private:
+    QString                          m_xAxisTitle;
+    QString                          m_yAxisTitle;
+    std::vector<QString>             m_curveTitles;
+    std::vector<std::vector<double>> m_xData;
+    std::vector<std::vector<double>> m_yData;
+};
+
 CAF_PDM_SOURCE_INIT( RimVfpPlot, "VfpPlot" );
 
 namespace caf
@@ -445,23 +480,29 @@ void RimVfpPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimVfpPlot::populatePlotWidgetWithCurveData( RiuQwtPlotWidget* plotWidget, const Opm::VFPInjTable& table )
 {
-    plotWidget->detachItems( QwtPlotItem::Rtti_PlotCurve );
-    plotWidget->setAxisScale( QwtPlot::xBottom, 0, 1 );
-    plotWidget->setAxisScale( QwtPlot::yLeft, 0, 1 );
-    plotWidget->setAxisAutoScale( QwtPlot::xBottom, true );
-    plotWidget->setAxisAutoScale( QwtPlot::yLeft, true );
+    VfpPlotData plotData;
+    populatePlotData( table, m_interpolatedVariable(), plotData );
+    populatePlotWidgetWithPlotData( plotWidget, plotData );
+}
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimVfpPlot::populatePlotData( const Opm::VFPInjTable&              table,
+                                   RimVfpPlot::InterpolatedVariableType interpolatedVariable,
+                                   VfpPlotData&                         plotData ) const
+{
     QString xAxisTitle =
         QString( "%1 %2" ).arg( caf::AppEnum<RimVfpPlot::ProductionVariableType>::uiText(
                                     RimVfpPlot::ProductionVariableType::LIQUID_FLOW_RATE ),
                                 getDisplayUnitWithBracket( RimVfpPlot::ProductionVariableType::LIQUID_FLOW_RATE ) );
 
-    plotWidget->setAxisTitleText( QwtPlot::xBottom, xAxisTitle );
+    plotData.setXAxisTitle( xAxisTitle );
 
     QString yAxisTitle =
         QString( "%1 %2" ).arg( caf::AppEnum<RimVfpPlot::InterpolatedVariableType>::uiText( m_interpolatedVariable() ),
                                 getDisplayUnitWithBracket( RimVfpPlot::ProductionVariableType::THP ) );
-    plotWidget->setAxisTitleText( QwtPlot::yLeft, yAxisTitle );
+    plotData.setYAxisTitle( yAxisTitle );
 
     std::vector<double> thpValues = table.getTHPAxis();
 
@@ -487,15 +528,10 @@ void RimVfpPlot::populatePlotWidgetWithCurveData( RiuQwtPlotWidget* plotWidget, 
                 .arg( value )
                 .arg( unit );
 
-        QColor        qtClr = RiaColorTables::wellLogPlotPaletteColors().cycledQColor( thp );
-        QwtPlotCurve* curve = createPlotCurve( title, qtClr );
-
         convertToDisplayUnit( yVals, RimVfpPlot::ProductionVariableType::THP );
         convertToDisplayUnit( xVals, RimVfpPlot::ProductionVariableType::LIQUID_FLOW_RATE );
 
-        curve->setSamples( xVals.data(), yVals.data(), numValues );
-        curve->attach( plotWidget );
-        curve->show();
+        plotData.appendCurve( title, xVals, yVals );
     }
 }
 
@@ -507,20 +543,51 @@ void RimVfpPlot::populatePlotWidgetWithCurveData( RiuQwtPlotWidget*             
                                                   RimVfpPlot::ProductionVariableType primaryVariable,
                                                   RimVfpPlot::ProductionVariableType familyVariable )
 {
+    VfpPlotData plotData;
+    populatePlotData( table, primaryVariable, familyVariable, m_interpolatedVariable(), plotData );
+    populatePlotWidgetWithPlotData( plotWidget, plotData );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimVfpPlot::populatePlotWidgetWithPlotData( RiuQwtPlotWidget* plotWidget, const VfpPlotData& plotData )
+{
     plotWidget->detachItems( QwtPlotItem::Rtti_PlotCurve );
     plotWidget->setAxisScale( QwtPlot::xBottom, 0, 1 );
     plotWidget->setAxisScale( QwtPlot::yLeft, 0, 1 );
     plotWidget->setAxisAutoScale( QwtPlot::xBottom, true );
     plotWidget->setAxisAutoScale( QwtPlot::yLeft, true );
+    plotWidget->setAxisTitleText( QwtPlot::xBottom, plotData.xAxisTitle() );
+    plotWidget->setAxisTitleText( QwtPlot::yLeft, plotData.yAxisTitle() );
 
+    for ( unsigned int idx = 0; idx < plotData.size(); idx++ )
+    {
+        QColor        qtClr = RiaColorTables::wellLogPlotPaletteColors().cycledQColor( idx );
+        QwtPlotCurve* curve = createPlotCurve( plotData.curveTitle( idx ), qtClr );
+        curve->setSamples( plotData.xData( idx ).data(), plotData.yData( idx ).data(), plotData.curveSize( idx ) );
+        curve->attach( plotWidget );
+        curve->show();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimVfpPlot::populatePlotData( const Opm::VFPProdTable&             table,
+                                   RimVfpPlot::ProductionVariableType   primaryVariable,
+                                   RimVfpPlot::ProductionVariableType   familyVariable,
+                                   RimVfpPlot::InterpolatedVariableType interpolatedVariable,
+                                   VfpPlotData&                         plotData ) const
+{
     QString xAxisTitle =
         QString( "%1 %2" ).arg( caf::AppEnum<RimVfpPlot::ProductionVariableType>::uiText( primaryVariable ),
                                 getDisplayUnitWithBracket( primaryVariable ) );
-    plotWidget->setAxisTitleText( QwtPlot::xBottom, xAxisTitle );
+    plotData.setXAxisTitle( xAxisTitle );
     QString yAxisTitle =
-        QString( "%1 %2" ).arg( caf::AppEnum<RimVfpPlot::InterpolatedVariableType>::uiText( m_interpolatedVariable() ),
+        QString( "%1 %2" ).arg( caf::AppEnum<RimVfpPlot::InterpolatedVariableType>::uiText( interpolatedVariable ),
                                 getDisplayUnitWithBracket( RimVfpPlot::ProductionVariableType::THP ) );
-    plotWidget->setAxisTitleText( QwtPlot::yLeft, yAxisTitle );
+    plotData.setYAxisTitle( yAxisTitle );
 
     size_t numFamilyValues = getProductionTableData( table, familyVariable ).size();
     for ( size_t familyIdx = 0; familyIdx < numFamilyValues; familyIdx++ )
@@ -575,15 +642,10 @@ void RimVfpPlot::populatePlotWidgetWithCurveData( RiuQwtPlotWidget*             
                                   .arg( familyValue )
                                   .arg( familyUnit );
 
-        QColor        qtClr = RiaColorTables::wellLogPlotPaletteColors().cycledQColor( familyIdx );
-        QwtPlotCurve* curve = createPlotCurve( familyTitle, qtClr );
-
         convertToDisplayUnit( yVals, RimVfpPlot::ProductionVariableType::THP );
         convertToDisplayUnit( primaryAxisValues, primaryVariable );
 
-        curve->setSamples( primaryAxisValues.data(), yVals.data(), numValues );
-        curve->attach( plotWidget );
-        curve->show();
+        plotData.appendCurve( familyTitle, primaryAxisValues, yVals );
     }
 }
 

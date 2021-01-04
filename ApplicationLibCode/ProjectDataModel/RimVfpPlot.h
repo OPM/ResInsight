@@ -29,6 +29,7 @@
 #include "opm/parser/eclipse/EclipseState/Schedule/VFPProdTable.hpp"
 
 class RiuQwtPlotWidget;
+class VfpPlotData;
 
 //--------------------------------------------------------------------------------------------------
 /// Vertical Flow Performance Plot
@@ -167,6 +168,18 @@ private:
     static RimVfpPlot::FlowingPhaseType         getFlowingPhaseType( const Opm::VFPInjTable& table );
     static RimVfpPlot::FlowingWaterFractionType getFlowingWaterFractionType( const Opm::VFPProdTable& table );
     static RimVfpPlot::FlowingGasFractionType   getFlowingGasFractionType( const Opm::VFPProdTable& table );
+
+    void populatePlotData( const Opm::VFPProdTable&             table,
+                           RimVfpPlot::ProductionVariableType   primaryVariable,
+                           RimVfpPlot::ProductionVariableType   familyVariable,
+                           RimVfpPlot::InterpolatedVariableType interpolatedVariable,
+                           VfpPlotData&                         plotData ) const;
+
+    void populatePlotData( const Opm::VFPInjTable&              table,
+                           RimVfpPlot::InterpolatedVariableType interpolatedVariable,
+                           VfpPlotData&                         plotData ) const;
+
+    void populatePlotWidgetWithPlotData( RiuQwtPlotWidget* plotWidget, const VfpPlotData& plotData );
 
 private:
     caf::PdmField<QString>                                            m_plotTitle;
