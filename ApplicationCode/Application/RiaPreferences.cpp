@@ -22,6 +22,7 @@
 #include "RiaPreferences.h"
 
 #include "RiaColorTables.h"
+#include "RiaValidRegExpValidator.h"
 #include "RifReaderSettings.h"
 #include "RiuGuiTheme.h"
 
@@ -418,42 +419,6 @@ RiaPreferences* RiaPreferences::current()
     return RiaApplication::instance()->preferences();
 }
 
-// Validates a wild card pattern (simpler for user)
-// Has to use the older QRegExp because QRegularExpression didn't add any
-// support for wild cards until Qt 5.12.
-class ValidRegExpValidator : public QValidator
-{
-public:
-    ValidRegExpValidator( const QString& defaultPattern )
-        : QValidator( nullptr )
-        , m_defaultPattern( defaultPattern )
-    {
-    }
-
-    State validate( QString& inputString, int& position ) const override
-    {
-        QRegExp inputRe( inputString, Qt::CaseInsensitive, QRegExp::Wildcard );
-        if ( inputRe.isValid() ) // A valid wildcard pattern is always acceptable
-        {
-            return QValidator::Acceptable;
-        }
-        // Try to decide whether it can be fixed by typing further characters or not.
-        if ( position < inputString.length() &&
-             !( inputString[position].isLetterOrNumber() || inputString[position] == '-' ||
-                inputString[position] == '_' || inputString[position] == '.' || inputString[position] == '[' ) )
-        {
-            // Contains a non-valid character: this is invalid.
-            return QValidator::Invalid;
-        }
-        return QValidator::Intermediate;
-    }
-
-    void fixup( QString& inputString ) const override { inputString = m_defaultPattern; }
-
-private:
-    QString m_defaultPattern;
-};
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -511,7 +476,8 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
         caf::PdmUiLineEditorAttribute* myAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
         if ( myAttr )
         {
-            myAttr->validator = new ValidRegExpValidator( RiaPreferences::current()->defaultMultiLateralWellNamePattern() );
+            myAttr->validator =
+                new RiaValidRegExpValidator( RiaPreferences::current()->defaultMultiLateralWellNamePattern() );
         }
     }
 }
@@ -1127,7 +1093,7 @@ QString RiaPreferences::multiLateralWellNamePattern() const
 //--------------------------------------------------------------------------------------------------
 QString RiaPreferences::defaultMultiLateralWellNamePattern()
 {
-    return "*Y*";
+    return "?*Y*";
 }
 
 //--------------------------------------------------------------------------------------------------
