@@ -76,7 +76,7 @@ void RicNewWellPathListTargetFeature::onActionTriggered( bool isChecked )
 
         if ( !afterBeforePair.first && afterBeforePair.second )
         {
-            if ( afterBeforePair.second->targetPointXYZ().z() == -wellGeomDef->referencePointXyz().z() )
+            if ( afterBeforePair.second->targetPointXYZ().z() == -wellGeomDef->anchorPointXyz().z() )
             {
                 return; // We already have a target at sealevel.
             }
@@ -93,7 +93,7 @@ void RicNewWellPathListTargetFeature::onActionTriggered( bool isChecked )
             double                     horizontalLengthFromTarget = radius - radius * cvf::Math::cos( inc );
 
             newPos = afterBeforePair.second->targetPointXYZ() - horizontalLengthFromTarget * tangentInHorizontalPlane;
-            newPos.z() = -wellGeomDef->referencePointXyz().z();
+            newPos.z() = -wellGeomDef->anchorPointXyz().z();
 
             isSeaLevelTarget = true;
         }

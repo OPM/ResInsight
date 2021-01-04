@@ -52,7 +52,7 @@ public:
     double mdAtConnection() const;
     void   setMdAtConnection( double mdrkb );
 
-    cvf::Vec3d referencePointXyz() const override;
+    cvf::Vec3d anchorPointXyz() const override;
 
     void createTargetAtConnectionPoint( const cvf::Vec3d& tangent );
 
@@ -99,7 +99,7 @@ private:
     void onTargetMoved( const caf::SignalEmitter* moved, bool fullUpdate );
 
 private:
-    caf::PdmField<double>                       m_mdAtConnection;
+    caf::PdmField<double>                       m_connectionMdOnParentWellPath;
     caf::PdmChildArrayField<RimWellPathTarget*> m_wellTargets;
     caf::PdmField<bool>                         m_pickPointsEnabled;
 

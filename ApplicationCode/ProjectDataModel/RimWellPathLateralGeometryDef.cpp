@@ -95,8 +95,8 @@ RimWellPathLateralGeometryDef::RimWellPathLateralGeometryDef()
 
     this->setUi3dEditorTypeName( RicWellPathGeometry3dEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitScriptableField( &m_mdAtConnection, "MdAtConnection", 0.0, "MD at Well Path Connection", "", "", "" );
-    m_mdAtConnection.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    CAF_PDM_InitScriptableField( &m_connectionMdOnParentWellPath, "MdAtConnection", 0.0, "MD at Well Path Connection", "", "", "" );
+    m_connectionMdOnParentWellPath.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
     CAF_PDM_InitScriptableFieldNoDefault( &m_wellTargets, "WellPathTargets", "Well Targets", "", "", "" );
     m_wellTargets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_wellTargets.uiCapability()->setUiTreeChildrenHidden( true );
@@ -119,7 +119,7 @@ RimWellPathLateralGeometryDef::~RimWellPathLateralGeometryDef()
 //--------------------------------------------------------------------------------------------------
 double RimWellPathLateralGeometryDef::mdAtConnection() const
 {
-    return m_mdAtConnection;
+    return m_connectionMdOnParentWellPath;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,16 +127,16 @@ double RimWellPathLateralGeometryDef::mdAtConnection() const
 //--------------------------------------------------------------------------------------------------
 void RimWellPathLateralGeometryDef::setMdAtConnection( double md )
 {
-    m_mdAtConnection = md;
+    m_connectionMdOnParentWellPath = md;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RimWellPathLateralGeometryDef::referencePointXyz() const
+cvf::Vec3d RimWellPathLateralGeometryDef::anchorPointXyz() const
 {
     CAF_ASSERT( m_parentGeometry.notNull() );
-    return m_parentGeometry->interpolatedPointAlongWellPath( m_mdAtConnection );
+    return m_parentGeometry->interpolatedPointAlongWellPath( m_connectionMdOnParentWellPath );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -168,7 +168,7 @@ cvf::ref<RigWellPath> RimWellPathLateralGeometryDef::createWellPathGeometry()
     RiaLineArcWellPathCalculator wellPathCalculator = lineArcWellPathCalculator();
 
     auto [allWellPathPoints, allMeasuredDepths] =
-        m_parentGeometry->clippedPointSubset( m_parentGeometry->measuredDepths().front(), m_mdAtConnection );
+        m_parentGeometry->clippedPointSubset( m_parentGeometry->measuredDepths().front(), m_connectionMdOnParentWellPath );
     auto originalSize = allWellPathPoints.size();
 
     if ( wellPathCalculator.lineArcEndpoints().size() >= 2 )
@@ -179,7 +179,7 @@ cvf::ref<RigWellPath> RimWellPathLateralGeometryDef::createWellPathGeometry()
         std::transform( measuredDepths.begin(),
                         measuredDepths.end(),
                         std::back_inserter( allMeasuredDepths ),
-                        [this]( double md ) { return md + this->m_mdAtConnection; } );
+                        [this]( double md ) { return md + this->m_connectionMdOnParentWellPath; } );
     }
     wellPathLateralGeometry->setWellPathPoints( allWellPathPoints );
     wellPathLateralGeometry->setMeasuredDepths( allMeasuredDepths );
@@ -364,7 +364,7 @@ void RimWellPathLateralGeometryDef::fieldChangedByUi( const caf::PdmFieldHandle*
 //--------------------------------------------------------------------------------------------------
 void RimWellPathLateralGeometryDef::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_mdAtConnection );
+    uiOrdering.add( &m_connectionMdOnParentWellPath );
     uiOrdering.add( &m_wellTargets );
     uiOrdering.add( &m_pickPointsEnabled );
 
@@ -414,7 +414,7 @@ RiaLineArcWellPathCalculator RimWellPathLateralGeometryDef::lineArcWellPathCalcu
 {
     std::vector<RiaLineArcWellPathCalculator::WellTarget> targetDatas;
 
-    auto [pointVector, measuredDepths] = m_parentGeometry->clippedPointSubset( 0.0, m_mdAtConnection );
+    auto [pointVector, measuredDepths] = m_parentGeometry->clippedPointSubset( 0.0, m_connectionMdOnParentWellPath );
 
     auto N = pointVector.size();
     if ( N >= 2u )
@@ -429,7 +429,7 @@ RiaLineArcWellPathCalculator RimWellPathLateralGeometryDef::lineArcWellPathCalcu
         targetDatas.push_back( wellTarget->wellTargetData() );
     }
 
-    cvf::Vec3d connectionPoint = referencePointXyz();
+    cvf::Vec3d connectionPoint = anchorPointXyz();
 
     RiaLineArcWellPathCalculator wellPathCalculator( connectionPoint, targetDatas );
 
@@ -511,7 +511,7 @@ void RimWellPathLateralGeometryDef::defineEditorAttribute( const caf::PdmFieldHa
             }
         }
     }
-    else if ( field = &m_mdAtConnection )
+    else if ( field = &m_connectionMdOnParentWellPath )
     {
         auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
         if ( myAttr )

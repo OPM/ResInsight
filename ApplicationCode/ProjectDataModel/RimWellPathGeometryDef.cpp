@@ -107,7 +107,7 @@ RimWellPathGeometryDef::~RimWellPathGeometryDef()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RimWellPathGeometryDef::referencePointXyz() const
+cvf::Vec3d RimWellPathGeometryDef::anchorPointXyz() const
 {
     cvf::Vec3d xyz( m_referencePointUtmXyd() );
     xyz.z() = -xyz.z();
@@ -418,7 +418,7 @@ RiaLineArcWellPathCalculator RimWellPathGeometryDef::lineArcWellPathCalculator()
         targetDatas.push_back( wellTarget->wellTargetData() );
     }
 
-    RiaLineArcWellPathCalculator wellPathCalculator( referencePointXyz(), targetDatas );
+    RiaLineArcWellPathCalculator wellPathCalculator( anchorPointXyz(), targetDatas );
     const std::vector<RiaLineArcWellPathCalculator::WellTargetStatus>& targetStatuses =
         wellPathCalculator.targetStatuses();
 
@@ -474,7 +474,7 @@ void RimWellPathGeometryDef::updateTargetAtSeaLevel()
         double                     horizontalLengthFromTarget = radius - radius * cvf::Math::cos( inc );
 
         newPos     = firstTarget->targetPointXYZ() - horizontalLengthFromTarget * tangentInHorizontalPlane;
-        newPos.z() = -referencePointXyz().z();
+        newPos.z() = -anchorPointXyz().z();
 
         m_autoTargetAtSeaLevel->setAsPointXYZAndTangentTarget( { newPos[0], newPos[1], newPos[2] }, 0, 0 );
         m_autoTargetAtSeaLevel->setEnabled( true );

@@ -49,7 +49,7 @@ public:
     RimWellPathGeometryDef();
     ~RimWellPathGeometryDef() override;
 
-    cvf::Vec3d referencePointXyz() const override;
+    cvf::Vec3d anchorPointXyz() const override;
     void       setReferencePointXyz( const cvf::Vec3d& refPointXyz );
 
     double airGap() const;

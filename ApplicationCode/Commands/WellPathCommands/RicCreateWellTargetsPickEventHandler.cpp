@@ -288,7 +288,7 @@ void RicCreateWellTargetsPickEventHandler::addNewTargetToModeledWellPath( const 
         }
     }
 
-    cvf::Vec3d referencePoint      = wellPathGeometryDef->referencePointXyz();
+    cvf::Vec3d referencePoint      = wellPathGeometryDef->anchorPointXyz();
     cvf::Vec3d relativeTargetPoint = targetPointInDomain - referencePoint;
 
     RimWellPathTarget* newTarget = new RimWellPathTarget;
@@ -333,7 +333,7 @@ void RicCreateWellTargetsPickEventHandler::addNewTargetToModeledWellPathLateral(
         wellPathLateralGeometryDef->setParentGeometry( wellPathSourceInfo->wellPath()->wellPathGeometry() );
         wellPathLateralGeometryDef->setMdAtConnection( mdAtConnection );
     }
-    cvf::Vec3d referencePoint      = wellPathLateralGeometryDef->referencePointXyz();
+    cvf::Vec3d referencePoint      = wellPathLateralGeometryDef->anchorPointXyz();
     cvf::Vec3d relativeTargetPoint = targetPointInDomain - referencePoint;
 
     RimWellPathTarget* newTarget = new RimWellPathTarget;

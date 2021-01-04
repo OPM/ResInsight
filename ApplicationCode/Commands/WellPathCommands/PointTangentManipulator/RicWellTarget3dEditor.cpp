@@ -113,7 +113,7 @@ void RicWellTarget3dEditor::configureAndUpdateUi( const QString& uiConfigName )
     cvf::ref<caf::DisplayCoordTransform> dispXf     = view->displayCoordTransform();
     double                               handleSize = 0.7 * view->ownerCase()->characteristicCellSize();
 
-    m_manipulator->setOrigin( dispXf->transformToDisplayCoord( target->targetPointXYZ() + geomDef->referencePointXyz() ) );
+    m_manipulator->setOrigin( dispXf->transformToDisplayCoord( target->targetPointXYZ() + geomDef->anchorPointXyz() ) );
     m_manipulator->setTangent( target->tangent() );
     m_manipulator->setHandleSize( handleSize );
 
@@ -156,7 +156,7 @@ void RicWellTarget3dEditor::slotUpdated( const cvf::Vec3d& origin, const cvf::Ve
     RimWellPathGeometryDefInterface* geomDef;
     target->firstAncestorOrThisOfTypeAsserted( geomDef );
 
-    cvf::Vec3d domainOrigin = dispXf->transformToDomainCoord( origin ) - geomDef->referencePointXyz();
+    cvf::Vec3d domainOrigin = dispXf->transformToDomainCoord( origin ) - geomDef->anchorPointXyz();
     domainOrigin.z()        = -domainOrigin.z();
     QVariant originVariant  = caf::PdmValueFieldSpecialization<cvf::Vec3d>::convert( domainOrigin );
 

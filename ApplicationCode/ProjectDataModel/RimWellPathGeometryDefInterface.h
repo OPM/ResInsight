@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Equinor ASA
+//  Copyright (C) 2020-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ class RimWellPathGeometryDefInterface : public caf::PdmObject
 
 public:
     virtual cvf::ref<RigWellPath> createWellPathGeometry()                                                        = 0;
-    virtual cvf::Vec3d            referencePointXyz() const                                                       = 0;
+    virtual cvf::Vec3d            anchorPointXyz() const                                                          = 0;
     virtual void insertTarget( const RimWellPathTarget* targetToInsertBefore, RimWellPathTarget* targetToInsert ) = 0;
     virtual void deleteTarget( RimWellPathTarget* targetTodelete )                                                = 0;
     virtual void deleteAllTargets()                                                                               = 0;
