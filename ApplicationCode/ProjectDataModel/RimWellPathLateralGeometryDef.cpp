@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Equinor ASA
+//  Copyright (C) 2020-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimWellPathGeometryDef.h"
+#include "RimWellPathLateralGeometryDef.h"
 
 #include "WellPathCommands/PointTangentManipulator/RicWellPathGeometry3dEditor.h"
 #include "WellPathCommands/RicCreateWellTargetsPickEventHandler.h"
@@ -32,6 +32,7 @@
 
 #include "RimModeledWellPath.h"
 #include "RimProject.h"
+#include "RimWellPathGroup.h"
 #include "RimWellPathTarget.h"
 
 #include "RiuViewerCommands.h"
@@ -39,6 +40,7 @@
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmFieldScriptingCapabilityCvfVec3d.h"
 #include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
@@ -46,12 +48,41 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "cvfGeometryTools.h"
 
-CAF_PDM_SOURCE_INIT( RimWellPathGeometryDef, "WellPathGeometryDef", "WellPathGeometry" );
+CAF_PDM_SOURCE_INIT( RimWellPathLateralGeometryDef, "WellPathLateralGeometryDef", "WellPathLateralGeometry" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellPathGeometryDef::RimWellPathGeometryDef()
+std::vector<RiaLineArcWellPathCalculator::WellTarget> createTargetsFromPoints( const std::vector<cvf::Vec3d>& points )
+{
+    CAF_ASSERT( points.size() >= 2u );
+
+    std::vector<RiaLineArcWellPathCalculator::WellTarget> targets;
+
+    for ( size_t i = 0; i < points.size(); ++i )
+    {
+        cvf::Vec3d tangent;
+        if ( i < points.size() - 1u )
+        {
+            tangent = points[i + 1] - points[i];
+        }
+        else if ( i > 0u )
+        {
+            tangent = points[i] - points[i - 1];
+        }
+        RiaOffshoreSphericalCoords sphericalCoords( tangent );
+
+        RiaLineArcWellPathCalculator::WellTarget target =
+            { points[i], true, sphericalCoords.azi(), sphericalCoords.inc(), 0.0, 0.0 };
+        targets.push_back( target );
+    }
+    return targets;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellPathLateralGeometryDef::RimWellPathLateralGeometryDef()
     : changed( this )
     , m_pickTargetsEventHandler( new RicCreateWellTargetsPickEventHandler( this ) )
 {
@@ -59,39 +90,18 @@ RimWellPathGeometryDef::RimWellPathGeometryDef()
                                                     ":/WellTargets.png",
                                                     "",
                                                     "",
-                                                    "WellPathGeometry",
-                                                    "Class containing the geometry of a modeled Well Path" );
+                                                    "WellPathLateralGeometry",
+                                                    "Class containing the geometry of a modeled Well Path Lateral" );
 
     this->setUi3dEditorTypeName( RicWellPathGeometry3dEditor::uiEditorTypeName() );
-    CAF_PDM_InitScriptableFieldWithScriptKeyword( &m_referencePointUtmXyd,
-                                                  "ReferencePosUtmXyd",
-                                                  "ReferencePoint",
-                                                  cvf::Vec3d( 0, 0, 0 ),
-                                                  "UTM Reference Point",
-                                                  "",
-                                                  "",
-                                                  "" );
 
-    CAF_PDM_InitScriptableField( &m_airGap, "AirGap", 0.0, "Air Gap", "", "", "" );
-    m_airGap.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
-    CAF_PDM_InitScriptableField( &m_mdAtFirstTarget, "MdAtFirstTarget", 0.0, "MD at First Target", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_connectionMdOnParentWellPath, "MdAtConnection", 0.0, "MD at Well Path Connection", "", "", "" );
+    m_connectionMdOnParentWellPath.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
     CAF_PDM_InitScriptableFieldNoDefault( &m_wellTargets, "WellPathTargets", "Well Targets", "", "", "" );
     m_wellTargets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_wellTargets.uiCapability()->setUiTreeChildrenHidden( true );
     m_wellTargets.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_wellTargets.uiCapability()->setCustomContextMenuEnabled( true );
-
-    CAF_PDM_InitScriptableField( &m_useAutoGeneratedTargetAtSeaLevel,
-                                 "UseAutoGeneratedTargetAtSeaLevel",
-                                 true,
-                                 "Generate Target at Sea Level",
-                                 "",
-                                 "",
-                                 "" );
-
-    CAF_PDM_InitScriptableFieldNoDefault( &m_autoTargetAtSeaLevel, "AutoGeneratedTarget", "Auto Generated Target", "", "", "" );
-    m_autoTargetAtSeaLevel = new RimWellPathTarget;
-    m_autoTargetAtSeaLevel->setEnabled( false );
 
     CAF_PDM_InitField( &m_pickPointsEnabled, "m_pickPointsEnabled", false, "", "", "", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_pickPointsEnabled );
@@ -100,97 +110,88 @@ RimWellPathGeometryDef::RimWellPathGeometryDef()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellPathGeometryDef::~RimWellPathGeometryDef()
+RimWellPathLateralGeometryDef::~RimWellPathLateralGeometryDef()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RimWellPathGeometryDef::anchorPointXyz() const
+double RimWellPathLateralGeometryDef::mdAtConnection() const
 {
-    cvf::Vec3d xyz( m_referencePointUtmXyd() );
-    xyz.z() = -xyz.z();
-    return xyz;
+    return m_connectionMdOnParentWellPath;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathGeometryDef::setReferencePointXyz( const cvf::Vec3d& refPointXyz )
+void RimWellPathLateralGeometryDef::setMdAtConnection( double md )
 {
-    cvf::Vec3d xyd( refPointXyz );
-    xyd.z()                = -xyd.z();
-    m_referencePointUtmXyd = xyd;
+    m_connectionMdOnParentWellPath = md;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimWellPathGeometryDef::airGap() const
+cvf::Vec3d RimWellPathLateralGeometryDef::anchorPointXyz() const
 {
-    return m_airGap;
+    CAF_ASSERT( m_parentGeometry.notNull() );
+    return m_parentGeometry->interpolatedPointAlongWellPath( m_connectionMdOnParentWellPath );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathGeometryDef::setAirGap( double airGap )
+void RimWellPathLateralGeometryDef::createTargetAtConnectionPoint( const cvf::Vec3d& tangent )
 {
-    m_airGap = airGap;
+    auto target = appendTarget();
+    target->setAsPointXYZAndTangentTarget( cvf::Vec3d::ZERO, tangent );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimWellPathGeometryDef::mdAtFirstTarget() const
+void RimWellPathLateralGeometryDef::setParentGeometry( const RigWellPath* parentGeometry )
 {
-    return m_mdAtFirstTarget;
+    m_parentGeometry = parentGeometry;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathGeometryDef::setMdAtFirstTarget( double md )
+cvf::ref<RigWellPath> RimWellPathLateralGeometryDef::createWellPathGeometry()
 {
-    m_mdAtFirstTarget = md;
-}
+    CAF_ASSERT( m_parentGeometry.notNull() );
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::ref<RigWellPath> RimWellPathGeometryDef::createWellPathGeometry()
-{
-    cvf::ref<RigWellPath> wellPathGeometry = new RigWellPath;
-
-    if ( m_useAutoGeneratedTargetAtSeaLevel )
-    {
-        updateTargetAtSeaLevel();
-    }
+    cvf::ref<RigWellPath> wellPathLateralGeometry = new RigWellPath;
 
     RiaLineArcWellPathCalculator wellPathCalculator = lineArcWellPathCalculator();
 
-    if ( wellPathCalculator.lineArcEndpoints().size() < 2 ) return wellPathGeometry;
+    auto [allWellPathPoints, allMeasuredDepths] =
+        m_parentGeometry->clippedPointSubset( m_parentGeometry->measuredDepths().front(), m_connectionMdOnParentWellPath );
+    auto originalSize = allWellPathPoints.size();
 
-    RiaPolyArcLineSampler arcLineSampler( wellPathCalculator.startTangent(), wellPathCalculator.lineArcEndpoints() );
-
-    auto [wellPathPoints, measuredDepths] = arcLineSampler.sampledPointsAndMDs( 30, false );
-
-    wellPathGeometry->setWellPathPoints( wellPathPoints );
-    wellPathGeometry->setMeasuredDepths( measuredDepths );
-
-    if ( m_airGap != 0.0 )
+    if ( wellPathCalculator.lineArcEndpoints().size() >= 2 )
     {
-        wellPathGeometry->setDatumElevation( m_airGap );
+        RiaPolyArcLineSampler arcLineSampler( wellPathCalculator.startTangent(), wellPathCalculator.lineArcEndpoints() );
+        auto [wellPathPoints, measuredDepths] = arcLineSampler.sampledPointsAndMDs( 30, false );
+        allWellPathPoints.insert( allWellPathPoints.end(), wellPathPoints.begin(), wellPathPoints.end() );
+        std::transform( measuredDepths.begin(),
+                        measuredDepths.end(),
+                        std::back_inserter( allMeasuredDepths ),
+                        [this]( double md ) { return md + this->m_connectionMdOnParentWellPath; } );
     }
+    wellPathLateralGeometry->setWellPathPoints( allWellPathPoints );
+    wellPathLateralGeometry->setMeasuredDepths( allMeasuredDepths );
+    wellPathLateralGeometry->setUniqueStartIndex( originalSize );
 
-    return wellPathGeometry;
+    return wellPathLateralGeometry;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RiaWellPlanCalculator::WellPlanSegment> RimWellPathGeometryDef::wellPlan() const
+std::vector<RiaWellPlanCalculator::WellPlanSegment> RimWellPathLateralGeometryDef::wellPlan() const
 {
     RiaLineArcWellPathCalculator wellPathCalculator = lineArcWellPathCalculator();
 
@@ -202,8 +203,16 @@ std::vector<RiaWellPlanCalculator::WellPlanSegment> RimWellPathGeometryDef::well
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellPathLateralGeometryDef::updateWellPathVisualization( bool fullUpdate )
+{
+    changed.send( fullUpdate );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::pair<RimWellPathTarget*, RimWellPathTarget*>
-    RimWellPathGeometryDef::findActiveTargetsAroundInsertionPoint( const RimWellPathTarget* targetToInsertBefore )
+    RimWellPathLateralGeometryDef::findActiveTargetsAroundInsertionPoint( const RimWellPathTarget* targetToInsertBefore )
 {
     RimWellPathTarget* before = nullptr;
     RimWellPathTarget* after  = nullptr;
@@ -227,7 +236,8 @@ std::pair<RimWellPathTarget*, RimWellPathTarget*>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathGeometryDef::insertTarget( const RimWellPathTarget* targetToInsertBefore, RimWellPathTarget* targetToInsert )
+void RimWellPathLateralGeometryDef::insertTarget( const RimWellPathTarget* targetToInsertBefore,
+                                                  RimWellPathTarget*       targetToInsert )
 {
     size_t index = m_wellTargets.index( targetToInsertBefore );
     if ( index < m_wellTargets.size() )
@@ -235,13 +245,13 @@ void RimWellPathGeometryDef::insertTarget( const RimWellPathTarget* targetToInse
     else
         m_wellTargets.push_back( targetToInsert );
 
-    targetToInsert->moved.connect( this, &RimWellPathGeometryDef::onTargetMoved );
+    targetToInsert->moved.connect( this, &RimWellPathLateralGeometryDef::onTargetMoved );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathGeometryDef::deleteTarget( RimWellPathTarget* targetTodelete )
+void RimWellPathLateralGeometryDef::deleteTarget( RimWellPathTarget* targetTodelete )
 {
     m_wellTargets.removeChildObject( targetTodelete );
     delete targetTodelete;
@@ -250,7 +260,7 @@ void RimWellPathGeometryDef::deleteTarget( RimWellPathTarget* targetTodelete )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathGeometryDef::deleteAllTargets()
+void RimWellPathLateralGeometryDef::deleteAllTargets()
 {
     m_wellTargets.deleteAllChildObjects();
 }
@@ -258,7 +268,7 @@ void RimWellPathGeometryDef::deleteAllTargets()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellPathTarget* RimWellPathGeometryDef::appendTarget()
+RimWellPathTarget* RimWellPathLateralGeometryDef::appendTarget()
 {
     RimWellPathTarget* wellPathTarget = nullptr;
 
@@ -277,14 +287,14 @@ RimWellPathTarget* RimWellPathGeometryDef::appendTarget()
     {
         m_wellTargets.push_back( wellPathTarget );
     }
-    wellPathTarget->moved.connect( this, &RimWellPathGeometryDef::onTargetMoved );
+    wellPathTarget->moved.connect( this, &RimWellPathLateralGeometryDef::onTargetMoved );
     return wellPathTarget;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RimWellPathTarget* RimWellPathGeometryDef::firstActiveTarget() const
+const RimWellPathTarget* RimWellPathLateralGeometryDef::firstActiveTarget() const
 {
     for ( const RimWellPathTarget* target : m_wellTargets )
     {
@@ -299,7 +309,7 @@ const RimWellPathTarget* RimWellPathGeometryDef::firstActiveTarget() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RimWellPathTarget* RimWellPathGeometryDef::lastActiveTarget() const
+const RimWellPathTarget* RimWellPathLateralGeometryDef::lastActiveTarget() const
 {
     if ( !m_wellTargets.size() ) return nullptr;
 
@@ -316,7 +326,7 @@ const RimWellPathTarget* RimWellPathGeometryDef::lastActiveTarget() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathGeometryDef::enableTargetPointPicking( bool isEnabling )
+void RimWellPathLateralGeometryDef::enableTargetPointPicking( bool isEnabling )
 {
     m_pickPointsEnabled = isEnabling;
     this->updateConnectedEditors();
@@ -325,50 +335,26 @@ void RimWellPathGeometryDef::enableTargetPointPicking( bool isEnabling )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathGeometryDef::updateWellPathVisualization( bool fullUpdate )
-{
-    changed.send( fullUpdate );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimWellPathGeometryDef::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
-{
-    QList<caf::PdmOptionItemInfo> options;
-
-    return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellPathGeometryDef::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                               const QVariant&            oldValue,
-                                               const QVariant&            newValue )
+void RimWellPathLateralGeometryDef::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                      const QVariant&            oldValue,
+                                                      const QVariant&            newValue )
 {
     if ( changedField == &m_pickPointsEnabled )
     {
         this->updateConnectedEditors();
     }
 
-    changed.send( false );
+    updateWellPathVisualization( false );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathGeometryDef::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimWellPathLateralGeometryDef::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_referencePointUtmXyd );
-    uiOrdering.add( &m_airGap );
-    uiOrdering.add( &m_mdAtFirstTarget );
-    uiOrdering.add( &m_useAutoGeneratedTargetAtSeaLevel );
+    uiOrdering.add( &m_connectionMdOnParentWellPath );
     uiOrdering.add( &m_wellTargets );
     uiOrdering.add( &m_pickPointsEnabled );
-
-    m_mdAtFirstTarget.uiCapability()->setUiReadOnly( m_useAutoGeneratedTargetAtSeaLevel() );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -376,7 +362,7 @@ void RimWellPathGeometryDef::defineUiOrdering( QString uiConfigName, caf::PdmUiO
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathGeometryDef::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
+void RimWellPathLateralGeometryDef::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
     uiTreeOrdering.skipRemainingChildren( true );
 }
@@ -384,18 +370,23 @@ void RimWellPathGeometryDef::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTre
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellPathTarget*> RimWellPathGeometryDef::activeWellTargets() const
+void RimWellPathLateralGeometryDef::initAfterRead()
+{
+    RimWellPathGroup* group = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted( group );
+    this->setParentGeometry( group->wellPathGeometry() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellPathTarget*> RimWellPathLateralGeometryDef::activeWellTargets() const
 {
     std::vector<RimWellPathTarget*> active;
 
-    if ( m_useAutoGeneratedTargetAtSeaLevel && !m_wellTargets.empty() && m_autoTargetAtSeaLevel )
-    {
-        active.push_back( m_autoTargetAtSeaLevel );
-    }
-
     for ( const auto& wt : m_wellTargets )
     {
-        if ( wt->isEnabled() )
+        if ( wt->targetType() != RimWellPathTarget::LATERAL_ANCHOR_POINT_MD && wt->isEnabled() )
         {
             active.push_back( wt );
         }
@@ -407,9 +398,17 @@ std::vector<RimWellPathTarget*> RimWellPathGeometryDef::activeWellTargets() cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaLineArcWellPathCalculator RimWellPathGeometryDef::lineArcWellPathCalculator() const
+RiaLineArcWellPathCalculator RimWellPathLateralGeometryDef::lineArcWellPathCalculator() const
 {
     std::vector<RiaLineArcWellPathCalculator::WellTarget> targetDatas;
+
+    auto [pointVector, measuredDepths] = m_parentGeometry->clippedPointSubset( 0.0, m_connectionMdOnParentWellPath );
+
+    auto N = pointVector.size();
+    if ( N >= 2u )
+    {
+        targetDatas = createTargetsFromPoints( { pointVector[N - 2], pointVector[N - 1] } );
+    }
 
     std::vector<RimWellPathTarget*> activeTargets = activeWellTargets();
 
@@ -418,7 +417,10 @@ RiaLineArcWellPathCalculator RimWellPathGeometryDef::lineArcWellPathCalculator()
         targetDatas.push_back( wellTarget->wellTargetData() );
     }
 
-    RiaLineArcWellPathCalculator wellPathCalculator( anchorPointXyz(), targetDatas );
+    cvf::Vec3d connectionPoint = anchorPointXyz();
+
+    RiaLineArcWellPathCalculator wellPathCalculator( connectionPoint, targetDatas );
+
     const std::vector<RiaLineArcWellPathCalculator::WellTargetStatus>& targetStatuses =
         wellPathCalculator.targetStatuses();
 
@@ -454,39 +456,17 @@ RiaLineArcWellPathCalculator RimWellPathGeometryDef::lineArcWellPathCalculator()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathGeometryDef::updateTargetAtSeaLevel()
+void RimWellPathLateralGeometryDef::onTargetMoved( const caf::SignalEmitter* moved, bool fullUpdate )
 {
-    if ( m_useAutoGeneratedTargetAtSeaLevel && !m_wellTargets.empty() )
-    {
-        cvf::Vec3d newPos = cvf::Vec3d::ZERO;
-
-        auto firstTarget = m_wellTargets[0];
-
-        cvf::Vec3d targetTangent = firstTarget->tangent();
-        double     radius        = firstTarget->radius1();
-
-        cvf::Vec3d tangentInHorizontalPlane = targetTangent;
-        tangentInHorizontalPlane[2]         = 0.0;
-        tangentInHorizontalPlane.normalize();
-
-        RiaOffshoreSphericalCoords sphTangent( targetTangent );
-        double                     inc                        = sphTangent.inc();
-        double                     horizontalLengthFromTarget = radius - radius * cvf::Math::cos( inc );
-
-        newPos     = firstTarget->targetPointXYZ() - horizontalLengthFromTarget * tangentInHorizontalPlane;
-        newPos.z() = -anchorPointXyz().z();
-
-        m_autoTargetAtSeaLevel->setAsPointXYZAndTangentTarget( { newPos[0], newPos[1], newPos[2] }, 0, 0 );
-        m_autoTargetAtSeaLevel->setEnabled( true );
-    }
+    changed.send( fullUpdate );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathGeometryDef::defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu,
-                                                      QMenu*                     menu,
-                                                      QWidget*                   fieldEditorWidget )
+void RimWellPathLateralGeometryDef::defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu,
+                                                             QMenu*                     menu,
+                                                             QWidget*                   fieldEditorWidget )
 {
     caf::CmdFeatureMenuBuilder menuBuilder;
 
@@ -500,9 +480,9 @@ void RimWellPathGeometryDef::defineCustomContextMenu( const caf::PdmFieldHandle*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathGeometryDef::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                    QString                    uiConfigName,
-                                                    caf::PdmUiEditorAttribute* attribute )
+void RimWellPathLateralGeometryDef::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                           QString                    uiConfigName,
+                                                           caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_pickPointsEnabled )
     {
@@ -519,8 +499,16 @@ void RimWellPathGeometryDef::defineEditorAttribute( const caf::PdmFieldHandle* f
             }
         }
     }
-
-    if ( field == &m_wellTargets )
+    else if ( field = &m_connectionMdOnParentWellPath )
+    {
+        auto myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
+        if ( myAttr )
+        {
+            myAttr->m_minimum = m_parentGeometry->uniqueMeasuredDepths().front();
+            myAttr->m_maximum = m_parentGeometry->uniqueMeasuredDepths().back();
+        }
+    }
+    else if ( field == &m_wellTargets )
     {
         auto tvAttribute = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute );
         if ( tvAttribute )
@@ -534,34 +522,12 @@ void RimWellPathGeometryDef::defineEditorAttribute( const caf::PdmFieldHandle* f
             }
         }
     }
-
-    if ( field == &m_referencePointUtmXyd )
-    {
-        auto uiDisplayStringAttr = dynamic_cast<caf::PdmUiLineEditorAttributeUiDisplayString*>( attribute );
-
-        if ( uiDisplayStringAttr )
-        {
-            uiDisplayStringAttr->m_displayString = QString::number( m_referencePointUtmXyd()[0], 'f', 2 ) + " " +
-                                                   QString::number( m_referencePointUtmXyd()[1], 'f', 2 ) + " " +
-                                                   QString::number( m_referencePointUtmXyd()[2], 'f', 2 );
-        }
-    }
-
-    if ( field == &m_airGap )
-    {
-        auto uiDoubleValueEditorAttr = dynamic_cast<caf::PdmUiDoubleValueEditorAttribute*>( attribute );
-        if ( uiDoubleValueEditorAttr )
-        {
-            uiDoubleValueEditorAttr->m_decimals  = 2;
-            uiDoubleValueEditorAttr->m_validator = new QDoubleValidator( 0.0, std::numeric_limits<double>::max(), 2 );
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathGeometryDef::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+void RimWellPathLateralGeometryDef::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     RicWellPathGeometry3dEditorAttribute* attrib = dynamic_cast<RicWellPathGeometry3dEditorAttribute*>( attribute );
     if ( attrib )
@@ -569,31 +535,4 @@ void RimWellPathGeometryDef::defineObjectEditorAttribute( QString uiConfigName, 
         attrib->pickEventHandler = m_pickTargetsEventHandler;
         attrib->enablePicking    = m_pickPointsEnabled;
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellPathGeometryDef::onTargetMoved( const caf::SignalEmitter* emitter, bool fullUpdate )
-{
-    updateWellPathVisualization( fullUpdate );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellPathGeometryDef::initAfterRead()
-{
-    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2019.12.1" ) )
-    {
-        m_useAutoGeneratedTargetAtSeaLevel = false;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellPathGeometryDef::setUseAutoGeneratedTargetAtSeaLevel( bool autoGenerate )
-{
-    m_useAutoGeneratedTargetAtSeaLevel = autoGenerate;
 }

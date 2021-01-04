@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Equinor ASA
+//  Copyright (C) 2020-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,16 +16,17 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimModeledWellPath.h"
-
-#include "RicfCommandObject.h"
-#include "RimProject.h"
-#include "RimWellPathGeometryDef.h"
-
-#include "RigWellPath.h"
+#include "RimModeledWellPathLateral.h"
 
 #include "RiaCompletionTypeCalculationScheduler.h"
+#include "RicfCommandObject.h"
 #include "RifTextDataTableFormatter.h"
+#include "RigWellPath.h"
+
+#include "RimProject.h"
+#include "RimWellPathGroup.h"
+#include "RimWellPathLateralGeometryDef.h"
+
 #include "RimExtrudedCurveIntersection.h"
 #include "RimPlotCurve.h"
 #include "RimWellPath.h"
@@ -35,46 +36,44 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
 
-CAF_PDM_SOURCE_INIT( RimModeledWellPath, "ModeledWellPath" );
+CAF_PDM_SOURCE_INIT( RimModeledWellPathLateral, "ModeledWellPathLateral" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimModeledWellPath::RimModeledWellPath()
+RimModeledWellPathLateral::RimModeledWellPathLateral()
 {
-    CAF_PDM_InitScriptableObject( "Modeled Well Path",
+    CAF_PDM_InitScriptableObject( "Modeled Well Path Lateral",
                                   ":/EditableWell.png",
                                   "",
-                                  "A Well Path created interactively in ResInsight" );
+                                  "A Well Path Lateral created interactively" );
 
     CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_geometryDefinition,
-                                                           "WellPathGeometryDef",
-                                                           "WellPathGeometry",
+                                                           "WellPathLateralGeometryDef",
+                                                           "WellPathLateralGeometry",
                                                            "Trajectory",
                                                            "",
                                                            "",
                                                            "" );
-    m_geometryDefinition = new RimWellPathGeometryDef;
-    m_geometryDefinition->changed.connect( this, &RimModeledWellPath::onGeometryDefinitionChanged );
 
-    // Required, as these settings are set in RimWellPath()
-    m_name.uiCapability()->setUiReadOnly( false );
-    m_name.uiCapability()->setUiHidden( false );
-    m_name.xmlCapability()->setIOReadable( true );
-    m_name.xmlCapability()->setIOWritable( true );
+    m_geometryDefinition = new RimWellPathLateralGeometryDef;
+    m_geometryDefinition->changed.connect( this, &RimModeledWellPathLateral::onGeometryDefinitionChanged );
+
+    CAF_PDM_InitFieldNoDefault( &m_lateralName, "LateralName", "Lateral Name", "", "", "" );
+    m_lateralName.registerGetMethod( this, &RimModeledWellPathLateral::createName );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimModeledWellPath::~RimModeledWellPath()
+RimModeledWellPathLateral::~RimModeledWellPathLateral()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimModeledWellPath::createWellPathGeometry()
+void RimModeledWellPathLateral::createWellPathGeometry()
 {
     this->setWellPathGeometry( m_geometryDefinition->createWellPathGeometry().p() );
 }
@@ -82,7 +81,7 @@ void RimModeledWellPath::createWellPathGeometry()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimModeledWellPath::updateWellPathVisualization()
+void RimModeledWellPathLateral::updateWellPathVisualization()
 {
     this->setWellPathGeometry( m_geometryDefinition->createWellPathGeometry().p() );
 
@@ -115,7 +114,7 @@ void RimModeledWellPath::updateWellPathVisualization()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimModeledWellPath::scheduleUpdateOfDependentVisualization()
+void RimModeledWellPathLateral::scheduleUpdateOfDependentVisualization()
 {
     RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews();
 }
@@ -123,7 +122,7 @@ void RimModeledWellPath::scheduleUpdateOfDependentVisualization()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellPathGeometryDef* RimModeledWellPath::geometryDefinition() const
+RimWellPathLateralGeometryDef* RimModeledWellPathLateral::geometryDefinition() const
 {
     return m_geometryDefinition;
 }
@@ -131,7 +130,7 @@ RimWellPathGeometryDef* RimModeledWellPath::geometryDefinition() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimModeledWellPath::wellPlanText()
+QString RimModeledWellPathLateral::wellPlanText()
 {
     QString     planText;
     QTextStream qtxtStream( &planText );
@@ -152,7 +151,7 @@ QString RimModeledWellPath::wellPlanText()
 
     formatter.header( tableHeader );
 
-    double mdrkbAtFirstTarget = m_geometryDefinition->mdAtFirstTarget() + m_geometryDefinition->airGap();
+    double mdrkbAtFirstTarget = m_geometryDefinition->mdAtConnection() + parentGroup()->airGap();
     if ( m_geometryDefinition )
     {
         std::vector<RiaWellPlanCalculator::WellPlanSegment> wellPlan = m_geometryDefinition->wellPlan();
@@ -179,7 +178,17 @@ QString RimModeledWellPath::wellPlanText()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimModeledWellPath::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
+const RimWellPathGroup* RimModeledWellPathLateral::parentGroup() const
+{
+    const RimWellPathGroup* group = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted( group );
+    return group;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimModeledWellPathLateral::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
     uiTreeOrdering.add( m_geometryDefinition() );
     RimWellPath::defineUiTreeOrdering( uiTreeOrdering, uiConfigName );
@@ -188,7 +197,7 @@ void RimModeledWellPath::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimModeledWellPath::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimModeledWellPathLateral::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_name );
     RimWellPath::defineUiOrdering( uiConfigName, uiOrdering );
@@ -197,11 +206,28 @@ void RimModeledWellPath::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimModeledWellPath::onGeometryDefinitionChanged( const caf::SignalEmitter* emitter, bool fullUpdate )
+void RimModeledWellPathLateral::onGeometryDefinitionChanged( const caf::SignalEmitter* emitter, bool fullUpdate )
 {
     updateWellPathVisualization();
     if ( fullUpdate )
     {
         scheduleUpdateOfDependentVisualization();
     }
+    updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimModeledWellPathLateral::userDescriptionField()
+{
+    return &m_lateralName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimModeledWellPathLateral::createName() const
+{
+    return QString( "%1 [branch md=%2]" ).arg( parentGroup()->createGroupName() ).arg( m_geometryDefinition->mdAtConnection() );
 }

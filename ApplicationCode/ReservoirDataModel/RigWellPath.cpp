@@ -264,6 +264,40 @@ cvf::Vec3d
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+cvf::Vec3d RigWellPath::tangentAlongWellPath( double measuredDepth ) const
+{
+    if ( m_measuredDepths.size() < 2u ) return cvf::Vec3d::UNDEFINED;
+
+    if ( measuredDepth <= m_measuredDepths.front() )
+    {
+        return ( m_wellPathPoints[1] - m_wellPathPoints[0] ).getNormalized();
+    }
+    else if ( measuredDepth >= m_measuredDepths.back() )
+    {
+        auto N = m_measuredDepths.size();
+        return ( m_wellPathPoints[N - 1] - m_wellPathPoints[N - 2] ).getNormalized();
+    }
+
+    for ( size_t i = 1; i < m_measuredDepths.size(); i++ )
+    {
+        cvf::Vec3d point1 = m_wellPathPoints[i - 1];
+        cvf::Vec3d point2 = m_wellPathPoints[i - 0];
+
+        double md1 = m_measuredDepths[i - 1];
+        double md2 = m_measuredDepths[i];
+
+        if ( measuredDepth >= md1 && measuredDepth < md2 )
+        {
+            return ( point2 - point1 ).getNormalized();
+        }
+    }
+
+    return cvf::Vec3d::UNDEFINED;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RigWellPath::wellPathAzimuthAngle( const cvf::Vec3d& position ) const
 {
     size_t closestIndex    = cvf::UNDEFINED_SIZE_T;
@@ -433,9 +467,25 @@ void RigWellPath::setUniqueStartIndex( size_t uniqueStartIndex )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+size_t RigWellPath::uniqueStartIndex() const
+{
+    return m_startIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d> RigWellPath::uniqueWellPathPoints() const
 {
     return std::vector<cvf::Vec3d>( m_wellPathPoints.begin() + m_startIndex, m_wellPathPoints.end() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigWellPath::uniqueMeasuredDepths() const
+{
+    return std::vector<double>( m_measuredDepths.begin() + m_startIndex, m_measuredDepths.end() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -454,7 +504,7 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<double>>
     for ( size_t i = 0; i < m_measuredDepths.size(); ++i )
     {
         double measuredDepth = m_measuredDepths[i];
-        if ( measuredDepth > startMD && measuredDepth < endMD )
+        if ( measuredDepth > startMD && measuredDepth <= endMD )
         {
             pointsAndMDs.first.push_back( m_wellPathPoints[i] );
             pointsAndMDs.second.push_back( measuredDepth );

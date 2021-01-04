@@ -122,6 +122,9 @@ public:
 
     double surfaceImportResamplingDistance() const;
 
+    QString        multiLateralWellNamePattern() const;
+    static QString defaultMultiLateralWellNamePattern();
+
     // 3D view
     RiaDefines::MeshModeType              defaultMeshModeType() const;
     RiaGuiApplication::RINavigationPolicy navigationPolicy() const;
@@ -234,6 +237,9 @@ private:
 
     // Surface Import
     caf::PdmField<double> m_surfaceImportResamplingDistance;
+
+    // Well Path Import
+    caf::PdmField<QString> m_multiLateralWellPattern;
 
     // 3d view
     caf::PdmField<caf::AppEnum<RiaDefines::MeshModeType>>              m_defaultMeshModeType;

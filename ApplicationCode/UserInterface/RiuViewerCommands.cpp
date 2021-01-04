@@ -534,7 +534,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             menuBuilder.subMenuEnd();
 
             menuBuilder.addSeparator();
-
+            menuBuilder << "RicNewWellPathLateralAtDepthFeature";
             menuBuilder << "RicNewWellPathIntersectionFeature";
         }
 

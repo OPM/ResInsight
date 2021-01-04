@@ -19,6 +19,7 @@
 
 #include "RiaTextStringTools.h"
 #include "RigWellPath.h"
+#include "RimModeledWellPathLateral.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
@@ -41,6 +42,8 @@ RimWellPathGroup::RimWellPathGroup()
                                                     "WellPathGroup",
                                                     "A Group of Well Paths" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_childWellPaths, "ChildWellPaths", "Child Well Paths", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_groupName, "GroupName", "Group Name", "", "", "" );
+    m_groupName.registerGetMethod( this, &RimWellPathGroup::createGroupName );
     setWellPathGeometry( new RigWellPath );
 }
 
@@ -64,7 +67,7 @@ void RimWellPathGroup::addChildWellPath( RimWellPath* wellPath )
     }
     wellPath->nameChanged.connect( this, &RimWellPathGroup::onChildNameChanged );
 
-    updateWellPathName();
+    updateAllRequiredEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -102,7 +105,7 @@ void RimWellPathGroup::removeChildWellPath( RimWellPath* wellPath )
         geometry->setUniqueStartIndex( 0u );
     }
     createWellPathGeometry();
-    updateWellPathName();
+    updateAllRequiredEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -116,7 +119,7 @@ void RimWellPathGroup::removeAllChildWellPaths()
         removeChildWellPath( wellPath );
     }
     setWellPathGeometry( cvf::ref<RigWellPath>( new RigWellPath ).p() );
-    updateWellPathName();
+    updateAllRequiredEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -162,6 +165,14 @@ void RimWellPathGroup::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrder
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimWellPathGroup::userDescriptionField()
+{
+    return &m_groupName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<const RigWellPath*> RimWellPathGroup::wellPathGeometries() const
 {
     std::vector<const RigWellPath*> allGeometries;
@@ -175,23 +186,14 @@ std::vector<const RigWellPath*> RimWellPathGroup::wellPathGeometries() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathGroup::updateWellPathName()
-{
-    auto autoName = createWellPathName();
-    setName( autoName );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimWellPathGroup::createWellPathName() const
+QString RimWellPathGroup::createGroupName() const
 {
     QStringList               allNames;
     std::vector<RimWellPath*> descendantWellPaths;
     this->descendantsOfType( descendantWellPaths );
     for ( auto wellPath : descendantWellPaths )
     {
-        if ( !dynamic_cast<RimWellPathGroup*>( wellPath ) )
+        if ( !dynamic_cast<RimWellPathGroup*>( wellPath ) && !dynamic_cast<RimModeledWellPathLateral*>( wellPath ) )
         {
             allNames.push_back( wellPath->name() );
         }
@@ -220,7 +222,7 @@ QString RimWellPathGroup::createWellPathName() const
 //--------------------------------------------------------------------------------------------------
 void RimWellPathGroup::onChildNameChanged( const caf::SignalEmitter* emitter )
 {
-    updateWellPathName();
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -22,6 +22,7 @@
 #include "RiaPreferences.h"
 
 #include "RiaColorTables.h"
+#include "RiaValidRegExpValidator.h"
 #include "RifReaderSettings.h"
 #include "RiuGuiTheme.h"
 
@@ -31,10 +32,12 @@
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiFilePathEditor.h"
+#include "cafPdmUiLineEditor.h"
 
 #include <QDate>
 #include <QDir>
 #include <QLocale>
+#include <QRegExp>
 #include <QStandardPaths>
 
 namespace caf
@@ -386,6 +389,16 @@ RiaPreferences::RiaPreferences( void )
                        "Defines preferred minimum distance between surface points in XY-plane",
                        "" );
 
+    CAF_PDM_InitField( &m_multiLateralWellPattern,
+                       "MultiLateralWellPattern",
+                       defaultMultiLateralWellNamePattern(),
+                       "Multi Lateral Well Path Name Pattern",
+                       "",
+                       "Pattern to be used to decide if an imported well is part of a multi-lateral well. Allows use "
+                       "of ? and * as wildcards.",
+                       "" );
+    m_multiLateralWellPattern.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
+
     CAF_PDM_InitFieldNoDefault( &m_guiTheme, "guiTheme", "GUI theme", "", "", "" );
 }
 
@@ -456,6 +469,15 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
     {
         caf::PdmUiComboBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
         myAttr->minimumContentsLength             = 2;
+    }
+    if ( field == &m_multiLateralWellPattern )
+    {
+        caf::PdmUiLineEditorAttribute* myAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
+        if ( myAttr )
+        {
+            myAttr->validator =
+                new RiaValidRegExpValidator( RiaPreferences::current()->defaultMultiLateralWellNamePattern() );
+        }
     }
 }
 
@@ -577,6 +599,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     else if ( uiConfigName == RiaPreferences::tabNameImport() )
     {
         uiOrdering.add( &m_surfaceImportResamplingDistance );
+        uiOrdering.add( &m_multiLateralWellPattern );
     }
     else if ( RiaApplication::enableDevelopmentFeatures() && uiConfigName == RiaPreferences::tabNameSystem() )
     {
@@ -1054,6 +1077,22 @@ QMarginsF RiaPreferences::margins() const
 double RiaPreferences::surfaceImportResamplingDistance() const
 {
     return m_surfaceImportResamplingDistance;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::multiLateralWellNamePattern() const
+{
+    return m_multiLateralWellPattern;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::defaultMultiLateralWellNamePattern()
+{
+    return "?*Y*";
 }
 
 //--------------------------------------------------------------------------------------------------

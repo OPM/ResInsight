@@ -539,7 +539,7 @@ void RimStimPlanModel::updateThicknessDirection()
         }
 
         wellGeomDef->updateConnectedEditors();
-        wellGeomDef->updateWellPathVisualization();
+        wellGeomDef->updateWellPathVisualization( false );
     }
 }
 

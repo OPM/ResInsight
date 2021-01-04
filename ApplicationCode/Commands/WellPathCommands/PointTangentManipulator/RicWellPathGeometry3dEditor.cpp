@@ -22,6 +22,7 @@
 #include "RicWellTarget3dEditor.h"
 
 #include "RimWellPathGeometryDef.h"
+#include "RimWellPathLateralGeometryDef.h"
 #include "RimWellPathTarget.h"
 
 #include "cafPickEventHandler.h"
@@ -55,7 +56,7 @@ RicWellPathGeometry3dEditor::~RicWellPathGeometry3dEditor()
 //--------------------------------------------------------------------------------------------------
 void RicWellPathGeometry3dEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
-    RimWellPathGeometryDef* geomDef = dynamic_cast<RimWellPathGeometryDef*>( this->pdmObject() );
+    RimWellPathGeometryDefInterface* geomDef = dynamic_cast<RimWellPathGeometryDefInterface*>( this->pdmObject() );
 
     for ( auto targetEditor : m_targetEditors )
     {
