@@ -597,19 +597,41 @@ if(RESINSIGHT_PRIVATE_INSTALL)
       # XcbQpa is used by libXcb.so required by platform plugin xcb
       list(APPEND QT_INSTALL_FILES_WITHOUT_EXTENSION libQt5XcbQpa libQt5DBus)
 
+      # append icu
+      list(APPEND QT_INSTALL_FILES_WITHOUT_EXTENSION libicu*)
+
       foreach(installfile ${QT_INSTALL_FILES_WITHOUT_EXTENSION})
         file(GLOB FILE_AND_SYMLINKS ${_dir}/${installfile}.so*)
-        install(FILES ${FILE_AND_SYMLINKS}
-                DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
+        install(
+          FILES ${FILE_AND_SYMLINKS}
+          DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+          OPTIONAL)
       endforeach()
 
+      set(QT_PLUGIN_PATH "$ENV{QT_PLUGIN_PATH}")
+      message(
+        STATUS "QT_PLUGIN_PATH from environment variable - ${QT_PLUGIN_PATH}")
+      if("QT_PLUGIN_PATH" STREQUAL "")
+        set(QT_PLUGIN_PATH "${_dir}/qt5/plugins/")
+      endif()
+
       # include platform files
-      install(FILES ${_dir}/qt5/plugins/platforms/libqxcb.so
+      install(FILES ${QT_PLUGIN_PATH}/platforms/libqxcb.so
               DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/platforms/)
-      install(FILES ${_dir}/qt5/plugins/imageformats/libqsvg.so
+      install(FILES ${QT_PLUGIN_PATH}/imageformats/libqsvg.so
               DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/imageformats/)
-      install(FILES ${_dir}/qt5/plugins/iconengines/libqsvgicon.so
+      install(FILES ${QT_PLUGIN_PATH}/iconengines/libqsvgicon.so
               DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/iconengines/)
+
+      # Required by xcb module used to create OpenGL widgets
+      install(
+        FILES ${QT_PLUGIN_PATH}/xcbglintegrations/libqxcb-egl-integration.so
+        DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/plugins/xcbglintegrations/
+        OPTIONAL)
+      install(
+        FILES ${QT_PLUGIN_PATH}/xcbglintegrations/libqxcb-glx-integration.so
+        DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/plugins/xcbglintegrations/
+        OPTIONAL)
 
     endif(RESINSIGHT_QT5_BUNDLE_LIBRARIES)
 
