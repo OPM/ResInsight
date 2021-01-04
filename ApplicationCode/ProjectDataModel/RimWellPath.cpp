@@ -369,7 +369,8 @@ double RimWellPath::uniqueStartMD() const
 {
     if ( wellPathGeometry() )
     {
-        return wellPathGeometry()->uniqueMeasuredDepths().front();
+        auto uniqueMDs = wellPathGeometry()->uniqueMeasuredDepths();
+        if ( !uniqueMDs.empty() ) return uniqueMDs.front();
     }
     return std::numeric_limits<double>::infinity();
 }
@@ -381,7 +382,8 @@ double RimWellPath::uniqueEndMD() const
 {
     if ( wellPathGeometry() )
     {
-        return wellPathGeometry()->uniqueMeasuredDepths().back();
+        auto uniqueMDs = wellPathGeometry()->uniqueMeasuredDepths();
+        if ( !uniqueMDs.empty() ) return uniqueMDs.back();
     }
     return std::numeric_limits<double>::infinity();
 }

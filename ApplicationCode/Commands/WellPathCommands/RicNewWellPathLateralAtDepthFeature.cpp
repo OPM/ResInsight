@@ -74,8 +74,7 @@ void RicNewWellPathLateralAtDepthFeature::onActionTriggered( bool isChecked )
 
         if ( wellPathCollection )
         {
-            std::vector<RimWellPath*> newWellPaths;
-            auto                      newModeledWellPath = new RimModeledWellPathLateral();
+            auto newModeledWellPath = new RimModeledWellPathLateral();
 
             auto [pointVector, measuredDepths] =
                 wellPath->wellPathGeometry()->clippedPointSubset( wellPath->wellPathGeometry()->measuredDepths().front(),
@@ -92,7 +91,6 @@ void RicNewWellPathLateralAtDepthFeature::onActionTriggered( bool isChecked )
             if ( wellPathGroup )
             {
                 wellPathGroup->addChildWellPath( newModeledWellPath );
-                wellPathGroup->updateAllRequiredEditors();
             }
             else
             {

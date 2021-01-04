@@ -297,11 +297,7 @@ void RicCreateWellTargetsPickEventHandler::addNewTargetToModeledWellPath( const 
                                       inclination != std::numeric_limits<double>::infinity();
     if ( doSetAzimuthAndInclination )
     {
-        newTarget->setAsPointXYZAndTangentTarget( cvf::Vec3d( relativeTargetPoint.x(),
-                                                              relativeTargetPoint.y(),
-                                                              relativeTargetPoint.z() ),
-                                                  azimuth,
-                                                  inclination );
+        newTarget->setAsPointXYZAndTangentTarget( relativeTargetPoint, azimuth, inclination );
     }
     else
     {

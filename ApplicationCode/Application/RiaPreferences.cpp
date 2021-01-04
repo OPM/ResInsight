@@ -35,7 +35,6 @@
 #include "cafPdmUiLineEditor.h"
 
 #include <QDate>
-#include <QDebug>
 #include <QDir>
 #include <QLocale>
 #include <QRegExp>

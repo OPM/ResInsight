@@ -53,7 +53,6 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
 
-#include <QDebug>
 #include <QFile>
 #include <QFileInfo>
 #include <QString>

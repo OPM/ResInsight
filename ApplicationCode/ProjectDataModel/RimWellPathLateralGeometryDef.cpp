@@ -335,18 +335,6 @@ void RimWellPathLateralGeometryDef::enableTargetPointPicking( bool isEnabling )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimWellPathLateralGeometryDef::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                          bool*                      useOptionsOnly )
-{
-    QList<caf::PdmOptionItemInfo> options;
-
-    return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellPathLateralGeometryDef::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                                       const QVariant&            oldValue,
                                                       const QVariant&            newValue )

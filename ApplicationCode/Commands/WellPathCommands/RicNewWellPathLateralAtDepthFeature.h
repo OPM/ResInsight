@@ -19,7 +19,6 @@
 #pragma once
 
 #include "cafCmdFeature.h"
-#include <vector>
 
 class RiuWellPathSelectionItem;
 
