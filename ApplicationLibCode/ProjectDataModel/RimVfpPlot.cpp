@@ -297,6 +297,71 @@ void RimVfpPlot::updateZoomFromQwt()
 //--------------------------------------------------------------------------------------------------
 QString RimVfpPlot::asciiDataForPlotExport() const
 {
+    QString filePath = m_filePath.v().path();
+    if ( !filePath.isEmpty() )
+    {
+        QFileInfo fi( filePath );
+        QString   wellName = fi.baseName();
+
+        VfpPlotData plotData;
+        if ( m_tableType() == RimVfpPlot::TableType::PRODUCTION )
+        {
+            if ( m_prodTable )
+            {
+                populatePlotData( *m_prodTable, m_primaryVariable(), m_familyVariable(), m_interpolatedVariable(), plotData );
+            }
+        }
+        else
+        {
+            if ( m_injectionTable )
+            {
+                populatePlotData( *m_injectionTable.get(), m_interpolatedVariable(), plotData );
+            }
+        }
+
+        QString plotTitle =
+            generatePlotTitle( wellName, m_tableType(), m_interpolatedVariable(), m_primaryVariable(), m_familyVariable() );
+
+        QString dataText;
+
+        if ( plotData.size() > 0 )
+        {
+            // The curves should have same dimensions
+            const size_t curveSize = plotData.curveSize( 0 );
+
+            // Generate the headers for the columns
+            // First column is the primary variable
+            QString columnTitleLine( plotData.xAxisTitle() );
+
+            // Then one column per "family"
+            for ( size_t s = 0; s < plotData.size(); s++ )
+            {
+                columnTitleLine.append( QString( "\t%1" ).arg( plotData.curveTitle( s ) ) );
+            }
+            columnTitleLine.append( "\n" );
+
+            dataText.append( columnTitleLine );
+
+            // Add the rows: one row per primary variable value
+            for ( size_t idx = 0; idx < curveSize; idx++ )
+            {
+                QString line;
+
+                // First item on each line is the primary variable
+                line.append( QString( "%1" ).arg( plotData.xData( 0 )[idx] ) );
+
+                for ( size_t s = 0; s < plotData.size(); s++ )
+                {
+                    line.append( QString( "\t%1" ).arg( plotData.yData( s )[idx] ) );
+                }
+                dataText.append( line );
+                dataText.append( "\n" );
+            }
+        }
+
+        return QString( "%1\n\n%2" ).arg( plotTitle ).arg( dataText );
+    }
+
     return QString();
 }
 
@@ -441,7 +506,6 @@ void RimVfpPlot::onLoadDataAndUpdate()
             RimVfpTableExtractor::extractVfpProductionTables( filePath.toStdString() );
         if ( !tables.empty() )
         {
-            // populateVariabelWidgets( tables[0] );
             m_prodTable.reset( new Opm::VFPProdTable( tables[0] ) );
             m_tableType            = RimVfpPlot::TableType::PRODUCTION;
             m_tableNumber          = tables[0].getTableNum();
@@ -457,6 +521,7 @@ void RimVfpPlot::onLoadDataAndUpdate()
                 RimVfpTableExtractor::extractVfpInjectionTables( filePath.toStdString() );
             if ( !tables.empty() )
             {
+                m_injectionTable.reset( new Opm::VFPInjTable( tables[0] ) );
                 m_tableType      = RimVfpPlot::TableType::INJECTION;
                 m_tableNumber    = tables[0].getTableNum();
                 m_referenceDepth = tables[0].getDatumDepth();

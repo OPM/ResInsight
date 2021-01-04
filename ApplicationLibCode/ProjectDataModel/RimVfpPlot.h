@@ -203,4 +203,5 @@ private:
 
     QPointer<RiuQwtPlotWidget>         m_plotWidget;
     std::unique_ptr<Opm::VFPProdTable> m_prodTable;
+    std::unique_ptr<Opm::VFPInjTable>  m_injectionTable;
 };
