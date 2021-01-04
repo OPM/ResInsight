@@ -41,7 +41,7 @@ void caf::AppEnum<RimWellPathTarget::TargetTypeEnum>::setUp()
 {
     addItem( RimWellPathTarget::POINT_AND_TANGENT, "POINT_AND_TANGENT", "Point and Tangent" );
     addItem( RimWellPathTarget::POINT, "POINT", "Point" );
-    addItem( RimWellPathTarget::LATERAL_MD_CONNECTION, "LATERAL_MD_CONNECTION", "Lateral MD Connection" );
+    addItem( RimWellPathTarget::LATERAL_ANCHOR_POINT_MD, "LATERAL_ANCHOR_POINT_MD", "Lateral Anchor Point MD" );
     setDefault( RimWellPathTarget::POINT_AND_TANGENT );
 }
 } // namespace caf
@@ -68,7 +68,7 @@ RimWellPathTarget::RimWellPathTarget()
     CAF_PDM_InitField( &m_azimuth, "Azimuth", 0.0, "Azi(deg)", "", "", "" );
     CAF_PDM_InitField( &m_inclination, "Inclination", 0.0, "Inc(deg)", "", "", "" );
 
-    CAF_PDM_InitField( &m_lateralMDConnection, "LateralMD", 0.0, "Lateral Connection MD", "", "", "" );
+    CAF_PDM_InitField( &m_lateralMDConnection, "LateralMD", 0.0, "Lateral Anchor Point MD", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_parentWellPath, "ParentWellPath", "Parent Well Path", "", "", "" );
 }
 
@@ -131,7 +131,7 @@ void RimWellPathTarget::setAsPointXYZAndTangentTarget( const cvf::Vec3d& point, 
 //--------------------------------------------------------------------------------------------------
 void RimWellPathTarget::setAsLateralMDConnection( RimWellPath* wellPath, double md )
 {
-    m_targetType = LATERAL_MD_CONNECTION;
+    m_targetType = LATERAL_ANCHOR_POINT_MD;
     m_parentWellPath.setValue( wellPath );
     m_lateralMDConnection = md;
 }
@@ -178,7 +178,7 @@ RimWellPathTarget::TargetTypeEnum RimWellPathTarget::targetType() const
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimWellPathTarget::targetPointXYZ() const
 {
-    if ( m_targetType != LATERAL_MD_CONNECTION )
+    if ( m_targetType != LATERAL_ANCHOR_POINT_MD )
     {
         cvf::Vec3d xyzPoint( m_targetPoint() );
         xyzPoint.z() = -xyzPoint.z();
@@ -199,7 +199,7 @@ double RimWellPathTarget::azimuth() const
     {
         return cvf::Math::toRadians( m_azimuth );
     }
-    else if ( m_targetType() == LATERAL_MD_CONNECTION )
+    else if ( m_targetType() == LATERAL_ANCHOR_POINT_MD )
     {
         auto tangent = m_parentWellPath->wellPathGeometry()->tangentAlongWellPath( m_lateralMDConnection );
         RiaOffshoreSphericalCoords sphericalCoords( tangent );
@@ -220,7 +220,7 @@ double RimWellPathTarget::inclination() const
     {
         return cvf::Math::toRadians( m_inclination );
     }
-    else if ( m_targetType() == LATERAL_MD_CONNECTION )
+    else if ( m_targetType() == LATERAL_ANCHOR_POINT_MD )
     {
         auto tangent = m_parentWellPath->wellPathGeometry()->tangentAlongWellPath( m_lateralMDConnection );
         RiaOffshoreSphericalCoords sphericalCoords( tangent );
@@ -237,7 +237,7 @@ double RimWellPathTarget::inclination() const
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimWellPathTarget::tangent() const
 {
-    if ( m_targetType() == LATERAL_MD_CONNECTION )
+    if ( m_targetType() == LATERAL_ANCHOR_POINT_MD )
     {
         return m_parentWellPath->wellPathGeometry()->tangentAlongWellPath( m_lateralMDConnection );
     }

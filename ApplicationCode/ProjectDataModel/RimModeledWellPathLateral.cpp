@@ -18,15 +18,15 @@
 
 #include "RimModeledWellPathLateral.h"
 
+#include "RiaCompletionTypeCalculationScheduler.h"
 #include "RicfCommandObject.h"
+#include "RifTextDataTableFormatter.h"
+#include "RigWellPath.h"
+
 #include "RimProject.h"
 #include "RimWellPathGroup.h"
 #include "RimWellPathLateralGeometryDef.h"
 
-#include "RigWellPath.h"
-
-#include "RiaCompletionTypeCalculationScheduler.h"
-#include "RifTextDataTableFormatter.h"
 #include "RimExtrudedCurveIntersection.h"
 #include "RimPlotCurve.h"
 #include "RimWellPath.h"

@@ -54,7 +54,7 @@ public:
     {
         POINT_AND_TANGENT,
         POINT,
-        LATERAL_MD_CONNECTION
+        LATERAL_ANCHOR_POINT_MD
     };
     TargetTypeEnum targetType() const;
     cvf::Vec3d     targetPointXYZ() const;

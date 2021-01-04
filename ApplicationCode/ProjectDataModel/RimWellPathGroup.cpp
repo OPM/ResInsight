@@ -25,7 +25,6 @@
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
 
-#include <QRegularExpression>
 #include <QStringList>
 
 CAF_PDM_SOURCE_INIT( RimWellPathGroup, "WellPathGroup" );

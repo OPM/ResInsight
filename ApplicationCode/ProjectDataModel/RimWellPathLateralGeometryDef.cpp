@@ -386,7 +386,7 @@ std::vector<RimWellPathTarget*> RimWellPathLateralGeometryDef::activeWellTargets
 
     for ( const auto& wt : m_wellTargets )
     {
-        if ( wt->targetType() != RimWellPathTarget::LATERAL_MD_CONNECTION && wt->isEnabled() )
+        if ( wt->targetType() != RimWellPathTarget::LATERAL_ANCHOR_POINT_MD && wt->isEnabled() )
         {
             active.push_back( wt );
         }
