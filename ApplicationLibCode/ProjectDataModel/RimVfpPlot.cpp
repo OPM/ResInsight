@@ -36,6 +36,8 @@
 
 #include <QFileInfo>
 
+#include <memory>
+
 //==================================================================================================
 //
 //
@@ -46,7 +48,6 @@ class VfpPlotData
 {
 public:
     void setXAxisTitle( const QString& xAxisTitle ) { m_xAxisTitle = xAxisTitle; }
-
     void setYAxisTitle( const QString& yAxisTitle ) { m_yAxisTitle = yAxisTitle; }
 
     const QString& xAxisTitle() const { return m_xAxisTitle; }
@@ -66,7 +67,6 @@ public:
     size_t curveSize( size_t idx ) const { return m_xData[idx].size(); }
 
     const std::vector<double>& xData( size_t idx ) const { return m_xData[idx]; }
-
     const std::vector<double>& yData( size_t idx ) const { return m_yData[idx]; }
 
 private:
@@ -446,7 +446,7 @@ void RimVfpPlot::onLoadDataAndUpdate()
             RimVfpTableExtractor::extractVfpProductionTables( filePath.toStdString() );
         if ( !tables.empty() )
         {
-            m_prodTable.reset( new Opm::VFPProdTable( tables[0] ) );
+            m_prodTable            = std::make_unique<Opm::VFPProdTable>( tables[0] );
             m_tableType            = RimVfpDefines::TableType::PRODUCTION;
             m_tableNumber          = tables[0].getTableNum();
             m_referenceDepth       = tables[0].getDatumDepth();
@@ -461,7 +461,7 @@ void RimVfpPlot::onLoadDataAndUpdate()
                 RimVfpTableExtractor::extractVfpInjectionTables( filePath.toStdString() );
             if ( !tables.empty() )
             {
-                m_injectionTable.reset( new Opm::VFPInjTable( tables[0] ) );
+                m_injectionTable = std::make_unique<Opm::VFPInjTable>( tables[0] );
                 m_tableType      = RimVfpDefines::TableType::INJECTION;
                 m_tableNumber    = tables[0].getTableNum();
                 m_referenceDepth = tables[0].getDatumDepth();
@@ -566,9 +566,9 @@ void RimVfpPlot::populatePlotWidgetWithPlotData( RiuQwtPlotWidget* plotWidget, c
     plotWidget->setAxisTitleText( QwtPlot::xBottom, plotData.xAxisTitle() );
     plotWidget->setAxisTitleText( QwtPlot::yLeft, plotData.yAxisTitle() );
 
-    for ( auto idx = 0; idx < plotData.size(); idx++ )
+    for ( auto idx = 0u; idx < plotData.size(); idx++ )
     {
-        QColor        qtClr = RiaColorTables::wellLogPlotPaletteColors().cycledQColor( idx );
+        QColor        qtClr = RiaColorTables::summaryCurveDefaultPaletteColors().cycledQColor( idx );
         QwtPlotCurve* curve = createPlotCurve( plotData.curveTitle( idx ), qtClr );
         curve->setSamples( plotData.xData( idx ).data(),
                            plotData.yData( idx ).data(),
@@ -704,8 +704,8 @@ double RimVfpPlot::convertToDisplayUnit( double value, RimVfpDefines::Production
 //--------------------------------------------------------------------------------------------------
 void RimVfpPlot::convertToDisplayUnit( std::vector<double>& values, RimVfpDefines::ProductionVariableType variableType )
 {
-    for ( size_t i = 0; i < values.size(); i++ )
-        values[i] = convertToDisplayUnit( values[i], variableType );
+    for ( double& value : values )
+        value = convertToDisplayUnit( value, variableType );
 }
 
 //--------------------------------------------------------------------------------------------------
