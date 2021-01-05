@@ -81,6 +81,6 @@ private:
     caf::PdmChildArrayField<RimCellFilter*> m_cellFilters;
     caf::PdmField<bool>                     m_isActive;
 
-    // obsolete things for backwards compability
+    // obsolete things for backwards compatibility
     caf::PdmChildArrayField<RimCellRangeFilter*> m_rangeFilters_OBSOLETE;
 };
