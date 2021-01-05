@@ -585,6 +585,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                     QString label = uiText.replace( ": Pressure", "" );
                     label         = RiaStatisticsTools::replacePercentileByPValueText( label );
                     curve->setSymbolLabel( label );
+                    curve->setLineThickness( 3 );
                 }
             }
         }
@@ -1215,7 +1216,7 @@ cvf::Color3f RimWellRftPlot::findCurveColor( RimWellLogCurve* curve )
             {
                 cvf::Color3f backgroundColor =
                     RiaColorTools::fromQColorTo3f( plotByIndex( 0 )->viewer()->canvasBackground().color() );
-                curveColor = RiaColorTools::blendCvfColors( backgroundColor, curveColor, 2, 1 );
+                curveColor = RiaColorTools::blendCvfColors( backgroundColor, curveColor, 1, 2 );
             }
         }
     }
