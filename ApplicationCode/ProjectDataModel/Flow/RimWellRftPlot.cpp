@@ -54,7 +54,8 @@
 #include "RimWellPlotTools.h"
 #include "RimWellPltPlot.h"
 
-#include "RiuCvfOverlayItemWidget.h"
+#include "RiuAbstractLegendFrame.h"
+#include "RiuAbstractOverlayContentFrame.h"
 #include "RiuDraggableOverlayFrame.h"
 #include "RiuQwtPlotWidget.h"
 
@@ -1265,10 +1266,17 @@ void RimWellRftPlot::defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveD
             {
                 if ( !m_ensembleLegendFrames[curveSet] )
                 {
-                    m_ensembleLegendFrames[curveSet] =
-                        new RiuCvfOverlayItemWidget( curveSet->legendConfig()->titledOverlayFrame(),
-                                                     viewer->canvas(),
-                                                     viewer->overlayMargins() );
+                    auto m = new RiuDraggableOverlayFrame( viewer->canvas(), viewer->overlayMargins() );
+                    m->setContentFrame( curveSet->legendConfig()->makeLegendFrame() );
+
+                    m_ensembleLegendFrames[curveSet] = m;
+
+                    /*
+                                        m_ensembleLegendFrames[curveSet] =
+                                            new RiuCvfOverlayItemWidget( curveSet->legendConfig()->titledOverlayFrame(),
+                                                                         viewer->canvas(),
+                                                                         viewer->overlayMargins() );
+                    */
                 }
 
                 viewer->addOverlayFrame( m_ensembleLegendFrames[curveSet] );
