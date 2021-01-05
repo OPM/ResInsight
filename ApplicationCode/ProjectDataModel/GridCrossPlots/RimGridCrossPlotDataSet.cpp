@@ -32,6 +32,7 @@
 #include "RigFormationNames.h"
 #include "RigMainGrid.h"
 
+#include "RiuDraggableOverlayFrame.h"
 #include "RiuGridCrossQwtPlot.h"
 #include "RiuScalarMapperLegendFrame.h"
 
