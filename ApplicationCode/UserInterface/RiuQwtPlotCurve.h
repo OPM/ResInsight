@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "RiuQwtPlotCurveDefines.h"
+
 #include "qwt_plot_curve.h"
 #include "qwt_plot_intervalcurve.h"
 #include "qwt_symbol.h"
@@ -47,32 +49,6 @@
 class RiuQwtPlotCurve : public QwtPlotCurve
 {
 public:
-    enum CurveInterpolationEnum
-    {
-        INTERPOLATION_POINT_TO_POINT,
-        INTERPOLATION_STEP_LEFT,
-    };
-
-    enum LineStyleEnum
-    {
-        STYLE_NONE,
-        STYLE_SOLID,
-        STYLE_DASH,
-        STYLE_DOT,
-        STYLE_DASH_DOT
-    };
-
-    // Z index. Higher Z is painted in front
-    enum ZIndex
-    {
-        Z_ENSEMBLE_CURVE            = 100,
-        Z_ENSEMBLE_STAT_CURVE       = 200,
-        Z_SINGLE_CURVE_NON_OBSERVED = 300,
-        Z_ERROR_BARS                = 400,
-        Z_SINGLE_CURVE_OBSERVED     = 500
-    };
-
-public:
     explicit RiuQwtPlotCurve( const QString& title = QString() );
     ~RiuQwtPlotCurve() override;
 
@@ -93,11 +69,11 @@ public:
     void setSymbolSkipPixelDistance( float distance );
     void setPerPointLabels( const std::vector<QString>& labels );
 
-    void setAppearance( LineStyleEnum          lineStyle,
-                        CurveInterpolationEnum interpolationType,
-                        int                    curveThickness,
-                        const QColor&          curveColor,
-                        const QBrush&          fillBrush = QBrush( Qt::NoBrush ) );
+    void setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum          lineStyle,
+                        RiuQwtPlotCurveDefines::CurveInterpolationEnum interpolationType,
+                        int                                            curveThickness,
+                        const QColor&                                  curveColor,
+                        const QBrush&                                  fillBrush = QBrush( Qt::NoBrush ) );
 
     void       setBlackAndWhiteLegendIcon( bool blackAndWhite );
     QwtGraphic legendIcon( int index, const QSizeF& size ) const override;

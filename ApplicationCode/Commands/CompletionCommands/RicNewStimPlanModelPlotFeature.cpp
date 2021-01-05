@@ -266,7 +266,7 @@ void RicNewStimPlanModelPlotFeature::createFaciesTrack( RimStimPlanModelPlot* pl
     curve->setEclipseResultCategory( faciesDefinition->resultType() );
     curve->setEclipseResultVariable( faciesDefinition->resultVariable() );
     curve->setColor( colors.cycledColor3f( 0 ) );
-    curve->setLineStyle( RiuQwtPlotCurve::STYLE_SOLID );
+    curve->setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
     curve->setLineThickness( 2 );
     curve->setAutoNameComponents( false, true, false, false, false );
 
@@ -317,7 +317,7 @@ void RicNewStimPlanModelPlotFeature::createLayersTrack( RimStimPlanModelPlot* pl
     curve->setStimPlanModel( stimPlanModel );
     curve->setCase( eclipseCase );
     curve->setColor( colors.cycledColor3f( 0 ) );
-    curve->setLineStyle( RiuQwtPlotCurve::STYLE_SOLID );
+    curve->setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
     curve->setLineThickness( 2 );
     curve->setAutoNameComponents( false, true, false, false, false );
 
@@ -372,12 +372,12 @@ void RicNewStimPlanModelPlotFeature::createParametersTrack( RimStimPlanModelPlot
         curve->setEclipseResultVariable( resultVariable );
         curve->setEclipseResultCategory( resultCategoryType );
         curve->setColor( colors.cycledColor3f( colorIndex ) );
-        curve->setLineStyle( RiuQwtPlotCurve::STYLE_SOLID );
+        curve->setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
         curve->setLineThickness( 2 );
 
         if ( propertyType == RiaDefines::CurveProperty::STRESS_GRADIENT )
         {
-            curve->setInterpolation( RiuQwtPlotCurve::INTERPOLATION_STEP_LEFT );
+            curve->setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT );
         }
 
         if ( fixedInitialTimeStep )

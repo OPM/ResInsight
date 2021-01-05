@@ -250,8 +250,9 @@ std::map<std::string, size_t>
     }
     else if ( appearance == CurveAppearanceType::LINE_STYLE )
     {
-        numOptions = caf::AppEnum<RiuQwtPlotCurve::LineStyleEnum>::size() - 1; // -1 since the No symbol option is not
-                                                                               // counted see cycledLineStyle()
+        numOptions = caf::AppEnum<RiuQwtPlotCurveDefines::LineStyleEnum>::size() - 1; // -1 since the No symbol option
+                                                                                      // is not counted see
+                                                                                      // cycledLineStyle()
     }
     else
     {
@@ -512,12 +513,12 @@ cvf::Color3f RimSummaryCurveAppearanceCalculator::cycledBrownColor( int colorInd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtPlotCurve::LineStyleEnum RimSummaryCurveAppearanceCalculator::cycledLineStyle( int index )
+RiuQwtPlotCurveDefines::LineStyleEnum RimSummaryCurveAppearanceCalculator::cycledLineStyle( int index )
 {
-    if ( index < 0 ) return RiuQwtPlotCurve::STYLE_SOLID;
+    if ( index < 0 ) return RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID;
 
-    return caf::AppEnum<RiuQwtPlotCurve::LineStyleEnum>::fromIndex(
-        1 + ( index % ( caf::AppEnum<RiuQwtPlotCurve::LineStyleEnum>::size() - 1 ) ) );
+    return caf::AppEnum<RiuQwtPlotCurveDefines::LineStyleEnum>::fromIndex(
+        1 + ( index % ( caf::AppEnum<RiuQwtPlotCurveDefines::LineStyleEnum>::size() - 1 ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------

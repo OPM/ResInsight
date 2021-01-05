@@ -142,7 +142,7 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
         setSymbol( getSymbolForMeasurementKind( m_measurementKind() ) );
         setColor( getColorForMeasurementKind( measurementKind() ) );
         setSymbolEdgeColor( getColorForMeasurementKind( measurementKind() ) );
-        setLineStyle( RiuQwtPlotCurve::STYLE_NONE );
+        setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
 
         RiaDefines::DepthUnitType displayUnit = RiaDefines::DepthUnitType::UNIT_METER;
         if ( wellLogPlot )

@@ -22,7 +22,7 @@
 #include "RiaCurveDataTools.h"
 #include "RiaDefines.h"
 
-#include "RiuQwtPlotCurve.h"
+#include "RiuQwtPlotCurveDefines.h"
 #include "RiuQwtSymbol.h"
 
 #include "cafPdmField.h"
@@ -35,6 +35,7 @@
 class QwtPlot;
 class QwtPlotCurve;
 class QwtPlotIntervalCurve;
+class RiuQwtPlotCurve;
 
 //==================================================================================================
 ///
@@ -51,11 +52,11 @@ public:
     caf::Signal<QString> nameChanged;
 
 public:
-    typedef caf::AppEnum<RiuQwtPlotCurve::CurveInterpolationEnum> CurveInterpolation;
-    typedef caf::AppEnum<RiuQwtPlotCurve::LineStyleEnum>          LineStyle;
-    typedef caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>           PointSymbol;
-    typedef caf::AppEnum<RiuQwtSymbol::LabelPosition>             LabelPosition;
-    typedef caf::AppEnum<Qt::BrushStyle>                          FillStyle;
+    typedef caf::AppEnum<RiuQwtPlotCurveDefines::CurveInterpolationEnum> CurveInterpolation;
+    typedef caf::AppEnum<RiuQwtPlotCurveDefines::LineStyleEnum>          LineStyle;
+    typedef caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>                  PointSymbol;
+    typedef caf::AppEnum<RiuQwtSymbol::LabelPosition>                    LabelPosition;
+    typedef caf::AppEnum<Qt::BrushStyle>                                 FillStyle;
 
 public:
     RimPlotCurve();
@@ -74,9 +75,9 @@ public:
 
     void                          setColor( const cvf::Color3f& color );
     cvf::Color3f                  color() const { return m_curveColor; }
-    void                          setLineStyle( RiuQwtPlotCurve::LineStyleEnum lineStyle );
+    void                          setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum lineStyle );
     void                          setSymbol( RiuQwtSymbol::PointSymbolEnum symbolStyle );
-    void                          setInterpolation( RiuQwtPlotCurve::CurveInterpolationEnum );
+    void                          setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum );
     RiuQwtSymbol::PointSymbolEnum symbol();
     int                           symbolSize() const;
     cvf::Color3f                  symbolEdgeColor() const;

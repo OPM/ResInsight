@@ -24,10 +24,6 @@
 #include "RiaStatisticsTools.h"
 #include "RiaTextStringTools.h"
 
-#include "RiuPlotMainWindowTools.h"
-#include "RiuSummaryQwtPlot.h"
-#include "RiuSummaryVectorSelectionDialog.h"
-
 #include "RifSummaryReaderInterface.h"
 
 #include "RimDerivedSummaryCase.h"
@@ -41,6 +37,11 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryPlotAxisFormatter.h"
+
+#include "RiuPlotMainWindowTools.h"
+#include "RiuQwtPlotCurve.h"
+#include "RiuSummaryQwtPlot.h"
+#include "RiuSummaryVectorSelectionDialog.h"
 
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiLineEditor.h"

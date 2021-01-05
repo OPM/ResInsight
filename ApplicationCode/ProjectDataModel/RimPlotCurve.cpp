@@ -53,27 +53,6 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPlotCurve, "PlotCurve" );
 namespace caf
 {
 template <>
-void RimPlotCurve::CurveInterpolation::setUp()
-{
-    addItem( RiuQwtPlotCurve::INTERPOLATION_POINT_TO_POINT, "INTERPOLATION_POINT_TO_POINT", "Point to Point" );
-    addItem( RiuQwtPlotCurve::INTERPOLATION_STEP_LEFT, "INTERPOLATION_STEP_LEFT", "Step Left" );
-
-    setDefault( RiuQwtPlotCurve::INTERPOLATION_POINT_TO_POINT );
-}
-
-template <>
-void RimPlotCurve::LineStyle::setUp()
-{
-    addItem( RiuQwtPlotCurve::STYLE_NONE, "STYLE_NONE", "None" );
-    addItem( RiuQwtPlotCurve::STYLE_SOLID, "STYLE_SOLID", "Solid" );
-    addItem( RiuQwtPlotCurve::STYLE_DASH, "STYLE_DASH", "Dashes" );
-    addItem( RiuQwtPlotCurve::STYLE_DOT, "STYLE_DOT", "Dots" );
-    addItem( RiuQwtPlotCurve::STYLE_DASH_DOT, "STYLE_DASH_DOT", "Dashes and Dots" );
-
-    setDefault( RiuQwtPlotCurve::STYLE_SOLID );
-}
-
-template <>
 void RimPlotCurve::PointSymbol::setUp()
 {
     addItem( RiuQwtSymbol::SYMBOL_NONE, "SYMBOL_NONE", "None" );
@@ -175,7 +154,7 @@ RimPlotCurve::RimPlotCurve()
     m_qwtCurveErrorBars->setStyle( QwtPlotIntervalCurve::CurveStyle::NoCurve );
     m_qwtCurveErrorBars->setSymbol( new QwtIntervalSymbol( QwtIntervalSymbol::Bar ) );
     m_qwtCurveErrorBars->setItemAttribute( QwtPlotItem::Legend, false );
-    m_qwtCurveErrorBars->setZ( RiuQwtPlotCurve::Z_ERROR_BARS );
+    m_qwtCurveErrorBars->setZ( RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_ERROR_BARS ) );
 
     m_parentQwtPlot = nullptr;
 }
@@ -235,8 +214,10 @@ void RimPlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, co
         }
         else if ( &m_lineStyle == changedField )
         {
-            m_curveThickness.uiCapability()->setUiReadOnly( m_lineStyle() == RiuQwtPlotCurve::STYLE_NONE );
-            m_curveInterpolation.uiCapability()->setUiReadOnly( m_lineStyle() == RiuQwtPlotCurve::STYLE_NONE );
+            m_curveThickness.uiCapability()->setUiReadOnly( m_lineStyle() ==
+                                                            RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
+            m_curveInterpolation.uiCapability()->setUiReadOnly( m_lineStyle() ==
+                                                                RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
         }
 
         appearanceChanged.send();
@@ -332,8 +313,8 @@ void RimPlotCurve::initAfterRead()
 {
     m_symbolSize.uiCapability()->setUiReadOnly( m_pointSymbol() == RiuQwtSymbol::SYMBOL_NONE );
     m_symbolSkipPixelDistance.uiCapability()->setUiReadOnly( m_pointSymbol() == RiuQwtSymbol::SYMBOL_NONE );
-    m_curveThickness.uiCapability()->setUiReadOnly( m_lineStyle() == RiuQwtPlotCurve::STYLE_NONE );
-    m_curveInterpolation.uiCapability()->setUiReadOnly( m_lineStyle() == RiuQwtPlotCurve::STYLE_NONE );
+    m_curveThickness.uiCapability()->setUiReadOnly( m_lineStyle() == RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
+    m_curveInterpolation.uiCapability()->setUiReadOnly( m_lineStyle() == RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
 
     checkAndApplyDefaultFillColor();
 }
@@ -799,7 +780,7 @@ void RimPlotCurve::updateCurveAppearance()
         // Make sure the legend lines are long enough to distinguish between line types.
         // Standard width in Qwt is 8 which is too short.
         // Use 10 and scale this by curve thickness + add space for displaying symbol.
-        if ( m_lineStyle() != RiuQwtPlotCurve::STYLE_NONE )
+        if ( m_lineStyle() != RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE )
         {
             QSize legendIconSize = m_qwtPlotCurve->legendIconSize();
 
@@ -901,7 +882,7 @@ bool RimPlotCurve::yValueRangeInQwt( double* minimumValue, double* maximumValue 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::setLineStyle( RiuQwtPlotCurve::LineStyleEnum lineStyle )
+void RimPlotCurve::setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum lineStyle )
 {
     m_lineStyle = lineStyle;
 }
@@ -917,7 +898,7 @@ void RimPlotCurve::setSymbol( RiuQwtSymbol::PointSymbolEnum symbolStyle )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::setInterpolation( RiuQwtPlotCurve::CurveInterpolationEnum curveInterpolation )
+void RimPlotCurve::setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum curveInterpolation )
 {
     m_curveInterpolation = curveInterpolation;
 }
@@ -1002,7 +983,7 @@ void RimPlotCurve::resetAppearance()
     setColor( RiaColorTools::textColor3f() );
     setSymbolEdgeColor( RiaColorTools::textColor3f() );
     setLineThickness( 2 );
-    setLineStyle( RiuQwtPlotCurve::STYLE_SOLID );
+    setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
     setSymbol( RiuQwtSymbol::SYMBOL_NONE );
     setSymbolSkipDistance( 10 );
 }

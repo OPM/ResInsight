@@ -380,7 +380,7 @@ double RimSummaryCurve::yValueAtTimeT( time_t time ) const
         }
         else if ( i < timeSteps.size() - 1u && timeSteps[i] < time && time < timeSteps[i + 1] )
         {
-            if ( m_curveInterpolation == RiuQwtPlotCurve::INTERPOLATION_STEP_LEFT )
+            if ( m_curveInterpolation == RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT )
             {
                 return values[i + 1];
             }
@@ -836,19 +836,19 @@ void RimSummaryCurve::setZIndexFromCurveInfo()
     {
         if ( sumCase->isObservedData() )
         {
-            zOrder = RiuQwtPlotCurve::Z_SINGLE_CURVE_OBSERVED;
+            zOrder = RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_SINGLE_CURVE_OBSERVED );
         }
         else if ( sumAddr.category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS )
         {
-            zOrder = RiuQwtPlotCurve::Z_ENSEMBLE_STAT_CURVE;
+            zOrder = RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_ENSEMBLE_STAT_CURVE );
         }
         else if ( sumCase->ensemble() )
         {
-            zOrder = RiuQwtPlotCurve::Z_ENSEMBLE_CURVE;
+            zOrder = RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_ENSEMBLE_CURVE );
         }
         else
         {
-            zOrder = RiuQwtPlotCurve::Z_SINGLE_CURVE_NON_OBSERVED;
+            zOrder = RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_SINGLE_CURVE_NON_OBSERVED );
         }
     }
 
@@ -936,7 +936,7 @@ void RimSummaryCurve::setCurveAppearanceFromCaseType()
     {
         if ( m_yValuesSummaryCase->isObservedData() )
         {
-            setLineStyle( RiuQwtPlotCurve::STYLE_NONE );
+            setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
             setSymbol( RiuQwtSymbol::SYMBOL_XCROSS );
 
             return;
@@ -952,19 +952,19 @@ void RimSummaryCurve::setCurveAppearanceFromCaseType()
             m_symbolEdgeColor = m_curveColor;
 
             setSymbol( RiuQwtSymbol::SYMBOL_XCROSS );
-            setLineStyle( RiuQwtPlotCurve::STYLE_NONE );
+            setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
         }
         else if ( prefs->defaultSummaryHistoryCurveStyle() == RiaPreferences::SummaryHistoryCurveStyleMode::SYMBOLS_AND_LINES )
         {
             m_symbolEdgeColor = m_curveColor;
 
             setSymbol( RiuQwtSymbol::SYMBOL_XCROSS );
-            setLineStyle( RiuQwtPlotCurve::STYLE_SOLID );
+            setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
         }
         else if ( prefs->defaultSummaryHistoryCurveStyle() == RiaPreferences::SummaryHistoryCurveStyleMode::LINES )
         {
             setSymbol( RiuQwtSymbol::SYMBOL_NONE );
-            setLineStyle( RiuQwtPlotCurve::STYLE_SOLID );
+            setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
         }
 
         return;
@@ -1037,7 +1037,7 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         if ( oldVal == nullptr && m_yValuesSummaryCase->isObservedData() )
         {
             // If no previous case selected and observed data, use symbols to indicate observed data curve
-            setLineStyle( RiuQwtPlotCurve::STYLE_NONE );
+            setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
             setSymbol( RiuQwtSymbol::SYMBOL_XCROSS );
         }
         plot->updateCaseNameHasChanged();
@@ -1230,11 +1230,11 @@ void RimSummaryCurve::calculateCurveInterpolationFromAddress()
         auto address = m_yValuesSummaryAddress()->address();
         if ( RiaSummaryTools::hasAccumulatedData( address ) )
         {
-            m_curveInterpolation = RiuQwtPlotCurve::INTERPOLATION_POINT_TO_POINT;
+            m_curveInterpolation = RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT;
         }
         else
         {
-            m_curveInterpolation = RiuQwtPlotCurve::INTERPOLATION_STEP_LEFT;
+            m_curveInterpolation = RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT;
         }
     }
 }

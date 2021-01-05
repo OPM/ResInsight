@@ -262,27 +262,27 @@ void RiuQwtPlotCurve::setPerPointLabels( const std::vector<QString>& labels )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotCurve::setAppearance( LineStyleEnum          lineStyle,
-                                     CurveInterpolationEnum interpolationType,
-                                     int                    requestedCurveThickness,
-                                     const QColor&          curveColor,
-                                     const QBrush&          fillBrush /* = QBrush( Qt::NoBrush )*/ )
+void RiuQwtPlotCurve::setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum          lineStyle,
+                                     RiuQwtPlotCurveDefines::CurveInterpolationEnum interpolationType,
+                                     int                                            requestedCurveThickness,
+                                     const QColor&                                  curveColor,
+                                     const QBrush& fillBrush /* = QBrush( Qt::NoBrush )*/ )
 {
     QwtPlotCurve::CurveStyle curveStyle = QwtPlotCurve::NoCurve;
     Qt::PenStyle             penStyle   = Qt::NoPen;
 
     // Qwt bug workaround (#4135): need to set 0 curve thickness for STYLE_NONE
     int curveThickness = 0;
-    if ( lineStyle != STYLE_NONE )
+    if ( lineStyle != RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE )
     {
         curveThickness = requestedCurveThickness;
         switch ( interpolationType )
         {
-            case INTERPOLATION_STEP_LEFT:
+            case RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT:
                 curveStyle = QwtPlotCurve::Steps;
                 setCurveAttribute( QwtPlotCurve::Inverted, false );
                 break;
-            case INTERPOLATION_POINT_TO_POINT: // Fall through
+            case RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT: // Fall through
             default:
                 curveStyle = QwtPlotCurve::Lines;
                 break;
@@ -290,16 +290,16 @@ void RiuQwtPlotCurve::setAppearance( LineStyleEnum          lineStyle,
 
         switch ( lineStyle )
         {
-            case STYLE_SOLID:
+            case RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID:
                 penStyle = Qt::SolidLine;
                 break;
-            case STYLE_DASH:
+            case RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DASH:
                 penStyle = Qt::DashLine;
                 break;
-            case STYLE_DOT:
+            case RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DOT:
                 penStyle = Qt::DotLine;
                 break;
-            case STYLE_DASH_DOT:
+            case RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DASH_DOT:
                 penStyle = Qt::DashDotLine;
                 break;
 

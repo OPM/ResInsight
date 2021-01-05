@@ -1756,7 +1756,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
             curve->setSymbolLabel( RiaStatisticsTools::replacePercentileByPValueText(
                 QString::fromStdString( address.ensembleStatisticsQuantityName() ) ) );
         }
-        curve->setLineStyle( RiuQwtPlotCurve::STYLE_SOLID );
+        curve->setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
         curve->setSummaryCaseY( m_ensembleStatCase.get() );
         curve->setSummaryAddressYAndApplyInterpolation( address );
         curve->setLeftOrRightAxisY( m_plotAxis() );
