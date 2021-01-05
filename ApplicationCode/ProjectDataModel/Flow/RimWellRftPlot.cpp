@@ -57,6 +57,7 @@
 #include "RiuAbstractLegendFrame.h"
 #include "RiuAbstractOverlayContentFrame.h"
 #include "RiuDraggableOverlayFrame.h"
+#include "RiuQwtPlotCurveDefines.h"
 #include "RiuQwtPlotWidget.h"
 
 #include "cafPdmUiListEditor.h"
@@ -153,8 +154,8 @@ void RimWellRftPlot::applyCurveAppearance( RimWellLogCurve* curve )
 {
     applyCurveColor( curve );
 
-    RiaRftPltCurveDefinition       curveDef  = RimWellPlotTools::curveDefFromCurve( curve );
-    RiuQwtPlotCurve::LineStyleEnum lineStyle = RiuQwtPlotCurve::STYLE_SOLID;
+    RiaRftPltCurveDefinition              curveDef  = RimWellPlotTools::curveDefFromCurve( curve );
+    RiuQwtPlotCurveDefines::LineStyleEnum lineStyle = RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID;
 
     RiuQwtSymbol::PointSymbolEnum currentSymbol = RiuQwtSymbol::SYMBOL_NONE;
     if ( curveDef.address().sourceType() != RifDataSourceForRftPlt::ENSEMBLE_RFT )
@@ -165,7 +166,8 @@ void RimWellRftPlot::applyCurveAppearance( RimWellLogCurve* curve )
     bool isObservedData = curveDef.address().sourceType() == RifDataSourceForRftPlt::OBSERVED ||
                           curveDef.address().sourceType() == RifDataSourceForRftPlt::OBSERVED_FMU_RFT;
     // Observed data
-    lineStyle = isObservedData ? RiuQwtPlotCurve::STYLE_NONE : RiuQwtPlotCurve::STYLE_SOLID;
+    lineStyle = isObservedData ? RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE
+                               : RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID;
 
     curve->setSymbol( currentSymbol );
     curve->setLineStyle( lineStyle );
@@ -522,7 +524,8 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                                           curveDefToAdd.timeStep(),
                                           RifEclipseRftAddress::PRESSURE );
             curve->setRftAddress( address );
-            curve->setZOrder( RiuQwtPlotCurve::Z_SINGLE_CURVE_OBSERVED );
+            curve->setZOrder(
+                RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_SINGLE_CURVE_OBSERVED ) );
             applyCurveAppearance( curve );
         }
         else if ( m_showEnsembleCurves && curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::SUMMARY_RFT )
@@ -571,7 +574,8 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                     curve->setRftAddress( rftAddress );
                     curve->setObservedFmuRftData(
                         this->findObservedFmuData( m_wellPathNameOrSimWellName, curveDefToAdd.timeStep() ) );
-                    curve->setZOrder( RiuQwtPlotCurve::Z_ENSEMBLE_STAT_CURVE );
+                    curve->setZOrder(
+                        RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_ENSEMBLE_STAT_CURVE ) );
                     applyCurveAppearance( curve );
                     auto                        symbol   = statisticsCurveSymbolFromAddress( rftAddress );
                     RiuQwtSymbol::LabelPosition labelPos = statisticsLabelPosFromAddress( rftAddress );
@@ -579,7 +583,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                     curve->setSymbolLabelPosition( labelPos );
                     curve->setSymbolSize( curve->symbolSize() + 3 );
                     curve->setSymbolSkipDistance( 150 );
-                    curve->setLineStyle( RiuQwtPlotCurve::STYLE_SOLID );
+                    curve->setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
                     QString uiText =
                         caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText( rftAddress.wellLogChannel() );
                     QString label = uiText.replace( ": Pressure", "" );

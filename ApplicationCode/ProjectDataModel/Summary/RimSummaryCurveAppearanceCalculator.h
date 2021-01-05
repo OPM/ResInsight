@@ -17,10 +17,12 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RimPlotCurve.h"
+#include "RiuQwtPlotCurveDefines.h"
+#include "RiuQwtSymbol.h"
 
 #include "cvfColor3.h"
 
+#include <map>
 #include <set>
 
 class RimSummaryCurve;
@@ -64,16 +66,14 @@ public:
     static RiuQwtSymbol::PointSymbolEnum cycledSymbol( int index );
 
 private:
-    template <typename S>
-    int  findMaxApperanceIndexInMap( const std::map<S, int>& mapToSearch ) const;
     void setOneCurveAppearance( CurveAppearanceType appeaType, size_t totalCount, int appeaIdx, RimSummaryCurve* curve );
     void                          updateApperanceIndices();
     std::map<std::string, size_t> mapNameToAppearanceIndex( CurveAppearanceType&         appearance,
                                                             const std::set<std::string>& names );
 
-    RiuQwtPlotCurve::LineStyleEnum cycledLineStyle( int index );
-    int                            cycledLineThickness( int index );
-    float                          gradient( size_t totalCount, int index );
+    RiuQwtPlotCurveDefines::LineStyleEnum cycledLineStyle( int index );
+    int                                   cycledLineThickness( int index );
+    float                                 gradient( size_t totalCount, int index );
 
     cvf::Color3f gradeColor( const cvf::Color3f& color, float factor );
 

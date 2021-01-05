@@ -194,7 +194,8 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::RicPasteAsciiDataToSummaryPlotFeatureUi
 
     CAF_PDM_InitField( &m_curveLineStyle,
                        "LineStyle",
-                       caf::AppEnum<RiuQwtPlotCurve::LineStyleEnum>( RiuQwtPlotCurve::STYLE_NONE ),
+                       caf::AppEnum<RiuQwtPlotCurveDefines::LineStyleEnum>(
+                           RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE ),
                        "Line Style",
                        "",
                        "",

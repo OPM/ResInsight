@@ -15,16 +15,19 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #include "RimGridCrossPlotCurve.h"
 
 #include "RigCaseCellResultCalculator.h"
-#include "RiuQwtSymbol.h"
 
 #include "RimCase.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimGridCrossPlot.h"
 #include "RimTools.h"
+
+#include "RiuQwtPlotCurve.h"
+#include "RiuQwtSymbol.h"
 
 #include "cafPdmUiComboBoxEditor.h"
 
@@ -49,7 +52,7 @@ RimGridCrossPlotCurve::RimGridCrossPlotCurve()
 {
     CAF_PDM_InitObject( "Cross Plot Points", ":/WellLogCurve16x16.png", "", "" );
 
-    setLineStyle( RiuQwtPlotCurve::STYLE_NONE );
+    setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
     setSymbol( RiuQwtSymbol::SYMBOL_NONE );
     setSymbolSize( 4 );
 }

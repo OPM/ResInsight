@@ -8,6 +8,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuGeoQuestNavigation.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuInterfaceToViewWindow.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtSymbol.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotCurve.h
+${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotCurveDefines.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuRimQwtPlotCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuPlotMainWindow.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindow.h
@@ -105,6 +106,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuGeoQuestNavigation.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuInterfaceToViewWindow.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtSymbol.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotCurve.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotCurveDefines.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuRimQwtPlotCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuPlotMainWindow.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindow.cpp

@@ -59,9 +59,9 @@ public:
 
     bool assumeNumericDataColumns;
 
-    RiuQwtPlotCurve::LineStyleEnum curveLineStyle;
-    RiuQwtSymbol::PointSymbolEnum  curveSymbol;
-    float                          curveSymbolSkipDistance;
+    RiuQwtPlotCurveDefines::LineStyleEnum curveLineStyle;
+    RiuQwtSymbol::PointSymbolEnum         curveSymbol;
+    float                                 curveSymbolSkipDistance;
 };
 
 //==================================================================================================
@@ -159,9 +159,9 @@ private:
     caf::PdmField<CellSeparatorEnum>    m_cellSeparator;
     caf::PdmField<QString>              m_timeSeriesColumnName;
 
-    caf::PdmField<caf::AppEnum<RiuQwtPlotCurve::LineStyleEnum>> m_curveLineStyle;
-    caf::PdmField<caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>>  m_curveSymbol;
-    caf::PdmField<float>                                        m_curveSymbolSkipDistance;
+    caf::PdmField<caf::AppEnum<RiuQwtPlotCurveDefines::LineStyleEnum>> m_curveLineStyle;
+    caf::PdmField<caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>>         m_curveSymbol;
+    caf::PdmField<float>                                               m_curveSymbolSkipDistance;
 
     bool                   m_createNewPlot;
     caf::PdmField<QString> m_previewText;

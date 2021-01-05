@@ -265,10 +265,10 @@ void RicNewWellBoreStabilityPlotFeature::createParametersTrack( RimWellBoreStabi
     paramCurvesTrack->setShowWindow( false );
     std::set<RigWbsParameter> parameters = RigWbsParameter::allParameters();
 
-    caf::ColorTable                             colors     = RiaColorTables::contrastCategoryPaletteColors();
-    std::vector<RiuQwtPlotCurve::LineStyleEnum> lineStyles = { RiuQwtPlotCurve::STYLE_SOLID,
-                                                               RiuQwtPlotCurve::STYLE_DASH,
-                                                               RiuQwtPlotCurve::STYLE_DASH_DOT };
+    caf::ColorTable                                    colors     = RiaColorTables::contrastCategoryPaletteColors();
+    std::vector<RiuQwtPlotCurveDefines::LineStyleEnum> lineStyles = { RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID,
+                                                                      RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DASH,
+                                                                      RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DASH_DOT };
 
     size_t i = 0;
     for ( const RigWbsParameter& param : parameters )
@@ -322,8 +322,9 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
                                          cvf::Color3f::DARK_GREEN,
                                          cvf::Color3f::OLIVE };
 
-    std::vector<RiuQwtPlotCurve::LineStyleEnum> lineStyles( resultNames.size(), RiuQwtPlotCurve::STYLE_SOLID );
-    lineStyles.back() = RiuQwtPlotCurve::STYLE_DASH;
+    std::vector<RiuQwtPlotCurveDefines::LineStyleEnum> lineStyles( resultNames.size(),
+                                                                   RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
+    lineStyles.back() = RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DASH;
 
     for ( size_t i = 0; i < resultNames.size(); ++i )
     {
@@ -383,7 +384,8 @@ void RicNewWellBoreStabilityPlotFeature::createAnglesTrack( RimWellBoreStability
 
     std::vector<cvf::Color3f> colors = { cvf::Color3f::GREEN, cvf::Color3f::DARK_ORANGE };
 
-    std::vector<RiuQwtPlotCurve::LineStyleEnum> lineStyles = { RiuQwtPlotCurve::STYLE_DASH, RiuQwtPlotCurve::STYLE_SOLID };
+    std::vector<RiuQwtPlotCurveDefines::LineStyleEnum> lineStyles = { RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DASH,
+                                                                      RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID };
 
     for ( size_t i = 0; i < resultNames.size(); ++i )
     {
