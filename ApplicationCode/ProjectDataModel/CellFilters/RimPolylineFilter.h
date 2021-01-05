@@ -37,6 +37,8 @@ class RimPolylineTarget;
 class RimCase;
 class RimEclipseCase;
 class RimGeoMechCase;
+class RigMainGrid;
+class RigFemPartGrid;
 
 //==================================================================================================
 ///
@@ -89,6 +91,11 @@ private:
     void updateCells();
     void updateCellsForEclipse( const std::vector<cvf::Vec3d>& points, RimEclipseCase* eCase );
     void updateCellsForGeoMech( const std::vector<cvf::Vec3d>& points, RimGeoMechCase* gCase );
+
+    void updateCellsDepthEclipse( const std::vector<cvf::Vec3d>& points, const RigMainGrid* grid );
+    void updateCellsKIndexEclipse( const std::vector<cvf::Vec3d>& points, const RigMainGrid* grid );
+    void updateCellsDepthGeoMech( const std::vector<cvf::Vec3d>& points, const RigFemPartGrid* grid );
+    void updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& points, const RigFemPartGrid* grid );
 
     bool cellInsidePolygon2D( cvf::Vec3d center, std::array<cvf::Vec3d, 8>& corners, std::vector<cvf::Vec3d> polygon );
 

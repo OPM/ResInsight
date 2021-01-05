@@ -67,16 +67,20 @@ public:
     void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
+    void connectToFilterUpdates( RimCellFilter* filter );
+
 protected:
     // Overridden methods
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void                 defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
     caf::PdmFieldHandle* objectToggleField() override;
     void                 initAfterRead() override;
-
-    void onFilterUpdated( const SignalEmitter* emitter );
+    void                 onFilterUpdated( const SignalEmitter* emitter );
 
 private:
     caf::PdmChildArrayField<RimCellFilter*> m_cellFilters;
     caf::PdmField<bool>                     m_isActive;
+
+    // obsolete things for backwards compability
+    caf::PdmChildArrayField<RimCellRangeFilter*> m_rangeFilters_OBSOLETE;
 };

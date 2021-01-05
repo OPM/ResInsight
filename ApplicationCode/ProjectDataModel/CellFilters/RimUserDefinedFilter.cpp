@@ -33,6 +33,9 @@ RimUserDefinedFilter::RimUserDefinedFilter()
                                 "",
                                 "Use Ctrl-C for copy and Ctrl-V for paste",
                                 "" );
+
+    updateIconState();
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

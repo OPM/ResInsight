@@ -34,7 +34,7 @@
 #include "cafPdmObjectScriptingCapability.h"
 #include "cvfStructGridGeometryGenerator.h"
 
-CAF_PDM_SOURCE_INIT( RimCellFilterCollection, "RimCellFilterCollection" );
+CAF_PDM_SOURCE_INIT( RimCellFilterCollection, "RimCellFilterCollection", "CellRangeFilterCollection" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -49,6 +49,11 @@ RimCellFilterCollection::RimCellFilterCollection()
     CAF_PDM_InitScriptableFieldNoDefault( &m_cellFilters, "CellFilters", "Filters", "", "", "" );
     m_cellFilters.uiCapability()->setUiTreeHidden( true );
     caf::PdmFieldReorderCapability::addToField( &m_cellFilters );
+
+    // for backwards project file compability with old CellRangeFilterCollection
+    CAF_PDM_InitFieldNoDefault( &m_rangeFilters_OBSOLETE, "RangeFilters", "Range Filters", "", "", "" );
+    m_rangeFilters_OBSOLETE.uiCapability()->setUiHidden( true );
+    m_rangeFilters_OBSOLETE.xmlCapability()->setIOWritable( false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,6 +101,12 @@ std::vector<RimCellFilter*> RimCellFilterCollection::filters() const
 //--------------------------------------------------------------------------------------------------
 void RimCellFilterCollection::initAfterRead()
 {
+    // get any old range filters and put them in the new cell filter collection
+    for ( auto& filter : m_rangeFilters_OBSOLETE )
+    {
+        m_cellFilters.push_back( filter );
+    }
+
     for ( const auto& filter : m_cellFilters )
     {
         filter->filterChanged.connect( this, &RimCellFilterCollection::onFilterUpdated );
@@ -216,7 +227,7 @@ RimPolylineFilter* RimCellFilterCollection::addNewPolylineFilter( RimCase* srcCa
     RimPolylineFilter* pFilter = new RimPolylineFilter();
     pFilter->setCase( srcCase );
     m_cellFilters.push_back( pFilter );
-    pFilter->filterChanged.connect( this, &RimCellFilterCollection::onFilterUpdated );
+    connectToFilterUpdates( pFilter );
 
     this->updateConnectedEditors();
     onFilterUpdated( pFilter );
@@ -231,7 +242,7 @@ RimUserDefinedFilter* RimCellFilterCollection::addNewUserDefinedFilter( RimCase*
 {
     RimUserDefinedFilter* pFilter = new RimUserDefinedFilter();
     m_cellFilters.push_back( pFilter );
-    pFilter->filterChanged.connect( this, &RimCellFilterCollection::onFilterUpdated );
+    connectToFilterUpdates( pFilter );
 
     this->updateConnectedEditors();
     onFilterUpdated( pFilter );
@@ -246,7 +257,7 @@ RimCellRangeFilter* RimCellFilterCollection::addNewCellRangeFilter( RimCase* src
 {
     RimCellRangeFilter* pFilter = new RimCellRangeFilter();
     m_cellFilters.push_back( pFilter );
-    pFilter->filterChanged.connect( this, &RimCellFilterCollection::onFilterUpdated );
+    connectToFilterUpdates( pFilter );
     pFilter->setDefaultValues( sliceDirection, defaultSlice );
 
     this->updateConnectedEditors();
@@ -272,6 +283,17 @@ void RimCellFilterCollection::removeFilter( RimCellFilter* filter )
     m_cellFilters.removeChildObject( filter );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCellFilterCollection::connectToFilterUpdates( RimCellFilter* filter )
+{
+    filter->filterChanged.connect( this, &RimCellFilterCollection::onFilterUpdated );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimCellFilterCollection::onFilterUpdated( const SignalEmitter* emitter )
 {
     Rim3dView* view = nullptr;

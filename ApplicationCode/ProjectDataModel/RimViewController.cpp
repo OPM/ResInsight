@@ -32,6 +32,7 @@
 #include "RimCase.h"
 #include "RimCellFilter.h"
 #include "RimCellFilterCollection.h"
+#include "RimCellRangeFilter.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseContourMapView.h"
@@ -42,6 +43,7 @@
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechView.h"
 #include "RimIntersectionCollection.h"
+#include "RimPolylineFilter.h"
 #include "RimProject.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
@@ -1001,16 +1003,16 @@ void RimViewController::updateCellFilterOverrides( const RimCellFilter* changedF
                                                                 true );
         RimCellFilterCollection* overrideFilterColl = dynamic_cast<RimCellFilterCollection*>( objectCopy );
 
+        std::vector<RimCellFilter*> srcFilters  = sourceFilterCollection->filters();
+        std::vector<RimCellFilter*> dstFilters  = overrideFilterColl->filters();
+        RimEclipseView*             depEclView  = managedEclipseView();
+        RimGeoMechView*             depGeomView = managedGeoView();
+
         // Convert the range filter to fit in the managed view if needed
         if ( isCellFilterMappingApplicable() )
         {
             RimEclipseView* eclipseMasterView = dynamic_cast<RimEclipseView*>( masterView() );
             RimGeoMechView* geoMasterView     = dynamic_cast<RimGeoMechView*>( masterView() );
-            RimEclipseView* depEclView        = managedEclipseView();
-            RimGeoMechView* depGeomView       = managedGeoView();
-
-            std::vector<RimCellFilter*> srcFilters = sourceFilterCollection->filters();
-            std::vector<RimCellFilter*> dstFilters = overrideFilterColl->filters();
 
             if ( eclipseMasterView && depGeomView )
             {
@@ -1021,14 +1023,26 @@ void RimViewController::updateCellFilterOverrides( const RimCellFilter* changedF
 
                     for ( size_t rfIdx = 0; rfIdx < srcFilters.size(); ++rfIdx )
                     {
-                        RimCellFilter* srcRFilter = srcFilters[rfIdx];
-                        RimCellFilter* dstRFilter = dstFilters[rfIdx];
+                        overrideFilterColl->connectToFilterUpdates( dstFilters[rfIdx] );
 
-                        // TODO: handle conversion of range, poly and userdef filters
-                        // RigCaseToCaseRangeFilterMapper::convertRangeFilterEclToFem( srcRFilter,
-                        //                                                            srcEclGrid,
-                        //                                                            dstRFilter,
-                        //                                                            dstFemPart );
+                        RimCellRangeFilter* srcRFilter = dynamic_cast<RimCellRangeFilter*>( srcFilters[rfIdx] );
+                        RimCellRangeFilter* dstRFilter = dynamic_cast<RimCellRangeFilter*>( dstFilters[rfIdx] );
+
+                        if ( ( srcRFilter != nullptr ) && ( dstRFilter != nullptr ) )
+                        {
+                            RigCaseToCaseRangeFilterMapper::convertRangeFilterEclToFem( srcRFilter,
+                                                                                        srcEclGrid,
+                                                                                        dstRFilter,
+                                                                                        dstFemPart );
+                            continue;
+                        }
+
+                        RimPolylineFilter* polyDstFilter = dynamic_cast<RimPolylineFilter*>( dstFilters[rfIdx] );
+                        if ( polyDstFilter != nullptr )
+                        {
+                            RimGeoMechCase* gCase = depGeomView->geoMechCase();
+                            polyDstFilter->setCase( gCase );
+                        }
                     }
                 }
             }
@@ -1040,15 +1054,43 @@ void RimViewController::updateCellFilterOverrides( const RimCellFilter* changedF
                     RigMainGrid* dstEclGrid = depEclView->mainGrid();
                     for ( size_t rfIdx = 0; rfIdx < srcFilters.size(); ++rfIdx )
                     {
-                        RimCellFilter* srcRFilter = srcFilters[rfIdx];
-                        RimCellFilter* dstRFilter = dstFilters[rfIdx];
+                        overrideFilterColl->connectToFilterUpdates( dstFilters[rfIdx] );
 
-                        // TODO: handle conversion of range, poly and userdef filters
-                        // RigCaseToCaseRangeFilterMapper::convertRangeFilterFemToEcl( srcRFilter,
-                        //                                                            srcFemPart,
-                        //                                                            dstRFilter,
-                        //                                                            dstEclGrid );
+                        RimCellRangeFilter* srcRFilter = dynamic_cast<RimCellRangeFilter*>( srcFilters[rfIdx] );
+                        RimCellRangeFilter* dstRFilter = dynamic_cast<RimCellRangeFilter*>( dstFilters[rfIdx] );
+
+                        if ( ( srcRFilter != nullptr ) && ( dstRFilter != nullptr ) )
+                        {
+                            RigCaseToCaseRangeFilterMapper::convertRangeFilterFemToEcl( srcRFilter,
+                                                                                        srcFemPart,
+                                                                                        dstRFilter,
+                                                                                        dstEclGrid );
+                            continue;
+                        }
+
+                        RimPolylineFilter* polyDstFilter = dynamic_cast<RimPolylineFilter*>( dstFilters[rfIdx] );
+                        if ( polyDstFilter != nullptr )
+                        {
+                            RimEclipseCase* eCase = depEclView->eclipseCase();
+                            polyDstFilter->setCase( eCase );
+                        }
                     }
+                }
+            }
+        }
+        else
+        {
+            for ( size_t rfIdx = 0; rfIdx < dstFilters.size(); ++rfIdx )
+            {
+                overrideFilterColl->connectToFilterUpdates( dstFilters[rfIdx] );
+
+                RimPolylineFilter* polyDstFilter = dynamic_cast<RimPolylineFilter*>( dstFilters[rfIdx] );
+                if ( polyDstFilter != nullptr )
+                {
+                    RimCase* theCase = nullptr;
+                    if ( depEclView ) theCase = depEclView->eclipseCase();
+                    if ( depGeomView ) theCase = depGeomView->geoMechCase();
+                    polyDstFilter->setCase( theCase );
                 }
             }
         }
