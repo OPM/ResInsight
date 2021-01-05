@@ -1008,7 +1008,7 @@ void RimViewController::updateCellFilterOverrides( const RimCellFilter* changedF
         RimEclipseView*             depEclView  = managedEclipseView();
         RimGeoMechView*             depGeomView = managedGeoView();
 
-        // Convert the range filter to fit in the managed view if needed
+        // Convert the cell filter to fit in the managed view if needed
         if ( isCellFilterMappingApplicable() )
         {
             RimEclipseView* eclipseMasterView = dynamic_cast<RimEclipseView*>( masterView() );
