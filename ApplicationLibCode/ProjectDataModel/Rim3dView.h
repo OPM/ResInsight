@@ -192,7 +192,6 @@ protected:
                                      const cvf::BoundingBox& wellPathClipBoundingBox );
     void addAnnotationsToModel( cvf::ModelBasicList* annotationsModel );
     void addMeasurementToModel( cvf::ModelBasicList* measureModel );
-    void addPolylineSelectionToModel( cvf::ModelBasicList* model );
 
     // Override viewer
 
@@ -278,7 +277,6 @@ private:
     void createHighlightAndGridBoxDisplayModel();
     void appendAnnotationsToModel();
     void appendMeasurementToModel();
-    void appendPolylineSelectionToModel();
 
     // Pure private methods : Override viewer and comparison view
 

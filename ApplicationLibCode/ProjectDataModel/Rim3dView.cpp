@@ -369,8 +369,9 @@ void Rim3dView::updateMdiWindowTitle()
 {
     if ( m_viewer )
     {
-        m_viewer->layoutWidget()->setWindowTitle(
-            autoName() + ( isMasterView() ? " (Primary)" : viewController() ? " (Controlled)" : "" ) );
+        m_viewer->layoutWidget()->setWindowTitle( autoName() + ( isMasterView()     ? " (Primary)"
+                                                                 : viewController() ? " (Controlled)"
+                                                                                    : "" ) );
     }
 }
 
@@ -570,14 +571,12 @@ void Rim3dView::updateDisplayModelForCurrentTimeStepAndRedraw()
         this->onUpdateDisplayModelForCurrentTimeStep();
         appendAnnotationsToModel();
         appendMeasurementToModel();
-        appendPolylineSelectionToModel();
 
         if ( Rim3dView* depView = prepareComparisonView() )
         {
             depView->onUpdateDisplayModelForCurrentTimeStep();
             depView->appendAnnotationsToModel();
             depView->appendMeasurementToModel();
-            depView->appendPolylineSelectionToModel();
 
             restoreComparisonView();
         }
@@ -996,30 +995,6 @@ void Rim3dView::addAnnotationsToModel( cvf::ModelBasicList* annotationsModel )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::addPolylineSelectionToModel( cvf::ModelBasicList* model )
-{
-    if ( !this->ownerCase() ) return;
-
-    std::vector<RimCellFilterCollection*> filterCollections;
-    descendantsIncludingThisOfType( filterCollections );
-
-    // if ( filterCollections.empty() || !filterCollections.front()->isActive() )
-    //{
-    //    //m_polylineSelectionPartManager->clearAllGeometry();
-    //}
-    // else
-    //{
-    //    cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
-    //    m_annotationsPartManager->appendGeometryPartsToModel( model, transForm.p(), ownerCase()->allCellsBoundingBox()
-    //    );
-    //}
-
-    model->updateBoundingBoxesRecursive();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void Rim3dView::addMeasurementToModel( cvf::ModelBasicList* measureModel )
 {
     if ( !this->ownerCase() ) return;
@@ -1067,8 +1042,8 @@ void Rim3dView::updateGridBoxData()
     {
         using BBox = cvf::BoundingBox;
 
-        BBox masterDomainBBox = isShowingActiveCellsOnly() ? ownerCase()->activeCellsBoundingBox()
-                                                           : ownerCase()->allCellsBoundingBox();
+        BBox masterDomainBBox   = isShowingActiveCellsOnly() ? ownerCase()->activeCellsBoundingBox()
+                                                             : ownerCase()->allCellsBoundingBox();
         BBox combinedDomainBBox = masterDomainBBox;
 
         if ( Rim3dView* depView = activeComparisonView() )
@@ -1550,28 +1525,6 @@ void Rim3dView::appendAnnotationsToModel()
         model->setName( name );
 
         addAnnotationsToModel( model.p() );
-
-        frameScene->addModel( model.p() );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void Rim3dView::appendPolylineSelectionToModel()
-{
-    if ( !nativeOrOverrideViewer() ) return;
-
-    cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
-    if ( frameScene )
-    {
-        cvf::String name = "PolylineSelection";
-        this->removeModelByName( frameScene, name );
-
-        cvf::ref<cvf::ModelBasicList> model = new cvf::ModelBasicList;
-        model->setName( name );
-
-        addPolylineSelectionToModel( model.p() );
 
         frameScene->addModel( model.p() );
     }
