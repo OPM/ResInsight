@@ -22,7 +22,6 @@
 #include "RimSummaryCase.h"
 #include "RimWellRftPlot.h"
 
-#include "RiuCvfOverlayItemWidget.h"
 #include "RiuQwtPlotWidget.h"
 
 #include "cafPdmUiListEditor.h"

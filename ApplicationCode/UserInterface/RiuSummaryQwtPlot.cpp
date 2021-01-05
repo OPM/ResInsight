@@ -38,7 +38,6 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
-#include "RiuCvfOverlayItemWidget.h"
 #include "RiuPlotAnnotationTool.h"
 #include "RiuQwtCurvePointTracker.h"
 #include "RiuQwtPlotWheelZoomer.h"

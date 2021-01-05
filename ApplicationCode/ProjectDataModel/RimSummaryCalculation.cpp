@@ -286,7 +286,10 @@ bool RimSummaryCalculation::calculate()
 
         std::vector<time_t> curveTimeSteps = RiaSummaryCurveDefinition::timeSteps( curveDef );
 
-        timeHistoryCurveMerger.addCurveData( curveTimeSteps, curveValues );
+        if ( !curveTimeSteps.empty() && !curveValues.empty() )
+        {
+            timeHistoryCurveMerger.addCurveData( curveTimeSteps, curveValues );
+        }
     }
 
     timeHistoryCurveMerger.computeInterpolatedValues();

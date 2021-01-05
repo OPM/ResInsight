@@ -26,7 +26,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuQwtCurvePointTracker.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotWheelZoomer.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotZoomer.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWidgetDragger.h
-${CMAKE_CURRENT_LIST_DIR}/RiuCvfOverlayItemWidget.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuRecentFileActionProvider.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuRelativePermeabilityPlotPanel.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuRelativePermeabilityPlotUpdater.h
@@ -123,7 +122,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuQwtScalePicker.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtCurvePointTracker.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotWheelZoomer.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuWidgetDragger.cpp
-${CMAKE_CURRENT_LIST_DIR}/RiuCvfOverlayItemWidget.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuRecentFileActionProvider.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuRelativePermeabilityPlotPanel.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuRelativePermeabilityPlotUpdater.cpp
@@ -246,7 +244,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuTofAccumulatedPhaseFractionsPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtScalePicker.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotWheelZoomer.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWidgetDragger.h
-${CMAKE_CURRENT_LIST_DIR}/RiuCvfOverlayItemWidget.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuEditPerforationCollectionWidget.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuAdvancedSnapshotExportWidget.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellAllocationPlot.h

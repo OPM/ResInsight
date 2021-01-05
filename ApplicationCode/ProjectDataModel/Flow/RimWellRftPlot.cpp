@@ -54,7 +54,8 @@
 #include "RimWellPlotTools.h"
 #include "RimWellPltPlot.h"
 
-#include "RiuCvfOverlayItemWidget.h"
+#include "RiuAbstractLegendFrame.h"
+#include "RiuAbstractOverlayContentFrame.h"
 #include "RiuDraggableOverlayFrame.h"
 #include "RiuQwtPlotWidget.h"
 
@@ -328,7 +329,7 @@ void RimWellRftPlot::updateEditorsFromPreviousSelection()
 
     bool dummy             = false;
     auto dataSourceOptions = calculateValueOptions( &m_selectedSources, &dummy );
-    for ( auto dataSourceOption : dataSourceOptions )
+    for ( const auto& dataSourceOption : dataSourceOptions )
     {
         if ( dataSourceOption.level() == 1 )
         {
@@ -343,7 +344,7 @@ void RimWellRftPlot::updateEditorsFromPreviousSelection()
     // This has to happen after the m_selectedSources is filled
     // because the available time steps is dependent on the selected sources.
     auto timeStepOptions = calculateValueOptions( &m_selectedTimeSteps, &dummy );
-    for ( auto timeStepOption : timeStepOptions )
+    for ( const auto& timeStepOption : timeStepOptions )
     {
         QDateTime timeStep = timeStepOption.value().toDateTime();
         if ( previousTimeSteps.count( timeStep ) )
@@ -584,6 +585,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                     QString label = uiText.replace( ": Pressure", "" );
                     label         = RiaStatisticsTools::replacePercentileByPValueText( label );
                     curve->setSymbolLabel( label );
+                    curve->setLineThickness( 3 );
                 }
             }
         }
@@ -1021,7 +1023,7 @@ std::map<QString, QStringList> RimWellRftPlot::findWellSources()
             for ( RimSummaryCaseCollection* summaryCaseColl : rftEnsembles )
             {
                 std::set<QString> wellsWithRftData = summaryCaseColl->wellsWithRftData();
-                for ( QString wellName : wellsWithRftData )
+                for ( const QString& wellName : wellsWithRftData )
                 {
                     wellNames[wellName].push_back( "Ensemble" );
                 }
@@ -1034,7 +1036,7 @@ std::map<QString, QStringList> RimWellRftPlot::findWellSources()
         {
             for ( RimObservedFmuRftData* rftFmuData : allRftFmuData )
             {
-                for ( QString wellName : rftFmuData->wells() )
+                for ( const QString& wellName : rftFmuData->wells() )
                 {
                     wellNames[wellName].push_back( "Observed" );
                 }
@@ -1214,7 +1216,7 @@ cvf::Color3f RimWellRftPlot::findCurveColor( RimWellLogCurve* curve )
             {
                 cvf::Color3f backgroundColor =
                     RiaColorTools::fromQColorTo3f( plotByIndex( 0 )->viewer()->canvasBackground().color() );
-                curveColor = RiaColorTools::blendCvfColors( backgroundColor, curveColor, 2, 1 );
+                curveColor = RiaColorTools::blendCvfColors( backgroundColor, curveColor, 1, 2 );
             }
         }
     }
@@ -1235,12 +1237,15 @@ void RimWellRftPlot::defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveD
     m_timeStepSymbols.clear();
 
     // Clear all ensemble legends
-    RimWellLogTrack* track = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
-    for ( auto ensembleLegendPair : m_ensembleLegendFrames )
+    RiuQwtPlotWidget* viewer = nullptr;
+    RimWellLogTrack*  track  = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
+    if ( track ) viewer = track->viewer();
+
+    for ( const auto& ensembleLegendPair : m_ensembleLegendFrames )
     {
-        if ( track->viewer() && ensembleLegendPair.second )
+        if ( viewer && ensembleLegendPair.second )
         {
-            track->viewer()->removeOverlayFrame( ensembleLegendPair.second );
+            viewer->removeOverlayFrame( ensembleLegendPair.second );
             delete ensembleLegendPair.second;
         }
     }
@@ -1257,18 +1262,18 @@ void RimWellRftPlot::defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveD
         {
             curveSet->initializeLegend();
 
-            if ( curveSet->legendConfig()->showLegend() && curveSet->colorMode() == ColorMode::BY_ENSEMBLE_PARAM &&
-                 !curveSet->currentEnsembleParameter().isEmpty() )
+            if ( viewer && curveSet->legendConfig()->showLegend() &&
+                 curveSet->colorMode() == ColorMode::BY_ENSEMBLE_PARAM && !curveSet->currentEnsembleParameter().isEmpty() )
             {
                 if ( !m_ensembleLegendFrames[curveSet] )
                 {
-                    m_ensembleLegendFrames[curveSet] =
-                        new RiuCvfOverlayItemWidget( curveSet->legendConfig()->titledOverlayFrame(),
-                                                     track->viewer()->canvas(),
-                                                     track->viewer()->overlayMargins() );
+                    auto m = new RiuDraggableOverlayFrame( viewer->canvas(), viewer->overlayMargins() );
+                    m->setContentFrame( curveSet->legendConfig()->makeLegendFrame() );
+
+                    m_ensembleLegendFrames[curveSet] = m;
                 }
 
-                track->viewer()->addOverlayFrame( m_ensembleLegendFrames[curveSet] );
+                viewer->addOverlayFrame( m_ensembleLegendFrames[curveSet] );
             }
         }
     }
@@ -1289,8 +1294,8 @@ void RimWellRftPlot::defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveD
         auto colorTableIndex  = m_dataSourceColors.size();
         auto symbolTableIndex = m_timeStepSymbols.size();
 
-        RifDataSourceForRftPlt address      = curveDefToAdd.address();
-        RifDataSourceForRftPlt colorAddress = address;
+        const RifDataSourceForRftPlt& address      = curveDefToAdd.address();
+        RifDataSourceForRftPlt        colorAddress = address;
         if ( address.sourceType() == RifDataSourceForRftPlt::SUMMARY_RFT )
         {
             colorAddress = RifDataSourceForRftPlt( RifDataSourceForRftPlt::ENSEMBLE_RFT, address.ensemble() );

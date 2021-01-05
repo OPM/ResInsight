@@ -55,7 +55,6 @@
 #include "RimTimeStepFilter.h"
 
 #include "RiuAbstractLegendFrame.h"
-#include "RiuCvfOverlayItemWidget.h"
 #include "RiuDraggableOverlayFrame.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuQwtPlotCurve.h"

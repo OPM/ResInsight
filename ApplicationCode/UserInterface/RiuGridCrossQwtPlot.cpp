@@ -27,7 +27,6 @@
 #include "RimPlotAxisPropertiesInterface.h"
 #include "RimRegularLegendConfig.h"
 
-#include "RiuCvfOverlayItemWidget.h"
 #include "RiuGuiTheme.h"
 #include "RiuPlotAnnotationTool.h"
 #include "RiuQwtCurvePointTracker.h"
