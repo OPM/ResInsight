@@ -212,7 +212,7 @@ void RifReaderEnsembleStatisticsRft::calculateStatistics( const RifEclipseRftAdd
             std::vector<double> pressures;
             reader->values( depthAddress, &depths );
             reader->values( pressAddress, &pressures );
-            if (!depths.empty() && !pressures.empty())
+            if ( !depths.empty() && !pressures.empty() )
             {
                 dataSetSizeCalc.addValueAndWeight( depths.size(), 1.0 );
                 curveMerger.addCurveData( depths, pressures );
