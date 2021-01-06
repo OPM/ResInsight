@@ -259,8 +259,12 @@ QString RimVfpPlot::asciiDataForPlotExport() const
             }
         }
 
-        QString plotTitle =
-            generatePlotTitle( wellName, m_tableType(), m_interpolatedVariable(), m_primaryVariable(), m_familyVariable() );
+        QString plotTitle = generatePlotTitle( wellName,
+                                               m_tableNumber(),
+                                               m_tableType(),
+                                               m_interpolatedVariable(),
+                                               m_primaryVariable(),
+                                               m_familyVariable() );
 
         QString dataText;
 
@@ -470,8 +474,12 @@ void RimVfpPlot::onLoadDataAndUpdate()
             }
         }
 
-        updatePlotTitle(
-            generatePlotTitle( wellName, m_tableType(), m_interpolatedVariable(), m_primaryVariable(), m_familyVariable() ) );
+        updatePlotTitle( generatePlotTitle( wellName,
+                                            m_tableNumber(),
+                                            m_tableType(),
+                                            m_interpolatedVariable(),
+                                            m_primaryVariable(),
+                                            m_familyVariable() ) );
 
         m_plotWidget->setAxisTitleEnabled( QwtPlot::xBottom, true );
         m_plotWidget->setAxisTitleEnabled( QwtPlot::yLeft, true );
@@ -1017,6 +1025,7 @@ void RimVfpPlot::updatePlotTitle( const QString& plotTitle )
 ///
 //--------------------------------------------------------------------------------------------------
 QString RimVfpPlot::generatePlotTitle( const QString&                          wellName,
+                                       int                                     tableNumber,
                                        RimVfpDefines::TableType                tableType,
                                        RimVfpDefines::InterpolatedVariableType interpolatedVariable,
                                        RimVfpDefines::ProductionVariableType   primaryVariable,
@@ -1026,8 +1035,12 @@ QString RimVfpPlot::generatePlotTitle( const QString&                          w
     QString interpolatedVariableText =
         caf::AppEnum<RimVfpDefines::InterpolatedVariableType>::uiText( interpolatedVariable );
     QString primaryVariableText = caf::AppEnum<RimVfpDefines::ProductionVariableType>::uiText( primaryVariable );
-    QString plotTitleStr =
-        QString( "VFP: %1 (%2) - %3 x %4" ).arg( wellName ).arg( tableTypeText ).arg( interpolatedVariableText ).arg( primaryVariableText );
+    QString plotTitleStr        = QString( "VFP: %1 (%2) #%3 - %4 x %5" )
+                               .arg( wellName )
+                               .arg( tableTypeText )
+                               .arg( tableNumber )
+                               .arg( interpolatedVariableText )
+                               .arg( primaryVariableText );
 
     return plotTitleStr;
 }

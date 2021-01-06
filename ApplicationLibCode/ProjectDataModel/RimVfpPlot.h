@@ -106,6 +106,7 @@ private:
 
     void           updatePlotTitle( const QString& plotTitle );
     static QString generatePlotTitle( const QString&                          wellName,
+                                      int                                     tableNumber,
                                       RimVfpDefines::TableType                tableType,
                                       RimVfpDefines::InterpolatedVariableType interpolatedVariable,
                                       RimVfpDefines::ProductionVariableType   primaryVariable,
