@@ -148,7 +148,6 @@
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
 #include "RimWellPltPlot.h"
-#include "RimWellRftPlot.h"
 
 #ifdef USE_QTCHARTS
 #include "RimGridStatisticsPlotCollection.h"
@@ -471,14 +470,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             }
             menuBuilder.subMenuEnd();
         }
-        else if ( dynamic_cast<RimWellRftPlot*>( firstUiItem ) )
-        {
-            menuBuilder << "RicDeleteRftPlotFeature";
-        }
-        else if ( dynamic_cast<RimWellPltPlot*>( firstUiItem ) )
-        {
-            menuBuilder << "RicDeletePltPlotFeature";
-        }
         else if ( dynamic_cast<RimCalcScript*>( firstUiItem ) )
         {
             menuBuilder << "RicEditScriptFeature";
@@ -583,7 +574,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicNewSummaryCrossPlotFeature";
         }
-        else if ( dynamic_cast<RimWellLogPlot*>( firstUiItem ) )
+        else if ( dynamic_cast<RimWellLogPlot*>( firstUiItem ) && !dynamic_cast<RimWellPltPlot*>( firstUiItem ) )
         {
             menuBuilder << "RicPasteWellLogPlotFeature";
             menuBuilder << "RicPasteWellLogTrackFeature";

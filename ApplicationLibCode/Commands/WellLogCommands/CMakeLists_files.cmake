@@ -4,9 +4,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicAddWellLogToPlotFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellLogCurveExtractionFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellLogRftCurveFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewRftPlotFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicDeleteRftPlotFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewPltPlotFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicDeletePltPlotFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellLogFileCurveFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellLogPlotFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellLogPlotFeatureImpl.h
@@ -36,9 +34,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicAddWellLogToPlotFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellLogCurveExtractionFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellLogRftCurveFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewRftPlotFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicDeleteRftPlotFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewPltPlotFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicDeletePltPlotFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellLogFileCurveFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellLogPlotFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellLogPlotFeatureImpl.cpp
