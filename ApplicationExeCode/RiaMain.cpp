@@ -17,10 +17,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaArgumentParser.h"
-#include "RiaConsoleApplication.h"
-#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 
+#ifdef ENABLE_GRPC
+#include "RiaGrpcConsoleApplication.h"
+#include "RiaGrpcGuiApplication.h"
+#else
+#include "RiaConsoleApplication.h"
+#include "RiaGuiApplication.h"
+#endif
 #include "cvfProgramOptions.h"
 #include "cvfqtUtils.h"
 
@@ -35,10 +40,18 @@ RiaApplication* createApplication( int& argc, char* argv[] )
     {
         if ( !qstrcmp( argv[i], "--console" ) || !qstrcmp( argv[i], "--unittest" ) )
         {
+#ifdef ENABLE_GRPC
+            return new RiaGrpcConsoleApplication( argc, argv );
+#else
             return new RiaConsoleApplication( argc, argv );
+#endif
         }
     }
+#ifdef ENABLE_GRPC
+    return new RiaGrpcGuiApplication( argc, argv );
+#else
     return new RiaGuiApplication( argc, argv );
+#endif
 }
 
 int main( int argc, char* argv[] )
@@ -107,10 +120,13 @@ int main( int argc, char* argv[] )
         int exitCode = 0;
         try
         {
-            if ( app->initializeGrpcServer( progOpt ) )
+#ifdef ENABLE_GRPC
+            auto grpcInterface = dynamic_cast<RiaGrpcApplicationInterface*>( app.get() );
+            if ( grpcInterface && grpcInterface->initializeGrpcServer( progOpt ) )
             {
-                app->launchGrpcServer();
+                grpcInterface->launchGrpcServer();
             }
+#endif
             exitCode = QCoreApplication::instance()->exec();
         }
         catch ( std::exception& exep )

@@ -57,7 +57,7 @@ public:
     void         addPlot( RimPlotType* plot ) { insertPlot( plot, plotCount() ); }
     virtual void insertPlot( RimPlotType* plot, size_t index ) = 0;
     virtual void removePlot( RimPlotType* plot )               = 0;
-    void         removeRimPlot( RimPlot* rimPlot )
+    void         removeRimPlot( RimPlot* rimPlot ) override
     {
         auto typedPlot = dynamic_cast<RimPlotType*>( rimPlot );
         if ( typedPlot )

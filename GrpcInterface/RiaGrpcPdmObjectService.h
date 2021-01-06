@@ -30,6 +30,7 @@ class PdmProxyFieldHandle;
 
 struct AbstractDataHolder
 {
+    virtual ~AbstractDataHolder() = default;
     virtual size_t dataCount() const                                                             = 0;
     virtual size_t dataSizeOf() const                                                            = 0;
     virtual void   reserveReplyStorage( rips::PdmObjectGetterReply* reply ) const                = 0;

@@ -23,35 +23,47 @@ endif()
 
 add_definitions(-D_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
 
+find_package(
+  Qt5
+  COMPONENTS Core Network
+  QUIET)
+
+set(QT_LIBRARIES
+    Qt5::Core
+    Qt5::Network)
+
 set(SOURCE_GROUP_HEADER_FILES
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcServer.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcHelper.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCallbacks.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCallbacks.inl
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcServiceInterface.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCaseService.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcSimulationWellService.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcGridService.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcProjectService.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCommandService.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcAppService.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcPropertiesService.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcNNCPropertiesService.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcPdmObjectService.h)
+    RiaGrpcServer.h
+    RiaGrpcHelper.h
+    RiaGrpcCallbacks.h
+    RiaGrpcCallbacks.inl
+    RiaGrpcServiceInterface.h
+    RiaGrpcCaseService.h
+    RiaGrpcSimulationWellService.h
+    RiaGrpcGridService.h
+    RiaGrpcProjectService.h
+    RiaGrpcCommandService.h
+    RiaGrpcAppService.h
+    RiaGrpcPropertiesService.h
+    RiaGrpcNNCPropertiesService.h
+    RiaGrpcPdmObjectService.h
+    RiaGrpcApplicationInterface.h
+    )
 
 set(SOURCE_GROUP_SOURCE_FILES
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcServer.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcHelper.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcServiceInterface.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCaseService.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcSimulationWellService.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcGridService.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcProjectService.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCommandService.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcAppService.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcPropertiesService.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcNNCPropertiesService.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcPdmObjectService.cpp)
+    RiaGrpcServer.cpp
+    RiaGrpcHelper.cpp
+    RiaGrpcServiceInterface.cpp
+    RiaGrpcCaseService.cpp
+    RiaGrpcSimulationWellService.cpp
+    RiaGrpcGridService.cpp
+    RiaGrpcProjectService.cpp
+    RiaGrpcCommandService.cpp
+    RiaGrpcAppService.cpp
+    RiaGrpcPropertiesService.cpp
+    RiaGrpcNNCPropertiesService.cpp
+    RiaGrpcPdmObjectService.cpp
+    RiaGrpcApplicationInterface.cpp)
 
 # Find Protobuf installation Looks for protobuf-config.cmake file installed by
 # Protobuf's cmake installation.
@@ -71,12 +83,11 @@ if(Protobuf_FOUND)
 
   set(_GRPC_GRPCPP_UNSECURE gRPC::grpc++_unsecure gRPC::grpc_unsecure gRPC::gpr)
   set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
-  set(GRPC_LIBRARIES ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF})
+  set(GRPC_LINK_LIBRARIES ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF})
 
   set_target_properties(
-    ${GRPC_LIBRARIES} PROPERTIES MAP_IMPORTED_CONFIG_MINSIZEREL RELEASE
+    ${GRPC_LINK_LIBRARIES} PROPERTIES MAP_IMPORTED_CONFIG_MINSIZEREL RELEASE
                                  MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE)
-  set(RESINSIGHT_GRPC_LIBRARIES ${GRPC_LIBRARIES} PARENT_SCOPE)
 else()
   message(STATUS "Using RESINSIGHT_GRPC_INSTALL_PREFIX=${RESINSIGHT_GRPC_INSTALL_PREFIX}")
   set(RESINSIGHT_GRPC_INSTALL_PREFIX
@@ -110,22 +121,18 @@ else()
         "${RESINSIGHT_GRPC_INSTALL_PREFIX}/tools/grpc/grpc_cpp_plugin")
   endif()
   include_directories(AFTER ${GRPC_INCLUDE_DIRS})
-  set(RESINSIGHT_GRPC_LIBRARIES ${GRPC_LINK_LIBRARIES} PARENT_SCOPE)
-  #list(APPEND RESINSIGHT_GRPC_LIBRARIES upb)
 endif()
 
 set(_LINK_LIBRARIES
     ${QT_LIBRARIES}
+    ${GRPC_LINK_LIBRARIES}
     LibCore
+    CommonCode
     cafCommand
-    cafPdmCvf
+    cafCommandFeatures
+    cafProjectDataModel
     cafPdmScripting
-    cafTensor
-    cafViewer
-    cafVizExtensions
-    ecl
-    nightcharts
-    qwt)
+    ApplicationLibCode)
 
 # Proto files
 set(PROTO_FILES
@@ -140,13 +147,19 @@ set(PROTO_FILES
     "Properties"
     "Grid")
 
-set(GRPC_PYTHON_SOURCE_PATH "${CMAKE_CURRENT_LIST_DIR}/Python")
+set(GRPC_PYTHON_SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/Python")
 
 add_custom_target(PipInstall)
 
+if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
+  message(STATUS "Using Python Executable: ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE}")
+else()
+    message(STATUS "RESINSIGHT_GRPC_PYTHON_EXECUTABLE not specified. Will not install Python client code")
+endif()
+
 foreach(proto_file ${PROTO_FILES})
   get_filename_component(
-    rips_proto "${CMAKE_CURRENT_LIST_DIR}/GrpcProtos/${proto_file}.proto"
+    rips_proto "GrpcProtos/${proto_file}.proto"
     ABSOLUTE)
   get_filename_component(rips_proto_path "${rips_proto}" PATH)
 
@@ -170,8 +183,6 @@ foreach(proto_file ${PROTO_FILES})
   set(rips_grpc_python "rips/generated/${proto_file}_pb2_grpc.py")
 
   if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
-    message(
-      STATUS "Using Python Executable: ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE}")
     add_custom_command(
       OUTPUT "${GRPC_PYTHON_SOURCE_PATH}/${rips_proto_python}"
              "${GRPC_PYTHON_SOURCE_PATH}/${rips_grpc_python}"
@@ -185,11 +196,6 @@ foreach(proto_file ${PROTO_FILES})
       VERBATIM)
     list(APPEND GRPC_PYTHON_GENERATED_SOURCES ${rips_proto_python}
          ${rips_grpc_python})
-  else()
-    message(
-      STATUS
-        "RESINSIGHT_GRPC_PYTHON_EXECUTABLE not specified. Will not install Python client code"
-    )
   endif()
 
   list(APPEND GRPC_HEADER_FILES ${rips_proto_hdrs} ${rips_grpc_hdrs})
@@ -199,7 +205,7 @@ foreach(proto_file ${PROTO_FILES})
 endforeach(proto_file)
 
 if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
-  configure_file(${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.py.cmake
+  configure_file(${CMAKE_SOURCE_DIR}/ApplicationLibCode/Adm/RiaVersionInfo.py.cmake
                  ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/RiaVersionInfo.py)
   configure_file(${GRPC_PYTHON_SOURCE_PATH}/setup.py.cmake
                  ${GRPC_PYTHON_SOURCE_PATH}/setup.py)
@@ -273,9 +279,15 @@ add_library(
   ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
   ${GRPC_HEADER_FILES} ${GRPC_CPP_SOURCES})
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${GRPC_INCLUDE_DIRS})
+target_include_directories(${PROJECT_NAME} PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  PRIVATE
+  ${GRPC_INCLUDE_DIRS}
+  ${CMAKE_BINARY_DIR}/Generated
+)
+
 target_link_directories(${PROJECT_NAME} PUBLIC ${GRPC_LIBRARY_DIRS})
-target_link_libraries(${PROJECT_NAME} PUBLIC ${_LINK_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${_LINK_LIBRARIES})
 
 if(MSVC)
   # GRPC generates a lot of harmless warnings on MSVC
@@ -322,14 +334,4 @@ if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
           DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python)
 endif()
 
-source_group(
-  "GrpcInterface"
-  FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.cmake)
-source_group("GrpcInterface\\GrpcProtos" FILES ${GRPC_PROTO_FILES_FULL_PATH})
-if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
-  source_group(
-    TREE ${GRPC_PYTHON_SOURCE_PATH}
-    FILES ${GRPC_PYTHON_SOURCES_FULL_PATH}
-    PREFIX "GrpcInterface\\Python")
-endif()
+source_group("GrpcProtos" FILES ${GRPC_PROTO_FILES_FULL_PATH})
