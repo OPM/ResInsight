@@ -40,7 +40,6 @@ class QwtPlotCurve;
 class QwtPlotGrid;
 class QwtPlotItem;
 class QwtPlotMarker;
-class QwtPlotPicker;
 
 class QEvent;
 class QLabel;
@@ -179,7 +178,6 @@ private:
     QPoint                           m_clickPosition;
     std::map<QwtPlot::Axis, QString> m_axisTitles;
     std::map<QwtPlot::Axis, bool>    m_axisTitlesEnabled;
-    QPointer<QwtPlotPicker>          m_plotPicker;
     const int                        m_overlayMargins;
     QString                          m_plotTitle;
     bool                             m_plotTitleEnabled;
