@@ -92,3 +92,7 @@ QListView[state="ExternalInput"] {
     background-color: $externalInputColor;
     border: 2px solid $borderColor;
 }
+
+RiuAbstractOverlayContentFrame, RiuDraggableOverlayFrame {
+    background-color: rgba(255,255,255,0.4);
+}
