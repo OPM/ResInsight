@@ -35,6 +35,11 @@ RiuVfpQwtPlot::RiuVfpQwtPlot( RimVfpPlot* plot, QWidget* parent /*= nullptr*/ )
     : RiuQwtPlotWidget( plot, parent )
 {
     RiuQwtPlotTools::setCommonPlotBehaviour( this );
+
+    // Remove event filter to disable unwanted highlighting
+    // on left click in plot.
+    removeEventFilter( this );
+    canvas()->removeEventFilter( this );
 }
 
 //--------------------------------------------------------------------------------------------------
