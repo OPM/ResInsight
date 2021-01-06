@@ -23,6 +23,7 @@
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogTrack.h"
 
+#include "RiuGuiTheme.h"
 #include "RiuQwtCurvePointTracker.h"
 #include "RiuRimQwtPlotCurve.h"
 
@@ -72,6 +73,9 @@ protected:
 
             updateClosestCurvePointMarker( closestPoint, relatedXAxis, relatedYAxis );
         }
+
+        auto color = RiuGuiTheme::getColorByVariableName( "markerColor" );
+        txt.setColor( color );
 
         return txt;
     }
