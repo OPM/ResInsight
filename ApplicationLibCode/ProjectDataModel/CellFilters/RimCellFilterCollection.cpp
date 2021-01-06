@@ -235,6 +235,7 @@ RimPolylineFilter* RimCellFilterCollection::addNewPolylineFilter( RimCase* srcCa
     pFilter->setCase( srcCase );
     m_cellFilters.push_back( pFilter );
     connectToFilterUpdates( pFilter );
+    pFilter->setActive( false );
 
     this->updateConnectedEditors();
     onFilterUpdated( pFilter );
