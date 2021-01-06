@@ -82,6 +82,20 @@ include (ResInsightVersion.cmake)
 find_package(Octave)
 
 ################################################################################
+# Grpc
+################################################################################
+option(RESINSIGHT_ENABLE_GRPC "Enable the gRPC scripting framework" OFF)
+if(RESINSIGHT_ENABLE_GRPC)
+  option(
+    RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE
+    "Download the gRPC python modules to enable generation of Python interface"
+    ON)
+  option(RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE
+         "Bundle the gRPC python modules into the install folder" OFF)
+  add_definitions(-DENABLE_GRPC)
+endif()
+
+################################################################################
 # Unity Build
 ################################################################################
 
@@ -546,9 +560,13 @@ endif (RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
 
 
 ################################################################################
-# Application 
+# Application
 ################################################################################
-add_subdirectory(ApplicationCode)
+add_subdirectory(ApplicationLibCode)
+if(RESINSIGHT_ENABLE_GRPC)
+    add_subdirectory(GrpcInterface)
+endif()
+add_subdirectory(ApplicationExeCode)
 
 if (OCTAVE_MKOCTFILE)
   message (STATUS "Adding OctavePlugin library")

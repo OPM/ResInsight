@@ -1076,27 +1076,7 @@ QString RiaApplication::pythonPath() const
 //--------------------------------------------------------------------------------------------------
 QProcessEnvironment RiaApplication::pythonProcessEnvironment() const
 {
-    QProcessEnvironment penv = QProcessEnvironment::systemEnvironment();
-#ifdef ENABLE_GRPC
-    penv.insert( "RESINSIGHT_GRPC_PORT", QString( "%1" ).arg( m_grpcServer->portNumber() ) );
-    penv.insert( "RESINSIGHT_EXECUTABLE", QCoreApplication::applicationFilePath() );
-
-    QStringList ripsLocations;
-    QString     separator;
-#ifdef WIN32
-    ripsLocations << QCoreApplication::applicationDirPath() + "\\Python"
-                  << QCoreApplication::applicationDirPath() + "\\..\\..\\Python";
-    separator = ";";
-
-#else
-    ripsLocations << QCoreApplication::applicationDirPath() + "/Python"
-                  << QCoreApplication::applicationDirPath() + "/../../Python";
-    separator = ":";
-#endif
-    penv.insert( "PYTHONPATH",
-                 QString( "%1%2%3" ).arg( penv.value( "PYTHONPATH" ) ).arg( separator ).arg( ripsLocations.join( separator ) ) );
-#endif
-    return penv;
+    return QProcessEnvironment::systemEnvironment();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1498,36 +1478,6 @@ cvf::Font* RiaApplication::defaultWellLabelFont()
     CVF_ASSERT( m_defaultWellLabelFont.notNull() );
 
     return m_defaultWellLabelFont.p();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiaApplication::initializeGrpcServer( const cvf::ProgramOptions& progOpt )
-{
-#ifdef ENABLE_GRPC
-    if ( !m_preferences->enableGrpcServer() ) return false;
-
-    int  defaultPortNumber = m_preferences->defaultGrpcPortNumber();
-    bool fixedPort         = false;
-    if ( cvf::Option o = progOpt.option( "server" ) )
-    {
-        if ( o.valueCount() == 1 )
-        {
-            defaultPortNumber = o.value( 0 ).toInt( defaultPortNumber );
-            fixedPort         = true;
-        }
-    }
-    int portNumber = defaultPortNumber;
-    if ( !fixedPort )
-    {
-        portNumber = RiaGrpcServer::findAvailablePortNumber( defaultPortNumber );
-    }
-    m_grpcServer = std::make_unique<RiaGrpcServer>( portNumber );
-    return true;
-#else
-    return false;
-#endif
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -75,7 +75,6 @@ void RicEditPreferencesFeature::onActionTriggered( bool isChecked )
         // Write preferences using QSettings  and apply them to the application
         app->applyPreferences();
         app->applyGuiPreferences( oldPreferences.get(), defaultFontObjects );
-        app->updateGrpcServer();
     }
     else
     {

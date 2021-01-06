@@ -5,7 +5,7 @@ on:
 env:
   NINJA_VERSION: 1.9.0
   BUILD_TYPE: Release
-  BUILDCACHE_VERSION: 0.18.0
+  BUILDCACHE_VERSION: 0.23.0
   BUILDCACHE_DIR: ${{ github.workspace }}/buildcache_dir
 
 jobs:
@@ -19,6 +19,9 @@ jobs:
             name: "Ubuntu 20.04",
             os: ubuntu-20.04,
             cc: "gcc", cxx: "g++",
+            vcpkg-response-file: vcpkg_x64-linux.txt,
+            vcpkg-triplet: x64-linux,
+            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake'
           }
     steps:
       - name: Checkout
@@ -42,7 +45,7 @@ jobs:
           if ("${{ runner.os }}" STREQUAL "Windows")
             set(buildcache_suffix "win-msvc.zip")
           elseif ("${{ runner.os }}" STREQUAL "Linux")
-            set(buildcache_suffix "linux.zip")
+            set(buildcache_suffix "linux.tar.gz")
           endif()
 
           set(buildcache_version $ENV{BUILDCACHE_VERSION})
@@ -52,7 +55,7 @@ jobs:
 
           if (NOT "${{ runner.os }}" STREQUAL "Windows")
             execute_process(
-              COMMAND chmod +x bin/buildcache
+              COMMAND chmod +x buildcache/bin/buildcache
             )
           endif()
           
@@ -67,54 +70,49 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ env.BUILDCACHE_DIR }}
-          key: ${{ matrix.config.name }}-manual-paths-cache-v02-${{ steps.cache_timestamp_string.outputs.timestamp }}
+          key: ${{ matrix.config.name }}-cache-v02-${{ steps.cache_timestamp_string.outputs.timestamp }}
       - name: Create Folder for buildcache
         run: New-Item ${{ env.BUILDCACHE_DIR }} -ItemType "directory" -Force 
         shell: pwsh
       - name: Add buildcache to system path
-        run: echo "::add-path::${{ github.workspace }}/bin"
-
+        run: echo "${{github.workspace}}/buildcache/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
+        shell: pwsh
+        
       - name: Cache Qt        
         id: cache-qt
         uses: actions/cache@v2
         with:
           path: ${{ github.workspace }}/Qt/
-          key: ${{ matrix.config.os }}-QtCache-v02
+          key: ${{ matrix.config.os }}-QtCache-v03
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
         with:
           version: 5.9.9
-          modules: qtscript 
+          modules: qtscript qtcharts
           dir: '${{ github.workspace }}/Qt/'
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
       - name: Install Linux dependencies
         if: "contains( matrix.config.os, 'ubuntu')"
-        run: sudo apt-get install libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev libhdf5-dev libboost-filesystem-dev libeigen3-dev
-      - name: Cache vcpkg artifacts
-        uses: actions/cache@v2
-        with:
-          path: ${{ github.workspace }}/ThirdParty/vcpkg/
-          # Ensure the cache is invalidated any time vcpkg version changes, or a different set of packages is being used.
-          key: ${{ hashFiles('.git/modules/ThirdParty/vcpkg/HEAD') }}-${{ runner.os }}-vcpkg-v04
+        run: sudo apt-get install libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev libhdf5-dev
       - name: Get Python executable path
         id: python-path
         run: echo "::set-output name=PYTHON_EXECUTABLE::$(python -c 'import sys; import pathlib; print (pathlib.PurePath(sys.executable).as_posix())')"
       - name: Print Python path
         run: echo ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
-      - name: Install Python dependencies
-        run: |
-          ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pip install --upgrade pip
-          ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pip install grpcio-tools
-          ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pip install pytest
-      - name: Setup vcpkg
+
+      - name: Set vcpkg's response file path used as part of cache's key.
+        uses: lukka/set-shell-env@master
+        with:
+          VCPKGRESPONSEFILE: ${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}
+      - name: Run vcpkg
         uses: lukka/run-vcpkg@v5
         id: runvcpkg
         with:
+          vcpkgArguments: '@${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}'
           vcpkgDirectory: '${{ github.workspace }}/ThirdParty/vcpkg'
-          setupOnly: true
-      - name: Run vcpkg
-        shell: bash
-        run: $VCPKG_ROOT/vcpkg install grpc:x64-linux
+           # Ensure the cache key changes any time the content of the response file changes.
+          appendedCacheKey: ${{ hashFiles(env.VCPKGRESPONSEFILE) }}
+
       - name: Configure
         shell: cmake -P {0}
         run: |
@@ -149,9 +147,11 @@ jobs:
               -D RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
               -D RESINSIGHT_TREAT_WARNINGS_AS_ERRORS=true
               -D RESINSIGHT_ENABLE_GRPC=true
+              -D Eigen3_DIR=${{ github.workspace }}/ThirdParty/vcpkg/installed/x64-linux/share/eigen3
+              -D Boost_INCLUDE_DIR=${{ github.workspace }}/ThirdParty/vcpkg/installed/x64-linux/include
               -D RESINSIGHT_GRPC_INSTALL_PREFIX=${{ github.workspace }}/ThirdParty/vcpkg/installed/x64-linux
               -D RESINSIGHT_GRPC_PYTHON_EXECUTABLE=${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
-              -D RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE=false
+              -D RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE=true
               -D VCPKG_AUTO_INSTALL=false
               -G Ninja
             RESULT_VARIABLE result
@@ -184,14 +184,20 @@ jobs:
           endif()
 
       - name: Stats for buildcache
-        run: ${{ github.workspace }}/bin/buildcache -s
+        run: ${{ github.workspace }}/buildcache/bin/buildcache -s
 
-      - name: (Linux) Run Unit Tests
+      - name: Run Unit Tests
         shell: bash
         run: |
-          cmakebuild/ApplicationCode/ResInsight --unittest
+          cmakebuild/ApplicationExeCode/ResInsight --unittest
+      - name: Run pytest
+        env:
+          RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ApplicationExeCode/ResInsight
+        run: |
+          cd GrpcInterface/Python/rips
+          ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pytest --console
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: ResInsight-manual-${{ matrix.config.name }}
+          name: ResInsight-${{ matrix.config.name }}
           path: ${{ runner.workspace }}/ResInsight/cmakebuild/install

@@ -1,0 +1,5 @@
+---
+Checks:          '-*,modernize-use-nullptr,modernize-use-override,modernize-deprecated-headers'
+HeaderFilterRegex: ''
+AnalyzeTemporaryDtors: false
+...

@@ -11,9 +11,14 @@ jobs:
         sudo apt install clang-format
         clang-format --version
     - uses: actions/checkout@v2
-    - name: Check format - ApplicationCode
+    - name: Check format - ApplicationLibCode
       run: |
-        cd ApplicationCode
+        cd ApplicationLibCode
+        find -name *.h -o -name *.cpp -o -name *.inl | xargs clang-format -i
+        git diff
+    - name: Check format - ApplicationExeCode
+      run: |
+        cd ApplicationExeCode
         find -name *.h -o -name *.cpp -o -name *.inl | xargs clang-format -i
         git diff
     - name: Check format - AppFwk

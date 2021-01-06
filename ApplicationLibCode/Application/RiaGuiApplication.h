@@ -131,7 +131,6 @@ public:
     static void clearAllSelections();
     void        applyGuiPreferences( const RiaPreferences*                         oldPreferences     = nullptr,
                                      const std::vector<caf::FontHolderInterface*>& defaultFontObjects = {} );
-    void        updateGrpcServer();
     static int  applicationResolution();
 
     // Public RiaApplication overrides
@@ -140,10 +139,7 @@ public:
     int               launchUnitTestsWithConsole() override;
     void              addToRecentFiles( const QString& fileName ) override;
     void              showFormattedTextInMessageBoxOrConsole( const QString& errMsg ) override;
-    void              launchGrpcServer() override;
-#ifdef ENABLE_GRPC
-    RiaGrpcServer* grpcServer() const override;
-#endif
+
 protected:
     // Protected RiaApplication overrides
     void invokeProcessEvents( QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents ) override;
@@ -160,6 +156,8 @@ protected:
     void startMonitoringWorkProgress( caf::UiProcess* uiProcess ) override;
     void stopMonitoringWorkProgress() override;
 
+    virtual void onGuiPreferencesChanged() {}
+
 private:
     void setWindowCaptionFromAppState();
 
@@ -175,15 +173,10 @@ private:
 
 private slots:
     void slotWorkerProcessFinished( int exitCode, QProcess::ExitStatus exitStatus );
-    void runIdleProcessing();
-    void onProgramExit();
 
 private:
     RiuMainWindow*     m_mainWindow;
     RiuPlotMainWindow* m_mainPlotWindow;
-#ifdef ENABLE_GRPC
-    QPointer<QTimer> m_idleTimer;
-#endif
 
     std::unique_ptr<RiuRecentFileActionProvider> m_recentFileActionProvider;
 

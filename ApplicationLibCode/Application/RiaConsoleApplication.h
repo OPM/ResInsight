@@ -43,10 +43,6 @@ public:
     void              initialize() override;
     ApplicationStatus handleArguments( gsl::not_null<cvf::ProgramOptions*> progOpt ) override;
     void              showFormattedTextInMessageBoxOrConsole( const QString& errMsg ) override;
-    void              launchGrpcServer() override;
-#ifdef ENABLE_GRPC
-    RiaGrpcServer* grpcServer() const override;
-#endif
 
 protected:
     // Protected implementation specific overrides
@@ -54,12 +50,4 @@ protected:
     void onProjectOpeningError( const QString& errMsg ) override;
     void onProjectOpened() override;
     void onProjectClosed() override;
-
-private slots:
-    void runIdleProcessing();
-
-private:
-#ifdef ENABLE_GRPC
-    QPointer<QTimer> m_idleTimer;
-#endif
 };
