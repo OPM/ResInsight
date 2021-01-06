@@ -17,10 +17,12 @@
 //////////////////////////////////////////////////////////////////////////////////
 #include "RiaGrpcAppService.h"
 
+#include "RiaApplication.h"
 #include "RiaGrpcCallbacks.h"
 #include "RiaGrpcServer.h"
-#include "RiaGuiApplication.h"
 #include "RiaVersionInfo.h"
+
+#include <QApplication>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -49,7 +51,7 @@ grpc::Status
     RiaGrpcAppService::GetRuntimeInfo( grpc::ServerContext* context, const rips::Empty* request, rips::RuntimeInfo* reply )
 {
     rips::ApplicationTypeEnum appType = rips::CONSOLE_APPLICATION;
-    if ( RiaGuiApplication::isRunning() )
+    if ( dynamic_cast<QApplication*>(RiaApplication::instance()))
     {
         appType = rips::GUI_APPLICATION;
     }

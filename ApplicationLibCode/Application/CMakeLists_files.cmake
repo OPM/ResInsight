@@ -29,7 +29,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaGuiApplication.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaCompletionTypeCalculationScheduler.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaDefines.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaFractureDefines.cpp
-${CMAKE_CURRENT_LIST_DIR}/RiaMain.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaPreferences.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaPorosityModel.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryCurveDefinition.cpp

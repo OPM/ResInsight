@@ -10,9 +10,14 @@ jobs:
       run: |
         python3 -m pip install --user cmakelang
     - uses: actions/checkout@v2
-    - name: Check format - ApplicationCode
+    - name: Check format - ApplicationLibCode
       run: |
-        cd ApplicationCode
+        cd ApplicationLibCode
+        find -name CMake*.txt | xargs ~/.local/bin/cmake-format -c ${{ github.workspace }}/cmake/cmake-format.py -i
+        git diff
+    - name: Check format - ApplicationExeCode
+      run: |
+        cd ApplicationExeCode
         find -name CMake*.txt | xargs ~/.local/bin/cmake-format -c ${{ github.workspace }}/cmake/cmake-format.py -i
         git diff
     - name: Check format - AppFwk

@@ -380,29 +380,6 @@ void RiaConsoleApplication::showFormattedTextInMessageBoxOrConsole( const QStrin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaConsoleApplication::launchGrpcServer()
-{
-#ifdef ENABLE_GRPC
-    m_grpcServer->runInThread();
-    m_idleTimer = new QTimer( this );
-    connect( m_idleTimer, SIGNAL( timeout() ), this, SLOT( runIdleProcessing() ) );
-    m_idleTimer->start( 0 );
-#endif
-}
-
-#ifdef ENABLE_GRPC
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiaGrpcServer* RiaConsoleApplication::grpcServer() const
-{
-    return m_grpcServer.get();
-}
-#endif
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiaConsoleApplication::invokeProcessEvents( QEventLoop::ProcessEventsFlags flags /*= QEventLoop::AllEvents*/ )
 {
     processEvents( flags );
@@ -433,20 +410,3 @@ void RiaConsoleApplication::onProjectClosed()
     processEvents();
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaConsoleApplication::runIdleProcessing()
-{
-#ifdef ENABLE_GRPC
-    if ( RiaGrpcServer::receivedExitRequest() )
-    {
-        m_grpcServer->quit();
-        QCoreApplication::quit();
-    }
-    else
-    {
-        m_grpcServer->processAllQueuedRequests();
-    }
-#endif
-}

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 
-project(ApplicationCode)
+project(ApplicationExeCode)
 
 # set packaging dir
 if(NOT CPACK_PACKAGE_DIRECTORY)
@@ -19,20 +19,6 @@ endif()
 
 # Open GL
 find_package(OpenGL)
-
-option(RESINSIGHT_ENABLE_GRPC "Enable the gRPC scripting framework" OFF)
-if(RESINSIGHT_ENABLE_GRPC)
-  option(
-    RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE
-    "Download the gRPC python modules to enable generation of Python interface"
-    ON)
-  option(RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE
-         "Bundle the gRPC python modules into the install folder" OFF)
-  add_definitions(-DENABLE_GRPC)
-endif()
-
-option(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS
-       "Treat warnings as errors (stops build)" OFF)
 
 find_package(
   Qt5
@@ -69,13 +55,6 @@ if(Qt5Core_FOUND)
   endif(Qt5Charts_FOUND)
 endif(Qt5Core_FOUND)
 
-# NB: The generated file is written to Cmake binary folder to avoid source tree
-# pollution This folder is added to include_directories
-configure_file(${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.h.cmake
-               ${CMAKE_BINARY_DIR}/Generated/RiaVersionInfo.h)
-
-configure_file(${CMAKE_CURRENT_LIST_DIR}/RiuThemesDirectory.h.cmake
-               ${CMAKE_BINARY_DIR}/Generated/RiuThemesDirectory.h)
 if(MSVC)
   # Avoid Qt warnings about macro redefinitions for math constants
   add_definitions(-D_USE_MATH_DEFINES)
@@ -85,202 +64,68 @@ include_directories(
   # required for compilation of gtest, should be refactored
   ${ResInsight_SOURCE_DIR}/ThirdParty
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/Adm
-  ${CMAKE_CURRENT_SOURCE_DIR}/Application
-  ${CMAKE_CURRENT_SOURCE_DIR}/Application/Tools
-  ${CMAKE_CURRENT_SOURCE_DIR}/Application/Tools/WellPathTools
-  ${CMAKE_CURRENT_SOURCE_DIR}/Commands
-  ${CMAKE_CURRENT_SOURCE_DIR}/Commands/EclipseCommands
-  ${CMAKE_CURRENT_SOURCE_DIR}/FileInterface
-  ${CMAKE_CURRENT_SOURCE_DIR}/GrpcInterface
-  ${CMAKE_CURRENT_SOURCE_DIR}/SocketInterface
-  ${CMAKE_CURRENT_SOURCE_DIR}/Measurement
-  ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization
-  ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/GridBox
-  ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Intersections
-  ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Surfaces
-  ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface
-  ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface/AnalysisPlots
-  ${CMAKE_CURRENT_SOURCE_DIR}/CommandFileInterface
-  ${CMAKE_CURRENT_SOURCE_DIR}/CommandFileInterface/Core
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/AnalysisPlots
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/CorrelationPlots
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Annotations
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Completions
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Flow
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/GridCrossPlots
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Measurement
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/StimPlanModel
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Summary
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Surfaces
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/CellFilters
-  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModelCommands
-  ${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
-  ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
-  ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel/Completions
-  ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/OdbReader
-  ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/GeoMechDataModel
-  ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/GeoMechVisualization
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Adm
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Application
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Application/Tools
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Application/Tools/WellPathTools
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Commands
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Commands/EclipseCommands
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/FileInterface
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/SocketInterface
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Measurement
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ModelVisualization
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ModelVisualization/GridBox
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ModelVisualization/Intersections
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ModelVisualization/Surfaces
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/UserInterface
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/UserInterface/AnalysisPlots
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/CommandFileInterface
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/CommandFileInterface/Core
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/AnalysisPlots
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/CorrelationPlots
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/Annotations
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/Completions
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/Flow
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/GridCrossPlots
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/Measurement
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/StimPlanModel
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/Summary
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/Surfaces
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/CellFilters
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModelCommands
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ResultStatisticsCache
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ReservoirDataModel
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ReservoirDataModel/Completions
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/GeoMech/OdbReader
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/GeoMech/GeoMechDataModel
+  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/GeoMech/GeoMechVisualization
+  ${CMAKE_SOURCE_DIR}/GrpcInterface
   ${CMAKE_BINARY_DIR}/Generated
   ${CMAKE_CURRENT_BINARY_DIR})
-
-# ##############################################################################
-# Eigen
-# ##############################################################################
-if(VCPKG_AUTO_INSTALL)
-  vcpkg_install(eigen3)
-endif()
-
-find_package(Eigen3 REQUIRED)
 
 # ##############################################################################
 # Defining all the source (and header) files
 # ##############################################################################
 
-# Use all h files in the subdirectories to make them available in the project
-file(GLOB_RECURSE HEADER_FILES *.h)
+set(CODE_HEADER_FILES)
 
-set(SOCKET_INTERFACE_FILES
-    SocketInterface/RiaSocketServer.cpp
-    SocketInterface/RiaProjectInfoCommands.cpp
-    SocketInterface/RiaCaseInfoCommands.cpp
-    SocketInterface/RiaGeometryCommands.cpp
-    SocketInterface/RiaNNCCommands.cpp
-    SocketInterface/RiaPropertyDataCommands.cpp
-    SocketInterface/RiaWellDataCommands.cpp
-    SocketInterface/RiaSocketTools.cpp
-    SocketInterface/RiaSocketDataTransfer.cpp)
+set(CODE_SOURCE_FILES
+    RiaMain.cpp)
 
-list(APPEND CPP_SOURCES ${SOCKET_INTERFACE_FILES} ${UNIT_TEST_FILES})
+if (RESINSIGHT_ENABLE_GRPC)
+  list(APPEND CODE_HEAD_FILES RiaGrpcConsoleApplication.h RiaGrpcGuiApplication.h)
+  list(APPEND CODE_SOURCE_FILES RiaGrpcConsoleApplication.cpp RiaGrpcGuiApplication.cpp)
 
-list(
-  APPEND
-  REFERENCED_CMAKE_FILES
-  Application/CMakeLists_files.cmake
-  Application/Tools/CMakeLists_files.cmake
-  Application/Tools/WellPathTools/CMakeLists_files.cmake
-  ReservoirDataModel/CMakeLists_files.cmake
-  ReservoirDataModel/CMakeLists_filesNotToUnitTest.cmake
-  ReservoirDataModel/Completions/CMakeLists_files.cmake
-  FileInterface/CMakeLists_files.cmake
-  ProjectDataModel/CMakeLists_files.cmake
-  ProjectDataModel/AnalysisPlots/CMakeLists_files.cmake
-  ProjectDataModel/CorrelationPlots/CMakeLists_files.cmake
-  ProjectDataModel/GridCrossPlots/CMakeLists_files.cmake
-  ProjectDataModel/GridCrossPlots/CellFilters/CMakeLists_files.cmake
-  ProjectDataModel/Summary/CMakeLists_files.cmake
-  ProjectDataModel/Flow/CMakeLists_files.cmake
-  ProjectDataModel/Annotations/CMakeLists_files.cmake
-  ProjectDataModel/Completions/CMakeLists_files.cmake
-  ProjectDataModel/Measurement/CMakeLists_files.cmake
-  ProjectDataModel/PlotTemplates/CMakeLists_files.cmake
-  ProjectDataModel/StimPlanModel/CMakeLists_files.cmake
-  ProjectDataModel/Surfaces/CMakeLists_files.cmake
-  ProjectDataModel/CellFilters/CMakeLists_files.cmake
-  ProjectDataModelCommands/CMakeLists_files.cmake
-  GeoMech/GeoMechVisualization/CMakeLists_files.cmake
-  ModelVisualization/CMakeLists_files.cmake
-  ModelVisualization/GridBox/CMakeLists_files.cmake
-  ModelVisualization/Intersections/CMakeLists_files.cmake
-  ModelVisualization/Surfaces/CMakeLists_files.cmake
-  ModelVisualization/WindowEdgeAxesOverlayItem/CMakeLists_files.cmake
-  UserInterface/CMakeLists_files.cmake
-  UserInterface/AnalysisPlots/CMakeLists_files.cmake
-  CommandFileInterface/CMakeLists_files.cmake
-  CommandFileInterface/Core/CMakeLists_files.cmake)
-
-option(RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS
-       "Include ApplicationCode Unit Tests" OFF)
-mark_as_advanced(FORCE RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS)
-if(RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS)
-  add_definitions(-DUSE_UNIT_TESTS)
-
-  list(APPEND REFERENCED_CMAKE_FILES UnitTests/CMakeLists_files.cmake)
-
-  list(APPEND CPP_SOURCES
-       ${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc)
-
+  list(APPEND QT_MOC_HEADERS RiaGrpcConsoleApplication.h RiaGrpcGuiApplication.h)
 endif()
-
-# Include source file lists from *.cmake files
-foreach(referencedfile ${REFERENCED_CMAKE_FILES})
-  include(${referencedfile})
-endforeach(referencedfile)
 
 list(APPEND CPP_SOURCES ${CODE_SOURCE_FILES})
 
 # ##############################################################################
-# Sub-directory projects
-# ##############################################################################
-
-add_subdirectory(ResultStatisticsCache)
-add_subdirectory(Commands)
-
-set(RI_LIBRARIES ResultStatisticsCache Commands)
-
-if(RESINSIGHT_ENABLE_GRPC)
-  add_subdirectory(GrpcInterface)
-  list(APPEND RI_LIBRARIES GrpcInterface)
-endif()
-
-#
-# Odb api
-#
-set(RESINSIGHT_ODB_API_DIR
-    ""
-    CACHE
-      PATH
-      "Optional path to the ABAQUS ODB API from Simulia. Needed for support of geomechanical models"
-)
-if(NOT ${RESINSIGHT_ODB_API_DIR} EQUAL "")
-  add_definitions(-DUSE_ODB_API)
-  add_subdirectory(GeoMech/OdbReader)
-  set(RESINSIGHT_USE_ODB_API 1)
-  message(STATUS "Using ODB-Api from : ${RESINSIGHT_ODB_API_DIR}")
-endif()
-
-add_subdirectory(GeoMech/GeoMechDataModel)
-list(APPEND RI_LIBRARIES RigGeoMechDataModel)
-
-if(RESINSIGHT_USE_ODB_API)
-  list(APPEND RI_LIBRARIES RifOdbReader)
-endif()
-
-#
-# HDF5
-#
-if(RESINSIGHT_FOUND_HDF5)
-  list(APPEND CPP_SOURCES FileInterface/RifHdf5Reader.h
-       FileInterface/RifHdf5Reader.cpp)
-
-  add_definitions(-DUSE_HDF5)
-
-  if(MSVC)
-    add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB)
-
-    include_directories(${RESINSIGHT_HDF5_DIR}/include)
-  else()
-    add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB)
-    add_definitions(${HDF5_DEFINITIONS})
-
-    include_directories(${HDF5_INCLUDE_DIRS})
-  endif() # MSVC
-
-  source_group("FileInterface" FILES FileInterface/RifHdf5Reader.h
-                                     FileInterface/RifHdf5Reader.cpp)
-endif()
-
-# ##############################################################################
 # Qt specifics: Moc, ui, resources
 # ##############################################################################
-
-set(QT_MOC_HEADERS
-    ${QT_MOC_HEADERS} ProjectDataModel/RimMimeData.h
-    ProjectDataModel/RimBoxIntersection.h SocketInterface/RiaSocketServer.h)
-
-qt5_wrap_cpp(MOC_SOURCE_FILES ${QT_MOC_HEADERS})
-qt5_wrap_ui(FORM_FILES_CPP ${QT_UI_FILES})
 
 # NOTE! Resources in subfolders must append to QRC_FILES using the following
 # statement set( QRC_FILES ${QRC_FILES}
@@ -288,20 +133,15 @@ qt5_wrap_ui(FORM_FILES_CPP ${QT_UI_FILES})
 
 set(QRC_FILES ${QRC_FILES} Resources/ResInsight.qrc)
 
-# Runs RCC on specified files
+# Runs RCC and MOC on specified files
 qt5_add_resources(QRC_FILES_CPP ${QRC_FILES})
+qt5_wrap_cpp(MOC_SOURCE_FILES ${QT_MOC_HEADERS})
+
 
 # Adding resource (RC) files for Windows
 if(MSVC)
   set(WIN_RESOURCE Resources/ResInsight.rc)
 endif()
-
-# ##############################################################################
-# Create source groups - see also included CMakeLists_files.cmake
-# ##############################################################################
-source_group("ModelVisualization" FILES ${MODEL_VISUALIZATION_FILES})
-source_group("SocketInterface" FILES ${SOCKET_INTERFACE_FILES})
-source_group("UnitTests" FILES ${UNIT_TEST_FILES})
 
 # ##############################################################################
 # Set up the main executable with its source files
@@ -329,10 +169,8 @@ set(EXE_FILES
     ${WIN_RESOURCE}
     ${HEADER_FILES}
     ${REFERENCED_CMAKE_FILES}
-    ../ResInsightVersion.cmake
     .clang-format
-    .clang-tidy
-    Adm/RiaVersionInfo.h.cmake)
+    .clang-tidy)
 
 add_executable(ResInsight ${EXE_FILES})
 
@@ -436,18 +274,27 @@ endif()
 # Set up libraries and dependent projects to link with
 # ##############################################################################
 
+message(STATUS "Linking with the following OpenGL libraries: ${OPENGL_LIBRARIES}")
+
 set(LINK_LIBRARIES
-    Eigen3::Eigen
     ${THIRD_PARTY_LIBRARIES}
     ${OPENGL_LIBRARIES}
     ${QT_LIBRARIES}
     ${OPM_LIBRARIES}
-    ${APP_FWK_LIBRARIES}
-    ${VIZ_FWK_LIBRARIES}
-    ${RI_LIBRARIES}
+    cafCommand
+    cafCommandFeatures
+    cafProjectDataModel
+    cafViewer
+    cafVizExtensions
+    ApplicationLibCode
+    Commands
     )
 
-# According to ivarun this is needed on OpenSuse, and Fedora. See:
+if (RESINSIGHT_ENABLE_GRPC)
+  list(APPEND LINK_LIBRARIES GrpcInterface)
+endif()
+
+# According to ivarun rt is needed on OpenSuse, and Fedora. See:
 # https://github.com/OPM/ResInsight/pull/7
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   list(APPEND EXTERNAL_LINK_LIBRARIES rt)
@@ -456,10 +303,6 @@ endif()
 if (DEFINED GRPC_LIBRARY_DIRS) 
   target_link_directories(ResInsight PRIVATE ${GRPC_LIBRARY_DIRS})
 endif()
-
-foreach(LIBRARY ${LINK_LIBRARIES})
-  message (STATUS "LIB: ${LIBRARY}")
-endforeach()
 
 target_link_libraries(ResInsight ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
 
@@ -538,30 +381,26 @@ endforeach()
 if(RESINSIGHT_ENABLE_GRPC)
   add_custom_command(
     OUTPUT
-      ${CMAKE_CURRENT_SOURCE_DIR}/GrpcInterface/Python/rips/generated/resinsight_classes.py
+      ${CMAKE_SOURCE_DIR}/GrpcInterface/Python/rips/generated/resinsight_classes.py
     COMMAND
       ResInsight ARGS --console --generate
-      ${CMAKE_CURRENT_SOURCE_DIR}/GrpcInterface/Python/rips/generated/resinsight_classes.py
+      ${CMAKE_SOURCE_DIR}/GrpcInterface/Python/rips/generated/resinsight_classes.py
     DEPENDS ResInsight
     COMMENT
-      "Generating ${CMAKE_CURRENT_SOURCE_DIR}/GrpcInterface/Python/rips/generated/resinsight_classes.py"
+      "Generating ${CMAKE_SOURCE_DIR}/GrpcInterface/Python/rips/generated/resinsight_classes.py"
   )
   add_custom_target(
-    ResInsightClassesPy ALL
+    ResInsightPythonClasses ALL
     DEPENDS
-      ${CMAKE_CURRENT_SOURCE_DIR}/GrpcInterface/Python/rips/generated/resinsight_classes.py
+      ${CMAKE_SOURCE_DIR}/GrpcInterface/Python/rips/generated/resinsight_classes.py
   )
-  add_dependencies(ResInsightClassesPy ResInsight)
+  add_dependencies(ResInsightPythonClasses ResInsight)
 
 endif(RESINSIGHT_ENABLE_GRPC)
 
 # ##############################################################################
 # Install
 # ##############################################################################
-
-set(RESINSIGHT_LICENSE_FILES
-    ${CMAKE_CURRENT_SOURCE_DIR}/Adm/LicenseInformation.txt
-    ${CMAKE_CURRENT_SOURCE_DIR}/Adm/gplLicense.txt)
 
 # bundle libraries together with private installation
 if(RESINSIGHT_PRIVATE_INSTALL)
@@ -674,6 +513,9 @@ if(RESINSIGHT_PRIVATE_INSTALL)
 
       set(imported_location "${qt5_install_prefix}/bin/windeployqt.exe")
 
+      message(STATUS "QMAKE: ${_qt5_qmake_location}")
+      message(STATUS "QTPREFIX: ${qt5_install_prefix}")
+
       if(EXISTS ${imported_location})
         add_executable(Qt5::windeployqt IMPORTED)
 
@@ -730,14 +572,14 @@ if(RESINSIGHT_PRIVATE_INSTALL)
 
     # install GRPC-related DLLs and resinsight_classes.py
     if(RESINSIGHT_ENABLE_GRPC)
-      set(GRPC_DLL_NAMES libprotobuf cares zlib1 abseil_dll)
+      set(ZLIB_DLL "$<IF:$<CONFIG:Debug>,zlibd1,zlib1>")
+      set(GRPC_DLL_NAMES cares ${ZLIB_DLL} abseil_dll)
       foreach(dllname ${GRPC_DLL_NAMES})
-        list(APPEND RESINSIGHT_FILES
-             $<TARGET_FILE_DIR:ResInsight>/${dllname}.dll)
+        install(FILES $<TARGET_FILE_DIR:ResInsight>/${dllname}.dll DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
       endforeach(dllname ${GRPC_DLL_NAMES})
       install(
         FILES
-          ${CMAKE_CURRENT_SOURCE_DIR}/GrpcInterface/Python/rips/generated/resinsight_classes.py
+          ${CMAKE_SOURCE_DIR}/GrpcInterface/Python/rips/generated/resinsight_classes.py
         DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python/rips/generated)
     endif()
 
@@ -782,7 +624,7 @@ if(RESINSIGHT_PRIVATE_INSTALL)
     install(
       FILES ${RI_BOOST_DLLS}
       DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
-      CONFIGURATIONS Release RelWithDebInfo)
+      CONFIGURATIONS Debug Release RelWithDebInfo)
 
     # CRT
     set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP ON)
@@ -792,8 +634,6 @@ if(RESINSIGHT_PRIVATE_INSTALL)
             DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
 
   endif()
-
-  set(RESINSIGHT_FILES ${RESINSIGHT_FILES} ${RESINSIGHT_LICENSE_FILES})
 
   install(TARGETS ResInsight DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
 

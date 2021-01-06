@@ -12,7 +12,7 @@ jobs:
     - uses: actions/checkout@v2
     - uses: sobolevn/misspell-fixer-action@master
       with:
-        options: '-rsvnuR ApplicationCode/'
+        options: '-rsvnuR ApplicationLibCode/'
     - uses: peter-evans/create-pull-request@v3
       with:
         token: ${{ secrets.GITHUB_TOKEN }}

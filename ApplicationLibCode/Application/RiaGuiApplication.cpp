@@ -191,7 +191,6 @@ RiaGuiApplication::RiaGuiApplication( int& argc, char** argv )
 
     m_recentFileActionProvider = std::make_unique<RiuRecentFileActionProvider>();
 
-    connect( this, SIGNAL( aboutToQuit() ), this, SLOT( onProgramExit() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1204,29 +1203,6 @@ void RiaGuiApplication::showFormattedTextInMessageBoxOrConsole( const QString& t
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGuiApplication::launchGrpcServer()
-{
-#ifdef ENABLE_GRPC
-    m_grpcServer->runInThread();
-    m_idleTimer = new QTimer( this );
-    connect( m_idleTimer, SIGNAL( timeout() ), this, SLOT( runIdleProcessing() ) );
-    m_idleTimer->start( 5 );
-#endif
-}
-
-#ifdef ENABLE_GRPC
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiaGrpcServer* RiaGuiApplication::grpcServer() const
-{
-    return m_grpcServer.get();
-}
-#endif
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::invokeProcessEvents( QEventLoop::ProcessEventsFlags flags )
 {
     processEvents( flags );
@@ -1387,19 +1363,6 @@ void RiaGuiApplication::onProjectSaved()
     setWindowCaptionFromAppState();
     m_recentFileActionProvider->addFileName( m_project->fileName() );
     caf::PdmUiModelChangeDetector::instance()->reset();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaGuiApplication::onProgramExit()
-{
-#ifdef ENABLE_GRPC
-    if ( m_grpcServer )
-    {
-        m_grpcServer->quit();
-    }
-#endif
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1595,28 +1558,13 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
         }
     }
     caf::PdmUiItem::enableExtraDebugText( m_preferences->appendFieldKeywordToToolTipText() );
+
+    if (oldPreferences)
+    {
+        onGuiPreferencesChanged();
+    }    
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaGuiApplication::updateGrpcServer()
-{
-#ifdef ENABLE_GRPC
-    bool isGrpcRunning     = m_grpcServer != nullptr && m_grpcServer->isRunning();
-    bool shouldItBeRunning = m_preferences->enableGrpcServer();
-    if ( isGrpcRunning && !shouldItBeRunning )
-    {
-        m_grpcServer->quit();
-    }
-    else if ( !isGrpcRunning && shouldItBeRunning )
-    {
-        int portNumber = RiaGrpcServer::findAvailablePortNumber( m_preferences->defaultGrpcPortNumber() );
-        m_grpcServer   = std::make_unique<RiaGrpcServer>( portNumber );
-        m_grpcServer->runInThread();
-    }
-#endif
-}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -1688,43 +1636,6 @@ void RiaGuiApplication::slotWorkerProcessFinished( int exitCode, QProcess::ExitS
         m_currentScriptCaseId  = -1;
         m_runningWorkerProcess = false;
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaGuiApplication::runIdleProcessing()
-{
-#ifdef ENABLE_GRPC
-    if ( RiaGrpcServer::receivedExitRequest() )
-    {
-        closeProject();
-        m_grpcServer->quit();
-        QCoreApplication::quit();
-    }
-    else if ( !caf::ProgressInfoStatic::isRunning() )
-    {
-        static int idleIterationCount = 0;
-        int        iterationInterval  = 0;
-        if ( m_grpcServer->processAllQueuedRequests() > 0 )
-        {
-            idleIterationCount = 0;
-        }
-        else
-        {
-            ++idleIterationCount;
-            idleIterationCount = std::min( idleIterationCount, 500 );
-            if ( idleIterationCount == 500 )
-            {
-                iterationInterval = 5;
-            }
-        }
-        if ( iterationInterval != m_idleTimer->interval() )
-        {
-            m_idleTimer->setInterval( iterationInterval );
-        }
-    }
-#endif
 }
 
 //--------------------------------------------------------------------------------------------------

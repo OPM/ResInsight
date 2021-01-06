@@ -20,9 +20,6 @@
 #pragma once
 
 #include "RiaDefines.h"
-#ifdef ENABLE_GRPC
-#include "RiaGrpcServer.h"
-#endif
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -47,6 +44,7 @@ class Drawable;
 
 class RIProcess;
 
+class RiaGrpcServer;
 class RiaPreferences;
 class RiaProjectModifier;
 class RiaSocketServer;
@@ -161,8 +159,8 @@ public:
     QStringList         octaveArguments() const;
     QProcessEnvironment octaveProcessEnvironment() const;
 
-    QString             pythonPath() const;
-    QProcessEnvironment pythonProcessEnvironment() const;
+    QString                     pythonPath() const;
+    virtual QProcessEnvironment pythonProcessEnvironment() const;
 
     bool launchProcess( const QString& program, const QStringList& arguments, const QProcessEnvironment& processEnvironment );
     bool launchProcessForMultipleCases( const QString&             program,
@@ -198,8 +196,6 @@ public:
     cvf::Font* defaultAnnotationFont();
     cvf::Font* defaultWellLabelFont();
 
-    bool initializeGrpcServer( const cvf::ProgramOptions& progOpt );
-
     // Public implementation specific overrides
     virtual void              initialize();
     virtual ApplicationStatus handleArguments( gsl::not_null<cvf::ProgramOptions*> progOpt ) = 0;
@@ -207,11 +203,6 @@ public:
     virtual void              addToRecentFiles( const QString& fileName ) {}
     virtual void              showFormattedTextInMessageBoxOrConsole( const QString& errMsg ) = 0;
 
-    virtual void launchGrpcServer() = 0;
-
-#ifdef ENABLE_GRPC
-    virtual RiaGrpcServer* grpcServer() const = 0;
-#endif
 protected:
     // Protected implementation specific overrides
     virtual void invokeProcessEvents( QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents ) = 0;
@@ -245,10 +236,6 @@ protected:
 
     QPointer<RiaSocketServer>       m_socketServer;
     std::unique_ptr<caf::UiProcess> m_workerProcess;
-
-#ifdef ENABLE_GRPC
-    std::unique_ptr<RiaGrpcServer> m_grpcServer;
-#endif
 
     // Execute for all settings
     std::list<int>                  m_scriptCaseIds;

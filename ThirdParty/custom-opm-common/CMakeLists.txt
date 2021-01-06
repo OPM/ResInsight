@@ -21,6 +21,7 @@ endif(MSVC)
 
 project (custom-opm-common)
 
+find_package(Boost)
 
 include_directories(
     opm-common
@@ -103,7 +104,7 @@ if(RESINSIGHT_ENABLE_UNITY_BUILD)
 endif()
 
 
-find_path(BOOST_SPIRIT_INCLUDE_DIRS "boost/spirit.hpp")
+find_path(BOOST_SPIRIT_INCLUDE_DIRS "boost/spirit.hpp" HINTS ${Boost_INCLUDE_DIRS})
 
 target_link_libraries(custom-opm-common 
   ${ADDITIONAL_LINK_LIBRARIES}

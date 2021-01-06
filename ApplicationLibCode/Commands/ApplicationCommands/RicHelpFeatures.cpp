@@ -126,22 +126,6 @@ void RicHelpAboutFeature::onActionTriggered( bool isChecked )
         dlg.addVersionEntry( " ", txt );
     }
 
-#ifdef ENABLE_GRPC
-    RiaGrpcServer* grpcServer = RiaApplication::instance()->grpcServer();
-    if ( grpcServer && grpcServer->isRunning() )
-    {
-        dlg.addVersionEntry( " ",
-                             QString( "   Python Script Server available and running at port %1" )
-                                 .arg( grpcServer->portNumber() ) );
-    }
-    else
-    {
-        dlg.addVersionEntry( " ", QString( "   Python Script Server available but currently disabled in preferences" ) );
-    }
-#else
-    dlg.addVersionEntry( " ", "   gRPC disabled" );
-#endif
-
     if ( RiaApplication::enableDevelopmentFeatures() )
     {
         QString vendor( "Unknown" );

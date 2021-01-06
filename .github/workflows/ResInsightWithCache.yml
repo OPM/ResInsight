@@ -208,12 +208,12 @@ jobs:
       - name: Run Unit Tests
         shell: bash
         run: |
-          cmakebuild/ApplicationCode/ResInsight --unittest
+          cmakebuild/ApplicationExeCode/ResInsight --unittest
       - name: Run pytest
         env:
-          RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ApplicationCode/ResInsight
+          RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ApplicationExeCode/ResInsight
         run: |
-          cd ApplicationCode/GrpcInterface/Python/rips
+          cd GrpcInterface/Python/rips
           ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pytest --console
       - name: Upload artifact
         uses: actions/upload-artifact@v2
