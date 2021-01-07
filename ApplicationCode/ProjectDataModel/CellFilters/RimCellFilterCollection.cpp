@@ -313,9 +313,6 @@ void RimCellFilterCollection::onFilterUpdated( const SignalEmitter* emitter )
         RimViewLinker* viewLinker = view->assosiatedViewLinker();
         if ( viewLinker )
         {
-            // TODO - more generic update here!?
-            // Update data for cell filter
-            // Update of display model is handled by view->scheduleGeometryRegen, also for managed views
             viewLinker->updateCellFilters( dynamic_cast<const RimCellFilter*>( emitter ) );
         }
     }
