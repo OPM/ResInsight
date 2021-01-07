@@ -24,8 +24,11 @@
 #include "RiaColorTables.h"
 #include "RiaEclipseUnitTools.h"
 
+#include "RiuContextMenuLauncher.h"
+#include "RiuQwtPlotTools.h"
 #include "RiuQwtPlotWidget.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiComboBoxEditor.h"
 
 #include "qwt_legend.h"
@@ -395,7 +398,21 @@ RiuQwtPlotWidget* RimVfpPlot::doCreatePlotViewWidget( QWidget* mainWindowParent 
         return m_plotWidget;
     }
 
-    m_plotWidget = new RiuQwtPlotWidget( this, mainWindowParent );
+    {
+        auto plotWidget = new RiuQwtPlotWidget( this, mainWindowParent );
+
+        // Remove event filter to disable unwanted highlighting on left click in plot.
+        plotWidget->removeEventFilter( plotWidget );
+        plotWidget->canvas()->removeEventFilter( plotWidget );
+
+        RiuQwtPlotTools::setCommonPlotBehaviour( plotWidget );
+
+        caf::CmdFeatureMenuBuilder menuBuilder;
+        menuBuilder << "RicShowPlotDataFeature";
+        new RiuContextMenuLauncher( plotWidget, menuBuilder );
+
+        m_plotWidget = plotWidget;
+    }
 
     updateLegend();
     onLoadDataAndUpdate();
