@@ -62,8 +62,6 @@ public:
     void setInternalQwtLegendVisible( bool visible );
 
 protected:
-    void contextMenuEvent( QContextMenuEvent* ) override;
-
     bool curveText( const QwtPlotCurve* curve, QString* curveTitle, QString* xParamName, QString* yParamName ) const;
     bool isZoomerActive() const override;
     void endZoomOperations() override;
