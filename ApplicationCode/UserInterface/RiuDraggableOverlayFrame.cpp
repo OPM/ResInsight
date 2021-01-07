@@ -33,11 +33,8 @@ RiuDraggableOverlayFrame::RiuDraggableOverlayFrame( QWidget* parent, const int s
 {
     m_widgetDragger = new RiuWidgetDragger( this, snapMargins );
 
-    QPalette pal = this->palette();
-    pal.setColor( QPalette::Window, backgroundColor );
-    setAutoFillBackground( true );
-    setPalette( pal );
     setFrameShape( QFrame::Box );
+
     QGraphicsDropShadowEffect* dropShadowEffect = new QGraphicsDropShadowEffect( this );
     dropShadowEffect->setOffset( 1.0, 1.0 );
     dropShadowEffect->setBlurRadius( 3.0 );

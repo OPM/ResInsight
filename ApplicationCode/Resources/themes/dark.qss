@@ -176,6 +176,10 @@ QLabel {
     selection-background-color: $primaryColor;
 }
 
+RiuAbstractOverlayContentFrame, RiuDraggableOverlayFrame {
+    background-color: rgba(36,41,46,0.3);
+}
+
 QProgressBar {
     border-color: $borderColor;
     text-align: center;
