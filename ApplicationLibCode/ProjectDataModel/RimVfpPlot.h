@@ -30,7 +30,6 @@
 #include "opm/parser/eclipse/EclipseState/Schedule/VFPProdTable.hpp"
 
 class RiuQwtPlotWidget;
-class RiuVfpQwtPlot;
 class VfpPlotData;
 
 //--------------------------------------------------------------------------------------------------
@@ -158,7 +157,7 @@ private:
     caf::PdmField<int> m_waterCutIdx;
     caf::PdmField<int> m_gasLiquidRatioIdx;
 
-    QPointer<RiuVfpQwtPlot>            m_plotWidget;
+    QPointer<RiuQwtPlotWidget>         m_plotWidget;
     std::unique_ptr<Opm::VFPProdTable> m_prodTable;
     std::unique_ptr<Opm::VFPInjTable>  m_injectionTable;
 };

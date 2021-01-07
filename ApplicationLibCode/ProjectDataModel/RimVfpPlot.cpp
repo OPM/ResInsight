@@ -25,7 +25,6 @@
 #include "RiaEclipseUnitTools.h"
 
 #include "RiuQwtPlotWidget.h"
-#include "RiuVfpQwtPlot.h"
 
 #include "cafPdmUiComboBoxEditor.h"
 
@@ -396,7 +395,7 @@ RiuQwtPlotWidget* RimVfpPlot::doCreatePlotViewWidget( QWidget* mainWindowParent 
         return m_plotWidget;
     }
 
-    m_plotWidget = new RiuVfpQwtPlot( this, mainWindowParent );
+    m_plotWidget = new RiuQwtPlotWidget( this, mainWindowParent );
 
     updateLegend();
     onLoadDataAndUpdate();

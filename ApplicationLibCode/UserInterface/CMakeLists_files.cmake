@@ -40,7 +40,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuSimpleHistogramWidget.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuDockedQwtPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuGridCrossQwtPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQwtPlot.h
-${CMAKE_CURRENT_LIST_DIR}/RiuVfpQwtPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuTextDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuTimeStepChangedHandler.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuTofAccumulatedPhaseFractionsPlot.h
@@ -138,7 +137,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuSimpleHistogramWidget.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuDockedQwtPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuGridCrossQwtPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQwtPlot.cpp
-${CMAKE_CURRENT_LIST_DIR}/RiuVfpQwtPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuTextDialog.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuTimeStepChangedHandler.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuTofAccumulatedPhaseFractionsPlot.cpp
