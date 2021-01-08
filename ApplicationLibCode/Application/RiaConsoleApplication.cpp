@@ -409,4 +409,3 @@ void RiaConsoleApplication::onProjectClosed()
 {
     processEvents();
 }
-
