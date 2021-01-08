@@ -48,18 +48,18 @@ namespace caf
 template <>
 void caf::AppEnum<RimPolylineFilter::PolylineFilterModeType>::setUp()
 {
-    addItem( RimPolylineFilter::DEPTH_Z, "DEPTH_Z", "Depth" );
-    addItem( RimPolylineFilter::INDEX_K, "INDEX_K", "K index" );
-    setDefault( RimPolylineFilter::INDEX_K );
+    addItem( RimPolylineFilter::PolylineFilterModeType::DEPTH_Z, "DEPTH_Z", "Depth" );
+    addItem( RimPolylineFilter::PolylineFilterModeType::INDEX_K, "INDEX_K", "K index" );
+    setDefault( RimPolylineFilter::PolylineFilterModeType::INDEX_K );
 }
 
 template <>
 void caf::AppEnum<RimPolylineFilter::PolylineIncludeType>::setUp()
 {
-    addItem( RimPolylineFilter::FULL_CELL, "FULL_CELL", "Whole cell inside polygon" );
-    addItem( RimPolylineFilter::CENTER, "CENTER", "Cell center inside polygon" );
-    addItem( RimPolylineFilter::ANY, "ANY", "Any corner inside polygon" );
-    setDefault( RimPolylineFilter::CENTER );
+    addItem( RimPolylineFilter::PolylineIncludeType::FULL_CELL, "FULL_CELL", "Whole cell inside polygon" );
+    addItem( RimPolylineFilter::PolylineIncludeType::CENTER, "CENTER", "Cell center inside polygon" );
+    addItem( RimPolylineFilter::PolylineIncludeType::ANY, "ANY", "Any corner inside polygon" );
+    setDefault( RimPolylineFilter::PolylineIncludeType::CENTER );
 }
 
 } // namespace caf
@@ -112,6 +112,14 @@ void RimPolylineFilter::updateVisualization()
 {
     updateCells();
     filterChanged.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolylineFilter::initAfterRead()
+{
+    resolveReferencesRecursively();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -365,27 +373,32 @@ void RimPolylineFilter::updateCellsKIndexEclipse( const std::vector<cvf::Vec3d>&
     point.z() += 0.2;
 
     bool cellFound = false;
-    // loop over all cells to find the correct one
-    for ( size_t i = 0; i < grid->cellCount(); i++ )
+
+    // loop over all points to find at least one point with a valid K layer
+    for ( size_t p = 0; p < points.size() - 1; p++ )
     {
-        // valid cell?
-        RigCell cell = grid->cellByGridAndGridLocalCellIdx( gridIndex(), i );
-        if ( cell.isInvalid() ) continue;
+        // loop over all cells to find the correct one
+        for ( size_t i = 0; i < grid->cellCount(); i++ )
+        {
+            // valid cell?
+            RigCell cell = grid->cellByGridAndGridLocalCellIdx( gridIndex(), i );
+            if ( cell.isInvalid() ) continue;
 
-        // is the point inside?
-        cvf::BoundingBox bb = cell.boundingBox();
-        if ( !bb.contains( points[0] ) ) continue;
+            // is the point inside?
+            cvf::BoundingBox bb = cell.boundingBox();
+            if ( !bb.contains( points[p] ) ) continue;
 
-        // found the cell, get the IJK
-        grid->ijkFromCellIndexUnguarded( cell.mainGridCellIndex(), &ni, &nj, &nk );
-        cellFound = true;
-        break;
+            // found the cell, get the IJK
+            grid->ijkFromCellIndexUnguarded( cell.mainGridCellIndex(), &ni, &nj, &nk );
+            cellFound = true;
+            break;
+        }
+        if ( cellFound ) break;
     }
 
     // should not really happen, but just to be sure
     if ( !cellFound ) return;
 
-    size_t            k = nk;
     std::list<size_t> foundCells;
 
     // find all cells in this K layer that matches the polygon
@@ -393,7 +406,7 @@ void RimPolylineFilter::updateCellsKIndexEclipse( const std::vector<cvf::Vec3d>&
     {
         for ( size_t j = 0; j < grid->cellCountJ(); j++ )
         {
-            size_t  cellIdx = grid->cellIndexFromIJK( i, j, k );
+            size_t  cellIdx = grid->cellIndexFromIJK( i, j, nk );
             RigCell cell    = grid->cellByGridAndGridLocalCellIdx( gridIndex(), cellIdx );
             // valid cell?
             if ( cell.isInvalid() ) continue;
@@ -416,7 +429,7 @@ void RimPolylineFilter::updateCellsKIndexEclipse( const std::vector<cvf::Vec3d>&
         size_t ci, cj, ck;
         grid->ijkFromCellIndexUnguarded( cellIdx, &ci, &cj, &ck );
 
-        for ( k = 0; k < grid->cellCountK(); k++ )
+        for ( size_t k = 0; k < grid->cellCountK(); k++ )
         {
             // get the cell index
             size_t newIdx = grid->cellIndexFromIJK( ci, cj, k );
@@ -506,7 +519,7 @@ void RimPolylineFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>&
         {
             for ( size_t k = 0; k < grid->cellCountK(); k++ )
             {
-                // get cell boundig box
+                // get cell bounding box
                 size_t           cellIdx = grid->cellIndexFromIJK( i, j, k );
                 cvf::BoundingBox bb;
                 cvf::Vec3d       vertices[8];
@@ -514,14 +527,20 @@ void RimPolylineFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>&
                 for ( const auto& point : vertices )
                     bb.add( point );
 
-                // is the point inside?
-                if ( !bb.contains( points[0] ) ) continue;
+                // check all points for a bb match
+                for ( size_t p = 0; p < points.size() - 1; p++ )
+                {
+                    // is the point inside?
+                    if ( bb.contains( points[p] ) )
+                    {
+                        cellFound = true;
+                        // found the cell, store the K
+                        nk = k;
+                        break;
+                    }
+                }
 
-                // found the cell, store the K
-                nk = k;
-
-                cellFound = true;
-                break;
+                if ( cellFound ) break;
             }
             if ( cellFound ) break;
         }

@@ -49,13 +49,13 @@ class RimPolylineFilter : public RimCellFilter, public RimPolylinePickerInterfac
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum PolylineFilterModeType
+    enum class PolylineFilterModeType
     {
         DEPTH_Z,
         INDEX_K
     };
 
-    enum PolylineIncludeType
+    enum class PolylineIncludeType
     {
         FULL_CELL,
         CENTER,
@@ -79,9 +79,9 @@ public:
     void updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter ) override;
 
 protected:
-    // void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void initAfterRead() override;
 
 private:
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
