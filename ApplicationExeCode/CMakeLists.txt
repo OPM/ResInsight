@@ -351,6 +351,10 @@ endif()
 # ##############################################################################
 if(MSVC)
 
+  if(NOT ${RESINSIGHT_ODB_API_DIR} EQUAL "")
+    set(RESINSIGHT_USE_ODB_API 1)
+  endif()
+
   # Odb Dlls
   if(RESINSIGHT_USE_ODB_API)
     # Find all the dlls
