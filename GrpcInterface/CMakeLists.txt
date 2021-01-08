@@ -280,6 +280,8 @@ add_library(
   ${GRPC_HEADER_FILES} ${GRPC_CPP_SOURCES})
 
 target_include_directories(${PROJECT_NAME} PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  PRIVATE
   ${GRPC_INCLUDE_DIRS}
   ${CMAKE_BINARY_DIR}/Generated
   ${CMAKE_SOURCE_DIR}/ThirdParty
