@@ -303,22 +303,6 @@ endif()
 
 target_link_libraries(ResInsight ${EXTERNAL_LINK_LIBRARIES} ${LINK_LIBRARIES} )
 
-# By default, symbols provided by the sublibs that are not used by mainlib (which is all of them in this case)
-# are not used. This changes that.
-if (WIN32)
-    set_target_properties(ResInsight PROPERTIES
-        LINK_FLAGS "/WHOLEARCHIVE"
-    )
-elseif (APPLE)
-    set_target_properties(ResInsight PROPERTIES
-        LINK_FLAGS "-Wl,-all_load"
-    )
-else ()
-    set_target_properties(ResInsight PROPERTIES
-        LINK_FLAGS "-Wl,--whole-archive"
-    )
-endif ()
-
 # ##############################################################################
 # Unity builds
 # ##############################################################################

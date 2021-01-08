@@ -60,11 +60,6 @@ target_include_directories(
          ${CMAKE_SOURCE_DIR}/ThirdParty/custom-opm-common/generated-opm-common
          ${CMAKE_SOURCE_DIR}/ThirdParty/custom-opm-common/opm-common)
 
-# Before cmake 3.12 OBJECT libraries could not use the target_link_libraries
-# command, So we need to set the POSITION_INDEPENDENT_CODE option  manually
-set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
-
-# Use this code when 3.12 can be used as minimum version of cmake
 set(LINK_LIBRARIES
     LibCore
     cafCommand
@@ -79,6 +74,6 @@ set(LINK_LIBRARIES
     ${QT_LIBRARIES}
     Eigen3::Eigen)
 
-target_link_libraries(${PROJECT_NAME} ${LINK_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${LINK_LIBRARIES})
 
 source_group("" FILES ${PROJECT_FILES})
