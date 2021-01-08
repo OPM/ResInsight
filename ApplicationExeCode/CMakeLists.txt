@@ -119,6 +119,26 @@ if (RESINSIGHT_ENABLE_GRPC)
   list(APPEND CODE_SOURCE_FILES RiaGrpcConsoleApplication.cpp RiaGrpcGuiApplication.cpp)
 
   list(APPEND QT_MOC_HEADERS RiaGrpcConsoleApplication.h RiaGrpcGuiApplication.h)
+
+  # Find Protobuf installation Looks for protobuf-config.cmake file installed by
+  # Protobuf's cmake installation.
+  set(protobuf_MODULE_COMPATIBLE ON)
+  find_package(Protobuf CONFIG 3.0 QUIET)
+
+  if(Protobuf_FOUND)
+    # Find gRPC installation Looks for gRPCConfig.cmake file installed by gRPC's
+    # cmake installation.
+    find_package(gRPC CONFIG REQUIRED)
+    set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
+    set(_GRPC_GRPCPP_UNSECURE gRPC::grpc++_unsecure gRPC::grpc_unsecure gRPC::gpr)
+    set(GRPC_LINK_LIBRARIES ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF})
+  else()
+    set(RESINSIGHT_GRPC_INSTALL_PREFIX "" CACHE PATH "gRPC : Install prefix for gRPC")
+    set(ENV{PKG_CONFIG_PATH} "${RESINSIGHT_GRPC_INSTALL_PREFIX}/lib/pkgconfig")
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(GRPC REQUIRED grpc grpc++_unsecure>=1.20 grpc_unsecure gpr
+                      protobuf libcares)
+  endif()
 endif()
 
 list(APPEND CPP_SOURCES ${CODE_SOURCE_FILES})
@@ -263,7 +283,7 @@ if(APPLE)
 endif()
 
 if (RESINSIGHT_ENABLE_GRPC)
-	list(APPEND THIRD_PARTY_LIBRARIES ${RESINSIGHT_GRPC_LIBRARIES})
+	list(APPEND THIRD_PARTY_LIBRARIES ${GRPC_LINK_LIBRARIES})
 
 	if (MSVC)
 		set_target_properties(ResInsight PROPERTIES LINK_FLAGS_RELWITHDEBINFO "/NODEFAULTLIB:MSVCRTD.lib")
@@ -275,6 +295,13 @@ endif()
 # ##############################################################################
 
 message(STATUS "Linking with the following OpenGL libraries: ${OPENGL_LIBRARIES}")
+message(STATUS "GRPC LIBS: ${GRPC_LINK_LIBRARIES}")
+
+# According to ivarun rt is needed on OpenSuse, and Fedora. See:
+# https://github.com/OPM/ResInsight/pull/7
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  list(APPEND THIRD_PARTY_LIBRARIES rt)
+endif()
 
 set(LINK_LIBRARIES
     ${THIRD_PARTY_LIBRARIES}
@@ -291,17 +318,11 @@ if (RESINSIGHT_ENABLE_GRPC)
   list(APPEND LINK_LIBRARIES GrpcInterface)
 endif()
 
-# According to ivarun rt is needed on OpenSuse, and Fedora. See:
-# https://github.com/OPM/ResInsight/pull/7
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  list(APPEND EXTERNAL_LINK_LIBRARIES rt)
-endif()
-
 if (DEFINED GRPC_LIBRARY_DIRS) 
   target_link_directories(ResInsight PRIVATE ${GRPC_LIBRARY_DIRS})
 endif()
 
-target_link_libraries(ResInsight ${EXTERNAL_LINK_LIBRARIES} ${LINK_LIBRARIES} )
+target_link_libraries(ResInsight ${LINK_LIBRARIES} )
 
 # ##############################################################################
 # Unity builds

@@ -83,12 +83,11 @@ if(Protobuf_FOUND)
 
   set(_GRPC_GRPCPP_UNSECURE gRPC::grpc++_unsecure gRPC::grpc_unsecure gRPC::gpr)
   set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
-  set(GRPC_LIBRARIES ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF})
+  set(GRPC_LINK_LIBRARIES ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF})
 
   set_target_properties(
-    ${GRPC_LIBRARIES} PROPERTIES MAP_IMPORTED_CONFIG_MINSIZEREL RELEASE
+    ${GRPC_LINK_LIBRARIES} PROPERTIES MAP_IMPORTED_CONFIG_MINSIZEREL RELEASE
                                  MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE)
-  set(RESINSIGHT_GRPC_LIBRARIES ${GRPC_LIBRARIES})
 else()
   message(STATUS "Using RESINSIGHT_GRPC_INSTALL_PREFIX=${RESINSIGHT_GRPC_INSTALL_PREFIX}")
   set(RESINSIGHT_GRPC_INSTALL_PREFIX
@@ -122,12 +121,11 @@ else()
         "${RESINSIGHT_GRPC_INSTALL_PREFIX}/tools/grpc/grpc_cpp_plugin")
   endif()
   include_directories(AFTER ${GRPC_INCLUDE_DIRS})
-  set(RESINSIGHT_GRPC_LIBRARIES ${GRPC_LINK_LIBRARIES})
 endif()
 
 set(_LINK_LIBRARIES
     ${QT_LIBRARIES}
-    ${RESINSIGHT_GRPC_LIBRARIES}
+    ${GRPC_LINK_LIBRARIES}
     LibCore
     CommonCode
     cafCommand
@@ -302,7 +300,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 )
 
 target_link_directories(${PROJECT_NAME} PUBLIC ${GRPC_LIBRARY_DIRS})
-target_link_libraries(${PROJECT_NAME} PUBLIC ${_LINK_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${_LINK_LIBRARIES})
 
 if(MSVC)
   # GRPC generates a lot of harmless warnings on MSVC
