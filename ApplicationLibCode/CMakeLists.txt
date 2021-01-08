@@ -377,6 +377,10 @@ endif()
 
 target_link_libraries(${PROJECT_NAME} ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
 
+target_include_directories(${PROJECT_NAME} PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}/Application
+  ${CMAKE_CURRENT_SOURCE_DIR}/Application/Tools)
+
 # ##############################################################################
 # Unity builds
 # ##############################################################################

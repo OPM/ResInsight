@@ -60,51 +60,6 @@ if(MSVC)
   add_definitions(-D_USE_MATH_DEFINES)
 endif()
 
-include_directories(
-  # required for compilation of gtest, should be refactored
-  ${ResInsight_SOURCE_DIR}/ThirdParty
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Adm
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Application
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Application/Tools
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Application/Tools/WellPathTools
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Commands
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Commands/EclipseCommands
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/FileInterface
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/SocketInterface
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Measurement
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ModelVisualization
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ModelVisualization/GridBox
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ModelVisualization/Intersections
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ModelVisualization/Surfaces
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/UserInterface
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/UserInterface/AnalysisPlots
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/CommandFileInterface
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/CommandFileInterface/Core
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/AnalysisPlots
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/CorrelationPlots
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/Annotations
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/Completions
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/Flow
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/GridCrossPlots
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/Measurement
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/StimPlanModel
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/Summary
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/Surfaces
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/CellFilters
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModelCommands
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ResultStatisticsCache
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ReservoirDataModel
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ReservoirDataModel/Completions
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/GeoMech/OdbReader
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/GeoMech/GeoMechDataModel
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/GeoMech/GeoMechVisualization
-  ${CMAKE_SOURCE_DIR}/GrpcInterface
-  ${CMAKE_BINARY_DIR}/Generated
-  ${CMAKE_CURRENT_BINARY_DIR})
-
 # ##############################################################################
 # Defining all the source (and header) files
 # ##############################################################################
