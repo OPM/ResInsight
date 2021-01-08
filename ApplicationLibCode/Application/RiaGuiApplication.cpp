@@ -190,7 +190,6 @@ RiaGuiApplication::RiaGuiApplication( int& argc, char** argv )
     setWindowIcon( QIcon( ":/AppLogo48x48.png" ) );
 
     m_recentFileActionProvider = std::make_unique<RiuRecentFileActionProvider>();
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1559,12 +1558,11 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
     }
     caf::PdmUiItem::enableExtraDebugText( m_preferences->appendFieldKeywordToToolTipText() );
 
-    if (oldPreferences)
+    if ( oldPreferences )
     {
         onGuiPreferencesChanged();
-    }    
+    }
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///
