@@ -281,11 +281,8 @@ set(LINK_LIBRARIES
     ${OPENGL_LIBRARIES}
     ${QT_LIBRARIES}
     ${OPM_LIBRARIES}
-    cafCommand
-    cafCommandFeatures
-    cafProjectDataModel
-    cafViewer
-    cafVizExtensions
+    ${APP_FWK_LIBRARIES}
+    ${VIZ_FWK_LIBRARIES}
     ApplicationLibCode
     Commands
     )
