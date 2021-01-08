@@ -127,7 +127,7 @@ void RimStimPlanFractureTemplate::fieldChangedByUi( const caf::PdmFieldHandle* c
 
     if ( &m_useUserDefinedWellPathDepthAtFracture == changedField )
     {
-        if ( m_useUserDefinedWellPathDepthAtFracture )
+        if ( !m_useUserDefinedWellPathDepthAtFracture )
         {
             m_readError = false;
             loadDataAndUpdate();
@@ -289,7 +289,7 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
             setUnitSystem( m_stimPlanFractureDefinitionData->unitSet() );
         }
 
-        if ( m_useUserDefinedWellPathDepthAtFracture )
+        if ( !m_useUserDefinedWellPathDepthAtFracture )
         {
             computeDepthOfWellPathAtFracture();
         }
@@ -1057,7 +1057,7 @@ void RimStimPlanFractureTemplate::defineUiOrdering( QString uiConfigName, caf::P
         group->add( &m_useUserDefinedWellPathDepthAtFracture );
         group->add( &m_wellPathDepthAtFracture );
 
-        m_wellPathDepthAtFracture.uiCapability()->setUiReadOnly( m_useUserDefinedWellPathDepthAtFracture() );
+        m_wellPathDepthAtFracture.uiCapability()->setUiReadOnly( !m_useUserDefinedWellPathDepthAtFracture() );
     }
 
     {
