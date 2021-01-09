@@ -272,17 +272,18 @@ source_group("ModelVisualization" FILES ${MODEL_VISUALIZATION_FILES})
 source_group("SocketInterface" FILES ${SOCKET_INTERFACE_FILES})
 source_group("UnitTests" FILES ${UNIT_TEST_FILES})
 
-list(APPEND ALL_SOURCE_FILES
-    ${CPP_SOURCES}
-    ${MOC_SOURCE_FILES}
-    ${FORM_FILES_CPP}
-    ${HEADER_FILES}
-    ${REFERENCED_CMAKE_FILES}
-    ../ResInsightVersion.cmake
-    .clang-format
-    .clang-tidy
-    Adm/RiaVersionInfo.h.cmake
-)
+list(
+  APPEND
+  ALL_SOURCE_FILES
+  ${CPP_SOURCES}
+  ${MOC_SOURCE_FILES}
+  ${FORM_FILES_CPP}
+  ${HEADER_FILES}
+  ${REFERENCED_CMAKE_FILES}
+  ../ResInsightVersion.cmake
+  .clang-format
+  .clang-tidy
+  Adm/RiaVersionInfo.h.cmake)
 
 add_library(${PROJECT_NAME} OBJECT ${ALL_SOURCE_FILES})
 
@@ -350,7 +351,7 @@ if(MSVC)
 
   message(STATUS "BUILD_FLAGS_FOR_MSVC ${BUILD_FLAGS_FOR_MSVC}")
   set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS
-                                              ${BUILD_FLAGS_FOR_MSVC})
+                                                   ${BUILD_FLAGS_FOR_MSVC})
 
 endif()
 
@@ -366,8 +367,7 @@ set(LINK_LIBRARIES
     ${OPM_LIBRARIES}
     ${APP_FWK_LIBRARIES}
     ${VIZ_FWK_LIBRARIES}
-    ${RI_LIBRARIES}
-    )
+    ${RI_LIBRARIES})
 
 # According to ivarun this is needed on OpenSuse, and Fedora. See:
 # https://github.com/OPM/ResInsight/pull/7
@@ -375,11 +375,12 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   list(APPEND EXTERNAL_LINK_LIBRARIES rt)
 endif()
 
-target_link_libraries(${PROJECT_NAME} ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${LINK_LIBRARIES}
+                      ${EXTERNAL_LINK_LIBRARIES})
 
-target_include_directories(${PROJECT_NAME} PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}/Application
-  ${CMAKE_CURRENT_SOURCE_DIR}/Application/Tools)
+target_include_directories(
+  ${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Application
+                         ${CMAKE_CURRENT_SOURCE_DIR}/Application/Tools)
 
 # ##############################################################################
 # Unity builds
