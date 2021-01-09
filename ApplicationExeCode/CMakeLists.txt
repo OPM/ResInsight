@@ -66,14 +66,16 @@ endif()
 
 set(CODE_HEADER_FILES)
 
-set(CODE_SOURCE_FILES
-    RiaMain.cpp)
+set(CODE_SOURCE_FILES RiaMain.cpp)
 
-if (RESINSIGHT_ENABLE_GRPC)
-  list(APPEND CODE_HEAD_FILES RiaGrpcConsoleApplication.h RiaGrpcGuiApplication.h)
-  list(APPEND CODE_SOURCE_FILES RiaGrpcConsoleApplication.cpp RiaGrpcGuiApplication.cpp)
+if(RESINSIGHT_ENABLE_GRPC)
+  list(APPEND CODE_HEAD_FILES RiaGrpcConsoleApplication.h
+       RiaGrpcGuiApplication.h)
+  list(APPEND CODE_SOURCE_FILES RiaGrpcConsoleApplication.cpp
+       RiaGrpcGuiApplication.cpp)
 
-  list(APPEND QT_MOC_HEADERS RiaGrpcConsoleApplication.h RiaGrpcGuiApplication.h)
+  list(APPEND QT_MOC_HEADERS RiaGrpcConsoleApplication.h
+       RiaGrpcGuiApplication.h)
 
   # Find Protobuf installation Looks for protobuf-config.cmake file installed by
   # Protobuf's cmake installation.
@@ -85,14 +87,24 @@ if (RESINSIGHT_ENABLE_GRPC)
     # cmake installation.
     find_package(gRPC CONFIG REQUIRED)
     set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
-    set(_GRPC_GRPCPP_UNSECURE gRPC::grpc++_unsecure gRPC::grpc_unsecure gRPC::gpr)
+    set(_GRPC_GRPCPP_UNSECURE gRPC::grpc++_unsecure gRPC::grpc_unsecure
+                              gRPC::gpr)
     set(GRPC_LINK_LIBRARIES ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF})
   else()
-    set(RESINSIGHT_GRPC_INSTALL_PREFIX "" CACHE PATH "gRPC : Install prefix for gRPC")
+    set(RESINSIGHT_GRPC_INSTALL_PREFIX
+        ""
+        CACHE PATH "gRPC : Install prefix for gRPC")
     set(ENV{PKG_CONFIG_PATH} "${RESINSIGHT_GRPC_INSTALL_PREFIX}/lib/pkgconfig")
     find_package(PkgConfig REQUIRED)
-    pkg_check_modules(GRPC REQUIRED grpc grpc++_unsecure>=1.20 grpc_unsecure gpr
-                      protobuf libcares)
+    pkg_check_modules(
+      GRPC
+      REQUIRED
+      grpc
+      grpc++_unsecure>=1.20
+      grpc_unsecure
+      gpr
+      protobuf
+      libcares)
   endif()
 endif()
 
@@ -111,7 +123,6 @@ set(QRC_FILES ${QRC_FILES} Resources/ResInsight.qrc)
 # Runs RCC and MOC on specified files
 qt5_add_resources(QRC_FILES_CPP ${QRC_FILES})
 qt5_wrap_cpp(MOC_SOURCE_FILES ${QT_MOC_HEADERS})
-
 
 # Adding resource (RC) files for Windows
 if(MSVC)
@@ -237,19 +248,21 @@ if(APPLE)
                           ${CMAKE_CURRENT_BINARY_DIR}/Resources/ResInsight.icns)
 endif()
 
-if (RESINSIGHT_ENABLE_GRPC)
-	list(APPEND THIRD_PARTY_LIBRARIES ${GRPC_LINK_LIBRARIES})
+if(RESINSIGHT_ENABLE_GRPC)
+  list(APPEND THIRD_PARTY_LIBRARIES ${GRPC_LINK_LIBRARIES})
 
-	if (MSVC)
-		set_target_properties(ResInsight PROPERTIES LINK_FLAGS_RELWITHDEBINFO "/NODEFAULTLIB:MSVCRTD.lib")
-	endif()
+  if(MSVC)
+    set_target_properties(ResInsight PROPERTIES LINK_FLAGS_RELWITHDEBINFO
+                                                "/NODEFAULTLIB:MSVCRTD.lib")
+  endif()
 endif()
 
 # ##############################################################################
 # Set up libraries and dependent projects to link with
 # ##############################################################################
 
-message(STATUS "Linking with the following OpenGL libraries: ${OPENGL_LIBRARIES}")
+message(
+  STATUS "Linking with the following OpenGL libraries: ${OPENGL_LIBRARIES}")
 message(STATUS "GRPC LIBS: ${GRPC_LINK_LIBRARIES}")
 
 # According to ivarun rt is needed on OpenSuse, and Fedora. See:
@@ -266,18 +279,17 @@ set(LINK_LIBRARIES
     ${APP_FWK_LIBRARIES}
     ${VIZ_FWK_LIBRARIES}
     ApplicationLibCode
-    Commands
-    )
+    Commands)
 
-if (RESINSIGHT_ENABLE_GRPC)
+if(RESINSIGHT_ENABLE_GRPC)
   list(APPEND LINK_LIBRARIES GrpcInterface)
 endif()
 
-if (DEFINED GRPC_LIBRARY_DIRS) 
+if(DEFINED GRPC_LIBRARY_DIRS)
   target_link_directories(ResInsight PRIVATE ${GRPC_LIBRARY_DIRS})
 endif()
 
-target_link_libraries(ResInsight ${LINK_LIBRARIES} )
+target_link_libraries(ResInsight ${LINK_LIBRARIES})
 
 # ##############################################################################
 # Unity builds
@@ -552,7 +564,8 @@ if(RESINSIGHT_PRIVATE_INSTALL)
       set(ZLIB_DLL "$<IF:$<CONFIG:Debug>,zlibd1,zlib1>")
       set(GRPC_DLL_NAMES cares ${ZLIB_DLL} abseil_dll)
       foreach(dllname ${GRPC_DLL_NAMES})
-        install(FILES $<TARGET_FILE_DIR:ResInsight>/${dllname}.dll DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
+        install(FILES $<TARGET_FILE_DIR:ResInsight>/${dllname}.dll
+                DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
       endforeach(dllname ${GRPC_DLL_NAMES})
       install(
         FILES
