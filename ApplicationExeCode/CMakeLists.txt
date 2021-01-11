@@ -160,17 +160,6 @@ set(EXE_FILES
 
 add_executable(ResInsight ${EXE_FILES})
 
-option(RESINSIGHT_ENABLE_PRECOMPILED_HEADERS "Use Precompiled Headers" OFF)
-mark_as_advanced(FORCE RESINSIGHT_ENABLE_PRECOMPILED_HEADERS)
-if(RESINSIGHT_ENABLE_PRECOMPILED_HEADERS)
-  message("Precompiled Headers is enabled on : ${PROJECT_NAME}")
-  target_precompile_headers(ResInsight PRIVATE pch.h)
-
-  set_source_files_properties(
-    ${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc
-    PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
-endif()
-
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set_target_properties(
     ResInsight
