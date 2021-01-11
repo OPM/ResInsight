@@ -379,22 +379,20 @@ target_link_libraries(${PROJECT_NAME} ${LINK_LIBRARIES}
                       ${EXTERNAL_LINK_LIBRARIES})
 
 target_include_directories(
-  ${PROJECT_NAME} PRIVATE
-    ${CMAKE_BINARY_DIR}/Generated
-   PUBLIC 
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Application
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Application/Tools
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/CommandFileInterface
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/CommandFileInterface/Core
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/FileInterface
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/GeoMech
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ModelVisualization
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/Flow
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ReservoirDataModel  
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/SocketInterface
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/UserInterface
-)
+  ${PROJECT_NAME}
+  PRIVATE ${CMAKE_BINARY_DIR}/Generated
+  PUBLIC ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Application
+         ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Application/Tools
+         ${CMAKE_SOURCE_DIR}/ApplicationLibCode/CommandFileInterface
+         ${CMAKE_SOURCE_DIR}/ApplicationLibCode/CommandFileInterface/Core
+         ${CMAKE_SOURCE_DIR}/ApplicationLibCode/FileInterface
+         ${CMAKE_SOURCE_DIR}/ApplicationLibCode/GeoMech
+         ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ModelVisualization
+         ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel
+         ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/Flow
+         ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ReservoirDataModel
+         ${CMAKE_SOURCE_DIR}/ApplicationLibCode/SocketInterface
+         ${CMAKE_SOURCE_DIR}/ApplicationLibCode/UserInterface)
 
 # ##############################################################################
 # Unity builds
