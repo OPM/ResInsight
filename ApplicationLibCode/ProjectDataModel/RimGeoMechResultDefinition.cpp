@@ -29,7 +29,6 @@
 #include "RigFemPartGrid.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigFemResultAddress.h"
-#include "RigFormationNames.h"
 #include "RigGeoMechCaseData.h"
 #include "RigWbsParameter.h"
 #include "RigWellPath.h"

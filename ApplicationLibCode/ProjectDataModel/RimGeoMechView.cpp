@@ -28,7 +28,6 @@
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
 #include "RigFemPartResultsCollection.h"
-#include "RigFormationNames.h"
 #include "RigGeoMechCaseData.h"
 
 #include "Rim3dOverlayInfoConfig.h"

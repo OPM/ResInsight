@@ -24,7 +24,6 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigFlowDiagResults.h"
-#include "RigFormationNames.h"
 
 #include "RimCellEdgeColors.h"
 #include "RimEclipseCase.h"

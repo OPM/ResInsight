@@ -32,7 +32,6 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigFlowDiagResults.h"
-#include "RigFormationNames.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"

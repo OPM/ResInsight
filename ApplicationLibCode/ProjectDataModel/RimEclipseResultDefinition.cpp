@@ -34,7 +34,6 @@
 #include "RigEclipseResultInfo.h"
 #include "RigFlowDiagResultAddress.h"
 #include "RigFlowDiagResults.h"
-#include "RigFormationNames.h"
 #include "RigVisibleTracerFilter.h"
 
 #include "Rim3dView.h"
@@ -81,18 +80,18 @@
 
 #include <QRegularExpression>
 
-namespace caf
+    namespace caf
 {
-template <>
-void RimEclipseResultDefinition::FlowTracerSelectionEnum::setUp()
-{
-    addItem( RimEclipseResultDefinition::FLOW_TR_INJ_AND_PROD, "FLOW_TR_INJ_AND_PROD", "All Injectors and Producers" );
-    addItem( RimEclipseResultDefinition::FLOW_TR_PRODUCERS, "FLOW_TR_PRODUCERS", "All Producers" );
-    addItem( RimEclipseResultDefinition::FLOW_TR_INJECTORS, "FLOW_TR_INJECTORS", "All Injectors" );
-    addItem( RimEclipseResultDefinition::FLOW_TR_BY_SELECTION, "FLOW_TR_BY_SELECTION", "By Selection" );
+    template <>
+    void RimEclipseResultDefinition::FlowTracerSelectionEnum::setUp()
+    {
+        addItem( RimEclipseResultDefinition::FLOW_TR_INJ_AND_PROD, "FLOW_TR_INJ_AND_PROD", "All Injectors and Producers" );
+        addItem( RimEclipseResultDefinition::FLOW_TR_PRODUCERS, "FLOW_TR_PRODUCERS", "All Producers" );
+        addItem( RimEclipseResultDefinition::FLOW_TR_INJECTORS, "FLOW_TR_INJECTORS", "All Injectors" );
+        addItem( RimEclipseResultDefinition::FLOW_TR_BY_SELECTION, "FLOW_TR_BY_SELECTION", "By Selection" );
 
-    setDefault( RimEclipseResultDefinition::FLOW_TR_INJ_AND_PROD );
-}
+        setDefault( RimEclipseResultDefinition::FLOW_TR_INJ_AND_PROD );
+    }
 } // namespace caf
 
 CAF_PDM_SOURCE_INIT( RimEclipseResultDefinition, "ResultDefinition" );

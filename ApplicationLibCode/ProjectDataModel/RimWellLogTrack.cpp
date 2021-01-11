@@ -31,7 +31,6 @@
 #include "RigEclipseWellLogExtractor.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigFemResultAddress.h"
-#include "RigFormationNames.h"
 #include "RigGeoMechCaseData.h"
 #include "RigGeoMechWellLogExtractor.h"
 #include "RigResultAccessorFactory.h"

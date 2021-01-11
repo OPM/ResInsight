@@ -29,7 +29,6 @@
 #include "RigEclipseCaseData.h"
 #include "RigEclipseCrossPlotDataExtractor.h"
 
-#include "RigFormationNames.h"
 #include "RigMainGrid.h"
 
 #include "RiuDraggableOverlayFrame.h"

@@ -20,7 +20,6 @@
 #include "RimGeoMechPropertyFilter.h"
 
 #include "RigFemPartResultsCollection.h"
-#include "RigFormationNames.h"
 #include "RigGeoMechCaseData.h"
 
 #include "RimGeoMechPropertyFilterCollection.h"
