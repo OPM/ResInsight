@@ -261,10 +261,6 @@ endif()
 # Set up libraries and dependent projects to link with
 # ##############################################################################
 
-message(
-  STATUS "Linking with the following OpenGL libraries: ${OPENGL_LIBRARIES}")
-message(STATUS "GRPC LIBS: ${GRPC_LINK_LIBRARIES}")
-
 # According to ivarun rt is needed on OpenSuse, and Fedora. See:
 # https://github.com/OPM/ResInsight/pull/7
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
