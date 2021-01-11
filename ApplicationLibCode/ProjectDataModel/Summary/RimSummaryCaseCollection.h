@@ -117,7 +117,7 @@ public:
     int                                        ensembleId() const;
     bool                                       hasEnsembleParameters() const;
 
-    const std::vector<EnsembleParameter>& variationSortedEnsembleParameters( bool excludeNoVariation = false ) const;
+    std::vector<EnsembleParameter> variationSortedEnsembleParameters( bool excludeNoVariation = false ) const;
     std::vector<std::pair<EnsembleParameter, double>>
         correlationSortedEnsembleParameters( const RifEclipseSummaryAddress& address ) const;
     std::vector<std::pair<EnsembleParameter, double>>
