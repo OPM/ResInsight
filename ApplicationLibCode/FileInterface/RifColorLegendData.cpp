@@ -20,6 +20,8 @@
 
 #include "RigFormationNames.h"
 
+#include "RiaColorTables.h"
+
 #include "cafAssert.h"
 #include "cafPdmUiFilePathEditor.h"
 
@@ -62,6 +64,7 @@ cvf::ref<RigFormationNames> RifColorLegendData::readLyrFormationNameFile( const 
 
     QTextStream stream( &dataFile );
 
+    int colorIndex = 0;
     int lineNumber = 1;
     while ( !stream.atEnd() )
     {
@@ -113,17 +116,17 @@ cvf::ref<RigFormationNames> RifColorLegendData::readLyrFormationNameFile( const 
                 startK  = tmp < endK ? tmp : endK;
                 endK    = tmp > endK ? tmp : endK;
 
-                if ( QColor::isValidColor( colorWord ) ) // formation color present at end of line
-                {
-                    cvf::Color3f formationColor;
+                cvf::Color3f formationColor = RiaColorTables::categoryPaletteColors().cycledColor3f( colorIndex );
+                colorIndex++;
 
-                    convertStringToColor( colorWord, &formationColor );
-                    formationNames->appendFormationRange( formationName, formationColor, startK - 1, endK - 1 );
-                }
-                else // no color present
+                // Formation color present at end of line
+                if ( QColor::isValidColor( colorWord ) )
                 {
-                    formationNames->appendFormationRange( formationName, startK - 1, endK - 1 );
+                    cvf::Color3f fileColor;
+                    bool         colorOk = convertStringToColor( colorWord, &fileColor );
+                    if ( colorOk ) formationColor = fileColor;
                 }
+                formationNames->appendFormationRange( formationName, formationColor, startK - 1, endK - 1 );
             }
             else if ( numberWords.size() == 1 )
             {
@@ -137,17 +140,16 @@ cvf::ref<RigFormationNames> RifColorLegendData::readLyrFormationNameFile( const 
                     continue;
                 }
 
-                if ( QColor::isValidColor( colorWord ) ) // formation color present at end of line
+                cvf::Color3f formationColor = RiaColorTables::categoryPaletteColors().cycledColor3f( colorIndex );
+                colorIndex++;
+                // Formation color present at end of line
+                if ( QColor::isValidColor( colorWord ) )
                 {
-                    cvf::Color3f formationColor;
-
-                    convertStringToColor( colorWord, &formationColor );
-                    formationNames->appendFormationRangeHeight( formationName, formationColor, kLayerCount );
+                    cvf::Color3f fileColor;
+                    bool         colorOk = convertStringToColor( colorWord, &fileColor );
+                    if ( colorOk ) formationColor = fileColor;
                 }
-                else // no color present
-                {
-                    formationNames->appendFormationRangeHeight( formationName, kLayerCount );
-                }
+                formationNames->appendFormationRangeHeight( formationName, formationColor, kLayerCount );
             }
             else
             {
