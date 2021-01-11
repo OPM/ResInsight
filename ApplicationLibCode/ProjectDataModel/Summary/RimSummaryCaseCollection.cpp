@@ -452,36 +452,49 @@ RifReaderRftInterface* RimSummaryCaseCollection::rftStatisticsReader()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<EnsembleParameter>&
-    RimSummaryCaseCollection::variationSortedEnsembleParameters( bool excludeNoVariation ) const
+std::vector<EnsembleParameter> RimSummaryCaseCollection::variationSortedEnsembleParameters( bool excludeNoVariation ) const
 {
-    if ( m_cachedSortedEnsembleParameters.size() ) return m_cachedSortedEnsembleParameters;
-
-    std::set<QString> paramSet;
-    for ( RimSummaryCase* rimCase : this->allSummaryCases() )
+    if ( m_cachedSortedEnsembleParameters.empty() )
     {
-        if ( rimCase->caseRealizationParameters() != nullptr )
+        std::set<QString> paramSet;
+        for ( RimSummaryCase* rimCase : this->allSummaryCases() )
         {
-            auto ps = rimCase->caseRealizationParameters()->parameters();
-            for ( auto p : ps )
+            if ( rimCase->caseRealizationParameters() != nullptr )
             {
-                paramSet.insert( p.first );
+                auto ps = rimCase->caseRealizationParameters()->parameters();
+                for ( const auto& p : ps )
+                {
+                    paramSet.insert( p.first );
+                }
             }
         }
-    }
 
-    m_cachedSortedEnsembleParameters.reserve( paramSet.size() );
-    for ( const QString& parameterName : paramSet )
-    {
-        auto ensembleParameter = this->createEnsembleParameter( parameterName );
-        if ( !excludeNoVariation || ensembleParameter.normalizedStdDeviation() != 0.0 )
+        m_cachedSortedEnsembleParameters.reserve( paramSet.size() );
+        for ( const QString& parameterName : paramSet )
         {
+            auto ensembleParameter = this->createEnsembleParameter( parameterName );
             m_cachedSortedEnsembleParameters.push_back( ensembleParameter );
         }
+        RimSummaryCaseCollection::sortByBinnedVariation( m_cachedSortedEnsembleParameters );
     }
-    RimSummaryCaseCollection::sortByBinnedVariation( m_cachedSortedEnsembleParameters );
 
-    return m_cachedSortedEnsembleParameters;
+    if ( !excludeNoVariation )
+    {
+        return m_cachedSortedEnsembleParameters;
+    }
+    else
+    {
+        const double                   epsilon = 1e-9;
+        std::vector<EnsembleParameter> parametersWithVariation;
+        for ( const auto& p : m_cachedSortedEnsembleParameters )
+        {
+            if ( std::abs( p.normalizedStdDeviation() ) > epsilon )
+            {
+                parametersWithVariation.push_back( p );
+            }
+        }
+        return parametersWithVariation;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
