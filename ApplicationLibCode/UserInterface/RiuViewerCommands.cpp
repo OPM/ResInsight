@@ -403,6 +403,8 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
                     menuBuilder.subMenuEnd();
                 }
 
+                menuBuilder << "RicNewPolylineFilter3dviewFeature";
+
                 menuBuilder << "RicEclipsePropertyFilterNewInViewFeature";
                 menuBuilder << "RicGeoMechPropertyFilterNewInViewFeature";
 
