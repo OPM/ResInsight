@@ -284,21 +284,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC
   PRIVATE
   ${GRPC_INCLUDE_DIRS}
   ${CMAKE_BINARY_DIR}/Generated
-  ${CMAKE_SOURCE_DIR}/ThirdParty
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Adm
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Application
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Application/Tools
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/CommandFileInterface
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/CommandFileInterface/Core
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/FileInterface
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/GeoMech
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ModelVisualization
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/Flow
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ReservoirDataModel  
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/SocketInterface
-  ${CMAKE_SOURCE_DIR}/ApplicationLibCode/UserInterface
 )
 
 target_link_directories(${PROJECT_NAME} PUBLIC ${GRPC_LIBRARY_DIRS})
