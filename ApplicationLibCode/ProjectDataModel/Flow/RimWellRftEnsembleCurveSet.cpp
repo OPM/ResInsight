@@ -133,20 +133,16 @@ void RimWellRftEnsembleCurveSet::setEnsembleParameter( const QString& parameterN
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RimWellRftEnsembleCurveSet::allEnsembleParameters() const
+std::vector<QString> RimWellRftEnsembleCurveSet::parametersWithVariation() const
 {
     std::set<QString>         paramSet;
     RimSummaryCaseCollection* group = m_ensemble;
     if ( group )
     {
-        for ( RimSummaryCase* rimCase : group->allSummaryCases() )
+        auto parameters = group->variationSortedEnsembleParameters( true );
+        for ( const auto& param : parameters )
         {
-            if ( rimCase->caseRealizationParameters() != nullptr )
-            {
-                auto ps = rimCase->caseRealizationParameters()->parameters();
-                for ( auto p : ps )
-                    paramSet.insert( p.first );
-            }
+            paramSet.insert( param.name );
         }
     }
     return std::vector<QString>( paramSet.begin(), paramSet.end() );
@@ -204,7 +200,7 @@ QList<caf::PdmOptionItemInfo>
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_ensembleParameter )
     {
-        for ( const QString& param : allEnsembleParameters() )
+        for ( const QString& param : parametersWithVariation() )
         {
             options.push_back( caf::PdmOptionItemInfo( param, param ) );
         }
