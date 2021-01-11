@@ -80,8 +80,8 @@ void RimGeoMechPropertyFilter::fieldChangedByUi( const caf::PdmFieldHandle* chan
                                                  const QVariant&            oldValue,
                                                  const QVariant&            newValue )
 {
-    if ( &lowerBound == changedField || &upperBound == changedField || &isActive == changedField ||
-         &filterMode == changedField || &m_selectedCategoryValues == changedField )
+    if ( &lowerBound == changedField || &upperBound == changedField || &m_isActive == changedField ||
+         &m_filterMode == changedField || &m_selectedCategoryValues == changedField )
     {
         this->updateIconState();
         this->updateFilterName();
@@ -129,14 +129,14 @@ void RimGeoMechPropertyFilter::setToDefaultValues()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechPropertyFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &name );
+    uiOrdering.add( &m_name );
 
     caf::PdmUiGroup* group1 = uiOrdering.addNewGroup( "Result" );
     resultDefinition->uiOrdering( uiConfigName, *group1 );
 
     caf::PdmUiGroup& group2 = *( uiOrdering.addNewGroup( "Filter Settings" ) );
 
-    group2.add( &filterMode );
+    group2.add( &m_filterMode );
 
     if ( resultDefinition->hasCategoryResult() )
     {
@@ -211,7 +211,7 @@ bool RimGeoMechPropertyFilter::isPropertyFilterControlled()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechPropertyFilter::updateActiveState()
 {
-    isActive.uiCapability()->setUiReadOnly( isPropertyFilterControlled() );
+    m_isActive.uiCapability()->setUiReadOnly( isPropertyFilterControlled() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -324,7 +324,7 @@ void RimGeoMechPropertyFilter::updateFilterName()
                         " .. " + QString::number( upperBound ) + ")";
     }
 
-    this->name = newFiltername;
+    m_name = newFiltername;
 
     uiCapability()->updateConnectedEditors();
 }

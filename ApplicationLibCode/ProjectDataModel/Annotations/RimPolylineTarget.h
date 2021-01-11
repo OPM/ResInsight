@@ -42,6 +42,8 @@ public:
     caf::PdmUiFieldHandle* targetPointUiCapability();
     void                   enableFullUpdate( bool enable );
 
+    void triggerVisualizationUpdate() const;
+
 private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;

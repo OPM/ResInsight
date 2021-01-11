@@ -23,7 +23,7 @@
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCase.h"
-#include "RimCellRangeFilterCollection.h"
+#include "RimCellFilterCollection.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechContourMapProjection.h"
 #include "RimGeoMechPropertyFilterCollection.h"
@@ -228,7 +228,7 @@ void RimGeoMechContourMapView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
     uiTreeOrdering.add( m_contourMapProjection );
     uiTreeOrdering.add( cellResult() );
     cellResult()->uiCapability()->setUiReadOnly( m_contourMapProjection->isColumnResult() );
-    uiTreeOrdering.add( m_rangeFilterCollection() );
+    uiTreeOrdering.add( m_cellFilterCollection() );
     uiTreeOrdering.add( nativePropertyFilterCollection() );
 
     uiTreeOrdering.skipRemainingChildren();
@@ -414,7 +414,7 @@ void RimGeoMechContourMapView::updateViewWidgetAfterCreation()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechContourMapView::updateViewFollowingRangeFilterUpdates()
+void RimGeoMechContourMapView::updateViewFollowingCellFilterUpdates()
 {
     m_contourMapProjection->setCheckState( true );
     scheduleCreateDisplayModelAndRedraw();

@@ -19,10 +19,7 @@
 #pragma once
 
 #include "Ric3dViewPickEventHandler.h"
-
-#include "cafPdmPointer.h"
-
-class RimUserDefinedPolylinesAnnotation;
+#include "RimPolylinePickerInterface.h"
 
 //==================================================================================================
 ///
@@ -30,7 +27,7 @@ class RimUserDefinedPolylinesAnnotation;
 class RicPolylineTargetsPickEventHandler : public Ric3dViewPickEventHandler
 {
 public:
-    RicPolylineTargetsPickEventHandler( RimUserDefinedPolylinesAnnotation* polylineDef );
+    RicPolylineTargetsPickEventHandler( RimPolylinePickerInterface* picker );
     ~RicPolylineTargetsPickEventHandler();
 
     void registerAsPickEventHandler() override;
@@ -40,5 +37,5 @@ protected:
     void notifyUnregistered() override;
 
 private:
-    caf::PdmPointer<RimUserDefinedPolylinesAnnotation> m_polylineDef;
+    RimPolylinePickerInterface* m_objectDef;
 };

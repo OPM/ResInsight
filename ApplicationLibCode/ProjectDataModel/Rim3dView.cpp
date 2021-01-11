@@ -30,6 +30,7 @@
 #include "Rim3dWellLogCurve.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimCase.h"
+#include "RimCellFilterCollection.h"
 #include "RimGridView.h"
 #include "RimMainPlotCollection.h"
 #include "RimMeasurement.h"

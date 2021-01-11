@@ -787,3 +787,58 @@ std::vector<cvf::Vec3d>
 
     return adjustedPolygon;
 }
+
+//--------------------------------------------------------------------------------------------------
+///  tests if a point is Left|On|Right of an infinite line.
+///    Input:  three points P1, P2, and P3
+///    Return: >0 for P3 left of the line through P1 and P2
+///            =0 for P3  on the line
+///            <0 for P3  right of the line
+///   ref. http://geomalgorithms.com/a01-_area.html
+//--------------------------------------------------------------------------------------------------
+inline double
+    RigCellGeometryTools::isLeftOfLine2D( const cvf::Vec3d& point1, const cvf::Vec3d& point2, const cvf::Vec3d& point3 )
+{
+    return ( ( point2.x() - point1.x() ) * ( point3.y() - point1.y() ) -
+             ( point3.x() - point1.x() ) * ( point2.y() - point1.y() ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// winding number test for a point in a polygon
+///      Input:   point = the point to test,
+///               polygon[] = vertex points of a closed polygon of size n, where polygon[n-1]=polygon[0]
+///
+///      Return:  true if inside, false if outside)
+/// ref. http://geomalgorithms.com/a03-_inclusion.html
+//--------------------------------------------------------------------------------------------------
+bool RigCellGeometryTools::pointInsidePolygon2D( const cvf::Vec3d point, const std::vector<cvf::Vec3d>& polygon )
+{
+    // Copyright 2000 softSurfer, 2012 Dan Sunday
+    // This code may be freely used and modified for any purpose
+    // providing that this copyright notice is included with it.
+    // SoftSurfer makes no warranty for this code, and cannot be held
+    // liable for any real or imagined damage resulting from its use.
+    // Users of this code must verify correctness for their application
+
+    int wn = 0; // the  winding number counter
+
+    size_t N = polygon.size() - 1;
+
+    // loop through all edges of the polygon
+    for ( size_t i = 0; i < N; i++ )
+    { // edge from V[i] to  V[i+1]
+        if ( polygon[i].y() <= point.y() )
+        { // start y <= P.y
+            if ( polygon[i + 1].y() > point.y() ) // an upward crossing
+                if ( isLeftOfLine2D( polygon[i], polygon[i + 1], point ) > 0 ) // P left of  edge
+                    ++wn; // have  a valid up intersect
+        }
+        else
+        { // start y > P.y
+            if ( polygon[i + 1].y() <= point.y() ) // a downward crossing
+                if ( isLeftOfLine2D( polygon[i], polygon[i + 1], point ) < 0 ) // P right of  edge
+                    --wn; // have  a valid down intersect
+        }
+    }
+    return wn != 0;
+}

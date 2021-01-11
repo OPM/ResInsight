@@ -66,14 +66,14 @@ void RicUnLinkViewFeature::onActionTriggered( bool isChecked )
 
     if ( viewController )
     {
-        viewController->applyRangeFilterCollectionByUserChoice();
+        viewController->applyCellFilterCollectionByUserChoice();
         delete viewController;
         viewLinker->removeViewController( nullptr ); // Remove the slots in the vector that was set to nullptr by the
                                                      // destructor
     }
     else if ( viewLinker )
     {
-        viewLinker->applyRangeFilterCollectionByUserChoice();
+        viewLinker->applyCellFilterCollectionByUserChoice();
 
         RimGridView* firstControlledView = viewLinker->firstControlledView();
 

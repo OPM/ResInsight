@@ -43,7 +43,7 @@
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimAnnotationTextAppearance.h"
-#include "RimCellRangeFilterCollection.h"
+#include "RimCellFilterCollection.h"
 #include "RimCommandObject.h"
 #include "RimCompletionTemplateCollection.h"
 #include "RimCorrelationPlot.h"
@@ -643,7 +643,7 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
                     this->setActiveReservoirView( riv );
 
                     RimGridView* rigv = dynamic_cast<RimGridView*>( riv );
-                    if ( rigv ) rigv->rangeFilterCollection()->updateIconState();
+                    if ( rigv ) rigv->cellFilterCollection()->updateIconState();
 
                     viewProgress.incrementProgress();
                 }
