@@ -22,6 +22,7 @@
 #include "cvfObject.h"
 
 class RigFormationNames;
+class RimColorLegend;
 class QString;
 
 namespace cvf
@@ -35,11 +36,14 @@ class Color3f;
 class RifColorLegendData
 {
 public:
-    static cvf::ref<RigFormationNames> readFormationNamesFile( const QString& fileName, QString* errorMessage );
+    static std::pair<cvf::ref<RigFormationNames>, caf::PdmPointer<RimColorLegend>>
+        readFormationNamesFile( const QString& fileName, QString* errorMessage );
 
 private:
-    static cvf::ref<RigFormationNames> readLyrFormationNameFile( const QString& fileName, QString* errorMessage );
-    static cvf::ref<RigFormationNames> readFmuFormationNameFile( const QString& fileName, QString* errorMessage );
+    static std::pair<cvf::ref<RigFormationNames>, caf::PdmPointer<RimColorLegend>>
+        readLyrFormationNameFile( const QString& fileName, QString* errorMessage );
+    static std::pair<cvf::ref<RigFormationNames>, caf::PdmPointer<RimColorLegend>>
+        readFmuFormationNameFile( const QString& fileName, QString* errorMessage );
 
     static bool convertStringToColor( const QString& word, cvf::Color3f* color );
 };

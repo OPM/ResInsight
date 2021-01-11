@@ -20,6 +20,9 @@
 
 #include "RigFormationNames.h"
 
+#include "RimColorLegend.h"
+#include "RimColorLegendItem.h"
+
 #include "RiaColorTables.h"
 
 #include "cafAssert.h"
@@ -33,7 +36,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigFormationNames> RifColorLegendData::readFormationNamesFile( const QString& fileName, QString* errorMessage )
+std::pair<cvf::ref<RigFormationNames>, caf::PdmPointer<RimColorLegend>>
+    RifColorLegendData::readFormationNamesFile( const QString& fileName, QString* errorMessage )
 {
     QFileInfo fileInfo( fileName );
 
@@ -50,17 +54,22 @@ cvf::ref<RigFormationNames> RifColorLegendData::readFormationNamesFile( const QS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigFormationNames> RifColorLegendData::readLyrFormationNameFile( const QString& fileName, QString* errorMessage )
+std::pair<cvf::ref<RigFormationNames>, caf::PdmPointer<RimColorLegend>>
+    RifColorLegendData::readLyrFormationNameFile( const QString& fileName, QString* errorMessage )
 {
-    cvf::ref<RigFormationNames> formationNames = new RigFormationNames;
+    cvf::ref<RigFormationNames>     formationNames = new RigFormationNames;
+    caf::PdmPointer<RimColorLegend> colorLegend    = new RimColorLegend;
 
     QFile dataFile( fileName );
 
     if ( !dataFile.open( QFile::ReadOnly ) )
     {
         if ( errorMessage ) ( *errorMessage ) += "Could not open file: " + fileName + "\n";
-        return formationNames;
+        return std::make_pair( formationNames, colorLegend );
     }
+
+    QString colorLegendName = QFileInfo( fileName ).baseName();
+    colorLegend->setColorLegendName( colorLegendName );
 
     QTextStream stream( &dataFile );
 
@@ -126,7 +135,11 @@ cvf::ref<RigFormationNames> RifColorLegendData::readLyrFormationNameFile( const 
                     bool         colorOk = convertStringToColor( colorWord, &fileColor );
                     if ( colorOk ) formationColor = fileColor;
                 }
-                formationNames->appendFormationRange( formationName, formationColor, startK - 1, endK - 1 );
+                formationNames->appendFormationRange( formationName, startK - 1, endK - 1 );
+
+                RimColorLegendItem* colorLegendItem = new RimColorLegendItem;
+                colorLegendItem->setValues( formationName, colorIndex, formationColor );
+                colorLegend->appendColorLegendItem( colorLegendItem );
             }
             else if ( numberWords.size() == 1 )
             {
@@ -149,7 +162,11 @@ cvf::ref<RigFormationNames> RifColorLegendData::readLyrFormationNameFile( const 
                     bool         colorOk = convertStringToColor( colorWord, &fileColor );
                     if ( colorOk ) formationColor = fileColor;
                 }
-                formationNames->appendFormationRangeHeight( formationName, formationColor, kLayerCount );
+                formationNames->appendFormationRangeHeight( formationName, kLayerCount );
+
+                RimColorLegendItem* colorLegendItem = new RimColorLegendItem;
+                colorLegendItem->setValues( formationName, colorIndex, formationColor );
+                colorLegend->appendColorLegendItem( colorLegendItem );
             }
             else
             {
@@ -161,22 +178,24 @@ cvf::ref<RigFormationNames> RifColorLegendData::readLyrFormationNameFile( const 
         ++lineNumber;
     }
 
-    return formationNames;
+    return std::make_pair( formationNames, colorLegend );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigFormationNames> RifColorLegendData::readFmuFormationNameFile( const QString& fileName, QString* errorMessage )
+std::pair<cvf::ref<RigFormationNames>, caf::PdmPointer<RimColorLegend>>
+    RifColorLegendData::readFmuFormationNameFile( const QString& fileName, QString* errorMessage )
 {
-    cvf::ref<RigFormationNames> formationNames = new RigFormationNames;
+    cvf::ref<RigFormationNames>     formationNames = new RigFormationNames;
+    caf::PdmPointer<RimColorLegend> colorLegend;
 
     QFile dataFile( fileName );
 
     if ( !dataFile.open( QFile::ReadOnly ) )
     {
         if ( errorMessage ) ( *errorMessage ) += "Could not open file: " + fileName + "\n";
-        return formationNames;
+        return std::make_pair( formationNames, colorLegend );
     }
 
     QTextStream stream( &dataFile );
@@ -186,7 +205,8 @@ cvf::ref<RigFormationNames> RifColorLegendData::readFmuFormationNameFile( const 
     QString currentFormationName;
     int     startK = -1;
     int     endK   = -1;
-
+    int colorIndex = 0;
+    
     while ( !stream.atEnd() )
     {
         QString line = stream.readLine();
@@ -211,7 +231,7 @@ cvf::ref<RigFormationNames> RifColorLegendData::readFmuFormationNameFile( const 
             if ( lineStream.status() != QTextStream::Ok )
             {
                 *errorMessage = QString( "Failed to parse line %1 of '%2'" ).arg( lineNumber ).arg( fileName );
-                return formationNames;
+                return std::make_pair( formationNames, colorLegend );
             }
 
             if ( formationName != currentFormationName )
@@ -220,6 +240,12 @@ cvf::ref<RigFormationNames> RifColorLegendData::readFmuFormationNameFile( const 
                 if ( !currentFormationName.isEmpty() )
                 {
                     formationNames->appendFormationRange( currentFormationName, startK - 1, endK - 1 );
+
+                    cvf::Color3f formationColor = RiaColorTables::categoryPaletteColors().cycledColor3f( colorIndex );
+                    RimColorLegendItem* colorLegendItem = new RimColorLegendItem;
+                    colorLegendItem->setValues( currentFormationName, colorIndex, formationColor );
+                    colorLegend->appendColorLegendItem( colorLegendItem );
+                    colorIndex++;
                 }
 
                 // Start new formation
@@ -238,9 +264,15 @@ cvf::ref<RigFormationNames> RifColorLegendData::readFmuFormationNameFile( const 
     if ( !currentFormationName.isEmpty() )
     {
         formationNames->appendFormationRange( currentFormationName, startK - 1, endK - 1 );
+
+        cvf::Color3f        formationColor  = RiaColorTables::categoryPaletteColors().cycledColor3f( colorIndex );
+        RimColorLegendItem* colorLegendItem = new RimColorLegendItem;
+        colorLegendItem->setValues( currentFormationName, colorIndex, formationColor );
+        colorLegend->appendColorLegendItem( colorLegendItem );
+        colorIndex++;
     }
 
-    return formationNames;
+    return std::make_pair( formationNames, colorLegend );
 }
 
 //--------------------------------------------------------------------------------------------------

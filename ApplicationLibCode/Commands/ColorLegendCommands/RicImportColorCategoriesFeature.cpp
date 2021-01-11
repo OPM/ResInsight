@@ -76,25 +76,12 @@ void RicImportColorCategoriesFeature::onActionTriggered( bool isChecked )
     // Remember the path to next time
     app->setLastUsedDialogDirectory( "BINARY_GRID", QFileInfo( fileName ).absolutePath() );
 
-    QString                     errormessage;
-    cvf::ref<RigFormationNames> formations = RifColorLegendData::readFormationNamesFile( fileName, &errormessage );
+    QString                                                                 errormessage;
+    std::pair<cvf::ref<RigFormationNames>, caf::PdmPointer<RimColorLegend>> result =
+        RifColorLegendData::readFormationNamesFile( fileName, &errormessage );
 
-    const std::vector<QString>&      formationNames  = formations->formationNames();
-    const std::vector<cvf::Color3f>& formationColors = formations->formationColors();
-
-    RimColorLegend* colorLegend = new RimColorLegend;
-    colorLegend->setColorLegendName( QFileInfo( fileName ).baseName() );
-
-    for ( size_t i = 0; i < formationColors.size(); i++ )
-    {
-        RimColorLegendItem* colorLegendItem = new RimColorLegendItem;
-
-        colorLegendItem->setValues( formationNames[i], (int)i, formationColors[i] );
-
-        colorLegend->appendColorLegendItem( colorLegendItem );
-    }
-
-    RimProject* proj = RimProject::current();
+    RimColorLegend* colorLegend = result.second.p();
+    RimProject*     proj        = RimProject::current();
 
     RimColorLegendCollection* colorLegendCollection = proj->colorLegendCollection;
 

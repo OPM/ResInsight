@@ -24,6 +24,7 @@
 
 #include "Rim3dView.h"
 #include "RimCase.h"
+#include "RimColorLegend.h"
 #include "RimTools.h"
 #include "RimWellLogTrack.h"
 
@@ -45,8 +46,10 @@ RimFormationNames::RimFormationNames()
     CAF_PDM_InitObject( "Formation Names", ":/Formations16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_formationNamesFileName, "FormationNamesFileName", "File Name", "", "", "" );
-
     m_formationNamesFileName.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_colorLegend, "ColorLegend", "Colors", "", "", "" );
+    m_colorLegend = RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL );
 
     setDeletable( true );
 }
@@ -86,6 +89,20 @@ void RimFormationNames::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrde
     updateUiTreeName();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimFormationNames::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                        bool*                      useOptionsOnly )
+{
+    QList<caf::PdmOptionItemInfo> options;
+    if ( fieldNeedingOptions == &m_colorLegend )
+    {
+        RimTools::colorLegendOptionItems( &options );
+    }
+
+    return options;
+}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -147,7 +164,10 @@ void RimFormationNames::updateConnectedViews()
 //--------------------------------------------------------------------------------------------------
 void RimFormationNames::readFormationNamesFile( QString* errorMessage )
 {
-    m_formationNamesData = RifColorLegendData::readFormationNamesFile( m_formationNamesFileName().path(), errorMessage );
+    auto [formationNames, colorLegend] =
+        RifColorLegendData::readFormationNamesFile( m_formationNamesFileName().path(), errorMessage );
+    m_formationNamesData = formationNames;
+    m_colorLegend        = colorLegend;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -173,4 +193,12 @@ QString RimFormationNames::layerZoneTableFileName()
 void RimFormationNames::updateUiTreeName()
 {
     this->uiCapability()->setUiName( fileNameWoPath() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimColorLegend* RimFormationNames::colorLegend() const
+{
+    return m_colorLegend;
 }

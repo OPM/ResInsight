@@ -19,11 +19,11 @@
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmPtrField.h"
 #include "cvfObject.h"
 
 class RigFormationNames;
-
-class QTextStream;
+class RimColorLegend;
 
 //==================================================================================================
 ///
@@ -41,6 +41,7 @@ public:
     QString fileNameWoPath();
 
     RigFormationNames* formationNamesData() { return m_formationNamesData.p(); }
+    RimColorLegend*    colorLegend() const;
     void               updateConnectedViews();
 
     void readFormationNamesFile( QString* errorMessage );
@@ -52,12 +53,14 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     virtual void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                 bool*                      useOptionsOnly ) override;
 
 private:
     void updateUiTreeName();
 
 private:
-    caf::PdmField<caf::FilePath> m_formationNamesFileName;
-
-    cvf::ref<RigFormationNames> m_formationNamesData;
+    caf::PdmField<caf::FilePath>      m_formationNamesFileName;
+    caf::PdmPtrField<RimColorLegend*> m_colorLegend;
+    cvf::ref<RigFormationNames>       m_formationNamesData;
 };

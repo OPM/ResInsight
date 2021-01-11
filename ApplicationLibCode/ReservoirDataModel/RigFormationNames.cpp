@@ -35,6 +35,15 @@ RigFormationNames::~RigFormationNames()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RigFormationNames::formationIndexFromKLayerIdx( size_t Kidx ) const
+{
+    if ( Kidx >= m_nameIndexPrKLayer.size() ) return -1;
+    return m_nameIndexPrKLayer[Kidx];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RigFormationNames::formationNameFromKLayerIdx( size_t Kidx )
 {
     int idx = formationIndexFromKLayerIdx( Kidx );
@@ -44,39 +53,39 @@ QString RigFormationNames::formationNameFromKLayerIdx( size_t Kidx )
     return m_formationNames[idx];
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RigFormationNames::formationColorFromKLayerIdx( size_t Kidx, cvf::Color3f* formationColor )
-{
-    int idx = formationIndexFromKLayerIdx( Kidx );
+// //--------------------------------------------------------------------------------------------------
+// ///
+// //--------------------------------------------------------------------------------------------------
+// bool RigFormationNames::formationColorFromKLayerIdx( size_t Kidx, cvf::Color3f* formationColor )
+// {
+//     int idx = formationIndexFromKLayerIdx( Kidx );
 
-    if ( idx == -1 || idx >= static_cast<int>( m_formationColors.size() ) )
-    {
-        return false;
-    }
+//     if ( idx == -1 || idx >= static_cast<int>( m_formationColors.size() ) )
+//     {
+//         return false;
+//     }
 
-    if ( m_formationColors[idx] == undefinedColor() ) return false;
+//     if ( m_formationColors[idx] == undefinedColor() ) return false;
 
-    *formationColor = m_formationColors[idx];
-    return true;
-}
+//     *formationColor = m_formationColors[idx];
+//     return true;
+// }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigFormationNames::appendFormationRange( const QString& name, int kStartIdx, int kEndIdx )
-{
-    appendFormationRangeWithColor( name, undefinedColor(), kStartIdx, kEndIdx );
-}
+// //--------------------------------------------------------------------------------------------------
+// ///
+// //--------------------------------------------------------------------------------------------------
+// void RigFormationNames::appendFormationRange( const QString& name, int kStartIdx, int kEndIdx )
+// {
+//     appendFormationRangeWithColor( name, undefinedColor(), kStartIdx, kEndIdx );
+// }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigFormationNames::appendFormationRange( const QString& name, cvf::Color3f color, int kStartIdx, int kEndIdx )
-{
-    appendFormationRangeWithColor( name, color, kStartIdx, kEndIdx );
-}
+// //--------------------------------------------------------------------------------------------------
+// ///
+// //--------------------------------------------------------------------------------------------------
+// void RigFormationNames::appendFormationRange( const QString& name, cvf::Color3f color, int kStartIdx, int kEndIdx )
+// {
+//     appendFormationRangeWithColor( name, color, kStartIdx, kEndIdx );
+// }
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -88,36 +97,13 @@ void RigFormationNames::appendFormationRangeHeight( const QString& name, int kLa
     int kStartIdx = static_cast<int>( m_nameIndexPrKLayer.size() );
     int kEndIdx   = kStartIdx + kLayerCount;
 
-    appendFormationRangeWithColor( name, undefinedColor(), kStartIdx, kEndIdx );
+    appendFormationRange( name, kStartIdx, kEndIdx );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFormationNames::appendFormationRangeHeight( const QString& name, cvf::Color3f color, int kLayerCount )
-{
-    if ( kLayerCount < 1 ) return;
-
-    int kStartIdx = static_cast<int>( m_nameIndexPrKLayer.size() );
-    int kEndIdx   = kStartIdx + kLayerCount;
-
-    appendFormationRangeWithColor( name, color, kStartIdx, kEndIdx );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::Color3f RigFormationNames::undefinedColor()
-{
-    static cvf::Color3f noColor( -1.0f, -1.0f, -1.0f );
-
-    return noColor;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigFormationNames::appendFormationRangeWithColor( const QString& name, cvf::Color3f color, int kStartIdx, int kEndIdx )
+void RigFormationNames::appendFormationRange( const QString& name, int kStartIdx, int kEndIdx )
 {
     CVF_ASSERT( kStartIdx <= kEndIdx );
 
@@ -134,6 +120,4 @@ void RigFormationNames::appendFormationRangeWithColor( const QString& name, cvf:
     {
         m_nameIndexPrKLayer[kIdx] = nameIdx;
     }
-
-    m_formationColors.push_back( color );
 }

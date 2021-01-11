@@ -70,23 +70,10 @@ RimFormationNames* RicImportFormationNamesFeature::importFormationFiles( const Q
 
     for ( int i = 0; i < fileNames.size(); i++ )
     {
-        auto colors = formationNames[i]->formationNamesData()->formationColors();
+        QString baseName = QFileInfo( fileNames[i] ).baseName();
 
-        bool anyValidColor = false;
-        for ( const auto& color : colors )
-        {
-            if ( color.isValid() )
-            {
-                anyValidColor = true;
-                break;
-            }
-        }
-
-        if ( anyValidColor )
-        {
-            QString baseName = QFileInfo( fileNames[i] ).baseName();
-            RicImportFormationNamesFeature::addCustomColorLegend( baseName, formationNames[i] );
-        }
+        // TODO: move into import files??
+        RicImportFormationNamesFeature::addCustomColorLegend( baseName, formationNames[i] );
     }
 
     return formationNames.back();
@@ -179,25 +166,26 @@ void RicImportFormationNamesFeature::setupActionLook( QAction* actionToSetup )
 void RicImportFormationNamesFeature::addCustomColorLegend( QString& name, RimFormationNames* rimFormationNames )
 {
     RigFormationNames* rigFormationNames = rimFormationNames->formationNamesData();
-    if ( !rigFormationNames ) return;
+    RimColorLegend*    colorLegend       = rimFormationNames->colorLegend();
+    if ( !rigFormationNames || !colorLegend ) return;
 
-    const std::vector<QString>&      formationNames  = rigFormationNames->formationNames();
-    const std::vector<cvf::Color3f>& formationColors = rigFormationNames->formationColors();
+    // const std::vector<QString>&      formationNames  = rigFormationNames->formationNames();
+    // const std::vector<cvf::Color3f>& formationColors = rigFormationNames->formationColors();
 
-    // return if no formation names or colors (latter e.g. in case of FMU input or LYR without colors)
-    if ( formationNames.empty() || formationColors.empty() ) return;
+    // // return if no formation names or colors (latter e.g. in case of FMU input or LYR without colors)
+    // if ( formationNames.empty() || formationColors.empty() ) return;
 
-    RimColorLegend* colorLegend = new RimColorLegend;
-    colorLegend->setColorLegendName( name );
+    // RimColorLegend* colorLegend = new RimColorLegend;
+    // colorLegend->setColorLegendName( name );
 
-    for ( size_t i = 0; i < formationColors.size(); i++ )
-    {
-        RimColorLegendItem* colorLegendItem = new RimColorLegendItem;
+    // for ( size_t i = 0; i < formationColors.size(); i++ )
+    // {
+    //     RimColorLegendItem* colorLegendItem = new RimColorLegendItem;
 
-        colorLegendItem->setValues( formationNames[i], (int)i, formationColors[i] );
+    //     colorLegendItem->setValues( formationNames[i], (int)i, formationColors[i] );
 
-        colorLegend->appendColorLegendItem( colorLegendItem );
-    }
+    //     colorLegend->appendColorLegendItem( colorLegendItem );
+    // }
 
     RimProject* proj = RimProject::current();
 
