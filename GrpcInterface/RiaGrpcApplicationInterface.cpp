@@ -15,8 +15,8 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-#include "RiaGrpcApplicationInterface.h"
 
+#include "RiaGrpcApplicationInterface.h"
 #include "RiaPreferences.h"
 
 #include "cvfProgramOptions.h"
@@ -54,9 +54,8 @@ bool RiaGrpcApplicationInterface::initializeGrpcServer( const cvf::ProgramOption
 //--------------------------------------------------------------------------------------------------
 void RiaGrpcApplicationInterface::launchGrpcServer()
 {
-    m_grpcServer->runInThread();
+    if ( m_grpcServer ) m_grpcServer->runInThread();
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -73,23 +72,26 @@ QProcessEnvironment RiaGrpcApplicationInterface::grpcProcessEnvironment() const
 {
     QProcessEnvironment penv = QProcessEnvironment::systemEnvironment();
 
-    penv.insert( "RESINSIGHT_GRPC_PORT", QString( "%1" ).arg( m_grpcServer->portNumber() ) );
-    penv.insert( "RESINSIGHT_EXECUTABLE", QCoreApplication::applicationFilePath() );
+    if ( m_grpcServer )
+    {
+        penv.insert( "RESINSIGHT_GRPC_PORT", QString( "%1" ).arg( m_grpcServer->portNumber() ) );
+        penv.insert( "RESINSIGHT_EXECUTABLE", QCoreApplication::applicationFilePath() );
 
-    QStringList ripsLocations;
-    QString     separator;
+        QStringList ripsLocations;
+        QString     separator;
 #ifdef WIN32
-    ripsLocations << QCoreApplication::applicationDirPath() + "\\Python"
-                  << QCoreApplication::applicationDirPath() + "\\..\\..\\Python";
-    separator = ";";
+        ripsLocations << QCoreApplication::applicationDirPath() + "\\Python"
+                      << QCoreApplication::applicationDirPath() + "\\..\\..\\Python";
+        separator = ";";
 
 #else
-    ripsLocations << QCoreApplication::applicationDirPath() + "/Python"
-                  << QCoreApplication::applicationDirPath() + "/../../Python";
-    separator = ":";
+        ripsLocations << QCoreApplication::applicationDirPath() + "/Python"
+                      << QCoreApplication::applicationDirPath() + "/../../Python";
+        separator = ":";
 #endif
-    penv.insert( "PYTHONPATH",
-                 QString( "%1%2%3" ).arg( penv.value( "PYTHONPATH" ) ).arg( separator ).arg( ripsLocations.join( separator ) ) );
+        penv.insert( "PYTHONPATH",
+                     QString( "%1%2%3" ).arg( penv.value( "PYTHONPATH" ) ).arg( separator ).arg( ripsLocations.join( separator ) ) );
+    }
 
     return penv;
 }
@@ -97,14 +99,19 @@ QProcessEnvironment RiaGrpcApplicationInterface::grpcProcessEnvironment() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiaGrpcApplicationInterface::processRequests() 
+int RiaGrpcApplicationInterface::processRequests()
 {
     if ( RiaGrpcServer::receivedExitRequest() )
     {
-        m_grpcServer->quit();
+        if ( m_grpcServer ) m_grpcServer->quit();
         return -1;
     }
 
-    size_t requestsProcessed = m_grpcServer->processAllQueuedRequests();
-    return static_cast<int>(requestsProcessed);
+    if ( m_grpcServer )
+    {
+        size_t requestsProcessed = m_grpcServer->processAllQueuedRequests();
+        return static_cast<int>( requestsProcessed );
+    }
+
+    return 0;
 }

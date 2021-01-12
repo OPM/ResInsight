@@ -315,6 +315,8 @@ bool RiaGrpcServer::isRunning() const
 //--------------------------------------------------------------------------------------------------
 void RiaGrpcServer::run()
 {
+    CVF_ASSERT( m_serverImpl );
+
     m_serverImpl->run();
 }
 
@@ -323,6 +325,8 @@ void RiaGrpcServer::run()
 //--------------------------------------------------------------------------------------------------
 void RiaGrpcServer::runInThread()
 {
+    CVF_ASSERT( m_serverImpl );
+
     m_serverImpl->runInThread();
 }
 
@@ -336,6 +340,8 @@ bool RiaGrpcServer::s_receivedExitRequest = false;
 //--------------------------------------------------------------------------------------------------
 void RiaGrpcServer::initialize()
 {
+    CVF_ASSERT( m_serverImpl );
+
     m_serverImpl->initialize();
 }
 
@@ -344,6 +350,8 @@ void RiaGrpcServer::initialize()
 //--------------------------------------------------------------------------------------------------
 size_t RiaGrpcServer::processAllQueuedRequests()
 {
+    CVF_ASSERT( m_serverImpl );
+
     return m_serverImpl->processAllQueuedRequests();
 }
 

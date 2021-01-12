@@ -37,7 +37,7 @@ public:
     RiaGrpcServer* grpcServer() const;
 
     QProcessEnvironment grpcProcessEnvironment() const;
-    int processRequests();
+    int                 processRequests();
 
 protected:
     std::unique_ptr<RiaGrpcServer> m_grpcServer;
