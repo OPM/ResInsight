@@ -27,6 +27,7 @@
 #include "RimProject.h"
 #include "RimSummaryCrossPlot.h"
 #include "RimSummaryPlot.h"
+#include "RimVfpPlot.h"
 #include "RimWellLogPlot.h"
 
 #include "RiuPlotMainWindow.h"
@@ -193,6 +194,9 @@ bool RicShowPlotDataFeature::isCommandEnabled()
     auto gridCrossPlots = caf::selectedObjectsByType<RimGridCrossPlot*>();
     if ( gridCrossPlots.size() > 0 ) return true;
 
+    auto vfpPlots = caf::selectedObjectsByType<RimVfpPlot*>();
+    if ( vfpPlots.size() > 0 ) return true;
+
     return false;
 }
 
@@ -220,7 +224,8 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
     std::vector<RimSummaryPlot*>   selectedSummaryPlots = caf::selectedObjectsByType<RimSummaryPlot*>();
     std::vector<RimWellLogPlot*>   wellLogPlots         = caf::selectedObjectsByType<RimWellLogPlot*>();
     std::vector<RimGridCrossPlot*> crossPlots           = caf::selectedObjectsByType<RimGridCrossPlot*>();
-    if ( selectedSummaryPlots.size() == 0 && wellLogPlots.size() == 0 && crossPlots.size() == 0 )
+    std::vector<RimVfpPlot*>       vfpPlots             = caf::selectedObjectsByType<RimVfpPlot*>();
+    if ( selectedSummaryPlots.empty() && wellLogPlots.empty() && crossPlots.empty() && vfpPlots.empty() )
     {
         CVF_ASSERT( false );
 
@@ -240,6 +245,13 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
     {
         QString title = wellLogPlot->description();
         QString text  = wellLogPlot->asciiDataForPlotExport();
+        RicShowPlotDataFeature::showTextWindow( title, text );
+    }
+
+    for ( RimVfpPlot* vfpPlot : vfpPlots )
+    {
+        QString title = vfpPlot->description();
+        QString text  = vfpPlot->asciiDataForPlotExport();
         RicShowPlotDataFeature::showTextWindow( title, text );
     }
 

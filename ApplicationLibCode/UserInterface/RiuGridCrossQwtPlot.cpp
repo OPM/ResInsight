@@ -27,6 +27,7 @@
 #include "RimPlotAxisPropertiesInterface.h"
 #include "RimRegularLegendConfig.h"
 
+#include "RiuContextMenuLauncher.h"
 #include "RiuGuiTheme.h"
 #include "RiuPlotAnnotationTool.h"
 #include "RiuQwtCurvePointTracker.h"
@@ -105,6 +106,16 @@ RiuGridCrossQwtPlot::RiuGridCrossQwtPlot( RimGridCrossPlot* plot, QWidget* paren
     this->canvas()->installEventFilter( this );
 
     setInternalQwtLegendVisible( true );
+
+    {
+        caf::CmdFeatureMenuBuilder menuBuilder;
+
+        menuBuilder << "RicSwapGridCrossPlotDataSetAxesFeature";
+        menuBuilder << "Separator";
+        menuBuilder << "RicShowPlotDataFeature";
+
+        new RiuContextMenuLauncher( this, menuBuilder );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -170,28 +181,6 @@ void RiuGridCrossQwtPlot::setInternalQwtLegendVisible( bool visible )
         this->insertLegend( nullptr );
     }
 }
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuGridCrossQwtPlot::contextMenuEvent( QContextMenuEvent* event )
-{
-    QMenu                      menu;
-    caf::CmdFeatureMenuBuilder menuBuilder;
-
-    emit plotSelected( false );
-
-    menuBuilder << "RicSwapGridCrossPlotDataSetAxesFeature";
-    menuBuilder << "Separator";
-    menuBuilder << "RicShowPlotDataFeature";
-
-    menuBuilder.appendToMenu( &menu );
-
-    if ( menu.actions().size() > 0 )
-    {
-        menu.exec( event->globalPos() );
-    }
-}
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------

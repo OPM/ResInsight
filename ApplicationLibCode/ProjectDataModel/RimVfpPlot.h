@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RimPlot.h"
+#include "RimVfpDefines.h"
 
 #include "cafFilePath.h"
 #include "cafPdmPtrField.h"
@@ -29,6 +30,7 @@
 #include "opm/parser/eclipse/EclipseState/Schedule/VFPProdTable.hpp"
 
 class RiuQwtPlotWidget;
+class VfpPlotData;
 
 //--------------------------------------------------------------------------------------------------
 /// Vertical Flow Performance Plot
@@ -38,52 +40,6 @@ class RimVfpPlot : public RimPlot
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum class InterpolatedVariableType
-    {
-        BHP,
-        BHP_THP_DIFF
-    };
-
-    enum class TableType
-    {
-        INJECTION,
-        PRODUCTION
-    };
-
-    enum class ProductionVariableType
-    {
-        LIQUID_FLOW_RATE,
-        THP,
-        ARTIFICIAL_LIFT_QUANTITY,
-        WATER_CUT,
-        GAS_LIQUID_RATIO
-    };
-
-    enum class FlowingPhaseType
-    {
-        OIL,
-        GAS,
-        WATER,
-        LIQUID,
-        INVALID
-    };
-
-    enum class FlowingWaterFractionType
-    {
-        WOR,
-        WCT,
-        WGR,
-        INVALID
-    };
-
-    enum class FlowingGasFractionType
-    {
-        GOR,
-        GLR,
-        OGR,
-        INVALID
-    };
-
     RimVfpPlot();
     ~RimVfpPlot() override;
 
@@ -124,18 +80,18 @@ private:
     RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent ) override;
 
     void                populatePlotWidgetWithCurveData( RiuQwtPlotWidget* plotWidget, const Opm::VFPInjTable& table );
-    void                populatePlotWidgetWithCurveData( RiuQwtPlotWidget*                  plotWidget,
-                                                         const Opm::VFPProdTable&           table,
-                                                         RimVfpPlot::ProductionVariableType primaryVariable,
-                                                         RimVfpPlot::ProductionVariableType familyVariable );
-    std::vector<double> getProductionTableData( const Opm::VFPProdTable&           table,
-                                                RimVfpPlot::ProductionVariableType variableType ) const;
-    size_t              getVariableIndex( const Opm::VFPProdTable&           table,
-                                          RimVfpPlot::ProductionVariableType targetVariable,
-                                          RimVfpPlot::ProductionVariableType primaryVariable,
-                                          size_t                             primaryValue,
-                                          RimVfpPlot::ProductionVariableType familyVariable,
-                                          size_t                             familyValue ) const;
+    void                populatePlotWidgetWithCurveData( RiuQwtPlotWidget*                     plotWidget,
+                                                         const Opm::VFPProdTable&              table,
+                                                         RimVfpDefines::ProductionVariableType primaryVariable,
+                                                         RimVfpDefines::ProductionVariableType familyVariable );
+    std::vector<double> getProductionTableData( const Opm::VFPProdTable&              table,
+                                                RimVfpDefines::ProductionVariableType variableType ) const;
+    size_t              getVariableIndex( const Opm::VFPProdTable&              table,
+                                          RimVfpDefines::ProductionVariableType targetVariable,
+                                          RimVfpDefines::ProductionVariableType primaryVariable,
+                                          size_t                                primaryValue,
+                                          RimVfpDefines::ProductionVariableType familyVariable,
+                                          size_t                                familyValue ) const;
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -143,44 +99,57 @@ private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
 
-    void calculateTableValueOptions( RimVfpPlot::ProductionVariableType variableType,
-                                     QList<caf::PdmOptionItemInfo>&     options );
+    void calculateTableValueOptions( RimVfpDefines::ProductionVariableType variableType,
+                                     QList<caf::PdmOptionItemInfo>&        options );
 
-    void setFixedVariableUiEditability( caf::PdmField<int>& field, RimVfpPlot::ProductionVariableType variableType );
+    void setFixedVariableUiEditability( caf::PdmField<int>& field, RimVfpDefines::ProductionVariableType variableType );
 
     void           updatePlotTitle( const QString& plotTitle );
-    static QString generatePlotTitle( const QString&                       wellName,
-                                      RimVfpPlot::TableType                tableType,
-                                      RimVfpPlot::InterpolatedVariableType interpolatedVariable,
-                                      RimVfpPlot::ProductionVariableType   primaryVariable,
-                                      RimVfpPlot::ProductionVariableType   familyVariable );
+    static QString generatePlotTitle( const QString&                          wellName,
+                                      int                                     tableNumber,
+                                      RimVfpDefines::TableType                tableType,
+                                      RimVfpDefines::InterpolatedVariableType interpolatedVariable,
+                                      RimVfpDefines::ProductionVariableType   primaryVariable,
+                                      RimVfpDefines::ProductionVariableType   familyVariable );
 
     static QwtPlotCurve* createPlotCurve( const QString title, const QColor& color );
-    static double        convertToDisplayUnit( double value, RimVfpPlot::ProductionVariableType variableType );
-    static void convertToDisplayUnit( std::vector<double>& values, RimVfpPlot::ProductionVariableType variableType );
+    static double        convertToDisplayUnit( double value, RimVfpDefines::ProductionVariableType variableType );
+    static void convertToDisplayUnit( std::vector<double>& values, RimVfpDefines::ProductionVariableType variableType );
 
-    static QString getDisplayUnit( RimVfpPlot::ProductionVariableType variableType );
+    static QString getDisplayUnit( RimVfpDefines::ProductionVariableType variableType );
 
-    static QString getDisplayUnitWithBracket( RimVfpPlot::ProductionVariableType variableType );
+    static QString getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType variableType );
 
-    static RimVfpPlot::FlowingPhaseType         getFlowingPhaseType( const Opm::VFPProdTable& table );
-    static RimVfpPlot::FlowingPhaseType         getFlowingPhaseType( const Opm::VFPInjTable& table );
-    static RimVfpPlot::FlowingWaterFractionType getFlowingWaterFractionType( const Opm::VFPProdTable& table );
-    static RimVfpPlot::FlowingGasFractionType   getFlowingGasFractionType( const Opm::VFPProdTable& table );
+    static RimVfpDefines::FlowingPhaseType         getFlowingPhaseType( const Opm::VFPProdTable& table );
+    static RimVfpDefines::FlowingPhaseType         getFlowingPhaseType( const Opm::VFPInjTable& table );
+    static RimVfpDefines::FlowingWaterFractionType getFlowingWaterFractionType( const Opm::VFPProdTable& table );
+    static RimVfpDefines::FlowingGasFractionType   getFlowingGasFractionType( const Opm::VFPProdTable& table );
+
+    void populatePlotData( const Opm::VFPProdTable&                table,
+                           RimVfpDefines::ProductionVariableType   primaryVariable,
+                           RimVfpDefines::ProductionVariableType   familyVariable,
+                           RimVfpDefines::InterpolatedVariableType interpolatedVariable,
+                           VfpPlotData&                            plotData ) const;
+
+    void populatePlotData( const Opm::VFPInjTable&                 table,
+                           RimVfpDefines::InterpolatedVariableType interpolatedVariable,
+                           VfpPlotData&                            plotData ) const;
+
+    void populatePlotWidgetWithPlotData( RiuQwtPlotWidget* plotWidget, const VfpPlotData& plotData );
 
 private:
-    caf::PdmField<QString>                                            m_plotTitle;
-    caf::PdmField<caf::FilePath>                                      m_filePath;
-    caf::PdmField<int>                                                m_tableNumber;
-    caf::PdmField<double>                                             m_referenceDepth;
-    caf::PdmField<caf::AppEnum<RimVfpPlot::FlowingPhaseType>>         m_flowingPhase;
-    caf::PdmField<caf::AppEnum<RimVfpPlot::FlowingWaterFractionType>> m_flowingWaterFraction;
-    caf::PdmField<caf::AppEnum<RimVfpPlot::FlowingGasFractionType>>   m_flowingGasFraction;
+    caf::PdmField<QString>                                               m_plotTitle;
+    caf::PdmField<caf::FilePath>                                         m_filePath;
+    caf::PdmField<int>                                                   m_tableNumber;
+    caf::PdmField<double>                                                m_referenceDepth;
+    caf::PdmField<caf::AppEnum<RimVfpDefines::FlowingPhaseType>>         m_flowingPhase;
+    caf::PdmField<caf::AppEnum<RimVfpDefines::FlowingWaterFractionType>> m_flowingWaterFraction;
+    caf::PdmField<caf::AppEnum<RimVfpDefines::FlowingGasFractionType>>   m_flowingGasFraction;
 
-    caf::PdmField<caf::AppEnum<RimVfpPlot::TableType>>                m_tableType;
-    caf::PdmField<caf::AppEnum<RimVfpPlot::InterpolatedVariableType>> m_interpolatedVariable;
-    caf::PdmField<caf::AppEnum<RimVfpPlot::ProductionVariableType>>   m_primaryVariable;
-    caf::PdmField<caf::AppEnum<RimVfpPlot::ProductionVariableType>>   m_familyVariable;
+    caf::PdmField<caf::AppEnum<RimVfpDefines::TableType>>                m_tableType;
+    caf::PdmField<caf::AppEnum<RimVfpDefines::InterpolatedVariableType>> m_interpolatedVariable;
+    caf::PdmField<caf::AppEnum<RimVfpDefines::ProductionVariableType>>   m_primaryVariable;
+    caf::PdmField<caf::AppEnum<RimVfpDefines::ProductionVariableType>>   m_familyVariable;
 
     caf::PdmField<int> m_liquidFlowRateIdx;
     caf::PdmField<int> m_thpIdx;
@@ -190,4 +159,5 @@ private:
 
     QPointer<RiuQwtPlotWidget>         m_plotWidget;
     std::unique_ptr<Opm::VFPProdTable> m_prodTable;
+    std::unique_ptr<Opm::VFPInjTable>  m_injectionTable;
 };
