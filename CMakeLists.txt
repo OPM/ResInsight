@@ -69,6 +69,22 @@ if (RESINSIGHT_USE_OPENMP)
     endif()
 endif()
 
+################################################################################
+# ABAQUS ODB
+################################################################################
+set(RESINSIGHT_ODB_API_DIR
+    ""
+    CACHE
+      PATH
+      "Optional path to the ABAQUS ODB API from Simulia. Needed for support of geomechanical models"
+)
+if(NOT ${RESINSIGHT_ODB_API_DIR} EQUAL "")
+  add_definitions(-DUSE_ODB_API)
+  set(RESINSIGHT_USE_ODB_API 1)
+  message(STATUS "Using ODB-Api from : ${RESINSIGHT_ODB_API_DIR}")
+endif()
+
+
 
 ################################################################################
 # Version number
