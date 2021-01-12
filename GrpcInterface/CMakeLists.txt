@@ -286,7 +286,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC
   ${CMAKE_BINARY_DIR}/Generated
 )
 
-target_link_directories(${PROJECT_NAME} PUBLIC ${GRPC_LIBRARY_DIRS})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${_LINK_LIBRARIES})
 
 if(MSVC)
