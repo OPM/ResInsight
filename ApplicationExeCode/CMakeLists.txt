@@ -276,10 +276,6 @@ if(RESINSIGHT_USE_ODB_API)
   list(APPEND LINK_LIBRARIES RifOdbReader)
 endif()
 
-if(DEFINED GRPC_LIBRARY_DIRS)
-  target_link_directories(ResInsight PRIVATE ${GRPC_LIBRARY_DIRS})
-endif()
-
 target_link_libraries(ResInsight ${LINK_LIBRARIES})
 
 # ##############################################################################
