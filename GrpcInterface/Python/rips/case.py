@@ -111,7 +111,7 @@ def __generate_property_input_chunks(self, array, parameters):
     index = -1
     while index < len(array):
         chunk = Properties_pb2.PropertyInputChunk()
-        if index is -1:
+        if index == -1:
             chunk.params.CopyFrom(parameters)
             index += 1
         else:
@@ -1244,7 +1244,7 @@ def __generate_nnc_property_input_chunks(self, array, parameters):
     index = -1
     while index < len(array):
         chunk = NNCProperties_pb2.NNCValuesChunk()
-        if index is -1:
+        if index == -1:
             chunk.params.CopyFrom(parameters)
             index += 1
         else:
