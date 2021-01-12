@@ -35,6 +35,7 @@
 #include "RigFlowDiagResultAddress.h"
 #include "RigFlowDiagResults.h"
 #include "RigFormationNames.h"
+#include "RigVisibleTracerFilter.h"
 
 #include "Rim3dView.h"
 #include "Rim3dWellLogCurve.h"
@@ -145,6 +146,15 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
     CAF_PDM_InitScriptableFieldNoDefault( &m_flowTracerSelectionMode, "FlowTracerSelectionMode", "Tracers", "", "", "" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_phaseSelection, "PhaseSelection", "Phases", "", "", "" );
     m_phaseSelection.uiCapability()->setUiLabelPosition( m_labelPosition );
+
+    CAF_PDM_InitScriptableField( &m_showOnlyVisibleTracersInLegend,
+                                 "ShowOnlyVisibleTracersInLegend",
+                                 true,
+                                 "Show Only Visible Tracers In Legend",
+                                 "",
+                                 "",
+                                 "" );
+
     // Ui only fields
 
     CAF_PDM_InitFieldNoDefault( &m_resultTypeUiField, "MResultType", "Type", "", "", "" );
@@ -1539,6 +1549,13 @@ void RimEclipseResultDefinition::defineUiOrdering( QString uiConfigName, caf::Pd
         uiOrdering.add( &m_inputPropertyFileName );
     }
 
+    caf::PdmUiGroup* legendGroup = uiOrdering.addNewGroup( "Legend" );
+    legendGroup->add( &m_showOnlyVisibleTracersInLegend );
+
+    bool showOnlyVisibleTracesOption = ( m_resultTypeUiField() == RiaDefines::ResultCatType::FLOW_DIAGNOSTICS &&
+                                         m_resultVariableUiField() == RIG_FLD_MAX_FRACTION_TRACER_RESNAME );
+    legendGroup->setUiHidden( !showOnlyVisibleTracesOption );
+
     if ( isCaseDiffResultAvailable() || isTimeDiffResultAvailable() )
     {
         caf::PdmUiGroup* differenceGroup = uiOrdering.addNewGroup( "Difference Options" );
@@ -1886,9 +1903,27 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                     }
 
                     std::vector<std::tuple<QString, int, cvf::Color3ub>> categoryVector;
-                    for ( auto tupIt : categories )
+
+                    if ( m_showOnlyVisibleTracersInLegend )
                     {
-                        categoryVector.push_back( tupIt );
+                        std::set<int> visibleTracers;
+                        RigVisibleTracerFilter::filterByVisibility( *eclView,
+                                                                    *flowResultsData,
+                                                                    resAddr,
+                                                                    currentTimeStep,
+                                                                    visibleTracers );
+                        for ( auto tupIt : categories )
+                        {
+                            int tracerIndex = std::get<1>( tupIt );
+                            if ( visibleTracers.count( tracerIndex ) ) categoryVector.push_back( tupIt );
+                        }
+                    }
+                    else
+                    {
+                        for ( auto tupIt : categories )
+                        {
+                            categoryVector.push_back( tupIt );
+                        }
                     }
 
                     legendConfigToUpdate->setCategoryItems( categoryVector );

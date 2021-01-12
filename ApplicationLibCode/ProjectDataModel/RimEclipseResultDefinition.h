@@ -188,6 +188,7 @@ protected:
     caf::PdmField<caf::AppEnum<FlowTracerSelectionType>>        m_flowTracerSelectionMode;
     caf::PdmPtrField<RimFlowDiagSolution*>                      m_flowSolutionUiField;
     caf::PdmField<RigFlowDiagResultAddress::PhaseSelectionEnum> m_phaseSelection;
+    caf::PdmField<bool>                                         m_showOnlyVisibleTracersInLegend;
 
     caf::PdmField<bool>                 m_syncInjectorToProducerSelection;
     caf::PdmField<bool>                 m_syncProducerToInjectorSelection;
