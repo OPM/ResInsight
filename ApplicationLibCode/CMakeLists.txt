@@ -219,7 +219,6 @@ endif()
 add_subdirectory(GeoMech/GeoMechDataModel)
 list(APPEND RI_LIBRARIES RigGeoMechDataModel)
 
-
 #
 # HDF5
 #
