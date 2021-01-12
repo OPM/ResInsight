@@ -52,7 +52,6 @@ public:
     QString                   currentEnsembleParameter() const;
 
     void                    setEnsembleParameter( const QString& parameterName );
-    std::vector<QString>    allEnsembleParameters() const;
     RimRegularLegendConfig* legendConfig();
     EnsembleParameter::Type currentEnsembleParameterType() const;
 
@@ -67,7 +66,8 @@ protected:
     caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
-    QString ensembleName() const;
+    QString              ensembleName() const;
+    std::vector<QString> parametersWithVariation() const;
 
 private:
     caf::PdmPtrField<RimSummaryCaseCollection*> m_ensemble;
