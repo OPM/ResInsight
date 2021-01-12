@@ -270,6 +270,10 @@ if(RESINSIGHT_ENABLE_GRPC)
   list(APPEND LINK_LIBRARIES GrpcInterface)
 endif()
 
+if(RESINSIGHT_USE_ODB_API)
+  list(APPEND LINK_LIBRARIES RifOdbReader)
+endif()
+
 if(DEFINED GRPC_LIBRARY_DIRS)
   target_link_directories(ResInsight PRIVATE ${GRPC_LIBRARY_DIRS})
 endif()
