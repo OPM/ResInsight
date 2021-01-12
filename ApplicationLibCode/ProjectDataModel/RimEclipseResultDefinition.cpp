@@ -149,7 +149,7 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
 
     CAF_PDM_InitScriptableField( &m_showOnlyVisibleTracersInLegend,
                                  "ShowOnlyVisibleTracersInLegend",
-                                 false,
+                                 true,
                                  "Show Only Visible Tracers In Legend",
                                  "",
                                  "",
