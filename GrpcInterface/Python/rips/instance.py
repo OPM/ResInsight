@@ -81,7 +81,7 @@ class Instance:
         port_env = os.environ.get('RESINSIGHT_GRPC_PORT')
         if port_env:
             port = int(port_env)
-        if launch_port is not -1:
+        if launch_port != -1:
             port = launch_port
 
         if not resinsight_executable:
