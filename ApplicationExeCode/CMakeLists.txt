@@ -271,6 +271,8 @@ if(RESINSIGHT_ENABLE_GRPC)
 endif()
 
 if(RESINSIGHT_USE_ODB_API)
+  add_definitions(-DUSE_ODB_API)
+  list(APPEND LINK_LIBRARIES RigGeoMechDataModel)
   list(APPEND LINK_LIBRARIES RifOdbReader)
 endif()
 

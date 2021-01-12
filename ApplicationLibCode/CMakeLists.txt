@@ -210,25 +210,14 @@ set(RI_LIBRARIES ResultStatisticsCache Commands)
 #
 # Odb api
 #
-set(RESINSIGHT_ODB_API_DIR
-    ""
-    CACHE
-      PATH
-      "Optional path to the ABAQUS ODB API from Simulia. Needed for support of geomechanical models"
-)
-if(NOT ${RESINSIGHT_ODB_API_DIR} EQUAL "")
-  add_definitions(-DUSE_ODB_API)
+if(RESINSIGHT_USE_ODB_API)
   add_subdirectory(GeoMech/OdbReader)
-  set(RESINSIGHT_USE_ODB_API 1)
-  message(STATUS "Using ODB-Api from : ${RESINSIGHT_ODB_API_DIR}")
+  add_definitions(-DUSE_ODB_API)
+  list(APPEND RI_LIBRARIES RifOdbReader)
 endif()
 
 add_subdirectory(GeoMech/GeoMechDataModel)
 list(APPEND RI_LIBRARIES RigGeoMechDataModel)
-
-if(RESINSIGHT_USE_ODB_API)
-  list(APPEND RI_LIBRARIES RifOdbReader)
-endif()
 
 #
 # HDF5
