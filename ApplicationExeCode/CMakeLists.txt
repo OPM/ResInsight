@@ -549,7 +549,7 @@ if(RESINSIGHT_PRIVATE_INSTALL)
     # install GRPC-related DLLs and resinsight_classes.py
     if(RESINSIGHT_ENABLE_GRPC)
       set(ZLIB_DLL "$<IF:$<CONFIG:Debug>,zlibd1,zlib1>")
-      set(GRPC_DLL_NAMES cares ${ZLIB_DLL} abseil_dll)
+      set(GRPC_DLL_NAMES libprotobuf cares ${ZLIB_DLL} abseil_dll)
       foreach(dllname ${GRPC_DLL_NAMES})
         install(FILES $<TARGET_FILE_DIR:ResInsight>/${dllname}.dll
                 DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
