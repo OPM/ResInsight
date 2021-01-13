@@ -277,6 +277,8 @@ struct PdmFieldScriptingCapabilityIOHandler<std::vector<T*>>
         QChar chr = errorMessageContainer->readCharWithLineNumberCount( inputStream );
         if ( chr == QChar( '[' ) )
         {
+            std::vector<QString> allValues;
+            QString              currentValue;
             while ( !inputStream.atEnd() )
             {
                 errorMessageContainer->skipWhiteSpaceWithLineNumberCount( inputStream );
@@ -290,14 +292,25 @@ struct PdmFieldScriptingCapabilityIOHandler<std::vector<T*>>
                 {
                     nextChar = errorMessageContainer->readCharWithLineNumberCount( inputStream );
                     errorMessageContainer->skipWhiteSpaceWithLineNumberCount( inputStream );
+                    if ( !currentValue.isEmpty() ) allValues.push_back( currentValue );
+                    currentValue = "";
                 }
+                else
+                {
+                    currentValue += errorMessageContainer->readCharWithLineNumberCount( inputStream );
+                }
+            }
+            if ( !currentValue.isEmpty() ) allValues.push_back( currentValue );
 
-                T* value;
-                PdmFieldScriptingCapabilityIOHandler<T*>::writeToField( value,
+            for ( QString textValue : allValues )
+            {
+                QTextStream singleValueStream( &textValue, QIODevice::ReadOnly );
+                T*          singleValue;
+                PdmFieldScriptingCapabilityIOHandler<T*>::writeToField( singleValue,
                                                                         allObjectsOfType,
-                                                                        inputStream,
+                                                                        singleValueStream,
                                                                         errorMessageContainer );
-                fieldValue.push_back( value );
+                fieldValue.push_back( singleValue );
             }
         }
         else
@@ -356,15 +369,16 @@ struct PdmFieldScriptingCapabilityIOHandler<DataType*>
         if ( fieldString.isEmpty() ) return;
 
         QStringList classAndAddress = fieldString.split( ":" );
-        CAF_ASSERT( classAndAddress.size() == 2 );
-
-        qulonglong address = classAndAddress[1].toULongLong();
-        for ( DataType* object : allObjectsOfType )
+        if ( classAndAddress.size() == 2 )
         {
-            if ( reinterpret_cast<qulonglong>( object ) == address )
+            qulonglong address = classAndAddress[1].toULongLong();
+            for ( DataType* object : allObjectsOfType )
             {
-                fieldValue = object;
-                break;
+                if ( reinterpret_cast<qulonglong>( object ) == address )
+                {
+                    fieldValue = object;
+                    break;
+                }
             }
         }
     }
