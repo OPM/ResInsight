@@ -48,8 +48,8 @@ namespace caf
 template <>
 void caf::AppEnum<RimPolygonFilter::PolygonFilterModeType>::setUp()
 {
-    addItem( RimPolygonFilter::PolygonFilterModeType::DEPTH_Z, "DEPTH_Z", "Depth" );
-    addItem( RimPolygonFilter::PolygonFilterModeType::INDEX_K, "INDEX_K", "K index" );
+    addItem( RimPolygonFilter::PolygonFilterModeType::DEPTH_Z, "DEPTH_Z", "XY Position" );
+    addItem( RimPolygonFilter::PolygonFilterModeType::INDEX_K, "INDEX_K", "IJ Index" );
     setDefault( RimPolygonFilter::PolygonFilterModeType::INDEX_K );
 }
 
@@ -64,7 +64,7 @@ void caf::AppEnum<RimPolygonFilter::PolylineIncludeType>::setUp()
 
 } // namespace caf
 
-CAF_PDM_SOURCE_INIT( RimPolygonFilter, "PolygonFilter", "PolygonFilter" );
+CAF_PDM_SOURCE_INIT( RimPolygonFilter, "PolygonFilter", "PolyLineFilter" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -72,9 +72,9 @@ CAF_PDM_SOURCE_INIT( RimPolygonFilter, "PolygonFilter", "PolygonFilter" );
 RimPolygonFilter::RimPolygonFilter()
     : m_pickTargetsEventHandler( new RicPolylineTargetsPickEventHandler( this ) )
 {
-    CAF_PDM_InitObject( "Polyline Filter", ":/CellFilter_Polyline.png", "", "" );
+    CAF_PDM_InitObject( "Polyline Filter", ":/CellFilter_Polygon.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_polyFilterMode, "PolygonFilterType", "Depth Type", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_polyFilterMode, "PolygonFilterType", "Vertical filter", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_polyIncludeType, "PolyIncludeType", "Cells to include", "", "", "" );
 
@@ -232,12 +232,12 @@ void RimPolygonFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         {
             setActive( false );
         }
-        else
-        {
-            setActive( true );
-            updateCells();
-            filterChanged.send();
-        }
+        // else
+        //{
+        //    setActive( true );
+        //    updateCells();
+        //    filterChanged.send();
+        //}
     }
     else if ( changedField != &m_name )
     {
