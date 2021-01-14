@@ -23,6 +23,8 @@ SET(BUILD_SHARED_LIBS OFF CACHE BOOL "ERT: Build shared libraries")
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
+option(RESINSIGHT_BUNDLE_TESTMODELS "Copy TestModels into the installation" ON)
+
 option(VCPKG_AUTO_INSTALL "Automatically download build pre-requisites with VCPKG" OFF)
 if (VCPKG_AUTO_INSTALL)
     include (AutoVcpkg)
@@ -574,6 +576,9 @@ if (RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
     endif()
 endif (RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
 
+if (RESINSIGHT_BUNDLE_TESTMODELS)
+    install(DIRECTORY ${CMAKE_SOURCE_DIR}/TestModels DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
+endif()
 
 ################################################################################
 # Application
