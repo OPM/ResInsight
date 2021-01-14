@@ -16,13 +16,11 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewPolylineFilter3dviewFeature.h"
+#include "RicNewPolygonFilterFeature.h"
 
-#include "RiaApplication.h"
 #include "RimCase.h"
 #include "RimCellFilterCollection.h"
-#include "RimGridView.h"
-#include "RimPolylineFilter.h"
+#include "RimPolygonFilter.h"
 #include "Riu3DMainWindowTools.h"
 
 #include "cafSelectionManagerTools.h"
@@ -30,12 +28,12 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT( RicNewPolylineFilter3dviewFeature, "RicNewPolylineFilter3dviewFeature" );
+CAF_CMD_SOURCE_INIT( RicNewPolygonFilterFeature, "RicNewPolygonFilterFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewPolylineFilter3dviewFeature::isCommandEnabled()
+bool RicNewPolygonFilterFeature::isCommandEnabled()
 {
     return true;
 }
@@ -43,17 +41,18 @@ bool RicNewPolylineFilter3dviewFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewPolylineFilter3dviewFeature::onActionTriggered( bool isChecked )
+void RicNewPolygonFilterFeature::onActionTriggered( bool isChecked )
 {
-    // Get the selected Cell Filter Collection
-    RimGridView*             activeView           = RiaApplication::instance()->activeGridView();
-    RimGridView*             viewOrComparisonView = RiaApplication::instance()->activeMainOrComparisonGridView();
-    RimCellFilterCollection* filtColl             = viewOrComparisonView->cellFilterCollection();
+    // Find the selected Cell Filter Collection
+    std::vector<RimCellFilterCollection*> colls = caf::selectedObjectsByTypeStrict<RimCellFilterCollection*>();
+    if ( colls.empty() ) return;
+    RimCellFilterCollection* filtColl = colls[0];
 
     // and the case to use
-    RimCase* sourceCase = viewOrComparisonView->ownerCase();
+    RimCase* sourceCase = nullptr;
+    filtColl->firstAncestorOrThisOfTypeAsserted( sourceCase );
 
-    RimPolylineFilter* lastCreatedOrUpdated = filtColl->addNewPolylineFilter( sourceCase );
+    RimPolygonFilter* lastCreatedOrUpdated = filtColl->addNewPolygonFilter( sourceCase );
     if ( lastCreatedOrUpdated )
     {
         Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
@@ -63,8 +62,8 @@ void RicNewPolylineFilter3dviewFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewPolylineFilter3dviewFeature::setupActionLook( QAction* actionToSetup )
+void RicNewPolygonFilterFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/CellFilter_Polyline.png" ) );
-    actionToSetup->setText( "Polyline Filter" );
+    actionToSetup->setIcon( QIcon( ":/CellFilter_Polygon.png" ) );
+    actionToSetup->setText( "New Polygon Filter" );
 }

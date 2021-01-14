@@ -23,7 +23,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewPolylineFilterFeature : public caf::CmdFeature
+class RicNewPolygonFilterFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 

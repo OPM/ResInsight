@@ -24,7 +24,7 @@
 #include "RimCellFilter.h"
 #include "RimCellRangeFilter.h"
 #include "RimGeoMechView.h"
-#include "RimPolylineFilter.h"
+#include "RimPolygonFilter.h"
 #include "RimUserDefinedFilter.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
@@ -229,9 +229,9 @@ bool RimCellFilterCollection::hasActiveIncludeFilters() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPolylineFilter* RimCellFilterCollection::addNewPolylineFilter( RimCase* srcCase )
+RimPolygonFilter* RimCellFilterCollection::addNewPolygonFilter( RimCase* srcCase )
 {
-    RimPolylineFilter* pFilter = new RimPolylineFilter();
+    RimPolygonFilter* pFilter = new RimPolygonFilter();
     pFilter->setCase( srcCase );
     m_cellFilters.push_back( pFilter );
     connectToFilterUpdates( pFilter );

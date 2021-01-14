@@ -43,7 +43,7 @@
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechView.h"
 #include "RimIntersectionCollection.h"
-#include "RimPolylineFilter.h"
+#include "RimPolygonFilter.h"
 #include "RimProject.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
@@ -1032,7 +1032,7 @@ void RimViewController::updateCellFilterOverrides( const RimCellFilter* changedF
                         continue;
                     }
 
-                    RimPolylineFilter* polyDstFilter = dynamic_cast<RimPolylineFilter*>( dstFilters[rfIdx] );
+                    RimPolygonFilter* polyDstFilter = dynamic_cast<RimPolygonFilter*>( dstFilters[rfIdx] );
                     if ( polyDstFilter != nullptr )
                     {
                         RimGeoMechCase* gCase = depGeomView->geoMechCase();
@@ -1063,7 +1063,7 @@ void RimViewController::updateCellFilterOverrides( const RimCellFilter* changedF
                         continue;
                     }
 
-                    RimPolylineFilter* polyDstFilter = dynamic_cast<RimPolylineFilter*>( dstFilters[rfIdx] );
+                    RimPolygonFilter* polyDstFilter = dynamic_cast<RimPolygonFilter*>( dstFilters[rfIdx] );
                     if ( polyDstFilter != nullptr )
                     {
                         RimEclipseCase* eCase = depEclView->eclipseCase();
@@ -1079,7 +1079,7 @@ void RimViewController::updateCellFilterOverrides( const RimCellFilter* changedF
         {
             overrideFilterColl->connectToFilterUpdates( dstFilters[rfIdx] );
 
-            RimPolylineFilter* polyDstFilter = dynamic_cast<RimPolylineFilter*>( dstFilters[rfIdx] );
+            RimPolygonFilter* polyDstFilter = dynamic_cast<RimPolygonFilter*>( dstFilters[rfIdx] );
             if ( polyDstFilter != nullptr )
             {
                 RimCase* theCase = nullptr;

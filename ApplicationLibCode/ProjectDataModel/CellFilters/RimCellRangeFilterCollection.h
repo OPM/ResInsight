@@ -24,7 +24,7 @@
 
 class RimCellFilter;
 class RimCellRangeFilter;
-class RimPolylineFilter;
+class RimPolygonFilter;
 class RimUserDefinedFilter;
 class RimCase;
 class RigPolyLinesData;
@@ -46,7 +46,7 @@ public:
     RimCellFilterCollection();
     ~RimCellFilterCollection() override;
 
-    RimPolylineFilter*    addNewPolylineFilter( RimCase* srcCase );
+    RimPolygonFilter*     addNewPolygonFilter( RimCase* srcCase );
     RimUserDefinedFilter* addNewUserDefinedFilter( RimCase* srcCase );
     RimCellRangeFilter*   addNewCellRangeFilter( RimCase* srcCase, int sliceDirection = -1, int defaultSlice = -1 );
 
