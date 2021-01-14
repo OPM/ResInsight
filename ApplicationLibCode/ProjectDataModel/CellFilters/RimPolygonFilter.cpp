@@ -231,13 +231,8 @@ void RimPolygonFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         if ( m_enablePicking() )
         {
             setActive( false );
+            filterChanged.send();
         }
-        // else
-        //{
-        //    setActive( true );
-        //    updateCells();
-        //    filterChanged.send();
-        //}
     }
     else if ( changedField != &m_name )
     {
