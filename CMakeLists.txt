@@ -12,6 +12,8 @@ SET(BUILD_SHARED_LIBS OFF CACHE BOOL "ERT: Build shared libraries")
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
+option(RESINSIGHT_BUNDLE_TESTMODELS "Copy TestModels into the installation" ON)
+
 # Use CMake to enforce C++11 when using CMake 3 or newer.
 # The check can be removed when the minimum version is 3.
 if( (${CMAKE_MAJOR_VERSION} GREATER 3) OR (${CMAKE_MAJOR_VERSION} EQUAL 3))
@@ -524,6 +526,9 @@ if (RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
     endif()
 endif (RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
 
+if (RESINSIGHT_BUNDLE_TESTMODELS)
+    install(DIRECTORY ${CMAKE_SOURCE_DIR}/TestModels DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
+endif()
 
 ################################################################################
 # Application 
