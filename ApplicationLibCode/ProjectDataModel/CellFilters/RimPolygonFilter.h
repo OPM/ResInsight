@@ -55,7 +55,7 @@ public:
         INDEX_K
     };
 
-    enum class PolylineIncludeType
+    enum class PolygonIncludeType
     {
         FULL_CELL,
         CENTER,
@@ -104,7 +104,7 @@ private:
     caf::PdmField<bool>                                m_enablePicking;
     caf::PdmChildArrayField<RimPolylineTarget*>        m_targets;
     caf::PdmField<caf::AppEnum<PolygonFilterModeType>> m_polyFilterMode;
-    caf::PdmField<caf::AppEnum<PolylineIncludeType>>   m_polyIncludeType;
+    caf::PdmField<caf::AppEnum<PolygonIncludeType>>    m_polyIncludeType;
     caf::PdmPtrField<RimCase*>                         m_srcCase;
 
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;

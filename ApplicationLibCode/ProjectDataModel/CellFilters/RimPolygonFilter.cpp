@@ -54,12 +54,12 @@ void caf::AppEnum<RimPolygonFilter::PolygonFilterModeType>::setUp()
 }
 
 template <>
-void caf::AppEnum<RimPolygonFilter::PolylineIncludeType>::setUp()
+void caf::AppEnum<RimPolygonFilter::PolygonIncludeType>::setUp()
 {
-    addItem( RimPolygonFilter::PolylineIncludeType::FULL_CELL, "FULL_CELL", "Whole cell inside polygon" );
-    addItem( RimPolygonFilter::PolylineIncludeType::CENTER, "CENTER", "Cell center inside polygon" );
-    addItem( RimPolygonFilter::PolylineIncludeType::ANY, "ANY", "Any corner inside polygon" );
-    setDefault( RimPolygonFilter::PolylineIncludeType::CENTER );
+    addItem( RimPolygonFilter::PolygonIncludeType::FULL_CELL, "FULL_CELL", "Whole cell inside polygon" );
+    addItem( RimPolygonFilter::PolygonIncludeType::CENTER, "CENTER", "Cell center inside polygon" );
+    addItem( RimPolygonFilter::PolygonIncludeType::ANY, "ANY", "Any corner inside polygon" );
+    setDefault( RimPolygonFilter::PolygonIncludeType::CENTER );
 }
 
 } // namespace caf
@@ -74,7 +74,7 @@ RimPolygonFilter::RimPolygonFilter()
 {
     CAF_PDM_InitObject( "Polyline Filter", ":/CellFilter_Polygon.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_polyFilterMode, "PolygonFilterType", "Vertical filter", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_polyFilterMode, "PolygonFilterType", "Vertical Filter", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_polyIncludeType, "PolyIncludeType", "Cells to include", "", "", "" );
 
@@ -326,7 +326,7 @@ bool RimPolygonFilter::cellInsidePolygon2D( cvf::Vec3d                 center,
     bool bInside = false;
     switch ( m_polyIncludeType() )
     {
-        case PolylineIncludeType::ANY:
+        case PolygonIncludeType::ANY:
             // any part of the cell is inside
             for ( const auto& point : corners )
             {
@@ -334,11 +334,11 @@ bool RimPolygonFilter::cellInsidePolygon2D( cvf::Vec3d                 center,
             }
             break;
 
-        case PolylineIncludeType::CENTER:
+        case PolygonIncludeType::CENTER:
             // cell center is inside
             return RigCellGeometryTools::pointInsidePolygon2D( center, polygon );
 
-        case PolylineIncludeType::FULL_CELL:
+        case PolygonIncludeType::FULL_CELL:
             // entire cell is inside
             bInside = true;
             for ( const auto& point : corners )
