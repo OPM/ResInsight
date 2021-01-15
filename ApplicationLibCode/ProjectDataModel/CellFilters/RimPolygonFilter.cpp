@@ -164,6 +164,15 @@ void RimPolygonFilter::insertTarget( const RimPolylineTarget* targetToInsertBefo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygonFilter::deleteTarget( RimPolylineTarget* targetToDelete )
+{
+    m_targets.removeChildObject( targetToDelete );
+    delete targetToDelete;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPolygonFilter::defineEditorAttribute( const caf::PdmFieldHandle* field,
                                               QString                    uiConfigName,
                                               caf::PdmUiEditorAttribute* attribute )
@@ -198,6 +207,20 @@ void RimPolygonFilter::defineEditorAttribute( const caf::PdmFieldHandle* field,
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonFilter::defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu,
+                                                QMenu*                     menu,
+                                                QWidget*                   fieldEditorWidget )
+{
+    caf::CmdFeatureMenuBuilder menuBuilder;
+
+    menuBuilder << "RicDeletePolylineTargetFeature";
+
+    menuBuilder.appendToMenu( menu );
 }
 
 //--------------------------------------------------------------------------------------------------

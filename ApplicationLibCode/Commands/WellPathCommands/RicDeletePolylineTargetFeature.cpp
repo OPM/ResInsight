@@ -19,8 +19,8 @@
 
 CAF_CMD_SOURCE_INIT( RicDeletePolylineTargetFeature, "RicDeletePolylineTargetFeature" );
 
+#include "RimPolylinePickerInterface.h"
 #include "RimPolylineTarget.h"
-#include "RimUserDefinedPolylinesAnnotation.h"
 #include "cafSelectionManager.h"
 #include <QAction>
 
@@ -50,7 +50,7 @@ void RicDeletePolylineTargetFeature::onActionTriggered( bool isChecked )
 
     if ( !targets.empty() )
     {
-        RimUserDefinedPolylinesAnnotation* polylineDef = nullptr;
+        RimPolylinePickerInterface* polylineDef = nullptr;
         targets[0]->firstAncestorOrThisOfTypeAsserted( polylineDef );
 
         for ( auto target : targets )

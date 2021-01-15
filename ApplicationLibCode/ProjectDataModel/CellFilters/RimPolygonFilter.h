@@ -70,6 +70,7 @@ public:
     void updateVisualization() override;
     void updateEditorsAndVisualization() override;
     void insertTarget( const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert ) override;
+    void deleteTarget( RimPolylineTarget* targetToDelete ) override;
     void enablePicking( bool enable );
 
     std::vector<RimPolylineTarget*> activeTargets() const override;
@@ -84,6 +85,7 @@ protected:
     void initAfterRead() override;
 
 private:
+    void defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;

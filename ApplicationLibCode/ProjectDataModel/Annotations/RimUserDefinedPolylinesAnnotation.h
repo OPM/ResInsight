@@ -50,6 +50,7 @@ public:
     bool                       isEmpty() override;
 
     void insertTarget( const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert ) override;
+    void deleteTarget( RimPolylineTarget* targetToDelete ) override;
     void updateEditorsAndVisualization() override;
     void updateVisualization() override;
 
@@ -58,7 +59,6 @@ public:
     caf::PickEventHandler*          pickEventHandler() const override;
 
     void appendTarget( const cvf::Vec3d& defaultPos = cvf::Vec3d::ZERO );
-    void deleteTarget( RimPolylineTarget* targetTodelete );
 
     std::pair<RimPolylineTarget*, RimPolylineTarget*>
         findActiveTargetsAroundInsertionPoint( const RimPolylineTarget* targetToInsertBefore );
