@@ -1082,7 +1082,7 @@ void RimStimPlanModel::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 double RimStimPlanModel::defaultPorosity() const
 {
-    return m_stimPlanModelTemplate() ? m_stimPlanModelTemplate()->defaultPorosity() : 0.0;
+    return m_stimPlanModelTemplate() ? m_stimPlanModelTemplate()->defaultPorosity() : RiaDefines::defaultPorosity();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1090,7 +1090,8 @@ double RimStimPlanModel::defaultPorosity() const
 //--------------------------------------------------------------------------------------------------
 double RimStimPlanModel::defaultPermeability() const
 {
-    return m_stimPlanModelTemplate() ? m_stimPlanModelTemplate()->defaultPermeability() : 0.0;
+    return m_stimPlanModelTemplate() ? m_stimPlanModelTemplate()->defaultPermeability()
+                                     : RiaDefines::defaultPermeability();
 }
 
 //--------------------------------------------------------------------------------------------------

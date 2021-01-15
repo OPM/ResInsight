@@ -81,8 +81,20 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
     CAF_PDM_InitScriptableField( &m_id, "Id", -1, "ID", "", "", "" );
     m_id.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitScriptableField( &m_defaultPorosity, "DefaultPorosity", 0.0, "Default Porosity", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_defaultPermeability, "DefaultPermeability", 10.0e-6, "Default Permeability", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_defaultPorosity,
+                                 "DefaultPorosity",
+                                 RiaDefines::defaultPorosity(),
+                                 "Default Porosity",
+                                 "",
+                                 "",
+                                 "" );
+    CAF_PDM_InitScriptableField( &m_defaultPermeability,
+                                 "DefaultPermeability",
+                                 RiaDefines::defaultPermeability(),
+                                 "Default Permeability",
+                                 "",
+                                 "",
+                                 "" );
 
     // Stress unit: bar
     // Stress gradient unit: bar/m
