@@ -53,4 +53,8 @@ enum class CurveProperty
     NET_TO_GROSS,
     POROSITY_UNSCALED,
 };
+
+double defaultPorosity();
+double defaultPermeability();
+
 }; // namespace RiaDefines

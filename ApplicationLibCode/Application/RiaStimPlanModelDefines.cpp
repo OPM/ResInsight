@@ -57,3 +57,16 @@ void AppEnum<RiaDefines::CurveProperty>::setUp()
     setDefault( RiaDefines::CurveProperty::UNDEFINED );
 }
 }; // namespace caf
+
+namespace RiaDefines
+{
+double defaultPorosity()
+{
+    return 0.01;
+}
+
+double defaultPermeability()
+{
+    return 1.0e-5;
+}
+}; // namespace RiaDefines
