@@ -60,10 +60,12 @@ class RiuViewer;
 class RivReservoirSimWellsPartMgr;
 class RivExtrudedCurveIntersectionPartMgr;
 class RivReservoirViewPartMgr;
+class RivStreamlinesPartMgr;
 class RimRegularLegendConfig;
 class RimTernaryLegendConfig;
 class RimEclipseResultDefinition;
 class RimElementVectorResult;
+class RimStreamlineInViewCollection;
 
 namespace cvf
 {
@@ -85,14 +87,15 @@ public:
     RimEclipseView();
     ~RimEclipseView() override;
 
-    RimEclipseCellColors*         cellResult() const;
-    RimCellEdgeColors*            cellEdgeResult() const;
-    RimElementVectorResult*       elementVectorResult() const;
-    RimEclipseFaultColors*        faultResultSettings() const;
-    RimStimPlanColors*            fractureColors() const;
-    RimSimWellInViewCollection*   wellCollection() const;
-    RimFaultInViewCollection*     faultCollection() const;
-    RimVirtualPerforationResults* virtualPerforationResult() const;
+    RimEclipseCellColors*          cellResult() const;
+    RimCellEdgeColors*             cellEdgeResult() const;
+    RimElementVectorResult*        elementVectorResult() const;
+    RimEclipseFaultColors*         faultResultSettings() const;
+    RimStimPlanColors*             fractureColors() const;
+    RimSimWellInViewCollection*    wellCollection() const;
+    RimFaultInViewCollection*      faultCollection() const;
+    RimStreamlineInViewCollection* streamlineCollection() const;
+    RimVirtualPerforationResults*  virtualPerforationResult() const;
 
     bool showInvalidCells() const;
     bool showInactiveCells() const;
@@ -165,6 +168,7 @@ protected:
     void updateVisibleGeometriesAndCellColors();
     void appendWellsAndFracturesToModel();
     void appendElementVectorResultToModel();
+    void appendStreamlinesToModel();
 
     void                             onCreateDisplayModel() override;
     RimPropertyFilterCollection*     nativePropertyFilterCollection();
@@ -190,6 +194,7 @@ private:
                                               int                         timeStepIndex );
 
     void onResetLegendsInViewer() override;
+    void onAnimationsUpdate( const caf::SignalEmitter* emitter );
     void updateVirtualConnectionLegendRanges();
 
     void updateFaultColors();
@@ -216,8 +221,9 @@ private:
 
     caf::PdmProxyValueField<std::vector<double>> m_cellResultData;
 
-    caf::PdmChildField<RimSimWellInViewCollection*> m_wellCollection;
-    caf::PdmChildField<RimFaultInViewCollection*>   m_faultCollection;
+    caf::PdmChildField<RimSimWellInViewCollection*>    m_wellCollection;
+    caf::PdmChildField<RimFaultInViewCollection*>      m_faultCollection;
+    caf::PdmChildField<RimStreamlineInViewCollection*> m_streamlineCollection;
 
     caf::PdmChildField<RimEclipsePropertyFilterCollection*> m_propertyFilterCollection;
     caf::PdmPointer<RimEclipsePropertyFilterCollection>     m_overridePropertyFilterCollection;
@@ -226,6 +232,7 @@ private:
 
     cvf::ref<RivReservoirViewPartMgr>     m_reservoirGridPartManager;
     cvf::ref<RivReservoirSimWellsPartMgr> m_simWellsPartManager;
+    cvf::ref<RivStreamlinesPartMgr>       m_streamlinesPartManager;
 
     std::vector<RivCellSetEnum> m_visibleGridParts;
 };

@@ -86,6 +86,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization
   ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/GridBox
   ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Intersections
+  ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Streamlines
   ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Surfaces
   ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface
   ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface/AnalysisPlots
@@ -99,6 +100,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Flow
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/GridCrossPlots
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Measurement
+  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Streamlines
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/StimPlanModel
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Summary
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Surfaces
@@ -164,6 +166,7 @@ list(
   ProjectDataModel/Measurement/CMakeLists_files.cmake
   ProjectDataModel/PlotTemplates/CMakeLists_files.cmake
   ProjectDataModel/StimPlanModel/CMakeLists_files.cmake
+  ProjectDataModel/Streamlines/CMakeLists_files.cmake
   ProjectDataModel/Surfaces/CMakeLists_files.cmake
   ProjectDataModel/CellFilters/CMakeLists_files.cmake
   ProjectDataModelCommands/CMakeLists_files.cmake
@@ -171,6 +174,7 @@ list(
   ModelVisualization/CMakeLists_files.cmake
   ModelVisualization/GridBox/CMakeLists_files.cmake
   ModelVisualization/Intersections/CMakeLists_files.cmake
+  ModelVisualization/Streamlines/CMakeLists_files.cmake
   ModelVisualization/Surfaces/CMakeLists_files.cmake
   ModelVisualization/WindowEdgeAxesOverlayItem/CMakeLists_files.cmake
   UserInterface/CMakeLists_files.cmake

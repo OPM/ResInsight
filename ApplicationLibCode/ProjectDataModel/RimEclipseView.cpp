@@ -73,6 +73,7 @@
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimStimPlanColors.h"
+#include "RimStreamlineInViewCollection.h"
 #include "RimSurfaceInViewCollection.h"
 #include "RimTernaryLegendConfig.h"
 #include "RimViewController.h"
@@ -94,6 +95,7 @@
 #include "RivReservoirSimWellsPartMgr.h"
 #include "RivReservoirViewPartMgr.h"
 #include "RivSingleCellPartGenerator.h"
+#include "RivStreamlinesPartMgr.h"
 #include "RivTernarySaturationOverlayItem.h"
 #include "RivWellFracturePartMgr.h"
 #include "RivWellPathsPartMgr.h"
@@ -180,6 +182,10 @@ RimEclipseView::RimEclipseView()
     m_annotationCollection = new RimAnnotationInViewCollection;
     m_annotationCollection.uiCapability()->setUiHidden( true );
 
+    CAF_PDM_InitFieldNoDefault( &m_streamlineCollection, "StreamlineCollection", "Streamlines", "", "", "" );
+    m_streamlineCollection = new RimStreamlineInViewCollection();
+    m_streamlineCollection.uiCapability()->setUiHidden( true );
+    
     CAF_PDM_InitFieldNoDefault( &m_propertyFilterCollection, "PropertyFilters", "Property Filters", "", "", "" );
     m_propertyFilterCollection = new RimEclipsePropertyFilterCollection();
     m_propertyFilterCollection.uiCapability()->setUiHidden( true );
@@ -205,6 +211,7 @@ RimEclipseView::RimEclipseView()
 
     m_reservoirGridPartManager = new RivReservoirViewPartMgr( this );
     m_simWellsPartManager      = new RivReservoirSimWellsPartMgr( this );
+    m_streamlinesPartManager   = new RivStreamlinesPartMgr( this );
     m_eclipseCase              = nullptr;
 
     nameConfig()->setCustomName( "3D View" );
@@ -214,6 +221,8 @@ RimEclipseView::RimEclipseView()
     nameConfig()->hideSampleSpacingField( true );
 
     setDeletable( true );
+
+    this->updateAnimations.connect( this, &RimEclipseView::onAnimationsUpdate );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -683,6 +692,19 @@ void RimEclipseView::onCreateDisplayModel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEclipseView::onAnimationsUpdate( const caf::SignalEmitter* emitter )
+{
+    m_streamlinesPartManager->updateAnimation();
+
+    if ( viewer() )
+    {
+        viewer()->update();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
 {
     clearReservoirCellVisibilities();
@@ -701,6 +723,8 @@ void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
 
     appendElementVectorResultToModel();
 
+    m_streamlineCollection()->updateFromCurrentTimeStep();
+    appendStreamlinesToModel();
     m_overlayInfoConfig()->update3DInfo();
 
     // Invisible Wells are marked as read only when "show wells intersecting visible cells" is enabled
@@ -979,6 +1003,29 @@ void RimEclipseView::appendElementVectorResultToModel()
             m_reservoirGridPartManager->appendElementVectorResultDynamicGeometryPartsToModel( frameParts.p(),
                                                                                               PROPERTY_FILTERED_WELL_CELLS,
                                                                                               m_currentTimeStep );
+
+            frameScene->addModel( frameParts.p() );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView::appendStreamlinesToModel()
+{
+    if ( nativeOrOverrideViewer() )
+    {
+        cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
+        if ( frameScene )
+        {
+            cvf::String name = "StreamlinesModel";
+            this->removeModelByName( frameScene, name );
+
+            cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
+            frameParts->setName( name );
+
+            m_streamlinesPartManager->appendDynamicGeometryPartsToModel( frameParts.p(), m_currentTimeStep );
 
             frameScene->addModel( frameParts.p() );
         }
@@ -1460,6 +1507,11 @@ void RimEclipseView::onUpdateLegends()
     {
         m_surfaceCollection->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
     }
+
+    if ( m_streamlineCollection )
+    {
+        m_streamlineCollection->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1501,6 +1553,7 @@ void RimEclipseView::setEclipseCase( RimEclipseCase* reservoir )
     m_eclipseCase = reservoir;
     cellResult()->setEclipseCase( reservoir );
     faultResultSettings()->customFaultResult()->setEclipseCase( reservoir );
+    m_streamlineCollection->setEclipseCase( reservoir );
 
     cellEdgeResult()->setEclipseCase( reservoir );
 }
@@ -1603,6 +1656,14 @@ void RimEclipseView::syncronizeLocalAnnotationsFromGlobal()
             annotationCollection()->onGlobalCollectionChanged( annotColl );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimStreamlineInViewCollection* RimEclipseView::streamlineCollection() const
+{
+    return m_streamlineCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1869,6 +1930,8 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     uiTreeOrdering.add( faultResultSettings() );
     uiTreeOrdering.add( &m_intersectionResultDefCollection );
     uiTreeOrdering.add( &m_surfaceResultDefCollection );
+
+    uiTreeOrdering.add( &m_streamlineCollection );
 
     uiTreeOrdering.add( wellCollection() );
     uiTreeOrdering.add( &m_wellMeasurementCollection );
