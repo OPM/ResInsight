@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Equinor ASA
+//  Copyright (C) 2020 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,14 +15,17 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-#include "RicDeletePolylineTargetFeature.h"
 
-CAF_CMD_SOURCE_INIT( RicDeletePolylineTargetFeature, "RicDeletePolylineTargetFeature" );
+#include "RicDeletePolylineTargetFeature.h"
 
 #include "RimPolylinePickerInterface.h"
 #include "RimPolylineTarget.h"
+
 #include "cafSelectionManager.h"
+
 #include <QAction>
+
+CAF_CMD_SOURCE_INIT( RicDeletePolylineTargetFeature, "RicDeletePolylineTargetFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///

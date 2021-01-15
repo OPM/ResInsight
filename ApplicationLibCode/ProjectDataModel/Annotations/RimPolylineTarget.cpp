@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018 -    Equinor
+//  Copyright (C) 2020 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 #include "RimPolylinePickerInterface.h"
 
 #include "cafPdmUiCheckBoxEditor.h"
+
 #include <cmath>
 
 CAF_PDM_SOURCE_INIT( RimPolylineTarget, "PolylineTarget" );

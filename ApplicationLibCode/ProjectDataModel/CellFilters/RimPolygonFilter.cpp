@@ -25,21 +25,24 @@
 #include "RigFemPartGrid.h"
 #include "RigGeoMechCaseData.h"
 #include "RigMainGrid.h"
-#include "RigPolyLinesData.h"
+
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimCellFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
 #include "RimPolylineTarget.h"
-#include "RiuViewerCommands.h"
+
 #include "WellPathCommands/PointTangentManipulator/RicPolyline3dEditor.h"
 #include "WellPathCommands/RicPolylineTargetsPickEventHandler.h"
+
+#include "RiuViewerCommands.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTreeOrdering.h"
+
 #include "cvfBoundingBox.h"
 #include "cvfStructGrid.h"
 
