@@ -37,12 +37,12 @@
 #include "RimViewManipulator.h"
 #include "RimViewNameConfig.h"
 #include "RimWellPathCollection.h"
-#include "RivAnnotationsPartMgr.h"
-#include "RivMeasurementPartMgr.h"
-#include "RivWellPathsPartMgr.h"
 #include "RiuMainWindow.h"
 #include "RiuTimeStepChangedHandler.h"
 #include "RiuViewer.h"
+#include "RivAnnotationsPartMgr.h"
+#include "RivMeasurementPartMgr.h"
+#include "RivWellPathsPartMgr.h"
 #include "cafDisplayCoordTransform.h"
 #include "cafFrameAnimationControl.h"
 #include "cafPdmFieldScriptingCapability.h"
@@ -50,9 +50,9 @@
 #include "cvfCamera.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
+#include "cvfScene.h"
 #include "cvfTransform.h"
 #include "cvfViewport.h"
-#include "cvfScene.h"
 #include <climits>
 namespace caf
 {
@@ -455,7 +455,7 @@ QString Rim3dView::timeStepName( int frameIdx ) const
 void Rim3dView::setCurrentTimeStep( int frameIndex )
 {
     const int oldTimeStep = m_currentTimeStep;
-    m_currentTimeStep = frameIndex;
+    m_currentTimeStep     = frameIndex;
     onClampCurrentTimestep();
     if ( m_currentTimeStep != oldTimeStep )
     {
@@ -493,7 +493,7 @@ void Rim3dView::updateDisplayModelForCurrentTimeStepAndRedraw()
         nativeOrOverrideViewer()->update();
     }
     m_isCallingUpdateDisplayModelForCurrentTimestepAndRedraw = true;
-    std::set<Rim3dView*> containerViews = this->viewsUsingThisAsComparisonView();
+    std::set<Rim3dView*> containerViews                      = this->viewsUsingThisAsComparisonView();
     if ( !containerViews.empty() && !isUsingOverrideViewer() )
     {
         for ( auto view : containerViews )
@@ -824,8 +824,8 @@ void Rim3dView::addDynamicWellPathsToModel( cvf::ModelBasicList*    wellPathMode
                                             const cvf::BoundingBox& wellPathClipBoundingBox )
 {
     if ( !this->ownerCase() ) return;
-    cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
-    size_t timeStepIndex = currentTimeStep();
+    cvf::ref<caf::DisplayCoordTransform> transForm     = displayCoordTransform();
+    size_t                               timeStepIndex = currentTimeStep();
     m_wellPathsPartManager->appendDynamicGeometryPartsToModel( wellPathModelBasicList,
                                                                timeStepIndex,
                                                                transForm.p(),
@@ -896,7 +896,7 @@ void Rim3dView::updateGridBoxData()
 {
     if ( viewer() && ownerCase() )
     {
-        using BBox = cvf::BoundingBox;
+        using BBox            = cvf::BoundingBox;
         BBox masterDomainBBox = isShowingActiveCellsOnly() ? ownerCase()->activeCellsBoundingBox()
                                                            : ownerCase()->allCellsBoundingBox();
         BBox combinedDomainBBox = masterDomainBBox;
@@ -961,9 +961,9 @@ void Rim3dView::updateScaling()
     {
         cvf::Vec3d poi = viewer()->pointOfInterest();
         cvf::Vec3d eye, dir, up;
-        eye = viewer()->mainCamera()->position();
-        dir = viewer()->mainCamera()->direction();
-        up  = viewer()->mainCamera()->up();
+        eye    = viewer()->mainCamera()->position();
+        dir    = viewer()->mainCamera()->direction();
+        up     = viewer()->mainCamera()->up();
         eye[2] = poi[2] * scaleZ() / this->scaleTransform()->worldTransform()( 2, 2 ) + ( eye[2] - poi[2] );
         poi[2] = poi[2] * scaleZ() / this->scaleTransform()->worldTransform()( 2, 2 );
         viewer()->mainCamera()->setFromLookAt( eye, eye + dir, up );
@@ -1160,7 +1160,7 @@ void Rim3dView::zoomAll()
 cvf::ref<caf::DisplayCoordTransform> Rim3dView::displayCoordTransform() const
 {
     cvf::ref<caf::DisplayCoordTransform> coordTrans = new caf::DisplayCoordTransform;
-    cvf::Vec3d scale( 1.0, 1.0, scaleZ );
+    cvf::Vec3d                           scale( 1.0, 1.0, scaleZ );
     coordTrans->setScale( scale );
     RimCase* rimCase = ownerCase();
     if ( rimCase )
