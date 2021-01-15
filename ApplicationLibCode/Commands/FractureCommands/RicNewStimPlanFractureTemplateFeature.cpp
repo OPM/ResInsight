@@ -78,7 +78,7 @@ void RicNewStimPlanFractureTemplateFeature::selectFractureTemplateAndUpdate( Rim
 std::vector<RimStimPlanFractureTemplate*> RicNewStimPlanFractureTemplateFeature::createNewTemplates()
 {
     RiaApplication* app        = RiaApplication::instance();
-    QString         defaultDir = app->lastUsedDialogDirectory( "BINARY_GRID" );
+    QString         defaultDir = app->lastUsedDialogDirectoryWithFallbackToProjectFolder( "STIMPLAN_XML_DIR" );
     QStringList     fileNames  = RiuFileDialogTools::getOpenFileNames( nullptr,
                                                                   "Open StimPlan XML File",
                                                                   defaultDir,
@@ -119,6 +119,9 @@ std::vector<RimStimPlanFractureTemplate*> RicNewStimPlanFractureTemplateFeature:
         fractureDef->updateFractureGrid();
         newFractures.push_back( fractureDef );
     }
+
+    app->setLastUsedDialogDirectory( "STIMPLAN_XML_DIR", QFileInfo( fileNames.last() ).absolutePath() );
+
     return newFractures;
 }
 
