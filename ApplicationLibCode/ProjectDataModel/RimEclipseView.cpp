@@ -185,7 +185,7 @@ RimEclipseView::RimEclipseView()
     CAF_PDM_InitFieldNoDefault( &m_streamlineCollection, "StreamlineCollection", "Streamlines", "", "", "" );
     m_streamlineCollection = new RimStreamlineInViewCollection();
     m_streamlineCollection.uiCapability()->setUiHidden( true );
-    
+
     CAF_PDM_InitFieldNoDefault( &m_propertyFilterCollection, "PropertyFilters", "Property Filters", "", "", "" );
     m_propertyFilterCollection = new RimEclipsePropertyFilterCollection();
     m_propertyFilterCollection.uiCapability()->setUiHidden( true );
