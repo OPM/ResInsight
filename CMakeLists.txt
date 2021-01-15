@@ -23,7 +23,7 @@ SET(BUILD_SHARED_LIBS OFF CACHE BOOL "ERT: Build shared libraries")
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
-option(RESINSIGHT_BUNDLE_TESTMODELS "Copy TestModels into the installation" ON)
+option(RESINSIGHT_BUNDLE_TESTMODELS "Copy TestModels into the installation" OFF)
 
 option(VCPKG_AUTO_INSTALL "Automatically download build pre-requisites with VCPKG" OFF)
 if (VCPKG_AUTO_INSTALL)
