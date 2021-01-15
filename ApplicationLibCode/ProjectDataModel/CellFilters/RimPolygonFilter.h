@@ -84,6 +84,8 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void initAfterRead() override;
 
+    QString fullName() const override;
+
 private:
     void defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field,

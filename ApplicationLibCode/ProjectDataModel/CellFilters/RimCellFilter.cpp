@@ -55,6 +55,12 @@ RimCellFilter::RimCellFilter()
 
     CAF_PDM_InitField( &m_gridIndex, "GridIndex", 0, "Grid", "", "", "" );
     CAF_PDM_InitField( &m_propagateToSubGrids, "PropagateToSubGrids", true, "Apply to Subgrids", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name Proxy", "", "", "" );
+    m_nameProxy.registerGetMethod( this, &RimCellFilter::fullName );
+    m_nameProxy.uiCapability()->setUiReadOnly( true );
+    m_nameProxy.uiCapability()->setUiHidden( true );
+    m_nameProxy.xmlCapability()->disableIO();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -69,7 +75,15 @@ RimCellFilter::~RimCellFilter()
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimCellFilter::userDescriptionField()
 {
-    return &m_name;
+    return &m_nameProxy;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Return the name to show in the tree selector
+//--------------------------------------------------------------------------------------------------
+QString RimCellFilter::fullName() const
+{
+    return QString( "%1" ).arg( m_name );
 }
 
 //--------------------------------------------------------------------------------------------------

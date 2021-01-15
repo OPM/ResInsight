@@ -78,6 +78,9 @@ protected:
     void                 onFilterUpdated( const SignalEmitter* emitter );
 
 private:
+    void setAutoName( RimCellFilter* pFilter );
+    void addFilter( RimCellFilter* pFilter );
+
     caf::PdmChildArrayField<RimCellFilter*> m_cellFilters;
     caf::PdmField<bool>                     m_isActive;
 

@@ -142,6 +142,14 @@ void RimPolygonFilter::setCase( RimCase* srcCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimPolygonFilter::fullName() const
+{
+    return QString( "%1  [%2 cells]" ).arg( RimCellFilter::fullName(), QString::number( m_cells.size() ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimPolylineTarget*> RimPolygonFilter::activeTargets() const
 {
     return m_targets.childObjects();

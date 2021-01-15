@@ -233,13 +233,9 @@ RimPolygonFilter* RimCellFilterCollection::addNewPolygonFilter( RimCase* srcCase
 {
     RimPolygonFilter* pFilter = new RimPolygonFilter();
     pFilter->setCase( srcCase );
-    m_cellFilters.push_back( pFilter );
-    connectToFilterUpdates( pFilter );
     pFilter->setActive( false );
-
-    this->updateConnectedEditors();
+    addFilter( pFilter );
     onFilterUpdated( pFilter );
-
     return pFilter;
 }
 
@@ -249,12 +245,8 @@ RimPolygonFilter* RimCellFilterCollection::addNewPolygonFilter( RimCase* srcCase
 RimUserDefinedFilter* RimCellFilterCollection::addNewUserDefinedFilter( RimCase* srcCase )
 {
     RimUserDefinedFilter* pFilter = new RimUserDefinedFilter();
-    m_cellFilters.push_back( pFilter );
-    connectToFilterUpdates( pFilter );
-
-    this->updateConnectedEditors();
+    addFilter( pFilter );
     onFilterUpdated( pFilter );
-
     return pFilter;
 }
 
@@ -264,14 +256,50 @@ RimUserDefinedFilter* RimCellFilterCollection::addNewUserDefinedFilter( RimCase*
 RimCellRangeFilter* RimCellFilterCollection::addNewCellRangeFilter( RimCase* srcCase, int sliceDirection, int defaultSlice )
 {
     RimCellRangeFilter* pFilter = new RimCellRangeFilter();
+    addFilter( pFilter );
+    pFilter->setDefaultValues( sliceDirection, defaultSlice );
+    onFilterUpdated( pFilter );
+    return pFilter;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCellFilterCollection::addFilter( RimCellFilter* pFilter )
+{
+    setAutoName( pFilter );
     m_cellFilters.push_back( pFilter );
     connectToFilterUpdates( pFilter );
-    pFilter->setDefaultValues( sliceDirection, defaultSlice );
-
     this->updateConnectedEditors();
-    onFilterUpdated( pFilter );
+}
 
-    return pFilter;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCellFilterCollection::setAutoName( RimCellFilter* pFilter )
+{
+    int nPolyFilters  = 1;
+    int nRangeFilters = 1;
+    int nUserFilters  = 1;
+
+    for ( RimCellFilter* filter : m_cellFilters )
+    {
+        if ( dynamic_cast<RimCellRangeFilter*>( filter ) ) nRangeFilters++;
+        if ( dynamic_cast<RimUserDefinedFilter*>( filter ) ) nUserFilters++;
+        if ( dynamic_cast<RimPolygonFilter*>( filter ) ) nPolyFilters++;
+    }
+    if ( dynamic_cast<RimCellRangeFilter*>( pFilter ) )
+    {
+        pFilter->setName( QString( "Range Filter %1" ).arg( QString::number( nRangeFilters ) ) );
+    }
+    else if ( dynamic_cast<RimUserDefinedFilter*>( pFilter ) )
+    {
+        pFilter->setName( QString( "User Defined Filter %1" ).arg( QString::number( nUserFilters ) ) );
+    }
+    else if ( dynamic_cast<RimPolygonFilter*>( pFilter ) )
+    {
+        pFilter->setName( QString( "Polygon Filter %1" ).arg( QString::number( nPolyFilters ) ) );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
