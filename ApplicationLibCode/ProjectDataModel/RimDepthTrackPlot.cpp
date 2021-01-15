@@ -498,23 +498,6 @@ QString RimDepthTrackPlot::createAutoName() const
         }
     }
 
-    if ( m_nameConfig->addWaterDepth() )
-    {
-        if ( commonWellPath )
-        {
-            RigWellPath* wellPathGeometry = commonWellPath->wellPathGeometry();
-            if ( wellPathGeometry )
-            {
-                const std::vector<cvf::Vec3d>& wellPathPoints = wellPathGeometry->wellPathPoints();
-                if ( !wellPathPoints.empty() )
-                {
-                    double tvdmsl = std::abs( wellPathPoints.front()[2] );
-                    generatedAutoTags.push_back( QString( "Water Depth = %1 m" ).arg( tvdmsl ) );
-                }
-            }
-        }
-    }
-
     if ( !generatedAutoTags.empty() )
     {
         generatedCurveName.push_back( generatedAutoTags.join( ", " ) );
