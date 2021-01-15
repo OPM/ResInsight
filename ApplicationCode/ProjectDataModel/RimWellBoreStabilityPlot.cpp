@@ -64,6 +64,8 @@ RimWellBoreStabilityPlot::RimWellBoreStabilityPlot()
     m_nameConfig->enableAllAutoNameTags( true );
 
     m_commonDataSource->setCaseType( RiaDefines::CaseType::GEOMECH_ODB_CASE );
+
+    m_waterDepth = std::numeric_limits<double>::infinity();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -71,6 +73,10 @@ RimWellBoreStabilityPlot::RimWellBoreStabilityPlot()
 //--------------------------------------------------------------------------------------------------
 void RimWellBoreStabilityPlot::applyWbsParametersToExtractor( RigGeoMechWellLogExtractor* extractor )
 {
+    m_waterDepth = extractor->waterDepth();
+
+    if ( m_waterDepth == std::numeric_limits<double>::infinity() ) m_waterDepth = extractor->estimateWaterDepth();
+
     m_wbsParameters->applyWbsParametersToExtractor( extractor );
 }
 
@@ -170,4 +176,21 @@ void RimWellBoreStabilityPlot::applyDataSource()
     m_wbsParameters->setWellPath( m_commonDataSource->wellPathToApply() );
     m_wbsParameters->setTimeStep( m_commonDataSource->timeStepToApply() );
     this->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellBoreStabilityPlot::createAutoName() const
+{
+    QString name = RimWellLogPlot::createAutoName();
+
+    if ( m_nameConfig->addWaterDepth() && m_waterDepth != std::numeric_limits<double>::infinity() )
+    {
+        double  tvdmsl           = m_waterDepth;
+        QString waterDepthString = QString( ", Water Depth = %1 m" ).arg( tvdmsl );
+        name += waterDepthString;
+    }
+
+    return name;
 }

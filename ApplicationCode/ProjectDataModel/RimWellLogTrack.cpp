@@ -1982,9 +1982,15 @@ void RimWellLogTrack::handleWheelEvent( QWheelEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<double, double>> RimWellLogTrack::waterAndRockRegions( RiaDefines::DepthTypeEnum  depthType,
-                                                                             const RigWellLogExtractor* extractor ) const
+std::vector<std::pair<double, double>> RimWellLogTrack::waterAndRockRegions( RiaDefines::DepthTypeEnum depthType,
+                                                                             const RigGeoMechWellLogExtractor* extractor ) const
 {
+    double waterEndTVD = extractor->waterDepth();
+    if ( waterEndTVD == std::numeric_limits<double>::infinity() )
+    {
+        waterEndTVD = extractor->estimateWaterDepth();
+    }
+
     if ( depthType == RiaDefines::DepthTypeEnum::MEASURED_DEPTH )
     {
         double waterStartMD = 0.0;
@@ -1999,14 +2005,13 @@ std::vector<std::pair<double, double>> RimWellLogTrack::waterAndRockRegions( Ria
     else if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH )
     {
         double waterStartTVD = 0.0;
-        double waterEndTVD   = extractor->cellIntersectionTVDs().front();
         double rockEndTVD    = extractor->cellIntersectionTVDs().back();
         return { { waterStartTVD, waterEndTVD }, { waterEndTVD, rockEndTVD } };
     }
     else if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB )
     {
         double waterStartTVDRKB = extractor->wellPathData()->rkbDiff();
-        double waterEndTVDRKB   = extractor->cellIntersectionTVDs().front() + extractor->wellPathData()->rkbDiff();
+        double waterEndTVDRKB   = waterEndTVD + extractor->wellPathData()->rkbDiff();
         double rockEndTVDRKB    = extractor->cellIntersectionTVDs().back() + extractor->wellPathData()->rkbDiff();
         return { { waterStartTVDRKB, waterEndTVDRKB }, { waterEndTVDRKB, rockEndTVDRKB } };
     }
@@ -2532,7 +2537,6 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
 
         RigEclipseWellLogExtractor* eclWellLogExtractor     = nullptr;
         RigGeoMechWellLogExtractor* geoMechWellLogExtractor = nullptr;
-        RigWellLogExtractor*        extractor               = nullptr;
 
         if ( m_formationTrajectoryType == SIMULATION_WELL )
         {
@@ -2561,7 +2565,6 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                                                                   RiaDefines::activeFormationNamesResultName() ) );
 
             curveData = RimWellLogTrack::curveSamplingPointData( eclWellLogExtractor, resultAccessor.p() );
-            extractor = eclWellLogExtractor;
         }
         else
         {
@@ -2575,7 +2578,6 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                                                                  RigFemResultAddress( RIG_FORMATION_NAMES,
                                                                                       activeFormationNamesResultName,
                                                                                       "" ) );
-            extractor = geoMechWellLogExtractor;
         }
 
         if ( geoMechWellLogExtractor )
@@ -2585,7 +2587,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
 
             const caf::ColorTable waterAndRockColors = RiaColorTables::waterAndRockPaletteColors();
             const std::vector<std::pair<double, double>> waterAndRockIntervals =
-                waterAndRockRegions( plot->depthType(), extractor );
+                waterAndRockRegions( plot->depthType(), geoMechWellLogExtractor );
 
             const std::vector<std::pair<double, double>> convertedYValues =
                 RiaWellLogUnitTools<double>::convertDepths( waterAndRockIntervals, fromDepthUnit, toDepthUnit );
