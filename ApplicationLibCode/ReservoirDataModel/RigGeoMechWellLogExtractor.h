@@ -60,7 +60,7 @@ public:
 public:
     RigGeoMechWellLogExtractor( gsl::not_null<RigGeoMechCaseData*> aCase,
                                 gsl::not_null<const RigWellPath*>  wellpath,
-                                const std::string&  wellCaseErrorMsgName );
+                                const std::string&                 wellCaseErrorMsgName );
 
     void performCurveDataSmoothing( int                  frameIndex,
                                     std::vector<double>* mds,
@@ -86,6 +86,9 @@ public:
 
     static double hydroStaticPorePressureAtDepth( double effectiveDepthMeters,
                                                   double waterDensityGCM3 = PURE_WATER_DENSITY_GCM3 );
+
+    double waterDepth() const;
+    double estimateWaterDepth() const;
 
 private:
     enum WellPathTangentCalculation
@@ -167,6 +170,8 @@ private:
     static bool isValid( double value );
     static bool isValid( float value );
 
+    double calculateWaterDepth() const;
+
 private:
     cvf::ref<RigGeoMechCaseData> m_caseData;
 
@@ -174,4 +179,6 @@ private:
     std::map<RigWbsParameter, QString>                                m_lasFileInputUnits;
     std::map<RigWbsParameter, WbsParameterSource>                     m_parameterSources;
     std::map<RigWbsParameter, double>                                 m_userDefinedValues;
+
+    double m_waterDepth;
 };

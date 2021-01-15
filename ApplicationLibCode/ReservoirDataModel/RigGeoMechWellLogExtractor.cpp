@@ -61,6 +61,8 @@ RigGeoMechWellLogExtractor::RigGeoMechWellLogExtractor( gsl::not_null<RigGeoMech
 {
     calculateIntersection();
 
+    m_waterDepth = calculateWaterDepth();
+
     for ( RigWbsParameter parameter : RigWbsParameter::allParameters() )
     {
         m_parameterSources[parameter]  = parameter.sources().front();
@@ -121,6 +123,13 @@ QString RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAdd
         if ( m_wellPathGeometry->rkbDiff() == HUGE_VAL )
         {
             RiaLogging::error( "Well path has an invalid datum elevation and we cannot estimate TVDRKB. No well bore "
+                               "stability curves created." );
+            return "";
+        }
+
+        if ( !isValid( m_waterDepth ) )
+        {
+            RiaLogging::error( "Well path does not intersect with sea floor. No well bore "
                                "stability curves created." );
             return "";
         }
@@ -1405,7 +1414,6 @@ double RigGeoMechWellLogExtractor::hydroStaticPorePressureAtDepth( double effect
 double RigGeoMechWellLogExtractor::wbsCurveValuesAtMsl() const
 {
     double waterDensityGCM3 = m_userDefinedValues.at( RigWbsParameter::waterDensity() );
-    double waterDepth       = std::abs( m_wellPathGeometry->wellPathPoints().front().z() );
 
     double rkbDiff = m_wellPathGeometry->rkbDiff();
     if ( rkbDiff == std::numeric_limits<double>::infinity() )
@@ -1413,12 +1421,12 @@ double RigGeoMechWellLogExtractor::wbsCurveValuesAtMsl() const
         rkbDiff = 0.0;
     }
 
-    if ( waterDepth + rkbDiff < 1.0e-8 )
+    if ( m_waterDepth + rkbDiff < 1.0e-8 )
     {
         return waterDensityGCM3;
     }
 
-    return waterDensityGCM3 * waterDepth / ( waterDepth + rkbDiff );
+    return waterDensityGCM3 * m_waterDepth / ( m_waterDepth + rkbDiff );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1435,4 +1443,46 @@ bool RigGeoMechWellLogExtractor::isValid( double value )
 bool RigGeoMechWellLogExtractor::isValid( float value )
 {
     return value != std::numeric_limits<float>::infinity();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigGeoMechWellLogExtractor::calculateWaterDepth() const
+{
+    // Need a well path with intersections to generate a precise water depth
+    if ( m_intersectionTVDs.empty() || m_wellPathGeometry->wellPathPoints().empty() )
+    {
+        return std::numeric_limits<double>::infinity();
+    }
+
+    // Only calculate water depth if the well path starts outside the model.
+    cvf::BoundingBox boundingBox = m_caseData->femParts()->boundingBox();
+    if ( boundingBox.contains( m_wellPathGeometry->wellPathPoints().front() ) )
+    {
+        return std::numeric_limits<double>::infinity();
+    }
+
+    // Water depth is always the first intersection with model for geo mech models.
+    double waterDepth = m_intersectionTVDs.front();
+    return waterDepth;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigGeoMechWellLogExtractor::estimateWaterDepth() const
+{
+    // Estimate water depth using bounding box. This will be imprecise
+    // for models with a slanting top layer.
+    cvf::BoundingBox boundingBox = m_caseData->femParts()->boundingBox();
+    return std::abs( boundingBox.max().z() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigGeoMechWellLogExtractor::waterDepth() const
+{
+    return m_waterDepth;
 }

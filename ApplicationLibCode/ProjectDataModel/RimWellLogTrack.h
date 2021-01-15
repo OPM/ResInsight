@@ -293,8 +293,8 @@ private:
     void handleWheelEvent( QWheelEvent* event ) override;
     void doUpdateLayout() override;
 
-    std::vector<std::pair<double, double>> waterAndRockRegions( RiaDefines::DepthTypeEnum  depthType,
-                                                                const RigWellLogExtractor* extractor ) const;
+    std::vector<std::pair<double, double>> waterAndRockRegions( RiaDefines::DepthTypeEnum         depthType,
+                                                                const RigGeoMechWellLogExtractor* extractor ) const;
 
     void connectCurveSignals( RimWellLogCurve* curve );
 
