@@ -41,6 +41,8 @@ public:
     void   copyWbsParameters( const RimWbsParameters* wbsParameters );
     void   setCaseWellPathAndTimeStep( RimGeoMechCase* geoMechCase, RimWellPath* wellPath, int timeStep );
 
+    QString createAutoName() const override;
+
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
@@ -53,4 +55,5 @@ private:
 
 private:
     caf::PdmChildField<RimWbsParameters*> m_wbsParameters;
+    double                                m_waterDepth;
 };
