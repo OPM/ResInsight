@@ -21,6 +21,7 @@
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmProxyValueField.h"
 #include "cafSignal.h"
 
 namespace cvf
@@ -49,13 +50,16 @@ public:
     RimCellFilter();
     ~RimCellFilter() override;
 
-    QString                      name() const;
-    bool                         isActive() const;
+    QString name() const;
+    void    setName( QString filtername );
+
+    bool isActive() const;
+    void setActive( bool active );
+
     caf::AppEnum<FilterModeType> filterMode() const;
-    void                         setName( QString filtername );
-    void                         setActive( bool active );
     QString                      modeString() const;
-    bool                         propagateToSubGrids() const;
+
+    bool propagateToSubGrids() const;
 
     void setGridIndex( int gridIndex );
     int  gridIndex() const;
@@ -63,7 +67,8 @@ public:
     void updateIconState();
     void updateActiveState( bool isControlled );
 
-    virtual void updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter ) = 0;
+    virtual void    updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter ) = 0;
+    virtual QString fullName() const;
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;
@@ -77,8 +82,9 @@ protected:
                                                          bool*                      useOptionsOnly ) override;
 
     caf::PdmField<QString>                      m_name;
+    caf::PdmProxyValueField<QString>            m_nameProxy;
     caf::PdmField<bool>                         m_isActive;
     caf::PdmField<caf::AppEnum<FilterModeType>> m_filterMode;
     caf::PdmField<int>                          m_gridIndex;
-    caf::PdmField<bool>                         m_propagateToSubGrids; // Do propagate the effects to the sub-grids
+    caf::PdmField<bool>                         m_propagateToSubGrids;
 };

@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimUserDefinedFilter.h"
+
 #include "cvfStructGridGeometryGenerator.h"
 
 CAF_PDM_SOURCE_INIT( RimUserDefinedFilter, "UserDefinedFilter" );
@@ -43,6 +44,14 @@ RimUserDefinedFilter::RimUserDefinedFilter()
 //--------------------------------------------------------------------------------------------------
 RimUserDefinedFilter::~RimUserDefinedFilter()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimUserDefinedFilter::fullName() const
+{
+    return QString( "%1  [%2 cells]" ).arg( RimCellFilter::fullName(), QString::number( m_individualCellIndices().size() ) );
 }
 
 //--------------------------------------------------------------------------------------------------

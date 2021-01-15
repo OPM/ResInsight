@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2020 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -24,10 +24,9 @@
 
 class RimCellFilter;
 class RimCellRangeFilter;
-class RimPolylineFilter;
+class RimPolygonFilter;
 class RimUserDefinedFilter;
 class RimCase;
-class RigPolyLinesData;
 
 namespace cvf
 {
@@ -46,7 +45,7 @@ public:
     RimCellFilterCollection();
     ~RimCellFilterCollection() override;
 
-    RimPolylineFilter*    addNewPolylineFilter( RimCase* srcCase );
+    RimPolygonFilter*     addNewPolygonFilter( RimCase* srcCase );
     RimUserDefinedFilter* addNewUserDefinedFilter( RimCase* srcCase );
     RimCellRangeFilter*   addNewCellRangeFilter( RimCase* srcCase, int sliceDirection = -1, int defaultSlice = -1 );
 
@@ -78,6 +77,9 @@ protected:
     void                 onFilterUpdated( const SignalEmitter* emitter );
 
 private:
+    void setAutoName( RimCellFilter* pFilter );
+    void addFilter( RimCellFilter* pFilter );
+
     caf::PdmChildArrayField<RimCellFilter*> m_cellFilters;
     caf::PdmField<bool>                     m_isActive;
 

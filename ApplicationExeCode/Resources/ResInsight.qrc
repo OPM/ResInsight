@@ -223,13 +223,13 @@
         <file>Close.svg</file>
         <file>Refresh.svg</file>
         <file>CellFilter.png</file>
-        <file>CellFilter_Polyline.png</file>
         <file>FilterFunction.svg</file>
         <file>FilterParameter.svg</file>
         <file>ObjectiveFunction.svg</file>
         <file>ObjectiveFunctionCollection.svg</file>
         <file>ObjectiveFunctionWeight.svg</file>
         <file>CellFilter_UserDefined.png</file>
+        <file>CellFilter_Polygon.png</file>
     </qresource>
     <qresource prefix="/Shader">
         <file>fs_CellFace.glsl</file>

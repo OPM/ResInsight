@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimPolylineFilter.h"
+#include "RimPolygonFilter.h"
 
 #include "RigCellGeometryTools.h"
 #include "RigEclipseCaseData.h"
@@ -25,56 +25,59 @@
 #include "RigFemPartGrid.h"
 #include "RigGeoMechCaseData.h"
 #include "RigMainGrid.h"
-#include "RigPolyLinesData.h"
+
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimCellFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
 #include "RimPolylineTarget.h"
-#include "RiuViewerCommands.h"
+
 #include "WellPathCommands/PointTangentManipulator/RicPolyline3dEditor.h"
 #include "WellPathCommands/RicPolylineTargetsPickEventHandler.h"
+
+#include "RiuViewerCommands.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTreeOrdering.h"
+
 #include "cvfBoundingBox.h"
 #include "cvfStructGrid.h"
 
 namespace caf
 {
 template <>
-void caf::AppEnum<RimPolylineFilter::PolylineFilterModeType>::setUp()
+void caf::AppEnum<RimPolygonFilter::PolygonFilterModeType>::setUp()
 {
-    addItem( RimPolylineFilter::PolylineFilterModeType::DEPTH_Z, "DEPTH_Z", "Depth" );
-    addItem( RimPolylineFilter::PolylineFilterModeType::INDEX_K, "INDEX_K", "K index" );
-    setDefault( RimPolylineFilter::PolylineFilterModeType::INDEX_K );
+    addItem( RimPolygonFilter::PolygonFilterModeType::DEPTH_Z, "DEPTH_Z", "XY Position" );
+    addItem( RimPolygonFilter::PolygonFilterModeType::INDEX_K, "INDEX_K", "IJ Index" );
+    setDefault( RimPolygonFilter::PolygonFilterModeType::INDEX_K );
 }
 
 template <>
-void caf::AppEnum<RimPolylineFilter::PolylineIncludeType>::setUp()
+void caf::AppEnum<RimPolygonFilter::PolygonIncludeType>::setUp()
 {
-    addItem( RimPolylineFilter::PolylineIncludeType::FULL_CELL, "FULL_CELL", "Whole cell inside polygon" );
-    addItem( RimPolylineFilter::PolylineIncludeType::CENTER, "CENTER", "Cell center inside polygon" );
-    addItem( RimPolylineFilter::PolylineIncludeType::ANY, "ANY", "Any corner inside polygon" );
-    setDefault( RimPolylineFilter::PolylineIncludeType::CENTER );
+    addItem( RimPolygonFilter::PolygonIncludeType::FULL_CELL, "FULL_CELL", "Whole cell inside polygon" );
+    addItem( RimPolygonFilter::PolygonIncludeType::CENTER, "CENTER", "Cell center inside polygon" );
+    addItem( RimPolygonFilter::PolygonIncludeType::ANY, "ANY", "Any corner inside polygon" );
+    setDefault( RimPolygonFilter::PolygonIncludeType::CENTER );
 }
 
 } // namespace caf
 
-CAF_PDM_SOURCE_INIT( RimPolylineFilter, "PolyLineFilter" );
+CAF_PDM_SOURCE_INIT( RimPolygonFilter, "PolygonFilter", "PolyLineFilter" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPolylineFilter::RimPolylineFilter()
+RimPolygonFilter::RimPolygonFilter()
     : m_pickTargetsEventHandler( new RicPolylineTargetsPickEventHandler( this ) )
 {
-    CAF_PDM_InitObject( "Polyline Filter", ":/CellFilter_Polyline.png", "", "" );
+    CAF_PDM_InitObject( "Polyline Filter", ":/CellFilter_Polygon.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_polyFilterMode, "PolylineFilterType", "Depth Type", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_polyFilterMode, "PolygonFilterType", "Vertical Filter", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_polyIncludeType, "PolyIncludeType", "Cells to include", "", "", "" );
 
@@ -101,14 +104,14 @@ RimPolylineFilter::RimPolylineFilter()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPolylineFilter::~RimPolylineFilter()
+RimPolygonFilter::~RimPolygonFilter()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolylineFilter::updateVisualization()
+void RimPolygonFilter::updateVisualization()
 {
     updateCells();
     filterChanged.send();
@@ -117,7 +120,7 @@ void RimPolylineFilter::updateVisualization()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolylineFilter::initAfterRead()
+void RimPolygonFilter::initAfterRead()
 {
     resolveReferencesRecursively();
 }
@@ -125,7 +128,7 @@ void RimPolylineFilter::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolylineFilter::updateEditorsAndVisualization()
+void RimPolygonFilter::updateEditorsAndVisualization()
 {
     updateConnectedEditors();
     updateVisualization();
@@ -134,7 +137,7 @@ void RimPolylineFilter::updateEditorsAndVisualization()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolylineFilter::setCase( RimCase* srcCase )
+void RimPolygonFilter::setCase( RimCase* srcCase )
 {
     m_srcCase = srcCase;
 }
@@ -142,7 +145,15 @@ void RimPolylineFilter::setCase( RimCase* srcCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimPolylineTarget*> RimPolylineFilter::activeTargets() const
+QString RimPolygonFilter::fullName() const
+{
+    return QString( "%1  [%2 cells]" ).arg( RimCellFilter::fullName(), QString::number( m_cells.size() ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPolylineTarget*> RimPolygonFilter::activeTargets() const
 {
     return m_targets.childObjects();
 }
@@ -150,7 +161,7 @@ std::vector<RimPolylineTarget*> RimPolylineFilter::activeTargets() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolylineFilter::insertTarget( const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert )
+void RimPolygonFilter::insertTarget( const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert )
 {
     size_t index = m_targets.index( targetToInsertBefore );
     if ( index < m_targets.size() )
@@ -164,9 +175,18 @@ void RimPolylineFilter::insertTarget( const RimPolylineTarget* targetToInsertBef
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolylineFilter::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                               QString                    uiConfigName,
-                                               caf::PdmUiEditorAttribute* attribute )
+void RimPolygonFilter::deleteTarget( RimPolylineTarget* targetToDelete )
+{
+    m_targets.removeChildObject( targetToDelete );
+    delete targetToDelete;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonFilter::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                              QString                    uiConfigName,
+                                              caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_enablePicking )
     {
@@ -203,7 +223,21 @@ void RimPolylineFilter::defineEditorAttribute( const caf::PdmFieldHandle* field,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolylineFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimPolygonFilter::defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu,
+                                                QMenu*                     menu,
+                                                QWidget*                   fieldEditorWidget )
+{
+    caf::CmdFeatureMenuBuilder menuBuilder;
+
+    menuBuilder << "RicDeletePolylineTargetFeature";
+
+    menuBuilder.appendToMenu( menu );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     RimCellFilter::defineUiOrdering( uiConfigName, uiOrdering );
 
@@ -220,9 +254,9 @@ void RimPolylineFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolylineFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                          const QVariant&            oldValue,
-                                          const QVariant&            newValue )
+void RimPolygonFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                         const QVariant&            oldValue,
+                                         const QVariant&            newValue )
 {
     if ( changedField == &m_enablePicking )
     {
@@ -231,11 +265,6 @@ void RimPolylineFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
         if ( m_enablePicking() )
         {
             setActive( false );
-        }
-        else
-        {
-            setActive( true );
-            updateCells();
             filterChanged.send();
         }
     }
@@ -250,7 +279,7 @@ void RimPolylineFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolylineFilter::enablePicking( bool enable )
+void RimPolygonFilter::enablePicking( bool enable )
 {
     m_enablePicking = enable;
     updateConnectedEditors();
@@ -259,7 +288,7 @@ void RimPolylineFilter::enablePicking( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimPolylineFilter::pickingEnabled() const
+bool RimPolygonFilter::pickingEnabled() const
 {
     return m_enablePicking();
 }
@@ -267,7 +296,7 @@ bool RimPolylineFilter::pickingEnabled() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PickEventHandler* RimPolylineFilter::pickEventHandler() const
+caf::PickEventHandler* RimPolygonFilter::pickEventHandler() const
 {
     return m_pickTargetsEventHandler.get();
 }
@@ -275,7 +304,7 @@ caf::PickEventHandler* RimPolylineFilter::pickEventHandler() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolylineFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter )
+void RimPolygonFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter )
 {
     CVF_ASSERT( cellRangeFilter );
 
@@ -301,14 +330,14 @@ void RimPolylineFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeFilt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimPolylineFilter::cellInsidePolygon2D( cvf::Vec3d                 center,
-                                             std::array<cvf::Vec3d, 8>& corners,
-                                             std::vector<cvf::Vec3d>    polygon )
+bool RimPolygonFilter::cellInsidePolygon2D( cvf::Vec3d                 center,
+                                            std::array<cvf::Vec3d, 8>& corners,
+                                            std::vector<cvf::Vec3d>    polygon )
 {
     bool bInside = false;
     switch ( m_polyIncludeType() )
     {
-        case PolylineIncludeType::ANY:
+        case PolygonIncludeType::ANY:
             // any part of the cell is inside
             for ( const auto& point : corners )
             {
@@ -316,11 +345,11 @@ bool RimPolylineFilter::cellInsidePolygon2D( cvf::Vec3d                 center,
             }
             break;
 
-        case PolylineIncludeType::CENTER:
+        case PolygonIncludeType::CENTER:
             // cell center is inside
             return RigCellGeometryTools::pointInsidePolygon2D( center, polygon );
 
-        case PolylineIncludeType::FULL_CELL:
+        case PolygonIncludeType::FULL_CELL:
             // entire cell is inside
             bInside = true;
             for ( const auto& point : corners )
@@ -336,7 +365,7 @@ bool RimPolylineFilter::cellInsidePolygon2D( cvf::Vec3d                 center,
     return bInside;
 }
 
-void RimPolylineFilter::updateCellsDepthEclipse( const std::vector<cvf::Vec3d>& points, const RigMainGrid* grid )
+void RimPolygonFilter::updateCellsDepthEclipse( const std::vector<cvf::Vec3d>& points, const RigMainGrid* grid )
 {
     // we should look in depth using Z coordinate
     // loop over all cells
@@ -364,7 +393,7 @@ void RimPolylineFilter::updateCellsDepthEclipse( const std::vector<cvf::Vec3d>& 
 // 2. find all cells in this K layer that matches the selection criteria
 // 3. extend those cells to all K layers
 //--------------------------------------------------------------------------------------------------
-void RimPolylineFilter::updateCellsKIndexEclipse( const std::vector<cvf::Vec3d>& points, const RigMainGrid* grid )
+void RimPolygonFilter::updateCellsKIndexEclipse( const std::vector<cvf::Vec3d>& points, const RigMainGrid* grid )
 {
     // we need to find the K layer we hit with the first point
     size_t ni, nj, nk;
@@ -445,7 +474,7 @@ void RimPolylineFilter::updateCellsKIndexEclipse( const std::vector<cvf::Vec3d>&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolylineFilter::updateCellsForEclipse( const std::vector<cvf::Vec3d>& points, RimEclipseCase* eCase )
+void RimPolygonFilter::updateCellsForEclipse( const std::vector<cvf::Vec3d>& points, RimEclipseCase* eCase )
 {
     RigEclipseCaseData* data = eCase->eclipseCaseData();
     if ( !data ) return;
@@ -453,11 +482,11 @@ void RimPolylineFilter::updateCellsForEclipse( const std::vector<cvf::Vec3d>& po
     RigMainGrid* grid = data->mainGrid();
     if ( !grid ) return;
 
-    if ( m_polyFilterMode == PolylineFilterModeType::DEPTH_Z )
+    if ( m_polyFilterMode == PolygonFilterModeType::DEPTH_Z )
     {
         updateCellsDepthEclipse( points, grid );
     }
-    else if ( m_polyFilterMode == PolylineFilterModeType::INDEX_K )
+    else if ( m_polyFilterMode == PolygonFilterModeType::INDEX_K )
     {
         updateCellsKIndexEclipse( points, grid );
     }
@@ -466,7 +495,7 @@ void RimPolylineFilter::updateCellsForEclipse( const std::vector<cvf::Vec3d>& po
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolylineFilter::updateCellsDepthGeoMech( const std::vector<cvf::Vec3d>& points, const RigFemPartGrid* grid )
+void RimPolygonFilter::updateCellsDepthGeoMech( const std::vector<cvf::Vec3d>& points, const RigFemPartGrid* grid )
 {
     // we should look in depth using Z coordinate
     // loop over all cells
@@ -503,7 +532,7 @@ void RimPolylineFilter::updateCellsDepthGeoMech( const std::vector<cvf::Vec3d>& 
 // 2. find all cells in this K layer that matches the selection criteria
 // 3. extend those cells to all K layers
 //--------------------------------------------------------------------------------------------------
-void RimPolylineFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& points, const RigFemPartGrid* grid )
+void RimPolygonFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& points, const RigFemPartGrid* grid )
 {
     // we need to find the K layer we hit with the first point
     size_t nk;
@@ -589,17 +618,17 @@ void RimPolylineFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolylineFilter::updateCellsForGeoMech( const std::vector<cvf::Vec3d>& points, RimGeoMechCase* gCase )
+void RimPolygonFilter::updateCellsForGeoMech( const std::vector<cvf::Vec3d>& points, RimGeoMechCase* gCase )
 {
     if ( gCase->geoMechData() && gCase->geoMechData()->femParts()->partCount() > 0 )
     {
         const RigFemPartGrid* grid = gCase->geoMechData()->femParts()->part( 0 )->getOrCreateStructGrid();
 
-        if ( m_polyFilterMode == PolylineFilterModeType::DEPTH_Z )
+        if ( m_polyFilterMode == PolygonFilterModeType::DEPTH_Z )
         {
             updateCellsDepthGeoMech( points, grid );
         }
-        else if ( m_polyFilterMode == PolylineFilterModeType::INDEX_K )
+        else if ( m_polyFilterMode == PolygonFilterModeType::INDEX_K )
         {
             updateCellsKIndexGeoMech( points, grid );
         }
@@ -609,7 +638,7 @@ void RimPolylineFilter::updateCellsForGeoMech( const std::vector<cvf::Vec3d>& po
 //--------------------------------------------------------------------------------------------------
 ///  Update the cell index list with the cells that are inside our polygon, if any
 //--------------------------------------------------------------------------------------------------
-void RimPolylineFilter::updateCells()
+void RimPolygonFilter::updateCells()
 {
     // reset
     m_cells.clear();

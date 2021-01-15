@@ -44,32 +44,33 @@ class RigFemPartGrid;
 ///
 ///
 //==================================================================================================
-class RimPolylineFilter : public RimCellFilter, public RimPolylinePickerInterface
+class RimPolygonFilter : public RimCellFilter, public RimPolylinePickerInterface
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum class PolylineFilterModeType
+    enum class PolygonFilterModeType
     {
         DEPTH_Z,
         INDEX_K
     };
 
-    enum class PolylineIncludeType
+    enum class PolygonIncludeType
     {
         FULL_CELL,
         CENTER,
         ANY
     };
 
-    RimPolylineFilter();
-    ~RimPolylineFilter() override;
+    RimPolygonFilter();
+    ~RimPolygonFilter() override;
 
     void setCase( RimCase* srcCase );
 
     void updateVisualization() override;
     void updateEditorsAndVisualization() override;
     void insertTarget( const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert ) override;
+    void deleteTarget( RimPolylineTarget* targetToDelete ) override;
     void enablePicking( bool enable );
 
     std::vector<RimPolylineTarget*> activeTargets() const override;
@@ -83,7 +84,10 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void initAfterRead() override;
 
+    QString fullName() const override;
+
 private:
+    void defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
@@ -99,11 +103,11 @@ private:
 
     bool cellInsidePolygon2D( cvf::Vec3d center, std::array<cvf::Vec3d, 8>& corners, std::vector<cvf::Vec3d> polygon );
 
-    caf::PdmField<bool>                                 m_enablePicking;
-    caf::PdmChildArrayField<RimPolylineTarget*>         m_targets;
-    caf::PdmField<caf::AppEnum<PolylineFilterModeType>> m_polyFilterMode;
-    caf::PdmField<caf::AppEnum<PolylineIncludeType>>    m_polyIncludeType;
-    caf::PdmPtrField<RimCase*>                          m_srcCase;
+    caf::PdmField<bool>                                m_enablePicking;
+    caf::PdmChildArrayField<RimPolylineTarget*>        m_targets;
+    caf::PdmField<caf::AppEnum<PolygonFilterModeType>> m_polyFilterMode;
+    caf::PdmField<caf::AppEnum<PolygonIncludeType>>    m_polyIncludeType;
+    caf::PdmPtrField<RimCase*>                         m_srcCase;
 
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
 

@@ -40,8 +40,9 @@ public:
     void updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter ) override;
 
 protected:
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void    defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void    fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    QString fullName() const override;
 
 private:
     caf::PdmField<std::vector<cvf::Vec3d>> m_individualCellIndices;

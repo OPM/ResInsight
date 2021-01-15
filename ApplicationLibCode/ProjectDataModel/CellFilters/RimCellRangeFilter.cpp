@@ -72,6 +72,39 @@ RimCellRangeFilter::~RimCellRangeFilter()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimCellRangeFilter::fullName() const
+{
+    QString postfix;
+    if ( ( cellCountI == 1 ) && ( cellCountJ > 1 ) && ( cellCountK > 1 ) )
+    {
+        postfix = QString( "I-slice %1" ).arg( QString::number( startIndexI ) );
+    }
+    else if ( ( cellCountJ == 1 ) && ( cellCountI > 1 ) && ( cellCountK > 1 ) )
+    {
+        postfix = QString( "J-slice %1" ).arg( QString::number( startIndexJ ) );
+    }
+    else if ( ( cellCountK == 1 ) && ( cellCountI > 1 ) && ( cellCountJ > 1 ) )
+    {
+        postfix = QString( "K-slice %1" ).arg( QString::number( startIndexK ) );
+    }
+    else
+    {
+        QString irange =
+            QString( "I=%1-%2" ).arg( QString::number( startIndexI ), QString::number( startIndexI + cellCountI - 1 ) );
+        QString jrange =
+            QString( "J=%1-%2" ).arg( QString::number( startIndexJ ), QString::number( startIndexJ + cellCountJ - 1 ) );
+        QString krange =
+            QString( "K=%1-%2" ).arg( QString::number( startIndexK ), QString::number( startIndexK + cellCountK - 1 ) );
+
+        postfix = QString( "%1 %2 %3" ).arg( irange, jrange, krange );
+    }
+
+    return QString( "%1 [%2]" ).arg( RimCellFilter::fullName(), postfix );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimCellRangeFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                            const QVariant&            oldValue,
                                            const QVariant&            newValue )
@@ -99,7 +132,6 @@ void RimCellRangeFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
     if ( changedField != &m_name )
     {
         computeAndSetValidValues();
-
         filterChanged.send();
     }
 }

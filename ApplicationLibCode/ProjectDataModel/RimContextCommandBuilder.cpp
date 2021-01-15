@@ -945,7 +945,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimCellFilterCollection*>( firstUiItem ) )
         {
-            menuBuilder << "RicNewPolylineFilterFeature";
+            menuBuilder << "RicNewPolygonFilterFeature";
             menuBuilder << "RicNewUserDefinedFilterFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicNewCellRangeFilterFeature";

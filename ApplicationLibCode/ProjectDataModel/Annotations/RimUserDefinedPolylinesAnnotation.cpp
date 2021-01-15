@@ -142,10 +142,10 @@ void RimUserDefinedPolylinesAnnotation::insertTarget( const RimPolylineTarget* t
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimUserDefinedPolylinesAnnotation::deleteTarget( RimPolylineTarget* targetTodelete )
+void RimUserDefinedPolylinesAnnotation::deleteTarget( RimPolylineTarget* targetToDelete )
 {
-    m_targets.removeChildObject( targetTodelete );
-    delete targetTodelete;
+    m_targets.removeChildObject( targetToDelete );
+    delete targetToDelete;
 }
 
 //--------------------------------------------------------------------------------------------------
