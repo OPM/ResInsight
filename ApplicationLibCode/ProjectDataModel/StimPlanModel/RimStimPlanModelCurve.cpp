@@ -32,6 +32,7 @@
 #include "RimStimPlanModel.h"
 #include "RimStimPlanModelCalculator.h"
 #include "RimStimPlanModelPlot.h"
+#include "RimWellLogTrack.h"
 
 #include "RiuQwtPlotCurve.h"
 #include "RiuQwtPlotWidget.h"
@@ -158,6 +159,13 @@ void RimStimPlanModelCurve::performDataExtraction( bool* isUsingPseudoLength )
     bool performDataSmoothing = false;
     if ( !values.empty() && !measuredDepthValues.empty() && measuredDepthValues.size() == values.size() )
     {
+        RimWellLogTrack* track = nullptr;
+        firstAncestorOfType( track );
+        if ( track && track->isLogarithmicScale() )
+        {
+            filterInvalidValuesForLogarithmicScale( values );
+        }
+
         this->setValuesWithMdAndTVD( values, measuredDepthValues, tvDepthValues, rkbDiff, depthUnit, !performDataSmoothing, xUnits );
     }
 }
@@ -171,4 +179,18 @@ QString RimStimPlanModelCurve::createCurveAutoName()
     textWithLineFeed.replace( " ", "\n" );
 
     return textWithLineFeed;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStimPlanModelCurve::filterInvalidValuesForLogarithmicScale( std::vector<double>& values )
+{
+    for ( double& v : values )
+    {
+        if ( v <= 0.0 )
+        {
+            v = RiaDefines::zeroReplacementForLogarithmicPlot();
+        }
+    }
 }

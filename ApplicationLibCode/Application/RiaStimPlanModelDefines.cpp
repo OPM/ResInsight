@@ -69,4 +69,10 @@ double defaultPermeability()
 {
     return 1.0e-5;
 }
+
+double zeroReplacementForLogarithmicPlot()
+{
+    return 1.0e-5;
+}
+
 }; // namespace RiaDefines

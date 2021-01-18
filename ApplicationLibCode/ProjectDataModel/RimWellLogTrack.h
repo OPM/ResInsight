@@ -190,6 +190,7 @@ public:
     caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const override;
 
     void setLogarithmicScale( bool enable );
+    bool isLogarithmicScale() const;
 
     std::map<int, std::vector<RimWellLogCurve*>> visibleStackedCurves();
 

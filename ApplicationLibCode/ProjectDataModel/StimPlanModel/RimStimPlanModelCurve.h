@@ -53,6 +53,8 @@ protected:
 
     QString createCurveAutoName();
 
+    static void filterInvalidValuesForLogarithmicScale( std::vector<double>& values );
+
     caf::PdmPtrField<RimStimPlanModel*>                    m_stimPlanModel;
     caf::PdmField<caf::AppEnum<RiaDefines::CurveProperty>> m_curveProperty;
 };
