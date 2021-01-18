@@ -162,7 +162,9 @@ protected:
 
     bool isShowingActiveCellsOnly() override;
     void onUpdateDisplayModelForCurrentTimeStep() override;
-    void updateVisibleGeometriesAndCellColors();
+    void updateVisibleCellColors();
+    void updateVisibleGeometries();
+
     void appendWellsAndFracturesToModel();
     void appendElementVectorResultToModel();
 
