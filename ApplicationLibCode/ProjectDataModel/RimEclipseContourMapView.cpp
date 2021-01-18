@@ -241,7 +241,8 @@ void RimEclipseContourMapView::updateGeometry()
 {
     caf::ProgressInfo progress( 100, "Generate Contour Map", true );
 
-    this->updateVisibleGeometriesAndCellColors();
+    updateVisibleGeometries();
+    updateVisibleCellColors();
 
     { // Step 1: generate results and some minor updates. About 30% of the time.
         if ( m_contourMapProjection->isChecked() )

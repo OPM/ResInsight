@@ -691,9 +691,11 @@ void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
 
     m_propertyFilterCollection()->updateFromCurrentTimeStep();
 
+    updateVisibleGeometries();
+
     onUpdateLegends(); // To make sure the scalar mappers are set up correctly
 
-    updateVisibleGeometriesAndCellColors();
+    updateVisibleCellColors();
 
     wellCollection()->scaleWellDisks();
 
@@ -713,23 +715,16 @@ void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::updateVisibleGeometriesAndCellColors()
+void RimEclipseView::updateVisibleGeometries()
 {
-    std::vector<RivCellSetEnum> geometriesToRecolor;
+    if ( this->viewController() && this->viewController()->isVisibleCellsOveridden() ) return;
 
-    if ( this->viewController() && this->viewController()->isVisibleCellsOveridden() )
-    {
-        geometriesToRecolor.push_back( OVERRIDDEN_CELL_VISIBILITY );
-    }
-    else if ( this->eclipsePropertyFilterCollection()->hasActiveFilters() )
+    if ( this->eclipsePropertyFilterCollection()->hasActiveFilters() )
     {
         cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
         frameParts->setName( "GridModel" );
 
         std::vector<size_t> gridIndices = this->indicesToVisibleGrids();
-
-        geometriesToRecolor.push_back( PROPERTY_FILTERED );
-        geometriesToRecolor.push_back( PROPERTY_FILTERED_WELL_CELLS );
 
         if ( isGridVisualizationMode() )
         {
@@ -748,7 +743,11 @@ void RimEclipseView::updateVisibleGeometriesAndCellColors()
             m_reservoirGridPartManager->ensureDynamicGeometryPartsCreated( PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep );
         }
 
-        setVisibleGridParts( geometriesToRecolor );
+        std::vector<RivCellSetEnum> visibleGridParts;
+        visibleGridParts.push_back( PROPERTY_FILTERED );
+        visibleGridParts.push_back( PROPERTY_FILTERED_WELL_CELLS );
+
+        setVisibleGridParts( visibleGridParts );
         setVisibleGridPartsWatertight();
 
         std::set<RivCellSetEnum> faultGeometryTypesToAppend = allVisibleFaultGeometryTypes();
@@ -823,6 +822,24 @@ void RimEclipseView::updateVisibleGeometriesAndCellColors()
                 frameParts->updateBoundingBoxesRecursive();
             }
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView::updateVisibleCellColors()
+{
+    std::vector<RivCellSetEnum> geometriesToRecolor;
+
+    if ( this->viewController() && this->viewController()->isVisibleCellsOveridden() )
+    {
+        geometriesToRecolor.push_back( OVERRIDDEN_CELL_VISIBILITY );
+    }
+    else if ( this->eclipsePropertyFilterCollection()->hasActiveFilters() )
+    {
+        geometriesToRecolor.push_back( PROPERTY_FILTERED );
+        geometriesToRecolor.push_back( PROPERTY_FILTERED_WELL_CELLS );
     }
     else if ( this->cellFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells() )
     {
