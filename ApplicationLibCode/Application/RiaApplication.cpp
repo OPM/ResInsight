@@ -1798,24 +1798,18 @@ bool RiaApplication::generateCode( const QString& fileName, gsl::not_null<QStrin
             QTextStream out( &outputFile );
 
             {
-                out << "+++ \n";
-                out << "title =  \"Command Reference (BETA)\" \n";
-                out << "published = true \n";
-                out << "weight = 96 \n";
-                out << "+++ \n";
+                out << "As the Python interface is growing release by release, we are investigating how to automate "
+                       "the building of reference documentation. This document is not complete, "
+                       "but will improve as the automation moves forward.\n\n";
 
-                out << "# Introduction\n\n";
-                out << "As the Python interface is growing release by release, we are investigating how to "
-                       "automate "
-                       "the building of reference documentation. This document is not complete, but will improve "
-                       "as "
-                       "the automation "
-                       "moves forward.\n";
+                out << "More details on the command file operations, see "
+                       "https://resinsight.org/scripting/commandfile/\n\n";
 
-                out << "## Currently missing features\n\n";
-                out << " - Description of enums\n";
-                out << " - Description of return values/classes\n";
-                out << " - Description of each object\n";
+                // TODO
+                //                 out << "## Currently missing features\n\n";
+                //                 out << " - Description of enums\n";
+                //                 out << " - Description of return values/classes\n";
+                //                 out << " - Description of each object\n\n";
             }
 
             std::vector<std::shared_ptr<const caf::PdmObject>> commandObjects;
@@ -1823,7 +1817,7 @@ bool RiaApplication::generateCode( const QString& fileName, gsl::not_null<QStrin
             QStringList excludedClassNames{ "TestCommand1", "TC2" }; // See RifCommandCore-Text.cpp
 
             auto allObjects = caf::PdmMarkdownBuilder::createAllObjects( caf::PdmDefaultObjectFactory::instance() );
-            for ( auto classObject : allObjects )
+            for ( const auto& classObject : allObjects )
             {
                 if ( dynamic_cast<const RicfCommandObject*>( classObject.get() ) )
                 {
