@@ -591,7 +591,7 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         m_explicitTickIntervals.uiCapability()->setUiHidden( m_isLogarithmicScaleEnabled() );
 
         updateXZoom();
-        m_plotWidget->scheduleReplot();
+        loadDataAndUpdate();
     }
     else if ( changedField == &m_regionAnnotationType || changedField == &m_regionAnnotationDisplay ||
               changedField == &m_formationSource || changedField == &m_colorShadingTransparency ||
@@ -2063,6 +2063,14 @@ void RimWellLogTrack::setLogarithmicScale( bool enable )
 
     updateAxisScaleEngine();
     computeAndSetXRangeMinForLogarithmicScale();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogTrack::isLogarithmicScale() const
+{
+    return m_isLogarithmicScaleEnabled;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -56,5 +56,6 @@ enum class CurveProperty
 
 double defaultPorosity();
 double defaultPermeability();
+double zeroReplacementForLogarithmicPlot();
 
 }; // namespace RiaDefines
