@@ -246,7 +246,6 @@ RimPolygonFilter* RimCellFilterCollection::addNewPolygonFilter( RimCase* srcCase
 {
     RimPolygonFilter* pFilter = new RimPolygonFilter();
     pFilter->setCase( srcCase );
-    pFilter->setActive( false );
     addFilter( pFilter );
     onFilterUpdated( pFilter );
     return pFilter;

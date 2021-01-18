@@ -94,6 +94,10 @@ RimPolygonFilter::RimPolygonFilter()
     CAF_PDM_InitFieldNoDefault( &m_srcCase, "Case", "Case", "", "", "" );
     m_srcCase.uiCapability()->setUiHidden( true );
 
+    CAF_PDM_InitField( &m_showPolylines, "ShowPolylines", true, "Show Polygon", "", "", "" );
+
+    CAF_PDM_InitField( &m_enableFiltering, "EnableFiltering", false, "Enable Cell Filter", "", "", "" );
+
     this->setUi3dEditorTypeName( RicPolyline3dEditor::uiEditorTypeName() );
     this->uiCapability()->setUiTreeChildrenHidden( true );
 
@@ -145,9 +149,21 @@ void RimPolygonFilter::setCase( RimCase* srcCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygonFilter::enableFilter( bool bEnable )
+{
+    m_enableFiltering = bEnable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimPolygonFilter::fullName() const
 {
-    return QString( "%1  [%2 cells]" ).arg( RimCellFilter::fullName(), QString::number( m_cells.size() ) );
+    if ( m_enableFiltering )
+    {
+        return QString( "%1  [%2 cells]" ).arg( RimCellFilter::fullName(), QString::number( m_cells.size() ) );
+    }
+    return QString( "%1  [off]" ).arg( RimCellFilter::fullName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -241,10 +257,15 @@ void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 {
     RimCellFilter::defineUiOrdering( uiConfigName, uiOrdering );
 
-    uiOrdering.add( &m_polyFilterMode );
-    uiOrdering.add( &m_polyIncludeType );
-    uiOrdering.add( &m_targets );
-    uiOrdering.add( &m_enablePicking );
+    auto group1 = uiOrdering.addNewGroup( "Visualization" );
+    group1->add( &m_showPolylines );
+    group1->add( &m_enableFiltering );
+
+    auto group2 = uiOrdering.addNewGroup( "Polygon Selection" );
+    group2->add( &m_polyFilterMode );
+    group2->add( &m_polyIncludeType );
+    group2->add( &m_targets );
+    group2->add( &m_enablePicking );
 
     m_polyIncludeType.uiCapability()->setUiName( "Cells to " + modeString() );
 
@@ -264,7 +285,7 @@ void RimPolygonFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 
         if ( m_enablePicking() )
         {
-            setActive( false );
+            enableFilter( false );
             filterChanged.send();
         }
     }
@@ -307,6 +328,8 @@ caf::PickEventHandler* RimPolygonFilter::pickEventHandler() const
 void RimPolygonFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter )
 {
     CVF_ASSERT( cellRangeFilter );
+
+    if ( !m_enableFiltering ) return;
 
     if ( m_cells.size() == 0 ) updateCells();
 

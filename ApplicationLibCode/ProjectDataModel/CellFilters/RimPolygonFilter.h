@@ -66,6 +66,7 @@ public:
     ~RimPolygonFilter() override;
 
     void setCase( RimCase* srcCase );
+    void enableFilter( bool bEnable );
 
     void updateVisualization() override;
     void updateEditorsAndVisualization() override;
@@ -108,6 +109,8 @@ private:
     caf::PdmField<caf::AppEnum<PolygonFilterModeType>> m_polyFilterMode;
     caf::PdmField<caf::AppEnum<PolygonIncludeType>>    m_polyIncludeType;
     caf::PdmPtrField<RimCase*>                         m_srcCase;
+    caf::PdmField<bool>                                m_showPolylines;
+    caf::PdmField<bool>                                m_enableFiltering;
 
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
 
