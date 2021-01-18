@@ -27,6 +27,7 @@ class RimCellRangeFilter;
 class RimPolygonFilter;
 class RimUserDefinedFilter;
 class RimCase;
+class RimEclipseCase;
 
 namespace cvf
 {
@@ -67,6 +68,8 @@ public:
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
     void connectToFilterUpdates( RimCellFilter* filter );
+
+    void setEclipseCase( RimEclipseCase* eclipseCase );
 
 protected:
     // Overridden methods

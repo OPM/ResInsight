@@ -23,6 +23,7 @@
 #include "RimCase.h"
 #include "RimCellFilter.h"
 #include "RimCellRangeFilter.h"
+#include "RimEclipseCase.h"
 #include "RimGeoMechView.h"
 #include "RimPolygonFilter.h"
 #include "RimUserDefinedFilter.h"
@@ -86,6 +87,18 @@ void RimCellFilterCollection::setActive( bool bActive )
 {
     m_isActive = bActive;
     updateIconState();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCellFilterCollection::setEclipseCase( RimEclipseCase* eclipseCase )
+{
+    for ( RimCellFilter* filter : m_cellFilters )
+    {
+        RimPolygonFilter* polyFilter = dynamic_cast<RimPolygonFilter*>( filter );
+        if ( polyFilter ) polyFilter->setCase( eclipseCase );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
