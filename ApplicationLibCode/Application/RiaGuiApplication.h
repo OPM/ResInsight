@@ -123,9 +123,6 @@ public:
     bool isMain3dWindowVisible() const;
     bool isMainPlotWindowVisible() const;
 
-    void closeMainWindowIfOpenButHidden();
-    void closeMainPlotWindowIfOpenButHidden();
-
     std::vector<QAction*> recentFileActions() const;
 
     static void clearAllSelections();
@@ -163,7 +160,6 @@ private:
 
     void createMainWindow();
     void deleteMainWindow();
-
     void createMainPlotWindow();
     void deleteMainPlotWindow();
 
@@ -173,10 +169,11 @@ private:
 
 private slots:
     void slotWorkerProcessFinished( int exitCode, QProcess::ExitStatus exitStatus );
+    void onLastWindowClosed();
 
 private:
-    RiuMainWindow*     m_mainWindow;
-    RiuPlotMainWindow* m_mainPlotWindow;
+    QPointer<RiuMainWindow>     m_mainWindow;
+    QPointer<RiuPlotMainWindow> m_mainPlotWindow;
 
     std::unique_ptr<RiuRecentFileActionProvider> m_recentFileActionProvider;
 

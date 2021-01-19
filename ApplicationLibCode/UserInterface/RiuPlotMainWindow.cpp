@@ -197,26 +197,18 @@ void RiuPlotMainWindow::cleanUpTemporaryWidgets()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::closeEvent( QCloseEvent* event )
 {
-    this->saveWinGeoAndDockToolBarLayout();
-
     RiaGuiApplication* app = RiaGuiApplication::instance();
-
-    if ( app->isMain3dWindowVisible() )
+    if ( !app->isMain3dWindowVisible() )
     {
-        event->ignore();
-        this->hide();
-        return;
+        if ( !app->askUserToSaveModifiedProject() )
+        {
+            event->ignore();
+            return;
+        }
     }
-
-    if ( !app->askUserToSaveModifiedProject() )
-    {
-        event->ignore();
-        return;
-    }
-
+    this->saveWinGeoAndDockToolBarLayout();
     this->hideAllDockWidgets();
-    app->closeMainWindowIfOpenButHidden();
-    app->closeProject();
+    QMainWindow::closeEvent( event );
 }
 
 //--------------------------------------------------------------------------------------------------

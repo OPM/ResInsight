@@ -189,6 +189,8 @@ RiaGuiApplication::RiaGuiApplication( int& argc, char** argv )
     setWindowIcon( QIcon( ":/AppLogo48x48.png" ) );
 
     m_recentFileActionProvider = std::make_unique<RiuRecentFileActionProvider>();
+
+    connect( this, SIGNAL( lastWindowClosed() ), SLOT( onLastWindowClosed() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -972,7 +974,6 @@ void RiaGuiApplication::createMainPlotWindow()
     CVF_ASSERT( m_mainPlotWindow == nullptr );
 
     m_mainPlotWindow = new RiuPlotMainWindow;
-
     m_mainPlotWindow->setWindowTitle( "Plots - ResInsight" );
     m_mainPlotWindow->setDefaultWindowSize();
     m_mainPlotWindow->loadWinGeoAndDockToolBarLayout();
@@ -1104,28 +1105,6 @@ bool RiaGuiApplication::isMain3dWindowVisible() const
 bool RiaGuiApplication::isMainPlotWindowVisible() const
 {
     return m_mainPlotWindow && m_mainPlotWindow->isVisible();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaGuiApplication::closeMainWindowIfOpenButHidden()
-{
-    if ( m_mainWindow && !m_mainWindow->isVisible() )
-    {
-        m_mainWindow->close();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaGuiApplication::closeMainPlotWindowIfOpenButHidden()
-{
-    if ( m_mainPlotWindow && !m_mainPlotWindow->isVisible() )
-    {
-        m_mainPlotWindow->close();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1633,6 +1612,15 @@ void RiaGuiApplication::slotWorkerProcessFinished( int exitCode, QProcess::ExitS
         m_currentScriptCaseId  = -1;
         m_runningWorkerProcess = false;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaGuiApplication::onLastWindowClosed()
+{
+    closeProject();
+    quit();
 }
 
 //--------------------------------------------------------------------------------------------------
