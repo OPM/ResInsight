@@ -69,7 +69,7 @@ public:
 
     void connectToFilterUpdates( RimCellFilter* filter );
 
-    void setEclipseCase( RimEclipseCase* eclipseCase );
+    void setCase( RimCase* theCase );
 
 protected:
     // Overridden methods

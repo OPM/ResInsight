@@ -1518,7 +1518,7 @@ void RimEclipseView::setEclipseCase( RimEclipseCase* reservoir )
     m_eclipseCase = reservoir;
     cellResult()->setEclipseCase( reservoir );
     faultResultSettings()->customFaultResult()->setEclipseCase( reservoir );
-    cellFilterCollection()->setEclipseCase( reservoir );
+    cellFilterCollection()->setCase( reservoir );
 
     cellEdgeResult()->setEclipseCase( reservoir );
 }

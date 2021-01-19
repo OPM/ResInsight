@@ -92,12 +92,12 @@ void RimCellFilterCollection::setActive( bool bActive )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCellFilterCollection::setEclipseCase( RimEclipseCase* eclipseCase )
+void RimCellFilterCollection::setCase( RimCase* theCase )
 {
     for ( RimCellFilter* filter : m_cellFilters )
     {
         RimPolygonFilter* polyFilter = dynamic_cast<RimPolygonFilter*>( filter );
-        if ( polyFilter ) polyFilter->setCase( eclipseCase );
+        if ( polyFilter ) polyFilter->setCase( theCase );
     }
 }
 
