@@ -120,6 +120,10 @@ void RicNewContourMapViewFeature::onActionTriggered( bool isChecked )
         // Must be run before buildViewItems, as wells are created in this function
         eclipseContourMap->loadDataAndUpdate();
 
+        // make sure no surfaces are shown in the view when the contourmap is generated
+        if ( eclipseContourMap->surfaceInViewCollection() )
+            eclipseContourMap->surfaceInViewCollection()->setCheckState( Qt::Unchecked );
+
         if ( eclipseCase )
         {
             eclipseCase->updateConnectedEditors();
@@ -134,6 +138,10 @@ void RicNewContourMapViewFeature::onActionTriggered( bool isChecked )
     else if ( geoMechContourMap )
     {
         geoMechContourMap->loadDataAndUpdate();
+        // make sure no surfaces are shown in the view when the contourmap is generated
+        if ( geoMechContourMap->surfaceInViewCollection() )
+            geoMechContourMap->surfaceInViewCollection()->setCheckState( Qt::Unchecked );
+
         if ( geoMechCase )
         {
             geoMechCase->updateConnectedEditors();
@@ -349,9 +357,6 @@ RimGeoMechContourMapView* RicNewContourMapViewFeature::createGeoMechContourMapFr
     contourMap->setBackgroundColor( RiaColorTools::fromQColorTo3f( col ) ); // Ignore original view background
 
     contourMap->setDefaultCustomName();
-
-    // make sure no surfaces are shown in the view when the contourmap is generated
-    if ( contourMap->surfaceInViewCollection() ) contourMap->surfaceInViewCollection()->setCheckState( Qt::Unchecked );
 
     caf::PdmDocument::updateUiIconStateRecursively( contourMap );
 
