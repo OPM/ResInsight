@@ -46,8 +46,8 @@ public:
 
     bool values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const override;
 
-    std::string                     unitName( const RifEclipseSummaryAddress& resultAddress ) const override;
-    RiaEclipseUnitTools::UnitSystem unitSystem() const override;
+    std::string                   unitName( const RifEclipseSummaryAddress& resultAddress ) const override;
+    RiaDefines::EclipseUnitSystem unitSystem() const override;
 
 private:
     void                       buildTimeStepsAndMappings();

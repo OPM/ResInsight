@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 
 #include "RimCheckableNamedObject.h"
 #include "RimValveTemplate.h"
@@ -49,16 +49,16 @@ public:
     void                             setMeasuredDepthAndCount( double startMD, double spacing, int valveCount );
     void                             multipleValveGeometryUpdated();
     std::vector<double>              valveLocations() const;
-    double                           orificeDiameter( RiaEclipseUnitTools::UnitSystem unitSystem ) const;
+    double                           orificeDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const;
     double                           flowCoefficient() const;
     RimValveTemplate*                valveTemplate() const;
     void                             setValveTemplate( RimValveTemplate* valveTemplate );
     void                             applyValveLabelAndIcon();
     const RimWellPathAicdParameters* aicdParameters() const;
 
-    static double convertOrificeDiameter( double                          orificeDiameterUi,
-                                          RiaEclipseUnitTools::UnitSystem wellPathUnitSystem,
-                                          RiaEclipseUnitTools::UnitSystem wantedUnitSystem );
+    static double convertOrificeDiameter( double                        orificeDiameterUi,
+                                          RiaDefines::EclipseUnitSystem wellPathUnitSystem,
+                                          RiaDefines::EclipseUnitSystem wantedUnitSystem );
 
     std::vector<std::pair<double, double>> valveSegments() const;
 

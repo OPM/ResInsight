@@ -401,10 +401,10 @@ RiaDefines::DepthUnitType RimDepthTrackPlot::caseDepthUnit() const
     {
         switch ( thecase->unitSystem() )
         {
-            case RiaEclipseUnitTools::UnitSystem::UNITS_FIELD:
+            case RiaDefines::EclipseUnitSystem::UNITS_FIELD:
                 return RiaDefines::DepthUnitType::UNIT_FEET;
 
-            case RiaEclipseUnitTools::UnitSystem::UNITS_METRIC:
+            case RiaDefines::EclipseUnitSystem::UNITS_METRIC:
                 return RiaDefines::DepthUnitType::UNIT_METER;
 
             default:

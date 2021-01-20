@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 
 #include "Rim3dPropertiesInterface.h"
 #include "RimCheckableNamedObject.h"
@@ -87,15 +87,15 @@ public:
     double exitAngle() const;
     double buildAngle() const;
 
-    double tubingDiameter( RiaEclipseUnitTools::UnitSystem unitSystem ) const;
-    double holeDiameter( RiaEclipseUnitTools::UnitSystem unitSystem ) const
+    double tubingDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const;
+    double holeDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const
     {
         return m_pipeProperties()->holeDiameter( unitSystem );
     }
-    double              effectiveDiameter( RiaEclipseUnitTools::UnitSystem unitSystem ) const;
+    double              effectiveDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const;
     double              skinFactor() const { return m_pipeProperties()->skinFactor(); }
-    double              openHoleRoughnessFactor( RiaEclipseUnitTools::UnitSystem unitSystem ) const;
-    double              icdOrificeDiameter( RiaEclipseUnitTools::UnitSystem unitSystem ) const;
+    double              openHoleRoughnessFactor( RiaDefines::EclipseUnitSystem unitSystem ) const;
+    double              icdOrificeDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const;
     double              icdFlowCoefficient() const;
     size_t              icdCount() const;
     std::vector<double> lateralLengths() const;

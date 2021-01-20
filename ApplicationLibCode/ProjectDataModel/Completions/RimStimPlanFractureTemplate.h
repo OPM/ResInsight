@@ -73,7 +73,7 @@ public:
     std::vector<double>                      timeSteps();
     std::vector<std::pair<QString, QString>> uiResultNamesWithUnit() const override;
     std::vector<std::vector<double>>
-                        resultValues( const QString& uiResultName, const QString& unitName, size_t timeStepIndex ) const;
+        resultValues( const QString& uiResultName, const QString& unitName, size_t timeStepIndex ) const;
     std::vector<double> fractureGridResults( const QString& resultName, const QString& unitName, size_t timeStepIndex ) const;
     bool                hasConductivity() const;
     double resultValueAtIJ( const QString& uiResultName, const QString& unitName, size_t timeStepIndex, size_t i, size_t j );
@@ -89,7 +89,7 @@ public:
 
     bool showStimPlanMesh() const;
 
-    void convertToUnitSystem( RiaEclipseUnitTools::UnitSystem neededUnit ) override;
+    void convertToUnitSystem( RiaDefines::EclipseUnitSystem neededUnit ) override;
 
 protected:
     void initAfterRead() override;
@@ -109,10 +109,10 @@ private:
     void computeDepthOfWellPathAtFracture();
     void computePerforationLength();
 
-    std::vector<double> fractureGridResultsForUnitSystem( const QString&                  resultName,
-                                                          const QString&                  unitName,
-                                                          size_t                          timeStepIndex,
-                                                          RiaEclipseUnitTools::UnitSystem requiredUnitSystem ) const;
+    std::vector<double> fractureGridResultsForUnitSystem( const QString&                resultName,
+                                                          const QString&                unitName,
+                                                          size_t                        timeStepIndex,
+                                                          RiaDefines::EclipseUnitSystem requiredUnitSystem ) const;
 
     WellFractureIntersectionData wellFractureIntersectionData( const RimFracture* fractureInstance ) const override;
 

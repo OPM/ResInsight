@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 #include "RifEclipseSummaryAddress.h"
 
 #include "cvfObject.h"
@@ -48,8 +48,8 @@ public:
 
     virtual bool values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const = 0;
 
-    virtual std::string                     unitName( const RifEclipseSummaryAddress& resultAddress ) const = 0;
-    virtual RiaEclipseUnitTools::UnitSystem unitSystem() const                                              = 0;
+    virtual std::string                   unitName( const RifEclipseSummaryAddress& resultAddress ) const = 0;
+    virtual RiaDefines::EclipseUnitSystem unitSystem() const                                              = 0;
 
 protected:
     std::set<RifEclipseSummaryAddress> m_allResultAddresses; // Result and error addresses

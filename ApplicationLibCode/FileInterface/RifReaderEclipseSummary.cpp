@@ -60,19 +60,19 @@ std::vector<time_t> getTimeSteps( ecl_sum_type* ecl_sum )
     return timeSteps;
 }
 
-RiaEclipseUnitTools::UnitSystem readUnitSystem( ecl_sum_type* ecl_sum )
+RiaDefines::EclipseUnitSystem readUnitSystem( ecl_sum_type* ecl_sum )
 {
     ert_ecl_unit_enum eclUnitEnum = ecl_sum_get_unit_system( ecl_sum );
     switch ( eclUnitEnum )
     {
         case ECL_METRIC_UNITS:
-            return RiaEclipseUnitTools::UnitSystem::UNITS_METRIC;
+            return RiaDefines::EclipseUnitSystem::UNITS_METRIC;
         case ECL_FIELD_UNITS:
-            return RiaEclipseUnitTools::UnitSystem::UNITS_FIELD;
+            return RiaDefines::EclipseUnitSystem::UNITS_FIELD;
         case ECL_LAB_UNITS:
-            return RiaEclipseUnitTools::UnitSystem::UNITS_LAB;
+            return RiaDefines::EclipseUnitSystem::UNITS_LAB;
         default:
-            return RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
+            return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
     }
 }
 
@@ -124,7 +124,7 @@ void closeEclSum( ecl_sum_type* ecl_sum )
 RifReaderEclipseSummary::RifReaderEclipseSummary()
     : m_ecl_sum( nullptr )
     , m_ecl_SmSpec( nullptr )
-    , m_unitSystem( RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+    , m_unitSystem( RiaDefines::EclipseUnitSystem::UNITS_METRIC )
 {
     m_valuesCache.reset( new ValuesCache() );
 }
@@ -633,7 +633,7 @@ std::string RifReaderEclipseSummary::unitName( const RifEclipseSummaryAddress& r
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaEclipseUnitTools::UnitSystem RifReaderEclipseSummary::unitSystem() const
+RiaDefines::EclipseUnitSystem RifReaderEclipseSummary::unitSystem() const
 {
     return m_unitSystem;
 }

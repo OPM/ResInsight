@@ -22,7 +22,7 @@
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaCompletionTypeCalculationScheduler.h"
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 #include "RiaLogging.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -132,7 +132,7 @@ RimFracture::RimFracture()
     CAF_PDM_InitField(&m_dip, "Dip", 0.0, "Dip", "", "", "");
     CAF_PDM_InitField(&m_tilt, "Tilt", 0.0, "Tilt", "", "", "");
     
-    CAF_PDM_InitField(&m_fractureUnit, "FractureUnit", caf::AppEnum<RiaEclipseUnitTools::UnitSystem>(RiaEclipseUnitTools::UnitSystem::UNITS_METRIC), "Fracture Unit System", "", "", "");
+    CAF_PDM_InitField(&m_fractureUnit, "FractureUnit", caf::AppEnum<RiaDefines::EclipseUnitSystem>(RiaDefines::EclipseUnitSystem::UNITS_METRIC), "Fracture Unit System", "", "", "");
     m_fractureUnit.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitField(&m_stimPlanTimeIndexToPlot, "TimeIndexToPlot", 0, "StimPlan Time Step", "", "", ""); 
@@ -211,7 +211,7 @@ void RimFracture::fieldChangedByUi( const caf::PdmFieldHandle* changedField, con
     {
         if ( fractureUnit() != m_fractureTemplate->fractureTemplateUnit() )
         {
-            QString fractureUnitText = RiaEclipseUnitTools::UnitSystemType::uiText( fractureUnit() );
+            QString fractureUnitText = caf::AppEnum<RiaDefines::EclipseUnitSystem>::uiText( fractureUnit() );
 
             QString warningText =
                 QString( "Using a fracture template defined in a different unit is not supported.\n\nPlease select a "
@@ -446,11 +446,11 @@ cvf::BoundingBox RimFracture::boundingBoxInDomainCoords() const
 //--------------------------------------------------------------------------------------------------
 double RimFracture::wellRadius() const
 {
-    if ( m_fractureUnit == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+    if ( m_fractureUnit == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
         return m_wellDiameter / 2.0;
     }
-    else if ( m_fractureUnit == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+    else if ( m_fractureUnit == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
         return RiaEclipseUnitTools::inchToFeet( m_wellDiameter / 2.0 );
     }
@@ -514,7 +514,7 @@ void RimFracture::setFractureTemplateNoUpdate( RimFractureTemplate* fractureTemp
 {
     if ( fractureTemplate && fractureTemplate->fractureTemplateUnit() != fractureUnit() )
     {
-        QString fractureUnitText = RiaEclipseUnitTools::UnitSystemType::uiText( fractureUnit() );
+        QString fractureUnitText = caf::AppEnum<RiaDefines::EclipseUnitSystem>::uiText( fractureUnit() );
 
         QString warningText =
             QString( "Using a fracture template defined in a different unit is not supported.\n\nPlease select a "
@@ -622,12 +622,12 @@ QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions( const caf::Pdm
 //--------------------------------------------------------------------------------------------------
 void RimFracture::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    if ( m_fractureUnit() == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+    if ( m_fractureUnit() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
         m_wellDiameter.uiCapability()->setUiName( "Well Diameter [m]" );
         m_perforationLength.uiCapability()->setUiName( "Perforation Length [m]" );
     }
-    else if ( m_fractureUnit() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+    else if ( m_fractureUnit() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
         m_wellDiameter.uiCapability()->setUiName( "Well Diameter [inches]" );
         m_perforationLength.uiCapability()->setUiName( "Perforation Length [ft]" );
@@ -757,7 +757,7 @@ void RimFracture::setAnchorPosition( const cvf::Vec3d& pos )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaEclipseUnitTools::UnitSystem RimFracture::fractureUnit() const
+RiaDefines::EclipseUnitSystem RimFracture::fractureUnit() const
 {
     return m_fractureUnit();
 }
@@ -765,7 +765,7 @@ RiaEclipseUnitTools::UnitSystem RimFracture::fractureUnit() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFracture::setFractureUnit( RiaEclipseUnitTools::UnitSystem unitSystem )
+void RimFracture::setFractureUnit( RiaDefines::EclipseUnitSystem unitSystem )
 {
     m_fractureUnit = unitSystem;
 }

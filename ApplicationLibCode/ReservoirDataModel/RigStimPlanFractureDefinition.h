@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 
 #include "cvfObject.h"
 #include "cvfVector3.h"
@@ -59,11 +59,11 @@ public:
     RigStimPlanFractureDefinition();
     ~RigStimPlanFractureDefinition() override;
 
-    RiaEclipseUnitTools::UnitSystem unitSet() const;
-    size_t                          xCount() const;
-    size_t                          yCount() const;
-    double                          minDepth() const;
-    double                          maxDepth() const;
+    RiaDefines::EclipseUnitSystem unitSet() const;
+    size_t                        xCount() const;
+    size_t                        yCount() const;
+    double                        minDepth() const;
+    double                        maxDepth() const;
 
     double topPerfTvd() const;
     double bottomPerfTvd() const;
@@ -75,10 +75,10 @@ public:
     void   setMdToTopPerf( double topPerfMd );
     void   setMdToBottomPerf( double bottomPerfMd );
 
-    cvf::ref<RigFractureGrid> createFractureGrid( const QString&                  resultName,
-                                                  int                             activeTimeStepIndex,
-                                                  double                          wellPathIntersectionAtFractureDepth,
-                                                  RiaEclipseUnitTools::UnitSystem requiredUnitSet ) const;
+    cvf::ref<RigFractureGrid> createFractureGrid( const QString&                resultName,
+                                                  int                           activeTimeStepIndex,
+                                                  double                        wellPathIntersectionAtFractureDepth,
+                                                  RiaDefines::EclipseUnitSystem requiredUnitSet ) const;
 
     void createFractureTriangleGeometry( double                   wellPathIntersectionAtFractureDepth,
                                          const QString&           fractureUserName,
@@ -121,15 +121,15 @@ private:
     void                scaleXs( double scaleFactor );
     void                scaleYs( double scaleFactor, double wellPathIntersectionY );
 
-    std::vector<std::vector<double>> conductivityValuesAtTimeStep( const QString&                  resultName,
-                                                                   int                             activeTimeStepIndex,
-                                                                   RiaEclipseUnitTools::UnitSystem requiredUnitSet ) const;
+    std::vector<std::vector<double>> conductivityValuesAtTimeStep( const QString&                resultName,
+                                                                   int                           activeTimeStepIndex,
+                                                                   RiaDefines::EclipseUnitSystem requiredUnitSet ) const;
 
 private:
-    RiaEclipseUnitTools::UnitSystem m_unitSet; // To be deleted
-    std::vector<double>             m_fileXs;
-    std::vector<double>             m_Ys;
-    std::vector<double>             m_timeSteps;
+    RiaDefines::EclipseUnitSystem m_unitSet; // To be deleted
+    std::vector<double>           m_fileXs;
+    std::vector<double>           m_Ys;
+    std::vector<double>           m_timeSteps;
 
     std::vector<RigStimPlanResultFrames> m_stimPlanResults;
     std::vector<double>                  m_Xs;

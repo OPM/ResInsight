@@ -18,6 +18,8 @@
 
 #include "RifStimPlanModelAsymmetricFrkExporter.h"
 
+#include "RiaEclipseUnitTools.h"
+
 #include "RimStimPlanModel.h"
 
 #include <QFile>

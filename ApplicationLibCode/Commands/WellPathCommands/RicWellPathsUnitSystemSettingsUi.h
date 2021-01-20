@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -34,7 +34,7 @@ class RicWellPathsUnitSystemSettingsUi : public caf::PdmObject
 public:
     RicWellPathsUnitSystemSettingsUi();
 
-    caf::PdmField<RiaEclipseUnitTools::UnitSystemType> unitSystem;
+    caf::PdmField<caf::AppEnum<RiaDefines::EclipseUnitSystem>> unitSystem;
 
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,

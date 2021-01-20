@@ -36,7 +36,7 @@ RimValveTemplateCollection::RimValveTemplateCollection()
                                 "",
                                 "",
                                 "" );
-    m_defaultUnitsForValveTemplates = RiaEclipseUnitTools::UnitSystem::UNITS_METRIC;
+    m_defaultUnitsForValveTemplates = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
     m_valveDefinitions.uiCapability()->setUiHidden( true );
     addDefaultValveTemplates();
 }
@@ -81,7 +81,7 @@ void RimValveTemplateCollection::removeAndDeleteValveTemplate( RimValveTemplate*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaEclipseUnitTools::UnitSystemType RimValveTemplateCollection::defaultUnitSystemType() const
+caf::AppEnum<RiaDefines::EclipseUnitSystem> RimValveTemplateCollection::defaultUnitSystemType() const
 {
     return m_defaultUnitsForValveTemplates;
 }
@@ -94,7 +94,7 @@ void RimValveTemplateCollection::setDefaultUnitSystemBasedOnLoadedCases()
     RimProject* proj = RimProject::current();
 
     auto commonUnitSystem = proj->commonUnitSystemForAllCases();
-    if ( commonUnitSystem != RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN )
+    if ( commonUnitSystem != RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN )
     {
         m_defaultUnitsForValveTemplates = commonUnitSystem;
     }

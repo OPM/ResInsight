@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 
 #include "RimWellPathComponentInterface.h"
 
@@ -87,8 +87,8 @@ public:
 
     virtual void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath );
 
-    void                            setUnitSystem( RiaEclipseUnitTools::UnitSystem unitSystem );
-    RiaEclipseUnitTools::UnitSystem unitSystem() const;
+    void                          setUnitSystem( RiaDefines::EclipseUnitSystem unitSystem );
+    RiaDefines::EclipseUnitSystem unitSystem() const;
 
     double airGap() const;
     double datumElevation() const;
@@ -173,7 +173,7 @@ private:
     caf::PdmField<QString> m_simWellName;
     caf::PdmField<int>     m_branchIndex;
 
-    caf::PdmField<RiaEclipseUnitTools::UnitSystemType> m_unitSystem;
+    caf::PdmField<caf::AppEnum<RiaDefines::EclipseUnitSystem>> m_unitSystem;
 
     caf::PdmField<caf::FilePath> m_wellPathFormationFilePath;
     caf::PdmField<QString>       m_formationKeyInFile;

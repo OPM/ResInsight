@@ -843,7 +843,7 @@ RicMswExportInfo RicWellPathExportMswCompletionsImpl::generateFishbonesMswExport
     const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs,
     bool                                          enableSegmentSplitting )
 {
-    RiaEclipseUnitTools::UnitSystem unitSystem = caseToApply->eclipseCaseData()->unitsType();
+    RiaDefines::EclipseUnitSystem unitSystem = caseToApply->eclipseCaseData()->unitsType();
 
     RicMswExportInfo exportInfo( wellPath,
                                  unitSystem,
@@ -853,10 +853,10 @@ RicMswExportInfo RicWellPathExportMswCompletionsImpl::generateFishbonesMswExport
     exportInfo.setLinerDiameter( wellPath->fishbonesCollection()->mswParameters()->linerDiameter( unitSystem ) );
     exportInfo.setRoughnessFactor( wellPath->fishbonesCollection()->mswParameters()->roughnessFactor( unitSystem ) );
 
-    double maxSegmentLength = enableSegmentSplitting
-                                  ? wellPath->fishbonesCollection()->mswParameters()->maxSegmentLength()
-                                  : std::numeric_limits<double>::infinity();
-    bool foundSubGridIntersections = false;
+    double maxSegmentLength          = enableSegmentSplitting
+                                           ? wellPath->fishbonesCollection()->mswParameters()->maxSegmentLength()
+                                           : std::numeric_limits<double>::infinity();
+    bool   foundSubGridIntersections = false;
 
     double subStartMD  = wellPath->fishbonesCollection()->startMD();
     double subStartTVD = RicWellPathExportMswCompletionsImpl::tvdFromMeasuredDepth( wellPath, subStartMD );
@@ -937,7 +937,7 @@ RicMswExportInfo
     const RigMainGrid*       grid = caseToApply->eclipseCaseData()->mainGrid();
     const RigActiveCellInfo* activeCellInfo =
         caseToApply->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    RiaEclipseUnitTools::UnitSystem unitSystem = caseToApply->eclipseCaseData()->unitsType();
+    RiaDefines::EclipseUnitSystem unitSystem = caseToApply->eclipseCaseData()->unitsType();
 
     auto wellPathGeometry = wellPath->wellPathGeometry();
     CVF_ASSERT( wellPathGeometry );
@@ -1058,7 +1058,7 @@ RicMswExportInfo RicWellPathExportMswCompletionsImpl::generatePerforationsMswExp
     int                                               timeStep,
     const std::vector<const RimPerforationInterval*>& perforationIntervals )
 {
-    RiaEclipseUnitTools::UnitSystem unitSystem = eclipseCase->eclipseCaseData()->unitsType();
+    RiaDefines::EclipseUnitSystem unitSystem = eclipseCase->eclipseCaseData()->unitsType();
 
     const RigActiveCellInfo* activeCellInfo =
         eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
@@ -1329,7 +1329,7 @@ void RicWellPathExportMswCompletionsImpl::createValveCompletions(
     std::vector<std::shared_ptr<RicMswSegment>>&      mainBoreSegments,
     const std::vector<const RimPerforationInterval*>& perforationIntervals,
     const RimWellPath*                                wellPath,
-    RiaEclipseUnitTools::UnitSystem                   unitSystem )
+    RiaDefines::EclipseUnitSystem                     unitSystem )
 {
     for ( size_t nMainSegment = 0u; nMainSegment < mainBoreSegments.size(); ++nMainSegment )
     {
@@ -1477,7 +1477,7 @@ void RicWellPathExportMswCompletionsImpl::assignValveContributionsToSuperICDsOrA
     const std::vector<const RimPerforationInterval*>&  perforationIntervals,
     const std::vector<WellPathCellIntersectionInfo>&   wellPathIntersections,
     const RigActiveCellInfo*                           activeCellInfo,
-    RiaEclipseUnitTools::UnitSystem                    unitSystem )
+    RiaDefines::EclipseUnitSystem                      unitSystem )
 {
     ValveContributionMap assignedRegularValves;
 
@@ -1586,7 +1586,7 @@ void RicWellPathExportMswCompletionsImpl::assignValveContributionsToSuperICDsOrA
 void RicWellPathExportMswCompletionsImpl::moveIntersectionsToICVs(
     const std::vector<std::shared_ptr<RicMswSegment>>& mainBoreSegments,
     const std::vector<const RimPerforationInterval*>&  perforationIntervals,
-    RiaEclipseUnitTools::UnitSystem                    unitSystem )
+    RiaDefines::EclipseUnitSystem                      unitSystem )
 {
     std::map<const RimWellPathValve*, std::shared_ptr<RicMswPerforationICV>> icvCompletionMap;
 

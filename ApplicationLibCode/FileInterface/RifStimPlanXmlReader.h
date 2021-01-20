@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 
 #include "cvfObject.h"
 
@@ -45,14 +45,14 @@ public:
                                                                         double         yScaleFactor,
                                                                         double         wellPathIntersectionY,
                                                                         MirrorMode     mirrorMode,
-                                                                        RiaEclipseUnitTools::UnitSystem requiredUnit,
-                                                                        QString*                        errorMessage );
+                                                                        RiaDefines::EclipseUnitSystem requiredUnit,
+                                                                        QString*                      errorMessage );
 
 private:
-    static void readStimplanGridAndTimesteps( QXmlStreamReader&               xmlStream,
-                                              RigStimPlanFractureDefinition*  stimPlanFileData,
-                                              MirrorMode                      mirrorMode,
-                                              RiaEclipseUnitTools::UnitSystem requiredUnit );
+    static void readStimplanGridAndTimesteps( QXmlStreamReader&              xmlStream,
+                                              RigStimPlanFractureDefinition* stimPlanFileData,
+                                              MirrorMode                     mirrorMode,
+                                              RiaDefines::EclipseUnitSystem  requiredUnit );
 
     static double  getAttributeValueDouble( QXmlStreamReader& xmlStream, const QString& parameterName );
     static QString getAttributeValueString( QXmlStreamReader& xmlStream, const QString& parameterName );
@@ -60,11 +60,11 @@ private:
 
     static std::vector<std::vector<double>> getAllDepthDataAtTimeStep( QXmlStreamReader& xmlStream );
 
-    static std::vector<double> valuesInRequiredUnitSystem( RiaEclipseUnitTools::UnitSystem sourceUnit,
-                                                           RiaEclipseUnitTools::UnitSystem requiredUnit,
-                                                           const std::vector<double>&      values );
+    static std::vector<double> valuesInRequiredUnitSystem( RiaDefines::EclipseUnitSystem sourceUnit,
+                                                           RiaDefines::EclipseUnitSystem requiredUnit,
+                                                           const std::vector<double>&    values );
 
-    static double valueInRequiredUnitSystem( RiaEclipseUnitTools::UnitSystem sourceUnit,
-                                             RiaEclipseUnitTools::UnitSystem requiredUnit,
-                                             double                          value );
+    static double valueInRequiredUnitSystem( RiaDefines::EclipseUnitSystem sourceUnit,
+                                             RiaDefines::EclipseUnitSystem requiredUnit,
+                                             double                        value );
 };

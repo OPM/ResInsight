@@ -215,7 +215,7 @@ bool RimWellPathAicdParameters::isMetric() const
     firstAncestorOrThisOfType( wellPath );
     if ( wellPath )
     {
-        if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+        if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
         {
             metric = true;
         }

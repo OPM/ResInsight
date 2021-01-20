@@ -17,8 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
-
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiGroup.h"

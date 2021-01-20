@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
@@ -127,13 +127,13 @@ public:
     QString name() const;
     QString nameAndUnit() const;
 
-    RiaEclipseUnitTools::UnitSystemType fractureTemplateUnit() const;
-    FracOrientationEnum                 orientationType() const;
-    float                               azimuthAngle() const;
-    float                               skinFactor() const;
-    double                              wellDiameter() const;
-    FracConductivityEnum                conductivityType() const;
-    double                              perforationLength() const;
+    caf::AppEnum<RiaDefines::EclipseUnitSystem> fractureTemplateUnit() const;
+    FracOrientationEnum                         orientationType() const;
+    float                                       azimuthAngle() const;
+    float                                       skinFactor() const;
+    double                                      wellDiameter() const;
+    FracConductivityEnum                        conductivityType() const;
+    double                                      perforationLength() const;
 
     virtual void fractureTriangleGeometry( std::vector<cvf::Vec3f>* nodeCoords,
                                            std::vector<cvf::uint>*  triangleIndices ) const = 0;
@@ -149,12 +149,12 @@ public:
     virtual std::vector<std::pair<QString, QString>> uiResultNamesWithUnit() const = 0;
 
     void setName( const QString& name );
-    void setUnitSystem( RiaEclipseUnitTools::UnitSystemType unitSystem );
+    void setUnitSystem( caf::AppEnum<RiaDefines::EclipseUnitSystem> unitSystem );
     void setDefaultWellDiameterFromUnit();
 
     bool isNonDarcyFlowEnabled() const;
 
-    virtual void convertToUnitSystem( RiaEclipseUnitTools::UnitSystem neededUnit );
+    virtual void convertToUnitSystem( RiaDefines::EclipseUnitSystem neededUnit );
 
     virtual void loadDataAndUpdate() = 0;
 
@@ -200,15 +200,15 @@ protected:
     caf::PdmField<QString>           m_name;
     caf::PdmProxyValueField<QString> m_nameAndUnit;
 
-    caf::PdmField<RiaEclipseUnitTools::UnitSystemType> m_fractureTemplateUnit;
-    caf::PdmField<caf::AppEnum<FracOrientationEnum>>   m_orientationType;
-    caf::PdmField<float>                               m_azimuthAngle;
-    caf::PdmField<float>                               m_skinFactor;
-    caf::PdmField<double>                              m_perforationLength;
-    caf::PdmField<double>                              m_perforationEfficiency;
-    caf::PdmField<double>                              m_wellDiameter;
-    caf::PdmField<caf::AppEnum<FracConductivityEnum>>  m_conductivityType;
-    caf::PdmChildField<RimFractureContainment*>        m_fractureContainment;
+    caf::PdmField<caf::AppEnum<RiaDefines::EclipseUnitSystem>> m_fractureTemplateUnit;
+    caf::PdmField<caf::AppEnum<FracOrientationEnum>>           m_orientationType;
+    caf::PdmField<float>                                       m_azimuthAngle;
+    caf::PdmField<float>                                       m_skinFactor;
+    caf::PdmField<double>                                      m_perforationLength;
+    caf::PdmField<double>                                      m_perforationEfficiency;
+    caf::PdmField<double>                                      m_wellDiameter;
+    caf::PdmField<caf::AppEnum<FracConductivityEnum>>          m_conductivityType;
+    caf::PdmChildField<RimFractureContainment*>                m_fractureContainment;
 
     caf::PdmField<caf::AppEnum<NonDarcyFlowEnum>> m_nonDarcyFlowType;
     caf::PdmField<double>                         m_userDefinedDFactor;

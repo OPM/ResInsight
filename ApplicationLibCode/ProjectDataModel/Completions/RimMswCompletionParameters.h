@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -56,10 +56,10 @@ public:
 
     ReferenceMDType    referenceMDType() const;
     double             manualReferenceMD() const;
-    double             linerDiameter( RiaEclipseUnitTools::UnitSystem unitSystem ) const;
-    static double      defaultLinerDiameter( RiaEclipseUnitTools::UnitSystem unitSystem );
-    double             roughnessFactor( RiaEclipseUnitTools::UnitSystem unitSystem ) const;
-    static double      defaultRoughnessFactor( RiaEclipseUnitTools::UnitSystem unitSystem );
+    double             linerDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const;
+    static double      defaultLinerDiameter( RiaDefines::EclipseUnitSystem unitSystem );
+    double             roughnessFactor( RiaDefines::EclipseUnitSystem unitSystem ) const;
+    static double      defaultRoughnessFactor( RiaDefines::EclipseUnitSystem unitSystem );
     PressureDropEnum   pressureDrop() const;
     LengthAndDepthEnum lengthAndDepth() const;
     double             maxSegmentLength() const;

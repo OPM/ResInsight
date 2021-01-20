@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaCompletionTypeCalculationScheduler.h"
+#include "RiaEclipseUnitTools.h"
 #include "RiaFractureDefines.h"
 #include "RiaLogging.h"
 #include "RiaWeightedGeometricMeanCalculator.h"
@@ -284,7 +285,7 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
     {
         setDefaultConductivityResultIfEmpty();
 
-        if ( fractureTemplateUnit() == RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN )
+        if ( fractureTemplateUnit() == RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN )
         {
             setUnitSystem( m_stimPlanFractureDefinitionData->unitSet() );
         }
@@ -298,7 +299,7 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
     }
     else
     {
-        setUnitSystem( RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN );
+        setUnitSystem( RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN );
         m_readError = true;
     }
 
@@ -424,11 +425,11 @@ void RimStimPlanFractureTemplate::computePerforationLength()
         }
     }
 
-    if ( fractureTemplateUnit() == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC && m_perforationLength < 10 )
+    if ( fractureTemplateUnit() == RiaDefines::EclipseUnitSystem::UNITS_METRIC && m_perforationLength < 10 )
     {
         m_perforationLength = 10;
     }
-    else if ( fractureTemplateUnit() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD &&
+    else if ( fractureTemplateUnit() == RiaDefines::EclipseUnitSystem::UNITS_FIELD &&
               m_perforationLength < RiaEclipseUnitTools::meterToFeet( 10 ) )
     {
         m_perforationLength = std::round( RiaEclipseUnitTools::meterToFeet( 10 ) );
@@ -439,22 +440,22 @@ void RimStimPlanFractureTemplate::computePerforationLength()
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<double>
-    RimStimPlanFractureTemplate::fractureGridResultsForUnitSystem( const QString&                  resultName,
-                                                                   const QString&                  unitName,
-                                                                   size_t                          timeStepIndex,
-                                                                   RiaEclipseUnitTools::UnitSystem requiredUnitSystem ) const
+    RimStimPlanFractureTemplate::fractureGridResultsForUnitSystem( const QString&                resultName,
+                                                                   const QString&                unitName,
+                                                                   size_t                        timeStepIndex,
+                                                                   RiaDefines::EclipseUnitSystem requiredUnitSystem ) const
 {
     auto resultValues =
         m_stimPlanFractureDefinitionData->fractureGridResults( resultName, unitName, m_activeTimeStepIndex );
 
-    if ( fractureTemplateUnit() == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+    if ( fractureTemplateUnit() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
         for ( auto& v : resultValues )
         {
             v = RiaEclipseUnitTools::convertToMeter( v, unitName );
         }
     }
-    else if ( fractureTemplateUnit() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+    else if ( fractureTemplateUnit() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
         for ( auto& v : resultValues )
         {
@@ -789,7 +790,7 @@ bool RimStimPlanFractureTemplate::showStimPlanMesh() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanFractureTemplate::convertToUnitSystem( RiaEclipseUnitTools::UnitSystem neededUnit )
+void RimStimPlanFractureTemplate::convertToUnitSystem( RiaDefines::EclipseUnitSystem neededUnit )
 {
     if ( m_fractureTemplateUnit() == neededUnit ) return;
 
@@ -801,11 +802,11 @@ void RimStimPlanFractureTemplate::convertToUnitSystem( RiaEclipseUnitTools::Unit
 
     if ( m_stimPlanFractureDefinitionData.isNull() ) return;
 
-    if ( neededUnit == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+    if ( neededUnit == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
         m_wellPathDepthAtFracture = RiaEclipseUnitTools::meterToFeet( m_wellPathDepthAtFracture );
     }
-    else if ( neededUnit == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+    else if ( neededUnit == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
         m_wellPathDepthAtFracture = RiaEclipseUnitTools::feetToMeter( m_wellPathDepthAtFracture );
     }

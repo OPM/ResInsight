@@ -21,7 +21,7 @@
 #include "RimCheckableNamedObject.h"
 #include "RimMswCompletionParameters.h"
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
@@ -54,7 +54,7 @@ public:
     void   recalculateStartMD();
     double startMD() const;
     double mainBoreSkinFactor() const { return m_skinFactor; }
-    double mainBoreDiameter( RiaEclipseUnitTools::UnitSystem unitSystem ) const;
+    double mainBoreDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const;
     void   setUnitSystemSpecificDefaults();
 
 protected:

@@ -23,23 +23,10 @@
 #include "cvfAssert.h"
 #include <cmath>
 
-namespace caf
-{
-template <>
-void RiaEclipseUnitTools::UnitSystemType::setUp()
-{
-    addItem( RiaEclipseUnitTools::UnitSystem::UNITS_METRIC, "UNITS_METRIC", "Metric" );
-    addItem( RiaEclipseUnitTools::UnitSystem::UNITS_FIELD, "UNITS_FIELD", "Field" );
-    addItem( RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN, "UNITS_UNKNOWN", "Unknown" );
-
-    setDefault( RiaEclipseUnitTools::UnitSystem::UNITS_METRIC );
-}
-} // namespace caf
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RiaEclipseUnitTools::darcysConstant( UnitSystem unitSystem )
+double RiaEclipseUnitTools::darcysConstant( RiaDefines::EclipseUnitSystem unitSystem )
 {
     // See "Cartesian transmissibility calculations" in the "Eclipse Technical Description"
     //     CDARCY Darcys constant
@@ -49,9 +36,9 @@ double RiaEclipseUnitTools::darcysConstant( UnitSystem unitSystem )
     //         = 0.00864 (PVT - M)
     switch ( unitSystem )
     {
-        case UnitSystem::UNITS_FIELD:
+        case RiaDefines::EclipseUnitSystem::UNITS_FIELD:
             return 0.001127;
-        case UnitSystem::UNITS_METRIC:
+        case RiaDefines::EclipseUnitSystem::UNITS_METRIC:
             return 0.008527;
         default:
             CVF_ASSERT( false );
@@ -62,20 +49,20 @@ double RiaEclipseUnitTools::darcysConstant( UnitSystem unitSystem )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaDefines::DepthUnitType RiaEclipseUnitTools::depthUnit( UnitSystem unit )
+RiaDefines::DepthUnitType RiaEclipseUnitTools::depthUnit( RiaDefines::EclipseUnitSystem unit )
 {
     switch ( unit )
     {
-        case RiaEclipseUnitTools::UnitSystem::UNITS_METRIC:
+        case RiaDefines::EclipseUnitSystem::UNITS_METRIC:
             return RiaDefines::DepthUnitType::UNIT_METER;
             break;
-        case RiaEclipseUnitTools::UnitSystem::UNITS_FIELD:
+        case RiaDefines::EclipseUnitSystem::UNITS_FIELD:
             return RiaDefines::DepthUnitType::UNIT_FEET;
             break;
-        case RiaEclipseUnitTools::UnitSystem::UNITS_LAB:
+        case RiaDefines::EclipseUnitSystem::UNITS_LAB:
             return RiaDefines::DepthUnitType::UNIT_NONE;
             break;
-        case RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN:
+        case RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN:
             return RiaDefines::DepthUnitType::UNIT_NONE;
             break;
         default:
@@ -88,7 +75,8 @@ RiaDefines::DepthUnitType RiaEclipseUnitTools::depthUnit( UnitSystem unit )
 /// Convert Gas to oil equivalents
 /// If field unit, the Gas is in Mega ft^3 while the others are in [stb] (barrel)
 //--------------------------------------------------------------------------------------------------
-double RiaEclipseUnitTools::convertSurfaceGasFlowRateToOilEquivalents( UnitSystem caseUnitSystem, double eclGasFlowRate )
+double RiaEclipseUnitTools::convertSurfaceGasFlowRateToOilEquivalents( RiaDefines::EclipseUnitSystem caseUnitSystem,
+                                                                       double                        eclGasFlowRate )
 {
     /// Unused Gas to Barrel conversion :
     /// we convert gas to stb as well. Based on
@@ -102,9 +90,9 @@ double RiaEclipseUnitTools::convertSurfaceGasFlowRateToOilEquivalents( UnitSyste
 
     double oilEquivalentGasRate = HUGE_VAL;
 
-    if ( caseUnitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+    if ( caseUnitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
         oilEquivalentGasRate = fieldGasToOilEquivalent * eclGasFlowRate;
-    if ( caseUnitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+    if ( caseUnitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
         oilEquivalentGasRate = metricGasToOilEquivalent * eclGasFlowRate;
 
     return oilEquivalentGasRate;
@@ -113,17 +101,17 @@ double RiaEclipseUnitTools::convertSurfaceGasFlowRateToOilEquivalents( UnitSyste
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaEclipseUnitTools::unitStringPressure( UnitSystem unitSystem )
+QString RiaEclipseUnitTools::unitStringPressure( RiaDefines::EclipseUnitSystem unitSystem )
 {
     switch ( unitSystem )
     {
-        case RiaEclipseUnitTools::UnitSystem::UNITS_METRIC:
+        case RiaDefines::EclipseUnitSystem::UNITS_METRIC:
             return "barsa";
-        case RiaEclipseUnitTools::UnitSystem::UNITS_FIELD:
+        case RiaDefines::EclipseUnitSystem::UNITS_FIELD:
             return "psia";
-        case RiaEclipseUnitTools::UnitSystem::UNITS_LAB:
+        case RiaDefines::EclipseUnitSystem::UNITS_LAB:
             return "atma";
-        case RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN:
+        case RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN:
             return "";
         default:
             return "";

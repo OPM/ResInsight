@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
-
 #include "RimAnnotationCollectionBase.h"
 
 #include "cafPdmChildArrayField.h"

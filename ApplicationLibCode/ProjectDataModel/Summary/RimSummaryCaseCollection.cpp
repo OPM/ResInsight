@@ -961,11 +961,11 @@ bool RimSummaryCaseCollection::operator<( const RimSummaryCaseCollection& rhs ) 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaEclipseUnitTools::UnitSystem RimSummaryCaseCollection::unitSystem() const
+RiaDefines::EclipseUnitSystem RimSummaryCaseCollection::unitSystem() const
 {
     if ( m_cases.empty() )
     {
-        return RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
+        return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
     }
     return m_cases[0]->unitsSystem();
 }

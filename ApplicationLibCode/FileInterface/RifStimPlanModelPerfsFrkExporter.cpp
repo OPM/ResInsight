@@ -18,6 +18,7 @@
 
 #include "RifStimPlanModelPerfsFrkExporter.h"
 
+#include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 
 #include "RimStimPlanModel.h"

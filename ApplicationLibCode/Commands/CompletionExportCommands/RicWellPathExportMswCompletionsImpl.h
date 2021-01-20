@@ -154,18 +154,18 @@ private:
     static void createValveCompletions( std::vector<std::shared_ptr<RicMswSegment>>&      mainBoreSegments,
                                         const std::vector<const RimPerforationInterval*>& perforationIntervals,
                                         const RimWellPath*                                wellPath,
-                                        RiaEclipseUnitTools::UnitSystem                   unitSystem );
+                                        RiaDefines::EclipseUnitSystem                     unitSystem );
 
     static void
         assignValveContributionsToSuperICDsOrAICDs( const std::vector<std::shared_ptr<RicMswSegment>>& mainBoreSegments,
                                                     const std::vector<const RimPerforationInterval*>& perforationIntervals,
                                                     const std::vector<WellPathCellIntersectionInfo>& wellPathIntersections,
                                                     const RigActiveCellInfo*                         activeCellInfo,
-                                                    RiaEclipseUnitTools::UnitSystem                  unitSystem );
+                                                    RiaDefines::EclipseUnitSystem                    unitSystem );
 
     static void moveIntersectionsToICVs( const std::vector<std::shared_ptr<RicMswSegment>>& mainBoreSegments,
                                          const std::vector<const RimPerforationInterval*>&  perforationIntervals,
-                                         RiaEclipseUnitTools::UnitSystem                    unitSystem );
+                                         RiaDefines::EclipseUnitSystem                      unitSystem );
 
     static void moveIntersectionsToSuperICDsOrAICDs( MainBoreSegments mainBoreSegments );
 
@@ -196,7 +196,7 @@ private:
                                                 bool*                                 foundSubGridIntersections );
 
     static void
-                assignBranchNumbers( const RimEclipseCase* caseToApply, std::shared_ptr<RicMswSegment> segment, int* branchNum );
+        assignBranchNumbers( const RimEclipseCase* caseToApply, std::shared_ptr<RicMswSegment> segment, int* branchNum );
     static void assignBranchNumbers( const RimEclipseCase* caseToApply, RicMswExportInfo* exportInfo );
 
     static double tvdFromMeasuredDepth( gsl::not_null<const RimWellPath*> wellPath, double measuredDepth );

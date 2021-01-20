@@ -19,7 +19,6 @@
 #pragma once
 
 #include "RiaDefines.h"
-#include "RiaEclipseUnitTools.h"
 
 #include "RimCheckableNamedObject.h"
 
@@ -36,18 +35,18 @@ public:
     ~RimValveTemplate() override;
 
     void loadDataAndUpdate();
-    void setUnitSystem( RiaEclipseUnitTools::UnitSystemType unitSystem );
+    void setUnitSystem( caf::AppEnum<RiaDefines::EclipseUnitSystem> unitSystem );
     void setDefaultValuesFromUnits();
 
-    RiaDefines::WellPathComponentType   type() const;
-    void                                setType( RiaDefines::WellPathComponentType type );
-    RiaEclipseUnitTools::UnitSystemType templateUnits() const;
-    double                              orificeDiameter() const;
-    double                              flowCoefficient() const;
-    const RimWellPathAicdParameters*    aicdParameters() const;
-    QString                             typeLabel() const;
-    QString                             fullLabel() const;
-    void                                setUserLabel( const QString& userLabel );
+    RiaDefines::WellPathComponentType           type() const;
+    void                                        setType( RiaDefines::WellPathComponentType type );
+    caf::AppEnum<RiaDefines::EclipseUnitSystem> templateUnits() const;
+    double                                      orificeDiameter() const;
+    double                                      flowCoefficient() const;
+    const RimWellPathAicdParameters*            aicdParameters() const;
+    QString                                     typeLabel() const;
+    QString                                     fullLabel() const;
+    void                                        setUserLabel( const QString& userLabel );
 
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
@@ -59,7 +58,7 @@ protected:
 private:
     typedef caf::AppEnum<RiaDefines::WellPathComponentType> CompletionTypeEnum;
 
-    caf::PdmField<RiaEclipseUnitTools::UnitSystemType> m_valveTemplateUnit;
+    caf::PdmField<caf::AppEnum<RiaDefines::EclipseUnitSystem>> m_valveTemplateUnit;
 
     caf::PdmField<CompletionTypeEnum> m_type;
     caf::PdmField<QString>            m_userLabel;

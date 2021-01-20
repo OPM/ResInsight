@@ -154,7 +154,7 @@ RimWellPltPlot::~RimWellPltPlot()
 //--------------------------------------------------------------------------------------------------
 void RimWellPltPlot::setPlotXAxisTitles( RimWellLogTrack* plotTrack )
 {
-    std::set<RiaEclipseUnitTools::UnitSystem> presentUnitSystems;
+    std::set<RiaDefines::EclipseUnitSystem> presentUnitSystems;
     for ( const RifDataSourceForRftPlt& source : m_selectedSources.v() )
     {
         if ( source.eclCase() && source.eclCase()->eclipseCaseData() )
@@ -170,13 +170,13 @@ void RimWellPltPlot::setPlotXAxisTitles( RimWellLogTrack* plotTrack )
                 switch ( source.wellLogFile()->wellLogFileData()->depthUnit() )
                 {
                     case RiaDefines::DepthUnitType::UNIT_METER:
-                        presentUnitSystems.insert( RiaEclipseUnitTools::UnitSystem::UNITS_METRIC );
+                        presentUnitSystems.insert( RiaDefines::EclipseUnitSystem::UNITS_METRIC );
                         break;
                     case RiaDefines::DepthUnitType::UNIT_FEET:
-                        presentUnitSystems.insert( RiaEclipseUnitTools::UnitSystem::UNITS_FIELD );
+                        presentUnitSystems.insert( RiaDefines::EclipseUnitSystem::UNITS_FIELD );
                         break;
                     case RiaDefines::DepthUnitType::UNIT_NONE:
-                        presentUnitSystems.insert( RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN );
+                        presentUnitSystems.insert( RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN );
                         break;
                 }
             }
@@ -190,7 +190,7 @@ void RimWellPltPlot::setPlotXAxisTitles( RimWellLogTrack* plotTrack )
 
     if ( presentUnitSystems.empty() ) return;
 
-    RiaEclipseUnitTools::UnitSystem unitSet = *presentUnitSystems.begin();
+    RiaDefines::EclipseUnitSystem unitSet = *presentUnitSystems.begin();
 
     QString axisTitle;
     if ( m_useReservoirConditionCurves )
@@ -541,7 +541,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
             resultPointCalc.reset( new RigSimWellResultPointCalculator( m_wellPathName, rimEclipseResultCase, timeStep ) );
         }
 
-        RiaEclipseUnitTools::UnitSystem unitSet = RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
+        RiaDefines::EclipseUnitSystem unitSet = RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
         if ( rimEclipseResultCase )
         {
             unitSet = rimEclipseResultCase->eclipseCaseData()->unitsType();
@@ -587,12 +587,10 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                     std::vector<QString>       tracerNames = wfPhaseAccumulator.tracerNames();
                     for ( const QString& tracerName : tracerNames )
                     {
-                        auto color = tracerName == RIG_FLOW_OIL_NAME
-                                         ? cvf::Color3f::DARK_GREEN
-                                         : tracerName == RIG_FLOW_GAS_NAME
-                                               ? cvf::Color3f::DARK_RED
-                                               : tracerName == RIG_FLOW_WATER_NAME ? cvf::Color3f::BLUE
-                                                                                   : cvf::Color3f::DARK_GRAY;
+                        auto color = tracerName == RIG_FLOW_OIL_NAME     ? cvf::Color3f::DARK_GREEN
+                                     : tracerName == RIG_FLOW_GAS_NAME   ? cvf::Color3f::DARK_RED
+                                     : tracerName == RIG_FLOW_WATER_NAME ? cvf::Color3f::BLUE
+                                                                         : cvf::Color3f::DARK_GRAY;
 
                         if ( tracerName == RIG_FLOW_OIL_NAME && selectedPhases.count( FLOW_PHASE_OIL ) ||
                              tracerName == RIG_FLOW_GAS_NAME && selectedPhases.count( FLOW_PHASE_GAS ) ||
@@ -654,13 +652,13 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
 
                     std::vector<double> depthValues = wellLogFileData->depthValues();
 
-                    RiaEclipseUnitTools::UnitSystem unitSystem = RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
+                    RiaDefines::EclipseUnitSystem unitSystem = RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
                     {
                         RiaDefines::DepthUnitType depthUnit = wellLogFileData->depthUnit();
                         if ( depthUnit == RiaDefines::DepthUnitType::UNIT_FEET )
-                            unitSystem = RiaEclipseUnitTools::UnitSystem::UNITS_FIELD;
+                            unitSystem = RiaDefines::EclipseUnitSystem::UNITS_FIELD;
                         if ( depthUnit == RiaDefines::DepthUnitType::UNIT_METER )
-                            unitSystem = RiaEclipseUnitTools::UnitSystem::UNITS_METRIC;
+                            unitSystem = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
                     }
 
                     for ( const ChannelValNameIdxTuple& channelInfo : sortedChannels )
@@ -668,13 +666,10 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                         const auto& channelName = std::get<1>( channelInfo );
                         if ( selectedPhases.count( RimWellPlotTools::flowPhaseFromChannelName( channelName ) ) > 0 )
                         {
-                            auto color = RimWellPlotTools::isOilFlowChannel( channelName )
-                                             ? cvf::Color3f::DARK_GREEN
-                                             : RimWellPlotTools::isGasFlowChannel( channelName )
-                                                   ? cvf::Color3f::DARK_RED
-                                                   : RimWellPlotTools::isWaterFlowChannel( channelName )
-                                                         ? cvf::Color3f::BLUE
-                                                         : cvf::Color3f::DARK_GRAY;
+                            auto color = RimWellPlotTools::isOilFlowChannel( channelName )   ? cvf::Color3f::DARK_GREEN
+                                         : RimWellPlotTools::isGasFlowChannel( channelName ) ? cvf::Color3f::DARK_RED
+                                         : RimWellPlotTools::isWaterFlowChannel( channelName ) ? cvf::Color3f::BLUE
+                                                                                               : cvf::Color3f::DARK_GRAY;
 
                             FlowPhase flowPhase = FLOW_PHASE_NONE;
                             if ( RimWellPlotTools::isOilFlowChannel( channelName ) )

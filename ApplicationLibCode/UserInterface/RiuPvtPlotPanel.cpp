@@ -22,6 +22,8 @@
 #include "RiuGuiTheme.h"
 #include "RiuPvtPlotUpdater.h"
 
+#include "RiaEclipseUnitTools.h"
+
 #include "RigFlowDiagSolverInterface.h"
 
 #include "cvfAssert.h"
@@ -177,7 +179,7 @@ void RiuPvtPlotWidget::setPlotDefaults( QwtPlot* plot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPvtPlotWidget::plotCurves( RiaEclipseUnitTools::UnitSystem                          unitSystem,
+void RiuPvtPlotWidget::plotCurves( RiaDefines::EclipseUnitSystem                            unitSystem,
                                    const std::vector<RigFlowDiagSolverInterface::PvtCurve>& curveArr,
                                    double                                                   pressure,
                                    double                                                   pointMarkerYValue,
@@ -511,7 +513,7 @@ void RiuPvtPlotWidget::slotPickerActivated( bool on )
 //--------------------------------------------------------------------------------------------------
 RiuPvtPlotPanel::RiuPvtPlotPanel( QDockWidget* parent )
     : QWidget( parent )
-    , m_unitSystem( RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN )
+    , m_unitSystem( RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN )
     , m_plotUpdater( new RiuPvtPlotUpdater( this ) )
 {
     m_phaseComboBox = new QComboBox( this );
@@ -563,7 +565,7 @@ RiuPvtPlotPanel::~RiuPvtPlotPanel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPvtPlotPanel::setPlotData( RiaEclipseUnitTools::UnitSystem                          unitSystem,
+void RiuPvtPlotPanel::setPlotData( RiaDefines::EclipseUnitSystem                            unitSystem,
                                    const std::vector<RigFlowDiagSolverInterface::PvtCurve>& fvfCurveArr,
                                    const std::vector<RigFlowDiagSolverInterface::PvtCurve>& viscosityCurveArr,
                                    const FvfDynProps&                                       fvfDynProps,
@@ -596,7 +598,7 @@ void RiuPvtPlotPanel::clearPlot()
         return;
     }
 
-    m_unitSystem = RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
+    m_unitSystem = RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
     m_allFvfCurvesArr.clear();
     m_allViscosityCurvesArr.clear();
     m_fvfDynProps       = FvfDynProps();
@@ -754,18 +756,18 @@ void RiuPvtPlotPanel::plotUiSelectedCurves()
 //--------------------------------------------------------------------------------------------------
 /// Static helper to get unit labels
 //--------------------------------------------------------------------------------------------------
-QString RiuPvtPlotPanel::unitLabelFromCurveIdent( RiaEclipseUnitTools::UnitSystem             unitSystem,
+QString RiuPvtPlotPanel::unitLabelFromCurveIdent( RiaDefines::EclipseUnitSystem               unitSystem,
                                                   RigFlowDiagSolverInterface::PvtCurve::Ident curveIdent )
 {
     if ( curveIdent == RigFlowDiagSolverInterface::PvtCurve::Bo )
     {
         switch ( unitSystem )
         {
-            case RiaEclipseUnitTools::UnitSystem::UNITS_METRIC:
+            case RiaDefines::EclipseUnitSystem::UNITS_METRIC:
                 return "rm3/sm3";
-            case RiaEclipseUnitTools::UnitSystem::UNITS_FIELD:
+            case RiaDefines::EclipseUnitSystem::UNITS_FIELD:
                 return "rb/stb";
-            case RiaEclipseUnitTools::UnitSystem::UNITS_LAB:
+            case RiaDefines::EclipseUnitSystem::UNITS_LAB:
                 return "rcc/scc";
             default:
                 return "";
@@ -775,11 +777,11 @@ QString RiuPvtPlotPanel::unitLabelFromCurveIdent( RiaEclipseUnitTools::UnitSyste
     {
         switch ( unitSystem )
         {
-            case RiaEclipseUnitTools::UnitSystem::UNITS_METRIC:
+            case RiaDefines::EclipseUnitSystem::UNITS_METRIC:
                 return "rm3/sm3";
-            case RiaEclipseUnitTools::UnitSystem::UNITS_FIELD:
+            case RiaDefines::EclipseUnitSystem::UNITS_FIELD:
                 return "rb/Mscf";
-            case RiaEclipseUnitTools::UnitSystem::UNITS_LAB:
+            case RiaDefines::EclipseUnitSystem::UNITS_LAB:
                 return "rcc/scc";
             default:
                 return "";
@@ -790,11 +792,11 @@ QString RiuPvtPlotPanel::unitLabelFromCurveIdent( RiaEclipseUnitTools::UnitSyste
     {
         switch ( unitSystem )
         {
-            case RiaEclipseUnitTools::UnitSystem::UNITS_METRIC:
+            case RiaDefines::EclipseUnitSystem::UNITS_METRIC:
                 return "cP";
-            case RiaEclipseUnitTools::UnitSystem::UNITS_FIELD:
+            case RiaDefines::EclipseUnitSystem::UNITS_FIELD:
                 return "cP";
-            case RiaEclipseUnitTools::UnitSystem::UNITS_LAB:
+            case RiaDefines::EclipseUnitSystem::UNITS_LAB:
                 return "cP";
             default:
                 return "";

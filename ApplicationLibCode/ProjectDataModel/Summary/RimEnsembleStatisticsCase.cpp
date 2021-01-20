@@ -203,13 +203,13 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*> su
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaEclipseUnitTools::UnitSystem RimEnsembleStatisticsCase::unitSystem() const
+RiaDefines::EclipseUnitSystem RimEnsembleStatisticsCase::unitSystem() const
 {
     if ( m_curveSet )
     {
         return m_curveSet->summaryCaseCollection()->unitSystem();
     }
-    return RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
+    return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
 }
 
 //--------------------------------------------------------------------------------------------------

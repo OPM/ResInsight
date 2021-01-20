@@ -209,8 +209,8 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
     RicMswExportInfo          exportInfo =
         RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo( settings.caseToApply(), wellPath, false );
 
-    RiaEclipseUnitTools::UnitSystem unitSystem = caseData->unitsType();
-    bool                            isMainBore = false;
+    RiaDefines::EclipseUnitSystem unitSystem = caseData->unitsType();
+    bool                          isMainBore = false;
 
     for ( std::shared_ptr<RicMswSegment> location : exportInfo.segments() )
     {
@@ -284,7 +284,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneImportedLate
     const RimWellPath*                                       wellPath,
     const RicExportCompletionDataSettingsUi&                 settings )
 {
-    RiaEclipseUnitTools::UnitSystem unitSystem = settings.caseToApply->eclipseCaseData()->unitsType();
+    RiaDefines::EclipseUnitSystem unitSystem = settings.caseToApply->eclipseCaseData()->unitsType();
 
     if ( !wellPath ) return;
     if ( !wellPath->wellPathGeometry() ) return;

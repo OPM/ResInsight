@@ -18,7 +18,7 @@
 
 #include "RicConvertAllFractureTemplatesToFieldFeature.h"
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 
 #include "Rim3dView.h"
 #include "RimEclipseCase.h"
@@ -59,7 +59,7 @@ void RicConvertAllFractureTemplatesToFieldFeature::onActionTriggered( bool isChe
 
     for ( auto ellipseFracTemplate : ellipseFracTemplates )
     {
-        if ( ellipseFracTemplate->fractureTemplateUnit() == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+        if ( ellipseFracTemplate->fractureTemplateUnit() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
         {
             ellipseFracTemplate->changeUnits();
 

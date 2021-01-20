@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 #include "RigCaseRealizationParameters.h"
 
 #include "RimCaseDisplayNameTools.h"
@@ -57,7 +57,7 @@ public:
     void            setCaseId( int caseId );
     int             caseId() const;
 
-    RiaEclipseUnitTools::UnitSystemType unitsSystem();
+    caf::AppEnum<RiaDefines::EclipseUnitSystem> unitsSystem();
 
     void setDisplayNameOption( RimCaseDisplayNameTools::DisplayName displayNameOption );
     void updateAutoShortName();

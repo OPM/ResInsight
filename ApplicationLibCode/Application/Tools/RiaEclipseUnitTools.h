@@ -24,16 +24,6 @@
 class RiaEclipseUnitTools
 {
 public:
-    enum class UnitSystem
-    {
-        UNITS_METRIC,
-        UNITS_FIELD,
-        UNITS_LAB,
-        UNITS_UNKNOWN,
-    };
-
-    typedef caf::AppEnum<RiaEclipseUnitTools::UnitSystem> UnitSystemType;
-
     static double feetPerMeter() { return 3.2808399; }
     static double meterPerFeet() { return 0.3048000; }
 
@@ -52,13 +42,13 @@ public:
     static double barPerMeterToPsiPerFeet( double barPerMeter ) { return barPerMeter * 4.42075; }
     static double gigaPascalToPascal( double gigaPascal ) { return gigaPascal * 1.0e9; }
 
-    static double darcysConstant( UnitSystem unitSystem );
+    static double darcysConstant( RiaDefines::EclipseUnitSystem unitSystem );
 
-    static RiaDefines::DepthUnitType depthUnit( UnitSystem unit );
+    static RiaDefines::DepthUnitType depthUnit( RiaDefines::EclipseUnitSystem unit );
 
-    static double convertSurfaceGasFlowRateToOilEquivalents( UnitSystem, double eclGasFlowRate );
+    static double convertSurfaceGasFlowRateToOilEquivalents( RiaDefines::EclipseUnitSystem, double eclGasFlowRate );
 
-    static QString unitStringPressure( UnitSystem unitSystem );
+    static QString unitStringPressure( RiaDefines::EclipseUnitSystem unitSystem );
 
     static double convertToMeter( double sourceValue, const QString& unitText );
     static double convertToFeet( double sourceValue, const QString& unitText );

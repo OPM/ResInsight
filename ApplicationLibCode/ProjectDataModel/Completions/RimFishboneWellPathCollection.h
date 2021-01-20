@@ -23,7 +23,7 @@
 #include "RimFishboneWellPath.h"
 #include "RimFishbonesPipeProperties.h"
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
@@ -47,7 +47,7 @@ public:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     std::vector<const RimFishboneWellPath*> wellPaths() const;
-    double                                  holeDiameter( RiaEclipseUnitTools::UnitSystem unitSystem ) const
+    double                                  holeDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const
     {
         return m_pipeProperties->holeDiameter( unitSystem );
     }

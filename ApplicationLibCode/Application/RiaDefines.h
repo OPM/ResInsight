@@ -26,6 +26,14 @@
 
 namespace RiaDefines
 {
+enum class EclipseUnitSystem
+{
+    UNITS_METRIC,
+    UNITS_FIELD,
+    UNITS_LAB,
+    UNITS_UNKNOWN,
+};
+
 enum class ResultCatType
 {
     DYNAMIC_NATIVE,

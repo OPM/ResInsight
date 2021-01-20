@@ -62,7 +62,7 @@ public:
                                        MinMaxAccumulator& minMaxAccumulator,
                                        PosNegAccumulator& posNegAccumulator ) const override;
 
-    void convertToUnitSystem( RiaEclipseUnitTools::UnitSystem neededUnit ) override;
+    void convertToUnitSystem( RiaDefines::EclipseUnitSystem neededUnit ) override;
 
     void                                     loadDataAndUpdate() override;
     std::vector<std::pair<QString, QString>> uiResultNamesWithUnit() const override;

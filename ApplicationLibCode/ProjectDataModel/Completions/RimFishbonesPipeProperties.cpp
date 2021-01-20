@@ -45,13 +45,13 @@ RimFishbonesPipeProperties::~RimFishbonesPipeProperties()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFishbonesPipeProperties::holeDiameter( RiaEclipseUnitTools::UnitSystem unitSystem ) const
+double RimFishbonesPipeProperties::holeDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const
 {
     RimWellPath* wellPath;
     firstAncestorOrThisOfTypeAsserted( wellPath );
-    if ( unitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+    if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
-        if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+        if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
         {
             return RiaEclipseUnitTools::inchToMeter( m_lateralHoleDiameter() );
         }
@@ -60,9 +60,9 @@ double RimFishbonesPipeProperties::holeDiameter( RiaEclipseUnitTools::UnitSystem
             return m_lateralHoleDiameter() / 1000;
         }
     }
-    else if ( unitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+    else if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
-        if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+        if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
         {
             return RiaEclipseUnitTools::meterToFeet( m_lateralHoleDiameter() / 1000 );
         }
@@ -84,11 +84,11 @@ void RimFishbonesPipeProperties::setUnitSystemSpecificDefaults()
     firstAncestorOrThisOfType( wellPath );
     if ( wellPath )
     {
-        if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+        if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
         {
             m_lateralHoleDiameter = 12.5;
         }
-        else if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+        else if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
         {
             m_lateralHoleDiameter = 0.5;
         }
@@ -105,11 +105,11 @@ void RimFishbonesPipeProperties::defineUiOrdering( QString uiConfigName, caf::Pd
         firstAncestorOrThisOfType( wellPath );
         if ( wellPath )
         {
-            if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+            if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
             {
                 m_lateralHoleDiameter.uiCapability()->setUiName( "Hole Diameter [mm]" );
             }
-            else if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+            else if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
             {
                 m_lateralHoleDiameter.uiCapability()->setUiName( "Hole Diameter [in]" );
             }
