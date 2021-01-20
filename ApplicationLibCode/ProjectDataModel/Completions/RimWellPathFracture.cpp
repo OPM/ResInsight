@@ -77,7 +77,7 @@ void RimWellPathFracture::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 {
     RimFracture::fieldChangedByUi( changedField, oldValue, newValue );
 
-    if ( changedField == &m_measuredDepth )
+    if ( changedField == &m_measuredDepth || changedField == &m_wellPathDepthAtFracture )
     {
         updatePositionFromMeasuredDepth();
         updateAzimuthBasedOnWellAzimuthAngle();
@@ -274,6 +274,8 @@ void RimWellPathFracture::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 
     caf::PdmUiGroup* fractureCenterGroup = uiOrdering.addNewGroup( "Fracture Center Info" );
     fractureCenterGroup->add( &m_uiAnchorPosition );
+
+    uiOrdering.add( &m_wellPathDepthAtFracture );
 
     uiOrdering.skipRemainingFields( true );
 }
