@@ -817,7 +817,7 @@ void RimSummaryCurve::appendOptionItemsForSummaryAddresses( QList<caf::PdmOption
             }
         }
 
-        options->push_front( caf::PdmOptionItemInfo( RiaDefines::undefinedResultName(),
+        options->push_front( caf::PdmOptionItemInfo( RiaResultNames::undefinedResultName(),
                                                      QVariant::fromValue( RifEclipseSummaryAddress() ) ) );
     }
 }

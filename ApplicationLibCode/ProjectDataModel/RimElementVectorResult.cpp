@@ -535,17 +535,17 @@ bool RimElementVectorResult::resultAddressesCombined( std::vector<RigEclipseResu
     if ( showOil() )
     {
         addresses.push_back( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                      RiaDefines::combinedOilFluxResultName() ) );
+                                                      RiaResultNames::combinedOilFluxResultName() ) );
     }
     if ( showGas() )
     {
         addresses.push_back( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                      RiaDefines::combinedGasFluxResultName() ) );
+                                                      RiaResultNames::combinedGasFluxResultName() ) );
     }
     if ( showWater() )
     {
         addresses.push_back( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                      RiaDefines::combinedWaterFluxResultName() ) );
+                                                      RiaResultNames::combinedWaterFluxResultName() ) );
     }
     return addresses.size() > 0;
 }

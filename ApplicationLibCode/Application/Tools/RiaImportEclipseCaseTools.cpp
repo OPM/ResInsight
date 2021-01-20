@@ -275,7 +275,7 @@ bool RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( const QString
 
     if ( !riv->cellResult()->hasResult() )
     {
-        riv->cellResult()->setResultVariable( RiaDefines::undefinedResultName() );
+        riv->cellResult()->setResultVariable( RiaResultNames::undefinedResultName() );
     }
 
     analysisModels->updateConnectedEditors();
@@ -342,7 +342,7 @@ int RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( const QStr
 
     if ( !riv->cellResult()->hasResult() )
     {
-        riv->cellResult()->setResultVariable( RiaDefines::undefinedResultName() );
+        riv->cellResult()->setResultVariable( RiaResultNames::undefinedResultName() );
     }
 
     analysisModels->updateConnectedEditors();

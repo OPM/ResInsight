@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimPlotDataFilterItem.h"
 
+#include "RiaResultNames.h"
+
 #include "RimAnalysisPlot.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCaseCollection.h"
@@ -288,7 +290,7 @@ QList<caf::PdmOptionItemInfo>
                                                            QVariant::fromValue( address ) ) );
             }
 
-            options.push_front( caf::PdmOptionItemInfo( RiaDefines::undefinedResultName(),
+            options.push_front( caf::PdmOptionItemInfo( RiaResultNames::undefinedResultName(),
                                                         QVariant::fromValue( RifEclipseSummaryAddress() ) ) );
         }
     }

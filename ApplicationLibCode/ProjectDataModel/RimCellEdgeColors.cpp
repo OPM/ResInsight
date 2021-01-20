@@ -215,7 +215,7 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeColors::calculateValueOptions( const ca
             int i;
             for ( i = 0; i < varList.size(); ++i )
             {
-                if ( RiaDefines::isPerCellFaceResult( varList[i] ) ) continue;
+                if ( RiaResultNames::isPerCellFaceResult( varList[i] ) ) continue;
 
                 size_t cubeFaceIdx;
                 for ( cubeFaceIdx = 0; cubeFaceIdx < EdgeFaceEnum::size(); ++cubeFaceIdx )
@@ -258,7 +258,7 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeColors::calculateValueOptions( const ca
                 options.push_back( caf::PdmOptionItemInfo( optionUiName, QVariant( it->first ) ) );
             }
 
-            options.push_front( caf::PdmOptionItemInfo( RiaDefines::undefinedResultName(), "" ) );
+            options.push_front( caf::PdmOptionItemInfo( RiaResultNames::undefinedResultName(), "" ) );
 
             if ( useOptionsOnly ) *useOptionsOnly = true;
 
@@ -317,7 +317,7 @@ QStringList RimCellEdgeColors::findResultVariableNames()
         int i;
         for ( i = 0; i < varList.size(); ++i )
         {
-            if ( RiaDefines::isPerCellFaceResult( varList[i] ) ) continue;
+            if ( RiaResultNames::isPerCellFaceResult( varList[i] ) ) continue;
 
             if ( varList[i].startsWith( m_resultVariable ) )
             {

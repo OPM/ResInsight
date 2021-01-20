@@ -127,7 +127,7 @@ bool RimEclipsePropertyFilterCollection::isUsingFormationNames() const
     {
         if ( propertyFilter->isActive() &&
              propertyFilter->resultDefinition()->resultType() == RiaDefines::ResultCatType::FORMATION_NAMES &&
-             propertyFilter->resultDefinition()->resultVariable() != RiaDefines::undefinedResultName() )
+             propertyFilter->resultDefinition()->resultVariable() != RiaResultNames::undefinedResultName() )
             return true;
     }
 

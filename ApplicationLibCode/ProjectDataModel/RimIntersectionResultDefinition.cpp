@@ -445,7 +445,7 @@ void RimIntersectionResultDefinition::defineUiTreeOrdering( caf::PdmUiTreeOrderi
 {
     RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>( m_case.value() );
 
-    if ( !geomCase && m_eclipseResultDefinition->resultVariable() == RiaDefines::ternarySaturationResultName() )
+    if ( !geomCase && m_eclipseResultDefinition->resultVariable() == RiaResultNames::ternarySaturationResultName() )
     {
         uiTreeOrdering.add( m_ternaryLegendConfig() );
     }

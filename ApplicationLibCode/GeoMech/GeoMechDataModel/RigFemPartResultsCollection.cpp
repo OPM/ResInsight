@@ -20,6 +20,7 @@
 #include "RigFemPartResultsCollection.h"
 
 #include "RiaLogging.h"
+#include "RiaResultNames.h"
 
 #include "RifElementPropertyReader.h"
 #include "RifGeoMechReaderInterface.h"
@@ -796,12 +797,12 @@ std::map<std::string, std::vector<std::string>>
         }
         else if ( resPos == RIG_WELLPATH_DERIVED )
         {
-            std::vector<QString> angles = RiaDefines::wbsAngleResultNames();
+            std::vector<QString> angles = RiaResultNames::wbsAngleResultNames();
             for ( QString angle : angles )
             {
                 fieldCompNames[angle.toStdString()];
             }
-            std::vector<QString> derivedResults = RiaDefines::wbsDerivedResultNames();
+            std::vector<QString> derivedResults = RiaResultNames::wbsDerivedResultNames();
             for ( QString result : derivedResults )
             {
                 fieldCompNames[result.toStdString()];
