@@ -97,7 +97,7 @@ bool RimStimPlanModelLayerCalculator::calculate( RiaDefines::CurveProperty curve
                                                            RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                            0,
                                                            RigEclipseResultAddress( RiaDefines::ResultCatType::FORMATION_NAMES,
-                                                                                    RiaDefines::activeFormationNamesResultName() ) );
+                                                                                    RiaResultNames::activeFormationNamesResultName() ) );
     if ( !formationResultAccessor.notNull() )
     {
         RiaLogging::error( QString( "No formation result found." ) );

@@ -143,7 +143,8 @@ bool RifEclipseInputPropertyLoader::importFaultsFromFile( RigEclipseCaseData* ec
         for ( size_t i = 0; i < faultCollection.size(); i++ )
         {
             RigFault* f = faultCollection.at( i );
-            if ( f->name() == RiaDefines::undefinedGridFaultName() || f->name() == RiaDefines::undefinedGridFaultName() )
+            if ( f->name() == RiaResultNames::undefinedGridFaultName() ||
+                 f->name() == RiaResultNames::undefinedGridFaultName() )
             {
                 // Do not include undefined grid faults, as these are recomputed based on the imported faults from filesa
                 continue;

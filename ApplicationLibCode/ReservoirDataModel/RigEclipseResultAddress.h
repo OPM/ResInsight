@@ -18,6 +18,7 @@
 #pragma once
 
 #include "RiaDefines.h"
+#include "RiaResultNames.h"
 
 #include <QString>
 
@@ -52,7 +53,7 @@ public:
 
     bool isValid() const
     {
-        if ( m_resultName.isEmpty() || m_resultName == RiaDefines::undefinedResultName() )
+        if ( m_resultName.isEmpty() || m_resultName == RiaResultNames::undefinedResultName() )
         {
             return false;
         }

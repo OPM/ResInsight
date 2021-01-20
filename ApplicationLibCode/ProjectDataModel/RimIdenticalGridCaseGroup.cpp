@@ -416,8 +416,8 @@ void RimIdenticalGridCaseGroup::clearStatisticsResults()
         for ( size_t j = 0; j < rimStaticsCase->reservoirViews.size(); j++ )
         {
             RimEclipseView* rimReservoirView = rimStaticsCase->reservoirViews[j];
-            rimReservoirView->cellResult()->setResultVariable( RiaDefines::undefinedResultName() );
-            rimReservoirView->cellEdgeResult()->setResultVariable( RiaDefines::undefinedResultName() );
+            rimReservoirView->cellResult()->setResultVariable( RiaResultNames::undefinedResultName() );
+            rimReservoirView->cellEdgeResult()->setResultVariable( RiaResultNames::undefinedResultName() );
             rimReservoirView->loadDataAndUpdate();
         }
     }

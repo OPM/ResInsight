@@ -137,7 +137,7 @@ void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion( RiaDefines::Poro
                 RimEclipseResultDefinition* resultDefinition = new RimEclipseResultDefinition();
                 resultDefinition->setEclipseCase( eclipseResultCase );
                 resultDefinition->setResultType( RiaDefines::ResultCatType::STATIC_NATIVE );
-                resultDefinition->setResultVariable( RiaDefines::eqlnumResultName() );
+                resultDefinition->setResultVariable( RiaResultNames::eqlnumResultName() );
 
                 cellFilter->setResultDefinition( resultDefinition );
             }
@@ -244,7 +244,7 @@ RimPlotCellPropertyFilter*
     RimEclipseResultDefinition* resultDefinition = new RimEclipseResultDefinition();
     resultDefinition->setEclipseCase( eclipseResultCase );
     resultDefinition->setResultType( RiaDefines::ResultCatType::STATIC_NATIVE );
-    resultDefinition->setResultVariable( RiaDefines::eqlnumResultName() );
+    resultDefinition->setResultVariable( RiaResultNames::eqlnumResultName() );
 
     cellFilter->setResultDefinition( resultDefinition );
 

@@ -171,7 +171,7 @@ void RivIntersectionResultsColoringTools::updateEclipseCellResultColors( const R
 
     cvf::ref<RigResultAccessor> resultAccessor;
 
-    if ( !RiaDefines::isPerCellFaceResult( eclipseResDef->resultVariable() ) )
+    if ( !RiaResultNames::isPerCellFaceResult( eclipseResDef->resultVariable() ) )
 
     {
         resultAccessor =

@@ -751,8 +751,8 @@ void RifEclipseInputFileTools::saveFaults( QTextStream&       stream,
     const cvf::Collection<RigFault>& faults = mainGrid->faults();
     for ( const auto& fault : faults )
     {
-        if ( fault->name() != RiaDefines::undefinedGridFaultName() &&
-             fault->name() != RiaDefines::undefinedGridFaultWithInactiveName() )
+        if ( fault->name() != RiaResultNames::undefinedGridFaultName() &&
+             fault->name() != RiaResultNames::undefinedGridFaultWithInactiveName() )
         {
             saveFault( stream, mainGrid, fault->faultFaces(), fault->name(), min, max, refinement );
         }

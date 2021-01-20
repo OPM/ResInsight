@@ -2570,7 +2570,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                                          RiaDefines::PorosityModelType::MATRIX_MODEL,
                                          0,
                                          RigEclipseResultAddress( RiaDefines::ResultCatType::FORMATION_NAMES,
-                                                                  RiaDefines::activeFormationNamesResultName() ) );
+                                                                  RiaResultNames::activeFormationNamesResultName() ) );
 
             curveData = RimWellLogTrack::curveSamplingPointData( eclWellLogExtractor, resultAccessor.p() );
         }
@@ -2581,7 +2581,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                                                                   dynamic_cast<RimGeoMechCase*>( m_formationCase() ) );
             if ( !geoMechWellLogExtractor ) return;
 
-            std::string activeFormationNamesResultName = RiaDefines::activeFormationNamesResultName().toStdString();
+            std::string activeFormationNamesResultName = RiaResultNames::activeFormationNamesResultName().toStdString();
             curveData = RimWellLogTrack::curveSamplingPointData( geoMechWellLogExtractor,
                                                                  RigFemResultAddress( RIG_FORMATION_NAMES,
                                                                                       activeFormationNamesResultName,

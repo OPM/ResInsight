@@ -18,6 +18,8 @@
 
 #include "RimFishbonesPipeProperties.h"
 
+#include "RiaEclipseUnitTools.h"
+
 #include "RimWellPath.h"
 
 #include <cstdlib>

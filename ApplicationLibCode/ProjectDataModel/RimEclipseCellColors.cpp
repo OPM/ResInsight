@@ -100,7 +100,7 @@ void RimEclipseCellColors::fieldChangedByUi( const caf::PdmFieldHandle* changedF
             changeLegendConfig( this->resultVariable() );
         }
 
-        if ( newValue != RiaDefines::undefinedResultName() )
+        if ( newValue != RiaResultNames::undefinedResultName() )
         {
             if ( m_reservoirView ) m_reservoirView->hasUserRequestedAnimation = true;
         }
@@ -126,7 +126,7 @@ void RimEclipseCellColors::fieldChangedByUi( const caf::PdmFieldHandle* changedF
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCellColors::changeLegendConfig( QString resultVarNameOfNewLegend )
 {
-    if ( resultVarNameOfNewLegend != RiaDefines::ternarySaturationResultName() )
+    if ( resultVarNameOfNewLegend != RiaResultNames::ternarySaturationResultName() )
     {
         QString legendResultVariable;
 
@@ -248,7 +248,7 @@ void RimEclipseCellColors::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCellColors::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
-    if ( this->resultVariable() == RiaDefines::ternarySaturationResultName() )
+    if ( this->resultVariable() == RiaResultNames::ternarySaturationResultName() )
     {
         uiTreeOrdering.add( m_ternaryLegendConfig() );
     }

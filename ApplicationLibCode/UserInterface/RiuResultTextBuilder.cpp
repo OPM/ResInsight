@@ -485,7 +485,7 @@ QString RiuResultTextBuilder::nncResultText()
                         QString resultValueText;
 
                         if ( m_viewWithFaultsSettings->currentFaultResultColors()->resultVariable() ==
-                             RiaDefines::formationAllanResultName() )
+                             RiaResultNames::formationAllanResultName() )
                         {
                             std::pair<int, int> fmIndexPair =
                                 eclipseCase->allanDiagramData()->formationIndexCombinationFromCategory(
@@ -504,7 +504,7 @@ QString RiuResultTextBuilder::nncResultText()
                             // clang-format on
                         }
                         else if ( m_viewWithFaultsSettings->currentFaultResultColors()->resultVariable() ==
-                                  RiaDefines::formationBinaryAllanResultName() )
+                                  RiaResultNames::formationBinaryAllanResultName() )
                         {
                             resultValueText = ( *nncValues )[m_nncIndex] == 0 ? "Same formation" : "Different formation";
                         }
@@ -597,7 +597,7 @@ void RiuResultTextBuilder::appendTextFromResultColors( RigEclipseCaseData*      
     {
         if ( resultColors->hasStaticResult() )
         {
-            if ( resultColors->resultVariable().compare( RiaDefines::combinedTransmissibilityResultName(),
+            if ( resultColors->resultVariable().compare( RiaResultNames::combinedTransmissibilityResultName(),
                                                          Qt::CaseInsensitive ) == 0 )
             {
                 cvf::ref<RigResultAccessor> transResultAccessor =
@@ -606,7 +606,7 @@ void RiuResultTextBuilder::appendTextFromResultColors( RigEclipseCaseData*      
                                                                        porosityModel,
                                                                        0,
                                                                        RigEclipseResultAddress(
-                                                                           RiaDefines::combinedTransmissibilityResultName() ) );
+                                                                           RiaResultNames::combinedTransmissibilityResultName() ) );
                 {
                     double scalarValue = transResultAccessor->cellFaceScalar( cellIndex, cvf::StructGridInterface::POS_I );
                     resultInfoText->append( QString( "Tran X : %1\n" ).arg( scalarValue ) );
@@ -620,7 +620,7 @@ void RiuResultTextBuilder::appendTextFromResultColors( RigEclipseCaseData*      
 
                 return;
             }
-            else if ( resultColors->resultVariable().compare( RiaDefines::combinedMultResultName(),
+            else if ( resultColors->resultVariable().compare( RiaResultNames::combinedMultResultName(),
                                                               Qt::CaseInsensitive ) == 0 )
             {
                 cvf::ref<RigResultAccessor> multResultAccessor =
@@ -629,7 +629,7 @@ void RiuResultTextBuilder::appendTextFromResultColors( RigEclipseCaseData*      
                                                                        porosityModel,
                                                                        0,
                                                                        RigEclipseResultAddress(
-                                                                           RiaDefines::combinedMultResultName() ) );
+                                                                           RiaResultNames::combinedMultResultName() ) );
                 {
                     double scalarValue = multResultAccessor->cellFaceScalar( cellIndex, cvf::StructGridInterface::POS_I );
                     resultInfoText->append( QString( "MULTX : %1\n" ).arg( scalarValue ) );
@@ -649,7 +649,7 @@ void RiuResultTextBuilder::appendTextFromResultColors( RigEclipseCaseData*      
 
                 return;
             }
-            else if ( resultColors->resultVariable().compare( RiaDefines::combinedRiTranResultName(),
+            else if ( resultColors->resultVariable().compare( RiaResultNames::combinedRiTranResultName(),
                                                               Qt::CaseInsensitive ) == 0 )
             {
                 cvf::ref<RigResultAccessor> transResultAccessor =
@@ -658,7 +658,7 @@ void RiuResultTextBuilder::appendTextFromResultColors( RigEclipseCaseData*      
                                                                        porosityModel,
                                                                        0,
                                                                        RigEclipseResultAddress(
-                                                                           RiaDefines::combinedRiTranResultName() ) );
+                                                                           RiaResultNames::combinedRiTranResultName() ) );
                 {
                     double scalarValue = transResultAccessor->cellFaceScalar( cellIndex, cvf::StructGridInterface::POS_I );
                     resultInfoText->append( QString( "riTran X : %1\n" ).arg( scalarValue ) );
@@ -672,7 +672,7 @@ void RiuResultTextBuilder::appendTextFromResultColors( RigEclipseCaseData*      
 
                 return;
             }
-            else if ( resultColors->resultVariable().compare( RiaDefines::combinedRiMultResultName(),
+            else if ( resultColors->resultVariable().compare( RiaResultNames::combinedRiMultResultName(),
                                                               Qt::CaseInsensitive ) == 0 )
             {
                 cvf::ref<RigResultAccessor> resultAccessor =
@@ -681,7 +681,7 @@ void RiuResultTextBuilder::appendTextFromResultColors( RigEclipseCaseData*      
                                                                        porosityModel,
                                                                        0,
                                                                        RigEclipseResultAddress(
-                                                                           RiaDefines::combinedRiMultResultName() ) );
+                                                                           RiaResultNames::combinedRiMultResultName() ) );
                 {
                     double scalarValue = resultAccessor->cellFaceScalar( cellIndex, cvf::StructGridInterface::POS_I );
                     resultInfoText->append( QString( "riMult X : %1\n" ).arg( scalarValue ) );
@@ -695,7 +695,7 @@ void RiuResultTextBuilder::appendTextFromResultColors( RigEclipseCaseData*      
 
                 return;
             }
-            else if ( resultColors->resultVariable().compare( RiaDefines::combinedRiAreaNormTranResultName(),
+            else if ( resultColors->resultVariable().compare( RiaResultNames::combinedRiAreaNormTranResultName(),
                                                               Qt::CaseInsensitive ) == 0 )
             {
                 cvf::ref<RigResultAccessor> resultAccessor =
@@ -704,7 +704,7 @@ void RiuResultTextBuilder::appendTextFromResultColors( RigEclipseCaseData*      
                                                                        porosityModel,
                                                                        0,
                                                                        RigEclipseResultAddress(
-                                                                           RiaDefines::combinedRiAreaNormTranResultName() ) );
+                                                                           RiaResultNames::combinedRiAreaNormTranResultName() ) );
                 {
                     double scalarValue = resultAccessor->cellFaceScalar( cellIndex, cvf::StructGridInterface::POS_I );
                     resultInfoText->append( QString( "riTransByArea X : %1\n" ).arg( scalarValue ) );

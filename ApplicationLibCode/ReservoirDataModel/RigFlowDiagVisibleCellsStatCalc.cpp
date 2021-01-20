@@ -111,7 +111,7 @@ void RigFlowDiagVisibleCellsStatCalc::mobileVolumeWeightedMean( size_t timeStepI
 
     RigCaseCellResultsData* caseCellResultsData = eclCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
-    RigEclipseResultAddress mobPorvAddr( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::mobilePoreVolumeName() );
+    RigEclipseResultAddress mobPorvAddr( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::mobilePoreVolumeName() );
 
     caseCellResultsData->ensureKnownResultLoaded( mobPorvAddr );
     const std::vector<double>& weights = caseCellResultsData->cellScalarResults( mobPorvAddr, 0 );

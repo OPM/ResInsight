@@ -131,7 +131,7 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
 
     CAF_PDM_InitScriptableField( &m_wellDataSourceCase,
                                  "WellDataSourceCase",
-                                 RiaDefines::undefinedResultName(),
+                                 RiaResultNames::undefinedResultName(),
                                  "Well Data Source Case",
                                  "",
                                  "",
@@ -529,7 +529,7 @@ QList<caf::PdmOptionItemInfo>
     else if ( &m_wellDataSourceCase == fieldNeedingOptions )
     {
         QStringList sourceCaseNames;
-        sourceCaseNames += RiaDefines::undefinedResultName();
+        sourceCaseNames += RiaResultNames::undefinedResultName();
 
         for ( size_t i = 0; i < caseGroup()->caseCollection()->reservoirs().size(); i++ )
         {
