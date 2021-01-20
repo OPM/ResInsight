@@ -281,9 +281,6 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
 
     m_stimPlanFractureDefinitionData = RifStimPlanXmlReader::readStimPlanXMLFile( m_stimPlanFileName().path(),
                                                                                   m_conductivityScaleFactor(),
-                                                                                  m_halfLengthScaleFactor(),
-                                                                                  m_heightScaleFactor(),
-                                                                                  -m_wellPathDepthAtFracture(),
                                                                                   RifStimPlanXmlReader::MIRROR_AUTO,
                                                                                   fractureTemplateUnit(),
                                                                                   &errorMessage );
@@ -1040,11 +1037,12 @@ void RimStimPlanFractureTemplate::updateFractureGrid()
 ///
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanFractureTemplate::fractureTriangleGeometry( std::vector<cvf::Vec3f>* nodeCoords,
-                                                            std::vector<cvf::uint>*  triangleIndices ) const
+                                                            std::vector<cvf::uint>*  triangleIndices,
+                                                            double                   wellPathDepthAtFracture ) const
 {
     if ( m_stimPlanFractureDefinitionData.notNull() )
     {
-        m_stimPlanFractureDefinitionData->createFractureTriangleGeometry( m_wellPathDepthAtFracture,
+        m_stimPlanFractureDefinitionData->createFractureTriangleGeometry( wellPathDepthAtFracture,
                                                                           name(),
                                                                           nodeCoords,
                                                                           triangleIndices );

@@ -136,7 +136,8 @@ public:
     double                                      perforationLength() const;
 
     virtual void fractureTriangleGeometry( std::vector<cvf::Vec3f>* nodeCoords,
-                                           std::vector<cvf::uint>*  triangleIndices ) const = 0;
+                                           std::vector<cvf::uint>*  triangleIndices,
+                                           double                   wellPathDepthAtFracture ) const = 0;
 
     virtual const RigFractureGrid* fractureGrid() const = 0;
     const RimFractureContainment*  fractureContainment() const;

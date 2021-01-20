@@ -304,3 +304,11 @@ void RimWellPathFracture::defineEditorAttribute( const caf::PdmFieldHandle* fiel
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathFracture::triangleGeometry( std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* triangleIndices ) const
+{
+    m_fractureTemplate->fractureTriangleGeometry( nodeCoords, triangleIndices, m_wellPathDepthAtFracture );
+}
