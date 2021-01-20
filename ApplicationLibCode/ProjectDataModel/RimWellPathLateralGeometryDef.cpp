@@ -97,6 +97,10 @@ RimWellPathLateralGeometryDef::RimWellPathLateralGeometryDef()
 
     CAF_PDM_InitScriptableField( &m_connectionMdOnParentWellPath, "MdAtConnection", 0.0, "MD at Well Path Connection", "", "", "" );
     m_connectionMdOnParentWellPath.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+
+    // Temporarily disable changing of MD. It doesn't work right without also altering angles.
+    m_connectionMdOnParentWellPath.uiCapability()->setUiReadOnly( true );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_wellTargets, "WellPathTargets", "Well Targets", "", "", "" );
     m_wellTargets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_wellTargets.uiCapability()->setUiTreeChildrenHidden( true );
