@@ -116,6 +116,9 @@ RimFracture::RimFracture()
     m_createStimPlanFractureTemplate.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_createStimPlanFractureTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
+    CAF_PDM_InitField( &m_wellPathDepthAtFracture, "WellPathDepthAtFracture", 0.0, "Well/Fracture Intersection Depth", "", "", "" );
+    m_wellPathDepthAtFracture.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+
     CAF_PDM_InitFieldNoDefault( &m_anchorPosition, "AnchorPosition", "Anchor Position", "", "", "" );
     m_anchorPosition.uiCapability()->setUiHidden( true );
     m_anchorPosition.xmlCapability()->disableIO();
@@ -752,6 +755,22 @@ void RimFracture::defineEditorAttribute( const caf::PdmFieldHandle* field,
         }
     }
 
+    if ( field == &m_wellPathDepthAtFracture )
+    {
+        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
+        if ( myAttr )
+        {
+            RimStimPlanFractureTemplate* stimPlanFracTemplate =
+                dynamic_cast<RimStimPlanFractureTemplate*>( fractureTemplate() );
+            if ( stimPlanFracTemplate )
+            {
+                auto [minimum, maximum] = stimPlanFracTemplate->wellPathDepthAtFractureRange();
+                myAttr->m_minimum       = minimum;
+                myAttr->m_maximum       = maximum;
+            }
+        }
+    }
+
     if ( field == &m_createEllipseFractureTemplate )
     {
         auto myAttr          = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
@@ -820,6 +839,7 @@ void RimFracture::setFractureTemplate( RimFractureTemplate* fractureTemplate )
     if ( stimPlanFracTemplate )
     {
         m_stimPlanTimeIndexToPlot = stimPlanFracTemplate->activeTimeStepIndex();
+        m_wellPathDepthAtFracture = stimPlanFracTemplate->wellPathDepthAtFracture();
     }
 
     if ( fractureTemplate->orientationType() == RimFractureTemplate::AZIMUTH )

@@ -1142,3 +1142,21 @@ void RimStimPlanFractureTemplate::initAfterRead()
         m_useUserDefinedWellPathDepthAtFracture = true;
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimStimPlanFractureTemplate::wellPathDepthAtFracture() const
+{
+    return m_wellPathDepthAtFracture;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RimStimPlanFractureTemplate::wellPathDepthAtFractureRange() const
+{
+    if ( m_stimPlanFractureDefinitionData.isNull() ) return std::make_pair( 0.0, 1.0 );
+
+    return std::make_pair( m_stimPlanFractureDefinitionData->minDepth(), m_stimPlanFractureDefinitionData->maxDepth() );
+}
