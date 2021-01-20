@@ -70,6 +70,9 @@ RimWellPathTarget::RimWellPathTarget()
 
     CAF_PDM_InitField( &m_lateralMDConnection, "LateralMD", 0.0, "Lateral Anchor Point MD", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_parentWellPath, "ParentWellPath", "Parent Well Path", "", "", "" );
+
+    m_lateralMDConnection.uiCapability()->setUiHidden( true );
+    m_parentWellPath.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
