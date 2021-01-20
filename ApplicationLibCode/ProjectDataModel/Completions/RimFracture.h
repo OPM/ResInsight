@@ -120,6 +120,8 @@ public:
     void                ensureValidNonDarcyProperties();
     void                clearCachedNonDarcyProperties();
 
+    virtual void triangleGeometry( std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* triangleIndices ) const;
+
     friend class RimFractureTemplate;
 
     // RimWellPathCompletionsInterface overrides.
@@ -141,7 +143,9 @@ protected:
 private:
     cvf::Vec3d fracturePositionForUi() const;
     double     wellFractureAzimuthDiff() const;
-    void       triangleGeometry( std::vector<cvf::uint>* triangleIndices, std::vector<cvf::Vec3f>* vxCoords ) const;
+    void       triangleGeometryTransformed( std::vector<cvf::uint>*  triangleIndices,
+                                            std::vector<cvf::Vec3f>* vxCoords,
+                                            bool                     transform ) const;
 
     QString wellFractureAzimuthDiffText() const;
     QString wellAzimuthAtFracturePositionText() const;

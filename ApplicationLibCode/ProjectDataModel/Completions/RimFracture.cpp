@@ -454,7 +454,7 @@ cvf::BoundingBox RimFracture::boundingBoxInDomainCoords() const
     std::vector<cvf::Vec3f> nodeCoordVec;
     std::vector<cvf::uint>  triangleIndices;
 
-    this->triangleGeometry( &triangleIndices, &nodeCoordVec );
+    this->triangleGeometryTransformed( &triangleIndices, &nodeCoordVec, true );
 
     cvf::BoundingBox fractureBBox;
     for ( const auto& nodeCoord : nodeCoordVec )
@@ -554,23 +554,36 @@ void RimFracture::setFractureTemplateNoUpdate( RimFractureTemplate* fractureTemp
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFracture::triangleGeometry( std::vector<cvf::uint>* triangleIndices, std::vector<cvf::Vec3f>* nodeCoords ) const
+void RimFracture::triangleGeometry( std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* triangleIndices ) const
+{
+    triangleGeometryTransformed( triangleIndices, nodeCoords, false );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFracture::triangleGeometryTransformed( std::vector<cvf::uint>*  triangleIndices,
+                                               std::vector<cvf::Vec3f>* nodeCoords,
+                                               bool                     transform ) const
 {
     RimFractureTemplate* fractureDef = fractureTemplate();
     if ( fractureDef )
     {
-        fractureDef->fractureTriangleGeometry( nodeCoords, triangleIndices );
+        fractureDef->fractureTriangleGeometry( nodeCoords, triangleIndices, m_wellPathDepthAtFracture );
     }
 
-    cvf::Mat4d m = transformMatrix();
-
-    for ( cvf::Vec3f& v : *nodeCoords )
+    if ( transform )
     {
-        cvf::Vec3d vd( v );
+        cvf::Mat4d m = transformMatrix();
 
-        vd.transformPoint( m );
+        for ( cvf::Vec3f& v : *nodeCoords )
+        {
+            cvf::Vec3d vd( v );
 
-        v = cvf::Vec3f( vd );
+            vd.transformPoint( m );
+
+            v = cvf::Vec3f( vd );
+        }
     }
 }
 

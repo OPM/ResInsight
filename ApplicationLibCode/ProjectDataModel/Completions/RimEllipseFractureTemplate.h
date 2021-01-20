@@ -46,7 +46,8 @@ public:
     ~RimEllipseFractureTemplate() override;
 
     void fractureTriangleGeometry( std::vector<cvf::Vec3f>* nodeCoords,
-                                   std::vector<cvf::uint>*  polygonIndices ) const override;
+                                   std::vector<cvf::uint>*  polygonIndices,
+                                   double                   wellPathDepthAtFracture ) const override;
 
     void                   changeUnits();
     const RigFractureGrid* fractureGrid() const override;

@@ -337,7 +337,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createEllipseSurfacePart( const RimE
 
         {
             std::vector<cvf::Vec3f> nodeCoords;
-            m_rimFracture->fractureTemplate()->fractureTriangleGeometry( &nodeCoords, &triangleIndices );
+            m_rimFracture->triangleGeometry( &nodeCoords, &triangleIndices );
 
             cvf::Mat4d fractureXf = m_rimFracture->transformMatrix();
             nodeDisplayCoords     = transformToFractureDisplayCoords( nodeCoords, fractureXf, *displayCoordTransform );
@@ -410,7 +410,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanColorInterpolatedSurfa
     std::vector<cvf::Vec3f> nodeDisplayCoords;
     {
         std::vector<cvf::Vec3f> nodeCoords;
-        stimPlanFracTemplate->fractureTriangleGeometry( &nodeCoords, &triangleIndices );
+        m_rimFracture->triangleGeometry( &nodeCoords, &triangleIndices );
 
         if ( triangleIndices.empty() || nodeCoords.empty() )
         {

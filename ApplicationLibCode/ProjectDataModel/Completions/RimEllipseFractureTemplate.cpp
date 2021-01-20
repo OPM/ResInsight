@@ -104,7 +104,8 @@ void RimEllipseFractureTemplate::fieldChangedByUi( const caf::PdmFieldHandle* ch
 ///
 //--------------------------------------------------------------------------------------------------
 void RimEllipseFractureTemplate::fractureTriangleGeometry( std::vector<cvf::Vec3f>* nodeCoords,
-                                                           std::vector<cvf::uint>*  triangleIndices ) const
+                                                           std::vector<cvf::uint>*  triangleIndices,
+                                                           double                   wellPathDepthAtFracture ) const
 {
     RigEllipsisTesselator tesselator( 20 );
 
@@ -124,7 +125,7 @@ std::vector<cvf::Vec3f> RimEllipseFractureTemplate::fractureBorderPolygon() cons
     std::vector<cvf::Vec3f> nodeCoords;
     std::vector<cvf::uint>  triangleIndices;
 
-    fractureTriangleGeometry( &nodeCoords, &triangleIndices );
+    fractureTriangleGeometry( &nodeCoords, &triangleIndices, -1.0 );
 
     for ( size_t i = 1; i < nodeCoords.size(); i++ )
     {
