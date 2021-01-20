@@ -35,40 +35,117 @@ CAF_PDM_SOURCE_INIT( RimWellPathAicdParameters, "WellPathAicdParameters" );
 //--------------------------------------------------------------------------------------------------
 RimWellPathAicdParameters::RimWellPathAicdParameters()
 {
-    // clang-format off
-    CAF_PDM_InitObject("RimWellPathAicdParameters", "", "", "");
+    CAF_PDM_InitObject( "RimWellPathAicdParameters", "", "", "" );
 
-    CAF_PDM_InitField(&m_deviceOpen, "DeviceOpen", true, "Device Open?", "", "", "");
+    CAF_PDM_InitField( &m_deviceOpen, "DeviceOpen", true, "Device Open?", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_aicdParameterFields[AICD_STRENGTH], "StrengthAICD", "Strength of AICD", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_aicdParameterFields[AICD_DENSITY_CALIB_FLUID], "DensityCalibrationFluid", "Calibration Fluid Density (kg/m^3)", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_aicdParameterFields[AICD_VISCOSITY_CALIB_FLUID], "ViscosityCalibrationFluid", "Calibration Fluid Viscosity (cP)", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_aicdParameterFields[AICD_VOL_FLOW_EXP], "VolumeFlowRateExponent", "Volume Flow Rate Exponent", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_aicdParameterFields[AICD_VISOSITY_FUNC_EXP], "ViscosityFunctionExponent", "Viscosity Function Exponent", "", "", "");
-    
-    CAF_PDM_InitField(&m_aicdParameterFields[AICD_CRITICAL_WATER_IN_LIQUID_FRAC], "CriticalWaterLiquidFractionEmul", QString("1*"), "Critical Water in Liquid Fraction for emulsions", "", "", "");
-    CAF_PDM_InitField(&m_aicdParameterFields[AICD_EMULSION_VISC_TRANS_REGION], "ViscosityTransitionRegionEmul", QString("1*"), "Emulsion Viscosity Transition Region", "", "", "");
-    CAF_PDM_InitField(&m_aicdParameterFields[AICD_MAX_RATIO_EMULSION_VISC], "MaxRatioOfEmulsionVisc", QString("1*"), "Max Ratio of Emulsion to Continuous Viscosity", "", "", "");
-    CAF_PDM_InitField(&m_aicdParameterFields[AICD_MAX_FLOW_RATE], "MaxFlowRate", QString("1*"), "Max Flow Rate for AICD Device (m^3 / day)", "", "", "");
-    CAF_PDM_InitField(&m_aicdParameterFields[AICD_EXP_OIL_FRAC_DENSITY], "ExponentOilDensity", QString("1*"), "Density Exponent of Oil Fraction", "", "", "");
-    CAF_PDM_InitField(&m_aicdParameterFields[AICD_EXP_WATER_FRAC_DENSITY], "ExponentWaterDensity", QString("1*"), "Density Exponent of Water Fraction", "", "", "");
-    CAF_PDM_InitField(&m_aicdParameterFields[AICD_EXP_GAS_FRAC_DENSITY], "ExponentGasDensity", QString("1*"), "Density Exponent of Gas Fraction", "", "", "");
-    CAF_PDM_InitField(&m_aicdParameterFields[AICD_EXP_OIL_FRAC_VISCOSITY], "ExponentOilViscosity", QString("1*"), "Viscosity Exponent of Oil Fraction", "", "", "");
-    CAF_PDM_InitField(&m_aicdParameterFields[AICD_EXP_WATER_FRAC_VISCOSITY], "ExponentWaterViscosity", QString("1*"), "Viscosity Exponent of Water Fraction", "", "", "");
-    CAF_PDM_InitField(&m_aicdParameterFields[AICD_EXP_GAS_FRAC_VISCOSITY], "ExponentGasViscosity", QString("1*"), "Viscosity Exponent of Gas Fraction", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_aicdParameterFields[AICD_STRENGTH], "StrengthAICD", "Strength of AICD", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_aicdParameterFields[AICD_DENSITY_CALIB_FLUID],
+                                "DensityCalibrationFluid",
+                                "Calibration Fluid Density (kg/m^3)",
+                                "",
+                                "",
+                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_aicdParameterFields[AICD_VISCOSITY_CALIB_FLUID],
+                                "ViscosityCalibrationFluid",
+                                "Calibration Fluid Viscosity (cP)",
+                                "",
+                                "",
+                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_aicdParameterFields[AICD_VOL_FLOW_EXP],
+                                "VolumeFlowRateExponent",
+                                "Volume Flow Rate Exponent",
+                                "",
+                                "",
+                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_aicdParameterFields[AICD_VISOSITY_FUNC_EXP],
+                                "ViscosityFunctionExponent",
+                                "Viscosity Function Exponent",
+                                "",
+                                "",
+                                "" );
+
+    CAF_PDM_InitField( &m_aicdParameterFields[AICD_CRITICAL_WATER_IN_LIQUID_FRAC],
+                       "CriticalWaterLiquidFractionEmul",
+                       QString( "1*" ),
+                       "Critical Water in Liquid Fraction for emulsions",
+                       "",
+                       "",
+                       "" );
+    CAF_PDM_InitField( &m_aicdParameterFields[AICD_EMULSION_VISC_TRANS_REGION],
+                       "ViscosityTransitionRegionEmul",
+                       QString( "1*" ),
+                       "Emulsion Viscosity Transition Region",
+                       "",
+                       "",
+                       "" );
+    CAF_PDM_InitField( &m_aicdParameterFields[AICD_MAX_RATIO_EMULSION_VISC],
+                       "MaxRatioOfEmulsionVisc",
+                       QString( "1*" ),
+                       "Max Ratio of Emulsion to Continuous Viscosity",
+                       "",
+                       "",
+                       "" );
+    CAF_PDM_InitField( &m_aicdParameterFields[AICD_MAX_FLOW_RATE],
+                       "MaxFlowRate",
+                       QString( "1*" ),
+                       "Max Flow Rate for AICD Device (m^3 / day)",
+                       "",
+                       "",
+                       "" );
+    CAF_PDM_InitField( &m_aicdParameterFields[AICD_EXP_OIL_FRAC_DENSITY],
+                       "ExponentOilDensity",
+                       QString( "1*" ),
+                       "Density Exponent of Oil Fraction",
+                       "",
+                       "",
+                       "" );
+    CAF_PDM_InitField( &m_aicdParameterFields[AICD_EXP_WATER_FRAC_DENSITY],
+                       "ExponentWaterDensity",
+                       QString( "1*" ),
+                       "Density Exponent of Water Fraction",
+                       "",
+                       "",
+                       "" );
+    CAF_PDM_InitField( &m_aicdParameterFields[AICD_EXP_GAS_FRAC_DENSITY],
+                       "ExponentGasDensity",
+                       QString( "1*" ),
+                       "Density Exponent of Gas Fraction",
+                       "",
+                       "",
+                       "" );
+    CAF_PDM_InitField( &m_aicdParameterFields[AICD_EXP_OIL_FRAC_VISCOSITY],
+                       "ExponentOilViscosity",
+                       QString( "1*" ),
+                       "Viscosity Exponent of Oil Fraction",
+                       "",
+                       "",
+                       "" );
+    CAF_PDM_InitField( &m_aicdParameterFields[AICD_EXP_WATER_FRAC_VISCOSITY],
+                       "ExponentWaterViscosity",
+                       QString( "1*" ),
+                       "Viscosity Exponent of Water Fraction",
+                       "",
+                       "",
+                       "" );
+    CAF_PDM_InitField( &m_aicdParameterFields[AICD_EXP_GAS_FRAC_VISCOSITY],
+                       "ExponentGasViscosity",
+                       QString( "1*" ),
+                       "Viscosity Exponent of Gas Fraction",
+                       "",
+                       "",
+                       "" );
 
     std::vector<caf::PdmFieldHandle*> allFields;
-    this->fields(allFields);
-    for (caf::PdmFieldHandle* field : allFields)
+    this->fields( allFields );
+    for ( caf::PdmFieldHandle* field : allFields )
     {
-        caf::PdmField<QString>* stringField = dynamic_cast<caf::PdmField<QString>*>(field);
-        if (stringField)
+        caf::PdmField<QString>* stringField = dynamic_cast<caf::PdmField<QString>*>( field );
+        if ( stringField )
         {
-            stringField->uiCapability()->setUiEditorTypeName(caf::PdmUiLineEditor::uiEditorTypeName());
+            stringField->uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
         }
     }
-
-    // clang-format on
 }
 
 //--------------------------------------------------------------------------------------------------

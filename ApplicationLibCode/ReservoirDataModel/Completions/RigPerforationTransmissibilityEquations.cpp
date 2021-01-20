@@ -50,13 +50,11 @@ double RigPerforationTransmissibilityEquations::dFactor( double unitConstant,
                                                          double gasDenity,
                                                          double gasViscosity )
 {
-    // clang-format off
-    //      
-    //                      Ke    1    gasDensity  
+    //
+    //                      Ke    1    gasDensity
     //  D = alpha * beta *  -- * -- *  ------------
     //                       h   rw    gasViscosity
     //
-    // clang-format on
 
     const double keOverH                    = effectivePermeability / perforationLengthInCell;
     const double oneOverRw                  = 1.0 / wellRadius;

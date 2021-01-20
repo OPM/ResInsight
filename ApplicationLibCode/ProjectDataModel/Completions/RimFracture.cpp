@@ -95,65 +95,84 @@ void setDefaultFractureColorResult()
 //--------------------------------------------------------------------------------------------------
 RimFracture::RimFracture()
 {
-    // clang-format off
+    CAF_PDM_InitObject( "Fracture", "", "", "" );
 
-    CAF_PDM_InitObject("Fracture", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_fractureTemplate, "FractureDef", "Fracture Template", "", "", "" );
+    CAF_PDM_InitField( &m_editFractureTemplate, "EditTemplate", false, "Edit", "", "", "" );
+    m_editFractureTemplate.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
+    m_editFractureTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitFieldNoDefault(&m_fractureTemplate, "FractureDef", "Fracture Template", "", "", "");
-    CAF_PDM_InitField(&m_editFractureTemplate, "EditTemplate", false, "Edit", "", "", "");
-    m_editFractureTemplate.uiCapability()->setUiEditorTypeName(caf::PdmUiToolButtonEditor::uiEditorTypeName());
-    m_editFractureTemplate.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    CAF_PDM_InitField( &m_createEllipseFractureTemplate,
+                       "CreateEllipseTemplate",
+                       false,
+                       "No Fracture Templates Found.",
+                       "",
+                       "",
+                       "" );
+    m_createEllipseFractureTemplate.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+    m_createEllipseFractureTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
-    CAF_PDM_InitField(&m_createEllipseFractureTemplate, "CreateEllipseTemplate", false, "No Fracture Templates Found.", "", "", "");
-    m_createEllipseFractureTemplate.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    m_createEllipseFractureTemplate.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+    CAF_PDM_InitField( &m_createStimPlanFractureTemplate, "CreateStimPlanTemplate", false, "Create New Template?", "", "", "" );
+    m_createStimPlanFractureTemplate.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+    m_createStimPlanFractureTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
-    CAF_PDM_InitField(&m_createStimPlanFractureTemplate, "CreateStimPlanTemplate", false, "Create New Template?", "", "", "");
-    m_createStimPlanFractureTemplate.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    m_createStimPlanFractureTemplate.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
-
-    CAF_PDM_InitFieldNoDefault(&m_anchorPosition, "AnchorPosition", "Anchor Position", "", "", "");
-    m_anchorPosition.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault( &m_anchorPosition, "AnchorPosition", "Anchor Position", "", "", "" );
+    m_anchorPosition.uiCapability()->setUiHidden( true );
     m_anchorPosition.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault(&m_uiAnchorPosition, "ui_positionAtWellpath", "Fracture Position", "", "", "");
-    m_uiAnchorPosition.registerGetMethod(this, &RimFracture::fracturePositionForUi);
-    m_uiAnchorPosition.uiCapability()->setUiReadOnly(true);
+    CAF_PDM_InitFieldNoDefault( &m_uiAnchorPosition, "ui_positionAtWellpath", "Fracture Position", "", "", "" );
+    m_uiAnchorPosition.registerGetMethod( this, &RimFracture::fracturePositionForUi );
+    m_uiAnchorPosition.uiCapability()->setUiReadOnly( true );
     m_uiAnchorPosition.xmlCapability()->disableIO();
-    
-    CAF_PDM_InitField(&m_azimuth, "Azimuth", 0.0, "Azimuth", "", "", "");
-    m_azimuth.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
-    
-    CAF_PDM_InitField(&m_perforationLength, "PerforationLength", 1.0, "Perforation Length", "", "", "");
-    CAF_PDM_InitField(&m_perforationEfficiency, "PerforationEfficiency", 1.0, "Perforation Efficiency", "", "", "");
-    m_perforationEfficiency.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
-    
-    CAF_PDM_InitField(&m_wellDiameter, "WellDiameter", 0.216, "Well Diameter at Fracture", "", "", "");
-    CAF_PDM_InitField(&m_dip, "Dip", 0.0, "Dip", "", "", "");
-    CAF_PDM_InitField(&m_tilt, "Tilt", 0.0, "Tilt", "", "", "");
-    
-    CAF_PDM_InitField(&m_fractureUnit, "FractureUnit", caf::AppEnum<RiaEclipseUnitTools::UnitSystem>(RiaEclipseUnitTools::UnitSystem::UNITS_METRIC), "Fracture Unit System", "", "", "");
-    m_fractureUnit.uiCapability()->setUiReadOnly(true);
 
-    CAF_PDM_InitField(&m_stimPlanTimeIndexToPlot, "TimeIndexToPlot", 0, "StimPlan Time Step", "", "", ""); 
+    CAF_PDM_InitField( &m_azimuth, "Azimuth", 0.0, "Azimuth", "", "", "" );
+    m_azimuth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault(&m_uiWellPathAzimuth, "WellPathAzimuth", "Well Path Azimuth", "", "", "");
-    m_uiWellPathAzimuth.registerGetMethod(this, &RimFracture::wellAzimuthAtFracturePositionText);
-    m_uiWellPathAzimuth.uiCapability()->setUiReadOnly(true);
+    CAF_PDM_InitField( &m_perforationLength, "PerforationLength", 1.0, "Perforation Length", "", "", "" );
+    CAF_PDM_InitField( &m_perforationEfficiency, "PerforationEfficiency", 1.0, "Perforation Efficiency", "", "", "" );
+    m_perforationEfficiency.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_wellDiameter, "WellDiameter", 0.216, "Well Diameter at Fracture", "", "", "" );
+    CAF_PDM_InitField( &m_dip, "Dip", 0.0, "Dip", "", "", "" );
+    CAF_PDM_InitField( &m_tilt, "Tilt", 0.0, "Tilt", "", "", "" );
+
+    CAF_PDM_InitField( &m_fractureUnit,
+                       "FractureUnit",
+                       caf::AppEnum<RiaEclipseUnitTools::UnitSystem>( RiaEclipseUnitTools::UnitSystem::UNITS_METRIC ),
+                       "Fracture Unit System",
+                       "",
+                       "",
+                       "" );
+    m_fractureUnit.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitField( &m_stimPlanTimeIndexToPlot, "TimeIndexToPlot", 0, "StimPlan Time Step", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_uiWellPathAzimuth, "WellPathAzimuth", "Well Path Azimuth", "", "", "" );
+    m_uiWellPathAzimuth.registerGetMethod( this, &RimFracture::wellAzimuthAtFracturePositionText );
+    m_uiWellPathAzimuth.uiCapability()->setUiReadOnly( true );
     m_uiWellPathAzimuth.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault(&m_uiWellFractureAzimuthDiff, "WellFractureAzimuthDiff", "Azimuth Difference Between\nFracture and Well", "", "", "");
-    m_uiWellFractureAzimuthDiff.registerGetMethod(this, &RimFracture::wellFractureAzimuthDiffText);
-    m_uiWellFractureAzimuthDiff.uiCapability()->setUiReadOnly(true);
+    CAF_PDM_InitFieldNoDefault( &m_uiWellFractureAzimuthDiff,
+                                "WellFractureAzimuthDiff",
+                                "Azimuth Difference Between\nFracture and Well",
+                                "",
+                                "",
+                                "" );
+    m_uiWellFractureAzimuthDiff.registerGetMethod( this, &RimFracture::wellFractureAzimuthDiffText );
+    m_uiWellFractureAzimuthDiff.uiCapability()->setUiReadOnly( true );
     m_uiWellFractureAzimuthDiff.xmlCapability()->disableIO();
-    
-    CAF_PDM_InitField(&m_wellFractureAzimuthAngleWarning, "WellFractureAzimithAngleWarning", QString("Difference is below 10 degrees. Consider longitudinal fracture"), "", "", "", "");
-    m_wellFractureAzimuthAngleWarning.uiCapability()->setUiReadOnly(true);
+
+    CAF_PDM_InitField( &m_wellFractureAzimuthAngleWarning,
+                       "WellFractureAzimithAngleWarning",
+                       QString( "Difference is below 10 degrees. Consider longitudinal fracture" ),
+                       "",
+                       "",
+                       "",
+                       "" );
+    m_wellFractureAzimuthAngleWarning.uiCapability()->setUiReadOnly( true );
     m_wellFractureAzimuthAngleWarning.xmlCapability()->disableIO();
 
-    m_fracturePartMgr = new RivWellFracturePartMgr(this);
-
-    // clang-format on
+    m_fracturePartMgr = new RivWellFracturePartMgr( this );
 }
 
 //--------------------------------------------------------------------------------------------------

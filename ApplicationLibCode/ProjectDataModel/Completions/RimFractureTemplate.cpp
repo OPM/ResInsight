@@ -35,154 +35,196 @@
 
 #include <cmath>
 
-// clang-format off
-
 namespace caf
 {
-    template<>
-    void caf::AppEnum< RimFractureTemplate::FracOrientationEnum>::setUp()
-    {
-        addItem(RimFractureTemplate::AZIMUTH,               "Az",                   "Azimuth");
-        addItem(RimFractureTemplate::ALONG_WELL_PATH,       "AlongWellPath",        "Along Well Path");
-        addItem(RimFractureTemplate::TRANSVERSE_WELL_PATH,  "TransverseWellPath",   "Transverse (normal) to Well Path");
+template <>
+void caf::AppEnum<RimFractureTemplate::FracOrientationEnum>::setUp()
+{
+    addItem( RimFractureTemplate::AZIMUTH, "Az", "Azimuth" );
+    addItem( RimFractureTemplate::ALONG_WELL_PATH, "AlongWellPath", "Along Well Path" );
+    addItem( RimFractureTemplate::TRANSVERSE_WELL_PATH, "TransverseWellPath", "Transverse (normal) to Well Path" );
 
-        setDefault(RimFractureTemplate::TRANSVERSE_WELL_PATH);
-    }
-
-    template<>
-    void caf::AppEnum< RimFractureTemplate::FracConductivityEnum>::setUp()
-    {
-        addItem(RimFractureTemplate::INFINITE_CONDUCTIVITY, "InfiniteConductivity", "Infinite Conductivity");
-        addItem(RimFractureTemplate::FINITE_CONDUCTIVITY,   "FiniteConductivity",   "Finite Conductivity");
-
-        setDefault(RimFractureTemplate::INFINITE_CONDUCTIVITY);
-    }
-
-    template<>
-    void caf::AppEnum< RimFractureTemplate::PermeabilityEnum>::setUp()
-    {
-        addItem(RimFractureTemplate::USER_DEFINED_PERMEABILITY,     "UserDefinedPermeability",  "User Defined");
-        addItem(RimFractureTemplate::CONDUCTIVITY_FROM_FRACTURE,    "FractureConductivity",     "Use Fracture Conductivity");
-
-        setDefault(RimFractureTemplate::CONDUCTIVITY_FROM_FRACTURE);
-    }
-
-    template<>
-    void caf::AppEnum<RimFractureTemplate::WidthEnum>::setUp()
-    {
-        addItem(RimFractureTemplate::USER_DEFINED_WIDTH,    "UserDefinedWidth", "User Defined");
-        addItem(RimFractureTemplate::WIDTH_FROM_FRACTURE,   "FractureWidth",    "Use Fracture Width");
-
-        setDefault(RimFractureTemplate::WIDTH_FROM_FRACTURE);
-    }
-
-    template<>
-    void caf::AppEnum<RimFractureTemplate::NonDarcyFlowEnum>::setUp()
-    {
-        addItem(RimFractureTemplate::NON_DARCY_NONE,        "None",         "None");
-        addItem(RimFractureTemplate::NON_DARCY_COMPUTED,    "Computed",     "Compute D-factor");
-        addItem(RimFractureTemplate::NON_DARCY_USER_DEFINED,"UserDefined",  "User Defined D-factor");
-
-        setDefault(RimFractureTemplate::NON_DARCY_NONE);
-    }
-
-    template<>
-    void caf::AppEnum< RimFractureTemplate::BetaFactorEnum>::setUp()
-    {
-        addItem(RimFractureTemplate::USER_DEFINED_BETA_FACTOR, "UserDefinedBetaFactor", "User Defined");
-        addItem(RimFractureTemplate::BETA_FACTOR_FROM_FRACTURE, "FractureBetaFactor", "Use Fracture Beta Factor");
-
-        setDefault(RimFractureTemplate::USER_DEFINED_BETA_FACTOR);
-    }
-
+    setDefault( RimFractureTemplate::TRANSVERSE_WELL_PATH );
 }
 
+template <>
+void caf::AppEnum<RimFractureTemplate::FracConductivityEnum>::setUp()
+{
+    addItem( RimFractureTemplate::INFINITE_CONDUCTIVITY, "InfiniteConductivity", "Infinite Conductivity" );
+    addItem( RimFractureTemplate::FINITE_CONDUCTIVITY, "FiniteConductivity", "Finite Conductivity" );
+
+    setDefault( RimFractureTemplate::INFINITE_CONDUCTIVITY );
+}
+
+template <>
+void caf::AppEnum<RimFractureTemplate::PermeabilityEnum>::setUp()
+{
+    addItem( RimFractureTemplate::USER_DEFINED_PERMEABILITY, "UserDefinedPermeability", "User Defined" );
+    addItem( RimFractureTemplate::CONDUCTIVITY_FROM_FRACTURE, "FractureConductivity", "Use Fracture Conductivity" );
+
+    setDefault( RimFractureTemplate::CONDUCTIVITY_FROM_FRACTURE );
+}
+
+template <>
+void caf::AppEnum<RimFractureTemplate::WidthEnum>::setUp()
+{
+    addItem( RimFractureTemplate::USER_DEFINED_WIDTH, "UserDefinedWidth", "User Defined" );
+    addItem( RimFractureTemplate::WIDTH_FROM_FRACTURE, "FractureWidth", "Use Fracture Width" );
+
+    setDefault( RimFractureTemplate::WIDTH_FROM_FRACTURE );
+}
+
+template <>
+void caf::AppEnum<RimFractureTemplate::NonDarcyFlowEnum>::setUp()
+{
+    addItem( RimFractureTemplate::NON_DARCY_NONE, "None", "None" );
+    addItem( RimFractureTemplate::NON_DARCY_COMPUTED, "Computed", "Compute D-factor" );
+    addItem( RimFractureTemplate::NON_DARCY_USER_DEFINED, "UserDefined", "User Defined D-factor" );
+
+    setDefault( RimFractureTemplate::NON_DARCY_NONE );
+}
+
+template <>
+void caf::AppEnum<RimFractureTemplate::BetaFactorEnum>::setUp()
+{
+    addItem( RimFractureTemplate::USER_DEFINED_BETA_FACTOR, "UserDefinedBetaFactor", "User Defined" );
+    addItem( RimFractureTemplate::BETA_FACTOR_FROM_FRACTURE, "FractureBetaFactor", "Use Fracture Beta Factor" );
+
+    setDefault( RimFractureTemplate::USER_DEFINED_BETA_FACTOR );
+}
+
+} // namespace caf
+
 // TODO Move to cafPdmObject.h
-#define CAF_PDM_InitField_Basic(field, keyword, default, uiName) CAF_PDM_InitField(field, keyword, default, uiName, "", "", "")
+#define CAF_PDM_InitField_Basic( field, keyword, default, uiName ) \
+    CAF_PDM_InitField( field, keyword, default, uiName, "", "", "" )
 
-
-CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimFractureTemplate, "RimFractureTemplate");
+CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimFractureTemplate, "RimFractureTemplate" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimFractureTemplate::RimFractureTemplate()
 {
-    CAF_PDM_InitObject("Fracture Template", ":/FractureTemplate16x16.png", "", "");
+    CAF_PDM_InitObject( "Fracture Template", ":/FractureTemplate16x16.png", "", "" );
 
-    CAF_PDM_InitField(&m_id, "Id", -1, "ID", "", "", "");
-    m_id.uiCapability()->setUiReadOnly(true);
+    CAF_PDM_InitField( &m_id, "Id", -1, "ID", "", "", "" );
+    m_id.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitField(&m_name,                "UserDescription",  QString("Fracture Template"), "Name", "", "", "");
+    CAF_PDM_InitField( &m_name, "UserDescription", QString( "Fracture Template" ), "Name", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_nameAndUnit, "NameAndUnit", "NameAndUnit", "", "", "");
-    m_nameAndUnit.registerGetMethod(this, &RimFractureTemplate::nameAndUnit);
-    m_nameAndUnit.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault( &m_nameAndUnit, "NameAndUnit", "NameAndUnit", "", "", "" );
+    m_nameAndUnit.registerGetMethod( this, &RimFractureTemplate::nameAndUnit );
+    m_nameAndUnit.uiCapability()->setUiHidden( true );
     m_nameAndUnit.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField(&m_fractureTemplateUnit, "UnitSystem", caf::AppEnum<RiaEclipseUnitTools::UnitSystem>(RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN), "Units System", "", "", "");
-    m_fractureTemplateUnit.uiCapability()->setUiReadOnly(true);
+    CAF_PDM_InitField( &m_fractureTemplateUnit,
+                       "UnitSystem",
+                       caf::AppEnum<RiaEclipseUnitTools::UnitSystem>( RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN ),
+                       "Units System",
+                       "",
+                       "",
+                       "" );
+    m_fractureTemplateUnit.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitField(&m_orientationType,     "Orientation",  caf::AppEnum<FracOrientationEnum>(TRANSVERSE_WELL_PATH), "Fracture Orientation", "", "", "");
-    CAF_PDM_InitField(&m_azimuthAngle,        "AzimuthAngle", 0.0f, "Azimuth Angle", "", "", ""); //Is this correct description?
-    CAF_PDM_InitField(&m_skinFactor,          "SkinFactor",   0.0f, "Skin Factor", "", "", "");
+    CAF_PDM_InitField( &m_orientationType,
+                       "Orientation",
+                       caf::AppEnum<FracOrientationEnum>( TRANSVERSE_WELL_PATH ),
+                       "Fracture Orientation",
+                       "",
+                       "",
+                       "" );
+    CAF_PDM_InitField( &m_azimuthAngle, "AzimuthAngle", 0.0f, "Azimuth Angle", "", "", "" ); // Is this correct
+                                                                                             // description?
+    CAF_PDM_InitField( &m_skinFactor, "SkinFactor", 0.0f, "Skin Factor", "", "", "" );
 
-    CAF_PDM_InitField(&m_perforationLength,     "PerforationLength",      1.0, "Perforation Length", "", "", "");
-    
-    CAF_PDM_InitField(&m_perforationEfficiency, "PerforationEfficiency",  1.0, "Perforation Efficiency", "", "", "");
-    m_perforationEfficiency.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+    CAF_PDM_InitField( &m_perforationLength, "PerforationLength", 1.0, "Perforation Length", "", "", "" );
 
-    CAF_PDM_InitField(&m_wellDiameter,        "WellDiameter", 0.216, "Well Diameter at Fracture", "", "", "");
-    CAF_PDM_InitField(&m_conductivityType,    "ConductivityType", caf::AppEnum<FracConductivityEnum>(FINITE_CONDUCTIVITY), "Conductivity in Fracture", "", "", "");
+    CAF_PDM_InitField( &m_perforationEfficiency, "PerforationEfficiency", 1.0, "Perforation Efficiency", "", "", "" );
+    m_perforationEfficiency.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault(&m_fractureContainment, "FractureContainmentField", "Fracture Containment", "", "", "");
+    CAF_PDM_InitField( &m_wellDiameter, "WellDiameter", 0.216, "Well Diameter at Fracture", "", "", "" );
+    CAF_PDM_InitField( &m_conductivityType,
+                       "ConductivityType",
+                       caf::AppEnum<FracConductivityEnum>( FINITE_CONDUCTIVITY ),
+                       "Conductivity in Fracture",
+                       "",
+                       "",
+                       "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_fractureContainment, "FractureContainmentField", "Fracture Containment", "", "", "" );
     m_fractureContainment = new RimFractureContainment();
-    m_fractureContainment.uiCapability()->setUiTreeHidden(true);
-    m_fractureContainment.uiCapability()->setUiTreeChildrenHidden(true);
+    m_fractureContainment.uiCapability()->setUiTreeHidden( true );
+    m_fractureContainment.uiCapability()->setUiTreeChildrenHidden( true );
 
     // Non-Darcy Flow options
-    CAF_PDM_InitFieldNoDefault(&m_nonDarcyFlowType,     "NonDarcyFlowType",      "Non-Darcy Flow", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_nonDarcyFlowType, "NonDarcyFlowType", "Non-Darcy Flow", "", "", "" );
 
-    CAF_PDM_InitField(&m_userDefinedDFactor,            "UserDefinedDFactor",      1.0, "D Factor", "", "", "");
+    CAF_PDM_InitField( &m_userDefinedDFactor, "UserDefinedDFactor", 1.0, "D Factor", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_fractureWidthType,    "FractureWidthType",     "Type", "", "", "");
-    CAF_PDM_InitField_Basic(&m_fractureWidth,           "FractureWidth",  0.01,    "Fracture Width (h)");
+    CAF_PDM_InitFieldNoDefault( &m_fractureWidthType, "FractureWidthType", "Type", "", "", "" );
+    CAF_PDM_InitField_Basic( &m_fractureWidth, "FractureWidth", 0.01, "Fracture Width (h)" );
 
-    CAF_PDM_InitFieldNoDefault(&m_betaFactorType,       "BetaFactorType", "Type", "", "", "");
-    CAF_PDM_InitField_Basic(&m_inertialCoefficient,     "InertialCoefficient",  0.006083236,    "<html>Inertial Coefficient (&beta;)</html> [Forch. unit]");
+    CAF_PDM_InitFieldNoDefault( &m_betaFactorType, "BetaFactorType", "Type", "", "", "" );
+    CAF_PDM_InitField_Basic( &m_inertialCoefficient,
+                             "InertialCoefficient",
+                             0.006083236,
+                             "<html>Inertial Coefficient (&beta;)</html> [Forch. unit]" );
 
-    CAF_PDM_InitFieldNoDefault(&m_permeabilityType,         "PermeabilityType",     "Type", "", "", "");
-    CAF_PDM_InitField_Basic(&m_relativePermeability,        "RelativePermeability", 1.0,    "Relative Permeability");
-    CAF_PDM_InitField(&m_userDefinedEffectivePermeability,  "EffectivePermeability",0.0,    "Effective Permeability (Ke) [mD]", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_permeabilityType, "PermeabilityType", "Type", "", "", "" );
+    CAF_PDM_InitField_Basic( &m_relativePermeability, "RelativePermeability", 1.0, "Relative Permeability" );
+    CAF_PDM_InitField( &m_userDefinedEffectivePermeability,
+                       "EffectivePermeability",
+                       0.0,
+                       "Effective Permeability (Ke) [mD]",
+                       "",
+                       "",
+                       "" );
 
-    CAF_PDM_InitField(&m_relativeGasDensity,            "RelativeGasDensity",   0.8,    "<html>Relative Gas Density (&gamma;)</html>", "", "Relative density of gas at surface conditions with respect to air at STP", "");
-    CAF_PDM_InitField(&m_gasViscosity,                  "GasViscosity",         0.02,   "<html>Gas Viscosity (&mu;)</html> [cP]", "", "Gas viscosity at bottom hole pressure", "");
+    CAF_PDM_InitField( &m_relativeGasDensity,
+                       "RelativeGasDensity",
+                       0.8,
+                       "<html>Relative Gas Density (&gamma;)</html>",
+                       "",
+                       "Relative density of gas at surface conditions with respect to air at STP",
+                       "" );
+    CAF_PDM_InitField( &m_gasViscosity,
+                       "GasViscosity",
+                       0.02,
+                       "<html>Gas Viscosity (&mu;)</html> [cP]",
+                       "",
+                       "Gas viscosity at bottom hole pressure",
+                       "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_dFactorDisplayField, "dFactorDisplayField", "D Factor", "", "", "");
-    m_dFactorDisplayField.registerGetMethod(this, &RimFractureTemplate::dFactorForTemplate);
-    m_dFactorDisplayField.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleValueEditor::uiEditorTypeName());
-    m_dFactorDisplayField.uiCapability()->setUiReadOnly(true);
+    CAF_PDM_InitFieldNoDefault( &m_dFactorDisplayField, "dFactorDisplayField", "D Factor", "", "", "" );
+    m_dFactorDisplayField.registerGetMethod( this, &RimFractureTemplate::dFactorForTemplate );
+    m_dFactorDisplayField.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+    m_dFactorDisplayField.uiCapability()->setUiReadOnly( true );
     m_dFactorDisplayField.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault(&m_dFactorSummaryText, "dFactorSummaryText", "D Factor Summary", "", "", "");
-    m_dFactorSummaryText.registerGetMethod(this, &RimFractureTemplate::dFactorSummary);
-    m_dFactorSummaryText.uiCapability()->setUiReadOnly(true);
-    m_dFactorSummaryText.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
-    m_dFactorSummaryText.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LabelPosType::TOP);
+    CAF_PDM_InitFieldNoDefault( &m_dFactorSummaryText, "dFactorSummaryText", "D Factor Summary", "", "", "" );
+    m_dFactorSummaryText.registerGetMethod( this, &RimFractureTemplate::dFactorSummary );
+    m_dFactorSummaryText.uiCapability()->setUiReadOnly( true );
+    m_dFactorSummaryText.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
+    m_dFactorSummaryText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::TOP );
     m_dFactorSummaryText.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField(&m_heightScaleFactor, "HeightScaleFactor", 1.0, "Height", "", "", "");
-    CAF_PDM_InitField(&m_halfLengthScaleFactor,  "WidthScaleFactor",  1.0, "Half Length", "", "", "");
-    CAF_PDM_InitField(&m_dFactorScaleFactor, "DFactorScaleFactor", 1.0, "D-factor", "", "", "");
-    CAF_PDM_InitField(&m_conductivityScaleFactor, "ConductivityFactor", 1.0, "Conductivity", "", "The conductivity values read from file will be scaled with this parameters", "");
-    CAF_PDM_InitField(&m_scaleApplyButton, "ScaleApplyButton", false, "Apply", "", "", "");
+    CAF_PDM_InitField( &m_heightScaleFactor, "HeightScaleFactor", 1.0, "Height", "", "", "" );
+    CAF_PDM_InitField( &m_halfLengthScaleFactor, "WidthScaleFactor", 1.0, "Half Length", "", "", "" );
+    CAF_PDM_InitField( &m_dFactorScaleFactor, "DFactorScaleFactor", 1.0, "D-factor", "", "", "" );
+    CAF_PDM_InitField( &m_conductivityScaleFactor,
+                       "ConductivityFactor",
+                       1.0,
+                       "Conductivity",
+                       "",
+                       "The conductivity values read from file will be scaled with this parameters",
+                       "" );
+    CAF_PDM_InitField( &m_scaleApplyButton, "ScaleApplyButton", false, "Apply", "", "", "" );
 
     m_scaleApplyButton.xmlCapability()->disableIO();
-    m_scaleApplyButton.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    m_scaleApplyButton.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_scaleApplyButton.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+    m_scaleApplyButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 }
-
-// clang-format on
 
 //--------------------------------------------------------------------------------------------------
 ///
