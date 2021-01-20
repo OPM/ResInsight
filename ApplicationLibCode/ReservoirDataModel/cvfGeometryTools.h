@@ -81,6 +81,9 @@ public:
     static cvf::Vec3d polygonAreaNormal3D( const std::vector<cvf::Vec3d>& polygon );
     static cvf::Vec3f polygonAreaNormal3D( const std::vector<cvf::Vec3f>& polygon );
 
+    static float  polygonArea( const std::vector<cvf::Vec3f>& polygon );
+    static double polygonArea( const std::vector<cvf::Vec3d>& polygon );
+
     enum IntersectionStatus
     {
         NO_INTERSECTION,
