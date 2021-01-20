@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
-
 #include <QString>
 
 namespace RiaDefines

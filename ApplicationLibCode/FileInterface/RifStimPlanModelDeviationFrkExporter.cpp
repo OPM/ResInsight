@@ -18,6 +18,8 @@
 
 #include "RifStimPlanModelDeviationFrkExporter.h"
 
+#include "RiaEclipseUnitTools.h"
+
 #include "RimStimPlanModel.h"
 #include "RimWellPath.h"
 

@@ -1303,25 +1303,25 @@ std::vector<RimValveTemplate*> RimProject::allValveTemplates() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaEclipseUnitTools::UnitSystemType RimProject::commonUnitSystemForAllCases() const
+caf::AppEnum<RiaDefines::EclipseUnitSystem> RimProject::commonUnitSystemForAllCases() const
 {
     std::vector<RimCase*> rimCases;
     allCases( rimCases );
 
-    RiaEclipseUnitTools::UnitSystem commonUnitSystem = RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
+    RiaDefines::EclipseUnitSystem commonUnitSystem = RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
 
     for ( const auto& c : rimCases )
     {
         auto eclipseCase = dynamic_cast<RimEclipseCase*>( c );
         if ( eclipseCase && eclipseCase->eclipseCaseData() )
         {
-            if ( commonUnitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN )
+            if ( commonUnitSystem == RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN )
             {
                 commonUnitSystem = eclipseCase->eclipseCaseData()->unitsType();
             }
             else if ( commonUnitSystem != eclipseCase->eclipseCaseData()->unitsType() )
             {
-                commonUnitSystem = RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
+                commonUnitSystem = RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
                 break;
             }
         }

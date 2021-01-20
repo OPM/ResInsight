@@ -18,6 +18,7 @@
 
 #include "RifStimPlanXmlReader.h"
 
+#include "RiaDefines.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaFractureDefines.h"
 #include "RiaLogging.h"
@@ -36,15 +37,14 @@ bool hasNegativeValues( std::vector<double> xs );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigStimPlanFractureDefinition>
-    RifStimPlanXmlReader::readStimPlanXMLFile( const QString&                  stimPlanFileName,
-                                               double                          conductivityScalingFactor,
-                                               double                          xScaleFactor,
-                                               double                          yScaleFactor,
-                                               double                          wellPathInterationY,
-                                               MirrorMode                      mirrorMode,
-                                               RiaEclipseUnitTools::UnitSystem requiredUnit,
-                                               QString*                        errorMessage )
+cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFile( const QString& stimPlanFileName,
+                                                                                   double     conductivityScalingFactor,
+                                                                                   double     xScaleFactor,
+                                                                                   double     yScaleFactor,
+                                                                                   double     wellPathInterationY,
+                                                                                   MirrorMode mirrorMode,
+                                                                                   RiaDefines::EclipseUnitSystem requiredUnit,
+                                                                                   QString* errorMessage )
 {
     RiaLogging::info( QString( "Starting to open StimPlan XML file: '%1'" ).arg( stimPlanFileName ) );
 
@@ -65,9 +65,9 @@ cvf::ref<RigStimPlanFractureDefinition>
         if ( xScaleFactor != 1.0 ) stimPlanFileData->scaleXs( xScaleFactor );
         if ( yScaleFactor != 1.0 ) stimPlanFileData->scaleYs( yScaleFactor, wellPathInterationY );
 
-        RiaEclipseUnitTools::UnitSystemType unitSystem = stimPlanFileData->unitSet();
+        caf::AppEnum<RiaDefines::EclipseUnitSystem> unitSystem = stimPlanFileData->unitSet();
 
-        if ( unitSystem != RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN )
+        if ( unitSystem != RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN )
             RiaLogging::info( QString( "Setting unit system for StimPlan fracture template %1 to %2" )
                                   .arg( stimPlanFileName )
                                   .arg( unitSystem.uiText() ) );
@@ -178,10 +178,10 @@ cvf::ref<RigStimPlanFractureDefinition>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifStimPlanXmlReader::readStimplanGridAndTimesteps( QXmlStreamReader&               xmlStream,
-                                                         RigStimPlanFractureDefinition*  stimPlanFileData,
-                                                         MirrorMode                      mirrorMode,
-                                                         RiaEclipseUnitTools::UnitSystem requiredUnit )
+void RifStimPlanXmlReader::readStimplanGridAndTimesteps( QXmlStreamReader&              xmlStream,
+                                                         RigStimPlanFractureDefinition* stimPlanFileData,
+                                                         MirrorMode                     mirrorMode,
+                                                         RiaDefines::EclipseUnitSystem  requiredUnit )
 {
     size_t startNegValuesYs = 0;
 
@@ -201,7 +201,7 @@ void RifStimPlanXmlReader::readStimplanGridAndTimesteps( QXmlStreamReader&      
 
         if ( xmlStream.isStartElement() )
         {
-            RiaEclipseUnitTools::UnitSystem destinationUnit = requiredUnit;
+            RiaDefines::EclipseUnitSystem destinationUnit = requiredUnit;
 
             if ( xmlStream.name() == "grid" )
             {
@@ -211,13 +211,13 @@ void RifStimPlanXmlReader::readStimplanGridAndTimesteps( QXmlStreamReader&      
                     QString gridunit = getAttributeValueString( xmlStream, "uom" );
 
                     if ( gridunit == "m" )
-                        stimPlanFileData->m_unitSet = RiaEclipseUnitTools::UnitSystem::UNITS_METRIC;
+                        stimPlanFileData->m_unitSet = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
                     else if ( gridunit == "ft" )
-                        stimPlanFileData->m_unitSet = RiaEclipseUnitTools::UnitSystem::UNITS_FIELD;
+                        stimPlanFileData->m_unitSet = RiaDefines::EclipseUnitSystem::UNITS_FIELD;
                     else
-                        stimPlanFileData->m_unitSet = RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
+                        stimPlanFileData->m_unitSet = RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
 
-                    if ( destinationUnit == RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN )
+                    if ( destinationUnit == RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN )
                     {
                         // Use file unit set if requested unit is unknown
                         destinationUnit = stimPlanFileData->m_unitSet;
@@ -227,11 +227,11 @@ void RifStimPlanXmlReader::readStimplanGridAndTimesteps( QXmlStreamReader&      
                     double tvdToBotPerfFt = getAttributeValueDouble( xmlStream, "TVDToBottomPerfFt" );
 
                     tvdToTopPerf =
-                        RifStimPlanXmlReader::valueInRequiredUnitSystem( RiaEclipseUnitTools::UnitSystem::UNITS_FIELD,
+                        RifStimPlanXmlReader::valueInRequiredUnitSystem( RiaDefines::EclipseUnitSystem::UNITS_FIELD,
                                                                          destinationUnit,
                                                                          tvdToTopPerfFt );
                     tvdToBotPerf =
-                        RifStimPlanXmlReader::valueInRequiredUnitSystem( RiaEclipseUnitTools::UnitSystem::UNITS_FIELD,
+                        RifStimPlanXmlReader::valueInRequiredUnitSystem( RiaDefines::EclipseUnitSystem::UNITS_FIELD,
                                                                          destinationUnit,
                                                                          tvdToBotPerfFt );
                 }
@@ -387,12 +387,12 @@ std::vector<std::vector<double>> RifStimPlanXmlReader::getAllDepthDataAtTimeStep
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RifStimPlanXmlReader::valuesInRequiredUnitSystem( RiaEclipseUnitTools::UnitSystem sourceUnit,
-                                                                      RiaEclipseUnitTools::UnitSystem requiredUnit,
-                                                                      const std::vector<double>&      values )
+std::vector<double> RifStimPlanXmlReader::valuesInRequiredUnitSystem( RiaDefines::EclipseUnitSystem sourceUnit,
+                                                                      RiaDefines::EclipseUnitSystem requiredUnit,
+                                                                      const std::vector<double>&    values )
 {
-    if ( sourceUnit == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD &&
-         requiredUnit == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+    if ( sourceUnit == RiaDefines::EclipseUnitSystem::UNITS_FIELD &&
+         requiredUnit == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
         std::vector<double> convertedValues;
         for ( const auto& valueInFeet : values )
@@ -402,8 +402,8 @@ std::vector<double> RifStimPlanXmlReader::valuesInRequiredUnitSystem( RiaEclipse
 
         return convertedValues;
     }
-    else if ( sourceUnit == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC &&
-              requiredUnit == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+    else if ( sourceUnit == RiaDefines::EclipseUnitSystem::UNITS_METRIC &&
+              requiredUnit == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
         std::vector<double> convertedValues;
         for ( const auto& valueInMeter : values )
@@ -420,17 +420,17 @@ std::vector<double> RifStimPlanXmlReader::valuesInRequiredUnitSystem( RiaEclipse
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RifStimPlanXmlReader::valueInRequiredUnitSystem( RiaEclipseUnitTools::UnitSystem sourceUnit,
-                                                        RiaEclipseUnitTools::UnitSystem requiredUnit,
-                                                        double                          value )
+double RifStimPlanXmlReader::valueInRequiredUnitSystem( RiaDefines::EclipseUnitSystem sourceUnit,
+                                                        RiaDefines::EclipseUnitSystem requiredUnit,
+                                                        double                        value )
 {
-    if ( sourceUnit == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD &&
-         requiredUnit == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+    if ( sourceUnit == RiaDefines::EclipseUnitSystem::UNITS_FIELD &&
+         requiredUnit == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
         return RiaEclipseUnitTools::feetToMeter( value );
     }
-    else if ( sourceUnit == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC &&
-              requiredUnit == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+    else if ( sourceUnit == RiaDefines::EclipseUnitSystem::UNITS_METRIC &&
+              requiredUnit == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
         return RiaEclipseUnitTools::meterToFeet( value );
     }

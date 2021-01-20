@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 
 #include "RimEclipseCase.h"
 
@@ -61,7 +61,7 @@ public:
     bool openAndReadActiveCellData( RigEclipseCaseData* mainEclipseCase );
     void readGridDimensions( std::vector<std::vector<int>>& gridDimensions );
 
-    RiaEclipseUnitTools::UnitSystemType unitSystem();
+    caf::AppEnum<RiaDefines::EclipseUnitSystem> unitSystem();
 
     // Overrides from RimCase
     QString locationOnDisc() const override;
@@ -94,9 +94,9 @@ private:
     cvf::ref<RifReaderEclipseRft> m_readerEclipseRft;
 
     // Fields:
-    caf::PdmProxyValueField<RiaEclipseUnitTools::UnitSystemType> m_unitSystem;
-    caf::PdmChildArrayField<RimFlowDiagSolution*>                m_flowDiagSolutions;
-    caf::PdmField<caf::FilePath>                                 m_sourSimFileName;
+    caf::PdmProxyValueField<caf::AppEnum<RiaDefines::EclipseUnitSystem>> m_unitSystem;
+    caf::PdmChildArrayField<RimFlowDiagSolution*>                        m_flowDiagSolutions;
+    caf::PdmField<caf::FilePath>                                         m_sourSimFileName;
 
     // Obsolete field
     caf::PdmField<QString> caseDirectory;

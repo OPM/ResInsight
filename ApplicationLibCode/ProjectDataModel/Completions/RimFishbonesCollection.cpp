@@ -18,6 +18,8 @@
 
 #include "RimFishbonesCollection.h"
 
+#include "RiaEclipseUnitTools.h"
+
 #include "RifWellPathImporter.h"
 
 #include "RigWellPath.h"
@@ -116,12 +118,12 @@ void RimFishbonesCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiO
         firstAncestorOrThisOfType( wellPath );
         if ( wellPath )
         {
-            if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+            if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
             {
                 m_startMD.uiCapability()->setUiName( "Start MD [m]" );
                 m_mainBoreDiameter.uiCapability()->setUiName( "Main Bore Diameter [m]" );
             }
-            else if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+            else if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
             {
                 m_startMD.uiCapability()->setUiName( "Start MD [ft]" );
                 m_mainBoreDiameter.uiCapability()->setUiName( "Main Bore Diameter [ft]" );
@@ -283,17 +285,17 @@ double RimFishbonesCollection::startMD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFishbonesCollection::mainBoreDiameter( RiaEclipseUnitTools::UnitSystem unitSystem ) const
+double RimFishbonesCollection::mainBoreDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const
 {
     RimWellPath* wellPath;
     firstAncestorOrThisOfTypeAsserted( wellPath );
-    if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD &&
-         unitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+    if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD &&
+         unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
         return RiaEclipseUnitTools::feetToMeter( m_mainBoreDiameter() );
     }
-    else if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC &&
-              unitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+    else if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC &&
+              unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
         return RiaEclipseUnitTools::meterToFeet( m_mainBoreDiameter() );
     }
@@ -309,7 +311,7 @@ void RimFishbonesCollection::setUnitSystemSpecificDefaults()
     firstAncestorOrThisOfType( wellPath );
     if ( wellPath )
     {
-        if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+        if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
         {
             m_mainBoreDiameter = 0.216;
         }

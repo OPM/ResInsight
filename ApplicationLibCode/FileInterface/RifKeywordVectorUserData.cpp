@@ -230,9 +230,9 @@ std::string RifKeywordVectorUserData::unitName( const RifEclipseSummaryAddress& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaEclipseUnitTools::UnitSystem RifKeywordVectorUserData::unitSystem() const
+RiaDefines::EclipseUnitSystem RifKeywordVectorUserData::unitSystem() const
 {
-    return RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
+    return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
 }
 
 //--------------------------------------------------------------------------------------------------

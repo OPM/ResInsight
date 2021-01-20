@@ -18,16 +18,16 @@
 
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 
 #include <QString>
 
 namespace RiaDefines
 {
 QString conductivityResultName();
-QString unitStringConductivity( RiaEclipseUnitTools::UnitSystem unitSystem );
+QString unitStringConductivity( RiaDefines::EclipseUnitSystem unitSystem );
 
-double nonDarcyFlowAlpha( RiaEclipseUnitTools::UnitSystem unitSystem );
+double nonDarcyFlowAlpha( RiaDefines::EclipseUnitSystem unitSystem );
 
 QString faciesColorLegendName();
 QString rockTypeColorLegendName();

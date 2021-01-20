@@ -50,6 +50,16 @@ void caf::AppEnum<RiaDefines::DepthUnitType>::setUp()
 }
 
 template <>
+void caf::AppEnum<RiaDefines::EclipseUnitSystem>::setUp()
+{
+    addItem( RiaDefines::EclipseUnitSystem::UNITS_METRIC, "UNITS_METRIC", "Metric" );
+    addItem( RiaDefines::EclipseUnitSystem::UNITS_FIELD, "UNITS_FIELD", "Field" );
+    addItem( RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN, "UNITS_UNKNOWN", "Unknown" );
+
+    setDefault( RiaDefines::EclipseUnitSystem::UNITS_METRIC );
+}
+
+template <>
 void caf::AppEnum<RiaDefines::DepthTypeEnum>::setUp()
 {
     addItem( RiaDefines::DepthTypeEnum::MEASURED_DEPTH, "MEASURED_DEPTH", "Measured Depth" );

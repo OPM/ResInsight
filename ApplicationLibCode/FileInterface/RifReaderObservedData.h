@@ -51,7 +51,7 @@ public:
 
     std::string unitName( const RifEclipseSummaryAddress& resultAddress ) const override;
 
-    RiaEclipseUnitTools::UnitSystem unitSystem() const override;
+    RiaDefines::EclipseUnitSystem unitSystem() const override;
 
 private:
     RifEclipseSummaryAddress address( const QString&                               quantity,

@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiuRelativePermeabilityPlotPanel.h"
+
 #include "RiuDockedQwtPlot.h"
 #include "RiuGuiTheme.h"
 #include "RiuQwtPlotCurve.h"
@@ -25,6 +26,8 @@
 #include "RiuTextDialog.h"
 
 #include "RiaCurveDataTools.h"
+#include "RiaEclipseUnitTools.h"
+
 #include "RigFlowDiagSolverInterface.h"
 
 #include "cvfAssert.h"
@@ -80,7 +83,7 @@ public:
 //--------------------------------------------------------------------------------------------------
 RiuRelativePermeabilityPlotPanel::RiuRelativePermeabilityPlotPanel( QDockWidget* parent )
     : QWidget( parent )
-    , m_unitSystem( RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN )
+    , m_unitSystem( RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN )
     , m_swat( HUGE_VAL )
     , m_sgas( HUGE_VAL )
     , m_plotUpdater( new RiuRelativePermeabilityPlotUpdater( this ) )
@@ -187,7 +190,7 @@ void RiuRelativePermeabilityPlotPanel::setPlotDefaults( QwtPlot* plot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuRelativePermeabilityPlotPanel::setPlotData( RiaEclipseUnitTools::UnitSystem unitSystem,
+void RiuRelativePermeabilityPlotPanel::setPlotData( RiaDefines::EclipseUnitSystem unitSystem,
                                                     const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& relPermCurves,
                                                     double                                                       swat,
                                                     double                                                       sgas,
@@ -218,7 +221,7 @@ void RiuRelativePermeabilityPlotPanel::clearPlot()
         return;
     }
 
-    m_unitSystem = RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
+    m_unitSystem = RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
     m_allCurvesArr.clear();
     m_swat = HUGE_VAL;
     m_sgas = HUGE_VAL;
@@ -316,7 +319,7 @@ void RiuRelativePermeabilityPlotPanel::addTransparentCurve( QwtPlot*            
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaEclipseUnitTools::UnitSystem unitSystem,
+void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitSystem unitSystem,
                                                         const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& curveArr,
                                                         double                       swat,
                                                         double                       sgas,

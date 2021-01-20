@@ -147,8 +147,8 @@ void RimStimPlanModelCurve::performDataExtraction( bool* isUsingPseudoLength )
             return;
         }
 
-        RiaEclipseUnitTools::UnitSystem eclipseUnitsType = eclipseCase->eclipseCaseData()->unitsType();
-        if ( eclipseUnitsType == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+        RiaDefines::EclipseUnitSystem eclipseUnitsType = eclipseCase->eclipseCaseData()->unitsType();
+        if ( eclipseUnitsType == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
         {
             // See https://github.com/OPM/ResInsight/issues/538
 

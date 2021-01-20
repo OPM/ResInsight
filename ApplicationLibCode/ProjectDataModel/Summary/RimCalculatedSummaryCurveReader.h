@@ -41,7 +41,7 @@ public:
 
     void buildMetaData();
 
-    RiaEclipseUnitTools::UnitSystem unitSystem() const override;
+    RiaDefines::EclipseUnitSystem unitSystem() const override;
 
 private:
     RimSummaryCalculation* findCalculationByName( const RifEclipseSummaryAddress& resultAddress ) const;

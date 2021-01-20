@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 #include "RimWellPath.h"
 
 //==================================================================================================

@@ -242,13 +242,13 @@ double RimFishbonesMultipleSubs::buildAngle() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFishbonesMultipleSubs::tubingDiameter( RiaEclipseUnitTools::UnitSystem unitSystem ) const
+double RimFishbonesMultipleSubs::tubingDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const
 {
     RimWellPath* wellPath;
     firstAncestorOrThisOfTypeAsserted( wellPath );
-    if ( unitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+    if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
-        if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+        if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
         {
             return RiaEclipseUnitTools::inchToMeter( m_lateralTubingDiameter() );
         }
@@ -257,9 +257,9 @@ double RimFishbonesMultipleSubs::tubingDiameter( RiaEclipseUnitTools::UnitSystem
             return m_lateralTubingDiameter() / 1000;
         }
     }
-    else if ( unitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+    else if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
-        if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+        if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
         {
             return RiaEclipseUnitTools::meterToFeet( m_lateralTubingDiameter() / 1000 );
         }
@@ -275,7 +275,7 @@ double RimFishbonesMultipleSubs::tubingDiameter( RiaEclipseUnitTools::UnitSystem
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFishbonesMultipleSubs::effectiveDiameter( RiaEclipseUnitTools::UnitSystem unitSystem ) const
+double RimFishbonesMultipleSubs::effectiveDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const
 {
     double innerRadius = tubingDiameter( unitSystem ) / 2;
     double outerRadius = holeDiameter( unitSystem ) / 2;
@@ -292,17 +292,17 @@ double RimFishbonesMultipleSubs::effectiveDiameter( RiaEclipseUnitTools::UnitSys
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFishbonesMultipleSubs::openHoleRoughnessFactor( RiaEclipseUnitTools::UnitSystem unitSystem ) const
+double RimFishbonesMultipleSubs::openHoleRoughnessFactor( RiaDefines::EclipseUnitSystem unitSystem ) const
 {
     RimWellPath* wellPath;
     firstAncestorOrThisOfTypeAsserted( wellPath );
-    if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD &&
-         unitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+    if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD &&
+         unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
         return RiaEclipseUnitTools::feetToMeter( m_lateralOpenHoleRoghnessFactor() );
     }
-    else if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC &&
-              unitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+    else if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC &&
+              unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
         return RiaEclipseUnitTools::meterToFeet( m_lateralOpenHoleRoghnessFactor() );
     }
@@ -312,7 +312,7 @@ double RimFishbonesMultipleSubs::openHoleRoughnessFactor( RiaEclipseUnitTools::U
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFishbonesMultipleSubs::icdOrificeDiameter( RiaEclipseUnitTools::UnitSystem unitSystem ) const
+double RimFishbonesMultipleSubs::icdOrificeDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const
 {
     RimWellPath* wellPath;
     firstAncestorOrThisOfTypeAsserted( wellPath );
@@ -423,7 +423,7 @@ void RimFishbonesMultipleSubs::setUnitSystemSpecificDefaults()
     firstAncestorOrThisOfType( wellPath );
     if ( wellPath )
     {
-        if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+        if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
         {
             m_lateralLength                 = "11";
             m_lateralBuildAngle             = 6.0;
@@ -432,7 +432,7 @@ void RimFishbonesMultipleSubs::setUnitSystemSpecificDefaults()
             m_lateralTubingRoghnessFactor   = 1e-05;
             m_icdOrificeDiameter            = 7;
         }
-        else if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+        else if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
         {
             m_lateralLength                 = "36";
             m_lateralBuildAngle             = 1.83;
@@ -560,7 +560,7 @@ void RimFishbonesMultipleSubs::defineUiOrdering( QString uiConfigName, caf::PdmU
         firstAncestorOrThisOfType( wellPath );
         if ( wellPath )
         {
-            if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+            if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
             {
                 m_lateralLength.uiCapability()->setUiName( "Length(s) [m]" );
                 m_lateralBuildAngle.uiCapability()->setUiName( "Build Angle [deg/m]" );
@@ -570,7 +570,7 @@ void RimFishbonesMultipleSubs::defineUiOrdering( QString uiConfigName, caf::PdmU
 
                 m_icdOrificeDiameter.uiCapability()->setUiName( "ICD Orifice Diameter [mm]" );
             }
-            else if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+            else if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
             {
                 m_lateralLength.uiCapability()->setUiName( "Length(s) [ft]" );
                 m_lateralBuildAngle.uiCapability()->setUiName( "Build Angle [deg/ft]" );

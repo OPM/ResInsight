@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 #include "RifEclipseRftAddress.h"
 #include "RifEclipseSummaryAddress.h"
 #include "RifReaderEnsembleStatisticsRft.h"
@@ -144,7 +144,7 @@ public:
     static bool validateEnsembleCases( const std::vector<RimSummaryCase*> cases );
     bool        operator<( const RimSummaryCaseCollection& rhs ) const;
 
-    RiaEclipseUnitTools::UnitSystem unitSystem() const;
+    RiaDefines::EclipseUnitSystem unitSystem() const;
 
 private:
     EnsembleParameter createEnsembleParameter( const QString& paramName ) const;

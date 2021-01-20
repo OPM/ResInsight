@@ -18,6 +18,7 @@
 
 #include "RigStimPlanFractureDefinition.h"
 
+#include "RiaEclipseUnitTools.h"
 #include "RiaFractureDefines.h"
 #include "RiaLogging.h"
 
@@ -45,7 +46,7 @@ const double RigStimPlanFractureDefinition::THRESHOLD_VALUE = 1e-5;
 ///
 //--------------------------------------------------------------------------------------------------
 RigStimPlanFractureDefinition::RigStimPlanFractureDefinition()
-    : m_unitSet( RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN )
+    : m_unitSet( RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN )
     , m_xMirrorMode( false )
     , m_topPerfTvd( HUGE_VAL )
     , m_bottomPerfTvd( HUGE_VAL )
@@ -64,7 +65,7 @@ RigStimPlanFractureDefinition::~RigStimPlanFractureDefinition()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaEclipseUnitTools::UnitSystem RigStimPlanFractureDefinition::unitSet() const
+RiaDefines::EclipseUnitSystem RigStimPlanFractureDefinition::unitSet() const
 {
     return m_unitSet;
 }
@@ -316,9 +317,9 @@ std::vector<std::pair<QString, QString>> RigStimPlanFractureDefinition::getStimP
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<std::vector<double>>
-    RigStimPlanFractureDefinition::conductivityValuesAtTimeStep( const QString&                  resultName,
-                                                                 int                             activeTimeStepIndex,
-                                                                 RiaEclipseUnitTools::UnitSystem requiredUnitSet ) const
+    RigStimPlanFractureDefinition::conductivityValuesAtTimeStep( const QString&                resultName,
+                                                                 int                           activeTimeStepIndex,
+                                                                 RiaDefines::EclipseUnitSystem requiredUnitSet ) const
 {
     std::vector<std::vector<double>> conductivityValues;
 
@@ -350,11 +351,11 @@ std::vector<std::vector<double>>
     {
         for ( auto& xVal : yValues )
         {
-            if ( requiredUnitSet == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+            if ( requiredUnitSet == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
             {
                 xVal = RiaEclipseUnitTools::convertToFeet( xVal, conductivityUnitTextOnFile );
             }
-            else if ( requiredUnitSet == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+            else if ( requiredUnitSet == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
             {
                 xVal = RiaEclipseUnitTools::convertToMeter( xVal, conductivityUnitTextOnFile );
             }
@@ -371,7 +372,7 @@ cvf::ref<RigFractureGrid>
     RigStimPlanFractureDefinition::createFractureGrid( const QString& resultName,
                                                        int            activeTimeStepIndex,
                                                        double         wellPathIntersectionAtFractureDepth,
-                                                       RiaEclipseUnitTools::UnitSystem requiredUnitSet ) const
+                                                       RiaDefines::EclipseUnitSystem requiredUnitSet ) const
 {
     std::vector<std::vector<double>> conductivityValues =
         conductivityValuesAtTimeStep( resultName, activeTimeStepIndex, requiredUnitSet );

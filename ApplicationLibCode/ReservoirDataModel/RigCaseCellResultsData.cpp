@@ -21,6 +21,7 @@
 #include "RigCaseCellResultsData.h"
 
 #include "RiaApplication.h"
+#include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 
 #include "RigAllanDiagramData.h"

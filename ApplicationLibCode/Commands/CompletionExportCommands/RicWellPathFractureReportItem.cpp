@@ -117,7 +117,7 @@ QString RicWellPathFractureReportItem::fractureTemplateName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathFractureReportItem::setUnitSystem( RiaEclipseUnitTools::UnitSystem unitSystem )
+void RicWellPathFractureReportItem::setUnitSystem( RiaDefines::EclipseUnitSystem unitSystem )
 {
     m_unitSystem = unitSystem;
 }
@@ -145,7 +145,7 @@ void RicWellPathFractureReportItem::setPressureDepletionParameters( bool        
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaEclipseUnitTools::UnitSystem RicWellPathFractureReportItem::unitSystem() const
+RiaDefines::EclipseUnitSystem RicWellPathFractureReportItem::unitSystem() const
 {
     return m_unitSystem;
 }

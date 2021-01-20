@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 #include "RigFlowDiagSolverInterface.h"
 
 #include <QPointer>
@@ -59,7 +59,7 @@ class RiuPvtPlotWidget : public QWidget, public RiuPvtTrackerTextProvider
 public:
     RiuPvtPlotWidget( RiuPvtPlotPanel* parent );
 
-    void plotCurves( RiaEclipseUnitTools::UnitSystem                          unitSystem,
+    void plotCurves( RiaDefines::EclipseUnitSystem                            unitSystem,
                      const std::vector<RigFlowDiagSolverInterface::PvtCurve>& curveArr,
                      double                                                   pressure,
                      double                                                   pointMarkerYValue,
@@ -124,7 +124,7 @@ public:
     RiuPvtPlotPanel( QDockWidget* parent );
     ~RiuPvtPlotPanel() override;
 
-    void               setPlotData( RiaEclipseUnitTools::UnitSystem                          unitSystem,
+    void               setPlotData( RiaDefines::EclipseUnitSystem                            unitSystem,
                                     const std::vector<RigFlowDiagSolverInterface::PvtCurve>& fvfCurveArr,
                                     const std::vector<RigFlowDiagSolverInterface::PvtCurve>& viscosityCurveArr,
                                     const FvfDynProps&                                       fvfDynProps,
@@ -137,14 +137,14 @@ public:
 
 private:
     void           plotUiSelectedCurves();
-    static QString unitLabelFromCurveIdent( RiaEclipseUnitTools::UnitSystem             unitSystem,
+    static QString unitLabelFromCurveIdent( RiaDefines::EclipseUnitSystem               unitSystem,
                                             RigFlowDiagSolverInterface::PvtCurve::Ident curveIdent );
 
 private slots:
     void slotPhaseComboCurrentIndexChanged( int );
 
 private:
-    RiaEclipseUnitTools::UnitSystem                   m_unitSystem;
+    RiaDefines::EclipseUnitSystem                     m_unitSystem;
     std::vector<RigFlowDiagSolverInterface::PvtCurve> m_allFvfCurvesArr;
     std::vector<RigFlowDiagSolverInterface::PvtCurve> m_allViscosityCurvesArr;
     FvfDynProps                                       m_fvfDynProps;

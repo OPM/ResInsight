@@ -93,7 +93,7 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered( bool isChecked )
 
     fracture->setName( QString( "Fracture_" ) + fracNum );
 
-    auto unitSet = RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
+    auto unitSet = RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
     {
         RimEclipseResultCase* eclipseCase = nullptr;
         simWell->firstAncestorOrThisOfType( eclipseCase );

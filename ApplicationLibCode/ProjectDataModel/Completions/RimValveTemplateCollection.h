@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
@@ -43,10 +43,10 @@ public:
     void                           removeAndDeleteValveTemplate( RimValveTemplate* valveTemplate );
     void                           addDefaultValveTemplates();
 
-    RiaEclipseUnitTools::UnitSystemType defaultUnitSystemType() const;
-    void                                setDefaultUnitSystemBasedOnLoadedCases();
+    caf::AppEnum<RiaDefines::EclipseUnitSystem> defaultUnitSystemType() const;
+    void                                        setDefaultUnitSystemBasedOnLoadedCases();
 
 private:
-    caf::PdmChildArrayField<RimValveTemplate*>         m_valveDefinitions;
-    caf::PdmField<RiaEclipseUnitTools::UnitSystemType> m_defaultUnitsForValveTemplates;
+    caf::PdmChildArrayField<RimValveTemplate*>                 m_valveDefinitions;
+    caf::PdmField<caf::AppEnum<RiaDefines::EclipseUnitSystem>> m_defaultUnitsForValveTemplates;
 };

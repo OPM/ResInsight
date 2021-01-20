@@ -22,7 +22,7 @@
 
 #include "RifReaderInterface.h"
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 
 #include "cvfArray.h"
 #include "cvfAssert.h"
@@ -105,8 +105,8 @@ public:
 
     void computeActiveCellBoundingBoxes();
 
-    RiaEclipseUnitTools::UnitSystem unitsType() const { return m_unitsType; }
-    void setUnitsType( RiaEclipseUnitTools::UnitSystem unitsType ) { m_unitsType = unitsType; }
+    RiaDefines::EclipseUnitSystem unitsType() const { return m_unitsType; }
+    void                          setUnitsType( RiaDefines::EclipseUnitSystem unitsType ) { m_unitsType = unitsType; }
 
     std::vector<QString> simulationWellNames() const;
     bool                 hasSimulationWell( const QString& simWellName ) const;
@@ -149,7 +149,7 @@ private:
     cvf::Collection<cvf::UIntArray> m_gridCellToResultWellIndex; //< Array pr grid with index to well pr cell telling
                                                                  // which well a cell is in
 
-    RiaEclipseUnitTools::UnitSystem m_unitsType;
+    RiaDefines::EclipseUnitSystem m_unitsType;
 
     bool                  m_hasParsedDeckForEquilData;
     std::vector<RigEquil> m_equil;

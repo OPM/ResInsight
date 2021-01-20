@@ -18,6 +18,7 @@
 #include "RimStimPlanModelCalculator.h"
 
 #include "RiaDefines.h"
+#include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 #include "RiaStimPlanModelDefines.h"
 

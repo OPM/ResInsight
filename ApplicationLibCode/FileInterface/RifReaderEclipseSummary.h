@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 #include "RifEclipseSummaryAddress.h"
 #include "RifSummaryReaderInterface.h"
 
@@ -75,8 +75,8 @@ public:
 
     bool        values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const override;
     std::string unitName( const RifEclipseSummaryAddress& resultAddress ) const override;
-    RiaEclipseUnitTools::UnitSystem unitSystem() const override;
-    QStringList                     warnings() const { return m_warnings; }
+    RiaDefines::EclipseUnitSystem unitSystem() const override;
+    QStringList                   warnings() const { return m_warnings; }
 
     static std::string       differenceIdentifier() { return "_DIFF"; }
     static const std::string historyIdentifier() { return "H"; }
@@ -96,7 +96,7 @@ private:
     const ecl_smspec_type* m_ecl_SmSpec;
     std::vector<time_t>    m_timeSteps;
 
-    RiaEclipseUnitTools::UnitSystem m_unitSystem;
+    RiaDefines::EclipseUnitSystem m_unitSystem;
 
     std::map<RifEclipseSummaryAddress, int> m_resultAddressToErtNodeIdx;
 

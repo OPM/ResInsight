@@ -302,13 +302,11 @@ void RimWellAllocationPlot::updateFromWell()
 
         accumulatedWellFlowPlot()->addPlot( plotTrack );
 
-        const std::vector<double>& depthValues = depthType == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER
-                                                     ? wfCalculator->connectionNumbersFromTop( brIdx )
-                                                     : depthType == RiaDefines::DepthTypeEnum::PSEUDO_LENGTH
-                                                           ? wfCalculator->pseudoLengthFromTop( brIdx )
-                                                           : depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH
-                                                                 ? wfCalculator->trueVerticalDepth( brIdx )
-                                                                 : std::vector<double>();
+        const std::vector<double>& depthValues =
+            depthType == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER ? wfCalculator->connectionNumbersFromTop( brIdx )
+            : depthType == RiaDefines::DepthTypeEnum::PSEUDO_LENGTH   ? wfCalculator->pseudoLengthFromTop( brIdx )
+            : depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH ? wfCalculator->trueVerticalDepth( brIdx )
+                                                                          : std::vector<double>();
 
         {
             std::vector<QString> tracerNames = wfCalculator->tracerNames();
@@ -476,7 +474,7 @@ std::map<QString, const std::vector<double>*>
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::updateWellFlowPlotXAxisTitle( RimWellLogTrack* plotTrack )
 {
-    RiaEclipseUnitTools::UnitSystem   unitSet   = m_case->eclipseCaseData()->unitsType();
+    RiaDefines::EclipseUnitSystem     unitSet   = m_case->eclipseCaseData()->unitsType();
     RimWellLogFile::WellFlowCondition condition = m_flowDiagSolution ? RimWellLogFile::WELL_FLOW_COND_RESERVOIR
                                                                      : RimWellLogFile::WELL_FLOW_COND_STANDARD;
 

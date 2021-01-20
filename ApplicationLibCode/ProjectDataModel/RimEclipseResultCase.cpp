@@ -318,7 +318,7 @@ bool RimEclipseResultCase::openAndReadActiveCellData( RigEclipseCaseData* mainEc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaEclipseUnitTools::UnitSystemType RimEclipseResultCase::unitSystem()
+caf::AppEnum<RiaDefines::EclipseUnitSystem> RimEclipseResultCase::unitSystem()
 {
     return m_unitSystem();
 }

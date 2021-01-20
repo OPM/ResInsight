@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 #include "RifEclipseSummaryAddress.h"
 
 #include "RimSummaryCase.h"
@@ -54,7 +54,7 @@ public:
     const RimEnsembleCurveSet* curveSet() const;
 
     void calculate( const std::vector<RimSummaryCase*>& sumCases, bool includeIncompleteCurves );
-    RiaEclipseUnitTools::UnitSystem unitSystem() const;
+    RiaDefines::EclipseUnitSystem unitSystem() const;
 
 private:
     void                         calculate( const std::vector<RimSummaryCase*> sumCases,

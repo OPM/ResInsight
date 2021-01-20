@@ -234,14 +234,14 @@ QString RimSummaryCase::nativeCaseName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaEclipseUnitTools::UnitSystemType RimSummaryCase::unitsSystem()
+caf::AppEnum<RiaDefines::EclipseUnitSystem> RimSummaryCase::unitsSystem()
 {
     RifSummaryReaderInterface* reader = summaryReader();
     if ( reader )
     {
         return reader->unitSystem();
     }
-    return RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
+    return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
 }
 
 //--------------------------------------------------------------------------------------------------

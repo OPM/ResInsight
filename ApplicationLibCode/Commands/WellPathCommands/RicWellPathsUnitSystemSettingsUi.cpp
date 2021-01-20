@@ -40,12 +40,12 @@ QList<caf::PdmOptionItemInfo>
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &unitSystem )
     {
-        options.push_back( caf::PdmOptionItemInfo( RiaEclipseUnitTools::UnitSystemType::uiText(
-                                                       RiaEclipseUnitTools::UnitSystem::UNITS_METRIC ),
-                                                   RiaEclipseUnitTools::UnitSystem::UNITS_METRIC ) );
-        options.push_back( caf::PdmOptionItemInfo( RiaEclipseUnitTools::UnitSystemType::uiText(
-                                                       RiaEclipseUnitTools::UnitSystem::UNITS_FIELD ),
-                                                   RiaEclipseUnitTools::UnitSystem::UNITS_FIELD ) );
+        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::EclipseUnitSystem>::uiText(
+                                                       RiaDefines::EclipseUnitSystem::UNITS_METRIC ),
+                                                   RiaDefines::EclipseUnitSystem::UNITS_METRIC ) );
+        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::EclipseUnitSystem>::uiText(
+                                                       RiaDefines::EclipseUnitSystem::UNITS_FIELD ),
+                                                   RiaDefines::EclipseUnitSystem::UNITS_FIELD ) );
     }
     return options;
 }

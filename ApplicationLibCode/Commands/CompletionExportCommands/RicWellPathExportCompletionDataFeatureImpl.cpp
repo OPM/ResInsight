@@ -149,11 +149,10 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
 
         size_t maxProgress =
             usedWellPaths.size() * 3 + simWells.size() +
-            ( exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL
-                  ? usedWellPaths.size()
-                  : exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL_AND_COMPLETION_TYPE
-                        ? usedWellPaths.size() * 3
-                        : 1 ) +
+            ( exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL ? usedWellPaths.size()
+              : exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL_AND_COMPLETION_TYPE
+                  ? usedWellPaths.size() * 3
+                  : 1 ) +
             simWells.size();
 
         caf::ProgressInfo progress( maxProgress, "Export Completions" );
@@ -1155,7 +1154,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::gener
     const std::vector<const RimPerforationInterval*>& intervals,
     const RicExportCompletionDataSettingsUi&          settings )
 {
-    RiaEclipseUnitTools::UnitSystem unitSystem = settings.caseToApply->eclipseCaseData()->unitsType();
+    RiaDefines::EclipseUnitSystem unitSystem = settings.caseToApply->eclipseCaseData()->unitsType();
 
     std::vector<RigCompletionData> completionData;
 
@@ -1608,8 +1607,8 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityAsEc
     double permy = permyAccessObject->cellScalarGlobIdx( globalCellIndex );
     double permz = permzAccessObject->cellScalarGlobIdx( globalCellIndex );
 
-    RiaEclipseUnitTools::UnitSystem units = eclipseCaseData->unitsType();
-    double                          darcy = RiaEclipseUnitTools::darcysConstant( units );
+    RiaDefines::EclipseUnitSystem units = eclipseCaseData->unitsType();
+    double                        darcy = RiaEclipseUnitTools::darcysConstant( units );
 
     double trans = cvf::UNDEFINED_DOUBLE;
     if ( direction == CellDirection::DIR_I )

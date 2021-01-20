@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 #include "RiaRftPltCurveDefinition.h"
 
 #include "RifDataSourceForRftPltQMetaType.h"
@@ -121,12 +121,12 @@ public:
                                 const std::set<RifEclipseRftAddress::RftWellLogChannelType>& interestingRFTResults );
 
     static QString flowPlotAxisTitle( RimWellLogFile::WellFlowCondition condition,
-                                      RiaEclipseUnitTools::UnitSystem   unitSystem );
+                                      RiaDefines::EclipseUnitSystem     unitSystem );
 
-    static QString flowUnitText( RimWellLogFile::WellFlowCondition condition, RiaEclipseUnitTools::UnitSystem unitSystem );
+    static QString flowUnitText( RimWellLogFile::WellFlowCondition condition, RiaDefines::EclipseUnitSystem unitSystem );
 
     static QString curveUnitText( RimWellLogFile::WellFlowCondition condition,
-                                  RiaEclipseUnitTools::UnitSystem   unitSystem,
+                                  RiaDefines::EclipseUnitSystem     unitSystem,
                                   FlowPhase                         flowPhase );
 
     static bool hasFlowData( const RimWellPath* wellPath );

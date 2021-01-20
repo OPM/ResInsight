@@ -23,7 +23,7 @@
 #include "RimCheckableNamedObject.h"
 #include "RimWellPathComponentInterface.h"
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
@@ -55,7 +55,7 @@ public:
 
     void   setDiameter( double diameter );
     void   setSkinFactor( double skinFactor );
-    double diameter( RiaEclipseUnitTools::UnitSystem unitSystem ) const;
+    double diameter( RiaDefines::EclipseUnitSystem unitSystem ) const;
     double skinFactor() const;
 
     bool isActiveOnDate( const QDateTime& date ) const;

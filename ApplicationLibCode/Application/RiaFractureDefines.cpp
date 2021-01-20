@@ -29,13 +29,13 @@ QString RiaDefines::conductivityResultName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::unitStringConductivity( RiaEclipseUnitTools::UnitSystem unitSystem )
+QString RiaDefines::unitStringConductivity( RiaDefines::EclipseUnitSystem unitSystem )
 {
     switch ( unitSystem )
     {
-        case RiaEclipseUnitTools::UnitSystem::UNITS_METRIC:
+        case RiaDefines::EclipseUnitSystem::UNITS_METRIC:
             return "md-m";
-        case RiaEclipseUnitTools::UnitSystem::UNITS_FIELD:
+        case RiaDefines::EclipseUnitSystem::UNITS_FIELD:
             return "md-ft";
         default:
             return "";
@@ -45,15 +45,15 @@ QString RiaDefines::unitStringConductivity( RiaEclipseUnitTools::UnitSystem unit
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RiaDefines::nonDarcyFlowAlpha( RiaEclipseUnitTools::UnitSystem unitSystem )
+double RiaDefines::nonDarcyFlowAlpha( RiaDefines::EclipseUnitSystem unitSystem )
 {
     switch ( unitSystem )
     {
-        case RiaEclipseUnitTools::UnitSystem::UNITS_METRIC:
+        case RiaDefines::EclipseUnitSystem::UNITS_METRIC:
             return 2.24460e-10;
-        case RiaEclipseUnitTools::UnitSystem::UNITS_FIELD:
+        case RiaDefines::EclipseUnitSystem::UNITS_FIELD:
             return 6.83352e-8;
-        case RiaEclipseUnitTools::UnitSystem::UNITS_LAB:
+        case RiaDefines::EclipseUnitSystem::UNITS_LAB:
             return 5.41375E-11;
             // case RiaEclipseUnitTools::PVT_METRIC:  return 2.25533E-10;
 

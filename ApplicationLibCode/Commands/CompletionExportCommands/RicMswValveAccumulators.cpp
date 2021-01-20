@@ -27,7 +27,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswICDAccumulator::RicMswICDAccumulator( std::shared_ptr<RicMswValve> valve, RiaEclipseUnitTools::UnitSystem unitSystem )
+RicMswICDAccumulator::RicMswICDAccumulator( std::shared_ptr<RicMswValve> valve, RiaDefines::EclipseUnitSystem unitSystem )
     : RicMswValveAccumulator( valve, unitSystem )
     , m_areaSum( 0.0 )
 {
@@ -84,7 +84,7 @@ void RicMswICDAccumulator::applyToSuperValve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswAICDAccumulator::RicMswAICDAccumulator( std::shared_ptr<RicMswValve> valve, RiaEclipseUnitTools::UnitSystem unitSystem )
+RicMswAICDAccumulator::RicMswAICDAccumulator( std::shared_ptr<RicMswValve> valve, RiaDefines::EclipseUnitSystem unitSystem )
     : RicMswValveAccumulator( valve, unitSystem )
     , m_deviceOpen( false )
     , m_accumulatedLength( 0.0 )
