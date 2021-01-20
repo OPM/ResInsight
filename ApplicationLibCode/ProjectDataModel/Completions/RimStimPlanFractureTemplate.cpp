@@ -65,32 +65,40 @@ CAF_PDM_SOURCE_INIT( RimStimPlanFractureTemplate, "RimStimPlanFractureTemplate" 
 //--------------------------------------------------------------------------------------------------
 RimStimPlanFractureTemplate::RimStimPlanFractureTemplate()
 {
-    // clang-format off
-    
-    CAF_PDM_InitObject("Fracture Template", ":/FractureTemplate16x16.png", "", "");
+    CAF_PDM_InitObject( "Fracture Template", ":/FractureTemplate16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_stimPlanFileName, "StimPlanFileName", "File Name", "", "", "");
-    m_stimPlanFileName.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+    CAF_PDM_InitFieldNoDefault( &m_stimPlanFileName, "StimPlanFileName", "File Name", "", "", "" );
+    m_stimPlanFileName.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField(&m_wellPathDepthAtFracture,   "WellPathDepthAtFracture", 0.0, "Well/Fracture Intersection Depth", "", "", "");
-    m_wellPathDepthAtFracture.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+    CAF_PDM_InitField( &m_wellPathDepthAtFracture, "WellPathDepthAtFracture", 0.0, "Well/Fracture Intersection Depth", "", "", "" );
+    m_wellPathDepthAtFracture.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField(&m_useUserDefinedWellPathDepthAtFracture, "UseUserDefinedWellPathDepthAtFracture", false,
-                      "Use User-Defined Well/Fracture Intersection Depth", "", "", "");
+    CAF_PDM_InitField( &m_useUserDefinedWellPathDepthAtFracture,
+                       "UseUserDefinedWellPathDepthAtFracture",
+                       false,
+                       "Use User-Defined Well/Fracture Intersection Depth",
+                       "",
+                       "",
+                       "" );
 
-    CAF_PDM_InitField(&m_borderPolygonResultName,   "BorderPolygonResultName", QString(""), "Parameter", "", "", "");
-    m_borderPolygonResultName.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField( &m_borderPolygonResultName, "BorderPolygonResultName", QString( "" ), "Parameter", "", "", "" );
+    m_borderPolygonResultName.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField(&m_activeTimeStepIndex,           "ActiveTimeStepIndex", 0, "Active TimeStep Index", "", "", "");
-    CAF_PDM_InitField(&m_conductivityResultNameOnFile,  "ConductivityResultName", QString(""), "Active Conductivity Result Name", "", "", "");
+    CAF_PDM_InitField( &m_activeTimeStepIndex, "ActiveTimeStepIndex", 0, "Active TimeStep Index", "", "", "" );
+    CAF_PDM_InitField( &m_conductivityResultNameOnFile,
+                       "ConductivityResultName",
+                       QString( "" ),
+                       "Active Conductivity Result Name",
+                       "",
+                       "",
+                       "" );
 
-    CAF_PDM_InitField(&m_showStimPlanMesh_OBSOLETE, "ShowStimPlanMesh", true, "", "", "", "");
-    m_showStimPlanMesh_OBSOLETE.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField( &m_showStimPlanMesh_OBSOLETE, "ShowStimPlanMesh", true, "", "", "", "" );
+    m_showStimPlanMesh_OBSOLETE.uiCapability()->setUiHidden( true );
 
     m_fractureGrid = new RigFractureGrid();
     m_readError    = false;
 
-    // clang-format on
     setDeletable( true );
 }
 
