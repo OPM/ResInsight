@@ -855,6 +855,26 @@ cvf::Vec3f GeometryTools::polygonAreaNormal3D( const std::vector<cvf::Vec3f>& po
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+float GeometryTools::polygonArea( const std::vector<cvf::Vec3f>& polygon )
+{
+    auto areaNormal3D = polygonAreaNormal3D( polygon );
+
+    return areaNormal3D.length();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double GeometryTools::polygonArea( const std::vector<cvf::Vec3d>& polygon )
+{
+    auto areaNormal3D = polygonAreaNormal3D( polygon );
+
+    return areaNormal3D.length();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void EdgeSplitStorage::setVertexCount( size_t size )
 {
     m_edgeSplitMap.resize( size );

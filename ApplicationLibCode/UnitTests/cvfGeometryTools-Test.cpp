@@ -530,6 +530,32 @@ TEST( CellFaceIntersectionTst, PolygonAreaNormal3D )
         EXPECT_DOUBLE_EQ( 0.0, area.y() );
         EXPECT_DOUBLE_EQ( 0.0, area.z() );
     }
+
+    // Area (float)
+
+    {
+        std::vector<cvf::Vec3f> vxs;
+        vxs.push_back( { 0, 0, 0 } );
+        vxs.push_back( { 0, 0, 2 } );
+        vxs.push_back( { 0, 2, 2 } );
+        vxs.push_back( { 0, 2, 0 } );
+
+        auto area = GeometryTools::polygonArea( vxs );
+        EXPECT_FLOAT_EQ( 4.0, area );
+    }
+
+    // Area (double)
+
+    {
+        std::vector<cvf::Vec3d> vxs;
+        vxs.push_back( { 0, 0, 0 } );
+        vxs.push_back( { 0, 0, 2 } );
+        vxs.push_back( { 0, 2, 2 } );
+        vxs.push_back( { 0, 2, 0 } );
+
+        auto area = GeometryTools::polygonArea( vxs );
+        EXPECT_DOUBLE_EQ( 4.0, area );
+    }
 }
 
 TEST( EarClipTesselator, ErrorTest )
