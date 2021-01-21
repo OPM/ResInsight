@@ -9,7 +9,7 @@ import SimulationWell_pb2_grpc
 import Properties_pb2
 import Properties_pb2_grpc
 
-from resinsight_classes import SimulationWell
+from .resinsight_classes import SimulationWell
 
 from .pdmobject import PdmObjectBase, add_method
 
