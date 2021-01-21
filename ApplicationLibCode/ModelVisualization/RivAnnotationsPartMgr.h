@@ -37,12 +37,12 @@ class DisplayCoordTransform;
 }
 
 class Rim3dView;
-class RimAnnotationInViewCollection;
+// class RimAnnotationInViewCollection;
 class RivTextAnnotationPartMgr;
 class RivReachCircleAnnotationPartMgr;
-class RivPolylineAnnotationPartMgr;
-class RimSimWellInView;
-class RimSimWellInViewCollection;
+class RivPolylinePartMgr;
+// class RimSimWellInView;
+// class RimSimWellInViewCollection;
 
 class RivAnnotationsPartMgr : public cvf::Object
 {
@@ -63,5 +63,5 @@ private:
     caf::PdmPointer<Rim3dView>                       m_rimView;
     cvf::Collection<RivTextAnnotationPartMgr>        m_textAnnotationPartMgrs;
     cvf::Collection<RivReachCircleAnnotationPartMgr> m_reachCircleAnnotationPartMgrs;
-    cvf::Collection<RivPolylineAnnotationPartMgr>    m_polylineAnnotationPartMgrs;
+    cvf::Collection<RivPolylinePartMgr>              m_polylineAnnotationPartMgrs;
 };

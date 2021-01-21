@@ -49,7 +49,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RivContourMapProjectionPartMgr.h
 ${CMAKE_CURRENT_LIST_DIR}/RivAnnotationsPartMgr.h
 ${CMAKE_CURRENT_LIST_DIR}/RivTextAnnotationPartMgr.h
 ${CMAKE_CURRENT_LIST_DIR}/RivReachCircleAnnotationPartMgr.h
-${CMAKE_CURRENT_LIST_DIR}/RivPolylineAnnotationPartMgr.h
 ${CMAKE_CURRENT_LIST_DIR}/RivReachCircleAnnotationSourceInfo.h
 ${CMAKE_CURRENT_LIST_DIR}/RivPolylinesAnnotationSourceInfo.h
 ${CMAKE_CURRENT_LIST_DIR}/RivPolylineGenerator.h
@@ -58,6 +57,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RivTextLabelSourceInfo.h
 ${CMAKE_CURRENT_LIST_DIR}/RivDiskGeometryGenerator.h
 ${CMAKE_CURRENT_LIST_DIR}/RivWellDiskPartMgr.h
 ${CMAKE_CURRENT_LIST_DIR}/RivElementVectorResultPartMgr.h
+${CMAKE_CURRENT_LIST_DIR}/RivPolylinePartMgr.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -105,7 +105,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RivContourMapProjectionPartMgr.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivAnnotationsPartMgr.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivTextAnnotationPartMgr.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivReachCircleAnnotationPartMgr.cpp
-${CMAKE_CURRENT_LIST_DIR}/RivPolylineAnnotationPartMgr.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivReachCircleAnnotationSourceInfo.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivPolylinesAnnotationSourceInfo.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivPolylineGenerator.cpp
@@ -114,6 +113,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RivTextLabelSourceInfo.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivDiskGeometryGenerator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivWellDiskPartMgr.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivElementVectorResultPartMgr.cpp
+${CMAKE_CURRENT_LIST_DIR}/RivPolylinePartMgr.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

@@ -18,7 +18,6 @@
 
 #include "RimCellFilterCollection.h"
 
-#include "RigPolyLinesData.h"
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimCellFilter.h"

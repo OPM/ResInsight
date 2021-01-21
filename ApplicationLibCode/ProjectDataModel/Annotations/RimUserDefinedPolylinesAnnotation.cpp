@@ -80,7 +80,12 @@ cvf::ref<RigPolyLinesData> RimUserDefinedPolylinesAnnotation::polyLinesData()
     {
         line.push_back( target->targetPointXYZ() );
     }
-    pld->setPolyLines( { line } );
+    pld->setPolyLine( line );
+
+    auto ap = appearance();
+    pld->setVisibility( m_showLines(), m_showSpheres() );
+    pld->setSphereAppearance( ap->sphereRadiusFactor(), ap->sphereColor() );
+    pld->setLineAppearance( ap->thickness(), ap->color(), m_closePolyline );
 
     return pld;
 }
