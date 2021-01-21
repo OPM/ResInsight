@@ -44,9 +44,9 @@ def views(self):
         List of :class:`rips.generated.generated_classes.EclipseView`
 
     """
-    generated_classes = self.descendants(EclipseView)
+    resinsight_classes = self.descendants(EclipseView)
     view_list = []
-    for pdm_object in generated_classes:
+    for pdm_object in resinsight_classes:
         view_list.append(pdm_object)
     return view_list
 

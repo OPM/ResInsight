@@ -191,6 +191,7 @@ class PdmObjectBase:
 
     def set_value(self, snake_keyword, value):
         """Set the value associated with the provided keyword and updates ResInsight
+
         Arguments:
             keyword(str): A string containing the parameter keyword
             value(varying): A value matching the type of the parameter.
@@ -212,7 +213,7 @@ class PdmObjectBase:
             values.append(self.__convert_from_grpc_value(string))
         return values
 
-    def __from_pb2_to_generated_classes(self, pb2_object_list, super_class_definition):
+    def __from_pb2_to_resinsight_classes(self, pb2_object_list, super_class_definition):
         pdm_object_list = []
         from .generated.generated_classes import class_from_keyword
         for pb2_object in pb2_object_list:
@@ -240,7 +241,7 @@ class PdmObjectBase:
                 object=self._pb2_object, child_keyword=class_keyword)
             object_list = self._pdm_object_stub.GetDescendantPdmObjects(
                 request).objects
-            return self.__from_pb2_to_generated_classes(object_list, class_definition)
+            return self.__from_pb2_to_resinsight_classes(object_list, class_definition)
         except grpc.RpcError as e:
             if e.code() == grpc.StatusCode.NOT_FOUND:
                 return []  # Valid empty result
@@ -257,7 +258,7 @@ class PdmObjectBase:
                                                       child_field=child_field)
         try:
             object_list = self._pdm_object_stub.GetChildPdmObjects(request).objects
-            return self.__from_pb2_to_generated_classes(object_list, class_definition)
+            return self.__from_pb2_to_resinsight_classes(object_list, class_definition)
         except grpc.RpcError as e:
             if e.code() == grpc.StatusCode.NOT_FOUND:
                 return []

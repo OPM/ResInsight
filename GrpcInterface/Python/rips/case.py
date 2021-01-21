@@ -16,7 +16,7 @@ methods in Project: loadCase, case, allCases, selectedCases
 
 Result Definition
 -----------------
-When working with grid case results, the following two argumenst are used in many functions to identify a
+When working with grid case results, the following two arguments are used in many functions to identify a
 result
 
 **Result Definition enums**::
@@ -33,17 +33,6 @@ result
     FLOW_DIAGNOSTICS        |       |
     INJECTION_FLOODING      |       |
 
-
-
-Attributes:
-    id (int): Case Id corresponding to case Id in ResInsight project.
-    name (str): Case name
-    group_id (int): Case Group id
-    chunkSize(int): The size of each chunk during value streaming.
-                    A good chunk size is 64KiB = 65536B.
-                    Meaning the ideal number of doubles would be 8192.
-                    However we need overhead space, so the default is 8160.
-                    This leaves 256B for overhead.
 """
 
 import builtins
@@ -586,7 +575,7 @@ def available_properties(self,
                          porosity_model="MATRIX_MODEL"):
     """Get a list of available properties
 
-    For argument details, see :ref:`result-definition-label`
+    For argument details, see :ref:`Result Definition <result-definition-label>`
 
     Arguments:
         property_type (str): string corresponding to property_type enum.
@@ -610,7 +599,7 @@ def active_cell_property_async(self,
                                property_name,
                                time_step,
                                porosity_model="MATRIX_MODEL"):
-    """Get a cell property for all active cells. Async, so returns an iterator. For argument details, see :ref:`result-definition-label`
+    """Get a cell property for all active cells. Async, so returns an iterator. For argument details, see :ref:`Result Definition <result-definition-label>`
 
         Arguments:
             property_type(str): string enum
@@ -641,7 +630,7 @@ def active_cell_property(self,
                          property_name,
                          time_step,
                          porosity_model="MATRIX_MODEL"):
-    """Get a cell property for all active cells. Sync, so returns a list. For argument details, see :ref:`result-definition-label`
+    """Get a cell property for all active cells. Sync, so returns a list. For argument details, see :ref:`Result Definition <result-definition-label>`
 
         Arguments:
             property_type(str): string enum
@@ -669,7 +658,7 @@ def selected_cell_property_async(self,
                                  property_name,
                                  time_step,
                                  porosity_model="MATRIX_MODEL"):
-    """Get a cell property for all selected cells. Async, so returns an iterator. For argument details, see :ref:`result-definition-label`
+    """Get a cell property for all selected cells. Async, so returns an iterator. For argument details, see :ref:`Result Definition <result-definition-label>`
 
         Arguments:
             property_type(str): string enum
@@ -700,7 +689,7 @@ def selected_cell_property(self,
                            property_name,
                            time_step,
                            porosity_model="MATRIX_MODEL"):
-    """Get a cell property for all selected cells. Sync, so returns a list. For argument details, see :ref:`result-definition-label`
+    """Get a cell property for all selected cells. Sync, so returns a list. For argument details, see :ref:`Result Definition <result-definition-label>`
 
         Arguments:
             property_type(str): string enum
@@ -730,7 +719,7 @@ def grid_property_async(
         time_step,
         grid_index=0,
         porosity_model="MATRIX_MODEL"):
-    """Get a cell property for all grid cells. Async, so returns an iterator. For argument details, see :ref:`result-definition-label`
+    """Get a cell property for all grid cells. Async, so returns an iterator. For argument details, see :ref:`Result Definition <result-definition-label>`
 
         Arguments:
             property_type(str): string enum
@@ -765,7 +754,7 @@ def grid_property(
         time_step,
         grid_index=0,
         porosity_model="MATRIX_MODEL"):
-    """Get a cell property for all grid cells. Synchronous, so returns a list. For argument details, see :ref:`result-definition-label`
+    """Get a cell property for all grid cells. Synchronous, so returns a list. For argument details, see :ref:`Result Definition <result-definition-label>`
 
         Arguments:
             property_type(str): string enum
@@ -795,7 +784,7 @@ def set_active_cell_property_async(
         property_name,
         time_step,
         porosity_model="MATRIX_MODEL"):
-    """Set cell property for all active cells Async. Takes an iterator to the input values. For argument details, see :ref:`result-definition-label`
+    """Set cell property for all active cells Async. Takes an iterator to the input values. For argument details, see :ref:`Result Definition <result-definition-label>`
 
         Arguments:
             values_iterator(iterator): an iterator to the properties to be set
@@ -827,7 +816,7 @@ def set_active_cell_property(
         property_name,
         time_step,
         porosity_model="MATRIX_MODEL"):
-    """Set a cell property for all active cells. For argument details, see :ref:`result-definition-label`
+    """Set a cell property for all active cells. For argument details, see :ref:`Result Definition <result-definition-label>`
 
         Arguments:
             values(list): a list of double precision floating point numbers
@@ -861,7 +850,7 @@ def set_grid_property(
         time_step,
         grid_index=0,
         porosity_model="MATRIX_MODEL"):
-    """Set a cell property for all grid cells. For argument details, see :ref:`result-definition-label`
+    """Set a cell property for all grid cells. For argument details, see :ref:`Result Definition <result-definition-label>`
 
         Arguments:
             values(list): a list of double precision floating point numbers
