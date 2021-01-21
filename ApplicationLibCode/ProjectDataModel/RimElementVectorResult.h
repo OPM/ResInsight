@@ -105,8 +105,6 @@ private:
     void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
-    static QString fieldNameFromUi( const QString& uiFieldName );
-
 private:
     caf::PdmField<bool>                                        m_showResult;
     caf::PdmField<bool>                                        m_showOil;

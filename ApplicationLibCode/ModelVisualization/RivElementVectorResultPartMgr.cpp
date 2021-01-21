@@ -288,6 +288,15 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
                         resultValue += nncResultVals.at( flIdx )->at( timeStepIndex )[nIdx];
                     }
                 }
+
+                const float faceArea = cvf::GeometryTools::polygonArea( conn.polygon() );
+                const float epsilon  = 1.0e-6f;
+                if ( faceArea > epsilon )
+                {
+                    // Divide by area to get area normalized flow
+                    resultValue /= faceArea;
+                }
+
                 cvf::Vec3d connCenter =
                     static_cast<cvf::Vec3d>( cvf::GeometryTools::computePolygonCenter<cvf::Vec3f>( conn.polygon() ) );
 
