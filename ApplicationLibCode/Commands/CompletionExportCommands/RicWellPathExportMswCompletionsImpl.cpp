@@ -853,10 +853,10 @@ RicMswExportInfo RicWellPathExportMswCompletionsImpl::generateFishbonesMswExport
     exportInfo.setLinerDiameter( wellPath->fishbonesCollection()->mswParameters()->linerDiameter( unitSystem ) );
     exportInfo.setRoughnessFactor( wellPath->fishbonesCollection()->mswParameters()->roughnessFactor( unitSystem ) );
 
-    double maxSegmentLength          = enableSegmentSplitting
-                                           ? wellPath->fishbonesCollection()->mswParameters()->maxSegmentLength()
-                                           : std::numeric_limits<double>::infinity();
-    bool   foundSubGridIntersections = false;
+    double maxSegmentLength = enableSegmentSplitting
+                                  ? wellPath->fishbonesCollection()->mswParameters()->maxSegmentLength()
+                                  : std::numeric_limits<double>::infinity();
+    bool foundSubGridIntersections = false;
 
     double subStartMD  = wellPath->fishbonesCollection()->startMD();
     double subStartTVD = RicWellPathExportMswCompletionsImpl::tvdFromMeasuredDepth( wellPath, subStartMD );

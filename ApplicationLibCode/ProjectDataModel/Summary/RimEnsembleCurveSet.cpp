@@ -1268,7 +1268,7 @@ void RimEnsembleCurveSet::appendOptionItemsForSummaryAddresses( QList<caf::PdmOp
     {
         RifSummaryReaderInterface*                reader = summaryCase->summaryReader();
         const std::set<RifEclipseSummaryAddress>& addrs  = reader ? reader->allResultAddresses()
-                                                                  : std::set<RifEclipseSummaryAddress>();
+                                                                 : std::set<RifEclipseSummaryAddress>();
 
         for ( auto& addr : addrs )
         {
