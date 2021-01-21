@@ -22,7 +22,7 @@
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaCompletionTypeCalculationScheduler.h"
-#include "RiaDefines.h"
+#include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 
 #include "Riu3DMainWindowTools.h"

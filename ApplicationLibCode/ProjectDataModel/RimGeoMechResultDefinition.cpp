@@ -20,8 +20,8 @@
 
 #include "RimGeoMechResultDefinition.h"
 
-#include "RiaDefines.h"
 #include "RiaMedianCalculator.h"
+#include "RiaResultNames.h"
 
 #include "RifGeoMechReaderInterface.h"
 

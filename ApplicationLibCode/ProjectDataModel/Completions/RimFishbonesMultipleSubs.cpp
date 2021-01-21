@@ -19,6 +19,8 @@
 #include "RimFishbonesMultipleSubs.h"
 
 #include "RiaColorTables.h"
+#include "RiaEclipseUnitTools.h"
+
 #include "RigFishbonesGeometry.h"
 #include "RigWellPath.h"
 #include "RimFishbonesCollection.h"
@@ -32,8 +34,8 @@
 
 #include "cvfAssert.h"
 #include "cvfBoundingBox.h"
-
 #include "cvfMath.h"
+
 #include <cmath>
 #include <cstdlib>
 
