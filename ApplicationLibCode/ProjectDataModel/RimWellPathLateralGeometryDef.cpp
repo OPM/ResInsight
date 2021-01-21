@@ -407,12 +407,13 @@ RiaLineArcWellPathCalculator RimWellPathLateralGeometryDef::lineArcWellPathCalcu
     std::vector<RiaLineArcWellPathCalculator::WellTarget> targetDatas;
 
     auto [pointVector, measuredDepths] = m_parentGeometry->clippedPointSubset( 0.0, m_connectionMdOnParentWellPath );
-    cvf::Vec3d connectionPoint = anchorPointXyz();
+    cvf::Vec3d connectionPoint         = anchorPointXyz();
 
     auto N = pointVector.size();
     if ( N >= 2u )
     {
-        targetDatas = createTargetsFromPoints( { pointVector[N - 2] - connectionPoint, pointVector[N - 1] - connectionPoint} );
+        targetDatas =
+            createTargetsFromPoints( { pointVector[N - 2] - connectionPoint, pointVector[N - 1] - connectionPoint } );
     }
 
     std::vector<RimWellPathTarget*> activeTargets = activeWellTargets();
@@ -421,7 +422,6 @@ RiaLineArcWellPathCalculator RimWellPathLateralGeometryDef::lineArcWellPathCalcu
     {
         targetDatas.push_back( wellTarget->wellTargetData() );
     }
-
 
     RiaLineArcWellPathCalculator wellPathCalculator( connectionPoint, targetDatas );
 
