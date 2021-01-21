@@ -149,10 +149,11 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
 
         size_t maxProgress =
             usedWellPaths.size() * 3 + simWells.size() +
-            ( exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL ? usedWellPaths.size()
-              : exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL_AND_COMPLETION_TYPE
-                  ? usedWellPaths.size() * 3
-                  : 1 ) +
+            ( exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL
+                  ? usedWellPaths.size()
+                  : exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL_AND_COMPLETION_TYPE
+                        ? usedWellPaths.size() * 3
+                        : 1 ) +
             simWells.size();
 
         caf::ProgressInfo progress( maxProgress, "Export Completions" );
