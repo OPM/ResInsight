@@ -106,7 +106,7 @@ def case(self, case_id):
     Arguments:
         id(int): case id
     Returns:
-        :class:`rips.generated.generated_classes.Case`
+        :class:`rips.generated.resinsight_classes.Case`
     """
     allCases = self.cases()
     for case in allCases:
@@ -135,7 +135,7 @@ def create_grid_case_group(self, case_paths):
     Arguments:
         case_paths (list): list of file path strings
     Returns:
-        :class:`rips.generated.generated_classes.GridCaseGroup`
+        :class:`rips.generated.resinsight_classes.GridCaseGroup`
     """
     command_reply = self._execute_command(
         createGridCaseGroup=Commands_pb2.CreateGridCaseGroupRequest(
@@ -147,7 +147,7 @@ def create_grid_case_group(self, case_paths):
 def summary_cases(self):
     """Get a list of all summary cases in the Project
 
-    Returns: A list of :class:`rips.generated.generated_classes.SummaryCase`
+    Returns: A list of :class:`rips.generated.resinsight_classes.SummaryCase`
     """        
     return self.descendants(SummaryCase)
 
@@ -180,9 +180,9 @@ def plots(self):
     Returns:
         List of :class:`rips.generated.generated_classes.Plot`
     """
-    generated_classes = self.descendants(PlotWindow)
+    resinsight_classes = self.descendants(PlotWindow)
     plot_list = []
-    for pdm_object in generated_classes:
+    for pdm_object in resinsight_classes:
         if pdm_object.id != -1:
             plot_list.append(pdm_object)
     return plot_list
