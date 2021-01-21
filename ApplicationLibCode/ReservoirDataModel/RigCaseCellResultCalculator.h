@@ -22,6 +22,7 @@
 
 class RigEclipseCaseData;
 class RigEclipseResultAddress;
+class RigMainGrid;
 
 //==================================================================================================
 ///
@@ -32,4 +33,9 @@ public:
     static bool computeDifference( RigEclipseCaseData*            destination,
                                    RiaDefines::PorosityModelType  porosityModel,
                                    const RigEclipseResultAddress& address );
+
+    static bool computeDivideByCellFaceArea( RigMainGrid*                   mainGrid,
+                                             RigEclipseCaseData*            destination,
+                                             RiaDefines::PorosityModelType  porosityModel,
+                                             const RigEclipseResultAddress& address );
 };

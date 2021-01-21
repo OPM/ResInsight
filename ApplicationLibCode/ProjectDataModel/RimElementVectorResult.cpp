@@ -332,6 +332,21 @@ void RimElementVectorResult::mappingRange( double& min, double& max ) const
                 RigCaseCellResultsData* resultsData =
                     eclipseView->eclipseCase()->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
+                {
+                    // Check if native result is available
+                    // TODO: Refactor all derived results into separate result factory
+                    RigEclipseResultAddress nativeResult = resVarAddr;
+                    nativeResult.enableDivideByCellFaceArea( false );
+                    if ( resultsData->hasResultEntry( nativeResult ) )
+                    {
+                        resultsData->createResultEntry( resVarAddr, false );
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+
                 resultsData->ensureKnownResultLoaded( resVarAddr );
                 if ( !resultsData->hasResultEntry( resVarAddr ) ) return;
 
@@ -574,6 +589,11 @@ bool RimElementVectorResult::resultAddressesIJK( std::vector<RigEclipseResultAdd
         addresses.push_back( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRWATI+" ) );
         addresses.push_back( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRWATJ+" ) );
         addresses.push_back( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRWATK+" ) );
+    }
+
+    for ( auto& adr : addresses )
+    {
+        adr.enableDivideByCellFaceArea( true );
     }
 
     return addresses.size() > 0;

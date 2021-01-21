@@ -141,7 +141,7 @@ RimEclipseView::RimEclipseView()
                                                            "" );
     m_cellResult = new RimEclipseCellColors();
     m_cellResult.uiCapability()->setUiHidden( true );
-    m_cellResult->setDiffResultOptionsEnabled( true );
+    m_cellResult->enableDeltaResults( true );
 
     CAF_PDM_InitFieldNoDefault( &m_cellEdgeResult, "GridCellEdgeResult", "Cell Edge Result", ":/EdgeResult_1.png", "", "" );
     m_cellEdgeResult = new RimCellEdgeColors();

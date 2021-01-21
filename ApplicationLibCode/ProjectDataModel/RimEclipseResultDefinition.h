@@ -96,12 +96,10 @@ public:
     QString resultVariableUiName() const;
     QString resultVariableUiShortName() const;
 
-    QString diffResultUiName() const;
-    QString diffResultUiShortName() const;
-    QString diffResultUiShortNameHTML() const;
-
-    int timeLapseBaseTimeStep() const;
-    int caseDiffIndex() const;
+    void    enableDeltaResults( bool enable );
+    int     timeLapseBaseTimeStep() const;
+    int     caseDiffIndex() const;
+    QString additionalResultText() const;
 
     void                    loadResult();
     RigEclipseResultAddress eclipseResultAddress() const;
@@ -126,8 +124,6 @@ public:
     void setSelectedSouringTracers( const std::vector<QString>& selectedTracers );
 
     void updateUiFieldsFromActiveResult();
-
-    void setDiffResultOptionsEnabled( bool enabled );
 
     bool hasDualPorFractureResult();
 
@@ -162,10 +158,7 @@ protected:
     caf::PdmField<caf::AppEnum<RiaDefines::ResultCatType>>     m_resultType;
     caf::PdmField<caf::AppEnum<RiaDefines::PorosityModelType>> m_porosityModel;
     caf::PdmField<QString>                                     m_resultVariable;
-    caf::PdmField<int>                                         m_timeLapseBaseTimestep;
     caf::PdmField<QString>                                     m_inputPropertyFileName;
-
-    caf::PdmPtrField<RimEclipseCase*> m_differenceCase;
 
     caf::PdmPtrField<RimFlowDiagSolution*> m_flowSolution;
     caf::PdmField<std::vector<QString>>    m_selectedInjectorTracers;
@@ -207,6 +200,10 @@ private:
         bool operator()( const QString& lhs, const QString& rhs ) const;
     };
 
+    caf::PdmField<int>                m_timeLapseBaseTimestep;
+    caf::PdmPtrField<RimEclipseCase*> m_differenceCase;
+    caf::PdmField<bool>               m_divideByCellFaceArea;
+
 private:
     void assignFlowSolutionFromCase();
 
@@ -232,22 +229,26 @@ private:
     void syncInjectorToProducerSelection();
     void syncProducerToInjectorSelection();
 
-    bool enableDiffResultOptions() const;
-    bool isTimeDiffResultAvailable() const;
-    bool isTimeDiffResult() const;
-    bool isCaseDiffResultAvailable() const;
-    bool isCaseDiffResult() const;
+    // Delta Case / Delta Time Step / Divide by Cell Face Area
+    bool isDeltaResultEnabled() const;
+    bool isDeltaCasePossible() const;
+    bool isDeltaCaseActive() const;
+    bool isDeltaTimeStepPossible() const;
+    bool isDeltaTimeStepActive() const;
+    bool isDivideByCellFaceAreaPossible() const;
+    bool isDivideByCellFaceAreaActive() const;
+
+    QString additionalResultTextShort() const;
 
     bool showDerivedResultsFirstInVariableUiField() const;
     bool addPerCellFaceOptionsForVariableUiField() const;
 
     void ensureProcessingOfObsoleteFields();
-    bool isTernaryEnabled() const;
 
     QString getInputPropertyFileName( const QString& resultName ) const;
 
 private:
-    bool                             m_diffResultOptionsEnabled;
+    bool                             m_isDeltaResultEnabled;
     caf::PdmUiItemInfo::LabelPosType m_labelPosition;
     bool                             m_ternaryEnabled;
 };

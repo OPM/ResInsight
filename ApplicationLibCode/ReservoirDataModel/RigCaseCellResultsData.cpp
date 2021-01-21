@@ -483,8 +483,12 @@ QStringList RigCaseCellResultsData::resultNames( RiaDefines::ResultCatType resTy
     std::vector<RigEclipseResultInfo>::const_iterator it;
     for ( it = m_resultInfos.begin(); it != m_resultInfos.end(); ++it )
     {
-        if ( it->resultType() == resType && !it->eclipseResultAddress().isTimeLapse() &&
-             !it->eclipseResultAddress().hasDifferenceCase() )
+        auto resultAddress = it->eclipseResultAddress();
+        if ( resultAddress.isDeltaTimeStepActive() || resultAddress.isDeltaCaseActive() ||
+             resultAddress.isDivideByCellFaceAreaActive() )
+            continue;
+
+        if ( it->resultType() == resType )
         {
             varList.push_back( it->resultName() );
         }
@@ -1219,9 +1223,23 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
     RiaDefines::ResultCatType type       = resVarAddr.m_resultCatType;
     QString                   resultName = resVarAddr.m_resultName;
 
-    if ( resVarAddr.hasDifferenceCase() || resVarAddr.isTimeLapse() )
+    if ( resVarAddr.isDeltaCaseActive() || resVarAddr.isDeltaTimeStepActive() )
     {
         if ( !RigCaseCellResultCalculator::computeDifference( this->m_ownerCaseData, m_porosityModel, resVarAddr ) )
+        {
+            return cvf::UNDEFINED_SIZE_T;
+        }
+
+        return scalarResultIndex;
+    }
+
+    if ( resVarAddr.isDivideByCellFaceAreaActive() )
+    {
+        if ( !RigCaseCellResultCalculator::computeDivideByCellFaceArea( m_ownerMainGrid,
+                                                                        this->m_ownerCaseData,
+                                                                        m_porosityModel,
+                                                                        resVarAddr ) )
+
         {
             return cvf::UNDEFINED_SIZE_T;
         }

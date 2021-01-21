@@ -43,23 +43,21 @@ bool RigCaseCellResultCalculator::computeDifference( RigEclipseCaseData*        
                                                      const RigEclipseResultAddress& address )
 {
     CVF_ASSERT( address.isValid() );
-    CVF_ASSERT( address.hasDifferenceCase() || address.isTimeLapse() );
+    CVF_ASSERT( address.isDeltaCaseActive() || address.isDeltaTimeStepActive() );
 
     // Assume at this stage that data for the case is available
     // It is up to the caller to make sure the case is read from file
 
     RigEclipseCaseData* baseCase = sourceCase;
 
-    if ( address.hasDifferenceCase() )
+    if ( address.isDeltaCaseActive() )
     {
+        auto eclipseCases = RimProject::current()->eclipseCases();
+        for ( RimEclipseCase* c : eclipseCases )
         {
-            auto eclipseCases = RimProject::current()->eclipseCases();
-            for ( RimEclipseCase* c : eclipseCases )
+            if ( c && c->caseId() == address.deltaCaseId() && c->eclipseCaseData() )
             {
-                if ( c && c->caseId() == address.m_differenceCaseId && c->eclipseCaseData() )
-                {
-                    baseCase = c->eclipseCaseData();
-                }
+                baseCase = c->eclipseCaseData();
             }
         }
     }
@@ -92,8 +90,8 @@ bool RigCaseCellResultCalculator::computeDifference( RigEclipseCaseData*        
     }
 
     RigEclipseResultAddress nativeAddress( address );
-    nativeAddress.m_differenceCaseId      = RigEclipseResultAddress::noCaseDiffValue();
-    nativeAddress.m_timeLapseBaseFrameIdx = RigEclipseResultAddress::noTimeLapseValue();
+    nativeAddress.setDeltaCaseId( RigEclipseResultAddress::noCaseDiffValue() );
+    nativeAddress.setDeltaTimeStepIndex( RigEclipseResultAddress::noTimeLapseValue() );
     if ( !sourceCaseResults->ensureKnownResultLoaded( nativeAddress ) )
     {
         RiaLogging::error( "Failed to load destination diff result" );
@@ -128,7 +126,7 @@ bool RigCaseCellResultCalculator::computeDifference( RigEclipseCaseData*        
     size_t baseFrameCount   = baseCaseResults->cellScalarResults( nativeAddress ).size();
     size_t sourceFrameCount = sourceCaseResults->cellScalarResults( nativeAddress ).size();
     size_t maxFrameCount    = 0;
-    if ( address.isTimeLapse() )
+    if ( address.isDeltaTimeStepActive() )
     {
         // We have one defined time step for base case, loop over all source time steps
         maxFrameCount = sourceFrameCount;
@@ -155,9 +153,9 @@ bool RigCaseCellResultCalculator::computeDifference( RigEclipseCaseData*        
                 RigResultModifierFactory::createResultModifier( sourceCase, gridIdx, porosityModel, fIdx, address );
 
             size_t baseFrameIdx = fIdx;
-            if ( address.isTimeLapse() )
+            if ( address.isDeltaTimeStepActive() )
             {
-                baseFrameIdx = address.m_timeLapseBaseFrameIdx;
+                baseFrameIdx = address.deltaTimeStepIndex();
             }
 
             cvf::ref<RigResultAccessor> baseResultAccessor =
@@ -174,6 +172,109 @@ bool RigCaseCellResultCalculator::computeDifference( RigEclipseCaseData*        
                     double difference = sourceVal - baseVal;
 
                     resultModifier->setCellScalar( localGridCellIdx, difference );
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigCaseCellResultCalculator::computeDivideByCellFaceArea( RigMainGrid*                   mainGrid,
+                                                               RigEclipseCaseData*            destination,
+                                                               RiaDefines::PorosityModelType  porosityModel,
+                                                               const RigEclipseResultAddress& address )
+{
+    if ( !destination )
+    {
+        RiaLogging::error( "Missing input case for difference calculator" );
+
+        return false;
+    }
+
+    CVF_ASSERT( address.isValid() );
+    CVF_ASSERT( address.isDivideByCellFaceAreaActive() );
+
+    RigCaseCellResultsData* baseCaseResults = destination->results( porosityModel );
+    if ( !baseCaseResults )
+    {
+        RiaLogging::error( "Missing result data for difference calculator" );
+
+        return false;
+    }
+
+    RigEclipseResultAddress nativeAddress( address );
+    nativeAddress.enableDivideByCellFaceArea( false );
+    if ( !baseCaseResults->ensureKnownResultLoaded( nativeAddress ) )
+    {
+        RiaLogging::error( "Failed to load source case for divide by area result" );
+
+        return false;
+    }
+
+    // Initialize difference result with infinity for correct number of time steps and values per time step
+    {
+        const std::vector<std::vector<double>>& srcFrames = baseCaseResults->cellScalarResults( nativeAddress );
+        std::vector<std::vector<double>>*       diffResultFrames =
+            baseCaseResults->modifiableCellScalarResultTimesteps( address );
+        diffResultFrames->resize( srcFrames.size() );
+        for ( size_t fIdx = 0; fIdx < srcFrames.size(); ++fIdx )
+        {
+            const std::vector<double>& srcVals = srcFrames[fIdx];
+            std::vector<double>&       dstVals = diffResultFrames->at( fIdx );
+
+            // Clear the values, and resize with infinity as default value
+            dstVals.clear();
+            dstVals.resize( srcVals.size(), std::numeric_limits<double>::infinity() );
+        }
+    }
+
+    size_t baseFrameCount = baseCaseResults->cellScalarResults( nativeAddress ).size();
+
+    size_t maxGridCount = mainGrid->gridCount();
+
+    cvf::StructGridInterface::FaceType cellFace = cvf::StructGridInterface::NO_FACE;
+    if ( address.m_resultName.contains( "I+" ) ) cellFace = cvf::StructGridInterface::POS_I;
+    if ( address.m_resultName.contains( "J+" ) ) cellFace = cvf::StructGridInterface::POS_J;
+    if ( address.m_resultName.contains( "K+" ) ) cellFace = cvf::StructGridInterface::POS_K;
+
+    if ( address.m_resultName.contains( "TRANX" ) ) cellFace = cvf::StructGridInterface::POS_I;
+    if ( address.m_resultName.contains( "TRANY" ) ) cellFace = cvf::StructGridInterface::POS_J;
+    if ( address.m_resultName.contains( "TRANZ" ) ) cellFace = cvf::StructGridInterface::POS_K;
+
+    for ( size_t gridIdx = 0; gridIdx < maxGridCount; ++gridIdx )
+    {
+        auto                     grid           = mainGrid->gridByIndex( gridIdx );
+        const RigActiveCellInfo* activeCellInfo = baseCaseResults->activeCellInfo();
+
+        for ( size_t fIdx = 0; fIdx < baseFrameCount; ++fIdx )
+        {
+            cvf::ref<RigResultAccessor> sourceResultAccessor =
+                RigResultAccessorFactory::createFromResultAddress( destination, gridIdx, porosityModel, fIdx, nativeAddress );
+
+            cvf::ref<RigResultModifier> resultModifier =
+                RigResultModifierFactory::createResultModifier( destination, gridIdx, porosityModel, fIdx, address );
+
+            for ( size_t localGridCellIdx = 0; localGridCellIdx < grid->cellCount(); localGridCellIdx++ )
+            {
+                size_t reservoirCellIndex = grid->reservoirCellIndex( localGridCellIdx );
+                if ( activeCellInfo->isActive( reservoirCellIndex ) )
+                {
+                    double sourceVal = sourceResultAccessor->cellScalar( localGridCellIdx );
+
+                    const auto faceNormal = grid->cell( localGridCellIdx ).faceNormalWithAreaLength( cellFace );
+                    auto       divisor    = faceNormal.length();
+
+                    const double epsilon = 1e-12;
+                    if ( divisor > epsilon )
+                    {
+                        sourceVal /= divisor;
+                    }
+
+                    resultModifier->setCellScalar( localGridCellIdx, sourceVal );
                 }
             }
         }

@@ -962,8 +962,12 @@ QString RiuResultTextBuilder::cellResultText( RimEclipseResultDefinition* eclRes
                 RigResultAccessorFactory::createFromResultDefinition( eclipseCaseData, m_gridIndex, adjustedTimeStep, eclResDef );
             if ( resultAccessor.notNull() )
             {
-                double  scalarValue = resultAccessor->cellFaceScalar( m_cellIndex, m_face );
-                QString resultVar   = eclResDef->resultVariableUiName();
+                double  scalarValue           = resultAccessor->cellFaceScalar( m_cellIndex, m_face );
+                QString resultDescriptionText = eclResDef->resultVariableUiName();
+                if ( eclResDef->eclipseResultAddress().isDivideByCellFaceAreaActive() )
+                {
+                    resultDescriptionText += "/A";
+                }
 
                 QString resultValueText;
                 if ( eclResDef->hasCategoryResult() )
@@ -993,7 +997,7 @@ QString RiuResultTextBuilder::cellResultText( RimEclipseResultDefinition* eclRes
                     resultValueText = QString( "%1" ).arg( scalarValue );
                 }
 
-                text = QString( "%1 : %2" ).arg( resultVar ).arg( resultValueText );
+                text = QString( "%1 : %2" ).arg( resultDescriptionText ).arg( resultValueText );
             }
         }
     }

@@ -101,7 +101,7 @@ CAF_PDM_SOURCE_INIT( RimEclipseResultDefinition, "ResultDefinition" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::LabelPosType labelPosition )
-    : m_diffResultOptionsEnabled( false )
+    : m_isDeltaResultEnabled( false )
     , m_labelPosition( labelPosition )
     , m_ternaryEnabled( true )
 {
@@ -134,6 +134,8 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
                        "" );
 
     CAF_PDM_InitFieldNoDefault( &m_differenceCase, "DifferenceCase", "Difference Case", "", "", "" );
+
+    CAF_PDM_InitField( &m_divideByCellFaceArea, "DivideByCellFaceArea", false, "Divide By Area", "", "", "" );
 
     // One single tracer list has been split into injectors and producers.
     // The old list is defined as injectors and we'll have to move any producers in old projects.
@@ -238,6 +240,7 @@ void RimEclipseResultDefinition::simpleCopy( const RimEclipseResultDefinition* o
 
     m_differenceCase        = other->m_differenceCase();
     m_timeLapseBaseTimestep = other->m_timeLapseBaseTimestep();
+    m_divideByCellFaceArea  = other->m_divideByCellFaceArea();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -373,6 +376,11 @@ void RimEclipseResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
             contourMapView->contourMapProjection()->updatedWeightingResult();
         }
 
+        loadDataAndUpdate();
+    }
+
+    if ( &m_divideByCellFaceArea == changedField )
+    {
         loadDataAndUpdate();
     }
 
@@ -868,17 +876,21 @@ RigEclipseResultAddress RimEclipseResultDefinition::eclipseResultAddress() const
         int timelapseTimeStep = RigEclipseResultAddress::noTimeLapseValue();
         int diffCaseId        = RigEclipseResultAddress::noCaseDiffValue();
 
-        if ( isTimeDiffResult() )
+        if ( isDeltaTimeStepActive() )
         {
             timelapseTimeStep = m_timeLapseBaseTimestep();
         }
 
-        if ( isCaseDiffResult() )
+        if ( isDeltaCaseActive() )
         {
             diffCaseId = m_differenceCase->caseId();
         }
 
-        return RigEclipseResultAddress( m_resultType(), m_resultVariable(), timelapseTimeStep, diffCaseId );
+        return RigEclipseResultAddress( m_resultType(),
+                                        m_resultVariable(),
+                                        timelapseTimeStep,
+                                        diffCaseId,
+                                        isDivideByCellFaceAreaActive() );
     }
     else
     {
@@ -902,14 +914,15 @@ void RimEclipseResultDefinition::setFromEclipseResultAddress( const RigEclipseRe
 
     m_resultType            = canonizedAddress.m_resultCatType;
     m_resultVariable        = canonizedAddress.m_resultName;
-    m_timeLapseBaseTimestep = canonizedAddress.m_timeLapseBaseFrameIdx;
+    m_timeLapseBaseTimestep = canonizedAddress.deltaTimeStepIndex();
+    m_divideByCellFaceArea  = canonizedAddress.isDivideByCellFaceAreaActive();
 
-    if ( canonizedAddress.hasDifferenceCase() )
+    if ( canonizedAddress.isDeltaCaseActive() )
     {
         auto eclipseCases = RimProject::current()->eclipseCases();
         for ( RimEclipseCase* c : eclipseCases )
         {
-            if ( c && c->caseId() == canonizedAddress.m_differenceCaseId )
+            if ( c && c->caseId() == canonizedAddress.deltaCaseId() )
             {
                 m_differenceCase = c;
             }
@@ -1048,68 +1061,58 @@ QString RimEclipseResultDefinition::resultVariableUiShortName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimEclipseResultDefinition::diffResultUiName() const
+QString RimEclipseResultDefinition::additionalResultText() const
 {
-    QStringList diffResult;
-    if ( isTimeDiffResult() )
+    QStringList resultText;
+    if ( isDeltaTimeStepActive() )
     {
         std::vector<QDateTime>        stepDates;
         const RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
         if ( gridCellResults )
         {
             stepDates = gridCellResults->timeStepDates();
-            diffResult +=
+            resultText +=
                 QString( "<b>Base Time Step</b>: %1" )
                     .arg( stepDates[m_timeLapseBaseTimestep()].toString( RiaQDateTimeTools::dateFormatString() ) );
         }
     }
-    if ( isCaseDiffResult() )
+    if ( isDeltaCaseActive() )
     {
-        diffResult += QString( "<b>Base Case</b>: %1" ).arg( m_differenceCase()->caseUserDescription() );
+        resultText += QString( "<b>Base Case</b>: %1" ).arg( m_differenceCase()->caseUserDescription() );
     }
-    return diffResult.join( "\n" );
+    if ( isDivideByCellFaceAreaActive() )
+    {
+        resultText += "<b>Divided by Area</b>";
+    }
+    return resultText.join( "\n" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimEclipseResultDefinition::diffResultUiShortName() const
+QString RimEclipseResultDefinition::additionalResultTextShort() const
 {
-    QStringList diffResult;
-    if ( isTimeDiffResult() || isCaseDiffResult() )
+    QString resultTextShort;
+    if ( isDeltaTimeStepActive() || isDeltaCaseActive() )
     {
-        diffResult += QString( "Diff. Options:" );
+        QStringList resultTextLines;
+        resultTextLines += QString( "\nDiff. Options:" );
+        if ( isDeltaCaseActive() )
+        {
+            resultTextLines += QString( "Base Case: #%1" ).arg( m_differenceCase()->caseId() );
+        }
+        if ( isDeltaTimeStepActive() )
+        {
+            resultTextLines += QString( "Base Time: #%1" ).arg( m_timeLapseBaseTimestep() );
+        }
+        resultTextShort = resultTextLines.join( "\n" );
     }
-    if ( isCaseDiffResult() )
+    if ( isDivideByCellFaceAreaActive() )
     {
-        diffResult += QString( "Base Case: #%1" ).arg( m_differenceCase()->caseId() );
+        resultTextShort += "/A";
     }
-    if ( isTimeDiffResult() )
-    {
-        diffResult += QString( "Base Time: #%1" ).arg( m_timeLapseBaseTimestep() );
-    }
-    return diffResult.join( "\n" );
-}
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimEclipseResultDefinition::diffResultUiShortNameHTML() const
-{
-    QStringList diffResult;
-    if ( isTimeDiffResult() || isCaseDiffResult() )
-    {
-        diffResult += QString( "<b>Diff. Options:</b>" );
-    }
-    if ( isCaseDiffResult() )
-    {
-        diffResult += QString( "Base Case: #%1" ).arg( m_differenceCase()->caseId() );
-    }
-    if ( isTimeDiffResult() )
-    {
-        diffResult += QString( "Base Time: #%1" ).arg( m_timeLapseBaseTimestep() );
-    }
-    return diffResult.join( "<br>" );
+    return resultTextShort;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1162,7 +1165,7 @@ void RimEclipseResultDefinition::loadResult()
     RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
     if ( gridCellResults )
     {
-        if ( isTimeDiffResult() || isCaseDiffResult() )
+        if ( isDeltaTimeStepActive() || isDeltaCaseActive() || isDivideByCellFaceAreaActive() )
         {
             gridCellResults->createResultEntry( this->eclipseResultAddress(), false );
         }
@@ -1437,9 +1440,9 @@ void RimEclipseResultDefinition::updateUiFieldsFromActiveResult()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseResultDefinition::setDiffResultOptionsEnabled( bool enabled )
+void RimEclipseResultDefinition::enableDeltaResults( bool enable )
 {
-    m_diffResultOptionsEnabled = true;
+    m_isDeltaResultEnabled = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1563,21 +1566,33 @@ void RimEclipseResultDefinition::defineUiOrdering( QString uiConfigName, caf::Pd
                                          m_resultVariableUiField() == RIG_FLD_MAX_FRACTION_TRACER_RESNAME );
     legendGroup->setUiHidden( !showOnlyVisibleTracesOption );
 
-    if ( isCaseDiffResultAvailable() || isTimeDiffResultAvailable() )
+    if ( isDeltaCasePossible() || isDeltaTimeStepPossible() )
     {
         caf::PdmUiGroup* differenceGroup = uiOrdering.addNewGroup( "Difference Options" );
-        differenceGroup->setUiReadOnly( !( isTimeDiffResultAvailable() || isCaseDiffResultAvailable() ) );
+        differenceGroup->setUiReadOnly( !( isDeltaTimeStepPossible() || isDeltaCasePossible() ) );
 
-        m_differenceCase.uiCapability()->setUiReadOnly( !isCaseDiffResultAvailable() );
-        m_timeLapseBaseTimestep.uiCapability()->setUiReadOnly( !isTimeDiffResultAvailable() );
+        m_differenceCase.uiCapability()->setUiReadOnly( !isDeltaCasePossible() );
+        m_timeLapseBaseTimestep.uiCapability()->setUiReadOnly( !isDeltaTimeStepPossible() );
 
-        if ( isCaseDiffResultAvailable() ) differenceGroup->add( &m_differenceCase );
-        if ( isTimeDiffResultAvailable() ) differenceGroup->add( &m_timeLapseBaseTimestep );
+        if ( isDeltaCasePossible() ) differenceGroup->add( &m_differenceCase );
+        if ( isDeltaTimeStepPossible() ) differenceGroup->add( &m_timeLapseBaseTimestep );
 
         QString resultPropertyLabel = "Result Property";
-        if ( isTimeDiffResult() || isCaseDiffResult() )
+        if ( isDeltaTimeStepActive() || isDeltaCaseActive() )
         {
-            resultPropertyLabel += QString( "\n%1" ).arg( diffResultUiShortName() );
+            resultPropertyLabel += QString( "\n%1" ).arg( additionalResultTextShort() );
+        }
+        m_resultVariableUiField.uiCapability()->setUiName( resultPropertyLabel );
+    }
+
+    if ( isDivideByCellFaceAreaPossible() )
+    {
+        uiOrdering.add( &m_divideByCellFaceArea );
+
+        QString resultPropertyLabel = "Result Property";
+        if ( isDivideByCellFaceAreaActive() )
+        {
+            resultPropertyLabel += QString( "\nDivided by Area" );
         }
         m_resultVariableUiField.uiCapability()->setUiName( resultPropertyLabel );
     }
@@ -2175,9 +2190,9 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
 void RimEclipseResultDefinition::updateLegendTitle( RimRegularLegendConfig* legendConfig, const QString& legendHeading )
 {
     QString title = legendHeading + this->resultVariableUiName();
-    if ( !this->diffResultUiShortName().isEmpty() )
+    if ( !this->additionalResultTextShort().isEmpty() )
     {
-        title += QString( "\n%1" ).arg( this->diffResultUiShortName() );
+        title += additionalResultTextShort();
     }
 
     if ( this->hasDualPorFractureResult() )
@@ -2558,34 +2573,34 @@ void RimEclipseResultDefinition::syncProducerToInjectorSelection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseResultDefinition::enableDiffResultOptions() const
+bool RimEclipseResultDefinition::isDeltaResultEnabled() const
 {
-    return m_diffResultOptionsEnabled;
+    return m_isDeltaResultEnabled;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseResultDefinition::isTimeDiffResultAvailable() const
+bool RimEclipseResultDefinition::isDeltaTimeStepPossible() const
 {
-    return enableDiffResultOptions() && m_resultTypeUiField() == RiaDefines::ResultCatType::DYNAMIC_NATIVE &&
+    return isDeltaResultEnabled() && m_resultTypeUiField() == RiaDefines::ResultCatType::DYNAMIC_NATIVE &&
            !isTernarySaturationSelected();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseResultDefinition::isTimeDiffResult() const
+bool RimEclipseResultDefinition::isDeltaTimeStepActive() const
 {
-    return isTimeDiffResultAvailable() && m_timeLapseBaseTimestep() >= 0;
+    return isDeltaTimeStepPossible() && m_timeLapseBaseTimestep() >= 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseResultDefinition::isCaseDiffResultAvailable() const
+bool RimEclipseResultDefinition::isDeltaCasePossible() const
 {
-    return enableDiffResultOptions() && !isTernarySaturationSelected() &&
+    return isDeltaResultEnabled() && !isTernarySaturationSelected() &&
            ( m_resultTypeUiField() == RiaDefines::ResultCatType::DYNAMIC_NATIVE ||
              m_resultTypeUiField() == RiaDefines::ResultCatType::STATIC_NATIVE ||
              m_resultTypeUiField() == RiaDefines::ResultCatType::GENERATED );
@@ -2594,9 +2609,49 @@ bool RimEclipseResultDefinition::isCaseDiffResultAvailable() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseResultDefinition::isCaseDiffResult() const
+bool RimEclipseResultDefinition::isDeltaCaseActive() const
 {
-    return isCaseDiffResultAvailable() && m_differenceCase() != nullptr;
+    return isDeltaCasePossible() && m_differenceCase() != nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEclipseResultDefinition::isDivideByCellFaceAreaPossible() const
+{
+    QString str = m_resultVariable;
+
+    // TODO : Move to RiaDefines or a separate file for cell face results
+
+    if ( str == "FLRWATI+" ) return true;
+    if ( str == "FLRWATJ+" ) return true;
+    if ( str == "FLRWATK+" ) return true;
+
+    if ( str == "FLROILI+" ) return true;
+    if ( str == "FLROILJ+" ) return true;
+    if ( str == "FLROILK+" ) return true;
+
+    if ( str == "FLRGASI+" ) return true;
+    if ( str == "FLRGASJ+" ) return true;
+    if ( str == "FLRGASK+" ) return true;
+
+    if ( str == "TRANX" ) return true;
+    if ( str == "TRANY" ) return true;
+    if ( str == "TRANZ" ) return true;
+
+    if ( str == "riTRANX" ) return true;
+    if ( str == "riTRANY" ) return true;
+    if ( str == "riTRANZ" ) return true;
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEclipseResultDefinition::isDivideByCellFaceAreaActive() const
+{
+    return isDivideByCellFaceAreaPossible() && m_divideByCellFaceArea;
 }
 
 //--------------------------------------------------------------------------------------------------

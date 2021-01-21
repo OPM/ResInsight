@@ -71,7 +71,7 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
 
     CAF_PDM_InitFieldNoDefault( &m_resultDefinition, "ResultDefinition", "Result Definition", "", "", "" );
     m_resultDefinition = new RimEclipseResultDefinition();
-    m_resultDefinition->setDiffResultOptionsEnabled( true );
+    m_resultDefinition->enableDeltaResults( true );
 
     // Set to hidden to avoid this item to been displayed as a child item
     // Fields in this object are displayed using defineUiOrdering()
