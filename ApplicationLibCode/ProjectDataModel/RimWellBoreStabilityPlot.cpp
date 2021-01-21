@@ -73,11 +73,20 @@ RimWellBoreStabilityPlot::RimWellBoreStabilityPlot()
 //--------------------------------------------------------------------------------------------------
 void RimWellBoreStabilityPlot::applyWbsParametersToExtractor( RigGeoMechWellLogExtractor* extractor )
 {
-    m_waterDepth = extractor->waterDepth();
+    auto originalValue = m_waterDepth;
+    m_waterDepth       = extractor->waterDepth();
 
-    if ( m_waterDepth == std::numeric_limits<double>::infinity() ) m_waterDepth = extractor->estimateWaterDepth();
+    if ( m_waterDepth == std::numeric_limits<double>::infinity() )
+    {
+        m_waterDepth = extractor->estimateWaterDepth();
+    }
 
     m_wbsParameters->applyWbsParametersToExtractor( extractor );
+
+    if ( originalValue != m_waterDepth )
+    {
+        performAutoNameUpdate();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
