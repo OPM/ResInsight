@@ -20,8 +20,8 @@
 
 #include "RigMainGrid.h"
 
-#include "RiaDefines.h"
 #include "RiaLogging.h"
+#include "RiaResultNames.h"
 #include "RigActiveCellInfo.h"
 #include "RigHexIntersectionTools.h"
 

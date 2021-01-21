@@ -122,7 +122,7 @@ RimFractureTemplate::RimFractureTemplate()
 
     CAF_PDM_InitField( &m_fractureTemplateUnit,
                        "UnitSystem",
-                       caf::AppEnum<RiaEclipseUnitTools::UnitSystem>( RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN ),
+                       caf::AppEnum<RiaDefines::EclipseUnitSystem>( RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN ),
                        "Units System",
                        "",
                        "",

@@ -138,7 +138,7 @@ RimFracture::RimFracture()
 
     CAF_PDM_InitField( &m_fractureUnit,
                        "FractureUnit",
-                       caf::AppEnum<RiaEclipseUnitTools::UnitSystem>( RiaEclipseUnitTools::UnitSystem::UNITS_METRIC ),
+                       caf::AppEnum<RiaDefines::EclipseUnitSystem>( RiaDefines::EclipseUnitSystem::UNITS_METRIC ),
                        "Fracture Unit System",
                        "",
                        "",
