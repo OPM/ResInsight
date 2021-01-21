@@ -5,7 +5,7 @@ import Commands_pb2
 
 from .pdmobject import add_method
 from .view import View
-from resinsight_classes import EclipseContourMap, GeoMechContourMap
+from .resinsight_classes import EclipseContourMap, GeoMechContourMap
 
 
 @add_method(EclipseContourMap)

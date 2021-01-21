@@ -355,7 +355,7 @@ endforeach()
 # Generate Python code in a target that is part of ALL_BUILD and depends on
 # ResInsight
 if(RESINSIGHT_ENABLE_GRPC)
-  set(GENERATED_CLASSES_FILE ${CMAKE_SOURCE_DIR}/GrpcInterface/Python/rips/generated/resinsight_classes.py)
+  set(GENERATED_CLASSES_FILE ${CMAKE_SOURCE_DIR}/GrpcInterface/Python/rips/generated/generated_classes.py)
   add_custom_command(
     OUTPUT
       ${GENERATED_CLASSES_FILE}
@@ -548,7 +548,7 @@ if(RESINSIGHT_PRIVATE_INSTALL)
               DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
     endif()
 
-    # install GRPC-related DLLs and resinsight_classes.py
+    # install GRPC-related DLLs and generated_classes.py
     if(RESINSIGHT_ENABLE_GRPC)
       set(ZLIB_DLL "$<IF:$<CONFIG:Debug>,zlibd1,zlib1>")
       set(PROTOBUF_DLL "$<IF:$<CONFIG:Debug>,libprotobufd,libprotobuf>")
@@ -559,7 +559,7 @@ if(RESINSIGHT_PRIVATE_INSTALL)
       endforeach(dllname ${GRPC_DLL_NAMES})
       install(
         FILES
-          ${CMAKE_SOURCE_DIR}/GrpcInterface/Python/rips/generated/resinsight_classes.py
+          ${CMAKE_SOURCE_DIR}/GrpcInterface/Python/rips/generated/generated_classes.py
         DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python/rips/generated)
     endif()
 

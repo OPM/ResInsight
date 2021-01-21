@@ -3,8 +3,8 @@ ResInsight 2d plot module
 """
 import Commands_pb2
 
-from .pdmobject import PdmObjectBase, add_method
-from resinsight_classes import PlotWindow, Plot
+from .pdmobject import add_method
+from .resinsight_classes import PlotWindow, Plot
 
 
 @add_method(PlotWindow)

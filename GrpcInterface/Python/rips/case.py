@@ -58,7 +58,7 @@ import Properties_pb2
 import Properties_pb2_grpc
 import NNCProperties_pb2
 import NNCProperties_pb2_grpc
-from resinsight_classes import Case, EclipseCase, GeoMechCase, WellBoreStabilityPlot, WbsParameters
+from .resinsight_classes import Case, EclipseCase, GeoMechCase, WellBoreStabilityPlot, WbsParameters
 
 from .grid import Grid
 from .pdmobject import add_method
@@ -321,7 +321,7 @@ def view(self, view_id):
         view_id(int): view id
 
     Returns:
-        :class:`rips.generated.resinsight_classes.View`
+        :class:`rips.generated.generated_classes.View`
     """
     views = self.views()
     for view_object in views:
@@ -335,7 +335,7 @@ def create_view(self):
     """Create a new view in the current case
 
     Returns: 
-        :class:`rips.generated.resinsight_classes.View`
+        :class:`rips.generated.generated_classes.View`
     """
     return self.view(
         self._execute_command(createView=Cmd.CreateViewRequest(
@@ -924,7 +924,7 @@ def create_well_bore_stability_plot(self, well_path, time_step, parameters=None)
         time_step(int): time step
 
     Returns:
-        :class:`rips.generated.resinsight_classes.WellBoreStabilityPlot`
+        :class:`rips.generated.generated_classes.WellBoreStabilityPlot`
     """
     pb2_parameters = None
     if parameters is not None:
@@ -962,7 +962,7 @@ def simulation_wells(self):
     """Get a list of all simulation wells for a case
 
     Returns:
-        :class:`rips.generated.resinsight_classes.SimulationWell`
+        :class:`rips.generated.generated_classes.SimulationWell`
 
     """
     wells = self.descendants(SimulationWell)

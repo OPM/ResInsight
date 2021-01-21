@@ -17,7 +17,7 @@ from Definitions_pb2 import Empty
 import Project_pb2_grpc
 import Project_pb2
 import PdmObject_pb2
-from resinsight_classes import Project, PlotWindow, WellPath, SummaryCase
+from .resinsight_classes import Project, PlotWindow, WellPath, SummaryCase
 
 
 @add_method(Project)
@@ -68,7 +68,7 @@ def load_case(self, path):
     Arguments:
         path(str): file path to case
     Returns:
-        :class:`rips.generated.resinsight_classes.Case`
+        :class:`rips.generated.generated_classes.Case`
     """
     command_reply = self._execute_command(loadCase=Commands_pb2.FilePathRequest(
         path=path))
@@ -80,7 +80,7 @@ def selected_cases(self):
     """Get a list of all grid cases selected in the project tree
 
     Returns:
-        A list of :class:`rips.generated.resinsight_classes.Case`
+        A list of :class:`rips.generated.generated_classes.Case`
     """
     case_infos = self._project_stub.GetSelectedCases(Empty())
     cases = []
@@ -94,7 +94,7 @@ def cases(self):
     """Get a list of all grid cases in the project
 
     Returns:
-        A list of :class:`rips.generated.resinsight_classes.Case`
+        A list of :class:`rips.generated.generated_classes.Case`
     """
     return self.descendants(Case)
 
@@ -106,7 +106,7 @@ def case(self, case_id):
     Arguments:
         id(int): case id
     Returns:
-        :class:`rips.generated.resinsight_classes.Case`
+        :class:`rips.generated.generated_classes.Case`
     """
     allCases = self.cases()
     for case in allCases:
@@ -135,7 +135,7 @@ def create_grid_case_group(self, case_paths):
     Arguments:
         case_paths (list): list of file path strings
     Returns:
-        :class:`rips.generated.resinsight_classes.GridCaseGroup`
+        :class:`rips.generated.generated_classes.GridCaseGroup`
     """
     command_reply = self._execute_command(
         createGridCaseGroup=Commands_pb2.CreateGridCaseGroupRequest(
@@ -147,7 +147,7 @@ def create_grid_case_group(self, case_paths):
 def summary_cases(self):
     """Get a list of all summary cases in the Project
 
-    Returns: A list of :class:`rips.generated.resinsight_classes.SummaryCase`
+    Returns: A list of :class:`rips.generated.generated_classes.SummaryCase`
     """        
     return self.descendants(SummaryCase)
 
@@ -164,7 +164,7 @@ def view(self, view_id):
     Arguments:
         view_id(int): view id
     Returns:
-        :class:`rips.generated.resinsight_classes.View`
+        :class:`rips.generated.generated_classes.View`
     """
     views = self.views()
     for view_object in views:
@@ -178,11 +178,11 @@ def plots(self):
     """Get a list of all plots belonging to a project
 
     Returns:
-        List of :class:`rips.generated.resinsight_classes.Plot`
+        List of :class:`rips.generated.generated_classes.Plot`
     """
-    resinsight_classes = self.descendants(PlotWindow)
+    generated_classes = self.descendants(PlotWindow)
     plot_list = []
-    for pdm_object in resinsight_classes:
+    for pdm_object in generated_classes:
         if pdm_object.id != -1:
             plot_list.append(pdm_object)
     return plot_list
@@ -196,7 +196,7 @@ def plot(self, view_id):
         view_id(int): view id
 
     Returns:
-        :class:`rips.generated.resinsight_classes.Plot`
+        :class:`rips.generated.generated_classes.Plot`
     """
     plots = self.plots()
     for plot_object in plots:
@@ -210,7 +210,7 @@ def grid_case_groups(self):
     """Get a list of all grid case groups in the project
 
     Returns:
-        List of :class:`rips.generated.resinsight_classes.GridCaseGroup`
+        List of :class:`rips.generated.generated_classes.GridCaseGroup`
 
     """
     case_groups = self.descendants(GridCaseGroup)
@@ -225,7 +225,7 @@ def grid_case_group(self, group_id):
         groupId(int): group id
 
     Returns:
-        :class:`rips.generated.resinsight_classes.GridCaseGroup`
+        :class:`rips.generated.generated_classes.GridCaseGroup`
     """
     case_groups = self.grid_case_groups()
     for case_group in case_groups:
@@ -320,7 +320,7 @@ def import_well_paths(self, well_path_files=None, well_path_folder=''):
         well_path_folder(str): A folder path containing files to import
 
     Returns:
-        List of :class:`rips.generated.resinsight_classes.WellPath`
+        List of :class:`rips.generated.generated_classes.WellPath`
     """
     if well_path_files is None:
         well_path_files = []
@@ -338,7 +338,7 @@ def well_paths(self):
     """Get a list of all well paths in the project
 
     Returns:
-        List of :class:`rips.generated.resinsight_classes.WellPath`
+        List of :class:`rips.generated.generated_classes.WellPath`
     """
     return self.descendants(WellPath)
 
@@ -348,7 +348,7 @@ def well_path_by_name(self, well_path_name):
     """Get a specific well path by name from the project
 
     Returns:
-        :class:`rips.generated.resinsight_classes.WellPath`
+        :class:`rips.generated.generated_classes.WellPath`
     """
     all_well_paths = self.well_paths()
     for well_path in all_well_paths:
