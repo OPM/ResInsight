@@ -19,6 +19,7 @@
 #include "RicWellPathExportCompletionDataFeatureImpl.h"
 
 #include "RiaApplication.h"
+#include "RiaEclipseUnitTools.h"
 #include "RiaFilePathTools.h"
 #include "RiaFractureDefines.h"
 #include "RiaLogging.h"

@@ -20,10 +20,10 @@
 
 #include "RiaColorTables.h"
 #include "RiaCurveMerger.h"
-#include "RiaDefines.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
+#include "RiaResultNames.h"
 #include "RiaStatisticsTools.h"
 #include "RiaSummaryTools.h"
 

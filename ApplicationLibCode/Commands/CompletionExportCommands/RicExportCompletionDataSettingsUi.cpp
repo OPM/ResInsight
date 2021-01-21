@@ -19,6 +19,8 @@
 #include "RicExportCompletionDataSettingsUi.h"
 #include "RicExportFractureCompletionsImpl.h"
 
+#include "RiaEclipseUnitTools.h"
+
 #include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellPath.h"

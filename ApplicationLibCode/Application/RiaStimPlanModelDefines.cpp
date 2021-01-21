@@ -18,6 +18,8 @@
 
 #include "RiaStimPlanModelDefines.h"
 
+#include "cafAppEnum.h"
+
 namespace caf
 {
 template <>
