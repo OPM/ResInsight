@@ -21,6 +21,7 @@
 #include "RiaColorTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
+#include "RiaResultNames.h"
 #include "RiaStatisticsTools.h"
 #include "RiaSummaryCurveAnalyzer.h"
 #include "RiaSummaryCurveDefinition.h"
@@ -1282,7 +1283,7 @@ void RimEnsembleCurveSet::appendOptionItemsForSummaryAddresses( QList<caf::PdmOp
         options->push_back( caf::PdmOptionItemInfo( s, QVariant::fromValue( addr ) ) );
     }
 
-    options->push_front( caf::PdmOptionItemInfo( RiaDefines::undefinedResultName(),
+    options->push_front( caf::PdmOptionItemInfo( RiaResultNames::undefinedResultName(),
                                                  QVariant::fromValue( RifEclipseSummaryAddress() ) ) );
 }
 

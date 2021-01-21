@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
-
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"

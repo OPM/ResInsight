@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 #include "RiaWeightedMeanCalculator.h"
 #include "RimWellPathAicdParameters.h"
 
@@ -33,7 +33,7 @@ class RicMswValve;
 class RicMswValveAccumulator
 {
 public:
-    RicMswValveAccumulator( std::shared_ptr<RicMswValve> valve, RiaEclipseUnitTools::UnitSystem unitSystem )
+    RicMswValveAccumulator( std::shared_ptr<RicMswValve> valve, RiaDefines::EclipseUnitSystem unitSystem )
         : m_valve( valve )
         , m_unitSystem( unitSystem )
         , m_valid( false )
@@ -47,9 +47,9 @@ public:
     std::shared_ptr<RicMswValve> superValve() const { return m_valve; }
 
 protected:
-    std::shared_ptr<RicMswValve>    m_valve;
-    RiaEclipseUnitTools::UnitSystem m_unitSystem;
-    bool                            m_valid;
+    std::shared_ptr<RicMswValve>  m_valve;
+    RiaDefines::EclipseUnitSystem m_unitSystem;
+    bool                          m_valid;
 };
 
 //==================================================================================================
@@ -58,7 +58,7 @@ protected:
 class RicMswICDAccumulator : public RicMswValveAccumulator
 {
 public:
-    RicMswICDAccumulator( std::shared_ptr<RicMswValve> valve, RiaEclipseUnitTools::UnitSystem unitSystem );
+    RicMswICDAccumulator( std::shared_ptr<RicMswValve> valve, RiaDefines::EclipseUnitSystem unitSystem );
     bool accumulateValveParameters( const RimWellPathValve* wellPathValve,
                                     double                  overlapLength,
                                     double                  perforationCompsegsLength ) override;
@@ -75,7 +75,7 @@ private:
 class RicMswAICDAccumulator : public RicMswValveAccumulator
 {
 public:
-    RicMswAICDAccumulator( std::shared_ptr<RicMswValve> valve, RiaEclipseUnitTools::UnitSystem unitSystem );
+    RicMswAICDAccumulator( std::shared_ptr<RicMswValve> valve, RiaDefines::EclipseUnitSystem unitSystem );
     bool   accumulateValveParameters( const RimWellPathValve* wellPathValve,
                                       double                  overlapLength,
                                       double                  perforationCompsegsLength ) override;

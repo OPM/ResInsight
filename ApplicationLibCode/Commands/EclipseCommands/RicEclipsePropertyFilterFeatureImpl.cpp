@@ -19,6 +19,8 @@
 
 #include "RicEclipsePropertyFilterFeatureImpl.h"
 
+#include "RiaResultNames.h"
+
 #include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
@@ -120,7 +122,7 @@ void RicEclipsePropertyFilterFeatureImpl::setDefaults( RimEclipsePropertyFilter*
 
     propertyFilter->resultDefinition()->setEclipseCase( reservoirView->eclipseCase() );
 
-    if ( !RiaDefines::isPerCellFaceResult( reservoirView->cellResult()->resultVariable() ) )
+    if ( !RiaResultNames::isPerCellFaceResult( reservoirView->cellResult()->resultVariable() ) )
     {
         propertyFilter->resultDefinition()->simpleCopy( reservoirView->cellResult() );
     }

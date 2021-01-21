@@ -139,7 +139,7 @@ std::vector<double> RimWellPathValve::valveLocations() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimWellPathValve::orificeDiameter( RiaEclipseUnitTools::UnitSystem unitSystem ) const
+double RimWellPathValve::orificeDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const
 {
     if ( m_valveTemplate() )
     {
@@ -230,13 +230,13 @@ const RimWellPathAicdParameters* RimWellPathValve::aicdParameters() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimWellPathValve::convertOrificeDiameter( double                          orificeDiameterWellPathUnits,
-                                                 RiaEclipseUnitTools::UnitSystem wellPathUnits,
-                                                 RiaEclipseUnitTools::UnitSystem unitSystem )
+double RimWellPathValve::convertOrificeDiameter( double                        orificeDiameterWellPathUnits,
+                                                 RiaDefines::EclipseUnitSystem wellPathUnits,
+                                                 RiaDefines::EclipseUnitSystem unitSystem )
 {
-    if ( unitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+    if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
-        if ( wellPathUnits == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+        if ( wellPathUnits == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
         {
             return RiaEclipseUnitTools::inchToMeter( orificeDiameterWellPathUnits );
         }
@@ -245,9 +245,9 @@ double RimWellPathValve::convertOrificeDiameter( double                         
             return RiaEclipseUnitTools::mmToMeter( orificeDiameterWellPathUnits );
         }
     }
-    else if ( unitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+    else if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
-        if ( wellPathUnits == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+        if ( wellPathUnits == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
         {
             return RiaEclipseUnitTools::meterToFeet( RiaEclipseUnitTools::mmToMeter( orificeDiameterWellPathUnits ) );
         }
@@ -518,11 +518,11 @@ void RimWellPathValve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
             firstAncestorOrThisOfType( wellPath );
             if ( wellPath )
             {
-                if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+                if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
                 {
                     m_measuredDepth.uiCapability()->setUiName( "Measured Depth [m]" );
                 }
-                else if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+                else if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
                 {
                     m_measuredDepth.uiCapability()->setUiName( "Measured Depth [ft]" );
                 }

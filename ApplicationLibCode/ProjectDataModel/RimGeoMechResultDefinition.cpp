@@ -598,8 +598,8 @@ void RimGeoMechResultDefinition::loadResult()
 {
     if ( m_geomCase && m_geomCase->geoMechData() )
     {
-        if ( this->resultAddress().fieldName == RiaDefines::wbsFGResult().toStdString() ||
-             this->resultAddress().fieldName == RiaDefines::wbsSFGResult().toStdString() )
+        if ( this->resultAddress().fieldName == RiaResultNames::wbsFGResult().toStdString() ||
+             this->resultAddress().fieldName == RiaResultNames::wbsSFGResult().toStdString() )
         {
             RigFemResultAddress stressResAddr( RIG_ELEMENT_NODAL, std::string( "ST" ), "" );
             RigFemResultAddress porBarResAddr( RIG_ELEMENT_NODAL, std::string( "POR-Bar" ), "" );
@@ -839,7 +839,7 @@ QString RimGeoMechResultDefinition::currentResultUnits() const
     }
     else
     {
-        for ( auto resultName : RiaDefines::wbsDerivedResultNames() )
+        for ( auto resultName : RiaResultNames::wbsDerivedResultNames() )
         {
             if ( resultName == this->resultFieldName() )
             {

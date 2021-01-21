@@ -7,8 +7,8 @@
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
 //
-//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
-//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT
+//  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
 //
 //  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
@@ -154,7 +154,7 @@ RimWellPltPlot::~RimWellPltPlot()
 //--------------------------------------------------------------------------------------------------
 void RimWellPltPlot::setPlotXAxisTitles( RimWellLogTrack* plotTrack )
 {
-    std::set<RiaEclipseUnitTools::UnitSystem> presentUnitSystems;
+    std::set<RiaDefines::EclipseUnitSystem> presentUnitSystems;
     for ( const RifDataSourceForRftPlt& source : m_selectedSources.v() )
     {
         if ( source.eclCase() && source.eclCase()->eclipseCaseData() )
@@ -170,13 +170,13 @@ void RimWellPltPlot::setPlotXAxisTitles( RimWellLogTrack* plotTrack )
                 switch ( source.wellLogFile()->wellLogFileData()->depthUnit() )
                 {
                     case RiaDefines::DepthUnitType::UNIT_METER:
-                        presentUnitSystems.insert( RiaEclipseUnitTools::UnitSystem::UNITS_METRIC );
+                        presentUnitSystems.insert( RiaDefines::EclipseUnitSystem::UNITS_METRIC );
                         break;
                     case RiaDefines::DepthUnitType::UNIT_FEET:
-                        presentUnitSystems.insert( RiaEclipseUnitTools::UnitSystem::UNITS_FIELD );
+                        presentUnitSystems.insert( RiaDefines::EclipseUnitSystem::UNITS_FIELD );
                         break;
                     case RiaDefines::DepthUnitType::UNIT_NONE:
-                        presentUnitSystems.insert( RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN );
+                        presentUnitSystems.insert( RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN );
                         break;
                 }
             }
@@ -190,7 +190,7 @@ void RimWellPltPlot::setPlotXAxisTitles( RimWellLogTrack* plotTrack )
 
     if ( presentUnitSystems.empty() ) return;
 
-    RiaEclipseUnitTools::UnitSystem unitSet = *presentUnitSystems.begin();
+    RiaDefines::EclipseUnitSystem unitSet = *presentUnitSystems.begin();
 
     QString axisTitle;
     if ( m_useReservoirConditionCurves )
@@ -244,7 +244,8 @@ void RimWellPltPlot::updateFormationsOnPlot() const
 
             if ( !formationNamesCase )
             {
-                /// Set default case. Todo : Use the first of the selected cases in the plot
+                /// Set default case. Todo : Use the first of the selected cases in the
+                /// plot
                 std::vector<RimCase*> cases;
                 proj->allCases( cases );
 
@@ -372,7 +373,8 @@ public:
             RigWellResultPoint resPoint;
             resPoint.m_isOpen        = true;
             resPoint.m_gridIndex     = 0; // Always main grid
-            resPoint.m_gridCellIndex = globCellIdx; // Shortcut, since we only have main grid results from RFT
+            resPoint.m_gridCellIndex = globCellIdx; // Shortcut, since we only have
+                                                    // main grid results from RFT
 
             resPoint.m_gasRate =
                 RiaEclipseUnitTools::convertSurfaceGasFlowRateToOilEquivalents( eclCase->eclipseCaseData()->unitsType(),
@@ -541,7 +543,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
             resultPointCalc.reset( new RigSimWellResultPointCalculator( m_wellPathName, rimEclipseResultCase, timeStep ) );
         }
 
-        RiaEclipseUnitTools::UnitSystem unitSet = RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
+        RiaDefines::EclipseUnitSystem unitSet = RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
         if ( rimEclipseResultCase )
         {
             unitSet = rimEclipseResultCase->eclipseCaseData()->unitsType();
@@ -654,13 +656,13 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
 
                     std::vector<double> depthValues = wellLogFileData->depthValues();
 
-                    RiaEclipseUnitTools::UnitSystem unitSystem = RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
+                    RiaDefines::EclipseUnitSystem unitSystem = RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
                     {
                         RiaDefines::DepthUnitType depthUnit = wellLogFileData->depthUnit();
                         if ( depthUnit == RiaDefines::DepthUnitType::UNIT_FEET )
-                            unitSystem = RiaEclipseUnitTools::UnitSystem::UNITS_FIELD;
+                            unitSystem = RiaDefines::EclipseUnitSystem::UNITS_FIELD;
                         if ( depthUnit == RiaDefines::DepthUnitType::UNIT_METER )
-                            unitSystem = RiaEclipseUnitTools::UnitSystem::UNITS_METRIC;
+                            unitSystem = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
                     }
 
                     for ( const ChannelValNameIdxTuple& channelInfo : sortedChannels )
@@ -693,8 +695,8 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                                              curveGroupId,
                                              true );
 
-                            // Total flow channel will end up first, so just increment the group
-                            // idx to make the rest of the phases group together
+                            // Total flow channel will end up first, so just increment the
+                            // group idx to make the rest of the phases group together
                             if ( RimWellPlotTools::isTotalFlowChannel( channelName ) ) curveGroupId++;
                         }
                     }
@@ -914,9 +916,10 @@ void RimWellPltPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                 {
                     if ( !wellPath->wellPathGeometry() )
                     {
-                        QString tmp =
-                            QString( "Display of Measured Depth (MD) for Grid or RFT curves is not possible without a "
-                                     "well log path, and the curve will be hidden in this mode.\n\n" );
+                        QString tmp = QString( "Display of Measured Depth (MD) for Grid or "
+                                               "RFT curves is not possible without a "
+                                               "well log path, and the curve will be hidden "
+                                               "in this mode.\n\n" );
 
                         RiaLogging::errorInMessageBox( nullptr, "Grid/RFT curve without MD", tmp );
 

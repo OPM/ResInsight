@@ -21,7 +21,6 @@
 #pragma once
 
 #include "RiaDefines.h"
-#include "RiaEclipseUnitTools.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
@@ -185,8 +184,8 @@ public:
     std::vector<RimValveTemplateCollection*> allValveTemplateCollections() const;
     std::vector<RimValveTemplate*>           allValveTemplates() const;
 
-    RiaEclipseUnitTools::UnitSystemType commonUnitSystemForAllCases() const;
-    RimMeasurement*                     measurement() const;
+    caf::AppEnum<RiaDefines::EclipseUnitSystem> commonUnitSystemForAllCases() const;
+    RimMeasurement*                             measurement() const;
 
     RimPlotTemplateFolderItem* rootPlotTemlateItem() const;
 

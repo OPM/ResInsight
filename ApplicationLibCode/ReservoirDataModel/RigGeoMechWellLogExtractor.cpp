@@ -24,7 +24,9 @@
 
 #include "RiaDefines.h"
 #include "RiaLogging.h"
+#include "RiaResultNames.h"
 #include "RiaWeightedMeanCalculator.h"
+
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
@@ -134,30 +136,30 @@ QString RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAdd
             return "";
         }
 
-        if ( resAddr.fieldName == RiaDefines::wbsFGResult().toStdString() )
+        if ( resAddr.fieldName == RiaResultNames::wbsFGResult().toStdString() )
         {
             wellBoreWallCurveData( resAddr, frameIndex, values );
             // Try to replace invalid values with Shale-values
             wellBoreFGShale( frameIndex, values );
             values->front() = wbsCurveValuesAtMsl();
         }
-        else if ( resAddr.fieldName == RiaDefines::wbsSFGResult().toStdString() )
+        else if ( resAddr.fieldName == RiaResultNames::wbsSFGResult().toStdString() )
         {
             wellBoreWallCurveData( resAddr, frameIndex, values );
         }
-        else if ( resAddr.fieldName == RiaDefines::wbsPPResult().toStdString() ||
-                  resAddr.fieldName == RiaDefines::wbsOBGResult().toStdString() ||
-                  resAddr.fieldName == RiaDefines::wbsSHResult().toStdString() )
+        else if ( resAddr.fieldName == RiaResultNames::wbsPPResult().toStdString() ||
+                  resAddr.fieldName == RiaResultNames::wbsOBGResult().toStdString() ||
+                  resAddr.fieldName == RiaResultNames::wbsSHResult().toStdString() )
         {
             wellPathScaledCurveData( resAddr, frameIndex, values );
             values->front() = wbsCurveValuesAtMsl();
         }
-        else if ( resAddr.fieldName == RiaDefines::wbsAzimuthResult().toStdString() ||
-                  resAddr.fieldName == RiaDefines::wbsInclinationResult().toStdString() )
+        else if ( resAddr.fieldName == RiaResultNames::wbsAzimuthResult().toStdString() ||
+                  resAddr.fieldName == RiaResultNames::wbsInclinationResult().toStdString() )
         {
             wellPathAngles( resAddr, values );
         }
-        else if ( resAddr.fieldName == RiaDefines::wbsSHMkResult().toStdString() )
+        else if ( resAddr.fieldName == RiaResultNames::wbsSHMkResult().toStdString() )
         {
             wellBoreSH_MatthewsKelly( frameIndex, values );
             values->front() = wbsCurveValuesAtMsl();
@@ -510,7 +512,7 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
     values->resize( m_intersections.size(), std::numeric_limits<double>::infinity() );
     std::vector<WbsParameterSource> sources( m_intersections.size(), RigWbsParameter::UNDEFINED );
 
-    if ( resAddr.fieldName == RiaDefines::wbsPPResult().toStdString() )
+    if ( resAddr.fieldName == RiaResultNames::wbsPPResult().toStdString() )
     {
         // Las or element property table values
         std::vector<double> ppSandValues( m_intersections.size(), std::numeric_limits<double>::infinity() );
@@ -557,7 +559,7 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
             }
         }
     }
-    else if ( resAddr.fieldName == RiaDefines::wbsOBGResult().toStdString() )
+    else if ( resAddr.fieldName == RiaResultNames::wbsOBGResult().toStdString() )
     {
         sources = calculateWbsParameterForAllSegments( RigWbsParameter::OBG(), frameIndex, values, true );
     }
@@ -577,8 +579,8 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData( const RigFemResultAddres
                                                         std::vector<double>*       values )
 {
     CVF_ASSERT( values );
-    CVF_ASSERT( resAddr.fieldName == RiaDefines::wbsFGResult().toStdString() ||
-                resAddr.fieldName == RiaDefines::wbsSFGResult().toStdString() );
+    CVF_ASSERT( resAddr.fieldName == RiaResultNames::wbsFGResult().toStdString() ||
+                resAddr.fieldName == RiaResultNames::wbsSFGResult().toStdString() );
 
     // The result addresses needed
     RigFemResultAddress stressResAddr( RIG_ELEMENT_NODAL, "ST", "" );
@@ -644,7 +646,7 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData( const RigFemResultAddres
 
         RigGeoMechBoreHoleStressCalculator sigmaCalculator( wellPathStressDouble, porePressureBar, poissonRatio, ucsBar, 32 );
         double                             resultValue = std::numeric_limits<double>::infinity();
-        if ( resAddr.fieldName == RiaDefines::wbsFGResult().toStdString() )
+        if ( resAddr.fieldName == RiaResultNames::wbsFGResult().toStdString() )
         {
             if ( isFGregion && validSegmentStress )
             {
@@ -653,7 +655,7 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData( const RigFemResultAddres
         }
         else
         {
-            CVF_ASSERT( resAddr.fieldName == RiaDefines::wbsSFGResult().toStdString() );
+            CVF_ASSERT( resAddr.fieldName == RiaResultNames::wbsSFGResult().toStdString() );
             if ( !isFGregion && validSegmentStress )
             {
                 resultValue = sigmaCalculator.solveStassiDalia();
@@ -683,7 +685,7 @@ void RigGeoMechWellLogExtractor::wellBoreFGShale( int frameIndex, std::vector<do
         std::vector<double> PP0; // results
         std::vector<double> K0_FG, OBG0; // parameters
 
-        RigFemResultAddress ppAddr( RIG_WELLPATH_DERIVED, RiaDefines::wbsPPResult().toStdString(), "" );
+        RigFemResultAddress ppAddr( RIG_WELLPATH_DERIVED, RiaResultNames::wbsPPResult().toStdString(), "" );
         wellPathScaledCurveData( ppAddr, 0, &PP0, true );
 
         calculateWbsParameterForAllSegments( RigWbsParameter::K0_FG(), frameIndex, &K0_FG, true );
@@ -732,7 +734,7 @@ void RigGeoMechWellLogExtractor::wellBoreSH_MatthewsKelly( int frameIndex, std::
     std::vector<double> PP, PP0; // results
     std::vector<double> K0_SH, OBG0, DF; // parameters
 
-    RigFemResultAddress ppAddr( RIG_WELLPATH_DERIVED, RiaDefines::wbsPPResult().toStdString(), "" );
+    RigFemResultAddress ppAddr( RIG_WELLPATH_DERIVED, RiaResultNames::wbsPPResult().toStdString(), "" );
 
     curveData( ppAddr, frameIndex, &PP );
     curveData( ppAddr, 0, &PP0 );
@@ -815,7 +817,7 @@ QString RigGeoMechWellLogExtractor::parameterInputUnits( const RigWbsParameter& 
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RigGeoMechWellLogExtractor::porePressureSourceRegions( int frameIndex )
 {
-    RigFemResultAddress ppResAddr( RIG_ELEMENT_NODAL, RiaDefines::wbsPPResult().toStdString(), "" );
+    RigFemResultAddress ppResAddr( RIG_ELEMENT_NODAL, RiaResultNames::wbsPPResult().toStdString(), "" );
 
     std::vector<double>             values;
     std::vector<WbsParameterSource> sources = wellPathScaledCurveData( ppResAddr, frameIndex, &values );

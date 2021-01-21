@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 
 #include "cvfColor3.h"
 #include "cvfVector3.h"
@@ -42,7 +42,7 @@ public:
     ~RimFishbonesPipeProperties() override;
 
     double skinFactor() const { return m_skinFactor(); }
-    double holeDiameter( RiaEclipseUnitTools::UnitSystem unitSystem ) const;
+    double holeDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const;
 
     void setUnitSystemSpecificDefaults();
 

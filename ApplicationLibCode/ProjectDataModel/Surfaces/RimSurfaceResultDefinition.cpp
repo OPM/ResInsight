@@ -19,6 +19,7 @@
 #include "RimSurfaceResultDefinition.h"
 
 #include "RiaDefines.h"
+#include "RiaResultNames.h"
 
 #include "RigStatisticsMath.h"
 #include "RigSurface.h"
@@ -176,7 +177,8 @@ QList<caf::PdmOptionItemInfo>
 
     if ( fieldNeedingOptions == &m_propertyName )
     {
-        options.push_back( caf::PdmOptionItemInfo( RiaDefines::undefinedResultName(), RiaDefines::undefinedResultName() ) );
+        options.push_back(
+            caf::PdmOptionItemInfo( RiaResultNames::undefinedResultName(), RiaResultNames::undefinedResultName() ) );
 
         RigSurface* surfData = surfaceData();
         if ( surfData )

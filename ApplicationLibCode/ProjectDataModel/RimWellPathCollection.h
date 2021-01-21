@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
@@ -146,7 +146,7 @@ private:
     RimWellPathGroup*              findOrCreateWellPathGroup( gsl::not_null<RimWellPath*>      wellPath,
                                                               const std::vector<RimWellPath*>& wellPathsToGroupWith );
 
-    RiaEclipseUnitTools::UnitSystemType findUnitSystemForWellPath( const RimWellPath* wellPath );
+    caf::AppEnum<RiaDefines::EclipseUnitSystem> findUnitSystemForWellPath( const RimWellPath* wellPath );
 
     std::unique_ptr<RifWellPathImporter>           m_wellPathImporter;
     std::unique_ptr<RifWellPathFormationsImporter> m_wellPathFormationsImporter;

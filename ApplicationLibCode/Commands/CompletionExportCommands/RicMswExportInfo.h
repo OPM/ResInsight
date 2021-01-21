@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 
 #include "RicMswSegment.h"
 
@@ -35,11 +35,11 @@ class RimFishbonesMultipleSubs;
 class RicMswExportInfo
 {
 public:
-    RicMswExportInfo( const RimWellPath*              wellPath,
-                      RiaEclipseUnitTools::UnitSystem unitSystem,
-                      double                          initialMD,
-                      const QString&                  lengthAndDepthText,
-                      const QString&                  pressureDropText );
+    RicMswExportInfo( const RimWellPath*            wellPath,
+                      RiaDefines::EclipseUnitSystem unitSystem,
+                      double                        initialMD,
+                      const QString&                lengthAndDepthText,
+                      const QString&                pressureDropText );
 
     void setLinerDiameter( double linerDiameter );
     void setRoughnessFactor( double roughnessFactor );
@@ -48,31 +48,31 @@ public:
     void addSegment( std::shared_ptr<RicMswSegment> location );
     void sortSegments();
 
-    const RimWellPath*              wellPath() const;
-    RiaEclipseUnitTools::UnitSystem unitSystem() const;
-    double                          initialMD() const;
-    double                          initialTVD() const;
-    double                          topWellBoreVolume() const;
-    double                          linerDiameter() const;
-    double                          roughnessFactor() const;
-    QString                         lengthAndDepthText() const;
-    QString                         pressureDropText() const;
-    bool                            hasSubGridIntersections() const;
-    static double                   defaultDoubleValue();
+    const RimWellPath*            wellPath() const;
+    RiaDefines::EclipseUnitSystem unitSystem() const;
+    double                        initialMD() const;
+    double                        initialTVD() const;
+    double                        topWellBoreVolume() const;
+    double                        linerDiameter() const;
+    double                        roughnessFactor() const;
+    QString                       lengthAndDepthText() const;
+    QString                       pressureDropText() const;
+    bool                          hasSubGridIntersections() const;
+    static double                 defaultDoubleValue();
 
     const std::vector<std::shared_ptr<RicMswSegment>>& segments() const;
     std::vector<std::shared_ptr<RicMswSegment>>&       segments();
 
 private:
-    const RimWellPath*              m_wellPath;
-    RiaEclipseUnitTools::UnitSystem m_unitSystem;
-    double                          m_initialMD;
-    double                          m_topWellBoreVolume;
-    double                          m_linerDiameter;
-    double                          m_roughnessFactor;
-    QString                         m_lengthAndDepthText;
-    QString                         m_pressureDropText;
-    bool                            m_hasSubGridIntersections;
+    const RimWellPath*            m_wellPath;
+    RiaDefines::EclipseUnitSystem m_unitSystem;
+    double                        m_initialMD;
+    double                        m_topWellBoreVolume;
+    double                        m_linerDiameter;
+    double                        m_roughnessFactor;
+    QString                       m_lengthAndDepthText;
+    QString                       m_pressureDropText;
+    bool                          m_hasSubGridIntersections;
 
     std::vector<std::shared_ptr<RicMswSegment>> m_segments;
 };

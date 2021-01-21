@@ -904,13 +904,13 @@ RimWellPathGroup* RimWellPathCollection::findOrCreateWellPathGroup( gsl::not_nul
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaEclipseUnitTools::UnitSystemType RimWellPathCollection::findUnitSystemForWellPath( const RimWellPath* wellPath )
+caf::AppEnum<RiaDefines::EclipseUnitSystem> RimWellPathCollection::findUnitSystemForWellPath( const RimWellPath* wellPath )
 {
     RimProject* project;
     firstAncestorOrThisOfTypeAsserted( project );
     if ( project->activeOilField()->analysisModels->cases.empty() )
     {
-        return RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
+        return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
     }
 
     const RigEclipseCaseData* eclipseCaseData = project->activeOilField()->analysisModels->cases()[0]->eclipseCaseData();
@@ -925,7 +925,7 @@ RiaEclipseUnitTools::UnitSystemType RimWellPathCollection::findUnitSystemForWell
     {
         return eclipseCaseData->unitsType();
     }
-    return RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
+    return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
 }
 
 //--------------------------------------------------------------------------------------------------

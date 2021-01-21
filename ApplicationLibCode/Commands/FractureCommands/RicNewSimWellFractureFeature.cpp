@@ -78,7 +78,7 @@ void RicNewSimWellFractureFeature::onActionTriggered( bool isChecked )
 
     fracture->setName( RicFractureNameGenerator::nameForNewFracture() );
 
-    auto unitSet = RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
+    auto unitSet = RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
     {
         RimEclipseResultCase* eclipseCase = nullptr;
         objHandle->firstAncestorOrThisOfType( eclipseCase );

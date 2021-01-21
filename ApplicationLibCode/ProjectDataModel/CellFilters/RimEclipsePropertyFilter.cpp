@@ -409,7 +409,7 @@ void RimEclipsePropertyFilter::computeResultValueRange()
 
                         setCategoryNames( fnVector );
                     }
-                    else if ( m_resultDefinition->resultVariable() == RiaDefines::completionTypeResultName() )
+                    else if ( m_resultDefinition->resultVariable() == RiaResultNames::completionTypeResultName() )
                     {
                         std::vector<RiaDefines::WellPathComponentType> componentTypes =
                             { RiaDefines::WellPathComponentType::WELL_PATH,

@@ -20,7 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaCompletionTypeCalculationScheduler.h"
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 #include "RiaFractureDefines.h"
 #include "RiaLogging.h"
 
@@ -139,13 +139,13 @@ std::vector<cvf::Vec3f> RimEllipseFractureTemplate::fractureBorderPolygon() cons
 //--------------------------------------------------------------------------------------------------
 void RimEllipseFractureTemplate::changeUnits()
 {
-    if ( fractureTemplateUnit() == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+    if ( fractureTemplateUnit() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
-        convertToUnitSystem( RiaEclipseUnitTools::UnitSystem::UNITS_FIELD );
+        convertToUnitSystem( RiaDefines::EclipseUnitSystem::UNITS_FIELD );
     }
-    else if ( fractureTemplateUnit() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+    else if ( fractureTemplateUnit() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
-        convertToUnitSystem( RiaEclipseUnitTools::UnitSystem::UNITS_METRIC );
+        convertToUnitSystem( RiaDefines::EclipseUnitSystem::UNITS_METRIC );
     }
 
     this->updateConnectedEditors();
@@ -282,7 +282,7 @@ const RigFractureGrid* RimEllipseFractureTemplate::fractureGrid() const
 //--------------------------------------------------------------------------------------------------
 void RimEllipseFractureTemplate::setDefaultValuesFromUnit()
 {
-    if ( fractureTemplateUnit() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+    if ( fractureTemplateUnit() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
         m_width        = 0.5;
         m_permeability = 80000.0;
@@ -306,12 +306,12 @@ void RimEllipseFractureTemplate::setDefaultValuesFromUnit()
 double RimEllipseFractureTemplate::conductivity() const
 {
     double cond = cvf::UNDEFINED_DOUBLE;
-    if ( fractureTemplateUnit() == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+    if ( fractureTemplateUnit() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
         // Conductivity should be md-m, width is in m
         cond = m_permeability * m_width;
     }
-    else if ( fractureTemplateUnit() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+    else if ( fractureTemplateUnit() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
         // Conductivity should be md-ft, but width is in inches
         cond = m_permeability * RiaEclipseUnitTools::inchToFeet( m_width );
@@ -394,20 +394,20 @@ void RimEllipseFractureTemplate::onLoadDataAndUpdateGeometryHasChanged()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEllipseFractureTemplate::convertToUnitSystem( RiaEclipseUnitTools::UnitSystem neededUnit )
+void RimEllipseFractureTemplate::convertToUnitSystem( RiaDefines::EclipseUnitSystem neededUnit )
 {
     if ( m_fractureTemplateUnit() == neededUnit ) return;
 
     setUnitSystem( neededUnit );
     RimFractureTemplate::convertToUnitSystem( neededUnit );
 
-    if ( neededUnit == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+    if ( neededUnit == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
         m_halfLength = RiaEclipseUnitTools::meterToFeet( m_halfLength );
         m_height     = RiaEclipseUnitTools::meterToFeet( m_height );
         m_width      = RiaEclipseUnitTools::meterToInch( m_width );
     }
-    else if ( neededUnit == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+    else if ( neededUnit == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
         m_halfLength = RiaEclipseUnitTools::feetToMeter( m_halfLength );
         m_height     = RiaEclipseUnitTools::feetToMeter( m_height );
@@ -420,13 +420,13 @@ void RimEllipseFractureTemplate::convertToUnitSystem( RiaEclipseUnitTools::UnitS
 //--------------------------------------------------------------------------------------------------
 void RimEllipseFractureTemplate::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    if ( fractureTemplateUnit() == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+    if ( fractureTemplateUnit() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
         m_halfLength.uiCapability()->setUiName( "Halflength X<sub>f</sub> [m]" );
         m_height.uiCapability()->setUiName( "Height [m]" );
         m_width.uiCapability()->setUiName( "Width [m]" );
     }
-    else if ( fractureTemplateUnit() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+    else if ( fractureTemplateUnit() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
         m_halfLength.uiCapability()->setUiName( "Halflength X<sub>f</sub> [ft]" );
         m_height.uiCapability()->setUiName( "Height [ft]" );

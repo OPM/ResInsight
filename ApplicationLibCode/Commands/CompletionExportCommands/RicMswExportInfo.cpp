@@ -31,11 +31,11 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswExportInfo::RicMswExportInfo( const RimWellPath*              wellPath,
-                                    RiaEclipseUnitTools::UnitSystem unitSystem,
-                                    double                          initialMD,
-                                    const QString&                  lengthAndDepthText,
-                                    const QString&                  pressureDropText )
+RicMswExportInfo::RicMswExportInfo( const RimWellPath*            wellPath,
+                                    RiaDefines::EclipseUnitSystem unitSystem,
+                                    double                        initialMD,
+                                    const QString&                lengthAndDepthText,
+                                    const QString&                pressureDropText )
     : m_wellPath( wellPath )
     , m_initialMD( initialMD )
     , m_unitSystem( unitSystem )
@@ -117,7 +117,7 @@ double RicMswExportInfo::initialTVD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaEclipseUnitTools::UnitSystem RicMswExportInfo::unitSystem() const
+RiaDefines::EclipseUnitSystem RicMswExportInfo::unitSystem() const
 {
     return m_unitSystem;
 }

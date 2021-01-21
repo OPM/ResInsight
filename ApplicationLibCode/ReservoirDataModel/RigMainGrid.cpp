@@ -20,8 +20,8 @@
 
 #include "RigMainGrid.h"
 
-#include "RiaDefines.h"
 #include "RiaLogging.h"
+#include "RiaResultNames.h"
 #include "RigActiveCellInfo.h"
 #include "RigHexIntersectionTools.h"
 
@@ -419,8 +419,8 @@ bool RigMainGrid::hasFaultWithName( const QString& name ) const
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::calculateFaults( const RigActiveCellInfo* activeCellInfo )
 {
-    if ( hasFaultWithName( RiaDefines::undefinedGridFaultName() ) &&
-         hasFaultWithName( RiaDefines::undefinedGridFaultWithInactiveName() ) )
+    if ( hasFaultWithName( RiaResultNames::undefinedGridFaultName() ) &&
+         hasFaultWithName( RiaResultNames::undefinedGridFaultWithInactiveName() ) )
     {
         // RiaLogging::debug(QString("Calculate faults already run for grid."));
 
@@ -439,12 +439,12 @@ void RigMainGrid::calculateFaults( const RigActiveCellInfo* activeCellInfo )
     // Separate the grid faults that has an inactive cell as member
 
     RigFault* unNamedFault = new RigFault;
-    unNamedFault->setName( RiaDefines::undefinedGridFaultName() );
+    unNamedFault->setName( RiaResultNames::undefinedGridFaultName() );
     int unNamedFaultIdx = static_cast<int>( m_faults.size() );
     m_faults.push_back( unNamedFault );
 
     RigFault* unNamedFaultWithInactive = new RigFault;
-    unNamedFaultWithInactive->setName( RiaDefines::undefinedGridFaultWithInactiveName() );
+    unNamedFaultWithInactive->setName( RiaResultNames::undefinedGridFaultWithInactiveName() );
     int unNamedFaultWithInactiveIdx = static_cast<int>( m_faults.size() );
     m_faults.push_back( unNamedFaultWithInactive );
 

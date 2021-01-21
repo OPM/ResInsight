@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 
 #include "Rim3dPropertiesInterface.h"
 #include "RimCheckableNamedObject.h"
@@ -83,11 +83,11 @@ public:
 
     void setStimPlanTimeIndexToPlot( int timeIndex );
 
-    double                          wellRadius() const;
-    cvf::Vec3d                      anchorPosition() const;
-    void                            setAnchorPosition( const cvf::Vec3d& pos );
-    RiaEclipseUnitTools::UnitSystem fractureUnit() const;
-    void                            setFractureUnit( RiaEclipseUnitTools::UnitSystem unitSystem );
+    double                        wellRadius() const;
+    cvf::Vec3d                    anchorPosition() const;
+    void                          setAnchorPosition( const cvf::Vec3d& pos );
+    RiaDefines::EclipseUnitSystem fractureUnit() const;
+    void                          setFractureUnit( RiaDefines::EclipseUnitSystem unitSystem );
 
     bool isEclipseCellOpenForFlow( const RigMainGrid*      mainGrid,
                                    const std::set<size_t>& reservoirCellIndicesOpenForFlow,
@@ -149,12 +149,12 @@ private:
     cvf::BoundingBox boundingBoxInDomainCoords() const override;
 
 protected:
-    caf::PdmPtrField<RimFractureTemplate*>             m_fractureTemplate;
-    caf::PdmField<bool>                                m_editFractureTemplate;
-    caf::PdmField<bool>                                m_createEllipseFractureTemplate;
-    caf::PdmField<bool>                                m_createStimPlanFractureTemplate;
-    caf::PdmProxyValueField<cvf::Vec3d>                m_uiAnchorPosition;
-    caf::PdmField<RiaEclipseUnitTools::UnitSystemType> m_fractureUnit;
+    caf::PdmPtrField<RimFractureTemplate*>                     m_fractureTemplate;
+    caf::PdmField<bool>                                        m_editFractureTemplate;
+    caf::PdmField<bool>                                        m_createEllipseFractureTemplate;
+    caf::PdmField<bool>                                        m_createStimPlanFractureTemplate;
+    caf::PdmProxyValueField<cvf::Vec3d>                        m_uiAnchorPosition;
+    caf::PdmField<caf::AppEnum<RiaDefines::EclipseUnitSystem>> m_fractureUnit;
 
     caf::PdmProxyValueField<QString> m_uiWellPathAzimuth;
     caf::PdmProxyValueField<QString> m_uiWellFractureAzimuthDiff;

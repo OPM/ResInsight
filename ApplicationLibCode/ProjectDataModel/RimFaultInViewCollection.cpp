@@ -21,11 +21,12 @@
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaDefines.h"
 #include "RiaPreferences.h"
+#include "RiaResultNames.h"
 
 #include "RigMainGrid.h"
 
-#include "RiaDefines.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimFaultInView.h"
@@ -189,12 +190,12 @@ void RimFaultInViewCollection::syncronizeFaults()
         for ( size_t i = 0; i < sortedFaults.size(); i++ )
         {
             QString faultName = sortedFaults[i]->name();
-            if ( faultName.compare( RiaDefines::undefinedGridFaultName(), Qt::CaseInsensitive ) == 0 )
+            if ( faultName.compare( RiaResultNames::undefinedGridFaultName(), Qt::CaseInsensitive ) == 0 )
             {
                 undefinedFaults = sortedFaults[i];
             }
 
-            if ( faultName.startsWith( RiaDefines::undefinedGridFaultName(), Qt::CaseInsensitive ) &&
+            if ( faultName.startsWith( RiaResultNames::undefinedGridFaultName(), Qt::CaseInsensitive ) &&
                  faultName.contains( "Inactive" ) )
             {
                 undefinedFaultsWInactive = sortedFaults[i];
@@ -234,7 +235,7 @@ void RimFaultInViewCollection::syncronizeFaults()
             rimFault->faultColor = colorTable.cycledColor3f( fIdx );
             QString faultName    = rigFaults[fIdx]->name();
 
-            if ( faultName.startsWith( RiaDefines::undefinedGridFaultName(), Qt::CaseInsensitive ) &&
+            if ( faultName.startsWith( RiaResultNames::undefinedGridFaultName(), Qt::CaseInsensitive ) &&
                  faultName.contains( "Inactive" ) )
             {
                 rimFault->showFault = false; // Turn fault against inactive cells off by default

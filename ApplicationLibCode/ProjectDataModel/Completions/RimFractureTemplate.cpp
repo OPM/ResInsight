@@ -18,7 +18,9 @@
 
 #include "RimFractureTemplate.h"
 
+#include "RiaEclipseUnitTools.h"
 #include "RiaFractureDefines.h"
+
 #include "RigTesselatorTools.h"
 
 #include "RimFracture.h"
@@ -120,7 +122,7 @@ RimFractureTemplate::RimFractureTemplate()
 
     CAF_PDM_InitField( &m_fractureTemplateUnit,
                        "UnitSystem",
-                       caf::AppEnum<RiaEclipseUnitTools::UnitSystem>( RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN ),
+                       caf::AppEnum<RiaDefines::EclipseUnitSystem>( RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN ),
                        "Units System",
                        "",
                        "",
@@ -252,7 +254,7 @@ void RimFractureTemplate::setName( const QString& name )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureTemplate::setUnitSystem( RiaEclipseUnitTools::UnitSystemType unitSystem )
+void RimFractureTemplate::setUnitSystem( caf::AppEnum<RiaDefines::EclipseUnitSystem> unitSystem )
 {
     m_fractureTemplateUnit = unitSystem;
 }
@@ -276,7 +278,7 @@ RimFractureTemplate::FracOrientationEnum RimFractureTemplate::orientationType() 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaEclipseUnitTools::UnitSystemType RimFractureTemplate::fractureTemplateUnit() const
+caf::AppEnum<RiaDefines::EclipseUnitSystem> RimFractureTemplate::fractureTemplateUnit() const
 {
     return m_fractureTemplateUnit();
 }
@@ -475,13 +477,13 @@ void RimFractureTemplate::defineEditorAttribute( const caf::PdmFieldHandle* fiel
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplate::prepareFieldsForUiDisplay()
 {
-    if ( m_fractureTemplateUnit == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+    if ( m_fractureTemplateUnit == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
         m_wellDiameter.uiCapability()->setUiName( "Well Diameter [m]" );
         m_perforationLength.uiCapability()->setUiName( "Perforation Length [m]" );
         m_fractureWidth.uiCapability()->setUiName( "Fracture Width [m]" );
     }
-    else if ( m_fractureTemplateUnit == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+    else if ( m_fractureTemplateUnit == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
         m_wellDiameter.uiCapability()->setUiName( "Well Diameter [inches]" );
         m_perforationLength.uiCapability()->setUiName( "Perforation Length [ft]" );
@@ -752,15 +754,15 @@ double RimFractureTemplate::computeKh( const RimFracture* fractureInstance ) con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureTemplate::convertToUnitSystem( RiaEclipseUnitTools::UnitSystem neededUnit )
+void RimFractureTemplate::convertToUnitSystem( RiaDefines::EclipseUnitSystem neededUnit )
 {
-    if ( neededUnit == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+    if ( neededUnit == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
         m_perforationLength = RiaEclipseUnitTools::feetToMeter( m_perforationLength );
         m_wellDiameter      = RiaEclipseUnitTools::inchToMeter( m_wellDiameter );
         m_fractureWidth     = RiaEclipseUnitTools::feetToMeter( m_fractureWidth );
     }
-    else if ( neededUnit == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+    else if ( neededUnit == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
         m_perforationLength = RiaEclipseUnitTools::meterToFeet( m_perforationLength );
         m_wellDiameter      = RiaEclipseUnitTools::meterToInch( m_wellDiameter );
@@ -912,11 +914,11 @@ QString RimFractureTemplate::nameAndUnit() const
 {
     QString decoratedName;
 
-    if ( m_fractureTemplateUnit == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+    if ( m_fractureTemplateUnit == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
         decoratedName += "[M] - ";
     }
-    else if ( m_fractureTemplateUnit == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+    else if ( m_fractureTemplateUnit == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
         decoratedName += "[F] - ";
     }
@@ -979,11 +981,11 @@ float RimFractureTemplate::skinFactor() const
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplate::setDefaultWellDiameterFromUnit()
 {
-    if ( m_fractureTemplateUnit == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+    if ( m_fractureTemplateUnit == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
         m_wellDiameter = 8.5;
     }
-    else if ( m_fractureTemplateUnit == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+    else if ( m_fractureTemplateUnit == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
         m_wellDiameter = 0.216;
     }

@@ -1774,7 +1774,7 @@ void RimEclipseView::calculateCompletionTypeAndRedrawIfRequired()
         cellEdgeResult()->cellEdgeMetaData( &metaData );
         for ( const auto& cellEdgeMeta : metaData )
         {
-            if ( cellEdgeMeta.m_resultVariable == RiaDefines::completionTypeResultName() )
+            if ( cellEdgeMeta.m_resultVariable == RiaResultNames::completionTypeResultName() )
             {
                 isDependingOnCompletionType = true;
             }
@@ -1789,7 +1789,7 @@ void RimEclipseView::calculateCompletionTypeAndRedrawIfRequired()
     for ( const auto& propFilter : m_propertyFilterCollection()->propertyFilters )
     {
         if ( propFilter->isActive() &&
-             propFilter->resultDefinition()->resultVariable() == RiaDefines::completionTypeResultName() )
+             propFilter->resultDefinition()->resultVariable() == RiaResultNames::completionTypeResultName() )
         {
             isDependingOnCompletionType = true;
         }
@@ -1812,7 +1812,7 @@ void RimEclipseView::calculateCompletionTypeAndRedrawIfRequired()
     for ( const auto& propFilter : m_propertyFilterCollection()->propertyFilters )
     {
         if ( propFilter->isActive() &&
-             propFilter->resultDefinition()->resultVariable() == RiaDefines::completionTypeResultName() )
+             propFilter->resultDefinition()->resultVariable() == RiaResultNames::completionTypeResultName() )
         {
             propFilter->updateConnectedEditors();
         }

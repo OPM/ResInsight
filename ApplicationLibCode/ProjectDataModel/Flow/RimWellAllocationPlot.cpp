@@ -476,7 +476,7 @@ std::map<QString, const std::vector<double>*>
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::updateWellFlowPlotXAxisTitle( RimWellLogTrack* plotTrack )
 {
-    RiaEclipseUnitTools::UnitSystem   unitSet   = m_case->eclipseCaseData()->unitsType();
+    RiaDefines::EclipseUnitSystem     unitSet   = m_case->eclipseCaseData()->unitsType();
     RimWellLogFile::WellFlowCondition condition = m_flowDiagSolution ? RimWellLogFile::WELL_FLOW_COND_RESERVOIR
                                                                      : RimWellLogFile::WELL_FLOW_COND_STANDARD;
 

@@ -19,6 +19,8 @@
 #include "RicExportEclipseSectorModelUi.h"
 
 #include "RiaApplication.h"
+#include "RiaResultNames.h"
+
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
@@ -507,7 +509,7 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 std::set<QString> RicExportEclipseSectorModelUi::mainKeywords()
 {
-    return { RiaDefines::eqlnumResultName(), "FIPNUM", "NTG", "PERMX", "PERMY", "PERMZ", "PORO", "PVTNUM", "SATNUM", "SWATINIT" };
+    return { RiaResultNames::eqlnumResultName(), "FIPNUM", "NTG", "PERMX", "PERMY", "PERMZ", "PORO", "PVTNUM", "SATNUM", "SWATINIT" };
 }
 
 //--------------------------------------------------------------------------------------------------

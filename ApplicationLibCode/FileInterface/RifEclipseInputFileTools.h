@@ -23,7 +23,7 @@
 #include "cvfCollection.h"
 #include "cvfObject.h"
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 #include "RifReaderInterface.h"
 #include "RigFault.h"
 
@@ -142,7 +142,7 @@ public:
     );
 
     static void readKeywordDataContent( QFile& data, qint64 filePos, QStringList* textContent, bool* isEditKeywordDetected );
-    static RiaEclipseUnitTools::UnitSystem readUnitSystem( QFile& file, qint64 gridunitPos );
+    static RiaDefines::EclipseUnitSystem readUnitSystem( QFile& file, qint64 gridunitPos );
 
     static cvf::StructGridInterface::FaceEnum faceEnumFromText( const QString& faceString );
 

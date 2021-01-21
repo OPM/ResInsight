@@ -22,6 +22,7 @@
 #include "RicEclipsePropertyFilterNewExec.h"
 
 #include "RiaApplication.h"
+#include "RiaResultNames.h"
 
 #include "Rim3dView.h"
 #include "RimEclipseCellColors.h"
@@ -48,7 +49,7 @@ bool RicEclipsePropertyFilterNewInViewFeature::isCommandEnabled()
     RimEclipseCellColors* cellColors = eclView->cellResult();
     if ( !cellColors ) return false;
 
-    if ( RiaDefines::isPerCellFaceResult( cellColors->resultVariable() ) ) return false;
+    if ( RiaResultNames::isPerCellFaceResult( cellColors->resultVariable() ) ) return false;
 
     RimEclipsePropertyFilterCollection* filterCollection = eclView->eclipsePropertyFilterCollection();
     if ( filterCollection )

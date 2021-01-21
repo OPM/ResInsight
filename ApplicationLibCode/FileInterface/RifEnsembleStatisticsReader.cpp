@@ -104,7 +104,7 @@ std::string RifEnsembleStatisticsReader::unitName( const RifEclipseSummaryAddres
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaEclipseUnitTools::UnitSystem RifEnsembleStatisticsReader::unitSystem() const
+RiaDefines::EclipseUnitSystem RifEnsembleStatisticsReader::unitSystem() const
 {
     return m_ensembleStatCase->unitSystem();
 }

@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 #include "RigFlowDiagSolverInterface.h"
 
 #include <QPointer>
@@ -49,7 +49,7 @@ public:
     RiuRelativePermeabilityPlotPanel( QDockWidget* parent );
     ~RiuRelativePermeabilityPlotPanel() override;
 
-    void                                setPlotData( RiaEclipseUnitTools::UnitSystem                              unitSystem,
+    void                                setPlotData( RiaDefines::EclipseUnitSystem                                unitSystem,
                                                      const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& relPermCurves,
                                                      double                                                       swat,
                                                      double                                                       sgas,
@@ -79,7 +79,7 @@ private:
 
     void        plotUiSelectedCurves();
     static void setPlotDefaults( QwtPlot* plot );
-    static void plotCurvesInQwt( RiaEclipseUnitTools::UnitSystem                              unitSystem,
+    static void plotCurvesInQwt( RiaDefines::EclipseUnitSystem                                unitSystem,
                                  const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& curveArr,
                                  double                                                       swat,
                                  double                                                       sgas,
@@ -127,7 +127,7 @@ private slots:
     void slotShowCurveSelectionWidgets( int state );
 
 private:
-    RiaEclipseUnitTools::UnitSystem                       m_unitSystem;
+    RiaDefines::EclipseUnitSystem                         m_unitSystem;
     std::vector<RigFlowDiagSolverInterface::RelPermCurve> m_allCurvesArr;
     double                                                m_swat;
     double                                                m_sgas;

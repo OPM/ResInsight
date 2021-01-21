@@ -26,6 +26,14 @@
 
 namespace RiaDefines
 {
+enum class EclipseUnitSystem
+{
+    UNITS_METRIC,
+    UNITS_FIELD,
+    UNITS_LAB,
+    UNITS_UNKNOWN,
+};
+
 enum class ResultCatType
 {
     DYNAMIC_NATIVE,
@@ -69,47 +77,7 @@ enum class MeshModeType
     NO_MESH
 };
 
-bool isPerCellFaceResult( const QString& resultName );
 bool isNativeCategoryResult( const QString& resultName );
-
-QString undefinedResultName();
-QString undefinedGridFaultName();
-QString undefinedGridFaultWithInactiveName();
-QString combinedTransmissibilityResultName();
-QString combinedWaterFluxResultName();
-QString combinedOilFluxResultName();
-QString combinedGasFluxResultName();
-
-QString ternarySaturationResultName();
-QString combinedMultResultName();
-
-QString eqlnumResultName();
-
-QString riTranXResultName();
-QString riTranYResultName();
-QString riTranZResultName();
-QString combinedRiTranResultName();
-
-QString riMultXResultName();
-QString riMultYResultName();
-QString riMultZResultName();
-QString combinedRiMultResultName();
-
-QString riAreaNormTranXResultName();
-QString riAreaNormTranYResultName();
-QString riAreaNormTranZResultName();
-QString combinedRiAreaNormTranResultName();
-
-QString riCellVolumeResultName();
-QString riOilVolumeResultName();
-QString mobilePoreVolumeName();
-
-QString completionTypeResultName();
-
-// Fault results
-QString           formationBinaryAllanResultName();
-QString           formationAllanResultName();
-std::set<QString> nncResultNames();
 
 // Mock model text identifiers
 QString mockModelBasic();
@@ -117,22 +85,6 @@ QString mockModelBasicWithResults();
 QString mockModelLargeWithResults();
 QString mockModelCustomized();
 QString mockModelBasicInputCase();
-
-QString activeFormationNamesResultName();
-
-// Well path derived results
-QString wbsAzimuthResult();
-QString wbsInclinationResult();
-QString wbsPPResult();
-QString wbsSHResult();
-QString wbsSHMkResult();
-QString wbsOBGResult();
-QString wbsFGResult();
-QString wbsSFGResult();
-
-// List of well path derived results
-std::vector<QString> wbsAngleResultNames();
-std::vector<QString> wbsDerivedResultNames();
 
 // Units and conversions
 enum class DepthUnitType

@@ -54,7 +54,7 @@ RimFractureTemplateCollection::RimFractureTemplateCollection()
 
     CAF_PDM_InitField( &m_defaultUnitsForFracTemplates,
                        "DefaultUnitForTemplates",
-                       caf::AppEnum<RiaEclipseUnitTools::UnitSystem>( RiaEclipseUnitTools::UnitSystem::UNITS_METRIC ),
+                       caf::AppEnum<RiaDefines::EclipseUnitSystem>( RiaDefines::EclipseUnitSystem::UNITS_METRIC ),
                        "Default unit system for fracture templates",
                        "",
                        "",
@@ -128,7 +128,7 @@ void RimFractureTemplateCollection::addFractureTemplate( RimFractureTemplate* te
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaEclipseUnitTools::UnitSystemType RimFractureTemplateCollection::defaultUnitSystemType() const
+caf::AppEnum<RiaDefines::EclipseUnitSystem> RimFractureTemplateCollection::defaultUnitSystemType() const
 {
     return m_defaultUnitsForFracTemplates;
 }
@@ -141,7 +141,7 @@ void RimFractureTemplateCollection::setDefaultUnitSystemBasedOnLoadedCases()
     RimProject* proj = RimProject::current();
 
     auto commonUnitSystem = proj->commonUnitSystemForAllCases();
-    if ( commonUnitSystem != RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN )
+    if ( commonUnitSystem != RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN )
     {
         m_defaultUnitsForFracTemplates = commonUnitSystem;
     }
@@ -150,7 +150,7 @@ void RimFractureTemplateCollection::setDefaultUnitSystemBasedOnLoadedCases()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFractureTemplate* RimFractureTemplateCollection::firstFractureOfUnit( RiaEclipseUnitTools::UnitSystem unitSet ) const
+RimFractureTemplate* RimFractureTemplateCollection::firstFractureOfUnit( RiaDefines::EclipseUnitSystem unitSet ) const
 {
     for ( RimFractureTemplate* f : m_fractureDefinitions() )
     {
@@ -241,14 +241,14 @@ void RimFractureTemplateCollection::createAndAssignTemplateCopyForNonMatchingUni
                                 caf::PdmDefaultObjectFactory::instance() ) );
 
                         auto currentUnit = fractureTemplate->fractureTemplateUnit();
-                        auto neededUnit  = RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
-                        if ( currentUnit == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+                        auto neededUnit  = RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
+                        if ( currentUnit == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
                         {
-                            neededUnit = RiaEclipseUnitTools::UnitSystem::UNITS_FIELD;
+                            neededUnit = RiaDefines::EclipseUnitSystem::UNITS_FIELD;
                         }
-                        else if ( currentUnit == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+                        else if ( currentUnit == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
                         {
-                            neededUnit = RiaEclipseUnitTools::UnitSystem::UNITS_METRIC;
+                            neededUnit = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
                         }
 
                         templateWithMatchingUnit->convertToUnitSystem( neededUnit );

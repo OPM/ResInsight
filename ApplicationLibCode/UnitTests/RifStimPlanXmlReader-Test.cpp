@@ -18,7 +18,7 @@ TEST( RifStimPlanXmlReaderTest, LoadFile )
     double                           halfLengthScaleFactor   = 1.0;
     double                           heightScaleFactor       = 1.0;
     double                           wellPathDepthAtFracture = 100.0;
-    RiaEclipseUnitTools::UnitSystem  unit                    = RiaEclipseUnitTools::UnitSystem::UNITS_METRIC;
+    RiaDefines::EclipseUnitSystem    unit                    = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
     QString                          errorMessage;
     RifStimPlanXmlReader::MirrorMode mode = RifStimPlanXmlReader::MIRROR_AUTO;
 
@@ -53,7 +53,7 @@ TEST( RifStimPlanXmlReaderTest, LoadFileNewFormat )
     double                           halfLengthScaleFactor   = 1.0;
     double                           heightScaleFactor       = 1.0;
     double                           wellPathDepthAtFracture = 100.0;
-    RiaEclipseUnitTools::UnitSystem  unit                    = RiaEclipseUnitTools::UnitSystem::UNITS_METRIC;
+    RiaDefines::EclipseUnitSystem    unit                    = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
     QString                          errorMessage;
     RifStimPlanXmlReader::MirrorMode mode = RifStimPlanXmlReader::MIRROR_AUTO;
 

@@ -21,6 +21,7 @@
 #include "RigCaseCellResultsData.h"
 
 #include "RiaApplication.h"
+#include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 
 #include "RigAllanDiagramData.h"
@@ -323,7 +324,7 @@ size_t RigCaseCellResultsData::findOrCreateScalarResultIndex( const RigEclipseRe
 
     cvf::ref<RigStatisticsCalculator> statisticsCalculator;
 
-    if ( resultName == RiaDefines::combinedTransmissibilityResultName() )
+    if ( resultName == RiaResultNames::combinedTransmissibilityResultName() )
     {
         cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
 
@@ -336,7 +337,7 @@ size_t RigCaseCellResultsData::findOrCreateScalarResultIndex( const RigEclipseRe
 
         statisticsCalculator = calc;
     }
-    else if ( resultName == RiaDefines::combinedMultResultName() )
+    else if ( resultName == RiaResultNames::combinedMultResultName() )
     {
         cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
 
@@ -355,49 +356,49 @@ size_t RigCaseCellResultsData::findOrCreateScalarResultIndex( const RigEclipseRe
 
         statisticsCalculator = calc;
     }
-    else if ( resultName == RiaDefines::combinedRiTranResultName() )
+    else if ( resultName == RiaResultNames::combinedRiTranResultName() )
     {
         cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
         calc->addNativeStatisticsCalculator( this,
                                              RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                      RiaDefines::riTranXResultName() ) );
+                                                                      RiaResultNames::riTranXResultName() ) );
         calc->addNativeStatisticsCalculator( this,
                                              RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                      RiaDefines::riTranYResultName() ) );
+                                                                      RiaResultNames::riTranYResultName() ) );
         calc->addNativeStatisticsCalculator( this,
                                              RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                      RiaDefines::riTranZResultName() ) );
+                                                                      RiaResultNames::riTranZResultName() ) );
         statisticsCalculator = calc;
     }
-    else if ( resultName == RiaDefines::combinedRiMultResultName() )
+    else if ( resultName == RiaResultNames::combinedRiMultResultName() )
     {
         cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
         calc->addNativeStatisticsCalculator( this,
                                              RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                      RiaDefines::riMultXResultName() ) );
+                                                                      RiaResultNames::riMultXResultName() ) );
         calc->addNativeStatisticsCalculator( this,
                                              RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                      RiaDefines::riMultYResultName() ) );
+                                                                      RiaResultNames::riMultYResultName() ) );
         calc->addNativeStatisticsCalculator( this,
                                              RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                      RiaDefines::riMultZResultName() ) );
+                                                                      RiaResultNames::riMultZResultName() ) );
         statisticsCalculator = calc;
     }
-    else if ( resultName == RiaDefines::combinedRiAreaNormTranResultName() )
+    else if ( resultName == RiaResultNames::combinedRiAreaNormTranResultName() )
     {
         cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
         calc->addNativeStatisticsCalculator( this,
                                              RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                      RiaDefines::riAreaNormTranXResultName() ) );
+                                                                      RiaResultNames::riAreaNormTranXResultName() ) );
         calc->addNativeStatisticsCalculator( this,
                                              RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                      RiaDefines::riAreaNormTranYResultName() ) );
+                                                                      RiaResultNames::riAreaNormTranYResultName() ) );
         calc->addNativeStatisticsCalculator( this,
                                              RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                      RiaDefines::riAreaNormTranZResultName() ) );
+                                                                      RiaResultNames::riAreaNormTranZResultName() ) );
         statisticsCalculator = calc;
     }
-    else if ( resultName == RiaDefines::combinedWaterFluxResultName() )
+    else if ( resultName == RiaResultNames::combinedWaterFluxResultName() )
     {
         cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
         calc->addNativeStatisticsCalculator( this,
@@ -411,7 +412,7 @@ size_t RigCaseCellResultsData::findOrCreateScalarResultIndex( const RigEclipseRe
                                                                       "FLRWATK+" ) );
         statisticsCalculator = calc;
     }
-    else if ( resultName == RiaDefines::combinedOilFluxResultName() )
+    else if ( resultName == RiaResultNames::combinedOilFluxResultName() )
     {
         cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
         calc->addNativeStatisticsCalculator( this,
@@ -425,7 +426,7 @@ size_t RigCaseCellResultsData::findOrCreateScalarResultIndex( const RigEclipseRe
                                                                       "FLROILK+" ) );
         statisticsCalculator = calc;
     }
-    else if ( resultName == RiaDefines::combinedGasFluxResultName() )
+    else if ( resultName == RiaResultNames::combinedGasFluxResultName() )
     {
         cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
         calc->addNativeStatisticsCalculator( this,
@@ -454,8 +455,8 @@ size_t RigCaseCellResultsData::findOrCreateScalarResultIndex( const RigEclipseRe
                                                                       QString( "%1K" ).arg( baseName ) ) );
         statisticsCalculator = calc;
     }
-    else if ( resultName == RiaDefines::formationAllanResultName() ||
-              resultName == RiaDefines::formationBinaryAllanResultName() )
+    else if ( resultName == RiaResultNames::formationAllanResultName() ||
+              resultName == RiaResultNames::formationBinaryAllanResultName() )
     {
         cvf::ref<RigEclipseAllanFaultsStatCalc> calc =
             new RigEclipseAllanFaultsStatCalc( m_ownerMainGrid->nncData(), resVarAddr );
@@ -929,7 +930,7 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
         if ( hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SOIL" ) ) )
         {
             findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                                    RiaDefines::riOilVolumeResultName() ),
+                                                                    RiaResultNames::riOilVolumeResultName() ),
                                            false );
         }
     }
@@ -937,18 +938,18 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
     // Completion type
     {
         findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                                RiaDefines::completionTypeResultName() ),
+                                                                RiaResultNames::completionTypeResultName() ),
                                        false );
     }
 
     // Fault results
     {
         findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::ALLAN_DIAGRAMS,
-                                                                RiaDefines::formationBinaryAllanResultName() ),
+                                                                RiaResultNames::formationBinaryAllanResultName() ),
                                        false );
 
         findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::ALLAN_DIAGRAMS,
-                                                                RiaDefines::formationAllanResultName() ),
+                                                                RiaResultNames::formationAllanResultName() ),
                                        false );
     }
 
@@ -959,7 +960,7 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
              hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRWATK+" ) ) )
         {
             findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                                    RiaDefines::combinedWaterFluxResultName() ),
+                                                                    RiaResultNames::combinedWaterFluxResultName() ),
                                            false );
         }
 
@@ -968,7 +969,7 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
              hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLROILK+" ) ) )
         {
             findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                                    RiaDefines::combinedOilFluxResultName() ),
+                                                                    RiaResultNames::combinedOilFluxResultName() ),
                                            false );
         }
 
@@ -977,7 +978,7 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
              hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRGASK+" ) ) )
         {
             findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                                    RiaDefines::combinedGasFluxResultName() ),
+                                                                    RiaResultNames::combinedGasFluxResultName() ),
                                            false );
         }
     }
@@ -987,7 +988,7 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
         if ( hasCompleteTransmissibilityResults() )
         {
             addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                   RiaDefines::combinedTransmissibilityResultName(),
+                                   RiaResultNames::combinedTransmissibilityResultName(),
                                    false,
                                    0 );
         }
@@ -1001,7 +1002,10 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
              hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "MULTZ" ) ) &&
              hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "MULTZ-" ) ) )
         {
-            addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::combinedMultResultName(), false, 0 );
+            addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                   RiaResultNames::combinedMultResultName(),
+                                   false,
+                                   0 );
         }
     }
 
@@ -1011,10 +1015,13 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
              hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PERMY" ) ) &&
              hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PERMZ" ) ) )
         {
-            addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riTranXResultName(), false, 0 );
-            addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riTranYResultName(), false, 0 );
-            addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riTranZResultName(), false, 0 );
-            addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::combinedRiTranResultName(), false, 0 );
+            addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::riTranXResultName(), false, 0 );
+            addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::riTranYResultName(), false, 0 );
+            addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::riTranZResultName(), false, 0 );
+            addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                   RiaResultNames::combinedRiTranResultName(),
+                                   false,
+                                   0 );
         }
     }
 
@@ -1022,16 +1029,19 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
     {
         if ( hasCompleteTransmissibilityResults() &&
              hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                      RiaDefines::riTranXResultName() ) ) &&
+                                                      RiaResultNames::riTranXResultName() ) ) &&
              hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                      RiaDefines::riTranYResultName() ) ) &&
+                                                      RiaResultNames::riTranYResultName() ) ) &&
              hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                      RiaDefines::riTranZResultName() ) ) )
+                                                      RiaResultNames::riTranZResultName() ) ) )
         {
-            addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riMultXResultName(), false, 0 );
-            addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riMultYResultName(), false, 0 );
-            addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riMultZResultName(), false, 0 );
-            addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::combinedRiMultResultName(), false, 0 );
+            addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::riMultXResultName(), false, 0 );
+            addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::riMultYResultName(), false, 0 );
+            addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::riMultZResultName(), false, 0 );
+            addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                   RiaResultNames::combinedRiMultResultName(),
+                                   false,
+                                   0 );
         }
     }
 
@@ -1040,7 +1050,7 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
         if ( hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANX" ) ) )
         {
             addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                   RiaDefines::riAreaNormTranXResultName(),
+                                   RiaResultNames::riAreaNormTranXResultName(),
                                    false,
                                    0 );
         }
@@ -1048,7 +1058,7 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
         if ( hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANY" ) ) )
         {
             addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                   RiaDefines::riAreaNormTranYResultName(),
+                                   RiaResultNames::riAreaNormTranYResultName(),
                                    false,
                                    0 );
         }
@@ -1056,7 +1066,7 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
         if ( hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANZ" ) ) )
         {
             addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                   RiaDefines::riAreaNormTranZResultName(),
+                                   RiaResultNames::riAreaNormTranZResultName(),
                                    false,
                                    0 );
         }
@@ -1064,7 +1074,7 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
         if ( hasCompleteTransmissibilityResults() )
         {
             addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                   RiaDefines::combinedRiAreaNormTranResultName(),
+                                   RiaResultNames::combinedRiAreaNormTranResultName(),
                                    false,
                                    0 );
         }
@@ -1072,14 +1082,14 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
 
     // Cell Volume
     {
-        addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::riCellVolumeResultName(), false, 0 );
+        addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::riCellVolumeResultName(), false, 0 );
     }
 
     // Mobile Pore Volume
     {
         if ( hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PORV" ) ) )
         {
-            addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::mobilePoreVolumeName(), false, 0 );
+            addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::mobilePoreVolumeName(), false, 0 );
         }
     }
 }
@@ -1223,13 +1233,13 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
 
     if ( type == RiaDefines::ResultCatType::STATIC_NATIVE )
     {
-        if ( resultName == RiaDefines::combinedTransmissibilityResultName() )
+        if ( resultName == RiaResultNames::combinedTransmissibilityResultName() )
         {
             this->findOrLoadKnownScalarResult( RigEclipseResultAddress( type, "TRANX" ) );
             this->findOrLoadKnownScalarResult( RigEclipseResultAddress( type, "TRANY" ) );
             this->findOrLoadKnownScalarResult( RigEclipseResultAddress( type, "TRANZ" ) );
         }
-        else if ( resultName == RiaDefines::combinedMultResultName() )
+        else if ( resultName == RiaResultNames::combinedMultResultName() )
         {
             this->findOrLoadKnownScalarResult( RigEclipseResultAddress( type, "MULTX" ) );
             this->findOrLoadKnownScalarResult( RigEclipseResultAddress( type, "MULTX-" ) );
@@ -1238,46 +1248,46 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
             this->findOrLoadKnownScalarResult( RigEclipseResultAddress( type, "MULTZ" ) );
             this->findOrLoadKnownScalarResult( RigEclipseResultAddress( type, "MULTZ-" ) );
         }
-        else if ( resultName == RiaDefines::combinedRiTranResultName() )
+        else if ( resultName == RiaResultNames::combinedRiTranResultName() )
         {
-            computeRiTransComponent( RiaDefines::riTranXResultName() );
-            computeRiTransComponent( RiaDefines::riTranYResultName() );
-            computeRiTransComponent( RiaDefines::riTranZResultName() );
+            computeRiTransComponent( RiaResultNames::riTranXResultName() );
+            computeRiTransComponent( RiaResultNames::riTranYResultName() );
+            computeRiTransComponent( RiaResultNames::riTranZResultName() );
             computeNncCombRiTrans();
         }
-        else if ( resultName == RiaDefines::riTranXResultName() || resultName == RiaDefines::riTranYResultName() ||
-                  resultName == RiaDefines::riTranZResultName() )
+        else if ( resultName == RiaResultNames::riTranXResultName() ||
+                  resultName == RiaResultNames::riTranYResultName() || resultName == RiaResultNames::riTranZResultName() )
         {
             computeRiTransComponent( resultName );
         }
-        else if ( resultName == RiaDefines::combinedRiMultResultName() )
+        else if ( resultName == RiaResultNames::combinedRiMultResultName() )
         {
-            computeRiMULTComponent( RiaDefines::riMultXResultName() );
-            computeRiMULTComponent( RiaDefines::riMultYResultName() );
-            computeRiMULTComponent( RiaDefines::riMultZResultName() );
+            computeRiMULTComponent( RiaResultNames::riMultXResultName() );
+            computeRiMULTComponent( RiaResultNames::riMultYResultName() );
+            computeRiMULTComponent( RiaResultNames::riMultZResultName() );
             computeNncCombRiTrans();
             computeNncCombRiMULT();
         }
-        else if ( resultName == RiaDefines::riMultXResultName() || resultName == RiaDefines::riMultYResultName() ||
-                  resultName == RiaDefines::riMultZResultName() )
+        else if ( resultName == RiaResultNames::riMultXResultName() ||
+                  resultName == RiaResultNames::riMultYResultName() || resultName == RiaResultNames::riMultZResultName() )
         {
             computeRiMULTComponent( resultName );
         }
-        else if ( resultName == RiaDefines::combinedRiAreaNormTranResultName() )
+        else if ( resultName == RiaResultNames::combinedRiAreaNormTranResultName() )
         {
-            computeRiTRANSbyAreaComponent( RiaDefines::riAreaNormTranXResultName() );
-            computeRiTRANSbyAreaComponent( RiaDefines::riAreaNormTranYResultName() );
-            computeRiTRANSbyAreaComponent( RiaDefines::riAreaNormTranZResultName() );
+            computeRiTRANSbyAreaComponent( RiaResultNames::riAreaNormTranXResultName() );
+            computeRiTRANSbyAreaComponent( RiaResultNames::riAreaNormTranYResultName() );
+            computeRiTRANSbyAreaComponent( RiaResultNames::riAreaNormTranZResultName() );
             computeNncCombRiTRANSbyArea();
         }
-        else if ( resultName == RiaDefines::riAreaNormTranXResultName() ||
-                  resultName == RiaDefines::riAreaNormTranYResultName() ||
-                  resultName == RiaDefines::riAreaNormTranZResultName() )
+        else if ( resultName == RiaResultNames::riAreaNormTranXResultName() ||
+                  resultName == RiaResultNames::riAreaNormTranYResultName() ||
+                  resultName == RiaResultNames::riAreaNormTranZResultName() )
         {
             computeRiTRANSbyAreaComponent( resultName );
         }
-        else if ( resultName == RiaDefines::formationAllanResultName() ||
-                  resultName == RiaDefines::formationBinaryAllanResultName() )
+        else if ( resultName == RiaResultNames::formationAllanResultName() ||
+                  resultName == RiaResultNames::formationBinaryAllanResultName() )
         {
             bool includeInactiveCells = false;
             if ( m_readerInterface.notNull() )
@@ -1289,19 +1299,19 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
     }
     else if ( type == RiaDefines::ResultCatType::DYNAMIC_NATIVE )
     {
-        if ( resultName == RiaDefines::combinedWaterFluxResultName() )
+        if ( resultName == RiaResultNames::combinedWaterFluxResultName() )
         {
             this->findOrLoadKnownScalarResult( RigEclipseResultAddress( type, "FLRWATI+" ) );
             this->findOrLoadKnownScalarResult( RigEclipseResultAddress( type, "FLRWATJ+" ) );
             this->findOrLoadKnownScalarResult( RigEclipseResultAddress( type, "FLRWATK+" ) );
         }
-        else if ( resultName == RiaDefines::combinedOilFluxResultName() )
+        else if ( resultName == RiaResultNames::combinedOilFluxResultName() )
         {
             this->findOrLoadKnownScalarResult( RigEclipseResultAddress( type, "FLROILI+" ) );
             this->findOrLoadKnownScalarResult( RigEclipseResultAddress( type, "FLROILJ+" ) );
             this->findOrLoadKnownScalarResult( RigEclipseResultAddress( type, "FLROILK+" ) );
         }
-        else if ( resultName == RiaDefines::combinedGasFluxResultName() )
+        else if ( resultName == RiaResultNames::combinedGasFluxResultName() )
         {
             this->findOrLoadKnownScalarResult( RigEclipseResultAddress( type, "FLRGASI+" ) );
             this->findOrLoadKnownScalarResult( RigEclipseResultAddress( type, "FLRGASJ+" ) );
@@ -1336,7 +1346,7 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
             return scalarResultIndex;
         }
     }
-    else if ( resultName == RiaDefines::completionTypeResultName() )
+    else if ( resultName == RiaResultNames::completionTypeResultName() )
     {
         caf::ProgressInfo progressInfo( this->maxTimeStepCount(), "Calculate Completion Type Results" );
         m_cellScalarResults[scalarResultIndex].resize( this->maxTimeStepCount() );
@@ -1346,7 +1356,7 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
             progressInfo.incrementProgress();
         }
     }
-    else if ( resultName == RiaDefines::mobilePoreVolumeName() )
+    else if ( resultName == RiaResultNames::mobilePoreVolumeName() )
     {
         computeMobilePV();
     }
@@ -1415,18 +1425,19 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
         }
     }
 
-    if ( resultName == RiaDefines::riCellVolumeResultName() )
+    if ( resultName == RiaResultNames::riCellVolumeResultName() )
     {
         computeCellVolumes();
     }
-    else if ( resultName == RiaDefines::riOilVolumeResultName() )
+    else if ( resultName == RiaResultNames::riOilVolumeResultName() )
     {
         computeCellVolumes();
         computeOilVolumes();
     }
 
     // Allan results
-    if ( resultName == RiaDefines::formationAllanResultName() || resultName == RiaDefines::formationBinaryAllanResultName() )
+    if ( resultName == RiaResultNames::formationAllanResultName() ||
+         resultName == RiaResultNames::formationBinaryAllanResultName() )
     {
         bool includeInactiveCells = false;
         if ( m_readerInterface.notNull() )
@@ -1530,7 +1541,7 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResultForTimeStep( const Rig
             return soilScalarResultIndex;
         }
     }
-    else if ( type == RiaDefines::ResultCatType::DYNAMIC_NATIVE && resultName == RiaDefines::completionTypeResultName() )
+    else if ( type == RiaDefines::ResultCatType::DYNAMIC_NATIVE && resultName == RiaResultNames::completionTypeResultName() )
     {
         size_t completionTypeScalarResultIndex = this->findScalarResultIndexFromAddress( resVarAddr );
         computeCompletionTypeForTimeStep( timeStepIndex );
@@ -2068,17 +2079,17 @@ void RigCaseCellResultsData::computeRiTransComponent( const QString& riTransComp
     cvf::StructGridInterface::FaceType faceId = cvf::StructGridInterface::NO_FACE;
     QString                            permCompName;
 
-    if ( riTransComponentResultName == RiaDefines::riTranXResultName() )
+    if ( riTransComponentResultName == RiaResultNames::riTranXResultName() )
     {
         permCompName = "PERMX";
         faceId       = cvf::StructGridInterface::POS_I;
     }
-    else if ( riTransComponentResultName == RiaDefines::riTranYResultName() )
+    else if ( riTransComponentResultName == RiaResultNames::riTranYResultName() )
     {
         permCompName = "PERMY";
         faceId       = cvf::StructGridInterface::POS_J;
     }
-    else if ( riTransComponentResultName == RiaDefines::riTranZResultName() )
+    else if ( riTransComponentResultName == RiaResultNames::riTranZResultName() )
     {
         permCompName = "PERMZ";
         faceId       = cvf::StructGridInterface::POS_K;
@@ -2252,7 +2263,7 @@ void RigCaseCellResultsData::computeRiTransComponent( const QString& riTransComp
 void RigCaseCellResultsData::computeNncCombRiTrans()
 {
     RigEclipseResultAddress riCombTransEclResAddr( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                   RiaDefines::combinedRiTranResultName() );
+                                                   RiaResultNames::combinedRiTranResultName() );
     if ( m_ownerMainGrid->nncData()->staticConnectionScalarResult( riCombTransEclResAddr ) ) return;
 
     double cdarchy = darchysValue();
@@ -2457,19 +2468,19 @@ void RigCaseCellResultsData::computeRiMULTComponent( const QString& riMultCompNa
     QString riTransCompName;
     QString transCompName;
 
-    if ( riMultCompName == RiaDefines::riMultXResultName() )
+    if ( riMultCompName == RiaResultNames::riMultXResultName() )
     {
-        riTransCompName = RiaDefines::riTranXResultName();
+        riTransCompName = RiaResultNames::riTranXResultName();
         transCompName   = "TRANX";
     }
-    else if ( riMultCompName == RiaDefines::riMultYResultName() )
+    else if ( riMultCompName == RiaResultNames::riMultYResultName() )
     {
-        riTransCompName = RiaDefines::riTranYResultName();
+        riTransCompName = RiaResultNames::riTranYResultName();
         transCompName   = "TRANY";
     }
-    else if ( riMultCompName == RiaDefines::riMultZResultName() )
+    else if ( riMultCompName == RiaResultNames::riMultZResultName() )
     {
-        riTransCompName = RiaDefines::riTranZResultName();
+        riTransCompName = RiaResultNames::riTranZResultName();
         transCompName   = "TRANZ";
     }
     else
@@ -2518,11 +2529,11 @@ void RigCaseCellResultsData::computeRiMULTComponent( const QString& riMultCompNa
 void RigCaseCellResultsData::computeNncCombRiMULT()
 {
     auto riCombMultEclResAddr =
-        RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::combinedRiMultResultName() );
+        RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::combinedRiMultResultName() );
     auto riCombTransEclResAddr =
-        RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::combinedRiTranResultName() );
+        RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::combinedRiTranResultName() );
     auto combTransEclResAddr = RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                        RiaDefines::combinedTransmissibilityResultName() );
+                                                        RiaResultNames::combinedTransmissibilityResultName() );
 
     if ( m_ownerMainGrid->nncData()->staticConnectionScalarResult( riCombMultEclResAddr ) ) return;
 
@@ -2556,17 +2567,17 @@ void RigCaseCellResultsData::computeRiTRANSbyAreaComponent( const QString& riTra
     cvf::StructGridInterface::FaceType faceId = cvf::StructGridInterface::NO_FACE;
     QString                            transCompName;
 
-    if ( riTransByAreaCompResultName == RiaDefines::riAreaNormTranXResultName() )
+    if ( riTransByAreaCompResultName == RiaResultNames::riAreaNormTranXResultName() )
     {
         transCompName = "TRANX";
         faceId        = cvf::StructGridInterface::POS_I;
     }
-    else if ( riTransByAreaCompResultName == RiaDefines::riAreaNormTranYResultName() )
+    else if ( riTransByAreaCompResultName == RiaResultNames::riAreaNormTranYResultName() )
     {
         transCompName = "TRANY";
         faceId        = cvf::StructGridInterface::POS_J;
     }
-    else if ( riTransByAreaCompResultName == RiaDefines::riAreaNormTranZResultName() )
+    else if ( riTransByAreaCompResultName == RiaResultNames::riAreaNormTranZResultName() )
     {
         transCompName = "TRANZ";
         faceId        = cvf::StructGridInterface::POS_K;
@@ -2664,9 +2675,9 @@ void RigCaseCellResultsData::computeRiTRANSbyAreaComponent( const QString& riTra
 void RigCaseCellResultsData::computeNncCombRiTRANSbyArea()
 {
     auto riCombTransByAreaEclResAddr = RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                RiaDefines::combinedRiAreaNormTranResultName() );
+                                                                RiaResultNames::combinedRiAreaNormTranResultName() );
     auto combTransEclResAddr         = RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                        RiaDefines::combinedTransmissibilityResultName() );
+                                                        RiaResultNames::combinedTransmissibilityResultName() );
 
     if ( m_ownerMainGrid->nncData()->staticConnectionScalarResult( riCombTransByAreaEclResAddr ) ) return;
 
@@ -2701,7 +2712,7 @@ void RigCaseCellResultsData::computeNncCombRiTRANSbyArea()
 void RigCaseCellResultsData::computeCompletionTypeForTimeStep( size_t timeStep )
 {
     size_t completionTypeResultIndex = this->findScalarResultIndexFromAddress(
-        RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName() ) );
+        RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::completionTypeResultName() ) );
 
     if ( m_cellScalarResults[completionTypeResultIndex].size() < this->maxTimeStepCount() )
     {
@@ -2742,7 +2753,7 @@ void RigCaseCellResultsData::computeCellVolumes()
 {
     size_t cellVolIdx =
         this->findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                      RiaDefines::riCellVolumeResultName() ),
+                                                                      RiaResultNames::riCellVolumeResultName() ),
                                              false );
 
     if ( m_cellScalarResults[cellVolIdx].empty() )
@@ -2770,7 +2781,7 @@ void RigCaseCellResultsData::computeCellVolumes()
     }
 
     // Clear oil volume so it will have to be recalculated.
-    clearScalarResult( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaDefines::riOilVolumeResultName() );
+    clearScalarResult( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::riOilVolumeResultName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2780,7 +2791,7 @@ void RigCaseCellResultsData::computeOilVolumes()
 {
     size_t cellVolIdx =
         this->findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                      RiaDefines::riCellVolumeResultName() ),
+                                                                      RiaResultNames::riCellVolumeResultName() ),
                                              false );
     const std::vector<double>& cellVolumeResults = m_cellScalarResults[cellVolIdx][0];
 
@@ -2788,7 +2799,7 @@ void RigCaseCellResultsData::computeOilVolumes()
         this->findOrLoadKnownScalarResult( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SOIL" ) );
     size_t oilVolIdx =
         this->findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                                      RiaDefines::riOilVolumeResultName() ),
+                                                                      RiaResultNames::riOilVolumeResultName() ),
                                              false );
     m_cellScalarResults[oilVolIdx].resize( this->maxTimeStepCount() );
 
@@ -2846,7 +2857,7 @@ void RigCaseCellResultsData::computeMobilePV()
 
     size_t mobPVIdx =
         this->findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                      RiaDefines::mobilePoreVolumeName() ),
+                                                                      RiaResultNames::mobilePoreVolumeName() ),
                                              false );
 
     std::vector<double>& mobPVResults = m_cellScalarResults[mobPVIdx][0];
@@ -2923,13 +2934,13 @@ void RigCaseCellResultsData::setActiveFormationNames( RigFormationNames* activeF
 
     size_t totalGlobCellCount = m_ownerMainGrid->globalCellArray().size();
     this->addStaticScalarResult( RiaDefines::ResultCatType::FORMATION_NAMES,
-                                 RiaDefines::activeFormationNamesResultName(),
+                                 RiaResultNames::activeFormationNamesResultName(),
                                  false,
                                  totalGlobCellCount );
 
     std::vector<double>* fnData =
         this->modifiableCellScalarResult( RigEclipseResultAddress( RiaDefines::ResultCatType::FORMATION_NAMES,
-                                                                   RiaDefines::activeFormationNamesResultName() ),
+                                                                   RiaResultNames::activeFormationNamesResultName() ),
                                           0 );
 
     if ( m_activeFormationNamesData.isNull() )
@@ -2982,7 +2993,7 @@ void RigCaseCellResultsData::setActiveFormationNames( RigFormationNames* activeF
     // As the Allan formation diagram is depending on formation results, we need to clear the data set
     // Will be recomputed when required
     auto fnNamesResAddr =
-        RigEclipseResultAddress( RiaDefines::ResultCatType::ALLAN_DIAGRAMS, RiaDefines::formationAllanResultName() );
+        RigEclipseResultAddress( RiaDefines::ResultCatType::ALLAN_DIAGRAMS, RiaResultNames::formationAllanResultName() );
     clearScalarResult( fnNamesResAddr );
 }
 
@@ -3105,35 +3116,35 @@ void RigCaseCellResultsData::computeAllanResults( RigCaseCellResultsData* cellRe
     if ( cellResultsData && cellResultsData->activeFormationNames() &&
          !cellResultsData->activeFormationNames()->formationNames().empty() )
     {
-        auto fnNamesResAddr = RigEclipseResultAddress( RiaDefines::ResultCatType::FORMATION_NAMES,
-                                                       RiaDefines::activeFormationNamesResultName() );
-        auto fnAllanResultResAddr =
-            RigEclipseResultAddress( RiaDefines::ResultCatType::ALLAN_DIAGRAMS, RiaDefines::formationAllanResultName() );
-        auto fnBinAllanResAddr = RigEclipseResultAddress( RiaDefines::ResultCatType::ALLAN_DIAGRAMS,
-                                                          RiaDefines::formationBinaryAllanResultName() );
+        auto fnNamesResAddr       = RigEclipseResultAddress( RiaDefines::ResultCatType::FORMATION_NAMES,
+                                                       RiaResultNames::activeFormationNamesResultName() );
+        auto fnAllanResultResAddr = RigEclipseResultAddress( RiaDefines::ResultCatType::ALLAN_DIAGRAMS,
+                                                             RiaResultNames::formationAllanResultName() );
+        auto fnBinAllanResAddr    = RigEclipseResultAddress( RiaDefines::ResultCatType::ALLAN_DIAGRAMS,
+                                                          RiaResultNames::formationBinaryAllanResultName() );
 
         // Create and retrieve nnc result arrays
 
         std::vector<double>& fnAllanNncResults =
-            mainGrid->nncData()->makeStaticConnectionScalarResult( RiaDefines::formationAllanResultName() );
+            mainGrid->nncData()->makeStaticConnectionScalarResult( RiaResultNames::formationAllanResultName() );
         std::vector<double>& fnBinAllanNncResults =
-            mainGrid->nncData()->makeStaticConnectionScalarResult( RiaDefines::formationBinaryAllanResultName() );
+            mainGrid->nncData()->makeStaticConnectionScalarResult( RiaResultNames::formationBinaryAllanResultName() );
 
         // Associate them with eclipse result address
 
-        mainGrid->nncData()->setEclResultAddress( RiaDefines::formationAllanResultName(), fnAllanResultResAddr );
-        mainGrid->nncData()->setEclResultAddress( RiaDefines::formationBinaryAllanResultName(), fnBinAllanResAddr );
+        mainGrid->nncData()->setEclResultAddress( RiaResultNames::formationAllanResultName(), fnAllanResultResAddr );
+        mainGrid->nncData()->setEclResultAddress( RiaResultNames::formationBinaryAllanResultName(), fnBinAllanResAddr );
 
         const std::vector<double>& fnData = cellResultsData->cellScalarResults( fnNamesResAddr, 0 );
 
         // Add a result entry for the special Allan grid data (used only for the grid cells without nnc coverage)
 
         cellResultsData->addStaticScalarResult( RiaDefines::ResultCatType::ALLAN_DIAGRAMS,
-                                                RiaDefines::formationAllanResultName(),
+                                                RiaResultNames::formationAllanResultName(),
                                                 false,
                                                 fnData.size() );
         cellResultsData->addStaticScalarResult( RiaDefines::ResultCatType::ALLAN_DIAGRAMS,
-                                                RiaDefines::formationBinaryAllanResultName(),
+                                                RiaResultNames::formationBinaryAllanResultName(),
                                                 false,
                                                 fnData.size() );
 

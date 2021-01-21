@@ -19,12 +19,18 @@
 #include "RicImportFormationNamesFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaResultNames.h"
+
 #include "RigEclipseCaseData.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigFormationNames.h"
 #include "RigGeoMechCaseData.h"
+
 #include "Rim3dView.h"
 #include "RimCase.h"
+#include "RimColorLegend.h"
+#include "RimColorLegendCollection.h"
+#include "RimColorLegendItem.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
@@ -35,12 +41,6 @@
 #include "RimGeoMechView.h"
 #include "RimOilField.h"
 #include "RimProject.h"
-#include "Riu3DMainWindowTools.h"
-#include "RiuFileDialogTools.h"
-
-#include "RimColorLegend.h"
-#include "RimColorLegendCollection.h"
-#include "RimColorLegendItem.h"
 #include "RimRegularLegendConfig.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -218,7 +218,7 @@ void RicImportFormationNamesFeature::setFormationCellResultAndLegend( Rim3dView*
     if ( eclView )
     {
         eclView->cellResult()->setResultType( RiaDefines::ResultCatType::FORMATION_NAMES );
-        eclView->cellResult()->setResultVariable( RiaDefines::activeFormationNamesResultName() );
+        eclView->cellResult()->setResultVariable( RiaResultNames::activeFormationNamesResultName() );
 
         legendConfig = eclView->cellResult()->legendConfig();
 

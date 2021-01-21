@@ -34,7 +34,7 @@ RimValveTemplate::RimValveTemplate()
 
     CAF_PDM_InitField( &m_valveTemplateUnit,
                        "UnitSystem",
-                       caf::AppEnum<RiaEclipseUnitTools::UnitSystem>( RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN ),
+                       caf::AppEnum<RiaDefines::EclipseUnitSystem>( RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN ),
                        "Units System",
                        "",
                        "",
@@ -73,7 +73,7 @@ void RimValveTemplate::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimValveTemplate::setUnitSystem( RiaEclipseUnitTools::UnitSystemType unitSystem )
+void RimValveTemplate::setUnitSystem( caf::AppEnum<RiaDefines::EclipseUnitSystem> unitSystem )
 {
     m_valveTemplateUnit = unitSystem;
 }
@@ -83,11 +83,11 @@ void RimValveTemplate::setUnitSystem( RiaEclipseUnitTools::UnitSystemType unitSy
 //--------------------------------------------------------------------------------------------------
 void RimValveTemplate::setDefaultValuesFromUnits()
 {
-    if ( m_valveTemplateUnit == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+    if ( m_valveTemplateUnit == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
         m_orificeDiameter = 8;
     }
-    else if ( m_valveTemplateUnit == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+    else if ( m_valveTemplateUnit == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
         m_orificeDiameter = 0.315;
     }
@@ -115,7 +115,7 @@ void RimValveTemplate::setType( RiaDefines::WellPathComponentType type )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaEclipseUnitTools::UnitSystemType RimValveTemplate::templateUnits() const
+caf::AppEnum<RiaDefines::EclipseUnitSystem> RimValveTemplate::templateUnits() const
 {
     return m_valveTemplateUnit;
 }
@@ -200,11 +200,11 @@ void RimValveTemplate::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     uiOrdering.add( &m_valveTemplateUnit );
     if ( m_type() == RiaDefines::WellPathComponentType::ICV || m_type() == RiaDefines::WellPathComponentType::ICD )
     {
-        if ( m_valveTemplateUnit == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+        if ( m_valveTemplateUnit == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
         {
             m_orificeDiameter.uiCapability()->setUiName( "Orifice Diameter [mm]" );
         }
-        else if ( m_valveTemplateUnit == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+        else if ( m_valveTemplateUnit == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
         {
             m_orificeDiameter.uiCapability()->setUiName( "Orifice Diameter [in]" );
         }

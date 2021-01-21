@@ -673,11 +673,11 @@ void RimRegularLegendConfig::initAfterRead()
 {
     if ( resultVariableName == "Binary Formation Allen" )
     {
-        resultVariableName = RiaDefines::formationBinaryAllanResultName();
+        resultVariableName = RiaResultNames::formationBinaryAllanResultName();
     }
     else if ( resultVariableName == "Formation Allen" )
     {
-        resultVariableName = RiaDefines::formationAllanResultName();
+        resultVariableName = RiaResultNames::formationAllanResultName();
     }
 
     if ( m_colorRangeMode_OBSOLETE() != RimRegularLegendConfig::ColorRangesType::UNDEFINED )

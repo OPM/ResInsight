@@ -18,8 +18,6 @@
 
 #include "RigFemPartResultCalculatorInitialPorosity.h"
 
-#include "RiaEclipseUnitTools.h"
-
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"

@@ -20,6 +20,7 @@
 
 #include "RiaColorTables.h"
 #include "RiaLogging.h"
+#include "RiaResultNames.h"
 
 #include "RicNewWellLogCurveExtractionFeature.h"
 #include "RicNewWellLogFileCurveFeature.h"
@@ -313,7 +314,7 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
     stabilityCurvesTrack->setAnnotationDisplay( RiuPlotAnnotationTool::LIGHT_LINES );
     stabilityCurvesTrack->setShowRegionLabels( false );
 
-    std::vector<QString> resultNames = RiaDefines::wbsDerivedResultNames();
+    std::vector<QString> resultNames = RiaResultNames::wbsDerivedResultNames();
 
     std::vector<cvf::Color3f> colors = { cvf::Color3f::BLUE,
                                          cvf::Color3f::BROWN,
@@ -341,7 +342,7 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
         curve->loadDataAndUpdate( false );
         curve->setSmoothCurve( true );
         curve->setSmoothingThreshold( 0.002 );
-        if ( resultNames[i] == RiaDefines::wbsSHMkResult() )
+        if ( resultNames[i] == RiaResultNames::wbsSHMkResult() )
         {
             curve->setCurveVisibility( false );
         }
@@ -380,7 +381,7 @@ void RicNewWellBoreStabilityPlotFeature::createAnglesTrack( RimWellBoreStability
         RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, "Well Path Angles", plot );
     double               minValue = 360.0, maxValue = 0.0;
     const double         angleIncrement = 90.0;
-    std::vector<QString> resultNames    = RiaDefines::wbsAngleResultNames();
+    std::vector<QString> resultNames    = RiaResultNames::wbsAngleResultNames();
 
     std::vector<cvf::Color3f> colors = { cvf::Color3f::GREEN, cvf::Color3f::DARK_ORANGE };
 

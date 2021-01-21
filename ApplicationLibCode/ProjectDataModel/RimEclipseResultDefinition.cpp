@@ -113,7 +113,13 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
     CAF_PDM_InitScriptableFieldNoDefault( &m_porosityModel, "PorosityModelType", "Porosity", "", "", "" );
     m_porosityModel.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitScriptableField( &m_resultVariable, "ResultVariable", RiaDefines::undefinedResultName(), "Variable", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_resultVariable,
+                                 "ResultVariable",
+                                 RiaResultNames::undefinedResultName(),
+                                 "Variable",
+                                 "",
+                                 "",
+                                 "" );
     m_resultVariable.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_flowSolution, "FlowDiagSolution", "Solution", "", "", "" );
@@ -167,7 +173,7 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
 
     CAF_PDM_InitField( &m_resultVariableUiField,
                        "MResultVariable",
-                       RiaDefines::undefinedResultName(),
+                       RiaResultNames::undefinedResultName(),
                        "Result Property",
                        "",
                        "",
@@ -769,7 +775,7 @@ QList<caf::PdmOptionItemInfo>
 
                 for ( const QString& resultName : dynamicResultNames )
                 {
-                    if ( !resultName.endsWith( "F" ) || resultName == RiaDefines::completionTypeResultName() )
+                    if ( !resultName.endsWith( "F" ) || resultName == RiaResultNames::completionTypeResultName() )
                     {
                         continue;
                     }
@@ -1162,7 +1168,7 @@ void RimEclipseResultDefinition::loadResult()
         }
 
         QString           resultName                    = m_resultVariable();
-        std::set<QString> eclipseResultNamesWithNncData = RiaDefines::nncResultNames();
+        std::set<QString> eclipseResultNamesWithNncData = RiaResultNames::nncResultNames();
         if ( eclipseResultNamesWithNncData.find( resultName ) != eclipseResultNamesWithNncData.end() )
         {
             eclipseCase()->ensureFaultDataIsComputed();
@@ -1269,12 +1275,12 @@ void RimEclipseResultDefinition::initAfterRead()
 
     if ( m_resultVariable == "Formation Allen" )
     {
-        m_resultVariable = RiaDefines::formationAllanResultName();
+        m_resultVariable = RiaResultNames::formationAllanResultName();
         m_resultType     = RiaDefines::ResultCatType::ALLAN_DIAGRAMS;
     }
     else if ( m_resultVariable == "Binary Formation Allen" )
     {
-        m_resultVariable = RiaDefines::formationBinaryAllanResultName();
+        m_resultVariable = RiaResultNames::formationBinaryAllanResultName();
         m_resultType     = RiaDefines::ResultCatType::ALLAN_DIAGRAMS;
     }
 
@@ -1441,8 +1447,9 @@ void RimEclipseResultDefinition::setDiffResultOptionsEnabled( bool enabled )
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::isTernarySaturationSelected() const
 {
-    bool isTernary = ( m_resultType() == RiaDefines::ResultCatType::DYNAMIC_NATIVE ) &&
-                     ( m_resultVariable().compare( RiaDefines::ternarySaturationResultName(), Qt::CaseInsensitive ) == 0 );
+    bool isTernary =
+        ( m_resultType() == RiaDefines::ResultCatType::DYNAMIC_NATIVE ) &&
+        ( m_resultVariable().compare( RiaResultNames::ternarySaturationResultName(), Qt::CaseInsensitive ) == 0 );
 
     return isTernary;
 }
@@ -1453,7 +1460,7 @@ bool RimEclipseResultDefinition::isTernarySaturationSelected() const
 bool RimEclipseResultDefinition::isCompletionTypeSelected() const
 {
     return ( m_resultType() == RiaDefines::ResultCatType::DYNAMIC_NATIVE &&
-             m_resultVariable() == RiaDefines::completionTypeResultName() );
+             m_resultVariable() == RiaResultNames::completionTypeResultName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1466,15 +1473,15 @@ bool RimEclipseResultDefinition::hasCategoryResult() const
         return true;
 
     if ( this->m_resultType() == RiaDefines::ResultCatType::DYNAMIC_NATIVE &&
-         this->resultVariable() == RiaDefines::completionTypeResultName() )
+         this->resultVariable() == RiaResultNames::completionTypeResultName() )
         return true;
 
     if ( this->m_resultType() == RiaDefines::ResultCatType::FLOW_DIAGNOSTICS &&
          m_resultVariable() == RIG_FLD_MAX_FRACTION_TRACER_RESNAME )
         return true;
 
-    if ( this->resultVariable() == RiaDefines::formationAllanResultName() ||
-         this->resultVariable() == RiaDefines::formationBinaryAllanResultName() )
+    if ( this->resultVariable() == RiaResultNames::formationAllanResultName() ||
+         this->resultVariable() == RiaResultNames::formationBinaryAllanResultName() )
     {
         return true;
     }
@@ -1724,12 +1731,12 @@ QList<caf::PdmOptionItemInfo>
 
         for ( const QString& s : getResultNamesForResultType( resultCatType, results ) )
         {
-            if ( s == RiaDefines::completionTypeResultName() )
+            if ( s == RiaResultNames::completionTypeResultName() )
             {
                 if ( results->timeStepDates().empty() ) continue;
             }
 
-            if ( RiaDefines::isPerCellFaceResult( s ) )
+            if ( RiaResultNames::isPerCellFaceResult( s ) )
             {
                 cellFaceResultNames.push_back( s );
             }
@@ -1775,14 +1782,14 @@ QList<caf::PdmOptionItemInfo>
 
                 if ( resultCatType == RiaDefines::ResultCatType::DYNAMIC_NATIVE && hasAtLeastOneTernaryComponent )
                 {
-                    optionList.push_front( caf::PdmOptionItemInfo( RiaDefines::ternarySaturationResultName(),
-                                                                   RiaDefines::ternarySaturationResultName() ) );
+                    optionList.push_front( caf::PdmOptionItemInfo( RiaResultNames::ternarySaturationResultName(),
+                                                                   RiaResultNames::ternarySaturationResultName() ) );
                 }
             }
         }
 
         optionList.push_front(
-            caf::PdmOptionItemInfo( RiaDefines::undefinedResultName(), RiaDefines::undefinedResultName() ) );
+            caf::PdmOptionItemInfo( RiaResultNames::undefinedResultName(), RiaResultNames::undefinedResultName() ) );
 
         return optionList;
     }
@@ -1985,7 +1992,7 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                 }
                 else if ( this->resultType() == RiaDefines::ResultCatType::ALLAN_DIAGRAMS )
                 {
-                    if ( this->resultVariable() == RiaDefines::formationAllanResultName() )
+                    if ( this->resultVariable() == RiaResultNames::formationAllanResultName() )
                     {
                         const std::vector<QString> fnVector = eclipseCaseData->formationNames();
                         std::vector<int>           fnameIdxes;
@@ -2034,7 +2041,7 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
 
                         legendConfigToUpdate->setCategoryItems( categories );
                     }
-                    else if ( this->resultVariable() == RiaDefines::formationBinaryAllanResultName() )
+                    else if ( this->resultVariable() == RiaResultNames::formationBinaryAllanResultName() )
                     {
                         std::vector<std::tuple<QString, int, cvf::Color3ub>> categories;
                         categories.emplace_back( std::make_tuple( "Same formation", 0, cvf::Color3ub::BROWN ) );
@@ -2044,7 +2051,7 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                     }
                 }
                 else if ( this->resultType() == RiaDefines::ResultCatType::DYNAMIC_NATIVE &&
-                          this->resultVariable() == RiaDefines::completionTypeResultName() )
+                          this->resultVariable() == RiaResultNames::completionTypeResultName() )
                 {
                     const std::vector<int>& visibleCategories =
                         cellResultsData->uniqueCellScalarValues( this->eclipseResultAddress() );

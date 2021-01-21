@@ -22,6 +22,7 @@
 
 #include "RiaApplication.h"
 #include "RiaCellDividingTools.h"
+#include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 
@@ -1023,8 +1024,8 @@ void RifReaderEclipseOutput::buildMetaData( ecl_grid_type* grid )
     // Unit system
     {
         // Default units type is METRIC
-        RiaEclipseUnitTools::UnitSystem unitsType = RiaEclipseUnitTools::UnitSystem::UNITS_METRIC;
-        int                             unitsTypeValue;
+        RiaDefines::EclipseUnitSystem unitsType = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
+        int                           unitsTypeValue;
 
         if ( m_dynamicResultsAccess.notNull() )
         {
@@ -1044,11 +1045,11 @@ void RifReaderEclipseOutput::buildMetaData( ecl_grid_type* grid )
 
         if ( unitsTypeValue == 2 )
         {
-            unitsType = RiaEclipseUnitTools::UnitSystem::UNITS_FIELD;
+            unitsType = RiaDefines::EclipseUnitSystem::UNITS_FIELD;
         }
         else if ( unitsTypeValue == 3 )
         {
-            unitsType = RiaEclipseUnitTools::UnitSystem::UNITS_LAB;
+            unitsType = RiaDefines::EclipseUnitSystem::UNITS_LAB;
         }
         m_eclipseCase->setUnitsType( unitsType );
     }

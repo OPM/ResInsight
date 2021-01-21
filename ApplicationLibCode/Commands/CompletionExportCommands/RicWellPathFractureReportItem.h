@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 
 #include <QString>
 
@@ -37,7 +37,7 @@ public:
     void setWidthAndConductivity( double width, double conductivity );
     void setHeightAndHalfLength( double height, double halfLength );
     void setAreaWeightedPermeability( double permeability );
-    void setUnitSystem( RiaEclipseUnitTools::UnitSystem unitSystem );
+    void setUnitSystem( RiaDefines::EclipseUnitSystem unitSystem );
     void setPressureDepletionParameters( bool           performPressureDepletionScaling,
                                          const QString& timeStepString,
                                          const QString& wbhpString,
@@ -50,7 +50,7 @@ public:
     QString fractureName() const;
     QString fractureTemplateName() const;
 
-    RiaEclipseUnitTools::UnitSystem unitSystem() const;
+    RiaDefines::EclipseUnitSystem unitSystem() const;
 
     double transmissibility() const;
     size_t connectionCount() const;
@@ -77,11 +77,11 @@ public:
     bool operator<( const RicWellPathFractureReportItem& other ) const;
 
 private:
-    RiaEclipseUnitTools::UnitSystem m_unitSystem;
-    QString                         m_wellPathNameForExport;
-    QString                         m_wellPathFracture;
-    QString                         m_wellPathFractureTemplate;
-    double                          m_mesuredDepth;
+    RiaDefines::EclipseUnitSystem m_unitSystem;
+    QString                       m_wellPathNameForExport;
+    QString                       m_wellPathFracture;
+    QString                       m_wellPathFractureTemplate;
+    double                        m_mesuredDepth;
 
     double m_transmissibility;
     size_t m_connectionCount;

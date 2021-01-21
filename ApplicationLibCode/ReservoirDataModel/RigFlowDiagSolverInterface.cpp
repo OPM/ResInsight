@@ -115,9 +115,9 @@ void RigFlowDiagTimeStepResult::addResult( const RigFlowDiagResultAddress& resAd
 class RigOpmFlowDiagStaticData : public cvf::Object
 {
 public:
-    RigOpmFlowDiagStaticData( const ecl_grid_type*            mainGrid,
-                              const std::wstring&             init,
-                              RiaEclipseUnitTools::UnitSystem caseUnitSystem )
+    RigOpmFlowDiagStaticData( const ecl_grid_type*          mainGrid,
+                              const std::wstring&           init,
+                              RiaDefines::EclipseUnitSystem caseUnitSystem )
     {
         Opm::ECLInitFileData initData( init );
 
@@ -147,11 +147,11 @@ public:
 
         // Try and set output unit system to the same system as the eclipse case system
         std::unique_ptr<const Opm::ECLUnits::UnitSystem> eclUnitSystem;
-        if ( caseUnitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
+        if ( caseUnitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
             eclUnitSystem = Opm::ECLUnits::metricUnitConventions();
-        else if ( caseUnitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+        else if ( caseUnitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
             eclUnitSystem = Opm::ECLUnits::fieldUnitConventions();
-        else if ( caseUnitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_LAB )
+        else if ( caseUnitSystem == RiaDefines::EclipseUnitSystem::UNITS_LAB )
             eclUnitSystem = Opm::ECLUnits::labUnitConventions();
 
         if ( eclUnitSystem )
@@ -542,7 +542,7 @@ bool RigFlowDiagSolverInterface::ensureStaticDataObjectInstanceCreated()
                     return false;
                 }
 
-                RiaEclipseUnitTools::UnitSystem caseUnitSystem = eclipseCaseData->unitsType();
+                RiaDefines::EclipseUnitSystem caseUnitSystem = eclipseCaseData->unitsType();
                 m_opmFlowDiagStaticData = new RigOpmFlowDiagStaticData( mainGrid, initFileName, caseUnitSystem );
 
                 ecl_grid_free( mainGrid );

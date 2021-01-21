@@ -145,7 +145,7 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem( const RiuEclipseSele
 
         return;
     }
-    else if ( eclResDef->hasDynamicResult() && !RiaDefines::isPerCellFaceResult( eclResDef->resultVariable() ) &&
+    else if ( eclResDef->hasDynamicResult() && !RiaResultNames::isPerCellFaceResult( eclResDef->resultVariable() ) &&
               eclResDef->eclipseCase() && eclResDef->eclipseCase()->eclipseCaseData() )
     {
         RiaDefines::PorosityModelType porosityModel = eclResDef->porosityModel();

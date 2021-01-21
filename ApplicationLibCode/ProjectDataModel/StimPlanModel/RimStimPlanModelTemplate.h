@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
 #include "RiaStimPlanModelDefines.h"
 
 #include "RimNamedObject.h"

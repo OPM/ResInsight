@@ -18,6 +18,7 @@
 
 #include "RimWellLogRftCurve.h"
 
+#include "RiaDefines.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaSimWellBranchTools.h"
@@ -400,7 +401,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
             return;
         }
 
-        RiaEclipseUnitTools::UnitSystem unitSystem = RiaEclipseUnitTools::UnitSystem::UNITS_METRIC;
+        RiaDefines::EclipseUnitSystem unitSystem = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
         if ( m_eclipseResultCase )
         {
             unitSystem = m_eclipseResultCase->eclipseCaseData()->unitsType();
@@ -416,7 +417,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         else if ( m_observedFmuRftData )
         {
             // TODO: Read unit system somewhere for FMU RFT Data
-            unitSystem     = RiaEclipseUnitTools::UnitSystem::UNITS_METRIC;
+            unitSystem     = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
             perPointLabels = this->perPointLabels();
         }
         else

@@ -20,6 +20,7 @@
 
 #include "RicWellPathFractureReportItem.h"
 
+#include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaSummaryTools.h"

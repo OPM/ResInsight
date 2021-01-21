@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RiaEclipseUnitTools.h"
+#include "RiaDefines.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
@@ -44,10 +44,10 @@ public:
     RimEllipseFractureTemplate*       addDefaultEllipseTemplate();
     void                              addFractureTemplate( RimFractureTemplate* templ );
 
-    RiaEclipseUnitTools::UnitSystemType defaultUnitSystemType() const;
-    void                                setDefaultUnitSystemBasedOnLoadedCases();
+    caf::AppEnum<RiaDefines::EclipseUnitSystem> defaultUnitSystemType() const;
+    void                                        setDefaultUnitSystemBasedOnLoadedCases();
 
-    RimFractureTemplate* firstFractureOfUnit( RiaEclipseUnitTools::UnitSystem unitSet ) const;
+    RimFractureTemplate* firstFractureOfUnit( RiaDefines::EclipseUnitSystem unitSet ) const;
 
     std::vector<std::pair<QString, QString>> resultNamesAndUnits() const;
     void                                     computeMinMax( const QString& uiResultName,
@@ -71,8 +71,8 @@ protected:
 private:
     int nextFractureTemplateId();
 
-    caf::PdmChildArrayField<RimFractureTemplate*>      m_fractureDefinitions;
-    caf::PdmField<RiaEclipseUnitTools::UnitSystemType> m_defaultUnitsForFracTemplates;
+    caf::PdmChildArrayField<RimFractureTemplate*>              m_fractureDefinitions;
+    caf::PdmField<caf::AppEnum<RiaDefines::EclipseUnitSystem>> m_defaultUnitsForFracTemplates;
     caf::PdmField<int> m_nextValidFractureTemplateId; // Unique fracture template ID within a project, used to identify
                                                       // a fracture template
 };

@@ -20,7 +20,6 @@
 #include "RigWellLogCurveData.h"
 
 #include "RiaCurveDataTools.h"
-#include "RiaEclipseUnitTools.h"
 #include "RiaWellLogUnitTools.h"
 
 #include "cvfAssert.h"

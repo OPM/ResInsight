@@ -20,7 +20,6 @@
 
 #include "RiaApplication.h"
 #include "RiaCompletionTypeCalculationScheduler.h"
-#include "RiaEclipseUnitTools.h"
 #include "RiaFractureDefines.h"
 #include "RiaLogging.h"
 #include "RiaStimPlanModelDefines.h"

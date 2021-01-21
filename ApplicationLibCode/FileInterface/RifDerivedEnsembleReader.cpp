@@ -98,7 +98,7 @@ std::string RifDerivedEnsembleReader::unitName( const RifEclipseSummaryAddress& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaEclipseUnitTools::UnitSystem RifDerivedEnsembleReader::unitSystem() const
+RiaDefines::EclipseUnitSystem RifDerivedEnsembleReader::unitSystem() const
 {
-    return RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
+    return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
 }

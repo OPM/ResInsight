@@ -120,8 +120,8 @@ bool RifEclipseInputFileTools::openGridFile( const QString&      fileName,
         QFile gridFile( fileName );
         if ( gridFile.open( QFile::ReadOnly ) )
         {
-            RiaEclipseUnitTools::UnitSystem units = readUnitSystem( gridFile, gridunitPos );
-            if ( units != RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN )
+            RiaDefines::EclipseUnitSystem units = readUnitSystem( gridFile, gridunitPos );
+            if ( units != RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN )
             {
                 eclipseCase->setUnitsType( units );
             }
@@ -417,9 +417,9 @@ bool RifEclipseInputFileTools::exportGrid( const QString&         fileName,
     }
 
     ert_ecl_unit_enum ecl_units = ECL_METRIC_UNITS;
-    if ( eclipseCase->unitsType() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
+    if ( eclipseCase->unitsType() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
         ecl_units = ECL_FIELD_UNITS;
-    else if ( eclipseCase->unitsType() == RiaEclipseUnitTools::UnitSystem::UNITS_LAB )
+    else if ( eclipseCase->unitsType() == RiaDefines::EclipseUnitSystem::UNITS_LAB )
         ecl_units = ECL_LAB_UNITS;
 
     ecl_grid_fprintf_grdecl2( mainEclGrid, filePtr, ecl_units );
@@ -751,8 +751,8 @@ void RifEclipseInputFileTools::saveFaults( QTextStream&       stream,
     const cvf::Collection<RigFault>& faults = mainGrid->faults();
     for ( const auto& fault : faults )
     {
-        if ( fault->name() != RiaDefines::undefinedGridFaultName() &&
-             fault->name() != RiaDefines::undefinedGridFaultWithInactiveName() )
+        if ( fault->name() != RiaResultNames::undefinedGridFaultName() &&
+             fault->name() != RiaResultNames::undefinedGridFaultWithInactiveName() )
         {
             saveFault( stream, mainGrid, fault->faultFaces(), fault->name(), min, max, refinement );
         }
@@ -1662,7 +1662,7 @@ void RifEclipseInputFileTools::readKeywordDataContent( QFile&       data,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaEclipseUnitTools::UnitSystem RifEclipseInputFileTools::readUnitSystem( QFile& file, qint64 gridunitPos )
+RiaDefines::EclipseUnitSystem RifEclipseInputFileTools::readUnitSystem( QFile& file, qint64 gridunitPos )
 {
     bool        stopParsing = false;
     QStringList unitText;
@@ -1671,18 +1671,18 @@ RiaEclipseUnitTools::UnitSystem RifEclipseInputFileTools::readUnitSystem( QFile&
     {
         if ( unitString.contains( "FEET", Qt::CaseInsensitive ) )
         {
-            return RiaEclipseUnitTools::UnitSystem::UNITS_FIELD;
+            return RiaDefines::EclipseUnitSystem::UNITS_FIELD;
         }
         else if ( unitString.contains( "CM", Qt::CaseInsensitive ) )
         {
-            return RiaEclipseUnitTools::UnitSystem::UNITS_LAB;
+            return RiaDefines::EclipseUnitSystem::UNITS_LAB;
         }
         else if ( unitString.contains( "MET", Qt::CaseInsensitive ) )
         {
-            return RiaEclipseUnitTools::UnitSystem::UNITS_METRIC;
+            return RiaDefines::EclipseUnitSystem::UNITS_METRIC;
         }
     }
-    return RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
+    return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
 }
 
 //--------------------------------------------------------------------------------------------------
