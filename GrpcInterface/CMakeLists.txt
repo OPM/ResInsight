@@ -135,17 +135,7 @@ set(_LINK_LIBRARIES
     ApplicationLibCode)
 
 # Proto files
-set(PROTO_FILES
-    "Definitions"
-    "PdmObject"
-    "Case"
-    "SimulationWell"
-    "Project"
-    "Commands"
-    "NNCProperties"
-    "App"
-    "Properties"
-    "Grid")
+file(GLOB GRPC_PROTO_FILES GrpcProtos/*.proto)
 
 set(GRPC_PYTHON_SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/Python")
 
@@ -157,18 +147,15 @@ else()
     message(STATUS "RESINSIGHT_GRPC_PYTHON_EXECUTABLE not specified. Will not install Python client code")
 endif()
 
-foreach(proto_file ${PROTO_FILES})
-  get_filename_component(
-    rips_proto "GrpcProtos/${proto_file}.proto"
-    ABSOLUTE)
-  get_filename_component(rips_proto_path "${rips_proto}" PATH)
+foreach(rips_proto ${GRPC_PROTO_FILES})
+  get_filename_component(rips_proto_name ${rips_proto} NAME_WE)
+  get_filename_component(rips_proto_path ${rips_proto} PATH)
 
-  list(APPEND GRPC_PROTO_FILES_FULL_PATH ${rips_proto})
 
-  set(rips_proto_srcs "${CMAKE_BINARY_DIR}/Generated/${proto_file}.pb.cc")
-  set(rips_proto_hdrs "${CMAKE_BINARY_DIR}/Generated/${proto_file}.pb.h")
-  set(rips_grpc_srcs "${CMAKE_BINARY_DIR}/Generated/${proto_file}.grpc.pb.cc")
-  set(rips_grpc_hdrs "${CMAKE_BINARY_DIR}/Generated/${proto_file}.grpc.pb.h")
+  set(rips_proto_srcs "${CMAKE_BINARY_DIR}/Generated/${rips_proto_name}.pb.cc")
+  set(rips_proto_hdrs "${CMAKE_BINARY_DIR}/Generated/${rips_proto_name}.pb.h")
+  set(rips_grpc_srcs "${CMAKE_BINARY_DIR}/Generated/${rips_proto_name}.grpc.pb.cc")
+  set(rips_grpc_hdrs "${CMAKE_BINARY_DIR}/Generated/${rips_proto_name}.grpc.pb.h")
 
   add_custom_command(
     OUTPUT "${rips_proto_srcs}" "${rips_proto_hdrs}" "${rips_grpc_srcs}"
@@ -179,8 +166,8 @@ foreach(proto_file ${PROTO_FILES})
       --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}" "${rips_proto}"
     DEPENDS "${rips_proto}")
 
-  set(rips_proto_python "rips/generated/${proto_file}_pb2.py")
-  set(rips_grpc_python "rips/generated/${proto_file}_pb2_grpc.py")
+  set(rips_proto_python "rips/generated/${rips_proto_name}_pb2.py")
+  set(rips_grpc_python "rips/generated/${rips_proto_name}_pb2_grpc.py")
 
   if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
     add_custom_command(
@@ -194,15 +181,14 @@ foreach(proto_file ${PROTO_FILES})
       DEPENDS "${rips_proto}"
       COMMENT "Generating ${rips_proto_python} and ${rips_grpc_python}"
       VERBATIM)
-    list(APPEND GRPC_PYTHON_GENERATED_SOURCES ${rips_proto_python}
-         ${rips_grpc_python})
+    list(APPEND GRPC_PYTHON_GENERATED_SOURCES "${GRPC_PYTHON_SOURCE_PATH}/${rips_grpc_python}")
   endif()
 
   list(APPEND GRPC_HEADER_FILES ${rips_proto_hdrs} ${rips_grpc_hdrs})
 
   list(APPEND GRPC_CPP_SOURCES ${rips_proto_srcs} ${rips_grpc_srcs})
 
-endforeach(proto_file)
+endforeach(rips_proto)
 
 if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
   configure_file(${CMAKE_SOURCE_DIR}/ApplicationLibCode/Adm/RiaVersionInfo.py.cmake
@@ -211,68 +197,24 @@ if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
                  ${GRPC_PYTHON_SOURCE_PATH}/setup.py)
 endif()
 
+list (APPEND GRPC_PYTHON_GENERATED_SOURCES ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/RiaVersionInfo.py)
+
+file(GLOB GRPC_PYTHON_RIPS_SOURCES ${GRPC_PYTHON_SOURCE_PATH}/rips/*.py)
+file(GLOB GRPC_PYTHON_EXAMPLE_SOURCES ${GRPC_PYTHON_SOURCE_PATH}/rips/PythonExamples/*.py)
+file(GLOB GRPC_PYTHON_TEST_SOURCES ${GRPC_PYTHON_SOURCE_PATH}/rips/tests/*.py)
+file(GLOB GRPC_PYTHON_OTHER_FILES  "${GRPC_PYTHON_SOURCE_PATH}/setup.py" "${GRPC_PYTHON_SOURCE_PATH}/requirements.txt" "${GRPC_PYTHON_SOURCE_PATH}/README.md" "${GRPC_PYTHON_SOURCE_PATH}/LICENSE")
+
 list(
   APPEND
   GRPC_PYTHON_SOURCES
-  "rips/generated/RiaVersionInfo.py"
-  "rips/__init__.py"
-  "rips/case.py"
-  "rips/contour_map.py"
-  "rips/grid.py"
-  "rips/gridcasegroup.py"
-  "rips/instance.py"
-  "rips/pdmobject.py"
-  "rips/plot.py"
-  "rips/project.py"
-  "rips/simulation_well.py"
-  "rips/view.py"
-  "rips/well_log_plot.py"
-  "rips/PythonExamples/instance_example.py"
-  "rips/PythonExamples/command_example.py"
-  "rips/PythonExamples/case_grid_group.py"
-  "rips/PythonExamples/case_info_streaming_example.py"
-  "rips/PythonExamples/create_wbs_plot.py"
-  "rips/PythonExamples/export_plots.py"
-  "rips/PythonExamples/export_snapshots.py"
-  "rips/PythonExamples/error_handling.py"
-  "rips/PythonExamples/import_well_paths_and_logs.py"
-  "rips/PythonExamples/soil_porv_async.py"
-  "rips/PythonExamples/soil_porv_sync.py"
-  "rips/PythonExamples/selected_cases.py"
-  "rips/PythonExamples/all_cases.py"
-  "rips/PythonExamples/replace_case.py"
-  "rips/PythonExamples/set_grid_properties.py"
-  "rips/PythonExamples/set_cell_result.py"
-  "rips/PythonExamples/set_flow_diagnostics_result.py"
-  "rips/PythonExamples/grid_information.py"
-  "rips/PythonExamples/input_prop_test_sync.py"
-  "rips/PythonExamples/input_prop_test_async.py"
-  "rips/PythonExamples/soil_average_async.py"
-  "rips/PythonExamples/soil_average_sync.py"
-  "rips/PythonExamples/view_example.py"
-  "rips/tests/test_cases.py"
-  "rips/tests/test_grids.py"
-  "rips/tests/test_properties.py"
-  "rips/tests/test_project.py"
-  "rips/tests/conftest.py"
-  "rips/tests/dataroot.py"
-  "rips/tests/test_nnc_properties.py"
-  "rips/tests/test_simulation_wells.py"
-  "rips/tests/test_summary_cases.py"
-  "rips/tests/test_wells.py"
-  "requirements.txt"
-  "setup.py"
-  "README.md"
-  "LICENSE")
+  ${GRPC_PYTHON_RIPS_SOURCES}
+  ${GRPC_PYTHON_EXAMPLE_SOURCES}
+  ${GRPC_PYTHON_TEST_SOURCES}
+  ${GRPC_PYTHON_OTHER_FILES}
+  ${GRPC_PROTO_FILES}
+)
 
 list(APPEND GRPC_PYTHON_SOURCES ${GRPC_PYTHON_GENERATED_SOURCES})
-
-if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
-  foreach(PYTHON_SCRIPT ${GRPC_PYTHON_SOURCES})
-    list(APPEND GRPC_PYTHON_SOURCES_FULL_PATH
-         "${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}")
-  endforeach()
-endif()
 
 add_library(
   ${PROJECT_NAME} OBJECT
@@ -318,13 +260,13 @@ if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE AND RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE)
 endif()
 
 if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
-  add_custom_target(GeneratedPythonSources ALL
-                    DEPENDS ${GRPC_PYTHON_SOURCES_FULL_PATH})
-  add_dependencies(${PROJECT_NAME} GeneratedPythonSources)
+  add_custom_target(Rips ALL
+                    SOURCES ${GRPC_PYTHON_SOURCES})
+  add_dependencies(${PROJECT_NAME} Rips)
 
   if(RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE)
     add_dependencies(${PROJECT_NAME} PipInstall)
-    add_dependencies(GeneratedPythonSources PipInstall)
+    add_dependencies(Rips PipInstall)
   endif()
 endif()
 
@@ -333,4 +275,8 @@ if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
           DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python)
 endif()
 
-source_group("GrpcProtos" FILES ${GRPC_PROTO_FILES_FULL_PATH})
+source_group("Generated" FILES ${GRPC_PYTHON_GENERATED_SOURCES})
+source_group("Sources" FILES ${GRPC_PYTHON_RIPS_SOURCES})
+source_group("Protos" FILES ${GRPC_PROTO_FILES})
+source_group("PythonExamples" FILES ${GRPC_PYTHON_EXAMPLE_SOURCES})
+source_group("Tests" FILES ${GRPC_PYTHON_TEST_SOURCES})
