@@ -7,8 +7,8 @@
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
 //
-//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
-//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT
+//  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
 //
 //  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
@@ -244,7 +244,8 @@ void RimWellPltPlot::updateFormationsOnPlot() const
 
             if ( !formationNamesCase )
             {
-                /// Set default case. Todo : Use the first of the selected cases in the plot
+                /// Set default case. Todo : Use the first of the selected cases in the
+                /// plot
                 std::vector<RimCase*> cases;
                 proj->allCases( cases );
 
@@ -372,7 +373,8 @@ public:
             RigWellResultPoint resPoint;
             resPoint.m_isOpen        = true;
             resPoint.m_gridIndex     = 0; // Always main grid
-            resPoint.m_gridCellIndex = globCellIdx; // Shortcut, since we only have main grid results from RFT
+            resPoint.m_gridCellIndex = globCellIdx; // Shortcut, since we only have
+                                                    // main grid results from RFT
 
             resPoint.m_gasRate =
                 RiaEclipseUnitTools::convertSurfaceGasFlowRateToOilEquivalents( eclCase->eclipseCaseData()->unitsType(),
@@ -587,10 +589,12 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                     std::vector<QString>       tracerNames = wfPhaseAccumulator.tracerNames();
                     for ( const QString& tracerName : tracerNames )
                     {
-                        auto color = tracerName == RIG_FLOW_OIL_NAME     ? cvf::Color3f::DARK_GREEN
-                                     : tracerName == RIG_FLOW_GAS_NAME   ? cvf::Color3f::DARK_RED
-                                     : tracerName == RIG_FLOW_WATER_NAME ? cvf::Color3f::BLUE
-                                                                         : cvf::Color3f::DARK_GRAY;
+                        auto color = tracerName == RIG_FLOW_OIL_NAME
+                                         ? cvf::Color3f::DARK_GREEN
+                                         : tracerName == RIG_FLOW_GAS_NAME
+                                               ? cvf::Color3f::DARK_RED
+                                               : tracerName == RIG_FLOW_WATER_NAME ? cvf::Color3f::BLUE
+                                                                                   : cvf::Color3f::DARK_GRAY;
 
                         if ( tracerName == RIG_FLOW_OIL_NAME && selectedPhases.count( FLOW_PHASE_OIL ) ||
                              tracerName == RIG_FLOW_GAS_NAME && selectedPhases.count( FLOW_PHASE_GAS ) ||
@@ -666,10 +670,13 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                         const auto& channelName = std::get<1>( channelInfo );
                         if ( selectedPhases.count( RimWellPlotTools::flowPhaseFromChannelName( channelName ) ) > 0 )
                         {
-                            auto color = RimWellPlotTools::isOilFlowChannel( channelName )   ? cvf::Color3f::DARK_GREEN
-                                         : RimWellPlotTools::isGasFlowChannel( channelName ) ? cvf::Color3f::DARK_RED
-                                         : RimWellPlotTools::isWaterFlowChannel( channelName ) ? cvf::Color3f::BLUE
-                                                                                               : cvf::Color3f::DARK_GRAY;
+                            auto color = RimWellPlotTools::isOilFlowChannel( channelName )
+                                             ? cvf::Color3f::DARK_GREEN
+                                             : RimWellPlotTools::isGasFlowChannel( channelName )
+                                                   ? cvf::Color3f::DARK_RED
+                                                   : RimWellPlotTools::isWaterFlowChannel( channelName )
+                                                         ? cvf::Color3f::BLUE
+                                                         : cvf::Color3f::DARK_GRAY;
 
                             FlowPhase flowPhase = FLOW_PHASE_NONE;
                             if ( RimWellPlotTools::isOilFlowChannel( channelName ) )
@@ -688,8 +695,8 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                                              curveGroupId,
                                              true );
 
-                            // Total flow channel will end up first, so just increment the group
-                            // idx to make the rest of the phases group together
+                            // Total flow channel will end up first, so just increment the
+                            // group idx to make the rest of the phases group together
                             if ( RimWellPlotTools::isTotalFlowChannel( channelName ) ) curveGroupId++;
                         }
                     }
@@ -909,9 +916,10 @@ void RimWellPltPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                 {
                     if ( !wellPath->wellPathGeometry() )
                     {
-                        QString tmp =
-                            QString( "Display of Measured Depth (MD) for Grid or RFT curves is not possible without a "
-                                     "well log path, and the curve will be hidden in this mode.\n\n" );
+                        QString tmp = QString( "Display of Measured Depth (MD) for Grid or "
+                                               "RFT curves is not possible without a "
+                                               "well log path, and the curve will be hidden "
+                                               "in this mode.\n\n" );
 
                         RiaLogging::errorInMessageBox( nullptr, "Grid/RFT curve without MD", tmp );
 
