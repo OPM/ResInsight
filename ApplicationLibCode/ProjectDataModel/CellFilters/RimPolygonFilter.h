@@ -26,10 +26,13 @@
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
+#include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfVec3d.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 #include "cafPickEventHandler.h"
+
+#include "cvfColor3.h"
 
 #include <list>
 #include <memory>
@@ -120,6 +123,10 @@ private:
     caf::PdmField<bool>                                m_showLines;
     caf::PdmField<bool>                                m_showSpheres;
     caf::PdmField<QString>                             m_kFilterStr;
+    caf::PdmField<int>                                 m_lineThickness;
+    caf::PdmField<double>                              m_sphereRadiusFactor;
+    caf::PdmField<cvf::Color3f>                        m_lineColor;
+    caf::PdmField<cvf::Color3f>                        m_sphereColor;
 
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
 

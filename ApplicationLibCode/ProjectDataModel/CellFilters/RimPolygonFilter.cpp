@@ -39,13 +39,18 @@
 
 #include "RiuViewerCommands.h"
 
+#include "RiaStdStringTools.h"
+
 #include "cafCmdFeatureMenuBuilder.h"
+#include "cafPdmUiLineEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include "cvfBoundingBox.h"
 #include "cvfStructGrid.h"
+
+#include <QValidator>
 
 namespace caf
 {
@@ -67,6 +72,42 @@ void caf::AppEnum<RimPolygonFilter::PolygonIncludeType>::setUp()
 }
 
 } // namespace caf
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class ThicknessValidator : public QValidator
+{
+public:
+    State validate( QString& input, int& pos ) const override
+    {
+        if ( input.isEmpty() ) return State::Intermediate;
+
+        int val = RiaStdStringTools::toInt( input.toStdString() );
+        if ( val > 0 && val < 8 )
+            return State::Acceptable;
+        else
+            return State::Invalid;
+    }
+};
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class RadiusValidator : public QValidator
+{
+public:
+    State validate( QString& input, int& pos ) const override
+    {
+        if ( input.isEmpty() ) return State::Intermediate;
+
+        double val = RiaStdStringTools::toDouble( input.toStdString() );
+        if ( val > 0.001 && val <= 2.0 )
+            return State::Acceptable;
+        else
+            return State::Invalid;
+    }
+};
 
 CAF_PDM_SOURCE_INIT( RimPolygonFilter, "PolygonFilter", "PolyLineFilter" );
 
@@ -98,6 +139,12 @@ RimPolygonFilter::RimPolygonFilter()
 
     CAF_PDM_InitField( &m_showLines, "ShowLines", true, "Show Lines", "", "", "" );
     CAF_PDM_InitField( &m_showSpheres, "ShowSpheres", false, "Show Spheres", "", "", "" );
+
+    CAF_PDM_InitField( &m_lineThickness, "LineThickness", 3, "Line Thickness", "", "", "" );
+    CAF_PDM_InitField( &m_sphereRadiusFactor, "SphereRadiusFactor", 0.15, "Sphere Radius Factor", "", "", "" );
+
+    CAF_PDM_InitField( &m_lineColor, "LineColor", cvf::Color3f( cvf::Color3f::WHITE ), "Line Color", "", "", "" );
+    CAF_PDM_InitField( &m_sphereColor, "SphereColor", cvf::Color3f( cvf::Color3f::WHITE ), "Sphere Color", "", "", "" );
 
     CAF_PDM_InitField( &m_enableFiltering, "EnableFiltering", false, "Enable Filter", "", "", "" );
 
@@ -234,7 +281,7 @@ void RimPolygonFilter::defineEditorAttribute( const caf::PdmFieldHandle* field,
         }
     }
 
-    if ( field == &m_targets )
+    else if ( field == &m_targets )
     {
         auto tvAttribute = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute );
         if ( tvAttribute )
@@ -246,6 +293,24 @@ void RimPolygonFilter::defineEditorAttribute( const caf::PdmFieldHandle* field,
                 tvAttribute->baseColor.setRgb( 255, 220, 255 );
                 tvAttribute->alwaysEnforceResizePolicy = true;
             }
+        }
+    }
+
+    else if ( field == &m_lineThickness )
+    {
+        auto myAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
+        if ( myAttr )
+        {
+            myAttr->validator = new ThicknessValidator();
+        }
+    }
+
+    else if ( field == &m_lineThickness )
+    {
+        auto myAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
+        if ( myAttr )
+        {
+            myAttr->validator = new RadiusValidator();
         }
     }
 }
@@ -287,6 +352,10 @@ void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     m_polyIncludeType.uiCapability()->setUiName( "Cells to " + modeString() );
 
     auto group2 = uiOrdering.addNewGroup( "Appearance" );
+    group2->add( &m_lineThickness );
+    group2->add( &m_lineColor );
+    group2->add( &m_sphereRadiusFactor );
+    group2->add( &m_sphereColor );
     group2->setCollapsedByDefault( true );
 
     auto group3 = uiOrdering.addNewGroup( "Advanced Filter Settings" );
@@ -754,6 +823,9 @@ cvf::ref<RigPolyLinesData> RimPolygonFilter::polyLines() const
         line.push_back( target->targetPointXYZ() );
     }
     pld->setPolyLine( line );
+
+    pld->setLineAppearance( m_lineThickness, m_lineColor, true );
+    pld->setSphereAppearance( m_sphereRadiusFactor, m_sphereColor );
 
     if ( isActive() )
     {
