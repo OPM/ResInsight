@@ -1002,7 +1002,9 @@ void RimStimPlanFractureTemplate::fractureTriangleGeometry( std::vector<cvf::Vec
 {
     if ( m_stimPlanFractureDefinitionData.notNull() )
     {
-        m_stimPlanFractureDefinitionData->createFractureTriangleGeometry( wellPathDepthAtFracture,
+        m_stimPlanFractureDefinitionData->createFractureTriangleGeometry( m_halfLengthScaleFactor(),
+                                                                          m_heightScaleFactor(),
+                                                                          wellPathDepthAtFracture,
                                                                           name(),
                                                                           nodeCoords,
                                                                           triangleIndices );
@@ -1128,6 +1130,8 @@ cvf::cref<RigFractureGrid> RimStimPlanFractureTemplate::createFractureGrid( doub
     {
         return m_stimPlanFractureDefinitionData->createFractureGrid( m_conductivityResultNameOnFile,
                                                                      m_activeTimeStepIndex,
+                                                                     m_halfLengthScaleFactor(),
+                                                                     m_heightScaleFactor(),
                                                                      wellPathDepthAtFracture,
                                                                      m_fractureTemplateUnit() );
     }

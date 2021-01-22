@@ -77,10 +77,14 @@ public:
 
     cvf::cref<RigFractureGrid> createFractureGrid( const QString&                resultName,
                                                    int                           activeTimeStepIndex,
+                                                   double                        xScaleFactor,
+                                                   double                        yScaleFactor,
                                                    double                        wellPathIntersectionAtFractureDepth,
                                                    RiaDefines::EclipseUnitSystem requiredUnitSet ) const;
 
-    void createFractureTriangleGeometry( double                   wellPathIntersectionAtFractureDepth,
+    void createFractureTriangleGeometry( double                   xScaleFactor,
+                                         double                   yScaleFactor,
+                                         double                   wellPathIntersectionAtFractureDepth,
                                          const QString&           fractureUserName,
                                          std::vector<cvf::Vec3f>* vertices,
                                          std::vector<cvf::uint>*  triangleIndices ) const;
@@ -114,12 +118,17 @@ private:
     size_t                           resultIndex( const QString& resultName, const QString& unit ) const;
     void                             generateXsFromFileXs( bool xMirrorMode );
     std::vector<std::vector<double>> generateDataLayoutFromFileDataLayout( std::vector<std::vector<double>> rawXYData ) const;
-    std::vector<double> adjustedYCoordsAroundWellPathPosition( double wellPathIntersectionAtFractureDepth ) const;
-    bool                numberOfParameterValuesOK( std::vector<std::vector<double>> propertyValuesAtTimestep ) const;
-    double              minY() const;
-    double              maxY() const;
-    void                scaleXs( double scaleFactor );
-    void                scaleYs( double scaleFactor, double wellPathIntersectionY );
+    bool   numberOfParameterValuesOK( std::vector<std::vector<double>> propertyValuesAtTimestep ) const;
+    double minY() const;
+    double maxY() const;
+
+    static std::vector<double> adjustedYCoordsAroundWellPathPosition( const std::vector<double>& yCoords,
+                                                                      double wellPathIntersectionAtFractureDepth );
+
+    static std::vector<double> computeScaledXs( const std::vector<double>& xs, double scaleFactor );
+
+    static std::vector<double>
+        computeScaledYs( const std::vector<double>& ys, double scaleFactor, double wellPathIntersectionAtFractureDepth );
 
     std::vector<std::vector<double>> conductivityValuesAtTimeStep( const QString&                resultName,
                                                                    int                           activeTimeStepIndex,
