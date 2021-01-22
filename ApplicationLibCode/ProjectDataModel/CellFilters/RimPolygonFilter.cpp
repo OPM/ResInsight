@@ -75,6 +75,7 @@ CAF_PDM_SOURCE_INIT( RimPolygonFilter, "PolygonFilter", "PolyLineFilter" );
 //--------------------------------------------------------------------------------------------------
 RimPolygonFilter::RimPolygonFilter()
     : m_pickTargetsEventHandler( new RicPolylineTargetsPickEventHandler( this ) )
+    , m_intervalTool( true )
 {
     CAF_PDM_InitObject( "Polyline Filter", ":/CellFilter_Polygon.png", "", "" );
 
@@ -98,6 +99,9 @@ RimPolygonFilter::RimPolygonFilter()
     CAF_PDM_InitField( &m_showPolylines, "ShowPolylines", true, "Show Polygon", "", "", "" );
 
     CAF_PDM_InitField( &m_enableFiltering, "EnableFiltering", false, "Enable Cell Filter", "", "", "" );
+
+    CAF_PDM_InitField( &m_enableKFilter, "EnableKFilter", false, "Enable K Range Filter", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_kFilterStr, "KRangeFilter", "K Range Filter", "", "", "" );
 
     this->setUi3dEditorTypeName( RicPolyline3dEditor::uiEditorTypeName() );
     this->uiCapability()->setUiTreeChildrenHidden( true );
@@ -153,6 +157,14 @@ void RimPolygonFilter::setCase( RimCase* srcCase )
 void RimPolygonFilter::enableFilter( bool bEnable )
 {
     m_enableFiltering = bEnable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonFilter::enableKFilter( bool bEnable )
+{
+    m_enableKFilter = bEnable;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -269,6 +281,10 @@ void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     group2->add( &m_enablePicking );
 
     m_polyIncludeType.uiCapability()->setUiName( "Cells to " + modeString() );
+
+    auto group3 = uiOrdering.addNewGroup( "Advanced Filter Settings" );
+    group3->add( &m_enableKFilter );
+    group3->add( &m_kFilterStr );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -393,20 +409,25 @@ void RimPolygonFilter::updateCellsDepthEclipse( const std::vector<cvf::Vec3d>& p
 {
     // we should look in depth using Z coordinate
     // loop over all cells
-    for ( size_t i = 0; i < grid->cellCount(); i++ )
+    for ( size_t n = 0; n < grid->cellCount(); n++ )
     {
         // valid cell?
-        RigCell cell = grid->cellByGridAndGridLocalCellIdx( gridIndex(), i );
+        RigCell cell = grid->cellByGridAndGridLocalCellIdx( gridIndex(), n );
         if ( cell.isInvalid() ) continue;
 
         // get corner coordinates
         std::array<cvf::Vec3d, 8> hexCorners;
-        grid->cellCornerVertices( i, hexCorners.data() );
+        grid->cellCornerVertices( n, hexCorners.data() );
+
+        // get cell ijk for k filter
+        size_t i, j, k;
+        grid->ijkFromCellIndex( n, &i, &j, &k );
+        if ( !m_intervalTool.isNumberIncluded( k ) ) continue;
 
         // check if the polygon includes the cell
         if ( cellInsidePolygon2D( cell.center(), hexCorners, points ) )
         {
-            m_cells.push_back( i );
+            m_cells.push_back( n );
         }
     }
 }
@@ -484,6 +505,8 @@ void RimPolygonFilter::updateCellsKIndexEclipse( const std::vector<cvf::Vec3d>& 
 
         for ( size_t k = 0; k < grid->cellCountK(); k++ )
         {
+            if ( !m_intervalTool.isNumberIncluded( k ) ) continue;
+
             // get the cell index
             size_t newIdx = grid->cellIndexFromIJK( ci, cj, k );
             // valid cell?
@@ -529,6 +552,8 @@ void RimPolygonFilter::updateCellsDepthGeoMech( const std::vector<cvf::Vec3d>& p
         {
             for ( size_t k = 0; k < grid->cellCountK(); k++ )
             {
+                if ( !m_intervalTool.isNumberIncluded( k ) ) continue;
+
                 size_t cellIdx = grid->cellIndexFromIJK( i, j, k );
 
                 cvf::Vec3d vertices[8];
@@ -632,6 +657,8 @@ void RimPolygonFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& 
 
         for ( size_t k = 0; k < grid->cellCountK(); k++ )
         {
+            if ( !m_intervalTool.isNumberIncluded( k ) ) continue;
+
             // get the cell index
             size_t newIdx = grid->cellIndexFromIJK( ci, cj, k );
             m_cells.push_back( newIdx );
@@ -666,6 +693,9 @@ void RimPolygonFilter::updateCells()
 {
     // reset
     m_cells.clear();
+
+    // get optional k-cell filter
+    m_intervalTool.setInterval( m_enableKFilter, m_kFilterStr );
 
     // get polyline as vector
     std::vector<cvf::Vec3d> points;

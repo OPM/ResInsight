@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RimCellFilter.h"
+#include "RimCellFilterIntervalTool.h"
 #include "RimPolylinePickerInterface.h"
 #include "RimShowPolylinesInterface.h"
 
@@ -69,6 +70,7 @@ public:
 
     void setCase( RimCase* srcCase );
     void enableFilter( bool bEnable );
+    void enableKFilter( bool bEnable );
 
     void updateVisualization() override;
     void updateEditorsAndVisualization() override;
@@ -115,8 +117,12 @@ private:
     caf::PdmPtrField<RimCase*>                         m_srcCase;
     caf::PdmField<bool>                                m_showPolylines;
     caf::PdmField<bool>                                m_enableFiltering;
+    caf::PdmField<bool>                                m_enableKFilter;
+    caf::PdmField<QString>                             m_kFilterStr;
 
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
 
     std::list<size_t> m_cells;
+
+    RimCellFilterIntervalTool m_intervalTool;
 };
