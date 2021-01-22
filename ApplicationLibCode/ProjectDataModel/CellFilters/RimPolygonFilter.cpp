@@ -96,9 +96,10 @@ RimPolygonFilter::RimPolygonFilter()
     CAF_PDM_InitFieldNoDefault( &m_srcCase, "Case", "Case", "", "", "" );
     m_srcCase.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_showPolylines, "ShowPolylines", true, "Show Polygon", "", "", "" );
+    CAF_PDM_InitField( &m_showLines, "ShowLines", true, "Show Lines", "", "", "" );
+    CAF_PDM_InitField( &m_showSpheres, "ShowSpheres", false, "Show Spheres", "", "", "" );
 
-    CAF_PDM_InitField( &m_enableFiltering, "EnableFiltering", false, "Enable Cell Filter", "", "", "" );
+    CAF_PDM_InitField( &m_enableFiltering, "EnableFiltering", false, "Enable Filter", "", "", "" );
 
     CAF_PDM_InitField( &m_enableKFilter, "EnableKFilter", false, "Enable K Range Filter", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_kFilterStr, "KRangeFilter", "K Range Filter", "", "", "" );
@@ -268,25 +269,43 @@ void RimPolygonFilter::defineCustomContextMenu( const caf::PdmFieldHandle* field
 //--------------------------------------------------------------------------------------------------
 void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimCellFilter::defineUiOrdering( uiConfigName, uiOrdering );
+    // RimCellFilter::defineUiOrdering( uiConfigName, uiOrdering );
+    uiOrdering.add( &m_name );
 
-    auto group1 = uiOrdering.addNewGroup( "Visualization" );
-    group1->add( &m_showPolylines );
-    group1->add( &m_enableFiltering );
+    auto group = uiOrdering.addNewGroup( "General" );
+    group->add( &m_filterMode );
+    group->add( &m_enableFiltering );
+    group->add( &m_showLines );
+    group->add( &m_showSpheres );
 
-    auto group2 = uiOrdering.addNewGroup( "Polygon Selection" );
-    group2->add( &m_polyFilterMode );
-    group2->add( &m_polyIncludeType );
-    group2->add( &m_targets );
-    group2->add( &m_enablePicking );
+    auto group1 = uiOrdering.addNewGroup( "Polygon Selection" );
+    group1->add( &m_polyFilterMode );
+    group1->add( &m_polyIncludeType );
+    group1->add( &m_targets );
+    group1->add( &m_enablePicking );
 
     m_polyIncludeType.uiCapability()->setUiName( "Cells to " + modeString() );
 
+    auto group2 = uiOrdering.addNewGroup( "Appearance" );
+    group2->setCollapsedByDefault( true );
+
     auto group3 = uiOrdering.addNewGroup( "Advanced Filter Settings" );
+    group3->add( &m_gridIndex );
+    group3->add( &m_propagateToSubGrids );
     group3->add( &m_enableKFilter );
     group3->add( &m_kFilterStr );
+    group3->setCollapsedByDefault( true );
 
     uiOrdering.skipRemainingFields( true );
+
+    bool readOnlyState = isFilterControlled();
+
+    std::vector<caf::PdmFieldHandle*> objFields;
+    this->fields( objFields );
+    for ( auto& objField : objFields )
+    {
+        objField->uiCapability()->setUiReadOnly( readOnlyState );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -738,7 +757,7 @@ cvf::ref<RigPolyLinesData> RimPolygonFilter::polyLines() const
 
     if ( isActive() )
     {
-        pld->setVisibility( m_showPolylines, m_showPolylines );
+        pld->setVisibility( m_showLines, m_showSpheres );
     }
     else
     {

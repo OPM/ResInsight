@@ -115,9 +115,10 @@ private:
     caf::PdmField<caf::AppEnum<PolygonFilterModeType>> m_polyFilterMode;
     caf::PdmField<caf::AppEnum<PolygonIncludeType>>    m_polyIncludeType;
     caf::PdmPtrField<RimCase*>                         m_srcCase;
-    caf::PdmField<bool>                                m_showPolylines;
     caf::PdmField<bool>                                m_enableFiltering;
     caf::PdmField<bool>                                m_enableKFilter;
+    caf::PdmField<bool>                                m_showLines;
+    caf::PdmField<bool>                                m_showSpheres;
     caf::PdmField<QString>                             m_kFilterStr;
 
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
