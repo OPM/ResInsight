@@ -127,6 +127,8 @@ private:
     caf::PdmField<double>                              m_sphereRadiusFactor;
     caf::PdmField<cvf::Color3f>                        m_lineColor;
     caf::PdmField<cvf::Color3f>                        m_sphereColor;
+    caf::PdmField<double>                              m_polygonPlaneDepth;
+    caf::PdmField<bool>                                m_lockPolygonToPlane;
 
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
 

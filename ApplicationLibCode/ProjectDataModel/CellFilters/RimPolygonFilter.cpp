@@ -46,6 +46,7 @@
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTreeOrdering.h"
+#include <cafPdmUiDoubleSliderEditor.h>
 
 #include "cvfBoundingBox.h"
 #include "cvfStructGrid.h"
@@ -150,6 +151,12 @@ RimPolygonFilter::RimPolygonFilter()
 
     CAF_PDM_InitField( &m_enableKFilter, "EnableKFilter", false, "Enable K Range Filter", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_kFilterStr, "KRangeFilter", "K Range Filter", "", "", "" );
+
+    CAF_PDM_InitField( &m_polygonPlaneDepth, "PolygonPlaneDepth", 0.0, "Polygon Plane Depth", "", "", "" );
+    CAF_PDM_InitField( &m_lockPolygonToPlane, "LockPolygon", false, "Lock Polygon to Plane", "", "", "" );
+
+    m_polygonPlaneDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    m_polygonPlaneDepth.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::TOP );
 
     this->setUi3dEditorTypeName( RicPolyline3dEditor::uiEditorTypeName() );
     this->uiCapability()->setUiTreeChildrenHidden( true );
@@ -313,6 +320,25 @@ void RimPolygonFilter::defineEditorAttribute( const caf::PdmFieldHandle* field,
             myAttr->validator = new RadiusValidator();
         }
     }
+    else if ( field == &m_polygonPlaneDepth )
+    {
+        auto* attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
+
+        if ( attr )
+        {
+            if ( m_srcCase )
+            {
+                auto bb         = m_srcCase->allCellsBoundingBox();
+                attr->m_minimum = -bb.max().z();
+                attr->m_maximum = -bb.min().z();
+            }
+            else
+            {
+                attr->m_minimum = 0;
+                attr->m_maximum = 10000;
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -352,17 +378,25 @@ void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     m_polyIncludeType.uiCapability()->setUiName( "Cells to " + modeString() );
 
     auto group2 = uiOrdering.addNewGroup( "Appearance" );
-    group2->add( &m_lineThickness );
-    group2->add( &m_lineColor );
-    group2->add( &m_sphereRadiusFactor );
-    group2->add( &m_sphereColor );
+    if ( m_showLines )
+    {
+        group2->add( &m_lineThickness );
+        group2->add( &m_lineColor );
+    }
+    if ( m_showSpheres )
+    {
+        group2->add( &m_sphereRadiusFactor );
+        group2->add( &m_sphereColor );
+    }
+    group2->add( &m_lockPolygonToPlane );
+    if ( m_lockPolygonToPlane ) group2->add( &m_polygonPlaneDepth );
     group2->setCollapsedByDefault( true );
 
     auto group3 = uiOrdering.addNewGroup( "Advanced Filter Settings" );
-    group3->add( &m_gridIndex );
-    group3->add( &m_propagateToSubGrids );
     group3->add( &m_enableKFilter );
     group3->add( &m_kFilterStr );
+    group3->add( &m_gridIndex );
+    group3->add( &m_propagateToSubGrids );
     group3->setCollapsedByDefault( true );
 
     uiOrdering.skipRemainingFields( true );
@@ -826,6 +860,7 @@ cvf::ref<RigPolyLinesData> RimPolygonFilter::polyLines() const
 
     pld->setLineAppearance( m_lineThickness, m_lineColor, true );
     pld->setSphereAppearance( m_sphereRadiusFactor, m_sphereColor );
+    pld->setZPlaneLock( m_lockPolygonToPlane, -m_polygonPlaneDepth );
 
     if ( isActive() )
     {
