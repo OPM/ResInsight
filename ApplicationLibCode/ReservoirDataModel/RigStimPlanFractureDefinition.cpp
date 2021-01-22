@@ -368,7 +368,7 @@ std::vector<std::vector<double>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigFractureGrid>
+cvf::cref<RigFractureGrid>
     RigStimPlanFractureDefinition::createFractureGrid( const QString& resultName,
                                                        int            activeTimeStepIndex,
                                                        double         wellPathIntersectionAtFractureDepth,
@@ -448,7 +448,7 @@ cvf::ref<RigFractureGrid>
     fractureGrid->setJCellCount(
         this->adjustedYCoordsAroundWellPathPosition( wellPathIntersectionAtFractureDepth ).size() - 2 );
 
-    return fractureGrid;
+    return cvf::cref<RigFractureGrid>( fractureGrid.p() );
 }
 
 //--------------------------------------------------------------------------------------------------

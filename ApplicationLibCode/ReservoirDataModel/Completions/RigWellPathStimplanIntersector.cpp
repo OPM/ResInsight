@@ -46,11 +46,9 @@ RigWellPathStimplanIntersector::RigWellPathStimplanIntersector( gsl::not_null<co
 
     std::vector<std::vector<cvf::Vec3d>> fractureGridCellPolygons;
     {
-        RimFractureTemplate* fractureTemplate = rimFracture->fractureTemplate();
-
-        if ( fractureTemplate && fractureTemplate->fractureGrid() )
+        if ( rimFracture->fractureGrid() )
         {
-            const std::vector<RigFractureCell>& stpCells = fractureTemplate->fractureGrid()->fractureCells();
+            const std::vector<RigFractureCell>& stpCells = rimFracture->fractureGrid()->fractureCells();
             for ( const auto& stpCell : stpCells )
             {
                 fractureGridCellPolygons.push_back( stpCell.getPolygon() );

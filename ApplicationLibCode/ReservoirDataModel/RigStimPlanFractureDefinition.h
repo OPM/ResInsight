@@ -75,10 +75,10 @@ public:
     void   setMdToTopPerf( double topPerfMd );
     void   setMdToBottomPerf( double bottomPerfMd );
 
-    cvf::ref<RigFractureGrid> createFractureGrid( const QString&                resultName,
-                                                  int                           activeTimeStepIndex,
-                                                  double                        wellPathIntersectionAtFractureDepth,
-                                                  RiaDefines::EclipseUnitSystem requiredUnitSet ) const;
+    cvf::cref<RigFractureGrid> createFractureGrid( const QString&                resultName,
+                                                   int                           activeTimeStepIndex,
+                                                   double                        wellPathIntersectionAtFractureDepth,
+                                                   RiaDefines::EclipseUnitSystem requiredUnitSet ) const;
 
     void createFractureTriangleGeometry( double                   wellPathIntersectionAtFractureDepth,
                                          const QString&           fractureUserName,

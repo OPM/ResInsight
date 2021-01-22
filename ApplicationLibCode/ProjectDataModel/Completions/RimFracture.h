@@ -40,6 +40,7 @@ class RivWellFracturePartMgr;
 class RimFractureTemplate;
 class RigFracturedEclipseCellExportData;
 class RigMainGrid;
+class RigFractureGrid;
 
 class NonDarcyData
 {
@@ -122,6 +123,9 @@ public:
 
     virtual void triangleGeometry( std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* triangleIndices ) const;
 
+    void                   updateFractureGrid();
+    const RigFractureGrid* fractureGrid() const;
+
     friend class RimFractureTemplate;
 
     // RimWellPathCompletionsInterface overrides.
@@ -177,6 +181,7 @@ private:
     caf::PdmField<cvf::Vec3d> m_anchorPosition;
 
     cvf::ref<RivWellFracturePartMgr> m_fracturePartMgr;
+    cvf::cref<RigFractureGrid>       m_fractureGrid;
 
     NonDarcyData m_cachedFractureProperties;
 };

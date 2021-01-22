@@ -116,7 +116,6 @@ std::vector<RimStimPlanFractureTemplate*> RicNewStimPlanFractureTemplateFeature:
         fractureDef->loadDataAndUpdate();
         fractureDef->setDefaultsBasedOnXMLfile();
         fractureDef->setDefaultWellDiameterFromUnit();
-        fractureDef->updateFractureGrid();
         newFractures.push_back( fractureDef );
     }
 

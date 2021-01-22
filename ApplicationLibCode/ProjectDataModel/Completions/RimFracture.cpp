@@ -250,6 +250,7 @@ void RimFracture::fieldChangedByUi( const caf::PdmFieldHandle* changedField, con
 
         setFractureTemplate( m_fractureTemplate );
         setDefaultFractureColorResult();
+        updateFractureGrid();
     }
     else if ( changedField == &m_editFractureTemplate )
     {
@@ -268,6 +269,13 @@ void RimFracture::fieldChangedByUi( const caf::PdmFieldHandle* changedField, con
     {
         RicNewStimPlanFractureTemplateFeature::createNewTemplateForFractureAndUpdate( this );
     }
+
+    else if ( changedField == &m_wellPathDepthAtFracture )
+    {
+        updateFractureGrid();
+        RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
+    }
+
     if ( changedField == &m_azimuth || changedField == &m_fractureTemplate ||
          changedField == &m_stimPlanTimeIndexToPlot || changedField == this->objectToggleField() ||
          changedField == &m_dip || changedField == &m_tilt || changedField == &m_perforationLength )
@@ -885,4 +893,25 @@ RivWellFracturePartMgr* RimFracture::fracturePartManager()
     CVF_ASSERT( m_fracturePartMgr.notNull() );
 
     return m_fracturePartMgr.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFracture::updateFractureGrid()
+{
+    m_fractureGrid = nullptr;
+
+    if ( m_fractureTemplate() )
+    {
+        m_fractureGrid = m_fractureTemplate->createFractureGrid( m_wellPathDepthAtFracture );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RigFractureGrid* RimFracture::fractureGrid() const
+{
+    return m_fractureGrid.p();
 }

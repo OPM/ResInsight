@@ -97,8 +97,7 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate()
     CAF_PDM_InitField( &m_showStimPlanMesh_OBSOLETE, "ShowStimPlanMesh", true, "", "", "", "" );
     m_showStimPlanMesh_OBSOLETE.uiCapability()->setUiHidden( true );
 
-    m_fractureGrid = new RigFractureGrid();
-    m_readError    = false;
+    m_readError = false;
 
     setDeletable( true );
 }
@@ -147,35 +146,24 @@ void RimStimPlanFractureTemplate::fieldChangedByUi( const caf::PdmFieldHandle* c
     if ( &m_activeTimeStepIndex == changedField )
     {
         // Changes to this parameters should change all fractures with this fracture template attached.
-        RimProject* proj;
-        this->firstAncestorOrThisOfType( proj );
-        if ( proj )
+        RimProject* proj = RimProject::current();
+        for ( RimFracture* fracture : fracturesUsingThisTemplate() )
         {
-            std::vector<RimFracture*> fractures;
-            proj->descendantsIncludingThisOfType( fractures );
-            for ( RimFracture* fracture : fractures )
-            {
-                if ( fracture->fractureTemplate() == this )
-                {
-                    fracture->setStimPlanTimeIndexToPlot( m_activeTimeStepIndex );
-                }
-            }
-            proj->scheduleCreateDisplayModelAndRedrawAllViews();
+            fracture->setStimPlanTimeIndexToPlot( m_activeTimeStepIndex );
         }
+        proj->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 
-    if ( &m_wellPathDepthAtFracture == changedField || &m_borderPolygonResultName == changedField ||
-         &m_activeTimeStepIndex == changedField || &m_stimPlanFileName == changedField ||
-         &m_conductivityResultNameOnFile == changedField )
+    if ( &m_borderPolygonResultName == changedField || &m_activeTimeStepIndex == changedField ||
+         &m_stimPlanFileName == changedField || &m_conductivityResultNameOnFile == changedField )
     {
-        updateFractureGrid();
-
-        RimProject* proj;
-        this->firstAncestorOrThisOfType( proj );
-        if ( proj )
+        // Update fracture grid for all fractures using this template
+        RimProject* proj = RimProject::current();
+        for ( RimFracture* fracture : fracturesUsingThisTemplate() )
         {
-            proj->scheduleCreateDisplayModelAndRedrawAllViews();
+            fracture->updateFractureGrid();
         }
+        proj->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 
     if ( changedField == &m_scaleApplyButton )
@@ -308,10 +296,9 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
         m_readError = true;
     }
 
-    updateFractureGrid();
-
     for ( RimFracture* fracture : fracturesUsingThisTemplate() )
     {
+        fracture->updateFractureGrid();
         fracture->clearCachedNonDarcyProperties();
     }
 
@@ -479,7 +466,8 @@ WellFractureIntersectionData
 {
     WellFractureIntersectionData values;
 
-    if ( m_fractureGrid.notNull() )
+    const RigFractureGrid* fractureGrid = fractureInstance->fractureGrid();
+    if ( fractureGrid )
     {
         if ( orientationType() == ALONG_WELL_PATH )
         {
@@ -588,9 +576,9 @@ WellFractureIntersectionData
         }
         else
         {
-            std::pair<size_t, size_t> wellCellIJ = m_fractureGrid->fractureCellAtWellCenter();
-            size_t wellCellIndex = m_fractureGrid->getGlobalIndexFromIJ( wellCellIJ.first, wellCellIJ.second );
-            const RigFractureCell& wellCell = m_fractureGrid->cellFromIndex( wellCellIndex );
+            std::pair<size_t, size_t> wellCellIJ = fractureGrid->fractureCellAtWellCenter();
+            size_t wellCellIndex            = fractureGrid->getGlobalIndexFromIJ( wellCellIJ.first, wellCellIJ.second );
+            const RigFractureCell& wellCell = fractureGrid->cellFromIndex( wellCellIndex );
 
             double conductivity   = wellCell.getConductivityValue();
             values.m_conductivity = conductivity;
@@ -839,13 +827,8 @@ void RimStimPlanFractureTemplate::onLoadDataAndUpdateGeometryHasChanged()
 {
     loadDataAndUpdate();
 
-    RimProject* proj;
-    this->firstAncestorOrThisOfType( proj );
-    if ( proj )
-    {
-        proj->scheduleCreateDisplayModelAndRedrawAllViews();
-        RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews();
-    }
+    RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
+    RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -950,11 +933,12 @@ bool RimStimPlanFractureTemplate::hasConductivity() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimStimPlanFractureTemplate::resultValueAtIJ( const QString& uiResultName,
-                                                     const QString& unitName,
-                                                     size_t         timeStepIndex,
-                                                     size_t         i,
-                                                     size_t         j )
+double RimStimPlanFractureTemplate::resultValueAtIJ( const RigFractureGrid* fractureGrid,
+                                                     const QString&         uiResultName,
+                                                     const QString&         unitName,
+                                                     size_t                 timeStepIndex,
+                                                     size_t                 i,
+                                                     size_t                 j )
 {
     auto values = resultValues( uiResultName, unitName, timeStepIndex );
 
@@ -963,7 +947,7 @@ double RimStimPlanFractureTemplate::resultValueAtIJ( const QString& uiResultName
     size_t adjustedI = i + 1;
     size_t adjustedJ = j + 1;
 
-    if ( adjustedI >= fractureGrid()->iCellCount() || adjustedJ >= fractureGrid()->jCellCount() )
+    if ( adjustedI >= fractureGrid->iCellCount() || adjustedJ >= fractureGrid->jCellCount() )
     {
         return HUGE_VAL;
     }
@@ -1006,30 +990,6 @@ void RimStimPlanFractureTemplate::appendDataToResultStatistics( const QString&  
                                                                         unit,
                                                                         minMaxAccumulator,
                                                                         posNegAccumulator );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const RigFractureGrid* RimStimPlanFractureTemplate::fractureGrid() const
-{
-    return m_fractureGrid.p();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimStimPlanFractureTemplate::updateFractureGrid()
-{
-    m_fractureGrid = nullptr;
-
-    if ( m_stimPlanFractureDefinitionData.notNull() )
-    {
-        m_fractureGrid = m_stimPlanFractureDefinitionData->createFractureGrid( m_conductivityResultNameOnFile,
-                                                                               m_activeTimeStepIndex,
-                                                                               m_wellPathDepthAtFracture,
-                                                                               m_fractureTemplateUnit() );
     }
 }
 
@@ -1157,4 +1117,20 @@ std::pair<double, double> RimStimPlanFractureTemplate::wellPathDepthAtFractureRa
     if ( m_stimPlanFractureDefinitionData.isNull() ) return std::make_pair( 0.0, 1.0 );
 
     return std::make_pair( m_stimPlanFractureDefinitionData->minDepth(), m_stimPlanFractureDefinitionData->maxDepth() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::cref<RigFractureGrid> RimStimPlanFractureTemplate::createFractureGrid( double wellPathDepthAtFracture ) const
+{
+    if ( m_stimPlanFractureDefinitionData.notNull() )
+    {
+        return m_stimPlanFractureDefinitionData->createFractureGrid( m_conductivityResultNameOnFile,
+                                                                     m_activeTimeStepIndex,
+                                                                     wellPathDepthAtFracture,
+                                                                     m_fractureTemplateUnit() );
+    }
+
+    return cvf::cref<RigFractureGrid>();
 }

@@ -28,6 +28,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
 
+#include "cvfObject.h"
 #include "cvfVector3.h"
 
 #include <limits>
@@ -139,8 +140,8 @@ public:
                                            std::vector<cvf::uint>*  triangleIndices,
                                            double                   wellPathDepthAtFracture ) const = 0;
 
-    virtual const RigFractureGrid* fractureGrid() const = 0;
-    const RimFractureContainment*  fractureContainment() const;
+    virtual cvf::cref<RigFractureGrid> createFractureGrid( double wellPathDepthAtFracture ) const = 0;
+    const RimFractureContainment*      fractureContainment() const;
 
     virtual void appendDataToResultStatistics( const QString&     resultName,
                                                const QString&     unit,
