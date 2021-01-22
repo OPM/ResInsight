@@ -355,22 +355,16 @@ endforeach()
 # Generate Python code in a target that is part of ALL_BUILD and depends on
 # ResInsight
 if(RESINSIGHT_ENABLE_GRPC)
-  set(GENERATED_CLASSES_FILE ${CMAKE_SOURCE_DIR}/GrpcInterface/Python/rips/generated/generated_classes.py)
+  set(GENERATED_CLASSES_FILE
+      ${CMAKE_SOURCE_DIR}/GrpcInterface/Python/rips/generated/generated_classes.py
+  )
   add_custom_command(
-    OUTPUT
-      ${GENERATED_CLASSES_FILE}
-    COMMAND
-      ResInsight ARGS --console --generate
-      ${GENERATED_CLASSES_FILE}
+    OUTPUT ${GENERATED_CLASSES_FILE}
+    COMMAND ResInsight ARGS --console --generate ${GENERATED_CLASSES_FILE}
     DEPENDS ResInsight
-    COMMENT
-      "Generating ${GENERATED_CLASSES_FILE}"
-  )
-  add_custom_target(
-    RipsGeneratedPythonClasses ALL
-    SOURCES
-      ${GENERATED_CLASSES_FILE}
-  )
+    COMMENT "Generating ${GENERATED_CLASSES_FILE}")
+  add_custom_target(RipsGeneratedPythonClasses ALL
+                    SOURCES ${GENERATED_CLASSES_FILE})
   source_group("Source Files" ${GENERATED_CLASSES_FILE})
   add_dependencies(RipsGeneratedPythonClasses ResInsight)
 
