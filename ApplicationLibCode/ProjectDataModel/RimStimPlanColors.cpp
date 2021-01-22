@@ -324,12 +324,12 @@ void RimStimPlanColors::updateConductivityResultName()
     // Conductivity result name as reported from the XML file was moved  to the fracture template
     // Replace all conductivity names with the one and only conductivity uiName reported from by fracture template
 
-    if ( m_resultNameAndUnit().contains( "conductivity", Qt::CaseInsensitive ) )
+    if ( m_resultNameAndUnit().contains( RiaDefines::conductivityResultName(), Qt::CaseInsensitive ) )
     {
         RimFractureTemplateCollection* fractureTemplates = fractureTemplateCollection();
         for ( auto resultNameAndUnit : fractureTemplates->resultNamesAndUnits() )
         {
-            if ( resultNameAndUnit.first.contains( "conductivity", Qt::CaseInsensitive ) )
+            if ( resultNameAndUnit.first.contains( RiaDefines::conductivityResultName(), Qt::CaseInsensitive ) )
             {
                 QString resultNameAndUnitString = toString( resultNameAndUnit );
                 m_resultNameAndUnit             = resultNameAndUnitString;

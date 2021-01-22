@@ -681,7 +681,7 @@ QStringList RigStimPlanFractureDefinition::conductivityResultNames() const
 
     for ( const auto& stimPlanResult : m_stimPlanResults )
     {
-        if ( stimPlanResult.resultName.contains( "conductivity", Qt::CaseInsensitive ) )
+        if ( stimPlanResult.resultName.contains( RiaDefines::conductivityResultName(), Qt::CaseInsensitive ) )
         {
             resultNames.push_back( stimPlanResult.resultName );
         }
