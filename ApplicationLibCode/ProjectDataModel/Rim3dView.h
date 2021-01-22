@@ -46,6 +46,7 @@ class RiuViewer;
 class RivAnnotationsPartMgr;
 class RivMeasurementPartMgr;
 class RivWellPathsPartMgr;
+class RivCellFilterPartMgr;
 class RimViewNameConfig;
 
 namespace cvf
@@ -192,6 +193,7 @@ protected:
                                      const cvf::BoundingBox& wellPathClipBoundingBox );
     void addAnnotationsToModel( cvf::ModelBasicList* annotationsModel );
     void addMeasurementToModel( cvf::ModelBasicList* measureModel );
+    void addCellFiltersToModel( cvf::ModelBasicList* cellFilterModel );
 
     // Override viewer
 
@@ -277,6 +279,7 @@ private:
     void createHighlightAndGridBoxDisplayModel();
     void appendAnnotationsToModel();
     void appendMeasurementToModel();
+    void appendCellFiltersToModel();
 
     // Pure private methods : Override viewer and comparison view
 
@@ -308,4 +311,5 @@ private:
     cvf::ref<cvf::ModelBasicList>   m_highlightVizModel;
     cvf::ref<RivAnnotationsPartMgr> m_annotationsPartManager;
     cvf::ref<RivMeasurementPartMgr> m_measurementPartManager;
+    cvf::ref<RivCellFilterPartMgr>  m_cellfilterPartManager;
 };

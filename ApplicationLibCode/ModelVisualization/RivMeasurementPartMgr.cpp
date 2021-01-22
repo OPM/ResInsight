@@ -26,19 +26,13 @@
 #include "RiaPreferences.h"
 
 #include "Rim3dView.h"
-#include "RimAnnotationInViewCollection.h"
 #include "RimMeasurement.h"
-#include "RimPolylinesFromFileAnnotationInView.h"
 #include "RimProject.h"
-#include "RimUserDefinedPolylinesAnnotationInView.h"
 
 #include "RiuGuiTheme.h"
 
 #include "RivPartPriority.h"
-#include "RivPolylineAnnotationPartMgr.h"
 #include "RivPolylineGenerator.h"
-#include "RivReachCircleAnnotationPartMgr.h"
-#include "RivTextAnnotationPartMgr.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafEffectGenerator.h"

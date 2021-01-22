@@ -25,6 +25,7 @@
 #include "RigFemPartGrid.h"
 #include "RigGeoMechCaseData.h"
 #include "RigMainGrid.h"
+#include "RigPolyLinesData.h"
 
 #include "Rim3dView.h"
 #include "RimCase.h"
@@ -690,4 +691,29 @@ void RimPolygonFilter::updateCells()
     {
         updateCellsForGeoMech( points, gCase );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RigPolyLinesData> RimPolygonFilter::polyLines() const
+{
+    cvf::ref<RigPolyLinesData> pld = new RigPolyLinesData;
+    std::vector<cvf::Vec3d>    line;
+    for ( const RimPolylineTarget* target : m_targets )
+    {
+        line.push_back( target->targetPointXYZ() );
+    }
+    pld->setPolyLine( line );
+
+    if ( isActive() )
+    {
+        pld->setVisibility( m_showPolylines, m_showPolylines );
+    }
+    else
+    {
+        pld->setVisibility( false, false );
+    }
+
+    return pld;
 }

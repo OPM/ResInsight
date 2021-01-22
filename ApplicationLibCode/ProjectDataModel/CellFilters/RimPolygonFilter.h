@@ -20,6 +20,7 @@
 
 #include "RimCellFilter.h"
 #include "RimPolylinePickerInterface.h"
+#include "RimShowPolylinesInterface.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
@@ -39,12 +40,13 @@ class RimEclipseCase;
 class RimGeoMechCase;
 class RigMainGrid;
 class RigFemPartGrid;
+class RigPolylinesData;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimPolygonFilter : public RimCellFilter, public RimPolylinePickerInterface
+class RimPolygonFilter : public RimCellFilter, public RimPolylinePickerInterface, public RimShowPolylinesInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -79,6 +81,8 @@ public:
     caf::PickEventHandler*          pickEventHandler() const override;
 
     void updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter ) override;
+
+    cvf::ref<RigPolyLinesData> polyLines() const override;
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
