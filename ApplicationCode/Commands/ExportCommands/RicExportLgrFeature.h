@@ -228,6 +228,9 @@ private:
                                                     const std::set<RigCompletionData::CompletionType>& completionTypes,
                                                     QStringList* wellsIntersectingOtherLgrs );
 
+    static std::vector<RigCompletionDataGridCell> allIntersectedCells( RimEclipseCase*    eclipseCase,
+                                                                       const RimWellPath* wellPath );
+
     static int                firstAvailableLgrId( const RigMainGrid* mainGrid );
     static const RigGridBase* hostGrid( const RigMainGrid* mainGrid, size_t reservoirCellIndex );
 };
