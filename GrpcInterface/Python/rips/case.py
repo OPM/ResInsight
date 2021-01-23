@@ -891,8 +891,8 @@ def export_property(
         time_step (int): time step index
         property_name (str): property to export
         eclipse_keyword (str): Keyword used in export header. Defaults: value of property
-        undefined_value (double):	Value to use for undefined values. Defaults to 0.0
-        export_file (str):	File name for export. Defaults to the value of property parameter
+        undefined_value (double): Value to use for undefined values. Defaults to 0.0
+        export_file (str): File name for export. Defaults to the value of property parameter
     """
     return self._execute_command(exportProperty=Cmd.ExportPropertyRequest(
         caseId=self.id,
