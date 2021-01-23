@@ -19,8 +19,10 @@ print("Facies properties file path:", facies_properties_file_path)
 
 # Create stim plan model template
 fmt_collection = project.descendants(rips.StimPlanModelTemplateCollection)[0]
-stim_plan_model_template = fmt_collection.new_stim_plan_model_template(elastic_properties_file_path=elastic_properties_file_path,
-                                                                       facies_properties_file_path=facies_properties_file_path)
+stim_plan_model_template = fmt_collection.new_stim_plan_model_template(
+    elastic_properties_file_path=elastic_properties_file_path,
+    facies_properties_file_path=facies_properties_file_path,
+)
 stim_plan_model_template.overburden_formation = "Garn"
 stim_plan_model_template.overburden_facies = "Shale"
 stim_plan_model_template.underburden_formation = "Garn"
@@ -49,7 +51,9 @@ non_net_layers.update()
 
 # Add some scaling factors
 elastic_properties = stim_plan_model_template.elastic_properties()
-elastic_properties.add_property_scaling(formation="Garn", facies="Calcite", property="YOUNGS_MODULUS", scale=1.44)
+elastic_properties.add_property_scaling(
+    formation="Garn", facies="Calcite", property="YOUNGS_MODULUS", scale=1.44
+)
 
 
 well_name = "B-2 H"
@@ -73,20 +77,24 @@ export_folder = tempfile.gettempdir()
 stim_plan_models = []
 
 # Create and export a StimPlan model for each depth
-measured_depths = [ 3200.0, 3400.0, 3600.0 ]
+measured_depths = [3200.0, 3400.0, 3600.0]
 for measured_depth in measured_depths:
 
     # Create stim plan model at a give measured depth
-    stim_plan_model = stim_plan_model_collection.new_stim_plan_model(eclipse_case=case,
-                                                                     time_step=time_step,
-                                                                     well_path=well_path,
-                                                                     measured_depth=measured_depth,
-                                                                     stim_plan_model_template=stim_plan_model_template)
+    stim_plan_model = stim_plan_model_collection.new_stim_plan_model(
+        eclipse_case=case,
+        time_step=time_step,
+        well_path=well_path,
+        measured_depth=measured_depth,
+        stim_plan_model_template=stim_plan_model_template,
+    )
     stim_plan_models.append(stim_plan_model)
 
     # Make the well name safer to use as a directory path
     well_name_part = well_name.replace(" ", "_")
-    directory_path = Path(export_folder) / '{}_{}'.format(well_name_part, int(measured_depth))
+    directory_path = Path(export_folder) / "{}_{}".format(
+        well_name_part, int(measured_depth)
+    )
 
     # Create the folder
     directory_path.mkdir(parents=True, exist_ok=True)
@@ -95,12 +103,15 @@ for measured_depth in measured_depths:
     stim_plan_model.export_to_file(directory_path=directory_path.as_posix())
 
     # Create a fracture mode plot
-    stim_plan_model_plot_collection = project.descendants(rips.StimPlanModelPlotCollection)[0]
-    stim_plan_model_plot = stim_plan_model_plot_collection.new_stim_plan_model_plot(stim_plan_model=stim_plan_model)
+    stim_plan_model_plot_collection = project.descendants(
+        rips.StimPlanModelPlotCollection
+    )[0]
+    stim_plan_model_plot = stim_plan_model_plot_collection.new_stim_plan_model_plot(
+        stim_plan_model=stim_plan_model
+    )
 
     print("Exporting fracture model plot to: ", directory_path)
     stim_plan_model_plot.export_snapshot(export_folder=directory_path.as_posix())
-
 
 
 print("Setting measured depth and perforation length.")

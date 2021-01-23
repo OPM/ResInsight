@@ -3,7 +3,7 @@ import sys
 import os
 import getopt
 
-sys.path.insert(1, os.path.join(sys.path[0], '../../'))
+sys.path.insert(1, os.path.join(sys.path[0], "../../"))
 import rips
 
 _rips_instance = None
@@ -22,20 +22,28 @@ def initialize_test():
 
 
 def pytest_addoption(parser):
-    parser.addoption("--console", action="store_true", default=False,
-                     help="Run as console application")
-    parser.addoption("--existing", action="store_true", default=False,
-                     help="Look for existing ResInsight")
+    parser.addoption(
+        "--console",
+        action="store_true",
+        default=False,
+        help="Run as console application",
+    )
+    parser.addoption(
+        "--existing",
+        action="store_true",
+        default=False,
+        help="Look for existing ResInsight",
+    )
 
 
 def pytest_configure(config):
     global _rips_instance
     console = False
-    if config.getoption('--existing'):
+    if config.getoption("--existing"):
         print("Looking for existing ResInsight")
         _rips_instance = rips.Instance.find()
     else:
-        if config.getoption('--console'):
+        if config.getoption("--console"):
             console = True
         _rips_instance = rips.Instance.launch(console=console)
     if not _rips_instance:
@@ -44,6 +52,6 @@ def pytest_configure(config):
 
 
 def pytest_unconfigure(config):
-    if not config.getoption('--existing'):
+    if not config.getoption("--existing"):
         if _rips_instance:
             _rips_instance.exit()
