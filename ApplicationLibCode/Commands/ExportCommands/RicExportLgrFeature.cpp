@@ -476,6 +476,13 @@ std::vector<LgrInfo>
         {
             auto intersectingCells =
                 cellsIntersectingCompletions( eclipseCase, wellPath, timeStep, completionTypes, &isIntersectingOtherLgrs );
+
+            if ( intersectingCells.empty() )
+            {
+                // Find all grid cells intersected by well path
+                intersectingCells = allIntersectedCells( eclipseCase, wellPath );
+            }
+
             auto newLgrs = buildLgrsPerMainCell( firstLgrId + (int)lgrs.size(),
                                                  eclipseCase,
                                                  wellPath,
@@ -494,13 +501,15 @@ std::vector<LgrInfo>
                                                                              timeStep,
                                                                              completionTypes,
                                                                              wellsIntersectingOtherLgrs );
-
-        auto newLgrs = buildLgrsPerCompletion( firstLgrId + (int)lgrs.size(),
-                                               eclipseCase,
-                                               intersectingCells,
-                                               lgrCellCounts,
-                                               lgrNameFactory );
-        lgrs.insert( lgrs.end(), newLgrs.begin(), newLgrs.end() );
+        if ( !intersectingCells.empty() )
+        {
+            auto newLgrs = buildLgrsPerCompletion( firstLgrId + (int)lgrs.size(),
+                                                   eclipseCase,
+                                                   intersectingCells,
+                                                   lgrCellCounts,
+                                                   lgrNameFactory );
+            lgrs.insert( lgrs.end(), newLgrs.begin(), newLgrs.end() );
+        }
     }
     else if ( splitType == Lgr::LGR_PER_WELL )
     {
@@ -511,11 +520,23 @@ std::vector<LgrInfo>
 
             auto intersectingCells =
                 cellsIntersectingCompletions( eclipseCase, wellPath, timeStep, completionTypes, &isIntersectingOtherLgrs );
-            lgrs.push_back( buildLgr( lgrId, lgrName, eclipseCase, wellPath->name(), intersectingCells, lgrCellCounts ) );
+
+            if ( intersectingCells.empty() )
+            {
+                // Find all grid cells intersected by well path
+                intersectingCells = allIntersectedCells( eclipseCase, wellPath );
+            }
+
+            if ( !intersectingCells.empty() )
+            {
+                lgrs.push_back(
+                    buildLgr( lgrId, lgrName, eclipseCase, wellPath->name(), intersectingCells, lgrCellCounts ) );
+            }
 
             if ( isIntersectingOtherLgrs ) wellsIntersectingOtherLgrs->push_back( wellPath->name() );
         }
     }
+
     return lgrs;
 }
 
@@ -743,6 +764,28 @@ std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>
     }
 
     return completionToCells;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigCompletionDataGridCell> RicExportLgrFeature::allIntersectedCells( RimEclipseCase*    eclipseCase,
+                                                                                 const RimWellPath* wellPath )
+{
+    std::vector<RigCompletionDataGridCell> cells;
+
+    const RigMainGrid* mainGrid = eclipseCase->mainGrid();
+
+    auto globalCellIndices =
+        RigWellPathIntersectionTools::findIntersectedGlobalCellIndices( eclipseCase->eclipseCaseData(),
+                                                                        wellPath->wellPathGeometry()->wellPathPoints() );
+
+    for ( const auto& globalCellIndex : globalCellIndices )
+    {
+        cells.push_back( RigCompletionDataGridCell( globalCellIndex, mainGrid ) );
+    }
+
+    return cells;
 }
 
 //--------------------------------------------------------------------------------------------------
