@@ -47,7 +47,13 @@ import Properties_pb2
 import Properties_pb2_grpc
 import NNCProperties_pb2
 import NNCProperties_pb2_grpc
-from .resinsight_classes import Case, EclipseCase, GeoMechCase, WellBoreStabilityPlot, WbsParameters
+from .resinsight_classes import (
+    Case,
+    EclipseCase,
+    GeoMechCase,
+    WellBoreStabilityPlot,
+    WbsParameters,
+)
 
 from .grid import Grid
 from .pdmobject import add_method
@@ -106,8 +112,10 @@ def __generate_property_input_chunks(self, array, parameters):
         else:
             actual_chunk_size = min(len(array) - index + 1, self.chunk_size)
             chunk.values.CopyFrom(
-                Properties_pb2.PropertyChunk(values=array[index:index +
-                                                          actual_chunk_size]))
+                Properties_pb2.PropertyChunk(
+                    values=array[index : index + actual_chunk_size]
+                )
+            )
             index += actual_chunk_size
 
         yield chunk
@@ -123,7 +131,7 @@ def grid(self, index):
     Arguments:
         index (int): The grid index
 
-    Returns: 
+    Returns:
         :class:`rips.grid.Grid`
     """
     return Grid(index, self, self.channel())
@@ -133,7 +141,7 @@ def grid(self, index):
 def grids(self):
     """Get a list of all rips Grid objects in the case
 
-    Returns: 
+    Returns:
         List of :class:`rips.grid.Grid`
     """
     grid_list = []
@@ -150,8 +158,9 @@ def replace(self, new_grid_file):
         new_egrid_file (str): Path to EGRID file
     """
     project = self.ancestor(rips.project.Project)
-    self._execute_command(replaceCase=Cmd.ReplaceCaseRequest(
-        newGridFile=new_grid_file, caseId=self.id))
+    self._execute_command(
+        replaceCase=Cmd.ReplaceCaseRequest(newGridFile=new_grid_file, caseId=self.id)
+    )
     new_case = project.case(self.id)
     self.copy_from(new_case)
 
@@ -177,8 +186,9 @@ def cell_count(self, porosity_model="MATRIX_MODEL"):
 
     """
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
-    request = Case_pb2.CellInfoRequest(case_request=self.__request(),
-                                       porosity_model=porosity_model_enum)
+    request = Case_pb2.CellInfoRequest(
+        case_request=self.__request(), porosity_model=porosity_model_enum
+    )
     return self.__case_stub.GetCellCount(request)
 
 
@@ -196,8 +206,9 @@ def cell_info_for_active_cells_async(self, porosity_model="MATRIX_MODEL"):
     See :meth:`rips.case.cell_info_for_active_cells()` for detalis on the **CellInfo** class.
     """
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
-    request = Case_pb2.CellInfoRequest(case_request=self.__request(),
-                                       porosity_model=porosity_model_enum)
+    request = Case_pb2.CellInfoRequest(
+        case_request=self.__request(), porosity_model=porosity_model_enum
+    )
     return self.__case_stub.GetCellInfoForActiveCells(request)
 
 
@@ -232,7 +243,8 @@ def cell_info_for_active_cells(self, porosity_model="MATRIX_MODEL"):
 
     """
     active_cell_info_chunks = self.cell_info_for_active_cells_async(
-        porosity_model=porosity_model)
+        porosity_model=porosity_model
+    )
     received_active_cells = []
     for active_cell_chunk in active_cell_info_chunks:
         for active_cell in active_cell_chunk.data:
@@ -323,17 +335,19 @@ def view(self, view_id):
 def create_view(self):
     """Create a new view in the current case
 
-    Returns: 
+    Returns:
         :class:`rips.generated.generated_classes.View`
     """
     return self.view(
-        self._execute_command(createView=Cmd.CreateViewRequest(
-            caseId=self.id)).createViewResult.viewId)
+        self._execute_command(
+            createView=Cmd.CreateViewRequest(caseId=self.id)
+        ).createViewResult.viewId
+    )
 
 
 @add_method(Case)
 def export_snapshots_of_all_views(self, prefix="", export_folder=""):
-    """ Export snapshots for all views in the case
+    """Export snapshots for all views in the case
 
     Arguments:
         prefix (str): Exported file name prefix
@@ -342,20 +356,26 @@ def export_snapshots_of_all_views(self, prefix="", export_folder=""):
     """
     return self._execute_command(
         exportSnapshots=Cmd.ExportSnapshotsRequest(
-            type="VIEWS", prefix=prefix, caseId=self.id, viewId=-1, exportFolder=export_folder))
+            type="VIEWS",
+            prefix=prefix,
+            caseId=self.id,
+            viewId=-1,
+            exportFolder=export_folder,
+        )
+    )
 
 
 @add_method(Case)
 def export_well_path_completions(
-        self,
-        time_step,
-        well_path_names,
-        file_split,
-        compdat_export="TRANSMISSIBILITIES",
-        include_perforations=True,
-        include_fishbones=True,
-        fishbones_exclude_main_bore=True,
-        combination_mode="INDIVIDUALLY",
+    self,
+    time_step,
+    well_path_names,
+    file_split,
+    compdat_export="TRANSMISSIBILITIES",
+    include_perforations=True,
+    include_fishbones=True,
+    fishbones_exclude_main_bore=True,
+    combination_mode="INDIVIDUALLY",
 ):
     """
     Export well path completions for the current case to file
@@ -379,7 +399,7 @@ def export_well_path_completions(
         ----------------------------------- | ------------
         "UNIFIED_FILE"                      | A single file with all combined transmissibilities
         "SPLIT_ON_WELL"                     | One file for each well with combined transmissibilities
-        "SPLIT_ON_WELL_AND_COMPLETION_TYPE" | One file for each completion type for each well 
+        "SPLIT_ON_WELL_AND_COMPLETION_TYPE" | One file for each completion type for each well
 
     **Enum compdat_export**::
 
@@ -409,7 +429,8 @@ def export_well_path_completions(
             includeFishbones=include_fishbones,
             excludeMainBoreForFishbones=fishbones_exclude_main_bore,
             combinationMode=combination_mode,
-        ))
+        )
+    )
 
 
 @add_method(Case)
@@ -420,21 +441,22 @@ def export_msw(self, well_path):
     Arguments:
         well_path(str): Well path name
     """
-    return self._execute_command(exportMsw=Cmd.ExportMswRequest(
-        caseId=self.id, wellPath=well_path))
+    return self._execute_command(
+        exportMsw=Cmd.ExportMswRequest(caseId=self.id, wellPath=well_path)
+    )
 
 
 @add_method(Case)
 def create_multiple_fractures(
-        self,
-        template_id,
-        well_path_names,
-        min_dist_from_well_td,
-        max_fractures_per_well,
-        top_layer,
-        base_layer,
-        spacing,
-        action,
+    self,
+    template_id,
+    well_path_names,
+    min_dist_from_well_td,
+    max_fractures_per_well,
+    top_layer,
+    base_layer,
+    spacing,
+    action,
 ):
     """
     Create Multiple Fractures in one go
@@ -466,18 +488,19 @@ def create_multiple_fractures(
             baseLayer=base_layer,
             spacing=spacing,
             action=action,
-        ))
+        )
+    )
 
 
 @add_method(Case)
 def create_lgr_for_completion(
-        self,
-        time_step,
-        well_path_names,
-        refinement_i,
-        refinement_j,
-        refinement_k,
-        split_type,
+    self,
+    time_step,
+    well_path_names,
+    refinement_i,
+    refinement_j,
+    refinement_k,
+    split_type,
 ):
     """
     Create a local grid refinement for the completions on the given well paths
@@ -497,7 +520,7 @@ def create_lgr_for_completion(
 
         Option                  | Description
         ------------------------| ------------
-        "LGR_PER_CELL"          | One LGR for each completed cell 
+        "LGR_PER_CELL"          | One LGR for each completed cell
         "LGR_PER_COMPLETION"    | One LGR for each completion (fracture, perforation, ...)
         "LGR_PER_WELL"          | One LGR for each well
 
@@ -513,7 +536,8 @@ def create_lgr_for_completion(
             refinementJ=refinement_j,
             refinementK=refinement_k,
             splitType=split_type,
-        ))
+        )
+    )
 
 
 @add_method(Case)
@@ -523,21 +547,21 @@ def create_saturation_pressure_plots(self):
     """
     case_ids = [self.id]
     return self._execute_command(
-        createSaturationPressurePlots=Cmd.CreateSatPressPlotRequest(
-            caseIds=case_ids))
+        createSaturationPressurePlots=Cmd.CreateSatPressPlotRequest(caseIds=case_ids)
+    )
 
 
 @add_method(Case)
 def export_flow_characteristics(
-        self,
-        time_steps,
-        injectors,
-        producers,
-        file_name,
-        minimum_communication=0.0,
-        aquifer_cell_threshold=0.1,
+    self,
+    time_steps,
+    injectors,
+    producers,
+    file_name,
+    minimum_communication=0.0,
+    aquifer_cell_threshold=0.1,
 ):
-    """ Export Flow Characteristics data to text file in CSV format
+    """Export Flow Characteristics data to text file in CSV format
 
     **Parameters**::
 
@@ -566,13 +590,12 @@ def export_flow_characteristics(
             fileName=file_name,
             minimumCommunication=minimum_communication,
             aquiferCellThreshold=aquifer_cell_threshold,
-        ))
+        )
+    )
 
 
 @add_method(Case)
-def available_properties(self,
-                         property_type,
-                         porosity_model="MATRIX_MODEL"):
+def available_properties(self, property_type, porosity_model="MATRIX_MODEL"):
     """Get a list of available properties
 
     For argument details, see :ref:`Result Definition <result-definition-label>`
@@ -589,27 +612,24 @@ def available_properties(self,
         property_type=property_type_enum,
         porosity_model=porosity_model_enum,
     )
-    return self.__properties_stub.GetAvailableProperties(
-        request).property_names
+    return self.__properties_stub.GetAvailableProperties(request).property_names
 
 
 @add_method(Case)
-def active_cell_property_async(self,
-                               property_type,
-                               property_name,
-                               time_step,
-                               porosity_model="MATRIX_MODEL"):
+def active_cell_property_async(
+    self, property_type, property_name, time_step, porosity_model="MATRIX_MODEL"
+):
     """Get a cell property for all active cells. Async, so returns an iterator. For argument details, see :ref:`Result Definition <result-definition-label>`
 
-        Arguments:
-            property_type(str): string enum
-            property_name(str): name of an Eclipse property
-            time_step(int): the time step for which to get the property for
-            porosity_model(str): string enum
+    Arguments:
+        property_type(str): string enum
+        property_name(str): name of an Eclipse property
+        time_step(int): the time step for which to get the property for
+        porosity_model(str): string enum
 
-        Returns:
-            An iterator to a chunk object containing an array of double values
-            Loop through the chunks and then the values within the chunk to get all values.
+    Returns:
+        An iterator to a chunk object containing an array of double values
+        Loop through the chunks and then the values within the chunk to get all values.
     """
     property_type_enum = Properties_pb2.PropertyType.Value(property_type)
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
@@ -625,27 +645,25 @@ def active_cell_property_async(self,
 
 
 @add_method(Case)
-def active_cell_property(self,
-                         property_type,
-                         property_name,
-                         time_step,
-                         porosity_model="MATRIX_MODEL"):
+def active_cell_property(
+    self, property_type, property_name, time_step, porosity_model="MATRIX_MODEL"
+):
     """Get a cell property for all active cells. Sync, so returns a list. For argument details, see :ref:`Result Definition <result-definition-label>`
 
-        Arguments:
-            property_type(str): string enum
-            property_name(str): name of an Eclipse property
-            time_step(int): the time step for which to get the property for
-            porosity_model(str): string enum
+    Arguments:
+        property_type(str): string enum
+        property_name(str): name of an Eclipse property
+        time_step(int): the time step for which to get the property for
+        porosity_model(str): string enum
 
-        Returns:
-            A list containing double values
-            Loop through the chunks and then the values within the chunk to get all values.
+    Returns:
+        A list containing double values
+        Loop through the chunks and then the values within the chunk to get all values.
     """
     all_values = []
-    generator = self.active_cell_property_async(property_type,
-                                                property_name, time_step,
-                                                porosity_model)
+    generator = self.active_cell_property_async(
+        property_type, property_name, time_step, porosity_model
+    )
     for chunk in generator:
         for value in chunk.values:
             all_values.append(value)
@@ -653,22 +671,20 @@ def active_cell_property(self,
 
 
 @add_method(Case)
-def selected_cell_property_async(self,
-                                 property_type,
-                                 property_name,
-                                 time_step,
-                                 porosity_model="MATRIX_MODEL"):
+def selected_cell_property_async(
+    self, property_type, property_name, time_step, porosity_model="MATRIX_MODEL"
+):
     """Get a cell property for all selected cells. Async, so returns an iterator. For argument details, see :ref:`Result Definition <result-definition-label>`
 
-        Arguments:
-            property_type(str): string enum
-            property_name(str): name of an Eclipse property
-            time_step(int): the time step for which to get the property for
-            porosity_model(str): string enum
+    Arguments:
+        property_type(str): string enum
+        property_name(str): name of an Eclipse property
+        time_step(int): the time step for which to get the property for
+        porosity_model(str): string enum
 
-        Returns:
-            An iterator to a chunk object containing an array of double values
-            Loop through the chunks and then the values within the chunk to get all values.
+    Returns:
+        An iterator to a chunk object containing an array of double values
+        Loop through the chunks and then the values within the chunk to get all values.
     """
     property_type_enum = Properties_pb2.PropertyType.Value(property_type)
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
@@ -684,27 +700,25 @@ def selected_cell_property_async(self,
 
 
 @add_method(Case)
-def selected_cell_property(self,
-                           property_type,
-                           property_name,
-                           time_step,
-                           porosity_model="MATRIX_MODEL"):
+def selected_cell_property(
+    self, property_type, property_name, time_step, porosity_model="MATRIX_MODEL"
+):
     """Get a cell property for all selected cells. Sync, so returns a list. For argument details, see :ref:`Result Definition <result-definition-label>`
 
-        Arguments:
-            property_type(str): string enum
-            property_name(str): name of an Eclipse property
-            time_step(int): the time step for which to get the property for
-            porosity_model(str): string enum
+    Arguments:
+        property_type(str): string enum
+        property_name(str): name of an Eclipse property
+        time_step(int): the time step for which to get the property for
+        porosity_model(str): string enum
 
-        Returns:
-            A list containing double values
-            Loop through the chunks and then the values within the chunk to get all values.
+    Returns:
+        A list containing double values
+        Loop through the chunks and then the values within the chunk to get all values.
     """
     all_values = []
-    generator = self.selected_cell_property_async(property_type,
-                                                  property_name, time_step,
-                                                  porosity_model)
+    generator = self.selected_cell_property_async(
+        property_type, property_name, time_step, porosity_model
+    )
     for chunk in generator:
         for value in chunk.values:
             all_values.append(value)
@@ -713,24 +727,25 @@ def selected_cell_property(self,
 
 @add_method(Case)
 def grid_property_async(
-        self,
-        property_type,
-        property_name,
-        time_step,
-        grid_index=0,
-        porosity_model="MATRIX_MODEL"):
+    self,
+    property_type,
+    property_name,
+    time_step,
+    grid_index=0,
+    porosity_model="MATRIX_MODEL",
+):
     """Get a cell property for all grid cells. Async, so returns an iterator. For argument details, see :ref:`Result Definition <result-definition-label>`
 
-        Arguments:
-            property_type(str): string enum
-            property_name(str): name of an Eclipse property
-            time_step(int): the time step for which to get the property for
-            gridIndex(int): index to the grid we're getting values for
-            porosity_model(str): string enum
+    Arguments:
+        property_type(str): string enum
+        property_name(str): name of an Eclipse property
+        time_step(int): the time step for which to get the property for
+        gridIndex(int): index to the grid we're getting values for
+        porosity_model(str): string enum
 
-        Returns:
-            An iterator to a chunk object containing an array of double values
-            Loop through the chunks and then the values within the chunk to get all values.
+    Returns:
+        An iterator to a chunk object containing an array of double values
+        Loop through the chunks and then the values within the chunk to get all values.
     """
     property_type_enum = Properties_pb2.PropertyType.Value(property_type)
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
@@ -748,28 +763,29 @@ def grid_property_async(
 
 @add_method(Case)
 def grid_property(
-        self,
-        property_type,
-        property_name,
-        time_step,
-        grid_index=0,
-        porosity_model="MATRIX_MODEL"):
+    self,
+    property_type,
+    property_name,
+    time_step,
+    grid_index=0,
+    porosity_model="MATRIX_MODEL",
+):
     """Get a cell property for all grid cells. Synchronous, so returns a list. For argument details, see :ref:`Result Definition <result-definition-label>`
 
-        Arguments:
-            property_type(str): string enum
-            property_name(str): name of an Eclipse property
-            time_step(int): the time step for which to get the property for
-            grid_index(int): index to the grid we're getting values for
-            porosity_model(str): string enum
+    Arguments:
+        property_type(str): string enum
+        property_name(str): name of an Eclipse property
+        time_step(int): the time step for which to get the property for
+        grid_index(int): index to the grid we're getting values for
+        porosity_model(str): string enum
 
-        Returns:
-            A list of double values
+    Returns:
+        A list of double values
     """
     all_values = []
-    generator = self.grid_property_async(property_type, property_name,
-                                         time_step, grid_index,
-                                         porosity_model)
+    generator = self.grid_property_async(
+        property_type, property_name, time_step, grid_index, porosity_model
+    )
     for chunk in generator:
         for value in chunk.values:
             all_values.append(value)
@@ -778,20 +794,21 @@ def grid_property(
 
 @add_method(Case)
 def set_active_cell_property_async(
-        self,
-        values_iterator,
-        property_type,
-        property_name,
-        time_step,
-        porosity_model="MATRIX_MODEL"):
+    self,
+    values_iterator,
+    property_type,
+    property_name,
+    time_step,
+    porosity_model="MATRIX_MODEL",
+):
     """Set cell property for all active cells Async. Takes an iterator to the input values. For argument details, see :ref:`Result Definition <result-definition-label>`
 
-        Arguments:
-            values_iterator(iterator): an iterator to the properties to be set
-            property_type(str): string enum
-            property_name(str): name of an Eclipse property
-            time_step(int): the time step for which to get the property for
-            porosity_model(str): string enum
+    Arguments:
+        values_iterator(iterator): an iterator to the properties to be set
+        property_type(str): string enum
+        property_name(str): name of an Eclipse property
+        time_step(int): the time step for which to get the property for
+        porosity_model(str): string enum
     """
     property_type_enum = Properties_pb2.PropertyType.Value(property_type)
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
@@ -803,27 +820,22 @@ def set_active_cell_property_async(
         porosity_model=porosity_model_enum,
     )
 
-    request_iterator = self.__generate_property_input_iterator(
-        values_iterator, request)
+    request_iterator = self.__generate_property_input_iterator(values_iterator, request)
     self.__properties_stub.SetActiveCellProperty(request_iterator)
 
 
 @add_method(Case)
 def set_active_cell_property(
-        self,
-        values,
-        property_type,
-        property_name,
-        time_step,
-        porosity_model="MATRIX_MODEL"):
+    self, values, property_type, property_name, time_step, porosity_model="MATRIX_MODEL"
+):
     """Set a cell property for all active cells. For argument details, see :ref:`Result Definition <result-definition-label>`
 
-        Arguments:
-            values(list): a list of double precision floating point numbers
-            property_type(str): string enum
-            property_name(str): name of an Eclipse property
-            time_step(int): the time step for which to get the property for
-            porosity_model(str): string enum
+    Arguments:
+        values(list): a list of double precision floating point numbers
+        property_type(str): string enum
+        property_name(str): name of an Eclipse property
+        time_step(int): the time step for which to get the property for
+        porosity_model(str): string enum
     """
     property_type_enum = Properties_pb2.PropertyType.Value(property_type)
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
@@ -834,8 +846,7 @@ def set_active_cell_property(
         time_step=time_step,
         porosity_model=porosity_model_enum,
     )
-    request_iterator = self.__generate_property_input_chunks(
-        values, request)
+    request_iterator = self.__generate_property_input_chunks(values, request)
     reply = self.__properties_stub.SetActiveCellProperty(request_iterator)
     if reply.accepted_value_count < len(values):
         raise IndexError
@@ -843,22 +854,23 @@ def set_active_cell_property(
 
 @add_method(Case)
 def set_grid_property(
-        self,
-        values,
-        property_type,
-        property_name,
-        time_step,
-        grid_index=0,
-        porosity_model="MATRIX_MODEL"):
+    self,
+    values,
+    property_type,
+    property_name,
+    time_step,
+    grid_index=0,
+    porosity_model="MATRIX_MODEL",
+):
     """Set a cell property for all grid cells. For argument details, see :ref:`Result Definition <result-definition-label>`
 
-        Arguments:
-            values(list): a list of double precision floating point numbers
-            property_type(str): string enum
-            property_name(str): name of an Eclipse property
-            time_step(int): the time step for which to get the property for
-            grid_index(int): index to the grid we're setting values for
-            porosity_model(str): string enum
+    Arguments:
+        values(list): a list of double precision floating point numbers
+        property_type(str): string enum
+        property_name(str): name of an Eclipse property
+        time_step(int): the time step for which to get the property for
+        grid_index(int): index to the grid we're setting values for
+        porosity_model(str): string enum
     """
     property_type_enum = Properties_pb2.PropertyType.Value(property_type)
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
@@ -870,8 +882,7 @@ def set_grid_property(
         grid_index=grid_index,
         porosity_model=porosity_model_enum,
     )
-    request_iterator = self.__generate_property_input_chunks(
-        values, request)
+    request_iterator = self.__generate_property_input_chunks(values, request)
     reply = self.__properties_stub.SetGridProperty(request_iterator)
     if reply.accepted_value_count < len(values):
         raise IndexError
@@ -879,13 +890,14 @@ def set_grid_property(
 
 @add_method(Case)
 def export_property(
-        self,
-        time_step,
-        property_name,
-        eclipse_keyword=property,
-        undefined_value=0.0,
-        export_file=property):
-    """ Export an Eclipse property
+    self,
+    time_step,
+    property_name,
+    eclipse_keyword=property,
+    undefined_value=0.0,
+    export_file=property,
+):
+    """Export an Eclipse property
 
     Arguments:
         time_step (int): time step index
@@ -894,19 +906,21 @@ def export_property(
         undefined_value (double): Value to use for undefined values. Defaults to 0.0
         export_file (str): File name for export. Defaults to the value of property parameter
     """
-    return self._execute_command(exportProperty=Cmd.ExportPropertyRequest(
-        caseId=self.id,
-        timeStep=time_step,
-        property=property_name,
-        eclipseKeyword=eclipse_keyword,
-        undefinedValue=undefined_value,
-        exportFile=export_file,
-    ))
+    return self._execute_command(
+        exportProperty=Cmd.ExportPropertyRequest(
+            caseId=self.id,
+            timeStep=time_step,
+            property=property_name,
+            eclipseKeyword=eclipse_keyword,
+            undefinedValue=undefined_value,
+            exportFile=export_file,
+        )
+    )
 
 
 @add_method(Case)
 def create_well_bore_stability_plot(self, well_path, time_step, parameters=None):
-    """ Create a new well bore stability plot
+    """Create a new well bore stability plot
 
     Arguments:
         well_path(str): well path name
@@ -917,13 +931,17 @@ def create_well_bore_stability_plot(self, well_path, time_step, parameters=None)
     """
     pb2_parameters = None
     if parameters is not None:
-        assert(isinstance(parameters, WbsParameters))
+        assert isinstance(parameters, WbsParameters)
         pb2_parameters = parameters.pb2_object()
 
-    plot_result = self._execute_command(createWellBoreStabilityPlot=Cmd.CreateWbsPlotRequest(caseId=self.id,
-                                                                                             wellPath=well_path,
-                                                                                             timeStep=time_step,
-                                                                                             wbsParameters=pb2_parameters))
+    plot_result = self._execute_command(
+        createWellBoreStabilityPlot=Cmd.CreateWbsPlotRequest(
+            caseId=self.id,
+            wellPath=well_path,
+            timeStep=time_step,
+            wbsParameters=pb2_parameters,
+        )
+    )
     project = self.ancestor(rips.project.Project)
     plot = project.plot(view_id=plot_result.createWbsPlotResult.viewId)
     return plot
@@ -931,7 +949,7 @@ def create_well_bore_stability_plot(self, well_path, time_step, parameters=None)
 
 @add_method(Case)
 def import_formation_names(self, formation_files=None):
-    """ Import formation names into project and apply it to the current case
+    """Import formation names into project and apply it to the current case
 
     Arguments:
         formation_files(list): list of files to import
@@ -942,8 +960,11 @@ def import_formation_names(self, formation_files=None):
     elif isinstance(formation_files, str):
         formation_files = [formation_files]
 
-    self._execute_command(importFormationNames=Cmd.ImportFormationNamesRequest(formationFiles=formation_files,
-                                                                               applyToCaseId=self.id))
+    self._execute_command(
+        importFormationNames=Cmd.ImportFormationNamesRequest(
+            formationFiles=formation_files, applyToCaseId=self.id
+        )
+    )
 
 
 @add_method(Case)
@@ -959,35 +980,32 @@ def simulation_wells(self):
 
 
 @add_method(Case)
-def active_cell_centers_async(
-        self,
-        porosity_model="MATRIX_MODEL"):
+def active_cell_centers_async(self, porosity_model="MATRIX_MODEL"):
     """Get a cell centers for all active cells. Async, so returns an iterator
 
-        Arguments:
-            porosity_model(str): string enum. See available()
+    Arguments:
+        porosity_model(str): string enum. See available()
 
-        Returns:
-            An iterator to a chunk object containing an array of Vec3d values.
-            Loop through the chunks and then the values within the chunk to get all values.
+    Returns:
+        An iterator to a chunk object containing an array of Vec3d values.
+        Loop through the chunks and then the values within the chunk to get all values.
     """
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
-    request = Case_pb2.CellInfoRequest(case_request=self.__request(),
-                                       porosity_model=porosity_model_enum)
+    request = Case_pb2.CellInfoRequest(
+        case_request=self.__request(), porosity_model=porosity_model_enum
+    )
     return self.__case_stub.GetCellCenterForActiveCells(request)
 
 
 @add_method(Case)
-def active_cell_centers(
-        self,
-        porosity_model="MATRIX_MODEL"):
+def active_cell_centers(self, porosity_model="MATRIX_MODEL"):
     """Get a cell centers for all active cells. Synchronous, so returns a list.
 
-        Arguments:
-            porosity_model(str): string enum. See available()
+    Arguments:
+        porosity_model(str): string enum. See available()
 
-        Returns:
-            A list of Vec3d
+    Returns:
+        A list of Vec3d
     """
     cell_centers = []
     generator = self.active_cell_centers_async(porosity_model)
@@ -998,28 +1016,25 @@ def active_cell_centers(
 
 
 @add_method(Case)
-def active_cell_corners_async(
-        self,
-        porosity_model="MATRIX_MODEL"):
+def active_cell_corners_async(self, porosity_model="MATRIX_MODEL"):
     """Get a cell corners for all active cells. Async, so returns an iterator
 
-        Arguments:
-            porosity_model(str): string enum. See available()
+    Arguments:
+        porosity_model(str): string enum. See available()
 
-        Returns:
-            An iterator to a chunk object containing an array of CellCorners (which is eight Vec3d values).
-            Loop through the chunks and then the values within the chunk to get all values.
+    Returns:
+        An iterator to a chunk object containing an array of CellCorners (which is eight Vec3d values).
+        Loop through the chunks and then the values within the chunk to get all values.
     """
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
-    request = Case_pb2.CellInfoRequest(case_request=self.__request(),
-                                       porosity_model=porosity_model_enum)
+    request = Case_pb2.CellInfoRequest(
+        case_request=self.__request(), porosity_model=porosity_model_enum
+    )
     return self.__case_stub.GetCellCornersForActiveCells(request)
 
 
 @add_method(Case)
-def active_cell_corners(
-        self,
-        porosity_model="MATRIX_MODEL"):
+def active_cell_corners(self, porosity_model="MATRIX_MODEL"):
     """Get a cell corners for all active cells. Synchronous, so returns a list.
 
         Arguments:
@@ -1052,9 +1067,9 @@ def active_cell_corners(
 def selected_cells_async(self):
     """Get the selected cells. Async, so returns an iterator.
 
-        Returns:
-            An iterator to a chunk object containing an array of cells.
-            Loop through the chunks and then the cells within the chunk to get all cells.
+    Returns:
+        An iterator to a chunk object containing an array of cells.
+        Loop through the chunks and then the cells within the chunk to get all cells.
     """
     return self.__case_stub.GetSelectedCells(self.__request())
 
@@ -1063,8 +1078,8 @@ def selected_cells_async(self):
 def selected_cells(self):
     """Get the selected cells. Synchronous, so returns a list.
 
-        Returns:
-            A list of Cells.
+    Returns:
+        A list of Cells.
     """
     cells = []
     generator = self.selected_cells_async()
@@ -1078,9 +1093,9 @@ def selected_cells(self):
 def coarsening_info(self):
     """Get a coarsening information for all grids in the case.
 
-        Returns:
-            A list of CoarseningInfo objects with two Vec3i min and max objects
-            for each entry.
+    Returns:
+        A list of CoarseningInfo objects with two Vec3i min and max objects
+        for each entry.
     """
     return self.__case_stub.GetCoarseningInfoArray(self.__request()).data
 
@@ -1089,26 +1104,28 @@ def coarsening_info(self):
 def available_nnc_properties(self):
     """Get a list of available NNC properties
 
-  **NNCConnection class description**::
+    **NNCConnection class description**::
 
-        Parameter               | Description                                   | Type
-        ------------------------| --------------------------------------------- | -----
-        cell_grid_index1        | Reservoir Cell Index to cell 1                | int32
-        cell_grid_index2        | Reservoir Cell Index to cell 2                | int32
-        cell1                   | Reservoir Cell IJK to cell 1                  | Vec3i
-        cell2                   | Reservoir Cell IJK to cell 1                  | Vec3i
+          Parameter               | Description                                   | Type
+          ------------------------| --------------------------------------------- | -----
+          cell_grid_index1        | Reservoir Cell Index to cell 1                | int32
+          cell_grid_index2        | Reservoir Cell Index to cell 2                | int32
+          cell1                   | Reservoir Cell IJK to cell 1                  | Vec3i
+          cell2                   | Reservoir Cell IJK to cell 1                  | Vec3i
 
     """
-    return self.__nnc_properties_stub.GetAvailableNNCProperties(self.__request()).properties
+    return self.__nnc_properties_stub.GetAvailableNNCProperties(
+        self.__request()
+    ).properties
 
 
 @add_method(Case)
 def nnc_connections_async(self):
     """Get the NNC connections. Async, so returns an iterator.
 
-        Returns:
-            An iterator to a chunk object containing an array NNCConnection objects.
-            Loop through the chunks and then the connection within the chunk to get all connections.
+    Returns:
+        An iterator to a chunk object containing an array NNCConnection objects.
+        Loop through the chunks and then the connection within the chunk to get all connections.
     """
     return self.__nnc_properties_stub.GetNNCConnections(self.__request())
 
@@ -1117,8 +1134,8 @@ def nnc_connections_async(self):
 def nnc_connections(self):
     """Get the NNC connection. Synchronous, so returns a list.
 
-        Returns:
-            A list of NNCConnection objects.
+    Returns:
+        A list of NNCConnection objects.
     """
     connections = []
     generator = self.nnc_connections_async()
@@ -1130,10 +1147,12 @@ def nnc_connections(self):
 
 @add_method(Case)
 def __nnc_connections_values_async(self, property_name, property_type, time_step):
-    request = NNCProperties_pb2.NNCValuesRequest(case_id=self.id,
-                                                 property_name=property_name,
-                                                 property_type=property_type,
-                                                 time_step=time_step)
+    request = NNCProperties_pb2.NNCValuesRequest(
+        case_id=self.id,
+        property_name=property_name,
+        property_type=property_type,
+        time_step=time_step,
+    )
     return self.__nnc_properties_stub.GetNNCValues(request)
 
 
@@ -1151,24 +1170,26 @@ def __nnc_values_generator_to_list(self, generator):
 def nnc_connections_static_values_async(self, property_name):
     """Get the static NNC values. Async, so returns an iterator.
 
-        Returns:
-            An iterator to a chunk object containing an list of doubles.
-            Loop through the chunks and then the values within the chunk to get values
-            for all the connections. The order of the list matches the list from
-            nnc_connections, i.e. the nth object of nnc_connections() refers to nth
-            value in this list.
+    Returns:
+        An iterator to a chunk object containing an list of doubles.
+        Loop through the chunks and then the values within the chunk to get values
+        for all the connections. The order of the list matches the list from
+        nnc_connections, i.e. the nth object of nnc_connections() refers to nth
+        value in this list.
     """
-    return self.__nnc_connections_values_async(property_name, NNCProperties_pb2.NNC_STATIC, 0)
+    return self.__nnc_connections_values_async(
+        property_name, NNCProperties_pb2.NNC_STATIC, 0
+    )
 
 
 @add_method(Case)
 def nnc_connections_static_values(self, property_name):
     """Get the static NNC values.
 
-        Returns:
-            A list of doubles. The order of the list matches the list from
-            nnc_connections, i.e. the nth object of nnc_connections() refers to nth
-            value in this list.
+    Returns:
+        A list of doubles. The order of the list matches the list from
+        nnc_connections, i.e. the nth object of nnc_connections() refers to nth
+        value in this list.
     """
     generator = self.nnc_connections_static_values_async(property_name)
     return self.__nnc_values_generator_to_list(generator)
@@ -1178,24 +1199,26 @@ def nnc_connections_static_values(self, property_name):
 def nnc_connections_dynamic_values_async(self, property_name, time_step):
     """Get the dynamic NNC values. Async, so returns an iterator.
 
-        Returns:
-            An iterator to a chunk object containing an list of doubles.
-            Loop through the chunks and then the values within the chunk to get values
-            for all the connections. The order of the list matches the list from
-            nnc_connections, i.e. the nth object of nnc_connections() refers to nth
-            value in this list.
+    Returns:
+        An iterator to a chunk object containing an list of doubles.
+        Loop through the chunks and then the values within the chunk to get values
+        for all the connections. The order of the list matches the list from
+        nnc_connections, i.e. the nth object of nnc_connections() refers to nth
+        value in this list.
     """
-    return self.__nnc_connections_values_async(property_name, NNCProperties_pb2.NNC_DYNAMIC, time_step)
+    return self.__nnc_connections_values_async(
+        property_name, NNCProperties_pb2.NNC_DYNAMIC, time_step
+    )
 
 
 @add_method(Case)
 def nnc_connections_dynamic_values(self, property_name, time_step):
     """Get the dynamic NNC values.
 
-        Returns:
-            A list of doubles. The order of the list matches the list from
-            nnc_connections, i.e. the nth object of nnc_connections() refers to nth
-            value in this list.
+    Returns:
+        A list of doubles. The order of the list matches the list from
+        nnc_connections, i.e. the nth object of nnc_connections() refers to nth
+        value in this list.
     """
     generator = self.nnc_connections_dynamic_values_async(property_name, time_step)
     return self.__nnc_values_generator_to_list(generator)
@@ -1205,24 +1228,26 @@ def nnc_connections_dynamic_values(self, property_name, time_step):
 def nnc_connections_generated_values_async(self, property_name, time_step):
     """Get the generated NNC values. Async, so returns an iterator.
 
-        Returns:
-            An iterator to a chunk object containing an list of doubles.
-            Loop through the chunks and then the values within the chunk to get values
-            for all the connections. The order of the list matches the list from
-            nnc_connections, i.e. the nth object of nnc_connections() refers to nth
-            value in this list.
+    Returns:
+        An iterator to a chunk object containing an list of doubles.
+        Loop through the chunks and then the values within the chunk to get values
+        for all the connections. The order of the list matches the list from
+        nnc_connections, i.e. the nth object of nnc_connections() refers to nth
+        value in this list.
     """
-    return self.__nnc_connections_values_async(property_name, NNCProperties_pb2.NNC_GENERATED, time_step)
+    return self.__nnc_connections_values_async(
+        property_name, NNCProperties_pb2.NNC_GENERATED, time_step
+    )
 
 
 @add_method(Case)
 def nnc_connections_generated_values(self, property_name, time_step):
     """Get the generated NNC values.
 
-        Returns:
-            A list of doubles. The order of the list matches the list from
-            nnc_connections, i.e. the nth object of nnc_connections() refers to nth
-            value in this list.
+    Returns:
+        A list of doubles. The order of the list matches the list from
+        nnc_connections, i.e. the nth object of nnc_connections() refers to nth
+        value in this list.
     """
     generator = self.nnc_connections_generated_values_async(property_name, time_step)
     return self.__nnc_values_generator_to_list(generator)
@@ -1239,7 +1264,10 @@ def __generate_nnc_property_input_chunks(self, array, parameters):
         else:
             actual_chunk_size = min(len(array) - index + 1, self.chunk_size)
             chunk.values.CopyFrom(
-                NNCProperties_pb2.NNCValues(values=array[index:index + actual_chunk_size]))
+                NNCProperties_pb2.NNCValues(
+                    values=array[index : index + actual_chunk_size]
+                )
+            )
             index += actual_chunk_size
 
         yield chunk
@@ -1250,18 +1278,15 @@ def __generate_nnc_property_input_chunks(self, array, parameters):
 
 @add_method(Case)
 def set_nnc_connections_values(
-        self,
-        values,
-        property_name,
-        time_step,
-        porosity_model="MATRIX_MODEL"):
+    self, values, property_name, time_step, porosity_model="MATRIX_MODEL"
+):
     """Set nnc connection values for all connections..
 
-        Arguments:
-            values(list): a list of double precision floating point numbers
-            property_name(str): name of an Eclipse property
-            time_step(int): the time step for which to get the property for
-            porosity_model(str): string enum. See available()
+    Arguments:
+        values(list): a list of double precision floating point numbers
+        property_name(str): name of an Eclipse property
+        time_step(int): the time step for which to get the property for
+        porosity_model(str): string enum. See available()
     """
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
     request = NNCProperties_pb2.NNCValuesInputRequest(

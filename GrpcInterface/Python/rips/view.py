@@ -34,11 +34,12 @@ def apply_cell_result(self, result_type, result_variable):
 
 @add_method(View)
 def apply_flow_diagnostics_cell_result(
-        self,
-        result_variable='TOF',
-        selection_mode='FLOW_TR_BY_SELECTION',
-        injectors=None,
-        producers=None):
+    self,
+    result_variable="TOF",
+    selection_mode="FLOW_TR_BY_SELECTION",
+    injectors=None,
+    producers=None,
+):
     """Apply a flow diagnostics cell result
 
     **Parameters**::
@@ -68,7 +69,7 @@ def apply_flow_diagnostics_cell_result(
     cell_result.result_type = "FLOW_DIAGNOSTICS"
     cell_result.result_variable = result_variable
     cell_result.flow_tracer_selection_mode = selection_mode
-    if selection_mode == 'FLOW_TR_BY_SELECTION':
+    if selection_mode == "FLOW_TR_BY_SELECTION":
         cell_result.selected_injector_tracers = injectors
         cell_result.selected_producer_tracers = producers
     cell_result.update()
@@ -77,8 +78,9 @@ def apply_flow_diagnostics_cell_result(
 @add_method(View)
 def clone(self):
     """Clone the current view"""
-    view_id = self._execute_command(cloneView=Cmd.CloneViewRequest(
-        viewId=self.id)).createViewResult.viewId
+    view_id = self._execute_command(
+        cloneView=Cmd.CloneViewRequest(viewId=self.id)
+    ).createViewResult.viewId
     return self.case().view(view_id)
 
 
@@ -86,14 +88,17 @@ def clone(self):
 def set_time_step(self, time_step):
     """Set the time step for current view"""
     case_id = self.case().id
-    return self._execute_command(setTimeStep=Cmd.SetTimeStepParams(
-        caseId=case_id, viewId=self.id, timeStep=time_step))
+    return self._execute_command(
+        setTimeStep=Cmd.SetTimeStepParams(
+            caseId=case_id, viewId=self.id, timeStep=time_step
+        )
+    )
 
 
 @add_method(View)
-def export_sim_well_fracture_completions(self, time_step,
-                                         simulation_well_names, file_split,
-                                         compdat_export):
+def export_sim_well_fracture_completions(
+    self, time_step, simulation_well_names, file_split, compdat_export
+):
     """Export fracture completions for simulation wells
 
     **Parameters**::
@@ -111,13 +116,13 @@ def export_sim_well_fracture_completions(self, time_step,
         ----------------------------------- | ------------
         "UNIFIED_FILE" <b>Default Option</b>| A single file with all transmissibilities
         "SPLIT_ON_WELL"                     | One file for each well transmissibilities
-        "SPLIT_ON_WELL_AND_COMPLETION_TYPE" | One file for each completion type for each well 
+        "SPLIT_ON_WELL_AND_COMPLETION_TYPE" | One file for each completion type for each well
 
     **Enum compdat_export**::
 
         Option                                   | Description
         -----------------------------------------| ------------
-        "TRANSMISSIBILITIES"<b>Default Option</b>| Direct export of transmissibilities 
+        "TRANSMISSIBILITIES"<b>Default Option</b>| Direct export of transmissibilities
         "WPIMULT_AND_DEFAULT_CONNECTION_FACTORS" | Include export of WPIMULT
 
     """
@@ -132,15 +137,19 @@ def export_sim_well_fracture_completions(self, time_step,
             timeStep=time_step,
             simulationWellNames=simulation_well_names,
             fileSplit=file_split,
-            compdatExport=compdat_export))
+            compdatExport=compdat_export,
+        )
+    )
 
 
 @add_method(View)
-def export_visible_cells(self,
-                         export_keyword='FLUXNUM',
-                         visible_active_cells_value=1,
-                         hidden_active_cells_value=0,
-                         inactive_cells_value=0):
+def export_visible_cells(
+    self,
+    export_keyword="FLUXNUM",
+    visible_active_cells_value=1,
+    hidden_active_cells_value=0,
+    inactive_cells_value=0,
+):
     """Export special properties for all visible cells.
 
     Arguments:
@@ -158,12 +167,14 @@ def export_visible_cells(self,
             exportKeyword=export_keyword,
             visibleActiveCellsValue=visible_active_cells_value,
             hiddenActiveCellsValue=hidden_active_cells_value,
-            inactiveCellsValue=inactive_cells_value))
+            inactiveCellsValue=inactive_cells_value,
+        )
+    )
 
 
 @add_method(View)
 def export_property(self, undefined_value=0.0):
-    """ Export the current Eclipse property from the view
+    """Export the current Eclipse property from the view
 
     Arguments:
         undefined_value (double): Value to use for undefined values. Defaults to 0.0
@@ -171,22 +182,22 @@ def export_property(self, undefined_value=0.0):
     case_id = self.case().id
     return self._execute_command(
         exportPropertyInViews=Cmd.ExportPropertyInViewsRequest(
-            caseId=case_id,
-            viewIds=[self.id],
-            undefinedValue=undefined_value))
+            caseId=case_id, viewIds=[self.id], undefinedValue=undefined_value
+        )
+    )
 
 
 @add_method(ViewWindow)
 def case(self):
     """Get the case the view belongs to"""
     mycase = self.ancestor(rips.case.Case)
-    assert(mycase is not None)
+    assert mycase is not None
     return mycase
 
 
 @add_method(ViewWindow)
-def export_snapshot(self, prefix='', export_folder=''):
-    """ Export snapshot for the current view
+def export_snapshot(self, prefix="", export_folder=""):
+    """Export snapshot for the current view
 
     Arguments:
         prefix (str): Exported file name prefix
@@ -194,8 +205,11 @@ def export_snapshot(self, prefix='', export_folder=''):
     """
     case_id = self.case().id
     return self._execute_command(
-        exportSnapshots=Cmd.ExportSnapshotsRequest(type='VIEWS',
-                                                   prefix=prefix,
-                                                   caseId=case_id,
-                                                   viewId=self.id,
-                                                   exportFolder=export_folder))
+        exportSnapshots=Cmd.ExportSnapshotsRequest(
+            type="VIEWS",
+            prefix=prefix,
+            caseId=case_id,
+            viewId=self.id,
+            exportFolder=export_folder,
+        )
+    )
