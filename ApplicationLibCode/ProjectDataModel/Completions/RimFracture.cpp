@@ -737,10 +737,13 @@ void RimFracture::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& ui
             m_stimPlanTimeIndexToPlot.uiCapability()->setUiHidden( false );
 
             m_stimPlanTimeIndexToPlot.uiCapability()->setUiReadOnly( true );
+
+            m_wellPathDepthAtFracture.uiCapability()->setUiHidden( false );
         }
         else
         {
             m_stimPlanTimeIndexToPlot.uiCapability()->setUiHidden( true );
+            m_wellPathDepthAtFracture.uiCapability()->setUiHidden( true );
         }
     }
     else
