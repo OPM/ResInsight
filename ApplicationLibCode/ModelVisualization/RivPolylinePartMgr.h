@@ -42,12 +42,12 @@ class DisplayCoordTransform;
 }
 
 class Rim3dView;
-class RimShowPolylinesInterface;
+class RimPolylinesDataInterface;
 
 class RivPolylinePartMgr : public cvf::Object
 {
 public:
-    RivPolylinePartMgr( Rim3dView* view, RimShowPolylinesInterface* polylines, caf::PdmObject* collection );
+    RivPolylinePartMgr( Rim3dView* view, RimPolylinesDataInterface* polylines, caf::PdmObject* collection );
     ~RivPolylinePartMgr() override;
 
     void appendDynamicGeometryPartsToModel( cvf::ModelBasicList*              model,
@@ -67,7 +67,7 @@ private:
 
     void clearAllGeometry();
 
-    RimShowPolylinesInterface* m_polylineInterface;
+    RimPolylinesDataInterface* m_polylineInterface;
     caf::PdmObject*            m_viewCollection;
     caf::PdmPointer<Rim3dView> m_rimView;
     cvf::ref<cvf::Part>        m_linePart;

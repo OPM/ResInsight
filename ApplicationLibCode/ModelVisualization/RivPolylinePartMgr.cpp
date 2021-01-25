@@ -23,7 +23,7 @@
 
 #include "Rim3dView.h"
 #include "RimEclipseView.h"
-#include "RimShowPolylinesInterface.h"
+#include "RimPolylinesDataInterface.h"
 
 #include "RigMainGrid.h"
 #include "RigPolyLinesData.h"
@@ -47,7 +47,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RivPolylinePartMgr::RivPolylinePartMgr( Rim3dView*                 view,
-                                        RimShowPolylinesInterface* polylineInterface,
+                                        RimPolylinesDataInterface* polylineInterface,
                                         caf::PdmObject*            collection )
     : m_rimView( view )
     , m_polylineInterface( polylineInterface )
@@ -85,7 +85,7 @@ bool RivPolylinePartMgr::isPolylinesInBoundingBox( std::vector<std::vector<cvf::
 void RivPolylinePartMgr::buildPolylineParts( const caf::DisplayCoordTransform* displayXf,
                                              const cvf::BoundingBox&           boundingBox )
 {
-    auto polylineDef = m_polylineInterface->polyLines();
+    auto polylineDef = m_polylineInterface->polyLinesData();
     if ( polylineDef.isNull() || polylineDef->polyLines().size() == 0 )
     {
         clearAllGeometry();
@@ -191,7 +191,7 @@ void RivPolylinePartMgr::buildPolylineParts( const caf::DisplayCoordTransform* d
 //--------------------------------------------------------------------------------------------------
 std::vector<std::vector<cvf::Vec3d>> RivPolylinePartMgr::getPolylinesPointsInDomain( bool snapToPlaneZ, double planeZ )
 {
-    auto polylines = m_polylineInterface->polyLines()->polyLines();
+    auto polylines = m_polylineInterface->polyLinesData()->polyLines();
     if ( !snapToPlaneZ ) return polylines;
 
     std::vector<std::vector<cvf::Vec3d>> polylinesInDisplay;

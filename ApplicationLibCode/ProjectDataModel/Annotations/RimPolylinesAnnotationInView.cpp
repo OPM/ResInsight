@@ -126,7 +126,7 @@ caf::PdmFieldHandle* RimPolylinesAnnotationInView::userDescriptionField()
     return m_sourceAnnotation ? m_sourceAnnotation->userDescriptionField() : nullptr;
 }
 
-cvf::ref<RigPolyLinesData> RimPolylinesAnnotationInView::polyLines() const
+cvf::ref<RigPolyLinesData> RimPolylinesAnnotationInView::polyLinesData() const
 {
     auto retval = m_sourceAnnotation->polyLinesData();
     if ( !isVisible() )

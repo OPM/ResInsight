@@ -22,8 +22,8 @@
 
 class RigPolyLinesData;
 
-class RimShowPolylinesInterface
+class RimPolylinesDataInterface
 {
 public:
-    virtual cvf::ref<RigPolyLinesData> polyLines() const = 0;
+    virtual cvf::ref<RigPolyLinesData> polyLinesData() const = 0;
 };

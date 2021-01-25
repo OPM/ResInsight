@@ -166,7 +166,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunction.h
 ${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunctionWeight.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEquilibriumAxisAnnotation.h
 ${CMAKE_CURRENT_LIST_DIR}/RimTimeAxisAnnotation.h
-${CMAKE_CURRENT_LIST_DIR}/RimShowPolylinesInterface.h
+${CMAKE_CURRENT_LIST_DIR}/RimPolylinesDataInterface.h
 )
 
 

@@ -853,7 +853,7 @@ void RimPolygonFilter::updateCells()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigPolyLinesData> RimPolygonFilter::polyLines() const
+cvf::ref<RigPolyLinesData> RimPolygonFilter::polyLinesData() const
 {
     cvf::ref<RigPolyLinesData> pld = new RigPolyLinesData;
     std::vector<cvf::Vec3d>    line;
