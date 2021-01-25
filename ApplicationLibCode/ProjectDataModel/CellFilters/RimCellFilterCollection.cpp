@@ -22,8 +22,6 @@
 #include "RimCase.h"
 #include "RimCellFilter.h"
 #include "RimCellRangeFilter.h"
-#include "RimEclipseCase.h"
-#include "RimGeoMechView.h"
 #include "RimPolygonFilter.h"
 #include "RimUserDefinedFilter.h"
 #include "RimViewController.h"

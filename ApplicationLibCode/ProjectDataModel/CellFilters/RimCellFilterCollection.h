@@ -27,7 +27,6 @@ class RimCellRangeFilter;
 class RimPolygonFilter;
 class RimUserDefinedFilter;
 class RimCase;
-class RimEclipseCase;
 
 namespace cvf
 {
