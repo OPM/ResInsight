@@ -75,6 +75,8 @@ public:
     void enableFilter( bool bEnable );
     void enableKFilter( bool bEnable );
 
+    bool isFilterEnabled() const override;
+
     void updateVisualization() override;
     void updateEditorsAndVisualization() override;
     void insertTarget( const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert ) override;

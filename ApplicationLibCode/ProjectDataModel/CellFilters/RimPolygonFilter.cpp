@@ -225,6 +225,14 @@ void RimPolygonFilter::enableKFilter( bool bEnable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimPolygonFilter::isFilterEnabled() const
+{
+    return m_isActive() && m_enableFiltering;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimPolygonFilter::fullName() const
 {
     if ( m_enableFiltering )
@@ -287,7 +295,6 @@ void RimPolygonFilter::defineEditorAttribute( const caf::PdmFieldHandle* field,
             }
         }
     }
-
     else if ( field == &m_targets )
     {
         auto tvAttribute = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute );
@@ -302,7 +309,6 @@ void RimPolygonFilter::defineEditorAttribute( const caf::PdmFieldHandle* field,
             }
         }
     }
-
     else if ( field == &m_lineThickness )
     {
         auto myAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
@@ -311,7 +317,6 @@ void RimPolygonFilter::defineEditorAttribute( const caf::PdmFieldHandle* field,
             myAttr->validator = new ThicknessValidator();
         }
     }
-
     else if ( field == &m_lineThickness )
     {
         auto myAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );

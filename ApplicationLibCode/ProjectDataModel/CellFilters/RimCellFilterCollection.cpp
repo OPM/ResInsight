@@ -217,7 +217,7 @@ bool RimCellFilterCollection::hasActiveFilters() const
 
     for ( const auto& filter : m_cellFilters )
     {
-        if ( filter->isActive() ) return true;
+        if ( filter->isFilterEnabled() ) return true;
     }
 
     return false;
@@ -232,7 +232,7 @@ bool RimCellFilterCollection::hasActiveIncludeFilters() const
 
     for ( const auto& filter : m_cellFilters )
     {
-        if ( filter->isActive() && filter->filterMode() == RimCellFilter::INCLUDE ) return true;
+        if ( filter->isFilterEnabled() && filter->filterMode() == RimCellFilter::INCLUDE ) return true;
     }
 
     return false;
@@ -372,7 +372,7 @@ void RimCellFilterCollection::compoundCellRangeFilter( cvf::CellRangeFilter* cel
 
     for ( RimCellFilter* filter : m_cellFilters )
     {
-        if ( filter->isActive() && static_cast<size_t>( filter->gridIndex() ) == gridIndex )
+        if ( filter->isFilterEnabled() && static_cast<size_t>( filter->gridIndex() ) == gridIndex )
         {
             filter->updateCompundFilter( cellRangeFilter );
         }

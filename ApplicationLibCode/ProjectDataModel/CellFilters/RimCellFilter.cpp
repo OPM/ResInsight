@@ -112,9 +112,20 @@ void RimCellFilter::setActive( bool active )
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Is the filter turned on in the explorer tree?
 //--------------------------------------------------------------------------------------------------
 bool RimCellFilter::isActive() const
+{
+    return m_isActive();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Is the cell filter doing active filtering, or is it just showning outline, etc. in the view
+/// - isActive == true -> filter enabled in explorer
+/// - isFilterEnabled == true -> filter enabled in explorer and is actually filtering cells, too
+/// Default implementation just returns the isActive state.
+//--------------------------------------------------------------------------------------------------
+bool RimCellFilter::isFilterEnabled() const
 {
     return m_isActive();
 }
