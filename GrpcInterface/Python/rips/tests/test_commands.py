@@ -23,4 +23,3 @@ def test_create_lgr_well(rips_instance, initialize_test):
     case.create_lgr_for_completion(time_step, well_path_names, refinement_i=2, refinement_j=3,refinement_k=1, split_type="LGR_PER_WELL")
     assert(len(case.grids()) == 3)
 
-    rips_instance.project.close()
