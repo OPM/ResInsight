@@ -365,7 +365,6 @@ void RimPolygonFilter::defineCustomContextMenu( const caf::PdmFieldHandle* field
 //--------------------------------------------------------------------------------------------------
 void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    // RimCellFilter::defineUiOrdering( uiConfigName, uiOrdering );
     uiOrdering.add( &m_name );
 
     auto group = uiOrdering.addNewGroup( "General" );
