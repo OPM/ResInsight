@@ -1619,6 +1619,9 @@ void RiaGuiApplication::slotWorkerProcessFinished( int exitCode, QProcess::ExitS
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::onLastWindowClosed()
 {
+    // Qt can send the lastWindowClosed signal multiple times. Disconnect to avoid reentry.
+    QObject::disconnect( this, SIGNAL( lastWindowClosed() ), this, SLOT( onLastWindowClosed() ) );
+
     closeProject();
     quit();
 }
