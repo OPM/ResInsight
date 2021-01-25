@@ -30,7 +30,9 @@
 
 #include "Riu3DMainWindowTools.h"
 
-CAF_PDM_SOURCE_INIT( RimFishboneWellPathCollection, "WellPathCompletionCollection" );
+// The more general term WellPathCompletionCollection was unfortunately used in this more specific case of fishbones
+// In order to preserve compatibility, the old keyword is kept as an alias, but could be removed in the future.
+CAF_PDM_SOURCE_INIT( RimFishboneWellPathCollection, "FishboneWellPathCollection", "WellPathCompletionCollection" );
 
 //--------------------------------------------------------------------------------------------------
 ///

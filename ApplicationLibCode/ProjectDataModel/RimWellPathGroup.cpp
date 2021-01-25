@@ -52,6 +52,12 @@ RimWellPathGroup::RimWellPathGroup()
 //--------------------------------------------------------------------------------------------------
 void RimWellPathGroup::addChildWellPath( RimWellPath* wellPath )
 {
+    if ( m_childWellPaths.empty() )
+    {
+        RimWellPath::copyCompletionSettings( wellPath, this );
+    }
+    RimWellPath::deleteCompletionSettings( wellPath );
+
     if ( !this->wellPathGeometry()->wellPathPoints().empty() )
     {
         m_childWellPaths.push_back( wellPath );
@@ -65,6 +71,7 @@ void RimWellPathGroup::addChildWellPath( RimWellPath* wellPath )
         setWellPathGeometry( geometryCopy.p() );
         m_childWellPaths.push_back( wellPath );
     }
+
     wellPath->nameChanged.connect( this, &RimWellPathGroup::onChildNameChanged );
 
     updateAllRequiredEditors();
@@ -100,6 +107,8 @@ bool RimWellPathGroup::hasChildWellPath( RimWellPath* wellPath )
 void RimWellPathGroup::removeChildWellPath( RimWellPath* wellPath )
 {
     m_childWellPaths.removeChildObject( wellPath );
+    RimWellPath::copyCompletionSettings( this, wellPath );
+
     if ( auto geometry = wellPath->wellPathGeometry(); geometry )
     {
         geometry->setUniqueStartIndex( 0u );

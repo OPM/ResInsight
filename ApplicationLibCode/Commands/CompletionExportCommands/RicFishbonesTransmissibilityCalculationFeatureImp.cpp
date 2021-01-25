@@ -134,7 +134,7 @@ std::vector<RigCompletionData>
                 continue;
             }
 
-            RigCompletionData completion( wellPath->completions()->wellNameForExport(),
+            RigCompletionData completion( wellPath->completionSettings()->wellNameForExport(),
                                           RigCompletionDataGridCell( globalCellIndex, settings.caseToApply->mainGrid() ),
                                           wellBorePart.intersectionWithWellMeasuredDepth );
             completion.setSecondOrderingValue( wellBorePart.lateralIndex );
@@ -355,7 +355,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::appendMainWellBoreParts(
 
     for ( const auto& cellIntersectionInfo : intersectedCellsIntersectionInfo )
     {
-        QString                  completionMetaData = wellPath->completions()->wellNameForExport() + " main bore";
+        QString completionMetaData            = wellPath->completionSettings()->wellNameForExport() + " main bore";
         WellBorePartForTransCalc wellBorePart = WellBorePartForTransCalc( cellIntersectionInfo.intersectionLengthsInCellCS,
                                                                           holeRadius,
                                                                           skinFactor,

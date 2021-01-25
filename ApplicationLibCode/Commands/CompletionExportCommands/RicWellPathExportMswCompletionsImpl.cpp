@@ -282,7 +282,7 @@ void RicWellPathExportMswCompletionsImpl::generateWelsegsTable( RifTextDataTable
         };
         formatter.header( header );
 
-        formatter.add( exportInfo.wellPath()->completions()->wellNameForExport() );
+        formatter.add( exportInfo.wellPath()->completionSettings()->wellNameForExport() );
         formatter.add( startTVD );
         formatter.add( startMD );
         formatter.addValueOrDefaultMarker( exportInfo.topWellBoreVolume(), RicMswExportInfo::defaultDoubleValue() );
@@ -563,7 +563,7 @@ void RicWellPathExportMswCompletionsImpl::generateCompsegHeader( RifTextDataTabl
     {
         std::vector<RifTextDataTableColumn> header = { RifTextDataTableColumn( "Name" ) };
         formatter.header( header );
-        formatter.add( exportInfo.wellPath()->completions()->wellNameForExport() );
+        formatter.add( exportInfo.wellPath()->completionSettings()->wellNameForExport() );
         formatter.rowCompleted();
     }
 
@@ -629,7 +629,7 @@ void RicWellPathExportMswCompletionsImpl::generateWsegvalvTable( RifTextDataTabl
                         {
                             formatter.comment( icd->label() );
                         }
-                        formatter.add( exportInfo.wellPath()->completions()->wellNameForExport() );
+                        formatter.add( exportInfo.wellPath()->completionSettings()->wellNameForExport() );
                         formatter.add( firstSubSegment->segmentNumber() );
                         formatter.add( icd->flowCoefficient() );
                         formatter.add( QString( "%1" ).arg( icd->area(), 8, 'g', 4 ) );
@@ -717,7 +717,7 @@ void RicWellPathExportMswCompletionsImpl::generateWsegAicdTable( RifTextDataTabl
                     {
                         CVF_ASSERT( aicd->subSegments().size() == 1u );
                         tighterFormatter.comment( aicd->label() );
-                        tighterFormatter.add( exportInfo.wellPath()->completions()->wellNameForExport() ); // #1
+                        tighterFormatter.add( exportInfo.wellPath()->completionSettings()->wellNameForExport() ); // #1
                         tighterFormatter.add( aicd->subSegments().front()->segmentNumber() );
                         tighterFormatter.add( aicd->subSegments().front()->segmentNumber() );
 
@@ -853,10 +853,10 @@ RicMswExportInfo RicWellPathExportMswCompletionsImpl::generateFishbonesMswExport
     exportInfo.setLinerDiameter( wellPath->fishbonesCollection()->mswParameters()->linerDiameter( unitSystem ) );
     exportInfo.setRoughnessFactor( wellPath->fishbonesCollection()->mswParameters()->roughnessFactor( unitSystem ) );
 
-    double maxSegmentLength = enableSegmentSplitting
-                                  ? wellPath->fishbonesCollection()->mswParameters()->maxSegmentLength()
-                                  : std::numeric_limits<double>::infinity();
-    bool foundSubGridIntersections = false;
+    double maxSegmentLength          = enableSegmentSplitting
+                                           ? wellPath->fishbonesCollection()->mswParameters()->maxSegmentLength()
+                                           : std::numeric_limits<double>::infinity();
+    bool   foundSubGridIntersections = false;
 
     double subStartMD  = wellPath->fishbonesCollection()->startMD();
     double subStartTVD = RicWellPathExportMswCompletionsImpl::tvdFromMeasuredDepth( wellPath, subStartMD );
@@ -1030,7 +1030,7 @@ RicMswExportInfo
             {
                 std::vector<RigCompletionData> completionData =
                     RicExportFractureCompletionsImpl::generateCompdatValues( caseToApply,
-                                                                             wellPath->completions()->wellNameForExport(),
+                                                                             wellPath->completionSettings()->wellNameForExport(),
                                                                              wellPath->wellPathGeometry(),
                                                                              { fracture },
                                                                              nullptr,
@@ -2054,7 +2054,7 @@ std::vector<RigCompletionData> RicWellPathExportMswCompletionsImpl::generatePerf
             bool cellIsActive = activeCellInfo->isActive( cell.globCellIndex );
             if ( !cellIsActive ) continue;
 
-            RigCompletionData completion( wellPath->completions()->wellNameForExport(),
+            RigCompletionData completion( wellPath->completionSettings()->wellNameForExport(),
                                           RigCompletionDataGridCell( cell.globCellIndex, eclipseCase->mainGrid() ),
                                           cell.startMD );
 

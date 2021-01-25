@@ -54,6 +54,7 @@ class RimFishbonesCollection;
 class RimPerforationCollection;
 class RimWellPathAttributeCollection;
 class RimWellPathCompletions;
+class RimWellPathCompletionSettings;
 
 class RimWellPathFractureCollection;
 class Rim3dWellLogCurve;
@@ -118,7 +119,10 @@ public:
     void                         add3dWellLogCurve( Rim3dWellLogCurve* rim3dWellLogCurve );
     Rim3dWellLogCurveCollection* rim3dWellLogCurveCollection() const;
 
-    const RimWellPathCompletions*         completions() const;
+    const RimWellPathCompletions*        completions() const;
+    const RimWellPathCompletionSettings* completionSettings() const;
+    RimWellPathCompletionSettings*       completionSettings();
+
     RimFishbonesCollection*               fishbonesCollection();
     const RimFishbonesCollection*         fishbonesCollection() const;
     RimPerforationCollection*             perforationIntervalCollection();
@@ -150,6 +154,10 @@ public:
     void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
+    bool         isTopLevelWellPath() const;
+    RimWellPath* topLevelWellPath() const;
+    void         updateAfterAddingToWellPathGroup();
+
 protected:
     // Override PdmObject
 
@@ -162,6 +170,8 @@ protected:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
 
+    static void copyCompletionSettings( RimWellPath* from, RimWellPath* to );
+    static void deleteCompletionSettings( RimWellPath* wellPath );
     // Fields
 protected:
     caf::PdmProxyValueField<double> m_airGap;
@@ -185,6 +195,7 @@ private:
 
     caf::PdmChildArrayField<RimWellLogFile*>            m_wellLogFiles;
     caf::PdmChildField<Rim3dWellLogCurveCollection*>    m_3dWellLogCurves;
+    caf::PdmChildField<RimWellPathCompletionSettings*>  m_completionSettings;
     caf::PdmChildField<RimWellPathCompletions*>         m_completions;
     caf::PdmChildField<RimWellPathAttributeCollection*> m_wellPathAttributes;
 

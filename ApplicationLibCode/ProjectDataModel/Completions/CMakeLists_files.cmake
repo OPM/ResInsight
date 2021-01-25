@@ -9,6 +9,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimFishboneWellPathCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPerforationCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPerforationInterval.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathCompletions.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellPathCompletionSettings.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEllipseFractureTemplate.h
 ${CMAKE_CURRENT_LIST_DIR}/RimFracture.h
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureContainment.h
@@ -45,6 +46,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimFishboneWellPathCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPerforationCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPerforationInterval.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathCompletions.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellPathCompletionSettings.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimEllipseFractureTemplate.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimFracture.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureContainment.cpp
