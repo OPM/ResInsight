@@ -20,6 +20,8 @@
 #include "RiaTextStringTools.h"
 #include "RigWellPath.h"
 #include "RimModeledWellPathLateral.h"
+#include "RimWellPathCompletionSettings.h"
+#include "RimWellPathCompletions.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
@@ -52,11 +54,10 @@ RimWellPathGroup::RimWellPathGroup()
 //--------------------------------------------------------------------------------------------------
 void RimWellPathGroup::addChildWellPath( RimWellPath* wellPath )
 {
-    if ( m_childWellPaths.empty() )
+    if ( m_childWellPaths.empty() && isTopLevelWellPath() && wellPath->completions()->hasCompletions() )
     {
         RimWellPath::copyCompletionSettings( wellPath, this );
     }
-    RimWellPath::deleteCompletionSettings( wellPath );
 
     if ( !this->wellPathGeometry()->wellPathPoints().empty() )
     {
@@ -161,6 +162,8 @@ void RimWellPathGroup::createWellPathGeometry()
 //--------------------------------------------------------------------------------------------------
 void RimWellPathGroup::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
+    RimWellPath::defineUiTreeOrdering( uiTreeOrdering, uiConfigName );
+
     for ( auto child : m_childWellPaths() )
     {
         if ( child )

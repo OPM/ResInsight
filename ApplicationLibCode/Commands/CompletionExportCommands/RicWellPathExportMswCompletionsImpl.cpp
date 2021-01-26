@@ -166,7 +166,7 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFractures( RimEcl
     QTextStream               stream( exportFile.get() );
     RifTextDataTableFormatter formatter( stream );
 
-    double maxSegmentLength = wellPath->fractureCollection()->mswParameters()->maxSegmentLength();
+    double maxSegmentLength = wellPath->completionSettings()->mswParameters()->maxSegmentLength();
 
     generateWelsegsTable( formatter, exportInfo, maxSegmentLength );
     generateCompsegTables( formatter, exportInfo );
@@ -192,7 +192,7 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFishbones( RimEcl
     QTextStream               stream( exportFile.get() );
     RifTextDataTableFormatter formatter( stream );
 
-    double maxSegmentLength = wellPath->fishbonesCollection()->mswParameters()->maxSegmentLength();
+    double maxSegmentLength = wellPath->completionSettings()->mswParameters()->maxSegmentLength();
 
     generateWelsegsTable( formatter, exportInfo, maxSegmentLength );
     generateCompsegTables( formatter, exportInfo );
@@ -251,7 +251,7 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForPerforations( Rim
     QTextStream               stream( exportFile.get() );
     RifTextDataTableFormatter formatter( stream );
 
-    double maxSegmentLength = wellPath->perforationIntervalCollection()->mswParameters()->maxSegmentLength();
+    double maxSegmentLength = wellPath->completionSettings()->mswParameters()->maxSegmentLength();
 
     generateWelsegsTable( formatter, exportInfo, maxSegmentLength );
     generateCompsegTables( formatter, exportInfo );
@@ -845,17 +845,18 @@ RicMswExportInfo RicWellPathExportMswCompletionsImpl::generateFishbonesMswExport
 {
     RiaDefines::EclipseUnitSystem unitSystem = caseToApply->eclipseCaseData()->unitsType();
 
+    auto mswParameters = wellPath->completionSettings()->mswParameters();
+
     RicMswExportInfo exportInfo( wellPath,
                                  unitSystem,
                                  wellPath->fishbonesCollection()->startMD(),
-                                 wellPath->fishbonesCollection()->mswParameters()->lengthAndDepth().text(),
-                                 wellPath->fishbonesCollection()->mswParameters()->pressureDrop().text() );
-    exportInfo.setLinerDiameter( wellPath->fishbonesCollection()->mswParameters()->linerDiameter( unitSystem ) );
-    exportInfo.setRoughnessFactor( wellPath->fishbonesCollection()->mswParameters()->roughnessFactor( unitSystem ) );
+                                 mswParameters->lengthAndDepth().text(),
+                                 mswParameters->pressureDrop().text() );
+    exportInfo.setLinerDiameter( mswParameters->linerDiameter( unitSystem ) );
+    exportInfo.setRoughnessFactor( mswParameters->roughnessFactor( unitSystem ) );
 
-    double maxSegmentLength          = enableSegmentSplitting
-                                           ? wellPath->fishbonesCollection()->mswParameters()->maxSegmentLength()
-                                           : std::numeric_limits<double>::infinity();
+    double maxSegmentLength          = enableSegmentSplitting ? mswParameters->maxSegmentLength()
+                                                              : std::numeric_limits<double>::infinity();
     bool   foundSubGridIntersections = false;
 
     double subStartMD  = wellPath->fishbonesCollection()->startMD();
@@ -952,11 +953,12 @@ RicMswExportInfo
                                                                           coords,
                                                                           mds );
 
+    auto mswParameters = wellPath->completionSettings()->mswParameters();
+
     double initialMD = 0.0;
-    if ( wellPath->fractureCollection()->mswParameters()->referenceMDType() ==
-         RimMswCompletionParameters::MANUAL_REFERENCE_MD )
+    if ( mswParameters->referenceMDType() == RimMswCompletionParameters::MANUAL_REFERENCE_MD )
     {
-        initialMD = wellPath->fractureCollection()->mswParameters()->manualReferenceMD();
+        initialMD = mswParameters->manualReferenceMD();
     }
     else
     {
@@ -988,11 +990,11 @@ RicMswExportInfo
     RicMswExportInfo exportInfo( wellPath,
                                  unitSystem,
                                  initialMD,
-                                 wellPath->fractureCollection()->mswParameters()->lengthAndDepth().text(),
-                                 wellPath->fractureCollection()->mswParameters()->pressureDrop().text() );
+                                 mswParameters->lengthAndDepth().text(),
+                                 mswParameters->pressureDrop().text() );
 
-    exportInfo.setLinerDiameter( wellPath->fractureCollection()->mswParameters()->linerDiameter( unitSystem ) );
-    exportInfo.setRoughnessFactor( wellPath->fractureCollection()->mswParameters()->roughnessFactor( unitSystem ) );
+    exportInfo.setLinerDiameter( mswParameters->linerDiameter( unitSystem ) );
+    exportInfo.setRoughnessFactor( mswParameters->roughnessFactor( unitSystem ) );
 
     bool foundSubGridIntersections = false;
 
@@ -1070,15 +1072,16 @@ RicMswExportInfo RicWellPathExportMswCompletionsImpl::generatePerforationsMswExp
     std::vector<WellPathCellIntersectionInfo> filteredIntersections =
         filterIntersections( intersections, initialMD, wellPath->wellPathGeometry(), eclipseCase );
 
+    auto mswParameters = wellPath->completionSettings()->mswParameters();
+
     RicMswExportInfo exportInfo( wellPath,
                                  unitSystem,
                                  initialMD,
-                                 wellPath->perforationIntervalCollection()->mswParameters()->lengthAndDepth().text(),
-                                 wellPath->perforationIntervalCollection()->mswParameters()->pressureDrop().text() );
+                                 mswParameters->lengthAndDepth().text(),
+                                 mswParameters->pressureDrop().text() );
 
-    exportInfo.setLinerDiameter( wellPath->perforationIntervalCollection()->mswParameters()->linerDiameter( unitSystem ) );
-    exportInfo.setRoughnessFactor(
-        wellPath->perforationIntervalCollection()->mswParameters()->roughnessFactor( unitSystem ) );
+    exportInfo.setLinerDiameter( mswParameters->linerDiameter( unitSystem ) );
+    exportInfo.setRoughnessFactor( mswParameters->roughnessFactor( unitSystem ) );
 
     bool foundSubGridIntersections = false;
 
@@ -1138,10 +1141,10 @@ std::vector<WellPathCellIntersectionInfo>
     std::vector<WellPathCellIntersectionInfo> continuousIntersections =
         RigWellPathIntersectionTools::buildContinuousIntersections( allIntersections, mainGrid );
 
-    if ( wellPath->perforationIntervalCollection()->mswParameters()->referenceMDType() ==
+    if ( wellPath->completionSettings()->mswParameters()->referenceMDType() ==
          RimMswCompletionParameters::MANUAL_REFERENCE_MD )
     {
-        initialMD = wellPath->perforationIntervalCollection()->mswParameters()->manualReferenceMD();
+        initialMD = wellPath->completionSettings()->mswParameters()->manualReferenceMD();
     }
     else
     {

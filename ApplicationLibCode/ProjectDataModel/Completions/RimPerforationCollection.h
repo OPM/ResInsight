@@ -50,9 +50,8 @@ public:
     RimPerforationCollection();
     ~RimPerforationCollection() override;
 
-    const RimMswCompletionParameters*          mswParameters() const;
+    bool                                       hasPerforations() const;
     const RimNonDarcyPerforationParameters*    nonDarcyParameters() const;
-    void                                       setUnitSystemSpecificDefaults();
     void                                       appendPerforation( RimPerforationInterval* perforation );
     std::vector<const RimPerforationInterval*> perforations() const;
     std::vector<const RimPerforationInterval*> activePerforations() const;
@@ -65,6 +64,7 @@ private:
 
 private:
     caf::PdmChildArrayField<RimPerforationInterval*>      m_perforations;
-    caf::PdmChildField<RimMswCompletionParameters*>       m_mswParameters;
     caf::PdmChildField<RimNonDarcyPerforationParameters*> m_nonDarcyParameters;
+
+    caf::PdmChildField<RimMswCompletionParameters*> m_mswParameters_OBSOLETE;
 };

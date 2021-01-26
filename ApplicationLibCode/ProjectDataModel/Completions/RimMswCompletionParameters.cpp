@@ -105,6 +105,33 @@ RimMswCompletionParameters::~RimMswCompletionParameters()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimMswCompletionParameters::isDefault() const
+{
+    return m_refMDType() == ReferenceMDEnum() && m_refMD() == m_refMD.defaultValue() &&
+           m_linerDiameter() == m_linerDiameter.defaultValue() &&
+           m_roughnessFactor() == m_roughnessFactor.defaultValue() && m_pressureDrop == PressureDropEnum() &&
+           m_enforceMaxSegmentLength() == m_enforceMaxSegmentLength.defaultValue() &&
+           m_maxSegmentLength() == m_maxSegmentLength.defaultValue();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimMswCompletionParameters& RimMswCompletionParameters::operator=( const RimMswCompletionParameters& rhs )
+{
+    m_refMDType               = rhs.m_refMDType();
+    m_refMD                   = rhs.m_refMD();
+    m_linerDiameter           = rhs.m_linerDiameter();
+    m_roughnessFactor         = rhs.m_roughnessFactor();
+    m_pressureDrop            = rhs.m_pressureDrop();
+    m_enforceMaxSegmentLength = rhs.m_enforceMaxSegmentLength();
+    m_maxSegmentLength        = rhs.m_maxSegmentLength();
+    return *this;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimMswCompletionParameters::ReferenceMDType RimMswCompletionParameters::referenceMDType() const
 {
     return m_refMDType();

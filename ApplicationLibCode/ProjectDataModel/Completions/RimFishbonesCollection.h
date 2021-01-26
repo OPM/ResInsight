@@ -44,10 +44,10 @@ class RimFishbonesCollection : public RimCheckableNamedObject
 public:
     RimFishbonesCollection();
 
-    RimFishboneWellPathCollection*    wellPathCollection() const;
-    void                              appendFishbonesSubs( RimFishbonesMultipleSubs* subs );
-    const RimMswCompletionParameters* mswParameters() const;
+    RimFishboneWellPathCollection* wellPathCollection() const;
+    void                           appendFishbonesSubs( RimFishbonesMultipleSubs* subs );
 
+    bool                                   hasFishbones() const;
     std::vector<RimFishbonesMultipleSubs*> activeFishbonesSubs() const;
     std::vector<RimFishbonesMultipleSubs*> allFishbonesSubs() const;
 
@@ -69,15 +69,15 @@ private:
     caf::PdmChildArrayField<RimFishbonesMultipleSubs*> m_fishbonesSubs;
     caf::PdmChildField<RimFishboneWellPathCollection*> m_wellPathCollection;
 
-    caf::PdmField<double>                           m_startMD;
-    caf::PdmField<double>                           m_skinFactor;
-    caf::PdmField<double>                           m_mainBoreDiameter;
-    caf::PdmChildField<RimMswCompletionParameters*> m_mswParameters;
-    bool                                            manuallyModifiedStartMD;
+    caf::PdmField<double> m_startMD;
+    caf::PdmField<double> m_skinFactor;
+    caf::PdmField<double> m_mainBoreDiameter;
+    bool                  manuallyModifiedStartMD;
 
     caf::PdmField<double> m_linerDiameter_OBSOLETE;
     caf::PdmField<double> m_roughnessFactor_OBSOLETE;
 
     caf::PdmField<RimMswCompletionParameters::PressureDropEnum>   m_pressureDrop_OBSOLETE;
     caf::PdmField<RimMswCompletionParameters::LengthAndDepthEnum> m_lengthAndDepth_OBSOLETE;
+    caf::PdmChildField<RimMswCompletionParameters*>               m_mswParameters_OBSOLETE;
 };

@@ -70,7 +70,7 @@ class PdmUiPropertyView : public QWidget
 {
     Q_OBJECT
 public:
-    PdmUiPropertyView( QWidget* parent = nullptr, Qt::WindowFlags f = nullptr );
+    PdmUiPropertyView( QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags() );
     ~PdmUiPropertyView() override;
 
     void             setUiConfigurationName( QString uiConfigName );

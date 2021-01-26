@@ -34,8 +34,10 @@
 
 #include "Rim3dWellLogCurve.h"
 #include "Rim3dWellLogCurveCollection.h"
+#include "RimFishbonesCollection.h"
 #include "RimFishbonesMultipleSubs.h"
 #include "RimMainPlotCollection.h"
+#include "RimPerforationCollection.h"
 #include "RimProject.h"
 #include "RimStimPlanModelCollection.h"
 #include "RimTools.h"
@@ -283,9 +285,7 @@ const RimWellPathCompletions* RimWellPath::completions() const
 //--------------------------------------------------------------------------------------------------
 const RimWellPathCompletionSettings* RimWellPath::completionSettings() const
 {
-    auto topLevelPath = topLevelWellPath();
-    CVF_ASSERT( topLevelWellPath()->m_completionSettings() );
-    return topLevelPath->m_completionSettings();
+    return m_completionSettings();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -293,9 +293,7 @@ const RimWellPathCompletionSettings* RimWellPath::completionSettings() const
 //--------------------------------------------------------------------------------------------------
 RimWellPathCompletionSettings* RimWellPath::completionSettings()
 {
-    auto topLevelPath = topLevelWellPath();
-    CVF_ASSERT( topLevelWellPath()->m_completionSettings() );
-    return topLevelPath->m_completionSettings();
+    return m_completionSettings();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -478,6 +476,21 @@ QList<caf::PdmOptionItemInfo> RimWellPath::calculateValueOptions( const caf::Pdm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellPath::initAfterRead()
+{
+    if ( isTopLevelWellPath() && m_completionSettings->mswParameters()->isDefault() )
+    {
+        std::vector<const RimMswCompletionParameters*> allExistingMswParameters;
+        descendantsOfType( allExistingMswParameters );
+        for ( auto mswParameters : allExistingMswParameters )
+        {
+            if ( !mswParameters->isDefault() )
+            {
+                *( m_completionSettings->mswParameters() ) = *mswParameters;
+            }
+        }
+    }
+}
 QString RimWellPath::name() const
 {
     return m_name();
@@ -646,9 +659,29 @@ void RimWellPath::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, 
 {
     uiTreeOrdering.add( &m_wellLogFiles );
 
-    if ( m_completions->hasCompletions() )
+    if ( isTopLevelWellPath() && !allCompletionsRecursively().empty() )
     {
-        uiTreeOrdering.add( m_completions() );
+        if ( completionSettings() )
+        {
+            uiTreeOrdering.add( completionSettings() );
+        }
+    }
+
+    if ( m_completions->fishbonesCollection()->hasFishbones() )
+    {
+        uiTreeOrdering.add( m_completions->fishbonesCollection() );
+    }
+    if ( m_completions->fractureCollection()->hasFractures() )
+    {
+        uiTreeOrdering.add( m_completions->fractureCollection() );
+    }
+    if ( m_completions->perforationCollection()->hasPerforations() )
+    {
+        uiTreeOrdering.add( m_completions->perforationCollection() );
+    }
+    if ( m_completions->stimPlanModelCollection()->hasStimPlanModels() )
+    {
+        uiTreeOrdering.add( m_completions->stimPlanModelCollection() );
     }
 
     if ( m_3dWellLogCurves->has3dWellLogCurves() )
@@ -669,7 +702,7 @@ void RimWellPath::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, 
 //--------------------------------------------------------------------------------------------------
 void RimWellPath::copyCompletionSettings( RimWellPath* from, RimWellPath* to )
 {
-    CAF_ASSERT( from->m_completionSettings );
+    if ( !from->m_completionSettings ) return;
 
     if ( !to->m_completionSettings )
     {
@@ -679,14 +712,6 @@ void RimWellPath::copyCompletionSettings( RimWellPath* from, RimWellPath* to )
     {
         *( to->m_completionSettings() ) = *( from->m_completionSettings() );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellPath::deleteCompletionSettings( RimWellPath* wellPath )
-{
-    wellPath->m_completionSettings.setValue( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -741,6 +766,7 @@ void RimWellPath::setUnitSystem( RiaDefines::EclipseUnitSystem unitSystem )
     m_unitSystem = unitSystem;
 
     m_completions->setUnitSystemSpecificDefaults();
+    m_completionSettings->setUnitSystemSpecificDefaults();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -924,6 +950,24 @@ void RimWellPath::add3dWellLogCurve( Rim3dWellLogCurve* rim3dWellLogCurve )
 Rim3dWellLogCurveCollection* RimWellPath::rim3dWellLogCurveCollection() const
 {
     return m_3dWellLogCurves();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<const RimWellPathComponentInterface*> RimWellPath::allCompletionsRecursively() const
+{
+    std::vector<const RimWellPathComponentInterface*> allCompletions;
+
+    std::vector<const RimWellPathCompletions*> completionCollections;
+    this->descendantsOfType( completionCollections );
+    for ( auto collection : completionCollections )
+    {
+        std::vector<const RimWellPathComponentInterface*> completions = collection->allCompletions();
+        allCompletions.insert( allCompletions.end(), completions.begin(), completions.end() );
+    }
+
+    return allCompletions;
 }
 
 //--------------------------------------------------------------------------------------------------

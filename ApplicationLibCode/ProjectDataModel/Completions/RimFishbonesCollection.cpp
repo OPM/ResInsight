@@ -57,10 +57,11 @@ RimFishbonesCollection::RimFishbonesCollection()
     CAF_PDM_InitField( &m_startMD, "StartMD", HUGE_VAL, "Start MD", "", "", "" );
     CAF_PDM_InitField( &m_mainBoreDiameter, "MainBoreDiameter", 0.216, "Main Bore Diameter", "", "", "" );
     CAF_PDM_InitField( &m_skinFactor, "MainBoreSkinFactor", 0., "Main Bore Skin Factor [0..1]", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_mswParameters, "MswParameters", "Multi Segment Well Parameters", "", "", "" );
-    m_mswParameters = new RimMswCompletionParameters( false );
-    m_mswParameters.uiCapability()->setUiTreeHidden( true );
-    m_mswParameters.uiCapability()->setUiTreeChildrenHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_mswParameters_OBSOLETE, "MswParameters", "Multi Segment Well Parameters", "", "", "" );
+    m_mswParameters_OBSOLETE = new RimMswCompletionParameters( false );
+    m_mswParameters_OBSOLETE.uiCapability()->setUiTreeHidden( true );
+    m_mswParameters_OBSOLETE.uiCapability()->setUiTreeChildrenHidden( true );
+    m_mswParameters_OBSOLETE.xmlCapability()->setIOWritable( false );
     manuallyModifiedStartMD = false;
 
     // Moved to RimMswCompletionParameters and obsoleted
@@ -135,8 +136,6 @@ void RimFishbonesCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     wellGroup->add( &m_startMD );
     wellGroup->add( &m_mainBoreDiameter );
     wellGroup->add( &m_skinFactor );
-    caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup( "Multi Segment Well Options" );
-    m_mswParameters->uiOrdering( uiConfigName, *mswGroup );
     uiOrdering.skipRemainingFields( true );
 }
 
@@ -147,19 +146,19 @@ void RimFishbonesCollection::initAfterRead()
 {
     if ( m_linerDiameter_OBSOLETE() != m_linerDiameter_OBSOLETE.defaultValue() )
     {
-        m_mswParameters->setLinerDiameter( m_linerDiameter_OBSOLETE() );
+        m_mswParameters_OBSOLETE->setLinerDiameter( m_linerDiameter_OBSOLETE() );
     }
     if ( m_roughnessFactor_OBSOLETE() != m_roughnessFactor_OBSOLETE.defaultValue() )
     {
-        m_mswParameters->setRoughnessFactor( m_roughnessFactor_OBSOLETE() );
+        m_mswParameters_OBSOLETE->setRoughnessFactor( m_roughnessFactor_OBSOLETE() );
     }
     if ( m_pressureDrop_OBSOLETE() != m_pressureDrop_OBSOLETE.defaultValue() )
     {
-        m_mswParameters->setPressureDrop( m_pressureDrop_OBSOLETE() );
+        m_mswParameters_OBSOLETE->setPressureDrop( m_pressureDrop_OBSOLETE() );
     }
     if ( m_lengthAndDepth_OBSOLETE() != m_lengthAndDepth_OBSOLETE.defaultValue() )
     {
-        m_mswParameters->setLengthAndDepth( m_lengthAndDepth_OBSOLETE() );
+        m_mswParameters_OBSOLETE->setLengthAndDepth( m_lengthAndDepth_OBSOLETE() );
     }
 }
 
@@ -178,9 +177,9 @@ void RimFishbonesCollection::appendFishbonesSubs( RimFishbonesMultipleSubs* subs
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RimMswCompletionParameters* RimFishbonesCollection::mswParameters() const
+bool RimFishbonesCollection::hasFishbones() const
 {
-    return m_mswParameters;
+    return !m_fishbonesSubs.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -322,5 +321,4 @@ void RimFishbonesCollection::setUnitSystemSpecificDefaults()
 
         m_wellPathCollection->setUnitSystemSpecificDefaults();
     }
-    m_mswParameters->setUnitSystemSpecificDefaults();
 }

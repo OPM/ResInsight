@@ -38,6 +38,7 @@ public:
     RimStimPlanModelCollection( void );
     ~RimStimPlanModelCollection( void ) override;
 
+    bool hasStimPlanModels() const;
     void addStimPlanModel( RimStimPlanModel* fracture );
     void deleteStimPlanModels();
 

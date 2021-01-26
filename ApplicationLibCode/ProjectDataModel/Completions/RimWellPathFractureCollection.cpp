@@ -38,10 +38,10 @@ RimWellPathFractureCollection::RimWellPathFractureCollection( void )
     setName( "Fractures" );
     nameField()->uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_mswParameters, "MswParameters", "Multi Segment Well Parameters", "", "", "" );
-    m_mswParameters = new RimMswCompletionParameters;
-    m_mswParameters.uiCapability()->setUiTreeHidden( true );
-    m_mswParameters.uiCapability()->setUiTreeChildrenHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_mswParameters_OBSOLETE, "MswParameters", "Multi Segment Well Parameters", "", "", "" );
+    m_mswParameters_OBSOLETE = new RimMswCompletionParameters;
+    m_mswParameters_OBSOLETE.uiCapability()->setUiTreeHidden( true );
+    m_mswParameters_OBSOLETE.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitField( &m_refMDType_OBSOLETE, "RefMDType", std::numeric_limits<int>::max(), "Reference MD", "", "", "" );
     CAF_PDM_InitField( &m_refMD_OBSOLETE, "RefMD", std::numeric_limits<double>::infinity(), "", "", "", "" );
@@ -59,9 +59,9 @@ RimWellPathFractureCollection::~RimWellPathFractureCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RimMswCompletionParameters* RimWellPathFractureCollection::mswParameters() const
+bool RimWellPathFractureCollection::hasFractures() const
 {
-    return m_mswParameters;
+    return !m_fractures.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,14 +78,6 @@ void RimWellPathFractureCollection::addFracture( RimWellPathFracture* fracture )
 void RimWellPathFractureCollection::deleteFractures()
 {
     m_fractures.deleteAllChildObjects();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellPathFractureCollection::setUnitSystemSpecificDefaults()
-{
-    m_mswParameters->setUnitSystemSpecificDefaults();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -122,8 +114,6 @@ std::vector<RimWellPathFracture*> RimWellPathFractureCollection::activeFractures
 //--------------------------------------------------------------------------------------------------
 void RimWellPathFractureCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup( "Multi Segment Well Options" );
-    m_mswParameters->uiOrdering( uiConfigName, *mswGroup );
     uiOrdering.skipRemainingFields( true );
 }
 
@@ -151,12 +141,12 @@ void RimWellPathFractureCollection::initAfterRead()
 {
     if ( m_refMDType_OBSOLETE() != std::numeric_limits<int>::max() )
     {
-        m_mswParameters->setReferenceMDType( (RimMswCompletionParameters::ReferenceMDType)m_refMDType_OBSOLETE() );
+        m_mswParameters_OBSOLETE->setReferenceMDType( (RimMswCompletionParameters::ReferenceMDType)m_refMDType_OBSOLETE() );
     }
 
     if ( m_refMD_OBSOLETE() != std::numeric_limits<double>::infinity() )
     {
-        m_mswParameters->setManualReferenceMD( m_refMD_OBSOLETE() );
+        m_mswParameters_OBSOLETE->setManualReferenceMD( m_refMD_OBSOLETE() );
     }
 }
 

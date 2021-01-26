@@ -54,6 +54,9 @@ public:
     RimMswCompletionParameters( bool enableReferenceDepth = true );
     ~RimMswCompletionParameters() override;
 
+    bool                        isDefault() const;
+    RimMswCompletionParameters& operator=( const RimMswCompletionParameters& rhs );
+
     ReferenceMDType    referenceMDType() const;
     double             manualReferenceMD() const;
     double             linerDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const;
