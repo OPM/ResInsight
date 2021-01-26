@@ -134,15 +134,13 @@ void RimWellPathFractureCollection::fieldChangedByUi( const caf::PdmFieldHandle*
                                                       const QVariant&            oldValue,
                                                       const QVariant&            newValue )
 {
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted( proj );
     if ( changedField == &m_isChecked )
     {
-        proj->reloadCompletionTypeResultsInAllViews();
+        RimProject::current()->reloadCompletionTypeResultsInAllViews();
     }
     else
     {
-        proj->scheduleCreateDisplayModelAndRedrawAllViews();
+        RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 }
 
@@ -160,4 +158,13 @@ void RimWellPathFractureCollection::initAfterRead()
     {
         m_mswParameters->setManualReferenceMD( m_refMD_OBSOLETE() );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathFractureCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                                    std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
 }
