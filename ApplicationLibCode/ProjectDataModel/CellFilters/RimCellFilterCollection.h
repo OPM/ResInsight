@@ -68,6 +68,8 @@ public:
 
     void connectToFilterUpdates( RimCellFilter* filter );
 
+    void setCase( RimCase* theCase );
+
 protected:
     // Overridden methods
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

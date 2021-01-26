@@ -39,9 +39,6 @@ bool hasNegativeValues( std::vector<double> xs );
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFile( const QString& stimPlanFileName,
                                                                                    double     conductivityScalingFactor,
-                                                                                   double     xScaleFactor,
-                                                                                   double     yScaleFactor,
-                                                                                   double     wellPathInterationY,
                                                                                    MirrorMode mirrorMode,
                                                                                    RiaDefines::EclipseUnitSystem requiredUnit,
                                                                                    QString* errorMessage )
@@ -61,9 +58,6 @@ cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFil
         xmlStream.setDevice( &dataFile );
         xmlStream.readNext();
         readStimplanGridAndTimesteps( xmlStream, stimPlanFileData.p(), mirrorMode, requiredUnit );
-
-        if ( xScaleFactor != 1.0 ) stimPlanFileData->scaleXs( xScaleFactor );
-        if ( yScaleFactor != 1.0 ) stimPlanFileData->scaleYs( yScaleFactor, wellPathInterationY );
 
         caf::AppEnum<RiaDefines::EclipseUnitSystem> unitSystem = stimPlanFileData->unitSet();
 

@@ -11,6 +11,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechPropertyFilter.h
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechPropertyFilterCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPolygonFilter.h
 ${CMAKE_CURRENT_LIST_DIR}/RimUserDefinedFilter.h
+${CMAKE_CURRENT_LIST_DIR}/RimCellFilterIntervalTool.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -25,6 +26,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechPropertyFilter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechPropertyFilterCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPolygonFilter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimUserDefinedFilter.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimCellFilterIntervalTool.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

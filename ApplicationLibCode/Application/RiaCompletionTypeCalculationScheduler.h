@@ -27,6 +27,9 @@
 class QTimer;
 class RimEclipseCase;
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 class RiaCompletionTypeCalculationScheduler : public QObject
 {
     Q_OBJECT;
@@ -40,10 +43,7 @@ private slots:
     void slotRecalculateCompletionType();
 
 private:
-    RiaCompletionTypeCalculationScheduler()
-        : m_recalculateCompletionTypeTimer( nullptr )
-    {
-    }
+    RiaCompletionTypeCalculationScheduler();
     ~RiaCompletionTypeCalculationScheduler() override;
 
     RiaCompletionTypeCalculationScheduler( const RiaCompletionTypeCalculationScheduler& o ) = delete;

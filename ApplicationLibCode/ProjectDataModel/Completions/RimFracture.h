@@ -40,6 +40,7 @@ class RivWellFracturePartMgr;
 class RimFractureTemplate;
 class RigFracturedEclipseCellExportData;
 class RigMainGrid;
+class RigFractureGrid;
 
 class NonDarcyData
 {
@@ -120,6 +121,11 @@ public:
     void                ensureValidNonDarcyProperties();
     void                clearCachedNonDarcyProperties();
 
+    virtual void triangleGeometry( std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* triangleIndices ) const;
+
+    void                   updateFractureGrid();
+    const RigFractureGrid* fractureGrid() const;
+
     friend class RimFractureTemplate;
 
     // RimWellPathCompletionsInterface overrides.
@@ -141,7 +147,9 @@ protected:
 private:
     cvf::Vec3d fracturePositionForUi() const;
     double     wellFractureAzimuthDiff() const;
-    void       triangleGeometry( std::vector<cvf::uint>* triangleIndices, std::vector<cvf::Vec3f>* vxCoords ) const;
+    void       triangleGeometryTransformed( std::vector<cvf::uint>*  triangleIndices,
+                                            std::vector<cvf::Vec3f>* vxCoords,
+                                            bool                     transform ) const;
 
     QString wellFractureAzimuthDiffText() const;
     QString wellAzimuthAtFracturePositionText() const;
@@ -153,6 +161,7 @@ protected:
     caf::PdmField<bool>                                        m_editFractureTemplate;
     caf::PdmField<bool>                                        m_createEllipseFractureTemplate;
     caf::PdmField<bool>                                        m_createStimPlanFractureTemplate;
+    caf::PdmField<double>                                      m_wellPathDepthAtFracture;
     caf::PdmProxyValueField<cvf::Vec3d>                        m_uiAnchorPosition;
     caf::PdmField<caf::AppEnum<RiaDefines::EclipseUnitSystem>> m_fractureUnit;
 
@@ -172,6 +181,7 @@ private:
     caf::PdmField<cvf::Vec3d> m_anchorPosition;
 
     cvf::ref<RivWellFracturePartMgr> m_fracturePartMgr;
+    cvf::cref<RigFractureGrid>       m_fractureGrid;
 
     NonDarcyData m_cachedFractureProperties;
 };

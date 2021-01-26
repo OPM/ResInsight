@@ -114,9 +114,13 @@ void RicCreateTemporaryLgrFeature::createLgrsForWellPaths( std::vector<RimWellPa
 //--------------------------------------------------------------------------------------------------
 void RicCreateTemporaryLgrFeature::updateViews( RimEclipseCase* eclipseCase )
 {
-    RiaGuiApplication* app = RiaGuiApplication::instance();
+    RiaGuiApplication* guiApp = nullptr;
+    if ( RiaGuiApplication::isRunning() )
+    {
+        guiApp = RiaGuiApplication::instance();
+    }
 
-    app->clearAllSelections();
+    if ( guiApp ) guiApp->clearAllSelections();
 
     deleteAllCachedData( eclipseCase );
     RimProject::current()->mainPlotCollection()->deleteAllCachedData();
@@ -124,7 +128,7 @@ void RicCreateTemporaryLgrFeature::updateViews( RimEclipseCase* eclipseCase )
 
     RimProject::current()->mainPlotCollection()->wellLogPlotCollection()->reloadAllPlots();
 
-    eclipseCase->createDisplayModelAndUpdateAllViews();
+    if ( guiApp ) eclipseCase->createDisplayModelAndUpdateAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------

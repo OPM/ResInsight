@@ -36,6 +36,7 @@
 #include "RimGeoMechView.h"
 #include "RimRegularLegendConfig.h"
 
+#include "RimCellFilterCollection.h"
 #include "RimFaultInViewCollection.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimSurfaceInViewCollection.h"
@@ -127,6 +128,7 @@ void RicNewContourMapViewFeature::onActionTriggered( bool isChecked )
         if ( eclipseCase )
         {
             eclipseCase->updateConnectedEditors();
+            eclipseContourMap->cellFilterCollection()->setCase( eclipseCase );
         }
         caf::SelectionManager::instance()->setSelectedItem( eclipseContourMap );
 
@@ -145,6 +147,7 @@ void RicNewContourMapViewFeature::onActionTriggered( bool isChecked )
         if ( geoMechCase )
         {
             geoMechCase->updateConnectedEditors();
+            eclipseContourMap->cellFilterCollection()->setCase( geoMechCase );
             caf::SelectionManager::instance()->setSelectedItem( geoMechContourMap );
             geoMechContourMap->createDisplayModelAndRedraw();
             geoMechContourMap->zoomAll();

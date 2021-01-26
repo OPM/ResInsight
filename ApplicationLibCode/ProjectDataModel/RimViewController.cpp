@@ -1037,6 +1037,7 @@ void RimViewController::updateCellFilterOverrides( const RimCellFilter* changedF
                     {
                         RimGeoMechCase* gCase = depGeomView->geoMechCase();
                         polyDstFilter->setCase( gCase );
+                        polyDstFilter->enableKFilter( false );
                     }
                 }
             }
@@ -1068,6 +1069,7 @@ void RimViewController::updateCellFilterOverrides( const RimCellFilter* changedF
                     {
                         RimEclipseCase* eCase = depEclView->eclipseCase();
                         polyDstFilter->setCase( eCase );
+                        polyDstFilter->enableKFilter( false );
                     }
                 }
             }

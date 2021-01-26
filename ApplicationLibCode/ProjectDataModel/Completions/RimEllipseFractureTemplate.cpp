@@ -57,9 +57,6 @@ RimEllipseFractureTemplate::RimEllipseFractureTemplate()
     CAF_PDM_InitField( &m_width, "Width", 0.0, "Width", "", "", "" );
     CAF_PDM_InitField( &m_permeability, "Permeability", 0.0, "Permeability [mD]", "", "", "" );
 
-    m_fractureGrid = new RigFractureGrid();
-    createFractureGridAndAssignConductivities();
-
     setDeletable( true );
 }
 
@@ -75,8 +72,12 @@ RimEllipseFractureTemplate::~RimEllipseFractureTemplate()
 //--------------------------------------------------------------------------------------------------
 void RimEllipseFractureTemplate::loadDataAndUpdate()
 {
-    createFractureGridAndAssignConductivities();
+    for ( RimFracture* fracture : fracturesUsingThisTemplate() )
+    {
+        fracture->updateFractureGrid();
+    }
 
+    // TODO: is this necessary? Strange responsibility for a fracture template.
     RimEclipseView* activeView = dynamic_cast<RimEclipseView*>( RiaApplication::instance()->activeReservoirView() );
     if ( activeView ) activeView->loadDataAndUpdate();
 }
@@ -104,7 +105,8 @@ void RimEllipseFractureTemplate::fieldChangedByUi( const caf::PdmFieldHandle* ch
 ///
 //--------------------------------------------------------------------------------------------------
 void RimEllipseFractureTemplate::fractureTriangleGeometry( std::vector<cvf::Vec3f>* nodeCoords,
-                                                           std::vector<cvf::uint>*  triangleIndices ) const
+                                                           std::vector<cvf::uint>*  triangleIndices,
+                                                           double                   wellPathDepthAtFracture ) const
 {
     RigEllipsisTesselator tesselator( 20 );
 
@@ -124,7 +126,7 @@ std::vector<cvf::Vec3f> RimEllipseFractureTemplate::fractureBorderPolygon() cons
     std::vector<cvf::Vec3f> nodeCoords;
     std::vector<cvf::uint>  triangleIndices;
 
-    fractureTriangleGeometry( &nodeCoords, &triangleIndices );
+    fractureTriangleGeometry( &nodeCoords, &triangleIndices, -1.0 );
 
     for ( size_t i = 1; i < nodeCoords.size(); i++ )
     {
@@ -154,8 +156,9 @@ void RimEllipseFractureTemplate::changeUnits()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEllipseFractureTemplate::createFractureGridAndAssignConductivities()
+cvf::cref<RigFractureGrid> RimEllipseFractureTemplate::createFractureGrid( double wellPathDepthAtFracture ) const
 {
+    cvf::ref<RigFractureGrid>    fractureGrid = new RigFractureGrid();
     std::vector<RigFractureCell> fractureCells;
 
     int numberOfCellsI = 35;
@@ -215,14 +218,15 @@ void RimEllipseFractureTemplate::createFractureGridAndAssignConductivities()
         }
     }
 
-    m_fractureGrid->setFractureCells( fractureCells );
+    fractureGrid->setFractureCells( fractureCells );
 
     // Set well intersection to center of ellipse
     std::pair<size_t, size_t> wellCenterFractureCellIJ = std::make_pair( numberOfCellsI / 2, numberOfCellsJ / 2 );
-    m_fractureGrid->setWellCenterFractureCellIJ( wellCenterFractureCellIJ );
+    fractureGrid->setWellCenterFractureCellIJ( wellCenterFractureCellIJ );
 
-    m_fractureGrid->setICellCount( numberOfCellsI );
-    m_fractureGrid->setJCellCount( numberOfCellsJ );
+    fractureGrid->setICellCount( numberOfCellsI );
+    fractureGrid->setJCellCount( numberOfCellsJ );
+    return cvf::cref<RigFractureGrid>( fractureGrid.p() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -267,14 +271,6 @@ QList<caf::PdmOptionItemInfo>
     }
 
     return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const RigFractureGrid* RimEllipseFractureTemplate::fractureGrid() const
-{
-    return m_fractureGrid.p();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2021 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -37,15 +37,13 @@ class DisplayCoordTransform;
 }
 
 class Rim3dView;
-class RivTextAnnotationPartMgr;
-class RivReachCircleAnnotationPartMgr;
 class RivPolylinePartMgr;
 
-class RivAnnotationsPartMgr : public cvf::Object
+class RivCellFilterPartMgr : public cvf::Object
 {
 public:
-    RivAnnotationsPartMgr( Rim3dView* view );
-    ~RivAnnotationsPartMgr() override;
+    RivCellFilterPartMgr( Rim3dView* view );
+    ~RivCellFilterPartMgr() override;
 
     void appendGeometryPartsToModel( cvf::ModelBasicList*              model,
                                      const caf::DisplayCoordTransform* displayCoordTransform,
@@ -54,11 +52,9 @@ public:
     void clearGeometryCache();
 
 private:
-    void createAnnotationPartManagers();
+    void createCellFilterPartManagers();
 
 private:
-    caf::PdmPointer<Rim3dView>                       m_rimView;
-    cvf::Collection<RivTextAnnotationPartMgr>        m_textAnnotationPartMgrs;
-    cvf::Collection<RivReachCircleAnnotationPartMgr> m_reachCircleAnnotationPartMgrs;
-    cvf::Collection<RivPolylinePartMgr>              m_polylineAnnotationPartMgrs;
+    caf::PdmPointer<Rim3dView>          m_rimView;
+    cvf::Collection<RivPolylinePartMgr> m_cellFilterPartMgrs;
 };

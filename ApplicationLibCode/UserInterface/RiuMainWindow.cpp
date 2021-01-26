@@ -531,6 +531,7 @@ void RiuMainWindow::createMenus()
     testMenu->addAction( cmdFeatureMgr->action( "RicRunCommandFileFeature" ) );
     testMenu->addAction( cmdFeatureMgr->action( "RicExportObjectAndFieldKeywordsFeature" ) );
     testMenu->addAction( cmdFeatureMgr->action( "RicSaveProjectNoGlobalPathsFeature" ) );
+    testMenu->addAction( cmdFeatureMgr->action( "RicExecuteLastUsedScriptFeature" ) );
 
     testMenu->addSeparator();
 
@@ -674,6 +675,7 @@ void RiuMainWindow::createToolBars()
         toolbar->addAction( cmdFeatureMgr->action( "RicLaunchUnitTestsFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicLaunchRegressionTestsFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicRunCommandFileFeature" ) );
+        toolbar->addAction( cmdFeatureMgr->action( "RicExecuteLastUsedScriptFeature" ) );
     }
 
     // Create animation toolbar

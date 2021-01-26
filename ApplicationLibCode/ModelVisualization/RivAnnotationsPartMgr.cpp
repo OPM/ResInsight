@@ -27,9 +27,11 @@
 #include "RimPolylinesFromFileAnnotationInView.h"
 #include "RimUserDefinedPolylinesAnnotationInView.h"
 
-#include "RivPolylineAnnotationPartMgr.h"
+#include "RivPolylinePartMgr.h"
 #include "RivReachCircleAnnotationPartMgr.h"
 #include "RivTextAnnotationPartMgr.h"
+
+#include "cafPdmObject.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -113,12 +115,12 @@ void RivAnnotationsPartMgr::createAnnotationPartManagers()
     {
         for ( auto annotation : userDefinedPolylineAnnotations )
         {
-            auto* apm = new RivPolylineAnnotationPartMgr( m_rimView, annotation );
+            auto* apm = new RivPolylinePartMgr( m_rimView, annotation, coll );
             m_polylineAnnotationPartMgrs.push_back( apm );
         }
         for ( auto annotation : polylineFromFileAnnotations )
         {
-            auto* apm = new RivPolylineAnnotationPartMgr( m_rimView, annotation );
+            auto* apm = new RivPolylinePartMgr( m_rimView, annotation, coll );
             m_polylineAnnotationPartMgrs.push_back( apm );
         }
     }

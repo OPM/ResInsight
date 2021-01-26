@@ -18,12 +18,10 @@
 
 #include "RimCellFilterCollection.h"
 
-#include "RigPolyLinesData.h"
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimCellFilter.h"
 #include "RimCellRangeFilter.h"
-#include "RimGeoMechView.h"
 #include "RimPolygonFilter.h"
 #include "RimUserDefinedFilter.h"
 #include "RimViewController.h"
@@ -86,6 +84,18 @@ void RimCellFilterCollection::setActive( bool bActive )
 {
     m_isActive = bActive;
     updateIconState();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCellFilterCollection::setCase( RimCase* theCase )
+{
+    for ( RimCellFilter* filter : m_cellFilters )
+    {
+        RimPolygonFilter* polyFilter = dynamic_cast<RimPolygonFilter*>( filter );
+        if ( polyFilter ) polyFilter->setCase( theCase );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -205,7 +215,7 @@ bool RimCellFilterCollection::hasActiveFilters() const
 
     for ( const auto& filter : m_cellFilters )
     {
-        if ( filter->isActive() ) return true;
+        if ( filter->isFilterEnabled() ) return true;
     }
 
     return false;
@@ -220,7 +230,7 @@ bool RimCellFilterCollection::hasActiveIncludeFilters() const
 
     for ( const auto& filter : m_cellFilters )
     {
-        if ( filter->isActive() && filter->filterMode() == RimCellFilter::INCLUDE ) return true;
+        if ( filter->isFilterEnabled() && filter->filterMode() == RimCellFilter::INCLUDE ) return true;
     }
 
     return false;
@@ -233,8 +243,8 @@ RimPolygonFilter* RimCellFilterCollection::addNewPolygonFilter( RimCase* srcCase
 {
     RimPolygonFilter* pFilter = new RimPolygonFilter();
     pFilter->setCase( srcCase );
-    pFilter->setActive( false );
     addFilter( pFilter );
+    pFilter->enablePicking( true );
     onFilterUpdated( pFilter );
     return pFilter;
 }
@@ -361,7 +371,7 @@ void RimCellFilterCollection::compoundCellRangeFilter( cvf::CellRangeFilter* cel
 
     for ( RimCellFilter* filter : m_cellFilters )
     {
-        if ( filter->isActive() && static_cast<size_t>( filter->gridIndex() ) == gridIndex )
+        if ( filter->isFilterEnabled() && static_cast<size_t>( filter->gridIndex() ) == gridIndex )
         {
             filter->updateCompundFilter( cellRangeFilter );
         }

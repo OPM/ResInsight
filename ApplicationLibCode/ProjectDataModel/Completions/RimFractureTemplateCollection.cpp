@@ -223,7 +223,7 @@ void RimFractureTemplateCollection::createAndAssignTemplateCopyForNonMatchingUni
 
     for ( RimFractureTemplate* fractureTemplate : m_fractureDefinitions() )
     {
-        if ( fractureTemplate && fractureTemplate->fractureGrid() )
+        if ( fractureTemplate )
         {
             RimFractureTemplate* templateWithMatchingUnit = nullptr;
 

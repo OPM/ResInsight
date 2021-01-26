@@ -137,25 +137,37 @@ double RigStimPlanFractureDefinition::maxY() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigStimPlanFractureDefinition::scaleXs( double scaleFactor )
+std::vector<double> RigStimPlanFractureDefinition::computeScaledXs( const std::vector<double>& xs, double scaleFactor )
 {
+    std::vector<double> scaledXs;
+
     // Scale using 0 as scaling anchor
-    for ( double& x : m_Xs )
+    for ( double x : xs )
     {
-        x *= scaleFactor;
+        if ( scaleFactor != 1.0 ) x *= scaleFactor;
+        scaledXs.push_back( x );
     }
+
+    return scaledXs;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigStimPlanFractureDefinition::scaleYs( double scaleFactor, double wellPathIntersectionY )
+std::vector<double> RigStimPlanFractureDefinition::computeScaledYs( const std::vector<double>& ys,
+                                                                    double                     scaleFactor,
+                                                                    double                     wellPathIntersectionY )
 {
+    std::vector<double> scaledYs;
+
     // Scale using wellPathIntersectionY as scaling anchor
-    for ( double& y : m_Ys )
+    for ( double y : ys )
     {
-        y = ( y - wellPathIntersectionY ) * scaleFactor + wellPathIntersectionY;
+        if ( scaleFactor != 1.0 ) y = ( y - wellPathIntersectionY ) * scaleFactor + wellPathIntersectionY;
+        scaledYs.push_back( y );
     }
+
+    return scaledYs;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -286,11 +298,12 @@ bool RigStimPlanFractureDefinition::numberOfParameterValuesOK( std::vector<std::
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<double>
-    RigStimPlanFractureDefinition::adjustedYCoordsAroundWellPathPosition( double wellPathIntersectionAtFractureDepth ) const
+    RigStimPlanFractureDefinition::adjustedYCoordsAroundWellPathPosition( const std::vector<double>& ys,
+                                                                          double wellPathIntersectionAtFractureDepth )
 {
     std::vector<double> yRelativeToWellPath;
 
-    for ( const double& y : m_Ys )
+    for ( double y : ys )
     {
         double adjustedDepth = y + wellPathIntersectionAtFractureDepth;
         yRelativeToWellPath.push_back( adjustedDepth );
@@ -368,9 +381,11 @@ std::vector<std::vector<double>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigFractureGrid>
+cvf::cref<RigFractureGrid>
     RigStimPlanFractureDefinition::createFractureGrid( const QString& resultName,
                                                        int            activeTimeStepIndex,
+                                                       double         xScaleFactor,
+                                                       double         yScaleFactor,
                                                        double         wellPathIntersectionAtFractureDepth,
                                                        RiaDefines::EclipseUnitSystem requiredUnitSet ) const
 {
@@ -386,8 +401,13 @@ cvf::ref<RigFractureGrid>
 
     bool wellCenterStimPlanCellFound = false;
 
-    std::vector<double> yCoordsAtNodes = this->adjustedYCoordsAroundWellPathPosition( wellPathIntersectionAtFractureDepth );
-    std::vector<double> xCoordsAtNodes = this->m_Xs;
+    std::vector<double> scaledXs = computeScaledXs( this->m_Xs, xScaleFactor );
+    std::vector<double> scaledYs = computeScaledYs( this->m_Ys, yScaleFactor, -wellPathIntersectionAtFractureDepth );
+
+    std::vector<double> yCoordsAtNodes =
+        this->adjustedYCoordsAroundWellPathPosition( scaledYs, wellPathIntersectionAtFractureDepth );
+
+    std::vector<double> xCoordsAtNodes = scaledXs;
 
     std::vector<double> xCoords;
     for ( int i = 0; i < static_cast<int>( xCoordsAtNodes.size() ) - 1; i++ )
@@ -445,10 +465,9 @@ cvf::ref<RigFractureGrid>
     fractureGrid->setFractureCells( stimPlanCells );
     fractureGrid->setWellCenterFractureCellIJ( wellCenterStimPlanCellIJ );
     fractureGrid->setICellCount( this->m_Xs.size() - 2 );
-    fractureGrid->setJCellCount(
-        this->adjustedYCoordsAroundWellPathPosition( wellPathIntersectionAtFractureDepth ).size() - 2 );
+    fractureGrid->setJCellCount( this->m_Ys.size() - 2 );
 
-    return fractureGrid;
+    return cvf::cref<RigFractureGrid>( fractureGrid.p() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -484,15 +503,21 @@ std::vector<double> RigStimPlanFractureDefinition::fractureGridResults( const QS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigStimPlanFractureDefinition::createFractureTriangleGeometry( double         wellPathIntersectionAtFractureDepth,
+void RigStimPlanFractureDefinition::createFractureTriangleGeometry( double         xScaleFactor,
+                                                                    double         yScaleFactor,
+                                                                    double         wellPathIntersectionAtFractureDepth,
                                                                     const QString& fractureUserName,
                                                                     std::vector<cvf::Vec3f>* vertices,
                                                                     std::vector<cvf::uint>*  triangleIndices ) const
 {
-    std::vector<double> xCoords    = this->m_Xs;
+    std::vector<double> scaledXs = computeScaledXs( this->m_Xs, xScaleFactor );
+    std::vector<double> scaledYs = computeScaledYs( this->m_Ys, yScaleFactor, -wellPathIntersectionAtFractureDepth );
+
+    std::vector<double> xCoords    = scaledXs;
     cvf::uint           lenXcoords = static_cast<cvf::uint>( xCoords.size() );
 
-    std::vector<double> adjustedYs = this->adjustedYCoordsAroundWellPathPosition( wellPathIntersectionAtFractureDepth );
+    std::vector<double> adjustedYs =
+        this->adjustedYCoordsAroundWellPathPosition( scaledYs, wellPathIntersectionAtFractureDepth );
 
     for ( cvf::uint k = 0; k < adjustedYs.size(); k++ )
     {
@@ -681,7 +706,7 @@ QStringList RigStimPlanFractureDefinition::conductivityResultNames() const
 
     for ( const auto& stimPlanResult : m_stimPlanResults )
     {
-        if ( stimPlanResult.resultName.contains( "conductivity", Qt::CaseInsensitive ) )
+        if ( stimPlanResult.resultName.contains( RiaDefines::conductivityResultName(), Qt::CaseInsensitive ) )
         {
             resultNames.push_back( stimPlanResult.resultName );
         }

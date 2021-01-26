@@ -240,7 +240,8 @@ const QString RivWellFracturePartMgr::resultInfoText( const RimEclipseView& acti
             QString resultNameFromColors = activeView.fractureColors()->uiResultName();
             QString resultUnitFromColors = activeView.fractureColors()->unit();
 
-            double resultValue = stimPlanTemplate->resultValueAtIJ( resultNameFromColors,
+            double resultValue = stimPlanTemplate->resultValueAtIJ( m_rimFracture->fractureGrid(),
+                                                                    resultNameFromColors,
                                                                     resultUnitFromColors,
                                                                     stimPlanTemplate->activeTimeStepIndex(),
                                                                     cell->getI(),
@@ -284,7 +285,9 @@ const RigFractureCell* RivWellFracturePartMgr::getFractureCellAtDomainCoord( cvf
     auto* stimPlanTempl = dynamic_cast<RimStimPlanFractureTemplate*>( m_rimFracture->fractureTemplate() );
     if ( !stimPlanTempl ) return nullptr;
 
-    const RigFractureGrid*              grid  = stimPlanTempl->fractureGrid();
+    const RigFractureGrid* grid = m_rimFracture->fractureGrid();
+    if ( !grid ) return nullptr;
+
     size_t                              cellI = cvf::UNDEFINED_SIZE_T;
     size_t                              cellJ = cvf::UNDEFINED_SIZE_T;
     const std::vector<RigFractureCell>& cells = grid->fractureCells();
@@ -337,7 +340,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createEllipseSurfacePart( const RimE
 
         {
             std::vector<cvf::Vec3f> nodeCoords;
-            m_rimFracture->fractureTemplate()->fractureTriangleGeometry( &nodeCoords, &triangleIndices );
+            m_rimFracture->triangleGeometry( &nodeCoords, &triangleIndices );
 
             cvf::Mat4d fractureXf = m_rimFracture->transformMatrix();
             nodeDisplayCoords     = transformToFractureDisplayCoords( nodeCoords, fractureXf, *displayCoordTransform );
@@ -410,7 +413,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanColorInterpolatedSurfa
     std::vector<cvf::Vec3f> nodeDisplayCoords;
     {
         std::vector<cvf::Vec3f> nodeCoords;
-        stimPlanFracTemplate->fractureTriangleGeometry( &nodeCoords, &triangleIndices );
+        m_rimFracture->triangleGeometry( &nodeCoords, &triangleIndices );
 
         if ( triangleIndices.empty() || nodeCoords.empty() )
         {
@@ -540,7 +543,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanElementColorSurfacePar
         dynamic_cast<RimStimPlanFractureTemplate*>( m_rimFracture->fractureTemplate() );
     CVF_ASSERT( stimPlanFracTemplate );
 
-    if ( !stimPlanFracTemplate->fractureGrid() ) return nullptr;
+    if ( !m_rimFracture->fractureGrid() ) return nullptr;
 
     auto displayCoordTransform = activeView.displayCoordTransform();
     if ( displayCoordTransform.isNull() ) return nullptr;
@@ -550,7 +553,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanElementColorSurfacePar
     const cvf::ScalarMapper*  scalarMapper  = nullptr;
 
     {
-        std::vector<RigFractureCell> stimPlanCells = stimPlanFracTemplate->fractureGrid()->fractureCells();
+        std::vector<RigFractureCell> stimPlanCells = m_rimFracture->fractureGrid()->fractureCells();
 
         RimRegularLegendConfig* legendConfig = nullptr;
         if ( activeView.fractureColors() && activeView.fractureColors()->isChecked() &&
@@ -1028,12 +1031,12 @@ cvf::ref<cvf::DrawableGeo>
     RivWellFracturePartMgr::createStimPlanMeshDrawable( RimStimPlanFractureTemplate* stimPlanFracTemplate,
                                                         const RimEclipseView&        activeView )
 {
-    if ( !stimPlanFracTemplate->fractureGrid() ) return nullptr;
+    if ( !m_rimFracture->fractureGrid() ) return nullptr;
 
     auto displayCoordTransform = activeView.displayCoordTransform();
     if ( displayCoordTransform.isNull() ) return nullptr;
 
-    std::vector<RigFractureCell> stimPlanCells = stimPlanFracTemplate->fractureGrid()->fractureCells();
+    std::vector<RigFractureCell> stimPlanCells = m_rimFracture->fractureGrid()->fractureCells();
     std::vector<cvf::Vec3f>      stimPlanMeshVertices;
 
     QString resultNameFromColors = activeView.fractureColors()->uiResultName();

@@ -116,6 +116,9 @@ RimFracture::RimFracture()
     m_createStimPlanFractureTemplate.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_createStimPlanFractureTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
+    CAF_PDM_InitField( &m_wellPathDepthAtFracture, "WellPathDepthAtFracture", 0.0, "Well/Fracture Intersection Depth", "", "", "" );
+    m_wellPathDepthAtFracture.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+
     CAF_PDM_InitFieldNoDefault( &m_anchorPosition, "AnchorPosition", "Anchor Position", "", "", "" );
     m_anchorPosition.uiCapability()->setUiHidden( true );
     m_anchorPosition.xmlCapability()->disableIO();
@@ -247,6 +250,7 @@ void RimFracture::fieldChangedByUi( const caf::PdmFieldHandle* changedField, con
 
         setFractureTemplate( m_fractureTemplate );
         setDefaultFractureColorResult();
+        updateFractureGrid();
     }
     else if ( changedField == &m_editFractureTemplate )
     {
@@ -265,6 +269,13 @@ void RimFracture::fieldChangedByUi( const caf::PdmFieldHandle* changedField, con
     {
         RicNewStimPlanFractureTemplateFeature::createNewTemplateForFractureAndUpdate( this );
     }
+
+    else if ( changedField == &m_wellPathDepthAtFracture )
+    {
+        updateFractureGrid();
+        RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
+    }
+
     if ( changedField == &m_azimuth || changedField == &m_fractureTemplate ||
          changedField == &m_stimPlanTimeIndexToPlot || changedField == this->objectToggleField() ||
          changedField == &m_dip || changedField == &m_tilt || changedField == &m_perforationLength )
@@ -451,7 +462,7 @@ cvf::BoundingBox RimFracture::boundingBoxInDomainCoords() const
     std::vector<cvf::Vec3f> nodeCoordVec;
     std::vector<cvf::uint>  triangleIndices;
 
-    this->triangleGeometry( &triangleIndices, &nodeCoordVec );
+    this->triangleGeometryTransformed( &triangleIndices, &nodeCoordVec, true );
 
     cvf::BoundingBox fractureBBox;
     for ( const auto& nodeCoord : nodeCoordVec )
@@ -551,23 +562,36 @@ void RimFracture::setFractureTemplateNoUpdate( RimFractureTemplate* fractureTemp
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFracture::triangleGeometry( std::vector<cvf::uint>* triangleIndices, std::vector<cvf::Vec3f>* nodeCoords ) const
+void RimFracture::triangleGeometry( std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* triangleIndices ) const
+{
+    triangleGeometryTransformed( triangleIndices, nodeCoords, false );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFracture::triangleGeometryTransformed( std::vector<cvf::uint>*  triangleIndices,
+                                               std::vector<cvf::Vec3f>* nodeCoords,
+                                               bool                     transform ) const
 {
     RimFractureTemplate* fractureDef = fractureTemplate();
     if ( fractureDef )
     {
-        fractureDef->fractureTriangleGeometry( nodeCoords, triangleIndices );
+        fractureDef->fractureTriangleGeometry( nodeCoords, triangleIndices, m_wellPathDepthAtFracture );
     }
 
-    cvf::Mat4d m = transformMatrix();
-
-    for ( cvf::Vec3f& v : *nodeCoords )
+    if ( transform )
     {
-        cvf::Vec3d vd( v );
+        cvf::Mat4d m = transformMatrix();
 
-        vd.transformPoint( m );
+        for ( cvf::Vec3f& v : *nodeCoords )
+        {
+            cvf::Vec3d vd( v );
 
-        v = cvf::Vec3f( vd );
+            vd.transformPoint( m );
+
+            v = cvf::Vec3f( vd );
+        }
     }
 }
 
@@ -713,10 +737,13 @@ void RimFracture::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& ui
             m_stimPlanTimeIndexToPlot.uiCapability()->setUiHidden( false );
 
             m_stimPlanTimeIndexToPlot.uiCapability()->setUiReadOnly( true );
+
+            m_wellPathDepthAtFracture.uiCapability()->setUiHidden( false );
         }
         else
         {
             m_stimPlanTimeIndexToPlot.uiCapability()->setUiHidden( true );
+            m_wellPathDepthAtFracture.uiCapability()->setUiHidden( true );
         }
     }
     else
@@ -749,6 +776,22 @@ void RimFracture::defineEditorAttribute( const caf::PdmFieldHandle* field,
         {
             myAttr->m_minimum = 0;
             myAttr->m_maximum = 1.0;
+        }
+    }
+
+    if ( field == &m_wellPathDepthAtFracture )
+    {
+        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
+        if ( myAttr )
+        {
+            RimStimPlanFractureTemplate* stimPlanFracTemplate =
+                dynamic_cast<RimStimPlanFractureTemplate*>( fractureTemplate() );
+            if ( stimPlanFracTemplate )
+            {
+                auto [minimum, maximum] = stimPlanFracTemplate->wellPathDepthAtFractureRange();
+                myAttr->m_minimum       = minimum;
+                myAttr->m_maximum       = maximum;
+            }
         }
     }
 
@@ -820,6 +863,7 @@ void RimFracture::setFractureTemplate( RimFractureTemplate* fractureTemplate )
     if ( stimPlanFracTemplate )
     {
         m_stimPlanTimeIndexToPlot = stimPlanFracTemplate->activeTimeStepIndex();
+        m_wellPathDepthAtFracture = stimPlanFracTemplate->wellPathDepthAtFracture();
     }
 
     if ( fractureTemplate->orientationType() == RimFractureTemplate::AZIMUTH )
@@ -852,4 +896,25 @@ RivWellFracturePartMgr* RimFracture::fracturePartManager()
     CVF_ASSERT( m_fracturePartMgr.notNull() );
 
     return m_fracturePartMgr.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFracture::updateFractureGrid()
+{
+    m_fractureGrid = nullptr;
+
+    if ( m_fractureTemplate() )
+    {
+        m_fractureGrid = m_fractureTemplate->createFractureGrid( m_wellPathDepthAtFracture );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RigFractureGrid* RimFracture::fractureGrid() const
+{
+    return m_fractureGrid.p();
 }

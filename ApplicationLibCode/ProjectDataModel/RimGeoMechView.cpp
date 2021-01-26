@@ -434,6 +434,7 @@ void RimGeoMechView::setGeoMechCase( RimGeoMechCase* gmCase )
 {
     m_geomechCase = gmCase;
     cellResult()->setGeoMechCase( gmCase );
+    cellFilterCollection()->setCase( gmCase );
 }
 
 //--------------------------------------------------------------------------------------------------
