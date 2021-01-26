@@ -43,6 +43,7 @@
 #include "RimWellPathCollection.h"
 
 #include "RivAnnotationsPartMgr.h"
+#include "RivCellFilterPartMgr.h"
 #include "RivMeasurementPartMgr.h"
 #include "RivWellPathsPartMgr.h"
 
@@ -170,8 +171,9 @@ Rim3dView::Rim3dView( void )
 
     m_wellPathsPartManager   = new RivWellPathsPartMgr( this );
     m_annotationsPartManager = new RivAnnotationsPartMgr( this );
-
+    m_cellfilterPartManager  = new RivCellFilterPartMgr( this );
     m_measurementPartManager = new RivMeasurementPartMgr( this );
+
     this->setAs3DViewMdiWindow();
 }
 
@@ -570,12 +572,14 @@ void Rim3dView::updateDisplayModelForCurrentTimeStepAndRedraw()
         this->onUpdateDisplayModelForCurrentTimeStep();
         appendAnnotationsToModel();
         appendMeasurementToModel();
+        appendCellFiltersToModel();
 
         if ( Rim3dView* depView = prepareComparisonView() )
         {
             depView->onUpdateDisplayModelForCurrentTimeStep();
             depView->appendAnnotationsToModel();
             depView->appendMeasurementToModel();
+            depView->appendCellFiltersToModel();
 
             restoreComparisonView();
         }
@@ -989,6 +993,19 @@ void Rim3dView::addAnnotationsToModel( cvf::ModelBasicList* annotationsModel )
     }
 
     annotationsModel->updateBoundingBoxesRecursive();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::addCellFiltersToModel( cvf::ModelBasicList* cellFilterModel )
+{
+    if ( !this->ownerCase() ) return;
+
+    cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
+    m_cellfilterPartManager->appendGeometryPartsToModel( cellFilterModel, transForm.p(), ownerCase()->allCellsBoundingBox() );
+
+    cellFilterModel->updateBoundingBoxesRecursive();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1524,6 +1541,28 @@ void Rim3dView::appendAnnotationsToModel()
         model->setName( name );
 
         addAnnotationsToModel( model.p() );
+
+        frameScene->addModel( model.p() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::appendCellFiltersToModel()
+{
+    if ( !nativeOrOverrideViewer() ) return;
+
+    cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
+    if ( frameScene )
+    {
+        cvf::String name = "CellFilters";
+        this->removeModelByName( frameScene, name );
+
+        cvf::ref<cvf::ModelBasicList> model = new cvf::ModelBasicList;
+        model->setName( name );
+
+        addCellFiltersToModel( model.p() );
 
         frameScene->addModel( model.p() );
     }

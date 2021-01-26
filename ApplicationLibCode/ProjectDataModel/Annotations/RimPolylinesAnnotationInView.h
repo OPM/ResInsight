@@ -20,6 +20,8 @@
 
 #include "RimAnnotationLineAppearance.h"
 
+#include "RimPolylinesDataInterface.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
@@ -46,7 +48,7 @@ class RimPolylinesAnnotation;
 ///
 ///
 //==================================================================================================
-class RimPolylinesAnnotationInView : public caf::PdmObject
+class RimPolylinesAnnotationInView : public caf::PdmObject, public RimPolylinesDataInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -59,6 +61,8 @@ public:
     RimPolylinesAnnotation* sourceAnnotation() const;
 
     bool isVisible() const;
+
+    cvf::ref<RigPolyLinesData> polyLinesData() const override;
 
 protected:
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

@@ -19,15 +19,20 @@
 #pragma once
 
 #include "RimCellFilter.h"
+#include "RimCellFilterIntervalTool.h"
 #include "RimPolylinePickerInterface.h"
+#include "RimPolylinesDataInterface.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
+#include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfVec3d.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 #include "cafPickEventHandler.h"
+
+#include "cvfColor3.h"
 
 #include <list>
 #include <memory>
@@ -39,12 +44,13 @@ class RimEclipseCase;
 class RimGeoMechCase;
 class RigMainGrid;
 class RigFemPartGrid;
+class RigPolylinesData;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimPolygonFilter : public RimCellFilter, public RimPolylinePickerInterface
+class RimPolygonFilter : public RimCellFilter, public RimPolylinePickerInterface, public RimPolylinesDataInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -66,6 +72,10 @@ public:
     ~RimPolygonFilter() override;
 
     void setCase( RimCase* srcCase );
+    void enableFilter( bool bEnable );
+    void enableKFilter( bool bEnable );
+
+    bool isFilterEnabled() const override;
 
     void updateVisualization() override;
     void updateEditorsAndVisualization() override;
@@ -78,6 +88,8 @@ public:
     caf::PickEventHandler*          pickEventHandler() const override;
 
     void updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter ) override;
+
+    cvf::ref<RigPolyLinesData> polyLinesData() const override;
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -108,8 +120,21 @@ private:
     caf::PdmField<caf::AppEnum<PolygonFilterModeType>> m_polyFilterMode;
     caf::PdmField<caf::AppEnum<PolygonIncludeType>>    m_polyIncludeType;
     caf::PdmPtrField<RimCase*>                         m_srcCase;
+    caf::PdmField<bool>                                m_enableFiltering;
+    caf::PdmField<bool>                                m_enableKFilter;
+    caf::PdmField<bool>                                m_showLines;
+    caf::PdmField<bool>                                m_showSpheres;
+    caf::PdmField<QString>                             m_kFilterStr;
+    caf::PdmField<int>                                 m_lineThickness;
+    caf::PdmField<double>                              m_sphereRadiusFactor;
+    caf::PdmField<cvf::Color3f>                        m_lineColor;
+    caf::PdmField<cvf::Color3f>                        m_sphereColor;
+    caf::PdmField<double>                              m_polygonPlaneDepth;
+    caf::PdmField<bool>                                m_lockPolygonToPlane;
 
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
 
     std::list<size_t> m_cells;
+
+    RimCellFilterIntervalTool m_intervalTool;
 };

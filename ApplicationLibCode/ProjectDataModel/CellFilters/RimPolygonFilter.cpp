@@ -25,6 +25,7 @@
 #include "RigFemPartGrid.h"
 #include "RigGeoMechCaseData.h"
 #include "RigMainGrid.h"
+#include "RigPolyLinesData.h"
 
 #include "Rim3dView.h"
 #include "RimCase.h"
@@ -38,13 +39,19 @@
 
 #include "RiuViewerCommands.h"
 
+#include "RiaStdStringTools.h"
+
 #include "cafCmdFeatureMenuBuilder.h"
+#include "cafPdmUiLineEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTreeOrdering.h"
+#include <cafPdmUiDoubleSliderEditor.h>
 
 #include "cvfBoundingBox.h"
 #include "cvfStructGrid.h"
+
+#include <QValidator>
 
 namespace caf
 {
@@ -67,6 +74,42 @@ void caf::AppEnum<RimPolygonFilter::PolygonIncludeType>::setUp()
 
 } // namespace caf
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class ThicknessValidator : public QValidator
+{
+public:
+    State validate( QString& input, int& pos ) const override
+    {
+        if ( input.isEmpty() ) return State::Intermediate;
+
+        int val = RiaStdStringTools::toInt( input.toStdString() );
+        if ( val > 0 && val < 8 )
+            return State::Acceptable;
+        else
+            return State::Invalid;
+    }
+};
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class RadiusValidator : public QValidator
+{
+public:
+    State validate( QString& input, int& pos ) const override
+    {
+        if ( input.isEmpty() ) return State::Intermediate;
+
+        double val = RiaStdStringTools::toDouble( input.toStdString() );
+        if ( val > 0.001 && val <= 2.0 )
+            return State::Acceptable;
+        else
+            return State::Invalid;
+    }
+};
+
 CAF_PDM_SOURCE_INIT( RimPolygonFilter, "PolygonFilter", "PolyLineFilter" );
 
 //--------------------------------------------------------------------------------------------------
@@ -74,6 +117,7 @@ CAF_PDM_SOURCE_INIT( RimPolygonFilter, "PolygonFilter", "PolyLineFilter" );
 //--------------------------------------------------------------------------------------------------
 RimPolygonFilter::RimPolygonFilter()
     : m_pickTargetsEventHandler( new RicPolylineTargetsPickEventHandler( this ) )
+    , m_intervalTool( true )
 {
     CAF_PDM_InitObject( "Polyline Filter", ":/CellFilter_Polygon.png", "", "" );
 
@@ -93,6 +137,26 @@ RimPolygonFilter::RimPolygonFilter()
 
     CAF_PDM_InitFieldNoDefault( &m_srcCase, "Case", "Case", "", "", "" );
     m_srcCase.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitField( &m_showLines, "ShowLines", true, "Show Lines", "", "", "" );
+    CAF_PDM_InitField( &m_showSpheres, "ShowSpheres", false, "Show Spheres", "", "", "" );
+
+    CAF_PDM_InitField( &m_lineThickness, "LineThickness", 3, "Line Thickness", "", "", "" );
+    CAF_PDM_InitField( &m_sphereRadiusFactor, "SphereRadiusFactor", 0.15, "Sphere Radius Factor", "", "", "" );
+
+    CAF_PDM_InitField( &m_lineColor, "LineColor", cvf::Color3f( cvf::Color3f::WHITE ), "Line Color", "", "", "" );
+    CAF_PDM_InitField( &m_sphereColor, "SphereColor", cvf::Color3f( cvf::Color3f::WHITE ), "Sphere Color", "", "", "" );
+
+    CAF_PDM_InitField( &m_enableFiltering, "EnableFiltering", false, "Enable Filter", "", "", "" );
+
+    CAF_PDM_InitField( &m_enableKFilter, "EnableKFilter", false, "Enable K Range Filter", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_kFilterStr, "KRangeFilter", "K Range Filter", "", "", "" );
+
+    CAF_PDM_InitField( &m_polygonPlaneDepth, "PolygonPlaneDepth", 0.0, "Polygon Plane Depth", "", "", "" );
+    CAF_PDM_InitField( &m_lockPolygonToPlane, "LockPolygon", false, "Lock Polygon to Plane", "", "", "" );
+
+    m_polygonPlaneDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    m_polygonPlaneDepth.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::TOP );
 
     this->setUi3dEditorTypeName( RicPolyline3dEditor::uiEditorTypeName() );
     this->uiCapability()->setUiTreeChildrenHidden( true );
@@ -145,9 +209,37 @@ void RimPolygonFilter::setCase( RimCase* srcCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPolygonFilter::enableFilter( bool bEnable )
+{
+    m_enableFiltering = bEnable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonFilter::enableKFilter( bool bEnable )
+{
+    m_enableKFilter = bEnable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPolygonFilter::isFilterEnabled() const
+{
+    return m_isActive() && m_enableFiltering;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimPolygonFilter::fullName() const
 {
-    return QString( "%1  [%2 cells]" ).arg( RimCellFilter::fullName(), QString::number( m_cells.size() ) );
+    if ( m_enableFiltering )
+    {
+        return QString( "%1  [%2 cells]" ).arg( RimCellFilter::fullName(), QString::number( m_cells.size() ) );
+    }
+    return QString( "%1  [off]" ).arg( RimCellFilter::fullName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -203,8 +295,7 @@ void RimPolygonFilter::defineEditorAttribute( const caf::PdmFieldHandle* field,
             }
         }
     }
-
-    if ( field == &m_targets )
+    else if ( field == &m_targets )
     {
         auto tvAttribute = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute );
         if ( tvAttribute )
@@ -215,6 +306,41 @@ void RimPolygonFilter::defineEditorAttribute( const caf::PdmFieldHandle* field,
             {
                 tvAttribute->baseColor.setRgb( 255, 220, 255 );
                 tvAttribute->alwaysEnforceResizePolicy = true;
+            }
+        }
+    }
+    else if ( field == &m_lineThickness )
+    {
+        auto myAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
+        if ( myAttr )
+        {
+            myAttr->validator = new ThicknessValidator();
+        }
+    }
+    else if ( field == &m_lineThickness )
+    {
+        auto myAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
+        if ( myAttr )
+        {
+            myAttr->validator = new RadiusValidator();
+        }
+    }
+    else if ( field == &m_polygonPlaneDepth )
+    {
+        auto* attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
+
+        if ( attr )
+        {
+            if ( m_srcCase )
+            {
+                auto bb         = m_srcCase->allCellsBoundingBox();
+                attr->m_minimum = -bb.max().z();
+                attr->m_maximum = -bb.min().z();
+            }
+            else
+            {
+                attr->m_minimum = 0;
+                attr->m_maximum = 10000;
             }
         }
     }
@@ -239,16 +365,54 @@ void RimPolygonFilter::defineCustomContextMenu( const caf::PdmFieldHandle* field
 //--------------------------------------------------------------------------------------------------
 void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimCellFilter::defineUiOrdering( uiConfigName, uiOrdering );
+    uiOrdering.add( &m_name );
 
-    uiOrdering.add( &m_polyFilterMode );
-    uiOrdering.add( &m_polyIncludeType );
-    uiOrdering.add( &m_targets );
-    uiOrdering.add( &m_enablePicking );
+    auto group = uiOrdering.addNewGroup( "General" );
+    group->add( &m_filterMode );
+    group->add( &m_enableFiltering );
+    group->add( &m_showLines );
+    group->add( &m_showSpheres );
+
+    auto group1 = uiOrdering.addNewGroup( "Polygon Selection" );
+    group1->add( &m_polyFilterMode );
+    group1->add( &m_polyIncludeType );
+    group1->add( &m_targets );
+    group1->add( &m_enablePicking );
 
     m_polyIncludeType.uiCapability()->setUiName( "Cells to " + modeString() );
 
+    auto group2 = uiOrdering.addNewGroup( "Appearance" );
+    if ( m_showLines )
+    {
+        group2->add( &m_lineThickness );
+        group2->add( &m_lineColor );
+    }
+    if ( m_showSpheres )
+    {
+        group2->add( &m_sphereRadiusFactor );
+        group2->add( &m_sphereColor );
+    }
+    group2->add( &m_lockPolygonToPlane );
+    if ( m_lockPolygonToPlane ) group2->add( &m_polygonPlaneDepth );
+    group2->setCollapsedByDefault( true );
+
+    auto group3 = uiOrdering.addNewGroup( "Advanced Filter Settings" );
+    group3->add( &m_enableKFilter );
+    group3->add( &m_kFilterStr );
+    group3->add( &m_gridIndex );
+    group3->add( &m_propagateToSubGrids );
+    group3->setCollapsedByDefault( true );
+
     uiOrdering.skipRemainingFields( true );
+
+    bool readOnlyState = isFilterControlled();
+
+    std::vector<caf::PdmFieldHandle*> objFields;
+    this->fields( objFields );
+    for ( auto& objField : objFields )
+    {
+        objField->uiCapability()->setUiReadOnly( readOnlyState );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -264,7 +428,7 @@ void RimPolygonFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 
         if ( m_enablePicking() )
         {
-            setActive( false );
+            enableFilter( false );
             filterChanged.send();
         }
     }
@@ -307,6 +471,8 @@ caf::PickEventHandler* RimPolygonFilter::pickEventHandler() const
 void RimPolygonFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter )
 {
     CVF_ASSERT( cellRangeFilter );
+
+    if ( !m_enableFiltering ) return;
 
     if ( m_cells.size() == 0 ) updateCells();
 
@@ -369,20 +535,25 @@ void RimPolygonFilter::updateCellsDepthEclipse( const std::vector<cvf::Vec3d>& p
 {
     // we should look in depth using Z coordinate
     // loop over all cells
-    for ( size_t i = 0; i < grid->cellCount(); i++ )
+    for ( size_t n = 0; n < grid->cellCount(); n++ )
     {
         // valid cell?
-        RigCell cell = grid->cellByGridAndGridLocalCellIdx( gridIndex(), i );
+        RigCell cell = grid->cellByGridAndGridLocalCellIdx( gridIndex(), n );
         if ( cell.isInvalid() ) continue;
 
         // get corner coordinates
         std::array<cvf::Vec3d, 8> hexCorners;
-        grid->cellCornerVertices( i, hexCorners.data() );
+        grid->cellCornerVertices( n, hexCorners.data() );
+
+        // get cell ijk for k filter
+        size_t i, j, k;
+        grid->ijkFromCellIndex( n, &i, &j, &k );
+        if ( !m_intervalTool.isNumberIncluded( k ) ) continue;
 
         // check if the polygon includes the cell
         if ( cellInsidePolygon2D( cell.center(), hexCorners, points ) )
         {
-            m_cells.push_back( i );
+            m_cells.push_back( n );
         }
     }
 }
@@ -460,6 +631,8 @@ void RimPolygonFilter::updateCellsKIndexEclipse( const std::vector<cvf::Vec3d>& 
 
         for ( size_t k = 0; k < grid->cellCountK(); k++ )
         {
+            if ( !m_intervalTool.isNumberIncluded( k ) ) continue;
+
             // get the cell index
             size_t newIdx = grid->cellIndexFromIJK( ci, cj, k );
             // valid cell?
@@ -505,6 +678,8 @@ void RimPolygonFilter::updateCellsDepthGeoMech( const std::vector<cvf::Vec3d>& p
         {
             for ( size_t k = 0; k < grid->cellCountK(); k++ )
             {
+                if ( !m_intervalTool.isNumberIncluded( k ) ) continue;
+
                 size_t cellIdx = grid->cellIndexFromIJK( i, j, k );
 
                 cvf::Vec3d vertices[8];
@@ -608,6 +783,8 @@ void RimPolygonFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& 
 
         for ( size_t k = 0; k < grid->cellCountK(); k++ )
         {
+            if ( !m_intervalTool.isNumberIncluded( k ) ) continue;
+
             // get the cell index
             size_t newIdx = grid->cellIndexFromIJK( ci, cj, k );
             m_cells.push_back( newIdx );
@@ -643,6 +820,9 @@ void RimPolygonFilter::updateCells()
     // reset
     m_cells.clear();
 
+    // get optional k-cell filter
+    m_intervalTool.setInterval( m_enableKFilter, m_kFilterStr );
+
     // get polyline as vector
     std::vector<cvf::Vec3d> points;
     for ( auto& target : m_targets )
@@ -667,4 +847,33 @@ void RimPolygonFilter::updateCells()
     {
         updateCellsForGeoMech( points, gCase );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RigPolyLinesData> RimPolygonFilter::polyLinesData() const
+{
+    cvf::ref<RigPolyLinesData> pld = new RigPolyLinesData;
+    std::vector<cvf::Vec3d>    line;
+    for ( const RimPolylineTarget* target : m_targets )
+    {
+        line.push_back( target->targetPointXYZ() );
+    }
+    pld->setPolyLine( line );
+
+    pld->setLineAppearance( m_lineThickness, m_lineColor, true );
+    pld->setSphereAppearance( m_sphereRadiusFactor, m_sphereColor );
+    pld->setZPlaneLock( m_lockPolygonToPlane, -m_polygonPlaneDepth );
+
+    if ( isActive() )
+    {
+        pld->setVisibility( m_showLines, m_showSpheres );
+    }
+    else
+    {
+        pld->setVisibility( false, false );
+    }
+
+    return pld;
 }

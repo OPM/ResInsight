@@ -56,6 +56,8 @@ public:
     bool isActive() const;
     void setActive( bool active );
 
+    virtual bool isFilterEnabled() const;
+
     caf::AppEnum<FilterModeType> filterMode() const;
     QString                      modeString() const;
 

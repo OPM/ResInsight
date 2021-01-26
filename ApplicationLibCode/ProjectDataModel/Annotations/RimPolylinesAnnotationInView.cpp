@@ -19,7 +19,10 @@
 #include "RimPolylinesAnnotationInView.h"
 #include "RimAnnotationCollectionBase.h"
 #include "RimAnnotationGroupCollection.h"
+#include "RimAnnotationInViewCollection.h"
 #include "RimPolylinesAnnotation.h"
+
+#include "RigPolyLinesData.h"
 
 CAF_PDM_SOURCE_INIT( RimPolylinesAnnotationInView, "RimPolylinesAnnotationInView" );
 
@@ -121,4 +124,22 @@ caf::PdmFieldHandle* RimPolylinesAnnotationInView::objectToggleField()
 caf::PdmFieldHandle* RimPolylinesAnnotationInView::userDescriptionField()
 {
     return m_sourceAnnotation ? m_sourceAnnotation->userDescriptionField() : nullptr;
+}
+
+cvf::ref<RigPolyLinesData> RimPolylinesAnnotationInView::polyLinesData() const
+{
+    auto retval = m_sourceAnnotation->polyLinesData();
+    if ( !isVisible() )
+    {
+        retval->setVisibility( false, false );
+    }
+
+    RimAnnotationInViewCollection* coll;
+    firstAncestorOrThisOfType( coll );
+    if ( coll )
+    {
+        retval->setZPlaneLock( coll->snapAnnotations(), coll->annotationPlaneZ() );
+    }
+
+    return retval;
 }

@@ -143,6 +143,11 @@ void RimPolylinesFromFileAnnotation::readPolyLinesFile( QString* errorMessage )
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RigPolyLinesData> RimPolylinesFromFileAnnotation::polyLinesData()
 {
+    auto ap = appearance();
+    m_polyLinesData->setVisibility( m_showLines(), m_showSpheres() );
+    m_polyLinesData->setSphereAppearance( ap->sphereRadiusFactor(), ap->sphereColor() );
+    m_polyLinesData->setLineAppearance( ap->thickness(), ap->color(), m_closePolyline );
+
     return m_polyLinesData;
 }
 

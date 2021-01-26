@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "cvfColor3.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
@@ -33,10 +34,40 @@ public:
     RigPolyLinesData();
     ~RigPolyLinesData() override;
 
-    const std::vector<std::vector<cvf::Vec3d>>& polyLines() const { return m_polylines; }
-    void setPolyLines( const std::vector<std::vector<cvf::Vec3d>>& polyLines ) { m_polylines = polyLines; }
-    void setPolyLine( const std::vector<cvf::Vec3d>& polyline ) { m_polylines = { polyline }; }
+    const std::vector<std::vector<cvf::Vec3d>>& polyLines() const;
+
+    void setPolyLines( const std::vector<std::vector<cvf::Vec3d>>& polyLines );
+    void setPolyLine( const std::vector<cvf::Vec3d>& polyline );
+    void addPolyLine( const std::vector<cvf::Vec3d>& polyline );
+
+    void setVisibility( bool showLines, bool showSpheres );
+    void setLineAppearance( int lineThickness, cvf::Color3f color, bool closePolyline );
+    void setSphereAppearance( double radiusFactor, cvf::Color3f color );
+    void setZPlaneLock( bool lockToZ, double lockZValue );
+
+    bool         showLines() const;
+    bool         showSpheres() const;
+    int          lineThickness() const;
+    bool         closePolyline() const;
+    cvf::Color3f lineColor() const;
+    cvf::Color3f sphereColor() const;
+    double       sphereRadiusFactor() const;
+    double       lockedZValue() const;
+    bool         lockToZPlane() const;
 
 private:
     std::vector<std::vector<cvf::Vec3d>> m_polylines;
+
+    bool m_showLines;
+    int  m_lineThickness;
+    bool m_closePolyline;
+
+    bool   m_showSpheres;
+    double m_sphereRadiusFactor;
+
+    bool   m_lockToZPlane;
+    double m_lockedZValue;
+
+    cvf::Color3f m_lineColor;
+    cvf::Color3f m_sphereColor;
 };
