@@ -285,7 +285,9 @@ const RigFractureCell* RivWellFracturePartMgr::getFractureCellAtDomainCoord( cvf
     auto* stimPlanTempl = dynamic_cast<RimStimPlanFractureTemplate*>( m_rimFracture->fractureTemplate() );
     if ( !stimPlanTempl ) return nullptr;
 
-    const RigFractureGrid*              grid  = m_rimFracture->fractureGrid();
+    const RigFractureGrid* grid = m_rimFracture->fractureGrid();
+    if ( !grid ) return nullptr;
+
     size_t                              cellI = cvf::UNDEFINED_SIZE_T;
     size_t                              cellJ = cvf::UNDEFINED_SIZE_T;
     const std::vector<RigFractureCell>& cells = grid->fractureCells();
