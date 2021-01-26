@@ -490,6 +490,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicAddScriptPathFeature";
             menuBuilder << "RicRefreshScriptsFeature";
+            menuBuilder << "RicExecuteLastUsedScriptFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicDeleteScriptPathFeature";
         }
