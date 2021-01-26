@@ -61,22 +61,30 @@ public:
 
     void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath );
 
-    // Fracture geometry
+    double                    wellPathDepthAtFracture() const;
+    std::pair<double, double> wellPathDepthAtFractureRange() const;
 
-    const RigFractureGrid* fractureGrid() const override;
-    void                   updateFractureGrid();
-    void                   fractureTriangleGeometry( std::vector<cvf::Vec3f>* nodeCoords,
-                                                     std::vector<cvf::uint>*  triangleIndices ) const override;
+    // Fracture geometry
+    cvf::cref<RigFractureGrid> createFractureGrid( double wellPathDepthAtFracture ) const override;
+
+    void fractureTriangleGeometry( std::vector<cvf::Vec3f>* nodeCoords,
+                                   std::vector<cvf::uint>*  triangleIndices,
+                                   double                   wellPathDepthAtFracture ) const override;
 
     // Result Access
 
     std::vector<double>                      timeSteps();
     std::vector<std::pair<QString, QString>> uiResultNamesWithUnit() const override;
     std::vector<std::vector<double>>
-        resultValues( const QString& uiResultName, const QString& unitName, size_t timeStepIndex ) const;
+                        resultValues( const QString& uiResultName, const QString& unitName, size_t timeStepIndex ) const;
     std::vector<double> fractureGridResults( const QString& resultName, const QString& unitName, size_t timeStepIndex ) const;
     bool                hasConductivity() const;
-    double resultValueAtIJ( const QString& uiResultName, const QString& unitName, size_t timeStepIndex, size_t i, size_t j );
+    double              resultValueAtIJ( const RigFractureGrid* fractureGrid,
+                                         const QString&         uiResultName,
+                                         const QString&         unitName,
+                                         size_t                 timeStepIndex,
+                                         size_t                 i,
+                                         size_t                 j );
 
     std::vector<double> widthResultValues() const;
 
@@ -133,7 +141,6 @@ private:
 
     caf::PdmField<caf::FilePath>            m_stimPlanFileName;
     cvf::ref<RigStimPlanFractureDefinition> m_stimPlanFractureDefinitionData;
-    cvf::ref<RigFractureGrid>               m_fractureGrid;
     bool                                    m_readError;
 
     caf::PdmField<bool> m_showStimPlanMesh_OBSOLETE;

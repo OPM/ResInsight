@@ -21,6 +21,7 @@
 #include "RiaFractureDefines.h"
 
 #include "RimEclipseView.h"
+#include "RimFracture.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -209,12 +210,7 @@ void RimStimPlanColors::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
 
     if ( changedField == &m_showStimPlanMesh )
     {
-        RimProject* proj;
-        this->firstAncestorOrThisOfType( proj );
-        if ( proj )
-        {
-            proj->scheduleCreateDisplayModelAndRedrawAllViews();
-        }
+        RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 
     if ( changedField == &m_stimPlanCellVizMode )
@@ -309,18 +305,15 @@ void RimStimPlanColors::updateLegendData()
 void RimStimPlanColors::updateStimPlanTemplates() const
 {
     // Get all frac templates and re-generate stimplan cells
-    RimProject* proj;
-    this->firstAncestorOrThisOfType( proj );
-    if ( proj )
+    RimProject* proj = RimProject::current();
+
+    std::vector<RimFracture*> fractures;
+    proj->descendantsIncludingThisOfType( fractures );
+    for ( RimFracture* fracture : fractures )
     {
-        std::vector<RimStimPlanFractureTemplate*> stimPlanFracTemplates;
-        proj->descendantsIncludingThisOfType( stimPlanFracTemplates );
-        for ( RimStimPlanFractureTemplate* stimPlanFracTemplate : stimPlanFracTemplates )
-        {
-            stimPlanFracTemplate->updateFractureGrid();
-        }
-        proj->scheduleCreateDisplayModelAndRedrawAllViews();
+        fracture->updateFractureGrid();
     }
+    proj->scheduleCreateDisplayModelAndRedrawAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -331,12 +324,12 @@ void RimStimPlanColors::updateConductivityResultName()
     // Conductivity result name as reported from the XML file was moved  to the fracture template
     // Replace all conductivity names with the one and only conductivity uiName reported from by fracture template
 
-    if ( m_resultNameAndUnit().contains( "conductivity", Qt::CaseInsensitive ) )
+    if ( m_resultNameAndUnit().contains( RiaDefines::conductivityResultName(), Qt::CaseInsensitive ) )
     {
         RimFractureTemplateCollection* fractureTemplates = fractureTemplateCollection();
         for ( auto resultNameAndUnit : fractureTemplates->resultNamesAndUnits() )
         {
-            if ( resultNameAndUnit.first.contains( "conductivity", Qt::CaseInsensitive ) )
+            if ( resultNameAndUnit.first.contains( RiaDefines::conductivityResultName(), Qt::CaseInsensitive ) )
             {
                 QString resultNameAndUnitString = toString( resultNameAndUnit );
                 m_resultNameAndUnit             = resultNameAndUnitString;
@@ -350,12 +343,7 @@ void RimStimPlanColors::updateConductivityResultName()
 //--------------------------------------------------------------------------------------------------
 RimFractureTemplateCollection* RimStimPlanColors::fractureTemplateCollection() const
 {
-    RimProject* proj = nullptr;
-    this->firstAncestorOrThisOfType( proj );
-
-    if ( !proj ) return nullptr;
-
-    return proj->activeOilField()->fractureDefinitionCollection();
+    return RimProject::current()->activeOilField()->fractureDefinitionCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -411,10 +399,8 @@ void RimStimPlanColors::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     colorGroup->add( &m_resultNameAndUnit );
     colorGroup->add( &m_defaultColor );
 
-    bool        stimPlanExists = false;
-    RimProject* proj;
-    this->firstAncestorOrThisOfType( proj );
-    std::vector<RimFractureTemplate*> fracTemplates = proj->allFractureTemplates();
+    bool                              stimPlanExists = false;
+    std::vector<RimFractureTemplate*> fracTemplates  = RimProject::current()->allFractureTemplates();
 
     for ( auto fractemplate : fracTemplates )
     {

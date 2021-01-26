@@ -77,7 +77,7 @@ void RimWellPathFracture::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 {
     RimFracture::fieldChangedByUi( changedField, oldValue, newValue );
 
-    if ( changedField == &m_measuredDepth )
+    if ( changedField == &m_measuredDepth || changedField == &m_wellPathDepthAtFracture )
     {
         updatePositionFromMeasuredDepth();
         updateAzimuthBasedOnWellAzimuthAngle();
@@ -275,6 +275,8 @@ void RimWellPathFracture::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     caf::PdmUiGroup* fractureCenterGroup = uiOrdering.addNewGroup( "Fracture Center Info" );
     fractureCenterGroup->add( &m_uiAnchorPosition );
 
+    uiOrdering.add( &m_wellPathDepthAtFracture );
+
     uiOrdering.skipRemainingFields( true );
 }
 
@@ -301,4 +303,12 @@ void RimWellPathFracture::defineEditorAttribute( const caf::PdmFieldHandle* fiel
             myAttr->m_maximum = wellPath->uniqueEndMD();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathFracture::triangleGeometry( std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* triangleIndices ) const
+{
+    m_fractureTemplate->fractureTriangleGeometry( nodeCoords, triangleIndices, m_wellPathDepthAtFracture );
 }

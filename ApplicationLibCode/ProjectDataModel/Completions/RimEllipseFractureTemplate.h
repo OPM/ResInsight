@@ -46,12 +46,13 @@ public:
     ~RimEllipseFractureTemplate() override;
 
     void fractureTriangleGeometry( std::vector<cvf::Vec3f>* nodeCoords,
-                                   std::vector<cvf::uint>*  polygonIndices ) const override;
+                                   std::vector<cvf::uint>*  polygonIndices,
+                                   double                   wellPathDepthAtFracture ) const override;
 
-    void                   changeUnits();
-    const RigFractureGrid* fractureGrid() const override;
-    void                   setDefaultValuesFromUnit();
-    double                 conductivity() const;
+    void                       changeUnits();
+    cvf::cref<RigFractureGrid> createFractureGrid( double wellPathDepthAtFracture ) const override;
+    void                       setDefaultValuesFromUnit();
+    double                     conductivity() const;
 
     double halfLength() const;
     double height() const;
@@ -81,8 +82,6 @@ private:
     WellFractureIntersectionData wellFractureIntersectionData( const RimFracture* fractureInstance ) const override;
 
 private:
-    cvf::ref<RigFractureGrid> m_fractureGrid;
-
     caf::PdmField<double> m_halfLength;
     caf::PdmField<double> m_height;
     caf::PdmField<double> m_width;

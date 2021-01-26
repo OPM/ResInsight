@@ -300,7 +300,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 
         if ( !fracTemplate ) continue;
 
-        const RigFractureGrid* fractureGrid = fracTemplate->fractureGrid();
+        const RigFractureGrid* fractureGrid = fracture->fractureGrid();
         if ( !fractureGrid ) continue;
 
         bool useFiniteConductivityInFracture =
