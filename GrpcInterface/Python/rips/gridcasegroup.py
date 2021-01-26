@@ -19,16 +19,17 @@ def create_statistics_case(self):
     """
     command_reply = self._execute_command(
         createStatisticsCase=Commands_pb2.CreateStatisticsCaseRequest(
-            caseGroupId=self.group_id))
-    return Case(self.channel,
-                command_reply.createStatisticsCaseResult.caseId)
+            caseGroupId=self.group_id
+        )
+    )
+    return Case(self.channel, command_reply.createStatisticsCaseResult.caseId)
 
 
 @add_method(GridCaseGroup)
 def statistics_cases(self):
     """Get a list of all statistics cases in the Grid Case Group
 
-    Returns: 
+    Returns:
         List of :class:`rips.generated.generated_classes.EclipseCase`
 
     """
@@ -40,7 +41,7 @@ def statistics_cases(self):
 def views(self):
     """Get a list of views belonging to a grid case group
 
-    Returns: 
+    Returns:
         List of :class:`rips.generated.generated_classes.EclipseView`
 
     """
@@ -70,7 +71,7 @@ def view(self, view_id):
 
 @add_method(GridCaseGroup)
 def compute_statistics(self, case_ids=None):
-    """ Compute statistics for the given case ids
+    """Compute statistics for the given case ids
 
     Arguments:
         case_ids(list of integers): List of case ids. If this is None all cases in group are included
@@ -80,4 +81,6 @@ def compute_statistics(self, case_ids=None):
         case_ids = []
     return self._execute_command(
         computeCaseGroupStatistics=Commands_pb2.ComputeCaseGroupStatRequest(
-            caseIds=case_ids, caseGroupId=self.group_id))
+            caseIds=case_ids, caseGroupId=self.group_id
+        )
+    )

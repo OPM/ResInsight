@@ -26,23 +26,23 @@ view2 = view1.clone()
 view1.set_time_step(time_step=2)
 
 # Set cell result to SOIL
-view1.apply_cell_result(result_type='DYNAMIC_NATIVE', result_variable='SOIL')
+view1.apply_cell_result(result_type="DYNAMIC_NATIVE", result_variable="SOIL")
 
 
 # Create a temporary directory which will disappear at the end of this script
 # If you want to keep the files, provide a good path name instead of tmpdirname
 with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
     print("Temporary folder: ", tmpdirname)
-    
+
     # Set export folder for snapshots and properties
-    resinsight.set_export_folder(export_type='SNAPSHOTS', path=tmpdirname)
-    resinsight.set_export_folder(export_type='PROPERTIES', path=tmpdirname)
-    
+    resinsight.set_export_folder(export_type="SNAPSHOTS", path=tmpdirname)
+    resinsight.set_export_folder(export_type="PROPERTIES", path=tmpdirname)
+
     # Export all snapshots
     resinsight.project.export_snapshots()
-        
-    assert(len(os.listdir(tmpdirname)) > 0)
-    
+
+    assert len(os.listdir(tmpdirname)) > 0
+
     # Export properties in the view
     view1.export_property()
 
@@ -53,5 +53,4 @@ with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
     # Print contents of temporary folder
     print(os.listdir(tmpdirname))
 
-    assert(os.path.exists(full_path))
-
+    assert os.path.exists(full_path)

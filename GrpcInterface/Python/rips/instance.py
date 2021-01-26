@@ -35,20 +35,19 @@ class Instance:
         project (Project): Current project in ResInsight.
             Set when creating an instance and updated when opening/closing projects.
     """
+
     @staticmethod
     def __is_port_in_use(port):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as my_socket:
             my_socket.settimeout(0.2)
-            return my_socket.connect_ex(('localhost', port)) == 0
+            return my_socket.connect_ex(("localhost", port)) == 0
 
     @staticmethod
     def __is_valid_port(port):
         location = "localhost:" + str(port)
-        channel = grpc.insecure_channel(location,
-                                        options=[
-                                            ('grpc.enable_http_proxy',
-                                             False)
-                                        ])
+        channel = grpc.insecure_channel(
+            location, options=[("grpc.enable_http_proxy", False)]
+        )
         app = App_pb2_grpc.AppStub(channel)
         try:
             app.GetVersion(Empty(), timeout=1)
@@ -57,11 +56,13 @@ class Instance:
         return True
 
     @staticmethod
-    def launch(resinsight_executable='',
-               console=False,
-               launch_port=-1,
-               command_line_parameters=None):
-        """ Launch a new Instance of ResInsight. This requires the environment variable
+    def launch(
+        resinsight_executable="",
+        console=False,
+        launch_port=-1,
+        command_line_parameters=None,
+    ):
+        """Launch a new Instance of ResInsight. This requires the environment variable
         RESINSIGHT_EXECUTABLE to be set or the parameter resinsight_executable to be provided.
         The RESINSIGHT_GRPC_PORT environment variable can be set to an alternative port number.
 
@@ -78,18 +79,19 @@ class Instance:
         """
 
         port = 50051
-        port_env = os.environ.get('RESINSIGHT_GRPC_PORT')
+        port_env = os.environ.get("RESINSIGHT_GRPC_PORT")
         if port_env:
             port = int(port_env)
         if launch_port != -1:
             port = launch_port
 
         if not resinsight_executable:
-            resinsight_executable = os.environ.get('RESINSIGHT_EXECUTABLE')
+            resinsight_executable = os.environ.get("RESINSIGHT_EXECUTABLE")
             if not resinsight_executable:
                 print(
-                    'ERROR: Could not launch ResInsight because the environment variable'
-                    ' RESINSIGHT_EXECUTABLE is not set')
+                    "ERROR: Could not launch ResInsight because the environment variable"
+                    " RESINSIGHT_EXECUTABLE is not set"
+                )
                 return None
 
         print("Trying port " + str(port))
@@ -97,16 +99,15 @@ class Instance:
             port += 1
             print("Trying port " + str(port))
 
-        print('Port ' + str(port))
-        print('Trying to launch', resinsight_executable)
+        print("Port " + str(port))
+        print("Trying to launch", resinsight_executable)
 
         if command_line_parameters is None:
             command_line_parameters = []
         elif isinstance(command_line_parameters, str):
             command_line_parameters = [str]
 
-        parameters = ["ResInsight", "--server",
-                      str(port)] + command_line_parameters
+        parameters = ["ResInsight", "--server", str(port)] + command_line_parameters
         if console:
             print("Launching as console app")
             parameters.append("--console")
@@ -123,7 +124,7 @@ class Instance:
 
     @staticmethod
     def find(start_port=50051, end_port=50071):
-        """ Search for an existing Instance of ResInsight by testing ports.
+        """Search for an existing Instance of ResInsight by testing ports.
 
         By default we search from port 50051 to 50071 or if the environment
         variable RESINSIGHT_GRPC_PORT is set we search
@@ -133,7 +134,7 @@ class Instance:
             start_port (int): start searching from this port
             end_port (int): search up to but not including this port
         """
-        port_env = os.environ.get('RESINSIGHT_GRPC_PORT')
+        port_env = os.environ.get("RESINSIGHT_GRPC_PORT")
         if port_env:
             print("Got port " + port_env + " from environment")
             start_port = int(port_env)
@@ -141,12 +142,17 @@ class Instance:
 
         for try_port in range(start_port, end_port):
             print("Trying port " + str(try_port))
-            if Instance.__is_port_in_use(try_port) and Instance.__is_valid_port(try_port):
+            if Instance.__is_port_in_use(try_port) and Instance.__is_valid_port(
+                try_port
+            ):
                 return Instance(port=try_port)
 
         print(
-            'Error: Could not find any ResInsight instances responding between ports '
-            + str(start_port) + ' and ' + str(end_port))
+            "Error: Could not find any ResInsight instances responding between ports "
+            + str(start_port)
+            + " and "
+            + str(end_port)
+        )
         return None
 
     def __execute_command(self, **command_params):
@@ -155,15 +161,17 @@ class Instance:
     def __check_version(self):
         try:
             major_version_ok = self.major_version() == int(
-                RiaVersionInfo.RESINSIGHT_MAJOR_VERSION)
+                RiaVersionInfo.RESINSIGHT_MAJOR_VERSION
+            )
             minor_version_ok = self.minor_version() == int(
-                RiaVersionInfo.RESINSIGHT_MINOR_VERSION)
+                RiaVersionInfo.RESINSIGHT_MINOR_VERSION
+            )
             return True, major_version_ok and minor_version_ok
         except grpc.RpcError:
             return False, False
 
     def __init__(self, port=50051, launched=False):
-        """ Attempts to connect to ResInsight at aa specific port on localhost
+        """Attempts to connect to ResInsight at aa specific port on localhost
 
         Args:
             port(int): port number
@@ -171,11 +179,9 @@ class Instance:
         logging.basicConfig()
         location = "localhost:" + str(port)
 
-        self.channel = grpc.insecure_channel(location,
-                                             options=[
-                                                 ('grpc.enable_http_proxy',
-                                                  False)
-                                             ])
+        self.channel = grpc.insecure_channel(
+            location, options=[("grpc.enable_http_proxy", False)]
+        )
         self.launched = launched
         self.commands = Commands_pb2_grpc.CommandsStub(self.channel)
 
@@ -187,7 +193,9 @@ class Instance:
         # Intercept UNAVAILABLE errors and retry on failures
         interceptors = (
             RetryOnRpcErrorClientInterceptor(
-                retry_policy=ExponentialBackoffRetryPolicy(min_backoff=100, max_backoff=5000, max_num_retries=20),
+                retry_policy=ExponentialBackoffRetryPolicy(
+                    min_backoff=100, max_backoff=5000, max_num_retries=20
+                ),
                 status_for_retry=(grpc.StatusCode.UNAVAILABLE,),
             ),
         )
@@ -219,14 +227,21 @@ class Instance:
 
         if not connection_ok:
             if self.launched:
-                raise Exception('Error: Could not connect to resinsight at ',
-                                location,
-                                '.', retry_policy.time_out_message())
-            raise Exception('Error: Could not connect to resinsight at ', location)
+                raise Exception(
+                    "Error: Could not connect to resinsight at ",
+                    location,
+                    ".",
+                    retry_policy.time_out_message(),
+                )
+            raise Exception("Error: Could not connect to resinsight at ", location)
         if not version_ok:
-            raise Exception('Error: Wrong Version of ResInsight at ', location,
-                            self.version_string(), " ",
-                            self.client_version_string())
+            raise Exception(
+                "Error: Wrong Version of ResInsight at ",
+                location,
+                self.version_string(),
+                " ",
+                self.client_version_string(),
+            )
 
     def __version_message(self):
         return self.app.GetVersion(Empty())
@@ -238,7 +253,9 @@ class Instance:
             path (str): path to directory
 
         """
-        return self.__execute_command(setStartDir=Commands_pb2.FilePathRequest(path=path))
+        return self.__execute_command(
+            setStartDir=Commands_pb2.FilePathRequest(path=path)
+        )
 
     def set_export_folder(self, export_type, path, create_folder=False):
         """
@@ -256,14 +273,17 @@ class Instance:
 
             Option          | Description
             --------------- | ------------
-            "COMPLETIONS"   |   
+            "COMPLETIONS"   |
             "SNAPSHOTS"     |
-            "PROPERTIES"    | 
-            "STATISTICS"    | 
+            "PROPERTIES"    |
+            "STATISTICS"    |
 
         """
-        return self.__execute_command(setExportFolder=Commands_pb2.SetExportFolderRequest(
-            type=export_type, path=path, createFolder=create_folder))
+        return self.__execute_command(
+            setExportFolder=Commands_pb2.SetExportFolderRequest(
+                type=export_type, path=path, createFolder=create_folder
+            )
+        )
 
     def set_main_window_size(self, width, height):
         """
@@ -277,8 +297,11 @@ class Instance:
             height    | Height in pixels | Integer
 
         """
-        return self.__execute_command(setMainWindowSize=Commands_pb2.SetWindowSizeParams(
-            width=width, height=height))
+        return self.__execute_command(
+            setMainWindowSize=Commands_pb2.SetWindowSizeParams(
+                width=width, height=height
+            )
+        )
 
     def set_plot_window_size(self, width, height):
         """
@@ -291,8 +314,11 @@ class Instance:
             width     | Width in pixels  | Integer
             height    | Height in pixels | Integer
         """
-        return self.__execute_command(setPlotWindowSize=Commands_pb2.SetWindowSizeParams(
-            width=width, height=height))
+        return self.__execute_command(
+            setPlotWindowSize=Commands_pb2.SetWindowSizeParams(
+                width=width, height=height
+            )
+        )
 
     def major_version(self):
         """Get an integer with the major version number"""
@@ -308,8 +334,13 @@ class Instance:
 
     def version_string(self):
         """Get a full version string, i.e. 2019.04.01"""
-        return str(self.major_version()) + "." + str(
-            self.minor_version()) + "." + str(self.patch_version())
+        return (
+            str(self.major_version())
+            + "."
+            + str(self.minor_version())
+            + "."
+            + str(self.patch_version())
+        )
 
     def client_version_string(self):
         """Get a full version string, i.e. 2019.04.01"""
@@ -326,11 +357,11 @@ class Instance:
     def is_console(self):
         """Returns true if the connected ResInsight instance is a console app"""
         return self.app.GetRuntimeInfo(
-            Empty()).app_type == App_pb2.ApplicationTypeEnum.Value(
-                'CONSOLE_APPLICATION')
+            Empty()
+        ).app_type == App_pb2.ApplicationTypeEnum.Value("CONSOLE_APPLICATION")
 
     def is_gui(self):
         """Returns true if the connected ResInsight instance is a GUI app"""
         return self.app.GetRuntimeInfo(
-            Empty()).app_type == App_pb2.ApplicationTypeEnum.Value(
-                'GUI_APPLICATION')
+            Empty()
+        ).app_type == App_pb2.ApplicationTypeEnum.Value("GUI_APPLICATION")

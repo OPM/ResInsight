@@ -31,8 +31,8 @@ class Grid:
         """
         case_request = Case_pb2.CaseRequest(id=self.case.id)
         return self.__stub.GetDimensions(
-            Grid_pb2.GridRequest(case_request=case_request,
-                                 grid_index=self.index)).dimensions
+            Grid_pb2.GridRequest(case_request=case_request, grid_index=self.index)
+        ).dimensions
 
     def cell_centers_async(self):
         """The cells center for all cells in given grid async.
@@ -42,8 +42,8 @@ class Grid:
         """
         case_request = Case_pb2.CaseRequest(id=self.case.id)
         chunks = self.__stub.GetCellCenters(
-            Grid_pb2.GridRequest(case_request=case_request,
-                                 grid_index=self.index))
+            Grid_pb2.GridRequest(case_request=case_request, grid_index=self.index)
+        )
         for chunk in chunks:
             yield chunk
 
@@ -68,8 +68,8 @@ class Grid:
         """
         case_request = Case_pb2.CaseRequest(id=self.case.id)
         chunks = self.__stub.GetCellCorners(
-            Grid_pb2.GridRequest(case_request=case_request,
-                                 grid_index=self.index))
+            Grid_pb2.GridRequest(case_request=case_request, grid_index=self.index)
+        )
 
         for chunk in chunks:
             yield chunk
