@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2021- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -23,19 +22,16 @@
 
 #include <vector>
 
-class RimCalcScript;
-
 //==================================================================================================
 ///
 //==================================================================================================
-class RicExecuteScriptFeature : public caf::CmdFeature
+class RicExecuteLastUsedScriptFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-    static void executeScript( RimCalcScript* calcScript );
+    static QString lastUsedScriptPathKey();
 
 protected:
-    // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;

@@ -19,6 +19,7 @@
 
 #include "RicExecuteScriptFeature.h"
 
+#include "RicExecuteLastUsedScriptFeature.h"
 #include "RicScriptFeatureImpl.h"
 
 #include "RiaApplication.h"
@@ -33,7 +34,9 @@
 
 #include <QAction>
 #include <QFileInfo>
+#include <QSettings>
 
+#include "cafCmdFeatureManager.h"
 #include <iostream>
 
 CAF_CMD_SOURCE_INIT( RicExecuteScriptFeature, "RicExecuteScriptFeature" );
@@ -55,10 +58,24 @@ void RicExecuteScriptFeature::onActionTriggered( bool isChecked )
     std::vector<RimCalcScript*> selection = RicScriptFeatureImpl::selectedScripts();
     CVF_ASSERT( selection.size() > 0 );
 
+    executeScript( selection[0] );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicExecuteScriptFeature::setupActionLook( QAction* actionToSetup )
+{
+    actionToSetup->setText( "Execute" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicExecuteScriptFeature::executeScript( RimCalcScript* calcScript )
+{
     RiuMainWindow* mainWindow = RiuMainWindow::instance();
     mainWindow->showProcessMonitorDockPanel();
-
-    RimCalcScript* calcScript = selection[0];
 
     RiaApplication* app = RiaApplication::instance();
     if ( calcScript->scriptType() == RimCalcScript::OCTAVE )
@@ -107,12 +124,13 @@ void RicExecuteScriptFeature::onActionTriggered( bool isChecked )
             RiaApplication::instance()->launchProcess( pythonPath, arguments, penv );
         }
     }
-}
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicExecuteScriptFeature::setupActionLook( QAction* actionToSetup )
-{
-    actionToSetup->setText( "Execute" );
+    if ( !calcScript->absoluteFileName().isEmpty() )
+    {
+        QSettings settings;
+        settings.setValue( RicExecuteLastUsedScriptFeature::lastUsedScriptPathKey(), calcScript->absoluteFileName() );
+
+        auto cmdFeature = caf::CmdFeatureManager::instance()->getCommandFeature( "RicExecuteLastUsedScriptFeature" );
+        cmdFeature->action(); // Retrieve the action to update the looks
+    }
 }
