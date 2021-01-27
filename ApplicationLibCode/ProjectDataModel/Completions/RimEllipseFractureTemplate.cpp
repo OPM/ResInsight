@@ -179,6 +179,8 @@ cvf::cref<RigFractureGrid> RimEllipseFractureTemplate::createFractureGrid( doubl
     double cellArea                     = cellSizeX * cellSizeZ;
     double areaTresholdForIncludingCell = 0.5 * cellArea;
 
+    std::pair<size_t, size_t> wellCenterFractureCellIJ = std::make_pair( numberOfCellsI / 2, numberOfCellsJ / 2 );
+
     for ( int i = 0; i < numberOfCellsI; i++ )
     {
         for ( int j = 0; j < numberOfCellsJ; j++ )
@@ -219,15 +221,24 @@ cvf::cref<RigFractureGrid> RimEllipseFractureTemplate::createFractureGrid( doubl
 
             RigFractureCell fractureCell( cellPolygon, i, j );
             fractureCell.setConductivityValue( cond );
-
             fractureCells.push_back( fractureCell );
+
+            // The well path is intersecting the fracture at origo in the fracture coordinate system
+            // Find the fracture cell where the well path is intersecting
+            if ( ( cellPolygon[0].x() <= 0.0 && cellPolygon[1].x() >= 0.0 ) &&
+                 ( cellPolygon[1].y() <= 0.0 && cellPolygon[2].y() >= 0.0 ) )
+            {
+                wellCenterFractureCellIJ = std::make_pair( fractureCell.getI(), fractureCell.getJ() );
+                RiaLogging::debug(
+                    QString( "Setting wellCenterStimPlanCell at cell %1, %2" )
+                        .arg( QString::number( fractureCell.getI() ), QString::number( fractureCell.getJ() ) ) );
+            }
         }
     }
 
     fractureGrid->setFractureCells( fractureCells );
 
     // Set well intersection to center of ellipse
-    std::pair<size_t, size_t> wellCenterFractureCellIJ = std::make_pair( numberOfCellsI / 2, numberOfCellsJ / 2 );
     fractureGrid->setWellCenterFractureCellIJ( wellCenterFractureCellIJ );
 
     fractureGrid->setICellCount( numberOfCellsI );
