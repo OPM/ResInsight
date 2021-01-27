@@ -114,19 +114,25 @@ void RimEllipseFractureTemplate::fractureTriangleGeometry( std::vector<cvf::Vec3
     float b = m_height / 2.0f * m_heightScaleFactor;
 
     tesselator.tesselateEllipsis( a, b, triangleIndices, nodeCoords );
+
+    for ( cvf::Vec3f& v : *nodeCoords )
+    {
+        // Y is depth in fracture coordinate system
+        v.y() += wellPathDepthAtFracture;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3f> RimEllipseFractureTemplate::fractureBorderPolygon() const
+std::vector<cvf::Vec3f> RimEllipseFractureTemplate::fractureBorderPolygon( double wellPathDepthAtFracture ) const
 {
     std::vector<cvf::Vec3f> polygon;
 
     std::vector<cvf::Vec3f> nodeCoords;
     std::vector<cvf::uint>  triangleIndices;
 
-    fractureTriangleGeometry( &nodeCoords, &triangleIndices, -1.0 );
+    fractureTriangleGeometry( &nodeCoords, &triangleIndices, wellPathDepthAtFracture );
 
     for ( size_t i = 1; i < nodeCoords.size(); i++ )
     {
@@ -179,8 +185,8 @@ cvf::cref<RigFractureGrid> RimEllipseFractureTemplate::createFractureGrid( doubl
         {
             double X1 = -halfLength + i * cellSizeX;
             double X2 = -halfLength + ( i + 1 ) * cellSizeX;
-            double Y1 = -height / 2 + j * cellSizeZ;
-            double Y2 = -height / 2 + ( j + 1 ) * cellSizeZ;
+            double Y1 = -height / 2 + j * cellSizeZ + wellPathDepthAtFracture;
+            double Y2 = -height / 2 + ( j + 1 ) * cellSizeZ + wellPathDepthAtFracture;
 
             std::vector<cvf::Vec3d> cellPolygon;
             cellPolygon.push_back( cvf::Vec3d( X1, Y1, 0.0 ) );
@@ -190,7 +196,7 @@ cvf::cref<RigFractureGrid> RimEllipseFractureTemplate::createFractureGrid( doubl
 
             double cond = conductivity();
 
-            std::vector<cvf::Vec3f> ellipseFracPolygon = fractureBorderPolygon();
+            std::vector<cvf::Vec3f> ellipseFracPolygon = fractureBorderPolygon( wellPathDepthAtFracture );
             std::vector<cvf::Vec3d> ellipseFracPolygonDouble;
             for ( const auto& v : ellipseFracPolygon )
                 ellipseFracPolygonDouble.push_back( static_cast<cvf::Vec3d>( v ) );
@@ -470,4 +476,13 @@ void RimEllipseFractureTemplate::defineUiOrdering( QString uiConfigName, caf::Pd
     }
 
     RimFractureTemplate::defineUiOrdering( uiConfigName, uiOrdering );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RimEllipseFractureTemplate::wellPathDepthAtFractureRange() const
+{
+    double scaledHalfHeight = height() * m_heightScaleFactor / 2.0;
+    return std::make_pair( -scaledHalfHeight, scaledHalfHeight );
 }

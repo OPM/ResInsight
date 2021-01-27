@@ -737,13 +737,10 @@ void RimFracture::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& ui
             m_stimPlanTimeIndexToPlot.uiCapability()->setUiHidden( false );
 
             m_stimPlanTimeIndexToPlot.uiCapability()->setUiReadOnly( true );
-
-            m_wellPathDepthAtFracture.uiCapability()->setUiHidden( false );
         }
         else
         {
             m_stimPlanTimeIndexToPlot.uiCapability()->setUiHidden( true );
-            m_wellPathDepthAtFracture.uiCapability()->setUiHidden( true );
         }
     }
     else
@@ -784,11 +781,9 @@ void RimFracture::defineEditorAttribute( const caf::PdmFieldHandle* field,
         caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
         if ( myAttr )
         {
-            RimStimPlanFractureTemplate* stimPlanFracTemplate =
-                dynamic_cast<RimStimPlanFractureTemplate*>( fractureTemplate() );
-            if ( stimPlanFracTemplate )
+            if ( fractureTemplate() )
             {
-                auto [minimum, maximum] = stimPlanFracTemplate->wellPathDepthAtFractureRange();
+                auto [minimum, maximum] = fractureTemplate()->wellPathDepthAtFractureRange();
                 myAttr->m_minimum       = minimum;
                 myAttr->m_maximum       = maximum;
             }
@@ -864,6 +859,10 @@ void RimFracture::setFractureTemplate( RimFractureTemplate* fractureTemplate )
     {
         m_stimPlanTimeIndexToPlot = stimPlanFracTemplate->activeTimeStepIndex();
         m_wellPathDepthAtFracture = stimPlanFracTemplate->wellPathDepthAtFracture();
+    }
+    else
+    {
+        m_wellPathDepthAtFracture = 0.0;
     }
 
     if ( fractureTemplate->orientationType() == RimFractureTemplate::AZIMUTH )

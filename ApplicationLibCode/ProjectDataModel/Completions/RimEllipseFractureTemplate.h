@@ -49,6 +49,8 @@ public:
                                    std::vector<cvf::uint>*  polygonIndices,
                                    double                   wellPathDepthAtFracture ) const override;
 
+    std::pair<double, double> wellPathDepthAtFractureRange() const override;
+
     void                       changeUnits();
     cvf::cref<RigFractureGrid> createFractureGrid( double wellPathDepthAtFracture ) const override;
     void                       setDefaultValuesFromUnit();
@@ -74,10 +76,8 @@ private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
 
-    void onLoadDataAndUpdateGeometryHasChanged() override;
-
-    void                    createFractureGridAndAssignConductivities();
-    std::vector<cvf::Vec3f> fractureBorderPolygon() const;
+    void                    onLoadDataAndUpdateGeometryHasChanged() override;
+    std::vector<cvf::Vec3f> fractureBorderPolygon( double wellPathDepthAtFracture ) const;
 
     WellFractureIntersectionData wellFractureIntersectionData( const RimFracture* fractureInstance ) const override;
 
