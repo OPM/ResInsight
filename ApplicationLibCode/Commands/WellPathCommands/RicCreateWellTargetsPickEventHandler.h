@@ -24,12 +24,8 @@
 
 #include <gsl/gsl>
 
-class RimWellPathGeometryDefInterface;
-class RigWellPath;
-class RiuPickItemInfo;
-class RivWellPathSourceInfo;
 class RimWellPathGeometryDef;
-class RimWellPathLateralGeometryDef;
+class RigWellPath;
 
 //==================================================================================================
 ///
@@ -37,7 +33,7 @@ class RimWellPathLateralGeometryDef;
 class RicCreateWellTargetsPickEventHandler : public Ric3dViewPickEventHandler
 {
 public:
-    RicCreateWellTargetsPickEventHandler( gsl::not_null<RimWellPathGeometryDefInterface*> wellGeometryDef );
+    RicCreateWellTargetsPickEventHandler( gsl::not_null<RimWellPathGeometryDef*> wellGeometryDef );
     ~RicCreateWellTargetsPickEventHandler();
 
     void registerAsPickEventHandler() override;
@@ -51,38 +47,13 @@ private:
                                              gsl::not_null<const RigWellPath*> wellPathGeometry,
                                              double*                           azimuth,
                                              double*                           inclination ) const;
-    bool calculateWellPathGeometryAtPickPoint( const RiuPickItemInfo&                      pickItem,
-                                               gsl::not_null<const RivWellPathSourceInfo*> sourceInfo,
-                                               const cvf::Vec3d&                           intersectionPointInDomain,
-                                               gsl::not_null<cvf::Vec3d*>                  targetPointInDomain,
-                                               gsl::not_null<double*>                      azimuth,
-                                               gsl::not_null<double*>                      inclination ) const;
-
-    cvf::Vec3d calculateGridPickPoint( gsl::not_null<const Rim3dView*> rimView,
-                                       const RiuPickItemInfo&          pickItem,
-                                       const cvf::Vec3d&               intersectionPointInDomain ) const;
-
-    void addNewTargetToModeledWellPath( const RiuPickItemInfo&                 pickItem,
-                                        gsl::not_null<RimWellPathGeometryDef*> wellPathGeometryDef,
-                                        const cvf::Vec3d&                      intersectionPointInDomain,
-                                        const cvf::Vec3d&                      targetPointInDomain,
-                                        double                                 azimuth,
-                                        double                                 inclination );
-
-    void addNewTargetToModeledWellPathLateral( const RiuPickItemInfo&                        pickItem,
-                                               gsl::not_null<RimWellPathLateralGeometryDef*> wellPathLateralGeometryDef,
-                                               const cvf::Vec3d&                             intersectionPointInDomain,
-                                               const cvf::Vec3d&                             targetPointInDomain,
-                                               double                                        azimuth,
-                                               double                                        inclination );
 
     static bool       isGridSourceObject( const cvf::Object* object );
-    static bool       isValidWellPathSourceObject( const RivWellPathSourceInfo* sourceInfo );
-    static cvf::Vec3d findHexElementIntersection( gsl::not_null<const Rim3dView*> view,
-                                                  const RiuPickItemInfo&          pickItem,
-                                                  const cvf::Vec3d&               domainRayOrigin,
-                                                  const cvf::Vec3d&               domainRayEnd );
+    static cvf::Vec3d findHexElementIntersection( gsl::not_null<Rim3dView*> view,
+                                                  const RiuPickItemInfo&    pickItem,
+                                                  const cvf::Vec3d&         domainRayOrigin,
+                                                  const cvf::Vec3d&         domainRayEnd );
 
 private:
-    caf::PdmPointer<RimWellPathGeometryDefInterface> m_geometryToAddTargetsTo;
+    caf::PdmPointer<RimWellPathGeometryDef> m_geometryToAddTargetsTo;
 };

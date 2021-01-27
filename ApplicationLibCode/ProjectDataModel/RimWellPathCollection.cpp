@@ -28,6 +28,9 @@
 #include "RiaTextStringTools.h"
 #include "RiaWellNameComparer.h"
 
+#include "RifWellPathFormationsImporter.h"
+#include "RifWellPathImporter.h"
+
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 #include "RigWellPath.h"
@@ -35,6 +38,8 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseView.h"
+#include "RimFileWellPath.h"
+#include "RimModeledWellPath.h"
 #include "RimOilField.h"
 #include "RimPerforationCollection.h"
 #include "RimProject.h"
@@ -43,11 +48,10 @@
 #include "RimWellLogFile.h"
 #include "RimWellMeasurementCollection.h"
 #include "RimWellPath.h"
+#include "RimWellPathCompletionSettings.h"
 #include "RimWellPathGroup.h"
-#include "Riu3DMainWindowTools.h"
 
-#include "RifWellPathFormationsImporter.h"
-#include "RifWellPathImporter.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafPdmUiEditorHandle.h"
 #include "cafPdmUiTreeOrdering.h"
@@ -57,8 +61,6 @@
 #include <QFileInfo>
 #include <QString>
 
-#include "RimFileWellPath.h"
-#include "RimModeledWellPath.h"
 #include <cmath>
 #include <fstream>
 
@@ -260,10 +262,13 @@ void RimWellPathCollection::loadDataAndUpdate()
         }
         progress.incrementProgress();
     }
+
     for ( auto group : topLevelGroups() )
     {
         group->createWellPathGeometry();
+        group->completionSettings()->setWellNameForExport( group->createGroupName() );
     }
+
     this->sortWellsByName();
 }
 
@@ -655,12 +660,22 @@ void RimWellPathCollection::groupWellPaths( const std::vector<RimWellPath*>& wel
 
     if ( automaticGrouping )
     {
-        for ( auto wellPath : allWellPaths() )
+        bool detachedGroup = true;
+        while (detachedGroup)
         {
-            if ( dynamic_cast<RimWellPathGroup*>( wellPath ) )
+            detachedGroup = false;
+
+            // Detach may end up removing multiple groups, which could interfere with iteration of this loop
+            // So do only one and break
+            for ( auto wellPath : allWellPaths() )
             {
-                auto existingGroupPaths = detachWellPaths( { wellPath } );
-                detachedWellPaths.insert( detachedWellPaths.end(), existingGroupPaths.begin(), existingGroupPaths.end() );
+                if ( dynamic_cast<RimWellPathGroup*>( wellPath ) )
+                {
+                    auto newlyDetachedPaths = detachWellPaths( { wellPath } );
+                    detachedWellPaths.insert( detachedWellPaths.end(), newlyDetachedPaths.begin(), newlyDetachedPaths.end() );
+                    detachedGroup = true;
+                    break;
+                }
             }
         }
     }
@@ -854,7 +869,7 @@ RimWellPathGroup* RimWellPathCollection::findOrCreateWellPathGroup( gsl::not_nul
     auto wellPathGeometry = wellPath->wellPathGeometry();
     if ( !wellPathGeometry ) return nullptr;
 
-    const double                   eps = 1.0e-3;
+    const double                   eps = 1.0e-2;
     std::map<RimWellPath*, double> wellPathsWithCommonGeometry;
 
     for ( auto existingWellPath : wellPathsToGroup )

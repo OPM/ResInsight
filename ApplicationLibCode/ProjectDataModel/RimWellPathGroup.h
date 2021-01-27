@@ -43,6 +43,7 @@ public:
 protected:
     void                 defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName );
     caf::PdmFieldHandle* userDescriptionField() override;
+    void                 initAfterRead() override;
 
 private:
     std::vector<const RigWellPath*> wellPathGeometries() const;

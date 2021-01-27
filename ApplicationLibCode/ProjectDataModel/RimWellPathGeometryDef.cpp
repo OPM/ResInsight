@@ -93,6 +93,9 @@ RimWellPathGeometryDef::RimWellPathGeometryDef()
     m_autoTargetAtSeaLevel = new RimWellPathTarget;
     m_autoTargetAtSeaLevel->setEnabled( false );
 
+    CAF_PDM_InitFieldNoDefault( &m_fixedWellPathPoints, "FixedWellPathPoints", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_fixedMeasuredDepths, "FixedMeasuredDepths", "", "", "", "" );
+
     CAF_PDM_InitField( &m_pickPointsEnabled, "m_pickPointsEnabled", false, "", "", "", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_pickPointsEnabled );
 }
@@ -159,6 +162,40 @@ void RimWellPathGeometryDef::setMdAtFirstTarget( double md )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellPathGeometryDef::setFixedWellPathPoints( const std::vector<cvf::Vec3d>& points )
+{
+    m_fixedWellPathPoints = points;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathGeometryDef::setFixedMeasuredDepths( const std::vector<double>& mds )
+{
+    m_fixedMeasuredDepths = mds;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellPathTarget*> RimWellPathGeometryDef::createTargets( const std::vector<cvf::Vec3d>& points)
+{
+    CAF_ASSERT( points.size() >= 2u );
+
+    std::vector<RimWellPathTarget*> appendedTargets;
+
+    for ( size_t i = 0; i < points.size(); ++i )
+    {
+        auto target = appendTarget();
+        target->setAsPointTargetXYZ( points[i]);
+        appendedTargets.push_back( target );
+    }
+    return appendedTargets;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::ref<RigWellPath> RimWellPathGeometryDef::createWellPathGeometry()
 {
     cvf::ref<RigWellPath> wellPathGeometry = new RigWellPath;
@@ -168,14 +205,18 @@ cvf::ref<RigWellPath> RimWellPathGeometryDef::createWellPathGeometry()
         updateTargetAtSeaLevel();
     }
 
+    std::vector<cvf::Vec3d> wellPathPoints = m_fixedWellPathPoints;
+    std::vector<double>     measuredDepths = m_fixedMeasuredDepths;
+
     RiaLineArcWellPathCalculator wellPathCalculator = lineArcWellPathCalculator();
 
-    if ( wellPathCalculator.lineArcEndpoints().size() < 2 ) return wellPathGeometry;
-
-    RiaPolyArcLineSampler arcLineSampler( wellPathCalculator.startTangent(), wellPathCalculator.lineArcEndpoints() );
-
-    auto [wellPathPoints, measuredDepths] = arcLineSampler.sampledPointsAndMDs( 30, false );
-
+    if ( wellPathCalculator.lineArcEndpoints().size() >= 2 )
+    {
+        RiaPolyArcLineSampler arcLineSampler( wellPathCalculator.startTangent(), wellPathCalculator.lineArcEndpoints() );
+        auto [sampledWellPathPoints, sampledMeasuredDepths] = arcLineSampler.sampledPointsAndMDs( 30, false );
+        wellPathPoints.insert( wellPathPoints.end(), sampledWellPathPoints.begin(), sampledWellPathPoints.end() );
+        measuredDepths.insert( measuredDepths.end(), sampledMeasuredDepths.begin(), sampledMeasuredDepths.end() );
+    }
     wellPathGeometry->setWellPathPoints( wellPathPoints );
     wellPathGeometry->setMeasuredDepths( measuredDepths );
 

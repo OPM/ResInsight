@@ -745,10 +745,13 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
         m_centerLinePart->setEffect( eff.p() );
     }
 
-    // Generate label with well-path name
-
+    // Generate label with well-path name at a position that is slightly offset towards the end of the well path
+    // This is to avoid overlap between well path laterals.
     cvf::Vec3d textPosition = cvfCoords->get( 0 );
+    cvf::Vec3d tangent      = ( cvfCoords->get( cvfCoords->size() - 1 ) - cvfCoords->get( 0 ) ).getNormalized();
+
     textPosition.z() += 2.2 * characteristicCellSize;
+    textPosition += tangent * 2.2 * characteristicCellSize;
 
     if ( wellPathCollection->showWellPathLabel() && m_rimWellPath->showWellPathLabel() && !m_rimWellPath->name().isEmpty() )
     {

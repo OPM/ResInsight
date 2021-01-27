@@ -58,7 +58,7 @@ void RicNewFishbonesSubsFeature::onActionTriggered( bool isChecked )
     RimFishbones* obj = new RimFishbones;
     fishbonesCollection->appendFishbonesSubs( obj );
 
-    double wellPathTipMd = wellPath->endMD();
+    double wellPathTipMd = wellPath->uniqueEndMD();
     if ( wellPathTipMd != HUGE_VAL )
     {
         double startMd = wellPathTipMd - 150 - 100;

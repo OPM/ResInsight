@@ -31,7 +31,7 @@ RigWellPath::RigWellPath()
     : cvf::Object()
     , m_hasDatumElevation( false )
     , m_datumElevation( 0.0 )
-    , m_startIndex( 0u )
+    , m_uniqueStartIndex( 0u )
     , objectBeingDeleted( this )
 {
 }
@@ -45,7 +45,7 @@ RigWellPath::RigWellPath( const RigWellPath& rhs )
     , m_measuredDepths( rhs.m_measuredDepths )
     , m_hasDatumElevation( rhs.m_hasDatumElevation )
     , m_datumElevation( rhs.m_datumElevation )
-    , m_startIndex( rhs.m_startIndex )
+    , m_uniqueStartIndex( rhs.m_uniqueStartIndex )
     , objectBeingDeleted( this )
 {
 }
@@ -59,7 +59,8 @@ RigWellPath::RigWellPath( const std::vector<cvf::Vec3d>& wellPathPoints, const s
     , m_measuredDepths( measuredDepths )
     , m_hasDatumElevation( false )
     , m_datumElevation( 0.0 )
-    , m_startIndex( 0u )
+    , m_uniqueStartIndex( 0u )
+    , m_uniqueEndIndex( std::numeric_limits<size_t>::max() )
     , objectBeingDeleted( this )
 {
 }
@@ -73,7 +74,7 @@ RigWellPath& RigWellPath::operator=( const RigWellPath& rhs )
     m_measuredDepths    = rhs.m_measuredDepths;
     m_hasDatumElevation = rhs.m_hasDatumElevation;
     m_datumElevation    = rhs.m_datumElevation;
-    m_startIndex        = rhs.m_startIndex;
+    m_uniqueStartIndex  = rhs.m_uniqueStartIndex;
     return *this;
 }
 
@@ -254,6 +255,9 @@ cvf::Vec3d
     return interpolatedVector;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::Vec3d
     RigWellPath::interpolatedPointAlongWellPath( double  measuredDepth,
                                                  double* horizontalLengthAlongWellToStartClipPoint /*= nullptr*/ ) const
@@ -459,9 +463,12 @@ cvf::ref<RigWellPath> RigWellPath::commonGeometry( const std::vector<const RigWe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellPath::setUniqueStartIndex( size_t uniqueStartIndex )
+void RigWellPath::setUniqueStartAndEndIndex( size_t uniqueStartIndex, size_t uniqueEndIndex )
 {
-    m_startIndex = uniqueStartIndex;
+    if ( m_measuredDepths.empty() ) return;
+
+    m_uniqueStartIndex = std::clamp( uniqueStartIndex, (size_t)0u, m_measuredDepths.size() - 1u );
+    m_uniqueEndIndex   = std::clamp( uniqueEndIndex, m_uniqueStartIndex, m_measuredDepths.size() - 1u );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -469,7 +476,15 @@ void RigWellPath::setUniqueStartIndex( size_t uniqueStartIndex )
 //--------------------------------------------------------------------------------------------------
 size_t RigWellPath::uniqueStartIndex() const
 {
-    return m_startIndex;
+    return m_uniqueStartIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigWellPath::uniqueEndIndex() const
+{
+    return std::clamp( m_uniqueEndIndex, m_uniqueStartIndex, m_measuredDepths.size() - 1u );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -477,7 +492,8 @@ size_t RigWellPath::uniqueStartIndex() const
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d> RigWellPath::uniqueWellPathPoints() const
 {
-    return std::vector<cvf::Vec3d>( m_wellPathPoints.begin() + m_startIndex, m_wellPathPoints.end() );
+    return std::vector<cvf::Vec3d>( m_wellPathPoints.begin() + uniqueStartIndex(),
+                                    m_wellPathPoints.begin() + uniqueEndIndex() + 1u );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -485,7 +501,8 @@ std::vector<cvf::Vec3d> RigWellPath::uniqueWellPathPoints() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RigWellPath::uniqueMeasuredDepths() const
 {
-    return std::vector<double>( m_measuredDepths.begin() + m_startIndex, m_measuredDepths.end() );
+    return std::vector<double>( m_measuredDepths.begin() + m_uniqueStartIndex,
+                                m_measuredDepths.begin() + uniqueEndIndex() + 1u );
 }
 
 //--------------------------------------------------------------------------------------------------
