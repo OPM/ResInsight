@@ -25,8 +25,8 @@
 
 #include "RigWellPath.h"
 
+#include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
-#include "RimFishbonesMultipleSubs.h"
 #include "RimWellPath.h"
 
 #include "cafSelectionManager.h"
@@ -67,7 +67,7 @@ void RicExportFishbonesLateralsFeature::onActionTriggered( bool isChecked )
         auto exportFile = EXP::openFileForExport( folder, fileName );
         auto stream     = EXP::createOutputFileStream( *exportFile );
 
-        for ( RimFishbonesMultipleSubs* fishbone : wellPath->fishbonesCollection()->activeFishbonesSubs() )
+        for ( RimFishbones* fishbone : wellPath->fishbonesCollection()->activeFishbonesSubs() )
         {
             const QString fishboneName = fishbone->generatedName();
 

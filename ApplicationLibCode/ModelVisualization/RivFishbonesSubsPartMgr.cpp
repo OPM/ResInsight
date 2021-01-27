@@ -20,7 +20,7 @@
 
 #include "RigWellPath.h"
 
-#include "RimFishbonesMultipleSubs.h"
+#include "RimFishbones.h"
 #include "RimWellPath.h"
 
 #include "RivObjectSourceInfo.h"
@@ -37,7 +37,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivFishbonesSubsPartMgr::RivFishbonesSubsPartMgr( RimFishbonesMultipleSubs* subs )
+RivFishbonesSubsPartMgr::RivFishbonesSubsPartMgr( RimFishbones* subs )
     : m_rimFishbonesSubs( subs )
 {
 }

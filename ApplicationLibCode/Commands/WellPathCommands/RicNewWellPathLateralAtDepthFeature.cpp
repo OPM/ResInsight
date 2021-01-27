@@ -20,8 +20,8 @@
 #include "WellPathCommands/RicWellPathsUnitSystemSettingsImpl.h"
 
 #include "RigWellPath.h"
+#include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
-#include "RimFishbonesMultipleSubs.h"
 #include "RimModeledWellPathLateral.h"
 #include "RimOilField.h"
 #include "RimProject.h"

@@ -20,8 +20,8 @@
 
 #include "RiaApplication.h"
 
-#include "RimFishboneWellPathCollection.h"
 #include "RimFishbonesCollection.h"
+#include "RimImportedFishboneLateralsCollection.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -55,7 +55,7 @@ bool RicWellPathImportCompletionsFileFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicWellPathImportCompletionsFileFeature::onActionTriggered( bool isChecked )
 {
-    RimFishboneWellPathCollection* fishbonesWellPathCollection =
+    RimImportedFishboneLateralsCollection* fishbonesWellPathCollection =
         RicWellPathImportCompletionsFileFeature::selectedWellPathCollection();
     CVF_ASSERT( fishbonesWellPathCollection );
 
@@ -100,7 +100,7 @@ void RicWellPathImportCompletionsFileFeature::setupActionLook( QAction* actionTo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFishboneWellPathCollection* RicWellPathImportCompletionsFileFeature::selectedWellPathCollection()
+RimImportedFishboneLateralsCollection* RicWellPathImportCompletionsFileFeature::selectedWellPathCollection()
 {
     RimFishbonesCollection* objToFind = nullptr;
     caf::PdmUiItem*         pdmUiItem = caf::SelectionManager::instance()->selectedItem();

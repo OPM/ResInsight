@@ -38,8 +38,8 @@
 #include "RigWellPathIntersectionTools.h"
 
 #include "RimEclipseCase.h"
+#include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
-#include "RimFishbonesMultipleSubs.h"
 #include "RimFractureTemplate.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
@@ -829,7 +829,7 @@ RicMswExportInfo RicWellPathExportMswCompletionsImpl::generateFishbonesMswExport
                                                                                       const RimWellPath*    wellPath,
                                                                                       bool enableSegmentSplitting )
 {
-    std::vector<RimFishbonesMultipleSubs*> fishbonesSubs = wellPath->fishbonesCollection()->activeFishbonesSubs();
+    std::vector<RimFishbones*> fishbonesSubs = wellPath->fishbonesCollection()->activeFishbonesSubs();
 
     return generateFishbonesMswExportInfo( caseToApply, wellPath, fishbonesSubs, enableSegmentSplitting );
 }
@@ -837,11 +837,11 @@ RicMswExportInfo RicWellPathExportMswCompletionsImpl::generateFishbonesMswExport
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswExportInfo RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(
-    const RimEclipseCase*                         caseToApply,
-    const RimWellPath*                            wellPath,
-    const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs,
-    bool                                          enableSegmentSplitting )
+RicMswExportInfo
+    RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo( const RimEclipseCase*             caseToApply,
+                                                                         const RimWellPath*                wellPath,
+                                                                         const std::vector<RimFishbones*>& fishbonesSubs,
+                                                                         bool enableSegmentSplitting )
 {
     RiaDefines::EclipseUnitSystem unitSystem = caseToApply->eclipseCaseData()->unitsType();
 
@@ -862,7 +862,7 @@ RicMswExportInfo RicWellPathExportMswCompletionsImpl::generateFishbonesMswExport
     double subStartMD  = wellPath->fishbonesCollection()->startMD();
     double subStartTVD = RicWellPathExportMswCompletionsImpl::tvdFromMeasuredDepth( wellPath, subStartMD );
 
-    for ( RimFishbonesMultipleSubs* subs : fishbonesSubs )
+    for ( RimFishbones* subs : fishbonesSubs )
     {
         for ( auto& sub : subs->installedLateralIndices() )
         {
@@ -1909,7 +1909,7 @@ void RicWellPathExportMswCompletionsImpl::moveIntersectionsToSuperICDsOrAICDs( M
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportMswCompletionsImpl::assignFishbonesLateralIntersections( const RimEclipseCase* caseToApply,
                                                                                const RimWellPath*    wellPath,
-                                                                               const RimFishbonesMultipleSubs* fishbonesSubs,
+                                                                               const RimFishbones*   fishbonesSubs,
                                                                                std::shared_ptr<RicMswSegment> segment,
                                                                                bool*  foundSubGridIntersections,
                                                                                double maxSegmentLength )

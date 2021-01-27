@@ -26,7 +26,7 @@ class RicExportCompletionDataSettingsUi;
 class RifTextDataTableFormatter;
 class RigActiveCellInfo;
 class RimEclipseCase;
-class RimFishbonesMultipleSubs;
+class RimFishbones;
 class RimPerforationInterval;
 class RimWellPath;
 class RimWellPathValve;
@@ -62,10 +62,10 @@ public:
                                                             bool                  enableSegmentSplitting );
 
 private:
-    static RicMswExportInfo generateFishbonesMswExportInfo( const RimEclipseCase*                         caseToApply,
-                                                            const RimWellPath*                            wellPath,
-                                                            const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs,
-                                                            bool enableSegmentSplitting );
+    static RicMswExportInfo generateFishbonesMswExportInfo( const RimEclipseCase*             caseToApply,
+                                                            const RimWellPath*                wellPath,
+                                                            const std::vector<RimFishbones*>& fishbonesSubs,
+                                                            bool                              enableSegmentSplitting );
 
     static RicMswExportInfo generateFracturesMswExportInfo( RimEclipseCase* caseToApply, const RimWellPath* wellPath );
 
@@ -169,12 +169,12 @@ private:
 
     static void moveIntersectionsToSuperICDsOrAICDs( MainBoreSegments mainBoreSegments );
 
-    static void assignFishbonesLateralIntersections( const RimEclipseCase*           caseToApply,
-                                                     const RimWellPath*              wellPath,
-                                                     const RimFishbonesMultipleSubs* fishbonesSubs,
-                                                     std::shared_ptr<RicMswSegment>  segment,
-                                                     bool*                           foundSubGridIntersections,
-                                                     double                          maxSegmentLength );
+    static void assignFishbonesLateralIntersections( const RimEclipseCase*          caseToApply,
+                                                     const RimWellPath*             wellPath,
+                                                     const RimFishbones*            fishbonesSubs,
+                                                     std::shared_ptr<RicMswSegment> segment,
+                                                     bool*                          foundSubGridIntersections,
+                                                     double                         maxSegmentLength );
 
     static void assignFractureCompletionsToCellSegment( const RimEclipseCase*                 caseToApply,
                                                         const RimWellPathFracture*            fracture,

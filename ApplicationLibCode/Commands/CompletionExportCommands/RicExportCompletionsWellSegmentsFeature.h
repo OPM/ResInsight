@@ -23,7 +23,7 @@
 #include "cafCmdFeature.h"
 
 class RimFishbonesCollection;
-class RimFishbonesMultipleSubs;
+class RimFishbones;
 class RimWellPath;
 
 //==================================================================================================

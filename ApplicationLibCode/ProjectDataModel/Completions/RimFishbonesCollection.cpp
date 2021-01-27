@@ -24,8 +24,8 @@
 
 #include "RigWellPath.h"
 
-#include "RimFishboneWellPathCollection.h"
-#include "RimFishbonesMultipleSubs.h"
+#include "RimFishbones.h"
+#include "RimImportedFishboneLateralsCollection.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
 
@@ -46,12 +46,12 @@ RimFishbonesCollection::RimFishbonesCollection()
     nameField()->uiCapability()->setUiHidden( true );
     this->setName( "Fishbones" );
 
-    CAF_PDM_InitFieldNoDefault( &m_fishbonesSubs, "FishbonesSubs", "fishbonesSubs", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_fishbones, "FishbonesSubs", "fishbonesSubs", "", "", "" );
 
-    m_fishbonesSubs.uiCapability()->setUiHidden( true );
+    m_fishbones.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_wellPathCollection, "WellPathCollection", "Imported Laterals", "", "", "" );
-    m_wellPathCollection = new RimFishboneWellPathCollection;
+    m_wellPathCollection = new RimImportedFishboneLateralsCollection;
     m_wellPathCollection.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitField( &m_startMD, "StartMD", HUGE_VAL, "Start MD", "", "", "" );
@@ -78,7 +78,7 @@ RimFishbonesCollection::RimFishbonesCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFishboneWellPathCollection* RimFishbonesCollection::wellPathCollection() const
+RimImportedFishboneLateralsCollection* RimFishbonesCollection::wellPathCollection() const
 {
     CVF_ASSERT( m_wellPathCollection );
 
@@ -165,10 +165,10 @@ void RimFishbonesCollection::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFishbonesCollection::appendFishbonesSubs( RimFishbonesMultipleSubs* subs )
+void RimFishbonesCollection::appendFishbonesSubs( RimFishbones* subs )
 {
     subs->fishbonesColor = nextFishbonesColor();
-    m_fishbonesSubs.push_back( subs );
+    m_fishbones.push_back( subs );
 
     subs->setUnitSystemSpecificDefaults();
     subs->recomputeLateralLocations();
@@ -179,15 +179,15 @@ void RimFishbonesCollection::appendFishbonesSubs( RimFishbonesMultipleSubs* subs
 //--------------------------------------------------------------------------------------------------
 bool RimFishbonesCollection::hasFishbones() const
 {
-    return !m_fishbonesSubs.empty();
+    return !m_fishbones.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimFishbonesMultipleSubs*> RimFishbonesCollection::activeFishbonesSubs() const
+std::vector<RimFishbones*> RimFishbonesCollection::activeFishbonesSubs() const
 {
-    std::vector<RimFishbonesMultipleSubs*> active;
+    std::vector<RimFishbones*> active;
 
     if ( isChecked() )
     {
@@ -206,9 +206,9 @@ std::vector<RimFishbonesMultipleSubs*> RimFishbonesCollection::activeFishbonesSu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimFishbonesMultipleSubs*> RimFishbonesCollection::allFishbonesSubs() const
+std::vector<RimFishbones*> RimFishbonesCollection::allFishbonesSubs() const
 {
-    return m_fishbonesSubs.childObjects();
+    return m_fishbones.childObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -230,7 +230,7 @@ cvf::Color3f RimFishbonesCollection::nextFishbonesColor() const
 
     QColor qFishbonesColor;
 
-    int newIndex = static_cast<int>( m_fishbonesSubs.size() );
+    int newIndex = static_cast<int>( m_fishbones.size() );
 
     if ( qWellPathColor.lightnessF() < 0.5 )
     {
@@ -251,7 +251,7 @@ void RimFishbonesCollection::recalculateStartMD()
 {
     double minStartMD = HUGE_VAL;
 
-    for ( const RimFishbonesMultipleSubs* sub : m_fishbonesSubs() )
+    for ( const RimFishbones* sub : m_fishbones() )
     {
         for ( auto& index : sub->installedLateralIndices() )
         {
@@ -259,7 +259,7 @@ void RimFishbonesCollection::recalculateStartMD()
         }
     }
 
-    for ( const RimFishboneWellPath* wellPath : m_wellPathCollection->wellPaths() )
+    for ( const RimImportedFishboneLaterals* wellPath : m_wellPathCollection->wellPaths() )
     {
         if ( wellPath->measuredDepths().size() > 0 )
         {

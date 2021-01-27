@@ -20,8 +20,8 @@
 #pragma once
 
 #include "RimCheckableNamedObject.h"
-#include "RimFishboneWellPath.h"
 #include "RimFishbonesPipeProperties.h"
+#include "RimImportedFishboneLaterals.h"
 
 #include "RiaDefines.h"
 
@@ -35,19 +35,19 @@
 //
 //
 //==================================================================================================
-class RimFishboneWellPathCollection : public RimCheckableNamedObject
+class RimImportedFishboneLateralsCollection : public RimCheckableNamedObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimFishboneWellPathCollection();
+    RimImportedFishboneLateralsCollection();
 
     void importCompletionsFromFile( const QStringList& filePaths );
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    std::vector<const RimFishboneWellPath*> wellPaths() const;
-    double                                  holeDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const
+    std::vector<const RimImportedFishboneLaterals*> wellPaths() const;
+    double                                          holeDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const
     {
         return m_pipeProperties->holeDiameter( unitSystem );
     }
@@ -59,9 +59,9 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
-    void appendCompletion( RimFishboneWellPath* completion );
+    void appendCompletion( RimImportedFishboneLaterals* completion );
 
 private:
-    caf::PdmChildArrayField<RimFishboneWellPath*>   m_wellPaths;
-    caf::PdmChildField<RimFishbonesPipeProperties*> m_pipeProperties;
+    caf::PdmChildArrayField<RimImportedFishboneLaterals*> m_wellPaths;
+    caf::PdmChildField<RimFishbonesPipeProperties*>       m_pipeProperties;
 };

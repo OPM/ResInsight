@@ -34,8 +34,8 @@
 
 #include "Rim3dWellLogCurve.h"
 #include "Rim3dWellLogCurveCollection.h"
+#include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
-#include "RimFishbonesMultipleSubs.h"
 #include "RimMainPlotCollection.h"
 #include "RimPerforationCollection.h"
 #include "RimProject.h"

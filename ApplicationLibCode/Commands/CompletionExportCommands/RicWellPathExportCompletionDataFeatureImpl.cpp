@@ -51,8 +51,8 @@
 #include "RigWellPathIntersectionTools.h"
 
 #include "RimFileWellPath.h"
+#include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
-#include "RimFishbonesMultipleSubs.h"
 #include "RimFractureTemplate.h"
 #include "RimNonDarcyPerforationParameters.h"
 #include "RimPerforationCollection.h"

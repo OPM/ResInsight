@@ -31,10 +31,10 @@
 #include "RigWellPathIntersectionTools.h"
 
 #include "RigWellLogExtractor.h"
-#include "RimFishboneWellPath.h"
-#include "RimFishboneWellPathCollection.h"
+#include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
-#include "RimFishbonesMultipleSubs.h"
+#include "RimImportedFishboneLaterals.h"
+#include "RimImportedFishboneLateralsCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCompletions.h"
 
@@ -293,7 +293,8 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneImportedLate
     double holeRadius = wellPath->fishbonesCollection()->wellPathCollection()->holeDiameter( unitSystem ) / 2.0;
     double skinFactor = wellPath->fishbonesCollection()->wellPathCollection()->skinFactor();
 
-    for ( const RimFishboneWellPath* fishbonesPath : wellPath->fishbonesCollection()->wellPathCollection()->wellPaths() )
+    for ( const RimImportedFishboneLaterals* fishbonesPath :
+          wellPath->fishbonesCollection()->wellPathCollection()->wellPaths() )
     {
         if ( !fishbonesPath->isChecked() )
         {
@@ -336,7 +337,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::appendMainWellBoreParts(
     double                                                   holeRadius,
     double                                                   startMeasuredDepth,
     double                                                   endMeasuredDepth,
-    const RimFishbonesMultipleSubs*                          fishbonesDefinitions )
+    const RimFishbones*                                      fishbonesDefinitions )
 {
     if ( !wellPath ) return;
     if ( !wellPath->wellPathGeometry() ) return;

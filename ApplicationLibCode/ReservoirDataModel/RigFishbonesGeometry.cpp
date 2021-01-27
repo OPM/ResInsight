@@ -18,7 +18,7 @@
 
 #include "RigFishbonesGeometry.h"
 
-#include "RimFishbonesMultipleSubs.h"
+#include "RimFishbones.h"
 
 #include "RigWellPath.h"
 #include "RimWellPath.h"
@@ -28,7 +28,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFisbonesGeometry::RigFisbonesGeometry( RimFishbonesMultipleSubs* fishbonesSub )
+RigFisbonesGeometry::RigFisbonesGeometry( RimFishbones* fishbonesSub )
     : m_fishbonesSub( fishbonesSub )
 {
 }

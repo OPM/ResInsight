@@ -27,7 +27,7 @@
 #include <memory>
 
 class RimWellPath;
-class RimFishbonesMultipleSubs;
+class RimFishbones;
 
 //==================================================================================================
 ///

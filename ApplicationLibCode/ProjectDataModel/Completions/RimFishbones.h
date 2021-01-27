@@ -53,7 +53,7 @@ struct SubLateralIndex
 ///
 ///
 //==================================================================================================
-class RimFishbonesMultipleSubs : public caf::PdmObject, public Rim3dPropertiesInterface, public RimWellPathComponentInterface
+class RimFishbones : public caf::PdmObject, public Rim3dPropertiesInterface, public RimWellPathComponentInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -73,8 +73,8 @@ public:
     };
 
 public:
-    RimFishbonesMultipleSubs();
-    ~RimFishbonesMultipleSubs() override;
+    RimFishbones();
+    ~RimFishbones() override;
 
     bool    isActive() const;
     QString generatedName() const;

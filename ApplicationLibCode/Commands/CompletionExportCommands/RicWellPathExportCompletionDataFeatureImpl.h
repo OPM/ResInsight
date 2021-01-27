@@ -38,7 +38,7 @@ class RigCell;
 class RigEclipseCaseData;
 class RigMainGrid;
 class RimEclipseCase;
-class RimFishbonesMultipleSubs;
+class RimFishbones;
 class RimSimWellInView;
 class RimPerforationInterval;
 class RimWellPath;

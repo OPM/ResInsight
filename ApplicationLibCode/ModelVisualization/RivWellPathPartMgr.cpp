@@ -30,10 +30,10 @@
 #include "Rim3dWellLogCurveCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimFishboneWellPath.h"
-#include "RimFishboneWellPathCollection.h"
+#include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
-#include "RimFishbonesMultipleSubs.h"
+#include "RimImportedFishboneLaterals.h"
+#include "RimImportedFishboneLateralsCollection.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
 #include "RimRegularLegendConfig.h"
@@ -371,10 +371,10 @@ void RivWellPathPartMgr::appendImportedFishbonesToModel( cvf::ModelBasicList*   
 {
     if ( !m_rimWellPath || !m_rimWellPath->fishbonesCollection()->wellPathCollection()->isChecked() ) return;
 
-    RivPipeGeometryGenerator          geoGenerator;
-    std::vector<RimFishboneWellPath*> fishbonesWellPaths;
+    RivPipeGeometryGenerator                  geoGenerator;
+    std::vector<RimImportedFishboneLaterals*> fishbonesWellPaths;
     m_rimWellPath->descendantsIncludingThisOfType( fishbonesWellPaths );
-    for ( RimFishboneWellPath* fbWellPath : fishbonesWellPaths )
+    for ( RimImportedFishboneLaterals* fbWellPath : fishbonesWellPaths )
     {
         if ( !fbWellPath->isChecked() ) continue;
 

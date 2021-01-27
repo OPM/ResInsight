@@ -40,13 +40,13 @@
 ///
 ///
 //==================================================================================================
-class RimFishboneWellPath : public RimCheckableNamedObject
+class RimImportedFishboneLaterals : public RimCheckableNamedObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimFishboneWellPath();
-    ~RimFishboneWellPath() override;
+    RimImportedFishboneLaterals();
+    ~RimImportedFishboneLaterals() override;
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

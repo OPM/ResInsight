@@ -20,9 +20,9 @@
 
 #include "RiaStdStringTools.h"
 
-#include "RimFishboneWellPathCollection.h"
+#include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
-#include "RimFishbonesMultipleSubs.h"
+#include "RimImportedFishboneLateralsCollection.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
 #include "RimStimPlanModel.h"
@@ -182,7 +182,7 @@ std::vector<const RimWellPathComponentInterface*> RimWellPathCompletions::allCom
     {
         completions.push_back( fracture );
     }
-    for ( const RimFishbonesMultipleSubs* fishbones : m_fishbonesCollection->allFishbonesSubs() )
+    for ( const RimFishbones* fishbones : m_fishbonesCollection->allFishbonesSubs() )
     {
         completions.push_back( fishbones );
     }

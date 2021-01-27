@@ -25,7 +25,7 @@
 #include "RicExportFeatureImpl.h"
 
 #include "RimDialogData.h"
-#include "RimFishbonesMultipleSubs.h"
+#include "RimFishbones.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
 #include "RimSimWellFracture.h"
@@ -87,10 +87,10 @@ void RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompl
 
     if ( exportSettings->folder().isEmpty() ) exportSettings->folder = defaultDir;
 
-    std::vector<RimSimWellFracture*>       simWellFractures;
-    std::vector<RimWellPathFracture*>      wellPathFractures;
-    std::vector<RimFishbonesMultipleSubs*> wellPathFishbones;
-    std::vector<RimPerforationInterval*>   wellPathPerforations;
+    std::vector<RimSimWellFracture*>     simWellFractures;
+    std::vector<RimWellPathFracture*>    wellPathFractures;
+    std::vector<RimFishbones*>           wellPathFishbones;
+    std::vector<RimPerforationInterval*> wellPathPerforations;
 
     for ( auto s : simWells )
     {

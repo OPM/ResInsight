@@ -26,8 +26,8 @@
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
+#include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
-#include "RimFishbonesMultipleSubs.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimWellPath.h"

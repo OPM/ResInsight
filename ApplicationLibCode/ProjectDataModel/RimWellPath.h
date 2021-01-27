@@ -48,7 +48,6 @@ class RigWellPathFormations;
 class RimProject;
 class RimWellLogFile;
 class RimFractureTemplateCollection;
-class RimFishboneWellPathCollection;
 class RimStimPlanModelCollection;
 class RimFishbonesCollection;
 class RimPerforationCollection;
