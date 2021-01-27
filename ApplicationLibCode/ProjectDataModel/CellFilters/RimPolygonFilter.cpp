@@ -858,7 +858,7 @@ cvf::ref<RigPolyLinesData> RimPolygonFilter::polyLinesData() const
     std::vector<cvf::Vec3d>    line;
     for ( const RimPolylineTarget* target : m_targets )
     {
-        line.push_back( target->targetPointXYZ() );
+        if ( target->isEnabled() ) line.push_back( target->targetPointXYZ() );
     }
     pld->setPolyLine( line );
 
