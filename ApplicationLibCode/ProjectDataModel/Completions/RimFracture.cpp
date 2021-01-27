@@ -918,3 +918,22 @@ const RigFractureGrid* RimFracture::fractureGrid() const
 {
     return m_fractureGrid.p();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFracture::initAfterRead()
+{
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2020.10.2" ) )
+    {
+        if ( m_fractureTemplate() )
+        {
+            RimStimPlanFractureTemplate* stimPlanFracTemplate =
+                dynamic_cast<RimStimPlanFractureTemplate*>( m_fractureTemplate() );
+            if ( stimPlanFracTemplate )
+            {
+                m_wellPathDepthAtFracture = stimPlanFracTemplate->wellPathDepthAtFracture();
+            }
+        }
+    }
+}
