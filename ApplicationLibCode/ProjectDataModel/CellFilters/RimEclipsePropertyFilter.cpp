@@ -396,7 +396,10 @@ void RimEclipsePropertyFilter::computeResultValueRange()
             RigCaseCellResultsData* results = m_resultDefinition->currentGridCellResults();
             if ( results )
             {
-                results->minMaxCellScalarValues( scalarIndex, min, max );
+                if ( results->hasResultEntry( scalarIndex ) )
+                {
+                    results->minMaxCellScalarValues( scalarIndex, min, max );
+                }
 
                 if ( m_resultDefinition->hasCategoryResult() )
                 {
