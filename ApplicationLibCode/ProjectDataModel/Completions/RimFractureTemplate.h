@@ -136,6 +136,8 @@ public:
     FracConductivityEnum                        conductivityType() const;
     double                                      perforationLength() const;
 
+    virtual std::pair<double, double> wellPathDepthAtFractureRange() const = 0;
+
     virtual void fractureTriangleGeometry( std::vector<cvf::Vec3f>* nodeCoords,
                                            std::vector<cvf::uint>*  triangleIndices,
                                            double                   wellPathDepthAtFracture ) const = 0;
