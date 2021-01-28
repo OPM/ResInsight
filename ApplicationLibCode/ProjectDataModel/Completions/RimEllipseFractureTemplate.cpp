@@ -516,3 +516,23 @@ double RimEllipseFractureTemplate::computeHeightOffset( double wellPathDepthAtFr
 {
     return ( height() * m_heightScaleFactor / 2 ) - wellPathDepthAtFractureRange;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEllipseFractureTemplate::initAfterRead()
+{
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2020.10.2" ) )
+    {
+        m_wellPathDepthAtFracture = computeLegacyWellDepthAtFracture();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimEllipseFractureTemplate::computeLegacyWellDepthAtFracture() const
+{
+    // Set intersection depth to half of height to place ellipsis centered on the well path
+    return height() * m_heightScaleFactor / 2;
+}
