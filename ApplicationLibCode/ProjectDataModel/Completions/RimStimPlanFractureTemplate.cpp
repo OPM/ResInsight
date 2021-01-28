@@ -71,9 +71,6 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate()
     CAF_PDM_InitFieldNoDefault( &m_stimPlanFileName, "StimPlanFileName", "File Name", "", "", "" );
     m_stimPlanFileName.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_wellPathDepthAtFracture, "WellPathDepthAtFracture", 0.0, "Well/Fracture Intersection Depth", "", "", "" );
-    m_wellPathDepthAtFracture.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
-
     CAF_PDM_InitField( &m_useUserDefinedWellPathDepthAtFracture,
                        "UseUserDefinedWellPathDepthAtFracture",
                        false,
@@ -1076,20 +1073,6 @@ void RimStimPlanFractureTemplate::defineEditorAttribute( const caf::PdmFieldHand
             myAttr->m_fileSelectionFilter = "StimPlan Xml Files(*.xml);;All Files (*.*)";
         }
     }
-
-    if ( field == &m_wellPathDepthAtFracture )
-    {
-        if ( !m_stimPlanFractureDefinitionData.isNull() && ( m_stimPlanFractureDefinitionData->yCount() > 0 ) )
-        {
-            caf::PdmUiDoubleSliderEditorAttribute* myAttr =
-                dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-            if ( myAttr )
-            {
-                myAttr->m_minimum = m_stimPlanFractureDefinitionData->minDepth();
-                myAttr->m_maximum = m_stimPlanFractureDefinitionData->maxDepth();
-            }
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1101,14 +1084,6 @@ void RimStimPlanFractureTemplate::initAfterRead()
     {
         m_useUserDefinedWellPathDepthAtFracture = true;
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimStimPlanFractureTemplate::wellPathDepthAtFracture() const
-{
-    return m_wellPathDepthAtFracture;
 }
 
 //--------------------------------------------------------------------------------------------------

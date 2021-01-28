@@ -486,6 +486,8 @@ void RimEllipseFractureTemplate::defineUiOrdering( QString uiConfigName, caf::Pd
         group->add( &m_wellDiameter );
     }
 
+    uiOrdering.add( &m_wellPathDepthAtFracture );
+
     RimFractureTemplate::defineUiOrdering( uiConfigName, uiOrdering );
 }
 
