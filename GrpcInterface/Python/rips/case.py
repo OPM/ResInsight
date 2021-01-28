@@ -64,9 +64,9 @@ import rips.project  # full name import due to circular dependency
 
 @add_method(Case)
 def __custom_init__(self, pb2_object, channel):
-    self.__case_stub = Case_pb2_grpc.CaseStub(self._channel)
+    self.__case_stub =             Case_pb2_grpc.CaseStub(self._channel)
 
-    self.__properties_stub = Properties_pb2_grpc.PropertiesStub(self._channel)
+    self.__properties_stub = Properties_pb2_grpc.PropertiesStub(self._channel    )
     self.__nnc_properties_stub = NNCProperties_pb2_grpc.NNCPropertiesStub(self._channel)
 
     # Public properties
