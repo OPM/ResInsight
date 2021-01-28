@@ -929,9 +929,20 @@ void RimFracture::initAfterRead()
         {
             RimStimPlanFractureTemplate* stimPlanFracTemplate =
                 dynamic_cast<RimStimPlanFractureTemplate*>( m_fractureTemplate() );
+            RimEllipseFractureTemplate* ellipseFracTemplate =
+                dynamic_cast<RimEllipseFractureTemplate*>( m_fractureTemplate() );
+
             if ( stimPlanFracTemplate )
             {
                 m_wellPathDepthAtFracture = stimPlanFracTemplate->wellPathDepthAtFracture();
+            }
+            else if ( ellipseFracTemplate )
+            {
+                // This is a bit awkward, but initAfterRead for the templates
+                // happens after initAfterRead for the fracture. The value
+                // has not been corrected in the template at this point, so we
+                // have to calculate it explicitly.
+                m_wellPathDepthAtFracture = ellipseFracTemplate->computeLegacyWellDepthAtFracture();
             }
         }
     }

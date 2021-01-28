@@ -60,6 +60,8 @@ public:
     double height() const;
     double width() const;
 
+    double computeLegacyWellDepthAtFracture() const;
+
     void appendDataToResultStatistics( const QString&     uiResultName,
                                        const QString&     unit,
                                        MinMaxAccumulator& minMaxAccumulator,
@@ -75,6 +77,8 @@ private:
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
+
+    void initAfterRead() override;
 
     void                    onLoadDataAndUpdateGeometryHasChanged() override;
     std::vector<cvf::Vec3f> fractureBorderPolygon( double wellPathDepthAtFracture ) const;
