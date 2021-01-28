@@ -10,8 +10,9 @@ on:
 env:
   NINJA_VERSION: 1.9.0
   BUILD_TYPE: Release
-  BUILDCACHE_VERSION: 0.23.0
+  BUILDCACHE_VERSION: 0.24.4
   BUILDCACHE_DIR: ${{ github.workspace }}/buildcache_dir
+  BUILDCACHE_ACCURACY: SLOPPY
 
 jobs:
   ResInsight-x64-buildcache:
