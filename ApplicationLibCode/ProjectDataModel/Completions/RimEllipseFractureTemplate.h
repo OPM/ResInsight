@@ -50,6 +50,7 @@ public:
                                    double                   wellPathDepthAtFracture ) const override;
 
     std::pair<double, double> wellPathDepthAtFractureRange() const override;
+    QString                   wellPathDepthAtFractureUiName() const override;
 
     void                       changeUnits();
     cvf::cref<RigFractureGrid> createFractureGrid( double wellPathDepthAtFracture ) const override;

@@ -1113,3 +1113,11 @@ cvf::cref<RigFractureGrid> RimStimPlanFractureTemplate::createFractureGrid( doub
 
     return cvf::cref<RigFractureGrid>();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimStimPlanFractureTemplate::wellPathDepthAtFractureUiName() const
+{
+    return "Well/Fracture Intersection Depth";
+}

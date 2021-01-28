@@ -701,6 +701,8 @@ void RimFracture::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& ui
             }
         }
 
+        m_wellPathDepthAtFracture.uiCapability()->setUiName( fractureTemplate()->wellPathDepthAtFractureUiName() );
+
         if ( fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH ||
              fractureTemplate()->orientationType() == RimFractureTemplate::TRANSVERSE_WELL_PATH )
         {

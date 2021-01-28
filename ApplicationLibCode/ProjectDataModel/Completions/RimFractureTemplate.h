@@ -137,7 +137,8 @@ public:
     double                                      perforationLength() const;
 
     double                            wellPathDepthAtFracture() const;
-    virtual std::pair<double, double> wellPathDepthAtFractureRange() const = 0;
+    virtual std::pair<double, double> wellPathDepthAtFractureRange() const  = 0;
+    virtual QString                   wellPathDepthAtFractureUiName() const = 0;
 
     virtual void fractureTriangleGeometry( std::vector<cvf::Vec3f>* nodeCoords,
                                            std::vector<cvf::uint>*  triangleIndices,
