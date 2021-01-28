@@ -79,6 +79,8 @@ private:
     void                    onLoadDataAndUpdateGeometryHasChanged() override;
     std::vector<cvf::Vec3f> fractureBorderPolygon( double wellPathDepthAtFracture ) const;
 
+    double computeHeightOffset( double wellPathDepthAtFractureRange ) const;
+
     WellFractureIntersectionData wellFractureIntersectionData( const RimFracture* fractureInstance ) const override;
 
 private:
