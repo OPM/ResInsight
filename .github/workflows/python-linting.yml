@@ -19,5 +19,4 @@ jobs:
           commit-message: 'Python code linting changes detected by black'
           title: 'Fixes by black (Python)'
           branch: python-black-patches
-
-        
+          base: ${{ github.head_ref }}
