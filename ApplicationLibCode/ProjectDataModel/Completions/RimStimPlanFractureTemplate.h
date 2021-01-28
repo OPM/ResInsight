@@ -62,6 +62,7 @@ public:
     void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath );
 
     std::pair<double, double> wellPathDepthAtFractureRange() const override;
+    QString                   wellPathDepthAtFractureUiName() const override;
 
     // Fracture geometry
     cvf::cref<RigFractureGrid> createFractureGrid( double wellPathDepthAtFracture ) const override;

@@ -496,6 +496,7 @@ void RimEllipseFractureTemplate::defineUiOrdering( QString uiConfigName, caf::Pd
     }
 
     uiOrdering.add( &m_wellPathDepthAtFracture );
+    m_wellPathDepthAtFracture.uiCapability()->setUiName( wellPathDepthAtFractureUiName() );
 
     RimFractureTemplate::defineUiOrdering( uiConfigName, uiOrdering );
 }
@@ -535,4 +536,12 @@ double RimEllipseFractureTemplate::computeLegacyWellDepthAtFracture() const
 {
     // Set intersection depth to half of height to place ellipsis centered on the well path
     return height() * m_heightScaleFactor / 2;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimEllipseFractureTemplate::wellPathDepthAtFractureUiName() const
+{
+    return "Well/Fracture Intersection Position";
 }
