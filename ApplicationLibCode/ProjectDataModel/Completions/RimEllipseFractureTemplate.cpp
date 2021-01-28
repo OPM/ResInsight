@@ -118,7 +118,7 @@ void RimEllipseFractureTemplate::fractureTriangleGeometry( std::vector<cvf::Vec3
     for ( cvf::Vec3f& v : *nodeCoords )
     {
         // Y is depth in fracture coordinate system
-        v.y() += wellPathDepthAtFracture;
+        v.y() += computeHeightOffset( wellPathDepthAtFracture );
     }
 }
 
@@ -187,8 +187,8 @@ cvf::cref<RigFractureGrid> RimEllipseFractureTemplate::createFractureGrid( doubl
         {
             double X1 = -halfLength + i * cellSizeX;
             double X2 = -halfLength + ( i + 1 ) * cellSizeX;
-            double Y1 = -height / 2 + j * cellSizeZ + wellPathDepthAtFracture;
-            double Y2 = -height / 2 + ( j + 1 ) * cellSizeZ + wellPathDepthAtFracture;
+            double Y1 = -height / 2 + j * cellSizeZ + computeHeightOffset( wellPathDepthAtFracture );
+            double Y2 = -height / 2 + ( j + 1 ) * cellSizeZ + computeHeightOffset( wellPathDepthAtFracture );
 
             std::vector<cvf::Vec3d> cellPolygon;
             cellPolygon.push_back( cvf::Vec3d( X1, Y1, 0.0 ) );
@@ -310,6 +310,9 @@ void RimEllipseFractureTemplate::setDefaultValuesFromUnit()
         m_height       = 75.0;
     }
 
+    // Default to 1/3 of height
+    m_wellPathDepthAtFracture = m_height / 3.0;
+
     this->setDefaultWellDiameterFromUnit();
 }
 
@@ -419,12 +422,18 @@ void RimEllipseFractureTemplate::convertToUnitSystem( RiaDefines::EclipseUnitSys
         m_halfLength = RiaEclipseUnitTools::meterToFeet( m_halfLength );
         m_height     = RiaEclipseUnitTools::meterToFeet( m_height );
         m_width      = RiaEclipseUnitTools::meterToInch( m_width );
+
+        // Convert here instead of base class to avoid interfering with StimPlan template
+        // which handles units differently for this property.
+        m_wellPathDepthAtFracture = RiaEclipseUnitTools::meterToFeet( m_wellPathDepthAtFracture );
     }
     else if ( neededUnit == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
         m_halfLength = RiaEclipseUnitTools::feetToMeter( m_halfLength );
         m_height     = RiaEclipseUnitTools::feetToMeter( m_height );
         m_width      = RiaEclipseUnitTools::inchToMeter( m_width );
+
+        m_wellPathDepthAtFracture = RiaEclipseUnitTools::feetToMeter( m_wellPathDepthAtFracture );
     }
 }
 
@@ -496,6 +505,14 @@ void RimEllipseFractureTemplate::defineUiOrdering( QString uiConfigName, caf::Pd
 //--------------------------------------------------------------------------------------------------
 std::pair<double, double> RimEllipseFractureTemplate::wellPathDepthAtFractureRange() const
 {
-    double scaledHalfHeight = height() * m_heightScaleFactor / 2.0;
-    return std::make_pair( -scaledHalfHeight, scaledHalfHeight );
+    double scaledHeight = height() * m_heightScaleFactor;
+    return std::make_pair( 0.0, scaledHeight );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimEllipseFractureTemplate::computeHeightOffset( double wellPathDepthAtFractureRange ) const
+{
+    return ( height() * m_heightScaleFactor / 2 ) - wellPathDepthAtFractureRange;
 }
