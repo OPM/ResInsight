@@ -61,7 +61,6 @@ public:
 
     void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath );
 
-    double                    wellPathDepthAtFracture() const;
     std::pair<double, double> wellPathDepthAtFractureRange() const override;
 
     // Fracture geometry
@@ -135,7 +134,6 @@ private:
     caf::PdmField<int>     m_activeTimeStepIndex;
     caf::PdmField<QString> m_conductivityResultNameOnFile;
 
-    caf::PdmField<double>  m_wellPathDepthAtFracture;
     caf::PdmField<bool>    m_useUserDefinedWellPathDepthAtFracture;
     caf::PdmField<QString> m_borderPolygonResultName;
 

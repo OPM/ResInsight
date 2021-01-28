@@ -862,7 +862,7 @@ void RimFracture::setFractureTemplate( RimFractureTemplate* fractureTemplate )
     }
     else
     {
-        m_wellPathDepthAtFracture = 0.0;
+        m_wellPathDepthAtFracture = fractureTemplate->wellPathDepthAtFracture();
     }
 
     if ( fractureTemplate->orientationType() == RimFractureTemplate::AZIMUTH )

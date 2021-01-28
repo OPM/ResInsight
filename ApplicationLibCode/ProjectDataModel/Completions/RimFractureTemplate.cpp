@@ -154,6 +154,9 @@ RimFractureTemplate::RimFractureTemplate()
                        "",
                        "" );
 
+    CAF_PDM_InitField( &m_wellPathDepthAtFracture, "WellPathDepthAtFracture", 0.0, "Well/Fracture Intersection Depth", "", "", "" );
+    m_wellPathDepthAtFracture.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+
     CAF_PDM_InitFieldNoDefault( &m_fractureContainment, "FractureContainmentField", "Fracture Containment", "", "", "" );
     m_fractureContainment = new RimFractureContainment();
     m_fractureContainment.uiCapability()->setUiTreeHidden( true );
@@ -468,6 +471,17 @@ void RimFractureTemplate::defineEditorAttribute( const caf::PdmFieldHandle* fiel
         if ( attrib )
         {
             attrib->m_buttonText = "Apply";
+        }
+    }
+
+    if ( field == &m_wellPathDepthAtFracture )
+    {
+        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
+        if ( myAttr )
+        {
+            auto [minimum, maximum] = wellPathDepthAtFractureRange();
+            myAttr->m_minimum       = minimum;
+            myAttr->m_maximum       = maximum;
         }
     }
 }
@@ -997,4 +1011,12 @@ void RimFractureTemplate::setDefaultWellDiameterFromUnit()
 bool RimFractureTemplate::isNonDarcyFlowEnabled() const
 {
     return m_nonDarcyFlowType() != RimFractureTemplate::NON_DARCY_NONE;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureTemplate::wellPathDepthAtFracture() const
+{
+    return m_wellPathDepthAtFracture;
 }
