@@ -155,7 +155,8 @@ private:
 
     static void exportWelspecsToFile( RimEclipseCase*                       gridCase,
                                       QFilePtr                              exportFile,
-                                      const std::vector<RigCompletionData>& completions );
+                                      const std::vector<RigCompletionData>& completions,
+                                      bool                                  exportDataSourceAsComment );
 
     static void exportWelspeclToFile( RimEclipseCase*                                          gridCase,
                                       QFilePtr                                                 exportFile,
@@ -166,12 +167,14 @@ private:
                                                 const QString&                                    fileName,
                                                 const std::vector<RigCompletionData>&             completions,
                                                 const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems,
-                                                RicExportCompletionDataSettingsUi::CompdatExportType exportType );
+                                                RicExportCompletionDataSettingsUi::CompdatExportType exportType,
+                                                bool exportDataSourceAsComment );
 
     static void exportCompdatAndWpimultTables( RimEclipseCase*                                          sourceCase,
                                                QFilePtr                                                 exportFile,
                                                const std::map<QString, std::vector<RigCompletionData>>& completionsPerGrid,
-                                               RicExportCompletionDataSettingsUi::CompdatExportType     exportType );
+                                               RicExportCompletionDataSettingsUi::CompdatExportType     exportType,
+                                               bool exportDataSourceAsComment );
 
     static void exportCompdatTableUsingFormatter( RifTextDataTableFormatter&            formatter,
                                                   const QString&                        gridName,

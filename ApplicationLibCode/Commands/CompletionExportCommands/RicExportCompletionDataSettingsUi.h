@@ -95,6 +95,7 @@ public:
     void showFishbonesInUi( bool enable );
 
     bool reportCompletionsTypesIndividually() const;
+    bool exportDataSourceAsComment() const;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
@@ -107,6 +108,7 @@ protected:
 
 private:
     caf::PdmField<CombinationModeType> m_reportCompletionTypesSeparately;
+    caf::PdmField<bool>                m_exportDataSourceAsComment;
 
     bool m_displayForSimWell;
     bool m_fracturesEnabled;

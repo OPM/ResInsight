@@ -112,6 +112,14 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
                                 "",
                                 "" );
 
+    CAF_PDM_InitField( &m_exportDataSourceAsComment,
+                       "ExportDataSourceAsComment",
+                       true,
+                       "Export Data Source In Comment",
+                       "",
+                       "",
+                       "" );
+
     m_displayForSimWell = true;
 
     m_fracturesEnabled    = true;
@@ -181,6 +189,14 @@ void RicExportCompletionDataSettingsUi::showFishbonesInUi( bool enable )
 bool RicExportCompletionDataSettingsUi::reportCompletionsTypesIndividually() const
 {
     return m_reportCompletionTypesSeparately() == INDIVIDUALLY;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicExportCompletionDataSettingsUi::exportDataSourceAsComment() const
+{
+    return m_exportDataSourceAsComment;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -296,6 +312,7 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering( QString uiConfigName, 
         group->add( &caseToApply );
         group->add( &useLateralNTG );
         group->add( &includeMsw );
+        group->add( &m_exportDataSourceAsComment );
     }
 
     {

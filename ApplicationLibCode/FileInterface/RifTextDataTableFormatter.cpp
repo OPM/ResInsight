@@ -36,6 +36,7 @@ RifTextDataTableFormatter::RifTextDataTableFormatter( QTextStream& out )
     , m_headerPrefix( "-- " )
     , m_maxDataRowWidth( MAX_ECLIPSE_DATA_ROW_WIDTH )
     , m_defaultMarker( "1*" )
+    , m_isOptionalCommentEnabled( true )
 {
 }
 
@@ -51,6 +52,7 @@ RifTextDataTableFormatter::RifTextDataTableFormatter( const RifTextDataTableForm
     , m_headerPrefix( rhs.m_headerPrefix )
     , m_maxDataRowWidth( rhs.m_maxDataRowWidth )
     , m_defaultMarker( rhs.m_defaultMarker )
+    , m_isOptionalCommentEnabled( rhs.isOptionalCommentEnabled() )
 {
 }
 
@@ -173,6 +175,22 @@ void RifTextDataTableFormatter::setDefaultMarker( const QString& defaultMarker )
 QString RifTextDataTableFormatter::defaultMarker() const
 {
     return m_defaultMarker;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifTextDataTableFormatter::setOptionalComment( bool enable )
+{
+    m_isOptionalCommentEnabled = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifTextDataTableFormatter::isOptionalCommentEnabled() const
+{
+    return m_isOptionalCommentEnabled;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -343,6 +361,19 @@ RifTextDataTableFormatter& RifTextDataTableFormatter::comment( const QString& co
     {
         m_buffer.push_back( line );
     }
+    return *this;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifTextDataTableFormatter& RifTextDataTableFormatter::addOptionalComment( const QString& str )
+{
+    if ( m_isOptionalCommentEnabled )
+    {
+        return comment( str );
+    }
+
     return *this;
 }
 

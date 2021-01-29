@@ -126,6 +126,9 @@ public:
     void    setDefaultMarker( const QString& defaultMarker );
     QString defaultMarker() const;
 
+    void setOptionalComment( bool enable );
+    bool isOptionalCommentEnabled() const;
+
     RifTextDataTableFormatter& keyword( const QString& keyword );
     RifTextDataTableFormatter& header( std::vector<RifTextDataTableColumn> tableHeader );
     RifTextDataTableFormatter& add( const QString& str );
@@ -135,6 +138,7 @@ public:
     RifTextDataTableFormatter& addOneBasedCellIndex( size_t zeroBasedIndex );
     RifTextDataTableFormatter& addValueOrDefaultMarker( double value, double defaultValue );
     RifTextDataTableFormatter& comment( const QString& str );
+    RifTextDataTableFormatter& addOptionalComment( const QString& str );
     RifTextDataTableFormatter& addHorizontalLine( const QChar& str );
     void                       rowCompleted();
     void                       rowCompleted( const QString& appendText );
@@ -174,4 +178,5 @@ private:
     QString                             m_headerPrefix;
     int                                 m_maxDataRowWidth;
     QString                             m_defaultMarker;
+    bool                                m_isOptionalCommentEnabled;
 };

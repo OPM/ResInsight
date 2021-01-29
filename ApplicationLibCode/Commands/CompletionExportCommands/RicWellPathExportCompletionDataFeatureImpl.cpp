@@ -277,7 +277,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                                             fileName,
                                             completions,
                                             fractureDataReportItems,
-                                            exportSettings.compdatExport );
+                                            exportSettings.compdatExport,
+                                            exportSettings.exportDataSourceAsComment() );
             progress.incrementProgress();
         }
         else if ( exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL )
@@ -310,7 +311,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                                                 fileName,
                                                 completionsForWell,
                                                 reportItemsForWell,
-                                                exportSettings.compdatExport );
+                                                exportSettings.compdatExport,
+                                                exportSettings.exportDataSourceAsComment() );
                 progress.incrementProgress();
             }
         }
@@ -365,7 +367,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                                                             fileName,
                                                             completionsForWell,
                                                             reportItemsForWell,
-                                                            exportSettings.compdatExport );
+                                                            exportSettings.compdatExport,
+                                                            exportSettings.exportDataSourceAsComment() );
                         }
                         else
                         {
@@ -375,7 +378,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                                                             fileName,
                                                             completionsForWell,
                                                             emptyReportItemVector,
-                                                            exportSettings.compdatExport );
+                                                            exportSettings.compdatExport,
+                                                            exportSettings.exportDataSourceAsComment() );
                         }
                     }
 
@@ -407,7 +411,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                                                 fileName,
                                                 wellCompletions,
                                                 fractureDataReportItems,
-                                                exportSettings.compdatExport );
+                                                exportSettings.compdatExport,
+                                                exportSettings.exportDataSourceAsComment() );
 
                 progress.incrementProgress();
             }
@@ -711,12 +716,14 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWellPathFractureReport(
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportCompletionDataFeatureImpl::exportWelspecsToFile( RimEclipseCase*                       gridCase,
                                                                        QFilePtr                              exportFile,
-                                                                       const std::vector<RigCompletionData>& completions )
+                                                                       const std::vector<RigCompletionData>& completions,
+                                                                       bool exportDataSourceAsComment )
 {
     QTextStream stream( exportFile.get() );
 
     RifTextDataTableFormatter formatter( stream );
     formatter.setColumnSpacing( 2 );
+    formatter.setOptionalComment( exportDataSourceAsComment );
 
     std::vector<RifTextDataTableColumn> header = { RifTextDataTableColumn( "Well" ),
                                                    RifTextDataTableColumn( "Grp" ),
@@ -871,7 +878,8 @@ void RicWellPathExportCompletionDataFeatureImpl::sortAndExportCompletionsToFile(
     const QString&                                       fileName,
     const std::vector<RigCompletionData>&                completions,
     const std::vector<RicWellPathFractureReportItem>&    wellPathFractureReportItems,
-    RicExportCompletionDataSettingsUi::CompdatExportType exportType )
+    RicExportCompletionDataSettingsUi::CompdatExportType exportType,
+    bool                                                 exportDataSourceAsComment )
 {
     // Sort completions based on grid they belong to
     std::vector<RigCompletionData>                    completionsForMainGrid = mainGridCompletions( completions );
@@ -888,8 +896,8 @@ void RicWellPathExportCompletionDataFeatureImpl::sortAndExportCompletionsToFile(
             completionsForGrid.insert( std::pair<QString, std::vector<RigCompletionData>>( "", completionsForMainGrid ) );
 
             exportWellPathFractureReport( eclipseCase, exportFile, wellPathFractureReportItems );
-            exportWelspecsToFile( eclipseCase, exportFile, completionsForMainGrid );
-            exportCompdatAndWpimultTables( eclipseCase, exportFile, completionsForGrid, exportType );
+            exportWelspecsToFile( eclipseCase, exportFile, completionsForMainGrid, exportDataSourceAsComment );
+            exportCompdatAndWpimultTables( eclipseCase, exportFile, completionsForGrid, exportType, exportDataSourceAsComment );
         }
         catch ( RicWellPathExportCompletionsFileTools::OpenFileException )
         {
@@ -906,7 +914,7 @@ void RicWellPathExportCompletionDataFeatureImpl::sortAndExportCompletionsToFile(
 
             exportWellPathFractureReport( eclipseCase, exportFile, wellPathFractureReportItems );
             exportWelspeclToFile( eclipseCase, exportFile, completionsForSubGrids );
-            exportCompdatAndWpimultTables( eclipseCase, exportFile, completionsForSubGrids, exportType );
+            exportCompdatAndWpimultTables( eclipseCase, exportFile, completionsForSubGrids, exportType, exportDataSourceAsComment );
         }
         catch ( RicWellPathExportCompletionsFileTools::OpenFileException )
         {
@@ -921,7 +929,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatAndWpimultTables(
     RimEclipseCase*                                          sourceCase,
     QFilePtr                                                 exportFile,
     const std::map<QString, std::vector<RigCompletionData>>& completionsPerGrid,
-    RicExportCompletionDataSettingsUi::CompdatExportType     exportType )
+    RicExportCompletionDataSettingsUi::CompdatExportType     exportType,
+    bool                                                     exportDataSourceAsComment )
 {
     if ( completionsPerGrid.empty() ) return;
 
@@ -929,6 +938,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatAndWpimultTables(
 
     RifTextDataTableFormatter formatter( stream );
     formatter.setColumnSpacing( 3 );
+    formatter.setOptionalComment( exportDataSourceAsComment );
 
     for ( const auto& gridCompletions : completionsPerGrid )
     {
@@ -1020,14 +1030,14 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatTableUsingFormatte
             if ( data.completionType() == RigCompletionData::FRACTURE ) txt = "Fracture";
             if ( data.completionType() == RigCompletionData::PERFORATION ) txt = "Perforation";
 
-            formatter.comment( "---- Completions for completion type " + txt + " ----" );
+            formatter.addOptionalComment( "---- Completions for completion type " + txt + " ----" );
 
             currentCompletionType = data.completionType();
         }
 
         for ( const RigCompletionMetaData& metadata : data.metadata() )
         {
-            formatter.comment( QString( "%1 : %2" ).arg( metadata.name ).arg( metadata.comment ) );
+            formatter.addOptionalComment( QString( "%1 : %2" ).arg( metadata.name ).arg( metadata.comment ) );
         }
 
         if ( data.transmissibility() == 0.0 || data.wpimult() == 0.0 )
