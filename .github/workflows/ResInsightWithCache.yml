@@ -13,6 +13,7 @@ env:
   BUILDCACHE_VERSION: 0.24.4
   BUILDCACHE_DIR: ${{ github.workspace }}/buildcache_dir
   BUILDCACHE_ACCURACY: SLOPPY
+  BUILDCACHE_DIRECT_MODE: true
 
 jobs:
   ResInsight-x64-buildcache:
