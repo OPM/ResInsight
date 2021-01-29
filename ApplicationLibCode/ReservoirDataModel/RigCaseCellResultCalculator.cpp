@@ -258,15 +258,16 @@ bool RigCaseCellResultCalculator::computeDivideByCellFaceArea( RigMainGrid*     
             cvf::ref<RigResultModifier> resultModifier =
                 RigResultModifierFactory::createResultModifier( destination, gridIdx, porosityModel, fIdx, address );
 
-            for ( size_t localGridCellIdx = 0; localGridCellIdx < grid->cellCount(); localGridCellIdx++ )
+#pragma omp parallel for
+            for ( int localGridCellIdx = 0; localGridCellIdx < grid->cellCount(); localGridCellIdx++ )
             {
-                size_t reservoirCellIndex = grid->reservoirCellIndex( localGridCellIdx );
+                const size_t reservoirCellIndex = grid->reservoirCellIndex( localGridCellIdx );
                 if ( activeCellInfo->isActive( reservoirCellIndex ) )
                 {
                     double sourceVal = sourceResultAccessor->cellScalar( localGridCellIdx );
 
                     const auto faceNormal = grid->cell( localGridCellIdx ).faceNormalWithAreaLength( cellFace );
-                    auto       divisor    = faceNormal.length();
+                    const auto divisor    = faceNormal.length();
 
                     const double epsilon = 1e-12;
                     if ( divisor > epsilon )
