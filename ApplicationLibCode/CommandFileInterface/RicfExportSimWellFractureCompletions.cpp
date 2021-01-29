@@ -80,12 +80,13 @@ caf::PdmScriptResponse RicfExportSimWellFractureCompletions::execute()
 {
     using TOOLS = RicfApplicationTools;
 
-    RimProject*                        project        = RimProject::current();
-    RicExportCompletionDataSettingsUi* exportSettings = project->dialogData()->exportCompletionData();
+    RimProject*                       project = RimProject::current();
+    RicExportCompletionDataSettingsUi exportSettings;
 
-    exportSettings->timeStep      = m_timeStep;
-    exportSettings->fileSplit     = m_fileSplit;
-    exportSettings->compdatExport = m_compdatExport;
+    exportSettings.timeStep      = m_timeStep;
+    exportSettings.fileSplit     = m_fileSplit;
+    exportSettings.compdatExport = m_compdatExport;
+    exportSettings.setExportDataSourceAsComment( RicfCommandFileExecutor::instance()->exportDataSouceAsComment() );
 
     {
         auto eclipseCase = TOOLS::caseFromId( m_caseId() );
@@ -95,7 +96,7 @@ caf::PdmScriptResponse RicfExportSimWellFractureCompletions::execute()
             RiaLogging::error( error );
             return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
         }
-        exportSettings->caseToApply = eclipseCase;
+        exportSettings.caseToApply = eclipseCase;
     }
 
     QString exportFolder =
@@ -104,10 +105,10 @@ caf::PdmScriptResponse RicfExportSimWellFractureCompletions::execute()
     {
         exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath( "completions" );
     }
-    exportSettings->folder = exportFolder;
+    exportSettings.folder = exportFolder;
 
     std::vector<RimEclipseView*> views;
-    for ( Rim3dView* v : exportSettings->caseToApply->views() )
+    for ( Rim3dView* v : exportSettings.caseToApply->views() )
     {
         RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( v );
         if ( eclipseView && ( eclipseView->id() == m_viewId() || eclipseView->name() == m_viewName() ) )
@@ -169,7 +170,7 @@ caf::PdmScriptResponse RicfExportSimWellFractureCompletions::execute()
 
     std::vector<RimWellPath*> wellPaths;
 
-    RicWellPathExportCompletionDataFeatureImpl::exportCompletions( wellPaths, simWells, *exportSettings );
+    RicWellPathExportCompletionDataFeatureImpl::exportCompletions( wellPaths, simWells, exportSettings );
 
     return response;
 }

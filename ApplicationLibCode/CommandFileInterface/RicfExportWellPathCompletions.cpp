@@ -119,33 +119,33 @@ caf::PdmScriptResponse RicfExportWellPathCompletions::execute()
 {
     using TOOLS = RicfApplicationTools;
 
-    RimProject*                        project        = RimProject::current();
-    RicExportCompletionDataSettingsUi* exportSettings = project->dialogData()->exportCompletionData();
+    RicExportCompletionDataSettingsUi exportSettings;
 
     if ( m_timeStep < 0 )
     {
-        exportSettings->timeStep = 0;
+        exportSettings.timeStep = 0;
     }
     else
     {
-        exportSettings->timeStep = m_timeStep;
+        exportSettings.timeStep = m_timeStep;
     }
 
-    exportSettings->fileSplit     = m_fileSplit;
-    exportSettings->compdatExport = m_compdatExport;
+    exportSettings.fileSplit     = m_fileSplit;
+    exportSettings.compdatExport = m_compdatExport;
+    exportSettings.setExportDataSourceAsComment( RicfCommandFileExecutor::instance()->exportDataSouceAsComment() );
 
-    exportSettings->performTransScaling    = m_performTransScaling;
-    exportSettings->transScalingTimeStep   = m_transScalingTimeStep;
-    exportSettings->transScalingWBHPSource = m_transScalingInitialWBHP;
-    exportSettings->transScalingWBHP       = m_transScalingWBHP;
+    exportSettings.performTransScaling    = m_performTransScaling;
+    exportSettings.transScalingTimeStep   = m_transScalingTimeStep;
+    exportSettings.transScalingWBHPSource = m_transScalingInitialWBHP;
+    exportSettings.transScalingWBHP       = m_transScalingWBHP;
 
-    exportSettings->useLateralNTG               = m_useLateralNTG;
-    exportSettings->includePerforations         = m_includePerforations;
-    exportSettings->includeFishbones            = m_includeFishbones;
-    exportSettings->excludeMainBoreForFishbones = m_excludeMainBoreForFishbones;
-    exportSettings->includeFractures            = m_includeFractures;
+    exportSettings.useLateralNTG               = m_useLateralNTG;
+    exportSettings.includePerforations         = m_includePerforations;
+    exportSettings.includeFishbones            = m_includeFishbones;
+    exportSettings.excludeMainBoreForFishbones = m_excludeMainBoreForFishbones;
+    exportSettings.includeFractures            = m_includeFractures;
 
-    exportSettings->setCombinationMode( m_combinationMode() );
+    exportSettings.setCombinationMode( m_combinationMode() );
 
     {
         auto eclipseCase = TOOLS::caseFromId( m_caseId() );
@@ -155,7 +155,7 @@ caf::PdmScriptResponse RicfExportWellPathCompletions::execute()
             RiaLogging::error( error );
             return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
         }
-        exportSettings->caseToApply = eclipseCase;
+        exportSettings.caseToApply = eclipseCase;
     }
 
     QString exportFolder =
@@ -164,7 +164,7 @@ caf::PdmScriptResponse RicfExportWellPathCompletions::execute()
     {
         exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath( "completions" );
     }
-    exportSettings->folder = exportFolder;
+    exportSettings.folder = exportFolder;
 
     caf::PdmScriptResponse response;
 
@@ -201,7 +201,7 @@ caf::PdmScriptResponse RicfExportWellPathCompletions::execute()
 
     std::vector<RimSimWellInView*> simWells;
 
-    RicWellPathExportCompletionDataFeatureImpl::exportCompletions( wellPaths, simWells, *exportSettings );
+    RicWellPathExportCompletionDataFeatureImpl::exportCompletions( wellPaths, simWells, exportSettings );
 
     return response;
 }

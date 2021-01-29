@@ -89,6 +89,7 @@ public:
     void showForWellPath();
 
     void setCombinationMode( CombinationMode combinationMode );
+    void setExportDataSourceAsComment( bool enable );
 
     void showFractureInUi( bool enable );
     void showPerforationsInUi( bool enable );

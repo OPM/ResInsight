@@ -162,6 +162,14 @@ void RicExportCompletionDataSettingsUi::setCombinationMode( CombinationMode comb
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RicExportCompletionDataSettingsUi::setExportDataSourceAsComment( bool enable )
+{
+    m_exportDataSourceAsComment = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicExportCompletionDataSettingsUi::showFractureInUi( bool enable )
 {
     m_fracturesEnabled = enable;

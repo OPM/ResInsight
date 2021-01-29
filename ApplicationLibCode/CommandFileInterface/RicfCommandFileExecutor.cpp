@@ -46,6 +46,7 @@ void RicfCommandFileExecutor::ExportTypeEnum::setUp()
 ///
 //--------------------------------------------------------------------------------------------------
 RicfCommandFileExecutor::RicfCommandFileExecutor()
+    : m_exportDataSourceAsComment( true )
 {
 }
 
@@ -147,6 +148,22 @@ void RicfCommandFileExecutor::setLastProjectPath( const QString& path )
 QString RicfCommandFileExecutor::getLastProjectPath() const
 {
     return m_lastProjectPath;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicfCommandFileExecutor::setExportDataSouceAsComment( bool enable )
+{
+    m_exportDataSourceAsComment = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicfCommandFileExecutor::exportDataSouceAsComment() const
+{
+    return m_exportDataSourceAsComment;
 }
 
 //--------------------------------------------------------------------------------------------------
