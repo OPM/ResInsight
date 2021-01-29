@@ -27,6 +27,7 @@
 
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
+#include "RigFemPartResultCalculatorStressAnisotropy.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigFemResultAddress.h"
 #include "RigFormationNames.h"
@@ -819,9 +820,22 @@ QString RimGeoMechResultDefinition::resultVariableName() const
 //--------------------------------------------------------------------------------------------------
 QString RimGeoMechResultDefinition::currentResultUnits() const
 {
+    RigFemResultAddress rigFemResultAddress = this->resultAddress();
+
+    if ( RigFemPartResultCalculatorStressAnisotropy::isAnisotropyResult( rigFemResultAddress ) )
+    {
+        return RiaWellLogUnitTools<double>::noUnitString();
+    }
+
     if ( this->resultFieldName() == "SE" || this->resultFieldName() == "ST" || this->resultFieldName() == "POR-Bar" ||
          this->resultFieldName() == "SM" || this->resultFieldName() == "SEM" || this->resultFieldName() == "Q" )
     {
+        auto componentName = this->resultComponentName();
+        if ( componentName.endsWith( "azi" ) || componentName.endsWith( "inc" ) )
+        {
+            return "Deg";
+        }
+
         return "Bar";
     }
     else if ( this->resultFieldName() == "MODULUS" )
