@@ -94,7 +94,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ env.BUILDCACHE_DIR }}
-          key: ${{ matrix.config.name }}-cache-v03-${{ steps.cache_timestamp_string.outputs.timestamp }}
+          key: ${{ matrix.config.name }}-cache-v04-${{ steps.cache_timestamp_string.outputs.timestamp }}
       - name: Create Folder for buildcache
         run: New-Item ${{ env.BUILDCACHE_DIR }} -ItemType "directory" -Force 
         shell: pwsh
