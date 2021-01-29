@@ -48,9 +48,7 @@ RigFemPartResultCalculatorStressAnisotropy::~RigFemPartResultCalculatorStressAni
 //--------------------------------------------------------------------------------------------------
 bool RigFemPartResultCalculatorStressAnisotropy::isMatching( const RigFemResultAddress& resVarAddr ) const
 {
-    return ( ( ( resVarAddr.fieldName == "ST" || resVarAddr.fieldName == "SE" ) &&
-               ( resVarAddr.componentName == "SA12" || resVarAddr.componentName == "SA13" ||
-                 resVarAddr.componentName == "SA23" ) ) );
+    return isAnisotropyResult( resVarAddr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -247,4 +245,14 @@ RigFemScalarResultFrames*
 
     RigFemScalarResultFrames* requestedStress = m_resultCollection->findOrLoadScalarResult( partIndex, resVarAddr );
     return requestedStress;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigFemPartResultCalculatorStressAnisotropy::isAnisotropyResult( const RigFemResultAddress& resVarAddr )
+{
+    return ( ( ( resVarAddr.fieldName == "ST" || resVarAddr.fieldName == "SE" ) &&
+               ( resVarAddr.componentName == "SA12" || resVarAddr.componentName == "SA13" ||
+                 resVarAddr.componentName == "SA23" ) ) );
 }

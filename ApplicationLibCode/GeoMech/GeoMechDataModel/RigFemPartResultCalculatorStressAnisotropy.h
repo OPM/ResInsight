@@ -35,4 +35,6 @@ public:
     bool                      isMatching( const RigFemResultAddress& resVarAddr ) const override;
     RigFemScalarResultFrames* calculate( int partIndex, const RigFemResultAddress& resVarAddr ) override;
     RigFemScalarResultFrames* calculateTimeLapse( int partIndex, const RigFemResultAddress& resVarAddr );
+
+    static bool isAnisotropyResult( const RigFemResultAddress& resVarAddr );
 };
