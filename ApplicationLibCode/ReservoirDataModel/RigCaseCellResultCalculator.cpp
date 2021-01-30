@@ -259,7 +259,7 @@ bool RigCaseCellResultCalculator::computeDivideByCellFaceArea( RigMainGrid*     
                 RigResultModifierFactory::createResultModifier( destination, gridIdx, porosityModel, fIdx, address );
 
 #pragma omp parallel for
-            for ( int localGridCellIdx = 0; localGridCellIdx < grid->cellCount(); localGridCellIdx++ )
+            for ( int localGridCellIdx = 0; localGridCellIdx < static_cast<int>( grid->cellCount() ); localGridCellIdx++ )
             {
                 const size_t reservoirCellIndex = grid->reservoirCellIndex( localGridCellIdx );
                 if ( activeCellInfo->isActive( reservoirCellIndex ) )
