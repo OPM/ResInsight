@@ -332,16 +332,20 @@ void RigFemPartResultsCollection::setCalculationParameters( double cohesion, dou
     m_cohesion         = cohesion;
     m_frictionAngleRad = frictionAngleRad;
 
-    // Todo, delete all dependent results
-    this->deleteResult( RigFemResultAddress( RIG_ELEMENT_NODAL, "SE", "SFI", RigFemResultAddress::allTimeLapsesValue() ) );
-    this->deleteResult(
-        RigFemResultAddress( RIG_INTEGRATION_POINT, "SE", "SFI", RigFemResultAddress::allTimeLapsesValue() ) );
-    this->deleteResult( RigFemResultAddress( RIG_ELEMENT_NODAL, "SE", "DSM", RigFemResultAddress::allTimeLapsesValue() ) );
-    this->deleteResult(
-        RigFemResultAddress( RIG_INTEGRATION_POINT, "SE", "DSM", RigFemResultAddress::allTimeLapsesValue() ) );
-    this->deleteResult( RigFemResultAddress( RIG_ELEMENT_NODAL, "SE", "FOS", RigFemResultAddress::allTimeLapsesValue() ) );
-    this->deleteResult(
-        RigFemResultAddress( RIG_INTEGRATION_POINT, "SE", "FOS", RigFemResultAddress::allTimeLapsesValue() ) );
+    std::vector<RigFemResultAddress> dependentResults;
+
+    dependentResults.push_back( RigFemResultAddress( RIG_ELEMENT_NODAL, "SE", "SFI" ) );
+    dependentResults.push_back( RigFemResultAddress( RIG_ELEMENT_NODAL, "SE", "DSM" ) );
+    dependentResults.push_back( RigFemResultAddress( RIG_ELEMENT_NODAL, "SE", "FOS" ) );
+
+    dependentResults.push_back( RigFemResultAddress( RIG_INTEGRATION_POINT, "SE", "SFI" ) );
+    dependentResults.push_back( RigFemResultAddress( RIG_INTEGRATION_POINT, "SE", "DSM" ) );
+    dependentResults.push_back( RigFemResultAddress( RIG_INTEGRATION_POINT, "SE", "FOS" ) );
+
+    dependentResults.push_back( RigFemResultAddress( RIG_ELEMENT_NODAL_FACE, "SE", "FAULTMOB" ) );
+    dependentResults.push_back( RigFemResultAddress( RIG_ELEMENT_NODAL_FACE, "SE", "PCRIT" ) );
+
+    deleteResultForAllTimeSteps( dependentResults );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -353,17 +357,15 @@ void RigFemPartResultsCollection::setBiotCoefficientParameters( double biotFixed
     m_biotResultAddress = biotResultAddress;
 
     // Invalidate all results which depends on biot coefficient (directly or indirectly)
+    std::vector<RigFemResultAddress> dependentResults;
     for ( auto elementType : { RIG_ELEMENT_NODAL, RIG_INTEGRATION_POINT } )
     {
-        deleteResult(
-            RigFemResultAddress( elementType, "COMPRESSIBILITY", "PORE", RigFemResultAddress::allTimeLapsesValue() ) );
-        deleteResult(
-            RigFemResultAddress( elementType, "COMPRESSIBILITY", "VERTICAL", RigFemResultAddress::allTimeLapsesValue() ) );
-        deleteResult( RigFemResultAddress( elementType,
-                                           "COMPRESSIBILITY",
-                                           "VERTICAL-RATIO",
-                                           RigFemResultAddress::allTimeLapsesValue() ) );
+        dependentResults.push_back( RigFemResultAddress( elementType, "COMPRESSIBILITY", "PORE" ) );
+        dependentResults.push_back( RigFemResultAddress( elementType, "COMPRESSIBILITY", "VERTICAL" ) );
+        dependentResults.push_back( RigFemResultAddress( elementType, "COMPRESSIBILITY", "VERTICAL-RATIO" ) );
     }
+
+    deleteResultForAllTimeSteps( dependentResults );
 
     // Depends on COMRESSIBILITY.PORE which depends on biot coefficient
     std::set<RigFemResultAddress> initPermResults = initialPermeabilityDependentResults();
@@ -984,6 +986,21 @@ void RigFemPartResultsCollection::deleteResult( const RigFemResultAddress& resVa
         {
             m_resultStatistics.erase( addr );
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::deleteResultForAllTimeSteps( const std::vector<RigFemResultAddress>& addresses )
+{
+    for ( const auto& res : addresses )
+    {
+        auto resToDelete = res;
+
+        resToDelete.timeLapseBaseFrameIdx = RigFemResultAddress::allTimeLapsesValue();
+
+        deleteResult( resToDelete );
     }
 }
 

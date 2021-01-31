@@ -117,8 +117,11 @@ public:
     std::map<std::string, std::vector<std::string>> scalarFieldAndComponentNames( RigFemResultPosEnum resPos );
     std::vector<std::string>                        filteredStepNames() const;
     bool                                            assertResultsLoaded( const RigFemResultAddress& resVarAddr );
-    void                                            deleteResult( const RigFemResultAddress& resVarAddr );
+
+    void deleteResult( const RigFemResultAddress& resVarAddr );
+    void deleteResultForAllTimeSteps( const std::vector<RigFemResultAddress>& addresses );
     void deleteResultFrame( const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex );
+
     std::vector<RigFemResultAddress> loadedResults() const;
 
     const std::vector<float>& resultValues( const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex );
