@@ -107,6 +107,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimFractureTemplate, "RimFractureTemplate" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimFractureTemplate::RimFractureTemplate()
+    : wellPathDepthAtFractureChanged( this )
 {
     CAF_PDM_InitObject( "Fracture Template", ":/FractureTemplate16x16.png", "", "" );
 
@@ -346,6 +347,11 @@ void RimFractureTemplate::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
                 fracture->m_wellDiameter = m_wellDiameter;
             }
         }
+    }
+
+    if ( changedField == &m_wellPathDepthAtFracture )
+    {
+        wellPathDepthAtFractureChanged.send( newValue.toDouble() );
     }
 
     for ( RimFracture* fracture : fracturesUsingThisTemplate() )

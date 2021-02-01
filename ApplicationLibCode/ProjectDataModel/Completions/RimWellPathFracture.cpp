@@ -275,7 +275,9 @@ void RimWellPathFracture::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     caf::PdmUiGroup* fractureCenterGroup = uiOrdering.addNewGroup( "Fracture Center Info" );
     fractureCenterGroup->add( &m_uiAnchorPosition );
 
+    uiOrdering.add( &m_autoUpdateWellPathDepthAtFractureFromTemplate );
     uiOrdering.add( &m_wellPathDepthAtFracture );
+    m_wellPathDepthAtFracture.uiCapability()->setUiReadOnly( m_autoUpdateWellPathDepthAtFractureFromTemplate() );
 
     uiOrdering.skipRemainingFields( true );
 }

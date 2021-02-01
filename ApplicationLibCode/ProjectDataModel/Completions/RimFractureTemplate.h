@@ -27,6 +27,7 @@
 #include "cafPdmFieldHandle.h"
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
+#include "cafSignal.h"
 
 #include "cvfObject.h"
 #include "cvfVector3.h"
@@ -123,6 +124,8 @@ public:
 public:
     RimFractureTemplate();
     ~RimFractureTemplate() override;
+
+    caf::Signal<double> wellPathDepthAtFractureChanged;
 
     int     id() const;
     QString name() const;
