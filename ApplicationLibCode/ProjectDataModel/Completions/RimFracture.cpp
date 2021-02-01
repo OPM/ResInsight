@@ -257,8 +257,6 @@ void RimFracture::fieldChangedByUi( const caf::PdmFieldHandle* changedField, con
         }
 
         setFractureTemplate( m_fractureTemplate );
-        setDefaultFractureColorResult();
-        updateFractureGrid();
     }
     else if ( changedField == &m_editFractureTemplate )
     {
@@ -908,6 +906,9 @@ void RimFracture::setFractureTemplate( RimFractureTemplate* fractureTemplate )
     this->m_perforationLength = fractureTemplate->perforationLength();
 
     clearCachedNonDarcyProperties();
+
+    setDefaultFractureColorResult();
+    updateFractureGrid();
 }
 
 //--------------------------------------------------------------------------------------------------
