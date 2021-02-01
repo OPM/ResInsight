@@ -74,6 +74,7 @@ protected:
 private:
     void changeLegendConfig( QString resultVarNameOfNewLegend );
     void onLegendConfigChanged( const caf::SignalEmitter* emitter, RimLegendConfigChangeType changeType );
+    static RimRegularLegendConfig* createLegendForResult( const QString& resultName, bool isCategoryResult );
 
     caf::PdmChildArrayField<RimRegularLegendConfig*> m_legendConfigData;
     caf::PdmPtrField<RimRegularLegendConfig*>        m_legendConfigPtrField;

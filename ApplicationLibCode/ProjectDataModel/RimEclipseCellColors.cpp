@@ -150,36 +150,8 @@ void RimEclipseCellColors::changeLegendConfig( QString resultVarNameOfNewLegend 
 
             if ( !found )
             {
-                RimRegularLegendConfig* newLegend = new RimRegularLegendConfig;
-                newLegend->resultVariableName     = resultVarNameOfNewLegend;
+                auto newLegend = createLegendForResult( resultVarNameOfNewLegend, this->hasCategoryResult() );
 
-                bool useLog = false;
-                {
-                    QStringList subStringsToMatch{ "TRAN", "MULT", "PERM" };
-
-                    for ( const auto& s : subStringsToMatch )
-                    {
-                        if ( resultVarNameOfNewLegend.contains( s, Qt::CaseInsensitive ) )
-                        {
-                            useLog = true;
-                        }
-                    }
-                }
-
-                if ( useLog )
-                {
-                    newLegend->setMappingMode( RimRegularLegendConfig::MappingType::LOG10_DISCRETE );
-                    newLegend->setTickNumberFormat( RimRegularLegendConfig::NumberFormatType::AUTO );
-                    newLegend->setRangeMode( RimLegendConfig::RangeModeType::USER_DEFINED );
-                    newLegend->resetUserDefinedValues();
-                }
-
-                if ( this->hasCategoryResult() )
-                {
-                    newLegend->setMappingMode( RimRegularLegendConfig::MappingType::CATEGORY_INTEGER );
-                    newLegend->setColorLegend(
-                        RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) );
-                }
                 m_legendConfigData.push_back( newLegend );
 
                 this->m_legendConfigPtrField = newLegend;
@@ -199,6 +171,59 @@ void RimEclipseCellColors::changeLegendConfig( QString resultVarNameOfNewLegend 
 void RimEclipseCellColors::onLegendConfigChanged( const caf::SignalEmitter* emitter, RimLegendConfigChangeType changeType )
 {
     legendConfigChanged.send( changeType );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimRegularLegendConfig* RimEclipseCellColors::createLegendForResult( const QString& resultName, bool isCategoryResult )
+{
+    bool useLog = false;
+    {
+        QStringList subStringsToMatch{ "TRAN", "MULT", "PERM" };
+
+        for ( const auto& s : subStringsToMatch )
+        {
+            if ( resultName.contains( s, Qt::CaseInsensitive ) )
+            {
+                useLog = true;
+            }
+        }
+    }
+
+    RimRegularLegendConfig::ColorRangesType colorRangeType = RimRegularLegendConfig::ColorRangesType::UNDEFINED;
+    if ( isCategoryResult )
+    {
+        colorRangeType = RimRegularLegendConfig::ColorRangesType::CATEGORY;
+    }
+    else if ( resultName == "SWAT" )
+    {
+        colorRangeType = RimRegularLegendConfig::ColorRangesType::OPPOSITE_NORMAL;
+    }
+
+    RimRegularLegendConfig* newLegend = new RimRegularLegendConfig;
+    newLegend->resultVariableName     = resultName;
+
+    if ( useLog )
+    {
+        newLegend->setMappingMode( RimRegularLegendConfig::MappingType::LOG10_DISCRETE );
+        newLegend->setTickNumberFormat( RimRegularLegendConfig::NumberFormatType::AUTO );
+        newLegend->setRangeMode( RimLegendConfig::RangeModeType::USER_DEFINED );
+        newLegend->resetUserDefinedValues();
+    }
+
+    if ( colorRangeType != RimRegularLegendConfig::ColorRangesType::UNDEFINED )
+    {
+        RimColorLegend* colorLegend = RimRegularLegendConfig::mapToColorLegend( colorRangeType );
+        if ( isCategoryResult )
+        {
+            newLegend->setMappingMode( RimRegularLegendConfig::MappingType::CATEGORY_INTEGER );
+        }
+
+        newLegend->setColorLegend( colorLegend );
+    }
+
+    return newLegend;
 }
 
 //--------------------------------------------------------------------------------------------------
