@@ -278,7 +278,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                                             completions,
                                             fractureDataReportItems,
                                             exportSettings.compdatExport,
-                                            exportSettings.exportDataSourceAsComment() );
+                                            exportSettings.exportDataSourceAsComment(),
+                                            exportSettings.exportWelspec() );
             progress.incrementProgress();
         }
         else if ( exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL )
@@ -312,7 +313,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                                                 completionsForWell,
                                                 reportItemsForWell,
                                                 exportSettings.compdatExport,
-                                                exportSettings.exportDataSourceAsComment() );
+                                                exportSettings.exportDataSourceAsComment(),
+                                                exportSettings.exportWelspec() );
                 progress.incrementProgress();
             }
         }
@@ -368,7 +370,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                                                             completionsForWell,
                                                             reportItemsForWell,
                                                             exportSettings.compdatExport,
-                                                            exportSettings.exportDataSourceAsComment() );
+                                                            exportSettings.exportDataSourceAsComment(),
+                                                            exportSettings.exportWelspec() );
                         }
                         else
                         {
@@ -379,7 +382,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                                                             completionsForWell,
                                                             emptyReportItemVector,
                                                             exportSettings.compdatExport,
-                                                            exportSettings.exportDataSourceAsComment() );
+                                                            exportSettings.exportDataSourceAsComment(),
+                                                            exportSettings.exportWelspec() );
                         }
                     }
 
@@ -412,7 +416,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                                                 wellCompletions,
                                                 fractureDataReportItems,
                                                 exportSettings.compdatExport,
-                                                exportSettings.exportDataSourceAsComment() );
+                                                exportSettings.exportDataSourceAsComment(),
+                                                exportSettings.exportWelspec() );
 
                 progress.incrementProgress();
             }
@@ -879,7 +884,8 @@ void RicWellPathExportCompletionDataFeatureImpl::sortAndExportCompletionsToFile(
     const std::vector<RigCompletionData>&                completions,
     const std::vector<RicWellPathFractureReportItem>&    wellPathFractureReportItems,
     RicExportCompletionDataSettingsUi::CompdatExportType exportType,
-    bool                                                 exportDataSourceAsComment )
+    bool                                                 exportDataSourceAsComment,
+    bool                                                 exportWelspec )
 {
     // Sort completions based on grid they belong to
     std::vector<RigCompletionData>                    completionsForMainGrid = mainGridCompletions( completions );
@@ -896,7 +902,10 @@ void RicWellPathExportCompletionDataFeatureImpl::sortAndExportCompletionsToFile(
             completionsForGrid.insert( std::pair<QString, std::vector<RigCompletionData>>( "", completionsForMainGrid ) );
 
             exportWellPathFractureReport( eclipseCase, exportFile, wellPathFractureReportItems );
-            exportWelspecsToFile( eclipseCase, exportFile, completionsForMainGrid, exportDataSourceAsComment );
+            if ( exportWelspec )
+            {
+                exportWelspecsToFile( eclipseCase, exportFile, completionsForMainGrid, exportDataSourceAsComment );
+            }
             exportCompdatAndWpimultTables( eclipseCase, exportFile, completionsForGrid, exportType, exportDataSourceAsComment );
         }
         catch ( RicWellPathExportCompletionsFileTools::OpenFileException )
@@ -913,7 +922,10 @@ void RicWellPathExportCompletionDataFeatureImpl::sortAndExportCompletionsToFile(
                 RicWellPathExportCompletionsFileTools::openFileForExport( folderName, lgrFileName );
 
             exportWellPathFractureReport( eclipseCase, exportFile, wellPathFractureReportItems );
-            exportWelspeclToFile( eclipseCase, exportFile, completionsForSubGrids );
+            if ( exportWelspec )
+            {
+                exportWelspeclToFile( eclipseCase, exportFile, completionsForSubGrids );
+            }
             exportCompdatAndWpimultTables( eclipseCase, exportFile, completionsForSubGrids, exportType, exportDataSourceAsComment );
         }
         catch ( RicWellPathExportCompletionsFileTools::OpenFileException )

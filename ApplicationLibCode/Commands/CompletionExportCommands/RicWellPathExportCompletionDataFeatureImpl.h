@@ -168,7 +168,8 @@ private:
                                                 const std::vector<RigCompletionData>&             completions,
                                                 const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems,
                                                 RicExportCompletionDataSettingsUi::CompdatExportType exportType,
-                                                bool exportDataSourceAsComment );
+                                                bool exportDataSourceAsComment,
+                                                bool exportWelspec );
 
     static void exportCompdatAndWpimultTables( RimEclipseCase*                                          sourceCase,
                                                QFilePtr                                                 exportFile,

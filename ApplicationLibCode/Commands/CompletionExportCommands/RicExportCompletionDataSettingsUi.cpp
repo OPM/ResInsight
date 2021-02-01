@@ -120,6 +120,8 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
                        "",
                        "" );
 
+    CAF_PDM_InitField( &m_exportWelspec, "ExportWelspec", true, "Export WELSPEC keyword", "", "", "" );
+
     m_displayForSimWell = true;
 
     m_fracturesEnabled    = true;
@@ -205,6 +207,14 @@ bool RicExportCompletionDataSettingsUi::reportCompletionsTypesIndividually() con
 bool RicExportCompletionDataSettingsUi::exportDataSourceAsComment() const
 {
     return m_exportDataSourceAsComment;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicExportCompletionDataSettingsUi::exportWelspec() const
+{
+    return m_exportWelspec;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -321,6 +331,7 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering( QString uiConfigName, 
         group->add( &useLateralNTG );
         group->add( &includeMsw );
         group->add( &m_exportDataSourceAsComment );
+        group->add( &m_exportWelspec );
     }
 
     {
