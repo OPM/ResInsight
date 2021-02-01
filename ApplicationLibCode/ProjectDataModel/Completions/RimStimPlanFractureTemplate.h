@@ -135,7 +135,7 @@ private:
     caf::PdmField<int>     m_activeTimeStepIndex;
     caf::PdmField<QString> m_conductivityResultNameOnFile;
 
-    caf::PdmField<bool>    m_useUserDefinedWellPathDepthAtFracture;
+    caf::PdmField<bool>    m_userDefinedWellPathDepthAtFracture;
     caf::PdmField<QString> m_borderPolygonResultName;
 
     caf::PdmField<caf::FilePath>            m_stimPlanFileName;
