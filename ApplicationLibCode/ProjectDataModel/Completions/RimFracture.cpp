@@ -116,6 +116,14 @@ RimFracture::RimFracture()
     m_createStimPlanFractureTemplate.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_createStimPlanFractureTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
+    CAF_PDM_InitField( &m_autoUpdateWellPathDepthAtFractureFromTemplate,
+                       "AutoUpdateWellPathDepthAtFractureFromTemplate",
+                       true,
+                       "Auto-Update From Template",
+                       "",
+                       "",
+                       "" );
+
     CAF_PDM_InitField( &m_wellPathDepthAtFracture, "WellPathDepthAtFracture", 0.0, "Well/Fracture Intersection Depth", "", "", "" );
     m_wellPathDepthAtFracture.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
@@ -268,6 +276,16 @@ void RimFracture::fieldChangedByUi( const caf::PdmFieldHandle* changedField, con
     else if ( changedField == &m_createStimPlanFractureTemplate )
     {
         RicNewStimPlanFractureTemplateFeature::createNewTemplateForFractureAndUpdate( this );
+    }
+
+    else if ( changedField == &m_autoUpdateWellPathDepthAtFractureFromTemplate )
+    {
+        if ( m_autoUpdateWellPathDepthAtFractureFromTemplate && m_fractureTemplate() )
+        {
+            m_wellPathDepthAtFracture = m_fractureTemplate->wellPathDepthAtFracture();
+        }
+        updateFractureGrid();
+        RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 
     else if ( changedField == &m_wellPathDepthAtFracture )
@@ -556,7 +574,18 @@ void RimFracture::setFractureTemplateNoUpdate( RimFractureTemplate* fractureTemp
         return;
     }
 
+    if ( m_fractureTemplate )
+    {
+        m_fractureTemplate->wellPathDepthAtFractureChanged.disconnect( this );
+    }
+
     m_fractureTemplate = fractureTemplate;
+
+    if ( m_fractureTemplate )
+    {
+        m_fractureTemplate->wellPathDepthAtFractureChanged.connect( this,
+                                                                    &RimFracture::onWellPathDepthAtFractureInTemplateChanged );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -947,5 +976,24 @@ void RimFracture::initAfterRead()
                 m_wellPathDepthAtFracture = ellipseFracTemplate->computeLegacyWellDepthAtFracture();
             }
         }
+    }
+
+    if ( m_fractureTemplate() )
+    {
+        m_fractureTemplate->wellPathDepthAtFractureChanged.connect( this,
+                                                                    &RimFracture::onWellPathDepthAtFractureInTemplateChanged );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFracture::onWellPathDepthAtFractureInTemplateChanged( const caf::SignalEmitter* emitter, double newDepth )
+{
+    if ( m_autoUpdateWellPathDepthAtFractureFromTemplate )
+    {
+        m_wellPathDepthAtFracture = newDepth;
+        updateFractureGrid();
+        RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 }

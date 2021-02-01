@@ -387,13 +387,13 @@ void RimStimPlanFractureTemplate::computeDepthOfWellPathAtFracture()
 
         if ( firstTvd != HUGE_VAL && lastTvd != HUGE_VAL )
         {
-            m_wellPathDepthAtFracture = ( firstTvd + lastTvd ) / 2;
+            m_wellPathDepthAtFracture.setValueWithFieldChanged( ( firstTvd + lastTvd ) / 2 );
         }
         else
         {
-            firstTvd                  = m_stimPlanFractureDefinitionData->minDepth();
-            lastTvd                   = m_stimPlanFractureDefinitionData->maxDepth();
-            m_wellPathDepthAtFracture = ( firstTvd + lastTvd ) / 2;
+            firstTvd = m_stimPlanFractureDefinitionData->minDepth();
+            lastTvd  = m_stimPlanFractureDefinitionData->maxDepth();
+            m_wellPathDepthAtFracture.setValueWithFieldChanged( ( firstTvd + lastTvd ) / 2 );
         }
     }
 }
