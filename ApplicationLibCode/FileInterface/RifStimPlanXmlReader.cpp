@@ -32,7 +32,8 @@
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
-bool hasNegativeValues( std::vector<double> xs );
+bool                                       hasNegativeValues( std::vector<double> xs );
+RigStimPlanFractureDefinition::Orientation mapTextToOrientation( const QString text );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -185,6 +186,9 @@ void RifStimPlanXmlReader::readStimplanGridAndTimesteps( QXmlStreamReader&      
     double tvdToBotPerf = HUGE_VAL;
     double mdToTopPerf  = HUGE_VAL;
     double mdToBotPerf  = HUGE_VAL;
+    double formationDip = HUGE_VAL;
+
+    RigStimPlanFractureDefinition::Orientation orientation = RigStimPlanFractureDefinition::Orientation::UNDEFINED;
 
     int gridSectionCount = 0;
 
@@ -257,6 +261,16 @@ void RifStimPlanXmlReader::readStimplanGridAndTimesteps( QXmlStreamReader&      
                 auto valText = xmlStream.readElementText();
                 mdToBotPerf  = valText.toDouble();
             }
+            else if ( xmlStream.name() == "FmDip" )
+            {
+                auto valText = xmlStream.readElementText();
+                formationDip = valText.toDouble();
+            }
+            else if ( xmlStream.name() == "orientation" )
+            {
+                auto valText = xmlStream.readElementText();
+                orientation  = mapTextToOrientation( valText.trimmed() );
+            }
             else if ( xmlStream.name() == "xs" )
             {
                 std::vector<double> gridValuesXs;
@@ -322,6 +336,16 @@ void RifStimPlanXmlReader::readStimplanGridAndTimesteps( QXmlStreamReader&      
     if ( mdToBotPerf != HUGE_VAL )
     {
         stimPlanFileData->setMdToBottomPerf( mdToBotPerf );
+    }
+
+    if ( formationDip != HUGE_VAL )
+    {
+        stimPlanFileData->setFormationDip( formationDip );
+    }
+
+    if ( orientation != RigStimPlanFractureDefinition::Orientation::UNDEFINED )
+    {
+        stimPlanFileData->setOrientation( orientation );
     }
 
     if ( startNegValuesYs > 0 )
@@ -491,4 +515,20 @@ QString RifStimPlanXmlReader::getAttributeValueString( QXmlStreamReader& xmlStre
 bool hasNegativeValues( std::vector<double> xs )
 {
     return xs[0] < -RigStimPlanFractureDefinition::THRESHOLD_VALUE;
+}
+
+RigStimPlanFractureDefinition::Orientation mapTextToOrientation( const QString text )
+{
+    if ( text.compare( "transverse", Qt::CaseInsensitive ) == 0 )
+    {
+        return RigStimPlanFractureDefinition::Orientation::TRANSVERSE;
+    }
+    else if ( text.compare( "longitudinal", Qt::CaseInsensitive ) == 0 )
+    {
+        return RigStimPlanFractureDefinition::Orientation::LONGITUDINAL;
+    }
+    else
+    {
+        return RigStimPlanFractureDefinition::Orientation::UNDEFINED;
+    }
 }

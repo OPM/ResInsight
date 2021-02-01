@@ -52,6 +52,8 @@ RigStimPlanFractureDefinition::RigStimPlanFractureDefinition()
     , m_bottomPerfTvd( HUGE_VAL )
     , m_topPerfMd( HUGE_VAL )
     , m_bottomPerfMd( HUGE_VAL )
+    , m_formationDip( HUGE_VAL )
+    , m_orientation( Orientation::UNDEFINED )
 {
 }
 
@@ -732,4 +734,36 @@ size_t findMirrorXIndex( std::vector<double> xs )
     }
 
     return mirrorIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigStimPlanFractureDefinition::formationDip() const
+{
+    return m_formationDip;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigStimPlanFractureDefinition::setFormationDip( double formationDip )
+{
+    m_formationDip = formationDip;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigStimPlanFractureDefinition::Orientation RigStimPlanFractureDefinition::orientation() const
+{
+    return m_orientation;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigStimPlanFractureDefinition::setOrientation( RigStimPlanFractureDefinition::Orientation orientation )
+{
+    m_orientation = orientation;
 }

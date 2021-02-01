@@ -63,3 +63,27 @@ TEST( RifStimPlanXmlReaderTest, LoadFileNewFormat )
     EXPECT_DOUBLE_EQ( 2804.160, fractureData->topPerfMd() );
     EXPECT_DOUBLE_EQ( 2804.770, fractureData->bottomPerfMd() );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifStimPlanXmlReaderTest, LoadFileNewFormatExtraParameters )
+{
+    QString fileName = CASE_REAL_TEST_DATA_DIRECTORY + "contour_with_extra_parameters.xml";
+
+    double                           conductivityScaleFactor = 1.0;
+    RiaDefines::EclipseUnitSystem    unit                    = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
+    QString                          errorMessage;
+    RifStimPlanXmlReader::MirrorMode mode = RifStimPlanXmlReader::MIRROR_AUTO;
+
+    cvf::ref<RigStimPlanFractureDefinition> fractureData;
+
+    fractureData =
+        RifStimPlanXmlReader::readStimPlanXMLFile( fileName, conductivityScaleFactor, mode, unit, &errorMessage );
+
+    EXPECT_TRUE( errorMessage.isEmpty() );
+    EXPECT_TRUE( fractureData.notNull() );
+
+    EXPECT_DOUBLE_EQ( 12.34, fractureData->formationDip() );
+    EXPECT_EQ( fractureData->orientation(), RigStimPlanFractureDefinition::Orientation::TRANSVERSE );
+}
