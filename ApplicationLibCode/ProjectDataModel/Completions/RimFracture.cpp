@@ -888,8 +888,10 @@ void RimFracture::setFractureTemplate( RimFractureTemplate* fractureTemplate )
     RimStimPlanFractureTemplate* stimPlanFracTemplate = dynamic_cast<RimStimPlanFractureTemplate*>( fractureTemplate );
     if ( stimPlanFracTemplate )
     {
-        m_stimPlanTimeIndexToPlot = stimPlanFracTemplate->activeTimeStepIndex();
-        m_wellPathDepthAtFracture = stimPlanFracTemplate->wellPathDepthAtFracture();
+        m_stimPlanTimeIndexToPlot   = stimPlanFracTemplate->activeTimeStepIndex();
+        m_wellPathDepthAtFracture   = stimPlanFracTemplate->wellPathDepthAtFracture();
+        double templateFormationDip = stimPlanFracTemplate->formationDip();
+        if ( templateFormationDip != HUGE_VAL ) m_dip = templateFormationDip;
     }
     else
     {
