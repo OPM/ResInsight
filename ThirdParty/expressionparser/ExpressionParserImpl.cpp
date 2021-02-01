@@ -18,6 +18,8 @@
 
 #include "ExpressionParserImpl.h"
 
+#include <QRegularExpression>
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -122,4 +124,53 @@ QString ExpressionParserImpl::parserErrorText(parser_t& parser)
     }
 
     return txt;
+}
+
+//--------------------------------------------------------------------------------------------------
+// 
+// The parser do not support single-line if statements on a vector.
+// Expand a single line if-statement to a for loop over all items in the referenced 
+// vectors. The script will add '[i]' as postfix to all variables, assuming all variables
+// to be vectors. This statement will be put in a for loop over all elements counting
+// up to size of the vector with minimum items.
+//
+// Single line statement :
+//   c := if((a > 13), a, b)
+//
+// Intended parser script text
+//
+//    for (var i : = 0; i < min(c[], a[], b[]); i += 1)
+//    {
+//        c[i] : = if ((a[i] > 13), a[i], b[i]);
+//    }
+//
+//--------------------------------------------------------------------------------------------------
+QString ExpressionParserImpl::expandIfStatements(const QString& expressionText)
+{
+    QString expandedText;
+    {
+        QString textWithVectorBrackets = expressionText;
+
+        QString listOfVars;
+        auto allVectorVariables = detectReferencedVariables(expressionText);
+        for (const QString& var : allVectorVariables)
+        {
+            listOfVars += QString("%1[],").arg(var);
+            
+            QString regexpText = QString("\\b%1\\b").arg(var);
+            QRegularExpression regexp(regexpText);
+
+            QString varWithBrackets = var + "[i]";
+            textWithVectorBrackets = textWithVectorBrackets.replace(regexp, varWithBrackets);
+        }
+
+        listOfVars = listOfVars.left(listOfVars.size() - 1);
+
+        expandedText = QString("for (var i := 0; i < min(%1); i += 1)\n").arg(listOfVars);
+        expandedText += "{\n";
+        expandedText += QString("    %1;\n").arg(textWithVectorBrackets);
+        expandedText += "}\n";
+    }
+
+    return expandedText;
 }
