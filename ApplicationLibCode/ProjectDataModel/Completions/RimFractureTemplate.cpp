@@ -366,12 +366,7 @@ void RimFractureTemplate::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 
     if ( createDisplayModelAndRedraw )
     {
-        RimProject* proj;
-        this->firstAncestorOrThisOfType( proj );
-        if ( proj )
-        {
-            proj->reloadCompletionTypeResultsInAllViews();
-        }
+        RimProject::current()->reloadCompletionTypeResultsInAllViews();
     }
 }
 
@@ -806,12 +801,7 @@ void RimFractureTemplate::disconnectAllFracturesAndRedrawViews() const
         }
     }
 
-    RimProject* proj;
-    this->firstAncestorOrThisOfType( proj );
-    if ( proj )
-    {
-        proj->scheduleCreateDisplayModelAndRedrawAllViews();
-    }
+    RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------

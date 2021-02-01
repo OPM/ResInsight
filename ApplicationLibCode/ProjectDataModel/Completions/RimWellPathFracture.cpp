@@ -82,9 +82,7 @@ void RimWellPathFracture::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         updatePositionFromMeasuredDepth();
         updateAzimuthBasedOnWellAzimuthAngle();
 
-        RimProject* proj = nullptr;
-        this->firstAncestorOrThisOfType( proj );
-        if ( proj ) proj->reloadCompletionTypeResultsInAllViews();
+        RimProject::current()->reloadCompletionTypeResultsInAllViews();
     }
 }
 
@@ -242,9 +240,7 @@ void RimWellPathFracture::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     {
         uiOrdering.add( nameField() );
         {
-            RimProject* project = nullptr;
-            this->firstAncestorOrThisOfTypeAsserted( project );
-            if ( project->allFractureTemplates().empty() )
+            if ( RimProject::current()->allFractureTemplates().empty() )
             {
                 uiOrdering.add( &m_createEllipseFractureTemplate );
                 uiOrdering.add( &m_createStimPlanFractureTemplate, false );
