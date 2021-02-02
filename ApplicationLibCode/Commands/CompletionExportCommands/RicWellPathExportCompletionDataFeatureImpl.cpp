@@ -730,22 +730,24 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspecsToFile( RimEclips
     formatter.setColumnSpacing( 2 );
     formatter.setOptionalComment( exportDataSourceAsComment );
 
-    std::vector<RifTextDataTableColumn> header = { RifTextDataTableColumn( "Well" ),
-                                                   RifTextDataTableColumn( "Grp" ),
-                                                   RifTextDataTableColumn( "I" ),
-                                                   RifTextDataTableColumn( "J" ),
-                                                   RifTextDataTableColumn( "RefDepth" ),
-                                                   RifTextDataTableColumn( "Type" ),
-                                                   RifTextDataTableColumn( "DrainRad" ),
-                                                   RifTextDataTableColumn( "GasInEq" ),
-                                                   RifTextDataTableColumn( "AutoShut" ),
-                                                   RifTextDataTableColumn( "XFlow" ),
-                                                   RifTextDataTableColumn( "FluidPVT" ),
-                                                   RifTextDataTableColumn( "HydSDens" ),
-                                                   RifTextDataTableColumn( "FluidInPlReg" ) };
+    std::vector<RifTextDataTableColumn> header = {
+        RifTextDataTableColumn( "WELL", "NAME" ), // well
+        RifTextDataTableColumn( "GROUP", "NAME" ), // group
+        RifTextDataTableColumn( "", "I" ), // I
+        RifTextDataTableColumn( "", "J" ), // J
+        RifTextDataTableColumn( "BHP", "DEPTH" ), // RefDepth
+        RifTextDataTableColumn( "PHASE", "FLUID" ), // Type
+        RifTextDataTableColumn( "DRAIN", "AREA" ), // DrainRad
+        RifTextDataTableColumn( "INFLOW", "EQUANS" ), // GasInEq
+        RifTextDataTableColumn( "OPEN", "SHUT" ), // AutoShut
+        RifTextDataTableColumn( "CROSS", "FLOW" ), // XFlow
+        RifTextDataTableColumn( "PVT", "TABLE" ), // FluidPVT
+        RifTextDataTableColumn( "HYDS", "DENS" ), // HydrDens
+        RifTextDataTableColumn( "FIP", "REGN" ) // FluidInPla) };
+    };
 
-    formatter.keyword( "WELSPECS" );
     formatter.header( header );
+    formatter.keyword( "WELSPECS" );
 
     std::set<const RimWellPath*> wellPathSet;
 
@@ -797,23 +799,25 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspeclToFile(
     RifTextDataTableFormatter formatter( stream );
     formatter.setColumnSpacing( 2 );
 
-    std::vector<RifTextDataTableColumn> header = { RifTextDataTableColumn( "Well" ),
-                                                   RifTextDataTableColumn( "Grp" ),
-                                                   RifTextDataTableColumn( "LGR" ),
-                                                   RifTextDataTableColumn( "I" ),
-                                                   RifTextDataTableColumn( "J" ),
-                                                   RifTextDataTableColumn( "RefDepth" ),
-                                                   RifTextDataTableColumn( "Type" ),
-                                                   RifTextDataTableColumn( "DrainRad" ),
-                                                   RifTextDataTableColumn( "GasInEq" ),
-                                                   RifTextDataTableColumn( "AutoShut" ),
-                                                   RifTextDataTableColumn( "XFlow" ),
-                                                   RifTextDataTableColumn( "FluidPVT" ),
-                                                   RifTextDataTableColumn( "HydSDens" ),
-                                                   RifTextDataTableColumn( "FluidInPlReg" ) };
+    std::vector<RifTextDataTableColumn> header = {
+        RifTextDataTableColumn( "WELL", "NAME" ), // well
+        RifTextDataTableColumn( "GROUP", "NAME" ), // group
+        RifTextDataTableColumn( "", "LGR" ),
+        RifTextDataTableColumn( "", "I" ), // I
+        RifTextDataTableColumn( "", "J" ), // J
+        RifTextDataTableColumn( "BHP", "DEPTH" ), // RefDepth
+        RifTextDataTableColumn( "PHASE", "FLUID" ), // Type
+        RifTextDataTableColumn( "DRAIN", "AREA" ), // DrainRad
+        RifTextDataTableColumn( "INFLOW", "EQUANS" ), // GasInEq
+        RifTextDataTableColumn( "OPEN", "SHUT" ), // AutoShut
+        RifTextDataTableColumn( "CROSS", "FLOW" ), // XFlow
+        RifTextDataTableColumn( "PVT", "TABLE" ), // FluidPVT
+        RifTextDataTableColumn( "HYDS", "DENS" ), // HydrDens
+        RifTextDataTableColumn( "FIP", "REGN" ) // FluidInPla) };
+    };
 
-    formatter.keyword( "WELSPECL" );
     formatter.header( header );
+    formatter.keyword( "WELSPECL" );
 
     std::map<const RimWellPath*, std::set<QString>> wellPathToLgrNameMap;
 
@@ -980,54 +984,59 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatTableUsingFormatte
     const QString&                        gridName,
     const std::vector<RigCompletionData>& completionData )
 {
-    std::vector<RifTextDataTableColumn> header;
-
     if ( gridName.isEmpty() )
     {
-        header =
-            { RifTextDataTableColumn( "Well" ),
-              RifTextDataTableColumn( "I" ),
-              RifTextDataTableColumn( "J" ),
-              RifTextDataTableColumn( "K1" ),
-              RifTextDataTableColumn( "K2" ),
-              RifTextDataTableColumn( "Status" ),
-              RifTextDataTableColumn( "SAT" ),
-              RifTextDataTableColumn( "TR",
+        std::vector<RifTextDataTableColumn> header =
+            { RifTextDataTableColumn( "WELL", "NAME" ),
+              RifTextDataTableColumn( "", "I" ),
+              RifTextDataTableColumn( "", "J" ),
+              RifTextDataTableColumn( "", "K1" ),
+              RifTextDataTableColumn( "", "K2" ),
+              RifTextDataTableColumn( "OPEN", "SHUT" ),
+              RifTextDataTableColumn( "SAT", "TAB" ),
+              RifTextDataTableColumn( "CONN",
+                                      "FACT",
                                       RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
-              RifTextDataTableColumn( "DIAM" ),
+              RifTextDataTableColumn( "WELL", "DIA" ),
               RifTextDataTableColumn( "KH",
+                                      "FACT",
                                       RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
-              RifTextDataTableColumn( "S" ),
-              RifTextDataTableColumn( "Df",
+              RifTextDataTableColumn( "SKIN", "FACT" ),
+              RifTextDataTableColumn( "D",
+                                      "FACT",
                                       RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
-              RifTextDataTableColumn( "DIR" ) };
+              RifTextDataTableColumn( "DIR", "PEN" ) };
 
+        formatter.header( header );
         formatter.keyword( "COMPDAT" );
     }
     else
     {
-        header =
-            { RifTextDataTableColumn( "Well" ),
-              RifTextDataTableColumn( "LgrName" ),
-              RifTextDataTableColumn( "I" ),
-              RifTextDataTableColumn( "J" ),
-              RifTextDataTableColumn( "K1" ),
-              RifTextDataTableColumn( "K2" ),
-              RifTextDataTableColumn( "Status" ),
-              RifTextDataTableColumn( "SAT" ),
-              RifTextDataTableColumn( "TR",
+        std::vector<RifTextDataTableColumn> header =
+            { RifTextDataTableColumn( "WELL", "NAME" ),
+              RifTextDataTableColumn( "LGR", "NAME" ),
+              RifTextDataTableColumn( "", "I" ),
+              RifTextDataTableColumn( "", "J" ),
+              RifTextDataTableColumn( "", "K1" ),
+              RifTextDataTableColumn( "", "K2" ),
+              RifTextDataTableColumn( "OPEN", "SHUT" ),
+              RifTextDataTableColumn( "SAT", "TAB" ),
+              RifTextDataTableColumn( "CONN",
+                                      "FACT",
                                       RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
-              RifTextDataTableColumn( "DIAM" ),
+              RifTextDataTableColumn( "WELL", "DIA" ),
               RifTextDataTableColumn( "KH",
+                                      "FACT",
                                       RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
-              RifTextDataTableColumn( "S" ),
-              RifTextDataTableColumn( "Df",
+              RifTextDataTableColumn( "SKIN", "FACT" ),
+              RifTextDataTableColumn( "D",
+                                      "FACT",
                                       RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
-              RifTextDataTableColumn( "DIR" ) };
+              RifTextDataTableColumn( "DIR", "PEN" ) };
 
+        formatter.header( header );
         formatter.keyword( "COMPDATL" );
     }
-    formatter.header( header );
 
     RigCompletionData::CompletionType currentCompletionType = RigCompletionData::CT_UNDEFINED;
 
