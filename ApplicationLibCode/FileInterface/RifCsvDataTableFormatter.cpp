@@ -106,7 +106,7 @@ void RifCsvDataTableFormatter::outputBuffer()
     {
         for ( size_t i = 0; i < m_columnHeaders.size(); i++ )
         {
-            m_out << m_columnHeaders[i].title;
+            m_out << m_columnHeaders[i].title();
 
             if ( i < m_columnHeaders.size() - 1 )
             {

@@ -210,3 +210,63 @@ TEST( RifTextDataTableFormatter, LongLine133 )
         }
     }
 }
+
+TEST( RifTextDataTableFormatter, TwoHeaderRowsWithDifferentColSpan )
+{
+    QString     tableText;
+    QTextStream stream( &tableText );
+
+    RifTextDataTableFormatter formatter( stream );
+    formatter.setColumnSpacing( 2 );
+
+    std::vector<RifTextDataTableColumn> header = {
+        RifTextDataTableColumn( "WELL", "NAME" ), // well
+        RifTextDataTableColumn( "GROUP", "NAME" ), // group
+        RifTextDataTableColumn( "", "I" ), // I
+        RifTextDataTableColumn( "", "J" ), // J
+        RifTextDataTableColumn( "BHP", "DEPTH" ), // RefDepth
+        RifTextDataTableColumn( "PHASE", "FLUID" ), // Type
+        RifTextDataTableColumn( "DRAIN", "AREA", "[cm2]" ), // DrainRad
+        RifTextDataTableColumn( "INFLOW", "EQUANS" ), // GasInEq
+        RifTextDataTableColumn( "OPEN", "SHUT" ), // AutoShut
+        RifTextDataTableColumn( "CROSS", "FLOW" ), // XFlow
+        RifTextDataTableColumn( "PVT", "TABLE" ), // FluidPVT
+        RifTextDataTableColumn( "HYDS", "DENS" ), // HydrDens
+        RifTextDataTableColumn( "FIP", "REGN" ) // FluidInPla) };
+    };
+
+    formatter.keyword( "WELSPECS" );
+    formatter.header( header );
+
+    formatter.add( "OP-01" );
+    formatter.add( "PLATFORM" );
+    formatter.add( "45" );
+    formatter.add( "99" );
+    formatter.add( "1*" );
+    formatter.add( "OIL" );
+    formatter.add( "0.0" );
+    formatter.add( "STD" );
+    formatter.add( "STOP" );
+    formatter.add( "YES" );
+    formatter.add( "0" );
+    formatter.add( "SEG" );
+    formatter.add( "0" );
+    formatter.rowCompleted();
+
+    formatter.add( "OP-02ST" );
+    formatter.add( "PLATFORM" );
+    formatter.add( "60" );
+    formatter.add( "91" );
+    formatter.add( "1*" );
+    formatter.add( "OIL" );
+    formatter.add( "0.0" );
+    formatter.add( "STD" );
+    formatter.add( "STOP" );
+    formatter.add( "YES" );
+    formatter.add( "0" );
+    formatter.add( "SEG" );
+    formatter.add( "0" );
+    formatter.rowCompleted();
+
+    formatter.tableCompleted();
+}

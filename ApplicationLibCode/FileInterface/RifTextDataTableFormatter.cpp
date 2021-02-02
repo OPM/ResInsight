@@ -200,12 +200,26 @@ void RifTextDataTableFormatter::outputBuffer()
 {
     if ( !m_columns.empty() && !isAllHeadersEmpty( m_columns ) )
     {
-        m_out << m_headerPrefix;
+        size_t maxSubTitleCount = 0;
         for ( size_t i = 0u; i < m_columns.size(); ++i )
         {
-            m_out << formatColumn( m_columns[i].title, i );
+            maxSubTitleCount = std::max( maxSubTitleCount, m_columns[i].titles.size() );
         }
-        m_out << "\n";
+
+        for ( size_t subTitleIndex = 0; subTitleIndex < maxSubTitleCount; subTitleIndex++ )
+        {
+            m_out << m_headerPrefix;
+            for ( size_t i = 0u; i < m_columns.size(); ++i )
+            {
+                QString subTitle;
+                if ( subTitleIndex < m_columns[i].titles.size() )
+                {
+                    subTitle = m_columns[i].titles[subTitleIndex];
+                }
+                m_out << formatColumn( subTitle, i );
+            }
+            m_out << "\n";
+        }
     }
 
     for ( auto line : m_buffer )
@@ -288,7 +302,7 @@ bool RifTextDataTableFormatter::isAllHeadersEmpty( const std::vector<RifTextData
 {
     for ( auto& header : headers )
     {
-        if ( !header.title.isEmpty() ) return false;
+        if ( !header.titles.empty() ) return false;
     }
     return true;
 }
@@ -339,7 +353,12 @@ RifTextDataTableFormatter& RifTextDataTableFormatter::header( const std::vector<
 
     for ( size_t colNumber = 0u; colNumber < m_columns.size(); ++colNumber )
     {
-        m_columns[colNumber].width = measure( m_columns[colNumber].title );
+        int maxWidth = 0;
+        for ( const auto& subTitle : m_columns[colNumber].titles )
+        {
+            maxWidth = std::max( maxWidth, measure( subTitle ) );
+        }
+        m_columns[colNumber].width = maxWidth;
     }
     return *this;
 }

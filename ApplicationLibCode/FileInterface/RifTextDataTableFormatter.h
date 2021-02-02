@@ -87,17 +87,52 @@ struct RifTextDataTableColumn
                             RifTextDataTableDoubleFormatting doubleFormat = RifTextDataTableDoubleFormatting(),
                             RifTextDataTableAlignment        alignment    = LEFT,
                             int                              width        = -1 )
-        : title( title )
-        , doubleFormat( doubleFormat )
+        : doubleFormat( doubleFormat )
         , alignment( alignment )
         , width( width )
     {
+        titles.push_back( title );
     }
 
-    QString                          title;
+    RifTextDataTableColumn( const QString&                   title,
+                            const QString&                   subTitle,
+                            RifTextDataTableDoubleFormatting doubleFormat = RifTextDataTableDoubleFormatting(),
+                            RifTextDataTableAlignment        alignment    = LEFT,
+                            int                              width        = -1 )
+        : doubleFormat( doubleFormat )
+        , alignment( alignment )
+        , width( width )
+    {
+        titles.push_back( title );
+        titles.push_back( subTitle );
+    }
+
+    RifTextDataTableColumn( const QString&                   title,
+                            const QString&                   subTitle1,
+                            const QString&                   subTitle2,
+                            RifTextDataTableDoubleFormatting doubleFormat = RifTextDataTableDoubleFormatting(),
+                            RifTextDataTableAlignment        alignment    = LEFT,
+                            int                              width        = -1 )
+        : doubleFormat( doubleFormat )
+        , alignment( alignment )
+        , width( width )
+    {
+        titles.push_back( title );
+        titles.push_back( subTitle1 );
+        titles.push_back( subTitle2 );
+    }
+
+    QString title() const
+    {
+        if ( !titles.empty() ) return titles.front();
+
+        return "";
+    }
+
     RifTextDataTableDoubleFormatting doubleFormat;
     RifTextDataTableAlignment        alignment;
     int                              width;
+    std::vector<QString>             titles;
 };
 
 //==================================================================================================
