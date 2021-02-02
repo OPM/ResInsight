@@ -28,11 +28,12 @@
 
 class RigStimPlanFractureDefinition;
 class QXmlStreamReader;
+class QStringRef;
 
 class RifStimPlanXmlReader
 {
 public:
-    enum MirrorMode
+    enum class MirrorMode
     {
         MIRROR_OFF  = 0,
         MIRROR_ON   = 1,
@@ -64,4 +65,6 @@ private:
     static double valueInRequiredUnitSystem( RiaDefines::EclipseUnitSystem sourceUnit,
                                              RiaDefines::EclipseUnitSystem requiredUnit,
                                              double                        value );
+
+    static bool isTextEqual( const QStringRef& text, const QString& compareText );
 };

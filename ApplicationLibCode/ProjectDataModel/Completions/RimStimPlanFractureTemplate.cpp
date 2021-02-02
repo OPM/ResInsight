@@ -273,11 +273,12 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
 
     if ( m_readError ) return;
 
-    m_stimPlanFractureDefinitionData = RifStimPlanXmlReader::readStimPlanXMLFile( m_stimPlanFileName().path(),
-                                                                                  m_conductivityScaleFactor(),
-                                                                                  RifStimPlanXmlReader::MIRROR_AUTO,
-                                                                                  fractureTemplateUnit(),
-                                                                                  &errorMessage );
+    m_stimPlanFractureDefinitionData =
+        RifStimPlanXmlReader::readStimPlanXMLFile( m_stimPlanFileName().path(),
+                                                   m_conductivityScaleFactor(),
+                                                   RifStimPlanXmlReader::MirrorMode::MIRROR_AUTO,
+                                                   fractureTemplateUnit(),
+                                                   &errorMessage );
     if ( errorMessage.size() > 0 ) RiaLogging::error( errorMessage );
 
     if ( m_stimPlanFractureDefinitionData.notNull() )

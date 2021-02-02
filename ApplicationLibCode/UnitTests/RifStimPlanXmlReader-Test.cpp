@@ -17,7 +17,7 @@ TEST( RifStimPlanXmlReaderTest, LoadFile )
     double                           conductivityScaleFactor = 1.0;
     RiaDefines::EclipseUnitSystem    unit                    = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
     QString                          errorMessage;
-    RifStimPlanXmlReader::MirrorMode mode = RifStimPlanXmlReader::MIRROR_AUTO;
+    RifStimPlanXmlReader::MirrorMode mode = RifStimPlanXmlReader::MirrorMode::MIRROR_AUTO;
 
     cvf::ref<RigStimPlanFractureDefinition> fractureData;
 
@@ -43,7 +43,7 @@ TEST( RifStimPlanXmlReaderTest, LoadFileNewFormat )
     double                           conductivityScaleFactor = 1.0;
     RiaDefines::EclipseUnitSystem    unit                    = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
     QString                          errorMessage;
-    RifStimPlanXmlReader::MirrorMode mode = RifStimPlanXmlReader::MIRROR_AUTO;
+    RifStimPlanXmlReader::MirrorMode mode = RifStimPlanXmlReader::MirrorMode::MIRROR_AUTO;
 
     cvf::ref<RigStimPlanFractureDefinition> fractureData;
 
@@ -74,7 +74,7 @@ TEST( RifStimPlanXmlReaderTest, LoadFileNewFormatExtraParameters )
     double                           conductivityScaleFactor = 1.0;
     RiaDefines::EclipseUnitSystem    unit                    = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
     QString                          errorMessage;
-    RifStimPlanXmlReader::MirrorMode mode = RifStimPlanXmlReader::MIRROR_AUTO;
+    RifStimPlanXmlReader::MirrorMode mode = RifStimPlanXmlReader::MirrorMode::MIRROR_AUTO;
 
     cvf::ref<RigStimPlanFractureDefinition> fractureData;
 
