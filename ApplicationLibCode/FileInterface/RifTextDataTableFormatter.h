@@ -30,7 +30,8 @@ enum RifTextDataTableLineType
 {
     COMMENT,
     CONTENTS,
-    HORIZONTAL_LINE
+    HORIZONTAL_LINE,
+    KEYWORD
 };
 
 //==================================================================================================
@@ -196,8 +197,9 @@ protected:
     QString        formatColumn( const QString str, size_t columnIndex ) const;
 
     void outputBuffer();
+    void outputKeyword( const RifTextDataTableLine& keyword );
     void outputComment( const RifTextDataTableLine& comment );
-    void outputHorizontalLine( RifTextDataTableLine& comment );
+    void outputHorizontalLine( RifTextDataTableLine& horizontalLine );
 
     bool isAllHeadersEmpty( const std::vector<RifTextDataTableColumn>& headers );
 

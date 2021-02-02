@@ -232,6 +232,10 @@ void RifTextDataTableFormatter::outputBuffer()
         {
             outputHorizontalLine( line );
         }
+        else if ( line.lineType == KEYWORD )
+        {
+            outputKeyword( line );
+        }
         else if ( line.lineType == CONTENTS )
         {
             QString lineText   = m_tableRowPrependText;
@@ -264,24 +268,38 @@ void RifTextDataTableFormatter::outputBuffer()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifTextDataTableFormatter::outputComment( const RifTextDataTableLine& comment )
+void RifTextDataTableFormatter::outputKeyword( const RifTextDataTableLine& keyword )
 {
-    m_out << m_commentPrefix << comment.data[0] << "\n";
+    QString text;
+    if ( !keyword.data.empty() ) text = keyword.data.front();
+
+    m_out << text << "\n";
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifTextDataTableFormatter::outputHorizontalLine( RifTextDataTableLine& comment )
+void RifTextDataTableFormatter::outputComment( const RifTextDataTableLine& comment )
 {
-    if ( comment.lineType == HORIZONTAL_LINE )
+    QString text;
+    if ( !comment.data.empty() ) text = comment.data.front();
+
+    m_out << m_commentPrefix << text << "\n";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifTextDataTableFormatter::outputHorizontalLine( RifTextDataTableLine& horizontalLine )
+{
+    if ( horizontalLine.lineType == HORIZONTAL_LINE )
     {
         int charCount = tableWidth();
 
         QChar fillChar = ' ';
-        if ( !comment.data.empty() )
+        if ( !horizontalLine.data.empty() )
         {
-            QString firstString = comment.data[0];
+            QString firstString = horizontalLine.data[0];
             if ( !firstString.isEmpty() )
             {
                 fillChar = firstString[0];
@@ -337,9 +355,18 @@ void RifTextDataTableFormatter::tableCompleted( const QString& appendText, bool 
 //--------------------------------------------------------------------------------------------------
 RifTextDataTableFormatter& RifTextDataTableFormatter::keyword( const QString& keyword )
 {
-    CVF_ASSERT( m_buffer.empty() );
-    CVF_ASSERT( m_columns.empty() );
-    m_out << keyword << "\n";
+    RifTextDataTableLine line;
+    line.data.push_back( keyword );
+    line.lineType = KEYWORD;
+    if ( m_columns.empty() )
+    {
+        outputKeyword( line );
+    }
+    else
+    {
+        m_buffer.push_back( line );
+    }
+
     return *this;
 }
 

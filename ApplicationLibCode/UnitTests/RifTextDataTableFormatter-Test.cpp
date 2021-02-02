@@ -213,12 +213,6 @@ TEST( RifTextDataTableFormatter, LongLine133 )
 
 TEST( RifTextDataTableFormatter, TwoHeaderRowsWithDifferentColSpan )
 {
-    QString     tableText;
-    QTextStream stream( &tableText );
-
-    RifTextDataTableFormatter formatter( stream );
-    formatter.setColumnSpacing( 2 );
-
     std::vector<RifTextDataTableColumn> header = {
         RifTextDataTableColumn( "WELL", "NAME" ), // well
         RifTextDataTableColumn( "GROUP", "NAME" ), // group
@@ -235,38 +229,114 @@ TEST( RifTextDataTableFormatter, TwoHeaderRowsWithDifferentColSpan )
         RifTextDataTableColumn( "FIP", "REGN" ) // FluidInPla) };
     };
 
-    formatter.keyword( "WELSPECS" );
-    formatter.header( header );
+    {
+        QString     tableText;
+        QTextStream stream( &tableText );
 
-    formatter.add( "OP-01" );
-    formatter.add( "PLATFORM" );
-    formatter.add( "45" );
-    formatter.add( "99" );
-    formatter.add( "1*" );
-    formatter.add( "OIL" );
-    formatter.add( "0.0" );
-    formatter.add( "STD" );
-    formatter.add( "STOP" );
-    formatter.add( "YES" );
-    formatter.add( "0" );
-    formatter.add( "SEG" );
-    formatter.add( "0" );
-    formatter.rowCompleted();
+        RifTextDataTableFormatter formatter( stream );
+        formatter.setColumnSpacing( 2 );
 
-    formatter.add( "OP-02ST" );
-    formatter.add( "PLATFORM" );
-    formatter.add( "60" );
-    formatter.add( "91" );
-    formatter.add( "1*" );
-    formatter.add( "OIL" );
-    formatter.add( "0.0" );
-    formatter.add( "STD" );
-    formatter.add( "STOP" );
-    formatter.add( "YES" );
-    formatter.add( "0" );
-    formatter.add( "SEG" );
-    formatter.add( "0" );
-    formatter.rowCompleted();
+        formatter.header( header );
+        // Test with keyword after header
+        formatter.keyword( "WELSPECS" );
 
-    formatter.tableCompleted();
+        formatter.add( "OP-01" );
+        formatter.add( "PLATFORM" );
+        formatter.add( "45" );
+        formatter.add( "99" );
+        formatter.add( "1*" );
+        formatter.add( "OIL" );
+        formatter.add( "0.0" );
+        formatter.add( "STD" );
+        formatter.add( "STOP" );
+        formatter.add( "YES" );
+        formatter.add( "0" );
+        formatter.add( "SEG" );
+        formatter.add( "0" );
+        formatter.rowCompleted();
+
+        formatter.add( "OP-02ST" );
+        formatter.add( "PLATFORM" );
+        formatter.add( "60" );
+        formatter.add( "91" );
+        formatter.add( "1*" );
+        formatter.add( "OIL" );
+        formatter.add( "0.0" );
+        formatter.add( "STD" );
+        formatter.add( "STOP" );
+        formatter.add( "YES" );
+        formatter.add( "0" );
+        formatter.add( "SEG" );
+        formatter.add( "0" );
+        formatter.rowCompleted();
+
+        formatter.tableCompleted();
+
+        const QString textForCompare =
+            R"(-- WELL     GROUP             BHP    PHASE  DRAIN  INFLOW  OPEN  CROSS  PVT    HYDS  FIP 
+-- NAME     NAME      I   J   DEPTH  FLUID  AREA   EQUANS  SHUT  FLOW   TABLE  DENS  REGN
+--                                          [cm2]                                        
+WELSPECS
+   OP-01    PLATFORM  45  99  1*     OIL    0.0    STD     STOP  YES    0      SEG   0    /
+   OP-02ST  PLATFORM  60  91  1*     OIL    0.0    STD     STOP  YES    0      SEG   0    /
+    /
+)";
+
+        EXPECT_STREQ( textForCompare.toStdString().data(), tableText.toStdString().data() );
+    }
+
+    {
+        QString     tableText;
+        QTextStream stream( &tableText );
+
+        RifTextDataTableFormatter formatter( stream );
+        formatter.setColumnSpacing( 2 );
+
+        // Test with keyword before header
+        formatter.keyword( "WELSPECS" );
+        formatter.header( header );
+
+        formatter.add( "OP-01" );
+        formatter.add( "PLATFORM" );
+        formatter.add( "45" );
+        formatter.add( "99" );
+        formatter.add( "1*" );
+        formatter.add( "OIL" );
+        formatter.add( "0.0" );
+        formatter.add( "STD" );
+        formatter.add( "STOP" );
+        formatter.add( "YES" );
+        formatter.add( "0" );
+        formatter.add( "SEG" );
+        formatter.add( "0" );
+        formatter.rowCompleted();
+
+        formatter.add( "OP-02ST" );
+        formatter.add( "PLATFORM" );
+        formatter.add( "60" );
+        formatter.add( "91" );
+        formatter.add( "1*" );
+        formatter.add( "OIL" );
+        formatter.add( "0.0" );
+        formatter.add( "STD" );
+        formatter.add( "STOP" );
+        formatter.add( "YES" );
+        formatter.add( "0" );
+        formatter.add( "SEG" );
+        formatter.add( "0" );
+        formatter.rowCompleted();
+
+        formatter.tableCompleted();
+
+        const QString textForCompare = R"(WELSPECS
+-- WELL     GROUP             BHP    PHASE  DRAIN  INFLOW  OPEN  CROSS  PVT    HYDS  FIP 
+-- NAME     NAME      I   J   DEPTH  FLUID  AREA   EQUANS  SHUT  FLOW   TABLE  DENS  REGN
+--                                          [cm2]                                        
+   OP-01    PLATFORM  45  99  1*     OIL    0.0    STD     STOP  YES    0      SEG   0    /
+   OP-02ST  PLATFORM  60  91  1*     OIL    0.0    STD     STOP  YES    0      SEG   0    /
+    /
+)";
+
+        EXPECT_STREQ( textForCompare.toStdString().data(), tableText.toStdString().data() );
+    }
 }
