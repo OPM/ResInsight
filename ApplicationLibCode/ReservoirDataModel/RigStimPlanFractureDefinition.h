@@ -56,6 +56,13 @@ class RigStimPlanFractureDefinition : public cvf::Object
 public:
     static const double THRESHOLD_VALUE;
 
+    enum class Orientation
+    {
+        UNDEFINED,
+        TRANSVERSE,
+        LONGITUDINAL
+    };
+
     RigStimPlanFractureDefinition();
     ~RigStimPlanFractureDefinition() override;
 
@@ -74,6 +81,12 @@ public:
     double bottomPerfMd() const;
     void   setMdToTopPerf( double topPerfMd );
     void   setMdToBottomPerf( double bottomPerfMd );
+
+    double formationDip() const;
+    void   setFormationDip( double formationDip );
+
+    Orientation orientation() const;
+    void        setOrientation( Orientation orientation );
 
     cvf::cref<RigFractureGrid> createFractureGrid( const QString&                resultName,
                                                    int                           activeTimeStepIndex,
@@ -148,4 +161,7 @@ private:
     double m_bottomPerfTvd;
     double m_topPerfMd;
     double m_bottomPerfMd;
+
+    double      m_formationDip;
+    Orientation m_orientation;
 };

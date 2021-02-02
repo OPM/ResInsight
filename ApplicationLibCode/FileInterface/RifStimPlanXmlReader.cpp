@@ -32,7 +32,8 @@
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
-bool hasNegativeValues( std::vector<double> xs );
+bool                                       hasNegativeValues( std::vector<double> xs );
+RigStimPlanFractureDefinition::Orientation mapTextToOrientation( const QString text );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -105,18 +106,18 @@ cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFil
 
         if ( xmlStream2.isStartElement() )
         {
-            if ( xmlStream2.name() == "properties" )
+            if ( isTextEqual( xmlStream2.name(), "properties" ) )
             {
                 propertiesElementCount++;
             }
-            else if ( xmlStream2.name() == "property" )
+            else if ( isTextEqual( xmlStream2.name(), "property" ) )
             {
                 unit      = getAttributeValueString( xmlStream2, "uom" );
                 parameter = getAttributeValueString( xmlStream2, "name" );
 
                 RiaLogging::info( QString( "%1 [%2]" ).arg( parameter, unit ) );
             }
-            else if ( xmlStream2.name() == "time" )
+            else if ( isTextEqual( xmlStream2.name(), "time" ) )
             {
                 double timeStepValue = getAttributeValueDouble( xmlStream2, "value" );
 
@@ -185,6 +186,9 @@ void RifStimPlanXmlReader::readStimplanGridAndTimesteps( QXmlStreamReader&      
     double tvdToBotPerf = HUGE_VAL;
     double mdToTopPerf  = HUGE_VAL;
     double mdToBotPerf  = HUGE_VAL;
+    double formationDip = HUGE_VAL;
+
+    RigStimPlanFractureDefinition::Orientation orientation = RigStimPlanFractureDefinition::Orientation::UNDEFINED;
 
     int gridSectionCount = 0;
 
@@ -197,16 +201,16 @@ void RifStimPlanXmlReader::readStimplanGridAndTimesteps( QXmlStreamReader&      
         {
             RiaDefines::EclipseUnitSystem destinationUnit = requiredUnit;
 
-            if ( xmlStream.name() == "grid" )
+            if ( isTextEqual( xmlStream.name(), "grid" ) )
             {
                 // Support for one grid per file
                 if ( gridSectionCount < 1 )
                 {
                     QString gridunit = getAttributeValueString( xmlStream, "uom" );
 
-                    if ( gridunit == "m" )
+                    if ( gridunit.compare( "m", Qt::CaseInsensitive ) == 0 )
                         stimPlanFileData->m_unitSet = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
-                    else if ( gridunit == "ft" )
+                    else if ( gridunit.compare( "ft", Qt::CaseInsensitive ) == 0 )
                         stimPlanFileData->m_unitSet = RiaDefines::EclipseUnitSystem::UNITS_FIELD;
                     else
                         stimPlanFileData->m_unitSet = RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
@@ -232,32 +236,42 @@ void RifStimPlanXmlReader::readStimplanGridAndTimesteps( QXmlStreamReader&      
 
                 gridSectionCount++;
             }
-            else if ( xmlStream.name() == "perf" )
+            else if ( isTextEqual( xmlStream.name(), "perf" ) )
             {
                 QString perfUnit = getAttributeValueString( xmlStream, "uom" );
                 QString fracName = getAttributeValueString( xmlStream, "frac" );
             }
-            else if ( xmlStream.name() == "topTVD" )
+            else if ( isTextEqual( xmlStream.name(), "topTVD" ) )
             {
                 auto valText = xmlStream.readElementText();
                 tvdToTopPerf = valText.toDouble();
             }
-            else if ( xmlStream.name() == "bottomTVD" )
+            else if ( isTextEqual( xmlStream.name(), "bottomTVD" ) )
             {
                 auto valText = xmlStream.readElementText();
                 tvdToBotPerf = valText.toDouble();
             }
-            else if ( xmlStream.name() == "topMD" )
+            else if ( isTextEqual( xmlStream.name(), "topMD" ) )
             {
                 auto valText = xmlStream.readElementText();
                 mdToTopPerf  = valText.toDouble();
             }
-            else if ( xmlStream.name() == "bottomMD" )
+            else if ( isTextEqual( xmlStream.name(), "bottomMD" ) )
             {
                 auto valText = xmlStream.readElementText();
                 mdToBotPerf  = valText.toDouble();
             }
-            else if ( xmlStream.name() == "xs" )
+            else if ( isTextEqual( xmlStream.name(), "FmDip" ) )
+            {
+                auto valText = xmlStream.readElementText();
+                formationDip = valText.toDouble();
+            }
+            else if ( isTextEqual( xmlStream.name(), "orientation" ) )
+            {
+                auto valText = xmlStream.readElementText();
+                orientation  = mapTextToOrientation( valText.trimmed() );
+            }
+            else if ( isTextEqual( xmlStream.name(), "xs" ) )
             {
                 std::vector<double> gridValuesXs;
                 {
@@ -272,8 +286,8 @@ void RifStimPlanXmlReader::readStimplanGridAndTimesteps( QXmlStreamReader&      
 
                 stimPlanFileData->m_fileXs = gridValuesXs;
 
-                stimPlanFileData->generateXsFromFileXs( mirrorMode == MIRROR_AUTO ? !hasNegativeValues( gridValuesXs )
-                                                                                  : (bool)mirrorMode );
+                stimPlanFileData->generateXsFromFileXs(
+                    mirrorMode == MirrorMode::MIRROR_AUTO ? !hasNegativeValues( gridValuesXs ) : (bool)mirrorMode );
             }
             else if ( xmlStream.name() == "ys" )
             {
@@ -324,6 +338,16 @@ void RifStimPlanXmlReader::readStimplanGridAndTimesteps( QXmlStreamReader&      
         stimPlanFileData->setMdToBottomPerf( mdToBotPerf );
     }
 
+    if ( formationDip != HUGE_VAL )
+    {
+        stimPlanFileData->setFormationDip( formationDip );
+    }
+
+    if ( orientation != RigStimPlanFractureDefinition::Orientation::UNDEFINED )
+    {
+        stimPlanFileData->setOrientation( orientation );
+    }
+
     if ( startNegValuesYs > 0 )
     {
         RiaLogging::error( QString( "Negative depth values detected in XML file" ) );
@@ -337,11 +361,11 @@ std::vector<std::vector<double>> RifStimPlanXmlReader::getAllDepthDataAtTimeStep
 {
     std::vector<std::vector<double>> propertyValuesAtTimestep;
 
-    while ( !( xmlStream.isEndElement() && xmlStream.name() == "time" ) )
+    while ( !( xmlStream.isEndElement() && isTextEqual( xmlStream.name(), "time" ) ) )
     {
         xmlStream.readNext();
 
-        if ( xmlStream.name() == "depth" )
+        if ( isTextEqual( xmlStream.name(), "depth" ) )
         {
             xmlStream.readElementText().toDouble();
             std::vector<double> propertyValuesAtDepth;
@@ -435,6 +459,14 @@ double RifStimPlanXmlReader::valueInRequiredUnitSystem( RiaDefines::EclipseUnitS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RifStimPlanXmlReader::isTextEqual( const QStringRef& text, const QString& compareText )
+{
+    return text.compare( compareText, Qt::CaseInsensitive ) == 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifStimPlanXmlReader::getGriddingValues( QXmlStreamReader&    xmlStream,
                                               std::vector<double>& gridValues,
                                               size_t&              startNegValues )
@@ -442,7 +474,7 @@ void RifStimPlanXmlReader::getGriddingValues( QXmlStreamReader&    xmlStream,
     QString gridValuesString = xmlStream.readElementText().replace( '\n', ' ' );
     gridValuesString         = gridValuesString.replace( '[', ' ' ).replace( ']', ' ' );
 
-    for ( QString value : gridValuesString.split( ' ', QString::SkipEmptyParts ) )
+    for ( const QString& value : gridValuesString.split( ' ', QString::SkipEmptyParts ) )
     {
         if ( value.size() > 0 )
         {
@@ -461,7 +493,7 @@ double RifStimPlanXmlReader::getAttributeValueDouble( QXmlStreamReader& xmlStrea
     double value = HUGE_VAL;
     for ( const QXmlStreamAttribute& attr : xmlStream.attributes() )
     {
-        if ( attr.name() == parameterName )
+        if ( isTextEqual( attr.name(), parameterName ) )
         {
             value = attr.value().toString().toDouble();
         }
@@ -477,7 +509,7 @@ QString RifStimPlanXmlReader::getAttributeValueString( QXmlStreamReader& xmlStre
     QString parameterValue;
     for ( const QXmlStreamAttribute& attr : xmlStream.attributes() )
     {
-        if ( attr.name() == parameterName )
+        if ( isTextEqual( attr.name(), parameterName ) )
         {
             parameterValue = attr.value().toString();
         }
@@ -491,4 +523,23 @@ QString RifStimPlanXmlReader::getAttributeValueString( QXmlStreamReader& xmlStre
 bool hasNegativeValues( std::vector<double> xs )
 {
     return xs[0] < -RigStimPlanFractureDefinition::THRESHOLD_VALUE;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigStimPlanFractureDefinition::Orientation mapTextToOrientation( const QString text )
+{
+    if ( text.compare( "transverse", Qt::CaseInsensitive ) == 0 )
+    {
+        return RigStimPlanFractureDefinition::Orientation::TRANSVERSE;
+    }
+    else if ( text.compare( "longitudinal", Qt::CaseInsensitive ) == 0 )
+    {
+        return RigStimPlanFractureDefinition::Orientation::LONGITUDINAL;
+    }
+    else
+    {
+        return RigStimPlanFractureDefinition::Orientation::UNDEFINED;
+    }
 }

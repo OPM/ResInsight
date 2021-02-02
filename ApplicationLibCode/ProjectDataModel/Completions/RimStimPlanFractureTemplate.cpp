@@ -218,6 +218,15 @@ void RimStimPlanFractureTemplate::setDefaultsBasedOnXMLfile()
     else
         RiaLogging::info( QString( "Property for polygon calculation not set." ) );
 
+    if ( m_stimPlanFractureDefinitionData->orientation() == RigStimPlanFractureDefinition::Orientation::TRANSVERSE )
+    {
+        m_orientationType = TRANSVERSE_WELL_PATH;
+    }
+    else if ( m_stimPlanFractureDefinitionData->orientation() == RigStimPlanFractureDefinition::Orientation::LONGITUDINAL )
+    {
+        m_orientationType = ALONG_WELL_PATH;
+    }
+
     if ( !m_stimPlanFractureDefinitionData->conductivityResultNames().isEmpty() )
     {
         m_conductivityResultNameOnFile = m_stimPlanFractureDefinitionData->conductivityResultNames().front();
@@ -264,11 +273,12 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
 
     if ( m_readError ) return;
 
-    m_stimPlanFractureDefinitionData = RifStimPlanXmlReader::readStimPlanXMLFile( m_stimPlanFileName().path(),
-                                                                                  m_conductivityScaleFactor(),
-                                                                                  RifStimPlanXmlReader::MIRROR_AUTO,
-                                                                                  fractureTemplateUnit(),
-                                                                                  &errorMessage );
+    m_stimPlanFractureDefinitionData =
+        RifStimPlanXmlReader::readStimPlanXMLFile( m_stimPlanFileName().path(),
+                                                   m_conductivityScaleFactor(),
+                                                   RifStimPlanXmlReader::MirrorMode::MIRROR_AUTO,
+                                                   fractureTemplateUnit(),
+                                                   &errorMessage );
     if ( errorMessage.size() > 0 ) RiaLogging::error( errorMessage );
 
     if ( m_stimPlanFractureDefinitionData.notNull() )
@@ -1120,4 +1130,14 @@ cvf::cref<RigFractureGrid> RimStimPlanFractureTemplate::createFractureGrid( doub
 QString RimStimPlanFractureTemplate::wellPathDepthAtFractureUiName() const
 {
     return "Well/Fracture Intersection Depth";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimStimPlanFractureTemplate::formationDip() const
+{
+    if ( m_stimPlanFractureDefinitionData.isNull() ) return HUGE_VAL;
+
+    return m_stimPlanFractureDefinitionData->formationDip();
 }

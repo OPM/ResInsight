@@ -99,6 +99,8 @@ public:
 
     void convertToUnitSystem( RiaDefines::EclipseUnitSystem neededUnit ) override;
 
+    double formationDip() const;
+
 protected:
     void initAfterRead() override;
 
