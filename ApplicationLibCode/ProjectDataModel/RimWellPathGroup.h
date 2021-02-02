@@ -29,6 +29,8 @@ class RimWellPathGroup : public RimWellPath
 public:
     RimWellPathGroup();
 
+    QString name() const override;
+
     void                      addChildWellPath( RimWellPath* wellPath );
     std::vector<RimWellPath*> childWellPaths() const;
     size_t                    childWellpathCount() const;

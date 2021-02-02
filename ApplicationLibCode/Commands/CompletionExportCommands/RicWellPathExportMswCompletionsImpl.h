@@ -17,7 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RicMswBranch.h"
+#include "RicMswCompletions.h"
 #include "RicMswExportInfo.h"
+#include "RicMswSegment.h"
 #include "RigCompletionData.h"
 
 #include <gsl/gsl>
@@ -73,14 +76,17 @@ private:
                                                             const RimWellPath*                       wellPath,
                                                             const std::vector<RimWellPathFracture*>& fractures );
 
-    static RicMswExportInfo
-        generatePerforationsMswExportInfo( RimEclipseCase*                                   eclipseCase,
-                                           const RimWellPath*                                wellPath,
-                                           int                                               timeStep,
-                                           const std::vector<const RimPerforationInterval*>& perforationIntervals );
+    static bool generatePerforationsMswExportInfo( RimEclipseCase*                                  eclipseCase,
+                                                   const RimWellPath*                               wellPath,
+                                                   int                                              timeStep,
+                                                   double                                           initialMD,
+                                                   const std::vector<WellPathCellIntersectionInfo>& cellIntersections,
+                                                   gsl::not_null<RicMswExportInfo*>                 exportInfo,
+                                                   gsl::not_null<RicMswBranch*>                     branch );
 
-    static std::vector<WellPathCellIntersectionInfo>
-        generateCellSegments( const RimEclipseCase* eclipseCase, const RimWellPath* wellPath, double& initialMD );
+    static std::vector<WellPathCellIntersectionInfo> generateCellSegments( const RimEclipseCase*  eclipseCase,
+                                                                           const RimWellPath*     wellPath,
+                                                                           gsl::not_null<double*> initialMD );
 
     static std::vector<WellPathCellIntersectionInfo>
         filterIntersections( const std::vector<WellPathCellIntersectionInfo>& intersections,
@@ -89,46 +95,58 @@ private:
                              gsl::not_null<const RimEclipseCase*>             eclipseCase );
 
     static void generateWelsegsTable( RifTextDataTableFormatter& formatter,
-                                      const RicMswExportInfo&    exportInfo,
+                                      RicMswExportInfo&          exportInfo,
                                       double                     maxSegmentLength );
 
-    static void writeMainBoreWelsegsSegment( std::shared_ptr<RicMswSegment> segment,
-                                             std::shared_ptr<RicMswSegment> previousSegment,
-                                             RifTextDataTableFormatter&     formatter,
-                                             const RicMswExportInfo&        exportInfo,
-                                             double                         maxSegmentLength,
-                                             int*                           segmentNumber );
-    static void writeValveWelsegsSegment( std::shared_ptr<RicMswSegment> segment,
-                                          std::shared_ptr<RicMswValve>   valve,
-                                          RifTextDataTableFormatter&     formatter,
-                                          const RicMswExportInfo&        exportInfo,
-                                          double                         maxSegmentLength,
-                                          int*                           segmentNumber );
-    static void writeCompletionWelsegsSegment( std::shared_ptr<RicMswSegment>    segment,
-                                               std::shared_ptr<RicMswCompletion> completion,
-                                               RifTextDataTableFormatter&        formatter,
-                                               const RicMswExportInfo&           exportInfo,
-                                               double                            maxSegmentLength,
-                                               int*                              segmentNumber );
+    static void writeWelsegsSegmentsRecursively( RifTextDataTableFormatter&   formatter,
+                                                 RicMswExportInfo&            exportInfo,
+                                                 gsl::not_null<RicMswBranch*> branch,
+                                                 gsl::not_null<int*>          segmentNumber,
+                                                 double                       maxSegmentLength,
+                                                 RicMswSegment*               connectedToSegment = nullptr );
 
-    static void generateWelsegsSegments( RifTextDataTableFormatter&                         formatter,
-                                         const RicMswExportInfo&                            exportInfo,
-                                         const std::set<RigCompletionData::CompletionType>& exportCompletionTypes,
-                                         double                                             maxSegmentLength,
-                                         int*                                               segmentNumber );
-    static void generateWelsegsCompletionCommentHeader( RifTextDataTableFormatter&        formatter,
-                                                        RigCompletionData::CompletionType completionType );
-    static void generateCompsegTables( RifTextDataTableFormatter& formatter, const RicMswExportInfo& exportInfo );
+    static void writeWelsegsSegment( RicMswSegment*             segment,
+                                     const RicMswSegment*       previousSegment,
+                                     RifTextDataTableFormatter& formatter,
+                                     RicMswExportInfo&          exportInfo,
+                                     double                     maxSegmentLength,
+                                     int                        branchNumber,
+                                     int*                       segmentNumber );
+    static void writeValveWelsegsSegment( const RicMswSegment*       outletSegment,
+                                          RicMswValve*               valve,
+                                          RifTextDataTableFormatter& formatter,
+                                          RicMswExportInfo&          exportInfo,
+                                          double                     maxSegmentLength,
+                                          int*                       segmentNumber );
+    static void writeCompletionWelsegsSegments( gsl::not_null<const RicMswSegment*>    outletSegment,
+                                                gsl::not_null<const RicMswCompletion*> completion,
+                                                RifTextDataTableFormatter&             formatter,
+                                                RicMswExportInfo&                      exportInfo,
+                                                double                                 maxSegmentLength,
+                                                int*                                   segmentNumber );
+
+    static void
+                writeCompletionWelsegsSegmentsForBranch( RifTextDataTableFormatter&                         formatter,
+                                                         RicMswExportInfo&                                  exportInfo,
+                                                         gsl::not_null<RicMswBranch*>                       branch,
+                                                         const std::set<RigCompletionData::CompletionType>& exportCompletionTypes,
+                                                         double                                             maxSegmentLength,
+                                                         int*                                               segmentNumber );
+    static void writeWelsegsCompletionCommentHeader( RifTextDataTableFormatter&        formatter,
+                                                     RigCompletionData::CompletionType completionType );
+    static void generateCompsegTables( RifTextDataTableFormatter& formatter, RicMswExportInfo& exportInfo );
     static void generateCompsegTable( RifTextDataTableFormatter&                         formatter,
-                                      const RicMswExportInfo&                            exportInfo,
+                                      RicMswExportInfo&                                  exportInfo,
+                                      gsl::not_null<const RicMswBranch*>                 branch,
                                       bool                                               exportSubGridIntersections,
-                                      const std::set<RigCompletionData::CompletionType>& exportCompletionTypes );
+                                      const std::set<RigCompletionData::CompletionType>& exportCompletionTypes,
+                                      gsl::not_null<bool*>                               headerGenerated );
     static void generateCompsegHeader( RifTextDataTableFormatter&        formatter,
-                                       const RicMswExportInfo&           exportInfo,
+                                       RicMswExportInfo&                 exportInfo,
                                        RigCompletionData::CompletionType completionType,
                                        bool                              exportSubGridIntersections );
-    static void generateWsegvalvTable( RifTextDataTableFormatter& formatter, const RicMswExportInfo& exportInfo );
-    static void generateWsegAicdTable( RifTextDataTableFormatter& formatter, const RicMswExportInfo& exportInfo );
+    static void generateWsegvalvTable( RifTextDataTableFormatter& formatter, RicMswExportInfo& exportInfo );
+    static void generateWsegAicdTable( RifTextDataTableFormatter& formatter, RicMswExportInfo& exportInfo );
 
     static std::pair<double, double>
         calculateOverlapWithActiveCells( double                                           startMD,
@@ -137,49 +155,46 @@ private:
                                          const RigActiveCellInfo*                         activeCellInfo );
 
 private:
-    typedef std::vector<std::shared_ptr<RicMswSegment>>                                       MainBoreSegments;
-    typedef std::map<std::shared_ptr<RicMswCompletion>, std::vector<const RimWellPathValve*>> ValveContributionMap;
-
     static std::vector<std::pair<double, double>>
         createSubSegmentMDPairs( double startMD, double endMD, double maxSegmentLength );
 
-    static MainBoreSegments
-        createMainBoreSegmentsForPerforations( const std::vector<WellPathCellIntersectionInfo>& cellSegmentIntersections,
-                                               const std::vector<const RimPerforationInterval*>& perforationIntervals,
-                                               const RimWellPath*                                wellPath,
-                                               int                                               timeStep,
-                                               RimEclipseCase*                                   eclipseCase,
-                                               bool* foundSubGridIntersections );
+    static void createWellPathSegments( gsl::not_null<RicMswBranch*>                      branch,
+                                        const std::vector<WellPathCellIntersectionInfo>&  cellSegmentIntersections,
+                                        const std::vector<const RimPerforationInterval*>& perforationIntervals,
+                                        const RimWellPath*                                wellPath,
+                                        int                                               timeStep,
+                                        RimEclipseCase*                                   eclipseCase,
+                                        bool*                                             foundSubGridIntersections );
 
-    static void createValveCompletions( std::vector<std::shared_ptr<RicMswSegment>>&      mainBoreSegments,
+    static void createValveCompletions( gsl::not_null<RicMswBranch*>                      branch,
                                         const std::vector<const RimPerforationInterval*>& perforationIntervals,
                                         const RimWellPath*                                wellPath,
                                         RiaDefines::EclipseUnitSystem                     unitSystem );
 
     static void
-        assignValveContributionsToSuperICDsOrAICDs( const std::vector<std::shared_ptr<RicMswSegment>>& mainBoreSegments,
+        assignValveContributionsToSuperICDsOrAICDs( gsl::not_null<RicMswBranch*>                      branch,
                                                     const std::vector<const RimPerforationInterval*>& perforationIntervals,
                                                     const std::vector<WellPathCellIntersectionInfo>& wellPathIntersections,
                                                     const RigActiveCellInfo*                         activeCellInfo,
                                                     RiaDefines::EclipseUnitSystem                    unitSystem );
 
-    static void moveIntersectionsToICVs( const std::vector<std::shared_ptr<RicMswSegment>>& mainBoreSegments,
-                                         const std::vector<const RimPerforationInterval*>&  perforationIntervals,
-                                         RiaDefines::EclipseUnitSystem                      unitSystem );
+    static void moveIntersectionsToICVs( gsl::not_null<RicMswBranch*>                      branch,
+                                         const std::vector<const RimPerforationInterval*>& perforationIntervals,
+                                         RiaDefines::EclipseUnitSystem                     unitSystem );
 
-    static void moveIntersectionsToSuperICDsOrAICDs( MainBoreSegments mainBoreSegments );
+    static void moveIntersectionsToSuperICDsOrAICDs( gsl::not_null<RicMswBranch*> branch );
 
-    static void assignFishbonesLateralIntersections( const RimEclipseCase*          caseToApply,
-                                                     const RimWellPath*             wellPath,
-                                                     const RimFishbones*            fishbonesSubs,
-                                                     std::shared_ptr<RicMswSegment> segment,
-                                                     bool*                          foundSubGridIntersections,
-                                                     double                         maxSegmentLength );
+    static void assignFishbonesLateralIntersections( const RimEclipseCase*         caseToApply,
+                                                     const RimWellPath*            wellPath,
+                                                     const RimFishbones*           fishbonesSubs,
+                                                     gsl::not_null<RicMswSegment*> segment,
+                                                     bool*                         foundSubGridIntersections,
+                                                     double                        maxSegmentLength );
 
     static void assignFractureCompletionsToCellSegment( const RimEclipseCase*                 caseToApply,
                                                         const RimWellPathFracture*            fracture,
                                                         const std::vector<RigCompletionData>& completionData,
-                                                        std::shared_ptr<RicMswSegment>        segment,
+                                                        gsl::not_null<RicMswSegment*>         segment,
                                                         bool* foundSubGridIntersections );
 
     static std::vector<RigCompletionData>
@@ -189,15 +204,19 @@ private:
                                           gsl::not_null<RimEclipseCase*>               eclipseCase );
 
     static void assignPerforationIntersections( const std::vector<RigCompletionData>& completionData,
-                                                std::shared_ptr<RicMswCompletion>     perforationCompletion,
+                                                gsl::not_null<RicMswCompletion*>      perforationCompletion,
                                                 const WellPathCellIntersectionInfo&   cellIntInfo,
                                                 double                                overlapStart,
                                                 double                                overlapEnd,
                                                 bool*                                 foundSubGridIntersections );
 
-    static void
-        assignBranchNumbers( const RimEclipseCase* caseToApply, std::shared_ptr<RicMswSegment> segment, int* branchNum );
-    static void assignBranchNumbers( const RimEclipseCase* caseToApply, RicMswExportInfo* exportInfo );
+    static void assignBranchNumbersToCompletions( const RimEclipseCase*         caseToApply,
+                                                  gsl::not_null<RicMswSegment*> segment,
+                                                  gsl::not_null<int*>           branchNumber );
+    static void assignBranchNumbersToBranch( const RimEclipseCase*        caseToApply,
+                                             RicMswExportInfo*            exportInfo,
+                                             gsl::not_null<RicMswBranch*> branch,
+                                             gsl::not_null<int*>          branchNumber );
 
     static double tvdFromMeasuredDepth( gsl::not_null<const RimWellPath*> wellPath, double measuredDepth );
 };

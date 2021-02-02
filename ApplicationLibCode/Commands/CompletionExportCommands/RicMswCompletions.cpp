@@ -18,25 +18,19 @@
 
 #include "RicMswCompletions.h"
 
-#include "RicMswSubSegment.h"
+#include "RicMswSegmentCellIntersection.h"
 
 #include "RimWellPathValve.h"
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswCompletion::RicMswCompletion( const QString& label, size_t index /* = cvf::UNDEFINED_SIZE_T */, int branchNumber /*= 0*/ )
-    : m_label( label )
+RicMswCompletion::RicMswCompletion( const QString& label,
+                                    double         startMD,
+                                    double         startTVD,
+                                    size_t         index /* = cvf::UNDEFINED_SIZE_T */ )
+    : RicMswBranch( label, startMD, startTVD )
     , m_index( index )
-    , m_branchNumber( branchNumber )
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const QString& RicMswCompletion::label() const
-{
-    return m_label;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,58 +44,11 @@ size_t RicMswCompletion::index() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RicMswCompletion::branchNumber() const
-{
-    return m_branchNumber;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicMswCompletion::setBranchNumber( int branchNumber )
-{
-    m_branchNumber = branchNumber;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicMswCompletion::addSubSegment( std::shared_ptr<RicMswSubSegment> subSegment )
-{
-    m_subSegments.push_back( subSegment );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<std::shared_ptr<RicMswSubSegment>>& RicMswCompletion::subSegments()
-{
-    return m_subSegments;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const std::vector<std::shared_ptr<RicMswSubSegment>>& RicMswCompletion::subSegments() const
-{
-    return m_subSegments;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicMswCompletion::setLabel( const QString& label )
-{
-    m_label = label;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RicMswFracture::RicMswFracture( const QString& label,
-                                size_t         index /*= cvf::UNDEFINED_SIZE_T*/,
-                                int            branchNumber /*= cvf::UNDEFINED_INT*/ )
-    : RicMswCompletion( label, index, branchNumber )
+                                double         startMD,
+                                double         startTVD,
+                                size_t         index /*= cvf::UNDEFINED_SIZE_T*/ )
+    : RicMswCompletion( label, startMD, startTVD, index )
 {
 }
 
@@ -117,9 +64,10 @@ RigCompletionData::CompletionType RicMswFracture::completionType() const
 ///
 //--------------------------------------------------------------------------------------------------
 RicMswPerforation::RicMswPerforation( const QString& label,
-                                      size_t         index /*= cvf::UNDEFINED_SIZE_T*/,
-                                      int            branchNumber /*= cvf::UNDEFINED_INT*/ )
-    : RicMswCompletion( label, index, branchNumber )
+                                      double         startMD,
+                                      double         startTVD,
+                                      size_t         index /*= cvf::UNDEFINED_SIZE_T*/ )
+    : RicMswCompletion( label, startMD, startTVD, index )
 {
 }
 
@@ -134,8 +82,8 @@ RigCompletionData::CompletionType RicMswPerforation::completionType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswValve::RicMswValve( const QString& label, const RimWellPathValve* wellPathValve )
-    : RicMswCompletion( label )
+RicMswValve::RicMswValve( const QString& label, double startMD, double startTVD, const RimWellPathValve* wellPathValve )
+    : RicMswCompletion( label, startMD, startTVD )
     , m_wellPathValve( wellPathValve )
     , m_valid( false )
 {
@@ -168,8 +116,8 @@ void RicMswValve::setIsValid( bool valid )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswWsegValve::RicMswWsegValve( const QString& label, const RimWellPathValve* wellPathValve )
-    : RicMswValve( label, wellPathValve )
+RicMswWsegValve::RicMswWsegValve( const QString& label, double startMD, double startTVD, const RimWellPathValve* wellPathValve )
+    : RicMswValve( label, startMD, startTVD, wellPathValve )
     , m_flowCoefficient( 0.0 )
     , m_area( 0.0 )
 {
@@ -210,8 +158,8 @@ void RicMswWsegValve::setArea( double icdArea )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswFishbonesICD::RicMswFishbonesICD( const QString& label, const RimWellPathValve* wellPathValve )
-    : RicMswWsegValve( label, wellPathValve )
+RicMswFishbonesICD::RicMswFishbonesICD( const QString& label, double startMD, double startTVD, const RimWellPathValve* wellPathValve )
+    : RicMswWsegValve( label, startMD, startTVD, wellPathValve )
 {
     setIsValid( true );
 }
@@ -227,8 +175,11 @@ RigCompletionData::CompletionType RicMswFishbonesICD::completionType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswPerforationICD::RicMswPerforationICD( const QString& label, const RimWellPathValve* wellPathValve )
-    : RicMswWsegValve( label, wellPathValve )
+RicMswPerforationICD::RicMswPerforationICD( const QString&          label,
+                                            double                  startMD,
+                                            double                  startTVD,
+                                            const RimWellPathValve* wellPathValve )
+    : RicMswWsegValve( label, startMD, startTVD, wellPathValve )
 {
 }
 
@@ -243,8 +194,11 @@ RigCompletionData::CompletionType RicMswPerforationICD::completionType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswPerforationICV::RicMswPerforationICV( const QString& label, const RimWellPathValve* wellPathValve )
-    : RicMswWsegValve( label, wellPathValve )
+RicMswPerforationICV::RicMswPerforationICV( const QString&          label,
+                                            double                  startMD,
+                                            double                  startTVD,
+                                            const RimWellPathValve* wellPathValve )
+    : RicMswWsegValve( label, startMD, startTVD, wellPathValve )
 {
     setIsValid( true );
 }
@@ -260,8 +214,11 @@ RigCompletionData::CompletionType RicMswPerforationICV::completionType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswPerforationAICD::RicMswPerforationAICD( const QString& label, const RimWellPathValve* wellPathValve )
-    : RicMswValve( label, wellPathValve )
+RicMswPerforationAICD::RicMswPerforationAICD( const QString&          label,
+                                              double                  startMD,
+                                              double                  startTVD,
+                                              const RimWellPathValve* wellPathValve )
+    : RicMswValve( label, startMD, startTVD, wellPathValve )
     , m_deviceOpen( false )
     , m_length( 0.0 )
     , m_flowScalingFactor( 0.0 )

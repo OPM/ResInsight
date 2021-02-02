@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RicMswSubSegment.h"
+#include "RicMswBranch.h"
 
 #include "RigCompletionData.h"
 
@@ -33,38 +33,23 @@ class RimWellPathValve;
 //==================================================================================================
 ///
 //==================================================================================================
-class RicMswCompletion
+class RicMswCompletion : public RicMswBranch
 {
 public:
-    RicMswCompletion( const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT );
+    RicMswCompletion( const QString& label, double startMD, double startTVD, size_t index = cvf::UNDEFINED_SIZE_T );
 
     virtual RigCompletionData::CompletionType completionType() const = 0;
-
-    const QString& label() const;
     size_t         index() const;
-    int            branchNumber() const;
-    void           setBranchNumber( int branchNumber );
-
-    void addSubSegment( std::shared_ptr<RicMswSubSegment> subSegment );
-
-    std::vector<std::shared_ptr<RicMswSubSegment>>&       subSegments();
-    const std::vector<std::shared_ptr<RicMswSubSegment>>& subSegments() const;
-
-    void setLabel( const QString& label );
 
 private:
-    QString m_label;
     size_t  m_index;
-    int     m_branchNumber;
-
-    std::vector<std::shared_ptr<RicMswSubSegment>> m_subSegments;
 };
 
 class RicMswFishbones : public RicMswCompletion
 {
 public:
-    RicMswFishbones( const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT )
-        : RicMswCompletion( label, index, branchNumber )
+    RicMswFishbones( const QString& label, double startMD, double startTVD, size_t index = cvf::UNDEFINED_SIZE_T )
+        : RicMswCompletion( label, startMD, startTVD, index )
     {
     }
 
@@ -77,7 +62,7 @@ public:
 class RicMswFracture : public RicMswCompletion
 {
 public:
-    RicMswFracture( const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT );
+    RicMswFracture( const QString& label, double startMD, double startTVD, size_t index = cvf::UNDEFINED_SIZE_T );
     RigCompletionData::CompletionType completionType() const override;
 };
 
@@ -87,7 +72,7 @@ public:
 class RicMswPerforation : public RicMswCompletion
 {
 public:
-    RicMswPerforation( const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT );
+    RicMswPerforation( const QString& label, double startMD, double startTVD, size_t index = cvf::UNDEFINED_SIZE_T );
     RigCompletionData::CompletionType completionType() const override;
 };
 
@@ -97,7 +82,7 @@ public:
 class RicMswValve : public RicMswCompletion
 {
 public:
-    RicMswValve( const QString& label, const RimWellPathValve* wellPathValve );
+    RicMswValve( const QString& label, double startMD, double startTVD, const RimWellPathValve* wellPathValve );
 
     virtual ~RicMswValve() {}
 
@@ -117,7 +102,7 @@ private:
 class RicMswWsegValve : public RicMswValve
 {
 public:
-    RicMswWsegValve( const QString& label, const RimWellPathValve* wellPathValve );
+    RicMswWsegValve( const QString& label, double startMD, double startTVD, const RimWellPathValve* wellPathValve );
 
     double flowCoefficient() const;
     double area() const;
@@ -135,7 +120,7 @@ private:
 class RicMswFishbonesICD : public RicMswWsegValve
 {
 public:
-    RicMswFishbonesICD( const QString& label, const RimWellPathValve* wellPathValve );
+    RicMswFishbonesICD( const QString& label, double startMD, double startTVD, const RimWellPathValve* wellPathValve );
     RigCompletionData::CompletionType completionType() const override;
 };
 
@@ -145,7 +130,7 @@ public:
 class RicMswPerforationICD : public RicMswWsegValve
 {
 public:
-    RicMswPerforationICD( const QString& label, const RimWellPathValve* wellPathValve );
+    RicMswPerforationICD( const QString& label, double startMD, double startTVD, const RimWellPathValve* wellPathValve );
     RigCompletionData::CompletionType completionType() const override;
 };
 
@@ -155,7 +140,7 @@ public:
 class RicMswPerforationICV : public RicMswWsegValve
 {
 public:
-    RicMswPerforationICV( const QString& label, const RimWellPathValve* wellPathValve );
+    RicMswPerforationICV( const QString& label, double startMD, double startTVD, const RimWellPathValve* wellPathValve );
     RigCompletionData::CompletionType completionType() const override;
 };
 
@@ -165,7 +150,7 @@ public:
 class RicMswPerforationAICD : public RicMswValve
 {
 public:
-    RicMswPerforationAICD( const QString& label, const RimWellPathValve* wellPathValve );
+    RicMswPerforationAICD( const QString& label, double startMD, double startTVD, const RimWellPathValve* wellPathValve );
     RigCompletionData::CompletionType completionType() const override;
 
     bool   isOpen() const;

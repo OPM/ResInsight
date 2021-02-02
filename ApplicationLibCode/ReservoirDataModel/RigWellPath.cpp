@@ -48,6 +48,7 @@ RigWellPath::RigWellPath( const RigWellPath& rhs )
     , m_uniqueStartIndex( rhs.m_uniqueStartIndex )
     , objectBeingDeleted( this )
 {
+    CVF_ASSERT( m_wellPathPoints.size() == m_measuredDepths.size() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,6 +64,7 @@ RigWellPath::RigWellPath( const std::vector<cvf::Vec3d>& wellPathPoints, const s
     , m_uniqueEndIndex( std::numeric_limits<size_t>::max() )
     , objectBeingDeleted( this )
 {
+    CVF_ASSERT( m_wellPathPoints.size() == m_measuredDepths.size() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,8 +72,9 @@ RigWellPath::RigWellPath( const std::vector<cvf::Vec3d>& wellPathPoints, const s
 //--------------------------------------------------------------------------------------------------
 RigWellPath& RigWellPath::operator=( const RigWellPath& rhs )
 {
-    m_wellPathPoints    = rhs.m_wellPathPoints;
-    m_measuredDepths    = rhs.m_measuredDepths;
+    m_wellPathPoints = rhs.m_wellPathPoints;
+    m_measuredDepths = rhs.m_measuredDepths;
+    CVF_ASSERT( m_wellPathPoints.size() == m_measuredDepths.size() );
     m_hasDatumElevation = rhs.m_hasDatumElevation;
     m_datumElevation    = rhs.m_datumElevation;
     m_uniqueStartIndex  = rhs.m_uniqueStartIndex;

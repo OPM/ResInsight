@@ -20,6 +20,7 @@
 
 #include "RiaDefines.h"
 
+#include "RicMswBranch.h"
 #include "RicMswSegment.h"
 
 #include <QString>
@@ -45,13 +46,8 @@ public:
     void setRoughnessFactor( double roughnessFactor );
     void setHasSubGridIntersections( bool subGridIntersections );
 
-    void addSegment( std::shared_ptr<RicMswSegment> location );
-    void sortSegments();
-
     const RimWellPath*            wellPath() const;
     RiaDefines::EclipseUnitSystem unitSystem() const;
-    double                        initialMD() const;
-    double                        initialTVD() const;
     double                        topWellBoreVolume() const;
     double                        linerDiameter() const;
     double                        roughnessFactor() const;
@@ -60,13 +56,12 @@ public:
     bool                          hasSubGridIntersections() const;
     static double                 defaultDoubleValue();
 
-    const std::vector<std::shared_ptr<RicMswSegment>>& segments() const;
-    std::vector<std::shared_ptr<RicMswSegment>>&       segments();
+    const RicMswBranch* mainBoreBranch() const;
+    RicMswBranch*       mainBoreBranch();
 
 private:
     const RimWellPath*            m_wellPath;
     RiaDefines::EclipseUnitSystem m_unitSystem;
-    double                        m_initialMD;
     double                        m_topWellBoreVolume;
     double                        m_linerDiameter;
     double                        m_roughnessFactor;
@@ -74,5 +69,5 @@ private:
     QString                       m_pressureDropText;
     bool                          m_hasSubGridIntersections;
 
-    std::vector<std::shared_ptr<RicMswSegment>> m_segments;
+    std::unique_ptr<RicMswBranch> m_mainBoreBranch;
 };

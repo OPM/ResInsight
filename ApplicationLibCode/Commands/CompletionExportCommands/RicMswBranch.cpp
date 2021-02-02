@@ -1,164 +1,170 @@
-/////////////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 2018 Equinor ASA
-//
-//  ResInsight is free software: you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation, either version 3 of the License, or
-//  (at your option) any later version.
-//
-//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
-//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//  FITNESS FOR A PARTICULAR PURPOSE.
-//
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
-//  for more details.
-//
-/////////////////////////////////////////////////////////////////////////////////
-
-#include "RicMswSubSegment.h"
+#include "RicMswBranch.h"
+#include "RicMswCompletions.h"
+#include "RicMswSegment.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswSubSegmentCellIntersection::RicMswSubSegmentCellIntersection( const QString&     gridName,
-                                                                    size_t             globalCellIndex,
-                                                                    const cvf::Vec3st& gridLocalCellIJK,
-                                                                    const cvf::Vec3d&  lengthsInCell )
-    : m_gridName( gridName )
-    , m_globalCellIndex( globalCellIndex )
-    , m_gridLocalCellIJK( gridLocalCellIJK )
-    , m_lengthsInCell( lengthsInCell )
+RicMswBranch::RicMswBranch( const QString& label, double initialMD, double initialTVD )
+    : RicMswItem( label )
+    , m_initialMD( initialMD )
+    , m_initialTVD( initialTVD )
+    , m_branchNumber( -1 )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QString& RicMswSubSegmentCellIntersection::gridName() const
+void RicMswBranch::addSegment( std::unique_ptr<RicMswSegment> segment )
 {
-    return m_gridName;
+    m_segments.push_back( std::move( segment ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RicMswSubSegmentCellIntersection::globalCellIndex() const
+void RicMswBranch::insertAfterSegment( const RicMswSegment* insertAfter, std::unique_ptr<RicMswSegment> insertItem )
 {
-    return m_globalCellIndex;
+    auto it = std::find_if( m_segments.begin(), m_segments.end(), [insertAfter]( auto& item ) {
+        return item.get() == insertAfter;
+    } );
+
+    m_segments.insert( it, std::move( insertItem ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3st RicMswSubSegmentCellIntersection::gridLocalCellIJK() const
+void RicMswBranch::sortSegments()
 {
-    return m_gridLocalCellIJK;
+    std::sort( m_segments.begin(),
+               m_segments.end(),
+               []( const std::unique_ptr<RicMswSegment>& lhs, const std::unique_ptr<RicMswSegment>& rhs ) {
+                   return *lhs < *rhs;
+               } );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const cvf::Vec3d& RicMswSubSegmentCellIntersection::lengthsInCell() const
+double RicMswBranch::startMD() const
 {
-    return m_lengthsInCell;
+    return m_initialMD;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswSubSegment::RicMswSubSegment( double startMD, double endMD, double startTVD, double endTVD )
-    : m_startMD( startMD )
-    , m_endMD( endMD )
-    , m_startTVD( startTVD )
-    , m_endTVD( endTVD )
-    , m_segmentNumber( -1 )
+double RicMswBranch::startTVD() const
 {
+    return m_initialTVD;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicMswSubSegment::startMD() const
+double RicMswBranch::endMD() const
 {
-    return m_startMD;
+    if ( !m_segments.empty() )
+    {
+        return m_segments.back()->endMD();
+    }
+    return m_initialMD;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicMswSubSegment::endMD() const
+double RicMswBranch::endTVD() const
 {
-    return m_endMD;
+    if ( !m_segments.empty() )
+    {
+        return m_segments.back()->endTVD();
+    }
+    return m_initialTVD;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicMswSubSegment::deltaMD() const
+int RicMswBranch::branchNumber() const
 {
-    return m_endMD - m_startMD;
+    return m_branchNumber;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicMswSubSegment::startTVD() const
+void RicMswBranch::setBranchNumber( int branchNumber )
 {
-    return m_startTVD;
+    m_branchNumber = branchNumber;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicMswSubSegment::endTVD() const
+std::vector<const RicMswSegment*> RicMswBranch::segments() const
 {
-    return m_endTVD;
+    std::vector<const RicMswSegment*> allSegments;
+    for ( const auto& segment : m_segments )
+    {
+        allSegments.push_back( segment.get() );
+    }
+    return allSegments;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicMswSubSegment::deltaTVD() const
+std::vector<RicMswSegment*> RicMswBranch::segments()
 {
-    return m_endTVD - m_startTVD;
+    std::vector<RicMswSegment*> allSegments;
+    for ( auto& segment : m_segments )
+    {
+        allSegments.push_back( segment.get() );
+    }
+    return allSegments;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RicMswSubSegment::segmentNumber() const
+size_t RicMswBranch::segmentCount() const
 {
-    return m_segmentNumber;
+    return m_segments.size();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswSubSegment::setSegmentNumber( int segmentNumber )
+std::vector<const RicMswBranch*> RicMswBranch::branches() const
 {
-    m_segmentNumber = segmentNumber;
-}
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicMswSubSegment::addIntersection( std::shared_ptr<RicMswSubSegmentCellIntersection> intersection )
-{
-    m_intersections.push_back( intersection );
+    std::vector<const RicMswBranch*> branches;
+    for ( const auto& branch : m_branches )
+    {
+        branches.push_back( branch.get() );
+    }
+    return branches;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<std::shared_ptr<RicMswSubSegmentCellIntersection>>& RicMswSubSegment::intersections() const
+std::vector<RicMswBranch*> RicMswBranch::branches()
 {
-    return m_intersections;
+    std::vector<RicMswBranch*> branches;
+    for ( auto& branch : m_branches )
+    {
+        branches.push_back( branch.get() );
+    }
+    return branches;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::shared_ptr<RicMswSubSegmentCellIntersection>>& RicMswSubSegment::intersections()
+void RicMswBranch::addChildBranch( std::unique_ptr<RicMswBranch> branch )
 {
-    return m_intersections;
+    m_branches.push_back( std::move( branch ) );
 }

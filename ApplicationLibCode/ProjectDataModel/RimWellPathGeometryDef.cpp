@@ -178,7 +178,7 @@ void RimWellPathGeometryDef::setFixedMeasuredDepths( const std::vector<double>& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellPathTarget*> RimWellPathGeometryDef::createTargets( const std::vector<cvf::Vec3d>& points)
+std::vector<RimWellPathTarget*> RimWellPathGeometryDef::createTargets( const std::vector<cvf::Vec3d>& points )
 {
     CAF_ASSERT( points.size() >= 2u );
 
@@ -187,7 +187,7 @@ std::vector<RimWellPathTarget*> RimWellPathGeometryDef::createTargets( const std
     for ( size_t i = 0; i < points.size(); ++i )
     {
         auto target = appendTarget();
-        target->setAsPointTargetXYZ( points[i]);
+        target->setAsPointTargetXYZ( points[i] );
         appendedTargets.push_back( target );
     }
     return appendedTargets;
@@ -215,7 +215,11 @@ cvf::ref<RigWellPath> RimWellPathGeometryDef::createWellPathGeometry()
         RiaPolyArcLineSampler arcLineSampler( wellPathCalculator.startTangent(), wellPathCalculator.lineArcEndpoints() );
         auto [sampledWellPathPoints, sampledMeasuredDepths] = arcLineSampler.sampledPointsAndMDs( 30, false );
         wellPathPoints.insert( wellPathPoints.end(), sampledWellPathPoints.begin(), sampledWellPathPoints.end() );
-        measuredDepths.insert( measuredDepths.end(), sampledMeasuredDepths.begin(), sampledMeasuredDepths.end() );
+        double startMD = measuredDepths.empty() ? 0.0 : measuredDepths.back();
+        for ( auto md : sampledMeasuredDepths )
+        {
+            measuredDepths.push_back( md + startMD );
+        }
     }
     wellPathGeometry->setWellPathPoints( wellPathPoints );
     wellPathGeometry->setMeasuredDepths( measuredDepths );

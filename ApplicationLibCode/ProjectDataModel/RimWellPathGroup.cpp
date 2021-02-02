@@ -53,6 +53,14 @@ RimWellPathGroup::RimWellPathGroup()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimWellPathGroup::name() const
+{
+    return m_groupName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellPathGroup::addChildWellPath( RimWellPath* wellPath )
 {
     if ( m_childWellPaths.empty() && isTopLevelWellPath() && wellPath->completions()->hasCompletions() )
