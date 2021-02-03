@@ -70,7 +70,7 @@ RigEclipseResultInfo::RigEclipseResultInfo( const RigEclipseResultAddress& resul
 //--------------------------------------------------------------------------------------------------
 RiaDefines::ResultCatType RigEclipseResultInfo::resultType() const
 {
-    return m_resultAddress.m_resultCatType;
+    return m_resultAddress.resultCatType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,7 +78,7 @@ RiaDefines::ResultCatType RigEclipseResultInfo::resultType() const
 //--------------------------------------------------------------------------------------------------
 void RigEclipseResultInfo::setResultType( RiaDefines::ResultCatType newType )
 {
-    m_resultAddress.m_resultCatType = newType;
+    m_resultAddress.setResultCatType( newType );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -86,7 +86,7 @@ void RigEclipseResultInfo::setResultType( RiaDefines::ResultCatType newType )
 //--------------------------------------------------------------------------------------------------
 const QString& RigEclipseResultInfo::resultName() const
 {
-    return m_resultAddress.m_resultName;
+    return m_resultAddress.resultName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -94,7 +94,7 @@ const QString& RigEclipseResultInfo::resultName() const
 //--------------------------------------------------------------------------------------------------
 void RigEclipseResultInfo::setResultName( const QString& name )
 {
-    m_resultAddress.m_resultName = name;
+    m_resultAddress.setResultName( name );
 }
 
 //--------------------------------------------------------------------------------------------------

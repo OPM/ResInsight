@@ -188,7 +188,7 @@ size_t RigNNCData::connectionsWithNoCommonArea( QStringList& connectionTextFirst
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigNNCData::ensureConnectionDataIsProcecced()
+bool RigNNCData::ensureConnectionDataIsProcessed()
 {
     if ( m_connectionsAreProcessed ) return false;
 
@@ -258,7 +258,7 @@ size_t RigNNCData::nativeConnectionCount() const
 //--------------------------------------------------------------------------------------------------
 RigConnectionContainer& RigNNCData::connections()
 {
-    ensureConnectionDataIsProcecced();
+    ensureConnectionDataIsProcessed();
 
     return m_connections;
 }
@@ -268,7 +268,7 @@ RigConnectionContainer& RigNNCData::connections()
 //--------------------------------------------------------------------------------------------------
 std::vector<double>& RigNNCData::makeStaticConnectionScalarResult( QString nncDataType )
 {
-    ensureConnectionDataIsProcecced();
+    ensureConnectionDataIsProcessed();
 
     std::vector<std::vector<double>>& results = m_connectionResults[nncDataType];
     results.resize( 1 );
@@ -606,6 +606,62 @@ bool RigNNCData::hasScalarValues( const RigEclipseResultAddress& resVarAddr )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RigNNCData::generateScalarValues( const RigEclipseResultAddress& resVarAddr )
+{
+    if ( hasScalarValues( resVarAddr ) ) return true;
+
+    if ( resVarAddr.isDivideByCellFaceAreaActive() && resVarAddr.resultCatType() == RiaDefines::ResultCatType::DYNAMIC_NATIVE )
+    {
+        RigEclipseResultAddress tmpAddr = resVarAddr;
+        tmpAddr.enableDivideByCellFaceArea( false );
+
+        auto nameit = m_resultAddrToNNCDataType.find( tmpAddr );
+        if ( nameit == m_resultAddrToNNCDataType.end() ) return false;
+
+        auto it = m_connectionResults.find( nameit->second );
+        if ( it == m_connectionResults.end() ) return false;
+
+        auto& srcdata = it->second;
+
+        auto& dstdata = makeDynamicConnectionScalarResult( resVarAddr.resultName(), srcdata.size() );
+
+        const double epsilon = 1.0e-3;
+
+        std::vector<double> areas( m_connections.size() );
+
+        for ( size_t dataIdx = 0; dataIdx < m_connections.size(); dataIdx++ )
+        {
+            double area = 0.0;
+            if ( m_connections[dataIdx].hasCommonArea() )
+                area = cvf::GeometryTools::polygonArea( m_connections[dataIdx].polygon() );
+            areas[dataIdx] = area;
+        }
+
+#pragma omp parallel for
+        for ( int i = 0; i < srcdata.size(); i++ )
+        {
+            size_t timeIdx = i;
+            dstdata[timeIdx].resize( srcdata[timeIdx].size() );
+
+            for ( size_t dataIdx = 0; dataIdx < srcdata[timeIdx].size(); dataIdx++ )
+            {
+                double scaledVal = 0.0;
+                if ( areas[dataIdx] > epsilon ) scaledVal = srcdata[timeIdx][dataIdx] / areas[dataIdx];
+                dstdata[timeIdx][dataIdx] = scaledVal;
+            }
+        }
+
+        m_resultAddrToNNCDataType[resVarAddr] = resVarAddr.resultName();
+
+        return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const QString RigNNCData::getNNCDataTypeFromScalarResultIndex( const RigEclipseResultAddress& resVarAddr ) const
 {
     auto it = m_resultAddrToNNCDataType.find( resVarAddr );
@@ -613,6 +669,7 @@ const QString RigNNCData::getNNCDataTypeFromScalarResultIndex( const RigEclipseR
     {
         return it->second;
     }
+
     return QString();
 }
 

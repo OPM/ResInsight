@@ -355,7 +355,7 @@ void RimSummaryPlotFilterTextCurveSetEditor::fieldChangedByUi( const caf::PdmFie
                         if ( !( gridCellResults && gridCellResults->resultInfo( cellResAddr.eclipseResultAddress ) ) )
                         {
                             RiaLogging::warning( "Could not find a restart result property with name: \"" +
-                                                 cellResAddr.eclipseResultAddress.m_resultName + "\"" );
+                                                 cellResAddr.eclipseResultAddress.resultName() + "\"" );
                             continue;
                         }
 

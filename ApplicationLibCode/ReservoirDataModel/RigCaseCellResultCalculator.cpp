@@ -190,7 +190,7 @@ bool RigCaseCellResultCalculator::computeDivideByCellFaceArea( RigMainGrid*     
 {
     if ( !destination )
     {
-        RiaLogging::error( "Missing input case for difference calculator" );
+        RiaLogging::error( "Missing input case for divide by area calculator" );
 
         return false;
     }
@@ -201,7 +201,7 @@ bool RigCaseCellResultCalculator::computeDivideByCellFaceArea( RigMainGrid*     
     RigCaseCellResultsData* baseCaseResults = destination->results( porosityModel );
     if ( !baseCaseResults )
     {
-        RiaLogging::error( "Missing result data for difference calculator" );
+        RiaLogging::error( "Missing result data for divide by area calculator" );
 
         return false;
     }
@@ -236,14 +236,20 @@ bool RigCaseCellResultCalculator::computeDivideByCellFaceArea( RigMainGrid*     
 
     size_t maxGridCount = mainGrid->gridCount();
 
-    cvf::StructGridInterface::FaceType cellFace = cvf::StructGridInterface::NO_FACE;
-    if ( address.m_resultName.contains( "I+" ) ) cellFace = cvf::StructGridInterface::POS_I;
-    if ( address.m_resultName.contains( "J+" ) ) cellFace = cvf::StructGridInterface::POS_J;
-    if ( address.m_resultName.contains( "K+" ) ) cellFace = cvf::StructGridInterface::POS_K;
-
-    if ( address.m_resultName.contains( "TRANX" ) ) cellFace = cvf::StructGridInterface::POS_I;
-    if ( address.m_resultName.contains( "TRANY" ) ) cellFace = cvf::StructGridInterface::POS_J;
-    if ( address.m_resultName.contains( "TRANZ" ) ) cellFace = cvf::StructGridInterface::POS_K;
+    cvf::StructGridInterface::FaceType cellFace   = cvf::StructGridInterface::NO_FACE;
+    QString                            resultName = address.resultName();
+    if ( resultName.contains( "I+" ) )
+        cellFace = cvf::StructGridInterface::POS_I;
+    else if ( resultName.contains( "J+" ) )
+        cellFace = cvf::StructGridInterface::POS_J;
+    else if ( resultName.contains( "K+" ) )
+        cellFace = cvf::StructGridInterface::POS_K;
+    else if ( resultName.contains( "TRANX" ) )
+        cellFace = cvf::StructGridInterface::POS_I;
+    else if ( resultName.contains( "TRANY" ) )
+        cellFace = cvf::StructGridInterface::POS_J;
+    else if ( resultName.contains( "TRANZ" ) )
+        cellFace = cvf::StructGridInterface::POS_K;
 
     for ( size_t gridIdx = 0; gridIdx < maxGridCount; ++gridIdx )
     {

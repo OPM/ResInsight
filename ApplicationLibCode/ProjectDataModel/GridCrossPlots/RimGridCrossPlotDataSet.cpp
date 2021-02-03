@@ -162,8 +162,8 @@ void RimGridCrossPlotDataSet::setCellFilterView( RimGridView* cellFilterView )
         RigEclipseResultAddress resAddr = eclipseView->cellResult()->eclipseResultAddress();
         if ( resAddr.isValid() )
         {
-            m_xAxisProperty->setResultType( resAddr.m_resultCatType );
-            m_xAxisProperty->setResultVariable( resAddr.m_resultName );
+            m_xAxisProperty->setResultType( resAddr.resultCatType() );
+            m_xAxisProperty->setResultVariable( resAddr.resultName() );
             m_yAxisProperty->setResultType( RiaDefines::ResultCatType::STATIC_NATIVE );
             m_yAxisProperty->setResultVariable( "DEPTH" );
             m_timeStep = eclipseView->currentTimeStep();

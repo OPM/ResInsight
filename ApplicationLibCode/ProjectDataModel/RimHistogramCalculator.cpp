@@ -373,7 +373,7 @@ void RimHistogramCalculator::updateVisCellStatsIfNeeded( RimEclipseView*        
     {
         RigEclipseResultAddress resAddr = eclResultDefinition->eclipseResultAddress();
 
-        QString resultName = resAddr.m_resultName;
+        QString resultName = resAddr.resultName();
 
         std::vector<RigEclipseResultAddress> addresses = sourcesForMultiPropertyResults( resultName );
         if ( addresses.size() )

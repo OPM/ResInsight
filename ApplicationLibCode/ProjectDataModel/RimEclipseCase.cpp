@@ -720,7 +720,7 @@ bool RimEclipseCase::ensureNncDataIsComputed()
     RigEclipseCaseData* rigEclipseCase = eclipseCaseData();
     if ( rigEclipseCase && rigEclipseCase->mainGrid() )
     {
-        computedData = rigEclipseCase->mainGrid()->nncData()->ensureConnectionDataIsProcecced();
+        computedData = rigEclipseCase->mainGrid()->nncData()->ensureConnectionDataIsProcessed();
     }
 
     return computedData;
