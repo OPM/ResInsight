@@ -40,7 +40,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryCase, RimSummaryCase_summaryVectorV
 RimSummaryCase_summaryVectorValues::RimSummaryCase_summaryVectorValues( caf::PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
-    CAF_PDM_InitObject( "Create Summary Plot", "", "", "Create a new Summary Plot" );
+    CAF_PDM_InitObject( "Summary Vector Values", "", "", "Get all values for a summary vector" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_addressString, "Address", "", "", "", "Formatted address specifying the summary vector" );
 }
 
