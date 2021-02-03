@@ -89,7 +89,7 @@ public:
         {
             if ( !m_divideByCellFaceArea )
             {
-                m_resultName += "/A";
+                m_resultName += " /A";
             }
         }
         else if ( m_divideByCellFaceArea )
