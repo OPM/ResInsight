@@ -94,7 +94,7 @@ public:
         }
         else if ( m_divideByCellFaceArea )
         {
-            m_resultName = m_resultName.left( m_resultName.size() - 2 );
+            m_resultName = m_resultName.left( m_resultName.size() - 3 );
         }
         m_divideByCellFaceArea = enable;
     }
