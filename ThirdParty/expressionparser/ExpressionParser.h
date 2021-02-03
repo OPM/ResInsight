@@ -38,7 +38,7 @@ public:
 
     void                        assignVector(const QString& variableName, std::vector<double>& vector);
     bool                        evaluate(const QString& expressionText, QString* errorText = nullptr);
-    bool                        expandIfStatementsAndEvaluate(const QString& expressionText, QString* errorText = nullptr);
+    bool                        expandStatementsAndEvaluate(const QString& expressionText, QString* errorText = nullptr);
 
 private:
     std::unique_ptr<ExpressionParserImpl> m_expressionParserImpl;

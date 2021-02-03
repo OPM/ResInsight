@@ -39,7 +39,9 @@ public:
     void    assignVector(const QString& variableName, std::vector<double>& vector);
     bool    evaluate(const QString& expressionText, QString* errorText = nullptr);
     
+    static QString expandStatements(const QString& expressionText);
     static QString expandIfStatements(const QString& expressionText);
+    static QString expandDeltaFunction(const QString& expressionText);
 
 private:
     QString parserErrorText(parser_t& parser);

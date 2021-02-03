@@ -308,7 +308,7 @@ bool RimSummaryCalculation::calculate()
     parser.assignVector( leftHandSideVariableName, resultValues );
 
     QString errorText;
-    bool    evaluatedOk = parser.expandIfStatementsAndEvaluate( m_expression, &errorText );
+    bool    evaluatedOk = parser.expandStatementsAndEvaluate( m_expression, &errorText );
 
     if ( evaluatedOk )
     {

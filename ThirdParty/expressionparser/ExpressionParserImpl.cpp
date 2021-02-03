@@ -58,6 +58,8 @@ std::vector<QString> ExpressionParserImpl::detectReferencedVariables(const QStri
 
         for (const auto& indexAndName : indexAndNamePairs)
         {
+            if (indexAndName.second.compare("delta", Qt::CaseInsensitive) == 0) continue;
+
             referencedVariables.push_back(indexAndName.second);
         }
     }
@@ -107,6 +109,26 @@ bool ExpressionParserImpl::evaluate(const QString& expressionText, QString* erro
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QString ExpressionParserImpl::expandStatements(const QString& expressionText)
+{
+    QString expandedExpressionText = expressionText;
+
+    if (expandedExpressionText.contains("if("))
+    {
+        expandedExpressionText = ExpressionParserImpl::expandIfStatements(expandedExpressionText);
+    }
+
+    if (expandedExpressionText.contains("delta"))
+    {
+        expandedExpressionText = ExpressionParserImpl::expandDeltaFunction(expandedExpressionText);
+    }
+
+    return expandedExpressionText;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QString ExpressionParserImpl::parserErrorText(parser_t& parser)
 {
     QString txt;
@@ -147,6 +169,8 @@ QString ExpressionParserImpl::parserErrorText(parser_t& parser)
 //--------------------------------------------------------------------------------------------------
 QString ExpressionParserImpl::expandIfStatements(const QString& expressionText)
 {
+    if (!expressionText.contains("if(")) return expressionText;
+
     QString expandedText;
     {
         QString textWithVectorBrackets = expressionText;
@@ -170,6 +194,60 @@ QString ExpressionParserImpl::expandIfStatements(const QString& expressionText)
         expandedText += "{\n";
         expandedText += QString("    %1;\n").arg(textWithVectorBrackets);
         expandedText += "}\n";
+    }
+
+    return expandedText;
+}
+
+//--------------------------------------------------------------------------------------------------
+// 
+//  Use a macro to implement function 'delta(a, b)'
+//  Input vector a will be used to compute delta vector b 
+//
+// Can be used for summary data to create derived data
+// delta(a, b) 
+// a : existing summary curve
+// b : delta values to be computed
+//    
+// b[0] : = 0;
+// for (var i : = 1; i < a[]; i += 1)
+// {
+//     b[i] : = a[i] - a[i-1];
+// }
+//
+//--------------------------------------------------------------------------------------------------
+QString ExpressionParserImpl::expandDeltaFunction(const QString& expressionText)
+{
+    QString expandedText;
+
+    QStringList lines = expressionText.split("\n");
+
+    for (const auto& line : lines)
+    {
+        QString lineNoWhitespace = line;
+        lineNoWhitespace = lineNoWhitespace.replace(" ", "");
+        QStringList words = lineNoWhitespace.split(":=");
+        if (words.size() == 2)
+        {
+            auto deltaVariable = words[0].trimmed();
+
+            auto sourceVariable = words[1].trimmed();
+            sourceVariable.replace("delta(", "");
+            sourceVariable.replace(")", "");
+
+            QString deltaLoopText = QString("%1[0] := 0\n").arg(deltaVariable);
+            deltaLoopText += QString("for (var i := 1; i < %1[]; i += 1)\n").arg(sourceVariable);
+            deltaLoopText += "{\n";
+            deltaLoopText += QString("  %1[i] := %2[i] - %2[i-1];\n").arg(deltaVariable).arg(sourceVariable);
+            deltaLoopText += "}\n";
+
+            expandedText += deltaLoopText;
+        }
+        else
+        {
+            expandedText += line;
+            expandedText += "\n";
+        }
     }
 
     return expandedText;
