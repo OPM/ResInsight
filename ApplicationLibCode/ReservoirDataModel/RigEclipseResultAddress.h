@@ -141,8 +141,8 @@ public:
     const QString& resultName() const { return m_resultName; }
     void           setResultName( QString name ) { m_resultName = name; }
 
-    const RiaDefines::ResultCatType resultCatType() const { return m_resultCatType; }
-    void                            setResultCatType( RiaDefines::ResultCatType catType ) { m_resultCatType = catType; }
+    RiaDefines::ResultCatType resultCatType() const { return m_resultCatType; }
+    void                      setResultCatType( RiaDefines::ResultCatType catType ) { m_resultCatType = catType; }
 
 private:
     int                       m_timeLapseBaseFrameIdx;
