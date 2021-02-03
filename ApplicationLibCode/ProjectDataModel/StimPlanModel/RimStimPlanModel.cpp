@@ -509,7 +509,6 @@ void RimStimPlanModel::updateThicknessDirection()
     }
 
     m_thicknessDirection = direction;
-    m_formationDip       = calculateFormationDip( direction );
 
     if ( m_thicknessDirectionWellPath )
     {
@@ -702,6 +701,11 @@ void RimStimPlanModel::updateDistanceToBarrierAndDip()
     // The direction to the barrier is normal to the TST project into the fracture plane
     cvf::Vec3d directionToBarrier = ( tstInPlane ^ fractureDirectionNormal ).getNormalized();
     RiaLogging::info( QString( "Direction to barrier: %1" ).arg( RimStimPlanModel::vecToString( directionToBarrier ) ) );
+
+    // Update formation dip. The direction for the barrier search follows the
+    // inclination of the formation, and is in effect the formation dip in the
+    // fracture plane. -90 to convert from horizontal to vertical.
+    m_formationDip = std::abs( calculateFormationDip( directionToBarrier ) - 90.0 );
 
     std::vector<WellPathCellIntersectionInfo> intersections =
         generateBarrierIntersections( eclipseCaseData, position, directionToBarrier );
