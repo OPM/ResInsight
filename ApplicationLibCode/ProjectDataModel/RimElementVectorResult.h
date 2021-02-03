@@ -50,13 +50,6 @@ public:
         RESULT_COLORS
     };
 
-    enum class ScaleMethod
-    {
-        RESULT,
-        RESULT_LOG,
-        CONSTANT
-    };
-
     enum class VectorView
     {
         CELL_CENTER_TOTAL,
@@ -87,7 +80,6 @@ public:
     float                         threshold() const;
     float                         sizeScale() const;
     TensorColors                  vectorColors() const;
-    ScaleMethod                   scaleMethod() const;
 
     const cvf::Color3f&           getUniformVectorColor() const;
     const RimRegularLegendConfig* legendConfig() const;
@@ -119,7 +111,6 @@ private:
     caf::PdmField<float>                                       m_threshold;
     caf::PdmField<caf::AppEnum<TensorColors>>                  m_vectorColor;
     caf::PdmField<cvf::Color3f>                                m_uniformVectorColor;
-    caf::PdmField<caf::AppEnum<ScaleMethod>>                   m_scaleMethod;
     caf::PdmField<float>                                       m_sizeScale;
     caf::PdmField<RimRegularLegendConfig::RangeModeEnum>       m_rangeMode;
     caf::PdmChildField<RimRegularLegendConfig*>                m_legendConfig;

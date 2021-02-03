@@ -919,8 +919,8 @@ void RimEclipseResultDefinition::setFromEclipseResultAddress( const RigEclipseRe
         if ( rinfo ) canonizedAddress = rinfo->eclipseResultAddress();
     }
 
-    m_resultType            = canonizedAddress.m_resultCatType;
-    m_resultVariable        = canonizedAddress.m_resultName;
+    m_resultType            = canonizedAddress.resultCatType();
+    m_resultVariable        = canonizedAddress.resultName();
     m_timeLapseBaseTimestep = canonizedAddress.deltaTimeStepIndex();
     m_divideByCellFaceArea  = canonizedAddress.isDivideByCellFaceAreaActive();
 

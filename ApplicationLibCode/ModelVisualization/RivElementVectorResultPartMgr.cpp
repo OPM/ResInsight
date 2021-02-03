@@ -104,16 +104,7 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
         maxAbsResult = std::max( cvf::Math::abs( max ), cvf::Math::abs( min ) );
     }
 
-    float arrowScaling = arrowConstantScaling;
-    if ( result->scaleMethod() == RimElementVectorResult::ScaleMethod::RESULT )
-    {
-        arrowScaling = arrowConstantScaling / maxAbsResult;
-    }
-
-    if ( result->scaleMethod() == RimElementVectorResult::ScaleMethod::RESULT_LOG )
-    {
-        arrowScaling = result->sizeScale() * scaleLogarithmically( maxAbsResult );
-    }
+    float arrowScaling = arrowConstantScaling / maxAbsResult;
 
     std::vector<RigEclipseResultAddress>            resultAddresses;
     std::vector<cvf::StructGridInterface::FaceType> directions;
@@ -190,15 +181,7 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
                         cvf::Vec3d faceCenter;
                         cvf::Vec3d faceNormal;
                         getFaceCenterAndNormal( gcIdx, directions[dir], faceCenter, faceNormal );
-
-                        if ( result->scaleMethod() == RimElementVectorResult::ScaleMethod::RESULT )
-                        {
-                            faceNormal *= std::abs( resultValue );
-                        }
-                        else if ( result->scaleMethod() == RimElementVectorResult::ScaleMethod::RESULT_LOG )
-                        {
-                            faceNormal *= std::abs( scaleLogarithmically( std::abs( resultValue ) ) );
-                        }
+                        faceNormal *= std::abs( resultValue );
 
                         tensorVisualizations.push_back(
                             ElementVectorResultVisualization( faceCenter,
@@ -225,22 +208,8 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
                     cvf::Vec3d faceNormal;
                     cvf::Vec3d faceNormalScaled;
                     getFaceCenterAndNormal( gcIdx, directions[dir], faceCenter, faceNormal );
-                    faceNormalScaled = faceNormal;
-
-                    if ( result->scaleMethod() == RimElementVectorResult::ScaleMethod::RESULT )
-                    {
-                        faceNormalScaled *= resultValue;
-                    }
-                    else if ( result->scaleMethod() == RimElementVectorResult::ScaleMethod::RESULT_LOG )
-                    {
-                        faceNormalScaled *= ( 1.0 - static_cast<double>( std::signbit( resultValue ) ) * 2.0 ) *
-                                            scaleLogarithmically( std::abs( resultValue ) );
-                    }
-
+                    faceNormalScaled = faceNormal * resultValue;
                     aggregatedVector += faceNormalScaled;
-
-                    // If the vector is scaled in a logarithmic scale, the result should still be the same as before.
-                    // Hence, we need to separate the result value from the vector.
                     aggregatedResult += faceNormal.getNormalized() * resultValue;
                 }
                 if ( aggregatedResult.length() >= result->threshold() )
@@ -266,7 +235,7 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
 
         for ( auto candidate : combinedAddresses )
         {
-            if ( candidate.m_resultCatType == RiaDefines::ResultCatType::DYNAMIC_NATIVE )
+            if ( candidate.resultCatType() == RiaDefines::ResultCatType::DYNAMIC_NATIVE )
             {
                 if ( nncData->hasScalarValues( candidate ) )
                 {
@@ -289,29 +258,13 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
                     }
                 }
 
-                const float faceArea = cvf::GeometryTools::polygonArea( conn.polygon() );
-                const float epsilon  = 1.0e-6f;
-                if ( faceArea > epsilon )
-                {
-                    // Divide by area to get area normalized flow
-                    resultValue /= faceArea;
-                }
-
                 cvf::Vec3d connCenter =
                     static_cast<cvf::Vec3d>( cvf::GeometryTools::computePolygonCenter<cvf::Vec3f>( conn.polygon() ) );
 
                 cvf::Vec3d faceCenter;
                 cvf::Vec3d connNormal;
                 getFaceCenterAndNormal( conn.c1GlobIdx(), conn.face(), faceCenter, connNormal );
-
-                if ( result->scaleMethod() == RimElementVectorResult::ScaleMethod::RESULT )
-                {
-                    connNormal *= std::abs( resultValue );
-                }
-                else if ( result->scaleMethod() == RimElementVectorResult::ScaleMethod::RESULT_LOG )
-                {
-                    connNormal *= scaleLogarithmically( std::abs( resultValue ) );
-                }
+                connNormal *= std::abs( resultValue );
 
                 if ( std::abs( resultValue ) >= result->threshold() )
                 {
@@ -350,7 +303,7 @@ cvf::ref<cvf::Part>
     vertices.reserve( tensorVisualizations.size() * 7 );
 
     uint counter = 0;
-    for ( ElementVectorResultVisualization tensor : tensorVisualizations )
+    for ( const ElementVectorResultVisualization& tensor : tensorVisualizations )
     {
         for ( const cvf::Vec3f& vertex : createArrowVertices( tensor ) )
         {
@@ -439,7 +392,7 @@ void RivElementVectorResultPartMgr::createResultColorTextureCoords(
     size_t vertexCount = elementVectorResultVisualizations.size() * 7;
     if ( textureCoords->size() != vertexCount ) textureCoords->reserve( vertexCount );
 
-    for ( auto evrViz : elementVectorResultVisualizations )
+    for ( auto& evrViz : elementVectorResultVisualizations )
     {
         for ( size_t vxIdx = 0; vxIdx < 7; ++vxIdx )
         {

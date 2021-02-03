@@ -50,7 +50,7 @@ public:
 
     RigNNCData();
 
-    bool ensureConnectionDataIsProcecced();
+    bool ensureConnectionDataIsProcessed();
     void setSourceDataForProcessing( RigMainGrid*             mainGrid,
                                      const RigActiveCellInfo* activeCellInfo,
                                      bool                     includeInactiveCells );
@@ -88,6 +88,8 @@ public:
     void setEclResultAddress( const QString& nncDataType, const RigEclipseResultAddress& resVarAddr );
 
     bool hasScalarValues( const RigEclipseResultAddress& resVarAddr );
+
+    bool generateScalarValues( const RigEclipseResultAddress& resVarAddr );
 
 private:
     const QString getNNCDataTypeFromScalarResultIndex( const RigEclipseResultAddress& resVarAddr ) const;

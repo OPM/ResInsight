@@ -51,8 +51,9 @@ public:
         , m_resultName( resultName )
         , m_timeLapseBaseFrameIdx( timeLapseBaseTimeStep )
         , m_differenceCaseId( differenceCaseId )
-        , m_divideByCellFaceArea( divideByCellFaceArea )
+        , m_divideByCellFaceArea( false )
     {
+        enableDivideByCellFaceArea( divideByCellFaceArea );
     }
 
     bool isValid() const
@@ -82,7 +83,22 @@ public:
     static constexpr int noCaseDiffValue() { return NO_CASE_DIFF; }
 
     // Divide by Cell Face Area
-    void enableDivideByCellFaceArea( bool enable ) { m_divideByCellFaceArea = enable; };
+    void enableDivideByCellFaceArea( bool enable )
+    {
+        if ( enable )
+        {
+            if ( !m_divideByCellFaceArea )
+            {
+                m_resultName += "/A";
+            }
+        }
+        else if ( m_divideByCellFaceArea )
+        {
+            m_resultName = m_resultName.left( m_resultName.size() - 2 );
+        }
+        m_divideByCellFaceArea = enable;
+    }
+
     bool isDivideByCellFaceAreaActive() const { return m_divideByCellFaceArea; }
 
     bool operator<( const RigEclipseResultAddress& other ) const
@@ -122,13 +138,18 @@ public:
         return true;
     }
 
-    RiaDefines::ResultCatType m_resultCatType;
-    QString                   m_resultName;
+    const QString& resultName() const { return m_resultName; }
+    void           setResultName( QString name ) { m_resultName = name; }
+
+    const RiaDefines::ResultCatType resultCatType() const { return m_resultCatType; }
+    void                            setResultCatType( RiaDefines::ResultCatType catType ) { m_resultCatType = catType; }
 
 private:
-    int  m_timeLapseBaseFrameIdx;
-    int  m_differenceCaseId;
-    bool m_divideByCellFaceArea;
+    int                       m_timeLapseBaseFrameIdx;
+    int                       m_differenceCaseId;
+    bool                      m_divideByCellFaceArea;
+    RiaDefines::ResultCatType m_resultCatType;
+    QString                   m_resultName;
 
     static const int ALL_TIME_LAPSES = -2;
     static const int NO_TIME_LAPSE   = -1;
