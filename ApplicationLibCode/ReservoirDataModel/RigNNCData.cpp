@@ -638,7 +638,7 @@ bool RigNNCData::generateScalarValues( const RigEclipseResultAddress& resVarAddr
         }
 
 #pragma omp parallel for
-        for ( int i = 0; i < srcdata.size(); i++ )
+        for ( int i = 0; i < static_cast<int>( srcdata.size() ); i++ )
         {
             size_t timeIdx = i;
             dstdata[timeIdx].resize( srcdata[timeIdx].size() );
