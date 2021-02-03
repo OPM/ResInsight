@@ -664,11 +664,11 @@ void RimStimPlanModel::updateDistanceToBarrierAndDip()
     cvf::Vec3d wellDirection = ( p2 - p1 ).getNormalized();
     RiaLogging::info( QString( "Well direction: %1" ).arg( RimStimPlanModel::vecToString( wellDirection ) ) );
 
-    cvf::Vec3d fractureDirection = wellDirection;
+    cvf::Vec3d fractureDirectionNormal = wellDirection;
     if ( m_fractureOrientation == FractureOrientation::ALONG_WELL_PATH )
     {
         cvf::Mat3d azimuthRotation = cvf::Mat3d::fromRotation( cvf::Vec3d::Z_AXIS, cvf::Math::toRadians( 90.0 ) );
-        fractureDirection.transformVector( azimuthRotation );
+        fractureDirectionNormal.transformVector( azimuthRotation );
     }
     else if ( m_fractureOrientation == FractureOrientation::AZIMUTH )
     {
@@ -676,11 +676,31 @@ void RimStimPlanModel::updateDistanceToBarrierAndDip()
         double     wellAzimuth = wellPathGeometry->wellPathAzimuthAngle( position );
         cvf::Mat3d azimuthRotation =
             cvf::Mat3d::fromRotation( cvf::Vec3d::Z_AXIS, cvf::Math::toRadians( wellAzimuth - m_azimuthAngle() - 90.0 ) );
-        fractureDirection.transformVector( azimuthRotation );
+        fractureDirectionNormal.transformVector( azimuthRotation );
     }
 
-    // The direction to the barrier is normal to the TST
-    cvf::Vec3d directionToBarrier = ( thicknessDirection() ^ fractureDirection ).getNormalized();
+    // Create a fracture plane
+    cvf::Plane fracturePlane;
+    if ( !fracturePlane.setFromPointAndNormal( position, fractureDirectionNormal ) )
+    {
+        RiaLogging::error( "Unable to create fracture plane" );
+        return;
+    }
+
+    // The direction to the barrier must be in the fracture plane.
+    // Project the TST onto the fracture plane.
+    cvf::Vec3d tstInPlane;
+    if ( !fracturePlane.projectVector( thicknessDirection(), &tstInPlane ) )
+    {
+        RiaLogging::error( "Unable to project thickess vector into fracture plane" );
+        return;
+    }
+    RiaLogging::info( QString( "Thickness direction: %1" ).arg( RimStimPlanModel::vecToString( thicknessDirection() ) ) );
+    RiaLogging::info(
+        QString( "Thickness direction in fracture plane: %1" ).arg( RimStimPlanModel::vecToString( tstInPlane ) ) );
+
+    // The direction to the barrier is normal to the TST project into the fracture plane
+    cvf::Vec3d directionToBarrier = ( tstInPlane ^ fractureDirectionNormal ).getNormalized();
     RiaLogging::info( QString( "Direction to barrier: %1" ).arg( RimStimPlanModel::vecToString( directionToBarrier ) ) );
 
     std::vector<WellPathCellIntersectionInfo> intersections =
