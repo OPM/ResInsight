@@ -258,11 +258,11 @@ public:
         std::vector<RigNNCData::NNCResultType> resultTypes;
         std::vector<QString>                   resultTypeNames;
 
-        resultTypes.push_back( RigNNCData::NNC_DYNAMIC );
+        resultTypes.push_back( RigNNCData::NNCResultType::NNC_DYNAMIC );
         resultTypeNames.push_back( "DynamicNative" );
-        resultTypes.push_back( RigNNCData::NNC_STATIC );
+        resultTypes.push_back( RigNNCData::NNCResultType::NNC_STATIC );
         resultTypeNames.push_back( "StaticNative" );
-        resultTypes.push_back( RigNNCData::NNC_GENERATED );
+        resultTypes.push_back( RigNNCData::NNCResultType::NNC_GENERATED );
         resultTypeNames.push_back( "Generated" );
 
         for ( size_t rtIdx = 0; rtIdx < resultTypes.size(); ++rtIdx )

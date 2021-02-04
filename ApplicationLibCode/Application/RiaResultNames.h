@@ -51,11 +51,6 @@ QString riMultYResultName();
 QString riMultZResultName();
 QString combinedRiMultResultName();
 
-QString riAreaNormTranXResultName();
-QString riAreaNormTranYResultName();
-QString riAreaNormTranZResultName();
-QString combinedRiAreaNormTranResultName();
-
 QString riCellVolumeResultName();
 QString riOilVolumeResultName();
 QString mobilePoreVolumeName();

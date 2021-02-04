@@ -269,40 +269,6 @@ cvf::ref<RigResultAccessor>
 
         return cellFaceAccessObject;
     }
-    else if ( resVarAddr.resultName() == RiaResultNames::combinedRiAreaNormTranResultName() )
-    {
-        CVF_ASSERT( timeStepIndex == 0 ); // Static result, only data for first time step
-
-        cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor( grid );
-
-        nativeAddr.setResultName( RiaResultNames::riAreaNormTranXResultName() );
-        cvf::ref<RigResultAccessor> xRiAreaNormTransAccessor =
-            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                     gridIndex,
-                                                                     porosityModel,
-                                                                     timeStepIndex,
-                                                                     nativeAddr );
-        nativeAddr.setResultName( RiaResultNames::riAreaNormTranYResultName() );
-        cvf::ref<RigResultAccessor> yRiAreaNormTransAccessor =
-            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                     gridIndex,
-                                                                     porosityModel,
-                                                                     timeStepIndex,
-                                                                     nativeAddr );
-        nativeAddr.setResultName( RiaResultNames::riAreaNormTranZResultName() );
-        cvf::ref<RigResultAccessor> zRiAreaNormTransAccessor =
-            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                     gridIndex,
-                                                                     porosityModel,
-                                                                     timeStepIndex,
-                                                                     nativeAddr );
-
-        cellFaceAccessObject->setTransResultAccessors( xRiAreaNormTransAccessor.p(),
-                                                       yRiAreaNormTransAccessor.p(),
-                                                       zRiAreaNormTransAccessor.p() );
-
-        return cellFaceAccessObject;
-    }
     else if ( resVarAddr.resultName() == RiaResultNames::combinedWaterFluxResultName() )
     {
         cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor( grid );
