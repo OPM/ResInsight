@@ -47,6 +47,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiFilePathEditor.h"
+#include "cafPdmUiTextEditor.h"
 
 #include "cvfMath.h"
 #include "cvfVector3.h"
@@ -90,6 +91,12 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate()
                        "",
                        "",
                        "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_propertiesTable, "PropertiesTable", "Properties Table", "", "", "" );
+    m_propertiesTable.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
+    m_propertiesTable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_propertiesTable.uiCapability()->setUiReadOnly( true );
+    m_propertiesTable.xmlCapability()->disableIO();
 
     CAF_PDM_InitField( &m_showStimPlanMesh_OBSOLETE, "ShowStimPlanMesh", true, "", "", "", "" );
     m_showStimPlanMesh_OBSOLETE.uiCapability()->setUiHidden( true );
@@ -231,6 +238,8 @@ void RimStimPlanFractureTemplate::setDefaultsBasedOnXMLfile()
     {
         m_conductivityResultNameOnFile = m_stimPlanFractureDefinitionData->conductivityResultNames().front();
     }
+
+    m_propertiesTable = generatePropertiesTable();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1058,6 +1067,8 @@ void RimStimPlanFractureTemplate::defineUiOrdering( QString uiConfigName, caf::P
         group->add( &m_wellDiameter );
     }
 
+    uiOrdering.add( &m_propertiesTable );
+
     if ( widthResultValues().empty() )
     {
         m_fractureWidthType = USER_DEFINED_WIDTH;
@@ -1081,6 +1092,16 @@ void RimStimPlanFractureTemplate::defineEditorAttribute( const caf::PdmFieldHand
         if ( myAttr )
         {
             myAttr->m_fileSelectionFilter = "StimPlan Xml Files(*.xml);;All Files (*.*)";
+        }
+    }
+
+    if ( field == &m_propertiesTable )
+    {
+        auto myAttr = dynamic_cast<caf::PdmUiTextEditorAttribute*>( attribute );
+        if ( myAttr )
+        {
+            myAttr->wrapMode = caf::PdmUiTextEditorAttribute::NoWrap;
+            myAttr->textMode = caf::PdmUiTextEditorAttribute::HTML;
         }
     }
 }
@@ -1140,4 +1161,32 @@ double RimStimPlanFractureTemplate::formationDip() const
     if ( m_stimPlanFractureDefinitionData.isNull() ) return HUGE_VAL;
 
     return m_stimPlanFractureDefinitionData->formationDip();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimStimPlanFractureTemplate::generatePropertiesTable() const
+{
+    QString body;
+
+    if ( formationDip() != HUGE_VAL )
+    {
+        body += QString( "Formation Dip: %1<br>" ).arg( formationDip() );
+    }
+
+    if ( !m_stimPlanFractureDefinitionData.isNull() )
+    {
+        if ( m_stimPlanFractureDefinitionData->topPerfMd() != HUGE_VAL )
+        {
+            body += QString( "Top MD: %1<br>" ).arg( m_stimPlanFractureDefinitionData->topPerfMd() );
+        }
+
+        if ( m_stimPlanFractureDefinitionData->bottomPerfMd() != HUGE_VAL )
+        {
+            body += QString( "Bottom MD: %1<br>" ).arg( m_stimPlanFractureDefinitionData->bottomPerfMd() );
+        }
+    }
+
+    return body;
 }

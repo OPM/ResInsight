@@ -133,6 +133,8 @@ private:
 
     double conversionFactorForBetaValues() const;
 
+    QString generatePropertiesTable() const;
+
 private:
     caf::PdmField<int>     m_activeTimeStepIndex;
     caf::PdmField<QString> m_conductivityResultNameOnFile;
@@ -143,6 +145,8 @@ private:
     caf::PdmField<caf::FilePath>            m_stimPlanFileName;
     cvf::ref<RigStimPlanFractureDefinition> m_stimPlanFractureDefinitionData;
     bool                                    m_readError;
+
+    caf::PdmField<QString> m_propertiesTable;
 
     caf::PdmField<bool> m_showStimPlanMesh_OBSOLETE;
 };
