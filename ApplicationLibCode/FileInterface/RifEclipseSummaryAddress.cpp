@@ -146,7 +146,7 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromEclipseTextAddress( const
             break;
 
         case SUMMARY_AQUIFER:
-            if ( names.size() > 0 )
+            if ( !names.empty() )
                 address = aquiferAddress( quantityName, RiaStdStringTools::toInt( names[0].toStdString() ) );
             break;
 
@@ -159,12 +159,12 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromEclipseTextAddress( const
             break;
 
         case SUMMARY_REGION:
-            if ( names.size() > 0 )
+            if ( !names.empty() )
                 address = regionAddress( quantityName, RiaStdStringTools::toInt( names[0].toStdString() ) );
             break;
 
         case SUMMARY_REGION_2_REGION:
-            if ( names.size() > 0 )
+            if ( !names.empty() )
             {
                 QStringList regions = names[0].trimmed().split( "-" );
                 if ( regions.size() == 2 )
@@ -177,11 +177,11 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromEclipseTextAddress( const
             break;
 
         case SUMMARY_WELL_GROUP:
-            if ( names.size() > 0 ) address = wellGroupAddress( quantityName, names[0].toStdString() );
+            if ( !names.empty() ) address = wellGroupAddress( quantityName, names[0].toStdString() );
             break;
 
         case SUMMARY_WELL:
-            if ( names.size() > 0 ) address = wellAddress( quantityName, names[0].toStdString() );
+            if ( !names.empty() ) address = wellAddress( quantityName, names[0].toStdString() );
             break;
 
         case SUMMARY_WELL_COMPLETION:
@@ -228,7 +228,7 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromEclipseTextAddress( const
             break;
 
         case SUMMARY_BLOCK:
-            if ( names.size() > 0 )
+            if ( !names.empty() )
             {
                 QStringList ijk = names[0].trimmed().split( "," );
                 if ( ijk.size() == 3 )
@@ -542,7 +542,7 @@ std::string RifEclipseSummaryAddress::generateStringFromAddresses( const std::ve
                                                                    const std::string jointString )
 {
     std::string addrString;
-    for ( RifEclipseSummaryAddress address : addressVector )
+    for ( const RifEclipseSummaryAddress& address : addressVector )
     {
         if ( addrString.length() > 0 )
         {
@@ -738,10 +738,9 @@ bool RifEclipseSummaryAddress::isUiTextMatchingFilterText( const QString& filter
     if ( filterString.isEmpty() ) return true;
     if ( filterString.trimmed() == "*" )
     {
-        if ( !value.empty() )
-            return true;
-        else
-            return false;
+        if ( !value.empty() ) return true;
+
+        return false;
     }
 
     QRegExp searcher( filterString, Qt::CaseInsensitive, QRegExp::WildcardUnix );
@@ -771,35 +770,35 @@ bool RifEclipseSummaryAddress::isValid() const
             return true;
 
         case SUMMARY_WELL_GROUP:
-            if ( m_wellGroupName.size() == 0 ) return false;
+            if ( m_wellGroupName.empty() ) return false;
             return true;
 
         case SUMMARY_WELL:
-            if ( m_wellName.size() == 0 ) return false;
+            if ( m_wellName.empty() ) return false;
             return true;
 
         case SUMMARY_WELL_COMPLETION:
-            if ( m_wellName.size() == 0 ) return false;
+            if ( m_wellName.empty() ) return false;
             if ( m_cellI == -1 ) return false;
             if ( m_cellJ == -1 ) return false;
             if ( m_cellK == -1 ) return false;
             return true;
 
         case SUMMARY_WELL_LGR:
-            if ( m_lgrName.size() == 0 ) return false;
-            if ( m_wellName.size() == 0 ) return false;
+            if ( m_lgrName.empty() ) return false;
+            if ( m_wellName.empty() ) return false;
             return true;
 
         case SUMMARY_WELL_COMPLETION_LGR:
-            if ( m_lgrName.size() == 0 ) return false;
-            if ( m_wellName.size() == 0 ) return false;
+            if ( m_lgrName.empty() ) return false;
+            if ( m_wellName.empty() ) return false;
             if ( m_cellI == -1 ) return false;
             if ( m_cellJ == -1 ) return false;
             if ( m_cellK == -1 ) return false;
             return true;
 
         case SUMMARY_WELL_SEGMENT:
-            if ( m_wellName.size() == 0 ) return false;
+            if ( m_wellName.empty() ) return false;
             if ( m_wellSegmentNumber == -1 ) return false;
             return true;
 
@@ -810,7 +809,7 @@ bool RifEclipseSummaryAddress::isValid() const
             return true;
 
         case SUMMARY_BLOCK_LGR:
-            if ( m_lgrName.size() == 0 ) return false;
+            if ( m_lgrName.empty() ) return false;
             if ( m_cellI == -1 ) return false;
             if ( m_cellJ == -1 ) return false;
             if ( m_cellK == -1 ) return false;
