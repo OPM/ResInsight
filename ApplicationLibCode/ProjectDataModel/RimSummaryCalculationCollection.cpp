@@ -64,6 +64,26 @@ RimSummaryCalculation* RimSummaryCalculationCollection::addCalculation()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimSummaryCalculation* RimSummaryCalculationCollection::addCalculationWithValues( const QString& description,
+                                                                                  const std::vector<double>& values,
+                                                                                  const std::vector<time_t>& timeSteps )
+{
+    RimSummaryCalculation* calculation = new RimSummaryCalculation;
+    RimProject::current()->assignCalculationIdToCalculation( calculation );
+
+    calculation->setDescription( description );
+    calculation->setValues( values, timeSteps );
+
+    m_calculations.push_back( calculation );
+
+    rebuildCaseMetaData();
+
+    return calculation;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimSummaryCalculation* RimSummaryCalculationCollection::addCalculationCopy( const RimSummaryCalculation* sourceCalculation )
 {
     RimSummaryCalculation* calcCopy = dynamic_cast<RimSummaryCalculation*>(

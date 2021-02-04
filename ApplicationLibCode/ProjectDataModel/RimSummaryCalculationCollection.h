@@ -37,8 +37,13 @@ class RimSummaryCalculationCollection : public caf::PdmObject
 public:
     RimSummaryCalculationCollection();
 
-    RimSummaryCalculation*              addCalculation();
-    RimSummaryCalculation*              addCalculationCopy( const RimSummaryCalculation* sourceCalculation );
+    RimSummaryCalculation* addCalculationWithValues( const QString&             description,
+                                                     const std::vector<double>& values,
+                                                     const std::vector<time_t>& timeSteps );
+
+    RimSummaryCalculation* addCalculation();
+    RimSummaryCalculation* addCalculationCopy( const RimSummaryCalculation* sourceCalculation );
+
     void                                deleteCalculation( RimSummaryCalculation* calculation );
     std::vector<RimSummaryCalculation*> calculations() const;
     RimSummaryCalculation*              findCalculationById( int id ) const;

@@ -113,6 +113,15 @@ bool RimSummaryCalculation::isDirty() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCalculation::setValues( const std::vector<double>& values, const std::vector<time_t>& timeSteps )
+{
+    m_calculatedValues = values;
+    m_timesteps        = timeSteps;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 caf::PdmChildArrayFieldHandle* RimSummaryCalculation::variables()
 {
     return &m_variables;
@@ -179,6 +188,21 @@ QString RimSummaryCalculation::expression() const
 QString RimSummaryCalculation::unitName() const
 {
     return m_unit;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryCalculation::isRelevantForExpressionEditor() const
+{
+    if ( m_expression().isEmpty() )
+    {
+        if ( !m_timesteps().empty() && !m_calculatedValues().empty() )
+        {
+            // If expression is empty and we have data, assume the data is set using setValues()
+            return false;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

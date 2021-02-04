@@ -92,3 +92,26 @@ private:
     caf::PdmField<QString> m_addressString;
     caf::PdmField<QString> m_resamplingPeriod;
 };
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimSummaryCase_setValues : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimSummaryCase_setValues( caf::PdmObjectHandle* self );
+
+    caf::PdmObjectHandle*            execute() override;
+    bool                             resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+    bool                             isNullptrValidResult() const override;
+
+private:
+    caf::PdmField<QString> m_description;
+    caf::PdmField<bool>    m_isCumulative;
+
+    caf::PdmField<std::vector<double>> m_values;
+    caf::PdmField<std::vector<time_t>> m_timeSteps;
+};

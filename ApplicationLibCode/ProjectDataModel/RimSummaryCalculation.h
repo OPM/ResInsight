@@ -47,6 +47,8 @@ public:
 
     bool isDirty() const;
 
+    void setValues( const std::vector<double>& values, const std::vector<time_t>& timeSteps );
+
     caf::PdmChildArrayFieldHandle* variables();
 
     std::vector<RimSummaryCalculationVariable*> allVariables() const;
@@ -57,6 +59,7 @@ public:
     void    setExpression( const QString& expr );
     QString expression() const;
     QString unitName() const;
+    bool    isRelevantForExpressionEditor() const;
 
     bool parseExpression();
     bool calculate();

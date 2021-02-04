@@ -49,7 +49,7 @@ RicSummaryCurveCalculatorUi::RicSummaryCurveCalculatorUi()
     CAF_PDM_InitFieldNoDefault( &m_deleteCalculation, "DeleteCalculation", "Delete Calculation", "", "", "" );
     RicSummaryCurveCalculatorUi::assignPushButtonEditor( &m_deleteCalculation );
 
-    m_calcContextMenuMgr = std::unique_ptr<RiuCalculationsContextMenuManager>( new RiuCalculationsContextMenuManager() );
+    m_calcContextMenuMgr = std::make_unique<RiuCalculationsContextMenuManager>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -146,7 +146,7 @@ void RicSummaryCurveCalculatorUi::defineUiOrdering( QString uiConfigName, caf::P
 {
     if ( !m_currentCalculation() )
     {
-        if ( calculationCollection()->calculations().size() > 0 )
+        if ( !calculationCollection()->calculations().empty() )
         {
             m_currentCalculation = calculationCollection()->calculations()[0];
         }
@@ -182,7 +182,10 @@ QList<caf::PdmOptionItemInfo>
     {
         for ( auto c : calculationCollection()->calculations() )
         {
-            options.push_back( caf::PdmOptionItemInfo( c->description(), c ) );
+            if ( c->isRelevantForExpressionEditor() )
+            {
+                options.push_back( caf::PdmOptionItemInfo( c->description(), c ) );
+            }
         }
     }
 
@@ -220,7 +223,7 @@ void RicSummaryCurveCalculatorUi::assignPushButtonEditor( caf::PdmFieldHandle* f
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCalculatorUi::assignPushButtonEditorText( caf::PdmUiEditorAttribute* attribute, const QString& text )
 {
-    caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
+    auto* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
     if ( attrib )
     {
         attrib->m_buttonText = text;
@@ -287,7 +290,7 @@ void RicSummaryCurveCalculatorUi::onEditorWidgetsCreated()
 
     for ( const auto& e : m_currentCalculation.uiCapability()->connectedEditors() )
     {
-        caf::PdmUiListEditor* listEditor = dynamic_cast<caf::PdmUiListEditor*>( e );
+        auto* listEditor = dynamic_cast<caf::PdmUiListEditor*>( e );
         if ( !listEditor ) continue;
 
         QWidget* widget = listEditor->editorWidget();

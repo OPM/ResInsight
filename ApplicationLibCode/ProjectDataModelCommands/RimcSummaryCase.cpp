@@ -23,6 +23,9 @@
 #include "RiaTimeHistoryCurveResampler.h"
 
 #include "RifSummaryReaderInterface.h"
+
+#include "RimProject.h"
+#include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCase.h"
 
 #include "RimcDataContainerDouble.h"
@@ -220,7 +223,7 @@ caf::PdmObjectHandle* RimSummaryCase_resampleValues::execute()
             // Error message
         }
 
-        auto timeValues = sumReader->timeSteps( adr );
+        const auto& timeValues = sumReader->timeSteps( adr );
 
         QString                           periodString = m_resamplingPeriod().trimmed();
         RiaQDateTimeTools::DateTimePeriod period = RiaQDateTimeTools::DateTimePeriodEnum::fromText( periodString );
@@ -266,4 +269,58 @@ bool RimSummaryCase_resampleValues::resultIsPersistent() const
 std::unique_ptr<caf::PdmObjectHandle> RimSummaryCase_resampleValues::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimcSummaryResampleData );
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryCase, RimSummaryCase_setValues, "setValues" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCase_setValues::RimSummaryCase_setValues( caf::PdmObjectHandle* self )
+    : caf::PdmObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Set Calculated Summary Values",
+                        "",
+                        "",
+                        "Add a calculated summary curve, available as summary type 'Calculated'" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_description, "Description", "", "", "", "" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_values, "Values", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_timeSteps, "TimeSteps", "", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_isCumulative, "Cumulative", true, "", "", "", "" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmObjectHandle* RimSummaryCase_setValues::execute()
+{
+    RimProject::current()->calculationCollection()->addCalculationWithValues( m_description(), m_values(), m_timeSteps() );
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryCase_setValues::resultIsPersistent() const
+{
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<caf::PdmObjectHandle> RimSummaryCase_setValues::defaultResult() const
+{
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryCase_setValues::isNullptrValidResult() const
+{
+    return true;
 }
