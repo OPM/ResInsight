@@ -41,7 +41,7 @@ class QStringList;
 class RigNNCData : public cvf::Object
 {
 public:
-    enum NNCResultType
+    enum class NNCResultType
     {
         NNC_DYNAMIC,
         NNC_STATIC,

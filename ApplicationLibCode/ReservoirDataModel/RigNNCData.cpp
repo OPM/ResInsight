@@ -566,15 +566,17 @@ std::vector<QString> RigNNCData::availableProperties( NNCResultType resultType )
 
     for ( auto it : m_connectionResults )
     {
-        if ( resultType == NNC_STATIC && it.second.size() == 1 && it.second[0].size() > 0 && isNative( it.first ) )
+        if ( resultType == NNCResultType::NNC_STATIC && it.second.size() == 1 && it.second[0].size() > 0 &&
+             isNative( it.first ) )
         {
             properties.push_back( it.first );
         }
-        else if ( resultType == NNC_DYNAMIC && it.second.size() > 1 && it.second[0].size() > 0 && isNative( it.first ) )
+        else if ( resultType == NNCResultType::NNC_DYNAMIC && it.second.size() > 1 && it.second[0].size() > 0 &&
+                  isNative( it.first ) )
         {
             properties.push_back( it.first );
         }
-        else if ( resultType == NNC_GENERATED && !isNative( it.first ) )
+        else if ( resultType == NNCResultType::NNC_GENERATED && !isNative( it.first ) )
         {
             properties.push_back( it.first );
         }

@@ -1049,6 +1049,11 @@ QString RimEclipseResultDefinition::resultVariableUiName() const
         return flowDiagResUiText( false, 32 );
     }
 
+    if ( isDivideByCellFaceAreaActive() )
+    {
+        return m_resultVariable() + " /A";
+    }
+
     return m_resultVariable();
 }
 
@@ -1062,6 +1067,11 @@ QString RimEclipseResultDefinition::resultVariableUiShortName() const
         return flowDiagResUiText( true, 24 );
     }
 
+    if ( isDivideByCellFaceAreaActive() )
+    {
+        return m_resultVariable() + " /A";
+    }
+
     return m_resultVariable();
 }
 
@@ -1071,6 +1081,7 @@ QString RimEclipseResultDefinition::resultVariableUiShortName() const
 QString RimEclipseResultDefinition::additionalResultText() const
 {
     QStringList resultText;
+
     if ( isDeltaTimeStepActive() )
     {
         std::vector<QDateTime>        stepDates;
@@ -1087,11 +1098,7 @@ QString RimEclipseResultDefinition::additionalResultText() const
     {
         resultText += QString( "<b>Base Case</b>: %1" ).arg( m_differenceCase()->caseUserDescription() );
     }
-    if ( isDivideByCellFaceAreaActive() )
-    {
-        resultText += "<b>Divided by Area</b>";
-    }
-    return resultText.join( "\n" );
+    return resultText.join( "<br>" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1113,10 +1120,6 @@ QString RimEclipseResultDefinition::additionalResultTextShort() const
             resultTextLines += QString( "Base Time: #%1" ).arg( m_timeLapseBaseTimestep() );
         }
         resultTextShort = resultTextLines.join( "\n" );
-    }
-    if ( isDivideByCellFaceAreaActive() )
-    {
-        resultTextShort += "/A";
     }
 
     return resultTextShort;
@@ -1566,6 +1569,18 @@ void RimEclipseResultDefinition::defineUiOrdering( QString uiConfigName, caf::Pd
         uiOrdering.add( &m_inputPropertyFileName );
     }
 
+    if ( isDivideByCellFaceAreaPossible() )
+    {
+        uiOrdering.add( &m_divideByCellFaceArea );
+
+        QString resultPropertyLabel = "Result Property";
+        if ( isDivideByCellFaceAreaActive() )
+        {
+            resultPropertyLabel += QString( "\nDivided by Area" );
+        }
+        m_resultVariableUiField.uiCapability()->setUiName( resultPropertyLabel );
+    }
+
     caf::PdmUiGroup* legendGroup = uiOrdering.addNewGroup( "Legend" );
     legendGroup->add( &m_showOnlyVisibleTracersInLegend );
 
@@ -1588,18 +1603,6 @@ void RimEclipseResultDefinition::defineUiOrdering( QString uiConfigName, caf::Pd
         if ( isDeltaTimeStepActive() || isDeltaCaseActive() )
         {
             resultPropertyLabel += QString( "\n%1" ).arg( additionalResultTextShort() );
-        }
-        m_resultVariableUiField.uiCapability()->setUiName( resultPropertyLabel );
-    }
-
-    if ( isDivideByCellFaceAreaPossible() )
-    {
-        uiOrdering.add( &m_divideByCellFaceArea );
-
-        QString resultPropertyLabel = "Result Property";
-        if ( isDivideByCellFaceAreaActive() )
-        {
-            resultPropertyLabel += QString( "\nDivided by Area" );
         }
         m_resultVariableUiField.uiCapability()->setUiName( resultPropertyLabel );
     }
