@@ -172,19 +172,17 @@ bool RiaSummaryTools::hasAccumulatedData( const RifEclipseSummaryAddress& addres
 {
     if ( address.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
     {
-        std::vector<RimSummaryCase*>          cases;
-        std::vector<RifEclipseSummaryAddress> addresses;
-
-        getSummaryCasesAndAddressesForCalculation( address.id(), cases, addresses );
-        for ( const RifEclipseSummaryAddress& variableAddress : addresses )
+        RimSummaryCalculationCollection* calculationColl = RimProject::current()->calculationCollection();
+        if ( calculationColl )
         {
-            if ( !variableAddress.hasAccumulatedData() )
+            RimSummaryCalculationBase* calculation = calculationColl->findCalculationById( address.id() );
+            if ( calculation )
             {
-                return false;
+                return calculation->isCumulative();
             }
         }
 
-        // All the variables are accumulated
+        // Default to accumulated for calculated curves
         return true;
     }
 

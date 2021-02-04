@@ -40,7 +40,8 @@ public:
 
     RimSummaryCalculationBase* addCalculationWithValues( const QString&             description,
                                                          const std::vector<double>& values,
-                                                         const std::vector<time_t>& timeSteps );
+                                                         const std::vector<time_t>& timeSteps,
+                                                         bool                       isCumulative );
 
     RimSummaryCalculation* addCalculation();
     RimSummaryCalculation* addCalculationCopy( const RimSummaryCalculation* sourceCalculation );

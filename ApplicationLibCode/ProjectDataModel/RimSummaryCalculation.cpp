@@ -330,7 +330,15 @@ void RimSummaryCalculation::attachToWidget()
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryCalculation::isCumulative() const
 {
-    return false;
+    for ( RimSummaryCalculationVariable* v : m_variables() )
+    {
+        if ( !v->summaryAddress()->address().hasAccumulatedData() )
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

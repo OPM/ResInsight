@@ -296,7 +296,10 @@ RimSummaryCase_setValues::RimSummaryCase_setValues( caf::PdmObjectHandle* self )
 //--------------------------------------------------------------------------------------------------
 caf::PdmObjectHandle* RimSummaryCase_setValues::execute()
 {
-    RimProject::current()->calculationCollection()->addCalculationWithValues( m_description(), m_values(), m_timeSteps() );
+    RimProject::current()->calculationCollection()->addCalculationWithValues( m_description(),
+                                                                              m_values(),
+                                                                              m_timeSteps(),
+                                                                              m_isCumulative() );
 
     return nullptr;
 }

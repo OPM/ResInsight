@@ -66,13 +66,15 @@ RimSummaryCalculation* RimSummaryCalculationCollection::addCalculation()
 //--------------------------------------------------------------------------------------------------
 RimSummaryCalculationBase* RimSummaryCalculationCollection::addCalculationWithValues( const QString& description,
                                                                                       const std::vector<double>& values,
-                                                                                      const std::vector<time_t>& timeSteps )
+                                                                                      const std::vector<time_t>& timeSteps,
+                                                                                      bool isCumulative )
 {
     RimSummaryValuesFromScript* calculation = new RimSummaryValuesFromScript;
     RimProject::current()->assignCalculationIdToCalculation( calculation );
 
     calculation->setDescription( description );
     calculation->setValuesAndTimeSteps( values, timeSteps );
+    calculation->setCumulative( isCumulative );
 
     m_calculations.push_back( calculation );
 
