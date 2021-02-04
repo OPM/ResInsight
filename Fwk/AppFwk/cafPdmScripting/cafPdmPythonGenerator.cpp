@@ -256,7 +256,11 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
                 QStringList argumentComments;
 
                 outputArgumentStrings.push_back( QString( "\"%1\"" ).arg( methodName ) );
-                QString returnComment = method->defaultResult()->xmlCapability()->classKeyword();
+                QString returnComment;
+                if ( method->defaultResult() )
+                {
+                    returnComment = method->defaultResult()->xmlCapability()->classKeyword();
+                }
 
                 for ( auto field : arguments )
                 {
