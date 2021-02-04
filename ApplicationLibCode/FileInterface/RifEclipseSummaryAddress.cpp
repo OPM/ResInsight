@@ -1129,8 +1129,15 @@ bool operator<( const RifEclipseSummaryAddress& first, const RifEclipseSummaryAd
                 return first.aquiferNumber() < second.aquiferNumber();
         }
         break;
+        case RifEclipseSummaryAddress::SUMMARY_CALCULATED:
+        {
+            if ( first.id() != second.id() ) return first.id() < second.id();
+        }
+        break;
     }
+
     if ( first.isErrorResult() != second.isErrorResult() ) return first.isErrorResult() < second.isErrorResult();
+
     return false;
 }
 
