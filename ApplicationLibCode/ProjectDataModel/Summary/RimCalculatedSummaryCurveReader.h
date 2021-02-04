@@ -24,7 +24,7 @@
 #include <memory>
 
 class RifCalculatedSummaryCurveReader;
-class RimSummaryCalculation;
+class RimSummaryCalculationBase;
 class RimSummaryCalculationCollection;
 
 //==================================================================================================
@@ -44,7 +44,7 @@ public:
     RiaDefines::EclipseUnitSystem unitSystem() const override;
 
 private:
-    RimSummaryCalculation* findCalculationByName( const RifEclipseSummaryAddress& resultAddress ) const;
+    RimSummaryCalculationBase* findCalculationByName( const RifEclipseSummaryAddress& resultAddress ) const;
 
 private:
     caf::PdmPointer<RimSummaryCalculationCollection> m_calculationCollection;

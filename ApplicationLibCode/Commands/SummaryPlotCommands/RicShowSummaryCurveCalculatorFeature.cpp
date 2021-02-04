@@ -78,12 +78,12 @@ void RicShowSummaryCurveCalculatorFeature::onActionTriggered( bool isChecked )
 
     RimProject*                      proj     = RimProject::current();
     RimSummaryCalculationCollection* calcColl = proj->calculationCollection();
-    if ( calcColl->calculations().size() == 0 )
+    if ( calcColl->textExpressionCalculations().size() == 0 )
     {
         calcColl->addCalculation();
     }
 
-    dialog->setCalculationAndUpdateUi( calcColl->calculations()[0] );
+    dialog->setCalculationAndUpdateUi( calcColl->textExpressionCalculations()[0] );
 
     dialog->show();
     dialog->raise();

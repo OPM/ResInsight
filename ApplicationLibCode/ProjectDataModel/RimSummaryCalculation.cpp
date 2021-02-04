@@ -49,9 +49,6 @@ RimSummaryCalculation::RimSummaryCalculation()
 {
     CAF_PDM_InitObject( "RimSummaryCalculation", ":/octave.png", "Calculation", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_description, "Description", "Description", "", "", "" );
-    m_description.uiCapability()->setUiReadOnly( true );
-
     CAF_PDM_InitField( &m_expression, "Expression", QString( "" ), "Expression", "", "", "" );
     m_expression.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
 
@@ -59,11 +56,6 @@ RimSummaryCalculation::RimSummaryCalculation()
     m_unit.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_variables, "Variables", "Variables", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_calculatedValues, "CalculatedValues", "Calculated Values", "", "", "" );
-
-    CAF_PDM_InitFieldNoDefault( &m_timesteps, "TimeSteps", "Time Steps", "", "", "" );
-    CAF_PDM_InitField( &m_id, "Id", -1, "Id", "", "", "" );
-    m_id.uiCapability()->setUiHidden( true );
 
     m_exprContextMenuMgr = std::make_unique<RiuExpressionContextMenuManager>();
 
@@ -73,50 +65,9 @@ RimSummaryCalculation::RimSummaryCalculation()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCalculation::setDescription( const QString& description )
-{
-    m_description = description;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimSummaryCalculation::description() const
-{
-    return m_description;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCalculation::setId( int id )
-{
-    m_id = id;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int RimSummaryCalculation::id() const
-{
-    return m_id;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RimSummaryCalculation::isDirty() const
 {
     return m_isDirty;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCalculation::setValues( const std::vector<double>& values, const std::vector<time_t>& timeSteps )
-{
-    m_calculatedValues = values;
-    m_timesteps        = timeSteps;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -153,22 +104,6 @@ void RimSummaryCalculation::deleteVariable( RimSummaryCalculationVariable* calcV
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& RimSummaryCalculation::values() const
-{
-    return m_calculatedValues();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RimSummaryCalculation::timeSteps() const
-{
-    return m_timesteps();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryCalculation::setExpression( const QString& expr )
 {
     m_expression = expr;
@@ -188,29 +123,6 @@ QString RimSummaryCalculation::expression() const
 QString RimSummaryCalculation::unitName() const
 {
     return m_unit;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimSummaryCalculation::isRelevantForExpressionEditor() const
-{
-    if ( m_expression().isEmpty() )
-    {
-        if ( !m_timesteps().empty() && !m_calculatedValues().empty() )
-        {
-            // If expression is empty and we have data, assume the data is set using setValues()
-            return false;
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimSummaryCalculation::userDescriptionField()
-{
-    return &m_description;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -267,7 +179,7 @@ bool RimSummaryCalculation::parseExpression()
         }
     }
 
-    m_description = buildCalculationName();
+    setDescription( buildCalculationName() );
 
     return true;
 }
@@ -334,8 +246,8 @@ bool RimSummaryCalculation::calculate()
 
     if ( evaluatedOk )
     {
-        m_timesteps.v().clear();
-        m_calculatedValues.v().clear();
+        setTimeSteps( {} );
+        setValues( {} );
 
         if ( !timeHistoryCurveMerger.validIntervalsForAllXValues().empty() )
         {
@@ -350,8 +262,8 @@ bool RimSummaryCalculation::calculate()
                 std::vector<double> validValues( resultValues.begin() + firstValidTimeStep,
                                                  resultValues.begin() + lastValidTimeStep );
 
-                m_timesteps        = validTimeSteps;
-                m_calculatedValues = validValues;
+                setTimeSteps( validTimeSteps );
+                setValues( validValues );
             }
         }
 
@@ -411,6 +323,14 @@ void RimSummaryCalculation::attachToWidget()
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryCalculation::isCumulative() const
+{
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -529,4 +449,136 @@ std::vector<RimSummaryCalculationVariable*> RimSummaryCalculation::allVariables(
         outVariables.push_back( v );
 
     return outVariables;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+CAF_PDM_ABSTRACT_SOURCE_INIT( RimSummaryCalculationBase, "RimSummaryCalculationBase" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCalculationBase::setValues( const std::vector<double>& values )
+{
+    m_calculatedValues = values;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCalculationBase::setTimeSteps( const std::vector<time_t>& timeSteps )
+{
+    m_timesteps = timeSteps;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCalculationBase::RimSummaryCalculationBase()
+{
+    CAF_PDM_InitFieldNoDefault( &m_description, "Description", "Description", "", "", "" );
+    m_description.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_calculatedValues, "CalculatedValues", "Calculated Values", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_timesteps, "TimeSteps", "Time Steps", "", "", "" );
+
+    CAF_PDM_InitField( &m_id, "Id", -1, "Id", "", "", "" );
+    m_id.uiCapability()->setUiHidden( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCalculationBase::setDescription( const QString& description )
+{
+    m_description = description;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryCalculationBase::description() const
+{
+    return m_description;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCalculationBase::setId( int id )
+{
+    m_id = id;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimSummaryCalculationBase::id() const
+{
+    return m_id;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>& RimSummaryCalculationBase::values() const
+{
+    return m_calculatedValues();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<time_t>& RimSummaryCalculationBase::timeSteps() const
+{
+    return m_timesteps();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimSummaryCalculationBase::userDescriptionField()
+{
+    return &m_description;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+CAF_PDM_SOURCE_INIT( RimSummaryValuesFromScript, "RimSummaryValuesFromScript" );
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryValuesFromScript::RimSummaryValuesFromScript()
+{
+    CAF_PDM_InitObject( "RimSummaryValuesFromScript", "", "RimSummaryValuesFromScript", "" );
+
+    CAF_PDM_InitField( &m_isCumulative, "IsCumulative", true, "IsCumulative", "", "", "" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryValuesFromScript::setValuesAndTimeSteps( const std::vector<double>& values,
+                                                        const std::vector<time_t>& timeSteps )
+{
+    setValues( values );
+    setTimeSteps( timeSteps );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryValuesFromScript::setCumulative( bool enable )
+{
+    m_isCumulative = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryValuesFromScript::isCumulative() const
+{
+    return m_isCumulative;
 }

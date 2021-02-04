@@ -28,47 +28,79 @@
 class RimSummaryCalculationVariable;
 class QTextEdit;
 
-//==================================================================================================
-///
-///
-//==================================================================================================
-class RimSummaryCalculation : public caf::PdmObject
+class RimSummaryCalculationBase : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimSummaryCalculation();
-
     void    setDescription( const QString& description );
     QString description() const;
 
     void setId( int id );
     int  id() const;
 
-    bool isDirty() const;
+    const std::vector<double>& values() const;
+    const std::vector<time_t>& timeSteps() const;
 
-    void setValues( const std::vector<double>& values, const std::vector<time_t>& timeSteps );
+    virtual bool isCumulative() const = 0;
+
+protected:
+    caf::PdmFieldHandle* userDescriptionField() override;
+
+    void setValues( const std::vector<double>& values );
+    void setTimeSteps( const std::vector<time_t>& timeSteps );
+
+public:
+    RimSummaryCalculationBase();
+
+private:
+    caf::PdmField<int>                 m_id;
+    caf::PdmField<QString>             m_description;
+    caf::PdmField<std::vector<double>> m_calculatedValues;
+    caf::PdmField<std::vector<time_t>> m_timesteps;
+};
+
+class RimSummaryValuesFromScript : public RimSummaryCalculationBase
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimSummaryValuesFromScript();
+
+    void setValuesAndTimeSteps( const std::vector<double>& values, const std::vector<time_t>& timeSteps );
+    void setCumulative( bool enable );
+
+    bool isCumulative() const override;
+
+private:
+    caf::PdmField<bool> m_isCumulative;
+};
+
+class RimSummaryCalculation : public RimSummaryCalculationBase
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimSummaryCalculation();
+
+    bool isDirty() const;
 
     caf::PdmChildArrayFieldHandle* variables();
 
     std::vector<RimSummaryCalculationVariable*> allVariables() const;
 
-    const std::vector<double>& values() const;
-    const std::vector<time_t>& timeSteps() const;
-
     void    setExpression( const QString& expr );
     QString expression() const;
     QString unitName() const;
-    bool    isRelevantForExpressionEditor() const;
 
     bool parseExpression();
     bool calculate();
     void updateDependentCurvesAndPlots();
 
-    caf::PdmFieldHandle* userDescriptionField() override;
-
     static QString findLeftHandSide( const QString& expression );
     void           attachToWidget();
+
+    bool isCumulative() const override;
 
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -83,15 +115,10 @@ private:
     QString buildCalculationName() const;
 
 private:
-    caf::PdmField<QString> m_description;
     caf::PdmField<QString> m_expression;
     caf::PdmField<QString> m_unit;
 
     caf::PdmChildArrayField<RimSummaryCalculationVariable*> m_variables;
-
-    caf::PdmField<std::vector<double>> m_calculatedValues;
-    caf::PdmField<std::vector<time_t>> m_timesteps;
-    caf::PdmField<int>                 m_id;
 
     std::unique_ptr<RiuExpressionContextMenuManager> m_exprContextMenuMgr;
 

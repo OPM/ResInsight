@@ -636,11 +636,11 @@ void RimProject::assignPlotIdToPlotWindow( RimPlotWindow* plotWindow )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimProject::assignCalculationIdToCalculation( RimSummaryCalculation* calculation )
+void RimProject::assignCalculationIdToCalculation( RimSummaryCalculationBase* calculation )
 {
     if ( calculation )
     {
-        for ( RimSummaryCalculation* existingCalculation : calculationCollection->calculations() )
+        for ( RimSummaryCalculation* existingCalculation : calculationCollection->textExpressionCalculations() )
         {
             m_nextValidCalculationId = std::max( m_nextValidCalculationId, existingCalculation->id() + 1 );
         }

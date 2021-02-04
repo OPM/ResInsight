@@ -22,6 +22,7 @@
 #include "cafPdmChildField.h"
 #include "cafPdmObject.h"
 
+class RimSummaryCalculationBase;
 class RimSummaryCalculation;
 class RimSummaryCase;
 class RimCalculatedSummaryCase;
@@ -37,16 +38,18 @@ class RimSummaryCalculationCollection : public caf::PdmObject
 public:
     RimSummaryCalculationCollection();
 
-    RimSummaryCalculation* addCalculationWithValues( const QString&             description,
-                                                     const std::vector<double>& values,
-                                                     const std::vector<time_t>& timeSteps );
+    RimSummaryCalculationBase* addCalculationWithValues( const QString&             description,
+                                                         const std::vector<double>& values,
+                                                         const std::vector<time_t>& timeSteps );
 
     RimSummaryCalculation* addCalculation();
     RimSummaryCalculation* addCalculationCopy( const RimSummaryCalculation* sourceCalculation );
 
-    void                                deleteCalculation( RimSummaryCalculation* calculation );
-    std::vector<RimSummaryCalculation*> calculations() const;
-    RimSummaryCalculation*              findCalculationById( int id ) const;
+    std::vector<RimSummaryCalculation*>     textExpressionCalculations() const;
+    std::vector<RimSummaryCalculationBase*> calculations() const;
+
+    void                       deleteCalculation( RimSummaryCalculationBase* calculation );
+    RimSummaryCalculationBase* findCalculationById( int id ) const;
 
     RimSummaryCase* calculationSummaryCase();
 
@@ -57,6 +60,7 @@ private:
     void initAfterRead() override;
 
 private:
-    caf::PdmChildArrayField<RimSummaryCalculation*> m_calculations;
-    caf::PdmChildField<RimCalculatedSummaryCase*>   m_calcuationSummaryCase;
+    caf::PdmChildArrayField<RimSummaryCalculationBase*> m_calculations;
+
+    caf::PdmChildField<RimCalculatedSummaryCase*> m_calcuationSummaryCase;
 };

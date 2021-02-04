@@ -84,7 +84,7 @@ void RicSummaryCurveCalculatorDialog::slotTryCloseDialog()
         }
         else if ( ret == QMessageBox::Yes )
         {
-            for ( auto c : calculationCollection->calculations() )
+            for ( auto c : calculationCollection->textExpressionCalculations() )
             {
                 if ( c->isDirty() )
                 {
@@ -135,7 +135,7 @@ size_t RicSummaryCurveCalculatorDialog::dirtyCount() const
     size_t count = 0;
 
     RimSummaryCalculationCollection* calculationCollection = RicSummaryCurveCalculatorUi::calculationCollection();
-    for ( auto c : calculationCollection->calculations() )
+    for ( auto c : calculationCollection->textExpressionCalculations() )
     {
         if ( c->isDirty() )
         {

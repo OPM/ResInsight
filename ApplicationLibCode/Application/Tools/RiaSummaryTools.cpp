@@ -203,7 +203,7 @@ void RiaSummaryTools::getSummaryCasesAndAddressesForCalculation( int            
     RimSummaryCalculationCollection* calculationColl = proj->calculationCollection();
     if ( !calculationColl ) return;
 
-    RimSummaryCalculation* calculation = calculationColl->findCalculationById( id );
+    RimSummaryCalculation* calculation = dynamic_cast<RimSummaryCalculation*>( calculationColl->findCalculationById( id ) );
     if ( !calculation ) return;
 
     for ( RimSummaryCalculationVariable* v : calculation->allVariables() )

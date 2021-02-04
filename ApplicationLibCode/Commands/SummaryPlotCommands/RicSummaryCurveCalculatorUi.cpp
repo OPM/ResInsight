@@ -146,9 +146,9 @@ void RicSummaryCurveCalculatorUi::defineUiOrdering( QString uiConfigName, caf::P
 {
     if ( !m_currentCalculation() )
     {
-        if ( !calculationCollection()->calculations().empty() )
+        if ( !calculationCollection()->textExpressionCalculations().empty() )
         {
-            m_currentCalculation = calculationCollection()->calculations()[0];
+            m_currentCalculation = calculationCollection()->textExpressionCalculations()[0];
         }
     }
 
@@ -180,12 +180,9 @@ QList<caf::PdmOptionItemInfo>
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_currentCalculation )
     {
-        for ( auto c : calculationCollection()->calculations() )
+        for ( auto c : calculationCollection()->textExpressionCalculations() )
         {
-            if ( c->isRelevantForExpressionEditor() )
-            {
-                options.push_back( caf::PdmOptionItemInfo( c->description(), c ) );
-            }
+            options.push_back( caf::PdmOptionItemInfo( c->description(), c ) );
         }
     }
 

@@ -38,7 +38,7 @@ class RimTextAnnotation;
 class RimReachCircleAnnotation;
 class RimPolylinesAnnotation;
 class RimSummaryCalculationCollection;
-class RimSummaryCalculation;
+class RimSummaryCalculationBase;
 class RimCase;
 class RimCommandObject;
 class RimCommandObject;
@@ -124,7 +124,7 @@ public:
     void assignIdToCaseGroup( RimIdenticalGridCaseGroup* caseGroup );
     void assignViewIdToView( Rim3dView* view );
     void assignPlotIdToPlotWindow( RimPlotWindow* plotWindow );
-    void assignCalculationIdToCalculation( RimSummaryCalculation* calculation );
+    void assignCalculationIdToCalculation( RimSummaryCalculationBase* calculation );
     void assignCaseIdToSummaryCase( RimSummaryCase* summaryCase );
     void assignIdToEnsemble( RimSummaryCaseCollection* summaryCaseCollection );
 

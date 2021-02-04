@@ -206,7 +206,7 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
             RimProject*                      proj     = RimProject::current();
             RimSummaryCalculationCollection* calcColl = proj->calculationCollection();
 
-            RimSummaryCalculation* calculation = calcColl->findCalculationById( summaryAddress.id() );
+            RimSummaryCalculationBase* calculation = calcColl->findCalculationById( summaryAddress.id() );
             if ( calculation )
             {
                 text = calculation->description().toStdString();

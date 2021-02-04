@@ -66,7 +66,8 @@ void RicEditSummaryCurveCalculationFeature::onActionTriggered( bool isChecked )
 
         if ( calculationColl )
         {
-            calculation = calculationColl->findCalculationById( selectedAddress.id() );
+            calculation =
+                dynamic_cast<RimSummaryCalculation*>( calculationColl->findCalculationById( selectedAddress.id() ) );
         }
     }
 

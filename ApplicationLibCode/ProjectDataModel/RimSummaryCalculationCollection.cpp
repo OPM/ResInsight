@@ -64,15 +64,15 @@ RimSummaryCalculation* RimSummaryCalculationCollection::addCalculation()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCalculation* RimSummaryCalculationCollection::addCalculationWithValues( const QString& description,
-                                                                                  const std::vector<double>& values,
-                                                                                  const std::vector<time_t>& timeSteps )
+RimSummaryCalculationBase* RimSummaryCalculationCollection::addCalculationWithValues( const QString& description,
+                                                                                      const std::vector<double>& values,
+                                                                                      const std::vector<time_t>& timeSteps )
 {
-    RimSummaryCalculation* calculation = new RimSummaryCalculation;
+    RimSummaryValuesFromScript* calculation = new RimSummaryValuesFromScript;
     RimProject::current()->assignCalculationIdToCalculation( calculation );
 
     calculation->setDescription( description );
-    calculation->setValues( values, timeSteps );
+    calculation->setValuesAndTimeSteps( values, timeSteps );
 
     m_calculations.push_back( calculation );
 
@@ -91,9 +91,13 @@ RimSummaryCalculation* RimSummaryCalculationCollection::addCalculationCopy( cons
     CVF_ASSERT( calcCopy );
 
     std::set<QString> calcNames;
-    for ( const auto& calc : m_calculations )
+    for ( const auto& calcBase : m_calculations )
     {
-        calcNames.insert( calc->findLeftHandSide( calc->expression() ) );
+        auto calc = dynamic_cast<RimSummaryCalculation*>( calcBase.p() );
+        if ( calc )
+        {
+            calcNames.insert( calc->findLeftHandSide( calc->expression() ) );
+        }
     }
 
     QString expression  = calcCopy->expression();
@@ -120,7 +124,7 @@ RimSummaryCalculation* RimSummaryCalculationCollection::addCalculationCopy( cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCalculationCollection::deleteCalculation( RimSummaryCalculation* calculation )
+void RimSummaryCalculationCollection::deleteCalculation( RimSummaryCalculationBase* calculation )
 {
     m_calculations.removeChildObject( calculation );
 
@@ -132,7 +136,7 @@ void RimSummaryCalculationCollection::deleteCalculation( RimSummaryCalculation* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCalculation*> RimSummaryCalculationCollection::calculations() const
+std::vector<RimSummaryCalculationBase*> RimSummaryCalculationCollection::calculations() const
 {
     return m_calculations.childObjects();
 }
@@ -140,13 +144,32 @@ std::vector<RimSummaryCalculation*> RimSummaryCalculationCollection::calculation
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCalculation* RimSummaryCalculationCollection::findCalculationById( int id ) const
+std::vector<RimSummaryCalculation*> RimSummaryCalculationCollection::textExpressionCalculations() const
 {
-    for ( RimSummaryCalculation* calc : m_calculations )
+    std::vector<RimSummaryCalculation*> expressionObjects;
+
+    for ( const auto& calcBase : m_calculations )
+    {
+        auto calc = dynamic_cast<RimSummaryCalculation*>( calcBase.p() );
+        if ( calc )
+        {
+            expressionObjects.push_back( calc );
+        }
+    }
+
+    return expressionObjects;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCalculationBase* RimSummaryCalculationCollection::findCalculationById( int id ) const
+{
+    for ( auto calc : m_calculations )
     {
         if ( calc->id() == id )
         {
-            return calc;
+            return calc.p();
         }
     }
 
@@ -176,7 +199,7 @@ void RimSummaryCalculationCollection::deleteAllContainedObjects()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCalculationCollection::rebuildCaseMetaData()
 {
-    for ( RimSummaryCalculation* calculation : m_calculations )
+    for ( auto calculation : m_calculations )
     {
         if ( calculation->id() == -1 )
         {

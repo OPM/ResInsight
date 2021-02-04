@@ -34,7 +34,7 @@ RifCalculatedSummaryCurveReader::RifCalculatedSummaryCurveReader( RimSummaryCalc
 //--------------------------------------------------------------------------------------------------
 const std::vector<time_t>& RifCalculatedSummaryCurveReader::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    RimSummaryCalculation* calc = findCalculationByName( resultAddress );
+    RimSummaryCalculationBase* calc = findCalculationByName( resultAddress );
     if ( calc )
     {
         return calc->timeSteps();
@@ -50,7 +50,7 @@ const std::vector<time_t>& RifCalculatedSummaryCurveReader::timeSteps( const Rif
 //--------------------------------------------------------------------------------------------------
 bool RifCalculatedSummaryCurveReader::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
 {
-    RimSummaryCalculation* calc = findCalculationByName( resultAddress );
+    RimSummaryCalculationBase* calc = findCalculationByName( resultAddress );
     if ( calc )
     {
         *values = calc->values();
@@ -66,7 +66,7 @@ bool RifCalculatedSummaryCurveReader::values( const RifEclipseSummaryAddress& re
 //--------------------------------------------------------------------------------------------------
 std::string RifCalculatedSummaryCurveReader::unitName( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    RimSummaryCalculation* calculation = findCalculationByName( resultAddress );
+    RimSummaryCalculation* calculation = dynamic_cast<RimSummaryCalculation*>( findCalculationByName( resultAddress ) );
     if ( calculation != nullptr && !calculation->unitName().isEmpty() )
     {
         return calculation->unitName().toStdString();
@@ -82,7 +82,7 @@ void RifCalculatedSummaryCurveReader::buildMetaData()
 {
     m_allResultAddresses.clear();
 
-    for ( RimSummaryCalculation* calc : m_calculationCollection->calculations() )
+    for ( RimSummaryCalculationBase* calc : m_calculationCollection->calculations() )
     {
         m_allResultAddresses.insert(
             RifEclipseSummaryAddress::calculatedAddress( calc->description().toStdString(), calc->id() ) );
@@ -92,7 +92,7 @@ void RifCalculatedSummaryCurveReader::buildMetaData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCalculation*
+RimSummaryCalculationBase*
     RifCalculatedSummaryCurveReader::findCalculationByName( const RifEclipseSummaryAddress& resultAddress ) const
 {
     if ( m_calculationCollection && resultAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
