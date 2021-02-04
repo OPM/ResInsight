@@ -65,7 +65,7 @@ RimSummaryCalculation::RimSummaryCalculation()
     CAF_PDM_InitField( &m_id, "Id", -1, "Id", "", "", "" );
     m_id.uiCapability()->setUiHidden( true );
 
-    m_exprContextMenuMgr = std::unique_ptr<RiuExpressionContextMenuManager>( new RiuExpressionContextMenuManager() );
+    m_exprContextMenuMgr = std::make_unique<RiuExpressionContextMenuManager>();
 
     m_isDirty = false;
 }
@@ -203,7 +203,7 @@ bool RimSummaryCalculation::parseExpression()
     }
 
     std::vector<QString> variableNames = ExpressionParser::detectReferencedVariables( m_expression );
-    if ( variableNames.size() < 1 )
+    if ( variableNames.empty() )
     {
         RiaLogging::errorInMessageBox( nullptr, "Expression Parser", "Failed to detect any variable names" );
 
@@ -232,7 +232,7 @@ bool RimSummaryCalculation::parseExpression()
         }
     }
 
-    for ( auto variableName : variableNames )
+    for ( const auto& variableName : variableNames )
     {
         if ( leftHandSideVariableName != variableName )
         {
@@ -257,10 +257,8 @@ bool RimSummaryCalculation::calculate()
 
     RiaTimeHistoryCurveMerger timeHistoryCurveMerger;
 
-    for ( size_t i = 0; i < m_variables.size(); i++ )
+    for ( RimSummaryCalculationVariable* v : m_variables )
     {
-        RimSummaryCalculationVariable* v = m_variables[i];
-
         if ( !v->summaryCase() )
         {
             RiaLogging::errorInMessageBox( nullptr,
@@ -315,7 +313,7 @@ bool RimSummaryCalculation::calculate()
         m_timesteps.v().clear();
         m_calculatedValues.v().clear();
 
-        if ( timeHistoryCurveMerger.validIntervalsForAllXValues().size() > 0 )
+        if ( !timeHistoryCurveMerger.validIntervalsForAllXValues().empty() )
         {
             size_t firstValidTimeStep = timeHistoryCurveMerger.validIntervalsForAllXValues().front().first;
             size_t lastValidTimeStep  = timeHistoryCurveMerger.validIntervalsForAllXValues().back().second + 1;
@@ -358,7 +356,7 @@ QString RimSummaryCalculation::findLeftHandSide( const QString& expression )
 
         QStringList words = s.split( " " );
 
-        if ( words.size() > 0 )
+        if ( !words.empty() )
         {
             return words.back();
         }
@@ -374,7 +372,7 @@ void RimSummaryCalculation::attachToWidget()
 {
     for ( auto e : m_expression.uiCapability()->connectedEditors() )
     {
-        caf::PdmUiTextEditor* textEditor = dynamic_cast<caf::PdmUiTextEditor*>( e );
+        auto* textEditor = dynamic_cast<caf::PdmUiTextEditor*>( e );
         if ( !textEditor ) continue;
 
         QWidget* containerWidget = textEditor->editorWidget();
@@ -382,7 +380,7 @@ void RimSummaryCalculation::attachToWidget()
 
         for ( auto qObj : containerWidget->children() )
         {
-            QTextEdit* textEdit = dynamic_cast<QTextEdit*>( qObj );
+            auto* textEdit = dynamic_cast<QTextEdit*>( qObj );
             if ( textEdit )
             {
                 m_exprContextMenuMgr->attachTextEdit( textEdit );
@@ -458,7 +456,7 @@ void RimSummaryCalculation::defineEditorAttribute( const caf::PdmFieldHandle* fi
 {
     if ( field == &m_expression )
     {
-        caf::PdmUiTextEditorAttribute* myAttr = dynamic_cast<caf::PdmUiTextEditorAttribute*>( attribute );
+        auto* myAttr = dynamic_cast<caf::PdmUiTextEditorAttribute*>( attribute );
         if ( myAttr )
         {
             myAttr->heightHint = -1;
