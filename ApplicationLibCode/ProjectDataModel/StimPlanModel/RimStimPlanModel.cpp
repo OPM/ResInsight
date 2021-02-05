@@ -136,8 +136,10 @@ RimStimPlanModel::RimStimPlanModel()
     m_editStimPlanModelTemplate.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     m_editStimPlanModelTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "EclipseCase", "Case", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "EclipseCase", "Dynamic Case", "", "", "" );
     CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step", "", "", "" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_staticEclipseCase, "StaticEclipseCase", "Static Case", "", "", "" );
 
     CAF_PDM_InitScriptableField( &m_MD, "MeasuredDepth", 0.0, "Measured Depth", "", "", "" );
     m_MD.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -388,7 +390,7 @@ QList<caf::PdmOptionItemInfo> RimStimPlanModel::calculateValueOptions( const caf
             }
         }
     }
-    else if ( fieldNeedingOptions == &m_eclipseCase )
+    else if ( fieldNeedingOptions == &m_eclipseCase || fieldNeedingOptions == &m_staticEclipseCase )
     {
         RimTools::eclipseCaseOptionItems( &options );
     }
@@ -897,6 +899,7 @@ void RimStimPlanModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 
     uiOrdering.add( &m_eclipseCase );
     uiOrdering.add( &m_timeStep );
+    uiOrdering.add( &m_staticEclipseCase );
     uiOrdering.add( &m_MD );
     uiOrdering.add( &m_extractionType );
     uiOrdering.add( &m_anchorPosition );
@@ -1522,9 +1525,33 @@ double RimStimPlanModel::referenceTemperatureDepth() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseCase* RimStimPlanModel::eclipseCase() const
+bool RimStimPlanModel::useStaticEclipseCase( RiaDefines::CurveProperty curveProperty )
 {
-    return m_eclipseCase;
+    std::vector<RiaDefines::CurveProperty> matching = {
+        RiaDefines::CurveProperty::POROSITY,
+        RiaDefines::CurveProperty::POROSITY_UNSCALED,
+        RiaDefines::CurveProperty::PERMEABILITY_X,
+        RiaDefines::CurveProperty::PERMEABILITY_Z,
+        RiaDefines::CurveProperty::FACIES,
+        RiaDefines::CurveProperty::NET_TO_GROSS,
+    };
+
+    return std::find( matching.begin(), matching.end(), curveProperty ) != matching.end();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase* RimStimPlanModel::eclipseCaseForProperty( RiaDefines::CurveProperty curveProperty ) const
+{
+    if ( m_staticEclipseCase && useStaticEclipseCase( curveProperty ) )
+    {
+        return m_staticEclipseCase;
+    }
+    else
+    {
+        return m_eclipseCase;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1532,7 +1559,8 @@ RimEclipseCase* RimStimPlanModel::eclipseCase() const
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanModel::setEclipseCase( RimEclipseCase* eclipseCase )
 {
-    m_eclipseCase = eclipseCase;
+    m_eclipseCase       = eclipseCase;
+    m_staticEclipseCase = eclipseCase;
     updateExtractionDepthBoundaries();
 }
 
@@ -1542,7 +1570,7 @@ void RimStimPlanModel::setEclipseCase( RimEclipseCase* eclipseCase )
 RigEclipseCaseData* RimStimPlanModel::getEclipseCaseData() const
 {
     // Find an eclipse case
-    RimEclipseCase* eclCase = eclipseCase();
+    RimEclipseCase* eclCase = eclipseCaseForProperty( RiaDefines::CurveProperty::FACIES );
     if ( !eclCase ) return nullptr;
 
     return eclCase->eclipseCaseData();

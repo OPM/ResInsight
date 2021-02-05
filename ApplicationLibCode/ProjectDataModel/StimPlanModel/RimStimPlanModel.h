@@ -86,8 +86,8 @@ public:
     int  timeStep() const;
     void setTimeStep( int timeStep );
 
-    RimEclipseCase* eclipseCase() const;
     void            setEclipseCase( RimEclipseCase* eclipseCase );
+    RimEclipseCase* eclipseCaseForProperty( RiaDefines::CurveProperty curveProperty ) const;
 
     void setEclipseCaseAndTimeStep( RimEclipseCase* eclipseCase, int timeStep );
 
@@ -221,10 +221,13 @@ private:
     RimColorLegend* getFaciesColorLegend() const;
     void            updateExtractionDepthBoundaries();
 
+    static bool useStaticEclipseCase( RiaDefines::CurveProperty curveProperty );
+
 protected:
     caf::PdmField<double>                       m_MD;
     caf::PdmPtrField<RimEclipseCase*>           m_eclipseCase;
     caf::PdmField<int>                          m_timeStep;
+    caf::PdmPtrField<RimEclipseCase*>           m_staticEclipseCase;
     caf::PdmField<caf::AppEnum<ExtractionType>> m_extractionType;
     caf::PdmField<double>                       m_extractionDepthTop;
     caf::PdmField<double>                       m_extractionDepthBottom;

@@ -65,7 +65,7 @@ RimStimPlanModelPlot::RimStimPlanModelPlot()
 void RimStimPlanModelPlot::setStimPlanModel( RimStimPlanModel* stimPlanModel )
 {
     m_stimPlanModel = stimPlanModel;
-    m_eclipseCase   = stimPlanModel->eclipseCase();
+    m_eclipseCase   = stimPlanModel->eclipseCaseForProperty( RiaDefines::CurveProperty::UNDEFINED );
     m_timeStep      = stimPlanModel->timeStep();
 
     m_nameConfig->setCustomName( stimPlanModel->name() );
@@ -158,7 +158,7 @@ void RimStimPlanModelPlot::onLoadDataAndUpdate()
     if ( stimPlanModel() != nullptr )
     {
         // Update eclipse case and time step
-        m_eclipseCase = stimPlanModel()->eclipseCase();
+        m_eclipseCase = stimPlanModel()->eclipseCaseForProperty( RiaDefines::CurveProperty::UNDEFINED );
         m_timeStep    = stimPlanModel()->timeStep();
         updateConnectedEditors();
 
