@@ -225,9 +225,18 @@ bool RimStimPlanModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
     for ( size_t i = 0; i < tvDepthValues.size(); i++ )
     {
         // Avoid using the field name in the match for now
-        QString fieldName     = "";
-        QString faciesName    = findFaciesName( *colorLegend, faciesValues[i] );
-        int     idx           = static_cast<int>( formationValues[i] );
+        QString fieldName  = "";
+        QString faciesName = findFaciesName( *colorLegend, faciesValues[i] );
+        int     idx        = static_cast<int>( formationValues[i] );
+        if ( std::isinf( formationValues[i] ) || idx < 0 || idx >= static_cast<int>( formationNamesVector.size() ) )
+        {
+            RiaLogging::error( QString( "Unknown formation found in elastic properties. Value: %1, tvd: %2" )
+                                   .arg( formationValues[i] )
+                                   .arg( tvDepthValues[i] ) );
+            values.clear();
+            return false;
+        }
+
         QString formationName = formationNamesVector[idx];
         double  porosity      = poroValues[i];
 
