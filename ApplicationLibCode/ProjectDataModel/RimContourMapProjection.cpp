@@ -464,7 +464,7 @@ double RimContourMapProjection::calculateValueInMapCell( uint i, uint j, const s
                 {
                     size_t cellIdx   = cellIdxAndWeight.first;
                     double cellValue = gridCellValues[cellIdx];
-                    if ( cellValue != std::numeric_limits<double>::infinity() )
+                    if ( std::abs( cellValue ) != std::numeric_limits<double>::infinity() )
                     {
                         return cellValue;
                     }
@@ -477,7 +477,7 @@ double RimContourMapProjection::calculateValueInMapCell( uint i, uint j, const s
                 for ( auto [cellIdx, weight] : matchingCells )
                 {
                     double cellValue = gridCellValues[cellIdx];
-                    if ( cellValue != std::numeric_limits<double>::infinity() )
+                    if ( std::abs( cellValue ) != std::numeric_limits<double>::infinity() )
                     {
                         calculator.addValueAndWeight( cellValue, weight );
                     }
@@ -494,12 +494,12 @@ double RimContourMapProjection::calculateValueInMapCell( uint i, uint j, const s
                 for ( auto [cellIdx, weight] : matchingCells )
                 {
                     double cellValue = gridCellValues[cellIdx];
-                    if ( cellValue < 1.0e-8 )
+                    if ( std::abs( cellValue ) != std::numeric_limits<double>::infinity() )
                     {
-                        return 0.0;
-                    }
-                    if ( cellValue != std::numeric_limits<double>::infinity() )
-                    {
+                        if ( cellValue < 1.0e-8 )
+                        {
+                            return 0.0;
+                        }
                         calculator.addValueAndWeight( cellValue, weight );
                     }
                 }
@@ -520,7 +520,7 @@ double RimContourMapProjection::calculateValueInMapCell( uint i, uint j, const s
                     {
                         return 0.0;
                     }
-                    if ( cellValue != std::numeric_limits<double>::infinity() )
+                    if ( std::abs( cellValue ) != std::numeric_limits<double>::infinity() )
                     {
                         calculator.addValueAndWeight( cellValue, cellIdxAndWeight.second );
                     }
@@ -538,7 +538,7 @@ double RimContourMapProjection::calculateValueInMapCell( uint i, uint j, const s
                 {
                     size_t cellIdx   = cellIdxAndWeight.first;
                     double cellValue = gridCellValues[cellIdx];
-                    if ( cellValue != std::numeric_limits<double>::infinity() )
+                    if ( std::abs( cellValue ) != std::numeric_limits<double>::infinity() )
                     {
                         maxValue = std::max( maxValue, cellValue );
                     }
@@ -571,7 +571,7 @@ double RimContourMapProjection::calculateValueInMapCell( uint i, uint j, const s
                 {
                     size_t cellIdx   = cellIdxAndWeight.first;
                     double cellValue = gridCellValues[cellIdx];
-                    if ( cellValue != std::numeric_limits<double>::infinity() )
+                    if ( std::abs( cellValue ) != std::numeric_limits<double>::infinity() )
                     {
                         sum += cellValue * cellIdxAndWeight.second;
                     }
