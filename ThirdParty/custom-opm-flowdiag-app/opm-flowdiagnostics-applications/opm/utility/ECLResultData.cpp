@@ -71,8 +71,6 @@ namespace {
             inline std::string
             firstBlockKeyword(const ecl_file_view_type* block)
             {
-                if (!block) return "";
-
                 return ecl_kw_get_header(ecl_file_view_iget_kw(block, 0));
             }
 
@@ -775,17 +773,23 @@ ECLImpl::InitFileSections::InitFileSections(const ecl_file_type* init)
     // Note: ecl_file_get_global_view() does not modify input arg
     : init_(ecl_file_get_global_view(const_cast<ecl_file_type*>(init)))
 {
-    const auto* endLGR_kw = "LGRSGONE";
-    const auto nEndLGR =
-        ecl_file_view_get_num_named_kw(this->init_, endLGR_kw);
-
-    if (nEndLGR == 0) {
+    if (! ecl_file_view_has_kw(this->init_, LGR_KW)) {
         // No LGRs in model.  INIT file consists of global section only,
         // meaning that the only available section is equal to the global
         // view (i.e., this->init_).
+        //
+        // Note that it is possible (e.g., tNav--see ResInsight Issue 4966,
+        // https://github.com/OPM/ResInsight/issues/4966) for a case to have
+        // LGRSGONE without having any LGRs or associate LGR data.
         this->sect_.push_back(Section{ this->init_ });
     }
     else {
+        // INIT file has LGRs.  Determine number of LGR data sections and
+        // derive sectioning structure for later lookup() operations.
+        const auto* endLGR_kw = "LGRSGONE";
+        const auto nEndLGR =
+            ecl_file_view_get_num_named_kw(this->init_, endLGR_kw);
+
         const auto* start_kw = INTEHEAD_KW;
         const auto* end_kw   = endLGR_kw;
 
