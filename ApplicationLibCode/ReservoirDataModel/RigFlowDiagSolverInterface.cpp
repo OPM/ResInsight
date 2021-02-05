@@ -527,11 +527,6 @@ bool RigFlowDiagSolverInterface::ensureStaticDataObjectInstanceCreated()
         const RigEclipseCaseData* eclipseCaseData = m_eclipseCase->eclipseCaseData();
         if ( eclipseCaseData )
         {
-            if ( eclipseCaseData->hasFractureResults() )
-            {
-                return false;
-            }
-
             auto fileReader = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->readerInterface();
             auto eclOutput  = dynamic_cast<const RifReaderEclipseOutput*>( fileReader );
             if ( eclOutput )
