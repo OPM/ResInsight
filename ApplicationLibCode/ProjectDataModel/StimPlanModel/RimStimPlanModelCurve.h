@@ -51,7 +51,7 @@ protected:
 
     void performDataExtraction( bool* isUsingPseudoLength ) override;
 
-    QString createCurveAutoName();
+    QString createCurveAutoName() override;
 
     static void filterInvalidValuesForLogarithmicScale( std::vector<double>& values );
 
