@@ -68,7 +68,7 @@ bool RimStimPlanModelLayerCalculator::calculate( RiaDefines::CurveProperty curve
                                                  std::vector<double>&      tvDepthValues,
                                                  double&                   rkbDiff ) const
 {
-    RimEclipseCase* eclipseCase = stimPlanModel->eclipseCase();
+    RimEclipseCase* eclipseCase = stimPlanModel->eclipseCaseForProperty( RiaDefines::CurveProperty::FACIES );
     if ( !eclipseCase )
     {
         return false;
