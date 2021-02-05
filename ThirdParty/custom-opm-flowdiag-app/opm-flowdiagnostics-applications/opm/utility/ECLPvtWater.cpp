@@ -363,7 +363,7 @@ fromECLOutput(const ECLInitFileData& init)
             raw.numPrimary * raw.numRows * raw.numCols * raw.numTables;
 
         // Subtract one to account for 1-based indices.
-        const auto start = tabdims[ TABDIMS_IBPVTW_OFFSET_ITEM ] - 1;
+        const auto start = std::max(tabdims[ TABDIMS_IBPVTW_OFFSET_ITEM ] - 1, 0);
 
         raw.data.assign(&tab[start], &tab[start] + nTabElem);
     }
