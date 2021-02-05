@@ -71,7 +71,7 @@ RimStimPlanModelCurve::~RimStimPlanModelCurve()
 void RimStimPlanModelCurve::setStimPlanModel( RimStimPlanModel* stimPlanModel )
 {
     m_stimPlanModel = stimPlanModel;
-    m_case          = stimPlanModel->eclipseCase();
+    m_case          = stimPlanModel->eclipseCaseForProperty( m_curveProperty() );
     m_timeStep      = stimPlanModel->timeStep();
     m_wellPath      = stimPlanModel->thicknessDirectionWellPath();
 }
@@ -132,9 +132,9 @@ void RimStimPlanModelCurve::performDataExtraction( bool* isUsingPseudoLength )
 
     *isUsingPseudoLength = false;
 
-    if ( m_stimPlanModel && m_stimPlanModel->eclipseCase() )
+    if ( m_stimPlanModel && m_stimPlanModel->eclipseCaseForProperty( m_curveProperty() ) )
     {
-        RimEclipseCase* eclipseCase = m_stimPlanModel->eclipseCase();
+        RimEclipseCase* eclipseCase = m_stimPlanModel->eclipseCaseForProperty( m_curveProperty() );
 
         bool isOk = m_stimPlanModel->calculator()->extractCurveData( curveProperty(),
                                                                      m_stimPlanModel->timeStep(),

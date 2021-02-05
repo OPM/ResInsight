@@ -67,7 +67,7 @@ CAF_CMD_SOURCE_INIT( RicNewStimPlanModelPlotFeature, "RicNewStimPlanModelPlotFea
 RimStimPlanModelPlot* RicNewStimPlanModelPlotFeature::createPlot( RimStimPlanModel* stimPlanModel )
 
 {
-    RimEclipseCase* eclipseCase = stimPlanModel->eclipseCase();
+    RimEclipseCase* eclipseCase = stimPlanModel->eclipseCaseForProperty( RiaDefines::CurveProperty::UNDEFINED );
     int             timeStep    = stimPlanModel->timeStep();
 
     caf::ProgressInfo progInfo( 100, "Creating StimPlan Model Plot" );
@@ -260,9 +260,8 @@ void RicNewStimPlanModelPlotFeature::createFaciesTrack( RimStimPlanModelPlot* pl
     caf::ColorTable colors = RiaColorTables::wellLogPlotPaletteColors();
 
     RimStimPlanModelCurve* curve = new RimStimPlanModelCurve;
-    curve->setStimPlanModel( stimPlanModel );
     curve->setCurveProperty( RiaDefines::CurveProperty::FACIES );
-    curve->setCase( eclipseCase );
+    curve->setStimPlanModel( stimPlanModel );
     curve->setEclipseResultCategory( faciesDefinition->resultType() );
     curve->setEclipseResultVariable( faciesDefinition->resultVariable() );
     curve->setColor( colors.cycledColor3f( 0 ) );
@@ -315,7 +314,6 @@ void RicNewStimPlanModelPlotFeature::createLayersTrack( RimStimPlanModelPlot* pl
     RimStimPlanModelCurve* curve = new RimStimPlanModelCurve;
     curve->setCurveProperty( RiaDefines::CurveProperty::LAYERS );
     curve->setStimPlanModel( stimPlanModel );
-    curve->setCase( eclipseCase );
     curve->setColor( colors.cycledColor3f( 0 ) );
     curve->setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
     curve->setLineThickness( 2 );
@@ -368,7 +366,6 @@ void RicNewStimPlanModelPlotFeature::createParametersTrack( RimStimPlanModelPlot
         RimStimPlanModelCurve* curve = new RimStimPlanModelCurve;
         curve->setCurveProperty( propertyType );
         curve->setStimPlanModel( stimPlanModel );
-        curve->setCase( eclipseCase );
         curve->setEclipseResultVariable( resultVariable );
         curve->setEclipseResultCategory( resultCategoryType );
         curve->setColor( colors.cycledColor3f( colorIndex ) );

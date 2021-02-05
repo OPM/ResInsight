@@ -94,7 +94,8 @@ bool RimStimPlanModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
                                                            std::vector<double>&      tvDepthValues,
                                                            double&                   rkbDiff ) const
 {
-    RimEclipseCase* eclipseCase = stimPlanModel->eclipseCase();
+    // Use the static model for extracting elastic properties
+    RimEclipseCase* eclipseCase = stimPlanModel->eclipseCaseForProperty( RiaDefines::CurveProperty::FACIES );
     if ( !eclipseCase )
     {
         return false;

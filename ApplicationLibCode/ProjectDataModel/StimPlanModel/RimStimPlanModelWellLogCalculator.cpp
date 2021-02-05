@@ -79,7 +79,7 @@ bool RimStimPlanModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
                                                    std::vector<double>&      tvDepthValues,
                                                    double&                   rkbDiff ) const
 {
-    RimEclipseCase* eclipseCase = stimPlanModel->eclipseCase();
+    RimEclipseCase* eclipseCase = stimPlanModel->eclipseCaseForProperty( curveProperty );
     if ( !eclipseCase )
     {
         return false;
