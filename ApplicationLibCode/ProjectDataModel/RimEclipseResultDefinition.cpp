@@ -706,6 +706,13 @@ QList<caf::PdmOptionItemInfo>
                 continue;
             }
 
+            if ( resType == RiaDefines::ResultCatType::FLOW_DIAGNOSTICS &&
+                 m_eclipseCase->eclipseCaseData()->hasFractureResults() )
+            {
+                // Flow diagnostics is not supported for dual porosity models
+                continue;
+            }
+
             // Do not include SourSimRL if no SourSim file is loaded
 
             if ( resType == RiaDefines::ResultCatType::SOURSIMRL && ( !hasSourSimRLFile ) )
