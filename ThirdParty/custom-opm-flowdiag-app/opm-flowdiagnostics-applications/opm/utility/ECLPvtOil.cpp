@@ -836,7 +836,11 @@ fromECLOutput(const ECLInitFileData& init)
         const auto nTabElem = raw.numPrimary * raw.numTables;
 
         // Subtract one to account for 1-based indices.
-        const auto start = std::max(tabdims[ TABDIMS_JBPVTO_OFFSET_ITEM ] - 1, 0);
+        const auto start = tabdims[ TABDIMS_JBPVTO_OFFSET_ITEM ] - 1;
+        if (start < 0) {
+            throw std::invalid_argument(
+                "Invalid table offset for TABDIMS_JBPVTO_OFFSET_ITEM");
+        }
 
         raw.primaryKey.assign(&tab[start], &tab[start] + nTabElem);
     }
@@ -847,7 +851,11 @@ fromECLOutput(const ECLInitFileData& init)
             raw.numPrimary * raw.numRows * raw.numCols * raw.numTables;
 
         // Subtract one to account for 1-based indices.
-        const auto start = std::max(tabdims[ TABDIMS_IBPVTO_OFFSET_ITEM ] - 1, 0);
+        const auto start = tabdims[ TABDIMS_IBPVTO_OFFSET_ITEM ] - 1;
+        if (start < 0) {
+            throw std::invalid_argument(
+                "Invalid table offset for TABDIMS_IBPVTO_OFFSET_ITEM");
+        }
 
         raw.data.assign(&tab[start], &tab[start] + nTabElem);
     }
