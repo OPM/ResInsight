@@ -309,7 +309,12 @@ Opm::ECLPVT::surfaceMassDensity(const ECLInitFileData& init,
     const auto& tab     = init.keywordData<double>("TAB");
 
     // Subtract one to account for 1-based indices.
-    const auto start = std::max(tabdims[ TABDIMS_IBDENS_OFFSET_ITEM ] - 1, 0);
+    const auto start = tabdims[ TABDIMS_IBDENS_OFFSET_ITEM ] - 1;
+    if (start < 0) {
+        throw std::invalid_argument(
+            "Invalid table offset for TABDIMS_IBDENS_OFFSET_ITEM");
+    }
+
     const auto nreg  = tabdims[ TABDIMS_NTDENS_ITEM ];
 
     // Phase densities for 'phase' constitute 'nreg' consecutive entries
