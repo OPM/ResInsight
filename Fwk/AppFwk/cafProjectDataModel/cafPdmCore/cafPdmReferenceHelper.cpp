@@ -56,7 +56,7 @@ QString rootIdentifierString()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString PdmReferenceHelper::referenceFromRootToObject( PdmObjectHandle* root, PdmObjectHandle* obj )
+QString PdmReferenceHelper::referenceFromRootToObject( const PdmObjectHandle* root, const PdmObjectHandle* obj )
 {
     if ( obj == nullptr || root == nullptr ) return QString();
 
@@ -69,7 +69,7 @@ QString PdmReferenceHelper::referenceFromRootToObject( PdmObjectHandle* root, Pd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString PdmReferenceHelper::referenceFromRootToField( PdmObjectHandle* root, PdmFieldHandle* field )
+QString PdmReferenceHelper::referenceFromRootToField( const PdmObjectHandle* root, const PdmFieldHandle* field )
 {
     if ( field == nullptr || root == nullptr ) return QString();
 
@@ -89,7 +89,7 @@ QString PdmReferenceHelper::referenceFromRootToField( PdmObjectHandle* root, Pdm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmObjectHandle* PdmReferenceHelper::objectFromReference( PdmObjectHandle* root, const QString& reference )
+PdmObjectHandle* PdmReferenceHelper::objectFromReference( const PdmObjectHandle* root, const QString& reference )
 {
     QStringList decodedReference = reference.split( " " );
 
@@ -99,7 +99,7 @@ PdmObjectHandle* PdmReferenceHelper::objectFromReference( PdmObjectHandle* root,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmFieldHandle* PdmReferenceHelper::findField( PdmObjectHandle* object, const QString& fieldKeyword )
+PdmFieldHandle* PdmReferenceHelper::findField( const PdmObjectHandle* object, const QString& fieldKeyword )
 {
     if ( object == nullptr ) return nullptr;
 
@@ -120,7 +120,8 @@ PdmFieldHandle* PdmReferenceHelper::findField( PdmObjectHandle* object, const QS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList PdmReferenceHelper::referenceFromRootToObjectAsStringList( PdmObjectHandle* root, PdmObjectHandle* obj )
+QStringList PdmReferenceHelper::referenceFromRootToObjectAsStringList( const PdmObjectHandle* root,
+                                                                       const PdmObjectHandle* obj )
 {
     QStringList objectNames;
 
@@ -128,7 +129,7 @@ QStringList PdmReferenceHelper::referenceFromRootToObjectAsStringList( PdmObject
     {
         if ( obj == root ) return objectNames;
 
-        PdmObjectHandle* currentObject = obj;
+        const PdmObjectHandle* currentObject = obj;
 
         bool continueParsing = true;
         while ( continueParsing )
@@ -187,7 +188,7 @@ QStringList PdmReferenceHelper::referenceFromRootToObjectAsStringList( PdmObject
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmFieldHandle* PdmReferenceHelper::fieldFromReference( PdmObjectHandle* root, const QString& reference )
+PdmFieldHandle* PdmReferenceHelper::fieldFromReference( const PdmObjectHandle* root, const QString& reference )
 {
     QStringList decodedReference = reference.split( " " );
     if ( decodedReference.size() == 0 ) return nullptr;
@@ -202,11 +203,12 @@ PdmFieldHandle* PdmReferenceHelper::fieldFromReference( PdmObjectHandle* root, c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmObjectHandle* PdmReferenceHelper::objectFromReferenceStringList( PdmObjectHandle* root, const QStringList& reference )
+PdmObjectHandle* PdmReferenceHelper::objectFromReferenceStringList( const PdmObjectHandle* root,
+                                                                    const QStringList&     reference )
 {
     if ( !root ) return nullptr;
 
-    PdmObjectHandle* currentObject = root;
+    PdmObjectHandle* currentObject = const_cast<PdmObjectHandle*>( root );
 
     int i = 0;
     while ( i < reference.size() )
@@ -249,10 +251,10 @@ PdmObjectHandle* PdmReferenceHelper::objectFromReferenceStringList( PdmObjectHan
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<PdmObjectHandle*> findPathToObjectFromRoot( PdmObjectHandle* obj )
+std::vector<PdmObjectHandle*> findPathToObjectFromRoot( const PdmObjectHandle* obj )
 {
     std::vector<PdmObjectHandle*> objPath;
-    PdmObjectHandle*              currentObj = obj;
+    PdmObjectHandle*              currentObj = const_cast<PdmObjectHandle*>( obj );
     while ( currentObj )
     {
         objPath.push_back( currentObj );
@@ -274,7 +276,7 @@ std::vector<PdmObjectHandle*> findPathToObjectFromRoot( PdmObjectHandle* obj )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString PdmReferenceHelper::referenceFromFieldToObject( PdmFieldHandle* fromField, PdmObjectHandle* toObj )
+QString PdmReferenceHelper::referenceFromFieldToObject( const PdmFieldHandle* fromField, const PdmObjectHandle* toObj )
 {
     if ( !fromField || !toObj ) return "";
 
@@ -326,7 +328,7 @@ QString PdmReferenceHelper::referenceFromFieldToObject( PdmFieldHandle* fromFiel
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmObjectHandle* PdmReferenceHelper::objectFromFieldReference( PdmFieldHandle* fromField, const QString& reference )
+PdmObjectHandle* PdmReferenceHelper::objectFromFieldReference( const PdmFieldHandle* fromField, const QString& reference )
 {
     if ( !fromField ) return nullptr;
     if ( reference.isEmpty() ) return nullptr;
@@ -364,7 +366,7 @@ PdmObjectHandle* PdmReferenceHelper::objectFromFieldReference( PdmFieldHandle* f
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmObjectHandle* PdmReferenceHelper::findRoot( PdmObjectHandle* obj )
+PdmObjectHandle* PdmReferenceHelper::findRoot( const PdmObjectHandle* obj )
 {
     std::vector<PdmObjectHandle*> path = findPathToObjectFromRoot( obj );
 
@@ -377,7 +379,7 @@ PdmObjectHandle* PdmReferenceHelper::findRoot( PdmObjectHandle* obj )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmObjectHandle* PdmReferenceHelper::findRoot( PdmFieldHandle* field )
+PdmObjectHandle* PdmReferenceHelper::findRoot( const PdmFieldHandle* field )
 {
     if ( field )
     {

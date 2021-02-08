@@ -69,7 +69,7 @@ bool PdmFieldHandle::matchesKeyword( const QString& keyword ) const
 /// The class of the ownerObject() can be different to ownerClass().
 /// This is because the ownerClass() may be a super-class to the instantiated owner object.
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* PdmFieldHandle::ownerObject()
+caf::PdmObjectHandle* PdmFieldHandle::ownerObject() const
 {
     return m_ownerObject;
 }

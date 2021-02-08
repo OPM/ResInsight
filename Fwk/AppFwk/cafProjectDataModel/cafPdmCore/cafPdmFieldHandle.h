@@ -23,7 +23,7 @@ public:
 
     QString          keyword() const { return m_keyword; }
     bool             matchesKeyword( const QString& keyword ) const;
-    PdmObjectHandle* ownerObject();
+    PdmObjectHandle* ownerObject() const;
     QString          ownerClass() const;
 
     void                 registerKeywordAlias( const QString& alias );

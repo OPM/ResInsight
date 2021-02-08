@@ -49,22 +49,22 @@ namespace caf
 class PdmReferenceHelper
 {
 public:
-    static PdmObjectHandle* findRoot( PdmObjectHandle* obj );
-    static PdmObjectHandle* findRoot( PdmFieldHandle* field );
+    static PdmObjectHandle* findRoot( const PdmObjectHandle* obj );
+    static PdmObjectHandle* findRoot( const PdmFieldHandle* field );
 
-    static QString          referenceFromRootToField( PdmObjectHandle* root, PdmFieldHandle* field );
-    static QString          referenceFromRootToObject( PdmObjectHandle* root, PdmObjectHandle* obj );
-    static PdmObjectHandle* objectFromReference( PdmObjectHandle* root, const QString& reference );
-    static PdmFieldHandle*  fieldFromReference( PdmObjectHandle* root, const QString& reference );
+    static QString          referenceFromRootToField( const PdmObjectHandle* root, const PdmFieldHandle* field );
+    static QString          referenceFromRootToObject( const PdmObjectHandle* root, const PdmObjectHandle* obj );
+    static PdmObjectHandle* objectFromReference( const PdmObjectHandle* root, const QString& reference );
+    static PdmFieldHandle*  fieldFromReference( const PdmObjectHandle* root, const QString& reference );
 
-    static QString          referenceFromFieldToObject( PdmFieldHandle* fromField, PdmObjectHandle* toObj );
-    static PdmObjectHandle* objectFromFieldReference( PdmFieldHandle* fromField, const QString& reference );
+    static QString          referenceFromFieldToObject( const PdmFieldHandle* fromField, const PdmObjectHandle* toObj );
+    static PdmObjectHandle* objectFromFieldReference( const PdmFieldHandle* fromField, const QString& reference );
 
 private:
-    static QStringList      referenceFromRootToObjectAsStringList( PdmObjectHandle* root, PdmObjectHandle* obj );
-    static PdmObjectHandle* objectFromReferenceStringList( PdmObjectHandle* root, const QStringList& reference );
+    static QStringList referenceFromRootToObjectAsStringList( const PdmObjectHandle* root, const PdmObjectHandle* obj );
+    static PdmObjectHandle* objectFromReferenceStringList( const PdmObjectHandle* root, const QStringList& reference );
 
-    static PdmFieldHandle* findField( PdmObjectHandle* object, const QString& fieldKeyword );
+    static PdmFieldHandle* findField( const PdmObjectHandle* object, const QString& fieldKeyword );
 };
 
 } // end namespace caf
